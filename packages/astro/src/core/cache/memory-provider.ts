@@ -1,4 +1,4 @@
-import type { CacheProvider, CacheProviderFactory, InvalidateOptions } from 'astro';
+import type { CacheProvider, CacheProviderFactory, InvalidateOptions } from './types.js';
 
 interface CachedEntry {
 	body: ArrayBuffer;
@@ -14,7 +14,7 @@ interface CachedEntry {
 	tags: string[];
 }
 
-interface NodeCacheProviderOptions {
+export interface MemoryCacheProviderOptions {
 	/** Maximum number of entries to keep in cache. Defaults to 1000. */
 	max?: number;
 }
@@ -146,15 +146,15 @@ function isStale(entry: CachedEntry): boolean {
 	return age > entry.maxAge && age <= entry.maxAge + entry.swr;
 }
 
-const nodeMemoryProvider: CacheProviderFactory = (
+const memoryProvider: CacheProviderFactory = (
 	config: Record<string, any> | undefined,
 ): CacheProvider => {
-	const options: NodeCacheProviderOptions = (config as NodeCacheProviderOptions) ?? {};
+	const options: MemoryCacheProviderOptions = (config as MemoryCacheProviderOptions) ?? {};
 	const max = options.max ?? 1000;
 	const cache = new LRUMap<string, CachedEntry>(max);
 
 	return {
-		name: 'node-memory',
+		name: 'memory',
 
 		async onRequest(context, next) {
 			const key = new URL(context.request.url).pathname + new URL(context.request.url).search;
@@ -242,4 +242,4 @@ const nodeMemoryProvider: CacheProviderFactory = (
 	};
 };
 
-export default nodeMemoryProvider;
+export default memoryProvider;

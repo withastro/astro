@@ -2776,10 +2776,12 @@ export interface AstroUserConfig<
 		 *
 		 * ```js
 		 * // astro.config.mjs
+		 * import { memoryCache } from 'astro/config';
+		 *
 		 * {
 		 *   experimental: {
 		 *     cache: {
-		 *       provider: 'astro/cache/noop', // or adapter provides default
+		 *       provider: memoryCache(),
 		 *     },
 		 *     routeRules: {
 		 *       '/blog/[...path]': { maxAge: 300, swr: 60 },
@@ -2798,10 +2800,21 @@ export interface AstroUserConfig<
 			 * @description
 			 *
 			 * The cache provider. Adapters typically set a default, but you can
-			 * override it with your own. Can be a string (package name or path) or an
-			 * object with `entrypoint` and optional `config`.
+			 * override it with your own.
+			 *
+			 * Use the provider's config function to get type-safe configuration:
+			 *
+			 * ```js
+			 * import { memoryCache } from 'astro/config';
+			 *
+			 * export default defineConfig({
+			 *   experimental: {
+			 *     cache: { provider: memoryCache() },
+			 *   },
+			 * });
+			 * ```
 			 */
-			provider?: string | import('../../core/cache/types.js').CacheProviderConfig;
+			provider?: import('../../core/cache/types.js').CacheProviderConfig;
 		};
 
 		/**
@@ -2818,9 +2831,11 @@ export interface AstroUserConfig<
 		 *
 		 * ```js
 		 * // astro.config.mjs
+		 * import { memoryCache } from 'astro/config';
+		 *
 		 * {
 		 *   experimental: {
-		 *     cache: { provider: '@astrojs/node/cache' },
+		 *     cache: { provider: memoryCache() },
 		 *     routeRules: {
 		 *       // Shortcut form (Nitro-style)
 		 *       '/api/*': { swr: 600 },

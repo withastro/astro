@@ -18,7 +18,7 @@ describe('Route Caching (Node adapter)', () => {
 				adapter: nodejs({ mode: 'middleware' }),
 				experimental: {
 					cache: {
-						provider: '@astrojs/node/cache',
+						provider: { entrypoint: 'astro/cache/memory' },
 					},
 				},
 			});

@@ -33,7 +33,7 @@ export function vitePluginCacheProvider({ settings }: { settings: AstroSettings 
 
 				const provider = normalizeCacheProviderConfig(settings.config.experimental.cache.provider);
 				// Use the project root as the importer so that adapter-provided
-				// providers (e.g. @astrojs/node/cache) resolve from the project's
+				// providers (e.g. astro/cache/memory) resolve from the project's
 				// node_modules, not from astro core's location.
 				const importerPath = fileURLToPath(new URL('package.json', settings.config.root));
 				let resolved;

@@ -12,7 +12,7 @@ describe('context.cache', () => {
 			adapter: testAdapter(),
 			experimental: {
 				cache: {
-					provider: 'nonexistent-cache-provider-package',
+					provider: { entrypoint: 'nonexistent-cache-provider-package' },
 				},
 			},
 		});
@@ -41,9 +41,11 @@ describe('context.cache', () => {
 				adapter: testAdapter(),
 				experimental: {
 					cache: {
-						provider: fileURLToPath(
-							new URL('./fixtures/cache-route/mock-cache-provider.mjs', import.meta.url),
-						),
+						provider: {
+							entrypoint: fileURLToPath(
+								new URL('./fixtures/cache-route/mock-cache-provider.mjs', import.meta.url),
+							),
+						},
 					},
 					routeRules: {
 						'/config-route': { maxAge: 600, tags: ['config'] },

@@ -106,10 +106,10 @@ describe('isLiveDataEntry()', () => {
 describe('normalizeCacheProviderConfig()', () => {
 	it('handles string entrypoint', () => {
 		const result = normalizeCacheProviderConfig({
-			entrypoint: '@astrojs/node/cache',
+			entrypoint: 'astro/cache/memory',
 			config: { max: 1000 },
 		});
-		assert.equal(result.entrypoint, '@astrojs/node/cache');
+		assert.equal(result.entrypoint, 'astro/cache/memory');
 		assert.deepEqual(result.config, { max: 1000 });
 	});
 
@@ -197,11 +197,11 @@ describe('extractCacheRoutesFromRouteRules()', () => {
 describe('cacheConfigToManifest()', () => {
 	it('serializes correctly with routeRules', () => {
 		const result = cacheConfigToManifest(
-			{ provider: { entrypoint: '@astrojs/node/cache', config: { max: 500 } } },
+			{ provider: { entrypoint: 'astro/cache/memory', config: { max: 500 } } },
 			{ '/blog/[...path]': { maxAge: 300 } },
 		);
 		assert.deepEqual(result, {
-			provider: '@astrojs/node/cache',
+			provider: 'astro/cache/memory',
 			options: { max: 500 },
 			routes: { '/blog/[...path]': { maxAge: 300, swr: undefined, tags: undefined } },
 		});
@@ -209,11 +209,11 @@ describe('cacheConfigToManifest()', () => {
 
 	it('serializes with nested cache form in routeRules', () => {
 		const result = cacheConfigToManifest(
-			{ provider: '@astrojs/node/cache' },
+			{ provider: { entrypoint: 'astro/cache/memory' } },
 			{ '/products/*': { cache: { maxAge: 3600, tags: ['products'] } } },
 		);
 		assert.deepEqual(result, {
-			provider: '@astrojs/node/cache',
+			provider: 'astro/cache/memory',
 			options: undefined,
 			routes: { '/products/*': { maxAge: 3600, swr: undefined, tags: ['products'] } },
 		});
@@ -228,9 +228,12 @@ describe('cacheConfigToManifest()', () => {
 	});
 
 	it('handles routeRules with no cache options', () => {
-		const result = cacheConfigToManifest({ provider: '@astrojs/node/cache' }, { '/about': {} });
+		const result = cacheConfigToManifest(
+			{ provider: { entrypoint: 'astro/cache/memory' } },
+			{ '/about': {} },
+		);
 		assert.deepEqual(result, {
-			provider: '@astrojs/node/cache',
+			provider: 'astro/cache/memory',
 			options: undefined,
 			routes: undefined,
 		});

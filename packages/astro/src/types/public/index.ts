@@ -39,6 +39,7 @@ export type { AstroEnvironmentNames } from '../../core/constants.js';
 export type { SessionDriver, SessionDriverConfig } from '../../core/session/types.js';
 export type {
 	CacheProvider,
+	CacheProviderConfig,
 	CacheProviderFactory,
 	CacheOptions,
 	InvalidateOptions,

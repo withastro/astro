@@ -7,11 +7,8 @@ import type {
 } from './types.js';
 
 export function normalizeCacheProviderConfig(
-	provider: string | CacheProviderConfig,
+	provider: CacheProviderConfig,
 ): NormalizedCacheProviderConfig {
-	if (typeof provider === 'string') {
-		return { entrypoint: provider, config: undefined };
-	}
 	return {
 		entrypoint: provider.entrypoint instanceof URL ? provider.entrypoint.href : provider.entrypoint,
 		config: provider.config,

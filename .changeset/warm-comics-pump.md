@@ -15,12 +15,13 @@ Enable the feature by configuring `experimental.cache` with a cache provider in 
 // astro.config.mjs
 import { defineConfig } from 'astro/config';
 import node from '@astrojs/node';
+import { memoryCache } from 'astro/config';
 
 export default defineConfig({
   adapter: node({ mode: 'standalone' }),
   experimental: {
     cache: {
-      provider: '@astrojs/node/cache',
+      provider: memoryCache(),
     },
   },
 });
@@ -86,10 +87,12 @@ await context.cache.invalidate({ path: '/api/data' });
 Use `experimental.routeRules` to set default cache options for routes without modifying route code. Supports Nitro-style shortcuts for ergonomic configuration:
 
 ```js
+import { memoryCache } from 'astro/config';
+
 export default defineConfig({
   experimental: {
     cache: {
-      provider: '@astrojs/node/cache',
+      provider: memoryCache(),
     },
     routeRules: {
       // Shortcut form (Nitro-style)
@@ -117,9 +120,9 @@ Cache behavior is determined by the configured **cache provider**. There are two
 - **CDN providers** set response headers (e.g. `CDN-Cache-Control`, `Cache-Tag`) and let the CDN handle caching. Astro strips these headers before sending the response to the client.
 - **Runtime providers** implement `onRequest()` to intercept and cache responses in-process, adding an `X-Astro-Cache` header (HIT/MISS/STALE) for observability.
 
-#### `@astrojs/node` cache provider
+#### Built-in memory cache provider
 
-The Node adapter now includes a built-in in-memory LRU cache provider. Import it explicitly as `@astrojs/node/cache`.
+Astro includes a built-in in-memory LRU cache provider. Import `memoryCache` from `astro/config` to configure it.
 
 Features:
 - In-memory LRU cache with configurable max entries (default: 1000)

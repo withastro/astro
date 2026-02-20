@@ -20,7 +20,7 @@ const CacheOptionsSchema = z.object({
  * Provider only - routes are configured via experimental.routeRules.
  */
 export const CacheSchema = z.object({
-	provider: z.union([z.string(), CacheProviderConfigSchema]).optional(),
+	provider: CacheProviderConfigSchema.optional(),
 });
 
 /**
