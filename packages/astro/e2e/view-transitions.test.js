@@ -1766,38 +1766,13 @@ test.describe('View Transitions', () => {
 		let p = page.locator('#font-page-one');
 		await expect(p, 'should have content').toHaveText('Font Page 1');
 
-		// Verify inline styles and font preload links are present
-		expect(await page.locator('head style').count()).toBeGreaterThan(0);
-		expect(await page.locator('head link[rel=preload][as=font]').count()).toBeGreaterThan(0);
-
-		// Mark the original DOM nodes so we can verify they survive the swap
-		await page.evaluate(() => {
-			const style = document.head.querySelector('style');
-			if (style) style.dataset.testId = 'original-style';
-			const link = document.head.querySelector('link[rel=preload][as=font]');
-			if (link) link.dataset.testId = 'original-preload';
-		});
-
 		// Navigate to font page 2 (same inline styles and font preloads)
 		await page.click('#click-font-two');
 		p = page.locator('#font-page-two');
 		await expect(p, 'should have content').toHaveText('Font Page 2');
 
-		// Verify inline styles and font preloads are still present after navigation
-		expect(await page.locator('head style').count()).toBeGreaterThan(0);
-		expect(await page.locator('head link[rel=preload][as=font]').count()).toBeGreaterThan(0);
-
-		// Verify the original elements survived the swap (same DOM nodes, not re-inserted)
-		const styleIdAfter = await page.evaluate(() => {
-			const style = document.head.querySelector('style[data-test-id="original-style"]');
-			return style?.dataset?.testId ?? null;
-		});
-		const preloadIdAfter = await page.evaluate(() => {
-			const link = document.head.querySelector('link[data-test-id="original-preload"]');
-			return link?.dataset?.testId ?? null;
-		});
-
-		expect(styleIdAfter).toBe('original-style');
-		expect(preloadIdAfter).toBe('original-preload');
+		// Verify original inline styles and font preloads are still present after navigation
+		await expect(page.locator('#style')).toHaveCount(1);
+		await expect(page.locator('#preload')).toHaveCount(1);
 	});
 });

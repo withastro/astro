@@ -4,7 +4,7 @@ import { ClientRouter } from 'astro:transitions';
 <html>
 	<head>
 		<title>Font Page 1</title>
-		<style>
+		<style is:inline id="style">
 			@font-face {
 				font-family: 'TestFont';
 				src: url('/fonts/test.woff2') format('woff2');
@@ -12,7 +12,7 @@ import { ClientRouter } from 'astro:transitions';
 			}
 			body { font-family: 'TestFont', sans-serif; }
 		</style>
-		<link rel="preload" href="/fonts/test.woff2" as="font" type="font/woff2" crossorigin />
+		<link id="preload" rel="preload" href="/fonts/test.woff2" as="font" type="font/woff2" crossorigin />
 		<ClientRouter />
 	</head>
 	<body>
