@@ -555,7 +555,7 @@ importers:
         version: 2.0.2
       devalue:
         specifier: ^5.6.2
-        version: 5.6.2
+        version: 5.6.3
       diff:
         specifier: ^8.0.3
         version: 8.0.3
@@ -4945,7 +4945,7 @@ importers:
         version: 1.2.0
       devalue:
         specifier: ^5.6.2
-        version: 5.6.2
+        version: 5.6.3
 
   packages/integrations/cloudflare/test/fixtures/astro-dev-platform:
     dependencies:
@@ -5253,7 +5253,7 @@ importers:
         version: link:../../../scripts
       devalue:
         specifier: ^5.6.2
-        version: 5.6.2
+        version: 5.6.3
       linkedom:
         specifier: ^0.18.12
         version: 0.18.12
@@ -5735,7 +5735,7 @@ importers:
         version: 1.2.0
       devalue:
         specifier: ^5.6.2
-        version: 5.6.2
+        version: 5.6.3
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -5860,7 +5860,7 @@ importers:
         version: 1.2.0
       devalue:
         specifier: ^5.6.2
-        version: 5.6.2
+        version: 5.6.3
       express:
         specifier: ^5.2.1
         version: 5.2.1
@@ -11668,8 +11668,8 @@ packages:
   dettle@1.0.5:
     resolution: {integrity: sha512-ZVyjhAJ7sCe1PNXEGveObOH9AC8QvMga3HJIghHawtG7mE4K5pW9nz/vDGAr/U7a3LWgdOzEE7ac9MURnyfaTA==}
 
-  devalue@5.6.2:
-    resolution: {integrity: sha512-nPRkjWzzDQlsejL1WVifk5rvcFi/y1onBRxjaFMjZeR9mFpqu2gmAZ9xUB9/IEanEP/vBtGeGganC/GO1fmufg==}
+  devalue@5.6.3:
+    resolution: {integrity: sha512-nc7XjUU/2Lb+SvEFVGcWLiKkzfw8+qHI7zn8WYXKkLMgfGSHbgCEaR6bJpev8Cm6Rmrb19Gfd/tZvGqx9is3wg==}
 
   devlop@1.1.0:
     resolution: {integrity: sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA==}
@@ -14301,6 +14301,7 @@ packages:
   prebuild-install@7.1.3:
     resolution: {integrity: sha512-8Mf2cbV7x1cXPUILADGI3wuhfqWvtiLA1iclTDbFRZkgRQS0NqsPZphna9V+HyTEadheuPmjaJMsbzKQFOzLug==}
     engines: {node: '>=10'}
+    deprecated: No longer maintained. Please contact the author of the relevant native addon; alternatives are available.
     hasBin: true
 
   precinct@12.2.0:
@@ -21143,7 +21144,7 @@ snapshots:
 
   dettle@1.0.5: {}
 
-  devalue@5.6.2: {}
+  devalue@5.6.3: {}
 
   devlop@1.1.0:
     dependencies:
@@ -25417,7 +25418,7 @@ snapshots:
       aria-query: 5.3.2
       axobject-query: 4.1.0
       clsx: 2.1.1
-      devalue: 5.6.2
+      devalue: 5.6.3
       esm-env: 1.2.2
       esrap: 2.2.3
       is-reference: 3.0.3
