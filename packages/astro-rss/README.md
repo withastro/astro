@@ -49,7 +49,7 @@ An `RSSFeedItem` is a single item in the list of items in your feed. An example 
 ```js
 const item = {
   title: 'Alpha Centauri: so close you can touch it',
-  link: '/blog/alpha-centuari',
+  link: '/blog/alpha-centauri',
   pubDate: new Date('2023-06-04'),
   description:
     'Alpha Centauri is a triple star system, containing Proxima Centauri, the closest star to our sun at only 4.24 light-years away.',
@@ -116,7 +116,7 @@ An object that defines the `title` and `url` of the original feed for items that
 ```js
 const item = {
   title: 'Alpha Centauri: so close you can touch it',
-  link: '/blog/alpha-centuari',
+  link: '/blog/alpha-centauri',
   pubDate: new Date('2023-06-04'),
   description:
     'Alpha Centauri is a triple star system, containing Proxima Centauri, the closest star to our sun at only 4.24 light-years away.',
