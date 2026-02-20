@@ -640,7 +640,7 @@ export interface AstroUserConfig<
 		 * @kind h4
 		 * @type {number}
 		 * @default `1048576` (1 MB)
-		 * @version 5.x.0
+		 * @version 5.18.0
 		 * @description
 		 *
 		 * Sets the maximum size in bytes allowed for action request bodies.
