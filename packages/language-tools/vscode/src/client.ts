@@ -95,7 +95,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<LabsIn
 	activateFindFileReferences('astro.findFileReferences', client);
 	activateReloadProjects('astro.reloadProjects', client);
 	activateTsConfigStatusItem('astro', 'astro.openTsConfig', client);
-	activateTsVersionStatusItem('astro', 'astro.selectTypescriptVersion', context, (text) => text);
+	activateTsVersionStatusItem('astro', 'astro.selectTypeScriptVersion', context, (text) => text);
 
 	const volarLabs = createLabsInfo(protocol);
 	volarLabs.addLanguageClient(client);
