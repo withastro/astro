@@ -16,7 +16,8 @@ const StaticHtml = ({
 	name?: string;
 	hydrate?: boolean;
 }) => {
-	if (!value) return null;
+	// value can be a SlotString object, we need to check if it's empty by using trim()
+	if (value == null || value.trim() === '') return null;
 	const tagName = hydrate ? 'astro-slot' : 'astro-static-slot';
 	return h(tagName, {
 		name,

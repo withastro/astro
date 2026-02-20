@@ -115,6 +115,15 @@ describe('React Components', () => {
 			const $ = cheerioLoad(html);
 			assert.equal($('[data-react-children]').length, 1);
 		});
+
+		it('Does not render astro-slot for empty slots', async () => {
+			const html = await fixture.readFile('/slots/index.html');
+			const $ = cheerioLoad(html);
+
+			assert.equal($('#empty astro-slot[name="conditional"]').length, 0);
+			assert.equal($('#filled astro-slot[name="conditional"]').length, 1);
+			assert.equal($('#filled astro-slot[name="conditional"]').text().trim(), 'Visible');
+		});
 	});
 
 	if (isWindows) return;
