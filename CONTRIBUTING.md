@@ -116,7 +116,7 @@ pnpm run test
 pnpm run test:match "$STRING_MATCH"
 # run tests on another package
 # (example - `pnpm --filter @astrojs/rss run test` runs `packages/astro-rss/test/rss.test.js`)
-pnpm --filter $STRING_MATCH run test
+pnpm --filter "$STRING_MATCH" run test
 ```
 
 Most tests use [`mocha`](https://mochajs.org) as the test runner. We're slowly migrating to use [`node:test`](https://nodejs.org/api/test.html) instead through the custom [`astro-scripts test`](./scripts/cmd/test.js) command. For packages that use `node:test`, you can run these commands in their directories:
