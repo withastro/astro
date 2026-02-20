@@ -8,16 +8,6 @@ import { hasSpecialQueries } from '../vite-plugin-utils/index.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './constants.js';
 import { removeQueryString, removeTrailingForwardSlash, slash } from './path.js';
 
-/** Returns true if argument is an object of any prototype/class (but not null). */
-export function isObject(value: unknown): value is Record<string, any> {
-	return typeof value === 'object' && value != null;
-}
-
-/** Cross-realm compatible URL */
-export function isURL(value: unknown): value is URL {
-	return Object.prototype.toString.call(value) === '[object URL]';
-}
-
 /** Check if a file is a markdown file based on its extension */
 export function isMarkdownFile(fileId: string, option?: { suffix?: string }): boolean {
 	if (hasSpecialQueries(fileId)) {
@@ -29,16 +19,6 @@ export function isMarkdownFile(fileId: string, option?: { suffix?: string }): bo
 		if (id.endsWith(`${markdownFileExtension}${_suffix}`)) return true;
 	}
 	return false;
-}
-
-/** Wraps an object in an array. If an array is passed, ignore it. */
-export function arraify<T>(target: T | T[]): T[] {
-	return Array.isArray(target) ? target : [target];
-}
-
-export function padMultilineString(source: string, n = 2) {
-	const lines = source.split(/\r?\n/);
-	return lines.map((l) => ` `.repeat(n) + l).join(`\n`);
 }
 
 const STATUS_CODE_PAGES = new Set(['/404', '/500']);

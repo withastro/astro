@@ -2,7 +2,7 @@ import { collectErrorMetadata } from '../core/errors/dev/index.js';
 import { isAstroConfigZodError } from '../core/errors/errors.js';
 import { createSafeError } from '../core/errors/index.js';
 import { debug } from '../core/logger/core.js';
-import { formatErrorMessage } from '../core/messages.js';
+import { formatErrorMessage } from '../core/messages/runtime.js';
 import { eventError, telemetry } from '../events/index.js';
 
 /** Display error and exit */

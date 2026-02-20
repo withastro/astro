@@ -9,7 +9,6 @@ import type { SSRError } from '../../../types/public/internal.js';
 import { removeLeadingForwardSlashWindows } from '../../path.js';
 import { normalizePath } from '../../viteUtils.js';
 import { AggregateError, type ErrorWithMetadata } from '../errors.js';
-import { AstroErrorData } from '../index.js';
 import { codeFrame } from '../printer.js';
 import { normalizeLF } from '../utils.js';
 
@@ -221,22 +220,6 @@ function cleanErrorStack(stack: string) {
 		.split(/\n/)
 		.map((l) => l.replace(/\/@fs\//g, '/'))
 		.join('\n');
-}
-
-export function getDocsForError(err: ErrorWithMetadata): string | undefined {
-	if (err.name !== 'UnknownError' && err.name in AstroErrorData) {
-		return `https://docs.astro.build/en/reference/errors/${getKebabErrorName(err.name)}/`;
-	}
-
-	return undefined;
-
-	/**
-	 * The docs has kebab-case urls for errors, so we need to convert the error name
-	 * @param errorName
-	 */
-	function getKebabErrorName(errorName: string): string {
-		return errorName.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
-	}
 }
 
 const linkRegex = /\[([^[]+)\]\(([^)]*)\)/g;
