@@ -56,10 +56,12 @@ export async function handle(
 	}
 
 	let routeData: RouteData | undefined = undefined;
+	let resolvedPathname: string | undefined = undefined;
 	if (app.isDev()) {
 		const result = await app.devMatch(app.getPathnameFromRequest(request));
 		if (result) {
 			routeData = result.routeData;
+			resolvedPathname = result.resolvedPathname;
 		}
 	} else {
 		routeData = app.match(request);
@@ -106,6 +108,7 @@ export async function handle(
 
 	const response = await app.render(request, {
 		routeData,
+		resolvedPathname,
 		locals,
 		prerenderedErrorPageFetch: async (url: string) => {
 			// NOTE this ASSETS binding path is needed for users who are using `run_worker_first` routing
