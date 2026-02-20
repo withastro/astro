@@ -905,3 +905,15 @@ export function safeStringify(value: unknown) {
 	const seen = new WeakSet();
 	return JSON.stringify(value, safeStringifyReplacer(seen));
 }
+
+function sortMap<K, V>(map: Map<K, V>): Map<K, V> {
+	const keys = [...map.keys()];
+	keys.sort();
+	return new Map(keys.map((key) => [key, map.get(key)!]));
+}
+
+export function sortMapDeep<K1, K2, V>(map: Map<K1, Map<K2, V>>): Map<K1, Map<K2, V>> {
+	const keys = [...map.keys()];
+	keys.sort();
+	return new Map(keys.map((key) => [key, sortMap(map.get(key)!)]));
+}

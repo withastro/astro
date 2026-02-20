@@ -5,7 +5,7 @@ import { imageSrcToImportId, importIdToSymbolName } from '../assets/utils/resolv
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { IMAGE_IMPORT_PREFIX } from './consts.js';
 import { type DataEntry, ImmutableDataStore } from './data-store.js';
-import { contentModuleToId } from './utils.js';
+import { contentModuleToId, sortMapDeep } from './utils.js';
 
 const SAVE_DEBOUNCE_MS = 500;
 
@@ -147,6 +147,9 @@ export default new Map([${exports.join(', ')}]);
 		for (const [fileName, specifier] of this.#moduleImports) {
 			lines.push(`[${JSON.stringify(fileName)}, () => import(${JSON.stringify(specifier)})]`);
 		}
+		// Sort the lines to ensure a stable file hash, to avoid unnecessary
+		// filename changes in the final bundle builds.
+		lines.sort();
 		const code = `
 export default new Map([\n${lines.join(',\n')}]);
 		`;
@@ -389,7 +392,9 @@ export default new Map([\n${lines.join(',\n')}]);
 	}
 
 	toString() {
-		return devalue.stringify(this._collections);
+		// Sort the map to ensure a stable file hash, to avoid unnecessary
+		// filename changes in the final bundle builds.
+		return devalue.stringify(sortMapDeep(this._collections));
 	}
 
 	async writeToDisk() {
