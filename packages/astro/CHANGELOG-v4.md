@@ -4,7 +4,7 @@
 
 - [#12542](https://github.com/withastro/astro/pull/12542) [`65e50eb`](https://github.com/withastro/astro/commit/65e50eb7b6d7b10a193bba7d292804ac0e55be18) Thanks [@kadykov](https://github.com/kadykov)! - Fix JPEG image size determination
 
-- [#12525](https://github.com/withastro/astro/pull/12525) [`cf0d8b0`](https://github.com/withastro/astro/commit/cf0d8b08a0f16bba7310d1a92c82b5a276682e8c) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where with `i18n` enabled, Astro couldn't render the `404.astro` component for non-existent routes.
+- [#12525](https://github.com/withastro/astro/pull/12525) [`cf0d8b0`](https://github.com/withastro/astro/commit/cf0d8b08a0f16bba7310d1a92c82b5a276682e8c) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where with `i18n` enabled, Astro couldn't render the `404.astro` component for nonexistent routes.
 
 ## 4.16.15
 
@@ -3379,7 +3379,7 @@
 
 - [#9932](https://github.com/withastro/astro/pull/9932) [`9f0d89fa7e9e7c08c8600b0c49c2cce7489a7582`](https://github.com/withastro/astro/commit/9f0d89fa7e9e7c08c8600b0c49c2cce7489a7582) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a case where a warning was logged even when the feature `i18nDomains` wasn't enabled
 
-- [#9907](https://github.com/withastro/astro/pull/9907) [`6c894af5ab79f290f4ff7feb68617a66e91febc1`](https://github.com/withastro/astro/commit/6c894af5ab79f290f4ff7feb68617a66e91febc1) Thanks [@ktym4a](https://github.com/ktym4a)! - Load 404.html on all non-existent paths on astro preview.
+- [#9907](https://github.com/withastro/astro/pull/9907) [`6c894af5ab79f290f4ff7feb68617a66e91febc1`](https://github.com/withastro/astro/commit/6c894af5ab79f290f4ff7feb68617a66e91febc1) Thanks [@ktym4a](https://github.com/ktym4a)! - Load 404.html on all nonexistent paths on astro preview.
 
 ## 4.3.1
 
