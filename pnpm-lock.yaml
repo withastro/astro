@@ -25,8 +25,8 @@ importers:
         specifier: ^2.29.8
         version: 2.29.8(@types/node@18.19.130)
       '@flue/cli':
-        specifier: ^0.0.43
-        version: 0.0.43(typescript@5.9.3)
+        specifier: ^0.0.44
+        version: 0.0.44(typescript@5.9.3)
       '@flue/client':
         specifier: ^0.0.27
         version: 0.0.27(typescript@5.9.3)
@@ -8794,8 +8794,8 @@ packages:
   '@fastify/static@9.0.0':
     resolution: {integrity: sha512-r64H8Woe/vfilg5RTy7lwWlE8ZZcTrc3kebYFMEUBrMqlydhQyoiExQXdYAy2REVpST/G35+stAM8WYp1WGmMA==}
 
-  '@flue/cli@0.0.43':
-    resolution: {integrity: sha512-SZCKet+oUMf/HhMKNIoV+fNouOd9InzuD/V6e2gZVNeVBw3CmK9Q2RAmRYJP/4s0VzVi4/a1LzWoaJR9EKKDpw==}
+  '@flue/cli@0.0.44':
+    resolution: {integrity: sha512-W4MYfgrNU14awSjhAeOiqoKpJDmZoKdpYxFW+muncfFv20AYkdFoiPxOpl8Q5OSLF6VLuf/GBijgnkG+iqaRGA==}
     hasBin: true
 
   '@flue/client@0.0.27':
@@ -17977,9 +17977,11 @@ snapshots:
       fastq: 1.20.1
       glob: 13.0.3
 
-  '@flue/cli@0.0.43(typescript@5.9.3)':
+  '@flue/cli@0.0.44(typescript@5.9.3)':
     dependencies:
       '@flue/client': 0.0.27(typescript@5.9.3)
+      '@valibot/to-json-schema': 1.5.0(valibot@1.2.0(typescript@5.9.3))
+      valibot: 1.2.0(typescript@5.9.3)
     transitivePeerDependencies:
       - typescript
 
