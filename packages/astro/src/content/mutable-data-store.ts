@@ -113,6 +113,10 @@ export class MutableDataStore extends ImmutableDataStore {
 			imports.push(`import ${symbol} from ${JSON.stringify(id)};`);
 			exports.push(`[${JSON.stringify(id)}, ${symbol}]`);
 		});
+		// Sort the lines to ensure a stable file hash, to avoid unnecessary
+		// filename changes in the final bundle builds.
+		imports.sort();
+		exports.sort();
 		const code = /* js */ `
 ${imports.join('\n')}
 export default new Map([${exports.join(', ')}]);
