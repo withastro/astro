@@ -447,28 +447,30 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			session = renderContext.session;
 			cache = renderContext.cache;
 
-			// If the cache provider has an onRequest handler (runtime caching),
-			// wrap the render call so the provider can serve from cache
-			const cacheProvider = this.pipeline.cacheProvider
-				? await this.pipeline.getCacheProvider()
-				: null;
-			if (cacheProvider?.onRequest) {
-				response = await cacheProvider.onRequest(
-					{ request, url: new URL(request.url) },
-					async () => {
-						const res = await renderContext.render(componentInstance);
-						// Apply cache headers before the provider reads them
-						applyCacheHeaders(cache!, res);
-						return res;
-					},
-				);
-				// Strip CDN headers after the runtime provider has read them
-				response.headers.delete('CDN-Cache-Control');
-				response.headers.delete('Cache-Tag');
+			if (this.pipeline.cacheProvider) {
+				// If the cache provider has an onRequest handler (runtime caching),
+				// wrap the render call so the provider can serve from cache
+				const cacheProvider = await this.pipeline.getCacheProvider();
+				if (cacheProvider?.onRequest) {
+					response = await cacheProvider.onRequest(
+						{ request, url: new URL(request.url) },
+						async () => {
+							const res = await renderContext.render(componentInstance);
+							// Apply cache headers before the provider reads them
+							applyCacheHeaders(cache!, res);
+							return res;
+						},
+					);
+					// Strip CDN headers after the runtime provider has read them
+					response.headers.delete('CDN-Cache-Control');
+					response.headers.delete('Cache-Tag');
+				} else {
+					response = await renderContext.render(componentInstance);
+					// Apply cache headers for CDN-based providers (no onRequest)
+					applyCacheHeaders(cache!, response);
+				}
 			} else {
 				response = await renderContext.render(componentInstance);
-				// Apply cache headers for CDN-based providers (no onRequest)
-				applyCacheHeaders(cache!, response);
 			}
 		} catch (err: any) {
 			this.logger.error(null, err.stack || err.message || String(err));
