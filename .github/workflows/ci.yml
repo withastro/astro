@@ -102,8 +102,6 @@ jobs:
           persist-credentials: false
       - name: Setup Biome
         uses: biomejs/setup-biome@v2
-        with:
-          version: latest
       - name: Run Biome
         run: biome ci --formatter-enabled=false --enforce-assist=false --reporter=default --reporter=github
   
