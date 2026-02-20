@@ -534,7 +534,7 @@
 
   If your integration relies on Astro's previous behavior that prevents integrations from adding remark/rehype plugins for MDX, you will now need to configure `@astrojs/mdx` with `extendMarkdownConfig: false` and explicitly specify any `remarkPlugins` and `rehypePlugins` options instead.
 
-- [#10935](https://github.com/withastro/astro/pull/10935) [`ddd8e49`](https://github.com/withastro/astro/commit/ddd8e49d1a179bec82310fb471f822a1567a6610) Thanks [@bluwy](https://github.com/bluwy)! - Renames the `optimize.customComponentNames` option to `optimize.ignoreElementNames` to better reflect its usecase. Its behaviour is not changed and should continue to work as before.
+- [#10935](https://github.com/withastro/astro/pull/10935) [`ddd8e49`](https://github.com/withastro/astro/commit/ddd8e49d1a179bec82310fb471f822a1567a6610) Thanks [@bluwy](https://github.com/bluwy)! - Renames the `optimize.customComponentNames` option to `optimize.ignoreElementNames` to better reflect its use case. Its behaviour is not changed and should continue to work as before.
 
 - [#10935](https://github.com/withastro/astro/pull/10935) [`ddd8e49`](https://github.com/withastro/astro/commit/ddd8e49d1a179bec82310fb471f822a1567a6610) Thanks [@bluwy](https://github.com/bluwy)! - Replaces the internal `remark-images-to-component` plugin with `rehype-images-to-component` to let users use additional rehype plugins for images
 
