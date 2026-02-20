@@ -191,7 +191,8 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 							configurable: true,
 						});
 						export const inferRemoteSize = async (url) => {
-							return inferRemoteSizeInternal(url, imageConfig)
+							const service = await _getConfiguredImageService();
+							return service.getRemoteSize?.(url, imageConfig) ?? inferRemoteSizeInternal(url, imageConfig);
 						}
 						// This is used by the @astrojs/node integration to locate images.
 						// It's unused on other platforms, but on some platforms like Netlify (and presumably also Vercel)
