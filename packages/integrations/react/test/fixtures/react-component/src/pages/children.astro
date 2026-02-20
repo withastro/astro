@@ -14,5 +14,11 @@ import WithChildren from '../components/WithChildren';
 		<WithChildren id="two" client:load>
 			<div>child 1</div><div>child 2</div>
 		</WithChildren>
+
+		<!-- Test that class is properly mapped to className -->
+		<WithChildren id="three" client:load>
+			<span class="title">Hello</span>
+			<span class="subtitle">World</span>
+		</WithChildren>
   </body>
 </html>
