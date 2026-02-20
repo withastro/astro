@@ -8,6 +8,7 @@ import {
 	type HighlighterGeneric,
 	isSpecialLang,
 	type LanguageRegistration,
+	type RegexEngine,
 	type ShikiTransformer,
 	type ThemeRegistration,
 	type ThemeRegistrationRaw,
@@ -15,6 +16,7 @@ import {
 import { globalShikiStyleCollector } from './shiki-style-collector.js';
 import { transformerStyleToClass } from './transformers/style-to-class.js';
 import type { ThemePresets } from './types.js';
+import { loadShikiEngine } from '#shiki-engine';
 
 export interface ShikiHighlighter {
 	codeToHast(
@@ -34,11 +36,6 @@ export interface CreateShikiHighlighterOptions {
 	theme?: ThemePresets | ThemeRegistration | ThemeRegistrationRaw;
 	themes?: Record<string, ThemePresets | ThemeRegistration | ThemeRegistrationRaw>;
 	langAlias?: HighlighterCoreOptions['langAlias'];
-	/**
-	 * Custom regex engine for Shiki.
-	 * Use JavaScript engine for environments that can't load WASM files (e.g. Cloudflare Workers).
-	 */
-	engine?: HighlighterCoreOptions['engine'];
 }
 
 export interface ShikiHighlighterHighlightOptions {
@@ -81,20 +78,25 @@ const cssVariablesTheme = () =>
 // Caches Promise<ShikiHighlighter> for reuse when the same theme and langs are provided
 const cachedHighlighters = new Map();
 
+let shikiEngine: RegexEngine | undefined = undefined;
+
 export async function createShikiHighlighter({
 	langs = [],
 	theme = 'github-dark',
 	themes = {},
 	langAlias = {},
-	engine,
 }: CreateShikiHighlighterOptions = {}): Promise<ShikiHighlighter> {
 	theme = theme === 'css-variables' ? cssVariablesTheme() : theme;
+
+	if (shikiEngine === undefined) {
+		shikiEngine = await loadShikiEngine();
+	}
 
 	const highlighterOptions = {
 		langs: ['plaintext', ...langs],
 		langAlias,
 		themes: Object.values(themes).length ? Object.values(themes) : [theme],
-		...(engine ? { engine } : {}),
+		engine: shikiEngine,
 	};
 
 	const key = JSON.stringify(highlighterOptions, Object.keys(highlighterOptions).sort());

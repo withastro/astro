@@ -10,9 +10,6 @@ import type { HTMLAttributes } from '../types.js';
 // Code.astro always uses Shiki, so import the virtual CSS module
 import 'virtual:astro:shiki-styles.css';
 
-// Import JavaScript engine for Cloudflare Workers
-// Workers can't load WASM files from filesystem, so use JS engine instead
-import { createJavaScriptRegexEngine } from 'shiki/engine/javascript';
 
 interface Props extends Omit<HTMLAttributes<'pre'>, 'lang'> {
 	/** The code to highlight. Required. */
@@ -112,14 +109,6 @@ if (typeof lang === 'object') {
 	}
 }
 
-// Detect Cloudflare Workers environment
-// Workers can't load WASM files from filesystem, so use JavaScript RegExp engine
-// Check for Cloudflare context that's injected by @astrojs/cloudflare adapter
-const isCloudflareWorkers = 
-	('cf' in Astro.request) ||          // Cloudflare request object
-	('cfContext' in Astro.locals) ||    // Cloudflare context in locals
-	('cloudflare' in Astro.locals);      // Alternative location
-
 const highlighter = await createShikiHighlighter({
 	langs: [
 		typeof lang === 'string'
@@ -131,7 +120,6 @@ const highlighter = await createShikiHighlighter({
 	],
 	theme,
 	themes,
-	...(isCloudflareWorkers ? { engine: createJavaScriptRegexEngine() } : {}),
 });
 
 // Combine style-to-class transformer with user-provided transformers
