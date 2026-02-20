@@ -5507,7 +5507,7 @@
 
   export const GET = (ctx) => {
     console.log(ctx.routePattern); // it will log src/pages/index.js
-    return new Response.json({ loreum: 'ipsum' });
+    return new Response.json({ lorem: 'ipsum' });
   };
   ```
 
