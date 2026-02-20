@@ -24,9 +24,16 @@ export function astroFrontmatterScanPlugin(): ESBuildPlugin {
 					// Extract frontmatter content between --- markers
 					const frontmatterMatch = FRONTMATTER_RE.exec(code);
 					if (frontmatterMatch) {
-						// Return the frontmatter as TypeScript for import scanning
+						// Replace `return` with `throw` to avoid esbuild's "Top-level return" error during scanning.
+						// This aligns with Astro's core compiler logic for frontmatter error handling.
+						// See: packages/astro/src/vite-plugin-astro/compile.ts
+						//
+						// Known Limitation: Using regex /\breturn\b/ will incorrectly match
+						// identifiers like `$return` or aliases like `import { return as ret }`.
+						const contents = frontmatterMatch[1].replace(/\breturn\b/g, 'throw ');
+
 						return {
-							contents: frontmatterMatch[1],
+							contents,
 							loader: 'ts',
 						};
 					}
