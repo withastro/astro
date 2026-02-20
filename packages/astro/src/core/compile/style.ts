@@ -118,7 +118,9 @@ export function createStylePreprocessor({
 			const rewrittenCode = rewriteCssUrls(result.code, astroConfig.base);
 
 			cssPartialCompileResults[index] = {
-				isGlobal: !!attrs['is:global'],
+				// Use `in` operator to handle both Go compiler (boolean `true`) and
+				// Rust compiler (empty string `""`) representations of boolean attributes.
+				isGlobal: 'is:global' in attrs,
 				dependencies: result.deps ? [...result.deps].map((dep) => normalizePath(dep)) : [],
 			};
 
