@@ -64,7 +64,14 @@ async function renderToStaticMarkup(
 		},
 		idPrefix,
 	});
-	return { html: result.body };
+
+	// Remove empty class="" attributes from SSR output to match native Svelte behavior.
+	// This happens when components extract class with null defaults: let { class: className = null }
+	// Svelte 5 SSR renders null class values as class="", but standalone Svelte omits them.
+	let html = result.body;
+	html = html.replace(/\s+class=""/g, '');
+
+	return { html };
 }
 
 const renderer: NamedSSRLoadedRendererValue = {
