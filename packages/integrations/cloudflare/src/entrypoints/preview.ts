@@ -6,11 +6,10 @@ import {
 	type ResolvedServerUrls,
 } from 'vite';
 import { fileURLToPath } from 'node:url';
-import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
+import { cloudflare as cfVitePlugin } from '@cloudflare/vite-plugin';
 import type * as http from 'node:http';
 import colors from 'piccolore';
 import { performance } from 'node:perf_hooks';
-import { cloudflareConfigCustomizer } from '../wrangler.js';
 
 const createPreviewServer: CreatePreviewServer = async ({
 	logger,
@@ -23,10 +22,6 @@ const createPreviewServer: CreatePreviewServer = async ({
 }) => {
 	const startServerTime = performance.now();
 	let previewServer: VitePreviewServer;
-	const cfPluginConfig: PluginConfig = {
-		viteEnvironment: { name: 'ssr' },
-		config: cloudflareConfigCustomizer(),
-	};
 
 	try {
 		previewServer = await preview({
@@ -44,7 +39,9 @@ const createPreviewServer: CreatePreviewServer = async ({
 				open: false,
 				allowedHosts: [],
 			},
-			plugins: [cfVitePlugin(cfPluginConfig)],
+			plugins: [
+				cfVitePlugin({ ...globalThis.astroCloudflareOptions, viteEnvironment: { name: 'ssr' } }),
+			],
 		});
 	} catch (err) {
 		if (err instanceof Error) {

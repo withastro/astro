@@ -3,7 +3,6 @@ import { preview, type PreviewServer as VitePreviewServer } from 'vite';
 import { fileURLToPath } from 'node:url';
 import { mkdir } from 'node:fs/promises';
 import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
-import { cloudflareConfigCustomizer } from './wrangler.js';
 import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
 import type { StaticPathsResponse, PrerenderRequest } from './prerender-types.js';
 import { STATIC_PATHS_ENDPOINT, PRERENDER_ENDPOINT } from './utils/prerender-constants.js';
@@ -14,6 +13,7 @@ interface CloudflarePrerendererOptions {
 	clientDir: AstroConfig['build']['client'];
 	base: AstroConfig['base'];
 	trailingSlash: AstroConfig['trailingSlash'];
+	cloudflareOptions: PluginConfig
 }
 
 /**
@@ -26,6 +26,7 @@ export function createCloudflarePrerenderer({
 	clientDir,
 	base,
 	trailingSlash,
+	cloudflareOptions
 }: CloudflarePrerendererOptions): AstroPrerenderer {
 	let previewServer: VitePreviewServer | undefined;
 	let serverUrl: string;
@@ -36,11 +37,6 @@ export function createCloudflarePrerenderer({
 		async setup() {
 			// Ensure client dir exists (CF plugin expects it for assets)
 			await mkdir(clientDir, { recursive: true });
-
-			const cfPluginConfig: PluginConfig = {
-				viteEnvironment: { name: 'prerender' },
-				config: cloudflareConfigCustomizer(),
-			};
 
 			previewServer = await preview({
 				configFile: false,
@@ -55,7 +51,7 @@ export function createCloudflarePrerenderer({
 					port: 0, // Let the OS pick a free port
 					open: false,
 				},
-				plugins: [cfVitePlugin(cfPluginConfig)],
+				plugins: [cfVitePlugin({ ...cloudflareOptions, viteEnvironment: { name: 'prerender' } })],
 			});
 
 			const address = previewServer.httpServer.address();
