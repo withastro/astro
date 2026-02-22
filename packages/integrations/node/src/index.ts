@@ -4,25 +4,24 @@ import type {
 	AstroAdapter,
 	AstroConfig,
 	AstroIntegration,
-	NodeAppHeadersJson,
 	RouteToHeaders,
 } from 'astro';
 import { AstroError } from 'astro/errors';
 import { STATIC_HEADERS_FILE } from './shared.js';
-import type { Options, UserOptions } from './types.js';
+import type { NodeAppHeadersJson, Options, UserOptions } from './types.js';
 import { sessionDrivers } from 'astro/config';
+import { createConfigPlugin } from './vite-plugin-config.js';
 
-export function getAdapter(options: Options): AstroAdapter {
+export function getAdapter({ staticHeaders }: Pick<Options, 'staticHeaders'>): AstroAdapter {
 	return {
 		name: '@astrojs/node',
+		entrypointResolution: 'auto',
 		serverEntrypoint: '@astrojs/node/server.js',
 		previewEntrypoint: '@astrojs/node/preview.js',
-		exports: ['handler', 'startServer', 'options'],
-		args: options,
 		adapterFeatures: {
 			buildOutput: 'server',
 			edgeMiddleware: false,
-			staticHeaders: options.staticHeaders,
+			staticHeaders,
 		},
 		supportedAstroFeatures: {
 			hybridOutput: 'stable',
@@ -52,7 +51,6 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 		);
 	}
 
-	let _options: Options;
 	let _config: AstroConfig | undefined = undefined;
 	let _routeToHeaders: RouteToHeaders | undefined = undefined;
 	return {
@@ -89,6 +87,17 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 						ssr: {
 							noExternal: ['@astrojs/node'],
 						},
+						plugins: [
+							createConfigPlugin({
+								...userOptions,
+								client: _config.build.client?.toString(),
+								server: _config.build.server?.toString(),
+								host: _config.server.host,
+								port: _config.server.port,
+								staticHeaders: userOptions.staticHeaders ?? false,
+								experimentalErrorPageHost,
+							}),
+						],
 					},
 				});
 			},
@@ -96,17 +105,8 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 				_routeToHeaders = routeToHeaders;
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
-				_options = {
-					...userOptions,
-					client: config.build.client?.toString(),
-					server: config.build.server?.toString(),
-					host: config.server.host,
-					port: config.server.port,
-					assets: config.build.assets,
-					staticHeaders: userOptions.staticHeaders ?? false,
-					experimentalErrorPageHost,
-				};
-				setAdapter(getAdapter(_options));
+				_config = config;
+				setAdapter(getAdapter({ staticHeaders: userOptions.staticHeaders ?? false }));
 			},
 			'astro:build:done': async () => {
 				if (!_config) {

@@ -2,7 +2,8 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 import { createReadStream } from 'node:fs';
 import path from 'node:path';
 import { Readable } from 'node:stream';
-import { NodeApp } from 'astro/app/node';
+import { createRequest, writeResponse } from 'astro/app/node';
+import type { BaseApp } from 'astro/app';
 import { resolveClientDir } from './shared.js';
 import type { Options, RequestHandler } from './types.js';
 
@@ -43,7 +44,7 @@ async function readErrorPageFromDisk(
  * If the next callback is provided, it will be called if the request does not have a matching route.
  * Intended to be used in both standalone and middleware mode.
  */
-export function createAppHandler(app: NodeApp, options: Options): RequestHandler {
+export function createAppHandler(app: BaseApp, options: Options): RequestHandler {
 	/**
 	 * Keep track of the current request path using AsyncLocalStorage.
 	 * Used to log unhandled rejections with a helpful message.
@@ -84,7 +85,7 @@ export function createAppHandler(app: NodeApp, options: Options): RequestHandler
 	return async (req, res, next, locals) => {
 		let request: Request;
 		try {
-			request = NodeApp.createRequest(req, {
+			request = createRequest(req, {
 				allowedDomains: app.getAllowedDomains?.() ?? [],
 			});
 		} catch (err) {
@@ -108,12 +109,12 @@ export function createAppHandler(app: NodeApp, options: Options): RequestHandler
 					prerenderedErrorPageFetch,
 				}),
 			);
-			await NodeApp.writeResponse(response, res);
+			await writeResponse(response, res);
 		} else if (next) {
 			return next();
 		} else {
-			const response = await app.render(req, { addCookieHeader: true, prerenderedErrorPageFetch });
-			await NodeApp.writeResponse(response, res);
+			const response = await app.render(request, { addCookieHeader: true, prerenderedErrorPageFetch });
+			await writeResponse(response, res);
 		}
 	};
 }

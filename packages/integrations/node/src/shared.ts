@@ -1,7 +1,8 @@
 import path from 'node:path';
 import url from 'node:url';
+import fs from 'node:fs';
 import { appendForwardSlash } from '@astrojs/internal-helpers/path';
-import type { Options } from './types.js';
+import type { NodeAppHeadersJson, Options } from './types.js';
 
 export const STATIC_HEADERS_FILE = '_headers.json';
 
@@ -33,4 +34,20 @@ export function resolveClientDir(options: Options) {
 	const serverEntryURL = serverEntryFolderURL + '/entry.mjs';
 	const clientURL = new URL(appendForwardSlash(rel), serverEntryURL);
 	return url.fileURLToPath(clientURL);
+}
+
+export function readHeadersJson(outDir: string | URL): NodeAppHeadersJson | undefined {
+	let headersMap: NodeAppHeadersJson | undefined = undefined;
+
+	const headersUrl = new URL(STATIC_HEADERS_FILE, outDir);
+	if (fs.existsSync(headersUrl)) {
+		const content = fs.readFileSync(headersUrl, 'utf-8');
+		try {
+			headersMap = JSON.parse(content) as NodeAppHeadersJson;
+		} catch (e: any) {
+			console.error('[@astrojs/node] Error parsing _headers.json: ' + e.message);
+			console.error('[@astrojs/node] Please make sure your _headers.json is valid JSON.');
+		}
+	}
+	return headersMap;
 }
