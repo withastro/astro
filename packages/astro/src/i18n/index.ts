@@ -51,7 +51,7 @@ type GetLocaleRelativeUrl = GetLocaleOptions & {
 
 export type GetLocaleOptions = {
 	/**
-	 * Makes the locale URL-friendly by replacing underscores with dashes, and converting the locale to lower case.
+	 * Makes the locale URL-friendly by replacing underscores with dashes, and converting the locale to lowercase.
 	 * @default true
 	 */
 	normalizeLocale?: boolean;
@@ -223,7 +223,7 @@ export function getLocaleByPath(path: string, locales: Locales): string {
  *
  * Given a locale, this function:
  * - replaces the `_` with a `-`;
- * - transforms all letters to be lower case;
+ * - transforms all letters to be lowercase;
  */
 export function normalizeTheLocale(locale: string): string {
 	return locale.replaceAll('_', '-').toLowerCase();

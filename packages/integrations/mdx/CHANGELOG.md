@@ -534,7 +534,7 @@
 
   If your integration relies on Astro's previous behavior that prevents integrations from adding remark/rehype plugins for MDX, you will now need to configure `@astrojs/mdx` with `extendMarkdownConfig: false` and explicitly specify any `remarkPlugins` and `rehypePlugins` options instead.
 
-- [#10935](https://github.com/withastro/astro/pull/10935) [`ddd8e49`](https://github.com/withastro/astro/commit/ddd8e49d1a179bec82310fb471f822a1567a6610) Thanks [@bluwy](https://github.com/bluwy)! - Renames the `optimize.customComponentNames` option to `optimize.ignoreElementNames` to better reflect its usecase. Its behaviour is not changed and should continue to work as before.
+- [#10935](https://github.com/withastro/astro/pull/10935) [`ddd8e49`](https://github.com/withastro/astro/commit/ddd8e49d1a179bec82310fb471f822a1567a6610) Thanks [@bluwy](https://github.com/bluwy)! - Renames the `optimize.customComponentNames` option to `optimize.ignoreElementNames` to better reflect its use case. Its behaviour is not changed and should continue to work as before.
 
 - [#10935](https://github.com/withastro/astro/pull/10935) [`ddd8e49`](https://github.com/withastro/astro/commit/ddd8e49d1a179bec82310fb471f822a1567a6610) Thanks [@bluwy](https://github.com/bluwy)! - Replaces the internal `remark-images-to-component` plugin with `rehype-images-to-component` to let users use additional rehype plugins for images
 
@@ -1177,7 +1177,7 @@
   }
   ```
 
-  This differs from previous behavior, where a Markdown file's frontmatter would _always_ override frontmatter injected via remark or reype.
+  This differs from previous behavior, where a Markdown file's frontmatter would _always_ override frontmatter injected via remark or rehype.
 
 - [#5891](https://github.com/withastro/astro/pull/5891) [`05caf445d`](https://github.com/withastro/astro/commit/05caf445d4d2728f1010aeb2179a9e756c2fd17d) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Remove deprecated Markdown APIs from Astro v0.X. This includes `getHeaders()`, the `.astro` property for layouts, and the `rawContent()` and `compiledContent()` error messages for MDX.
 
@@ -1322,7 +1322,7 @@
   }
   ```
 
-  This differs from previous behavior, where a Markdown file's frontmatter would _always_ override frontmatter injected via remark or reype.
+  This differs from previous behavior, where a Markdown file's frontmatter would _always_ override frontmatter injected via remark or rehype.
 
 - [#5684](https://github.com/withastro/astro/pull/5684) [`a9c292026`](https://github.com/withastro/astro/commit/a9c2920264e36cc5dc05f4adc1912187979edb0d) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Refine Markdown and MDX configuration options for ease-of-use.
 

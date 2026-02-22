@@ -165,7 +165,7 @@ async function resolveTargetVersion(packageInfo: PackageInfo, registry: string):
 			const upgradeGuide = `https://docs.astro.build/en/guides/upgrade-to/v${toVersion.major}/`;
 			const docsRes = await fetch(upgradeGuide);
 			// OK if this request fails, it's probably a prerelease without a public migration guide.
-			// In that case, we should fallback to the CHANGELOG check below.
+			// In that case, we should fall back to the CHANGELOG check below.
 			if (docsRes.status === 200) {
 				packageInfo.changelogURL = upgradeGuide;
 				packageInfo.changelogTitle = `Upgrade to Astro v${toVersion.major}`;

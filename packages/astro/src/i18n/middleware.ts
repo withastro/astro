@@ -83,7 +83,7 @@ export function createI18nMiddleware(
 		}
 
 		// This is a case where the rendering phase belongs to a server island. Server island are
-		// special routes, and should be exhempt from i18n routing
+		// special routes, and should be exempt from i18n routing
 		if (isRequestServerIsland(context.request, base)) {
 			return response;
 		}

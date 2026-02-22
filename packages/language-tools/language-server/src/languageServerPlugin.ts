@@ -19,7 +19,7 @@ import { getPrettierPluginPath, importPrettier } from './importPackage.js';
 import { create as createAstroService } from './plugins/astro.js';
 import { create as createHtmlService } from './plugins/html.js';
 import { create as createTypeScriptServices } from './plugins/typescript/index.js';
-import { create as createTypescriptAddonsService } from './plugins/typescript-addons/index.js';
+import { create as createTypeScriptAddonsService } from './plugins/typescript-addons/index.js';
 import { create as createYAMLService } from './plugins/yaml.js';
 
 export function getLanguagePlugins(collectionConfig: CollectionConfig) {
@@ -47,7 +47,7 @@ export function getLanguageServicePlugins(
 			disableAutoImportCache: initializeParams?.initializationOptions?.disableAutoImportCache,
 		}),
 		createTypeScriptTwoSlashService(ts),
-		createTypescriptAddonsService(),
+		createTypeScriptAddonsService(),
 		createAstroService(),
 		getPrettierService(),
 		createYAMLService(collectionConfig),

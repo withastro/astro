@@ -373,7 +373,7 @@ describe('routing - createRoutesList', () => {
 			{
 				label: 'router',
 				level: 'warn',
-				message: 'A collision will result in an hard error in following versions of Astro.',
+				message: 'A collision will result in a hard error in following versions of Astro.',
 				newLine: true,
 			},
 		]);
@@ -412,7 +412,7 @@ describe('routing - createRoutesList', () => {
 			{
 				label: 'router',
 				level: 'warn',
-				message: 'A collision will result in an hard error in following versions of Astro.',
+				message: 'A collision will result in a hard error in following versions of Astro.',
 				newLine: true,
 			},
 		]);

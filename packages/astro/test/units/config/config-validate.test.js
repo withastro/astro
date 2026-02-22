@@ -226,7 +226,7 @@ describe('Config Validation', () => {
 				assert.equal(configError instanceof z.ZodError, true);
 				assert.equal(
 					configError.issues[0].message,
-					'The option `i18n.routing.redirectToDefaultLocale` can be used only when `i18n.routing.prefixDefaultLocale` is set to `true`, otherwise redirects might cause infinite loops. Remove the option `i18n.routing.redirectToDefaultLocale`, or change its value to `false`.',
+					'The option `i18n.routing.redirectToDefaultLocale` can be used only when `i18n.routing.prefixDefaultLocale` is set to `true`; otherwise, redirects might cause infinite loops. Remove the option `i18n.routing.redirectToDefaultLocale`, or change its value to `false`.',
 				);
 			},
 		);

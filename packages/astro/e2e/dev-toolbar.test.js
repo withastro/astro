@@ -293,7 +293,7 @@ test.describe('Dev Toolbar', () => {
 		await expect(settingsWindow).not.toBeVisible();
 	});
 
-	test('Opening a app closes the currently opened app', async ({ page, astro }) => {
+	test('Opening an app closes the currently opened app', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
 		const toolbar = page.locator('astro-dev-toolbar');

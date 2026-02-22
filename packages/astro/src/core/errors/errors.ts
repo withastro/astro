@@ -46,7 +46,7 @@ export class AstroError extends Error {
 		this.name = name;
 
 		if (message) this.message = message;
-		// Only set this if we actually have a stack passed, otherwise uses Error's
+		// Only set this if we actually have a stack passed; otherwise, uses Error's
 		this.stack = stack ? stack : this.stack;
 		this.loc = location;
 		this.hint = hint;

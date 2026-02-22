@@ -58,7 +58,7 @@
 
 ### Patch Changes
 
-- [#15432](https://github.com/withastro/astro/pull/15432) [`e2ad69e`](https://github.com/withastro/astro/commit/e2ad69ebdef907c5365bd1047772a3e86736c9d2) Thanks [@OliverSpeir](https://github.com/OliverSpeir)! - Removes unneccessary warning about sharp from being printed at start of dev server and build
+- [#15432](https://github.com/withastro/astro/pull/15432) [`e2ad69e`](https://github.com/withastro/astro/commit/e2ad69ebdef907c5365bd1047772a3e86736c9d2) Thanks [@OliverSpeir](https://github.com/OliverSpeir)! - Removes unnecessary warning about sharp from being printed at start of dev server and build
 
 - Updated dependencies [[`a164c77`](https://github.com/withastro/astro/commit/a164c77336059f2dc3e7f7fe992aa754ed145ef3), [`a18d727`](https://github.com/withastro/astro/commit/a18d727fc717054df85177c8e0c3d38a5252f2da)]:
   - @astrojs/internal-helpers@0.8.0-beta.1
@@ -126,7 +126,7 @@
 
 - [#15080](https://github.com/withastro/astro/pull/15080) [`f67b738`](https://github.com/withastro/astro/commit/f67b7389dad9a3a258ba5d941d478f20b0dc6767) Thanks [@gameroman](https://github.com/gameroman)! - Updates `wrangler` dependency to be a `peerDependency` over a `dependency`
 
-- [#15121](https://github.com/withastro/astro/pull/15121) [`06261e0`](https://github.com/withastro/astro/commit/06261e03d55a571c6affbd7321f7e28c997d6d5d) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where the Astro, with the Cloudlfare integration, couldn't correctly serve certain routes in the development server.
+- [#15121](https://github.com/withastro/astro/pull/15121) [`06261e0`](https://github.com/withastro/astro/commit/06261e03d55a571c6affbd7321f7e28c997d6d5d) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where the Astro, with the Cloudflare integration, couldn't correctly serve certain routes in the development server.
 
 - Updated dependencies []:
   - @astrojs/underscore-redirects@1.0.0
@@ -458,7 +458,7 @@
 
 - [#14066](https://github.com/withastro/astro/pull/14066) [`7abde79`](https://github.com/withastro/astro/commit/7abde7921fb21058d99180d6a0c897c5fa23ff14) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Refactors the internal solution which powers Astro Sessions when running local development with ˋastro devˋ.
 
-  The adapter now utilizes Cloudflare's local support for Cloudflare KV. This internal change is a drop-in replacement and does not require any change to your projectct code.
+  The adapter now utilizes Cloudflare's local support for Cloudflare KV. This internal change is a drop-in replacement and does not require any change to your project code.
 
   However, you now have the ability to connect to the remote Cloudflare KV Namespace if desired and use production data during local development.
 
@@ -837,7 +837,7 @@
 
 ### Patch Changes
 
-- [#476](https://github.com/withastro/adapters/pull/476) [`a8a8ab1`](https://github.com/withastro/adapters/commit/a8a8ab12d9cfb5157e6a350b93a505010367b8e4) Thanks [@bluwy](https://github.com/bluwy)! - Removes resolving with "node" conditionto fix Vue imports
+- [#476](https://github.com/withastro/adapters/pull/476) [`a8a8ab1`](https://github.com/withastro/adapters/commit/a8a8ab12d9cfb5157e6a350b93a505010367b8e4) Thanks [@bluwy](https://github.com/bluwy)! - Removes resolving with "node" condition to fix Vue imports
 
 ## 12.0.1
 
@@ -985,7 +985,7 @@
 
 ### Patch Changes
 
-- [#341](https://github.com/withastro/adapters/pull/341) [`a430ab1`](https://github.com/withastro/adapters/commit/a430ab17e525492db2ff9ecc4d00eb710dd92874) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fixes an issue if environment variables where used inside the middleware and a prerendering occured.
+- [#341](https://github.com/withastro/adapters/pull/341) [`a430ab1`](https://github.com/withastro/adapters/commit/a430ab17e525492db2ff9ecc4d00eb710dd92874) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fixes an issue if environment variables where used inside the middleware and a prerendering occurred.
 
 - [#335](https://github.com/withastro/adapters/pull/335) [`237f332`](https://github.com/withastro/adapters/commit/237f332a819a92cdc2128d1564f5b8558318ad2b) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fixes an issue displaying images which are optimized during `astro build`
 
@@ -993,7 +993,7 @@
 
 ### Patch Changes
 
-- [#340](https://github.com/withastro/adapters/pull/340) [`45d0abb`](https://github.com/withastro/adapters/commit/45d0abb52b8e940a7c702a148be779428836396c) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fixes an issue if environment variables where used inside the middleware and a prerendering occured.
+- [#340](https://github.com/withastro/adapters/pull/340) [`45d0abb`](https://github.com/withastro/adapters/commit/45d0abb52b8e940a7c702a148be779428836396c) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fixes an issue if environment variables where used inside the middleware and a prerendering occurred.
 
 ## 11.0.1
 
@@ -1114,7 +1114,7 @@
 
   ### BREAKING: `imageService`
 
-  This release changes the default behavior of `imageService`. In the past the default behavior was falling back to a `noop` service, which disabled image optimization for your project, because Cloudflare doesn's support it. The new default is `compile`, which enables image optimization for prerendered pages during build, but disallows the usage of any `astro:assets` feature inside of on-demand pages.
+  This release changes the default behavior of `imageService`. In the past, the default behavior was falling back to a `noop` service, which disabled image optimization for your project, because Cloudflare doesn's support it. The new default is `compile`, which enables image optimization for prerendered pages during build, but disallows the usage of any `astro:assets` feature inside of on-demand pages.
 
   #### What should I do?
 
@@ -1276,13 +1276,13 @@
 
 ### Major Changes
 
-- [#159](https://github.com/withastro/adapters/pull/159) [`adb8bf2a4caeead9a1a255740c7abe8666a6f852`](https://github.com/withastro/adapters/commit/adb8bf2a4caeead9a1a255740c7abe8666a6f852) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Updates and prepares the adapter to be more flexibile, stable and composable for the future. Includes several breaking changes.
+- [#159](https://github.com/withastro/adapters/pull/159) [`adb8bf2a4caeead9a1a255740c7abe8666a6f852`](https://github.com/withastro/adapters/commit/adb8bf2a4caeead9a1a255740c7abe8666a6f852) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Updates and prepares the adapter to be more flexible, stable and composable for the future. Includes several breaking changes.
 
   ## Upgrade Guide
 
-  We are commited to provide a smooth upgrade path for our users. This guide will describe what has changed from v9.x to v10 to help you to migrate your existing projects to the latest version of the adapter. For complete documentation of all v10 configuration settings and usage, please see [the current, updated Cloudflare adapter documentation](https://docs.astro.build/en/guides/integrations-guide/cloudflare/).
+  We are committed to provide a smooth upgrade path for our users. This guide will describe what has changed from v9.x to v10 to help you to migrate your existing projects to the latest version of the adapter. For complete documentation of all v10 configuration settings and usage, please see [the current, updated Cloudflare adapter documentation](https://docs.astro.build/en/guides/integrations-guide/cloudflare/).
 
-  We will provide at least 4 weeks of limited maintanance support for the previous version 9 of the adapter. Please plan to upgrade your project within this time frame, using the instructions below.
+  We will provide at least 4 weeks of limited maintenance support for the previous version 9 of the adapter. Please plan to upgrade your project within this time frame, using the instructions below.
 
   ### Adapter's `mode` option & Cloudflare Functions
 
@@ -1402,7 +1402,7 @@
 
   ### Routes
 
-  The `routes.strategy` option has been removed as you will no longer have the option to choose a strategy in v10 of this adpater.
+  The `routes.strategy` option has been removed as you will no longer have the option to choose a strategy in v10 of this adapter.
 
   If you are using `routes.strategy`, you can remove it. You might observe a different `dist/_routes.json` file, but it should not affect your project's behavior.
 
@@ -1626,7 +1626,7 @@
 
 ### Patch Changes
 
-- [#8782](https://github.com/withastro/astro/pull/8782) [`75781643a`](https://github.com/withastro/astro/commit/75781643a2f53656fc3fde3a7f28cb62db40b015) Thanks [@helloimalastair](https://github.com/helloimalastair)! - fixes `AdvancedRuntime` & `DirectoryRuntime` types to work woth Cloudflare caches
+- [#8782](https://github.com/withastro/astro/pull/8782) [`75781643a`](https://github.com/withastro/astro/commit/75781643a2f53656fc3fde3a7f28cb62db40b015) Thanks [@helloimalastair](https://github.com/helloimalastair)! - fixes `AdvancedRuntime` & `DirectoryRuntime` types to work with Cloudflare caches
 
 - Updated dependencies [[`2993055be`](https://github.com/withastro/astro/commit/2993055bed2764c31ff4b4f55b81ab6b1ae6b401), [`c4270e476`](https://github.com/withastro/astro/commit/c4270e47681ee2453f3fea07fed7b238645fd6ea), [`bd5aa1cd3`](https://github.com/withastro/astro/commit/bd5aa1cd35ecbd2784f30dd836ff814684fee02b), [`f369fa250`](https://github.com/withastro/astro/commit/f369fa25055a3497ebaf61c88fb0e8af56c73212), [`391729686`](https://github.com/withastro/astro/commit/391729686bcc8404a7dd48c5987ee380daf3200f), [`f999365b8`](https://github.com/withastro/astro/commit/f999365b8248b8b14f3743e68a42d450d06acff3), [`b2ae9ee0c`](https://github.com/withastro/astro/commit/b2ae9ee0c42b11ffc1d3f070d1d5ac881aef84ed), [`0abff97fe`](https://github.com/withastro/astro/commit/0abff97fed3db14be3c75ff9ece3aab67c4ba783), [`3bef32f81`](https://github.com/withastro/astro/commit/3bef32f81c56bc600ca307f1bd40787e23e625a5)]:
   - astro@3.3.0
@@ -1716,7 +1716,7 @@
 
 ### Minor Changes
 
-- [#8595](https://github.com/withastro/astro/pull/8595) [`5b0b3c9a8`](https://github.com/withastro/astro/commit/5b0b3c9a8e0c0e6b6c7472b82008ab57985f2a04) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Add support for the following Node.js Runtime APIs, which are availabe in [Cloudflare](https://developers.cloudflare.com/workers/runtime-apis/nodejs) using the `node:` syntax.
+- [#8595](https://github.com/withastro/astro/pull/8595) [`5b0b3c9a8`](https://github.com/withastro/astro/commit/5b0b3c9a8e0c0e6b6c7472b82008ab57985f2a04) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Add support for the following Node.js Runtime APIs, which are available in [Cloudflare](https://developers.cloudflare.com/workers/runtime-apis/nodejs) using the `node:` syntax.
   - assert
   - AsyncLocalStorage
   - Buffer
@@ -2272,7 +2272,7 @@
 
 ### Patch Changes
 
-- [#5301](https://github.com/withastro/astro/pull/5301) [`a79a37cad`](https://github.com/withastro/astro/commit/a79a37cad549b21f91599ff86899e456d9dcc7df) Thanks [@bluwy](https://github.com/bluwy)! - Fix environment variables usage in worker output and warn if environment variables are accessedd too early
+- [#5301](https://github.com/withastro/astro/pull/5301) [`a79a37cad`](https://github.com/withastro/astro/commit/a79a37cad549b21f91599ff86899e456d9dcc7df) Thanks [@bluwy](https://github.com/bluwy)! - Fix environment variables usage in worker output and warn if environment variables are accessed too early
 
 - Updated dependencies [[`88c1bbe3a`](https://github.com/withastro/astro/commit/88c1bbe3a71f85e92f42f13d0f310c6b2a264ade), [`a79a37cad`](https://github.com/withastro/astro/commit/a79a37cad549b21f91599ff86899e456d9dcc7df)]:
   - astro@1.6.5
@@ -2461,7 +2461,7 @@
 
   When using the `"server"` output target, you must also include a runtime adapter via the `adapter` configuration. An adapter will _adapt_ your final build to run on the deployed platform of your choice (Netlify, Vercel, Node.js, Deno, etc).
 
-  To migrate: No action is required for most users. If you currently define an `adapter`, you will need to also add `output: 'server'` to your config file to make it explicit that you are building a server. Here is an example of what that change would look like for someone deploying to Netlify:
+  To migrate: No action is required for most users. If you currently define an `adapter`, you will also need to add `output: 'server'` to your config file to make it explicit that you are building a server. Here is an example of what that change would look like for someone deploying to Netlify:
 
   ```diff
   import { defineConfig } from 'astro/config';

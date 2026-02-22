@@ -6,7 +6,7 @@ import rehypePrettyCode from 'rehype-pretty-code';
 import shikiTwoslash from 'remark-shiki-twoslash';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 
-const FIXTURE_ROOT = new URL('./fixtures/mdx-syntax-hightlighting/', import.meta.url);
+const FIXTURE_ROOT = new URL('./fixtures/mdx-syntax-highlighting/', import.meta.url);
 
 describe('MDX syntax highlighting', () => {
 	describe('shiki', () => {

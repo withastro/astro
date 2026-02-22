@@ -33,7 +33,7 @@ export function isRoute500(route: string) {
  * Determines if the given route matches a 404 or 500 error page.
  *
  * @param {RouteData} route - The route data to check.
- * @returns {boolean} `true` if the route matches a 404 or 500 error page, otherwise `false`.
+ * @returns {boolean} `true` if the route matches a 404 or 500 error page; otherwise, `false`.
  */
 export function isRoute404or500(route: RouteData): boolean {
 	return isRoute404(route.route) || isRoute500(route.route);
@@ -43,7 +43,7 @@ export function isRoute404or500(route: RouteData): boolean {
  * Determines if a given route is associated with the server island component.
  *
  * @param {RouteData} route - The route data object to evaluate.
- * @return {boolean} Returns true if the route's component is the server island component, otherwise false.
+ * @return {boolean} Returns true if the route's component is the server island component; otherwise, false.
  */
 export function isRouteServerIsland(route: RouteData): boolean {
 	return route.component === SERVER_ISLAND_COMPONENT;
@@ -54,7 +54,7 @@ export function isRouteServerIsland(route: RouteData): boolean {
  *
  * @param {Request} request - The request object to be evaluated.
  * @param {string} [base=''] - The base path provided via configuration.
- * @return {boolean} - Returns `true` if the request is for a server island, otherwise `false`.
+ * @return {boolean} - Returns `true` if the request is for a server island; otherwise, `false`.
  */
 export function isRequestServerIsland(request: Request, base = ''): boolean {
 	const url = new URL(request.url);
@@ -82,7 +82,7 @@ export function requestIs404Or500(request: Request, base = '') {
  * Determines whether a given route is an external redirect.
  *
  * @param {RouteData} route - The route object to check.
- * @return {boolean} Returns true if the route is an external redirect, otherwise false.
+ * @return {boolean} Returns true if the route is an external redirect; otherwise, false.
  */
 export function isRouteExternalRedirect(route: RouteData): boolean {
 	return !!(route.type === 'redirect' && route.redirect && redirectIsExternal(route.redirect));

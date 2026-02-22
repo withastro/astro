@@ -438,7 +438,7 @@ export interface APIContext<
 	 *
 	 * ## Example
 	 *
-	 * Given `i18n.locales` equals to `['fr', 'de']`, and the `Accept-Language` value equals to `en, de;q=0.2, fr;q=0.6`, the
+	 * Given `i18n.locales` equals `['fr', 'de']`, and the `Accept-Language` value equals `en, de;q=0.2, fr;q=0.6`, the
 	 * `Astro.preferredLanguage` will be `fr` because `en` is not supported, its [quality value](https://developer.mozilla.org/en-US/docs/Glossary/Quality_values) is the highest.
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#preferredlocale)
@@ -457,8 +457,8 @@ export interface APIContext<
 	 *
 	 * ## Example
 	 *
-	 * Given `i18n.locales` equals to `['fr', 'pt', 'de']`, and the
-	 * `Accept-Language` value equals to `en, de;q=0.2, fr;q=0.6`, the
+	 * Given `i18n.locales` equals `['fr', 'pt', 'de']`, and the
+	 * `Accept-Language` value equals `en, de;q=0.2, fr;q=0.6`, the
 	 * `Astro.preferredLocaleList` will be equal to `['fs', 'de']` because `en`
 	 * isn't supported, and `pt` isn't part of the locales contained in the
 	 * header.

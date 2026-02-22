@@ -222,24 +222,24 @@ function renderComponentsHTMLChecks(html) {
 	const { document } = parseHTML(html);
 
 	const naturalP1 = document.querySelector('article > p:nth-of-type(1)');
-	assert.equal(naturalP1.textContent, 'This is a inline mark in regular Markdown markup.');
+	assert.equal(naturalP1.textContent, 'This is an inline mark in regular Markdown markup.');
 	assert.equal(naturalP1.children.length, 1);
 
 	const p1 = document.querySelector('article > p:nth-of-type(2)');
 	assert.equal(p1.id, 'p1');
-	assert.equal(p1.textContent, 'This is a inline mark under some HTML');
+	assert.equal(p1.textContent, 'This is an inline mark under some HTML');
 	assert.equal(p1.children.length, 1);
 	assertInlineMark(p1.children[0]);
 
 	const div1p1 = document.querySelector('article > #div1 > p:nth-of-type(1)');
 	assert.equal(div1p1.id, 'div1-p1');
-	assert.equal(div1p1.textContent, 'This is a inline mark under some HTML');
+	assert.equal(div1p1.textContent, 'This is an inline mark under some HTML');
 	assert.equal(div1p1.children.length, 1);
 	assertInlineMark(div1p1.children[0]);
 
 	const div1p2 = document.querySelector('article > #div1 > p:nth-of-type(2)');
 	assert.equal(div1p2.id, 'div1-p2');
-	assert.equal(div1p2.textContent, 'This is a inline mark under some HTML');
+	assert.equal(div1p2.textContent, 'This is an inline mark under some HTML');
 	assert.equal(div1p2.children.length, 1);
 
 	const div1p2span1 = div1p2.querySelector('span');
@@ -255,7 +255,7 @@ function renderComponentsHTMLChecks(html) {
 	const aside1SectionP1 = aside1Section.querySelector('p:nth-of-type(1)');
 	assert.equal(
 		aside1SectionP1.textContent,
-		"I'm a Markdown paragraph inside an top-level aside tag",
+		"I'm a Markdown paragraph inside a top-level aside tag",
 	);
 	const aside1H2_1 = aside1Section.querySelector('h2:nth-of-type(1)');
 	assert.equal(aside1H2_1.id, 'im-an-h2-via-markdown-markup'); // automatic slug

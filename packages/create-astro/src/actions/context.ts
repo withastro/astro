@@ -39,7 +39,7 @@ function getPackageTag(packageSpecifier: string | undefined): string | undefined
 		case 'beta':
 		case 'rc':
 			return packageSpecifier;
-		// Will fallback to latest
+		// Will fall back to latest
 		case undefined:
 		default:
 			return undefined;

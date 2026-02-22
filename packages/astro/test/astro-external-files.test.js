@@ -10,7 +10,7 @@ describe('External file references', () => {
 		await fixture.build();
 	});
 
-	it('Build with externeal reference', async () => {
+	it('Build with external reference', async () => {
 		const html = await fixture.readFile('/index.html');
 		assert.equal(html.includes('<script src="/external-file.js"'), true);
 	});

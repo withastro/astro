@@ -116,7 +116,7 @@ function warn(opts: LogOptions, label: string | null, message: string, newLine =
 	return log(opts, 'warn', label, message, newLine);
 }
 
-/** Emit a error message, Useful when Astro can't recover from some error. */
+/** Emit an error message, Useful when Astro can't recover from some error. */
 function error(opts: LogOptions, label: string | null, message: string, newLine = true) {
 	return log(opts, 'error', label, message, newLine);
 }

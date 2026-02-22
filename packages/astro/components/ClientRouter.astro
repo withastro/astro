@@ -115,14 +115,14 @@ const { fallback = 'animate' } = Astro.props;
 			const form = el as HTMLFormElement;
 			const formData = new FormData(form, submitter);
 			// form.action and form.method can point to an <input name="action"> or <input name="method">
-			// in which case should fallback to the form attribute
+			// in which case should fall back to the form attribute
 			const formAction =
 				typeof form.action === 'string' ? form.action : form.getAttribute('action');
 			const formMethod =
 				typeof form.method === 'string' ? form.method : form.getAttribute('method');
-			// Use the form action, if defined, otherwise fallback to current path.
+			// Use the form action, if defined; otherwise, fall back to current path.
 			let action = submitter?.getAttribute('formaction') ?? formAction ?? location.pathname;
-			// Use the form method, if defined, otherwise fallback to "get"
+			// Use the form method, if defined; otherwise, fall back to "get"
 			const method = submitter?.getAttribute('formmethod') ?? formMethod ?? 'get';
 
 			// the "dialog" method is a special keyword used within <dialog> elements

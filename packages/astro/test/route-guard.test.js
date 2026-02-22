@@ -63,7 +63,7 @@ describe('Route Guard - Dev Server', () => {
 		});
 	});
 
-	describe('Non-existent files should 404 normally', () => {
+	describe('Nonexistent files should 404 normally', () => {
 		it('404 when loading /nonexistent.md (file does not exist)', async () => {
 			const response = await fixture.fetch('/nonexistent.md');
 			assert.equal(response.status, 404);

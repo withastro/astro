@@ -280,7 +280,7 @@ async function createTempViteServer(
  *
  * A non-zero process signal is emitted in case there's an error while generating content collection types.
  *
- * This should only be used when the callee already has an `AstroSetting`, otherwise use `sync()` instead.
+ * This should only be used when the callee already has an `AstroSetting`; otherwise, use `sync()` instead.
  * @internal
  *
  * @param {SyncOptions} options

@@ -11,7 +11,7 @@ describe('MDX Shiki CSS conditional injection', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: new URL(
-					'./fixtures/mdx-syntax-hightlighting-conditional/with-code/',
+					'./fixtures/mdx-syntax-highlighting-conditional/with-code/',
 					import.meta.url,
 				),
 			});
@@ -43,7 +43,7 @@ describe('MDX Shiki CSS conditional injection', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				root: new URL('./fixtures/mdx-syntax-hightlighting-conditional/no-code/', import.meta.url),
+				root: new URL('./fixtures/mdx-syntax-highlighting-conditional/no-code/', import.meta.url),
 			});
 			await fixture.build();
 			const html = await fixture.readFile('/index.html');
@@ -79,7 +79,7 @@ describe('MDX Shiki CSS conditional injection', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: new URL(
-					'./fixtures/mdx-syntax-hightlighting-conditional/excluded-lang/',
+					'./fixtures/mdx-syntax-highlighting-conditional/excluded-lang/',
 					import.meta.url,
 				),
 			});

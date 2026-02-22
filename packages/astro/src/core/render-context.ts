@@ -329,7 +329,7 @@ export class RenderContext {
 			return response;
 		};
 
-		// If we are rendering an extrnal redirect, we don't need go through the middleware,
+		// If we are rendering an external redirect, we don't need go through the middleware,
 		// otherwise Astro will attempt to render the external website
 		if (isRouteExternalRedirect(this.routeData)) {
 			return renderRedirect(this);
@@ -600,7 +600,7 @@ export class RenderContext {
 			cspDestination: manifest.csp?.cspDestination ?? (routeData.prerender ? 'meta' : 'header'),
 			shouldInjectCspMetaTags,
 			cspAlgorithm,
-			// The following arrays must be cloned, otherwise they become mutable across routes.
+			// The following arrays must be cloned; otherwise, they become mutable across routes.
 			scriptHashes: manifest.csp?.scriptHashes ? [...manifest.csp.scriptHashes] : [],
 			scriptResources: manifest.csp?.scriptResources ? [...manifest.csp.scriptResources] : [],
 			styleHashes: manifest.csp?.styleHashes ? [...manifest.csp.styleHashes] : [],

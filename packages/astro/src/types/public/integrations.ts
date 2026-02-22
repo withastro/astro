@@ -20,7 +20,7 @@ export interface RouteOptions {
 	readonly component: string;
 	/**
 	 * Whether this route should be prerendered. If the route has an explicit `prerender` export,
-	 * the value will be passed here. Otherwise, it's undefined and will fallback to a prerender
+	 * the value will be passed here. Otherwise, it's undefined and will fall back to a prerender
 	 * default depending on the `output` option.
 	 */
 	prerender?: boolean;

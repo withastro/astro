@@ -85,7 +85,7 @@
 
 ### Patch Changes
 
-- [#15196](https://github.com/withastro/astro/pull/15196) [`a8317c1`](https://github.com/withastro/astro/commit/a8317c1e1fe72ff3b86890801f5e898a5244c1b0) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where some prendered pages weren't correctly rendered when using the Node.js adapter in middleware mode.
+- [#15196](https://github.com/withastro/astro/pull/15196) [`a8317c1`](https://github.com/withastro/astro/commit/a8317c1e1fe72ff3b86890801f5e898a5244c1b0) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where some prerendered pages weren't correctly rendered when using the Node.js adapter in middleware mode.
 
 - [#15169](https://github.com/withastro/astro/pull/15169) [`b803d8b`](https://github.com/withastro/astro/commit/b803d8b4b4e5e71ef4b28b23186e2786dc80a308) Thanks [@rururux](https://github.com/rururux)! - fix: fix image 500 error when moving dist directory in standalone Node
 
@@ -106,7 +106,7 @@
 
   This update ensures that configured redirects are always handled as HTTP redirects regardless of output mode, and the default HTML files for the redirects are no longer generated in `static` output. It makes the Node.js adapter more consistent with the other official adapters.
 
-  No change to your project is required to take advantage of this new adapter functionality. It is not expected to cause any breaking changes. However, if you relied on the previous redirecting behavior, you may need to handle your redirects differently now. Otherwise you should notice smoother redirects, with more accurate HTTP status codes, and may potentially see some SEO gains.
+  No change to your project is required to take advantage of this new adapter functionality. It is not expected to cause any breaking changes. However, if you relied on the previous redirecting behavior, you may need to handle your redirects differently now. Otherwise, you should notice smoother redirects, with more accurate HTTP status codes, and may potentially see some SEO gains.
 
 ## 9.4.6
 
@@ -546,7 +546,7 @@
 
 ### Major Changes
 
-- [#9661](https://github.com/withastro/astro/pull/9661) [`d6edc7540864cf5d294d7b881eb886a3804f6d05`](https://github.com/withastro/astro/commit/d6edc7540864cf5d294d7b881eb886a3804f6d05) Thanks [@ematipico](https://github.com/ematipico)! - If host is unset in standalone mode, the server host will now fallback to `localhost` instead of `127.0.0.1`. When `localhost` is used, the operating system can decide to use either `::1` (ipv6) or `127.0.0.1` (ipv4) itself. This aligns with how the Astro dev and preview server works by default.
+- [#9661](https://github.com/withastro/astro/pull/9661) [`d6edc7540864cf5d294d7b881eb886a3804f6d05`](https://github.com/withastro/astro/commit/d6edc7540864cf5d294d7b881eb886a3804f6d05) Thanks [@ematipico](https://github.com/ematipico)! - If host is unset in standalone mode, the server host will now fall back to `localhost` instead of `127.0.0.1`. When `localhost` is used, the operating system can decide to use either `::1` (ipv6) or `127.0.0.1` (ipv4) itself. This aligns with how the Astro dev and preview server works by default.
 
   If you relied on `127.0.0.1` (ipv4) before, you can set the `HOST` environment variable to `127.0.0.1` to explicitly use ipv4. For example, `HOST=127.0.0.1 node ./dist/server/entry.mjs`.
 
@@ -778,7 +778,7 @@
 
 ### Patch Changes
 
-- [#7708](https://github.com/withastro/astro/pull/7708) [`4dd6c7900`](https://github.com/withastro/astro/commit/4dd6c7900ca40db1b2cebed9bd02a9eb00874d8d) Thanks [@DixCouleur](https://github.com/DixCouleur)! - fix issuse #7590 "res.writeHead is not a function" in Express/Node middleware
+- [#7708](https://github.com/withastro/astro/pull/7708) [`4dd6c7900`](https://github.com/withastro/astro/commit/4dd6c7900ca40db1b2cebed9bd02a9eb00874d8d) Thanks [@DixCouleur](https://github.com/DixCouleur)! - fix issue #7590 "res.writeHead is not a function" in Express/Node middleware
 
 - Updated dependencies [[`41afb8405`](https://github.com/withastro/astro/commit/41afb84057f606b0e7f9a73c1e40487068e43948), [`c00b6f0c4`](https://github.com/withastro/astro/commit/c00b6f0c49027125ea3026e89b21fef84380d187), [`1f0ee494a`](https://github.com/withastro/astro/commit/1f0ee494a5190356d130282f1f51ba2a5e6ea63f), [`00cb28f49`](https://github.com/withastro/astro/commit/00cb28f4964a60bc609770108d491acc277997b9), [`c264be349`](https://github.com/withastro/astro/commit/c264be3497db4aa8b3bcce0d2f79a26e35b8e91e), [`e1e958a75`](https://github.com/withastro/astro/commit/e1e958a75860292688569e82b4617fc141056202)]:
   - astro@2.10.0
@@ -917,7 +917,7 @@
 
 ### Patch Changes
 
-- [#6088](https://github.com/withastro/astro/pull/6088) [`6a03649f0`](https://github.com/withastro/astro/commit/6a03649f0084f0df6738236d4a86c9936325cee7) Thanks [@QingXia-Ela](https://github.com/QingXia-Ela)! - fix incorrent encoded when path has other language characters
+- [#6088](https://github.com/withastro/astro/pull/6088) [`6a03649f0`](https://github.com/withastro/astro/commit/6a03649f0084f0df6738236d4a86c9936325cee7) Thanks [@QingXia-Ela](https://github.com/QingXia-Ela)! - fix incorrect encoded when path has other language characters
 
 ## 5.0.1
 
@@ -1265,7 +1265,7 @@
 
   When using the `"server"` output target, you must also include a runtime adapter via the `adapter` configuration. An adapter will _adapt_ your final build to run on the deployed platform of your choice (Netlify, Vercel, Node.js, Deno, etc).
 
-  To migrate: No action is required for most users. If you currently define an `adapter`, you will need to also add `output: 'server'` to your config file to make it explicit that you are building a server. Here is an example of what that change would look like for someone deploying to Netlify:
+  To migrate: No action is required for most users. If you currently define an `adapter`, you will also need to add `output: 'server'` to your config file to make it explicit that you are building a server. Here is an example of what that change would look like for someone deploying to Netlify:
 
   ```diff
   import { defineConfig } from 'astro/config';

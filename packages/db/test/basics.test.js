@@ -69,7 +69,7 @@ describe('astro:db', () => {
 			assert.match(themeDark, /dark mode/);
 		});
 
-		it('text fields an be used as references', async () => {
+		it('text fields can be used as references', async () => {
 			const html = await fixture.fetch('/login').then((res) => res.text());
 			const $ = cheerioLoad(html);
 
@@ -151,7 +151,7 @@ describe('astro:db', () => {
 			assert.match(themeDark, /dark mode/);
 		});
 
-		it('text fields an be used as references', async () => {
+		it('text fields can be used as references', async () => {
 			const html = await fixture.fetch('/login').then((res) => res.text());
 			const $ = cheerioLoad(html);
 

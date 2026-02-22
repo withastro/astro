@@ -79,7 +79,7 @@ export type ContainerRenderOptions = {
 	 */
 	params?: Record<string, string | undefined>;
 	/**
-	 * Useful if your component needs to access some locals without the use a middleware.
+	 * Useful if your component needs to access some locals without the use of middleware.
 	 * ```js
 	 * container.renderToString(Component, { locals: { getSomeValue() {} } });
 	 * ```

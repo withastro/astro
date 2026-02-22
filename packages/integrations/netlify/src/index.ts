@@ -238,7 +238,7 @@ export interface NetlifyIntegrationConfig {
 	/**
 	 * If disabled, Middleware is applied to prerendered pages at build-time, and to on-demand-rendered pages at runtime.
 	 * Only disable when your Middleware does not need to run on prerendered pages.
-	 * If you use Middleware to implement authentication, redirects or similar things, you should should likely enabled it.
+	 * If you use Middleware to implement authentication, redirects or similar things, you should likely enabled it.
 	 *
 	 * If enabled, Astro Middleware is deployed as an Edge Function and applies to all routes.
 	 * Caveat: Locals set in Middleware are not applied to prerendered pages, because they've been rendered at build-time and are served from the CDN.
@@ -487,8 +487,8 @@ export default function netlifyIntegration(
 			plugins: [
 				{
 					name: 'allowNodePrefixedImports',
-					setup(puglinBuild) {
-						puglinBuild.onResolve({ filter: /^node:.*$/ }, (args) => ({
+					setup(pluginBuild) {
+						pluginBuild.onResolve({ filter: /^node:.*$/ }, (args) => ({
 							path: args.path,
 							external: true,
 						}));

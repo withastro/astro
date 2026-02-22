@@ -36,7 +36,7 @@ describe('Dev server manual routing', () => {
 		assert.equal(text.includes('Outside route'), true);
 	});
 
-	it('should render a i18n route', async () => {
+	it('should render an i18n route', async () => {
 		let response = await fixture.fetch('/en/blog');
 		assert.equal(response.status, 200);
 		let text = await response.text();
@@ -83,7 +83,7 @@ describe('SSG manual routing', () => {
 		assert.equal($('body').text().includes('Outside route'), true);
 	});
 
-	it('should render a i18n route', async () => {
+	it('should render an i18n route', async () => {
 		let html = await fixture.readFile('/en/blog/index.html');
 		let $ = cheerio.load(html);
 		assert.equal($('body').text().includes('Blog start'), true);
@@ -128,7 +128,7 @@ describe('SSR manual routing', () => {
 		assert.equal(text.includes('Outside route'), true);
 	});
 
-	it('should render a i18n route', async () => {
+	it('should render an i18n route', async () => {
 		let request = new Request('http://example.com/en/blog');
 		let response = await app.render(request);
 		assert.equal(response.status, 200);

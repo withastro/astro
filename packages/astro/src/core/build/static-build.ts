@@ -341,7 +341,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				// and this is the only way to update the input after instantiation.
 				internals.clientInput = getClientInput(internals, settings);
 				if (!internals.clientInput.size) {
-					// At least 1 input is required to do a build, otherwise Vite throws.
+					// At least 1 input is required to do a build; otherwise, Vite throws.
 					// We need the client build to happen in order to copy over the `public/` folder
 					// So using the noop plugin here which will give us an input that just gets thrown away.
 					internals.clientInput.add(NOOP_MODULE_ID);
@@ -607,7 +607,7 @@ function getClientInput(
  * Output: `pages/injected.mjs`
  *
  * 1. We clean the `facadeModuleId` by removing the `ASTRO_PAGE_MODULE_ID` prefix and `ASTRO_PAGE_EXTENSION_POST_PATTERN`.
- * 2. We find the matching route pattern in the manifest (or fallback to the cleaned module id)
+ * 2. We find the matching route pattern in the manifest (or fall back to the cleaned module id)
  * 3. We replace square brackets with underscore (`[slug]` => `_slug_`) and `...` with `` (`[...slug]` => `_---slug_`).
  * 4. We append the `.mjs` extension, so the file will always be an ESM module
  *

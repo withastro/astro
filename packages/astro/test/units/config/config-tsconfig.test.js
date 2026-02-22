@@ -24,7 +24,7 @@ describe('TSConfig handling', () => {
 			assert.deepEqual(config.tsconfig.files, ['im-a-test']);
 		});
 
-		it('can fallback to jsconfig.json if tsconfig.json does not exists', async () => {
+		it('can fall back to jsconfig.json if tsconfig.json does not exist', async () => {
 			const config = await loadTSConfig(path.join(cwd, 'jsconfig'));
 
 			assert.equal(config !== undefined, true);

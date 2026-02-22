@@ -97,7 +97,7 @@ describe('node', () => {
 				assert.equal(result.url, 'https://example.com/');
 			});
 
-			it('bad values are ignored and fallback to host header', () => {
+			it('bad values are ignored and fall back to host header', () => {
 				const result = createRequest(
 					{
 						...mockNodeRequest,
@@ -136,7 +136,7 @@ describe('node', () => {
 					},
 					{ allowedDomains: [{ hostname: '*.victim.com' }] },
 				);
-				// localhost should not match *.victim.com, fallback to host header which does match
+				// localhost should not match *.victim.com, fall back to host header which does match
 				assert.equal(result.url, 'https://sub.victim.com/');
 			});
 

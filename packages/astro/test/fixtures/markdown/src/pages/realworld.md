@@ -76,7 +76,7 @@ The PHP above displays the tabs. The code below, very similarly, displays the ta
 <?php endif; // (have_rows('tab_panes') ): ?>
 ```
 
-By looping through the same repeater, we can get all the tabs out of the database, no problem. But we still have two problems: 1) linking the tab to the pane 2) Assigning the class of "active" so the Javascript is able to add and remove the CSS to reveal / hide the appropriate pane.
+By looping through the same repeater, we can get all the tabs out of the database, no problem. But we still have two problems: 1) linking the tab to the pane 2) Assigning the class of "active" so the JavaScript is able to add and remove the CSS to reveal / hide the appropriate pane.
 
 ### 1) Linking to the Pane
 
@@ -90,7 +90,7 @@ On the other hand, WordPress has a very useful function called Sanitize HTML, wh
 
 ### 2) Assigning the 'Active' Class
 
-So now we need to get a class of 'active' _only on_ the first tab. The Bootstrap Javascript will do the rest for us. How do we do that?
+So now we need to get a class of 'active' _only on_ the first tab. The Bootstrap JavaScript will do the rest for us. How do we do that?
 
 I added this code just inside the `while` loop, inside the `ul` tag:
 

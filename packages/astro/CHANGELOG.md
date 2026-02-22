@@ -83,7 +83,7 @@
 
 ### Patch Changes
 
-- [#15542](https://github.com/withastro/astro/pull/15542) [`9760404`](https://github.com/withastro/astro/commit/97604040b73ec1d029f5d5a489aa744aaecfd173) Thanks [@rururux](https://github.com/rururux)! - Improves rendering by preserving `hidden="until-found"` value in attribues
+- [#15542](https://github.com/withastro/astro/pull/15542) [`9760404`](https://github.com/withastro/astro/commit/97604040b73ec1d029f5d5a489aa744aaecfd173) Thanks [@rururux](https://github.com/rururux)! - Improves rendering by preserving `hidden="until-found"` value in attributes
 
 - [#15550](https://github.com/withastro/astro/pull/15550) [`58df907`](https://github.com/withastro/astro/commit/58df9072391fbfcd703e8d791ca51b7bedefb730) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves the JSDoc annotations for the `AstroAdapter` type
 
@@ -587,7 +587,7 @@
 
 - [#15260](https://github.com/withastro/astro/pull/15260) [`abca1eb`](https://github.com/withastro/astro/commit/abca1ebc0ed4b89b1904c58b7969f8386250f8de) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where adding new pages weren't correctly shown when using the development server.
 
-- [#15214](https://github.com/withastro/astro/pull/15214) [`6bab8c9`](https://github.com/withastro/astro/commit/6bab8c992add3ecad7581b26f6bc28a74e5d3485) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the internal perfomance timers weren't correctly updated to reflect new build pipeline.
+- [#15214](https://github.com/withastro/astro/pull/15214) [`6bab8c9`](https://github.com/withastro/astro/commit/6bab8c992add3ecad7581b26f6bc28a74e5d3485) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the internal performance timers weren't correctly updated to reflect new build pipeline.
 
 - [#15259](https://github.com/withastro/astro/pull/15259) [`8670a69`](https://github.com/withastro/astro/commit/8670a699e96fcc972d441c75e503b20e8961a71f) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where styles weren't correctly reloaded when using the `@astrojs/cloudflare` adapter.
 
@@ -614,7 +614,7 @@
 
 - [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes remote images `Etag` header handling by disabling internal cache
 
-- [#15121](https://github.com/withastro/astro/pull/15121) [`06261e0`](https://github.com/withastro/astro/commit/06261e03d55a571c6affbd7321f7e28c997d6d5d) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where the Astro, with the Cloudlfare integration, couldn't correctly serve certain routes in the development server.
+- [#15121](https://github.com/withastro/astro/pull/15121) [`06261e0`](https://github.com/withastro/astro/commit/06261e03d55a571c6affbd7321f7e28c997d6d5d) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where the Astro, with the Cloudflare integration, couldn't correctly serve certain routes in the development server.
 
 - [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes images not working in development when using setups with port forwarding
 
@@ -1138,9 +1138,9 @@
 
   The `getFontData()` helper function from `astro:assets` was introduced in 5.14.0 to provide access to font family data for use outside of Astro. One of the goals of this API was to be able to retrieve buffers using URLs.
 
-  However, it turned out to be impactical and even impossible during prerendering.
+  However, it turned out to be impractical and even impossible during prerendering.
 
-  Astro now exports a new `getFontBuffer()` helper function from `astro:assets` to retrieve font file buffers from URL returned by `getFontData()`. For example, when using [satori](https://github.com/vercel/satori) to generate OpenGraph images:
+  Astro now exports a new `getFontBuffer()` helper function from `astro:assets` to retrieve font file buffers from URL returned by `getFontData()`. For example, when using [satori](https://github.com/vercel/satori) to generate Open Graph images:
 
   ```diff
   // src/pages/og.png.ts
@@ -1377,7 +1377,7 @@
 
   Previously, an Astro `FontProvider` was made of a config and a runtime part. It relied directly on `unifont` types, which allowed a simple configuration for third-party unifont providers, but also coupled Astro's implementation to unifont, which was limiting.
 
-  Astro's font provider implementation is now only made of a config part with dedicated hooks. This allows for the separation of config and runtime, but requires you to create a font provider object in order to use custom font providers (e.g. third-party unifont providers, or private font registeries).
+  Astro's font provider implementation is now only made of a config part with dedicated hooks. This allows for the separation of config and runtime, but requires you to create a font provider object in order to use custom font providers (e.g. third-party unifont providers, or private font registries).
 
   #### What should I do?
 
@@ -1428,7 +1428,7 @@
 
 - [#15124](https://github.com/withastro/astro/pull/15124) [`81db3c0`](https://github.com/withastro/astro/commit/81db3c06e8f75bf1ec6f3d4d31a42d16dcf0e969) Thanks [@leonace924](https://github.com/leonace924)! - Fixes an issue where requests with query parameters to the `base` path would return a 404 if trailingSlash was not `'ignore'` in development
 
-- [#15152](https://github.com/withastro/astro/pull/15152) [`39ee41f`](https://github.com/withastro/astro/commit/39ee41fa56b362942162dc17b0b4252d2f881e7e) Thanks [@rururux](https://github.com/rururux)! - Fixes a case where `context.cookies.set()` would be overriden when setting cookies via response headers in development
+- [#15152](https://github.com/withastro/astro/pull/15152) [`39ee41f`](https://github.com/withastro/astro/commit/39ee41fa56b362942162dc17b0b4252d2f881e7e) Thanks [@rururux](https://github.com/rururux)! - Fixes a case where `context.cookies.set()` would be overridden when setting cookies via response headers in development
 
 - [#15140](https://github.com/withastro/astro/pull/15140) [`6f6f8f8`](https://github.com/withastro/astro/commit/6f6f8f8c0c3ccf346d741a8625bbfbe1329e472e) Thanks [@cameronraysmith](https://github.com/cameronraysmith)! - Fixes esbuild warning due to dead code in assets virtual module
 
@@ -1878,7 +1878,7 @@
 
 - [#14582](https://github.com/withastro/astro/pull/14582) [`7958c6b`](https://github.com/withastro/astro/commit/7958c6b44c4bcdaa827d33f71ae7c2def26dc1b4) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a regression that caused Actions to throw errors while loading
 
-- [#14567](https://github.com/withastro/astro/pull/14567) [`94500bb`](https://github.com/withastro/astro/commit/94500bb22236b77c842d88407b9a73bfc7fde488) Thanks [@matthewp](https://github.com/matthewp)! - Fixes the actions endpoint to return 404 for non-existent actions instead of throwing an unhandled error
+- [#14567](https://github.com/withastro/astro/pull/14567) [`94500bb`](https://github.com/withastro/astro/commit/94500bb22236b77c842d88407b9a73bfc7fde488) Thanks [@matthewp](https://github.com/matthewp)! - Fixes the actions endpoint to return 404 for nonexistent actions instead of throwing an unhandled error
 
 - [#14566](https://github.com/withastro/astro/pull/14566) [`946fe68`](https://github.com/withastro/astro/commit/946fe68c973c966a4f589ae43858bf486cc70eb5) Thanks [@matthewp](https://github.com/matthewp)! - Fixes handling malformed cookies gracefully by returning the unparsed value instead of throwing
 
@@ -1941,7 +1941,7 @@
 
   This update ensures that configured redirects are always handled as HTTP redirects regardless of output mode, and the default HTML files for the redirects are no longer generated in `static` output. It makes the Node.js adapter more consistent with the other official adapters.
 
-  No change to your project is required to take advantage of this new adapter functionality. It is not expected to cause any breaking changes. However, if you relied on the previous redirecting behavior, you may need to handle your redirects differently now. Otherwise you should notice smoother redirects, with more accurate HTTP status codes, and may potentially see some SEO gains.
+  No change to your project is required to take advantage of this new adapter functionality. It is not expected to cause any breaking changes. However, if you relied on the previous redirecting behavior, you may need to handle your redirects differently now. Otherwise, you should notice smoother redirects, with more accurate HTTP status codes, and may potentially see some SEO gains.
 
 - [#14506](https://github.com/withastro/astro/pull/14506) [`ec3cbe1`](https://github.com/withastro/astro/commit/ec3cbe178094e94fcb49cccdcc15c6ffee3104ba) Thanks [@abdo-spices](https://github.com/abdo-spices)! - Updates the `<Font />` component so that preload links are generated after the style tag, as recommended by capo.js
 
@@ -2095,7 +2095,7 @@
   const data = getFontData('--font-roboto');
   ```
 
-  For example, `getFontData()` can get the font buffer from the URL when using [satori](https://github.com/vercel/satori) to generate OpenGraph images:
+  For example, `getFontData()` can get the font buffer from the URL when using [satori](https://github.com/vercel/satori) to generate Open Graph images:
 
   ```tsx
   // src/pages/og.png.ts
@@ -2845,7 +2845,7 @@
 
 ### Patch Changes
 
-- [#13951](https://github.com/withastro/astro/pull/13951) [`7eb88f1`](https://github.com/withastro/astro/commit/7eb88f1e9113943b47e35e9f0033ab516f0a4f40) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a issue that caused errors when using an adapter-provided session driver with custom options
+- [#13951](https://github.com/withastro/astro/pull/13951) [`7eb88f1`](https://github.com/withastro/astro/commit/7eb88f1e9113943b47e35e9f0033ab516f0a4f40) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes an issue that caused errors when using an adapter-provided session driver with custom options
 
 - [#13953](https://github.com/withastro/astro/pull/13953) [`448bddc`](https://github.com/withastro/astro/commit/448bddc49492c6a92a23735cd29a93baec0dda48) Thanks [@zaitovalisher](https://github.com/zaitovalisher)! - Fixes a bug where quotes were not added to the 'strict-dynamic' CSP directive
 
@@ -3043,7 +3043,7 @@
 
   For more information, see the [Content Loader API docs](https://docs.astro.build/en/reference/content-loader-reference/#rendermarkdown).
 
-- [#13887](https://github.com/withastro/astro/pull/13887) [`62f0668`](https://github.com/withastro/astro/commit/62f0668aa1e066c1c07ee0e774192def4cac43c4) Thanks [@yanthomasdev](https://github.com/yanthomasdev)! - Adds an option for integration authors to suppress adapter warning/errors in `supportedAstroFeatures`. This is useful when either an warning/error isn't applicable in a specific context or the default one might conflict and confuse users.
+- [#13887](https://github.com/withastro/astro/pull/13887) [`62f0668`](https://github.com/withastro/astro/commit/62f0668aa1e066c1c07ee0e774192def4cac43c4) Thanks [@yanthomasdev](https://github.com/yanthomasdev)! - Adds an option for integration authors to suppress adapter warning/errors in `supportedAstroFeatures`. This is useful when either a warning/error isn't applicable in a specific context or the default one might conflict and confuse users.
 
   To do so, you can add `suppress: "all"` (to suppress both the default and custom message) or `suppress: "default"` (to only suppress the default one):
 
@@ -3257,7 +3257,7 @@
 
   #### Upgrading
 
-  If you set a default `image.experimentalLayout` in your `astro.config.mjs`, or set it on a per-image basis using the `layout` prop, you will need to change all occurences to `constrained`:
+  If you set a default `image.experimentalLayout` in your `astro.config.mjs`, or set it on a per-image basis using the `layout` prop, you will need to change all occurrences to `constrained`:
 
   ```diff lang="ts"
   // astro.config.mjs
@@ -3575,7 +3575,7 @@
 
 - [#13547](https://github.com/withastro/astro/pull/13547) [`360cb91`](https://github.com/withastro/astro/commit/360cb9199a4314f90825c5639ff4396760e9cfcc) Thanks [@jsparkdev](https://github.com/jsparkdev)! - Updates vite to the latest version
 
-- [#13548](https://github.com/withastro/astro/pull/13548) [`e588527`](https://github.com/withastro/astro/commit/e588527b4c3de7759ef7d10d3004405d0b197f48) Thanks [@ryuapp](https://github.com/ryuapp)! - Support for Deno to install npm pacakges.
+- [#13548](https://github.com/withastro/astro/pull/13548) [`e588527`](https://github.com/withastro/astro/commit/e588527b4c3de7759ef7d10d3004405d0b197f48) Thanks [@ryuapp](https://github.com/ryuapp)! - Support for Deno to install npm packages.
 
   Deno requires npm prefix to install packages on npm. For example, to install react, we need to run `deno add npm:react`. But currently the command executed is `deno add react`, which doesn't work. So, we change the package names to have an npm prefix if you are using Deno.
 
@@ -3619,7 +3619,7 @@
   });
   ```
 
-  If no value is provided, Astro will fallback to its default behavior for fetching error pages.
+  If no value is provided, Astro will fall back to its default behavior for fetching error pages.
 
   Read more about this feature in the [Adapter API reference](https://docs.astro.build/en/reference/adapter-reference/#prerenderederrorpagefetch).
 
@@ -4138,7 +4138,7 @@
 
   Previously, any rewrites performed through `Astro.rewrite`/`ctx.rewrite` failed to append the base path to `Astro.url`/`ctx.rewrite`, which could lead to incorrect URL handling in downstream logic. By fixing this, we ensure that all routes remain consistent and predictable after a rewrite.
 
-  If you were relying on the work around of including the base path in astro.rewrite you can now remove it from the path.
+  If you were relying on the workaround of including the base path in astro.rewrite you can now remove it from the path.
 
 ## 5.3.0
 
@@ -4203,7 +4203,7 @@
 
 ### Patch Changes
 
-- [#13188](https://github.com/withastro/astro/pull/13188) [`7bc8256`](https://github.com/withastro/astro/commit/7bc825649bfb790a0206abd31df1676513a03b22) Thanks [@ematipico](https://github.com/ematipico)! - Fixes the wording of the an error message
+- [#13188](https://github.com/withastro/astro/pull/13188) [`7bc8256`](https://github.com/withastro/astro/commit/7bc825649bfb790a0206abd31df1676513a03b22) Thanks [@ematipico](https://github.com/ematipico)! - Fixes the wording of an error message
 
 - [#13205](https://github.com/withastro/astro/pull/13205) [`9d56602`](https://github.com/withastro/astro/commit/9d5660223b46e024b4e8c8eafead8a4e20e28ec5) Thanks [@ematipico](https://github.com/ematipico)! - Fixes and issue where a server island component returns 404 when `base` is configured in i18n project.
 
@@ -4770,7 +4770,7 @@
 
 - [#11987](https://github.com/withastro/astro/pull/11987) [`bf90a53`](https://github.com/withastro/astro/commit/bf90a5343f9cd1bb46f30e4b331e7ae675f5e720) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - The `locals` object can no longer be overridden
 
-  Middleware, API endpoints, and pages can no longer override the `locals` object in its entirety. You can still append values onto the object, but you can not replace the entire object and delete its existing values.
+  Middleware, API endpoints, and pages can no longer override the `locals` object in its entirety. You can still append values onto the object, but you cannot replace the entire object and delete its existing values.
 
   If you were previously overwriting like so:
 
@@ -5243,7 +5243,7 @@
 - [#12226](https://github.com/withastro/astro/pull/12226) [`51d13e2`](https://github.com/withastro/astro/commit/51d13e2f6ce3a9e03c33d80af6716847f6a78061) Thanks [@ematipico](https://github.com/ematipico)! - The following renderer fields and integration fields now accept `URL` as a type:
 
   **Renderers**:
-  - `AstroRenderer.clientEntrpoint`
+  - `AstroRenderer.clientEntrypoint`
   - `AstroRenderer.serverEntrypoint`
 
   **Integrations**:
@@ -5517,7 +5517,7 @@
 
   export const GET = (ctx) => {
     console.log(ctx.routePattern); // it will log src/pages/index.js
-    return new Response.json({ loreum: 'ipsum' });
+    return new Response.json({ lorem: 'ipsum' });
   };
   ```
 
@@ -5592,7 +5592,7 @@
   - `layout`: The layout type for the image. Can be `responsive`, `fixed`, `full-width` or `none`. Defaults to value of `image.experimentalLayout`.
   - `fit`: Defines how the image should be cropped if the aspect ratio is changed. Values match those of CSS `object-fit`. Defaults to `cover`, or the value of `image.experimentalObjectFit` if set.
   - `position`: Defines the position of the image crop if the aspect ratio is changed. Values match those of CSS `object-position`. Defaults to `center`, or the value of `image.experimentalObjectPosition` if set.
-  - `priority`: If set, eagerly loads the image. Otherwise images will be lazy-loaded. Use this for your largest above-the-fold image. Defaults to `false`.
+  - `priority`: If set, eagerly loads the image. Otherwise, images will be lazy-loaded. Use this for your largest above-the-fold image. Defaults to `false`.
 
   #### Default responsive image settings
 
@@ -5636,7 +5636,7 @@
   - In `astro build`, Astro will transform code with the most optimized output and removes debug information.
   - In `astro build --devOutput` (new flag), Astro will transform code with debug information like in `astro dev`.
 
-  This enables various usecases like:
+  This enables various use cases like:
 
   ```bash
   # Run the dev server connected to a "staging" API
@@ -5828,7 +5828,7 @@
   The signature for `app.render()` has changed, and the second argument is now an options object called `renderOptions` with more options for customizing rendering.
 
   The `renderOptions` are:
-  - `addCookieHeader`: Determines whether Astro will set the `Set-Cookie` header, otherwise the adapter is expected to do so itself.
+  - `addCookieHeader`: Determines whether Astro will set the `Set-Cookie` header; otherwise, the adapter is expected to do so itself.
   - `clientAddress`: The client IP address used to set `Astro.clientAddress`.
   - `locals`: An object of locals that's set to `Astro.locals`.
   - `routeData`: An object specifying the route to use.
@@ -5906,7 +5906,7 @@
 
 - [#12168](https://github.com/withastro/astro/pull/12168) [`1cd3085`](https://github.com/withastro/astro/commit/1cd30852a3bdae1847ad4e835e503598ca5fdf5c) Thanks [@ascorbic](https://github.com/ascorbic)! - Allows "slug" as a field in content layer data
 
-- [#12302](https://github.com/withastro/astro/pull/12302) [`7196c24`](https://github.com/withastro/astro/commit/7196c244ea75d2f2aafbec332d91cb681f0a4cb7) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the origin check middleware run for prendered pages
+- [#12302](https://github.com/withastro/astro/pull/12302) [`7196c24`](https://github.com/withastro/astro/commit/7196c244ea75d2f2aafbec332d91cb681f0a4cb7) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the origin check middleware run for prerendered pages
 
 - [#12341](https://github.com/withastro/astro/pull/12341) [`c1786d6`](https://github.com/withastro/astro/commit/c1786d64c4d8b25ed28f5e178531952466158e04) Thanks [@ematipico](https://github.com/ematipico)! - Fixes and issue where `Astro.currentLocale` always returned the default locale when consumed inside a server island.
 
@@ -6172,7 +6172,7 @@
   - `layout`: The layout type for the image. Can be `responsive`, `fixed`, `full-width` or `none`. Defaults to value of `image.experimentalLayout`.
   - `fit`: Defines how the image should be cropped if the aspect ratio is changed. Values match those of CSS `object-fit`. Defaults to `cover`, or the value of `image.experimentalObjectFit` if set.
   - `position`: Defines the position of the image crop if the aspect ratio is changed. Values match those of CSS `object-position`. Defaults to `center`, or the value of `image.experimentalObjectPosition` if set.
-  - `priority`: If set, eagerly loads the image. Otherwise images will be lazy-loaded. Use this for your largest above-the-fold image. Defaults to `false`.
+  - `priority`: If set, eagerly loads the image. Otherwise, images will be lazy-loaded. Use this for your largest above-the-fold image. Defaults to `false`.
 
   #### Default responsive image settings
 
@@ -6323,7 +6323,7 @@
   - In `astro build`, Astro will transform code with the most optimized output and removes debug information.
   - In `astro build --devOutput` (new flag), Astro will transform code with debug information like in `astro dev`.
 
-  This enables various usecases like:
+  This enables various use cases like:
 
   ```bash
   # Run the dev server connected to a "staging" API
@@ -6343,7 +6343,7 @@
 
 ### Patch Changes
 
-- [#12302](https://github.com/withastro/astro/pull/12302) [`7196c24`](https://github.com/withastro/astro/commit/7196c244ea75d2f2aafbec332d91cb681f0a4cb7) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the origin check middleware run for prendered pages
+- [#12302](https://github.com/withastro/astro/pull/12302) [`7196c24`](https://github.com/withastro/astro/commit/7196c244ea75d2f2aafbec332d91cb681f0a4cb7) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the origin check middleware run for prerendered pages
 
 - [#12341](https://github.com/withastro/astro/pull/12341) [`c1786d6`](https://github.com/withastro/astro/commit/c1786d64c4d8b25ed28f5e178531952466158e04) Thanks [@ematipico](https://github.com/ematipico)! - Fixes and issue where `Astro.currentLocale` always returned the default locale when consumed inside a server island.
 
@@ -6356,7 +6356,7 @@
 - [#12226](https://github.com/withastro/astro/pull/12226) [`51d13e2`](https://github.com/withastro/astro/commit/51d13e2f6ce3a9e03c33d80af6716847f6a78061) Thanks [@ematipico](https://github.com/ematipico)! - The following renderer fields and integration fields now accept `URL` as a type:
 
   **Renderers**:
-  - `AstroRenderer.clientEntrpoint`
+  - `AstroRenderer.clientEntrypoint`
   - `AstroRenderer.serverEntrypoint`
 
   **Integrations**:
@@ -6636,7 +6636,7 @@
 
 - [#11987](https://github.com/withastro/astro/pull/11987) [`bf90a53`](https://github.com/withastro/astro/commit/bf90a5343f9cd1bb46f30e4b331e7ae675f5e720) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - The `locals` object can no longer be overridden
 
-  Middleware, API endpoints, and pages can no longer override the `locals` object in its entirety. You can still append values onto the object, but you can not replace the entire object and delete its existing values.
+  Middleware, API endpoints, and pages can no longer override the `locals` object in its entirety. You can still append values onto the object, but you cannot replace the entire object and delete its existing values.
 
   If you were previously overwriting like so:
 
@@ -6673,7 +6673,7 @@
   The signature for `app.render()` has changed, and the second argument is now an options object called `renderOptions` with more options for customizing rendering.
 
   The `renderOptions` are:
-  - `addCookieHeader`: Determines whether Astro will set the `Set-Cookie` header, otherwise the adapter is expected to do so itself.
+  - `addCookieHeader`: Determines whether Astro will set the `Set-Cookie` header; otherwise, the adapter is expected to do so itself.
   - `clientAddress`: The client IP address used to set `Astro.clientAddress`.
   - `locals`: An object of locals that's set to `Astro.locals`.
   - `routeData`: An object specifying the route to use.
@@ -7191,7 +7191,7 @@
 - [#11698](https://github.com/withastro/astro/pull/11698) [`05139ef`](https://github.com/withastro/astro/commit/05139ef8b46de96539cc1d08148489eaf3cfd837) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new property to the globals `Astro` and `APIContext` called `routePattern`. The `routePattern` represents the current route (component)
   that is being rendered by Astro. It's usually a path pattern will look like this: `blog/[slug]`:
 
-  ```asto
+  ```astro
   ---
   // src/pages/blog/[slug].astro
   const route = Astro.routePattern;

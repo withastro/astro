@@ -219,7 +219,7 @@ describe('astro cli', () => {
 			const packURL = new URL(packFileName, testsRootURL);
 			const packDestinationURL = new URL(packFileName, fixtureRootURL);
 
-			// Add a packageManager field to the fixture's package.json file, otherwise
+			// Add a packageManager field to the fixture's package.json file; otherwise,
 			// corepack won't allow us to use yarn because a parent directory has a different
 			// package.json file with a packageManager field
 			let packageJSON = await fs

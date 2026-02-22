@@ -538,7 +538,7 @@ test.describe('View Transitions', () => {
 		await page.goto(astro.resolveUrl('/video-one'));
 		const vid = page.locator('video');
 		await expect(vid).toBeVisible();
-		// Mute the video before playing, otherwise there's actually sounds when testing
+		// Mute the video before playing; otherwise, there's actually sounds when testing
 		await vid.evaluate((el) => (el.muted = true));
 		// Browser blocks autoplay, so we manually play it here. For some reason,
 		// you need to click and play it manually for it to actually work.
@@ -723,7 +723,7 @@ test.describe('View Transitions', () => {
 	}) => {
 		const loads = collectLoads(page);
 
-		// Go to the half bakeed page
+		// Go to the half baked page
 		await page.goto(astro.resolveUrl('/half-baked'));
 		let p = page.locator('#half-baked');
 		await expect(p, 'should have content').toHaveText('Half Baked');
@@ -1664,7 +1664,7 @@ test.describe('View Transitions', () => {
 		await page.goto(astro.resolveUrl('/abort2'));
 		// implemented in /abort2:
 		// Navigate to self with a 10 second animation
-		// shortly after starting that, change your mind an navigate to /one
+		// shortly after starting that, change your mind and navigate to /one
 		// check that animations got canceled
 		let p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');

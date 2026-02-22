@@ -875,7 +875,7 @@ export const LocalsNotAnObject = {
 export const LocalsReassigned = {
 	name: 'LocalsReassigned',
 	title: '`locals` must not be reassigned.',
-	message: '`locals` can not be assigned directly.',
+	message: '`locals` cannot be assigned directly.',
 	hint: 'Set a `locals` property instead.',
 } satisfies ErrorData;
 
@@ -1190,7 +1190,7 @@ export const InvalidI18nMiddlewareConfiguration = {
 	name: 'InvalidI18nMiddlewareConfiguration',
 	title: 'Invalid internationalization middleware configuration',
 	message:
-		'The option `redirectToDefaultLocale` can be enabled only when `prefixDefaultLocale` is also set to `true`, otherwise redirects might cause infinite loops. Enable the option `prefixDefaultLocale` to continue to use `redirectToDefaultLocale`, or ensure both are set to `false`.',
+		'The option `redirectToDefaultLocale` can be enabled only when `prefixDefaultLocale` is also set to `true`; otherwise, redirects might cause infinite loops. Enable the option `prefixDefaultLocale` to continue to use `redirectToDefaultLocale`, or ensure both are set to `false`.',
 } satisfies ErrorData;
 
 /**
@@ -1222,7 +1222,7 @@ export const UnhandledRejection = {
 /**
  * @docs
  * @description
- * The `astro:i18n` module can not be used without enabling i18n in your Astro config. To enable i18n, add a default locale and a list of supported locales to your Astro config:
+ * The `astro:i18n` module cannot be used without enabling i18n in your Astro config. To enable i18n, add a default locale and a list of supported locales to your Astro config:
  * ```js
  * import { defineConfig } from 'astro'
  * export default defineConfig({
@@ -1241,7 +1241,7 @@ export const UnhandledRejection = {
 export const i18nNotEnabled = {
 	name: 'i18nNotEnabled',
 	title: 'i18n Not Enabled',
-	message: 'The `astro:i18n` module can not be used without enabling i18n in your Astro config.',
+	message: 'The `astro:i18n` module cannot be used without enabling i18n in your Astro config.',
 	hint: 'See https://docs.astro.build/en/guides/internationalization for a guide on setting up i18n.',
 } satisfies ErrorData;
 
@@ -1328,7 +1328,7 @@ export const ForbiddenRewrite = {
 	title: 'Forbidden rewrite to a static route.',
 	message: (from: string, to: string, component: string) =>
 		`You tried to rewrite the on-demand route '${from}' with the static route '${to}', when using the 'server' output. \n\nThe static route '${to}' is rendered by the component
-'${component}', which is marked as prerendered. This is a forbidden operation because during the build the component '${component}' is compiled to an
+'${component}', which is marked as prerendered. This is a forbidden operation because during the build, the component '${component}' is compiled to an
 HTML file, which can't be retrieved at runtime by Astro.`,
 	hint: (component: string) =>
 		`Add \`export const prerender = false\` to the component '${component}', or use a Astro.redirect().`,
@@ -1466,9 +1466,9 @@ export const UnknownMarkdownError = {
  * @docs
  * @message
  * **Example error messages:**<br/>
- * can not read an implicit mapping pair; a colon is missed<br/>
+ * cannot read an implicit mapping pair; a colon is missed<br/>
  * unexpected end of the stream within a double quoted scalar<br/>
- * can not read a block mapping entry; a multiline key may not be an implicit key
+ * cannot read a block mapping entry; a multiline key may not be an implicit key
  * @description
  * Astro encountered an error while parsing the frontmatter of your Markdown file.
  * This is often caused by a mistake in the syntax, such as a missing colon or a missing end quote.
@@ -2094,6 +2094,6 @@ export const CannotOptimizeSvg = {
  * 		- If your message is fully dynamic (ex: lots of conditional logic), make `message` a proper function, like such: `message(parameters) { logic }`.
  * 			Make sure to add a `@message` tag with a static example of the error message, the docs won't be able to parse it otherwise.
  *  	- If your message is static, you can just use a string, `message: "my message"`.
- * 5. Make sure to add a JSdoc comment with the `@docs` tag so that it shows up in the docs, otherwise the error overlay will point to a 404!
+ * 5. Make sure to add a JSdoc comment with the `@docs` tag so that it shows up in the docs; otherwise, the error overlay will point to a 404!
  * For more information, see the README in this folder!
  */

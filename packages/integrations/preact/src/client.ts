@@ -27,7 +27,7 @@ export default (element: HTMLElement) =>
 						const mapValue = props[propName][indexOrKeyInProps];
 						let valueOfSignal = mapValue;
 
-						// not an property key
+						// not a property key
 						if (typeof indexOrKeyInProps !== 'string') {
 							valueOfSignal = mapValue[0];
 							indexOrKeyInProps = mapValue[1];

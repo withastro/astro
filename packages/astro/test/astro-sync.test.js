@@ -98,7 +98,7 @@ const createFixture = () => {
 		/**
 		 * @param {string} path
 		 */
-		thenFileShouldBeValidTypescript(path) {
+		thenFileShouldBeValidTypeScript(path) {
 			try {
 				const content = writtenFiles[getExpectedPath(path)];
 				const result = ts.transpileModule(content, {
@@ -162,7 +162,7 @@ describe('astro sync', () => {
 				`declare module 'astro:content' {`,
 				'Types file does not include `astro:content` module declaration',
 			);
-			fixture.thenFileShouldBeValidTypescript('.astro/content.d.ts');
+			fixture.thenFileShouldBeValidTypeScript('.astro/content.d.ts');
 		});
 
 		it('Writes types for empty collections', async () => {
@@ -263,7 +263,7 @@ describe('astro sync', () => {
 				`declare module "astro:actions" {`,
 				'Types file does not include `astro:actions` module declaration',
 			);
-			fixture.thenFileShouldBeValidTypescript('.astro/actions.d.ts');
+			fixture.thenFileShouldBeValidTypeScript('.astro/actions.d.ts');
 		});
 	});
 
