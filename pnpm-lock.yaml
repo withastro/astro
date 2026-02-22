@@ -674,6 +674,9 @@ importers:
       '@astrojs/check':
         specifier: workspace:*
         version: link:../language-tools/astro-check
+      '@astrojs/compiler-rs':
+        specifier: ^0.1.0
+        version: 0.1.0
       '@playwright/test':
         specifier: 1.58.2
         version: 1.58.2
@@ -7118,6 +7121,70 @@ packages:
   '@astrojs/cli-kit@0.4.1':
     resolution: {integrity: sha512-bVzyKzEpIwqjihBU/aUzt1LQckJuHK0agd3/ITdXhPUYculrc6K1/K7H+XG4rwjXtg+ikT3PM05V1MVYWiIvQw==}
     engines: {node: '>=18.14.1'}
+
+  '@astrojs/compiler-binding-darwin-arm64@0.1.0':
+    resolution: {integrity: sha512-1uv15N1LZt3ss+y3VOIKCSicNaoOomb5D7VQuKxL4/QG1oier9ObPfIuxqTBxgtNUOPC87fYqiDkXRGxCi43Bg==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@astrojs/compiler-binding-darwin-x64@0.1.0':
+    resolution: {integrity: sha512-I4VE7nwODs2UPf430EtQDwrAgJmZsdlxvIK/JqRvpu6C2nmjwGT4CibO8KACn+iBpUL4Bxk3+Ax+p3tVwKc9Ww==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+    cpu: [x64]
+    os: [darwin]
+
+  '@astrojs/compiler-binding-linux-arm64-gnu@0.1.0':
+    resolution: {integrity: sha512-VNorBIxOrT55hxSS1gdPYbM1RJHYL4ahOk15qINiwWFQPBb03vb5fY3zxUJrIXLdumb7Xvwt7TnrrGb6klFZbA==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+    cpu: [arm64]
+    os: [linux]
+    libc: [glibc]
+
+  '@astrojs/compiler-binding-linux-arm64-musl@0.1.0':
+    resolution: {integrity: sha512-VJUzo4vu6wY6ZkbDPofbzH4SyoinZGZzBCkZ75dGVZO1Z49J0fFb0NwRGd4VhGyrB6vBSa7fQTqZD04S2BYl2Q==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+    cpu: [arm64]
+    os: [linux]
+    libc: [musl]
+
+  '@astrojs/compiler-binding-linux-x64-gnu@0.1.0':
+    resolution: {integrity: sha512-GxCimSZcsG+gOhMH2kZGCUuUxZ2TxPHny7phIgjmdyE1iAY/zOKWl+uHWF/QazFsug0Iba4WlvjDOrVUL5HTDA==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+    cpu: [x64]
+    os: [linux]
+    libc: [glibc]
+
+  '@astrojs/compiler-binding-linux-x64-musl@0.1.0':
+    resolution: {integrity: sha512-cR1B9rmMmmOoD4APlGQ3ujkOQQrDKpOY0GsLexwbrgzprkVW+mvEqRfCwoi9lJO7xTWMlIF5goesEDjvMvmnxg==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+    cpu: [x64]
+    os: [linux]
+    libc: [musl]
+
+  '@astrojs/compiler-binding-wasm32-wasi@0.1.0':
+    resolution: {integrity: sha512-gy9SVv+GTlBfeO6AOrhaLUYUkuKCvjFr94jiMI15DBS/xIXkxm5CMut4Y7yq7GEB5xMByMUOb6a0Yk9ELu8aDQ==}
+    engines: {node: '>=14.0.0'}
+    cpu: [wasm32]
+
+  '@astrojs/compiler-binding-win32-arm64-msvc@0.1.0':
+    resolution: {integrity: sha512-4lJSUe5qx+szLvly9FqtJ2BdAG5XEgaTk3anoq+JoaANA+pGk2mGGa50dTVcqzplVnqEQGY6+9dIklk/4hJ4IQ==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+    cpu: [arm64]
+    os: [win32]
+
+  '@astrojs/compiler-binding-win32-x64-msvc@0.1.0':
+    resolution: {integrity: sha512-HVpiVsr3Wcy1/1GMfzwSc0oFRpJw9Mz7PJpI53/xBt/0ySPWDmL0FZXRHSQgEvAfTcVmh2P2LPivK5AkEDKuzg==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+    cpu: [x64]
+    os: [win32]
+
+  '@astrojs/compiler-binding@0.1.0':
+    resolution: {integrity: sha512-NKI0m+2zA8n5s4Vg9rrzOIqJsKHsVu+ASVxaCk2PNPksdDBiPIZC0Hq2/kqJfzwCaGnU0kplcF/rM6kYlGpx/Q==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+
+  '@astrojs/compiler-rs@0.1.0':
+    resolution: {integrity: sha512-/ctF92BSNHLySrQgwa7z8U1SveNAsrZkumBybnoDmmtl1+ZV2p2ME7ODzk56xhidpwnP81V3VhPjWM8kWwq8fw==}
 
   '@astrojs/compiler@2.13.1':
     resolution: {integrity: sha512-f3FN83d2G/v32ipNClRKgYv30onQlMZX1vCeZMjPsMMPl1mDpmbl0+N5BYo4S/ofzqJyS5hvwacEo0CCVDn/Qg==}
@@ -16359,6 +16426,51 @@ snapshots:
       chalk: 5.6.2
       log-update: 5.0.1
       sisteransi: 1.0.5
+
+  '@astrojs/compiler-binding-darwin-arm64@0.1.0':
+    optional: true
+
+  '@astrojs/compiler-binding-darwin-x64@0.1.0':
+    optional: true
+
+  '@astrojs/compiler-binding-linux-arm64-gnu@0.1.0':
+    optional: true
+
+  '@astrojs/compiler-binding-linux-arm64-musl@0.1.0':
+    optional: true
+
+  '@astrojs/compiler-binding-linux-x64-gnu@0.1.0':
+    optional: true
+
+  '@astrojs/compiler-binding-linux-x64-musl@0.1.0':
+    optional: true
+
+  '@astrojs/compiler-binding-wasm32-wasi@0.1.0':
+    dependencies:
+      '@napi-rs/wasm-runtime': 1.1.1
+    optional: true
+
+  '@astrojs/compiler-binding-win32-arm64-msvc@0.1.0':
+    optional: true
+
+  '@astrojs/compiler-binding-win32-x64-msvc@0.1.0':
+    optional: true
+
+  '@astrojs/compiler-binding@0.1.0':
+    optionalDependencies:
+      '@astrojs/compiler-binding-darwin-arm64': 0.1.0
+      '@astrojs/compiler-binding-darwin-x64': 0.1.0
+      '@astrojs/compiler-binding-linux-arm64-gnu': 0.1.0
+      '@astrojs/compiler-binding-linux-arm64-musl': 0.1.0
+      '@astrojs/compiler-binding-linux-x64-gnu': 0.1.0
+      '@astrojs/compiler-binding-linux-x64-musl': 0.1.0
+      '@astrojs/compiler-binding-wasm32-wasi': 0.1.0
+      '@astrojs/compiler-binding-win32-arm64-msvc': 0.1.0
+      '@astrojs/compiler-binding-win32-x64-msvc': 0.1.0
+
+  '@astrojs/compiler-rs@0.1.0':
+    dependencies:
+      '@astrojs/compiler-binding': 0.1.0
 
   '@astrojs/compiler@2.13.1': {}
 
