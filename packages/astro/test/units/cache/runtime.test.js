@@ -1,0 +1,320 @@
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
+import {
+	AstroCache,
+	applyCacheHeaders,
+	isCacheActive,
+} from '../../../dist/core/cache/runtime/cache.js';
+
+// Mock provider
+function createMockProvider(overrides = {}) {
+	return {
+		name: 'test-provider',
+		invalidate: async () => {},
+		...overrides,
+	};
+}
+
+describe('AstroCache - set() with CacheOptions', () => {
+	it('sets maxAge, swr, tags, lastModified, etag', () => {
+		const cache = new AstroCache(null);
+		const lastModified = new Date('2025-01-01');
+		cache.set({ maxAge: 300, swr: 60, tags: ['a', 'b'], lastModified, etag: '"abc"' });
+
+		assert.equal(isCacheActive(cache), true);
+		assert.deepEqual(cache.tags, ['a', 'b']);
+	});
+
+	it('sets maxAge only', () => {
+		const cache = new AstroCache(null);
+		cache.set({ maxAge: 600 });
+		assert.equal(isCacheActive(cache), true);
+	});
+
+	it('sets tags only', () => {
+		const cache = new AstroCache(null);
+		cache.set({ tags: ['product'] });
+		assert.equal(isCacheActive(cache), true);
+		assert.deepEqual(cache.tags, ['product']);
+	});
+});
+
+describe('AstroCache - set() with CacheHint', () => {
+	it('extracts tags and lastModified from CacheHint', () => {
+		const cache = new AstroCache(null);
+		cache.set({ tags: ['post'], lastModified: new Date('2025-06-01') });
+		assert.deepEqual(cache.tags, ['post']);
+		assert.equal(isCacheActive(cache), true);
+	});
+});
+
+describe('AstroCache - set() with LiveDataEntry', () => {
+	it('extracts cacheHint from LiveDataEntry', () => {
+		const cache = new AstroCache(null);
+		cache.set({
+			id: 'entry-1',
+			data: { title: 'Test' },
+			cacheHint: { tags: ['entry'], lastModified: new Date('2025-03-15') },
+		});
+		assert.deepEqual(cache.tags, ['entry']);
+		assert.equal(isCacheActive(cache), true);
+	});
+
+	it('no-ops when LiveDataEntry has no cacheHint', () => {
+		const cache = new AstroCache(null);
+		cache.set({ id: 'entry-2', data: { title: 'Test' }, cacheHint: undefined });
+		assert.equal(isCacheActive(cache), false);
+		assert.deepEqual(cache.tags, []);
+	});
+});
+
+describe('AstroCache - set(false)', () => {
+	it('disables and clears everything', () => {
+		const cache = new AstroCache(null);
+		cache.set({ maxAge: 300, tags: ['a'] });
+		cache.set(false);
+		assert.equal(isCacheActive(cache), false);
+		assert.deepEqual(cache.tags, []);
+	});
+});
+
+describe('AstroCache - multiple set() calls', () => {
+	it('scalar last-write-wins for maxAge and swr', () => {
+		const cache = new AstroCache(null);
+		cache.set({ maxAge: 100, swr: 10 });
+		cache.set({ maxAge: 200, swr: 20 });
+
+		const response = new Response('test');
+		applyCacheHeaders(cache, response);
+		assert.equal(
+			response.headers.get('CDN-Cache-Control'),
+			'max-age=200, stale-while-revalidate=20',
+		);
+	});
+
+	it('lastModified most-recent-wins (not last-write)', () => {
+		const cache = new AstroCache(null);
+		const newer = new Date('2025-06-01');
+		const older = new Date('2025-01-01');
+
+		cache.set({ maxAge: 60, lastModified: newer });
+		cache.set({ maxAge: 60, lastModified: older }); // older date written last — should NOT win
+
+		const response = new Response('test');
+		applyCacheHeaders(cache, response);
+		assert.equal(response.headers.get('Last-Modified'), newer.toUTCString());
+	});
+
+	it('tags accumulate and deduplicate', () => {
+		const cache = new AstroCache(null);
+		cache.set({ tags: ['a', 'b'] });
+		cache.set({ tags: ['b', 'c'] });
+		assert.deepEqual(cache.tags, ['a', 'b', 'c']);
+	});
+
+	it('set(false) after other calls clears everything', () => {
+		const cache = new AstroCache(null);
+		cache.set({ maxAge: 300, tags: ['x'] });
+		cache.set(false);
+		assert.equal(isCacheActive(cache), false);
+		assert.deepEqual(cache.tags, []);
+
+		const response = new Response('test');
+		applyCacheHeaders(cache, response);
+		assert.equal(response.headers.get('CDN-Cache-Control'), null);
+	});
+
+	it('set() after set(false) re-enables', () => {
+		const cache = new AstroCache(null);
+		cache.set({ maxAge: 300 });
+		cache.set(false);
+		cache.set({ maxAge: 600 });
+		assert.equal(isCacheActive(cache), true);
+
+		const response = new Response('test');
+		applyCacheHeaders(cache, response);
+		assert.equal(response.headers.get('CDN-Cache-Control'), 'max-age=600');
+	});
+});
+
+describe('AstroCache - tags getter', () => {
+	it('returns a copy — mutations do not affect internal state', () => {
+		const cache = new AstroCache(null);
+		cache.set({ tags: ['a', 'b'] });
+
+		const tags = cache.tags;
+		tags.push('c');
+
+		assert.deepEqual(cache.tags, ['a', 'b']);
+	});
+});
+
+describe('AstroCache - options getter', () => {
+	it('returns all cache options including accumulated tags', () => {
+		const cache = new AstroCache(null);
+		const lastModified = new Date('2025-01-01');
+		cache.set({ maxAge: 300, swr: 60, tags: ['a'], lastModified, etag: '"abc"' });
+		cache.set({ tags: ['b'] }); // accumulate another tag
+
+		const options = cache.options;
+		assert.equal(options.maxAge, 300);
+		assert.equal(options.swr, 60);
+		assert.deepEqual(options.tags, ['a', 'b']);
+		assert.equal(options.lastModified, lastModified);
+		assert.equal(options.etag, '"abc"');
+	});
+
+	it('returns frozen object (immutable)', () => {
+		const cache = new AstroCache(null);
+		cache.set({ maxAge: 300 });
+
+		const options = cache.options;
+		assert.equal(Object.isFrozen(options), true);
+	});
+
+	it('returns empty tags array when no tags set', () => {
+		const cache = new AstroCache(null);
+		cache.set({ maxAge: 300 });
+
+		const options = cache.options;
+		assert.deepEqual(options.tags, []);
+	});
+});
+
+describe('AstroCache - invalidate()', () => {
+	it('calls provider.invalidate() with correct options', async () => {
+		let captured;
+		const provider = createMockProvider({
+			invalidate: async (opts) => {
+				captured = opts;
+			},
+		});
+		const cache = new AstroCache(provider);
+		await cache.invalidate({ tags: ['product'], path: '/products' });
+		assert.deepEqual(captured, { tags: ['product'], path: '/products' });
+	});
+
+	it('extracts tags from LiveDataEntry for invalidate', async () => {
+		let captured;
+		const provider = createMockProvider({
+			invalidate: async (opts) => {
+				captured = opts;
+			},
+		});
+		const cache = new AstroCache(provider);
+		await cache.invalidate({
+			id: 'entry-1',
+			data: {},
+			cacheHint: { tags: ['blog'] },
+		});
+		assert.deepEqual(captured, { tags: ['blog'] });
+	});
+
+	it('throws without provider', async () => {
+		const cache = new AstroCache(null);
+		await assert.rejects(() => cache.invalidate({ tags: 'x' }), {
+			message: 'Cache invalidation requires a cache provider',
+		});
+	});
+});
+
+describe('applyCacheHeaders()', () => {
+	it('generates correct CDN-Cache-Control', () => {
+		const cache = new AstroCache(null);
+		cache.set({ maxAge: 300 });
+
+		const response = new Response('test');
+		applyCacheHeaders(cache, response);
+		assert.equal(response.headers.get('CDN-Cache-Control'), 'max-age=300');
+	});
+
+	it('generates CDN-Cache-Control with swr', () => {
+		const cache = new AstroCache(null);
+		cache.set({ maxAge: 300, swr: 60 });
+
+		const response = new Response('test');
+		applyCacheHeaders(cache, response);
+		assert.equal(
+			response.headers.get('CDN-Cache-Control'),
+			'max-age=300, stale-while-revalidate=60',
+		);
+	});
+
+	it('generates correct Cache-Tag', () => {
+		const cache = new AstroCache(null);
+		cache.set({ maxAge: 60, tags: ['product', 'featured'] });
+
+		const response = new Response('test');
+		applyCacheHeaders(cache, response);
+		assert.equal(response.headers.get('Cache-Tag'), 'product, featured');
+	});
+
+	it('generates correct Last-Modified and ETag', () => {
+		const cache = new AstroCache(null);
+		const date = new Date('2025-06-01T12:00:00Z');
+		cache.set({ maxAge: 60, lastModified: date, etag: '"v1"' });
+
+		const response = new Response('test');
+		applyCacheHeaders(cache, response);
+		assert.equal(response.headers.get('Last-Modified'), date.toUTCString());
+		assert.equal(response.headers.get('ETag'), '"v1"');
+	});
+
+	it('uses provider.setHeaders() when available', () => {
+		const customHeaders = new Headers({ 'X-Custom-Cache': 'hit' });
+		const provider = createMockProvider({
+			setHeaders: () => customHeaders,
+		});
+		const cache = new AstroCache(provider);
+		cache.set({ maxAge: 60 });
+
+		const response = new Response('test');
+		applyCacheHeaders(cache, response);
+		assert.equal(response.headers.get('X-Custom-Cache'), 'hit');
+	});
+
+	it('skips when disabled', () => {
+		const cache = new AstroCache(null);
+		cache.set({ maxAge: 300, tags: ['a'] });
+		cache.set(false);
+
+		const response = new Response('test');
+		applyCacheHeaders(cache, response);
+		assert.equal(response.headers.get('CDN-Cache-Control'), null);
+		assert.equal(response.headers.get('Cache-Tag'), null);
+	});
+
+	it('skips when nothing was set', () => {
+		const cache = new AstroCache(null);
+
+		const response = new Response('test');
+		applyCacheHeaders(cache, response);
+		assert.equal(response.headers.get('CDN-Cache-Control'), null);
+	});
+});
+
+describe('isCacheActive()', () => {
+	it('false initially', () => {
+		const cache = new AstroCache(null);
+		assert.equal(isCacheActive(cache), false);
+	});
+
+	it('true after setting maxAge', () => {
+		const cache = new AstroCache(null);
+		cache.set({ maxAge: 60 });
+		assert.equal(isCacheActive(cache), true);
+	});
+
+	it('true after setting tags', () => {
+		const cache = new AstroCache(null);
+		cache.set({ tags: ['a'] });
+		assert.equal(isCacheActive(cache), true);
+	});
+
+	it('false after set(false)', () => {
+		const cache = new AstroCache(null);
+		cache.set({ maxAge: 60 });
+		cache.set(false);
+		assert.equal(isCacheActive(cache), false);
+	});
+});

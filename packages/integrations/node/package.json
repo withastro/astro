@@ -21,6 +21,7 @@
     ".": "./dist/index.js",
     "./server.js": "./dist/server.js",
     "./preview.js": "./dist/preview.js",
+
     "./package.json": "./package.json"
   },
   "files": [

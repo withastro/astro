@@ -2763,6 +2763,111 @@ export interface AstroUserConfig<
 		 * See the [experimental SVGO optimization docs](https://docs.astro.build/en/reference/experimental-flags/svg-optimization/) for more information.
 		 */
 		svgo?: boolean | SvgoConfig;
+
+		/**
+		 * @name experimental.cache
+		 * @type {object}
+		 * @default `undefined`
+		 * @description
+		 *
+		 * Enables route caching for SSR responses. Provides a platform-agnostic API
+		 * for caching rendered pages and API responses, with pluggable providers
+		 * that adapters can configure automatically.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { memoryCache } from 'astro/config';
+		 *
+		 * {
+		 *   experimental: {
+		 *     cache: {
+		 *       provider: memoryCache(),
+		 *     },
+		 *     routeRules: {
+		 *       '/blog/[...path]': { maxAge: 300, swr: 60 },
+		 *     },
+		 *   },
+		 * }
+		 * ```
+		 *
+		 * Use `Astro.cache.set()` in routes and `context.cache.set()` in middleware
+		 * or API routes to control caching per-request.
+		 */
+		cache?: {
+			/**
+			 * @name experimental.cache.provider
+			 * @type {import('../../core/cache/types.js').CacheProviderConfig}
+			 * @description
+			 *
+			 * The cache provider. Adapters typically set a default, but you can
+			 * override it with your own.
+			 *
+			 * Use the provider's config function to get type-safe configuration:
+			 *
+			 * ```js
+			 * import { memoryCache } from 'astro/config';
+			 *
+			 * export default defineConfig({
+			 *   experimental: {
+			 *     cache: { provider: memoryCache() },
+			 *   },
+			 * });
+			 * ```
+			 */
+			provider?: import('../../core/cache/types.js').CacheProviderConfig;
+		};
+
+		/**
+		 * @name experimental.routeRules
+		 * @type {Record<string, RouteRule>}
+		 * @default `undefined`
+		 * @description
+		 *
+		 * Route patterns mapped to cache rules.
+		 * Uses the same `[param]` and `[...rest]` syntax as file-based routing.
+		 *
+		 * Supports Nitro-style cache shortcuts where cache options can be specified
+		 * directly at the rule level, or nested under a `cache` key for the full form.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { memoryCache } from 'astro/config';
+		 *
+		 * {
+		 *   experimental: {
+		 *     cache: { provider: memoryCache() },
+		 *     routeRules: {
+		 *       // Shortcut form (Nitro-style)
+		 *       '/api/*': { swr: 600 },
+		 *
+		 *       // Full form with nested cache
+		 *       '/products/*': { cache: { maxAge: 3600, tags: ['products'] } },
+		 *     },
+		 *   },
+		 * }
+		 * ```
+		 */
+		routeRules?: Record<
+			string,
+			{
+				/**
+				 * Nested cache options (full form).
+				 */
+				cache?: { maxAge?: number; swr?: number; tags?: string[] };
+				/**
+				 * Cache max-age in seconds (shortcut).
+				 */
+				maxAge?: number;
+				/**
+				 * Stale-while-revalidate window in seconds (shortcut).
+				 */
+				swr?: number;
+				/**
+				 * Cache tags for invalidation (shortcut).
+				 */
+				tags?: string[];
+			}
+		>;
 	};
 }
 

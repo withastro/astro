@@ -6,6 +6,7 @@ import {
 } from '../../i18n/utils.js';
 import type { Params, RewritePayload } from '../../types/public/common.js';
 import type { APIContext } from '../../types/public/context.js';
+import { disabledAstroCache } from '../cache/runtime/noop.js';
 import { ASTRO_GENERATOR } from '../constants.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
@@ -115,6 +116,7 @@ function createContext({
 			throw new AstroError(AstroErrorData.LocalsReassigned);
 		},
 		session: undefined,
+		cache: disabledAstroCache,
 		csp: undefined,
 	};
 	return Object.assign(context, {
