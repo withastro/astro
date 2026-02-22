@@ -1,5 +1,16 @@
 # @astrojs/cloudflare
 
+## 13.0.0-beta.9
+
+### Patch Changes
+
+- [#15565](https://github.com/withastro/astro/pull/15565) [`30cd6db`](https://github.com/withastro/astro/commit/30cd6dbebe771efb6f71dcff7e6b44026fad6797) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the use of the `Code` component would result in an unexpected error.
+
+- [#15588](https://github.com/withastro/astro/pull/15588) [`425ea16`](https://github.com/withastro/astro/commit/425ea1690f3ab384fd6f1f39ae48a423fb017f8b) Thanks [@rururux](https://github.com/rururux)! - Fixes an issue where `esbuild` would throw a "Top-level return cannot be used inside an ECMAScript module" error during dependency scanning in certain environments.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 13.0.0-beta.8
 
 ### Major Changes
