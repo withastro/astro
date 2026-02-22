@@ -95,8 +95,9 @@ export async function createMarkdownProcessor(
 		if (gfm) {
 			parser.use(remarkGfm);
 		}
-		if (smartypants) {
-			parser.use(remarkSmartypants);
+		if (smartypants !== false) {
+			const smartypantsConfig = typeof smartypants === 'object' ? smartypants : {};
+			parser.use(remarkSmartypants, smartypantsConfig);
 		}
 	}
 
