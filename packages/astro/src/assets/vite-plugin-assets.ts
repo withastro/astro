@@ -170,7 +170,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 						
 						export const getConfiguredImageService = _getConfiguredImageService;
 
-							export const viteFSConfig = ${JSON.stringify(resolvedConfig.server.fs ?? {})};
+						export const viteFSConfig = ${JSON.stringify(resolvedConfig.server.fs ?? {})};
 
 						export const safeModulePaths = new Set(${JSON.stringify(
 							// @ts-expect-error safeModulePaths is internal to Vite
@@ -190,11 +190,11 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 							enumerable: false,
 							configurable: true,
 						});
-export const inferRemoteSize = async (url) => {
-                const service = await _getConfiguredImageService()
-
-                return service.getRemoteSize?.(url, imageConfig) ?? inferRemoteSizeInternal(url)
-              }						// This is used by the @astrojs/node integration to locate images.
+						export const inferRemoteSize = async (url) => {
+							const service = await _getConfiguredImageService();
+							return service.getRemoteSize?.(url, imageConfig) ?? inferRemoteSizeInternal(url, imageConfig);
+						}
+						// This is used by the @astrojs/node integration to locate images.
 						// It's unused on other platforms, but on some platforms like Netlify (and presumably also Vercel)
 						// new URL("dist/...") is interpreted by the bundler as a signal to include that directory
 						// in the Lambda bundle, which would bloat the bundle with images.
@@ -207,9 +207,9 @@ export const inferRemoteSize = async (url) => {
 									: settings.config.outDir,
 							),
 						)});
-              export const serverDir = /* #__PURE__ */ new URL(${JSON.stringify(
-								new URL(settings.config.build.server),
-							)});
+						export const serverDir = /* #__PURE__ */ new URL(${JSON.stringify(
+							new URL(settings.config.build.server),
+						)});
 						export const getImage = async (options) => await getImageInternal(options, imageConfig);
 					`,
 					};

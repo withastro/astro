@@ -27,7 +27,7 @@ describe('astro:image:layout', () => {
 						foo: 'bar',
 						transform: { path: walrusImagePath, scale: imageScale },
 					}),
-					domains: ['avatars.githubusercontent.com'],
+					domains: ['avatars.githubusercontent.com', 'images.unsplash.com'],
 				},
 			});
 
@@ -599,7 +599,7 @@ describe('astro:image:layout', () => {
 				root: './fixtures/core-image-layout/',
 				image: {
 					service: testImageService({ foo: 'bar' }),
-					domains: ['avatars.githubusercontent.com'],
+					domains: ['avatars.githubusercontent.com', 'images.unsplash.com'],
 				},
 			});
 
@@ -710,7 +710,7 @@ describe('astro:image:layout', () => {
 					root: './fixtures/core-image-layout/',
 					image: {
 						service: testImageService({ foo: 'bar' }),
-						domains: ['avatars.githubusercontent.com'],
+						domains: ['avatars.githubusercontent.com', 'images.unsplash.com'],
 						responsiveStyles: false,
 					},
 				});
