@@ -217,8 +217,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				setAdapter({
 					name: '@astrojs/cloudflare',
 					adapterFeatures: {
-						edgeMiddleware: false,
 						buildOutput: 'server',
+						middlewareMode: 'classic',
 					},
 					entrypointResolution: 'auto',
 					previewEntrypoint: '@astrojs/cloudflare/entrypoints/preview',

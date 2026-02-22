@@ -24,6 +24,7 @@ import { ASTRO_RENDERERS_MODULE_ID } from '../vite-plugin-renderers/index.js';
 import { ASTRO_ROUTES_MODULE_ID } from '../vite-plugin-routes/index.js';
 import { sessionConfigToManifest } from '../core/session/utils.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
+import { resolveMiddlewareMode } from '../integrations/adapter-utils.js';
 
 // This is used by Cloudflare optimizeDeps config
 export const SERIALIZED_MANIFEST_ID = 'virtual:astro:manifest';
@@ -152,6 +153,7 @@ async function createSerializedManifest(settings: AstroSettings): Promise<Serial
 		buildFormat: settings.config.build.format,
 		compressHTML: settings.config.compressHTML,
 		serverLike: settings.buildOutput === 'server',
+		middlewareMode: resolveMiddlewareMode(settings.adapter?.adapterFeatures),
 		assets: [],
 		entryModules: {},
 		routes: [],

@@ -80,12 +80,24 @@ export type AdapterSupportWithMessage = {
 
 export type AdapterSupport = AdapterSupportsKind | AdapterSupportWithMessage;
 
+export type MiddlewareMode = 'classic' | 'edge';
+
 export interface AstroAdapterFeatures {
 	/**
-	 * Defines whether any on-demand rendering middleware code will be bundled when built. When enabled, this prevents
-	 * middleware code from being bundled and imported by all pages during the build.
+	 * Creates an edge function that will communicate with the Astro middleware
+	 * 
+	 * @deprecated Use `middlewareMode: 'edge'` instead
 	 */
-	edgeMiddleware: boolean;
+	edgeMiddleware?: boolean;
+
+	/**
+	 * Determines when and how middleware executes:
+	 * - `'classic'` (default): Middleware runs for prerendered pages at build time, and for SSR pages at request time. Does not run for prerendered pages at request time.
+	 * - `'edge'`: Middleware is deployed as a separate edge function. Middleware code will not be bundled and imported by all pages during the build.
+	 * 
+	 * @default 'classic'
+	 */
+	middlewareMode?: MiddlewareMode;
 
 	/**
 	 * Allows you to force a specific output shape for the build. This can be useful for adapters that only work with
