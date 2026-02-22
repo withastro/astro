@@ -7,7 +7,6 @@ import colors from 'piccolore';
 import {
 	createServer,
 	type HotPayload,
-	loadEnv,
 	mergeConfig,
 	type RunnableDevEnvironment,
 	type UserConfig,
@@ -20,7 +19,12 @@ import { CONFIG_FILE_NAMES, DB_PATH, VIRTUAL_MODULE_ID } from '../consts.js';
 import { EXEC_DEFAULT_EXPORT_ERROR, EXEC_ERROR } from '../errors.js';
 import { resolveDbConfig } from '../load-file.js';
 import { SEED_DEV_FILE_NAME } from '../queries.js';
-import { getDbDirectoryUrl, getRemoteDatabaseInfo, type VitePlugin } from '../utils.js';
+import {
+	getAstroEnv,
+	getDbDirectoryUrl,
+	getRemoteDatabaseInfo,
+	type VitePlugin,
+} from '../utils.js';
 import { fileURLIntegration } from './file-url.js';
 import { getDtsContent } from './typegen.js';
 import {
@@ -209,7 +213,7 @@ function astroDBIntegration(options?: AstroDBConfig): AstroIntegration {
 }
 
 function databaseFileEnvDefined() {
-	const env = loadEnv('', process.cwd());
+	const env = getAstroEnv();
 	return env.ASTRO_DATABASE_FILE != null || process.env.ASTRO_DATABASE_FILE != null;
 }
 
