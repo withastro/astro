@@ -12,6 +12,7 @@ import {
 	removeQueryString,
 } from '../core/path.js';
 import { normalizePath } from '../core/viteUtils.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { isAstroServerEnvironment } from '../environments.js';
 import type { AstroSettings } from '../types/astro.js';
 import {
@@ -303,11 +304,16 @@ export const inferRemoteSize = async (url) => {
 								code: makeSvgComponent(imageMetadata, contents, settings.config.experimental.svgo),
 							};
 						}
+						// In SSR builds, any image loaded by the SSR environment could be reachable at
+						// request time without us knowning, so we'll always consider them as referenced.
+						const isSSROnlyEnvironment =
+							settings.buildOutput === 'server' &&
+							this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
+						if (isSSROnlyEnvironment) {
+							globalThis.astroAsset.referencedImages.add(imageMetadata.fsPath);
+						}
 						return {
-							code: `export default ${getProxyCode(
-								imageMetadata,
-								settings.buildOutput === 'server',
-							)}`,
+							code: `export default ${getProxyCode(imageMetadata, isSSROnlyEnvironment)}`,
 						};
 					} else {
 						globalThis.astroAsset.referencedImages.add(imageMetadata.fsPath);
