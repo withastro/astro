@@ -36,6 +36,7 @@ import { renderRedirect } from './redirects/render.js';
 import { getParams, getProps, type Pipeline, Slots } from './render/index.js';
 import { isRoute404or500, isRouteExternalRedirect, isRouteServerIsland } from './routing/match.js';
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
+import { ISLAND_STYLES } from '../runtime/server/astro-island-styles.js';
 import { AstroSession } from './session/runtime.js';
 import { validateAndDecodePathname } from './util/pathname.js';
 
@@ -523,6 +524,17 @@ export class RenderContext {
 			pipeline;
 		const { links, scripts, styles } = await pipeline.headElements(routeData);
 
+		// Check if the pipeline already added island styles to head (e.g. BuildPipeline
+		// adds them for pages with hydrated components). This flag tells getPrescripts()
+		// to skip inlining island styles in the body, avoiding duplication.
+		let islandStylesInHead = false;
+		for (const style of styles) {
+			if (style.children === ISLAND_STYLES) {
+				islandStylesInHead = true;
+				break;
+			}
+		}
+
 		const extraStyleHashes = [];
 		const extraScriptHashes = [];
 		const shouldInjectCspMetaTags = this.shouldInjectCspMetaTags;
@@ -591,6 +603,7 @@ export class RenderContext {
 				renderedScripts: new Set(),
 				hasDirectives: new Set(),
 				hasRenderedServerIslandRuntime: false,
+				islandStylesInHead,
 				headInTree: false,
 				extraHead: [],
 				extraStyleHashes,

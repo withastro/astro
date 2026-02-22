@@ -292,6 +292,11 @@ export interface SSRMetadata {
 	hasRenderedHead: boolean;
 	hasRenderedServerIslandRuntime: boolean;
 	/**
+	 * Whether island styles (astro-island { display: contents }) were already added
+	 * to the page's <head> by the pipeline, so they don't need to be inlined in the body.
+	 */
+	islandStylesInHead: boolean;
+	/**
 	 * Used to signal the rendering engine if the current route (page) contains the
 	 * <head> element.
 	 */

@@ -84,9 +84,9 @@ describe('CSS', function () {
 				}
 			});
 
-			it('Using hydrated components adds astro-island styles', async () => {
-				const inline = $('style').html();
-				assert.equal(inline.includes('display:contents'), true);
+			it('Using hydrated components adds astro-island styles in head', async () => {
+				const headStyles = $('head style').toArray().map((el) => $(el).html());
+				assert.equal(headStyles.some((s) => s.includes('display:contents')), true);
 			});
 
 			it('<style lang="sass">', async () => {
