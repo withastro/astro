@@ -16,9 +16,12 @@ async function check(
 	Component: any,
 	props: Record<string, any>,
 	children: any,
+	metadata: AstroComponentMetadata | undefined,
 ) {
 	if (typeof Component !== 'function') return false;
 	if (Component.name === 'QwikComponent') return false;
+	// prevent render react components
+	if ( metadata === undefined ) return false;
 
 	if (Component.prototype != null && typeof Component.prototype.render === 'function') {
 		return BaseComponent.isPrototypeOf(Component);
