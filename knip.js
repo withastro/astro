@@ -15,12 +15,13 @@ export default {
 		'.': {
 			ignoreDependencies: [
 				'@astrojs/check', // Used by the build script but not as a standard module import
+				'bgproc', // Used by agents, documented in the AGENTS.md file
 			],
 			// In smoke tests, we checkout to the docs repo so those binaries are not present in this project
 			// vsce and ovsx are only used in CI for publishing, and due to how we have to publish the VS Code extension have
 			// to be installed in the vscode package, but knip is expecting them to be in the root node_modules
 			ignoreBinaries: ['docgen', 'docgen:errors', 'playwright', 'vsce', 'ovsx'],
-			entry: ['.flue/workflows/*'],
+			entry: ['.flue/workflows/*/WORKFLOW.ts'],
 		},
 		'packages/*': {
 			entry: [testEntry],
