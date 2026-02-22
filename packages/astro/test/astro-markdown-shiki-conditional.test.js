@@ -34,6 +34,36 @@ describe('Markdown Shiki CSS conditional injection', () => {
 		});
 	});
 
+	describe('With code blocks and default settings', () => {
+		let fixture;
+		let $;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/astro-markdown-shiki-conditional/with-code-default/',
+			});
+			await fixture.build();
+			const html = await fixture.readFile('/index.html');
+			$ = cheerio.load(html);
+		});
+
+		it('should inject Shiki CSS when code blocks present', () => {
+			const styles = $('style').text();
+			// Check for Shiki class prefix
+			assert.ok(styles.includes('.__a_'), 'Should have Shiki token class definitions');
+			// Check for base utility classes
+			assert.ok(styles.includes('.astro-code-overflow'), 'Should have overflow class');
+		});
+
+		it('should render code blocks with Shiki classes', () => {
+			const codeBlock = $('pre.astro-code');
+			assert.ok(codeBlock.length > 0, 'Should have code blocks with astro-code class');
+
+			const classes = codeBlock.attr('class');
+			assert.ok(classes && classes.includes('__a_'), 'Code block should have Shiki token class');
+		});
+	});
+
 	describe('Without code blocks', () => {
 		let fixture;
 		let $;
