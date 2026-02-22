@@ -29,6 +29,7 @@ import { getAssetsPrefix } from './utils/getAssetsPrefix.js';
 import { isESMImportedImage } from './utils/index.js';
 import { emitClientAsset } from './utils/assets.js';
 import { emitImageMetadata, hashTransform, propsToFilename } from './utils/node.js';
+import { CONTENT_IMAGE_FLAG } from '../content/consts.js';
 import { getProxyCode } from './utils/proxy.js';
 import { makeSvgComponent } from './utils/svg.js';
 import { createPlaceholderURL, stringifyPlaceholderURL } from './utils/url.js';
@@ -266,6 +267,15 @@ export const inferRemoteSize = async (url) => {
 					if (!globalThis.astroAsset.referencedImages)
 						globalThis.astroAsset.referencedImages = new Set();
 
+					// Content collection images have the astroContentImageFlag query param.
+					// Strip it so we can process the image, but remember it so we can avoid
+					// creating SVG components (which import from the server runtime and cause
+					// circular dependency deadlocks with top-level await).
+					const isContentImage = id.includes(CONTENT_IMAGE_FLAG);
+					if (isContentImage) {
+						id = removeQueryString(id);
+					}
+
 					if (id !== removeQueryString(id)) {
 						// If our import has any query params, we'll let Vite handle it, nonetheless we'll make sure to not delete it
 						// See https://github.com/withastro/astro/issues/8333
@@ -294,7 +304,11 @@ export const inferRemoteSize = async (url) => {
 					// Since you cannot use image optimization on the client anyway, it's safe to assume that if the user imported
 					// an image on the client, it should be present in the final build.
 					if (isAstroServerEnvironment(this.environment)) {
-						if (id.endsWith('.svg')) {
+						// For SVGs imported directly (not via content collections), create a full
+						// component that can be rendered inline. For content collection SVGs, return
+						// plain metadata to avoid importing createComponent from the server runtime,
+						// which would create a circular dependency when combined with TLA.
+						if (id.endsWith('.svg') && !isContentImage) {
 							const contents = await fs.promises.readFile(imageMetadata.fsPath, {
 								encoding: 'utf8',
 							});
