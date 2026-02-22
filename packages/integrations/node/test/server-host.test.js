@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { hostOptions } from '../dist/standalone.js';
+import { hostOptions } from '../dist/create-server.js';
 
 describe('host', () => {
 	it('returns "0.0.0.0" when host is true', () => {

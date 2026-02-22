@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import nodejs from '../dist/index.js';
+import node from '../dist/index.js';
 import { loadFixture } from './test-utils.js';
 import { fileURLToPath } from 'node:url';
 
@@ -16,7 +16,7 @@ describe('Assets', () => {
 			root,
 			outDir: fileURLToPath(new URL('./dist/assets/', root)),
 			output: 'server',
-			adapter: nodejs({ mode: 'standalone' }),
+			adapter: node(),
 			vite: {
 				build: {
 					assetsInlineLimit: 0,

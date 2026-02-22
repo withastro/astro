@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import nodejs from '../dist/index.js';
+import node from '../dist/index.js';
 import { createRequestAndResponse, loadFixture } from './test-utils.js';
 
 describe('API routes', () => {
@@ -11,20 +11,22 @@ describe('API routes', () => {
 		fixture = await loadFixture({
 			root: './fixtures/locals/',
 			output: 'server',
-			adapter: nodejs({ mode: 'middleware' }),
+			adapter: node({
+				serverEntrypoint: '@astrojs/node/node-handler',
+			}),
 		});
 		await fixture.build();
 	});
 
 	it('Can use locals added by node middleware', async () => {
-		const { handler } = await import('./fixtures/locals/dist/server/entry.mjs');
+		const { nodeHandler } = await fixture.loadAdapterEntryModule()
 		const { req, res, text } = createRequestAndResponse({
 			url: '/from-node-middleware',
 		});
 
 		const locals = { foo: 'bar' };
 
-		handler(req, res, () => {}, locals);
+		nodeHandler(req, res, () => {}, locals);
 		req.send();
 
 		const html = await text();
@@ -33,12 +35,12 @@ describe('API routes', () => {
 	});
 
 	it('Throws an error when provided non-objects as locals', async () => {
-		const { handler } = await import('./fixtures/locals/dist/server/entry.mjs');
+		const { nodeHandler } = await fixture.loadAdapterEntryModule()
 		const { req, res, done } = createRequestAndResponse({
 			url: '/from-node-middleware',
 		});
 
-		handler(req, res, undefined, 'locals');
+		nodeHandler(req, res, undefined, 'locals');
 		req.send();
 
 		await done;
@@ -46,13 +48,13 @@ describe('API routes', () => {
 	});
 
 	it('Can use locals added by astro middleware', async () => {
-		const { handler } = await import('./fixtures/locals/dist/server/entry.mjs');
+		const { nodeHandler } = await fixture.loadAdapterEntryModule()
 
 		const { req, res, text } = createRequestAndResponse({
 			url: '/from-astro-middleware',
 		});
 
-		handler(req, res, () => {});
+		nodeHandler(req, res, () => {});
 		req.send();
 
 		const html = await text();
@@ -61,7 +63,7 @@ describe('API routes', () => {
 	});
 
 	it('Can access locals in API', async () => {
-		const { handler } = await import('./fixtures/locals/dist/server/entry.mjs');
+		const { nodeHandler } = await fixture.loadAdapterEntryModule()
 		const { req, res, done } = createRequestAndResponse({
 			method: 'POST',
 			url: '/api',
@@ -69,7 +71,7 @@ describe('API routes', () => {
 
 		const locals = { foo: 'bar' };
 
-		handler(req, res, () => {}, locals);
+		nodeHandler(req, res, () => {}, locals);
 		req.send();
 
 		const [buffer] = await done;

@@ -1,14 +1,14 @@
-import type { IncomingMessage, ServerResponse } from 'node:http';
-import type { SSRManifest } from 'astro';
+import type { IncomingMessage, OutgoingHttpHeaders, ServerResponse } from 'node:http';
+import type { AstroIntegrationLogger, PreviewServer, SSRManifest } from 'astro';
 
 export interface UserOptions {
 	/**
-	 * Specifies the mode that the adapter builds to.
-	 *
-	 * - 'middleware' - Build to middleware, to be used within another Node.js server, such as Express.
-	 * - 'standalone' - Build to a standalone server. The server starts up just by running the built script.
+	 * The path to a custom server entry point. It can be a URL, a relative path from the project root or a package import.
+	 * 
+	 * By default, the adapter provides a standalone HTTP server.
 	 */
-	mode: 'middleware' | 'standalone';
+	serverEntrypoint?: string | URL;
+
 	/**
 	 * Disables HTML streaming. This is useful for example if there are constraints from your host.
 	 */
@@ -32,20 +32,38 @@ export interface UserOptions {
 	experimentalErrorPageHost?: string | URL;
 }
 
-export interface Options extends UserOptions {
+export interface Options {
 	host: string | boolean;
 	port: number;
 	server: string;
 	client: string;
 	assets: string;
-	trailingSlash?: SSRManifest['trailingSlash'];
+	trailingSlash: SSRManifest['trailingSlash'];
+	experimentalDisableStreaming: boolean;
+	experimentalErrorPageHost: string | undefined;
 	staticHeaders: boolean;
 }
 
-export type RequestHandler = (...args: RequestHandlerParams) => void | Promise<void>;
-type RequestHandlerParams = [
+export type RequestHandler = (
 	req: IncomingMessage,
 	res: ServerResponse,
 	next?: (err?: unknown) => void,
-	locals?: object,
-];
+	locals?: Partial<App.Locals>,
+) => void | Promise<void>;
+
+export type NodePreviewServer = Pick<PreviewServer, 'closed' | 'stop'>;
+
+export type CreateNodePreviewServer = (options: {
+	host: string;
+	port: number;
+	logger: AstroIntegrationLogger;
+	headers: OutgoingHttpHeaders | undefined;
+}) => NodePreviewServer | Promise<NodePreviewServer>;
+
+export type HeadersJson = {
+	pathname: string;
+	headers: {
+		key: string;
+		value: string;
+	}[];
+}[];

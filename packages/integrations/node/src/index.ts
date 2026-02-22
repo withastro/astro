@@ -1,46 +1,17 @@
 import { fileURLToPath } from 'node:url';
 import { writeJson } from '@astrojs/internal-helpers/fs';
-import type {
-	AstroAdapter,
-	AstroConfig,
-	AstroIntegration,
-	NodeAppHeadersJson,
-	RouteToHeaders,
-} from 'astro';
+import type { AstroConfig, AstroIntegration, RouteToHeaders } from 'astro';
 import { AstroError } from 'astro/errors';
 import { STATIC_HEADERS_FILE } from './shared.js';
-import type { Options, UserOptions } from './types.js';
+import type { HeadersJson, UserOptions } from './types.js';
 import { sessionDrivers } from 'astro/config';
-
-export function getAdapter(options: Options): AstroAdapter {
-	return {
-		name: '@astrojs/node',
-		serverEntrypoint: '@astrojs/node/server.js',
-		previewEntrypoint: '@astrojs/node/preview.js',
-		exports: ['handler', 'startServer', 'options'],
-		args: options,
-		adapterFeatures: {
-			buildOutput: 'server',
-			edgeMiddleware: false,
-			staticHeaders: options.staticHeaders,
-		},
-		supportedAstroFeatures: {
-			hybridOutput: 'stable',
-			staticOutput: 'stable',
-			serverOutput: 'stable',
-			sharpImageService: 'stable',
-			i18nDomains: 'experimental',
-			envGetSecret: 'stable',
-		},
-	};
-}
+import { createConfigPlugin } from './vite-plugin-config.js';
+import { createRequire } from 'node:module';
+export type { CreateNodePreviewServer } from './types.js';
 
 const protocols = ['http:', 'https:'];
 
-export default function createIntegration(userOptions: UserOptions): AstroIntegration {
-	if (!userOptions?.mode) {
-		throw new AstroError(`Setting the 'mode' option is required.`);
-	}
+export default function createIntegration(userOptions: UserOptions = {}): AstroIntegration {
 	const { experimentalErrorPageHost } = userOptions;
 	if (
 		experimentalErrorPageHost &&
@@ -52,15 +23,14 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 		);
 	}
 
-	let _options: Options;
 	let _config: AstroConfig | undefined = undefined;
 	let _routeToHeaders: RouteToHeaders | undefined = undefined;
 	return {
 		name: '@astrojs/node',
 		hooks: {
 			'astro:config:setup': async ({ updateConfig, config, logger, command }) => {
-				let session = config.session;
 				_config = config;
+				let session = config.session;
 				if (!session?.driver) {
 					logger.info('Enabling sessions with filesystem storage');
 					session = {
@@ -75,6 +45,7 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 				updateConfig({
 					build: {
 						redirects: false,
+						serverEntry: 'entry.mjs',
 					},
 					image: {
 						endpoint: {
@@ -89,6 +60,19 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 						ssr: {
 							noExternal: ['@astrojs/node'],
 						},
+						plugins: [
+							createConfigPlugin({
+								experimentalDisableStreaming: userOptions.experimentalDisableStreaming ?? false,
+								port: _config.server.port,
+								host: _config.server.host,
+								experimentalErrorPageHost: userOptions.experimentalErrorPageHost?.toString(),
+								trailingSlash: _config.trailingSlash,
+								assets: _config.build.assets,
+								server: _config.build.server.toString(),
+								client: _config.build.client.toString(),
+								staticHeaders: userOptions.staticHeaders ?? false,
+							}),
+						],
 					},
 				});
 			},
@@ -96,17 +80,30 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 				_routeToHeaders = routeToHeaders;
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
-				_options = {
-					...userOptions,
-					client: config.build.client?.toString(),
-					server: config.build.server?.toString(),
-					host: config.server.host,
-					port: config.server.port,
-					assets: config.build.assets,
-					staticHeaders: userOptions.staticHeaders ?? false,
-					experimentalErrorPageHost,
-				};
-				setAdapter(getAdapter(_options));
+				_config = config;
+				setAdapter({
+					name: '@astrojs/node',
+					entrypointResolution: 'auto',
+					serverEntrypoint: userOptions.serverEntrypoint
+						? typeof userOptions.serverEntrypoint === 'string'
+							? createRequire(_config.root).resolve(userOptions.serverEntrypoint)
+							: userOptions.serverEntrypoint
+						: '@astrojs/node/server.js',
+					previewEntrypoint: '@astrojs/node/preview.js',
+					adapterFeatures: {
+						buildOutput: 'server',
+						edgeMiddleware: false,
+						staticHeaders: userOptions.staticHeaders ?? false,
+					},
+					supportedAstroFeatures: {
+						hybridOutput: 'stable',
+						staticOutput: 'stable',
+						serverOutput: 'stable',
+						sharpImageService: 'stable',
+						i18nDomains: 'experimental',
+						envGetSecret: 'stable',
+					},
+				});
 			},
 			'astro:build:done': async () => {
 				if (!_config) {
@@ -115,7 +112,7 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 
 				if (_routeToHeaders && _routeToHeaders.size > 0) {
 					const headersFileUrl = new URL(STATIC_HEADERS_FILE, _config.outDir);
-					const headersValue: NodeAppHeadersJson = [];
+					const headersValue: HeadersJson = [];
 
 					for (const [pathname, { headers }] of _routeToHeaders.entries()) {
 						if (_config.security.csp) {

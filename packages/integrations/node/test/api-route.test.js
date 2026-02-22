@@ -1,32 +1,26 @@
 import * as assert from 'node:assert/strict';
 import crypto from 'node:crypto';
-import { after, before, describe, it } from 'node:test';
-import nodejs from '../dist/index.js';
+import { before, describe, it } from 'node:test';
+import node from '../dist/index.js';
 import { createRequestAndResponse, loadFixture } from './test-utils.js';
 
 describe('API routes', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
-	/** @type {import('../../../astro/src/types/public/preview.js').PreviewServer} */
-	let previewServer;
-	/** @type {URL} */
-	let baseUri;
 
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/api-route/',
 			output: 'server',
-			adapter: nodejs({ mode: 'middleware' }),
+			adapter: node({
+				serverEntrypoint: '@astrojs/node/node-handler',
+			}),
 		});
 		await fixture.build();
-		previewServer = await fixture.preview();
-		baseUri = new URL(`http://${previewServer.host ?? 'localhost'}:${previewServer.port}/`);
 	});
 
-	after(() => previewServer.stop());
-
 	it('Can get the request body', async () => {
-		const { handler } = await import('./fixtures/api-route/dist/server/entry.mjs');
+		const { nodeHandler } = await fixture.loadAdapterEntryModule()
 		const { req, res, done } = createRequestAndResponse({
 			method: 'POST',
 			url: '/recipes',
@@ -36,7 +30,7 @@ describe('API routes', () => {
 			req.send(JSON.stringify({ id: 2 }));
 		});
 
-		handler(req, res);
+		nodeHandler(req, res);
 
 		const [buffer] = await done;
 
@@ -48,7 +42,7 @@ describe('API routes', () => {
 	});
 
 	it('Can get binary data', async () => {
-		const { handler } = await import('./fixtures/api-route/dist/server/entry.mjs');
+		const { nodeHandler } = await fixture.loadAdapterEntryModule()
 
 		const { req, res, done } = createRequestAndResponse({
 			method: 'POST',
@@ -59,7 +53,7 @@ describe('API routes', () => {
 			req.send(Buffer.from(new Uint8Array([1, 2, 3, 4, 5])));
 		});
 
-		handler(req, res);
+		nodeHandler(req, res);
 
 		const [out] = await done;
 		const arr = Array.from(new Uint8Array(out.buffer));
@@ -67,14 +61,14 @@ describe('API routes', () => {
 	});
 
 	it('Can post large binary data', async () => {
-		const { handler } = await import('./fixtures/api-route/dist/server/entry.mjs');
+		const { nodeHandler } = await fixture.loadAdapterEntryModule()
 
 		const { req, res, done } = createRequestAndResponse({
 			method: 'POST',
 			url: '/hash',
 		});
 
-		handler(req, res);
+		nodeHandler(req, res);
 
 		let expectedDigest = null;
 		req.once('async_iterator', () => {
@@ -100,14 +94,14 @@ describe('API routes', () => {
 	});
 
 	it('Can bail on streaming', async () => {
-		const { handler } = await import('./fixtures/api-route/dist/server/entry.mjs');
+		const { nodeHandler } = await fixture.loadAdapterEntryModule()
 		const { req, res, done } = createRequestAndResponse({
 			url: '/streaming',
 		});
 
 		const locals = { cancelledByTheServer: false };
 
-		handler(req, res, () => {}, locals);
+		nodeHandler(req, res, () => {}, locals);
 		req.send();
 
 		await new Promise((resolve) => setTimeout(resolve, 500));
@@ -119,35 +113,47 @@ describe('API routes', () => {
 	});
 
 	it('Can respond with SSR redirect', async () => {
-		const controller = new AbortController();
-		setTimeout(() => controller.abort(), 1000);
-		const response = await fetch(new URL('/redirect', baseUri), {
-			redirect: 'manual',
-			signal: controller.signal,
+		const { nodeHandler } = await fixture.loadAdapterEntryModule()
+		const { req, res, done } = createRequestAndResponse({
+			url: '/redirect',
 		});
-		assert.equal(response.status, 302);
-		assert.equal(response.headers.get('location'), '/destination');
+
+		nodeHandler(req, res);
+		req.send();
+
+		await done;
+
+		assert.equal(res.statusCode, 302);
+		assert.equal(res.getHeader('location'), '/destination');
 	});
 
 	it('Can respond with Astro.redirect', async () => {
-		const controller = new AbortController();
-		setTimeout(() => controller.abort(), 1000);
-		const response = await fetch(new URL('/astro-redirect', baseUri), {
-			redirect: 'manual',
-			signal: controller.signal,
+		const { nodeHandler } = await fixture.loadAdapterEntryModule()
+		const { req, res, done } = createRequestAndResponse({
+			url: '/astro-redirect',
 		});
-		assert.equal(response.status, 303);
-		assert.equal(response.headers.get('location'), '/destination');
+
+		nodeHandler(req, res);
+		req.send();
+
+		await done;
+
+		assert.equal(res.statusCode, 303);
+		assert.equal(res.getHeader('location'), '/destination');
 	});
 
 	it('Can respond with Response.redirect', async () => {
-		const controller = new AbortController();
-		setTimeout(() => controller.abort(), 1000);
-		const response = await fetch(new URL('/response-redirect', baseUri), {
-			redirect: 'manual',
-			signal: controller.signal,
+		const { nodeHandler } = await fixture.loadAdapterEntryModule()
+		const { req, res, done } = createRequestAndResponse({
+			url: '/response-redirect',
 		});
-		assert.equal(response.status, 307);
-		assert.equal(response.headers.get('location'), String(new URL('/destination', baseUri)));
+
+		nodeHandler(req, res);
+		req.send();
+
+		await done;
+
+		assert.equal(res.statusCode, 307);
+		assert.equal(res.getHeader('location'), 'http://localhost/destination');
 	});
 });

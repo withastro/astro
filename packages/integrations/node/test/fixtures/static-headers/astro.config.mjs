@@ -2,8 +2,7 @@ import node from '@astrojs/node'
 
 export default {
 	output: 'server',
-	adapter: node({ 
-		mode: 'standalone',
+	adapter: node({
 		staticHeaders: true
 	}),
 	security: {

@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import nodejs from '../dist/index.js';
+import node from '../dist/index.js';
 import { createRequestAndResponse, loadFixture } from './test-utils.js';
 
 describe('Encoded Pathname', () => {
@@ -11,18 +11,20 @@ describe('Encoded Pathname', () => {
 		fixture = await loadFixture({
 			root: './fixtures/encoded/',
 			output: 'server',
-			adapter: nodejs({ mode: 'middleware' }),
+			adapter: node({
+				serverEntrypoint: '@astrojs/node/node-handler',
+			}),
 		});
 		await fixture.build();
 	});
 
 	it('Can get an Astro file', async () => {
-		const { handler } = await import('./fixtures/encoded/dist/server/entry.mjs');
+		const { nodeHandler } = await fixture.loadAdapterEntryModule()
 		const { req, res, text } = createRequestAndResponse({
 			url: '/什么',
 		});
 
-		handler(req, res);
+		nodeHandler(req, res);
 		req.send();
 
 		const html = await text();
@@ -30,13 +32,13 @@ describe('Encoded Pathname', () => {
 	});
 
 	it('Can get a Markdown file', async () => {
-		const { handler } = await import('./fixtures/encoded/dist/server/entry.mjs');
+		const { nodeHandler } = await fixture.loadAdapterEntryModule()
 
 		const { req, res, text } = createRequestAndResponse({
 			url: '/blog/什么',
 		});
 
-		handler(req, res);
+		nodeHandler(req, res);
 		req.send();
 
 		const html = await text();

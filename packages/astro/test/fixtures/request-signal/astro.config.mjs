@@ -3,5 +3,7 @@ import { defineConfig } from 'astro/config';
 
 export default defineConfig({
 	output: 'server',
-	adapter: node({ mode: 'middleware' }),
+	adapter: node({
+		serverEntrypoint: '@astrojs/node/node-handler'
+	}),
 });

@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as devalue from 'devalue';
-import nodejs from '../dist/index.js';
+import node from '../dist/index.js';
 import { loadFixture } from './test-utils.js';
 
 describe('Astro.session', () => {
@@ -16,7 +16,7 @@ describe('Astro.session', () => {
 			fixture = await loadFixture({
 				root: './fixtures/sessions/',
 				output: 'server',
-				adapter: nodejs({ mode: 'middleware' }),
+				adapter: node(),
 			});
 			await fixture.build({});
 			app = await fixture.preview({});
@@ -102,7 +102,7 @@ describe('Astro.session', () => {
 			fixture = await loadFixture({
 				root: './fixtures/sessions/',
 				output: 'server',
-				adapter: nodejs({ mode: 'middleware' }),
+				adapter: node(),
 			});
 			devServer = await fixture.startDevServer();
 		});

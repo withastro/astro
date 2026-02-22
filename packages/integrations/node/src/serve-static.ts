@@ -1,11 +1,16 @@
-import fs from 'node:fs';
+import {
+	hasFileExtension,
+	isInternalPath,
+	prependForwardSlash,
+} from '@astrojs/internal-helpers/path';
+import type { BaseApp } from 'astro/app';
+import * as fs from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import path from 'node:path';
-import { hasFileExtension, isInternalPath } from '@astrojs/internal-helpers/path';
-import type { NodeApp } from 'astro/app/node';
+import * as path from 'node:path';
 import send from 'send';
 import { resolveClientDir } from './shared.js';
-import type { Options } from './types.js';
+import type { HeadersJson, Options } from './types.js';
+import { createRequest } from 'astro/app/node';
 
 /**
  * Creates a Node.js http listener for static files and prerendered pages.
@@ -13,7 +18,11 @@ import type { Options } from './types.js';
  * If one matching the request path is not found, it relegates to the SSR handler.
  * Intended to be used only in the standalone mode.
  */
-export function createStaticHandler(app: NodeApp, options: Options) {
+export function createStaticHandler(
+	app: BaseApp,
+	options: Pick<Options, 'trailingSlash' | 'assets' | 'server' | 'client'>,
+	headers: HeadersJson | undefined,
+) {
 	const client = resolveClientDir(options);
 	/**
 	 * @param ssr The SSR handler to be called if the static handler does not find a matching file.
@@ -34,15 +43,16 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 				isDirectory = fs.lstatSync(filePath).isDirectory();
 			} catch {}
 
-			const { trailingSlash = 'ignore' } = options;
-
 			const hasSlash = urlPath.endsWith('/');
 			let pathname = urlPath;
 
-			if (app.headersMap && app.headersMap.length > 0) {
-				const routeData = app.match(req, true);
+			if (headers && headers.length > 0) {
+				const request = createRequest(req, {
+					allowedDomains: app.manifest.allowedDomains,
+				});
+				const routeData = app.match(request, true);
 				if (routeData && routeData.prerender) {
-					const matchedRoute = app.headersMap.find((header) => header.pathname.includes(pathname));
+					const matchedRoute = headers.find((header) => header.pathname.includes(pathname));
 					if (matchedRoute) {
 						for (const header of matchedRoute.headers) {
 							res.setHeader(header.key, header.value);
@@ -51,7 +61,7 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 				}
 			}
 
-			switch (trailingSlash) {
+			switch (options.trailingSlash) {
 				case 'never': {
 					if (isDirectory && urlPath !== '/' && hasSlash) {
 						pathname = urlPath.slice(0, -1) + (urlQuery ? '?' + urlQuery : '');
@@ -120,8 +130,4 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 			ssr();
 		}
 	};
-}
-
-function prependForwardSlash(pth: string) {
-	return pth.startsWith('/') ? pth : '/' + pth;
 }

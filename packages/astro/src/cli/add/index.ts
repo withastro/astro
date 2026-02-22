@@ -635,14 +635,7 @@ function setAdapter(mod: ProxifiedModule<any>, adapter: IntegrationInfo, exportN
 		});
 	}
 
-	switch (adapter.id) {
-		case 'node':
-			config.adapter = builders.functionCall(adapterId, { mode: 'standalone' });
-			break;
-		default:
-			config.adapter = builders.functionCall(adapterId);
-			break;
-	}
+	config.adapter = builders.functionCall(adapterId);
 }
 
 const enum UpdateResult {

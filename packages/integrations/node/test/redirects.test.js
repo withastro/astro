@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import nodejs from '../dist/index.js';
+import node from '../dist/index.js';
 import { loadFixture, waitServerListen } from './test-utils.js';
 
 describe('Redirects', () => {
@@ -11,12 +11,13 @@ describe('Redirects', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/redirects/',
-			adapter: nodejs({ mode: 'standalone' }),
+			adapter: node({
+				serverEntrypoint: new URL('./entrypoints/create-server.js', import.meta.url),
+			}),
 		});
 		await fixture.build();
 		const { startServer } = await fixture.loadAdapterEntryModule();
-		const res = startServer();
-		server = res.server;
+		server = startServer();
 		await waitServerListen(server.server);
 	});
 

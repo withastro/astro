@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import nodejs from '../dist/index.js';
+import node from '../dist/index.js';
 import { loadFixture } from './test-utils.js';
 
 describe('Errors', () => {
@@ -12,7 +12,7 @@ describe('Errors', () => {
 		fixture = await loadFixture({
 			root: './fixtures/errors/',
 			output: 'server',
-			adapter: nodejs({ mode: 'standalone' }),
+			adapter: node(),
 		});
 		await fixture.build();
 	});

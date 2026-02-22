@@ -7,7 +7,6 @@ import {
 } from 'vite';
 import { fileURLToPath } from 'node:url';
 import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
-import type * as http from 'node:http';
 import colors from 'piccolore';
 import { performance } from 'node:perf_hooks';
 import { cloudflareConfigCustomizer } from '../wrangler.js';
@@ -89,7 +88,6 @@ const createPreviewServer: CreatePreviewServer = async ({
 		host,
 		port,
 		closed,
-		server: previewServer.httpServer as http.Server,
 		stop: previewServer.close.bind(previewServer),
 	};
 };
@@ -153,4 +151,4 @@ function getNetworkLogging(host: string | undefined): 'none' | 'host-to-expose' 
 	}
 }
 
-export { createPreviewServer as default };
+export default createPreviewServer;

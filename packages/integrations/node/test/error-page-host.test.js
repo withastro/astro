@@ -2,7 +2,7 @@ import * as assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { after, before, describe, it } from 'node:test';
-import nodejs from '../dist/index.js';
+import node from '../dist/index.js';
 import { loadFixture } from './test-utils.js';
 
 /**
@@ -55,7 +55,7 @@ describe('Prerendered error page host', () => {
 
 		fixture = await loadFixture({
 			root: './fixtures/prerender-error-page/',
-			adapter: nodejs({ mode: 'standalone', experimentalErrorPageHost: 'http://localhost:3030' }),
+			adapter: node({ experimentalErrorPageHost: 'http://localhost:3030' }),
 			integrations: [removeErrorPages()],
 		});
 		await fixture.build();
@@ -102,7 +102,7 @@ describe('Prerendered error page host', () => {
 			async () =>
 				loadFixture({
 					root: './fixtures/prerender-error-page/',
-					adapter: nodejs({ mode: 'standalone', experimentalErrorPageHost: 'invalid-url' }),
+					adapter: node({ experimentalErrorPageHost: 'invalid-url' }),
 				}),
 			{
 				name: 'AstroUserError',
@@ -114,7 +114,7 @@ describe('Prerendered error page host', () => {
 			async () =>
 				loadFixture({
 					root: './fixtures/prerender-error-page/',
-					adapter: nodejs({ mode: 'standalone', experimentalErrorPageHost: 'file:///invalid-url' }),
+					adapter: node({ experimentalErrorPageHost: 'file:///invalid-url' }),
 				}),
 			{
 				name: 'AstroUserError',
