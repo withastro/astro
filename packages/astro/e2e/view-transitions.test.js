@@ -1759,4 +1759,20 @@ test.describe('View Transitions', () => {
 		await new Promise((resolve) => setTimeout(resolve, 1000));
 		expect(lines.join('')).toBe('');
 	});
+
+	test('Inline styles and font preloads persist through head swap', async ({ page, astro }) => {
+		// Go to font page 1
+		await page.goto(astro.resolveUrl('/font-page-one'));
+		let p = page.locator('#font-page-one');
+		await expect(p, 'should have content').toHaveText('Font Page 1');
+
+		// Navigate to font page 2 (same inline styles and font preloads)
+		await page.click('#click-font-two');
+		p = page.locator('#font-page-two');
+		await expect(p, 'should have content').toHaveText('Font Page 2');
+
+		// Verify original inline styles and font preloads are still present after navigation
+		await expect(page.locator('#style')).toHaveCount(1);
+		await expect(page.locator('#preload')).toHaveCount(1);
+	});
 });

@@ -161,6 +161,23 @@ const persistedHeadElement = (el: HTMLElement, newDoc: Document): Element | null
 		const href = el.getAttribute('href');
 		return newDoc.head.querySelector(`link[rel=stylesheet][href="${href}"]`);
 	}
+	// Preserve inline <style> elements with identical content across navigations.
+	// This prevents unnecessary removal and re-insertion of styles (e.g. @font-face
+	// declarations from <Font>), which would cause the browser to re-evaluate them
+	// and trigger a flash of unstyled text (FOUT).
+	if (el.tagName === 'STYLE' && el.textContent) {
+		const styles = newDoc.head.querySelectorAll('style');
+		for (const s of styles) {
+			if (s.textContent === el.textContent) {
+				return s;
+			}
+		}
+	}
+	// Preserve font preload links across navigations to avoid re-fetching cached fonts.
+	if (el.matches('link[rel=preload][as=font]')) {
+		const href = el.getAttribute('href');
+		return newDoc.head.querySelector(`link[rel=preload][as=font][href="${href}"]`);
+	}
 	return null;
 };
 
