@@ -1,4 +1,4 @@
-import { routeIsRedirect } from '../core/routing/index.js';
+import { routeIsRedirect } from '../core/routing/helpers.js';
 import { routeComparator } from '../core/routing/priority.js';
 import type { RouteData, SSRManifest } from '../types/public/internal.js';
 import type { RunnablePipeline } from '../vite-plugin-app/pipeline.js';
