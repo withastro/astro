@@ -108,7 +108,9 @@ export class MutableDataStore extends ImmutableDataStore {
 		// We then export them all, mapped by the import id, so we can find them again in the build.
 		const imports: Array<string> = [];
 		const exports: Array<string> = [];
-		this.#assetImports.forEach((id) => {
+		// Sort asset imports to ensure deterministic output across builds
+		const sortedAssetImports = [...this.#assetImports].sort();
+		sortedAssetImports.forEach((id) => {
 			const symbol = importIdToSymbolName(id);
 			imports.push(`import ${symbol} from ${JSON.stringify(id)};`);
 			exports.push(`[${JSON.stringify(id)}, ${symbol}]`);
@@ -144,7 +146,11 @@ export default new Map([${exports.join(', ')}]);
 		// for each asset is an object with path, format and dimensions.
 		// We then export them all, mapped by the import id, so we can find them again in the build.
 		const lines: Array<string> = [];
-		for (const [fileName, specifier] of this.#moduleImports) {
+		// Sort module imports by key to ensure deterministic output across builds
+		const sortedModuleImports = [...this.#moduleImports.entries()].sort(([a], [b]) =>
+			a.localeCompare(b),
+		);
+		for (const [fileName, specifier] of sortedModuleImports) {
 			lines.push(`[${JSON.stringify(fileName)}, () => import(${JSON.stringify(specifier)})]`);
 		}
 		const code = `
@@ -389,7 +395,18 @@ export default new Map([\n${lines.join(',\n')}]);
 	}
 
 	toString() {
-		return devalue.stringify(this._collections);
+		// Sort collections and their entries by key to ensure deterministic serialization.
+		// Entry insertion order can vary between builds due to concurrent file processing (pLimit),
+		// so we sort here to guarantee stable output hashes regardless of processing order.
+		const sorted = new Map(
+			[...this._collections.entries()]
+				.sort(([a], [b]) => a.localeCompare(b))
+				.map(([key, collection]) => [
+					key,
+					new Map([...collection.entries()].sort(([a], [b]) => a.localeCompare(b))),
+				]),
+		);
+		return devalue.stringify(sorted);
 	}
 
 	async writeToDisk() {
