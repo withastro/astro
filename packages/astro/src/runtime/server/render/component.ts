@@ -1,5 +1,9 @@
 import { clsx } from 'clsx';
 import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
+import {
+	isBuildPerfTrackingEnabled,
+	recordComponentRender,
+} from '../../../core/build/perf-tracker.js';
 import type {
 	AstroComponentMetadata,
 	RouteData,
@@ -28,6 +32,27 @@ import { createRenderInstruction } from './instruction.js';
 import { containsServerDirective, ServerIslandComponent } from './server-islands.js';
 import { type ComponentSlots, renderSlots, renderSlotToString } from './slot.js';
 import { formatList, internalSpreadAttributes, renderElement, voidElementNames } from './util.js';
+
+/**
+ * Wraps a RenderInstance so its render() call is timed and recorded in the
+ * build performance tracker. Only active during `astro build` when tracking
+ * is enabled.
+ */
+function withBuildPerfTracking(instance: RenderInstance, displayName: string): RenderInstance {
+	if (!isBuildPerfTrackingEnabled()) return instance;
+	return {
+		render(destination: RenderDestination): void | Promise<void> {
+			const start = performance.now();
+			const result = instance.render(destination);
+			if (result instanceof Promise) {
+				return result.then(() => {
+					recordComponentRender(displayName, performance.now() - start);
+				});
+			}
+			recordComponentRender(displayName, performance.now() - start);
+		},
+	};
+}
 
 const needsHeadRenderingSymbol = Symbol.for('astro.needsHeadRendering');
 const rendererAliases = new Map([['solid', 'solid-js']]);
@@ -482,16 +507,21 @@ export function renderComponent(
 
 	// .html components
 	if (isHTMLComponent(Component)) {
-		return renderHTMLComponent(result, Component, props, slots).catch(handleCancellation);
+		return renderHTMLComponent(result, Component, props, slots)
+			.catch(handleCancellation)
+			.then((instance) => withBuildPerfTracking(instance, displayName));
 	}
 
 	if (isAstroComponentFactory(Component)) {
-		return renderAstroComponent(result, displayName, Component, props, slots);
+		return withBuildPerfTracking(
+			renderAstroComponent(result, displayName, Component, props, slots),
+			displayName,
+		);
 	}
 
-	return renderFrameworkComponent(result, displayName, Component, props, slots).catch(
-		handleCancellation,
-	);
+	return renderFrameworkComponent(result, displayName, Component, props, slots)
+		.catch(handleCancellation)
+		.then((instance) => withBuildPerfTracking(instance, displayName));
 
 	function handleCancellation(e: unknown) {
 		if (result.cancelled)
