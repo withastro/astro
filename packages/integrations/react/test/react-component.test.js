@@ -61,6 +61,12 @@ describe('React Components', () => {
 			const islandsWithId = $('.react-use-id');
 			assert.equal(islandsWithId.length, 2);
 			assert.notEqual($(islandsWithId[0]).attr('id'), $(islandsWithId[1]).attr('id'));
+
+			// test 12: Passes boolean attributes to components as expected
+			assert.equal($('#true').attr('attr'), 'attr-true');
+			assert.equal($('#true').attr('type'), 'boolean');
+			assert.equal($('#false').attr('attr'), 'attr-false');
+			assert.equal($('#false').attr('type'), 'boolean');
 		});
 
 		it('Can load Vue', async () => {
