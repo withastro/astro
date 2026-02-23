@@ -4,6 +4,8 @@ Generate a GitHub issue comment from triage findings.
 
 **CRITICAL: You MUST always read `report.md` and produce a GitHub comment as your final output, regardless of what input files are available. Even if `report.md` is missing or empty, you must still produce a comment. In that case, produce a minimal comment stating that automated triage could not be completed.**
 
+**SCOPE: Your job is comment generation only. Finish your work once you've completed this workflow. Do NOT go further than this. It is no longer time to attempt reproduction, diagnosis, or fixing of the issue.**
+
 ## Prerequisites
 
 These variables are referenced throughout this skill. They may be passed as args by an orchestrator, or inferred from the conversation when run standalone.
@@ -41,16 +43,16 @@ The **Fix** line in the template has three possible forms. Choose the one that m
 
 The **Priority** line communicates the severity of this issue to maintainers. Its goal is to answer the question: **"How bad is it?"**
 
-Select exactly ONE priority label from the `priorityLabels` arg. Use the label descriptions to guide your decision, combined with the triage report's root cause and impact analysis. Render the chosen label name in square brackets, in bold, formatted with the `- ` prefix removed (Example: `**[P2: Has Workaround].**). Then, follow it with 1-2 sentences explaining **why** you chose that priority. Answer: "who is likely to be affected and under what conditions?". If you are unsure, use your best judgment based on the label descriptions and the triage findings.
+Select exactly ONE priority label from the `priorityLabels` arg. Use the label descriptions to guide your decision, combined with the triage report's root cause and impact analysis. Render it in bold, with the `- ` prefix removed, like this: `**Priorty P2: Has Workaround.** Then, follow it with 1-2 sentences explaining _why_ you chose that priority. Answer: "who is likely to be affected and under what conditions?". If you are unsure, use your best judgment based on the label descriptions and the triage findings.
 
 ### Template
 
 ```markdown
 **[I was able to reproduce this issue. / I was unable to reproduce this issue.]** [2-3 sentences describing the root cause, result, and key observations.]
 
-**Fix:** **[See "Fix" Instructions above.]** [1-2 sentences describing the solution, where/when it was already fixed, or guidance on where a fix might be.] [If `branchName` is non-null: [View Suggested Fix](https://github.com/withastro/astro/compare/{branchName}?expand=1)]
+**[See "Fix" Instructions above.]** [1-2 sentences describing the solution, where/when it was already fixed, or guidance on where a fix might be.] [If `branchName` is non-null: [View Suggested Fix](https://github.com/withastro/astro/compare/{branchName}?expand=1)]
 
-**Priority:** **[See "Priority" Instructions above.]** [1-2 sentences explaining why this priority was chosen, who is likely to be affected, and under what conditions (this section should answer the question: "how bad is it?")]
+**[See "Priority" Instructions above.]** [1-2 sentences explaining why this priority was chosen, who is likely to be affected, and under what conditions (this section should answer the question: "how bad is it?")]
 
 <details>
 <summary><em>Full Triage Report</em></summary>

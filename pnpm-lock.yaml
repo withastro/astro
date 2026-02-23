@@ -33,6 +33,9 @@ importers:
       '@types/node':
         specifier: ^18.19.115
         version: 18.19.130
+      bgproc:
+        specifier: ^0.2.0
+        version: 0.2.0
       esbuild:
         specifier: 0.25.5
         version: 0.25.5
@@ -10975,6 +10978,10 @@ packages:
     resolution: {integrity: sha512-pbnl5XzGBdrFU/wT4jqmJVPn2B6UHPBOhzMQkY/SPUPB6QtUXtmBHBIwCbXJol93mOpGMnQyP/+BB19q04xj7g==}
     engines: {node: '>=4'}
 
+  bgproc@0.2.0:
+    resolution: {integrity: sha512-kBlr0b7PXwde2PmF21g2+i7NJW+pnF2iq5REaJK0uNMNE4iRp0188dG7MaP2Q4qYxJh2VgyB6MGnshGwZ7Aw2A==}
+    hasBin: true
+
   binary-extensions@2.3.0:
     resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
     engines: {node: '>=8'}
@@ -20386,6 +20393,10 @@ snapshots:
   better-path-resolve@1.0.0:
     dependencies:
       is-windows: 1.0.2
+
+  bgproc@0.2.0:
+    dependencies:
+      citty: 0.1.6
 
   binary-extensions@2.3.0: {}
 

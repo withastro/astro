@@ -2,12 +2,13 @@ name: Issue Triage
 
 on:
   issues:
-    types: [opened]
+    types: [opened, reopened]
   issue_comment:
     types: [created]
 
 env:
   IMAGE: ghcr.io/${{ github.repository }}/flue-sandbox
+  PNPM_STORE_DIR: .pnpm-store
 
 concurrency:
   # Only one triage run per issue at a time. New runs queue (not cancel)
@@ -16,6 +17,24 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  label:
+    if: >-
+      !github.event.issue.pull_request &&
+      (github.event.action == 'opened' || github.event.action == 'reopened')
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          script: |
+            github.rest.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ["needs triage"]
+            })
+
   triage:
     # 1. Skip issues with "auto triage skipped" label
     # 2. Skip pull requests (issues only)
@@ -39,6 +58,8 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
 
       - name: Configure Git identity
         run: |
@@ -97,6 +118,9 @@ jobs:
           echo "To attach from your machine:"
           echo "  OPENCODE_API_URL=\$(grep -o 'https://[^ ]*\\.trycloudflare\\.com' /tmp/cloudflared.log) opencode attach"
 
+      - name: Checkout fix branch
+        run: git checkout -B "flue/fix-${{ github.event.issue.number }}"
+
       - name: Run workflow
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -104,8 +128,7 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.CI_ANTHROPIC_API_KEY }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
-          pnpm flue run .flue/workflows/issue-triage.ts \
+          pnpm flue run .flue/workflows/issue-triage/WORKFLOW.ts \
             --sandbox $IMAGE:latest \
-            --args "{\"issueNumber\": $ISSUE_NUMBER, \"triageDir\": \"triage/issue-$ISSUE_NUMBER\"}" \
-            --branch "flue/fix-$ISSUE_NUMBER" \
+            --args "{\"issueNumber\": $ISSUE_NUMBER}" \
             --model anthropic/claude-opus-4-6

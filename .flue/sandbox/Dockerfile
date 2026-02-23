@@ -7,7 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # The slim image includes Node.js and npm but not git, curl, or wget.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-       ca-certificates curl wget git \
+       ca-certificates curl wget git jq lsof procps \
     && rm -rf /var/lib/apt/lists/*
 
 # --- pnpm ---
@@ -44,13 +44,28 @@ RUN apt-get update \
     && chmod -R o+rx /opt/pw-browsers \
     && npm uninstall -g playwright
 
-# NOTE: gh CLI is intentionally NOT installed in the sandbox due to lack of tokens.
+# --- GitHub CLI (for read-only public repo operations without auth) ---
+RUN (type -p wget >/dev/null || (apt-get update && apt-get install wget -y)) \
+    && mkdir -p -m 755 /etc/apt/keyrings \
+    && out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+    && cat $out | tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
+    && chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+       | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+    && apt-get update \
+    && apt-get install gh -y \
+    && rm -rf /var/lib/apt/lists/*
 
 # --- Compatibility fixes ---
 # Allow any directory as a git safe.directory. The host workspace is bind-mounted
 # at its original host path (e.g. /home/runner/work/astro/astro) and the container
 # runs as a non-root UID via --user, so git would otherwise refuse to operate.
 RUN git config --system --add safe.directory '*'
+
+# --- Global OpenCode rules for CI sessions ---
+# The flue CLI sets HOME=/tmp at runtime, so OpenCode reads global rules from
+# /tmp/.config/opencode/AGENTS.md. This injects CI-specific instructions.
+COPY .flue/sandbox/AGENTS.md /tmp/.config/opencode/AGENTS.md
 
 EXPOSE 48765
 
