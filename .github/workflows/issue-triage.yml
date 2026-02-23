@@ -84,10 +84,15 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Log in to GHCR
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Pull sandbox image
-        run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          docker pull $IMAGE:latest
+        run: docker pull $IMAGE:latest
 
       - name: Verify sandbox image
         run: |
