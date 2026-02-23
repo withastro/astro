@@ -5,12 +5,25 @@ import type { MaybeRenderHeadInstruction, RenderHeadInstruction } from './instru
 import { createRenderInstruction } from './instruction.js';
 import { renderElement } from './util.js';
 
+// Deterministic stringification of props that is key-order independent,
+// so elements with the same props in different insertion order are still deduped.
+function stablePropsKey(props: Record<string, unknown>): string {
+	const keys = Object.keys(props).sort();
+	let result = '{';
+	for (let i = 0; i < keys.length; i++) {
+		if (i > 0) result += ',';
+		result += JSON.stringify(keys[i]) + ':' + JSON.stringify(props[keys[i]]);
+	}
+	result += '}';
+	return result;
+}
+
 // Filter out duplicate elements using a Set for O(N) instead of O(N²)
 function deduplicateElements(elements: any[]): any[] {
 	if (elements.length <= 1) return elements;
 	const seen = new Set<string>();
 	return elements.filter((item) => {
-		const key = JSON.stringify(item.props) + item.children;
+		const key = stablePropsKey(item.props) + item.children;
 		if (seen.has(key)) return false;
 		seen.add(key);
 		return true;
