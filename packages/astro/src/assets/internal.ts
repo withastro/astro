@@ -1,4 +1,5 @@
 import { isRemotePath } from '@astrojs/internal-helpers/path';
+import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { AstroConfig } from '../types/public/config.js';
 import type { AstroAdapterClientConfig } from '../types/public/integrations.js';
@@ -83,8 +84,15 @@ export async function getImage(
 		delete resolvedOptions.inferSize; // Delete so it doesn't end up in the attributes
 
 		if (isRemoteImage(resolvedOptions.src) && isRemotePath(resolvedOptions.src)) {
+			if (!isRemoteAllowed(resolvedOptions.src, imageConfig)) {
+				throw new AstroError({
+					...AstroErrorData.RemoteImageNotAllowed,
+					message: AstroErrorData.RemoteImageNotAllowed.message(resolvedOptions.src),
+				});
+			}
+
 			const getRemoteSize = (url: string) =>
-				service.getRemoteSize?.(url, imageConfig) ?? inferRemoteSize(url);
+				service.getRemoteSize?.(url, imageConfig) ?? inferRemoteSize(url, imageConfig);
 			const result = await getRemoteSize(resolvedOptions.src); // Directly probe the image URL
 			resolvedOptions.width ??= result.width;
 			resolvedOptions.height ??= result.height;
