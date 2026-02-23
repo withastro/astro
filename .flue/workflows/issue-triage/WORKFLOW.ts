@@ -20,9 +20,9 @@ export const proxies = {
 				// Allow read-only access to the GraphQL endpoint
 				{ method: 'POST', path: '/graphql', body: githubBody.graphql() },
 				// Allow git clone, fetch, and push over smart HTTP transport
-				{ method: 'GET', path: '/*/info/refs' },
-				{ method: 'POST', path: '/*/git-upload-pack' },
-				{ method: 'POST', path: '/*/git-receive-pack' },
+				{ method: 'GET', path: '/*/*/info/refs' },
+				{ method: 'POST', path: '/*/*/git-upload-pack' },
+				{ method: 'POST', path: '/*/*/git-receive-pack' },
 			],
 		},
 	}),
