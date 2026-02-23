@@ -1,6 +1,6 @@
-import path from 'node:path';
 import type { AstroSettings } from '../../types/astro.js';
 import type { RouteData, RoutePart } from '../../types/public/internal.js';
+import { fileExtension } from '@astrojs/internal-helpers/path';
 import { removeLeadingForwardSlash, removeTrailingForwardSlash } from '../path.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../constants.js';
 import { getPattern } from './pattern.js';
@@ -43,7 +43,7 @@ export function parseRoute(
 
 	if (rawSegments.length > 0) {
 		const last = rawSegments[rawSegments.length - 1];
-		const ext = path.extname(last);
+		const ext = fileExtension(last);
 		if (ext && routeFileExtensions.has(ext)) {
 			const base = last.slice(0, -ext.length);
 			rawSegments[rawSegments.length - 1] = base;
