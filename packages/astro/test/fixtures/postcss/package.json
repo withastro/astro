@@ -10,7 +10,7 @@
     "autoprefixer": "^10.4.24",
     "postcss": "^8.5.6",
     "solid-js": "^1.9.11",
-    "svelte": "^5.50.3",
+    "svelte": "^5.51.5",
     "vue": "^3.5.28"
   },
   "devDependencies": {

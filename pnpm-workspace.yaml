@@ -44,5 +44,6 @@ onlyBuiltDependencies:
   - '@parcel/watcher'
   - 'keytar'
   - '@vscode/vsce-sign'
+
 # TODO: enable when viable
 # trustPolicy: 'no-downgrade'
