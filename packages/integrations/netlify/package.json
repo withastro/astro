@@ -41,9 +41,9 @@
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/underscore-redirects": "workspace:*",
-    "@netlify/blobs": "^10.6.0",
+    "@netlify/blobs": "^10.7.0",
     "@netlify/functions": "^5.1.2",
-    "@netlify/vite-plugin": "^2.9.0",
+    "@netlify/vite-plugin": "^2.10.2",
     "@vercel/nft": "^1.3.1",
     "esbuild": "^0.25.0",
     "tinyglobby": "^0.2.15",
