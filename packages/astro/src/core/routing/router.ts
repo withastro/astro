@@ -131,7 +131,7 @@ function normalizeBase(base: string): string {
  * Remove a trailing slash while preserving the root slash.
  */
 function removeTrailingSlash(value: string): string {
-	if (value === '/') return '/';
+	if (value === '/') return value;
 	return value.endsWith('/') ? value.slice(0, -1) : value;
 }
 
