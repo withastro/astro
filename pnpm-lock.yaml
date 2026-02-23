@@ -551,7 +551,7 @@ importers:
         specifier: ^2.0.2
         version: 2.0.2
       devalue:
-        specifier: ^5.6.2
+        specifier: ^5.6.3
         version: 5.6.3
       diff:
         specifier: ^8.0.3
@@ -4941,7 +4941,7 @@ importers:
         specifier: 1.2.0
         version: 1.2.0
       devalue:
-        specifier: ^5.6.2
+        specifier: ^5.6.3
         version: 5.6.3
 
   packages/integrations/cloudflare/test/fixtures/astro-dev-platform:
@@ -5249,7 +5249,7 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
       devalue:
-        specifier: ^5.6.2
+        specifier: ^5.6.3
         version: 5.6.3
       linkedom:
         specifier: ^0.18.12
@@ -5731,7 +5731,7 @@ importers:
         specifier: 1.2.0
         version: 1.2.0
       devalue:
-        specifier: ^5.6.2
+        specifier: ^5.6.3
         version: 5.6.3
       typescript:
         specifier: ^5.9.3
@@ -5856,7 +5856,7 @@ importers:
         specifier: 1.2.0
         version: 1.2.0
       devalue:
-        specifier: ^5.6.2
+        specifier: ^5.6.3
         version: 5.6.3
       express:
         specifier: ^5.2.1
