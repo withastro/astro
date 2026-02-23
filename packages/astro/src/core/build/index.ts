@@ -124,8 +124,8 @@ class AstroBuilder {
 			command: 'build',
 			logger: logger,
 		});
-		this.routesList = await createRoutesList({ settings: this.settings }, this.logger);
 		this.settings.buildOutput = getPrerenderDefault(this.settings.config) ? 'static' : 'server';
+		this.routesList = await createRoutesList({ settings: this.settings }, this.logger);
 
 		await runHookConfigDone({ settings: this.settings, logger: logger, command: 'build' });
 
