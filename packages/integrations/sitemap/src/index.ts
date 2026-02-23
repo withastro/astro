@@ -128,8 +128,8 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 							const newUrl = new URL(fullPath, finalSiteUrl).href;
 
 							if (config.build.format === 'file') {
-								const path = new URL(newUrl).pathname;
-								if (path !== '/' && path !== '' && !path.endsWith('/')) {
+								const urlPath = new URL(newUrl).pathname;
+								if (urlPath !== '/' && urlPath !== '' && !urlPath.endsWith('/')) {
 									return newUrl + '.html';
 								}
 							}
@@ -155,8 +155,8 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 							const newUrl = new URL(fullPath, finalSiteUrl).href;
 
 							if (config.build.format === 'file') {
-								const path = new URL(newUrl).pathname;
-								if (path !== '/' && path !== '' && !path.endsWith('/')) {
+								const urlPath = new URL(newUrl).pathname;
+								if (urlPath !== '/' && urlPath !== '' && !urlPath.endsWith('/')) {
 									// When build.format is 'file', output files have .html extension
 									// (e.g., /about → /about.html), so sitemap URLs should match
 									urls.push(newUrl + '.html');
