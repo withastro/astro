@@ -4,7 +4,7 @@
 
 Adds a new `experimental.rustCompiler` flag to opt into the experimental Rust-based Astro compiler
 
-This experimental compiler is faster, provides better error messages, and generally has better support for modern JavaScript, TypeScript and CSS features.
+This experimental compiler is faster, provides better error messages, and generally has better support for modern JavaScript, TypeScript, and CSS features.
 
 After enabling in your Astro config, the `@astrojs/compiler-rs` package must also be installed into your project separately:
 
