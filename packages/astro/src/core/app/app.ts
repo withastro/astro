@@ -1,4 +1,4 @@
-import { BaseApp } from './base.js';
+import { BaseApp, type LogRequestPayload } from './base.js';
 import { AppPipeline } from './pipeline.js';
 
 export class App extends BaseApp {
@@ -12,4 +12,7 @@ export class App extends BaseApp {
 	isDev(): boolean {
 		return false;
 	}
+
+	// Should we log something for our users?
+	logRequest(_options: LogRequestPayload) {}
 }

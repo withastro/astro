@@ -4,7 +4,7 @@ import type { RouteData, SSRElement, SSRResult } from '../../types/public/intern
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../vite-plugin-pages/const.js';
 import { getVirtualModulePageName } from '../../vite-plugin-pages/util.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
-import { createConsoleLogger } from '../app/index.js';
+import { createConsoleLogger } from '../app/entrypoints/index.js';
 import type { SSRManifest } from '../app/types.js';
 import type { TryRewriteResult } from '../base-pipeline.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/component.js';

@@ -3,7 +3,7 @@ import { extname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import colors from 'piccolore';
 import { normalizePath, type Plugin, type ViteDevServer } from 'vite';
-import { serializeRouteData } from '../core/app/index.js';
+import { serializeRouteData } from '../core/app/entrypoints/index.js';
 import type { SerializedRouteInfo } from '../core/app/types.js';
 import { warnMissingAdapter } from '../core/dev/adapter-validation.js';
 import type { Logger } from '../core/logger/core.js';

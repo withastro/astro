@@ -8,7 +8,7 @@ import { runHookConfigDone, runHookConfigSetup } from '../../integrations/hooks.
 import type { AstroInlineConfig } from '../../types/public/config.js';
 import type { PreviewModule, PreviewServer } from '../../types/public/preview.js';
 import { resolveConfig } from '../config/config.js';
-import { createNodeLogger } from '../config/logging.js';
+import { createNodeLogger } from '../logger/node.js';
 import { createSettings } from '../config/settings.js';
 import { createRoutesList } from '../routing/manifest/create.js';
 import { ensureProcessNodeEnv } from '../util.js';

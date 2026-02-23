@@ -27,7 +27,7 @@ describe('astro:image:layout', () => {
 						foo: 'bar',
 						transform: { path: walrusImagePath, scale: imageScale },
 					}),
-					domains: ['avatars.githubusercontent.com'],
+					domains: ['avatars.githubusercontent.com', 'images.unsplash.com'],
 				},
 			});
 
@@ -183,8 +183,8 @@ describe('astro:image:layout', () => {
 				const srcset = parseSrcset($img.attr('srcset'));
 				for (const { url } of srcset) {
 					const params = new URL(url, 'https://example.com').searchParams;
-					const width = parseInt(params.get('w'));
-					const height = parseInt(params.get('h'));
+					const width = Number.parseInt(params.get('w'));
+					const height = Number.parseInt(params.get('h'));
 					assert.equal(width / height, aspectRatio);
 				}
 			});
@@ -382,8 +382,8 @@ describe('astro:image:layout', () => {
 
 				it('maintains original aspect ratio', () => {
 					let $img = $('#picture-fallback img');
-					const width = parseInt($img.attr('width'));
-					const height = parseInt($img.attr('height'));
+					const width = Number.parseInt($img.attr('width'));
+					const height = Number.parseInt($img.attr('height'));
 					const imageAspectRatio = width / height;
 					const originalAspectRatio = originalWidth / originalHeight;
 
@@ -599,7 +599,7 @@ describe('astro:image:layout', () => {
 				root: './fixtures/core-image-layout/',
 				image: {
 					service: testImageService({ foo: 'bar' }),
-					domains: ['avatars.githubusercontent.com'],
+					domains: ['avatars.githubusercontent.com', 'images.unsplash.com'],
 				},
 			});
 
@@ -710,7 +710,7 @@ describe('astro:image:layout', () => {
 					root: './fixtures/core-image-layout/',
 					image: {
 						service: testImageService({ foo: 'bar' }),
-						domains: ['avatars.githubusercontent.com'],
+						domains: ['avatars.githubusercontent.com', 'images.unsplash.com'],
 						responsiveStyles: false,
 					},
 				});

@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import type { SSRManifest } from 'astro';
-import { AppPipeline, BaseApp } from 'astro/app';
+import { AppPipeline, BaseApp, type LogRequestPayload } from 'astro/app';
 
 class MyApp extends BaseApp {
 	#manifest: SSRManifest | undefined;
@@ -30,6 +30,8 @@ class MyApp extends BaseApp {
 			streaming,
 		});
 	}
+
+	logRequest(_options: LogRequestPayload) {}
 }
 
 export function createExports(manifest: SSRManifest) {

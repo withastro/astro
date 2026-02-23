@@ -26,7 +26,7 @@
     "test:match": "pnpm run test --match"
   },
   "dependencies": {
-    "@astrojs/compiler": "^2.13.0",
+    "@astrojs/compiler": "^2.13.1",
     "@astrojs/yaml2ts": "^0.2.2",
     "@jridgewell/sourcemap-codec": "^1.5.5",
     "@volar/kit": "~2.4.28",

@@ -7,7 +7,7 @@ import type { ShikiConfig } from './types.js';
 export const rehypeShiki: Plugin<[ShikiConfig, string[]?], Root> = (config, excludeLangs) => {
 	let highlighterAsync: Promise<ShikiHighlighter> | undefined;
 
-	return async (tree) => {
+	return async (tree, vfile) => {
 		highlighterAsync ??= createShikiHighlighter({
 			langs: config?.langs,
 			theme: config?.theme,
@@ -16,7 +16,7 @@ export const rehypeShiki: Plugin<[ShikiConfig, string[]?], Root> = (config, excl
 		});
 		const highlighter = await highlighterAsync;
 
-		await highlightCodeBlocks(
+		const codeBlockCount = await highlightCodeBlocks(
 			tree,
 			(code, language, options) => {
 				return highlighter.codeToHast(code, language, {
@@ -28,5 +28,11 @@ export const rehypeShiki: Plugin<[ShikiConfig, string[]?], Root> = (config, excl
 			},
 			excludeLangs,
 		);
+
+		// Store flag in vfile.data if code blocks were found
+		if (codeBlockCount > 0) {
+			vfile.data.astro ??= {};
+			vfile.data.astro.hasCodeBlocks = true;
+		}
 	};
 };

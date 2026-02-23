@@ -10,7 +10,7 @@ import { getPrerenderDefault } from '../../../prerender/utils.js';
 import type { AstroSettings, RoutesList } from '../../../types/astro.js';
 import type { AstroConfig } from '../../../types/public/config.js';
 import type { RouteData, RoutePart } from '../../../types/public/internal.js';
-import { toRoutingStrategy } from '../../app/index.js';
+import { toRoutingStrategy } from '../../app/entrypoints/index.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
 import {
 	InvalidRedirectDestination,

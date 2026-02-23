@@ -12,7 +12,7 @@ import type {
 } from '../../types/public/config.js';
 import { trackAstroConfigZodError } from '../errors/errors.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { formatConfigErrorMessage } from '../messages.js';
+import { formatConfigErrorMessage } from '../messages/runtime.js';
 import { mergeConfig } from './merge.js';
 import { validateConfig } from './validate.js';
 import { loadConfigWithVite } from './vite-load.js';

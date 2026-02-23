@@ -22,7 +22,7 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
  * @typedef {Omit<import('../src/types/public/config.js').AstroInlineConfig, 'root'> & { root?: string | URL }} AstroInlineConfig
  * @typedef {import('../src/types/public/config.js').AstroConfig} AstroConfig
  * @typedef {import('../src/core/preview/index').PreviewServer} PreviewServer
- * @typedef {import('../src/core/app/index').App} App
+ * @typedef {import('../src/core/app/app.js').App} App
  * @typedef {import('../src/cli/check/index').AstroChecker} AstroChecker
  * @typedef {import('../src/cli/check/index').CheckPayload} CheckPayload
  * @typedef {import('http').IncomingMessage} NodeRequest

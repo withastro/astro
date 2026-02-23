@@ -63,7 +63,13 @@ export class StaticPaths {
 			// Also process fallback routes
 			for (const currentRoute of eachRouteInRouteData(route)) {
 				const paths = await this.#getPathsForRoute(currentRoute);
-				allPaths.push(...paths);
+				// Use a loop instead of spread operator (allPaths.push(...paths)) to avoid
+				// "Maximum call stack size exceeded" error with large arrays (issue #15578).
+				// The spread operator tries to pass all array elements as individual arguments,
+				// which hits the call stack limit when dealing with 100k+ routes.
+				for (const path of paths) {
+					allPaths.push(path);
+				}
 			}
 		}
 

@@ -225,7 +225,7 @@ describe('Middleware API in PROD mode, SSR', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 	let middlewarePath;
-	/** @type {import('../src/core/app/index').App} */
+	/** @type {import('../src/core/app/app.js').App} */
 	let app;
 
 	before(async () => {

@@ -19,6 +19,7 @@ import type { LoggerLevel } from '../logger/core.js';
 import type { RoutingStrategies } from './common.js';
 import type { BaseSessionConfig, SessionDriverFactory } from '../session/types.js';
 import type { DevToolbarPlacement } from '../../types/public/toolbar.js';
+import type { BaseApp } from './base.js';
 
 type ComponentPath = string;
 
@@ -197,6 +198,7 @@ export type SerializedSSRManifest = Omit<
 	key: string;
 };
 
+/** @deprecated This will be removed in a future major version. */
 export type NodeAppHeadersJson = {
 	pathname: string;
 	headers: {
@@ -204,3 +206,5 @@ export type NodeAppHeadersJson = {
 		value: string;
 	}[];
 }[];
+
+export type CreateApp = (options?: { streaming?: boolean }) => BaseApp;
