@@ -5,7 +5,7 @@ import type * as vite from 'vite';
 import { preview, type PreviewServer as VitePreviewServer } from 'vite';
 import type { AstroSettings } from '../../types/astro.js';
 import type { Logger } from '../logger/core.js';
-import * as msg from '../messages.js';
+import * as msg from '../messages/runtime.js';
 import { getResolvedHostForHttpServer } from './util.js';
 import { vitePluginAstroPreview } from './vite-plugin-astro-preview.js';
 

@@ -1,15 +1,14 @@
-import { detect, resolveCommand } from 'package-manager-detector';
 import colors from 'piccolore';
 import type { ResolvedServerUrls } from 'vite';
 import type { $ZodError } from 'zod/v4/core';
-import { getDocsForError, renderErrorMarkdown } from './errors/dev/utils.js';
+import { getDocsForError, renderErrorMarkdown } from '../errors/dev/runtime.js';
 import {
 	AstroError,
 	AstroUserError,
 	CompilerError,
 	type ErrorWithMetadata,
-} from './errors/index.js';
-import { padMultilineString } from './util.js';
+} from '../errors/index.js';
+import { padMultilineString } from '../util-runtime.js';
 
 const {
 	bgGreen,
@@ -30,6 +29,32 @@ const {
 /**
  * Prestyled messages for the CLI. Used by astro CLI commands.
  */
+
+/** Display each request being served with the path and the status code.  */
+export function req({
+	url,
+	method,
+	statusCode,
+	reqTime,
+	isRewrite,
+}: {
+	url: string;
+	statusCode: number;
+	method?: string;
+	reqTime?: number;
+	isRewrite?: boolean;
+}): string {
+	const color = statusCode >= 500 ? red : statusCode >= 300 ? yellow : blue;
+	return (
+		color(`[${statusCode}]`) +
+		` ` +
+		`${isRewrite ? color('(rewrite) ') : ''}` +
+		(method && method !== 'GET' ? color(method) + ' ' : '') +
+		url +
+		` ` +
+		(reqTime ? dim(Math.round(reqTime) + 'ms') : '')
+	);
+}
 
 /** Display server host and startup time */
 export function serverStart({
@@ -81,19 +106,6 @@ export function serverStart({
 /** Display custom dev server shortcuts */
 export function serverShortcuts({ key, label }: { key: string; label: string }): string {
 	return [dim('  Press'), key, dim('to'), label].join(' ');
-}
-
-export async function newVersionAvailable({ latestVersion }: { latestVersion: string }) {
-	const badge = bgYellow(black(` update `));
-	const headline = yellow(`▶ New version of Astro available: ${latestVersion}`);
-	const packageManager = (await detect())?.agent ?? 'npm';
-	const execCommand = resolveCommand(packageManager, 'execute', ['@astrojs/upgrade']);
-	// NOTE: Usually it's impossible for `execCommand` to be null as `package-manager-detector` should
-	// already match a valid package manager
-	const details = !execCommand
-		? ''
-		: `  Run ${cyan(`${execCommand.command} ${execCommand.args.join(' ')}`)} to update`;
-	return ['', `${badge} ${headline}`, details, ''].join('\n');
 }
 
 export function telemetryNotice() {

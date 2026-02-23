@@ -7,7 +7,7 @@
   },
   "devDependencies": {
     "astro": "workspace:*",
-    "wrangler": "^4.65.0"
+    "wrangler": "^4.67.0"
   },
   "scripts": {
     "build": "astro build",

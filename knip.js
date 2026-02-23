@@ -85,7 +85,7 @@ export default {
 		'packages/markdown/remark': {
 			entry: [testEntry],
 			// package.json#imports are not resolved at the moment
-			ignore: ['src/import-plugin-browser.ts'],
+			ignore: ['src/import-plugin-browser.ts', 'src/shiki-engine-workerd.ts'],
 		},
 		'packages/upgrade': {
 			entry: ['src/index.ts', testEntry],
