@@ -45,6 +45,7 @@ export function parseRoute(
 		const last = rawSegments.at(-1)!;
 		const ext = fileExtension(last);
 		if (ext && routeFileExtensions.has(ext)) {
+			// Strip known file extensions and treat trailing /index.* as the parent route.
 			const base = last.slice(0, -ext.length);
 			rawSegments[rawSegments.length - 1] = base;
 			if (base === 'index') {
