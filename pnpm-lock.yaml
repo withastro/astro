@@ -6284,7 +6284,7 @@ importers:
         version: link:../../../../../astro
       svelte:
         specifier: ^5.17.1
-        version: 5.50.3
+        version: 5.53.0
 
   packages/integrations/svelte/test/fixtures/prop-types:
     dependencies:
