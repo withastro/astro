@@ -547,9 +547,6 @@ importers:
       cssesc:
         specifier: ^3.0.0
         version: 3.0.0
-      debug:
-        specifier: ^4.4.3
-        version: 4.4.3(supports-color@8.1.1)
       devalue:
         specifier: ^5.6.3
         version: 5.6.3
