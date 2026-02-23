@@ -11,7 +11,7 @@ import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
 import { createRoutesList } from '../routing/create-manifest.js';
-import { getPrerenderDefault } from '../prerender/utils.js';
+import { getPrerenderDefault } from '../../prerender/utils.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import createStaticPreviewServer from './static-preview-server.js';
 import { getResolvedHostForHttpServer } from './util.js';
