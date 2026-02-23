@@ -2768,7 +2768,7 @@ export interface AstroUserConfig<
 		 * @name experimental.rustCompiler
 		 * @type {boolean}
 		 * @default `false`
-		 * @version 5.x
+		 * @version 6.0.0
 		 * @description
 		 *
 		 * Enables the experimental Rust-based Astro compiler (`@astrojs/compiler-rs`) as a replacement to the current Go compiler.
