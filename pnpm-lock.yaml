@@ -1562,7 +1562,7 @@ importers:
     dependencies:
       preact:
         specifier: ^10.28.3
-        version: 10.28.3
+        version: 10.28.4
       react:
         specifier: ^19.2.4
         version: 19.2.4
