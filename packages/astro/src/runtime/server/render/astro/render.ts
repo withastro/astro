@@ -236,7 +236,8 @@ export async function renderToAsyncIterable(
 	// The `next` is an object `{ promise, resolve, reject }` that we use to wait
 	// for chunks to be pushed into the buffer.
 	let next: ReturnType<typeof promiseWithResolvers<void>> | null = null;
-	const buffer: Array<Uint8Array | string> = []; // []Uint8Array
+	const buffer: Array<Uint8Array> = []; // []Uint8Array
+	let currentString = '';
 	let renderingComplete = false;
 
 	const iterator: AsyncIterator<Uint8Array> = {
@@ -247,7 +248,7 @@ export async function renderToAsyncIterable(
 				await next.promise;
 			}
 			// Buffer is empty so there's nothing to receive, wait for the next resolve.
-			else if (!renderingComplete && !buffer.length) {
+			else if (!renderingComplete && !buffer.length && !currentString) {
 				next = promiseWithResolvers();
 				await next.promise;
 			}
@@ -263,47 +264,23 @@ export async function renderToAsyncIterable(
 				throw error;
 			}
 
-			// This calculates the length of the final merged array.
-			// While doing so, it also replaces consecutive strings with their
-			// concatenated Uint8Array equivalent.
-			// This is a performance optimization since `TextEncoder#encode` can be
-			// costly, so it is faster to encode one larger string than it is
-			// to encode many smaller strings.
-			let length = 0;
-			let stringToEncode = '';
-			for (let i = 0, len = buffer.length; i < len; i++) {
-				const bufferEntry = buffer[i];
-
-				if (typeof bufferEntry === 'string') {
-					const nextIsString = i + 1 < len && typeof buffer[i + 1] === 'string';
-					stringToEncode += bufferEntry;
-					if (!nextIsString) {
-						const encoded = encoder.encode(stringToEncode);
-						length += encoded.length;
-						stringToEncode = '';
-						buffer[i] = encoded;
-					} else {
-						buffer[i] = '';
-					}
-				} else {
-					length += bufferEntry.length;
-				}
+			// Flush any pending string
+			if (currentString) {
+				buffer.push(encoder.encode(currentString));
+				currentString = '';
 			}
 
 			// Create a new array with total length and merge all source arrays.
+			let length = 0;
+			for (let i = 0, len = buffer.length; i < len; i++) {
+				length += buffer[i].length;
+			}
+
 			let mergedArray = new Uint8Array(length);
 			let offset = 0;
 			for (let i = 0, len = buffer.length; i < len; i++) {
 				const item = buffer[i];
-				// If an item is an empty string, it must've been cleared out earlier
-				// when we converted it into a larger Uint8Array. Thus, we can skip it.
-				if (item === '') {
-					continue;
-				}
-				// TypeScript will think this is `string | Uint8Array` but, because of
-				// the encoding earlier, we know the only remaining strings are empty
-				// and have been skipped above.
-				mergedArray.set(item as Uint8Array, offset);
+				mergedArray.set(item, offset);
 				offset += item.length;
 			}
 
@@ -333,21 +310,40 @@ export async function renderToAsyncIterable(
 				renderedFirstPageChunk = true;
 				if (!result.partial && !DOCTYPE_EXP.test(String(chunk))) {
 					const doctype = result.compressHTML ? '<!DOCTYPE html>' : '<!DOCTYPE html>\n';
-					buffer.push(encoder.encode(doctype));
+					currentString += doctype;
 				}
 			}
 			if (chunk instanceof Response) {
 				throw new AstroError(AstroErrorData.ResponseSentError);
 			}
-			const bytes = chunkToByteArrayOrString(result, chunk);
-			// It might be possible that we rendered a chunk with no content, in which
-			// case we don't want to resolve the promise.
-			if (bytes.length > 0) {
-				// Push the chunks into the buffer and resolve the promise so that next()
-				// will run.
-				buffer.push(bytes);
-				next?.resolve();
-			} else if (buffer.length > 0) {
+
+			// Optimisation #4: renderChild String Fast-Path (merged here)
+			if (typeof chunk === 'string') {
+				if (chunk.length > 0) {
+					currentString += chunk;
+					next?.resolve();
+				}
+			} else {
+				const bytes = chunkToByteArrayOrString(result, chunk);
+				if (typeof bytes === 'string') {
+					if (bytes.length > 0) {
+						currentString += bytes;
+						next?.resolve();
+					}
+				} else {
+					if (currentString.length > 0) {
+						buffer.push(encoder.encode(currentString));
+						currentString = '';
+					}
+					if (bytes.length > 0) {
+						buffer.push(bytes);
+						next?.resolve();
+					}
+				}
+			}
+
+			// If we have data, ensure next() wakes up
+			if (buffer.length > 0 || currentString.length > 0) {
 				next?.resolve();
 			}
 		},
