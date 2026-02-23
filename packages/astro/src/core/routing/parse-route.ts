@@ -7,8 +7,14 @@ import { getPattern } from './pattern.js';
 import { getParts } from './parts.js';
 import { validateSegment } from './segment.js';
 
+/**
+ * Settings needed to parse a route path into RouteData.
+ */
 type ParseRouteConfig = Pick<AstroSettings, 'config' | 'pageExtensions'>;
 
+/**
+ * Options for building the RouteData output.
+ */
 type ParseRouteOptions = {
 	component: string;
 	type?: RouteData['type'];
@@ -28,6 +34,9 @@ const ROUTE_FILE_EXTENSIONS = new Set([
 	...SUPPORTED_MARKDOWN_FILE_EXTENSIONS,
 ]);
 
+/**
+ * Parse a file path-like route into RouteData, respecting extensions and config.
+ */
 export function parseRoute(
 	route: string,
 	options: ParseRouteConfig,

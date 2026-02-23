@@ -4,6 +4,10 @@ import type { RouteData } from '../../types/public/internal.js';
 import { getParams } from '../render/params-and-props.js';
 import { routeComparator } from './priority.js';
 
+/**
+ * Router options derived from the active Astro config.
+ * Controls base matching, trailing slash handling, and build output format.
+ */
 export interface RouterOptions {
 	base: AstroConfig['base'];
 	trailingSlash: AstroConfig['trailingSlash'];
@@ -28,8 +32,17 @@ interface RouterMatchNone {
 	reason: 'no-match' | 'outside-base';
 }
 
+/**
+ * Result of routing a pathname.
+ * - match: route was found, includes route data and params.
+ * - redirect: canonical redirect (trailing slash or leading slash normalization).
+ * - none: no match (either outside base or no route pattern matched).
+ */
 export type RouterMatch = RouterMatchRoute | RouterMatchRedirect | RouterMatchNone;
 
+/**
+ * Matches request pathnames against a route list with base and trailing slash rules.
+ */
 export class Router {
 	#routes: RouteData[];
 	#base: string;
@@ -45,6 +58,10 @@ export class Router {
 		this.#trailingSlash = options.trailingSlash;
 	}
 
+	/**
+	 * Match an input pathname against the route list.
+	 * If allowWithoutBase is true, a non-base-prefixed path is still considered.
+	 */
 	public match(
 		inputPathname: string,
 		{ allowWithoutBase = false }: { allowWithoutBase?: boolean } = {},
@@ -99,6 +116,9 @@ export class Router {
 	}
 }
 
+/**
+ * Normalize a base path to a leading-slash form.
+ */
 function normalizeBase(base: string): string {
 	if (!base) return '/';
 	if (base === '/') return '/';
@@ -106,11 +126,19 @@ function normalizeBase(base: string): string {
 	return base;
 }
 
+/**
+ * Remove a trailing slash while preserving the root slash.
+ */
 function removeTrailingSlash(value: string): string {
 	if (value === '/') return '/';
 	return value.endsWith('/') ? value.slice(0, -1) : value;
 }
 
+/**
+ * Normalize an input pathname and provide a redirect target if needed.
+ * - Ensures a leading slash.
+ * - Collapses multiple leading slashes into a single slash redirect.
+ */
 function normalizePathname(pathname: string): { pathname: string; redirect?: string } {
 	let value = pathname;
 	if (!value.startsWith('/')) {
@@ -125,6 +153,10 @@ function normalizePathname(pathname: string): { pathname: string; redirect?: str
 	return { pathname: value };
 }
 
+/**
+ * Strip the configured base from the pathname and account for trailing slash policies.
+ * Returns null if the pathname is outside the base or should be redirected elsewhere.
+ */
 function stripBase(
 	pathname: string,
 	base: string,
@@ -147,6 +179,9 @@ function stripBase(
 	return null;
 }
 
+/**
+ * Normalize file-format pathnames by removing .html and /index.html suffixes.
+ */
 function normalizeFileFormatPathname(pathname: string): string {
 	if (pathname.endsWith('/index.html')) {
 		const trimmed = pathname.slice(0, -'/index.html'.length);

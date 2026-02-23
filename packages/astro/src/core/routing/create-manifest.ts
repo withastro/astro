@@ -650,7 +650,9 @@ function detectRouteCollision(a: RouteData, b: RouteData, _config: AstroConfig, 
 	logger.warn('router', 'A collision will result in an hard error in following versions of Astro.');
 }
 
-/** Create manifest of all static routes */
+/**
+ * Create a full route manifest from filesystem and injected routes.
+ */
 export async function createRoutesList(
 	params: CreateRouteManifestParams,
 	logger: Logger,
@@ -940,6 +942,9 @@ export async function createRoutesList(
 	};
 }
 
+/**
+ * Resolve a route entrypoint to an absolute component path.
+ */
 export function resolveInjectedRoute(entrypoint: string, root: URL, cwd?: string) {
 	let resolved;
 	try {
