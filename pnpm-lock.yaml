@@ -287,7 +287,7 @@ importers:
         specifier: ^1.9.11
         version: 1.9.11
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
       vue:
         specifier: ^3.5.28
@@ -350,7 +350,7 @@ importers:
         specifier: ^6.0.0-beta.14
         version: link:../../packages/astro
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
 
   examples/framework-vue:
@@ -404,7 +404,7 @@ importers:
         specifier: ^6.0.0-beta.14
         version: link:../../packages/astro
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
 
   examples/starlog:
@@ -934,7 +934,7 @@ importers:
         specifier: ^1.9.11
         version: 1.9.11
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
       vue:
         specifier: ^3.5.28
@@ -1132,7 +1132,7 @@ importers:
         specifier: ^1.9.11
         version: 1.9.11
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
       vue:
         specifier: ^3.5.28
@@ -1189,7 +1189,7 @@ importers:
         specifier: ^1.9.11
         version: 1.9.11
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
       vue:
         specifier: ^3.5.28
@@ -1245,7 +1245,7 @@ importers:
         specifier: ^1.9.11
         version: 1.9.11
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
       vue:
         specifier: ^3.5.28
@@ -1285,7 +1285,7 @@ importers:
         specifier: ^1.9.11
         version: 1.9.11
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
       vue:
         specifier: ^3.5.28
@@ -1325,7 +1325,7 @@ importers:
         specifier: ^1.9.11
         version: 1.9.11
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
       vue:
         specifier: ^3.5.28
@@ -1365,7 +1365,7 @@ importers:
         specifier: ^1.9.11
         version: 1.9.11
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
       vue:
         specifier: ^3.5.28
@@ -1405,7 +1405,7 @@ importers:
         specifier: ^1.9.11
         version: 1.9.11
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
       vue:
         specifier: ^3.5.28
@@ -1445,7 +1445,7 @@ importers:
         specifier: ^1.9.11
         version: 1.9.11
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
       vue:
         specifier: ^3.5.28
@@ -1641,7 +1641,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
 
   packages/astro/e2e/fixtures/tailwindcss:
@@ -1701,7 +1701,7 @@ importers:
         specifier: ^1.9.11
         version: 1.9.11
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
       vue:
         specifier: ^3.5.28
@@ -1845,7 +1845,7 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
       vue:
         specifier: ^3.5.28
@@ -1866,7 +1866,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
 
   packages/astro/test/fixtures/alias-tsconfig:
@@ -1881,7 +1881,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
 
   packages/astro/test/fixtures/alias-tsconfig-baseurl-only:
@@ -1893,7 +1893,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
 
   packages/astro/test/fixtures/alias-tsconfig-no-baseurl:
@@ -2039,7 +2039,7 @@ importers:
         specifier: ^10.28.3
         version: 10.28.3
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
       vue:
         specifier: ^3.5.28
@@ -2072,7 +2072,7 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
 
   packages/astro/test/fixtures/astro-client-only/pkg: {}
@@ -2164,7 +2164,7 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
 
   packages/astro/test/fixtures/astro-env:
@@ -2533,7 +2533,7 @@ importers:
         specifier: ^1.9.11
         version: 1.9.11
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
       vue:
         specifier: ^3.5.28
@@ -2623,7 +2623,7 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
 
   packages/astro/test/fixtures/component-library-shared:
@@ -3019,7 +3019,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
 
   packages/astro/test/fixtures/css-deduplication:
@@ -3334,7 +3334,7 @@ importers:
         specifier: ^10.28.3
         version: 10.28.3
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
       vue:
         specifier: ^3.5.28
@@ -3595,7 +3595,7 @@ importers:
         specifier: ^1.9.11
         version: 1.9.11
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
       vue:
         specifier: ^3.5.28
@@ -3810,7 +3810,7 @@ importers:
         specifier: ^1.9.11
         version: 1.9.11
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
       vue:
         specifier: ^3.5.28
@@ -4076,7 +4076,7 @@ importers:
         specifier: workspace:*
         version: link:../../../..
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
 
   packages/astro/test/fixtures/server-islands/ssr:
@@ -4091,7 +4091,7 @@ importers:
         specifier: workspace:*
         version: link:../../../..
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
 
   packages/astro/test/fixtures/sessions:
@@ -4166,7 +4166,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
 
   packages/astro/test/fixtures/slots-vue:
@@ -4468,7 +4468,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
 
   packages/astro/test/fixtures/svg-deduplication:
@@ -4597,7 +4597,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
       vue:
         specifier: ^3.5.28
@@ -5188,7 +5188,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
 
   packages/integrations/cloudflare/test/fixtures/with-vue:
@@ -6240,7 +6240,7 @@ importers:
         specifier: 1.2.0
         version: 1.2.0
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
 
   packages/integrations/svelte/test/fixtures/async-rendering:
@@ -6252,7 +6252,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       svelte:
-        specifier: 5.51.5
+        specifier: ^5.51.5
         version: 5.51.5
 
   packages/integrations/svelte/test/fixtures/conditional-rendering:
@@ -6264,7 +6264,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       svelte:
-        specifier: 5.51.5
+        specifier: ^5.51.5
         version: 5.51.5
 
   packages/integrations/svelte/test/fixtures/prop-types:
@@ -6276,7 +6276,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
 
   packages/integrations/vercel:
@@ -6757,7 +6757,7 @@ importers:
         specifier: workspace:*
         version: link:../../../astro
       svelte:
-        specifier: ^5.50.3
+        specifier: ^5.51.5
         version: 5.51.5
     devDependencies:
       tinyglobby:
