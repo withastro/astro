@@ -126,10 +126,10 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			level: manifest.logLevel,
 		});
 		this.adapterLogger = new AstroIntegrationLogger(this.logger.options, manifest.adapterName);
-		this.#router = this.createRouter(this.manifestData);
 		// This is necessary to allow running middlewares for 404 in SSR. There's special handling
 		// to return the host 404 if the user doesn't provide a custom 404
 		ensure404Route(this.manifestData);
+		this.#router = this.createRouter(this.manifestData);
 	}
 
 	public abstract isDev(): boolean;
