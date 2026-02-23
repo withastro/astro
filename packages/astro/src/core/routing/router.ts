@@ -1,6 +1,7 @@
 import type { AstroConfig } from '../../types/public/config.js';
 import type { Params } from '../../types/public/common.js';
 import type { ValidRedirectStatus } from '../../types/public/config.js';
+import { prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { getParams } from '../render/params-and-props.js';
 import { routeComparator } from './priority.js';
@@ -54,7 +55,7 @@ export class Router {
 	constructor(routes: RouteData[], options: RouterOptions) {
 		this.#routes = [...routes].sort(routeComparator);
 		this.#base = normalizeBase(options.base);
-		this.#baseWithoutTrailingSlash = removeTrailingSlash(this.#base);
+		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#base);
 		this.#buildFormat = options.buildFormat;
 		this.#trailingSlash = options.trailingSlash;
 	}
@@ -67,7 +68,7 @@ export class Router {
 		inputPathname: string,
 		{ allowWithoutBase = false }: { allowWithoutBase?: boolean } = {},
 	): RouterMatch {
-		const normalized = normalizePathname(inputPathname);
+		const normalized = getRedirectForPathname(inputPathname);
 		if (normalized.redirect) {
 			return { type: 'redirect', location: normalized.redirect, status: 301 };
 		}
@@ -123,28 +124,19 @@ export class Router {
 function normalizeBase(base: string): string {
 	if (!base) return '/';
 	if (base === '/') return base;
-	if (!base.startsWith('/')) return `/${base}`;
-	return base;
+	return prependForwardSlash(base);
 }
 
 /**
- * Remove a trailing slash while preserving the root slash.
- */
-function removeTrailingSlash(value: string): string {
-	if (value === '/') return value;
-	return value.endsWith('/') ? value.slice(0, -1) : value;
-}
-
-/**
- * Normalize an input pathname and provide a redirect target if needed.
+ * Provide a redirect target for pathnames that need correction.
  * - Ensures a leading slash.
  * - Collapses multiple leading slashes into a single slash redirect.
  */
-function normalizePathname(pathname: string): { pathname: string; redirect?: string } {
-	let value = pathname;
-	if (!value.startsWith('/')) {
-		value = `/${value}`;
-	}
+function getRedirectForPathname(pathname: string): {
+	pathname: string;
+	redirect?: string;
+} {
+	let value = prependForwardSlash(pathname);
 
 	if (value.startsWith('//')) {
 		const collapsed = `/${value.replace(/^\/+/, '')}`;
