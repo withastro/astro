@@ -2,4 +2,4 @@
 "@astrojs/svelte": patch
 ---
 
-fix(svelte): prevent empty class attribute with null defaults
+Adds a temporary workaround caused by empty class attributes.
