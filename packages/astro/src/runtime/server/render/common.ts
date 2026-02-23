@@ -125,7 +125,16 @@ function stringifyChunk(
 				out += stringifyChunk(result, instr);
 			}
 		}
-		out += chunk.toString();
+		let contentStr = chunk.toString();
+		// Replace script instruction placeholders with the actual stringified scripts.
+		// This preserves the original position of scripts in the content stream while
+		// deferring deduplication to this point (so unused slot paths don't consume script IDs).
+		if (c.scriptInstructions?.size) {
+			for (const [placeholder, scriptInstr] of c.scriptInstructions) {
+				contentStr = contentStr.replace(placeholder, stringifyChunk(result, scriptInstr));
+			}
+		}
+		out += contentStr;
 		return out;
 	}
 
