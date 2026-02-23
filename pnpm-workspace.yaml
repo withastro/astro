@@ -32,6 +32,8 @@ minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   # TODO: remove once more stable
   - '@flue/*'
+  # Renovate security update: devalue@5.6.3
+  - devalue@5.6.3
 peerDependencyRules:
   allowAny:
     - 'astro'
@@ -44,5 +46,6 @@ onlyBuiltDependencies:
   - '@parcel/watcher'
   - 'keytar'
   - '@vscode/vsce-sign'
+
 # TODO: enable when viable
 # trustPolicy: 'no-downgrade'
