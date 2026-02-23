@@ -54,6 +54,20 @@ export class Router {
 			return { type: 'redirect', location: normalized.redirect, status: 301 };
 		}
 
+		if (this.#base !== '/') {
+			const baseWithSlash = `${this.#baseWithoutTrailingSlash}/`;
+			if (
+				this.#trailingSlash === 'always' &&
+				(normalized.pathname === this.#baseWithoutTrailingSlash ||
+					normalized.pathname === this.#base)
+			) {
+				return { type: 'redirect', location: baseWithSlash, status: 301 };
+			}
+			if (this.#trailingSlash === 'never' && normalized.pathname === baseWithSlash) {
+				return { type: 'redirect', location: this.#baseWithoutTrailingSlash, status: 301 };
+			}
+		}
+
 		const baseResult = stripBase(
 			normalized.pathname,
 			this.#base,

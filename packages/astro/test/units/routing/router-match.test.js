@@ -211,6 +211,32 @@ describe('Router.match', () => {
 		assert.equal(router.match('/about').type, 'none');
 	});
 
+	it('redirects base path when trailingSlash=always', () => {
+		const trailingSlash = 'always';
+		const routes = [
+			makeRoute({
+				segments: [],
+				trailingSlash,
+				route: '/',
+				pathname: '/',
+				isIndex: true,
+			}),
+		];
+
+		const router = new Router(routes, {
+			base: '/blog',
+			trailingSlash,
+			buildFormat: 'directory',
+		});
+
+		const match = router.match('/blog');
+		assert.equal(match.type, 'redirect');
+		if (match.type === 'redirect') {
+			assert.equal(match.location, '/blog/');
+			assert.equal(match.status, 301);
+		}
+	});
+
 	it('accepts .html paths when buildFormat=file', () => {
 		const trailingSlash = 'ignore';
 		const routes = [
