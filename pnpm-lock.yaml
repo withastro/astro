@@ -785,7 +785,7 @@ importers:
   packages/astro-rss:
     dependencies:
       fast-xml-parser:
-        specifier: ^5.3.5
+        specifier: ^5.3.6
         version: 5.3.6
       piccolore:
         specifier: ^0.1.3
