@@ -42,7 +42,7 @@ export function parseRoute(
 	let isIndex = parseOptions.isIndex ?? false;
 
 	if (rawSegments.length > 0) {
-		const last = rawSegments[rawSegments.length - 1];
+		const last = rawSegments.at(-1)!;
 		const ext = fileExtension(last);
 		if (ext && routeFileExtensions.has(ext)) {
 			const base = last.slice(0, -ext.length);
