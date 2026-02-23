@@ -1,5 +1,6 @@
 import type { AstroConfig } from '../../types/public/config.js';
 import type { Params } from '../../types/public/common.js';
+import type { ValidRedirectStatus } from '../../types/public/config.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { getParams } from '../render/params-and-props.js';
 import { routeComparator } from './priority.js';
@@ -24,7 +25,7 @@ interface RouterMatchRoute {
 interface RouterMatchRedirect {
 	type: 'redirect';
 	location: string;
-	status: 301 | 308;
+	status: ValidRedirectStatus;
 }
 
 interface RouterMatchNone {
