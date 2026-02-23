@@ -89,7 +89,6 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			},
 			async configResolved(viteConfig) {
 				const toolbarEnabled = await settings.preferences.get('devToolbar.enabled');
-				const useRustCompiler = config.experimental.rustCompiler;
 				// Initialize `compile` function to simplify usage later
 				compile = (code, filename) => {
 					const compileProps = {
@@ -99,7 +98,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 						filename,
 						source: code,
 					};
-					if (useRustCompiler) {
+					if (config.experimental.rustCompiler) {
 						return compileAstroRs({
 							compileProps,
 							astroFileToCompileMetadata,

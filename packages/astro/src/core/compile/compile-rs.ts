@@ -38,21 +38,20 @@ export async function compile({
 	filename,
 	source,
 }: CompileProps): Promise<CompileResult> {
-	const { preprocessStyles, transform } = await import('@astrojs/compiler-rs');
+	let preprocessStyles;
+	let transform;
+	try {
+		 ({ preprocessStyles, transform } = await import('@astrojs/compiler-rs'));
+	}
+	catch (err: unknown) {
+		throw new Error(`Failed to load @astrojs/compiler-rs. Make sure it is installed and up to date. Original error: ${err}`);
+	}
 
-	// Because `@astrojs/compiler-rs` can't return the dependencies for each style transformed,
-	// we need to use an external array to track the dependencies whenever preprocessing is called,
-	// and we'll rebuild the final `css` result after transformation.
 	const cssPartialCompileResults: PartialCompileCssResult[] = [];
 	const cssTransformErrors: AstroError[] = [];
 	let transformResult: any;
 
 	try {
-		// Transform from `.astro` to valid `.js`
-		// use `sourcemap: "both"` so that sourcemap is included in the code
-		// result passed to esbuild, but also available in the catch handler.
-
-		// Step 1: Preprocess styles (async — calls Vite's preprocessCSS)
 		const preprocessedStyles = await preprocessStyles(
 			source,
 			createStylePreprocessor({
@@ -64,7 +63,6 @@ export async function compile({
 			}),
 		);
 
-		// Step 2: Transform (always sync)
 		transformResult = transform(source, {
 			compact: astroConfig.compressHTML,
 			filename,
