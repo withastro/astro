@@ -656,14 +656,8 @@ export async function createRoutesList(
 	logger: Logger,
 	{
 		dev = false,
-		skipBuildOutputAssignment = false,
 	}: {
 		dev?: boolean;
-		/**
-		 * When `true`, the assignment of `settings.buildOutput` is skipped.
-		 * Usually, that's needed when this function has already been called.
-		 */
-		skipBuildOutputAssignment?: boolean;
 	} = {},
 ): Promise<RoutesList> {
 	const { settings } = params;
@@ -692,10 +686,6 @@ export async function createRoutesList(
 	const routes: RouteData[] = [
 		...[...filteredFiledBasedRoutes, ...injectedRoutes, ...redirectRoutes].sort(routeComparator),
 	];
-
-	if (skipBuildOutputAssignment !== true) {
-		settings.buildOutput = getPrerenderDefault(config) ? 'static' : 'server';
-	}
 
 	// Check the prerender option for each route
 	const limit = pLimit(10);

@@ -230,7 +230,7 @@ async function createTempViteServer(
 			fsMod: fs,
 		},
 		logger,
-		{ dev: true, skipBuildOutputAssignment: true },
+		{ dev: true },
 	);
 
 	const tempViteServer = await createServer(

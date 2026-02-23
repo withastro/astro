@@ -22,6 +22,7 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
 import { levels, timerMessage } from '../logger/core.js';
 import { createRoutesList } from '../routing/create-manifest.js';
+import { getPrerenderDefault } from '../prerender/utils.js';
 import { clearContentLayerCache } from '../sync/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { collectPagesData } from './page-data.js';
@@ -124,6 +125,7 @@ class AstroBuilder {
 			logger: logger,
 		});
 		this.routesList = await createRoutesList({ settings: this.settings }, this.logger);
+		this.settings.buildOutput = getPrerenderDefault(this.settings.config) ? 'static' : 'server';
 
 		await runHookConfigDone({ settings: this.settings, logger: logger, command: 'build' });
 
