@@ -118,7 +118,8 @@ function normalizePathname(pathname: string): { pathname: string; redirect?: str
 	}
 
 	if (value.startsWith('//')) {
-		return { pathname: value, redirect: '/' };
+		const collapsed = `/${value.replace(/^\/+/, '')}`;
+		return { pathname: value, redirect: collapsed };
 	}
 
 	return { pathname: value };

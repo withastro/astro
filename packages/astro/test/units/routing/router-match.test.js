@@ -292,4 +292,29 @@ describe('Router.match', () => {
 		assert.equal(match.type, 'redirect');
 		assert.equal(match.location, '/');
 	});
+
+	it('redirects multiple leading slashes while preserving path', () => {
+		const trailingSlash = 'ignore';
+		const routes = [
+			makeRoute({
+				segments: [[staticPart('foo')], [staticPart('bar')]],
+				trailingSlash,
+				route: '/foo/bar',
+				pathname: '/foo/bar',
+			}),
+		];
+
+		const router = new Router(routes, {
+			base: '/',
+			trailingSlash,
+			buildFormat: 'directory',
+		});
+
+		const match = router.match('//foo/bar');
+		assert.equal(match.type, 'redirect');
+		if (match.type === 'redirect') {
+			assert.equal(match.location, '/foo/bar');
+			assert.equal(match.status, 301);
+		}
+	});
 });

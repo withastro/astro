@@ -28,7 +28,7 @@ describe('preview routing (unit)', () => {
 		});
 
 		assert.equal(router.match('/blog/').type, 'match');
-		assert.equal(router.match('/blog').type, 'none');
+		assert.equal(router.match('/blog').type, 'redirect');
 		assert.equal(router.match('/blog/another/').type, 'match');
 		assert.equal(router.match('/blog/another').type, 'none');
 	});
@@ -41,7 +41,7 @@ describe('preview routing (unit)', () => {
 		});
 
 		assert.equal(router.match('/blog').type, 'match');
-		assert.equal(router.match('/blog/').type, 'none');
+		assert.equal(router.match('/blog/').type, 'redirect');
 		assert.equal(router.match('/blog/another').type, 'match');
 		assert.equal(router.match('/blog/another/').type, 'none');
 	});
