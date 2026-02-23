@@ -122,7 +122,7 @@ export class Router {
  */
 function normalizeBase(base: string): string {
 	if (!base) return '/';
-	if (base === '/') return '/';
+	if (base === '/') return base;
 	if (!base.startsWith('/')) return `/${base}`;
 	return base;
 }
