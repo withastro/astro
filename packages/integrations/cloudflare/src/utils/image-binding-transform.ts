@@ -32,8 +32,8 @@ export async function transform(
 	return (
 		await input
 			.transform({
-				width: url.searchParams.has('w') ? parseInt(url.searchParams.get('w')!) : undefined,
-				height: url.searchParams.has('h') ? parseInt(url.searchParams.get('h')!) : undefined,
+				width: url.searchParams.has('w') ? Number.parseInt(url.searchParams.get('w')!) : undefined,
+				height: url.searchParams.has('h') ? Number.parseInt(url.searchParams.get('h')!) : undefined,
 				// `quality` is documented, but doesn't appear to work in manual testing...
 				// quality: url.searchParams.get('q'),
 				fit: url.searchParams.get('fit') as ImageTransform['fit'],

@@ -279,9 +279,9 @@ export function selfTestAdapter({
 					setManifest(manifest);
 				}
 			},
-			'astro:build:generated': ({ experimentalRouteToHeaders }) => {
+			'astro:build:generated': ({ routeToHeaders }) => {
 				if (setRouteToHeaders) {
-					setRouteToHeaders(experimentalRouteToHeaders);
+					setRouteToHeaders(routeToHeaders);
 				}
 			},
 		},

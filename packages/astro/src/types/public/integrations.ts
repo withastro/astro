@@ -82,21 +82,23 @@ export type AdapterSupport = AdapterSupportsKind | AdapterSupportWithMessage;
 
 export interface AstroAdapterFeatures {
 	/**
-	 * Creates an edge function that will communicate with the Astro middleware
+	 * Defines whether any on-demand rendering middleware code will be bundled when built. When enabled, this prevents
+	 * middleware code from being bundled and imported by all pages during the build.
 	 */
 	edgeMiddleware: boolean;
+
 	/**
-	 * Determine the type of build output the adapter is intended for. Defaults to `server`;
+	 * Allows you to force a specific output shape for the build. This can be useful for adapters that only work with
+	 * a specific output type. For example, your adapter might expect a static website so it can create host-specific
+	 * files. Defaults to `server` if not specified.
 	 */
 	buildOutput?: 'static' | 'server';
 
 	/**
-	 * If supported by the adapter and enabled, Astro won't add any `<meta http-equiv>` tags
-	 * in the static pages, instead it will return a mapping in the
-	 * `astro:build:generated` hook, so adapters can consume them and add them inside
-	 * their hosting headers configuration file.
-	 *
-	 * Future features may decide to use this feature to create/add headers for static pages.
+	 * Whether or not the adapter provides support for setting response headers for static pages. When this feature is
+	 * enabled, Astro will return a map of the `Headers` emitted by the static pages. This map is available as `routeToHeaders`
+	 * in the `astro:build:generated` hook and can be used to generate platform-specific output that controls HTTP headers,
+	 * for example, to create a `_headers` file for platforms that support it.
 	 */
 	staticHeaders?: boolean;
 }
@@ -112,6 +114,7 @@ export interface AstroAdapterClientConfig {
 	 * Can be an object of headers or a function that returns headers.
 	 */
 	internalFetchHeaders?: Record<string, string> | (() => Record<string, string>);
+
 	/**
 	 * Query parameters to append to all asset URLs (images, stylesheets, scripts, etc.).
 	 * Useful for adapters that need to track deployment versions or other metadata.
@@ -121,43 +124,88 @@ export interface AstroAdapterClientConfig {
 
 interface AdapterExplicitProperties {
 	/**
-	 * Determines how the adapter's entrypoint is handled during the build.
-	 * - `'auto'`: The adapter defines its own entrypoint and provides either serverEntrypoint or rollupOptions.input
-	 * - `'explicit'`: Uses the virtual module entrypoint with dynamic exports
-	 * @default 'explicit'
-	 * @deprecated This will be removed in a future major version and `'auto'` will become the default
+	 * @deprecated `entrypointResolution: "explicit"` is deprecated. `entrypointResolution: "auto"` will become the default,
+	 * and only, behavior in a future major version. See [how to migrate](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#deprecated-createexports-and-start-adapter-api).
+	 *
+	 * Specifies the method Astro will use to resolve the server entrypoint: `"auto"` (recommended)
+	 * or `"explicit"` (default, but deprecated):
+	 *
+	 * - **`"auto"` (recommended):** You are responsible for providing a valid module as an entrypoint
+	 * using either `serverEntrypoint` or, if you need further customization at the Vite level using `vite.build.rollupOptions.input`.
+	 * - **`"explicit"` (deprecated)**: You must provide the exports required by the host in the server entrypoint
+	 * using a `createExports()` function before passing them to `setAdapter()` as an [`exports`](#exports) list. This supports
+	 * adapters built using the Astro 5 version of the Adapter API. By default, all adapters will receive this value to allow backwards
+	 * compatibility. **However, no new adapters should be created with this value.** Existing adapters should override this default
+	 * value with `"auto"` as soon as they are able to migrate to the new v6 API.
 	 */
 	entrypointResolution?: 'explicit';
+
+	/**
+	 * Defines the entrypoint for on-demand rendering.
+	 */
 	serverEntrypoint?: string | URL;
-	/** @deprecated This will be removed in a future major version, alongside `entrypointResolution: 'explicit'` */
+
+	/**
+	 * @deprecated This will be removed in a future major version, alongside `entrypointResolution: 'explicit'`.
+	 *
+	 * Defines an array of named exports to use in conjunction with the `createExports()` function of your server entrypoint.
+	 */
 	exports?: string[];
-	/** @deprecated This will be removed in a future major version, alongside `entrypointResolution: 'explicit'` */
+
+	/**
+	 * @deprecated This will be removed in a future major version, alongside `entrypointResolution: 'explicit'`.
+	 *
+	 * A JSON-serializable value that will be passed to the adapter's server entrypoint at runtime. This is useful to pass an object containing build-time configuration (e.g. paths, secrets) to your server runtime code.
+	 */
 	args?: any;
 }
 
 interface AdapterAutoProperties {
 	/**
-	 * Determines how the adapter's entrypoint is handled during the build.
-	 * - `'auto'`: The adapter defines its own entrypoint and provides either serverEntrypoint or rollupOptions.input
-	 * - `'explicit'`: Uses the virtual module entrypoint with dynamic exports
-	 * @default 'explicit'
+	 * Specifies the method Astro will use to resolve the server entrypoint: `"auto"` (recommended)
+	 * or `"explicit"` (default, but deprecated):
+	 *
+	 * - **`"auto"` (recommended):** You are responsible for providing a valid module as an entrypoint
+	 * using either `serverEntrypoint` or, if you need further customization at the Vite level using `vite.build.rollupOptions.input`.
+	 * - **`"explicit"` (deprecated)**: You must provide the exports required by the host in the server entrypoint
+	 * using a `createExports()` function before passing them to `setAdapter()` as an [`exports`](#exports) list. This supports
+	 * adapters built using the Astro 5 version of the Adapter API. By default, all adapters will receive this value to allow backwards
+	 * compatibility. **However, no new adapters should be created with this value.** Existing adapters should override this default
+	 * value with `"auto"` as soon as they are able to migrate to the new v6 API.
 	 */
 	entrypointResolution: 'auto';
+
+	/**
+	 * Defines the entrypoint for on-demand rendering.
+	 */
 	serverEntrypoint?: string | URL;
 }
 
 export type AstroAdapter = {
-	name: string;
-	previewEntrypoint?: string | URL;
-	adapterFeatures?: AstroAdapterFeatures;
 	/**
-	 * List of features supported by an adapter.
-	 *
-	 * If the adapter is not able to handle certain configurations, Astro will throw an error.
+	 * Defines a unique name for your adapter. This will be used for logging.
+	 */
+	name: string;
+
+	/**
+	 * Defines the path or ID of a module in the adapter's package that is responsible for starting up the built
+	 * server when `astro preview` is run.
+	 */
+	previewEntrypoint?: string | URL;
+
+	/**
+	 * An object that specifies which adapter features that change the build output are supported by the adapter.
+	 */
+	adapterFeatures?: AstroAdapterFeatures;
+
+	/**
+	 * A map of Astro's built-in features supported by the adapter. This allows Astro to determine which features an
+	 * adapter supports, so appropriate error messages can be provided.
 	 */
 	supportedAstroFeatures: AstroAdapterFeatureMap;
+
 	/**
-	 * Configuration for Astro's client-side code.
+	 * A configuration object for Astro's client-side code.
 	 */
 	client?: AstroAdapterClientConfig;
 } & (AdapterExplicitProperties | AdapterAutoProperties);
@@ -199,32 +247,36 @@ export interface AstroPrerenderer {
 
 export type AstroAdapterFeatureMap = {
 	/**
-	 * The adapter is able to serve static pages
+	 * Defines whether the adapter is able to serve static pages.
 	 */
 	staticOutput?: AdapterSupport;
 
 	/**
-	 * The adapter is able to serve pages that are static or rendered via server
+	 * Defines whether the adapter is able to serve sites that include a mix of static and on-demand rendered pages.
 	 */
 	hybridOutput?: AdapterSupport;
 
 	/**
-	 * The adapter is able to serve SSR pages
+	 * Defines whether the adapter is able to serve on-demand rendered pages.
 	 */
 	serverOutput?: AdapterSupport;
 
 	/**
-	 * The adapter is able to support i18n domains
+	 * Defines whether the adapter is able to support i18n domains.
 	 */
 	i18nDomains?: AdapterSupport;
 
 	/**
-	 * The adapter is able to support `getSecret` exported from `astro:env/server`
+	 * Defines whether the adapter is able to support `getSecret()` exported from `astro:env/server`. When enabled, this feature
+	 * allows your adapter to retrieve secrets configured by users in `env.schema`.
+	 *
+	 * The `astro/env/setup` module allows you to provide an implementation for `getSecret()`. In your server entrypoint, call
+	 * `setGetEnv()` as soon as possible.
 	 */
 	envGetSecret?: AdapterSupport;
 
 	/**
-	 * The adapter supports image transformation using the built-in Sharp image service
+	 * Defines whether the adapter supports image transformation using the built-in Sharp image service.
 	 */
 	sharpImageService?: AdapterSupport;
 };

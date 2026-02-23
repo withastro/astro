@@ -90,10 +90,12 @@ export function validateForwardedHeaders(
 		if (allowedDomains && allowedDomains.length > 0) {
 			const hasProtocolPatterns = allowedDomains.some((pattern) => pattern.protocol !== undefined);
 			if (hasProtocolPatterns) {
-				// Validate against allowedDomains patterns
+				// Only validate the protocol here; host+proto combination is checked in the host block below
 				try {
 					const testUrl = new URL(`${forwardedProtocol}://example.com`);
-					const isAllowed = allowedDomains.some((pattern) => matchPattern(testUrl, pattern));
+					const isAllowed = allowedDomains.some((pattern) =>
+						matchPattern(testUrl, { protocol: pattern.protocol }),
+					);
 					if (isAllowed) {
 						result.protocol = forwardedProtocol;
 					}

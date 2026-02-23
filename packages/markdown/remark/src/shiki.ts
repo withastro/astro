@@ -8,11 +8,15 @@ import {
 	type HighlighterGeneric,
 	isSpecialLang,
 	type LanguageRegistration,
+	type RegexEngine,
 	type ShikiTransformer,
 	type ThemeRegistration,
 	type ThemeRegistrationRaw,
 } from 'shiki';
+import { globalShikiStyleCollector } from './shiki-style-collector.js';
+import { transformerStyleToClass } from './transformers/style-to-class.js';
 import type { ThemePresets } from './types.js';
+import { loadShikiEngine } from '#shiki-engine';
 
 export interface ShikiHighlighter {
 	codeToHast(
@@ -74,6 +78,8 @@ const cssVariablesTheme = () =>
 // Caches Promise<ShikiHighlighter> for reuse when the same theme and langs are provided
 const cachedHighlighters = new Map();
 
+let shikiEngine: RegexEngine | undefined = undefined;
+
 export async function createShikiHighlighter({
 	langs = [],
 	theme = 'github-dark',
@@ -82,10 +88,15 @@ export async function createShikiHighlighter({
 }: CreateShikiHighlighterOptions = {}): Promise<ShikiHighlighter> {
 	theme = theme === 'css-variables' ? cssVariablesTheme() : theme;
 
+	if (shikiEngine === undefined) {
+		shikiEngine = await loadShikiEngine();
+	}
+
 	const highlighterOptions = {
 		langs: ['plaintext', ...langs],
 		langAlias,
 		themes: Object.values(themes).length ? Object.values(themes) : [theme],
+		engine: shikiEngine,
 	};
 
 	const key = JSON.stringify(highlighterOptions, Object.keys(highlighterOptions).sort());
@@ -134,6 +145,8 @@ export async function createShikiHighlighter({
 			// they're technically not meta, nor parsed from Shiki's `parseMetaString` API.
 			meta: options?.meta ? { __raw: options?.meta } : undefined,
 			transformers: [
+				// Extract inline styles to CSS classes for better performance and CSP compliance
+				globalShikiStyleCollector.register(transformerStyleToClass()),
 				{
 					pre(node) {
 						// Swap to `code` tag if inline
@@ -151,9 +164,6 @@ export async function createShikiHighlighter({
 						const classValue =
 							(normalizePropAsString(node.properties.class) ?? '') +
 							(attributesClass ? ` ${attributesClass}` : '');
-						const styleValue =
-							(normalizePropAsString(node.properties.style) ?? '') +
-							(attributesStyle ? `; ${attributesStyle}` : '');
 
 						// Replace "shiki" class naming with "astro-code"
 						node.properties.class = classValue.replace(/shiki/g, 'astro-code');
@@ -161,19 +171,26 @@ export async function createShikiHighlighter({
 						// Add data-language attribute
 						node.properties.dataLanguage = lang;
 
-						// Handle code wrapping
+						// Handle code wrapping with classes instead of inline styles for CSP compliance
 						// if wrap=null, do nothing.
 						if (options.wrap === false || options.wrap === undefined) {
-							node.properties.style = styleValue + '; overflow-x: auto;';
+							// Add overflow class
+							this.addClassToHast(node, 'astro-code-overflow');
 						} else if (options.wrap === true) {
-							node.properties.style =
-								styleValue + '; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;';
+							// Add overflow and wrap classes
+							this.addClassToHast(node, 'astro-code-overflow astro-code-wrap');
+						}
+
+						// If user provided custom inline styles via attributes, we still need to respect them
+						// Note: This is for user-provided styles, not Shiki-generated ones
+						if (attributesStyle) {
+							node.properties.style = attributesStyle;
 						}
 					},
 					line(node) {
-						// Add "user-select: none;" for "+"/"-" diff symbols.
-						// Transform `<span class="line"><span style="...">+ something</span></span>
-						// into      `<span class="line"><span style="..."><span style="user-select: none;">+</span> something</span></span>`
+						// Add "user-select: none;" for "+"/"-" diff symbols using a class.
+						// Transform `<span class="line"><span>+ something</span></span>
+						// into      `<span class="line"><span><span class="astro-code-no-select">+</span> something</span></span>`
 						if (resolvedLang === 'diff') {
 							const innerSpanNode = node.children[0];
 							const innerSpanTextNode =
@@ -186,7 +203,7 @@ export async function createShikiHighlighter({
 									innerSpanNode.children.unshift({
 										type: 'element',
 										tagName: 'span',
-										properties: { style: 'user-select: none;' },
+										properties: { class: 'astro-code-no-select' },
 										children: [{ type: 'text', value: start }],
 									});
 								}
@@ -217,3 +234,6 @@ export async function createShikiHighlighter({
 function normalizePropAsString(value: Properties[string]): string | null {
 	return Array.isArray(value) ? value.join(' ') : (value as string | null);
 }
+
+// Re-export ThemePresets type for consumers
+export type { ThemePresets };

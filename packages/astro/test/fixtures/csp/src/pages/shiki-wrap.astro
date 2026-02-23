@@ -1,0 +1,24 @@
+---
+import { Code } from 'astro:components';
+
+const code = `console.log('This is a very long line of code that should wrap when wrap is set to true, demonstrating the wrap functionality');`;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Shiki Wrap Test</title>
+</head>
+<body>
+	<h1>Code with wrap=true</h1>
+	<Code code={code} lang="js" wrap={true} />
+	
+	<h1>Code with wrap=false</h1>
+	<Code code={code} lang="js" wrap={false} />
+	
+	<h1>Code with wrap=null</h1>
+	<Code code={code} lang="js" wrap={null} />
+</body>
+</html>

@@ -47,7 +47,7 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.2.0",
-    "devalue": "^5.6.2",
+    "devalue": "^5.6.3",
     "express": "^5.2.1",
     "fastify": "^5.7.4",
     "@fastify/middie": "^9.1.0",

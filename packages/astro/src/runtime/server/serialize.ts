@@ -95,10 +95,10 @@ function convertToSerializedForm(
 			if (value !== null && typeof value === 'object') {
 				return [PROP_TYPE.Value, serializeObject(value, metadata, parents)];
 			}
-			if (value === Infinity) {
+			if (value === Number.POSITIVE_INFINITY) {
 				return [PROP_TYPE.Infinity, 1];
 			}
-			if (value === -Infinity) {
+			if (value === Number.NEGATIVE_INFINITY) {
 				return [PROP_TYPE.Infinity, -1];
 			}
 			if (value === undefined) {

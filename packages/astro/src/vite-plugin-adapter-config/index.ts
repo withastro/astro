@@ -2,6 +2,7 @@ import type { Plugin as VitePlugin } from 'vite';
 import { isAstroServerEnvironment } from '../environments.js';
 import type { AstroSettings } from '../types/astro.js';
 import { fileURLToPath } from 'node:url';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
 // This is used by Cloudflare's optimizeDeps
 const VIRTUAL_CLIENT_ID = 'virtual:astro:adapter-config/client';
@@ -14,13 +15,17 @@ export function vitePluginAdapterConfig(settings: AstroSettings): VitePlugin {
 			const { adapter } = settings;
 			if (adapter && adapter.entrypointResolution === 'auto' && adapter.serverEntrypoint) {
 				return {
-					build: {
-						rollupOptions: {
-							input: {
-								index:
-									typeof adapter.serverEntrypoint === 'string'
-										? adapter.serverEntrypoint
-										: fileURLToPath(adapter.serverEntrypoint),
+					environments: {
+						[ASTRO_VITE_ENVIRONMENT_NAMES.ssr]: {
+							build: {
+								rollupOptions: {
+									input: {
+										index:
+											typeof adapter.serverEntrypoint === 'string'
+												? adapter.serverEntrypoint
+												: fileURLToPath(adapter.serverEntrypoint),
+									},
+								},
 							},
 						},
 					},

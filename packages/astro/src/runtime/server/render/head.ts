@@ -10,7 +10,7 @@ const uniqueElements = (item: any, index: number, all: any[]) => {
 	const props = JSON.stringify(item.props);
 	const children = item.children;
 	return (
-		index === all.findIndex((i) => JSON.stringify(i.props) === props && i.children == children)
+		index === all.findIndex((i) => JSON.stringify(i.props) === props && i.children === children)
 	);
 };
 

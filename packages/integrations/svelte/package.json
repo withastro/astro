@@ -46,7 +46,7 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.2.0",
-    "svelte": "^5.50.3"
+    "svelte": "^5.51.5"
   },
   "peerDependencies": {
     "astro": "^6.0.0-alpha.0",

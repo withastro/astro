@@ -6,7 +6,7 @@ export type ReactVersionConfig = (typeof versionsConfig)[SupportedReactVersion];
 export function getReactMajorVersion(): number {
 	const matches = /\d+\./.exec(ReactVersion);
 	if (!matches) {
-		return NaN;
+		return Number.NaN;
 	}
 	return Number(matches[0]);
 }

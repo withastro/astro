@@ -3,7 +3,12 @@ import { MiddlewareNoDataOrNextCalled, MiddlewareNotAResponse } from '../../erro
 import { type AstroError, isAstroError } from '../../errors/index.js';
 import type { Logger } from '../../logger/core.js';
 import type { CreateRenderContext, RenderContext } from '../../render-context.js';
-import { BaseApp, type DevMatch, type RenderErrorOptions } from '../base.js';
+import {
+	BaseApp,
+	type DevMatch,
+	type LogRequestPayload,
+	type RenderErrorOptions,
+} from '../base.js';
 import type { SSRManifest } from '../types.js';
 import { NonRunnablePipeline } from './pipeline.js';
 import { getCustom404Route, getCustom500Route } from '../../routing/helpers.js';
@@ -11,6 +16,7 @@ import { ensure404Route } from '../../routing/astro-designed-error-pages.js';
 import { matchRoute } from '../../routing/dev.js';
 import type { RunnablePipeline } from '../../../vite-plugin-app/pipeline.js';
 import type { RoutesList } from '../../../types/astro.js';
+import { req } from '../../messages/runtime.js';
 
 export class DevApp extends BaseApp<NonRunnablePipeline> {
 	logger: Logger;
@@ -133,5 +139,21 @@ export class DevApp extends BaseApp<NonRunnablePipeline> {
 		} else {
 			return renderRoute(custom500);
 		}
+	}
+
+	logRequest({ pathname, method, statusCode, isRewrite, reqTime }: LogRequestPayload) {
+		if (pathname === '/favicon.ico') {
+			return;
+		}
+		this.logger.info(
+			null,
+			req({
+				url: pathname,
+				method,
+				statusCode,
+				isRewrite,
+				reqTime,
+			}),
+		);
 	}
 }

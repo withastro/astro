@@ -3,7 +3,7 @@
 'use strict';
 
 const currentVersion = process.versions.node;
-const requiredMajorVersion = parseInt(currentVersion.split('.')[0], 10);
+const requiredMajorVersion = Number.parseInt(currentVersion.split('.')[0], 10);
 // TODO: remove once Stackblitz supports Node 22
 const IS_STACKBLITZ = !!process.versions.webcontainer;
 const minimumMajorVersion = IS_STACKBLITZ ? 20 : 22;
