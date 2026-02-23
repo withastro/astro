@@ -49,6 +49,7 @@ type NormalizeLocales<T extends Locales> = {
 
 export interface ImageServiceConfig<T extends Record<string, any> = Record<string, any>> {
 	entrypoint: 'astro/assets/services/sharp' | (string & {});
+	defaultFormat?: 'webp' | (string & {});
 	config?: T;
 }
 
@@ -1611,8 +1612,8 @@ export interface AstroUserConfig<
 		/**
 		 * @docs
 		 * @name image.service
-		 * @type {{entrypoint: 'astro/assets/services/sharp' | string, config: Record<string, any>}}
-		 * @default `{entrypoint: 'astro/assets/services/sharp', config?: {}}`
+		 * @type {{entrypoint: 'astro/assets/services/sharp' | string, config: Record<string, any>, defaultFormat: 'webp' | string }}
+		 * @default `{entrypoint: 'astro/assets/services/sharp', config?: {}, defaultFormat: 'webp'}`
 		 * @version 2.1.0
 		 * @description
 		 * Set which image service is used for Astro’s assets support.
@@ -1620,6 +1621,8 @@ export interface AstroUserConfig<
 		 * The value should be an object with an entrypoint for the image service to use and optionally, a config object to pass to the service.
 		 *
 		 * The service entrypoint can be either one of the included services, or a third-party package.
+		 *
+		 * Additionally, you can set the default output format to `'original'` to default to the keeping an image's file format.
 		 *
 		 * ```js
 		 * {
