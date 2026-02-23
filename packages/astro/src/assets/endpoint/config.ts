@@ -26,7 +26,7 @@ function getImageEndpointData(
 
 	const component = resolveInjectedRoute(endpointEntrypoint, settings.config.root, cwd).component;
 
-	return parseRoute(settings.config.image.endpoint.route, settings.config, {
+	return parseRoute(settings.config.image.endpoint.route, settings, {
 		component,
 		type: 'endpoint',
 		origin: 'internal',

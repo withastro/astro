@@ -1,5 +1,5 @@
 import path from 'node:path';
-import type { AstroConfig } from '../../types/public/config.js';
+import type { AstroSettings } from '../../types/astro.js';
 import type { RouteData, RoutePart } from '../../types/public/internal.js';
 import { removeLeadingForwardSlash, removeTrailingForwardSlash } from '../path.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../constants.js';
@@ -7,7 +7,7 @@ import { getPattern } from './pattern.js';
 import { getParts } from './parts.js';
 import { validateSegment } from './segment.js';
 
-type ParseRouteConfig = Pick<AstroConfig, 'base' | 'trailingSlash'>;
+type ParseRouteConfig = Pick<AstroSettings, 'config' | 'pageExtensions'>;
 
 type ParseRouteOptions = {
 	component: string;
@@ -30,18 +30,21 @@ const ROUTE_FILE_EXTENSIONS = new Set([
 
 export function parseRoute(
 	route: string,
-	config: ParseRouteConfig,
-	options: ParseRouteOptions,
+	options: ParseRouteConfig,
+	parseOptions: ParseRouteOptions,
 ): RouteData {
+	const routeFileExtensions = options.pageExtensions?.length
+		? new Set([...ROUTE_FILE_EXTENSIONS, ...options.pageExtensions])
+		: ROUTE_FILE_EXTENSIONS;
 	const normalizedRoute = removeTrailingForwardSlash(removeLeadingForwardSlash(route));
 	const segments: RoutePart[][] = [];
 	const rawSegments = normalizedRoute ? normalizedRoute.split('/') : [];
-	let isIndex = options.isIndex ?? false;
+	let isIndex = parseOptions.isIndex ?? false;
 
 	if (rawSegments.length > 0) {
 		const last = rawSegments[rawSegments.length - 1];
 		const ext = path.extname(last);
-		if (ext && ROUTE_FILE_EXTENSIONS.has(ext)) {
+		if (ext && routeFileExtensions.has(ext)) {
 			const base = last.slice(0, -ext.length);
 			rawSegments[rawSegments.length - 1] = base;
 			if (base === 'index') {
@@ -61,7 +64,7 @@ export function parseRoute(
 		? `/${segments.map((segment) => segment[0].content).join('/')}`
 		: null;
 	const params =
-		options.params ??
+		parseOptions.params ??
 		segments
 			.flat()
 			.filter((part) => part.dynamic)
@@ -69,17 +72,17 @@ export function parseRoute(
 
 	return {
 		route: routePath,
-		component: options.component,
+		component: parseOptions.component,
 		params,
 		pathname: pathname || undefined,
-		pattern: getPattern(segments, config.base, config.trailingSlash),
+		pattern: getPattern(segments, options.config.base, options.config.trailingSlash),
 		segments,
-		type: options.type ?? 'page',
-		prerender: options.prerender ?? false,
+		type: parseOptions.type ?? 'page',
+		prerender: parseOptions.prerender ?? false,
 		fallbackRoutes: [],
 		distURL: [],
 		isIndex,
-		origin: options.origin ?? 'project',
+		origin: parseOptions.origin ?? 'project',
 	};
 }
 
