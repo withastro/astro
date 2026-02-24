@@ -13,6 +13,7 @@ import {
 	removeQueryString,
 } from '../core/path.js';
 import { normalizePath } from '../core/viteUtils.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { isAstroServerEnvironment } from '../environments.js';
 import type { AstroSettings } from '../types/astro.js';
 import {
@@ -167,10 +168,10 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 						export { default as Picture } from "astro/components/${imageComponentPrefix}Picture.astro";
 						import { inferRemoteSize as inferRemoteSizeInternal } from "astro/assets/utils/inferRemoteSize.js";
 
-						export { default as Font } from "astro/components/Font.astro";
-						export * from "${RUNTIME_VIRTUAL_MODULE_ID}";
-						
-						export const getConfiguredImageService = _getConfiguredImageService;
+							export { default as Font } from "astro/components/Font.astro";
+							export * from "${RUNTIME_VIRTUAL_MODULE_ID}";
+														
+							export const getConfiguredImageService = _getConfiguredImageService;
 
 						export const viteFSConfig = ${JSON.stringify(resolvedConfig.server.fs ?? {})};
 
@@ -307,11 +308,16 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 								code: makeSvgComponent(imageMetadata, contents, settings.config.experimental.svgo),
 							};
 						}
+						// In SSR builds, any image loaded by the SSR environment could be reachable at
+						// request time without us knowning, so we'll always consider them as referenced.
+						const isSSROnlyEnvironment =
+							settings.buildOutput === 'server' &&
+							this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
+						if (isSSROnlyEnvironment) {
+							globalThis.astroAsset.referencedImages.add(imageMetadata.fsPath);
+						}
 						return {
-							code: `export default ${getProxyCode(
-								imageMetadata,
-								settings.buildOutput === 'server',
-							)}`,
+							code: `export default ${getProxyCode(imageMetadata, isSSROnlyEnvironment)}`,
 						};
 					} else {
 						globalThis.astroAsset.referencedImages.add(imageMetadata.fsPath);

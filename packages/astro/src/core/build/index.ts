@@ -29,6 +29,7 @@ import { collectPagesData } from './page-data.js';
 import { viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
+import { warnIfCspWithShiki } from '../messages/runtime.js';
 
 interface BuildOptions {
 	/**
@@ -64,6 +65,8 @@ export default async function build(
 	const logger = createNodeLogger(inlineConfig);
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig, 'build');
 	telemetry.record(eventCliSession('build', userConfig));
+
+	warnIfCspWithShiki(astroConfig, logger);
 
 	const settings = await createSettings(
 		astroConfig,

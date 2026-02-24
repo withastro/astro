@@ -2787,6 +2787,66 @@ export interface AstroUserConfig<
 		 * ```
 		 */
 		rustCompiler?: boolean;
+
+		/**
+		 * @name experimental.queuedRendering
+		 * @type {boolean | { poolSize?: number; cache?: boolean }}
+		 * @default `false`
+		 * @version 6.0.0
+		 * @description
+		 * Enable queue-based rendering engine instead of the default recursive rendering.
+		 *
+		 * This new rendering engine comes with a different set of features that you can tweak based on your needs.
+		 *
+		 * ```js
+		 * {
+		 *   experimental: {
+		 *     queuedRendering: {
+		 *       enabled: true
+		 *     }
+		 *   }
+		 * }
+		 * ```
+		 *
+		 * You can optionally configure the object pool size and HTMLString caching:
+		 *
+		 * ```js
+		 * {
+		 *   experimental: {
+		 *     queuedRendering: {
+		 *       enabled: true,
+		 *       poolSize: 1000,  // default: 1000 for static builds, 0 for SSR
+		 *       cache: false     // default: false (caching can hurt performance)
+		 *     }
+		 *   }
+		 * }
+		 * ```
+		 */
+		queuedRendering?: {
+			/**
+			 * @default `false`
+			 * @version 6.0.0
+			 * @description
+			 * Enables the queue-based rendering.
+			 */
+			enabled: boolean;
+			/**
+			 * @default 1000
+			 * @version 6.0.0
+			 * @description
+			 * Allows to change how many nodes should be saved in the pool. If 0 is provided, the pool is disabled.
+			 * The pool is disabled for dynamic pages, because server requests don't share the same memory.
+			 */
+			poolSize?: number;
+			/**
+			 * @default `false`
+			 * @version 6.0.0
+			 * @description
+			 * Allows to enable the caching of node contents when rendering the same page.
+			 * This caching is disabled for dynamic pages.
+			 */
+			contentCache?: boolean;
+		};
 	};
 }
 

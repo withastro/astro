@@ -29,7 +29,7 @@ import { routeIsRedirect } from '../routing/helpers.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
 import { getOutFile, getOutFolder } from './common.js';
-import { createDefaultPrerenderer } from './default-prerenderer.js';
+import { createDefaultPrerenderer, type DefaultPrerenderer } from './default-prerenderer.js';
 import { type BuildInternals, hasPrerenderedPages } from './internal.js';
 import type { StaticBuildOptions } from './types.js';
 import type { AstroSettings } from '../../types/astro.js';
@@ -58,7 +58,7 @@ export async function generatePages(
 	}
 
 	// Get or create the prerenderer
-	let prerenderer: AstroPrerenderer;
+	let prerenderer: DefaultPrerenderer;
 	const settingsPrerenderer = options.settings.prerenderer;
 	if (!settingsPrerenderer) {
 		// No custom prerenderer - create default
@@ -198,6 +198,31 @@ export async function generatePages(
 		null,
 		colors.green(`✓ Completed in ${getTimeStat(generatePagesTimer, performance.now())}.\n`),
 	);
+
+	// Log pool statistics if queue rendering is enabled
+	if (
+		options.settings.logLevel === 'debug' &&
+		options.settings.config.experimental?.queuedRendering &&
+		prerenderer.app
+	) {
+		try {
+			const stats = prerenderer.app.getQueueStats();
+			// Dynamic import to avoid loading pool module when not using queue rendering
+			// Only log if there was actual pool activity
+			if (stats && (stats.acquireFromPool > 0 || stats.acquireNew > 0)) {
+				logger.info(
+					null,
+					colors.dim(
+						`[Queue Pool] ${stats.acquireFromPool.toLocaleString()} reused / ${stats.acquireNew.toLocaleString()} new nodes | ` +
+							`Hit rate: ${stats.hitRate.toFixed(1)}% | ` +
+							`Pool: ${stats.poolSize}/${stats.maxSize}`,
+					),
+				);
+			}
+		} catch {
+			// Silently ignore if pool module is not available
+		}
+	}
 
 	// Default pipeline always runs
 	if (staticImageList.size) {

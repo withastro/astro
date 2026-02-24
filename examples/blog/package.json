@@ -14,9 +14,9 @@
   },
   "dependencies": {
     "@astrojs/mdx": "^5.0.0-beta.8",
-    "@astrojs/rss": "^4.0.15-beta.3",
+    "@astrojs/rss": "^4.0.15-beta.4",
     "@astrojs/sitemap": "^3.6.1-beta.3",
-    "astro": "^6.0.0-beta.14",
+    "astro": "^6.0.0-beta.15",
     "sharp": "^0.34.3"
   }
 }

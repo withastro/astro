@@ -66,7 +66,7 @@
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/prism": "workspace:*",
     "@markdoc/markdoc": "^0.5.4",
-    "esbuild": "^0.25.0",
+    "esbuild": "^0.27.3",
     "github-slugger": "^2.0.0",
     "htmlparser2": "^10.1.0"
   },
