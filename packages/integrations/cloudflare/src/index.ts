@@ -74,6 +74,7 @@ export default function createIntegration({
 	let cfPluginConfig: PluginConfig;
 
 	const { buildService, runtimeService } = normalizeImageServiceConfig(imageService);
+	const needsImagesBinding = runtimeService === 'cloudflare-binding';
 
 	return {
 		name: '@astrojs/cloudflare',
@@ -84,9 +85,32 @@ export default function createIntegration({
 				}
 
 				let session = config.session;
-
 				const isCompile = buildService === 'compile';
-				const needsImagesBinding = runtimeService === 'cloudflare-binding';
+
+				if (needsImagesBinding) {
+					logger.info(
+						`Enabling image processing with Cloudflare Images for production with the "${imagesBindingName}" Images binding.`,
+					);
+				} else if (isCompile) {
+					logger.info(
+						`Enabling compile-time image optimization. Images will be pre-optimized at build time.`,
+					);
+				}
+
+				if (!session?.driver) {
+					logger.info(
+						`Enabling sessions with Cloudflare KV with the "${sessionKVBindingName}" KV binding.`,
+					);
+
+					session = {
+						driver: sessionDrivers.cloudflareKVBinding({
+							binding: sessionKVBindingName,
+						}),
+						cookie: session?.cookie,
+						ttl: session?.ttl,
+					};
+				}
+
 				// In dev, `compile` needs the IMAGES binding for real transforms
 				// (the image-transform-endpoint uses it). At build time,
 				// `compile` uses Sharp on the Node side instead.
@@ -113,30 +137,6 @@ export default function createIntegration({
 						},
 					},
 				};
-
-				if (needsImagesBinding) {
-					logger.info(
-						`Enabling image processing with Cloudflare Images for production with the "${imagesBindingName}" Images binding.`,
-					);
-				} else if (isCompile) {
-					logger.info(
-						`Enabling compile-time image optimization. Images will be pre-optimized at build time.`,
-					);
-				}
-
-				if (!session?.driver) {
-					logger.info(
-						`Enabling sessions with Cloudflare KV with the "${sessionKVBindingName}" KV binding.`,
-					);
-
-					session = {
-						driver: sessionDrivers.cloudflareKVBinding({
-							binding: sessionKVBindingName,
-						}),
-						cookie: session?.cookie,
-						ttl: session?.ttl,
-					};
-				}
 
 				// The preview entrypoint uses Cloudflare's vite plugin and so it needs access
 				// to the config. But there's no proper API for this so we use globalThis.
