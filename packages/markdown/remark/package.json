@@ -14,9 +14,7 @@
   "main": "./dist/index.js",
   "exports": {
     ".": "./dist/index.js",
-    "./shiki": "./dist/shiki.js",
-    "./shiki-style-collector": "./dist/shiki-style-collector.js",
-    "./transformers/style-to-class": "./dist/transformers/style-to-class.js"
+    "./shiki": "./dist/shiki.js"
   },
   "imports": {
     "#import-plugin": {
