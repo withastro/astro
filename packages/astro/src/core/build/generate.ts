@@ -29,7 +29,7 @@ import { routeIsRedirect } from '../routing/helpers.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
 import { getOutFile, getOutFolder } from './common.js';
-import { createDefaultPrerenderer } from './default-prerenderer.js';
+import { createDefaultPrerenderer, type DefaultPrerenderer } from './default-prerenderer.js';
 import { type BuildInternals, hasPrerenderedPages } from './internal.js';
 import type { StaticBuildOptions } from './types.js';
 import type { AstroSettings } from '../../types/astro.js';
