@@ -65,9 +65,9 @@ async function renderToStaticMarkup(
 		idPrefix,
 	});
 
-	// Temporary workaround for empty class="" attributes in Svelte 5 SSR output.
+	// Temporary workaround for a Svelte bug: empty class="" attributes in Svelte 5 SSR output.
 	// Svelte renders null class values as class="" instead of omitting the attribute.
-	// Tracking issue: https://github.com/withastro/astro/issues/15576
+	// Tracking Svelte bug: https://github.com/withastro/astro/issues/15576
 	let html = result.body;
 	html = html.replace(/\s+class=""/g, '');
 
