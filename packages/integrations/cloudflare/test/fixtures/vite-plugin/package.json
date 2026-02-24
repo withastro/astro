@@ -12,7 +12,7 @@
 		"@astrojs/react": "workspace:*",
     "@astrojs/vue": "workspace:*",
 		"@astrojs/svelte": "workspace:*",
-		"svelte":"^5.53.0",
+		"svelte":"^5.53.1",
     "vue": "^3.5.28",
     "@vitejs/plugin-vue": "^6.0.4",
 		"@types/react": "^18.3.28",
