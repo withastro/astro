@@ -8,7 +8,7 @@ describe('Astro.session', () => {
 	describe('Production', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
-		/** @type {import('../src/core/app/index').App} response */
+		/** @type {import('../src/core/app/app.js').App} response */
 		let app;
 
 		before(async () => {

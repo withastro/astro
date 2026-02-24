@@ -1,5 +1,14 @@
 # @astrojs/netlify
 
+## 7.0.0-beta.10
+
+### Patch Changes
+
+- [#15461](https://github.com/withastro/astro/pull/15461) [`9f21b24`](https://github.com/withastro/astro/commit/9f21b243d21478cdc5fb0193e05adad8e753839f) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates to new Adapter API introduced in v6
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 7.0.0-beta.9
 
 ### Patch Changes

@@ -141,7 +141,7 @@ describe('Astro Global', () => {
 	});
 
 	describe('app', () => {
-		/** @type {import('../dist/core/app/index.js').App} */
+		/** @type {import('../dist/core/app/app.js').App} */
 		let app;
 
 		before(async () => {

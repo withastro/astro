@@ -25,6 +25,11 @@ describe('Attributes', async () => {
 			'popover-true': { attribute: 'popover', value: '' },
 			'popover-false': { attribute: 'popover', value: undefined },
 			'popover-string-empty': { attribute: 'popover', value: '' },
+			// Note: cheerio normalizes boolean `hidden` to the string "hidden",
+			// so we use "hidden" as the expected value instead of ""
+			'hidden-true': { attribute: 'hidden', value: 'hidden' },
+			'hidden-false': { attribute: 'hidden', value: undefined },
+			'hidden-string-empty': { attribute: 'hidden', value: 'hidden' },
 			'boolean-attr-true': { attribute: 'allowfullscreen', value: '' },
 			'boolean-attr-false': { attribute: 'allowfullscreen', value: undefined },
 			'boolean-attr-string-truthy': { attribute: 'allowfullscreen', value: '' },
@@ -50,6 +55,11 @@ describe('Attributes', async () => {
 			'html-enum-false': { attribute: 'draggable', value: 'false' },
 		};
 
+		// cheerio normalizes hidden="until-found" to just hidden, so we check the raw HTML
+		assert.ok(
+			html.includes('id="hidden-until-found" hidden="until-found"'),
+			'hidden="until-found" should preserve the attribute value',
+		);
 		assert.ok(!/allowfullscreen=/.test(html), 'boolean attributes should not have values');
 		assert.ok(
 			!/id="data-attr-string-falsy"\s+data-foobar=/.test(html),

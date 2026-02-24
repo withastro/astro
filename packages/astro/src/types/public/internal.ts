@@ -8,6 +8,8 @@ import type { Params } from './common.js';
 import type { AstroConfig, RedirectConfig } from './config.js';
 import type { AstroGlobal } from './context.js';
 import type { AstroRenderer } from './integrations.js';
+import type { NodePool } from '../../runtime/server/render/queue/pool.js';
+import type { HTMLStringCache } from '../../runtime/server/html-string-cache.js';
 
 export type { SSRActions, SSRManifest, SSRManifestCSP } from '../../core/app/types.js';
 
@@ -252,6 +254,20 @@ export interface SSRResult {
 	directives: SSRManifestCSP['directives'];
 	isStrictDynamic: SSRManifestCSP['isStrictDynamic'];
 	internalFetchHeaders?: Record<string, string>;
+
+	/**
+	 * Experimental: Configuration for queue-based rendering.
+	 * - enabled: Whether to use queue-based rendering (default: true if config is object)
+	 * - poolSize: Maximum number of nodes to keep in the object pool (default: 1000, 0 to disable)
+	 * - cache: Whether to enable HTMLString caching (default: true)
+	 */
+	_experimentalQueuedRendering?: {
+		pool?: NodePool;
+		htmlStringCache?: HTMLStringCache;
+		enabled?: boolean;
+		poolSize?: number;
+		contentCache?: boolean;
+	};
 }
 
 /**

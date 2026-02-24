@@ -8,11 +8,13 @@ import {
 	type HighlighterGeneric,
 	isSpecialLang,
 	type LanguageRegistration,
+	type RegexEngine,
 	type ShikiTransformer,
 	type ThemeRegistration,
 	type ThemeRegistrationRaw,
 } from 'shiki';
 import type { ThemePresets } from './types.js';
+import { loadShikiEngine } from '#shiki-engine';
 
 export interface ShikiHighlighter {
 	codeToHast(
@@ -74,6 +76,8 @@ const cssVariablesTheme = () =>
 // Caches Promise<ShikiHighlighter> for reuse when the same theme and langs are provided
 const cachedHighlighters = new Map();
 
+let shikiEngine: RegexEngine | undefined = undefined;
+
 export async function createShikiHighlighter({
 	langs = [],
 	theme = 'github-dark',
@@ -82,10 +86,15 @@ export async function createShikiHighlighter({
 }: CreateShikiHighlighterOptions = {}): Promise<ShikiHighlighter> {
 	theme = theme === 'css-variables' ? cssVariablesTheme() : theme;
 
+	if (shikiEngine === undefined) {
+		shikiEngine = await loadShikiEngine();
+	}
+
 	const highlighterOptions = {
 		langs: ['plaintext', ...langs],
 		langAlias,
 		themes: Object.values(themes).length ? Object.values(themes) : [theme],
+		engine: shikiEngine,
 	};
 
 	const key = JSON.stringify(highlighterOptions, Object.keys(highlighterOptions).sort());
@@ -217,3 +226,6 @@ export async function createShikiHighlighter({
 function normalizePropAsString(value: Properties[string]): string | null {
 	return Array.isArray(value) ? value.join(' ') : (value as string | null);
 }
+
+// Re-export ThemePresets type for consumers
+export type { ThemePresets };

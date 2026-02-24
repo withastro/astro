@@ -7,7 +7,7 @@ import { SERIALIZED_MANIFEST_RESOLVED_ID } from '../../../manifest/serialized.js
 import type { ExtractedChunk } from '../static-build.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import { toFallbackType } from '../../app/common.js';
-import { serializeRouteData, toRoutingStrategy } from '../../app/index.js';
+import { serializeRouteData, toRoutingStrategy } from '../../app/entrypoints/index.js';
 import type {
 	SerializedRouteInfo,
 	SerializedSSRManifest,
@@ -321,6 +321,11 @@ async function buildManifest(
 		trailingSlash: settings.config.trailingSlash,
 		compressHTML: settings.config.compressHTML,
 		assetsPrefix: settings.config.build.assetsPrefix,
+		experimentalQueuedRendering: {
+			enabled: settings.config.experimental.queuedRendering?.enabled ?? false,
+			poolSize: 0,
+			contentCache: false,
+		},
 		componentMetadata: Array.from(internals.componentMetadata),
 		renderers: [],
 		clientDirectives: Array.from(settings.clientDirectives),

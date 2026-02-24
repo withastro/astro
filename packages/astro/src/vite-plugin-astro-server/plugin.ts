@@ -3,7 +3,7 @@ import { IncomingMessage } from 'node:http';
 import type * as vite from 'vite';
 import { isRunnableDevEnvironment, type RunnableDevEnvironment } from 'vite';
 import { toFallbackType } from '../core/app/common.js';
-import { toRoutingStrategy } from '../core/app/index.js';
+import { toRoutingStrategy } from '../core/app/entrypoints/index.js';
 import type { SSRManifest, SSRManifestCSP, SSRManifestI18n } from '../core/app/types.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import {
@@ -215,5 +215,9 @@ export async function createDevelopmentManifest(settings: AstroSettings): Promis
 		},
 		logLevel: settings.logLevel,
 		shouldInjectCspMetaTags: false,
+		experimentalQueuedRendering: {
+			enabled: !!settings.config.experimental?.queuedRendering,
+			poolSize: settings.config.experimental?.queuedRendering?.poolSize ?? 1000,
+		},
 	};
 }

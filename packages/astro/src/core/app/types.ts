@@ -19,6 +19,7 @@ import type { LoggerLevel } from '../logger/core.js';
 import type { RoutingStrategies } from './common.js';
 import type { BaseSessionConfig, SessionDriverFactory } from '../session/types.js';
 import type { DevToolbarPlacement } from '../../types/public/toolbar.js';
+import type { BaseApp } from './base.js';
 
 type ComponentPath = string;
 
@@ -72,6 +73,13 @@ export type SSRManifest = {
 	trailingSlash: AstroConfig['trailingSlash'];
 	buildFormat: NonNullable<AstroConfig['build']>['format'];
 	compressHTML: boolean;
+	experimentalQueuedRendering: {
+		enabled: boolean;
+		/** Node pool size for memory reuse (default: 1000, set to 0 to disable pooling) */
+		poolSize?: number;
+		/** Whether to enable HTMLString caching (default: true) */
+		contentCache?: boolean;
+	};
 	assetsPrefix?: AssetsPrefix;
 	renderers: SSRLoadedRenderer[];
 	/**
@@ -197,6 +205,7 @@ export type SerializedSSRManifest = Omit<
 	key: string;
 };
 
+/** @deprecated This will be removed in a future major version. */
 export type NodeAppHeadersJson = {
 	pathname: string;
 	headers: {
@@ -204,3 +213,5 @@ export type NodeAppHeadersJson = {
 		value: string;
 	}[];
 }[];
+
+export type CreateApp = (options?: { streaming?: boolean }) => BaseApp;

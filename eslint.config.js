@@ -50,24 +50,16 @@ export default [
 			regexp: regexpEslint,
 		},
 		rules: {
-			// These off/configured-differently-by-default rules fit well for us
+			// Type-aware rules that Biome cannot replace
 			'@typescript-eslint/switch-exhaustiveness-check': 'error',
 			'@typescript-eslint/no-shadow': 'error',
-			'no-console': 'off',
 
-			// Todo: do we want these?
-			'@typescript-eslint/no-unused-vars': [
-				'error',
-				{
-					args: 'all',
-					argsIgnorePattern: '^_',
-					caughtErrors: 'all',
-					caughtErrorsIgnorePattern: '^_',
-					destructuredArrayIgnorePattern: '^_',
-					varsIgnorePattern: '^_',
-					ignoreRestSiblings: true,
-				},
-			],
+			// Disabled - now handled by Biome
+			'no-console': 'off', // Biome: suspicious.noConsole
+			'@typescript-eslint/no-unused-vars': 'off', // Biome: correctness.noUnusedVariables
+			'prefer-const': 'off', // Biome: style.useConst
+			'@typescript-eslint/consistent-type-imports': 'off', // Biome: style.useImportType
+			'@typescript-eslint/await-thenable': 'off',
 			'@typescript-eslint/array-type': 'off',
 			'@typescript-eslint/ban-ts-comment': 'off',
 			'@typescript-eslint/class-literal-property-style': 'off',
@@ -99,13 +91,7 @@ export default [
 			'@typescript-eslint/unbound-method': 'off',
 			'@typescript-eslint/no-explicit-any': 'off',
 
-			// Used by Biome
-			'@typescript-eslint/consistent-type-imports': 'off',
-			// These rules enabled by the preset configs don't work well for us
-			'@typescript-eslint/await-thenable': 'off',
-			'prefer-const': 'off',
-
-			// In some cases, using explicit letter-casing is more performant than the `i` flag
+			// Regex-specific rules (no Biome equivalent)
 			'regexp/use-ignore-case': 'off',
 			'regexp/prefer-regexp-exec': 'warn',
 			'regexp/prefer-regexp-test': 'warn',

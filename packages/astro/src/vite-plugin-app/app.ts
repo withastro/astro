@@ -1,6 +1,6 @@
 import type http from 'node:http';
 import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
-import { BaseApp, type RenderErrorOptions } from '../core/app/index.js';
+import { BaseApp, type RenderErrorOptions } from '../core/app/entrypoints/index.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { clientLocalsSymbol } from '../core/constants.js';
 import {
@@ -22,7 +22,8 @@ import { RunnablePipeline } from './pipeline.js';
 import { getCustom404Route, getCustom500Route } from '../core/routing/helpers.js';
 import { ensure404Route } from '../core/routing/astro-designed-error-pages.js';
 import { matchRoute } from '../core/routing/dev.js';
-import type { DevMatch } from '../core/app/base.js';
+import type { DevMatch, LogRequestPayload } from '../core/app/base.js';
+import { req } from '../core/messages/runtime.js';
 
 export class AstroServerApp extends BaseApp<RunnablePipeline> {
 	settings: AstroSettings;
@@ -59,6 +60,14 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 		this.manifestData = newRoutesList;
 		this.pipeline.setManifestData(newRoutesList);
 		ensure404Route(this.manifestData);
+	}
+
+	/**
+	 * Clears the route cache so that getStaticPaths() is re-evaluated.
+	 * Called via HMR when content collection data changes.
+	 */
+	clearRouteCache(): void {
+		this.pipeline.clearRouteCache();
 	}
 
 	async devMatch(pathname: string): Promise<DevMatch | undefined> {
@@ -288,6 +297,22 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 		} else {
 			return renderRoute(custom500);
 		}
+	}
+
+	logRequest({ pathname, method, statusCode, isRewrite, reqTime }: LogRequestPayload) {
+		if (pathname === '/favicon.ico') {
+			return;
+		}
+		this.logger.info(
+			null,
+			req({
+				url: pathname,
+				method,
+				statusCode,
+				isRewrite,
+				reqTime,
+			}),
+		);
 	}
 }
 

@@ -3,7 +3,6 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { stripVTControlCharacters } from 'node:util';
 import { glob } from 'tinyglobby';
 import { Agent } from 'undici';
 import { check } from '../dist/cli/check/index.js';
@@ -22,7 +21,7 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
  * @typedef {Omit<import('../src/types/public/config.js').AstroInlineConfig, 'root'> & { root?: string | URL }} AstroInlineConfig
  * @typedef {import('../src/types/public/config.js').AstroConfig} AstroConfig
  * @typedef {import('../src/core/preview/index').PreviewServer} PreviewServer
- * @typedef {import('../src/core/app/index').App} App
+ * @typedef {import('../src/core/app/app.js').App} App
  * @typedef {import('../src/cli/check/index').AstroChecker} AstroChecker
  * @typedef {import('../src/cli/check/index').CheckPayload} CheckPayload
  * @typedef {import('http').IncomingMessage} NodeRequest
@@ -41,8 +40,8 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
  * @property {(inlineConfig?: Parameters<typeof dev>[0]) => ReturnType<typeof dev>} startDevServer
  * @property {typeof preview} preview
  * @property {() => Promise<void>} clean
- * @property {(streaming: boolean) => Promise<App>} loadTestAdapterApp
- * @property {(streaming: boolean) => Promise<App>} loadSelfAdapterApp
+ * @property {(streaming?: boolean) => Promise<App>} loadTestAdapterApp
+ * @property {(streaming?: boolean) => Promise<App>} loadSelfAdapterApp
  * @property {() => Promise<(req: NodeRequest, res: NodeResponse) => void>} loadNodeAdapterHandler
  * @property {(timeout?: number) => Promise<void>} onNextDataStoreChange
  * @property {typeof check} check
@@ -348,48 +347,6 @@ export function cli(/** @type {string[]} */ ...args) {
 				});
 			}),
 	};
-}
-
-export async function parseCliDevStart(proc) {
-	let stdout = '';
-	let stderr = '';
-
-	for await (const chunk of proc.stdout) {
-		stdout += chunk;
-		if (chunk.includes('Local')) break;
-	}
-	if (!stdout) {
-		for await (const chunk of proc.stderr) {
-			stderr += chunk;
-			break;
-		}
-	}
-
-	proc.kill();
-	stdout = stripVTControlCharacters(stdout);
-	stderr = stripVTControlCharacters(stderr);
-
-	if (stderr) {
-		throw new Error(stderr);
-	}
-
-	const messages = stdout
-		.split('\n')
-		.filter((ln) => !!ln.trim())
-		.map((ln) => ln.replace(/[🚀┃]/gu, '').replace(/\s+/g, ' ').trim());
-
-	return { messages };
-}
-
-export async function cliServerLogSetup(flags = [], cmd = 'dev') {
-	const { proc } = cli(cmd, ...flags);
-
-	const { messages } = await parseCliDevStart(proc);
-
-	const local = messages.find((msg) => msg.includes('Local'))?.replace(/Local\s*/g, '');
-	const network = messages.find((msg) => msg.includes('Network'))?.replace(/Network\s*/g, '');
-
-	return { local, network };
 }
 
 export const isMacOS = os.platform() === 'darwin';

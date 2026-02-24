@@ -11,7 +11,7 @@ const contentSchemaPath = path.resolve(fixtureDir, '.astro', 'collections', 'cac
 
 describe(
 	'Content Intellisense - Caching',
-	{ skip: parseInt(process.versions.node) === 20 },
+	{ skip: Number.parseInt(process.versions.node) === 20 },
 	async () => {
 		let languageServer: LanguageServer;
 

@@ -57,7 +57,7 @@ describe('Image', () => {
 		const urls = srcset.split(', ').map((entry) => entry.split(' ')[0]);
 		const widthsFromUrls = urls.map((url) => {
 			const urlObj = new URL(url, 'http://localhost');
-			return parseInt(urlObj.searchParams.get('w'), 10);
+			return Number.parseInt(urlObj.searchParams.get('w'), 10);
 		});
 
 		// The configured sizes are [640, 750, 828, 1080, 1200, 1920, 2048, 3840]

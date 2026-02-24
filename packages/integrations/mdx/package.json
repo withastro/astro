@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/mdx",
   "description": "Add support for MDX pages in your Astro site",
-  "version": "5.0.0-beta.7",
+  "version": "5.0.0-beta.8",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -36,7 +36,7 @@
   "dependencies": {
     "@astrojs/markdown-remark": "workspace:*",
     "@mdx-js/mdx": "^3.1.1",
-    "acorn": "^8.15.0",
+    "acorn": "^8.16.0",
     "es-module-lexer": "^2.0.0",
     "estree-util-visit": "^2.0.0",
     "hast-util-to-html": "^9.0.5",

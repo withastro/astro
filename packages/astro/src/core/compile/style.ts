@@ -1,5 +1,4 @@
 import fs from 'node:fs';
-import type { TransformOptions } from '@astrojs/compiler';
 import { preprocessCSS, type ResolvedConfig } from 'vite';
 import type { AstroConfig } from '../../types/public/config.js';
 import { AstroErrorData, CSSError, positionAt } from '../errors/index.js';
@@ -7,6 +6,20 @@ import { normalizePath } from '../viteUtils.js';
 import type { CompileCssResult } from './types.js';
 
 export type PartialCompileCssResult = Pick<CompileCssResult, 'isGlobal' | 'dependencies'>;
+
+interface PreprocessorResult {
+	code: string;
+	map?: string;
+}
+
+interface PreprocessorError {
+	error: string;
+}
+
+export type PreprocessStyleFn = (
+	content: string,
+	attrs: Record<string, string>,
+) => Promise<PreprocessorResult | PreprocessorError>;
 
 /**
  * Rewrites absolute URLs in CSS to include the base path.
@@ -90,7 +103,7 @@ export function createStylePreprocessor({
 	astroConfig: AstroConfig;
 	cssPartialCompileResults: Partial<CompileCssResult>[];
 	cssTransformErrors: Error[];
-}): TransformOptions['preprocessStyle'] {
+}): PreprocessStyleFn {
 	let processedStylesCount = 0;
 
 	return async (content, attrs) => {
@@ -105,7 +118,9 @@ export function createStylePreprocessor({
 			const rewrittenCode = rewriteCssUrls(result.code, astroConfig.base);
 
 			cssPartialCompileResults[index] = {
-				isGlobal: !!attrs['is:global'],
+				// Use `in` operator to handle both Go compiler (boolean `true`) and
+				// Rust compiler (empty string `""`) representations of boolean attributes.
+				isGlobal: 'is:global' in attrs,
 				dependencies: result.deps ? [...result.deps].map((dep) => normalizePath(dep)) : [],
 			};
 

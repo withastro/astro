@@ -16,7 +16,7 @@ import { mergeConfig } from '../core/config/merge.js';
 import { validateConfigRefined } from '../core/config/validate.js';
 import { validateSetAdapter } from '../core/dev/adapter-validation.js';
 import type { AstroIntegrationLogger, Logger } from '../core/logger/core.js';
-import { getRouteGenerator } from '../core/routing/manifest/generator.js';
+import { getRouteGenerator } from '../core/routing/generator.js';
 import { getClientOutputDirectory } from '../prerender/utils.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
@@ -303,7 +303,7 @@ export async function runHookConfigSetup({
 				// though accessible to integration authors if discovered.
 
 				function addPageExtension(...input: (string | string[])[]) {
-					const exts = (input.flat(Infinity) as string[]).map(
+					const exts = (input.flat(Number.POSITIVE_INFINITY) as string[]).map(
 						(ext) => `.${ext.replace(/^\./, '')}`,
 					);
 					updatedSettings.pageExtensions.push(...exts);

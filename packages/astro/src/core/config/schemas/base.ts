@@ -104,6 +104,10 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		contentIntellisense: false,
 		chromeDevtoolsWorkspace: false,
 		svgo: false,
+		rustCompiler: false,
+		queuedRendering: {
+			enabled: false,
+		},
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -159,7 +163,7 @@ export const AstroConfigSchema = z.object({
 	adapter: z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }).optional(),
 	integrations: z.preprocess(
 		// preprocess
-		(val) => (Array.isArray(val) ? val.flat(Infinity).filter(Boolean) : val),
+		(val) => (Array.isArray(val) ? val.flat(Number.POSITIVE_INFINITY).filter(Boolean) : val),
 		// validate
 		z
 			.array(z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }))
@@ -493,6 +497,15 @@ export const AstroConfigSchema = z.object({
 				.union([z.boolean(), z.custom<SvgoConfig>((value) => value && typeof value === 'object')])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.svgo),
+			rustCompiler: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.rustCompiler),
+			queuedRendering: z
+				.object({
+					enabled: z.boolean().optional().prefault(false),
+					poolSize: z.number().int().positive().optional(),
+					contentCache: z.boolean().optional(),
+				})
+				.optional()
+				.prefault(ASTRO_CONFIG_DEFAULTS.experimental.queuedRendering),
 		})
 		.prefault({}),
 	legacy: z
