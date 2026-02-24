@@ -21,6 +21,8 @@ import {
 	MAX_PATCH_DISTANCE,
 	shouldCheckForUpdates,
 } from './update-check.js';
+import { BuildTimeAstroVersionProvider } from '../../cli/infra/build-time-astro-version-provider.js';
+import { piccoloreTextStyler } from '../../cli/infra/piccolore-text-styler.js';
 
 export interface DevServer {
 	address: AddressInfo;
@@ -125,6 +127,8 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 			resolvedUrls: restart.container.viteServer.resolvedUrls || { local: [], network: [] },
 			host: restart.container.settings.config.server.host,
 			base: restart.container.settings.config.base,
+			astroVersionProvider: new BuildTimeAstroVersionProvider(),
+			textStyler: piccoloreTextStyler,
 		}),
 	);
 

@@ -215,7 +215,8 @@ describe('Content Collections - render()', () => {
 			let $ = cheerio.load(html);
 
 			// Includes the red button styles used in the MDX blog post
-			assert.ok($('head > style').text().includes('background-color:red;'));
+			// CSS may be minified (background-color:red) or pretty-printed (background-color: red)
+			assert.match($('head > style').text(), /background-color:\s*red/);
 
 			response = await fixture.fetch('/blog/about', { method: 'GET' });
 			assert.equal(response.status, 200);
@@ -224,7 +225,7 @@ describe('Content Collections - render()', () => {
 			$ = cheerio.load(html);
 
 			// Does not include the red button styles not used in this page
-			assert.equal($('head > style').text().includes('background-color:red;'), false);
+			assert.doesNotMatch($('head > style').text(), /background-color:\s*red/);
 		});
 	});
 });

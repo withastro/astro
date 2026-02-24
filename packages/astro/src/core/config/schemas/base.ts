@@ -105,6 +105,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		contentIntellisense: false,
 		chromeDevtoolsWorkspace: false,
 		svgo: false,
+		rustCompiler: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -496,6 +497,7 @@ export const AstroConfigSchema = z.object({
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.svgo),
 			cache: CacheSchema.optional(),
 			routeRules: RouteRulesSchema.optional(),
+			rustCompiler: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.rustCompiler),
 		})
 		.prefault({}),
 	legacy: z

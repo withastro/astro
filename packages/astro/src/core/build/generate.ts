@@ -29,7 +29,7 @@ import { routeIsRedirect } from '../routing/helpers.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
 import { getOutFile, getOutFolder } from './common.js';
-import { createDefaultPrerenderer, type DefaultPrerenderer } from './default-prerenderer.js';
+import { createDefaultPrerenderer } from './default-prerenderer.js';
 import { type BuildInternals, hasPrerenderedPages } from './internal.js';
 import type { StaticBuildOptions } from './types.js';
 import type { AstroSettings } from '../../types/astro.js';
@@ -182,6 +182,16 @@ export async function generatePages(
 		}
 	}
 
+	const staticImageList = getStaticImageList();
+
+	// Must happen before teardown since collectStaticImages fetches from the prerender server
+	if (prerenderer.collectStaticImages) {
+		const adapterImages = await prerenderer.collectStaticImages();
+		for (const [path, entry] of adapterImages) {
+			staticImageList.set(path, entry);
+		}
+	}
+
 	// Teardown the prerenderer
 	await prerenderer.teardown?.();
 	logger.info(
@@ -189,17 +199,15 @@ export async function generatePages(
 		colors.green(`✓ Completed in ${getTimeStat(generatePagesTimer, performance.now())}.\n`),
 	);
 
-	const staticImageList = getStaticImageList();
-	// Get app from default prerenderer for assets generation (custom prerenderers handle assets differently)
-	const app = (prerenderer as DefaultPrerenderer).app;
-	if (staticImageList.size && app) {
+	// Default pipeline always runs
+	if (staticImageList.size) {
 		logger.info('SKIP_FORMAT', `${colors.bgGreen(colors.black(` generating optimized images `))}`);
 
 		const totalCount = Array.from(staticImageList.values())
 			.map((x) => x.transforms.size)
 			.reduce((a, b) => a + b, 0);
 		const cpuCount = os.cpus().length;
-		const assetsCreationPipeline = await prepareAssetsGenerationEnv(app, totalCount);
+		const assetsCreationPipeline = await prepareAssetsGenerationEnv(options, totalCount);
 		const queue = new PQueue({ concurrency: Math.max(cpuCount, 1) });
 
 		const assetsTimer = performance.now();
