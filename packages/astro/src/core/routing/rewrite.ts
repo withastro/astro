@@ -13,7 +13,7 @@ import {
 	trimSlashes,
 } from '../path.js';
 import { createRequest } from '../request.js';
-import { DEFAULT_404_ROUTE } from './astro-designed-error-pages.js';
+import { DEFAULT_404_ROUTE } from './internal/astro-designed-error-pages.js';
 
 type FindRouteToRewrite = {
 	payload: RewritePayload;

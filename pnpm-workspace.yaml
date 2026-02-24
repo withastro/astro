@@ -32,6 +32,8 @@ minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   # TODO: remove once more stable
   - '@flue/*'
+  - '@astrojs/compiler-rs'
+  - '@astrojs/compiler-binding*'
 peerDependencyRules:
   allowAny:
     - 'astro'

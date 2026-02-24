@@ -1,10 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import {
-	createMarkdownProcessor,
-	createShikiHighlighter,
-	globalShikiStyleCollector,
-} from '../dist/index.js';
+import { createMarkdownProcessor, createShikiHighlighter } from '../dist/index.js';
 
 describe('shiki syntax highlighting', () => {
 	it('does not add is:raw to the output', async () => {
@@ -15,9 +11,6 @@ describe('shiki syntax highlighting', () => {
 	});
 
 	it('supports light/dark themes', async () => {
-		// Clear the style collector before testing
-		globalShikiStyleCollector.clear();
-
 		const processor = await createMarkdownProcessor({
 			shikiConfig: {
 				themes: {
@@ -28,20 +21,13 @@ describe('shiki syntax highlighting', () => {
 		});
 		const { code } = await processor.render('```\ntest\n```');
 
-		// Both theme classes should be present in HTML
+		// light theme is there:
+		assert.match(code, /background-color:/);
 		assert.match(code, /github-light/);
+
+		// dark theme is there:
+		assert.match(code, /--shiki-dark-bg:/);
 		assert.match(code, /github-dark/);
-
-		// Should have the astro-code-themes class (indicating dual theme mode)
-		assert.match(code, /astro-code-themes/);
-
-		// With class-based styles, no inline background-color on pre
-		assert.doesNotMatch(code, /<pre[^>]*style="[^"]*background-color:/);
-
-		// Check that the collected CSS contains dark theme CSS variables
-		const css = globalShikiStyleCollector.collectCSS();
-		assert.match(css, /--shiki-dark-bg:/);
-		assert.match(css, /--shiki-dark:/);
 	});
 
 	it('createShikiHighlighter works', async () => {
@@ -49,17 +35,8 @@ describe('shiki syntax highlighting', () => {
 
 		const html = await highlighter.codeToHtml('const foo = "bar";', 'js');
 
-		// Should have theme class
-		assert.match(html, /astro-code/);
-		assert.match(html, /github-dark/);
-
-		// With class-based styles, should have __a_ classes instead of inline styles
-		assert.match(html, /__a_[a-z0-9]+/);
-		assert.match(html, /astro-code-overflow/);
-
-		// Should NOT have inline background-color or color styles on pre
-		assert.doesNotMatch(html, /<pre[^>]*style="[^"]*background-color:/);
-		assert.doesNotMatch(html, /<pre[^>]*style="[^"]*color:/);
+		assert.match(html, /astro-code github-dark/);
+		assert.match(html, /background-color:#24292e;color:#e1e4e8;/);
 	});
 
 	it('createShikiHighlighter works with codeToHast', async () => {
@@ -67,19 +44,8 @@ describe('shiki syntax highlighting', () => {
 
 		const hast = await highlighter.codeToHast('const foo = "bar";', 'js');
 
-		// class is an array with class-based styles
-		const classArray = hast.children[0].properties.class;
-		assert.ok(Array.isArray(classArray), 'class should be an array');
-		assert.ok(classArray.includes('astro-code'), 'should have astro-code class');
-		assert.ok(classArray.includes('github-dark'), 'should have theme class');
-		assert.ok(
-			classArray.some((c) => c.startsWith('__a_')),
-			'should have token style class',
-		);
-		assert.ok(classArray.includes('astro-code-overflow'), 'should have overflow class');
-
-		// With class-based styles, style property should be undefined (no inline styles)
-		assert.ok(!hast.children[0].properties.style, 'should have no inline style');
+		assert.match(hast.children[0].properties.class, /astro-code github-dark/);
+		assert.match(hast.children[0].properties.style, /background-color:#24292e;color:#e1e4e8;/);
 	});
 
 	it('diff +/- text has user-select: none', async () => {
@@ -92,13 +58,9 @@ describe('shiki syntax highlighting', () => {
 			'diff',
 		);
 
-		// With class-based styles, user-select should be a class, not inline style
-		assert.match(html, /astro-code-no-select/);
+		assert.match(html, /user-select: none/);
 		assert.match(html, />-<\/span>/);
 		assert.match(html, />+<\/span>/);
-
-		// Should NOT have inline user-select style
-		assert.doesNotMatch(html, /style="[^"]*user-select:/);
 	});
 
 	it('renders attributes', async () => {

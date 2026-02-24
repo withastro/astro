@@ -67,6 +67,7 @@
     "@flue/cli": "^0.0.44",
     "@flue/client": "^0.0.27",
     "@types/node": "^18.19.115",
+    "bgproc": "^0.2.0",
     "esbuild": "0.25.5",
     "eslint": "^9.39.2",
     "eslint-plugin-regexp": "^3.0.0",

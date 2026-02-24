@@ -13,8 +13,6 @@ import {
 	type ThemeRegistration,
 	type ThemeRegistrationRaw,
 } from 'shiki';
-import { globalShikiStyleCollector } from './shiki-style-collector.js';
-import { transformerStyleToClass } from './transformers/style-to-class.js';
 import type { ThemePresets } from './types.js';
 import { loadShikiEngine } from '#shiki-engine';
 
@@ -145,8 +143,6 @@ export async function createShikiHighlighter({
 			// they're technically not meta, nor parsed from Shiki's `parseMetaString` API.
 			meta: options?.meta ? { __raw: options?.meta } : undefined,
 			transformers: [
-				// Extract inline styles to CSS classes for better performance and CSP compliance
-				globalShikiStyleCollector.register(transformerStyleToClass()),
 				{
 					pre(node) {
 						// Swap to `code` tag if inline
@@ -164,6 +160,9 @@ export async function createShikiHighlighter({
 						const classValue =
 							(normalizePropAsString(node.properties.class) ?? '') +
 							(attributesClass ? ` ${attributesClass}` : '');
+						const styleValue =
+							(normalizePropAsString(node.properties.style) ?? '') +
+							(attributesStyle ? `; ${attributesStyle}` : '');
 
 						// Replace "shiki" class naming with "astro-code"
 						node.properties.class = classValue.replace(/shiki/g, 'astro-code');
@@ -171,26 +170,19 @@ export async function createShikiHighlighter({
 						// Add data-language attribute
 						node.properties.dataLanguage = lang;
 
-						// Handle code wrapping with classes instead of inline styles for CSP compliance
+						// Handle code wrapping
 						// if wrap=null, do nothing.
 						if (options.wrap === false || options.wrap === undefined) {
-							// Add overflow class
-							this.addClassToHast(node, 'astro-code-overflow');
+							node.properties.style = styleValue + '; overflow-x: auto;';
 						} else if (options.wrap === true) {
-							// Add overflow and wrap classes
-							this.addClassToHast(node, 'astro-code-overflow astro-code-wrap');
-						}
-
-						// If user provided custom inline styles via attributes, we still need to respect them
-						// Note: This is for user-provided styles, not Shiki-generated ones
-						if (attributesStyle) {
-							node.properties.style = attributesStyle;
+							node.properties.style =
+								styleValue + '; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;';
 						}
 					},
 					line(node) {
-						// Add "user-select: none;" for "+"/"-" diff symbols using a class.
-						// Transform `<span class="line"><span>+ something</span></span>
-						// into      `<span class="line"><span><span class="astro-code-no-select">+</span> something</span></span>`
+						// Add "user-select: none;" for "+"/"-" diff symbols.
+						// Transform `<span class="line"><span style="...">+ something</span></span>
+						// into      `<span class="line"><span style="..."><span style="user-select: none;">+</span> something</span></span>`
 						if (resolvedLang === 'diff') {
 							const innerSpanNode = node.children[0];
 							const innerSpanTextNode =
@@ -203,7 +195,7 @@ export async function createShikiHighlighter({
 									innerSpanNode.children.unshift({
 										type: 'element',
 										tagName: 'span',
-										properties: { class: 'astro-code-no-select' },
+										properties: { style: 'user-select: none;' },
 										children: [{ type: 'text', value: start }],
 									});
 								}

@@ -8,6 +8,8 @@ import type { Logger } from '../logger/core.js';
 import * as msg from '../messages/runtime.js';
 import { getResolvedHostForHttpServer } from './util.js';
 import { vitePluginAstroPreview } from './vite-plugin-astro-preview.js';
+import { BuildTimeAstroVersionProvider } from '../../cli/infra/build-time-astro-version-provider.js';
+import { piccoloreTextStyler } from '../../cli/infra/piccolore-text-styler.js';
 
 interface PreviewServer {
 	host?: string;
@@ -71,6 +73,8 @@ export default async function createStaticPreviewServer(
 			resolvedUrls: previewServer.resolvedUrls ?? { local: [], network: [] },
 			host: settings.config.server.host,
 			base: settings.config.base,
+			astroVersionProvider: new BuildTimeAstroVersionProvider(),
+			textStyler: piccoloreTextStyler,
 		}),
 	);
 

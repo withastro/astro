@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/cloudflare",
   "description": "Deploy your site to Cloudflare Workers",
-  "version": "13.0.0-beta.8",
+  "version": "13.0.0-beta.9",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -23,9 +23,9 @@
     "./entrypoints/server": "./dist/entrypoints/server.js",
     "./entrypoints/preview": "./dist/entrypoints/preview.js",
     "./entrypoints/server.js": "./dist/entrypoints/server.js",
-    "./image-service": "./dist/entrypoints/image-service.js",
-    "./image-endpoint": "./dist/entrypoints/image-endpoint.js",
+    "./image-service": "./dist/entrypoints/image-service-external.js",
     "./image-transform-endpoint": "./dist/entrypoints/image-transform-endpoint.js",
+    "./image-service-workerd": "./dist/entrypoints/image-service-workerd.js",
     "./handler": "./dist/utils/handler.js",
     "./types.d.ts": "./types.d.ts",
     "./package.json": "./package.json"
@@ -53,7 +53,7 @@
     "wrangler": "^4.61.1"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260227.0",
+    "@cloudflare/workers-types": "^4.20260228.0",
     "@types/node": "^25.2.2",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",

@@ -413,8 +413,8 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 
 		return transform;
 	},
-	getRemoteSize(url, _imageConfig) {
-		return inferRemoteSize(url);
+	getRemoteSize(url, imageConfig) {
+		return inferRemoteSize(url, imageConfig);
 	},
 };
 

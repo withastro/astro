@@ -8,7 +8,7 @@ import type { ModuleLoader } from '../core/module-loader/index.js';
 import { RedirectComponentInstance } from '../core/redirects/index.js';
 import { loadRenderer } from '../core/render/index.js';
 import { createDefaultRoutes } from '../core/routing/default.js';
-import { routeIsRedirect } from '../core/routing/index.js';
+import { routeIsRedirect } from '../core/routing/helpers.js';
 import { findRouteToRewrite } from '../core/routing/rewrite.js';
 import { isPage } from '../core/util.js';
 import type {
@@ -28,6 +28,9 @@ import type {
 import { getComponentMetadata } from '../vite-plugin-astro-server/metadata.js';
 import { createResolve } from '../vite-plugin-astro-server/resolve.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
+import { newNodePool } from '../runtime/server/render/queue/pool.js';
+import { HTMLStringCache } from '../runtime/server/html-string-cache.js';
+import { queueRenderingEnabled } from '../core/app/manifest.js';
 
 /**
  * This Pipeline is used when the Vite SSR environment is runnable.
@@ -68,6 +71,10 @@ export class RunnablePipeline extends Pipeline {
 	) {
 		const pipeline = new RunnablePipeline(loader, logger, manifest, settings, getDebugInfo);
 		pipeline.routesList = manifestData;
+		if (queueRenderingEnabled(manifest.experimentalQueuedRendering)) {
+			pipeline.nodePool = newNodePool(manifest.experimentalQueuedRendering!);
+			pipeline.htmlStringCache = new HTMLStringCache(1000); // Use default size
+		}
 		return pipeline;
 	}
 

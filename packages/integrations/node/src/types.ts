@@ -1,5 +1,4 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import type { SSRManifest } from 'astro';
 
 export interface UserOptions {
 	/**
@@ -37,8 +36,6 @@ export interface Options extends UserOptions {
 	port: number;
 	server: string;
 	client: string;
-	assets: string;
-	trailingSlash?: SSRManifest['trailingSlash'];
 	staticHeaders: boolean;
 }
 
@@ -49,3 +46,11 @@ type RequestHandlerParams = [
 	next?: (err?: unknown) => void,
 	locals?: object,
 ];
+
+export type NodeAppHeadersJson = {
+	pathname: string;
+	headers: {
+		key: string;
+		value: string;
+	}[];
+}[];

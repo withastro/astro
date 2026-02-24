@@ -14,7 +14,7 @@ import { getClientOutputDirectory, getServerOutputDirectory } from '../../preren
 import type { RouteData } from '../../types/public/internal.js';
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../vite-plugin-pages/const.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
-import { routeIsRedirect } from '../routing/index.js';
+import { routeIsRedirect } from '../routing/helpers.js';
 import { getOutDirWithinCwd } from './common.js';
 import { CHUNKS_PATH } from './consts.js';
 import { generatePages } from './generate.js';

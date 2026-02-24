@@ -10,7 +10,8 @@ import type { PreviewModule, PreviewServer } from '../../types/public/preview.js
 import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../logger/node.js';
 import { createSettings } from '../config/settings.js';
-import { createRoutesList } from '../routing/manifest/create.js';
+import { createRoutesList } from '../routing/create-manifest.js';
+import { getPrerenderDefault } from '../../prerender/utils.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import createStaticPreviewServer from './static-preview-server.js';
 import { getResolvedHostForHttpServer } from './util.js';
@@ -41,6 +42,7 @@ export default async function preview(inlineConfig: AstroInlineConfig): Promise<
 
 	// Create a route manifest so we can know if the build output is a static site or not
 	await createRoutesList({ settings: settings, cwd: inlineConfig.root }, logger);
+	settings.buildOutput = getPrerenderDefault(settings.config) ? 'static' : 'server';
 
 	await runHookConfigDone({ settings: settings, logger: logger, command: 'preview' });
 
