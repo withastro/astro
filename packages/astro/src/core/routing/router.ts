@@ -53,6 +53,8 @@ export class Router {
 	#trailingSlash: RouterOptions['trailingSlash'];
 
 	constructor(routes: RouteData[], options: RouterOptions) {
+		// Copy before sorting to avoid mutating the caller's route list.
+		// The Router owns route ordering to ensure consistent match priority.
 		this.#routes = [...routes].sort(routeComparator);
 		this.#base = normalizeBase(options.base);
 		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#base);
