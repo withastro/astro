@@ -5,7 +5,7 @@ import { renderChild } from './any.js';
 import { createThinHead, type ThinHead } from './astro/head-and-content.js';
 import type { RenderDestination } from './common.js';
 import { createRenderInstruction } from './instruction.js';
-import { type ComponentSlots, renderSlotToString } from './slot.js';
+import { type ComponentSlots, type SlotString, renderSlotToString } from './slot.js';
 
 const internalProps = new Set([
 	'server:component-path',
@@ -163,7 +163,7 @@ export class ServerIslandComponent {
 				// to server:defer components retain their scripts in the island response.
 				// renderSlotToString returns a SlotString (typed as string) that carries
 				// render instructions stripped from the HTML content.
-				const slotContent = content as unknown as import('./slot.js').SlotString;
+				const slotContent = content as unknown as SlotString;
 				if (Array.isArray(slotContent.instructions)) {
 					for (const instruction of slotContent.instructions) {
 						if (instruction.type === 'script') {
