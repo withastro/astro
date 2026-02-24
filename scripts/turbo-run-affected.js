@@ -1,3 +1,5 @@
+// Runs Turbo with the provided args and scopes filters to the PR base branch.
+// For pull_request events, it appends the base...HEAD range to each --filter.
 import { spawn } from 'node:child_process';
 
 const args = process.argv.slice(2);
