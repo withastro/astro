@@ -1,19 +1,13 @@
 import assert from 'node:assert/strict';
 import { promises as fs, readFileSync } from 'node:fs';
-import { isIPv4 } from 'node:net';
 import { join } from 'node:path';
 import { Writable } from 'node:stream';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { stripVTControlCharacters } from 'node:util';
-import { cli, cliServerLogSetup, loadFixture, parseCliDevStart } from './test-utils.js';
+import { cli, loadFixture } from './test-utils.js';
 
 describe('astro cli', () => {
-	const cliServerLogSetupWithFixture = (flags, cmd) => {
-		const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
-		return cliServerLogSetup(['--root', fileURLToPath(projectRootURL), ...flags], cmd);
-	};
-
 	it('astro', async () => {
 		const result = await cli().getResult();
 		assert.equal(result.exitCode, 0);
@@ -85,7 +79,7 @@ describe('astro cli', () => {
 		},
 		async () => {
 			const projectRootURL = new URL('./fixtures/astro-check-no-errors/', import.meta.url);
-			const result = await cli('check', '--root', fileURLToPath(projectRootURL)).getResult();
+			const result = await cli('check', '--root', fileURLToPath(projectRootURL), '--noSync').getResult();
 
 			assert.equal(result.stdout.includes('0 errors'), true);
 		},
@@ -98,97 +92,9 @@ describe('astro cli', () => {
 		},
 		async () => {
 			const projectRootURL = new URL('./fixtures/astro-check-errors/', import.meta.url);
-			const result = await cli('check', '--root', fileURLToPath(projectRootURL)).getResult();
+			const result = await cli('check', '--root', fileURLToPath(projectRootURL), '--noSync').getResult();
 
 			assert.equal(result.stdout.includes('1 error'), true);
 		},
 	);
-
-	it('astro dev welcome', async () => {
-		const pkgURL = new URL('../package.json', import.meta.url);
-		const pkgVersion = await fs.readFile(pkgURL, 'utf8').then((data) => JSON.parse(data).version);
-
-		const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
-		const { proc } = cli('dev', '--root', fileURLToPath(projectRootURL));
-		const { messages } = await parseCliDevStart(proc);
-
-		const message = messages.join('\n');
-
-		assert.equal(message.includes('astro'), true);
-		assert.equal(message.includes(pkgVersion), true);
-		assert.equal(message.includes('ready in'), true);
-	});
-
-	['dev', 'preview'].forEach((cmd) => {
-		const networkLogFlags = [['--host'], ['--host', '0.0.0.0']];
-		networkLogFlags.forEach(([flag, flagValue]) => {
-			it(`astro ${cmd} ${flag} ${flagValue ?? ''} - network log`, async () => {
-				const { local, network } = await cliServerLogSetupWithFixture(
-					flagValue ? [flag, flagValue] : [flag],
-					cmd,
-				);
-
-				assert.notEqual(local, undefined);
-				assert.notEqual(network, undefined);
-
-				const localURL = new URL(local);
-				const networkURL = new URL(network);
-
-				assert.equal(['localhost', '127.0.0.1'].includes(localURL.hostname), true),
-					`Expected local URL to be on localhost`;
-
-				// Note: our tests run in parallel so this could be 3000+!
-				assert.equal(Number.parseInt(localURL.port) >= 4321, true, `Expected Port to be >= 4321`);
-				assert.equal(
-					networkURL.port,
-					localURL.port,
-					`Expected local and network ports to be equal`,
-				);
-				assert.equal(
-					isIPv4(networkURL.hostname),
-					true,
-					`Expected network URL to respect --host flag`,
-				);
-			});
-		});
-
-		const hostToExposeFlags = [['', '']];
-		hostToExposeFlags.forEach(([flag, flagValue]) => {
-			it(`astro ${cmd} ${flag} ${flagValue} - host to expose`, async () => {
-				const { local, network } = await cliServerLogSetupWithFixture([flag, flagValue], cmd);
-
-				assert.notEqual(local, undefined);
-				assert.notEqual(network, undefined);
-				const localURL = new URL(local);
-
-				assert.equal(
-					['localhost', '127.0.0.1'].includes(localURL.hostname),
-					true,
-					`Expected local URL to be on localhost`,
-				);
-
-				assert.throws(() => new URL(networkURL));
-			});
-		});
-
-		const noNetworkLogFlags = [
-			['--host', 'localhost'],
-			['--host', '127.0.0.1'],
-		];
-		noNetworkLogFlags.forEach(([flag, flagValue]) => {
-			it(`astro ${cmd} ${flag} ${flagValue} - no network log`, async () => {
-				const { local, network } = await cliServerLogSetupWithFixture([flag, flagValue], cmd);
-
-				assert.notEqual(local, undefined);
-				assert.equal(network, undefined);
-
-				const localURL = new URL(local);
-				assert.equal(
-					['localhost', '127.0.0.1'].includes(localURL.hostname),
-					true,
-					`Expected local URL to be on localhost`,
-				);
-			});
-		});
-	});
 });

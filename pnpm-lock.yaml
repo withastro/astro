@@ -816,8 +816,8 @@ importers:
   packages/astro/e2e/fixtures/actions-blog:
     dependencies:
       '@astrojs/check':
-        specifier: ^0.9.6
-        version: 0.9.6(prettier-plugin-astro@0.14.1)(prettier@3.8.1)(typescript@5.9.3)
+        specifier: workspace:*
+        version: link:../../../../language-tools/astro-check
       '@astrojs/db':
         specifier: workspace:*
         version: link:../../../../db
@@ -849,8 +849,8 @@ importers:
   packages/astro/e2e/fixtures/actions-react-19:
     dependencies:
       '@astrojs/check':
-        specifier: ^0.9.6
-        version: 0.9.6(prettier-plugin-astro@0.14.1)(prettier@3.8.1)(typescript@5.9.3)
+        specifier: workspace:*
+        version: link:../../../../language-tools/astro-check
       '@astrojs/db':
         specifier: workspace:*
         version: link:../../../../db
@@ -2019,8 +2019,8 @@ importers:
   packages/astro/test/fixtures/astro-check-errors:
     dependencies:
       '@astrojs/check':
-        specifier: ^0.9.6
-        version: 0.9.6(prettier-plugin-astro@0.14.1)(prettier@3.8.1)(typescript@5.9.3)
+        specifier: workspace:*
+        version: link:../../../../language-tools/astro-check
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -2031,8 +2031,8 @@ importers:
   packages/astro/test/fixtures/astro-check-no-errors:
     dependencies:
       '@astrojs/check':
-        specifier: ^0.9.6
-        version: 0.9.6(prettier-plugin-astro@0.14.1)(prettier@3.8.1)(typescript@5.9.3)
+        specifier: workspace:*
+        version: link:../../../../language-tools/astro-check
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -4803,8 +4803,8 @@ importers:
   packages/db/test/fixtures/ticketing-example:
     dependencies:
       '@astrojs/check':
-        specifier: ^0.9.6
-        version: 0.9.6(prettier-plugin-astro@0.14.1)(prettier@3.8.1)(typescript@5.9.3)
+        specifier: workspace:*
+        version: link:../../../../language-tools/astro-check
       '@astrojs/db':
         specifier: workspace:*
         version: link:../../..
