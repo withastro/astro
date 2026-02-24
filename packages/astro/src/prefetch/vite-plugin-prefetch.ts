@@ -31,6 +31,13 @@ export default function astroPrefetch({ settings }: { settings: AstroSettings })
 
 	return {
 		name: 'astro:prefetch',
+		config() {
+			return {
+				optimizeDeps: {
+					exclude: ['astro/virtual-modules/prefetch.js'],
+				},
+			};
+		},
 		resolveId: {
 			filter: {
 				id: new RegExp(`^${VIRTUAL_MODULE_ID}$`),
