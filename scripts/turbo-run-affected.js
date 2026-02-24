@@ -43,8 +43,8 @@ for (let i = 0; i < args.length; i += 1) {
 	turboArgs.push(arg);
 }
 
-const turboCommand = process.platform === 'win32' ? 'turbo.cmd' : 'turbo';
-const turbo = spawn(turboCommand, ['run', ...turboArgs], {
+const pnpmCommand = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
+const turbo = spawn(pnpmCommand, ['exec', 'turbo', 'run', ...turboArgs], {
 	stdio: 'inherit',
 	env: process.env,
 });
