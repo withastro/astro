@@ -2845,7 +2845,7 @@ export interface AstroUserConfig<
 			 * Allows to enable the caching of node contents when rendering the same page.
 			 * This caching is disabled for dynamic pages.
 			 */
-			cache?: boolean;
+			contentCache?: boolean;
 		};
 	};
 }
