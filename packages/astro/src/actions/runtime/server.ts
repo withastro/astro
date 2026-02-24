@@ -199,6 +199,9 @@ export function getActionContext(context: APIContext): AstroActionContext {
 				try {
 					input = await parseRequestBody(context.request);
 				} catch (e) {
+					if (e instanceof ActionError) {
+						return { data: undefined, error: e };
+					}
 					if (e instanceof TypeError) {
 						return { data: undefined, error: new ActionError({ code: 'UNSUPPORTED_MEDIA_TYPE' }) };
 					}
@@ -250,16 +253,41 @@ function getCallerInfo(ctx: APIContext) {
 	return undefined;
 }
 
+const DEFAULT_ACTION_BODY_SIZE_LIMIT = 1024 * 1024;
+
 async function parseRequestBody(request: Request) {
 	const contentType = request.headers.get('content-type');
-	const contentLength = request.headers.get('Content-Length');
+	const contentLengthHeader = request.headers.get('content-length');
+	const contentLength = contentLengthHeader ? Number.parseInt(contentLengthHeader, 10) : undefined;
+	const hasContentLength = typeof contentLength === 'number' && Number.isFinite(contentLength);
 
 	if (!contentType) return undefined;
+	if (hasContentLength && contentLength > DEFAULT_ACTION_BODY_SIZE_LIMIT) {
+		throw new ActionError({
+			code: 'CONTENT_TOO_LARGE',
+			message: `Request body exceeds ${DEFAULT_ACTION_BODY_SIZE_LIMIT} bytes`,
+		});
+	}
 	if (hasContentType(contentType, formContentTypes)) {
+		if (!hasContentLength) {
+			const body = await readRequestBodyWithLimit(request.clone(), DEFAULT_ACTION_BODY_SIZE_LIMIT);
+			const formRequest = new Request(request.url, {
+				method: request.method,
+				headers: request.headers,
+				body: toArrayBuffer(body),
+			});
+			return await formRequest.formData();
+		}
 		return await request.clone().formData();
 	}
 	if (hasContentType(contentType, ['application/json'])) {
-		return contentLength === '0' ? undefined : await request.clone().json();
+		if (contentLength === 0) return undefined;
+		if (!hasContentLength) {
+			const body = await readRequestBodyWithLimit(request.clone(), DEFAULT_ACTION_BODY_SIZE_LIMIT);
+			if (body.byteLength === 0) return undefined;
+			return JSON.parse(new TextDecoder().decode(body));
+		}
+		return await request.clone().json();
 	}
 	throw new TypeError('Unsupported content type');
 }
@@ -443,4 +471,37 @@ export function serializeActionResult(res: SafeResult<any, any>): SerializedActi
 		contentType: 'application/json+devalue',
 		body,
 	};
+}
+async function readRequestBodyWithLimit(request: Request, limit: number): Promise<Uint8Array> {
+	if (!request.body) return new Uint8Array();
+	const reader = request.body.getReader();
+	const chunks: Uint8Array[] = [];
+	let received = 0;
+	while (true) {
+		const { done, value } = await reader.read();
+		if (done) break;
+		if (value) {
+			received += value.byteLength;
+			if (received > limit) {
+				throw new ActionError({
+					code: 'CONTENT_TOO_LARGE',
+					message: `Request body exceeds ${limit} bytes`,
+				});
+			}
+			chunks.push(value);
+		}
+	}
+	const buffer = new Uint8Array(received);
+	let offset = 0;
+	for (const chunk of chunks) {
+		buffer.set(chunk, offset);
+		offset += chunk.byteLength;
+	}
+	return buffer;
+}
+
+function toArrayBuffer(buffer: Uint8Array): ArrayBuffer {
+	const copy = new Uint8Array(buffer.byteLength);
+	copy.set(buffer);
+	return copy.buffer;
 }

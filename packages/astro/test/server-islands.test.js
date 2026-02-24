@@ -245,6 +245,20 @@ describe('Server islands', () => {
 				assert.equal(fetchMatch.length, 2, 'should include props in the query string');
 				assert.equal(fetchMatch[1], '', 'should not include encrypted empty props');
 			});
+
+			it('includes script from slotted component in island response', async () => {
+				const res = await fixture.fetch('/slot-with-script');
+				assert.equal(res.status, 200);
+				const html = await res.text();
+				// Extract the island fetch URL from the page
+				const urlMatch = html.match(/fetch\('(\/_server-islands\/Wrapper\?[^']+)'/);
+				assert.ok(urlMatch, 'should have a server island fetch URL');
+				const islandRes = await fixture.fetch(urlMatch[1]);
+				assert.equal(islandRes.status, 200);
+				const islandHtml = await islandRes.text();
+				assert.ok(islandHtml.includes('<script'), 'island response should include the script tag from the slotted component');
+				assert.ok(islandHtml.includes('data-increment'), 'island response should include the slotted component HTML');
+			});
 		});
 
 		describe('prod', () => {

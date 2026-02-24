@@ -17,6 +17,6 @@
     "@nanostores/preact": "^1.0.0",
     "astro": "^6.0.0-beta.14",
     "nanostores": "^1.1.0",
-    "preact": "^10.28.3"
+    "preact": "^10.28.4"
   }
 }

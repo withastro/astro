@@ -104,6 +104,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		contentIntellisense: false,
 		chromeDevtoolsWorkspace: false,
 		svgo: false,
+		rustCompiler: false,
 		queuedRendering: {
 			enabled: false,
 		},
@@ -496,6 +497,7 @@ export const AstroConfigSchema = z.object({
 				.union([z.boolean(), z.custom<SvgoConfig>((value) => value && typeof value === 'object')])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.svgo),
+			rustCompiler: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.rustCompiler),
 			queuedRendering: z
 				.object({
 					enabled: z.boolean().optional().prefault(false),

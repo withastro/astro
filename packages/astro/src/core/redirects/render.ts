@@ -1,6 +1,6 @@
 import type { RedirectConfig } from '../../types/public/index.js';
 import type { RenderContext } from '../render-context.js';
-import { getRouteGenerator } from '../routing/manifest/generator.js';
+import { getRouteGenerator } from '../routing/generator.js';
 
 export function redirectIsExternal(redirect: RedirectConfig): boolean {
 	if (typeof redirect === 'string') {

@@ -1,6 +1,7 @@
 import type { UserConfig as ViteUserConfig, UserConfigFn as ViteUserConfigFn } from 'vite';
 import type { FontProvider } from '../assets/fonts/types.js';
-import { createRoutesList } from '../core/routing/manifest/create.js';
+import { createRoutesList } from '../core/routing/create-manifest.js';
+import { getPrerenderDefault } from '../prerender/utils.js';
 import type { SessionDriverConfig, SessionDriverName } from '../core/session/types.js';
 import type { AstroInlineConfig, AstroUserConfig, Locales } from '../types/public/config.js';
 
@@ -51,8 +52,9 @@ export function getViteConfig(
 				settings,
 			},
 			logger,
-			{ dev: true, skipBuildOutputAssignment: false },
+			{ dev: true },
 		);
+		settings.buildOutput = getPrerenderDefault(settings.config) ? 'static' : 'server';
 		const viteConfig = await createVite(
 			{},
 			{ routesList, settings, command: cmd, logger, mode, sync: false },

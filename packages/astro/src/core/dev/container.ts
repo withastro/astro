@@ -12,7 +12,8 @@ import type { AstroSettings } from '../../types/astro.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
 import { createVite } from '../create-vite.js';
 import type { Logger } from '../logger/core.js';
-import { createRoutesList } from '../routing/manifest/create.js';
+import { createRoutesList } from '../routing/create-manifest.js';
+import { getPrerenderDefault } from '../../prerender/utils.js';
 import { syncInternal } from '../sync/index.js';
 import { warnMissingAdapter } from './adapter-validation.js';
 
@@ -91,10 +92,12 @@ export async function createContainer({
 		logger,
 		{
 			dev: true,
-			// If the adapter explicitly set a buildOutput, don't override it
-			skipBuildOutputAssignment: !!settings.adapter?.adapterFeatures?.buildOutput,
 		},
 	);
+	// If the adapter explicitly set a buildOutput, don't override it
+	if (!settings.adapter?.adapterFeatures?.buildOutput) {
+		settings.buildOutput = getPrerenderDefault(settings.config) ? 'static' : 'server';
+	}
 	const viteConfig = await createVite(
 		{
 			server: { host, headers, open, allowedHosts },
