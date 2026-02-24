@@ -7,7 +7,11 @@ import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-
 import type { AstroConfig, AstroIntegration, IntegrationResolvedRoute } from 'astro';
 import { astroFrontmatterScanPlugin } from './esbuild-plugin-astro-frontmatter.js';
 import { getParts } from './utils/generate-routes-json.js';
-import { type ImageService, setImageConfig } from './utils/image-config.js';
+import {
+	type ImageServiceConfig,
+	normalizeImageServiceConfig,
+	setImageConfig,
+} from './utils/image-config.js';
 import { createConfigPlugin } from './vite-plugin-config.js';
 import {
 	cloudflareConfigCustomizer,
@@ -27,7 +31,7 @@ export interface Options
 		'auxiliaryWorkers' | 'configPath' | 'inspectorPort' | 'persistState' | 'remoteBindings'
 	> {
 	/** Options for handling images. */
-	imageService?: ImageService;
+	imageService?: ImageServiceConfig;
 
 	/**
 	 * By default, Astro will be configured to use Cloudflare KV to store session data. The KV namespace
@@ -67,36 +71,56 @@ export default function createIntegration({
 
 	let _routes: IntegrationResolvedRoute[];
 	let _isFullyStatic = false;
+	let cfPluginConfig: PluginConfig;
 
-	const cfPluginConfig: PluginConfig = {
-		...cloudflareOptions,
-		config: cloudflareConfigCustomizer({
-			sessionKVBindingName,
-			imagesBindingName: imageService === 'cloudflare-binding' ? imagesBindingName : false,
-		}),
-		experimental: {
-			...cloudflareOptions.experimental,
-			prerenderWorker: {
-				config(_, { entryWorkerConfig }) {
-					return {
-						...entryWorkerConfig,
-						// This is the Vite environment name used for prerendering
-						name: 'prerender',
-					};
-				},
-			},
-		},
-	};
+	const { buildService, runtimeService } = normalizeImageServiceConfig(imageService);
 
 	return {
 		name: '@astrojs/cloudflare',
 		hooks: {
 			'astro:config:setup': ({ command, config, updateConfig, logger, addWatchFile }) => {
+				if (!!process.versions.webcontainer) {
+					throw new Error('`workerd` does not run on Stackblitz.');
+				}
+
 				let session = config.session;
 
-				if (imageService === 'cloudflare-binding') {
+				const isCompile = buildService === 'compile';
+				const needsImagesBinding = runtimeService === 'cloudflare-binding';
+				// In dev, `compile` needs the IMAGES binding for real transforms
+				// (the image-transform-endpoint uses it). At build time,
+				// `compile` uses Sharp on the Node side instead.
+				const needsImagesBindingForDev = isCompile && command === 'dev';
+
+				cfPluginConfig = {
+					config: cloudflareConfigCustomizer({
+						sessionKVBindingName,
+						imagesBindingName:
+							needsImagesBinding || needsImagesBindingForDev ? imagesBindingName : false,
+					}),
+					experimental: {
+						prerenderWorker: {
+							config(_, { entryWorkerConfig }) {
+								return {
+									...entryWorkerConfig,
+									name: 'prerender',
+									...(needsImagesBinding &&
+										!entryWorkerConfig.images && {
+											images: { binding: imagesBindingName },
+										}),
+								};
+							},
+						},
+					},
+				};
+
+				if (needsImagesBinding) {
 					logger.info(
 						`Enabling image processing with Cloudflare Images for production with the "${imagesBindingName}" Images binding.`,
+					);
+				} else if (isCompile) {
+					logger.info(
+						`Enabling compile-time image optimization. Images will be pre-optimized at build time.`,
 					);
 				}
 
@@ -166,6 +190,7 @@ export default function createIntegration({
 													'astro > neotraverse/modern',
 													'astro > piccolore',
 													'astro/app',
+													'astro/assets',
 													'astro/compiler-runtime',
 												],
 												exclude: [
@@ -208,10 +233,22 @@ export default function createIntegration({
 							},
 							createConfigPlugin({
 								sessionKVBindingName,
+								compileImageConfig:
+									isCompile && command !== 'dev'
+										? {
+												base: config.base,
+												assetsPrefix:
+													typeof config.build.assetsPrefix === 'string'
+														? config.build.assetsPrefix
+														: undefined,
+												imageServiceEntrypoint: '@astrojs/cloudflare/image-service-workerd',
+												buildAssets: config.build.assets ?? '_astro',
+											}
+										: null,
 							}),
 						],
 					},
-					image: setImageConfig(imageService ?? 'compile', config.image, command, logger),
+					image: setImageConfig(imageService, config.image, command, logger),
 				});
 
 				if (cloudflareOptions.configPath) {
@@ -255,7 +292,7 @@ export default function createIntegration({
 							message:
 								'When using a custom image service, ensure it is compatible with the Cloudflare Workers runtime.',
 							// Only 'custom' could potentially use sharp at runtime.
-							suppress: imageService === 'custom' ? 'default' : 'all',
+							suppress: buildService === 'custom' ? 'default' : 'all',
 						},
 						envGetSecret: 'stable',
 					},
@@ -285,6 +322,7 @@ export default function createIntegration({
 						base: _config.base,
 						trailingSlash: _config.trailingSlash,
 						cloudflareOptions: cfPluginConfig,
+						hasCompileImageService: buildService === 'compile',
 					}),
 				);
 			},

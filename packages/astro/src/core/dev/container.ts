@@ -64,7 +64,7 @@ export async function createContainer({
 	// expected behavior: do not spawn a new tab
 	// ------------------------------------------------------
 	// Non-config files don't reach this point
-	const isServerOpenURL = typeof serverOpen == 'string' && !isRestart;
+	const isServerOpenURL = typeof serverOpen === 'string' && !isRestart;
 	const isServerOpenBoolean = serverOpen && !isRestart;
 
 	// Open server to the correct path. We pass the `base` here as we didn't pass the

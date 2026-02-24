@@ -1,5 +1,15 @@
 # astro
 
+## 6.0.0-beta.14
+
+### Patch Changes
+
+- [#15573](https://github.com/withastro/astro/pull/15573) [`d789452`](https://github.com/withastro/astro/commit/d78945221d68ceab073f93572d87f12be0c72d47) Thanks [@matthewp](https://github.com/matthewp)! - Clear the route cache on content changes so slug pages reflect updated data during dev.
+
+- [#15560](https://github.com/withastro/astro/pull/15560) [`170ed89`](https://github.com/withastro/astro/commit/170ed89ae2b0482ddc5a6f1244452490319ae99e) Thanks [@z0mt3c](https://github.com/z0mt3c)! - Fix X-Forwarded-Proto validation when allowedDomains includes both protocol and hostname fields. The protocol check no longer fails due to hostname mismatch against the hardcoded test URL.
+
+- [#15563](https://github.com/withastro/astro/pull/15563) [`e959698`](https://github.com/withastro/astro/commit/e959698fedee4e548053e251d103eaeb9c6995cd) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where warnings would be logged during the build using one of the official adapters
+
 ## 6.0.0-beta.13
 
 ### Major Changes

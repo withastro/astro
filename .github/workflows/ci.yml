@@ -90,12 +90,27 @@ jobs:
       - name: Build Packages
         if: ${{ matrix.os == 'ubuntu-latest' && github.repository_owner == 'withastro' }}
         run: pnpm run build
-
+        
+  biome-lint:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: Setup Biome
+        uses: biomejs/setup-biome@29711cbb52afee00eb13aeb30636592f9edc0088 # v2.7.0
+      - name: Run Biome
+        run: biome ci --formatter-enabled=false --enforce-assist=false --reporter=default --reporter=github
+  
   lint:
     name: Lint
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    needs: build
+    needs: 
+      - biome-lint
     steps:
       - name: Disable git crlf
         run: git config --global core.autocrlf false

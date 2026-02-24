@@ -32,6 +32,8 @@ minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   # TODO: remove once more stable
   - '@flue/*'
+  - '@astrojs/compiler-rs'
+  - '@astrojs/compiler-binding*'
 peerDependencyRules:
   allowAny:
     - 'astro'
@@ -44,5 +46,6 @@ onlyBuiltDependencies:
   - '@parcel/watcher'
   - 'keytar'
   - '@vscode/vsce-sign'
+
 # TODO: enable when viable
 # trustPolicy: 'no-downgrade'

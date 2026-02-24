@@ -46,7 +46,7 @@ import { vitePluginMiddleware } from './middleware/vite-plugin.js';
 import { joinPaths } from './path.js';
 import { vitePluginServerIslands } from './server-islands/vite-plugin-server-islands.js';
 import { vitePluginSessionDriver } from './session/vite-plugin.js';
-import { isObject } from './util.js';
+import { isObject } from './util-runtime.js';
 import { vitePluginEnvironment } from '../vite-plugin-environment/index.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from './constants.js';
 import { vitePluginChromedevtools } from '../vite-plugin-chromedevtools/index.js';
@@ -261,7 +261,7 @@ export async function createVite(
 			{ command: command === 'dev' ? 'serve' : command, mode },
 		];
 		// @ts-expect-error ignore TS2589: Type instantiation is excessively deep and possibly infinite.
-		plugins = plugins.flat(Infinity).filter((p) => {
+		plugins = plugins.flat(Number.POSITIVE_INFINITY).filter((p) => {
 			if (!p || p?.apply === applyToFilter) {
 				return false;
 			}

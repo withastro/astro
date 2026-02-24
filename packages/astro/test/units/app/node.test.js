@@ -430,6 +430,73 @@ describe('node', () => {
 				);
 				assert.equal(result.url, 'https://example.com/');
 			});
+
+			it('accepts x-forwarded-proto when allowedDomains has protocol and hostname', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						socket: { encrypted: false, remoteAddress: '2.2.2.2' },
+						headers: {
+							host: 'myapp.example.com',
+							'x-forwarded-proto': 'https',
+						},
+					},
+					{ allowedDomains: [{ protocol: 'https', hostname: 'myapp.example.com' }] },
+				);
+				// Without the fix, protocol validation fails due to hostname mismatch
+				// and falls back to socket.encrypted (false → http)
+				assert.equal(result.url, 'https://myapp.example.com/');
+			});
+
+			it('rejects x-forwarded-proto when it does not match protocol in allowedDomains', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						socket: { encrypted: false, remoteAddress: '2.2.2.2' },
+						headers: {
+							host: 'myapp.example.com',
+							'x-forwarded-proto': 'http',
+						},
+					},
+					{ allowedDomains: [{ protocol: 'https', hostname: 'myapp.example.com' }] },
+				);
+				// http is not in allowedDomains (only https), protocol falls back to socket (false → http)
+				// Host validation also fails because http doesn't match the pattern's protocol: 'https'
+				assert.equal(result.url, 'http://localhost/');
+			});
+
+			it('accepts x-forwarded-proto with wildcard hostname pattern in allowedDomains', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						socket: { encrypted: false, remoteAddress: '2.2.2.2' },
+						headers: {
+							host: 'myapp.example.com',
+							'x-forwarded-proto': 'https',
+						},
+					},
+					{ allowedDomains: [{ protocol: 'https', hostname: '**.example.com' }] },
+				);
+				assert.equal(result.url, 'https://myapp.example.com/');
+			});
+
+			it('constructs correct URL behind reverse proxy with all forwarded headers', () => {
+				// Simulates: Reverse proxy terminates TLS, connects to Astro via HTTP,
+				// forwards original protocol/host/port via X-Forwarded-* headers
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						socket: { encrypted: false, remoteAddress: '2.2.2.2' },
+						headers: {
+							host: 'myapp.example.com',
+							'x-forwarded-proto': 'https',
+							'x-forwarded-host': 'myapp.example.com',
+						},
+					},
+					{ allowedDomains: [{ protocol: 'https', hostname: 'myapp.example.com' }] },
+				);
+				assert.equal(result.url, 'https://myapp.example.com/');
+			});
 		});
 
 		describe('x-forwarded-port', () => {

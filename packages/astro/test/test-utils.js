@@ -41,8 +41,8 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
  * @property {(inlineConfig?: Parameters<typeof dev>[0]) => ReturnType<typeof dev>} startDevServer
  * @property {typeof preview} preview
  * @property {() => Promise<void>} clean
- * @property {(streaming: boolean) => Promise<App>} loadTestAdapterApp
- * @property {(streaming: boolean) => Promise<App>} loadSelfAdapterApp
+ * @property {(streaming?: boolean) => Promise<App>} loadTestAdapterApp
+ * @property {(streaming?: boolean) => Promise<App>} loadSelfAdapterApp
  * @property {() => Promise<(req: NodeRequest, res: NodeResponse) => void>} loadNodeAdapterHandler
  * @property {(timeout?: number) => Promise<void>} onNextDataStoreChange
  * @property {typeof check} check

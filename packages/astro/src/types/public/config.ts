@@ -2763,6 +2763,30 @@ export interface AstroUserConfig<
 		 * See the [experimental SVGO optimization docs](https://docs.astro.build/en/reference/experimental-flags/svg-optimization/) for more information.
 		 */
 		svgo?: boolean | SvgoConfig;
+
+		/**
+		 * @name experimental.rustCompiler
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 6.0.0
+		 * @description
+		 *
+		 * Enables the experimental Rust-based Astro compiler (`@astrojs/compiler-rs`) as a replacement to the current Go compiler.
+		 *
+		 * This option requires installing the `@astrojs/compiler-rs` package manually in your project. This compiler is a work in progress and may not yet support all features of the current Go compiler, but it should offer improved performance and better error messages. This compiler is more strict than the previous Go compiler regarding invalid syntax. For instance, unclosed HTML tags or missing closing brackets will throw an error instead of being ignored.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   experimental: {
+		 *     rustCompiler: true,
+		 *   },
+		 * });
+		 * ```
+		 */
+		rustCompiler?: boolean;
 	};
 }
 

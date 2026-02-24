@@ -303,7 +303,7 @@ export async function runHookConfigSetup({
 				// though accessible to integration authors if discovered.
 
 				function addPageExtension(...input: (string | string[])[]) {
-					const exts = (input.flat(Infinity) as string[]).map(
+					const exts = (input.flat(Number.POSITIVE_INFINITY) as string[]).map(
 						(ext) => `.${ext.replace(/^\./, '')}`,
 					);
 					updatedSettings.pageExtensions.push(...exts);
