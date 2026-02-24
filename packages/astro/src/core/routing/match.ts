@@ -2,6 +2,7 @@ import type { RoutesList } from '../../types/astro.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { redirectIsExternal } from '../redirects/render.js';
 import { SERVER_ISLAND_BASE_PREFIX, SERVER_ISLAND_COMPONENT } from '../server-islands/endpoint.js';
+import { isRoute404, isRoute500 } from './internal/route-errors.js';
 
 /** Find matching route from pathname */
 export function matchRoute(pathname: string, manifest: RoutesList): RouteData | undefined {
@@ -16,17 +17,6 @@ export function matchRoute(pathname: string, manifest: RoutesList): RouteData | 
 /** Finds all matching routes from pathname */
 export function matchAllRoutes(pathname: string, manifest: RoutesList): RouteData[] {
 	return manifest.routes.filter((route) => route.pattern.test(pathname));
-}
-
-const ROUTE404_RE = /^\/404\/?$/;
-const ROUTE500_RE = /^\/500\/?$/;
-
-export function isRoute404(route: string) {
-	return ROUTE404_RE.test(route);
-}
-
-export function isRoute500(route: string) {
-	return ROUTE500_RE.test(route);
 }
 
 /**

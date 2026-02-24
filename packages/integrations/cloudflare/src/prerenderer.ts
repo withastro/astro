@@ -1,12 +1,24 @@
-import type { AstroConfig, AstroPrerenderer, PathWithRoute } from 'astro';
+import type {
+	AstroConfig,
+	AstroPrerenderer,
+	AssetsGlobalStaticImagesList,
+	PathWithRoute,
+} from 'astro';
 import { preview, type PreviewServer as VitePreviewServer } from 'vite';
 import { fileURLToPath } from 'node:url';
 import { mkdir } from 'node:fs/promises';
 import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
-import { cloudflareConfigCustomizer } from './wrangler.js';
 import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
-import type { StaticPathsResponse, PrerenderRequest } from './prerender-types.js';
-import { STATIC_PATHS_ENDPOINT, PRERENDER_ENDPOINT } from './utils/prerender-constants.js';
+import type {
+	StaticPathsResponse,
+	PrerenderRequest,
+	StaticImagesResponse,
+} from './prerender-types.js';
+import {
+	STATIC_PATHS_ENDPOINT,
+	PRERENDER_ENDPOINT,
+	STATIC_IMAGES_ENDPOINT,
+} from './utils/prerender-constants.js';
 
 interface CloudflarePrerendererOptions {
 	root: AstroConfig['root'];
@@ -14,6 +26,8 @@ interface CloudflarePrerendererOptions {
 	clientDir: AstroConfig['build']['client'];
 	base: AstroConfig['base'];
 	trailingSlash: AstroConfig['trailingSlash'];
+	cfPluginConfig: PluginConfig;
+	hasCompileImageService: boolean;
 }
 
 /**
@@ -26,6 +40,8 @@ export function createCloudflarePrerenderer({
 	clientDir,
 	base,
 	trailingSlash,
+	cfPluginConfig,
+	hasCompileImageService,
 }: CloudflarePrerendererOptions): AstroPrerenderer {
 	let previewServer: VitePreviewServer | undefined;
 	let serverUrl: string;
@@ -36,11 +52,6 @@ export function createCloudflarePrerenderer({
 		async setup() {
 			// Ensure client dir exists (CF plugin expects it for assets)
 			await mkdir(clientDir, { recursive: true });
-
-			const cfPluginConfig: PluginConfig = {
-				viteEnvironment: { name: 'prerender' },
-				config: cloudflareConfigCustomizer(),
-			};
 
 			previewServer = await preview({
 				configFile: false,
@@ -55,7 +66,7 @@ export function createCloudflarePrerenderer({
 					port: 0, // Let the OS pick a free port
 					open: false,
 				},
-				plugins: [cfVitePlugin(cfPluginConfig)],
+				plugins: [cfVitePlugin({ ...cfPluginConfig, viteEnvironment: { name: 'prerender' } })],
 			});
 
 			const address = previewServer.httpServer.address();
@@ -107,6 +118,41 @@ export function createCloudflarePrerenderer({
 
 			return response;
 		},
+
+		collectStaticImages: hasCompileImageService
+			? async (): Promise<AssetsGlobalStaticImagesList> => {
+					const response = await fetch(`${serverUrl}${STATIC_IMAGES_ENDPOINT}`, {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+					});
+
+					if (!response.ok) {
+						throw new Error(
+							`Failed to get static images from the Cloudflare prerender server (${response.status}: ${response.statusText}).`,
+						);
+					}
+
+					const entries: StaticImagesResponse = await response.json();
+
+					// Switch from the workerd stub to Sharp for the Node-side generation pipeline
+					const { default: sharpService } = await import('astro/assets/services/sharp');
+					globalThis.astroAsset ??= {};
+					globalThis.astroAsset.imageService = sharpService;
+
+					const staticImages: AssetsGlobalStaticImagesList = new Map();
+					for (const entry of entries) {
+						const transforms = new Map();
+						for (const t of entry.transforms) {
+							transforms.set(t.hash, { finalPath: t.finalPath, transform: t.transform });
+						}
+						staticImages.set(entry.originalPath, {
+							originalSrcPath: entry.originalSrcPath,
+							transforms,
+						});
+					}
+					return staticImages;
+				}
+			: undefined,
 
 		async teardown() {
 			if (previewServer) {

@@ -14,13 +14,7 @@
   "lockFileMaintenance": {
     "enabled": true
   },
-  "ignorePaths": [
-    "**/node_modules/**",
-    // This fixture depends on the versions in its package.json not being modified by
-    // CI because PNPM would link the local versions of the packages instead of installing
-    // them from NPM, leading to the tests depending on the fixture failing.
-    "**/astro-info-versions/**"
-  ],
+  "ignorePaths": ["**/node_modules/**"],
   "packageRules": [
     {
       "groupName": "lockfile maintenance",

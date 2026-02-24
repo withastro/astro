@@ -287,10 +287,6 @@ declare module '*.mdx' {
 	export default load;
 }
 
-declare module 'astro:ssr-manifest' {
-	export const manifest: import('./dist/types/public/internal.js').SSRManifest;
-}
-
 declare module 'astro:static-paths' {
 	export const StaticPaths: typeof import('./dist/runtime/prerender/static-paths.js').StaticPaths;
 }

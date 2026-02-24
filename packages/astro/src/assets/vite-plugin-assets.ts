@@ -1,6 +1,7 @@
 import type * as fsMod from 'node:fs';
 import { extname } from 'node:path';
 import MagicString from 'magic-string';
+import picomatch from 'picomatch';
 import type * as vite from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
@@ -28,7 +29,8 @@ import type { ImageTransform } from './types.js';
 import { getAssetsPrefix } from './utils/getAssetsPrefix.js';
 import { isESMImportedImage } from './utils/index.js';
 import { emitClientAsset } from './utils/assets.js';
-import { emitImageMetadata, hashTransform, propsToFilename } from './utils/node.js';
+import { hashTransform, propsToFilename } from './utils/hash.js';
+import { emitImageMetadata } from './utils/node.js';
 import { getProxyCode } from './utils/proxy.js';
 import { makeSvgComponent } from './utils/svg.js';
 import { createPlaceholderURL, stringifyPlaceholderURL } from './utils/url.js';
@@ -170,12 +172,14 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 						
 						export const getConfiguredImageService = _getConfiguredImageService;
 
-							export const viteFSConfig = ${JSON.stringify(resolvedConfig.server.fs ?? {})};
+						export const viteFSConfig = ${JSON.stringify(resolvedConfig.server.fs ?? {})};
 
 						export const safeModulePaths = new Set(${JSON.stringify(
 							// @ts-expect-error safeModulePaths is internal to Vite
 							Array.from(resolvedConfig.safeModulePaths ?? []),
 						)});
+
+						export const fsDenyGlob = ${serializeFsDenyGlob(resolvedConfig.server.fs?.deny ?? [])};
 
 						const assetQueryParams = ${
 							settings.adapter?.client?.assetQueryParams
@@ -190,11 +194,11 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 							enumerable: false,
 							configurable: true,
 						});
-export const inferRemoteSize = async (url) => {
-                const service = await _getConfiguredImageService()
-
-                return service.getRemoteSize?.(url, imageConfig) ?? inferRemoteSizeInternal(url)
-              }						// This is used by the @astrojs/node integration to locate images.
+						export const inferRemoteSize = async (url) => {
+							const service = await _getConfiguredImageService();
+							return service.getRemoteSize?.(url, imageConfig) ?? inferRemoteSizeInternal(url, imageConfig);
+						}
+						// This is used by the @astrojs/node integration to locate images.
 						// It's unused on other platforms, but on some platforms like Netlify (and presumably also Vercel)
 						// new URL("dist/...") is interpreted by the bundler as a signal to include that directory
 						// in the Lambda bundle, which would bloat the bundle with images.
@@ -207,9 +211,9 @@ export const inferRemoteSize = async (url) => {
 									: settings.config.outDir,
 							),
 						)});
-              export const serverDir = /* #__PURE__ */ new URL(${JSON.stringify(
-								new URL(settings.config.build.server),
-							)});
+						export const serverDir = /* #__PURE__ */ new URL(${JSON.stringify(
+							new URL(settings.config.build.server),
+						)});
 						export const getImage = async (options) => await getImageInternal(options, imageConfig);
 					`,
 					};
@@ -348,4 +352,30 @@ export const inferRemoteSize = async (url) => {
 			},
 		},
 	];
+}
+
+// Precompile the denies patterns to avoid using a CJS package in the runtime
+function serializeFsDenyGlob(denyPatterns: string[]): string {
+	// Replicate the same pattern transformation that Vite does internally:
+	// https://github.com/vitejs/vite/blob/e6156f71f0e21f4068941b63bcc17b0e9b0a7455/packages/vite/src/node/config.ts#L1931
+	const expandedPatterns = denyPatterns.map((pattern) =>
+		pattern.includes('/') ? pattern : `**/${pattern}`,
+	);
+
+	const regexes = expandedPatterns.map((pattern) =>
+		picomatch.makeRe(pattern, {
+			matchBase: false,
+			nocase: true,
+			dot: true,
+		}),
+	);
+
+	// Serialize the regexes as a function that tests a path against all patterns
+	const serializedRegexes = regexes.map((re) => re.toString()).join(', ');
+	return `(function() {
+		const regexes = [${serializedRegexes}];
+		return function fsDenyGlob(testPath) {
+			return regexes.some(re => re.test(testPath));
+		};
+	})()`;
 }
