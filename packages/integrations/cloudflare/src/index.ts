@@ -321,7 +321,7 @@ export default function createIntegration({
 						clientDir: _config.build.client,
 						base: _config.base,
 						trailingSlash: _config.trailingSlash,
-						cloudflareOptions: cfPluginConfig,
+						cfPluginConfig,
 						hasCompileImageService: buildService === 'compile',
 					}),
 				);

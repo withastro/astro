@@ -26,7 +26,7 @@ interface CloudflarePrerendererOptions {
 	clientDir: AstroConfig['build']['client'];
 	base: AstroConfig['base'];
 	trailingSlash: AstroConfig['trailingSlash'];
-	cloudflareOptions: PluginConfig
+	cfPluginConfig: PluginConfig;
 	hasCompileImageService: boolean;
 }
 
@@ -40,7 +40,7 @@ export function createCloudflarePrerenderer({
 	clientDir,
 	base,
 	trailingSlash,
-	cloudflareOptions,
+	cfPluginConfig,
 	hasCompileImageService,
 }: CloudflarePrerendererOptions): AstroPrerenderer {
 	let previewServer: VitePreviewServer | undefined;
@@ -66,7 +66,7 @@ export function createCloudflarePrerenderer({
 					port: 0, // Let the OS pick a free port
 					open: false,
 				},
-				plugins: [cfVitePlugin({ ...cloudflareOptions, viteEnvironment: { name: 'prerender' } })],
+				plugins: [cfVitePlugin({ ...cfPluginConfig, viteEnvironment: { name: 'prerender' } })],
 			});
 
 			const address = previewServer.httpServer.address();
