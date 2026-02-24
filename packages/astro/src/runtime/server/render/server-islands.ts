@@ -164,7 +164,7 @@ export class ServerIslandComponent {
 				// renderSlotToString returns a SlotString (typed as string) that carries
 				// render instructions stripped from the HTML content.
 				const slotContent = content as unknown as import('./slot.js').SlotString;
-				if (slotContent.instructions) {
+				if (Array.isArray(slotContent.instructions)) {
 					for (const instruction of slotContent.instructions) {
 						if (instruction.type === 'script') {
 							slotHtml += instruction.content;
