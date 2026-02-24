@@ -158,7 +158,17 @@ export class ServerIslandComponent {
 		for (const name in this.slots) {
 			if (name !== 'fallback') {
 				const content = await renderSlotToString(this.result, this.slots[name]);
-				renderedSlots[name] = content.toString();
+				let slotHtml = content.toString();
+				// Append script instructions so that components passed as slots
+				// to server:defer components retain their scripts in the island response.
+				if (content.instructions) {
+					for (const instruction of content.instructions) {
+						if (instruction.type === 'script') {
+							slotHtml += instruction.content;
+						}
+					}
+				}
+				renderedSlots[name] = slotHtml;
 			}
 		}
 
