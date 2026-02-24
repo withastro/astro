@@ -28,7 +28,7 @@ export default defineConfig({
 
 #### Pooling
 
-With the new engine enabled, you now have the option to have a pool of nodes that can be saved and re-used across page rendering. Node pooling is useless in on-demand rendering (SSR), because rendering requests don't share memory. However, it can be very useful for performance when building static pages.
+With the new engine enabled, you now have the option to have a pool of nodes that can be saved and reused across page rendering. Node pooling has no effect when rendering pages on demand (SSR) because these rendering requests don't share memory. However, it can be very useful for performance when building static pages.
 
 ```js
 // astro.config.mjs
@@ -36,15 +36,15 @@ export default defineConfig({
   experimental: {
     queuedRendering: {
       enabled: true,
-      poolSize: 2000 // store up to 2k nodes to be re-used across renderers
+      poolSize: 2000 // store up to 2k nodes to be reused across renderers
     }
   }
-})
+});
 ```
 
 #### Content caching
 
-The new engine additionally unlocks a new `contentCaching`	 option. This allows you to cache **values** of nodes during the rendering phase. This is currently a boolean feature with no further customization (e.g. size of cache) that uses sensible defaults:
+The new engine additionally unlocks a new `contentCaching` option. This allows you to cache values of nodes during the rendering phase. This is currently a boolean feature with no further customization (e.g. size of cache) that uses sensible defaults for most large content collections:
 
 When disabled, the pool engine won't cache strings, but only types.
 
@@ -57,5 +57,5 @@ export default defineConfig({
       contentCache: true // enable re-use of node values
     }
   }
-})
+});
 ```
