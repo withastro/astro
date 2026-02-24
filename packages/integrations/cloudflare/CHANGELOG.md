@@ -1,5 +1,65 @@
 # @astrojs/cloudflare
 
+## 13.0.0-beta.9
+
+### Major Changes
+
+- [#15435](https://github.com/withastro/astro/pull/15435) [`957b9fe`](https://github.com/withastro/astro/commit/957b9fe2d887a365c55c6e87f0c67c10beb60d1b) Thanks [@rururux](https://github.com/rururux)! - Changes the default image service from `compile` to `cloudflare-binding`. Image services options that resulted in broken images in development due to Node JS incompatiblities have now been updated to use the noop passthrough image service in dev mode. - ([Cloudflare v13 and Astro6 upgrade guidance](https://v6.docs.astro.build/en/guides/integrations-guide/cloudflare/#changed-imageservice-default))
+
+### Minor Changes
+
+- [#15435](https://github.com/withastro/astro/pull/15435) [`957b9fe`](https://github.com/withastro/astro/commit/957b9fe2d887a365c55c6e87f0c67c10beb60d1b) Thanks [@rururux](https://github.com/rururux)! - Adds support for configuring the image service as an object with separate `build` and `runtime` options
+
+  It is now possible to set both a build-time and runtime service independently. Currently, `'compile'` is the only available build time option. The supported runtime options are `'passthrough'` (default) and `'cloudflare-binding'`:
+
+  ```js title="astro.config.mjs" ins={6}
+  import { defineConfig } from 'astro/config';
+  import cloudflare from '@astrojs/cloudflare';
+
+  export default defineConfig({
+    adapter: cloudflare({
+      imageService: { build: 'compile', runtime: 'cloudflare-binding' },
+    }),
+  });
+  ```
+
+  See the [Cloudflare adapter `imageService` docs](https://v6.docs.astro.build/en/guides/integrations-guide/cloudflare/#imageservice) for more information about configuring your image service.
+
+- [#15556](https://github.com/withastro/astro/pull/15556) [`8fb329b`](https://github.com/withastro/astro/commit/8fb329be55bf8a5a446108a24dd8c5236e19c5af) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds support for more `@cloudflare/vite-plugin` options
+
+  The adapter now accepts the following [options from Cloudflare's Vite plugin](https://developers.cloudflare.com/workers/vite-plugin/reference/api/):
+  - `auxiliaryWorkers`
+  - `configPath`
+  - `inspectorPort`
+  - `persistState`
+  - `remoteBindings`
+  - `experimental.headersAndRedirectsDevModeSupport`
+
+  For example, you can now set `inspectorPort` to provide a custom port for debugging your Workers:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  import cloudflare from '@astrojs/cloudflare';
+
+  export default defineConfig({
+    adapter: cloudflare({
+      inspectorPort: 3456,
+    }),
+  });
+  ```
+
+### Patch Changes
+
+- [#15565](https://github.com/withastro/astro/pull/15565) [`30cd6db`](https://github.com/withastro/astro/commit/30cd6dbebe771efb6f71dcff7e6b44026fad6797) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the use of the `Code` component would result in an unexpected error.
+
+- [#15588](https://github.com/withastro/astro/pull/15588) [`425ea16`](https://github.com/withastro/astro/commit/425ea1690f3ab384fd6f1f39ae48a423fb017f8b) Thanks [@rururux](https://github.com/rururux)! - Fixes an issue where `esbuild` would throw a "Top-level return cannot be used inside an ECMAScript module" error during dependency scanning in certain environments.
+
+- [#15636](https://github.com/withastro/astro/pull/15636) [`5ecd04c`](https://github.com/withastro/astro/commit/5ecd04c05195a8becd116017e11e3b2513c4404e) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds an error when running on Stackblitz, since `workerd` doesn't support it
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 13.0.0-beta.8
 
 ### Major Changes

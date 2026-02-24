@@ -1,5 +1,11 @@
 # @astrojs/preact
 
+## 5.0.0-beta.4
+
+### Patch Changes
+
+- [#15619](https://github.com/withastro/astro/pull/15619) [`bbfa7c8`](https://github.com/withastro/astro/commit/bbfa7c8b73776976c93f41203fdcb7bf44ad6cc2) Thanks [@rururux](https://github.com/rururux)! - Fixed an issue where the Preact integration would incorrectly intercept React 19 components, triggering "Invalid hook call" error logs.
+
 ## 5.0.0-beta.3
 
 ### Patch Changes
