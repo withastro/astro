@@ -44,7 +44,7 @@ export default defineConfig({
 
 #### Content caching
 
-The new engine additionally unlocks a new `contentCaching` option. This allows you to cache values of nodes during the rendering phase. This is currently a boolean feature with no further customization (e.g. size of cache) that uses sensible defaults for most large content collections:
+The new engine additionally unlocks a new `contentCache` option. This allows you to cache values of nodes during the rendering phase. This is currently a boolean feature with no further customization (e.g. size of cache) that uses sensible defaults for most large content collections:
 
 When disabled, the pool engine won't cache strings, but only types.
 
