@@ -13,7 +13,7 @@ The adapter now accepts the following [options from Cloudflare's Vite plugin](ht
 - `remoteBindings`
 - `experimental.headersAndRedirectsDevModeSupport`
 
-Here is for example how you can set `inspectorPort`:
+For example, you can now set `inspectorPort` to provide a custom port for debugging your Workers:
 
 ```js
 // astro.config.mjs
