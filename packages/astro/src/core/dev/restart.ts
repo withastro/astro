@@ -12,7 +12,7 @@ import { createNodeLogger } from '../logger/node.js';
 import { collectErrorMetadata } from '../errors/dev/utils.js';
 import { isAstroConfigZodError } from '../errors/errors.js';
 import { createSafeError } from '../errors/index.js';
-import { formatErrorMessage } from '../messages/runtime.js';
+import { formatErrorMessage, warnIfCspWithShiki } from '../messages/runtime.js';
 import type { Container } from './container.js';
 import { createContainer, startContainer } from './container.js';
 
@@ -84,6 +84,7 @@ async function restartContainer(container: Container): Promise<Container | Error
 				"Astro's Content Security Policy (CSP) does not work in development mode. To verify your CSP implementation, build the project and run the preview server.",
 			);
 		}
+		warnIfCspWithShiki(astroConfig, logger);
 		const settings = await createSettings(
 			astroConfig,
 			container.inlineConfig.logLevel,
@@ -137,6 +138,7 @@ export async function createContainerWithAutomaticRestart({
 			"Astro's Content Security Policy (CSP) does not work in development mode. To verify your CSP implementation, build the project and run the preview server.",
 		);
 	}
+	warnIfCspWithShiki(astroConfig, logger);
 	telemetry.record(eventCliSession('dev', userConfig));
 
 	const settings = await createSettings(

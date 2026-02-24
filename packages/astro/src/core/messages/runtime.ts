@@ -10,6 +10,8 @@ import {
 } from '../errors/index.js';
 import { padMultilineString } from '../util-runtime.js';
 import type { AstroVersionProvider, TextStyler } from '../../cli/definitions.js';
+import type { AstroConfig } from '../../types/public/index.js';
+import type { Logger } from '../logger/core.js';
 
 const {
 	bgGreen,
@@ -391,4 +393,24 @@ export function printHelp({
 
 	// biome-ignore lint/suspicious/noConsole: allowed
 	console.log(message.join('\n') + '\n');
+}
+
+export function warnIfCspWithShiki(config: AstroConfig, logger: Logger): void {
+	// Check if CSP is enabled
+	const cspEnabled = config.security.csp !== false;
+	if (!cspEnabled) return;
+
+	// Check if Shiki is being used (string or object form)
+	const syntaxHighlight = config.markdown.syntaxHighlight;
+	const isShiki =
+		syntaxHighlight === 'shiki' ||
+		(typeof syntaxHighlight === 'object' && syntaxHighlight?.type === 'shiki');
+
+	if (isShiki) {
+		logger.warn(
+			'config',
+			'Shiki syntax highlighting uses inline styles that are not compatible with Content Security Policy (CSP). ' +
+				'Consider using Prism syntax highlighting instead, or disable CSP if Shiki is required.',
+		);
+	}
 }
