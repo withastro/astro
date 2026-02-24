@@ -20,11 +20,18 @@ import { createVite } from '../create-vite.js';
 import { createKey, getEnvironmentKey, hasEnvironmentKey } from '../encryption.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
-import { levels, timerMessage } from '../logger/core.js';
+import { timerMessage } from '../logger/core.js';
 import { createRoutesList } from '../routing/manifest/create.js';
 import { clearContentLayerCache } from '../sync/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { collectPagesData } from './page-data.js';
+import { generatePerfReport } from './perf-report.js';
+import {
+	disableBuildPerfTracking,
+	enableBuildPerfTracking,
+	getComponentPerfEntries,
+	getPagePerfEntries,
+} from './perf-tracker.js';
 import { viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
@@ -164,6 +171,7 @@ class AstroBuilder {
 
 	/** Run the build logic. build() is marked private because usage should go through ".run()" */
 	private async build({ viteConfig }: { viteConfig: vite.InlineConfig }) {
+		enableBuildPerfTracking();
 		await runHookBuildStart({ settings: this.settings, logger: this.logger });
 		this.validateConfig();
 
@@ -236,14 +244,14 @@ class AstroBuilder {
 			logger: this.logger,
 		});
 
-		if (this.logger.level && levels[this.logger.level()] <= levels['info']) {
-			await this.printStats({
-				logger: this.logger,
-				timeStart: this.timer.init,
-				pageCount: pageNames.length,
-				buildMode: this.settings.buildOutput!, // buildOutput is always set at this point
-			});
-		}
+		disableBuildPerfTracking();
+
+		await this.printStats({
+			logger: this.logger,
+			timeStart: this.timer.init,
+			pageCount: pageNames.length,
+			buildMode: this.settings.buildOutput!, // buildOutput is always set at this point
+		});
 	}
 
 	/** Build the given Astro project.  */
@@ -296,5 +304,15 @@ class AstroBuilder {
 
 		logger.info('build', messages.join(' '));
 		logger.info('build', `${colors.bold('Complete!')}`);
+
+		// Write performance report
+		const pages = getPagePerfEntries();
+		const components = getComponentPerfEntries();
+		if (pages.length > 0 || components.length > 0) {
+			const report = generatePerfReport(pages, components, new Date());
+			const reportPath = new URL('.astro-build-perf.md', this.settings.config.root);
+			await fs.promises.writeFile(reportPath, report, 'utf-8');
+			logger.info('build', `Build performance report: ${colors.dim(fileURLToPath(reportPath))}`);
+		}
 	}
 }
