@@ -161,8 +161,11 @@ export class ServerIslandComponent {
 				let slotHtml = content.toString();
 				// Append script instructions so that components passed as slots
 				// to server:defer components retain their scripts in the island response.
-				if (content.instructions) {
-					for (const instruction of content.instructions) {
+				// renderSlotToString returns a SlotString (typed as string) that carries
+				// render instructions stripped from the HTML content.
+				const slotContent = content as unknown as import('./slot.js').SlotString;
+				if (slotContent.instructions) {
+					for (const instruction of slotContent.instructions) {
 						if (instruction.type === 'script') {
 							slotHtml += instruction.content;
 						}
