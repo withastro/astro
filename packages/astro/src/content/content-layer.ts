@@ -32,11 +32,12 @@ import {
 } from './utils.js';
 import { createWatcherWrapper, type WrappedWatcher } from './watcher.js';
 
-interface ContentLayerOptions {
+export interface ContentLayerOptions {
 	store: MutableDataStore;
 	settings: AstroSettings;
 	logger: Logger;
 	watcher?: FSWatcher;
+	contentConfigObserver?: ContentObservable;
 }
 
 type CollectionLoader<TData> = () =>
@@ -45,7 +46,7 @@ type CollectionLoader<TData> = () =>
 	| Record<string, Record<string, unknown>>
 	| Promise<Record<string, Record<string, unknown>>>;
 
-class ContentLayer {
+export class ContentLayer {
 	#logger: Logger;
 	#store: MutableDataStore;
 	#settings: AstroSettings;
@@ -54,16 +55,24 @@ class ContentLayer {
 	#unsubscribe?: () => void;
 	#markdownProcessor?: MarkdownProcessor;
 	#generateDigest?: (data: Record<string, unknown> | string) => string;
+	#contentConfigObserver: ContentObservable;
 
 	#queue: PQueue;
 
-	constructor({ settings, logger, store, watcher }: ContentLayerOptions) {
+	constructor({
+		settings,
+		logger,
+		store,
+		watcher,
+		contentConfigObserver = globalContentConfigObserver,
+	}: ContentLayerOptions) {
 		// The default max listeners is 10, which can be exceeded when using a lot of loaders
 		watcher?.setMaxListeners(50);
 
 		this.#logger = logger;
 		this.#store = store;
 		this.#settings = settings;
+		this.#contentConfigObserver = contentConfigObserver;
 		if (watcher) {
 			this.#watcher = createWatcherWrapper(watcher);
 		}
@@ -82,7 +91,7 @@ class ContentLayer {
 	 */
 	watchContentConfig() {
 		this.#unsubscribe?.();
-		this.#unsubscribe = globalContentConfigObserver.subscribe(async (ctx) => {
+		this.#unsubscribe = this.#contentConfigObserver.subscribe(async (ctx) => {
 			if (ctx.status === 'loaded' && ctx.config.digest !== this.#lastConfigDigest) {
 				this.sync();
 			}
@@ -172,13 +181,13 @@ class ContentLayer {
 	}
 
 	async #doSync(options: RefreshContentOptions) {
-		let contentConfig = globalContentConfigObserver.get();
+		let contentConfig = this.#contentConfigObserver.get();
 		const logger = this.#logger.forkIntegrationLogger('content');
 
 		if (contentConfig?.status === 'loading') {
 			contentConfig = await Promise.race<ReturnType<ContentObservable['get']>>([
 				new Promise((resolve) => {
-					const unsub = globalContentConfigObserver.subscribe((ctx) => {
+					const unsub = this.#contentConfigObserver.subscribe((ctx) => {
 						unsub();
 						resolve(ctx);
 					});
@@ -230,9 +239,9 @@ class ContentLayer {
 		this.#lastConfigDigest = currentConfigDigest;
 
 		let shouldClear = false;
-		const previousConfigDigest = await this.#store.metaStore().get('content-config-digest');
-		const previousAstroConfigDigest = await this.#store.metaStore().get('astro-config-digest');
-		const previousAstroVersion = await this.#store.metaStore().get('astro-version');
+		const previousConfigDigest = this.#store.metaStore().get('content-config-digest');
+		const previousAstroConfigDigest = this.#store.metaStore().get('astro-config-digest');
+		const previousAstroVersion = this.#store.metaStore().get('astro-version');
 
 		if (previousAstroConfigDigest && previousAstroConfigDigest !== astroConfigDigest) {
 			logger.info('Astro config changed');
@@ -252,13 +261,13 @@ class ContentLayer {
 			this.#store.clearAll();
 		}
 		if (process.env.ASTRO_VERSION) {
-			await this.#store.metaStore().set('astro-version', process.env.ASTRO_VERSION);
+			this.#store.metaStore().set('astro-version', process.env.ASTRO_VERSION);
 		}
 		if (currentConfigDigest) {
-			await this.#store.metaStore().set('content-config-digest', currentConfigDigest);
+			this.#store.metaStore().set('content-config-digest', currentConfigDigest);
 		}
 		if (astroConfigDigest) {
-			await this.#store.metaStore().set('astro-config-digest', astroConfigDigest);
+			this.#store.metaStore().set('astro-config-digest', astroConfigDigest);
 		}
 
 		if (!options?.loaders?.length) {
@@ -459,21 +468,3 @@ async function simpleLoader<TData extends { id: string }>(
 export function getDataStoreFile(settings: AstroSettings, isDev: boolean) {
 	return new URL(DATA_STORE_FILE, isDev ? settings.dotAstroDir : settings.config.cacheDir);
 }
-
-function contentLayerSingleton() {
-	let instance: ContentLayer | null = null;
-	return {
-		init: (options: ContentLayerOptions) => {
-			instance?.dispose();
-			instance = new ContentLayer(options);
-			return instance;
-		},
-		get: () => instance,
-		dispose: () => {
-			instance?.dispose();
-			instance = null;
-		},
-	};
-}
-
-export const globalContentLayer = contentLayerSingleton();
