@@ -1,11 +1,13 @@
 import type {
 	AstroConfig,
+	AstroIntegrationLogger,
 	AstroPrerenderer,
 	AssetsGlobalStaticImagesList,
 	PathWithRoute,
 } from 'astro';
 import { preview, type PreviewServer as VitePreviewServer } from 'vite';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { resolve } from 'node:path';
 import { mkdir } from 'node:fs/promises';
 import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
 import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
@@ -27,7 +29,10 @@ interface CloudflarePrerendererOptions {
 	base: AstroConfig['base'];
 	trailingSlash: AstroConfig['trailingSlash'];
 	cfPluginConfig: PluginConfig;
-	hasCompileImageService: boolean;
+	hasTransformAtBuildService: boolean;
+	/** Lazy getter — returns the relative path to the emitted image service file. */
+	getServicePath: () => string | undefined;
+	logger: AstroIntegrationLogger;
 }
 
 /**
@@ -41,7 +46,9 @@ export function createCloudflarePrerenderer({
 	base,
 	trailingSlash,
 	cfPluginConfig,
-	hasCompileImageService,
+	hasTransformAtBuildService,
+	getServicePath,
+	logger,
 }: CloudflarePrerendererOptions): AstroPrerenderer {
 	let previewServer: VitePreviewServer | undefined;
 	let serverUrl: string;
@@ -119,7 +126,7 @@ export function createCloudflarePrerenderer({
 			return response;
 		},
 
-		collectStaticImages: hasCompileImageService
+		collectStaticImages: hasTransformAtBuildService
 			? async (): Promise<AssetsGlobalStaticImagesList> => {
 					const response = await fetch(`${serverUrl}${STATIC_IMAGES_ENDPOINT}`, {
 						method: 'POST',
@@ -134,10 +141,37 @@ export function createCloudflarePrerenderer({
 
 					const entries: StaticImagesResponse = await response.json();
 
-					// Switch from the workerd stub to Sharp for the Node-side generation pipeline
-					const { default: sharpService } = await import('astro/assets/services/sharp');
-					globalThis.astroAsset ??= {};
-					globalThis.astroAsset.imageService = sharpService;
+					// Load into the global cache so getConfiguredImageService() in generate.ts picks it up.
+					const servicePath = getServicePath();
+					if (servicePath) {
+						// The emitter gives us a path relative to the server output dir.
+						const absolutePath = resolve(fileURLToPath(serverDir), servicePath);
+						const mod = await import(pathToFileURL(absolutePath).href);
+						if (!globalThis.astroAsset) globalThis.astroAsset = {};
+						const svc = mod.default;
+						globalThis.astroAsset.imageService = {
+							...svc,
+							async transform(buf: any, opts: any, imgConfig: any) {
+								// The workerd stub's validateOptions ran during prerendering but
+								// doesn't know about custom service defaults. Re-validate with the
+								// compiled service so those defaults are applied before transform.
+								if (svc.validateOptions) {
+									opts = await svc.validateOptions(opts, imgConfig);
+								}
+								return svc.transform(buf, opts, imgConfig);
+							},
+						};
+					} else {
+						if (hasTransformAtBuildService) {
+							logger.warn(
+								'Expected a compiled image service but none was found. Falling back to Sharp. ' +
+									'If you are using a custom image service, this is a bug — please file an issue at https://github.com/withastro/astro/issues.',
+							);
+						}
+						const mod = await import('astro/assets/services/sharp');
+						if (!globalThis.astroAsset) globalThis.astroAsset = {};
+						globalThis.astroAsset.imageService = mod.default;
+					}
 
 					const staticImages: AssetsGlobalStaticImagesList = new Map();
 					for (const entry of entries) {

@@ -7,6 +7,11 @@ declare module 'virtual:astro-cloudflare:config' {
 	export const isPrerender: boolean;
 }
 
+declare module 'virtual:astro-cloudflare:image-service' {
+	const service: import('astro').ImageService;
+	export default service;
+}
+
 declare namespace Cloudflare {
 	interface Env {
 		[key: string]: unknown;
