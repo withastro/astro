@@ -5274,6 +5274,21 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/markdoc/test/fixtures/content-layer:
+    dependencies:
+      '@astrojs/markdoc':
+        specifier: workspace:*
+        version: link:../../..
+      '@astrojs/preact':
+        specifier: workspace:*
+        version: link:../../../../preact
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+      preact:
+        specifier: ^10.28.4
+        version: 10.28.4
+
   packages/integrations/markdoc/test/fixtures/headings:
     dependencies:
       '@astrojs/markdoc':
