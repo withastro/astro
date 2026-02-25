@@ -7,7 +7,6 @@ import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
 import { Logger } from '../../../dist/core/logger/core.js';
 import { createTempDir, createTestConfigObserver, createMinimalSettings } from './test-helpers.js';
 import { Writable } from 'node:stream';
-import path from 'node:path';
 import fs from 'node:fs/promises';
 
 describe('Content Layer - Loader Warnings', () => {
@@ -119,7 +118,7 @@ describe('Content Layer - Loader Warnings', () => {
 		});
 
 		// Create an empty directory
-		const emptyDir = path.join(root.pathname, 'src', 'content', 'empty');
+		const emptyDir = new URL('./src/content/empty/', root);
 		await fs.mkdir(emptyDir, { recursive: true });
 
 		// Loader that simulates glob pattern with no matches
@@ -399,12 +398,12 @@ describe('Content Layer - Loader Warnings', () => {
 		});
 
 		// Create data directory with test files
-		const dataDir = path.join(root.pathname, 'src', 'data');
+		const dataDir = new URL('./src/data/', root);
 		await fs.mkdir(dataDir, { recursive: true });
 
 		// Write a JSON file with duplicate IDs
 		await fs.writeFile(
-			path.join(dataDir, 'dogs.json'),
+			new URL('./dogs.json', dataDir),
 			JSON.stringify([
 				{ id: 'german-shepherd', breed: 'German Shepherd', size: 'Large' },
 				{ id: 'beagle', breed: 'Beagle', size: 'Small' },
@@ -417,7 +416,7 @@ describe('Content Layer - Loader Warnings', () => {
 			name: 'duplicate-check-loader',
 			load: async (context) => {
 				// Read and parse the file
-				const filePath = path.join(dataDir, 'dogs.json');
+				const filePath = new URL('./dogs.json', dataDir);
 				const content = await fs.readFile(filePath, 'utf-8');
 				const dogs = JSON.parse(content);
 

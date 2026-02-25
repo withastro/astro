@@ -1,7 +1,5 @@
 import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
-import { fileURLToPath } from 'node:url';
-import path from 'node:path';
 import { z } from 'zod';
 import { file } from '../../../dist/content/loaders/file.js';
 import { defineCollection } from '../../../dist/content/config.js';
@@ -11,8 +9,7 @@ import { Logger } from '../../../dist/core/logger/core.js';
 import { createTestConfigObserver, createMinimalSettings } from './test-helpers.js';
 
 describe('File Loader', () => {
-	const fixtureRoot = new URL('../../fixtures/content-layer/', import.meta.url);
-	const root = new URL(path.resolve(fileURLToPath(fixtureRoot)) + '/', 'file://');
+	const root = new URL('../../fixtures/content-layer/', import.meta.url);
 
 	it('loads entries from JSON file', async () => {
 		const store = new MutableDataStore();

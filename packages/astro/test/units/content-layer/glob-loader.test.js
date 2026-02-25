@@ -1,7 +1,5 @@
 import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
-import { fileURLToPath } from 'node:url';
-import path from 'node:path';
 import { glob } from '../../../dist/content/loaders/glob.js';
 import { defineCollection } from '../../../dist/content/config.js';
 import { ContentLayer } from '../../../dist/content/content-layer.js';
@@ -14,8 +12,7 @@ import {
 } from './test-helpers.js';
 
 describe('Glob Loader', () => {
-	const fixtureRoot = new URL('../../fixtures/content-layer/', import.meta.url);
-	const root = new URL(path.resolve(fileURLToPath(fixtureRoot)) + '/', 'file://');
+	const root = new URL('../../fixtures/content-layer/', import.meta.url);
 
 	it('loads markdown files with glob pattern', async () => {
 		const store = new MutableDataStore();
