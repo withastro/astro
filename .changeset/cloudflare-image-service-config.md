@@ -2,30 +2,27 @@
 '@astrojs/cloudflare': minor
 ---
 
-Adds flexible `imageService` configuration for the Cloudflare adapter, with named presets and support for custom image services that need to run in Node at build time.
+Adds flexible `imageService` configuration for the Cloudflare adapter, with named presets, a Vite dev middleware that uses `jiti` to dynamically import custom image services in Node, and support for per-phase service configuration.
 
 The `imageService` option now accepts named presets, a bare entrypoint, a shorthand object, or a full per-phase triple:
 
 ```js
-// astro.config.mjs
-import { defineConfig } from 'astro/config';
-import cloudflare from '@astrojs/cloudflare';
+// Named preset (recommended)
+imageService: 'compile'
 
-export default defineConfig({
-  adapter: cloudflare({
-    // Named preset (recommended)
-    imageService: 'compile',
+// Bare entrypoint — unknown entrypoints default to transformsAtBuild: true
+imageService: './src/my-image-service.ts'
 
-    // Bare entrypoint — auto-detects whether Node is needed at build time
-    imageService: './src/my-image-service.ts',
+// Shorthand with config
+imageService: { entrypoint: './src/my-image-service.ts', config: { quality: 80 } }
 
-    // Shorthand with config
-    imageService: { entrypoint: './src/my-image-service.ts', config: { quality: 80 } },
-
-    // Full control over each phase
-    imageService: { build: 'compile', dev: './src/my-image-service.ts', runtime: 'passthrough' },
-  }),
-});
+// Full control over each phase
+imageService: {
+  build: './src/my-build-service.ts',
+  dev: './src/my-dev-service.ts',
+  runtime: './src/my-runtime-service.ts',
+  transformAtBuild: false,
+}
 ```
 
 **Available presets:**
@@ -34,7 +31,6 @@ export default defineConfig({
 - `cloudflare` — uses Cloudflare's CDN (`cdn-cgi/image`) for URL-based transforms
 - `compile` — Sharp at build time and in dev, passthrough at runtime (pre-optimized assets served as-is)
 - `passthrough` — no transforms anywhere
+- `custom` (deprecated) — workerd stub for build, Sharp in dev, user's `config.image.service` at runtime
 
-**Custom services** that can't run in workerd (e.g. anything using native Node modules) are automatically detected and compiled as a Node-side bundle for build-time transforms. The `compile` preset also picks up any image service set by another integration in its `config:setup` hook.
-
-`imageService: 'sharp'` now throws with guidance to use `'compile'` instead. `imageService: 'custom'` is deprecated and maps to `'compile'` with a warning.
+`imageService: 'custom'` is deprecated. It uses the workerd stub for build, Sharp for dev, and preserves the user's existing `config.image.service` at runtime.
