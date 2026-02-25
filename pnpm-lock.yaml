@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  unstorage: 2.0.0-alpha.5
+  unstorage: 2.0.0-alpha.6
 
 importers:
 
@@ -653,8 +653,8 @@ importers:
         specifier: ^5.1.0
         version: 5.1.0
       unstorage:
-        specifier: 2.0.0-alpha.5
-        version: 2.0.0-alpha.5(@azure/identity@4.13.0)(@netlify/blobs@10.7.0)(@vercel/functions@3.4.2)(chokidar@4.0.3)(lru-cache@11.2.6)(ofetch@1.5.1)
+        specifier: 2.0.0-alpha.6
+        version: 2.0.0-alpha.6(@azure/identity@4.13.0)(@netlify/blobs@10.7.0)(@vercel/functions@3.4.2)(chokidar@4.0.3)(lru-cache@11.2.6)(ofetch@1.5.1)
       vfile:
         specifier: ^6.0.3
         version: 6.0.3
@@ -15387,20 +15387,20 @@ packages:
     resolution: {integrity: sha512-5lWVjgi6vuHhJ526bI4nlCOmkCIF3nnfXkCMDeMJrtdvxTs6ZFCM8oNufGTsDbKv/tJ/xj8RpvXjRuPBZJuJog==}
     engines: {node: '>=20.19.0'}
 
-  unstorage@2.0.0-alpha.5:
-    resolution: {integrity: sha512-Sj8btci21Twnd6M+N+MHhjg3fVn6lAPElPmvFTe0Y/wR0WImErUdA1PzlAaUavHylJ7uDiFwlZDQKm0elG4b7g==}
+  unstorage@2.0.0-alpha.6:
+    resolution: {integrity: sha512-w5vLYCJtnSx3OBtDk7cG4c1p3dfAnHA4WSZq9Xsurjbl2wMj7zqfOIjaHQI1Bl7yKzUxXAi+kbMr8iO2RhJmBA==}
     peerDependencies:
-      '@azure/app-configuration': ^1.9.0
-      '@azure/cosmos': ^4.7.0
-      '@azure/data-tables': ^13.3.1
+      '@azure/app-configuration': ^1.11.0
+      '@azure/cosmos': ^4.9.1
+      '@azure/data-tables': ^13.3.2
       '@azure/identity': ^4.13.0
       '@azure/keyvault-secrets': ^4.10.0
-      '@azure/storage-blob': ^12.29.1
-      '@capacitor/preferences': ^6.0.3 || ^7.0.0
-      '@deno/kv': '>=0.12.0'
+      '@azure/storage-blob': ^12.31.0
+      '@capacitor/preferences': ^6 || ^7 || ^8
+      '@deno/kv': '>=0.13.0'
       '@netlify/blobs': ^6.5.0 || ^7.0.0 || ^8.1.0 || ^9.0.0 || ^10.0.0
       '@planetscale/database': ^1.19.0
-      '@upstash/redis': ^1.35.6
+      '@upstash/redis': ^1.36.2
       '@vercel/blob': '>=0.27.3'
       '@vercel/functions': ^2.2.12 || ^3.0.0
       '@vercel/kv': ^1.0.1
@@ -15408,8 +15408,8 @@ packages:
       chokidar: ^4 || ^5
       db0: '>=0.3.4'
       idb-keyval: ^6.2.2
-      ioredis: ^5.8.2
-      lru-cache: ^11.2.2
+      ioredis: ^5.9.3
+      lru-cache: ^11.2.6
       mongodb: ^6 || ^7
       ofetch: '*'
       uploadthing: ^7.7.4
@@ -22102,7 +22102,7 @@ snapshots:
       sharp: 0.34.5
       svgo: 4.0.0
       ufo: 1.6.3
-      unstorage: 2.0.0-alpha.5(@azure/identity@4.13.0)(@netlify/blobs@10.7.0)(@vercel/functions@3.4.2)(chokidar@4.0.3)(lru-cache@11.2.6)(ofetch@1.5.1)
+      unstorage: 2.0.0-alpha.6(@azure/identity@4.13.0)(@netlify/blobs@10.7.0)(@vercel/functions@3.4.2)(chokidar@4.0.3)(lru-cache@11.2.6)(ofetch@1.5.1)
       xss: 1.0.15
     transitivePeerDependencies:
       - '@azure/app-configuration'
@@ -25508,7 +25508,7 @@ snapshots:
       pathe: 2.0.3
       picomatch: 4.0.3
 
-  unstorage@2.0.0-alpha.5(@azure/identity@4.13.0)(@netlify/blobs@10.7.0)(@vercel/functions@3.4.2)(chokidar@4.0.3)(lru-cache@11.2.6)(ofetch@1.5.1):
+  unstorage@2.0.0-alpha.6(@azure/identity@4.13.0)(@netlify/blobs@10.7.0)(@vercel/functions@3.4.2)(chokidar@4.0.3)(lru-cache@11.2.6)(ofetch@1.5.1):
     optionalDependencies:
       '@azure/identity': 4.13.0
       '@netlify/blobs': 10.7.0

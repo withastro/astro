@@ -15,7 +15,7 @@ packages:
 # TODO: remove once the stable unstorage v2 comes and out and downstream deps are using it
 overrides:
   # Enforce use of v2
-  'unstorage': '2.0.0-alpha.5'
+  'unstorage': '2.0.0-alpha.6'
 
 # Important! Never install `astro` even when new version is in registry
 preferWorkspacePackages: true
@@ -39,6 +39,7 @@ minimumReleaseAgeExclude:
   - '@flue/*'
   - '@astrojs/compiler-rs'
   - '@astrojs/compiler-binding*'
+  - 'unstorage'
 peerDependencyRules:
   allowAny:
     - 'astro'
