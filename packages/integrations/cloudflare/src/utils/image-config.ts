@@ -66,11 +66,11 @@ export interface NormalizedImageConfig {
 	/** When true, images are optimized at build time in Node, not at runtime in workerd. */
 	transformsAtBuild: boolean;
 	/**
-	 * Entrypoint to emit as a Node-side bundle for build-time image transforms.
-	 * Not set for preset/string configs — the entrypoint is unknown at normalize time and
-	 * read from `config.image.service` in `config:done` after all integrations have run.
-	 * This means any integration that sets `config.image.service` in its `config:setup`
-	 * hook will have its entrypoint picked up automatically by the `compile` preset.
+	 * Entrypoint to compile as a Node-side Rollup chunk for build-time image transforms.
+	 * Set at normalize time for explicit entrypoints (e.g. `'./src/my-service.ts'`).
+	 * Left undefined for presets like `'compile'` — the entrypoint isn't known yet
+	 * and is captured later in `config:done` from `config.image.service` after all
+	 * integrations have run their `config:setup` hooks.
 	 */
 	serviceEntrypoint?: string;
 	/**
