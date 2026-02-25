@@ -103,7 +103,7 @@ export function parseSimpleMarkdownFrontmatter(contents, fileUrl) {
 				const arrayContent = value.slice(1, -1);
 				data[key.trim()] = arrayContent
 					.split(',')
-					.map((item) => item.trim())
+					.map((item) => item.trim().replace(/^["']|["']$/g, ''))
 					.filter((item) => item.length > 0);
 			} else if (value.match(/^\d{4}-\d{2}-\d{2}$/)) {
 				// Keep dates as strings for schema to parse
