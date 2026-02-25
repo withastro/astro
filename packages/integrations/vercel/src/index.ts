@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, constants } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { cp } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import { emptyDir, removeDir, writeJson } from '@astrojs/internal-helpers/fs';
@@ -281,7 +281,6 @@ export default function vercelAdapter({
 										_buildOutput === 'static' ? _config.outDir : _config.build.client;
 									await cp(_staticDir, new URL('./.vercel/output/static/', _config.root), {
 										recursive: true,
-										mode: constants.COPYFILE_FICLONE,
 									});
 								},
 							},
@@ -394,7 +393,6 @@ export default function vercelAdapter({
 					if (_buildOutput !== 'static') {
 						await cp(_config.build.server, new URL('./.vercel/output/_functions/', _config.root), {
 							recursive: true,
-							mode: constants.COPYFILE_FICLONE
 						});
 					}
 				}
