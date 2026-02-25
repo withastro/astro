@@ -25,6 +25,7 @@ import { parseEnv } from 'node:util';
 import { sessionDrivers } from 'astro/config';
 import { createCloudflarePrerenderer } from './prerenderer.js';
 import { createRequire } from 'node:module';
+import { createJiti } from 'jiti';
 
 export type { Runtime } from './utils/handler.js';
 
@@ -76,6 +77,14 @@ export default function createIntegration({
 	let cfPluginConfig: PluginConfig;
 	/** Relative path to the emitted image service file in the server output dir. */
 	let _servicePath: string | undefined;
+
+	/**
+	 * Mutable config object shared with `createConfigPlugin` via closure.
+	 * Populated in `config:setup`, then updated in `config:done` to add
+	 * the custom service's `propertiesToHash`.
+	 */
+	let _transformAtBuildConfig: import('./vite-plugin-config.js').TransformAtBuildConfig | null =
+		null;
 
 	const normalized = normalizeImageServiceConfig(imageService);
 
@@ -265,21 +274,23 @@ export default function createIntegration({
 									}
 								},
 							},
-							createConfigPlugin({
-								sessionKVBindingName,
-								compileImageConfig:
-									transformsAtBuild && command !== 'dev'
-										? {
-												base: config.base,
-												assetsPrefix:
-													typeof config.build.assetsPrefix === 'string'
-														? config.build.assetsPrefix
-														: undefined,
-												imageServiceEntrypoint: '@astrojs/cloudflare/image-service-workerd',
-												buildAssets: config.build.assets ?? '_astro',
-											}
-										: null,
-							}),
+							(() => {
+								if (transformsAtBuild && command !== 'dev') {
+									_transformAtBuildConfig = {
+										base: config.base,
+										assetsPrefix:
+											typeof config.build.assetsPrefix === 'string'
+												? config.build.assetsPrefix
+												: undefined,
+										imageServiceEntrypoint: '@astrojs/cloudflare/image-service-workerd',
+										buildAssets: config.build.assets ?? '_astro',
+									};
+								}
+								return createConfigPlugin({
+									sessionKVBindingName,
+									transformAtBuildConfig: _transformAtBuildConfig,
+								});
+							})(),
 							// In dev there's no bundle split — the Node middleware handles image transforms
 						// directly, so the virtual:image-service interceptor isn't needed.
 						...(needsInterceptor && command !== 'dev'
@@ -322,7 +333,7 @@ export default function createIntegration({
 				_isFullyStatic =
 					nonInternalRoutes.length > 0 && nonInternalRoutes.every((route) => route.isPrerendered);
 			},
-			'astro:config:done': ({ setAdapter, config, injectTypes, logger }) => {
+			'astro:config:done': async ({ setAdapter, config, injectTypes, logger }) => {
 				_config = config;
 
 				// Capture final entrypoint after all integrations have run their config:setup.
@@ -335,6 +346,24 @@ export default function createIntegration({
 						finalEntrypoint !== '@astrojs/cloudflare/image-service-workerd'
 					) {
 						_buildServiceEntrypoint = finalEntrypoint;
+					}
+
+					// Forward the custom service's propertiesToHash so the workerd
+					// stub produces matching cache hashes during prerendering.
+					if (_buildServiceEntrypoint && _transformAtBuildConfig) {
+						try {
+							const jiti = createJiti(config.root.pathname);
+							const mod = await jiti.import(_buildServiceEntrypoint);
+							const service = (mod as any).default ?? mod;
+							if (Array.isArray(service.propertiesToHash)) {
+								_transformAtBuildConfig.propertiesToHash = service.propertiesToHash;
+							}
+						} catch (e) {
+							logger.warn(
+								`Could not resolve propertiesToHash from custom image service "${_buildServiceEntrypoint}". ` +
+									`Image cache hashes may not include custom properties.`,
+							);
+						}
 					}
 				}
 

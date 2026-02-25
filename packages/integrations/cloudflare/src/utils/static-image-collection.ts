@@ -1,14 +1,14 @@
 import { joinPaths, prependForwardSlash, removeBase } from '@astrojs/internal-helpers/path';
 import { hashTransform, propsToFilename } from 'astro/assets';
 import { isESMImportedImage } from 'astro/assets/utils';
-import type { CompileImageConfig } from '../vite-plugin-config.js';
+import type { TransformAtBuildConfig } from '../vite-plugin-config.js';
 
 /**
  * Installs `globalThis.astroAsset.addStaticImage` for use inside workerd
  * during prerendering. This mirrors the logic in astro's vite-plugin-assets.ts
  * but uses only workerd-safe APIs (no node: imports).
  */
-export function installAddStaticImage(config: CompileImageConfig): void {
+export function installAddStaticImage(config: TransformAtBuildConfig): void {
 	if (globalThis.astroAsset?.addStaticImage) return;
 
 	if (!globalThis.astroAsset) {
@@ -27,7 +27,11 @@ export function installAddStaticImage(config: CompileImageConfig): void {
 			config.assetsPrefix ?? '',
 		);
 
-		const hash = hashTransform(options, config.imageServiceEntrypoint, hashProperties);
+		const hash = hashTransform(
+			options,
+			config.imageServiceEntrypoint,
+			config.propertiesToHash ?? hashProperties,
+		);
 
 		let finalFilePath: string;
 		let transformsForPath = globalThis.astroAsset.staticImages.get(finalOriginalPath);

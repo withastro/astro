@@ -3,7 +3,7 @@
 
 declare module 'virtual:astro-cloudflare:config' {
 	export const sessionKVBindingName: string;
-	export const compileImageConfig: import('./src/vite-plugin-config.js').CompileImageConfig | null;
+	export const transformAtBuildConfig: import('./src/vite-plugin-config.js').TransformAtBuildConfig | null;
 	export const isPrerender: boolean;
 }
 
