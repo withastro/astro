@@ -63,6 +63,17 @@ describe('Route Guard - Dev Server', () => {
 		});
 	});
 
+	describe('Directories at project root should not conflict with routes', () => {
+		const browserHeaders = { headers: { Accept: 'text/html' } };
+
+		it('200 when loading /test (route exists and directory exists at project root)', async () => {
+			const response = await fixture.fetch('/test', browserHeaders);
+			assert.equal(response.status, 200);
+			const html = await response.text();
+			assert.match(html, /Test Page/);
+		});
+	});
+
 	describe('Non-existent files should 404 normally', () => {
 		it('404 when loading /nonexistent.md (file does not exist)', async () => {
 			const response = await fixture.fetch('/nonexistent.md');
