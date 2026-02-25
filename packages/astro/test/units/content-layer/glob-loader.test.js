@@ -20,10 +20,6 @@ describe('Glob Loader', () => {
 	it('loads markdown files with glob pattern', async () => {
 		const store = new MutableDataStore();
 		const settings = createMinimalSettings(root, {
-			config: {
-				root,
-				srcDir: new URL('./src/', root),
-			},
 			contentEntryTypes: [createMarkdownEntryType()],
 		});
 		const logger = new Logger({
@@ -60,10 +56,6 @@ describe('Glob Loader', () => {
 	it('handles negative matches in glob pattern', async () => {
 		const store = new MutableDataStore();
 		const settings = createMinimalSettings(root, {
-			config: {
-				root,
-				srcDir: new URL('./src/', root),
-			},
 			contentEntryTypes: [createMarkdownEntryType()],
 		});
 		const logger = new Logger({
@@ -100,10 +92,6 @@ describe('Glob Loader', () => {
 	it('retains body by default', async () => {
 		const store = new MutableDataStore();
 		const settings = createMinimalSettings(root, {
-			config: {
-				root,
-				srcDir: new URL('./src/', root),
-			},
 			contentEntryTypes: [createMarkdownEntryType()],
 		});
 		const logger = new Logger({
@@ -137,10 +125,6 @@ describe('Glob Loader', () => {
 	it('clears body when retainBody is false', async () => {
 		const store = new MutableDataStore();
 		const settings = createMinimalSettings(root, {
-			config: {
-				root,
-				srcDir: new URL('./src/', root),
-			},
 			contentEntryTypes: [createMarkdownEntryType()],
 		});
 		const logger = new Logger({
@@ -313,12 +297,7 @@ describe('Glob Loader', () => {
 			level: 'info',
 		});
 
-		const settings = createMinimalSettings(root, {
-			config: {
-				root,
-				srcDir: new URL('./src/', root),
-			},
-		});
+		const settings = createMinimalSettings(root);
 
 		const collections = {
 			notADirectory: defineCollection({
@@ -353,12 +332,7 @@ describe('Glob Loader', () => {
 			level: 'info',
 		});
 
-		const settings = createMinimalSettings(root, {
-			config: {
-				root,
-				srcDir: new URL('./src/', root),
-			},
-		});
+		const settings = createMinimalSettings(root);
 
 		const collections = {
 			nothingMatches: defineCollection({
