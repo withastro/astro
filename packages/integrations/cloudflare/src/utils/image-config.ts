@@ -27,7 +27,7 @@ export type ImageServicePreset = 'cloudflare' | 'cloudflare-binding' | 'compile'
 type ImageServiceName = 'sharp' | 'passthrough' | 'cloudflare' | 'cloudflare-binding' | (string & {});
 
 /** A service reference: a shorthand name, a bare entrypoint, or a { entrypoint, config } object. */
-export type ImageServiceSlot =
+type ImageServiceSlot =
 	| ImageServiceName
 	| { entrypoint: ImageServiceName; config?: Record<string, any> };
 
