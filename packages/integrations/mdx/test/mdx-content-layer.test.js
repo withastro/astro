@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { loadFixture } from '../../astro/test/test-utils.js';
+import { loadFixture } from '../../../astro/test/test-utils.js';
 
 describe('Content Layer MDX rendering dev', () => {
-	/** @type {import("../../astro/test/test-utils.js").Fixture} */
+	/** @type {import("../../../astro/test/test-utils.js").Fixture} */
 	let fixture;
 
 	let devServer;
@@ -27,7 +27,7 @@ describe('Content Layer MDX rendering dev', () => {
 });
 
 describe('Content Layer MDX rendering build', () => {
-	/** @type {import("../../astro/test/test-utils.js").Fixture} */
+	/** @type {import("../../../astro/test/test-utils.js").Fixture} */
 	let fixture;
 	before(async () => {
 		fixture = await loadFixture({
