@@ -649,7 +649,7 @@ export interface AstroUserConfig<
 		 * ```js
 		 * {
 		 *   security: {
-		 *     // Allow any domain - use with caution
+		 *     // Allow any domain - use this only when necessary
 		 *     allowedDomains: [{}]
 		 *   }
 		 * }
