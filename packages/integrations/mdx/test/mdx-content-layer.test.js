@@ -15,7 +15,7 @@ describe('Content Layer MDX rendering dev', () => {
 	});
 
 	after(async () => {
-		devServer?.stop();
+		await devServer?.stop();
 	});
 
 	it('Render an MDX file', async () => {
