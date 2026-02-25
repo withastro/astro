@@ -36,7 +36,7 @@ export function createDevImageMiddlewarePlugin(options: DevImageMiddlewareOption
 			server.middlewares.use(async (req, res, next) => {
 				if (!req.url?.startsWith(route)) return next();
 
-				if (!jiti) jiti = createJiti(import.meta.url);
+				if (!jiti) jiti = createJiti(server.config.root);
 				try {
 					const entrypoint = options.getDevServiceEntrypoint();
 					const mod = await jiti.import(entrypoint);
