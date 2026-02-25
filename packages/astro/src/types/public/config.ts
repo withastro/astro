@@ -644,7 +644,7 @@ export interface AstroUserConfig<
 		 * }
 		 * ```
 		 *
-		 * To allow all domains (useful for applications behind trusted reverse proxies with dynamic domains), use an empty object:
+		 * In some specific contexts (e.g., applications behind trusted reverse proxies with dynamic domains), you may need to allow all domains. To do this, use an empty object:
 		 *
 		 * ```js
 		 * {
