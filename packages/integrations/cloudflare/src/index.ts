@@ -391,6 +391,7 @@ export default function createIntegration({
 						trailingSlash: _config.trailingSlash,
 						cfPluginConfig,
 						hasTransformAtBuildService: transformsAtBuild,
+						expectsToTransformAtBuild: !!_buildServiceEntrypoint,
 						getServicePath: () => _servicePath,
 						logger,
 					}),

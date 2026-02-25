@@ -30,6 +30,13 @@ interface CloudflarePrerendererOptions {
 	trailingSlash: AstroConfig['trailingSlash'];
 	cfPluginConfig: PluginConfig;
 	hasTransformAtBuildService: boolean;
+	/**
+	 * True when a custom (non-Sharp) image service was expected to be emitted
+	 * as a Rollup chunk for build-time transforms. When the emitted file is
+	 * missing, this distinguishes a real bug from the normal Sharp fallback
+	 * used by presets like `'compile'`.
+	 */
+	expectsToTransformAtBuild: boolean;
 	/** Lazy getter — returns the relative path to the emitted image service file. */
 	getServicePath: () => string | undefined;
 	logger: AstroIntegrationLogger;
@@ -47,6 +54,7 @@ export function createCloudflarePrerenderer({
 	trailingSlash,
 	cfPluginConfig,
 	hasTransformAtBuildService,
+	expectsToTransformAtBuild,
 	getServicePath,
 	logger,
 }: CloudflarePrerendererOptions): AstroPrerenderer {
@@ -162,10 +170,9 @@ export function createCloudflarePrerenderer({
 							},
 						};
 					} else {
-						if (hasTransformAtBuildService) {
+						if (expectsToTransformAtBuild) {
 							logger.warn(
-								'Expected a compiled image service but none was found. Falling back to Sharp. ' +
-									'If you are using a custom image service, this is a bug — please file an issue at https://github.com/withastro/astro/issues.',
+								'A custom image service was configured for build-time transforms but was not found. Falling back to Sharp.',
 							);
 						}
 						const mod = await import('astro/assets/services/sharp');
