@@ -501,7 +501,7 @@ describe('Content Layer - Schema Validation', () => {
 		// Loader that returns no entries
 		const emptyLoader = {
 			name: 'empty-loader',
-			load: async (context) => {
+			load: async (_context) => {
 				// Simulate an empty directory - no entries to load
 				// Just return without adding anything to the store
 			},

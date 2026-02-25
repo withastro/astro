@@ -586,7 +586,7 @@ describe('Content Layer - Live Loaders', () => {
 							data: parsed,
 						});
 						successCount++;
-					} catch (error) {
+					} catch (_error) {
 						errorCount++;
 						// Optionally store validation errors
 						if (item.id.startsWith('invalid')) {
