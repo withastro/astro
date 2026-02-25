@@ -29,21 +29,9 @@ export function getAdapter({ staticHeaders }: Pick<Options, 'staticHeaders'>): A
 	};
 }
 
-const protocols = ['http:', 'https:'];
-
 export default function createIntegration(userOptions: UserOptions): AstroIntegration {
 	if (!userOptions?.mode) {
 		throw new AstroError(`Setting the 'mode' option is required.`);
-	}
-	const { experimentalErrorPageHost } = userOptions;
-	if (
-		experimentalErrorPageHost &&
-		(!URL.canParse(experimentalErrorPageHost) ||
-			!protocols.includes(new URL(experimentalErrorPageHost).protocol))
-	) {
-		throw new AstroError(
-			`Invalid experimentalErrorPageHost: ${experimentalErrorPageHost}. It should be a valid URL.`,
-		);
 	}
 
 	let _config: AstroConfig | undefined = undefined;
@@ -90,7 +78,6 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 								host: _config.server.host,
 								port: _config.server.port,
 								staticHeaders: userOptions.staticHeaders ?? false,
-								experimentalErrorPageHost,
 							}),
 						],
 					},

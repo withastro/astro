@@ -5968,7 +5968,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
-  packages/integrations/node/test/fixtures/prerender-error-page:
+  packages/integrations/node/test/fixtures/prerendered-error-page-fetch:
     dependencies:
       '@astrojs/node':
         specifier: workspace:*
