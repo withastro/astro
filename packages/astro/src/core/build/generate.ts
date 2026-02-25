@@ -153,8 +153,10 @@ export async function generatePages(
 	// Generate each path
 	if (config.build.concurrency > 1) {
 		const limit = PLimit(config.build.concurrency);
-		// Process in batches to avoid V8's Promise.all element limit
-		const BATCH_SIZE = 50000;
+		// Process in batches to avoid V8's Promise.all element limit, which is around ~123k items
+		//
+		// NOTE: ideally we could consider an iterator to avoid the batching limitation
+		const BATCH_SIZE = 100_000;
 		for (let i = 0; i < filteredPaths.length; i += BATCH_SIZE) {
 			const batch = filteredPaths.slice(i, i + BATCH_SIZE);
 			const promises: Promise<void>[] = [];
