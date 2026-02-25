@@ -277,18 +277,18 @@ describe('node', () => {
 				assert.equal(result.url, 'https://sub.example.com/');
 			});
 
-			it('falls back to localhost when no allowedDomains is configured', () => {
+			it('trusts sanitized Host header when no allowedDomains is configured', () => {
 				const result = createRequest({
 					...mockNodeRequest,
 					headers: {
 						host: 'any-host.com',
 					},
 				});
-				// Without allowedDomains, Host header is not trusted, falls back to localhost
-				assert.equal(result.url, 'https://localhost/');
+				// Without allowedDomains, Host header is trusted after sanitization
+				assert.equal(result.url, 'https://any-host.com/');
 			});
 
-			it('falls back to localhost when allowedDomains is empty', () => {
+			it('trusts sanitized Host header when allowedDomains is empty', () => {
 				const result = createRequest(
 					{
 						...mockNodeRequest,
@@ -298,8 +298,26 @@ describe('node', () => {
 					},
 					{ allowedDomains: [] },
 				);
-				// Empty allowedDomains means Host header is not trusted
-				assert.equal(result.url, 'https://localhost/');
+				// Empty allowedDomains means Host header is trusted after sanitization
+				assert.equal(result.url, 'https://any-host.com/');
+			});
+
+			it('preserves port in Host header when allowedDomains is empty', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'localhost:4321',
+						},
+						socket: {
+							encrypted: false,
+							remoteAddress: '127.0.0.1',
+						},
+					},
+					{ allowedDomains: [] },
+				);
+				// Empty allowedDomains should preserve the port from the Host header
+				assert.equal(result.url, 'http://localhost:4321/');
 			});
 
 			it('prefers x-forwarded-host over Host header when both match allowedDomains', () => {

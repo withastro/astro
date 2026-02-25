@@ -50,7 +50,9 @@ function matchesAllowedDomains(
 
 /**
  * Validate a host against allowedDomains.
- * Returns the host only if it matches an allowed pattern, otherwise undefined.
+ * When allowedDomains is configured, returns the host only if it matches an allowed pattern.
+ * When allowedDomains is not configured (empty/undefined), falls back to sanitization only
+ * to preserve backward compatibility — the Host header is trusted but sanitized.
  * This prevents SSRF attacks by ensuring the Host header is trusted.
  */
 export function validateHost(
@@ -59,10 +61,13 @@ export function validateHost(
 	allowedDomains?: Partial<RemotePattern>[],
 ): string | undefined {
 	if (!host || host.length === 0) return undefined;
-	if (!allowedDomains || allowedDomains.length === 0) return undefined;
 
 	const sanitized = sanitizeHost(host);
 	if (!sanitized) return undefined;
+
+	// When no allowedDomains are configured (default), trust the Host header
+	// after sanitization. This preserves backward-compatible behavior.
+	if (!allowedDomains || allowedDomains.length === 0) return sanitized;
 
 	const { hostname, port } = parseHost(sanitized);
 	if (matchesAllowedDomains(hostname, protocol, port, allowedDomains)) {
