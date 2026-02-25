@@ -130,8 +130,7 @@ export default function createVitePluginAstroServer({
 				warnMissingAdapter(logger, settings);
 				pipeline.manifest.checkOrigin =
 					settings.config.security.checkOrigin && settings.buildOutput === 'server';
-				pipeline.manifest.actionBodySizeLimit =
-					settings.config.security.actionBodySizeLimit;
+				pipeline.manifest.actionBodySizeLimit = settings.config.security.actionBodySizeLimit;
 				pipeline.setManifestData(routesList);
 			}
 
