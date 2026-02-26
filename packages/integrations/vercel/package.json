@@ -19,7 +19,6 @@
   "exports": {
     ".": "./dist/index.js",
     "./entrypoint": "./dist/serverless/entrypoint.js",
-    "./serverless/entrypoint": "./dist/serverless/entrypoint.js",
     "./build-image-service": "./dist/image/build-service.js",
     "./dev-image-service": "./dist/image/dev-service.js",
     "./package.json": "./package.json"
