@@ -174,6 +174,9 @@ async function createSerializedManifest(settings: AstroSettings): Promise<Serial
 		i18n: i18nManifest,
 		checkOrigin:
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
+		actionBodySizeLimit: settings.config.security?.actionBodySizeLimit
+			? settings.config.security.actionBodySizeLimit
+			: 1024 * 1024, // 1mb default
 		key: await encodeKey(hasEnvironmentKey() ? await getEnvironmentKey() : await createKey()),
 		sessionConfig: sessionConfigToManifest(settings.config.session),
 		cacheConfig: cacheConfigToManifest(

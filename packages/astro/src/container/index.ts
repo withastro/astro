@@ -164,6 +164,7 @@ function createManifest(
 		i18n: manifest?.i18n,
 		checkOrigin: false,
 		allowedDomains: manifest?.allowedDomains ?? [],
+		actionBodySizeLimit: 1024 * 1024,
 		middleware: manifest?.middleware ?? middlewareInstance,
 		key: createKey(),
 		csp: manifest?.csp,

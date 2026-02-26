@@ -192,6 +192,9 @@ export async function createDevelopmentManifest(settings: AstroSettings): Promis
 		i18n: i18nManifest,
 		checkOrigin:
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
+		actionBodySizeLimit: settings.config.security?.actionBodySizeLimit
+			? settings.config.security.actionBodySizeLimit
+			: 1024 * 1024, // 1mb default
 		key: hasEnvironmentKey() ? getEnvironmentKey() : createKey(),
 		middleware() {
 			return {

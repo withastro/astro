@@ -195,9 +195,10 @@ export function getActionContext(context: APIContext): AstroActionContext {
 					throw error;
 				}
 
+				const bodySizeLimit = pipeline.manifest.actionBodySizeLimit;
 				let input;
 				try {
-					input = await parseRequestBody(context.request);
+					input = await parseRequestBody(context.request, bodySizeLimit);
 				} catch (e) {
 					if (e instanceof ActionError) {
 						return { data: undefined, error: e };
@@ -253,24 +254,22 @@ function getCallerInfo(ctx: APIContext) {
 	return undefined;
 }
 
-const DEFAULT_ACTION_BODY_SIZE_LIMIT = 1024 * 1024;
-
-async function parseRequestBody(request: Request) {
+async function parseRequestBody(request: Request, bodySizeLimit: number) {
 	const contentType = request.headers.get('content-type');
 	const contentLengthHeader = request.headers.get('content-length');
 	const contentLength = contentLengthHeader ? Number.parseInt(contentLengthHeader, 10) : undefined;
 	const hasContentLength = typeof contentLength === 'number' && Number.isFinite(contentLength);
 
 	if (!contentType) return undefined;
-	if (hasContentLength && contentLength > DEFAULT_ACTION_BODY_SIZE_LIMIT) {
+	if (hasContentLength && contentLength > bodySizeLimit) {
 		throw new ActionError({
 			code: 'CONTENT_TOO_LARGE',
-			message: `Request body exceeds ${DEFAULT_ACTION_BODY_SIZE_LIMIT} bytes`,
+			message: `Request body exceeds ${bodySizeLimit} bytes`,
 		});
 	}
 	if (hasContentType(contentType, formContentTypes)) {
 		if (!hasContentLength) {
-			const body = await readRequestBodyWithLimit(request.clone(), DEFAULT_ACTION_BODY_SIZE_LIMIT);
+			const body = await readRequestBodyWithLimit(request.clone(), bodySizeLimit);
 			const formRequest = new Request(request.url, {
 				method: request.method,
 				headers: request.headers,
@@ -283,7 +282,7 @@ async function parseRequestBody(request: Request) {
 	if (hasContentType(contentType, ['application/json'])) {
 		if (contentLength === 0) return undefined;
 		if (!hasContentLength) {
-			const body = await readRequestBodyWithLimit(request.clone(), DEFAULT_ACTION_BODY_SIZE_LIMIT);
+			const body = await readRequestBodyWithLimit(request.clone(), bodySizeLimit);
 			if (body.byteLength === 0) return undefined;
 			return JSON.parse(new TextDecoder().decode(body));
 		}

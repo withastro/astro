@@ -337,6 +337,10 @@ async function buildManifest(
 		buildFormat: settings.config.build.format,
 		checkOrigin:
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
+		actionBodySizeLimit:
+			settings.config.security?.actionBodySizeLimit && settings.buildOutput === 'server'
+				? settings.config.security.actionBodySizeLimit
+				: 1024 * 1024,
 		allowedDomains: settings.config.security?.allowedDomains,
 		key: encodedKey,
 		sessionConfig: sessionConfigToManifest(settings.config.session),

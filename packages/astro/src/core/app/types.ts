@@ -109,6 +109,7 @@ export type SSRManifest = {
 	cacheProvider?: () => Promise<{ default: CacheProviderFactory | null }>;
 	checkOrigin: boolean;
 	allowedDomains?: Partial<RemotePattern>[];
+	actionBodySizeLimit: number;
 	sessionConfig?: SSRManifestSession;
 	cacheConfig?: SSRManifestCache;
 	cacheDir: URL;
