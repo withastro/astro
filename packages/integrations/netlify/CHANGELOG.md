@@ -1,5 +1,16 @@
 # @astrojs/netlify
 
+## 7.0.0-beta.11
+
+### Patch Changes
+
+- [#15665](https://github.com/withastro/astro/pull/15665) [`52a7efd`](https://github.com/withastro/astro/commit/52a7efdde4c46e2b40b10f78ebb4a812e5d5b82f) Thanks [@matthewp](https://github.com/matthewp)! - Fixes builds that were failing with "Entry module cannot be external" error when using the Netlify adapter
+
+  This error was preventing sites from building after recent internal changes. Your builds should now work as expected without any changes to your code.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 7.0.0-beta.10
 
 ### Patch Changes

@@ -1,5 +1,24 @@
 # astro
 
+## 6.0.0-beta.16
+
+### Minor Changes
+
+- [#15646](https://github.com/withastro/astro/pull/15646) [`0dd9d00`](https://github.com/withastro/astro/commit/0dd9d00cf8be38c53217426f6b0e155a6f7c2a22) Thanks [@delucis](https://github.com/delucis)! - Removes redundant `fetchpriority` attributes from the output of Astro’s `<Image>` component
+
+  Previously, Astro would always include `fetchpriority="auto"` on images not using the `priority` attribute.
+  However, this is the default value, so specifying it is redundant. This change omits the attribute by default.
+
+### Patch Changes
+
+- [#15661](https://github.com/withastro/astro/pull/15661) [`7150a2e`](https://github.com/withastro/astro/commit/7150a2e2aa022a9a957684ad8091f85aedb243f1) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a build error when generating projects with 100k+ static routes.
+
+- [#15603](https://github.com/withastro/astro/pull/15603) [`5bc2b2c`](https://github.com/withastro/astro/commit/5bc2b2c2f4a9928efa16452b64729586dc79a0c7) Thanks [@0xRozier](https://github.com/0xRozier)! - Fixes a deadlock that occurred when using SVG images in content collections
+
+- [#15669](https://github.com/withastro/astro/pull/15669) [`d5a888b`](https://github.com/withastro/astro/commit/d5a888ba645de356673605a0b70f9c721cf6cb3b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the `cssesc` dependency
+
+  This CommonJS dependency could sometimes cause errors because Astro is ESM-only. It is now replaced with a built-in ESM-friendly implementation.
+
 ## 6.0.0-beta.15
 
 ### Minor Changes

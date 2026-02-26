@@ -15,7 +15,7 @@
   "dependencies": {
     "@astrojs/preact": "^5.0.0-beta.4",
     "@preact/signals": "^2.8.1",
-    "astro": "^6.0.0-beta.15",
+    "astro": "^6.0.0-beta.16",
     "preact": "^10.28.4"
   }
 }
