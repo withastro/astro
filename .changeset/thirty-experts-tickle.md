@@ -11,3 +11,15 @@ However, there can be security implications with prefetching from other hosts, a
 #### What should I do?
 
 If you were previously using this feature, you must remove the option from your adapter configuration as it no longer exists. You can replicate the previous behavior by running with `mode: 'middleware'` and intercepting responses:
+
+```diff
+import { defineConfig } from 'astro/config'
+import node from '@astrojs/node'
+
+export default defineConfig({
+  adapter: node({
+    mode: 'standalone',
+-    experimentalErrorPageHost: 'http://localhost:4321'
+  })
+})
+```
