@@ -13,6 +13,19 @@ const RESOLVED_PREFIX = '\0' + MODULE_ID;
 export default function shikiOptimizePlugin({ settings }: { settings: AstroSettings }): Plugin {
 	return {
 		name: 'astro:shiki-optimize',
+		configEnvironment(environmentName) {
+			if (environmentName === 'ssr') {
+				return {
+					// We exclude 'shiki' from pre-bundling because the virtual module
+					// contains numerous dynamic imports for languages and themes.
+					// This prevents Vite from flooding the console with "new dependencies optimized"
+					// logs, especially when using the Cloudflare Workers integration.
+					optimizeDeps: {
+						exclude: ['shiki'],
+					},
+				};
+			}
+		},
 		resolveId: {
 			filter: {
 				id: new RegExp(`^${MODULE_ID}$`),
