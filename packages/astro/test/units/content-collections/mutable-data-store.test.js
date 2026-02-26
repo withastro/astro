@@ -45,4 +45,33 @@ describe('MutableDataStore', () => {
 			'key2 should be present in the written file (this will FAIL before the fix)',
 		);
 	});
+
+	it('pending retry writes current state, not stale closure data', async () => {
+		const filePath = pathToFileURL(path.join(tmpDir, 'stale-data-test.json'));
+		const store = await MutableDataStore.fromFile(filePath);
+
+		// First write: set key1
+		store.set('c', 'key1', { id: 'key1', data: { value: 'initial' } });
+		const p1 = store.writeToDisk();
+
+		// While first write is in-flight, delete key1 and add key2
+		store.delete('c', 'key1');
+		store.set('c', 'key2', { id: 'key2', data: { value: 'updated' } });
+		const p2 = store.writeToDisk();
+
+		await Promise.all([p1, p2]);
+
+		// Wait for any debounced saves to complete
+		await store.waitUntilSaveComplete();
+
+		const raw = await fs.readFile(filePath, 'utf-8');
+		const collections = devalue.parse(raw);
+		const collection = collections.get('c');
+
+		assert.ok(
+			!collection.has('key1'),
+			'key1 should NOT be present (was deleted from in-memory state)',
+		);
+		assert.ok(collection.has('key2'), 'key2 should be present (was added to in-memory state)');
+	});
 });

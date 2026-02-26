@@ -9,8 +9,6 @@ import { contentModuleToId } from './utils.js';
 
 const SAVE_DEBOUNCE_MS = 500;
 
-const MAX_DEPTH = 10;
-
 /**
  * Extends the DataStore with the ability to change entries and write them to disk.
  * This is kept as a separate class to avoid needing node builtins at runtime, when read-only access is all that is needed.
@@ -257,13 +255,7 @@ export default new Map([\n${lines.join(',\n')}]);
 	#writing = new Set<string>();
 	#pending = new Set<string>();
 
-	async #writeFileAtomic(filePath: PathLike, data: string, depth = 0) {
-		if (depth > MAX_DEPTH) {
-			// If we hit the max depth, we skip a write to prevent the stack from growing too large
-			// In theory this means we may miss the latest data, but in practice this will only happen when the file is being written to very frequently
-			// so it will be saved on the next write. This is unlikely to ever happen in practice, as the writes are debounced. It requires lots of writes to very large files.
-			return;
-		}
+	async #writeFileAtomic(filePath: PathLike, data: string) {
 		const fileKey = filePath.toString();
 		// If we are already writing this file, instead of writing now, flag it as pending and write it when we're done.
 		if (this.#writing.has(fileKey)) {
@@ -286,12 +278,31 @@ export default new Map([\n${lines.join(',\n')}]);
 		} finally {
 			// We're done writing. Unflag the file and check if there are any pending writes for this file.
 			this.#writing.delete(fileKey);
-			// If there are pending writes, we need to write again to ensure we flush the latest data.
+			// If there are pending writes, trigger a fresh debounced save instead of retrying
+			// with the stale `data` from this closure. The debounced save will re-derive the
+			// current in-memory state, ensuring the latest data is written.
 			if (this.#pending.has(fileKey)) {
 				this.#pending.delete(fileKey);
-				// Call ourself recursively to write the file again
-				await this.#writeFileAtomic(filePath, data, depth + 1);
+				this.#triggerDebouncedSave(fileKey);
 			}
+		}
+	}
+
+	/**
+	 * Triggers the appropriate debounced save for the given file key.
+	 * This ensures that when a pending write is detected, we re-derive the current
+	 * in-memory state instead of using stale closure data.
+	 */
+	#triggerDebouncedSave(fileKey: string) {
+		if (this.#file && fileKey === this.#file.toString()) {
+			this.#dirty = true;
+			this.#saveToDiskDebounced();
+		} else if (this.#assetsFile && fileKey === this.#assetsFile.toString()) {
+			this.#assetsDirty = true;
+			this.#writeAssetsImportsDebounced();
+		} else if (this.#modulesFile && fileKey === this.#modulesFile.toString()) {
+			this.#modulesDirty = true;
+			this.#writeModulesImportsDebounced();
 		}
 	}
 
