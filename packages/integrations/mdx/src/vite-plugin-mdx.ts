@@ -6,9 +6,6 @@ import type { MdxOptions } from './index.js';
 import { createMdxProcessor } from './plugins.js';
 import { safeParseFrontmatter } from './utils.js';
 
-// Store hasCodeBlocks metadata per file ID for access in postprocess plugin
-export const mdxMetadataMap = new Map<string, { hasCodeBlocks: boolean }>();
-
 export interface VitePluginMdxOptions {
 	mdxOptions: MdxOptions;
 	srcDir: URL;
@@ -80,10 +77,6 @@ export function vitePluginMdx(opts: VitePluginMdxOptions): Plugin {
 				try {
 					const compiled = await processor.process(vfile);
 
-					// Store hasCodeBlocks metadata for postprocess plugin
-					const hasCodeBlocks = vfile.data.astro?.hasCodeBlocks ?? false;
-					mdxMetadataMap.set(id, { hasCodeBlocks });
-
 					return {
 						code: String(compiled.value),
 						map: compiled.map,
@@ -120,7 +113,5 @@ function getMdxMeta(vfile: VFile): Record<string, any> {
 			// extensions to .ts files.
 			lang: 'ts',
 		},
-		// Pass hasCodeBlocks flag to postprocess plugin
-		hasCodeBlocks: vfile.data.astro?.hasCodeBlocks ?? false,
 	};
 }

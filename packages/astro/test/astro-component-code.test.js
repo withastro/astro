@@ -15,10 +15,11 @@ describe('<Code>', () => {
 		let html = await fixture.readFile('/no-lang/index.html');
 		const $ = cheerio.load(html);
 		assert.equal($('pre').length, 1);
-		// Styles are now class-based - no inline styles
-		assert.ok($('pre').hasClass('astro-code-overflow'), 'has overflow class');
-		assert.ok(!$('pre').attr('style'), 'should have no inline style');
-		assert.ok($('pre').attr('class'), 'has classes for styling');
+		assert.equal(
+			$('pre').attr('style'),
+			'background-color:#24292e;color:#e1e4e8; overflow-x: auto;',
+			'applies default and overflow',
+		);
 		assert.equal($('pre > code').length, 1);
 
 		// test: contains some generated spans
@@ -29,10 +30,7 @@ describe('<Code>', () => {
 		let html = await fixture.readFile('/basic/index.html');
 		const $ = cheerio.load(html);
 		assert.equal($('pre').length, 1);
-		// Classes now include token style classes and overflow class
-		assert.ok($('pre').hasClass('astro-code'), 'has astro-code class');
-		assert.ok($('pre').hasClass('github-dark'), 'has github-dark theme class');
-		assert.ok($('pre').hasClass('astro-code-overflow'), 'has overflow class');
+		assert.equal($('pre').attr('class'), 'astro-code github-dark');
 		assert.equal($('pre > code').length, 1);
 		// test: contains many generated spans
 		assert.equal($('pre > code span').length >= 6, true);
@@ -42,11 +40,12 @@ describe('<Code>', () => {
 		let html = await fixture.readFile('/custom-theme/index.html');
 		const $ = cheerio.load(html);
 		assert.equal($('pre').length, 1);
-		// Classes now include token style classes and overflow class
-		assert.ok($('pre').hasClass('astro-code'), 'has astro-code class');
-		assert.ok($('pre').hasClass('nord'), 'has nord theme class');
-		assert.ok($('pre').hasClass('astro-code-overflow'), 'has overflow class');
-		assert.ok(!$('pre').attr('style'), 'should have no inline style');
+		assert.equal($('pre').attr('class'), 'astro-code nord');
+		assert.equal(
+			$('pre').attr('style'),
+			'background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;',
+			'applies custom theme',
+		);
 	});
 
 	it('<Code wrap>', async () => {
@@ -54,28 +53,28 @@ describe('<Code>', () => {
 			let html = await fixture.readFile('/wrap-true/index.html');
 			const $ = cheerio.load(html);
 			assert.equal($('pre').length, 1);
-			// Wrap styles are now classes, not inline
-			assert.ok($('pre').hasClass('astro-code-overflow'), 'has overflow class');
-			assert.ok($('pre').hasClass('astro-code-wrap'), 'has wrap class');
-			assert.ok(!$('pre').attr('style'), 'should have no inline style');
+			// test: applies wrap overflow
+			assert.equal(
+				$('pre').attr('style'),
+				'background-color:#24292e;color:#e1e4e8; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;',
+			);
 		}
 		{
 			let html = await fixture.readFile('/wrap-false/index.html');
 			const $ = cheerio.load(html);
 			assert.equal($('pre').length, 1);
-			// Overflow is now a class, not inline
-			assert.ok($('pre').hasClass('astro-code-overflow'), 'has overflow class');
-			assert.ok(!$('pre').hasClass('astro-code-wrap'), 'should NOT have wrap class');
-			assert.ok(!$('pre').attr('style'), 'should have no inline style');
+			// test: applies wrap overflow
+			assert.equal(
+				$('pre').attr('style'),
+				'background-color:#24292e;color:#e1e4e8; overflow-x: auto;',
+			);
 		}
 		{
 			let html = await fixture.readFile('/wrap-null/index.html');
 			const $ = cheerio.load(html);
 			assert.equal($('pre').length, 1);
-			// When wrap is null, no overflow or wrap classes
-			assert.ok(!$('pre').hasClass('astro-code-overflow'), 'should not have overflow class');
-			assert.ok(!$('pre').hasClass('astro-code-wrap'), 'should not have wrap class');
-			assert.ok(!$('pre').attr('style'), 'should have no inline style');
+			// test: applies wrap overflow
+			assert.equal($('pre').attr('style'), 'background-color:#24292e;color:#e1e4e8');
 		}
 	});
 
@@ -83,18 +82,20 @@ describe('<Code>', () => {
 		let html = await fixture.readFile('/css-theme/index.html');
 		const $ = cheerio.load(html);
 		assert.equal($('pre').length, 1);
-		// Classes now include overflow class
-		assert.ok($('pre').hasClass('astro-code'), 'has astro-code class');
-		assert.ok($('pre').hasClass('css-variables'), 'has css-variables theme class');
-		assert.ok($('pre').hasClass('astro-code-overflow'), 'has overflow class');
-
-		// CSS variables theme still uses inline styles on spans (not transformed by style-to-class)
-		// but pre background/color should be in classes, overflow should be a class
-		assert.ok(!$('pre').attr('style'), 'pre should have no inline style');
-
-		// Spans should have CSS variable colors as inline styles
-		const spans = $('pre span');
-		assert.ok(spans.length > 0, 'should have spans');
+		assert.equal($('pre').attr('class'), 'astro-code css-variables');
+		assert.deepEqual(
+			$('pre, pre span')
+				.map((_i, f) => (f.attribs ? f.attribs.style : 'no style found'))
+				.toArray(),
+			[
+				'background-color:var(--astro-code-background);color:var(--astro-code-foreground); overflow-x: auto;',
+				'color:var(--astro-code-token-constant)',
+				'color:var(--astro-code-token-function)',
+				'color:var(--astro-code-foreground)',
+				'color:var(--astro-code-token-string-expression)',
+				'color:var(--astro-code-foreground)',
+			],
+		);
 	});
 
 	it('<Code> with custom theme and lang', async () => {
@@ -102,9 +103,10 @@ describe('<Code>', () => {
 		const $ = cheerio.load(html);
 
 		assert.equal($('#theme > pre').length, 1);
-		// Styles are now class-based - no inline styles
-		assert.ok($('#theme > pre').hasClass('astro-code-overflow'), 'has overflow class');
-		assert.ok(!$('#theme > pre').attr('style'), 'should have no inline style');
+		assert.equal(
+			$('#theme > pre').attr('style'),
+			'background-color:#FDFDFE;color:#4E5377; overflow-x: auto;',
+		);
 
 		assert.equal($('#lang > pre').length, 1);
 		assert.equal($('#lang > pre > code span').length, 3);
@@ -116,8 +118,7 @@ describe('<Code>', () => {
 		const codeEl = $('.astro-code');
 
 		assert.equal(codeEl.prop('tagName'), 'CODE');
-		// Inline code now uses classes instead of inline styles
-		assert.ok(codeEl.attr('class'), 'should have classes for styling');
+		assert.match(codeEl.attr('style'), /background-color:/);
 		assert.equal($('pre').length, 0);
 	});
 

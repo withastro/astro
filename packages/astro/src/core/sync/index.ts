@@ -30,7 +30,7 @@ import {
 	isAstroError,
 } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
-import { createRoutesList } from '../routing/manifest/create.js';
+import { createRoutesList } from '../routing/create-manifest.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { normalizePath } from '../viteUtils.js';
 
@@ -230,7 +230,7 @@ async function createTempViteServer(
 			fsMod: fs,
 		},
 		logger,
-		{ dev: true, skipBuildOutputAssignment: true },
+		{ dev: true },
 	);
 
 	const tempViteServer = await createServer(

@@ -13,6 +13,7 @@ import {
 	removeQueryString,
 } from '../core/path.js';
 import { normalizePath } from '../core/viteUtils.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { isAstroServerEnvironment } from '../environments.js';
 import type { AstroSettings } from '../types/astro.js';
 import {
@@ -31,6 +32,7 @@ import { isESMImportedImage } from './utils/index.js';
 import { emitClientAsset } from './utils/assets.js';
 import { hashTransform, propsToFilename } from './utils/hash.js';
 import { emitImageMetadata } from './utils/node.js';
+import { CONTENT_IMAGE_FLAG } from '../content/consts.js';
 import { getProxyCode } from './utils/proxy.js';
 import { makeSvgComponent } from './utils/svg.js';
 import { createPlaceholderURL, stringifyPlaceholderURL } from './utils/url.js';
@@ -167,10 +169,10 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 						export { default as Picture } from "astro/components/${imageComponentPrefix}Picture.astro";
 						import { inferRemoteSize as inferRemoteSizeInternal } from "astro/assets/utils/inferRemoteSize.js";
 
-						export { default as Font } from "astro/components/Font.astro";
-						export * from "${RUNTIME_VIRTUAL_MODULE_ID}";
-						
-						export const getConfiguredImageService = _getConfiguredImageService;
+							export { default as Font } from "astro/components/Font.astro";
+							export * from "${RUNTIME_VIRTUAL_MODULE_ID}";
+														
+							export const getConfiguredImageService = _getConfiguredImageService;
 
 						export const viteFSConfig = ${JSON.stringify(resolvedConfig.server.fs ?? {})};
 
@@ -270,6 +272,15 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 					if (!globalThis.astroAsset.referencedImages)
 						globalThis.astroAsset.referencedImages = new Set();
 
+					// Content collection images have the astroContentImageFlag query param.
+					// Strip it so we can process the image, but remember it so we can avoid
+					// creating SVG components (which import from the server runtime and cause
+					// circular dependency deadlocks with top-level await).
+					const isContentImage = id.includes(CONTENT_IMAGE_FLAG);
+					if (isContentImage) {
+						id = removeQueryString(id);
+					}
+
 					if (id !== removeQueryString(id)) {
 						// If our import has any query params, we'll let Vite handle it, nonetheless we'll make sure to not delete it
 						// See https://github.com/withastro/astro/issues/8333
@@ -298,7 +309,11 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 					// Since you cannot use image optimization on the client anyway, it's safe to assume that if the user imported
 					// an image on the client, it should be present in the final build.
 					if (isAstroServerEnvironment(this.environment)) {
-						if (id.endsWith('.svg')) {
+						// For SVGs imported directly (not via content collections), create a full
+						// component that can be rendered inline. For content collection SVGs, return
+						// plain metadata to avoid importing createComponent from the server runtime,
+						// which would create a circular dependency when combined with TLA.
+						if (id.endsWith('.svg') && !isContentImage) {
 							const contents = await fs.promises.readFile(imageMetadata.fsPath, {
 								encoding: 'utf8',
 							});
@@ -307,11 +322,16 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 								code: makeSvgComponent(imageMetadata, contents, settings.config.experimental.svgo),
 							};
 						}
+						// In SSR builds, any image loaded by the SSR environment could be reachable at
+						// request time without us knowning, so we'll always consider them as referenced.
+						const isSSROnlyEnvironment =
+							settings.buildOutput === 'server' &&
+							this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
+						if (isSSROnlyEnvironment) {
+							globalThis.astroAsset.referencedImages.add(imageMetadata.fsPath);
+						}
 						return {
-							code: `export default ${getProxyCode(
-								imageMetadata,
-								settings.buildOutput === 'server',
-							)}`,
+							code: `export default ${getProxyCode(imageMetadata, isSSROnlyEnvironment)}`,
 						};
 					} else {
 						globalThis.astroAsset.referencedImages.add(imageMetadata.fsPath);

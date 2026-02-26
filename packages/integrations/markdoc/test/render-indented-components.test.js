@@ -63,7 +63,5 @@ function renderIndentedComponentsChecks(html) {
 	// Renders Astro Code component
 	const pre = document.querySelector('pre');
 	assert.notEqual(pre, null);
-	// With class-based styles, className includes additional classes
-	assert.ok(pre.classList.contains('astro-code'), 'Should have astro-code class');
-	assert.ok(pre.classList.contains('github-dark'), 'Should have github-dark theme class');
+	assert.equal(pre.className, 'astro-code github-dark');
 }

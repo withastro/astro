@@ -7,7 +7,6 @@ import {
 	USES_ASTRO_IMAGE_FLAG,
 } from './rehype-images-to-component.js';
 import { type FileInfo, getFileInfo } from './utils.js';
-import { mdxMetadataMap } from './vite-plugin-mdx.js';
 
 const underscoreFragmentImportRegex = /[\s,{]_Fragment[\s,}]/;
 const astroTagComponentImportRegex = /[\s,{]__astro_tag_component__[\s,}]/;
@@ -23,18 +22,6 @@ export function vitePluginMdxPostprocess(astroConfig: AstroConfig): Plugin {
 			handler(code, id) {
 				const fileInfo = getFileInfo(id, astroConfig);
 				const [imports, exports] = parse(code);
-
-				// Inject Shiki CSS import if using Shiki AND document contains code blocks
-				const usesShiki =
-					astroConfig.markdown.syntaxHighlight === 'shiki' ||
-					astroConfig.markdown.syntaxHighlight === undefined;
-				// Get hasCodeBlocks from metadata map populated by vite-plugin-mdx
-				const metadata = mdxMetadataMap.get(id);
-				const hasCodeBlocks = metadata?.hasCodeBlocks ?? false;
-
-				if (usesShiki && hasCodeBlocks) {
-					code = `import 'virtual:astro:shiki-styles.css';\n${code}`;
-				}
 
 				// Call a series of functions that transform the code
 				code = injectUnderscoreFragmentImport(code, imports);

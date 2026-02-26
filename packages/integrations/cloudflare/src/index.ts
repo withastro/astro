@@ -181,7 +181,6 @@ export default function createIntegration({
 													'astro > zod/v4',
 													'astro > zod/v4/core',
 													'astro > clsx',
-													'astro > cssesc',
 													'astro > cookie',
 													'astro > devalue',
 													'astro > @oslojs/encoding',

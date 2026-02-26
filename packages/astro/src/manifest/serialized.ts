@@ -196,5 +196,6 @@ async function createSerializedManifest(settings: AstroSettings): Promise<Serial
 		},
 		logLevel: settings.logLevel,
 		shouldInjectCspMetaTags: false,
+		experimentalQueuedRendering: settings.config.experimental?.queuedRendering,
 	};
 }
