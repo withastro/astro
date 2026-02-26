@@ -358,7 +358,7 @@ export default function createIntegration({
 							if (Array.isArray(service.propertiesToHash)) {
 								_transformAtBuildConfig.propertiesToHash = service.propertiesToHash;
 							}
-						} catch (e) {
+						} catch (_e) {
 							logger.warn(
 								`Could not resolve propertiesToHash from custom image service "${_buildServiceEntrypoint}". ` +
 									`Image cache hashes may not include custom properties.`,
