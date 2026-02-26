@@ -1,5 +1,4 @@
-import type { FlueClient } from '@flue/client';
-import { anthropic, github, githubBody } from '@flue/client/proxies';
+
 import * as v from 'valibot';
 import {
 	type IssueDetails,
@@ -10,6 +9,9 @@ import {
 	postGitHubComment,
 	removeGitHubLabel,
 } from './github.ts';
+
+import type { FlueClient } from '@flue/client';
+import { anthropic, github, githubBody } from '@flue/client/proxies';
 
 export const proxies = {
 	anthropic: anthropic(),
