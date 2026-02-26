@@ -1,8 +1,14 @@
-// shiki-engine-worker.ts
+// shiki-engine-workerd.ts
 import type { RegexEngine } from 'shiki';
 import { createOnigurumaEngine } from 'shiki/engine/oniguruma';
 
-export function loadShikiEngine(): Promise<RegexEngine> {
-	// @ts-ignore wasm type
-	return createOnigurumaEngine(import('shiki/onig.wasm'));
+let shikiEngine: RegexEngine | undefined = undefined;
+
+export async function loadShikiEngine(): Promise<RegexEngine> {
+	if (shikiEngine === undefined) {
+		// @ts-ignore wasm type
+		shikiEngine = await createOnigurumaEngine(import('shiki/onig.wasm'));
+	}
+
+	return shikiEngine;
 }

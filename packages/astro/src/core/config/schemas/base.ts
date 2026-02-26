@@ -108,6 +108,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		queuedRendering: {
 			enabled: false,
 		},
+		optimizeShiki: {},
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -506,6 +507,13 @@ export const AstroConfigSchema = z.object({
 				})
 				.optional()
 				.prefault(ASTRO_CONFIG_DEFAULTS.experimental.queuedRendering),
+			optimizeShiki: z
+				.object({
+					includeLangs: z.array(z.string()).optional(),
+					includeThemes: z.array(z.string()).optional(),
+				})
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.optimizeShiki),
 		})
 		.prefault({}),
 	legacy: z

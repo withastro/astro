@@ -4,14 +4,17 @@ import {
 	type BundledTheme,
 	createCssVariablesTheme,
 	createHighlighter,
+	createBundledHighlighter,
 	type HighlighterCoreOptions,
 	type HighlighterGeneric,
 	isSpecialLang,
 	type LanguageRegistration,
-	type RegexEngine,
 	type ShikiTransformer,
 	type ThemeRegistration,
 	type ThemeRegistrationRaw,
+	type DynamicImportLanguageRegistration,
+	type DynamicImportThemeRegistration,
+	type BundledHighlighterOptions,
 } from 'shiki';
 import type { ThemePresets } from './types.js';
 import { loadShikiEngine } from '#shiki-engine';
@@ -29,12 +32,27 @@ export interface ShikiHighlighter {
 	): Promise<string>;
 }
 
-export interface CreateShikiHighlighterOptions {
+interface CreateShikiHighlighterInternalOptions {
 	langs?: LanguageRegistration[];
 	theme?: ThemePresets | ThemeRegistration | ThemeRegistrationRaw;
 	themes?: Record<string, ThemePresets | ThemeRegistration | ThemeRegistrationRaw>;
 	langAlias?: HighlighterCoreOptions['langAlias'];
+	highlighterFactory: (
+		highlighterOptions: BundledHighlighterOptions<BundledLanguage, BundledTheme>,
+	) => Promise<HighlighterGeneric<BundledLanguage, BundledTheme>>;
 }
+
+export type CreateShikiHighlighterOptions = Omit<
+	CreateShikiHighlighterInternalOptions,
+	'highlighterFactory'
+>;
+export type CreateBundledShikiHighlighterOptions = Omit<
+	CreateShikiHighlighterInternalOptions,
+	'highlighterFactory'
+> & {
+	bundledThemes: Record<BundledTheme, DynamicImportThemeRegistration>;
+	bundledLanguages: Record<BundledLanguage, DynamicImportLanguageRegistration>;
+};
 
 export interface ShikiHighlighterHighlightOptions {
 	/**
@@ -76,25 +94,40 @@ const cssVariablesTheme = () =>
 // Caches Promise<ShikiHighlighter> for reuse when the same theme and langs are provided
 const cachedHighlighters = new Map();
 
-let shikiEngine: RegexEngine | undefined = undefined;
+export function createShikiHighlighter(options: CreateShikiHighlighterOptions = {}) {
+	const highlighterFactory = createHighlighter;
 
-export async function createShikiHighlighter({
+	return createShikiHighlighterInternal({ ...options, highlighterFactory });
+}
+
+export async function createBundledShikiHighlighter({
+	bundledThemes,
+	bundledLanguages,
+	...options
+}: CreateBundledShikiHighlighterOptions) {
+	const highlighterFactory = createBundledHighlighter({
+		themes: bundledThemes,
+		langs: bundledLanguages,
+		engine: () => loadShikiEngine(),
+	});
+
+	return createShikiHighlighterInternal({ ...options, highlighterFactory });
+}
+
+async function createShikiHighlighterInternal({
 	langs = [],
 	theme = 'github-dark',
 	themes = {},
 	langAlias = {},
-}: CreateShikiHighlighterOptions = {}): Promise<ShikiHighlighter> {
+	highlighterFactory,
+}: CreateShikiHighlighterInternalOptions): Promise<ShikiHighlighter> {
 	theme = theme === 'css-variables' ? cssVariablesTheme() : theme;
-
-	if (shikiEngine === undefined) {
-		shikiEngine = await loadShikiEngine();
-	}
 
 	const highlighterOptions = {
 		langs: ['plaintext', ...langs],
 		langAlias,
 		themes: Object.values(themes).length ? Object.values(themes) : [theme],
-		engine: shikiEngine,
+		engine: loadShikiEngine(),
 	};
 
 	const key = JSON.stringify(highlighterOptions, Object.keys(highlighterOptions).sort());
@@ -105,7 +138,7 @@ export async function createShikiHighlighter({
 	if (cachedHighlighters.has(key)) {
 		highlighter = cachedHighlighters.get(key);
 	} else {
-		highlighter = await createHighlighter(highlighterOptions);
+		highlighter = await highlighterFactory(highlighterOptions);
 		cachedHighlighters.set(key, highlighter);
 	}
 

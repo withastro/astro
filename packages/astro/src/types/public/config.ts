@@ -2862,6 +2862,11 @@ export interface AstroUserConfig<
 			 */
 			contentCache?: boolean;
 		};
+
+		optimizeShiki?: {
+			includeLangs?: string[];
+			includeThemes?: string[];
+		};
 	};
 }
 
