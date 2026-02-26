@@ -547,9 +547,6 @@ importers:
       cookie:
         specifier: ^1.1.1
         version: 1.1.1
-      cssesc:
-        specifier: ^3.0.0
-        version: 3.0.0
       devalue:
         specifier: ^5.6.3
         version: 5.6.3
@@ -683,9 +680,6 @@ importers:
       '@types/aria-query':
         specifier: ^5.0.4
         version: 5.0.4
-      '@types/cssesc':
-        specifier: ^3.0.2
-        version: 3.0.2
       '@types/dlv':
         specifier: ^1.1.5
         version: 1.1.5
@@ -10007,9 +10001,6 @@ packages:
   '@types/chai@5.2.3':
     resolution: {integrity: sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA==}
 
-  '@types/cssesc@3.0.2':
-    resolution: {integrity: sha512-Qii6nTRktvtI380EloxH/V7MwgrYxkPgBI+NklUjQuhzgAd1AqT3QDJd+eD+0doRADgfwvtagLRo7JFa7aMHXg==}
-
   '@types/debug@4.1.12':
     resolution: {integrity: sha512-vIChWdVG3LG1SMxEvI/AK+FWJthlrqlTu7fbrlywTkkaONwk/UAGaULXRlf8vkzFBLVm0zkMdCquhL5aOjhXPQ==}
 
@@ -19110,8 +19101,6 @@ snapshots:
     dependencies:
       '@types/deep-eql': 4.0.2
       assertion-error: 2.0.1
-
-  '@types/cssesc@3.0.2': {}
 
   '@types/debug@4.1.12':
     dependencies:
