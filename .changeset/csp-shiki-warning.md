@@ -1,5 +1,6 @@
 ---
 'astro': patch
+'@astrojs/markdown-remark': patch
 ---
 
 Reverts the support of Shiki with CSP. Unfortunately, after exhaustive tests, the highlighter can't be supported to cover all cases.  
