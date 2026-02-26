@@ -50,6 +50,26 @@ function parseCacheTags(header: string | null): string[] {
 		.filter(Boolean);
 }
 
+function getCacheKey(url: URL): string {
+	return `${url.origin}${url.pathname}${url.search}`;
+}
+
+function getPathFromCacheKey(key: string): string | null {
+	if (!URL.canParse(key)) return null;
+	const url = new URL(key);
+	return `${url.pathname}${url.search}`;
+}
+
+function hasSetCookieHeader(response: Response): boolean {
+	return response.headers.has('set-cookie');
+}
+
+function warnSkippedSetCookie(url: URL): void {
+	console.warn(
+		`[astro:cache] Skipping cache for ${url.pathname}${url.search} because response includes Set-Cookie.`,
+	);
+}
+
 /**
  * Simple LRU cache backed by a Map (insertion-order iteration).
  * When the cache exceeds `max` entries, the oldest entry is evicted.
@@ -112,6 +132,7 @@ async function serializeResponse(
 	const body = await response.arrayBuffer();
 	const headers: [string, string][] = [];
 	response.headers.forEach((value, key) => {
+		if (key.toLowerCase() === 'set-cookie') return;
 		headers.push([key, value]);
 	});
 	return {
@@ -154,12 +175,14 @@ const memoryProvider = ((config: Record<string, any> | undefined): CacheProvider
 		name: 'memory',
 
 		async onRequest(context, next) {
-			const key = new URL(context.request.url).pathname + new URL(context.request.url).search;
+			const requestUrl = new URL(context.request.url);
 
-			// Only cache GET/HEAD requests
-			if (context.request.method !== 'GET' && context.request.method !== 'HEAD') {
+			// Only cache GET requests.
+			if (context.request.method !== 'GET') {
 				return next();
 			}
+
+			const key = getCacheKey(requestUrl);
 
 			const cached = cache.get(key);
 
@@ -173,15 +196,27 @@ const memoryProvider = ((config: Record<string, any> | undefined): CacheProvider
 
 				if (isStale(cached)) {
 					// SWR: serve stale, trigger background revalidation
-					const revalidate = next().then(async (freshResponse) => {
-						const cdnCC = freshResponse.headers.get('CDN-Cache-Control');
-						const { maxAge: newMaxAge, swr: newSwr } = parseCdnCacheControl(cdnCC);
-						if (newMaxAge > 0) {
-							const newTags = parseCacheTags(freshResponse.headers.get('Cache-Tag'));
-							const newEntry = await serializeResponse(freshResponse, newMaxAge, newSwr, newTags);
-							cache.set(key, newEntry);
-						}
-					});
+					const revalidate = next()
+						.then(async (freshResponse) => {
+							const cdnCC = freshResponse.headers.get('CDN-Cache-Control');
+							const { maxAge: newMaxAge, swr: newSwr } = parseCdnCacheControl(cdnCC);
+							if (newMaxAge > 0) {
+								if (hasSetCookieHeader(freshResponse)) {
+									warnSkippedSetCookie(requestUrl);
+									return;
+								}
+								const newTags = parseCacheTags(freshResponse.headers.get('Cache-Tag'));
+								const newEntry = await serializeResponse(freshResponse, newMaxAge, newSwr, newTags);
+								cache.set(key, newEntry);
+							}
+						})
+						.catch((error) => {
+							console.warn(
+								`[astro:cache] Background revalidation failed for ${requestUrl.pathname}${requestUrl.search}: ${String(
+									error,
+								)}`,
+							);
+						});
 
 					// Use waitUntil if available (prevents the promise from being GC'd)
 					if (context.waitUntil) {
@@ -204,6 +239,10 @@ const memoryProvider = ((config: Record<string, any> | undefined): CacheProvider
 			const { maxAge, swr } = parseCdnCacheControl(cdnCC);
 
 			if (maxAge > 0) {
+				if (hasSetCookieHeader(response)) {
+					warnSkippedSetCookie(requestUrl);
+					return response;
+				}
 				const tags = parseCacheTags(response.headers.get('Cache-Tag'));
 				// Clone the response so we can read the body for caching and still return it
 				const [forCache, forClient] = [response.clone(), response];
@@ -220,7 +259,11 @@ const memoryProvider = ((config: Record<string, any> | undefined): CacheProvider
 		async invalidate(invalidateOptions: InvalidateOptions) {
 			if (invalidateOptions.path) {
 				// Path invalidation is exact-match only (no glob/wildcard patterns)
-				cache.delete(invalidateOptions.path);
+				for (const key of [...cache.keys()]) {
+					if (getPathFromCacheKey(key) === invalidateOptions.path) {
+						cache.delete(key);
+					}
+				}
 			}
 			if (invalidateOptions.tags) {
 				const tagsToInvalidate = Array.isArray(invalidateOptions.tags)

@@ -5,6 +5,33 @@ import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
 
 describe('context.cache', () => {
+	it('build fails for invalid cache option values', async () => {
+		await assert.rejects(
+			() =>
+				loadFixture({
+					root: './fixtures/cache-route/',
+					output: 'server',
+					adapter: testAdapter(),
+					experimental: {
+						cache: {
+							provider: {
+								entrypoint: fileURLToPath(
+									new URL('./fixtures/cache-route/mock-cache-provider.mjs', import.meta.url),
+								),
+							},
+						},
+						routeRules: {
+							'/api': { maxAge: -1 },
+						},
+					},
+				}),
+			(err) => {
+				assert.ok(err.message.includes('maxAge'));
+				return true;
+			},
+		);
+	});
+
 	it('build fails with a clear error for an invalid cache provider', async () => {
 		const fixture = await loadFixture({
 			root: './fixtures/cache-route/',

@@ -455,7 +455,10 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				const cacheProvider = await this.pipeline.getCacheProvider();
 				if (cacheProvider?.onRequest) {
 					response = await cacheProvider.onRequest(
-						{ request, url: new URL(request.url) },
+						{
+							request,
+							url: new URL(request.url),
+						},
 						async () => {
 							const res = await renderContext.render(componentInstance);
 							// Apply cache headers before the provider reads them

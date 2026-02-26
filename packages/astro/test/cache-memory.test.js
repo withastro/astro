@@ -24,6 +24,32 @@ describe('Memory cache provider', () => {
 		return app.render(request);
 	}
 
+	it('does not cache HEAD requests', async () => {
+		const head = await renderRequest('/head-cached', { method: 'HEAD' });
+		assert.equal(head.status, 200);
+		assert.equal(head.headers.get('X-Astro-Cache'), null);
+
+		const firstGet = await renderRequest('/head-cached');
+		assert.equal(firstGet.headers.get('X-Astro-Cache'), 'MISS');
+
+		const secondGet = await renderRequest('/head-cached');
+		assert.equal(secondGet.headers.get('X-Astro-Cache'), 'HIT');
+	});
+
+	it('uses host-aware cache keys', async () => {
+		const aFirst = await app.render(new Request('http://a.example/cached'));
+		assert.equal(aFirst.headers.get('X-Astro-Cache'), 'MISS');
+
+		const bFirst = await app.render(new Request('http://b.example/cached'));
+		assert.equal(bFirst.headers.get('X-Astro-Cache'), 'MISS');
+
+		const aSecond = await app.render(new Request('http://a.example/cached'));
+		assert.equal(aSecond.headers.get('X-Astro-Cache'), 'HIT');
+
+		const bSecond = await app.render(new Request('http://b.example/cached'));
+		assert.equal(bSecond.headers.get('X-Astro-Cache'), 'HIT');
+	});
+
 	it('cached response is served on second request (cache hit)', async () => {
 		const first = await renderRequest('/cached');
 		assert.equal(first.status, 200);
@@ -99,5 +125,21 @@ describe('Memory cache provider', () => {
 		const second = await renderRequest('/cached');
 		const secondBody = await second.json();
 		assert.deepEqual(firstBody, secondBody);
+	});
+
+	it('does not cache responses that include Set-Cookie', async () => {
+		const first = await renderRequest('/with-cookie');
+		assert.equal(first.status, 200);
+		assert.equal(first.headers.get('X-Astro-Cache'), null);
+		assert.ok(first.headers.get('Set-Cookie'));
+		const firstBody = await first.json();
+
+		const second = await renderRequest('/with-cookie');
+		assert.equal(second.status, 200);
+		assert.equal(second.headers.get('X-Astro-Cache'), null);
+		assert.ok(second.headers.get('Set-Cookie'));
+		const secondBody = await second.json();
+
+		assert.notEqual(firstBody.nonce, secondBody.nonce);
 	});
 });

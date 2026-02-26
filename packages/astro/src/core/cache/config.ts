@@ -10,8 +10,8 @@ const CacheProviderConfigSchema = z.object({
  * Cache options that can be applied to a route.
  */
 const CacheOptionsSchema = z.object({
-	maxAge: z.number().optional(),
-	swr: z.number().optional(),
+	maxAge: z.number().int().min(0).optional(),
+	swr: z.number().int().min(0).optional(),
 	tags: z.array(z.string()).optional(),
 });
 
