@@ -1,5 +1,22 @@
 # @astrojs/vercel
 
+## 10.0.0-beta.6
+
+### Minor Changes
+
+- [#15495](https://github.com/withastro/astro/pull/15495) [`5b99e90`](https://github.com/withastro/astro/commit/5b99e9077a92602f1e46e9b6eb9094bcd00c640e) Thanks [@leekeh](https://github.com/leekeh)! - Adds new `middlewareMode` adapter feature and deprecates `edgeMiddleware` option
+
+  The `edgeMiddleware` option is now deprecated and will be removed in a future release, so users should transition to using the new `middlewareMode` feature as soon as possible.
+
+  ```diff
+  export default defineConfig({
+    adapter: vercel({
+  -    edgeMiddleware: true
+  +    middlewareMode: 'edge'
+    })
+  })
+  ```
+
 ## 10.0.0-beta.5
 
 ### Patch Changes
