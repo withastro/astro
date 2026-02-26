@@ -58,7 +58,7 @@
     "astro-scripts": "workspace:*",
     "cheerio": "1.2.0",
     "devalue": "^5.6.3",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.0-beta"
   },
   "astro": {
     "external": true

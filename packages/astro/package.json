@@ -204,7 +204,7 @@
     "remark-code-titles": "^0.1.2",
     "rollup": "^4.58.0",
     "sass": "^1.97.3",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.0-beta",
     "undici": "^7.22.0",
     "unified": "^11.0.5",
     "vitest": "^3.2.4"
