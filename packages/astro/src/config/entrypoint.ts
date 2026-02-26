@@ -42,6 +42,7 @@ export function passthroughImageService(): ImageServiceConfig {
  */
 export function memoryCache(config: MemoryCacheProviderOptions = {}): CacheProviderConfig {
 	return {
+		name: 'memory',
 		entrypoint: 'astro/cache/memory',
 		config,
 	};

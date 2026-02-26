@@ -5,13 +5,19 @@ import type {
 	InvalidateOptions,
 	LiveDataEntry,
 } from '../types.js';
-import type { DisabledAstroCache, NoopAstroCache } from './noop.js';
 import { defaultSetHeaders, isLiveDataEntry } from './utils.js';
 
 const APPLY_HEADERS = Symbol.for('astro:cache:apply');
 const IS_ACTIVE = Symbol.for('astro:cache:active');
 
-export class AstroCache {
+export interface CacheLike {
+	set(input: CacheOptions | CacheHint | LiveDataEntry | false): void;
+	readonly tags: string[];
+	readonly options: Readonly<CacheOptions>;
+	invalidate(input: InvalidateOptions | LiveDataEntry): Promise<void>;
+}
+
+export class AstroCache implements CacheLike {
 	#options: CacheOptions = {};
 	#tags = new Set<string>();
 	#disabled = false;
@@ -108,12 +114,9 @@ export class AstroCache {
 // ─── Framework-internal helpers (not exported from the `astro` package) ─────
 
 /**
- * Apply cache headers to a response. No-ops for NoopAstroCache.
+ * Apply cache headers to a response.
  */
-export function applyCacheHeaders(
-	cache: AstroCache | NoopAstroCache | DisabledAstroCache,
-	response: Response,
-): void {
+export function applyCacheHeaders(cache: CacheLike, response: Response): void {
 	if (APPLY_HEADERS in cache) {
 		(cache as AstroCache)[APPLY_HEADERS](response);
 	}
@@ -122,7 +125,7 @@ export function applyCacheHeaders(
 /**
  * Check whether the cache has any active state worth acting on.
  */
-export function isCacheActive(cache: AstroCache | NoopAstroCache | DisabledAstroCache): boolean {
+export function isCacheActive(cache: CacheLike): boolean {
 	if (IS_ACTIVE in cache) {
 		return (cache as AstroCache)[IS_ACTIVE];
 	}

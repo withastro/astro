@@ -37,6 +37,8 @@ export interface CacheProvider {
 export type CacheProviderFactory = (config: Record<string, any> | undefined) => CacheProvider;
 
 export interface CacheProviderConfig {
+	/** Optional display name for logs and errors */
+	name?: string;
 	/** URL or package import */
 	entrypoint: string | URL;
 	/** Serializable options used by the provider implementation */
@@ -44,6 +46,7 @@ export interface CacheProviderConfig {
 }
 
 export interface NormalizedCacheProviderConfig {
+	name: string | undefined;
 	entrypoint: string;
 	config: Record<string, any> | undefined;
 }
@@ -53,3 +56,20 @@ export interface SSRManifestCache {
 	options?: Record<string, any>;
 	routes?: Record<string, CacheOptions>;
 }
+
+export interface RouteRule {
+	/**
+	 * Cache max-age in seconds.
+	 */
+	maxAge?: number;
+	/**
+	 * Stale-while-revalidate window in seconds.
+	 */
+	swr?: number;
+	/**
+	 * Cache tags for invalidation.
+	 */
+	tags?: string[];
+}
+
+export type RouteRules = Record<string, RouteRule>;

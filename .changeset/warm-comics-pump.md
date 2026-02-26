@@ -2,7 +2,7 @@
 'astro': minor
 ---
 
-Adds a new experimental Route Caching API and Route Rules for controlling SSR response caching. See the [RFC](https://github.com/withastro/roadmap/pull/1245) for full details.
+Adds a new experimental Route Caching API and Route Rules for controlling SSR response caching.
 
 Route caching gives you a platform-agnostic way to cache server-rendered responses, based on web standard cache headers. You set caching directives in your routes using `Astro.cache` (in `.astro` pages) or `context.cache` (in API routes and middleware), and Astro translates them into the appropriate headers or runtime behavior depending on your adapter. You can also define cache rules for routes declaratively in your config using `experimental.routeRules`, without modifying route code.
 
@@ -168,4 +168,4 @@ export default factory;
 If you use `Astro.cache` or `context.cache` without enabling the feature, Astro throws an `AstroError` with the name `CacheNotEnabled` and a message explaining how to configure it. If the configured provider cannot be resolved, Astro throws `CacheProviderNotFound` at build time.
 
 For more information on enabling and using this feature in your project, see the [Experimental Route Caching docs](https://docs.astro.build/en/reference/experimental-flags/route-caching/).
-For a complete overview, and to give feedback on this experimental API, see the [Route Caching RFC](https://github.com/withastro/roadmap/pull/1245).
+For a complete overview and to give feedback on this experimental API, see the [Route Caching RFC](https://github.com/withastro/roadmap/pull/1245).

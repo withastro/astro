@@ -3,11 +3,11 @@ import * as z from 'zod/v4';
 const CacheProviderConfigSchema = z.object({
 	config: z.record(z.string(), z.any()).optional(),
 	entrypoint: z.union([z.string(), z.instanceof(URL)]),
+	name: z.string().optional(),
 });
 
 /**
  * Cache options that can be applied to a route.
- * Used both in nested `cache: {}` form and as flat shortcuts.
  */
 const CacheOptionsSchema = z.object({
 	maxAge: z.number().optional(),
@@ -24,28 +24,17 @@ export const CacheSchema = z.object({
 });
 
 /**
- * Route rule with Nitro-style cache shortcuts.
+ * Route rule with cache options.
  *
- * Supports two forms:
- * - Shortcuts: `{ maxAge: 3600, swr: 600 }` - flat cache options at rule level
- * - Full form: `{ cache: { maxAge: 3600, swr: 600 } }` - nested under cache key
- *
- * Examples:
+ * Example:
  * ```ts
  * routeRules: {
- *   '/api/*': { swr: 600 },                              // shortcut
- *   '/products/*': { cache: { maxAge: 3600, tags: ['products'] } }, // full
+ *   '/api/*': { swr: 600 },
+ *   '/products/*': { maxAge: 3600, tags: ['products'] },
  * }
  * ```
  */
-const RouteRuleSchema = z.object({
-	// Nested cache options (full form)
-	cache: CacheOptionsSchema.optional(),
-	// Flat cache shortcuts (Nitro-style)
-	maxAge: z.number().optional(),
-	swr: z.number().optional(),
-	tags: z.array(z.string()).optional(),
-});
+const RouteRuleSchema = CacheOptionsSchema;
 
 /**
  * Route rules configuration (experimental.routeRules).

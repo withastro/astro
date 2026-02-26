@@ -610,6 +610,17 @@ export const UnsupportedImageConversion = {
 
 /**
  * @docs
+ * @message An error occurred while optimizing the SVG file with SVGO.
+ */
+export const CannotOptimizeSvg = {
+	name: 'CannotOptimizeSvg',
+	title: 'Cannot optimize SVG',
+	message: (path: string) => `An error occurred while optimizing SVG file "${path}" with SVGO.`,
+	hint: 'Review the included SVGO error message provided for guidance.',
+} satisfies ErrorData;
+
+/**
+ * @docs
  * @see
  * - [`getStaticPaths()`](https://docs.astro.build/en/reference/routing-reference/#getstaticpaths)
  * - [`params`](https://docs.astro.build/en/reference/api-reference/#params)
@@ -2119,18 +2130,7 @@ export const CacheNotEnabled = {
 	title: 'Cache is not enabled.',
 	message:
 		'`Astro.cache` is not available because the cache feature is not enabled. To use caching, configure a cache provider in your Astro config under `experimental.cache`.',
-	hint: 'Use an adapter that provides a default cache provider, or set one explicitly: `experimental: { cache: { provider: "..." } }`.',
-} satisfies ErrorData;
-
-/**
- * @docs
- * @message An error occurred while optimizing the SVG file with SVGO.
- */
-export const CannotOptimizeSvg = {
-	name: 'CannotOptimizeSvg',
-	title: 'Cannot optimize SVG',
-	message: (path: string) => `An error occurred while optimizing SVG file "${path}" with SVGO.`,
-	hint: 'Review the included SVGO error message provided for guidance.',
+	hint: 'Use an adapter that provides a default cache provider, or set one explicitly: `experimental: { cache: { provider: "..." } }`. See https://docs.astro.build/en/reference/experimental-flags/route-caching/.',
 } satisfies ErrorData;
 
 /*

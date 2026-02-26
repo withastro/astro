@@ -12,6 +12,7 @@ import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions
 import type { FontFamily, FontProvider } from '../../assets/fonts/types.js';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
 import type { AssetsPrefix } from '../../core/app/types.js';
+import type { CacheProviderConfig, RouteRules } from '../../core/cache/types.js';
 import type { AstroConfigType } from '../../core/config/schemas/index.js';
 import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
 import type { CspAlgorithm, CspDirective, CspHash } from '../../core/csp/config.js';
@@ -2814,7 +2815,7 @@ export interface AstroUserConfig<
 			 * });
 			 * ```
 			 */
-			provider?: import('../../core/cache/types.js').CacheProviderConfig;
+			provider?: CacheProviderConfig;
 		};
 
 		/**
@@ -2826,9 +2827,6 @@ export interface AstroUserConfig<
 		 * Route patterns mapped to cache rules.
 		 * Uses the same `[param]` and `[...rest]` syntax as file-based routing.
 		 *
-		 * Supports Nitro-style cache shortcuts where cache options can be specified
-		 * directly at the rule level, or nested under a `cache` key for the full form.
-		 *
 		 * ```js
 		 * // astro.config.mjs
 		 * import { memoryCache } from 'astro/config';
@@ -2837,37 +2835,15 @@ export interface AstroUserConfig<
 		 *   experimental: {
 		 *     cache: { provider: memoryCache() },
 		 *     routeRules: {
-		 *       // Shortcut form (Nitro-style)
 		 *       '/api/*': { swr: 600 },
-		 *
-		 *       // Full form with nested cache
-		 *       '/products/*': { cache: { maxAge: 3600, tags: ['products'] } },
+		 *       '/products/*': { maxAge: 3600, tags: ['products'] },
 		 *     },
 		 *   },
 		 * }
 		 * ```
 		 */
-		routeRules?: Record<
-			string,
-			{
-				/**
-				 * Nested cache options (full form).
-				 */
-				cache?: { maxAge?: number; swr?: number; tags?: string[] };
-				/**
-				 * Cache max-age in seconds (shortcut).
-				 */
-				maxAge?: number;
-				/**
-				 * Stale-while-revalidate window in seconds (shortcut).
-				 */
-				swr?: number;
-				/**
-				 * Cache tags for invalidation (shortcut).
-				 */
-				tags?: string[];
-			}
-		>;
+		routeRules?: RouteRules;
+		/*
 		 * @name experimental.rustCompiler
 		 * @type {boolean}
 		 * @default `false`

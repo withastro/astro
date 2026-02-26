@@ -10,6 +10,7 @@ export function normalizeCacheProviderConfig(
 	provider: CacheProviderConfig,
 ): NormalizedCacheProviderConfig {
 	return {
+		name: provider.name,
 		entrypoint: provider.entrypoint instanceof URL ? provider.entrypoint.href : provider.entrypoint,
 		config: provider.config,
 	};
@@ -17,12 +18,10 @@ export function normalizeCacheProviderConfig(
 
 /**
  * Normalize a route rule to extract cache options.
- * Handles both Nitro-style shortcuts (flat) and nested `cache:` form.
  */
 export function normalizeRouteRuleCacheOptions(
 	rule:
 		| {
-				cache?: CacheOptions;
 				maxAge?: number;
 				swr?: number;
 				tags?: string[];
@@ -31,27 +30,19 @@ export function normalizeRouteRuleCacheOptions(
 ): CacheOptions | undefined {
 	if (!rule) return undefined;
 
-	// Check for flat shortcuts
-	const hasShortcuts =
-		rule.maxAge !== undefined || rule.swr !== undefined || rule.tags !== undefined;
-	// Check for nested cache
-	const hasNested = rule.cache !== undefined;
-
-	if (!hasShortcuts && !hasNested) {
+	if (rule.maxAge === undefined && rule.swr === undefined && rule.tags === undefined) {
 		return undefined;
 	}
 
-	// Merge: nested cache takes precedence, then shortcuts
 	return {
-		maxAge: rule.cache?.maxAge ?? rule.maxAge,
-		swr: rule.cache?.swr ?? rule.swr,
-		tags: rule.cache?.tags ?? rule.tags,
+		maxAge: rule.maxAge,
+		swr: rule.swr,
+		tags: rule.tags,
 	};
 }
 
 /**
  * Extract cache routes from experimental.routeRules config.
- * Normalizes both flat shortcuts and nested `cache:` form.
  */
 export function extractCacheRoutesFromRouteRules(
 	routeRules: AstroConfig['experimental']['routeRules'],

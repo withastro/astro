@@ -1,5 +1,6 @@
 import { AstroError } from '../../errors/errors.js';
 import { CacheNotEnabled } from '../../errors/errors-data.js';
+import type { CacheLike } from './cache.js';
 import type { CacheHint, CacheOptions, InvalidateOptions, LiveDataEntry } from '../types.js';
 
 /**
@@ -9,7 +10,7 @@ import type { CacheHint, CacheOptions, InvalidateOptions, LiveDataEntry } from '
  */
 const EMPTY_OPTIONS = Object.freeze({ tags: [] }) as Readonly<CacheOptions>;
 
-export class NoopAstroCache {
+export class NoopAstroCache implements CacheLike {
 	set(_input: CacheOptions | CacheHint | LiveDataEntry | false): void {}
 
 	get tags(): string[] {
@@ -28,7 +29,7 @@ export class NoopAstroCache {
  * Used when cache is not configured — provides a clear, actionable error
  * instead of silently doing nothing or returning undefined.
  */
-class DisabledAstroCacheImpl {
+class DisabledAstroCacheImpl implements CacheLike {
 	set(_input: CacheOptions | CacheHint | LiveDataEntry | false): void {
 		throw new AstroError(CacheNotEnabled);
 	}

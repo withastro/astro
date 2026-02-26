@@ -8,7 +8,16 @@ import { normalizeCacheProviderConfig } from './utils.js';
 export const VIRTUAL_CACHE_PROVIDER_ID = 'virtual:astro:cache-provider';
 const RESOLVED_VIRTUAL_CACHE_PROVIDER_ID = '\0' + VIRTUAL_CACHE_PROVIDER_ID;
 
-export function vitePluginCacheProvider({ settings }: { settings: AstroSettings }): VitePlugin {
+export function vitePluginCacheProvider({
+	settings,
+}: {
+	settings: AstroSettings;
+}): VitePlugin | undefined {
+	const providerConfig = settings.config.experimental?.cache?.provider;
+	if (!providerConfig) {
+		return;
+	}
+
 	return {
 		name: VIRTUAL_CACHE_PROVIDER_ID,
 		enforce: 'pre',
@@ -27,11 +36,7 @@ export function vitePluginCacheProvider({ settings }: { settings: AstroSettings 
 				id: new RegExp(`^${RESOLVED_VIRTUAL_CACHE_PROVIDER_ID}$`),
 			},
 			async handler() {
-				if (!settings.config.experimental?.cache?.provider) {
-					return { code: 'export default null;' };
-				}
-
-				const provider = normalizeCacheProviderConfig(settings.config.experimental.cache.provider);
+				const provider = normalizeCacheProviderConfig(providerConfig);
 				// Use the project root as the importer so that adapter-provided
 				// providers (e.g. astro/cache/memory) resolve from the project's
 				// node_modules, not from astro core's location.
@@ -43,9 +48,10 @@ export function vitePluginCacheProvider({ settings }: { settings: AstroSettings 
 					// Resolution can throw for invalid package specifiers
 				}
 				if (!resolved) {
+					const displayName = provider.name ?? provider.entrypoint;
 					throw new AstroError({
 						...CacheProviderNotFound,
-						message: CacheProviderNotFound.message(provider.entrypoint),
+						message: CacheProviderNotFound.message(displayName),
 					});
 				}
 

@@ -1,8 +1,7 @@
 import type { ActionClient, ActionReturnType } from '../../actions/runtime/types.js';
 import type { AstroCookies } from '../../core/cookies/cookies.js';
 import type { CspDirective, CspHash } from '../../core/csp/config.js';
-import type { AstroCache } from '../../core/cache/runtime/cache.js';
-import type { DisabledAstroCache, NoopAstroCache } from '../../core/cache/runtime/noop.js';
+import type { CacheLike } from '../../core/cache/runtime/cache.js';
 import type { AstroSession } from '../../core/session/runtime.js';
 import type { AstroComponentFactory } from '../../runtime/server/index.js';
 import type { RewritePayload } from './common.js';
@@ -213,7 +212,7 @@ export interface APIContext<
 	 *
 	 * In dev mode, the cache object is available but performs no caching.
 	 */
-	cache: AstroCache | NoopAstroCache | DisabledAstroCache;
+	cache: CacheLike;
 
 	/**
 	 * A standard [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object containing information about the current request.

@@ -146,11 +146,8 @@ function isStale(entry: CachedEntry): boolean {
 	return age > entry.maxAge && age <= entry.maxAge + entry.swr;
 }
 
-const memoryProvider: CacheProviderFactory = (
-	config: Record<string, any> | undefined,
-): CacheProvider => {
-	const options: MemoryCacheProviderOptions = (config as MemoryCacheProviderOptions) ?? {};
-	const max = options.max ?? 1000;
+const memoryProvider = ((config: Record<string, any> | undefined): CacheProvider => {
+	const max = typeof config?.max === 'number' ? config.max : 1000;
 	const cache = new LRUMap<string, CachedEntry>(max);
 
 	return {
@@ -240,6 +237,6 @@ const memoryProvider: CacheProviderFactory = (
 			}
 		},
 	};
-};
+}) satisfies CacheProviderFactory;
 
 export default memoryProvider;

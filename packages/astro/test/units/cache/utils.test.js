@@ -127,20 +127,6 @@ describe('normalizeRouteRuleCacheOptions()', () => {
 		assert.deepEqual(result, { maxAge: 300, swr: 60, tags: undefined });
 	});
 
-	it('extracts nested cache options', () => {
-		const result = normalizeRouteRuleCacheOptions({ cache: { maxAge: 3600, tags: ['products'] } });
-		assert.deepEqual(result, { maxAge: 3600, swr: undefined, tags: ['products'] });
-	});
-
-	it('nested cache takes precedence over shortcuts', () => {
-		const result = normalizeRouteRuleCacheOptions({
-			maxAge: 100,
-			swr: 10,
-			cache: { maxAge: 3600 },
-		});
-		assert.deepEqual(result, { maxAge: 3600, swr: 10, tags: undefined });
-	});
-
 	it('returns undefined for rule with no cache options', () => {
 		const result = normalizeRouteRuleCacheOptions({});
 		assert.equal(result, undefined);
@@ -161,15 +147,6 @@ describe('extractCacheRoutesFromRouteRules()', () => {
 		assert.deepEqual(result, {
 			'/api/*': { maxAge: undefined, swr: 600, tags: undefined },
 			'/blog/*': { maxAge: 300, swr: undefined, tags: undefined },
-		});
-	});
-
-	it('extracts cache routes from nested form', () => {
-		const result = extractCacheRoutesFromRouteRules({
-			'/products/*': { cache: { maxAge: 3600, tags: ['products'] } },
-		});
-		assert.deepEqual(result, {
-			'/products/*': { maxAge: 3600, swr: undefined, tags: ['products'] },
 		});
 	});
 
@@ -204,18 +181,6 @@ describe('cacheConfigToManifest()', () => {
 			provider: 'astro/cache/memory',
 			options: { max: 500 },
 			routes: { '/blog/[...path]': { maxAge: 300, swr: undefined, tags: undefined } },
-		});
-	});
-
-	it('serializes with nested cache form in routeRules', () => {
-		const result = cacheConfigToManifest(
-			{ provider: { entrypoint: 'astro/cache/memory' } },
-			{ '/products/*': { cache: { maxAge: 3600, tags: ['products'] } } },
-		);
-		assert.deepEqual(result, {
-			provider: 'astro/cache/memory',
-			options: undefined,
-			routes: { '/products/*': { maxAge: 3600, swr: undefined, tags: ['products'] } },
 		});
 	});
 

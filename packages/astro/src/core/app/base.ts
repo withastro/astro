@@ -28,8 +28,7 @@ import { type CreateRenderContext, RenderContext } from '../render-context.js';
 import { redirectTemplate } from '../routing/3xx.js';
 import { ensure404Route } from '../routing/astro-designed-error-pages.js';
 import { matchRoute } from '../routing/match.js';
-import { type AstroCache, applyCacheHeaders } from '../cache/runtime/cache.js';
-import type { DisabledAstroCache, NoopAstroCache } from '../cache/runtime/noop.js';
+import { type CacheLike, applyCacheHeaders } from '../cache/runtime/cache.js';
 import { type AstroSession, PERSIST_SYMBOL } from '../session/runtime.js';
 import type { AppPipeline } from './pipeline.js';
 import type { SSRManifest } from './types.js';
@@ -434,7 +433,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 
 		let response;
 		let session: AstroSession | undefined;
-		let cache: AstroCache | NoopAstroCache | DisabledAstroCache | undefined;
+		let cache: CacheLike | undefined;
 		try {
 			// Load route module. We also catch its error here if it fails on initialization
 			const componentInstance = await this.pipeline.getComponentByRoute(routeData);

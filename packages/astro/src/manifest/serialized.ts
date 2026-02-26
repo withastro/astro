@@ -82,7 +82,7 @@ export function serializedManifestPlugin({
 					const serialized = await createSerializedManifest(settings);
 					manifestData = JSON.stringify(serialized);
 				}
-				const hasCacheConfig = !!settings.config.experimental?.cache;
+				const hasCacheConfig = !!settings.config.experimental?.cache?.provider;
 				const cacheProviderLine = hasCacheConfig
 					? `cacheProvider: () => import('${VIRTUAL_CACHE_PROVIDER_ID}'),`
 					: '';
