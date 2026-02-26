@@ -7,7 +7,6 @@ Consider the following example configuration:
 ```
 {
   "compilerOptions": {
-    "baseUrl": "src",
     "paths": {
       "components:*": ["components/*.astro"]
     }
