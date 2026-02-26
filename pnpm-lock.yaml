@@ -4517,12 +4517,6 @@ importers:
         specifier: ^0.8.0
         version: 0.8.0(astro@packages+astro)
 
-  packages/astro/test/fixtures/type-imports:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/unused-slot:
     dependencies:
       astro:
@@ -4566,18 +4560,6 @@ importers:
         version: 3.2.4(@types/debug@4.1.12)(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
 
   packages/astro/test/fixtures/vue-component:
-    dependencies:
-      '@astrojs/vue':
-        specifier: workspace:*
-        version: link:../../../../integrations/vue
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-      vue:
-        specifier: ^3.5.28
-        version: 3.5.28(typescript@5.9.3)
-
-  packages/astro/test/fixtures/vue-jsx:
     dependencies:
       '@astrojs/vue':
         specifier: workspace:*
