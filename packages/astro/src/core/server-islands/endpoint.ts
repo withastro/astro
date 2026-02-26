@@ -13,7 +13,6 @@ import { getPattern } from '../routing/pattern.js';
 
 export const SERVER_ISLAND_ROUTE = '/_server-islands/[name]';
 export const SERVER_ISLAND_COMPONENT = '_server-islands.astro';
-export const SERVER_ISLAND_BASE_PREFIX = '_server-islands';
 
 type ConfigFields = Pick<SSRManifest, 'base' | 'trailingSlash'>;
 
