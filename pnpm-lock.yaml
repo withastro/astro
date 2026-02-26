@@ -4577,18 +4577,6 @@ importers:
         specifier: ^3.5.28
         version: 3.5.28(typescript@5.9.3)
 
-  packages/astro/test/fixtures/vue-jsx:
-    dependencies:
-      '@astrojs/vue':
-        specifier: workspace:*
-        version: link:../../../../integrations/vue
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-      vue:
-        specifier: ^3.5.28
-        version: 3.5.28(typescript@5.9.3)
-
   packages/astro/test/fixtures/vue-with-multi-renderer:
     dependencies:
       '@astrojs/svelte':
