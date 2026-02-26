@@ -1,8 +1,8 @@
 import { removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
 import type { AstroConfig } from '../../../types/public/config.js';
 import type { RoutePart } from '../../../types/public/internal.js';
-import { getParts } from '../../routing/manifest/parts.js';
-import { getPattern } from '../../routing/manifest/pattern.js';
+import { getParts } from '../../routing/parts.js';
+import { getPattern } from '../../routing/pattern.js';
 import { routeComparator } from '../../routing/priority.js';
 import type { CacheOptions } from '../types.js';
 
