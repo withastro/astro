@@ -4517,12 +4517,6 @@ importers:
         specifier: ^0.8.0
         version: 0.8.0(astro@packages+astro)
 
-  packages/astro/test/fixtures/type-imports:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/unused-slot:
     dependencies:
       astro:
