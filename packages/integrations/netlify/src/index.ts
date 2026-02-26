@@ -418,6 +418,8 @@ export default function netlifyIntegration(
 
 			export default createHandler(${JSON.stringify({ notFoundContent })});
 
+			// The config must be inlined here instead of imported because Netlify
+			// parses this file statically to read the config.
 			export const config = {
 				includedFiles: ['**/*'],
 				name: 'Astro SSR',
