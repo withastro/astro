@@ -16,6 +16,9 @@ import { findRouteToRewrite } from '../routing/rewrite.js';
 import type { BuildInternals } from './internal.js';
 import { cssOrder, mergeInlineCss, getPageData } from './runtime.js';
 import type { SinglePageBuiltModule, StaticBuildOptions } from './types.js';
+import { newNodePool } from '../../runtime/server/render/queue/pool.js';
+import { HTMLStringCache } from '../../runtime/server/html-string-cache.js';
+import { queueRenderingEnabled } from '../app/manifest.js';
 
 /**
  * The build pipeline is responsible to gather the files emitted by the SSR build and generate the pages by executing these files.
@@ -82,6 +85,10 @@ export class BuildPipeline extends Pipeline {
 		const logger = createConsoleLogger(manifest.logLevel);
 		// We can skip streaming in SSG for performance as writing as strings are faster
 		super(logger, manifest, 'production', manifest.renderers, resolve, manifest.serverLike);
+		if (queueRenderingEnabled(this.manifest.experimentalQueuedRendering)) {
+			this.nodePool = newNodePool(this.manifest.experimentalQueuedRendering!);
+			this.htmlStringCache = new HTMLStringCache(1000); // Use default size
+		}
 	}
 
 	getRoutes(): RouteData[] {

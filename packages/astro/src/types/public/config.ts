@@ -622,6 +622,9 @@ export interface AstroUserConfig<
 		 * Each pattern can specify `protocol`, `hostname`, and `port`. All three are validated if provided.
 		 * The patterns support wildcards for flexible hostname matching:
 		 *
+		 * - `*.example.com` - matches exactly one subdomain level (e.g., `sub.example.com` but not `deep.sub.example.com`)
+		 * - `**.example.com` - matches any subdomain depth (e.g., both `sub.example.com` and `deep.sub.example.com`)
+		 *
 		 * ```js
 		 * {
 		 *   security: {
@@ -637,6 +640,17 @@ export interface AstroUserConfig<
 		 *         port: '443'
 		 *       }
 		 *     ]
+		 *   }
+		 * }
+		 * ```
+		 *
+		 * In some specific contexts (e.g., applications behind trusted reverse proxies with dynamic domains), you may need to allow all domains. To do this, use an empty object:
+		 *
+		 * ```js
+		 * {
+		 *   security: {
+		 *     // Allow any domain - use this only when necessary
+		 *     allowedDomains: [{}]
 		 *   }
 		 * }
 		 * ```
@@ -661,7 +675,8 @@ export interface AstroUserConfig<
 		 * This feature comes with some limitations:
 		 * - External scripts and external styles are not supported out of the box, but you can [provide your own hashes](https://v6.docs.astro.build/en/reference/configuration-reference/#hashes).
 		 * - [Astro's view transitions](https://v6.docs.astro.build/en/guides/view-transitions/) using the `<ClientRouter />` are not supported, but you can [consider migrating to the browser native View Transition API](https://events-3bg.pages.dev/jotter/astro-view-transitions/) instead if you are not using Astro's enhancements to the native View Transitions and Navigation APIs.
-		 * - Shiki isn't currently supported. By design, Shiki functions using inline styles.
+		 * - Shiki isn't currently supported. By design, Shiki functions use inline styles that cannot work with Astro CSP implementation. Consider [using `<Prism />`](https://v6.docs.astro.build/en/guides/syntax-highlighting/#prism-) when your project requires both CSP and syntax highlighting.
+		 * - `unsafe-inline` directives are incompatible with Astro's CSP implementation. By default, Astro will emit hashes for all its bundled scripts (e.g. client islands) and all modern browsers will automatically reject `unsafe-inline` when it occurs in a directive with a hash or nonce.
 		 *
 		 * :::note
 		 * Due to the nature of the Vite dev server, this feature isn't supported while working in `dev` mode. Instead, you can test this in your Astro project using `build` and `preview`.
@@ -2787,6 +2802,66 @@ export interface AstroUserConfig<
 		 * ```
 		 */
 		rustCompiler?: boolean;
+
+		/**
+		 * @name experimental.queuedRendering
+		 * @type {boolean | { poolSize?: number; cache?: boolean }}
+		 * @default `false`
+		 * @version 6.0.0
+		 * @description
+		 * Enable queue-based rendering engine instead of the default recursive rendering.
+		 *
+		 * This new rendering engine comes with a different set of features that you can tweak based on your needs.
+		 *
+		 * ```js
+		 * {
+		 *   experimental: {
+		 *     queuedRendering: {
+		 *       enabled: true
+		 *     }
+		 *   }
+		 * }
+		 * ```
+		 *
+		 * You can optionally configure the object pool size and HTMLString caching:
+		 *
+		 * ```js
+		 * {
+		 *   experimental: {
+		 *     queuedRendering: {
+		 *       enabled: true,
+		 *       poolSize: 1000,  // default: 1000 for static builds, 0 for SSR
+		 *       cache: false     // default: false (caching can hurt performance)
+		 *     }
+		 *   }
+		 * }
+		 * ```
+		 */
+		queuedRendering?: {
+			/**
+			 * @default `false`
+			 * @version 6.0.0
+			 * @description
+			 * Enables the queue-based rendering.
+			 */
+			enabled: boolean;
+			/**
+			 * @default 1000
+			 * @version 6.0.0
+			 * @description
+			 * Allows to change how many nodes should be saved in the pool. If 0 is provided, the pool is disabled.
+			 * The pool is disabled for dynamic pages, because server requests don't share the same memory.
+			 */
+			poolSize?: number;
+			/**
+			 * @default `false`
+			 * @version 6.0.0
+			 * @description
+			 * Allows to enable the caching of node contents when rendering the same page.
+			 * This caching is disabled for dynamic pages.
+			 */
+			contentCache?: boolean;
+		};
 	};
 }
 

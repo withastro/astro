@@ -9,11 +9,10 @@ import { createSlotValueFromString } from '../../runtime/server/render/slot.js';
 import type { ComponentInstance, RoutesList } from '../../types/astro.js';
 import type { RouteData, SSRManifest } from '../../types/public/internal.js';
 import { decryptString } from '../encryption.js';
-import { getPattern } from '../routing/manifest/pattern.js';
+import { getPattern } from '../routing/pattern.js';
 
 export const SERVER_ISLAND_ROUTE = '/_server-islands/[name]';
 export const SERVER_ISLAND_COMPONENT = '_server-islands.astro';
-export const SERVER_ISLAND_BASE_PREFIX = '_server-islands';
 
 type ConfigFields = Pick<SSRManifest, 'base' | 'trailingSlash'>;
 

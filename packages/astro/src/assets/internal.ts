@@ -141,7 +141,8 @@ export async function getImage(
 	} else {
 		resolvedOptions.loading ??= 'lazy';
 		resolvedOptions.decoding ??= 'async';
-		resolvedOptions.fetchpriority ??= 'auto';
+		// Omit fetchpriority to use the default `"auto"` value
+		resolvedOptions.fetchpriority ??= undefined;
 	}
 
 	if (layout !== 'none') {

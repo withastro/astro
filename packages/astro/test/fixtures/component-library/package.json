@@ -8,9 +8,9 @@
     "@astrojs/svelte": "workspace:*",
     "@test/component-library-shared": "workspace:*",
     "astro": "workspace:*",
-    "preact": "^10.28.3",
+    "preact": "^10.28.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "svelte": "^5.51.5"
+    "svelte": "^5.53.1"
   }
 }

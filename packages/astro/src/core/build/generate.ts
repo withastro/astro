@@ -58,7 +58,7 @@ export async function generatePages(
 	}
 
 	// Get or create the prerenderer
-	let prerenderer: AstroPrerenderer;
+	let prerenderer: DefaultPrerenderer;
 	const settingsPrerenderer = options.settings.prerenderer;
 	if (!settingsPrerenderer) {
 		// No custom prerenderer - create default
@@ -153,22 +153,29 @@ export async function generatePages(
 	// Generate each path
 	if (config.build.concurrency > 1) {
 		const limit = PLimit(config.build.concurrency);
-		const promises: Promise<void>[] = [];
-		for (const { pathname, route } of filteredPaths) {
-			promises.push(
-				limit(() =>
-					generatePathWithPrerenderer(
-						prerenderer,
-						pathname,
-						route,
-						options,
-						routeToHeaders,
-						logger,
+		// Process in batches to avoid V8's Promise.all element limit, which is around ~123k items
+		//
+		// NOTE: ideally we could consider an iterator to avoid the batching limitation
+		const BATCH_SIZE = 100_000;
+		for (let i = 0; i < filteredPaths.length; i += BATCH_SIZE) {
+			const batch = filteredPaths.slice(i, i + BATCH_SIZE);
+			const promises: Promise<void>[] = [];
+			for (const { pathname, route } of batch) {
+				promises.push(
+					limit(() =>
+						generatePathWithPrerenderer(
+							prerenderer,
+							pathname,
+							route,
+							options,
+							routeToHeaders,
+							logger,
+						),
 					),
-				),
-			);
+				);
+			}
+			await Promise.all(promises);
 		}
-		await Promise.all(promises);
 	} else {
 		for (const { pathname, route } of filteredPaths) {
 			await generatePathWithPrerenderer(
@@ -182,6 +189,16 @@ export async function generatePages(
 		}
 	}
 
+	const staticImageList = getStaticImageList();
+
+	// Must happen before teardown since collectStaticImages fetches from the prerender server
+	if (prerenderer.collectStaticImages) {
+		const adapterImages = await prerenderer.collectStaticImages();
+		for (const [path, entry] of adapterImages) {
+			staticImageList.set(path, entry);
+		}
+	}
+
 	// Teardown the prerenderer
 	await prerenderer.teardown?.();
 	logger.info(
@@ -189,17 +206,40 @@ export async function generatePages(
 		colors.green(`✓ Completed in ${getTimeStat(generatePagesTimer, performance.now())}.\n`),
 	);
 
-	const staticImageList = getStaticImageList();
-	// Get app from default prerenderer for assets generation (custom prerenderers handle assets differently)
-	const app = (prerenderer as DefaultPrerenderer).app;
-	if (staticImageList.size && app) {
+	// Log pool statistics if queue rendering is enabled
+	if (
+		options.settings.logLevel === 'debug' &&
+		options.settings.config.experimental?.queuedRendering &&
+		prerenderer.app
+	) {
+		try {
+			const stats = prerenderer.app.getQueueStats();
+			// Dynamic import to avoid loading pool module when not using queue rendering
+			// Only log if there was actual pool activity
+			if (stats && (stats.acquireFromPool > 0 || stats.acquireNew > 0)) {
+				logger.info(
+					null,
+					colors.dim(
+						`[Queue Pool] ${stats.acquireFromPool.toLocaleString()} reused / ${stats.acquireNew.toLocaleString()} new nodes | ` +
+							`Hit rate: ${stats.hitRate.toFixed(1)}% | ` +
+							`Pool: ${stats.poolSize}/${stats.maxSize}`,
+					),
+				);
+			}
+		} catch {
+			// Silently ignore if pool module is not available
+		}
+	}
+
+	// Default pipeline always runs
+	if (staticImageList.size) {
 		logger.info('SKIP_FORMAT', `${colors.bgGreen(colors.black(` generating optimized images `))}`);
 
 		const totalCount = Array.from(staticImageList.values())
 			.map((x) => x.transforms.size)
 			.reduce((a, b) => a + b, 0);
 		const cpuCount = os.cpus().length;
-		const assetsCreationPipeline = await prepareAssetsGenerationEnv(app, totalCount);
+		const assetsCreationPipeline = await prepareAssetsGenerationEnv(options, totalCount);
 		const queue = new PQueue({ concurrency: Math.max(cpuCount, 1) });
 
 		const assetsTimer = performance.now();

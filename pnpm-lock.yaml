@@ -184,7 +184,7 @@ importers:
   examples/basics:
     dependencies:
       astro:
-        specifier: ^6.0.0-beta.14
+        specifier: ^6.0.0-beta.15
         version: link:../../packages/astro
 
   examples/blog:
@@ -193,13 +193,13 @@ importers:
         specifier: ^5.0.0-beta.8
         version: link:../../packages/integrations/mdx
       '@astrojs/rss':
-        specifier: ^4.0.15-beta.3
+        specifier: ^4.0.15-beta.4
         version: link:../../packages/astro-rss
       '@astrojs/sitemap':
         specifier: ^3.6.1-beta.3
         version: link:../../packages/integrations/sitemap
       astro:
-        specifier: ^6.0.0-beta.14
+        specifier: ^6.0.0-beta.15
         version: link:../../packages/astro
       sharp:
         specifier: ^0.34.3
@@ -208,7 +208,7 @@ importers:
   examples/component:
     devDependencies:
       astro:
-        specifier: ^6.0.0-beta.14
+        specifier: ^6.0.0-beta.15
         version: link:../../packages/astro
 
   examples/container-with-vitest:
@@ -217,7 +217,7 @@ importers:
         specifier: ^5.0.0-beta.3
         version: link:../../packages/integrations/react
       astro:
-        specifier: ^6.0.0-beta.14
+        specifier: ^6.0.0-beta.15
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -248,13 +248,13 @@ importers:
         specifier: ^3.15.8
         version: 3.15.8
       astro:
-        specifier: ^6.0.0-beta.14
+        specifier: ^6.0.0-beta.15
         version: link:../../packages/astro
 
   examples/framework-multiple:
     dependencies:
       '@astrojs/preact':
-        specifier: ^5.0.0-beta.3
+        specifier: ^5.0.0-beta.4
         version: link:../../packages/integrations/preact
       '@astrojs/react':
         specifier: ^5.0.0-beta.3
@@ -263,7 +263,7 @@ importers:
         specifier: ^6.0.0-beta.2
         version: link:../../packages/integrations/solid
       '@astrojs/svelte':
-        specifier: ^8.0.0-beta.2
+        specifier: ^8.0.0-beta.3
         version: link:../../packages/integrations/svelte
       '@astrojs/vue':
         specifier: ^6.0.0-beta.1
@@ -275,7 +275,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.28)
       astro:
-        specifier: ^6.0.0-beta.14
+        specifier: ^6.0.0-beta.15
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -291,7 +291,7 @@ importers:
         version: 1.9.11
       svelte:
         specifier: ^5.53.0
-        version: 5.53.0
+        version: 5.53.1
       vue:
         specifier: ^3.5.28
         version: 3.5.28(typescript@5.9.3)
@@ -299,13 +299,13 @@ importers:
   examples/framework-preact:
     dependencies:
       '@astrojs/preact':
-        specifier: ^5.0.0-beta.3
+        specifier: ^5.0.0-beta.4
         version: link:../../packages/integrations/preact
       '@preact/signals':
         specifier: ^2.8.1
         version: 2.8.1(preact@10.28.4)
       astro:
-        specifier: ^6.0.0-beta.14
+        specifier: ^6.0.0-beta.15
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -323,7 +323,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.28)
       astro:
-        specifier: ^6.0.0-beta.14
+        specifier: ^6.0.0-beta.15
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -338,7 +338,7 @@ importers:
         specifier: ^6.0.0-beta.2
         version: link:../../packages/integrations/solid
       astro:
-        specifier: ^6.0.0-beta.14
+        specifier: ^6.0.0-beta.15
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.9.11
@@ -347,14 +347,14 @@ importers:
   examples/framework-svelte:
     dependencies:
       '@astrojs/svelte':
-        specifier: ^8.0.0-beta.2
+        specifier: ^8.0.0-beta.3
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^6.0.0-beta.14
+        specifier: ^6.0.0-beta.15
         version: link:../../packages/astro
       svelte:
         specifier: ^5.53.0
-        version: 5.53.0
+        version: 5.53.1
 
   examples/framework-vue:
     dependencies:
@@ -362,7 +362,7 @@ importers:
         specifier: ^6.0.0-beta.1
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^6.0.0-beta.14
+        specifier: ^6.0.0-beta.15
         version: link:../../packages/astro
       vue:
         specifier: ^3.5.28
@@ -371,49 +371,49 @@ importers:
   examples/hackernews:
     dependencies:
       '@astrojs/node':
-        specifier: ^10.0.0-beta.4
+        specifier: ^10.0.0-beta.5
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^6.0.0-beta.14
+        specifier: ^6.0.0-beta.15
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-        specifier: ^6.0.0-beta.14
+        specifier: ^6.0.0-beta.15
         version: link:../../packages/astro
 
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^6.0.0-beta.14
+        specifier: ^6.0.0-beta.15
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-        specifier: ^6.0.0-beta.14
+        specifier: ^6.0.0-beta.15
         version: link:../../packages/astro
 
   examples/ssr:
     dependencies:
       '@astrojs/node':
-        specifier: ^10.0.0-beta.4
+        specifier: ^10.0.0-beta.5
         version: link:../../packages/integrations/node
       '@astrojs/svelte':
-        specifier: ^8.0.0-beta.2
+        specifier: ^8.0.0-beta.3
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^6.0.0-beta.14
+        specifier: ^6.0.0-beta.15
         version: link:../../packages/astro
       svelte:
         specifier: ^5.53.0
-        version: 5.53.0
+        version: 5.53.1
 
   examples/starlog:
     dependencies:
       astro:
-        specifier: ^6.0.0-beta.14
+        specifier: ^6.0.0-beta.15
         version: link:../../packages/astro
       sass:
         specifier: ^1.97.3
@@ -428,7 +428,7 @@ importers:
         specifier: ^18.17.8
         version: 18.19.130
       astro:
-        specifier: ^6.0.0-beta.14
+        specifier: ^6.0.0-beta.15
         version: link:../../packages/astro
 
   examples/with-markdoc:
@@ -437,7 +437,7 @@ importers:
         specifier: ^1.0.0-beta.11
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^6.0.0-beta.14
+        specifier: ^6.0.0-beta.15
         version: link:../../packages/astro
 
   examples/with-mdx:
@@ -446,10 +446,10 @@ importers:
         specifier: ^5.0.0-beta.8
         version: link:../../packages/integrations/mdx
       '@astrojs/preact':
-        specifier: ^5.0.0-beta.3
+        specifier: ^5.0.0-beta.4
         version: link:../../packages/integrations/preact
       astro:
-        specifier: ^6.0.0-beta.14
+        specifier: ^6.0.0-beta.15
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -458,13 +458,13 @@ importers:
   examples/with-nanostores:
     dependencies:
       '@astrojs/preact':
-        specifier: ^5.0.0-beta.3
+        specifier: ^5.0.0-beta.4
         version: link:../../packages/integrations/preact
       '@nanostores/preact':
         specifier: ^1.0.0
         version: 1.0.0(nanostores@1.1.0)(preact@10.28.4)
       astro:
-        specifier: ^6.0.0-beta.14
+        specifier: ^6.0.0-beta.15
         version: link:../../packages/astro
       nanostores:
         specifier: ^1.1.0
@@ -485,7 +485,7 @@ importers:
         specifier: ^1.9.0
         version: 1.9.0
       astro:
-        specifier: ^6.0.0-beta.14
+        specifier: ^6.0.0-beta.15
         version: link:../../packages/astro
       canvas-confetti:
         specifier: ^1.9.4
@@ -497,7 +497,7 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^6.0.0-beta.14
+        specifier: ^6.0.0-beta.15
         version: link:../../packages/astro
       vitest:
         specifier: ^3.2.4
@@ -506,8 +506,8 @@ importers:
   packages/astro:
     dependencies:
       '@astrojs/compiler':
-        specifier: ^3.0.0-beta.0
-        version: 3.0.0-beta.0
+        specifier: ^3.0.0-beta.1
+        version: 3.0.0-beta.1
       '@astrojs/internal-helpers':
         specifier: workspace:*
         version: link:../internal-helpers
@@ -528,7 +528,7 @@ importers:
         version: 1.1.0
       '@rollup/pluginutils':
         specifier: ^5.3.0
-        version: 5.3.0(rollup@4.57.1)
+        version: 5.3.0(rollup@4.58.0)
       aria-query:
         specifier: ^5.3.2
         version: 5.3.2
@@ -547,12 +547,6 @@ importers:
       cookie:
         specifier: ^1.1.1
         version: 1.1.1
-      cssesc:
-        specifier: ^3.0.0
-        version: 3.0.0
-      deterministic-object-hash:
-        specifier: ^2.0.2
-        version: 2.0.2
       devalue:
         specifier: ^5.6.3
         version: 5.6.3
@@ -569,8 +563,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       esbuild:
-        specifier: ^0.25.0
-        version: 0.25.5
+        specifier: ^0.27.3
+        version: 0.27.3
       flattie:
         specifier: ^1.1.1
         version: 1.1.1
@@ -686,9 +680,6 @@ importers:
       '@types/aria-query':
         specifier: ^5.0.4
         version: 5.0.4
-      '@types/cssesc':
-        specifier: ^3.0.2
-        version: 3.0.2
       '@types/dlv':
         specifier: ^1.1.5
         version: 1.1.5
@@ -753,8 +744,8 @@ importers:
         specifier: ^0.1.2
         version: 0.1.2
       rollup:
-        specifier: ^4.57.1
-        version: 4.57.1
+        specifier: ^4.58.0
+        version: 4.58.0
       sass:
         specifier: ^1.97.3
         version: 1.97.3
@@ -762,8 +753,8 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
       undici:
-        specifier: ^7.21.0
-        version: 7.21.0
+        specifier: ^7.22.0
+        version: 7.22.0
       unified:
         specifier: ^11.0.5
         version: 11.0.5
@@ -819,8 +810,8 @@ importers:
   packages/astro/e2e/fixtures/actions-blog:
     dependencies:
       '@astrojs/check':
-        specifier: ^0.9.6
-        version: 0.9.6(prettier-plugin-astro@0.14.1)(prettier@3.8.1)(typescript@5.9.3)
+        specifier: workspace:*
+        version: link:../../../../language-tools/astro-check
       '@astrojs/db':
         specifier: workspace:*
         version: link:../../../../db
@@ -852,8 +843,8 @@ importers:
   packages/astro/e2e/fixtures/actions-react-19:
     dependencies:
       '@astrojs/check':
-        specifier: ^0.9.6
-        version: 0.9.6(prettier-plugin-astro@0.14.1)(prettier@3.8.1)(typescript@5.9.3)
+        specifier: workspace:*
+        version: link:../../../../language-tools/astro-check
       '@astrojs/db':
         specifier: workspace:*
         version: link:../../../../db
@@ -894,7 +885,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
 
   packages/astro/e2e/fixtures/astro-envs:
@@ -928,7 +919,7 @@ importers:
   packages/astro/e2e/fixtures/client-only:
     dependencies:
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
       react:
         specifier: ^18.3.1
@@ -940,8 +931,8 @@ importers:
         specifier: ^1.9.11
         version: 1.9.11
       svelte:
-        specifier: ^5.51.5
-        version: 5.53.0
+        specifier: ^5.53.1
+        version: 5.53.1
       vue:
         specifier: ^3.5.28
         version: 3.5.28(typescript@5.9.3)
@@ -1001,7 +992,7 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
       react:
         specifier: ^18.3.1
@@ -1078,7 +1069,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
 
   packages/astro/e2e/fixtures/error-cyclic:
@@ -1090,7 +1081,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
 
   packages/astro/e2e/fixtures/error-sass:
@@ -1123,7 +1114,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
       react:
         specifier: ^18.3.1
@@ -1138,8 +1129,8 @@ importers:
         specifier: ^1.9.11
         version: 1.9.11
       svelte:
-        specifier: ^5.51.5
-        version: 5.53.0
+        specifier: ^5.53.1
+        version: 5.53.1
       vue:
         specifier: ^3.5.28
         version: 3.5.28(typescript@5.9.3)
@@ -1162,7 +1153,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
 
   packages/astro/e2e/fixtures/i18n:
@@ -1183,7 +1174,7 @@ importers:
         specifier: ^3.3.2
         version: 3.3.2
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
       react:
         specifier: ^18.3.1
@@ -1195,8 +1186,8 @@ importers:
         specifier: ^1.9.11
         version: 1.9.11
       svelte:
-        specifier: ^5.51.5
-        version: 5.53.0
+        specifier: ^5.53.1
+        version: 5.53.1
       vue:
         specifier: ^3.5.28
         version: 3.5.28(typescript@5.9.3)
@@ -1223,7 +1214,7 @@ importers:
   packages/astro/e2e/fixtures/namespaced-component:
     dependencies:
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
     devDependencies:
       '@astrojs/mdx':
@@ -1239,7 +1230,7 @@ importers:
   packages/astro/e2e/fixtures/nested-in-preact:
     dependencies:
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
       react:
         specifier: ^18.3.1
@@ -1251,8 +1242,8 @@ importers:
         specifier: ^1.9.11
         version: 1.9.11
       svelte:
-        specifier: ^5.51.5
-        version: 5.53.0
+        specifier: ^5.53.1
+        version: 5.53.1
       vue:
         specifier: ^3.5.28
         version: 3.5.28(typescript@5.9.3)
@@ -1279,7 +1270,7 @@ importers:
   packages/astro/e2e/fixtures/nested-in-react:
     dependencies:
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
       react:
         specifier: ^18.3.1
@@ -1291,8 +1282,8 @@ importers:
         specifier: ^1.9.11
         version: 1.9.11
       svelte:
-        specifier: ^5.51.5
-        version: 5.53.0
+        specifier: ^5.53.1
+        version: 5.53.1
       vue:
         specifier: ^3.5.28
         version: 3.5.28(typescript@5.9.3)
@@ -1319,7 +1310,7 @@ importers:
   packages/astro/e2e/fixtures/nested-in-solid:
     dependencies:
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
       react:
         specifier: ^18.3.1
@@ -1331,8 +1322,8 @@ importers:
         specifier: ^1.9.11
         version: 1.9.11
       svelte:
-        specifier: ^5.51.5
-        version: 5.53.0
+        specifier: ^5.53.1
+        version: 5.53.1
       vue:
         specifier: ^3.5.28
         version: 3.5.28(typescript@5.9.3)
@@ -1359,7 +1350,7 @@ importers:
   packages/astro/e2e/fixtures/nested-in-svelte:
     dependencies:
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
       react:
         specifier: ^18.3.1
@@ -1371,8 +1362,8 @@ importers:
         specifier: ^1.9.11
         version: 1.9.11
       svelte:
-        specifier: ^5.51.5
-        version: 5.53.0
+        specifier: ^5.53.1
+        version: 5.53.1
       vue:
         specifier: ^3.5.28
         version: 3.5.28(typescript@5.9.3)
@@ -1399,7 +1390,7 @@ importers:
   packages/astro/e2e/fixtures/nested-in-vue:
     dependencies:
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
       react:
         specifier: ^18.3.1
@@ -1411,8 +1402,8 @@ importers:
         specifier: ^1.9.11
         version: 1.9.11
       svelte:
-        specifier: ^5.51.5
-        version: 5.53.0
+        specifier: ^5.53.1
+        version: 5.53.1
       vue:
         specifier: ^3.5.28
         version: 3.5.28(typescript@5.9.3)
@@ -1439,7 +1430,7 @@ importers:
   packages/astro/e2e/fixtures/nested-recursive:
     dependencies:
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
       react:
         specifier: ^18.3.1
@@ -1451,8 +1442,8 @@ importers:
         specifier: ^1.9.11
         version: 1.9.11
       svelte:
-        specifier: ^5.51.5
-        version: 5.53.0
+        specifier: ^5.53.1
+        version: 5.53.1
       vue:
         specifier: ^3.5.28
         version: 3.5.28(typescript@5.9.3)
@@ -1507,7 +1498,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
 
   packages/astro/e2e/fixtures/preact-component:
@@ -1522,7 +1513,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
 
   packages/astro/e2e/fixtures/preact-lazy-component:
@@ -1537,7 +1528,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
 
   packages/astro/e2e/fixtures/prefetch:
@@ -1567,7 +1558,7 @@ importers:
   packages/astro/e2e/fixtures/react19-preact-hook-error:
     dependencies:
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
       react:
         specifier: ^19.2.4
@@ -1669,19 +1660,19 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^5.51.5
-        version: 5.53.0
+        specifier: ^5.53.1
+        version: 5.53.1
 
   packages/astro/e2e/fixtures/tailwindcss:
     dependencies:
       '@tailwindcss/vite':
-        specifier: ^4.1.18
+        specifier: ^4.2.0
         version: 4.2.0(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
       astro:
         specifier: workspace:*
         version: link:../../..
       tailwindcss:
-        specifier: ^4.1.18
+        specifier: ^4.2.0
         version: 4.2.0
 
   packages/astro/e2e/fixtures/ts-resolution:
@@ -1729,8 +1720,8 @@ importers:
         specifier: ^1.9.11
         version: 1.9.11
       svelte:
-        specifier: ^5.51.5
-        version: 5.53.0
+        specifier: ^5.53.1
+        version: 5.53.1
       vue:
         specifier: ^3.5.28
         version: 3.5.28(typescript@5.9.3)
@@ -1873,8 +1864,8 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       svelte:
-        specifier: ^5.51.5
-        version: 5.53.0
+        specifier: ^5.53.1
+        version: 5.53.1
       vue:
         specifier: ^3.5.28
         version: 3.5.28(typescript@5.9.3)
@@ -1894,8 +1885,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^5.51.5
-        version: 5.53.0
+        specifier: ^5.53.1
+        version: 5.53.1
 
   packages/astro/test/fixtures/alias-tsconfig:
     dependencies:
@@ -1909,8 +1900,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^5.51.5
-        version: 5.53.0
+        specifier: ^5.53.1
+        version: 5.53.1
 
   packages/astro/test/fixtures/alias-tsconfig-baseurl-only:
     dependencies:
@@ -1921,8 +1912,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^5.51.5
-        version: 5.53.0
+        specifier: ^5.53.1
+        version: 5.53.1
 
   packages/astro/test/fixtures/alias-tsconfig-no-baseurl:
     dependencies:
@@ -2016,14 +2007,14 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
 
   packages/astro/test/fixtures/astro-check-errors:
     dependencies:
       '@astrojs/check':
-        specifier: ^0.9.6
-        version: 0.9.6(prettier-plugin-astro@0.14.1)(prettier@3.8.1)(typescript@5.9.3)
+        specifier: workspace:*
+        version: link:../../../../language-tools/astro-check
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -2034,8 +2025,8 @@ importers:
   packages/astro/test/fixtures/astro-check-no-errors:
     dependencies:
       '@astrojs/check':
-        specifier: ^0.9.6
-        version: 0.9.6(prettier-plugin-astro@0.14.1)(prettier@3.8.1)(typescript@5.9.3)
+        specifier: workspace:*
+        version: link:../../../../language-tools/astro-check
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -2064,11 +2055,11 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
       svelte:
-        specifier: ^5.51.5
-        version: 5.53.0
+        specifier: ^5.53.1
+        version: 5.53.1
       vue:
         specifier: ^3.5.28
         version: 3.5.28(typescript@5.9.3)
@@ -2100,8 +2091,8 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       svelte:
-        specifier: ^5.51.5
-        version: 5.53.0
+        specifier: ^5.53.1
+        version: 5.53.1
 
   packages/astro/test/fixtures/astro-client-only/pkg: {}
 
@@ -2192,8 +2183,8 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       svelte:
-        specifier: ^5.51.5
-        version: 5.53.0
+        specifier: ^5.53.1
+        version: 5.53.1
 
   packages/astro/test/fixtures/astro-env:
     dependencies:
@@ -2246,7 +2237,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
 
   packages/astro/test/fixtures/astro-external-files:
@@ -2264,7 +2255,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
 
   packages/astro/test/fixtures/astro-generator:
@@ -2468,13 +2459,13 @@ importers:
   packages/astro/test/fixtures/astro-scripts:
     dependencies:
       '@tailwindcss/vite':
-        specifier: ^4.1.18
+        specifier: ^4.2.0
         version: 4.2.0(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
       astro:
         specifier: workspace:*
         version: link:../../..
       tailwindcss:
-        specifier: ^4.1.18
+        specifier: ^4.2.0
         version: 4.2.0
 
   packages/astro/test/fixtures/astro-sitemap-rss:
@@ -2492,7 +2483,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
 
   packages/astro/test/fixtures/astro-slots:
@@ -2522,7 +2513,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
       react:
         specifier: ^18.3.1
@@ -2534,8 +2525,8 @@ importers:
         specifier: ^1.9.11
         version: 1.9.11
       svelte:
-        specifier: ^5.51.5
-        version: 5.53.0
+        specifier: ^5.53.1
+        version: 5.53.1
       vue:
         specifier: ^3.5.28
         version: 3.5.28(typescript@5.9.3)
@@ -2549,7 +2540,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
 
   packages/astro/test/fixtures/build-assets:
@@ -2561,7 +2552,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
 
   packages/astro/test/fixtures/build-concurrency:
@@ -2615,7 +2606,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
       react:
         specifier: ^18.3.1
@@ -2624,13 +2615,13 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       svelte:
-        specifier: ^5.51.5
-        version: 5.53.0
+        specifier: ^5.53.1
+        version: 5.53.1
 
   packages/astro/test/fixtures/component-library-shared:
     dependencies:
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
       react:
         specifier: ^18.3.1
@@ -2704,6 +2695,12 @@ importers:
         version: link:../../..
 
   packages/astro/test/fixtures/content-collection-references:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/content-collection-tla-svg:
     dependencies:
       astro:
         specifier: workspace:*
@@ -2814,7 +2811,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
 
   packages/astro/test/fixtures/content-layer-remark-plugins:
@@ -2879,6 +2876,12 @@ importers:
       '@astrojs/mdx':
         specifier: workspace:*
         version: link:../../../../integrations/mdx
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/core-image-deletion-ssr:
+    dependencies:
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -3020,8 +3023,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^5.51.5
-        version: 5.53.0
+        specifier: ^5.53.1
+        version: 5.53.1
 
   packages/astro/test/fixtures/css-deduplication:
     dependencies:
@@ -3269,12 +3272,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/dynamic-route-collision:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/entry-file-names:
     dependencies:
       '@astrojs/preact':
@@ -3284,7 +3281,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
 
   packages/astro/test/fixtures/error-bad-js:
@@ -3332,11 +3329,11 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
       svelte:
-        specifier: ^5.51.5
-        version: 5.53.0
+        specifier: ^5.53.1
+        version: 5.53.1
       vue:
         specifier: ^3.5.28
         version: 3.5.28(typescript@5.9.3)
@@ -3440,7 +3437,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
 
   packages/astro/test/fixtures/i18n-double-prefix:
@@ -3584,7 +3581,7 @@ importers:
   packages/astro/test/fixtures/jsx:
     dependencies:
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
       react:
         specifier: ^18.3.1
@@ -3596,8 +3593,8 @@ importers:
         specifier: ^1.9.11
         version: 1.9.11
       svelte:
-        specifier: ^5.51.5
-        version: 5.53.0
+        specifier: ^5.53.1
+        version: 5.53.1
       vue:
         specifier: ^3.5.28
         version: 3.5.28(typescript@5.9.3)
@@ -3620,6 +3617,15 @@ importers:
       '@astrojs/vue':
         specifier: workspace:*
         version: link:../../../../integrations/vue
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/jsx-queue-rendering:
+    dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../../../integrations/mdx
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -3705,13 +3711,13 @@ importers:
   packages/astro/test/fixtures/middleware-tailwind:
     dependencies:
       '@tailwindcss/vite':
-        specifier: ^4.1.18
+        specifier: ^4.2.0
         version: 4.2.0(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
       astro:
         specifier: workspace:*
         version: link:../../..
       tailwindcss:
-        specifier: ^4.1.18
+        specifier: ^4.2.0
         version: 4.2.0
 
   packages/astro/test/fixtures/middleware-virtual:
@@ -3811,8 +3817,8 @@ importers:
         specifier: ^1.9.11
         version: 1.9.11
       svelte:
-        specifier: ^5.51.5
-        version: 5.53.0
+        specifier: ^5.53.1
+        version: 5.53.1
       vue:
         specifier: ^3.5.28
         version: 3.5.28(typescript@5.9.3)
@@ -3833,7 +3839,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
 
   packages/astro/test/fixtures/preact-compat-component/packages/react-lib:
@@ -3848,13 +3854,13 @@ importers:
         specifier: workspace:*
         version: link:../../../../integrations/preact
       '@preact/signals':
-        specifier: 2.7.1
-        version: 2.7.1(preact@10.28.4)
+        specifier: 2.8.1
+        version: 2.8.1(preact@10.28.4)
       astro:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
 
   packages/astro/test/fixtures/prerender-conflict-dynamic-dynamic:
@@ -3874,6 +3880,21 @@ importers:
       astro:
         specifier: workspace:*
         version: link:../../..
+
+  packages/astro/test/fixtures/queue-rendering:
+    dependencies:
+      '@astrojs/react':
+        specifier: workspace:*
+        version: link:../../../../integrations/react
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
 
   packages/astro/test/fixtures/react-and-solid:
     dependencies:
@@ -3933,7 +3954,7 @@ importers:
         specifier: 'workspace:'
         version: link:../../..
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
 
   packages/astro/test/fixtures/remote-css:
@@ -4035,18 +4056,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/route-manifest:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/routing-priority:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/scoped-style-strategy:
     dependencies:
       astro:
@@ -4077,8 +4086,8 @@ importers:
         specifier: workspace:*
         version: link:../../../..
       svelte:
-        specifier: ^5.51.5
-        version: 5.53.0
+        specifier: ^5.53.1
+        version: 5.53.1
 
   packages/astro/test/fixtures/server-islands/ssr:
     dependencies:
@@ -4092,8 +4101,8 @@ importers:
         specifier: workspace:*
         version: link:../../../..
       svelte:
-        specifier: ^5.51.5
-        version: 5.53.0
+        specifier: ^5.53.1
+        version: 5.53.1
 
   packages/astro/test/fixtures/sessions:
     dependencies:
@@ -4119,7 +4128,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
 
   packages/astro/test/fixtures/slots-react:
@@ -4167,8 +4176,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^5.51.5
-        version: 5.53.0
+        specifier: ^5.53.1
+        version: 5.53.1
 
   packages/astro/test/fixtures/slots-vue:
     dependencies:
@@ -4278,7 +4287,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
 
   packages/astro/test/fixtures/ssr-markdown:
@@ -4329,7 +4338,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       vue:
-        specifier: ^3.5.27
+        specifier: ^3.5.28
         version: 3.5.28(typescript@5.9.3)
 
   packages/astro/test/fixtures/ssr-request:
@@ -4353,7 +4362,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
 
   packages/astro/test/fixtures/ssr-split-manifest:
@@ -4383,7 +4392,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
 
   packages/astro/test/fixtures/static-build-code-component:
@@ -4410,7 +4419,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
       react:
         specifier: ^18.3.1
@@ -4469,8 +4478,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^5.51.5
-        version: 5.53.0
+        specifier: ^5.53.1
+        version: 5.53.1
 
   packages/astro/test/fixtures/svg-deduplication:
     dependencies:
@@ -4484,13 +4493,13 @@ importers:
         specifier: workspace:*
         version: link:../../../../integrations/mdx
       '@tailwindcss/vite':
-        specifier: ^4.1.18
+        specifier: ^4.2.0
         version: 4.2.0(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
       astro:
         specifier: workspace:*
         version: link:../../..
       tailwindcss:
-        specifier: ^4.1.18
+        specifier: ^4.2.0
         version: 4.2.0
 
   packages/astro/test/fixtures/third-party-astro:
@@ -4502,12 +4511,6 @@ importers:
         specifier: ^0.8.0
         version: 0.8.0(astro@packages+astro)
 
-  packages/astro/test/fixtures/type-imports:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/unused-slot:
     dependencies:
       astro:
@@ -4515,12 +4518,6 @@ importers:
         version: link:../../..
 
   packages/astro/test/fixtures/url-import-suffix:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/user-route-priority:
     dependencies:
       astro:
         specifier: workspace:*
@@ -4547,12 +4544,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/virtual-routes:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/vitest:
     dependencies:
       astro:
@@ -4563,18 +4554,6 @@ importers:
         version: 3.2.4(@types/debug@4.1.12)(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
 
   packages/astro/test/fixtures/vue-component:
-    dependencies:
-      '@astrojs/vue':
-        specifier: workspace:*
-        version: link:../../../../integrations/vue
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-      vue:
-        specifier: ^3.5.28
-        version: 3.5.28(typescript@5.9.3)
-
-  packages/astro/test/fixtures/vue-jsx:
     dependencies:
       '@astrojs/vue':
         specifier: workspace:*
@@ -4598,8 +4577,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^5.51.5
-        version: 5.53.0
+        specifier: ^5.53.1
+        version: 5.53.1
       vue:
         specifier: ^3.5.28
         version: 3.5.28(typescript@5.9.3)
@@ -4665,7 +4644,7 @@ importers:
         version: 1.0.2
       drizzle-orm:
         specifier: ^0.42.0
-        version: 0.42.0(@cloudflare/workers-types@4.20260227.0)(@libsql/client@0.17.0)(@opentelemetry/api@1.9.0)
+        version: 0.42.0(@cloudflare/workers-types@4.20260228.0)(@libsql/client@0.17.0)(@opentelemetry/api@1.9.0)
       nanoid:
         specifier: ^5.1.6
         version: 5.1.6
@@ -4806,8 +4785,8 @@ importers:
   packages/db/test/fixtures/ticketing-example:
     dependencies:
       '@astrojs/check':
-        specifier: ^0.9.6
-        version: 0.9.6(prettier-plugin-astro@0.14.1)(prettier@3.8.1)(typescript@5.9.3)
+        specifier: workspace:*
+        version: link:../../../../language-tools/astro-check
       '@astrojs/db':
         specifier: workspace:*
         version: link:../../..
@@ -4915,7 +4894,7 @@ importers:
         version: link:../../underscore-redirects
       '@cloudflare/vite-plugin':
         specifier: ^1.25.2
-        version: 1.25.2(@cloudflare/workers-types@4.20260227.0)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))(workerd@1.20260219.0)
+        version: 1.25.2(@cloudflare/workers-types@4.20260228.0)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))(workerd@1.20260219.0)
       piccolore:
         specifier: ^0.1.3
         version: 0.1.3
@@ -4927,8 +4906,8 @@ importers:
         version: 7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
     devDependencies:
       '@cloudflare/workers-types':
-        specifier: ^4.20260227.0
-        version: 4.20260227.0
+        specifier: ^4.20260228.0
+        version: 4.20260228.0
       '@types/node':
         specifier: ^25.2.2
         version: 25.2.3
@@ -4956,7 +4935,7 @@ importers:
     devDependencies:
       wrangler:
         specifier: ^4.67.0
-        version: 4.67.0(@cloudflare/workers-types@4.20260227.0)
+        version: 4.67.0(@cloudflare/workers-types@4.20260228.0)
 
   packages/integrations/cloudflare/test/fixtures/astro-env:
     dependencies:
@@ -4969,7 +4948,7 @@ importers:
     devDependencies:
       wrangler:
         specifier: ^4.67.0
-        version: 4.67.0(@cloudflare/workers-types@4.20260227.0)
+        version: 4.67.0(@cloudflare/workers-types@4.20260228.0)
 
   packages/integrations/cloudflare/test/fixtures/binding-image-service:
     dependencies:
@@ -4999,7 +4978,16 @@ importers:
         version: link:../../../../../astro
       wrangler:
         specifier: ^4.67.0
-        version: 4.67.0(@cloudflare/workers-types@4.20260227.0)
+        version: 4.67.0(@cloudflare/workers-types@4.20260228.0)
+
+  packages/integrations/cloudflare/test/fixtures/dev-image-endpoint:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
 
   packages/integrations/cloudflare/test/fixtures/external-image-service:
     dependencies:
@@ -5045,7 +5033,7 @@ importers:
     devDependencies:
       wrangler:
         specifier: ^4.67.0
-        version: 4.67.0(@cloudflare/workers-types@4.20260227.0)
+        version: 4.67.0(@cloudflare/workers-types@4.20260228.0)
 
   packages/integrations/cloudflare/test/fixtures/server-entry:
     dependencies:
@@ -5067,7 +5055,7 @@ importers:
         version: link:../../../../../astro
       wrangler:
         specifier: ^4.67.0
-        version: 4.67.0(@cloudflare/workers-types@4.20260227.0)
+        version: 4.67.0(@cloudflare/workers-types@4.20260228.0)
 
   packages/integrations/cloudflare/test/fixtures/sql-import:
     dependencies:
@@ -5147,8 +5135,8 @@ importers:
         specifier: ^0.34.3
         version: 0.34.5
       svelte:
-        specifier: ^5.53.0
-        version: 5.53.0
+        specifier: ^5.53.1
+        version: 5.53.1
       vue:
         specifier: ^3.5.28
         version: 3.5.28(typescript@5.9.3)
@@ -5189,8 +5177,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       svelte:
-        specifier: ^5.53.0
-        version: 5.53.0
+        specifier: ^5.53.1
+        version: 5.53.1
 
   packages/integrations/cloudflare/test/fixtures/with-vue:
     dependencies:
@@ -5199,7 +5187,7 @@ importers:
         version: link:../../..
       '@astrojs/vue':
         specifier: ^5.1.4
-        version: 5.1.4(@types/node@25.2.3)(astro@packages+astro)(jiti@2.6.1)(lightningcss@1.31.1)(rollup@4.57.1)(sass@1.97.3)(tsx@4.21.0)(vue@3.5.28(typescript@5.9.3))(yaml@2.8.2)
+        version: 5.1.4(@types/node@25.2.3)(astro@packages+astro)(jiti@2.6.1)(lightningcss@1.31.1)(rollup@4.58.0)(sass@1.97.3)(tsx@4.21.0)(vue@3.5.28(typescript@5.9.3))(yaml@2.8.2)
       astro:
         specifier: workspace:*
         version: link:../../../../../astro
@@ -5231,8 +5219,8 @@ importers:
         specifier: ^0.5.4
         version: 0.5.4(@types/react@18.3.28)(react@19.2.4)
       esbuild:
-        specifier: ^0.25.0
-        version: 0.25.5
+        specifier: ^0.27.3
+        version: 0.27.3
       github-slugger:
         specifier: ^2.0.0
         version: 2.0.0
@@ -5445,7 +5433,7 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1
       acorn:
-        specifier: ^8.15.0
+        specifier: ^8.16.0
         version: 8.16.0
       es-module-lexer:
         specifier: ^2.0.0
@@ -5599,7 +5587,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
 
   packages/integrations/mdx/test/fixtures/mdx-namespace:
@@ -5705,13 +5693,13 @@ importers:
         version: 5.1.2
       '@netlify/vite-plugin':
         specifier: ^2.10.2
-        version: 2.10.2(@azure/identity@4.13.0)(@vercel/functions@3.4.2)(rollup@4.57.1)(vite@7.3.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
+        version: 2.10.2(@azure/identity@4.13.0)(@vercel/functions@3.4.2)(rollup@4.58.0)(vite@7.3.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
       '@vercel/nft':
         specifier: ^1.3.1
-        version: 1.3.1(rollup@4.57.1)
+        version: 1.3.1(rollup@4.58.0)
       esbuild:
-        specifier: ^0.25.0
-        version: 0.25.5
+        specifier: ^0.27.3
+        version: 0.27.3
       tinyglobby:
         specifier: ^0.2.15
         version: 0.2.15
@@ -6054,13 +6042,13 @@ importers:
     dependencies:
       '@preact/preset-vite':
         specifier: ^2.10.3
-        version: 2.10.3(@babel/core@7.29.0)(preact@10.28.4)(rollup@4.57.1)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
+        version: 2.10.3(@babel/core@7.29.0)(preact@10.28.4)(rollup@4.58.0)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
       '@preact/signals':
-        specifier: ^2.7.1
+        specifier: ^2.8.1
         version: 2.8.1(preact@10.28.4)
       preact-render-to-string:
-        specifier: ^6.6.5
-        version: 6.6.5(preact@10.28.4)
+        specifier: ^6.6.6
+        version: 6.6.6(preact@10.28.4)
       vite:
         specifier: ^7.3.1
         version: 7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
@@ -6072,7 +6060,7 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
       preact:
-        specifier: ^10.28.3
+        specifier: ^10.28.4
         version: 10.28.4
 
   packages/integrations/react:
@@ -6223,10 +6211,10 @@ importers:
     dependencies:
       '@sveltejs/vite-plugin-svelte':
         specifier: ^6.2.4
-        version: 6.2.4(svelte@5.53.0)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
+        version: 6.2.4(svelte@5.53.1)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
       svelte2tsx:
-        specifier: ^0.7.47
-        version: 0.7.47(svelte@5.53.0)(typescript@5.9.3)
+        specifier: ^0.7.51
+        version: 0.7.51(svelte@5.53.1)(typescript@5.9.3)
       vite:
         specifier: ^7.3.1
         version: 7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
@@ -6241,8 +6229,8 @@ importers:
         specifier: 1.2.0
         version: 1.2.0
       svelte:
-        specifier: ^5.51.5
-        version: 5.53.0
+        specifier: ^5.53.1
+        version: 5.53.1
 
   packages/integrations/svelte/test/fixtures/async-rendering:
     dependencies:
@@ -6253,8 +6241,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       svelte:
-        specifier: ^5.51.5
-        version: 5.53.0
+        specifier: ^5.53.1
+        version: 5.53.1
 
   packages/integrations/svelte/test/fixtures/conditional-rendering:
     dependencies:
@@ -6265,8 +6253,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       svelte:
-        specifier: ^5.51.5
-        version: 5.53.0
+        specifier: ^5.53.1
+        version: 5.53.1
 
   packages/integrations/svelte/test/fixtures/prop-types:
     dependencies:
@@ -6277,8 +6265,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       svelte:
-        specifier: ^5.51.5
-        version: 5.53.0
+        specifier: ^5.53.1
+        version: 5.53.1
 
   packages/integrations/vercel:
     dependencies:
@@ -6287,19 +6275,19 @@ importers:
         version: link:../../internal-helpers
       '@vercel/analytics':
         specifier: ^1.6.1
-        version: 1.6.1(react@19.2.4)(svelte@5.53.0)(vue@3.5.28(typescript@5.9.3))
+        version: 1.6.1(react@19.2.4)(svelte@5.53.1)(vue@3.5.28(typescript@5.9.3))
       '@vercel/functions':
         specifier: ^3.4.2
         version: 3.4.2
       '@vercel/nft':
         specifier: ^1.3.1
-        version: 1.3.1(rollup@4.57.1)
+        version: 1.3.1(rollup@4.58.0)
       '@vercel/routing-utils':
         specifier: ^5.3.3
         version: 5.3.3
       esbuild:
-        specifier: ^0.25.0
-        version: 0.25.5
+        specifier: ^0.27.3
+        version: 0.27.3
       tinyglobby:
         specifier: ^0.2.15
         version: 0.2.15
@@ -6759,7 +6747,7 @@ importers:
         version: link:../../../astro
       svelte:
         specifier: ^5.51.5
-        version: 5.53.0
+        version: 5.53.1
     devDependencies:
       tinyglobby:
         specifier: ^0.2.15
@@ -6982,8 +6970,8 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
       esbuild:
-        specifier: ^0.24.2
-        version: 0.24.2
+        specifier: ^0.27.3
+        version: 0.27.3
       mdast-util-mdx-expression:
         specifier: ^2.0.1
         version: 2.0.1
@@ -7059,8 +7047,8 @@ importers:
   scripts:
     dependencies:
       esbuild:
-        specifier: ^0.25.0
-        version: 0.25.5
+        specifier: ^0.27.3
+        version: 0.27.3
       p-limit:
         specifier: ^7.3.0
         version: 7.3.0
@@ -7187,8 +7175,8 @@ packages:
   '@astrojs/compiler@2.13.1':
     resolution: {integrity: sha512-f3FN83d2G/v32ipNClRKgYv30onQlMZX1vCeZMjPsMMPl1mDpmbl0+N5BYo4S/ofzqJyS5hvwacEo0CCVDn/Qg==}
 
-  '@astrojs/compiler@3.0.0-beta.0':
-    resolution: {integrity: sha512-wrWArjuyeEhoUZUr+o3Ts3CFbxB+QFYvzsnnR0wr3L0b84JDxq107mZOfmNZ/XPE4VjFzjjApvHKCVGQjNJm8Q==}
+  '@astrojs/compiler@3.0.0-beta.1':
+    resolution: {integrity: sha512-Z3dKhi4QcgpH7iCwAfYIoF5+7ghegtKLWjsd5L5wmykA4acXFcjZrfMF6KU5YlRbxF3h4waI5E2h6bxtv21dTw==}
 
   '@astrojs/internal-helpers@0.7.5':
     resolution: {integrity: sha512-vreGnYSSKhAjFJCWAwe/CNhONvoc5lokxtRoZims+0wa3KbHBdPHSSthJsKxPd8d/aic6lWKpRTYGY/hsgK6EA==}
@@ -7652,8 +7640,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@cloudflare/workers-types@4.20260227.0':
-    resolution: {integrity: sha512-e/Lfx2LGmmTds9Soorj96ER+xzJZ/dfNcSd+odlRDv0HBYA4Ts7m01A1VwCPGvuy3/kQo7FYZEQdF6vnR0y73A==}
+  '@cloudflare/workers-types@4.20260228.0':
+    resolution: {integrity: sha512-9LfRg93ncQq6Oc4MFpqGSs+PmPhqWvg8TspXwbiYNR201IhXB4WqHR/aTSudPI0ujsf/NLc8E9fF3C+aA2g8KQ==}
 
   '@codspeed/core@5.2.0':
     resolution: {integrity: sha512-CmDhpWjcOJg2iBOQ/BmBnSBq8qxlM3r4h8uvYDkoUaba+EKRT3T73BZtKuml/48jZMsB+4/FG2UbTBinDWtuvw==}
@@ -8024,12 +8012,6 @@ packages:
     resolution: {integrity: sha512-cxgkB66RQB95H3X27jlnxCRNTmPuSTgmBAq6/4n2Dtv4hsk4yz8FadA1ggmd0uZzvKqWD6CR+WFgTjhDqg7eyw==}
     engines: {node: '>=18.0.0'}
 
-  '@esbuild/aix-ppc64@0.24.2':
-    resolution: {integrity: sha512-thpVCb/rhxE/BnMLQ7GReQLLN8q9qbHmI55F4489/ByVg2aQaQ6kbcLb6FHkocZzQhxc4gx0sCk0tJkKBFzDhA==}
-    engines: {node: '>=18'}
-    cpu: [ppc64]
-    os: [aix]
-
   '@esbuild/aix-ppc64@0.25.5':
     resolution: {integrity: sha512-9o3TMmpmftaCMepOdA5k/yDw8SfInyzWWTjYTFCX3kPSDJMROQTb8jg+h9Cnwnmm1vOzvxN7gIfB5V2ewpjtGA==}
     engines: {node: '>=18'}
@@ -8051,12 +8033,6 @@ packages:
   '@esbuild/android-arm64@0.17.19':
     resolution: {integrity: sha512-KBMWvEZooR7+kzY0BtbTQn0OAYY7CsiydT63pVEaPtVYF0hXbUaOyZog37DKxK7NF3XacBJOpYT4adIJh+avxA==}
     engines: {node: '>=12'}
-    cpu: [arm64]
-    os: [android]
-
-  '@esbuild/android-arm64@0.24.2':
-    resolution: {integrity: sha512-cNLgeqCqV8WxfcTIOeL4OAtSmL8JjcN6m09XIgro1Wi7cF4t/THaWEa7eL5CMoMBdjoHOTh/vwTO/o2TRXIyzg==}
-    engines: {node: '>=18'}
     cpu: [arm64]
     os: [android]
 
@@ -8084,12 +8060,6 @@ packages:
     cpu: [arm]
     os: [android]
 
-  '@esbuild/android-arm@0.24.2':
-    resolution: {integrity: sha512-tmwl4hJkCfNHwFB3nBa8z1Uy3ypZpxqxfTQOcHX+xRByyYgunVbZ9MzUUfb0RxaHIMnbHagwAxuTL+tnNM+1/Q==}
-    engines: {node: '>=18'}
-    cpu: [arm]
-    os: [android]
-
   '@esbuild/android-arm@0.25.5':
     resolution: {integrity: sha512-AdJKSPeEHgi7/ZhuIPtcQKr5RQdo6OO2IL87JkianiMYMPbCtot9fxPbrMiBADOWWm3T2si9stAiVsGbTQFkbA==}
     engines: {node: '>=18'}
@@ -8111,12 +8081,6 @@ packages:
   '@esbuild/android-x64@0.17.19':
     resolution: {integrity: sha512-uUTTc4xGNDT7YSArp/zbtmbhO0uEEK9/ETW29Wk1thYUJBz3IVnvgEiEwEa9IeLyvnpKrWK64Utw2bgUmDveww==}
     engines: {node: '>=12'}
-    cpu: [x64]
-    os: [android]
-
-  '@esbuild/android-x64@0.24.2':
-    resolution: {integrity: sha512-B6Q0YQDqMx9D7rvIcsXfmJfvUYLoP722bgfBlO5cGvNVb5V/+Y7nhBE3mHV9OpxBf4eAS2S68KZztiPaWq4XYw==}
-    engines: {node: '>=18'}
     cpu: [x64]
     os: [android]
 
@@ -8144,12 +8108,6 @@ packages:
     cpu: [arm64]
     os: [darwin]
 
-  '@esbuild/darwin-arm64@0.24.2':
-    resolution: {integrity: sha512-kj3AnYWc+CekmZnS5IPu9D+HWtUI49hbnyqk0FLEJDbzCIQt7hg7ucF1SQAilhtYpIujfaHr6O0UHlzzSPdOeA==}
-    engines: {node: '>=18'}
-    cpu: [arm64]
-    os: [darwin]
-
   '@esbuild/darwin-arm64@0.25.5':
     resolution: {integrity: sha512-GtaBgammVvdF7aPIgH2jxMDdivezgFu6iKpmT+48+F8Hhg5J/sfnDieg0aeG/jfSvkYQU2/pceFPDKlqZzwnfQ==}
     engines: {node: '>=18'}
@@ -8171,12 +8129,6 @@ packages:
   '@esbuild/darwin-x64@0.17.19':
     resolution: {integrity: sha512-IJM4JJsLhRYr9xdtLytPLSH9k/oxR3boaUIYiHkAawtwNOXKE8KoU8tMvryogdcT8AU+Bflmh81Xn6Q0vTZbQw==}
     engines: {node: '>=12'}
-    cpu: [x64]
-    os: [darwin]
-
-  '@esbuild/darwin-x64@0.24.2':
-    resolution: {integrity: sha512-WeSrmwwHaPkNR5H3yYfowhZcbriGqooyu3zI/3GGpF8AyUdsrrP0X6KumITGA9WOyiJavnGZUwPGvxvwfWPHIA==}
-    engines: {node: '>=18'}
     cpu: [x64]
     os: [darwin]
 
@@ -8204,12 +8156,6 @@ packages:
     cpu: [arm64]
     os: [freebsd]
 
-  '@esbuild/freebsd-arm64@0.24.2':
-    resolution: {integrity: sha512-UN8HXjtJ0k/Mj6a9+5u6+2eZ2ERD7Edt1Q9IZiB5UZAIdPnVKDoG7mdTVGhHJIeEml60JteamR3qhsr1r8gXvg==}
-    engines: {node: '>=18'}
-    cpu: [arm64]
-    os: [freebsd]
-
   '@esbuild/freebsd-arm64@0.25.5':
     resolution: {integrity: sha512-nk4tGP3JThz4La38Uy/gzyXtpkPW8zSAmoUhK9xKKXdBCzKODMc2adkB2+8om9BDYugz+uGV7sLmpTYzvmz6Sw==}
     engines: {node: '>=18'}
@@ -8231,12 +8177,6 @@ packages:
   '@esbuild/freebsd-x64@0.17.19':
     resolution: {integrity: sha512-4lu+n8Wk0XlajEhbEffdy2xy53dpR06SlzvhGByyg36qJw6Kpfk7cp45DR/62aPH9mtJRmIyrXAS5UWBrJT6TQ==}
     engines: {node: '>=12'}
-    cpu: [x64]
-    os: [freebsd]
-
-  '@esbuild/freebsd-x64@0.24.2':
-    resolution: {integrity: sha512-TvW7wE/89PYW+IevEJXZ5sF6gJRDY/14hyIGFXdIucxCsbRmLUcjseQu1SyTko+2idmCw94TgyaEZi9HUSOe3Q==}
-    engines: {node: '>=18'}
     cpu: [x64]
     os: [freebsd]
 
@@ -8264,12 +8204,6 @@ packages:
     cpu: [arm64]
     os: [linux]
 
-  '@esbuild/linux-arm64@0.24.2':
-    resolution: {integrity: sha512-7HnAD6074BW43YvvUmE/35Id9/NB7BeX5EoNkK9obndmZBUk8xmJJeU7DwmUeN7tkysslb2eSl6CTrYz6oEMQg==}
-    engines: {node: '>=18'}
-    cpu: [arm64]
-    os: [linux]
-
   '@esbuild/linux-arm64@0.25.5':
     resolution: {integrity: sha512-Z9kfb1v6ZlGbWj8EJk9T6czVEjjq2ntSYLY2cw6pAZl4oKtfgQuS4HOq41M/BcoLPzrUbNd+R4BXFyH//nHxVg==}
     engines: {node: '>=18'}
@@ -8291,12 +8225,6 @@ packages:
   '@esbuild/linux-arm@0.17.19':
     resolution: {integrity: sha512-cdmT3KxjlOQ/gZ2cjfrQOtmhG4HJs6hhvm3mWSRDPtZ/lP5oe8FWceS10JaSJC13GBd4eH/haHnqf7hhGNLerA==}
     engines: {node: '>=12'}
-    cpu: [arm]
-    os: [linux]
-
-  '@esbuild/linux-arm@0.24.2':
-    resolution: {integrity: sha512-n0WRM/gWIdU29J57hJyUdIsk0WarGd6To0s+Y+LwvlC55wt+GT/OgkwoXCXvIue1i1sSNWblHEig00GBWiJgfA==}
-    engines: {node: '>=18'}
     cpu: [arm]
     os: [linux]
 
@@ -8324,12 +8252,6 @@ packages:
     cpu: [ia32]
     os: [linux]
 
-  '@esbuild/linux-ia32@0.24.2':
-    resolution: {integrity: sha512-sfv0tGPQhcZOgTKO3oBE9xpHuUqguHvSo4jl+wjnKwFpapx+vUDcawbwPNuBIAYdRAvIDBfZVvXprIj3HA+Ugw==}
-    engines: {node: '>=18'}
-    cpu: [ia32]
-    os: [linux]
-
   '@esbuild/linux-ia32@0.25.5':
     resolution: {integrity: sha512-sQ7l00M8bSv36GLV95BVAdhJ2QsIbCuCjh/uYrWiMQSUuV+LpXwIqhgJDcvMTj+VsQmqAHL2yYaasENvJ7CDKA==}
     engines: {node: '>=18'}
@@ -8351,12 +8273,6 @@ packages:
   '@esbuild/linux-loong64@0.17.19':
     resolution: {integrity: sha512-2iAngUbBPMq439a+z//gE+9WBldoMp1s5GWsUSgqHLzLJ9WoZLZhpwWuym0u0u/4XmZ3gpHmzV84PonE+9IIdQ==}
     engines: {node: '>=12'}
-    cpu: [loong64]
-    os: [linux]
-
-  '@esbuild/linux-loong64@0.24.2':
-    resolution: {integrity: sha512-CN9AZr8kEndGooS35ntToZLTQLHEjtVB5n7dl8ZcTZMonJ7CCfStrYhrzF97eAecqVbVJ7APOEe18RPI4KLhwQ==}
-    engines: {node: '>=18'}
     cpu: [loong64]
     os: [linux]
 
@@ -8384,12 +8300,6 @@ packages:
     cpu: [mips64el]
     os: [linux]
 
-  '@esbuild/linux-mips64el@0.24.2':
-    resolution: {integrity: sha512-iMkk7qr/wl3exJATwkISxI7kTcmHKE+BlymIAbHO8xanq/TjHaaVThFF6ipWzPHryoFsesNQJPE/3wFJw4+huw==}
-    engines: {node: '>=18'}
-    cpu: [mips64el]
-    os: [linux]
-
   '@esbuild/linux-mips64el@0.25.5':
     resolution: {integrity: sha512-kB/66P1OsHO5zLz0i6X0RxlQ+3cu0mkxS3TKFvkb5lin6uwZ/ttOkP3Z8lfR9mJOBk14ZwZ9182SIIWFGNmqmg==}
     engines: {node: '>=18'}
@@ -8411,12 +8321,6 @@ packages:
   '@esbuild/linux-ppc64@0.17.19':
     resolution: {integrity: sha512-/c/DGybs95WXNS8y3Ti/ytqETiW7EU44MEKuCAcpPto3YjQbyK3IQVKfF6nbghD7EcLUGl0NbiL5Rt5DMhn5tg==}
     engines: {node: '>=12'}
-    cpu: [ppc64]
-    os: [linux]
-
-  '@esbuild/linux-ppc64@0.24.2':
-    resolution: {integrity: sha512-shsVrgCZ57Vr2L8mm39kO5PPIb+843FStGt7sGGoqiiWYconSxwTiuswC1VJZLCjNiMLAMh34jg4VSEQb+iEbw==}
-    engines: {node: '>=18'}
     cpu: [ppc64]
     os: [linux]
 
@@ -8444,12 +8348,6 @@ packages:
     cpu: [riscv64]
     os: [linux]
 
-  '@esbuild/linux-riscv64@0.24.2':
-    resolution: {integrity: sha512-4eSFWnU9Hhd68fW16GD0TINewo1L6dRrB+oLNNbYyMUAeOD2yCK5KXGK1GH4qD/kT+bTEXjsyTCiJGHPZ3eM9Q==}
-    engines: {node: '>=18'}
-    cpu: [riscv64]
-    os: [linux]
-
   '@esbuild/linux-riscv64@0.25.5':
     resolution: {integrity: sha512-kTxwu4mLyeOlsVIFPfQo+fQJAV9mh24xL+y+Bm6ej067sYANjyEw1dNHmvoqxJUCMnkBdKpvOn0Ahql6+4VyeA==}
     engines: {node: '>=18'}
@@ -8471,12 +8369,6 @@ packages:
   '@esbuild/linux-s390x@0.17.19':
     resolution: {integrity: sha512-IbFsFbxMWLuKEbH+7sTkKzL6NJmG2vRyy6K7JJo55w+8xDk7RElYn6xvXtDW8HCfoKBFK69f3pgBJSUSQPr+4Q==}
     engines: {node: '>=12'}
-    cpu: [s390x]
-    os: [linux]
-
-  '@esbuild/linux-s390x@0.24.2':
-    resolution: {integrity: sha512-S0Bh0A53b0YHL2XEXC20bHLuGMOhFDO6GN4b3YjRLK//Ep3ql3erpNcPlEFed93hsQAjAQDNsvcK+hV90FubSw==}
-    engines: {node: '>=18'}
     cpu: [s390x]
     os: [linux]
 
@@ -8504,12 +8396,6 @@ packages:
     cpu: [x64]
     os: [linux]
 
-  '@esbuild/linux-x64@0.24.2':
-    resolution: {integrity: sha512-8Qi4nQcCTbLnK9WoMjdC9NiTG6/E38RNICU6sUNqK0QFxCYgoARqVqxdFmWkdonVsvGqWhmm7MO0jyTqLqwj0Q==}
-    engines: {node: '>=18'}
-    cpu: [x64]
-    os: [linux]
-
   '@esbuild/linux-x64@0.25.5':
     resolution: {integrity: sha512-uhj8N2obKTE6pSZ+aMUbqq+1nXxNjZIIjCjGLfsWvVpy7gKCOL6rsY1MhRh9zLtUtAI7vpgLMK6DxjO8Qm9lJw==}
     engines: {node: '>=18'}
@@ -8527,12 +8413,6 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [linux]
-
-  '@esbuild/netbsd-arm64@0.24.2':
-    resolution: {integrity: sha512-wuLK/VztRRpMt9zyHSazyCVdCXlpHkKm34WUyinD2lzK07FAHTq0KQvZZlXikNWkDGoT6x3TD51jKQ7gMVpopw==}
-    engines: {node: '>=18'}
-    cpu: [arm64]
-    os: [netbsd]
 
   '@esbuild/netbsd-arm64@0.25.5':
     resolution: {integrity: sha512-pwHtMP9viAy1oHPvgxtOv+OkduK5ugofNTVDilIzBLpoWAM16r7b/mxBvfpuQDpRQFMfuVr5aLcn4yveGvBZvw==}
@@ -8558,12 +8438,6 @@ packages:
     cpu: [x64]
     os: [netbsd]
 
-  '@esbuild/netbsd-x64@0.24.2':
-    resolution: {integrity: sha512-VefFaQUc4FMmJuAxmIHgUmfNiLXY438XrL4GDNV1Y1H/RW3qow68xTwjZKfj/+Plp9NANmzbH5R40Meudu8mmw==}
-    engines: {node: '>=18'}
-    cpu: [x64]
-    os: [netbsd]
-
   '@esbuild/netbsd-x64@0.25.5':
     resolution: {integrity: sha512-WOb5fKrvVTRMfWFNCroYWWklbnXH0Q5rZppjq0vQIdlsQKuw6mdSihwSo4RV/YdQ5UCKKvBy7/0ZZYLBZKIbwQ==}
     engines: {node: '>=18'}
@@ -8581,12 +8455,6 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [netbsd]
-
-  '@esbuild/openbsd-arm64@0.24.2':
-    resolution: {integrity: sha512-YQbi46SBct6iKnszhSvdluqDmxCJA+Pu280Av9WICNwQmMxV7nLRHZfjQzwbPs3jeWnuAhE9Jy0NrnJ12Oz+0A==}
-    engines: {node: '>=18'}
-    cpu: [arm64]
-    os: [openbsd]
 
   '@esbuild/openbsd-arm64@0.25.5':
     resolution: {integrity: sha512-7A208+uQKgTxHd0G0uqZO8UjK2R0DDb4fDmERtARjSHWxqMTye4Erz4zZafx7Di9Cv+lNHYuncAkiGFySoD+Mw==}
@@ -8609,12 +8477,6 @@ packages:
   '@esbuild/openbsd-x64@0.17.19':
     resolution: {integrity: sha512-cnq5brJYrSZ2CF6c35eCmviIN3k3RczmHz8eYaVlNasVqsNY+JKohZU5MKmaOI+KkllCdzOKKdPs762VCPC20g==}
     engines: {node: '>=12'}
-    cpu: [x64]
-    os: [openbsd]
-
-  '@esbuild/openbsd-x64@0.24.2':
-    resolution: {integrity: sha512-+iDS6zpNM6EnJyWv0bMGLWSWeXGN/HTaF/LXHXHwejGsVi+ooqDfMCCTerNFxEkM3wYVcExkeGXNqshc9iMaOA==}
-    engines: {node: '>=18'}
     cpu: [x64]
     os: [openbsd]
 
@@ -8654,12 +8516,6 @@ packages:
     cpu: [x64]
     os: [sunos]
 
-  '@esbuild/sunos-x64@0.24.2':
-    resolution: {integrity: sha512-hTdsW27jcktEvpwNHJU4ZwWFGkz2zRJUz8pvddmXPtXDzVKTTINmlmga3ZzwcuMpUvLw7JkLy9QLKyGpD2Yxig==}
-    engines: {node: '>=18'}
-    cpu: [x64]
-    os: [sunos]
-
   '@esbuild/sunos-x64@0.25.5':
     resolution: {integrity: sha512-l+azKShMy7FxzY0Rj4RCt5VD/q8mG/e+mDivgspo+yL8zW7qEwctQ6YqKX34DTEleFAvCIUviCFX1SDZRSyMQA==}
     engines: {node: '>=18'}
@@ -8681,12 +8537,6 @@ packages:
   '@esbuild/win32-arm64@0.17.19':
     resolution: {integrity: sha512-yYx+8jwowUstVdorcMdNlzklLYhPxjniHWFKgRqH7IFlUEa0Umu3KuYplf1HUZZ422e3NU9F4LGb+4O0Kdcaag==}
     engines: {node: '>=12'}
-    cpu: [arm64]
-    os: [win32]
-
-  '@esbuild/win32-arm64@0.24.2':
-    resolution: {integrity: sha512-LihEQ2BBKVFLOC9ZItT9iFprsE9tqjDjnbulhHoFxYQtQfai7qfluVODIYxt1PgdoyQkz23+01rzwNwYfutxUQ==}
-    engines: {node: '>=18'}
     cpu: [arm64]
     os: [win32]
 
@@ -8714,12 +8564,6 @@ packages:
     cpu: [ia32]
     os: [win32]
 
-  '@esbuild/win32-ia32@0.24.2':
-    resolution: {integrity: sha512-q+iGUwfs8tncmFC9pcnD5IvRHAzmbwQ3GPS5/ceCyHdjXubwQWI12MKWSNSMYLJMq23/IUCvJMS76PDqXe1fxA==}
-    engines: {node: '>=18'}
-    cpu: [ia32]
-    os: [win32]
-
   '@esbuild/win32-ia32@0.25.5':
     resolution: {integrity: sha512-onOJ02pqs9h1iMJ1PQphR+VZv8qBMQ77Klcsqv9CNW2w6yLqoURLcgERAIurY6QE63bbLuqgP9ATqajFLK5AMQ==}
     engines: {node: '>=18'}
@@ -8741,12 +8585,6 @@ packages:
   '@esbuild/win32-x64@0.17.19':
     resolution: {integrity: sha512-lAhycmKnVOuRYNtRtatQR1LPQf2oYCkRGkSFnseDAKPl8lu5SOsK/e1sXe5a0Pc5kHIHe6P2I/ilntNv2xf3cA==}
     engines: {node: '>=12'}
-    cpu: [x64]
-    os: [win32]
-
-  '@esbuild/win32-x64@0.24.2':
-    resolution: {integrity: sha512-7VTgWzgMGvup6aSqDPLiW5zHaxYJGTO4OokMjIlrCtf+VpEL+cXKtCvg723iguPYI5oaUNdS+/V7OU2gvXVWEg==}
-    engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
 
@@ -9714,11 +9552,6 @@ packages:
   '@preact/signals-core@1.13.0':
     resolution: {integrity: sha512-slT6XeTCAbdql61GVLlGU4x7XHI7kCZV5Um5uhE4zLX4ApgiiXc0UYFvVOKq06xcovzp7p+61l68oPi563ARKg==}
 
-  '@preact/signals@2.7.1':
-    resolution: {integrity: sha512-mP2+wMYHqDXVKFGzjqkL6CiHj3okB8eVTTJUZBrSVGozi/XfA+zZRCEALKKZYRoSoqLyT4J6qM4lhwT9155s1Q==}
-    peerDependencies:
-      preact: '>= 10.25.0 || >=11.0.0-0'
-
   '@preact/signals@2.8.1':
     resolution: {integrity: sha512-wX6U0SpcCukZTJBs5ChljvBZb3XmYzA5gd4vKHgX8wZZKaQCo2WHtmThdLx+mcVvlBa5u3XShC7ffbETJD4BiQ==}
     peerDependencies:
@@ -9772,141 +9605,141 @@ packages:
       rollup:
         optional: true
 
-  '@rollup/rollup-android-arm-eabi@4.57.1':
-    resolution: {integrity: sha512-A6ehUVSiSaaliTxai040ZpZ2zTevHYbvu/lDoeAteHI8QnaosIzm4qwtezfRg1jOYaUmnzLX1AOD6Z+UJjtifg==}
+  '@rollup/rollup-android-arm-eabi@4.58.0':
+    resolution: {integrity: sha512-mr0tmS/4FoVk1cnaeN244A/wjvGDNItZKR8hRhnmCzygyRXYtKF5jVDSIILR1U97CTzAYmbgIj/Dukg62ggG5w==}
     cpu: [arm]
     os: [android]
 
-  '@rollup/rollup-android-arm64@4.57.1':
-    resolution: {integrity: sha512-dQaAddCY9YgkFHZcFNS/606Exo8vcLHwArFZ7vxXq4rigo2bb494/xKMMwRRQW6ug7Js6yXmBZhSBRuBvCCQ3w==}
+  '@rollup/rollup-android-arm64@4.58.0':
+    resolution: {integrity: sha512-+s++dbp+/RTte62mQD9wLSbiMTV+xr/PeRJEc/sFZFSBRlHPNPVaf5FXlzAL77Mr8FtSfQqCN+I598M8U41ccQ==}
     cpu: [arm64]
     os: [android]
 
-  '@rollup/rollup-darwin-arm64@4.57.1':
-    resolution: {integrity: sha512-crNPrwJOrRxagUYeMn/DZwqN88SDmwaJ8Cvi/TN1HnWBU7GwknckyosC2gd0IqYRsHDEnXf328o9/HC6OkPgOg==}
+  '@rollup/rollup-darwin-arm64@4.58.0':
+    resolution: {integrity: sha512-MFWBwTcYs0jZbINQBXHfSrpSQJq3IUOakcKPzfeSznONop14Pxuqa0Kg19GD0rNBMPQI2tFtu3UzapZpH0Uc1Q==}
     cpu: [arm64]
     os: [darwin]
 
-  '@rollup/rollup-darwin-x64@4.57.1':
-    resolution: {integrity: sha512-Ji8g8ChVbKrhFtig5QBV7iMaJrGtpHelkB3lsaKzadFBe58gmjfGXAOfI5FV0lYMH8wiqsxKQ1C9B0YTRXVy4w==}
+  '@rollup/rollup-darwin-x64@4.58.0':
+    resolution: {integrity: sha512-yiKJY7pj9c9JwzuKYLFaDZw5gma3fI9bkPEIyofvVfsPqjCWPglSHdpdwXpKGvDeYDms3Qal8qGMEHZ1M/4Udg==}
     cpu: [x64]
     os: [darwin]
 
-  '@rollup/rollup-freebsd-arm64@4.57.1':
-    resolution: {integrity: sha512-R+/WwhsjmwodAcz65guCGFRkMb4gKWTcIeLy60JJQbXrJ97BOXHxnkPFrP+YwFlaS0m+uWJTstrUA9o+UchFug==}
+  '@rollup/rollup-freebsd-arm64@4.58.0':
+    resolution: {integrity: sha512-x97kCoBh5MOevpn/CNK9W1x8BEzO238541BGWBc315uOlN0AD/ifZ1msg+ZQB05Ux+VF6EcYqpiagfLJ8U3LvQ==}
     cpu: [arm64]
     os: [freebsd]
 
-  '@rollup/rollup-freebsd-x64@4.57.1':
-    resolution: {integrity: sha512-IEQTCHeiTOnAUC3IDQdzRAGj3jOAYNr9kBguI7MQAAZK3caezRrg0GxAb6Hchg4lxdZEI5Oq3iov/w/hnFWY9Q==}
+  '@rollup/rollup-freebsd-x64@4.58.0':
+    resolution: {integrity: sha512-Aa8jPoZ6IQAG2eIrcXPpjRcMjROMFxCt1UYPZZtCxRV68WkuSigYtQ/7Zwrcr2IvtNJo7T2JfDXyMLxq5L4Jlg==}
     cpu: [x64]
     os: [freebsd]
 
-  '@rollup/rollup-linux-arm-gnueabihf@4.57.1':
-    resolution: {integrity: sha512-F8sWbhZ7tyuEfsmOxwc2giKDQzN3+kuBLPwwZGyVkLlKGdV1nvnNwYD0fKQ8+XS6hp9nY7B+ZeK01EBUE7aHaw==}
+  '@rollup/rollup-linux-arm-gnueabihf@4.58.0':
+    resolution: {integrity: sha512-Ob8YgT5kD/lSIYW2Rcngs5kNB/44Q2RzBSPz9brf2WEtcGR7/f/E9HeHn1wYaAwKBni+bdXEwgHvUd0x12lQSA==}
     cpu: [arm]
     os: [linux]
     libc: [glibc]
 
-  '@rollup/rollup-linux-arm-musleabihf@4.57.1':
-    resolution: {integrity: sha512-rGfNUfn0GIeXtBP1wL5MnzSj98+PZe/AXaGBCRmT0ts80lU5CATYGxXukeTX39XBKsxzFpEeK+Mrp9faXOlmrw==}
+  '@rollup/rollup-linux-arm-musleabihf@4.58.0':
+    resolution: {integrity: sha512-K+RI5oP1ceqoadvNt1FecL17Qtw/n9BgRSzxif3rTL2QlIu88ccvY+Y9nnHe/cmT5zbH9+bpiJuG1mGHRVwF4Q==}
     cpu: [arm]
     os: [linux]
     libc: [musl]
 
-  '@rollup/rollup-linux-arm64-gnu@4.57.1':
-    resolution: {integrity: sha512-MMtej3YHWeg/0klK2Qodf3yrNzz6CGjo2UntLvk2RSPlhzgLvYEB3frRvbEF2wRKh1Z2fDIg9KRPe1fawv7C+g==}
+  '@rollup/rollup-linux-arm64-gnu@4.58.0':
+    resolution: {integrity: sha512-T+17JAsCKUjmbopcKepJjHWHXSjeW7O5PL7lEFaeQmiVyw4kkc5/lyYKzrv6ElWRX/MrEWfPiJWqbTvfIvjM1Q==}
     cpu: [arm64]
     os: [linux]
     libc: [glibc]
 
-  '@rollup/rollup-linux-arm64-musl@4.57.1':
-    resolution: {integrity: sha512-1a/qhaaOXhqXGpMFMET9VqwZakkljWHLmZOX48R0I/YLbhdxr1m4gtG1Hq7++VhVUmf+L3sTAf9op4JlhQ5u1Q==}
+  '@rollup/rollup-linux-arm64-musl@4.58.0':
+    resolution: {integrity: sha512-cCePktb9+6R9itIJdeCFF9txPU7pQeEHB5AbHu/MKsfH/k70ZtOeq1k4YAtBv9Z7mmKI5/wOLYjQ+B9QdxR6LA==}
     cpu: [arm64]
     os: [linux]
     libc: [musl]
 
-  '@rollup/rollup-linux-loong64-gnu@4.57.1':
-    resolution: {integrity: sha512-QWO6RQTZ/cqYtJMtxhkRkidoNGXc7ERPbZN7dVW5SdURuLeVU7lwKMpo18XdcmpWYd0qsP1bwKPf7DNSUinhvA==}
+  '@rollup/rollup-linux-loong64-gnu@4.58.0':
+    resolution: {integrity: sha512-iekUaLkfliAsDl4/xSdoCJ1gnnIXvoNz85C8U8+ZxknM5pBStfZjeXgB8lXobDQvvPRCN8FPmmuTtH+z95HTmg==}
     cpu: [loong64]
     os: [linux]
     libc: [glibc]
 
-  '@rollup/rollup-linux-loong64-musl@4.57.1':
-    resolution: {integrity: sha512-xpObYIf+8gprgWaPP32xiN5RVTi/s5FCR+XMXSKmhfoJjrpRAjCuuqQXyxUa/eJTdAE6eJ+KDKaoEqjZQxh3Gw==}
+  '@rollup/rollup-linux-loong64-musl@4.58.0':
+    resolution: {integrity: sha512-68ofRgJNl/jYJbxFjCKE7IwhbfxOl1muPN4KbIqAIe32lm22KmU7E8OPvyy68HTNkI2iV/c8y2kSPSm2mW/Q9Q==}
     cpu: [loong64]
     os: [linux]
     libc: [musl]
 
-  '@rollup/rollup-linux-ppc64-gnu@4.57.1':
-    resolution: {integrity: sha512-4BrCgrpZo4hvzMDKRqEaW1zeecScDCR+2nZ86ATLhAoJ5FQ+lbHVD3ttKe74/c7tNT9c6F2viwB3ufwp01Oh2w==}
+  '@rollup/rollup-linux-ppc64-gnu@4.58.0':
+    resolution: {integrity: sha512-dpz8vT0i+JqUKuSNPCP5SYyIV2Lh0sNL1+FhM7eLC457d5B9/BC3kDPp5BBftMmTNsBarcPcoz5UGSsnCiw4XQ==}
     cpu: [ppc64]
     os: [linux]
     libc: [glibc]
 
-  '@rollup/rollup-linux-ppc64-musl@4.57.1':
-    resolution: {integrity: sha512-NOlUuzesGauESAyEYFSe3QTUguL+lvrN1HtwEEsU2rOwdUDeTMJdO5dUYl/2hKf9jWydJrO9OL/XSSf65R5+Xw==}
+  '@rollup/rollup-linux-ppc64-musl@4.58.0':
+    resolution: {integrity: sha512-4gdkkf9UJ7tafnweBCR/mk4jf3Jfl0cKX9Np80t5i78kjIH0ZdezUv/JDI2VtruE5lunfACqftJ8dIMGN4oHew==}
     cpu: [ppc64]
     os: [linux]
     libc: [musl]
 
-  '@rollup/rollup-linux-riscv64-gnu@4.57.1':
-    resolution: {integrity: sha512-ptA88htVp0AwUUqhVghwDIKlvJMD/fmL/wrQj99PRHFRAG6Z5nbWoWG4o81Nt9FT+IuqUQi+L31ZKAFeJ5Is+A==}
+  '@rollup/rollup-linux-riscv64-gnu@4.58.0':
+    resolution: {integrity: sha512-YFS4vPnOkDTD/JriUeeZurFYoJhPf9GQQEF/v4lltp3mVcBmnsAdjEWhr2cjUCZzZNzxCG0HZOvJU44UGHSdzw==}
     cpu: [riscv64]
     os: [linux]
     libc: [glibc]
 
-  '@rollup/rollup-linux-riscv64-musl@4.57.1':
-    resolution: {integrity: sha512-S51t7aMMTNdmAMPpBg7OOsTdn4tySRQvklmL3RpDRyknk87+Sp3xaumlatU+ppQ+5raY7sSTcC2beGgvhENfuw==}
+  '@rollup/rollup-linux-riscv64-musl@4.58.0':
+    resolution: {integrity: sha512-x2xgZlFne+QVNKV8b4wwaCS8pwq3y14zedZ5DqLzjdRITvreBk//4Knbcvm7+lWmms9V9qFp60MtUd0/t/PXPw==}
     cpu: [riscv64]
     os: [linux]
     libc: [musl]
 
-  '@rollup/rollup-linux-s390x-gnu@4.57.1':
-    resolution: {integrity: sha512-Bl00OFnVFkL82FHbEqy3k5CUCKH6OEJL54KCyx2oqsmZnFTR8IoNqBF+mjQVcRCT5sB6yOvK8A37LNm/kPJiZg==}
+  '@rollup/rollup-linux-s390x-gnu@4.58.0':
+    resolution: {integrity: sha512-jIhrujyn4UnWF8S+DHSkAkDEO3hLX0cjzxJZPLF80xFyzyUIYgSMRcYQ3+uqEoyDD2beGq7Dj7edi8OnJcS/hg==}
     cpu: [s390x]
     os: [linux]
     libc: [glibc]
 
-  '@rollup/rollup-linux-x64-gnu@4.57.1':
-    resolution: {integrity: sha512-ABca4ceT4N+Tv/GtotnWAeXZUZuM/9AQyCyKYyKnpk4yoA7QIAuBt6Hkgpw8kActYlew2mvckXkvx0FfoInnLg==}
+  '@rollup/rollup-linux-x64-gnu@4.58.0':
+    resolution: {integrity: sha512-+410Srdoh78MKSJxTQ+hZ/Mx+ajd6RjjPwBPNd0R3J9FtL6ZA0GqiiyNjCO9In0IzZkCNrpGymSfn+kgyPQocg==}
     cpu: [x64]
     os: [linux]
     libc: [glibc]
 
-  '@rollup/rollup-linux-x64-musl@4.57.1':
-    resolution: {integrity: sha512-HFps0JeGtuOR2convgRRkHCekD7j+gdAuXM+/i6kGzQtFhlCtQkpwtNzkNj6QhCDp7DRJ7+qC/1Vg2jt5iSOFw==}
+  '@rollup/rollup-linux-x64-musl@4.58.0':
+    resolution: {integrity: sha512-ZjMyby5SICi227y1MTR3VYBpFTdZs823Rs/hpakufleBoufoOIB6jtm9FEoxn/cgO7l6PM2rCEl5Kre5vX0QrQ==}
     cpu: [x64]
     os: [linux]
     libc: [musl]
 
-  '@rollup/rollup-openbsd-x64@4.57.1':
-    resolution: {integrity: sha512-H+hXEv9gdVQuDTgnqD+SQffoWoc0Of59AStSzTEj/feWTBAnSfSD3+Dql1ZruJQxmykT/JVY0dE8Ka7z0DH1hw==}
+  '@rollup/rollup-openbsd-x64@4.58.0':
+    resolution: {integrity: sha512-ds4iwfYkSQ0k1nb8LTcyXw//ToHOnNTJtceySpL3fa7tc/AsE+UpUFphW126A6fKBGJD5dhRvg8zw1rvoGFxmw==}
     cpu: [x64]
     os: [openbsd]
 
-  '@rollup/rollup-openharmony-arm64@4.57.1':
-    resolution: {integrity: sha512-4wYoDpNg6o/oPximyc/NG+mYUejZrCU2q+2w6YZqrAs2UcNUChIZXjtafAiiZSUc7On8v5NyNj34Kzj/Ltk6dQ==}
+  '@rollup/rollup-openharmony-arm64@4.58.0':
+    resolution: {integrity: sha512-fd/zpJniln4ICdPkjWFhZYeY/bpnaN9pGa6ko+5WD38I0tTqk9lXMgXZg09MNdhpARngmxiCg0B0XUamNw/5BQ==}
     cpu: [arm64]
     os: [openharmony]
 
-  '@rollup/rollup-win32-arm64-msvc@4.57.1':
-    resolution: {integrity: sha512-O54mtsV/6LW3P8qdTcamQmuC990HDfR71lo44oZMZlXU4tzLrbvTii87Ni9opq60ds0YzuAlEr/GNwuNluZyMQ==}
+  '@rollup/rollup-win32-arm64-msvc@4.58.0':
+    resolution: {integrity: sha512-YpG8dUOip7DCz3nr/JUfPbIUo+2d/dy++5bFzgi4ugOGBIox+qMbbqt/JoORwvI/C9Kn2tz6+Bieoqd5+B1CjA==}
     cpu: [arm64]
     os: [win32]
 
-  '@rollup/rollup-win32-ia32-msvc@4.57.1':
-    resolution: {integrity: sha512-P3dLS+IerxCT/7D2q2FYcRdWRl22dNbrbBEtxdWhXrfIMPP9lQhb5h4Du04mdl5Woq05jVCDPCMF7Ub0NAjIew==}
+  '@rollup/rollup-win32-ia32-msvc@4.58.0':
+    resolution: {integrity: sha512-b9DI8jpFQVh4hIXFr0/+N/TzLdpBIoPzjt0Rt4xJbW3mzguV3mduR9cNgiuFcuL/TeORejJhCWiAXe3E/6PxWA==}
     cpu: [ia32]
     os: [win32]
 
-  '@rollup/rollup-win32-x64-gnu@4.57.1':
-    resolution: {integrity: sha512-VMBH2eOOaKGtIJYleXsi2B8CPVADrh+TyNxJ4mWPnKfLB/DBUmzW+5m1xUrcwWoMfSLagIRpjUFeW5CO5hyciQ==}
+  '@rollup/rollup-win32-x64-gnu@4.58.0':
+    resolution: {integrity: sha512-CSrVpmoRJFN06LL9xhkitkwUcTZtIotYAF5p6XOR2zW0Zz5mzb3IPpcoPhB02frzMHFNo1reQ9xSF5fFm3hUsQ==}
     cpu: [x64]
     os: [win32]
 
-  '@rollup/rollup-win32-x64-msvc@4.57.1':
-    resolution: {integrity: sha512-mxRFDdHIWRxg3UfIIAwCm6NzvxG0jDX/wBN6KsQFTvKFqqg9vTrWUE68qEjHt19A5wwx5X5aUi2zuZT7YR0jrA==}
+  '@rollup/rollup-win32-x64-msvc@4.58.0':
+    resolution: {integrity: sha512-QFsBgQNTnh5K0t/sBsjJLq24YVqEIVkGpfN2VHsnN90soZyhaiA9UUHufcctVNL4ypJY0wrwad0wslx2KJQ1/w==}
     cpu: [x64]
     os: [win32]
 
@@ -10167,9 +10000,6 @@ packages:
 
   '@types/chai@5.2.3':
     resolution: {integrity: sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA==}
-
-  '@types/cssesc@3.0.2':
-    resolution: {integrity: sha512-Qii6nTRktvtI380EloxH/V7MwgrYxkPgBI+NklUjQuhzgAd1AqT3QDJd+eD+0doRADgfwvtagLRo7JFa7aMHXg==}
 
   '@types/debug@4.1.12':
     resolution: {integrity: sha512-vIChWdVG3LG1SMxEvI/AK+FWJthlrqlTu7fbrlywTkkaONwk/UAGaULXRlf8vkzFBLVm0zkMdCquhL5aOjhXPQ==}
@@ -11022,9 +10852,6 @@ packages:
       bare-abort-controller:
         optional: true
 
-  base-64@1.0.0:
-    resolution: {integrity: sha512-kwDPIFCGx0NZHog36dj+tHiwP4QMzsZ3AgMViUBKI0+V5n4U0ufTCUMhnQ04diaRI8EX/QcPfql7zlhZ7j4zgg==}
-
   base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
 
@@ -11697,10 +11524,6 @@ packages:
     peerDependencies:
       typescript: ^5.4.4
 
-  deterministic-object-hash@2.0.2:
-    resolution: {integrity: sha512-KxektNH63SrbfUyDiwXqRb1rLwKt33AmMv+5Nhsw1kqZ13SJBRTgZHtGbE+hH3a1mVW1cz+4pqSWVPAtLVXTzQ==}
-    engines: {node: '>=18'}
-
   dettle@1.0.5:
     resolution: {integrity: sha512-ZVyjhAJ7sCe1PNXEGveObOH9AC8QvMga3HJIghHawtG7mE4K5pW9nz/vDGAr/U7a3LWgdOzEE7ac9MURnyfaTA==}
 
@@ -11976,11 +11799,6 @@ packages:
   esbuild@0.17.19:
     resolution: {integrity: sha512-XQ0jAPFkK/u3LcVRcvVHQcTIqD6E2H1fvZMA5dQPSOWb3suUbWbfbRf94pjc0bNzRYLfIrDRQXr7X+LHIm5oHw==}
     engines: {node: '>=12'}
-    hasBin: true
-
-  esbuild@0.24.2:
-    resolution: {integrity: sha512-+9egpBW8I3CD5XPe0n6BfT5fxLzxrlDzqydF3aviG+9ni1lDC/OvMHcxqEFV0+LANZG5R1bFMWfUrjVsdwxJvA==}
-    engines: {node: '>=18'}
     hasBin: true
 
   esbuild@0.25.5:
@@ -14320,8 +14138,8 @@ packages:
     resolution: {integrity: sha512-3Ybi1tAuwAP9s0r1UQ2J4n5Y0G05bJkpUIO0/bI9MhwmD70S5aTWbXGBwxHrelT+XM1k6dM0pk+SwNkpTRN7Pg==}
     engines: {node: ^10 || ^12 || >=14}
 
-  preact-render-to-string@6.6.5:
-    resolution: {integrity: sha512-O6MHzYNIKYaiSX3bOw0gGZfEbOmlIDtDfWwN1JJdc/T3ihzRT6tGGSEWE088dWrEDGa1u7101q+6fzQnO9XCPA==}
+  preact-render-to-string@6.6.6:
+    resolution: {integrity: sha512-EfqZJytnjJldV+YaaqhthU2oXsEf5e+6rDv957p+zxAvNfFLQOPfvBOTncscQ+akzu6Wrl7s3Pa0LjUQmWJsGQ==}
     peerDependencies:
       preact: '>=10 || >= 11.0.0-0'
 
@@ -14716,8 +14534,8 @@ packages:
   rfdc@1.4.1:
     resolution: {integrity: sha512-q1b3N5QkRUWUl7iyylaaj3kOpIT0N2i9MqIEQXP73GVsN9cw3fdx8X63cEmWhJGi2PPCF23Ijp7ktmd39rawIA==}
 
-  rollup@4.57.1:
-    resolution: {integrity: sha512-oQL6lgK3e2QZeQ7gcgIkS2YZPg5slw37hYufJ3edKlfQSGGm8ICoxswK15ntSzF/a8+h7ekRy7k7oWc3BQ7y8A==}
+  rollup@4.58.0:
+    resolution: {integrity: sha512-wbT0mBmWbIvvq8NeEYWWvevvxnOyhKChir47S66WCxw1SXqhw7ssIYejnQEVt7XYQpsj2y8F9PM+Cr3SNEa0gw==}
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
     hasBin: true
 
@@ -15146,14 +14964,14 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
-  svelte2tsx@0.7.47:
-    resolution: {integrity: sha512-1aw/MFKVPM96OBevJdC12do2an9t5Zwr3Va9amLgTLpJje36ibD1iIHpuqCYWUrdR9vw6g6btKGQPmsqE8ZYCw==}
+  svelte2tsx@0.7.51:
+    resolution: {integrity: sha512-YbVMQi5LtQkVGOMdATTY8v3SMtkNjzYtrVDGaN3Bv+0LQ47tGXu/Oc8ryTkcYuEJWTZFJ8G2+2I8ORcQVGt9Ag==}
     peerDependencies:
       svelte: ^3.55 || ^4.0.0-next.0 || ^4.0 || ^5.0.0-next.0
       typescript: ^4.9.4 || ^5.0.0
 
-  svelte@5.53.0:
-    resolution: {integrity: sha512-7dhHkSamGS2vtoBmIW2hRab+gl5Z60alEHZB4910ePqqJNxAWnDAxsofVmlZ2tREmWyHNE+A1nCKwICAquoD2A==}
+  svelte@5.53.1:
+    resolution: {integrity: sha512-WzxFHZhhD23Qzu7JCYdvm1rxvRSzdt9HtHO8TScMBX51bLRFTcJmATVqjqXG+6Ln6hrViGCo9DzwOhAasxwC/w==}
     engines: {node: '>=18'}
 
   svgo@3.3.2:
@@ -15461,8 +15279,8 @@ packages:
     resolution: {integrity: sha512-y+8YjDFzWdQlSE9N5nzKMT3g4a5UBX1HKowfdXh0uvAnTaqqwqB92Jt4UXBAeKekDs5IaDKyJFR4X1gYVCgXcw==}
     engines: {node: '>=20.18.1'}
 
-  undici@7.21.0:
-    resolution: {integrity: sha512-Hn2tCQpoDt1wv23a68Ctc8Cr/BHpUSfaPYrkajTXOS9IKpxVRx/X5m1K2YkbK2ipgZgxXSgsUinl3x+2YdSSfg==}
+  undici@7.22.0:
+    resolution: {integrity: sha512-RqslV2Us5BrllB+JeiZnK4peryVTndy9Dnqq62S3yYRRTj0tFQCwEniUy2167skdGOy3vqRzEvl1Dm4sV2ReDg==}
     engines: {node: '>=20.18.1'}
 
   unenv@2.0.0-rc.24:
@@ -16391,7 +16209,7 @@ snapshots:
 
   '@astrojs/compiler@2.13.1': {}
 
-  '@astrojs/compiler@3.0.0-beta.0': {}
+  '@astrojs/compiler@3.0.0-beta.1': {}
 
   '@astrojs/internal-helpers@0.7.5': {}
 
@@ -16490,14 +16308,14 @@ snapshots:
       - tsx
       - yaml
 
-  '@astrojs/vue@5.1.4(@types/node@25.2.3)(astro@packages+astro)(jiti@2.6.1)(lightningcss@1.31.1)(rollup@4.57.1)(sass@1.97.3)(tsx@4.21.0)(vue@3.5.28(typescript@5.9.3))(yaml@2.8.2)':
+  '@astrojs/vue@5.1.4(@types/node@25.2.3)(astro@packages+astro)(jiti@2.6.1)(lightningcss@1.31.1)(rollup@4.58.0)(sass@1.97.3)(tsx@4.21.0)(vue@3.5.28(typescript@5.9.3))(yaml@2.8.2)':
     dependencies:
       '@vitejs/plugin-vue': 5.2.4(vite@6.4.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))(vue@3.5.28(typescript@5.9.3))
       '@vitejs/plugin-vue-jsx': 4.2.0(vite@6.4.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))(vue@3.5.28(typescript@5.9.3))
       '@vue/compiler-sfc': 3.5.28
       astro: link:packages/astro
       vite: 6.4.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
-      vite-plugin-vue-devtools: 7.7.9(rollup@4.57.1)(vite@6.4.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))(vue@3.5.28(typescript@5.9.3))
+      vite-plugin-vue-devtools: 7.7.9(rollup@4.58.0)(vite@6.4.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))(vue@3.5.28(typescript@5.9.3))
       vue: 3.5.28(typescript@5.9.3)
     transitivePeerDependencies:
       - '@nuxt/kit'
@@ -17067,13 +16885,13 @@ snapshots:
     optionalDependencies:
       workerd: 1.20260219.0
 
-  '@cloudflare/vite-plugin@1.25.2(@cloudflare/workers-types@4.20260227.0)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))(workerd@1.20260219.0)':
+  '@cloudflare/vite-plugin@1.25.2(@cloudflare/workers-types@4.20260228.0)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))(workerd@1.20260219.0)':
     dependencies:
       '@cloudflare/unenv-preset': 2.14.0(unenv@2.0.0-rc.24)(workerd@1.20260219.0)
       miniflare: 4.20260219.0
       unenv: 2.0.0-rc.24
       vite: 7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
-      wrangler: 4.67.0(@cloudflare/workers-types@4.20260227.0)
+      wrangler: 4.67.0(@cloudflare/workers-types@4.20260228.0)
       ws: 8.18.0
     transitivePeerDependencies:
       - '@cloudflare/workers-types'
@@ -17096,7 +16914,7 @@ snapshots:
   '@cloudflare/workerd-windows-64@1.20260219.0':
     optional: true
 
-  '@cloudflare/workers-types@4.20260227.0': {}
+  '@cloudflare/workers-types@4.20260228.0': {}
 
   '@codspeed/core@5.2.0':
     dependencies:
@@ -17495,9 +17313,6 @@ snapshots:
       '@whatwg-node/promise-helpers': 1.3.2
       tslib: 2.8.1
 
-  '@esbuild/aix-ppc64@0.24.2':
-    optional: true
-
   '@esbuild/aix-ppc64@0.25.5':
     optional: true
 
@@ -17508,9 +17323,6 @@ snapshots:
     optional: true
 
   '@esbuild/android-arm64@0.17.19':
-    optional: true
-
-  '@esbuild/android-arm64@0.24.2':
     optional: true
 
   '@esbuild/android-arm64@0.25.5':
@@ -17525,9 +17337,6 @@ snapshots:
   '@esbuild/android-arm@0.17.19':
     optional: true
 
-  '@esbuild/android-arm@0.24.2':
-    optional: true
-
   '@esbuild/android-arm@0.25.5':
     optional: true
 
@@ -17538,9 +17347,6 @@ snapshots:
     optional: true
 
   '@esbuild/android-x64@0.17.19':
-    optional: true
-
-  '@esbuild/android-x64@0.24.2':
     optional: true
 
   '@esbuild/android-x64@0.25.5':
@@ -17555,9 +17361,6 @@ snapshots:
   '@esbuild/darwin-arm64@0.17.19':
     optional: true
 
-  '@esbuild/darwin-arm64@0.24.2':
-    optional: true
-
   '@esbuild/darwin-arm64@0.25.5':
     optional: true
 
@@ -17568,9 +17371,6 @@ snapshots:
     optional: true
 
   '@esbuild/darwin-x64@0.17.19':
-    optional: true
-
-  '@esbuild/darwin-x64@0.24.2':
     optional: true
 
   '@esbuild/darwin-x64@0.25.5':
@@ -17585,9 +17385,6 @@ snapshots:
   '@esbuild/freebsd-arm64@0.17.19':
     optional: true
 
-  '@esbuild/freebsd-arm64@0.24.2':
-    optional: true
-
   '@esbuild/freebsd-arm64@0.25.5':
     optional: true
 
@@ -17598,9 +17395,6 @@ snapshots:
     optional: true
 
   '@esbuild/freebsd-x64@0.17.19':
-    optional: true
-
-  '@esbuild/freebsd-x64@0.24.2':
     optional: true
 
   '@esbuild/freebsd-x64@0.25.5':
@@ -17615,9 +17409,6 @@ snapshots:
   '@esbuild/linux-arm64@0.17.19':
     optional: true
 
-  '@esbuild/linux-arm64@0.24.2':
-    optional: true
-
   '@esbuild/linux-arm64@0.25.5':
     optional: true
 
@@ -17628,9 +17419,6 @@ snapshots:
     optional: true
 
   '@esbuild/linux-arm@0.17.19':
-    optional: true
-
-  '@esbuild/linux-arm@0.24.2':
     optional: true
 
   '@esbuild/linux-arm@0.25.5':
@@ -17645,9 +17433,6 @@ snapshots:
   '@esbuild/linux-ia32@0.17.19':
     optional: true
 
-  '@esbuild/linux-ia32@0.24.2':
-    optional: true
-
   '@esbuild/linux-ia32@0.25.5':
     optional: true
 
@@ -17658,9 +17443,6 @@ snapshots:
     optional: true
 
   '@esbuild/linux-loong64@0.17.19':
-    optional: true
-
-  '@esbuild/linux-loong64@0.24.2':
     optional: true
 
   '@esbuild/linux-loong64@0.25.5':
@@ -17675,9 +17457,6 @@ snapshots:
   '@esbuild/linux-mips64el@0.17.19':
     optional: true
 
-  '@esbuild/linux-mips64el@0.24.2':
-    optional: true
-
   '@esbuild/linux-mips64el@0.25.5':
     optional: true
 
@@ -17688,9 +17467,6 @@ snapshots:
     optional: true
 
   '@esbuild/linux-ppc64@0.17.19':
-    optional: true
-
-  '@esbuild/linux-ppc64@0.24.2':
     optional: true
 
   '@esbuild/linux-ppc64@0.25.5':
@@ -17705,9 +17481,6 @@ snapshots:
   '@esbuild/linux-riscv64@0.17.19':
     optional: true
 
-  '@esbuild/linux-riscv64@0.24.2':
-    optional: true
-
   '@esbuild/linux-riscv64@0.25.5':
     optional: true
 
@@ -17718,9 +17491,6 @@ snapshots:
     optional: true
 
   '@esbuild/linux-s390x@0.17.19':
-    optional: true
-
-  '@esbuild/linux-s390x@0.24.2':
     optional: true
 
   '@esbuild/linux-s390x@0.25.5':
@@ -17735,9 +17505,6 @@ snapshots:
   '@esbuild/linux-x64@0.17.19':
     optional: true
 
-  '@esbuild/linux-x64@0.24.2':
-    optional: true
-
   '@esbuild/linux-x64@0.25.5':
     optional: true
 
@@ -17745,9 +17512,6 @@ snapshots:
     optional: true
 
   '@esbuild/linux-x64@0.27.3':
-    optional: true
-
-  '@esbuild/netbsd-arm64@0.24.2':
     optional: true
 
   '@esbuild/netbsd-arm64@0.25.5':
@@ -17762,9 +17526,6 @@ snapshots:
   '@esbuild/netbsd-x64@0.17.19':
     optional: true
 
-  '@esbuild/netbsd-x64@0.24.2':
-    optional: true
-
   '@esbuild/netbsd-x64@0.25.5':
     optional: true
 
@@ -17772,9 +17533,6 @@ snapshots:
     optional: true
 
   '@esbuild/netbsd-x64@0.27.3':
-    optional: true
-
-  '@esbuild/openbsd-arm64@0.24.2':
     optional: true
 
   '@esbuild/openbsd-arm64@0.25.5':
@@ -17787,9 +17545,6 @@ snapshots:
     optional: true
 
   '@esbuild/openbsd-x64@0.17.19':
-    optional: true
-
-  '@esbuild/openbsd-x64@0.24.2':
     optional: true
 
   '@esbuild/openbsd-x64@0.25.5':
@@ -17810,9 +17565,6 @@ snapshots:
   '@esbuild/sunos-x64@0.17.19':
     optional: true
 
-  '@esbuild/sunos-x64@0.24.2':
-    optional: true
-
   '@esbuild/sunos-x64@0.25.5':
     optional: true
 
@@ -17823,9 +17575,6 @@ snapshots:
     optional: true
 
   '@esbuild/win32-arm64@0.17.19':
-    optional: true
-
-  '@esbuild/win32-arm64@0.24.2':
     optional: true
 
   '@esbuild/win32-arm64@0.25.5':
@@ -17840,9 +17589,6 @@ snapshots:
   '@esbuild/win32-ia32@0.17.19':
     optional: true
 
-  '@esbuild/win32-ia32@0.24.2':
-    optional: true
-
   '@esbuild/win32-ia32@0.25.5':
     optional: true
 
@@ -17853,9 +17599,6 @@ snapshots:
     optional: true
 
   '@esbuild/win32-x64@0.17.19':
-    optional: true
-
-  '@esbuild/win32-x64@0.24.2':
     optional: true
 
   '@esbuild/win32-x64@0.25.5':
@@ -18380,14 +18123,14 @@ snapshots:
       uuid: 13.0.0
       write-file-atomic: 5.0.1
 
-  '@netlify/dev@4.11.2(@azure/identity@4.13.0)(@vercel/functions@3.4.2)(rollup@4.57.1)':
+  '@netlify/dev@4.11.2(@azure/identity@4.13.0)(@vercel/functions@3.4.2)(rollup@4.58.0)':
     dependencies:
       '@netlify/ai': 0.3.8
       '@netlify/blobs': 10.7.0
       '@netlify/config': 24.4.0
       '@netlify/dev-utils': 4.3.3
       '@netlify/edge-functions-dev': 1.0.11
-      '@netlify/functions-dev': 1.1.12(rollup@4.57.1)
+      '@netlify/functions-dev': 1.1.12(rollup@4.58.0)
       '@netlify/headers': 2.1.3
       '@netlify/images': 1.3.3(@azure/identity@4.13.0)(@netlify/blobs@10.7.0)(@vercel/functions@3.4.2)
       '@netlify/redirects': 3.1.5
@@ -18457,12 +18200,12 @@ snapshots:
     dependencies:
       '@netlify/types': 2.3.0
 
-  '@netlify/functions-dev@1.1.12(rollup@4.57.1)':
+  '@netlify/functions-dev@1.1.12(rollup@4.58.0)':
     dependencies:
       '@netlify/blobs': 10.7.0
       '@netlify/dev-utils': 4.3.3
       '@netlify/functions': 5.1.2
-      '@netlify/zip-it-and-ship-it': 14.3.2(rollup@4.57.1)
+      '@netlify/zip-it-and-ship-it': 14.3.2(rollup@4.58.0)
       cron-parser: 4.9.0
       decache: 4.6.2
       extract-zip: 2.0.1
@@ -18566,9 +18309,9 @@ snapshots:
 
   '@netlify/types@2.3.0': {}
 
-  '@netlify/vite-plugin@2.10.2(@azure/identity@4.13.0)(@vercel/functions@3.4.2)(rollup@4.57.1)(vite@7.3.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))':
+  '@netlify/vite-plugin@2.10.2(@azure/identity@4.13.0)(@vercel/functions@3.4.2)(rollup@4.58.0)(vite@7.3.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))':
     dependencies:
-      '@netlify/dev': 4.11.2(@azure/identity@4.13.0)(@vercel/functions@3.4.2)(rollup@4.57.1)
+      '@netlify/dev': 4.11.2(@azure/identity@4.13.0)(@vercel/functions@3.4.2)(rollup@4.58.0)
       '@netlify/dev-utils': 4.3.3
       dedent: 1.7.1
       vite: 7.3.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
@@ -18599,13 +18342,13 @@ snapshots:
       - supports-color
       - uploadthing
 
-  '@netlify/zip-it-and-ship-it@14.3.2(rollup@4.57.1)':
+  '@netlify/zip-it-and-ship-it@14.3.2(rollup@4.58.0)':
     dependencies:
       '@babel/parser': 7.29.0
       '@babel/types': 7.29.0
       '@netlify/binary-info': 1.0.0
       '@netlify/serverless-functions-api': 2.9.0
-      '@vercel/nft': 0.29.4(rollup@4.57.1)
+      '@vercel/nft': 0.29.4(rollup@4.58.0)
       archiver: 7.0.1
       common-path-prefix: 3.0.0
       copy-file: 11.1.0
@@ -18926,13 +18669,13 @@ snapshots:
 
   '@poppinss/exception@1.2.3': {}
 
-  '@preact/preset-vite@2.10.3(@babel/core@7.29.0)(preact@10.28.4)(rollup@4.57.1)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))':
+  '@preact/preset-vite@2.10.3(@babel/core@7.29.0)(preact@10.28.4)(rollup@4.58.0)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))':
     dependencies:
       '@babel/core': 7.29.0
       '@babel/plugin-transform-react-jsx': 7.28.6(@babel/core@7.29.0)
       '@babel/plugin-transform-react-jsx-development': 7.27.1(@babel/core@7.29.0)
       '@prefresh/vite': 2.4.11(preact@10.28.4)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
-      '@rollup/pluginutils': 5.3.0(rollup@4.57.1)
+      '@rollup/pluginutils': 5.3.0(rollup@4.58.0)
       babel-plugin-transform-hook-names: 1.0.2(@babel/core@7.29.0)
       debug: 4.4.3(supports-color@8.1.1)
       picocolors: 1.1.1
@@ -18944,11 +18687,6 @@ snapshots:
       - supports-color
 
   '@preact/signals-core@1.13.0': {}
-
-  '@preact/signals@2.7.1(preact@10.28.4)':
-    dependencies:
-      '@preact/signals-core': 1.13.0
-      preact: 10.28.4
 
   '@preact/signals@2.8.1(preact@10.28.4)':
     dependencies:
@@ -18992,87 +18730,87 @@ snapshots:
       estree-walker: 2.0.2
       picomatch: 2.3.1
 
-  '@rollup/pluginutils@5.3.0(rollup@4.57.1)':
+  '@rollup/pluginutils@5.3.0(rollup@4.58.0)':
     dependencies:
       '@types/estree': 1.0.8
       estree-walker: 2.0.2
       picomatch: 4.0.3
     optionalDependencies:
-      rollup: 4.57.1
+      rollup: 4.58.0
 
-  '@rollup/rollup-android-arm-eabi@4.57.1':
+  '@rollup/rollup-android-arm-eabi@4.58.0':
     optional: true
 
-  '@rollup/rollup-android-arm64@4.57.1':
+  '@rollup/rollup-android-arm64@4.58.0':
     optional: true
 
-  '@rollup/rollup-darwin-arm64@4.57.1':
+  '@rollup/rollup-darwin-arm64@4.58.0':
     optional: true
 
-  '@rollup/rollup-darwin-x64@4.57.1':
+  '@rollup/rollup-darwin-x64@4.58.0':
     optional: true
 
-  '@rollup/rollup-freebsd-arm64@4.57.1':
+  '@rollup/rollup-freebsd-arm64@4.58.0':
     optional: true
 
-  '@rollup/rollup-freebsd-x64@4.57.1':
+  '@rollup/rollup-freebsd-x64@4.58.0':
     optional: true
 
-  '@rollup/rollup-linux-arm-gnueabihf@4.57.1':
+  '@rollup/rollup-linux-arm-gnueabihf@4.58.0':
     optional: true
 
-  '@rollup/rollup-linux-arm-musleabihf@4.57.1':
+  '@rollup/rollup-linux-arm-musleabihf@4.58.0':
     optional: true
 
-  '@rollup/rollup-linux-arm64-gnu@4.57.1':
+  '@rollup/rollup-linux-arm64-gnu@4.58.0':
     optional: true
 
-  '@rollup/rollup-linux-arm64-musl@4.57.1':
+  '@rollup/rollup-linux-arm64-musl@4.58.0':
     optional: true
 
-  '@rollup/rollup-linux-loong64-gnu@4.57.1':
+  '@rollup/rollup-linux-loong64-gnu@4.58.0':
     optional: true
 
-  '@rollup/rollup-linux-loong64-musl@4.57.1':
+  '@rollup/rollup-linux-loong64-musl@4.58.0':
     optional: true
 
-  '@rollup/rollup-linux-ppc64-gnu@4.57.1':
+  '@rollup/rollup-linux-ppc64-gnu@4.58.0':
     optional: true
 
-  '@rollup/rollup-linux-ppc64-musl@4.57.1':
+  '@rollup/rollup-linux-ppc64-musl@4.58.0':
     optional: true
 
-  '@rollup/rollup-linux-riscv64-gnu@4.57.1':
+  '@rollup/rollup-linux-riscv64-gnu@4.58.0':
     optional: true
 
-  '@rollup/rollup-linux-riscv64-musl@4.57.1':
+  '@rollup/rollup-linux-riscv64-musl@4.58.0':
     optional: true
 
-  '@rollup/rollup-linux-s390x-gnu@4.57.1':
+  '@rollup/rollup-linux-s390x-gnu@4.58.0':
     optional: true
 
-  '@rollup/rollup-linux-x64-gnu@4.57.1':
+  '@rollup/rollup-linux-x64-gnu@4.58.0':
     optional: true
 
-  '@rollup/rollup-linux-x64-musl@4.57.1':
+  '@rollup/rollup-linux-x64-musl@4.58.0':
     optional: true
 
-  '@rollup/rollup-openbsd-x64@4.57.1':
+  '@rollup/rollup-openbsd-x64@4.58.0':
     optional: true
 
-  '@rollup/rollup-openharmony-arm64@4.57.1':
+  '@rollup/rollup-openharmony-arm64@4.58.0':
     optional: true
 
-  '@rollup/rollup-win32-arm64-msvc@4.57.1':
+  '@rollup/rollup-win32-arm64-msvc@4.58.0':
     optional: true
 
-  '@rollup/rollup-win32-ia32-msvc@4.57.1':
+  '@rollup/rollup-win32-ia32-msvc@4.58.0':
     optional: true
 
-  '@rollup/rollup-win32-x64-gnu@4.57.1':
+  '@rollup/rollup-win32-x64-gnu@4.58.0':
     optional: true
 
-  '@rollup/rollup-win32-x64-msvc@4.57.1':
+  '@rollup/rollup-win32-x64-msvc@4.58.0':
     optional: true
 
   '@sec-ant/readable-stream@0.4.1': {}
@@ -19207,20 +18945,20 @@ snapshots:
     dependencies:
       acorn: 8.16.0
 
-  '@sveltejs/vite-plugin-svelte-inspector@5.0.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.0)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)))(svelte@5.53.0)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))':
+  '@sveltejs/vite-plugin-svelte-inspector@5.0.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.1)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)))(svelte@5.53.1)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))':
     dependencies:
-      '@sveltejs/vite-plugin-svelte': 6.2.4(svelte@5.53.0)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
+      '@sveltejs/vite-plugin-svelte': 6.2.4(svelte@5.53.1)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
       obug: 2.1.1
-      svelte: 5.53.0
+      svelte: 5.53.1
       vite: 7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
 
-  '@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.0)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))':
+  '@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.1)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))':
     dependencies:
-      '@sveltejs/vite-plugin-svelte-inspector': 5.0.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.0)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)))(svelte@5.53.0)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
+      '@sveltejs/vite-plugin-svelte-inspector': 5.0.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.1)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)))(svelte@5.53.1)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
       deepmerge: 4.3.1
       magic-string: 0.30.21
       obug: 2.1.1
-      svelte: 5.53.0
+      svelte: 5.53.1
       vite: 7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
       vitefu: 1.1.1(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
 
@@ -19363,8 +19101,6 @@ snapshots:
     dependencies:
       '@types/deep-eql': 4.0.2
       assertion-error: 2.0.1
-
-  '@types/cssesc@3.0.2': {}
 
   '@types/debug@4.1.12':
     dependencies:
@@ -19647,20 +19383,20 @@ snapshots:
     dependencies:
       valibot: 1.2.0(typescript@5.9.3)
 
-  '@vercel/analytics@1.6.1(react@19.2.4)(svelte@5.53.0)(vue@3.5.28(typescript@5.9.3))':
+  '@vercel/analytics@1.6.1(react@19.2.4)(svelte@5.53.1)(vue@3.5.28(typescript@5.9.3))':
     optionalDependencies:
       react: 19.2.4
-      svelte: 5.53.0
+      svelte: 5.53.1
       vue: 3.5.28(typescript@5.9.3)
 
   '@vercel/functions@3.4.2':
     dependencies:
       '@vercel/oidc': 3.2.0
 
-  '@vercel/nft@0.29.4(rollup@4.57.1)':
+  '@vercel/nft@0.29.4(rollup@4.58.0)':
     dependencies:
       '@mapbox/node-pre-gyp': 2.0.3
-      '@rollup/pluginutils': 5.3.0(rollup@4.57.1)
+      '@rollup/pluginutils': 5.3.0(rollup@4.58.0)
       acorn: 8.16.0
       acorn-import-attributes: 1.9.5(acorn@8.16.0)
       async-sema: 3.1.1
@@ -19676,10 +19412,10 @@ snapshots:
       - rollup
       - supports-color
 
-  '@vercel/nft@1.3.1(rollup@4.57.1)':
+  '@vercel/nft@1.3.1(rollup@4.58.0)':
     dependencies:
       '@mapbox/node-pre-gyp': 2.0.3
-      '@rollup/pluginutils': 5.3.0(rollup@4.57.1)
+      '@rollup/pluginutils': 5.3.0(rollup@4.58.0)
       acorn: 8.16.0
       acorn-import-attributes: 1.9.5(acorn@8.16.0)
       async-sema: 3.1.1
@@ -20485,8 +20221,6 @@ snapshots:
 
   bare-events@2.8.2: {}
 
-  base-64@1.0.0: {}
-
   base64-js@1.5.1: {}
 
   baseline-browser-mapping@2.9.19: {}
@@ -20699,7 +20433,7 @@ snapshots:
       parse5: 7.3.0
       parse5-htmlparser2-tree-adapter: 7.1.0
       parse5-parser-stream: 7.1.2
-      undici: 7.21.0
+      undici: 7.22.0
       whatwg-mimetype: 4.0.0
 
   chokidar@3.6.0:
@@ -21113,10 +20847,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  deterministic-object-hash@2.0.2:
-    dependencies:
-      base-64: 1.0.0
-
   dettle@1.0.5: {}
 
   devalue@5.6.3: {}
@@ -21165,9 +20895,9 @@ snapshots:
 
   dotenv@8.6.0: {}
 
-  drizzle-orm@0.42.0(@cloudflare/workers-types@4.20260227.0)(@libsql/client@0.17.0)(@opentelemetry/api@1.9.0):
+  drizzle-orm@0.42.0(@cloudflare/workers-types@4.20260228.0)(@libsql/client@0.17.0)(@opentelemetry/api@1.9.0):
     optionalDependencies:
-      '@cloudflare/workers-types': 4.20260227.0
+      '@cloudflare/workers-types': 4.20260228.0
       '@libsql/client': 0.17.0
       '@opentelemetry/api': 1.9.0
 
@@ -21312,34 +21042,6 @@ snapshots:
       '@esbuild/win32-arm64': 0.17.19
       '@esbuild/win32-ia32': 0.17.19
       '@esbuild/win32-x64': 0.17.19
-
-  esbuild@0.24.2:
-    optionalDependencies:
-      '@esbuild/aix-ppc64': 0.24.2
-      '@esbuild/android-arm': 0.24.2
-      '@esbuild/android-arm64': 0.24.2
-      '@esbuild/android-x64': 0.24.2
-      '@esbuild/darwin-arm64': 0.24.2
-      '@esbuild/darwin-x64': 0.24.2
-      '@esbuild/freebsd-arm64': 0.24.2
-      '@esbuild/freebsd-x64': 0.24.2
-      '@esbuild/linux-arm': 0.24.2
-      '@esbuild/linux-arm64': 0.24.2
-      '@esbuild/linux-ia32': 0.24.2
-      '@esbuild/linux-loong64': 0.24.2
-      '@esbuild/linux-mips64el': 0.24.2
-      '@esbuild/linux-ppc64': 0.24.2
-      '@esbuild/linux-riscv64': 0.24.2
-      '@esbuild/linux-s390x': 0.24.2
-      '@esbuild/linux-x64': 0.24.2
-      '@esbuild/netbsd-arm64': 0.24.2
-      '@esbuild/netbsd-x64': 0.24.2
-      '@esbuild/openbsd-arm64': 0.24.2
-      '@esbuild/openbsd-x64': 0.24.2
-      '@esbuild/sunos-x64': 0.24.2
-      '@esbuild/win32-arm64': 0.24.2
-      '@esbuild/win32-ia32': 0.24.2
-      '@esbuild/win32-x64': 0.24.2
 
   esbuild@0.25.5:
     optionalDependencies:
@@ -24303,7 +24005,7 @@ snapshots:
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
-  preact-render-to-string@6.6.5(preact@10.28.4):
+  preact-render-to-string@6.6.6(preact@10.28.4):
     dependencies:
       preact: 10.28.4
 
@@ -24825,35 +24527,35 @@ snapshots:
 
   rfdc@1.4.1: {}
 
-  rollup@4.57.1:
+  rollup@4.58.0:
     dependencies:
       '@types/estree': 1.0.8
     optionalDependencies:
-      '@rollup/rollup-android-arm-eabi': 4.57.1
-      '@rollup/rollup-android-arm64': 4.57.1
-      '@rollup/rollup-darwin-arm64': 4.57.1
-      '@rollup/rollup-darwin-x64': 4.57.1
-      '@rollup/rollup-freebsd-arm64': 4.57.1
-      '@rollup/rollup-freebsd-x64': 4.57.1
-      '@rollup/rollup-linux-arm-gnueabihf': 4.57.1
-      '@rollup/rollup-linux-arm-musleabihf': 4.57.1
-      '@rollup/rollup-linux-arm64-gnu': 4.57.1
-      '@rollup/rollup-linux-arm64-musl': 4.57.1
-      '@rollup/rollup-linux-loong64-gnu': 4.57.1
-      '@rollup/rollup-linux-loong64-musl': 4.57.1
-      '@rollup/rollup-linux-ppc64-gnu': 4.57.1
-      '@rollup/rollup-linux-ppc64-musl': 4.57.1
-      '@rollup/rollup-linux-riscv64-gnu': 4.57.1
-      '@rollup/rollup-linux-riscv64-musl': 4.57.1
-      '@rollup/rollup-linux-s390x-gnu': 4.57.1
-      '@rollup/rollup-linux-x64-gnu': 4.57.1
-      '@rollup/rollup-linux-x64-musl': 4.57.1
-      '@rollup/rollup-openbsd-x64': 4.57.1
-      '@rollup/rollup-openharmony-arm64': 4.57.1
-      '@rollup/rollup-win32-arm64-msvc': 4.57.1
-      '@rollup/rollup-win32-ia32-msvc': 4.57.1
-      '@rollup/rollup-win32-x64-gnu': 4.57.1
-      '@rollup/rollup-win32-x64-msvc': 4.57.1
+      '@rollup/rollup-android-arm-eabi': 4.58.0
+      '@rollup/rollup-android-arm64': 4.58.0
+      '@rollup/rollup-darwin-arm64': 4.58.0
+      '@rollup/rollup-darwin-x64': 4.58.0
+      '@rollup/rollup-freebsd-arm64': 4.58.0
+      '@rollup/rollup-freebsd-x64': 4.58.0
+      '@rollup/rollup-linux-arm-gnueabihf': 4.58.0
+      '@rollup/rollup-linux-arm-musleabihf': 4.58.0
+      '@rollup/rollup-linux-arm64-gnu': 4.58.0
+      '@rollup/rollup-linux-arm64-musl': 4.58.0
+      '@rollup/rollup-linux-loong64-gnu': 4.58.0
+      '@rollup/rollup-linux-loong64-musl': 4.58.0
+      '@rollup/rollup-linux-ppc64-gnu': 4.58.0
+      '@rollup/rollup-linux-ppc64-musl': 4.58.0
+      '@rollup/rollup-linux-riscv64-gnu': 4.58.0
+      '@rollup/rollup-linux-riscv64-musl': 4.58.0
+      '@rollup/rollup-linux-s390x-gnu': 4.58.0
+      '@rollup/rollup-linux-x64-gnu': 4.58.0
+      '@rollup/rollup-linux-x64-musl': 4.58.0
+      '@rollup/rollup-openbsd-x64': 4.58.0
+      '@rollup/rollup-openharmony-arm64': 4.58.0
+      '@rollup/rollup-win32-arm64-msvc': 4.58.0
+      '@rollup/rollup-win32-ia32-msvc': 4.58.0
+      '@rollup/rollup-win32-x64-gnu': 4.58.0
+      '@rollup/rollup-win32-x64-msvc': 4.58.0
       fsevents: 2.3.3
 
   router@2.2.0:
@@ -25343,14 +25045,14 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  svelte2tsx@0.7.47(svelte@5.53.0)(typescript@5.9.3):
+  svelte2tsx@0.7.51(svelte@5.53.1)(typescript@5.9.3):
     dependencies:
       dedent-js: 1.0.1
       scule: 1.3.0
-      svelte: 5.53.0
+      svelte: 5.53.1
       typescript: 5.9.3
 
-  svelte@5.53.0:
+  svelte@5.53.1:
     dependencies:
       '@jridgewell/remapping': 2.3.5
       '@jridgewell/sourcemap-codec': 1.5.5
@@ -25653,7 +25355,7 @@ snapshots:
 
   undici@7.18.2: {}
 
-  undici@7.21.0: {}
+  undici@7.22.0: {}
 
   unenv@2.0.0-rc.24:
     dependencies:
@@ -25890,10 +25592,10 @@ snapshots:
       - tsx
       - yaml
 
-  vite-plugin-inspect@0.8.9(rollup@4.57.1)(vite@6.4.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)):
+  vite-plugin-inspect@0.8.9(rollup@4.58.0)(vite@6.4.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)):
     dependencies:
       '@antfu/utils': 0.7.10
-      '@rollup/pluginutils': 5.3.0(rollup@4.57.1)
+      '@rollup/pluginutils': 5.3.0(rollup@4.58.0)
       debug: 4.4.3(supports-color@8.1.1)
       error-stack-parser-es: 0.1.5
       fs-extra: 11.3.3
@@ -25947,7 +25649,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  vite-plugin-vue-devtools@7.7.9(rollup@4.57.1)(vite@6.4.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))(vue@3.5.28(typescript@5.9.3)):
+  vite-plugin-vue-devtools@7.7.9(rollup@4.58.0)(vite@6.4.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))(vue@3.5.28(typescript@5.9.3)):
     dependencies:
       '@vue/devtools-core': 7.7.9(vite@6.4.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))(vue@3.5.28(typescript@5.9.3))
       '@vue/devtools-kit': 7.7.9
@@ -25955,7 +25657,7 @@ snapshots:
       execa: 9.6.1
       sirv: 3.0.2
       vite: 6.4.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
-      vite-plugin-inspect: 0.8.9(rollup@4.57.1)(vite@6.4.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
+      vite-plugin-inspect: 0.8.9(rollup@4.58.0)(vite@6.4.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
       vite-plugin-vue-inspector: 5.3.2(vite@6.4.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
     transitivePeerDependencies:
       - '@nuxt/kit'
@@ -26028,7 +25730,7 @@ snapshots:
       fdir: 6.5.0(picomatch@4.0.3)
       picomatch: 4.0.3
       postcss: 8.5.6
-      rollup: 4.57.1
+      rollup: 4.58.0
       tinyglobby: 0.2.15
     optionalDependencies:
       '@types/node': 25.2.3
@@ -26045,7 +25747,7 @@ snapshots:
       fdir: 6.5.0(picomatch@4.0.3)
       picomatch: 4.0.3
       postcss: 8.5.6
-      rollup: 4.57.1
+      rollup: 4.58.0
       tinyglobby: 0.2.15
     optionalDependencies:
       '@types/node': 22.19.11
@@ -26062,7 +25764,7 @@ snapshots:
       fdir: 6.5.0(picomatch@4.0.3)
       picomatch: 4.0.3
       postcss: 8.5.6
-      rollup: 4.57.1
+      rollup: 4.58.0
       tinyglobby: 0.2.15
     optionalDependencies:
       '@types/node': 25.2.3
@@ -26356,7 +26058,7 @@ snapshots:
 
   workerpool@9.3.4: {}
 
-  wrangler@4.67.0(@cloudflare/workers-types@4.20260227.0):
+  wrangler@4.67.0(@cloudflare/workers-types@4.20260228.0):
     dependencies:
       '@cloudflare/kv-asset-handler': 0.4.2
       '@cloudflare/unenv-preset': 2.14.0(unenv@2.0.0-rc.24)(workerd@1.20260219.0)
@@ -26367,7 +26069,7 @@ snapshots:
       unenv: 2.0.0-rc.24
       workerd: 1.20260219.0
     optionalDependencies:
-      '@cloudflare/workers-types': 4.20260227.0
+      '@cloudflare/workers-types': 4.20260228.0
       fsevents: 2.3.3
     transitivePeerDependencies:
       - bufferutil

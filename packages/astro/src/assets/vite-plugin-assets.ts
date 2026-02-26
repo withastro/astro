@@ -1,6 +1,7 @@
 import type * as fsMod from 'node:fs';
 import { extname } from 'node:path';
 import MagicString from 'magic-string';
+import picomatch from 'picomatch';
 import type * as vite from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
@@ -12,6 +13,7 @@ import {
 	removeQueryString,
 } from '../core/path.js';
 import { normalizePath } from '../core/viteUtils.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { isAstroServerEnvironment } from '../environments.js';
 import type { AstroSettings } from '../types/astro.js';
 import {
@@ -28,7 +30,9 @@ import type { ImageTransform } from './types.js';
 import { getAssetsPrefix } from './utils/getAssetsPrefix.js';
 import { isESMImportedImage } from './utils/index.js';
 import { emitClientAsset } from './utils/assets.js';
-import { emitImageMetadata, hashTransform, propsToFilename } from './utils/node.js';
+import { hashTransform, propsToFilename } from './utils/hash.js';
+import { emitImageMetadata } from './utils/node.js';
+import { CONTENT_IMAGE_FLAG } from '../content/consts.js';
 import { getProxyCode } from './utils/proxy.js';
 import { makeSvgComponent } from './utils/svg.js';
 import { createPlaceholderURL, stringifyPlaceholderURL } from './utils/url.js';
@@ -165,10 +169,10 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 						export { default as Picture } from "astro/components/${imageComponentPrefix}Picture.astro";
 						import { inferRemoteSize as inferRemoteSizeInternal } from "astro/assets/utils/inferRemoteSize.js";
 
-						export { default as Font } from "astro/components/Font.astro";
-						export * from "${RUNTIME_VIRTUAL_MODULE_ID}";
-						
-						export const getConfiguredImageService = _getConfiguredImageService;
+							export { default as Font } from "astro/components/Font.astro";
+							export * from "${RUNTIME_VIRTUAL_MODULE_ID}";
+														
+							export const getConfiguredImageService = _getConfiguredImageService;
 
 						export const viteFSConfig = ${JSON.stringify(resolvedConfig.server.fs ?? {})};
 
@@ -176,6 +180,8 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 							// @ts-expect-error safeModulePaths is internal to Vite
 							Array.from(resolvedConfig.safeModulePaths ?? []),
 						)});
+
+						export const fsDenyGlob = ${serializeFsDenyGlob(resolvedConfig.server.fs?.deny ?? [])};
 
 						const assetQueryParams = ${
 							settings.adapter?.client?.assetQueryParams
@@ -266,6 +272,15 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 					if (!globalThis.astroAsset.referencedImages)
 						globalThis.astroAsset.referencedImages = new Set();
 
+					// Content collection images have the astroContentImageFlag query param.
+					// Strip it so we can process the image, but remember it so we can avoid
+					// creating SVG components (which import from the server runtime and cause
+					// circular dependency deadlocks with top-level await).
+					const isContentImage = id.includes(CONTENT_IMAGE_FLAG);
+					if (isContentImage) {
+						id = removeQueryString(id);
+					}
+
 					if (id !== removeQueryString(id)) {
 						// If our import has any query params, we'll let Vite handle it, nonetheless we'll make sure to not delete it
 						// See https://github.com/withastro/astro/issues/8333
@@ -294,7 +309,11 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 					// Since you cannot use image optimization on the client anyway, it's safe to assume that if the user imported
 					// an image on the client, it should be present in the final build.
 					if (isAstroServerEnvironment(this.environment)) {
-						if (id.endsWith('.svg')) {
+						// For SVGs imported directly (not via content collections), create a full
+						// component that can be rendered inline. For content collection SVGs, return
+						// plain metadata to avoid importing createComponent from the server runtime,
+						// which would create a circular dependency when combined with TLA.
+						if (id.endsWith('.svg') && !isContentImage) {
 							const contents = await fs.promises.readFile(imageMetadata.fsPath, {
 								encoding: 'utf8',
 							});
@@ -303,11 +322,16 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 								code: makeSvgComponent(imageMetadata, contents, settings.config.experimental.svgo),
 							};
 						}
+						// In SSR builds, any image loaded by the SSR environment could be reachable at
+						// request time without us knowning, so we'll always consider them as referenced.
+						const isSSROnlyEnvironment =
+							settings.buildOutput === 'server' &&
+							this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
+						if (isSSROnlyEnvironment) {
+							globalThis.astroAsset.referencedImages.add(imageMetadata.fsPath);
+						}
 						return {
-							code: `export default ${getProxyCode(
-								imageMetadata,
-								settings.buildOutput === 'server',
-							)}`,
+							code: `export default ${getProxyCode(imageMetadata, isSSROnlyEnvironment)}`,
 						};
 					} else {
 						globalThis.astroAsset.referencedImages.add(imageMetadata.fsPath);
@@ -348,4 +372,30 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 			},
 		},
 	];
+}
+
+// Precompile the denies patterns to avoid using a CJS package in the runtime
+function serializeFsDenyGlob(denyPatterns: string[]): string {
+	// Replicate the same pattern transformation that Vite does internally:
+	// https://github.com/vitejs/vite/blob/e6156f71f0e21f4068941b63bcc17b0e9b0a7455/packages/vite/src/node/config.ts#L1931
+	const expandedPatterns = denyPatterns.map((pattern) =>
+		pattern.includes('/') ? pattern : `**/${pattern}`,
+	);
+
+	const regexes = expandedPatterns.map((pattern) =>
+		picomatch.makeRe(pattern, {
+			matchBase: false,
+			nocase: true,
+			dot: true,
+		}),
+	);
+
+	// Serialize the regexes as a function that tests a path against all patterns
+	const serializedRegexes = regexes.map((re) => re.toString()).join(', ');
+	return `(function() {
+		const regexes = [${serializedRegexes}];
+		return function fsDenyGlob(testPath) {
+			return regexes.some(re => re.test(testPath));
+		};
+	})()`;
 }

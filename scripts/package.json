@@ -8,7 +8,7 @@
     "astro-scripts": "./index.js"
   },
   "dependencies": {
-    "esbuild": "^0.25.0",
+    "esbuild": "^0.27.3",
     "p-limit": "^7.3.0",
     "piccolore": "^0.1.3",
     "tinyglobby": "^0.2.15",

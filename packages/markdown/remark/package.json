@@ -14,9 +14,7 @@
   "main": "./dist/index.js",
   "exports": {
     ".": "./dist/index.js",
-    "./shiki": "./dist/shiki.js",
-    "./shiki-style-collector": "./dist/shiki-style-collector.js",
-    "./transformers/style-to-class": "./dist/transformers/style-to-class.js"
+    "./shiki": "./dist/shiki.js"
   },
   "imports": {
     "#import-plugin": {
@@ -67,7 +65,7 @@
     "@types/mdast": "^4.0.4",
     "@types/unist": "^3.0.3",
     "astro-scripts": "workspace:*",
-    "esbuild": "^0.24.2",
+    "esbuild": "^0.27.3",
     "mdast-util-mdx-expression": "^2.0.1"
   },
   "publishConfig": {

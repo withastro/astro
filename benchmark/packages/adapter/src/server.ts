@@ -38,5 +38,7 @@ export function createExports(manifest: SSRManifest) {
 	return {
 		manifest,
 		createApp: (streaming: boolean) => new MyApp(manifest, streaming),
+		// Export App class directly for benchmarks that need to pass custom manifests
+		App: MyApp,
 	};
 }
