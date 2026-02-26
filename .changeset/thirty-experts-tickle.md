@@ -4,6 +4,10 @@
 
 Removes the `experimentalErrorPageHost` option
 
-This option allowed to fetch the prerendered error page from a different host than the server it's currently running on.
+This option allowed fetching a prerendered error page from a different host than the server is currently running on.
 
-However, we found it very hard to make it secure so we decided to remove it. You can replicate the old behavior by runninng with `mode: 'middleware'` and intercepting responses.
+However, there can be security implications with prefetching from other hosts, and often more customization was required to do this safely. This has now been removed as a built-in option so that you can implement your own secure solution as needed and appropriate for your project via middleware.
+
+#### What should I do?
+
+If you were previously using this feature, you must remove the option from your adapter configuration as it no longer exists. You can replicate the previous behavior by running with `mode: 'middleware'` and intercepting responses:
