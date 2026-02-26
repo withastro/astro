@@ -7,7 +7,7 @@
   "extends": "../../tsconfig.base.json",
   "files": ["./src/runtime/virtual.ts"],
   "compilerOptions": {
-    "rootDir": ".",
+    "rootDir": "./src",
     "outDir": "./dist/_internal"
   }
 }
