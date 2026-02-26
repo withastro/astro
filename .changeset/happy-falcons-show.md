@@ -5,4 +5,4 @@
 
 Removes the `cssesc` dependency
 
-This CommonJS dependency could sometimes cause complicated issues because Astro is ESM-only. It is now removed in favor of an ESM friendtly implementation
+This CommonJS dependency could sometimes cause errors because Astro is ESM-only. It is now replaced with a built-in ESM-friendly implementation.

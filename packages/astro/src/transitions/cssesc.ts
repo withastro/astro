@@ -4,6 +4,7 @@
 /* eslint-disable regexp/no-useless-escape */
 /* eslint-disable regexp/no-obscure-range */
 // ESM vendored version of cssesc: https://github.com/mathiasbynens/cssesc/blob/cb894eb42f27c8d3cd793f16afe35b3ab38000a1/cssesc.js
+// See https://github.com/withastro/astro/pull/15669
 
 const regexAnySingleEscape = /[ -,\.\/:-@\[-\^`\{-~]/;
 const regexSingleEscape = /[ -,\.\/:-@\[\]\^`\{-~]/;
