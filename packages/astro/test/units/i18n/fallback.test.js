@@ -4,8 +4,8 @@ import { computeFallbackRoute } from '../../../dist/i18n/fallback.js';
 import { makeFallbackOptions } from './test-helpers.js';
 
 describe('computeFallbackRoute', () => {
-	describe('when response status < 300', () => {
-		it('returns none (no fallback needed)', () => {
+	describe('when response status is not 404', () => {
+		it('returns none for 200 (no fallback needed)', () => {
 			const result = computeFallbackRoute(
 				makeFallbackOptions({
 					pathname: '/es/missing',
@@ -25,6 +25,48 @@ describe('computeFallbackRoute', () => {
 					responseStatus: 299,
 					currentLocale: 'es',
 					fallback: { es: 'en' },
+				}),
+			);
+
+			assert.equal(result.type, 'none');
+		});
+
+		it('returns none for 3xx redirect status (should not intercept page handler redirects)', () => {
+			const result = computeFallbackRoute(
+				makeFallbackOptions({
+					pathname: '/es/redirect',
+					responseStatus: 302,
+					currentLocale: 'es',
+					fallback: { es: 'en' },
+					fallbackType: 'redirect',
+				}),
+			);
+
+			assert.equal(result.type, 'none');
+		});
+
+		it('returns none for 301 redirect status', () => {
+			const result = computeFallbackRoute(
+				makeFallbackOptions({
+					pathname: '/es/redirect',
+					responseStatus: 301,
+					currentLocale: 'es',
+					fallback: { es: 'en' },
+					fallbackType: 'redirect',
+				}),
+			);
+
+			assert.equal(result.type, 'none');
+		});
+
+		it('returns none for 500 status', () => {
+			const result = computeFallbackRoute(
+				makeFallbackOptions({
+					pathname: '/es/error',
+					responseStatus: 500,
+					currentLocale: 'es',
+					fallback: { es: 'en' },
+					fallbackType: 'redirect',
 				}),
 			);
 
@@ -148,39 +190,11 @@ describe('computeFallbackRoute', () => {
 			assert.equal(result.pathname, '/es/missing');
 		});
 
-		it('handles 3xx redirect status', () => {
-			const result = computeFallbackRoute(
-				makeFallbackOptions({
-					pathname: '/es/redirect',
-					responseStatus: 301,
-					currentLocale: 'es',
-					fallback: { es: 'en' },
-					fallbackType: 'redirect',
-				}),
-			);
-
-			assert.equal(result.type, 'redirect');
-		});
-
-		it('handles 4xx status', () => {
+		it('handles 404 status', () => {
 			const result = computeFallbackRoute(
 				makeFallbackOptions({
 					pathname: '/es/notfound',
 					responseStatus: 404,
-					currentLocale: 'es',
-					fallback: { es: 'en' },
-					fallbackType: 'redirect',
-				}),
-			);
-
-			assert.equal(result.type, 'redirect');
-		});
-
-		it('handles 5xx status', () => {
-			const result = computeFallbackRoute(
-				makeFallbackOptions({
-					pathname: '/es/error',
-					responseStatus: 500,
 					currentLocale: 'es',
 					fallback: { es: 'en' },
 					fallbackType: 'redirect',

@@ -974,7 +974,7 @@ describe('redirectToFallback', () => {
 			assert.equal(response, originalResponse);
 		});
 
-		it('should redirect when status >= 300 and locale has fallback', async () => {
+		it('should redirect when status is 404 and locale has fallback', async () => {
 			const payload = createMiddlewarePayload({
 				locales: ['en', 'es', 'fr'],
 				defaultLocale: 'en',
@@ -1087,7 +1087,7 @@ describe('redirectToFallback', () => {
 			assert.equal(response.headers.get('Location'), '/search?q=test');
 		});
 
-		it('should handle 3xx status codes', async () => {
+		it('should not intercept 3xx redirect status codes from page handlers', async () => {
 			const payload = createMiddlewarePayload({
 				locales: ['en', 'es'],
 				fallback: { es: 'en' },
@@ -1099,10 +1099,10 @@ describe('redirectToFallback', () => {
 
 			const response = await fallbackFn(context, originalResponse);
 
-			assert.equal(response.status, 302);
+			assert.equal(response, originalResponse);
 		});
 
-		it('should handle 4xx status codes', async () => {
+		it('should not intercept non-404 4xx status codes', async () => {
 			const payload = createMiddlewarePayload({
 				locales: ['en', 'es'],
 				fallback: { es: 'en' },
@@ -1114,10 +1114,10 @@ describe('redirectToFallback', () => {
 
 			const response = await fallbackFn(context, originalResponse);
 
-			assert.equal(response.status, 302);
+			assert.equal(response, originalResponse);
 		});
 
-		it('should handle 5xx status codes', async () => {
+		it('should not intercept 5xx status codes', async () => {
 			const payload = createMiddlewarePayload({
 				locales: ['en', 'es'],
 				fallback: { es: 'en' },
@@ -1129,7 +1129,7 @@ describe('redirectToFallback', () => {
 
 			const response = await fallbackFn(context, originalResponse);
 
-			assert.equal(response.status, 302);
+			assert.equal(response, originalResponse);
 		});
 	});
 
