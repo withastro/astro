@@ -277,7 +277,7 @@ export default function createIntegration({
 				setAdapter({
 					name: '@astrojs/cloudflare',
 					adapterFeatures: {
-						buildOutput: _isFullyStatic ? 'static' : 'server',
+						buildOutput: 'server',
 						middlewareMode: 'classic',
 						preserveDirectoryStructure: true,
 					},
