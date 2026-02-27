@@ -191,6 +191,7 @@ export default function createIntegration({
 													'astro/app',
 													'astro/assets',
 													'astro/compiler-runtime',
+													'astro/app/entrypoint/dev',
 												],
 												exclude: [
 													'unstorage/drivers/cloudflare-kv-binding',
@@ -277,7 +278,7 @@ export default function createIntegration({
 					name: '@astrojs/cloudflare',
 					adapterFeatures: {
 						edgeMiddleware: false,
-						buildOutput: 'server',
+						buildOutput: _isFullyStatic ? 'static' : 'server',
 					},
 					entrypointResolution: 'auto',
 					previewEntrypoint: '@astrojs/cloudflare/entrypoints/preview',
