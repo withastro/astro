@@ -36,6 +36,8 @@ minimumReleaseAgeExclude:
   - '@astrojs/compiler-binding*'
   # Renovate security update: fast-xml-parser@5.3.8
   - fast-xml-parser@5.3.8
+  # Renovate security update: svelte@5.53.5
+  - svelte@5.53.5
 peerDependencyRules:
   allowAny:
     - 'astro'
