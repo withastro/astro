@@ -34,6 +34,8 @@ minimumReleaseAgeExclude:
   - '@flue/*'
   - '@astrojs/compiler-rs'
   - '@astrojs/compiler-binding*'
+  # Renovate security update: fast-xml-parser@5.3.8
+  - fast-xml-parser@5.3.8
 peerDependencyRules:
   allowAny:
     - 'astro'
