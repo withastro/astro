@@ -14,7 +14,7 @@ importers:
     devDependencies:
       '@astrojs/check':
         specifier: ^0.9.5
-        version: 0.9.6(prettier-plugin-astro@0.14.1)(prettier@3.8.1)(typescript@6.0.0-beta)
+        version: 0.9.6(prettier-plugin-astro@0.14.1)(prettier@3.8.1)(typescript@5.9.3)
       '@biomejs/biome':
         specifier: 2.4.2
         version: 2.4.2
@@ -26,10 +26,10 @@ importers:
         version: 2.29.8(@types/node@18.19.130)
       '@flue/cli':
         specifier: ^0.0.44
-        version: 0.0.44(typescript@6.0.0-beta)
+        version: 0.0.44(typescript@5.9.3)
       '@flue/client':
         specifier: ^0.0.27
-        version: 0.0.27(typescript@6.0.0-beta)
+        version: 0.0.27(typescript@5.9.3)
       '@types/node':
         specifier: ^18.19.115
         version: 18.19.130
@@ -47,7 +47,7 @@ importers:
         version: 3.0.0(eslint@9.39.2(jiti@2.6.1))
       knip:
         specifier: 5.82.1
-        version: 5.82.1(@types/node@18.19.130)(typescript@6.0.0-beta)
+        version: 5.82.1(@types/node@18.19.130)(typescript@5.9.3)
       only-allow:
         specifier: ^1.2.2
         version: 1.2.2
@@ -67,14 +67,14 @@ importers:
         specifier: ^2.8.10
         version: 2.8.10
       typescript:
-        specifier: ^6.0.0-beta
-        version: 6.0.0-beta
+        specifier: ^5.9.3
+        version: 5.9.3
       typescript-eslint:
         specifier: ^8.56.0
-        version: 8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@6.0.0-beta)
+        version: 8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
       valibot:
         specifier: ^1.2.0
-        version: 1.2.0(typescript@6.0.0-beta)
+        version: 1.2.0(typescript@5.9.3)
 
   benchmark:
     dependencies:
@@ -636,7 +636,7 @@ importers:
         version: 0.2.15
       tsconfck:
         specifier: ^3.1.6
-        version: 3.1.6(typescript@6.0.0-beta)
+        version: 3.1.6(typescript@5.9.3)
       ultrahtml:
         specifier: ^1.6.0
         version: 1.6.0
@@ -750,8 +750,8 @@ importers:
         specifier: ^1.97.3
         version: 1.97.3
       typescript:
-        specifier: ^6.0.0-beta
-        version: 6.0.0-beta
+        specifier: ^5.9.3
+        version: 5.9.3
       undici:
         specifier: ^7.22.0
         version: 7.22.0
@@ -837,8 +837,8 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       typescript:
-        specifier: ^6.0.0-beta
-        version: 6.0.0-beta
+        specifier: ^5.9.3
+        version: 5.9.3
 
   packages/astro/e2e/fixtures/actions-react-19:
     dependencies:
@@ -870,8 +870,8 @@ importers:
         specifier: 19.2.4
         version: 19.2.4(react@19.2.4)
       typescript:
-        specifier: ^6.0.0-beta
-        version: 6.0.0-beta
+        specifier: ^5.9.3
+        version: 5.9.3
 
   packages/astro/e2e/fixtures/astro-component:
     dependencies:
@@ -2019,8 +2019,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       typescript:
-        specifier: ^6.0.0-beta
-        version: 6.0.0-beta
+        specifier: ^5.9.3
+        version: 5.9.3
 
   packages/astro/test/fixtures/astro-check-no-errors:
     dependencies:
@@ -2031,8 +2031,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       typescript:
-        specifier: ^6.0.0-beta
-        version: 6.0.0-beta
+        specifier: ^5.9.3
+        version: 5.9.3
 
   packages/astro/test/fixtures/astro-check-watch:
     dependencies:
@@ -4653,8 +4653,8 @@ importers:
         specifier: ^1.3.0
         version: 1.3.0
       typescript:
-        specifier: ^6.0.0-beta
-        version: 6.0.0-beta
+        specifier: ^5.9.3
+        version: 5.9.3
       vite:
         specifier: ^7.3.1
         version: 7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
@@ -4794,8 +4794,8 @@ importers:
         specifier: ^0.1.12
         version: 0.1.12(astro@packages+astro)(zod@4.3.6)
       typescript:
-        specifier: ^6.0.0-beta
-        version: 6.0.0-beta
+        specifier: ^5.9.3
+        version: 5.9.3
       zod:
         specifier: ^4.3.6
         version: 4.3.6
@@ -5498,7 +5498,7 @@ importers:
         version: 11.1.2
       remark-shiki-twoslash:
         specifier: ^3.1.3
-        version: 3.1.3(typescript@6.0.0-beta)
+        version: 3.1.3(typescript@5.9.3)
       remark-toc:
         specifier: ^9.0.0
         version: 9.0.0
@@ -5723,8 +5723,8 @@ importers:
         specifier: ^5.6.3
         version: 5.6.3
       typescript:
-        specifier: ^6.0.0-beta
-        version: 6.0.0-beta
+        specifier: ^5.9.3
+        version: 5.9.3
 
   packages/integrations/netlify/test/development/fixtures/primitives:
     dependencies:
@@ -6214,7 +6214,7 @@ importers:
         version: 6.2.4(svelte@5.53.1)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
       svelte2tsx:
         specifier: ^0.7.51
-        version: 0.7.51(svelte@5.53.1)(typescript@6.0.0-beta)
+        version: 0.7.51(svelte@5.53.1)(typescript@5.9.3)
       vite:
         specifier: ^7.3.1
         version: 7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
@@ -6665,7 +6665,7 @@ importers:
         version: 1.5.5
       '@volar/kit':
         specifier: ~2.4.28
-        version: 2.4.28(typescript@6.0.0-beta)
+        version: 2.4.28(typescript@5.9.3)
       '@volar/language-core':
         specifier: ~2.4.28
         version: 2.4.28
@@ -6725,8 +6725,8 @@ importers:
         specifier: ^4.21.0
         version: 4.21.0
       typescript:
-        specifier: ^6.0.0-beta
-        version: 6.0.0-beta
+        specifier: ^5.9.3
+        version: 5.9.3
       vscode-languageserver-protocol:
         specifier: ^3.17.5
         version: 3.17.5
@@ -6802,8 +6802,8 @@ importers:
         specifier: ^11.7.5
         version: 11.7.5
       typescript:
-        specifier: ^6.0.0-beta
-        version: 6.0.0-beta
+        specifier: ^5.9.3
+        version: 5.9.3
       vscode-uri:
         specifier: ^3.1.0
         version: 3.1.0
@@ -6885,8 +6885,8 @@ importers:
         specifier: ~2.4.28
         version: 2.4.28
       typescript:
-        specifier: ^6.0.0-beta
-        version: 6.0.0-beta
+        specifier: ^5.9.3
+        version: 5.9.3
 
   packages/markdown/remark:
     dependencies:
@@ -15241,11 +15241,6 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  typescript@6.0.0-beta:
-    resolution: {integrity: sha512-CldZdztDpQRLM1HC6WDQjQkQN5Ub5zRau737a1diGh3lPmb9oRsaWHk1y5iqK0o7+1bNJ0oXfEGRkAogFZBL+Q==}
-    engines: {node: '>=14.17'}
-    hasBin: true
-
   uc.micro@1.0.6:
     resolution: {integrity: sha512-8Y75pvTYkLJW2hWQHXxoqRgV7qb9B+9vFEtidML+7koHUFapnVJAZ6cKs+Qjz5Aw3aZWHMC6u0wJE3At+nSGwA==}
 
@@ -16150,12 +16145,12 @@ snapshots:
     dependencies:
       lite-youtube-embed: 0.3.4
 
-  '@astrojs/check@0.9.6(prettier-plugin-astro@0.14.1)(prettier@3.8.1)(typescript@6.0.0-beta)':
+  '@astrojs/check@0.9.6(prettier-plugin-astro@0.14.1)(prettier@3.8.1)(typescript@5.9.3)':
     dependencies:
-      '@astrojs/language-server': 2.16.3(prettier-plugin-astro@0.14.1)(prettier@3.8.1)(typescript@6.0.0-beta)
+      '@astrojs/language-server': 2.16.3(prettier-plugin-astro@0.14.1)(prettier@3.8.1)(typescript@5.9.3)
       chokidar: 4.0.3
       kleur: 4.1.5
-      typescript: 6.0.0-beta
+      typescript: 5.9.3
       yargs: 17.7.2
     transitivePeerDependencies:
       - prettier
@@ -16218,12 +16213,12 @@ snapshots:
 
   '@astrojs/internal-helpers@0.7.5': {}
 
-  '@astrojs/language-server@2.16.3(prettier-plugin-astro@0.14.1)(prettier@3.8.1)(typescript@6.0.0-beta)':
+  '@astrojs/language-server@2.16.3(prettier-plugin-astro@0.14.1)(prettier@3.8.1)(typescript@5.9.3)':
     dependencies:
       '@astrojs/compiler': 2.13.1
       '@astrojs/yaml2ts': 0.2.2
       '@jridgewell/sourcemap-codec': 1.5.5
-      '@volar/kit': 2.4.28(typescript@6.0.0-beta)
+      '@volar/kit': 2.4.28(typescript@5.9.3)
       '@volar/language-core': 2.4.28
       '@volar/language-server': 2.4.28
       '@volar/language-service': 2.4.28
@@ -17713,19 +17708,19 @@ snapshots:
       fastq: 1.20.1
       glob: 13.0.3
 
-  '@flue/cli@0.0.44(typescript@6.0.0-beta)':
+  '@flue/cli@0.0.44(typescript@5.9.3)':
     dependencies:
-      '@flue/client': 0.0.27(typescript@6.0.0-beta)
-      '@valibot/to-json-schema': 1.5.0(valibot@1.2.0(typescript@6.0.0-beta))
-      valibot: 1.2.0(typescript@6.0.0-beta)
+      '@flue/client': 0.0.27(typescript@5.9.3)
+      '@valibot/to-json-schema': 1.5.0(valibot@1.2.0(typescript@5.9.3))
+      valibot: 1.2.0(typescript@5.9.3)
     transitivePeerDependencies:
       - typescript
 
-  '@flue/client@0.0.27(typescript@6.0.0-beta)':
+  '@flue/client@0.0.27(typescript@5.9.3)':
     dependencies:
       '@opencode-ai/sdk': 1.1.65
-      '@valibot/to-json-schema': 1.5.0(valibot@1.2.0(typescript@6.0.0-beta))
-      valibot: 1.2.0(typescript@6.0.0-beta)
+      '@valibot/to-json-schema': 1.5.0(valibot@1.2.0(typescript@5.9.3))
+      valibot: 1.2.0(typescript@5.9.3)
     transitivePeerDependencies:
       - typescript
 
@@ -19263,31 +19258,31 @@ snapshots:
       '@types/node': 18.19.130
     optional: true
 
-  '@typescript-eslint/eslint-plugin@8.56.0(@typescript-eslint/parser@8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@6.0.0-beta))(eslint@9.39.2(jiti@2.6.1))(typescript@6.0.0-beta)':
+  '@typescript-eslint/eslint-plugin@8.56.0(@typescript-eslint/parser@8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)':
     dependencies:
       '@eslint-community/regexpp': 4.12.2
-      '@typescript-eslint/parser': 8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@6.0.0-beta)
+      '@typescript-eslint/parser': 8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
       '@typescript-eslint/scope-manager': 8.56.0
-      '@typescript-eslint/type-utils': 8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@6.0.0-beta)
-      '@typescript-eslint/utils': 8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@6.0.0-beta)
+      '@typescript-eslint/type-utils': 8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
+      '@typescript-eslint/utils': 8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
       '@typescript-eslint/visitor-keys': 8.56.0
       eslint: 9.39.2(jiti@2.6.1)
       ignore: 7.0.5
       natural-compare: 1.4.0
-      ts-api-utils: 2.4.0(typescript@6.0.0-beta)
-      typescript: 6.0.0-beta
+      ts-api-utils: 2.4.0(typescript@5.9.3)
+      typescript: 5.9.3
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/parser@8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@6.0.0-beta)':
+  '@typescript-eslint/parser@8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)':
     dependencies:
       '@typescript-eslint/scope-manager': 8.56.0
       '@typescript-eslint/types': 8.56.0
-      '@typescript-eslint/typescript-estree': 8.56.0(typescript@6.0.0-beta)
+      '@typescript-eslint/typescript-estree': 8.56.0(typescript@5.9.3)
       '@typescript-eslint/visitor-keys': 8.56.0
       debug: 4.4.3(supports-color@8.1.1)
       eslint: 9.39.2(jiti@2.6.1)
-      typescript: 6.0.0-beta
+      typescript: 5.9.3
     transitivePeerDependencies:
       - supports-color
 
@@ -19300,15 +19295,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/project-service@8.56.0(typescript@6.0.0-beta)':
-    dependencies:
-      '@typescript-eslint/tsconfig-utils': 8.56.0(typescript@6.0.0-beta)
-      '@typescript-eslint/types': 8.56.0
-      debug: 4.4.3(supports-color@8.1.1)
-      typescript: 6.0.0-beta
-    transitivePeerDependencies:
-      - supports-color
-
   '@typescript-eslint/scope-manager@8.56.0':
     dependencies:
       '@typescript-eslint/types': 8.56.0
@@ -19318,19 +19304,15 @@ snapshots:
     dependencies:
       typescript: 5.9.3
 
-  '@typescript-eslint/tsconfig-utils@8.56.0(typescript@6.0.0-beta)':
-    dependencies:
-      typescript: 6.0.0-beta
-
-  '@typescript-eslint/type-utils@8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@6.0.0-beta)':
+  '@typescript-eslint/type-utils@8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)':
     dependencies:
       '@typescript-eslint/types': 8.56.0
-      '@typescript-eslint/typescript-estree': 8.56.0(typescript@6.0.0-beta)
-      '@typescript-eslint/utils': 8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@6.0.0-beta)
+      '@typescript-eslint/typescript-estree': 8.56.0(typescript@5.9.3)
+      '@typescript-eslint/utils': 8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
       debug: 4.4.3(supports-color@8.1.1)
       eslint: 9.39.2(jiti@2.6.1)
-      ts-api-utils: 2.4.0(typescript@6.0.0-beta)
-      typescript: 6.0.0-beta
+      ts-api-utils: 2.4.0(typescript@5.9.3)
+      typescript: 5.9.3
     transitivePeerDependencies:
       - supports-color
 
@@ -19351,29 +19333,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/typescript-estree@8.56.0(typescript@6.0.0-beta)':
-    dependencies:
-      '@typescript-eslint/project-service': 8.56.0(typescript@6.0.0-beta)
-      '@typescript-eslint/tsconfig-utils': 8.56.0(typescript@6.0.0-beta)
-      '@typescript-eslint/types': 8.56.0
-      '@typescript-eslint/visitor-keys': 8.56.0
-      debug: 4.4.3(supports-color@8.1.1)
-      minimatch: 9.0.5
-      semver: 7.7.4
-      tinyglobby: 0.2.15
-      ts-api-utils: 2.4.0(typescript@6.0.0-beta)
-      typescript: 6.0.0-beta
-    transitivePeerDependencies:
-      - supports-color
-
-  '@typescript-eslint/utils@8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@6.0.0-beta)':
+  '@typescript-eslint/utils@8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)':
     dependencies:
       '@eslint-community/eslint-utils': 4.9.1(eslint@9.39.2(jiti@2.6.1))
       '@typescript-eslint/scope-manager': 8.56.0
       '@typescript-eslint/types': 8.56.0
-      '@typescript-eslint/typescript-estree': 8.56.0(typescript@6.0.0-beta)
+      '@typescript-eslint/typescript-estree': 8.56.0(typescript@5.9.3)
       eslint: 9.39.2(jiti@2.6.1)
-      typescript: 6.0.0-beta
+      typescript: 5.9.3
     transitivePeerDependencies:
       - supports-color
 
@@ -19412,9 +19379,9 @@ snapshots:
 
   '@ungap/structured-clone@1.3.0': {}
 
-  '@valibot/to-json-schema@1.5.0(valibot@1.2.0(typescript@6.0.0-beta))':
+  '@valibot/to-json-schema@1.5.0(valibot@1.2.0(typescript@5.9.3))':
     dependencies:
-      valibot: 1.2.0(typescript@6.0.0-beta)
+      valibot: 1.2.0(typescript@5.9.3)
 
   '@vercel/analytics@1.6.1(react@19.2.4)(svelte@5.53.1)(vue@3.5.28(typescript@5.9.3))':
     optionalDependencies:
@@ -19600,12 +19567,12 @@ snapshots:
       '@vitest/pretty-format': 4.0.18
       tinyrainbow: 3.0.3
 
-  '@volar/kit@2.4.28(typescript@6.0.0-beta)':
+  '@volar/kit@2.4.28(typescript@5.9.3)':
     dependencies:
       '@volar/language-service': 2.4.28
       '@volar/typescript': 2.4.28
       typesafe-path: 0.2.2
-      typescript: 6.0.0-beta
+      typescript: 5.9.3
       vscode-languageserver-textdocument: 1.0.12
       vscode-uri: 3.1.0
 
@@ -22369,7 +22336,7 @@ snapshots:
 
   kleur@4.1.5: {}
 
-  knip@5.82.1(@types/node@18.19.130)(typescript@6.0.0-beta):
+  knip@5.82.1(@types/node@18.19.130)(typescript@5.9.3):
     dependencies:
       '@nodelib/fs.walk': 1.2.8
       '@types/node': 18.19.130
@@ -22383,7 +22350,7 @@ snapshots:
       picomatch: 4.0.3
       smol-toml: 1.6.0
       strip-json-comments: 5.0.3
-      typescript: 6.0.0-beta
+      typescript: 5.9.3
       zod: 4.3.6
 
   kolorist@1.8.0: {}
@@ -24442,7 +24409,7 @@ snapshots:
       unified: 11.0.5
       vfile: 6.0.3
 
-  remark-shiki-twoslash@3.1.3(typescript@6.0.0-beta):
+  remark-shiki-twoslash@3.1.3(typescript@5.9.3):
     dependencies:
       '@types/unist': 2.0.11
       '@typescript/twoslash': 3.1.0
@@ -24450,9 +24417,9 @@ snapshots:
       fenceparser: 1.1.1
       regenerator-runtime: 0.13.11
       shiki: 0.10.1
-      shiki-twoslash: 3.1.2(typescript@6.0.0-beta)
+      shiki-twoslash: 3.1.2(typescript@5.9.3)
       tslib: 2.1.0
-      typescript: 6.0.0-beta
+      typescript: 5.9.3
       unist-util-visit: 2.0.3
     transitivePeerDependencies:
       - supports-color
@@ -24755,13 +24722,13 @@ snapshots:
 
   shebang-regex@3.0.0: {}
 
-  shiki-twoslash@3.1.2(typescript@6.0.0-beta):
+  shiki-twoslash@3.1.2(typescript@5.9.3):
     dependencies:
       '@typescript/twoslash': 3.1.0
       '@typescript/vfs': 1.3.4
       fenceparser: 1.1.1
       shiki: 0.10.1
-      typescript: 6.0.0-beta
+      typescript: 5.9.3
     transitivePeerDependencies:
       - supports-color
 
@@ -25078,12 +25045,12 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  svelte2tsx@0.7.51(svelte@5.53.1)(typescript@6.0.0-beta):
+  svelte2tsx@0.7.51(svelte@5.53.1)(typescript@5.9.3):
     dependencies:
       dedent-js: 1.0.1
       scule: 1.3.0
       svelte: 5.53.1
-      typescript: 6.0.0-beta
+      typescript: 5.9.3
 
   svelte@5.53.1:
     dependencies:
@@ -25263,17 +25230,9 @@ snapshots:
     dependencies:
       typescript: 5.9.3
 
-  ts-api-utils@2.4.0(typescript@6.0.0-beta):
-    dependencies:
-      typescript: 6.0.0-beta
-
   tsconfck@3.1.6(typescript@5.9.3):
     optionalDependencies:
       typescript: 5.9.3
-
-  tsconfck@3.1.6(typescript@6.0.0-beta):
-    optionalDependencies:
-      typescript: 6.0.0-beta
 
   tslib@2.1.0: {}
 
@@ -25359,20 +25318,18 @@ snapshots:
     dependencies:
       semver: 7.7.4
 
-  typescript-eslint@8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@6.0.0-beta):
+  typescript-eslint@8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3):
     dependencies:
-      '@typescript-eslint/eslint-plugin': 8.56.0(@typescript-eslint/parser@8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@6.0.0-beta))(eslint@9.39.2(jiti@2.6.1))(typescript@6.0.0-beta)
-      '@typescript-eslint/parser': 8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@6.0.0-beta)
-      '@typescript-eslint/typescript-estree': 8.56.0(typescript@6.0.0-beta)
-      '@typescript-eslint/utils': 8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@6.0.0-beta)
+      '@typescript-eslint/eslint-plugin': 8.56.0(@typescript-eslint/parser@8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
+      '@typescript-eslint/parser': 8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
+      '@typescript-eslint/typescript-estree': 8.56.0(typescript@5.9.3)
+      '@typescript-eslint/utils': 8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
       eslint: 9.39.2(jiti@2.6.1)
-      typescript: 6.0.0-beta
+      typescript: 5.9.3
     transitivePeerDependencies:
       - supports-color
 
   typescript@5.9.3: {}
-
-  typescript@6.0.0-beta: {}
 
   uc.micro@1.0.6: {}
 
@@ -25570,9 +25527,9 @@ snapshots:
       '@types/istanbul-lib-coverage': 2.0.6
       convert-source-map: 2.0.0
 
-  valibot@1.2.0(typescript@6.0.0-beta):
+  valibot@1.2.0(typescript@5.9.3):
     optionalDependencies:
-      typescript: 6.0.0-beta
+      typescript: 5.9.3
 
   validate-npm-package-license@3.0.4:
     dependencies:

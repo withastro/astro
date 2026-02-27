@@ -5,6 +5,6 @@
   "dependencies": {
     "astro": "workspace:*",
     "@astrojs/check": "workspace:*",
-    "typescript": "^6.0.0-beta"
+    "typescript": "^5.9.3"
   }
 }
