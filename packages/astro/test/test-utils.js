@@ -13,6 +13,7 @@ import { mergeConfig, resolveConfig } from '../dist/core/config/index.js';
 import { dev, preview } from '../dist/core/index.js';
 import sync from '../dist/core/sync/index.js';
 
+let cacheHits = 0;
 // Disable telemetry when running tests
 process.env.ASTRO_TELEMETRY_DISABLED = true;
 
