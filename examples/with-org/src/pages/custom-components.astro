@@ -1,0 +1,18 @@
+---
+import OrgContent from '../content/custom-components.org';
+import Title from '../components/Title.astro';
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<title>Custom Org Components</title>
+	</head>
+	<body>
+		<main>
+			<p><a href="/">Back to demo</a></p>
+			<OrgContent components={{ h1: Title }} />
+		</main>
+	</body>
+</html>

@@ -1,0 +1,56 @@
+#+title: Org Mode + Astro JSX demo
+#+author: with-org example
+#+jsx: import Title from '../components/Title.astro'
+#+jsx: import FancyCallout from '../components/FancyCallout.astro'
+
+* Org mode in Astro
+
+This page is authored in =.org= and compiled by =@astrojs/org-mode=.
+
+- Native Org headings and lists
+- Source blocks and tables
+- JSX exports and Astro component support
+- Custom tag mapping demo: [[/custom-components][replace =h1= with =Title= component]]
+
+#+begin_quote
+Org syntax stays readable, but you can still drop down to JSX when needed.
+#+end_quote
+
+* JSX Component Support
+
+#+begin_export jsx
+<Title>Rendered by a .astro component from Org</Title>
+#+end_export
+
+#+begin_export jsx
+<FancyCallout title="Component props + slot work">
+  This content is passed as a slot from the Org file.
+</FancyCallout>
+#+end_export
+
+#+begin_export jsx
+<div style={{ display: 'flex', gap: '0.5rem' }}>
+  <span>alpha</span>
+  <span>beta</span>
+  <span>gamma</span>
+</div>
+#+end_export
+
+* Org Features
+
+** Source block
+
+#+begin_src js
+const message = 'hello from org code block';
+console.log(message);
+#+end_src
+
+** Table
+
+| Feature        | Status |
+|----------------+--------|
+| Headings       | yes    |
+| Lists          | yes    |
+| JSX Components | yes    |
+
+Visit the [[https://docs.astro.build][Astro docs]] for framework details.

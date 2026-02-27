@@ -1,0 +1,8 @@
+{
+  "name": "@test/org-page",
+  "private": true,
+  "dependencies": {
+    "@astrojs/org-mode": "workspace:*",
+    "astro": "workspace:*"
+  }
+}

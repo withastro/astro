@@ -473,6 +473,15 @@ importers:
         specifier: ^10.28.4
         version: 10.28.4
 
+  examples/with-org:
+    dependencies:
+      '@astrojs/org-mode':
+        specifier: ^0.1.0-beta.1
+        version: link:../../packages/integrations/org-mode
+      astro:
+        specifier: ^6.0.0-beta.17
+        version: link:../../packages/astro
+
   examples/with-tailwindcss:
     dependencies:
       '@astrojs/mdx':
@@ -6022,6 +6031,46 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/org-mode:
+    dependencies:
+      '@orgajs/metadata':
+        specifier: ^2.4.0
+        version: 2.4.0
+      '@orgajs/rollup':
+        specifier: ^1.3.3
+        version: 1.3.3(rollup@4.58.0)
+      estree-util-visit:
+        specifier: ^2.0.0
+        version: 2.0.0
+    devDependencies:
+      '@types/estree':
+        specifier: ^1.0.8
+        version: 1.0.8
+      '@types/estree-jsx':
+        specifier: ^1.0.5
+        version: 1.0.5
+      astro:
+        specifier: workspace:*
+        version: link:../../astro
+      astro-scripts:
+        specifier: workspace:*
+        version: link:../../../scripts
+      linkedom:
+        specifier: ^0.18.12
+        version: 0.18.12
+      vite:
+        specifier: ^7.3.1
+        version: 7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
+
+  packages/integrations/org-mode/test/fixtures/org-page:
+    dependencies:
+      '@astrojs/org-mode':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/partytown:
     dependencies:
       '@qwik.dev/partytown':
@@ -9314,6 +9363,23 @@ packages:
     resolution: {integrity: sha512-lp4qAiMTD4sNWW4DbKLBkfiMZ4jbAboJIGOQr5DvciMRI494OapieI9qiODpOt0XBr1LjIDy1xAGAnVs5supTA==}
     engines: {node: '>=14'}
 
+  '@orgajs/metadata@2.4.0':
+    resolution: {integrity: sha512-UeEshxh9dMPCbSqT2rZ3fkY3SFS6PZpTsEHnhvGQw2DuU8mBuK+hErSHmpzpuQT8UXi3go+24Eg/Sf2+R9Vfyg==}
+
+  '@orgajs/orgx@2.6.0':
+    resolution: {integrity: sha512-nuZy/ln+cTm3tZyRQGaXibc2T72lnaPAeHUInmYO8Tf3bIIabeCy+WHblygM0rWU2ZYetAOnd96CrIGhRQcNOQ==}
+
+  '@orgajs/reorg-parse@4.4.0':
+    resolution: {integrity: sha512-qvKAPM5tLddfEkRyqV9djl7ZszjE2LVmlox0YhDFAjekqGC2THZEPelvoOYyFfcg2D9lvfoBPDI8luNMgaKMjw==}
+
+  '@orgajs/reorg-rehype@4.3.5':
+    resolution: {integrity: sha512-mx+Oqo8ieorL5kdqJiuogokbcT0TwCJJiC8DdzTODN0kU8N2/BRgwLFBaAJAX6zC3sWt91pSL7OahZicxKO9VQ==}
+
+  '@orgajs/rollup@1.3.3':
+    resolution: {integrity: sha512-Z1plSP7e4PVkzGtR5gxsgj9kIXRzFgj7+bO8D2fZOGfE85vXHQUjRF+4XkXcvQfY1EjBpOxGoq6atX1rMIG85Q==}
+    peerDependencies:
+      rollup: '>=2'
+
   '@oslojs/encoding@1.1.0':
     resolution: {integrity: sha512-70wQhgYmndg4GCPxPPxPGevRKqTIJ2Nh4OkiMWmDAVYsTQ+Ta7Sq+rPevXyXGdzr30/qZBnyOalCszoMxlyldQ==}
 
@@ -11369,6 +11435,15 @@ packages:
 
   dataloader@1.4.0:
     resolution: {integrity: sha512-68s5jYdlvasItOJnCuI2Q9s4q98g0pCyL3HrcKJu8KNugUl8ahgmZYg38ysLTgQjjXX3H8CJLkAvWrclWfcalw==}
+
+  date-fns-tz@2.0.1:
+    resolution: {integrity: sha512-fJCG3Pwx8HUoLhkepdsP7Z5RsucUi+ZBOxyM5d0ZZ6c4SdYustq0VMmOu6Wf7bli+yS/Jwp91TOCqn9jMcVrUA==}
+    peerDependencies:
+      date-fns: 2.x
+
+  date-fns@2.30.0:
+    resolution: {integrity: sha512-fnULvOpxnC5/Vg3NCiWelDsLiUc9bRwAPs/+LfTLNvetFCtCTN+yQz15C/fs4AwX1R9K5GLtLfn8QW+dWisaAw==}
+    engines: {node: '>=0.11'}
 
   debug@4.4.3:
     resolution: {integrity: sha512-RGwwWnwQvkVfavKVt22FGLw+xYSdzARwm0ru6DhTVA3umU5hZc28V3kO4stgYryrTlLpuvgI9GiijltAjNbcqA==}
@@ -13630,6 +13705,9 @@ packages:
   nth-check@2.1.1:
     resolution: {integrity: sha512-lqjrjmaOoAnWfMmBPL+XNnynZh2+swxiX3WUE0s4yEHI6m+AwrK2UZOimIRl3X/4QctVqS8AiZjFqyOGrMXb/w==}
 
+  oast-to-hast@4.4.1:
+    resolution: {integrity: sha512-cc6krJnJ0WbfjRjSMoQnoTQsYxmI7U3mh02noll5P6JiIa4llBl7DSoJ/otDY8W6IsuGpN61fpzJQNlUXSlqEA==}
+
   object-inspect@1.13.4:
     resolution: {integrity: sha512-W67iLl4J2EXEGTbfeHCffrjDfitvLANg0UlX3wFUUSTx92KXRFegMHUVgSqE+wvhAbi4WqjGg9czysTV2Epbew==}
     engines: {node: '>= 0.4'}
@@ -13704,6 +13782,9 @@ packages:
   ora@8.2.0:
     resolution: {integrity: sha512-weP+BZ8MVNnlCm8c0Qdc1WSWq4Qn7I+9CJGm7Qali6g44e/PUzbjNqJX5NJ9ljlNMosfJvg1fKEGILklK9cwnw==}
     engines: {node: '>=18'}
+
+  orga@4.6.0:
+    resolution: {integrity: sha512-K8LVOcjZRmnbq1FQkwz8we/5CEsyKnZlKnbhpbNe09AK6hMa+zrnF0L+7ArV5RtEyDdsdxoynnhBAv/n+DGG3Q==}
 
   outdent@0.5.0:
     resolution: {integrity: sha512-/jHxFIzoMXdqPzTaCpFzAAWhpkSjZPF4Vsn6jAfNpmbH/ymsmd7Qc6VE9BGn0L6YMj6uwpQLxCECpus4ukKS9Q==}
@@ -13913,6 +13994,9 @@ packages:
 
   perfect-debounce@2.1.0:
     resolution: {integrity: sha512-LjgdTytVFXeUgtHZr9WYViYSM/g8MkcTPYDlPa3cDqMirHjKiSZPYd6DoL7pK8AJQr+uWkQvCjHNdiMqsrJs+g==}
+
+  periscopic@3.1.0:
+    resolution: {integrity: sha512-vKiQ8RRtkl9P+r/+oefh25C3fhybptkHKCZSPlcXiJux2tJF55GnEj3BVn4A5gKfq9NWWXXrxkHBwVPUfH0opw==}
 
   piccolore@0.1.3:
     resolution: {integrity: sha512-o8bTeDWjE086iwKrROaDf31K0qC/BENdm15/uH9usSC/uZjJOKb2YGiVHfLY4GhwsERiPI1jmwI2XrA7ACOxVw==}
@@ -15035,6 +15119,9 @@ packages:
 
   text-hex@1.0.0:
     resolution: {integrity: sha512-uuVGNWzgJ4yhRaNSiubPY7OjISw4sw4E5Uv0wbjp+OzcbmVU/rsT8ujgcXJhn9ypzsgr5vlzpPqP+MBBKcGvbg==}
+
+  text-kit@4.5.0:
+    resolution: {integrity: sha512-pSYTwZ2zd6gnREA/PWwqtzGw0fqLAgX9rw7eZ8eB+ohphKbK3azbDafr9O47UC85b/wLu+dbYYRpmTgjRYi6IQ==}
 
   text-table@0.2.0:
     resolution: {integrity: sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==}
@@ -18517,6 +18604,50 @@ snapshots:
 
   '@opentelemetry/semantic-conventions@1.28.0': {}
 
+  '@orgajs/metadata@2.4.0': {}
+
+  '@orgajs/orgx@2.6.0':
+    dependencies:
+      '@orgajs/reorg-parse': 4.4.0
+      '@orgajs/reorg-rehype': 4.3.5
+      acorn: 8.16.0
+      acorn-jsx: 5.3.2(acorn@8.16.0)
+      astring: 1.9.0
+      estree-util-build-jsx: 3.0.1
+      estree-util-is-identifier-name: 3.0.0
+      estree-util-to-js: 2.0.0
+      estree-walker: 3.0.3
+      hast-util-to-estree: 3.1.3
+      periscopic: 3.1.0
+      recma-build-jsx: 1.0.0
+      recma-jsx: 1.0.1(acorn@8.16.0)
+      recma-stringify: 1.0.0
+      source-map: 0.7.6
+      unified: 11.0.5
+      unist-util-position-from-estree: 2.0.0
+      unist-util-stringify-position: 4.0.0
+      vfile: 6.0.3
+    transitivePeerDependencies:
+      - supports-color
+
+  '@orgajs/reorg-parse@4.4.0':
+    dependencies:
+      orga: 4.6.0
+
+  '@orgajs/reorg-rehype@4.3.5':
+    dependencies:
+      oast-to-hast: 4.4.1
+
+  '@orgajs/rollup@1.3.3(rollup@4.58.0)':
+    dependencies:
+      '@orgajs/orgx': 2.6.0
+      '@rollup/pluginutils': 5.3.0(rollup@4.58.0)
+      rollup: 4.58.0
+      source-map: 0.7.6
+      vfile: 6.0.3
+    transitivePeerDependencies:
+      - supports-color
+
   '@oslojs/encoding@1.1.0': {}
 
   '@oxc-resolver/binding-android-arm-eabi@11.17.1':
@@ -20713,6 +20844,14 @@ snapshots:
   data-uri-to-buffer@4.0.1: {}
 
   dataloader@1.4.0: {}
+
+  date-fns-tz@2.0.1(date-fns@2.30.0):
+    dependencies:
+      date-fns: 2.30.0
+
+  date-fns@2.30.0:
+    dependencies:
+      '@babel/runtime': 7.28.6
 
   debug@4.4.3(supports-color@8.1.1):
     dependencies:
@@ -23409,6 +23548,14 @@ snapshots:
     dependencies:
       boolbase: 1.0.0
 
+  oast-to-hast@4.4.1:
+    dependencies:
+      hast-util-from-html: 2.0.3
+      mime: 3.0.0
+      orga: 4.6.0
+      parse5: 7.3.0
+      unist-util-position: 5.0.0
+
   object-inspect@1.13.4: {}
 
   object-keys@1.1.1: {}
@@ -23494,6 +23641,12 @@ snapshots:
       stdin-discarder: 0.2.2
       string-width: 7.2.0
       strip-ansi: 7.1.2
+
+  orga@4.6.0:
+    dependencies:
+      date-fns: 2.30.0
+      date-fns-tz: 2.0.1(date-fns@2.30.0)
+      text-kit: 4.5.0
 
   outdent@0.5.0: {}
 
@@ -23711,6 +23864,12 @@ snapshots:
   perfect-debounce@1.0.0: {}
 
   perfect-debounce@2.1.0: {}
+
+  periscopic@3.1.0:
+    dependencies:
+      '@types/estree': 1.0.8
+      estree-walker: 3.0.3
+      is-reference: 3.0.3
 
   piccolore@0.1.3: {}
 
@@ -25164,6 +25323,8 @@ snapshots:
       - react-native-b4a
 
   text-hex@1.0.0: {}
+
+  text-kit@4.5.0: {}
 
   text-table@0.2.0: {}
 
