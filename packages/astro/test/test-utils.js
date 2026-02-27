@@ -14,6 +14,48 @@ import { dev, preview } from '../dist/core/index.js';
 import sync from '../dist/core/sync/index.js';
 
 let cacheHits = 0;
+/** @type {Record<string, number>} */
+let fixtureCounts = {};
+/** @type {Record<string, number>} */
+let fixtureBuildCounts = {};
+/** @type {Record<string, number>} */
+let cacheHitCounts = {};
+
+/**
+ * @param {Record<string, number>} counts
+ */
+const formatReport = (counts) =>
+	Object.entries(counts)
+		.filter(([, count]) => count > 1)
+		.sort(([, a], [, b]) => b - a)
+		.map(([root, count]) => `- x${count} ${path.relative(process.cwd(), root)}`)
+		.join('\n');
+
+process.addListener('exit', () => {
+	console.log(
+		`
+
+
+🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
+
+${cacheHits} build cache hits
+
+Top fixtures by cache hits:
+${formatReport(cacheHitCounts)}
+
+Top fixtures by total builds:
+${formatReport(fixtureBuildCounts)}
+
+Top fixtures (most loaded):
+${formatReport(fixtureCounts)}
+
+🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
+
+
+`,
+	);
+});
+
 // Disable telemetry when running tests
 process.env.ASTRO_TELEMETRY_DISABLED = true;
 
@@ -149,11 +191,18 @@ export async function loadFixture(inlineConfig) {
 	/** @type {string | undefined} */
 	let lastBuildId;
 
+	fixtureCounts[root] ??= 0;
+	fixtureCounts[root]++;
+
 	return {
 		build: async (extraInlineConfig = {}, options = {}) => {
+			fixtureBuildCounts[root] ??= 0;
+			fixtureBuildCounts[root]++;
 			const buildId = JSON.stringify([inlineConfig, extraInlineConfig, options]);
 			if (buildCache.has(buildId)) {
 				cacheHits++;
+				cacheHitCounts[root] ??= 0;
+				cacheHitCounts[root]++;
 				return;
 			}
 			globalContentLayer.dispose();
