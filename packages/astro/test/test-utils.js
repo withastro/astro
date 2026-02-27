@@ -145,16 +145,26 @@ export async function loadFixture(inlineConfig) {
 	let fixtureId = new Date().valueOf();
 	let devServer;
 
+	/** @type {string | undefined} */
+	let lastBuildId;
+
 	return {
 		build: async (extraInlineConfig = {}, options = {}) => {
+			const buildId = JSON.stringify([inlineConfig, extraInlineConfig, options]);
+			if (buildCache.has(buildId)) {
+				cacheHits++;
+				return;
+			}
 			globalContentLayer.dispose();
 			globalContentConfigObserver.set({ status: 'init' });
 			// Reset NODE_ENV so it can be re-set by `build()`
 			delete process.env.NODE_ENV;
-			return build(mergeConfig(inlineConfig, extraInlineConfig), {
+			await build(mergeConfig(inlineConfig, extraInlineConfig), {
 				teardownCompiler: false,
 				...options,
 			});
+			buildCache.add(buildId);
+			lastBuildId = buildId;
 		},
 		sync,
 		check: async (opts) => {
@@ -248,6 +258,10 @@ export async function loadFixture(inlineConfig) {
 				expandDirectories: false,
 			}),
 		clean: async () => {
+			if (lastBuildId) {
+				buildCache.delete(lastBuildId);
+				lastBuildId = undefined;
+			}
 			await fs.promises.rm(config.outDir, {
 				maxRetries: 10,
 				recursive: true,
@@ -369,3 +383,6 @@ export async function* streamAsyncIterator(stream) {
 		reader.releaseLock();
 	}
 }
+
+/** @type {Set<string>} */
+const buildCache = new Set();
