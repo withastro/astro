@@ -6,7 +6,6 @@ const RESOLVED_VIRTUAL_CONFIG_ID = '\0' + VIRTUAL_CONFIG_ID;
 export interface Config {
 	middlewareSecret: string;
 	cacheOnDemandPages: boolean;
-	packageVersion: string;
 }
 
 export function createConfigPlugin(config: Config): PluginOption {
