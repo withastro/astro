@@ -4,6 +4,7 @@ import { Traverse } from 'neotraverse/modern';
 import * as z from 'zod/v4';
 import type * as zCore from 'zod/v4/core';
 import type { GetImageResult, ImageMetadata } from '../assets/types.js';
+import { createSvgComponent } from '../assets/runtime.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { isRemotePath, prependForwardSlash } from '../core/path.js';
@@ -519,9 +520,20 @@ function updateImageReferencesInData<T extends Record<string, unknown>>(
 				ctx.update(src);
 				return;
 			}
-			const imported = imageAssetMap?.get(id);
+			const imported = imageAssetMap?.get(id) as
+				| (ImageMetadata & { __svgData?: { attributes: Record<string, string>; children: string } })
+				| undefined;
 			if (imported) {
-				ctx.update(imported);
+				if (imported.__svgData) {
+					// Reconstruct the renderable SVG component from the data embedded at build
+					// time. We cannot call createSvgComponent inside the SVG Vite module itself
+					// because that would import the server runtime across a dynamic-import
+					// boundary, recreating the TLA circular-dependency deadlock (see #15575).
+					const { __svgData: svgData, ...meta } = imported;
+					ctx.update(createSvgComponent({ meta: meta as ImageMetadata, ...svgData }));
+				} else {
+					ctx.update(imported);
+				}
 			} else {
 				ctx.update(src);
 			}

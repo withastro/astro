@@ -36,5 +36,14 @@ describe('Content collection with SVG image and TLA', () => {
 			assert.equal($img.attr('width'), '100');
 			assert.equal($img.attr('height'), '100');
 		});
+
+		it('renders SVG as an inline component from content collection', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerio.load(html);
+
+			const $svg = $('.inline-svg').first();
+			assert.ok($svg.length, 'Expected inline SVG element to be rendered');
+			assert.equal($svg.prop('tagName').toLowerCase(), 'svg');
+		});
 	});
 });
