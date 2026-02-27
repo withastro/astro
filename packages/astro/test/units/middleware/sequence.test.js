@@ -7,17 +7,17 @@ import { createMockAPIContext, createResponseFunction } from './test-helpers.js'
 
 describe('sequence', () => {
 	/** @type {import('astro').APIContext} */
-	let ctx;
+	let globaCtx;
 
 	beforeEach(() => {
-		ctx = createMockAPIContext();
+		globaCtx = createMockAPIContext();
 	});
 
 	it('returns a passthrough middleware when called with no handlers', async () => {
 		const combined = sequence();
 		const responseFn = createResponseFunction('passthrough');
 
-		const response = await callMiddleware(combined, ctx, responseFn);
+		const response = await callMiddleware(combined, globaCtx, responseFn);
 
 		assert.equal(await response.text(), 'passthrough');
 	});
@@ -30,10 +30,10 @@ describe('sequence', () => {
 		const combined = sequence(handler);
 		const responseFn = createResponseFunction('single');
 
-		const response = await callMiddleware(combined, ctx, responseFn);
+		const response = await callMiddleware(combined, globaCtx, responseFn);
 
 		assert.equal(await response.text(), 'single');
-		assert.equal(ctx.locals.touched, true);
+		assert.equal(globaCtx.locals.touched, true);
 	});
 
 	it('executes handlers in order', async () => {
@@ -53,7 +53,7 @@ describe('sequence', () => {
 		const combined = sequence(handler1, handler2, handler3);
 		const responseFn = createResponseFunction();
 
-		await callMiddleware(combined, ctx, responseFn);
+		await callMiddleware(combined, globaCtx, responseFn);
 
 		assert.deepEqual(order, [1, 2, 3]);
 	});
@@ -73,7 +73,7 @@ describe('sequence', () => {
 			return new Response(`${apiCtx.locals.first}-${apiCtx.locals.second}`);
 		};
 
-		const response = await callMiddleware(combined, ctx, responseFn);
+		const response = await callMiddleware(combined, globaCtx, responseFn);
 
 		assert.equal(await response.text(), 'a-ab');
 	});
@@ -90,7 +90,7 @@ describe('sequence', () => {
 		const combined = sequence(handler1, handler2);
 		const responseFn = createResponseFunction('hello world');
 
-		const response = await callMiddleware(combined, ctx, responseFn);
+		const response = await callMiddleware(combined, globaCtx, responseFn);
 
 		assert.equal(await response.text(), 'HELLO WORLD');
 	});
@@ -106,10 +106,10 @@ describe('sequence', () => {
 		const combined = sequence(syncHandler, asyncHandler);
 		const responseFn = createResponseFunction('mixed');
 
-		const response = await callMiddleware(combined, ctx, responseFn);
+		const response = await callMiddleware(combined, globaCtx, responseFn);
 
 		assert.equal(await response.text(), 'mixed');
-		assert.equal(ctx.locals.async, true);
+		assert.equal(globaCtx.locals.async, true);
 	});
 
 	it('filters out falsy handlers', async () => {
@@ -125,7 +125,7 @@ describe('sequence', () => {
 		const combined = sequence(handler1, null, undefined, handler2);
 		const responseFn = createResponseFunction();
 
-		await callMiddleware(combined, ctx, responseFn);
+		await callMiddleware(combined, globaCtx, responseFn);
 
 		assert.deepEqual(order, [1, 2]);
 	});
@@ -143,7 +143,7 @@ describe('sequence', () => {
 		const combined = sequence(handler1, handler2);
 		const responseFn = createResponseFunction('should not reach');
 
-		const response = await callMiddleware(combined, ctx, responseFn);
+		const response = await callMiddleware(combined, globaCtx, responseFn);
 
 		assert.equal(await response.text(), 'short-circuit');
 		assert.deepEqual(order, [1]); // handler2 was never called
@@ -161,10 +161,10 @@ describe('sequence', () => {
 		const combined = sequence(handler1, handler2);
 		const responseFn = createResponseFunction('OK');
 
-		await callMiddleware(combined, ctx, responseFn);
+		await callMiddleware(combined, globaCtx, responseFn);
 
-		assert.equal(ctx.cookies.get('cookie1')?.value, 'value1');
-		assert.equal(ctx.cookies.get('cookie2')?.value, 'value2');
+		assert.equal(globaCtx.cookies.get('cookie1')?.value, 'value1');
+		assert.equal(globaCtx.cookies.get('cookie2')?.value, 'value2');
 	});
 
 	it('handles a chain where middle handler returns a redirect', async () => {
@@ -182,10 +182,10 @@ describe('sequence', () => {
 		const combined = sequence(handler1, handler2, handler3);
 		const responseFn = createResponseFunction();
 
-		const response = await callMiddleware(combined, ctx, responseFn);
+		const response = await callMiddleware(combined, globaCtx, responseFn);
 
 		assert.equal(response.status, 302);
 		assert.equal(response.headers.get('Location'), '/login');
-		assert.equal(ctx.locals.beforeRedirect, true);
+		assert.equal(globaCtx.locals.beforeRedirect, true);
 	});
 });
