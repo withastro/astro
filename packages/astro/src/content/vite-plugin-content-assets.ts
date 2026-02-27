@@ -78,10 +78,15 @@ export function astroContentAssetPropagationPlugin({
 			},
 		},
 		configureServer(server) {
-			if (!isRunnableDevEnvironment(server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr])) {
-				return;
+			const ssrEnv = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
+			if (isRunnableDevEnvironment(ssrEnv)) {
+				environment = ssrEnv;
+			} else if (isRunnableDevEnvironment(server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.astro])) {
+				// When the ssr environment is not a RunnableDevEnvironment (e.g. when using the
+				// Cloudflare adapter which runs ssr in workerd), fall back to the 'astro' environment
+				// which is always a RunnableDevEnvironment available in dev.
+				environment = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.astro] as RunnableDevEnvironment;
 			}
-			environment = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr] as RunnableDevEnvironment;
 		},
 		transform: {
 			filter: {
@@ -96,7 +101,11 @@ export function astroContentAssetPropagationPlugin({
 					// so resolve collected styles and scripts here.
 					if (isAstroServerEnvironment(this.environment) && environment) {
 						if (!environment.moduleGraph.getModuleById(basePath)?.ssrModule) {
-							await environment.runner.import(basePath);
+							// Ignore errors here — when using a fallback environment (e.g. the 'astro'
+							// env when Cloudflare's ssr env is non-runnable), the module may already be
+							// loaded in the fallback env's graph even if this import throws due to
+							// concurrent bundle editing.
+							await environment.runner.import(basePath).catch(() => {});
 						}
 						const {
 							styles,
