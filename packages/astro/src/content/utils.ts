@@ -249,32 +249,70 @@ export async function getEntryData<
 			}
 		}
 	} else if (schema) {
-		const result = await schema['~standard'].validate(data);
-		if (result.issues) {
-			throw new AstroError({
-				...AstroErrorData.InvalidContentEntryDataError,
-				message: AstroErrorData.InvalidContentEntryDataError.message(
-					entry.collection,
-					entry.id,
-					formatIssues(result.issues),
-				),
-				location: {
-					file: entry._internal?.filePath,
-					line: getYAMLErrorLine(
-						entry._internal?.rawData,
-						String(
-							result.issues[0].path?.[0] !== undefined
-								? typeof result.issues[0].path[0] === 'object'
-									? result.issues[0].path[0].key
-									: result.issues[0].path[0]
-								: '',
-						),
-					),
-					column: 0,
+		if ('_zod' in schema) {
+			// Zod schema used directly (not as a function): keep safeParseAsync so that
+			// errorMap applies and error messages match the established format.
+			let formattedError;
+			const parsed = await (schema as z.ZodSchema).safeParseAsync(data, {
+				error(issue) {
+					if (issue.code === 'custom' && issue.params?.isHoistedAstroError) {
+						formattedError = issue.params?.astroError;
+					}
+					return errorMap(issue);
 				},
 			});
+			if (parsed.success) {
+				data = parsed.data;
+			} else {
+				if (!formattedError) {
+					formattedError = new AstroError({
+						...AstroErrorData.InvalidContentEntryDataError,
+						message: AstroErrorData.InvalidContentEntryDataError.message(
+							entry.collection,
+							entry.id,
+							parsed.error,
+						),
+						location: {
+							file: entry._internal?.filePath,
+							line: getYAMLErrorLine(
+								entry._internal?.rawData,
+								String(parsed.error.issues[0].path[0]),
+							),
+							column: 0,
+						},
+					});
+				}
+				throw formattedError;
+			}
+		} else {
+			// Non-Zod Standard Schema (Valibot, ArkType, etc.)
+			const result = await schema['~standard'].validate(data);
+			if (result.issues) {
+				throw new AstroError({
+					...AstroErrorData.InvalidContentEntryDataError,
+					message: AstroErrorData.InvalidContentEntryDataError.message(
+						entry.collection,
+						entry.id,
+						formatIssues(result.issues),
+					),
+					location: {
+						file: entry._internal?.filePath,
+						line: getYAMLErrorLine(
+							entry._internal?.rawData,
+							String(
+								result.issues[0].path?.[0] !== undefined
+									? typeof result.issues[0].path[0] === 'object'
+										? result.issues[0].path[0].key
+										: result.issues[0].path[0]
+									: '',
+							),
+						),
+						column: 0,
+					},
+				});
+			}
+			data = result.value;
 		}
-		data = result.value;
 	}
 
 	// Apply transform if defined (runs after schema validation)
