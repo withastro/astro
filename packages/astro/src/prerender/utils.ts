@@ -19,5 +19,10 @@ export function getServerOutputDirectory(settings: AstroSettings): URL {
  * Returns the correct output directory of the client build based on the configuration
  */
 export function getClientOutputDirectory(settings: AstroSettings): URL {
-	return settings.buildOutput === 'server' ? settings.config.build.client : settings.config.outDir;
+	const preserveStructure = settings.adapter?.adapterFeatures?.preserveDirectoryStructure;
+
+	if (settings.buildOutput === 'server' || preserveStructure) {
+		return settings.config.build.client;
+	}
+	return settings.config.outDir;
 }

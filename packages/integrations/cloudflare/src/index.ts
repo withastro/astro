@@ -278,7 +278,8 @@ export default function createIntegration({
 					name: '@astrojs/cloudflare',
 					adapterFeatures: {
 						buildOutput: _isFullyStatic ? 'static' : 'server',
-						middlewareMode: 'classic'
+						middlewareMode: 'classic',
+						preserveDirectoryStructure: true,
 					},
 					entrypointResolution: 'auto',
 					previewEntrypoint: '@astrojs/cloudflare/entrypoints/preview',
@@ -412,10 +413,8 @@ export default function createIntegration({
 					}
 				}
 
-				// For fully static sites, remove the worker directory as it's not needed
-				if (_isFullyStatic) {
-					await rm(_config.build.server, { recursive: true, force: true });
-				}
+				// For fully static sites with preserveDirectoryStructure, we keep the server directory
+				// to maintain consistent structure for deployment
 
 				// Delete this variable so the preview server opens the server build.
 				delete process.env.CLOUDFLARE_VITE_BUILD;
