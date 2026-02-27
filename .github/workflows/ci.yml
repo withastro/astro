@@ -53,44 +53,6 @@ jobs:
             ci:
               - '.github/workflows/ci.yml'
 
-  # Build primes out Turbo build cache and pnpm cache
-  build:
-    name: "Build: ${{ matrix.os }}"
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 5
-    strategy:
-      matrix:
-        # windows-latest is still windows-2022 for some reason, even though the windows-2025 image is GA
-        OS: [ubuntu-latest, windows-2025]
-        NODE_VERSION: [22]
-      fail-fast: true
-    steps:
-      # Disable crlf so all OS can share the same Turbo cache
-      # https://github.com/actions/checkout/issues/135
-      - name: Disable git crlf
-        run: git config --global core.autocrlf false
-
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - name: Setup PNPM
-        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
-
-      - name: Setup node@${{ matrix.NODE_VERSION }}
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
-        with:
-          node-version: ${{ matrix.NODE_VERSION }}
-          cache: "pnpm"
-
-      - name: Install dependencies
-        run: pnpm install
-
-      # Only build in ubuntu as windows can share the build cache.
-      # Also only build in core repo as forks don't have access to the Turbo cache.
-      - name: Build Packages
-        if: ${{ matrix.os == 'ubuntu-latest' && github.repository_owner == 'withastro' }}
-        run: pnpm run build
-        
   biome-lint:
     runs-on: ubuntu-latest
     permissions:
@@ -144,7 +106,6 @@ jobs:
     name: 'Test (${{ matrix.TEST_SUITE.name }}): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})'
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
-    needs: build
     strategy:
       matrix:
         OS: [ubuntu-latest, macos-14, windows-2025]
@@ -205,7 +166,6 @@ jobs:
     timeout-minutes: 30
     needs:
       - changes
-      - build
     if: needs.changes.outputs.language-tools == 'true' || needs.changes.outputs.astro-types == 'true' || needs.changes.outputs.ci == 'true'
     strategy:
       matrix:
@@ -258,7 +218,6 @@ jobs:
     name: "Test (E2E): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
-    needs: build
     strategy:
       matrix:
         OS: [ubuntu-latest, windows-2025]
@@ -295,7 +254,6 @@ jobs:
     name: "Test (Smoke): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
-    needs: build
     strategy:
       matrix:
         OS: [ubuntu-latest, windows-2025]
