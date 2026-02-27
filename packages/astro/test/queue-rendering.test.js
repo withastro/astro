@@ -167,7 +167,6 @@ describe('Queue-based rendering - Static', () => {
 
 			// Component styles should be in head
 			assert.ok(html.includes('.with-head'));
-			console.log(html);
 			assert.ok(html.includes('border:1px solid #00f') || html.includes('border:1px solid blue'));
 		});
 
