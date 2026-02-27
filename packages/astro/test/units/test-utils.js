@@ -204,3 +204,27 @@ export class SpyLogger {
 		return new AstroIntegrationLogger(this.options, label);
 	}
 }
+
+/**
+ * Creates a mock next() function for middleware testing.
+ *
+ * This helper creates a mock middleware next() function that returns a specified
+ * Response when called. The returned function has a `called` property that tracks
+ * whether the function has been invoked.
+ *
+ * @param {Response} [response] - The Response to return when next() is called
+ * @returns {(() => Promise<Response>)} An async function that returns the response
+ *
+ * @example
+ * const next = createMockNext(new Response('Page content'));
+ * const response = await next();
+ * console.log(next.called); // true
+ */
+export function createMockNext(response = new Response('OK')) {
+	const nextFn = async () => {
+		nextFn.called = true;
+		return response;
+	};
+	nextFn.called = false;
+	return nextFn;
+}

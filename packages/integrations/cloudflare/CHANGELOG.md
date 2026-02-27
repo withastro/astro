@@ -1,5 +1,14 @@
 # @astrojs/cloudflare
 
+## 13.0.0-beta.11
+
+### Patch Changes
+
+- [#15495](https://github.com/withastro/astro/pull/15495) [`5b99e90`](https://github.com/withastro/astro/commit/5b99e9077a92602f1e46e9b6eb9094bcd00c640e) Thanks [@leekeh](https://github.com/leekeh)! - Refactors to use `middlewareMode` adapter feature (set to `classic`)
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 13.0.0-beta.10
 
 ### Patch Changes

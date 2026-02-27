@@ -34,7 +34,7 @@ import { hashTransform, propsToFilename } from './utils/hash.js';
 import { emitImageMetadata } from './utils/node.js';
 import { CONTENT_IMAGE_FLAG } from '../content/consts.js';
 import { getProxyCode } from './utils/proxy.js';
-import { makeSvgComponent } from './utils/svg.js';
+import { makeSvgComponent, parseSvgComponentData } from './utils/svg.js';
 import { createPlaceholderURL, stringifyPlaceholderURL } from './utils/url.js';
 
 const assetRegex = new RegExp(`\\.(${VALID_INPUT_FORMATS.join('|')})`, 'i');
@@ -310,9 +310,10 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 					// an image on the client, it should be present in the final build.
 					if (isAstroServerEnvironment(this.environment)) {
 						// For SVGs imported directly (not via content collections), create a full
-						// component that can be rendered inline. For content collection SVGs, return
-						// plain metadata to avoid importing createComponent from the server runtime,
-						// which would create a circular dependency when combined with TLA.
+						// component that can be rendered inline. For content collection SVGs, the
+						// component is reconstructed later in content/runtime.ts from __svgData
+						// embedded in the metadata, avoiding a server-runtime import here that
+						// would create a circular dependency when combined with TLA.
 						if (id.endsWith('.svg') && !isContentImage) {
 							const contents = await fs.promises.readFile(imageMetadata.fsPath, {
 								encoding: 'utf8',
@@ -329,6 +330,23 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 							this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
 						if (isSSROnlyEnvironment) {
 							globalThis.astroAsset.referencedImages.add(imageMetadata.fsPath);
+						}
+						// Content-collection SVG: embed parsed SVG data so content/runtime.ts can
+						// reconstruct a renderable component without importing from the server runtime
+						// (which would recreate the TLA circular-dependency deadlock, see #15575).
+						if (id.endsWith('.svg') && isContentImage) {
+							const contents = await fs.promises.readFile(imageMetadata.fsPath, {
+								encoding: 'utf8',
+							});
+							const svgData = parseSvgComponentData(
+								imageMetadata,
+								contents,
+								settings.config.experimental.svgo,
+							);
+							const metadataWithSvg = { ...imageMetadata, __svgData: svgData };
+							return {
+								code: `export default ${getProxyCode(metadataWithSvg as typeof imageMetadata, isSSROnlyEnvironment)}`,
+							};
 						}
 						return {
 							code: `export default ${getProxyCode(imageMetadata, isSSROnlyEnvironment)}`,
