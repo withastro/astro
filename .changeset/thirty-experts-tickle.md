@@ -10,9 +10,10 @@ However, there can be security implications with prefetching from other hosts, a
 
 #### What should I do?
 
-If you were previously using this feature, you must remove the option from your adapter configuration as it no longer exists. You can replicate the previous behavior by running with `mode: 'middleware'` and intercepting responses:
+If you were previously using this feature, you must remove the option from your adapter configuration as it no longer exists:
 
 ```diff
+// astro.config.mjs
 import { defineConfig } from 'astro/config'
 import node from '@astrojs/node'
 
@@ -21,5 +22,20 @@ export default defineConfig({
     mode: 'standalone',
 -    experimentalErrorPageHost: 'http://localhost:4321'
   })
+})
+```
+
+You can replicate the previous behavior by checking the response status in a middleware and fetch the prerendered page yourself:
+
+```ts
+// src/middleware.ts
+import { defineMiddleware } from 'astro:middleware'
+
+export const onRequest = defineMiddleware(async (ctx, next) => {
+	const response = await next()
+	if (response.status === 404 || response.status === 500) {
+		return fetch(`http://localhost:4321/${response.status}.html`);
+	}
+	return response
 })
 ```
