@@ -133,7 +133,7 @@ export abstract class Pipeline {
 		}
 		// The middleware can be undefined when using edge middleware.
 		// This is set to undefined by the plugin-ssr.ts
-		else if (this.middleware) {
+		if (this.middleware) {
 			const middlewareInstance = await this.middleware();
 			const onRequest = middlewareInstance.onRequest ?? NOOP_MIDDLEWARE_FN;
 			const internalMiddlewares = [onRequest];

@@ -276,8 +276,8 @@ export default function createIntegration({
 				setAdapter({
 					name: '@astrojs/cloudflare',
 					adapterFeatures: {
-						edgeMiddleware: false,
 						buildOutput: 'server',
+						middlewareMode: 'classic',
 					},
 					entrypointResolution: 'auto',
 					previewEntrypoint: '@astrojs/cloudflare/entrypoints/preview',

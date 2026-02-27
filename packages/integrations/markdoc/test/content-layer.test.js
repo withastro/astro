@@ -1,14 +1,16 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { parseHTML } from 'linkedom';
+import { loadFixture } from '../../../astro/test/test-utils.js';
 
-describe('Content layer markdoc', () => {
+const root = new URL('./fixtures/content-layer/', import.meta.url);
+
+describe('Markdoc - Content Layer', () => {
 	let fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/content-layer-markdoc/',
+			root,
 		});
 	});
 
@@ -59,30 +61,30 @@ describe('Content layer markdoc', () => {
 
 /** @param {string} html */
 function renderComponentsChecks(html) {
-	const $ = cheerio.load(html);
-	const h2 = $('h2');
-	assert.equal(h2.text(), 'Post with components');
+	const { document } = parseHTML(html);
+	const h2 = document.querySelector('h2');
+	assert.equal(h2.textContent, 'Post with components');
 
 	// Renders custom shortcode component
-	const marquee = $('marquee');
+	const marquee = document.querySelector('marquee');
 	assert.notEqual(marquee, null);
-	assert.equal(marquee.attr('data-custom-marquee'), '');
+	assert.equal(marquee.hasAttribute('data-custom-marquee'), true);
 
 	// Renders Astro Code component
-	const pre = $('pre');
+	const pre = document.querySelector('pre');
 	assert.notEqual(pre, null);
-	assert.ok(pre.hasClass('github-dark'));
-	assert.ok(pre.hasClass('astro-code'));
+	assert.ok(pre.classList.contains('github-dark'));
+	assert.ok(pre.classList.contains('astro-code'));
 }
 
 /** @param {string} html */
 function renderComponentsInsidePartialsChecks(html) {
-	const $ = cheerio.load(html);
+	const { document } = parseHTML(html);
 	// renders Counter.tsx
-	const button = $('#counter');
-	assert.equal(button.text(), '1');
+	const button = document.querySelector('#counter');
+	assert.equal(button.textContent, '1');
 
 	// renders DeeplyNested.astro
-	const deeplyNested = $('#deeply-nested');
-	assert.equal(deeplyNested.text(), 'Deeply nested partial');
+	const deeplyNested = document.querySelector('#deeply-nested');
+	assert.equal(deeplyNested.textContent, 'Deeply nested partial');
 }

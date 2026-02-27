@@ -15,7 +15,7 @@ export function getAdapter({ staticHeaders }: Pick<Options, 'staticHeaders'>): A
 		previewEntrypoint: '@astrojs/node/preview.js',
 		adapterFeatures: {
 			buildOutput: 'server',
-			edgeMiddleware: false,
+			middlewareMode: 'classic',
 			staticHeaders,
 		},
 		supportedAstroFeatures: {

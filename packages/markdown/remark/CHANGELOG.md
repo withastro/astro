@@ -1,5 +1,11 @@
 # @astrojs/markdown-remark
 
+## 7.0.0-beta.8
+
+### Patch Changes
+
+- [#15676](https://github.com/withastro/astro/pull/15676) [`1fa4177`](https://github.com/withastro/astro/commit/1fa41779c458123f707940a5253dbe6e540dbf7d) Thanks [@rururux](https://github.com/rururux)! - Fixes an issue where the use of the `Code` component would result in an unexpected error.
+
 ## 7.0.0-beta.7
 
 ### Major Changes
