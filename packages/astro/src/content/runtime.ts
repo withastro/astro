@@ -1,8 +1,10 @@
+import type { StandardSchemaV1 } from '@standard-schema/spec';
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
 import { escape } from 'html-escaper';
 import { Traverse } from 'neotraverse/modern';
 import * as z from 'zod/v4';
 import type * as zCore from 'zod/v4/core';
+import { formatIssues } from './standard-schema-errors.js';
 import type { GetImageResult, ImageMetadata } from '../assets/types.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
@@ -43,7 +45,7 @@ export {
 type LazyImport = () => Promise<any>;
 type LiveCollectionConfigMap = Record<
 	string,
-	{ loader: LiveLoader; type: typeof LIVE_CONTENT_TYPE; schema?: zCore.$ZodType }
+	{ loader: LiveLoader; type: typeof LIVE_CONTENT_TYPE; schema?: StandardSchemaV1 }
 >;
 
 const cacheHintSchema = z.object({
@@ -53,15 +55,32 @@ const cacheHintSchema = z.object({
 
 async function parseLiveEntry(
 	entry: LiveDataEntry,
-	schema: zCore.$ZodType,
+	schema: StandardSchemaV1,
 	collection: string,
 ): Promise<{ entry?: LiveDataEntry; error?: LiveCollectionError }> {
 	try {
-		const parsed = await z.safeParseAsync(schema, entry.data);
-		if (!parsed.success) {
-			return {
-				error: new LiveCollectionValidationError(collection, entry.id, parsed.error),
-			};
+		let data: Record<string, unknown>;
+		if ('_zod' in schema) {
+			// Zod schema: use safeParseAsync to preserve the hoisted error mechanism
+			const parsed = await z.safeParseAsync(schema as zCore.$ZodType, entry.data);
+			if (!parsed.success) {
+				return {
+					error: new LiveCollectionValidationError(collection, entry.id, parsed.error),
+				};
+			}
+			data = parsed.data as Record<string, unknown>;
+		} else {
+			const result = await schema['~standard'].validate(entry.data);
+			if (result.issues) {
+				return {
+					error: new LiveCollectionValidationError(
+						collection,
+						entry.id,
+						formatIssues(result.issues),
+					),
+				};
+			}
+			data = result.value as Record<string, unknown>;
 		}
 		if (entry.cacheHint) {
 			const cacheHint = cacheHintSchema.safeParse(entry.cacheHint);
@@ -76,7 +95,7 @@ async function parseLiveEntry(
 		return {
 			entry: {
 				...entry,
-				data: parsed.data as Record<string, unknown>,
+				data,
 			},
 		};
 	} catch (error) {
@@ -657,38 +676,48 @@ async function render({
 }
 
 export function createReference() {
-	return function reference(collection: string) {
-		return z
-			.union([
-				z.string(),
-				z.object({
-					id: z.string(),
-					collection: z.string(),
-				}),
-				z.object({
-					slug: z.string(),
-					collection: z.string(),
-				}),
-			])
-			.transform((lookup, ctx) => {
-				if (typeof lookup === 'object') {
-					// If these don't match then something is wrong with the reference
-					if (lookup.collection !== collection) {
-						const flattenedErrorPath = ctx.issues[0]?.path?.join('.');
+	function reference(collection: string): ReturnType<typeof zodReference>;
+	function reference<C extends string>(collection: C, id: string): { id: string; collection: C };
+	function reference(collection: string, id?: string) {
+		if (id !== undefined) {
+			return { id, collection };
+		}
+		return zodReference(collection);
+	}
+	return reference;
+}
 
-						ctx.addIssue({
-							code: 'custom',
-							message: `**${flattenedErrorPath}**: Reference to ${collection} invalid. Expected ${collection}. Received ${lookup.collection}.`,
-						});
-						return;
-					}
-					// If it is an object then we're validating later in the build, so we can check the collection at that point.
-					return lookup;
+function zodReference(collection: string) {
+	return z
+		.union([
+			z.string(),
+			z.object({
+				id: z.string(),
+				collection: z.string(),
+			}),
+			z.object({
+				slug: z.string(),
+				collection: z.string(),
+			}),
+		])
+		.transform((lookup, ctx) => {
+			if (typeof lookup === 'object') {
+				// If these don't match then something is wrong with the reference
+				if (lookup.collection !== collection) {
+					const flattenedErrorPath = ctx.issues[0]?.path?.join('.');
+
+					ctx.addIssue({
+						code: 'custom',
+						message: `**${flattenedErrorPath}**: Reference to ${collection} invalid. Expected ${collection}. Received ${lookup.collection}.`,
+					});
+					return;
 				}
+				// If it is an object then we're validating later in the build, so we can check the collection at that point.
+				return lookup;
+			}
 
-				return { id: lookup, collection };
-			});
-	};
+			return { id: lookup, collection };
+		});
 }
 
 type PropagatedAssetsModule = {

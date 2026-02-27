@@ -1,6 +1,8 @@
 import fsMod from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import type { StandardSchemaV1 } from '@standard-schema/spec';
+import type { ImageMetadata } from '../assets/types.js';
 import { parseFrontmatter } from '@astrojs/markdown-remark';
 import { slug as githubSlug } from 'github-slugger';
 import colors from 'piccolore';
@@ -25,9 +27,11 @@ import {
 	LIVE_CONTENT_TYPE,
 	PROPAGATED_ASSET_FLAG,
 } from './consts.js';
+import type { TransformFn } from './config.js';
 import { glob, secretLegacyFlag } from './loaders/glob.js';
 import type { LoaderContext } from './loaders/types.js';
-import { createImage } from './runtime-assets.js';
+import { createImage, resolveImage } from './runtime-assets.js';
+import { formatIssues } from './standard-schema-errors.js';
 
 const entryTypeSchema = z
 	.object({
@@ -59,15 +63,18 @@ const collectionConfigParser = z.union([
 		type: z.literal('content').optional(),
 		schema: z.any().optional(),
 		loader: z.never().optional(),
+		transform: z.function().optional(),
 	}),
 	z.object({
 		type: z.literal('data').optional(),
 		schema: z.any().optional(),
 		loader: z.never().optional(),
+		transform: z.function().optional(),
 	}),
 	z.object({
 		type: z.literal(CONTENT_LAYER_TYPE),
 		schema: z.any().optional(),
+		transform: z.function().optional(),
 		loader: z.union([
 			z.function(),
 			z.object({
@@ -91,10 +98,10 @@ const collectionConfigParser = z.union([
 						return v;
 					})
 					.superRefine((v, ctx) => {
-						if (v !== undefined && !('_zod' in v)) {
+						if (v !== undefined && !('~standard' in v)) {
 							ctx.addIssue({
 								code: z.ZodIssueCode.custom,
-								message: 'Invalid Zod schema',
+								message: 'Invalid schema: must be a Standard Schema-compatible object',
 							});
 							return z.NEVER;
 						}
@@ -105,7 +112,9 @@ const collectionConfigParser = z.union([
 						input: [],
 						output: z.promise(
 							z.object({
-								schema: z.custom<z.ZodSchema>((v: any) => '_zod' in v),
+								schema: z.custom<StandardSchemaV1>(
+									(v: unknown) => typeof v === 'object' && v !== null && '~standard' in v,
+								),
 								types: z.string(),
 							}),
 						),
@@ -165,17 +174,18 @@ export async function getEntryData<
 	shouldEmitFile: boolean,
 	pluginContext?: PluginContext,
 ): Promise<TOutputData> {
-	let data = entry.unvalidatedData as TOutputData;
+	let data: unknown = entry.unvalidatedData;
 
-	let schema = collectionConfig.schema;
+	const schema = collectionConfig.schema;
 
 	if (typeof schema === 'function') {
+		let resolvedSchema: z.ZodSchema | undefined;
 		if (pluginContext) {
-			schema = schema({
+			resolvedSchema = schema({
 				image: createImage(pluginContext, shouldEmitFile, entry._internal.filePath),
 			});
 		} else if (collectionConfig.type === CONTENT_LAYER_TYPE) {
-			schema = schema({
+			resolvedSchema = schema({
 				image: () =>
 					z.string().transform((val) => {
 						// Normalize bare filenames to relative paths for consistent resolution
@@ -203,45 +213,107 @@ export async function getEntryData<
 					}),
 			});
 		}
+		if (resolvedSchema) {
+			// Use `safeParseAsync` to allow async transforms (and hoisted AstroError mechanism)
+			let formattedError;
+			const parsed = await resolvedSchema.safeParseAsync(data, {
+				error(issue) {
+					if (issue.code === 'custom' && issue.params?.isHoistedAstroError) {
+						formattedError = issue.params?.astroError;
+					}
+					return errorMap(issue);
+				},
+			});
+			if (parsed.success) {
+				data = parsed.data;
+			} else {
+				if (!formattedError) {
+					formattedError = new AstroError({
+						...AstroErrorData.InvalidContentEntryDataError,
+						message: AstroErrorData.InvalidContentEntryDataError.message(
+							entry.collection,
+							entry.id,
+							parsed.error,
+						),
+						location: {
+							file: entry._internal?.filePath,
+							line: getYAMLErrorLine(
+								entry._internal?.rawData,
+								String(parsed.error.issues[0].path[0]),
+							),
+							column: 0,
+						},
+					});
+				}
+				throw formattedError;
+			}
+		}
+	} else if (schema) {
+		const result = await schema['~standard'].validate(data);
+		if (result.issues) {
+			throw new AstroError({
+				...AstroErrorData.InvalidContentEntryDataError,
+				message: AstroErrorData.InvalidContentEntryDataError.message(
+					entry.collection,
+					entry.id,
+					formatIssues(result.issues),
+				),
+				location: {
+					file: entry._internal?.filePath,
+					line: getYAMLErrorLine(
+						entry._internal?.rawData,
+						String(
+							result.issues[0].path?.[0] !== undefined
+								? typeof result.issues[0].path[0] === 'object'
+									? result.issues[0].path[0].key
+									: result.issues[0].path[0]
+								: '',
+						),
+					),
+					column: 0,
+				},
+			});
+		}
+		data = result.value;
 	}
 
-	if (schema) {
-		// Use `safeParseAsync` to allow async transforms
-		let formattedError;
-		const parsed = await (schema as z.ZodSchema).safeParseAsync(data, {
-			error(issue) {
-				if (issue.code === 'custom' && issue.params?.isHoistedAstroError) {
-					formattedError = issue.params?.astroError;
-				}
-				return errorMap(issue);
-			},
-		});
-		if (parsed.success) {
-			data = parsed.data as TOutputData;
-		} else {
-			if (!formattedError) {
-				formattedError = new AstroError({
-					...AstroErrorData.InvalidContentEntryDataError,
-					message: AstroErrorData.InvalidContentEntryDataError.message(
-						entry.collection,
-						entry.id,
-						parsed.error,
-					),
-					location: {
-						file: entry._internal?.filePath,
-						line: getYAMLErrorLine(
-							entry._internal?.rawData,
-							String(parsed.error.issues[0].path[0]),
-						),
-						column: 0,
-					},
-				});
-			}
-			throw formattedError;
+	// Apply transform if defined (runs after schema validation)
+	const transform = 'transform' in collectionConfig ? collectionConfig.transform : undefined;
+	if (transform) {
+		const transformCtx = {
+			image: pluginContext
+				? (imagePath: string) =>
+						resolveImage(pluginContext, shouldEmitFile, entry._internal.filePath, imagePath)
+				: (imagePath: string) => normaliseImagePath(entry._internal.filePath, imagePath),
+		};
+		data = await (transform as TransformFn<unknown, unknown>)(data, transformCtx);
+	}
+
+	return data as TOutputData;
+}
+
+/**
+ * Normalises an image path for the content layer (no Rollup pluginContext available).
+ * Bare filenames are made relative; the result is prefixed with IMAGE_IMPORT_PREFIX so that
+ * updateImageReferencesInData() can swap it for actual ImageMetadata at runtime.
+ */
+async function normaliseImagePath(
+	entryFilePath: string,
+	imagePath: string,
+): Promise<ImageMetadata> {
+	let normalizedPath = imagePath;
+	const isUrl = imagePath.includes('://');
+	const isAbsolute = imagePath.startsWith('/');
+	const isRelative = imagePath.startsWith('.');
+	if (imagePath && !isUrl && !isAbsolute && !isRelative) {
+		const entryDir = path.dirname(entryFilePath);
+		const resolvedPath = path.resolve(entryDir, imagePath);
+		if (fsMod.existsSync(resolvedPath)) {
+			normalizedPath = `./${imagePath}`;
 		}
 	}
-
-	return data;
+	// Return the prefixed path as a string; at runtime updateImageReferencesInData replaces it.
+	return `${IMAGE_IMPORT_PREFIX}${normalizedPath}` as unknown as ImageMetadata;
 }
 
 export function getContentEntryExts(settings: Pick<AstroSettings, 'contentEntryTypes'>) {

@@ -124,6 +124,7 @@
     "@clack/prompts": "^1.0.1",
     "@oslojs/encoding": "^1.1.0",
     "@rollup/pluginutils": "^5.3.0",
+    "@standard-schema/spec": "^1.1.0",
     "aria-query": "^5.3.2",
     "axobject-query": "^4.1.0",
     "ci-info": "^4.4.0",

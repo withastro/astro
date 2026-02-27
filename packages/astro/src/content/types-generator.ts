@@ -1,6 +1,7 @@
 import type fsMod from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import type { StandardSchemaV1 } from '@standard-schema/spec';
 import colors from 'piccolore';
 import {
 	type DevEnvironment,
@@ -362,7 +363,7 @@ function normalizeConfigPath(from: string, to: string) {
 	return `"${isRelativePath(configPath) ? '' : './'}${normalizedPath}"` as const;
 }
 
-const createSchemaResultCache = new Map<string, { schema: z.ZodSchema; types: string }>();
+const createSchemaResultCache = new Map<string, { schema: StandardSchemaV1; types: string }>();
 
 async function getCreateSchemaResult<T extends keyof ContentConfig['collections']>(
 	collection: ContentConfig['collections'][T],
@@ -388,7 +389,7 @@ async function getCreateSchemaResult<T extends keyof ContentConfig['collections'
 async function getContentLayerSchema<T extends keyof ContentConfig['collections']>(
 	collection: ContentConfig['collections'][T],
 	collectionKey: T,
-): Promise<z.ZodSchema | undefined> {
+): Promise<StandardSchemaV1 | undefined> {
 	if (collection?.type !== CONTENT_LAYER_TYPE || typeof collection.loader === 'function') {
 		return;
 	}
@@ -610,51 +611,68 @@ async function generateJSONSchema(
 	collectionSchemasDir: URL,
 	logger: Logger,
 ) {
-	let zodSchemaForJson =
+	let schemaForJson: StandardSchemaV1 | undefined =
 		typeof collectionConfig.schema === 'function'
 			? collectionConfig.schema({ image: () => z.string() })
 			: collectionConfig.schema;
 
-	if (!zodSchemaForJson && collectionConfig.type === CONTENT_LAYER_TYPE) {
-		zodSchemaForJson = await getContentLayerSchema(collectionConfig, collectionKey);
+	if (!schemaForJson && collectionConfig.type === CONTENT_LAYER_TYPE) {
+		schemaForJson = await getContentLayerSchema(collectionConfig, collectionKey);
 	}
 
-	// The `file()` loader uses a schema which applies to every item in the file rather than a schema
-	// for the whole file. We special case this to provide the correct JSON schema to users.
-	// TODO: it would be nice if loaders could indicate this behavior so it wasn’t unique to the built-in loader.
-	if (
-		collectionConfig.type === CONTENT_LAYER_TYPE &&
-		collectionConfig.loader.name === 'file-loader'
-	) {
-		// `file()` supports arrays of items, but you can’t set `$schema` when using a top-level array,
-		// so we’re only handling the object case.
-		// We use `z.object()` instead of `z.record()` for compatibility with the next `if` statement.
-		zodSchemaForJson = z.object({}).catchall(zodSchemaForJson);
-	}
-
-	if (zodSchemaForJson instanceof z.ZodObject) {
-		zodSchemaForJson = zodSchemaForJson.extend({
-			$schema: z.string().optional(),
-		});
+	if (!schemaForJson) {
+		return;
 	}
 
 	try {
-		const schema = z.toJSONSchema(zodSchemaForJson, {
-			unrepresentable: 'any',
-			override: (ctx) => {
-				const def = ctx.zodSchema._zod.def;
-				if (def.type === 'date') {
-					ctx.jsonSchema.type = 'string';
-					ctx.jsonSchema.format = 'date-time';
-				}
-			},
-		});
-		const schemaStr = JSON.stringify(schema, null, 2);
-		const schemaJsonPath = new URL(
-			`./${collectionKey.replace(/"/g, '')}.schema.json`,
-			collectionSchemasDir,
-		);
-		await fsMod.promises.writeFile(schemaJsonPath, schemaStr);
+		let jsonSchema: Record<string, unknown> | undefined;
+
+		if ('_zod' in schemaForJson) {
+			// Zod schema: use z.toJSONSchema() with full overrides for best compatibility
+			let zodSchema = schemaForJson as z.ZodSchema;
+
+			// The `file()` loader uses a schema which applies to every item in the file rather than a schema
+			// for the whole file. We special case this to provide the correct JSON schema to users.
+			// TODO: it would be nice if loaders could indicate this behavior so it wasn't unique to the built-in loader.
+			if (
+				collectionConfig.type === CONTENT_LAYER_TYPE &&
+				(collectionConfig.loader as any).name === 'file-loader'
+			) {
+				zodSchema = z.object({}).catchall(zodSchema);
+			}
+
+			if (zodSchema instanceof z.ZodObject) {
+				zodSchema = zodSchema.extend({
+					$schema: z.string().optional(),
+				});
+			}
+
+			jsonSchema = z.toJSONSchema(zodSchema, {
+				unrepresentable: 'any',
+				override: (ctx) => {
+					const def = ctx.zodSchema._zod.def;
+					if (def.type === 'date') {
+						ctx.jsonSchema.type = 'string';
+						ctx.jsonSchema.format = 'date-time';
+					}
+				},
+			});
+		} else {
+			// Non-Zod Standard Schema: try StandardJSONSchemaV1 interface if available
+			const standardJsonSchema = (schemaForJson['~standard'] as any).jsonSchema;
+			if (standardJsonSchema?.output) {
+				jsonSchema = standardJsonSchema.output({ target: 'draft-2020-12' });
+			}
+		}
+
+		if (jsonSchema) {
+			const schemaStr = JSON.stringify(jsonSchema, null, 2);
+			const schemaJsonPath = new URL(
+				`./${collectionKey.replace(/"/g, '')}.schema.json`,
+				collectionSchemasDir,
+			);
+			await fsMod.promises.writeFile(schemaJsonPath, schemaStr);
+		}
 	} catch (err) {
 		// This should error gracefully and not crash the dev server
 		logger.warn(

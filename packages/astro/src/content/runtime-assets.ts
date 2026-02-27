@@ -34,3 +34,28 @@ export function createImage(
 		});
 	};
 }
+
+/**
+ * Resolves an image path to its ImageMetadata at build time (when a Rollup PluginContext is
+ * available). Used by the `image` helper in the collection `transform` option.
+ */
+export async function resolveImage(
+	pluginContext: PluginContext,
+	shouldEmitFile: boolean,
+	entryFilePath: string,
+	imagePath: string,
+): Promise<ImageMetadata> {
+	const resolvedFilePath = (await pluginContext.resolve(imagePath, entryFilePath))?.id;
+	const metadata = (await emitImageMetadata(
+		resolvedFilePath,
+		shouldEmitFile
+			? (opts: Parameters<typeof pluginContext.emitFile>[0]) => emitClientAsset(pluginContext, opts)
+			: undefined,
+	)) as OmitBrand<ImageMetadata>;
+
+	if (!metadata) {
+		throw new Error(`Image ${imagePath} does not exist. Is the path correct?`);
+	}
+
+	return { ...metadata, ASTRO_ASSET: metadata.fsPath } as unknown as ImageMetadata;
+}
