@@ -5,11 +5,6 @@ import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
 
 describe('CSP', () => {
-	let app;
-	/**
-	 * @type {import('../dist/core/build/types.js').SSGManifest}
-	 */
-	let manifest;
 	/** @type {import('./test-utils.js').Fixture} */
 	let fixture;
 	
@@ -143,7 +138,7 @@ describe('CSP', () => {
 			},
 		});
 		await fixture.build();
-		app = await fixture.loadTestAdapterApp();
+		await fixture.loadTestAdapterApp();
 
 		assert.equal(routeToHeaders.size, 4, 'expected four routes: /, /scripts, /foo, /bar');
 
