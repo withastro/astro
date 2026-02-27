@@ -8,7 +8,7 @@ Consider the following example configuration:
 {
   "compilerOptions": {
     "paths": {
-      "components:*": ["components/*.astro"]
+      "components:*": ["src/components/*.astro"]
     }
   }
 }
