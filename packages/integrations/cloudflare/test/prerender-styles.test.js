@@ -48,3 +48,52 @@ describe('Prerendered page styles', () => {
 		});
 	});
 });
+
+describe('Styles from Astro components imported in MDX content collections', () => {
+	/** @type {import('../../../astro/test/test-utils').Fixture} */
+	let fixture;
+	let devServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: new URL('./fixtures/prerender-styles/', import.meta.url).toString(),
+			adapter: cloudflare(),
+		});
+	});
+
+	after(async () => {
+		await devServer?.stop();
+		await fixture.clean();
+	});
+
+	describe('dev', () => {
+		before(async () => {
+			devServer = await fixture.startDevServer();
+		});
+
+		it('includes styles from an Astro component imported in an MDX content collection entry', async () => {
+			const res = await fixture.fetch('/posts/styled');
+			const html = await res.text();
+			assert.ok(
+				html.includes('.mdx-styled-card'),
+				'Expected .mdx-styled-card styles from StyledCard.astro to be injected in the MDX page',
+			);
+		});
+	});
+
+	describe('build', () => {
+		before(async () => {
+			await devServer?.stop();
+			devServer = undefined;
+			await fixture.build();
+		});
+
+		it('includes styles from an Astro component imported in an MDX content collection entry', async () => {
+			const html = await fixture.readFile('/client/posts/styled/index.html');
+			assert.ok(
+				html.includes('.mdx-styled-card'),
+				'Expected .mdx-styled-card styles from StyledCard.astro to be in the built MDX page',
+			);
+		});
+	});
+});
