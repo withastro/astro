@@ -63,3 +63,18 @@ export type PropsWithClientDirectives<T> = StripNeverIndexSignatures<
 	WidenChildrenIfSnippet<NormalizeNeverChildren<T>>
 > &
 	AstroClientDirectives;
+
+/**
+ * Wraps a Svelte component type for Astro usage.
+ *
+ * Creates a type that:
+ * 1. Has a call signature `(_props: PropsWithClientDirectives<Props>) => any`
+ *    for JSX prop resolution in `.astro` templates (used by astro check)
+ * 2. Has an additional 2-parameter call signature matching Svelte's `Component`
+ *    interface `(internals, props)` so the export remains assignable to
+ *    `svelte.Component` for use with tools like `@testing-library/svelte`
+ */
+export interface AstroSvelteComponent<Props> {
+	(_props: PropsWithClientDirectives<Props>): any;
+	(this: void, _internals: import('svelte').ComponentInternals, _props: Props): Record<string, any>;
+}

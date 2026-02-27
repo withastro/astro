@@ -14,7 +14,7 @@ export function toTSX(code: string, className: string): string {
 		if (tsx.includes('export default $$Component;')) {
 			result = tsx.replace(
 				'export default $$Component;',
-				`export default function ${className}__AstroComponent_(_props: import('@astrojs/svelte/svelte-shims.d.ts').PropsWithClientDirectives<import('svelte').ComponentProps<typeof $$$$Component>>): any {}`,
+				`const ${className}__AstroComponent_: import('@astrojs/svelte/svelte-shims.d.ts').AstroSvelteComponent<import('svelte').ComponentProps<typeof $$$$Component>> = $$$$Component as any;\nexport default ${className}__AstroComponent_;`,
 			);
 		} else {
 			// Old svelte2tsx output
