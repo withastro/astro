@@ -40,12 +40,10 @@
     "astro": "^6.0.0-alpha.0"
   },
   "devDependencies": {
-    "@types/estree": "^1.0.8",
     "@types/estree-jsx": "^1.0.5",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "linkedom": "^0.18.12",
-    "vite": "^7.3.1"
+    "linkedom": "^0.18.12"
   },
   "engines": {
     "node": "^20.19.1 || >=22.12.0"
