@@ -240,7 +240,7 @@ describe('Shiki bundle size', () => {
 				const segments = $('.line', pre).get(0).children;
 
 				assert.equal(
-					$('pre').attr('style'),
+					pre.attr('style'),
 					'background-color:#24292e;color:#e1e4e8; overflow-x: auto;',
 				);
 				assert.equal(segments[0].attribs.style, undefined);
