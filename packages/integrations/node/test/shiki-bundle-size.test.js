@@ -97,7 +97,9 @@ describe('Shiki bundle size', () => {
 			});
 
 			it('should include only specified languages and themes', async () => {
-				const included = ['html', 'css', 'js', 'github-dark'];
+				// "js" resolves to "javascript" via alias, which Vite/Rollup bundles as "mjs_*.mjs"
+				// since "mjs" is also an alias for "javascript".
+				const included = ['html', 'css', 'mjs', 'github-dark'];
 				const matches = await Promise.all(
 					included.map((name) => fixture.glob(`server/chunks/${name}_*.mjs`)),
 				);
@@ -122,6 +124,47 @@ describe('Shiki bundle size', () => {
 			});
 
 			it('should render highlighted code successfully in optimized mode', async () => {
+				const response = await fixture.fetch('/');
+				const html = await response.text();
+				const $ = cheerio.load(html);
+				const pre = $('pre');
+				const segments = $('.line', pre).get(0).children;
+
+				assert.equal(
+					pre.attr('style'),
+					'background-color:#24292e;color:#e1e4e8; overflow-x: auto;',
+				);
+				assert.equal(segments[0].attribs.style, 'color:#F97583');
+				assert.equal(segments[1].attribs.style, 'color:#E1E4E8');
+				assert.equal(segments[2].attribs.style, 'color:#F97583');
+				assert.equal(segments[3].attribs.style, 'color:#9ECBFF');
+				assert.equal(segments[4].attribs.style, 'color:#E1E4E8');
+			});
+		});
+
+		describe('optimized with aliases', () => {
+			before(async () => {
+				fixture = await loadFixture({
+					root: './fixtures/shiki-bundle-size/ssr-only/',
+					output: 'server',
+					adapter: nodejs({ mode: 'standalone' }),
+					experimental: {
+						optimizeShiki: {
+							// The `<Code />` component uses "js", but here we specify "javascript" as an alias to test alias resolution.
+							includeLangs: ['html', 'css', 'javascript'],
+							includeThemes: ['github-dark'],
+						},
+					},
+				});
+				await fixture.build();
+				devPreview = await fixture.preview();
+			});
+
+			after(async () => {
+				await devPreview.stop();
+			});
+
+			it('should resolve language aliases and render highlighted code correctly', async () => {
 				const response = await fixture.fetch('/');
 				const html = await response.text();
 				const $ = cheerio.load(html);

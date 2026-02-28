@@ -3,12 +3,20 @@ import type { Plugin } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import {
 	bundledLanguages as shikiBundledLanguages,
+	bundledLanguagesInfo,
 	bundledThemes as shikiBundledThemes,
 } from 'shiki';
 import type { AstroSettings } from '../types/astro.js';
 
 const MODULE_ID = 'virtual:astro:shiki-optimize';
 const RESOLVED_PREFIX = '\0' + MODULE_ID;
+
+const aliasToAllNames = new Map<string, string[]>(
+	bundledLanguagesInfo.flatMap((info) => {
+		const allNames = [info.id, ...(info.aliases ?? [])];
+		return allNames.map((name) => [name, allNames] as const);
+	}),
+);
 
 export default function shikiOptimizePlugin({ settings }: { settings: AstroSettings }): Plugin {
 	return {
@@ -74,15 +82,16 @@ export default function shikiOptimizePlugin({ settings }: { settings: AstroSetti
 				};
 
 				const langResolvedIdsPromise = Promise.all(
-					langs.map(async (lang) => {
-						// Shiki does not contain files with names containing #, such as `c#.mjs`
-						const langName = lang.replace('#', 'sharp');
-
-						return resolveModules('langs', langName);
-					}),
+					Array.from(new Set(langs))
+						.flatMap((lang) => aliasToAllNames.get(lang) ?? [lang])
+						.map(async (name) => {
+							// Shiki does not contain files with names containing #, such as `c#.mjs`
+							const fileName = name.replace('#', 'sharp');
+							return resolveModules('langs', fileName);
+						}),
 				);
 				const themeResolvedIdsPromise = Promise.all(
-					themes.map(async (theme) => resolveModules('themes', theme)),
+					Array.from(new Set(themes)).map(async (theme) => resolveModules('themes', theme)),
 				);
 				const [langResolvedIds, themeResolvedIds] = await Promise.all([
 					langResolvedIdsPromise,
