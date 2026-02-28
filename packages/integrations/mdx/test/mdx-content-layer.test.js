@@ -1,21 +1,21 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from '../../../astro/test/test-utils.js';
 
 describe('Content Layer MDX rendering dev', () => {
-	/** @type {import("./test-utils.js").Fixture} */
+	/** @type {import("../../../astro/test/test-utils.js").Fixture} */
 	let fixture;
 
 	let devServer;
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/content-layer-rendering/',
+			root: new URL('./fixtures/content-layer/', import.meta.url),
 		});
 		devServer = await fixture.startDevServer();
 	});
 
 	after(async () => {
-		devServer?.stop();
+		await devServer?.stop();
 	});
 
 	it('Render an MDX file', async () => {
@@ -27,11 +27,11 @@ describe('Content Layer MDX rendering dev', () => {
 });
 
 describe('Content Layer MDX rendering build', () => {
-	/** @type {import("./test-utils.js").Fixture} */
+	/** @type {import("../../../astro/test/test-utils.js").Fixture} */
 	let fixture;
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/content-layer-rendering/',
+			root: new URL('./fixtures/content-layer/', import.meta.url),
 		});
 		await fixture.build();
 	});

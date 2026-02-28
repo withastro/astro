@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@astrojs/cloudflare": "workspace:*",
+    "@astrojs/mdx": "workspace:*",
     "@tailwindcss/vite": "^4.2.0",
     "astro": "workspace:*",
     "tailwindcss": "^4.2.0"

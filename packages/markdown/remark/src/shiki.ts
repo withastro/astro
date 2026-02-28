@@ -1,5 +1,6 @@
 import type { Properties, Root } from 'hast';
 import {
+	type BuiltinLanguage,
 	type BundledLanguage,
 	type BundledTheme,
 	createCssVariablesTheme,
@@ -8,8 +9,10 @@ import {
 	type HighlighterCoreOptions,
 	type HighlighterGeneric,
 	isSpecialLang,
+	type LanguageInput,
 	type LanguageRegistration,
 	type ShikiTransformer,
+	type SpecialLanguage,
 	type ThemeRegistration,
 	type ThemeRegistrationRaw,
 	type DynamicImportLanguageRegistration,
@@ -30,6 +33,13 @@ export interface ShikiHighlighter {
 		lang?: string,
 		options?: ShikiHighlighterHighlightOptions,
 	): Promise<string>;
+}
+
+type ShikiLanguage = LanguageInput | BuiltinLanguage | SpecialLanguage;
+
+interface ShikiHighlighterInternal extends ShikiHighlighter {
+	loadLanguage(...langs: ShikiLanguage[]): Promise<void>;
+	getLoadedLanguages(): string[];
 }
 
 interface CreateShikiHighlighterInternalOptions {
@@ -91,13 +101,36 @@ const cssVariablesTheme = () =>
 		variablePrefix: '--astro-code-',
 	}));
 
-// Caches Promise<ShikiHighlighter> for reuse when the same theme and langs are provided
-const cachedHighlighters = new Map();
+// Caches Promise<ShikiHighlighterInternal> for reuse when the same `themes` and `langAlias`.
+const cachedHighlighters = new Map<string, Promise<ShikiHighlighterInternal>>();
 
-export function createShikiHighlighter(options: CreateShikiHighlighterOptions = {}) {
-	const highlighterFactory = createHighlighter;
+/**
+ * Only used for testing.
+ *
+ * @internal
+ */
+export function clearShikiHighlighterCache(): void {
+	cachedHighlighters.clear();
+}
 
-	return createShikiHighlighterInternal({ ...options, highlighterFactory });
+export function createShikiHighlighter(
+	options?: CreateShikiHighlighterOptions,
+): Promise<ShikiHighlighter> {
+	// Although this function returns a promise, its body runs synchronously so
+	// that the cache lookup happens immediately. Without this, calling
+	// `Promise.all([createShikiHighlighter(), createShikiHighlighter()])` would
+	// bypass the cache and create duplicate highlighters.
+
+	const key: string = getCacheKey(options);
+	let highlighterPromise = cachedHighlighters.get(key);
+	if (!highlighterPromise) {
+		highlighterPromise = createShikiHighlighterInternal({
+			...options,
+			highlighterFactory: createHighlighter,
+		});
+		cachedHighlighters.set(key, highlighterPromise);
+	}
+	return ensureLanguagesLoaded(highlighterPromise, options?.langs);
 }
 
 export async function createBundledShikiHighlighter({
@@ -105,13 +138,74 @@ export async function createBundledShikiHighlighter({
 	bundledLanguages,
 	...options
 }: CreateBundledShikiHighlighterOptions) {
-	const highlighterFactory = createBundledHighlighter({
-		themes: bundledThemes,
-		langs: bundledLanguages,
-		engine: () => loadShikiEngine(),
-	});
+	const key: string = getCacheKey(options, bundledThemes, bundledLanguages);
+	let highlighterPromise = cachedHighlighters.get(key);
+	if (!highlighterPromise) {
+		const highlighterFactory = createBundledHighlighter({
+			themes: bundledThemes,
+			langs: bundledLanguages,
+			engine: () => loadShikiEngine(),
+		});
 
-	return createShikiHighlighterInternal({ ...options, highlighterFactory });
+		highlighterPromise = createShikiHighlighterInternal({ ...options, highlighterFactory });
+		cachedHighlighters.set(key, highlighterPromise);
+	}
+	return ensureLanguagesLoaded(highlighterPromise, options?.langs);
+}
+
+/**
+ * Gets the cache key for the highlighter.
+ *
+ * Notice that we don't use `langs` in the cache key because we can dynamically
+ * load languages. This allows us to reuse the same highlighter instance for
+ * different languages.
+ */
+function getCacheKey(
+	options?: CreateShikiHighlighterOptions,
+	bundledThemes?: Record<BundledTheme, DynamicImportThemeRegistration>,
+	bundledLanguages?: Record<BundledLanguage, DynamicImportLanguageRegistration>,
+): string {
+	const keyCache: unknown[] = [];
+	const { theme, themes, langAlias } = options ?? {};
+	if (theme) {
+		keyCache.push(theme);
+	}
+	if (themes) {
+		keyCache.push(Object.entries(themes).sort());
+	}
+	if (langAlias) {
+		keyCache.push(Object.entries(langAlias).sort());
+	}
+	if (bundledThemes) {
+		keyCache.push(Object.keys(bundledThemes).sort());
+	}
+	if (bundledLanguages) {
+		keyCache.push(Object.keys(bundledLanguages).sort());
+	}
+	return keyCache.length > 0 ? JSON.stringify(keyCache) : '';
+}
+
+/**
+ * Ensures that the languages are loaded into the highlighter. This is
+ * especially important when the languages are objects representing custom
+ * user-defined languages.
+ */
+async function ensureLanguagesLoaded(
+	promise: Promise<ShikiHighlighterInternal>,
+	langs?: ShikiLanguage[],
+): Promise<ShikiHighlighterInternal> {
+	const highlighter = await promise;
+	if (!langs) {
+		return highlighter;
+	}
+	const loadedLanguages = highlighter.getLoadedLanguages();
+	for (const lang of langs) {
+		if (typeof lang === 'string' && (isSpecialLang(lang) || loadedLanguages.includes(lang))) {
+			continue;
+		}
+		await highlighter.loadLanguage(lang);
+	}
+	return highlighter;
 }
 
 async function createShikiHighlighterInternal({
@@ -120,27 +214,15 @@ async function createShikiHighlighterInternal({
 	themes = {},
 	langAlias = {},
 	highlighterFactory,
-}: CreateShikiHighlighterInternalOptions): Promise<ShikiHighlighter> {
+}: CreateShikiHighlighterInternalOptions): Promise<ShikiHighlighterInternal> {
 	theme = theme === 'css-variables' ? cssVariablesTheme() : theme;
 
-	const highlighterOptions = {
+	const highlighter = await highlighterFactory({
 		langs: ['plaintext', ...langs],
 		langAlias,
 		themes: Object.values(themes).length ? Object.values(themes) : [theme],
 		engine: loadShikiEngine(),
-	};
-
-	const key = JSON.stringify(highlighterOptions, Object.keys(highlighterOptions).sort());
-
-	let highlighter: HighlighterGeneric<BundledLanguage, BundledTheme>;
-
-	// Highlighter has already been requested, reuse the same instance
-	if (cachedHighlighters.has(key)) {
-		highlighter = cachedHighlighters.get(key);
-	} else {
-		highlighter = await highlighterFactory(highlighterOptions);
-		cachedHighlighters.set(key, highlighter);
-	}
+	});
 
 	async function highlight(
 		code: string,
@@ -252,6 +334,12 @@ async function createShikiHighlighterInternal({
 		},
 		codeToHtml(code, lang, options = {}) {
 			return highlight(code, lang, options, 'html') as Promise<string>;
+		},
+		loadLanguage(...newLangs) {
+			return highlighter.loadLanguage(...newLangs);
+		},
+		getLoadedLanguages() {
+			return highlighter.getLoadedLanguages();
 		},
 	};
 }
