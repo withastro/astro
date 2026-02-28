@@ -219,7 +219,7 @@ export interface SSRResult {
 	 * Map of directive name (e.g. `load`) to the directive script code
 	 */
 	clientDirectives: Map<string, string>;
-	compressHTML: boolean;
+	compressHTML: boolean | 'jsx';
 	partial: boolean;
 	/**
 	 * Only used for logging

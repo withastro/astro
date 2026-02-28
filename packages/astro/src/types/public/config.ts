@@ -484,7 +484,7 @@ export interface AstroUserConfig<
 	 * }
 	 * ```
 	 */
-	compressHTML?: boolean;
+	compressHTML?: boolean | 'jsx';
 
 	/**
 	 * @docs
