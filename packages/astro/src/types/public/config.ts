@@ -23,6 +23,7 @@ import type {
 } from '../../core/session/types.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
+import type { BundledLanguage, BundledTheme } from 'shiki';
 
 export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
 
@@ -2890,7 +2891,7 @@ export interface AstroUserConfig<
 
 		/**
 		 * @name experimental.optimizeShiki
-		 * @type {{ includeLangs?: string[]; includeThemes?: string[] }}
+		 * @type {{ includeLangs?: BundledLanguage[]; includeThemes?: BundledTheme[] }}
 		 * @default `{}`
 		 * @version 6.0.0
 		 * @description
@@ -2926,7 +2927,7 @@ export interface AstroUserConfig<
 			 * Any language not in this list will be unavailable during SSR and will fall back to plain text.
 			 * If omitted, all languages are included.
 			 */
-			includeLangs?: string[];
+			includeLangs?: BundledLanguage[];
 			/**
 			 * @default `undefined`
 			 * @version 6.0.0
@@ -2935,7 +2936,7 @@ export interface AstroUserConfig<
 			 * Any theme not in this list will be unavailable during SSR and will result in a runtime error.
 			 * If omitted, all themes are included.
 			 */
-			includeThemes?: string[];
+			includeThemes?: BundledTheme[];
 		};
 	};
 }

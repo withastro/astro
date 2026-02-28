@@ -6,7 +6,13 @@ import type {
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 import { markdownConfigDefaults, syntaxHighlightDefaults } from '@astrojs/markdown-remark';
-import { type BuiltinTheme, bundledThemes } from 'shiki';
+import {
+	type BuiltinTheme,
+	type BundledLanguage,
+	bundledLanguages,
+	type BundledTheme,
+	bundledThemes,
+} from 'shiki';
 import type { Config as SvgoConfig } from 'svgo';
 import * as z from 'zod/v4';
 import { FontFamilySchema } from '../../../assets/fonts/config.js';
@@ -514,8 +520,12 @@ export const AstroConfigSchema = z.object({
 				.prefault(ASTRO_CONFIG_DEFAULTS.experimental.queuedRendering),
 			optimizeShiki: z
 				.object({
-					includeLangs: z.array(z.string()).optional(),
-					includeThemes: z.array(z.string()).optional(),
+					includeLangs: z
+						.array(z.enum(Object.keys(bundledLanguages) as [BundledLanguage, ...BundledLanguage[]]))
+						.optional(),
+					includeThemes: z
+						.array(z.enum(Object.keys(bundledThemes) as [BundledTheme, ...BundledTheme[]]))
+						.optional(),
 				})
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.optimizeShiki),
