@@ -43,8 +43,20 @@ describe('Prerendered page styles', () => {
 		it('includes Tailwind styles in prerendered page', async () => {
 			// With cloudflare adapter, prerendered pages are in dist/client/
 			const html = await fixture.readFile('/client/index.html');
-			// Check that the bg-amber-500 class has its styles included
-			assert.ok(html.includes('.bg-amber-500'), 'Expected .bg-amber-500 class to be in the HTML');
+			// Tailwind CSS is emitted as an external stylesheet linked from the HTML.
+			// Verify the HTML references a stylesheet and that the stylesheet contains the expected class.
+			assert.ok(html.includes('rel="stylesheet"'), 'Expected the HTML to reference a stylesheet');
+			const cssFiles = await fixture.glob('client/_astro/*.css');
+			assert.ok(cssFiles.length > 0, 'Expected at least one CSS file in _astro/');
+			let foundClass = false;
+			for (const cssFile of cssFiles) {
+				const css = await fixture.readFile('/' + cssFile);
+				if (css.includes('.bg-amber-500')) {
+					foundClass = true;
+					break;
+				}
+			}
+			assert.ok(foundClass, 'Expected .bg-amber-500 class to be in a generated CSS file');
 		});
 	});
 });
