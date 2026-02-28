@@ -1,0 +1,4 @@
+---
+const content = await Astro.slots.render('default');
+---
+<div class="wrapper" set:html={content} />
