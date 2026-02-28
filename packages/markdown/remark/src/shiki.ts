@@ -138,6 +138,14 @@ export async function createBundledShikiHighlighter({
 	bundledLanguages,
 	...options
 }: CreateBundledShikiHighlighterOptions) {
+	// While an empty `bundledLanguages` safely falls back to 'plaintext',
+	// an empty `bundledThemes` will cause an error when executing `createShikiHighlighterInternal`.
+	if (Object.keys(bundledThemes).length === 0) {
+		throw new Error(
+			'At least one theme must be included in `bundledThemes` when using `createBundledShikiHighlighter`.',
+		);
+	}
+
 	const key: string = getCacheKey(options, bundledThemes, bundledLanguages);
 	let highlighterPromise = cachedHighlighters.get(key);
 	if (!highlighterPromise) {
