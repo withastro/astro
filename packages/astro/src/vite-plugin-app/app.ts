@@ -202,7 +202,6 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 				const response = await self.render(request, {
 					locals,
 					routeData: matchedRoute.routeData,
-					resolvedPathname: matchedRoute.resolvedPathname,
 					clientAddress,
 				});
 

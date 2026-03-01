@@ -83,12 +83,6 @@ export interface RenderOptions {
 	 */
 	routeData?: RouteData;
 
-	/**
-	 * @internal
-	 * The resolved pathname from dev route matching (may differ from the request
-	 * pathname, e.g. after .html stripping). Used to extract correct params.
-	 */
-	resolvedPathname?: string;
 }
 
 export interface RenderErrorOptions {
@@ -416,13 +410,11 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				});
 			}
 		}
-		let resolvedPathname: string | undefined = renderOptions?.resolvedPathname;
 		if (!routeData) {
 			if (this.isDev()) {
 				const result = await this.devMatch(this.getPathnameFromRequest(request));
 				if (result) {
 					routeData = result.routeData;
-					resolvedPathname = result.resolvedPathname;
 				}
 			} else {
 				routeData = this.match(request);
@@ -449,7 +441,15 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				prerenderedErrorPageFetch: prerenderedErrorPageFetch,
 			});
 		}
-		const pathname = resolvedPathname ?? this.getPathnameFromRequest(request);
+		let pathname = this.getPathnameFromRequest(request);
+		// In dev, the route may have matched a normalized pathname (after .html stripping).
+		// Apply the same normalization for correct param extraction.
+		if (this.isDev() && !routeData.pattern.test(pathname)) {
+			const normalized = pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
+			if (normalized !== pathname) {
+				pathname = normalized;
+			}
+		}
 		const defaultStatus = this.getDefaultStatusCode(routeData, pathname);
 
 		let response;
