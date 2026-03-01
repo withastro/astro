@@ -108,10 +108,9 @@ export async function generateImagesForPath(
 		await generateImage(transform.finalPath, transform.transform);
 	}
 
-	// In SSR, we cannot know if an image is referenced in a server-rendered page, so we can't delete anything
-	// For instance, the same image could be referenced in both a server-rendered page and build-time-rendered page
+	// Delete original images that are only used for optimization
+	// The referencedImages set tracks images that were used via raw `src` access (e.g., <img src={img.src}>).
 	if (
-		!env.isSSR &&
 		transformsAndPath.originalSrcPath &&
 		!globalThis.astroAsset.referencedImages?.has(transformsAndPath.originalSrcPath)
 	) {

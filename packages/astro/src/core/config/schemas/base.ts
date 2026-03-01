@@ -93,6 +93,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		checkOrigin: true,
 		allowedDomains: [],
 		csp: false,
+		actionBodySizeLimit: 1024 * 1024,
 	},
 	env: {
 		schema: {},
@@ -105,6 +106,9 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		chromeDevtoolsWorkspace: false,
 		svgo: false,
 		rustCompiler: false,
+		queuedRendering: {
+			enabled: false,
+		},
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -436,6 +440,10 @@ export const AstroConfigSchema = z.object({
 				)
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.security.allowedDomains),
+			actionBodySizeLimit: z
+				.number()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.security.actionBodySizeLimit),
 			csp: z
 				.union([
 					z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.security.csp),
@@ -495,6 +503,14 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.svgo),
 			rustCompiler: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.rustCompiler),
+			queuedRendering: z
+				.object({
+					enabled: z.boolean().optional().prefault(false),
+					poolSize: z.number().int().positive().optional(),
+					contentCache: z.boolean().optional(),
+				})
+				.optional()
+				.prefault(ASTRO_CONFIG_DEFAULTS.experimental.queuedRendering),
 		})
 		.prefault({}),
 	legacy: z

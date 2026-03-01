@@ -1,5 +1,34 @@
 # @astrojs/node
 
+## 10.0.0-beta.6
+
+### Patch Changes
+
+- [#15495](https://github.com/withastro/astro/pull/15495) [`5b99e90`](https://github.com/withastro/astro/commit/5b99e9077a92602f1e46e9b6eb9094bcd00c640e) Thanks [@leekeh](https://github.com/leekeh)! - Refactors to use `middlewareMode` adapter feature (set to `classic`)
+
+- [#15657](https://github.com/withastro/astro/pull/15657) [`cb625b6`](https://github.com/withastro/astro/commit/cb625b62596582047ec8cc4256960cc11804e931) Thanks [@qzio](https://github.com/qzio)! - Adds a new `security.actionBodySizeLimit` option to configure the maximum size of Astro Actions request bodies.
+
+  This lets you increase the default 1 MB limit when your actions need to accept larger payloads. For example, actions that handle file uploads or large JSON payloads can now opt in to a higher limit.
+
+  If you do not set this option, Astro continues to enforce the 1 MB default to help prevent abuse.
+
+  ```js
+  // astro.config.mjs
+  export default defineConfig({
+    security: {
+      actionBodySizeLimit: 10 * 1024 * 1024, // set to 10 MB
+    },
+  });
+  ```
+
+## 10.0.0-beta.5
+
+### Patch Changes
+
+- [#15562](https://github.com/withastro/astro/pull/15562) [`e14a51d`](https://github.com/withastro/astro/commit/e14a51d30196bad534bacb14aac7033b91aed741) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates to new Adapter API introduced in v6
+
+- [#15585](https://github.com/withastro/astro/pull/15585) [`98ea30c`](https://github.com/withastro/astro/commit/98ea30c56d6d317d76e2290ed903f11961204714) Thanks [@matthewp](https://github.com/matthewp)! - Add a default body size limit for server actions to prevent oversized requests from exhausting memory.
+
 ## 10.0.0-beta.4
 
 ### Patch Changes

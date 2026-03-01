@@ -127,19 +127,12 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 					);
 				}
 
-				// Only inject Shiki styles if using Shiki syntax highlighter (default) AND document contains code blocks
-				const usesShiki =
-					settings.config.markdown.syntaxHighlight === 'shiki' ||
-					settings.config.markdown.syntaxHighlight === undefined;
-				const hasCodeBlocks = renderResult.metadata.hasCodeBlocks ?? false;
-
 				const code = `
-			import { unescapeHTML, spreadAttributes, createComponent, render, renderComponent, maybeRenderHead } from ${JSON.stringify(
-				astroServerRuntimeModulePath,
-			)};
-			import { AstroError, AstroErrorData } from ${JSON.stringify(astroErrorModulePath)};
-			${layout ? `import Layout from ${JSON.stringify(layout)};` : ''}
-			${usesShiki && hasCodeBlocks ? `import 'virtual:astro:shiki-styles.css';` : ''}
+				import { unescapeHTML, spreadAttributes, createComponent, render, renderComponent, maybeRenderHead } from ${JSON.stringify(
+					astroServerRuntimeModulePath,
+				)};
+				import { AstroError, AstroErrorData } from ${JSON.stringify(astroErrorModulePath)};
+				${layout ? `import Layout from ${JSON.stringify(layout)};` : ''}
 
 				${
 					// Only include the code relevant to `astro:assets` if there's images in the file

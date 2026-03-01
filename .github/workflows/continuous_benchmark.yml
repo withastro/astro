@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        shard: [ "1/4","2/4", "3/4", "4/4" ]
+        shard: [ "1/4", "2/4", "3/4", "4/4" ]
     permissions:
       contents: read
       pull-requests: write

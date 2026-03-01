@@ -1,20 +1,19 @@
 import type { Properties, Root } from 'hast';
 import {
+	type BuiltinLanguage,
 	type BundledLanguage,
-	type BundledTheme,
 	createCssVariablesTheme,
 	createHighlighter,
 	type HighlighterCoreOptions,
-	type HighlighterGeneric,
 	isSpecialLang,
+	type LanguageInput,
 	type LanguageRegistration,
 	type RegexEngine,
 	type ShikiTransformer,
+	type SpecialLanguage,
 	type ThemeRegistration,
 	type ThemeRegistrationRaw,
 } from 'shiki';
-import { globalShikiStyleCollector } from './shiki-style-collector.js';
-import { transformerStyleToClass } from './transformers/style-to-class.js';
 import type { ThemePresets } from './types.js';
 import { loadShikiEngine } from '#shiki-engine';
 
@@ -29,6 +28,13 @@ export interface ShikiHighlighter {
 		lang?: string,
 		options?: ShikiHighlighterHighlightOptions,
 	): Promise<string>;
+}
+
+type ShikiLanguage = LanguageInput | BuiltinLanguage | SpecialLanguage;
+
+interface ShikiHighlighterInternal extends ShikiHighlighter {
+	loadLanguage(...langs: ShikiLanguage[]): Promise<void>;
+	getLoadedLanguages(): string[];
 }
 
 export interface CreateShikiHighlighterOptions {
@@ -75,41 +81,100 @@ const cssVariablesTheme = () =>
 		variablePrefix: '--astro-code-',
 	}));
 
-// Caches Promise<ShikiHighlighter> for reuse when the same theme and langs are provided
-const cachedHighlighters = new Map();
+// Caches Promise<ShikiHighlighterInternal> for reuse when the same `themes` and `langAlias`.
+const cachedHighlighters = new Map<string, Promise<ShikiHighlighterInternal>>();
+
+/**
+ * Only used for testing.
+ *
+ * @internal
+ */
+export function clearShikiHighlighterCache(): void {
+	cachedHighlighters.clear();
+}
+
+export function createShikiHighlighter(
+	options?: CreateShikiHighlighterOptions,
+): Promise<ShikiHighlighter> {
+	// Although this function returns a promise, its body runs synchronously so
+	// that the cache lookup happens immediately. Without this, calling
+	// `Promise.all([createShikiHighlighter(), createShikiHighlighter()])` would
+	// bypass the cache and create duplicate highlighters.
+
+	const key: string = getCacheKey(options);
+	let highlighterPromise = cachedHighlighters.get(key);
+	if (!highlighterPromise) {
+		highlighterPromise = createShikiHighlighterInternal(options);
+		cachedHighlighters.set(key, highlighterPromise);
+	}
+	return ensureLanguagesLoaded(highlighterPromise, options?.langs);
+}
+
+/**
+ * Gets the cache key for the highlighter.
+ *
+ * Notice that we don't use `langs` in the cache key because we can dynamically
+ * load languages. This allows us to reuse the same highlighter instance for
+ * different languages.
+ */
+function getCacheKey(options?: CreateShikiHighlighterOptions): string {
+	const keyCache: unknown[] = [];
+	const { theme, themes, langAlias } = options ?? {};
+	if (theme) {
+		keyCache.push(theme);
+	}
+	if (themes) {
+		keyCache.push(Object.entries(themes).sort());
+	}
+	if (langAlias) {
+		keyCache.push(Object.entries(langAlias).sort());
+	}
+	return keyCache.length > 0 ? JSON.stringify(keyCache) : '';
+}
+
+/**
+ * Ensures that the languages are loaded into the highlighter. This is
+ * especially important when the languages are objects representing custom
+ * user-defined languages.
+ */
+async function ensureLanguagesLoaded(
+	promise: Promise<ShikiHighlighterInternal>,
+	langs?: ShikiLanguage[],
+): Promise<ShikiHighlighterInternal> {
+	const highlighter = await promise;
+	if (!langs) {
+		return highlighter;
+	}
+	const loadedLanguages = highlighter.getLoadedLanguages();
+	for (const lang of langs) {
+		if (typeof lang === 'string' && (isSpecialLang(lang) || loadedLanguages.includes(lang))) {
+			continue;
+		}
+		await highlighter.loadLanguage(lang);
+	}
+	return highlighter;
+}
 
 let shikiEngine: RegexEngine | undefined = undefined;
 
-export async function createShikiHighlighter({
+async function createShikiHighlighterInternal({
 	langs = [],
 	theme = 'github-dark',
 	themes = {},
 	langAlias = {},
-}: CreateShikiHighlighterOptions = {}): Promise<ShikiHighlighter> {
+}: CreateShikiHighlighterOptions = {}): Promise<ShikiHighlighterInternal> {
 	theme = theme === 'css-variables' ? cssVariablesTheme() : theme;
 
 	if (shikiEngine === undefined) {
 		shikiEngine = await loadShikiEngine();
 	}
 
-	const highlighterOptions = {
+	const highlighter = await createHighlighter({
 		langs: ['plaintext', ...langs],
 		langAlias,
 		themes: Object.values(themes).length ? Object.values(themes) : [theme],
 		engine: shikiEngine,
-	};
-
-	const key = JSON.stringify(highlighterOptions, Object.keys(highlighterOptions).sort());
-
-	let highlighter: HighlighterGeneric<BundledLanguage, BundledTheme>;
-
-	// Highlighter has already been requested, reuse the same instance
-	if (cachedHighlighters.has(key)) {
-		highlighter = cachedHighlighters.get(key);
-	} else {
-		highlighter = await createHighlighter(highlighterOptions);
-		cachedHighlighters.set(key, highlighter);
-	}
+	});
 
 	async function highlight(
 		code: string,
@@ -145,8 +210,6 @@ export async function createShikiHighlighter({
 			// they're technically not meta, nor parsed from Shiki's `parseMetaString` API.
 			meta: options?.meta ? { __raw: options?.meta } : undefined,
 			transformers: [
-				// Extract inline styles to CSS classes for better performance and CSP compliance
-				globalShikiStyleCollector.register(transformerStyleToClass()),
 				{
 					pre(node) {
 						// Swap to `code` tag if inline
@@ -164,6 +227,9 @@ export async function createShikiHighlighter({
 						const classValue =
 							(normalizePropAsString(node.properties.class) ?? '') +
 							(attributesClass ? ` ${attributesClass}` : '');
+						const styleValue =
+							(normalizePropAsString(node.properties.style) ?? '') +
+							(attributesStyle ? `; ${attributesStyle}` : '');
 
 						// Replace "shiki" class naming with "astro-code"
 						node.properties.class = classValue.replace(/shiki/g, 'astro-code');
@@ -171,26 +237,19 @@ export async function createShikiHighlighter({
 						// Add data-language attribute
 						node.properties.dataLanguage = lang;
 
-						// Handle code wrapping with classes instead of inline styles for CSP compliance
+						// Handle code wrapping
 						// if wrap=null, do nothing.
 						if (options.wrap === false || options.wrap === undefined) {
-							// Add overflow class
-							this.addClassToHast(node, 'astro-code-overflow');
+							node.properties.style = styleValue + '; overflow-x: auto;';
 						} else if (options.wrap === true) {
-							// Add overflow and wrap classes
-							this.addClassToHast(node, 'astro-code-overflow astro-code-wrap');
-						}
-
-						// If user provided custom inline styles via attributes, we still need to respect them
-						// Note: This is for user-provided styles, not Shiki-generated ones
-						if (attributesStyle) {
-							node.properties.style = attributesStyle;
+							node.properties.style =
+								styleValue + '; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;';
 						}
 					},
 					line(node) {
-						// Add "user-select: none;" for "+"/"-" diff symbols using a class.
-						// Transform `<span class="line"><span>+ something</span></span>
-						// into      `<span class="line"><span><span class="astro-code-no-select">+</span> something</span></span>`
+						// Add "user-select: none;" for "+"/"-" diff symbols.
+						// Transform `<span class="line"><span style="...">+ something</span></span>
+						// into      `<span class="line"><span style="..."><span style="user-select: none;">+</span> something</span></span>`
 						if (resolvedLang === 'diff') {
 							const innerSpanNode = node.children[0];
 							const innerSpanTextNode =
@@ -203,7 +262,7 @@ export async function createShikiHighlighter({
 									innerSpanNode.children.unshift({
 										type: 'element',
 										tagName: 'span',
-										properties: { class: 'astro-code-no-select' },
+										properties: { style: 'user-select: none;' },
 										children: [{ type: 'text', value: start }],
 									});
 								}
@@ -227,6 +286,12 @@ export async function createShikiHighlighter({
 		},
 		codeToHtml(code, lang, options = {}) {
 			return highlight(code, lang, options, 'html') as Promise<string>;
+		},
+		loadLanguage(...newLangs) {
+			return highlighter.loadLanguage(...newLangs);
+		},
+		getLoadedLanguages() {
+			return highlighter.getLoadedLanguages();
 		},
 	};
 }

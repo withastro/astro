@@ -22,13 +22,12 @@ export const defaultExcludeLanguages = ['math'];
  * @param highlighter
  *   A function which receives the code and language, and returns the HTML of a syntax
  *   highlighted `<pre>` element.
- * @returns The number of code blocks that were highlighted.
  */
 export async function highlightCodeBlocks(
 	tree: Root,
 	highlighter: Highlighter,
 	excludeLanguages: string[] = [],
-): Promise<number> {
+) {
 	const nodes: Array<{
 		node: Element;
 		language: string;
@@ -100,6 +99,4 @@ export async function highlightCodeBlocks(
 		const index = grandParent.children.indexOf(parent);
 		grandParent.children[index] = replacement;
 	}
-
-	return nodes.length;
 }
