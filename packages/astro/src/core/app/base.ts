@@ -82,7 +82,6 @@ export interface RenderOptions {
 	 * Default: `app.match(request)`
 	 */
 	routeData?: RouteData;
-
 }
 
 export interface RenderErrorOptions {
