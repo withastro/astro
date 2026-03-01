@@ -2,7 +2,6 @@ import type { RouteData } from '../../../types/public/index.js';
 import { MiddlewareNoDataOrNextCalled, MiddlewareNotAResponse } from '../../errors/errors-data.js';
 import { type AstroError, isAstroError } from '../../errors/index.js';
 import type { Logger } from '../../logger/core.js';
-import type { CreateRenderContext, RenderContext } from '../../render-context.js';
 import {
 	BaseApp,
 	type DevMatch,
