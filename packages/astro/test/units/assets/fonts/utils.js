@@ -1,7 +1,7 @@
 // @ts-check
 
 /**
- * @import { Hasher, UrlProxy, FontMetricsResolver, Storage } from '../../../../dist/assets/fonts/definitions'
+ * @import { Hasher, FontMetricsResolver, Storage, FontResolver, StringMatcher } from '../../../../dist/assets/fonts/definitions'
  */
 
 /** @implements {Storage} */
@@ -75,25 +75,6 @@ export class FakeHasher {
 	}
 }
 
-/** @implements {UrlProxy} */
-export class SpyUrlProxy {
-	/** @type {Array<Parameters<import('../../../../dist/assets/fonts/definitions').UrlProxy['proxy']>[0]>} */
-	#collected = [];
-
-	get collected() {
-		return this.#collected;
-	}
-
-	/**
-	 * @param {Parameters<import('../../../../dist/assets/fonts/definitions').UrlProxy['proxy']>[0]} input
-	 */
-	proxy(input) {
-		input;
-		this.#collected.push(input);
-		return input.url;
-	}
-}
-
 /** @implements {FontMetricsResolver} */
 export class FakeFontMetricsResolver {
 	async getMetrics() {
@@ -119,4 +100,67 @@ export class FakeFontMetricsResolver {
  */
 export function markdownBold(input) {
 	return `**${input}**`;
+}
+
+/** @implements {FontResolver} */
+export class PassthroughFontResolver {
+	/** @type {Map<string, import('../../../../dist/index.js').FontProvider<Record<string, any>>>} */
+	#providers;
+
+	/**
+	 * @private
+	 * @param {Map<string, import('../../../../dist/index.js').FontProvider<Record<string, any>>>} providers
+	 */
+	constructor(providers) {
+		this.#providers = providers;
+	}
+
+	/**
+	 * @param {{ families: Array<import('../../../../dist/assets/fonts/types').ResolvedFontFamily>; hasher: Hasher }} param0
+	 */
+	static async create({ families, hasher }) {
+		/** @type {Map<string, import('../../../../dist/index.js').FontProvider<Record<string, any>>>} */
+		const providers = new Map();
+		for (const { provider } of families) {
+			provider.name = `${provider.name}-${hasher.hashObject(provider.config ?? {})}`;
+			providers.set(provider.name, /** @type {any} */ (provider));
+		}
+		const storage = new SpyStorage();
+		await Promise.all(
+			Array.from(providers.values()).map(async (provider) => {
+				await provider.init?.({ storage, root: new URL(import.meta.url) });
+			}),
+		);
+		return new PassthroughFontResolver(providers);
+	}
+
+	/**
+	 * @param {import('../../../../dist/assets/fonts/types.js').ResolveFontOptions<Record<string, any>> & { provider: import('../../../../dist/index.js').FontProvider; }} param0
+	 */
+	async resolveFont({ provider, ...rest }) {
+		const res = await this.#providers.get(provider.name)?.resolveFont(rest);
+		return res?.fonts ?? [];
+	}
+
+	/**
+	 * @param {{ provider: import('../../../../dist/index.js').FontProvider }} param0
+	 */
+	async listFonts({ provider }) {
+		return await this.#providers.get(provider.name)?.listFonts?.();
+	}
+}
+
+/** @implements {StringMatcher} */
+export class FakeStringMatcher {
+	/** @type {string} */
+	#match;
+
+	/** @param {string} match */
+	constructor(match) {
+		this.#match = match;
+	}
+
+	getClosestMatch() {
+		return this.#match;
+	}
 }

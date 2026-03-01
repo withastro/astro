@@ -3,7 +3,7 @@ import { baseService } from '../dist/assets/services/service.js';
 
 /**
  * stub image service that returns images as-is without optimization
- * @param {{ foo?: string }} [config]
+ * @param {{ foo?: string, transform?: { path: string, scale: number } }} [config]
  */
 export function testImageService(config = {}) {
 	return {
@@ -31,5 +31,15 @@ export default {
 			data: buffer,
 			format: transform.format,
 		};
+	},
+	async getRemoteSize(url, serviceConfig) {
+		const baseSize = await baseService.getRemoteSize(url, serviceConfig);
+
+		if (serviceConfig.service.config.transform?.path === url) {
+			const scale = serviceConfig.service.config.transform.scale;
+			return { ...baseSize, width: baseSize.width * scale, height: baseSize.height * scale };
+		}
+
+		return baseSize;
 	},
 };

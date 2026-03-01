@@ -8,7 +8,11 @@ import { etag } from '../utils/etag.js';
 
 export async function loadRemoteImage(src: URL): Promise<Buffer | undefined> {
 	try {
-		const res = await fetch(src);
+		const res = await fetch(src, { redirect: 'manual' });
+
+		if (res.status >= 300 && res.status < 400) {
+			return undefined;
+		}
 
 		if (!res.ok) {
 			return undefined;

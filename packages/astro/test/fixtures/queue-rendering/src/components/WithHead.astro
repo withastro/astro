@@ -1,0 +1,17 @@
+---
+const { title } = Astro.props;
+---
+<div class="with-head">
+	<h3>{title}</h3>
+	<p>This component adds content to the head</p>
+</div>
+
+<style>
+	.with-head {
+		border: 1px solid blue;
+	}
+</style>
+
+<script>
+	console.log('WithHead script loaded');
+</script>

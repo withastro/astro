@@ -1,0 +1,27 @@
+{
+	"name": "@test/astro-cloudflare",
+	"version": "0.0.0",
+	"private": true,
+	"scripts": {
+		"dev": "astro dev",
+		"build": "astro build"
+	},
+	"dependencies": {
+		"@astrojs/cloudflare": "workspace:*",
+		"@astrojs/mdx": "^4.3.13",
+		"@astrojs/preact": "workspace:*",
+		"@astrojs/react": "workspace:*",
+		"@astrojs/vue": "workspace:*",
+		"preact": "^10.28.4",
+		"@test/e2e-my-lib": "workspace:*",
+		"vue": "^3.5.28",
+		"@vitejs/plugin-vue": "^6.0.4",
+		"@types/react": "^18.3.28",
+		"@types/react-dom": "^18.3.7",
+		"astro": "workspace:*",
+		"clsx": "^2.1.1",
+		"react": "^18.3.1",
+		"react-dom": "^18.3.1",
+		"sharp": "^0.34.3"
+	}
+}

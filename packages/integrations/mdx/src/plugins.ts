@@ -23,13 +23,12 @@ const isPerformanceBenchmark = Boolean(process.env.ASTRO_PERFORMANCE_BENCHMARK);
 
 interface MdxProcessorExtraOptions {
 	sourcemap: boolean;
-	experimentalHeadingIdCompat: boolean;
 }
 
 export function createMdxProcessor(mdxOptions: MdxOptions, extraOptions: MdxProcessorExtraOptions) {
 	return createProcessor({
 		remarkPlugins: getRemarkPlugins(mdxOptions),
-		rehypePlugins: getRehypePlugins(mdxOptions, extraOptions),
+		rehypePlugins: getRehypePlugins(mdxOptions),
 		recmaPlugins: mdxOptions.recmaPlugins,
 		remarkRehypeOptions: mdxOptions.remarkRehype,
 		jsxImportSource: 'astro',
@@ -58,10 +57,7 @@ function getRemarkPlugins(mdxOptions: MdxOptions): PluggableList {
 	return remarkPlugins;
 }
 
-function getRehypePlugins(
-	mdxOptions: MdxOptions,
-	{ experimentalHeadingIdCompat }: MdxProcessorExtraOptions,
-): PluggableList {
+function getRehypePlugins(mdxOptions: MdxOptions): PluggableList {
 	let rehypePlugins: PluggableList = [
 		// ensure `data.meta` is preserved in `properties.metastring` for rehype syntax highlighters
 		rehypeMetaString,
@@ -88,10 +84,7 @@ function getRehypePlugins(
 	if (!isPerformanceBenchmark) {
 		// getHeadings() is guaranteed by TS, so this must be included.
 		// We run `rehypeHeadingIds` _last_ to respect any custom IDs set by user plugins.
-		rehypePlugins.push(
-			[rehypeHeadingIds, { experimentalHeadingIdCompat }],
-			rehypeInjectHeadingsExport,
-		);
+		rehypePlugins.push([rehypeHeadingIds], rehypeInjectHeadingsExport);
 	}
 
 	rehypePlugins.push(

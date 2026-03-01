@@ -130,7 +130,7 @@ export function eventCliSession(
 	flags?: Record<string, any>,
 ): { eventName: string; payload: EventPayload }[] {
 	// Filter out yargs default `_` flag which is the cli command
-	const cliFlags = flags ? Object.keys(flags).filter((name) => name != '_') : undefined;
+	const cliFlags = flags ? Object.keys(flags).filter((name) => name !== '_') : undefined;
 
 	const payload: EventPayload = {
 		cliCommand,

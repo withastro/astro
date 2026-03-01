@@ -1,4 +1,4 @@
-import { waitUntil } from '@vercel/functions';
+import type { waitUntil } from '@vercel/functions';
 
 export interface EdgeLocals {
 	vercel: {

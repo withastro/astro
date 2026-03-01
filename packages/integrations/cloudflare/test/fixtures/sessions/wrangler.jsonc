@@ -1,0 +1,12 @@
+{
+  "name": "astro-cf-session",
+  "compatibility_date": "2026-01-28",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  },
+  "upload_source_maps": true
+}

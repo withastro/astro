@@ -1,5 +1,21 @@
 # @astrojs/internal-helpers
 
+## 0.8.0-beta.1
+
+### Minor Changes
+
+- [#15077](https://github.com/withastro/astro/pull/15077) [`a164c77`](https://github.com/withastro/astro/commit/a164c77336059f2dc3e7f7fe992aa754ed145ef3) Thanks [@matthewp](https://github.com/matthewp)! - Adds `normalizePathname()` utility function for normalizing URL pathnames to match the canonical form used by route generation.
+
+- [#15419](https://github.com/withastro/astro/pull/15419) [`a18d727`](https://github.com/withastro/astro/commit/a18d727fc717054df85177c8e0c3d38a5252f2da) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new `/cli` specifier and the utility `NPM_PACKAGE_NAME_REGEX`.
+
+## 0.8.0-beta.0
+
+### Minor Changes
+
+- [#15369](https://github.com/withastro/astro/pull/15369) [`240c317`](https://github.com/withastro/astro/commit/240c317faab52d7f22494e9181f5d2c2c404b0bd) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - **BREAKING CHANGE**
+
+  Removes `collapseDuplicateSlashes()`, `startsWithForwardSlash()`, `startsWithDotDotSlash()`, `startsWithDotSlash()` and `isAbsolutePath()` from the `/path` export
+
 ## 0.7.5
 
 ### Patch Changes

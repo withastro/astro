@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod/v4';
 
 type UnionToIntersection<U> = (U extends never ? never : (arg: U) => never) extends (
 	arg: infer I,
@@ -6,11 +6,10 @@ type UnionToIntersection<U> = (U extends never ? never : (arg: U) => never) exte
 	? I
 	: never;
 
-type UnionToTuple<T> = UnionToIntersection<T extends never ? never : (t: T) => T> extends (
-	_: never,
-) => infer W
-	? [...UnionToTuple<Exclude<T, W>>, W]
-	: [];
+type UnionToTuple<T> =
+	UnionToIntersection<T extends never ? never : (t: T) => T> extends (_: never) => infer W
+		? [...UnionToTuple<Exclude<T, W>>, W]
+		: [];
 
 export const ALGORITHMS = {
 	'SHA-256': 'sha256-',

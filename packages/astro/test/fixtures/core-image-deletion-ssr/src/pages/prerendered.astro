@@ -1,0 +1,18 @@
+---
+import { Image } from "astro:assets";
+import onlyOne from "../assets/onlyone.jpg";
+import twoOfUs from "../assets/twoofus.jpg";
+import shared from "../assets/shared.jpg";
+export const prerender = true;
+---
+<html>
+<head></head>
+<body>
+	<Image src={onlyOne} alt="Only one of me exists at the end of the build" />
+
+	<Image src={twoOfUs} alt="Two of us will exist, because I'm also used as a normal image" />
+	<img src={twoOfUs.src} alt="Two of us will exist, because I'm also used as a normal image" />
+
+	<Image src={shared} alt="I'm only optimized here, but the SSR page uses my original directly" />
+</body>
+</html>

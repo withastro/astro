@@ -83,4 +83,43 @@ test.describe('Styles', () => {
 		);
 		await expect(h).toHaveCSS('color', 'rgb(255, 0, 0)');
 	});
+
+	test('added style tag refresh with full-reload', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/css-inline-component'));
+
+		const h = page.locator('h1.title-with-no-color');
+		await expect(h).toHaveCSS('color', 'rgb(0, 0, 0)');
+
+		await astro.editFile(
+			'./src/components/title-with-no-color.astro',
+			(original) => original + '\n<style>h1 { color: red; }</style>',
+		);
+		await expect(h).toHaveCSS('color', 'rgb(255, 0, 0)');
+	});
+
+	test('multiple added style tags refresh with full-reload', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/css-inline-component'));
+
+		const h = page.locator('h1.title-with-color');
+		await expect(h).toHaveCSS('color', 'rgb(0, 0, 255)');
+
+		await astro.editFile(
+			'./src/components/title-with-color.astro',
+			(original) => original + '\n<style>h1 { font-style: italic; }</style>',
+		);
+		await expect(h).toHaveCSS('color', 'rgb(0, 0, 255)');
+		await expect(h).toHaveCSS('font-style', 'italic');
+	});
+
+	test('removed style tag refresh with full-reload', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/css-inline-component'));
+
+		const h = page.locator('h1.title-with-color');
+		await expect(h).toHaveCSS('color', 'rgb(0, 0, 255)');
+
+		await astro.editFile('./src/components/title-with-color.astro', (original) =>
+			original.replace(/<style>.*$/s, ''),
+		);
+		await expect(h).toHaveCSS('color', 'rgb(0, 0, 0)');
+	});
 });

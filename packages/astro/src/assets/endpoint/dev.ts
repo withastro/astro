@@ -1,44 +1,66 @@
 // @ts-expect-error
-import { root } from 'astro:config/server';
+import { fsDenyGlob, safeModulePaths, viteFSConfig } from 'astro:assets';
 import { readFile } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
-import { isParentDirectory } from '@astrojs/internal-helpers/path';
+import os from 'node:os';
+import { type AnymatchFn, isFileLoadingAllowed, type ResolvedConfig } from 'vite';
 import type { APIRoute } from '../../types/public/common.js';
 import { handleImageRequest, loadRemoteImage } from './shared.js';
 
+function replaceFileSystemReferences(src: string) {
+	return os.platform().includes('win32') ? src.replace(/^\/@fs\//, '') : src.replace(/^\/@fs/, '');
+}
+
 async function loadLocalImage(src: string, url: URL) {
-	// Vite uses /@fs/ to denote filesystem access, we can fetch those files directly
+	let returnValue: Buffer | undefined;
+	let fsPath: string | undefined;
+
+	// Vite uses /@fs/ to denote filesystem access, but we need to convert that to a real path to load it
 	if (src.startsWith('/@fs/')) {
-		try {
-			const res = await fetch(new URL(src, url));
-
-			if (!res.ok) {
-				return undefined;
-			}
-
-			return Buffer.from(await res.arrayBuffer());
-		} catch {
-			return undefined;
-		}
+		fsPath = replaceFileSystemReferences(src);
 	}
 
-	// Vite allows loading files directly from the filesystem
-	// as long as they are inside the project root.
-	if (isParentDirectory(fileURLToPath(root), src)) {
+	// Vite only uses the fs config, but the types ask for the full config
+
+	if (
+		fsPath &&
+		isFileLoadingAllowed(
+			{
+				fsDenyGlob,
+				server: { fs: viteFSConfig },
+				safeModulePaths,
+			} as unknown as ResolvedConfig & { fsDenyGlob: AnymatchFn; safeModulePaths: Set<string> },
+			fsPath,
+		)
+	) {
 		try {
-			return await readFile(src);
+			returnValue = await readFile(fsPath);
 		} catch {
-			return undefined;
+			returnValue = undefined;
+		}
+
+		// If we couldn't load it directly, try loading it through Vite as a fallback, which will also respect Vite's fs rules
+		if (!returnValue) {
+			try {
+				const res = await fetch(new URL(src, url));
+
+				if (res.ok) {
+					returnValue = Buffer.from(await res.arrayBuffer());
+				}
+			} catch {
+				returnValue = undefined;
+			}
 		}
 	} else {
 		// Otherwise we'll assume it's a local URL and try to load it via fetch
 		const sourceUrl = new URL(src, url.origin);
 		// This is only allowed if this is the same origin
 		if (sourceUrl.origin !== url.origin) {
-			return undefined;
+			returnValue = undefined;
 		}
 		return loadRemoteImage(sourceUrl);
 	}
+
+	return returnValue;
 }
 
 /**

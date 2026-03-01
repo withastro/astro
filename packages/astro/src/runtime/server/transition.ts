@@ -1,4 +1,4 @@
-import cssesc from 'cssesc';
+import cssesc from '../../transitions/cssesc.js';
 import { fade, slide } from '../../transitions/index.js';
 import type { SSRResult } from '../../types/public/internal.js';
 import type {
@@ -115,6 +115,7 @@ export function renderTransition(
 	return scope;
 }
 
+/** @deprecated This will be removed in Astro 7 */
 export function createAnimationScope(
 	transitionName: string,
 	animations: Record<string, TransitionAnimationPair>,

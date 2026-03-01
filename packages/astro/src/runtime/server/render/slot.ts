@@ -27,6 +27,21 @@ export function isSlotString(str: string): str is any {
 	return !!(str as any)[slotString];
 }
 
+/**
+ * Collects instructions from a SlotString into the target array.
+ * Returns the (possibly newly created) instructions array.
+ */
+export function mergeSlotInstructions(
+	target: RenderInstruction[] | null,
+	source: SlotString,
+): RenderInstruction[] | null {
+	if (source.instructions?.length) {
+		target ??= [];
+		target.push(...source.instructions);
+	}
+	return target;
+}
+
 export function renderSlot(
 	result: SSRResult,
 	slotted: ComponentSlotValue | RenderTemplateResult,
@@ -54,10 +69,7 @@ export async function renderSlotToString(
 			// if the chunk is already a SlotString, we concatenate
 			if (chunk instanceof SlotString) {
 				content += chunk;
-				if (chunk.instructions) {
-					instructions ??= [];
-					instructions.push(...chunk.instructions);
-				}
+				instructions = mergeSlotInstructions(instructions, chunk);
 			} else if (chunk instanceof Response) return;
 			else if (typeof chunk === 'object' && 'type' in chunk && typeof chunk.type === 'string') {
 				if (instructions === null) {

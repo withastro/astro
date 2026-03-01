@@ -10,6 +10,7 @@
         "!performance/**/*",
         "!.astro/**/*",
         "!.cache/**/*",
+        "!.turbo/**/*",
         "!mod.js",
         "!mod.js.map"
       ],
@@ -26,6 +27,7 @@
         "!performance/**/*",
         "!.astro/**/*",
         "!.cache/**/*",
+        "!.turbo/**/*",
         "!mod.js",
         "!mod.js.map"
       ],

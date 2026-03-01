@@ -1,21 +1,52 @@
 import type { Plugin as VitePlugin } from 'vite';
+import { isAstroServerEnvironment } from '../environments.js';
 import type { AstroSettings } from '../types/astro.js';
+import { fileURLToPath } from 'node:url';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
+// This is used by Cloudflare's optimizeDeps
 const VIRTUAL_CLIENT_ID = 'virtual:astro:adapter-config/client';
 const RESOLVED_VIRTUAL_CLIENT_ID = '\0' + VIRTUAL_CLIENT_ID;
 
 export function vitePluginAdapterConfig(settings: AstroSettings): VitePlugin {
 	return {
 		name: 'astro:adapter-config',
-		resolveId(id) {
-			if (id === VIRTUAL_CLIENT_ID) {
-				return RESOLVED_VIRTUAL_CLIENT_ID;
+		config() {
+			const { adapter } = settings;
+			if (adapter && adapter.entrypointResolution === 'auto' && adapter.serverEntrypoint) {
+				return {
+					environments: {
+						[ASTRO_VITE_ENVIRONMENT_NAMES.ssr]: {
+							build: {
+								rollupOptions: {
+									input: {
+										index:
+											typeof adapter.serverEntrypoint === 'string'
+												? adapter.serverEntrypoint
+												: fileURLToPath(adapter.serverEntrypoint),
+									},
+								},
+							},
+						},
+					},
+				};
 			}
 		},
-		load(id, options) {
-			if (id === RESOLVED_VIRTUAL_CLIENT_ID) {
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${VIRTUAL_CLIENT_ID}$`),
+			},
+			handler() {
+				return RESOLVED_VIRTUAL_CLIENT_ID;
+			},
+		},
+		load: {
+			filter: {
+				id: new RegExp(`^${RESOLVED_VIRTUAL_CLIENT_ID}$`),
+			},
+			handler() {
 				// During SSR, return empty headers to avoid any runtime issues
-				if (options?.ssr) {
+				if (isAstroServerEnvironment(this.environment)) {
 					return {
 						code: `export const internalFetchHeaders = {};`,
 					};
@@ -35,7 +66,7 @@ export function vitePluginAdapterConfig(settings: AstroSettings): VitePlugin {
 				return {
 					code: `export const internalFetchHeaders = ${JSON.stringify(internalFetchHeaders)};`,
 				};
-			}
+			},
 		},
 	};
 }

@@ -1,17 +1,64 @@
+import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
+import type { AstroConfig } from '../../types/public/config.js';
 import type { ImageMetadata } from '../types.js';
 import { imageMetadata } from './metadata.js';
+
+type RemoteImageConfig = Pick<AstroConfig['image'], 'domains' | 'remotePatterns'>;
 
 /**
  * Infers the dimensions of a remote image by streaming its data and analyzing it progressively until sufficient metadata is available.
  *
  * @param {string} url - The URL of the remote image from which to infer size metadata.
+ * @param {RemoteImageConfig} [imageConfig] - Optional image config used to validate remote allowlists.
  * @return {Promise<Omit<ImageMetadata, 'src' | 'fsPath'>>} Returns a promise that resolves to an object containing the image dimensions metadata excluding `src` and `fsPath`.
  * @throws {AstroError} Thrown when the fetching fails or metadata cannot be extracted.
  */
-export async function inferRemoteSize(url: string): Promise<Omit<ImageMetadata, 'src' | 'fsPath'>> {
+export async function inferRemoteSize(
+	url: string,
+	imageConfig?: RemoteImageConfig,
+): Promise<Omit<ImageMetadata, 'src' | 'fsPath'>> {
+	if (!URL.canParse(url)) {
+		throw new AstroError({
+			...AstroErrorData.FailedToFetchRemoteImageDimensions,
+			message: AstroErrorData.FailedToFetchRemoteImageDimensions.message(url),
+		});
+	}
+
+	const allowlistConfig = imageConfig
+		? {
+				domains: imageConfig.domains ?? [],
+				remotePatterns: imageConfig.remotePatterns ?? [],
+			}
+		: undefined;
+
+	if (!allowlistConfig) {
+		const parsedUrl = new URL(url);
+		if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
+			throw new AstroError({
+				...AstroErrorData.FailedToFetchRemoteImageDimensions,
+				message: AstroErrorData.FailedToFetchRemoteImageDimensions.message(url),
+			});
+		}
+	}
+
+	if (allowlistConfig && !isRemoteAllowed(url, allowlistConfig)) {
+		throw new AstroError({
+			...AstroErrorData.RemoteImageNotAllowed,
+			message: AstroErrorData.RemoteImageNotAllowed.message(url),
+		});
+	}
+
 	// Start fetching the image
-	const response = await fetch(url);
+	const response = await fetch(url, { redirect: 'manual' });
+
+	if (response.status >= 300 && response.status < 400) {
+		throw new AstroError({
+			...AstroErrorData.FailedToFetchRemoteImageDimensions,
+			message: AstroErrorData.FailedToFetchRemoteImageDimensions.message(url),
+		});
+	}
+
 	if (!response.body || !response.ok) {
 		throw new AstroError({
 			...AstroErrorData.FailedToFetchRemoteImageDimensions,

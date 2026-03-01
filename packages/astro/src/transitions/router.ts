@@ -1,6 +1,13 @@
 import { internalFetchHeaders } from 'virtual:astro:adapter-config/client';
 import type { TransitionBeforePreparationEvent } from './events.js';
-import { doPreparation, doSwap, TRANSITION_AFTER_SWAP } from './events.js';
+import {
+	doPreparation,
+	doSwap,
+	TRANSITION_AFTER_SWAP,
+	onPageLoad,
+	triggerEvent,
+	updateScrollPosition,
+} from './events.js';
 import { detectScriptExecuted } from './swap-functions.js';
 import type { Direction, Fallback, Options } from './types.js';
 
@@ -9,7 +16,6 @@ type State = {
 	scrollX: number;
 	scrollY: number;
 };
-type Events = 'astro:page-load' | 'astro:after-swap';
 type Navigation = { controller: AbortController };
 type Transition = {
 	// The view transitions object (API and simulation)
@@ -21,15 +27,6 @@ type Transition = {
 };
 
 const inBrowser = import.meta.env.SSR === false;
-
-// only update history entries that are managed by us
-// leave other entries alone and do not accidentally add state.
-export const updateScrollPosition = (positions: { scrollX: number; scrollY: number }) => {
-	if (history.state) {
-		history.scrollRestoration = 'manual';
-		history.replaceState({ ...history.state, ...positions }, '');
-	}
-};
 
 export const supportsViewTransitions = inBrowser && !!document.startViewTransition;
 
@@ -47,8 +44,6 @@ let mostRecentTransition: Transition | undefined;
 // This variable tells us where we came from
 let originalLocation: URL;
 
-const triggerEvent = (name: Events) => document.dispatchEvent(new Event(name));
-const onPageLoad = () => triggerEvent('astro:page-load');
 const announce = () => {
 	let div = document.createElement('div');
 	div.setAttribute('aria-live', 'assertive');
@@ -443,7 +438,10 @@ async function transition(
 				preparationEvent.preventDefault();
 				return;
 			}
+			// preserve fragment
+			const fragment = preparationEvent.to.hash;
 			preparationEvent.to = redirectedTo;
+			preparationEvent.to.hash = fragment;
 		}
 
 		parser ??= new DOMParser();

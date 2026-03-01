@@ -6,6 +6,13 @@ import { SlotString } from './slot.js';
 import { createBufferedRenderer } from './util.js';
 
 export function renderChild(destination: RenderDestination, child: any): void | Promise<void> {
+	// Strings are the most common child type (text expressions like {title}, {name})
+	// so check them first for the fastest dispatch in the common case.
+	if (typeof child === 'string') {
+		destination.write(markHTMLString(escapeHTML(child)));
+		return;
+	}
+
 	if (isPromise(child)) {
 		return child.then((x) => renderChild(destination, x));
 	}
@@ -20,6 +27,11 @@ export function renderChild(destination: RenderDestination, child: any): void | 
 		return;
 	}
 
+	if (!child && child !== 0) {
+		// do nothing, safe to ignore falsey values.
+		return;
+	}
+
 	if (Array.isArray(child)) {
 		return renderArray(destination, child);
 	}
@@ -29,16 +41,6 @@ export function renderChild(destination: RenderDestination, child: any): void | 
 		// This lets you do {() => ...} without the extra boilerplate
 		// of wrapping it in a function and calling it.
 		return renderChild(destination, child());
-	}
-
-	if (!child && child !== 0) {
-		// do nothing, safe to ignore falsey values.
-		return;
-	}
-
-	if (typeof child === 'string') {
-		destination.write(markHTMLString(escapeHTML(child)));
-		return;
 	}
 
 	if (isRenderInstance(child)) {
@@ -70,32 +72,43 @@ export function renderChild(destination: RenderDestination, child: any): void | 
 }
 
 function renderArray(destination: RenderDestination, children: any[]): void | Promise<void> {
-	// Render all children eagerly and in parallel
-	const flushers = children.map((c) => {
-		return createBufferedRenderer(destination, (bufferDestination) => {
-			return renderChild(bufferDestination, c);
-		});
-	});
+	// Fast path: render children one at a time directly to the destination.
+	// If all children are sync, no buffering is needed at all.
+	// If a child returns a Promise, fall back to buffered rendering for
+	// the remaining children to preserve output ordering.
+	for (let i = 0; i < children.length; i++) {
+		const result = renderChild(destination, children[i]);
 
-	const iterator = flushers[Symbol.iterator]();
-
-	const iterate = (): void | Promise<void> => {
-		for (;;) {
-			const { value: flusher, done } = iterator.next();
-
-			if (done) {
-				break;
+		if (isPromise(result)) {
+			// This child is async. Buffer remaining children in parallel
+			// to preserve ordering, then flush them sequentially.
+			if (i + 1 >= children.length) {
+				// No remaining children, just wait for this one
+				return result;
 			}
 
-			const result = flusher.flush();
-
-			if (isPromise(result)) {
-				return result.then(iterate);
+			const remaining = children.length - i - 1;
+			const flushers = new Array(remaining);
+			for (let j = 0; j < remaining; j++) {
+				flushers[j] = createBufferedRenderer(destination, (bufferDestination) => {
+					return renderChild(bufferDestination, children[i + 1 + j]);
+				});
 			}
+
+			return result.then(() => {
+				let k = 0;
+				const iterate = (): void | Promise<void> => {
+					while (k < flushers.length) {
+						const flushResult = flushers[k++].flush();
+						if (isPromise(flushResult)) {
+							return flushResult.then(iterate);
+						}
+					}
+				};
+				return iterate();
+			});
 		}
-	};
-
-	return iterate();
+	}
 }
 
 function renderIterable(

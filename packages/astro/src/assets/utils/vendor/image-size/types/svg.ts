@@ -1,9 +1,7 @@
-/* eslint-disable @typescript-eslint/non-nullable-type-assertion-style */
- 
 import type { IImage, ISize } from './interface.ts'
 import { toUTF8String } from './utils.js'
 
-type IAttributes = {
+interface IAttributes {
   width: number | null
   height: number | null
   viewbox?: IAttributes | null
@@ -19,7 +17,7 @@ const extractorRegExps = {
 }
 
 const INCH_CM = 2.54
-const units: { [unit: string]: number } = {
+const units: Record<string, number> = {
   in: 96,
   cm: 96 / INCH_CM,
   em: 16,
@@ -46,8 +44,8 @@ function parseLength(len: string) {
 function parseViewbox(viewbox: string): IAttributes {
   const bounds = viewbox.split(' ')
   return {
-    height: parseLength(bounds[3]) as number,
-    width: parseLength(bounds[2]) as number,
+    height: parseLength(bounds[3])!,
+    width: parseLength(bounds[2])!,
   }
 }
 
@@ -56,21 +54,21 @@ function parseAttributes(root: string): IAttributes {
   const height = extractorRegExps.height.exec(root)
   const viewbox = extractorRegExps.viewbox.exec(root)
   return {
-    height: height && (parseLength(height[2]) as number),
+    height: height && (parseLength(height[2])!),
     viewbox: viewbox && (parseViewbox(viewbox[2]) as IAttributes),
-    width: width && (parseLength(width[2]) as number),
+    width: width && (parseLength(width[2])!),
   }
 }
 
 function calculateByDimensions(attrs: IAttributes): ISize {
   return {
-    height: attrs.height as number,
-    width: attrs.width as number,
+    height: attrs.height!,
+    width: attrs.width!,
   }
 }
 
 function calculateByViewbox(attrs: IAttributes, viewbox: IAttributes): ISize {
-  const ratio = (viewbox.width as number) / (viewbox.height as number)
+  const ratio = (viewbox.width!) / (viewbox.height!)
   if (attrs.width) {
     return {
       height: Math.floor(attrs.width / ratio),
@@ -84,8 +82,8 @@ function calculateByViewbox(attrs: IAttributes, viewbox: IAttributes): ISize {
     }
   }
   return {
-    height: viewbox.height as number,
-    width: viewbox.width as number,
+    height: viewbox.height!,
+    width: viewbox.width!,
   }
 }
 

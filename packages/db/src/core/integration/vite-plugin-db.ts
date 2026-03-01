@@ -68,57 +68,64 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 		configResolved(resolvedConfig) {
 			command = resolvedConfig.command;
 		},
-		async resolveId(id) {
-			if (id !== VIRTUAL_MODULE_ID) return;
-			if (params.seedHandler.inProgress) {
-				return resolved.importedFromSeedFile;
-			}
-			return resolved.module;
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${VIRTUAL_MODULE_ID}$`),
+			},
+			handler() {
+				if (params.seedHandler.inProgress) {
+					return resolved.importedFromSeedFile;
+				}
+				return resolved.module;
+			},
 		},
-		async load(id) {
-			if (id !== resolved.module && id !== resolved.importedFromSeedFile) return;
+		load: {
+			filter: {
+				id: new RegExp(`^(${resolved.module}|${resolved.importedFromSeedFile})$`),
+			},
+			async handler(id) {
+				if (params.connectToRemote) {
+					return getRemoteVirtualModContents({
+						appToken: params.appToken,
+						tables: params.tables.get(),
+						isBuild: command === 'build',
+						output: params.output,
+						localExecution: false,
+					});
+				}
 
-			if (params.connectToRemote) {
-				return getRemoteVirtualModContents({
-					appToken: params.appToken,
-					tables: params.tables.get(),
-					isBuild: command === 'build',
-					output: params.output,
-					localExecution: false,
-				});
-			}
+				// When seeding, we resolved to a different virtual module.
+				// this prevents an infinite loop attempting to rerun seed files.
+				// Short circuit with the module contents in this case.
+				if (id === resolved.importedFromSeedFile) {
+					return getLocalVirtualModContents({
+						root: params.root,
+						tables: params.tables.get(),
+						localExecution: false,
+					});
+				}
 
-			// When seeding, we resolved to a different virtual module.
-			// this prevents an infinite loop attempting to rerun seed files.
-			// Short circuit with the module contents in this case.
-			if (id === resolved.importedFromSeedFile) {
+				await recreateTables(params);
+				const seedFiles = getResolvedSeedFiles(params);
+				for await (const seedFile of seedFiles) {
+					// Use `addWatchFile()` to invalidate the `astro:db` module
+					// when a seed file changes.
+					this.addWatchFile(fileURLToPath(seedFile));
+					if (existsSync(seedFile)) {
+						params.seedHandler.inProgress = true;
+						await params.seedHandler.execute(seedFile);
+					}
+				}
+				if (params.seedHandler.inProgress) {
+					(params.logger ?? console).info('Seeded database.');
+					params.seedHandler.inProgress = false;
+				}
 				return getLocalVirtualModContents({
 					root: params.root,
 					tables: params.tables.get(),
 					localExecution: false,
 				});
-			}
-
-			await recreateTables(params);
-			const seedFiles = getResolvedSeedFiles(params);
-			for await (const seedFile of seedFiles) {
-				// Use `addWatchFile()` to invalidate the `astro:db` module
-				// when a seed file changes.
-				this.addWatchFile(fileURLToPath(seedFile));
-				if (existsSync(seedFile)) {
-					params.seedHandler.inProgress = true;
-					await params.seedHandler.execute(seedFile);
-				}
-			}
-			if (params.seedHandler.inProgress) {
-				(params.logger ?? console).info('Seeded database.');
-				params.seedHandler.inProgress = false;
-			}
-			return getLocalVirtualModContents({
-				root: params.root,
-				tables: params.tables.get(),
-				localExecution: false,
-			});
+			},
 		},
 	};
 }

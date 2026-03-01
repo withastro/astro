@@ -42,6 +42,14 @@ const fileSystem = {
 			}
 		})
 	}`,
+	'/src/pages/setCookies.js': `export const GET = context => {
+		const headers = new Headers();
+    context.cookies.set('key1', 'value1');
+    context.cookies.set('key2', 'value2');
+    headers.append('set-cookie', 'key3=value3');
+    headers.append('set-cookie', 'key4=value4');
+		return new Response(null, { headers });
+	}`,
 };
 
 describe('endpoints', () => {
@@ -99,5 +107,19 @@ describe('endpoints', () => {
 		} catch (err) {
 			assert.fail(err);
 		}
+	});
+
+	it('Accept setCookie from both context and headers', async () => {
+		const { req, res, done } = createRequestAndResponse({
+			method: 'GET',
+			url: '/setCookies',
+		});
+		container.handle(req, res);
+		await done;
+		const headers = res.getHeaders();
+		assert.deepEqual(headers, {
+			'set-cookie': ['key1=value1', 'key2=value2', 'key3=value3', 'key4=value4'],
+			vary: 'Origin',
+		});
 	});
 });

@@ -1,0 +1,22 @@
+---
+import { ClientRouter } from 'astro:transitions';
+---
+<html>
+	<head>
+		<title>Font Page 2</title>
+		<style is:inline>
+			@font-face {
+				font-family: 'TestFont';
+				src: url('/fonts/test.woff2') format('woff2');
+				font-display: swap;
+			}
+			body { font-family: 'TestFont', sans-serif; }
+		</style>
+		<link rel="preload" href="/fonts/test.woff2" as="font" type="font/woff2" crossorigin />
+		<ClientRouter />
+	</head>
+	<body>
+		<p id="font-page-two">Font Page 2</p>
+		<a id="click-font-one" href="/font-page-one">go to font page 1</a>
+	</body>
+</html>

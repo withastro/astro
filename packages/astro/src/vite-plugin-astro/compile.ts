@@ -5,6 +5,7 @@ import type { AstroConfig } from '../types/public/config.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 import type { CompileMetadata } from './types.js';
 import { frontmatterRE } from './utils.js';
+import type { SourceMapInput } from 'rollup';
 
 interface CompileAstroOption {
 	compileProps: CompileProps;
@@ -13,7 +14,7 @@ interface CompileAstroOption {
 }
 
 export interface CompileAstroResult extends Omit<CompileResult, 'map'> {
-	map: ESBuildTransformResult['map'];
+	map: SourceMapInput;
 }
 
 interface EnhanceCompilerErrorOptions {

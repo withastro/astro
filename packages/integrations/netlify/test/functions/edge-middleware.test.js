@@ -7,7 +7,7 @@ describe(
 	() => {
 		const root = new URL('./fixtures/middleware/', import.meta.url);
 
-		describe('edgeMiddleware: false', () => {
+		describe('middlewareMode: classic', () => {
 			let fixture;
 			before(async () => {
 				process.env.EDGE_MIDDLEWARE = 'false';
@@ -34,7 +34,7 @@ describe(
 			});
 		});
 
-		describe('edgeMiddleware: true', () => {
+		describe('middlewareMode: edge', () => {
 			let fixture;
 			before(async () => {
 				process.env.EDGE_MIDDLEWARE = 'true';

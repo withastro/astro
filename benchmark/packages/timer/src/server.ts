@@ -1,18 +1,17 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import type { SSRManifest } from 'astro';
-import { applyPolyfills, NodeApp } from 'astro/app/node';
+import { createApp } from 'astro/app/entrypoint';
+import { createRequest } from 'astro/app/node';
 
-applyPolyfills();
+const app = createApp();
 
-export function createExports(manifest: SSRManifest) {
-	const app = new NodeApp(manifest);
-	return {
-		handler: async (req: IncomingMessage, res: ServerResponse) => {
-			const start = performance.now();
-			await app.render(req);
-			const end = performance.now();
-			res.write(end - start + '');
-			res.end();
-		},
-	};
+export async function handler(req: IncomingMessage, res: ServerResponse): Promise<void> {
+	const start = performance.now();
+	await app.render(
+		createRequest(req, {
+			allowedDomains: app.manifest.allowedDomains,
+		}),
+	);
+	const end = performance.now();
+	res.write(end - start + '');
+	res.end();
 }

@@ -31,21 +31,28 @@ export function vitePluginDbClient(params: VitePluginDBClientParams): VitePlugin
 	return {
 		name: 'virtual:astro:db-client',
 		enforce: 'pre',
-		async resolveId(id) {
-			if (id !== VIRTUAL_CLIENT_MODULE_ID) return;
-			return resolved;
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${VIRTUAL_CLIENT_MODULE_ID}$`),
+			},
+			handler() {
+				return resolved;
+			},
 		},
-		async load(id) {
-			if (id !== resolved) return;
-
-			switch (params.connectToRemote) {
-				case true:
-					return getRemoteClientModule(params.mode);
-				case false:
-				default:
-					// Local client is always available, even if not used.
-					return getLocalClientModule(params.mode);
-			}
+		load: {
+			filter: {
+				id: new RegExp(`^${resolved}$`),
+			},
+			handler() {
+				switch (params.connectToRemote) {
+					case true:
+						return getRemoteClientModule(params.mode);
+					case false:
+					default:
+						// Local client is always available, even if not used.
+						return getLocalClientModule(params.mode);
+				}
+			},
 		},
 	};
 }

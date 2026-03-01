@@ -48,7 +48,7 @@ export const markHTMLString = (value: any) => {
 };
 
 export function isHTMLString(value: any): value is HTMLString {
-	return Object.prototype.toString.call(value) === '[object HTMLString]';
+	return value instanceof HTMLString;
 }
 
 function markHTMLBytes(bytes: Uint8Array) {

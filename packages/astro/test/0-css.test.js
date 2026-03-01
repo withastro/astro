@@ -31,7 +31,8 @@ describe('CSS', function () {
 				html = await fixture.readFile('/index.html');
 				$ = cheerio.load(html);
 				const bundledCSSHREF = $('link[rel=stylesheet][href^=/_astro/]').attr('href');
-				bundledCSS = (await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/')))
+				const bundledCSSFilePath = bundledCSSHREF.replace(/^\/?/, '/');
+				bundledCSS = (await fixture.readFile(bundledCSSFilePath))
 					.replace(/\s/g, '')
 					.replace('/n', '');
 			},
@@ -104,6 +105,18 @@ describe('CSS', function () {
 				assert.match(style, /\.comp-a\[data-astro-cid/);
 				assert.match(style, /\.comp-c\{/);
 				assert.doesNotMatch(style, /\.comp-b/);
+			});
+
+			it('CSS modules imported in both frontmatter and script should not duplicate', async () => {
+				const duplicateHtml = await fixture.readFile('/css-module-duplicate/index.html');
+				const $duplicate = cheerio.load(duplicateHtml);
+				const cssHref = $duplicate('link[rel=stylesheet][href^=/_astro/]').attr('href');
+				const css = await fixture.readFile(cssHref.replace(/^\/?/, '/'));
+
+				const normalizedCSS = css.replace(/\s+/g, '');
+
+				assert.equal((normalizedCSS.match(/\._duplicate-blue_\w+\{[^}]+\}/gi) || []).length, 1);
+				assert.equal((normalizedCSS.match(/\._duplicate-red_\w+\{[^}]+\}/gi) || []).length, 1);
 			});
 		});
 
@@ -329,6 +342,27 @@ describe('CSS', function () {
 				assert.equal(el.text(), '.foo {color: red;}');
 			});
 		});
+
+		it('remove unused styles from client:load components', async () => {
+			const bundledAssets = await fixture.readdir('./_astro');
+			// SvelteDynamic styles is already included in the main page css asset
+			const unusedCssAsset = bundledAssets.find((asset) => /SvelteDynamic\..*\.css/.test(asset));
+			assert.equal(unusedCssAsset, undefined, 'Found unused style ' + unusedCssAsset);
+
+			let foundVitePreloadCSS = false;
+			const bundledJS = await fixture.glob('**/*.?(m)js');
+			for (const filename of bundledJS) {
+				const content = await fixture.readFile(filename);
+				if (content.match(/ReactDynamic\..*\.css/)) {
+					foundVitePreloadCSS = filename;
+				}
+			}
+			assert.equal(
+				foundVitePreloadCSS,
+				false,
+				'Should not have found a preload for the dynamic CSS',
+			);
+		});
 	});
 
 	// with "build" handling CSS checking, the dev tests are mostly testing the paths resolve in dev
@@ -410,29 +444,8 @@ describe('CSS', function () {
 			assert.equal(allInjectedStyles.includes('.vue-css{'), true);
 			assert.equal(allInjectedStyles.includes('.vue-sass{'), true);
 			assert.equal(allInjectedStyles.includes('.vue-scss{'), true);
-			assert.equal(allInjectedStyles.includes('.vue-scoped[data-v-'), true);
+			assert.equal(allInjectedStyles.includes('.vue-scoped{'), true);
 			assert.equal(allInjectedStyles.includes('._vueModules_'), true);
-		});
-
-		it('remove unused styles from client:load components', async () => {
-			const bundledAssets = await fixture.readdir('./_astro');
-			// SvelteDynamic styles is already included in the main page css asset
-			const unusedCssAsset = bundledAssets.find((asset) => /SvelteDynamic\..*\.css/.test(asset));
-			assert.equal(unusedCssAsset, undefined, 'Found unused style ' + unusedCssAsset);
-
-			let foundVitePreloadCSS = false;
-			const bundledJS = await fixture.glob('**/*.?(m)js');
-			for (const filename of bundledJS) {
-				const content = await fixture.readFile(filename);
-				if (content.match(/ReactDynamic\..*\.css/)) {
-					foundVitePreloadCSS = filename;
-				}
-			}
-			assert.equal(
-				foundVitePreloadCSS,
-				false,
-				'Should not have found a preload for the dynamic CSS',
-			);
 		});
 
 		it('.module.css ordering', () => {

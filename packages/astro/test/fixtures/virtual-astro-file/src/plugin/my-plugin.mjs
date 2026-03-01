@@ -1,16 +1,22 @@
-
-
 export default function myPlugin() {
 	const pluginId = `@my-plugin/virtual.astro`;
-  return {
-    enforce: 'pre',
-    name: 'virtual-astro-plugin',
-    resolveId(id) {
-      if (id === pluginId) return id;
-    },
-    load(id) {
-      if (id === pluginId) {
-        return `---
+	return {
+		enforce: 'pre',
+		name: 'virtual-astro-plugin',
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${pluginId}$`),
+			},
+			handler(id) {
+				return id;
+			},
+		},
+		load: {
+			filter: {
+				id: new RegExp(`^${pluginId}$`),
+			},
+			handler() {
+				return `---
 const works = true;
 ---
 <h1 id="something">This is a virtual module id</h1>
@@ -21,7 +27,7 @@ const works = true;
 	}
 </style>
 `;
-      }
-    },
-  };
+			},
+		},
+	};
 }

@@ -9,6 +9,7 @@ import { ACTION_RPC_ROUTE_PATTERN, ACTIONS_TYPES_FILE, VIRTUAL_MODULE_ID } from 
  * This integration is applied when the user is using Actions in their project.
  * It will inject the necessary routes and middlewares to handle actions.
  */
+// TODO: do not use an integration for this
 export default function astroIntegrationActionsRouteHandler({
 	settings,
 	filename,
@@ -22,7 +23,7 @@ export default function astroIntegrationActionsRouteHandler({
 			async 'astro:config:setup'() {
 				settings.injectedRoutes.push({
 					pattern: ACTION_RPC_ROUTE_PATTERN,
-					entrypoint: 'astro/actions/runtime/route.js',
+					entrypoint: 'astro/actions/runtime/entrypoints/route.js',
 					prerender: false,
 					origin: 'internal',
 				});
@@ -40,9 +41,7 @@ export default function astroIntegrationActionsRouteHandler({
 				settings.injectedTypes.push({
 					filename: ACTIONS_TYPES_FILE,
 					content: `declare module "astro:actions" {
-	type Actions = typeof import(${stringifiedActionsImport})["server"];
-
-	export const actions: Actions;
+	export const actions: typeof import(${stringifiedActionsImport})["server"];
 }`,
 				});
 			},

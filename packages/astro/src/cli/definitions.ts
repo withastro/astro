@@ -14,6 +14,7 @@ export interface TextStyler {
 	green: (msg: string) => string;
 	bold: (msg: string) => string;
 	bgGreen: (msg: string) => string;
+	cyan: (msg: string) => string;
 }
 
 export interface AstroVersionProvider {

@@ -1,5 +1,6 @@
 ---
 import type { CollectionEntry } from 'astro:content';
+import { render } from 'astro:content';
 import Title from './Title.astro';
 
 type Props = {
@@ -7,7 +8,7 @@ type Props = {
 }
 
 const { entry }  = Astro.props as Props;
-const { Content } = await entry.render();
+const { Content } = await render(entry);
 ---
 
 {entry.data.type === 'with-astro-components'

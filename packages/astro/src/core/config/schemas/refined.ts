@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod/v4';
 import type { AstroConfig } from '../../../types/public/config.js';
 
 export const AstroConfigRefinedSchema = z.custom<AstroConfig>().superRefine((config, ctx) => {
@@ -42,21 +42,19 @@ export const AstroConfigRefinedSchema = z.custom<AstroConfig>().superRefine((con
 		}
 	}
 
-	// TODO: Astro 6.0
-	// Uncomment this validation check, and change the default value of redirectToDefaultLocale to false
-	// if (
-	// 	config.i18n &&
-	// 	typeof config.i18n.routing !== 'string' &&
-	// 	config.i18n.routing.prefixDefaultLocale === false &&
-	// 	config.i18n.routing.redirectToDefaultLocale === true
-	// ) {
-	// 	ctx.addIssue({
-	// 		code: z.ZodIssueCode.custom,
-	// 		message:
-	// 			'The option `i18n.routing.redirectToDefaultLocale` can be used only when `i18n.routing.prefixDefaultLocale` is set to `true`, otherwise redirects might cause infinite loops. Remove the option `i18n.routing.redirectToDefaultLocale`, or change its value to `false`.',
-	// 		path: ['i18n', 'routing', 'redirectToDefaultLocale'],
-	// 	});
-	// }
+	if (
+		config.i18n &&
+		typeof config.i18n.routing !== 'string' &&
+		config.i18n.routing.prefixDefaultLocale === false &&
+		config.i18n.routing.redirectToDefaultLocale === true
+	) {
+		ctx.addIssue({
+			code: z.ZodIssueCode.custom,
+			message:
+				'The option `i18n.routing.redirectToDefaultLocale` can be used only when `i18n.routing.prefixDefaultLocale` is set to `true`, otherwise redirects might cause infinite loops. Remove the option `i18n.routing.redirectToDefaultLocale`, or change its value to `false`.',
+			path: ['i18n', 'routing', 'redirectToDefaultLocale'],
+		});
+	}
 
 	if (config.outDir.toString().startsWith(config.publicDir.toString())) {
 		ctx.addIssue({
@@ -172,16 +170,16 @@ export const AstroConfigRefinedSchema = z.custom<AstroConfig>().superRefine((con
 		}
 	}
 
-	if (config.experimental.fonts && config.experimental.fonts.length > 0) {
-		for (let i = 0; i < config.experimental.fonts.length; i++) {
-			const { cssVariable } = config.experimental.fonts[i];
+	if (config.fonts && config.fonts.length > 0) {
+		for (let i = 0; i < config.fonts.length; i++) {
+			const { cssVariable } = config.fonts[i];
 
 			// Checks if the name starts with --, doesn't include a space nor a colon.
 			// We are not trying to recreate the full CSS spec about indents:
 			// https://developer.mozilla.org/en-US/docs/Web/CSS/ident
 			if (!cssVariable.startsWith('--') || cssVariable.includes(' ') || cssVariable.includes(':')) {
 				ctx.addIssue({
-					code: z.ZodIssueCode.custom,
+					code: 'custom',
 					message: `**cssVariable** property "${cssVariable}" contains invalid characters for CSS variable generation. It must start with -- and be a valid indent: https://developer.mozilla.org/en-US/docs/Web/CSS/ident.`,
 					path: ['fonts', i, 'cssVariable'],
 				});

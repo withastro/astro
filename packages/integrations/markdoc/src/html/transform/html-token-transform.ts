@@ -41,7 +41,7 @@ export function htmlTokenTransform(tokenizer: Tokenizer, tokens: Token[]): Token
 						// if the given token is a 'text' token and its trimmed content is the same as the pre-tokenized text buffer, use the original
 						// text buffer instead to preserve leading/trailing whitespace that is lost during tokenization of pure text content
 						if (tok.type === 'text') {
-							if (tok.content.trim() == textBuffer.trim()) {
+							if (tok.content.trim() === textBuffer.trim()) {
 								tok.content = textBuffer;
 							}
 						}

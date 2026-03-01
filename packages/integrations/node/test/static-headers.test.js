@@ -12,7 +12,7 @@ describe('Static headers', () => {
 	});
 
 	it('CSP headers are added when CSP is enabled', async () => {
-		const headers = JSON.parse(await fixture.readFile('../dist/_experimentalHeaders.json'));
+		const headers = JSON.parse(await fixture.readFile('../dist/_headers.json'));
 
 		const csp = headers
 			.find((x) => x.pathname === '/')
@@ -37,7 +37,7 @@ describe('Static headers', () => {
 		fixture = await loadFixture({
 			root: './fixtures/static-headers/',
 			output: 'server',
-			adapter: nodejs({ mode: 'standalone', experimentalStaticHeaders: true }),
+			adapter: nodejs({ mode: 'standalone', staticHeaders: true }),
 		});
 		await fixture.build();
 		const { startServer } = await fixture.loadAdapterEntryModule();

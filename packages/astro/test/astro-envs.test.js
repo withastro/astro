@@ -100,7 +100,7 @@ describe('Environment Variables', () => {
 			assert.equal(found, false, 'found the private env variable in the JS build');
 		});
 
-		it('does not coerce environment variable values when experimental.staticImportMetaEnv is true', async () => {
+		it('does not coerce environment variable values', async () => {
 			let indexHtml = await fixture.readFile('/index.html');
 			assert.equal(indexHtml.includes('typeof BOOLEAN_VAR is string'), true);
 			assert.equal(indexHtml.includes('typeof NUMBER_VAR is string'), true);
@@ -167,7 +167,7 @@ describe('Environment Variables', () => {
 			delete process.env.SECRET_PLACE;
 		});
 
-		it('does not turn import.meta.env into process.env when experimental.staticImportMetaEnv is true', async () => {
+		it('does not turn import.meta.env into process.env', async () => {
 			const request = new Request('http://example.com/');
 			const response = await app.render(request);
 			const html = await response.text();

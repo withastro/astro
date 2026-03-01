@@ -64,3 +64,22 @@ export function makeSvgComponent(
 	return `import { createSvgComponent } from 'astro/assets/runtime';
 export default createSvgComponent(${JSON.stringify(props)})`;
 }
+
+/**
+ * Parse an SVG file and return the serialisable component data
+ * (attributes + inner HTML body) without generating any module code.
+ * @internal Used by the asset pipeline for content-collection SVG images.
+ */
+export function parseSvgComponentData(
+	meta: ImageMetadata,
+	contents: Buffer | string,
+	svgoConfig: AstroConfig['experimental']['svgo'],
+): { attributes: Record<string, string>; children: string } {
+	const file = typeof contents === 'string' ? contents : contents.toString('utf-8');
+	const { attributes, body: children } = parseSvg({
+		path: meta.fsPath,
+		contents: file,
+		svgoConfig,
+	});
+	return { attributes: dropAttributes(attributes), children };
+}

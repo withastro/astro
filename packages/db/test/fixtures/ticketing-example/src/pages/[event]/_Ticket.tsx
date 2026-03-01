@@ -1,10 +1,10 @@
 import { createForm } from 'simple:form';
 import { useState } from 'react';
-import { z } from 'zod';
+import * as z from 'zod/v4';
 import { Form, Input } from '../../components/Form';
 
 export const ticketForm = createForm({
-	email: z.string().email(),
+	email: z.email(),
 	quantity: z.number().max(10),
 	newsletter: z.boolean(),
 });

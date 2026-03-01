@@ -8,10 +8,10 @@ import { runHookConfigDone, runHookConfigSetup } from '../../integrations/hooks.
 import type { AstroInlineConfig } from '../../types/public/config.js';
 import type { PreviewModule, PreviewServer } from '../../types/public/preview.js';
 import { resolveConfig } from '../config/config.js';
-import { createNodeLogger } from '../config/logging.js';
+import { createNodeLogger } from '../logger/node.js';
 import { createSettings } from '../config/settings.js';
-import { apply as applyPolyfills } from '../polyfill.js';
-import { createRoutesList } from '../routing/index.js';
+import { createRoutesList } from '../routing/create-manifest.js';
+import { getPrerenderDefault } from '../../prerender/utils.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import createStaticPreviewServer from './static-preview-server.js';
 import { getResolvedHostForHttpServer } from './util.js';
@@ -23,13 +23,16 @@ import { getResolvedHostForHttpServer } from './util.js';
  * @experimental The JavaScript API is experimental
  */
 export default async function preview(inlineConfig: AstroInlineConfig): Promise<PreviewServer> {
-	applyPolyfills();
 	ensureProcessNodeEnv('production');
 	const logger = createNodeLogger(inlineConfig);
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'preview');
 	telemetry.record(eventCliSession('preview', userConfig));
 
-	const _settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
+	const _settings = await createSettings(
+		astroConfig,
+		inlineConfig.logLevel,
+		fileURLToPath(astroConfig.root),
+	);
 
 	const settings = await runHookConfigSetup({
 		settings: _settings,
@@ -39,6 +42,7 @@ export default async function preview(inlineConfig: AstroInlineConfig): Promise<
 
 	// Create a route manifest so we can know if the build output is a static site or not
 	await createRoutesList({ settings: settings, cwd: inlineConfig.root }, logger);
+	settings.buildOutput = getPrerenderDefault(settings.config) ? 'static' : 'server';
 
 	await runHookConfigDone({ settings: settings, logger: logger, command: 'preview' });
 
@@ -78,12 +82,14 @@ export default async function preview(inlineConfig: AstroInlineConfig): Promise<
 	const server = await previewModule.default({
 		outDir: settings.config.outDir,
 		client: settings.config.build.client,
+		server: settings.config.build.server,
 		serverEntrypoint: new URL(settings.config.build.serverEntry, settings.config.build.server),
 		host: getResolvedHostForHttpServer(settings.config.server.host),
 		port: settings.config.server.port,
 		base: settings.config.base,
 		logger: new AstroIntegrationLogger(logger.options, settings.adapter.name),
 		headers: settings.config.server.headers,
+		root: settings.config.root,
 	});
 
 	return server;

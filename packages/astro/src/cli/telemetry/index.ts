@@ -1,4 +1,4 @@
-import * as msg from '../../core/messages.js';
+import * as msg from '../../core/messages/runtime.js';
 import { telemetry } from '../../events/index.js';
 import { createLoggerFromFlags, type Flags } from '../flags.js';
 

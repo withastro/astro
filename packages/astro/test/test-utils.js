@@ -3,11 +3,10 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { stripVTControlCharacters } from 'node:util';
 import { glob } from 'tinyglobby';
 import { Agent } from 'undici';
 import { check } from '../dist/cli/check/index.js';
-import { globalContentLayer } from '../dist/content/content-layer.js';
+import { globalContentLayer } from '../dist/content/instance.js';
 import { globalContentConfigObserver } from '../dist/content/utils.js';
 import build from '../dist/core/build/index.js';
 import { mergeConfig, resolveConfig } from '../dist/core/config/index.js';
@@ -19,10 +18,10 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
 
 /**
  * @typedef {import('../src/core/dev/dev').DevServer} DevServer
- * @typedef {import('../src/types/public/config.js').AstroInlineConfig & { root?: string | URL }} AstroInlineConfig
+ * @typedef {Omit<import('../src/types/public/config.js').AstroInlineConfig, 'root'> & { root?: string | URL }} AstroInlineConfig
  * @typedef {import('../src/types/public/config.js').AstroConfig} AstroConfig
  * @typedef {import('../src/core/preview/index').PreviewServer} PreviewServer
- * @typedef {import('../src/core/app/index').App} App
+ * @typedef {import('../src/core/app/app.js').App} App
  * @typedef {import('../src/cli/check/index').AstroChecker} AstroChecker
  * @typedef {import('../src/cli/check/index').CheckPayload} CheckPayload
  * @typedef {import('http').IncomingMessage} NodeRequest
@@ -35,15 +34,15 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
  * @property {(path: string) => Promise<boolean>} pathExists
  * @property {(url: string, opts?: Parameters<typeof fetch>[1]) => Promise<Response>} fetch
  * @property {(path: string) => Promise<string>} readFile
- * @property {(path: string, updater: (content: string) => string) => Promise<void>} editFile
+ * @property {(path: string, updater: (content: string) => string, waitForNextWrite = true) => Promise<() => void>} editFile
  * @property {(path: string) => Promise<string[]>} readdir
  * @property {(pattern: string) => Promise<string[]>} glob
  * @property {(inlineConfig?: Parameters<typeof dev>[0]) => ReturnType<typeof dev>} startDevServer
  * @property {typeof preview} preview
  * @property {() => Promise<void>} clean
- * @property {() => Promise<App>} loadTestAdapterApp
+ * @property {(streaming?: boolean) => Promise<App>} loadTestAdapterApp
+ * @property {(streaming?: boolean) => Promise<App>} loadSelfAdapterApp
  * @property {() => Promise<(req: NodeRequest, res: NodeResponse) => void>} loadNodeAdapterHandler
- * @property {() => Promise<void>} onNextChange
  * @property {(timeout?: number) => Promise<void>} onNextDataStoreChange
  * @property {typeof check} check
  * @property {typeof sync} sync
@@ -92,7 +91,7 @@ export async function loadFixture(inlineConfig) {
 	if (!inlineConfig?.root) throw new Error("Must provide { root: './fixtures/...' }");
 
 	// Silent by default during tests to not pollute the console output
-	inlineConfig.logLevel = 'silent';
+	inlineConfig.logLevel ??= 'silent';
 	inlineConfig.vite ??= {};
 	inlineConfig.vite.logLevel = 'silent';
 
@@ -166,7 +165,12 @@ export async function loadFixture(inlineConfig) {
 			globalContentConfigObserver.set({ status: 'init' });
 			// Reset NODE_ENV so it can be re-set by `dev()`
 			delete process.env.NODE_ENV;
-			devServer = await dev(mergeConfig(inlineConfig, extraInlineConfig));
+			try {
+				devServer = await dev(mergeConfig(inlineConfig, extraInlineConfig));
+			} catch (e) {
+				console.error(e);
+				return;
+			}
 			config.server.host = parseAddressToHost(devServer.address.address); // update host
 			config.server.port = devServer.address.port; // update port
 			await new Promise((resolve) => setTimeout(resolve, 100));
@@ -268,11 +272,16 @@ export async function loadFixture(inlineConfig) {
 			return handler;
 		},
 		loadTestAdapterApp: async (streaming) => {
-			const url = new URL(`./server/entry.mjs?id=${fixtureId}`, config.outDir);
+			const url = new URL(`./server/${config.build.serverEntry}?id=${fixtureId}`, config.outDir);
 			const { createApp, manifest } = await import(url);
 			const app = createApp(streaming);
 			app.manifest = manifest;
 			return app;
+		},
+		loadSelfAdapterApp: async (streaming) => {
+			const url = new URL(`./server/${config.build.serverEntry}?id=${fixtureId}`, config.outDir);
+			const { createApp } = await import(url);
+			return createApp(streaming);
 		},
 		editFile: async (filePath, newContentsOrCallback, waitForNextWrite = true) => {
 			const fileUrl = new URL(filePath.replace(/^\//, ''), config.root);
@@ -308,7 +317,7 @@ function parseAddressToHost(address) {
 	return address;
 }
 
-const cliPath = fileURLToPath(new URL('../astro.js', import.meta.url));
+const cliPath = fileURLToPath(new URL('../bin/astro.mjs', import.meta.url));
 
 /** Returns a process running the Astro CLI. */
 export function cli(/** @type {string[]} */ ...args) {
@@ -338,48 +347,6 @@ export function cli(/** @type {string[]} */ ...args) {
 				});
 			}),
 	};
-}
-
-export async function parseCliDevStart(proc) {
-	let stdout = '';
-	let stderr = '';
-
-	for await (const chunk of proc.stdout) {
-		stdout += chunk;
-		if (chunk.includes('Local')) break;
-	}
-	if (!stdout) {
-		for await (const chunk of proc.stderr) {
-			stderr += chunk;
-			break;
-		}
-	}
-
-	proc.kill();
-	stdout = stripVTControlCharacters(stdout);
-	stderr = stripVTControlCharacters(stderr);
-
-	if (stderr) {
-		throw new Error(stderr);
-	}
-
-	const messages = stdout
-		.split('\n')
-		.filter((ln) => !!ln.trim())
-		.map((ln) => ln.replace(/[🚀┃]/gu, '').replace(/\s+/g, ' ').trim());
-
-	return { messages };
-}
-
-export async function cliServerLogSetup(flags = [], cmd = 'dev') {
-	const { proc } = cli(cmd, ...flags);
-
-	const { messages } = await parseCliDevStart(proc);
-
-	const local = messages.find((msg) => msg.includes('Local'))?.replace(/Local\s*/g, '');
-	const network = messages.find((msg) => msg.includes('Network'))?.replace(/Network\s*/g, '');
-
-	return { local, network };
 }
 
 export const isMacOS = os.platform() === 'darwin';

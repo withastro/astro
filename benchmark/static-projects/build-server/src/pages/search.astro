@@ -1,0 +1,41 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ServerInfo from '../components/ServerInfo.astro';
+import Card from '../components/Card.astro';
+
+const url = new URL(Astro.request.url);
+const query = url.searchParams.get('q') || '';
+const resultsCount = query ? Math.floor(Math.random() * 100) : 0;
+
+const results = Array.from({ length: Math.min(resultsCount, 20) }, (_, i) => ({
+	title: `Result ${i + 1} for "${query}"`,
+	description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+	href: `/blog/${Math.floor(Math.random() * 100) + 1}`,
+}));
+---
+
+<BaseLayout title={`Search: ${query} - Server Site`}>
+	<ServerInfo />
+	<h1>Search Results</h1>
+	<form method="get" action="/search">
+		<input type="text" name="q" value={query} placeholder="Search..." />
+		<button type="submit">Search</button>
+	</form>
+	{
+		query && (
+			<p>
+				Found {resultsCount} results for "{query}"
+			</p>
+		)
+	}
+	{
+		results.length > 0 && (
+			<div class="grid">
+				{results.map((result) => (
+					<Card title={result.title} description={result.description} href={result.href} />
+				))}
+			</div>
+		)
+	}
+	{query && results.length === 0 && <p>No results found.</p>}
+</BaseLayout>

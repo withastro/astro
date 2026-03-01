@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "@astrojs/sitemap": "^3.6.0",
+    "@astrojs/sitemap": "workspace:*",
     "@astrojs/vercel": "workspace:*",
     "astro": "workspace:*"
   }

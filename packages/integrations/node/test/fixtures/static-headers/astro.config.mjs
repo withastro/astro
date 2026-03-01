@@ -4,9 +4,9 @@ export default {
 	output: 'server',
 	adapter: node({ 
 		mode: 'standalone',
-		experimentalStaticHeaders: true
+		staticHeaders: true
 	}),
-	experimental: {
+	security: {
 		csp: true
 	}
 };

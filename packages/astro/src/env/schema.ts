@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod/v4';
 
 const StringSchema = z.object({
 	type: z.literal('string'),
@@ -33,11 +33,9 @@ const EnumSchema = z.object({
 	type: z.literal('enum'),
 	values: z.array(
 		// We use "'" for codegen so it can't be passed here
-		z
-			.string()
-			.refine((v) => !v.includes("'"), {
-				message: `The "'" character can't be used as an enum value`,
-			}),
+		z.string().refine((v) => !v.includes("'"), {
+			message: `The "'" character can't be used as an enum value`,
+		}),
 	),
 	optional: z.boolean().optional(),
 	default: z.string().optional(),
@@ -89,11 +87,14 @@ const EnvFieldMetadata = z.custom<z.input<typeof _EnvFieldMetadata>>().superRefi
 		if (issue.code === z.ZodIssueCode.invalid_union) {
 			ctx.addIssue({
 				code: z.ZodIssueCode.custom,
-				message: `**Invalid combination** of "access" and "context" options:\n  Secret client variables are not supported. Please review the configuration of \`env.schema.${ctx.path.at(-1)}\`.\n  Learn more at https://docs.astro.build/en/guides/environment-variables/#variable-types`,
+				message: `**Invalid combination** of "access" and "context" options:\n  Secret client variables are not supported. Please review the configuration.\n  Learn more at https://docs.astro.build/en/guides/environment-variables/#variable-types`,
 				path: ['context', 'access'],
 			});
 		} else {
-			ctx.addIssue(issue);
+			ctx.addIssue({
+				...issue,
+				code: 'custom',
+			});
 		}
 	}
 });
@@ -117,7 +118,7 @@ type Prettify<T> = {
 
 export type EnvSchema = z.infer<typeof EnvSchema>;
 
-type _Field<T extends z.ZodType> = Prettify<z.infer<typeof EnvFieldMetadata & T>>;
+type _Field<T extends z.ZodType> = Prettify<z.infer<typeof EnvFieldMetadata> & z.infer<T>>;
 type _FieldInput<T extends z.ZodType, TKey extends string = 'type'> = Prettify<
 	z.infer<typeof EnvFieldMetadata> & Omit<z.infer<T>, TKey>
 >;

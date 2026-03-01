@@ -2,7 +2,7 @@ declare module 'astro:assets' {
 	/** @internal Run `astro dev` or `astro sync` to generate high fidelity types */
 	export type CssVariable = string;
 
-	/** The data returned by `getFontData()` */
+	/** The data available on `fontData` */
 	export type FontData = import('../dist/assets/fonts/types.js').FontData;
 
 	/** @internal */

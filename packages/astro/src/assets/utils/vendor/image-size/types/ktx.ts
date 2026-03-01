@@ -1,5 +1,5 @@
 import type { IImage } from './interface.ts'
-import { toUTF8String, readUInt32LE } from './utils.js'
+import { readUInt32LE, toUTF8String } from './utils.js'
 
 export const KTX: IImage = {
   validate: (input) => {
@@ -10,10 +10,10 @@ export const KTX: IImage = {
   calculate: (input) => {
     const type = input[5] === 0x31 ? 'ktx' : 'ktx2'
     const offset = type === 'ktx' ? 36 : 20
-    return ({
+    return {
       height: readUInt32LE(input, offset + 4),
       width: readUInt32LE(input, offset),
       type,
-    })
+    }
   },
 }

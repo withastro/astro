@@ -27,7 +27,7 @@ export async function shell(
 	let stdout = '';
 	let stderr = '';
 	try {
-		child = spawn(`${command} ${flags.join(' ')}`, {
+		child = spawn(command, flags, {
 			cwd: opts.cwd,
 			shell: true,
 			stdio: opts.stdio,

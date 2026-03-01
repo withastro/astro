@@ -3,7 +3,7 @@ import type { InlineConfig } from 'vite';
 import type { AstroSettings, ComponentInstance, RoutesList } from '../../types/astro.js';
 import type { MiddlewareHandler } from '../../types/public/common.js';
 import type { RuntimeMode } from '../../types/public/config.js';
-import type { RouteData, SSRLoadedRenderer } from '../../types/public/internal.js';
+import type { RouteData } from '../../types/public/internal.js';
 import type { Logger } from '../logger/core.js';
 
 type ComponentPath = string;
@@ -46,7 +46,6 @@ export interface SinglePageBuiltModule {
 	 * The `onRequest` hook exported by the middleware
 	 */
 	onRequest?: MiddlewareHandler;
-	renderers: SSRLoadedRenderer[];
 }
 
 export type ViteBuildReturn = Awaited<ReturnType<typeof vite.build>>;

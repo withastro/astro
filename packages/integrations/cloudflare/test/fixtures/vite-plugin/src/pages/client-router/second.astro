@@ -1,0 +1,27 @@
+---
+import {ClientRouter} from "astro:transitions";
+---
+
+<html>
+<head>
+	<ClientRouter />
+	<title>Client router</title>
+</head>
+<body transition:animate="fade">
+	<h1>Second client router page</h1>
+	<a href="/client-router">Go back natively</a><br>
+	<button  id="navigate" >Go back programmatically</button>
+</body>
+</html>
+
+
+<script>
+	import { navigate } from "astro:transitions/client";
+
+	const button = document.getElementById("navigate");
+	if (button) {
+		button.onclick = () => {
+			navigate("/client-router");
+		};
+	}
+</script>

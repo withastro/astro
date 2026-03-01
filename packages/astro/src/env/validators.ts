@@ -75,7 +75,7 @@ const stringValidator =
 const numberValidator =
 	({ gt, min, lt, max, int }: NumberSchema): ValueValidator =>
 	(input) => {
-		const num = parseFloat(input ?? '');
+		const num = Number.parseFloat(input ?? '');
 		if (isNaN(num)) {
 			return {
 				ok: false,

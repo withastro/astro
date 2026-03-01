@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { z } from 'zod';
+import * as z from 'zod/v4';
 import { formDataToObject } from '../../../dist/actions/runtime/server.js';
 
 describe('formDataToObject', () => {

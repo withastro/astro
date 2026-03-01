@@ -5,8 +5,6 @@ import Image from './Image.astro';
 type Props = LocalImageProps | RemoteImageProps;
 
 const { class: className, ...props } = Astro.props;
-
-import './image.css';
 ---
 
 {/* Applying class outside of the spread prevents it from applying unnecessary astro-* classes */}

@@ -9,7 +9,7 @@ import type { BuildInternals } from '../build/internal.js';
 import { generateCspDigest } from '../encryption.js';
 import type { CspDirective } from './config.js';
 
-type EnabledCsp = Exclude<AstroConfig['experimental']['csp'], false>;
+type EnabledCsp = Exclude<AstroConfig['security']['csp'], false>;
 
 export function shouldTrackCspHashes(csp: any): csp is EnabledCsp {
 	return csp === true || typeof csp === 'object';
@@ -55,7 +55,7 @@ export function getStyleResources(csp: EnabledCsp): string[] {
 // because it has to collect and deduplicate font resources from both the user
 // config and the vite plugin for fonts
 export function getDirectives(settings: AstroSettings): CspDirective[] {
-	const { csp } = settings.config.experimental;
+	const { csp } = settings.config.security;
 	if (!shouldTrackCspHashes(csp)) {
 		return [];
 	}

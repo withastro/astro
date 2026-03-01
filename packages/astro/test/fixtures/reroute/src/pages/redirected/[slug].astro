@@ -1,0 +1,19 @@
+---
+export function getStaticPaths() {
+	return [
+		{ params: { slug: 'héllo' } },
+	];
+}
+
+return Astro.rewrite("/")
+
+---
+
+<html>
+<head>
+	<title>Redirected [slug].astro</title>
+</head>
+<body>
+<h1>/redirected/[slug].astro</h1>
+</body>
+</html>

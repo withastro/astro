@@ -27,6 +27,7 @@ export type ServerDeserializedManifest = Pick<
 		i18n: AstroConfig['i18n'];
 		build: Pick<AstroConfig['build'], 'server' | 'client' | 'format'>;
 		root: URL;
+		image: Pick<AstroConfig['image'], 'objectFit' | 'objectPosition' | 'layout'>;
 	};
 
 export type ClientDeserializedManifest = Pick<
@@ -35,4 +36,5 @@ export type ClientDeserializedManifest = Pick<
 > & {
 	i18n: AstroConfig['i18n'];
 	build: Pick<AstroConfig['build'], 'format'>;
+	image: Pick<AstroConfig['image'], 'objectFit' | 'objectPosition' | 'layout'>;
 };

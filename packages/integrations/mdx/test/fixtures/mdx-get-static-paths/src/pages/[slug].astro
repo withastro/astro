@@ -1,6 +1,6 @@
 ---
 export const getStaticPaths = async () => {
-	const content = await Astro.glob('../content/*.mdx');
+	const content = Object.values(import.meta.glob('../content/*.mdx', { eager: true }));
 
 	return content
     .filter((page) => !page.frontmatter.draft) // skip drafts

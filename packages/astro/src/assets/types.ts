@@ -89,6 +89,7 @@ export type ImageTransform = {
 	format?: ImageOutputFormat | undefined;
 	fit?: ImageFit | undefined;
 	position?: string | undefined;
+	background?: string | undefined;
 	[key: string]: any;
 } & Astro.CustomImageProps;
 

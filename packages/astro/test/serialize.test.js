@@ -90,7 +90,7 @@ describe('serialize', () => {
 		assert.equal(serializeProps(input), output);
 	});
 	it('serializes Infinity and -Infinity', () => {
-		const input = { a: Infinity, b: -Infinity };
+		const input = { a: Number.POSITIVE_INFINITY, b: Number.NEGATIVE_INFINITY };
 		const output = `{"a":[11,1],"b":[11,-1]}`;
 		assert.equal(serializeProps(input), output);
 	});

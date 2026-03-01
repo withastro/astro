@@ -12,7 +12,12 @@ async function loadRemoteImage(src: URL, headers: Headers) {
 		const res = await fetch(src, {
 			// Forward all headers from the original request
 			headers,
+			redirect: 'manual',
 		});
+
+		if (res.status >= 300 && res.status < 400) {
+			return undefined;
+		}
 
 		if (!res.ok) {
 			return undefined;

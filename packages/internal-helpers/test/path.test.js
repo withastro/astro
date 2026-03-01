@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { isParentDirectory, isRemotePath } from '../dist/path.js';
+import { isParentDirectory, isRemotePath, normalizePathname } from '../dist/path.js';
 
 describe('isRemotePath', () => {
 	const remotePaths = [
@@ -772,5 +772,65 @@ describe('isParentDirectory', () => {
 		// Multiple slashes
 		assert.equal(isParentDirectory('/home', '/home//user'), true);
 		assert.equal(isParentDirectory('/home', '/home///user///docs'), true);
+	});
+});
+
+describe('normalizePathname', () => {
+	describe('file format', () => {
+		it('should strip .html extension', () => {
+			assert.equal(normalizePathname('/about.html', 'file', 'ignore'), '/about');
+			assert.equal(normalizePathname('/blog/post.html', 'file', 'ignore'), '/blog/post');
+			assert.equal(
+				normalizePathname('/deeply/nested/page.html', 'file', 'ignore'),
+				'/deeply/nested/page',
+			);
+		});
+
+		it('should not strip .html from root', () => {
+			assert.equal(normalizePathname('/.html', 'file', 'ignore'), '/.html');
+		});
+
+		it('should return root for mangled index paths', () => {
+			// When base is removed from index paths in file format, they can get mangled
+			assert.equal(normalizePathname('/html', 'file', 'ignore'), '/');
+			assert.equal(normalizePathname('/something', 'file', 'ignore'), '/');
+		});
+
+		it('should handle root path', () => {
+			assert.equal(normalizePathname('/', 'file', 'ignore'), '/');
+		});
+	});
+
+	describe('directory format', () => {
+		it('should strip trailing slash when trailingSlash is ignore', () => {
+			assert.equal(normalizePathname('/about/', 'directory', 'ignore'), '/about');
+			assert.equal(normalizePathname('/blog/post/', 'directory', 'ignore'), '/blog/post');
+		});
+
+		it('should not strip trailing slash when trailingSlash is always', () => {
+			assert.equal(normalizePathname('/about/', 'directory', 'always'), '/about/');
+			assert.equal(normalizePathname('/blog/post/', 'directory', 'always'), '/blog/post/');
+		});
+
+		it('should not strip trailing slash when trailingSlash is never', () => {
+			assert.equal(normalizePathname('/about/', 'directory', 'never'), '/about/');
+		});
+
+		it('should not strip trailing slash from root', () => {
+			assert.equal(normalizePathname('/', 'directory', 'ignore'), '/');
+		});
+
+		it('should handle paths without trailing slash', () => {
+			assert.equal(normalizePathname('/about', 'directory', 'ignore'), '/about');
+			assert.equal(normalizePathname('/about', 'directory', 'always'), '/about');
+		});
+	});
+
+	describe('preserve format', () => {
+		it('should behave same as directory format', () => {
+			assert.equal(normalizePathname('/about/', 'preserve', 'ignore'), '/about');
+			assert.equal(normalizePathname('/about/', 'preserve', 'always'), '/about/');
+			assert.equal(normalizePathname('/', 'preserve', 'ignore'), '/');
+		});
 	});
 });

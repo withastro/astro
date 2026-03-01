@@ -57,14 +57,7 @@ function getNetworkAddress(
 	};
 	Object.values(os.networkInterfaces())
 		.flatMap((nInterface) => nInterface ?? [])
-		.filter(
-			(detail) =>
-				detail &&
-				detail.address &&
-				(detail.family === 'IPv4' ||
-					// @ts-expect-error Node 18.0 - 18.3 returns number
-					detail.family === 4),
-		)
+		.filter((detail) => detail && detail.address && detail.family === 'IPv4')
 		.forEach((detail) => {
 			let host = detail.address.replace(
 				'127.0.0.1',

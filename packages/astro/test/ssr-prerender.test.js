@@ -36,6 +36,42 @@ describe('SSR: prerender', () => {
 		});
 	});
 
+	describe('?raw imports work in both SSR and prerendered routes', () => {
+		it('raw import works in SSR route', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/not-prerendered');
+			const response = await app.render(request);
+			assert.equal(response.status, 200);
+			const html = await response.text();
+			const $ = cheerio.load(html);
+			assert.equal($('#raw-styles').text().includes('background: blue'), true);
+		});
+
+		it('raw import works in prerendered route', async () => {
+			const html = await fixture.readFile('/client/static/index.html');
+			const $ = cheerio.load(html);
+			assert.equal($('#raw-styles').text().includes('background: blue'), true);
+		});
+	});
+
+	describe('Shared component CSS works in both SSR and prerendered routes', () => {
+		it('shared component CSS is included in SSR route', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/not-prerendered');
+			const response = await app.render(request);
+			assert.equal(response.status, 200);
+			const html = await response.text();
+			// Check that the shared component's scoped CSS is included
+			assert.match(html, /color:red/);
+		});
+
+		it('shared component CSS is included in prerendered route', async () => {
+			const html = await fixture.readFile('/client/static/index.html');
+			// Check that the shared component's scoped CSS is included
+			assert.match(html, /color:red/);
+		});
+	});
+
 	describe('Astro.params in SSR', () => {
 		it('Params are passed to component', async () => {
 			const app = await fixture.loadTestAdapterApp();

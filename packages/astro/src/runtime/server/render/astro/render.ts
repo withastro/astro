@@ -1,13 +1,24 @@
 import { AstroError, AstroErrorData } from '../../../../core/errors/index.js';
 import type { RouteData, SSRResult } from '../../../../types/public/internal.js';
 import { isPromise } from '../../util.js';
-import { chunkToByteArray, chunkToString, encoder, type RenderDestination } from '../common.js';
+import {
+	chunkToByteArray,
+	chunkToByteArrayOrString,
+	chunkToString,
+	encoder,
+	type RenderDestination,
+} from '../common.js';
 import { promiseWithResolvers } from '../util.js';
 import type { AstroComponentFactory } from './factory.js';
 import { isHeadAndContent } from './head-and-content.js';
 import { isRenderTemplateResult } from './render-template.js';
 
 const DOCTYPE_EXP = /<!doctype html/i;
+
+/**
+ * Queue-based rendering to AsyncIterable
+ * NOTE: Currently disabled for .astro files. Kept for potential future use.
+ */
 
 // Calls a component and renders it into a string of HTML
 export async function renderToString(
@@ -29,6 +40,15 @@ export async function renderToString(
 	// If the Astro component returns a Response on init, return that response
 	if (templateResult instanceof Response) return templateResult;
 
+	// EXPERIMENTAL: Queue-based rendering
+	// NOTE: Queue rendering is disabled for .astro files due to 2x performance overhead.
+	// Queue rendering remains enabled for MDX pages (handled separately in page.ts).
+	// The queue architecture adds overhead for .astro files with JSX that outweighs benefits.
+	// if (result._experimentalQueuedRendering) {
+	// 	return await renderWithQueue(result, templateResult, isPage);
+	// }
+
+	// Recursive rendering (default for .astro files)
 	let str = '';
 	let renderedFirstPageChunk = false;
 
@@ -79,6 +99,13 @@ export async function renderToReadableStream(
 	// If the Astro component returns a Response on init, return that response
 	if (templateResult instanceof Response) return templateResult;
 
+	// EXPERIMENTAL: Queue-based rendering
+	// NOTE: Queue rendering is disabled for .astro files (see renderToString for explanation)
+	// if (result._experimentalQueuedRendering) {
+	// 	return await renderWithQueueToStream(result, templateResult, isPage, route);
+	// }
+
+	// Recursive rendering (default for .astro files)
 	let renderedFirstPageChunk = false;
 
 	if (isPage) {
@@ -214,6 +241,14 @@ export async function renderToAsyncIterable(
 		route,
 	);
 	if (templateResult instanceof Response) return templateResult;
+
+	// EXPERIMENTAL: Queue-based rendering
+	// NOTE: Queue rendering is disabled for .astro files (see renderToString for explanation)
+	// if (result._experimentalQueuedRendering) {
+	// 	return await renderWithQueueToAsyncIterable(result, templateResult, isPage, route);
+	// }
+
+	// Recursive rendering (default for .astro files)
 	let renderedFirstPageChunk = false;
 	if (isPage) {
 		await bufferHeadContent(result);
@@ -230,7 +265,7 @@ export async function renderToAsyncIterable(
 	// The `next` is an object `{ promise, resolve, reject }` that we use to wait
 	// for chunks to be pushed into the buffer.
 	let next: ReturnType<typeof promiseWithResolvers<void>> | null = null;
-	const buffer: Uint8Array[] = []; // []Uint8Array
+	const buffer: Array<Uint8Array | string> = []; // []Uint8Array
 	let renderingComplete = false;
 
 	const iterator: AsyncIterator<Uint8Array> = {
@@ -257,10 +292,31 @@ export async function renderToAsyncIterable(
 				throw error;
 			}
 
-			// Get the total length of all arrays.
+			// This calculates the length of the final merged array.
+			// While doing so, it also replaces consecutive strings with their
+			// concatenated Uint8Array equivalent.
+			// This is a performance optimization since `TextEncoder#encode` can be
+			// costly, so it is faster to encode one larger string than it is
+			// to encode many smaller strings.
 			let length = 0;
+			let stringToEncode = '';
 			for (let i = 0, len = buffer.length; i < len; i++) {
-				length += buffer[i].length;
+				const bufferEntry = buffer[i];
+
+				if (typeof bufferEntry === 'string') {
+					const nextIsString = i + 1 < len && typeof buffer[i + 1] === 'string';
+					stringToEncode += bufferEntry;
+					if (!nextIsString) {
+						const encoded = encoder.encode(stringToEncode);
+						length += encoded.length;
+						stringToEncode = '';
+						buffer[i] = encoded;
+					} else {
+						buffer[i] = '';
+					}
+				} else {
+					length += bufferEntry.length;
+				}
 			}
 
 			// Create a new array with total length and merge all source arrays.
@@ -268,7 +324,15 @@ export async function renderToAsyncIterable(
 			let offset = 0;
 			for (let i = 0, len = buffer.length; i < len; i++) {
 				const item = buffer[i];
-				mergedArray.set(item, offset);
+				// If an item is an empty string, it must've been cleared out earlier
+				// when we converted it into a larger Uint8Array. Thus, we can skip it.
+				if (item === '') {
+					continue;
+				}
+				// TypeScript will think this is `string | Uint8Array` but, because of
+				// the encoding earlier, we know the only remaining strings are empty
+				// and have been skipped above.
+				mergedArray.set(item as Uint8Array, offset);
 				offset += item.length;
 			}
 
@@ -304,7 +368,7 @@ export async function renderToAsyncIterable(
 			if (chunk instanceof Response) {
 				throw new AstroError(AstroErrorData.ResponseSentError);
 			}
-			const bytes = chunkToByteArray(result, chunk);
+			const bytes = chunkToByteArrayOrString(result, chunk);
 			// It might be possible that we rendered a chunk with no content, in which
 			// case we don't want to resolve the promise.
 			if (bytes.length > 0) {

@@ -3,12 +3,12 @@ import { db, Likes, Comment } from "astro:db";
 // https://astro.build/db/seed
 export default async function seed() {
   await db.insert(Likes).values({
-    postId: "first-post.md",
+    postId: "first-post",
     likes: 10,
   });
 
   await db.insert(Comment).values({
-    postId: "first-post.md",
+    postId: "first-post",
     author: "Alice",
     body: "Great post!",
   });

@@ -8,15 +8,6 @@ import { hasSpecialQueries } from '../vite-plugin-utils/index.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './constants.js';
 import { removeQueryString, removeTrailingForwardSlash, slash } from './path.js';
 
-/** Returns true if argument is an object of any prototype/class (but not null). */
-export function isObject(value: unknown): value is Record<string, any> {
-	return typeof value === 'object' && value != null;
-}
-
-/** Cross-realm compatible URL */
-export function isURL(value: unknown): value is URL {
-	return Object.prototype.toString.call(value) === '[object URL]';
-}
 /** Check if a file is a markdown file based on its extension */
 export function isMarkdownFile(fileId: string, option?: { suffix?: string }): boolean {
 	if (hasSpecialQueries(fileId)) {
@@ -30,16 +21,6 @@ export function isMarkdownFile(fileId: string, option?: { suffix?: string }): bo
 	return false;
 }
 
-/** Wraps an object in an array. If an array is passed, ignore it. */
-export function arraify<T>(target: T | T[]): T[] {
-	return Array.isArray(target) ? target : [target];
-}
-
-export function padMultilineString(source: string, n = 2) {
-	const lines = source.split(/\r?\n/);
-	return lines.map((l) => ` `.repeat(n) + l).join(`\n`);
-}
-
 const STATUS_CODE_PAGES = new Set(['/404', '/500']);
 
 /**
@@ -47,17 +28,21 @@ const STATUS_CODE_PAGES = new Set(['/404', '/500']);
  * Handles both "/foo" and "foo" `name` formats.
  * Handles `/404` and `/` correctly.
  */
-export function getOutputFilename(astroConfig: AstroConfig, name: string, routeData: RouteData) {
+export function getOutputFilename(
+	buildFormat: NonNullable<AstroConfig['build']>['format'],
+	name: string,
+	routeData: RouteData,
+) {
 	if (routeData.type === 'endpoint') {
 		return name;
 	}
 	if (name === '/' || name === '') {
 		return path.posix.join(name, 'index.html');
 	}
-	if (astroConfig.build.format === 'file' || STATUS_CODE_PAGES.has(name)) {
+	if (buildFormat === 'file' || STATUS_CODE_PAGES.has(name)) {
 		return `${removeTrailingForwardSlash(name || 'index')}.html`;
 	}
-	if (astroConfig.build.format === 'preserve' && !routeData.isIndex) {
+	if (buildFormat === 'preserve' && !routeData.isIndex) {
 		return `${removeTrailingForwardSlash(name || 'index')}.html`;
 	}
 	return path.posix.join(name, 'index.html');
@@ -90,7 +75,7 @@ export function parseNpmName(
 }
 
 /**
- * Convert file URL to ID for viteServer.moduleGraph.idToModuleMap.get(:viteID)
+ * Convert file URL to ID for environment.moduleGraph.idToModuleMap.get(:viteID)
  * Format:
  *   Linux/Mac:  /Users/astro/code/my-project/src/pages/index.astro
  *   Windows:    C:/Users/astro/code/my-project/src/pages/index.astro

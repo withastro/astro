@@ -1,0 +1,10 @@
+---
+import Strict from './Strict.vue';
+import Arbitrary from './Arbitrary.vue';
+---
+
+<!-- Test that client directives work on Vue components -->
+<Strict client:load message="hello" />
+
+<!-- Test that HTML attributes like class, style, id work on Vue components -->
+<Arbitrary client:load class="test-class" style="color: red" id="test-id" data-testid="test" />

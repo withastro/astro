@@ -1,0 +1,27 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Card from '../../components/Card.astro';
+import ServerInfo from '../../components/ServerInfo.astro';
+
+const posts = Array.from({ length: 100 }, (_, i) => ({
+	title: `Blog Post ${i + 1}`,
+	description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+	href: `/blog/${i + 1}`,
+}));
+
+const currentPage = 1;
+const totalPages = Math.ceil(posts.length / 10);
+---
+
+<BaseLayout title="Blog - Server Site">
+	<ServerInfo />
+	<h1>All Blog Posts</h1>
+	<p>Page {currentPage} of {totalPages}</p>
+	<div class="grid">
+		{
+			posts.map((post) => (
+				<Card title={post.title} description={post.description} href={post.href} />
+			))
+		}
+	</div>
+</BaseLayout>

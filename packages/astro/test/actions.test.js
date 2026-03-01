@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import * as devalue from 'devalue';
-import { serializeActionResult } from '../dist/actions/runtime/shared.js';
+import { serializeActionResult } from '../dist/actions/runtime/server.js';
 import { REDIRECT_STATUS_CODES } from '../dist/core/constants.js';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
@@ -64,6 +64,26 @@ describe('Astro Actions', () => {
 
 			assert.equal(data.channel, 'bholmesdev');
 			assert.equal(data.subscribeButtonState, 'smashed');
+		});
+
+		it('Rejects oversized JSON action body', async () => {
+			const largeActionPayload = JSON.stringify({
+				channel: 'a'.repeat(2 * 1024 * 1024),
+			});
+			const res = await fixture.fetch('/_actions/subscribe', {
+				method: 'POST',
+				body: largeActionPayload,
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			});
+
+			assert.equal(res.ok, false);
+			assert.equal(res.status, 413);
+			assert.equal(res.headers.get('Content-Type'), 'application/json');
+
+			const data = await res.json();
+			assert.equal(data.code, 'CONTENT_TOO_LARGE');
 		});
 
 		it('Exposes comment action', async () => {
@@ -148,8 +168,9 @@ describe('Astro Actions', () => {
 
 		it('Should fail when calling an action without using Astro.callAction', async () => {
 			const res = await fixture.fetch('/invalid/');
+			assert.equal(res.status, 500);
 			const text = await res.text();
-			assert.match(text, /ActionCalledFromServerError/);
+			assert.match(text, /@vite\/client/);
 		});
 	});
 
@@ -177,6 +198,27 @@ describe('Astro Actions', () => {
 			const data = devalue.parse(await res.text());
 			assert.equal(data.channel, 'bholmesdev');
 			assert.equal(data.subscribeButtonState, 'smashed');
+		});
+
+		it('Rejects oversized JSON action body', async () => {
+			const largeActionPayload = JSON.stringify({
+				channel: 'a'.repeat(2 * 1024 * 1024),
+			});
+			const req = new Request('http://example.com/_actions/subscribe', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: largeActionPayload,
+			});
+			const res = await app.render(req);
+
+			assert.equal(res.ok, false);
+			assert.equal(res.status, 413);
+			assert.equal(res.headers.get('Content-Type'), 'application/json');
+
+			const data = await res.json();
+			assert.equal(data.code, 'CONTENT_TOO_LARGE');
 		});
 
 		it('Exposes comment action', async () => {

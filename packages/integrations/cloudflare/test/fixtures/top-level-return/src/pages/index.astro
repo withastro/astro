@@ -1,0 +1,25 @@
+---
+// This import statement is necessary to indicate that this code is an ECMAScript module.
+import { guard } from "../lib/index.js"
+// Un-commenting the following lines will trigger the following error:
+// `X [ERROR] No matching export in "../lib/index.ts" for import "throw"`
+// This is because 'return' is replaced with 'throw', and it's highly unlikely
+// that the source library provides an export named 'throw', leading to a name mismatch.
+//
+// import { return as ret } from "../lib/index.js"
+// console.log(ret)
+
+if (guard()) {
+  return Astro.redirect("/404")
+}
+
+---
+
+<html>
+<head>
+	<title>Top-level Return Test</title>
+</head>
+<body>
+	<h1>Top-level Return Test</h1>
+</body>
+</html>

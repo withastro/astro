@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url';
 import { stripVTControlCharacters } from 'node:util';
 import type { LogLevel, Rollup, Logger as ViteLogger } from 'vite';
 import { isAstroError } from '../errors/errors.js';
-import { serverShortcuts as formatServerShortcuts } from '../messages.js';
+import { serverShortcuts as formatServerShortcuts } from '../messages/runtime.js';
 import { type Logger as AstroLogger, isLogLevelEnabled } from './core.js';
 
 const PKG_PREFIX = fileURLToPath(new URL('../../../', import.meta.url));

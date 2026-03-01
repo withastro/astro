@@ -5,6 +5,9 @@ type RedirectTemplate = {
 	relativeLocation: string;
 };
 
+/**
+ * Generates a minimal HTML redirect page used for SSR redirects.
+ */
 export function redirectTemplate({
 	status,
 	absoluteLocation,

@@ -19,9 +19,8 @@ import type { MarkdocIntegrationOptions } from './options.js';
 export async function setupConfig(
 	userConfig: AstroMarkdocConfig = {},
 	options: MarkdocIntegrationOptions | undefined,
-	experimentalHeadingIdCompat: boolean,
 ): Promise<MergedConfig> {
-	let defaultConfig: AstroMarkdocConfig = setupHeadingConfig(experimentalHeadingIdCompat);
+	let defaultConfig: AstroMarkdocConfig = setupHeadingConfig();
 
 	if (userConfig.extends) {
 		for (let extension of userConfig.extends) {
@@ -39,6 +38,7 @@ export async function setupConfig(
 		merged = mergeConfig(merged, HTML_CONFIG);
 	}
 
+	syncTagNodeAttributes(merged);
 	return merged;
 }
 
@@ -46,9 +46,8 @@ export async function setupConfig(
 export function setupConfigSync(
 	userConfig: AstroMarkdocConfig = {},
 	options: MarkdocIntegrationOptions | undefined,
-	experimentalHeadingIdCompat: boolean,
 ): MergedConfig {
-	const defaultConfig: AstroMarkdocConfig = setupHeadingConfig(experimentalHeadingIdCompat);
+	const defaultConfig: AstroMarkdocConfig = setupHeadingConfig();
 
 	let merged = mergeConfig(defaultConfig, userConfig);
 
@@ -56,6 +55,7 @@ export function setupConfigSync(
 		merged = mergeConfig(merged, HTML_CONFIG);
 	}
 
+	syncTagNodeAttributes(merged);
 	return merged;
 }
 
@@ -100,6 +100,60 @@ export function mergeConfig(
 	};
 }
 
+/**
+ * Sync custom attributes between tags and nodes that share the same name.
+ * In Markdoc, `table` exists as both a tag (`{% table %}`) and a node (the inner
+ * table structure). Attributes on the tag propagate to the child node in the AST,
+ * so both schemas must declare the same attributes for validation to pass.
+ * When users configure attributes on only one side, this copies them to the other.
+ */
+function syncTagNodeAttributes(config: MergedConfig): void {
+	// Markdoc's types don't have a string index signature, so we need the explicit
+	// type to index with a dynamic key in the loop below
+	const builtinTags: Record<string, any> = Markdoc.tags;
+	const builtinNodes: Record<string, any> = Markdoc.nodes;
+
+	for (const name of Object.keys(builtinTags)) {
+		if (!(name in builtinNodes)) continue;
+
+		const tagSchema = config.tags[name];
+		const nodeSchema = config.nodes[name as NodeType];
+		const tagAttrs = tagSchema?.attributes;
+		const nodeAttrs = nodeSchema?.attributes;
+
+		// Nothing to sync if neither side has custom attributes
+		if (!tagAttrs && !nodeAttrs) continue;
+
+		const mergedAttrs = { ...tagAttrs, ...nodeAttrs };
+
+		if (tagSchema) {
+			config.tags[name] = { ...tagSchema, attributes: mergedAttrs };
+		} else {
+			config.tags[name] = { ...builtinTags[name], attributes: mergedAttrs };
+		}
+
+		if (nodeSchema) {
+			config.nodes[name as NodeType] = { ...nodeSchema, attributes: mergedAttrs };
+		} else {
+			config.nodes[name as NodeType] = { ...builtinNodes[name], attributes: mergedAttrs };
+		}
+	}
+}
+
+/**
+ * Check if a transform function respects the `render` property.
+ * Astro's built-in transforms (like for headings) check `config.nodes?.X?.render`
+ * to allow custom render components. Markdoc's built-in transforms do not.
+ */
+function transformRespectsRender(transform: { toString(): string }, configKey: string): boolean {
+	const source = transform.toString();
+	// Astro's transforms check config.nodes?.X?.render or config.tags?.X?.render
+	return (
+		source.includes(`config.nodes?.${configKey}?.render`) ||
+		source.includes(`config.tags?.${configKey}?.render`)
+	);
+}
+
 export function resolveComponentImports(
 	markdocConfig: Required<Pick<AstroMarkdocConfig, 'tags' | 'nodes'>>,
 	tagComponentMap: Record<string, AstroInstance['default']>,
@@ -107,11 +161,31 @@ export function resolveComponentImports(
 ) {
 	for (const [tag, render] of Object.entries(tagComponentMap)) {
 		const config = markdocConfig.tags[tag];
-		if (config) config.render = render;
+		if (config) {
+			config.render = render;
+			// When a custom `render` component is specified and the transform doesn't
+			// respect the render property, remove the transform so `render` wins.
+			// This allows users to spread built-in Markdoc node/tag configs
+			// (e.g., `...Markdoc.nodes.fence`) and override rendering with a custom component.
+			// See https://github.com/withastro/astro/issues/9708
+			if (config.transform && !transformRespectsRender(config.transform, tag)) {
+				delete config.transform;
+			}
+		}
 	}
 	for (const [node, render] of Object.entries(nodeComponentMap)) {
 		const config = markdocConfig.nodes[node as NodeType];
-		if (config) config.render = render;
+		if (config) {
+			config.render = render;
+			// When a custom `render` component is specified and the transform doesn't
+			// respect the render property, remove the transform so `render` wins.
+			// This allows users to spread built-in Markdoc node/tag configs
+			// (e.g., `...Markdoc.nodes.fence`) and override rendering with a custom component.
+			// See https://github.com/withastro/astro/issues/9708
+			if (config.transform && !transformRespectsRender(config.transform, node)) {
+				delete config.transform;
+			}
+		}
 	}
 	return markdocConfig;
 }
@@ -170,13 +244,12 @@ export function createGetHeadings(
 	stringifiedAst: string,
 	userConfig: AstroMarkdocConfig,
 	options: MarkdocIntegrationOptions | undefined,
-	experimentalHeadingIdCompat: boolean,
 ) {
 	return function getHeadings() {
 		/* Yes, we are transforming twice (once from `getHeadings()` and again from <Content /> in case of variables).
 			TODO: propose new `render()` API to allow Markdoc variable passing to `render()` itself,
 			instead of the Content component. Would remove double-transform and unlock variable resolution in heading slugs. */
-		const config = setupConfigSync(userConfig, options, experimentalHeadingIdCompat);
+		const config = setupConfigSync(userConfig, options);
 		const ast = Markdoc.Ast.fromJSON(stringifiedAst);
 		const content = Markdoc.transform(ast as Node, config as ConfigType);
 		let collectedHeadings: MarkdownHeading[] = [];
@@ -192,13 +265,12 @@ export function createContentComponent(
 	options: MarkdocIntegrationOptions | undefined,
 	tagComponentMap: Record<string, AstroInstance['default']>,
 	nodeComponentMap: Record<NodeType, AstroInstance['default']>,
-	experimentalHeadingIdCompat: boolean,
 ) {
 	return createComponent({
 		async factory(result: any, props: Record<string, any>) {
 			const withVariables = mergeConfig(userConfig, { variables: props });
 			const config = resolveComponentImports(
-				await setupConfig(withVariables, options, experimentalHeadingIdCompat),
+				await setupConfig(withVariables, options),
 				tagComponentMap,
 				nodeComponentMap,
 			);

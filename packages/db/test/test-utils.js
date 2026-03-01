@@ -9,13 +9,15 @@ const isWindows = process.platform === 'win32';
 /**
  * @param {import('astro').AstroConfig} astroConfig
  */
-export async function setupRemoteDb(astroConfig) {
+export async function setupRemoteDb(astroConfig, options = {}) {
 	const url = isWindows
 		? new URL(`./.astro/${Date.now()}.db`, astroConfig.root)
 		: new URL(`./${Date.now()}.db`, astroConfig.root);
 	const token = 'foo';
 	process.env.ASTRO_DB_REMOTE_URL = url.toString();
-	process.env.ASTRO_DB_APP_TOKEN = token;
+	if (!options.useDbAppTokenFlag) {
+		process.env.ASTRO_DB_APP_TOKEN = token;
+	}
 	process.env.ASTRO_INTERNAL_TEST_REMOTE = true;
 
 	if (isWindows) {
@@ -47,6 +49,7 @@ export async function setupRemoteDb(astroConfig) {
 		flags: {
 			_: [undefined, 'astro', 'db', 'execute', 'db/seed.ts'],
 			remote: true,
+			...(options.useDbAppTokenFlag ? { dbAppToken: token } : {}),
 		},
 	});
 

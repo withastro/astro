@@ -42,7 +42,7 @@ async function snapShotTest() {
 		'-s',
 		'source.astro',
 		'./test/grammar/fixtures/**/*.astro',
-		...allGrammars.reduce((/** @type string[] */ previous, path) => [...previous, '-g', path], []),
+		...allGrammars.flatMap((path) => ['-g', path]),
 		...extraArgs,
 	].map((arg) => (isWindows && arg.includes(' ') ? `"${arg}"` : arg));
 

@@ -1,5 +1,5 @@
 import type { IImage, ISize } from './interface.ts'
-import { toUTF8String, readUInt32BE } from './utils.js'
+import { readUInt32BE, toUTF8String } from './utils.js'
 
 /**
  * ICNS Header
@@ -22,7 +22,7 @@ const FILE_LENGTH_OFFSET = 4 // MSB => BIG ENDIAN
  */
 const ENTRY_LENGTH_OFFSET = 4 // MSB => BIG ENDIAN
 
-const ICON_TYPE_SIZE: { [key: string]: number } = {
+const ICON_TYPE_SIZE: Record<string, number> = {
   ICON: 32,
   'ICN#': 32,
   // m => 16 x 16
@@ -89,25 +89,23 @@ export const ICNS: IImage = {
     const fileLength = readUInt32BE(input, FILE_LENGTH_OFFSET)
     let imageOffset = SIZE_HEADER
 
-    let imageHeader = readImageHeader(input, imageOffset)
-    let imageSize = getImageSize(imageHeader[0])
-    imageOffset += imageHeader[1]
-
-    if (imageOffset === fileLength) return imageSize
-
-    const result = {
-      height: imageSize.height,
-      images: [imageSize],
-      width: imageSize.width,
-    }
+    const images: ISize[] = []
 
     while (imageOffset < fileLength && imageOffset < inputLength) {
-      imageHeader = readImageHeader(input, imageOffset)
-      imageSize = getImageSize(imageHeader[0])
+      const imageHeader = readImageHeader(input, imageOffset)
+      const imageSize = getImageSize(imageHeader[0])
+      images.push(imageSize)
       imageOffset += imageHeader[1]
-      result.images.push(imageSize)
     }
 
-    return result
+    if (images.length === 0) {
+      throw new TypeError('Invalid ICNS, no sizes found')
+    }
+
+    return {
+      width: images[0].width,
+      height: images[0].height,
+      ...(images.length > 1 ? { images } : {}),
+    }
   },
 }

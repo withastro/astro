@@ -5,13 +5,20 @@ import type { BuildInternals } from '../internal.js';
 import {
 	getPageDataByViteID,
 	trackClientOnlyPageDatas,
+	trackHydratedComponentPageDatas,
 	trackScriptPageDatas,
 } from '../internal.js';
-import type { AstroBuildPlugin } from '../plugin.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 
-function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
+export function pluginAnalyzer(internals: BuildInternals): VitePlugin {
 	return {
 		name: '@astro/rollup-plugin-astro-analyzer',
+		applyToEnvironment(environment) {
+			return (
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
+			);
+		},
 		async generateBundle() {
 			const ids = this.getModuleIds();
 
@@ -21,13 +28,26 @@ function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 
 				const astro = info.meta.astro as AstroPluginMetadata['astro'];
 
-				for (const c of astro.hydratedComponents) {
-					const rid = c.resolvedPath ? decodeURI(c.resolvedPath) : c.specifier;
-					if (internals.discoveredHydratedComponents.has(rid)) {
-						const exportNames = internals.discoveredHydratedComponents.get(rid);
-						exportNames?.push(c.exportName);
-					} else {
-						internals.discoveredHydratedComponents.set(rid, [c.exportName]);
+				if (astro.hydratedComponents.length) {
+					const hydratedComponents: string[] = [];
+
+					for (const c of astro.hydratedComponents) {
+						const rid = c.resolvedPath ? decodeURI(c.resolvedPath) : c.specifier;
+						if (internals.discoveredHydratedComponents.has(rid)) {
+							const exportNames = internals.discoveredHydratedComponents.get(rid);
+							exportNames?.push(c.exportName);
+						} else {
+							internals.discoveredHydratedComponents.set(rid, [c.exportName]);
+						}
+						hydratedComponents.push(rid);
+					}
+
+					// Track which pages use each hydrated component
+					for (const pageInfo of getTopLevelPageModuleInfos(id, this)) {
+						const newPageData = getPageDataByViteID(internals, pageInfo.id);
+						if (!newPageData) continue;
+
+						trackHydratedComponentPageDatas(internals, newPageData, hydratedComponents);
 					}
 				}
 
@@ -80,19 +100,6 @@ function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 					}
 				}
 			}
-		},
-	};
-}
-
-export function pluginAnalyzer(internals: BuildInternals): AstroBuildPlugin {
-	return {
-		targets: ['server'],
-		hooks: {
-			'build:before': () => {
-				return {
-					vitePlugin: vitePluginAnalyzer(internals),
-				};
-			},
 		},
 	};
 }

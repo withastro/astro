@@ -36,11 +36,15 @@ describe('Content Intellisense', () => {
 		assert.equal(collectionsDir.includes('data-cl.schema.json'), true);
 	});
 
+	it('generate JSON schemas for data with unrepresentable types', async () => {
+		assert.equal(collectionsDir.includes('data-dates.schema.json'), true);
+	});
+
 	it('generates a record JSON schema for the file loader', async () => {
 		const schema = JSON.parse(await fixture.readFile('../.astro/collections/data-cl.schema.json'));
-		assert.equal(schema.definitions['data-cl'].type, 'object');
-		assert.equal(schema.definitions['data-cl'].additionalProperties.type, 'object');
-		assert.deepEqual(schema.definitions['data-cl'].additionalProperties.properties, {
+		assert.equal(schema.type, 'object');
+		assert.equal(schema.additionalProperties.type, 'object');
+		assert.deepEqual(schema.additionalProperties.properties, {
 			name: { type: 'string' },
 			color: { type: 'string' },
 		});
@@ -70,9 +74,7 @@ describe('Content Intellisense', () => {
 
 	it('has entries for content collections', async () => {
 		const collectionEntries = Object.entries(manifest.entries).filter((entry) =>
-			entry[0].includes(
-				'/astro/packages/astro/test/fixtures/content-intellisense/src/content/blog-cc/',
-			),
+			entry[0].includes('/packages/astro/test/fixtures/content-intellisense/src/content/blog-cc/'),
 		);
 		assert.equal(collectionEntries.length, 3, "Expected 3 entries for 'blog-cc' collection");
 		assert.equal(
@@ -84,7 +86,7 @@ describe('Content Intellisense', () => {
 
 	it('has entries for content layer', async () => {
 		const collectionEntries = Object.entries(manifest.entries).filter((entry) =>
-			entry[0].includes('/astro/packages/astro/test/fixtures/content-intellisense/src/blog-cl/'),
+			entry[0].includes('/packages/astro/test/fixtures/content-intellisense/src/blog-cl/'),
 		);
 
 		assert.equal(collectionEntries.length, 3, "Expected 3 entries for 'blog-cl' collection");

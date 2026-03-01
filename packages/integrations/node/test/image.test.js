@@ -1,9 +1,11 @@
 import * as assert from 'node:assert/strict';
+import { cp, rm } from 'node:fs/promises';
 import { after, before, describe, it } from 'node:test';
 import { inferRemoteSize } from 'astro/assets/utils/inferRemoteSize.js';
 import * as cheerio from 'cheerio';
 import nodejs from '../dist/index.js';
 import { loadFixture } from './test-utils.js';
+import { fileURLToPath } from 'node:url';
 
 describe('Image endpoint', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -11,8 +13,10 @@ describe('Image endpoint', () => {
 	let devPreview;
 
 	before(async () => {
+		const root = new URL('./fixtures/image/', import.meta.url);
 		fixture = await loadFixture({
-			root: './fixtures/image/',
+			root,
+			outDir: fileURLToPath(new URL('./dist/image/', root)),
 			output: 'server',
 			adapter: nodejs({ mode: 'standalone' }),
 			image: {
@@ -34,7 +38,9 @@ describe('Image endpoint', () => {
 		const $ = cheerio.load(html);
 
 		const img = $('img[alt=Penguins]').attr('src');
-		const size = await inferRemoteSize(`http://localhost:4321${img}`);
+		const host = fixture.config.server.host || 'localhost';
+		const port = fixture.config.server.port;
+		const size = await inferRemoteSize(`http://${host}:${port}${img}`);
 		assert.equal(size.format, 'webp');
 		assert.equal(size.width, 50);
 		assert.equal(size.height, 33);
@@ -46,7 +52,9 @@ describe('Image endpoint', () => {
 		const html = await res.text();
 		const $ = cheerio.load(html);
 		const img = $('img[alt=Cornwall]').attr('src');
-		const size = await inferRemoteSize(`http://localhost:4321${img}`);
+		const host = fixture.config.server.host || 'localhost';
+		const port = fixture.config.server.port;
+		const size = await inferRemoteSize(`http://${host}:${port}${img}`);
 		assert.equal(size.format, 'webp');
 		assert.equal(size.width, 400);
 		assert.equal(size.height, 300);
@@ -80,5 +88,35 @@ describe('Image endpoint', () => {
 			const res = await fixture.fetch(`/_image?href=${encodeURIComponent(href)}&f=svg`);
 			assert.equal(res.status, 403, `Failed on href: ${href}`);
 		}
+	});
+
+	describe('the dist folder is moved', () => {
+		const outputDir = new URL('./fixtures/image/output/', import.meta.url);
+
+		before(async () => {
+			await devPreview.stop();
+			await cp(fixture.config.outDir, new URL('./dist', outputDir), { recursive: true });
+			await rm(fixture.config.outDir, { recursive: true });
+			devPreview = await fixture.preview({ outDir: './output/dist' });
+		});
+
+		after(async () => {
+			await rm(outputDir, { recursive: true });
+		});
+
+		it('it returns local images', async () => {
+			const res = await fixture.fetch('/');
+			assert.equal(res.status, 200);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			const img = $('img[alt=Penguins]').attr('src');
+			const host = fixture.config.server.host || 'localhost';
+			const port = fixture.config.server.port;
+			const size = await inferRemoteSize(`http://${host}:${port}${img}`);
+			assert.equal(size.format, 'webp');
+			assert.equal(size.width, 50);
+			assert.equal(size.height, 33);
+		});
 	});
 });

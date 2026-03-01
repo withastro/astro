@@ -35,7 +35,7 @@ export function getSnippetCompletions(frontmatter: FrontmatterStatus): Completio
 				value: [
 					'Create a new getStaticPaths function.',
 					'\n',
-					'[Astro reference](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)',
+					'[Astro reference](https://docs.astro.build/en/reference/routing-reference/#getstaticpaths)',
 				].join('\n'),
 			},
 			insertText:
@@ -53,9 +53,9 @@ export function getSnippetCompletions(frontmatter: FrontmatterStatus): Completio
 			documentation: {
 				kind: 'markdown',
 				value: [
-					'Add prerender export. When [using server-side rendering](https://docs.astro.build/en/guides/server-side-rendering/#enabling-ssr-in-your-project), this value will be used to determine whether to prerender the page or not.',
+					'Add prerender export. When [using server-side rendering](https://docs.astro.build/en/guides/on-demand-rendering/#enabling-on-demand-rendering), this value will be used to determine whether to prerender the page or not.',
 					'\n',
-					'[Astro reference](https://docs.astro.build/en/guides/server-side-rendering/#configuring-individual-routes)',
+					'[Astro reference](https://docs.astro.build/en/reference/routing-reference/#prerender)',
 				].join('\n'),
 			},
 			insertText: 'export const prerender = ${1|true,false|}',

@@ -171,14 +171,15 @@ describe('trailingSlash', () => {
 		assert.equal(json, '{"success":true}');
 	});
 
-	it('should match the API route when request has a trailing slash, with a file extension', async () => {
+	it('should NOT match the API route when request has a trailing slash, with a file extension', async () => {
 		const { req, res, text } = createRequestAndResponse({
 			method: 'GET',
 			url: '/dot.json/',
 		});
 		container.handle(req, res);
-		const json = await text();
-		assert.equal(json, '{"success":true}');
+		const html = await text();
+		assert.equal(html.includes(`<span class="statusMessage">Not found</span>`), true);
+		assert.equal(res.statusCode, 404);
 	});
 
 	it('should also match the API route when request lacks a trailing slash, with a file extension', async () => {
@@ -211,6 +212,29 @@ describe('trailingSlash', () => {
 		const html = await text();
 		assert.equal(html.includes(`<span class="statusMessage">Not found</span>`), true);
 		assert.equal(res.statusCode, 404);
+	});
+
+	// Test for issue #15095: Query params should not cause 404 when base is set and trailingSlash is never
+	it('should match root path with query params when base is set and trailingSlash is never', async () => {
+		const { req, res, text } = createRequestAndResponse({
+			method: 'GET',
+			url: '/base?foo=bar',
+		});
+		baseContainer.handle(req, res);
+		const json = await text();
+		assert.equal(json, '{"success":true}');
+		assert.equal(res.statusCode, 200);
+	});
+
+	it('should match sub path with query params when base is set and trailingSlash is never', async () => {
+		const { req, res, text } = createRequestAndResponse({
+			method: 'GET',
+			url: '/base/injected?foo=bar',
+		});
+		baseContainer.handle(req, res);
+		const json = await text();
+		assert.equal(json, '{"success":true}');
+		assert.equal(res.statusCode, 200);
 	});
 
 	// Test for issue #13736: Astro.url.pathname should respect trailingSlash config with base

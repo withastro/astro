@@ -1,8 +1,8 @@
 import type * as vite from 'vite';
 import type { AstroSettings } from '../types/astro.js';
 
-const virtualModuleId = 'astro:prefetch';
-const resolvedVirtualModuleId = '\0' + virtualModuleId;
+const VIRTUAL_MODULE_ID = 'astro:prefetch';
+const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
 const prefetchInternalModuleFsSubpath = 'astro/dist/prefetch/index.js';
 const prefetchCode = `import { init } from 'astro/virtual-modules/prefetch.js';init()`;
 
@@ -31,22 +31,31 @@ export default function astroPrefetch({ settings }: { settings: AstroSettings })
 
 	return {
 		name: 'astro:prefetch',
-		async resolveId(id) {
-			if (id === virtualModuleId) {
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${VIRTUAL_MODULE_ID}$`),
+			},
+			handler() {
 				if (!prefetch) throwPrefetchNotEnabledError();
-				return resolvedVirtualModuleId;
-			}
+				return RESOLVED_VIRTUAL_MODULE_ID;
+			},
 		},
-		load(id) {
-			if (id === resolvedVirtualModuleId) {
+		load: {
+			filter: {
+				id: new RegExp(`^${RESOLVED_VIRTUAL_MODULE_ID}$`),
+			},
+			handler() {
 				if (!prefetch) throwPrefetchNotEnabledError();
 				return { code: `export { prefetch } from "astro/virtual-modules/prefetch.js";` };
-			}
+			},
 		},
-		transform(code, id) {
-			// NOTE: Handle replacing the specifiers even if prefetch is disabled so View Transitions
-			// can import the internal module and not hit runtime issues.
-			if (id.includes(prefetchInternalModuleFsSubpath)) {
+		transform: {
+			filter: {
+				// NOTE: Handle replacing the specifiers even if prefetch is disabled so View Transitions
+				// can import the internal module and not hit runtime issues.
+				id: new RegExp(`${prefetchInternalModuleFsSubpath}`),
+			},
+			handler(code) {
 				// We perform a simple replacement with padding so that the code offset is not changed and
 				// we don't have to generate a sourcemap. This has the assumption that the replaced string
 				// will always be shorter than the search string to work.
@@ -64,7 +73,7 @@ export default function astroPrefetch({ settings }: { settings: AstroSettings })
 						`${JSON.stringify(settings.config.experimental.clientPrerender)}`.padEnd(33),
 					);
 				return { code, map: null };
-			}
+			},
 		},
 	};
 }

@@ -1,5 +1,1700 @@
 # astro
 
+## 6.0.0-beta.17
+
+### Minor Changes
+
+- [#15495](https://github.com/withastro/astro/pull/15495) [`5b99e90`](https://github.com/withastro/astro/commit/5b99e9077a92602f1e46e9b6eb9094bcd00c640e) Thanks [@leekeh](https://github.com/leekeh)! - Adds a new `middlewareMode` adapter feature to replace the previous `edgeMiddleware` option.
+
+  This feature only impacts adapter authors. If your adapter supports `edgeMiddleware`, you should upgrade to the new `middlewareMode` option to specify the middleware mode for your adapter as soon as possible. The `edgeMiddleware` feature is deprecated and will be removed in a future major release.
+
+  ```diff
+  export default function createIntegration() {
+    return {
+      name: '@example/my-adapter',
+      hooks: {
+        'astro:config:done': ({ setAdapter }) => {
+          setAdapter({
+            name: '@example/my-adapter',
+            serverEntrypoint: '@example/my-adapter/server.js',
+            adapterFeatures: {
+  -            edgeMiddleware: true
+  +            middlewareMode: 'edge'
+            }
+          });
+        },
+      },
+    };
+  }
+  ```
+
+### Patch Changes
+
+- [#15657](https://github.com/withastro/astro/pull/15657) [`cb625b6`](https://github.com/withastro/astro/commit/cb625b62596582047ec8cc4256960cc11804e931) Thanks [@qzio](https://github.com/qzio)! - Adds a new `security.actionBodySizeLimit` option to configure the maximum size of Astro Actions request bodies.
+
+  This lets you increase the default 1 MB limit when your actions need to accept larger payloads. For example, actions that handle file uploads or large JSON payloads can now opt in to a higher limit.
+
+  If you do not set this option, Astro continues to enforce the 1 MB default to help prevent abuse.
+
+  ```js
+  // astro.config.mjs
+  export default defineConfig({
+    security: {
+      actionBodySizeLimit: 10 * 1024 * 1024, // set to 10 MB
+    },
+  });
+  ```
+
+- Updated dependencies [[`1fa4177`](https://github.com/withastro/astro/commit/1fa41779c458123f707940a5253dbe6e540dbf7d)]:
+  - @astrojs/markdown-remark@7.0.0-beta.8
+
+## 6.0.0-beta.16
+
+### Minor Changes
+
+- [#15646](https://github.com/withastro/astro/pull/15646) [`0dd9d00`](https://github.com/withastro/astro/commit/0dd9d00cf8be38c53217426f6b0e155a6f7c2a22) Thanks [@delucis](https://github.com/delucis)! - Removes redundant `fetchpriority` attributes from the output of Astro’s `<Image>` component
+
+  Previously, Astro would always include `fetchpriority="auto"` on images not using the `priority` attribute.
+  However, this is the default value, so specifying it is redundant. This change omits the attribute by default.
+
+### Patch Changes
+
+- [#15661](https://github.com/withastro/astro/pull/15661) [`7150a2e`](https://github.com/withastro/astro/commit/7150a2e2aa022a9a957684ad8091f85aedb243f1) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a build error when generating projects with 100k+ static routes.
+
+- [#15603](https://github.com/withastro/astro/pull/15603) [`5bc2b2c`](https://github.com/withastro/astro/commit/5bc2b2c2f4a9928efa16452b64729586dc79a0c7) Thanks [@0xRozier](https://github.com/0xRozier)! - Fixes a deadlock that occurred when using SVG images in content collections
+
+- [#15669](https://github.com/withastro/astro/pull/15669) [`d5a888b`](https://github.com/withastro/astro/commit/d5a888ba645de356673605a0b70f9c721cf6cb3b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the `cssesc` dependency
+
+  This CommonJS dependency could sometimes cause errors because Astro is ESM-only. It is now replaced with a built-in ESM-friendly implementation.
+
+## 6.0.0-beta.15
+
+### Minor Changes
+
+- [#15471](https://github.com/withastro/astro/pull/15471) [`32b4302`](https://github.com/withastro/astro/commit/32b430213bbe51898b77ec2eadbacb9dfb220f75) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new experimental flag `queuedRendering` to enable a queue-based rendering engine
+
+  The new engine is based on a two-pass process, where the first pass
+  traverses the tree of components, emits an ordered queue, and then the queue is rendered.
+
+  The new engine does not use recursion, and comes with two customizable options.
+
+  Early benchmarks showed significant speed improvements and memory efficiency in big projects.
+
+  #### Queue-rendered based
+
+  The new engine can be enabled in your Astro config with `experimental.queuedRendering.enabled` set to `true`, and can be further customized with additional sub-features.
+
+  ```js
+  // astro.config.mjs
+  export default defineConfig({
+    experimental: {
+      queuedRendering: {
+        enabled: true,
+      },
+    },
+  });
+  ```
+
+  #### Pooling
+
+  With the new engine enabled, you now have the option to have a pool of nodes that can be saved and reused across page rendering. Node pooling has no effect when rendering pages on demand (SSR) because these rendering requests don't share memory. However, it can be very useful for performance when building static pages.
+
+  ```js
+  // astro.config.mjs
+  export default defineConfig({
+    experimental: {
+      queuedRendering: {
+        enabled: true,
+        poolSize: 2000, // store up to 2k nodes to be reused across renderers
+      },
+    },
+  });
+  ```
+
+  #### Content caching
+
+  The new engine additionally unlocks a new `contentCache` option. This allows you to cache values of nodes during the rendering phase. This is currently a boolean feature with no further customization (e.g. size of cache) that uses sensible defaults for most large content collections:
+
+  When disabled, the pool engine won't cache strings, but only types.
+
+  ```js
+  // astro.config.mjs
+  export default defineConfig({
+    experimental: {
+      queuedRendering: {
+        enabled: true,
+        contentCache: true, // enable re-use of node values
+      },
+    },
+  });
+  ```
+
+  For more information on enabling and using this feature in your project, see the [experimental queued rendering docs](https://v6.docs.astro.build/en/reference/experimental-flags/queued-rendering/) for more details.
+
+- [#15543](https://github.com/withastro/astro/pull/15543) [`d43841d`](https://github.com/withastro/astro/commit/d43841dfa8998c4dc1a510a2b120fedbd9ce77c6) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds a new `experimental.rustCompiler` flag to opt into the experimental Rust-based Astro compiler
+
+  This experimental compiler is faster, provides better error messages, and generally has better support for modern JavaScript, TypeScript, and CSS features.
+
+  After enabling in your Astro config, the `@astrojs/compiler-rs` package must also be installed into your project separately:
+
+  ```js
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    experimental: {
+      rustCompiler: true,
+    },
+  });
+  ```
+
+  This new compiler is still in early development and may exhibit some differences compared to the existing Go-based compiler. Notably, this compiler is generally more strict in regard to invalid HTML syntax and may throw errors in cases where the Go-based compiler would have been more lenient. For example, unclosed tags (e.g. `<p>My paragraph`) will now result in errors.
+
+  For more information about using this experimental feature in your project, especially regarding expected differences and limitations, please see the [experimental Rust compiler reference docs](https://v6.docs.astro.build/en/reference/experimental-flags/rust-compiler/). To give feedback on the compiler, or to keep up with its development, see the [RFC for a new compiler for Astro](https://github.com/withastro/roadmap/discussions/1306) for more information and discussion.
+
+### Patch Changes
+
+- [#15565](https://github.com/withastro/astro/pull/15565) [`30cd6db`](https://github.com/withastro/astro/commit/30cd6dbebe771efb6f71dcff7e6b44026fad6797) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the use of the Astro internal logger couldn't work with Cloudflare Vite plugin.
+
+- [#15562](https://github.com/withastro/astro/pull/15562) [`e14a51d`](https://github.com/withastro/astro/commit/e14a51d30196bad534bacb14aac7033b91aed741) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes types for the `astro:ssr-manifest` module, which was removed
+
+- [#15435](https://github.com/withastro/astro/pull/15435) [`957b9fe`](https://github.com/withastro/astro/commit/957b9fe2d887a365c55c6e87f0c67c10beb60d1b) Thanks [@rururux](https://github.com/rururux)! - Improves compatibility of the built-in image endpoint with runtimes that don't support CJS dependencies correctly
+
+- [#15640](https://github.com/withastro/astro/pull/15640) [`4c1a801`](https://github.com/withastro/astro/commit/4c1a801618b9c4a3147b683d6b4c8f35dc4bdb26) Thanks [@ematipico](https://github.com/ematipico)! - Reverts the support of Shiki with CSP. Unfortunately, after exhaustive tests, the highlighter can't be supported to cover all cases.
+
+  Adds a warning when both Content Security Policy (CSP) and Shiki syntax highlighting are enabled, as they are incompatible due to Shiki's use of inline styles
+
+- [#15605](https://github.com/withastro/astro/pull/15605) [`f6473fd`](https://github.com/withastro/astro/commit/f6473fd45b74291e1a038f2f4142eb61a932d01d) Thanks [@ascorbic](https://github.com/ascorbic)! - Improves `.astro` component SSR rendering performance by up to 2x.
+
+  This includes several optimizations to the way that Astro generates and renders components on the server. These are mostly micro-optimizations, but they add up to a significant improvement in performance. Most pages will benefit, but pages with many components will see the biggest improvement, as will pages with lots of strings (e.g. text-heavy pages with lots of HTML elements).
+
+- [#15514](https://github.com/withastro/astro/pull/15514) [`999a7dd`](https://github.com/withastro/astro/commit/999a7dd1f2913ea04e4f18f3557e8363edef45a8) Thanks [@veeceey](https://github.com/veeceey)! - Fixes font flash (FOUT) during ClientRouter navigation by preserving inline `<style>` elements and font preload links in the head during page transitions.
+
+  Previously, `@font-face` declarations from the `<Font>` component were removed and re-inserted on every client-side navigation, causing the browser to re-evaluate them.
+
+- [#15580](https://github.com/withastro/astro/pull/15580) [`a92333c`](https://github.com/withastro/astro/commit/a92333cb48291008dc08afd0da9e1bb349443934) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a build error when generating projects with a large number of static routes
+
+- [#15549](https://github.com/withastro/astro/pull/15549) [`be1c87e`](https://github.com/withastro/astro/commit/be1c87e40e851e1020343a3a3f04e3ec9d39d832) Thanks [@0xRozier](https://github.com/0xRozier)! - Fixes an issue where original (unoptimized) images from prerendered pages could be kept in the build output during SSR builds.
+
+- [#15565](https://github.com/withastro/astro/pull/15565) [`30cd6db`](https://github.com/withastro/astro/commit/30cd6dbebe771efb6f71dcff7e6b44026fad6797) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the use of the `Code` component would result in an unexpected error.
+
+- [#15585](https://github.com/withastro/astro/pull/15585) [`98ea30c`](https://github.com/withastro/astro/commit/98ea30c56d6d317d76e2290ed903f11961204714) Thanks [@matthewp](https://github.com/matthewp)! - Add a default body size limit for server actions to prevent oversized requests from exhausting memory.
+
+- [#15565](https://github.com/withastro/astro/pull/15565) [`30cd6db`](https://github.com/withastro/astro/commit/30cd6dbebe771efb6f71dcff7e6b44026fad6797) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the new Astro v6 development server didn't log anything when navigating the pages.
+
+- [#15591](https://github.com/withastro/astro/pull/15591) [`1ed07bf`](https://github.com/withastro/astro/commit/1ed07bf85c07a641c255ebea28fb633d60fca1c0) Thanks [@renovate](https://github.com/apps/renovate)! - Upgrades `devalue` to v5.6.3
+
+- [#15633](https://github.com/withastro/astro/pull/15633) [`9d293c2`](https://github.com/withastro/astro/commit/9d293c21afc17fccaa55ea6c69f6403ad288ba57) Thanks [@jwoyo](https://github.com/jwoyo)! - Fixes a case where `<script>` tags from components passed as slots to server islands were not included in the response
+
+- [#15586](https://github.com/withastro/astro/pull/15586) [`35bc814`](https://github.com/withastro/astro/commit/35bc81428b7fd08d8d7249c58666fc13e9609d90) Thanks [@matthewp](https://github.com/matthewp)! - Fixes an issue where allowlists were not being enforced when handling remote images
+
+## 6.0.0-beta.14
+
+### Patch Changes
+
+- [#15573](https://github.com/withastro/astro/pull/15573) [`d789452`](https://github.com/withastro/astro/commit/d78945221d68ceab073f93572d87f12be0c72d47) Thanks [@matthewp](https://github.com/matthewp)! - Clear the route cache on content changes so slug pages reflect updated data during dev.
+
+- [#15560](https://github.com/withastro/astro/pull/15560) [`170ed89`](https://github.com/withastro/astro/commit/170ed89ae2b0482ddc5a6f1244452490319ae99e) Thanks [@z0mt3c](https://github.com/z0mt3c)! - Fix X-Forwarded-Proto validation when allowedDomains includes both protocol and hostname fields. The protocol check no longer fails due to hostname mismatch against the hardcoded test URL.
+
+- [#15563](https://github.com/withastro/astro/pull/15563) [`e959698`](https://github.com/withastro/astro/commit/e959698fedee4e548053e251d103eaeb9c6995cd) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where warnings would be logged during the build using one of the official adapters
+
+## 6.0.0-beta.13
+
+### Major Changes
+
+- [#15451](https://github.com/withastro/astro/pull/15451) [`84d6efd`](https://github.com/withastro/astro/commit/84d6efd9f1036fdf3c29e9b786b4a96453a607ed) Thanks [@ematipico](https://github.com/ematipico)! - Changes how styles applied to code blocks are emitted to support CSP - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-how-shiki-code-block-styles-are-emitted))
+
+### Minor Changes
+
+- [#15529](https://github.com/withastro/astro/pull/15529) [`a509941`](https://github.com/withastro/astro/commit/a509941a7a7a1e53f402757234bb88e5503e5119) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a new build-in font provider `npm` to access fonts installed as NPM packages
+
+  You can now add web fonts specified in your `package.json` through Astro's type-safe Fonts API. The `npm` font provider allows you to add fonts either from locally installed packages in `node_modules` or from a CDN.
+
+  Set `fontProviders.npm()` as your fonts provider along with the required `name` and `cssVariable` values, and add `options` as needed:
+
+  ```js
+  import { defineConfig, fontProviders } from 'astro/config';
+
+  export default defineConfig({
+    experimental: {
+      fonts: [
+        {
+          name: 'Roboto',
+          provider: fontProviders.npm(),
+          cssVariable: '--font-roboto',
+        },
+      ],
+    },
+  });
+  ```
+
+  See the [NPM font provider reference documentation](https://v6.docs.astro.build/en/reference/font-provider-reference/#npm) for more details.
+
+- [#15548](https://github.com/withastro/astro/pull/15548) [`5b8f573`](https://github.com/withastro/astro/commit/5b8f5737feb1a051b7cbd5d543dd230492e5211f) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a new optional `embeddedLangs` prop to the `<Code />` component to support languages beyond the primary `lang`
+
+  This allows, for example, highlighting `.vue` files with a `<script setup lang="tsx">` block correctly:
+
+  ```astro
+  ---
+  import { Code } from 'astro:components';
+
+  const code = `
+  <script setup lang="tsx">
+  const Text = ({ text }: { text: string }) => <div>{text}</div>;
+  </script>
+  
+  <template>
+    <Text text="hello world" />
+  </template>`;
+  ---
+
+  <Code {code} lang="vue" embeddedLangs={['tsx']} />
+  ```
+
+  See the [`<Code />` component documentation](https://v6.docs.astro.build/en/guides/syntax-highlighting/#code-) for more details.
+
+- [#15483](https://github.com/withastro/astro/pull/15483) [`7be3308`](https://github.com/withastro/astro/commit/7be3308bf4b1710a3f378ba338d09a8528e01e76) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds `streaming` option to the `createApp()` function in the Adapter API, mirroring the same functionality available when creating a new `App` instance
+
+  An adapter's `createApp()` function now accepts `streaming` (defaults to `true`) as an option. HTML streaming breaks a document into chunks to send over the network and render on the page in order. This normally results in visitors seeing your HTML as fast as possible but factors such as network conditions and waiting for data fetches can block page rendering.
+
+  HTML streaming helps with performance and generally provides a better visitor experience. In most cases, disabling streaming is not recommended.
+
+  However, when you need to disable HTML streaming (e.g. your host only supports non-streamed HTML caching at the CDN level), you can opt out of the default behavior by passing `streaming: false` to `createApp()`:
+
+  ```ts
+  import { createApp } from 'astro/app/entrypoint';
+
+  const app = createApp({ streaming: false });
+  ```
+
+  See more about [the `createApp()` function](https://v6.docs.astro.build/en/reference/adapter-reference/#createapp) in the Adapter API reference.
+
+### Patch Changes
+
+- [#15542](https://github.com/withastro/astro/pull/15542) [`9760404`](https://github.com/withastro/astro/commit/97604040b73ec1d029f5d5a489aa744aaecfd173) Thanks [@rururux](https://github.com/rururux)! - Improves rendering by preserving `hidden="until-found"` value in attribues
+
+- [#15550](https://github.com/withastro/astro/pull/15550) [`58df907`](https://github.com/withastro/astro/commit/58df9072391fbfcd703e8d791ca51b7bedefb730) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves the JSDoc annotations for the `AstroAdapter` type
+
+- [#15507](https://github.com/withastro/astro/pull/15507) [`07f6610`](https://github.com/withastro/astro/commit/07f66101ed2850874c8a49ddf1f1609e6b1339fb) Thanks [@matthewp](https://github.com/matthewp)! - Avoid bundling SSR renderers when only API endpoints are dynamic
+
+- [#15459](https://github.com/withastro/astro/pull/15459) [`a4406b4`](https://github.com/withastro/astro/commit/a4406b4dfbca3756983b82c37d7c74f84d2de096) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where `context.csp` was logging warnings in development that should be logged in production only
+
+- Updated dependencies [[`84d6efd`](https://github.com/withastro/astro/commit/84d6efd9f1036fdf3c29e9b786b4a96453a607ed)]:
+  - @astrojs/markdown-remark@7.0.0-beta.7
+
+## 6.0.0-beta.12
+
+### Major Changes
+
+- [#15535](https://github.com/withastro/astro/pull/15535) [`dfe2e22`](https://github.com/withastro/astro/commit/dfe2e22042f92172442ab32777b3cce90685b76a) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Deprecates `loadManifest()` and `loadApp()` from `astro/app/node` (Adapter API) - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#deprecated-loadmanifest-and-loadapp-from-astroappnode-adapter-api))
+
+- [#15461](https://github.com/withastro/astro/pull/15461) [`9f21b24`](https://github.com/withastro/astro/commit/9f21b243d21478cdc5fb0193e05adad8e753839f) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - **BREAKING CHANGE to the v6 beta Adapter API only**: renames `entryType` to `entrypointResolution` and updates possible values
+
+  Astro 6 introduced a way to let adapters have more control over the entrypoint by passing `entryType: 'self'` to `setAdapter()`. However during beta development, the name was unclear and confusing.
+
+  `entryType` is now renamed to `entrypointResolution` and its possible values are updated:
+  - `legacy-dynamic` becomes `explicit`.
+  - `self` becomes `auto`.
+
+  If you are building an adapter with v6 beta and specifying `entryType`, update it:
+
+  ```diff
+  setAdapter({
+      // ...
+  -    entryType: 'legacy-dynamic'
+  +    entrypointResolution: 'explicit'
+  })
+
+  setAdapter({
+      // ...
+  -    entryType: 'self'
+  +    entrypointResolution: 'auto'
+  })
+  ```
+
+- [#15461](https://github.com/withastro/astro/pull/15461) [`9f21b24`](https://github.com/withastro/astro/commit/9f21b243d21478cdc5fb0193e05adad8e753839f) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Deprecates `createExports()` and `start()` (Adapter API) - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#deprecated-createexports-and-start-adapter-api))
+
+- [#15535](https://github.com/withastro/astro/pull/15535) [`dfe2e22`](https://github.com/withastro/astro/commit/dfe2e22042f92172442ab32777b3cce90685b76a) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Deprecates `NodeApp` from `astro/app/node` (Adapter API) - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#deprecated-nodeapp-from-astroappnode-adapter-api))
+
+- [#15407](https://github.com/withastro/astro/pull/15407) [`aedbbd8`](https://github.com/withastro/astro/commit/aedbbd818628bed0533cdd627b73e2c5365aa17e) Thanks [@ematipico](https://github.com/ematipico)! - Changes how styles of responsive images are emitted - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-how-responsive-image-styles-are-emitted))
+
+### Minor Changes
+
+- [#15535](https://github.com/withastro/astro/pull/15535) [`dfe2e22`](https://github.com/withastro/astro/commit/dfe2e22042f92172442ab32777b3cce90685b76a) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Exports new `createRequest()` and `writeResponse()` utilities from `astro/app/node`
+
+  To replace the deprecated `NodeApp.createRequest()` and `NodeApp.writeResponse()` methods, the `astro/app/node` module now exposes new `createRequest()` and `writeResponse()` utilities. These can be used to convert a NodeJS `IncomingMessage` into a web-standard `Request` and stream a web-standard `Response` into a NodeJS `ServerResponse`:
+
+  ```js
+  import { createApp } from 'astro/app/entrypoint';
+  import { createRequest, writeResponse } from 'astro/app/node';
+  import { createServer } from 'node:http';
+
+  const app = createApp();
+
+  const server = createServer(async (req, res) => {
+    const request = createRequest(req);
+    const response = await app.render(request);
+    await writeResponse(response, res);
+  });
+  ```
+
+- [#15407](https://github.com/withastro/astro/pull/15407) [`aedbbd8`](https://github.com/withastro/astro/commit/aedbbd818628bed0533cdd627b73e2c5365aa17e) Thanks [@ematipico](https://github.com/ematipico)! - Adds support for responsive images when `security.csp` is enabled, out of the box.
+
+  Astro's implementation of responsive image styles has been updated to be compatible with a configured Content Security Policy.
+
+  Instead of, injecting style elements at runtime, Astro will now generate your styles at build time using a combination of `class=""` and `data-*` attributes. This means that your processed styles are loaded and hashed out of the box by Astro.
+
+  If you were previously choosing between Astro's CSP feature and including responsive images on your site, you may now use them together.
+
+### Patch Changes
+
+- [#15508](https://github.com/withastro/astro/pull/15508) [`2c6484a`](https://github.com/withastro/astro/commit/2c6484a4c34e86b8a26342a48986da26768de27b) Thanks [@KTibow](https://github.com/KTibow)! - Fixes behavior when shortcuts are used before server is ready
+
+- [#15497](https://github.com/withastro/astro/pull/15497) [`a93c81d`](https://github.com/withastro/astro/commit/a93c81de493e912aeba1d829d9ccf6997b2eb806) Thanks [@matthewp](https://github.com/matthewp)! - Fix dev reloads for content collection Markdown updates under Vite 7.
+
+- [#15535](https://github.com/withastro/astro/pull/15535) [`dfe2e22`](https://github.com/withastro/astro/commit/dfe2e22042f92172442ab32777b3cce90685b76a) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes the types of `createApp()` exported from `astro/app/entrypoint`
+
+- [#15491](https://github.com/withastro/astro/pull/15491) [`6c60b05`](https://github.com/withastro/astro/commit/6c60b05b8d6774da04567dc8b85b5f2956e9da0c) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a case where setting `vite.server.allowedHosts: true` was turned into an invalid array
+
+- [#14589](https://github.com/withastro/astro/pull/14589) [`7038f07`](https://github.com/withastro/astro/commit/7038f0700898a17cb87b5a2e408480c1226a47f4) Thanks [@43081j](https://github.com/43081j)! - Improves CLI styling
+
+## 6.0.0-beta.11
+
+### Major Changes
+
+- [#15180](https://github.com/withastro/astro/pull/15180) [`8780ff2`](https://github.com/withastro/astro/commit/8780ff2926d59ed196c70032d2ae274b8415655c) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds support for converting SVGs to raster images (PNGs, WebP, etc) to the default Sharp image service - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-svg-rasterization))
+
+### Minor Changes
+
+- [#15460](https://github.com/withastro/astro/pull/15460) [`ee7e53f`](https://github.com/withastro/astro/commit/ee7e53f9de2338517e149895efd26fca44ad80b6) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates the Adapter API to allow providing a `serverEntrypoint` when using `entryType: 'self'`
+
+  Astro 6 introduced a new powerful yet simple Adapter API for defining custom server entrypoints. You can now call `setAdapter()` with the `entryType: 'self'` option and specify your custom `serverEntrypoint`:
+
+  ```js
+  export function myAdapter() {
+    return {
+      name: 'my-adapter',
+      hooks: {
+        'astro:config:done': ({ setAdapter }) => {
+          setAdapter({
+            name: 'my-adapter',
+            entryType: 'self',
+            serverEntrypoint: 'my-adapter/server.js',
+            supportedAstroFeatures: {
+              // ...
+            },
+          });
+        },
+      },
+    };
+  }
+  ```
+
+  If you need further customization at the Vite level, you can omit `serverEntrypoint` and instead specify your custom server entrypoint with [`vite.build.rollupOptions.input`](https://rollupjs.org/configuration-options/#input).
+
+### Patch Changes
+
+- [#15454](https://github.com/withastro/astro/pull/15454) [`b47a4e1`](https://github.com/withastro/astro/commit/b47a4e19a0b0b7e57068add94adc01c88d380fa8) Thanks [@Fryuni](https://github.com/Fryuni)! - Fixes a race condition in the content layer which could result in dropped content collection entries.
+
+- [#15450](https://github.com/withastro/astro/pull/15450) [`50c9129`](https://github.com/withastro/astro/commit/50c912978cca4afbe4b3ebd11c30305d5e9c8315) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where `build.serverEntry` would not be respected when using the new Adapter API
+
+- [#15473](https://github.com/withastro/astro/pull/15473) [`d653b86`](https://github.com/withastro/astro/commit/d653b864252e0b39a3774f0e1ecf4b7b69851288) Thanks [@matthewp](https://github.com/matthewp)! - Improves Host header handling for SSR deployments behind proxies
+
+## 6.0.0-beta.10
+
+### Minor Changes
+
+- [#15231](https://github.com/withastro/astro/pull/15231) [`3928b87`](https://github.com/withastro/astro/commit/3928b879dd35fa4ec4dcf545f1610a0f0a55fdae) Thanks [@rururux](https://github.com/rururux)! - Adds a new optional `getRemoteSize()` method to the Image Service API.
+
+  Previously, `inferRemoteSize()` had a fixed implementation that fetched the entire image to determine its dimensions.
+  With this new helper function that extends `inferRemoteSize()`, you can now override or extend how remote image metadata is retrieved.
+
+  This enables use cases such as:
+  - Caching: Storing image dimensions in a database or local cache to avoid redundant network requests.
+  - Provider APIs: Using a specific image provider's API (like Cloudinary or Vercel) to get dimensions without downloading the file.
+
+  For example, you can add a simple cache layer to your existing image service:
+
+  ```js
+  const cache = new Map();
+
+  const myService = {
+    ...baseService,
+    async getRemoteSize(url, imageConfig) {
+      if (cache.has(url)) return cache.get(url);
+
+      const result = await baseService.getRemoteSize(url, imageConfig);
+      cache.set(url, result);
+      return result;
+    },
+  };
+  ```
+
+  See the [Image Services API reference documentation](https://v6.docs.astro.build/en/reference/image-service-reference/#getremotesize) for more information.
+
+- [#15077](https://github.com/withastro/astro/pull/15077) [`a164c77`](https://github.com/withastro/astro/commit/a164c77336059f2dc3e7f7fe992aa754ed145ef3) Thanks [@matthewp](https://github.com/matthewp)! - Updates the Integration API to add `setPrerenderer()` to the `astro:build:start` hook, allowing adapters to provide custom prerendering logic.
+
+  The new API accepts either an `AstroPrerenderer` object directly, or a factory function that receives the default prerenderer:
+
+  ```js
+  'astro:build:start': ({ setPrerenderer }) => {
+    setPrerenderer((defaultPrerenderer) => ({
+      name: 'my-prerenderer',
+      async setup() {
+        // Optional: called once before prerendering starts
+      },
+      async getStaticPaths() {
+        // Returns array of { pathname: string, route: RouteData }
+        return defaultPrerenderer.getStaticPaths();
+      },
+      async render(request, { routeData }) {
+        // request: Request
+        // routeData: RouteData
+        // Returns: Response
+      },
+      async teardown() {
+        // Optional: called after all pages are prerendered
+      }
+    }));
+  }
+  ```
+
+  Also adds the `astro:static-paths` virtual module, which exports a `StaticPaths` class for adapters to collect all prerenderable paths from within their target runtime. This is useful when implementing a custom prerenderer that runs in a non-Node environment:
+
+  ```js
+  // In your adapter's request handler (running in target runtime)
+  import { App } from 'astro/app';
+  import { StaticPaths } from 'astro:static-paths';
+
+  export function createApp(manifest) {
+    const app = new App(manifest);
+
+    return {
+      async fetch(request) {
+        const { pathname } = new URL(request.url);
+
+        // Expose endpoint for prerenderer to get static paths
+        if (pathname === '/__astro_static_paths') {
+          const staticPaths = new StaticPaths(app);
+          const paths = await staticPaths.getAll();
+          return new Response(JSON.stringify({ paths }));
+        }
+
+        // Normal request handling
+        return app.render(request);
+      },
+    };
+  }
+  ```
+
+  See the [adapter reference](https://v6.docs.astro.build/en/reference/adapter-reference/#custom-prerenderer) for more details on implementing a custom prerenderer.
+
+- [#15345](https://github.com/withastro/astro/pull/15345) [`840fbf9`](https://github.com/withastro/astro/commit/840fbf9e4abc7f847e23da8d67904ffde4d95fff) Thanks [@matthewp](https://github.com/matthewp)! - Adds a new `emitClientAsset` function to `astro/assets/utils` for integration authors. This function allows emitting assets that will be moved to the client directory during SSR builds, useful for assets referenced in server-rendered content that need to be available on the client.
+
+  ```ts
+  import { emitClientAsset } from 'astro/assets/utils';
+
+  // Inside a Vite plugin's transform or load hook
+  const handle = emitClientAsset(this, {
+    type: 'asset',
+    name: 'my-image.png',
+    source: imageBuffer,
+  });
+  ```
+
+### Patch Changes
+
+- [#15423](https://github.com/withastro/astro/pull/15423) [`c5ea720`](https://github.com/withastro/astro/commit/c5ea720261a35324988147fbf69d8200e496e1d0) Thanks [@matthewp](https://github.com/matthewp)! - Improves error message when a dynamic redirect destination does not match any existing route.
+
+  Previously, configuring a redirect like `/categories/[category]` → `/categories/[category]/1` in static output mode would fail with a misleading "getStaticPaths required" error. Now, Astro detects this early and provides a clear error explaining that the destination does not match any existing route.
+
+- [#15444](https://github.com/withastro/astro/pull/15444) [`10b0422`](https://github.com/withastro/astro/commit/10b0422b89d12320da3c026e8a4728ae7265cfb8) Thanks [@AhmadYasser1](https://github.com/AhmadYasser1)! - Fixes `Astro.rewrite` returning 404 when rewriting to a URL with non-ASCII characters
+
+  When rewriting to a path containing non-ASCII characters (e.g., `/redirected/héllo`), the route lookup compared encoded `distURL` hrefs against decoded pathnames, causing the comparison to always fail and resulting in a 404. This fix compares against the encoded pathname instead.
+
+- [#15419](https://github.com/withastro/astro/pull/15419) [`a18d727`](https://github.com/withastro/astro/commit/a18d727fc717054df85177c8e0c3d38a5252f2da) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the `add` command could accept any arbitrary value, leading the possible command injections. Now `add` and `--add` accepts
+  values that are only acceptable npmjs.org names.
+
+- [#15345](https://github.com/withastro/astro/pull/15345) [`840fbf9`](https://github.com/withastro/astro/commit/840fbf9e4abc7f847e23da8d67904ffde4d95fff) Thanks [@matthewp](https://github.com/matthewp)! - Fixes an issue where `.sql` files (and other non-asset module types) were incorrectly moved to the client assets folder during SSR builds, causing "no such module" errors at runtime.
+
+  The `ssrMoveAssets` function now reads the Vite manifest to determine which files are actual client assets (CSS and static assets like images) and only moves those, leaving server-side module files in place.
+
+- [#15422](https://github.com/withastro/astro/pull/15422) [`68770ef`](https://github.com/withastro/astro/commit/68770ef9e981f37a0b1b8febf76958010975add9) Thanks [@matthewp](https://github.com/matthewp)! - Upgrade to @astrojs/compiler@3.0.0-beta
+
+- Updated dependencies [[`a164c77`](https://github.com/withastro/astro/commit/a164c77336059f2dc3e7f7fe992aa754ed145ef3), [`a18d727`](https://github.com/withastro/astro/commit/a18d727fc717054df85177c8e0c3d38a5252f2da)]:
+  - @astrojs/internal-helpers@0.8.0-beta.1
+  - @astrojs/markdown-remark@7.0.0-beta.6
+
+## 6.0.0-beta.9
+
+### Patch Changes
+
+- [#15415](https://github.com/withastro/astro/pull/15415) [`cc3c46c`](https://github.com/withastro/astro/commit/cc3c46c73774d5c4b67c3b7a68f7da5de5544ba8) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where CSP headers were incorrectly injected in the development server.
+
+- [#15412](https://github.com/withastro/astro/pull/15412) [`c546563`](https://github.com/withastro/astro/commit/c546563f361343b2494ebfb1c06ef3101a4d083c) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves the `AstroAdapter` type and how legacy adapters are handled
+
+- [#15421](https://github.com/withastro/astro/pull/15421) [`bf62b6f`](https://github.com/withastro/astro/commit/bf62b6fa3eb7b0562cb9390a5362b23381f07276) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Removes unintended logging
+
+## 6.0.0-beta.8
+
+### Minor Changes
+
+- [#15258](https://github.com/withastro/astro/pull/15258) [`d339a18`](https://github.com/withastro/astro/commit/d339a182b387a7a1b0d5dd0d67a0638aaa2b4262) Thanks [@ematipico](https://github.com/ematipico)! - Stabilizes the adapter feature `experimentalStatiHeaders`. If you were using this feature in any of the supported adapters, you'll need to change the name of the flag:
+
+  ```diff
+  export default defineConfig({
+    adapter: netlify({
+  -    experimentalStaticHeaders: true
+  +    staticHeaders: true
+    })
+  })
+  ```
+
+### Patch Changes
+
+- [#15167](https://github.com/withastro/astro/pull/15167) [`4fca170`](https://github.com/withastro/astro/commit/4fca1701eca1d107df43ef280cab342dfdacbb44) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes an issue where CSS from unused components, when using content collections, could be incorrectly included between page navigations in development mode.
+
+- [#15268](https://github.com/withastro/astro/pull/15268) [`54e5cc4`](https://github.com/withastro/astro/commit/54e5cc476b7d8ea8da0ddaba97ced0b789a2550a) Thanks [@rururux](https://github.com/rururux)! - fix: avoid creating unused images during build in Picture component
+
+- [#15133](https://github.com/withastro/astro/pull/15133) [`53b125b`](https://github.com/withastro/astro/commit/53b125b7f0886f9ca75c4b2b80e3557645fb71df) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes an issue where adding or removing `<style>` tags in Astro components would not visually update styles during development without restarting the development server.
+
+- Updated dependencies [[`80f0225`](https://github.com/withastro/astro/commit/80f022559e81b5609a69ba31c7f0d93dcb0bf74d)]:
+  - @astrojs/markdown-remark@7.0.0-beta.5
+
+## 6.0.0-beta.7
+
+### Minor Changes
+
+- [#14888](https://github.com/withastro/astro/pull/14888) [`4cd3fe4`](https://github.com/withastro/astro/commit/4cd3fe412bddbb0deb1383e83f3f8ae6e72596af) Thanks [@OliverSpeir](https://github.com/OliverSpeir)! - Updates `astro add cloudflare` to better setup types, by adding `./worker-configuration.d.ts` to tsconfig includes and a `generate-types` script to package.json
+
+- [#15349](https://github.com/withastro/astro/pull/15349) [`a257c4c`](https://github.com/withastro/astro/commit/a257c4c3c7f0cdc5089b522ed216401d46d214c9) Thanks [@ascorbic](https://github.com/ascorbic)! - Passes collection name to live content loaders
+
+  Live content collection loaders now receive the collection name as part of their parameters. This is helpful for loaders that manage multiple collections or need to differentiate behavior based on the collection being accessed.
+
+  ```ts
+  export function storeLoader({ field, key }) {
+    return {
+      name: 'store-loader',
+      loadCollection: async ({ filter, collection }) => {
+        // ...
+      },
+      loadEntry: async ({ filter, collection }) => {
+        // ...
+      },
+    };
+  }
+  ```
+
+### Patch Changes
+
+- [#15394](https://github.com/withastro/astro/pull/15394) [`5520f89`](https://github.com/withastro/astro/commit/5520f89d5df125e0c2d7fcdb3f9f0c81ff754e86) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where using the Fonts API with `netlify dev` wouldn't work because of query parameters
+
+- [#15385](https://github.com/withastro/astro/pull/15385) [`9e16d63`](https://github.com/withastro/astro/commit/9e16d63cdd2537c406e50d005b389ac115755e8e) Thanks [@matthewp](https://github.com/matthewp)! - Fixes content layer loaders that use dynamic imports
+
+  Content collection loaders can now use `await import()` and `import.meta.glob()` to dynamically import modules during build. Previously, these would fail with "Vite module runner has been closed."
+
+- [#15386](https://github.com/withastro/astro/pull/15386) [`a0234a3`](https://github.com/withastro/astro/commit/a0234a36d8407d24270e187cd6133171b938583e) Thanks [@OliverSpeir](https://github.com/OliverSpeir)! - Updates `astro add cloudflare` to use the latest valid `compatibility_date` in the wrangler config, if available
+
+- [#15362](https://github.com/withastro/astro/pull/15362) [`dbf71c0`](https://github.com/withastro/astro/commit/dbf71c021e3adf060c34e6f268cf1b5cd480233d) Thanks [@jcayzac](https://github.com/jcayzac)! - Fixes `inferSize` being kept in the HTML attributes of the emitted `<img>` when that option is used with an image that is not remote.
+
+- Updated dependencies [[`240c317`](https://github.com/withastro/astro/commit/240c317faab52d7f22494e9181f5d2c2c404b0bd)]:
+  - @astrojs/internal-helpers@0.8.0-beta.0
+  - @astrojs/markdown-remark@7.0.0-beta.4
+
+## 6.0.0-beta.6
+
+### Major Changes
+
+- [#15332](https://github.com/withastro/astro/pull/15332) [`7c55f80`](https://github.com/withastro/astro/commit/7c55f80fa1fd91f8f71ad60437f81e6c7f98f69d) Thanks [@matthewp](https://github.com/matthewp)! - Adds frontmatter parsing support to `renderMarkdown` in content loaders. When markdown content includes frontmatter, it is now extracted and available in `metadata.frontmatter`, and excluded from the HTML output. This makes `renderMarkdown` behave consistently with the `glob` loader.
+
+  ```js
+  const loader = {
+    name: 'my-loader',
+    load: async ({ store, renderMarkdown }) => {
+      const content = `---
+  title: My Post
+  ---
+  
+  # Hello World
+  `;
+      const rendered = await renderMarkdown(content);
+      // rendered.metadata.frontmatter is now { title: 'My Post' }
+      // rendered.html contains only the content, not the frontmatter
+    },
+  };
+  ```
+
+### Minor Changes
+
+- [#15291](https://github.com/withastro/astro/pull/15291) [`89b6cdd`](https://github.com/withastro/astro/commit/89b6cdd4075f5c9362291c386bb1e7c100b467a5) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the `experimental.fonts` flag and replaces it with a new configuration option `fonts` - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#experimental-flags))
+
+- [#15332](https://github.com/withastro/astro/pull/15332) [`7c55f80`](https://github.com/withastro/astro/commit/7c55f80fa1fd91f8f71ad60437f81e6c7f98f69d) Thanks [@matthewp](https://github.com/matthewp)! - Adds a `fileURL` option to `renderMarkdown` in content loaders, enabling resolution of relative image paths. When provided, relative image paths in markdown will be resolved relative to the specified file URL and included in `metadata.localImagePaths`.
+
+  ```js
+  const loader = {
+    name: 'my-loader',
+    load: async ({ store, renderMarkdown }) => {
+      const content = `
+  # My Post
+  
+  ![Local image](./image.png)
+  `;
+      // Provide a fileURL to resolve relative image paths
+      const fileURL = new URL('./posts/my-post.md', import.meta.url);
+      const rendered = await renderMarkdown(content, { fileURL });
+      // rendered.metadata.localImagePaths now contains the resolved image path
+    },
+  };
+  ```
+
+- [#15291](https://github.com/withastro/astro/pull/15291) [`89b6cdd`](https://github.com/withastro/astro/commit/89b6cdd4075f5c9362291c386bb1e7c100b467a5) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a new Fonts API to provide first-party support for adding custom fonts in Astro.
+
+  This feature allows you to use fonts from both your file system and several built-in supported providers (e.g. Google, Fontsource, Bunny) through a unified API. Keep your site performant thanks to sensible defaults and automatic optimizations including preloading and fallback font generation.
+
+  To enable this feature, configure `fonts` with one or more fonts:
+
+  ```js title="astro.config.mjs"
+  import { defineConfig, fontProviders } from 'astro/config';
+
+  export default defineConfig({
+    fonts: [
+      {
+        provider: fontProviders.fontsource(),
+        name: 'Roboto',
+        cssVariable: '--font-roboto',
+      },
+    ],
+  });
+  ```
+
+  Import and include the `<Font />` component with the required `cssVariable` property in the head of your page, usually in a dedicated `Head.astro` component or in a layout component directly:
+
+  ```astro
+  ---
+  // src/layouts/Layout.astro
+  import { Font } from 'astro:assets';
+  ---
+
+  <html>
+    <head>
+      <Font cssVariable="--font-roboto" preload />
+    </head>
+    <body>
+      <slot />
+    </body>
+  </html>
+  ```
+
+  In any page rendered with that layout, including the layout component itself, you can now define styles with your font's `cssVariable` to apply your custom font.
+
+  In the following example, the `<h1>` heading will have the custom font applied, while the paragraph `<p>` will not.
+
+  ```astro
+  ---
+  // src/pages/example.astro
+  import Layout from '../layouts/Layout.astro';
+  ---
+
+  <Layout>
+    <h1>In a galaxy far, far away...</h1>
+
+    <p>Custom fonts make my headings much cooler!</p>
+
+    <style>
+      h1 {
+        font-family: var('--font-roboto');
+      }
+    </style>
+  </Layout>
+  ```
+
+  Visit the updated [fonts guide](https://v6.docs.astro.build/en/guides/fonts/) to learn more about adding custom fonts to your project.
+
+### Patch Changes
+
+- [#15337](https://github.com/withastro/astro/pull/15337) [`7ff7b11`](https://github.com/withastro/astro/commit/7ff7b1160d2d60e40073ddc422fc7a00c59696aa) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where the development server couldn't serve newly created new pages while the development server is running.
+
+- [#15331](https://github.com/withastro/astro/pull/15331) [`4592be5`](https://github.com/withastro/astro/commit/4592be5bb7490474fe5e204f60b7131d9a79dae5) Thanks [@matthewp](https://github.com/matthewp)! - Fixes an issue where API routes would overwrite public files during build. Public files now correctly take priority over generated routes in both dev and build modes.
+
+- Updated dependencies [[`7c55f80`](https://github.com/withastro/astro/commit/7c55f80fa1fd91f8f71ad60437f81e6c7f98f69d)]:
+  - @astrojs/markdown-remark@7.0.0-beta.3
+
+## 6.0.0-beta.5
+
+### Patch Changes
+
+- [#15322](https://github.com/withastro/astro/pull/15322) [`18e0980`](https://github.com/withastro/astro/commit/18e09800e459ff292f33370d4cf5f70d97bdbdb4) Thanks [@matthewp](https://github.com/matthewp)! - Prevents missing CSS when using both SSR and prerendered routes
+
+- [#15317](https://github.com/withastro/astro/pull/15317) [`7e1e35a`](https://github.com/withastro/astro/commit/7e1e35a8c28dba6495f9068c35faeb01abc08a1c) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `?raw` imports failing when used in both SSR and prerendered routes
+
+## 6.0.0-beta.4
+
+### Patch Changes
+
+- [#15308](https://github.com/withastro/astro/pull/15308) [`89cbcfa`](https://github.com/withastro/astro/commit/89cbcfadcf2d777dc5dbd210f9f88117c0101931) Thanks [@matthewp](https://github.com/matthewp)! - Fixes styles missing in dev for prerendered pages when using Cloudflare adapter
+
+- [#15279](https://github.com/withastro/astro/pull/15279) [`8983f17`](https://github.com/withastro/astro/commit/8983f17d530b63d230ffb06f7ce65476f77c60b5) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the dev server would serve files like `/README.md` from the project root when they shouldn't be accessible. A new route guard middleware now blocks direct URL access to files that exist outside of `srcDir` and `publicDir`, returning a 404 instead.
+
+## 6.0.0-beta.3
+
+### Patch Changes
+
+- [#15277](https://github.com/withastro/astro/pull/15277) [`cb99214`](https://github.com/withastro/astro/commit/cb99214ebb991d1b929978f46e1b3ae68b561366) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the function `createShikiHighlighter` would always create a new Shiki highlighter instance. Now the function returns a cached version of the highlighter based on the Shiki options. This should improve the performance for sites that heavily rely on Shiki and code in their pages.
+
+- [#15264](https://github.com/withastro/astro/pull/15264) [`11efb05`](https://github.com/withastro/astro/commit/11efb058e85cda68f9a8e8f15a2c7edafe5a4789) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Lower the Node version requirement to allow running on Stackblitz until it supports v22
+
+- Updated dependencies [[`cb99214`](https://github.com/withastro/astro/commit/cb99214ebb991d1b929978f46e1b3ae68b561366)]:
+  - @astrojs/markdown-remark@7.0.0-beta.2
+
+## 6.0.0-beta.2
+
+### Major Changes
+
+- [#15192](https://github.com/withastro/astro/pull/15192) [`ada2808`](https://github.com/withastro/astro/commit/ada2808a23fc70ea1f1663f3e1b69c6b735251e5) Thanks [@gameroman](https://github.com/gameroman)! - Removes support for CommonJS config files - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-support-for-commonjs-config-files))
+
+- [#15266](https://github.com/withastro/astro/pull/15266) [`f7c9365`](https://github.com/withastro/astro/commit/f7c9365d92b2196d4ba6cffd01b01967ca73728c) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Allows `Astro.csp` and `context.csp` to be undefined instead of throwing errors when `csp: true` is not configured
+
+  When using the experimental Content Security Policy feature in Astro 5.x, `context.csp` was always defined but would throw if `experimental.csp` was not enabled in the Astro config.
+
+  For the stable version of this API in Astro 6, `context.csp` can now be undefined if CSP is not enabled and its methods will never throw.
+
+  #### What should I do?
+
+  If you were using experimental CSP runtime utilities, you must now access methods conditionally:
+
+  ```diff
+  -Astro.csp.insertDirective("default-src 'self'");
+  +Astro.csp?.insertDirective("default-src 'self'");
+  ```
+
+### Patch Changes
+
+- [#15208](https://github.com/withastro/astro/pull/15208) [`8dbdd8e`](https://github.com/withastro/astro/commit/8dbdd8efc12926eddbe189cf67a161bebf9fb5dd) Thanks [@matthewp](https://github.com/matthewp)! - Makes `session.driver` optional in config schema, allowing adapters to provide default drivers
+
+  Adapters like Cloudflare, Netlify, and Node provide default session drivers, so users can now configure session options (like `ttl`) without explicitly specifying a driver.
+
+- [#15260](https://github.com/withastro/astro/pull/15260) [`abca1eb`](https://github.com/withastro/astro/commit/abca1ebc0ed4b89b1904c58b7969f8386250f8de) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where adding new pages weren't correctly shown when using the development server.
+
+- [#15214](https://github.com/withastro/astro/pull/15214) [`6bab8c9`](https://github.com/withastro/astro/commit/6bab8c992add3ecad7581b26f6bc28a74e5d3485) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the internal perfomance timers weren't correctly updated to reflect new build pipeline.
+
+- [#15259](https://github.com/withastro/astro/pull/15259) [`8670a69`](https://github.com/withastro/astro/commit/8670a699e96fcc972d441c75e503b20e8961a71f) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where styles weren't correctly reloaded when using the `@astrojs/cloudflare` adapter.
+
+- [#15205](https://github.com/withastro/astro/pull/15205) [`12adc55`](https://github.com/withastro/astro/commit/12adc5507c99fa7f315d0c78e82005524e7bbb32) Thanks [@martrapp](https://github.com/martrapp)! - Fixes an issue where the `astro:page-load` event did not fire on initial page loads.
+
+- [#15269](https://github.com/withastro/astro/pull/15269) [`6f82aae`](https://github.com/withastro/astro/commit/6f82aae24c64a059531f4b924c201fbd4c3e9180) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a regression where `build.serverEntry` stopped working as expected.
+
+## 6.0.0-beta.1
+
+### Patch Changes
+
+- Updated dependencies [[`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795)]:
+  - @astrojs/markdown-remark@7.0.0-beta.1
+
+## 6.0.0-beta.0
+
+### Patch Changes
+
+- [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves JSDoc annotations for `AstroGlobal`, `AstroSharedContext` and `APIContext` types
+
+- [#15176](https://github.com/withastro/astro/pull/15176) [`9265546`](https://github.com/withastro/astro/commit/92655460785e4b0a9eca9bac2e493a9c989dff47) Thanks [@matthewp](https://github.com/matthewp)! - Fixes hydration for framework components inside MDX when using `Astro.slots.render()`
+
+  Previously, when multiple framework components with `client:*` directives were passed as named slots to an Astro component in MDX, only the first slot would hydrate correctly. Subsequent slots would render their HTML but fail to include the necessary hydration scripts.
+
+- [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes remote images `Etag` header handling by disabling internal cache
+
+- [#15121](https://github.com/withastro/astro/pull/15121) [`06261e0`](https://github.com/withastro/astro/commit/06261e03d55a571c6affbd7321f7e28c997d6d5d) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where the Astro, with the Cloudlfare integration, couldn't correctly serve certain routes in the development server.
+
+- [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes images not working in development when using setups with port forwarding
+
+- [#15137](https://github.com/withastro/astro/pull/15137) [`2f70bf1`](https://github.com/withastro/astro/commit/2f70bf14ec953cd6e813ed4e1aa0ef2245846dd0) Thanks [@matthewp](https://github.com/matthewp)! - Adds `legacy.collectionsBackwardsCompat` flag that restores v5 backwards compatibility behavior for legacy content collections - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#legacy-content-collections-backwards-compatibility))
+
+  When enabled, this flag allows:
+  - Collections defined without loaders (automatically get glob loader)
+  - Collections with `type: 'content'` or `type: 'data'`
+  - Config files located at `src/content/config.ts` (legacy location)
+  - Legacy entry API: `entry.slug` and `entry.render()` methods
+  - Path-based entry IDs instead of slug-based IDs
+
+  ```js
+  // astro.config.mjs
+  export default defineConfig({
+    legacy: {
+      collectionsBackwardsCompat: true,
+    },
+  });
+  ```
+
+  This is a temporary migration helper for v6 upgrades. Migrate collections to the Content Layer API, then disable this flag.
+
+- [#15179](https://github.com/withastro/astro/pull/15179) [`8c8aee6`](https://github.com/withastro/astro/commit/8c8aee6ddefb1918b1f00415e34d2531e287acf8) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes an issue when importing using an import alias a file with a name matching a directory name.
+
+- [#15176](https://github.com/withastro/astro/pull/15176) [`9265546`](https://github.com/withastro/astro/commit/92655460785e4b0a9eca9bac2e493a9c989dff47) Thanks [@matthewp](https://github.com/matthewp)! - Fixes scripts in components not rendering when a sibling `<Fragment slot="...">` exists but is unused
+
+## 6.0.0-alpha.5
+
+### Patch Changes
+
+- [#15064](https://github.com/withastro/astro/pull/15064) [`caf5621`](https://github.com/withastro/astro/commit/caf5621b324344fc0d46fb462c88c0d79fccca6b) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused incorrect warnings of duplicate entries to be logged by the glob loader when editing a file
+
+- [#15093](https://github.com/withastro/astro/pull/15093) [`8d5f783`](https://github.com/withastro/astro/commit/8d5f783ad8d236c9d768a629d3b929a074276ac2) Thanks [@matthewp](https://github.com/matthewp)! - Reduces build memory by filtering routes per environment so each only builds the pages it needs
+
+- [#15073](https://github.com/withastro/astro/pull/15073) [`2a39c32`](https://github.com/withastro/astro/commit/2a39c32857ad090efcfd77fb781e420f43800bc9) Thanks [@ascorbic](https://github.com/ascorbic)! - Don't log an error when there is no content config
+
+- [#15112](https://github.com/withastro/astro/pull/15112) [`5751d2b`](https://github.com/withastro/astro/commit/5751d2be14ccdcb752e11b6abdb5cdd3268a5b87) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes a Windows-specific build issue when importing an Astro component with a `<script>` tag using an import alias.
+
+## 6.0.0-alpha.4
+
+### Major Changes
+
+- [#15049](https://github.com/withastro/astro/pull/15049) [`beddfeb`](https://github.com/withastro/astro/commit/beddfeb31e807cb472a43fa56c69f85dbadc9604) Thanks [@Ntale3](https://github.com/Ntale3)! - Removes the ability to render Astro components in Vitest client environments - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-astro-components-cannot-be-rendered-in-vitest-client-environments-container-api))
+
+### Patch Changes
+
+- [#15054](https://github.com/withastro/astro/pull/15054) [`22db567`](https://github.com/withastro/astro/commit/22db567d4cea7a4476271c101c452a2624b7d996) Thanks [@matthewp](https://github.com/matthewp)! - Improves zod union type error messages to show expected vs received types instead of generic "Invalid input"
+
+## 6.0.0-alpha.3
+
+### Major Changes
+
+- [#15006](https://github.com/withastro/astro/pull/15006) [`f361730`](https://github.com/withastro/astro/commit/f361730bc820c01a2ec3e508ac940be8077d8c04) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes session `test` driver - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-session-test-driver))
+
+- [#15006](https://github.com/withastro/astro/pull/15006) [`f361730`](https://github.com/withastro/astro/commit/f361730bc820c01a2ec3e508ac940be8077d8c04) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Deprecates session driver string signature - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#deprecated-session-driver-string-signature))
+
+### Minor Changes
+
+- [#15006](https://github.com/withastro/astro/pull/15006) [`f361730`](https://github.com/withastro/astro/commit/f361730bc820c01a2ec3e508ac940be8077d8c04) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds new session driver object shape
+
+  For greater flexibility and improved consistency with other Astro code, session drivers are now specified as an object:
+
+  ```diff
+  -import { defineConfig } from 'astro/config'
+  +import { defineConfig, sessionDrivers } from 'astro/config'
+
+  export default defineConfig({
+    session: {
+  -    driver: 'redis',
+  -    options: {
+  -      url: process.env.REDIS_URL
+  -    },
+  +    driver: sessionDrivers.redis({
+  +      url: process.env.REDIS_URL
+  +    }),
+    }
+  })
+  ```
+
+  Specifying the session driver as a string has been deprecated, but will continue to work until this feature is removed completely in a future major version. The object shape is the current recommended and documented way to configure a session driver.
+
+### Patch Changes
+
+- [#15044](https://github.com/withastro/astro/pull/15044) [`7cac71b`](https://github.com/withastro/astro/commit/7cac71b89f7462e197a69d797bdfefe6c7d15689) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes an exposed internal API of the preview server
+
+- [#15047](https://github.com/withastro/astro/pull/15047) [`5580372`](https://github.com/withastro/astro/commit/55803724bb50c0fe4303c26f0df8f254e42b4d61) Thanks [@matthewp](https://github.com/matthewp)! - Fixes wrangler config template in `astro add cloudflare` to use correct entrypoint and compatibility date
+
+- [#15053](https://github.com/withastro/astro/pull/15053) [`674b63f`](https://github.com/withastro/astro/commit/674b63f26d2e3b1878bcc8d770b9895357752ae9) Thanks [@matthewp](https://github.com/matthewp)! - Excludes `astro:*` and `virtual:astro:*` from client optimizeDeps in core. Needed for prefetch users since virtual modules are now in the dependency graph.
+
+## 6.0.0-alpha.2
+
+### Patch Changes
+
+- [#15024](https://github.com/withastro/astro/pull/15024) [`22c48ba`](https://github.com/withastro/astro/commit/22c48ba6643ed7153400781ca1affb3e8dc1351a) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where JSON schema generation would fail for unrepresentable types
+
+- [#15036](https://github.com/withastro/astro/pull/15036) [`f125a73`](https://github.com/withastro/astro/commit/f125a73ebf395d81bf44ccfce4af63a518f6f724) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes certain aliases not working when using images in JSON files with the content layer
+
+- [#15036](https://github.com/withastro/astro/pull/15036) [`f125a73`](https://github.com/withastro/astro/commit/f125a73ebf395d81bf44ccfce4af63a518f6f724) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a vite warning log during builds when using npm
+
+## 6.0.0-alpha.1
+
+### Major Changes
+
+- [#14956](https://github.com/withastro/astro/pull/14956) [`0ff51df`](https://github.com/withastro/astro/commit/0ff51dfa3c6c615af54228e159f324034472b1a2) Thanks [@matthewp](https://github.com/matthewp)! - Astro v6.0 upgrades to Zod v4 for schema validation - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#zod-4))
+
+- [#14759](https://github.com/withastro/astro/pull/14759) [`d7889f7`](https://github.com/withastro/astro/commit/d7889f768a4d27e8c4ad3a0022099d19145a7d58) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates how schema types are inferred for content loaders with schemas (Loader API) - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-schema-types-are-inferred-instead-of-generated-content-loader-api))
+
+- [#14306](https://github.com/withastro/astro/pull/14306) [`141c4a2`](https://github.com/withastro/astro/commit/141c4a26419fe5bb4341953ea5a0a861d9b398c0) Thanks [@ematipico](https://github.com/ematipico)! - Removes support for routes with percent-encoded percent signs (e.g. `%25`) - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-percent-encoding-in-routes))
+
+- [#14759](https://github.com/withastro/astro/pull/14759) [`d7889f7`](https://github.com/withastro/astro/commit/d7889f768a4d27e8c4ad3a0022099d19145a7d58) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the option to define dynamic schemas in content loaders as functions and adds a new equivalent `createSchema()` property (Loader API) - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-schema-function-signature-content-loader-api))
+
+- [#14306](https://github.com/withastro/astro/pull/14306) [`141c4a2`](https://github.com/withastro/astro/commit/141c4a26419fe5bb4341953ea5a0a861d9b398c0) Thanks [@ematipico](https://github.com/ematipico)! - Removes `RouteData.generate` from the Integration API - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-routedatagenerate-adapter-api))
+
+- [#14989](https://github.com/withastro/astro/pull/14989) [`73e8232`](https://github.com/withastro/astro/commit/73e823201cc5bdd6ccab14c07ff0dca5117436ad) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Deprecates exposed `astro:transitions` internals - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#deprecated-exposed-astrotransitions-internals))
+
+- [#14758](https://github.com/withastro/astro/pull/14758) [`010f773`](https://github.com/withastro/astro/commit/010f7731becbaaba347da21ef07b8a410e31442a) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the `setManifestData` method from `App` and `NodeApp` (Adapter API) - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-appsetmanifestdata-adapter-api))
+
+- [#14826](https://github.com/withastro/astro/pull/14826) [`170f64e`](https://github.com/withastro/astro/commit/170f64e977290b8f9d316b5f283bd03bae33ddde) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the `experimental.failOnPrerenderConflict` flag and replaces it with a new configuration option `prerenderConflictBehavior` - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#experimental-flags))
+
+- [#14923](https://github.com/withastro/astro/pull/14923) [`95a1969`](https://github.com/withastro/astro/commit/95a1969a05cc9c15f16dcf2177532882bb392581) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Deprecates `astro:schema` and `z` from `astro:content` in favor of `astro/zod` - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#deprecated-astroschema-and-z-from-astrocontent))
+
+- [#14844](https://github.com/withastro/astro/pull/14844) [`8d43b1d`](https://github.com/withastro/astro/commit/8d43b1d678eed5be85f99b939d55346824c03cb5) Thanks [@trueberryless](https://github.com/trueberryless)! - Removes exposed `astro:actions` internals - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-exposed-astroactions-internals))
+
+- [#14306](https://github.com/withastro/astro/pull/14306) [`141c4a2`](https://github.com/withastro/astro/commit/141c4a26419fe5bb4341953ea5a0a861d9b398c0) Thanks [@ematipico](https://github.com/ematipico)! - Changes the shape of `SSRManifest` properties and adds several new required properties in the Adapter API - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-ssrmanifest-interface-structure-adapter-api))
+
+- [#14306](https://github.com/withastro/astro/pull/14306) [`141c4a2`](https://github.com/withastro/astro/commit/141c4a26419fe5bb4341953ea5a0a861d9b398c0) Thanks [@ematipico](https://github.com/ematipico)! - Changes integration hooks and HMR access patterns in the Integration API - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-integration-hooks-and-hmr-access-patterns-integration-api))
+
+- [#14306](https://github.com/withastro/astro/pull/14306) [`141c4a2`](https://github.com/withastro/astro/commit/141c4a26419fe5bb4341953ea5a0a861d9b398c0) Thanks [@ematipico](https://github.com/ematipico)! - Removes the unused `astro:ssr-manifest` virtual module - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-astrossr-manifest-virtual-module-integration-api))
+
+### Minor Changes
+
+- [#14306](https://github.com/withastro/astro/pull/14306) [`141c4a2`](https://github.com/withastro/astro/commit/141c4a26419fe5bb4341953ea5a0a861d9b398c0) Thanks [@ematipico](https://github.com/ematipico)! - Adds new optional properties to `setAdapter()` for adapter entrypoint handling in the Adapter API
+
+  **Changes:**
+  - New optional properties:
+    - `entryType?: 'self' | 'legacy-dynamic'` - determines if the adapter provides its own entrypoint (`'self'`) or if Astro constructs one (`'legacy-dynamic'`, default)
+
+  **Migration:** Adapter authors can optionally add these properties to support custom dev entrypoints. If not specified, adapters will use the legacy behavior.
+
+- [#14826](https://github.com/withastro/astro/pull/14826) [`170f64e`](https://github.com/withastro/astro/commit/170f64e977290b8f9d316b5f283bd03bae33ddde) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds an option `prerenderConflictBehavior` to configure the behavior of conflicting prerendered routes
+
+  By default, Astro warns you during the build about any conflicts between multiple dynamic routes that can result in the same output path. For example `/blog/[slug]` and `/blog/[...all]` both could try to prerender the `/blog/post-1` path. In such cases, Astro renders only the [highest priority route](https://docs.astro.build/en/guides/routing/#route-priority-order) for the conflicting path. This allows your site to build successfully, although you may discover that some pages are rendered by unexpected routes.
+
+  With the new `prerenderConflictBehavior` configuration option, you can now configure this further:
+  - `prerenderConflictBehavior: 'error'` fails the build
+  - `prerenderConflictBehavior: 'warn'` (default) logs a warning and the highest-priority route wins
+  - `prerenderConflictBehavior: 'ignore'` silently picks the highest-priority route when conflicts occur
+
+  ```diff
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+  +    prerenderConflictBehavior: 'error',
+  });
+  ```
+
+- [#14946](https://github.com/withastro/astro/pull/14946) [`95c40f7`](https://github.com/withastro/astro/commit/95c40f7109ce240206c3951761a7bb439dd809cb) Thanks [@ematipico](https://github.com/ematipico)! - Removes the `experimental.csp` flag and replaces it with a new configuration option `security.csp` - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#experimental-flags))
+
+## 6.0.0-alpha.0
+
+### Major Changes
+
+- [#14446](https://github.com/withastro/astro/pull/14446) [`ece667a`](https://github.com/withastro/astro/commit/ece667a737a96c8bfea2702de7207bed0842b37c) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes `entryPoints` on `astro:build:ssr` hook (Integration API) - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-entrypoints-on-astrobuildssr-hook-integration-api))
+
+- [#14426](https://github.com/withastro/astro/pull/14426) [`861b9cc`](https://github.com/withastro/astro/commit/861b9cc770a05d9fcfcb2f1f442a3ba41e94b510) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the deprecated `emitESMImage()` function - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-emitesmimage))
+
+- [#14446](https://github.com/withastro/astro/pull/14446) [`ece667a`](https://github.com/withastro/astro/commit/ece667a737a96c8bfea2702de7207bed0842b37c) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes `routes` on `astro:build:done` hook (Integration API) - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-routes-on-astrobuilddone-hook-integration-api))
+
+- [#14462](https://github.com/withastro/astro/pull/14462) [`9fdfd4c`](https://github.com/withastro/astro/commit/9fdfd4c620313827e65664632a9c9cb435ad07ca) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the old `app.render()` signature (Adapter API) - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-old-apprender-signature-adapter-api))
+
+- [#14462](https://github.com/withastro/astro/pull/14462) [`9fdfd4c`](https://github.com/withastro/astro/commit/9fdfd4c620313827e65664632a9c9cb435ad07ca) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes `prefetch()` `with` option - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-prefetch-with-option))
+
+- [#14432](https://github.com/withastro/astro/pull/14432) [`b1d87ec`](https://github.com/withastro/astro/commit/b1d87ec3bc2fbe214437990e871df93909d18f62) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Deprecates `Astro` in `getStaticPaths()` - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#deprecated-astro-in-getstaticpaths))
+
+- [#14457](https://github.com/withastro/astro/pull/14457) [`049da87`](https://github.com/withastro/astro/commit/049da87cb7ce1828f3025062ce079dbf132f5b86) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates trailing slash behavior of endpoint URLs - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-endpoints-with-a-file-extension-cannot-be-accessed-with-a-trailing-slash))
+
+- [#14494](https://github.com/withastro/astro/pull/14494) [`727b0a2`](https://github.com/withastro/astro/commit/727b0a205eb765f1c36f13a73dfc69e17e44df8f) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates Markdown heading ID generation - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-markdown-heading-id-generation))
+
+- [#14461](https://github.com/withastro/astro/pull/14461) [`55a1a91`](https://github.com/withastro/astro/commit/55a1a911aa4e0d38191f8cb9464ffd58f3eb7608) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Deprecates `import.meta.env.ASSETS_PREFIX` - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#deprecated-importmetaenvassets_prefix))
+
+- [#14586](https://github.com/withastro/astro/pull/14586) [`669ca5b`](https://github.com/withastro/astro/commit/669ca5b0199d9933f54c76448de9ec5a9f13c430) Thanks [@ocavue](https://github.com/ocavue)! - Changes the values allowed in `params` returned by `getStaticPaths()` - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-getstaticpaths-cannot-return-params-of-type-number))
+
+- [#14421](https://github.com/withastro/astro/pull/14421) [`df6d2d7`](https://github.com/withastro/astro/commit/df6d2d7bbcaf6b6a327a37a6437d4adade6e2485) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the previously deprecated `Astro.glob()` - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-astroglob))
+
+- [#14462](https://github.com/withastro/astro/pull/14462) [`9fdfd4c`](https://github.com/withastro/astro/commit/9fdfd4c620313827e65664632a9c9cb435ad07ca) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the `handleForms` prop for the `<ClientRouter />` component - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-handleforms-prop-for-the-clientrouter--component))
+
+- [#14427](https://github.com/withastro/astro/pull/14427) [`e131261`](https://github.com/withastro/astro/commit/e1312615b39c59ebc05d5bb905ee0960b50ad3cf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Increases minimum Node.js version to 22.12.0 - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#node-22))
+
+- [#14400](https://github.com/withastro/astro/pull/14400) [`c69c7de`](https://github.com/withastro/astro/commit/c69c7de1ffeff29f919d97c262f245927556f875) Thanks [@ellielok](https://github.com/ellielok)! - Removes the deprecated `<ViewTransitions />` component - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-viewtransitions--component))
+
+- [#14406](https://github.com/withastro/astro/pull/14406) [`4f11510`](https://github.com/withastro/astro/commit/4f11510c9ed932f5cb6d1075b1172909dd5db23e) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Changes the default routing configuration value of `i18n.routing.redirectToDefaultLocale` from `true` to `false` - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-i18nroutingredirecttodefaultlocale-default-value))
+
+- [#14477](https://github.com/withastro/astro/pull/14477) [`25fe093`](https://github.com/withastro/astro/commit/25fe09396dbcda2e1008c01a982f4eb2d1f33ae6) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes `rewrite()` from Actions context - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-rewrite-from-actions-context))
+
+- [#14445](https://github.com/withastro/astro/pull/14445) [`ecb0b98`](https://github.com/withastro/astro/commit/ecb0b98396f639d830a99ddb5895ab9223e4dc87) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Astro v6.0 upgrades to Vite v7.0 as the development server and production bundler - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#vite-70))
+
+- [#14485](https://github.com/withastro/astro/pull/14485) [`6f67c6e`](https://github.com/withastro/astro/commit/6f67c6eef2647ef1a1eab78a65a906ab633974bb) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates `import.meta.env` values to always be inlined - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-importmetaenv-values-are-always-inlined))
+
+- [#14480](https://github.com/withastro/astro/pull/14480) [`36a461b`](https://github.com/withastro/astro/commit/36a461bf3f64c467bc52aecf511cd831d238e18b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates `<script>` and `<style>` tags to render in the order they are defined - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-script-and-style-tags-are-rendered-in-the-order-they-are-defined))
+
+- [#14407](https://github.com/withastro/astro/pull/14407) [`3bda3ce`](https://github.com/withastro/astro/commit/3bda3ce4edcb1bd1349890c6ed8110f05954c791) Thanks [@ascorbic](https://github.com/ascorbic)! - Removes legacy content collection support - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections))
+
+### Minor Changes
+
+- [#14550](https://github.com/withastro/astro/pull/14550) [`9c282b5`](https://github.com/withastro/astro/commit/9c282b5e6d3f0d678bc478a863e883fa4765dd17) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds support for live content collections
+
+  Live content collections are a new type of [content collection](https://docs.astro.build/en/guides/content-collections/) that fetch their data at runtime rather than build time. This allows you to access frequently updated data from CMSs, APIs, databases, or other sources using a unified API, without needing to rebuild your site when the data changes.
+
+  #### Live collections vs build-time collections
+
+  In Astro 5.0, the content layer API added support for adding diverse content sources to content collections. You can create loaders that fetch data from any source at build time, and then access it inside a page via `getEntry()` and `getCollection()`. The data is cached between builds, giving fast access and updates.
+
+  However, there was no method for updating the data store between builds, meaning any updates to the data needed a full site deploy, even if the pages are rendered on demand. This meant that content collections were not suitable for pages that update frequently. Instead, these pages tended to access the APIs directly in the frontmatter. This worked, but it led to a lot of boilerplate, and meant users didn't benefit from the simple, unified API that content loaders offer. In most cases, users tended to individually create loader libraries shared between pages.
+
+  Live content collections ([introduced experimentally in Astro 5.10](https://astro.build/blog/live-content-collections-deep-dive/)) solve this problem by allowing you to create loaders that fetch data at runtime, rather than build time. This means that the data is always up-to-date, without needing to rebuild the site.
+
+  #### How to use
+
+  To use live collections, create a new `src/live.config.ts` file (alongside your `src/content.config.ts` if you have one) to define your live collections with a live content loader using the new `defineLiveCollection()` function from the `astro:content` module:
+
+  ```ts title="src/live.config.ts"
+  import { defineLiveCollection } from 'astro:content';
+  import { storeLoader } from '@mystore/astro-loader';
+
+  const products = defineLiveCollection({
+    loader: storeLoader({
+      apiKey: process.env.STORE_API_KEY,
+      endpoint: 'https://api.mystore.com/v1',
+    }),
+  });
+
+  export const collections = { products };
+  ```
+
+  You can then use the `getLiveCollection()` and `getLiveEntry()` functions to access your live data, along with error handling (since anything can happen when requesting live data!):
+
+  ```astro
+  ---
+  import { getLiveCollection, getLiveEntry, render } from 'astro:content';
+  // Get all products
+  const { entries: allProducts, error } = await getLiveCollection('products');
+  if (error) {
+    // Handle error appropriately
+    console.error(error.message);
+  }
+
+  // Get products with a filter (if supported by your loader)
+  const { entries: electronics } = await getLiveCollection('products', { category: 'electronics' });
+
+  // Get a single product by ID (string syntax)
+  const { entry: product, error: productError } = await getLiveEntry('products', Astro.params.id);
+  if (productError) {
+    return Astro.redirect('/404');
+  }
+
+  // Get a single product with a custom query (if supported by your loader) using a filter object
+  const { entry: productBySlug } = await getLiveEntry('products', { slug: Astro.params.slug });
+  const { Content } = await render(product);
+  ---
+
+  <h1>{product.data.title}</h1>
+  <Content />
+  ```
+
+  #### Upgrading from experimental live collections
+
+  If you were using the experimental feature, you must remove the `experimental.liveContentCollections` flag from your `astro.config.*` file:
+
+  ```diff
+   export default defineConfig({
+     // ...
+  -  experimental: {
+  -    liveContentCollections: true,
+  -  },
+   });
+  ```
+
+  No other changes to your project code are required as long as you have been keeping up with Astro 5.x patch releases, which contained breaking changes to this experimental feature. If you experience problems with your live collections after upgrading to Astro v6 and removing this flag, please review the [Astro CHANGELOG from 5.10.2](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md#5102) onwards for any potential updates you might have missed, or follow the [current v6 documentation for live collections](https://docs.astro.build/en/guides/content-collections/).
+
+### Patch Changes
+
+- Updated dependencies [[`727b0a2`](https://github.com/withastro/astro/commit/727b0a205eb765f1c36f13a73dfc69e17e44df8f)]:
+  - @astrojs/markdown-remark@7.0.0-alpha.0
+
+- [#15147](https://github.com/withastro/astro/pull/15147) [`9cd5b87`](https://github.com/withastro/astro/commit/9cd5b875f2d45a08bfa8312ed7282a6f0f070265) Thanks [@matthewp](https://github.com/matthewp)! - Fixes scripts in components not rendering when a sibling `<Fragment slot="...">` exists but is unused
+
+## 5.17.1
+
+### Patch Changes
+
+- [#15334](https://github.com/withastro/astro/pull/15334) [`d715f1f`](https://github.com/withastro/astro/commit/d715f1f88777a4ce0fb61c8043cccfbac2486ab4) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - **BREAKING CHANGE to the experimental Fonts API only**
+
+  Removes the `getFontBuffer()` helper function exported from `astro:assets` when using the experimental Fonts API
+
+  This experimental feature introduced in v15.6.13 ended up causing significant memory usage during build. This feature has been removed and will be reintroduced after further exploration and testing.
+
+  If you were relying on this function, you can replicate the previous behavior manually:
+  - On prerendered routes, read the file using `node:fs`
+  - On server rendered routes, fetch files using URLs from `fontData` and `context.url`
+
+## 5.17.0
+
+### Minor Changes
+
+- [#14932](https://github.com/withastro/astro/pull/14932) [`b19d816`](https://github.com/withastro/astro/commit/b19d816c914022c4e618d6012e09aed82be34213) Thanks [@patrickarlt](https://github.com/patrickarlt)! - Adds support for returning a Promise from the `parser()` option of the `file()` loader
+
+  This enables you to run asynchronous code such as fetching remote data or using async parsers when loading files with the Content Layer API.
+
+  For example:
+
+  ```js
+  import { defineCollection } from 'astro:content';
+  import { file } from 'astro/loaders';
+
+  const blog = defineCollection({
+    loader: file('src/data/blog.json', {
+      parser: async (text) => {
+        const data = JSON.parse(text);
+
+        // Perform async operations like fetching additional data
+        const enrichedData = await fetch(`https://api.example.com/enrich`, {
+          method: 'POST',
+          body: JSON.stringify(data),
+        }).then((res) => res.json());
+
+        return enrichedData;
+      },
+    }),
+  });
+
+  export const collections = { blog };
+  ```
+
+  See [the `parser()` reference documentation](https://docs.astro.build/en/reference/content-loader-reference/#parser) for more information.
+
+- [#15171](https://github.com/withastro/astro/pull/15171) [`f220726`](https://github.com/withastro/astro/commit/f22072607c79f5ba3459ba7522cfdf2581f1869b) Thanks [@mark-ignacio](https://github.com/mark-ignacio)! - Adds a new, optional `kernel` configuration option to select a resize algorithm in the Sharp image service
+
+  By default, Sharp resizes images with the `lanczos3` kernel. This new config option allows you to set the default resizing algorithm to any resizing option supported by [Sharp](https://sharp.pixelplumbing.com/api-resize/#resize) (e.g. `linear`, `mks2021`).
+
+  Kernel selection can produce quite noticeable differences depending on various characteristics of the source image - especially drawn art - so changing the kernel gives you more control over the appearance of images on your site:
+
+  ```js
+  export default defineConfig({
+    image: {
+      service: {
+        entrypoint: 'astro/assets/services/sharp',
+        config: {
+          kernel: "mks2021"
+        }
+    }
+  })
+  ```
+
+  This selection will apply to all images on your site, and is not yet configurable on a per-image basis. For more information, see [Sharps documentation on resizing images](https://sharp.pixelplumbing.com/api-resize/#resize).
+
+- [#15063](https://github.com/withastro/astro/pull/15063) [`08e0fd7`](https://github.com/withastro/astro/commit/08e0fd723742dda4126665f5e32f4065899af83e) Thanks [@jmortlock](https://github.com/jmortlock)! - Adds a new `partitioned` option when setting a cookie to allow creating partitioned cookies.
+
+  [Partitioned cookies](https://developer.mozilla.org/en-US/docs/Web/Privacy/Guides/Privacy_sandbox/Partitioned_cookies) can only be read within the context of the top-level site on which they were set. This allows cross-site tracking to be blocked, while still enabling legitimate uses of third-party cookies.
+
+  You can create a partitioned cookie by passing `partitioned: true` when setting a cookie. Note that partitioned cookies must also be set with `secure: true`:
+
+  ```js
+  Astro.cookies.set('my-cookie', 'value', {
+    partitioned: true,
+    secure: true,
+  });
+  ```
+
+  For more information, see the [`AstroCookieSetOptions` API reference](https://docs.astro.build/en/reference/api-reference/#astrocookiesetoptions).
+
+- [#15022](https://github.com/withastro/astro/pull/15022) [`f1fce0e`](https://github.com/withastro/astro/commit/f1fce0e7cc3c1122bf5c4f1c5985ca716c8417db) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds a new `retainBody` option to the `glob()` loader to allow reducing the size of the data store.
+
+  Currently, the `glob()` loader stores the raw body of each content file in the entry, in addition to the rendered HTML.
+
+  The `retainBody` option defaults to `true`, but you can set it to `false` to prevent the raw body of content files from being stored in the data store. This significantly reduces the deployed size of the data store and helps avoid hitting size limits for sites with very large collections.
+
+  The rendered body will still be available in the `entry.rendered.html` property for markdown files, and the `entry.filePath` property will still point to the original file.
+
+  ```js
+  import { defineCollection } from 'astro:content';
+  import { glob } from 'astro/loaders';
+
+  const blog = defineCollection({
+    loader: glob({
+      pattern: '**/*.md',
+      base: './src/content/blog',
+      retainBody: false,
+    }),
+  });
+  ```
+
+  When `retainBody` is `false`, `entry.body` will be `undefined` instead of containing the raw file contents.
+
+- [#15153](https://github.com/withastro/astro/pull/15153) [`928529f`](https://github.com/withastro/astro/commit/928529f824d37e9bfb297ff931ebfcb3f0b56428) Thanks [@jcayzac](https://github.com/jcayzac)! - Adds a new `background` property to the `<Image />` component.
+
+  This optional property lets you pass a background color to flatten the image with. By default, Sharp uses a black background when flattening an image that is being converted to a format that does not support transparency (e.g. `jpeg`). Providing a value for `background` on an `<Image />` component, or passing it to the `getImage()` helper, will flatten images using that color instead.
+
+  This is especially useful when the requested output format doesn't support an alpha channel (e.g. `jpeg`) and can't support transparent backgrounds.
+
+  ```astro
+  ---
+  import { Image } from 'astro:assets';
+  ---
+
+  <Image
+    src="/transparent.png"
+    alt="A JPEG with a white background!"
+    format="jpeg"
+    background="#ffffff"
+  />
+  ```
+
+  See more about this new property in [the image reference docs](https://docs.astro.build/en/reference/modules/astro-assets/#background)
+
+- [#15015](https://github.com/withastro/astro/pull/15015) [`54f6006`](https://github.com/withastro/astro/commit/54f6006c3ddae8935a5550e2c3b38d25bf662ea6) Thanks [@tony](https://github.com/tony)! - Adds optional `placement` config option for the dev toolbar.
+
+  You can now configure the default toolbar position (`'bottom-left'`, `'bottom-center'`, or `'bottom-right'`) via `devToolbar.placement` in your Astro config. This option is helpful for sites with UI elements (chat widgets, cookie banners) that are consistently obscured by the toolbar in the dev environment.
+
+  You can set a project default that is consistent across environments (e.g. dev machines, browser instances, team members):
+
+  ```js
+  // astro.config.mjs
+  export default defineConfig({
+    devToolbar: {
+      placement: 'bottom-left',
+    },
+  });
+  ```
+
+  User preferences from the toolbar UI (stored in `localStorage`) still take priority, so this setting can be overridden in individual situations as necessary.
+
+## 5.16.16
+
+### Patch Changes
+
+- [#15281](https://github.com/withastro/astro/pull/15281) [`a1b80c6`](https://github.com/withastro/astro/commit/a1b80c65e5dddefba7ada20c7ccfdab26fb4e16b) Thanks [@matthewp](https://github.com/matthewp)! - Ensures server island requests carry an encrypted component export identifier so they do not accidentally resolve to the wrong component.
+
+- [#15304](https://github.com/withastro/astro/pull/15304) [`02ee3c7`](https://github.com/withastro/astro/commit/02ee3c745297203c38ee013b500126b15f7e5fc9) Thanks [@cameronapak](https://github.com/cameronapak)! - Fix: Remove await from getActionResult example
+
+- [#15324](https://github.com/withastro/astro/pull/15324) [`ab41c3e`](https://github.com/withastro/astro/commit/ab41c3e789b821e9179d11d67f453ba955448be6) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes an issue where certain unauthorized links could be rendered as clickable in the error overlay
+
+## 5.16.15
+
+### Patch Changes
+
+- [#15286](https://github.com/withastro/astro/pull/15286) [`0aafc83`](https://github.com/withastro/astro/commit/0aafc8342a47f5c96cd13bfc02539d89c3c358a7) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where font providers provided as class instances may not work when using the experimental Fonts API. It affected the local provider
+
+## 5.16.14
+
+### Patch Changes
+
+- [#15213](https://github.com/withastro/astro/pull/15213) [`c775fce`](https://github.com/withastro/astro/commit/c775fce98f50001bc59025dceaf8ea5287675f17) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - **BREAKING CHANGE to the experimental Fonts API only**
+
+  Updates how the local provider must be used when using the experimental Fonts API
+
+  Previously, there were 2 kinds of font providers: remote and local.
+
+  Font providers are now unified. If you are using the local provider, the process for configuring local fonts must be updated:
+
+  ```diff
+  -import { defineConfig } from "astro/config";
+  +import { defineConfig, fontProviders } from "astro/config";
+
+  export default defineConfig({
+      experimental: {
+          fonts: [{
+              name: "Custom",
+              cssVariable: "--font-custom",
+  -            provider: "local",
+  +            provider: fontProviders.local(),
+  +            options: {
+              variants: [
+                  {
+                      weight: 400,
+                      style: "normal",
+                      src: ["./src/assets/fonts/custom-400.woff2"]
+                  },
+                  {
+                      weight: 700,
+                      style: "normal",
+                      src: ["./src/assets/fonts/custom-700.woff2"]
+                  }
+                  // ...
+              ]
+  +            }
+          }]
+      }
+  });
+  ```
+
+  Once configured, there is no change to using local fonts in your project. However, you should inspect your deployed site to confirm that your new font configuration is being applied.
+
+  See [the experimental Fonts API docs](https://docs.astro.build/en/reference/experimental-flags/fonts/) for more information.
+
+- [#15213](https://github.com/withastro/astro/pull/15213) [`c775fce`](https://github.com/withastro/astro/commit/c775fce98f50001bc59025dceaf8ea5287675f17) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Exposes `root` on `FontProvider` `init()` context
+
+  When building a custom `FontProvider` for the experimental Fonts API, the `init()` method receives a `context`. This context now exposes a `root` URL, useful for resolving local files:
+
+  ```diff
+  import type { FontProvider } from "astro";
+
+  export function registryFontProvider(): FontProvider {
+    return {
+      // ...
+  -    init: async ({ storage }) => {
+  +    init: async ({ storage, root }) => {
+          // ...
+      },
+    };
+  }
+  ```
+
+- [#15185](https://github.com/withastro/astro/pull/15185) [`edabeaa`](https://github.com/withastro/astro/commit/edabeaa3cd3355fa33e4eb547656033fe7b66845) Thanks [@EricGrill](https://github.com/EricGrill)! - Add `.vercel` to `.gitignore` when adding the Vercel adapter via `astro add vercel`
+
+## 5.16.13
+
+### Patch Changes
+
+- [#15182](https://github.com/withastro/astro/pull/15182) [`cb60ee1`](https://github.com/withastro/astro/commit/cb60ee16051da258ab140f3bb64ff3fd8e4c9e17) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a new `getFontBuffer()` method to retrieve font file buffers when using the experimental Fonts API
+
+  The `getFontData()` helper function from `astro:assets` was introduced in 5.14.0 to provide access to font family data for use outside of Astro. One of the goals of this API was to be able to retrieve buffers using URLs.
+
+  However, it turned out to be impactical and even impossible during prerendering.
+
+  Astro now exports a new `getFontBuffer()` helper function from `astro:assets` to retrieve font file buffers from URL returned by `getFontData()`. For example, when using [satori](https://github.com/vercel/satori) to generate OpenGraph images:
+
+  ```diff
+  // src/pages/og.png.ts
+
+  import type{ APIRoute } from "astro"
+  -import { getFontData } from "astro:assets"
+  +import { getFontData, getFontBuffer } from "astro:assets"
+  import satori from "satori"
+
+  export const GET: APIRoute = (context) => {
+    const data = getFontData("--font-roboto")
+
+    const svg = await satori(
+      <div style={{ color: "black" }}>hello, world</div>,
+      {
+        width: 600,
+        height: 400,
+        fonts: [
+          {
+            name: "Roboto",
+  -          data: await fetch(new URL(data[0].src[0].url, context.url.origin)).then(res => res.arrayBuffer()),
+  +          data: await getFontBuffer(data[0].src[0].url),
+            weight: 400,
+            style: "normal",
+          },
+        ],
+      },
+    )
+
+    // ...
+  }
+  ```
+
+  See the [experimental Fonts API documentation](https://docs.astro.build/en/reference/experimental-flags/fonts/#accessing-font-data-programmatically) for more information.
+
+## 5.16.12
+
+### Patch Changes
+
+- [#15175](https://github.com/withastro/astro/pull/15175) [`47ae148`](https://github.com/withastro/astro/commit/47ae1480eecd5da7080f1e659b6aef211aaf3300) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Allows experimental Font providers to specify family options
+
+  Previously, an Astro `FontProvider` could only accept options at the provider level when called. That could result in weird data structures for family-specific options.
+
+  Astro `FontProvider`s can now declare family-specific options, by specifying a generic:
+
+  ```diff
+  // font-provider.ts
+  import type { FontProvider } from "astro";
+  import { retrieveFonts, type Fonts } from "./utils.js",
+
+  interface Config {
+    token: string;
+  }
+
+  +interface FamilyOptions {
+  +    minimal?: boolean;
+  +}
+
+  -export function registryFontProvider(config: Config): FontProvider {
+  +export function registryFontProvider(config: Config): FontProvider<FamilyOptions> {
+    let data: Fonts = {}
+
+    return {
+      name: "registry",
+      config,
+      init: async () => {
+        data = await retrieveFonts(token);
+      },
+      listFonts: () => {
+        return Object.keys(data);
+      },
+  -    resolveFont: ({ familyName, ...rest }) => {
+  +    // options is typed as FamilyOptions
+  +    resolveFont: ({ familyName, options, ...rest }) => {
+        const fonts = data[familyName];
+        if (fonts) {
+          return { fonts };
+        }
+        return undefined;
+      },
+    };
+  }
+  ```
+
+  Once the font provider is registered in the Astro config, types are automatically inferred:
+
+  ```diff
+  // astro.config.ts
+  import { defineConfig } from "astro/config";
+  import { registryFontProvider } from "./font-provider";
+
+  export default defineConfig({
+      experimental: {
+          fonts: [{
+              provider: registryFontProvider({
+                token: "..."
+              }),
+              name: "Custom",
+              cssVariable: "--font-custom",
+  +            options: {
+  +                minimal: true
+  +            }
+          }]
+      }
+  });
+  ```
+
+- [#15175](https://github.com/withastro/astro/pull/15175) [`47ae148`](https://github.com/withastro/astro/commit/47ae1480eecd5da7080f1e659b6aef211aaf3300) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - **BREAKING CHANGE to the experimental Fonts API only**
+
+  Updates how options are passed to the Google and Google Icons font providers when using the experimental Fonts API
+
+  Previously, the Google and Google Icons font providers accepted options that were specific to given font families.
+
+  These options must now be set using the `options` property instead. For example using the Google provider:
+
+  ```diff
+  import { defineConfig, fontProviders } from "astro/config";
+
+  export default defineConfig({
+      experimental: {
+          fonts: [{
+              name: 'Inter',
+              cssVariable: '--astro-font-inter',
+              weights: ['300 900'],
+  -            provider: fontProviders.google({
+  -                experimental: {
+  -                    variableAxis: {
+  -                        Inter: { opsz: ['14..32'] }
+  -                    }
+  -                }
+  -            }),
+  +            provider: fontProviders.google(),
+  +            options: {
+  +                experimental: {
+  +                    variableAxis: { opsz: ['14..32'] }
+  +                }
+  +            }
+          }]
+      }
+  })
+  ```
+
+- [#15200](https://github.com/withastro/astro/pull/15200) [`c0595b3`](https://github.com/withastro/astro/commit/c0595b3e71a3811921ddc24e6ed7538c0df53a96) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - **BREAKING CHANGE to the experimental Fonts API only**
+
+  Removes `getFontData()` exported from `astro:assets` with `fontData` when using the experimental Fonts API
+
+  Accessing font data can be useful for advanced use cases, such as generating meta tags or Open Graph images. Before, we exposed a `getFontData()` helper function to retrieve the font data for a given `cssVariable`. That was however limiting for programmatic usages that need to access all font data.
+
+  The `getFontData()` helper function is removed and replaced by a new `fontData` object:
+
+  ```diff
+  -import { getFontData } from "astro:assets";
+  -const data = getFontData("--font-roboto")
+
+  +import { fontData } from "astro:assets";
+  +const data = fontData["--font-roboto"]
+  ```
+
+  We may reintroduce `getFontData()` later on for a more friendly DX, based on your feedback.
+
+- [#15254](https://github.com/withastro/astro/pull/15254) [`8d84b30`](https://github.com/withastro/astro/commit/8d84b3040181018f358b4e5684f9df55949aa4ca) Thanks [@lamalex](https://github.com/lamalex)! - Fixes CSS `assetsPrefix` with remote URLs incorrectly prepending a forward slash
+
+  When using `build.assetsPrefix` with a remote URL (e.g., `https://cdn.example.com`) for CSS assets, the generated `<link>` elements were incorrectly getting a `/` prepended to the full URL, resulting in invalid URLs like `/https://cdn.example.com/assets/style.css`.
+
+  This fix checks if the stylesheet link is a remote URL before prepending the forward slash.
+
+- [#15178](https://github.com/withastro/astro/pull/15178) [`731f52d`](https://github.com/withastro/astro/commit/731f52dd68c538a3372d4ac078e72d1090cc4cce) Thanks [@kedarvartak](https://github.com/kedarvartak)! - Fixes an issue where stopping the dev server with `q+enter` incorrectly created a `dist` folder and copied font files when using the experimental Fonts API
+
+- [#15230](https://github.com/withastro/astro/pull/15230) [`3da6272`](https://github.com/withastro/astro/commit/3da62721f02e7cbf1344ae9766ca73cae71b23c8) Thanks [@rahuld109](https://github.com/rahuld109)! - Fixes greedy regex in error message markdown rendering that caused link syntax examples to capture extra characters
+
+- [#15253](https://github.com/withastro/astro/pull/15253) [`2a6315a`](https://github.com/withastro/astro/commit/2a6315a3a38273ed47e4aa16a4dd9449fc7927c9) Thanks [@matthewp](https://github.com/matthewp)! - Fixes hydration for React components nested inside HTML elements in MDX files
+
+- [#15227](https://github.com/withastro/astro/pull/15227) [`9a609f4`](https://github.com/withastro/astro/commit/9a609f4a6264fc2238e02cffb00a9285f4a10973) Thanks [@matthewp](https://github.com/matthewp)! - Fixes styles not being included for conditionally rendered Svelte 5 components in production builds
+
+- [#14607](https://github.com/withastro/astro/pull/14607) [`ee52160`](https://github.com/withastro/astro/commit/ee52160f3374f65d1a8cb460c1340172902313bc) Thanks [@simensfo](https://github.com/simensfo)! - Reintroduces css deduplication for hydrated client components. Ensures assets already added to a client chunk are not flagged as orphaned
+
+## 5.16.11
+
+### Patch Changes
+
+- [#15017](https://github.com/withastro/astro/pull/15017) [`9e7a3c8`](https://github.com/withastro/astro/commit/9e7a3c86198956e558384235b71a6c12e87fc5fb) Thanks [@ixchio](https://github.com/ixchio)! - Fixes CSS double-bundling when the same CSS file is imported in both a page's frontmatter and a component's script tag
+
+- [#15225](https://github.com/withastro/astro/pull/15225) [`6fe62e1`](https://github.com/withastro/astro/commit/6fe62e169cf9e1054cba95ce4084d8a58bdd0a66) Thanks [@ematipico](https://github.com/ematipico)! - Updates to the latest version of `devalue`
+
+## 5.16.10
+
+### Patch Changes
+
+- [`2fa19c4`](https://github.com/withastro/astro/commit/2fa19c41be895e5255a8b12a43f9f9691cb57e5d) - Improved error handling in the rendering phase
+
+  Added defensive validation in `App.render()` and `#renderError()` to provide a descriptive error message when a route module doesn't have a valid page function.
+
+- [#15199](https://github.com/withastro/astro/pull/15199) [`d8e64ef`](https://github.com/withastro/astro/commit/d8e64ef77ef364b1541a5d192bcff299135d3bc8) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Fixes the links to Astro Docs so that they match the current docs structure.
+
+- [#15169](https://github.com/withastro/astro/pull/15169) [`b803d8b`](https://github.com/withastro/astro/commit/b803d8b4b4e5e71ef4b28b23186e2786dc80a308) Thanks [@rururux](https://github.com/rururux)! - fix: fix image 500 error when moving dist directory in standalone Node
+
+- [#14622](https://github.com/withastro/astro/pull/14622) [`9b35c62`](https://github.com/withastro/astro/commit/9b35c62cb38d3507f426b872d972b1b4d7b20bc8) Thanks [@aprici7y](https://github.com/aprici7y)! - Fixes CSS url() references to public assets returning 404 in dev mode when base path is configured
+
+- [#15219](https://github.com/withastro/astro/pull/15219) [`43df4ce`](https://github.com/withastro/astro/commit/43df4ce1c6c221a751b640c45687adfa83226e7c) Thanks [@matthewp](https://github.com/matthewp)! - Upgrades the `diff` package to v8
+
+## 5.16.9
+
+### Patch Changes
+
+- [#15174](https://github.com/withastro/astro/pull/15174) [`37ab65a`](https://github.com/withastro/astro/commit/37ab65acb1af6e41d25ec29f3c04c690c7601c87) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds Google Icons to built-in font providers
+
+  To start using it, access it on `fontProviders`:
+
+  ```ts
+  import { defineConfig, fontProviders } from 'astro/config';
+
+  export default defineConfig({
+    experimental: {
+      fonts: [
+        {
+          name: 'Material Symbols Outlined',
+          provider: fontProviders.googleicons(),
+          cssVariable: '--font-material',
+        },
+      ],
+    },
+  });
+  ```
+
+- [#15150](https://github.com/withastro/astro/pull/15150) [`a77c4f4`](https://github.com/withastro/astro/commit/a77c4f42b56b46b08064a99e9cb9a2b4bace4445) Thanks [@matthewp](https://github.com/matthewp)! - Fixes hydration for framework components inside MDX when using `Astro.slots.render()`
+
+  Previously, when multiple framework components with `client:*` directives were passed as named slots to an Astro component in MDX, only the first slot would hydrate correctly. Subsequent slots would render their HTML but fail to include the necessary hydration scripts.
+
+- [#15130](https://github.com/withastro/astro/pull/15130) [`9b726c4`](https://github.com/withastro/astro/commit/9b726c4e36bb1560badf5bf9b78783a240939124) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - **BREAKING CHANGE to the experimental Fonts API only**
+
+  Changes how font providers are implemented with updates to the `FontProvider` type
+
+  This is an implementation detail that changes how font providers are created. This process allows Astro to take more control rather than relying directly on `unifont` types. **All of Astro's built-in font providers have been updated to reflect this new type, and can be configured as before**. However, using third-party unifont providers that rely on `unifont` types will require an update to your project code.
+
+  Previously, an Astro `FontProvider` was made of a config and a runtime part. It relied directly on `unifont` types, which allowed a simple configuration for third-party unifont providers, but also coupled Astro's implementation to unifont, which was limiting.
+
+  Astro's font provider implementation is now only made of a config part with dedicated hooks. This allows for the separation of config and runtime, but requires you to create a font provider object in order to use custom font providers (e.g. third-party unifont providers, or private font registeries).
+
+  #### What should I do?
+
+  If you were using a 3rd-party `unifont` font provider, you will now need to write an Astro `FontProvider` using it under the hood. For example:
+
+  ```diff
+  // astro.config.ts
+  import { defineConfig } from "astro/config";
+  import { acmeProvider, type AcmeOptions } from '@acme/unifont-provider'
+  +import type { FontProvider } from "astro";
+  +import type { InitializedProvider } from 'unifont';
+
+  +function acme(config?: AcmeOptions): FontProvider {
+  +	const provider = acmeProvider(config);
+  +	let initializedProvider: InitializedProvider | undefined;
+  +	return {
+  +		name: provider._name,
+  +		config,
+  +		async init(context) {
+  +			initializedProvider = await provider(context);
+  +		},
+  +		async resolveFont({ familyName, ...rest }) {
+  +			return await initializedProvider?.resolveFont(familyName, rest);
+  +		},
+  +		async listFonts() {
+  +			return await initializedProvider?.listFonts?.();
+  +		},
+  +	};
+  +}
+
+  export default defineConfig({
+      experimental: {
+          fonts: [{
+  -            provider: acmeProvider({ /* ... */ }),
+  +            provider: acme({ /* ... */ }),
+              name: "Material Symbols Outlined",
+              cssVariable: "--font-material"
+          }]
+      }
+  });
+  ```
+
+- [#15147](https://github.com/withastro/astro/pull/15147) [`9cd5b87`](https://github.com/withastro/astro/commit/9cd5b875f2d45a08bfa8312ed7282a6f0f070265) Thanks [@matthewp](https://github.com/matthewp)! - Fixes scripts in components not rendering when a sibling `<Fragment slot="...">` exists but is unused
+
+## 5.16.8
+
+### Patch Changes
+
+- [#15124](https://github.com/withastro/astro/pull/15124) [`81db3c0`](https://github.com/withastro/astro/commit/81db3c06e8f75bf1ec6f3d4d31a42d16dcf0e969) Thanks [@leonace924](https://github.com/leonace924)! - Fixes an issue where requests with query parameters to the `base` path would return a 404 if trailingSlash was not `'ignore'` in development
+
+- [#15152](https://github.com/withastro/astro/pull/15152) [`39ee41f`](https://github.com/withastro/astro/commit/39ee41fa56b362942162dc17b0b4252d2f881e7e) Thanks [@rururux](https://github.com/rururux)! - Fixes a case where `context.cookies.set()` would be overriden when setting cookies via response headers in development
+
+- [#15140](https://github.com/withastro/astro/pull/15140) [`6f6f8f8`](https://github.com/withastro/astro/commit/6f6f8f8c0c3ccf346d741a8625bbfbe1329e472e) Thanks [@cameronraysmith](https://github.com/cameronraysmith)! - Fixes esbuild warning due to dead code in assets virtual module
+
+- [#15127](https://github.com/withastro/astro/pull/15127) [`2cff904`](https://github.com/withastro/astro/commit/2cff9045256a2b551465750de7cba29087046658) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updates "Unsupported page types found" error to only appear in more realistic cases
+
+- [#15149](https://github.com/withastro/astro/pull/15149) [`34f84c2`](https://github.com/withastro/astro/commit/34f84c2437fd078e299a29eeb1f931c9f83c8d2e) Thanks [@rahuld109](https://github.com/rahuld109)! - Skips "Use the Image component" audit warning for images inside framework components (React, Vue, Svelte, etc.)
+
+## 5.16.7
+
+### Patch Changes
+
+- [#15122](https://github.com/withastro/astro/pull/15122) [`b137946`](https://github.com/withastro/astro/commit/b1379466e8c6ded9fbcc3687c7faca4c2d3472b2) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves JSDoc annotations for `AstroGlobal`, `AstroSharedContext` and `APIContext` types
+
+- [#15123](https://github.com/withastro/astro/pull/15123) [`3f58fa2`](https://github.com/withastro/astro/commit/3f58fa20540ee3753158d8d0372affa47775c561) Thanks [@43081j](https://github.com/43081j)! - Improves rendering performance by grouping render chunks when emitting from async iterables to avoid encoding costs
+
+- [#14954](https://github.com/withastro/astro/pull/14954) [`7bec4bd`](https://github.com/withastro/astro/commit/7bec4bdadda1d66da1c7dc0a01ad4412a47337d9) Thanks [@volpeon](https://github.com/volpeon)! - Fixes remote images `Etag` header handling by disabling internal cache
+
+- [#15052](https://github.com/withastro/astro/pull/15052) [`b2bcd5a`](https://github.com/withastro/astro/commit/b2bcd5af28dfb75541f3249b0277b458355395cf) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes images not working in development when using setups with port forwarding
+
+- [#15028](https://github.com/withastro/astro/pull/15028) [`87b19b8`](https://github.com/withastro/astro/commit/87b19b8df49d08ee7a7a1855f3645fe7bebf1997) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes certain aliases not working when using images in JSON files with the content layer
+
+- [#15118](https://github.com/withastro/astro/pull/15118) [`cfa382b`](https://github.com/withastro/astro/commit/cfa382b7aa23a9f5a506181c75a0706595208396) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - **BREAKING CHANGE to the experimental Fonts API only**
+
+  Removes the `defineAstroFontProvider()` type helper.
+
+  If you are building a custom font provider, remove any occurrence of `defineAstroFontProvider()` and use the `FontProvider` type instead:
+
+  ```diff
+  -import { defineAstroFontProvider } from 'astro/config';
+
+  -export function myProvider() {
+  -    return defineAstroFontProvider({
+  -        entrypoint: new URL('./implementation.js', import.meta.url)
+  -    });
+  -};
+
+  +import type { FontProvider } from 'astro';
+
+  +export function myProvider(): FontProvider {
+  +    return {
+  +        entrypoint: new URL('./implementation.js', import.meta.url)
+  +    },
+  +}
+  ```
+
+- [#15055](https://github.com/withastro/astro/pull/15055) [`4e28db8`](https://github.com/withastro/astro/commit/4e28db8d125b693039b393111fa48d7bcc913968) Thanks [@delucis](https://github.com/delucis)! - Reduces Astro’s install size by around 8 MB
+
+- [#15088](https://github.com/withastro/astro/pull/15088) [`a19140f`](https://github.com/withastro/astro/commit/a19140fd11efbc635a391d176da54b0dc5e4a99c) Thanks [@martrapp](https://github.com/martrapp)! - Enables the ClientRouter to preserve the original hash part of the target URL during server side redirects.
+
+- [#15117](https://github.com/withastro/astro/pull/15117) [`b1e8e32`](https://github.com/withastro/astro/commit/b1e8e32670ba601d3b3150514173dd7d1bb25650) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - **BREAKING CHANGE to the experimental Fonts API only**
+
+  Changes the font format downloaded by default when using the experimental Fonts API. Additionally, adds a new `formats` configuration option to specify which font formats to download.
+
+  Previously, Astro was opinionated about which font sources would be kept for usage, mainly keeping `woff2` and `woff` files.
+
+  You can now specify what font formats should be downloaded (if available). Only `woff2` files are downloaded by default.
+
+  #### What should I do?
+
+  If you were previously relying on Astro downloading the `woff` format, you will now need to specify this explicitly with the new `formats` configuration option. Additionally, you may also specify any additional file formats to download if available:
+
+  ```diff
+  // astro.config.mjs
+  import { defineConfig, fontProviders } from 'astro/config'
+
+  export default defineConfig({
+      experimental: {
+          fonts: [{
+              name: 'Roboto',
+              cssVariable: '--font-roboto',
+              provider: fontProviders.google(),
+  +            formats: ['woff2', 'woff', 'otf']
+          }]
+      }
+  })
+  ```
+
+- [#15034](https://github.com/withastro/astro/pull/15034) [`8115752`](https://github.com/withastro/astro/commit/811575237d159ceac5d9f0a2ea3bf023df718759) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a vite warning log during builds when using npm
+
 ## 5.16.6
 
 ### Patch Changes

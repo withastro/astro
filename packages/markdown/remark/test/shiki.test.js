@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { createMarkdownProcessor, createShikiHighlighter } from '../dist/index.js';
+import { clearShikiHighlighterCache } from '../dist/shiki.js';
 
 describe('shiki syntax highlighting', () => {
 	it('does not add is:raw to the output', async () => {
@@ -46,6 +47,51 @@ describe('shiki syntax highlighting', () => {
 
 		assert.match(hast.children[0].properties.class, /astro-code github-dark/);
 		assert.match(hast.children[0].properties.style, /background-color:#24292e;color:#e1e4e8;/);
+	});
+
+	it('createShikiHighlighter can reuse the same instance for different languages', async () => {
+		const langs = [
+			'abap',
+			'ada',
+			'adoc',
+			'angular-html',
+			'angular-ts',
+			'apache',
+			'apex',
+			'apl',
+			'applescript',
+			'ara',
+			'asciidoc',
+			'asm',
+			'astro',
+			'awk',
+			'ballerina',
+			'bash',
+			'bat',
+			'batch',
+			'be',
+			'beancount',
+			'berry',
+			'bibtex',
+			'bicep',
+			'blade',
+			'bsl',
+		];
+
+		const highlighters = new Set();
+		for (const lang of langs) {
+			highlighters.add(await createShikiHighlighter({ langs: [lang] }));
+		}
+
+		// Ensure that we only have one highlighter instance.
+		assert.strictEqual(highlighters.size, 1);
+
+		// Ensure that this highlighter instance can highlight different languages.
+		const highlighter = Array.from(highlighters)[0];
+		const html1 = await highlighter.codeToHtml('const foo = "bar";', 'js');
+		const html2 = await highlighter.codeToHtml('const foo = "bar";', 'ts');
+		assert.match(html1, /color:#F97583/);
+		assert.match(html2, /color:#F97583/);
 	});
 
 	it('diff +/- text has user-select: none', async () => {
@@ -136,5 +182,44 @@ describe('shiki syntax highlighting', () => {
 		const { code } = await processor.render('```cjs\nlet foo = "bar"\n```');
 
 		assert.match(code, /data-language="cjs"/);
+	});
+
+	it("the cached highlighter won't load the same language twice", async () => {
+		clearShikiHighlighterCache();
+
+		const theme = 'github-light';
+		const highlighter = await createShikiHighlighter({ theme });
+
+		// loadLanguage is an internal method
+		const loadLanguageArgs = [];
+		const originalLoadLanguage = highlighter['loadLanguage'];
+		highlighter['loadLanguage'] = async (...args) => {
+			loadLanguageArgs.push(...args);
+			return await originalLoadLanguage(...args);
+		};
+
+		// No languages loaded yet
+		assert.equal(loadLanguageArgs.length, 0);
+
+		// Load a new language
+		const h1 = await createShikiHighlighter({ theme, langs: ['js'] });
+		assert.equal(loadLanguageArgs.length, 1);
+
+		// Load the same language again
+		const h2 = await createShikiHighlighter({ theme, langs: ['js'] });
+		assert.equal(loadLanguageArgs.length, 1);
+
+		// Load another language
+		const h3 = await createShikiHighlighter({ theme, langs: ['ts'] });
+		assert.equal(loadLanguageArgs.length, 2);
+
+		// Load the same language again
+		const h4 = await createShikiHighlighter({ theme, langs: ['ts'] });
+		assert.equal(loadLanguageArgs.length, 2);
+
+		// All highlighters should be the same instance
+		assert.equal(new Set([highlighter, h1, h2, h3, h4]).size, 1);
+
+		clearShikiHighlighterCache();
 	});
 });

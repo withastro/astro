@@ -1,5 +1,4 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import type { SSRManifest } from 'astro';
 
 export interface UserOptions {
 	/**
@@ -20,7 +19,7 @@ export interface UserOptions {
 	 * Here the list of the headers that are added:
 	 * - The CSP header of the static pages is added when CSP support is enabled.
 	 */
-	experimentalStaticHeaders?: boolean;
+	staticHeaders?: boolean;
 
 	/**
 	 * The host that should be used if the server needs to fetch the prerendered error page.
@@ -37,9 +36,7 @@ export interface Options extends UserOptions {
 	port: number;
 	server: string;
 	client: string;
-	assets: string;
-	trailingSlash?: SSRManifest['trailingSlash'];
-	experimentalStaticHeaders: boolean;
+	staticHeaders: boolean;
 }
 
 export type RequestHandler = (...args: RequestHandlerParams) => void | Promise<void>;
@@ -49,3 +46,11 @@ type RequestHandlerParams = [
 	next?: (err?: unknown) => void,
 	locals?: object,
 ];
+
+export type NodeAppHeadersJson = {
+	pathname: string;
+	headers: {
+		key: string;
+		value: string;
+	}[];
+}[];

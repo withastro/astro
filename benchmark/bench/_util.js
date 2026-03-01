@@ -3,7 +3,7 @@ import path from 'node:path';
 
 const astroPkgPath = createRequire(import.meta.url).resolve('astro/package.json');
 
-export const astroBin = path.resolve(astroPkgPath, '../astro.js');
+export const astroBin = path.resolve(astroPkgPath, '../bin/astro.mjs');
 
 /** @typedef {{ avg: number, stdev: number, max: number }} Stat */
 

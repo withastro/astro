@@ -30,7 +30,7 @@ export const astroElements = newHTMLDataProvider('astro-elements', {
 			references: [
 				{
 					name: 'Astro reference',
-					url: 'https://docs.astro.build/en/core-concepts/astro-components/#slots',
+					url: 'https://docs.astro.build/en/basics/astro-components/#slots',
 				},
 			],
 			attributes: [
@@ -41,7 +41,7 @@ export const astroElements = newHTMLDataProvider('astro-elements', {
 					references: [
 						{
 							name: 'Astro reference',
-							url: 'https://docs.astro.build/en/core-concepts/astro-components/#named-slots',
+							url: 'https://docs.astro.build/en/basics/astro-components/#named-slots',
 						},
 					],
 				},
@@ -100,7 +100,7 @@ export const astroElements = newHTMLDataProvider('astro-elements', {
 					references: [
 						{
 							name: 'Astro reference',
-							url: 'https://docs.astro.build/en/guides/view-transitions/#script-behavior',
+							url: 'https://docs.astro.build/en/guides/view-transitions/#data-astro-rerun',
 						},
 					],
 				},

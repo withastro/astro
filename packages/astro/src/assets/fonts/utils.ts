@@ -1,9 +1,6 @@
-import { createRequire } from 'node:module';
-import { pathToFileURL } from 'node:url';
 import type * as unifont from 'unifont';
-import { FONT_TYPES, GENERIC_FALLBACK_NAMES, LOCAL_PROVIDER_NAME } from './constants.js';
-import type { CssProperties, Storage } from './definitions.js';
-import type { FontType, GenericFallbackName, ResolvedFontFamily } from './types.js';
+import { FONT_TYPES, GENERIC_FALLBACK_NAMES } from './constants.js';
+import type { CssProperties, FontType, GenericFallbackName } from './types.js';
 
 /**
  * Turns unifont font face data into generic CSS properties, to be consumed by the CSS renderer.
@@ -64,20 +61,6 @@ export function isFontType(str: string): str is FontType {
 	return (FONT_TYPES as Readonly<Array<string>>).includes(str);
 }
 
-export async function cache(
-	storage: Storage,
-	key: string,
-	cb: () => Promise<Buffer>,
-): Promise<Buffer> {
-	const existing = await storage.getItemRaw(key);
-	if (existing) {
-		return existing;
-	}
-	const data = await cb();
-	await storage.setItemRaw(key, data);
-	return data;
-}
-
 export function isGenericFontFamily(str: string): str is GenericFallbackName {
 	return (GENERIC_FALLBACK_NAMES as unknown as Array<string>).includes(str);
 }
@@ -100,23 +83,4 @@ export function sortObjectByKey<T extends Record<string, any>>(unordered: T): T 
 			return obj;
 		}, {} as T);
 	return ordered;
-}
-
-export function resolveEntrypoint(root: URL, entrypoint: string): URL {
-	const require = createRequire(root);
-
-	try {
-		return pathToFileURL(require.resolve(entrypoint));
-	} catch {
-		return new URL(entrypoint, root);
-	}
-}
-
-export function pickFontFaceProperty<
-	T extends keyof Pick<
-		unifont.FontFaceData,
-		'display' | 'unicodeRange' | 'stretch' | 'featureSettings' | 'variationSettings'
-	>,
->(property: T, { data, family }: { data: unifont.FontFaceData; family: ResolvedFontFamily }) {
-	return data[property] ?? (family.provider === LOCAL_PROVIDER_NAME ? undefined : family[property]);
 }

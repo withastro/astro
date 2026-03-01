@@ -1,0 +1,28 @@
+name: "Issue: Wontfix"
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  wontfix:
+    if: github.event.label.name == 'wontfix'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions-cool/issues-helper@71b62d7da76e59ff7b193904feb6e77d4dbb2777 # v3.7.6
+        with:
+          actions: "create-comment, close-issue"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.issue.number }}
+          body: |
+            Hello! 
+
+            This is an automated message to let you know that we've triaged this issue and unfortunately, we will be closing it as "not planned".
+
+            We sometimes have to close good ideas (even great ones!) because our limited resources simply do not allow us to pursue all possible features and improvements, and when fixing bugs we have to balance the impact of the bug against the effort required for the fix. Before closing this we considered several factors such as the amount of work involved, the severity of the problem, the number of people affected, whether a workaround is available, and the ongoing cost of maintenance.
+
+            If you're seeing this message and believe you can contribute to this issue, please consider submitting a PR yourself. Astro encourages [community contributions](https://docs.astro.build/en/contribute/)!
+
+            If you have more questions, come and say hi in the [Astro Discord](https://astro.build/chat).

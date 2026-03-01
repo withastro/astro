@@ -1,7 +1,7 @@
 /**
  * Astro global available in all contexts in .astro files
  *
- * [Astro documentation](https://docs.astro.build/reference/api-reference/#astro-global)
+ * [Astro documentation](https://docs.astro.build/en/reference/api-reference/)
  */
 declare const Astro: any;
 declare const Fragment: any;

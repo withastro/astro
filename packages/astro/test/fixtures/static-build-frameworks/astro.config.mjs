@@ -4,5 +4,9 @@ import { defineConfig } from 'astro/config';
 
 // https://astro.build/config
 export default defineConfig({
-	integrations: [react(), preact()],
+	integrations: [react({
+		include: ["**/react/*", "**/RCounter.jsx"]
+	}), preact({
+		include: ["**/preact/*", "**/PCounter.jsx"]
+	})],
 });

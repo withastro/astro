@@ -1,8 +1,9 @@
-import type { imageType } from './types/index.js'
+import type { imageType } from './types/index.ts'
 import { typeHandlers, types } from './types/index.js'
 
 // This map helps avoid validating for every single image type
 const firstBytes = new Map<number, imageType>([
+  [0x00, 'heif'],
   [0x38, 'psd'],
   [0x42, 'bmp'],
   [0x44, 'dds'],
@@ -21,5 +22,5 @@ export function detector(input: Uint8Array): imageType | undefined {
   if (type && typeHandlers.get(type)!.validate(input)) {
     return type
   }
-  return types.find((fileType) => typeHandlers.get(fileType)!.validate(input))
+  return types.find((imageType) => typeHandlers.get(imageType)!.validate(input))
 }

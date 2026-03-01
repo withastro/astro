@@ -1,5 +1,5 @@
-import * as mod from 'zod';
+import * as mod from 'zod/v4';
 
-export * from 'zod';
+export * from 'zod/v4';
 export { mod as z };
 export default mod;

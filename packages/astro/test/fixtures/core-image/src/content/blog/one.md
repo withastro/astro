@@ -6,11 +6,10 @@ cover:
 arrayOfImages:
   - ../../assets/penguin2.jpg
   - ../../assets/penguin1.jpg
-refinedImage: ../../assets/penguin1.jpg
 ---
 
 # A post
 
 text here
 
-![](blogfolder.jpg)
+![sir penguin](blogfolder.jpg)

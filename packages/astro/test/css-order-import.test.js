@@ -74,8 +74,9 @@ describe('CSS ordering - import order', () => {
 			let [style1, style2, style3] = getStyles(html);
 
 			assert.ok(style1.includes('burlywood'));
-			assert.ok(style2.includes('aliceblue'));
-			assert.ok(style3.includes('whitesmoke'));
+			// CSS processors may resolve named colors to hex; match either form
+			assert.ok(style2.includes('aliceblue') || style2.includes('#f0f8ff'));
+			assert.ok(style3.includes('whitesmoke') || style3.includes('#f5f5f5'));
 		});
 	});
 

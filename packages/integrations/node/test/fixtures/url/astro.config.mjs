@@ -9,6 +9,13 @@ export default defineConfig({
 			{
 				hostname: 'abc.xyz',
 				port: '444'
+			},
+			{
+				hostname: 'legitimate.example.com'
+			},
+			{
+				hostname: 'localhost',
+				port: '3000'
 			}
 		]
 	}

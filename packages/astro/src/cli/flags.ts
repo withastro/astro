@@ -1,6 +1,6 @@
 import type { Arguments } from 'yargs-parser';
-import { Logger, type LogOptions } from '../core/logger/core.js';
-import { nodeLogDestination } from '../core/logger/node.js';
+import type { Logger, LogOptions } from '../core/logger/core.js';
+import { createNodeLogger, nodeLogDestination } from '../core/logger/node.js';
 import type { AstroInlineConfig } from '../types/public/config.js';
 
 // Alias for now, but allows easier migration to node's `parseArgs` in the future.
@@ -52,5 +52,5 @@ export function createLoggerFromFlags(flags: Flags): Logger {
 		logging.level = 'silent';
 	}
 
-	return new Logger(logging);
+	return createNodeLogger({ logLevel: logging.level });
 }

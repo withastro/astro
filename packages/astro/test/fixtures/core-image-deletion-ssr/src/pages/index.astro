@@ -1,0 +1,11 @@
+---
+// This page is server-rendered (not prerendered)
+import shared from "../assets/shared.jpg";
+---
+<html>
+<head></head>
+<body>
+	<h1>SSR Page</h1>
+	<img src={shared.src} alt="This image is also used in the prerendered page, so the original must be kept" />
+</body>
+</html>

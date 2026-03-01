@@ -1,5 +1,454 @@
 # @astrojs/cloudflare
 
+## 13.0.0-beta.11
+
+### Patch Changes
+
+- [#15495](https://github.com/withastro/astro/pull/15495) [`5b99e90`](https://github.com/withastro/astro/commit/5b99e9077a92602f1e46e9b6eb9094bcd00c640e) Thanks [@leekeh](https://github.com/leekeh)! - Refactors to use `middlewareMode` adapter feature (set to `classic`)
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 13.0.0-beta.10
+
+### Patch Changes
+
+- [#15669](https://github.com/withastro/astro/pull/15669) [`d5a888b`](https://github.com/withastro/astro/commit/d5a888ba645de356673605a0b70f9c721cf6cb3b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the `cssesc` dependency
+
+  This CommonJS dependency could sometimes cause errors because Astro is ESM-only. It is now replaced with a built-in ESM-friendly implementation.
+
+- [#15648](https://github.com/withastro/astro/pull/15648) [`802426b`](https://github.com/withastro/astro/commit/802426b83c33c477ed66f1a429b9fc83b37f4515) Thanks [@rururux](https://github.com/rururux)! - Restore and fix `<Code />` component functionality on Cloudflare Workers.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 13.0.0-beta.9
+
+### Major Changes
+
+- [#15435](https://github.com/withastro/astro/pull/15435) [`957b9fe`](https://github.com/withastro/astro/commit/957b9fe2d887a365c55c6e87f0c67c10beb60d1b) Thanks [@rururux](https://github.com/rururux)! - Changes the default image service from `compile` to `cloudflare-binding`. Image services options that resulted in broken images in development due to Node JS incompatiblities have now been updated to use the noop passthrough image service in dev mode. - ([Cloudflare v13 and Astro6 upgrade guidance](https://v6.docs.astro.build/en/guides/integrations-guide/cloudflare/#changed-imageservice-default))
+
+### Minor Changes
+
+- [#15435](https://github.com/withastro/astro/pull/15435) [`957b9fe`](https://github.com/withastro/astro/commit/957b9fe2d887a365c55c6e87f0c67c10beb60d1b) Thanks [@rururux](https://github.com/rururux)! - Adds support for configuring the image service as an object with separate `build` and `runtime` options
+
+  It is now possible to set both a build-time and runtime service independently. Currently, `'compile'` is the only available build time option. The supported runtime options are `'passthrough'` (default) and `'cloudflare-binding'`:
+
+  ```js title="astro.config.mjs" ins={6}
+  import { defineConfig } from 'astro/config';
+  import cloudflare from '@astrojs/cloudflare';
+
+  export default defineConfig({
+    adapter: cloudflare({
+      imageService: { build: 'compile', runtime: 'cloudflare-binding' },
+    }),
+  });
+  ```
+
+  See the [Cloudflare adapter `imageService` docs](https://v6.docs.astro.build/en/guides/integrations-guide/cloudflare/#imageservice) for more information about configuring your image service.
+
+- [#15556](https://github.com/withastro/astro/pull/15556) [`8fb329b`](https://github.com/withastro/astro/commit/8fb329be55bf8a5a446108a24dd8c5236e19c5af) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds support for more `@cloudflare/vite-plugin` options
+
+  The adapter now accepts the following [options from Cloudflare's Vite plugin](https://developers.cloudflare.com/workers/vite-plugin/reference/api/):
+  - `auxiliaryWorkers`
+  - `configPath`
+  - `inspectorPort`
+  - `persistState`
+  - `remoteBindings`
+  - `experimental.headersAndRedirectsDevModeSupport`
+
+  For example, you can now set `inspectorPort` to provide a custom port for debugging your Workers:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  import cloudflare from '@astrojs/cloudflare';
+
+  export default defineConfig({
+    adapter: cloudflare({
+      inspectorPort: 3456,
+    }),
+  });
+  ```
+
+### Patch Changes
+
+- [#15565](https://github.com/withastro/astro/pull/15565) [`30cd6db`](https://github.com/withastro/astro/commit/30cd6dbebe771efb6f71dcff7e6b44026fad6797) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the use of the `Code` component would result in an unexpected error.
+
+- [#15588](https://github.com/withastro/astro/pull/15588) [`425ea16`](https://github.com/withastro/astro/commit/425ea1690f3ab384fd6f1f39ae48a423fb017f8b) Thanks [@rururux](https://github.com/rururux)! - Fixes an issue where `esbuild` would throw a "Top-level return cannot be used inside an ECMAScript module" error during dependency scanning in certain environments.
+
+- [#15636](https://github.com/withastro/astro/pull/15636) [`5ecd04c`](https://github.com/withastro/astro/commit/5ecd04c05195a8becd116017e11e3b2513c4404e) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds an error when running on Stackblitz, since `workerd` doesn't support it
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 13.0.0-beta.8
+
+### Major Changes
+
+- [#15480](https://github.com/withastro/astro/pull/15480) [`e118214`](https://github.com/withastro/astro/commit/e118214eeaaa27384528c882af8b68e8daa61e2c) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Drops official support for Cloudflare Pages in favor of Cloudflare Workers
+
+  The Astro Cloudflare adapter now only supports deployment to Cloudflare Workers by default in order to comply with Cloudflare's recommendations for new projects. If you are currently deploying to Cloudflare Pages, consider [migrating to Workers by following the Cloudflare guide](https://developers.cloudflare.com/workers/static-assets/migration-guides/migrate-from-pages/) for an optimal experience and full feature support.
+
+### Patch Changes
+
+- [#15478](https://github.com/withastro/astro/pull/15478) [`ee519e5`](https://github.com/withastro/astro/commit/ee519e5eda8704c62871f3da2566f0e103ca630e) Thanks [@matthewp](https://github.com/matthewp)! - Fixes fully static sites to not output server-side worker code. When all routes are prerendered, the `_worker.js` directory is now removed from the build output.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 13.0.0-beta.7
+
+### Patch Changes
+
+- [#15452](https://github.com/withastro/astro/pull/15452) [`e1aa3f3`](https://github.com/withastro/astro/commit/e1aa3f31d6d83435c138b355b79add674691fa5f) Thanks [@matthewp](https://github.com/matthewp)! - Fixes server-side dependencies not being discovered ahead of time during development
+
+  Previously, imports in `.astro` file frontmatter were not scanned by Vite's dependency optimizer, causing a "new dependencies optimized" message and page reload when the dependency was first encountered. Astro is now able to scan these dependencies ahead of time.
+
+- [#15450](https://github.com/withastro/astro/pull/15450) [`50c9129`](https://github.com/withastro/astro/commit/50c912978cca4afbe4b3ebd11c30305d5e9c8315) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where `build.serverEntry` would not be respected when using the new Adapter API
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 13.0.0-beta.6
+
+### Major Changes
+
+- [#15345](https://github.com/withastro/astro/pull/15345) [`840fbf9`](https://github.com/withastro/astro/commit/840fbf9e4abc7f847e23da8d67904ffde4d95fff) Thanks [@matthewp](https://github.com/matthewp)! - Removes the `cloudflareModules` adapter option
+
+  The `cloudflareModules` option has been removed because it is no longer necessary. Cloudflare natively supports importing `.sql`, `.wasm`, and other module types.
+
+  #### What should I do?
+
+  Remove the `cloudflareModules` option from your Cloudflare adapter configuration if you were using it:
+
+  ```diff
+  import cloudflare from '@astrojs/cloudflare';
+
+  export default defineConfig({
+    adapter: cloudflare({
+  -   cloudflareModules: true
+    })
+  });
+  ```
+
+### Minor Changes
+
+- [#15077](https://github.com/withastro/astro/pull/15077) [`a164c77`](https://github.com/withastro/astro/commit/a164c77336059f2dc3e7f7fe992aa754ed145ef3) Thanks [@matthewp](https://github.com/matthewp)! - Adds support for prerendering pages using the workerd runtime.
+
+  The Cloudflare adapter now uses the new `setPrerenderer()` API to prerender pages via HTTP requests to a local preview server running workerd, instead of using Node.js. This ensures prerendered pages are built using the same runtime that serves them in production.
+
+### Patch Changes
+
+- [#15432](https://github.com/withastro/astro/pull/15432) [`e2ad69e`](https://github.com/withastro/astro/commit/e2ad69ebdef907c5365bd1047772a3e86736c9d2) Thanks [@OliverSpeir](https://github.com/OliverSpeir)! - Removes unneccessary warning about sharp from being printed at start of dev server and build
+
+- Updated dependencies [[`a164c77`](https://github.com/withastro/astro/commit/a164c77336059f2dc3e7f7fe992aa754ed145ef3), [`a18d727`](https://github.com/withastro/astro/commit/a18d727fc717054df85177c8e0c3d38a5252f2da)]:
+  - @astrojs/internal-helpers@0.8.0-beta.1
+  - @astrojs/underscore-redirects@1.0.0
+
+## 13.0.0-beta.5
+
+### Major Changes
+
+- [#15400](https://github.com/withastro/astro/pull/15400) [`41eb284`](https://github.com/withastro/astro/commit/41eb284ecf11a359254888cb41a97ca021ac0996) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the `workerEntryPoint` option, which wasn't used anymore. Set the `main` field of your wrangler config instead
+
+  See [how to migrate](https://v6.docs.astro.build/en/guides/integrations-guide/cloudflare/#changed-custom-entrypoint-api)
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 13.0.0-beta.4
+
+### Patch Changes
+
+- [#15391](https://github.com/withastro/astro/pull/15391) [`5d996cc`](https://github.com/withastro/astro/commit/5d996cc5a93d56a92d1bff05606f8d96ec6ca485) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes types of the `handle()` function exported from `/handler`, that could be incompatible with types generated by `wrangler types`
+
+- [#15386](https://github.com/withastro/astro/pull/15386) [`a0234a3`](https://github.com/withastro/astro/commit/a0234a36d8407d24270e187cd6133171b938583e) Thanks [@OliverSpeir](https://github.com/OliverSpeir)! - Updates `astro add cloudflare` to use the latest valid `compatibility_date` in the wrangler config, if available
+
+- Updated dependencies [[`240c317`](https://github.com/withastro/astro/commit/240c317faab52d7f22494e9181f5d2c2c404b0bd)]:
+  - @astrojs/internal-helpers@0.8.0-beta.0
+  - @astrojs/underscore-redirects@1.0.0
+
+## 13.0.0-beta.3
+
+### Patch Changes
+
+- [#15336](https://github.com/withastro/astro/pull/15336) [`9cce92e`](https://github.com/withastro/astro/commit/9cce92e9c561793a6aecb890798fc8a144d9c7e7) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a dev server issue where framework components from linked packages would fail to load with a 504 error.
+
+  This could occur when using `client:only` or other client directives with components from monorepo packages (linked via `file:` or workspace protocol). The first request would trigger Vite's dependency optimizer mid-request, causing concurrent client module requests to fail.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 13.0.0-beta.2
+
+### Patch Changes
+
+- [#15309](https://github.com/withastro/astro/pull/15309) [`4b9c8b8`](https://github.com/withastro/astro/commit/4b9c8b8622fdfc4a3edbb227b37dd3ddaa5720ca) Thanks [@ematipico](https://github.com/ematipico)! - Update the underneath `@cloudflare/workers-types` library to address a warning emitted by the package manager during the installation.
+
+- [#15255](https://github.com/withastro/astro/pull/15255) [`a66783a`](https://github.com/withastro/astro/commit/a66783a3a1a16f451b3da220a4be75be6c13ee95) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where the types of `handle()` could mismatch with the ones from the user's project. They now rely on globals, that can be obtained by running `wrangler types`
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 13.0.0-beta.1
+
+### Patch Changes
+
+- [#15269](https://github.com/withastro/astro/pull/15269) [`6f82aae`](https://github.com/withastro/astro/commit/6f82aae24c64a059531f4b924c201fbd4c3e9180) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a regression where `build.serverEntry` stopped working as expected.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 13.0.0-beta.0
+
+### Patch Changes
+
+- [#15080](https://github.com/withastro/astro/pull/15080) [`f67b738`](https://github.com/withastro/astro/commit/f67b7389dad9a3a258ba5d941d478f20b0dc6767) Thanks [@gameroman](https://github.com/gameroman)! - Updates `wrangler` dependency to be a `peerDependency` over a `dependency`
+
+- [#15121](https://github.com/withastro/astro/pull/15121) [`06261e0`](https://github.com/withastro/astro/commit/06261e03d55a571c6affbd7321f7e28c997d6d5d) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where the Astro, with the Cloudlfare integration, couldn't correctly serve certain routes in the development server.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 13.0.0-alpha.4
+
+### Patch Changes
+
+- [#15079](https://github.com/withastro/astro/pull/15079) [`4463a55`](https://github.com/withastro/astro/commit/4463a558a49e8ba2e079090748c65546108d3f0d) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes auto-provisioning of default bindings (SESSION KV, IMAGES, and ASSETS). Default bindings are now correctly applied whether or not you have a `wrangler.json` file.
+  Previously, these bindings were only added when no wrangler config file existed. Now they are added in both cases, unless you've already defined them yourself.
+
+- [#15075](https://github.com/withastro/astro/pull/15075) [`ee2c260`](https://github.com/withastro/astro/commit/ee2c26043daba83c6c2e09c4c1e1cb88b2e564b4) Thanks [@matthewp](https://github.com/matthewp)! - Adds deprecation errors for `Astro.locals.runtime` properties to help migrate from Astro v5 to v6
+
+  When accessing the removed `Astro.locals.runtime` properties on Cloudflare, developers now receive clear error messages explaining the migration path:
+  - `Astro.locals.runtime.env` → Use `import { env } from "cloudflare:workers"`
+  - `Astro.locals.runtime.cf` → Use `Astro.request.cf`
+  - `Astro.locals.runtime.caches` → Use the global `caches` object
+  - `Astro.locals.runtime.ctx` → Use `Astro.locals.cfContext`
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 13.0.0-alpha.3
+
+### Minor Changes
+
+- [#15006](https://github.com/withastro/astro/pull/15006) [`f361730`](https://github.com/withastro/astro/commit/f361730bc820c01a2ec3e508ac940be8077d8c04) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds new session driver object shape
+
+  For greater flexibility and improved consistency with other Astro code, session drivers are now specified as an object:
+
+  ```diff
+  -import { defineConfig } from 'astro/config'
+  +import { defineConfig, sessionDrivers } from 'astro/config'
+
+  export default defineConfig({
+    session: {
+  -    driver: 'redis',
+  -    options: {
+  -      url: process.env.REDIS_URL
+  -    },
+  +    driver: sessionDrivers.redis({
+  +      url: process.env.REDIS_URL
+  +    }),
+    }
+  })
+  ```
+
+  Specifying the session driver as a string has been deprecated, but will continue to work until this feature is removed completely in a future major version. The object shape is the current recommended and documented way to configure a session driver.
+
+### Patch Changes
+
+- [#15044](https://github.com/withastro/astro/pull/15044) [`7cac71b`](https://github.com/withastro/astro/commit/7cac71b89f7462e197a69d797bdfefe6c7d15689) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes an exposed internal API of the preview server
+
+- [#15039](https://github.com/withastro/astro/pull/15039) [`6cc96e7`](https://github.com/withastro/astro/commit/6cc96e7269eb952d8536633cab9ae7ecc75426b2) Thanks [@matthewp](https://github.com/matthewp)! - Fixes static content deployment by moving it to another folder, so Wrangler can tell the static and worker content apart
+
+- [#15045](https://github.com/withastro/astro/pull/15045) [`31074fc`](https://github.com/withastro/astro/commit/31074fc8b66e221c5d4967ed778a140d128e30a6) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where using the Vue integration with the Cloudflare adapter resulted in some runtime errors.
+
+- [#15053](https://github.com/withastro/astro/pull/15053) [`674b63f`](https://github.com/withastro/astro/commit/674b63f26d2e3b1878bcc8d770b9895357752ae9) Thanks [@matthewp](https://github.com/matthewp)! - Excludes `astro:*` and `virtual:astro:*` from client optimizeDeps in core. Needed for prefetch users since virtual modules are now in the dependency graph.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 13.0.0-alpha.2
+
+### Major Changes
+
+- [#15037](https://github.com/withastro/astro/pull/15037) [`8641805`](https://github.com/withastro/astro/commit/8641805289d2cd852458b023c83da54bf67cd579) Thanks [@matthewp](https://github.com/matthewp)! - Updates the Wrangler entrypoint
+
+  Previously, the `main` field in `wrangler.jsonc` pointed to the built output, since Wrangler only ran in production after the build completed:
+
+  ```jsonc
+  {
+    "main": "dist/_worker.js/index.js",
+  }
+  ```
+
+  Now that Wrangler runs in both development (via workerd) and production, Astro provides a default entrypoint that works for both scenarios.
+
+  ##### What should I do?
+
+  Update your `wrangler.jsonc` to use the new entrypoint:
+
+  ```jsonc
+  {
+    "main": "@astrojs/cloudflare/entrypoints/server",
+  }
+  ```
+
+  This single entrypoint handles both `astro dev` and production deployments.
+
+### Minor Changes
+
+- [#15037](https://github.com/withastro/astro/pull/15037) [`8641805`](https://github.com/withastro/astro/commit/8641805289d2cd852458b023c83da54bf67cd579) Thanks [@matthewp](https://github.com/matthewp)! - The Wrangler configuration file is now optional. If you don't have custom Cloudflare bindings (KV, D1, Durable Objects, etc.), Astro will automatically generate a default configuration for you.
+
+  ##### What should I do?
+
+  If your `wrangler.jsonc` only contains basic configuration like this:
+
+  ```jsonc
+  {
+    "main": "@astrojs/cloudflare/entrypoints/server",
+    "compatibility_date": "2025-05-21",
+    "assets": {
+      "directory": "./dist",
+      "binding": "ASSETS",
+    },
+  }
+  ```
+
+  You can safely delete the file. Astro will handle this configuration automatically.
+
+  You only need a wrangler config file if you're using:
+  - KV namespaces
+  - D1 databases
+  - Durable Objects
+  - R2 buckets
+  - Environment variables
+  - Custom compatibility flags
+  - Other Cloudflare-specific features
+
+### Patch Changes
+
+- [#15026](https://github.com/withastro/astro/pull/15026) [`90c608c`](https://github.com/withastro/astro/commit/90c608c3f7cd3cb27ae6ec9b98a3ebf274450cc6) Thanks [@matthewp](https://github.com/matthewp)! - Improves prebundling of internal Astro modules
+
+- [#15030](https://github.com/withastro/astro/pull/15030) [`b5aa52b`](https://github.com/withastro/astro/commit/b5aa52bbe74e32956d5dd5757728626fdaa6a02c) Thanks [@ematipico](https://github.com/ematipico)! - Fixed an issue where the feature `experimental.chromeDevtoolsWorkspace` wasn't supported by the new version of the adapter.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 13.0.0-alpha.1
+
+### Major Changes
+
+- [#14306](https://github.com/withastro/astro/pull/14306) [`141c4a2`](https://github.com/withastro/astro/commit/141c4a26419fe5bb4341953ea5a0a861d9b398c0) Thanks [@ematipico](https://github.com/ematipico)! - Changes the API for creating a custom `entrypoint`, replacing the `createExports()` function with a direct export pattern.
+
+  #### What should I do?
+
+  If you're using a custom `entryPoint` in your Cloudflare adapter config, update your existing worker file that uses `createExports()` to reflect the new, simplified pattern:
+
+  **my-entry.ts**
+
+  ```ts
+  import type { SSRManifest } from 'astro';
+  import { App } from 'astro/app';
+  import { handle } from '@astrojs/cloudflare/handler';
+  import { DurableObject } from 'cloudflare:workers';
+
+  class MyDurableObject extends DurableObject<Env> {
+    constructor(ctx: DurableObjectState, env: Env) {
+      super(ctx, env);
+    }
+  }
+
+  export function createExports(manifest: SSRManifest) {
+    const app = new App(manifest);
+    return {
+      default: {
+        async fetch(request, env, ctx) {
+          await env.MY_QUEUE.send('log');
+          return handle(manifest, app, request, env, ctx);
+        },
+        async queue(batch, _env) {
+          let messages = JSON.stringify(batch.messages);
+          console.log(`consumed from our queue: ${messages}`);
+        },
+      } satisfies ExportedHandler<Env>,
+      MyDurableObject: MyDurableObject,
+    };
+  }
+  ```
+
+  To create the same custom `entrypoint` using the updated API, export the following function instead:
+
+  **my-entry.ts**
+
+  ```ts
+  import { handle } from '@astrojs/cloudflare/utils/handler';
+
+  export default {
+    async fetch(request, env, ctx) {
+      await env.MY_QUEUE.send("log");
+      return handle(manifest, app, request, env, ctx);
+    },
+    async queue(batch, _env) {
+      let messages = JSON.stringify(batch.messages);
+      console.log(`consumed from our queue: ${messages}`);
+    }
+  } satisfies ExportedHandler<Env>,
+  ```
+
+  The manifest is now created internally by the adapter.
+
+- [#14306](https://github.com/withastro/astro/pull/14306) [`141c4a2`](https://github.com/withastro/astro/commit/141c4a26419fe5bb4341953ea5a0a861d9b398c0) Thanks [@ematipico](https://github.com/ematipico)! - Development server now runs in workerd
+
+  `astro dev` now runs your Cloudflare application using Cloudflare's workerd runtime instead of Node.js. This means your development environment is now a near-exact replica of your production environment—the same JavaScript engine, the same APIs, the same behavior. You'll catch issues during development that would have only appeared in production, and features like Durable Objects, Workers Analytics Engine, and R2 bindings work exactly as they do on Cloudflare's platform.
+
+  To accommodate this major change to your development environment, this update includes breaking changes to `Astro.locals.runtime`, removing some of its properties.
+
+  #### What should I do?
+
+  Update occurrences of `Astro.locals.runtime` as shown below:
+  - `Astro.locals.runtime` no longer contains the `env` object. Instead, import it directly:
+    ```js
+    import { env } from 'cloudflare:workers';
+    ```
+  - `Astro.locals.runtime` no longer contains the `cf` object. Instead, access it directly from the request:
+    ```js
+    Astro.request.cf;
+    ```
+  - `Astro.locals.runtime` no longer contains the `caches` object. Instead, use the global `caches` object directly:
+    ```js
+    caches.default.put(request, response);
+    ```
+  - `Astro.locals.runtime` object is replaced with `Astro.locals.cfContext` which contains the Cloudflare `ExecutionContext`:
+    ```js
+    const cfContext = Astro.locals.cfContext;
+    ```
+
+### Minor Changes
+
+- [#14306](https://github.com/withastro/astro/pull/14306) [`141c4a2`](https://github.com/withastro/astro/commit/141c4a26419fe5bb4341953ea5a0a861d9b398c0) Thanks [@ematipico](https://github.com/ematipico)! - Adds support for `astro preview` command
+
+  Developers can now use `astro preview` to test their Cloudflare Workers application locally before deploying. The preview runs using Cloudflare's workerd runtime, giving you a staging environment that matches production exactly—including support for KV namespaces, environment variables, and other Cloudflare-specific features.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 13.0.0-alpha.0
+
+### Major Changes
+
+- [#14445](https://github.com/withastro/astro/pull/14445) [`ecb0b98`](https://github.com/withastro/astro/commit/ecb0b98396f639d830a99ddb5895ab9223e4dc87) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Astro v6.0 upgrades to Vite v7.0 as the development server and production bundler - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#vite-70))
+
+### Patch Changes
+
+- Updated dependencies [[`ece667a`](https://github.com/withastro/astro/commit/ece667a737a96c8bfea2702de7207bed0842b37c), [`861b9cc`](https://github.com/withastro/astro/commit/861b9cc770a05d9fcfcb2f1f442a3ba41e94b510), [`ece667a`](https://github.com/withastro/astro/commit/ece667a737a96c8bfea2702de7207bed0842b37c), [`9fdfd4c`](https://github.com/withastro/astro/commit/9fdfd4c620313827e65664632a9c9cb435ad07ca), [`91780cf`](https://github.com/withastro/astro/commit/91780cffa7cf97cc22694d55962710609a5475b0), [`9fdfd4c`](https://github.com/withastro/astro/commit/9fdfd4c620313827e65664632a9c9cb435ad07ca), [`b1d87ec`](https://github.com/withastro/astro/commit/b1d87ec3bc2fbe214437990e871df93909d18f62), [`049da87`](https://github.com/withastro/astro/commit/049da87cb7ce1828f3025062ce079dbf132f5b86), [`727b0a2`](https://github.com/withastro/astro/commit/727b0a205eb765f1c36f13a73dfc69e17e44df8f), [`55a1a91`](https://github.com/withastro/astro/commit/55a1a911aa4e0d38191f8cb9464ffd58f3eb7608), [`669ca5b`](https://github.com/withastro/astro/commit/669ca5b0199d9933f54c76448de9ec5a9f13c430), [`df6d2d7`](https://github.com/withastro/astro/commit/df6d2d7bbcaf6b6a327a37a6437d4adade6e2485), [`9fdfd4c`](https://github.com/withastro/astro/commit/9fdfd4c620313827e65664632a9c9cb435ad07ca), [`e131261`](https://github.com/withastro/astro/commit/e1312615b39c59ebc05d5bb905ee0960b50ad3cf), [`c69c7de`](https://github.com/withastro/astro/commit/c69c7de1ffeff29f919d97c262f245927556f875), [`666d5a7`](https://github.com/withastro/astro/commit/666d5a7ef486aa57f20f87b6cb210619dabd9c4c), [`4f11510`](https://github.com/withastro/astro/commit/4f11510c9ed932f5cb6d1075b1172909dd5db23e), [`25fe093`](https://github.com/withastro/astro/commit/25fe09396dbcda2e1008c01a982f4eb2d1f33ae6), [`9c282b5`](https://github.com/withastro/astro/commit/9c282b5e6d3f0d678bc478a863e883fa4765dd17), [`ecb0b98`](https://github.com/withastro/astro/commit/ecb0b98396f639d830a99ddb5895ab9223e4dc87), [`6f67c6e`](https://github.com/withastro/astro/commit/6f67c6eef2647ef1a1eab78a65a906ab633974bb), [`36a461b`](https://github.com/withastro/astro/commit/36a461bf3f64c467bc52aecf511cd831d238e18b), [`3bda3ce`](https://github.com/withastro/astro/commit/3bda3ce4edcb1bd1349890c6ed8110f05954c791)]:
+  - astro@6.0.0-alpha.0
+
 ## 12.6.12
 
 ### Patch Changes
