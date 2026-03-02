@@ -26,7 +26,23 @@ export function resolveClientDir(options: Options) {
 	// We need to find the actual runtime location, not the build-time paths
 	const serverFolder = path.basename(options.server);
 	let serverEntryFolderURL = path.dirname(import.meta.url);
+	let previous = '';
 	while (!serverEntryFolderURL.endsWith(serverFolder)) {
+		// Guard against infinite loop: if dirname returns the same value, we've hit
+		// the filesystem root without finding the server folder. This happens when
+		// the entry point is bundled (e.g. with esbuild) and import.meta.url no
+		// longer contains the expected "server" path segment.
+		if (serverEntryFolderURL === previous) {
+			throw new Error(
+				`[@astrojs/node] Could not find the server directory "${serverFolder}" ` +
+					`by walking up from "${import.meta.url}". This can happen when the server ` +
+					`entry point is bundled into a single file (e.g. with esbuild) so that ` +
+					`import.meta.url no longer contains the original "${serverFolder}" path segment. ` +
+					`When bundling the server entry, make sure the output path contains a ` +
+					`"${serverFolder}" directory segment, or avoid bundling the server entry entirely.`,
+			);
+		}
+		previous = serverEntryFolderURL;
 		serverEntryFolderURL = path.dirname(serverEntryFolderURL);
 	}
 
