@@ -42,7 +42,8 @@
   },
   "devDependencies": {
     "@types/prismjs": "1.26.6",
-    "astro-scripts": "workspace:*"
+    "astro-scripts": "workspace:*",
+    "vite": "^7.3.1"
   },
   "engines": {
     "node": "^20.19.1 || >=22.12.0"
