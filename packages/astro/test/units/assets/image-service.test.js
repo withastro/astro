@@ -1,11 +1,3 @@
-/**
- * Unit tests for the Sharp image service transform function.
- *
- * Replaces core-image-service.test.js which previously ran a full dev server
- * and a full build just to verify pixel dimensions of transformed images.
- * Sharp's transform() takes a Uint8Array and returns a Uint8Array — no Astro
- * context required.
- */
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { before, describe, it } from 'node:test';
