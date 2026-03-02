@@ -12,6 +12,7 @@ import build from '../dist/core/build/index.js';
 import { mergeConfig, resolveConfig } from '../dist/core/config/index.js';
 import { dev, preview } from '../dist/core/index.js';
 import sync from '../dist/core/sync/index.js';
+import { deterministicString } from '../dist/assets/utils/deterministic-string.js';
 
 let cacheHits = 0;
 /** @type {Record<string, number>} */
@@ -198,7 +199,7 @@ export async function loadFixture(inlineConfig) {
 		build: async (extraInlineConfig = {}, options = {}) => {
 			fixtureBuildCounts[root] ??= 0;
 			fixtureBuildCounts[root]++;
-			const buildId = JSON.stringify([inlineConfig, extraInlineConfig, options]);
+			const buildId = deterministicString([inlineConfig, extraInlineConfig, options]);
 			if (buildCache.has(buildId)) {
 				cacheHits++;
 				cacheHitCounts[root] ??= 0;
