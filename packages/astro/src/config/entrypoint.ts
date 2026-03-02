@@ -40,7 +40,9 @@ export function passthroughImageService(): ImageServiceConfig {
  * Return the configuration needed to use the built-in in-memory LRU cache provider.
  * This is a runtime-agnostic provider suitable for single-instance deployments.
  */
-export function memoryCache(config: MemoryCacheProviderOptions = {}): CacheProviderConfig {
+export function memoryCache(
+	config: MemoryCacheProviderOptions = {},
+): CacheProviderConfig<MemoryCacheProviderOptions> {
 	return {
 		name: 'memory',
 		entrypoint: 'astro/cache/memory',

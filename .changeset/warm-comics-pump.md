@@ -2,7 +2,7 @@
 'astro': minor
 ---
 
-Adds a new experimental Route Caching API and Route Rules for controlling SSR response caching.
+Adds two new experimental flags for a Route Caching API and further configuration-level Route Rules for controlling SSR response caching.
 
 Route caching gives you a platform-agnostic way to cache server-rendered responses, based on web standard cache headers. You set caching directives in your routes using `Astro.cache` (in `.astro` pages) or `context.cache` (in API routes and middleware), and Astro translates them into the appropriate headers or runtime behavior depending on your adapter. You can also define cache rules for routes declaratively in your config using `experimental.routeRules`, without modifying route code.
 
@@ -123,49 +123,17 @@ Cache behavior is determined by the configured **cache provider**. There are two
 
 #### Built-in memory cache provider
 
-Astro includes a built-in in-memory LRU cache provider. Import `memoryCache` from `astro/config` to configure it.
+Astro includes a built-in, in-memory LRU runtime cache provider. Import `memoryCache` from `astro/config` to configure it.
 
 Features:
 - In-memory LRU cache with configurable max entries (default: 1000)
 - Stale-while-revalidate support
 - Tag-based and path-based invalidation
 - `X-Astro-Cache` response header: `HIT`, `MISS`, or `STALE`
-
-#### Writing a custom cache provider
-
-A cache provider is a module that exports a factory function as its default export:
-
-```ts
-import type { CacheProviderFactory } from 'astro';
-
-const factory: CacheProviderFactory = (config) => {
-  return {
-    name: 'my-cache-provider',
-    // For CDN-style: set response headers
-    setHeaders(options) {
-      const headers = new Headers();
-      if (options.maxAge !== undefined) {
-        headers.set('CDN-Cache-Control', `max-age=${options.maxAge}`);
-      }
-      return headers;
-    },
-    // For runtime-style: intercept requests (optional)
-    async onRequest(context, next) {
-      // ... check cache, call next(), store response
-    },
-    // Handle invalidation
-    async invalidate(options) {
-      // ... purge by tags or path
-    },
-  };
-};
-
-export default factory;
-```
-
-#### Error handling
-
-If you use `Astro.cache` or `context.cache` without enabling the feature, Astro throws an `AstroError` with the name `CacheNotEnabled` and a message explaining how to configure it. If the configured provider cannot be resolved, Astro throws `CacheProviderNotFound` at build time.
+- Query parameter sorting for better hit rates (`?b=2&a=1` and `?a=1&b=2` hit the same entry)
+- Common tracking parameters (`utm_*`, `fbclid`, `gclid`, etc.) excluded from cache keys by default
+- `Vary` header support — responses that set `Vary` automatically get separate cache entries per variant
+- Configurable query parameter filtering via `query.exclude` (glob patterns) and `query.include` (allowlist)
 
 For more information on enabling and using this feature in your project, see the [Experimental Route Caching docs](https://docs.astro.build/en/reference/experimental-flags/route-caching/).
 For a complete overview and to give feedback on this experimental API, see the [Route Caching RFC](https://github.com/withastro/roadmap/pull/1245).

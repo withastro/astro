@@ -1,3 +1,6 @@
+import picomatch from 'picomatch';
+import { AstroError } from '../errors/errors.js';
+import { CacheQueryConfigConflict } from '../errors/errors-data.js';
 import type { CacheProvider, CacheProviderFactory, InvalidateOptions } from './types.js';
 
 interface CachedEntry {
@@ -12,11 +15,65 @@ interface CachedEntry {
 	swr: number;
 	/** Tags for invalidation */
 	tags: string[];
+	/** Headers from the Vary response header (lowercased), used for cache key discrimination */
+	vary?: string[];
+	/** Snapshot of request header values for the Vary'd headers, used to match subsequent requests */
+	varyValues?: Record<string, string>;
+}
+
+export interface MemoryCacheQueryOptions {
+	/**
+	 * Sort query parameters alphabetically so that parameter order does not
+	 * affect the cache key. Enabled by default.
+	 * @default true
+	 */
+	sort?: boolean;
+	/**
+	 * Only include these query parameter names in the cache key.
+	 * All other parameters are ignored, including the default tracking
+	 * parameter exclusions. Cannot be used together with `exclude`.
+	 *
+	 * @example
+	 * ```js
+	 * memoryCache({ query: { include: ['page', 'sort', 'q'] } })
+	 * ```
+	 */
+	include?: string[];
+	/**
+	 * Exclude query parameters whose names match these patterns from the cache
+	 * key. Supports glob wildcards (e.g. `"utm_*"`). Cannot be used together
+	 * with `include`.
+	 *
+	 * By default, common tracking and analytics parameters (`utm_*`, `fbclid`,
+	 * `gclid`, etc.) are excluded. Set to `[]` to include all query parameters
+	 * in the cache key.
+	 *
+	 * @default ['utm_*', 'fbclid', 'gclid', 'gbraid', 'wbraid', 'dclid', 'msclkid', 'twclid', 'li_fat_id', 'mc_cid', 'mc_eid', '_ga', '_gl', '_hsenc', '_hsmi', '_ke', 'oly_anon_id', 'oly_enc_id', 'rb_clickid', 's_cid', 'vero_id', 'wickedid', 'yclid', '__s', 'ref']
+	 *
+	 * @example
+	 * ```js
+	 * // Only exclude specific params (replaces defaults)
+	 * memoryCache({ query: { exclude: ['session_id', 'token'] } })
+	 * ```
+	 *
+	 * @example
+	 * ```js
+	 * // Include all query parameters (disable default exclusions)
+	 * memoryCache({ query: { exclude: [] } })
+	 * ```
+	 */
+	exclude?: string[];
 }
 
 export interface MemoryCacheProviderOptions {
 	/** Maximum number of entries to keep in cache. Defaults to 1000. */
 	max?: number;
+	/**
+	 * Query parameter handling for cache keys.
+	 * By default, parameters are sorted alphabetically so that order does not
+	 * affect the cache key.
+	 */
+	query?: MemoryCacheQueryOptions;
 }
 
 /**
@@ -50,14 +107,152 @@ function parseCacheTags(header: string | null): string[] {
 		.filter(Boolean);
 }
 
-function getCacheKey(url: URL): string {
-	return `${url.origin}${url.pathname}${url.search}`;
+/**
+ * Common tracking/analytics query parameters that are excluded from cache
+ * keys by default. These do not affect page content but create unnecessary
+ * cache fragmentation.
+ *
+ * Set `query.exclude` to `[]` to include all query parameters.
+ */
+const DEFAULT_EXCLUDED_PARAMS = [
+	'utm_*',
+	'fbclid',
+	'gclid',
+	'gbraid',
+	'wbraid',
+	'dclid',
+	'msclkid',
+	'twclid',
+	'li_fat_id',
+	'mc_cid',
+	'mc_eid',
+	'_ga',
+	'_gl',
+	'_hsenc',
+	'_hsmi',
+	'_ke',
+	'oly_anon_id',
+	'oly_enc_id',
+	'rb_clickid',
+	's_cid',
+	'vero_id',
+	'wickedid',
+	'yclid',
+	'__s',
+	'ref',
+];
+
+interface NormalizedQueryConfig {
+	sort: boolean;
+	include: string[] | null;
+	excludeMatcher: picomatch.Matcher | null;
 }
 
-function getPathFromCacheKey(key: string): string | null {
-	if (!URL.canParse(key)) return null;
-	const url = new URL(key);
-	return `${url.pathname}${url.search}`;
+function normalizeQueryConfig(query: MemoryCacheQueryOptions | undefined): NormalizedQueryConfig {
+	if (query?.include && query?.exclude) {
+		throw new AstroError(CacheQueryConfigConflict);
+	}
+
+	const sort = query?.sort !== false;
+	const include = query?.include ?? null;
+
+	// When `include` is set, exclude is irrelevant — only the allowlisted params matter.
+	const excludePatterns = include ? [] : (query?.exclude ?? DEFAULT_EXCLUDED_PARAMS);
+	const excludeMatcher =
+		excludePatterns.length > 0 ? picomatch(excludePatterns, { nocase: true }) : null;
+	return { sort, include, excludeMatcher };
+}
+
+/**
+ * Build the query string portion of a cache key, applying sorting and filtering.
+ */
+function buildQueryString(url: URL, config: NormalizedQueryConfig): string {
+	const params = new URLSearchParams(url.searchParams);
+
+	// Filter: include mode (allowlist)
+	if (config.include) {
+		const allowed = new Set(config.include);
+		for (const key of [...params.keys()]) {
+			if (!allowed.has(key)) {
+				params.delete(key);
+			}
+		}
+	}
+
+	// Filter: exclude mode (blocklist with globs)
+	if (config.excludeMatcher) {
+		for (const key of [...params.keys()]) {
+			if (config.excludeMatcher(key)) {
+				params.delete(key);
+			}
+		}
+	}
+
+	// Sort
+	if (config.sort) {
+		params.sort();
+	}
+
+	const qs = params.toString();
+	return qs ? `?${qs}` : '';
+}
+
+function getCacheKey(url: URL, queryConfig: NormalizedQueryConfig): string {
+	return `${url.origin}${url.pathname}${buildQueryString(url, queryConfig)}`;
+}
+
+function getPathFromCacheKey(key: string, queryConfig: NormalizedQueryConfig): string | null {
+	// Strip Vary suffix (everything after the first NUL separator)
+	const urlPart = key.split('\0')[0];
+	if (!URL.canParse(urlPart)) return null;
+	const url = new URL(urlPart);
+	return `${url.pathname}${buildQueryString(url, queryConfig)}`;
+}
+
+/**
+ * Headers that should not be used for Vary-based cache key discrimination.
+ * `cookie` is excluded because it has extremely high cardinality (every user
+ * has different cookies), making it effectively uncacheable. Use config-level
+ * cookie-based vary instead when that is supported.
+ * `set-cookie` is a response header and should never appear in Vary.
+ */
+const IGNORED_VARY_HEADERS = new Set(['cookie', 'set-cookie']);
+
+/**
+ * Parse the Vary header into an array of lowercased header names.
+ * Returns undefined if no Vary header or Vary: *
+ */
+function parseVaryHeader(response: Response): string[] | undefined {
+	const vary = response.headers.get('Vary');
+	if (!vary || vary.trim() === '*') return undefined;
+	const headers = vary
+		.split(',')
+		.map((h) => h.trim().toLowerCase())
+		.filter((h) => h && !IGNORED_VARY_HEADERS.has(h));
+	return headers.length > 0 ? headers : undefined;
+}
+
+/**
+ * Extract the values of Vary'd headers from a request.
+ */
+function getVaryValues(request: Request, varyHeaders: string[]): Record<string, string> {
+	const values: Record<string, string> = {};
+	for (const header of varyHeaders) {
+		values[header] = request.headers.get(header) ?? '';
+	}
+	return values;
+}
+
+/**
+ * Check whether a request matches the Vary'd header values stored in a cache entry.
+ */
+function matchesVary(request: Request, entry: CachedEntry): boolean {
+	if (!entry.vary || !entry.varyValues) return true;
+	for (const header of entry.vary) {
+		const requestValue = request.headers.get(header) ?? '';
+		if (requestValue !== entry.varyValues[header]) return false;
+	}
+	return true;
 }
 
 function hasSetCookieHeader(response: Response): boolean {
@@ -122,9 +317,14 @@ class LRUMap<K, V> {
 
 /**
  * Serialize a Response into a CachedEntry. Consumes the response body.
+ *
+ * Callers are responsible for cloning the response first if they still need to
+ * return it to the client (see the cache-miss path). In the SWR revalidation
+ * path, the stale response has already been sent so no clone is needed.
  */
 async function serializeResponse(
 	response: Response,
+	request: Request,
 	maxAge: number,
 	swr: number,
 	tags: string[],
@@ -135,6 +335,7 @@ async function serializeResponse(
 		if (key.toLowerCase() === 'set-cookie') return;
 		headers.push([key, value]);
 	});
+	const vary = parseVaryHeader(response);
 	return {
 		body,
 		status: response.status,
@@ -143,6 +344,8 @@ async function serializeResponse(
 		maxAge,
 		swr,
 		tags,
+		vary,
+		varyValues: vary ? getVaryValues(request, vary) : undefined,
 	};
 }
 
@@ -167,9 +370,35 @@ function isStale(entry: CachedEntry): boolean {
 	return age > entry.maxAge && age <= entry.maxAge + entry.swr;
 }
 
-const memoryProvider = ((config: Record<string, any> | undefined): CacheProvider => {
-	const max = typeof config?.max === 'number' ? config.max : 1000;
+/**
+ * Build a Vary-aware cache key suffix from a request and a known set of Vary headers.
+ * Returns an empty string if there are no Vary headers.
+ *
+ * Uses NUL (`\0`) as the separator because it cannot appear in URLs or HTTP
+ * header values, so there's no risk of collisions with the primary key or
+ * between Vary'd values. This keeps the key as a flat string in the LRU map
+ * rather than needing a nested lookup structure.
+ */
+function buildVarySuffix(request: Request, varyHeaders: string[]): string {
+	if (varyHeaders.length === 0) return '';
+	const parts: string[] = [];
+	for (const header of varyHeaders) {
+		parts.push(`${header}=${request.headers.get(header) ?? ''}`);
+	}
+	return `\0${parts.join('\0')}`;
+}
+
+const memoryProvider = ((config): CacheProvider => {
+	const max = config?.max ?? 1000;
+	const queryConfig = normalizeQueryConfig(config?.query);
 	const cache = new LRUMap<string, CachedEntry>(max);
+
+	/**
+	 * Maps a primary cache key (URL without Vary) to the set of Vary header names
+	 * learned from responses. This lets us build the correct Vary-aware key on
+	 * subsequent requests before we even look up the entry.
+	 */
+	const varyMap = new Map<string, string[]>();
 
 	return {
 		name: 'memory',
@@ -182,53 +411,71 @@ const memoryProvider = ((config: Record<string, any> | undefined): CacheProvider
 				return next();
 			}
 
-			const key = getCacheKey(requestUrl);
+			const primaryKey = getCacheKey(requestUrl, queryConfig);
+
+			// Build the full key including Vary'd header values if we know them
+			const knownVary = varyMap.get(primaryKey);
+			const varySuffix = knownVary ? buildVarySuffix(context.request, knownVary) : '';
+			const key = primaryKey + varySuffix;
 
 			const cached = cache.get(key);
 
 			if (cached) {
-				if (!isExpired(cached)) {
-					// Fresh cache hit
-					const response = deserializeResponse(cached);
-					response.headers.set('X-Astro-Cache', 'HIT');
-					return response;
-				}
-
-				if (isStale(cached)) {
-					// SWR: serve stale, trigger background revalidation
-					const revalidate = next()
-						.then(async (freshResponse) => {
-							const cdnCC = freshResponse.headers.get('CDN-Cache-Control');
-							const { maxAge: newMaxAge, swr: newSwr } = parseCdnCacheControl(cdnCC);
-							if (newMaxAge > 0) {
-								if (hasSetCookieHeader(freshResponse)) {
-									warnSkippedSetCookie(requestUrl);
-									return;
-								}
-								const newTags = parseCacheTags(freshResponse.headers.get('Cache-Tag'));
-								const newEntry = await serializeResponse(freshResponse, newMaxAge, newSwr, newTags);
-								cache.set(key, newEntry);
-							}
-						})
-						.catch((error) => {
-							console.warn(
-								`[astro:cache] Background revalidation failed for ${requestUrl.pathname}${requestUrl.search}: ${String(
-									error,
-								)}`,
-							);
-						});
-
-					// Use waitUntil if available (prevents the promise from being GC'd)
-					if (context.waitUntil) {
-						context.waitUntil(revalidate);
+				// Double-check Vary match (defensive — the key should already be correct)
+				if (matchesVary(context.request, cached)) {
+					if (!isExpired(cached)) {
+						// Fresh cache hit
+						const response = deserializeResponse(cached);
+						response.headers.set('X-Astro-Cache', 'HIT');
+						return response;
 					}
 
-					const response = deserializeResponse(cached);
-					response.headers.set('X-Astro-Cache', 'STALE');
-					return response;
+					if (isStale(cached)) {
+						// SWR: serve stale, trigger background revalidation
+						const revalidate = next()
+							.then(async (freshResponse) => {
+								const cdnCC = freshResponse.headers.get('CDN-Cache-Control');
+								const { maxAge: newMaxAge, swr: newSwr } = parseCdnCacheControl(cdnCC);
+								if (newMaxAge > 0) {
+									if (hasSetCookieHeader(freshResponse)) {
+										warnSkippedSetCookie(requestUrl);
+										return;
+									}
+									const newTags = parseCacheTags(freshResponse.headers.get('Cache-Tag'));
+									const newEntry = await serializeResponse(
+										freshResponse,
+										context.request,
+										newMaxAge,
+										newSwr,
+										newTags,
+									);
+									// Update Vary map if the response changed its Vary headers
+									if (newEntry.vary) {
+										varyMap.set(primaryKey, newEntry.vary);
+									}
+									cache.set(key, newEntry);
+								}
+							})
+							.catch((error) => {
+								console.warn(
+									`[astro:cache] Background revalidation failed for ${requestUrl.pathname}${requestUrl.search}: ${String(
+										error,
+									)}`,
+								);
+							});
+
+						// Use waitUntil if available (prevents the promise from being GC'd)
+						if (context.waitUntil) {
+							context.waitUntil(revalidate);
+						}
+
+						const response = deserializeResponse(cached);
+						response.headers.set('X-Astro-Cache', 'STALE');
+						return response;
+					}
 				}
 
-				// Past SWR window — expired, treat as miss
+				// Past SWR window or Vary mismatch — expired, treat as miss
 			}
 
 			// Cache miss — render fresh
@@ -246,8 +493,16 @@ const memoryProvider = ((config: Record<string, any> | undefined): CacheProvider
 				const tags = parseCacheTags(response.headers.get('Cache-Tag'));
 				// Clone the response so we can read the body for caching and still return it
 				const [forCache, forClient] = [response.clone(), response];
-				const entry = await serializeResponse(forCache, maxAge, swr, tags);
-				cache.set(key, entry);
+				const entry = await serializeResponse(forCache, context.request, maxAge, swr, tags);
+
+				// Learn Vary headers from the response and build the storage key
+				let storeKey = primaryKey;
+				if (entry.vary) {
+					varyMap.set(primaryKey, entry.vary);
+					storeKey = primaryKey + buildVarySuffix(context.request, entry.vary);
+				}
+
+				cache.set(storeKey, entry);
 				forClient.headers.set('X-Astro-Cache', 'MISS');
 				return forClient;
 			}
@@ -260,7 +515,7 @@ const memoryProvider = ((config: Record<string, any> | undefined): CacheProvider
 			if (invalidateOptions.path) {
 				// Path invalidation is exact-match only (no glob/wildcard patterns)
 				for (const key of [...cache.keys()]) {
-					if (getPathFromCacheKey(key) === invalidateOptions.path) {
+					if (getPathFromCacheKey(key, queryConfig) === invalidateOptions.path) {
 						cache.delete(key);
 					}
 				}
@@ -280,6 +535,6 @@ const memoryProvider = ((config: Record<string, any> | undefined): CacheProvider
 			}
 		},
 	};
-}) satisfies CacheProviderFactory;
+}) satisfies CacheProviderFactory<MemoryCacheProviderOptions>;
 
 export default memoryProvider;

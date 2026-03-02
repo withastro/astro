@@ -1,7 +1,7 @@
 import { AstroError } from '../../errors/errors.js';
 import { CacheNotEnabled } from '../../errors/errors-data.js';
 import type { CacheLike } from './cache.js';
-import type { CacheHint, CacheOptions, InvalidateOptions, LiveDataEntry } from '../types.js';
+import type { CacheOptions } from '../types.js';
 
 /**
  * A no-op cache implementation used in dev mode when cache is configured.
@@ -11,7 +11,7 @@ import type { CacheHint, CacheOptions, InvalidateOptions, LiveDataEntry } from '
 const EMPTY_OPTIONS = Object.freeze({ tags: [] }) as Readonly<CacheOptions>;
 
 export class NoopAstroCache implements CacheLike {
-	set(_input: CacheOptions | CacheHint | LiveDataEntry | false): void {}
+	set(): void {}
 
 	get tags(): string[] {
 		return [];
@@ -21,7 +21,7 @@ export class NoopAstroCache implements CacheLike {
 		return EMPTY_OPTIONS;
 	}
 
-	async invalidate(_input: InvalidateOptions | LiveDataEntry): Promise<void> {}
+	async invalidate(): Promise<void> {}
 }
 
 /**
@@ -29,8 +29,8 @@ export class NoopAstroCache implements CacheLike {
  * Used when cache is not configured — provides a clear, actionable error
  * instead of silently doing nothing or returning undefined.
  */
-class DisabledAstroCacheImpl implements CacheLike {
-	set(_input: CacheOptions | CacheHint | LiveDataEntry | false): void {
+class DisabledAstroCache implements CacheLike {
+	set(): void {
 		throw new AstroError(CacheNotEnabled);
 	}
 
@@ -42,12 +42,10 @@ class DisabledAstroCacheImpl implements CacheLike {
 		throw new AstroError(CacheNotEnabled);
 	}
 
-	async invalidate(_input: InvalidateOptions | LiveDataEntry): Promise<void> {
+	async invalidate(): Promise<void> {
 		throw new AstroError(CacheNotEnabled);
 	}
 }
 
-export type DisabledAstroCache = DisabledAstroCacheImpl;
-
 /** Shared singleton — no per-request allocation when cache is disabled. */
-export const disabledAstroCache: DisabledAstroCache = new DisabledAstroCacheImpl();
+export const disabledAstroCache = new DisabledAstroCache();

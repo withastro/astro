@@ -2133,6 +2133,22 @@ export const CacheNotEnabled = {
 	hint: 'Use an adapter that provides a default cache provider, or set one explicitly: `experimental: { cache: { provider: "..." } }`. See https://docs.astro.build/en/reference/experimental-flags/route-caching/.',
 } satisfies ErrorData;
 
+/**
+ * @docs
+ * @message `query.include` and `query.exclude` cannot be used together.
+ * @description
+ * The memory cache provider's `query.include` and `query.exclude` options are mutually exclusive.
+ * Use `include` to allowlist specific query parameters that affect the cache key, or `exclude` to
+ * blocklist parameters. When `include` is set, all other parameters are automatically ignored.
+ */
+export const CacheQueryConfigConflict = {
+	name: 'CacheQueryConfigConflict',
+	title: 'Conflicting cache query configuration.',
+	message:
+		'`query.include` and `query.exclude` cannot be used together. Use `include` to allowlist specific parameters, or `exclude` to blocklist them.',
+	hint: 'When using `include`, all parameters not in the list are automatically excluded, making `exclude` redundant.',
+} satisfies ErrorData;
+
 /*
  * Adding an error? Follow these steps:
  * 1. Determine in which category it belongs (Astro, Vite, CSS, Content Collections etc.)

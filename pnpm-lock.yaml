@@ -2573,6 +2573,18 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/cache-memory-query:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/cache-memory-query-include:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/cache-route:
     dependencies:
       '@astrojs/node':

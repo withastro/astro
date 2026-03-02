@@ -34,15 +34,17 @@ export interface CacheProvider {
 	invalidate(options: InvalidateOptions): Promise<void>;
 }
 
-export type CacheProviderFactory = (config: Record<string, any> | undefined) => CacheProvider;
+export type CacheProviderFactory<TConfig extends Record<string, any> = Record<string, any>> = (
+	config: TConfig | undefined,
+) => CacheProvider;
 
-export interface CacheProviderConfig {
+export interface CacheProviderConfig<TConfig extends Record<string, any> = Record<string, any>> {
 	/** Optional display name for logs and errors */
 	name?: string;
 	/** URL or package import */
 	entrypoint: string | URL;
 	/** Serializable options used by the provider implementation */
-	config?: Record<string, any>;
+	config?: TConfig;
 }
 
 export interface NormalizedCacheProviderConfig {

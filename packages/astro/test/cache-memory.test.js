@@ -142,4 +142,59 @@ describe('Memory cache provider', () => {
 
 		assert.notEqual(firstBody.nonce, secondBody.nonce);
 	});
+
+	it('normalizes query parameter order (sorting)', async () => {
+		// Prime cache with one param order
+		const first = await renderRequest('/cached?b=2&a=1');
+		assert.equal(first.headers.get('X-Astro-Cache'), 'MISS');
+
+		// Same params, different order — should be a HIT
+		const second = await renderRequest('/cached?a=1&b=2');
+		assert.equal(second.headers.get('X-Astro-Cache'), 'HIT');
+	});
+
+	it('varies cache by Vary response header', async () => {
+		// Request with Accept-Language: en
+		const enFirst = await app.render(
+			new Request('http://example.com/vary-lang', {
+				headers: { 'Accept-Language': 'en' },
+			}),
+		);
+		assert.equal(enFirst.headers.get('X-Astro-Cache'), 'MISS');
+		const enBody = await enFirst.json();
+		assert.equal(enBody.lang, 'en');
+
+		// Same URL, same language — should be a HIT
+		const enSecond = await app.render(
+			new Request('http://example.com/vary-lang', {
+				headers: { 'Accept-Language': 'en' },
+			}),
+		);
+		assert.equal(enSecond.headers.get('X-Astro-Cache'), 'HIT');
+
+		// Same URL, different language — should be a MISS (different Vary key)
+		const frFirst = await app.render(
+			new Request('http://example.com/vary-lang', {
+				headers: { 'Accept-Language': 'fr' },
+			}),
+		);
+		assert.equal(frFirst.headers.get('X-Astro-Cache'), 'MISS');
+		const frBody = await frFirst.json();
+		assert.equal(frBody.lang, 'fr');
+
+		// Verify both variants are now cached independently
+		const enThird = await app.render(
+			new Request('http://example.com/vary-lang', {
+				headers: { 'Accept-Language': 'en' },
+			}),
+		);
+		assert.equal(enThird.headers.get('X-Astro-Cache'), 'HIT');
+
+		const frSecond = await app.render(
+			new Request('http://example.com/vary-lang', {
+				headers: { 'Accept-Language': 'fr' },
+			}),
+		);
+		assert.equal(frSecond.headers.get('X-Astro-Cache'), 'HIT');
+	});
 });

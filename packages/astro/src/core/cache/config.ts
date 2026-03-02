@@ -23,8 +23,11 @@ export const CacheSchema = z.object({
 	provider: CacheProviderConfigSchema.optional(),
 });
 
+const RouteRuleSchema = CacheOptionsSchema;
+
 /**
- * Route rule with cache options.
+ * Route rules configuration (experimental.routeRules).
+ * Maps glob patterns to route rules.
  *
  * Example:
  * ```ts
@@ -33,11 +36,5 @@ export const CacheSchema = z.object({
  *   '/products/*': { maxAge: 3600, tags: ['products'] },
  * }
  * ```
- */
-const RouteRuleSchema = CacheOptionsSchema;
-
-/**
- * Route rules configuration (experimental.routeRules).
- * Maps glob patterns to route rules.
  */
 export const RouteRulesSchema = z.record(z.string(), RouteRuleSchema);
