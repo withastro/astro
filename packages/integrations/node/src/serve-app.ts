@@ -62,21 +62,14 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 	// Read prerendered error pages directly from disk instead of fetching over HTTP.
 	// This avoids SSRF risks and is more efficient.
 	const prerenderedErrorPageFetch = async (url: string): Promise<Response> => {
-		if (url.includes('/404')) {
+		const { pathname } = new URL(url);
+		if (pathname.endsWith('/404.html') || pathname.endsWith('/404/index.html')) {
 			const response = await readErrorPageFromDisk(client, 404);
 			if (response) return response;
 		}
-		if (url.includes('/500')) {
+		if (pathname.endsWith('/500.html') || pathname.endsWith('/500/index.html')) {
 			const response = await readErrorPageFromDisk(client, 500);
 			if (response) return response;
-		}
-		// Fallback: if experimentalErrorPageHost is configured, fetch from there
-		if (options.experimentalErrorPageHost) {
-			const originUrl = new URL(options.experimentalErrorPageHost);
-			const errorPageUrl = new URL(url);
-			errorPageUrl.protocol = originUrl.protocol;
-			errorPageUrl.host = originUrl.host;
-			return fetch(errorPageUrl);
 		}
 		// No file found and no fallback configured - return empty response
 		return new Response(null, { status: 404 });

@@ -11,11 +11,15 @@ const articles = await getCollection('articles');
     <title>Articles</title>
   </head>
   <body>
-    {articles.map((article) => (
-      <div class="article">
-        <h2 class="title">{article.data.title}</h2>
-        <img class="cover" src={article.data.cover.src} width={article.data.cover.width} height={article.data.cover.height} />
-      </div>
-    ))}
+    {articles.map((article) => {
+      const Cover = article.data.cover;
+      return (
+        <div class="article">
+          <h2 class="title">{article.data.title}</h2>
+          <img class="cover" src={article.data.cover.src} width={article.data.cover.width} height={article.data.cover.height} />
+          <Cover class="inline-svg" />
+        </div>
+      );
+    })}
   </body>
 </html>
