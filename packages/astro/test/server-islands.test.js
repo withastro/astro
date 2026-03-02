@@ -394,6 +394,32 @@ describe('Server islands', () => {
 			});
 		});
 
+		it('can fetch the server island endpoint in dev with adapter that does not set buildOutput', async () => {
+			// Use an adapter that does NOT set adapterFeatures.buildOutput,
+			// like @astrojs/netlify. This triggers the bug in container.ts where
+			// buildOutput is reset to 'static' after runHookConfigDone sets it to 'server'.
+			const devFixture = await loadFixture({
+				root: './fixtures/server-islands/hybrid',
+				adapter: testAdapter({
+					extendAdapter: {
+						adapterFeatures: {},
+					},
+				}),
+			});
+			const devServer = await devFixture.startDevServer();
+			try {
+				const res = await devFixture.fetch('/');
+				assert.equal(res.status, 200);
+				const html = await res.text();
+				const fetchMatch = /fetch\('(\/_server-islands\/Island[^']*)/.exec(html);
+				assert.ok(fetchMatch, 'should have a server island fetch URL');
+				const islandRes = await devFixture.fetch(fetchMatch[1]);
+				assert.equal(islandRes.status, 200, 'server island endpoint should return 200, not GetStaticPathsRequired error');
+			} finally {
+				await devServer.stop();
+			}
+		});
+
 		describe('with no adapter', () => {
 			let devServer;
 
