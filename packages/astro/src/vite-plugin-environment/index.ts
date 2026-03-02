@@ -10,8 +10,6 @@ import { fileURLToPath } from 'node:url';
 // pipeline, which Vite doesn't support in development time. This hardcoded list temporarily
 // fixes things until Vite can properly handle them, or when they support ESM.
 const ONLY_DEV_EXTERNAL = [
-	// Imported by `@astrojs/prism` which exposes `<Prism/>` that is processed by Vite
-	'prismjs/components/index.js',
 	// Imported by `astro/assets` -> `packages/astro/src/core/logger/core.ts`
 	'string-width',
 ];

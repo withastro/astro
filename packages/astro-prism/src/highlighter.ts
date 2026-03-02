@@ -1,6 +1,21 @@
 import Prism from 'prismjs';
-import loadLanguages from 'prismjs/components/index.js';
 import { addAstro } from './plugin.js';
+
+// `prismjs/components/index.js` is a CJS module that uses `require()` to dynamically load
+// language grammars. This is incompatible with ESM-only runtimes like Cloudflare Workers (workerd).
+// We use `createRequire` from `node:module` to load it in Node.js environments where CJS is
+// supported. In other runtimes, we gracefully degrade — the base Prism module already includes
+// markup, css, clike, and javascript grammars.
+let loadLanguages: ((languages: string[]) => void) | undefined;
+try {
+	// Dynamic import of `node:module` to avoid static import failures in non-Node.js runtimes.
+	// Vite recognizes `node:` imports as externals and won't try to bundle them.
+	const nodeModule = await import(/* @vite-ignore */ 'node:module');
+	loadLanguages = nodeModule.createRequire(import.meta.url)('prismjs/components/index.js');
+} catch {
+	// In non-Node.js environments (e.g. workerd), createRequire or require() may be unavailable.
+	// Language loading will be skipped and only built-in grammars will work.
+}
 
 const languageMap = new Map([['ts', 'typescript']]);
 
@@ -11,7 +26,9 @@ export function runHighlighterWithAstro(lang: string | undefined, code: string) 
 	let classLanguage = `language-${lang}`;
 	const ensureLoaded = (language: string) => {
 		if (language && !Prism.languages[language]) {
-			loadLanguages([language]);
+			if (loadLanguages) {
+				loadLanguages([language]);
+			}
 		}
 	};
 
