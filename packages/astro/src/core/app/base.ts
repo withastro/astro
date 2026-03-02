@@ -1,5 +1,6 @@
 import {
 	appendForwardSlash,
+	collapseDuplicateLeadingSlashes,
 	collapseDuplicateTrailingSlashes,
 	hasFileExtension,
 	isInternalPath,
@@ -190,7 +191,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		// Collapse multiple leading slashes to prevent middleware authorization bypass.
 		// Without this, `//admin` would be treated as starting with base `/` and sliced
 		// to `/admin` for routing, while middleware still sees `//admin` in the URL.
-		pathname = pathname.replace(/^\/+/, '/');
+		pathname = collapseDuplicateLeadingSlashes(pathname);
 		if (pathname.startsWith(this.manifest.base)) {
 			return pathname.slice(this.baseWithoutTrailingSlash.length + 1);
 		}

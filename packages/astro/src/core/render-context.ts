@@ -37,6 +37,7 @@ import { getParams, getProps, type Pipeline, Slots } from './render/index.js';
 import { isRoute404or500, isRouteExternalRedirect, isRouteServerIsland } from './routing/match.js';
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
 import { AstroSession } from './session/runtime.js';
+import { collapseDuplicateLeadingSlashes } from '@astrojs/internal-helpers/path';
 import { validateAndDecodePathname } from './util/pathname.js';
 
 /**
@@ -89,7 +90,7 @@ export class RenderContext {
 		// Collapse multiple leading slashes so middleware sees the canonical pathname.
 		// Without this, a request to `//admin` would preserve `//admin` in context.url.pathname,
 		// bypassing middleware checks like `pathname.startsWith('/admin')`.
-		url.pathname = url.pathname.replace(/^\/+/, '/');
+		url.pathname = collapseDuplicateLeadingSlashes(url.pathname);
 		try {
 			// Decode and validate pathname to prevent multi-level encoding bypass attacks
 			url.pathname = validateAndDecodePathname(url.pathname);
