@@ -82,6 +82,11 @@ export const originPathnameSymbol = Symbol.for('astro.originPathname');
 export const pipelineSymbol = Symbol.for('astro.pipeline');
 
 /**
+ * Use this symbol to set and retrieve AstroSettings on ViteDevServer.
+ */
+export const settingsSymbol = Symbol.for('astro.settings');
+
+/**
  * The symbol used as a field on the request object to store a cleanup callback associated with aborting the request when the underlying socket closes.
  */
 export const nodeRequestAbortControllerCleanupSymbol = Symbol.for(

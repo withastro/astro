@@ -13,6 +13,7 @@ import {
 	setImageConfig,
 } from './utils/image-config.js';
 import { createConfigPlugin } from './vite-plugin-config.js';
+import { createNodePrerenderPlugin } from './vite-plugin-dev-server-prerender-middleware.js';
 import {
 	cloudflareConfigCustomizer,
 	DEFAULT_SESSION_KV_BINDING_NAME,
@@ -162,6 +163,9 @@ export default function createIntegration({
 					session,
 					vite: {
 						plugins: [
+							...(prerenderEnvironment === 'node' && command === 'dev'
+								? [createNodePrerenderPlugin()]
+								: []),
 							cfVitePlugin({ ...cfPluginConfig, viteEnvironment: { name: 'ssr' } }),
 							{
 								name: '@astrojs/cloudflare:cf-imports',
