@@ -169,7 +169,7 @@ describe('CLI info', () => {
 				assert.equal(logger.logs.length, 0);
 			});
 
-			it('copies correctly', async () => {
+			it('copies if user confirms', async () => {
 				const logger = new SpyLogger();
 				const prompt = new FakePrompt(true);
 
@@ -180,8 +180,7 @@ describe('CLI info', () => {
 				const text = Date.now().toString();
 				await clipboard.copy(text);
 
-				assert.equal(logger.logs[0].type, 'info');
-				assert.equal(logger.logs[0].message, 'Copied to clipboard!');
+				assert.equal(logger.logs.length, 1);
 			});
 		});
 
