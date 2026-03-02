@@ -54,8 +54,8 @@ export function computeFallbackRoute(options: ComputeFallbackRouteOptions): Fall
 		base,
 	} = options;
 
-	// Only apply fallback for 3xx+ status codes
-	if (responseStatus < 300) {
+	// Only apply fallback for 404 status codes (page not found in this locale)
+	if (responseStatus !== 404) {
 		return { type: 'none' };
 	}
 
