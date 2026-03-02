@@ -7,7 +7,7 @@ import type { Logger } from '../core/logger/core.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import { RedirectComponentInstance } from '../core/redirects/index.js';
 import { loadRenderer } from '../core/render/index.js';
-import { createDefaultRoutes } from '../core/routing/default.js';
+import type { DefaultRouteParams } from '../core/routing/default.js';
 import { routeIsRedirect } from '../core/routing/helpers.js';
 import { findRouteToRewrite } from '../core/routing/rewrite.js';
 import { isPage } from '../core/util.js';
@@ -46,17 +46,40 @@ export class RunnablePipeline extends Pipeline {
 
 	routesList: RoutesList | undefined;
 
+	readonly loader: ModuleLoader;
+	readonly settings: AstroSettings;
+	readonly getDebugInfo: () => Promise<string>;
+
 	private constructor(
-		readonly loader: ModuleLoader,
-		readonly logger: Logger,
-		readonly manifest: SSRManifest,
-		readonly settings: AstroSettings,
-		readonly getDebugInfo: () => Promise<string>,
-		readonly defaultRoutes = createDefaultRoutes(manifest),
+		loader: ModuleLoader,
+		logger: Logger,
+		manifest: SSRManifest,
+		settings: AstroSettings,
+		getDebugInfo: () => Promise<string>,
+		defaultRoutes?: Array<DefaultRouteParams>,
 	) {
 		const resolve = createResolve(loader, manifest.rootDir);
 		const streaming = true;
-		super(logger, manifest, 'development', [], resolve, streaming);
+		super(
+			logger,
+			manifest,
+			'development',
+			[],
+			resolve,
+			streaming,
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			defaultRoutes,
+		);
+		this.loader = loader;
+		this.settings = settings;
+		this.getDebugInfo = getDebugInfo;
 	}
 
 	static create(

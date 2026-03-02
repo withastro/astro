@@ -22,7 +22,7 @@ import { NOOP_MIDDLEWARE_FN } from './middleware/noop-middleware.js';
 import { sequence } from './middleware/sequence.js';
 import { RedirectSinglePageBuiltModule } from './redirects/index.js';
 import { RouteCache } from './render/route-cache.js';
-import { createDefaultRoutes } from './routing/default.js';
+import { createDefaultRoutes, type DefaultRouteParams } from './routing/default.js';
 import type { SessionDriverFactory } from './session/types.js';
 import { NodePool } from '../runtime/server/render/queue/pool.js';
 import { HTMLStringCache } from '../runtime/server/html-string-cache.js';
@@ -41,41 +41,94 @@ export abstract class Pipeline {
 	nodePool: NodePool | undefined;
 	htmlStringCache: HTMLStringCache | undefined;
 
+	readonly logger: Logger;
+	readonly manifest: SSRManifest;
+	/**
+	 * "development" or "production" only
+	 */
+	readonly runtimeMode: RuntimeMode;
+	readonly renderers: SSRLoadedRenderer[];
+	readonly resolve: (s: string) => Promise<string>;
+
+	readonly streaming: boolean;
+	/**
+	 * Used to provide better error messages for `Astro.clientAddress`
+	 */
+	readonly adapterName: SSRManifest['adapterName'];
+	readonly clientDirectives: SSRManifest['clientDirectives'];
+	readonly inlinedScripts: SSRManifest['inlinedScripts'];
+	readonly compressHTML: SSRManifest['compressHTML'];
+	readonly i18n: SSRManifest['i18n'];
+	readonly middleware: SSRManifest['middleware'];
+	readonly routeCache: RouteCache;
+	/**
+	 * Used for `Astro.site`.
+	 */
+	readonly site: URL | undefined;
+	/**
+	 * Array of built-in, internal, routes.
+	 * Used to find the route module
+	 */
+	readonly defaultRoutes: Array<DefaultRouteParams>;
+
+	readonly actions: SSRManifest['actions'];
+	readonly sessionDriver: SSRManifest['sessionDriver'];
+	readonly serverIslands: SSRManifest['serverIslandMappings'];
+
 	constructor(
-		readonly logger: Logger,
-		readonly manifest: SSRManifest,
+		logger: Logger,
+		manifest: SSRManifest,
 		/**
 		 * "development" or "production" only
 		 */
-		readonly runtimeMode: RuntimeMode,
-		readonly renderers: SSRLoadedRenderer[],
-		readonly resolve: (s: string) => Promise<string>,
+		runtimeMode: RuntimeMode,
+		renderers: SSRLoadedRenderer[],
+		resolve: (s: string) => Promise<string>,
 
-		readonly streaming: boolean,
+		streaming: boolean,
 		/**
 		 * Used to provide better error messages for `Astro.clientAddress`
 		 */
-		readonly adapterName = manifest.adapterName,
-		readonly clientDirectives = manifest.clientDirectives,
-		readonly inlinedScripts = manifest.inlinedScripts,
-		readonly compressHTML = manifest.compressHTML,
-		readonly i18n = manifest.i18n,
-		readonly middleware = manifest.middleware,
-		readonly routeCache = new RouteCache(logger, runtimeMode),
+		adapterName = manifest.adapterName,
+		clientDirectives = manifest.clientDirectives,
+		inlinedScripts = manifest.inlinedScripts,
+		compressHTML = manifest.compressHTML,
+		i18n = manifest.i18n,
+		middleware = manifest.middleware,
+		routeCache = new RouteCache(logger, runtimeMode),
 		/**
 		 * Used for `Astro.site`.
 		 */
-		readonly site = manifest.site ? new URL(manifest.site) : undefined,
+		site = manifest.site ? new URL(manifest.site) : undefined,
 		/**
 		 * Array of built-in, internal, routes.
 		 * Used to find the route module
 		 */
-		readonly defaultRoutes = createDefaultRoutes(manifest),
+		defaultRoutes = createDefaultRoutes(manifest),
 
-		readonly actions = manifest.actions,
-		readonly sessionDriver = manifest.sessionDriver,
-		readonly serverIslands = manifest.serverIslandMappings,
+		actions = manifest.actions,
+		sessionDriver = manifest.sessionDriver,
+		serverIslands = manifest.serverIslandMappings,
 	) {
+		this.logger = logger;
+		this.manifest = manifest;
+		this.runtimeMode = runtimeMode;
+		this.renderers = renderers;
+		this.resolve = resolve;
+		this.streaming = streaming;
+		this.adapterName = adapterName;
+		this.clientDirectives = clientDirectives;
+		this.inlinedScripts = inlinedScripts;
+		this.compressHTML = compressHTML;
+		this.i18n = i18n;
+		this.middleware = middleware;
+		this.routeCache = routeCache;
+		this.site = site;
+		this.defaultRoutes = defaultRoutes;
+		this.actions = actions;
+		this.sessionDriver = sessionDriver;
+		this.serverIslands = serverIslands;
+
 		this.internalMiddleware = [];
 		// We do use our middleware only if the user isn't using the manual setup
 		if (i18n?.strategy !== 'manual') {

@@ -11,7 +11,7 @@ import {
 import { renderEndpoint } from '../runtime/server/endpoint.js';
 import { renderPage } from '../runtime/server/index.js';
 import type { ComponentInstance } from '../types/astro.js';
-import type { MiddlewareHandler, Props, RewritePayload } from '../types/public/common.js';
+import type { MiddlewareHandler, Params, Props, RewritePayload } from '../types/public/common.js';
 import type { APIContext, AstroGlobal } from '../types/public/context.js';
 import type { RouteData, SSRResult } from '../types/public/internal.js';
 import type { ServerIslandMappings, SSRActions } from './app/types.js';
@@ -62,27 +62,66 @@ export type CreateRenderContext = Pick<
 	>;
 
 export class RenderContext {
+	readonly pipeline: Pipeline;
+	public locals: App.Locals;
+	readonly middleware: MiddlewareHandler;
+	readonly actions: SSRActions;
+	readonly serverIslands: ServerIslandMappings;
+	// It must be a DECODED pathname
+	public pathname: string;
+	public request: Request;
+	public routeData: RouteData;
+	public status: number;
+	public clientAddress: string | undefined;
+	protected cookies: AstroCookies;
+	public params: Params;
+	protected url: URL;
+	public props: Props;
+	public partial: undefined | boolean;
+	public shouldInjectCspMetaTags: boolean;
+	public session: AstroSession | undefined;
+	public skipMiddleware;
+
 	private constructor(
-		readonly pipeline: Pipeline,
-		public locals: App.Locals,
-		readonly middleware: MiddlewareHandler,
-		readonly actions: SSRActions,
-		readonly serverIslands: ServerIslandMappings,
+		pipeline: Pipeline,
+		locals: App.Locals,
+		middleware: MiddlewareHandler,
+		actions: SSRActions,
+		serverIslands: ServerIslandMappings,
 		// It must be a DECODED pathname
-		public pathname: string,
-		public request: Request,
-		public routeData: RouteData,
-		public status: number,
-		public clientAddress: string | undefined,
-		protected cookies = new AstroCookies(request),
-		public params = getParams(routeData, pathname),
-		protected url = RenderContext.#createNormalizedUrl(request.url),
-		public props: Props = {},
-		public partial: undefined | boolean = undefined,
-		public shouldInjectCspMetaTags = pipeline.manifest.shouldInjectCspMetaTags,
-		public session: AstroSession | undefined = undefined,
-		public skipMiddleware = false,
-	) {}
+		pathname: string,
+		request: Request,
+		routeData: RouteData,
+		status: number,
+		clientAddress: string | undefined,
+		cookies = new AstroCookies(request),
+		params = getParams(routeData, pathname),
+		url = RenderContext.#createNormalizedUrl(request.url),
+		props: Props = {},
+		partial: undefined | boolean = undefined,
+		shouldInjectCspMetaTags = pipeline.manifest.shouldInjectCspMetaTags,
+		session: AstroSession | undefined = undefined,
+		skipMiddleware = false,
+	) {
+		this.pipeline = pipeline;
+		this.locals = locals;
+		this.middleware = middleware;
+		this.actions = actions;
+		this.serverIslands = serverIslands;
+		this.pathname = pathname;
+		this.request = request;
+		this.routeData = routeData;
+		this.status = status;
+		this.clientAddress = clientAddress;
+		this.cookies = cookies;
+		this.params = params;
+		this.url = url;
+		this.props = props;
+		this.partial = partial;
+		this.shouldInjectCspMetaTags = shouldInjectCspMetaTags;
+		this.session = session;
+		this.skipMiddleware = skipMiddleware;
+	}
 
 	static #createNormalizedUrl(requestUrl: string): URL {
 		const url = new URL(requestUrl);
