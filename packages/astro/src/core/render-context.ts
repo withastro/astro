@@ -86,6 +86,10 @@ export class RenderContext {
 
 	static #createNormalizedUrl(requestUrl: string): URL {
 		const url = new URL(requestUrl);
+		// Collapse multiple leading slashes so middleware sees the canonical pathname.
+		// Without this, a request to `//admin` would preserve `//admin` in context.url.pathname,
+		// bypassing middleware checks like `pathname.startsWith('/admin')`.
+		url.pathname = url.pathname.replace(/^\/+/, '/');
 		try {
 			// Decode and validate pathname to prevent multi-level encoding bypass attacks
 			url.pathname = validateAndDecodePathname(url.pathname);
