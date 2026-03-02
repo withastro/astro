@@ -16,6 +16,17 @@ import { baseService } from 'astro/assets';
 const service: LocalImageService = {
 	...baseService,
 
+	propertiesToHash: [...(baseService.propertiesToHash ?? []), '_serviceConfig'],
+
+	validateOptions(options, imageConfig) {
+		const validated = baseService.validateOptions!(options, imageConfig);
+		const config = imageConfig?.service?.config;
+		if (config && Object.keys(config).length > 0) {
+			(validated as any)._serviceConfig = config;
+		}
+		return validated;
+	},
+
 	async transform(inputBuffer, transform) {
 		return { data: inputBuffer, format: transform.format };
 	},

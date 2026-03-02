@@ -8,11 +8,14 @@ import type { AstroConfig, AstroIntegration, IntegrationResolvedRoute } from 'as
 import { astroFrontmatterScanPlugin } from './esbuild-plugin-astro-frontmatter.js';
 import { getParts } from './utils/generate-routes-json.js';
 import {
-	type ImageServiceConfig,
+	type ImageServiceOption,
+	WORKERD_COMPATIBLE_ENTRYPOINTS,
 	normalizeImageServiceConfig,
 	setImageConfig,
 } from './utils/image-config.js';
+import { createDevImageMiddlewarePlugin } from './vite-plugin-dev-image-middleware.js';
 import { createConfigPlugin } from './vite-plugin-config.js';
+import { createImageServicePlugins } from './vite-plugin-image-service.js';
 import {
 	cloudflareConfigCustomizer,
 	DEFAULT_SESSION_KV_BINDING_NAME,
@@ -22,6 +25,7 @@ import { parseEnv } from 'node:util';
 import { sessionDrivers } from 'astro/config';
 import { createCloudflarePrerenderer } from './prerenderer.js';
 import { createRequire } from 'node:module';
+import { createJiti } from 'jiti';
 
 export type { Runtime } from './utils/handler.js';
 
@@ -31,7 +35,7 @@ export interface Options
 		'auxiliaryWorkers' | 'configPath' | 'inspectorPort' | 'persistState' | 'remoteBindings'
 	> {
 	/** Options for handling images. */
-	imageService?: ImageServiceConfig;
+	imageService?: ImageServiceOption;
 
 	/**
 	 * By default, Astro will be configured to use Cloudflare KV to store session data. The KV namespace
@@ -68,13 +72,47 @@ export default function createIntegration({
 	...cloudflareOptions
 }: Options = {}): AstroIntegration {
 	let _config: AstroConfig;
-
 	let _routes: IntegrationResolvedRoute[];
 	let _isFullyStatic = false;
 	let cfPluginConfig: PluginConfig;
+	/** Relative path to the emitted image service file in the server output dir. */
+	let _servicePath: string | undefined;
 
-	const { buildService, runtimeService } = normalizeImageServiceConfig(imageService);
-	const needsImagesBinding = runtimeService === 'cloudflare-binding';
+	/**
+	 * Mutable config object shared with `createConfigPlugin` via closure.
+	 * Populated in `config:setup`, then updated in `config:done` to add
+	 * the custom service's `propertiesToHash`.
+	 */
+	let _transformAtBuildConfig: import('./vite-plugin-config.js').TransformAtBuildConfig | null =
+		null;
+
+	const normalized = normalizeImageServiceConfig(imageService);
+
+	/**
+	 * Custom image service entrypoint for Node-side image transforms.
+	 * Initialized from explicit triple config, or captured in config:done
+	 * when a later integration overwrites config.image.service.
+	 */
+	let _buildServiceEntrypoint: string | undefined = normalized.serviceEntrypoint;
+	const { devService, runtimeService } = normalized;
+
+	const needsImagesBinding =
+		runtimeService.entrypoint === '@astrojs/cloudflare/image-service-workerd';
+	const transformsAtBuild = normalized.transformsAtBuild;
+	const isPresetConfig = imageService === undefined || typeof imageService === 'string';
+	const devServiceNeedsNode = !WORKERD_COMPATIBLE_ENTRYPOINTS.has(devService.entrypoint);
+
+	// Sharp auto-switches to passthrough at runtime (setImageConfig guard),
+	// so account for that when comparing entrypoints for the virtual module.
+	const effectiveRuntimeEntrypoint =
+		normalized.runtimeService.entrypoint === 'astro/assets/services/sharp'
+			? 'astro/assets/services/noop'
+			: normalized.runtimeService.entrypoint;
+
+	// The interceptor is needed when the build and runtime services differ
+	// (e.g. compile mode: workerd stub for prerender, passthrough for runtime).
+	const needsInterceptor =
+		normalized.buildService.entrypoint !== effectiveRuntimeEntrypoint;
 
 	return {
 		name: '@astrojs/cloudflare',
@@ -84,16 +122,18 @@ export default function createIntegration({
 					throw new Error('`workerd` does not run on Stackblitz.');
 				}
 
+				// TODO: remove when 'custom' preset is removed
+				if (imageService === 'custom') {
+					logger.warn(
+						`imageService: 'custom' is deprecated. Use the adapter's imageService option directly with { entrypoint, config } or a named preset instead.`,
+					);
+				}
+
 				let session = config.session;
-				const isCompile = buildService === 'compile';
 
 				if (needsImagesBinding) {
 					logger.info(
 						`Enabling image processing with Cloudflare Images for production with the "${imagesBindingName}" Images binding.`,
-					);
-				} else if (isCompile) {
-					logger.info(
-						`Enabling compile-time image optimization. Images will be pre-optimized at build time.`,
 					);
 				}
 
@@ -111,10 +151,13 @@ export default function createIntegration({
 					};
 				}
 
-				// In dev, `compile` needs the IMAGES binding for real transforms
-				// (the image-transform-endpoint uses it). At build time,
-				// `compile` uses Sharp on the Node side instead.
-				const needsImagesBindingForDev = isCompile && command === 'dev';
+				// In dev, if the dev image service uses the workerd stub and
+				// the Node middleware isn't handling images, the IMAGES binding
+				// is needed for real transforms via image-transform-endpoint.
+				const needsImagesBindingForDev =
+					command === 'dev' &&
+					devService.entrypoint === '@astrojs/cloudflare/image-service-workerd' &&
+					!devServiceNeedsNode;
 
 				cfPluginConfig = {
 					config: cloudflareConfigCustomizer({
@@ -138,8 +181,8 @@ export default function createIntegration({
 					},
 				};
 
-				// The preview entrypoint uses Cloudflare's vite plugin and so it needs access
-				// to the config. But there's no proper API for this so we use globalThis.
+				// The preview entrypoint (entrypoints/preview.ts) needs the Cloudflare Vite plugin
+				// config but there's no API to pass it directly, so we bridge via globalThis.
 				if (command === 'preview') {
 					globalThis.astroCloudflareOptions = cfPluginConfig;
 				}
@@ -230,24 +273,48 @@ export default function createIntegration({
 									}
 								},
 							},
-							createConfigPlugin({
-								sessionKVBindingName,
-								compileImageConfig:
-									isCompile && command !== 'dev'
-										? {
-												base: config.base,
-												assetsPrefix:
-													typeof config.build.assetsPrefix === 'string'
-														? config.build.assetsPrefix
-														: undefined,
-												imageServiceEntrypoint: '@astrojs/cloudflare/image-service-workerd',
-												buildAssets: config.build.assets ?? '_astro',
-											}
-										: null,
-							}),
+							(() => {
+								if (transformsAtBuild && command !== 'dev') {
+									_transformAtBuildConfig = {
+										base: config.base,
+										assetsPrefix:
+											typeof config.build.assetsPrefix === 'string'
+												? config.build.assetsPrefix
+												: undefined,
+										imageServiceEntrypoint: '@astrojs/cloudflare/image-service-workerd',
+										buildAssets: config.build.assets ?? '_astro',
+									};
+								}
+								return createConfigPlugin({
+									sessionKVBindingName,
+									transformAtBuildConfig: _transformAtBuildConfig,
+								});
+							})(),
+							// In dev there's no bundle split — the Node middleware handles image transforms
+						// directly, so the virtual:image-service interceptor isn't needed.
+						...(needsInterceptor && command !== 'dev'
+								? createImageServicePlugins({
+										prerenderEntrypoint: normalized.buildService.entrypoint,
+										runtimeEntrypoint: effectiveRuntimeEntrypoint,
+										getBuildServiceEntrypoint: () => _buildServiceEntrypoint,
+										onService: (relativePath) => {
+											_servicePath = relativePath;
+										},
+									})
+								: []),
+							...(devServiceNeedsNode && command === 'dev'
+								? [
+										createDevImageMiddlewarePlugin({
+											getDevServiceEntrypoint: () =>
+												_buildServiceEntrypoint ?? devService.entrypoint,
+											getImageConfig: () => _config.image,
+											base: config.base,
+										}),
+									]
+								: []),
 						],
 					},
-					image: setImageConfig(imageService, config.image, command, logger),
+					image: setImageConfig(normalized, config.image, command, logger),
 				});
 
 				if (cloudflareOptions.configPath) {
@@ -265,8 +332,39 @@ export default function createIntegration({
 				_isFullyStatic =
 					nonInternalRoutes.length > 0 && nonInternalRoutes.every((route) => route.isPrerendered);
 			},
-			'astro:config:done': ({ setAdapter, config, injectTypes, logger }) => {
+			'astro:config:done': async ({ setAdapter, config, injectTypes, logger }) => {
 				_config = config;
+
+				// Capture final entrypoint after all integrations have run their config:setup.
+				if (transformsAtBuild) {
+					const finalEntrypoint = config.image.service?.entrypoint;
+					if (
+						finalEntrypoint &&
+						finalEntrypoint !== 'astro/assets/services/sharp' &&
+						finalEntrypoint !== 'astro/assets/services/noop' &&
+						finalEntrypoint !== '@astrojs/cloudflare/image-service-workerd'
+					) {
+						_buildServiceEntrypoint = finalEntrypoint;
+					}
+
+					// Forward the custom service's propertiesToHash so the workerd
+					// stub produces matching cache hashes during prerendering.
+					if (_buildServiceEntrypoint && _transformAtBuildConfig) {
+						try {
+							const jiti = createJiti(config.root.pathname);
+							const mod = await jiti.import(_buildServiceEntrypoint);
+							const service = (mod as any).default ?? mod;
+							if (Array.isArray(service.propertiesToHash)) {
+								_transformAtBuildConfig.propertiesToHash = service.propertiesToHash;
+							}
+						} catch (_e) {
+							logger.warn(
+								`Could not resolve propertiesToHash from custom image service "${_buildServiceEntrypoint}". ` +
+									`Image cache hashes may not include custom properties.`,
+							);
+						}
+					}
+				}
 
 				injectTypes({
 					filename: 'cloudflare.d.ts',
@@ -290,8 +388,7 @@ export default function createIntegration({
 							support: 'limited',
 							message:
 								'When using a custom image service, ensure it is compatible with the Cloudflare Workers runtime.',
-							// Only 'custom' could potentially use sharp at runtime.
-							suppress: buildService === 'custom' ? 'default' : 'all',
+							suppress: isPresetConfig ? 'all' : 'default',
 						},
 						envGetSecret: 'stable',
 					},
@@ -312,7 +409,7 @@ export default function createIntegration({
 					}
 				}
 			},
-			'astro:build:start': ({ setPrerenderer }) => {
+			'astro:build:start': ({ setPrerenderer, logger }) => {
 				setPrerenderer(
 					createCloudflarePrerenderer({
 						root: _config.root,
@@ -321,7 +418,10 @@ export default function createIntegration({
 						base: _config.base,
 						trailingSlash: _config.trailingSlash,
 						cfPluginConfig,
-						hasCompileImageService: buildService === 'compile',
+						hasTransformAtBuildService: transformsAtBuild,
+						expectsToTransformAtBuild: !!_buildServiceEntrypoint,
+						getServicePath: () => _servicePath,
+						logger,
 					}),
 				);
 			},
@@ -351,6 +451,13 @@ export default function createIntegration({
 				}
 			},
 			'astro:build:done': async ({ dir, logger, assets }) => {
+				// Delete the emitted image service file — only needed during the build, not at runtime.
+				// It was only needed at build time for Node-side image transforms.
+				if (_servicePath) {
+					const serviceUrl = new URL(_servicePath, _config.build.server);
+					await rm(serviceUrl, { force: true });
+				}
+
 				let redirectsExists = false;
 				try {
 					const redirectsStat = await stat(new URL('./_redirects', _config.build.client));

@@ -1,7 +1,7 @@
 import { env as globalEnv } from 'cloudflare:workers';
 import {
 	sessionKVBindingName,
-	compileImageConfig,
+	transformAtBuildConfig,
 	isPrerender,
 } from 'virtual:astro-cloudflare:config';
 import { createApp } from 'astro/app/entrypoint';
@@ -39,9 +39,9 @@ export async function handle(
 ): Promise<CfResponse> {
 	// Handle prerender endpoints (only active during build prerender phase)
 	if (isPrerender) {
-		if (compileImageConfig) {
+		if (transformAtBuildConfig) {
 			const { installAddStaticImage } = await import('./static-image-collection.js');
-			installAddStaticImage(compileImageConfig);
+			installAddStaticImage(transformAtBuildConfig);
 		}
 
 		if (isStaticPathsRequest(request)) {

@@ -3,8 +3,13 @@
 
 declare module 'virtual:astro-cloudflare:config' {
 	export const sessionKVBindingName: string;
-	export const compileImageConfig: import('./src/vite-plugin-config.js').CompileImageConfig | null;
+	export const transformAtBuildConfig: import('./src/vite-plugin-config.js').TransformAtBuildConfig | null;
 	export const isPrerender: boolean;
+}
+
+declare module 'virtual:astro-cloudflare:image-service' {
+	const service: import('astro').ImageService;
+	export default service;
 }
 
 declare namespace Cloudflare {
