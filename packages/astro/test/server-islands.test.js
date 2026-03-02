@@ -411,7 +411,7 @@ describe('Server islands', () => {
 				const res = await devFixture.fetch('/');
 				assert.equal(res.status, 200);
 				const html = await res.text();
-				const fetchMatch = html.match(/fetch\('(\/_server-islands\/Island[^']*)/);
+				const fetchMatch = /fetch\('(\/_server-islands\/Island[^']*)/.exec(html);
 				assert.ok(fetchMatch, 'should have a server island fetch URL');
 				const islandRes = await devFixture.fetch(fetchMatch[1]);
 				assert.equal(islandRes.status, 200, 'server island endpoint should return 200, not GetStaticPathsRequired error');
