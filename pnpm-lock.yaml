@@ -4905,6 +4905,9 @@ importers:
       '@astrojs/cloudflare':
         specifier: workspace:*
         version: link:../../..
+      '@astrojs/prism':
+        specifier: workspace:*
+        version: link:../../../../../astro-prism
       astro:
         specifier: workspace:*
         version: link:../../../../../astro

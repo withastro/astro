@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@astrojs/cloudflare": "workspace:*",
+    "@astrojs/prism": "workspace:*",
     "astro": "workspace:*"
   },
   "devDependencies": {
