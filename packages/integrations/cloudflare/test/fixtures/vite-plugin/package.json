@@ -8,7 +8,7 @@
 	},
 	"dependencies": {
 		"@astrojs/cloudflare": "workspace:*",
-		"@astrojs/mdx": "^4.3.13",
+		"@astrojs/mdx": "workspace:*",
 		"@astrojs/react": "workspace:*",
     "@astrojs/vue": "workspace:*",
 		"@astrojs/svelte": "workspace:*",
