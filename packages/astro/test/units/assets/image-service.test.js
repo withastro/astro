@@ -3,18 +3,14 @@ import { readFile } from 'node:fs/promises';
 import { before, describe, it } from 'node:test';
 import { lookup as probe } from '../../../dist/assets/utils/vendor/image-size/lookup.js';
 
-// The same fixture image used by core-image-service.test.js (2316×1544)
-const FIXTURE_IMAGE = new URL(
-	'../../fixtures/core-image-layout/src/assets/penguin.jpg',
-	import.meta.url,
-);
-const ORIGINAL_WIDTH = 2316;
-const ORIGINAL_HEIGHT = 1544;
+// Small local image (600×400) to keep transforms fast without depending on external fixtures
+const FIXTURE_IMAGE = new URL('./600x400.jpg', import.meta.url);
+const ORIGINAL_WIDTH = 600;
+const ORIGINAL_HEIGHT = 400;
 
 describe('sharp image service', async () => {
 	const sharpService = (await import('../../../dist/assets/services/sharp.js')).default;
 
-	// Minimal config — transform() only uses service.config for kernel/limitInputPixels
 	const config = { service: { entrypoint: '', config: {} } };
 
 	let inputBuffer;
