@@ -1,4 +1,4 @@
-FROM node:24.13.1-bookworm-slim
+FROM node:24.14.0-bookworm-slim
 
 # Avoid interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
