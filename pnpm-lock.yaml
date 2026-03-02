@@ -25,11 +25,11 @@ importers:
         specifier: ^2.29.8
         version: 2.29.8(@types/node@18.19.130)
       '@flue/cli':
-        specifier: ^0.0.44
-        version: 0.0.44(typescript@5.9.3)
+        specifier: ^0.0.47
+        version: 0.0.47(typescript@5.9.3)
       '@flue/client':
-        specifier: ^0.0.27
-        version: 0.0.27(typescript@5.9.3)
+        specifier: ^0.0.29
+        version: 0.0.29(typescript@5.9.3)
       '@types/node':
         specifier: ^18.19.115
         version: 18.19.130
@@ -8680,12 +8680,12 @@ packages:
   '@fastify/static@9.0.0':
     resolution: {integrity: sha512-r64H8Woe/vfilg5RTy7lwWlE8ZZcTrc3kebYFMEUBrMqlydhQyoiExQXdYAy2REVpST/G35+stAM8WYp1WGmMA==}
 
-  '@flue/cli@0.0.44':
-    resolution: {integrity: sha512-W4MYfgrNU14awSjhAeOiqoKpJDmZoKdpYxFW+muncfFv20AYkdFoiPxOpl8Q5OSLF6VLuf/GBijgnkG+iqaRGA==}
+  '@flue/cli@0.0.47':
+    resolution: {integrity: sha512-veECh2C/6vO8pIh6IEBTZ2RvLnQwDMukVFkZ6LogWm8dAroh+on1HenkjhVF65DAOfS3tEDL2clGKvFyOvR8/w==}
     hasBin: true
 
-  '@flue/client@0.0.27':
-    resolution: {integrity: sha512-fO+UEjHeT8Wxo9Mm5uXXGMSQKCMc91Z4xakgV77/PFiCIK/LCH6vN8u/al/YlT7wzvx/Nmvg/LvwQzUuN3XW3Q==}
+  '@flue/client@0.0.29':
+    resolution: {integrity: sha512-njZ7bPlGzwfs/1M7tPJRFq0xj5HIHAcFo/G1TBrAI3XhyZarX7Rn8EfagJfILD/f+/fOXSnS7xWVBIaKosvNRw==}
 
   '@fontsource/monofett@5.2.8':
     resolution: {integrity: sha512-cUtT8ScH3HHsMBkRrXFCrhGpKqRrKVNOhnYVSusECfB7g13YZjOrrLlhlc3o+R2IYpRrQQg/T/febSVD6k2Dhw==}
@@ -17718,15 +17718,15 @@ snapshots:
       fastq: 1.20.1
       glob: 13.0.3
 
-  '@flue/cli@0.0.44(typescript@5.9.3)':
+  '@flue/cli@0.0.47(typescript@5.9.3)':
     dependencies:
-      '@flue/client': 0.0.27(typescript@5.9.3)
+      '@flue/client': 0.0.29(typescript@5.9.3)
       '@valibot/to-json-schema': 1.5.0(valibot@1.2.0(typescript@5.9.3))
       valibot: 1.2.0(typescript@5.9.3)
     transitivePeerDependencies:
       - typescript
 
-  '@flue/client@0.0.27(typescript@5.9.3)':
+  '@flue/client@0.0.29(typescript@5.9.3)':
     dependencies:
       '@opencode-ai/sdk': 1.1.65
       '@valibot/to-json-schema': 1.5.0(valibot@1.2.0(typescript@5.9.3))
