@@ -628,6 +628,9 @@ importers:
       svgo:
         specifier: ^4.0.0
         version: 4.0.0
+      tinyclip:
+        specifier: ^0.1.6
+        version: 0.1.6
       tinyexec:
         specifier: ^1.0.2
         version: 1.0.2
@@ -15067,6 +15070,9 @@ packages:
   tinybench@2.9.0:
     resolution: {integrity: sha512-0+DUvqWMValLmha6lr4kD8iAMK1HzV0/aKnCtWb9v9641TnP/MFb7Pc2bxoxQjTXAErryXVgUOfv2YqNllqGeg==}
 
+  tinyclip@0.1.6:
+    resolution: {integrity: sha512-LJE4R1yUcQJ0IvbirB1ZjB1SSE321OU2WnVKANOIlh4eLSXyxid0yNatS1iOUy18ATFbky2a85XM3AAbdrq2XQ==}
+
   tinyexec@0.3.2:
     resolution: {integrity: sha512-KQQR9yN7R5+OSwaK0XQoj22pwHoTlgYqmUscPYoknOoWCWfj/5/ABTMRi69FrKU5ffPVh5QcFikpWJI/P1ocHA==}
 
@@ -25195,6 +25201,8 @@ snapshots:
   tiny-inflate@1.0.3: {}
 
   tinybench@2.9.0: {}
+
+  tinyclip@0.1.6: {}
 
   tinyexec@0.3.2: {}
 

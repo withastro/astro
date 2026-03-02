@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { getPackageManager } from '../../../dist/cli/info/core/get-package-manager.js';
 import { infoCommand } from '../../../dist/cli/info/core/info.js';
-import { CliClipboard } from '../../../dist/cli/info/infra/cli-clipboard.js';
+import { TinyclipClipboard } from '../../../dist/cli/info/infra/tinyclip-clipboard.js';
 import { CliDebugInfoProvider } from '../../../dist/cli/info/infra/cli-debug-info-provider.js';
 import { DevDebugInfoProvider } from '../../../dist/cli/info/infra/dev-debug-info-provider.js';
 import { ProcessNodeVersionProvider } from '../../../dist/cli/info/infra/process-node-version-provider.js';
@@ -154,57 +154,27 @@ describe('CLI info', () => {
 	});
 
 	describe('infra', () => {
-		describe('CliClipboard', () => {
-			it('aborts early if no copy command can be found', async () => {
-				const commandExecutor = new SpyCommandExecutor({ fail: true });
-				const logger = new SpyLogger();
-				const operatingSystemProvider = new FakeOperatingSystemProvider('aix');
-				const prompt = new FakePrompt(true);
-
-				const clipboard = new CliClipboard({
-					commandExecutor,
-					logger,
-					operatingSystemProvider,
-					prompt,
-				});
-				await clipboard.copy('foo bar');
-
-				assert.equal(commandExecutor.inputs.length, 2);
-				assert.equal(logger.logs[0].type, 'warn');
-				assert.equal(logger.logs[0].message, 'Clipboard command not found!');
-				assert.equal(logger.logs[1].type, 'info');
-				assert.equal(logger.logs[1].message, 'Please manually copy the text above.');
-			});
-
+		describe('TinyclipClipboard', () => {
 			it('aborts if user does not confirm', async () => {
-				const commandExecutor = new SpyCommandExecutor();
 				const logger = new SpyLogger();
-				const operatingSystemProvider = new FakeOperatingSystemProvider('win32');
 				const prompt = new FakePrompt(false);
 
-				const clipboard = new CliClipboard({
-					commandExecutor,
+				const clipboard = new TinyclipClipboard({
 					logger,
-					operatingSystemProvider,
 					prompt,
 				});
 				const text = Date.now().toString();
 				await clipboard.copy(text);
 
 				assert.equal(logger.logs.length, 0);
-				assert.equal(commandExecutor.inputs.length, 0);
 			});
 
 			it('copies correctly', async () => {
-				const commandExecutor = new SpyCommandExecutor();
 				const logger = new SpyLogger();
-				const operatingSystemProvider = new FakeOperatingSystemProvider('win32');
 				const prompt = new FakePrompt(true);
 
-				const clipboard = new CliClipboard({
-					commandExecutor,
+				const clipboard = new TinyclipClipboard({
 					logger,
-					operatingSystemProvider,
 					prompt,
 				});
 				const text = Date.now().toString();
@@ -212,12 +182,6 @@ describe('CLI info', () => {
 
 				assert.equal(logger.logs[0].type, 'info');
 				assert.equal(logger.logs[0].message, 'Copied to clipboard!');
-				assert.equal(commandExecutor.inputs.length, 1);
-				assert.deepStrictEqual(commandExecutor.inputs[0], {
-					command: 'clip',
-					args: undefined,
-					input: text,
-				});
 			});
 		});
 

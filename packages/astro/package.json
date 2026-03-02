@@ -157,6 +157,7 @@
     "shiki": "^3.22.0",
     "smol-toml": "^1.6.0",
     "svgo": "^4.0.0",
+    "tinyclip": "^0.1.6",
     "tinyexec": "^1.0.2",
     "tinyglobby": "^0.2.15",
     "tsconfck": "^3.1.6",
