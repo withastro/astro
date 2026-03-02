@@ -25,7 +25,7 @@ export default defineConfig({
 })
 ```
 
-You can replicate the previous behavior by checking the response status in a middleware and fetch the prerendered page yourself:
+You can replicate the previous behavior by checking the response status in a middleware and fetching the prerendered page yourself:
 
 ```ts
 // src/middleware.ts
