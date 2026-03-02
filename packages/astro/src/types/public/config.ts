@@ -698,7 +698,7 @@ export interface AstroUserConfig<
 		 * Enabling this feature adds additional security to Astro's handling of processed and bundled scripts and styles by default, and allows you to further configure these, and additional, content types.
 		 *
 		 * This feature comes with some limitations:
-		 * - External scripts and external styles are not supported out of the box, but you can [provide your own hashes](https://v6.docs.astro.build/en/reference/configuration-reference/#hashes).
+		 * - External scripts and external styles are not supported out of the box, but you can [provide your own hashes](https://v6.docs.astro.build/en/reference/configuration-reference/#securitycspscriptdirectivehashes).
 		 * - [Astro's view transitions](https://v6.docs.astro.build/en/guides/view-transitions/) using the `<ClientRouter />` are not supported, but you can [consider migrating to the browser native View Transition API](https://events-3bg.pages.dev/jotter/astro-view-transitions/) instead if you are not using Astro's enhancements to the native View Transitions and Navigation APIs.
 		 * - Shiki isn't currently supported. By design, Shiki functions use inline styles that cannot work with Astro CSP implementation. Consider [using `<Prism />`](https://v6.docs.astro.build/en/guides/syntax-highlighting/#prism-) when your project requires both CSP and syntax highlighting.
 		 * - `unsafe-inline` directives are incompatible with Astro's CSP implementation. By default, Astro will emit hashes for all its bundled scripts (e.g. client islands) and all modern browsers will automatically reject `unsafe-inline` when it occurs in a directive with a hash or nonce.
@@ -803,7 +803,7 @@ export interface AstroUserConfig<
 					 * @version 6.0.0
 					 * @description
 					 *
-					 * A configuration object that allows you to override the default sources for the `style-src` directive with the [`resources`](https://v6.docs.astro.build/en/reference/configuration-reference/#resources) property, or to provide additional [hashes](https://v6.docs.astro.build/en/reference/configuration-reference#hashes) to be rendered.					 */
+					 * A configuration object that allows you to override the default sources for the `style-src` directive with the [`resources`](https://v6.docs.astro.build/en/reference/configuration-reference/#securitycspstyledirectiveresources) property, or to provide additional [hashes](https://v6.docs.astro.build/en/reference/configuration-reference#securitycspstyledirectivehashes) to be rendered.					 */
 					styleDirective?: {
 						/**
 						 * @docs
@@ -904,7 +904,7 @@ export interface AstroUserConfig<
 					 * @version 6.0.0
 					 * @description
 					 *
-					 * A configuration object that allows you to override the default sources for the `script-src` directive with the [`resources`](https://v6.docs.astro.build/en/reference/configuration-reference/#resources) property, or to provide additional [hashes](https://v6.docs.astro.build/en/reference/configuration-reference#hashes) to be rendered.
+					 * A configuration object that allows you to override the default sources for the `script-src` directive with the [`resources`](https://v6.docs.astro.build/en/reference/configuration-reference/#securitycspscriptdirectiveresources) property, or to provide additional [hashes](https://v6.docs.astro.build/en/reference/configuration-reference#securitycspscriptdirectivehashes) to be rendered.
 					 */
 					scriptDirective?: {
 						/**
@@ -1497,7 +1497,7 @@ export interface AstroUserConfig<
 	 * An optional default time-to-live expiration period for session values, in seconds.
 	 *
 	 * By default, session values persist until they are deleted or the session is destroyed, and do not automatically expire because a particular amount of time has passed.
-	 * Set `session.ttl` to add a default expiration period for your session values. Passing a `ttl` option to [`session.set()`](https://docs.astro.build/en/reference/api-reference/#set) will override the global default
+	 * Set `session.ttl` to add a default expiration period for your session values. Passing a `ttl` option to [`session.set()`](https://v6.docs.astro.build/en/reference/api-reference/#sessionset) will override the global default
 	 * for that individual entry.
 	 *
 	 * ```js title="astro.config.mjs" ins={3-4}

@@ -41,7 +41,7 @@ export function injectServerIslandRoute(config: ConfigFields, routeManifest: Rou
 	routeManifest.routes.unshift(getServerIslandRouteData(config));
 }
 
-type RenderOptions = {
+export type RenderOptions = {
 	encryptedComponentExport: string;
 	encryptedProps: string;
 	encryptedSlots: string;
@@ -54,7 +54,7 @@ function badRequest(reason: string) {
 	});
 }
 
-async function getRequestData(request: Request): Promise<Response | RenderOptions> {
+export async function getRequestData(request: Request): Promise<Response | RenderOptions> {
 	switch (request.method) {
 		case 'GET': {
 			const url = new URL(request.url);

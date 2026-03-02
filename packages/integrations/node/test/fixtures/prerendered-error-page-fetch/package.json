@@ -1,5 +1,5 @@
 {
-  "name": "@test/nodejs-prerender-error-page",
+  "name": "@test/nodejs-prerendered-error-page-fetch",
   "version": "0.0.0",
   "private": true,
   "dependencies": {
