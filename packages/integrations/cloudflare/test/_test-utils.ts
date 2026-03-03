@@ -1,9 +1,7 @@
+import type { AstroInlineConfig } from '../../../astro/dist/types/public/config.js';
 import { loadFixture as baseLoadFixture } from '../../../astro/test/test-utils.js';
 
-/**
- * @typedef {import('../../../astro/test/test-utils').Fixture} Fixture
- */
-export async function loadFixture(inlineConfig) {
+export async function loadFixture(inlineConfig: AstroInlineConfig) {
 	if (!inlineConfig?.root) throw new Error("Must provide { root: './fixtures/...' }");
 
 	// resolve the relative root (i.e. "./fixtures/tailwindcss") to a full filepath
@@ -17,7 +15,7 @@ export async function loadFixture(inlineConfig) {
 	// Some further investigation is needed to understand the root cause.
 	//
 	// Unable to build fixture for the attempt 1: Error: There is a new version of the pre-bundle for "/astro/packages/integrations/cloudflare/test/fixtures/with-svelte/node_modules/.vite/deps_ssr/svelte_server.js?v=9924cddf", a page reload is going to ask for it.
-	const buildWithRetry = async function (...args) {
+	const buildWithRetry = async function (...args: Parameters<typeof fixture.build>) {
 		let err;
 		for (let attempt = 1; attempt <= 3; attempt++) {
 			try {
