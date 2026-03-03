@@ -142,4 +142,13 @@ describe('Using Astro.response in SSR', () => {
 		assert.equal(headers.get('four-five'), 'six');
 		assert.equal(headers.get('Cache-Control'), 'max-age=0, s-maxage=86400');
 	});
+
+	it('Removes internal headers', async () => {
+		const request = new Request('http://example.com/some-header');
+		const response = await app.render(request);
+		assert.equal(
+			[...response.headers.keys()].some((e) => e.startsWith('X-Astro-')),
+			false,
+		);
+	});
 });

@@ -15,6 +15,15 @@ export function prependForwardSlash(path: string) {
 	return path[0] === '/' ? path : '/' + path;
 }
 
+export const MANY_LEADING_SLASHES = /^\/{2,}/;
+
+export function collapseDuplicateLeadingSlashes(path: string) {
+	if (!path) {
+		return path;
+	}
+	return path.replace(MANY_LEADING_SLASHES, '/');
+}
+
 export const MANY_TRAILING_SLASHES = /\/{2,}$/g;
 
 export function collapseDuplicateTrailingSlashes(path: string, trailingSlash: boolean) {

@@ -75,7 +75,7 @@ async function bundle(files) {
 		bundle: true,
 		minify: true,
 		sourcemap: false,
-		target: ['es2018'],
+		target: ['esnext'],
 		outdir: 'out',
 		external: ['astro:*', 'aria-query', 'axobject-query'],
 		metafile: true,
