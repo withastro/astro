@@ -1,19 +1,19 @@
 import { EventEmitter } from 'node:events';
 import realFS from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { createFixture as _createFixture } from 'fs-fixture';
-import httpMocks from 'node-mocks-http';
+import { createFixture as _createFixture, type FileTree } from 'fs-fixture';
+import httpMocks, { type RequestOptions } from 'node-mocks-http';
 import { getDefaultClientDirectives } from '../../dist/core/client-directive/index.js';
 import { resolveConfig } from '../../dist/core/config/index.js';
 import { createBaseSettings } from '../../dist/core/config/settings.js';
-import { createContainer } from '../../dist/core/dev/container.js';
-import { AstroIntegrationLogger, Logger } from '../../dist/core/logger/core.js';
+import { createContainer, type Container } from '../../dist/core/dev/container.js';
+import { AstroIntegrationLogger, Logger, type LogOptions } from '../../dist/core/logger/core.js';
 import { nodeLogDestination } from '../../dist/core/logger/node.js';
 import { NOOP_MIDDLEWARE_FN } from '../../dist/core/middleware/noop-middleware.js';
 import { Pipeline } from '../../dist/core/render/index.js';
 import { RouteCache } from '../../dist/core/render/route-cache.js';
+import type { AstroInlineConfig } from '../../dist/index.js';
 
-/** @type {import('../../src/core/logger/core').Logger} */
 export const defaultLogger = new Logger({
 	dest: nodeLogDestination,
 	level: 'error',
@@ -21,10 +21,7 @@ export const defaultLogger = new Logger({
 
 const tempFixturesDir = fileURLToPath(new URL('./_temp-fixtures/', import.meta.url));
 
-/**
- * @param {import('fs-fixture').FileTree} tree
- */
-export async function createFixture(tree) {
+export async function createFixture(tree: FileTree) {
 	return await _createFixture(
 		{
 			'package.json': '{}',
@@ -36,7 +33,7 @@ export async function createFixture(tree) {
 	);
 }
 
-export function createRequestAndResponse(reqOptions = {}) {
+export function createRequestAndResponse(reqOptions: RequestOptions = {}) {
 	const req = httpMocks.createRequest(reqOptions);
 	req.headers.host ||= 'localhost';
 
@@ -63,12 +60,12 @@ export function createRequestAndResponse(reqOptions = {}) {
 	return { req, res, done, json, text };
 }
 
-function toPromise(res) {
-	return new Promise((resolve) => {
+function toPromise(res: any) {
+	return new Promise<Array<Buffer>>((resolve) => {
 		// node-mocks-http doesn't correctly handle non-Buffer typed arrays,
 		// so override the write method to fix it.
 		const write = res.write;
-		res.write = function (data, encoding) {
+		res.write = function (data: any, encoding: any) {
 			if (ArrayBuffer.isView(data) && !Buffer.isBuffer(data)) {
 				data = Buffer.from(data.buffer);
 			}
@@ -84,7 +81,7 @@ function toPromise(res) {
 	});
 }
 
-function buffersToString(buffers) {
+function buffersToString(buffers: Array<Buffer>) {
 	let decoder = new TextDecoder();
 	let str = '';
 	for (const buffer of buffers) {
@@ -93,11 +90,7 @@ function buffersToString(buffers) {
 	return str;
 }
 
-/**
- * @param {Partial<Pipeline>} options
- * @returns {Pipeline}
- */
-export function createBasicPipeline(options = {}) {
+export function createBasicPipeline(options: Partial<Pipeline> = {}) {
 	const mode = options.mode ?? 'development';
 	const pipeline = new Pipeline(
 		options.logger ?? defaultLogger,
@@ -128,31 +121,22 @@ export function createBasicPipeline(options = {}) {
 	return pipeline;
 }
 
-/**
- * @param {import('../../src/types/public/config.js').AstroInlineConfig} inlineConfig
- * @returns {Promise<import('../../src/types/astro.js').AstroSettings>}
- */
-export async function createBasicSettings(inlineConfig = {}) {
+export async function createBasicSettings(inlineConfig: AstroInlineConfig = {}) {
 	if (!inlineConfig.root) {
 		inlineConfig.root = fileURLToPath(new URL('.', import.meta.url));
 	}
 	const { astroConfig } = await resolveConfig(inlineConfig, 'dev');
-	return createBaseSettings(astroConfig);
+	return createBaseSettings(astroConfig, 'info');
 }
 
-/**
- * @typedef {{
- * 	fs?: typeof realFS,
- * 	inlineConfig?: import('../../src/types/public/config.js').AstroInlineConfig,
- *  logging?: import('../../src/core/logger/core').LogOptions,
- * }} RunInContainerOptions
- */
-
-/**
- * @param {RunInContainerOptions} options
- * @param {(container: import('../../src/core/dev/container.js').Container) => Promise<void> | void} callback
- */
-export async function runInContainer(options = {}, callback) {
+export async function runInContainer(
+	options: {
+		fs?: typeof realFS;
+		inlineConfig?: AstroInlineConfig;
+		logging?: LogOptions;
+	} = {},
+	callback: (container: Container) => Promise<void> | void,
+) {
 	const settings = await createBasicSettings(options.inlineConfig ?? {});
 	const container = await createContainer({
 		fs: options?.fs ?? realFS,
@@ -167,40 +151,34 @@ export async function runInContainer(options = {}, callback) {
 	}
 }
 
-/**
- * @import {Logger} from '../../dist/core/logger/core'
- */
-
-/** @implements {Logger} */
-export class SpyLogger {
-	/** @type {Array<{ type: string; label: string | null; message: string }>} */
-	#logs = [];
+export class SpyLogger implements Logger {
+	#logs: Array<{ type: string; label: string | null; message: string }> = [];
 	get logs() {
 		return this.#logs;
 	}
 
-	debug(label, ...messages) {
+	debug(label: string | null, ...messages: Array<any>) {
 		this.#logs.push(...messages.map((message) => ({ type: 'debug', label, message })));
 	}
-	error(label, message) {
+	error(label: string | null, message: string) {
 		this.#logs.push({ type: 'error', label, message });
 	}
-	info(label, message) {
+	info(label: string | null, message: string) {
 		this.#logs.push({ type: 'info', label, message });
 	}
-	warn(label, message) {
+	warn(label: string | null, message: string) {
 		this.#logs.push({ type: 'warn', label, message });
 	}
 	options = {
 		dest: {
 			write: () => true,
 		},
-		level: /** @type {const} */ ('silent'),
+		level: 'silent' as const,
 	};
 	level() {
 		return this.options.level;
 	}
-	forkIntegrationLogger(label) {
+	forkIntegrationLogger(label: string) {
 		return new AstroIntegrationLogger(this.options, label);
 	}
 }

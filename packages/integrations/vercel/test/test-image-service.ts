@@ -15,6 +15,9 @@ export function testImageService(config: { foo?: string } = {}): ImageServiceCon
 	};
 }
 
+/**
+ * @lintignore
+ */
 export default {
 	...baseService,
 	propertiesToHash: [...baseService.propertiesToHash, 'data-custom'],

@@ -1,20 +1,22 @@
 // @ts-check
 
-/**
- * @param {object} [options]
- * @param {any[]} [options.routes]
- * @param {Map<string, Function>} [options.pageMap]
- * @param {string} [options.base]
- * @param {string} [options.trailingSlash]
- * @param {Function} [options.middleware]
- */
+import type { AstroConfig, RouteData, RouteInfo } from '../../../dist/index.js';
+
 export function createManifest({
 	routes,
 	pageMap,
 	base = '/',
 	trailingSlash = 'ignore',
 	middleware = undefined,
-} = {}) {
+}: {
+	routes: Array<any>;
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+	pageMap: Map<string, Function>;
+	base?: string;
+	trailingSlash?: AstroConfig['trailingSlash'];
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+	middleware?: Function;
+}) {
 	const rootDir = new URL('file:///astro-test/');
 	const buildDir = new URL('file:///astro-test/dist/');
 
@@ -73,7 +75,7 @@ export function createManifest({
 	});
 }
 
-export function createRouteInfo(routeData) {
+export function createRouteInfo(routeData: RouteData): RouteInfo {
 	return {
 		routeData,
 		file: routeData.component,
