@@ -5,6 +5,7 @@ import { spec } from 'node:test/reporters';
 import { pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
 import { glob } from 'tinyglobby';
+import githubTestReporter from '../testing/github-test-reporter.js';
 
 const isCI = !!process.env.CI;
 // 30 minutes in CI, 10 locally
@@ -86,7 +87,7 @@ export default async function test() {
 		: undefined;
 
 	// https://nodejs.org/api/test.html#runoptions
-	run({
+	const testRun = run({
 		files,
 		testNamePatterns: args.values.match
 			? args.values['teardown-test']
@@ -108,7 +109,9 @@ export default async function test() {
 		.on('end', () => {
 			const testPassed = process.exitCode === 0 || process.exitCode === undefined;
 			teardownModule?.default(testPassed);
-		})
-		.pipe(new spec())
-		.pipe(process.stdout);
+		});
+
+	// Pipe to our custom GitHub reporter, and also the default spec reporter for terminal output
+	testRun.pipe(githubTestReporter);
+	testRun.pipe(new spec()).pipe(process.stdout);
 }

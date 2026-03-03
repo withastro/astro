@@ -11,15 +11,6 @@ export function setOutput(key, value) {
 	process.stdout.write(os.EOL);
 }
 
-/** Based on https://github.com/actions/toolkit/blob/main/packages/core/src/summary.ts */
-export function setSummary(text) {
-	const filePath = process.env['GITHUB_STEP_SUMMARY'] || '';
-	if (filePath) {
-		return fs.writeFileSync(filePath, text);
-	}
-	process.stdout.write(os.EOL);
-}
-
 function issueFileCommand(command, message) {
 	const filePath = process.env[`GITHUB_${command}`];
 	if (!filePath) {

@@ -5,7 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { glob } from 'tinyglobby';
 import { Agent } from 'undici';
-import { setSummary } from '../../../.github/scripts/utils.mjs';
+import { CILogger } from '../../../scripts/testing/github-utils.js';
 import { check } from '../dist/cli/check/index.js';
 import { globalContentLayer } from '../dist/content/instance.js';
 import { globalContentConfigObserver } from '../dist/content/utils.js';
@@ -13,77 +13,6 @@ import build from '../dist/core/build/index.js';
 import { mergeConfig, resolveConfig } from '../dist/core/config/index.js';
 import { dev, preview } from '../dist/core/index.js';
 import sync from '../dist/core/sync/index.js';
-
-/**
- * @typedef {{ fixture: string; duration: number }} LogEntry
- */
-/**
- * @param {LogEntry} _logEntry Lines to append to the test log file.
- */
-let logBuild = (_logEntry) => {}; // noop when not in CI
-
-if (process.env.CI) {
-	const repoRoot = fileURLToPath(new URL('../../../', import.meta.url));
-	const cacheDir = path.join(repoRoot, 'node_modules/.cache/astro-test-utils');
-	const logFile = path.join(cacheDir, 'log.txt');
-	// Create cache directory and log file if they don't exist
-	if (!fs.existsSync(cacheDir)) {
-		fs.mkdirSync(cacheDir, { recursive: true });
-	}
-	if (!fs.existsSync(logFile)) {
-		fs.writeFileSync(logFile, '');
-	}
-
-	const logStream = fs.createWriteStream(logFile, { flags: 'a' });
-	logBuild = (logEntry) => {
-		logStream.write(JSON.stringify(logEntry) + '\n');
-	};
-
-	// Close stream before process exits.
-	process.addListener('exit', () => {
-		logStream.end();
-		const logContents = fs.readFileSync(logFile, 'utf-8');
-		/**
-		 * @param {string} logs
-		 * @returns {string}
-		 */
-		const createSummary = (logs) => {
-			const lines = /** @type {LogEntry[]} */ (
-				logs
-					.split('\n')
-					.filter(Boolean)
-					.map((l) => JSON.parse(l))
-			);
-			if (lines.length === 0) {
-				return 'No test logs found.';
-			}
-			/** @type {Record<string, { fixture: string; count: number; totalDuration: number }>} */
-			const builds = {};
-			for (const line of lines) {
-				builds[line.fixture] ??= {
-					fixture: line.fixture.replace(repoRoot, ''),
-					count: 0,
-					totalDuration: 0,
-				};
-				builds[line.fixture].count++;
-				builds[line.fixture].totalDuration += line.duration;
-			}
-			let summary = '## Slowest fixture builds this run\n\n';
-			summary += '| Fixture | Builds | Total Duration (s) |\n';
-			summary += '|---------|-------:|-------------------:|\n';
-			const entries = Object.values(builds)
-				.sort((a, b) => b.totalDuration - a.totalDuration)
-				.slice(0, 10);
-			for (const entry of entries) {
-				const url = `https://github.com/withastro/astro/tree/main/${encodeURI(entry.fixture.replaceAll('\\', '/'))}`;
-				summary += `| [\`${path.basename(entry.fixture)}\`](${url}) | ${entry.count} | ${(entry.totalDuration / 1000).toFixed(2)} |\n`;
-			}
-			return summary;
-		};
-		const summary = createSummary(logContents);
-		setSummary(summary);
-	});
-}
 
 // Disable telemetry when running tests
 process.env.ASTRO_TELEMETRY_DISABLED = true;
@@ -230,7 +159,7 @@ export async function loadFixture(inlineConfig) {
 			});
 			const t1 = performance.now();
 			const duration = t1 - t0;
-			logBuild({ fixture: root, duration });
+			CILogger.logBuild({ fixture: root, duration });
 		},
 		sync,
 		check: async (opts) => {
