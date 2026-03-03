@@ -1,5 +1,5 @@
 // @ts-check
-const testEntry = 'test/**/*.test.js';
+const testEntry = 'test/**/*.test.ts';
 
 /** @type {import('knip').KnipConfig} */
 export default {

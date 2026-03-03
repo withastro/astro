@@ -60,13 +60,13 @@ await loadFixture({
 
 ```bash
 # All tests in package
-pnpm -C packages/astro exec astro-scripts test "test/**/*.test.js"
+pnpm -C packages/astro exec astro-scripts test "test/**/*.test.ts"
 
 # Single test file
 pnpm -C packages/astro exec astro-scripts test "test/actions.test.js"
 
 # Filter by pattern
-pnpm -C packages/astro exec astro-scripts test "test/**/*.test.js" --match "CSS"
+pnpm -C packages/astro exec astro-scripts test "test/**/*.test.ts" --match "CSS"
 
 # Multiple files
 pnpm -C packages/astro exec astro-scripts test "test/{actions,css,middleware}.test.js"
@@ -567,10 +567,10 @@ rm -rf test/fixtures/my-test/dist
 
 ```bash
 # Sequential execution (default)
-pnpm -C packages/astro exec astro-scripts test "test/**/*.test.js"
+pnpm -C packages/astro exec astro-scripts test "test/**/*.test.ts"
 
 # Parallel (faster but can cause issues)
-pnpm -C packages/astro exec astro-scripts test "test/**/*.test.js" --parallel
+pnpm -C packages/astro exec astro-scripts test "test/**/*.test.ts" --parallel
 ```
 
 ## Testing Patterns
@@ -807,7 +807,7 @@ rm -rf test/fixtures/my-test/node_modules/.vite
 
 ```javascript
 // Check if another test uses same outDir
-grep -r "outDir.*dist/my-test" test/**/*.test.js
+grep -r "outDir.*dist/my-test" test/**/*.test.ts
 ```
 
 ### 6. Debug Timeouts in CI
@@ -819,7 +819,7 @@ grep -r "outDir.*dist/my-test" test/**/*.test.js
 ```json
 // package.json
 {
-  "test": "astro-scripts test --parallel \"test/**/*.test.js\""
+  "test": "astro-scripts test --parallel \"test/**/*.test.ts\""
 }
 ```
 

@@ -3,7 +3,7 @@ const { defineConfig } = require('@vscode/test-cli');
 module.exports = defineConfig([
 	{
 		label: 'unitTests',
-		files: 'test/**/*.test.js',
+		files: 'test/**/*.test.ts',
 		version: 'stable',
 		mocha: {
 			ui: 'tdd',

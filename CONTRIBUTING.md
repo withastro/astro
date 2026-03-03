@@ -171,8 +171,8 @@ To understand which file causes the issue, you can modify the `test` script insi
 
 ```diff
 {
--  "test": "astro-scripts test \"test/**/*.test.js\"",
-+  "test": "astro-scripts test --parallel \"test/**/*.test.js\"",
+-  "test": "astro-scripts test \"test/**/*.test.ts\"",
++  "test": "astro-scripts test --parallel \"test/**/*.test.ts\"",
 }
 ```
 
