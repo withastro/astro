@@ -3,11 +3,11 @@ import { stripVTControlCharacters } from 'node:util';
 import { setStdout } from '../dist/index.js';
 
 export function setup() {
-	const ctx = { messages: [] };
+	const ctx = { messages: new Array<string>() };
 	before(() => {
 		setStdout(
 			Object.assign({}, process.stdout, {
-				write(buf) {
+				write(buf: any) {
 					ctx.messages.push(stripVTControlCharacters(String(buf)).trim());
 					return true;
 				},
@@ -25,7 +25,7 @@ export function setup() {
 		length() {
 			return ctx.messages.length;
 		},
-		hasMessage(content) {
+		hasMessage(content: string) {
 			return !!ctx.messages.find((msg) => msg.includes(content));
 		},
 	};
