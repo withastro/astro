@@ -22,4 +22,4 @@ const Text = ({ text }: { text: string }) => <div>{text}</div>;
 <Code {code} lang="vue" embeddedLangs={["tsx"]} />
 ```
 
-See the [`<Code />` component documentation](https://v6.docs.astro.build/en/guides/syntax-highlighting/#code-) for more details.
+See the [`<Code />` component documentation](https://docs.astro.build/en/guides/syntax-highlighting/#code-) for more details.

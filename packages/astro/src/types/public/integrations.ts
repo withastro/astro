@@ -138,7 +138,7 @@ export interface AstroAdapterClientConfig {
 interface AdapterExplicitProperties {
 	/**
 	 * @deprecated `entrypointResolution: "explicit"` is deprecated. `entrypointResolution: "auto"` will become the default,
-	 * and only, behavior in a future major version. See [how to migrate](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#deprecated-createexports-and-start-adapter-api).
+	 * and only, behavior in a future major version. See [how to migrate](https://docs.astro.build/en/guides/upgrade-to/v6/#deprecated-createexports-and-start-adapter-api).
 	 *
 	 * Specifies the method Astro will use to resolve the server entrypoint: `"auto"` (recommended)
 	 * or `"explicit"` (default, but deprecated):
