@@ -1,14 +1,11 @@
 // This implementation was based from: https://github.com/PrismJS/prism/blob/76dde18a575831c91491895193f56081ac08b0c5/components/index.js
-import Prism from 'prismjs';
-import { components } from './prism/components.js';
-import { getLoader } from './prism/dependencies.js';
 
 const prismLanguageFiles = import.meta.glob('../node_modules/prismjs/components/prism-*.js');
 
 // Since Prism language files are written assuming the Prism instance is defined
 // as a global variable, we will temporarily set the Prism instance globally.
-function setPrismAsGlobal() {
-	globalThis.Prism = Prism;
+function setPrismAsGlobal(prism: typeof import('prismjs')) {
+	globalThis.Prism = prism;
 
 	return () => {
 		// @ts-expect-error globalThis type
@@ -16,12 +13,22 @@ function setPrismAsGlobal() {
 	};
 }
 
+let cache: typeof import('prismjs') | undefined = undefined;
+
+export async function loadPrism() {
+	if (!cache) {
+		({ default: cache } = await import('prismjs'));
+	}
+
+	return cache;
+}
+
 /**
  * The set of all languages which have been loaded using the below function.
  *
  * @type {Set<string>}
  */
-const loadedLanguages = new Set();
+const loadedLanguages = new Set<string>();
 
 /**
  * Loads the given languages and adds them to the current Prism instance.
@@ -31,11 +38,12 @@ const loadedLanguages = new Set();
  * @param {string|string[]} [languages]
  * @returns {Promise<void>}
  */
-export default async function loadLanguages(languages: string | string[]) {
-	const cleanUp = setPrismAsGlobal();
+export async function loadLanguages(languages: string | string[]) {
+	const Prism = await loadPrism();
+	const { default: components } = await import('prismjs/components.js');
+	const { default: getLoader } = await import('prismjs/dependencies.js');
 
-	let resolve: VoidFunction;
-	const promise = new Promise<void>((r) => (resolve = r));
+	const cleanUp = setPrismAsGlobal(Prism);
 
 	if (languages === undefined) {
 		languages = Object.keys(components.languages).filter((l) => l !== 'meta');
@@ -47,8 +55,7 @@ export default async function loadLanguages(languages: string | string[]) {
 	// we don't need to validate the ids because `getLoader` will ignore invalid ones
 	const loaded = [...loadedLanguages, ...Object.keys(Prism.languages)];
 
-	// @ts-expect-error `load` arguments type
-	getLoader(components, languages, loaded).load(async (lang: string) => {
+	await getLoader(components, languages, loaded).load(async (lang: string) => {
 		if (!(lang in components.languages)) {
 			if (!loadLanguages.silent) {
 				console.warn('Language does not exist: ' + lang);
@@ -61,13 +68,14 @@ export default async function loadLanguages(languages: string | string[]) {
 		// remove from Prism
 		delete Prism.languages[lang];
 
-		await prismLanguageFiles[pathToLanguage]();
+		if (Object.hasOwn(prismLanguageFiles, pathToLanguage)) {
+			await prismLanguageFiles[pathToLanguage]();
+		}
 
 		loadedLanguages.add(lang);
-		resolve();
 	});
 
-	return promise.then(cleanUp);
+	cleanUp();
 }
 
 /**
