@@ -164,12 +164,13 @@ describe('AstroCache - options getter', () => {
 		assert.equal(options.etag, '"abc"');
 	});
 
-	it('returns frozen object (immutable)', () => {
+	it('returns a new object each call (mutations do not affect internal state)', () => {
 		const cache = new AstroCache(null);
 		cache.set({ maxAge: 300 });
 
 		const options = cache.options;
-		assert.equal(Object.isFrozen(options), true);
+		options.maxAge = 999;
+		assert.equal(cache.options.maxAge, 300);
 	});
 
 	it('returns empty tags array when no tags set', () => {
@@ -213,7 +214,7 @@ describe('AstroCache - invalidate()', () => {
 	it('throws without provider', async () => {
 		const cache = new AstroCache(null);
 		await assert.rejects(() => cache.invalidate({ tags: 'x' }), {
-			message: 'Cache invalidation requires a cache provider',
+			name: 'CacheNotEnabled',
 		});
 	});
 });
