@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
  * Based on https://github.com/actions/toolkit/blob/main/packages/core/src/summary.ts
  * @param {string} text
  */
-export function setSummary(text) {
+function setSummary(text) {
 	const filePath = process.env['GITHUB_STEP_SUMMARY'] || '';
 	if (filePath) {
 		return fs.writeFileSync(filePath, text);
@@ -122,8 +122,6 @@ if (process.env.CI) {
 				: '';
 			summary += `| ${test.name} | ${(test.duration / 1000).toFixed(2)} | [\`${location}\`](${url}) |\n`;
 		}
-
-		console.log(summary);
 
 		return summary;
 	};
