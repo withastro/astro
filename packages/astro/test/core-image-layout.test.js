@@ -27,7 +27,7 @@ describe('astro:image:layout', () => {
 						foo: 'bar',
 						transform: { path: walrusImagePath, scale: imageScale },
 					}),
-					domains: ['avatars.githubusercontent.com'],
+					domains: ['avatars.githubusercontent.com', 'images.unsplash.com'],
 				},
 			});
 
@@ -56,7 +56,7 @@ describe('astro:image:layout', () => {
 				let $img = $('#local img');
 				assert.equal($img.attr('loading'), 'lazy');
 				assert.equal($img.attr('decoding'), 'async');
-				assert.equal($img.attr('fetchpriority'), 'auto');
+				assert.equal($img.attr('fetchpriority'), undefined);
 			});
 
 			it('includes priority loading attributes', () => {
@@ -125,11 +125,6 @@ describe('astro:image:layout', () => {
 				let $img = $('#local-style-object img');
 				assert.match($img.attr('style'), /border:2px red solid/);
 			});
-
-			it('injects a style tag', () => {
-				const style = $('style').text();
-				assert.match(style, /\[data-astro-image\]/);
-			});
 		});
 
 		describe('srcsets', () => {
@@ -188,8 +183,8 @@ describe('astro:image:layout', () => {
 				const srcset = parseSrcset($img.attr('srcset'));
 				for (const { url } of srcset) {
 					const params = new URL(url, 'https://example.com').searchParams;
-					const width = parseInt(params.get('w'));
-					const height = parseInt(params.get('h'));
+					const width = Number.parseInt(params.get('w'));
+					const height = Number.parseInt(params.get('h'));
 					assert.equal(width / height, aspectRatio);
 				}
 			});
@@ -387,8 +382,8 @@ describe('astro:image:layout', () => {
 
 				it('maintains original aspect ratio', () => {
 					let $img = $('#picture-fallback img');
-					const width = parseInt($img.attr('width'));
-					const height = parseInt($img.attr('height'));
+					const width = Number.parseInt($img.attr('width'));
+					const height = Number.parseInt($img.attr('height'));
 					const imageAspectRatio = width / height;
 					const originalAspectRatio = originalWidth / originalHeight;
 
@@ -408,11 +403,16 @@ describe('astro:image:layout', () => {
 					assert.ok($picture.attr('class').includes('picture-comp'));
 				});
 
-				it('adds inline style attributes', () => {
+				it('adds data attributes instead of inline styles', () => {
 					let $img = $('#picture-attributes img');
+					// Should have data attributes for CSP compliance
+					assert.ok($img.attr('data-astro-image'));
+					// Should NOT have inline style CSS variables
 					const style = $img.attr('style');
-					assert.match(style, /--fit:/);
-					assert.match(style, /--pos:/);
+					if (style) {
+						assert.ok(!style.includes('--fit:'));
+						assert.ok(!style.includes('--pos:'));
+					}
 				});
 
 				it('passing in style as an object', () => {
@@ -599,7 +599,7 @@ describe('astro:image:layout', () => {
 				root: './fixtures/core-image-layout/',
 				image: {
 					service: testImageService({ foo: 'bar' }),
-					domains: ['avatars.githubusercontent.com'],
+					domains: ['avatars.githubusercontent.com', 'images.unsplash.com'],
 				},
 			});
 
@@ -623,7 +623,7 @@ describe('astro:image:layout', () => {
 				let $img = $('#local img');
 				assert.equal($img.attr('loading'), 'lazy');
 				assert.equal($img.attr('decoding'), 'async');
-				assert.equal($img.attr('fetchpriority'), 'auto');
+				assert.equal($img.attr('fetchpriority'), undefined);
 			});
 
 			it('includes priority loading attributes', () => {
@@ -710,7 +710,7 @@ describe('astro:image:layout', () => {
 					root: './fixtures/core-image-layout/',
 					image: {
 						service: testImageService({ foo: 'bar' }),
-						domains: ['avatars.githubusercontent.com'],
+						domains: ['avatars.githubusercontent.com', 'images.unsplash.com'],
 						responsiveStyles: false,
 					},
 				});

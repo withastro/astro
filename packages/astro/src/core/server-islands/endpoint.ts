@@ -9,11 +9,10 @@ import { createSlotValueFromString } from '../../runtime/server/render/slot.js';
 import type { ComponentInstance, RoutesList } from '../../types/astro.js';
 import type { RouteData, SSRManifest } from '../../types/public/internal.js';
 import { decryptString } from '../encryption.js';
-import { getPattern } from '../routing/manifest/pattern.js';
+import { getPattern } from '../routing/pattern.js';
 
 export const SERVER_ISLAND_ROUTE = '/_server-islands/[name]';
 export const SERVER_ISLAND_COMPONENT = '_server-islands.astro';
-export const SERVER_ISLAND_BASE_PREFIX = '_server-islands';
 
 type ConfigFields = Pick<SSRManifest, 'base' | 'trailingSlash'>;
 
@@ -42,7 +41,7 @@ export function injectServerIslandRoute(config: ConfigFields, routeManifest: Rou
 	routeManifest.routes.unshift(getServerIslandRouteData(config));
 }
 
-type RenderOptions = {
+export type RenderOptions = {
 	encryptedComponentExport: string;
 	encryptedProps: string;
 	encryptedSlots: string;
@@ -55,7 +54,7 @@ function badRequest(reason: string) {
 	});
 }
 
-async function getRequestData(request: Request): Promise<Response | RenderOptions> {
+export async function getRequestData(request: Request): Promise<Response | RenderOptions> {
 	switch (request.method) {
 		case 'GET': {
 			const url = new URL(request.url);

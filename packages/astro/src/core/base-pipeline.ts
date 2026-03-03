@@ -24,6 +24,8 @@ import { RedirectSinglePageBuiltModule } from './redirects/index.js';
 import { RouteCache } from './render/route-cache.js';
 import { createDefaultRoutes } from './routing/default.js';
 import type { SessionDriverFactory } from './session/types.js';
+import { NodePool } from '../runtime/server/render/queue/pool.js';
+import { HTMLStringCache } from '../runtime/server/html-string-cache.js';
 
 /**
  * The `Pipeline` represents the static parts of rendering that do not change between requests.
@@ -36,6 +38,8 @@ export abstract class Pipeline {
 	resolvedMiddleware: MiddlewareHandler | undefined = undefined;
 	resolvedActions: SSRActions | undefined = undefined;
 	resolvedSessionDriver: SessionDriverFactory | null | undefined = undefined;
+	nodePool: NodePool | undefined;
+	htmlStringCache: HTMLStringCache | undefined;
 
 	constructor(
 		readonly logger: Logger,
@@ -79,6 +83,17 @@ export abstract class Pipeline {
 				createI18nMiddleware(i18n, manifest.base, manifest.trailingSlash, manifest.buildFormat),
 			);
 		}
+
+		if (manifest.experimentalQueuedRendering.enabled) {
+			this.nodePool = this.createNodePool(
+				manifest.experimentalQueuedRendering.poolSize ?? 1000,
+				manifest.experimentalQueuedRendering.contentCache ?? false,
+				false,
+			);
+			if (manifest.experimentalQueuedRendering.contentCache) {
+				this.htmlStringCache = this.createStringCache();
+			}
+		}
 	}
 
 	abstract headElements(routeData: RouteData): Promise<HeadElements> | HeadElements;
@@ -118,7 +133,7 @@ export abstract class Pipeline {
 		}
 		// The middleware can be undefined when using edge middleware.
 		// This is set to undefined by the plugin-ssr.ts
-		else if (this.middleware) {
+		if (this.middleware) {
 			const middlewareInstance = await this.middleware();
 			const onRequest = middlewareInstance.onRequest ?? NOOP_MIDDLEWARE_FN;
 			const internalMiddlewares = [onRequest];
@@ -183,7 +198,7 @@ export abstract class Pipeline {
 		}
 
 		for (const key of pathKeys) {
-			if (!(key in server)) {
+			if (!Object.hasOwn(server, key)) {
 				throw new AstroError({
 					...ActionNotFoundError,
 					message: ActionNotFoundError.message(pathKeys.join('.')),
@@ -227,6 +242,14 @@ export abstract class Pipeline {
 				"Astro couldn't find the correct page to render, probably because it wasn't correctly mapped for SSR usage. This is an internal error, please file an issue.",
 			);
 		}
+	}
+
+	public createNodePool(poolSize: number, contentCache: boolean, stats: boolean): NodePool {
+		return new NodePool(poolSize, contentCache, stats);
+	}
+
+	public createStringCache(): HTMLStringCache {
+		return new HTMLStringCache(1000);
 	}
 }
 

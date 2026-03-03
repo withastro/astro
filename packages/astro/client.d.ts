@@ -84,6 +84,11 @@ declare module 'astro:assets' {
 	}: AstroAssets;
 }
 
+declare module 'virtual:astro:image-styles.css' {
+	const styles: string;
+	export default styles;
+}
+
 type ImageMetadata = import('./dist/assets/types.js').ImageMetadata;
 
 declare module '*.gif' {
@@ -280,10 +285,6 @@ declare module '*.mdx' {
 
 	const load: MDX['default'];
 	export default load;
-}
-
-declare module 'astro:ssr-manifest' {
-	export const manifest: import('./dist/types/public/internal.js').SSRManifest;
 }
 
 declare module 'astro:static-paths' {

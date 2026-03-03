@@ -56,6 +56,13 @@ describe('Dev reroute', () => {
 		assert.equal($('h1').text(), 'Index');
 	});
 
+	it('should render the index page when rewriting from a non-ASCII path /redirected/héllo ', async () => {
+		const html = await fixture.fetch('/redirected/h%C3%A9llo').then((res) => res.text());
+		const $ = cheerioLoad(html);
+
+		assert.equal($('h1').text(), 'Index');
+	});
+
 	it('should return a 404', async () => {
 		const response = await fixture.fetch('/blog/oops');
 
@@ -346,6 +353,13 @@ describe('Build reroute', () => {
 		assert.equal($('h1').text(), 'Index');
 	});
 
+	it('should create the index page when rewriting from a non-ASCII path /redirected/héllo ', async () => {
+		const html = await fixture.readFile('/redirected/héllo/index.html');
+		const $ = cheerioLoad(html);
+
+		assert.equal($('h1').text(), 'Index');
+	});
+
 	it('should create the 404 built-in page', async () => {
 		try {
 			await fixture.readFile('/spread/oops/index.html');
@@ -425,6 +439,15 @@ describe('SSR reroute', () => {
 
 	it('should render the index page when navigating spread route /spread/[...spread] ', async () => {
 		const request = new Request('http://example.com/spread/hello');
+		const response = await app.render(request);
+		const html = await response.text();
+		const $ = cheerioLoad(html);
+
+		assert.equal($('h1').text(), 'Index');
+	});
+
+	it('should render the index page when rewriting from a non-ASCII path /redirected/héllo ', async () => {
+		const request = new Request('http://example.com/redirected/h%C3%A9llo');
 		const response = await app.render(request);
 		const html = await response.text();
 		const $ = cheerioLoad(html);

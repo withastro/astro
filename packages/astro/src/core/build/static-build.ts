@@ -2,7 +2,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import colors from 'piccolore';
-import { glob } from 'tinyglobby';
 import * as vite from 'vite';
 import { LINKS_PLACEHOLDER } from '../../content/consts.js';
 import { contentAssetsBuildPostHook } from '../../content/vite-plugin-content-assets.js';
@@ -15,7 +14,7 @@ import { getClientOutputDirectory, getServerOutputDirectory } from '../../preren
 import type { RouteData } from '../../types/public/internal.js';
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../vite-plugin-pages/const.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
-import { routeIsRedirect } from '../routing/index.js';
+import { routeIsRedirect } from '../routing/helpers.js';
 import { getOutDirWithinCwd } from './common.js';
 import { CHUNKS_PATH } from './consts.js';
 import { generatePages } from './generate.js';
@@ -23,6 +22,7 @@ import { trackPageData } from './internal.js';
 import { getAllBuildPlugins } from './plugins/index.js';
 import { manifestBuildPostHook } from './plugins/plugin-manifest.js';
 import {
+	isLegacyAdapter,
 	LEGACY_SSR_ENTRY_VIRTUAL_MODULE,
 	RESOLVED_LEGACY_SSR_ENTRY_VIRTUAL_MODULE,
 } from './plugins/plugin-ssr.js';
@@ -32,6 +32,7 @@ import { encodeName, getTimeStat, viteBuildReturnToRollupOutputs } from './util.
 import { NOOP_MODULE_ID } from './plugins/plugin-noop.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 import type { InputOption } from 'rollup';
+import { getSSRAssets } from './internal.js';
 
 const PRERENDER_ENTRY_FILENAME_PREFIX = 'prerender-entry';
 
@@ -152,9 +153,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 	const { allPages, settings, viteConfig } = opts;
 	const routes = Object.values(allPages).flatMap((pageData) => pageData.route);
 
-	// Determine if we should use the legacy-dynamic entrypoint
-	const entryType = settings.adapter?.entryType ?? 'legacy-dynamic';
-	const useLegacyDynamic = entryType === 'legacy-dynamic';
+	const legacyAdapter = !settings.adapter || isLegacyAdapter(settings.adapter);
 
 	const buildPlugins = getAllBuildPlugins(internals, opts);
 	const flatPlugins = buildPlugins.flat().filter(Boolean);
@@ -162,6 +161,19 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 	let currentRollupInput: InputOption | undefined = undefined;
 	plugins.push({
 		name: 'astro:resolve-input',
+		// When the rollup input is safe to update, we normalize it to always be an object
+		// so we can reliably identify which entrypoint corresponds to the adapter
+		enforce: 'post',
+		config(config) {
+			if (typeof config.build?.rollupOptions?.input === 'string') {
+				config.build.rollupOptions.input = { index: config.build.rollupOptions.input };
+			} else if (Array.isArray(config.build?.rollupOptions?.input)) {
+				config.build.rollupOptions.input = Object.fromEntries(
+					config.build.rollupOptions.input.map((v, i) => [`index_${i}`, v]),
+				);
+			}
+		},
+		// We save the rollup input to be able to check later on
 		configResolved(config) {
 			currentRollupInput = config.build.rollupOptions.input;
 		},
@@ -185,7 +197,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				if (settings.buildOutput === 'static') {
 					settings.timer.start('Static generate');
 					// Move prerender and SSR assets to client directory before cleaning up
-					await ssrMoveAssets(opts, prerenderOutputDir);
+					await ssrMoveAssets(opts, internals, prerenderOutputDir);
 					// Generate the pages
 					await generatePages(opts, internals, prerenderOutputDir);
 					// Clean up prerender directory after generation
@@ -195,7 +207,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					settings.timer.start('Server generate');
 					await generatePages(opts, internals, prerenderOutputDir);
 					// Move prerender and SSR assets to client directory before cleaning up
-					await ssrMoveAssets(opts, prerenderOutputDir);
+					await ssrMoveAssets(opts, internals, prerenderOutputDir);
 					// Clean up prerender directory after generation
 					await fs.promises.rm(prerenderOutputDir, { recursive: true, force: true });
 					settings.timer.end('Server generate');
@@ -205,10 +217,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 	});
 
 	function isRollupInput(moduleName: string | null): boolean {
-		if (!currentRollupInput) {
-			return false;
-		}
-		if (!moduleName) {
+		if (!currentRollupInput || !moduleName) {
 			return false;
 		}
 		if (typeof currentRollupInput === 'string') {
@@ -236,7 +245,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				...viteConfig.build?.rollupOptions,
 				// Setting as `exports-only` allows us to safely delete inputs that are only used during prerendering
 				preserveEntrySignatures: 'exports-only',
-				...(useLegacyDynamic && settings.buildOutput === 'server'
+				...(legacyAdapter && settings.buildOutput === 'server'
 					? { input: LEGACY_SSR_ENTRY_VIRTUAL_MODULE }
 					: {}),
 				output: {
@@ -275,8 +284,8 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 							);
 						} else if (
 							chunkInfo.facadeModuleId === RESOLVED_LEGACY_SSR_ENTRY_VIRTUAL_MODULE ||
-							// This catches the case when the adapter uses `entryType: 'self'. When doing so,
-							// the adapter must set rollupOptions.input.
+							// This catches the case when the adapter uses `entrypointResolution: 'auto'`. When doing so,
+							// the adapter must set rollupOptions.input or Astro sets it from `serverEntrypoint`.
 							isRollupInput(chunkInfo.name) ||
 							isRollupInput(chunkInfo.facadeModuleId)
 						) {
@@ -357,9 +366,9 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					emitAssets: true,
 					outDir: fileURLToPath(new URL('./.prerender/', getServerOutputDirectory(settings))),
 					rollupOptions: {
-						// Only skip the default prerender entrypoint if an adapter with entryType: 'self' is used
+						// Only skip the default prerender entrypoint if an adapter with `entrypointResolution: 'self'` is used
 						// AND provides a custom prerenderer. Otherwise, use the default.
-						...(!useLegacyDynamic && settings.prerenderer
+						...(!legacyAdapter && settings.prerenderer
 							? {}
 							: { input: 'astro/entrypoints/prerender' }),
 						output: {
@@ -514,32 +523,29 @@ async function writeMutatedChunks(
  * Moves prerender and SSR assets to the client directory.
  * In server mode, assets are initially scattered across server and prerender
  * directories but need to be consolidated in the client directory for serving.
+ * Reads asset filenames from internals.ssrAssetsPerEnvironment which is populated
+ * by vitePluginSSRAssets during the build.
  */
-async function ssrMoveAssets(opts: StaticBuildOptions, prerenderOutputDir: URL) {
+async function ssrMoveAssets(
+	opts: StaticBuildOptions,
+	internals: BuildInternals,
+	prerenderOutputDir: URL,
+) {
 	opts.logger.info('build', 'Rearranging server assets...');
 	const isFullyStaticSite = opts.settings.buildOutput === 'static';
 	const serverRoot = opts.settings.config.build.server;
 	const clientRoot = isFullyStaticSite
 		? opts.settings.config.outDir
 		: opts.settings.config.build.client;
-	const assets = opts.settings.config.build.assets;
-	const serverAssets = new URL(`./${assets}/`, appendForwardSlash(serverRoot.toString()));
-	const clientAssets = new URL(`./${assets}/`, appendForwardSlash(clientRoot.toString()));
-	const prerenderAssets = new URL(
-		`./${assets}/`,
-		appendForwardSlash(prerenderOutputDir.toString()),
-	);
 
-	// Move prerender assets first
-	const prerenderFiles = await glob(`**/*`, {
-		cwd: fileURLToPath(prerenderAssets),
-	});
-
-	if (prerenderFiles.length > 0) {
+	// Move prerender assets
+	const prerenderAssetsToMove = getSSRAssets(internals, ASTRO_VITE_ENVIRONMENT_NAMES.prerender);
+	if (prerenderAssetsToMove.size > 0) {
 		await Promise.all(
-			prerenderFiles.map(async function moveAsset(filename) {
-				const currentUrl = new URL(filename, appendForwardSlash(prerenderAssets.toString()));
-				const clientUrl = new URL(filename, appendForwardSlash(clientAssets.toString()));
+			Array.from(prerenderAssetsToMove).map(async function moveAsset(filename) {
+				const currentUrl = new URL(filename, appendForwardSlash(prerenderOutputDir.toString()));
+				const clientUrl = new URL(filename, appendForwardSlash(clientRoot.toString()));
+				if (!fs.existsSync(currentUrl)) return;
 				const dir = new URL(path.parse(clientUrl.href).dir);
 				if (!fs.existsSync(dir)) await fs.promises.mkdir(dir, { recursive: true });
 				return fs.promises.rename(currentUrl, clientUrl);
@@ -553,18 +559,14 @@ async function ssrMoveAssets(opts: StaticBuildOptions, prerenderOutputDir: URL) 
 	}
 
 	// Move SSR assets
-	const files = await glob(`**/*`, {
-		cwd: fileURLToPath(serverAssets),
-	});
-
-	if (files.length > 0) {
+	const ssrAssetsToMove = getSSRAssets(internals, ASTRO_VITE_ENVIRONMENT_NAMES.ssr);
+	if (ssrAssetsToMove.size > 0) {
 		await Promise.all(
-			files.map(async function moveAsset(filename) {
-				const currentUrl = new URL(filename, appendForwardSlash(serverAssets.toString()));
-				const clientUrl = new URL(filename, appendForwardSlash(clientAssets.toString()));
+			Array.from(ssrAssetsToMove).map(async function moveAsset(filename) {
+				const currentUrl = new URL(filename, appendForwardSlash(serverRoot.toString()));
+				const clientUrl = new URL(filename, appendForwardSlash(clientRoot.toString()));
+				if (!fs.existsSync(currentUrl)) return;
 				const dir = new URL(path.parse(clientUrl.href).dir);
-				// It can't find this file because the user defines a custom path
-				// that includes the folder paths in `assetFileNames
 				if (!fs.existsSync(dir)) await fs.promises.mkdir(dir, { recursive: true });
 				return fs.promises.rename(currentUrl, clientUrl);
 			}),

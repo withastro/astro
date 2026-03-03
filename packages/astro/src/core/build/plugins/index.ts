@@ -12,6 +12,7 @@ import { pluginPrerender } from './plugin-prerender.js';
 import { pluginScripts } from './plugin-scripts.js';
 import { pluginSSR } from './plugin-ssr.js';
 import { pluginNoop } from './plugin-noop.js';
+import { vitePluginSSRAssets } from '../vite-plugin-ssr-assets.js';
 
 export function getAllBuildPlugins(
 	internals: BuildInternals,
@@ -29,5 +30,6 @@ export function getAllBuildPlugins(
 		pluginScripts(internals),
 		...pluginSSR(options, internals),
 		pluginNoop(),
+		vitePluginSSRAssets(internals),
 	].filter(Boolean);
 }

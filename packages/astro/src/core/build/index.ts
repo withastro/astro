@@ -14,20 +14,22 @@ import {
 import type { AstroSettings, RoutesList } from '../../types/astro.js';
 import type { AstroInlineConfig, RuntimeMode } from '../../types/public/config.js';
 import { resolveConfig } from '../config/config.js';
-import { createNodeLogger } from '../config/logging.js';
+import { createNodeLogger } from '../logger/node.js';
 import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
 import { createKey, getEnvironmentKey, hasEnvironmentKey } from '../encryption.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
 import { levels, timerMessage } from '../logger/core.js';
-import { createRoutesList } from '../routing/manifest/create.js';
+import { createRoutesList } from '../routing/create-manifest.js';
+import { getPrerenderDefault } from '../../prerender/utils.js';
 import { clearContentLayerCache } from '../sync/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { collectPagesData } from './page-data.js';
 import { viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
+import { warnIfCspWithShiki } from '../messages/runtime.js';
 
 interface BuildOptions {
 	/**
@@ -63,6 +65,8 @@ export default async function build(
 	const logger = createNodeLogger(inlineConfig);
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig, 'build');
 	telemetry.record(eventCliSession('build', userConfig));
+
+	warnIfCspWithShiki(astroConfig, logger);
 
 	const settings = await createSettings(
 		astroConfig,
@@ -123,6 +127,7 @@ class AstroBuilder {
 			command: 'build',
 			logger: logger,
 		});
+		this.settings.buildOutput = getPrerenderDefault(this.settings.config) ? 'static' : 'server';
 		this.routesList = await createRoutesList({ settings: this.settings }, this.logger);
 
 		await runHookConfigDone({ settings: this.settings, logger: logger, command: 'build' });

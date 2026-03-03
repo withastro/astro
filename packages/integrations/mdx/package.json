@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/mdx",
   "description": "Add support for MDX pages in your Astro site",
-  "version": "5.0.0-beta.5",
+  "version": "5.0.0-beta.9",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -36,7 +36,7 @@
   "dependencies": {
     "@astrojs/markdown-remark": "workspace:*",
     "@mdx-js/mdx": "^3.1.1",
-    "acorn": "^8.15.0",
+    "acorn": "^8.16.0",
     "es-module-lexer": "^2.0.0",
     "estree-util-visit": "^2.0.0",
     "hast-util-to-html": "^9.0.5",
@@ -52,6 +52,8 @@
     "astro": "^6.0.0-alpha.0"
   },
   "devDependencies": {
+    "@shikijs/rehype": "^4.0.0",
+    "@shikijs/twoslash": "^4.0.0",
     "@types/estree": "^1.0.8",
     "@types/hast": "^3.0.4",
     "@types/mdast": "^4.0.4",
@@ -65,9 +67,8 @@
     "rehype-pretty-code": "^0.14.1",
     "remark-math": "^6.0.0",
     "remark-rehype": "^11.1.2",
-    "remark-shiki-twoslash": "^3.1.3",
     "remark-toc": "^9.0.0",
-    "shiki": "^3.22.0",
+    "shiki": "^4.0.0",
     "unified": "^11.0.5",
     "vite": "^7.3.1"
   },

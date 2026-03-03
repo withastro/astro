@@ -1,5 +1,151 @@
 # @astrojs/cloudflare
 
+## 13.0.0-beta.11
+
+### Patch Changes
+
+- [#15495](https://github.com/withastro/astro/pull/15495) [`5b99e90`](https://github.com/withastro/astro/commit/5b99e9077a92602f1e46e9b6eb9094bcd00c640e) Thanks [@leekeh](https://github.com/leekeh)! - Refactors to use `middlewareMode` adapter feature (set to `classic`)
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 13.0.0-beta.10
+
+### Patch Changes
+
+- [#15669](https://github.com/withastro/astro/pull/15669) [`d5a888b`](https://github.com/withastro/astro/commit/d5a888ba645de356673605a0b70f9c721cf6cb3b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the `cssesc` dependency
+
+  This CommonJS dependency could sometimes cause errors because Astro is ESM-only. It is now replaced with a built-in ESM-friendly implementation.
+
+- [#15648](https://github.com/withastro/astro/pull/15648) [`802426b`](https://github.com/withastro/astro/commit/802426b83c33c477ed66f1a429b9fc83b37f4515) Thanks [@rururux](https://github.com/rururux)! - Restore and fix `<Code />` component functionality on Cloudflare Workers.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 13.0.0-beta.9
+
+### Major Changes
+
+- [#15435](https://github.com/withastro/astro/pull/15435) [`957b9fe`](https://github.com/withastro/astro/commit/957b9fe2d887a365c55c6e87f0c67c10beb60d1b) Thanks [@rururux](https://github.com/rururux)! - Changes the default image service from `compile` to `cloudflare-binding`. Image services options that resulted in broken images in development due to Node JS incompatiblities have now been updated to use the noop passthrough image service in dev mode. - ([Cloudflare v13 and Astro6 upgrade guidance](https://v6.docs.astro.build/en/guides/integrations-guide/cloudflare/#changed-imageservice-default))
+
+### Minor Changes
+
+- [#15435](https://github.com/withastro/astro/pull/15435) [`957b9fe`](https://github.com/withastro/astro/commit/957b9fe2d887a365c55c6e87f0c67c10beb60d1b) Thanks [@rururux](https://github.com/rururux)! - Adds support for configuring the image service as an object with separate `build` and `runtime` options
+
+  It is now possible to set both a build-time and runtime service independently. Currently, `'compile'` is the only available build time option. The supported runtime options are `'passthrough'` (default) and `'cloudflare-binding'`:
+
+  ```js title="astro.config.mjs" ins={6}
+  import { defineConfig } from 'astro/config';
+  import cloudflare from '@astrojs/cloudflare';
+
+  export default defineConfig({
+    adapter: cloudflare({
+      imageService: { build: 'compile', runtime: 'cloudflare-binding' },
+    }),
+  });
+  ```
+
+  See the [Cloudflare adapter `imageService` docs](https://v6.docs.astro.build/en/guides/integrations-guide/cloudflare/#imageservice) for more information about configuring your image service.
+
+- [#15556](https://github.com/withastro/astro/pull/15556) [`8fb329b`](https://github.com/withastro/astro/commit/8fb329be55bf8a5a446108a24dd8c5236e19c5af) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds support for more `@cloudflare/vite-plugin` options
+
+  The adapter now accepts the following [options from Cloudflare's Vite plugin](https://developers.cloudflare.com/workers/vite-plugin/reference/api/):
+  - `auxiliaryWorkers`
+  - `configPath`
+  - `inspectorPort`
+  - `persistState`
+  - `remoteBindings`
+  - `experimental.headersAndRedirectsDevModeSupport`
+
+  For example, you can now set `inspectorPort` to provide a custom port for debugging your Workers:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  import cloudflare from '@astrojs/cloudflare';
+
+  export default defineConfig({
+    adapter: cloudflare({
+      inspectorPort: 3456,
+    }),
+  });
+  ```
+
+### Patch Changes
+
+- [#15565](https://github.com/withastro/astro/pull/15565) [`30cd6db`](https://github.com/withastro/astro/commit/30cd6dbebe771efb6f71dcff7e6b44026fad6797) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the use of the `Code` component would result in an unexpected error.
+
+- [#15588](https://github.com/withastro/astro/pull/15588) [`425ea16`](https://github.com/withastro/astro/commit/425ea1690f3ab384fd6f1f39ae48a423fb017f8b) Thanks [@rururux](https://github.com/rururux)! - Fixes an issue where `esbuild` would throw a "Top-level return cannot be used inside an ECMAScript module" error during dependency scanning in certain environments.
+
+- [#15636](https://github.com/withastro/astro/pull/15636) [`5ecd04c`](https://github.com/withastro/astro/commit/5ecd04c05195a8becd116017e11e3b2513c4404e) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds an error when running on Stackblitz, since `workerd` doesn't support it
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 13.0.0-beta.8
+
+### Major Changes
+
+- [#15480](https://github.com/withastro/astro/pull/15480) [`e118214`](https://github.com/withastro/astro/commit/e118214eeaaa27384528c882af8b68e8daa61e2c) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Drops official support for Cloudflare Pages in favor of Cloudflare Workers
+
+  The Astro Cloudflare adapter now only supports deployment to Cloudflare Workers by default in order to comply with Cloudflare's recommendations for new projects. If you are currently deploying to Cloudflare Pages, consider [migrating to Workers by following the Cloudflare guide](https://developers.cloudflare.com/workers/static-assets/migration-guides/migrate-from-pages/) for an optimal experience and full feature support.
+
+### Patch Changes
+
+- [#15478](https://github.com/withastro/astro/pull/15478) [`ee519e5`](https://github.com/withastro/astro/commit/ee519e5eda8704c62871f3da2566f0e103ca630e) Thanks [@matthewp](https://github.com/matthewp)! - Fixes fully static sites to not output server-side worker code. When all routes are prerendered, the `_worker.js` directory is now removed from the build output.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 13.0.0-beta.7
+
+### Patch Changes
+
+- [#15452](https://github.com/withastro/astro/pull/15452) [`e1aa3f3`](https://github.com/withastro/astro/commit/e1aa3f31d6d83435c138b355b79add674691fa5f) Thanks [@matthewp](https://github.com/matthewp)! - Fixes server-side dependencies not being discovered ahead of time during development
+
+  Previously, imports in `.astro` file frontmatter were not scanned by Vite's dependency optimizer, causing a "new dependencies optimized" message and page reload when the dependency was first encountered. Astro is now able to scan these dependencies ahead of time.
+
+- [#15450](https://github.com/withastro/astro/pull/15450) [`50c9129`](https://github.com/withastro/astro/commit/50c912978cca4afbe4b3ebd11c30305d5e9c8315) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where `build.serverEntry` would not be respected when using the new Adapter API
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 13.0.0-beta.6
+
+### Major Changes
+
+- [#15345](https://github.com/withastro/astro/pull/15345) [`840fbf9`](https://github.com/withastro/astro/commit/840fbf9e4abc7f847e23da8d67904ffde4d95fff) Thanks [@matthewp](https://github.com/matthewp)! - Removes the `cloudflareModules` adapter option
+
+  The `cloudflareModules` option has been removed because it is no longer necessary. Cloudflare natively supports importing `.sql`, `.wasm`, and other module types.
+
+  #### What should I do?
+
+  Remove the `cloudflareModules` option from your Cloudflare adapter configuration if you were using it:
+
+  ```diff
+  import cloudflare from '@astrojs/cloudflare';
+
+  export default defineConfig({
+    adapter: cloudflare({
+  -   cloudflareModules: true
+    })
+  });
+  ```
+
+### Minor Changes
+
+- [#15077](https://github.com/withastro/astro/pull/15077) [`a164c77`](https://github.com/withastro/astro/commit/a164c77336059f2dc3e7f7fe992aa754ed145ef3) Thanks [@matthewp](https://github.com/matthewp)! - Adds support for prerendering pages using the workerd runtime.
+
+  The Cloudflare adapter now uses the new `setPrerenderer()` API to prerender pages via HTTP requests to a local preview server running workerd, instead of using Node.js. This ensures prerendered pages are built using the same runtime that serves them in production.
+
+### Patch Changes
+
+- [#15432](https://github.com/withastro/astro/pull/15432) [`e2ad69e`](https://github.com/withastro/astro/commit/e2ad69ebdef907c5365bd1047772a3e86736c9d2) Thanks [@OliverSpeir](https://github.com/OliverSpeir)! - Removes unneccessary warning about sharp from being printed at start of dev server and build
+
+- Updated dependencies [[`a164c77`](https://github.com/withastro/astro/commit/a164c77336059f2dc3e7f7fe992aa754ed145ef3), [`a18d727`](https://github.com/withastro/astro/commit/a18d727fc717054df85177c8e0c3d38a5252f2da)]:
+  - @astrojs/internal-helpers@0.8.0-beta.1
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 13.0.0-beta.5
 
 ### Major Changes

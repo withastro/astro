@@ -1,5 +1,11 @@
 # @astrojs/vue
 
+## 6.0.0-beta.1
+
+### Minor Changes
+
+- [#15425](https://github.com/withastro/astro/pull/15425) [`0317e99`](https://github.com/withastro/astro/commit/0317e993bd13a0a02c0335382b0e740e0961050d) Thanks [@ocavue](https://github.com/ocavue)! - Updates `@vitejs/plugin-vue` to v6, `@vitejs/plugin-vue-jsx` to v5, and `vite-plugin-vue-devtools` to v8. No changes are needed from users.
+
 ## 6.0.0-beta.0
 
 ### Patch Changes

@@ -71,6 +71,13 @@ export default async function createAstroServerApp(
 				actualLogger.error('router', `Failed to update routes via HMR:\n ${e}`);
 			}
 		});
+
+		// Listen for content collection changes via HMR.
+		// Clear the route cache so getStaticPaths() is re-evaluated with fresh data.
+		import.meta.hot.on('astro:content-changed', () => {
+			app.clearRouteCache();
+			actualLogger.debug('router', 'Route cache cleared due to content change');
+		});
 	}
 
 	return {

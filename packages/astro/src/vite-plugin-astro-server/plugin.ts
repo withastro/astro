@@ -3,7 +3,7 @@ import { IncomingMessage } from 'node:http';
 import type * as vite from 'vite';
 import { isRunnableDevEnvironment, type RunnableDevEnvironment } from 'vite';
 import { toFallbackType } from '../core/app/common.js';
-import { toRoutingStrategy } from '../core/app/index.js';
+import { toRoutingStrategy } from '../core/app/entrypoints/index.js';
 import type { SSRManifest, SSRManifestCSP, SSRManifestI18n } from '../core/app/types.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import {
@@ -22,6 +22,7 @@ import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
 import { createViteLoader } from '../core/module-loader/index.js';
+import { resolveMiddlewareMode } from '../integrations/adapter-utils.js';
 import { SERIALIZED_MANIFEST_ID } from '../manifest/serialized.js';
 import type { AstroSettings } from '../types/astro.js';
 import { ASTRO_DEV_SERVER_APP_ID } from '../vite-plugin-app/index.js';
@@ -177,6 +178,7 @@ export async function createDevelopmentManifest(settings: AstroSettings): Promis
 		compressHTML: settings.config.compressHTML,
 		assetsDir: settings.config.build.assets,
 		serverLike: settings.buildOutput === 'server',
+		middlewareMode: resolveMiddlewareMode(settings.adapter?.adapterFeatures),
 		assets: new Set(),
 		entryModules: {},
 		routes: [],
@@ -192,6 +194,9 @@ export async function createDevelopmentManifest(settings: AstroSettings): Promis
 		i18n: i18nManifest,
 		checkOrigin:
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
+		actionBodySizeLimit: settings.config.security?.actionBodySizeLimit
+			? settings.config.security.actionBodySizeLimit
+			: 1024 * 1024, // 1mb default
 		key: hasEnvironmentKey() ? getEnvironmentKey() : createKey(),
 		middleware() {
 			return {
@@ -200,6 +205,11 @@ export async function createDevelopmentManifest(settings: AstroSettings): Promis
 		},
 		sessionConfig: sessionConfigToManifest(settings.config.session),
 		csp,
+		image: {
+			objectFit: settings.config.image.objectFit,
+			objectPosition: settings.config.image.objectPosition,
+			layout: settings.config.image.layout,
+		},
 		devToolbar: {
 			enabled:
 				settings.config.devToolbar.enabled &&
@@ -210,5 +220,9 @@ export async function createDevelopmentManifest(settings: AstroSettings): Promis
 		},
 		logLevel: settings.logLevel,
 		shouldInjectCspMetaTags: false,
+		experimentalQueuedRendering: {
+			enabled: !!settings.config.experimental?.queuedRendering,
+			poolSize: settings.config.experimental?.queuedRendering?.poolSize ?? 1000,
+		},
 	};
 }

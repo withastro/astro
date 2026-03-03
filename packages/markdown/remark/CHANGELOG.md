@@ -1,5 +1,24 @@
 # @astrojs/markdown-remark
 
+## 7.0.0-beta.8
+
+### Patch Changes
+
+- [#15676](https://github.com/withastro/astro/pull/15676) [`1fa4177`](https://github.com/withastro/astro/commit/1fa41779c458123f707940a5253dbe6e540dbf7d) Thanks [@rururux](https://github.com/rururux)! - Fixes an issue where the use of the `Code` component would result in an unexpected error.
+
+## 7.0.0-beta.7
+
+### Major Changes
+
+- [#15451](https://github.com/withastro/astro/pull/15451) [`84d6efd`](https://github.com/withastro/astro/commit/84d6efd9f1036fdf3c29e9b786b4a96453a607ed) Thanks [@ematipico](https://github.com/ematipico)! - Changes how styles applied to code blocks are emitted to support CSP - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-how-shiki-code-block-styles-are-emitted))
+
+## 7.0.0-beta.6
+
+### Patch Changes
+
+- Updated dependencies [[`a164c77`](https://github.com/withastro/astro/commit/a164c77336059f2dc3e7f7fe992aa754ed145ef3), [`a18d727`](https://github.com/withastro/astro/commit/a18d727fc717054df85177c8e0c3d38a5252f2da)]:
+  - @astrojs/internal-helpers@0.8.0-beta.1
+
 ## 7.0.0-beta.5
 
 ### Patch Changes

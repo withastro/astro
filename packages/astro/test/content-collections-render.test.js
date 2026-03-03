@@ -142,23 +142,11 @@ describe('Content Collections - render()', () => {
 		it('getCollection should return new instances of the array to be mutated safely', async () => {
 			const app = await fixture.loadTestAdapterApp();
 
-			let request = new Request('http://example.com/');
-			let response = await app.render(request);
-			let html = await response.text();
-			let $ = cheerio.load(html);
-			const firstText = $('li').first().text();
-
-			request = new Request('http://example.com/sort-blog-collection');
-			response = await app.render(request);
-			html = await response.text();
-			$ = cheerio.load(html);
-			assert.notEqual($('li').first().text(), firstText);
-
-			request = new Request('http://example.com/');
-			response = await app.render(request);
-			html = await response.text();
-			$ = cheerio.load(html);
-			assert.equal($('li').first().text(), firstText);
+			const request = new Request('http://example.com/get-collection-equality');
+			const response = await app.render(request);
+			const html = await response.text();
+			const $ = cheerio.load(html);
+			assert.equal($('[data-are-equal]').first().text(), 'false');
 		});
 	});
 
@@ -227,7 +215,8 @@ describe('Content Collections - render()', () => {
 			let $ = cheerio.load(html);
 
 			// Includes the red button styles used in the MDX blog post
-			assert.ok($('head > style').text().includes('background-color:red;'));
+			// CSS may be minified (background-color:red) or pretty-printed (background-color: red)
+			assert.match($('head > style').text(), /background-color:\s*red/);
 
 			response = await fixture.fetch('/blog/about', { method: 'GET' });
 			assert.equal(response.status, 200);
@@ -236,7 +225,7 @@ describe('Content Collections - render()', () => {
 			$ = cheerio.load(html);
 
 			// Does not include the red button styles not used in this page
-			assert.equal($('head > style').text().includes('background-color:red;'), false);
+			assert.doesNotMatch($('head > style').text(), /background-color:\s*red/);
 		});
 	});
 });

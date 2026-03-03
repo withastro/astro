@@ -372,7 +372,7 @@ export function redirectToFallback({
 	fallbackType,
 }: MiddlewarePayload) {
 	return async function (context: APIContext, response: Response): Promise<Response> {
-		if (response.status >= 300 && fallback) {
+		if (response.status === 404 && fallback) {
 			const fallbackKeys = fallback ? Object.keys(fallback) : [];
 			// we split the URL using the `/`, and then check in the returned array we have the locale
 			const segments = context.url.pathname.split('/');

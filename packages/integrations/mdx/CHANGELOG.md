@@ -1,5 +1,36 @@
 # @astrojs/mdx
 
+## 5.0.0-beta.9
+
+### Patch Changes
+
+- Updated dependencies [[`1fa4177`](https://github.com/withastro/astro/commit/1fa41779c458123f707940a5253dbe6e540dbf7d)]:
+  - @astrojs/markdown-remark@7.0.0-beta.8
+
+## 5.0.0-beta.8
+
+### Major Changes
+
+- [#15451](https://github.com/withastro/astro/pull/15451) [`84d6efd`](https://github.com/withastro/astro/commit/84d6efd9f1036fdf3c29e9b786b4a96453a607ed) Thanks [@ematipico](https://github.com/ematipico)! - Changes how styles applied to code blocks are emitted to support CSP - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-how-shiki-code-block-styles-are-emitted))
+
+### Patch Changes
+
+- Updated dependencies [[`84d6efd`](https://github.com/withastro/astro/commit/84d6efd9f1036fdf3c29e9b786b4a96453a607ed)]:
+  - @astrojs/markdown-remark@7.0.0-beta.7
+
+## 5.0.0-beta.7
+
+### Patch Changes
+
+- [#15475](https://github.com/withastro/astro/pull/15475) [`36fc0e0`](https://github.com/withastro/astro/commit/36fc0e0c9e75b4cf830b15afd1a6a1f769095e6f) Thanks [@delucis](https://github.com/delucis)! - Fixes edge cases where an `export const components = {...}` declaration would fail to be detected with the `optimize` option enabled
+
+## 5.0.0-beta.6
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/markdown-remark@7.0.0-beta.6
+
 ## 5.0.0-beta.5
 
 ### Patch Changes

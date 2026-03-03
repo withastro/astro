@@ -37,6 +37,7 @@ import { getParams, getProps, type Pipeline, Slots } from './render/index.js';
 import { isRoute404or500, isRouteExternalRedirect, isRouteServerIsland } from './routing/match.js';
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
 import { AstroSession } from './session/runtime.js';
+import { collapseDuplicateLeadingSlashes } from '@astrojs/internal-helpers/path';
 import { validateAndDecodePathname } from './util/pathname.js';
 
 /**
@@ -86,6 +87,10 @@ export class RenderContext {
 
 	static #createNormalizedUrl(requestUrl: string): URL {
 		const url = new URL(requestUrl);
+		// Collapse multiple leading slashes so middleware sees the canonical pathname.
+		// Without this, a request to `//admin` would preserve `//admin` in context.url.pathname,
+		// bypassing middleware checks like `pathname.startsWith('/admin')`.
+		url.pathname = collapseDuplicateLeadingSlashes(url.pathname);
 		try {
 			// Decode and validate pathname to prevent multi-level encoding bypass attacks
 			url.pathname = validateAndDecodePathname(url.pathname);
@@ -481,10 +486,12 @@ export class RenderContext {
 			},
 			get csp(): APIContext['csp'] {
 				if (!pipeline.manifest.csp) {
-					pipeline.logger.warn(
-						'csp',
-						`context.csp was used when rendering the route ${colors.green(this.routePattern)}, but CSP was not configured. For more information, see https://docs.astro.build/en/reference/experimental-flags/csp/`,
-					);
+					if (pipeline.runtimeMode === 'production') {
+						pipeline.logger.warn(
+							'csp',
+							`context.csp was used when rendering the route ${colors.green(this.routePattern)}, but CSP was not configured. For more information, see https://docs.astro.build/en/reference/experimental-flags/csp/`,
+						);
+					}
 					return undefined;
 				}
 				return {
@@ -582,6 +589,13 @@ export class RenderContext {
 			serverIslandNameMap: this.serverIslands.serverIslandNameMap ?? new Map(),
 			key: manifest.key,
 			trailingSlash: manifest.trailingSlash,
+			_experimentalQueuedRendering: {
+				pool: pipeline.nodePool,
+				htmlStringCache: pipeline.htmlStringCache,
+				enabled: manifest.experimentalQueuedRendering?.enabled,
+				poolSize: manifest.experimentalQueuedRendering?.poolSize,
+				contentCache: manifest.experimentalQueuedRendering?.contentCache,
+			},
 			_metadata: {
 				hasHydrationScript: false,
 				rendererSpecificHydrationScripts: new Set(),
@@ -736,10 +750,12 @@ export class RenderContext {
 			},
 			get csp(): APIContext['csp'] {
 				if (!pipeline.manifest.csp) {
-					pipeline.logger.warn(
-						'csp',
-						`Astro.csp was used when rendering the route ${colors.green(this.routePattern)}, but CSP was not configured. For more information, see https://docs.astro.build/en/reference/experimental-flags/csp/`,
-					);
+					if (pipeline.runtimeMode === 'production') {
+						pipeline.logger.warn(
+							'csp',
+							`Astro.csp was used when rendering the route ${colors.green(this.routePattern)}, but CSP was not configured. For more information, see https://docs.astro.build/en/reference/experimental-flags/csp/`,
+						);
+					}
 					return undefined;
 				}
 				return {

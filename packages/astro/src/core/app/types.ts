@@ -19,6 +19,8 @@ import type { LoggerLevel } from '../logger/core.js';
 import type { RoutingStrategies } from './common.js';
 import type { BaseSessionConfig, SessionDriverFactory } from '../session/types.js';
 import type { DevToolbarPlacement } from '../../types/public/toolbar.js';
+import type { MiddlewareMode } from '../../types/public/integrations.js';
+import type { BaseApp } from './base.js';
 
 type ComponentPath = string;
 
@@ -72,6 +74,13 @@ export type SSRManifest = {
 	trailingSlash: AstroConfig['trailingSlash'];
 	buildFormat: NonNullable<AstroConfig['build']>['format'];
 	compressHTML: boolean;
+	experimentalQueuedRendering: {
+		enabled: boolean;
+		/** Node pool size for memory reuse (default: 1000, set to 0 to disable pooling) */
+		poolSize?: number;
+		/** Whether to enable HTMLString caching (default: true) */
+		contentCache?: boolean;
+	};
 	assetsPrefix?: AssetsPrefix;
 	renderers: SSRLoadedRenderer[];
 	/**
@@ -81,6 +90,12 @@ export type SSRManifest = {
 	 * the creation of `dist/client` and `dist/server` folders.
 	 */
 	serverLike: boolean;
+	/**
+	 * The middleware mode determines when and how middleware executes.
+	 * - 'classic' (default): Build-time for prerendered pages, request-time for SSR pages
+	 * - 'edge': Middleware deployed as separate edge function
+	 */
+	middlewareMode: MiddlewareMode;
 	/**
 	 * Map of directive name (e.g. `load`) to the directive script code
 	 */
@@ -99,6 +114,7 @@ export type SSRManifest = {
 	sessionDriver?: () => Promise<{ default: SessionDriverFactory | null }>;
 	checkOrigin: boolean;
 	allowedDomains?: Partial<RemotePattern>[];
+	actionBodySizeLimit: number;
 	sessionConfig?: SSRManifestSession;
 	cacheDir: URL;
 	srcDir: URL;
@@ -109,6 +125,11 @@ export type SSRManifest = {
 	buildClientDir: URL;
 	buildServerDir: URL;
 	csp: SSRManifestCSP | undefined;
+	image: {
+		objectFit?: string;
+		objectPosition?: string;
+		layout?: string;
+	};
 	shouldInjectCspMetaTags: boolean;
 	devToolbar: {
 		// This should always be false in prod/SSR
@@ -192,6 +213,7 @@ export type SerializedSSRManifest = Omit<
 	key: string;
 };
 
+/** @deprecated This will be removed in a future major version. */
 export type NodeAppHeadersJson = {
 	pathname: string;
 	headers: {
@@ -199,3 +221,5 @@ export type NodeAppHeadersJson = {
 		value: string;
 	}[];
 }[];
+
+export type CreateApp = (options?: { streaming?: boolean }) => BaseApp;

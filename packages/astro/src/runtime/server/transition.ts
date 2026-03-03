@@ -1,4 +1,4 @@
-import cssesc from 'cssesc';
+import cssesc from '../../transitions/cssesc.js';
 import { fade, slide } from '../../transitions/index.js';
 import type { SSRResult } from '../../types/public/internal.js';
 import type {

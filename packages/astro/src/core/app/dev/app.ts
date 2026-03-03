@@ -3,7 +3,12 @@ import { MiddlewareNoDataOrNextCalled, MiddlewareNotAResponse } from '../../erro
 import { type AstroError, isAstroError } from '../../errors/index.js';
 import type { Logger } from '../../logger/core.js';
 import type { CreateRenderContext, RenderContext } from '../../render-context.js';
-import { BaseApp, type DevMatch, type RenderErrorOptions } from '../base.js';
+import {
+	BaseApp,
+	type DevMatch,
+	type LogRequestPayload,
+	type RenderErrorOptions,
+} from '../base.js';
 import type { SSRManifest } from '../types.js';
 import { NonRunnablePipeline } from './pipeline.js';
 import { getCustom404Route, getCustom500Route } from '../../routing/helpers.js';
@@ -11,6 +16,7 @@ import { ensure404Route } from '../../routing/astro-designed-error-pages.js';
 import { matchRoute } from '../../routing/dev.js';
 import type { RunnablePipeline } from '../../../vite-plugin-app/pipeline.js';
 import type { RoutesList } from '../../../types/astro.js';
+import { req } from '../../messages/runtime.js';
 
 export class DevApp extends BaseApp<NonRunnablePipeline> {
 	logger: Logger;
@@ -70,7 +76,13 @@ export class DevApp extends BaseApp<NonRunnablePipeline> {
 
 	async renderError(
 		request: Request,
-		{ locals, skipMiddleware = false, error, clientAddress, status }: RenderErrorOptions,
+		{
+			skipMiddleware = false,
+			error,
+			status,
+			response: _response,
+			...resolvedRenderOptions
+		}: RenderErrorOptions,
 	): Promise<Response> {
 		// we always throw when we have Astro errors around the middleware
 		if (
@@ -84,13 +96,13 @@ export class DevApp extends BaseApp<NonRunnablePipeline> {
 			try {
 				const preloadedComponent = await this.pipeline.getComponentByRoute(routeData);
 				const renderContext = await this.createRenderContext({
-					locals,
+					locals: resolvedRenderOptions.locals,
 					pipeline: this.pipeline,
-					pathname: await this.getPathnameFromRequest(request),
+					pathname: this.getPathnameFromRequest(request),
 					skipMiddleware,
 					request,
 					routeData,
-					clientAddress,
+					clientAddress: resolvedRenderOptions.clientAddress,
 					status,
 					shouldInjectCspMetaTags: false,
 				});
@@ -106,8 +118,7 @@ export class DevApp extends BaseApp<NonRunnablePipeline> {
 			} catch (_err) {
 				if (skipMiddleware === false) {
 					return this.renderError(request, {
-						clientAddress: undefined,
-						prerenderedErrorPageFetch: fetch,
+						...resolvedRenderOptions,
 						status: 500,
 						skipMiddleware: true,
 						error: _err,
@@ -133,5 +144,21 @@ export class DevApp extends BaseApp<NonRunnablePipeline> {
 		} else {
 			return renderRoute(custom500);
 		}
+	}
+
+	logRequest({ pathname, method, statusCode, isRewrite, reqTime }: LogRequestPayload) {
+		if (pathname === '/favicon.ico') {
+			return;
+		}
+		this.logger.info(
+			null,
+			req({
+				url: pathname,
+				method,
+				statusCode,
+				isRewrite,
+				reqTime,
+			}),
+		);
 	}
 }

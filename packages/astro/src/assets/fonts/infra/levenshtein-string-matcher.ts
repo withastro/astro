@@ -133,7 +133,7 @@ export class LevenshteinStringMatcher implements StringMatcher {
 	}
 
 	#closest(str: string, arr: readonly string[]): string {
-		let min_distance = Infinity;
+		let min_distance = Number.POSITIVE_INFINITY;
 		let min_index = 0;
 		for (let i = 0; i < arr.length; i++) {
 			const dist = this.#distance(str, arr[i]);

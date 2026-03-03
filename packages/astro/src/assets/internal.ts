@@ -1,4 +1,5 @@
 import { isRemotePath } from '@astrojs/internal-helpers/path';
+import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { AstroConfig } from '../types/public/config.js';
 import type { AstroAdapterClientConfig } from '../types/public/integrations.js';
@@ -17,10 +18,11 @@ import {
 	type SrcSetValue,
 	type UnresolvedImageTransform,
 } from './types.js';
-import { addCSSVarsToStyle, cssFitValues } from './utils/imageAttributes.js';
 import { isESMImportedImage, isRemoteImage, resolveSrc } from './utils/imageKind.js';
 import { inferRemoteSize } from './utils/remoteProbe.js';
 import { createPlaceholderURL, stringifyPlaceholderURL } from './utils/url.js';
+
+export const cssFitValues = ['fill', 'contain', 'cover', 'scale-down'];
 
 export async function getConfiguredImageService(): Promise<ImageService> {
 	if (!globalThis?.astroAsset?.imageService) {
@@ -82,8 +84,15 @@ export async function getImage(
 		delete resolvedOptions.inferSize; // Delete so it doesn't end up in the attributes
 
 		if (isRemoteImage(resolvedOptions.src) && isRemotePath(resolvedOptions.src)) {
+			if (!isRemoteAllowed(resolvedOptions.src, imageConfig)) {
+				throw new AstroError({
+					...AstroErrorData.RemoteImageNotAllowed,
+					message: AstroErrorData.RemoteImageNotAllowed.message(resolvedOptions.src),
+				});
+			}
+
 			const getRemoteSize = (url: string) =>
-				service.getRemoteSize?.(url, imageConfig) ?? inferRemoteSize(url);
+				service.getRemoteSize?.(url, imageConfig) ?? inferRemoteSize(url, imageConfig);
 			const result = await getRemoteSize(resolvedOptions.src); // Directly probe the image URL
 			resolvedOptions.width ??= result.width;
 			resolvedOptions.height ??= result.height;
@@ -132,7 +141,8 @@ export async function getImage(
 	} else {
 		resolvedOptions.loading ??= 'lazy';
 		resolvedOptions.decoding ??= 'async';
-		resolvedOptions.fetchpriority ??= 'auto';
+		// Omit fetchpriority to use the default `"auto"` value
+		resolvedOptions.fetchpriority ??= undefined;
 	}
 
 	if (layout !== 'none') {
@@ -149,14 +159,19 @@ export async function getImage(
 		resolvedOptions.sizes ||= getSizesAttribute({ width: resolvedOptions.width, layout });
 		// The densities option is incompatible with the `layout` option
 		delete resolvedOptions.densities;
-		resolvedOptions.style = addCSSVarsToStyle(
-			{
-				fit: cssFitValues.includes(resolvedOptions.fit ?? '') && resolvedOptions.fit,
-				pos: resolvedOptions.position,
-			},
-			resolvedOptions.style,
-		);
+
+		// Set data attribute for layout
 		resolvedOptions['data-astro-image'] = layout;
+
+		// Set data attributes for fit and position for CSP-compliant styling
+		if (resolvedOptions.fit && cssFitValues.includes(resolvedOptions.fit)) {
+			resolvedOptions['data-astro-image-fit'] = resolvedOptions.fit;
+		}
+
+		if (resolvedOptions.position) {
+			// Normalize position value for data attribute (spaces to dashes)
+			resolvedOptions['data-astro-image-pos'] = resolvedOptions.position.replace(/\s+/g, '-');
+		}
 	}
 
 	const validatedOptions = service.validateOptions
