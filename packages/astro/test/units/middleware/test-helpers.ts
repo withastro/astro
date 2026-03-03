@@ -1,7 +1,6 @@
-// @ts-check
 import { AstroCookies } from '../../../dist/core/cookies/index.js';
+import type { APIContext, AstroConfig, RoutePart, RouteType } from '../../../dist/index.js';
 import { makeRoute, staticPart } from '../routing/test-helpers.js';
-
 export { createManifest } from '../app/test-helpers.js';
 
 /**
@@ -9,17 +8,16 @@ export { createManifest } from '../app/test-helpers.js';
  *
  * All fields can be overridden. The `cookies` field uses the real `AstroCookies` class
  * by default to avoid mock drift.
- *
- * @param {Partial<import('astro').APIContext> & { url?: string | URL }} overrides
- * @returns {import('astro').APIContext}
  */
-export function createMockAPIContext(overrides = {}) {
+export function createMockAPIContext(
+	overrides: Partial<APIContext> & { url?: string | URL } = {},
+): APIContext {
 	const url =
 		overrides.url instanceof URL ? overrides.url : new URL(overrides.url ?? 'http://localhost/');
 	const request = overrides.request ?? new Request(url);
 	const cookies = overrides.cookies ?? new AstroCookies(request);
 
-	return /** @type {import('astro').APIContext} */ ({
+	return {
 		url,
 		request,
 		locals: overrides.locals ?? {},
@@ -42,37 +40,35 @@ export function createMockAPIContext(overrides = {}) {
 		generator: overrides.generator ?? 'astro-test',
 		clientAddress: overrides.clientAddress ?? '127.0.0.1',
 		originPathname: overrides.originPathname ?? url.pathname,
-	});
+	} as APIContext;
 }
 
 /**
  * Creates a response function compatible with callMiddleware's third argument.
  * This simulates what "rendering the page" would return.
- *
- * @param {string} body - The response body
- * @param {ResponseInit} [init] - Optional response init (status, headers, etc.)
- * @returns {(ctx: import('astro').APIContext, payload?: unknown) => Promise<Response>}
  */
-export function createResponseFunction(body = '<html><body>OK</body></html>', init = {}) {
-	return async (_ctx, _payload) => new Response(body, init);
+export function createResponseFunction(
+	body = '<html><body>OK</body></html>',
+	init: ResponseInit = {},
+) {
+	return async (_ctx: APIContext, _payload?: unknown) => new Response(body, init);
 }
 
 /**
  * Convenience wrapper around `makeRoute` from routing test-helpers.
  * Auto-generates segments from the route string for simple static routes,
  * while using the real `getPattern()` for regex generation.
- *
- * @param {object} overrides
- * @param {string} overrides.route - The route pattern (e.g. '/foo', '/api/endpoint')
- * @param {'page' | 'endpoint' | 'redirect' | 'fallback'} [overrides.type]
- * @param {string} [overrides.component]
- * @param {boolean} [overrides.prerender]
- * @param {boolean} [overrides.isIndex]
- * @param {string} [overrides.pathname]
- * @param {import('../../../dist/types/public/internal.js').RoutePart[][]} [overrides.segments]
- * @param {'always' | 'never' | 'ignore'} [overrides.trailingSlash]
  */
-export function createRouteData(overrides) {
+export function createRouteData(overrides: {
+	route: string;
+	type?: RouteType;
+	component?: string;
+	prerender?: boolean;
+	isIndex?: boolean;
+	pathname?: string;
+	segments?: Array<Array<RoutePart>>;
+	trailingSlash?: AstroConfig['trailingSlash'];
+}) {
 	const route = overrides.route;
 	const segments =
 		overrides.segments ??
