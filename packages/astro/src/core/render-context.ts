@@ -37,7 +37,7 @@ import { getParams, getProps, type Pipeline, Slots } from './render/index.js';
 import { isRoute404or500, isRouteExternalRedirect, isRouteServerIsland } from './routing/match.js';
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
 import { AstroCache, type CacheLike } from './cache/runtime/cache.js';
-import { NoopAstroCache, disabledAstroCache } from './cache/runtime/noop.js';
+import { NoopAstroCache, DisabledAstroCache } from './cache/runtime/noop.js';
 import { compileCacheRoutes, matchCacheRoute } from './cache/runtime/route-matching.js';
 import { AstroSession } from './session/runtime.js';
 import { validateAndDecodePathname } from './util/pathname.js';
@@ -84,7 +84,7 @@ export class RenderContext {
 		public partial: undefined | boolean = undefined,
 		public shouldInjectCspMetaTags = pipeline.manifest.shouldInjectCspMetaTags,
 		public session: AstroSession | undefined = undefined,
-		public cache: CacheLike = disabledAstroCache,
+		public cache: CacheLike,
 		public skipMiddleware = false,
 	) {}
 
@@ -155,8 +155,8 @@ export class RenderContext {
 		// Create cache instance
 		let cache: CacheLike;
 		if (!pipeline.cacheConfig) {
-			// Cache not configured — shared singleton, throws on use
-			cache = disabledAstroCache;
+			// Cache not configured — throws on use
+			cache = new DisabledAstroCache();
 		} else if (pipeline.runtimeMode === 'development') {
 			cache = new NoopAstroCache();
 		} else {

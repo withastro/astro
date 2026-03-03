@@ -5,15 +5,26 @@ import type {
 	InvalidateOptions,
 	LiveDataEntry,
 } from '../types.js';
+import { AstroError } from '../../errors/errors.js';
+import { CacheNotEnabled } from '../../errors/errors-data.js';
 import { defaultSetHeaders, isLiveDataEntry } from './utils.js';
 
 const APPLY_HEADERS = Symbol.for('astro:cache:apply');
 const IS_ACTIVE = Symbol.for('astro:cache:active');
 
 export interface CacheLike {
+	/**
+	 * Set cache options for the current request. Call multiple times to merge options.
+	 * Pass `false` to explicitly opt out of caching.
+	 */
 	set(input: CacheOptions | CacheHint | LiveDataEntry | false): void;
+	/** All accumulated cache tags for this request. */
 	readonly tags: string[];
+	/** A read-only snapshot of the current cache options, including accumulated tags. */
 	readonly options: Readonly<CacheOptions>;
+	/**
+	 * Purge cached entries by tag or path. Requires a cache provider to be configured.
+	 */
 	invalidate(input: InvalidateOptions | LiveDataEntry): Promise<void>;
 }
 
@@ -74,15 +85,15 @@ export class AstroCache implements CacheLike {
 	 * Includes all accumulated options: maxAge, swr, tags, etag, lastModified.
 	 */
 	get options(): Readonly<CacheOptions> {
-		return Object.freeze({
+		return {
 			...this.#options,
 			tags: this.tags,
-		});
+		};
 	}
 
 	async invalidate(input: InvalidateOptions | LiveDataEntry): Promise<void> {
 		if (!this.#provider) {
-			throw new Error('Cache invalidation requires a cache provider');
+			throw new AstroError(CacheNotEnabled);
 		}
 		let options: InvalidateOptions;
 		if (isLiveDataEntry(input)) {

@@ -1,6 +1,6 @@
 import { removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
 import type { AstroConfig } from '../../../types/public/config.js';
-import type { RoutePart } from '../../../types/public/internal.js';
+import type { RouteData, RoutePart } from '../../../types/public/internal.js';
 import { getParts } from '../../routing/parts.js';
 import { getPattern } from '../../routing/pattern.js';
 import { routeComparator } from '../../routing/priority.js';
@@ -14,12 +14,14 @@ export interface CompiledCacheRoute {
 }
 
 /**
- * Called once at startup to compile config-level cache route patterns.
+ * Compile config-level cache route patterns into RegExps.
+ * The result is memoized on the pipeline — this function is only called once,
+ * on the first request that needs route matching.
  * Returns compiled patterns sorted by Astro's standard route priority (most specific first).
  */
 export function compileCacheRoutes(
 	routes: Record<string, CacheOptions>,
-	base: string,
+	base: AstroConfig['base'],
 	trailingSlash: AstroConfig['trailingSlash'],
 ): CompiledCacheRoute[] {
 	const compiled = Object.entries(routes).map(([path, options]) => {
@@ -34,8 +36,8 @@ export function compileCacheRoutes(
 	// routeComparator expects objects with `segments`, `route`, and `type`
 	compiled.sort((a, b) =>
 		routeComparator(
-			{ segments: a.segments, route: a.route, type: 'page' } as any,
-			{ segments: b.segments, route: b.route, type: 'page' } as any,
+			{ segments: a.segments, route: a.route, type: 'page' } as RouteData,
+			{ segments: b.segments, route: b.route, type: 'page' } as RouteData,
 		),
 	);
 	return compiled;

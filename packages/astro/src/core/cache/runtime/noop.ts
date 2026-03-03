@@ -29,7 +29,7 @@ export class NoopAstroCache implements CacheLike {
  * Used when cache is not configured — provides a clear, actionable error
  * instead of silently doing nothing or returning undefined.
  */
-class DisabledAstroCache implements CacheLike {
+export class DisabledAstroCache implements CacheLike {
 	set(): void {
 		throw new AstroError(CacheNotEnabled);
 	}
@@ -46,6 +46,3 @@ class DisabledAstroCache implements CacheLike {
 		throw new AstroError(CacheNotEnabled);
 	}
 }
-
-/** Shared singleton — no per-request allocation when cache is disabled. */
-export const disabledAstroCache = new DisabledAstroCache();

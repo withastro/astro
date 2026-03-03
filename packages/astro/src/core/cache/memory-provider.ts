@@ -350,9 +350,9 @@ async function serializeResponse(
 }
 
 /**
- * Reconstruct a Response from a CachedEntry.
+ * Create a new Response from a CachedEntry.
  */
-function deserializeResponse(entry: CachedEntry): Response {
+function createResponseFromCacheEntry(entry: CachedEntry): Response {
 	const headers = new Headers(entry.headers);
 	return new Response(entry.body.slice(0), {
 		status: entry.status,
@@ -425,7 +425,7 @@ const memoryProvider = ((config): CacheProvider => {
 				if (matchesVary(context.request, cached)) {
 					if (!isExpired(cached)) {
 						// Fresh cache hit
-						const response = deserializeResponse(cached);
+						const response = createResponseFromCacheEntry(cached);
 						response.headers.set('X-Astro-Cache', 'HIT');
 						return response;
 					}
@@ -467,7 +467,7 @@ const memoryProvider = ((config): CacheProvider => {
 								);
 							});
 
-						const response = deserializeResponse(cached);
+						const response = createResponseFromCacheEntry(cached);
 						response.headers.set('X-Astro-Cache', 'STALE');
 						return response;
 					}
