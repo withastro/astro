@@ -1,8 +1,52 @@
-// @ts-check
-import { AstroCookies } from '../../../dist/core/cookies/index.js';
-import { makeRoute, staticPart } from '../routing/test-helpers.js';
+import { createBasicPipeline } from './test-utils.js';
 
-export { createManifest } from '../app/test-helpers.js';
+/**
+ * Mock utilities for unit tests.
+ *
+ * This file contains lightweight mock functions for unit testing Astro internals.
+ * For integration tests that need full structures, use the test-helpers.js files
+ * in their respective directories.
+ */
+
+/**
+ * Creates a minimal RenderContext mock for unit testing redirect functions.
+ *
+ * This is a lightweight mock that provides only what renderRedirect() needs,
+ * without the overhead of creating a full RenderContext instance.
+ *
+ * @param {object} overrides - Properties to override
+ * @param {Request} [overrides.request] - The request object
+ * @param {object} [overrides.routeData] - Route data including redirect config
+ * @param {Record<string, string>} [overrides.params] - Route parameters
+ * @param {object} [overrides.pipeline] - Pipeline instance
+ * @returns {object} A mock render context suitable for testing renderRedirect
+ *
+ * @example
+ * const context = createMockRenderContext({
+ *   request: new Request('http://localhost/source'),
+ *   routeData: { type: 'redirect', redirect: '/target' },
+ *   params: { slug: 'my-post' }
+ * });
+ */
+export function createMockRenderContext(overrides = {}) {
+	const pipeline =
+		overrides.pipeline ||
+		createBasicPipeline({
+			manifest: {
+				rootDir: import.meta.url,
+				experimentalQueuedRendering: { enabled: true },
+				trailingSlash: 'never',
+			},
+		});
+
+	return {
+		request: overrides.request || new Request('http://localhost/'),
+		routeData: overrides.routeData || {},
+		params: overrides.params || {},
+		pipeline,
+		...overrides,
+	};
+}
 
 /**
  * Creates a mock APIContext suitable for calling middleware directly via `callMiddleware()`.
