@@ -1,18 +1,20 @@
 import { fileURLToPath } from 'node:url';
-import { baseService } from 'astro/assets';
+import type { ImageServiceConfig } from '../../../astro/dist/types/public/config.js';
+import {
+	baseService,
+	type LocalImageService,
+} from '../../../astro/dist/assets/services/service.js';
 
 /**
  * stub image service that returns images as-is without optimization
- * @param {{ foo?: string }} [config]
  */
-export function testImageService(config = {}) {
+export function testImageService(config: { foo?: string } = {}): ImageServiceConfig {
 	return {
 		entrypoint: fileURLToPath(import.meta.url),
 		config,
 	};
 }
 
-/** @type {import("../dist/@types/astro").LocalImageService} */
 export default {
 	...baseService,
 	propertiesToHash: [...baseService.propertiesToHash, 'data-custom'],
@@ -21,7 +23,7 @@ export default {
 		if (serviceConfig.service.config.foo) {
 			options['data-service-config'] = serviceConfig.service.config.foo;
 		}
-		return baseService.getHTMLAttributes(options);
+		return baseService.getHTMLAttributes!(options, serviceConfig);
 	},
 	async transform(buffer, transform) {
 		return {
@@ -29,4 +31,4 @@ export default {
 			format: transform.format,
 		};
 	},
-};
+} satisfies LocalImageService;
