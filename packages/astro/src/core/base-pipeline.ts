@@ -251,7 +251,7 @@ export abstract class Pipeline {
 		}
 
 		for (const key of pathKeys) {
-			if (!(key in server)) {
+			if (!Object.hasOwn(server, key)) {
 				throw new AstroError({
 					...ActionNotFoundError,
 					message: ActionNotFoundError.message(pathKeys.join('.')),
