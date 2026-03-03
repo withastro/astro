@@ -1,5 +1,11 @@
 // This implementation was based from: https://github.com/PrismJS/prism/blob/76dde18a575831c91491895193f56081ac08b0c5/components/index.js
 
+// We use dynamic import instead of static import to load the `prismjs` module here.
+// Replacing this with a static import can cause instability in the workerd environment,
+// occasionally producing the following error:
+// "The Workers runtime canceled this request because it detected that your Worker's code had hung and would never generate a response."
+// Using dynamic import resolves this instability, so this module must be loaded this way.
+
 const prismLanguageFiles = import.meta.glob('../node_modules/prismjs/components/prism-*.js');
 
 // Since Prism language files are written assuming the Prism instance is defined
@@ -13,14 +19,14 @@ function setPrismAsGlobal(prism: typeof import('prismjs')) {
 	};
 }
 
-let cache: typeof import('prismjs') | undefined = undefined;
+let prismCache: typeof import('prismjs') | undefined = undefined;
 
 export async function loadPrism() {
-	if (!cache) {
-		({ default: cache } = await import('prismjs'));
+	if (!prismCache) {
+		({ default: prismCache } = await import('prismjs'));
 	}
 
-	return cache;
+	return prismCache;
 }
 
 /**
