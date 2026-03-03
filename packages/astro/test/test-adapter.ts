@@ -1,22 +1,23 @@
+import type { SerializedSSRManifest } from '../dist/core/app/types.js';
 import { viteID } from '../dist/core/util.js';
+import type {
+	AstroAdapter,
+	AstroIntegration,
+	RouteToHeaders,
+} from '../dist/types/public/integrations.js';
 
-/**
- * @typedef {import('../src/types/public/integrations.js').AstroAdapter} AstroAdapter
- * @typedef {import('../src/types/public/integrations.js').AstroIntegration} AstroIntegration
- * @typedef {import('../src/types/public/integrations.js').HookParameters<"astro:build:ssr">['middlewareEntryPoint']} MiddlewareEntryPoint
- * @typedef {import('../src/types/public/integrations.js').HookParameters<"astro:build:done">['routes']} Routes
- */
+interface Options {
+	provideAddress?: boolean;
+	staticHeaders?: boolean;
+	extendAdapter?: Partial<
+		Pick<AstroAdapter, 'adapterFeatures' | 'supportedAstroFeatures' | 'client'>
+	>;
+	setMiddlewareEntryPoint?: (middlewareEntryPoint: URL | undefined) => void;
+	setManifest?: (manifest: SerializedSSRManifest) => void;
+	setRouteToHeaders?: (routeToHeaders: RouteToHeaders) => void;
+	env?: Record<string, string | undefined>;
+}
 
-/**
- *
- * @param {{
- * 	provideAddress?: boolean;
- * 	extendAdapter?: AstroAdapter;
- * 	setMiddlewareEntryPoint?: (middlewareEntryPoint: MiddlewareEntryPoint) => void;
- * 	env: Record<string, string | undefined>;
- * }} param0
- * @returns {AstroIntegration}
- */
 export default function ({
 	provideAddress = true,
 	staticHeaders = false,
@@ -25,7 +26,7 @@ export default function ({
 	setManifest,
 	setRouteToHeaders,
 	env,
-} = {}) {
+}: Options = {}): AstroIntegration {
 	return {
 		name: 'my-ssr-adapter',
 		hooks: {
@@ -34,6 +35,7 @@ export default function ({
 					vite: {
 						plugins: [
 							{
+								name: 'my-ssr-adapter',
 								resolveId: {
 									filter: {
 										id: /^(astro\/app|@my-ssr)$/,
@@ -120,19 +122,20 @@ export default function ({
 					name: 'my-ssr-adapter',
 					serverEntrypoint: '@my-ssr',
 					exports: ['manifest', 'createApp'],
+					...extendAdapter,
 					supportedAstroFeatures: {
 						serverOutput: 'stable',
 						envGetSecret: 'stable',
 						staticOutput: 'stable',
 						hybridOutput: 'stable',
-						assets: 'stable',
 						i18nDomains: 'stable',
+						...extendAdapter?.supportedAstroFeatures,
 					},
 					adapterFeatures: {
 						buildOutput: 'server',
-						staticHeaders: staticHeaders,
+						staticHeaders,
+						...extendAdapter?.adapterFeatures,
 					},
-					...extendAdapter,
 				});
 			},
 			'astro:build:ssr': ({ middlewareEntryPoint, manifest }) => {
@@ -152,7 +155,6 @@ export default function ({
 	};
 }
 
-/** @returns {import('astro').AstroIntegration} */
 export function selfTestAdapter({
 	provideAddress = true,
 	staticHeaders = false,
@@ -161,7 +163,7 @@ export function selfTestAdapter({
 	setManifest,
 	setRouteToHeaders,
 	env,
-} = {}) {
+}: Options = {}): AstroIntegration {
 	return {
 		name: 'my-ssr-adapter',
 		hooks: {
@@ -170,6 +172,7 @@ export function selfTestAdapter({
 					vite: {
 						plugins: [
 							{
+								name: 'my-ssr-adapter',
 								resolveId: {
 									filter: {
 										id: /^(astro\/app|@my-ssr)$/,
@@ -256,19 +259,20 @@ export function selfTestAdapter({
 					name: 'my-ssr-adapter',
 					serverEntrypoint: '@my-ssr',
 					entrypointResolution: 'auto',
+					...extendAdapter,
 					supportedAstroFeatures: {
 						serverOutput: 'stable',
 						envGetSecret: 'stable',
 						staticOutput: 'stable',
 						hybridOutput: 'stable',
-						assets: 'stable',
 						i18nDomains: 'stable',
+						...extendAdapter?.supportedAstroFeatures,
 					},
 					adapterFeatures: {
 						buildOutput: 'server',
-						staticHeaders: staticHeaders,
+						staticHeaders,
+						...extendAdapter?.adapterFeatures,
 					},
-					...extendAdapter,
 				});
 			},
 			'astro:build:ssr': ({ middlewareEntryPoint, manifest }) => {

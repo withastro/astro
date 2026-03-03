@@ -1,4 +1,6 @@
-export function preventNodeBuiltinDependencyPlugin() {
+import type { Plugin } from 'vite';
+
+export function preventNodeBuiltinDependencyPlugin(): Plugin {
 	// Verifies that `astro:content` does not have a hard dependency on Node builtins.
 	// This is to verify it will run on Cloudflare and Deno
 	return {
