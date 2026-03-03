@@ -599,6 +599,8 @@ export interface AstroUserConfig<
 		 *
 		 * The "origin" check is executed only for pages rendered on demand, and only for the requests `POST`, `PATCH`, `DELETE` and `PUT` with
 		 * one of the following `content-type` headers: `'application/x-www-form-urlencoded'`, `'multipart/form-data'`, `'text/plain'`.
+		 * 
+		 * Astro Actions endpoints (`/_actions/*` and `/?_actions/*`) are checked regardless of their content type.
 		 *
 		 * If the "origin" header doesn't match the `pathname` of the request, Astro will return a 403 status code and will not render the page.
 		 */
