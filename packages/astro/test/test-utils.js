@@ -60,18 +60,23 @@ if (process.env.CI) {
 			/** @type {Record<string, { fixture: string; count: number; totalDuration: number }>} */
 			const builds = {};
 			for (const line of lines) {
-				builds[line.fixture] ??= { fixture: line.fixture, count: 0, totalDuration: 0 };
+				builds[line.fixture] ??= {
+					fixture: line.fixture.replace(repoRoot, ''),
+					count: 0,
+					totalDuration: 0,
+				};
 				builds[line.fixture].count++;
 				builds[line.fixture].totalDuration += line.duration;
 			}
 			let summary = '## Slowest fixture builds this run\n\n';
 			summary += '| Fixture | Builds | Total Duration (s) |\n';
-			summary += '|---------|--------|--------------------|\n';
+			summary += '|---------|-------:|-------------------:|\n';
 			const entries = Object.values(builds)
 				.sort((a, b) => b.totalDuration - a.totalDuration)
-				.slice(0, 20);
+				.slice(0, 10);
 			for (const entry of entries) {
-				summary += `| ${entry.fixture} | ${entry.count} | ${(entry.totalDuration / 1000).toFixed(2)} |\n`;
+				const url = `https://github.com/withastro/astro/tree/main/${encodeURI(entry.fixture.replaceAll('\\', '/'))}`;
+				summary += `| [\`${path.basename(entry.fixture)}\`](${url}) | ${entry.count} | ${(entry.totalDuration / 1000).toFixed(2)} |\n`;
 			}
 			return summary;
 		};
