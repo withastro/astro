@@ -32,7 +32,7 @@
     "xml2js": "0.6.2"
   },
   "dependencies": {
-    "fast-xml-parser": "^5.3.7",
+    "fast-xml-parser": "^5.4.1",
     "piccolore": "^0.1.3",
     "zod": "^4.3.6"
   }

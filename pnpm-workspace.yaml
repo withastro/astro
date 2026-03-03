@@ -4,6 +4,7 @@ packages:
   - 'examples/**/*'
   - 'triage/*'
   - 'smoke/**/*'
+  - 'temp/*'
   - 'scripts'
   - 'benchmark'
   - 'benchmark/packages/*'

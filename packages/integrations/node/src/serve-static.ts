@@ -48,7 +48,13 @@ export function createStaticHandler(
 				});
 				const routeData = app.match(request, true);
 				if (routeData && routeData.prerender) {
-					const matchedRoute = headersMap.find((header) => header.pathname.includes(pathname));
+					// Headers are stored keyed by base-less route paths (e.g. "/one"), so we
+					// must strip config.base from the incoming URL before matching, just as
+					// we do for filesystem access above.
+					const baselessPathname = prependForwardSlash(app.removeBase(urlPath));
+					const matchedRoute = headersMap.find((header) =>
+						header.pathname.includes(baselessPathname),
+					);
 					if (matchedRoute) {
 						for (const header of matchedRoute.headers) {
 							res.setHeader(header.key, header.value);

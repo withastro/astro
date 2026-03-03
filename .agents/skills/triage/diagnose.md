@@ -4,7 +4,7 @@ Find the root cause of a reproduced bug in the Astro source code.
 
 **CRITICAL: You MUST always read `report.md` and append to `report.md` before finishing, regardless of outcome. Even if you cannot identify the root cause, hit errors, or the investigation is inconclusive — always update `report.md` with your findings. The orchestrator and downstream skills depend on this file to determine what happened.**
 
-**SCOPE: Your job is diagnosis only. Finish your work once you've completed this workflow. Do NOT go further than this (no larger verification of the issue, no fixing of the issue, etc.).**
+**SCOPE: Your job is diagnosis only. Finish your work once you've completed this workflow. Do NOT go further than this (no larger verification of the issue, no fixing of the issue, etc.). Do not spawn tasks/sub-agents.**
 
 ## Prerequisites
 
