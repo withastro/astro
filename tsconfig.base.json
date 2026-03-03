@@ -4,14 +4,15 @@
     "declaration": true,
     "emitDeclarationOnly": true,
     "strict": true,
-    "moduleResolution": "Node16",
-    "target": "ES2022",
-    "module": "Node16",
+    "moduleResolution": "nodenext",
+    "target": "esnext",
+    "module": "nodenext",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "verbatimModuleSyntax": true,
     "stripInternal": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
+    "types": ["node"]
   }
 }
