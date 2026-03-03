@@ -13,7 +13,7 @@
     "stripInternal": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "erasableSyntaxOnly": true
+    "erasableSyntaxOnly": true,
     "types": ["node"]
   }
 }
