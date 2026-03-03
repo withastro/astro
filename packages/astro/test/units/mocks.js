@@ -1,5 +1,6 @@
 import { createBasicPipeline } from './test-utils.js';
 import { makeRoute, staticPart } from './routing/test-helpers.js';
+import { AstroCookies } from '../../dist/core/cookies/index.js';
 
 /**
  * Mock utilities for unit tests.
