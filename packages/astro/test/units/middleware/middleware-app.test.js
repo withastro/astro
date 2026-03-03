@@ -585,6 +585,182 @@ describe('Middleware via App.render()', () => {
 		});
 	});
 
+	describe('cookies on error pages', () => {
+		it('should preserve cookies set by middleware when returning Response(null, { status: 404 })', async () => {
+			// Middleware sets a cookie and returns 404 with null body (common auth guard pattern)
+			const onRequest = async (ctx, next) => {
+				ctx.cookies.set('session', 'abc123', { path: '/' });
+				if (ctx.url.pathname.startsWith('/api/guarded')) {
+					return new Response(null, { status: 404 });
+				}
+				return next();
+			};
+
+			const guardedRouteData = createRouteData({
+				route: '/api/guarded/[...path]',
+				pathname: undefined,
+				segments: undefined,
+			});
+			// Override for spread route
+			guardedRouteData.params = ['...path'];
+			guardedRouteData.pattern = /^\/api\/guarded(?:\/(.*?))?$/;
+			guardedRouteData.pathname = undefined;
+			guardedRouteData.segments = [
+				[{ content: 'api', dynamic: false, spread: false }],
+				[{ content: 'guarded', dynamic: false, spread: false }],
+				[{ content: '...path', dynamic: true, spread: true }],
+			];
+
+			const pageMap = new Map([
+				[
+					guardedRouteData.component,
+					async () => ({
+						page: async () => ({
+							default: simplePage(),
+						}),
+					}),
+				],
+				[
+					notFoundRouteData.component,
+					async () => ({ page: async () => ({ default: notFoundPage }) }),
+				],
+			]);
+			const app = createAppWithMiddleware({
+				onRequest,
+				routes: [{ routeData: guardedRouteData }, { routeData: notFoundRouteData }],
+				pageMap,
+			});
+
+			const response = await app.render(new Request('http://localhost/api/guarded/secret'), {
+				addCookieHeader: true,
+			});
+
+			assert.equal(response.status, 404);
+			const setCookie = response.headers.get('set-cookie');
+			assert.ok(setCookie, 'Expected Set-Cookie header to be present on 404 error page response');
+			assert.match(setCookie, /session=abc123/);
+		});
+
+		it('should preserve cookies set by middleware when returning Response(null, { status: 500 })', async () => {
+			const onRequest = async (ctx, next) => {
+				ctx.cookies.set('csrf', 'token456', { path: '/' });
+				if (ctx.url.pathname.startsWith('/api/error')) {
+					return new Response(null, { status: 500 });
+				}
+				return next();
+			};
+
+			const errorRouteData = createRouteData({
+				route: '/api/error/[...path]',
+				pathname: undefined,
+				segments: undefined,
+			});
+			errorRouteData.params = ['...path'];
+			errorRouteData.pattern = /^\/api\/error(?:\/(.*?))?$/;
+			errorRouteData.pathname = undefined;
+			errorRouteData.segments = [
+				[{ content: 'api', dynamic: false, spread: false }],
+				[{ content: 'error', dynamic: false, spread: false }],
+				[{ content: '...path', dynamic: true, spread: true }],
+			];
+
+			const pageMap = new Map([
+				[
+					errorRouteData.component,
+					async () => ({
+						page: async () => ({
+							default: simplePage(),
+						}),
+					}),
+				],
+				[
+					serverErrorRouteData.component,
+					async () => ({ page: async () => ({ default: serverErrorPage }) }),
+				],
+			]);
+			const app = createAppWithMiddleware({
+				onRequest,
+				routes: [{ routeData: errorRouteData }, { routeData: serverErrorRouteData }],
+				pageMap,
+			});
+
+			const response = await app.render(new Request('http://localhost/api/error/test'), {
+				addCookieHeader: true,
+			});
+
+			assert.equal(response.status, 500);
+			const setCookie = response.headers.get('set-cookie');
+			assert.ok(setCookie, 'Expected Set-Cookie header to be present on 500 error page response');
+			assert.match(setCookie, /csrf=token456/);
+		});
+
+		it('should preserve multiple cookies from sequenced middleware during error page rerouting', async () => {
+			const onRequest = async (ctx, next) => {
+				ctx.cookies.set('session', 'abc123', { path: '/' });
+				ctx.cookies.set('csrf', 'token456', { path: '/' });
+				if (ctx.url.pathname.startsWith('/api/guarded')) {
+					ctx.cookies.set('auth_attempt', 'failed', { path: '/' });
+					return new Response(null, { status: 404 });
+				}
+				return next();
+			};
+
+			const guardedRouteData = createRouteData({
+				route: '/api/guarded/[...path]',
+				pathname: undefined,
+				segments: undefined,
+			});
+			guardedRouteData.params = ['...path'];
+			guardedRouteData.pattern = /^\/api\/guarded(?:\/(.*?))?$/;
+			guardedRouteData.pathname = undefined;
+			guardedRouteData.segments = [
+				[{ content: 'api', dynamic: false, spread: false }],
+				[{ content: 'guarded', dynamic: false, spread: false }],
+				[{ content: '...path', dynamic: true, spread: true }],
+			];
+
+			const pageMap = new Map([
+				[
+					guardedRouteData.component,
+					async () => ({
+						page: async () => ({
+							default: simplePage(),
+						}),
+					}),
+				],
+				[
+					notFoundRouteData.component,
+					async () => ({ page: async () => ({ default: notFoundPage }) }),
+				],
+			]);
+			const app = createAppWithMiddleware({
+				onRequest,
+				routes: [{ routeData: guardedRouteData }, { routeData: notFoundRouteData }],
+				pageMap,
+			});
+
+			const response = await app.render(new Request('http://localhost/api/guarded/secret'), {
+				addCookieHeader: true,
+			});
+
+			assert.equal(response.status, 404);
+			const setCookies = response.headers.getSetCookie();
+			const cookieValues = setCookies.join(', ');
+			assert.ok(
+				cookieValues.includes('session=abc123'),
+				'Expected session cookie in Set-Cookie headers',
+			);
+			assert.ok(
+				cookieValues.includes('csrf=token456'),
+				'Expected csrf cookie in Set-Cookie headers',
+			);
+			assert.ok(
+				cookieValues.includes('auth_attempt=failed'),
+				'Expected auth_attempt cookie in Set-Cookie headers',
+			);
+		});
+	});
+
 	describe('middleware with custom headers', () => {
 		it('should correctly set custom headers in middleware', async () => {
 			const onRequest = async (_ctx, next) => {
