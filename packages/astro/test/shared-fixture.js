@@ -133,7 +133,7 @@ export async function getSharedDevServer(fixture) {
 /**
  * Stop all shared preview servers
  */
-export async function stopAllPreviewServers() {
+async function stopAllPreviewServers() {
 	const stopPromises = [];
 	for (const [name, server] of previewServers) {
 		stopPromises.push(
@@ -149,7 +149,7 @@ export async function stopAllPreviewServers() {
 /**
  * Stop all shared dev servers
  */
-export async function stopAllDevServers() {
+async function stopAllDevServers() {
 	const stopPromises = [];
 	for (const [name, server] of devServers) {
 		stopPromises.push(
