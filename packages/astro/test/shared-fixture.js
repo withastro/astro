@@ -163,39 +163,8 @@ export async function stopAllDevServers() {
 }
 
 /**
- * Get a shared preview server for a fixture. This ensures only one preview server
- * is started per shared fixture.
+ * Stop all shared servers (both preview and dev)
  */
-const previewServers = new Map();
-
-export async function getSharedPreviewServer(fixture) {
-	if (!fixture._isShared) {
-		throw new Error('getSharedPreviewServer can only be used with shared fixtures');
-	}
-
-	const name = fixture._sharedName;
-
-	if (previewServers.has(name)) {
-		return previewServers.get(name);
-	}
-
-	const server = await fixture.preview();
-	previewServers.set(name, server);
-	return server;
-}
-
-/**
- * Stop all shared preview servers
- */
-export async function stopAllPreviewServers() {
-	const stopPromises = [];
-	for (const [name, server] of previewServers) {
-		stopPromises.push(
-			server.stop().catch((err) => {
-				console.error(`Error stopping preview server for ${name}:`, err);
-			}),
-		);
-	}
-	await Promise.all(stopPromises);
-	previewServers.clear();
+export async function stopAllServers() {
+	await Promise.all([stopAllPreviewServers(), stopAllDevServers()]);
 }
