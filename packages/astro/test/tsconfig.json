@@ -1,0 +1,9 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "include": ["**/*.test.js", "test-*.js", "**/*.test.ts"],
+  "exclude": ["fixtures", "types"],
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true
+  }
+}

@@ -2,7 +2,22 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
-import { loadFixture, streamAsyncIterator } from './test-utils.js';
+import { loadFixture } from './test-utils.js';
+
+async function* streamAsyncIterator(stream) {
+	const reader = stream.getReader();
+
+	try {
+		while (true) {
+			const { done, value } = await reader.read();
+			if (done) return;
+			yield value;
+		}
+	} finally {
+		reader.releaseLock();
+	}
+}
+
 
 describe('Streaming', () => {
 	/** @type {import('./test-utils').Fixture} */
