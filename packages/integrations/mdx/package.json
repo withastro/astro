@@ -52,8 +52,8 @@
     "astro": "^6.0.0-alpha.0"
   },
   "devDependencies": {
-    "@shikijs/rehype": "^3.22.0",
-    "@shikijs/twoslash": "^3.22.0",
+    "@shikijs/rehype": "^4.0.0",
+    "@shikijs/twoslash": "^4.0.0",
     "@types/estree": "^1.0.8",
     "@types/hast": "^3.0.4",
     "@types/mdast": "^4.0.4",
@@ -68,7 +68,7 @@
     "remark-math": "^6.0.0",
     "remark-rehype": "^11.1.2",
     "remark-toc": "^9.0.0",
-    "shiki": "^3.22.0",
+    "shiki": "^4.0.0",
     "unified": "^11.0.5",
     "vite": "^7.3.1"
   },

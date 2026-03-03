@@ -154,7 +154,7 @@
     "picomatch": "^4.0.3",
     "rehype": "^13.0.2",
     "semver": "^7.7.4",
-    "shiki": "^3.22.0",
+    "shiki": "^4.0.0",
     "smol-toml": "^1.6.0",
     "svgo": "^4.0.0",
     "tinyexec": "^1.0.2",
