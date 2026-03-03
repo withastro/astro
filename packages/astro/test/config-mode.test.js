@@ -12,7 +12,7 @@ describe('AstroConfig - config.output', () => {
 			before(async () => {
 				fixture = await loadFixture({
 					// This is just a random fixture to test, doesn't matter.
-					root: './fixtures/astro-basic/',
+					root: './fixtures/static/',
 					adapter: testAdapter(),
 					output: 'server',
 				});
@@ -37,7 +37,7 @@ describe('AstroConfig - config.output', () => {
 			before(async () => {
 				fixture = await loadFixture({
 					// This is just a random fixture to test, doesn't matter.
-					root: './fixtures/astro-basic/',
+					root: './fixtures/static/',
 					output: 'server',
 				});
 			});
@@ -65,7 +65,7 @@ describe('AstroConfig - config.output', () => {
 			before(async () => {
 				fixture = await loadFixture({
 					// This is just a random fixture to test, doesn't matter.
-					root: './fixtures/astro-basic/',
+					root: './fixtures/static/',
 					output: 'static',
 				});
 				await fixture.build();
@@ -89,7 +89,7 @@ describe('AstroConfig - config.output', () => {
 			before(async () => {
 				fixture = await loadFixture({
 					// This is just a random fixture to test, doesn't matter.
-					root: './fixtures/astro-basic/',
+					root: './fixtures/static/',
 					adapter: testAdapter(),
 					output: 'server',
 				});

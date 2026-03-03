@@ -136,7 +136,7 @@ describe('astro sync', () => {
 	});
 
 	it('Writes `.astro/types.d.ts`', async () => {
-		await fixture.load('./fixtures/astro-basic/');
+		await fixture.load('./fixtures/static/');
 		fixture.clean();
 		await fixture.whenSyncing();
 		fixture.thenFileShouldExist('.astro/types.d.ts');
@@ -283,7 +283,7 @@ describe('astro sync', () => {
 				},
 			});
 
-			const astroFixture = await loadFixture({ root: './fixtures/astro-basic/' });
+			const astroFixture = await loadFixture({ root: './fixtures/static/' });
 			fs.rmSync(new URL('./.astro/', astroFixture.config.root), { force: true, recursive: true });
 
 			// @ts-ignore
