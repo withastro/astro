@@ -431,8 +431,11 @@ const memoryProvider = ((config): CacheProvider => {
 					}
 
 					if (isStale(cached)) {
-						// SWR: serve stale, trigger background revalidation
-						const revalidate = next()
+						// SWR: serve stale, trigger background revalidation.
+						// The promise is intentionally not awaited — it runs in the
+						// background on the long-lived server process and updates the
+						// cache entry for subsequent requests.
+						next()
 							.then(async (freshResponse) => {
 								const cdnCC = freshResponse.headers.get('CDN-Cache-Control');
 								const { maxAge: newMaxAge, swr: newSwr } = parseCdnCacheControl(cdnCC);
@@ -463,11 +466,6 @@ const memoryProvider = ((config): CacheProvider => {
 									)}`,
 								);
 							});
-
-						// Use waitUntil if available (prevents the promise from being GC'd)
-						if (context.waitUntil) {
-							context.waitUntil(revalidate);
-						}
 
 						const response = deserializeResponse(cached);
 						response.headers.set('X-Astro-Cache', 'STALE');
