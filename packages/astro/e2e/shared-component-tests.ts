@@ -1,10 +1,11 @@
 import { expect } from '@playwright/test';
 import { scrollToElement, testFactory, waitForHydrate } from './test-utils.js';
+import type { DevServer } from '../dist/core/dev/dev.js';
 
-export function prepareTestFactory(testFile, opts) {
-	const test = testFactory(testFile, opts);
+export function prepareTestFactory(...args: Parameters<typeof testFactory>) {
+	const test = testFactory(...args);
 
-	let devServer;
+	let devServer: DevServer;
 
 	test.beforeAll(async ({ astro }) => {
 		devServer = await astro.startDevServer();
@@ -14,7 +15,17 @@ export function prepareTestFactory(testFile, opts) {
 		await devServer.stop();
 	});
 
-	const createTests = ({ pageUrl, pageSourceFilePath, componentFilePath, counterCssFilePath }) => {
+	const createTests = ({
+		pageUrl,
+		pageSourceFilePath,
+		componentFilePath,
+		counterCssFilePath,
+	}: {
+		pageUrl: string;
+		pageSourceFilePath: string;
+		componentFilePath: string;
+		counterCssFilePath?: string;
+	}) => {
 		test('server only', async ({ page, astro }) => {
 			await page.goto(astro.resolveUrl(pageUrl));
 

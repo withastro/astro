@@ -1,8 +1,10 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { expect, test as testBase } from '@playwright/test';
-import { loadFixture as baseLoadFixture } from '../test/test-utils.js';
+import { expect, test as testBase, type Locator, type Page } from '@playwright/test';
+import { loadFixture as baseLoadFixture, type Fixture } from '../test/test-utils.js';
+import type { AstroInlineConfig } from '../dist/index.js';
+import { AstroIntegrationLogger, type Logger } from '../dist/core/logger/core.js';
 
 // Get all test files in directory, assign unique port for each of them so they don't conflict
 const testFiles = await fs.readdir(new URL('.', import.meta.url));
@@ -18,7 +20,10 @@ for (let i = 0; i < testFiles.length; i++) {
 	}
 }
 
-export function loadFixture(testFile, inlineConfig) {
+export function loadFixture(
+	testFile: string,
+	inlineConfig: AstroInlineConfig & { root?: string | URL },
+) {
 	if (!inlineConfig?.root) throw new Error("Must provide { root: './fixtures/...' }");
 
 	const port = testFileToPort.get(path.basename(testFile));
@@ -42,13 +47,15 @@ export function loadFixture(testFile, inlineConfig) {
 	});
 }
 
-export function testFactory(testFile, inlineConfig) {
-	let fixture;
+export function testFactory(
+	testFile: string,
+	inlineConfig: AstroInlineConfig & { root?: string | URL },
+) {
+	let fixture: Fixture;
 
-	const test = testBase.extend({
-		// biome-ignore lint/correctness/noEmptyPattern: playwright needs this
-		astro: async ({}, use) => {
-			fixture = fixture || (await loadFixture(testFile, inlineConfig));
+	const test = testBase.extend<{ astro: Fixture }>({
+		astro: async (_, use) => {
+			fixture ??= await loadFixture(testFile, inlineConfig);
 			await use(fixture);
 		},
 	});
@@ -60,12 +67,7 @@ export function testFactory(testFile, inlineConfig) {
 	return test;
 }
 
-/**
- *
- * @param {import('@playwright/test').Page} page
- * @returns {Promise<{message: string, hint: string, absoluteFileLocation: string, fileLocation: string, codeFrame: import('@playwright/test').ElementHandle, copyButton: import('@playwright/test').ElementHandle}>}
- */
-export async function getErrorOverlayContent(page) {
+export async function getErrorOverlayContent(page: Page) {
 	const overlay = await page.waitForSelector('vite-error-overlay', {
 		strict: true,
 		timeout: 10 * 1000,
@@ -76,6 +78,7 @@ export async function getErrorOverlayContent(page) {
 	const message = await overlay.$$eval('#message-content', (m) => m[0].textContent);
 	const hint = await overlay.$$eval('#hint-content', (m) => m[0].textContent);
 	const [absoluteFileLocation, fileLocation] = await overlay.$$eval('#code header h2', (m) => [
+		// @ts-expect-error
 		m[0].title,
 		m[0].textContent,
 	]);
@@ -88,10 +91,8 @@ export async function getErrorOverlayContent(page) {
 
 /**
  * Wait for `astro-island` that contains the `el` to hydrate
- * @param {import('@playwright/test').Page} page
- * @param {import('@playwright/test').Locator} el
  */
-export async function waitForHydrate(page, el) {
+export async function waitForHydrate(page: Page, el: Locator) {
 	const astroIsland = page.locator('astro-island', { has: el });
 	const astroIslandId = await astroIsland.last().getAttribute('uid');
 	await page.waitForFunction(
@@ -102,9 +103,8 @@ export async function waitForHydrate(page, el) {
 
 /**
  * Scroll to element manually without making sure the `el` is stable
- * @param {import('@playwright/test').Locator} el
  */
-export async function scrollToElement(el) {
+export async function scrollToElement(el: Locator) {
 	await el.evaluate((node) => {
 		node.scrollIntoView({ behavior: 'auto' });
 	});
@@ -112,16 +112,21 @@ export async function scrollToElement(el) {
 
 /**
  * Create a spy logger that captures log messages into provided arrays
- * @param {{info?: Array, warn?: Array, error?: Array, debug?: Array}} options - Optional arrays to push messages into
- * @returns {import('../dist/core/logger/core').Logger}
  */
-export function createLoggerSpy(options = {}) {
+export function createLoggerSpy(
+	options: {
+		info?: Array<{ label: string | null; message: string }>;
+		warn?: Array<{ label: string | null; message: string }>;
+		error?: Array<{ label: string | null; message: string }>;
+		debug?: Array<{ label: string | null; message: string }>;
+	} = {},
+) {
 	const infoLogs = options.info || [];
 	const warnLogs = options.warn || [];
 	const errorLogs = options.error || [];
 	const debugLogs = options.debug || [];
 
-	const logger = {
+	const logger: Logger = {
 		info(label, message) {
 			infoLogs.push({ label, message });
 		},
@@ -140,16 +145,7 @@ export function createLoggerSpy(options = {}) {
 		},
 		level: () => 'info',
 		forkIntegrationLogger(label) {
-			const forked = {
-				info: (message) => infoLogs.push({ label, message }),
-				warn: (message) => warnLogs.push({ label, message }),
-				error: (message) => errorLogs.push({ label, message }),
-				debug: (message) => debugLogs.push({ label, message }),
-				fork: (_newLabel) => {
-					return forked;
-				},
-			};
-			return forked;
+			return new AstroIntegrationLogger(this.options, label);
 		},
 	};
 
