@@ -3,4 +3,4 @@
 'astro': patch
 ---
 
-Update dependency `shiki` to v4.
+Updates dependency `shiki` to v4.
