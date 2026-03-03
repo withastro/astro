@@ -2,4 +2,4 @@
 'astro': minor
 ---
 
-Passes an optional `metadata` object to `render.ssr.check()` function as the fourth argument.
+Updates the internal logic during SSR by providing additional metadata for UI framework integrations.
