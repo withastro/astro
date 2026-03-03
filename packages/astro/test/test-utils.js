@@ -21,6 +21,8 @@ let fixtureCounts = {};
 let fixtureBuildCounts = {};
 /** @type {Record<string, number>} */
 let cacheHitCounts = {};
+/** @type {Record<string, number[]>} */
+let buildTimings = {};
 
 /**
  * @param {Record<string, number>} counts
@@ -29,7 +31,13 @@ const formatReport = (counts) =>
 	Object.entries(counts)
 		.filter(([, count]) => count > 1)
 		.sort(([, a], [, b]) => b - a)
-		.map(([root, count]) => `- x${count} ${path.relative(process.cwd(), root)}`)
+		.map(([root, count]) => {
+			const relativePath = path.relative(process.cwd(), root);
+			const timing = buildTimings[root]
+				? `(${Math.round(buildTimings[root].reduce((a, b) => a + b, 0))}ms total)`
+				: '';
+			return `- x${count} ${relativePath} ${timing}`;
+		})
 		.join('\n');
 
 process.addListener('exit', () => {
@@ -210,10 +218,14 @@ export async function loadFixture(inlineConfig) {
 			globalContentConfigObserver.set({ status: 'init' });
 			// Reset NODE_ENV so it can be re-set by `build()`
 			delete process.env.NODE_ENV;
+			const t0 = performance.now();
 			await build(mergeConfig(inlineConfig, extraInlineConfig), {
 				teardownCompiler: false,
 				...options,
 			});
+			const t1 = performance.now();
+			buildTimings[root] ??= [];
+			buildTimings[root].push(t1 - t0);
 			buildCache.add(buildId);
 			lastBuildId = buildId;
 		},
