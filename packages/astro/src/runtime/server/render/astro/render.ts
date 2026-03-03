@@ -16,13 +16,8 @@ import { isRenderTemplateResult } from './render-template.js';
 
 const DOCTYPE_EXP = /<!doctype html/i;
 
-/**
- * Queue-based rendering to AsyncIterable
- * NOTE: Currently disabled for .astro files. Kept for potential future use.
- */
-
 // Calls a component and renders it into a string.
-// Used by the container API; page.ts prefers renderToBuffer for zero-copy perf.
+// Used by the container API.
 export async function renderToString(
 	result: SSRResult,
 	componentFactory: AstroComponentFactory,
@@ -75,13 +70,7 @@ export async function renderToString(
 // Renders a component directly into a Uint8Array buffer.
 // Avoids the decode→string-concat→encode round-trip that renderToString incurs
 // when RenderBytesResult writes pre-encoded Uint8Array static parts.
-//
-// Hybrid strategy: track byte-size of Uint8Array chunks and string-length of
-// expression chunks separately.  Strings are concatenated via V8 rope strings
-// (fast), Uint8Array chunks are recorded as-is.  At the end, one
-// encoder.encode() call converts the concatenated string, then we merge
-// everything into a single output buffer.  This gives us the best of both
-// worlds: zero decode for static parts AND fast V8 string concat for expressions.
+// Used by page.ts for non-streaming Astro component rendering.
 export async function renderToBuffer(
 	result: SSRResult,
 	componentFactory: AstroComponentFactory,
@@ -126,19 +115,31 @@ export async function renderToBuffer(
 
 			if (chunk instanceof Response) return;
 
-			// Fast path: Uint8Array chunks (from RenderBytesResult) go straight
-			// into the buffer — zero decode, zero allocation.
 			if (ArrayBuffer.isView(chunk)) {
-				if ((chunk as Uint8Array).length > 0) {
-					buffer.push(chunk as Uint8Array);
+				const bytes = chunk as Uint8Array;
+				if (bytes.length === 0) return;
+				// Small pre-encoded chunks with a cached ._str: coalesce into the
+				// current string run via V8 rope concat — dramatically faster than
+				// storing thousands of tiny Uint8Arrays and merging them at the end.
+				// Large chunks (e.g. static-heavy's 50KB blob) stay as Uint8Array
+				// to avoid an unnecessary string round-trip.
+				const cached = (bytes as any)._str;
+				if (cached !== undefined && bytes.byteLength <= 256) {
+					if (lastIsString) {
+						buffer[buffer.length - 1] = (buffer[buffer.length - 1] as string) + cached;
+					} else {
+						buffer.push(cached);
+						lastIsString = true;
+					}
+				} else {
+					buffer.push(bytes);
 					lastIsString = false;
 				}
 			} else {
-				// stringifyChunk returns string | HTMLString; .toString() to flatten
+				// .toString() flattens HTMLString objects (from render instructions)
+				// to primitive strings for correct typeof checks in the merge pass.
 				const s = stringifyChunk(result, chunk).toString();
 				if (s.length > 0) {
-					// Coalesce consecutive strings — V8 rope concat is extremely
-					// fast and this keeps the buffer short.
 					if (lastIsString) {
 						buffer[buffer.length - 1] = (buffer[buffer.length - 1] as string) + s;
 					} else {
@@ -162,17 +163,10 @@ export async function renderToBuffer(
 		return buffer[0] as Uint8Array;
 	}
 
-	// Merge pass: encode strings, compute total length, then copy everything
-	// into a single contiguous Uint8Array.
-	let totalBytes = 0;
+	// Merge pass: encode strings, then concatenate all Uint8Array segments.
 	for (let i = 0; i < buffer.length; i++) {
-		const entry = buffer[i];
-		if (typeof entry === 'string') {
-			const encoded = encoder.encode(entry);
-			totalBytes += encoded.length;
-			buffer[i] = encoded;
-		} else {
-			totalBytes += entry.length;
+		if (typeof buffer[i] === 'string') {
+			buffer[i] = encoder.encode(buffer[i] as string);
 		}
 	}
 
@@ -181,6 +175,10 @@ export async function renderToBuffer(
 		return buffer[0] as Uint8Array;
 	}
 
+	let totalBytes = 0;
+	for (let i = 0; i < buffer.length; i++) {
+		totalBytes += (buffer[i] as Uint8Array).length;
+	}
 	const out = new Uint8Array(totalBytes);
 	let offset = 0;
 	for (let i = 0; i < buffer.length; i++) {
@@ -211,13 +209,6 @@ export async function renderToReadableStream(
 	// If the Astro component returns a Response on init, return that response
 	if (templateResult instanceof Response) return templateResult;
 
-	// EXPERIMENTAL: Queue-based rendering
-	// NOTE: Queue rendering is disabled for .astro files (see renderToString for explanation)
-	// if (result._experimentalQueuedRendering) {
-	// 	return await renderWithQueueToStream(result, templateResult, isPage, route);
-	// }
-
-	// Recursive rendering (default for .astro files)
 	let renderedFirstPageChunk = false;
 
 	if (isPage) {
@@ -354,13 +345,6 @@ export async function renderToAsyncIterable(
 	);
 	if (templateResult instanceof Response) return templateResult;
 
-	// EXPERIMENTAL: Queue-based rendering
-	// NOTE: Queue rendering is disabled for .astro files (see renderToString for explanation)
-	// if (result._experimentalQueuedRendering) {
-	// 	return await renderWithQueueToAsyncIterable(result, templateResult, isPage, route);
-	// }
-
-	// Recursive rendering (default for .astro files)
 	let renderedFirstPageChunk = false;
 	if (isPage) {
 		await bufferHeadContent(result);
@@ -380,6 +364,11 @@ export async function renderToAsyncIterable(
 	let renderingComplete = false;
 
 	const buffer: Array<Uint8Array | string> = [];
+	// Track whether the buffer contains any Uint8Array entries so the merge
+	// loop can skip the allStrings pre-scan.  Reset when buffer is drained.
+	let hasBytes = false;
+	// Track whether the last buffer entry is a string for inline coalescing.
+	let lastIsStringStream = false;
 
 	const iterator: AsyncIterator<Uint8Array> = {
 		async next() {
@@ -405,45 +394,64 @@ export async function renderToAsyncIterable(
 				throw error;
 			}
 
-			// Concatenate adjacent strings and encode them in one batch,
-			// then merge all Uint8Array segments into a single output buffer.
-			let length = 0;
-			let stringToEncode = '';
-			for (let i = 0, len = buffer.length; i < len; i++) {
-				const bufferEntry = buffer[i];
+			// Fast path: if every buffered chunk is a string (common for both Go
+			// compiler output and Rust compiler output whose small static parts are
+			// converted to _str by chunkToByteArrayOrString), concatenate via V8 rope
+			// strings and encode once.  This avoids thousands of tiny Uint8Array.set()
+			// calls for expression-heavy pages.
+			// The `hasBytes` flag is maintained by the write handler, avoiding
+			// a full buffer scan here.
+			const bufLen = buffer.length;
 
-				if (typeof bufferEntry === 'string') {
-					const nextIsString = i + 1 < len && typeof buffer[i + 1] === 'string';
-					stringToEncode += bufferEntry;
-					if (!nextIsString) {
-						const encoded = encoder.encode(stringToEncode);
-						length += encoded.length;
-						stringToEncode = '';
-						buffer[i] = encoded;
+			let mergedArray: Uint8Array;
+			if (!hasBytes && bufLen > 0) {
+				// All-strings fast path: one rope concat + one encode
+				let s = '';
+				for (let i = 0; i < bufLen; i++) s += buffer[i] as string;
+				mergedArray = encoder.encode(s);
+			} else if (bufLen > 0) {
+				// Mixed path: encode adjacent strings in one batch, then copy all
+				// Uint8Array segments (including the encoded string runs) into the
+				// output buffer.  Use Buffer.concat on Node for zero-initialization
+				// savings when merging many small typed arrays.
+				let length = 0;
+				let stringToEncode = '';
+				for (let i = 0; i < bufLen; i++) {
+					const bufferEntry = buffer[i];
+					if (typeof bufferEntry === 'string') {
+						const nextIsString = i + 1 < bufLen && typeof buffer[i + 1] === 'string';
+						stringToEncode += bufferEntry;
+						if (!nextIsString) {
+							const encoded = encoder.encode(stringToEncode);
+							length += encoded.length;
+							stringToEncode = '';
+							buffer[i] = encoded;
+						} else {
+							buffer[i] = '';
+						}
 					} else {
-						buffer[i] = '';
+						length += (bufferEntry as Uint8Array).length;
 					}
-				} else {
-					length += bufferEntry.length;
 				}
-			}
 
-			// Create a new array with total length and merge all source arrays.
-			let mergedArray = new Uint8Array(length);
-			let offset = 0;
-			for (let i = 0, len = buffer.length; i < len; i++) {
-				const item = buffer[i];
-				if (item === '') {
-					continue;
+				mergedArray = new Uint8Array(length);
+				let offset = 0;
+				for (let i = 0; i < bufLen; i++) {
+					const item = buffer[i];
+					if (item === '') continue;
+					mergedArray.set(item as Uint8Array, offset);
+					offset += (item as Uint8Array).length;
 				}
-				mergedArray.set(item as Uint8Array, offset);
-				offset += item.length;
+			} else {
+				mergedArray = new Uint8Array(0);
 			}
 
 			buffer.length = 0;
+			hasBytes = false;
+			lastIsStringStream = false;
 
 			return {
-				done: length === 0 && renderingComplete,
+				done: mergedArray.length === 0 && renderingComplete,
 				value: mergedArray,
 			};
 		},
@@ -460,6 +468,8 @@ export async function renderToAsyncIterable(
 				if (!result.partial && !DOCTYPE_EXP.test(String(chunk))) {
 					const doctype = result.compressHTML ? '<!DOCTYPE html>' : '<!DOCTYPE html>\n';
 					buffer.push(encoder.encode(doctype));
+					hasBytes = true;
+					lastIsStringStream = false;
 				}
 			}
 			if (chunk instanceof Response) {
@@ -467,7 +477,21 @@ export async function renderToAsyncIterable(
 			}
 			const bytes = chunkToByteArrayOrString(result, chunk);
 			if (bytes.length > 0) {
-				buffer.push(bytes);
+				if (typeof bytes === 'string') {
+					// Inline string coalescing: append to the previous string entry
+					// instead of pushing a new buffer entry.  This reduces buffer
+					// entry count and makes the all-strings fast path more likely.
+					if (lastIsStringStream) {
+						buffer[buffer.length - 1] = (buffer[buffer.length - 1] as string) + bytes;
+					} else {
+						buffer.push(bytes);
+						lastIsStringStream = true;
+					}
+				} else {
+					buffer.push(bytes);
+					hasBytes = true;
+					lastIsStringStream = false;
+				}
 				next?.resolve();
 			} else if (buffer.length > 0) {
 				next?.resolve();

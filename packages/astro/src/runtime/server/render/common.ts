@@ -55,6 +55,13 @@ export function stringifyChunk(
 	result: SSRResult,
 	chunk: string | HTMLString | SlotString | RenderInstruction,
 ): string {
+	// Fast path: plain string primitives are the most common chunk type
+	// (text expressions like escapeHTML output).  `typeof` is a single
+	// type-tag comparison — much cheaper than the symbol/instanceof checks
+	// below.  HTMLString and SlotString are objects, not primitives, so
+	// they correctly fall through.
+	if (typeof chunk === 'string') return chunk;
+
 	if (isRenderInstruction(chunk)) {
 		const instruction = chunk;
 		switch (instruction.type) {
@@ -117,19 +124,19 @@ export function stringifyChunk(
 		}
 	} else if (chunk instanceof Response) {
 		return '';
-	} else if (isSlotString(chunk as string)) {
+	} else if (isSlotString(chunk as unknown as string)) {
 		let out = '';
-		const c = chunk as SlotString;
+		const c = chunk as unknown as SlotString;
 		if (c.instructions) {
 			for (const instr of c.instructions) {
 				out += stringifyChunk(result, instr);
 			}
 		}
-		out += chunk.toString();
+		out += (chunk as unknown as SlotString).toString();
 		return out;
 	}
 
-	return chunk.toString();
+	return (chunk as unknown as HTMLString).toString();
 }
 
 export function chunkToString(result: SSRResult, chunk: Exclude<RenderDestinationChunk, Response>) {
@@ -162,8 +169,19 @@ export function chunkToByteArrayOrString(
 	chunk: Exclude<RenderDestinationChunk, Response>,
 ): Uint8Array | string {
 	if (ArrayBuffer.isView(chunk)) {
+		// Pre-encoded static parts from the Rust compiler carry a cached ._str.
+		// For small chunks (typical HTML tags), returning the string lets the
+		// streaming merge loop batch them via V8 rope concat + one encode() —
+		// dramatically faster than Buffer.concat of thousands of tiny arrays.
+		// Large chunks (e.g. static-heavy's 50KB blob) stay as Uint8Array for
+		// zero-copy efficiency.
+		const cached = (chunk as any)._str;
+		if (cached !== undefined && (chunk as Uint8Array).byteLength <= 256) return cached;
 		return chunk as Uint8Array;
 	} else {
+		// stringifyChunk may return an HTMLString (from markHTMLString in render
+		// instructions).  Call .toString() to ensure a primitive string so the
+		// streaming merge loop can correctly identify string vs Uint8Array entries.
 		return stringifyChunk(result, chunk).toString();
 	}
 }

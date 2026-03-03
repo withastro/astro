@@ -625,7 +625,7 @@ export class RenderContext {
 		return result;
 	}
 
-	#astroPagePartial?: Omit<AstroGlobal, 'props' | 'self' | 'slots'>;
+	#astroPagePartial?: Omit<AstroGlobal, 'props' | 'self'>;
 
 	/**
 	 * The Astro global is sourced in 3 different phases:
@@ -649,29 +649,20 @@ export class RenderContext {
 			// Create page partial with static partial so they can be cached together.
 			astroPagePartial = this.#astroPagePartial ??= this.createAstroPagePartial(result, apiContext);
 		}
-		// Create component-level partials. `Astro.self` is added by the compiler.
-		const astroComponentPartial = { props, self: null };
 
-		// Create final object. `Astro.slots` will be lazily created.
-		const Astro: Omit<AstroGlobal, 'self' | 'slots'> = Object.assign(
-			Object.create(astroPagePartial),
-			astroComponentPartial,
-		);
-
-		// Handle `Astro.slots`
-		let _slots: AstroGlobal['slots'];
-		Object.defineProperty(Astro, 'slots', {
-			get: () => {
-				if (!_slots) {
-					_slots = new Slots(
-						result,
-						slotValues,
-						this.pipeline.logger,
-					) as unknown as AstroGlobal['slots'];
-				}
-				return _slots;
-			},
-		});
+		// Create the Astro object with the page partial as prototype.
+		// Component-level properties (props, self) are set directly.
+		// `Astro.slots` is handled by a lazy getter on the page partial
+		// prototype — see createAstroPagePartial().  This avoids the
+		// expensive per-instance Object.defineProperty() call.
+		// The getter reads _slotResult / _slotValues / _slotLogger from
+		// `this` (the component-level Astro object).
+		const Astro: any = Object.create(astroPagePartial);
+		Astro.props = props;
+		Astro.self = null;
+		Astro._slotResult = result;
+		Astro._slotValues = slotValues;
+		Astro._slotLogger = this.pipeline.logger;
 
 		return Astro as AstroGlobal;
 	}
@@ -679,7 +670,7 @@ export class RenderContext {
 	createAstroPagePartial(
 		result: SSRResult,
 		apiContext: ActionAPIContext,
-	): Omit<AstroGlobal, 'props' | 'self' | 'slots'> {
+	): Omit<AstroGlobal, 'props' | 'self'> {
 		const renderContext = this;
 		const { cookies, locals, params, pipeline, url } = this;
 		const { response } = result;
@@ -704,6 +695,23 @@ export class RenderContext {
 			routePattern: this.routeData.route,
 			isPrerendered: this.routeData.prerender,
 			cookies,
+			// Lazy `Astro.slots` getter — lives on the page-level prototype so it
+			// is defined once per request instead of once per component render.
+			// Each component-level Astro object stores _slotResult, _slotValues,
+			// and _slotLogger as plain properties (set in createAstro).  On first
+			// access the getter creates a Slots instance and caches it directly on
+			// the component object (own property), shadowing this prototype getter
+			// for subsequent accesses.
+			get slots(): AstroGlobal['slots'] {
+				const s = new Slots(
+					(this as any)._slotResult,
+					(this as any)._slotValues,
+					(this as any)._slotLogger,
+				) as unknown as AstroGlobal['slots'];
+				// Cache on the instance — shadows this prototype getter.
+				Object.defineProperty(this, 'slots', { value: s, writable: false });
+				return s;
+			},
 			get session() {
 				if (this.isPrerendered) {
 					pipeline.logger.warn(

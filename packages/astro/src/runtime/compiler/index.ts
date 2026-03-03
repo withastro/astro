@@ -18,5 +18,6 @@ export {
 	renderTransition,
 	spreadAttributes,
 	unescapeHTML,
-	renderBytes
+	escapeHTML,
+	renderBytes,
 } from '../server/index.js';

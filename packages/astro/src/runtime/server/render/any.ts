@@ -1,8 +1,6 @@
 import { escapeHTML, isHTMLString } from '../escape.js';
 import { isPromise } from '../util.js';
-import { isAstroComponentInstance, isRenderTemplateResult } from './astro/index.js';
-import { isRenderInstance, type RenderDestination } from './common.js';
-import { SlotString } from './slot.js';
+import type { RenderDestination } from './common.js';
 import { createBufferedRenderer } from './util.js';
 
 export function renderChild(destination: RenderDestination, child: any): void | Promise<void> {
@@ -19,31 +17,31 @@ export function renderChild(destination: RenderDestination, child: any): void | 
 		return;
 	}
 
-	// RenderTemplateResult / RenderBytesResult are the second most common type —
-	// every .map() callback in a .astro component returns one.  Check early to
-	// avoid unnecessary type checks per list item.
-	if (isRenderTemplateResult(child)) {
+	// HTMLString (including SlotString which extends it) — pre-escaped content
+	// from escapeHTML(), addAttribute(), unescapeHTML(), etc.  Checked early
+	// because the Rust compiler wraps simple expressions in $$escapeHTML(),
+	// making this the third most common type after plain strings and numbers.
+	if (isHTMLString(child)) {
+		destination.write(child);
+		return;
+	}
+
+	// Unified renderable check: catches RenderTemplateResult, RenderBytesResult,
+	// AstroComponentInstance, and other RenderInstance objects in a single check.
+	// This is the 4th check — much earlier than the previous separate checks at
+	// positions 4, 9, and 10.  The `typeof child.render` check is fast in V8
+	// (inline cache hit for known shapes).
+	if (typeof child === 'object' && child !== null && typeof child.render === 'function') {
 		return child.render(destination);
 	}
 
-	// Arrays are the third most common type — every .map() expression produces
-	// one.  Check before promises/slots/HTMLStrings to reduce dispatch overhead.
+	// Arrays — every .map() expression produces one.
 	if (Array.isArray(child)) {
 		return renderArray(destination, child);
 	}
 
 	if (isPromise(child)) {
 		return child.then((x) => renderChild(destination, x));
-	}
-
-	if (child instanceof SlotString) {
-		destination.write(child);
-		return;
-	}
-
-	if (isHTMLString(child)) {
-		destination.write(child);
-		return;
 	}
 
 	if (!child && child !== 0) {
@@ -56,14 +54,6 @@ export function renderChild(destination: RenderDestination, child: any): void | 
 		// This lets you do {() => ...} without the extra boilerplate
 		// of wrapping it in a function and calling it.
 		return renderChild(destination, child());
-	}
-
-	if (isRenderInstance(child)) {
-		return child.render(destination);
-	}
-
-	if (isAstroComponentInstance(child)) {
-		return child.render(destination);
 	}
 
 	if (ArrayBuffer.isView(child)) {
