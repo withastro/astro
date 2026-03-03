@@ -135,10 +135,10 @@ export async function renderPage(
 		headers.set('content-security-policy', renderCspContent(result));
 	}
 
-	// For non-streaming, convert string to byte array to calculate Content-Length
+	// For non-streaming, encode the string body and set Content-Length.
 	if (!streaming && typeof body === 'string') {
 		body = encoder.encode(body);
-		headers.set('Content-Length', body.byteLength.toString());
+		headers.set('Content-Length', (body as Uint8Array).byteLength.toString());
 	}
 	let status = init.status;
 	let statusText = init.statusText;

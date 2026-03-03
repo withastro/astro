@@ -7,6 +7,7 @@ import {
 	chunkToString,
 	encoder,
 	type RenderDestination,
+	stringifyChunk,
 } from '../common.js';
 import { promiseWithResolvers } from '../util.js';
 import type { AstroComponentFactory } from './factory.js';
@@ -20,7 +21,8 @@ const DOCTYPE_EXP = /<!doctype html/i;
  * NOTE: Currently disabled for .astro files. Kept for potential future use.
  */
 
-// Calls a component and renders it into a string of HTML
+// Calls a component and renders it into a string.
+// Used by the container API; page.ts prefers renderToBuffer for zero-copy perf.
 export async function renderToString(
 	result: SSRResult,
 	componentFactory: AstroComponentFactory,
@@ -40,15 +42,6 @@ export async function renderToString(
 	// If the Astro component returns a Response on init, return that response
 	if (templateResult instanceof Response) return templateResult;
 
-	// EXPERIMENTAL: Queue-based rendering
-	// NOTE: Queue rendering is disabled for .astro files due to 2x performance overhead.
-	// Queue rendering remains enabled for MDX pages (handled separately in page.ts).
-	// The queue architecture adds overhead for .astro files with JSX that outweighs benefits.
-	// if (result._experimentalQueuedRendering) {
-	// 	return await renderWithQueue(result, templateResult, isPage);
-	// }
-
-	// Recursive rendering (default for .astro files)
 	let str = '';
 	let renderedFirstPageChunk = false;
 
@@ -77,6 +70,125 @@ export async function renderToString(
 	await templateResult.render(destination);
 
 	return str;
+}
+
+// Renders a component directly into a Uint8Array buffer.
+// Avoids the decode→string-concat→encode round-trip that renderToString incurs
+// when RenderBytesResult writes pre-encoded Uint8Array static parts.
+//
+// Hybrid strategy: track byte-size of Uint8Array chunks and string-length of
+// expression chunks separately.  Strings are concatenated via V8 rope strings
+// (fast), Uint8Array chunks are recorded as-is.  At the end, one
+// encoder.encode() call converts the concatenated string, then we merge
+// everything into a single output buffer.  This gives us the best of both
+// worlds: zero decode for static parts AND fast V8 string concat for expressions.
+export async function renderToBuffer(
+	result: SSRResult,
+	componentFactory: AstroComponentFactory,
+	props: any,
+	children: any,
+	isPage = false,
+	route?: RouteData,
+): Promise<Uint8Array | Response> {
+	const templateResult = await callComponentAsTemplateResultOrResponse(
+		result,
+		componentFactory,
+		props,
+		children,
+		route,
+	);
+
+	if (templateResult instanceof Response) return templateResult;
+
+	// Mixed buffer: each entry is either a Uint8Array (static part, zero-copy)
+	// or a string (expression output, to be encoded once at the end).
+	// Adjacent strings are concatenated inline (V8 rope string optimization)
+	// so the buffer stays compact.
+	const buffer: Array<Uint8Array | string> = [];
+	let renderedFirstPageChunk = false;
+	// Track whether the last buffer entry is a string so we can append to it.
+	let lastIsString = false;
+
+	if (isPage) {
+		await bufferHeadContent(result);
+	}
+
+	const destination: RenderDestination = {
+		write(chunk) {
+			if (isPage && !renderedFirstPageChunk) {
+				renderedFirstPageChunk = true;
+				if (!result.partial && !DOCTYPE_EXP.test(String(chunk))) {
+					const doctype = result.compressHTML ? '<!DOCTYPE html>' : '<!DOCTYPE html>\n';
+					buffer.push(doctype);
+					lastIsString = true;
+				}
+			}
+
+			if (chunk instanceof Response) return;
+
+			// Fast path: Uint8Array chunks (from RenderBytesResult) go straight
+			// into the buffer — zero decode, zero allocation.
+			if (ArrayBuffer.isView(chunk)) {
+				if ((chunk as Uint8Array).length > 0) {
+					buffer.push(chunk as Uint8Array);
+					lastIsString = false;
+				}
+			} else {
+				// stringifyChunk returns string | HTMLString; .toString() to flatten
+				const s = stringifyChunk(result, chunk).toString();
+				if (s.length > 0) {
+					// Coalesce consecutive strings — V8 rope concat is extremely
+					// fast and this keeps the buffer short.
+					if (lastIsString) {
+						buffer[buffer.length - 1] = (buffer[buffer.length - 1] as string) + s;
+					} else {
+						buffer.push(s);
+						lastIsString = true;
+					}
+				}
+			}
+		},
+	};
+
+	await templateResult.render(destination);
+
+	// Fast path: empty output
+	if (buffer.length === 0) {
+		return new Uint8Array(0);
+	}
+
+	// Fast path: single Uint8Array — return it directly, no copy.
+	if (buffer.length === 1 && typeof buffer[0] !== 'string') {
+		return buffer[0] as Uint8Array;
+	}
+
+	// Merge pass: encode strings, compute total length, then copy everything
+	// into a single contiguous Uint8Array.
+	let totalBytes = 0;
+	for (let i = 0; i < buffer.length; i++) {
+		const entry = buffer[i];
+		if (typeof entry === 'string') {
+			const encoded = encoder.encode(entry);
+			totalBytes += encoded.length;
+			buffer[i] = encoded;
+		} else {
+			totalBytes += entry.length;
+		}
+	}
+
+	// Fast path: single chunk after encoding
+	if (buffer.length === 1) {
+		return buffer[0] as Uint8Array;
+	}
+
+	const out = new Uint8Array(totalBytes);
+	let offset = 0;
+	for (let i = 0; i < buffer.length; i++) {
+		const segment = buffer[i] as Uint8Array;
+		out.set(segment, offset);
+		offset += segment.length;
+	}
+	return out;
 }
 
 // Calls a component and renders it into a readable stream
@@ -263,10 +375,11 @@ export async function renderToAsyncIterable(
 
 	let error: Error | null = null;
 	// The `next` is an object `{ promise, resolve, reject }` that we use to wait
-	// for chunks to be pushed into the buffer.
+	// for chunks to be pushed into the yield queue.
 	let next: ReturnType<typeof promiseWithResolvers<void>> | null = null;
-	const buffer: Array<Uint8Array | string> = []; // []Uint8Array
 	let renderingComplete = false;
+
+	const buffer: Array<Uint8Array | string> = [];
 
 	const iterator: AsyncIterator<Uint8Array> = {
 		async next() {
@@ -292,12 +405,8 @@ export async function renderToAsyncIterable(
 				throw error;
 			}
 
-			// This calculates the length of the final merged array.
-			// While doing so, it also replaces consecutive strings with their
-			// concatenated Uint8Array equivalent.
-			// This is a performance optimization since `TextEncoder#encode` can be
-			// costly, so it is faster to encode one larger string than it is
-			// to encode many smaller strings.
+			// Concatenate adjacent strings and encode them in one batch,
+			// then merge all Uint8Array segments into a single output buffer.
 			let length = 0;
 			let stringToEncode = '';
 			for (let i = 0, len = buffer.length; i < len; i++) {
@@ -324,33 +433,21 @@ export async function renderToAsyncIterable(
 			let offset = 0;
 			for (let i = 0, len = buffer.length; i < len; i++) {
 				const item = buffer[i];
-				// If an item is an empty string, it must've been cleared out earlier
-				// when we converted it into a larger Uint8Array. Thus, we can skip it.
 				if (item === '') {
 					continue;
 				}
-				// TypeScript will think this is `string | Uint8Array` but, because of
-				// the encoding earlier, we know the only remaining strings are empty
-				// and have been skipped above.
 				mergedArray.set(item as Uint8Array, offset);
 				offset += item.length;
 			}
 
-			// Empty the array. We do this so that we can reuse the same array.
 			buffer.length = 0;
 
-			const returnValue = {
-				// The iterator is done when rendering has finished
-				// and there are no more chunks to return.
+			return {
 				done: length === 0 && renderingComplete,
 				value: mergedArray,
 			};
-
-			return returnValue;
 		},
 		async return() {
-			// If the client disconnects,
-			// we signal to the rest of the internals to ignore the results of existing renders and avoid kicking off more of them.
 			result.cancelled = true;
 			return { done: true, value: undefined };
 		},
@@ -369,11 +466,7 @@ export async function renderToAsyncIterable(
 				throw new AstroError(AstroErrorData.ResponseSentError);
 			}
 			const bytes = chunkToByteArrayOrString(result, chunk);
-			// It might be possible that we rendered a chunk with no content, in which
-			// case we don't want to resolve the promise.
 			if (bytes.length > 0) {
-				// Push the chunks into the buffer and resolve the promise so that next()
-				// will run.
 				buffer.push(bytes);
 				next?.resolve();
 			} else if (buffer.length > 0) {

@@ -26,6 +26,7 @@ export {
 	Fragment,
 	maybeRenderHead,
 	Renderer as Renderer,
+	renderBytes,
 	renderComponent,
 	renderHead,
 	renderHTMLElement,

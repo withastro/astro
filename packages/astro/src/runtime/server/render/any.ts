@@ -1,4 +1,4 @@
-import { escapeHTML, isHTMLString, markHTMLString } from '../escape.js';
+import { escapeHTML, isHTMLString } from '../escape.js';
 import { isPromise } from '../util.js';
 import { isAstroComponentInstance, isRenderTemplateResult } from './astro/index.js';
 import { isRenderInstance, type RenderDestination } from './common.js';
@@ -9,8 +9,27 @@ export function renderChild(destination: RenderDestination, child: any): void | 
 	// Strings are the most common child type (text expressions like {title}, {name})
 	// so check them first for the fastest dispatch in the common case.
 	if (typeof child === 'string') {
-		destination.write(markHTMLString(escapeHTML(child)));
+		destination.write(escapeHTML(child));
 		return;
+	}
+
+	// Numbers can't contain HTML special chars — skip escaping and write directly.
+	if (typeof child === 'number') {
+		destination.write('' + child);
+		return;
+	}
+
+	// RenderTemplateResult / RenderBytesResult are the second most common type —
+	// every .map() callback in a .astro component returns one.  Check early to
+	// avoid unnecessary type checks per list item.
+	if (isRenderTemplateResult(child)) {
+		return child.render(destination);
+	}
+
+	// Arrays are the third most common type — every .map() expression produces
+	// one.  Check before promises/slots/HTMLStrings to reduce dispatch overhead.
+	if (Array.isArray(child)) {
+		return renderArray(destination, child);
 	}
 
 	if (isPromise(child)) {
@@ -32,10 +51,6 @@ export function renderChild(destination: RenderDestination, child: any): void | 
 		return;
 	}
 
-	if (Array.isArray(child)) {
-		return renderArray(destination, child);
-	}
-
 	if (typeof child === 'function') {
 		// Special: If a child is a function, call it automatically.
 		// This lets you do {() => ...} without the extra boilerplate
@@ -44,10 +59,6 @@ export function renderChild(destination: RenderDestination, child: any): void | 
 	}
 
 	if (isRenderInstance(child)) {
-		return child.render(destination);
-	}
-
-	if (isRenderTemplateResult(child)) {
 		return child.render(destination);
 	}
 

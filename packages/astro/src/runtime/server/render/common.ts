@@ -51,7 +51,7 @@ export const decoder = new TextDecoder();
 // Rendering produces either marked strings of HTML or instructions for hydration.
 // These directive instructions bubble all the way up to renderPage so that we
 // can ensure they are added only once, and as soon as possible.
-function stringifyChunk(
+export function stringifyChunk(
 	result: SSRResult,
 	chunk: string | HTMLString | SlotString | RenderInstruction,
 ): string {
@@ -134,7 +134,11 @@ function stringifyChunk(
 
 export function chunkToString(result: SSRResult, chunk: Exclude<RenderDestinationChunk, Response>) {
 	if (ArrayBuffer.isView(chunk)) {
-		return decoder.decode(chunk);
+		// Fast path: the compiler attaches a cached `_str` property to
+		// pre-encoded Uint8Array static parts ($$sN), avoiding decoder.decode()
+		// on every render.  Falls back to decoder.decode() for dynamically
+		// created ArrayBufferViews.
+		return (chunk as any)._str ?? ((chunk as any)._str = decoder.decode(chunk));
 	} else {
 		return stringifyChunk(result, chunk);
 	}
