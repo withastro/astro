@@ -603,7 +603,7 @@ describe('Middleware via App.render()', () => {
 			});
 			// Override for spread route
 			guardedRouteData.params = ['...path'];
-			guardedRouteData.pattern = /^\/api\/guarded(?:\/(.*?))?$/;
+			guardedRouteData.pattern = /^\/api\/guarded(?:\/(.*))?$/;
 			guardedRouteData.pathname = undefined;
 			guardedRouteData.segments = [
 				[{ content: 'api', dynamic: false, spread: false }],
@@ -656,7 +656,7 @@ describe('Middleware via App.render()', () => {
 				segments: undefined,
 			});
 			errorRouteData.params = ['...path'];
-			errorRouteData.pattern = /^\/api\/error(?:\/(.*?))?$/;
+			errorRouteData.pattern = /^\/api\/error(?:\/(.*))?$/;
 			errorRouteData.pathname = undefined;
 			errorRouteData.segments = [
 				[{ content: 'api', dynamic: false, spread: false }],
@@ -711,7 +711,7 @@ describe('Middleware via App.render()', () => {
 				segments: undefined,
 			});
 			guardedRouteData.params = ['...path'];
-			guardedRouteData.pattern = /^\/api\/guarded(?:\/(.*?))?$/;
+			guardedRouteData.pattern = /^\/api\/guarded(?:\/(.*))?$/;
 			guardedRouteData.pathname = undefined;
 			guardedRouteData.segments = [
 				[{ content: 'api', dynamic: false, spread: false }],
