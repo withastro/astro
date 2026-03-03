@@ -1,4 +1,5 @@
 import { createBasicPipeline } from './test-utils.js';
+import { makeRoute, staticPart } from './routing/test-helpers.js';
 
 /**
  * Mock utilities for unit tests.
