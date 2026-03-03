@@ -34,7 +34,8 @@ function testFactory(inlineConfig: AstroInlineConfig) {
 	let fixture: Fixture;
 
 	const test = testBase.extend<{ astro: Fixture }>({
-		astro: async (_, use) => {
+		// biome-ignore lint/correctness/noEmptyPattern: playwright needs this
+		astro: async ({}, use) => {
 			fixture = fixture || (await loadFixture(inlineConfig));
 			await use(fixture);
 		},
