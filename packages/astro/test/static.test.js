@@ -15,14 +15,13 @@ import {
 describe('Static Tests', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
-	let previewServer;
 
 	before(async () => {
 		fixture = await getSharedFixture({
 			name: 'static',
 			root: './fixtures/static/',
 		});
-		previewServer = await getSharedPreviewServer(fixture);
+		await getSharedPreviewServer(fixture);
 	});
 
 	after(async () => {
@@ -185,8 +184,6 @@ describe('Static Tests', () => {
 
 // Separate describe block for dev server tests (if needed for specific static features)
 describe('Static Dev Tests', () => {
-	/** @type {import('./test-utils').DevServer} */
-	let devServer;
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 
@@ -195,7 +192,7 @@ describe('Static Dev Tests', () => {
 			name: 'static',
 			root: './fixtures/static/',
 		});
-		devServer = await getSharedDevServer(fixture);
+		await getSharedDevServer(fixture);
 	});
 
 	after(async () => {

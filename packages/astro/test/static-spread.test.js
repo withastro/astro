@@ -6,7 +6,6 @@ import { getSharedFixture, getSharedPreviewServer, stopAllServers } from './shar
 describe('Static - Spread Attributes', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
-	let previewServer;
 
 	before(async () => {
 		fixture = await getSharedFixture({
@@ -14,7 +13,7 @@ describe('Static - Spread Attributes', () => {
 			root: './fixtures/static/',
 		});
 		await fixture.build();
-		previewServer = await getSharedPreviewServer(fixture);
+		await getSharedPreviewServer(fixture);
 	});
 
 	after(async () => {
