@@ -2001,21 +2001,6 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
 
-  packages/astro/test/fixtures/astro-basic:
-    dependencies:
-      '@astrojs/mdx':
-        specifier: workspace:*
-        version: link:../../../../integrations/mdx
-      '@astrojs/preact':
-        specifier: workspace:*
-        version: link:../../../../integrations/preact
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-      preact:
-        specifier: ^10.28.4
-        version: 10.28.4
-
   packages/astro/test/fixtures/astro-check-errors:
     dependencies:
       '@astrojs/check':
@@ -4257,6 +4242,12 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
 
+  packages/astro/test/fixtures/ssr:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/ssr-api-route:
     dependencies:
       '@astrojs/node':
@@ -4347,12 +4338,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/ssr-script:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/ssr-scripts:
     dependencies:
       '@astrojs/preact':
@@ -4379,6 +4364,21 @@ importers:
       astro:
         specifier: workspace:*
         version: link:../../..
+
+  packages/astro/test/fixtures/static:
+    dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../../../integrations/mdx
+      '@astrojs/preact':
+        specifier: workspace:*
+        version: link:../../../../integrations/preact
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      preact:
+        specifier: ^10.28.4
+        version: 10.28.4
 
   packages/astro/test/fixtures/static-build:
     dependencies:

@@ -66,8 +66,6 @@ describe('SSR Tests', () => {
 
 		describe('External scripts', () => {
 			describe('without base path', () => {
-				let fixture;
-
 				before(async () => {
 					fixture = await getSharedFixture({
 						name: 'ssr-external-scripts-no-base',
@@ -91,8 +89,6 @@ describe('SSR Tests', () => {
 			});
 
 			describe('with base path', () => {
-				let fixture;
-
 				before(async () => {
 					fixture = await loadFixture({
 						root: './fixtures/ssr/',
@@ -116,8 +112,6 @@ describe('SSR Tests', () => {
 			});
 
 			describe('with assetsPrefix', () => {
-				let fixture;
-
 				before(async () => {
 					fixture = await loadFixture({
 						root: './fixtures/ssr/',
@@ -143,8 +137,6 @@ describe('SSR Tests', () => {
 			});
 
 			describe('with custom rollup output file names', () => {
-				let fixture;
-
 				before(async () => {
 					fixture = await loadFixture({
 						root: './fixtures/ssr/',
@@ -180,8 +172,6 @@ describe('SSR Tests', () => {
 			});
 
 			describe('with custom rollup output file names and base', () => {
-				let fixture;
-
 				before(async () => {
 					fixture = await loadFixture({
 						root: './fixtures/ssr/',
@@ -218,8 +208,6 @@ describe('SSR Tests', () => {
 			});
 
 			describe('with custom rollup output file names and assetsPrefix', () => {
-				let fixture;
-
 				before(async () => {
 					fixture = await loadFixture({
 						root: './fixtures/ssr/',

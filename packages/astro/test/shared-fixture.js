@@ -87,16 +87,6 @@ export async function getSharedFixture({ name, root, ...config }) {
 }
 
 /**
- * Clear all shared fixtures from the registry.
- * Useful for test cleanup or isolating test suites.
- */
-export function clearSharedFixtures() {
-	fixtureRegistry.clear();
-	loadPromises.clear();
-	buildPromises.clear();
-}
-
-/**
  * Get a shared preview server for a fixture. This ensures only one preview server
  * is started per shared fixture.
  */
@@ -170,13 +160,6 @@ export async function stopAllDevServers() {
 	}
 	await Promise.all(stopPromises);
 	devServers.clear();
-}
-
-/**
- * Stop all shared servers (both preview and dev)
- */
-export async function stopAllServers() {
-	await Promise.all([stopAllPreviewServers(), stopAllDevServers()]);
 }
 
 /**
