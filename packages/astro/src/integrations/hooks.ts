@@ -585,7 +585,7 @@ export async function runHookBuildGenerated({
 	logger: Logger;
 	routeToHeaders: RouteToHeaders;
 }) {
-	const preserveStructure = settings.adapter?.adapterFeatures?.preserveDirectoryStructure;
+	const preserveStructure = settings.adapter?.adapterFeatures?.preserveBuildClientDir;
 	const dir =
 		settings.buildOutput === 'server' || preserveStructure
 			? settings.config.build.client

@@ -279,7 +279,7 @@ export default function createIntegration({
 					adapterFeatures: {
 						buildOutput: 'server',
 						middlewareMode: 'classic',
-						preserveDirectoryStructure: true,
+						preserveBuildClientDir: true,
 					},
 					entrypointResolution: 'auto',
 					previewEntrypoint: '@astrojs/cloudflare/entrypoints/preview',
@@ -413,7 +413,7 @@ export default function createIntegration({
 					}
 				}
 
-				// For fully static sites with preserveDirectoryStructure, we keep the server directory
+				// For fully static sites with preserveBuildClientDir, we keep the server directory
 				// to maintain consistent structure for deployment
 
 				// Delete this variable so the preview server opens the server build.

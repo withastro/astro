@@ -122,7 +122,7 @@ export interface AstroAdapterFeatures {
 	 * Useful for adapters that require a specific directory structure regardless
 	 * of the build output type.
 	 */
-	preserveDirectoryStructure?: boolean;
+	preserveBuildClientDir?: boolean;
 }
 
 /**

@@ -544,8 +544,7 @@ function checkPublicConflict(
 ): boolean {
 	const outFilePath = fileURLToPath(outFile);
 	const outRoot = fileURLToPath(
-		settings.buildOutput === 'static' &&
-			!settings.adapter?.adapterFeatures?.preserveDirectoryStructure
+		settings.buildOutput === 'static' && !settings.adapter?.adapterFeatures?.preserveBuildClientDir
 			? settings.config.outDir
 			: settings.config.build.client,
 	);

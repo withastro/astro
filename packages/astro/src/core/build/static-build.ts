@@ -533,7 +533,7 @@ async function ssrMoveAssets(
 ) {
 	opts.logger.info('build', 'Rearranging server assets...');
 	const isFullyStaticSite = opts.settings.buildOutput === 'static';
-	const preserveStructure = opts.settings.adapter?.adapterFeatures?.preserveDirectoryStructure;
+	const preserveStructure = opts.settings.adapter?.adapterFeatures?.preserveBuildClientDir;
 	const serverRoot = opts.settings.config.build.server;
 	const clientRoot =
 		isFullyStaticSite && !preserveStructure
