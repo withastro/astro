@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it, before } from 'node:test';
 import { Logger } from '../../../dist/core/logger/core.js';
 import { RouteCache, callGetStaticPaths } from '../../../dist/core/render/route-cache.js';
-import { dynamicPart, makeRoute } from './test-helpers.js';
+import { makeRoute } from './test-helpers.js';
 
 describe('getStaticPaths param validation', () => {
 	let routeCache;
