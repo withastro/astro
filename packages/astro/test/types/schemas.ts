@@ -3,8 +3,8 @@ import { expectTypeOf } from 'expect-type';
 import type * as z from 'zod/v4';
 import { type FontProviderSchema, FontFamilySchema } from '../../src/assets/fonts/config.js';
 import type { FontProvider, FontFamily } from '../../src/assets/fonts/types.js';
-import type { CacheSchema, RouteRulesSchema } from '../../src/core/cache/config.js';
-import type { CacheProviderConfig, RouteRules } from '../../src/core/cache/types.js';
+import type { CacheSchema, RouteRulesSchema } from '../../dist/core/cache/config.js';
+import type { CacheProviderConfig, RouteRules } from '../../dist/core/cache/types.js';
 import type { SessionDriverConfigSchema } from '../../dist/core/session/config.js';
 import type { SessionDriverConfig } from '../../dist/core/session/types.js';
 
