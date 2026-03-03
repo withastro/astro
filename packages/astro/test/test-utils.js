@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { glob } from 'tinyglobby';
 import { Agent } from 'undici';
+import { setSummary } from '../../../.github/scripts/utils.mjs';
 import { check } from '../dist/cli/check/index.js';
 import { globalContentLayer } from '../dist/content/instance.js';
 import { globalContentConfigObserver } from '../dist/content/utils.js';
@@ -12,58 +13,72 @@ import build from '../dist/core/build/index.js';
 import { mergeConfig, resolveConfig } from '../dist/core/config/index.js';
 import { dev, preview } from '../dist/core/index.js';
 import sync from '../dist/core/sync/index.js';
-import { deterministicString } from '../dist/assets/utils/deterministic-string.js';
-
-let cacheHits = 0;
-/** @type {Record<string, number>} */
-let fixtureCounts = {};
-/** @type {Record<string, number>} */
-let fixtureBuildCounts = {};
-/** @type {Record<string, number>} */
-let cacheHitCounts = {};
-/** @type {Record<string, number[]>} */
-let buildTimings = {};
 
 /**
- * @param {Record<string, number>} counts
+ * @typedef {{ fixture: string; duration: number }} LogEntry
  */
-const formatReport = (counts) =>
-	Object.entries(counts)
-		.filter(([, count]) => count > 1)
-		.sort(([, a], [, b]) => b - a)
-		.map(([root, count]) => {
-			const relativePath = path.relative(process.cwd(), root);
-			const timing = buildTimings[root]
-				? `(${Math.round(buildTimings[root].reduce((a, b) => a + b, 0))}ms total)`
-				: '';
-			return `- x${count} ${relativePath} ${timing}`;
-		})
-		.join('\n');
+/**
+ * @param {LogEntry} _logEntry Lines to append to the test log file.
+ */
+let logBuild = (_logEntry) => {}; // noop when not in CI
 
-process.addListener('exit', () => {
-	console.log(
-		`
+if (process.env.CI) {
+	const repoRoot = fileURLToPath(new URL('../../../', import.meta.url));
+	const cacheDir = path.join(repoRoot, 'node_modules/.cache/astro-test-utils');
+	const logFile = path.join(cacheDir, 'log.txt');
+	// Create cache directory and log file if they don't exist
+	if (!fs.existsSync(cacheDir)) {
+		fs.mkdirSync(cacheDir, { recursive: true });
+	}
+	if (!fs.existsSync(logFile)) {
+		fs.writeFileSync(logFile, '');
+	}
 
+	const logStream = fs.createWriteStream(logFile, { flags: 'a' });
+	logBuild = (logEntry) => {
+		logStream.write(JSON.stringify(logEntry) + '\n');
+	};
 
-🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
-
-${cacheHits} build cache hits
-
-Top fixtures by cache hits:
-${formatReport(cacheHitCounts)}
-
-Top fixtures by total builds:
-${formatReport(fixtureBuildCounts)}
-
-Top fixtures (most loaded):
-${formatReport(fixtureCounts)}
-
-🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
-
-
-`,
-	);
-});
+	// Close stream before process exits.
+	process.addListener('exit', () => {
+		logStream.end();
+		const logContents = fs.readFileSync(logFile, 'utf-8');
+		/**
+		 * @param {string} logs
+		 * @returns {string}
+		 */
+		const createSummary = (logs) => {
+			const lines = /** @type {LogEntry[]} */ (
+				logs
+					.split('\n')
+					.filter(Boolean)
+					.map((l) => JSON.parse(l))
+			);
+			if (lines.length === 0) {
+				return 'No test logs found.';
+			}
+			/** @type {Record<string, { fixture: string; count: number; totalDuration: number }>} */
+			const builds = {};
+			for (const line of lines) {
+				builds[line.fixture] ??= { fixture: line.fixture, count: 0, totalDuration: 0 };
+				builds[line.fixture].count++;
+				builds[line.fixture].totalDuration += line.duration;
+			}
+			let summary = '## Slowest fixture builds this run\n\n';
+			summary += '| Fixture | Builds | Total Duration (s) |\n';
+			summary += '|---------|--------|--------------------|\n';
+			const entries = Object.values(builds)
+				.sort((a, b) => b.totalDuration - a.totalDuration)
+				.slice(0, 20);
+			for (const entry of entries) {
+				summary += `| ${entry.fixture} | ${entry.count} | ${(entry.totalDuration / 1000).toFixed(2)} |\n`;
+			}
+			return summary;
+		};
+		const summary = createSummary(logContents);
+		setSummary(summary);
+	});
+}
 
 // Disable telemetry when running tests
 process.env.ASTRO_TELEMETRY_DISABLED = true;
@@ -197,23 +212,8 @@ export async function loadFixture(inlineConfig) {
 	let fixtureId = new Date().valueOf();
 	let devServer;
 
-	/** @type {string | undefined} */
-	let lastBuildId;
-
-	fixtureCounts[root] ??= 0;
-	fixtureCounts[root]++;
-
 	return {
 		build: async (extraInlineConfig = {}, options = {}) => {
-			fixtureBuildCounts[root] ??= 0;
-			fixtureBuildCounts[root]++;
-			const buildId = deterministicString([inlineConfig, extraInlineConfig, options]);
-			if (buildCache.has(buildId)) {
-				cacheHits++;
-				cacheHitCounts[root] ??= 0;
-				cacheHitCounts[root]++;
-				return;
-			}
 			globalContentLayer.dispose();
 			globalContentConfigObserver.set({ status: 'init' });
 			// Reset NODE_ENV so it can be re-set by `build()`
@@ -224,10 +224,8 @@ export async function loadFixture(inlineConfig) {
 				...options,
 			});
 			const t1 = performance.now();
-			buildTimings[root] ??= [];
-			buildTimings[root].push(t1 - t0);
-			buildCache.add(buildId);
-			lastBuildId = buildId;
+			const duration = t1 - t0;
+			logBuild({ fixture: root, duration });
 		},
 		sync,
 		check: async (opts) => {
@@ -321,10 +319,6 @@ export async function loadFixture(inlineConfig) {
 				expandDirectories: false,
 			}),
 		clean: async () => {
-			if (lastBuildId) {
-				buildCache.delete(lastBuildId);
-				lastBuildId = undefined;
-			}
 			await fs.promises.rm(config.outDir, {
 				maxRetries: 10,
 				recursive: true,
@@ -446,6 +440,3 @@ export async function* streamAsyncIterator(stream) {
 		reader.releaseLock();
 	}
 }
-
-/** @type {Set<string>} */
-const buildCache = new Set();
