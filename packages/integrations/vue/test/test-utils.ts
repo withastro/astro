@@ -1,10 +1,7 @@
+import type { AstroInlineConfig } from '../../../astro/dist/types/public/config.js';
 import { loadFixture as baseLoadFixture } from '../../../astro/test/test-utils.js';
 
-/**
- * @typedef {import('../../../astro/test/test-utils').Fixture} Fixture
- */
-
-export function loadFixture(inlineConfig) {
+export function loadFixture(inlineConfig: AstroInlineConfig) {
 	if (!inlineConfig?.root) throw new Error("Must provide { root: './fixtures/...' }");
 
 	// resolve the relative root (i.e. "./fixtures/tailwindcss") to a full filepath

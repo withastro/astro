@@ -1,14 +1,13 @@
 import { EventEmitter } from 'node:events';
-import httpMocks from 'node-mocks-http';
+import httpMocks, { type RequestOptions } from 'node-mocks-http';
 import { loadFixture as baseLoadFixture } from '../../../astro/test/test-utils.js';
+import type { AstroInlineConfig } from '../../../astro/dist/types/public/config.js';
+import type { Server } from 'node:http';
 
 process.env.ASTRO_NODE_AUTOSTART = 'disabled';
 process.env.ASTRO_NODE_LOGGING = 'disabled';
-/**
- * @typedef {import('../../../astro/test/test-utils').Fixture} Fixture
- */
 
-export function loadFixture(inlineConfig) {
+export function loadFixture(inlineConfig: AstroInlineConfig) {
 	if (!inlineConfig?.root) throw new Error("Must provide { root: './fixtures/...' }");
 
 	// resolve the relative root (i.e. "./fixtures/tailwindcss") to a full filepath
@@ -19,7 +18,7 @@ export function loadFixture(inlineConfig) {
 	});
 }
 
-export function createRequestAndResponse(reqOptions) {
+export function createRequestAndResponse(reqOptions: RequestOptions) {
 	const req = httpMocks.createRequest(reqOptions);
 
 	const res = httpMocks.createResponse({
@@ -38,13 +37,12 @@ export function createRequestAndResponse(reqOptions) {
 	return { req, res, done, text };
 }
 
-/** @returns {Promise<Array<Buffer>>} */
-function toPromise(res) {
-	return new Promise((resolve) => {
+function toPromise(res: any) {
+	return new Promise<Array<Buffer>>((resolve) => {
 		// node-mocks-http doesn't correctly handle non-Buffer typed arrays,
 		// so override the write method to fix it.
 		const write = res.write;
-		res.write = function (data, encoding) {
+		res.write = function (data: any, encoding: any) {
 			if (ArrayBuffer.isView(data) && !Buffer.isBuffer(data)) {
 				data = Buffer.from(data.buffer);
 			}
@@ -57,7 +55,7 @@ function toPromise(res) {
 	});
 }
 
-function buffersToString(buffers) {
+function buffersToString(buffers: Array<Buffer>) {
 	const decoder = new TextDecoder();
 	let str = '';
 	for (const buffer of buffers) {
@@ -66,13 +64,13 @@ function buffersToString(buffers) {
 	return str;
 }
 
-export function waitServerListen(server) {
-	return new Promise((resolve, reject) => {
+export function waitServerListen(server: Server) {
+	return new Promise<void>((resolve, reject) => {
 		function onListen() {
 			server.off('error', onError);
 			resolve();
 		}
-		function onError(error) {
+		function onError(error: Error) {
 			server.off('listening', onListen);
 			reject(error);
 		}
