@@ -263,3 +263,177 @@ describe('CSRF origin check', () => {
 		});
 	});
 });
+
+describe('CSRF origin check for Actions', () => {
+	let app;
+
+	before(async () => {
+		const fixture = await loadFixture({
+			root: './fixtures/csrf-check-origin/',
+			adapter: testAdapter(),
+		});
+		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
+	});
+
+	// --- RPC endpoint (/_actions/getSecret) ---
+
+	it('blocks cross-origin POST with application/json to RPC action endpoint', async () => {
+		const request = new Request('http://example.com/_actions/getSecret', {
+			method: 'POST',
+			headers: {
+				origin: 'http://evil.com',
+				'content-type': 'application/json',
+			},
+			body: '{}',
+		});
+		const response = await app.render(request);
+		assert.equal(response.status, 403);
+	});
+
+	it('blocks cross-origin POST with application/x-www-form-urlencoded to RPC action endpoint', async () => {
+		const request = new Request('http://example.com/_actions/getSecret', {
+			method: 'POST',
+			headers: {
+				origin: 'http://evil.com',
+				'content-type': 'application/x-www-form-urlencoded',
+			},
+			body: 'foo=bar',
+		});
+		const response = await app.render(request);
+		assert.equal(response.status, 403);
+	});
+
+	it('allows same-origin POST with application/json to RPC action endpoint', async () => {
+		const request = new Request('http://example.com/_actions/getSecret', {
+			method: 'POST',
+			headers: {
+				origin: 'http://example.com',
+				'content-type': 'application/json',
+			},
+			body: '{}',
+		});
+		const response = await app.render(request);
+		assert.equal(response.status, 200);
+	});
+
+	it('allows POST without Origin header to RPC action endpoint', async () => {
+		const request = new Request('http://example.com/_actions/getSecret', {
+			method: 'POST',
+			headers: {
+				'content-type': 'application/json',
+			},
+			body: '{}',
+		});
+		const response = await app.render(request);
+		assert.equal(response.status, 200);
+	});
+
+	// --- Form-style action endpoint (/?_action=getSecret) ---
+
+	it('blocks cross-origin POST with application/json to form-style action endpoint', async () => {
+		const request = new Request('http://example.com/?_action=getSecret', {
+			method: 'POST',
+			headers: {
+				origin: 'http://evil.com',
+				'content-type': 'application/json',
+			},
+			body: '{}',
+		});
+		const response = await app.render(request);
+		assert.equal(response.status, 403);
+	});
+
+	it('blocks cross-origin POST with application/x-www-form-urlencoded to form-style action endpoint', async () => {
+		const request = new Request('http://example.com/?_action=getSecret', {
+			method: 'POST',
+			headers: {
+				origin: 'http://evil.com',
+				'content-type': 'application/x-www-form-urlencoded',
+			},
+			body: 'foo=bar',
+		});
+		const response = await app.render(request);
+		assert.equal(response.status, 403);
+	});
+
+	it('allows same-origin POST with application/json to form-style action endpoint', async () => {
+		const request = new Request('http://example.com/?_action=getSecret', {
+			method: 'POST',
+			headers: {
+				origin: 'http://example.com',
+				'content-type': 'application/json',
+			},
+			body: '{}',
+		});
+		const response = await app.render(request);
+		assert.equal(response.status, 200);
+	});
+
+	it('allows POST without Origin header to form-style action endpoint', async () => {
+		const request = new Request('http://example.com/?_action=getSecret', {
+			method: 'POST',
+			headers: {
+				'content-type': 'application/json',
+			},
+			body: '{}',
+		});
+		const response = await app.render(request);
+		assert.equal(response.status, 200);
+	});
+
+	it('blocks form-style action when Referer points to a different origin', async () => {
+		const request = new Request('http://example.com/?_action=getSecret', {
+			method: 'POST',
+			headers: {
+				'content-type': 'application/json',
+				referer: 'http://evil.com/attack',
+			},
+			body: '{}',
+		});
+		const response = await app.render(request);
+		assert.equal(response.status, 403);
+	});
+
+	it('allows form-style action when Referer matches the origin', async () => {
+		const request = new Request('http://example.com/?_action=getSecret', {
+			method: 'POST',
+			headers: {
+				'content-type': 'application/json',
+				referer: 'http://example.com/page',
+			},
+			body: '{}',
+		});
+		const response = await app.render(request);
+		assert.equal(response.status, 200);
+	});
+
+	// --- Non-action endpoints: original behaviour preserved ---
+
+	it('does NOT block cross-origin POST with application/json to a regular (non-action) endpoint', async () => {
+		const request = new Request('http://example.com/api/', {
+			method: 'POST',
+			headers: {
+				origin: 'http://evil.com',
+				'content-type': 'application/json',
+			},
+			body: '{}',
+		});
+		const response = await app.render(request);
+		// Regular endpoints with non-form content types are unaffected by the CSRF check
+		assert.equal(response.status, 200);
+	});
+
+	it('still blocks cross-origin POST with form content-type to a regular (non-action) endpoint', async () => {
+		const request = new Request('http://example.com/api/', {
+			method: 'POST',
+			headers: {
+				origin: 'http://evil.com',
+				'content-type': 'application/x-www-form-urlencoded',
+			},
+			body: 'foo=bar',
+		});
+		const response = await app.render(request);
+		assert.equal(response.status, 403);
+	});
+});
