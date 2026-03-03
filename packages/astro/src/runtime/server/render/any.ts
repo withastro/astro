@@ -1,4 +1,4 @@
-import { escapeHTML, isHTMLString } from '../escape.js';
+import { escapeHTML, isHTMLString, markHTMLString } from '../escape.js';
 import { isPromise } from '../util.js';
 import type { RenderDestination } from './common.js';
 import { createBufferedRenderer } from './util.js';
@@ -6,8 +6,10 @@ import { createBufferedRenderer } from './util.js';
 export function renderChild(destination: RenderDestination, child: any): void | Promise<void> {
 	// Strings are the most common child type (text expressions like {title}, {name})
 	// so check them first for the fastest dispatch in the common case.
+	// markHTMLString wraps the escaped result to signal "already escaped" and
+	// prevent any downstream double-escaping if the chunk is seen again.
 	if (typeof child === 'string') {
-		destination.write(escapeHTML(child));
+		destination.write(markHTMLString(escapeHTML(child)));
 		return;
 	}
 

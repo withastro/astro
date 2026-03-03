@@ -48,7 +48,9 @@ export type RenderInstruction =
 // getting a per-instance Object.defineProperty() call.  This is significantly
 // faster in V8: Object.create + Object.assign avoids the descriptor-creation
 // overhead of Object.defineProperty, and keeps a stable hidden class.
-const RenderInstructionProto: Record<symbol, boolean> = Object.create(null);
+// We inherit from Object.prototype (not null) so that String() coercion and
+// other standard operations still work on instruction objects.
+const RenderInstructionProto: Record<symbol, boolean> = Object.create(Object.prototype);
 RenderInstructionProto[RenderInstructionSymbol] = true;
 
 // Pre-allocated singleton instructions for the two hottest paths
