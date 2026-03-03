@@ -57,7 +57,7 @@ const parser = new Parser({ trim: true });
  * Utility function to parse an XML string into an object using `xml2js`.
  */
 export function parseXmlString(xmlString: string) {
-	let res: { err: Error; result: any };
+	let res!: { err: Error | null; result: any };
 	parser.parseString(xmlString, (err, result) => {
 		res = { err, result };
 	});

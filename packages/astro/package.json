@@ -112,8 +112,8 @@
     "test:e2e:chrome": "playwright test",
     "test:e2e:firefox": "playwright test --config playwright.firefox.config.js",
     "test:types": "tsc --project test/types/tsconfig.json",
-    "test:unit": "astro-scripts test \"test/units/**/*.test.js\" --teardown ./test/units/teardown.js",
-    "test:integration": "astro-scripts test \"test/*.test.js\""
+    "test:unit": "astro-scripts test \"test/units/**/*.test.ts\" --teardown ./test/units/teardown.js",
+    "test:integration": "astro-scripts test \"test/*.test.ts\""
   },
   "dependencies": {
     "@astrojs/compiler": "^3.0.0-beta.1",

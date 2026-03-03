@@ -44,7 +44,7 @@ await loadFixture({
 
 ### Unit Tests (node:test) - PREFERRED
 
-**Location**: `packages/astro/test/*.test.js`
+**Location**: `packages/astro/test/*.test.ts`
 
 **Runner**: `node:test` via `astro-scripts test`
 
@@ -119,7 +119,7 @@ export function processConfigFile(configPath) {
 - Testing adapter integration
 - Testing features that require full Astro context
 
-**Location**: `packages/astro/test/*.test.js` (same location, different purpose)
+**Location**: `packages/astro/test/*.test.ts` (same location, different purpose)
 
 **Pattern**: Uses `loadFixture()` and builds full Astro projects
 
@@ -127,7 +127,7 @@ export function processConfigFile(configPath) {
 
 ### E2E Tests (Playwright) - USE FOR BROWSER ONLY
 
-**Location**: `packages/astro/e2e/*.test.js`
+**Location**: `packages/astro/e2e/*.test.ts`
 
 **When to use**:
 
