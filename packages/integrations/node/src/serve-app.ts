@@ -104,6 +104,10 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 			);
 			await writeResponse(response, res);
 		} else if (next) {
+			// Clean up the socket listeners added by createRequest(), since writeResponse()
+			// won't be called to handle the cleanup for this request.
+			const cleanup = Reflect.get(req, Symbol.for('astro.nodeRequestAbortControllerCleanup'));
+			if (typeof cleanup === 'function') cleanup();
 			return next();
 		} else {
 			const response = await app.render(request, {
