@@ -126,7 +126,7 @@ if (process.env.CI) {
 					`Test "${test.name}" took ${(test.duration / 1000).toFixed(2)} seconds to run. Consider breaking it up into smaller tests.`,
 					{
 						title: `Slow test: ${test.name}`,
-						file: test.file,
+						file: test.file?.replace(repoRoot, '').replaceAll('\\', '/'),
 						line: test.line,
 						column: test.column,
 					},
