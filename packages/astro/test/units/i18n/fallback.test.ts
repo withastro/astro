@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { computeFallbackRoute } from '../../../dist/i18n/fallback.js';
-import { makeFallbackOptions } from './test-helpers.js';
+import { makeFallbackOptions } from './test-helpers.ts';
 
 describe('computeFallbackRoute', () => {
 	describe('when response status is not 404', () => {

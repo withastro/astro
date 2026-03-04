@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import { App } from '../../../dist/core/app/app.js';
 import { parseRoute } from '../../../dist/core/routing/parse-route.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
-import { createManifest } from './test-helpers.js';
+import { createManifest } from './test-helpers.ts';
 
 /**
  * Security tests for double-slash URL prefix middleware authorization bypass.

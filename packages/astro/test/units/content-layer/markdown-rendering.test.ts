@@ -10,7 +10,7 @@ import {
 	createTestConfigObserver,
 	createMinimalSettings,
 	parseSimpleMarkdownFrontmatter,
-} from './test-helpers.js';
+} from './test-helpers.ts';
 
 describe('Content Layer - Markdown Rendering', () => {
 	// Create a real temp directory for tests

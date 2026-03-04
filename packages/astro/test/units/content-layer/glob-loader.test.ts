@@ -9,7 +9,7 @@ import {
 	createTestConfigObserver,
 	createMinimalSettings,
 	createMarkdownEntryType,
-} from './test-helpers.js';
+} from './test-helpers.ts';
 
 describe('Glob Loader', () => {
 	const root = new URL('../../fixtures/content-layer/', import.meta.url);

@@ -1,7 +1,7 @@
 import { AstroCookies } from '../../../dist/core/cookies/index.js';
 import type { APIContext, AstroConfig, RoutePart, RouteType } from '../../../dist/index.js';
-import { makeRoute, staticPart } from '../routing/test-helpers.js';
-export { createManifest } from '../app/test-helpers.js';
+import { makeRoute, staticPart } from '../routing/test-helpers.ts';
+export { createManifest } from '../app/test-helpers.ts';
 
 /**
  * Creates a mock APIContext suitable for calling middleware directly via `callMiddleware()`.

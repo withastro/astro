@@ -10,7 +10,7 @@ import {
 	redirectToFallback,
 } from '../../../dist/i18n/index.js';
 import { REROUTE_DIRECTIVE_HEADER } from '../../../dist/core/constants.js';
-import { createManualRoutingContext, createMiddlewarePayload } from './test-helpers.js';
+import { createManualRoutingContext, createMiddlewarePayload } from './test-helpers.ts';
 
 describe('normalizeTheLocale', () => {
 	it('should convert underscores to dashes', () => {

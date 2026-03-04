@@ -6,7 +6,7 @@ import { defineCollection } from '../../../dist/content/config.js';
 import { ContentLayer } from '../../../dist/content/content-layer.js';
 import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
 import { Logger } from '../../../dist/core/logger/core.js';
-import { createTestConfigObserver, createMinimalSettings } from './test-helpers.js';
+import { createTestConfigObserver, createMinimalSettings } from './test-helpers.ts';
 
 describe('File Loader', () => {
 	const root = new URL('../../fixtures/content-layer/', import.meta.url);

@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import fs from 'node:fs/promises';
 import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
-import { createTempDir } from './test-helpers.js';
+import { createTempDir } from './test-helpers.ts';
 
 describe('Content Layer - Store Persistence', () => {
 	it('updates the store on new builds', async () => {

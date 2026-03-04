@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { I18nRouter } from '../../../dist/i18n/router.js';
-import { makeI18nRouterConfig, makeRouterContext } from './test-helpers.js';
+import { makeI18nRouterConfig, makeRouterContext } from './test-helpers.ts';
 
 describe('I18nRouter', () => {
 	describe('strategy: pathname-prefix-always', () => {

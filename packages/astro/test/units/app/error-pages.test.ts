@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { App } from '../../../dist/core/app/app.js';
 import { createComponent, maybeRenderHead, render } from '../../../dist/runtime/server/index.js';
-import { createManifest } from './test-helpers.js';
+import { createManifest } from './test-helpers.ts';
 
 describe('App render error pages', () => {
 	it('preserves headers and body for 500 responses from routes', async () => {
