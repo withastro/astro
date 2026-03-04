@@ -1,5 +1,5 @@
 {
-  "name": "@test/astro-basic",
+  "name": "@test/static",
   "version": "0.0.0",
   "private": true,
   "dependencies": {
