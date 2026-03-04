@@ -157,9 +157,7 @@ export async function loadFixture(inlineConfig) {
 				teardownCompiler: false,
 				...options,
 			});
-			const t1 = performance.now();
-			const duration = t1 - t0;
-			CILogger.logBuild({ fixture: root, duration });
+			CILogger.logBuild({ fixture: root, duration: performance.now() - t0 });
 		},
 		sync,
 		check: async (opts) => {
