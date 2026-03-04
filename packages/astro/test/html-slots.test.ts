@@ -17,10 +17,11 @@ describe('HTML Slots', () => {
 			await fixture.build();
 		});
 
-		it('works', async () => {
+		it('renders slot content from parent components', async () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
 
+			// Test that slot content is properly passed and rendered
 			const slotDefault = $('#default');
 			assert.equal(slotDefault.text(), 'Default');
 
@@ -32,6 +33,11 @@ describe('HTML Slots', () => {
 
 			const c = $('#c');
 			assert.equal(c.text().trim(), 'C');
+		});
+
+		it('preserves inline slots', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerio.load(html);
 
 			const inline = $('#inline');
 			assert.equal(inline.html(), '<slot is:inline=""></slot>');
@@ -49,14 +55,14 @@ describe('HTML Slots', () => {
 			await devServer.stop();
 		});
 
-		it('works', async () => {
+		it('renders slot content from parent components', async () => {
 			const res = await fixture.fetch('/');
-
 			assert.equal(res.status, 200);
 
 			const html = await res.text();
 			const $ = cheerio.load(html);
 
+			// Test that slot content is properly passed and rendered
 			const slotDefault = $('#default');
 			assert.equal(slotDefault.text(), 'Default');
 
@@ -68,6 +74,12 @@ describe('HTML Slots', () => {
 
 			const c = $('#c');
 			assert.equal(c.text().trim(), 'C');
+		});
+
+		it('preserves inline slots', async () => {
+			const res = await fixture.fetch('/');
+			const html = await res.text();
+			const $ = cheerio.load(html);
 
 			const inline = $('#inline');
 			assert.equal(inline.html(), '<slot is:inline=""></slot>');

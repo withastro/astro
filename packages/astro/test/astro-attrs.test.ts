@@ -70,9 +70,9 @@ describe('Attributes', async () => {
 			"normal attributes should not have values if it's an empty string",
 		);
 
-		// cheerio will unescape the values, so checking that the url rendered unescaped to begin with has to be done manually
+		// cheerio will unescape the values, so checking that the url rendered escaped has to be done manually
 		assert.equal(
-			html.includes('https://example.com/api/og?title=hello&description=somedescription'),
+			html.includes('https://example.com/api/og?title=hello&#38;description=somedescription'),
 			true,
 		);
 
