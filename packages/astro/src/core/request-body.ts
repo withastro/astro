@@ -30,7 +30,6 @@ export async function readBodyWithLimit(request: Request, limit: number): Promis
 		if (value) {
 			received += value.byteLength;
 			if (received > limit) {
-				await reader.cancel();
 				throw new BodySizeLimitError(limit);
 			}
 			chunks.push(value);

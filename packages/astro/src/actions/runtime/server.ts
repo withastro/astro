@@ -262,7 +262,12 @@ async function parseRequestBody(request: Request, bodySizeLimit: number) {
 	const hasContentLength = typeof contentLength === 'number' && Number.isFinite(contentLength);
 
 	if (!contentType) return undefined;
-
+	if (hasContentLength && contentLength > bodySizeLimit) {
+		throw new ActionError({
+			code: 'CONTENT_TOO_LARGE',
+			message: `Request body exceeds ${bodySizeLimit} bytes`,
+		});
+	}
 	try {
 		if (hasContentType(contentType, formContentTypes)) {
 			if (!hasContentLength) {
@@ -274,9 +279,6 @@ async function parseRequestBody(request: Request, bodySizeLimit: number) {
 				});
 				return await formRequest.formData();
 			}
-			if (hasContentLength && contentLength > bodySizeLimit) {
-				throw new BodySizeLimitError(bodySizeLimit);
-			}
 			return await request.clone().formData();
 		}
 		if (hasContentType(contentType, ['application/json'])) {
@@ -285,9 +287,6 @@ async function parseRequestBody(request: Request, bodySizeLimit: number) {
 				const body = await readBodyWithLimit(request.clone(), bodySizeLimit);
 				if (body.byteLength === 0) return undefined;
 				return JSON.parse(new TextDecoder().decode(body));
-			}
-			if (hasContentLength && contentLength > bodySizeLimit) {
-				throw new BodySizeLimitError(bodySizeLimit);
 			}
 			return await request.clone().json();
 		}
