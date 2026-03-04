@@ -75,11 +75,18 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 		return new Response(null, { status: 404 });
 	};
 
+	// Default global body size limit: 1GB.
+	// This prevents unbounded memory consumption from large request bodies
+	// while remaining generous enough for legitimate use cases (file uploads, streaming).
+	// Actions have their own stricter limit (actionBodySizeLimit, default 1MB).
+	const DEFAULT_BODY_SIZE_LIMIT = 1024 * 1024 * 1024;
+
 	return async (req, res, next, locals) => {
 		let request: Request;
 		try {
 			request = createRequest(req, {
 				allowedDomains: app.getAllowedDomains?.() ?? [],
+				bodySizeLimit: DEFAULT_BODY_SIZE_LIMIT,
 			});
 		} catch (err) {
 			logger.error(`Could not render ${req.url}`);
