@@ -40,7 +40,7 @@ import { AstroCache, type CacheLike } from './cache/runtime/cache.js';
 import { NoopAstroCache, DisabledAstroCache } from './cache/runtime/noop.js';
 import { compileCacheRoutes, matchCacheRoute } from './cache/runtime/route-matching.js';
 import { AstroSession } from './session/runtime.js';
-import { collapseDuplicateLeadingSlashes } from '@astrojs/internal-helpers/path';
+import { collapseDuplicateSlashes } from '@astrojs/internal-helpers/path';
 import { validateAndDecodePathname } from './util/pathname.js';
 
 /**
@@ -91,35 +91,23 @@ export class RenderContext {
 
 	static #createNormalizedUrl(requestUrl: string): URL {
 		const url = new URL(requestUrl);
-		// Collapse multiple leading slashes so middleware sees the canonical pathname.
-		// Without this, a request to `//admin` would preserve `//admin` in context.url.pathname,
-		// bypassing middleware checks like `pathname.startsWith('/admin')`.
-		url.pathname = collapseDuplicateLeadingSlashes(url.pathname);
 		try {
 			// Decode and validate pathname to prevent multi-level encoding bypass attacks
-			let decoded = validateAndDecodePathname(url.pathname);
-			// Replace backslashes with forward slashes before assigning to url.pathname.
-			// The URL spec's pathname setter normalizes `\` to `/`, which can create
-			// unexpected duplicate slashes (e.g., `/users/\admin` → `/users//admin`).
-			// Normalizing here ensures consistent pathname representation.
-			decoded = decoded.replaceAll('\\', '/');
-			url.pathname = decoded;
+			url.pathname = validateAndDecodePathname(url.pathname);
 		} catch {
 			// If validation fails, return URL with pathname as-is
 			// This will be caught elsewhere in the request handling pipeline
 			// For now, just decode without validation to maintain compatibility
 			try {
-				let decoded = decodeURI(url.pathname);
-				decoded = decoded.replaceAll('\\', '/');
-				url.pathname = decoded;
+				url.pathname = decodeURI(url.pathname);
 			} catch {
 				// If even basic decoding fails, return URL as-is
 			}
 		}
-		// Collapse any duplicate slashes in the pathname that may have been introduced
-		// by decoding and normalization (e.g., from backslash conversion or URL setter behavior).
-		// This covers both leading slashes and slashes anywhere in the path.
-		url.pathname = url.pathname.replace(/\/{2,}/g, '/');
+		// Collapse duplicate slashes so middleware sees the canonical pathname.
+		// This prevents bypass attacks (e.g., `//admin` evading `/admin` checks)
+		// and handles slashes introduced by decoding (e.g., `%5C` → `\` → `/`).
+		url.pathname = collapseDuplicateSlashes(url.pathname);
 		return url;
 	}
 
