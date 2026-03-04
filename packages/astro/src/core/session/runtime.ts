@@ -53,6 +53,8 @@ export class AstroSession {
 	#dirty = false;
 	// Whether the session cookie has been set.
 	#cookieSet = false;
+	// Whether the session ID was sourced from a client cookie rather than freshly generated.
+	#sessionIDFromCookie = false;
 	// The local data is "partial" if it has not been loaded from storage yet and only
 	// contains values that have been set or deleted in-memory locally.
 	// We do this to avoid the need to block on loading data when it is only being set.
@@ -242,6 +244,7 @@ export class AstroSession {
 
 		// Create new session
 		this.#sessionID = crypto.randomUUID();
+		this.#sessionIDFromCookie = false;
 		this.#data = data;
 		this.#dirty = true;
 		await this.#setCookie();
@@ -349,6 +352,16 @@ export class AstroSession {
 		// We stored this as a devalue string, but unstorage will have parsed it as JSON
 		const raw = await storage.get<any[]>(this.#ensureSessionID());
 		if (!raw) {
+			if (this.#sessionIDFromCookie) {
+				// The session ID was supplied by the client cookie but has no corresponding
+				// server-side data. Generate a new server-controlled ID rather than
+				// accepting an unrecognized value from the client.
+				this.#sessionID = crypto.randomUUID();
+				this.#sessionIDFromCookie = false;
+				if (this.#cookieSet) {
+					await this.#setCookie();
+				}
+			}
 			// If there is no existing data in storage we don't need to merge anything
 			// and can just return the existing local data.
 			return this.#data;
@@ -404,7 +417,15 @@ export class AstroSession {
 	 * Returns the session ID, generating a new one if it does not exist.
 	 */
 	#ensureSessionID() {
-		this.#sessionID ??= this.#cookies.get(this.#cookieName)?.value ?? crypto.randomUUID();
+		if (!this.#sessionID) {
+			const cookieValue = this.#cookies.get(this.#cookieName)?.value;
+			if (cookieValue) {
+				this.#sessionID = cookieValue;
+				this.#sessionIDFromCookie = true;
+			} else {
+				this.#sessionID = crypto.randomUUID();
+			}
+		}
 		return this.#sessionID;
 	}
 
