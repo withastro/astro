@@ -156,10 +156,14 @@ describe('AstroSession - Session Regeneration', () => {
 		await session[PERSIST_SYMBOL]();
 
 		// Create a new session that reads from the same storage
-		const newSession = createSession(defaultConfig, {
-			...defaultMockCookies,
-			get: () => ({ value: session.sessionID }),
-		}, mockStorage);
+		const newSession = createSession(
+			defaultConfig,
+			{
+				...defaultMockCookies,
+				get: () => ({ value: session.sessionID }),
+			},
+			mockStorage,
+		);
 
 		const value = await newSession.get('user');
 		assert.equal(value, 'alice');
