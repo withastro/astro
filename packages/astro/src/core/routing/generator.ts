@@ -1,3 +1,4 @@
+import { collapseDuplicateLeadingSlashes } from '@astrojs/internal-helpers/path';
 import type { AstroConfig } from '../../types/public/config.js';
 import type { RoutePart } from '../../types/public/internal.js';
 
@@ -41,7 +42,7 @@ function getParameter(part: RoutePart, params: Record<string, string | number>):
 function getSegment(segment: RoutePart[], params: Record<string, string | number>): string {
 	const segmentPath = segment.map((part) => getParameter(part, params)).join('');
 
-	return segmentPath ? '/' + segmentPath : '';
+	return segmentPath ? collapseDuplicateLeadingSlashes('/' + segmentPath) : '';
 }
 
 type RouteGenerator = (data?: any) => string;
