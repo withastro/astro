@@ -7085,9 +7085,6 @@ importers:
       piccolore:
         specifier: ^0.1.3
         version: 0.1.3
-      semver:
-        specifier: ^7.7.4
-        version: 7.7.4
       tinyglobby:
         specifier: ^0.2.15
         version: 0.2.15
