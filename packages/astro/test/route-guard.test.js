@@ -72,6 +72,11 @@ describe('Route Guard - Dev Server', () => {
 			const html = await response.text();
 			assert.match(html, /Test Page/);
 		});
+
+		it('404 when loading /test-1 (no route exists and directory exists at project root)', async () => {
+			const response = await fixture.fetch('/test-1', browserHeaders);
+			assert.equal(response.status, 404);
+		});
 	});
 
 	describe('Non-existent files should 404 normally', () => {
