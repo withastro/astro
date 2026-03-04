@@ -112,7 +112,7 @@ export default function createVitePluginAstroServer({
 				// Validate Sec-Fetch metadata headers to restrict cross-origin subresource requests
 				viteServer.middlewares.stack.unshift({
 					route: '',
-					handle: secFetchMiddleware(),
+					handle: secFetchMiddleware(logger, settings.config.security?.allowedDomains),
 				});
 
 				// Note that this function has a name so other middleware can find it.
