@@ -3413,12 +3413,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/html-escape-complex:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/html-page:
     dependencies:
       astro:
@@ -6163,6 +6157,9 @@ importers:
         specifier: ^4.3.6
         version: 4.3.6
     devDependencies:
+      '@types/xml2js':
+        specifier: ^0.4.14
+        version: 0.4.14
       astro:
         specifier: workspace:*
         version: link:../../astro

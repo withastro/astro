@@ -68,7 +68,7 @@
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "test": "pnpm run test:integration && pnpm run test:types",
-    "test:integration": "astro-scripts test \"test/**/*.test.js\"",
+    "test:integration": "astro-scripts test \"test/**/*.test.ts\"",
     "test:types": "tsc --project test/types/tsconfig.json"
   },
   "dependencies": {

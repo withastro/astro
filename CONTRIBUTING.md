@@ -11,7 +11,7 @@ We welcome contributions of any size and skill level. As an open source project,
 ### Prerequisites
 
 ```shell
-node: "^>=22.12.0"
+node: "^>=22.18.0"
 pnpm: "^10.28.0"
 # otherwise, your build will fail
 ```
@@ -171,8 +171,8 @@ To understand which file causes the issue, you can modify the `test` script insi
 
 ```diff
 {
--  "test": "astro-scripts test \"test/**/*.test.js\"",
-+  "test": "astro-scripts test --parallel \"test/**/*.test.js\"",
+-  "test": "astro-scripts test \"test/**/*.test.ts\"",
++  "test": "astro-scripts test --parallel \"test/**/*.test.ts\"",
 }
 ```
 
@@ -476,7 +476,7 @@ The power of this structure is that it makes it easy to unit test. Because abstr
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { createKey } from '../../../dist/cli/create-key/core/create-key.js';
-import { SpyLogger } from '../test-utils.js';
+import { SpyLogger } from '../test-utils.ts';
 import { FakeKeyGenerator } from './utils.js';
 
 describe('CLI create-key', () => {

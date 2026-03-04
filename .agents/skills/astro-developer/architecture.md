@@ -375,7 +375,7 @@ packages/
 │   │   └── types/           # Centralized types
 │   └── test/
 │       ├── fixtures/        # Test fixtures
-│       └── *.test.js        # Unit tests
+│       └── *.test.ts        # Unit tests
 ├── integrations/
 │   ├── react/
 │   ├── vue/

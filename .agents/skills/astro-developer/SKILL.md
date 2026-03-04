@@ -41,7 +41,7 @@ pnpm run dev                                    # Watch mode
 pnpm run lint                                   # Lint codebase
 
 # Testing
-pnpm -C packages/astro exec astro-scripts test "test/**/*.test.js"  # All tests
+pnpm -C packages/astro exec astro-scripts test "test/**/*.test.ts"  # All tests
 pnpm -C packages/astro exec astro-scripts test -m "pattern"         # Filter tests
 pnpm run test:e2e                               # E2E tests
 node --test test/file.test.js                   # Single test

@@ -53,7 +53,7 @@
     "packages/language-tools/*"
   ],
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.18.0"
   },
   "packageManager": "pnpm@10.30.3",
   "dependencies": {
