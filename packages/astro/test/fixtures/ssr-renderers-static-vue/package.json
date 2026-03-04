@@ -1,0 +1,10 @@
+{
+  "name": "@test/ssr-renderers-static-vue",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/vue": "workspace:*",
+    "astro": "workspace:*",
+    "vue": "^3.5.28"
+  }
+}

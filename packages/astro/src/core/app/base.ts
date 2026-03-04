@@ -18,6 +18,7 @@ import {
 	REROUTABLE_STATUS_CODES,
 	REROUTE_DIRECTIVE_HEADER,
 	responseSentSymbol,
+	REWRITE_DIRECTIVE_HEADER_KEY,
 } from '../constants.js';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
@@ -27,6 +28,7 @@ import { type CreateRenderContext, RenderContext } from '../render-context.js';
 import { redirectTemplate } from '../routing/3xx.js';
 import { ensure404Route } from '../routing/astro-designed-error-pages.js';
 import { matchRoute } from '../routing/match.js';
+import { Router } from '../routing/router.js';
 import { type AstroSession, PERSIST_SYMBOL } from '../session/runtime.js';
 import type { AppPipeline } from './pipeline.js';
 import type { SSRManifest } from './types.js';
@@ -114,6 +116,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	adapterLogger: AstroIntegrationLogger;
 	baseWithoutTrailingSlash: string;
 	logger: Logger;
+	#router: Router;
 	constructor(manifest: SSRManifest, streaming = true, ...args: any[]) {
 		this.manifest = manifest;
 		this.manifestData = { routes: manifest.routes.map((route) => route.routeData) };
@@ -127,6 +130,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		// This is necessary to allow running middlewares for 404 in SSR. There's special handling
 		// to return the host 404 if the user doesn't provide a custom 404
 		ensure404Route(this.manifestData);
+		this.#router = this.createRouter(this.manifestData);
 	}
 
 	public abstract isDev(): boolean;
@@ -179,6 +183,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 
 	set setManifestData(newManifestData: RoutesList) {
 		this.manifestData = newManifestData;
+		this.#router = this.createRouter(this.manifestData);
 	}
 
 	public removeBase(pathname: string) {
@@ -221,8 +226,9 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		if (!pathname) {
 			pathname = prependForwardSlash(this.removeBase(url.pathname));
 		}
-		let routeData = matchRoute(decodeURI(pathname), this.manifestData);
-		if (!routeData) return undefined;
+		const match = this.#router.match(decodeURI(pathname), { allowWithoutBase: true });
+		if (match.type !== 'match') return undefined;
+		const routeData = match.route;
 		if (allowPrerenderedRoutes) {
 			return routeData;
 		}
@@ -231,6 +237,14 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			return undefined;
 		}
 		return routeData;
+	}
+
+	private createRouter(manifestData: RoutesList): Router {
+		return new Router(manifestData.routes, {
+			base: this.manifest.base,
+			trailingSlash: this.manifest.trailingSlash,
+			buildFormat: this.manifest.buildFormat,
+		});
 	}
 
 	/**
@@ -342,6 +356,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	}
 
 	public async render(request: Request, renderOptions?: RenderOptions): Promise<Response> {
+		const timeStart = performance.now();
 		let routeData: RouteData | undefined = renderOptions?.routeData;
 		let locals: object | undefined;
 		let clientAddress: string | undefined;
@@ -379,7 +394,8 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				'The adapter ' + this.manifest.adapterName + ' provided a custom RouteData for ',
 				request.url,
 			);
-			this.logger.debug('router', 'RouteData:\n' + routeData);
+			this.logger.debug('router', 'RouteData');
+			this.logger.debug('router', routeData);
 		}
 		if (locals) {
 			if (typeof locals !== 'object') {
@@ -443,6 +459,16 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			});
 			session = renderContext.session;
 			response = await renderContext.render(componentInstance);
+
+			const isRewrite = response.headers.has(REWRITE_DIRECTIVE_HEADER_KEY);
+
+			this.logThisRequest({
+				pathname,
+				method: request.method,
+				statusCode: response.status,
+				isRewrite,
+				timeStart,
+			});
 		} catch (err: any) {
 			this.logger.error(null, err.stack || err.message || String(err));
 			return this.renderError(request, {
@@ -672,4 +698,52 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	public getManifest() {
 		return this.pipeline.manifest;
 	}
+
+	logThisRequest({
+		pathname,
+		method,
+		statusCode,
+		isRewrite,
+		timeStart,
+	}: {
+		pathname: string;
+		method: string;
+		statusCode: number;
+		isRewrite: boolean;
+		timeStart: number;
+	}) {
+		const timeEnd = performance.now();
+		this.logRequest({
+			pathname,
+			method,
+			statusCode,
+			isRewrite,
+			reqTime: timeEnd - timeStart,
+		});
+	}
+
+	public abstract logRequest(_options: LogRequestPayload): void;
 }
+
+export type LogRequestPayload = {
+	/**
+	 * The current path being rendered
+	 */
+	pathname: string;
+	/**
+	 * The method of the request
+	 */
+	method: string;
+	/**
+	 * The status code of the request
+	 */
+	statusCode: number;
+	/**
+	 * If the current request is a rewrite
+	 */
+	isRewrite: boolean;
+	/**
+	 * How long it took to render the request
+	 */
+	reqTime: number;
+};

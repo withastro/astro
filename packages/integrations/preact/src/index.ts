@@ -34,7 +34,13 @@ export default function ({ include, exclude, compat, devtools }: Options = {}): 
 					},
 				});
 
-				const viteConfig: ViteUserConfig = {};
+				const viteConfig: ViteUserConfig = {
+					optimizeDeps: {
+						// Ideally would be environment config, but
+						// putting it there does not result in it being optimized
+						include: ['@astrojs/preact/server.js'],
+					},
+				};
 
 				viteConfig.plugins = [preactPlugin, configEnvironmentPlugin(compat)];
 
@@ -68,9 +74,7 @@ function configEnvironmentPlugin(compat: boolean | undefined): Plugin {
 		name: '@astrojs/preact:environment',
 		configEnvironment(environmentName, options) {
 			const environmentOptions: EnvironmentOptions = {
-				optimizeDeps: {
-					exclude: ['@astrojs/preact/server.js'],
-				},
+				optimizeDeps: {},
 				resolve: {},
 			};
 

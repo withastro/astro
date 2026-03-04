@@ -1,5 +1,22 @@
 # create-astro
 
+## 5.0.0-beta.4
+
+### Patch Changes
+
+- [#15419](https://github.com/withastro/astro/pull/15419) [`a18d727`](https://github.com/withastro/astro/commit/a18d727fc717054df85177c8e0c3d38a5252f2da) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where `--add` could accept any kind of string, leading to different errors. Now `--add` accepts only values of valid integrations and adapters.
+
+- [#15419](https://github.com/withastro/astro/pull/15419) [`a18d727`](https://github.com/withastro/astro/commit/a18d727fc717054df85177c8e0c3d38a5252f2da) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the `add` command could accept any arbitrary value, leading the possible command injections. Now `add` and `--add` accepts
+  values that are only acceptable npmjs.org names.
+
+## 5.0.0-beta.3
+
+### Patch Changes
+
+- [#15344](https://github.com/withastro/astro/pull/15344) [`9d87f77`](https://github.com/withastro/astro/commit/9d87f77e57f5486802ef9e1c11ccece5914c7006) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a hang that could occur when the npm registry is slow or unresponsive by adding a 10 second timeout to the version check
+
+- [#15350](https://github.com/withastro/astro/pull/15350) [`d758b68`](https://github.com/withastro/astro/commit/d758b68ff776c3bef04553dde3996da8e58ffaee) Thanks [@matthewp](https://github.com/matthewp)! - Errors when `--add` and `--no-install` flags are used together, as `--add` requires dependencies to be installed
+
 ## 5.0.0-beta.2
 
 ### Patch Changes

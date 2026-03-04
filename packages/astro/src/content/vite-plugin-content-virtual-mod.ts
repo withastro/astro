@@ -35,8 +35,13 @@ function invalidateDataStore(viteServer: ViteDevServer) {
 	const environment = viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
 	const module = environment.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
 	if (module) {
-		environment.moduleGraph.invalidateModule(module);
+		const timestamp = Date.now();
+		// Pass `true` to mark this as HMR invalidation so Vite drops cached SSR results.
+		environment.moduleGraph.invalidateModule(module, undefined, timestamp, true);
 	}
+	// Signal the SSR runner to clear its route cache so that getStaticPaths()
+	// is re-evaluated with the updated content collection data.
+	environment.hot.send('astro:content-changed', {});
 	viteServer.environments.client.hot.send({
 		type: 'full-reload',
 		path: '*',

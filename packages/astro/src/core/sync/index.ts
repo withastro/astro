@@ -3,10 +3,11 @@ import { dirname, relative } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import colors from 'piccolore';
-import { createServer, type FSWatcher, type HotPayload } from 'vite';
+import { createServer, type FSWatcher, type HotPayload, type ViteDevServer } from 'vite';
 import { syncFonts } from '../../assets/fonts/sync.js';
 import { CONTENT_TYPES_FILE } from '../../content/consts.js';
-import { getDataStoreFile, globalContentLayer } from '../../content/content-layer.js';
+import { getDataStoreFile } from '../../content/content-layer.js';
+import { globalContentLayer } from '../../content/instance.js';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { MutableDataStore } from '../../content/mutable-data-store.js';
 import { getContentPaths, globalContentConfigObserver } from '../../content/utils.js';
@@ -18,7 +19,7 @@ import type { AstroSettings } from '../../types/astro.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
 import { getTimeStat } from '../build/util.js';
 import { resolveConfig } from '../config/config.js';
-import { createNodeLogger } from '../config/logging.js';
+import { createNodeLogger } from '../logger/node.js';
 import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
 import {
@@ -30,7 +31,7 @@ import {
 	isAstroError,
 } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
-import { createRoutesList } from '../routing/manifest/create.js';
+import { createRoutesList } from '../routing/create-manifest.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { normalizePath } from '../viteUtils.js';
 
@@ -127,36 +128,45 @@ export async function syncInternal({
 	const timerStart = performance.now();
 
 	if (!skip?.content) {
-		await syncContentCollections(settings, { mode, fs, logger });
-		settings.timer.start('Sync content layer');
+		// Create the Vite server once and keep it alive for both content config loading
+		// and content layer sync. This is needed because loaders may use dynamic imports
+		// which require the Vite server to be running. See https://github.com/withastro/astro/issues/12689
+		const tempViteServer = await createTempViteServer(settings, { mode, fs, logger });
 
-		let store: MutableDataStore | undefined;
 		try {
-			const dataStoreFile = getDataStoreFile(settings, isDev);
-			store = await MutableDataStore.fromFile(dataStoreFile);
-		} catch (err: any) {
-			logger.error('content', err.message);
-		}
-		if (!store) {
-			logger.error('content', 'Failed to load content store');
-			return;
-		}
+			await syncContentCollections(settings, { fs, logger, viteServer: tempViteServer });
+			settings.timer.start('Sync content layer');
 
-		const contentLayer = globalContentLayer.init({
-			settings,
-			logger,
-			store,
-			watcher,
-		});
-		if (watcher) {
-			contentLayer.watchContentConfig();
+			let store: MutableDataStore | undefined;
+			try {
+				const dataStoreFile = getDataStoreFile(settings, isDev);
+				store = await MutableDataStore.fromFile(dataStoreFile);
+			} catch (err: any) {
+				logger.error('content', err.message);
+			}
+			if (!store) {
+				logger.error('content', 'Failed to load content store');
+				return;
+			}
+
+			const contentLayer = globalContentLayer.init({
+				settings,
+				logger,
+				store,
+				watcher,
+			});
+			if (watcher) {
+				contentLayer.watchContentConfig();
+			}
+			await contentLayer.sync();
+			if (!skip?.cleanup) {
+				// Free up memory (usually in builds since we only need to use this once)
+				contentLayer.dispose();
+			}
+			settings.timer.end('Sync content layer');
+		} finally {
+			await tempViteServer.close();
 		}
-		await contentLayer.sync();
-		if (!skip?.cleanup) {
-			// Free up memory (usually in builds since we only need to use this once)
-			contentLayer.dispose();
-		}
-		settings.timer.end('Sync content layer');
 	} else {
 		const paths = getContentPaths(
 			settings.config,
@@ -208,33 +218,22 @@ function writeInjectedTypes(settings: AstroSettings, fs: typeof fsMod) {
 }
 
 /**
- * Generate content collection types, and then returns the process exit signal.
- *
- * A non-zero process signal is emitted in case there's an error while generating content collection types.
- *
- * This should only be used when the callee already has an `AstroSetting`, otherwise use `sync()` instead.
- * @internal
- *
- * @param {SyncOptions} options
- * @param {AstroSettings} settings Astro settings
- * @param {typeof fsMod} options.fs The file system
- * @param {LogOptions} options.logging Logging options
- * @return {Promise<ProcessExit>}
+ * Creates a temporary Vite server for use during content sync operations.
+ * This server is needed to load the content config and for loaders that use dynamic imports.
  */
-async function syncContentCollections(
+async function createTempViteServer(
 	settings: AstroSettings,
 	{ mode, logger, fs }: Required<Pick<SyncOptions, 'mode' | 'logger' | 'fs'>>,
-): Promise<void> {
+): Promise<ViteDevServer> {
 	const routesList = await createRoutesList(
 		{
 			settings,
 			fsMod: fs,
 		},
 		logger,
-		{ dev: true, skipBuildOutputAssignment: true },
+		{ dev: true },
 	);
 
-	// Needed to load content config
 	const tempViteServer = await createServer(
 		await createVite(
 			{
@@ -274,13 +273,34 @@ async function syncContentCollections(
 		return hotSend(payload);
 	};
 
+	return tempViteServer;
+}
+
+/**
+ * Generate content collection types, and then returns the process exit signal.
+ *
+ * A non-zero process signal is emitted in case there's an error while generating content collection types.
+ *
+ * This should only be used when the callee already has an `AstroSetting`, otherwise use `sync()` instead.
+ * @internal
+ *
+ * @param {SyncOptions} options
+ * @param {AstroSettings} settings Astro settings
+ * @param {typeof fsMod} options.fs The file system
+ * @param {LogOptions} options.logging Logging options
+ * @return {Promise<ProcessExit>}
+ */
+async function syncContentCollections(
+	settings: AstroSettings,
+	{ logger, fs, viteServer }: { logger: Logger; fs: typeof fsMod; viteServer: ViteDevServer },
+): Promise<void> {
 	try {
 		const contentTypesGenerator = await createContentTypesGenerator({
 			contentConfigObserver: globalContentConfigObserver,
 			logger: logger,
 			fs,
 			settings,
-			viteServer: tempViteServer,
+			viteServer,
 		});
 		await contentTypesGenerator.init();
 
@@ -322,7 +342,5 @@ async function syncContentCollections(
 			},
 			{ cause: e },
 		);
-	} finally {
-		await tempViteServer.close();
 	}
 }

@@ -14,17 +14,20 @@
   "lockFileMaintenance": {
     "enabled": true
   },
-  "ignorePaths": [
-    "**/node_modules/**",
-    // This fixture depends on the versions in its package.json not being modified by
-    // CI because PNPM would link the local versions of the packages instead of installing
-    // them from NPM, leading to the tests depending on the fixture failing.
-    "**/astro-info-versions/**"
-  ],
+  "ignorePaths": ["**/node_modules/**"],
   "packageRules": [
+    {
+      "groupName": "lockfile maintenance",
+      "matchUpdateTypes": ["lockFileMaintenance"]
+    },
     {
       "groupName": "github-actions",
       "matchManagers": ["github-actions"]
+    },
+    {
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["engines"],
+      "enabled": false
     },
     {
       "groupName": "astro dependencies",
@@ -67,6 +70,7 @@
     "@biomejs/biome",
     "knip",
     "@types/node",
+    "@types/vscode",
 
     // TODO: investigate upgrade (zod import issues with atproto)
     "astro-embed",
@@ -74,14 +78,10 @@
     // TODO: investigate upgrade (has type issues)
     "drizzle-orm",
     "sharp",
+
     // manually bumping workflow actions
     "actions/labeler",
-    // ignore "engines" update
-    "node",
-    "npm",
-    "pnpm",
-    "vscode",
-    "@types/vscode",
+
     // follow vite deps version
     "postcss-load-config",
     "esbuild"

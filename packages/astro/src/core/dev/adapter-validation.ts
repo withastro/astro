@@ -47,4 +47,15 @@ export function validateSetAdapter(
 			);
 		}
 	}
+
+	if (adapter.entrypointResolution === undefined) {
+		logger.warn(
+			null,
+			`The adapter ${adapter.name} uses \`entrypointResolution: "explicit"\` by default, which is deprecated and will be removed in a future major version.`,
+		);
+		logger.warn(
+			null,
+			'Update your adapter to use \`entrypointResolution: "auto"\` or contact the maintainers to update.',
+		);
+	}
 }

@@ -73,13 +73,20 @@ const optimizedImages: GetImageResult[] = await Promise.all(
 	),
 );
 
+// Clone the `src` object if it's an ESM import so that we don't refer to any properties of the original object
+// Causing our generate step to think the image is used outside of the image optimization pipeline
+const clonedSrc = isESMImportedImage(originalSrc)
+	? // @ts-expect-error - clone is a private, hidden prop
+		(originalSrc.clone ?? originalSrc)
+	: originalSrc;
+
 let resultFallbackFormat = fallbackFormat ?? defaultFallbackFormat;
 if (
 	!fallbackFormat &&
-	isESMImportedImage(originalSrc) &&
-	(specialFormatsFallback as ReadonlyArray<string>).includes(originalSrc.format)
+	isESMImportedImage(clonedSrc) &&
+	(specialFormatsFallback as ReadonlyArray<string>).includes(clonedSrc.format)
 ) {
-	resultFallbackFormat = originalSrc.format;
+	resultFallbackFormat = clonedSrc.format;
 }
 
 const fallbackImage = await getImage({

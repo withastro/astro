@@ -1,7 +1,8 @@
 import type { RoutesList } from '../../types/astro.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { redirectIsExternal } from '../redirects/render.js';
-import { SERVER_ISLAND_BASE_PREFIX, SERVER_ISLAND_COMPONENT } from '../server-islands/endpoint.js';
+import { SERVER_ISLAND_COMPONENT } from '../server-islands/endpoint.js';
+import { isRoute404, isRoute500 } from './internal/route-errors.js';
 
 /** Find matching route from pathname */
 export function matchRoute(pathname: string, manifest: RoutesList): RouteData | undefined {
@@ -16,17 +17,6 @@ export function matchRoute(pathname: string, manifest: RoutesList): RouteData | 
 /** Finds all matching routes from pathname */
 export function matchAllRoutes(pathname: string, manifest: RoutesList): RouteData[] {
 	return manifest.routes.filter((route) => route.pattern.test(pathname));
-}
-
-const ROUTE404_RE = /^\/404\/?$/;
-const ROUTE500_RE = /^\/500\/?$/;
-
-export function isRoute404(route: string) {
-	return ROUTE404_RE.test(route);
-}
-
-export function isRoute500(route: string) {
-	return ROUTE500_RE.test(route);
 }
 
 /**
@@ -47,35 +37,6 @@ export function isRoute404or500(route: RouteData): boolean {
  */
 export function isRouteServerIsland(route: RouteData): boolean {
 	return route.component === SERVER_ISLAND_COMPONENT;
-}
-
-/**
- * Determines whether the given `Request` is targeted to a "server island" based on its URL.
- *
- * @param {Request} request - The request object to be evaluated.
- * @param {string} [base=''] - The base path provided via configuration.
- * @return {boolean} - Returns `true` if the request is for a server island, otherwise `false`.
- */
-export function isRequestServerIsland(request: Request, base = ''): boolean {
-	const url = new URL(request.url);
-	const pathname =
-		base === '/' ? url.pathname.slice(base.length) : url.pathname.slice(base.length + 1);
-
-	return pathname.startsWith(SERVER_ISLAND_BASE_PREFIX);
-}
-
-/**
- * Checks if the given request corresponds to a 404 or 500 route based on the specified base path.
- *
- * @param {Request} request - The HTTP request object to be checked.
- * @param {string} [base=''] - The base path to trim from the request's URL before checking the route. Default is an empty string.
- * @return {boolean} Returns true if the request matches a 404 or 500 route; otherwise, returns false.
- */
-export function requestIs404Or500(request: Request, base = '') {
-	const url = new URL(request.url);
-	const pathname = url.pathname.slice(base.length);
-
-	return isRoute404(pathname) || isRoute500(pathname);
 }
 
 /**

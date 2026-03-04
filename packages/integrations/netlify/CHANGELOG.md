@@ -1,5 +1,102 @@
 # @astrojs/netlify
 
+## 7.0.0-beta.12
+
+### Minor Changes
+
+- [#15495](https://github.com/withastro/astro/pull/15495) [`5b99e90`](https://github.com/withastro/astro/commit/5b99e9077a92602f1e46e9b6eb9094bcd00c640e) Thanks [@leekeh](https://github.com/leekeh)! - Adds new `middlewareMode` adapter feature and deprecates `edgeMiddleware` option
+
+  The `edgeMiddleware` option is now deprecated and will be removed in a future major release, so users should transition to using the new `middlewareMode` feature as soon as possible.
+
+  ```diff
+  export default defineConfig({
+    adapter: netlify({
+  -    edgeMiddleware: true
+  +    middlewareMode: 'edge'
+    })
+  })
+  ```
+
+### Patch Changes
+
+- [#15679](https://github.com/withastro/astro/pull/15679) [`19ba822`](https://github.com/withastro/astro/commit/19ba8221bbdb1169568c80443eb3c509c688193d) Thanks [@matthewp](https://github.com/matthewp)! - Fixes server-rendered routes returning 404 errors
+
+  A configuration error in the build output prevented Netlify from correctly routing requests to server-rendered pages, causing them to return 404 errors. This fix ensures that all server routes are properly handled by the Netlify SSR function.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 7.0.0-beta.11
+
+### Patch Changes
+
+- [#15665](https://github.com/withastro/astro/pull/15665) [`52a7efd`](https://github.com/withastro/astro/commit/52a7efdde4c46e2b40b10f78ebb4a812e5d5b82f) Thanks [@matthewp](https://github.com/matthewp)! - Fixes builds that were failing with "Entry module cannot be external" error when using the Netlify adapter
+
+  This error was preventing sites from building after recent internal changes. Your builds should now work as expected without any changes to your code.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 7.0.0-beta.10
+
+### Patch Changes
+
+- [#15461](https://github.com/withastro/astro/pull/15461) [`9f21b24`](https://github.com/withastro/astro/commit/9f21b243d21478cdc5fb0193e05adad8e753839f) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates to new Adapter API introduced in v6
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 7.0.0-beta.9
+
+### Patch Changes
+
+- [#15460](https://github.com/withastro/astro/pull/15460) [`ee7e53f`](https://github.com/withastro/astro/commit/ee7e53f9de2338517e149895efd26fca44ad80b6) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates to use the new Adapter API
+
+- [#15450](https://github.com/withastro/astro/pull/15450) [`50c9129`](https://github.com/withastro/astro/commit/50c912978cca4afbe4b3ebd11c30305d5e9c8315) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where `build.serverEntry` would not be respected when using the new Adapter API
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 7.0.0-beta.8
+
+### Minor Changes
+
+- [#15413](https://github.com/withastro/astro/pull/15413) [`736216b`](https://github.com/withastro/astro/commit/736216b2c46f758c6b4a607ccfadcc191c1d56b4) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates the implementation to use the new Adapter API
+
+### Patch Changes
+
+- Updated dependencies [[`a164c77`](https://github.com/withastro/astro/commit/a164c77336059f2dc3e7f7fe992aa754ed145ef3), [`a18d727`](https://github.com/withastro/astro/commit/a18d727fc717054df85177c8e0c3d38a5252f2da)]:
+  - @astrojs/internal-helpers@0.8.0-beta.1
+  - @astrojs/underscore-redirects@1.0.0
+
+## 7.0.0-beta.7
+
+### Minor Changes
+
+- [#15258](https://github.com/withastro/astro/pull/15258) [`d339a18`](https://github.com/withastro/astro/commit/d339a182b387a7a1b0d5dd0d67a0638aaa2b4262) Thanks [@ematipico](https://github.com/ematipico)! - Stabilizes the adapter feature `experimentalStatiHeaders`. If you were using this feature in any of the supported adapters, you'll need to change the name of the flag:
+
+  ```diff
+  export default defineConfig({
+    adapter: netlify({
+  -    experimentalStaticHeaders: true
+  +    staticHeaders: true
+    })
+  })
+  ```
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 7.0.0-beta.6
+
+### Patch Changes
+
+- Updated dependencies [[`240c317`](https://github.com/withastro/astro/commit/240c317faab52d7f22494e9181f5d2c2c404b0bd)]:
+  - @astrojs/internal-helpers@0.8.0-beta.0
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 7.0.0-beta.5
 
 ### Patch Changes

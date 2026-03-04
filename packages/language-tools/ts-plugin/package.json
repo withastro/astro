@@ -6,7 +6,7 @@
   "type": "commonjs",
   "repository": {
     "type": "git",
-    "url": "https://github.com/withastro/astro.git",
+    "url": "git+https://github.com/withastro/astro.git",
     "directory": "packages/language-tools/ts-plugin"
   },
   "keywords": [
@@ -27,12 +27,12 @@
   "author": "withastro",
   "license": "MIT",
   "dependencies": {
-    "@astrojs/compiler": "^2.13.0",
+    "@astrojs/compiler": "^2.13.1",
     "@astrojs/yaml2ts": "^0.2.2",
     "@jridgewell/sourcemap-codec": "^1.5.5",
-    "@volar/language-core": "~2.4.27",
-    "@volar/typescript": "~2.4.27",
-    "semver": "^7.7.3",
+    "@volar/language-core": "~2.4.28",
+    "@volar/typescript": "~2.4.28",
+    "semver": "^7.7.4",
     "vscode-languageserver-textdocument": "^1.0.12"
   },
   "devDependencies": {

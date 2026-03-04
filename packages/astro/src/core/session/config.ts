@@ -1,4 +1,4 @@
-import z from 'zod/v4';
+import * as z from 'zod/v4';
 
 export const SessionDriverConfigSchema = z.object({
 	config: z.record(z.string(), z.any()).optional(),

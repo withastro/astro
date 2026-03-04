@@ -10,6 +10,8 @@ import type {
 	SerializedRouteInfo,
 } from './types.js';
 
+export type { SerializedRouteData } from '../../types/astro.js';
+
 export function deserializeManifest(
 	serializedManifest: SerializedSSRManifest,
 	routesList?: RoutesList,
@@ -126,4 +128,19 @@ export function deserializeRouteInfo(rawRouteInfo: SerializedRouteInfo): RouteIn
 		scripts: rawRouteInfo.scripts,
 		routeData: deserializeRouteData(rawRouteInfo.routeData),
 	};
+}
+
+export function queuePoolSize(
+	config: NonNullable<SSRManifest['experimentalQueuedRendering']>,
+): number {
+	return config?.poolSize ?? 1000;
+}
+export function queueContentCache(
+	config: NonNullable<SSRManifest['experimentalQueuedRendering']>,
+): boolean {
+	return config?.contentCache ?? false;
+}
+
+export function queueRenderingEnabled(config: SSRManifest['experimentalQueuedRendering']): boolean {
+	return config?.enabled ?? false;
 }

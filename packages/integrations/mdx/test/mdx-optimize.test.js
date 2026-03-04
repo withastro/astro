@@ -6,6 +6,7 @@ import { loadFixture } from '../../../astro/test/test-utils.js';
 const FIXTURE_ROOT = new URL('./fixtures/mdx-optimize/', import.meta.url);
 
 describe('MDX optimize', () => {
+	/** @type {import('../../../astro/test/test-utils').Fixture} */
 	let fixture;
 	before(async () => {
 		fixture = await loadFixture({
@@ -46,6 +47,41 @@ describe('MDX optimize', () => {
 		const blockquote = document.querySelector('blockquote.custom-blockquote');
 		assert.notEqual(blockquote, null);
 		assert.equal(blockquote.textContent.includes('I like pancakes'), true);
+	});
+
+	it('supports components passed to the MDX `<Content/> component if in the ignoreElementNames config', async () => {
+		const html = await fixture.readFile('/content-component/index.html');
+		const { document } = parseHTML(html);
+
+		const strong = document.querySelector('strong.custom-strong');
+		assert.ok(strong);
+		assert.equal(strong.textContent.trim(), 'inspirational');
+	});
+
+	// This is skipped because we currently do support this (for top-level elements only). This is
+	// unintentional but it would be a breaking change to remove support, so leaving as-is for now.
+	it.skip('does not support components passed to the MDX `<Content/> component not in the ignoreElementNames config', async () => {
+		const html = await fixture.readFile('/content-component/index.html');
+		const { document } = parseHTML(html);
+
+		const blockquote = document.querySelector('blockquote');
+		assert.ok(blockquote);
+		assert.ok(!blockquote.classList.contains('custom-blockquote'));
+	});
+
+	it('extracts components export from more complex MDX nodes', async () => {
+		const html = await fixture.readFile('/import-export-block/index.html');
+		const { document } = parseHTML(html);
+
+		// Strong is expected because its in the `ignoreElementNames` config.
+		const strong = document.querySelector('strong.custom-strong');
+		assert.ok(strong);
+		assert.equal(strong.textContent.trim(), 'Bold bullet point');
+
+		// Blockquote is specified in the test document, and should also be extracted correctly.
+		const blockquote = document.querySelector('blockquote.custom-blockquote');
+		assert.ok(blockquote);
+		assert.equal(blockquote.textContent.trim(), 'This is a blockquote');
 	});
 
 	it('renders MDX with rehype plugin that incorrectly injects root hast node', async () => {

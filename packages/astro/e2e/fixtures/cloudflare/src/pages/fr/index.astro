@@ -2,7 +2,7 @@
 import { getAbsoluteLocaleUrlList } from "astro:i18n";
 export const prerender = false;
 import { getCollection, getEntry, render } from 'astro:content';
-import Hello from '../../components/Hello.tsx';
+import Hello from '../../components/react/Hello.tsx';
 import Island from '../../components/Island.astro';
 
 const workerRuntime = globalThis.navigator?.userAgent

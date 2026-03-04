@@ -1,5 +1,11 @@
 # @astrojs/svelte
 
+## 8.0.0-beta.3
+
+### Patch Changes
+
+- [#15581](https://github.com/withastro/astro/pull/15581) [`2851f10`](https://github.com/withastro/astro/commit/2851f1094c03d696682efb4f3b321ef27e29e88c) Thanks [@renovate](https://github.com/apps/renovate)! - Updates `svelte` to v5.51.5
+
 ## 8.0.0-beta.2
 
 ### Minor Changes

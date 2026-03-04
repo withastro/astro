@@ -1,5 +1,17 @@
 # @astrojs/rss
 
+## 4.0.15-beta.4
+
+### Patch Changes
+
+- [#15561](https://github.com/withastro/astro/pull/15561) [`413b0f7`](https://github.com/withastro/astro/commit/413b0f746a28503c936b3875ffaee6b7f04c67b9) Thanks [@renovate](https://github.com/apps/renovate)! - Updates `fast-xml-parser` to v5.3.6
+
+## 4.0.15-beta.3
+
+### Patch Changes
+
+- [#15373](https://github.com/withastro/astro/pull/15373) [`14252b2`](https://github.com/withastro/astro/commit/14252b22f9129f51fae9b224386ab6c4ea1b76c5) Thanks [@renovate](https://github.com/apps/renovate)! - Updates zod to v4
+
 ## 4.0.15-beta.2
 
 ### Patch Changes

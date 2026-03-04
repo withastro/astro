@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "astro": "workspace:*",
-    "@tailwindcss/vite": "^4.1.18",
-    "tailwindcss": "^4.1.18"
+    "@tailwindcss/vite": "^4.2.0",
+    "tailwindcss": "^4.2.0"
   }
 }

@@ -1,5 +1,17 @@
 # @astrojs/preact
 
+## 5.0.0-beta.4
+
+### Patch Changes
+
+- [#15619](https://github.com/withastro/astro/pull/15619) [`bbfa7c8`](https://github.com/withastro/astro/commit/bbfa7c8b73776976c93f41203fdcb7bf44ad6cc2) Thanks [@rururux](https://github.com/rururux)! - Fixed an issue where the Preact integration would incorrectly intercept React 19 components, triggering "Invalid hook call" error logs.
+
+## 5.0.0-beta.3
+
+### Patch Changes
+
+- [#15383](https://github.com/withastro/astro/pull/15383) [`876b664`](https://github.com/withastro/astro/commit/876b664d6984f97b995fd95400b41c2220528d4a) Thanks [@matthewp](https://github.com/matthewp)! - Fixes Preact components failing to render when using the Cloudflare adapter in dev mode.
+
 ## 5.0.0-beta.2
 
 ### Patch Changes

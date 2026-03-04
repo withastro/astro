@@ -27,7 +27,7 @@ npm create astro@latest
 You can also install Astro **manually** by running this command instead:
 
 ```bash
-npm install --save-dev astro
+npm install astro
 ```
 
 Looking for help? Start with our [Getting Started](https://docs.astro.build/en/getting-started/) guide.

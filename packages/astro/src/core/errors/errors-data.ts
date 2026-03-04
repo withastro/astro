@@ -558,6 +558,20 @@ export const FailedToFetchRemoteImageDimensions = {
 } satisfies ErrorData;
 /**
  * @docs
+ * @message
+ * Remote image `IMAGE_URL` is not allowed by your image configuration.
+ * @description
+ * The remote image URL does not match your configured `image.domains` or `image.remotePatterns`.
+ */
+export const RemoteImageNotAllowed = {
+	name: 'RemoteImageNotAllowed',
+	title: 'Remote image is not allowed',
+	message: (imageURL: string) =>
+		`Remote image ${imageURL} is not allowed by your image configuration.`,
+	hint: 'Update `image.domains` or `image.remotePatterns`, or remove `inferSize` for this image.',
+} satisfies ErrorData;
+/**
+ * @docs
  * @description
  * The built-in image services do not currently support optimizing all image formats.
  *
@@ -1004,6 +1018,23 @@ export const UnsupportedExternalRedirect = {
 /**
  * @docs
  * @see
+ * - [Configured redirects](https://docs.astro.build/en/guides/routing/#configured-redirects)
+ * @description
+ * A dynamic redirect destination must match an existing route pattern.
+ * This error occurs when a redirect with dynamic parameters points to a destination
+ * that doesn't correspond to any page in your project.
+ */
+export const InvalidRedirectDestination = {
+	name: 'InvalidRedirectDestination',
+	title: 'Invalid redirect destination.',
+	message: (from: string, to: string) =>
+		`The redirect from "${from}" to "${to}" is invalid. The destination "${to}" does not match any existing route in your project.`,
+	hint: 'If you are redirecting to a specific page of a dynamic route (e.g., "/posts/[slug]/1"), this is not supported. The destination must be either a static path or a route pattern that matches an existing page (e.g., "/posts/[slug]/[page]").',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
  * - [Dynamic routes](https://docs.astro.build/en/guides/routing/#dynamic-routes)
  * @description
  * A dynamic route param is invalid. This is often caused by an `undefined` parameter or a missing [rest parameter](https://docs.astro.build/en/guides/routing/#rest-parameters).
@@ -1384,21 +1415,6 @@ export const FontFamilyNotFound = {
 	message: (family: string) =>
 		`No data was found for the \`"${family}"\` family passed to the \`<Font>\` component.`,
 	hint: 'This is often caused by a typo. Check that the `<Font />` component is using a `cssVariable` specified in your config.',
-} satisfies ErrorData;
-
-/**
- * @docs
- * @description
- * Font buffer not found
- * @message
- * No buffer was found for the URL passed to the `getFontBuffer()` function.
- */
-export const FontBufferNotFound = {
-	name: 'FontBufferNotFound',
-	title: 'Font buffer not found',
-	message: (url: string) =>
-		`No buffer was found for the \`"${url}"\` URL passed to the \`getFontBuffer()\` function.`,
-	hint: 'Make sure you pass a valid URL, obtained via the \`fontData\` object.',
 } satisfies ErrorData;
 
 /**
