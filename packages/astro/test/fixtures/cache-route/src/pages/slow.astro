@@ -1,0 +1,13 @@
+---
+export const prerender = false;
+Astro.cache.set({ maxAge: 30 });
+
+await new Promise((resolve) => setTimeout(resolve, 3000));
+
+---
+<html>
+<body>
+<h1>Cache Test Home</h1>
+{new Date().toLocaleString()}
+</body>
+</html>
