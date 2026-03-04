@@ -119,9 +119,10 @@ export function createStaticHandler(
 			// app.removeBase sometimes returns a path without a leading slash
 			pathname = prependForwardSlash(app.removeBase(pathname));
 
-			const stream = send(req, pathname, {
+			const normalizedPathname = path.posix.normalize(pathname);
+			const stream = send(req, normalizedPathname, {
 				root: client,
-				dotfiles: pathname.startsWith('/.well-known/') ? 'allow' : 'deny',
+				dotfiles: normalizedPathname.startsWith('/.well-known/') ? 'allow' : 'deny',
 			});
 
 			let forwardError = false;
@@ -138,7 +139,7 @@ export function createStaticHandler(
 			});
 			stream.on('headers', (_res: ServerResponse) => {
 				// assets in dist/_astro are hashed and should get the immutable header
-				if (pathname.startsWith(`/${app.manifest.assetsDir}/`)) {
+				if (normalizedPathname.startsWith(`/${app.manifest.assetsDir}/`)) {
 					// This is the "far future" cache header, used for static files whose name includes their digest hash.
 					// 1 year (31,536,000 seconds) is convention.
 					// Taken from https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#immutable
