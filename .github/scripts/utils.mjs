@@ -51,3 +51,85 @@ function toCommandValue(input) {
 	}
 	return JSON.stringify(input);
 }
+
+/**
+ * Sets the summary for the current step in CI.
+ * Based on https://github.com/actions/toolkit/blob/main/packages/core/src/summary.ts
+ * @param {string} text
+ */
+export function setSummary(text) {
+	const filePath = process.env['GITHUB_STEP_SUMMARY'] || '';
+	if (filePath) {
+		return fs.writeFileSync(filePath, text);
+	}
+	process.stdout.write(os.EOL);
+}
+
+/**
+ * @typedef {{ title?: string; file?: string; line?: number; endLine?: number; column?: number; endColumn?: number }} CommandProperties
+ */
+
+/**
+ * Adds a warning issue
+ * @param {string} message warning issue message. Errors will be converted to string via toString()
+ * @param {CommandProperties} [properties] optional properties to add to the annotation.
+ */
+export function warning(message, properties = {}) {
+	issueCommand('warning', properties, message);
+}
+
+/**
+ * Issues a command to the GitHub Actions runner
+ *
+ * @param {string} command - The command name to issue
+ * @param {CommandProperties} properties - Additional properties for the command (key-value pairs)
+ * @param {any} message - The message to include with the command
+ *
+ * @see https://github.com/actions/toolkit/blob/main/packages/core/src/command.ts
+ */
+export function issueCommand(command, properties, message) {
+	const CMD_STRING = '::';
+	let cmd = CMD_STRING + command;
+
+	if (properties && Object.keys(properties).length > 0) {
+		cmd += ' ';
+		let first = true;
+		for (const key in properties) {
+			if (properties.hasOwnProperty(key)) {
+				const val = properties[key];
+				if (val) {
+					if (first) {
+						first = false;
+					} else {
+						cmd += ',';
+					}
+
+					cmd += `${key}=${escapeProperty(val)}`;
+				}
+			}
+		}
+	}
+
+	cmd += `${CMD_STRING}${escapeData(message)}`;
+
+	process.stdout.write(cmd + os.EOL);
+}
+
+/**
+ * @param {string} s
+ */
+function escapeData(s) {
+	return toCommandValue(s).replace(/%/g, '%25').replace(/\r/g, '%0D').replace(/\n/g, '%0A');
+}
+
+/**
+ * @param {string} s
+ */
+function escapeProperty(s) {
+	return toCommandValue(s)
+		.replace(/%/g, '%25')
+		.replace(/\r/g, '%0D')
+		.replace(/\n/g, '%0A')
+		.replace(/:/g, '%3A')
+		.replace(/,/g, '%2C');
+}

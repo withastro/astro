@@ -1,21 +1,8 @@
 // @ts-check
 import * as fs from 'node:fs';
-import * as os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-
-/**
- * Sets the summary for the current step in CI.
- * Based on https://github.com/actions/toolkit/blob/main/packages/core/src/summary.ts
- * @param {string} text
- */
-function setSummary(text) {
-	const filePath = process.env['GITHUB_STEP_SUMMARY'] || '';
-	if (filePath) {
-		return fs.writeFileSync(filePath, text);
-	}
-	process.stdout.write(os.EOL);
-}
+import { setSummary, warning } from '../../.github/scripts/utils.mjs';
 
 /**
  * @typedef {{ type: 'build', fixture: string; duration: number }} BuildLogEntry
@@ -60,17 +47,23 @@ if (process.env.CI) {
 	};
 
 	/**
-	 * Generates a Markdown summary of the test run from the log file.
-	 * @param {string} logs
-	 * @returns {string}
+	 * @param {string} log Raw log file contents
+	 * @returns An array of log entries
 	 */
-	const createSummary = (logs) => {
-		const lines = /** @type {LogEntry[]} */ (
-			logs
+	const parseLog = (log) =>
+		/** @type {LogEntry[]} */ (
+			log
 				.split('\n')
 				.filter(Boolean)
 				.map((l) => JSON.parse(l))
 		);
+
+	/**
+	 * Generates a Markdown summary of the test run from the log file.
+	 * @param {LogEntry[]} lines
+	 * @returns {string}
+	 */
+	const createSummary = (lines) => {
 		if (lines.length === 0) {
 			return 'No test logs found.';
 		}
@@ -123,14 +116,31 @@ if (process.env.CI) {
 			summary += `| ${test.name} | ${(test.duration / 1000).toFixed(2)} | [\`${location}\`](${url}) |\n`;
 		}
 
+		lines
+			.filter(
+				/** @returns {line is TestLogEntry} */
+				(line) => line.type === 'test' && !line.isSuite && line.duration > 2000,
+			)
+			.forEach((test) => {
+				warning(
+					`Test "${test.name}" took ${(test.duration / 1000).toFixed(2)} seconds to run. Consider breaking it up into smaller tests.`,
+					{
+						title: `Slow test: ${test.name}`,
+						file: test.file,
+						line: test.line,
+						column: test.column,
+					},
+				);
+			});
+
 		return summary;
 	};
 
-	// Close stream before process exits.
+	// When the process exits, read the logs and create the step summary.
 	process.addListener('exit', () => {
 		logStream.end();
 		const logContents = fs.readFileSync(logFile, 'utf-8');
-		const summary = createSummary(logContents);
+		const summary = createSummary(parseLog(logContents));
 		setSummary(summary);
 	});
 }
