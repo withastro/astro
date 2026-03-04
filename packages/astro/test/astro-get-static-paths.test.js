@@ -246,8 +246,6 @@ describe('throws if an invalid params type is returned', () => {
 				vite: {
 					plugins: [paramsTypePlugin(type)],
 				},
-				// @ts-expect-error — non standard option to invalidate build cache between tests
-				testBuildId: `invalid-params-type-${type}`,
 			});
 			await fixture.build({});
 		} catch (err) {
