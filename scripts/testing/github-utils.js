@@ -163,8 +163,11 @@ if (process.env.CI) {
  * @param {LogEntry[]} logEntries
  */
 function testDurationHistogram(logEntries) {
-	// Filter to get only test entries that are not suites
-	const testEntries = logEntries.filter((entry) => entry.type === 'test' && !entry.isSuite);
+	const testEntries = logEntries
+		// Filter to get only test entries that are not suites
+		.filter((entry) => entry.type === 'test' && !entry.isSuite)
+		// Sort by duration ascending
+		.sort((a, b) => a.duration - b.duration);
 
 	let histogram = '## Test Duration Distribution\n\n';
 
@@ -173,9 +176,9 @@ function testDurationHistogram(logEntries) {
 		return histogram;
 	}
 
-	const maxDuration = Math.max(...testEntries.map((t) => t.duration));
-	const bucketSize = 500; // 500ms buckets
-	const bucketCount = Math.ceil(maxDuration / bucketSize);
+	const p99Duration = testEntries[Math.floor(testEntries.length * 0.99)].duration;
+	const bucketSize = 250; // 250ms buckets
+	const bucketCount = Math.ceil(p99Duration / bucketSize);
 	const buckets = new Array(bucketCount).fill(0);
 
 	// Count tests in each bucket
@@ -193,10 +196,12 @@ function testDurationHistogram(logEntries) {
 	for (let i = 0; i < buckets.length; i++) {
 		const rangeStart = i * bucketSize;
 		const rangeEnd = (i + 1) * bucketSize;
+		const durationLabel =
+			i === buckets.length - 1 ? `> ${rangeStart}ms` : `${rangeStart}ms - ${rangeEnd}ms`;
 		const count = buckets[i];
 		const barLength = biggestBucket > 0 ? Math.round((count / biggestBucket) * chartWidth) : 0;
 		const bar = '█'.repeat(barLength);
-		histogram += `| ${rangeStart}ms - ${rangeEnd}ms | ${bar} ${count} |\n`;
+		histogram += `| ${durationLabel} | ${bar} ${count} |\n`;
 	}
 
 	return histogram;
