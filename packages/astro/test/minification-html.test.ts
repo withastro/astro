@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import testAdapter from './test-adapter.js';
+import testAdapter from './test-adapter.ts';
 import { loadFixture } from './test-utils.ts';
 
 const NEW_LINES = /[\r\n]+/g;

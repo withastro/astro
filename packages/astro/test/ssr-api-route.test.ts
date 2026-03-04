@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import net from 'node:net';
 import { after, before, describe, it } from 'node:test';
-import testAdapter from './test-adapter.js';
+import testAdapter from './test-adapter.ts';
 import { loadFixture } from './test-utils.ts';
 
 describe('API routes in SSR', () => {

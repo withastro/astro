@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import testAdapter from '../../astro/test/test-adapter.js';
+import testAdapter from '../../astro/test/test-adapter.ts';
 import { loadFixture } from '../../astro/test/test-utils.ts';
 import { resolveDbAppToken } from '../dist/core/utils.js';
 import { clearEnvironment, setupRemoteDb } from './test-utils.ts';

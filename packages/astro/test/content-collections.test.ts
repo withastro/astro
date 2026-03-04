@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import * as devalue from 'devalue';
-import testAdapter from './test-adapter.js';
+import testAdapter from './test-adapter.ts';
 import { preventNodeBuiltinDependencyPlugin } from './test-plugins.js';
 import { loadFixture } from './test-utils.ts';
 

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { preact } from './fixtures/before-hydration/deps.mjs';
-import testAdapter from './test-adapter.js';
+import testAdapter from './test-adapter.ts';
 import { loadFixture } from './test-utils.ts';
 
 describe('build assets (static)', () => {

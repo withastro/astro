@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as devalue from 'devalue';
-import testAdapter from './test-adapter.js';
+import testAdapter from './test-adapter.ts';
 import { loadFixture } from './test-utils.ts';
 
 describe('Astro.session', () => {

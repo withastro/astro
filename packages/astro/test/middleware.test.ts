@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import * as cheerio from 'cheerio';
-import testAdapter from './test-adapter.js';
+import testAdapter from './test-adapter.ts';
 import { loadFixture } from './test-utils.ts';
 
 describe('Middleware in DEV mode', () => {

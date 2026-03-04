@@ -2,7 +2,7 @@
 
 import { describe, it } from 'node:test';
 import { loadFixture } from './test-utils.ts';
-import testAdapter, { selfTestAdapter } from './test-adapter.js';
+import testAdapter, { selfTestAdapter } from './test-adapter.ts';
 import assert from 'node:assert/strict';
 import fakeAdapter from './fixtures/server-entry/fake-adapter/index.js';
 import { existsSync } from 'node:fs';

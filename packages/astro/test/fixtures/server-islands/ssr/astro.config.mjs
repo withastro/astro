@@ -1,6 +1,6 @@
 import svelte from '@astrojs/svelte';
 import { defineConfig } from 'astro/config';
-import testAdapter from '../../../test-adapter.js';
+import testAdapter from '../../../test-adapter';
 import mdx from '@astrojs/mdx';
 
 export default defineConfig({

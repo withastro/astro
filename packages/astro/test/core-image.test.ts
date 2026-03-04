@@ -7,7 +7,7 @@ import { removeDir } from '@astrojs/internal-helpers/fs';
 import * as cheerio from 'cheerio';
 import parseSrcset from 'parse-srcset';
 import { Logger } from '../dist/core/logger/core.js';
-import testAdapter from './test-adapter.js';
+import testAdapter from './test-adapter.ts';
 import { testImageService } from './test-image-service.js';
 import { loadFixture } from './test-utils.ts';
 

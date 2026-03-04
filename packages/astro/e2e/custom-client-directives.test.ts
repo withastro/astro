@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import testAdapter from '../test/test-adapter.js';
+import testAdapter from '../test/test-adapter.ts';
 import { testFactory, waitForHydrate } from './test-utils.ts';
 
 const test = testFactory(import.meta.url, {

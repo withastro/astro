@@ -8,7 +8,7 @@ import { createRoutesList } from '../../../dist/core/routing/create-manifest.js'
 import { getSortedPreloadedMatches } from '../../../dist/prerender/routing.js';
 import { RunnablePipeline } from '../../../dist/vite-plugin-app/pipeline.js';
 import { createDevelopmentManifest } from '../../../dist/vite-plugin-astro-server/plugin.js';
-import testAdapter from '../../test-adapter.js';
+import testAdapter from '../../test-adapter.ts';
 import {
 	createBasicSettings,
 	createFixture,

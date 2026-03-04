@@ -13,7 +13,7 @@ import {
 	renderSlot,
 	renderTemplate,
 } from '../dist/runtime/server/index.js';
-import testAdapter from './test-adapter.js';
+import testAdapter from './test-adapter.ts';
 import { loadFixture } from './test-utils.ts';
 
 const BaseLayout = createComponent((result, _props, slots) => {

@@ -200,7 +200,7 @@ describe('Queue-based rendering - SSR', () => {
 		fixture = await loadFixture({
 			root: './fixtures/queue-rendering/',
 			output: 'server',
-			adapter: await import('./test-adapter.js').then((mod) => mod.default()),
+			adapter: await import('./test-adapter.ts').then((mod) => mod.default()),
 		});
 		await fixture.build();
 		app = await fixture.loadTestAdapterApp();

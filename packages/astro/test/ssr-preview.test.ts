@@ -1,5 +1,5 @@
 import { before, describe, it } from 'node:test';
-import testAdapter from './test-adapter.js';
+import testAdapter from './test-adapter.ts';
 import { loadFixture } from './test-utils.ts';
 
 describe('SSR Preview', () => {

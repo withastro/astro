@@ -402,7 +402,7 @@ const exists = await fixture.pathExists('/index.html');
 Test adapter for SSR testing.
 
 ```javascript
-import testAdapter from './test-adapter.js';
+import testAdapter from './test-adapter.ts';
 
 const fixture = await loadFixture({
   adapter: testAdapter(),
@@ -613,7 +613,7 @@ describe('Virtual Modules', () => {
 ### Testing SSR
 
 ```javascript
-import testAdapter from './test-adapter.js';
+import testAdapter from './test-adapter.ts';
 
 describe('SSR', () => {
   let fixture;
