@@ -35,6 +35,7 @@ import type { BuildInternals } from '../internal.js';
 import { cssOrder, mergeInlineCss } from '../runtime.js';
 import type { StaticBuildOptions } from '../types.js';
 import { makePageDataKey } from './util.js';
+import { cacheConfigToManifest } from '../../cache/utils.js';
 import { sessionConfigToManifest } from '../../session/utils.js';
 
 /**
@@ -347,6 +348,10 @@ async function buildManifest(
 		allowedDomains: settings.config.security?.allowedDomains,
 		key: encodedKey,
 		sessionConfig: sessionConfigToManifest(settings.config.session),
+		cacheConfig: cacheConfigToManifest(
+			settings.config.experimental?.cache,
+			settings.config.experimental?.routeRules,
+		),
 		csp,
 		image: {
 			objectFit: settings.config.image.objectFit,
