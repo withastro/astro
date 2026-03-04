@@ -5,7 +5,6 @@ import { spec } from 'node:test/reporters';
 import { pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
 import { glob } from 'tinyglobby';
-import * as semver from 'semver';
 
 const isCI = !!process.env.CI;
 // 30 minutes in CI, 10 locally
@@ -82,12 +81,13 @@ export default async function test() {
 		? await import(pathToFileURL(path.resolve(args.values.teardown)).toString())
 		: undefined;
 
+	const setupModule = args.values.setup
+		? await import(pathToFileURL(path.resolve(args.values.setup)).toString())
+		: undefined;
+
 	// https://nodejs.org/api/test.html#runoptions
 	run({
 		files,
-		argv: semver.satisfies(process.versions.node, '>=22.20.0')
-			? undefined
-			: ['--experimental-strip-types'],
 		testNamePatterns: args.values.match
 			? args.values['teardown-test']
 				? [args.values.match, 'Teardown']
@@ -95,14 +95,7 @@ export default async function test() {
 			: undefined,
 		concurrency: args.values.parallel,
 		only: args.values.only,
-		setup: args.values.setup
-			? async () => {
-					const setupModule = await import(
-						pathToFileURL(path.resolve(args.values.setup)).toString()
-					);
-					return await setupModule.default();
-				}
-			: undefined,
+		setup: setupModule?.default,
 		watch: args.values.watch,
 		timeout: args.values.timeout ? Number(args.values.timeout) : defaultTimeout, // Node.js defaults to Infinity, so set better fallback
 		forceExit: args.values['force-exit'],
