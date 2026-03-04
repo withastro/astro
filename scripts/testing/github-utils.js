@@ -144,6 +144,8 @@ if (process.env.CI) {
 			}
 		}
 
+		summary += '\n\n' + testDurationHistogram(lines);
+
 		return summary;
 	};
 
@@ -154,4 +156,48 @@ if (process.env.CI) {
 		const summary = createSummary(parseLog(logContents));
 		setSummary(summary);
 	});
+}
+
+/**
+ * Generate a histogram of test durations from the log entries, and render it as a bar chart in the CI summary. This can help visualize the distribution of test durations and identify any outliers.
+ * @param {LogEntry[]} logEntries
+ */
+function testDurationHistogram(logEntries) {
+	// Filter to get only test entries that are not suites
+	const testEntries = logEntries.filter((entry) => entry.type === 'test' && !entry.isSuite);
+
+	let histogram = '## Test Duration Distribution\n\n';
+
+	if (testEntries.length === 0) {
+		histogram += 'No test entries found.\n';
+		return histogram;
+	}
+
+	const maxDuration = Math.max(...testEntries.map((t) => t.duration));
+	const bucketSize = 500; // 500ms buckets
+	const bucketCount = Math.ceil(maxDuration / bucketSize);
+	const buckets = new Array(bucketCount).fill(0);
+
+	// Count tests in each bucket
+	for (const test of testEntries) {
+		const bucketIndex = Math.min(Math.floor(test.duration / bucketSize), bucketCount - 1);
+		buckets[bucketIndex]++;
+	}
+
+	const biggestBucket = Math.max(...buckets);
+	const chartWidth = 40; // Max width of the bar in characters
+
+	// Render the histogram using block characters
+	histogram += '| Duration Range | Count |\n';
+	histogram += '|----------------|-------|\n';
+	for (let i = 0; i < buckets.length; i++) {
+		const rangeStart = i * bucketSize;
+		const rangeEnd = (i + 1) * bucketSize;
+		const count = buckets[i];
+		const barLength = biggestBucket > 0 ? Math.round((count / biggestBucket) * chartWidth) : 0;
+		const bar = '█'.repeat(barLength);
+		histogram += `| ${rangeStart}ms - ${rangeEnd}ms | ${bar} ${count} |\n`;
+	}
+
+	return histogram;
 }
