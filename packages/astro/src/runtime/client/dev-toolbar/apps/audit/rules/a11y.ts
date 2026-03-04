@@ -301,8 +301,9 @@ export const a11y: AuditRuleWithSelector[] = [
 			const nestedLabellableElement = element.querySelector(`${labellableElements.join(', ')}`);
 			if (!hasFor && !nestedLabellableElement) return true;
 
-			// Label must have text content, using innerText to ignore hidden text
-			const innerText = element.innerText.trim();
+			// Label must have text content, using textContent to correctly detect text
+			// inside elements that are not currently rendered (e.g. closed <details>)
+			const innerText = element.textContent?.trim();
 			if (innerText === '') return true;
 		},
 	},
@@ -367,8 +368,9 @@ export const a11y: AuditRuleWithSelector[] = [
 			'Headings and anchors must have an accessible name, which can come from: inner text, aria-label, aria-labelledby, an img with alt property, or an svg with a tag <title></title>.',
 		selector: a11y_required_content.join(','),
 		match(element: HTMLElement) {
-			// innerText is used to ignore hidden text
-			const innerText = element.innerText?.trim();
+			// textContent is used instead of innerText to correctly detect text inside
+			// elements that are not currently rendered (e.g. closed <details>)
+			const innerText = element.textContent?.trim();
 			if (innerText && innerText !== '') return false;
 
 			// Check for aria-label
@@ -381,7 +383,7 @@ export const a11y: AuditRuleWithSelector[] = [
 				const ids = ariaLabelledby.split(' ');
 				for (const id of ids) {
 					const referencedElement = document.getElementById(id);
-					if (referencedElement && referencedElement.innerText.trim() !== '') return false;
+					if (referencedElement && referencedElement.textContent?.trim() !== '') return false;
 				}
 			}
 
@@ -417,7 +419,7 @@ export const a11y: AuditRuleWithSelector[] = [
 					const ids = inputAriaLabelledby.split(' ');
 					for (const id of ids) {
 						const referencedElement = document.getElementById(id);
-						if (referencedElement && referencedElement.innerText.trim() !== '') return false;
+						if (referencedElement && referencedElement.textContent?.trim() !== '') return false;
 					}
 				}
 
