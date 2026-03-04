@@ -1,7 +1,3 @@
 {
-  "extends": "../../../tsconfig.base.json",
-  "exclude": ["fixtures"],
-  "compilerOptions": {
-    "allowJs": true
-  }
+  "extends": "../../../tsconfig.test.json"
 }
