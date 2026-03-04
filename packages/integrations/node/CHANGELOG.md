@@ -1,5 +1,26 @@
 # @astrojs/node
 
+## 10.0.0-beta.6
+
+### Patch Changes
+
+- [#15495](https://github.com/withastro/astro/pull/15495) [`5b99e90`](https://github.com/withastro/astro/commit/5b99e9077a92602f1e46e9b6eb9094bcd00c640e) Thanks [@leekeh](https://github.com/leekeh)! - Refactors to use `middlewareMode` adapter feature (set to `classic`)
+
+- [#15657](https://github.com/withastro/astro/pull/15657) [`cb625b6`](https://github.com/withastro/astro/commit/cb625b62596582047ec8cc4256960cc11804e931) Thanks [@qzio](https://github.com/qzio)! - Adds a new `security.actionBodySizeLimit` option to configure the maximum size of Astro Actions request bodies.
+
+  This lets you increase the default 1 MB limit when your actions need to accept larger payloads. For example, actions that handle file uploads or large JSON payloads can now opt in to a higher limit.
+
+  If you do not set this option, Astro continues to enforce the 1 MB default to help prevent abuse.
+
+  ```js
+  // astro.config.mjs
+  export default defineConfig({
+    security: {
+      actionBodySizeLimit: 10 * 1024 * 1024, // set to 10 MB
+    },
+  });
+  ```
+
 ## 10.0.0-beta.5
 
 ### Patch Changes

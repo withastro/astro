@@ -36,7 +36,11 @@ import { renderRedirect } from './redirects/render.js';
 import { getParams, getProps, type Pipeline, Slots } from './render/index.js';
 import { isRoute404or500, isRouteExternalRedirect, isRouteServerIsland } from './routing/match.js';
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
+import { AstroCache, type CacheLike } from './cache/runtime/cache.js';
+import { NoopAstroCache, DisabledAstroCache } from './cache/runtime/noop.js';
+import { compileCacheRoutes, matchCacheRoute } from './cache/runtime/route-matching.js';
 import { AstroSession } from './session/runtime.js';
+import { collapseDuplicateLeadingSlashes } from '@astrojs/internal-helpers/path';
 import { validateAndDecodePathname } from './util/pathname.js';
 
 /**
@@ -81,11 +85,16 @@ export class RenderContext {
 		public partial: undefined | boolean = undefined,
 		public shouldInjectCspMetaTags = pipeline.manifest.shouldInjectCspMetaTags,
 		public session: AstroSession | undefined = undefined,
+		public cache: CacheLike,
 		public skipMiddleware = false,
 	) {}
 
 	static #createNormalizedUrl(requestUrl: string): URL {
 		const url = new URL(requestUrl);
+		// Collapse multiple leading slashes so middleware sees the canonical pathname.
+		// Without this, a request to `//admin` would preserve `//admin` in context.url.pathname,
+		// bypassing middleware checks like `pathname.startsWith('/admin')`.
+		url.pathname = collapseDuplicateLeadingSlashes(url.pathname);
 		try {
 			// Decode and validate pathname to prevent multi-level encoding bypass attacks
 			url.pathname = validateAndDecodePathname(url.pathname);
@@ -148,6 +157,33 @@ export class RenderContext {
 					})
 				: undefined;
 
+		// Create cache instance
+		let cache: CacheLike;
+		if (!pipeline.cacheConfig) {
+			// Cache not configured — throws on use
+			cache = new DisabledAstroCache();
+		} else if (pipeline.runtimeMode === 'development') {
+			cache = new NoopAstroCache();
+		} else {
+			const cacheProvider = await pipeline.getCacheProvider();
+			cache = new AstroCache(cacheProvider);
+
+			// Apply config-level cache route matching as initial state
+			if (pipeline.cacheConfig?.routes) {
+				if (!pipeline.compiledCacheRoutes) {
+					pipeline.compiledCacheRoutes = compileCacheRoutes(
+						pipeline.cacheConfig.routes,
+						pipeline.manifest.base,
+						pipeline.manifest.trailingSlash,
+					);
+				}
+				const matched = matchCacheRoute(pathname, pipeline.compiledCacheRoutes);
+				if (matched) {
+					cache.set(matched);
+				}
+			}
+		}
+
 		return new RenderContext(
 			pipeline,
 			locals,
@@ -166,6 +202,7 @@ export class RenderContext {
 			partial,
 			shouldInjectCspMetaTags ?? pipeline.manifest.shouldInjectCspMetaTags,
 			session,
+			cache,
 			skipMiddleware,
 		);
 	}
@@ -479,6 +516,9 @@ export class RenderContext {
 				}
 				return renderContext.session;
 			},
+			get cache() {
+				return renderContext.cache;
+			},
 			get csp(): APIContext['csp'] {
 				if (!pipeline.manifest.csp) {
 					if (pipeline.runtimeMode === 'production') {
@@ -715,6 +755,9 @@ export class RenderContext {
 					return undefined;
 				}
 				return renderContext.session;
+			},
+			get cache() {
+				return renderContext.cache;
 			},
 			get clientAddress() {
 				return renderContext.getClientAddress();

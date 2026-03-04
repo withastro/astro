@@ -12,6 +12,7 @@ import type {
 	AstroIntegrationLogger,
 	HookParameters,
 	IntegrationResolvedRoute,
+	MiddlewareMode,
 	RouteToHeaders,
 } from 'astro';
 import { build } from 'esbuild';
@@ -236,9 +237,14 @@ export interface NetlifyIntegrationConfig {
 	cacheOnDemandPages?: boolean;
 
 	/**
-	 * If disabled, Middleware is applied to prerendered pages at build-time, and to on-demand-rendered pages at runtime.
-	 * Only disable when your Middleware does not need to run on prerendered pages.
-	 * If you use Middleware to implement authentication, redirects or similar things, you should should likely enabled it.
+	 * Controls when and how middleware executes.
+	 * - 'classic' (default): Middleware runs for prerendered pages at build time, and for SSR pages at request time.
+	 * - 'edge': Middleware is deployed as a separate edge function. Recommended if you want to implement authentication, redirects, or similar things.
+	 */
+	middlewareMode?: MiddlewareMode;
+
+	/**
+	 * @deprecated Use `middlewareMode: 'edge'` instead.
 	 *
 	 * If enabled, Astro Middleware is deployed as an Edge Function and applies to all routes.
 	 * Caveat: Locals set in Middleware are not applied to prerendered pages, because they've been rendered at build-time and are served from the CDN.
@@ -414,11 +420,20 @@ export default function netlifyIntegration(
 		await writeFile(
 			new URL('./ssr.mjs', ssrOutputDir()),
 			`
-			import { config, createHandler } from './${handler}';
+			import { createHandler } from './${handler}';
 
 			export default createHandler(${JSON.stringify({ notFoundContent })});
 
-			export { config };
+			// The config must be inlined here instead of imported because Netlify
+			// parses this file statically to read the config.
+			export const config = {
+				includedFiles: ['**/*'],
+				name: 'Astro SSR',
+				nodeBundler: 'none',
+				generator: '@astrojs/netlify@${packageVersion}',
+				path: '/*',
+				preferStatic: true,
+			};
 		`,
 		);
 	}
@@ -646,9 +661,11 @@ export default function netlifyIntegration(
 							createConfigPlugin({
 								middlewareSecret,
 								cacheOnDemandPages: !!integrationConfig?.cacheOnDemandPages,
-								packageVersion,
 							}),
 						],
+						ssr: {
+							noExternal: ['@astrojs/netlify'],
+						},
 						server: {
 							watch: {
 								ignored: [fileURLToPath(new URL('./.netlify/**', rootDir))],
@@ -677,7 +694,10 @@ export default function netlifyIntegration(
 
 				finalBuildOutput = buildOutput;
 
-				const useEdgeMiddleware = integrationConfig?.edgeMiddleware ?? false;
+				// Resolve middleware mode with backward compatibility
+				const middlewareMode =
+					integrationConfig?.middlewareMode ??
+					(integrationConfig?.edgeMiddleware ? 'edge' : 'classic');
 				const useStaticHeaders = integrationConfig?.staticHeaders ?? false;
 
 				setAdapter({
@@ -685,7 +705,7 @@ export default function netlifyIntegration(
 					entrypointResolution: 'auto',
 					serverEntrypoint: '@astrojs/netlify/ssr-function.js',
 					adapterFeatures: {
-						edgeMiddleware: useEdgeMiddleware,
+						middlewareMode,
 						staticHeaders: useStaticHeaders,
 					},
 					supportedAstroFeatures: {

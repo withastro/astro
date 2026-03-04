@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { glob } from 'tinyglobby';
 import { Agent } from 'undici';
 import { check } from '../dist/cli/check/index.js';
-import { globalContentLayer } from '../dist/content/content-layer.js';
+import { globalContentLayer } from '../dist/content/instance.js';
 import { globalContentConfigObserver } from '../dist/content/utils.js';
 import build from '../dist/core/build/index.js';
 import { mergeConfig, resolveConfig } from '../dist/core/config/index.js';

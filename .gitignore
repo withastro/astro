@@ -2,6 +2,7 @@ node_modules/
 /triage/
 /.compiler/
 dist/
+temp/
 *.tsbuildinfo
 .DS_Store
 .vercel

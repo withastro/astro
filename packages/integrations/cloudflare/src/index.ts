@@ -181,7 +181,6 @@ export default function createIntegration({
 													'astro > zod/v4',
 													'astro > zod/v4/core',
 													'astro > clsx',
-													'astro > cssesc',
 													'astro > cookie',
 													'astro > devalue',
 													'astro > @oslojs/encoding',
@@ -277,8 +276,8 @@ export default function createIntegration({
 				setAdapter({
 					name: '@astrojs/cloudflare',
 					adapterFeatures: {
-						edgeMiddleware: false,
 						buildOutput: 'server',
+						middlewareMode: 'classic',
 					},
 					entrypointResolution: 'auto',
 					previewEntrypoint: '@astrojs/cloudflare/entrypoints/preview',
