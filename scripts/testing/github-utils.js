@@ -2,7 +2,7 @@
 import * as fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { setSummary, warning } from '../../.github/scripts/utils.mjs';
+import { setSummary } from '../../.github/scripts/utils.mjs';
 
 const reportingConfig = {
 	/** The threshold in milliseconds for considering a test as slow. */
@@ -91,59 +91,58 @@ if (process.env.CI) {
 			builds[line.fixture].totalDuration += line.duration;
 		}
 
-		let summary = '## Slowest fixture builds this run\n\n';
-		summary += '| Fixture | Builds | Total Duration (s) |\n';
-		summary += '|---------|-------:|-------------------:|\n';
-
+		let summary = '';
 		const urlBase = 'https://github.com/withastro/astro/blob/main/';
 
 		const slowestBuilds = Object.values(builds)
 			.sort((a, b) => b.totalDuration - a.totalDuration)
 			.slice(0, 10);
-		for (const entry of slowestBuilds) {
-			const url = `${urlBase}${encodeURI(entry.fixture.replaceAll('\\', '/'))}`;
-			summary += `| [\`${path.basename(entry.fixture)}\`](${url}) | ${entry.count} | ${(entry.totalDuration / 1000).toFixed(2)} |\n`;
-		}
 
-		summary += '\n## Slowest tests this run\n\n';
-		summary += '| Test | Duration (s) | Location |\n';
-		summary += '|------|-------------:|----------|\n';
+		summary += '## Slowest fixture builds this run\n\n';
+		if (slowestBuilds.length === 0) {
+			summary +=
+				'No builds detected! If you are seeing this message, it likely means there is an issue with the logging implementation. Please investigate. 🐛\n';
+			return summary;
+		} else {
+			summary += '| Fixture | Builds | Total Duration (s) |\n';
+			summary += '|---------|-------:|-------------------:|\n';
+			for (const entry of slowestBuilds) {
+				const url = `${urlBase}${encodeURI(entry.fixture.replaceAll('\\', '/'))}`;
+				summary += `| [\`${path.basename(entry.fixture)}\`](${url}) | ${entry.count} | ${(entry.totalDuration / 1000).toFixed(2)} |\n`;
+			}
+		}
 
 		const slowestTests = lines
-			.filter(
-				/** @returns {line is TestLogEntry} */
-				(line) => line.type === 'test' && !line.isSuite,
-			)
-			.sort((a, b) => b.duration - a.duration)
-			.slice(0, 20);
-		for (const test of slowestTests) {
-			const location = test.file
-				? `${path.basename(test.file)}:${test.line ?? '?'}:${test.column ?? '?'}`
-				: 'Unknown';
-			const url = test.file
-				? `${urlBase}${encodeURI(test.file.replace(repoRoot, '').replaceAll('\\', '/'))}#L${test.line ?? '?'}`
-				: '';
-			summary += `| ${test.name} | ${(test.duration / 1000).toFixed(2)} | [\`${location}\`](${url}) |\n`;
-		}
-
-		lines
 			.filter(
 				/** @returns {line is TestLogEntry} */
 				(line) =>
 					line.type === 'test' &&
 					!line.isSuite &&
-					line.duration > reportingConfig.slowTestThreshold &&
+					line.duration >= reportingConfig.slowTestThreshold &&
 					!reportingConfig.knownSlowTests.includes(line.name),
 			)
-			.forEach((test) => {
+			.sort((a, b) => b.duration - a.duration)
+			.slice(0, 20);
+
+		summary += '\n## Slowest tests this run\n\n';
+		if (slowestTests.length === 0) {
+			summary += 'No slow tests detected! Great job! 🎉\n';
+			return summary;
+		} else {
+			summary += '| Test | Duration (s) | Location |\n';
+			summary += '|------|-------------:|----------|\n';
+
+			for (const test of slowestTests) {
 				const seconds = (test.duration / 1000).toFixed(2);
-				warning(`This test took ${seconds} seconds to run. Consider refactoring it.`, {
-					title: `Slow test (${seconds}s): ${test.name}`,
-					file: test.file?.replace(repoRoot, '').replaceAll('\\', '/'),
-					line: test.line,
-					column: test.column,
-				});
-			});
+				if (!test.file) {
+					summary += `| ${test.name} | ${seconds} | Unknown |\n`;
+				} else {
+					const location = `${path.basename(test.file)}:${test.line ?? '?'}:${test.column ?? '?'}`;
+					const url = `${urlBase}${encodeURI(test.file.replace(repoRoot, '').replaceAll('\\', '/'))}#L${test.line ?? '?'}`;
+					summary += `| ${test.name} | ${seconds} | [\`${location}\`](${url}) |\n`;
+				}
+			}
+		}
 
 		return summary;
 	};

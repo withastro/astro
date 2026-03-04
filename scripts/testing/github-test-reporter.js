@@ -1,9 +1,9 @@
 // @ts-check
-// Custom reporter for the Node.js test runner
 
 import { Transform } from 'node:stream';
 import { CILogger } from './github-utils.js';
 
+// Custom reporter for the Node.js test runner used to log tests for analysis and reporting in CI.
 export default new Transform({
 	writableObjectMode: true,
 	/**
