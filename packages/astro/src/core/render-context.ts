@@ -97,17 +97,29 @@ export class RenderContext {
 		url.pathname = collapseDuplicateLeadingSlashes(url.pathname);
 		try {
 			// Decode and validate pathname to prevent multi-level encoding bypass attacks
-			url.pathname = validateAndDecodePathname(url.pathname);
+			let decoded = validateAndDecodePathname(url.pathname);
+			// Replace backslashes with forward slashes before assigning to url.pathname.
+			// The URL spec's pathname setter normalizes `\` to `/`, which can create
+			// unexpected duplicate slashes (e.g., `/users/\admin` → `/users//admin`).
+			// Normalizing here ensures consistent pathname representation.
+			decoded = decoded.replaceAll('\\', '/');
+			url.pathname = decoded;
 		} catch {
 			// If validation fails, return URL with pathname as-is
 			// This will be caught elsewhere in the request handling pipeline
 			// For now, just decode without validation to maintain compatibility
 			try {
-				url.pathname = decodeURI(url.pathname);
+				let decoded = decodeURI(url.pathname);
+				decoded = decoded.replaceAll('\\', '/');
+				url.pathname = decoded;
 			} catch {
 				// If even basic decoding fails, return URL as-is
 			}
 		}
+		// Collapse any duplicate slashes in the pathname that may have been introduced
+		// by decoding and normalization (e.g., from backslash conversion or URL setter behavior).
+		// This covers both leading slashes and slashes anywhere in the path.
+		url.pathname = url.pathname.replace(/\/{2,}/g, '/');
 		return url;
 	}
 
