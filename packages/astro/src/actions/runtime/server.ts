@@ -10,6 +10,7 @@ import {
 } from '../../core/errors/errors-data.js';
 import { AstroError } from '../../core/errors/errors.js';
 import { removeTrailingForwardSlash } from '../../core/path.js';
+import { BodySizeLimitError, readBodyWithLimit } from '../../core/request-body.js';
 import type { APIContext } from '../../types/public/index.js';
 import { ACTION_QUERY_PARAMS, ACTION_RPC_ROUTE_PATTERN } from '../consts.js';
 import {
@@ -261,32 +262,43 @@ async function parseRequestBody(request: Request, bodySizeLimit: number) {
 	const hasContentLength = typeof contentLength === 'number' && Number.isFinite(contentLength);
 
 	if (!contentType) return undefined;
-	if (hasContentLength && contentLength > bodySizeLimit) {
-		throw new ActionError({
-			code: 'CONTENT_TOO_LARGE',
-			message: `Request body exceeds ${bodySizeLimit} bytes`,
-		});
-	}
-	if (hasContentType(contentType, formContentTypes)) {
-		if (!hasContentLength) {
-			const body = await readRequestBodyWithLimit(request.clone(), bodySizeLimit);
-			const formRequest = new Request(request.url, {
-				method: request.method,
-				headers: request.headers,
-				body: toArrayBuffer(body),
+
+	try {
+		if (hasContentType(contentType, formContentTypes)) {
+			if (!hasContentLength) {
+				const body = await readBodyWithLimit(request.clone(), bodySizeLimit);
+				const formRequest = new Request(request.url, {
+					method: request.method,
+					headers: request.headers,
+					body: toArrayBuffer(body),
+				});
+				return await formRequest.formData();
+			}
+			if (hasContentLength && contentLength > bodySizeLimit) {
+				throw new BodySizeLimitError(bodySizeLimit);
+			}
+			return await request.clone().formData();
+		}
+		if (hasContentType(contentType, ['application/json'])) {
+			if (contentLength === 0) return undefined;
+			if (!hasContentLength) {
+				const body = await readBodyWithLimit(request.clone(), bodySizeLimit);
+				if (body.byteLength === 0) return undefined;
+				return JSON.parse(new TextDecoder().decode(body));
+			}
+			if (hasContentLength && contentLength > bodySizeLimit) {
+				throw new BodySizeLimitError(bodySizeLimit);
+			}
+			return await request.clone().json();
+		}
+	} catch (e) {
+		if (e instanceof BodySizeLimitError) {
+			throw new ActionError({
+				code: 'CONTENT_TOO_LARGE',
+				message: `Request body exceeds ${bodySizeLimit} bytes`,
 			});
-			return await formRequest.formData();
 		}
-		return await request.clone().formData();
-	}
-	if (hasContentType(contentType, ['application/json'])) {
-		if (contentLength === 0) return undefined;
-		if (!hasContentLength) {
-			const body = await readRequestBodyWithLimit(request.clone(), bodySizeLimit);
-			if (body.byteLength === 0) return undefined;
-			return JSON.parse(new TextDecoder().decode(body));
-		}
-		return await request.clone().json();
+		throw e;
 	}
 	throw new TypeError('Unsupported content type');
 }
@@ -471,34 +483,6 @@ export function serializeActionResult(res: SafeResult<any, any>): SerializedActi
 		body,
 	};
 }
-async function readRequestBodyWithLimit(request: Request, limit: number): Promise<Uint8Array> {
-	if (!request.body) return new Uint8Array();
-	const reader = request.body.getReader();
-	const chunks: Uint8Array[] = [];
-	let received = 0;
-	while (true) {
-		const { done, value } = await reader.read();
-		if (done) break;
-		if (value) {
-			received += value.byteLength;
-			if (received > limit) {
-				throw new ActionError({
-					code: 'CONTENT_TOO_LARGE',
-					message: `Request body exceeds ${limit} bytes`,
-				});
-			}
-			chunks.push(value);
-		}
-	}
-	const buffer = new Uint8Array(received);
-	let offset = 0;
-	for (const chunk of chunks) {
-		buffer.set(chunk, offset);
-		offset += chunk.byteLength;
-	}
-	return buffer;
-}
-
 function toArrayBuffer(buffer: Uint8Array): ArrayBuffer {
 	const copy = new Uint8Array(buffer.byteLength);
 	copy.set(buffer);

@@ -687,6 +687,31 @@ export interface AstroUserConfig<
 
 		/**
 		 * @docs
+		 * @name security.serverIslandBodySizeLimit
+		 * @kind h4
+		 * @type {number}
+		 * @default `1048576` (1 MB)
+		 * @version 6.1.0
+		 * @description
+		 *
+		 * Sets the maximum size in bytes allowed for server island request bodies.
+		 *
+		 * By default, server island request bodies are limited to 1 MB (1048576 bytes) to prevent abuse.
+		 * You can increase this limit if your server islands need to accept larger payloads.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * export default defineConfig({
+		 *   security: {
+		 *     serverIslandBodySizeLimit: 10 * 1024 * 1024 // 10 MB
+		 *   }
+		 * })
+		 * ```
+		 */
+		serverIslandBodySizeLimit?: number;
+
+		/**
+		 * @docs
 		 * @name security.csp
 		 * @kind h4
 		 * @type {boolean | object}

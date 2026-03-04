@@ -197,6 +197,9 @@ export async function createDevelopmentManifest(settings: AstroSettings): Promis
 		actionBodySizeLimit: settings.config.security?.actionBodySizeLimit
 			? settings.config.security.actionBodySizeLimit
 			: 1024 * 1024, // 1mb default
+		serverIslandBodySizeLimit: settings.config.security?.serverIslandBodySizeLimit
+			? settings.config.security.serverIslandBodySizeLimit
+			: 1024 * 1024, // 1mb default
 		key: hasEnvironmentKey() ? getEnvironmentKey() : createKey(),
 		middleware() {
 			return {

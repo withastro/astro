@@ -9,6 +9,7 @@ import { createSlotValueFromString } from '../../runtime/server/render/slot.js';
 import type { ComponentInstance, RoutesList } from '../../types/astro.js';
 import type { RouteData, SSRManifest } from '../../types/public/internal.js';
 import { decryptString } from '../encryption.js';
+import { BodySizeLimitError, readBodyWithLimit } from '../request-body.js';
 import { getPattern } from '../routing/pattern.js';
 
 export const SERVER_ISLAND_ROUTE = '/_server-islands/[name]';
@@ -56,52 +57,6 @@ function badRequest(reason: string) {
 
 const DEFAULT_BODY_SIZE_LIMIT = 1024 * 1024; // 1MB
 
-function payloadTooLarge(limit: number) {
-	return new Response(null, {
-		status: 413,
-		statusText: `Body size exceeds the configured limit of ${limit} bytes`,
-	});
-}
-
-/**
- * Read the request body as text, enforcing a maximum size limit.
- * Returns the body string on success, or a 413 Response if the limit is exceeded.
- */
-async function readBodyWithLimit(request: Request, limit: number): Promise<string | Response> {
-	const contentLengthHeader = request.headers.get('content-length');
-	if (contentLengthHeader) {
-		const contentLength = Number.parseInt(contentLengthHeader, 10);
-		if (Number.isFinite(contentLength) && contentLength > limit) {
-			return payloadTooLarge(limit);
-		}
-	}
-
-	if (!request.body) return '';
-	const reader = request.body.getReader();
-	const chunks: Uint8Array[] = [];
-	let received = 0;
-	while (true) {
-		const { done, value } = await reader.read();
-		if (done) break;
-		if (value) {
-			received += value.byteLength;
-			if (received > limit) {
-				// Cancel the remaining stream
-				await reader.cancel();
-				return payloadTooLarge(limit);
-			}
-			chunks.push(value);
-		}
-	}
-	const buffer = new Uint8Array(received);
-	let offset = 0;
-	for (const chunk of chunks) {
-		buffer.set(chunk, offset);
-		offset += chunk.byteLength;
-	}
-	return new TextDecoder().decode(buffer);
-}
-
 export async function getRequestData(
 	request: Request,
 	bodySizeLimit: number = DEFAULT_BODY_SIZE_LIMIT,
@@ -124,12 +79,9 @@ export async function getRequestData(
 		}
 		case 'POST': {
 			try {
-				const rawOrResponse = await readBodyWithLimit(request, bodySizeLimit);
-				if (rawOrResponse instanceof Response) {
-					return rawOrResponse;
-				}
-
-				const data = JSON.parse(rawOrResponse);
+				const body = await readBodyWithLimit(request, bodySizeLimit);
+				const raw = new TextDecoder().decode(body);
+				const data = JSON.parse(raw);
 
 				// Validate that slots is not plaintext
 				if ('slots' in data && typeof data.slots === 'object') {
@@ -145,6 +97,12 @@ export async function getRequestData(
 
 				return data as RenderOptions;
 			} catch (e) {
+				if (e instanceof BodySizeLimitError) {
+					return new Response(null, {
+						status: 413,
+						statusText: e.message,
+					});
+				}
 				if (e instanceof SyntaxError) {
 					return badRequest('Request format is invalid.');
 				}
@@ -170,7 +128,7 @@ export function createEndpoint(manifest: SSRManifest) {
 		const componentId = params.name;
 
 		// Get the request data from the body or search params
-		const data = await getRequestData(result.request, manifest.actionBodySizeLimit);
+		const data = await getRequestData(result.request, manifest.serverIslandBodySizeLimit);
 		// probably error
 		if (data instanceof Response) {
 			return data;
