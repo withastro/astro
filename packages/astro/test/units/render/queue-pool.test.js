@@ -226,10 +226,10 @@ describe('NodePool', () => {
 		const comp1 = pool.acquire('component');
 		const instr1 = pool.acquire('instruction');
 
-		pool.release(text1);   // 1/3
-		pool.release(html1);   // 2/3
-		pool.release(comp1);   // 3/3
-		pool.release(instr1);  // Exceeds cap - dropped
+		pool.release(text1); // 1/3
+		pool.release(html1); // 2/3
+		pool.release(comp1); // 3/3
+		pool.release(instr1); // Exceeds cap - dropped
 
 		strictEqual(pool.size(), 3);
 
