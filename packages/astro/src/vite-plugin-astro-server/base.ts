@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import path from 'node:path';
-import { appendForwardSlash } from '@astrojs/internal-helpers/path';
+import { appendForwardSlash, prependForwardSlash } from '@astrojs/internal-helpers/path';
 import colors from 'piccolore';
 import type * as vite from 'vite';
 import type { Logger } from '../core/logger/core.js';
@@ -32,7 +32,7 @@ export function baseMiddleware(
 
 		if (pathname.startsWith(devRoot)) {
 			req.url = url.replace(devRoot, devRootReplacement);
-			if (!req.url.startsWith('/')) req.url = '/' + req.url;
+			if (!req.url.startsWith('/')) req.url = prependForwardSlash(req.url);
 			return next();
 		}
 

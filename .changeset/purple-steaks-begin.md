@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Avoid generating `req.url` without the starting `/` by the internal base middleware.
+Fixes a bug where some requests to the dev server didn't start with the leading `/`.
