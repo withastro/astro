@@ -1,5 +1,6 @@
 import {
 	appendForwardSlash,
+	collapseDuplicateLeadingSlashes,
 	collapseDuplicateTrailingSlashes,
 	hasFileExtension,
 	isInternalPath,
@@ -15,10 +16,12 @@ import type { Pipeline } from '../base-pipeline.js';
 import {
 	clientAddressSymbol,
 	DEFAULT_404_COMPONENT,
+	NOOP_MIDDLEWARE_HEADER,
 	REROUTABLE_STATUS_CODES,
 	REROUTE_DIRECTIVE_HEADER,
 	responseSentSymbol,
 	REWRITE_DIRECTIVE_HEADER_KEY,
+	ROUTE_TYPE_HEADER,
 } from '../constants.js';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
@@ -85,9 +88,17 @@ export interface RenderOptions {
 	routeData?: RouteData;
 }
 
-export interface RenderErrorOptions {
-	locals?: App.Locals;
-	routeData?: RouteData;
+type RequiredRenderOptions = Required<RenderOptions>;
+
+interface ResolvedRenderOptions {
+	addCookieHeader: RequiredRenderOptions['addCookieHeader'];
+	clientAddress: RequiredRenderOptions['clientAddress'] | undefined;
+	prerenderedErrorPageFetch: RequiredRenderOptions['prerenderedErrorPageFetch'] | undefined;
+	locals: RequiredRenderOptions['locals'] | undefined;
+	routeData: RequiredRenderOptions['routeData'] | undefined;
+}
+
+export interface RenderErrorOptions extends ResolvedRenderOptions {
 	response?: Response;
 	status: 404 | 500;
 	/**
@@ -98,8 +109,6 @@ export interface RenderErrorOptions {
 	 * Allows passing an error to 500.astro. It will be available through `Astro.props.error`.
 	 */
 	error?: unknown;
-	clientAddress: string | undefined;
-	prerenderedErrorPageFetch: ((url: ErrorPagePath) => Promise<Response>) | undefined;
 }
 
 type ErrorPagePath =
@@ -188,6 +197,10 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	}
 
 	public removeBase(pathname: string) {
+		// Collapse multiple leading slashes to prevent middleware authorization bypass.
+		// Without this, `//admin` would be treated as starting with base `/` and sliced
+		// to `/admin` for routing, while middleware still sees `//admin` in the URL.
+		pathname = collapseDuplicateLeadingSlashes(pathname);
 		if (pathname.startsWith(this.manifest.base)) {
 			return pathname.slice(this.baseWithoutTrailingSlash.length + 1);
 		}
@@ -356,19 +369,23 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		return pathname;
 	}
 
-	public async render(request: Request, renderOptions?: RenderOptions): Promise<Response> {
+	public async render(
+		request: Request,
+		{
+			addCookieHeader = false,
+			clientAddress = Reflect.get(request, clientAddressSymbol),
+			locals,
+			prerenderedErrorPageFetch = fetch,
+			routeData,
+		}: RenderOptions = {},
+	): Promise<Response> {
 		const timeStart = performance.now();
-		let routeData: RouteData | undefined = renderOptions?.routeData;
-		let locals: object | undefined;
-		let clientAddress: string | undefined;
-		let addCookieHeader: boolean | undefined;
 		const url = new URL(request.url);
 		const redirect = this.redirectTrailingSlash(url.pathname);
-		const prerenderedErrorPageFetch = renderOptions?.prerenderedErrorPageFetch ?? fetch;
 
 		if (redirect !== url.pathname) {
 			const status = request.method === 'GET' ? 301 : 308;
-			return new Response(
+			const response = new Response(
 				redirectTemplate({
 					status,
 					relativeLocation: url.pathname,
@@ -382,12 +399,9 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 					},
 				},
 			);
+			this.#prepareResponse(response, { addCookieHeader });
+			return response;
 		}
-
-		addCookieHeader = renderOptions?.addCookieHeader;
-		clientAddress = renderOptions?.clientAddress ?? Reflect.get(request, clientAddressSymbol);
-		routeData = renderOptions?.routeData;
-		locals = renderOptions?.locals;
 
 		if (routeData) {
 			this.logger.debug(
@@ -398,15 +412,26 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			this.logger.debug('router', 'RouteData');
 			this.logger.debug('router', routeData);
 		}
+
+		const resolvedRenderOptions: ResolvedRenderOptions = {
+			addCookieHeader,
+			clientAddress,
+			prerenderedErrorPageFetch,
+			locals,
+			routeData,
+		};
+
 		if (locals) {
 			if (typeof locals !== 'object') {
 				const error = new AstroError(AstroErrorData.LocalsNotAnObject);
 				this.logger.error(null, error.stack!);
 				return this.renderError(request, {
+					...resolvedRenderOptions,
+					// If locals are invalid, we don't want to include them when
+					// rendering the error page
+					locals: undefined,
 					status: 500,
 					error,
-					clientAddress,
-					prerenderedErrorPageFetch: prerenderedErrorPageFetch,
 				});
 			}
 		}
@@ -435,10 +460,8 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			this.logger.debug('router', "Astro hasn't found routes that match " + request.url);
 			this.logger.debug('router', "Here's the available routes:\n", this.manifestData);
 			return this.renderError(request, {
-				locals,
+				...resolvedRenderOptions,
 				status: 404,
-				clientAddress,
-				prerenderedErrorPageFetch: prerenderedErrorPageFetch,
 			});
 		}
 		const pathname = this.getPathnameFromRequest(request);
@@ -503,11 +526,9 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		} catch (err: any) {
 			this.logger.error(null, err.stack || err.message || String(err));
 			return this.renderError(request, {
-				locals,
+				...resolvedRenderOptions,
 				status: 500,
 				error: err,
-				clientAddress,
-				prerenderedErrorPageFetch: prerenderedErrorPageFetch,
 			});
 		} finally {
 			await session?.[PERSIST_SYMBOL]();
@@ -521,30 +542,39 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
 		) {
 			return this.renderError(request, {
-				locals,
+				...resolvedRenderOptions,
 				response,
 				status: response.status as 404 | 500,
 				// We don't have an error to report here. Passing null means we pass nothing intentionally
 				// while undefined means there's no error
 				error: response.status === 500 ? null : undefined,
-				clientAddress,
-				prerenderedErrorPageFetch: prerenderedErrorPageFetch,
 			});
 		}
 
+		this.#prepareResponse(response, { addCookieHeader });
+		return response;
+	}
+
+	#prepareResponse(response: Response, { addCookieHeader }: { addCookieHeader: boolean }): void {
 		// We remove internally-used header before we send the response to the user agent.
-		if (response.headers.has(REROUTE_DIRECTIVE_HEADER)) {
-			response.headers.delete(REROUTE_DIRECTIVE_HEADER);
+		for (const headerName of [
+			REROUTE_DIRECTIVE_HEADER,
+			REWRITE_DIRECTIVE_HEADER_KEY,
+			NOOP_MIDDLEWARE_HEADER,
+			ROUTE_TYPE_HEADER,
+		]) {
+			if (response.headers.has(headerName)) {
+				response.headers.delete(headerName);
+			}
 		}
 
 		if (addCookieHeader) {
-			for (const setCookieHeaderValue of BaseApp.getSetCookieFromResponse(response)) {
+			for (const setCookieHeaderValue of getSetCookiesFromResponse(response)) {
 				response.headers.append('set-cookie', setCookieHeaderValue);
 			}
 		}
 
 		Reflect.set(response, responseSentSymbol, true);
-		return response;
 	}
 
 	setCookieHeaders(response: Response) {
@@ -571,13 +601,11 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	public async renderError(
 		request: Request,
 		{
-			locals,
 			status,
 			response: originalResponse,
 			skipMiddleware = false,
 			error,
-			clientAddress,
-			prerenderedErrorPageFetch,
+			...resolvedRenderOptions
 		}: RenderErrorOptions,
 	): Promise<Response> {
 		const errorRoutePath = `/${status}${this.manifest.trailingSlash === 'always' ? '/' : ''}`;
@@ -587,8 +615,13 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			if (errorRouteData.prerender) {
 				const maybeDotHtml = errorRouteData.route.endsWith(`/${status}`) ? '.html' : '';
 				const statusURL = new URL(`${this.baseWithoutTrailingSlash}/${status}${maybeDotHtml}`, url);
-				if (statusURL.toString() !== request.url && prerenderedErrorPageFetch) {
-					const response = await prerenderedErrorPageFetch(statusURL.toString() as ErrorPagePath);
+				if (
+					statusURL.toString() !== request.url &&
+					resolvedRenderOptions.prerenderedErrorPageFetch
+				) {
+					const response = await resolvedRenderOptions.prerenderedErrorPageFetch(
+						statusURL.toString() as ErrorPagePath,
+					);
 
 					// In order for the response of the remote to be usable as a response
 					// for this request, it needs to have our status code in the response
@@ -602,14 +635,16 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 					// not match the body we provide and need to be removed.
 					const override = { status, removeContentEncodingHeaders: true };
 
-					return this.mergeResponses(response, originalResponse, override);
+					const newResponse = this.mergeResponses(response, originalResponse, override);
+					this.#prepareResponse(newResponse, resolvedRenderOptions);
+					return newResponse;
 				}
 			}
 			const mod = await this.pipeline.getComponentByRoute(errorRouteData);
 			let session: AstroSession | undefined;
 			try {
 				const renderContext = await this.createRenderContext({
-					locals,
+					locals: resolvedRenderOptions.locals,
 					pipeline: this.pipeline,
 					skipMiddleware,
 					pathname: this.getPathnameFromRequest(request),
@@ -617,21 +652,21 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 					routeData: errorRouteData,
 					status,
 					props: { error },
-					clientAddress,
+					clientAddress: resolvedRenderOptions.clientAddress,
 				});
 				session = renderContext.session;
 				const response = await renderContext.render(mod);
-				return this.mergeResponses(response, originalResponse);
+				const newResponse = this.mergeResponses(response, originalResponse);
+				this.#prepareResponse(newResponse, resolvedRenderOptions);
+				return newResponse;
 			} catch {
 				// Middleware may be the cause of the error, so we try rendering 404/500.astro without it.
 				if (skipMiddleware === false) {
 					return this.renderError(request, {
-						locals,
+						...resolvedRenderOptions,
 						status,
 						response: originalResponse,
 						skipMiddleware: true,
-						clientAddress,
-						prerenderedErrorPageFetch,
 					});
 				}
 			} finally {
@@ -640,7 +675,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		}
 
 		const response = this.mergeResponses(new Response(null, { status }), originalResponse);
-		Reflect.set(response, responseSentSymbol, true);
+		this.#prepareResponse(response, resolvedRenderOptions);
 		return response;
 	}
 

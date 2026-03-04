@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "6.0.0-beta.16",
+  "version": "6.0.0-beta.17",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -155,7 +155,7 @@
     "picomatch": "^4.0.3",
     "rehype": "^13.0.2",
     "semver": "^7.7.4",
-    "shiki": "^3.22.0",
+    "shiki": "^4.0.0",
     "smol-toml": "^1.6.0",
     "svgo": "^4.0.0",
     "tinyexec": "^1.0.2",
@@ -167,7 +167,7 @@
     "unstorage": "^1.17.4",
     "vfile": "^6.0.3",
     "vite": "^7.3.1",
-    "vitefu": "^1.1.1",
+    "vitefu": "^1.1.2",
     "xxhash-wasm": "^1.1.0",
     "yargs-parser": "^22.0.0",
     "zod": "^4.3.6"
@@ -177,7 +177,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "workspace:*",
-    "@astrojs/compiler-rs": "^0.1.1",
+    "@astrojs/compiler-rs": "^0.1.4",
     "@playwright/test": "1.58.2",
     "@types/aria-query": "^5.0.4",
     "@types/dlv": "^1.1.5",

@@ -150,6 +150,7 @@ function createManifest(
 		compressHTML: manifest?.compressHTML ?? ASTRO_CONFIG_DEFAULTS.compressHTML,
 		assetsDir: manifest?.assetsDir ?? ASTRO_CONFIG_DEFAULTS.build.assets,
 		serverLike: manifest?.serverLike ?? true,
+		middlewareMode: manifest?.middlewareMode ?? 'classic',
 		assets: manifest?.assets ?? new Set(),
 		assetsPrefix: manifest?.assetsPrefix ?? undefined,
 		entryModules: manifest?.entryModules ?? {},
@@ -268,6 +269,7 @@ type AstroContainerManifest = Pick<
 	| 'csp'
 	| 'allowedDomains'
 	| 'serverLike'
+	| 'middlewareMode'
 	| 'assetsDir'
 	| 'image'
 	| 'experimentalQueuedRendering'
