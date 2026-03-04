@@ -243,6 +243,7 @@ export class AstroSession {
 		// Create new session
 		this.#sessionID = crypto.randomUUID();
 		this.#data = data;
+		this.#dirty = true;
 		await this.#setCookie();
 
 		// Clean up old session asynchronously

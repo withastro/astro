@@ -131,6 +131,39 @@ describe('AstroSession - Session Regeneration', () => {
 
 		assert.notEqual(initialId, newId);
 	});
+
+	it('should persist data after regeneration without a subsequent set()', async () => {
+		const store = new Map();
+		const mockStorage = {
+			get: async (key) => {
+				const raw = store.get(key);
+				return raw ? JSON.parse(raw) : null;
+			},
+			setItem: async (key, value) => {
+				store.set(key, value);
+			},
+			removeItem: async (key) => {
+				store.delete(key);
+			},
+		};
+
+		const session = createSession(defaultConfig, defaultMockCookies, mockStorage);
+
+		session.set('user', 'alice');
+		await session[PERSIST_SYMBOL]();
+
+		await session.regenerate();
+		await session[PERSIST_SYMBOL]();
+
+		// Create a new session that reads from the same storage
+		const newSession = createSession(defaultConfig, {
+			...defaultMockCookies,
+			get: () => ({ value: session.sessionID }),
+		}, mockStorage);
+
+		const value = await newSession.get('user');
+		assert.equal(value, 'alice');
+	});
 });
 
 describe('AstroSession - Data Persistence', () => {
