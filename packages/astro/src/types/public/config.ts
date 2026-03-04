@@ -691,10 +691,10 @@ export interface AstroUserConfig<
 		 * @kind h4
 		 * @type {number}
 		 * @default `1048576` (1 MB)
-		 * @version 6.1.0
+		 * @version 6.0.0
 		 * @description
 		 *
-		 * Sets the maximum size in bytes allowed for server island request bodies.
+		 * Sets the maximum size in bytes allowed for server island request bodies, which contain the encrypted props and slot HTML passed to the island component.
 		 *
 		 * By default, server island request bodies are limited to 1 MB (1048576 bytes) to prevent abuse.
 		 * You can increase this limit if your server islands need to accept larger payloads.
