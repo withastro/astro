@@ -103,6 +103,7 @@ export type ActionAPIContext = Pick<
 	| 'preferredLocaleList'
 	| 'originPathname'
 	| 'session'
+	| 'cache'
 	| 'csp'
 >;
 
