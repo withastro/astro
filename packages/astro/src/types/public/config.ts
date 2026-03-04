@@ -12,6 +12,7 @@ import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions
 import type { FontFamily, FontProvider } from '../../assets/fonts/types.js';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
 import type { AssetsPrefix } from '../../core/app/types.js';
+import type { CacheProviderConfig, RouteRules } from '../../core/cache/types.js';
 import type { AstroConfigType } from '../../core/config/schemas/index.js';
 import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
 import type { CspAlgorithm, CspDirective, CspHash } from '../../core/csp/config.js';
@@ -2805,6 +2806,84 @@ export interface AstroUserConfig<
 		svgo?: boolean | SvgoConfig;
 
 		/**
+		 * @name experimental.cache
+		 * @type {object}
+		 * @default `undefined`
+		 * @description
+		 *
+		 * Enables route caching for SSR responses. Provides a platform-agnostic API
+		 * for caching rendered pages and API responses, with pluggable providers
+		 * that adapters can configure automatically.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { memoryCache } from 'astro/config';
+		 *
+		 * {
+		 *   experimental: {
+		 *     cache: {
+		 *       provider: memoryCache(),
+		 *     },
+		 *     routeRules: {
+		 *       '/blog/[...path]': { maxAge: 300, swr: 60 },
+		 *     },
+		 *   },
+		 * }
+		 * ```
+		 *
+		 * Use `Astro.cache.set()` in routes and `context.cache.set()` in middleware
+		 * or API routes to control caching per-request.
+		 */
+		cache?: {
+			/**
+			 * @name experimental.cache.provider
+			 * @type {import('../../core/cache/types.js').CacheProviderConfig}
+			 * @description
+			 *
+			 * The cache provider. Adapters typically set a default, but you can
+			 * override it with your own.
+			 *
+			 * Use the provider's config function to get type-safe configuration:
+			 *
+			 * ```js
+			 * import { memoryCache } from 'astro/config';
+			 *
+			 * export default defineConfig({
+			 *   experimental: {
+			 *     cache: { provider: memoryCache() },
+			 *   },
+			 * });
+			 * ```
+			 */
+			provider?: CacheProviderConfig;
+		};
+
+		/**
+		 * @name experimental.routeRules
+		 * @type {Record<string, RouteRule>}
+		 * @default `undefined`
+		 * @description
+		 *
+		 * Route patterns mapped to cache rules.
+		 * Uses the same `[param]` and `[...rest]` syntax as file-based routing.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { memoryCache } from 'astro/config';
+		 *
+		 * {
+		 *   experimental: {
+		 *     cache: { provider: memoryCache() },
+		 *     routeRules: {
+		 *       '/api/*': { swr: 600 },
+		 *       '/products/*': { maxAge: 3600, tags: ['products'] },
+		 *     },
+		 *   },
+		 * }
+		 * ```
+		 */
+		routeRules?: RouteRules;
+		/*
 		 * @name experimental.rustCompiler
 		 * @type {boolean}
 		 * @default `false`

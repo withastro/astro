@@ -23,7 +23,12 @@ import {
 	REWRITE_DIRECTIVE_HEADER_KEY,
 	ROUTE_TYPE_HEADER,
 } from '../constants.js';
-import { getSetCookiesFromResponse } from '../cookies/index.js';
+import {
+	AstroCookies,
+	attachCookiesToResponse,
+	getSetCookiesFromResponse,
+} from '../cookies/index.js';
+import { getCookiesFromResponse } from '../cookies/response.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { AstroIntegrationLogger, Logger } from '../logger/core.js';
@@ -31,6 +36,7 @@ import { type CreateRenderContext, RenderContext } from '../render-context.js';
 import { redirectTemplate } from '../routing/3xx.js';
 import { ensure404Route } from '../routing/astro-designed-error-pages.js';
 import { matchRoute } from '../routing/match.js';
+import { type CacheLike, applyCacheHeaders } from '../cache/runtime/cache.js';
 import { Router } from '../routing/router.js';
 import { type AstroSession, PERSIST_SYMBOL } from '../session/runtime.js';
 import type { AppPipeline } from './pipeline.js';
@@ -468,6 +474,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 
 		let response;
 		let session: AstroSession | undefined;
+		let cache: CacheLike | undefined;
 		try {
 			// Load route module. We also catch its error here if it fails on initialization
 			const componentInstance = await this.pipeline.getComponentByRoute(routeData);
@@ -481,7 +488,36 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				clientAddress,
 			});
 			session = renderContext.session;
-			response = await renderContext.render(componentInstance);
+			cache = renderContext.cache;
+
+			if (this.pipeline.cacheProvider) {
+				// If the cache provider has an onRequest handler (runtime caching),
+				// wrap the render call so the provider can serve from cache
+				const cacheProvider = await this.pipeline.getCacheProvider();
+				if (cacheProvider?.onRequest) {
+					response = await cacheProvider.onRequest(
+						{
+							request,
+							url: new URL(request.url),
+						},
+						async () => {
+							const res = await renderContext.render(componentInstance);
+							// Apply cache headers before the provider reads them
+							applyCacheHeaders(cache!, res);
+							return res;
+						},
+					);
+					// Strip CDN headers after the runtime provider has read them
+					response.headers.delete('CDN-Cache-Control');
+					response.headers.delete('Cache-Tag');
+				} else {
+					response = await renderContext.render(componentInstance);
+					// Apply cache headers for CDN-based providers (no onRequest)
+					applyCacheHeaders(cache!, response);
+				}
+			} else {
+				response = await renderContext.render(componentInstance);
+			}
 
 			const isRewrite = response.headers.has(REWRITE_DIRECTIVE_HEADER_KEY);
 
@@ -695,16 +731,24 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			// this function could throw an error...
 			originalResponse.headers.delete('Content-type');
 		} catch {}
-		// we use a map to remove duplicates
-		const mergedHeaders = new Map([
-			...Array.from(newResponseHeaders),
-			...Array.from(originalResponse.headers),
-		]);
+		// Build merged headers using append() to preserve multi-value headers (e.g. Set-Cookie).
+		// Headers from the original response take priority over new response headers for
+		// single-value headers, but we use append to avoid collapsing multi-value entries.
 		const newHeaders = new Headers();
-		for (const [name, value] of mergedHeaders) {
-			newHeaders.set(name, value);
+		const seen = new Set<string>();
+		// Add original response headers first (they take priority)
+		for (const [name, value] of originalResponse.headers) {
+			newHeaders.append(name, value);
+			seen.add(name.toLowerCase());
 		}
-		return new Response(newResponse.body, {
+		// Add new response headers that weren't already set by the original response,
+		// but skip content-type since the error page must return text/html
+		for (const [name, value] of newResponseHeaders) {
+			if (!seen.has(name.toLowerCase())) {
+				newHeaders.append(name, value);
+			}
+		}
+		const mergedResponse = new Response(newResponse.body, {
 			status,
 			statusText: status === 200 ? newResponse.statusText : originalResponse.statusText,
 			// If you're looking at here for possible bugs, it means that it's not a bug.
@@ -714,6 +758,24 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			// Although, we don't want it to replace the content-type, because the error page must return `text/html`
 			headers: newHeaders,
 		});
+
+		// Transfer AstroCookies from the original or new response so that
+		// #prepareResponse can read them when addCookieHeader is true.
+		const originalCookies = getCookiesFromResponse(originalResponse);
+		const newCookies = getCookiesFromResponse(newResponse);
+		if (originalCookies) {
+			// If both responses have cookies, merge new response cookies into original
+			if (newCookies) {
+				for (const cookieValue of AstroCookies.consume(newCookies)) {
+					originalResponse.headers.append('set-cookie', cookieValue);
+				}
+			}
+			attachCookiesToResponse(mergedResponse, originalCookies);
+		} else if (newCookies) {
+			attachCookiesToResponse(mergedResponse, newCookies);
+		}
+
+		return mergedResponse;
 	}
 
 	getDefaultStatusCode(routeData: RouteData, pathname: string): number {
