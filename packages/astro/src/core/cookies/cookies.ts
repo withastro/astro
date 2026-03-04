@@ -46,7 +46,10 @@ const responseSentSymbol = Symbol.for('astro.responseSent');
 const identity = (value: string) => value;
 
 class AstroCookie implements AstroCookieInterface {
-	constructor(public value: string) {}
+	public value: string;
+	constructor(value: string) {
+		this.value = value;
+	}
 	json() {
 		if (this.value === undefined) {
 			throw new Error(`Cannot convert undefined to an object.`);

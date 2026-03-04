@@ -206,7 +206,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 	}
 
 	switch (installResult) {
-		case UpdateResult.updated: {
+		case 'updated': {
 			if (hasCloudflareIntegration) {
 				const wranglerConfigURL = new URL('./wrangler.jsonc', configURL);
 				if (!existsSync(wranglerConfigURL)) {
@@ -364,7 +364,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 			}
 			break;
 		}
-		case UpdateResult.cancelled: {
+		case 'cancelled': {
 			logger.info(
 				'SKIP_FORMAT',
 				msg.cancelled(
@@ -374,10 +374,10 @@ export async function add(names: string[], { flags }: AddOptions) {
 			);
 			break;
 		}
-		case UpdateResult.failure: {
+		case 'failure': {
 			throw createPrettyError(new Error(`Unable to install dependencies`));
 		}
-		case UpdateResult.none:
+		case 'none':
 			break;
 	}
 
@@ -441,14 +441,14 @@ export async function add(names: string[], { flags }: AddOptions) {
 	}
 
 	switch (configResult) {
-		case UpdateResult.cancelled: {
+		case 'cancelled': {
 			logger.info(
 				'SKIP_FORMAT',
 				msg.cancelled(`Your configuration has ${bold('NOT')} been updated.`),
 			);
 			break;
 		}
-		case UpdateResult.none: {
+		case 'none': {
 			const data = await getPackageJson();
 			if (data) {
 				const { dependencies = {}, devDependencies = {} } = data;
@@ -466,9 +466,9 @@ export async function add(names: string[], { flags }: AddOptions) {
 			break;
 		}
 		// NOTE: failure shouldn't happen in practice because `updateAstroConfig` doesn't return that.
-		// Pipe this to the same handling as `UpdateResult.updated` for now.
-		case UpdateResult.failure:
-		case UpdateResult.updated:
+		// Pipe this to the same handling as `'updated'` for now.
+		case 'failure':
+		case 'updated':
 		case undefined: {
 			const list = integrations
 				.map((integration) => `  - ${integration.integrationName}`)
@@ -506,22 +506,22 @@ export async function add(names: string[], { flags }: AddOptions) {
 	});
 
 	switch (updateTSConfigResult) {
-		case UpdateResult.none: {
+		case 'none': {
 			break;
 		}
-		case UpdateResult.cancelled: {
+		case 'cancelled': {
 			logger.info(
 				'SKIP_FORMAT',
 				msg.cancelled(`Your TypeScript configuration has ${bold('NOT')} been updated.`),
 			);
 			break;
 		}
-		case UpdateResult.failure: {
+		case 'failure': {
 			throw new Error(
 				`Unknown error parsing tsconfig.json or jsconfig.json. Could not update TypeScript settings.`,
 			);
 		}
-		case UpdateResult.updated:
+		case 'updated':
 			logger.info('SKIP_FORMAT', msg.success(`Successfully updated tsconfig`));
 	}
 }
@@ -645,12 +645,7 @@ function setAdapter(mod: ProxifiedModule<any>, adapter: IntegrationInfo, exportN
 	}
 }
 
-const enum UpdateResult {
-	none,
-	updated,
-	cancelled,
-	failure,
-}
+type UpdateResult = 'none' | 'updated' | 'cancelled' | 'failure';
 
 async function updateAstroConfig({
 	configURL,
@@ -675,13 +670,13 @@ async function updateAstroConfig({
 	}).code;
 
 	if (input === output) {
-		return UpdateResult.none;
+		return 'none';
 	}
 
 	const diff = getDiffContent(input, output);
 
 	if (!diff) {
-		return UpdateResult.none;
+		return 'none';
 	}
 
 	logger.info(
@@ -709,9 +704,9 @@ async function updateAstroConfig({
 	if (await askToContinue({ flags, logger })) {
 		await fs.writeFile(fileURLToPath(configURL), output, { encoding: 'utf-8' });
 		logger.debug('add', `Updated astro config`);
-		return UpdateResult.updated;
+		return 'updated';
 	} else {
-		return UpdateResult.cancelled;
+		return 'cancelled';
 	}
 }
 
@@ -729,7 +724,7 @@ async function updatePackageJsonScripts({
 	const pkgURL = new URL('./package.json', configURL);
 	if (!existsSync(pkgURL)) {
 		logger.debug('add', 'No package.json found, skipping scripts update');
-		return UpdateResult.none;
+		return 'none';
 	}
 
 	const pkgPath = fileURLToPath(pkgURL);
@@ -746,14 +741,14 @@ async function updatePackageJsonScripts({
 	}
 
 	if (!hasChanges) {
-		return UpdateResult.none;
+		return 'none';
 	}
 
 	const output = JSON.stringify(pkgJson, null, 2);
 	const diff = getDiffContent(input, output);
 
 	if (!diff) {
-		return UpdateResult.none;
+		return 'none';
 	}
 
 	logger.info(
@@ -770,9 +765,9 @@ async function updatePackageJsonScripts({
 	if (await askToContinue({ flags, logger })) {
 		await fs.writeFile(pkgPath, output, { encoding: 'utf-8' });
 		logger.debug('add', 'Updated package.json scripts');
-		return UpdateResult.updated;
+		return 'updated';
 	} else {
-		return UpdateResult.cancelled;
+		return 'cancelled';
 	}
 }
 
@@ -835,7 +830,7 @@ async function tryToInstallIntegrations({
 		strategies: ['install-metadata', 'lockfile', 'packageManager-field'],
 	});
 	logger.debug('add', `package manager: "${packageManager?.name}"`);
-	if (!packageManager) return UpdateResult.none;
+	if (!packageManager) return 'none';
 
 	const inheritedFlags = Object.entries(flags)
 		.map(([flag]) => {
@@ -849,7 +844,7 @@ async function tryToInstallIntegrations({
 		.flat() as string[];
 
 	const installCommand = resolveCommand(packageManager?.agent ?? 'npm', 'add', inheritedFlags);
-	if (!installCommand) return UpdateResult.none;
+	if (!installCommand) return 'none';
 
 	const installSpecifiers = await convertIntegrationsToInstallSpecifiers(integrations).then(
 		(specifiers) =>
@@ -883,16 +878,16 @@ async function tryToInstallIntegrations({
 				},
 			});
 			spinner.stop('Dependencies installed.');
-			return UpdateResult.updated;
+			return 'updated';
 		} catch (err: any) {
 			spinner.error('Error installing dependencies.');
 			logger.debug('add', 'Error installing dependencies', err);
 			// NOTE: `err.stdout` can be an empty string, so log the full error instead for a more helpful log
 			console.error('\n', err.stdout || err.message, '\n');
-			return UpdateResult.failure;
+			return 'failure';
 		}
 	} else {
-		return UpdateResult.cancelled;
+		return 'cancelled';
 	}
 }
 
@@ -1032,14 +1027,14 @@ async function updateTSConfig(
 	);
 
 	if (!firstIntegrationWithTSSettings && includesToAppend.length === 0) {
-		return UpdateResult.none;
+		return 'none';
 	}
 
 	let inputConfig = await loadTSConfig(cwd);
 	let inputConfigText = '';
 
 	if (inputConfig === 'invalid-config' || inputConfig === 'unknown-error') {
-		return UpdateResult.failure;
+		return 'failure';
 	} else if (inputConfig === 'missing-config') {
 		logger.debug('add', "Couldn't find tsconfig.json or jsconfig.json, generating one");
 		inputConfig = {
@@ -1068,7 +1063,7 @@ async function updateTSConfig(
 	const diff = getDiffContent(inputConfigText, output);
 
 	if (!diff) {
-		return UpdateResult.none;
+		return 'none';
 	}
 
 	logger.info(
@@ -1107,9 +1102,9 @@ async function updateTSConfig(
 			encoding: 'utf-8',
 		});
 		logger.debug('add', `Updated ${configFileName} file`);
-		return UpdateResult.updated;
+		return 'updated';
 	} else {
-		return UpdateResult.cancelled;
+		return 'cancelled';
 	}
 }
 
