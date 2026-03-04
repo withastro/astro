@@ -33,7 +33,7 @@ Use `pnpm -C <dir> <command>` for project-local script commands when working in 
 - Integration tests live in special `packages/integrations` folders.
 - Example: `pnpm -C <package-directory> exec astro-scripts test` - Run a single package test suite
 - Example: `pnpm -C <package-directory> exec astro-scripts test "test/actions.test.js"` - Run a single test file
-- Example: `pnpm -C <package-directory> exec astro-scripts test "test/**/*.test.js" --match "CSS"` - Run specific tests matching a string or regex patterns
+- Example: `pnpm -C <package-directory> exec astro-scripts test "test/**/*.test.ts" --match "CSS"` - Run specific tests matching a string or regex patterns
 - Example: `pnpm -C <package-directory> exec astro-scripts test "test/{actions,css,middleware}.test.js"` - Run multiple test files
 - Key flags:
   - `--match` / `-m`: Filter tests by name pattern (regex)

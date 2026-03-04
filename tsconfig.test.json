@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.base.json",
+  "exclude": ["${configDir}/fixtures", "${configDir}/types"],
+  "compilerOptions": {
+    "allowJs": true,
+    "noEmit": true,
+    "rewriteRelativeImportExtensions": true,
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true,
+    "allowImportingTsExtensions": true
+  }
+}

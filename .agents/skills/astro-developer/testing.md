@@ -44,7 +44,7 @@ await loadFixture({
 
 ### Unit Tests (node:test) - PREFERRED
 
-**Location**: `packages/astro/test/*.test.js`
+**Location**: `packages/astro/test/*.test.ts`
 
 **Runner**: `node:test` via `astro-scripts test`
 
@@ -60,13 +60,13 @@ await loadFixture({
 
 ```bash
 # All tests in package
-pnpm -C packages/astro exec astro-scripts test "test/**/*.test.js"
+pnpm -C packages/astro exec astro-scripts test "test/**/*.test.ts"
 
 # Single test file
 pnpm -C packages/astro exec astro-scripts test "test/actions.test.js"
 
 # Filter by pattern
-pnpm -C packages/astro exec astro-scripts test "test/**/*.test.js" --match "CSS"
+pnpm -C packages/astro exec astro-scripts test "test/**/*.test.ts" --match "CSS"
 
 # Multiple files
 pnpm -C packages/astro exec astro-scripts test "test/{actions,css,middleware}.test.js"
@@ -119,7 +119,7 @@ export function processConfigFile(configPath) {
 - Testing adapter integration
 - Testing features that require full Astro context
 
-**Location**: `packages/astro/test/*.test.js` (same location, different purpose)
+**Location**: `packages/astro/test/*.test.ts` (same location, different purpose)
 
 **Pattern**: Uses `loadFixture()` and builds full Astro projects
 
@@ -127,7 +127,7 @@ export function processConfigFile(configPath) {
 
 ### E2E Tests (Playwright) - USE FOR BROWSER ONLY
 
-**Location**: `packages/astro/e2e/*.test.js`
+**Location**: `packages/astro/e2e/*.test.ts`
 
 **When to use**:
 
@@ -322,14 +322,14 @@ Use integration tests only when unit tests are insufficient:
 
 ## Test Utilities
 
-**Location**: `packages/astro/test/test-utils.js`
+**Location**: `packages/astro/test/test-utils.ts`
 
 ### loadFixture(config)
 
 Load a test fixture with configuration.
 
 ```javascript
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 const fixture = await loadFixture({
   root: './fixtures/my-test/',
@@ -402,7 +402,7 @@ const exists = await fixture.pathExists('/index.html');
 Test adapter for SSR testing.
 
 ```javascript
-import testAdapter from './test-adapter.js';
+import testAdapter from './test-adapter.ts';
 
 const fixture = await loadFixture({
   adapter: testAdapter(),
@@ -416,7 +416,7 @@ const fixture = await loadFixture({
 ```javascript
 import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('Feature Name', () => {
   let fixture;
@@ -567,10 +567,10 @@ rm -rf test/fixtures/my-test/dist
 
 ```bash
 # Sequential execution (default)
-pnpm -C packages/astro exec astro-scripts test "test/**/*.test.js"
+pnpm -C packages/astro exec astro-scripts test "test/**/*.test.ts"
 
 # Parallel (faster but can cause issues)
-pnpm -C packages/astro exec astro-scripts test "test/**/*.test.js" --parallel
+pnpm -C packages/astro exec astro-scripts test "test/**/*.test.ts" --parallel
 ```
 
 ## Testing Patterns
@@ -613,7 +613,7 @@ describe('Virtual Modules', () => {
 ### Testing SSR
 
 ```javascript
-import testAdapter from './test-adapter.js';
+import testAdapter from './test-adapter.ts';
 
 describe('SSR', () => {
   let fixture;
@@ -718,8 +718,8 @@ export async function createKey({ logger, keyGenerator }: Options) {
 }
 
 // test/create-key.test.js
-import { SpyLogger } from './test-utils.js';
-import { FakeKeyGenerator } from './test-utils.js';
+import { SpyLogger } from './test-utils.ts';
+import { FakeKeyGenerator } from './test-utils.ts';
 
 it('logs the generated key', async () => {
   const logger = new SpyLogger();
@@ -734,7 +734,7 @@ it('logs the generated key', async () => {
 ### Test-Specific Abstractions
 
 ```javascript
-// test/test-utils.js
+// test/test-utils.ts
 
 export class SpyLogger {
   logs = [];
@@ -807,7 +807,7 @@ rm -rf test/fixtures/my-test/node_modules/.vite
 
 ```javascript
 // Check if another test uses same outDir
-grep -r "outDir.*dist/my-test" test/**/*.test.js
+grep -r "outDir.*dist/my-test" test/**/*.test.ts
 ```
 
 ### 6. Debug Timeouts in CI
@@ -819,7 +819,7 @@ grep -r "outDir.*dist/my-test" test/**/*.test.js
 ```json
 // package.json
 {
-  "test": "astro-scripts test --parallel \"test/**/*.test.js\""
+  "test": "astro-scripts test --parallel \"test/**/*.test.ts\""
 }
 ```
 
@@ -970,4 +970,4 @@ Before considering a feature complete:
 - CONTRIBUTING.md: Testing section
 - CONTRIBUTING.md: Making code testable (lines 347-531)
 - Fixtures: `packages/astro/test/fixtures/`
-- Test utils: `packages/astro/test/test-utils.js`
+- Test utils: `packages/astro/test/test-utils.ts`

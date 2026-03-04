@@ -1,5 +1,5 @@
 // @ts-check
-const testEntry = 'test/**/*.test.js';
+const testEntry = 'test/**/*.test.ts';
 
 /** @type {import('knip').KnipConfig} */
 export default {
@@ -32,7 +32,7 @@ export default {
 				'templates/**/*',
 				testEntry,
 				'test/types/**/*',
-				'e2e/**/*.test.js',
+				'e2e/**/*.test.ts',
 				'test/units/teardown.js',
 				// Can't detect this file when using inside a vite plugin
 				'src/vite-plugin-app/createAstroServerApp.ts',
@@ -80,7 +80,7 @@ export default {
 			ignoreDependencies: ['solid-devtools'],
 		},
 		'packages/integrations/vercel': {
-			entry: [testEntry, 'test/test-image-service.js'],
+			entry: [testEntry, "test/test-image-service.ts"],
 			ignore: ['test/hosted/**'],
 		},
 		'packages/markdown/remark': {
