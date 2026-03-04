@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { describe, it, mock } from 'node:test';
 import { pathToFileURL } from 'node:url';
 import { install } from '../dist/index.js';
-import { setup } from './utils.js';
+import { setup } from './utils.ts';
 
 const tmpUrl = pathToFileURL(tmpdir());
 

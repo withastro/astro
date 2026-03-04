@@ -19,7 +19,7 @@ import {
 	PassthroughCommandRunner,
 	SpyClipboard,
 	SpyCommandExecutor,
-} from './utils.js';
+} from './utils.ts';
 
 describe('CLI info', () => {
 	describe('core', () => {

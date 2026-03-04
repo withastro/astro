@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { dependencies } from '../dist/index.js';
-import { setup } from './utils.js';
+import { setup } from './utils.ts';
 
 describe('integrations', () => {
 	const fixture = setup();

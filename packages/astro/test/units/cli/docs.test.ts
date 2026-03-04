@@ -9,7 +9,7 @@ import {
 	FakeOperatingSystemProvider,
 	PassthroughCommandRunner,
 	SpyCommandExecutor,
-} from './utils.js';
+} from './utils.ts';
 
 describe('CLI docs', () => {
 	describe('core', () => {

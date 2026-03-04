@@ -4,7 +4,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { after, before, describe, it } from 'node:test';
 
 import { git } from '../dist/index.js';
-import { setup } from './utils.js';
+import { setup } from './utils.ts';
 
 describe('git', () => {
 	const fixture = setup();

@@ -17,7 +17,7 @@ import {
 	FakeStringMatcher,
 	markdownBold,
 	PassthroughFontResolver,
-} from './utils.js';
+} from './utils.ts';
 
 describe('fonts core', () => {
 	describe('resolveFamily()', () => {

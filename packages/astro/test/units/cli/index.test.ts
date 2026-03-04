@@ -8,7 +8,7 @@ import { PassthroughTextStyler } from '../../../dist/cli/infra/passthrough-text-
 import { ProcessOperatingSystemProvider } from '../../../dist/cli/infra/process-operating-system-provider.js';
 import packageJson from '../../../package.json' with { type: 'json' };
 import { SpyLogger } from '../test-utils.ts';
-import { FakeAstroVersionProvider, SpyHelpDisplay } from './utils.js';
+import { FakeAstroVersionProvider, SpyHelpDisplay } from './utils.ts';
 
 describe('CLI shared', () => {
 	describe('infra', () => {
