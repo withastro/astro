@@ -45,8 +45,6 @@ describe('Node middleware socket listener cleanup', () => {
 		});
 
 		let listenerWarningEmitted = false;
-
-		// Capture any MaxListenersExceededWarning
 		const warningListener = (warning) => {
 			if (warning.name === 'MaxListenersExceededWarning') {
 				listenerWarningEmitted = true;
@@ -66,16 +64,16 @@ describe('Node middleware socket listener cleanup', () => {
 
 				await response.text();
 			}
-
-			assert.equal(
-				listenerWarningEmitted,
-				false,
-				'MaxListenersExceededWarning should not be emitted',
-			);
 		} finally {
 			process.off('warning', warningListener);
 			agent.destroy();
 		}
+
+		assert.equal(
+			listenerWarningEmitted,
+			false,
+			'MaxListenersExceededWarning should not be emitted',
+		);
 	});
 
 	it('should handle SSR requests correctly with middleware', async () => {
