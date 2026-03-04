@@ -104,7 +104,7 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 			);
 			await writeResponse(response, res);
 		} else if (next) {
-			// Since we're not calling `writeResponse()`, clean up the abort controller and socket listeners
+			// Since we're not calling `writeResponse()`, clean up the AbortController and socket listeners
 			const cleanup = getAbortControllerCleanup(req);
 			if (cleanup) cleanup();
 			return next();

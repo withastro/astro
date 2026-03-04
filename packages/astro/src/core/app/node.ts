@@ -223,14 +223,19 @@ export async function writeResponse(source: Response, destination: ServerRespons
 }
 
 /**
- * Returns the abort controller and socket listener cleanup function for the NodeJS IncomingMessage.
- * This should only be called directly if the request is not being handled by Astro, e.g. if
- * not using `writeResponse()` after `createRequest()`.
+ * Returns the cleanup function for the AbortController and socket listeners created by `createRequest()`
+ * for the NodeJS IncomingMessage. This should only be called directly if the request is not
+ * being handled by Astro, i.e. if not calling `writeResponse()` after `createRequest()`.
  * ```js
- * const req = createRequest();
- * const cleanup = getAbortControllerCleanup(req);
- * if (cleanup) cleanup();
- * // can now safely call another handler
+ * import { createRequest, getAbortControllerCleanup } from 'astro/app/node';
+ * import { createServer } from 'node:http';
+ *
+ * const server = createServer(async (req, res) => {
+ *     const request = createRequest(req);
+ *     const cleanup = getAbortControllerCleanup(req);
+ *     if (cleanup) cleanup();
+ *     // can now safely call another handler
+ * })
  * ```
  */
 export function getAbortControllerCleanup(req?: NodeRequest): (() => void) | undefined {
