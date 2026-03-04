@@ -114,6 +114,15 @@ export interface AstroAdapterFeatures {
 	 * for example, to create a `_headers` file for platforms that support it.
 	 */
 	staticHeaders?: boolean;
+
+	/**
+	 * When true, static builds will preserve the client/server directory structure
+	 * instead of outputting directly to outDir. This ensures static builds use
+	 * build.client for assets, maintaining consistency with server builds.
+	 * Useful for adapters that require a specific directory structure regardless
+	 * of the build output type.
+	 */
+	preserveBuildClientDir?: boolean;
 }
 
 /**

@@ -141,8 +141,14 @@ export function createRequest(
 	}
 
 	// Get the IP of end client behind the proxy.
+	// Only trust X-Forwarded-For when the request's host was validated against allowedDomains,
+	// meaning it arrived through a trusted proxy. Without this check, any client can spoof
+	// their IP via this header.
 	// @example "1.1.1.1,8.8.8.8" => "1.1.1.1"
-	const forwardedClientIp = getFirstForwardedValue(req.headers['x-forwarded-for']);
+	const hostValidated = validated.host !== undefined || validatedHostname !== undefined;
+	const forwardedClientIp = hostValidated
+		? getFirstForwardedValue(req.headers['x-forwarded-for'])
+		: undefined;
 	const clientIp = forwardedClientIp || req.socket?.remoteAddress;
 	if (clientIp) {
 		Reflect.set(request, clientAddressSymbol, clientIp);
