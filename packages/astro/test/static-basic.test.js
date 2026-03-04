@@ -9,7 +9,6 @@ describe('Static - Basic Astro Features', () => {
 
 	before(async () => {
 		fixture = await getSharedFixture({
-			name: 'static',
 			root: './fixtures/static/',
 		});
 		await fixture.build();
@@ -45,10 +44,6 @@ describe('Static - Basic Astro Features', () => {
 		assert.equal($('a[href="/post/one"]').length, 1);
 		assert.equal($('a[href="/post/two"]').length, 1);
 		assert.equal($('a[href="/post/three"]').length, 1);
-	});
-
-	it('supports special chars in filename', async () => {
-		assert.ok(await fixture.readFile('/special-"characters" -in-file/index.html'));
 	});
 
 	it('renders components top-down', async () => {

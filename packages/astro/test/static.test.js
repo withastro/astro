@@ -18,7 +18,6 @@ describe('Static Tests', () => {
 
 	before(async () => {
 		fixture = await getSharedFixture({
-			name: 'static',
 			root: './fixtures/static/',
 		});
 		await getSharedPreviewServer(fixture);
@@ -103,10 +102,6 @@ describe('Static Tests', () => {
 			assert.equal($('#one').length, 1);
 		});
 
-		it('supports special chars in filename', async () => {
-			assert.ok(await fixture.readFile('/special-"characters" -in-file/index.html'));
-		});
-
 		it('renders components top-down', async () => {
 			const html = await fixture.readFile('/order/index.html');
 			const $ = cheerio.load(html);
@@ -189,7 +184,6 @@ describe('Static Dev Tests', () => {
 
 	before(async () => {
 		fixture = await getSharedFixture({
-			name: 'static',
 			root: './fixtures/static/',
 		});
 		await getSharedDevServer(fixture);

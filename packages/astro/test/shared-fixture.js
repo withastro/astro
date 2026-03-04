@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import { loadFixture as baseLoadFixture } from './test-utils.js';
 
 /**
@@ -9,31 +10,36 @@ const loadPromises = new Map();
 const buildPromises = new Map();
 
 /**
- * Get or create a shared fixture. If a fixture with the same name has already been
+ * Get or create a shared fixture. If a fixture with the same root path has already been
  * loaded, it will be reused. Otherwise, a new fixture will be created.
  *
  * The fixture is NOT automatically built - call fixture.build() when needed.
  *
  * @param {Object} options
- * @param {string} options.name - Unique name for this shared fixture (e.g., 'static', 'ssr')
  * @param {string} options.root - Root directory for the fixture
  * @param {Object} options.config - Additional config options for the fixture
  * @returns {Promise<import('./test-utils').Fixture>}
  */
-export async function getSharedFixture({ name, root, ...config }) {
-	if (!name) {
-		throw new Error('Shared fixture must have a name');
+export async function getSharedFixture({ root, ...config }) {
+	if (!root) {
+		throw new Error('Shared fixture must have a root path');
 	}
 
+	// Resolve the root path to an absolute path
+	const resolvedRoot = fileURLToPath(new URL(root, import.meta.url));
+
+	// Use the resolved path as the cache key
+	const cacheKey = resolvedRoot;
+
 	// Check if we already have this fixture
-	if (fixtureRegistry.has(name)) {
-		return fixtureRegistry.get(name);
+	if (fixtureRegistry.has(cacheKey)) {
+		return fixtureRegistry.get(cacheKey);
 	}
 
 	// Check if another test is already loading this fixture
-	if (loadPromises.has(name)) {
-		await loadPromises.get(name);
-		return fixtureRegistry.get(name);
+	if (loadPromises.has(cacheKey)) {
+		await loadPromises.get(cacheKey);
+		return fixtureRegistry.get(cacheKey);
 	}
 
 	// Create the fixture (but don't build it)
@@ -43,9 +49,9 @@ export async function getSharedFixture({ name, root, ...config }) {
 		// Override the build method to ensure it's only built once
 		const originalBuild = fixture.build.bind(fixture);
 		fixture.build = async function () {
-			if (buildPromises.has(name)) {
+			if (buildPromises.has(cacheKey)) {
 				// Another test is already building, wait for it
-				return buildPromises.get(name);
+				return buildPromises.get(cacheKey);
 			}
 
 			if (fixture._built) {
@@ -55,34 +61,34 @@ export async function getSharedFixture({ name, root, ...config }) {
 
 			// Start the build
 			const buildPromise = originalBuild();
-			buildPromises.set(name, buildPromise);
+			buildPromises.set(cacheKey, buildPromise);
 
 			try {
 				await buildPromise;
 				fixture._built = true;
 			} finally {
-				buildPromises.delete(name);
+				buildPromises.delete(cacheKey);
 			}
 		};
 
 		// Add a flag to indicate this is a shared fixture
 		fixture._isShared = true;
-		fixture._sharedName = name;
+		fixture._sharedCacheKey = cacheKey;
 
 		// Store the fixture
-		fixtureRegistry.set(name, fixture);
+		fixtureRegistry.set(cacheKey, fixture);
 
 		return fixture;
 	})();
 
-	loadPromises.set(name, loadPromise);
+	loadPromises.set(cacheKey, loadPromise);
 
 	try {
 		const fixture = await loadPromise;
 		return fixture;
 	} finally {
 		// Clean up the load promise
-		loadPromises.delete(name);
+		loadPromises.delete(cacheKey);
 	}
 }
 
@@ -97,14 +103,14 @@ export async function getSharedPreviewServer(fixture) {
 		throw new Error('getSharedPreviewServer can only be used with shared fixtures');
 	}
 
-	const name = fixture._sharedName;
+	const cacheKey = fixture._sharedCacheKey;
 
-	if (previewServers.has(name)) {
-		return previewServers.get(name);
+	if (previewServers.has(cacheKey)) {
+		return previewServers.get(cacheKey);
 	}
 
 	const server = await fixture.preview();
-	previewServers.set(name, server);
+	previewServers.set(cacheKey, server);
 	return server;
 }
 
@@ -119,14 +125,14 @@ export async function getSharedDevServer(fixture) {
 		throw new Error('getSharedDevServer can only be used with shared fixtures');
 	}
 
-	const name = fixture._sharedName;
+	const cacheKey = fixture._sharedCacheKey;
 
-	if (devServers.has(name)) {
-		return devServers.get(name);
+	if (devServers.has(cacheKey)) {
+		return devServers.get(cacheKey);
 	}
 
 	const server = await fixture.startDevServer();
-	devServers.set(name, server);
+	devServers.set(cacheKey, server);
 	return server;
 }
 
@@ -147,7 +153,17 @@ async function stopAllPreviewServers() {
 }
 
 /**
- * Stop all shared dev servers
+ * Shared fixture system for Astro tests
+ *
+ * This module provides utilities to share built fixtures across multiple test files
+ * to reduce total test execution time.
+ *
+ * LIMITATIONS:
+ * - Cannot test multiple build configurations with the same fixture
+ * - All tests using a shared fixture must use identical config settings
+ * - Tests that need to verify different build outputs (with/without base path,
+ *   different asset configurations, etc.) cannot use shared fixtures
+ * - Dev/preview servers are shared - tests must be careful about isolation
  */
 async function stopAllDevServers() {
 	const stopPromises = [];

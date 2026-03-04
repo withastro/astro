@@ -9,7 +9,6 @@ describe('Static - Spread Attributes', () => {
 
 	before(async () => {
 		fixture = await getSharedFixture({
-			name: 'static',
 			root: './fixtures/static/',
 		});
 		await fixture.build();
