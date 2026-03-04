@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import testAdapter from './test-adapter.ts';
-import { testImageService } from './test-image-service.js';
+import { testImageService } from './test-image-service.ts';
 import { loadFixture } from './test-utils.ts';
 
 describe('astro:assets - delete images that are unused', () => {

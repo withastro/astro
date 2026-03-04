@@ -3,7 +3,7 @@ import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import * as devalue from 'devalue';
 import testAdapter from './test-adapter.ts';
-import { preventNodeBuiltinDependencyPlugin } from './test-plugins.js';
+import { preventNodeBuiltinDependencyPlugin } from './test-plugins.ts';
 import { loadFixture } from './test-utils.ts';
 
 describe('Content Collections', () => {

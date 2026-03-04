@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.ts';
-import createTestPrerenderer from './test-prerenderer.js';
+import createTestPrerenderer from './test-prerenderer.ts';
 
 describe('Astro basic build', () => {
 	/** @type {import('./test-utils.ts').Fixture} */

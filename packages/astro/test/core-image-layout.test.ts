@@ -4,8 +4,8 @@ import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import parseSrcset from 'parse-srcset';
 import { Logger } from '../dist/core/logger/core.js';
-import { testImageService } from './test-image-service.js';
-import { testRemoteImageService } from './test-remote-image-service.js';
+import { testImageService } from './test-image-service.ts';
+import { testRemoteImageService } from './test-remote-image-service.ts';
 import { loadFixture } from './test-utils.ts';
 
 describe('astro:image:layout', () => {
