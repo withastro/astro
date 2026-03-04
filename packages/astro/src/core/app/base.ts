@@ -23,7 +23,12 @@ import {
 	REWRITE_DIRECTIVE_HEADER_KEY,
 	ROUTE_TYPE_HEADER,
 } from '../constants.js';
-import { getSetCookiesFromResponse } from '../cookies/index.js';
+import {
+	AstroCookies,
+	attachCookiesToResponse,
+	getSetCookiesFromResponse,
+} from '../cookies/index.js';
+import { getCookiesFromResponse } from '../cookies/response.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { AstroIntegrationLogger, Logger } from '../logger/core.js';
@@ -726,16 +731,24 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			// this function could throw an error...
 			originalResponse.headers.delete('Content-type');
 		} catch {}
-		// we use a map to remove duplicates
-		const mergedHeaders = new Map([
-			...Array.from(newResponseHeaders),
-			...Array.from(originalResponse.headers),
-		]);
+		// Build merged headers using append() to preserve multi-value headers (e.g. Set-Cookie).
+		// Headers from the original response take priority over new response headers for
+		// single-value headers, but we use append to avoid collapsing multi-value entries.
 		const newHeaders = new Headers();
-		for (const [name, value] of mergedHeaders) {
-			newHeaders.set(name, value);
+		const seen = new Set<string>();
+		// Add original response headers first (they take priority)
+		for (const [name, value] of originalResponse.headers) {
+			newHeaders.append(name, value);
+			seen.add(name.toLowerCase());
 		}
-		return new Response(newResponse.body, {
+		// Add new response headers that weren't already set by the original response,
+		// but skip content-type since the error page must return text/html
+		for (const [name, value] of newResponseHeaders) {
+			if (!seen.has(name.toLowerCase())) {
+				newHeaders.append(name, value);
+			}
+		}
+		const mergedResponse = new Response(newResponse.body, {
 			status,
 			statusText: status === 200 ? newResponse.statusText : originalResponse.statusText,
 			// If you're looking at here for possible bugs, it means that it's not a bug.
@@ -745,6 +758,24 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			// Although, we don't want it to replace the content-type, because the error page must return `text/html`
 			headers: newHeaders,
 		});
+
+		// Transfer AstroCookies from the original or new response so that
+		// #prepareResponse can read them when addCookieHeader is true.
+		const originalCookies = getCookiesFromResponse(originalResponse);
+		const newCookies = getCookiesFromResponse(newResponse);
+		if (originalCookies) {
+			// If both responses have cookies, merge new response cookies into original
+			if (newCookies) {
+				for (const cookieValue of AstroCookies.consume(newCookies)) {
+					originalResponse.headers.append('set-cookie', cookieValue);
+				}
+			}
+			attachCookiesToResponse(mergedResponse, originalCookies);
+		} else if (newCookies) {
+			attachCookiesToResponse(mergedResponse, newCookies);
+		}
+
+		return mergedResponse;
 	}
 
 	getDefaultStatusCode(routeData: RouteData, pathname: string): number {
