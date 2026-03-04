@@ -4,6 +4,16 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { setSummary, warning } from '../../.github/scripts/utils.mjs';
 
+const reportingConfig = {
+	/** The threshold in milliseconds for considering a test as slow. */
+	slowTestThreshold: 2000,
+	/**
+	 * The names of tests that are known to be slow. No warnings will be reported for these tests.
+	 * @type {string[]}
+	 */
+	knownSlowTests: [],
+};
+
 /**
  * @typedef {{ type: 'build', fixture: string; duration: number }} BuildLogEntry
  * @typedef {{ type: 'test', name: string; duration: number; file: string | undefined; line: number | undefined; column: number | undefined; isSuite: boolean }} TestLogEntry
@@ -119,7 +129,11 @@ if (process.env.CI) {
 		lines
 			.filter(
 				/** @returns {line is TestLogEntry} */
-				(line) => line.type === 'test' && !line.isSuite && line.duration > 2000,
+				(line) =>
+					line.type === 'test' &&
+					!line.isSuite &&
+					line.duration > reportingConfig.slowTestThreshold &&
+					!reportingConfig.knownSlowTests.includes(line.name),
 			)
 			.forEach((test) => {
 				warning(
