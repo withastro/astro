@@ -19,7 +19,7 @@ function setSummary(text) {
 
 /**
  * @typedef {{ type: 'build', fixture: string; duration: number }} BuildLogEntry
- * @typedef {{ type: 'test', name: string; duration: number; file: string | undefined; line: number | undefined; column: number | undefined }} TestLogEntry
+ * @typedef {{ type: 'test', name: string; duration: number; file: string | undefined; line: number | undefined; column: number | undefined; isSuite: boolean }} TestLogEntry
  * @typedef {BuildLogEntry | TestLogEntry} LogEntry
  */
 
@@ -109,7 +109,7 @@ if (process.env.CI) {
 		const slowestTests = lines
 			.filter(
 				/** @returns {line is TestLogEntry} */
-				(line) => line.type === 'test',
+				(line) => line.type === 'test' && !line.isSuite,
 			)
 			.sort((a, b) => b.duration - a.duration)
 			.slice(0, 20);
