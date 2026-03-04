@@ -1,9 +1,0 @@
----
-import { actions } from 'astro:actions';
-const result = Astro.getActionResult(actions.getSecret);
----
-<html>
-  <body>
-    {result?.data && <p id="secret">{result.data.secret}</p>}
-  </body>
-</html>
