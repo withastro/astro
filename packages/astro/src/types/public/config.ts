@@ -2961,7 +2961,9 @@ export interface AstroUserConfig<
 			 * @default `false`
 			 * @version 6.0.0
 			 * @description
-			 * Allows to enable the caching of node contents when rendering the same page.
+			 * Enables HTMLString caching to deduplicate repeated HTML fragments during rendering.
+			 * When enabled, identical HTML strings (e.g., repeated `<li>` tags) share a single
+			 * `HTMLString` object instead of creating a new wrapper per occurrence.
 			 * This caching is disabled for dynamic pages.
 			 */
 			contentCache?: boolean;

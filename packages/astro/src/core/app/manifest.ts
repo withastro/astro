@@ -135,12 +135,6 @@ export function queuePoolSize(
 ): number {
 	return config?.poolSize ?? 1000;
 }
-export function queueContentCache(
-	config: NonNullable<SSRManifest['experimentalQueuedRendering']>,
-): boolean {
-	return config?.contentCache ?? false;
-}
-
 export function queueRenderingEnabled(config: SSRManifest['experimentalQueuedRendering']): boolean {
 	return config?.enabled ?? false;
 }
