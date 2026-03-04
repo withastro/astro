@@ -8,7 +8,7 @@ import {
 	render,
 	renderHead,
 } from '../../../dist/runtime/server/index.js';
-import { createBasicPipeline } from '../test-utils.js';
+import { createBasicPipeline } from '../test-utils.ts';
 
 // #region Test Utilities
 

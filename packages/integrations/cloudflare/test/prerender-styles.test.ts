@@ -1,10 +1,10 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import cloudflare from '../dist/index.js';
-import { loadFixture } from './_test-utils.js';
+import { loadFixture } from './_test-utils.ts';
 
 describe('Prerendered page styles', () => {
-	/** @type {import('../../../astro/test/test-utils').Fixture} */
+	/** @type {import('../../../astro/test/test-utils.ts').Fixture} */
 	let fixture;
 	let devServer;
 
@@ -62,7 +62,7 @@ describe('Prerendered page styles', () => {
 });
 
 describe('Styles from Astro components imported in MDX content collections', () => {
-	/** @type {import('../../../astro/test/test-utils').Fixture} */
+	/** @type {import('../../../astro/test/test-utils.ts').Fixture} */
 	let fixture;
 	let devServer;
 

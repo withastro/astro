@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture } from '../../../astro/test/test-utils.ts';
 import mdx from '../dist/index.js';
 
 const FIXTURE_ROOT = new URL('./fixtures/invalid-mdx-component/', import.meta.url);

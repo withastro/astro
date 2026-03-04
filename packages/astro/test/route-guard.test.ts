@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('Route Guard - Dev Server', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
-	/** @type {import('./test-utils').DevServer} */
+	/** @type {import('./test-utils.ts').DevServer} */
 	let devServer;
 
 	before(async () => {

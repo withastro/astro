@@ -4,10 +4,10 @@ import * as cheerio from 'cheerio';
 import { ServerOnlyModule } from '../dist/core/errors/errors-data.js';
 import { AstroError } from '../dist/core/errors/index.js';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('astro:config/client', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let devServer;
 
@@ -90,7 +90,7 @@ describe('astro:config/client', () => {
 });
 
 describe('astro:config/server', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let devServer;
 	let app;

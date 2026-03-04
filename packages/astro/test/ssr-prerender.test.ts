@@ -2,10 +2,10 @@ import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('SSR: prerender', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	before(async () => {
@@ -103,7 +103,7 @@ describe('SSR: prerender', () => {
 // is not always guaranteed to run. If we want to support this feature, we may want to only allow
 // editing `route.prerender` on the `astro:build:done` hook.
 describe.skip('Integrations can hook into the prerendering decision', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	const testIntegration = {

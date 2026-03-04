@@ -2,12 +2,12 @@ import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import mdx from '@astrojs/mdx';
 import * as cheerio from 'cheerio';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture } from '../../../astro/test/test-utils.ts';
 
 const FIXTURE_ROOT = new URL('./fixtures/mdx-get-static-paths', import.meta.url);
 
 describe('getStaticPaths', () => {
-	/** @type {import('astro/test/test-utils').Fixture} */
+	/** @type {import('astro/test/test-utils.ts').Fixture} */
 	let fixture;
 	before(async () => {
 		fixture = await loadFixture({

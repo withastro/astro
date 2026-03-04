@@ -8,7 +8,7 @@ import {
 	createFixture,
 	createRequestAndResponse,
 	defaultLogger,
-} from '../test-utils.js';
+} from '../test-utils.ts';
 
 const fileSystem = {
 	'/src/pages/[...testSlashTrim].astro': `

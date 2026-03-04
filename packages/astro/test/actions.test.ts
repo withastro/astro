@@ -5,7 +5,7 @@ import * as devalue from 'devalue';
 import { serializeActionResult } from '../dist/actions/runtime/server.js';
 import { REDIRECT_STATUS_CODES } from '../dist/core/constants.js';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('Astro Actions', () => {
 	let fixture;

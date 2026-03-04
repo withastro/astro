@@ -4,7 +4,7 @@ import mdx from '@astrojs/mdx';
 import { visit as estreeVisit } from 'estree-util-visit';
 import { parseHTML } from 'linkedom';
 import remarkToc from 'remark-toc';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture } from '../../../astro/test/test-utils.ts';
 
 const FIXTURE_ROOT = new URL('./fixtures/mdx-plugins/', import.meta.url);
 const FILE = '/with-plugins/index.html';

@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './_test-utils.js';
+import { loadFixture } from './_test-utils.ts';
 
 describe('SolidJS', () => {
 	let fixture;

@@ -2,7 +2,7 @@ import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { Logger } from '../../../dist/core/logger/core.js';
 import { createRoutesList } from '../../../dist/core/routing/create-manifest.js';
-import { createBasicSettings, createFixture } from '../test-utils.js';
+import { createBasicSettings, createFixture } from '../test-utils.ts';
 
 function getManifestRoutes(manifest) {
 	return manifest.routes.map((route) => ({

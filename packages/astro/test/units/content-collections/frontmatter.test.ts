@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import { attachContentServerListeners } from '../../../dist/content/index.js';
-import { createFixture, runInContainer } from '../test-utils.js';
+import { createFixture, runInContainer } from '../test-utils.ts';
 
 describe('frontmatter', () => {
 	it('errors in content/ does not crash server', async () => {

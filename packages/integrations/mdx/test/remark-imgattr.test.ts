@@ -1,16 +1,16 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture } from '../../../astro/test/test-utils.ts';
 
 const FIXTURE_ROOT = new URL('./fixtures/image-remark-imgattr/', import.meta.url);
 
 describe('Testing remark plugins for image processing', () => {
-	/** @type {import('../../../astro/test/test-utils.js').Fixture} */
+	/** @type {import('../../../astro/test/test-utils.ts').Fixture} */
 	let fixture;
 
 	describe('start dev server', () => {
-		/** @type {import('../../../astro/test/test-utils.js').DevServer} */
+		/** @type {import('../../../astro/test/test-utils.ts').DevServer} */
 		let devServer;
 
 		before(async () => {

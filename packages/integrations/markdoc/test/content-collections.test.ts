@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { parse as parseDevalue } from 'devalue';
-import { fixLineEndings, loadFixture } from '../../../astro/test/test-utils.js';
+import { fixLineEndings, loadFixture } from '../../../astro/test/test-utils.ts';
 import markdoc from '../dist/index.js';
 
 function formatPost(post) {

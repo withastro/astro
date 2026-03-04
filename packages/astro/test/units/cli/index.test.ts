@@ -7,7 +7,7 @@ import { LoggerHelpDisplay } from '../../../dist/cli/infra/logger-help-display.j
 import { PassthroughTextStyler } from '../../../dist/cli/infra/passthrough-text-styler.js';
 import { ProcessOperatingSystemProvider } from '../../../dist/cli/infra/process-operating-system-provider.js';
 import packageJson from '../../../package.json' with { type: 'json' };
-import { SpyLogger } from '../test-utils.js';
+import { SpyLogger } from '../test-utils.ts';
 import { FakeAstroVersionProvider, SpyHelpDisplay } from './utils.js';
 
 describe('CLI shared', () => {

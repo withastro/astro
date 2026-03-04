@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture } from '../../../astro/test/test-utils.ts';
 
 const FIXTURE_ROOT = new URL('./fixtures/mdx-frontmatter-injection/', import.meta.url);
 

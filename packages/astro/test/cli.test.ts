@@ -5,7 +5,7 @@ import { Writable } from 'node:stream';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { stripVTControlCharacters } from 'node:util';
-import { cli, loadFixture } from './test-utils.js';
+import { cli, loadFixture } from './test-utils.ts';
 
 describe('astro cli', () => {
 	it('astro', async () => {
@@ -26,7 +26,7 @@ describe('astro cli', () => {
 			});
 			const oneErrorContent = 'foobar';
 
-			/** @type {import('./test-utils').Fixture} */
+			/** @type {import('./test-utils.ts').Fixture} */
 			const fixture = await loadFixture({
 				root: './fixtures/astro-check-watch/',
 			});

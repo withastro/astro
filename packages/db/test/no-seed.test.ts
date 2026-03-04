@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { loadFixture } from '../../astro/test/test-utils.js';
+import { loadFixture } from '../../astro/test/test-utils.ts';
 
 describe('astro:db with no seed file', () => {
 	let fixture;

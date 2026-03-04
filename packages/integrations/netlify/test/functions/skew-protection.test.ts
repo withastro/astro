@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { before, describe, it } from 'node:test';
-import { loadFixture } from '../../../../astro/test/test-utils.js';
+import { loadFixture } from '../../../../astro/test/test-utils.ts';
 
 describe(
 	'Skew Protection',

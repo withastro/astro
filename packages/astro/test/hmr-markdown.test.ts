@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { isWindows, loadFixture } from './test-utils.js';
+import { isWindows, loadFixture } from './test-utils.ts';
 
 const UPDATED_CONTENT = '---\ntitle: HMR Markdown\n---\n\nUpdated content\n';
 
 describe('HMR: Markdown updates', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
-	/** @type {import('./test-utils').DevServer} */
+	/** @type {import('./test-utils.ts').DevServer} */
 	let devServer;
 	/** @type {string} */
 	let markdownPath;

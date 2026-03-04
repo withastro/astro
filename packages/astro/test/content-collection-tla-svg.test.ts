@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 // Regression test for https://github.com/withastro/astro/issues/15575
 // SVG images in content collection image() fields combined with top-level await
 // caused a circular module dependency deadlock during build.
 describe('Content collection with SVG image and TLA', () => {
-	/** @type {import("./test-utils.js").Fixture} */
+	/** @type {import("./test-utils.ts").Fixture} */
 	let fixture;
 
 	before(async () => {

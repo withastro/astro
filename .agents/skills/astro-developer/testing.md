@@ -322,14 +322,14 @@ Use integration tests only when unit tests are insufficient:
 
 ## Test Utilities
 
-**Location**: `packages/astro/test/test-utils.js`
+**Location**: `packages/astro/test/test-utils.ts`
 
 ### loadFixture(config)
 
 Load a test fixture with configuration.
 
 ```javascript
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 const fixture = await loadFixture({
   root: './fixtures/my-test/',
@@ -416,7 +416,7 @@ const fixture = await loadFixture({
 ```javascript
 import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('Feature Name', () => {
   let fixture;
@@ -718,8 +718,8 @@ export async function createKey({ logger, keyGenerator }: Options) {
 }
 
 // test/create-key.test.js
-import { SpyLogger } from './test-utils.js';
-import { FakeKeyGenerator } from './test-utils.js';
+import { SpyLogger } from './test-utils.ts';
+import { FakeKeyGenerator } from './test-utils.ts';
 
 it('logs the generated key', async () => {
   const logger = new SpyLogger();
@@ -734,7 +734,7 @@ it('logs the generated key', async () => {
 ### Test-Specific Abstractions
 
 ```javascript
-// test/test-utils.js
+// test/test-utils.ts
 
 export class SpyLogger {
   logs = [];
@@ -970,4 +970,4 @@ Before considering a feature complete:
 - CONTRIBUTING.md: Testing section
 - CONTRIBUTING.md: Making code testable (lines 347-531)
 - Fixtures: `packages/astro/test/fixtures/`
-- Test utils: `packages/astro/test/test-utils.js`
+- Test utils: `packages/astro/test/test-utils.ts`

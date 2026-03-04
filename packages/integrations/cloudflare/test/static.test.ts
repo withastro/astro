@@ -1,5 +1,5 @@
 import { describe, it } from 'node:test';
-import { loadFixture } from './_test-utils.js';
+import { loadFixture } from './_test-utils.ts';
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';

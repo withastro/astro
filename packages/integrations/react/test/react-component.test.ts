@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { isWindows, loadFixture } from '../../../astro/test/test-utils.js';
+import { isWindows, loadFixture } from '../../../astro/test/test-utils.ts';
 
 let fixture;
 
@@ -120,7 +120,7 @@ describe('React Components', () => {
 	if (isWindows) return;
 
 	describe('dev', () => {
-		/** @type {import('../../../astro/test/test-utils.js').Fixture} */
+		/** @type {import('../../../astro/test/test-utils.ts').Fixture} */
 		let devServer;
 
 		before(async () => {

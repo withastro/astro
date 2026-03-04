@@ -4,7 +4,7 @@ import { mkdir, rm } from 'node:fs/promises';
 import { after, before, describe, it } from 'node:test';
 import { BlobsServer } from '@netlify/blobs/server';
 import * as devalue from 'devalue';
-import { loadFixture } from '../../../../astro/test/test-utils.js';
+import { loadFixture } from '../../../../astro/test/test-utils.ts';
 import netlify from '../../dist/index.js';
 import { sessionDrivers } from 'astro/config';
 
@@ -14,7 +14,7 @@ const dataDir = '.netlify/sessions';
 
 describe('Astro.session', () => {
 	describe('Production', () => {
-		/** @type {import('../../../../astro/test/test-utils.js').Fixture} */
+		/** @type {import('../../../../astro/test/test-utils.ts').Fixture} */
 		let fixture;
 
 		/** @type {BlobsServer} */

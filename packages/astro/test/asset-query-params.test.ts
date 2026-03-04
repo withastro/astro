@@ -2,10 +2,10 @@ import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('Asset Query Parameters (Adapter Client Config)', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	before(async () => {
@@ -57,7 +57,7 @@ describe('Asset Query Parameters (Adapter Client Config)', () => {
 });
 
 describe('Asset Query Parameters with Fonts', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	before(async () => {

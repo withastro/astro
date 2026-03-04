@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as devalue from 'devalue';
 import cloudflare from '../dist/index.js';
-import { loadFixture } from './_test-utils.js';
+import { loadFixture } from './_test-utils.ts';
 
 describe('sessions', () => {
 	let fixture;

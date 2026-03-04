@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { glob } from 'tinyglobby';
-import { loadFixture } from './_test-utils.js';
+import { loadFixture } from './_test-utils.ts';
 
 const root = new URL('./fixtures/external-image-service/', import.meta.url);
 

@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('AstroConfig - config.output', () => {
 	describe(`output: 'server'`, () => {
 		describe('deploy config provided', () => {
-			/** @type {import('./test-utils').Fixture} */
+			/** @type {import('./test-utils.ts').Fixture} */
 			let fixture;
 
 			before(async () => {
@@ -31,7 +31,7 @@ describe('AstroConfig - config.output', () => {
 		});
 
 		describe('deploy config omitted', () => {
-			/** @type {import('./test-utils').Fixture} */
+			/** @type {import('./test-utils.ts').Fixture} */
 			let fixture;
 
 			before(async () => {
@@ -59,7 +59,7 @@ describe('AstroConfig - config.output', () => {
 
 	describe(`output: 'static'`, () => {
 		describe('Output config omitted', () => {
-			/** @type {import('./test-utils').Fixture} */
+			/** @type {import('./test-utils.ts').Fixture} */
 			let fixture;
 
 			before(async () => {
@@ -83,7 +83,7 @@ describe('AstroConfig - config.output', () => {
 		});
 
 		describe.skip('deploy config provided - TODO, we need adapters to support static mode first', () => {
-			/** @type {import('./test-utils').Fixture} */
+			/** @type {import('./test-utils.ts').Fixture} */
 			let fixture;
 
 			before(async () => {

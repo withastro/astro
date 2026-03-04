@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { Writable } from 'node:stream';
 import { after, before, describe, it } from 'node:test';
 import { Logger } from '../dist/core/logger/core.js';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('Public', () => {
 	let fixture;

@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { prepareTestFactory } from './test-utils.js';
+import { prepareTestFactory } from './test-utils.ts';
 
 const { test } = prepareTestFactory({ root: './fixtures/basics/' });
 

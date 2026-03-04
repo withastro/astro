@@ -3,11 +3,11 @@ import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { preact } from './fixtures/before-hydration/deps.mjs';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('build assets (static)', () => {
 	describe('with default configuration', () => {
-		/** @type {import('./test-utils').Fixture} */
+		/** @type {import('./test-utils.ts').Fixture} */
 		let fixture;
 
 		before(async () => {
@@ -51,7 +51,7 @@ describe('build assets (static)', () => {
 	});
 
 	describe('with custom configuration', () => {
-		/** @type {import('./test-utils').Fixture} */
+		/** @type {import('./test-utils.ts').Fixture} */
 		let fixture;
 
 		before(async () => {
@@ -92,7 +92,7 @@ describe('build assets (static)', () => {
 
 describe('build assets (server)', () => {
 	describe('with default configuration', () => {
-		/** @type {import('./test-utils').Fixture} */
+		/** @type {import('./test-utils.ts').Fixture} */
 		let fixture;
 
 		before(async () => {
@@ -137,7 +137,7 @@ describe('build assets (server)', () => {
 	});
 
 	describe('with custom configuration', () => {
-		/** @type {import('./test-utils').Fixture} */
+		/** @type {import('./test-utils.ts').Fixture} */
 		let fixture;
 
 		before(async () => {

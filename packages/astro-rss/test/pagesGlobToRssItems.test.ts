@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { pagesGlobToRssItems } from '../dist/index.js';
-import { phpFeedItem, web1FeedItem } from './test-utils.js';
+import { phpFeedItem, web1FeedItem } from './test-utils.ts';
 
 describe('pagesGlobToRssItems', () => {
 	it('should generate on valid result', async () => {

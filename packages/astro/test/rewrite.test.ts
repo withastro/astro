@@ -2,10 +2,10 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('Dev reroute', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let devServer;
 
@@ -71,7 +71,7 @@ describe('Dev reroute', () => {
 });
 
 describe('Dev rewrite, trailing slash -> never', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let devServer;
 
@@ -95,7 +95,7 @@ describe('Dev rewrite, trailing slash -> never', () => {
 });
 
 describe('Dev rewrite, trailing slash -> never, with base', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let devServer;
 
@@ -130,7 +130,7 @@ describe('Dev rewrite, trailing slash -> never, with base', () => {
 });
 
 describe('Dev rewrite, dynamic routing', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let devServer;
 
@@ -161,7 +161,7 @@ describe('Dev rewrite, dynamic routing', () => {
 });
 
 describe('Dev rewrite, hybrid/server', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let devServer;
 
@@ -208,7 +208,7 @@ describe('Dev rewrite, hybrid/server', () => {
 });
 
 describe('Dev rewrite URL contains base and has no trailing slash', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let devServer;
 
@@ -259,7 +259,7 @@ describe('Dev rewrite URL contains base and has no trailing slash', () => {
 	});
 });
 describe('Dev rewrite URL contains base and has trailing slash', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let devServer;
 
@@ -307,7 +307,7 @@ describe('Dev rewrite URL contains base and has trailing slash', () => {
 });
 
 describe('Build reroute', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	before(async () => {
@@ -386,7 +386,7 @@ describe('SSR route', () => {
 });
 
 describe('SSR reroute', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let app;
 
@@ -481,7 +481,7 @@ describe('SSR reroute', () => {
 });
 
 describe('SSR rewrite, hybrid/server', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let app;
 
@@ -520,7 +520,7 @@ describe('SSR rewrite, hybrid/server', () => {
 });
 
 describe('Middleware', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let devServer;
 
@@ -569,7 +569,7 @@ describe('Middleware', () => {
 });
 
 describe('Middleware with custom 404.astro and 500.astro', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let devServer;
 
@@ -602,7 +602,7 @@ describe('Middleware with custom 404.astro and 500.astro', () => {
 });
 
 describe('Runtime error, default 500', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let devServer;
 
@@ -626,7 +626,7 @@ describe('Runtime error, default 500', () => {
 });
 
 describe('Runtime error in SSR, default 500', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let app;
 
@@ -649,7 +649,7 @@ describe('Runtime error in SSR, default 500', () => {
 });
 
 describe('Runtime error in dev, custom 500', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let devServer;
 
@@ -673,7 +673,7 @@ describe('Runtime error in dev, custom 500', () => {
 });
 
 describe('Runtime error in SSR, custom 500', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let app;
 
@@ -699,7 +699,7 @@ describe('Runtime error in SSR, custom 500', () => {
 });
 
 describe('Runtime error in dev, custom 500', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let devServer;
 
@@ -727,7 +727,7 @@ describe('Runtime error in dev, custom 500', () => {
 });
 
 describe('Runtime error in SSR, custom 500', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let app;
 
@@ -754,7 +754,7 @@ describe('Runtime error in SSR, custom 500', () => {
 });
 
 describe('Rewrite issue 13633', async () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let devServer;
 	before(async () => {
@@ -779,7 +779,7 @@ describe('Rewrite issue 13633', async () => {
 });
 
 describe('Rewrite', async () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let devServer;
 	before(async () => {

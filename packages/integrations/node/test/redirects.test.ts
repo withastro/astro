@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import nodejs from '../dist/index.js';
-import { loadFixture, waitServerListen } from './test-utils.js';
+import { loadFixture, waitServerListen } from './test-utils.ts';
 
 describe('Redirects', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let server;
 

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import net from 'node:net';
 import { after, before, describe, it } from 'node:test';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('API routes in SSR', () => {
 	const config = {
@@ -20,7 +20,7 @@ describe('API routes in SSR', () => {
 	};
 
 	describe('Build', () => {
-		/** @type {import('./test-utils.js').App} */
+		/** @type {import('./test-utils.ts').App} */
 		let app;
 		before(async () => {
 			const fixture = await loadFixture(config);
@@ -94,9 +94,9 @@ describe('API routes in SSR', () => {
 	});
 
 	describe('Dev', () => {
-		/** @type {import('./test-utils.js').DevServer} */
+		/** @type {import('./test-utils.ts').DevServer} */
 		let devServer;
-		/** @type {import('./test-utils.js').Fixture} */
+		/** @type {import('./test-utils.ts').Fixture} */
 		let fixture;
 		before(async () => {
 			fixture = await loadFixture(config);

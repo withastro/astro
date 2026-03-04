@@ -7,7 +7,7 @@ import {
 	createFixture,
 	createRequestAndResponse,
 	defaultLogger,
-} from '../test-utils.js';
+} from '../test-utils.ts';
 
 describe('vite-plugin-astro-server', () => {
 	describe('url', () => {

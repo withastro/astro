@@ -1,14 +1,14 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 function addLeadingSlash(path) {
 	return path.startsWith('/') ? path : '/' + path;
 }
 
 describe('Component Libraries', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	before(async () => {

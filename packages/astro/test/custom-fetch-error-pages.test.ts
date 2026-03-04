@@ -2,10 +2,10 @@ import assert from 'node:assert/strict';
 import { before, beforeEach, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('Custom Fetch for Error Pages', () => {
-	/** @type {import('./test-utils.js').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	before(async () => {
@@ -18,7 +18,7 @@ describe('Custom Fetch for Error Pages', () => {
 	});
 
 	describe('Production', () => {
-		/** @type {import('./test-utils.js').App} */
+		/** @type {import('./test-utils.ts').App} */
 		let app;
 
 		// Mock fetch calls for tracking

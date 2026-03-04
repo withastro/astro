@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('astro:assets - SVG Components in Astro Islands', async () => {
-	/** @type {import('./test-utils.js').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	before(async () => {
@@ -14,7 +14,7 @@ describe('astro:assets - SVG Components in Astro Islands', async () => {
 	});
 
 	describe('dev', () => {
-		/** @type {import('./test-utils.js').DevServer} */
+		/** @type {import('./test-utils.ts').DevServer} */
 		let devServer;
 
 		before(async () => {

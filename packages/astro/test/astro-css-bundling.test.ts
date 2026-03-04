@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 // note: the hashes should be deterministic, but updating the file contents will change hashes
 // be careful not to test that the HTML simply contains CSS, because it always will! filename and quantity matter here (bundling).
@@ -20,7 +20,7 @@ const UNEXPECTED_CSS = [
 ];
 
 describe('CSS Bundling', function () {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	describe('defaults', () => {

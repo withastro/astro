@@ -7,7 +7,7 @@ import {
 	createFixture,
 	createRequestAndResponse,
 	defaultLogger,
-} from '../test-utils.js';
+} from '../test-utils.ts';
 
 const fileSystem = {
 	'/src/pages/response-redirect.ts': `export const GET = ({ url }) => Response.redirect("https://example.com/destination", 307)`,

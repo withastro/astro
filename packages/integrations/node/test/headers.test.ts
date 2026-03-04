@@ -1,10 +1,10 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import nodejs from '../dist/index.js';
-import { createRequestAndResponse, loadFixture } from './test-utils.js';
+import { createRequestAndResponse, loadFixture } from './test-utils.ts';
 
 describe('Node Adapter Headers', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	describe('streaming', () => {

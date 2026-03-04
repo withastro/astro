@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 async function fetchHTML(fixture, path) {
 	const app = await fixture.loadTestAdapterApp();
@@ -12,7 +12,7 @@ async function fetchHTML(fixture, path) {
 	return html;
 }
 
-/** @type {import('./test-utils.js').AstroInlineConfig} */
+/** @type {import('./test-utils.ts').AstroInlineConfig} */
 const defaultFixtureOptions = {
 	root: './fixtures/ssr-script/',
 	output: 'server',
@@ -20,7 +20,7 @@ const defaultFixtureOptions = {
 };
 
 describe('Inline scripts in SSR', () => {
-	/** @type {import('./test-utils.js').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	describe('without base path', () => {
@@ -60,7 +60,7 @@ describe('Inline scripts in SSR', () => {
 });
 
 describe('External scripts in SSR', () => {
-	/** @type {import('./test-utils.js').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	describe('without base path', () => {

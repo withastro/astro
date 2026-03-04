@@ -1,10 +1,10 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('Basics', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	before(async () => {

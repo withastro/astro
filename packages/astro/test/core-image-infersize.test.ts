@@ -5,15 +5,15 @@ import * as cheerio from 'cheerio';
 
 import { Logger } from '../dist/core/logger/core.js';
 import { testImageService } from './test-image-service.js';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('astro:image:infersize', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	const remoteAvatarUrl = 'https://avatars.githubusercontent.com/u/622227?s=64&v=4';
 
 	describe('dev', () => {
-		/** @type {import('./test-utils').DevServer} */
+		/** @type {import('./test-utils.ts').DevServer} */
 		let devServer;
 		/** @type {Array<{ type: any, level: 'error', message: string; }>} */
 		let logs = [];
@@ -92,9 +92,9 @@ describe('astro:image:infersize', () => {
 	});
 
 	describe('dev with custom image service', () => {
-		/** @type {import('./test-utils').Fixture} */
+		/** @type {import('./test-utils.ts').Fixture} */
 		let customFixture;
-		/** @type {import('./test-utils').DevServer} */
+		/** @type {import('./test-utils.ts').DevServer} */
 		let customDevServer;
 
 		before(async () => {

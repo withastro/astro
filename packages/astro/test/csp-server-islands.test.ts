@@ -3,7 +3,7 @@ import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { encryptString } from '../dist/core/encryption.js';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 // Helper to create encryption key from test key string
 async function createKeyFromString(keyString) {
@@ -28,7 +28,7 @@ async function getEncryptedComponentExport(
 
 describe('Server islands', () => {
 	describe('SSR', () => {
-		/** @type {import('./test-utils').Fixture} */
+		/** @type {import('./test-utils.ts').Fixture} */
 		let fixture;
 		before(async () => {
 			fixture = await loadFixture({
@@ -80,7 +80,7 @@ describe('Server islands', () => {
 	});
 
 	describe('Hybrid', () => {
-		/** @type {import('./test-utils').Fixture} */
+		/** @type {import('./test-utils.ts').Fixture} */
 		let fixture;
 		before(async () => {
 			fixture = await loadFixture({

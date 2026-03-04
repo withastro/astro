@@ -7,14 +7,14 @@ import * as cheerio from 'cheerio';
 import express from 'express';
 import Fastify from 'fastify';
 import nodejs from '../dist/index.js';
-import { loadFixture, waitServerListen } from './test-utils.js';
+import { loadFixture, waitServerListen } from './test-utils.ts';
 
 /**
- * @typedef {import('../../../astro/test/test-utils').Fixture} Fixture
+ * @typedef {import('../../../astro/test/test-utils.ts').Fixture} Fixture
  */
 
 describe('behavior from middleware, standalone', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let server;
 
@@ -55,7 +55,7 @@ describe('behavior from middleware, standalone', () => {
 });
 
 describe('behavior from middleware, middleware with express', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let server;
 
@@ -140,7 +140,7 @@ describe('behavior from middleware, middleware with express', () => {
 });
 
 describe('behavior from middleware, middleware with fastify', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let server;
 

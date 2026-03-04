@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { loadFixture } from './_test-utils.js';
+import { loadFixture } from './_test-utils.ts';
 
 describe('Dev image endpoint', () => {
 	let fixture;

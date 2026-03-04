@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('Scripts', () => {
 	describe('Build', () => {
-		/** @type {import('./test-utils').Fixture} */
+		/** @type {import('./test-utils.ts').Fixture} */
 		let fixture;
 		before(async () => {
 			fixture = await loadFixture({
@@ -81,7 +81,7 @@ describe('Scripts', () => {
 		});
 
 		describe('Inlining', () => {
-			/** @type {import('./test-utils').Fixture} */
+			/** @type {import('./test-utils.ts').Fixture} */
 			// eslint-disable-next-line @typescript-eslint/no-shadow
 			let fixture;
 			before(async () => {
@@ -107,9 +107,9 @@ describe('Scripts', () => {
 	});
 
 	describe('Dev', () => {
-		/** @type {import('./test-utils').Fixture} */
+		/** @type {import('./test-utils.ts').Fixture} */
 		let fixture;
-		/** @type {import('./test-utils').DevServer} */
+		/** @type {import('./test-utils.ts').DevServer} */
 		let devServer;
 		before(async () => {
 			fixture = await loadFixture({

@@ -1,9 +1,9 @@
 import { before, describe, it } from 'node:test';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('SSR Preview', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	before(async () => {
@@ -16,7 +16,7 @@ describe('SSR Preview', () => {
 	});
 
 	it('preview server works', async () => {
-		/** @type {import('./test-utils').PreviewServer} */
+		/** @type {import('./test-utils.ts').PreviewServer} */
 		const previewServer = await fixture.preview();
 		await previewServer.stop();
 	});

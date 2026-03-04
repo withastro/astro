@@ -1,7 +1,7 @@
 // @ts-check
 
 import { describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 import testAdapter, { selfTestAdapter } from './test-adapter.js';
 import assert from 'node:assert/strict';
 import fakeAdapter from './fixtures/server-entry/fake-adapter/index.js';
@@ -9,7 +9,7 @@ import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 describe('Server entry', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let app;
 

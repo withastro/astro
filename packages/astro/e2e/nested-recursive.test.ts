@@ -1,5 +1,5 @@
 import { test as base, expect } from '@playwright/test';
-import { loadFixture, waitForHydrate } from './test-utils.js';
+import { loadFixture, waitForHydrate } from './test-utils.ts';
 
 const test = base.extend({
 	// biome-ignore lint/correctness/noEmptyPattern: playwright needs this

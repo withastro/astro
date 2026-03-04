@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { fixLineEndings, loadFixture } from './test-utils.js';
+import { fixLineEndings, loadFixture } from './test-utils.ts';
 
 describe('Content Collections - references', () => {
 	let fixture;

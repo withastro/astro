@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { after, afterEach, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 const root = new URL('./fixtures/astro-get-static-paths/', import.meta.url);
 
@@ -35,7 +35,7 @@ function resetFlags() {
 }
 
 describe('getStaticPaths - build calls', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	before(async () => {
@@ -69,9 +69,9 @@ describe('getStaticPaths - build calls', () => {
 });
 
 describe('getStaticPaths - dev calls', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
-	/** @type {import('./test-utils').DevServer} */
+	/** @type {import('./test-utils.ts').DevServer} */
 	let devServer;
 
 	before(async () => {
@@ -199,7 +199,7 @@ describe('getStaticPaths - dev calls', () => {
 });
 
 describe('throws if an invalid Astro property is accessed', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	before(async () => {

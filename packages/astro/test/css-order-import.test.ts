@@ -1,10 +1,10 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('CSS ordering - import order', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	before(async () => {
 		fixture = await loadFixture({
@@ -48,7 +48,7 @@ describe('CSS ordering - import order', () => {
 	}
 
 	describe('Development', () => {
-		/** @type {import('./test-utils').DevServer} */
+		/** @type {import('./test-utils.ts').DevServer} */
 		let devServer;
 
 		before(async () => {

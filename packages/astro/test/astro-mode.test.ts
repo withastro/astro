@@ -2,10 +2,10 @@ import assert from 'node:assert/strict';
 import { existsSync, promises as fs } from 'node:fs';
 import { after, afterEach, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('--mode', () => {
-	/** @type {import('./test-utils.js').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let devDataStoreFile;
 	let prodDataStoreFile;
@@ -98,7 +98,7 @@ describe('--mode', () => {
 	});
 
 	describe('dev', () => {
-		/** @type {import('./test-utils.js').DevServer} */
+		/** @type {import('./test-utils.ts').DevServer} */
 		let devServer;
 		before(async () => {
 			await deleteDataStoreFiles();
@@ -126,7 +126,7 @@ describe('--mode', () => {
 	});
 
 	describe('dev --mode develop', () => {
-		/** @type {import('./test-utils.js').DevServer} */
+		/** @type {import('./test-utils.ts').DevServer} */
 		let devServer;
 		before(async () => {
 			await deleteDataStoreFiles();

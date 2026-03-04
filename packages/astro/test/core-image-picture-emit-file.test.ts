@@ -2,14 +2,14 @@ import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import parseSrcset from 'parse-srcset';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 function removeLeadingForwardSlash(path) {
 	return path.startsWith('/') ? path.substring(1) : path;
 }
 
 describe('astro:image', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	describe('build', () => {

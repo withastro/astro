@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { loadFixture, readXML } from './test-utils.js';
+import { loadFixture, readXML } from './test-utils.ts';
 
 describe('URLs with base path', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	describe('using node adapter', () => {

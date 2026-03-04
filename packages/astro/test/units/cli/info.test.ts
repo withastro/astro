@@ -8,7 +8,7 @@ import { CliDebugInfoProvider } from '../../../dist/cli/info/infra/cli-debug-inf
 import { DevDebugInfoProvider } from '../../../dist/cli/info/infra/dev-debug-info-provider.js';
 import { ProcessNodeVersionProvider } from '../../../dist/cli/info/infra/process-node-version-provider.js';
 import { ProcessPackageManagerUserAgentProvider } from '../../../dist/cli/info/infra/process-package-manager-user-agent-provider.js';
-import { SpyLogger } from '../test-utils.js';
+import { SpyLogger } from '../test-utils.ts';
 import {
 	FakeAstroVersionProvider,
 	FakeDebugInfoProvider,

@@ -14,7 +14,7 @@ import {
 	renderTemplate,
 } from '../dist/runtime/server/index.js';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 const BaseLayout = createComponent((result, _props, slots) => {
 	return render`<html>

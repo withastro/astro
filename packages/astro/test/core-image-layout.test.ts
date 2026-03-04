@@ -6,14 +6,14 @@ import parseSrcset from 'parse-srcset';
 import { Logger } from '../dist/core/logger/core.js';
 import { testImageService } from './test-image-service.js';
 import { testRemoteImageService } from './test-remote-image-service.js';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('astro:image:layout', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	describe('local image service', () => {
-		/** @type {import('./test-utils').DevServer} */
+		/** @type {import('./test-utils.ts').DevServer} */
 		let devServer;
 		const walrusImagePath =
 			'https://images.unsplash.com/photo-1690941380217-24dfa9a1d21f?q=80&w=1476&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
@@ -470,7 +470,7 @@ describe('astro:image:layout', () => {
 	});
 
 	describe('remote image service', () => {
-		/** @type {import('./test-utils').DevServer} */
+		/** @type {import('./test-utils.ts').DevServer} */
 		let devServer;
 		/** @type {Array<{ type: any, level: 'error', message: string; }>} */
 		let logs = [];

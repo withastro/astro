@@ -4,7 +4,7 @@ import { after, before, describe, it } from 'node:test';
 import netlify from '@astrojs/netlify';
 import * as cheerio from 'cheerio';
 import { globSync } from 'tinyglobby';
-import { loadFixture } from '../../../../astro/test/test-utils.js';
+import { loadFixture } from '../../../../astro/test/test-utils.ts';
 
 describe(
 	'Included vite assets files',

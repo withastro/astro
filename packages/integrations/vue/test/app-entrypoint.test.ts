@@ -2,10 +2,10 @@ import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
 import { parseHTML } from 'linkedom';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('App Entrypoint', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	before(async () => {
@@ -43,7 +43,7 @@ describe('App Entrypoint', () => {
 });
 
 describe('App Entrypoint no export default (dev)', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let devServer;
 
@@ -76,7 +76,7 @@ describe('App Entrypoint no export default (dev)', () => {
 });
 
 describe('App Entrypoint no export default', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	before(async () => {
@@ -114,7 +114,7 @@ describe('App Entrypoint no export default', () => {
 });
 
 describe('App Entrypoint relative', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	before(async () => {
@@ -145,7 +145,7 @@ describe('App Entrypoint relative', () => {
 });
 
 describe('App Entrypoint /src/absolute', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	before(async () => {
@@ -176,7 +176,7 @@ describe('App Entrypoint /src/absolute', () => {
 });
 
 describe('App Entrypoint async', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	before(async () => {

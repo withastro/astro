@@ -4,7 +4,7 @@ import * as cheerio from 'cheerio';
 import * as devalue from 'devalue';
 import testAdapter from './test-adapter.js';
 import { preventNodeBuiltinDependencyPlugin } from './test-plugins.js';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('Content Collections', () => {
 	describe('Query', () => {

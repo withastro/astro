@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
 import { prepareTestFactory } from './shared-component-tests.js';
-import { waitForHydrate } from './test-utils.js';
+import { waitForHydrate } from './test-utils.ts';
 
 const { test, createTests } = prepareTestFactory(import.meta.url, {
 	root: './fixtures/react-component/',

@@ -5,7 +5,7 @@ import rehypeShiki from '@shikijs/rehype';
 import { transformerTwoslash } from '@shikijs/twoslash';
 import { parseHTML } from 'linkedom';
 import rehypePrettyCode from 'rehype-pretty-code';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture } from '../../../astro/test/test-utils.ts';
 
 const FIXTURE_ROOT = new URL('./fixtures/mdx-syntax-hightlighting/', import.meta.url);
 

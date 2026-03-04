@@ -5,7 +5,7 @@ import { beforeEach, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
 import { Logger } from '../dist/core/logger/core.js';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 const createFixture = () => {
 	/** @type {Awaited<ReturnType<typeof loadFixture>>} */

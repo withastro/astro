@@ -4,7 +4,7 @@ import { Writable } from 'node:stream';
 import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { Logger } from '../../../astro/dist/core/logger/core.js';
-import { loadFixture } from './_test-utils.js';
+import { loadFixture } from './_test-utils.ts';
 
 describe('SSR dependencies', () => {
 	let fixture;

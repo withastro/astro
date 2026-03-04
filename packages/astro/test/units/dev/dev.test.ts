@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { createFixture, createRequestAndResponse, runInContainer } from '../test-utils.js';
+import { createFixture, createRequestAndResponse, runInContainer } from '../test-utils.ts';
 
 describe('dev container', () => {
 	it('can render requests', async () => {

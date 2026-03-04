@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { scrollToElement, testFactory, waitForHydrate } from './test-utils.js';
+import { scrollToElement, testFactory, waitForHydrate } from './test-utils.ts';
 import type { DevServer } from '../dist/core/dev/dev.js';
 
 export function prepareTestFactory(...args: Parameters<typeof testFactory>) {

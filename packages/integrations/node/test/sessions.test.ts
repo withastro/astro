@@ -3,11 +3,11 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as devalue from 'devalue';
 import nodejs from '../dist/index.js';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('Astro.session', () => {
 	describe('Production', () => {
-		/** @type {import('./test-utils').Fixture} */
+		/** @type {import('./test-utils.ts').Fixture} */
 		let fixture;
 		/** @type {import('../../../astro/src/types/public/preview.js').PreviewServer} */
 		let app;
@@ -95,7 +95,7 @@ describe('Astro.session', () => {
 	});
 
 	describe('Development', () => {
-		/** @type {import('./test-utils').Fixture} */
+		/** @type {import('./test-utils.ts').Fixture} */
 		let fixture;
 		let devServer;
 		before(async () => {

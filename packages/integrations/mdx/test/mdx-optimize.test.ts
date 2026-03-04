@@ -1,12 +1,12 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture } from '../../../astro/test/test-utils.ts';
 
 const FIXTURE_ROOT = new URL('./fixtures/mdx-optimize/', import.meta.url);
 
 describe('MDX optimize', () => {
-	/** @type {import('../../../astro/test/test-utils').Fixture} */
+	/** @type {import('../../../astro/test/test-utils.ts').Fixture} */
 	let fixture;
 	before(async () => {
 		fixture = await loadFixture({

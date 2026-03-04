@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { ensure404Route } from '../../../dist/core/routing/astro-designed-error-pages.js';
-import { createFixture, createRequestAndResponse, runInContainer } from '../test-utils.js';
+import { createFixture, createRequestAndResponse, runInContainer } from '../test-utils.ts';
 
 describe('Dev pipeline - error pages', () => {
 	describe('Custom 404', () => {

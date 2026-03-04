@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { createFixture, runInContainer } from '../test-utils.js';
+import { createFixture, runInContainer } from '../test-utils.ts';
 
 describe('Astro config formats', () => {
 	it('An mjs config can import TypeScript modules', async () => {

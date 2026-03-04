@@ -10,7 +10,7 @@ import { filterPreloads } from '../../../../dist/assets/fonts/core/filter-preloa
 import { getOrCreateFontFamilyAssets } from '../../../../dist/assets/fonts/core/get-or-create-font-family-assets.js';
 import { optimizeFallbacks } from '../../../../dist/assets/fonts/core/optimize-fallbacks.js';
 import { resolveFamily } from '../../../../dist/assets/fonts/core/resolve-family.js';
-import { SpyLogger } from '../../test-utils.js';
+import { SpyLogger } from '../../test-utils.ts';
 import {
 	FakeFontMetricsResolver,
 	FakeHasher,

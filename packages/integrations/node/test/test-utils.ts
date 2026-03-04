@@ -1,6 +1,6 @@
 import { EventEmitter } from 'node:events';
 import httpMocks, { type RequestOptions } from 'node-mocks-http';
-import { loadFixture as baseLoadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture as baseLoadFixture } from '../../../astro/test/test-utils.ts';
 import type { AstroInlineConfig } from '../../../astro/dist/types/public/config.js';
 import type { Server } from 'node:http';
 

@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('Queue-based rendering - Static', () => {
-	/** @type {import('./test-utils.js').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	before(async () => {
@@ -187,9 +187,9 @@ describe('Queue-based rendering - Static', () => {
 });
 
 describe('Queue-based rendering - SSR', () => {
-	/** @type {import('./test-utils.js').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
-	/** @type {import('./test-utils.js').App} */
+	/** @type {import('./test-utils.ts').App} */
 	let app;
 
 	before(async () => {

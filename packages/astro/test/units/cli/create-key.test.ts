@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { createKeyCommand } from '../../../dist/cli/create-key/core/create-key.js';
-import { SpyLogger } from '../test-utils.js';
+import { SpyLogger } from '../test-utils.ts';
 import { FakeKeyGenerator, PassthroughCommandRunner } from './utils.js';
 
 describe('CLI create-key', () => {

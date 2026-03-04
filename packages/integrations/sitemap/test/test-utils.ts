@@ -1,9 +1,9 @@
 import * as xml2js from 'xml2js';
-import { loadFixture as baseLoadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture as baseLoadFixture } from '../../../astro/test/test-utils.ts';
 import type { AstroInlineConfig } from '../../../astro/dist/index.js';
 
 /**
- * @typedef {import('../../../astro/test/test-utils').Fixture} Fixture
+ * @typedef {import('../../../astro/test/test-utils.ts').Fixture} Fixture
  */
 
 export function loadFixture(inlineConfig: AstroInlineConfig) {

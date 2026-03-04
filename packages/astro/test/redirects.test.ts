@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('Astro.redirect', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	describe('output: "server"', () => {
@@ -166,7 +166,7 @@ describe('Astro.redirect', () => {
 });
 
 describe('Astro.redirect output: "static"', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	describe('build', () => {
 		before(async () => {
@@ -281,7 +281,7 @@ describe('Astro.redirect output: "static"', () => {
 	});
 
 	describe('dev', () => {
-		/** @type {import('./test-utils.js').DevServer} */
+		/** @type {import('./test-utils.ts').DevServer} */
 		let devServer;
 		before(async () => {
 			process.env.STATIC_MODE = true;

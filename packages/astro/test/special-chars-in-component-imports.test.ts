@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { isWindows, loadFixture } from './test-utils.js';
+import { isWindows, loadFixture } from './test-utils.ts';
 
 describe('Special chars in component import paths', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	const componentIds = [

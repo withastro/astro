@@ -4,10 +4,10 @@ import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('Middleware in DEV mode', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let devServer;
 
@@ -50,7 +50,7 @@ describe('Middleware in DEV mode', () => {
 });
 
 describe('Integration hooks with no user middleware', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let devServer;
 	before(async () => {
@@ -84,7 +84,7 @@ describe('Integration hooks with no user middleware', () => {
 });
 
 describe('Middleware should not be executed or imported during', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	it('should build the project without errors', async () => {
@@ -99,7 +99,7 @@ describe('Middleware should not be executed or imported during', () => {
 });
 
 describe('Middleware API in PROD mode, SSR', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let middlewarePath;
 	/** @type {import('../src/core/app/app.js').App} */
@@ -179,7 +179,7 @@ describe('Middleware API in PROD mode, SSR', () => {
 });
 
 describe('Middleware with tailwind', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	before(async () => {
@@ -201,7 +201,7 @@ describe('Middleware with tailwind', () => {
 });
 
 describe('Middleware sequence rewrites', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let devServer;
 

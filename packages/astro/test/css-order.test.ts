@@ -2,7 +2,7 @@ import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('CSS production ordering', () => {
 	function getLinks(html) {
@@ -16,7 +16,7 @@ describe('CSS production ordering', () => {
 
 	/**
 	 *
-	 * @param {import('./test-utils').Fixture} fixture
+	 * @param {import('./test-utils.ts').Fixture} fixture
 	 * @param {string} href
 	 * @returns {Promise<{ href: string; css: string; }>}
 	 */
@@ -69,7 +69,7 @@ describe('CSS production ordering', () => {
 	});
 
 	describe('Page vs. Shared CSS', () => {
-		/** @type {import('./test-utils').Fixture} */
+		/** @type {import('./test-utils.ts').Fixture} */
 		let fixture;
 		before(async () => {
 			fixture = await loadFixture({
@@ -111,7 +111,7 @@ describe('CSS production ordering', () => {
 	});
 
 	describe('Changes order when transparentScriptOrder is enabled', () => {
-		/** @type {import('./test-utils').Fixture} */
+		/** @type {import('./test-utils.ts').Fixture} */
 		let fixture;
 
 		before(async () => {

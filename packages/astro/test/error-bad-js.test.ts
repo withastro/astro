@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('Errors in JavaScript', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	before(async () => {
@@ -19,7 +19,7 @@ describe('Errors in JavaScript', () => {
 	});
 
 	describe('dev', () => {
-		/** @type {import('./test-utils').DevServer} */
+		/** @type {import('./test-utils.ts').DevServer} */
 		let devServer;
 
 		before(async () => {

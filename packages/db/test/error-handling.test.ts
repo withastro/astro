@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { loadFixture } from '../../astro/test/test-utils.js';
+import { loadFixture } from '../../astro/test/test-utils.ts';
 import { cli } from '../dist/core/cli/index.js';
-import { setupRemoteDb } from './test-utils.js';
+import { setupRemoteDb } from './test-utils.ts';
 
 const foreignKeyConstraintError = 'LibsqlError: SQLITE_CONSTRAINT: FOREIGN KEY constraint failed';
 

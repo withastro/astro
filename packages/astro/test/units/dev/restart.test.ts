@@ -6,7 +6,7 @@ import {
 	createContainerWithAutomaticRestart,
 	startContainer,
 } from '../../../dist/core/dev/index.js';
-import { createFixture, createRequestAndResponse } from '../test-utils.js';
+import { createFixture, createRequestAndResponse } from '../test-utils.ts';
 
 /** @type {import('astro').AstroInlineConfig} */
 const defaultInlineConfig = {

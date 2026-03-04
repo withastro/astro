@@ -7,7 +7,7 @@ import {
 	createFixture,
 	createRequestAndResponse,
 	defaultLogger,
-} from '../test-utils.js';
+} from '../test-utils.ts';
 
 const root = new URL('../../fixtures/api-routes/', import.meta.url);
 const fileSystem = {

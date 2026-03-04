@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import nodejs from '../dist/index.js';
-import { loadFixture, waitServerListen } from './test-utils.js';
+import { loadFixture, waitServerListen } from './test-utils.ts';
 
 describe('Static headers', () => {
 	let fixture;
@@ -29,7 +29,7 @@ describe('Static headers', () => {
 });
 
 describe('Static headers', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let server;
 
@@ -73,7 +73,7 @@ describe('Static headers', () => {
 });
 
 describe('Static headers with non-root base', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let server;
 

@@ -11,7 +11,7 @@ import {
 	renderHead,
 	renderSlot,
 } from '../../../dist/runtime/server/index.js';
-import { createBasicPipeline } from '../test-utils.js';
+import { createBasicPipeline } from '../test-utils.ts';
 
 const createAstroModule = (AstroComponent) => ({ default: AstroComponent });
 

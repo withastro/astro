@@ -15,7 +15,7 @@ import {
 	web1FeedItem,
 	web1FeedItemWithAllData,
 	web1FeedItemWithContent,
-} from './test-utils.js';
+} from './test-utils.ts';
 
 // note: I spent 30 minutes looking for a nice node-based snapshot tool
 // ...and I gave up. Enjoy big strings!

@@ -8,7 +8,7 @@ import {
 	runHookBuildSetup,
 	runHookConfigSetup,
 } from '../../../dist/integrations/hooks.js';
-import { createFixture, defaultLogger, runInContainer } from '../test-utils.js';
+import { createFixture, defaultLogger, runInContainer } from '../test-utils.ts';
 
 const defaultConfig = {
 	root: new URL('./', import.meta.url),

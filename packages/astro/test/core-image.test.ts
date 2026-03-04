@@ -9,14 +9,14 @@ import parseSrcset from 'parse-srcset';
 import { Logger } from '../dist/core/logger/core.js';
 import testAdapter from './test-adapter.js';
 import { testImageService } from './test-image-service.js';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('astro:image', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	describe('dev', () => {
-		/** @type {import('./test-utils').DevServer} */
+		/** @type {import('./test-utils.ts').DevServer} */
 		let devServer;
 		/** @type {Array<{ type: any, level: 'error', message: string; }>} */
 		let logs = [];
@@ -742,10 +742,10 @@ describe('astro:image', () => {
 		});
 
 		describe('custom endpoint', async () => {
-			/** @type {import('./test-utils').DevServer} */
+			/** @type {import('./test-utils.ts').DevServer} */
 			let customEndpointDevServer;
 
-			/** @type {import('./test-utils.js').Fixture} */
+			/** @type {import('./test-utils.ts').Fixture} */
 			let customEndpointFixture;
 
 			before(async () => {
@@ -785,7 +785,7 @@ describe('astro:image', () => {
 	});
 
 	describe('proper errors', () => {
-		/** @type {import('./test-utils').DevServer} */
+		/** @type {import('./test-utils.ts').DevServer} */
 		let devServer;
 		/** @type {Array<{ type: any, level: 'error', message: string; }>} */
 		let logs = [];
@@ -1248,7 +1248,7 @@ describe('astro:image', () => {
 	});
 
 	describe('dev ssr', () => {
-		/** @type {import('./test-utils').DevServer} */
+		/** @type {import('./test-utils.ts').DevServer} */
 		let devServer;
 		before(async () => {
 			fixture = await loadFixture({
@@ -1447,7 +1447,7 @@ describe('astro:image', () => {
 	});
 
 	describe('trailing slash on the endpoint', () => {
-		/** @type {import('./test-utils').DevServer} */
+		/** @type {import('./test-utils.ts').DevServer} */
 		let devServer;
 
 		it('includes a trailing slash if trailing slash is set to always', async () => {

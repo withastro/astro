@@ -3,10 +3,10 @@ import { before, describe, it } from 'node:test';
 import { TLSSocket } from 'node:tls';
 import * as cheerio from 'cheerio';
 import nodejs from '../dist/index.js';
-import { createRequestAndResponse, loadFixture } from './test-utils.js';
+import { createRequestAndResponse, loadFixture } from './test-utils.ts';
 
 describe('URL', () => {
-	/** @type {import('./test-utils.js').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	before(async () => {

@@ -3,13 +3,13 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 const root = './fixtures/astro-envs/';
 
 describe('Environment Variables', () => {
 	describe('Build', () => {
-		/** @type {import('./test-utils').Fixture} */
+		/** @type {import('./test-utils.ts').Fixture} */
 		let fixture;
 
 		before(async () => {
@@ -108,9 +108,9 @@ describe('Environment Variables', () => {
 	});
 
 	describe('Development', () => {
-		/** @type {import('./test-utils').Fixture} */
+		/** @type {import('./test-utils.ts').Fixture} */
 		let fixture;
-		/** @type {import('./test-utils').DevServer} */
+		/** @type {import('./test-utils.ts').DevServer} */
 		let devServer;
 
 		before(async () => {
@@ -148,7 +148,7 @@ describe('Environment Variables', () => {
 	});
 
 	describe('SSR', () => {
-		/** @type {import('./test-utils').App} */
+		/** @type {import('./test-utils.ts').App} */
 		let app;
 
 		before(async () => {

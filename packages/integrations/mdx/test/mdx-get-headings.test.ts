@@ -4,7 +4,7 @@ import { rehypeHeadingIds } from '@astrojs/markdown-remark';
 import mdx from '@astrojs/mdx';
 import { parseHTML } from 'linkedom';
 import { visit } from 'unist-util-visit';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture } from '../../../astro/test/test-utils.ts';
 
 describe('MDX getHeadings', () => {
 	let fixture;

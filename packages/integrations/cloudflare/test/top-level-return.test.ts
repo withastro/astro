@@ -1,13 +1,13 @@
 import { rmSync } from 'node:fs';
 import { describe, before, it } from 'node:test';
 import { Writable } from 'node:stream';
-import { loadFixture } from './_test-utils.js';
+import { loadFixture } from './_test-utils.ts';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { Logger } from '../../../astro/dist/core/logger/core.js';
 
 describe('Top-level Return', () => {
-	/** @type {import('../../../astro/test/test-utils').Fixture} */
+	/** @type {import('../../../astro/test/test-utils.ts').Fixture} */
 	let fixture;
 	const logs = [];
 

@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('build.format', () => {
 	describe('directory', () => {
-		/** @type {import('./test-utils').Fixture} */
+		/** @type {import('./test-utils.ts').Fixture} */
 		let fixture;
 		before(async () => {
 			fixture = await loadFixture({
@@ -27,7 +27,7 @@ describe('build.format', () => {
 	});
 
 	describe('file', () => {
-		/** @type {import('./test-utils').Fixture} */
+		/** @type {import('./test-utils.ts').Fixture} */
 		let fixture;
 		before(async () => {
 			fixture = await loadFixture({
@@ -52,7 +52,7 @@ describe('build.format', () => {
 	});
 
 	describe('preserve - i18n', () => {
-		/** @type {import('./test-utils').Fixture} */
+		/** @type {import('./test-utils.ts').Fixture} */
 		let fixture;
 		before(async () => {
 			fixture = await loadFixture({
@@ -79,7 +79,7 @@ describe('build.format', () => {
 	});
 
 	describe('preserve - i18n', () => {
-		/** @type {import('./test-utils').Fixture} */
+		/** @type {import('./test-utils.ts').Fixture} */
 		let fixture;
 		before(async () => {
 			fixture = await loadFixture({

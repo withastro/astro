@@ -4,8 +4,8 @@ import { relative } from 'node:path';
 import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import testAdapter from '../../astro/test/test-adapter.js';
-import { loadFixture } from '../../astro/test/test-utils.js';
-import { clearEnvironment, initializeRemoteDb } from './test-utils.js';
+import { loadFixture } from '../../astro/test/test-utils.ts';
+import { clearEnvironment, initializeRemoteDb } from './test-utils.ts';
 
 describe('astro:db local database', () => {
 	describe('build --remote with local libSQL file (absolute path)', () => {

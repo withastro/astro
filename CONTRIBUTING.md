@@ -476,7 +476,7 @@ The power of this structure is that it makes it easy to unit test. Because abstr
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { createKey } from '../../../dist/cli/create-key/core/create-key.js';
-import { SpyLogger } from '../test-utils.js';
+import { SpyLogger } from '../test-utils.ts';
 import { FakeKeyGenerator } from './utils.js';
 
 describe('CLI create-key', () => {

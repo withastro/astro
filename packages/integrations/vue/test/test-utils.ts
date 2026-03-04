@@ -1,5 +1,5 @@
 import type { AstroInlineConfig } from '../../../astro/dist/types/public/config.js';
-import { loadFixture as baseLoadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture as baseLoadFixture } from '../../../astro/test/test-utils.ts';
 
 export function loadFixture(inlineConfig: AstroInlineConfig) {
 	if (!inlineConfig?.root) throw new Error("Must provide { root: './fixtures/...' }");

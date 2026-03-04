@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { openDocsCommand } from '../../../dist/cli/docs/core/open-docs.js';
 import { ProcessCloudIdeProvider } from '../../../dist/cli/docs/infra/process-cloud-ide-provider.js';
-import { SpyLogger } from '../test-utils.js';
+import { SpyLogger } from '../test-utils.ts';
 import {
 	FakeCloudIdeProvider,
 	FakeOperatingSystemProvider,

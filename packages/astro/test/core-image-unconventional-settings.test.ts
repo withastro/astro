@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 
 import { testImageService } from './test-image-service.js';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 /**
  ** @typedef {import('../src/types/public/config.js').AstroInlineConfig & { root?: string | URL }} AstroInlineConfig
@@ -18,7 +18,7 @@ const defaultSettings = {
 };
 
 describe('astro:assets - Support unconventional build settings properly', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	it('supports assetsPrefix', async () => {

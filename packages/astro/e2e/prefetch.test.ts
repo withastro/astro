@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { testFactory } from './test-utils.js';
+import { testFactory } from './test-utils.ts';
 
 const test = testFactory(import.meta.url, {
 	root: './fixtures/prefetch/',

@@ -7,7 +7,7 @@ import {
 	createFixture,
 	createRequestAndResponse,
 	defaultLogger,
-} from '../test-utils.js';
+} from '../test-utils.ts';
 
 const fileSystem = {
 	'/src/pages/api.ts': `export const GET = () => new Response(JSON.stringify({ success: true }), { headers: { 'content-type': 'application/json' } })`,

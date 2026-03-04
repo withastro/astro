@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
 import { Logger } from '../dist/core/logger/core.js';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 function addLeadingSlash(path) {
 	return path.startsWith('/') ? path : '/' + path;
@@ -18,7 +18,7 @@ function removeBasePath(path) {
  */
 
 describe('Static build', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	/** @type {LogMessage[]} */
 	let logs = [];

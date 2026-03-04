@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { testFactory, waitForHydrate } from './test-utils.js';
+import { testFactory, waitForHydrate } from './test-utils.ts';
 
 const test = testFactory(import.meta.url, { root: './fixtures/client-idle-timeout/' });
 

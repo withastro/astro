@@ -2,12 +2,12 @@ import assert from 'node:assert/strict';
 import { after, afterEach, before, describe, it } from 'node:test';
 
 import * as cheerio from 'cheerio';
-import { loadFixture } from '../../../../astro/test/test-utils.js';
+import { loadFixture } from '../../../../astro/test/test-utils.ts';
 import netlifyAdapter from '../../dist/index.js';
 
 describe('Netlify primitives', () => {
 	describe('Development', () => {
-		/** @type {import('../../../../astro/test/test-utils').Fixture} */
+		/** @type {import('../../../../astro/test/test-utils.ts').Fixture} */
 		let fixture;
 		let devServer;
 		before(async () => {

@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, test as testBase, type Locator, type Page } from '@playwright/test';
-import { loadFixture as baseLoadFixture, type Fixture } from '../test/test-utils.js';
+import { loadFixture as baseLoadFixture, type Fixture } from '../test/test-utils.ts';
 import type { AstroInlineConfig } from '../dist/index.js';
 import { AstroIntegrationLogger, type Logger } from '../dist/core/logger/core.js';
 

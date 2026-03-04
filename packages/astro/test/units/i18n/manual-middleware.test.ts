@@ -2,7 +2,7 @@ import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { requestHasLocale, redirectToDefaultLocale, notFound } from '../../../dist/i18n/index.js';
 import { createManualRoutingContext, createMiddlewarePayload } from './test-helpers.js';
-import { createMockNext } from '../test-utils.js';
+import { createMockNext } from '../test-utils.ts';
 
 describe('Custom Middleware with Allowlist Pattern', () => {
 	describe('allowlist bypasses i18n routing', () => {

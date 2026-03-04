@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { test as testBase } from '@playwright/test';
-import { loadFixture as baseLoadFixture, type Fixture } from '../../../astro/test/test-utils.js';
+import { loadFixture as baseLoadFixture, type Fixture } from '../../../astro/test/test-utils.ts';
 import type { AstroInlineConfig } from '../../../astro/dist/index.js';
 import type { DevServer } from '../../../astro/dist/core/dev/dev.js';
 

@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 import createTestPrerenderer from './test-prerenderer.js';
 
 describe('Astro basic build', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	let previewServer;
@@ -190,9 +190,9 @@ describe('Astro basic build', () => {
 });
 
 describe('Astro basic development', () => {
-	/** @type {import('./test-utils').DevServer} */
+	/** @type {import('./test-utils.ts').DevServer} */
 	let devServer;
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	before(async () => {
@@ -232,7 +232,7 @@ describe('Astro basic development', () => {
 });
 
 describe('Astro custom prerenderer', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let testPrerenderer;
 

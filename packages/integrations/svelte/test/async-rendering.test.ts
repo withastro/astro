@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture } from '../../../astro/test/test-utils.ts';
 
 let fixture;
 
@@ -28,7 +28,7 @@ describe.skip('Async rendering', () => {
 	});
 
 	describe('dev', () => {
-		/** @type {import('../../../astro/test/test-utils.js').Fixture} */
+		/** @type {import('../../../astro/test/test-utils.ts').Fixture} */
 		let devServer;
 
 		before(async () => {

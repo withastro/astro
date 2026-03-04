@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 async function* streamAsyncIterator(stream) {
 	const reader = stream.getReader();
@@ -20,7 +20,7 @@ async function* streamAsyncIterator(stream) {
 
 
 describe('Streaming', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	let decoder = new TextDecoder();
@@ -34,7 +34,7 @@ describe('Streaming', () => {
 	});
 
 	describe('Development', () => {
-		/** @type {import('./test-utils').DevServer} */
+		/** @type {import('./test-utils.ts').DevServer} */
 		let devServer;
 
 		before(async () => {
@@ -106,7 +106,7 @@ describe('Streaming', () => {
 });
 
 describe('Streaming disabled', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 
 	before(async () => {
@@ -121,7 +121,7 @@ describe('Streaming disabled', () => {
 	});
 
 	describe('Development', () => {
-		/** @type {import('./test-utils').DevServer} */
+		/** @type {import('./test-utils.ts').DevServer} */
 		let devServer;
 
 		before(async () => {
