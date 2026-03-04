@@ -136,15 +136,13 @@ if (process.env.CI) {
 					!reportingConfig.knownSlowTests.includes(line.name),
 			)
 			.forEach((test) => {
-				warning(
-					`Test "${test.name}" took ${(test.duration / 1000).toFixed(2)} seconds to run. Consider breaking it up into smaller tests.`,
-					{
-						title: `Slow test: ${test.name}`,
-						file: test.file?.replace(repoRoot, '').replaceAll('\\', '/'),
-						line: test.line,
-						column: test.column,
-					},
-				);
+				const seconds = (test.duration / 1000).toFixed(2);
+				warning(`This test took ${seconds} seconds to run. Consider refactoring it.`, {
+					title: `Slow test (${seconds}s): ${test.name}`,
+					file: test.file?.replace(repoRoot, '').replaceAll('\\', '/'),
+					line: test.line,
+					column: test.column,
+				});
 			});
 
 		return summary;
