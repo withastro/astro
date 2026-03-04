@@ -54,7 +54,58 @@ function badRequest(reason: string) {
 	});
 }
 
-export async function getRequestData(request: Request): Promise<Response | RenderOptions> {
+const DEFAULT_BODY_SIZE_LIMIT = 1024 * 1024; // 1MB
+
+function payloadTooLarge(limit: number) {
+	return new Response(null, {
+		status: 413,
+		statusText: `Body size exceeds the configured limit of ${limit} bytes`,
+	});
+}
+
+/**
+ * Read the request body as text, enforcing a maximum size limit.
+ * Returns the body string on success, or a 413 Response if the limit is exceeded.
+ */
+async function readBodyWithLimit(request: Request, limit: number): Promise<string | Response> {
+	const contentLengthHeader = request.headers.get('content-length');
+	if (contentLengthHeader) {
+		const contentLength = Number.parseInt(contentLengthHeader, 10);
+		if (Number.isFinite(contentLength) && contentLength > limit) {
+			return payloadTooLarge(limit);
+		}
+	}
+
+	if (!request.body) return '';
+	const reader = request.body.getReader();
+	const chunks: Uint8Array[] = [];
+	let received = 0;
+	while (true) {
+		const { done, value } = await reader.read();
+		if (done) break;
+		if (value) {
+			received += value.byteLength;
+			if (received > limit) {
+				// Cancel the remaining stream
+				await reader.cancel();
+				return payloadTooLarge(limit);
+			}
+			chunks.push(value);
+		}
+	}
+	const buffer = new Uint8Array(received);
+	let offset = 0;
+	for (const chunk of chunks) {
+		buffer.set(chunk, offset);
+		offset += chunk.byteLength;
+	}
+	return new TextDecoder().decode(buffer);
+}
+
+export async function getRequestData(
+	request: Request,
+	bodySizeLimit: number = DEFAULT_BODY_SIZE_LIMIT,
+): Promise<Response | RenderOptions> {
 	switch (request.method) {
 		case 'GET': {
 			const url = new URL(request.url);
@@ -73,8 +124,12 @@ export async function getRequestData(request: Request): Promise<Response | Rende
 		}
 		case 'POST': {
 			try {
-				const raw = await request.text();
-				const data = JSON.parse(raw);
+				const rawOrResponse = await readBodyWithLimit(request, bodySizeLimit);
+				if (rawOrResponse instanceof Response) {
+					return rawOrResponse;
+				}
+
+				const data = JSON.parse(rawOrResponse);
 
 				// Validate that slots is not plaintext
 				if ('slots' in data && typeof data.slots === 'object') {
@@ -115,7 +170,7 @@ export function createEndpoint(manifest: SSRManifest) {
 		const componentId = params.name;
 
 		// Get the request data from the body or search params
-		const data = await getRequestData(result.request);
+		const data = await getRequestData(result.request, manifest.actionBodySizeLimit);
 		// probably error
 		if (data instanceof Response) {
 			return data;
