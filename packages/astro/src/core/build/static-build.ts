@@ -533,10 +533,12 @@ async function ssrMoveAssets(
 ) {
 	opts.logger.info('build', 'Rearranging server assets...');
 	const isFullyStaticSite = opts.settings.buildOutput === 'static';
+	const preserveStructure = opts.settings.adapter?.adapterFeatures?.preserveBuildClientDir;
 	const serverRoot = opts.settings.config.build.server;
-	const clientRoot = isFullyStaticSite
-		? opts.settings.config.outDir
-		: opts.settings.config.build.client;
+	const clientRoot =
+		isFullyStaticSite && !preserveStructure
+			? opts.settings.config.outDir
+			: opts.settings.config.build.client;
 
 	// Move prerender assets
 	const prerenderAssetsToMove = getSSRAssets(internals, ASTRO_VITE_ENVIRONMENT_NAMES.prerender);
