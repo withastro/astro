@@ -98,21 +98,25 @@ if (process.env.CI) {
 			.sort((a, b) => b.totalDuration - a.totalDuration)
 			.slice(0, 10);
 
-		summary += '### Slowest fixture builds this run\n\n';
+		summary += '<details><summary>Slowest fixture builds this run</summary>\n\n';
 		if (slowestBuilds.length === 0) {
 			summary +=
-				'No builds detected! If you are seeing this message, it likely means there is an issue with the logging implementation. Please investigate. 🐛\n';
+				'> [!WARNING]\n' +
+				'> No builds detected! If you are seeing this message, it likely means there is an issue with the logging implementation. Please investigate.\n';
 			return summary;
 		} else {
-			summary += `<details><summary>Show ${slowestBuilds.length} slowest fixture builds</summary>\n\n`;
-			summary += '| Fixture | Builds | Total Duration (s) |\n';
-			summary += '|---------|-------:|-------------------:|\n';
+			summary +=
+				'| Fixture | Builds | Total Duration (s) |\n' +
+				'|---------|-------:|-------------------:|\n';
 			for (const entry of slowestBuilds) {
 				const url = `${urlBase}${encodeURI(entry.fixture.replaceAll('\\', '/'))}`;
 				summary += `| [\`${path.basename(entry.fixture)}\`](${url}) | ${entry.count} | ${(entry.totalDuration / 1000).toFixed(2)} |\n`;
 			}
-			summary += '</details>\n';
+			summary +=
+				'\n' +
+				'> These stats show the total time spent running `fixture.build()` in tests. Avoiding unnecessary rebuilds of fixtures/sharing a build between tests can help speed up test runs.\n';
 		}
+		summary += '</details>\n';
 
 		const slowestTests = lines
 			.filter(
@@ -126,12 +130,11 @@ if (process.env.CI) {
 			.sort((a, b) => b.duration - a.duration)
 			.slice(0, 20);
 
-		summary += '\n### Slowest tests this run\n\n';
+		summary += '\n<details><summary>Slowest tests this run</summary>\n\n';
 		if (slowestTests.length === 0) {
 			summary += 'No slow tests detected! Great job! 🎉\n';
 			return summary;
 		} else {
-			summary += `<details><summary>Show ${slowestTests.length} slowest tests</summary>\n\n`;
 			summary += '| Test | Duration (s) | Location |\n';
 			summary += '|------|-------------:|----------|\n';
 
@@ -140,13 +143,17 @@ if (process.env.CI) {
 				if (!test.file) {
 					summary += `| ${test.name} | ${seconds} | Unknown |\n`;
 				} else {
-					const location = `${path.basename(test.file)}:${test.line ?? '?'}:${test.column ?? '?'}`;
+					const location = `${path.basename(test.file)}:${test.line ?? '?'}`;
 					const url = `${urlBase}${encodeURI(test.file.replace(repoRoot, '').replaceAll('\\', '/'))}#L${test.line ?? '?'}`;
 					summary += `| ${test.name} | ${seconds} | [\`${location}\`](${url}) |\n`;
 				}
 			}
-			summary += '</details>\n';
+			summary +=
+				'\n' +
+				`> These stats show the slowest ${slowestTests.length} tests that took longer than ${reportingConfig.slowTestThreshold}ms.\n` +
+				`> You can adjust the threshold and ignore known slow tests by editing \`reportingConfig\` in [\`${path.basename(import.meta.url)}\`](${urlBase}${path.relative(repoRoot, fileURLToPath(import.meta.url))}).`;
 		}
+		summary += '</details>\n';
 
 		summary += '\n\n' + testDurationHistogram(lines);
 
@@ -173,11 +180,8 @@ function testDurationHistogram(logEntries) {
 		// Sort by duration ascending
 		.sort((a, b) => a.duration - b.duration);
 
-	let histogram = '### Test Duration Distribution\n\n';
-
 	if (testEntries.length === 0) {
-		histogram += 'No test entries found.\n';
-		return histogram;
+		return '';
 	}
 
 	const p99Duration = testEntries[Math.floor(testEntries.length * 0.99)].duration;
@@ -194,7 +198,7 @@ function testDurationHistogram(logEntries) {
 	const biggestBucket = Math.max(...buckets);
 	const chartWidth = 40; // Max width of the bar in characters
 
-	histogram += `<details><summary>Show histogram</summary>\n\n`;
+	let histogram = `<details><summary>Test Duration Distribution</summary>\n\n`;
 	// Render the histogram using block characters
 	histogram += '| Duration Range | Count |\n';
 	histogram += '|----------------|-------|\n';
@@ -209,5 +213,6 @@ function testDurationHistogram(logEntries) {
 		histogram += `| ${durationLabel} | ${bar} ${count} |\n`;
 	}
 	histogram += '</details>\n';
+
 	return histogram;
 }
