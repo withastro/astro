@@ -201,6 +201,123 @@ describe('node', () => {
 				// Host doesn't match allowedDomains, so XFF is not trusted
 				assert.equal(result[Symbol.for('astro.clientAddress')], '2.2.2.2');
 			});
+
+			it('rejects HTML injection in x-forwarded-for and falls back to remoteAddress', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'example.com',
+							'x-forwarded-for': '<script>alert(1)</script>',
+						},
+					},
+					{ allowedDomains: [{ hostname: 'example.com' }] },
+				);
+				// Invalid IP format should be rejected, falling back to remoteAddress
+				assert.equal(result[Symbol.for('astro.clientAddress')], '2.2.2.2');
+			});
+
+			it('rejects SQL injection in x-forwarded-for and falls back to remoteAddress', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'example.com',
+							'x-forwarded-for': "'; DROP TABLE users; --",
+						},
+					},
+					{ allowedDomains: [{ hostname: 'example.com' }] },
+				);
+				assert.equal(result[Symbol.for('astro.clientAddress')], '2.2.2.2');
+			});
+
+			it('rejects path traversal in x-forwarded-for and falls back to remoteAddress', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'example.com',
+							'x-forwarded-for': '../../etc/passwd',
+						},
+					},
+					{ allowedDomains: [{ hostname: 'example.com' }] },
+				);
+				assert.equal(result[Symbol.for('astro.clientAddress')], '2.2.2.2');
+			});
+
+			it('rejects oversized strings in x-forwarded-for and falls back to remoteAddress', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'example.com',
+							'x-forwarded-for': 'A'.repeat(10000),
+						},
+					},
+					{ allowedDomains: [{ hostname: 'example.com' }] },
+				);
+				assert.equal(result[Symbol.for('astro.clientAddress')], '2.2.2.2');
+			});
+
+			it('accepts valid IPv4 address in x-forwarded-for', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'example.com',
+							'x-forwarded-for': '192.168.1.1',
+						},
+					},
+					{ allowedDomains: [{ hostname: 'example.com' }] },
+				);
+				assert.equal(result[Symbol.for('astro.clientAddress')], '192.168.1.1');
+			});
+
+			it('accepts valid IPv6 address in x-forwarded-for', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'example.com',
+							'x-forwarded-for': '::1',
+						},
+					},
+					{ allowedDomains: [{ hostname: 'example.com' }] },
+				);
+				assert.equal(result[Symbol.for('astro.clientAddress')], '::1');
+			});
+
+			it('accepts valid full IPv6 address in x-forwarded-for', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'example.com',
+							'x-forwarded-for': '2001:0db8:85a3:0000:0000:8a2e:0370:7334',
+						},
+					},
+					{ allowedDomains: [{ hostname: 'example.com' }] },
+				);
+				assert.equal(
+					result[Symbol.for('astro.clientAddress')],
+					'2001:0db8:85a3:0000:0000:8a2e:0370:7334',
+				);
+			});
+
+			it('rejects arbitrary string as x-forwarded-for even in multi-value chain', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'example.com',
+							'x-forwarded-for': '<img src=x onerror=alert(1)>, 8.8.8.8',
+						},
+					},
+					{ allowedDomains: [{ hostname: 'example.com' }] },
+				);
+				// First value is invalid, should fall back to remoteAddress
+				assert.equal(result[Symbol.for('astro.clientAddress')], '2.2.2.2');
+			});
 		});
 
 		describe('x-forwarded-host', () => {

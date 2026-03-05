@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { Http2ServerResponse } from 'node:http2';
+import { isIP } from 'node:net';
 import type { Socket } from 'node:net';
 import type { RemotePattern } from '../../types/public/config.js';
 import { clientAddressSymbol, nodeRequestAbortControllerCleanupSymbol } from '../constants.js';
@@ -149,7 +150,11 @@ export function createRequest(
 	const forwardedClientIp = hostValidated
 		? getFirstForwardedValue(req.headers['x-forwarded-for'])
 		: undefined;
-	const clientIp = forwardedClientIp || req.socket?.remoteAddress;
+	// Validate that the IP address is a syntactically valid IPv4 or IPv6 address.
+	// This ensures only well-formed IP strings are propagated as clientAddress.
+	const validatedForwardedIp =
+		forwardedClientIp && isIP(forwardedClientIp) ? forwardedClientIp : undefined;
+	const clientIp = validatedForwardedIp || req.socket?.remoteAddress;
 	if (clientIp) {
 		Reflect.set(request, clientAddressSymbol, clientIp);
 	}
