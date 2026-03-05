@@ -76,7 +76,20 @@ export function createRequest(
 		allowedDomains,
 	);
 	const hostname = validated.host ?? validatedHostname ?? 'localhost';
-	const port = validated.port;
+	// When the hostname falls back to 'localhost' (no validated host), extract the port
+	// from the Host header so that the constructed URL origin includes it.
+	// This ensures origin comparison uses the correct port (e.g., http://localhost:4321)
+	// instead of the default port (e.g., http://localhost which implies port 80).
+	let port = validated.port;
+	if (!validated.host && !validatedHostname && typeof untrustedHostname === 'string') {
+		const colonIdx = untrustedHostname.lastIndexOf(':');
+		if (colonIdx > 0) {
+			const hostPort = untrustedHostname.substring(colonIdx + 1);
+			if (/^\d+$/.test(hostPort)) {
+				port = hostPort;
+			}
+		}
+	}
 
 	let url: URL;
 	try {

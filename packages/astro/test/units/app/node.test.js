@@ -448,6 +448,48 @@ describe('node', () => {
 				assert.equal(result.url, 'https://localhost/');
 			});
 
+			it('preserves port from Host header in localhost fallback when no allowedDomains', () => {
+				const result = createRequest({
+					...mockNodeRequest,
+					socket: { encrypted: false, remoteAddress: '2.2.2.2' },
+					headers: {
+						host: 'localhost:4321',
+					},
+				});
+				// The port from the Host header should be preserved so that
+				// url.origin includes the port (http://localhost:4321)
+				assert.equal(new URL(result.url).origin, 'http://localhost:4321');
+			});
+
+			it('preserves port from Host header in localhost fallback when allowedDomains is empty', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						socket: { encrypted: false, remoteAddress: '2.2.2.2' },
+						headers: {
+							host: 'localhost:4321',
+						},
+					},
+					{ allowedDomains: [] },
+				);
+				assert.equal(new URL(result.url).origin, 'http://localhost:4321');
+			});
+
+			it('does not preserve port from non-localhost Host when no allowedDomains', () => {
+				const result = createRequest({
+					...mockNodeRequest,
+					socket: { encrypted: false, remoteAddress: '2.2.2.2' },
+					headers: {
+						host: 'attacker.com:4321',
+					},
+				});
+				// Non-localhost hostnames are not trusted without allowedDomains,
+				// but the port should still be extracted for localhost fallback
+				const url = new URL(result.url);
+				assert.equal(url.hostname, 'localhost');
+				assert.equal(url.port, '4321');
+			});
+
 			it('prefers x-forwarded-host over Host header when both match allowedDomains', () => {
 				const result = createRequest(
 					{
@@ -561,6 +603,36 @@ describe('node', () => {
 					{ allowedDomains: [{ hostname: 'example.com' }] },
 				);
 				assert.equal(result.url, 'https://example.com/');
+			});
+
+			it('rejects x-forwarded-proto when no allowedDomains is configured', () => {
+				const result = createRequest({
+					...mockNodeRequest,
+					socket: { encrypted: false, remoteAddress: '2.2.2.2' },
+					headers: {
+						host: 'localhost:4321',
+						'x-forwarded-proto': 'https',
+					},
+				});
+				// Without allowedDomains, x-forwarded-proto should NOT be trusted
+				// Falls back to socket.encrypted (false → http)
+				assert.equal(new URL(result.url).protocol, 'http:');
+			});
+
+			it('rejects x-forwarded-proto when allowedDomains is empty', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						socket: { encrypted: false, remoteAddress: '2.2.2.2' },
+						headers: {
+							host: 'localhost:4321',
+							'x-forwarded-proto': 'https',
+						},
+					},
+					{ allowedDomains: [] },
+				);
+				// Empty allowedDomains means x-forwarded-proto is not trusted
+				assert.equal(new URL(result.url).protocol, 'http:');
 			});
 
 			it('rejects empty x-forwarded-proto and falls back to encrypted property', () => {
