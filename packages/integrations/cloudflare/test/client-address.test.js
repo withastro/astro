@@ -4,9 +4,11 @@ import * as cheerio from 'cheerio';
 import { loadFixture } from './_test-utils.js';
 
 /**
- * Tests that the Cloudflare adapter correctly extracts clientAddress from the
- * cf-connecting-ip header using getFirstForwardedValue(), ensuring only the
- * first value is returned when the header contains multiple comma-separated IPs.
+ * Tests that the Cloudflare adapter correctly extracts and validates
+ * clientAddress from the cf-connecting-ip header, ensuring:
+ * - Only the first value is returned from multi-value headers
+ * - The value is validated as a syntactically valid IP address
+ * - Injection payloads are rejected
  *
  * Regression test for: https://github.com/withastro/astro-security/issues/69
  */
@@ -80,5 +82,26 @@ describe('Cloudflare clientAddress', () => {
 		const html = await res.text();
 		const $ = cheerio.load(html);
 		assert.equal($('#address').text(), '198.51.100.42');
+	});
+
+	it('rejects HTML injection in cf-connecting-ip', async () => {
+		const res = await fixture.fetch('/api/address', {
+			headers: { 'cf-connecting-ip': '<script>alert(1)</script>' },
+		});
+		assert.equal(res.status, 500);
+	});
+
+	it('rejects SQL injection in cf-connecting-ip', async () => {
+		const res = await fixture.fetch('/api/address', {
+			headers: { 'cf-connecting-ip': "'; DROP TABLE users; --" },
+		});
+		assert.equal(res.status, 500);
+	});
+
+	it('rejects path traversal in cf-connecting-ip', async () => {
+		const res = await fixture.fetch('/api/address', {
+			headers: { 'cf-connecting-ip': '../../etc/passwd' },
+		});
+		assert.equal(res.status, 500);
 	});
 });
