@@ -1,4 +1,10 @@
-import type { QueueNode } from './types.js';
+import type {
+	QueueNode,
+	TextNode,
+	HtmlStringNode,
+	ComponentNode,
+	InstructionNode,
+} from './types.js';
 import type { SSRManifest } from '../../../../core/app/types.js';
 import { queueContentCache, queuePoolSize } from '../../../../core/app/manifest.js';
 
@@ -41,7 +47,10 @@ export interface PoolStatsReport extends PoolStats {
  * This significantly reduces memory allocation overhead when building large queues.
  */
 export class NodePool {
-	private pool: QueueNode[] = [];
+	private textPool: TextNode[] = [];
+	private htmlStringPool: HtmlStringNode[] = [];
+	private componentPool: ComponentNode[] = [];
+	private instructionPool: InstructionNode[] = [];
 	private contentCache = new Map<string, QueueNode>();
 	public readonly maxSize: number;
 	private readonly enableStats: boolean;
@@ -110,22 +119,24 @@ export class NodePool {
 			return this.cloneNode(template);
 		}
 
-		// Standard pooling (no content caching)
-		const pooledNode = this.pool.pop();
+		// Standard pooling - pop from the type-specific sub-pool and reuse the object
+		const pooledNode = this.popFromTypedPool(type);
 
 		if (pooledNode) {
 			if (this.enableStats) {
 				this.stats.acquireFromPool = this.stats.acquireFromPool + 1;
 			}
-			return this.createNode(type, '');
+			// Reassign value field on the reused object (type discriminant is already correct)
+			this.resetNodeContent(pooledNode, type, content);
+			return pooledNode;
 		}
 
-		// Pool is empty, create new node
+		// Pool is empty for this type, create new node
 		if (this.enableStats) {
 			this.stats.acquireNew = this.stats.acquireNew + 1;
 		}
 
-		return this.createNode(type, '');
+		return this.createNode(type, content);
 	}
 
 	/**
@@ -163,23 +174,94 @@ export class NodePool {
 	}
 
 	/**
+	 * Pops a node from the type-specific sub-pool.
+	 * Returns undefined if the sub-pool for the requested type is empty.
+	 */
+	private popFromTypedPool(type: QueueNode['type']): QueueNode | undefined {
+		switch (type) {
+			case 'text':
+				return this.textPool.pop();
+			case 'html-string':
+				return this.htmlStringPool.pop();
+			case 'component':
+				return this.componentPool.pop();
+			case 'instruction':
+				return this.instructionPool.pop();
+		}
+	}
+
+	/**
+	 * Resets the content/value field on a reused pooled node.
+	 * The type discriminant is already correct since we pop from the matching sub-pool.
+	 */
+	private resetNodeContent(node: QueueNode, type: QueueNode['type'], content?: string): void {
+		switch (type) {
+			case 'text':
+				(node as TextNode).content = content ?? '';
+				break;
+			case 'html-string':
+				(node as HtmlStringNode).html = content ?? '';
+				break;
+			case 'component':
+				(node as ComponentNode).instance = undefined as any;
+				break;
+			case 'instruction':
+				(node as InstructionNode).instruction = undefined as any;
+				break;
+		}
+	}
+
+	/**
+	 * Returns the total number of nodes across all typed sub-pools.
+	 */
+	private totalPoolSize(): number {
+		return (
+			this.textPool.length +
+			this.htmlStringPool.length +
+			this.componentPool.length +
+			this.instructionPool.length
+		);
+	}
+
+	/**
 	 * Releases a queue node back to the pool for reuse.
 	 * If the pool is at max capacity, the node is discarded (will be GC'd).
 	 *
 	 * @param node - The node to release back to the pool
 	 */
 	release(node: QueueNode): void {
-		if (this.pool.length < this.maxSize) {
-			this.pool.push(node);
-			if (this.enableStats) {
-				this.stats.released = this.stats.released + 1;
-			}
-		} else {
+		if (this.totalPoolSize() >= this.maxSize) {
 			if (this.enableStats) {
 				this.stats.releasedDropped = this.stats.releasedDropped + 1;
 			}
+			// Pool is full, let the node be garbage collected
+			return;
 		}
-		// If the pool is full, let the node be garbage collected
+
+		// Route to the correct typed sub-pool and clear value fields
+		// to avoid retaining references across renders
+		switch (node.type) {
+			case 'text':
+				node.content = '';
+				this.textPool.push(node);
+				break;
+			case 'html-string':
+				node.html = '';
+				this.htmlStringPool.push(node);
+				break;
+			case 'component':
+				node.instance = undefined as any;
+				this.componentPool.push(node);
+				break;
+			case 'instruction':
+				node.instruction = undefined as any;
+				this.instructionPool.push(node);
+				break;
+		}
+
+		if (this.enableStats) {
+			this.stats.released = this.stats.released + 1;
+		}
 	}
 
 	/**
@@ -195,11 +277,14 @@ export class NodePool {
 	}
 
 	/**
-	 * Clears the pool, discarding all cached nodes.
+	 * Clears all typed sub-pools, discarding all cached nodes.
 	 * This can be useful if you want to free memory after a large render.
 	 */
 	clear(): void {
-		this.pool.length = 0;
+		this.textPool.length = 0;
+		this.htmlStringPool.length = 0;
+		this.componentPool.length = 0;
+		this.instructionPool.length = 0;
 	}
 
 	/**
@@ -225,13 +310,13 @@ export class NodePool {
 	}
 
 	/**
-	 * Gets the current number of nodes in the pool.
+	 * Gets the current total number of nodes across all typed sub-pools.
 	 * Useful for monitoring pool usage and tuning maxSize.
 	 *
 	 * @returns Number of nodes currently available in the pool
 	 */
 	size(): number {
-		return this.pool.length;
+		return this.totalPoolSize();
 	}
 
 	/**
@@ -242,7 +327,7 @@ export class NodePool {
 	getStats(): PoolStatsReport {
 		return {
 			...this.stats,
-			poolSize: this.pool.length,
+			poolSize: this.totalPoolSize(),
 			maxSize: this.maxSize,
 			hitRate:
 				this.stats.acquireFromPool + this.stats.acquireNew > 0
