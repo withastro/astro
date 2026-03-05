@@ -98,7 +98,7 @@ if (process.env.CI) {
 			.sort((a, b) => b.totalDuration - a.totalDuration)
 			.slice(0, 10);
 
-		summary += '<details><summary>Slowest fixture builds this run</summary>\n\n';
+		summary += '<details><summary><strong>Slowest fixture builds this run</strong></summary>\n\n';
 		if (slowestBuilds.length === 0) {
 			summary +=
 				'> [!WARNING]\n' +
@@ -130,7 +130,7 @@ if (process.env.CI) {
 			.sort((a, b) => b.duration - a.duration)
 			.slice(0, 20);
 
-		summary += '\n<details><summary>Slowest tests this run</summary>\n\n';
+		summary += '\n<details><summary><strong>Slowest tests this run</strong></summary>\n\n';
 		if (slowestTests.length === 0) {
 			summary += 'No slow tests detected! Great job! 🎉\n';
 			return summary;
@@ -198,7 +198,7 @@ function testDurationHistogram(logEntries) {
 	const biggestBucket = Math.max(...buckets);
 	const chartWidth = 40; // Max width of the bar in characters
 
-	let histogram = `<details><summary>Test Duration Distribution</summary>\n\n`;
+	let histogram = `<details><summary><strong>Test Duration Distribution</strong></summary>\n\n`;
 	// Render the histogram using block characters
 	histogram += '| Duration Range | Count |\n';
 	histogram += '|----------------|-------|\n';
