@@ -104,9 +104,9 @@ export class RenderContext {
 				// If even basic decoding fails, return URL as-is
 			}
 		}
-		// Collapse duplicate slashes so middleware sees the canonical pathname.
-		// This prevents bypass attacks (e.g., `//admin` evading `/admin` checks)
-		// and handles slashes introduced by decoding (e.g., `%5C` → `\` → `/`).
+		// This must run after decoding so it catches slashes introduced by decoding (e.g., `%5C` → `\` → `/`).
+		// Collapse duplicate slashes so middleware sees the canonical pathname
+		// and bypass attacks like `//admin` evading `/admin` checks are prevented.
 		url.pathname = collapseDuplicateSlashes(url.pathname);
 		return url;
 	}
