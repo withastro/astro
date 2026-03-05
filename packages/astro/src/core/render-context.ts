@@ -40,7 +40,7 @@ import { AstroCache, type CacheLike } from './cache/runtime/cache.js';
 import { NoopAstroCache, DisabledAstroCache } from './cache/runtime/noop.js';
 import { compileCacheRoutes, matchCacheRoute } from './cache/runtime/route-matching.js';
 import { AstroSession } from './session/runtime.js';
-import { collapseDuplicateLeadingSlashes } from '@astrojs/internal-helpers/path';
+import { collapseDuplicateSlashes } from '@astrojs/internal-helpers/path';
 import { validateAndDecodePathname } from './util/pathname.js';
 
 /**
@@ -91,10 +91,6 @@ export class RenderContext {
 
 	static #createNormalizedUrl(requestUrl: string): URL {
 		const url = new URL(requestUrl);
-		// Collapse multiple leading slashes so middleware sees the canonical pathname.
-		// Without this, a request to `//admin` would preserve `//admin` in context.url.pathname,
-		// bypassing middleware checks like `pathname.startsWith('/admin')`.
-		url.pathname = collapseDuplicateLeadingSlashes(url.pathname);
 		try {
 			// Decode and validate pathname to prevent multi-level encoding bypass attacks
 			url.pathname = validateAndDecodePathname(url.pathname);
@@ -108,6 +104,10 @@ export class RenderContext {
 				// If even basic decoding fails, return URL as-is
 			}
 		}
+		// This must run after decoding so it catches slashes introduced by decoding (e.g., `%5C` → `\` → `/`).
+		// Collapse duplicate slashes so middleware sees the canonical pathname
+		// and bypass attacks like `//admin` evading `/admin` checks are prevented.
+		url.pathname = collapseDuplicateSlashes(url.pathname);
 		return url;
 	}
 
