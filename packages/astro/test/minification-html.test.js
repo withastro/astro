@@ -84,3 +84,38 @@ describe('HTML minification', () => {
 		});
 	});
 });
+
+describe('HTML minification (JSX mode)', () => {
+	describe('Build SSG', () => {
+		let fixture;
+		let html;
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/minification-html-jsx/',
+				build: { inlineStylesheets: 'never' },
+			});
+			await fixture.build();
+			html = await fixture.readFile('/index.html');
+		});
+
+		it('should strip indentation from multi-line text', () => {
+			// JSX whitespace stripping should collapse multi-line indented children
+			// into a single line with spaces between words
+			assert.ok(html.includes('Hello world'), 'multi-line text should be joined with a space');
+			assert.ok(!html.includes('\n        Hello'), 'leading indentation should be stripped');
+		});
+
+		it('should preserve whitespace inside <pre> tags', () => {
+			assert.ok(html.includes('<pre id="preserved">'), '<pre> tag should be present');
+			// The <pre> content should retain its internal whitespace
+			assert.match(html, /keep\n\s+this\n\s+whitespace/);
+		});
+
+		it('should preserve inline text and elements on the same line', () => {
+			assert.ok(
+				html.includes('<span>hello</span> <em>world</em>'),
+				'inline elements should preserve spacing'
+			);
+		});
+	});
+});
