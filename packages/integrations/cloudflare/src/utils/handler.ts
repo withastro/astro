@@ -16,6 +16,7 @@ import {
 	isStaticImagesRequest,
 	handleStaticImagesRequest,
 } from './prerender.js';
+import { getFirstForwardedValue } from '@astrojs/internal-helpers/request';
 
 setGetEnv(createGetEnv(globalEnv));
 
@@ -125,7 +126,7 @@ export async function handle(
 			// NOTE this ASSETS binding path is needed for users who are using `run_worker_first` routing
 			return env.ASSETS.fetch(url.replace(/\.html$/, ''));
 		},
-		clientAddress: request.headers.get('cf-connecting-ip') ?? undefined,
+		clientAddress: getFirstForwardedValue(request.headers.get('cf-connecting-ip')),
 	});
 
 	if (app.setCookieHeaders) {

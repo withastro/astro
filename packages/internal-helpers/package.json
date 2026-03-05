@@ -16,7 +16,8 @@
     "./remote": "./dist/remote.js",
     "./fs": "./dist/fs.js",
     "./cli": "./dist/cli.js",
-    "./create-filter": "./dist/create-filter.js"
+    "./create-filter": "./dist/create-filter.js",
+    "./request": "./dist/request.js"
   },
   "typesVersions": {
     "*": {
