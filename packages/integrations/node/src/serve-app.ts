@@ -80,6 +80,7 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 		try {
 			request = createRequest(req, {
 				allowedDomains: app.getAllowedDomains?.() ?? [],
+				port: options.port,
 			});
 		} catch (err) {
 			logger.error(`Could not render ${req.url}`);
