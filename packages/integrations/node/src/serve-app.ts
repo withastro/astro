@@ -75,11 +75,18 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 		return new Response(null, { status: 404 });
 	};
 
+	// Use the configured body size limit. A value of 0 or Infinity disables the limit.
+	const effectiveBodySizeLimit =
+		options.bodySizeLimit === 0 || options.bodySizeLimit === Number.POSITIVE_INFINITY
+			? undefined
+			: options.bodySizeLimit;
+
 	return async (req, res, next, locals) => {
 		let request: Request;
 		try {
 			request = createRequest(req, {
 				allowedDomains: app.getAllowedDomains?.() ?? [],
+				bodySizeLimit: effectiveBodySizeLimit,
 				port: options.port,
 			});
 		} catch (err) {

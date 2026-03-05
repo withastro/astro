@@ -855,6 +855,107 @@ describe('node', () => {
 		});
 	});
 
+	describe('body size limit', () => {
+		it('rejects request body that exceeds the configured bodySizeLimit', async () => {
+			const { Readable } = await import('node:stream');
+			// Create a stream that produces data exceeding the limit
+			const limit = 1024; // 1KB limit
+			const chunks = [];
+			// Create 2KB of data (exceeds 1KB limit)
+			for (let i = 0; i < 4; i++) {
+				chunks.push(Buffer.alloc(512, 0x41));
+			}
+			const stream = Readable.from(chunks);
+			const req = {
+				...mockNodeRequest,
+				method: 'POST',
+				headers: {
+					...mockNodeRequest.headers,
+					'content-type': 'application/octet-stream',
+				},
+				socket: mockNodeRequest.socket,
+				[Symbol.asyncIterator]: stream[Symbol.asyncIterator].bind(stream),
+			};
+
+			const request = createRequest(req, { bodySizeLimit: limit });
+
+			// The request should be created, but reading the body should fail
+			await assert.rejects(
+				async () => {
+					const reader = request.body.getReader();
+					while (true) {
+						const { done } = await reader.read();
+						if (done) break;
+					}
+				},
+				(err) => {
+					assert.ok(err.message.includes('Body size limit exceeded'));
+					return true;
+				},
+			);
+		});
+
+		it('allows request body within the configured bodySizeLimit', async () => {
+			const { Readable } = await import('node:stream');
+			const limit = 2048; // 2KB limit
+			const data = Buffer.alloc(1024, 0x42); // 1KB of data (within limit)
+			const stream = Readable.from([data]);
+			const req = {
+				...mockNodeRequest,
+				method: 'POST',
+				headers: {
+					...mockNodeRequest.headers,
+					'content-type': 'application/octet-stream',
+				},
+				socket: mockNodeRequest.socket,
+				[Symbol.asyncIterator]: stream[Symbol.asyncIterator].bind(stream),
+			};
+
+			const request = createRequest(req, { bodySizeLimit: limit });
+
+			// Reading the body should succeed
+			const reader = request.body.getReader();
+			const chunks = [];
+			while (true) {
+				const { done, value } = await reader.read();
+				if (done) break;
+				chunks.push(value);
+			}
+			const totalSize = chunks.reduce((sum, chunk) => sum + chunk.byteLength, 0);
+			assert.equal(totalSize, 1024);
+		});
+
+		it('does not enforce body size limit when bodySizeLimit is not set', async () => {
+			const { Readable } = await import('node:stream');
+			// Create 2KB of data with no limit configured
+			const data = Buffer.alloc(2048, 0x43);
+			const stream = Readable.from([data]);
+			const req = {
+				...mockNodeRequest,
+				method: 'POST',
+				headers: {
+					...mockNodeRequest.headers,
+					'content-type': 'application/octet-stream',
+				},
+				socket: mockNodeRequest.socket,
+				[Symbol.asyncIterator]: stream[Symbol.asyncIterator].bind(stream),
+			};
+
+			const request = createRequest(req);
+
+			// Reading the body should succeed without limit
+			const reader = request.body.getReader();
+			const chunks = [];
+			while (true) {
+				const { done, value } = await reader.read();
+				if (done) break;
+				chunks.push(value);
+			}
+			const totalSize = chunks.reduce((sum, chunk) => sum + chunk.byteLength, 0);
+			assert.equal(totalSize, 2048);
+		});
+	});
+
 	describe('abort signal', () => {
 		it('aborts the request.signal when the underlying socket closes', () => {
 			const socket = new EventEmitter();
