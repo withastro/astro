@@ -65,7 +65,7 @@
       },
       {
         "command": "astro.selectTypescriptVersion",
-        "title": "Astro: Select Typescript Version..."
+        "title": "Astro: Select TypeScript Version..."
       },
       {
         "command": "astro.openTsConfig",
