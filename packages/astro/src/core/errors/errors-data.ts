@@ -1311,6 +1311,23 @@ export const EnvInvalidVariables = {
 /**
  * @docs
  * @description
+ * The configured `vite.envPrefix` includes prefixes that match environment variables declared with `access: "secret"` in `env.schema`.
+ * This would cause Vite to expose those secret values in client-side JavaScript bundles, bypassing the `access: "secret"` protection.
+ *
+ * To fix this, either:
+ * - Remove the conflicting prefixes from `vite.envPrefix`, or
+ * - Rename your secret environment variables to use a prefix that is not in `vite.envPrefix`.
+ */
+export const EnvPrefixConflictsWithSecret = {
+	name: 'EnvPrefixConflictsWithSecret',
+	title: 'envPrefix conflicts with secret environment variables',
+	message: (conflicts: Array<string>) =>
+		`The following environment variables are declared with \`access: "secret"\` in \`env.schema\`, but their names match a prefix in \`vite.envPrefix\`, which would expose them in client-side bundles:\n\n${conflicts.map((c) => `- ${c}`).join('\n')}\n\nEither remove the conflicting prefixes from \`vite.envPrefix\`, or rename these variables to use a prefix not in \`vite.envPrefix\`.`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
  * This module is only available server-side.
  */
 export const ServerOnlyModule = {
