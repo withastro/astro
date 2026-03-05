@@ -2,7 +2,10 @@ import { args } from 'virtual:astro:adapter-config';
 import * as serverEntrypointModule from 'virtual:astro:adapter-entrypoint';
 import { manifest } from 'virtual:astro:manifest';
 
-const _exports = serverEntrypointModule.createExports?.(manifest, args) || serverEntrypointModule;
+const _exports =
+	serverEntrypointModule.createExports?.(manifest, args) ||
+	serverEntrypointModule.default ||
+	serverEntrypointModule;
 
 // NOTE: This is intentionally obfuscated!
 // Do NOT simplify this to something like `serverEntrypointModule.start?.(_manifest, _args)`
