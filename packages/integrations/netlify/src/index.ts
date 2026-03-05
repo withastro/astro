@@ -456,7 +456,8 @@ export default function netlifyIntegration(
 				const ctx = createContext({
 					request,
 					params: {},
-					locals: { netlify: { context } }
+					locals: { netlify: { context } },
+					clientAddress: context.ip,
 				});
 				// https://docs.netlify.com/edge-functions/api/#return-a-rewrite
 				ctx.rewrite = (target) => {
