@@ -146,6 +146,44 @@ describe('getRequestData', () => {
 			assert.equal(result.encryptedProps, '');
 			assert.equal(result.encryptedSlots, '');
 		});
+
+		it('only checks own properties for `slots` validation', async () => {
+			// Temporarily pollute Object.prototype to simulate inherited properties
+			Object.prototype.slots = { default: 'polluted' };
+			try {
+				const req = makePostRequest({
+					encryptedComponentExport: 'encExport',
+					encryptedProps: 'encProps',
+					encryptedSlots: 'encSlots',
+				});
+				const result = await getRequestData(req);
+				assert.ok(
+					!(result instanceof Response),
+					`Expected RenderOptions but got Response with status ${result instanceof Response ? result.status : 'N/A'} — inherited 'slots' should not trigger rejection`,
+				);
+			} finally {
+				delete Object.prototype.slots;
+			}
+		});
+
+		it('only checks own properties for `componentExport` validation', async () => {
+			// Temporarily pollute Object.prototype to simulate inherited properties
+			Object.prototype.componentExport = 'default';
+			try {
+				const req = makePostRequest({
+					encryptedComponentExport: 'encExport',
+					encryptedProps: 'encProps',
+					encryptedSlots: 'encSlots',
+				});
+				const result = await getRequestData(req);
+				assert.ok(
+					!(result instanceof Response),
+					`Expected RenderOptions but got Response with status ${result instanceof Response ? result.status : 'N/A'} — inherited 'componentExport' should not trigger rejection`,
+				);
+			} finally {
+				delete Object.prototype.componentExport;
+			}
+		});
 	});
 	// #endregion
 
