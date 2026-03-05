@@ -76,15 +76,6 @@ export function createServer(listener: http.RequestListener, host: string, port:
 	} else {
 		httpServer = http.createServer(listener);
 	}
-
-	// Configure reasonable server timeouts for hardening.
-	// requestTimeout: Maximum time to receive the entire request (default was 300s).
-	httpServer.requestTimeout = 60_000; // 60 seconds
-	// headersTimeout: Maximum time to receive request headers (default was 60s).
-	httpServer.headersTimeout = 30_000; // 30 seconds
-	// keepAliveTimeout: Time to wait for additional requests on a keep-alive connection.
-	httpServer.keepAliveTimeout = 10_000; // 10 seconds
-
 	enableDestroy(httpServer);
 
 	// Resolves once the server is closed
