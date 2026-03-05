@@ -92,9 +92,19 @@ interface AstroBuilderOptions extends BuildOptions {
 	logger: Logger;
 	mode: string;
 	runtimeMode: RuntimeMode;
+	/**
+	 * Provide a pre-built routes list to skip filesystem route scanning.
+	 * Useful for testing builds with in-memory virtual modules.
+	 */
+	routesList?: RoutesList;
+	/**
+	 * Whether to run `syncInternal` during setup. Defaults to true.
+	 * Set to false for in-memory builds that don't need type generation.
+	 */
+	sync?: boolean;
 }
 
-class AstroBuilder {
+export class AstroBuilder {
 	private settings: AstroSettings;
 	private logger: Logger;
 	private mode: string;
@@ -103,6 +113,7 @@ class AstroBuilder {
 	private routesList: RoutesList;
 	private timer: Record<string, number>;
 	private teardownCompiler: boolean;
+	private sync: boolean;
 
 	constructor(settings: AstroSettings, options: AstroBuilderOptions) {
 		this.mode = options.mode;
@@ -110,10 +121,11 @@ class AstroBuilder {
 		this.settings = settings;
 		this.logger = options.logger;
 		this.teardownCompiler = options.teardownCompiler ?? true;
+		this.sync = options.sync ?? true;
 		this.origin = settings.config.site
 			? new URL(settings.config.site).origin
 			: `http://localhost:${settings.config.server.port}`;
-		this.routesList = { routes: [] };
+		this.routesList = options.routesList ?? { routes: [] };
 		this.timer = {};
 	}
 
@@ -128,7 +140,11 @@ class AstroBuilder {
 			logger: logger,
 		});
 		this.settings.buildOutput = getPrerenderDefault(this.settings.config) ? 'static' : 'server';
-		this.routesList = await createRoutesList({ settings: this.settings }, this.logger);
+
+		// Skip filesystem route scanning if routesList was pre-populated (e.g. in-memory builds)
+		if (this.routesList.routes.length === 0) {
+			this.routesList = await createRoutesList({ settings: this.settings }, this.logger);
+		}
 
 		await runHookConfigDone({ settings: this.settings, logger: logger, command: 'build' });
 
@@ -155,14 +171,16 @@ class AstroBuilder {
 			},
 		);
 
-		const { syncInternal } = await import('../sync/index.js');
-		await syncInternal({
-			mode: this.mode,
-			settings: this.settings,
-			logger,
-			fs,
-			command: 'build',
-		});
+		if (this.sync) {
+			const { syncInternal } = await import('../sync/index.js');
+			await syncInternal({
+				mode: this.mode,
+				settings: this.settings,
+				logger,
+				fs,
+				command: 'build',
+			});
+		}
 
 		return { viteConfig };
 	}

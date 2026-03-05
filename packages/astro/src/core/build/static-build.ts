@@ -308,6 +308,22 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 		// This takes precedence over platform plugin fallbacks (e.g., Cloudflare)
 		builder: {
 			async buildApp(builder) {
+				// Build prerender environment first for static generation.
+				// This must happen before SSR so that server island components
+				// (server:defer) used only in prerendered pages are discovered
+				// and available when the SSR manifest is built.
+				settings.timer.start('Prerender build');
+				let prerenderOutput = await builder.build(builder.environments.prerender);
+				settings.timer.end('Prerender build');
+
+				// Extract prerender entry filename and store in internals
+				extractPrerenderEntryFileName(internals, prerenderOutput);
+
+				// Extract chunks needing injection, then release output for GC
+				const prerenderOutputs = viteBuildReturnToRollupOutputs(prerenderOutput);
+				const prerenderChunks = extractRelevantChunks(prerenderOutputs, true);
+				prerenderOutput = undefined as any;
+
 				// Build ssr environment for server output (only for non-static builds)
 				let ssrChunks: BuildInternals['extractedChunks'] = [];
 				if (settings.buildOutput !== 'static') {
@@ -322,22 +338,10 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					ssrOutput = undefined as any;
 				}
 
-				// Build prerender environment for static generation
-				settings.timer.start('Prerender build');
-				let prerenderOutput = await builder.build(builder.environments.prerender);
-				settings.timer.end('Prerender build');
-
-				// Extract prerender entry filename and store in internals
-				extractPrerenderEntryFileName(internals, prerenderOutput);
-
-				// Extract chunks needing injection, then release output for GC
-				const prerenderOutputs = viteBuildReturnToRollupOutputs(prerenderOutput);
-				const prerenderChunks = extractRelevantChunks(prerenderOutputs, true);
-				prerenderOutput = undefined as any;
-
 				// Build client environment
-				// We must discover client inputs after SSR build because hydration/client-only directives
-				// are only detected during SSR. We mutate the config here since the builder was already created
+				// We must discover client inputs after SSR/prerender builds because
+				// hydration/client-only directives are only detected during those builds.
+				// We mutate the config here since the builder was already created
 				// and this is the only way to update the input after instantiation.
 				internals.clientInput = getClientInput(internals, settings);
 				if (!internals.clientInput.size) {
