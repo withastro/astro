@@ -12,6 +12,7 @@ import {
 	astroContentVirtualModPlugin,
 } from '../content/index.js';
 import { createEnvLoader } from '../env/env-loader.js';
+import { validateEnvPrefixAgainstSchema } from '../env/validators.js';
 import { astroEnv } from '../env/vite-plugin-env.js';
 import { importMetaEnv } from '../env/vite-plugin-import-meta-env.js';
 import astroInternationalization from '../i18n/vite-plugin-i18n.js';
@@ -110,6 +111,9 @@ export async function createVite(
 		mode,
 		config: settings.config,
 	});
+
+	// Validate that envPrefix doesn't conflict with secret env schema variables
+	validateEnvPrefixAgainstSchema(settings.config);
 
 	// Start with the Vite configuration that Astro core needs
 	const commonConfig: vite.InlineConfig = {
