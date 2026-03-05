@@ -3717,6 +3717,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/multiple-jsx-renderers:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/multiple-renderers:
     dependencies:
       '@test/astro-renderer-one':
@@ -6055,12 +6061,18 @@ importers:
 
   packages/integrations/preact:
     dependencies:
+      '@astrojs/internal-helpers':
+        specifier: workspace:*
+        version: link:../../internal-helpers
       '@preact/preset-vite':
         specifier: ^2.10.3
         version: 2.10.3(@babel/core@7.29.0)(preact@10.28.4)(rollup@4.58.0)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
       '@preact/signals':
         specifier: ^2.8.1
         version: 2.8.1(preact@10.28.4)
+      devalue:
+        specifier: ^5.6.3
+        version: 5.6.3
       preact-render-to-string:
         specifier: ^6.6.6
         version: 6.6.6(preact@10.28.4)
@@ -6080,9 +6092,15 @@ importers:
 
   packages/integrations/react:
     dependencies:
+      '@astrojs/internal-helpers':
+        specifier: workspace:*
+        version: link:../../internal-helpers
       '@vitejs/plugin-react':
         specifier: ^5.1.4
         version: 5.1.4(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
+      devalue:
+        specifier: ^5.6.3
+        version: 5.6.3
       ultrahtml:
         specifier: ^1.6.0
         version: 1.6.0
@@ -6631,7 +6649,14 @@ importers:
         version: 3.5.29(typescript@5.9.3)
 
   packages/internal-helpers:
+    dependencies:
+      picomatch:
+        specifier: ^4.0.3
+        version: 4.0.3
     devDependencies:
+      '@types/picomatch':
+        specifier: ^4.0.2
+        version: 4.0.2
       astro-scripts:
         specifier: workspace:*
         version: link:../../scripts
