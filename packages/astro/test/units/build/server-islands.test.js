@@ -1,5 +1,4 @@
 import assert from 'node:assert/strict';
-import fs from 'node:fs';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { AstroBuilder } from '../../../dist/core/build/index.js';
@@ -91,9 +90,6 @@ describe('Build: Server islands in prerendered pages', () => {
 			// we only need the captured chunks to inspect the manifest.
 		} finally {
 			delete process.env.ASTRO_KEY;
-			// Clean up any build output that may have been written
-			const outDir = new URL('dist/', root);
-			fs.rmSync(fileURLToPath(outDir), { recursive: true, force: true });
 		}
 
 		// Find the server island manifest among captured chunks
