@@ -15,6 +15,9 @@ on:
       - "pnpm-lock.yaml"
       - "packages/astro/types.d.ts"
 
+permissions:
+  contents: read
+
 env:
   ASTRO_TELEMETRY_DISABLED: true
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}

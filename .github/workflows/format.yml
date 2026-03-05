@@ -12,4 +12,5 @@ jobs:
     uses: withastro/automation/.github/workflows/format.yml@main
     with:
       command: "format"
-    secrets: inherit
+    secrets:
+      FREDKBOT_GITHUB_TOKEN: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}

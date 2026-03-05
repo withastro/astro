@@ -79,9 +79,6 @@
     "drizzle-orm",
     "sharp",
 
-    // manually bumping workflow actions
-    "actions/labeler",
-
     // follow vite deps version
     "postcss-load-config",
     "esbuild"
