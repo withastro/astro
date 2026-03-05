@@ -1,5 +1,12 @@
 # @astrojs/vercel
 
+## 10.0.0-beta.7
+
+### Patch Changes
+
+- Updated dependencies [[`745e632`](https://github.com/withastro/astro/commit/745e632fc590e41a5701509e9cc4ed971bdddf74)]:
+  - @astrojs/internal-helpers@0.8.0-beta.2
+
 ## 10.0.0-beta.6
 
 ### Minor Changes

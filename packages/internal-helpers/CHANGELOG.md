@@ -1,5 +1,11 @@
 # @astrojs/internal-helpers
 
+## 0.8.0-beta.2
+
+### Minor Changes
+
+- [#15771](https://github.com/withastro/astro/pull/15771) [`745e632`](https://github.com/withastro/astro/commit/745e632fc590e41a5701509e9cc4ed971bdddf74) Thanks [@rururux](https://github.com/rururux)! - Adds the new utilities `MANY_LEADING_SLASHES` and `collapseDuplicateLeadingSlashes`.
+
 ## 0.8.0-beta.1
 
 ### Minor Changes

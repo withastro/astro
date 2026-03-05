@@ -1,5 +1,21 @@
 # astro
 
+## 6.0.0-beta.19
+
+### Patch Changes
+
+- [#15760](https://github.com/withastro/astro/pull/15760) [`f49a27f`](https://github.com/withastro/astro/commit/f49a27fd2ac2559c06671979487f642360791a92) Thanks [@ematipico](https://github.com/ematipico)! - Fixed an issue where queued rendering wasn't correctly re-using the saved nodes.
+
+- [#15728](https://github.com/withastro/astro/pull/15728) [`12ca621`](https://github.com/withastro/astro/commit/12ca6213a68280293485d091e14899e7f2a4fee8) Thanks [@SvetimFM](https://github.com/SvetimFM)! - Improves internal state retention for persisted elements during view transitions, especially avoiding WebGL context loss in Safari and resets of CSS transitions and iframes in modern Chromium and Firefox browsers
+
+- [#15756](https://github.com/withastro/astro/pull/15756) [`b6c64d1`](https://github.com/withastro/astro/commit/b6c64d1760ded517db37e1dd86a909959f7f619d) Thanks [@matthewp](https://github.com/matthewp)! - Hardens the dev server by validating Sec-Fetch metadata headers to restrict cross-origin subresource requests
+
+- [#15414](https://github.com/withastro/astro/pull/15414) [`faedcc4`](https://github.com/withastro/astro/commit/faedcc40bccc43e27a53eee495b34448532866d6) Thanks [@sapphi-red](https://github.com/sapphi-red)! - Fixes a bug where some requests to the dev server didn't start with the leading `/`.
+
+- Updated dependencies [[`745e632`](https://github.com/withastro/astro/commit/745e632fc590e41a5701509e9cc4ed971bdddf74)]:
+  - @astrojs/internal-helpers@0.8.0-beta.2
+  - @astrojs/markdown-remark@7.0.0-beta.10
+
 ## 6.0.0-beta.18
 
 ### Major Changes
