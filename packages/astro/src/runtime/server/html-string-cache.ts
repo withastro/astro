@@ -19,6 +19,7 @@ export class HTMLStringCache {
 
 	constructor(maxSize = 1000) {
 		this.maxSize = maxSize;
+		this.warm(COMMON_HTML_PATTERNS);
 	}
 
 	/**
@@ -66,9 +67,60 @@ export class HTMLStringCache {
 	}
 
 	/**
+	 * Pre-warms the cache with common HTML patterns.
+	 * This ensures first-render cache hits for frequently used tags.
+	 *
+	 * @param patterns - Array of HTML strings to pre-cache
+	 */
+	warm(patterns: string[]): void {
+		for (const pattern of patterns) {
+			if (!this.cache.has(pattern)) {
+				this.cache.set(pattern, new HTMLString(pattern));
+			}
+		}
+	}
+
+	/**
 	 * Clear the entire cache
 	 */
 	clear(): void {
 		this.cache.clear();
 	}
 }
+
+/**
+ * Common HTML patterns that appear frequently in Astro pages.
+ * Pre-warming the cache with these patterns ensures first-render cache hits.
+ */
+export const COMMON_HTML_PATTERNS: string[] = [
+	// Structural elements
+	'<div>', '</div>',
+	'<span>', '</span>',
+	'<p>', '</p>',
+	'<section>', '</section>',
+	'<article>', '</article>',
+	'<header>', '</header>',
+	'<footer>', '</footer>',
+	'<nav>', '</nav>',
+	'<main>', '</main>',
+	'<aside>', '</aside>',
+	// List elements
+	'<ul>', '</ul>',
+	'<ol>', '</ol>',
+	'<li>', '</li>',
+	// Void/self-closing elements
+	'<br>', '<hr>',
+	'<br/>', '<hr/>',
+	// Heading elements
+	'<h1>', '</h1>',
+	'<h2>', '</h2>',
+	'<h3>', '</h3>',
+	'<h4>', '</h4>',
+	// Inline elements
+	'<a>', '</a>',
+	'<strong>', '</strong>',
+	'<em>', '</em>',
+	'<code>', '</code>',
+	// Common whitespace
+	' ', '\n',
+];

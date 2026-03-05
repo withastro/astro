@@ -6,7 +6,7 @@ import type {
 	InstructionNode,
 } from './types.js';
 import type { SSRManifest } from '../../../../core/app/types.js';
-import { queueContentCache, queuePoolSize } from '../../../../core/app/manifest.js';
+import { queuePoolSize } from '../../../../core/app/manifest.js';
 
 /**
  * Raw statistics tracked by the node pool.
@@ -20,10 +20,6 @@ export interface PoolStats {
 	released: number;
 	/** Number of nodes that couldn't be returned (pool was full) */
 	releasedDropped: number;
-	/** Number of times content cache returned a cached node */
-	contentCacheHit: number;
-	/** Number of times content cache had to create and cache a new node */
-	contentCacheMiss: number;
 }
 
 /**
@@ -41,85 +37,50 @@ export interface PoolStatsReport extends PoolStats {
 
 /**
  * Object pool for `QueueNode` instances to reduce allocations and GC pressure.
- * Nodes are acquired from the pool, used during queue building, and can be
- * released back to the pool for reuse across renders.
  *
- * This significantly reduces memory allocation overhead when building large queues.
+ * Uses type-aware sub-pools so that released nodes are reused by the same
+ * node type, preserving V8 hidden classes and avoiding shape transitions.
+ * Nodes are acquired from the pool, used during queue building, and released
+ * back to the pool for reuse across renders.
+ *
+ * String deduplication is handled separately by `HTMLStringCache`.
  */
 export class NodePool {
 	private textPool: TextNode[] = [];
 	private htmlStringPool: HtmlStringNode[] = [];
 	private componentPool: ComponentNode[] = [];
 	private instructionPool: InstructionNode[] = [];
-	private contentCache = new Map<string, QueueNode>();
 	public readonly maxSize: number;
 	private readonly enableStats: boolean;
-	private readonly enableContentCache: boolean;
 	private stats: PoolStats = {
 		acquireFromPool: 0,
 		acquireNew: 0,
 		released: 0,
 		releasedDropped: 0,
-		contentCacheHit: 0,
-		contentCacheMiss: 0,
 	};
 
 	/**
 	 * Creates a new object pool for queue nodes.
 	 *
-	 * @param maxSize - Maximum number of nodes to keep in the pool (default: 1000)
+	 * @param maxSize - Maximum number of nodes to keep in the pool (default: 1000).
+	 *   The cap is shared across all typed sub-pools.
 	 * @param enableStats - Enable statistics tracking (default: false for performance)
-	 * @param enableContentCache - Enable content-aware caching for text/HTML nodes (default: true)
 	 */
-	constructor(maxSize = 1000, enableContentCache = false, enableStats = false) {
+	constructor(maxSize = 1000, enableStats = false) {
 		this.maxSize = maxSize;
 		this.enableStats = enableStats;
-		this.enableContentCache = enableContentCache;
-		if (maxSize > 0) {
-			// Warm up cache only if the pool size is greater than 0. We treat zero as if there's no pool.
-			this.warmCache([...COMMON_HTML_PATTERNS]);
-		}
 	}
 
 	/**
 	 * Acquires a queue node from the pool or creates a new one if the pool is empty.
-	 * Supports content-aware caching for text and HTML-string nodes.
+	 * Pops from the type-specific sub-pool to reuse an existing object when available.
 	 *
-	 * @param type - The type of queue node to create
-	 * @param content - Optional content for content-aware caching (text or HTML)
+	 * @param type - The type of queue node to acquire
+	 * @param content - Optional content to set on the node (for text or html-string types)
 	 * @returns A queue node ready to be populated with data
 	 */
 	acquire(type: QueueNode['type'], content?: string): QueueNode {
-		if (
-			this.enableContentCache &&
-			content !== undefined &&
-			(type === 'text' || type === 'html-string')
-		) {
-			const cacheKey = `${type}:${content}`;
-			const cached = this.contentCache.get(cacheKey);
-
-			if (cached) {
-				if (this.enableStats) {
-					this.stats.contentCacheHit = this.stats.contentCacheHit + 1;
-				}
-				// Clone the cached node to avoid shared state
-				return this.cloneNode(cached);
-			}
-
-			// Cache miss - create template node and cache it
-			if (this.enableStats) {
-				this.stats.contentCacheMiss = this.stats.contentCacheMiss + 1;
-			}
-
-			// Create immutable template node for caching
-			const template = this.createNode(type, content);
-			this.contentCache.set(cacheKey, template);
-
-			// Return a clone for use
-			return this.cloneNode(template);
-		}
-
-		// Standard pooling - pop from the type-specific sub-pool and reuse the object
+		// Pop from the type-specific sub-pool and reuse the object
 		const pooledNode = this.popFromTypedPool(type);
 
 		if (pooledNode) {
@@ -153,23 +114,6 @@ export class NodePool {
 				return { type: 'component', instance: undefined as any };
 			case 'instruction':
 				return { type: 'instruction', instruction: undefined as any };
-		}
-	}
-
-	/**
-	 * Clones a cached node to avoid shared state.
-	 * Helper method to reduce branching in acquire().
-	 */
-	private cloneNode(node: QueueNode): QueueNode {
-		switch (node.type) {
-			case 'text':
-				return { type: 'text', content: node.content };
-			case 'html-string':
-				return { type: 'html-string', html: node.html };
-			case 'component':
-				return { type: 'component', instance: node.instance };
-			case 'instruction':
-				return { type: 'instruction', instruction: node.instruction };
 		}
 	}
 
@@ -288,28 +232,6 @@ export class NodePool {
 	}
 
 	/**
-	 * Pre-warms the content cache with common patterns.
-	 * This can improve cache hit rates during builds by pre-populating frequently used patterns.
-	 *
-	 * @param patterns - Array of {type, content} objects to pre-cache
-	 */
-	warmCache(patterns: Array<{ type: 'text' | 'html-string'; content: string }>): void {
-		if (!this.enableContentCache) return;
-
-		for (const { type, content } of patterns) {
-			// Only warm cache if not already present
-			const cacheKey = `${type}:${content}`;
-			if (!this.contentCache.has(cacheKey)) {
-				const template: QueueNode =
-					type === 'text'
-						? { type: 'text', content: content }
-						: { type: 'html-string', html: content };
-				this.contentCache.set(cacheKey, template);
-			}
-		}
-	}
-
-	/**
 	 * Gets the current total number of nodes across all typed sub-pools.
 	 * Useful for monitoring pool usage and tuning maxSize.
 	 *
@@ -346,79 +268,9 @@ export class NodePool {
 			acquireNew: 0,
 			released: 0,
 			releasedDropped: 0,
-			contentCacheHit: 0,
-			contentCacheMiss: 0,
 		};
 	}
 }
-
-/**
- * Common HTML patterns that appear frequently in Astro pages.
- * Pre-warming the cache with these patterns improves hit rates during builds.
- */
-export const COMMON_HTML_PATTERNS = [
-	// Structural elements
-	{ type: 'html-string' as const, content: '<div>' },
-	{ type: 'html-string' as const, content: '</div>' },
-	{ type: 'html-string' as const, content: '<span>' },
-	{ type: 'html-string' as const, content: '</span>' },
-	{ type: 'html-string' as const, content: '<p>' },
-	{ type: 'html-string' as const, content: '</p>' },
-	{ type: 'html-string' as const, content: '<section>' },
-	{ type: 'html-string' as const, content: '</section>' },
-	{ type: 'html-string' as const, content: '<article>' },
-	{ type: 'html-string' as const, content: '</article>' },
-	{ type: 'html-string' as const, content: '<header>' },
-	{ type: 'html-string' as const, content: '</header>' },
-	{ type: 'html-string' as const, content: '<footer>' },
-	{ type: 'html-string' as const, content: '</footer>' },
-	{ type: 'html-string' as const, content: '<nav>' },
-	{ type: 'html-string' as const, content: '</nav>' },
-	{ type: 'html-string' as const, content: '<main>' },
-	{ type: 'html-string' as const, content: '</main>' },
-	{ type: 'html-string' as const, content: '<aside>' },
-	{ type: 'html-string' as const, content: '</aside>' },
-
-	// List elements
-	{ type: 'html-string' as const, content: '<ul>' },
-	{ type: 'html-string' as const, content: '</ul>' },
-	{ type: 'html-string' as const, content: '<ol>' },
-	{ type: 'html-string' as const, content: '</ol>' },
-	{ type: 'html-string' as const, content: '<li>' },
-	{ type: 'html-string' as const, content: '</li>' },
-
-	// Void/self-closing elements
-	{ type: 'html-string' as const, content: '<br>' },
-	{ type: 'html-string' as const, content: '<hr>' },
-	{ type: 'html-string' as const, content: '<br/>' },
-	{ type: 'html-string' as const, content: '<hr/>' },
-
-	// Heading elements
-	{ type: 'html-string' as const, content: '<h1>' },
-	{ type: 'html-string' as const, content: '</h1>' },
-	{ type: 'html-string' as const, content: '<h2>' },
-	{ type: 'html-string' as const, content: '</h2>' },
-	{ type: 'html-string' as const, content: '<h3>' },
-	{ type: 'html-string' as const, content: '</h3>' },
-	{ type: 'html-string' as const, content: '<h4>' },
-	{ type: 'html-string' as const, content: '</h4>' },
-
-	// Inline elements
-	{ type: 'html-string' as const, content: '<a>' },
-	{ type: 'html-string' as const, content: '</a>' },
-	{ type: 'html-string' as const, content: '<strong>' },
-	{ type: 'html-string' as const, content: '</strong>' },
-	{ type: 'html-string' as const, content: '<em>' },
-	{ type: 'html-string' as const, content: '</em>' },
-	{ type: 'html-string' as const, content: '<code>' },
-	{ type: 'html-string' as const, content: '</code>' },
-
-	// Common whitespace/formatting
-	{ type: 'text' as const, content: ' ' },
-	{ type: 'text' as const, content: '\n' },
-	{ type: 'html-string' as const, content: ' ' },
-	{ type: 'html-string' as const, content: '\n' },
-] as const;
 
 /**
  * Returns an instance of the `NodePool` based on its configuration.
@@ -428,7 +280,5 @@ export function newNodePool(
 	config: NonNullable<SSRManifest['experimentalQueuedRendering']>,
 ): NodePool {
 	const poolSize = queuePoolSize(config);
-	const cache = queueContentCache(config);
-
-	return new NodePool(poolSize, cache);
+	return new NodePool(poolSize);
 }
