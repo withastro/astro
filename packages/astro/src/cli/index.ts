@@ -102,7 +102,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				{ getPackageManager },
 				{ StyledDebugInfoFormatter },
 				{ ClackPrompt },
-				{ CliClipboard },
+				{ TinyclipClipboard },
 				{ PassthroughTextStyler },
 				{ infoCommand },
 			] = await Promise.all([
@@ -115,7 +115,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				import('./info/core/get-package-manager.js'),
 				import('./info/infra/styled-debug-info-formatter.js'),
 				import('./info/infra/clack-prompt.js'),
-				import('./info/infra/cli-clipboard.js'),
+				import('./info/infra/tinyclip-clipboard.js'),
 				import('./infra/passthrough-text-styler.js'),
 				import('./info/core/info.js'),
 			]);
@@ -135,10 +135,8 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				nodeVersionProvider,
 			});
 			const prompt = new ClackPrompt({ force: flags.copy });
-			const clipboard = new CliClipboard({
-				commandExecutor,
+			const clipboard = new TinyclipClipboard({
 				logger,
-				operatingSystemProvider,
 				prompt,
 			});
 

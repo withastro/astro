@@ -728,9 +728,17 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				: originalResponse.status;
 
 		try {
-			// this function could throw an error...
+			// this function could throw an error if the headers are immutable...
 			originalResponse.headers.delete('Content-type');
-		} catch {}
+			// Framing headers describe the original response's body encoding/size and must
+			// not carry over to the error page response which has a different body.
+			originalResponse.headers.delete('Content-Length');
+			originalResponse.headers.delete('Transfer-Encoding');
+		} catch {
+			// Headers may be immutable (e.g. when the Response was constructed by a fetch).
+			// In that case, the loop below still copies from originalResponse.headers,
+			// so we need to filter out framing headers there instead.
+		}
 		// Build merged headers using append() to preserve multi-value headers (e.g. Set-Cookie).
 		// Headers from the original response take priority over new response headers for
 		// single-value headers, but we use append to avoid collapsing multi-value entries.

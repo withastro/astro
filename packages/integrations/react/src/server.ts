@@ -5,16 +5,20 @@ import ReactDOM from 'react-dom/server';
 import { incrementId } from './context.js';
 import StaticHtml from './static-html.js';
 import type { RendererContext } from './types.js';
+import { createFilter } from '@astrojs/internal-helpers/create-filter';
 
 const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
 const reactTypeof = Symbol.for('react.element');
 const reactTransitionalTypeof = Symbol.for('react.transitional.element');
+
+const filter = opts?.include || opts?.exclude ? createFilter(opts.include, opts.exclude) : null;
 
 async function check(
 	this: RendererContext,
 	Component: any,
 	props: Record<string, any>,
 	children: any,
+	metadata?: AstroComponentMetadata,
 ) {
 	// Note: there are packages that do some unholy things to create "components".
 	// Checking the $$typeof property catches most of these patterns.
@@ -30,6 +34,10 @@ async function check(
 
 	if (Component.prototype != null && typeof Component.prototype.render === 'function') {
 		return React.Component.isPrototypeOf(Component) || React.PureComponent.isPrototypeOf(Component);
+	}
+
+	if (filter && metadata?.componentUrl && !filter(metadata.componentUrl)) {
+		return false;
 	}
 
 	let isReactComponent = false;
