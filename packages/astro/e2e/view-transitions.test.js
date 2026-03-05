@@ -1578,6 +1578,52 @@ test.describe('View Transitions', () => {
 		expect(text).toBe('true true');
 	});
 
+	test('transition:persist preserves canvas pixel data across navigation', async ({
+		page,
+		astro,
+	}) => {
+		// Page 1 draws a red rectangle on a persisted canvas
+		await page.goto(astro.resolveUrl('/canvas-persist-one'));
+		await expect(page.locator('#canvas-one')).toHaveText('Canvas Page 1');
+
+		// Verify the red rectangle was drawn (pixel at 20,20 should be red)
+		const beforePixel = await page.$eval('#my-canvas', (c) => {
+			const ctx = c.getContext('2d');
+			const pixel = ctx.getImageData(20, 20, 1, 1).data;
+			return [pixel[0], pixel[1], pixel[2], pixel[3]];
+		});
+		expect(beforePixel).toEqual([255, 0, 0, 255]);
+
+		// Navigate via client-side link (View Transitions swap runs)
+		await page.click('#click-two');
+		await expect(page.locator('#canvas-two')).toHaveText('Canvas Page 2');
+
+		// The persisted canvas should retain its pixel data
+		const afterPixel = await page.$eval('#my-canvas', (c) => {
+			const ctx = c.getContext('2d');
+			const pixel = ctx.getImageData(20, 20, 1, 1).data;
+			return [pixel[0], pixel[1], pixel[2], pixel[3]];
+		});
+		expect(afterPixel).toEqual([255, 0, 0, 255]);
+	});
+
+	test('transition:persist drops elements without matching target in new page', async ({
+		page,
+		astro,
+	}) => {
+		// Canvas page has a canvas with transition:persist="my-canvas"
+		await page.goto(astro.resolveUrl('/canvas-persist-one'));
+		await expect(page.locator('#canvas-one')).toHaveText('Canvas Page 1');
+		expect(await page.locator('#my-canvas').count()).toBe(1);
+
+		// Navigate via client-side link to a page WITHOUT a matching persist target
+		await page.click('#click-no-canvas');
+		await expect(page.locator('#one')).toHaveText('Page 1');
+
+		// The persisted canvas should NOT appear on the new page
+		expect(await page.locator('#my-canvas').count()).toBe(0);
+	});
+
 	test('it should be easy to define a data-theme preserving swap function', async ({
 		page,
 		astro,
