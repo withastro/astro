@@ -1,5 +1,231 @@
 # astro
 
+## 6.0.0-beta.19
+
+### Patch Changes
+
+- [#15760](https://github.com/withastro/astro/pull/15760) [`f49a27f`](https://github.com/withastro/astro/commit/f49a27fd2ac2559c06671979487f642360791a92) Thanks [@ematipico](https://github.com/ematipico)! - Fixed an issue where queued rendering wasn't correctly re-using the saved nodes.
+
+- [#15728](https://github.com/withastro/astro/pull/15728) [`12ca621`](https://github.com/withastro/astro/commit/12ca6213a68280293485d091e14899e7f2a4fee8) Thanks [@SvetimFM](https://github.com/SvetimFM)! - Improves internal state retention for persisted elements during view transitions, especially avoiding WebGL context loss in Safari and resets of CSS transitions and iframes in modern Chromium and Firefox browsers
+
+- [#15756](https://github.com/withastro/astro/pull/15756) [`b6c64d1`](https://github.com/withastro/astro/commit/b6c64d1760ded517db37e1dd86a909959f7f619d) Thanks [@matthewp](https://github.com/matthewp)! - Hardens the dev server by validating Sec-Fetch metadata headers to restrict cross-origin subresource requests
+
+- [#15414](https://github.com/withastro/astro/pull/15414) [`faedcc4`](https://github.com/withastro/astro/commit/faedcc40bccc43e27a53eee495b34448532866d6) Thanks [@sapphi-red](https://github.com/sapphi-red)! - Fixes a bug where some requests to the dev server didn't start with the leading `/`.
+
+- Updated dependencies [[`745e632`](https://github.com/withastro/astro/commit/745e632fc590e41a5701509e9cc4ed971bdddf74)]:
+  - @astrojs/internal-helpers@0.8.0-beta.2
+  - @astrojs/markdown-remark@7.0.0-beta.10
+
+## 6.0.0-beta.18
+
+### Major Changes
+
+- [#15668](https://github.com/withastro/astro/pull/15668) [`1118ac4`](https://github.com/withastro/astro/commit/1118ac4f299341e15061e8a4e6e8423071c4d41c) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Changes TypeScript configuration - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-typescript-configuration))
+
+- [#15726](https://github.com/withastro/astro/pull/15726) [`6f19ecc`](https://github.com/withastro/astro/commit/6f19ecc35adfb2ddaabbba2269630f95c13f5a57) Thanks [@ocavue](https://github.com/ocavue)! - Updates dependency `shiki` to v4
+
+  Check [Shiki's upgrade guide](https://shiki.style/blog/v4).
+
+### Minor Changes
+
+- [#15694](https://github.com/withastro/astro/pull/15694) [`66449c9`](https://github.com/withastro/astro/commit/66449c930e73e9a58ce547b9c32635a98a310966) Thanks [@matthewp](https://github.com/matthewp)! - Adds `preserveBuildClientDir` option to adapter features
+
+  Adapters can now opt in to preserving the client/server directory structure for static builds by setting `preserveBuildClientDir: true` in their adapter features. When enabled, static builds will output files to `build.client` instead of directly to `outDir`.
+
+  This is useful for adapters that require a consistent directory structure regardless of the build output type, such as deploying to platforms with specific file organization requirements.
+
+  ```js
+  // my-adapter/index.js
+  export default function myAdapter() {
+    return {
+      name: 'my-adapter',
+      hooks: {
+        'astro:config:done': ({ setAdapter }) => {
+          setAdapter({
+            name: 'my-adapter',
+            adapterFeatures: {
+              buildOutput: 'static',
+              preserveBuildClientDir: true,
+            },
+          });
+        },
+      },
+    };
+  }
+  ```
+
+- [#15579](https://github.com/withastro/astro/pull/15579) [`08437d5`](https://github.com/withastro/astro/commit/08437d531e31b79a42333a9f7aabaa9fe646ce4f) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds two new experimental flags for a Route Caching API and further configuration-level Route Rules for controlling SSR response caching.
+
+  Route caching gives you a platform-agnostic way to cache server-rendered responses, based on web standard cache headers. You set caching directives in your routes using `Astro.cache` (in `.astro` pages) or `context.cache` (in API routes and middleware), and Astro translates them into the appropriate headers or runtime behavior depending on your adapter. You can also define cache rules for routes declaratively in your config using `experimental.routeRules`, without modifying route code.
+
+  This feature requires on-demand rendering. Prerendered pages are already static and do not use route caching.
+
+  #### Getting started
+
+  Enable the feature by configuring `experimental.cache` with a cache provider in your Astro config:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  import node from '@astrojs/node';
+  import { memoryCache } from 'astro/config';
+
+  export default defineConfig({
+    adapter: node({ mode: 'standalone' }),
+    experimental: {
+      cache: {
+        provider: memoryCache(),
+      },
+    },
+  });
+  ```
+
+  #### Using `Astro.cache` and `context.cache`
+
+  In `.astro` pages, use `Astro.cache.set()` to control caching:
+
+  ```astro
+  ---
+  // src/pages/index.astro
+  Astro.cache.set({
+    maxAge: 120, // Cache for 2 minutes
+    swr: 60, // Serve stale for 1 minute while revalidating
+    tags: ['home'], // Tag for targeted invalidation
+  });
+  ---
+
+  <html><body>Cached page</body></html>
+  ```
+
+  In API routes and middleware, use `context.cache`:
+
+  ```ts
+  // src/pages/api/data.ts
+  export function GET(context) {
+    context.cache.set({
+      maxAge: 300,
+      tags: ['api', 'data'],
+    });
+    return Response.json({ ok: true });
+  }
+  ```
+
+  #### Cache options
+
+  `cache.set()` accepts the following options:
+  - **`maxAge`** (number): Time in seconds the response is considered fresh.
+  - **`swr`** (number): Stale-while-revalidate window in seconds. During this window, stale content is served while a fresh response is generated in the background.
+  - **`tags`** (string[]): Cache tags for targeted invalidation. Tags accumulate across multiple `set()` calls within a request.
+  - **`lastModified`** (Date): When multiple `set()` calls provide `lastModified`, the most recent date wins.
+  - **`etag`** (string): Entity tag for conditional requests.
+
+  Call `cache.set(false)` to explicitly opt out of caching for a request.
+
+  Multiple calls to `cache.set()` within a single request are merged: scalar values use last-write-wins, `lastModified` uses most-recent-wins, and tags accumulate.
+
+  #### Invalidation
+
+  Purge cached entries by tag or path using `cache.invalidate()`:
+
+  ```ts
+  // Invalidate all entries tagged 'data'
+  await context.cache.invalidate({ tags: ['data'] });
+
+  // Invalidate a specific path
+  await context.cache.invalidate({ path: '/api/data' });
+  ```
+
+  #### Config-level route rules
+
+  Use `experimental.routeRules` to set default cache options for routes without modifying route code. Supports Nitro-style shortcuts for ergonomic configuration:
+
+  ```js
+  import { memoryCache } from 'astro/config';
+
+  export default defineConfig({
+    experimental: {
+      cache: {
+        provider: memoryCache(),
+      },
+      routeRules: {
+        // Shortcut form (Nitro-style)
+        '/api/*': { swr: 600 },
+
+        // Full form with nested cache
+        '/products/*': { cache: { maxAge: 3600, tags: ['products'] } },
+      },
+    },
+  });
+  ```
+
+  Route patterns support static paths, dynamic parameters (`[slug]`), and rest parameters (`[...path]`). Per-route `cache.set()` calls merge with (and can override) the config-level defaults.
+
+  You can also read the current cache state via `cache.options`:
+
+  ```ts
+  const { maxAge, swr, tags } = context.cache.options;
+  ```
+
+  #### Cache providers
+
+  Cache behavior is determined by the configured **cache provider**. There are two types:
+  - **CDN providers** set response headers (e.g. `CDN-Cache-Control`, `Cache-Tag`) and let the CDN handle caching. Astro strips these headers before sending the response to the client.
+  - **Runtime providers** implement `onRequest()` to intercept and cache responses in-process, adding an `X-Astro-Cache` header (HIT/MISS/STALE) for observability.
+
+  #### Built-in memory cache provider
+
+  Astro includes a built-in, in-memory LRU runtime cache provider. Import `memoryCache` from `astro/config` to configure it.
+
+  Features:
+  - In-memory LRU cache with configurable max entries (default: 1000)
+  - Stale-while-revalidate support
+  - Tag-based and path-based invalidation
+  - `X-Astro-Cache` response header: `HIT`, `MISS`, or `STALE`
+  - Query parameter sorting for better hit rates (`?b=2&a=1` and `?a=1&b=2` hit the same entry)
+  - Common tracking parameters (`utm_*`, `fbclid`, `gclid`, etc.) excluded from cache keys by default
+  - `Vary` header support — responses that set `Vary` automatically get separate cache entries per variant
+  - Configurable query parameter filtering via `query.exclude` (glob patterns) and `query.include` (allowlist)
+
+  For more information on enabling and using this feature in your project, see the [Experimental Route Caching docs](https://docs.astro.build/en/reference/experimental-flags/route-caching/).
+  For a complete overview and to give feedback on this experimental API, see the [Route Caching RFC](https://github.com/withastro/roadmap/pull/1245).
+
+### Patch Changes
+
+- [#15721](https://github.com/withastro/astro/pull/15721) [`e6e146c`](https://github.com/withastro/astro/commit/e6e146cb0ac535e21c26f6b1c3d2f65be9dbdb4c) Thanks [@matthewp](https://github.com/matthewp)! - Fixes action route handling to return 404 for requests to prototype method names like `constructor` or `toString` used as action paths
+
+- [#15704](https://github.com/withastro/astro/pull/15704) [`862d77b`](https://github.com/withastro/astro/commit/862d77bd6c3e05e20fd58293f9577ae685a9b8c9) Thanks [@umutkeltek](https://github.com/umutkeltek)! - Fixes i18n fallback middleware intercepting non-404 responses
+
+  The fallback middleware was triggering for all responses with status >= 300, including legitimate 3xx redirects, 403 forbidden, and 5xx server errors. This broke auth flows and form submissions on localized server routes. The fallback now correctly only triggers for 404 (page not found) responses.
+
+- [#15703](https://github.com/withastro/astro/pull/15703) [`829182b`](https://github.com/withastro/astro/commit/829182bbdfc307a005aea00ac8c00923f76efb08) Thanks [@matthewp](https://github.com/matthewp)! - Fixes server islands returning a 500 error in dev mode for adapters that do not set `adapterFeatures.buildOutput` (e.g. `@astrojs/netlify`)
+
+- [#15749](https://github.com/withastro/astro/pull/15749) [`573d188`](https://github.com/withastro/astro/commit/573d188de9a7e6635f24004291c3e71e0ddc7a7a) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused `session.regenerate()` to silently lose session data
+
+  Previously, regenerated session data was not saved under the new session ID unless `set()` was also called.
+
+- [#15685](https://github.com/withastro/astro/pull/15685) [`1a323e5`](https://github.com/withastro/astro/commit/1a323e5c64c7c23212ed80546f593d930115d55c) Thanks [@jcayzac](https://github.com/jcayzac)! - Fix regression where SVG images in content collection `image()` fields could not be rendered as inline components. This behavior is now restored while preserving the TLA deadlock fix.
+
+- [#15740](https://github.com/withastro/astro/pull/15740) [`c5016fc`](https://github.com/withastro/astro/commit/c5016fc86c4928a26b49dbe144b5569d5d89ac04) Thanks [@matthewp](https://github.com/matthewp)! - Removes an escape hatch that skipped attribute escaping for URL values containing `&`, ensuring all dynamic attribute values are consistently escaped
+
+- [#15744](https://github.com/withastro/astro/pull/15744) [`fabb710`](https://github.com/withastro/astro/commit/fabb710c2514c5a1298e002dd961a1d79686f021) Thanks [@matthewp](https://github.com/matthewp)! - Fixes cookie handling during error page rendering to ensure cookies set by middleware are consistently included in the response
+
+- [#15742](https://github.com/withastro/astro/pull/15742) [`9d9699c`](https://github.com/withastro/astro/commit/9d9699c04aba7524bd3c8e1b8303691db19fa5bd) Thanks [@matthewp](https://github.com/matthewp)! - Hardens `clientAddress` resolution to respect `security.allowedDomains` for `X-Forwarded-For`, consistent with the existing handling of `X-Forwarded-Host`, `X-Forwarded-Proto`, and `X-Forwarded-Port`. The `X-Forwarded-For` header is now only used to determine `Astro.clientAddress` when the request's host has been validated against an `allowedDomains` entry. Without a matching domain, `clientAddress` falls back to the socket's remote address.
+
+- [#15696](https://github.com/withastro/astro/pull/15696) [`a9fd221`](https://github.com/withastro/astro/commit/a9fd221bda99db4660c241c494b6d3225eb4e51d) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes images not working in MDX when using the Cloudflare adapter in certain cases
+
+- [#15693](https://github.com/withastro/astro/pull/15693) [`4db2089`](https://github.com/withastro/astro/commit/4db2089a8e01cdb298c49f61817daf240ae07fa5) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Fixes the links to Astro Docs to match the v6 structure.
+
+- [#15717](https://github.com/withastro/astro/pull/15717) [`4000aaa`](https://github.com/withastro/astro/commit/4000aaa2d361cbfc9bbf280a9b0e78e6db167945) Thanks [@matthewp](https://github.com/matthewp)! - Ensures that URLs with multiple leading slashes (e.g. `//admin`) are normalized to a single slash before reaching middleware, so that pathname checks like `context.url.pathname.startsWith('/admin')` work consistently regardless of the request URL format
+
+- [#15752](https://github.com/withastro/astro/pull/15752) [`918d394`](https://github.com/withastro/astro/commit/918d3949f3b92b1ae46dadd77cfb1404869c50bd) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes an issue where a session ID from a cookie with no matching server-side data was accepted as-is. The session now generates a new ID when the cookie value has no corresponding storage entry.
+
+- [#15743](https://github.com/withastro/astro/pull/15743) [`3b4252a`](https://github.com/withastro/astro/commit/3b4252a82a937fccbfd433d90a93ad524a7a6f7b) Thanks [@matthewp](https://github.com/matthewp)! - Hardens config-based redirects with catch-all parameters to prevent producing protocol-relative URLs (e.g. `//example.com`) in the `Location` header
+
+- [#15718](https://github.com/withastro/astro/pull/15718) [`14f37b8`](https://github.com/withastro/astro/commit/14f37b80aa2bd086cf31feccd5016c73a09822ae) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where internal headers may leak when rendering error pages
+
+- Updated dependencies [[`6f19ecc`](https://github.com/withastro/astro/commit/6f19ecc35adfb2ddaabbba2269630f95c13f5a57), [`f94d3c5`](https://github.com/withastro/astro/commit/f94d3c5313e5a7576cf2cb316a85d68d335a188f)]:
+  - @astrojs/markdown-remark@7.0.0-beta.9
+
 ## 6.0.0-beta.17
 
 ### Minor Changes

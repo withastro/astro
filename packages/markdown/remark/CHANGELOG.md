@@ -1,5 +1,24 @@
 # @astrojs/markdown-remark
 
+## 7.0.0-beta.10
+
+### Patch Changes
+
+- Updated dependencies [[`745e632`](https://github.com/withastro/astro/commit/745e632fc590e41a5701509e9cc4ed971bdddf74)]:
+  - @astrojs/internal-helpers@0.8.0-beta.2
+
+## 7.0.0-beta.9
+
+### Major Changes
+
+- [#15726](https://github.com/withastro/astro/pull/15726) [`6f19ecc`](https://github.com/withastro/astro/commit/6f19ecc35adfb2ddaabbba2269630f95c13f5a57) Thanks [@ocavue](https://github.com/ocavue)! - Updates dependency `shiki` to v4
+
+  Check [Shiki's upgrade guide](https://shiki.style/blog/v4).
+
+### Patch Changes
+
+- [#15651](https://github.com/withastro/astro/pull/15651) [`f94d3c5`](https://github.com/withastro/astro/commit/f94d3c5313e5a7576cf2cb316a85d68d335a188f) Thanks [@ocavue](https://github.com/ocavue)! - Reuses cached Shiki highlighter instances across languages.
+
 ## 7.0.0-beta.8
 
 ### Patch Changes

@@ -1,5 +1,20 @@
 # @astrojs/markdoc
 
+## 1.0.0-beta.14
+
+### Patch Changes
+
+- Updated dependencies [[`745e632`](https://github.com/withastro/astro/commit/745e632fc590e41a5701509e9cc4ed971bdddf74)]:
+  - @astrojs/internal-helpers@0.8.0-beta.2
+  - @astrojs/markdown-remark@7.0.0-beta.10
+
+## 1.0.0-beta.13
+
+### Patch Changes
+
+- Updated dependencies [[`6f19ecc`](https://github.com/withastro/astro/commit/6f19ecc35adfb2ddaabbba2269630f95c13f5a57), [`f94d3c5`](https://github.com/withastro/astro/commit/f94d3c5313e5a7576cf2cb316a85d68d335a188f)]:
+  - @astrojs/markdown-remark@7.0.0-beta.9
+
 ## 1.0.0-beta.12
 
 ### Patch Changes

@@ -1,5 +1,60 @@
 # @astrojs/node
 
+## 10.0.0-beta.8
+
+### Patch Changes
+
+- Updated dependencies [[`745e632`](https://github.com/withastro/astro/commit/745e632fc590e41a5701509e9cc4ed971bdddf74)]:
+  - @astrojs/internal-helpers@0.8.0-beta.2
+
+## 10.0.0-beta.7
+
+### Major Changes
+
+- [#15654](https://github.com/withastro/astro/pull/15654) [`a32aee6`](https://github.com/withastro/astro/commit/a32aee6eb8bb9ae46caf2249ff56df27db2d4e2a) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the `experimentalErrorPageHost` option
+
+  This option allowed fetching a prerendered error page from a different host than the server is currently running on.
+
+  However, there can be security implications with prefetching from other hosts, and often more customization was required to do this safely. This has now been removed as a built-in option so that you can implement your own secure solution as needed and appropriate for your project via middleware.
+
+  #### What should I do?
+
+  If you were previously using this feature, you must remove the option from your adapter configuration as it no longer exists:
+
+  ```diff
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config'
+  import node from '@astrojs/node'
+
+  export default defineConfig({
+    adapter: node({
+      mode: 'standalone',
+  -    experimentalErrorPageHost: 'http://localhost:4321'
+    })
+  })
+  ```
+
+  You can replicate the previous behavior by checking the response status in a middleware and fetching the prerendered page yourself:
+
+  ```ts
+  // src/middleware.ts
+  import { defineMiddleware } from 'astro:middleware';
+
+  export const onRequest = defineMiddleware(async (ctx, next) => {
+    const response = await next();
+    if (response.status === 404 || response.status === 500) {
+      return fetch(`http://localhost:4321/${response.status}.html`);
+    }
+    return response;
+  });
+  ```
+
+### Patch Changes
+
+- [#15714](https://github.com/withastro/astro/pull/15714) [`9a2c949`](https://github.com/withastro/astro/commit/9a2c949a2527cc921cfc80803f1bf49e9d945a37) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where static headers weren't correctly applied when the website uses `base`.
+
+- [#15745](https://github.com/withastro/astro/pull/15745) [`20b05c0`](https://github.com/withastro/astro/commit/20b05c042bde561f53d47348fd4cb2ec478bca23) Thanks [@matthewp](https://github.com/matthewp)! - Hardens static file handler path resolution to ensure resolved paths stay within the client directory
+
 ## 10.0.0-beta.6
 
 ### Patch Changes

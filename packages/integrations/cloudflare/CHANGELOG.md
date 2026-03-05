@@ -1,5 +1,26 @@
 # @astrojs/cloudflare
 
+## 13.0.0-beta.13
+
+### Patch Changes
+
+- Updated dependencies [[`745e632`](https://github.com/withastro/astro/commit/745e632fc590e41a5701509e9cc4ed971bdddf74)]:
+  - @astrojs/internal-helpers@0.8.0-beta.2
+  - @astrojs/underscore-redirects@1.0.0
+
+## 13.0.0-beta.12
+
+### Patch Changes
+
+- [#15696](https://github.com/withastro/astro/pull/15696) [`a9fd221`](https://github.com/withastro/astro/commit/a9fd221bda99db4660c241c494b6d3225eb4e51d) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes duplicate logging showing up in some cases when prerendering pages
+
+- [#15694](https://github.com/withastro/astro/pull/15694) [`66449c9`](https://github.com/withastro/astro/commit/66449c930e73e9a58ce547b9c32635a98a310966) Thanks [@matthewp](https://github.com/matthewp)! - Fixes deployment of static sites with the Cloudflare adapter
+
+  Fixes an issue with detecting and building fully static sites that caused deployment errors when using `output: 'static'` with the Cloudflare adapter
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 13.0.0-beta.11
 
 ### Patch Changes

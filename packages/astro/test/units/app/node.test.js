@@ -19,40 +19,186 @@ describe('node', () => {
 	describe('createRequest', () => {
 		describe('x-forwarded-for', () => {
 			it('parses client IP from single-value x-forwarded-for header', () => {
-				const result = createRequest({
-					...mockNodeRequest,
-					headers: {
-						'x-forwarded-for': '1.1.1.1',
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'example.com',
+							'x-forwarded-for': '1.1.1.1',
+						},
 					},
-				});
+					{ allowedDomains: [{ hostname: 'example.com' }] },
+				);
 				assert.equal(result[Symbol.for('astro.clientAddress')], '1.1.1.1');
 			});
 
 			it('parses client IP from multi-value x-forwarded-for header', () => {
-				const result = createRequest({
-					...mockNodeRequest,
-					headers: {
-						'x-forwarded-for': '1.1.1.1,8.8.8.8',
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'example.com',
+							'x-forwarded-for': '1.1.1.1,8.8.8.8',
+						},
 					},
-				});
+					{ allowedDomains: [{ hostname: 'example.com' }] },
+				);
 				assert.equal(result[Symbol.for('astro.clientAddress')], '1.1.1.1');
 			});
 
 			it('parses client IP from multi-value x-forwarded-for header with spaces', () => {
-				const result = createRequest({
-					...mockNodeRequest,
-					headers: {
-						'x-forwarded-for': ' 1.1.1.1, 8.8.8.8, 8.8.8.2',
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'example.com',
+							'x-forwarded-for': ' 1.1.1.1, 8.8.8.8, 8.8.8.2',
+						},
 					},
-				});
+					{ allowedDomains: [{ hostname: 'example.com' }] },
+				);
 				assert.equal(result[Symbol.for('astro.clientAddress')], '1.1.1.1');
 			});
 
 			it('fallbacks to remoteAddress when no x-forwarded-for header is present', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'example.com',
+						},
+					},
+					{ allowedDomains: [{ hostname: 'example.com' }] },
+				);
+				assert.equal(result[Symbol.for('astro.clientAddress')], '2.2.2.2');
+			});
+
+			it('ignores x-forwarded-for when no allowedDomains is configured (default)', () => {
 				const result = createRequest({
 					...mockNodeRequest,
-					headers: {},
+					headers: {
+						host: 'example.com',
+						'x-forwarded-for': '1.1.1.1',
+					},
 				});
+				// Without allowedDomains, x-forwarded-for should NOT be trusted
+				// Falls back to socket remoteAddress
+				assert.equal(result[Symbol.for('astro.clientAddress')], '2.2.2.2');
+			});
+
+			it('ignores x-forwarded-for when allowedDomains is empty', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'example.com',
+							'x-forwarded-for': '1.1.1.1',
+						},
+					},
+					{ allowedDomains: [] },
+				);
+				// Empty allowedDomains means no proxy trust, use socket address
+				assert.equal(result[Symbol.for('astro.clientAddress')], '2.2.2.2');
+			});
+
+			it('trusts x-forwarded-for when host matches allowedDomains', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'example.com',
+							'x-forwarded-for': '1.1.1.1',
+						},
+					},
+					{ allowedDomains: [{ hostname: 'example.com' }] },
+				);
+				// Host matches allowedDomains, so x-forwarded-for is trusted
+				assert.equal(result[Symbol.for('astro.clientAddress')], '1.1.1.1');
+			});
+
+			it('ignores x-forwarded-for when host does not match allowedDomains', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'attacker.com',
+							'x-forwarded-for': '1.1.1.1',
+						},
+					},
+					{ allowedDomains: [{ hostname: 'example.com' }] },
+				);
+				// Host does not match allowedDomains, so x-forwarded-for is NOT trusted
+				assert.equal(result[Symbol.for('astro.clientAddress')], '2.2.2.2');
+			});
+
+			it('trusts x-forwarded-for when x-forwarded-host matches allowedDomains', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							'x-forwarded-host': 'example.com',
+							'x-forwarded-for': '1.1.1.1',
+						},
+					},
+					{ allowedDomains: [{ hostname: 'example.com' }] },
+				);
+				// X-Forwarded-Host validated against allowedDomains, so XFF is trusted
+				assert.equal(result[Symbol.for('astro.clientAddress')], '1.1.1.1');
+			});
+
+			it('trusts multi-value x-forwarded-for when host matches allowedDomains', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'example.com',
+							'x-forwarded-for': '1.1.1.1, 8.8.8.8',
+						},
+					},
+					{ allowedDomains: [{ hostname: 'example.com' }] },
+				);
+				assert.equal(result[Symbol.for('astro.clientAddress')], '1.1.1.1');
+			});
+
+			it('falls back to remoteAddress when host matches allowedDomains but no x-forwarded-for', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'example.com',
+						},
+					},
+					{ allowedDomains: [{ hostname: 'example.com' }] },
+				);
+				assert.equal(result[Symbol.for('astro.clientAddress')], '2.2.2.2');
+			});
+
+			it('prevents IP spoofing: attacker cannot override clientAddress without allowedDomains', () => {
+				// Simulates an attacker injecting x-forwarded-for to spoof 127.0.0.1
+				const result = createRequest({
+					...mockNodeRequest,
+					headers: {
+						host: 'example.com',
+						'x-forwarded-for': '127.0.0.1',
+					},
+				});
+				// Without allowedDomains, the spoofed IP must be ignored
+				assert.equal(result[Symbol.for('astro.clientAddress')], '2.2.2.2');
+			});
+
+			it('prevents IP spoofing: attacker cannot override clientAddress when host does not match', () => {
+				// Simulates attacker sending direct request with XFF and mismatched host
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'evil.com',
+							'x-forwarded-for': '127.0.0.1',
+						},
+					},
+					{ allowedDomains: [{ hostname: 'example.com' }] },
+				);
+				// Host doesn't match allowedDomains, so XFF is not trusted
 				assert.equal(result[Symbol.for('astro.clientAddress')], '2.2.2.2');
 			});
 		});
