@@ -303,7 +303,10 @@ export class RenderContext {
 			}
 			let response: Response;
 
-			if (!ctx.isPrerendered) {
+			// Only auto-execute form actions when middleware is part of the pipeline.
+			// When middleware is skipped (e.g. during error page recovery), form actions
+			// should not run since the full request handling pipeline is not active.
+			if (!ctx.isPrerendered && !this.skipMiddleware) {
 				const { action, setActionResult, serializeActionResult } = getActionContext(ctx);
 
 				if (action?.calledFrom === 'form') {
