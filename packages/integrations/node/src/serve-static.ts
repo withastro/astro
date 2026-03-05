@@ -66,6 +66,7 @@ export function createStaticHandler(
 			if (headersMap && headersMap.length > 0) {
 				const request = createRequest(req, {
 					allowedDomains: app.getAllowedDomains?.() ?? [],
+					port: options.port,
 				});
 				const routeData = app.match(request, true);
 				if (routeData && routeData.prerender) {

@@ -509,7 +509,7 @@ export const AstroConfigSchema = z.object({
 			queuedRendering: z
 				.object({
 					enabled: z.boolean().optional().prefault(false),
-					poolSize: z.number().int().positive().optional(),
+					poolSize: z.number().int().nonnegative().optional(),
 					contentCache: z.boolean().optional(),
 				})
 				.optional()

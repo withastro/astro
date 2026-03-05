@@ -39,7 +39,8 @@ export function createRequest(
 	{
 		skipBody = false,
 		allowedDomains = [],
-	}: { skipBody?: boolean; allowedDomains?: Partial<RemotePattern>[] } = {},
+		port: serverPort,
+	}: { skipBody?: boolean; allowedDomains?: Partial<RemotePattern>[]; port?: number } = {},
 ): Request {
 	const controller = new AbortController();
 
@@ -76,7 +77,14 @@ export function createRequest(
 		allowedDomains,
 	);
 	const hostname = validated.host ?? validatedHostname ?? 'localhost';
-	const port = validated.port;
+	// Use the validated forwarded port if available. When falling back to 'localhost'
+	// (no validated host), use the actual server listening port so that the constructed
+	// URL origin includes it (e.g., http://localhost:4321 instead of http://localhost).
+	// This ensures the CSRF origin comparison uses the correct port without trusting
+	// any value from the request headers.
+	const port =
+		validated.port ??
+		(!validated.host && !validatedHostname && serverPort ? String(serverPort) : undefined);
 
 	let url: URL;
 	try {
