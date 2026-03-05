@@ -100,10 +100,7 @@ if (process.env.CI) {
 
 		summary += '<details><summary><strong>Slowest fixture builds this run</strong></summary>\n\n';
 		if (slowestBuilds.length === 0) {
-			summary +=
-				'> [!WARNING]\n' +
-				'> No builds detected! If you are seeing this message, it likely means there is an issue with the logging implementation. Please investigate.\n';
-			return summary;
+			summary += 'No builds detected.\n';
 		} else {
 			summary +=
 				'| Fixture | Builds | Total Duration (s) |\n' +
@@ -118,12 +115,14 @@ if (process.env.CI) {
 		}
 		summary += '</details>\n';
 
-		const slowestTests = lines
+		const tests = lines.filter(
+			/** @returns {entry is TestLogEntry} */
+			(entry) => entry.type === 'test' && !entry.isSuite,
+		);
+
+		const slowestTests = tests
 			.filter(
-				/** @returns {line is TestLogEntry} */
 				(line) =>
-					line.type === 'test' &&
-					!line.isSuite &&
 					line.duration >= reportingConfig.slowTestThreshold &&
 					!reportingConfig.knownSlowTests.includes(line.name),
 			)
@@ -132,7 +131,11 @@ if (process.env.CI) {
 
 		summary += '\n<details><summary><strong>Slowest tests this run</strong></summary>\n\n';
 		if (slowestTests.length === 0) {
-			summary += 'No slow tests detected! Great job! 🎉\n';
+			if (tests.length === 0) {
+				summary += 'No tests detected.\n';
+			} else {
+				summary += 'No slow tests detected! Great job! 🎉\n';
+			}
 			return summary;
 		} else {
 			summary += '| Test | Duration (s) | Location |\n';
@@ -155,7 +158,7 @@ if (process.env.CI) {
 		}
 		summary += '</details>\n';
 
-		summary += '\n\n' + testDurationHistogram(lines);
+		summary += '\n\n' + testDurationHistogram(tests);
 
 		return summary;
 	};
@@ -171,14 +174,11 @@ if (process.env.CI) {
 
 /**
  * Generate a histogram of test durations from the log entries, and render it as a bar chart in the CI summary. This can help visualize the distribution of test durations and identify any outliers.
- * @param {LogEntry[]} logEntries
+ * @param {TestLogEntry[]} logEntries
  */
 function testDurationHistogram(logEntries) {
-	const testEntries = logEntries
-		// Filter to get only test entries that are not suites
-		.filter((entry) => entry.type === 'test' && !entry.isSuite)
-		// Sort by duration ascending
-		.sort((a, b) => a.duration - b.duration);
+	// Sort by duration ascending
+	const testEntries = logEntries.sort((a, b) => a.duration - b.duration);
 
 	if (testEntries.length === 0) {
 		return '';
