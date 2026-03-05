@@ -184,9 +184,9 @@ function testDurationHistogram(logEntries) {
 		return '';
 	}
 
-	const p99Duration = testEntries[Math.floor(testEntries.length * 0.99)].duration;
-	const bucketSize = 250; // 250ms buckets
-	const bucketCount = Math.ceil(p99Duration / bucketSize);
+	const p90Duration = testEntries[Math.floor(testEntries.length * 0.9)].duration;
+	const bucketSize = 100; // 100ms buckets
+	const bucketCount = Math.ceil(p90Duration / bucketSize);
 	const buckets = new Array(bucketCount).fill(0);
 
 	// Count tests in each bucket
