@@ -33,6 +33,11 @@ import { NOOP_MODULE_ID } from './plugins/plugin-noop.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 import type { InputOption } from 'rollup';
 import { getSSRAssets } from './internal.js';
+import {
+	serverIslandPlaceholderMap,
+	serverIslandPlaceholderNameMap,
+	type ResolvedServerIslandData,
+} from '../server-islands/vite-plugin-server-islands.js';
 
 const PRERENDER_ENTRY_FILENAME_PREFIX = 'prerender-entry';
 
@@ -63,8 +68,9 @@ function extractRelevantChunks(
 
 			const needsContentInjection = chunk.code.includes(LINKS_PLACEHOLDER);
 			const needsManifestInjection = chunk.moduleIds.includes(SERIALIZED_MANIFEST_RESOLVED_ID);
+			const needsServerIslandInjection = chunk.code.includes(serverIslandPlaceholderMap);
 
-			if (needsContentInjection || needsManifestInjection) {
+			if (needsContentInjection || needsManifestInjection || needsServerIslandInjection) {
 				extracted.push({
 					fileName: chunk.fileName,
 					code: chunk.code,
@@ -335,6 +341,22 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				const prerenderChunks = extractRelevantChunks(prerenderOutputs, true);
 				prerenderOutput = undefined as any;
 
+				// Capture resolved server island data from the prerender build.
+				// When server islands are only used in prerendered pages, the SSR build
+				// leaves placeholders in its output. The prerender build resolves the
+				// island chunk filenames, which we store on internals for post-build patching.
+				const serverIslandsPlugin = builder.environments[
+					ASTRO_VITE_ENVIRONMENT_NAMES.ssr
+				].config.plugins.find((p: vite.Plugin) => p.name === 'astro:server-islands');
+				if (serverIslandsPlugin?.api?.getResolvedServerIslandData) {
+					const data: ResolvedServerIslandData =
+						serverIslandsPlugin.api.getResolvedServerIslandData();
+					if (data.resolvedImports.size > 0) {
+						internals.resolvedServerIslandImports = data.resolvedImports;
+						internals.serverIslandNameMap = data.nameMap;
+					}
+				}
+
 				// Build client environment
 				// We must discover client inputs after SSR build because hydration/client-only directives
 				// are only detected during SSR. We mutate the config here since the builder was already created
@@ -484,7 +506,100 @@ async function runManifestInjection(
 		internals,
 		{ chunks, mutate },
 	);
+
+	// Patch SSR chunks that still have server island placeholders.
+	// This happens when server islands are only used in prerendered pages:
+	// the SSR build doesn't discover them and leaves placeholders, while the
+	// prerender build resolves the actual chunk filenames.
+	await serverIslandBuildPostHook(opts, internals, { chunks, mutate });
+
 	await writeMutatedChunks(opts, mutations);
+}
+
+/**
+ * Post-build hook that patches SSR chunks containing server island placeholders.
+ *
+ * During build, the SSR environment's renderChunk always leaves server island
+ * placeholders in place (since the prerender build may discover islands later).
+ * This hook runs after all environments have built and handles two cases:
+ *
+ * 1. Islands were discovered (in prerender): Replace placeholders with real import
+ *    maps and copy island component chunks from prerender output to server output.
+ * 2. No islands found: Replace placeholders with empty maps.
+ */
+async function serverIslandBuildPostHook(
+	opts: StaticBuildOptions,
+	internals: BuildInternals,
+	{
+		chunks,
+		mutate,
+	}: {
+		chunks: ExtractedChunk[];
+		mutate: (fileName: string, code: string, prerender: boolean) => void;
+	},
+) {
+	// Find SSR chunks that still have the placeholder (not prerender chunks)
+	const ssrChunkWithPlaceholder = chunks.find(
+		(c) => !c.prerender && c.code.includes(serverIslandPlaceholderMap),
+	);
+
+	if (!ssrChunkWithPlaceholder) {
+		return;
+	}
+
+	const resolvedImports = internals.resolvedServerIslandImports;
+	const nameMap = internals.serverIslandNameMap;
+
+	if (resolvedImports && resolvedImports.size > 0 && nameMap) {
+		// Server islands were discovered during the prerender build.
+		// Build the replacement map source and name map source.
+		// The island component chunks were emitted by the prerender build into .prerender/,
+		// so we need to copy them to the server output and construct import paths relative
+		// to the SSR chunk's location.
+		const isRelativeChunk = ssrChunkWithPlaceholder.fileName.includes('/');
+		const dots = isRelativeChunk ? '..' : '.';
+
+		let mapSource = 'new Map([';
+		for (const [islandName, fileName] of resolvedImports) {
+			mapSource += `\n\t['${islandName}', () => import('${dots}/${fileName}')],`;
+		}
+		mapSource += '\n])';
+
+		let nameMapSource = 'new Map(';
+		nameMapSource += `${JSON.stringify(Array.from(nameMap.entries()), null, 2)}`;
+		nameMapSource += '\n)';
+
+		const newCode = ssrChunkWithPlaceholder.code
+			.replace(serverIslandPlaceholderMap, mapSource)
+			.replace(serverIslandPlaceholderNameMap, nameMapSource);
+
+		mutate(ssrChunkWithPlaceholder.fileName, newCode, false);
+
+		// Copy island component chunks from prerender output to server output.
+		// The prerender build emitted these chunks into .prerender/ but the SSR
+		// entry needs them in the server output directory.
+		const { settings } = opts;
+		const serverOutputDir = getServerOutputDirectory(settings);
+		const prerenderOutputDir = new URL('./.prerender/', serverOutputDir);
+
+		for (const [_islandName, fileName] of resolvedImports) {
+			const srcPath = new URL(fileName, appendForwardSlash(prerenderOutputDir.toString()));
+			const destPath = new URL(fileName, appendForwardSlash(serverOutputDir.toString()));
+
+			if (fs.existsSync(srcPath)) {
+				const destDir = new URL('./', destPath);
+				await fs.promises.mkdir(destDir, { recursive: true });
+				await fs.promises.copyFile(srcPath, destPath);
+			}
+		}
+	} else {
+		// No server islands found — replace placeholders with empty maps
+		const newCode = ssrChunkWithPlaceholder.code
+			.replace(serverIslandPlaceholderMap, 'new Map()')
+			.replace(serverIslandPlaceholderNameMap, 'new Map()');
+
+		mutate(ssrChunkWithPlaceholder.fileName, newCode, false);
+	}
 }
 
 /**
