@@ -11,7 +11,6 @@ concurrency:
 
 permissions:
   contents: read
-  actions: write
 
 env:
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}

@@ -87,14 +87,18 @@ jobs:
       - name: Publish to VSCode Marketplace
         if: steps.vscode-published.outputs.published == 'true'
         working-directory: ./packages/language-tools/vscode
+        env:
+          VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
         run: |
-          npx vsce publish -p ${{ secrets.VSCE_TOKEN }} --target win32-x64 win32-arm64 linux-x64 linux-arm64 linux-armhf darwin-x64 darwin-arm64 alpine-x64 alpine-arm64
+          npx vsce publish -p "$VSCE_TOKEN" --target win32-x64 win32-arm64 linux-x64 linux-arm64 linux-armhf darwin-x64 darwin-arm64 alpine-x64 alpine-arm64
 
       - name: Publish to OpenVSX
         if: steps.vscode-published.outputs.published == 'true'
         working-directory: ./packages/language-tools/vscode
+        env:
+          OVSX_TOKEN: ${{ secrets.OVSX_TOKEN }}
         run: |
-          npx ovsx publish -p ${{ secrets.OVSX_TOKEN }} --target win32-x64 win32-arm64 linux-x64 linux-arm64 linux-armhf darwin-x64 darwin-arm64 alpine-x64 alpine-arm64
+          npx ovsx publish -p "$OVSX_TOKEN" --target win32-x64 win32-arm64 linux-x64 linux-arm64 linux-armhf darwin-x64 darwin-arm64 alpine-x64 alpine-arm64
           
       - name: Restore root package.json and node_modules
         if: steps.vscode-published.outputs.published == 'true'
@@ -113,6 +117,9 @@ jobs:
         if: steps.changesets.outputs.published == 'true'
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-        uses: Ilshidur/action-discord@d2594079a10f1d6739ee50a2471f0ca57418b554 # 0.4.0
-        with:
-          args: "${{ steps.message.outputs.DISCORD_MESSAGE }}"
+          DISCORD_MESSAGE: ${{ steps.message.outputs.DISCORD_MESSAGE }}
+        run: |
+          jq -n --arg content "$DISCORD_MESSAGE" '{content: $content}' | \
+            curl -X POST "$DISCORD_WEBHOOK" \
+              -H "Content-Type: application/json" \
+              -d @-
