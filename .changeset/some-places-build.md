@@ -60,4 +60,4 @@ import Layout from "../layouts/Layout.astro";
 </Layout>
 ```
 
-Visit the updated [fonts guide](https://v6.docs.astro.build/en/guides/fonts/) to learn more about adding custom fonts to your project.
+Visit the updated [fonts guide](https://docs.astro.build/en/guides/fonts/) to learn more about adding custom fonts to your project.

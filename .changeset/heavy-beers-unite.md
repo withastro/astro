@@ -24,4 +24,4 @@ export default defineConfig({
 });
 ```
 
-See the [NPM font provider reference documentation](https://v6.docs.astro.build/en/reference/font-provider-reference/#npm) for more details.
+See the [NPM font provider reference documentation](https://docs.astro.build/en/reference/font-provider-reference/#npm) for more details.
