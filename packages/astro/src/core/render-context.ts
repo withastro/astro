@@ -375,9 +375,12 @@ export class RenderContext {
 			return renderRedirect(this);
 		}
 
-		const response = this.skipMiddleware
-			? await lastNext(apiContext)
-			: await callMiddleware(middleware, apiContext, lastNext);
+		const useMiddleware =
+			!this.skipMiddleware && ['classic', 'always'].includes(pipeline.manifest.middlewareMode);
+
+		const response = useMiddleware
+			? await callMiddleware(middleware, apiContext, lastNext)
+			: await lastNext(apiContext);
 		if (response.headers.get(ROUTE_TYPE_HEADER)) {
 			response.headers.delete(ROUTE_TYPE_HEADER);
 		}
