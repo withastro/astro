@@ -184,10 +184,12 @@ function testDurationHistogram(logEntries) {
 		return '';
 	}
 
-	const bucketSizeCandidates = [25, 50, 100, 200, 400];
+	const targetBucketCount = 10;
+	const bucketSizeCandidates = [10, 25, 50, 100, 200, 400];
 	const p90Duration = testEntries[Math.floor(testEntries.length * 0.9)].duration;
-	const bucketSize = bucketSizeCandidates.find((size) => size >= p90Duration / 10) || 500;
-	const bucketCount = Math.ceil(p90Duration / bucketSize);
+	const bucketSize =
+		bucketSizeCandidates.find((size) => size >= p90Duration / targetBucketCount) || 500;
+	const bucketCount = Math.max(Math.ceil(p90Duration / bucketSize), targetBucketCount);
 	const buckets = new Array(bucketCount).fill(0);
 
 	// Count tests in each bucket
