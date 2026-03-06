@@ -1,4 +1,6 @@
 import type { SSRResult } from 'astro';
+import type { FilterPattern } from 'vite';
+
 export type RendererContext = {
 	result: SSRResult;
 };
@@ -15,4 +17,9 @@ export type PropNameToSignalMap = Map<string, SignalLike | SignalToKeyOrIndexMap
 
 export type AstroPreactAttrs = {
 	['data-preact-signals']?: string;
+};
+
+export type VirtualModuleOptions = {
+	include?: FilterPattern;
+	exclude?: FilterPattern;
 };

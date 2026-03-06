@@ -23,7 +23,7 @@ function getReferencedPrivateKeys(source: string, privateEnv: Record<string, any
 }
 
 /**
- * Use esbuild to perform replacememts like Vite
+ * Use esbuild to perform replacements like Vite
  * https://github.com/vitejs/vite/blob/5ea9edbc9ceb991e85f893fe62d68ed028677451/packages/vite/src/node/plugins/define.ts#L130
  */
 async function replaceDefine(

@@ -318,7 +318,7 @@
   </form>
   ```
 
-  You may also construct form action URLs using string concatenation, or by using the `URL()` constructor, with the an action's `.queryString` property:
+  You may also construct form action URLs using string concatenation, or by using the `URL()` constructor, with an action's `.queryString` property:
 
   ```astro
   ---

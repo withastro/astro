@@ -35,8 +35,10 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
+    "@astrojs/internal-helpers": "workspace:*",
     "@preact/preset-vite": "^2.10.3",
     "@preact/signals": "^2.8.1",
+    "devalue": "^5.6.3",
     "preact-render-to-string": "^6.6.6",
     "vite": "^7.3.1"
   },

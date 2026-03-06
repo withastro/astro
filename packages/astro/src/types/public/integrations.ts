@@ -21,7 +21,7 @@ export interface RouteOptions {
 	readonly component: string;
 	/**
 	 * Whether this route should be prerendered. If the route has an explicit `prerender` export,
-	 * the value will be passed here. Otherwise, it's undefined and will fallback to a prerender
+	 * the value will be passed here. Otherwise, it's undefined and will fall back to a prerender
 	 * default depending on the `output` option.
 	 */
 	prerender?: boolean;
@@ -116,6 +116,15 @@ export interface AstroAdapterFeatures {
 	 * for example, to create a `_headers` file for platforms that support it.
 	 */
 	staticHeaders?: boolean;
+
+	/**
+	 * When true, static builds will preserve the client/server directory structure
+	 * instead of outputting directly to outDir. This ensures static builds use
+	 * build.client for assets, maintaining consistency with server builds.
+	 * Useful for adapters that require a specific directory structure regardless
+	 * of the build output type.
+	 */
+	preserveBuildClientDir?: boolean;
 }
 
 /**

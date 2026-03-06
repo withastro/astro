@@ -12,6 +12,7 @@ import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions
 import type { FontFamily, FontProvider } from '../../assets/fonts/types.js';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
 import type { AssetsPrefix } from '../../core/app/types.js';
+import type { CacheProviderConfig, RouteRules } from '../../core/cache/types.js';
 import type { AstroConfigType } from '../../core/config/schemas/index.js';
 import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
 import type { CspAlgorithm, CspDirective, CspHash } from '../../core/csp/config.js';
@@ -698,7 +699,7 @@ export interface AstroUserConfig<
 		 * Enabling this feature adds additional security to Astro's handling of processed and bundled scripts and styles by default, and allows you to further configure these, and additional, content types.
 		 *
 		 * This feature comes with some limitations:
-		 * - External scripts and external styles are not supported out of the box, but you can [provide your own hashes](https://v6.docs.astro.build/en/reference/configuration-reference/#hashes).
+		 * - External scripts and external styles are not supported out of the box, but you can [provide your own hashes](https://v6.docs.astro.build/en/reference/configuration-reference/#securitycspscriptdirectivehashes).
 		 * - [Astro's view transitions](https://v6.docs.astro.build/en/guides/view-transitions/) using the `<ClientRouter />` are not supported, but you can [consider migrating to the browser native View Transition API](https://events-3bg.pages.dev/jotter/astro-view-transitions/) instead if you are not using Astro's enhancements to the native View Transitions and Navigation APIs.
 		 * - Shiki isn't currently supported. By design, Shiki functions use inline styles that cannot work with Astro CSP implementation. Consider [using `<Prism />`](https://v6.docs.astro.build/en/guides/syntax-highlighting/#prism-) when your project requires both CSP and syntax highlighting.
 		 * - `unsafe-inline` directives are incompatible with Astro's CSP implementation. By default, Astro will emit hashes for all its bundled scripts (e.g. client islands) and all modern browsers will automatically reject `unsafe-inline` when it occurs in a directive with a hash or nonce.
@@ -803,7 +804,7 @@ export interface AstroUserConfig<
 					 * @version 6.0.0
 					 * @description
 					 *
-					 * A configuration object that allows you to override the default sources for the `style-src` directive with the [`resources`](https://v6.docs.astro.build/en/reference/configuration-reference/#resources) property, or to provide additional [hashes](https://v6.docs.astro.build/en/reference/configuration-reference#hashes) to be rendered.					 */
+					 * A configuration object that allows you to override the default sources for the `style-src` directive with the [`resources`](https://v6.docs.astro.build/en/reference/configuration-reference/#securitycspstyledirectiveresources) property, or to provide additional [hashes](https://v6.docs.astro.build/en/reference/configuration-reference#securitycspstyledirectivehashes) to be rendered.					 */
 					styleDirective?: {
 						/**
 						 * @docs
@@ -904,7 +905,7 @@ export interface AstroUserConfig<
 					 * @version 6.0.0
 					 * @description
 					 *
-					 * A configuration object that allows you to override the default sources for the `script-src` directive with the [`resources`](https://v6.docs.astro.build/en/reference/configuration-reference/#resources) property, or to provide additional [hashes](https://v6.docs.astro.build/en/reference/configuration-reference#hashes) to be rendered.
+					 * A configuration object that allows you to override the default sources for the `script-src` directive with the [`resources`](https://v6.docs.astro.build/en/reference/configuration-reference/#securitycspscriptdirectiveresources) property, or to provide additional [hashes](https://v6.docs.astro.build/en/reference/configuration-reference#securitycspscriptdirectivehashes) to be rendered.
 					 */
 					scriptDirective?: {
 						/**
@@ -1497,7 +1498,7 @@ export interface AstroUserConfig<
 	 * An optional default time-to-live expiration period for session values, in seconds.
 	 *
 	 * By default, session values persist until they are deleted or the session is destroyed, and do not automatically expire because a particular amount of time has passed.
-	 * Set `session.ttl` to add a default expiration period for your session values. Passing a `ttl` option to [`session.set()`](https://docs.astro.build/en/reference/api-reference/#set) will override the global default
+	 * Set `session.ttl` to add a default expiration period for your session values. Passing a `ttl` option to [`session.set()`](https://v6.docs.astro.build/en/reference/api-reference/#sessionset) will override the global default
 	 * for that individual entry.
 	 *
 	 * ```js title="astro.config.mjs" ins={3-4}
@@ -2704,7 +2705,7 @@ export interface AstroUserConfig<
 		 * Continue to use the `data-astro-prefetch` attribute on any `<a />` link on your site to opt in to prefetching.
 		 * Instead of appending a `<link>` tag to the head of the document or fetching the page with JavaScript, a `<script>` tag will be appended with the corresponding speculation rules.
 		 *
-		 * Client side prerendering requires browser support. If the Speculation Rules API is not supported, `prefetch` will fallback to the supported strategy.
+		 * Client side prerendering requires browser support. If the Speculation Rules API is not supported, `prefetch` will fall back to the supported strategy.
 		 *
 		 * See the [Prefetch Guide](https://docs.astro.build/en/guides/prefetch/) for more `prefetch` options and usage.
 		 */
@@ -2805,6 +2806,84 @@ export interface AstroUserConfig<
 		svgo?: boolean | SvgoConfig;
 
 		/**
+		 * @name experimental.cache
+		 * @type {object}
+		 * @default `undefined`
+		 * @description
+		 *
+		 * Enables route caching for SSR responses. Provides a platform-agnostic API
+		 * for caching rendered pages and API responses, with pluggable providers
+		 * that adapters can configure automatically.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { memoryCache } from 'astro/config';
+		 *
+		 * {
+		 *   experimental: {
+		 *     cache: {
+		 *       provider: memoryCache(),
+		 *     },
+		 *     routeRules: {
+		 *       '/blog/[...path]': { maxAge: 300, swr: 60 },
+		 *     },
+		 *   },
+		 * }
+		 * ```
+		 *
+		 * Use `Astro.cache.set()` in routes and `context.cache.set()` in middleware
+		 * or API routes to control caching per-request.
+		 */
+		cache?: {
+			/**
+			 * @name experimental.cache.provider
+			 * @type {import('../../core/cache/types.js').CacheProviderConfig}
+			 * @description
+			 *
+			 * The cache provider. Adapters typically set a default, but you can
+			 * override it with your own.
+			 *
+			 * Use the provider's config function to get type-safe configuration:
+			 *
+			 * ```js
+			 * import { memoryCache } from 'astro/config';
+			 *
+			 * export default defineConfig({
+			 *   experimental: {
+			 *     cache: { provider: memoryCache() },
+			 *   },
+			 * });
+			 * ```
+			 */
+			provider?: CacheProviderConfig;
+		};
+
+		/**
+		 * @name experimental.routeRules
+		 * @type {Record<string, RouteRule>}
+		 * @default `undefined`
+		 * @description
+		 *
+		 * Route patterns mapped to cache rules.
+		 * Uses the same `[param]` and `[...rest]` syntax as file-based routing.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { memoryCache } from 'astro/config';
+		 *
+		 * {
+		 *   experimental: {
+		 *     cache: { provider: memoryCache() },
+		 *     routeRules: {
+		 *       '/api/*': { swr: 600 },
+		 *       '/products/*': { maxAge: 3600, tags: ['products'] },
+		 *     },
+		 *   },
+		 * }
+		 * ```
+		 */
+		routeRules?: RouteRules;
+		/*
 		 * @name experimental.rustCompiler
 		 * @type {boolean}
 		 * @default `false`
@@ -2882,7 +2961,9 @@ export interface AstroUserConfig<
 			 * @default `false`
 			 * @version 6.0.0
 			 * @description
-			 * Allows to enable the caching of node contents when rendering the same page.
+			 * Enables HTMLString caching to deduplicate repeated HTML fragments during rendering.
+			 * When enabled, identical HTML strings (e.g., repeated `<li>` tags) share a single
+			 * `HTMLString` object instead of creating a new wrapper per occurrence.
 			 * This caching is disabled for dynamic pages.
 			 */
 			contentCache?: boolean;

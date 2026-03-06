@@ -73,7 +73,9 @@ export class RunnablePipeline extends Pipeline {
 		pipeline.routesList = manifestData;
 		if (queueRenderingEnabled(manifest.experimentalQueuedRendering)) {
 			pipeline.nodePool = newNodePool(manifest.experimentalQueuedRendering!);
-			pipeline.htmlStringCache = new HTMLStringCache(1000); // Use default size
+			if (manifest.experimentalQueuedRendering!.contentCache) {
+				pipeline.htmlStringCache = new HTMLStringCache(1000);
+			}
 		}
 		return pipeline;
 	}
