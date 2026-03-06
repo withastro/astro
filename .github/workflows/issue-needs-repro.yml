@@ -1,0 +1,34 @@
+name: "Issue: Needs Repro"
+
+on:
+  issues:
+    types: [labeled]
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  on-labeled:
+    if: github.event_name == 'issues' && github.event.label.name == 'needs repro'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions-cool/issues-helper@71b62d7da76e59ff7b193904feb6e77d4dbb2777 # v3.7.6
+        with:
+          actions: "create-comment, remove-labels"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.issue.number }}
+          body: |
+            Hello @${{ github.event.issue.user.login }}. Please provide a [minimal reproduction](https://stackoverflow.com/help/minimal-reproducible-example) using a GitHub repository or [StackBlitz](https://astro.new/repro). Issues marked with `needs repro` will be closed if they have no activity within 3 days.
+          labels: "needs triage"
+
+  close-stale:
+    if: github.event_name == 'schedule' && github.repository == 'withastro/astro'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions-cool/issues-helper@71b62d7da76e59ff7b193904feb6e77d4dbb2777 # v3.7.6
+        with:
+          actions: "close-issues"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          labels: "needs repro"
+          inactive-day: 3

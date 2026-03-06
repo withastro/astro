@@ -1,0 +1,16 @@
+export { default } from '../components/Layout.astro';
+import Counter from '../components/Counter.jsx';
+
+export const someProps = {
+	count: 0,
+};
+
+# Nested React Components in MDX
+
+This tests that React components nested inside HTML elements still hydrate correctly.
+
+<div class="wrapper">
+	<Counter id="nested-counter" {...someProps} client:load>
+		# Hello from nested component!
+	</Counter>
+</div>
