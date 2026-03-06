@@ -263,3 +263,36 @@ describe('CSRF origin check', () => {
 		});
 	});
 });
+
+describe('CSRF origin check — non-form content types', () => {
+	let app;
+
+	before(async () => {
+		const fixture = await loadFixture({
+			root: './fixtures/csrf-check-origin/',
+			adapter: testAdapter(),
+		});
+		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
+	});
+
+	it('returns 403 for cross-origin POST with application/json', async () => {
+		const request = new Request('http://example.com/api/', {
+			method: 'POST',
+			headers: { origin: 'http://evil.com', 'content-type': 'application/json' },
+			body: '{}',
+		});
+		const response = await app.render(request);
+		assert.equal(response.status, 403);
+	});
+
+	it('returns 200 for same-origin POST with application/json', async () => {
+		const request = new Request('http://example.com/api/', {
+			method: 'POST',
+			headers: { origin: 'http://example.com', 'content-type': 'application/json' },
+			body: '{}',
+		});
+		const response = await app.render(request);
+		assert.equal(response.status, 200);
+	});
+});
