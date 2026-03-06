@@ -54,6 +54,13 @@ import { ASTRO_VITE_ENVIRONMENT_NAMES } from './constants.js';
 import { vitePluginChromedevtools } from '../vite-plugin-chromedevtools/index.js';
 import { vitePluginAstroServerClient } from '../vite-plugin-overlay/index.js';
 
+// Custom HMR logger for the module runner: drops noisy debug messages (e.g. "connected.",
+// "program reload", "invalidate ...") while preserving error output.
+const createLogger = (logger: Logger) => ({
+	debug: () => {},
+	error: (error: string | Error) => logger.error('vite', error.toString()),
+});
+
 type CreateViteOptions = {
 	settings: AstroSettings;
 	logger: Logger;
@@ -221,9 +228,28 @@ export async function createVite(
 		},
 		build: { assetsDir: settings.config.build.assets },
 		environments: {
+			// Suppress spammy "[vite] connected." / "program reload" / "invalidate ..." debug
+			// logs from the module runner's HMR client. These come from `hmrLogger.debug` in
+			// Vite's module-runner, which calls console.log directly and bypasses Astro's custom
+			// Vite logger. We supply a custom logger that drops debug messages but keeps errors.
+			[ASTRO_VITE_ENVIRONMENT_NAMES.ssr]: {
+				dev: {
+					createEnvironment(name, config) {
+						return vite.createRunnableDevEnvironment(name, config, {
+							runnerOptions: { hmr: { logger: createLogger(logger) } },
+						});
+					},
+				},
+			},
 			[ASTRO_VITE_ENVIRONMENT_NAMES.astro]: {
 				// This is all that's needed to create a new RunnableDevEnvironment
-				dev: {},
+				dev: {
+					createEnvironment(name, config) {
+						return vite.createRunnableDevEnvironment(name, config, {
+							runnerOptions: { hmr: { logger: createLogger(logger) } },
+						});
+					},
+				},
 			},
 		},
 	};
