@@ -17,7 +17,7 @@ const dogs = await getCollection('dogs');
 const increment = await getEntry('increment', 'value');
 const { Content } = await render(increment);
 
-const surnamne = Astro.url.searchParams.get('surname');
+const surname = Astro.url.searchParams.get('surname');
 ---
 
 <html>
@@ -54,7 +54,7 @@ const surnamne = Astro.url.searchParams.get('surname');
 		<Island server:defer/>
 	</div>
 	<div id="island-props">
-		<IslandProps server:defer name="Aria" surname={surnamne}/>
+		<IslandProps server:defer name="Aria" surname={surname}/>
 	</div>
 	<ul id="dogs-list">
 		{dogs.map(dog => (

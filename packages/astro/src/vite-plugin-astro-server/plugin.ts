@@ -31,6 +31,7 @@ import { createController } from './controller.js';
 import { recordServerError } from './error.js';
 import { setRouteError } from './server-state.js';
 import { routeGuardMiddleware } from './route-guard.js';
+import { secFetchMiddleware } from './sec-fetch.js';
 import { trailingSlashMiddleware } from './trailing-slash.js';
 import { sessionConfigToManifest } from '../core/session/utils.js';
 
@@ -107,6 +108,11 @@ export default function createVitePluginAstroServer({
 				viteServer.middlewares.stack.unshift({
 					route: '',
 					handle: routeGuardMiddleware(settings),
+				});
+				// Validate Sec-Fetch metadata headers to restrict cross-origin subresource requests
+				viteServer.middlewares.stack.unshift({
+					route: '',
+					handle: secFetchMiddleware(logger, settings.config.security?.allowedDomains),
 				});
 
 				// Note that this function has a name so other middleware can find it.

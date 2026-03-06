@@ -1,6 +1,7 @@
 import type { ActionClient, ActionReturnType } from '../../actions/runtime/types.js';
 import type { AstroCookies } from '../../core/cookies/cookies.js';
 import type { CspDirective, CspHash } from '../../core/csp/config.js';
+import type { CacheLike } from '../../core/cache/runtime/cache.js';
 import type { AstroSession } from '../../core/session/runtime.js';
 import type { AstroComponentFactory } from '../../runtime/server/index.js';
 import type { RewritePayload } from './common.js';
@@ -202,6 +203,16 @@ export interface APIContext<
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#session)
 	 */
 	session: AstroSession | undefined;
+
+	/**
+	 * An object for controlling route-level caching of SSR responses.
+	 *
+	 * Use `cache.set()` to configure caching options, `cache.tags` to read accumulated tags,
+	 * and `cache.invalidate()` to purge cached entries.
+	 *
+	 * In dev mode, the cache object is available but performs no caching.
+	 */
+	cache: CacheLike;
 
 	/**
 	 * A standard [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object containing information about the current request.
@@ -438,7 +449,7 @@ export interface APIContext<
 	 *
 	 * ## Example
 	 *
-	 * Given `i18n.locales` equals to `['fr', 'de']`, and the `Accept-Language` value equals to `en, de;q=0.2, fr;q=0.6`, the
+	 * Given `i18n.locales` equals `['fr', 'de']`, and the `Accept-Language` value equals `en, de;q=0.2, fr;q=0.6`, the
 	 * `Astro.preferredLanguage` will be `fr` because `en` is not supported, its [quality value](https://developer.mozilla.org/en-US/docs/Glossary/Quality_values) is the highest.
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#preferredlocale)
@@ -457,8 +468,8 @@ export interface APIContext<
 	 *
 	 * ## Example
 	 *
-	 * Given `i18n.locales` equals to `['fr', 'pt', 'de']`, and the
-	 * `Accept-Language` value equals to `en, de;q=0.2, fr;q=0.6`, the
+	 * Given `i18n.locales` equals `['fr', 'pt', 'de']`, and the
+	 * `Accept-Language` value equals `en, de;q=0.2, fr;q=0.6`, the
 	 * `Astro.preferredLocaleList` will be equal to `['fs', 'de']` because `en`
 	 * isn't supported, and `pt` isn't part of the locales contained in the
 	 * header.

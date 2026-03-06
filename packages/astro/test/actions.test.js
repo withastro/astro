@@ -153,7 +153,7 @@ describe('Astro Actions', () => {
 			}
 		});
 
-		it('Returns 404 for non-existent action', async () => {
+		it('Returns 404 for nonexistent action', async () => {
 			const res = await fixture.fetch('/_actions/nonExistent', {
 				method: 'POST',
 				body: JSON.stringify({}),
@@ -606,7 +606,7 @@ describe('Astro Actions', () => {
 			}
 		});
 
-		it('Returns 404 for non-existent action', async () => {
+		it('Returns 404 for nonexistent action', async () => {
 			const req = new Request('http://example.com/_actions/nonExistent', {
 				method: 'POST',
 				headers: {
