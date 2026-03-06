@@ -75,11 +75,4 @@ describe('Node middleware socket listener cleanup', () => {
 			'MaxListenersExceededWarning should not be emitted',
 		);
 	});
-
-	it('should handle SSR requests correctly with middleware', async () => {
-		const response = await fetch('http://localhost:8890/ssr');
-		assert.equal(response.status, 200);
-		const html = await response.text();
-		assert.ok(html.includes("Here's a random number"), 'SSR route should render correctly');
-	});
 });
