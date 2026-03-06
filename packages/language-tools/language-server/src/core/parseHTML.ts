@@ -71,7 +71,7 @@ export function preprocessHTML(text: string, frontmatterEnd?: number) {
 	return content;
 
 	function shouldBlankStartOrEndTagLike(offset: number) {
-		// not null rather than falsy, otherwise it won't work on first tag(0)
+		// not null rather than falsy; otherwise, it won't work on first tag(0)
 		return (
 			currentStartTagStart !== null && isInsideExpression(content, currentStartTagStart, offset)
 		);

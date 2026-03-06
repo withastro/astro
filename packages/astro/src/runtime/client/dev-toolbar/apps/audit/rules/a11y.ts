@@ -62,7 +62,7 @@ const interactiveElements = [
 	...MAYBE_INTERACTIVE.keys(),
 ];
 
-const labellableElements = ['button', 'input', 'meter', 'output', 'progress', 'select', 'textarea'];
+const labelableElements = ['button', 'input', 'meter', 'output', 'progress', 'select', 'textarea'];
 
 const aria_non_interactive_roles = [
 	'alert',
@@ -298,8 +298,8 @@ export const a11y: AuditRuleWithSelector[] = [
 		match(element: HTMLLabelElement) {
 			// Label must be associated with a control, either using `for` or having a nested valid element
 			const hasFor = element.hasAttribute('for');
-			const nestedLabellableElement = element.querySelector(`${labellableElements.join(', ')}`);
-			if (!hasFor && !nestedLabellableElement) return true;
+			const nestedLabelableElement = element.querySelector(`${labelableElements.join(', ')}`);
+			if (!hasFor && !nestedLabelableElement) return true;
 
 			// Label must have text content, using innerText to ignore hidden text
 			const innerText = element.innerText.trim();

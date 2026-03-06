@@ -94,6 +94,9 @@ function buffersToString(buffers) {
 }
 
 /**
+ * Creates a basic Pipeline instance for testing.
+ * For mock utilities like createMockRenderContext, see mocks.js
+ *
  * @param {Partial<Pipeline>} options
  * @returns {Pipeline}
  */

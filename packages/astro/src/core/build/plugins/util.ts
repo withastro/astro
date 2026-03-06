@@ -3,7 +3,7 @@ import type { BuildOptions } from 'vite';
 // This is an arbitrary string that we use to replace the dot of the extension.
 export const ASTRO_PAGE_EXTENSION_POST_PATTERN = '@_@';
 // This is an arbitrary string that we use to make a pageData key
-// Has to be a invalid character for a route, to avoid conflicts.
+// Has to be an invalid character for a route, to avoid conflicts.
 const ASTRO_PAGE_KEY_SEPARATOR = '&';
 
 /**

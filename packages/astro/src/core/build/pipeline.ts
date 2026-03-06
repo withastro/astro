@@ -87,7 +87,9 @@ export class BuildPipeline extends Pipeline {
 		super(logger, manifest, 'production', manifest.renderers, resolve, manifest.serverLike);
 		if (queueRenderingEnabled(this.manifest.experimentalQueuedRendering)) {
 			this.nodePool = newNodePool(this.manifest.experimentalQueuedRendering!);
-			this.htmlStringCache = new HTMLStringCache(1000); // Use default size
+			if (this.manifest.experimentalQueuedRendering!.contentCache) {
+				this.htmlStringCache = new HTMLStringCache(1000);
+			}
 		}
 	}
 
@@ -224,7 +226,7 @@ export class BuildPipeline extends Pipeline {
 				return RedirectSinglePageBuiltModule;
 			}
 		} else if (routeIsFallback(route)) {
-			// This is a i18n fallback route
+			// This is an i18n fallback route
 			routeToProcess = getFallbackRoute(route, this.manifest.routes);
 		}
 

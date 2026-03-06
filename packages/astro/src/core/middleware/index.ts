@@ -6,10 +6,11 @@ import {
 } from '../../i18n/utils.js';
 import type { Params, RewritePayload } from '../../types/public/common.js';
 import type { APIContext } from '../../types/public/context.js';
+import { DisabledAstroCache } from '../cache/runtime/noop.js';
 import { ASTRO_GENERATOR } from '../constants.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { getClientIpAddress } from '../routing/request.js';
+import { getClientIpAddress } from '@astrojs/internal-helpers/request';
 import { getOriginPathname } from '../routing/rewrite.js';
 import { sequence } from './sequence.js';
 
@@ -115,6 +116,7 @@ function createContext({
 			throw new AstroError(AstroErrorData.LocalsReassigned);
 		},
 		session: undefined,
+		cache: new DisabledAstroCache(),
 		csp: undefined,
 	};
 	return Object.assign(context, {

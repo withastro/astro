@@ -221,7 +221,7 @@ export default function (dir, opts = {}) {
 			try {
 				pathname = decodeURIComponent(pathname);
 			} catch {
-				/* malform uri */
+				/* malformed uri */
 			}
 		}
 
