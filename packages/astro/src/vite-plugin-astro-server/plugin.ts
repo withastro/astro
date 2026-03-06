@@ -5,7 +5,7 @@ import { isRunnableDevEnvironment, type RunnableDevEnvironment } from 'vite';
 import { toFallbackType } from '../core/app/common.js';
 import { toRoutingStrategy } from '../core/app/entrypoints/index.js';
 import type { SSRManifest, SSRManifestCSP, SSRManifestI18n } from '../core/app/types.js';
-import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES, settingsSymbol } from '../core/constants.js';
 import {
 	getAlgorithm,
 	getDirectives,
@@ -50,6 +50,9 @@ export default function createVitePluginAstroServer({
 			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
 		},
 		async configureServer(viteServer) {
+			// Expose settings so integration plugins can access them
+			(viteServer as any)[settingsSymbol] = settings;
+
 			// Cloudflare handles its own requests
 			// TODO: let this handle non-runnable environments that don't intercept requests
 			if (!isRunnableDevEnvironment(viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr])) {
