@@ -27,7 +27,7 @@
     "allowJs": true,
     // Allow JSX files (or files that are internally considered JSX, like Astro files) to be imported inside `.js` and `.ts` files.
     "jsx": "preserve",
-    "types": ["node"],
+    "types": ["*"],
     "libReplacement": false
   },
   "exclude": ["${configDir}/dist"],
