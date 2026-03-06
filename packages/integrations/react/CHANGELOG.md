@@ -1,5 +1,14 @@
 # @astrojs/react
 
+## 5.0.0-beta.4
+
+### Patch Changes
+
+- [#15700](https://github.com/withastro/astro/pull/15700) [`4e7f3e8`](https://github.com/withastro/astro/commit/4e7f3e8e6849c314a0ab031ebd7f23fb982f0529) Thanks [@ocavue](https://github.com/ocavue)! - Improves how React components are identified when setting the `include` and/or `exclude` options in projects where multiple JSX frameworks are used together
+
+- Updated dependencies [[`4ebc1e3`](https://github.com/withastro/astro/commit/4ebc1e328ac40e892078031ed9dfecf60691fd56), [`4e7f3e8`](https://github.com/withastro/astro/commit/4e7f3e8e6849c314a0ab031ebd7f23fb982f0529)]:
+  - @astrojs/internal-helpers@0.8.0-beta.3
+
 ## 5.0.0-beta.3
 
 ### Minor Changes

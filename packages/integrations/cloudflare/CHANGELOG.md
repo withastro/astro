@@ -1,5 +1,15 @@
 # @astrojs/cloudflare
 
+## 13.0.0-beta.14
+
+### Patch Changes
+
+- [#15778](https://github.com/withastro/astro/pull/15778) [`4ebc1e3`](https://github.com/withastro/astro/commit/4ebc1e328ac40e892078031ed9dfecf60691fd56) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the computed `clientAddress` was incorrect in cases of a Request header with multiple values. The `clientAddress` is now also validated to contain only characters valid in IP addresses, rejecting injection payloads.
+
+- Updated dependencies [[`4ebc1e3`](https://github.com/withastro/astro/commit/4ebc1e328ac40e892078031ed9dfecf60691fd56), [`4e7f3e8`](https://github.com/withastro/astro/commit/4e7f3e8e6849c314a0ab031ebd7f23fb982f0529)]:
+  - @astrojs/internal-helpers@0.8.0-beta.3
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 13.0.0-beta.13
 
 ### Patch Changes
