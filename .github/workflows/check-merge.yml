@@ -39,10 +39,23 @@ jobs:
         with:
           files: |
             .changeset/**/*.md
-
+      # Intentionally ran after the changed-files step so the github API is used to identify
+      # changed files rather than a local git diff, this is more reliable for pull requests
+      # originating from a forked repository.
+      - name: Checkout files
+        id: checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        if: steps.changed-files.outputs.any_changed == 'true'
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          fetch-depth: 1
+          persist-credentials: false
+          sparse-checkout: |
+            .changeset
       - name: Check if any changesets contain minor or major changes
         id: check
-        if: steps.blocked.outputs.result != 'true'
+        if: steps.changed-files.outputs.any_changed == 'true'
         env:
           ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
         run: |
