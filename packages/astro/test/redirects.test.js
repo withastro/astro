@@ -30,10 +30,6 @@ describe('Astro.redirect', () => {
 			await fixture.build();
 		});
 
-		// Tests removed: 'Returns a 302 status' - covered by unit test render.test.js
-
-		// Test removed: 'Allows external redirect' - covered by unit test render.test.js
-
 		it('Warns when used inside a component', async () => {
 			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/late');
@@ -131,18 +127,6 @@ describe('Astro.redirect output: "static"', () => {
 			});
 			await fixture.build();
 		});
-
-		// Test removed: 'Minifies the HTML emitted...' - implementation detail
-
-		// Test removed: 'Includes the meta refresh tag...' - covered by unit test template.test.js
-
-		// Test removed: 'Includes the meta noindex tag' - covered by unit test template.test.js
-
-		// Test removed: 'Includes a link to the new pages...' - covered by unit test template.test.js
-
-		// Test removed: 'Includes a canonical link' - covered by unit test template.test.js
-
-		// Test removed: 'A 302 status generates...' - covered by unit test template.test.js
 
 		it('Includes the meta refresh tag in `redirect` config pages', async () => {
 			let html = await fixture.readFile('/one/index.html');
