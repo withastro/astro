@@ -72,16 +72,9 @@ export function classNameFromFilename(filename: string): string {
 }
 
 // TODO: Patch the upstream packages with these changes
-export function patchTSX(code: string, filePath: string) {
-	const basename = filePath.split('/').pop()!;
-	const isDynamic = basename.startsWith('[') && basename.endsWith(']');
-
-	return code.replace(/\b(\S*)__AstroComponent_/g, (fullMatch, m1: string) => {
-		// If we don't have a match here, it usually means the file has a weird name that couldn't be expressed with valid identifier characters
-		if (!m1) {
-			if (basename === '404') return 'FourOhFour';
-			return fullMatch;
-		}
-		return isDynamic ? `_${m1}_` : m1[0].toUpperCase() + m1.slice(1);
-	});
+export function patchTSX(code: string, _filePath: string) {
+	// The compiler already generates unique names with the `__AstroComponent_` suffix
+	// (e.g., `Date__AstroComponent_` for `Date.astro`). We must not strip this suffix
+	// because doing so can shadow global identifiers like `Date`, `Array`, `Map`, etc.
+	return code;
 }
