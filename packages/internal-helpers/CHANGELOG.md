@@ -1,5 +1,19 @@
 # @astrojs/internal-helpers
 
+## 0.8.0-beta.3
+
+### Minor Changes
+
+- [#15778](https://github.com/withastro/astro/pull/15778) [`4ebc1e3`](https://github.com/withastro/astro/commit/4ebc1e328ac40e892078031ed9dfecf60691fd56) Thanks [@ematipico](https://github.com/ematipico)! - Added a new entry point called `/request`, which exposes utilities to work with the `Request` type:
+  - `getFirstForwardedValue`: retrieves the first value of a multi-value header.
+  - `isValidIpAddress`: checks whether a string contains only characters valid in IPv4/IPv6 addresses.
+  - `getValidatedIpFromHeader`: extracts the first value from a header and validates it as an IP address.
+  - `getClientIpAddress`: retrieves and validates the first IP from the `x-forwarded-for` header.
+
+### Patch Changes
+
+- [#15700](https://github.com/withastro/astro/pull/15700) [`4e7f3e8`](https://github.com/withastro/astro/commit/4e7f3e8e6849c314a0ab031ebd7f23fb982f0529) Thanks [@ocavue](https://github.com/ocavue)! - Adds a fork of `createFilter` from `@rollup/pluginutils` without Node.js APIs.
+
 ## 0.8.0-beta.2
 
 ### Minor Changes
