@@ -1,42 +1,27 @@
 ---
-// Test fixture for issue #15558
-// Content inside closed details elements should not be flagged as missing content
+
 ---
 
-<h1>Testing Details Element</h1>
-
-<!-- Closed details with heading - should NOT be flagged -->
+<!-- Closed <details> with heading and anchor that have valid text content -->
+<!-- These should NOT trigger a11y-missing-content -->
 <details>
-	<summary>Click to expand</summary>
-	<h2>Hidden Heading Inside Details</h2>
-	<p>This heading has content but is hidden inside a closed details element.</p>
+	<summary>Toggle section</summary>
+	<h2>Heading inside closed details</h2>
+	<a href="/">Link inside closed details</a>
 </details>
 
-<!-- Closed details with anchor - should NOT be flagged -->
-<details>
-	<summary>More information</summary>
-	<a href="#test">Hidden Link Inside Details</a>
-	<p>This link has content but is hidden inside a closed details element.</p>
-</details>
-
-<!-- Open details with heading - should NOT be flagged -->
+<!-- Open <details> with heading and anchor -->
+<!-- These should NOT trigger a11y-missing-content -->
 <details open>
-	<summary>Already expanded</summary>
-	<h2>Visible Heading Inside Open Details</h2>
-	<p>This is visible content.</p>
+	<summary>Open section</summary>
+	<h2>Heading inside open details</h2>
+	<a href="/">Link inside open details</a>
 </details>
 
-<!-- Multiple nested elements in closed details - should NOT be flagged -->
+<!-- Closed <details> with elements that have aria-label -->
+<!-- These should NOT trigger a11y-missing-content -->
 <details>
-	<summary>Complex content</summary>
-	<div>
-		<h3>Nested Heading</h3>
-		<a href="#nested">Nested Link</a>
-	</div>
+	<summary>Another section</summary>
+	<h3 aria-label="Accessible heading"></h3>
+	<a href="/" aria-label="Accessible link"></a>
 </details>
-
-<!-- Empty heading - SHOULD be flagged -->
-<h2></h2>
-
-<!-- Empty link - SHOULD be flagged -->
-<a href="#empty"></a>

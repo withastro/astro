@@ -246,6 +246,23 @@ test.describe('Dev Toolbar - Audits', () => {
 		expect(count).toEqual(0);
 	});
 
+	test('does not warn about headings and anchors inside closed details elements', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/a11y-details'));
+
+		const toolbar = page.locator('astro-dev-toolbar');
+		const appButton = toolbar.locator('button[data-app-id="astro:audit"]');
+		await appButton.click();
+
+		const auditCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:audit"]');
+		const auditHighlights = auditCanvas.locator('astro-dev-toolbar-highlight');
+
+		const count = await auditHighlights.count();
+		expect(count).toEqual(0);
+	});
+
 	test('does not warn about label with valid labelable elements', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/a11y-labelable'));
 
