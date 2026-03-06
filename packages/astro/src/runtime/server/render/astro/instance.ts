@@ -28,8 +28,17 @@ export class AstroComponentInstance {
 		this.result = result;
 		this.props = props;
 		this.factory = factory;
-		this.slotValues = {};
+		// Reuse the caller's slots object directly — only allocate a new
+		// slotValues object when there are actual slots to prerender.
+		// This avoids an extra {} allocation for the very common case of
+		// components rendered without slots (e.g., in .map() loops).
+		this.slotValues = slots;
 		for (const name in slots) {
+			// There are actual slots — switch to our own object so we don't
+			// mutate the caller's slots.
+			if (this.slotValues === slots) {
+				this.slotValues = {};
+			}
 			// prerender the slots eagerly to make collection entries propagate styles and scripts
 			let didRender = false;
 			let value = slots[name](result);
@@ -84,19 +93,22 @@ export class AstroComponentInstance {
 	}
 }
 
-// Issue warnings for invalid props for Astro components
+// Issue warnings for invalid props for Astro components.
+// Optimized: only pay the cost of building the directives array when a prop
+// starting with "client:" is actually present (extremely rare in practice).
 function validateComponentProps(
 	props: ComponentProps,
 	clientDirectives: SSRResult['clientDirectives'],
 	displayName: string,
 ) {
 	if (props != null) {
-		const directives = [...clientDirectives.keys()].map((directive) => `client:${directive}`);
 		for (const prop of Object.keys(props)) {
-			if (directives.includes(prop)) {
-				console.warn(
-					`You are attempting to render <${displayName} ${prop} />, but ${displayName} is an Astro component. Astro components do not render in the client and should not have a hydration directive. Please use a framework component for client rendering.`,
-				);
+			if (prop.length > 7 && prop.startsWith('client:')) {
+				if (clientDirectives.has(prop.slice(7))) {
+					console.warn(
+						`You are attempting to render <${displayName} ${prop} />, but ${displayName} is an Astro component. Astro components do not render in the client and should not have a hydration directive. Please use a framework component for client rendering.`,
+					);
+				}
 			}
 		}
 	}

@@ -1,5 +1,5 @@
 import type { RouteData, SSRResult } from '../../../types/public/internal.js';
-import { renderToAsyncIterable, renderToReadableStream, renderToString } from './astro/render.js';
+import { renderToAsyncIterable, renderToBuffer, renderToReadableStream } from './astro/render.js';
 import { encoder } from './common.js';
 import { type NonAstroPageComponent, renderComponentToString } from './component.js';
 import { renderCspContent } from './csp.js';
@@ -99,7 +99,7 @@ export async function renderPage(
 	result._metadata.headInTree =
 		result.componentMetadata.get(componentFactory.moduleId!)?.containsHead ?? false;
 
-	let body: BodyInit | Response;
+	let body: BodyInit | Uint8Array | Response;
 	if (streaming) {
 		// isNode is true in Deno node-compat mode but response construction from
 		// async iterables is not supported, so we fall back to ReadableStream if isDeno is true.
@@ -119,7 +119,7 @@ export async function renderPage(
 			body = await renderToReadableStream(result, componentFactory, props, children, true, route);
 		}
 	} else {
-		body = await renderToString(result, componentFactory, props, children, true, route);
+		body = await renderToBuffer(result, componentFactory, props, children, true, route);
 	}
 
 	// If the Astro component returns a Response on init, return that response
@@ -135,10 +135,13 @@ export async function renderPage(
 		headers.set('content-security-policy', renderCspContent(result));
 	}
 
-	// For non-streaming, convert string to byte array to calculate Content-Length
-	if (!streaming && typeof body === 'string') {
-		body = encoder.encode(body);
-		headers.set('Content-Length', body.byteLength.toString());
+	// For non-streaming, set Content-Length.
+	// renderToBuffer returns Uint8Array directly; renderToString returns string.
+	if (!streaming) {
+		if (typeof body === 'string') {
+			body = encoder.encode(body);
+		}
+		headers.set('Content-Length', (body as Uint8Array).byteLength.toString());
 	}
 	let status = init.status;
 	let statusText = init.statusText;
@@ -155,9 +158,12 @@ export async function renderPage(
 		}
 	}
 
+	// Uint8Array is a valid BodyInit in all runtimes but TypeScript's lib types
+	// don't always reflect this.
+	const responseBody = body as BodyInit;
 	if (status) {
-		return new Response(body, { ...init, headers, status, statusText });
+		return new Response(responseBody, { ...init, headers, status, statusText });
 	} else {
-		return new Response(body, { ...init, headers });
+		return new Response(responseBody, { ...init, headers });
 	}
 }
