@@ -456,7 +456,8 @@ export default function netlifyIntegration(
 				const ctx = createContext({
 					request,
 					params: {},
-					locals: { netlify: { context } }
+					locals: { netlify: { context } },
+					clientAddress: context.ip,
 				});
 				// https://docs.netlify.com/edge-functions/api/#return-a-rewrite
 				ctx.rewrite = (target) => {
@@ -502,8 +503,8 @@ export default function netlifyIntegration(
 			plugins: [
 				{
 					name: 'allowNodePrefixedImports',
-					setup(puglinBuild) {
-						puglinBuild.onResolve({ filter: /^node:.*$/ }, (args) => ({
+					setup(pluginBuild) {
+						pluginBuild.onResolve({ filter: /^node:.*$/ }, (args) => ({
 							path: args.path,
 							external: true,
 						}));

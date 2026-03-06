@@ -56,6 +56,16 @@ describe('astro/src/core/cookies', () => {
 			assert.equal(cookie, undefined);
 		});
 
+		it('does not return values from Object.prototype when no cookie header is present', () => {
+			const req = new Request('http://example.com/');
+			let cookies = new AstroCookies(req);
+			// These are properties that exist on Object.prototype
+			assert.equal(cookies.get('toString'), undefined);
+			assert.equal(cookies.get('constructor'), undefined);
+			assert.equal(cookies.get('hasOwnProperty'), undefined);
+			assert.equal(cookies.get('valueOf'), undefined);
+		});
+
 		it('handles malformed cookie values gracefully', () => {
 			// Test with invalid URI sequence (e.g., incomplete percent encoding)
 			const req = new Request('http://example.com/', {

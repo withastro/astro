@@ -47,6 +47,7 @@ export function createManifest({
 		checkOrigin: false,
 		allowedDomains: undefined,
 		actionBodySizeLimit: 0,
+		serverIslandBodySizeLimit: 1024 * 1024,
 		sessionConfig: undefined,
 		cacheDir: rootDir,
 		srcDir: rootDir,
