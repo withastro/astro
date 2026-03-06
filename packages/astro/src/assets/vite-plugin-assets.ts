@@ -170,10 +170,9 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 
 					return {
 						code: `
-					import { getConfiguredImageService as _getConfiguredImageService } from "astro/assets";
-					export { isLocalService } from "astro/assets";
-					import { getImage as getImageInternal } from "astro/assets";
-					${settings.config.image.responsiveStyles ? `import "${VIRTUAL_IMAGE_STYLES_ID}";` : ''}
+				import { getConfiguredImageService as _getConfiguredImageService } from "astro/assets";
+				export { isLocalService } from "astro/assets";
+				${settings.config.image.responsiveStyles ? `import "${VIRTUAL_IMAGE_STYLES_ID}";` : ''}
 					export { default as Image } from "astro/components/${imageComponentPrefix}Image.astro";
 					export { default as Picture } from "astro/components/${imageComponentPrefix}Picture.astro";
 					import { inferRemoteSize as inferRemoteSizeInternal } from "astro/assets/utils/inferRemoteSize.js";
