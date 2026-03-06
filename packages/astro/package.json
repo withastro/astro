@@ -118,6 +118,7 @@
   },
   "dependencies": {
     "@astrojs/compiler": "^3.0.0-beta.1",
+    "@types/node": ">=20.0.0",
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",

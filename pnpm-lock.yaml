@@ -529,6 +529,9 @@ importers:
       '@rollup/pluginutils':
         specifier: ^5.3.0
         version: 5.3.0(rollup@4.58.0)
+      '@types/node':
+        specifier: '>=20.0.0'
+        version: 25.2.3
       aria-query:
         specifier: ^5.3.2
         version: 5.3.2
@@ -7116,6 +7119,12 @@ importers:
       tsconfck:
         specifier: ^3.1.6
         version: 3.1.6(typescript@5.9.3)
+
+  triage/gh-15785:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../packages/astro
 
 packages:
 
@@ -19230,13 +19239,13 @@ snapshots:
 
   '@types/sax@1.2.7':
     dependencies:
-      '@types/node': 18.19.130
+      '@types/node': 25.2.3
 
   '@types/semver@7.7.1': {}
 
   '@types/send@1.2.1':
     dependencies:
-      '@types/node': 18.19.130
+      '@types/node': 25.2.3
 
   '@types/server-destroy@1.0.4':
     dependencies:
@@ -19258,11 +19267,11 @@ snapshots:
 
   '@types/ws@8.18.1':
     dependencies:
-      '@types/node': 18.19.130
+      '@types/node': 25.2.3
 
   '@types/xml2js@0.4.14':
     dependencies:
-      '@types/node': 18.19.130
+      '@types/node': 25.2.3
 
   '@types/yargs-parser@21.0.3': {}
 
@@ -19272,7 +19281,7 @@ snapshots:
 
   '@types/yauzl@2.10.3':
     dependencies:
-      '@types/node': 18.19.130
+      '@types/node': 25.2.3
     optional: true
 
   '@typescript-eslint/eslint-plugin@8.56.1(@typescript-eslint/parser@8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3)':
