@@ -166,6 +166,7 @@ function createManifest(
 		checkOrigin: false,
 		allowedDomains: manifest?.allowedDomains ?? [],
 		actionBodySizeLimit: 1024 * 1024,
+		serverIslandBodySizeLimit: 1024 * 1024,
 		middleware: manifest?.middleware ?? middlewareInstance,
 		key: createKey(),
 		csp: manifest?.csp,
