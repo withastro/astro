@@ -81,7 +81,7 @@ export type AdapterSupportWithMessage = {
 
 export type AdapterSupport = AdapterSupportsKind | AdapterSupportWithMessage;
 
-export type MiddlewareMode = 'classic' | 'edge';
+export type MiddlewareMode = 'classic' | 'edge' | "always" | "on-request";
 
 export interface AstroAdapterFeatures {
 	/**
@@ -94,6 +94,8 @@ export interface AstroAdapterFeatures {
 	/**
 	 * Determines when and how middleware executes:
 	 * - `'classic'` (default): Middleware runs for prerendered pages at build time, and for SSR pages at request time. Does not run for prerendered pages at request time.
+	 * - `'always'`: Middleware runs for prerendered pages at build time, and for both prerendered and SSR pages at request time.
+	 * - `'on-request'`: Middleware runs for both prerendered and SSR pages at request time. Middleware does not run at build time.
 	 * - `'edge'`: Middleware is deployed as a separate edge function. Middleware code will not be bundled and imported by all pages during the build.
 	 *
 	 * @default 'classic'

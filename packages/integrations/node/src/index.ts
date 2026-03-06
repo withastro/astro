@@ -7,7 +7,7 @@ import type { NodeAppHeadersJson, Options, UserOptions } from './types.js';
 import { sessionDrivers } from 'astro/config';
 import { createConfigPlugin } from './vite-plugin-config.js';
 
-export function getAdapter({ staticHeaders }: Pick<Options, 'staticHeaders'>): AstroAdapter {
+export function getAdapter({ staticHeaders, middlewareMode = "classic" }: Pick<Options, 'staticHeaders' | 'middlewareMode'>): AstroAdapter {
 	return {
 		name: '@astrojs/node',
 		entrypointResolution: 'auto',
@@ -15,7 +15,7 @@ export function getAdapter({ staticHeaders }: Pick<Options, 'staticHeaders'>): A
 		previewEntrypoint: '@astrojs/node/preview.js',
 		adapterFeatures: {
 			buildOutput: 'server',
-			middlewareMode: 'classic',
+			middlewareMode,
 			staticHeaders,
 		},
 		supportedAstroFeatures: {
