@@ -345,6 +345,10 @@ async function buildManifest(
 			settings.config.security?.actionBodySizeLimit && settings.buildOutput === 'server'
 				? settings.config.security.actionBodySizeLimit
 				: 1024 * 1024,
+		serverIslandBodySizeLimit:
+			settings.config.security?.serverIslandBodySizeLimit && settings.buildOutput === 'server'
+				? settings.config.security.serverIslandBodySizeLimit
+				: 1024 * 1024,
 		allowedDomains: settings.config.security?.allowedDomains,
 		key: encodedKey,
 		sessionConfig: sessionConfigToManifest(settings.config.session),
