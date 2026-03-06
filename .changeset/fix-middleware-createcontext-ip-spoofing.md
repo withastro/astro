@@ -4,9 +4,11 @@
 '@astrojs/netlify': patch
 ---
 
-Added `clientAddress` to the `createContext` function.
+Adds a new `clientAddress` option to the `createContext()` function
 
-Both Netlify and Vercel adapters have been updated to provide this information in their edge middleware.
+Providing this value gives adapter and middleware authors explicit control over the client IP address. When not provided, accessing `clientAddress` throws an error consistent with other contexts where it is not set by the adapter.
+
+Additionally, both of the offiical Netlify and Vercel adapters have been updated to provide this information in their edge middleware.
 
 ```js
 import { createContext } from "astro/middleware";
