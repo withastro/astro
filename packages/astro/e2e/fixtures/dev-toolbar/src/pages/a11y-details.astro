@@ -1,0 +1,27 @@
+---
+
+---
+
+<!-- Closed <details> with heading and anchor that have valid text content -->
+<!-- These should NOT trigger a11y-missing-content -->
+<details>
+	<summary>Toggle section</summary>
+	<h2>Heading inside closed details</h2>
+	<a href="/">Link inside closed details</a>
+</details>
+
+<!-- Open <details> with heading and anchor -->
+<!-- These should NOT trigger a11y-missing-content -->
+<details open>
+	<summary>Open section</summary>
+	<h2>Heading inside open details</h2>
+	<a href="/">Link inside open details</a>
+</details>
+
+<!-- Closed <details> with elements that have aria-label -->
+<!-- These should NOT trigger a11y-missing-content -->
+<details>
+	<summary>Another section</summary>
+	<h3 aria-label="Accessible heading"></h3>
+	<a href="/" aria-label="Accessible link"></a>
+</details>
