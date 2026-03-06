@@ -4,6 +4,14 @@
 '@astrojs/netlify': patch
 ---
 
-The `createContext()` function exported from `astro/middleware` now accepts an optional `clientAddress` parameter, giving adapter and middleware authors explicit control over the client IP address. When provided, `context.clientAddress` returns this value. When not provided, accessing `clientAddress` throws an error consistent with other contexts where no adapter has set it.
+Added `clientAddress` to the `createContext` function.
 
-The Vercel and Netlify edge middleware integrations have been updated to pass the platform-provided client IP to `createContext()`.
+Both Netlify and Vercel adapters have been updated to provide this information in their edge middleware.
+
+```js
+import { createContext } from "astro/middleware";
+
+createContext({
+  clientAddress: context.headers.get("x-real-ip")
+})
+```
