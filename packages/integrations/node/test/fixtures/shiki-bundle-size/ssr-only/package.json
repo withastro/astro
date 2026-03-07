@@ -1,0 +1,9 @@
+{
+  "name": "@test/node-shiki-bundle-size-ssr-only",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/node": "workspace:*",
+    "astro": "workspace:*"
+  }
+}

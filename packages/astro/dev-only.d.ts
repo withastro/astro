@@ -81,3 +81,14 @@ declare module 'virtual:astro:dev-css-all' {
 declare module 'virtual:astro:app' {
 	export const createApp: import('./src/core/app/types.js').CreateApp;
 }
+
+declare module 'virtual:astro:shiki-optimize' {
+	import type {
+		BundledTheme,
+		DynamicImportThemeRegistration,
+		BundledLanguage,
+		DynamicImportLanguageRegistration,
+	} from 'shiki';
+	export const bundledThemes: Record<BundledTheme, DynamicImportThemeRegistration>;
+	export const bundledLanguages: Record<BundledLanguage, DynamicImportLanguageRegistration>;
+}
