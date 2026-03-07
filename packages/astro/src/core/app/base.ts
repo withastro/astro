@@ -469,7 +469,12 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				status: 404,
 			});
 		}
-		const pathname = this.getPathnameFromRequest(request);
+		let pathname = this.getPathnameFromRequest(request);
+		// In dev, the route may have matched a normalized pathname (after .html stripping).
+		// Apply the same normalization for correct param extraction.
+		if (this.isDev()) {
+			pathname = pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
+		}
 		const defaultStatus = this.getDefaultStatusCode(routeData, pathname);
 
 		let response;

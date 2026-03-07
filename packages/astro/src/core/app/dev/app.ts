@@ -2,7 +2,6 @@ import type { RouteData } from '../../../types/public/index.js';
 import { MiddlewareNoDataOrNextCalled, MiddlewareNotAResponse } from '../../errors/errors-data.js';
 import { type AstroError, isAstroError } from '../../errors/index.js';
 import type { Logger } from '../../logger/core.js';
-import type { CreateRenderContext, RenderContext } from '../../render-context.js';
 import {
 	BaseApp,
 	type DevMatch,
@@ -20,7 +19,6 @@ import { req } from '../../messages/runtime.js';
 
 export class DevApp extends BaseApp<NonRunnablePipeline> {
 	logger: Logger;
-	resolvedPathname: string | undefined = undefined;
 	constructor(manifest: SSRManifest, streaming = true, logger: Logger) {
 		super(manifest, streaming, logger);
 		this.logger = logger;
@@ -60,18 +58,10 @@ export class DevApp extends BaseApp<NonRunnablePipeline> {
 		);
 		if (!matchedRoute) return undefined;
 
-		this.resolvedPathname = matchedRoute.resolvedPathname;
 		return {
 			routeData: matchedRoute.route,
 			resolvedPathname: matchedRoute.resolvedPathname,
 		};
-	}
-
-	async createRenderContext(payload: CreateRenderContext): Promise<RenderContext> {
-		return super.createRenderContext({
-			...payload,
-			pathname: this.resolvedPathname ?? payload.pathname,
-		});
 	}
 
 	async renderError(
