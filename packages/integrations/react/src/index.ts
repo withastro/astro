@@ -1,3 +1,4 @@
+import { compileFilterPatterns } from '@astrojs/internal-helpers/create-filter';
 import react, { type Options as ViteReactPluginOptions } from '@vitejs/plugin-react';
 import type { AstroIntegration, AstroRenderer } from 'astro';
 import type * as vite from 'vite';
@@ -45,6 +46,10 @@ function optionsPlugin({
 }): vite.Plugin {
 	const virtualModule = 'astro:react:opts';
 	const virtualModuleId = '\0' + virtualModule;
+	// Pre-compile include/exclude glob patterns to RegExp at build time (in Node.js).
+	// This avoids importing picomatch at runtime, which fails in non-Node.js SSR
+	// runtimes (e.g. Cloudflare Workers) that don't support CJS `require()`.
+	const compiled = include || exclude ? compileFilterPatterns(include, exclude) : undefined;
 	return {
 		name: '@astrojs/react:opts',
 		resolveId: {
@@ -61,8 +66,8 @@ function optionsPlugin({
 			},
 			handler() {
 				const opts: VirtualModuleOptions = {
-					include,
-					exclude,
+					include: compiled?.include,
+					exclude: compiled?.exclude,
 					experimentalReactChildren,
 					experimentalDisableStreaming,
 				};

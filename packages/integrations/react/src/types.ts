@@ -1,4 +1,3 @@
-import type { FilterPattern } from 'vite';
 import type { SSRResult } from 'astro';
 
 export type RendererContext = {
@@ -6,8 +5,10 @@ export type RendererContext = {
 };
 
 export type VirtualModuleOptions = {
-	include?: FilterPattern;
-	exclude?: FilterPattern;
+	/** Pre-compiled RegExp patterns from include globs (compiled at build time) */
+	include?: RegExp[];
+	/** Pre-compiled RegExp patterns from exclude globs (compiled at build time) */
+	exclude?: RegExp[];
 	experimentalReactChildren?: boolean;
 	experimentalDisableStreaming?: boolean;
 };

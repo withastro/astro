@@ -1,3 +1,4 @@
+import { createFilterFromRegExps } from '@astrojs/internal-helpers/create-filter';
 import type { AstroComponentMetadata, NamedSSRLoadedRendererValue } from 'astro';
 import opts from 'astro:preact:opts';
 import { Component as BaseComponent, h, type VNode } from 'preact';
@@ -6,14 +7,16 @@ import { getContext } from './context.js';
 import { restoreSignalsOnProps, serializeSignals } from './signals.js';
 import StaticHtml from './static-html.js';
 import type { AstroPreactAttrs, RendererContext } from './types.js';
-import { createFilter } from '@astrojs/internal-helpers/create-filter';
 
 const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
 
 let originalConsoleError: typeof console.error;
 let consoleFilterRefs = 0;
 
-const filter = opts?.include || opts?.exclude ? createFilter(opts.include, opts.exclude) : null;
+const filter =
+	opts?.include || opts?.exclude
+		? createFilterFromRegExps(opts.include ?? [], opts.exclude ?? [])
+		: null;
 
 async function check(
 	this: RendererContext,

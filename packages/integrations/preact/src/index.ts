@@ -1,4 +1,5 @@
 import { fileURLToPath } from 'node:url';
+import { compileFilterPatterns } from '@astrojs/internal-helpers/create-filter';
 import { preact, type PreactPluginOptions as VitePreactPluginOptions } from '@preact/preset-vite';
 import type { AstroIntegration, AstroRenderer, ViteUserConfig } from 'astro';
 import * as devalue from 'devalue';
@@ -20,6 +21,10 @@ export const getContainerRenderer = (): AstroRenderer => getRenderer(false);
 function optionsPlugin(include: Options['include'], exclude: Options['exclude']): Plugin {
 	const virtualModule = 'astro:preact:opts';
 	const virtualModuleId = '\0' + virtualModule;
+	// Pre-compile include/exclude glob patterns to RegExp at build time (in Node.js).
+	// This avoids importing picomatch at runtime, which fails in non-Node.js SSR
+	// runtimes (e.g. Cloudflare Workers) that don't support CJS `require()`.
+	const compiled = include || exclude ? compileFilterPatterns(include, exclude) : undefined;
 	return {
 		name: '@astrojs/preact:opts',
 		resolveId: {
@@ -36,8 +41,8 @@ function optionsPlugin(include: Options['include'], exclude: Options['exclude'])
 			},
 			handler() {
 				const opts: VirtualModuleOptions = {
-					include,
-					exclude,
+					include: compiled?.include,
+					exclude: compiled?.exclude,
 				};
 				return {
 					code: `export default ${devalue.uneval(opts)}`,

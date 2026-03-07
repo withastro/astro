@@ -1,3 +1,4 @@
+import { createFilterFromRegExps } from '@astrojs/internal-helpers/create-filter';
 import opts from 'astro:react:opts';
 import type { AstroComponentMetadata, NamedSSRLoadedRendererValue } from 'astro';
 import React from 'react';
@@ -5,13 +6,15 @@ import ReactDOM from 'react-dom/server';
 import { incrementId } from './context.js';
 import StaticHtml from './static-html.js';
 import type { RendererContext } from './types.js';
-import { createFilter } from '@astrojs/internal-helpers/create-filter';
 
 const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
 const reactTypeof = Symbol.for('react.element');
 const reactTransitionalTypeof = Symbol.for('react.transitional.element');
 
-const filter = opts?.include || opts?.exclude ? createFilter(opts.include, opts.exclude) : null;
+const filter =
+	opts?.include || opts?.exclude
+		? createFilterFromRegExps(opts.include ?? [], opts.exclude ?? [])
+		: null;
 
 async function check(
 	this: RendererContext,
