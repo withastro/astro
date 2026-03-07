@@ -21,7 +21,16 @@ export function resolveRoot(cwd?: string | URL): string {
 	if (cwd instanceof URL) {
 		cwd = fileURLToPath(cwd);
 	}
-	return cwd ? path.resolve(cwd) : process.cwd();
+	const resolved = cwd ? path.resolve(cwd) : process.cwd();
+	// Normalize to the real filesystem path to ensure consistent casing on
+	// case-insensitive systems (e.g. Windows). Without this, running from a
+	// directory typed with different casing (e.g. `d:\dev` vs `D:\dev`) causes
+	// Astro to treat paths as different files, which breaks style association.
+	try {
+		return fs.realpathSync(resolved);
+	} catch {
+		return resolved;
+	}
 }
 
 // Config paths to search for.
