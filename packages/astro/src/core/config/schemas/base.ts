@@ -107,7 +107,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		contentIntellisense: false,
 		chromeDevtoolsWorkspace: false,
 		svgo: false,
-		rustCompiler: false,
+		rustCompiler: true,
 		queuedRendering: {
 			enabled: false,
 		},
