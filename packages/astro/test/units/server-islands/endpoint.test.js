@@ -149,6 +149,78 @@ describe('getRequestData', () => {
 	});
 	// #endregion
 
+	// #region Body size limiting
+	describe('POST body size limiting', () => {
+		it('returns 413 when POST body exceeds the configured limit', async () => {
+			const limit = 100; // 100 bytes
+			// Create a body larger than the limit
+			const largeBody = JSON.stringify({
+				encryptedComponentExport: 'x'.repeat(200),
+				encryptedProps: '',
+				encryptedSlots: '',
+			});
+			const req = new Request('http://localhost/_server-islands/Island', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: largeBody,
+			});
+			const result = await getRequestData(req, limit);
+			assert.ok(result instanceof Response, 'should return a Response');
+			assert.equal(result.status, 413);
+		});
+
+		it('returns 413 when Content-Length header exceeds the configured limit', async () => {
+			const limit = 100; // 100 bytes
+			const smallBody = JSON.stringify({
+				encryptedComponentExport: 'enc',
+				encryptedProps: '',
+				encryptedSlots: '',
+			});
+			const req = new Request('http://localhost/_server-islands/Island', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Content-Length': '999999',
+				},
+				body: smallBody,
+			});
+			const result = await getRequestData(req, limit);
+			assert.ok(result instanceof Response, 'should return a Response');
+			assert.equal(result.status, 413);
+		});
+
+		it('accepts POST body within the configured limit', async () => {
+			const limit = 10000; // 10KB
+			const body = {
+				encryptedComponentExport: 'encExport',
+				encryptedProps: 'encProps',
+				encryptedSlots: 'encSlots',
+			};
+			const req = new Request('http://localhost/_server-islands/Island', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(body),
+			});
+			const result = await getRequestData(req, limit);
+			assert.ok(!(result instanceof Response), 'should not return a Response');
+			assert.equal(result.encryptedComponentExport, 'encExport');
+		});
+
+		it('uses default limit when no limit is specified', async () => {
+			// This should work fine with the default 1MB limit
+			const body = {
+				encryptedComponentExport: 'encExport',
+				encryptedProps: 'encProps',
+				encryptedSlots: 'encSlots',
+			};
+			const req = makePostRequest(body);
+			const result = await getRequestData(req);
+			assert.ok(!(result instanceof Response), 'should not return a Response');
+			assert.equal(result.encryptedComponentExport, 'encExport');
+		});
+	});
+	// #endregion
+
 	// #region Unsupported HTTP methods
 	describe('unsupported HTTP methods', () => {
 		for (const method of ['PUT', 'DELETE', 'PATCH', 'HEAD']) {

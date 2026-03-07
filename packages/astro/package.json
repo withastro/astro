@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "6.0.0-beta.17",
+  "version": "6.0.0-beta.20",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -70,6 +70,7 @@
     "./assets/endpoint/*": "./dist/assets/endpoint/*.js",
     "./assets/services/sharp": "./dist/assets/services/sharp.js",
     "./assets/services/noop": "./dist/assets/services/noop.js",
+    "./cache/memory": "./dist/core/cache/memory-provider.js",
     "./assets/fonts/runtime.js": "./dist/assets/fonts/runtime.js",
     "./loaders": "./dist/content/loaders/index.js",
     "./content/config": "./dist/content/config.js",
@@ -116,7 +117,7 @@
     "test:integration": "astro-scripts test \"test/*.test.js\""
   },
   "dependencies": {
-    "@astrojs/compiler": "^3.0.0-beta.1",
+    "@astrojs/compiler": "^3.0.0",
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
@@ -154,9 +155,10 @@
     "picomatch": "^4.0.3",
     "rehype": "^13.0.2",
     "semver": "^7.7.4",
-    "shiki": "^3.22.0",
+    "shiki": "^4.0.0",
     "smol-toml": "^1.6.0",
     "svgo": "^4.0.0",
+    "tinyclip": "^0.1.6",
     "tinyexec": "^1.0.2",
     "tinyglobby": "^0.2.15",
     "tsconfck": "^3.1.6",
@@ -166,7 +168,7 @@
     "unstorage": "^1.17.4",
     "vfile": "^6.0.3",
     "vite": "^7.3.1",
-    "vitefu": "^1.1.1",
+    "vitefu": "^1.1.2",
     "xxhash-wasm": "^1.1.0",
     "yargs-parser": "^22.0.0",
     "zod": "^4.3.6"
@@ -176,7 +178,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "workspace:*",
-    "@astrojs/compiler-rs": "^0.1.1",
+    "@astrojs/compiler-rs": "^0.1.4",
     "@playwright/test": "1.58.2",
     "@types/aria-query": "^5.0.4",
     "@types/dlv": "^1.1.5",

@@ -655,7 +655,7 @@ In the background, this update means that we now have to maintain a lot less cod
 
 ### Patch Changes
 
-- c4f7a36: Trying desesperately to figure deployment out
+- c4f7a36: Trying desperately to figure deployment out
 
 ## 0.26.0
 
@@ -717,7 +717,7 @@ In the background, this update means that we now have to maintain a lot less cod
 ### Patch Changes
 
 - 61620f1: Add support for Go To Type Definition
-- 9337f00: Fix language server not working when no initlizationOptions were passed
+- 9337f00: Fix language server not working when no initializationOptions were passed
 
 ## 0.21.1
 
@@ -748,7 +748,7 @@ In the background, this update means that we now have to maintain a lot less cod
 ### Patch Changes
 
 - e6996f5: Fixed many situations where the language server would warn abusively about not being able to find Astro
-- 4589c2b: Fix the language server not warning properly when a package is implicitely any due to missing types
+- 4589c2b: Fix the language server not warning properly when a package is implicitly any due to missing types
 
 ## 0.20.0
 
@@ -772,7 +772,7 @@ In the background, this update means that we now have to maintain a lot less cod
 
 - 421ab52: Added a new setting (`astro.typescript.allowArbitraryAttributes`) to enable support for arbitrary attributes
 - 06e3c95: Updated behaviour when no settings are provided. All features are now considered enabled by default
-- 301dcfb: Remove Lodash from the code base, significally reducing the file count of the package
+- 301dcfb: Remove Lodash from the code base, significantly reducing the file count of the package
 - dd1283b: Updated Component detection so completions now work for namespaced components (for example, typing `<myMarkdown.` will now give you a completion for the Content component)
 
 ## 0.19.4

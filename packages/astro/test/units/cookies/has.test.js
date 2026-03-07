@@ -26,5 +26,14 @@ describe('astro/src/core/cookies', () => {
 			cookies.set('foo', 'bar');
 			assert.equal(cookies.has('foo'), true);
 		});
+
+		it('returns false for Object.prototype properties when no cookie header is present', () => {
+			let req = new Request('http://example.com/');
+			let cookies = new AstroCookies(req);
+			assert.equal(cookies.has('toString'), false);
+			assert.equal(cookies.has('constructor'), false);
+			assert.equal(cookies.has('hasOwnProperty'), false);
+			assert.equal(cookies.has('valueOf'), false);
+		});
 	});
 });

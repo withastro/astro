@@ -1,0 +1,18 @@
+---
+import { API_SECRET, getSecret } from "astro:env/server"
+---
+
+<html lang="en">
+<body>
+<pre id="data">{JSON.stringify({ API_SECRET })}</pre>
+<script>
+	const el = document.createElement('pre');
+	el.id = 'client-env';
+	el.textContent = JSON.stringify({
+		API_SECRET: import.meta.env.API_SECRET,
+		PUBLIC_APP_NAME: import.meta.env.PUBLIC_APP_NAME,
+	});
+	document.body.appendChild(el);
+</script>
+</body>
+</html>

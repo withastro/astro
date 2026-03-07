@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import nodejs from '../dist/index.js';
-import { loadFixture } from './test-utils.js';
+import { createRequestAndResponse, loadFixture } from './test-utils.js';
 
 describe('test URIs beginning with a dot', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -41,6 +41,44 @@ describe('test URIs beginning with a dot', () => {
 			const res = await fixture.fetch('/.hidden/file.json');
 
 			assert.equal(res.status, 404);
+		});
+	});
+
+	describe('dotfile access via unnormalized paths', async () => {
+		it('denies dotfile access when path contains .well-known/../ traversal', async () => {
+			const { handler } = await import('./fixtures/well-known-locations/dist/server/entry.mjs');
+			const { req, res, done } = createRequestAndResponse({
+				method: 'GET',
+				url: '/.well-known/../.hidden-file',
+			});
+
+			handler(req, res);
+			req.send();
+
+			await done;
+			assert.notEqual(
+				res.statusCode,
+				200,
+				'dotfile should not be served via .well-known path traversal',
+			);
+		});
+
+		it('denies dotfolder file access when path contains .well-known/../ traversal', async () => {
+			const { handler } = await import('./fixtures/well-known-locations/dist/server/entry.mjs');
+			const { req, res, done } = createRequestAndResponse({
+				method: 'GET',
+				url: '/.well-known/../.hidden/file.json',
+			});
+
+			handler(req, res);
+			req.send();
+
+			await done;
+			assert.notEqual(
+				res.statusCode,
+				200,
+				'dotfolder file should not be served via .well-known path traversal',
+			);
 		});
 	});
 });

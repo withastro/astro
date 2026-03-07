@@ -1,5 +1,89 @@
 # @astrojs/node
 
+## 10.0.0-beta.9
+
+### Minor Changes
+
+- [#15759](https://github.com/withastro/astro/pull/15759) [`39ff2a5`](https://github.com/withastro/astro/commit/39ff2a565614250acae83d35bf196e0463857d9e) Thanks [@matthewp](https://github.com/matthewp)! - Adds a new `bodySizeLimit` option to the `@astrojs/node` adapter
+
+  You can now configure a maximum allowed request body size for your Node.js standalone server. The default limit is 1 GB. Set the value in bytes, or pass `0` to disable the limit entirely:
+
+  ```js
+  import node from '@astrojs/node';
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    adapter: node({
+      mode: 'standalone',
+      bodySizeLimit: 1024 * 1024 * 100, // 100 MB
+    }),
+  });
+  ```
+
+### Patch Changes
+
+- [#15777](https://github.com/withastro/astro/pull/15777) [`02e24d9`](https://github.com/withastro/astro/commit/02e24d952de29c1c633744e7408215bedeb4d436) Thanks [@matthewp](https://github.com/matthewp)! - Fixes CSRF origin check mismatch by passing the actual server listening port to `createRequest`, ensuring the constructed URL origin includes the correct port (e.g., `http://localhost:4321` instead of `http://localhost`). Also restricts `X-Forwarded-Proto` to only be trusted when `allowedDomains` is configured.
+
+- [#15763](https://github.com/withastro/astro/pull/15763) [`1567e8c`](https://github.com/withastro/astro/commit/1567e8cc9153f4e8089b2d942ffb73c14cca8031) Thanks [@matthewp](https://github.com/matthewp)! - Normalizes static file paths before evaluating dotfile access rules for improved consistency
+
+- Updated dependencies [[`4ebc1e3`](https://github.com/withastro/astro/commit/4ebc1e328ac40e892078031ed9dfecf60691fd56), [`4e7f3e8`](https://github.com/withastro/astro/commit/4e7f3e8e6849c314a0ab031ebd7f23fb982f0529)]:
+  - @astrojs/internal-helpers@0.8.0-beta.3
+
+## 10.0.0-beta.8
+
+### Patch Changes
+
+- Updated dependencies [[`745e632`](https://github.com/withastro/astro/commit/745e632fc590e41a5701509e9cc4ed971bdddf74)]:
+  - @astrojs/internal-helpers@0.8.0-beta.2
+
+## 10.0.0-beta.7
+
+### Major Changes
+
+- [#15654](https://github.com/withastro/astro/pull/15654) [`a32aee6`](https://github.com/withastro/astro/commit/a32aee6eb8bb9ae46caf2249ff56df27db2d4e2a) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the `experimentalErrorPageHost` option
+
+  This option allowed fetching a prerendered error page from a different host than the server is currently running on.
+
+  However, there can be security implications with prefetching from other hosts, and often more customization was required to do this safely. This has now been removed as a built-in option so that you can implement your own secure solution as needed and appropriate for your project via middleware.
+
+  #### What should I do?
+
+  If you were previously using this feature, you must remove the option from your adapter configuration as it no longer exists:
+
+  ```diff
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config'
+  import node from '@astrojs/node'
+
+  export default defineConfig({
+    adapter: node({
+      mode: 'standalone',
+  -    experimentalErrorPageHost: 'http://localhost:4321'
+    })
+  })
+  ```
+
+  You can replicate the previous behavior by checking the response status in a middleware and fetching the prerendered page yourself:
+
+  ```ts
+  // src/middleware.ts
+  import { defineMiddleware } from 'astro:middleware';
+
+  export const onRequest = defineMiddleware(async (ctx, next) => {
+    const response = await next();
+    if (response.status === 404 || response.status === 500) {
+      return fetch(`http://localhost:4321/${response.status}.html`);
+    }
+    return response;
+  });
+  ```
+
+### Patch Changes
+
+- [#15714](https://github.com/withastro/astro/pull/15714) [`9a2c949`](https://github.com/withastro/astro/commit/9a2c949a2527cc921cfc80803f1bf49e9d945a37) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where static headers weren't correctly applied when the website uses `base`.
+
+- [#15745](https://github.com/withastro/astro/pull/15745) [`20b05c0`](https://github.com/withastro/astro/commit/20b05c042bde561f53d47348fd4cb2ec478bca23) Thanks [@matthewp](https://github.com/matthewp)! - Hardens static file handler path resolution to ensure resolved paths stay within the client directory
+
 ## 10.0.0-beta.6
 
 ### Patch Changes
@@ -114,7 +198,7 @@
 
 ### Patch Changes
 
-- [#15196](https://github.com/withastro/astro/pull/15196) [`a8317c1`](https://github.com/withastro/astro/commit/a8317c1e1fe72ff3b86890801f5e898a5244c1b0) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where some prendered pages weren't correctly rendered when using the Node.js adapter in middleware mode.
+- [#15196](https://github.com/withastro/astro/pull/15196) [`a8317c1`](https://github.com/withastro/astro/commit/a8317c1e1fe72ff3b86890801f5e898a5244c1b0) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where some prerendered pages weren't correctly rendered when using the Node.js adapter in middleware mode.
 
 - [#15169](https://github.com/withastro/astro/pull/15169) [`b803d8b`](https://github.com/withastro/astro/commit/b803d8b4b4e5e71ef4b28b23186e2786dc80a308) Thanks [@rururux](https://github.com/rururux)! - fix: fix image 500 error when moving dist directory in standalone Node
 
@@ -135,7 +219,7 @@
 
   This update ensures that configured redirects are always handled as HTTP redirects regardless of output mode, and the default HTML files for the redirects are no longer generated in `static` output. It makes the Node.js adapter more consistent with the other official adapters.
 
-  No change to your project is required to take advantage of this new adapter functionality. It is not expected to cause any breaking changes. However, if you relied on the previous redirecting behavior, you may need to handle your redirects differently now. Otherwise you should notice smoother redirects, with more accurate HTTP status codes, and may potentially see some SEO gains.
+  No change to your project is required to take advantage of this new adapter functionality. It is not expected to cause any breaking changes. However, if you relied on the previous redirecting behavior, you may need to handle your redirects differently now. Otherwise, you should notice smoother redirects, with more accurate HTTP status codes, and may potentially see some SEO gains.
 
 ## 9.4.6
 
@@ -575,7 +659,7 @@
 
 ### Major Changes
 
-- [#9661](https://github.com/withastro/astro/pull/9661) [`d6edc7540864cf5d294d7b881eb886a3804f6d05`](https://github.com/withastro/astro/commit/d6edc7540864cf5d294d7b881eb886a3804f6d05) Thanks [@ematipico](https://github.com/ematipico)! - If host is unset in standalone mode, the server host will now fallback to `localhost` instead of `127.0.0.1`. When `localhost` is used, the operating system can decide to use either `::1` (ipv6) or `127.0.0.1` (ipv4) itself. This aligns with how the Astro dev and preview server works by default.
+- [#9661](https://github.com/withastro/astro/pull/9661) [`d6edc7540864cf5d294d7b881eb886a3804f6d05`](https://github.com/withastro/astro/commit/d6edc7540864cf5d294d7b881eb886a3804f6d05) Thanks [@ematipico](https://github.com/ematipico)! - If host is unset in standalone mode, the server host will now fall back to `localhost` instead of `127.0.0.1`. When `localhost` is used, the operating system can decide to use either `::1` (ipv6) or `127.0.0.1` (ipv4) itself. This aligns with how the Astro dev and preview server works by default.
 
   If you relied on `127.0.0.1` (ipv4) before, you can set the `HOST` environment variable to `127.0.0.1` to explicitly use ipv4. For example, `HOST=127.0.0.1 node ./dist/server/entry.mjs`.
 
@@ -807,7 +891,7 @@
 
 ### Patch Changes
 
-- [#7708](https://github.com/withastro/astro/pull/7708) [`4dd6c7900`](https://github.com/withastro/astro/commit/4dd6c7900ca40db1b2cebed9bd02a9eb00874d8d) Thanks [@DixCouleur](https://github.com/DixCouleur)! - fix issuse #7590 "res.writeHead is not a function" in Express/Node middleware
+- [#7708](https://github.com/withastro/astro/pull/7708) [`4dd6c7900`](https://github.com/withastro/astro/commit/4dd6c7900ca40db1b2cebed9bd02a9eb00874d8d) Thanks [@DixCouleur](https://github.com/DixCouleur)! - fix issue #7590 "res.writeHead is not a function" in Express/Node middleware
 
 - Updated dependencies [[`41afb8405`](https://github.com/withastro/astro/commit/41afb84057f606b0e7f9a73c1e40487068e43948), [`c00b6f0c4`](https://github.com/withastro/astro/commit/c00b6f0c49027125ea3026e89b21fef84380d187), [`1f0ee494a`](https://github.com/withastro/astro/commit/1f0ee494a5190356d130282f1f51ba2a5e6ea63f), [`00cb28f49`](https://github.com/withastro/astro/commit/00cb28f4964a60bc609770108d491acc277997b9), [`c264be349`](https://github.com/withastro/astro/commit/c264be3497db4aa8b3bcce0d2f79a26e35b8e91e), [`e1e958a75`](https://github.com/withastro/astro/commit/e1e958a75860292688569e82b4617fc141056202)]:
   - astro@2.10.0
@@ -946,7 +1030,7 @@
 
 ### Patch Changes
 
-- [#6088](https://github.com/withastro/astro/pull/6088) [`6a03649f0`](https://github.com/withastro/astro/commit/6a03649f0084f0df6738236d4a86c9936325cee7) Thanks [@QingXia-Ela](https://github.com/QingXia-Ela)! - fix incorrent encoded when path has other language characters
+- [#6088](https://github.com/withastro/astro/pull/6088) [`6a03649f0`](https://github.com/withastro/astro/commit/6a03649f0084f0df6738236d4a86c9936325cee7) Thanks [@QingXia-Ela](https://github.com/QingXia-Ela)! - fix incorrect encoded when path has other language characters
 
 ## 5.0.1
 
@@ -1294,7 +1378,7 @@
 
   When using the `"server"` output target, you must also include a runtime adapter via the `adapter` configuration. An adapter will _adapt_ your final build to run on the deployed platform of your choice (Netlify, Vercel, Node.js, Deno, etc).
 
-  To migrate: No action is required for most users. If you currently define an `adapter`, you will need to also add `output: 'server'` to your config file to make it explicit that you are building a server. Here is an example of what that change would look like for someone deploying to Netlify:
+  To migrate: No action is required for most users. If you currently define an `adapter`, you will also need to add `output: 'server'` to your config file to make it explicit that you are building a server. Here is an example of what that change would look like for someone deploying to Netlify:
 
   ```diff
   import { defineConfig } from 'astro/config';
