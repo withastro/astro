@@ -80,6 +80,16 @@ describe('Scripts', () => {
 			assert.equal($('script').length, 1, 'script should be rendered');
 		});
 
+		it('Scripts rendered via Astro.slots.render preserve their position', async () => {
+			let html = await fixture.readFile('/slot-script-position/index.html');
+			let $ = cheerio.load(html);
+
+			assert.equal($('script').length, 1, 'script should be rendered');
+			// The script should appear inside the <li>, not before the <ol>
+			const scriptParent = $('script').parent();
+			assert.equal(scriptParent.is('li'), true, 'script should be inside <li>, not hoisted out');
+		});
+
 		describe('Inlining', () => {
 			/** @type {import('./test-utils').Fixture} */
 			// eslint-disable-next-line @typescript-eslint/no-shadow
