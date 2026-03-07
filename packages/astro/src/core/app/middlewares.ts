@@ -1,18 +1,6 @@
 import type { MiddlewareHandler } from '../../types/public/common.js';
 import { defineMiddleware } from '../middleware/defineMiddleware.js';
 
-/**
- * Content types that can be passed when sending a request via a form
- *
- * https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormElement/enctype
- * @private
- */
-const FORM_CONTENT_TYPES = [
-	'application/x-www-form-urlencoded',
-	'multipart/form-data',
-	'text/plain',
-];
-
 // Note: TRACE is unsupported by undici/Node.js
 const SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS'];
 
@@ -24,6 +12,7 @@ const SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS'];
 export function createOriginCheckMiddleware(): MiddlewareHandler {
 	return defineMiddleware((context, next) => {
 		const { request, url, isPrerendered } = context;
+
 		// Prerendered pages should be excluded
 		if (isPrerendered) {
 			return next();
@@ -32,35 +21,49 @@ export function createOriginCheckMiddleware(): MiddlewareHandler {
 		if (SAFE_METHODS.includes(request.method)) {
 			return next();
 		}
-		const isSameOrigin = request.headers.get('origin') === url.origin;
 
-		const hasContentType = request.headers.has('content-type');
-		if (hasContentType) {
-			const formLikeHeader = hasFormLikeHeader(request.headers.get('content-type'));
-			if (formLikeHeader && !isSameOrigin) {
-				return new Response(`Cross-site ${request.method} form submissions are forbidden`, {
+		switch (request.headers.get('sec-fetch-site')) {
+			case '':
+			case null:
+				// No Sec-Fetch-Site header is present.
+				// Fallthrough to check the Origin  header.
+				break
+			case 'same-origin':
+			case 'none':
+				return next();
+			default:
+				return new Response(`Cross-site ${request.method} requests are forbidden`, {
 					status: 403,
 				});
-			}
-		} else {
-			if (!isSameOrigin) {
-				return new Response(`Cross-site ${request.method} form submissions are forbidden`, {
-					status: 403,
-				});
-			}
 		}
 
-		return next();
+		const origin = request.headers.get('origin');
+		if (!origin || origin === '') {
+			// Neither Sec-Fetch-Site nor Origin headers are present.
+			// Either the request is same-origin or not a browser request.
+			return next();
+		}
+
+		// Since the protocol is parsed and verified into the url, we could probably use it directly.
+		if (origin === url.origin) {
+			return next();
+		}
+
+		// this is what go does, not looking at the protocol(with a comment from the go implementation).
+		/*
+		const originUrl = new URL(origin);
+		if (originUrl.host === url.host) {
+			// The Origin header matches the Host header. Note that the Host header
+			// doesn't include the scheme, so we don't know if this might be an
+			// HTTP→HTTPS cross-origin request. We fail open, since all modern
+			// browsers support Sec-Fetch-Site since 2023, and running an older
+			// browser makes a clear security trade-off already. Sites can mitigate
+			// this with HTTP Strict Transport Security (HSTS).
+			return next();
+		}*/
+
+		return new Response(`Cross-site ${request.method} requests are forbidden`, {
+			status: 403,
+		});
 	});
-}
-
-function hasFormLikeHeader(contentType: string | null): boolean {
-	if (contentType) {
-		for (const FORM_CONTENT_TYPE of FORM_CONTENT_TYPES) {
-			if (contentType.toLowerCase().includes(FORM_CONTENT_TYPE)) {
-				return true;
-			}
-		}
-	}
-	return false;
 }
