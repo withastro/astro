@@ -39,7 +39,14 @@ export function createRequest(
 	{
 		skipBody = false,
 		allowedDomains = [],
-	}: { skipBody?: boolean; allowedDomains?: Partial<RemotePattern>[] } = {},
+		bodySizeLimit,
+		port: serverPort,
+	}: {
+		skipBody?: boolean;
+		allowedDomains?: Partial<RemotePattern>[];
+		bodySizeLimit?: number;
+		port?: number;
+	} = {},
 ): Request {
 	const controller = new AbortController();
 
@@ -76,7 +83,14 @@ export function createRequest(
 		allowedDomains,
 	);
 	const hostname = validated.host ?? validatedHostname ?? 'localhost';
-	const port = validated.port;
+	// Use the validated forwarded port if available. When falling back to 'localhost'
+	// (no validated host), use the actual server listening port so that the constructed
+	// URL origin includes it (e.g., http://localhost:4321 instead of http://localhost).
+	// This ensures the CSRF origin comparison uses the correct port without trusting
+	// any value from the request headers.
+	const port =
+		validated.port ??
+		(!validated.host && !validatedHostname && serverPort ? String(serverPort) : undefined);
 
 	let url: URL;
 	try {
@@ -95,7 +109,7 @@ export function createRequest(
 	};
 	const bodyAllowed = options.method !== 'HEAD' && options.method !== 'GET' && skipBody === false;
 	if (bodyAllowed) {
-		Object.assign(options, makeRequestBody(req));
+		Object.assign(options, makeRequestBody(req, bodySizeLimit));
 	}
 
 	const request = new Request(url, options);
@@ -141,8 +155,14 @@ export function createRequest(
 	}
 
 	// Get the IP of end client behind the proxy.
+	// Only trust X-Forwarded-For when the request's host was validated against allowedDomains,
+	// meaning it arrived through a trusted proxy. Without this check, any client can spoof
+	// their IP via this header.
 	// @example "1.1.1.1,8.8.8.8" => "1.1.1.1"
-	const forwardedClientIp = getFirstForwardedValue(req.headers['x-forwarded-for']);
+	const hostValidated = validated.host !== undefined || validatedHostname !== undefined;
+	const forwardedClientIp = hostValidated
+		? getFirstForwardedValue(req.headers['x-forwarded-for'])
+		: undefined;
 	const clientIp = forwardedClientIp || req.socket?.remoteAddress;
 	if (clientIp) {
 		Reflect.set(request, clientAddressSymbol, clientIp);
@@ -308,7 +328,7 @@ function makeRequestHeaders(req: NodeRequest): Headers {
 	return headers;
 }
 
-function makeRequestBody(req: NodeRequest): RequestInit {
+function makeRequestBody(req: NodeRequest, bodySizeLimit?: number): RequestInit {
 	if (req.body !== undefined) {
 		if (typeof req.body === 'string' && req.body.length > 0) {
 			return { body: Buffer.from(req.body) };
@@ -324,25 +344,53 @@ function makeRequestBody(req: NodeRequest): RequestInit {
 			req.body !== null &&
 			typeof (req.body as any)[Symbol.asyncIterator] !== 'undefined'
 		) {
-			return asyncIterableToBodyProps(req.body as AsyncIterable<any>);
+			return asyncIterableToBodyProps(req.body as AsyncIterable<any>, bodySizeLimit);
 		}
 	}
 
 	// Return default body.
-	return asyncIterableToBodyProps(req);
+	return asyncIterableToBodyProps(req, bodySizeLimit);
 }
 
-function asyncIterableToBodyProps(iterable: AsyncIterable<any>): RequestInit {
+function asyncIterableToBodyProps(
+	iterable: AsyncIterable<any>,
+	bodySizeLimit?: number,
+): RequestInit {
+	const source = bodySizeLimit != null ? limitAsyncIterable(iterable, bodySizeLimit) : iterable;
 	return {
 		// Node uses undici for the Request implementation. Undici accepts
 		// a non-standard async iterable for the body.
 		// @ts-expect-error
-		body: iterable,
+		body: source,
 		// The duplex property is required when using a ReadableStream or async
 		// iterable for the body. The type definitions do not include the duplex
 		// property because they are not up-to-date.
 		duplex: 'half',
 	};
+}
+
+/**
+ * Wraps an async iterable with a size limit. If the total bytes received
+ * exceed the limit, an error is thrown.
+ */
+async function* limitAsyncIterable(
+	iterable: AsyncIterable<any>,
+	limit: number,
+): AsyncGenerator<any> {
+	let received = 0;
+	for await (const chunk of iterable) {
+		const byteLength =
+			chunk instanceof Uint8Array
+				? chunk.byteLength
+				: typeof chunk === 'string'
+					? Buffer.byteLength(chunk)
+					: 0;
+		received += byteLength;
+		if (received > limit) {
+			throw new Error(`Body size limit exceeded: received more than ${limit} bytes`);
+		}
+		yield chunk;
+	}
 }
 
 function getAbortControllerCleanup(req?: NodeRequest): (() => void) | undefined {

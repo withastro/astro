@@ -1,7 +1,7 @@
 import type nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import * as vite from 'vite';
-import { globalContentLayer } from '../../content/content-layer.js';
+import { globalContentLayer } from '../../content/instance.js';
 import { attachContentServerListeners } from '../../content/server-listeners.js';
 import { eventCliSession, telemetry } from '../../events/index.js';
 import { SETTINGS_FILE } from '../../preferences/constants.js';

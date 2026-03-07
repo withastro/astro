@@ -56,7 +56,7 @@ describe('astro:image:layout', () => {
 				let $img = $('#local img');
 				assert.equal($img.attr('loading'), 'lazy');
 				assert.equal($img.attr('decoding'), 'async');
-				assert.equal($img.attr('fetchpriority'), 'auto');
+				assert.equal($img.attr('fetchpriority'), undefined);
 			});
 
 			it('includes priority loading attributes', () => {
@@ -623,7 +623,7 @@ describe('astro:image:layout', () => {
 				let $img = $('#local img');
 				assert.equal($img.attr('loading'), 'lazy');
 				assert.equal($img.attr('decoding'), 'async');
-				assert.equal($img.attr('fetchpriority'), 'auto');
+				assert.equal($img.attr('fetchpriority'), undefined);
 			});
 
 			it('includes priority loading attributes', () => {

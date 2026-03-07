@@ -194,7 +194,7 @@ export async function getEntryData<
 							const resolvedPath = path.resolve(entryDir, val);
 
 							// If the file exists, normalize to relative path
-							// Otherwise keep as-is (likely a Vite alias)
+							// Otherwise, keep as-is (likely a Vite alias)
 							if (fsMod.existsSync(resolvedPath)) {
 								normalizedPath = `./${val}`;
 							}

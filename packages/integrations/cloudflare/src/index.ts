@@ -1,5 +1,5 @@
 import { createReadStream, existsSync, readFileSync } from 'node:fs';
-import { appendFile, rm, stat } from 'node:fs/promises';
+import { appendFile, stat } from 'node:fs/promises';
 import { createInterface } from 'node:readline/promises';
 import { removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
 import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
@@ -181,7 +181,6 @@ export default function createIntegration({
 													'astro > zod/v4',
 													'astro > zod/v4/core',
 													'astro > clsx',
-													'astro > cssesc',
 													'astro > cookie',
 													'astro > devalue',
 													'astro > @oslojs/encoding',
@@ -192,6 +191,7 @@ export default function createIntegration({
 													'astro/app',
 													'astro/assets',
 													'astro/compiler-runtime',
+													'astro/app/entrypoint/dev',
 												],
 												exclude: [
 													'unstorage/drivers/cloudflare-kv-binding',
@@ -277,8 +277,9 @@ export default function createIntegration({
 				setAdapter({
 					name: '@astrojs/cloudflare',
 					adapterFeatures: {
-						edgeMiddleware: false,
 						buildOutput: 'server',
+						middlewareMode: 'classic',
+						preserveBuildClientDir: true,
 					},
 					entrypointResolution: 'auto',
 					previewEntrypoint: '@astrojs/cloudflare/entrypoints/preview',
@@ -412,10 +413,8 @@ export default function createIntegration({
 					}
 				}
 
-				// For fully static sites, remove the worker directory as it's not needed
-				if (_isFullyStatic) {
-					await rm(_config.build.server, { recursive: true, force: true });
-				}
+				// For fully static sites with preserveBuildClientDir, we keep the server directory
+				// to maintain consistent structure for deployment
 
 				// Delete this variable so the preview server opens the server build.
 				delete process.env.CLOUDFLARE_VITE_BUILD;

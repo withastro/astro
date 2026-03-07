@@ -22,6 +22,7 @@ import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
 import { createViteLoader } from '../core/module-loader/index.js';
+import { resolveMiddlewareMode } from '../integrations/adapter-utils.js';
 import { SERIALIZED_MANIFEST_ID } from '../manifest/serialized.js';
 import type { AstroSettings } from '../types/astro.js';
 import { ASTRO_DEV_SERVER_APP_ID } from '../vite-plugin-app/index.js';
@@ -30,6 +31,7 @@ import { createController } from './controller.js';
 import { recordServerError } from './error.js';
 import { setRouteError } from './server-state.js';
 import { routeGuardMiddleware } from './route-guard.js';
+import { secFetchMiddleware } from './sec-fetch.js';
 import { trailingSlashMiddleware } from './trailing-slash.js';
 import { sessionConfigToManifest } from '../core/session/utils.js';
 
@@ -107,6 +109,11 @@ export default function createVitePluginAstroServer({
 					route: '',
 					handle: routeGuardMiddleware(settings),
 				});
+				// Validate Sec-Fetch metadata headers to restrict cross-origin subresource requests
+				viteServer.middlewares.stack.unshift({
+					route: '',
+					handle: secFetchMiddleware(logger, settings.config.security?.allowedDomains),
+				});
 
 				// Note that this function has a name so other middleware can find it.
 				viteServer.middlewares.use(async function astroDevHandler(request, response) {
@@ -177,6 +184,7 @@ export async function createDevelopmentManifest(settings: AstroSettings): Promis
 		compressHTML: settings.config.compressHTML,
 		assetsDir: settings.config.build.assets,
 		serverLike: settings.buildOutput === 'server',
+		middlewareMode: resolveMiddlewareMode(settings.adapter?.adapterFeatures),
 		assets: new Set(),
 		entryModules: {},
 		routes: [],
@@ -192,6 +200,12 @@ export async function createDevelopmentManifest(settings: AstroSettings): Promis
 		i18n: i18nManifest,
 		checkOrigin:
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
+		actionBodySizeLimit: settings.config.security?.actionBodySizeLimit
+			? settings.config.security.actionBodySizeLimit
+			: 1024 * 1024, // 1mb default
+		serverIslandBodySizeLimit: settings.config.security?.serverIslandBodySizeLimit
+			? settings.config.security.serverIslandBodySizeLimit
+			: 1024 * 1024, // 1mb default
 		key: hasEnvironmentKey() ? getEnvironmentKey() : createKey(),
 		middleware() {
 			return {
