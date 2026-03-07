@@ -35,12 +35,13 @@ export class LiveEntryNotFoundError extends LiveCollectionError {
 }
 
 export class LiveCollectionValidationError extends LiveCollectionError {
-	constructor(collection: string, entryId: string, error: z.$ZodError) {
+	constructor(collection: string, entryId: string, error: z.$ZodError | string) {
+		const errorLines = typeof error === 'string' ? [error] : formatZodError(error);
 		super(
 			collection,
 			[
 				`**${collection} → ${entryId}** data does not match the collection schema.\n`,
-				...formatZodError(error),
+				...errorLines,
 				'',
 			].join('\n'),
 		);
