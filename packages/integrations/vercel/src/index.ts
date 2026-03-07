@@ -302,6 +302,7 @@ export default function vercelAdapter({
 					vite: {
 						ssr: {
 							external: ['@vercel/nft'],
+							noExternal: [PACKAGE_NAME],
 						},
 						plugins: [
 							createConfigPlugin({
