@@ -473,10 +473,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		// In dev, the route may have matched a normalized pathname (after .html stripping).
 		// Apply the same normalization for correct param extraction.
 		if (this.isDev()) {
-			const normalized = pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
-			if (normalized !== pathname) {
-				pathname = normalized;
-			}
+			pathname = pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
 		}
 		const defaultStatus = this.getDefaultStatusCode(routeData, pathname);
 
