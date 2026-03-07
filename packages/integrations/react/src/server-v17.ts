@@ -1,12 +1,14 @@
+import { AppEntrypoint } from 'virtual:astro:react-app';
 import type { AstroComponentMetadata, NamedSSRLoadedRendererValue } from 'astro';
 import React from 'react';
 import ReactDOM from 'react-dom/server';
 import StaticHtml from './static-html.js';
+import type { RendererContext } from './types.js';
 
 const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
 const reactTypeof = Symbol.for('react.element');
 
-function check(Component: any, props: Record<string, any>, children: any) {
+function check(this: RendererContext, Component: any, props: Record<string, any>, children: any) {
 	// Note: there are packages that do some unholy things to create "components".
 	// Checking the $$typeof property catches most of these patterns.
 	if (typeof Component === 'object') {
@@ -31,12 +33,13 @@ function check(Component: any, props: Record<string, any>, children: any) {
 		return React.createElement('div');
 	}
 
-	renderToStaticMarkup(Tester, props, children, {} as any);
+	renderToStaticMarkup.call(this, Tester, props, children, {} as any);
 
 	return isReactComponent;
 }
 
 async function renderToStaticMarkup(
+	this: RendererContext,
 	Component: any,
 	props: Record<string, any>,
 	{ default: children, ...slotted }: Record<string, any>,
@@ -61,7 +64,10 @@ async function renderToStaticMarkup(
 			value: newChildren,
 		});
 	}
-	const vnode = React.createElement(Component, newProps);
+	const componentElement = React.createElement(Component, newProps);
+	const vnode = AppEntrypoint
+		? React.createElement(AppEntrypoint, { locals: this?.result?.locals }, componentElement)
+		: componentElement;
 	let html: string;
 	if (metadata?.hydrate) {
 		html = ReactDOM.renderToString(vnode);
