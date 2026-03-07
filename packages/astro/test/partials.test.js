@@ -3,6 +3,22 @@ import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
+async function captureStdoutLogs(run) {
+	const originalWrite = process.stdout.write.bind(process.stdout);
+	let output = '';
+	process.stdout.write = (chunk, encoding, callback) => {
+		output += chunk?.toString?.() ?? '';
+		if (typeof callback === 'function') callback();
+		return true;
+	};
+	try {
+		await run();
+	} finally {
+		process.stdout.write = originalWrite;
+	}
+	return output;
+}
+
 describe('Partials', () => {
 	/** @type {import('./test-utils.js').Fixture} */
 	let fixture;
@@ -10,6 +26,7 @@ describe('Partials', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/partials/',
+			logLevel: 'warn',
 		});
 	});
 
@@ -35,6 +52,13 @@ describe('Partials', () => {
 			const $ = cheerio.load(html);
 			assert.equal($('#true').text(), 'test');
 		});
+
+		it('warns when partial pages include styles or scripts', async () => {
+			const output = await captureStdoutLogs(async () => {
+				await fixture.fetch('/partials/with-assets/').then((res) => res.text());
+			});
+			assert.match(output, /rendered as a partial, so scoped styles and scripts are stripped/);
+		});
 	});
 
 	describe('build', () => {
@@ -50,6 +74,13 @@ describe('Partials', () => {
 		it('Works with mdx', async () => {
 			const html = await fixture.readFile('/partials/docs/index.html');
 			assert.equal(html.startsWith('<h1'), true);
+		});
+
+		it('warns during build when partial pages include styles or scripts', async () => {
+			const output = await captureStdoutLogs(async () => {
+				await fixture.build();
+			});
+			assert.match(output, /rendered as a partial, so scoped styles and scripts are stripped/);
 		});
 	});
 });

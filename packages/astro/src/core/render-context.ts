@@ -354,6 +354,13 @@ export class RenderContext {
 					if (this.isRewriting) {
 						response.headers.set(REWRITE_DIRECTIVE_HEADER_KEY, REWRITE_DIRECTIVE_HEADER_VALUE);
 					}
+
+					if (this.result.partial && (this.result.styles.size > 0 || this.result.scripts.size > 0)) {
+						logger.warn(
+							null,
+							`Route ${colors.green(this.routeData.route)} is rendered as a partial, so scoped styles and scripts are stripped from the HTML output. Use a non-partial page if this route needs these assets.`,
+						);
+					}
 					break;
 				}
 				case 'fallback': {
