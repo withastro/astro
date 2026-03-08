@@ -1,4 +1,13 @@
-import type { FitEnum, FormatEnum, ResizeOptions, SharpOptions } from 'sharp';
+import type {
+	AvifOptions,
+	FitEnum,
+	FormatEnum,
+	JpegOptions,
+	PngOptions,
+	ResizeOptions,
+	SharpOptions,
+	WebpOptions,
+} from 'sharp';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { ImageFit, ImageOutputFormat, ImageQualityPreset } from '../types.js';
 import {
@@ -7,56 +16,6 @@ import {
 	type LocalImageService,
 	parseQuality,
 } from './service.js';
-
-export interface SharpJpegEncoderOptions {
-	quality?: number;
-	progressive?: boolean;
-	chromaSubsampling?: string;
-	optimiseCoding?: boolean;
-	mozjpeg?: boolean;
-	trellisQuantisation?: boolean;
-	overshootDeringing?: boolean;
-	optimiseScans?: boolean;
-	quantisationTable?: number;
-	force?: boolean;
-}
-
-export interface SharpPngEncoderOptions {
-	progressive?: boolean;
-	compressionLevel?: number;
-	adaptiveFiltering?: boolean;
-	palette?: boolean;
-	quality?: number;
-	effort?: number;
-	colours?: number;
-	dither?: number;
-	force?: boolean;
-}
-
-export interface SharpWebpEncoderOptions {
-	quality?: number;
-	alphaQuality?: number;
-	lossless?: boolean;
-	nearLossless?: boolean;
-	smartSubsample?: boolean;
-	effort?: number;
-	preset?: string;
-	loop?: number;
-	delay?: number | number[];
-	minSize?: boolean;
-	mixed?: boolean;
-	force?: boolean;
-}
-
-export interface SharpAvifEncoderOptions {
-	quality?: number;
-	lossless?: boolean;
-	effort?: number;
-	chromaSubsampling?: string;
-	bitdepth?: number;
-	preset?: string;
-	force?: boolean;
-}
 
 export interface SharpImageServiceConfig {
 	/**
@@ -72,22 +31,22 @@ export interface SharpImageServiceConfig {
 	/**
 	 * Default encoder options passed to `sharp().jpeg()`.
 	 */
-	jpeg?: SharpJpegEncoderOptions;
+	jpeg?: JpegOptions;
 
 	/**
 	 * Default encoder options passed to `sharp().png()`.
 	 */
-	png?: SharpPngEncoderOptions;
+	png?: PngOptions;
 
 	/**
 	 * Default encoder options passed to `sharp().webp()`.
 	 */
-	webp?: SharpWebpEncoderOptions;
+	webp?: WebpOptions;
 
 	/**
 	 * Default encoder options passed to `sharp().avif()`.
 	 */
-	avif?: SharpAvifEncoderOptions;
+	avif?: AvifOptions;
 }
 
 let sharp: typeof import('sharp');
@@ -115,10 +74,10 @@ export function resolveSharpEncoderOptions(
 	inputFormat: string | undefined,
 	serviceConfig: SharpImageServiceConfig = {},
 ):
-	| SharpJpegEncoderOptions
-	| SharpPngEncoderOptions
-	| SharpWebpEncoderOptions
-	| SharpAvifEncoderOptions
+	| JpegOptions
+	| PngOptions
+	| WebpOptions
+	| AvifOptions
 	| { quality?: number }
 	| undefined {
 	const quality = resolveSharpQuality(transform.quality);
@@ -136,7 +95,7 @@ export function resolveSharpEncoderOptions(
 				...(quality === undefined ? {} : { quality }),
 			};
 		case 'webp': {
-			const webpOptions: SharpWebpEncoderOptions = {
+			const webpOptions: WebpOptions = {
 				...serviceConfig.webp,
 				...(quality === undefined ? {} : { quality }),
 			};
@@ -250,15 +209,15 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 
 			if (transform.format === 'webp' && format === 'gif') {
 				// Convert animated GIF to animated WebP with loop=0 (infinite) unless overridden in config.
-				result.webp(encoderOptions as SharpWebpEncoderOptions | undefined);
+				result.webp(encoderOptions as WebpOptions | undefined);
 			} else if (transform.format === 'webp') {
-				result.webp(encoderOptions as SharpWebpEncoderOptions | undefined);
+				result.webp(encoderOptions as WebpOptions | undefined);
 			} else if (transform.format === 'png') {
-				result.png(encoderOptions as SharpPngEncoderOptions | undefined);
+				result.png(encoderOptions as PngOptions | undefined);
 			} else if (transform.format === 'avif') {
-				result.avif(encoderOptions as SharpAvifEncoderOptions | undefined);
+				result.avif(encoderOptions as AvifOptions | undefined);
 			} else if (transform.format === 'jpeg' || transform.format === 'jpg') {
-				result.jpeg(encoderOptions as SharpJpegEncoderOptions | undefined);
+				result.jpeg(encoderOptions as JpegOptions | undefined);
 			} else {
 				result.toFormat(transform.format as keyof FormatEnum, encoderOptions);
 			}
