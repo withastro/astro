@@ -8,6 +8,56 @@ import {
 	parseQuality,
 } from './service.js';
 
+export interface SharpJpegEncoderOptions {
+	quality?: number;
+	progressive?: boolean;
+	chromaSubsampling?: string;
+	optimiseCoding?: boolean;
+	mozjpeg?: boolean;
+	trellisQuantisation?: boolean;
+	overshootDeringing?: boolean;
+	optimiseScans?: boolean;
+	quantisationTable?: number;
+	force?: boolean;
+}
+
+export interface SharpPngEncoderOptions {
+	progressive?: boolean;
+	compressionLevel?: number;
+	adaptiveFiltering?: boolean;
+	palette?: boolean;
+	quality?: number;
+	effort?: number;
+	colours?: number;
+	dither?: number;
+	force?: boolean;
+}
+
+export interface SharpWebpEncoderOptions {
+	quality?: number;
+	alphaQuality?: number;
+	lossless?: boolean;
+	nearLossless?: boolean;
+	smartSubsample?: boolean;
+	effort?: number;
+	preset?: string;
+	loop?: number;
+	delay?: number | number[];
+	minSize?: boolean;
+	mixed?: boolean;
+	force?: boolean;
+}
+
+export interface SharpAvifEncoderOptions {
+	quality?: number;
+	lossless?: boolean;
+	effort?: number;
+	chromaSubsampling?: string;
+	bitdepth?: number;
+	preset?: string;
+	force?: boolean;
+}
+
 export interface SharpImageServiceConfig {
 	/**
 	 * The `limitInputPixels` option passed to Sharp. See https://sharp.pixelplumbing.com/api-constructor for more information
@@ -18,6 +68,26 @@ export interface SharpImageServiceConfig {
 	 * The `kernel` option is passed to resize calls. See https://sharp.pixelplumbing.com/api-resize/ for more information
 	 */
 	kernel?: ResizeOptions['kernel'];
+
+	/**
+	 * Default encoder options passed to `sharp().jpeg()`.
+	 */
+	jpeg?: SharpJpegEncoderOptions;
+
+	/**
+	 * Default encoder options passed to `sharp().png()`.
+	 */
+	png?: SharpPngEncoderOptions;
+
+	/**
+	 * Default encoder options passed to `sharp().webp()`.
+	 */
+	webp?: SharpWebpEncoderOptions;
+
+	/**
+	 * Default encoder options passed to `sharp().avif()`.
+	 */
+	avif?: SharpAvifEncoderOptions;
 }
 
 let sharp: typeof import('sharp');
@@ -28,6 +98,62 @@ const qualityTable: Record<ImageQualityPreset, number> = {
 	high: 80,
 	max: 100,
 };
+
+function resolveSharpQuality(quality: BaseServiceTransform['quality']): number | undefined {
+	if (!quality) return undefined;
+
+	const parsedQuality = parseQuality(quality);
+	if (typeof parsedQuality === 'number') {
+		return parsedQuality;
+	}
+
+	return quality in qualityTable ? qualityTable[quality] : undefined;
+}
+
+export function resolveSharpEncoderOptions(
+	transform: Pick<BaseServiceTransform, 'format' | 'quality'>,
+	inputFormat: string | undefined,
+	serviceConfig: SharpImageServiceConfig = {},
+):
+	| SharpJpegEncoderOptions
+	| SharpPngEncoderOptions
+	| SharpWebpEncoderOptions
+	| SharpAvifEncoderOptions
+	| { quality?: number }
+	| undefined {
+	const quality = resolveSharpQuality(transform.quality);
+
+	switch (transform.format) {
+		case 'jpg':
+		case 'jpeg':
+			return {
+				...serviceConfig.jpeg,
+				...(quality === undefined ? {} : { quality }),
+			};
+		case 'png':
+			return {
+				...serviceConfig.png,
+				...(quality === undefined ? {} : { quality }),
+			};
+		case 'webp': {
+			const webpOptions: SharpWebpEncoderOptions = {
+				...serviceConfig.webp,
+				...(quality === undefined ? {} : { quality }),
+			};
+			if (inputFormat === 'gif') {
+				webpOptions.loop ??= 0;
+			}
+			return webpOptions;
+		}
+		case 'avif':
+			return {
+				...serviceConfig.avif,
+				...(quality === undefined ? {} : { quality }),
+			};
+		default:
+			return quality === undefined ? undefined : { quality };
+	}
+}
 
 async function loadSharp() {
 	let sharpImport: typeof import('sharp');
@@ -120,21 +246,21 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 		}
 
 		if (transform.format) {
-			let quality: number | string | undefined = undefined;
-			if (transform.quality) {
-				const parsedQuality = parseQuality(transform.quality);
-				if (typeof parsedQuality === 'number') {
-					quality = parsedQuality;
-				} else {
-					quality = transform.quality in qualityTable ? qualityTable[transform.quality] : undefined;
-				}
-			}
+			const encoderOptions = resolveSharpEncoderOptions(transform, format, config.service.config);
 
 			if (transform.format === 'webp' && format === 'gif') {
-				// Convert animated GIF to animated WebP with loop=0 (infinite)
-				result.webp({ quality: typeof quality === 'number' ? quality : undefined, loop: 0 });
+				// Convert animated GIF to animated WebP with loop=0 (infinite) unless overridden in config.
+				result.webp(encoderOptions as SharpWebpEncoderOptions | undefined);
+			} else if (transform.format === 'webp') {
+				result.webp(encoderOptions as SharpWebpEncoderOptions | undefined);
+			} else if (transform.format === 'png') {
+				result.png(encoderOptions as SharpPngEncoderOptions | undefined);
+			} else if (transform.format === 'avif') {
+				result.avif(encoderOptions as SharpAvifEncoderOptions | undefined);
+			} else if (transform.format === 'jpeg' || transform.format === 'jpg') {
+				result.jpeg(encoderOptions as SharpJpegEncoderOptions | undefined);
 			} else {
-				result.toFormat(transform.format as keyof FormatEnum, { quality });
+				result.toFormat(transform.format as keyof FormatEnum, encoderOptions);
 			}
 		}
 

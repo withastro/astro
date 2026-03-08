@@ -1695,6 +1695,13 @@ export interface AstroUserConfig<
 		 * 			 entrypoint: 'astro/assets/services/sharp',
 		 * 			 config: {
 		 * 				 limitInputPixels: false,
+		 * 				 webp: {
+		 * 					 effort: 6,
+		 * 					 alphaQuality: 80,
+		 * 				 },
+		 * 				 jpeg: {
+		 * 					 mozjpeg: true,
+		 * 				 },
 		 *       },
 		 * 		 },
 		 *   },
@@ -1728,6 +1735,62 @@ export interface AstroUserConfig<
 		 * The default [kernel used for resizing images](https://sharp.pixelplumbing.com/api-resize/#resize) in the Sharp image service.
 		 *
 		 * By default this is `undefined`, which maps to Sharp's default kernel of `lanczos3`.
+		 */
+
+		/**
+		 * @docs
+		 * @name image.service.config.jpeg
+		 * @kind h4
+		 * @type {Record<string, any> | undefined}
+		 * @version 6.0.0
+		 * @description
+		 *
+		 * Default encoder options passed to `sharp().jpeg()` when using Astro's built-in Sharp image service.
+		 *
+		 * This can be used for options such as `mozjpeg`, `progressive`, `chromaSubsampling`, or a default `quality`.
+		 * Per-image `quality` values from `<Image />`, `<Picture />`, and `getImage()` still take precedence.
+		 */
+
+		/**
+		 * @docs
+		 * @name image.service.config.webp
+		 * @kind h4
+		 * @type {Record<string, any> | undefined}
+		 * @version 6.0.0
+		 * @description
+		 *
+		 * Default encoder options passed to `sharp().webp()` when using Astro's built-in Sharp image service.
+		 *
+		 * This can be used for options such as `effort`, `alphaQuality`, `lossless`, `nearLossless`, or a default `quality`.
+		 * Per-image `quality` values from `<Image />`, `<Picture />`, and `getImage()` still take precedence.
+		 */
+
+		/**
+		 * @docs
+		 * @name image.service.config.avif
+		 * @kind h4
+		 * @type {Record<string, any> | undefined}
+		 * @version 6.0.0
+		 * @description
+		 *
+		 * Default encoder options passed to `sharp().avif()` when using Astro's built-in Sharp image service.
+		 *
+		 * This can be used for options such as `effort`, `chromaSubsampling`, `bitdepth`, `lossless`, or a default `quality`.
+		 * Per-image `quality` values from `<Image />`, `<Picture />`, and `getImage()` still take precedence.
+		 */
+
+		/**
+		 * @docs
+		 * @name image.service.config.png
+		 * @kind h4
+		 * @type {Record<string, any> | undefined}
+		 * @version 6.0.0
+		 * @description
+		 *
+		 * Default encoder options passed to `sharp().png()` when using Astro's built-in Sharp image service.
+		 *
+		 * This can be used for options such as `compressionLevel`, `effort`, `palette`, or a default `quality`.
+		 * Per-image `quality` values from `<Image />`, `<Picture />`, and `getImage()` still take precedence.
 		 */
 
 		/**
