@@ -16,6 +16,7 @@ env:
 jobs:
   test:
     name: Run tests
+    if: ${{ github.repository_owner == 'withastro' }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
