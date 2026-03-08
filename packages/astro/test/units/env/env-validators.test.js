@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { getEnvFieldType, validateEnvVariable } from '../../../dist/env/validators.js';
+import {
+	getEnvFieldType,
+	validateEnvVariable,
+	validateEnvPrefixAgainstSchema,
+} from '../../../dist/env/validators.js';
 
 /**
  * @typedef {Parameters<typeof validateEnvVariable>} Params
@@ -547,6 +551,132 @@ describe('astro:env validators', () => {
 				default: 'a',
 			});
 			fixture.thenResultShouldBeValid('b');
+		});
+	});
+});
+
+describe('validateEnvPrefixAgainstSchema', () => {
+	/**
+	 * Helper to build a minimal config object matching the shape
+	 * validateEnvPrefixAgainstSchema expects.
+	 *
+	 * @param {Record<string, any>} schema
+	 * @param {string | string[] | undefined} envPrefix
+	 */
+	function makeConfig(schema, envPrefix) {
+		return /** @type {any} */ ({
+			env: { schema },
+			vite: envPrefix !== undefined ? { envPrefix } : {},
+		});
+	}
+
+	it('should not throw when schema is empty', () => {
+		assert.doesNotThrow(() => {
+			validateEnvPrefixAgainstSchema(makeConfig({}, ['PUBLIC_', 'API_']));
+		});
+	});
+
+	it('should not throw when envPrefix is not set', () => {
+		assert.doesNotThrow(() => {
+			validateEnvPrefixAgainstSchema(
+				makeConfig(
+					{ API_SECRET: { context: 'server', access: 'secret', type: 'string' } },
+					undefined,
+				),
+			);
+		});
+	});
+
+	it('should not throw when envPrefix does not match any secret variable', () => {
+		assert.doesNotThrow(() => {
+			validateEnvPrefixAgainstSchema(
+				makeConfig({ DB_PASSWORD: { context: 'server', access: 'secret', type: 'string' } }, [
+					'PUBLIC_',
+					'API_',
+				]),
+			);
+		});
+	});
+
+	it('should not throw when envPrefix matches a public variable', () => {
+		assert.doesNotThrow(() => {
+			validateEnvPrefixAgainstSchema(
+				makeConfig({ API_URL: { context: 'server', access: 'public', type: 'string' } }, [
+					'PUBLIC_',
+					'API_',
+				]),
+			);
+		});
+	});
+
+	it('should throw when envPrefix matches a secret variable (array prefix)', () => {
+		assert.throws(
+			() => {
+				validateEnvPrefixAgainstSchema(
+					makeConfig({ API_SECRET: { context: 'server', access: 'secret', type: 'string' } }, [
+						'PUBLIC_',
+						'API_',
+					]),
+				);
+			},
+			(err) => {
+				assert.equal(err.name, 'EnvPrefixConflictsWithSecret');
+				assert.equal(err.message.includes('API_SECRET'), true);
+				return true;
+			},
+		);
+	});
+
+	it('should throw when envPrefix matches a secret variable (string prefix)', () => {
+		assert.throws(
+			() => {
+				validateEnvPrefixAgainstSchema(
+					makeConfig(
+						{ SECRET_KEY: { context: 'server', access: 'secret', type: 'string' } },
+						'SECRET_',
+					),
+				);
+			},
+			(err) => {
+				assert.equal(err.name, 'EnvPrefixConflictsWithSecret');
+				assert.equal(err.message.includes('SECRET_KEY'), true);
+				return true;
+			},
+		);
+	});
+
+	it('should list all conflicting secret variables in the error', () => {
+		assert.throws(
+			() => {
+				validateEnvPrefixAgainstSchema(
+					makeConfig(
+						{
+							API_SECRET: { context: 'server', access: 'secret', type: 'string' },
+							API_KEY: { context: 'server', access: 'secret', type: 'string' },
+							API_URL: { context: 'server', access: 'public', type: 'string' },
+						},
+						['PUBLIC_', 'API_'],
+					),
+				);
+			},
+			(err) => {
+				assert.equal(err.name, 'EnvPrefixConflictsWithSecret');
+				assert.equal(err.message.includes('API_SECRET'), true);
+				assert.equal(err.message.includes('API_KEY'), true);
+				assert.equal(err.message.includes('API_URL'), false);
+				return true;
+			},
+		);
+	});
+
+	it('should not throw when only the default PUBLIC_ prefix is used', () => {
+		assert.doesNotThrow(() => {
+			validateEnvPrefixAgainstSchema(
+				makeConfig(
+					{ DB_PASSWORD: { context: 'server', access: 'secret', type: 'string' } },
+					'PUBLIC_',
+				),
+			);
 		});
 	});
 });

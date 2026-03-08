@@ -1,14 +1,14 @@
-import type { SSRManifest } from '../core/app/types.js';
 import type { AstroTimer } from '../core/config/timer.js';
 import type { TSConfig } from '../core/config/tsconfig.js';
-import type { Logger } from '../core/logger/core.js';
+import type { Logger, LoggerLevel } from '../core/logger/core.js';
 import type { AstroPreferences } from '../preferences/index.js';
 import type { AstroComponentFactory } from '../runtime/server/index.js';
-import type { GetStaticPathsOptions, GetStaticPathsResult } from './public/common.js';
+import type { GetStaticPaths } from './public/common.js';
 import type { AstroConfig } from './public/config.js';
 import type { ContentEntryType, DataEntryType } from './public/content.js';
 import type {
 	AstroAdapter,
+	AstroPrerenderer,
 	AstroRenderer,
 	InjectedScriptStage,
 	InjectedType,
@@ -20,7 +20,6 @@ export type SerializedRouteData = Omit<
 	RouteData,
 	'generate' | 'pattern' | 'redirectRoute' | 'fallbackRoutes'
 > & {
-	generate: undefined;
 	pattern: string;
 	redirectRoute: SerializedRouteData | undefined;
 	fallbackRoutes: SerializedRouteData[];
@@ -29,11 +28,15 @@ export type SerializedRouteData = Omit<
 	};
 };
 
-type CspObject = Required<Exclude<AstroConfig['experimental']['csp'], boolean>>;
+type CspObject = Required<Exclude<AstroConfig['security']['csp'], boolean>>;
 
 export interface AstroSettings {
 	config: AstroConfig;
 	adapter: AstroAdapter | undefined;
+	prerenderer:
+		| AstroPrerenderer
+		| ((defaultPrerenderer: AstroPrerenderer) => AstroPrerenderer)
+		| undefined;
 	preferences: AstroPreferences;
 	injectedRoutes: InternalInjectedRoute[];
 	resolvedInjectedRoutes: ResolvedInjectedRoute[];
@@ -64,12 +67,10 @@ export interface AstroSettings {
 	 * - the user is on the latest version already
 	 */
 	latestAstroVersion: string | undefined;
-	serverIslandMap: NonNullable<SSRManifest['serverIslandMap']>;
-	serverIslandNameMap: NonNullable<SSRManifest['serverIslandNameMap']>;
 	// This makes content optional. Internal only so it's not optional on InjectedType
 	injectedTypes: Array<Omit<InjectedType, 'content'> & Partial<Pick<InjectedType, 'content'>>>;
 	/**
-	 * Determine if the build output should be a static, dist folder or a adapter-based server output
+	 * Determine if the build output should be a static, dist folder or an adapter-based server output
 	 * undefined when unknown
 	 */
 	buildOutput: undefined | 'static' | 'server';
@@ -77,6 +78,7 @@ export interface AstroSettings {
 		fontResources: Set<string>;
 		styleHashes: Required<CspObject['styleDirective']>['hashes'];
 	};
+	logLevel: LoggerLevel;
 }
 
 /** Generic interface for a component (Astro, Svelte, React, etc.) */
@@ -85,7 +87,7 @@ export interface ComponentInstance {
 	css?: string[];
 	partial?: boolean;
 	prerender?: boolean;
-	getStaticPaths?: (options: GetStaticPathsOptions) => GetStaticPathsResult;
+	getStaticPaths?: GetStaticPaths;
 }
 
 export interface RoutesList {
@@ -95,4 +97,10 @@ export interface RoutesList {
 export interface AstroPluginOptions {
 	settings: AstroSettings;
 	logger: Logger;
+}
+
+export interface ImportedDevStyle {
+	id: string;
+	url: string;
+	content: string;
 }

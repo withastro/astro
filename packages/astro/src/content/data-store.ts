@@ -9,7 +9,7 @@ export interface RenderedContent {
 		imagePaths?: Array<string>;
 		/** Any headings that are present in this file. */
 		headings?: MarkdownHeading[];
-		/** Raw frontmatter, parsed parsed from the file. This may include data from remark plugins. */
+		/** Raw frontmatter, parsed from the file. This may include data from remark plugins. */
 		frontmatter?: Record<string, any>;
 		/** Any other metadata that is present in this file. */
 		[key: string]: unknown;
@@ -34,8 +34,6 @@ export interface DataEntry<TData extends Record<string, unknown> = Record<string
 	 */
 	deferredRender?: boolean;
 	assetImports?: Array<string>;
-	/** @deprecated */
-	legacyId?: string;
 }
 
 /**

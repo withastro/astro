@@ -1,5 +1,5 @@
 ---
-import { type CollectionEntry, getCollection, getEntry } from 'astro:content';
+import { type CollectionEntry, getCollection, getEntry, render } from 'astro:content';
 import BlogPost from '../../layouts/BlogPost.astro';
 import { db, eq, Likes } from 'astro:db';
 import { Like, LikeWithActionState } from '../../components/Like';
@@ -17,7 +17,7 @@ export async function getStaticPaths() {
 type Props = CollectionEntry<'blog'>;
 
 const post = await getEntry('blog', Astro.params.slug)!;
-const { Content } = await post.render();
+const { Content } = await render(post)
 
 const likesRes = await db.select().from(Likes).where(eq(Likes.postId, post.id)).get()!;
 ---

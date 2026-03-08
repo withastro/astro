@@ -38,11 +38,20 @@ interface GlobOptions {
 	retainBody?: boolean;
 }
 
-function generateIdDefault({ entry, base, data }: GenerateIdOptions): string {
+function generateIdDefault({ entry, base, data }: GenerateIdOptions, isLegacy?: boolean): string {
 	if (data.slug) {
 		return data.slug as string;
 	}
 	const entryURL = new URL(encodeURI(entry), base);
+	if (isLegacy) {
+		// Legacy behavior: use ID based on path, not slug
+		const { id } = getContentEntryIdAndSlug({
+			entry: entryURL,
+			contentDir: base,
+			collection: '',
+		});
+		return id;
+	}
 	const { slug } = getContentEntryIdAndSlug({
 		entry: entryURL,
 		contentDir: base,
@@ -58,20 +67,14 @@ function checkPrefix(pattern: string | Array<string>, prefix: string) {
 	return pattern.startsWith(prefix);
 }
 
+export const secretLegacyFlag = Symbol('astro.legacy-glob');
+
 /**
  * Loads multiple entries, using a glob pattern to match files.
  * @param pattern A glob pattern to match files, relative to the content directory.
  */
-export function glob(globOptions: GlobOptions): Loader;
-/** @private */
-export function glob(
-	globOptions: GlobOptions & {
-		/** @deprecated */
-		_legacy?: true;
-	},
-): Loader;
 
-export function glob(globOptions: GlobOptions): Loader {
+export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }): Loader {
 	if (checkPrefix(globOptions.pattern, '../')) {
 		throw new Error(
 			'Glob patterns cannot start with `../`. Set the `base` option to a parent directory instead.',
@@ -83,22 +86,30 @@ export function glob(globOptions: GlobOptions): Loader {
 		);
 	}
 
-	const generateId = globOptions?.generateId ?? generateIdDefault;
+	const isLegacy = !!globOptions[secretLegacyFlag];
+	const generateId =
+		globOptions?.generateId ?? ((opts: GenerateIdOptions) => generateIdDefault(opts, isLegacy));
 
 	const fileToIdMap = new Map<string, string>();
 
 	return {
 		name: 'glob-loader',
-		load: async ({ config, logger, watcher, parseData, store, generateDigest, entryTypes }) => {
+		load: async ({
+			config,
+			collection,
+			logger,
+			watcher,
+			parseData,
+			store,
+			generateDigest,
+			entryTypes,
+		}) => {
 			const renderFunctionByContentType = new WeakMap<
 				ContentEntryType,
 				ContentEntryRenderFunction
 			>();
 
 			const untouchedEntries = new Set(store.keys());
-			const isLegacy = (globOptions as any)._legacy;
-			// If global legacy collection handling flag is *not* enabled then this loader is used to emulate them instead
-			const emulateLegacyCollections = !config.legacy.collections;
 			async function syncData(
 				entry: string,
 				base: URL,
@@ -131,17 +142,6 @@ export function glob(globOptions: GlobOptions): Loader {
 					store.delete(oldId);
 				}
 
-				let legacyId: string | undefined;
-
-				if (isLegacy) {
-					const entryURL = new URL(encodeURI(entry), base);
-					const legacyOptions = getContentEntryIdAndSlug({
-						entry: entryURL,
-						contentDir: base,
-						collection: '',
-					});
-					legacyId = legacyOptions.id;
-				}
 				untouchedEntries.delete(id);
 
 				const existingEntry = store.get(id);
@@ -170,20 +170,20 @@ export function glob(globOptions: GlobOptions): Loader {
 					data,
 					filePath,
 				});
-				if (entryType.getRenderFunction) {
-					if (isLegacy && data.layout) {
-						logger.error(
-							`The Markdown "layout" field is not supported in content collections in Astro 5. Ignoring layout for ${JSON.stringify(entry)}. Enable "legacy.collections" if you need to use the layout field.`,
-						);
-					}
 
-					let render = renderFunctionByContentType.get(entryType);
-
-					if (store.has(id)) {
+				if (existingEntry && existingEntry.filePath && existingEntry.filePath !== relativePath) {
+					// Check the old file still exists - if not, this is likely a rename and
+					// the unlink event just hasn't been processed yet
+					const oldFilePath = new URL(existingEntry.filePath, config.root);
+					if (existsSync(oldFilePath)) {
 						logger.warn(
 							`Duplicate id "${id}" found in ${filePath}. Later items with the same id will overwrite earlier ones.`,
 						);
 					}
+				}
+
+				if (entryType.getRenderFunction) {
+					let render = renderFunctionByContentType.get(entryType);
 
 					if (!render) {
 						render = await entryType.getRenderFunction(config);
@@ -212,7 +212,6 @@ export function glob(globOptions: GlobOptions): Loader {
 						digest,
 						rendered,
 						assetImports: rendered?.metadata?.imagePaths,
-						legacyId,
 					});
 
 					// todo: add an explicit way to opt in to deferred rendering
@@ -224,7 +223,6 @@ export function glob(globOptions: GlobOptions): Loader {
 						filePath: relativePath,
 						digest,
 						deferredRender: true,
-						legacyId,
 					});
 				} else {
 					store.set({
@@ -233,14 +231,19 @@ export function glob(globOptions: GlobOptions): Loader {
 						body: globOptions.retainBody === false ? undefined : body,
 						filePath: relativePath,
 						digest,
-						legacyId,
 					});
 				}
 
 				fileToIdMap.set(filePath, id);
 			}
 
-			const baseDir = globOptions.base ? new URL(globOptions.base, config.root) : config.root;
+			// For legacy collections, use the collection directory as base if not explicitly set
+			let baseDir: URL;
+			if (isLegacy && !globOptions.base) {
+				baseDir = new URL(`./src/content/${collection}`, config.root);
+			} else {
+				baseDir = globOptions.base ? new URL(globOptions.base, config.root) : config.root;
+			}
 
 			if (!baseDir.pathname.endsWith('/')) {
 				baseDir.pathname = `${baseDir.pathname}/`;
@@ -282,11 +285,6 @@ export function glob(globOptions: GlobOptions): Loader {
 
 			const contentDir = new URL('content/', config.srcDir);
 
-			function isInContentDir(file: string) {
-				const fileUrl = new URL(file, baseDir);
-				return fileUrl.href.startsWith(contentDir.href);
-			}
-
 			const configFiles = new Set(
 				['config.js', 'config.ts', 'config.mjs'].map((file) => new URL(file, contentDir).href),
 			);
@@ -299,10 +297,6 @@ export function glob(globOptions: GlobOptions): Loader {
 			await Promise.all(
 				files.map((entry) => {
 					if (isConfigFile(entry)) {
-						return;
-					}
-					if (!emulateLegacyCollections && isInContentDir(entry)) {
-						skippedFiles.push(entry);
 						return;
 					}
 					return limit(async () => {

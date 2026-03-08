@@ -14,6 +14,7 @@ describe('fonts providers', () => {
 			assert.equal(fontProviders.fontsource().name, 'fontsource');
 			assert.equal(fontProviders.google().name, 'google');
 			assert.equal(fontProviders.googleicons().name, 'googleicons');
+			assert.equal(fontProviders.npm().name, 'npm');
 			assert.equal(fontProviders.local().name, 'local');
 		});
 

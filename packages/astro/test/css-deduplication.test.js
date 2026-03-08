@@ -19,8 +19,8 @@ describe('CSS deduplication for hydrated components', () => {
 		it('should not duplicate CSS for hydrated components', async () => {
 			const assets = await fixture.readdir('/_astro');
 
-			// Generated file for Counter.css
-			const COUNTER_CSS_PATH = '/_astro/index.DbgLc3FE.css';
+			// Generated file for Counter.css (filename format changed in main-next)
+			const COUNTER_CSS_PATH = '/_astro/index@_@astro.DbgLc3FE.css';
 			let file = await fixture.readFile(COUNTER_CSS_PATH);
 			file = file.replace(/\s+/g, '');
 

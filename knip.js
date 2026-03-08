@@ -3,7 +3,7 @@ const testEntry = 'test/**/*.test.js';
 
 /** @type {import('knip').KnipConfig} */
 export default {
-	ignore: ['**/test/**/{fixtures,_temp-fixtures}/**', '.github/scripts/**'],
+	ignore: ['**/test/**/{fixtures,_temp-fixtures}/**', 'triage/**', '.github/scripts/**'],
 	tags: ['-lintignore'],
 	ignoreWorkspaces: [
 		'examples/**',
@@ -15,11 +15,13 @@ export default {
 		'.': {
 			ignoreDependencies: [
 				'@astrojs/check', // Used by the build script but not as a standard module import
+				'bgproc', // Used by agents, documented in the AGENTS.md file
 			],
 			// In smoke tests, we checkout to the docs repo so those binaries are not present in this project
 			// vsce and ovsx are only used in CI for publishing, and due to how we have to publish the VS Code extension have
 			// to be installed in the vscode package, but knip is expecting them to be in the root node_modules
 			ignoreBinaries: ['docgen', 'docgen:errors', 'playwright', 'vsce', 'ovsx'],
+			entry: ['.flue/workflows/*/WORKFLOW.ts'],
 		},
 		'packages/*': {
 			entry: [testEntry],
@@ -32,8 +34,15 @@ export default {
 				'test/types/**/*',
 				'e2e/**/*.test.js',
 				'test/units/teardown.js',
+				// Can't detect this file when using inside a vite plugin
+				'src/vite-plugin-app/createAstroServerApp.ts',
 			],
-			ignore: ['**/e2e/**/{fixtures,_temp-fixtures}/**', 'performance/**/*'],
+			ignore: [
+				'**/e2e/**/{fixtures,_temp-fixtures}/**',
+				'performance/**/*',
+				// This export is resolved dynamically in packages/astro/src/vite-plugin-app/index.ts
+				'src/vite-plugin-app/createExports.ts',
+			],
 			// Those deps are used in tests but only referenced as strings
 			ignoreDependencies: [
 				'rehype-autolink-headings',
@@ -41,6 +50,8 @@ export default {
 				'rehype-toc',
 				'remark-code-titles',
 				'@types/http-cache-semantics',
+				// Dynamically imported by astro add cloudflare
+				'@astrojs/cloudflare',
 			],
 		},
 		'packages/db': {
@@ -75,14 +86,10 @@ export default {
 		'packages/markdown/remark': {
 			entry: [testEntry],
 			// package.json#imports are not resolved at the moment
-			ignore: ['src/import-plugin-browser.ts'],
+			ignore: ['src/import-plugin-browser.ts', 'src/shiki-engine-workerd.ts'],
 		},
 		'packages/upgrade': {
 			entry: ['src/index.ts', testEntry],
-		},
-		scripts: {
-			// Used in shell script
-			ignoreDependencies: ['marked'],
 		},
 	},
 };

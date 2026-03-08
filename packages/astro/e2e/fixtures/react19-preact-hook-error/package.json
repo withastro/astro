@@ -1,0 +1,15 @@
+{
+  "name": "@e2e/react19-preact-hook-error",
+  "version": "0.0.0",
+  "private": true,
+  "devDependencies": {
+    "@astrojs/preact": "workspace:*",
+    "@astrojs/react": "workspace:*",
+    "astro": "workspace:*"
+  },
+  "dependencies": {
+    "preact": "^10.28.4",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  }
+}

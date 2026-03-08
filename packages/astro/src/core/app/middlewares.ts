@@ -1,5 +1,5 @@
 import type { MiddlewareHandler } from '../../types/public/common.js';
-import { defineMiddleware } from '../middleware/index.js';
+import { defineMiddleware } from '../middleware/defineMiddleware.js';
 
 /**
  * Content types that can be passed when sending a request via a form

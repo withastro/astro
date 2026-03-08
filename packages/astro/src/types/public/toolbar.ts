@@ -70,6 +70,6 @@ export type DevToolbarMetadata = Window &
 			version: string;
 			latestAstroVersion: string | undefined;
 			debugInfo: string;
-			placement?: DevToolbarPlacement;
+			placement: DevToolbarPlacement | undefined;
 		};
 	};

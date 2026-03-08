@@ -9,8 +9,7 @@ export async function GET() {
 
 	const banner = await getEntry(welcomePost.data.banner);
 	const author = await getEntry(welcomePost.data.author);
-	const rawRelatedPosts = await getEntries(welcomePost.data.relatedPosts ?? []);
-	const relatedPosts = rawRelatedPosts.map(({ render /** filter out render() function */, ...p }) => p);
+	const relatedPosts = await getEntries(welcomePost.data.relatedPosts ?? []);
 
 	return Response.json({
 		welcomePost,

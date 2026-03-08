@@ -1,4 +1,3 @@
-import './polyfill.js';
 import { posix } from 'node:path';
 import { getDefaultClientDirectives } from '../core/client-directive/index.js';
 import { ASTRO_CONFIG_DEFAULTS } from '../core/config/schemas/index.js';
@@ -9,9 +8,9 @@ import { nodeLogDestination } from '../core/logger/node.js';
 import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
 import { removeLeadingForwardSlash } from '../core/path.js';
 import { RenderContext } from '../core/render-context.js';
-import { getParts } from '../core/routing/manifest/parts.js';
-import { getPattern } from '../core/routing/manifest/pattern.js';
-import { validateSegment } from '../core/routing/manifest/segment.js';
+import { getParts } from '../core/routing/parts.js';
+import { getPattern } from '../core/routing/pattern.js';
+import { validateSegment } from '../core/routing/segment.js';
 import type { AstroComponentFactory } from '../runtime/server/index.js';
 import { SlotString } from '../runtime/server/render/slot.js';
 import type { ComponentInstance } from '../types/astro.js';
@@ -80,7 +79,7 @@ export type ContainerRenderOptions = {
 	 */
 	params?: Record<string, string | undefined>;
 	/**
-	 * Useful if your component needs to access some locals without the use a middleware.
+	 * Useful if your component needs to access some locals without the use of middleware.
 	 * ```js
 	 * container.renderToString(Component, { locals: { getSomeValue() {} } });
 	 * ```
@@ -137,17 +136,21 @@ function createManifest(
 		};
 	}
 
+	const root = new URL(import.meta.url);
 	return {
-		hrefRoot: import.meta.url,
-		srcDir: manifest?.srcDir ?? ASTRO_CONFIG_DEFAULTS.srcDir,
-		buildClientDir: manifest?.buildClientDir ?? ASTRO_CONFIG_DEFAULTS.build.client,
-		buildServerDir: manifest?.buildServerDir ?? ASTRO_CONFIG_DEFAULTS.build.server,
-		publicDir: manifest?.publicDir ?? ASTRO_CONFIG_DEFAULTS.publicDir,
-		outDir: manifest?.outDir ?? ASTRO_CONFIG_DEFAULTS.outDir,
-		cacheDir: manifest?.cacheDir ?? ASTRO_CONFIG_DEFAULTS.cacheDir,
+		rootDir: root,
+		srcDir: manifest?.srcDir ?? new URL(ASTRO_CONFIG_DEFAULTS.srcDir, root),
+		buildClientDir: manifest?.buildClientDir ?? new URL(ASTRO_CONFIG_DEFAULTS.build.client, root),
+		buildServerDir: manifest?.buildServerDir ?? new URL(ASTRO_CONFIG_DEFAULTS.build.server, root),
+		publicDir: manifest?.publicDir ?? new URL(ASTRO_CONFIG_DEFAULTS.publicDir, root),
+		outDir: manifest?.outDir ?? new URL(ASTRO_CONFIG_DEFAULTS.outDir, root),
+		cacheDir: manifest?.cacheDir ?? new URL(ASTRO_CONFIG_DEFAULTS.cacheDir, root),
 		trailingSlash: manifest?.trailingSlash ?? ASTRO_CONFIG_DEFAULTS.trailingSlash,
 		buildFormat: manifest?.buildFormat ?? ASTRO_CONFIG_DEFAULTS.build.format,
 		compressHTML: manifest?.compressHTML ?? ASTRO_CONFIG_DEFAULTS.compressHTML,
+		assetsDir: manifest?.assetsDir ?? ASTRO_CONFIG_DEFAULTS.build.assets,
+		serverLike: manifest?.serverLike ?? true,
+		middlewareMode: manifest?.middlewareMode ?? 'classic',
 		assets: manifest?.assets ?? new Set(),
 		assetsPrefix: manifest?.assetsPrefix ?? undefined,
 		entryModules: manifest?.entryModules ?? {},
@@ -162,9 +165,23 @@ function createManifest(
 		i18n: manifest?.i18n,
 		checkOrigin: false,
 		allowedDomains: manifest?.allowedDomains ?? [],
+		actionBodySizeLimit: 1024 * 1024,
+		serverIslandBodySizeLimit: 1024 * 1024,
 		middleware: manifest?.middleware ?? middlewareInstance,
 		key: createKey(),
 		csp: manifest?.csp,
+		image: manifest?.image ?? {},
+		shouldInjectCspMetaTags: false,
+		devToolbar: {
+			enabled: false,
+			latestAstroVersion: undefined,
+			debugInfoOutput: '',
+			placement: undefined,
+		},
+		logLevel: 'silent',
+		experimentalQueuedRendering: manifest?.experimentalQueuedRendering ?? {
+			enabled: false,
+		},
 	};
 }
 
@@ -252,6 +269,11 @@ type AstroContainerManifest = Pick<
 	| 'cacheDir'
 	| 'csp'
 	| 'allowedDomains'
+	| 'serverLike'
+	| 'middlewareMode'
+	| 'assetsDir'
+	| 'image'
+	| 'experimentalQueuedRendering'
 >;
 
 type AstroContainerConstructor = {
@@ -285,7 +307,6 @@ export class experimental_AstroContainer {
 			}),
 			manifest: createManifest(manifest, renderers),
 			streaming,
-			serverLike: true,
 			renderers: renderers ?? manifest?.renderers ?? [],
 			resolve: async (specifier: string) => {
 				if (this.#withManifest) {
@@ -578,9 +599,6 @@ export class experimental_AstroContainer {
 		return {
 			route: url.pathname,
 			component: '',
-			generate(_data: any): string {
-				return '';
-			},
 			params: Object.keys(params),
 			pattern: getPattern(
 				segments,
@@ -593,6 +611,7 @@ export class experimental_AstroContainer {
 			fallbackRoutes: [],
 			isIndex: false,
 			origin: 'internal',
+			distURL: [],
 		};
 	}
 

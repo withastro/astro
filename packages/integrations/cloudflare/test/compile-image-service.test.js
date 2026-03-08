@@ -1,71 +1,84 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { fileURLToPath } from 'node:url';
-import { astroCli, wranglerCli } from './_test-utils.js';
-
-const root = new URL('./fixtures/compile-image-service/', import.meta.url);
+import * as cheerio from 'cheerio';
+import { loadFixture } from './_test-utils.js';
 
 describe('CompileImageService', () => {
-	let wrangler;
-	before(async () => {
-		await astroCli(fileURLToPath(root), 'build').getResult();
+	let fixture;
 
-		wrangler = wranglerCli(fileURLToPath(root));
-		await new Promise((resolve) => {
-			wrangler.stdout.on('data', (data) => {
-				// console.log('[stdout]', data.toString());
-				if (data.toString().includes('http://127.0.0.1:8788')) resolve();
-			});
-			wrangler.stderr.on('data', (_data) => {
-				// console.log('[stderr]', data.toString());
-			});
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/compile-image-service/',
 		});
 	});
 
-	after(() => {
-		wrangler.kill();
+	describe('dev', () => {
+		let devServer;
+
+		before(async () => {
+			devServer = await fixture.startDevServer();
+		});
+
+		after(async () => {
+			await devServer.stop();
+		});
+
+		// In dev, the compile service falls back to passthrough because sharp cannot run in workerd. Images are served unoptimized
+		// through the /_image endpoint.
+		it('returns 200 for local images via /_image endpoint', async () => {
+			const html = await fixture.fetch('/blog/post').then((res) => res.text());
+			const $ = cheerio.load(html);
+			const src = $('img').attr('src');
+			assert.ok(
+				src.startsWith('/_image'),
+				`Expected image src to route through /_image, got: ${src}`,
+			);
+			const res = await fixture.fetch(src);
+			assert.equal(res.status, 200);
+		});
 	});
 
-	it('forbids http://', async () => {
-		const res = await fetch('http://127.0.0.1:8788/_image?href=http://placehold.co/600x400');
-		const html = await res.text();
-		const status = res.status;
-		assert.equal(html, 'Forbidden');
-		assert.equal(status, 403);
-	});
+	describe('preview', () => {
+		let previewServer;
 
-	it('forbids https://', async () => {
-		const res = await fetch('http://127.0.0.1:8788/_image?href=https://placehold.co/600x400');
-		const html = await res.text();
-		const status = res.status;
-		assert.equal(html, 'Forbidden');
-		assert.equal(status, 403);
-	});
+		before(async () => {
+			await fixture.build();
+			previewServer = await fixture.preview();
+		});
 
-	it('forbids //', async () => {
-		const res = await fetch('http://127.0.0.1:8788/_image?href=//placehold.co/600x400');
-		const html = await res.text();
-		const status = res.status;
-		assert.equal(html, 'Forbidden');
-		assert.equal(status, 403);
-	});
+		after(async () => {
+			await previewServer.stop();
+		});
 
-	it('allows trusted with redirect', async () => {
-		const res = await fetch(
-			'http://127.0.0.1:8788/_image?href=https://astro.build/_astro/HeroBackground.B0iWl89K_2hpsgp.webp',
-			{ redirect: 'manual' },
-		);
-		const header = res.headers.get('location');
-		const status = res.status;
-		assert.equal(header, 'https://astro.build/_astro/HeroBackground.B0iWl89K_2hpsgp.webp');
-		assert.equal(status, 302);
-	});
+		it('forbids http://', async () => {
+			const res = await fixture.fetch('/_image?href=http://placehold.co/600x400');
+			const html = await res.text();
+			const status = res.status;
+			assert.equal(html, 'Forbidden');
+			assert.equal(status, 403);
+		});
 
-	it('allows local', async () => {
-		const res = await fetch('http://127.0.0.1:8788/_image?href=/_astro/placeholder.gLBdjEDe.jpg');
-		const blob = await res.blob();
-		const status = res.status;
-		assert.equal(blob.type, 'image/jpeg');
-		assert.equal(status, 200);
+		it('forbids https://', async () => {
+			const res = await fixture.fetch('/_image?href=https://placehold.co/600x400');
+			const html = await res.text();
+			const status = res.status;
+			assert.equal(html, 'Forbidden');
+			assert.equal(status, 403);
+		});
+
+		it('forbids //', async () => {
+			const res = await fixture.fetch('/_image?href=//placehold.co/600x400');
+			const html = await res.text();
+			const status = res.status;
+			assert.equal(html, 'Blocked');
+			assert.equal(status, 403);
+		});
+
+		it('allows local', async () => {
+			const res = await fixture.fetch('/_image?href=/_astro/placeholder.gLBdjEDe.jpg&f=jpg');
+			assert.equal(res.status, 200);
+			const blob = await res.blob();
+			assert.equal(blob.type, 'image/jpeg');
+		});
 	});
 });

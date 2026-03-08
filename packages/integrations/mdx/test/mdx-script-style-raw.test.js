@@ -23,7 +23,7 @@ describe('MDX script style raw', () => {
 			await devServer.stop();
 		});
 
-		it('works with with raw script and style strings', async () => {
+		it('works with raw script and style strings', async () => {
 			const res = await fixture.fetch('/index.html');
 			assert.equal(res.status, 200);
 
@@ -47,7 +47,7 @@ describe('MDX script style raw', () => {
 	});
 
 	describe('build', () => {
-		it('works with with raw script and style strings', async () => {
+		it('works with raw script and style strings', async () => {
 			const fixture = await loadFixture({
 				root: FIXTURE_ROOT,
 				integrations: [mdx()],

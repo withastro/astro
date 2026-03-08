@@ -1,9 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { AstroCookies } from '../../../dist/core/cookies/index.js';
-import { apply as applyPolyfill } from '../../../dist/core/polyfill.js';
-
-applyPolyfill();
 
 const encode = (data) => {
 	const dataSerialized = typeof data === 'string' ? data : JSON.stringify(data);
@@ -57,6 +54,16 @@ describe('astro/src/core/cookies', () => {
 			let cookies = new AstroCookies(req);
 			let cookie = cookies.get('foo');
 			assert.equal(cookie, undefined);
+		});
+
+		it('does not return values from Object.prototype when no cookie header is present', () => {
+			const req = new Request('http://example.com/');
+			let cookies = new AstroCookies(req);
+			// These are properties that exist on Object.prototype
+			assert.equal(cookies.get('toString'), undefined);
+			assert.equal(cookies.get('constructor'), undefined);
+			assert.equal(cookies.get('hasOwnProperty'), undefined);
+			assert.equal(cookies.get('valueOf'), undefined);
 		});
 
 		it('handles malformed cookie values gracefully', () => {

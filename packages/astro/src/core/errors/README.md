@@ -20,7 +20,7 @@ Title:
 Message:
 
 - Begin with **what happened** and **why**. (ex: `Could not use {feature} because Server-side Rendering is not enabled.`)
-- Then, **describe the action the user should take**. (ex: `Update your Astro config with `output: 'server'` to enable Server-side Rendering.`)
+- Then, **describe the action that the user should take**. (ex: `Update your Astro config with `output: 'server'` to enable Server-side Rendering.`)
 - Although this does not need to be as brief as the `title`, try to keep sentences short, clear and direct to give the reader all the necessary information quickly as possible. Users should be able to skim the message and understand the problem and solution.
 - If your message is too long, or the solution is not guaranteed to work, use the `hint` property to provide more information.
 
@@ -97,7 +97,7 @@ If the error cannot be triggered at all anymore, it can deprecated by adding a `
 ```js
 /**
  * @docs
- * @deprecated Removed in Astro v9.8.6 as it is no longer relevant due to...
+ * @deprecated This error was removed in Astro v6.0.0 along with the removal of...
  */
 ```
 

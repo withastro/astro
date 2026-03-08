@@ -18,7 +18,7 @@ export async function renderEndpoint(
 	const { request, url } = context;
 
 	const method = request.method.toUpperCase();
-	// use the exact match on `method`, fallback to ALL
+	// use the exact match on `method`, fall back to ALL
 	let handler = mod[method] ?? mod['ALL'];
 	// use GET handler for HEAD requests
 	if (!handler && method === 'HEAD' && mod['GET']) {

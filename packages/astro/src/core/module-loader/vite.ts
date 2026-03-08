@@ -2,11 +2,16 @@ import { EventEmitter } from 'node:events';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import type * as vite from 'vite';
+import type { RunnableDevEnvironment } from 'vite';
 import { collectErrorMetadata } from '../errors/dev/utils.js';
 import { getViteErrorPayload } from '../errors/dev/vite.js';
-import type { ModuleLoader, ModuleLoaderEventEmitter } from './loader.js';
+import type { ModuleLoader, ModuleLoaderEventEmitter } from './runner.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 
-export function createViteLoader(viteServer: vite.ViteDevServer): ModuleLoader {
+export function createViteLoader(
+	viteServer: vite.ViteDevServer,
+	ssrEnvironment: RunnableDevEnvironment,
+): ModuleLoader {
 	const events = new EventEmitter() as ModuleLoaderEventEmitter;
 
 	let isTsconfigUpdated = false;
@@ -34,8 +39,8 @@ export function createViteLoader(viteServer: vite.ViteDevServer): ModuleLoader {
 		}
 	});
 
-	const _wsSend = viteServer.hot.send;
-	viteServer.hot.send = function (...args: any) {
+	const _wsSend = viteServer.environments.client.hot.send;
+	viteServer.environments.client.hot.send = function (...args: any) {
 		// If the tsconfig changed, Vite will trigger a reload as it invalidates the module.
 		// However in Astro, the whole server is restarted when the tsconfig changes. If we
 		// do a restart and reload at the same time, the browser will refetch and the server
@@ -44,7 +49,7 @@ export function createViteLoader(viteServer: vite.ViteDevServer): ModuleLoader {
 			isTsconfigUpdated = false;
 			return;
 		}
-		const msg = args[0] as vite.HMRPayload;
+		const msg = args[0] as vite.HotPayload;
 		if (msg?.type === 'error') {
 			// If we have an error, but it didn't go through our error enhancement program, it means that it's a HMR error from
 			// vite itself, which goes through a different path. We need to enhance it here.
@@ -71,41 +76,44 @@ export function createViteLoader(viteServer: vite.ViteDevServer): ModuleLoader {
 
 	return {
 		import(src) {
-			return viteServer.ssrLoadModule(src);
+			return ssrEnvironment.runner.import(src);
 		},
 		async resolveId(spec, parent) {
-			const ret = await viteServer.pluginContainer.resolveId(spec, parent);
+			const ret = await ssrEnvironment.pluginContainer.resolveId(spec, parent);
 			return ret?.id;
 		},
 		getModuleById(id) {
-			return viteServer.moduleGraph.getModuleById(id);
+			return ssrEnvironment.moduleGraph.getModuleById(id);
 		},
 		getModulesByFile(file) {
-			return viteServer.moduleGraph.getModulesByFile(file);
+			return ssrEnvironment.moduleGraph.getModulesByFile(file);
 		},
 		getModuleInfo(id) {
-			return viteServer.pluginContainer.getModuleInfo(id);
+			return ssrEnvironment.pluginContainer.getModuleInfo(id);
 		},
 		eachModule(cb) {
-			return viteServer.moduleGraph.idToModuleMap.forEach(cb);
+			return ssrEnvironment.moduleGraph.idToModuleMap.forEach(cb);
 		},
 		invalidateModule(mod) {
-			viteServer.moduleGraph.invalidateModule(mod as vite.ModuleNode);
+			ssrEnvironment.moduleGraph.invalidateModule(mod as unknown as vite.EnvironmentModuleNode);
 		},
 		fixStacktrace(err) {
 			return viteServer.ssrFixStacktrace(err);
 		},
 		clientReload() {
-			viteServer.hot.send({
+			viteServer.environments.client.hot.send({
 				type: 'full-reload',
 				path: '*',
 			});
 		},
 		webSocketSend(msg) {
-			return viteServer.hot.send(msg);
+			return viteServer.environments.client.hot.send(msg);
+		},
+		getSSREnvironment() {
+			return viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr] as RunnableDevEnvironment;
 		},
 		isHttps() {
-			return !!viteServer.config.server.https;
+			return !!ssrEnvironment.config.server.https;
 		},
 		events,
 	};
