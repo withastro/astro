@@ -97,7 +97,9 @@ export default function createIntegration({
 					);
 				}
 
+				let needsSessionKVBinding = false;
 				if (!session?.driver) {
+					needsSessionKVBinding = true;
 					logger.info(
 						`Enabling sessions with Cloudflare KV with the "${sessionKVBindingName}" KV binding.`,
 					);
@@ -118,7 +120,7 @@ export default function createIntegration({
 
 				cfPluginConfig = {
 					config: cloudflareConfigCustomizer({
-						sessionKVBindingName,
+						sessionKVBindingName: needsSessionKVBinding ? sessionKVBindingName : false,
 						imagesBindingName:
 							needsImagesBinding || needsImagesBindingForDev ? imagesBindingName : false,
 					}),

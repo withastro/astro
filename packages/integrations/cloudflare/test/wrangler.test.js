@@ -65,6 +65,13 @@ describe('cloudflareConfigCustomizer', () => {
 
 			assert.deepEqual(result.kv_namespaces, [{ binding: DEFAULT_SESSION_KV_BINDING_NAME }]);
 		});
+
+		it('does not add SESSION binding when explicitly disabled', () => {
+			const customizer = cloudflareConfigCustomizer({ sessionKVBindingName: false });
+			const result = customizer({});
+
+			assert.equal(result.kv_namespaces, undefined);
+		});
 	});
 
 	describe('images binding', () => {
