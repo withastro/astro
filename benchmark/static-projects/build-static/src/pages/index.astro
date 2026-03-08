@@ -1,0 +1,51 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Card from '../components/Card.astro';
+
+const posts = Array.from({ length: 50 }, (_, i) => ({
+	title: `Blog Post ${i + 1}`,
+	description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+	href: `/blog/${i + 1}`,
+}));
+---
+
+<BaseLayout title="Home - Static Site">
+	<h1>Welcome to My Static Site</h1>
+	<p>
+		<strong>Lorem</strong>
+		<em>Ipsum</em> is simply <span>dummy</span> text of the printing and typesetting industry. <strong
+			>Lorem</strong
+		>
+		<em>Ipsum</em> has been the industry's standard <span>dummy</span> text ever since the 1500s, when
+		an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived
+		not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+		It was popularised in the 1960s with the release of Letraset sheets containing <strong
+			>Lorem</strong
+		>
+		<em>Ipsum</em> passages, and more recently with desktop publishing software like Aldus PageMaker including
+		versions of <strong>Lorem</strong>
+		<em>Ipsum</em>. <strong>Lorem</strong>
+		<em>Ipsum</em> is simply <span>dummy</span> text of the printing and typesetting industry. <strong
+			>Lorem</strong
+		>
+		<em>Ipsum</em> has been the industry's standard <span>dummy</span> text ever since the 1500s, when
+		an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived
+		not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+		It was popularised in the 1960s with the release of Letraset sheets containing <strong
+			>Lorem</strong
+		>
+		<em>Ipsum</em> passages, and more recently with desktop publishing software like Aldus PageMaker including
+		versions of <strong>Lorem</strong>
+		<em>Ipsum</em>.
+	</p>
+	<section class="posts">
+		<h2>Latest Posts</h2>
+		<div class="grid">
+			{
+				posts.map((post) => (
+					<Card title={post.title} description={post.description} href={post.href} />
+				))
+			}
+		</div>
+	</section>
+</BaseLayout>
