@@ -6,6 +6,7 @@ export const DEFAULT_ASSETS_BINDING_NAME = 'ASSETS';
 
 interface CloudflareConfigOptions {
 	sessionKVBindingName: string | undefined;
+	needsSessionKVBinding?: boolean;
 	imagesBindingName: string | false | undefined;
 }
 
@@ -17,6 +18,7 @@ export function cloudflareConfigCustomizer(
 	options: CloudflareConfigOptions,
 ): PluginConfig['config'] {
 	const sessionKVBindingName = options?.sessionKVBindingName ?? DEFAULT_SESSION_KV_BINDING_NAME;
+	const needsSessionKVBinding = options?.needsSessionKVBinding ?? true;
 	const imagesBindingName =
 		options?.imagesBindingName === false
 			? undefined
@@ -31,7 +33,7 @@ export function cloudflareConfigCustomizer(
 
 		return {
 			main: config.main ?? '@astrojs/cloudflare/entrypoints/server',
-			kv_namespaces: hasSessionBinding
+			kv_namespaces: !needsSessionKVBinding || hasSessionBinding
 				? undefined
 				: [
 						{
