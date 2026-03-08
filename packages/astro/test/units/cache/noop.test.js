@@ -4,6 +4,11 @@ import { NoopAstroCache, DisabledAstroCache } from '../../../dist/core/cache/run
 import { applyCacheHeaders, isCacheActive } from '../../../dist/core/cache/runtime/cache.js';
 
 describe('NoopAstroCache', () => {
+	it('enabled is false', () => {
+		const cache = new NoopAstroCache();
+		assert.ok(!cache.enabled);
+	});
+
 	it('set() is callable and does nothing', () => {
 		const cache = new NoopAstroCache();
 		cache.set({ maxAge: 300, tags: ['a'] });
@@ -44,36 +49,28 @@ describe('NoopAstroCache', () => {
 });
 
 describe('DisabledAstroCache', () => {
-	it('set() throws AstroError with CacheNotEnabled', () => {
+	it('enabled is false', () => {
 		const cache = new DisabledAstroCache();
-		assert.throws(
-			() => cache.set({ maxAge: 300 }),
-			(err) => err.name === 'CacheNotEnabled',
-		);
+		assert.equal(cache.enabled, false);
 	});
 
-	it('set(false) throws AstroError with CacheNotEnabled', () => {
+	it('set() does not throw', () => {
 		const cache = new DisabledAstroCache();
-		assert.throws(
-			() => cache.set(false),
-			(err) => err.name === 'CacheNotEnabled',
-		);
+		cache.set({ maxAge: 300 });
+		cache.set(false);
+		// No error thrown
 	});
 
-	it('tags getter throws AstroError with CacheNotEnabled', () => {
+	it('tags returns empty array', () => {
 		const cache = new DisabledAstroCache();
-		assert.throws(
-			() => cache.tags,
-			(err) => err.name === 'CacheNotEnabled',
-		);
+		cache.set({ tags: ['x'] });
+		assert.deepEqual(cache.tags, []);
 	});
 
-	it('options getter throws AstroError with CacheNotEnabled', () => {
+	it('options returns empty object with empty tags', () => {
 		const cache = new DisabledAstroCache();
-		assert.throws(
-			() => cache.options,
-			(err) => err.name === 'CacheNotEnabled',
-		);
+		const options = cache.options;
+		assert.deepEqual(options.tags, []);
 	});
 
 	it('invalidate() throws AstroError with CacheNotEnabled', async () => {
