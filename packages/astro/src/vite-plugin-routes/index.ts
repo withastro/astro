@@ -16,6 +16,7 @@ import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { isAstroServerEnvironment } from '../environments.js';
+import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 
 type Payload = {
 	settings: AstroSettings;
@@ -39,12 +40,33 @@ export default async function astroPluginRoutes({
 }: Payload): Promise<Plugin> {
 	logger.debug('update', 'Re-calculate routes');
 
+	// In dev mode, populate route scripts with integration-injected scripts from settings.
+	// This ensures non-runnable environments (e.g. Cloudflare's workerd) can access
+	// scripts injected via `injectScript()` during `astro:config:setup`.
+	function getDevRouteScripts(): SerializedRouteInfo['scripts'] {
+		if (command !== 'dev') return [];
+		const scripts: SerializedRouteInfo['scripts'] = [];
+		const hasPageScripts = settings.scripts.some((s) => s.stage === 'page');
+		if (hasPageScripts) {
+			scripts.push({
+				type: 'external',
+				value: `/@id/${PAGE_SCRIPT_ID}`,
+			});
+		}
+		for (const script of settings.scripts) {
+			if (script.stage === 'head-inline') {
+				scripts.push({ stage: script.stage, children: script.content });
+			}
+		}
+		return scripts;
+	}
+
 	let serializedRouteInfo: SerializedRouteInfo[] = initialRoutesList.routes.map(
 		(r): SerializedRouteInfo => {
 			return {
 				file: '',
 				links: [],
-				scripts: [],
+				scripts: getDevRouteScripts(),
 				styles: [],
 				routeData: serializeRouteData(r, settings.config.trailingSlash),
 			};
@@ -77,7 +99,7 @@ export default async function astroPluginRoutes({
 				return {
 					file: fileURLToPath(file),
 					links: [],
-					scripts: [],
+					scripts: getDevRouteScripts(),
 					styles: [],
 					routeData: serializeRouteData(r, settings.config.trailingSlash),
 				};
