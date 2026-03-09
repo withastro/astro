@@ -1,5 +1,104 @@
 # astro
 
+## 6.0.0-beta.20
+
+### Major Changes
+
+- [#15424](https://github.com/withastro/astro/pull/15424) [`33d6146`](https://github.com/withastro/astro/commit/33d6146e4872bb1e3feef0a6c0ea8e62f49f4c7e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Throws an error when `getImage()` from `astro:assets` is called on the client - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-getimage-throws-when-called-on-the-client))
+
+### Minor Changes
+
+- [#15700](https://github.com/withastro/astro/pull/15700) [`4e7f3e8`](https://github.com/withastro/astro/commit/4e7f3e8e6849c314a0ab031ebd7f23fb982f0529) Thanks [@ocavue](https://github.com/ocavue)! - Updates the internal logic during SSR by providing additional metadata for UI framework integrations.
+
+- [#15781](https://github.com/withastro/astro/pull/15781) [`2de969d`](https://github.com/withastro/astro/commit/2de969d1f5279d2d0f3024208146f9cd895267b6) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new `clientAddress` option to the `createContext()` function
+
+  Providing this value gives adapter and middleware authors explicit control over the client IP address. When not provided, accessing `clientAddress` throws an error consistent with other contexts where it is not set by the adapter.
+
+  Additionally, both of the official Netlify and Vercel adapters have been updated to provide this information in their edge middleware.
+
+  ```js
+  import { createContext } from 'astro/middleware';
+
+  createContext({
+    clientAddress: context.headers.get('x-real-ip'),
+  });
+  ```
+
+- [#15755](https://github.com/withastro/astro/pull/15755) [`f9ee868`](https://github.com/withastro/astro/commit/f9ee8685dd26e9afeba3b48d41ad6714f624b12f) Thanks [@matthewp](https://github.com/matthewp)! - Adds a new `security.serverIslandBodySizeLimit` configuration option
+
+  Server island POST endpoints now enforce a body size limit, similar to the existing `security.actionBodySizeLimit` for Actions. The new option defaults to `1048576` (1 MB) and can be configured independently.
+
+  Requests exceeding the limit are rejected with a 413 response. You can customize the limit in your Astro config:
+
+  ```js
+  export default defineConfig({
+    security: {
+      serverIslandBodySizeLimit: 2097152, // 2 MB
+    },
+  });
+  ```
+
+### Patch Changes
+
+- [#15712](https://github.com/withastro/astro/pull/15712) [`7ac43c7`](https://github.com/withastro/astro/commit/7ac43c713be0c69b8df0fdaaca1e85e022361216) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves `astro info` by supporting more operating systems when copying the information to the clipboard.
+
+- [#15780](https://github.com/withastro/astro/pull/15780) [`e0ac125`](https://github.com/withastro/astro/commit/e0ac1250bb6db87f4c2ac79b6521b0fee0092d7a) Thanks [@ematipico](https://github.com/ematipico)! - Prevents `vite.envPrefix` misconfiguration from exposing `access: "secret"` environment variables in client-side bundles. Astro now throws a clear error at startup if any `vite.envPrefix` entry matches a variable declared with `access: "secret"` in `env.schema`.
+
+  For example, the following configuration will throw an error for `API_SECRET` because it's defined as `secret` its name matches `['PUBLIC_', 'API_']` defined in `env.schema`:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    env: {
+      schema: {
+        API_SECRET: envField.string({ context: 'server', access: 'secret', optional: true }),
+        API_URL: envField.string({ context: 'server', access: 'public', optional: true }),
+      },
+    },
+    vite: {
+      envPrefix: ['PUBLIC_', 'API_'],
+    },
+  });
+  ```
+
+- [#15778](https://github.com/withastro/astro/pull/15778) [`4ebc1e3`](https://github.com/withastro/astro/commit/4ebc1e328ac40e892078031ed9dfecf60691fd56) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the computed `clientAddress` was incorrect in cases of a Request header with multiple values. The `clientAddress` is now also validated to contain only characters valid in IP addresses, rejecting injection payloads.
+
+- [#15776](https://github.com/withastro/astro/pull/15776) [`e9a9cc6`](https://github.com/withastro/astro/commit/e9a9cc6002e35325447856e9a3e0866f285c0638) Thanks [@matthewp](https://github.com/matthewp)! - Hardens error page response merging to ensure framing headers from the original response are not carried over to the rendered error page
+
+- [#15759](https://github.com/withastro/astro/pull/15759) [`39ff2a5`](https://github.com/withastro/astro/commit/39ff2a565614250acae83d35bf196e0463857d9e) Thanks [@matthewp](https://github.com/matthewp)! - Adds a new `bodySizeLimit` option to the `@astrojs/node` adapter
+
+  You can now configure a maximum allowed request body size for your Node.js standalone server. The default limit is 1 GB. Set the value in bytes, or pass `0` to disable the limit entirely:
+
+  ```js
+  import node from '@astrojs/node';
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    adapter: node({
+      mode: 'standalone',
+      bodySizeLimit: 1024 * 1024 * 100, // 100 MB
+    }),
+  });
+  ```
+
+- [#15777](https://github.com/withastro/astro/pull/15777) [`02e24d9`](https://github.com/withastro/astro/commit/02e24d952de29c1c633744e7408215bedeb4d436) Thanks [@matthewp](https://github.com/matthewp)! - Fixes CSRF origin check mismatch by passing the actual server listening port to `createRequest`, ensuring the constructed URL origin includes the correct port (e.g., `http://localhost:4321` instead of `http://localhost`). Also restricts `X-Forwarded-Proto` to only be trusted when `allowedDomains` is configured.
+
+- [#15768](https://github.com/withastro/astro/pull/15768) [`6328f1a`](https://github.com/withastro/astro/commit/6328f1ac7ba84d75e2889e415537620d51af5154) Thanks [@matthewp](https://github.com/matthewp)! - Hardens internal cookie parsing to use a null-prototype object consistently for the fallback path, aligning with how the cookie library handles parsed values
+
+- [#15757](https://github.com/withastro/astro/pull/15757) [`631aaed`](https://github.com/withastro/astro/commit/631aaedce99a2233d69fc2aa369164d286f34dbc) Thanks [@matthewp](https://github.com/matthewp)! - Hardens URL pathname normalization to consistently handle backslash characters after decoding, ensuring middleware and router see the same canonical pathname
+
+- [#15761](https://github.com/withastro/astro/pull/15761) [`8939751`](https://github.com/withastro/astro/commit/89397517830fec1d5b40e57ba1e35db1eb5fee79) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where it wasn't possible to set `experimental.queuedRendering.poolSize` to `0`.
+
+- [#15764](https://github.com/withastro/astro/pull/15764) [`44daecf`](https://github.com/withastro/astro/commit/44daecfc722cd5763a2afc4b1697169a9a0bb74e) Thanks [@matthewp](https://github.com/matthewp)! - Fixes form actions incorrectly auto-executing during error page rendering. When an error page (e.g. 404) is rendered, form actions from the original request are no longer executed, since the full request handling pipeline is not active.
+
+- [#15788](https://github.com/withastro/astro/pull/15788) [`a91da9f`](https://github.com/withastro/astro/commit/a91da9fe6c6bfad8cc204c0f4a35268a915a0417) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Reverts changes made to TSConfig templates
+
+- Updated dependencies [[`4ebc1e3`](https://github.com/withastro/astro/commit/4ebc1e328ac40e892078031ed9dfecf60691fd56), [`4e7f3e8`](https://github.com/withastro/astro/commit/4e7f3e8e6849c314a0ab031ebd7f23fb982f0529)]:
+  - @astrojs/internal-helpers@0.8.0-beta.3
+  - @astrojs/markdown-remark@7.0.0-beta.11
+
 ## 6.0.0-beta.19
 
 ### Patch Changes
