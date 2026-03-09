@@ -16,6 +16,7 @@ import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { isAstroServerEnvironment } from '../environments.js';
+import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 
 type Payload = {
 	settings: AstroSettings;
@@ -29,6 +30,32 @@ export const ASTRO_ROUTES_MODULE_ID = 'virtual:astro:routes';
 const ASTRO_ROUTES_MODULE_ID_RESOLVED = '\0' + ASTRO_ROUTES_MODULE_ID;
 
 const KNOWN_FILE_EXTENSIONS = ['.astro', '.js', '.ts'];
+
+/**
+ * In dev mode, populate route scripts with integration-injected scripts from settings.
+ * This ensures non-runnable environments (e.g. Cloudflare's workerd) can access
+ * scripts injected via `injectScript()` during `astro:config:setup`.
+ */
+export function getDevRouteScripts(
+	command: 'dev' | 'build',
+	scripts: AstroSettings['scripts'],
+): SerializedRouteInfo['scripts'] {
+	if (command !== 'dev') return [];
+	const result: SerializedRouteInfo['scripts'] = [];
+	const hasPageScripts = scripts.some((s) => s.stage === 'page');
+	if (hasPageScripts) {
+		result.push({
+			type: 'external',
+			value: `/@id/${PAGE_SCRIPT_ID}`,
+		});
+	}
+	for (const script of scripts) {
+		if (script.stage === 'head-inline') {
+			result.push({ stage: script.stage, children: script.content });
+		}
+	}
+	return result;
+}
 
 export default async function astroPluginRoutes({
 	settings,
@@ -44,7 +71,7 @@ export default async function astroPluginRoutes({
 			return {
 				file: '',
 				links: [],
-				scripts: [],
+				scripts: getDevRouteScripts(command, settings.scripts),
 				styles: [],
 				routeData: serializeRouteData(r, settings.config.trailingSlash),
 			};
@@ -77,7 +104,7 @@ export default async function astroPluginRoutes({
 				return {
 					file: fileURLToPath(file),
 					links: [],
-					scripts: [],
+					scripts: getDevRouteScripts(command, settings.scripts),
 					styles: [],
 					routeData: serializeRouteData(r, settings.config.trailingSlash),
 				};
