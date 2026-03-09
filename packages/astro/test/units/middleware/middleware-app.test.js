@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { App } from '../../../dist/core/app/app.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
-import { createManifest, createRouteData } from './test-helpers.js';
+import { createRouteData } from '../mocks.js';
+import { createManifest } from '../app/test-helpers.js';
 
 /**
  * Helper: creates an App with the given middleware and routes.
@@ -582,6 +583,308 @@ describe('Middleware via App.render()', () => {
 			const response = await app.render(new Request('http://localhost/path%20with%20spaces'));
 
 			assert.equal(response.status, 200);
+		});
+	});
+
+	describe('cookies on error pages', () => {
+		it('should preserve cookies set by middleware when returning Response(null, { status: 404 })', async () => {
+			// Middleware sets a cookie and returns 404 with null body (common auth guard pattern)
+			const onRequest = async (ctx, next) => {
+				ctx.cookies.set('session', 'abc123', { path: '/' });
+				if (ctx.url.pathname.startsWith('/api/guarded')) {
+					return new Response(null, { status: 404 });
+				}
+				return next();
+			};
+
+			const guardedRouteData = createRouteData({
+				route: '/api/guarded/[...path]',
+				pathname: undefined,
+				segments: undefined,
+			});
+			// Override for spread route
+			guardedRouteData.params = ['...path'];
+			guardedRouteData.pattern = /^\/api\/guarded(?:\/(.*))?$/;
+			guardedRouteData.pathname = undefined;
+			guardedRouteData.segments = [
+				[{ content: 'api', dynamic: false, spread: false }],
+				[{ content: 'guarded', dynamic: false, spread: false }],
+				[{ content: '...path', dynamic: true, spread: true }],
+			];
+
+			const pageMap = new Map([
+				[
+					guardedRouteData.component,
+					async () => ({
+						page: async () => ({
+							default: simplePage(),
+						}),
+					}),
+				],
+				[
+					notFoundRouteData.component,
+					async () => ({ page: async () => ({ default: notFoundPage }) }),
+				],
+			]);
+			const app = createAppWithMiddleware({
+				onRequest,
+				routes: [{ routeData: guardedRouteData }, { routeData: notFoundRouteData }],
+				pageMap,
+			});
+
+			const response = await app.render(new Request('http://localhost/api/guarded/secret'), {
+				addCookieHeader: true,
+			});
+
+			assert.equal(response.status, 404);
+			const setCookie = response.headers.get('set-cookie');
+			assert.ok(setCookie, 'Expected Set-Cookie header to be present on 404 error page response');
+			assert.match(setCookie, /session=abc123/);
+		});
+
+		it('should preserve cookies set by middleware when returning Response(null, { status: 500 })', async () => {
+			const onRequest = async (ctx, next) => {
+				ctx.cookies.set('csrf', 'token456', { path: '/' });
+				if (ctx.url.pathname.startsWith('/api/error')) {
+					return new Response(null, { status: 500 });
+				}
+				return next();
+			};
+
+			const errorRouteData = createRouteData({
+				route: '/api/error/[...path]',
+				pathname: undefined,
+				segments: undefined,
+			});
+			errorRouteData.params = ['...path'];
+			errorRouteData.pattern = /^\/api\/error(?:\/(.*))?$/;
+			errorRouteData.pathname = undefined;
+			errorRouteData.segments = [
+				[{ content: 'api', dynamic: false, spread: false }],
+				[{ content: 'error', dynamic: false, spread: false }],
+				[{ content: '...path', dynamic: true, spread: true }],
+			];
+
+			const pageMap = new Map([
+				[
+					errorRouteData.component,
+					async () => ({
+						page: async () => ({
+							default: simplePage(),
+						}),
+					}),
+				],
+				[
+					serverErrorRouteData.component,
+					async () => ({ page: async () => ({ default: serverErrorPage }) }),
+				],
+			]);
+			const app = createAppWithMiddleware({
+				onRequest,
+				routes: [{ routeData: errorRouteData }, { routeData: serverErrorRouteData }],
+				pageMap,
+			});
+
+			const response = await app.render(new Request('http://localhost/api/error/test'), {
+				addCookieHeader: true,
+			});
+
+			assert.equal(response.status, 500);
+			const setCookie = response.headers.get('set-cookie');
+			assert.ok(setCookie, 'Expected Set-Cookie header to be present on 500 error page response');
+			assert.match(setCookie, /csrf=token456/);
+		});
+
+		it('should preserve multiple cookies from sequenced middleware during error page rerouting', async () => {
+			const onRequest = async (ctx, next) => {
+				ctx.cookies.set('session', 'abc123', { path: '/' });
+				ctx.cookies.set('csrf', 'token456', { path: '/' });
+				if (ctx.url.pathname.startsWith('/api/guarded')) {
+					ctx.cookies.set('auth_attempt', 'failed', { path: '/' });
+					return new Response(null, { status: 404 });
+				}
+				return next();
+			};
+
+			const guardedRouteData = createRouteData({
+				route: '/api/guarded/[...path]',
+				pathname: undefined,
+				segments: undefined,
+			});
+			guardedRouteData.params = ['...path'];
+			guardedRouteData.pattern = /^\/api\/guarded(?:\/(.*))?$/;
+			guardedRouteData.pathname = undefined;
+			guardedRouteData.segments = [
+				[{ content: 'api', dynamic: false, spread: false }],
+				[{ content: 'guarded', dynamic: false, spread: false }],
+				[{ content: '...path', dynamic: true, spread: true }],
+			];
+
+			const pageMap = new Map([
+				[
+					guardedRouteData.component,
+					async () => ({
+						page: async () => ({
+							default: simplePage(),
+						}),
+					}),
+				],
+				[
+					notFoundRouteData.component,
+					async () => ({ page: async () => ({ default: notFoundPage }) }),
+				],
+			]);
+			const app = createAppWithMiddleware({
+				onRequest,
+				routes: [{ routeData: guardedRouteData }, { routeData: notFoundRouteData }],
+				pageMap,
+			});
+
+			const response = await app.render(new Request('http://localhost/api/guarded/secret'), {
+				addCookieHeader: true,
+			});
+
+			assert.equal(response.status, 404);
+			const setCookies = response.headers.getSetCookie();
+			const cookieValues = setCookies.join(', ');
+			assert.ok(
+				cookieValues.includes('session=abc123'),
+				'Expected session cookie in Set-Cookie headers',
+			);
+			assert.ok(
+				cookieValues.includes('csrf=token456'),
+				'Expected csrf cookie in Set-Cookie headers',
+			);
+			assert.ok(
+				cookieValues.includes('auth_attempt=failed'),
+				'Expected auth_attempt cookie in Set-Cookie headers',
+			);
+		});
+	});
+
+	describe('framing headers on error pages', () => {
+		it('should not preserve Content-Length from middleware when rendering 404 error page', async () => {
+			// Middleware calls next(), then decides to return 404 with a stale Content-Length header.
+			// On re-render for the error page, middleware passes the response through unchanged.
+			let callCount = 0;
+			const onRequest = async (ctx, next) => {
+				callCount++;
+				const response = await next();
+				if (callCount === 1 && ctx.url.pathname.startsWith('/api/guarded')) {
+					return new Response(null, {
+						status: 404,
+						headers: { 'Content-Length': '999', 'X-Custom': 'keep-me' },
+					});
+				}
+				return response;
+			};
+
+			const guardedRouteData = createRouteData({
+				route: '/api/guarded/[...path]',
+				pathname: undefined,
+				segments: undefined,
+			});
+			guardedRouteData.params = ['...path'];
+			guardedRouteData.pattern = /^\/api\/guarded(?:\/(.*))?$/;
+			guardedRouteData.pathname = undefined;
+			guardedRouteData.segments = [
+				[{ content: 'api', dynamic: false, spread: false }],
+				[{ content: 'guarded', dynamic: false, spread: false }],
+				[{ content: '...path', dynamic: true, spread: true }],
+			];
+
+			const pageMap = new Map([
+				[
+					guardedRouteData.component,
+					async () => ({
+						page: async () => ({
+							default: simplePage(),
+						}),
+					}),
+				],
+				[
+					notFoundRouteData.component,
+					async () => ({ page: async () => ({ default: notFoundPage }) }),
+				],
+			]);
+			const app = createAppWithMiddleware({
+				onRequest,
+				routes: [{ routeData: guardedRouteData }, { routeData: notFoundRouteData }],
+				pageMap,
+			});
+
+			const response = await app.render(new Request('http://localhost/api/guarded/secret'));
+
+			assert.equal(response.status, 404);
+			// Content-Length from middleware's original response must not leak into the error page response
+			assert.equal(
+				response.headers.get('Content-Length'),
+				null,
+				'Content-Length from middleware should be stripped during error page merge',
+			);
+			// Non-framing custom headers should still be preserved
+			assert.equal(response.headers.get('X-Custom'), 'keep-me');
+		});
+
+		it('should not preserve Transfer-Encoding from middleware when rendering 500 error page', async () => {
+			let callCount = 0;
+			const onRequest = async (ctx, next) => {
+				callCount++;
+				const response = await next();
+				if (callCount === 1 && ctx.url.pathname.startsWith('/api/error')) {
+					return new Response(null, {
+						status: 500,
+						headers: { 'Transfer-Encoding': 'chunked', 'X-Error-Source': 'middleware' },
+					});
+				}
+				return response;
+			};
+
+			const errorRouteData = createRouteData({
+				route: '/api/error/[...path]',
+				pathname: undefined,
+				segments: undefined,
+			});
+			errorRouteData.params = ['...path'];
+			errorRouteData.pattern = /^\/api\/error(?:\/(.*))?$/;
+			errorRouteData.pathname = undefined;
+			errorRouteData.segments = [
+				[{ content: 'api', dynamic: false, spread: false }],
+				[{ content: 'error', dynamic: false, spread: false }],
+				[{ content: '...path', dynamic: true, spread: true }],
+			];
+
+			const pageMap = new Map([
+				[
+					errorRouteData.component,
+					async () => ({
+						page: async () => ({
+							default: simplePage(),
+						}),
+					}),
+				],
+				[
+					serverErrorRouteData.component,
+					async () => ({ page: async () => ({ default: serverErrorPage }) }),
+				],
+			]);
+			const app = createAppWithMiddleware({
+				onRequest,
+				routes: [{ routeData: errorRouteData }, { routeData: serverErrorRouteData }],
+				pageMap,
+			});
+
+			const response = await app.render(new Request('http://localhost/api/error/test'));
+
+			assert.equal(response.status, 500);
+			// Transfer-Encoding from middleware's original response must not leak into the error page response
+			assert.equal(
+				response.headers.get('Transfer-Encoding'),
+				null,
+				'Transfer-Encoding from middleware should be stripped during error page merge',
+			);
+			// Non-framing custom headers should still be preserved
+			assert.equal(response.headers.get('X-Error-Source'), 'middleware');
 		});
 	});
 

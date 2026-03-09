@@ -7,7 +7,7 @@ import { parseHTML } from 'linkedom';
 import rehypePrettyCode from 'rehype-pretty-code';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 
-const FIXTURE_ROOT = new URL('./fixtures/mdx-syntax-hightlighting/', import.meta.url);
+const FIXTURE_ROOT = new URL('./fixtures/mdx-syntax-highlighting/', import.meta.url);
 
 describe('MDX syntax highlighting', () => {
 	describe('shiki', () => {

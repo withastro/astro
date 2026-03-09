@@ -611,7 +611,7 @@ function detectRouteCollision(a: RouteData, b: RouteData, _config: AstroConfig, 
 		);
 		logger.warn(
 			'router',
-			'A collision will result in an hard error in following versions of Astro.',
+			'A collision will result in a hard error in following versions of Astro.',
 		);
 		return;
 	}
@@ -647,7 +647,7 @@ function detectRouteCollision(a: RouteData, b: RouteData, _config: AstroConfig, 
 		'router',
 		`The route "${a.route}" is defined in both "${a.component}" and "${b.component}" using SSR mode. A dynamic SSR route cannot be defined more than once.`,
 	);
-	logger.warn('router', 'A collision will result in an hard error in following versions of Astro.');
+	logger.warn('router', 'A collision will result in a hard error in following versions of Astro.');
 }
 
 /**

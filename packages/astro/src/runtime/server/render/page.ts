@@ -102,7 +102,7 @@ export async function renderPage(
 	let body: BodyInit | Uint8Array | Response;
 	if (streaming) {
 		// isNode is true in Deno node-compat mode but response construction from
-		// async iterables is not supported, so we fallback to ReadableStream if isDeno is true.
+		// async iterables is not supported, so we fall back to ReadableStream if isDeno is true.
 		if (isNode && !isDeno) {
 			const nodeBody = await renderToAsyncIterable(
 				result,

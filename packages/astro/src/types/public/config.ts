@@ -12,6 +12,7 @@ import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions
 import type { FontFamily, FontProvider } from '../../assets/fonts/types.js';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
 import type { AssetsPrefix } from '../../core/app/types.js';
+import type { CacheProviderConfig, RouteRules } from '../../core/cache/types.js';
 import type { AstroConfigType } from '../../core/config/schemas/index.js';
 import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
 import type { CspAlgorithm, CspDirective, CspHash } from '../../core/csp/config.js';
@@ -683,6 +684,31 @@ export interface AstroUserConfig<
 		 * ```
 		 */
 		actionBodySizeLimit?: number;
+
+		/**
+		 * @docs
+		 * @name security.serverIslandBodySizeLimit
+		 * @kind h4
+		 * @type {number}
+		 * @default `1048576` (1 MB)
+		 * @version 6.0.0
+		 * @description
+		 *
+		 * Sets the maximum size in bytes allowed for server island request bodies, which contain the encrypted props and slot HTML passed to the island component.
+		 *
+		 * By default, server island request bodies are limited to 1 MB (1048576 bytes) to prevent abuse.
+		 * You can increase this limit if your server islands need to accept larger payloads.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * export default defineConfig({
+		 *   security: {
+		 *     serverIslandBodySizeLimit: 10 * 1024 * 1024 // 10 MB
+		 *   }
+		 * })
+		 * ```
+		 */
+		serverIslandBodySizeLimit?: number;
 
 		/**
 		 * @docs
@@ -2704,7 +2730,7 @@ export interface AstroUserConfig<
 		 * Continue to use the `data-astro-prefetch` attribute on any `<a />` link on your site to opt in to prefetching.
 		 * Instead of appending a `<link>` tag to the head of the document or fetching the page with JavaScript, a `<script>` tag will be appended with the corresponding speculation rules.
 		 *
-		 * Client side prerendering requires browser support. If the Speculation Rules API is not supported, `prefetch` will fallback to the supported strategy.
+		 * Client side prerendering requires browser support. If the Speculation Rules API is not supported, `prefetch` will fall back to the supported strategy.
 		 *
 		 * See the [Prefetch Guide](https://docs.astro.build/en/guides/prefetch/) for more `prefetch` options and usage.
 		 */
@@ -2805,6 +2831,84 @@ export interface AstroUserConfig<
 		svgo?: boolean | SvgoConfig;
 
 		/**
+		 * @name experimental.cache
+		 * @type {object}
+		 * @default `undefined`
+		 * @description
+		 *
+		 * Enables route caching for SSR responses. Provides a platform-agnostic API
+		 * for caching rendered pages and API responses, with pluggable providers
+		 * that adapters can configure automatically.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { memoryCache } from 'astro/config';
+		 *
+		 * {
+		 *   experimental: {
+		 *     cache: {
+		 *       provider: memoryCache(),
+		 *     },
+		 *     routeRules: {
+		 *       '/blog/[...path]': { maxAge: 300, swr: 60 },
+		 *     },
+		 *   },
+		 * }
+		 * ```
+		 *
+		 * Use `Astro.cache.set()` in routes and `context.cache.set()` in middleware
+		 * or API routes to control caching per-request.
+		 */
+		cache?: {
+			/**
+			 * @name experimental.cache.provider
+			 * @type {import('../../core/cache/types.js').CacheProviderConfig}
+			 * @description
+			 *
+			 * The cache provider. Adapters typically set a default, but you can
+			 * override it with your own.
+			 *
+			 * Use the provider's config function to get type-safe configuration:
+			 *
+			 * ```js
+			 * import { memoryCache } from 'astro/config';
+			 *
+			 * export default defineConfig({
+			 *   experimental: {
+			 *     cache: { provider: memoryCache() },
+			 *   },
+			 * });
+			 * ```
+			 */
+			provider?: CacheProviderConfig;
+		};
+
+		/**
+		 * @name experimental.routeRules
+		 * @type {Record<string, RouteRule>}
+		 * @default `undefined`
+		 * @description
+		 *
+		 * Route patterns mapped to cache rules.
+		 * Uses the same `[param]` and `[...rest]` syntax as file-based routing.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { memoryCache } from 'astro/config';
+		 *
+		 * {
+		 *   experimental: {
+		 *     cache: { provider: memoryCache() },
+		 *     routeRules: {
+		 *       '/api/*': { swr: 600 },
+		 *       '/products/*': { maxAge: 3600, tags: ['products'] },
+		 *     },
+		 *   },
+		 * }
+		 * ```
+		 */
+		routeRules?: RouteRules;
+		/*
 		 * @name experimental.rustCompiler
 		 * @type {boolean}
 		 * @default `false`
@@ -2882,7 +2986,9 @@ export interface AstroUserConfig<
 			 * @default `false`
 			 * @version 6.0.0
 			 * @description
-			 * Allows to enable the caching of node contents when rendering the same page.
+			 * Enables HTMLString caching to deduplicate repeated HTML fragments during rendering.
+			 * When enabled, identical HTML strings (e.g., repeated `<li>` tags) share a single
+			 * `HTMLString` object instead of creating a new wrapper per occurrence.
 			 * This caching is disabled for dynamic pages.
 			 */
 			contentCache?: boolean;
