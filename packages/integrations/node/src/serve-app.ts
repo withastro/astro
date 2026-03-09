@@ -8,6 +8,36 @@ import { resolveClientDir } from './shared.js';
 import type { Options, RequestHandler } from './types.js';
 
 /**
+ * Read a prerendered page from disk by pathname and return it as a Response.
+ * Returns undefined if the file doesn't exist or can't be read.
+ * Tries both `<pathname>.html` and `<pathname>/index.html` patterns.
+ */
+async function readPageFromDisk(client: string, pathname: string): Promise<Response | undefined> {
+	// Strip leading/trailing slashes; an empty string means the root path.
+	const cleaned = pathname.replace(/^\//, '').replace(/\/$/, '');
+	const filePaths = cleaned === '' ? ['index.html'] : [`${cleaned}.html`, `${cleaned}/index.html`];
+
+	for (const filePath of filePaths) {
+		const fullPath = path.join(client, filePath);
+		try {
+			const stream = createReadStream(fullPath);
+			await new Promise<void>((resolve, reject) => {
+				stream.once('open', () => resolve());
+				stream.once('error', reject);
+			});
+			const webStream = Readable.toWeb(stream) as ReadableStream;
+			return new Response(webStream, {
+				headers: { 'Content-Type': 'text/html; charset=utf-8' },
+			});
+		} catch {
+			// File doesn't exist or can't be read, try next pattern
+		}
+	}
+
+	return undefined;
+}
+
+/**
  * Read a prerendered error page from disk and return it as a Response.
  * Returns undefined if the file doesn't exist or can't be read.
  */
@@ -75,6 +105,18 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 		return new Response(null, { status: 404 });
 	};
 
+	// Read prerendered pages directly from disk for the prerenderedPageFetch callback.
+	// This allows middleware to run for prerendered page routes while still serving
+	// the pre-built HTML from disk (no SSRF risk, no network round-trip).
+	const prerenderedPageFetch = async (url: string): Promise<Response> => {
+		const { pathname } = new URL(url);
+		const baselessPathname = app.removeBase(pathname);
+		const response = await readPageFromDisk(client, baselessPathname);
+		if (response) return response;
+		// File not found — fall back to a 404 so the pipeline can handle it
+		return new Response(null, { status: 404 });
+	};
+
 	// Use the configured body size limit. A value of 0 or Infinity disables the limit.
 	const effectiveBodySizeLimit =
 		options.bodySizeLimit === 0 || options.bodySizeLimit === Number.POSITIVE_INFINITY
@@ -100,14 +142,14 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 		// Redirects are considered prerendered routes in static mode, but we want to
 		// handle them dynamically, so prerendered routes are included here.
 		const routeData = app.match(request, true);
-		// But we still want to skip prerendered pages.
-		if (routeData && !(routeData.type === 'page' && routeData.prerender)) {
+		if (routeData) {
 			const response = await als.run(request.url, () =>
 				app.render(request, {
 					addCookieHeader: true,
 					locals,
 					routeData,
 					prerenderedErrorPageFetch,
+					prerenderedPageFetch: routeData.prerender ? prerenderedPageFetch : undefined,
 				}),
 			);
 			await writeResponse(response, res);
