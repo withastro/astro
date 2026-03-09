@@ -188,6 +188,7 @@ export default function createIntegration({
 													'astro > unstorage',
 													'astro > neotraverse/modern',
 													'astro > piccolore',
+													'astro > picomatch',
 													'astro/app',
 													'astro/assets',
 													'astro/compiler-runtime',
