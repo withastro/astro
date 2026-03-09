@@ -679,9 +679,8 @@ export default function netlifyIntegration(
 							// explicitly set false
 							entrypoint:
 								integrationConfig?.imageCDN === false ||
-								
 								// In dev, if the vite plugin's image proxy isn't enabled, don't try to use the Netlify service since it won't work
-									(command === 'dev' && vitePluginOptions?.images?.enabled === false)
+								(command === 'dev' && vitePluginOptions?.images?.enabled === false)
 									? undefined
 									: '@astrojs/netlify/image-service.js',
 						},

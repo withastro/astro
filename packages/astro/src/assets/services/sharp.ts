@@ -81,7 +81,6 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 		// get some information about the input
 		const { format } = await result.metadata();
 
-
 		if (transform.width && transform.height) {
 			const fit: keyof FitEnum | undefined = transform.fit
 				? (fitMap[transform.fit] ?? 'inside')
