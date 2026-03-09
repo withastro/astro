@@ -46,12 +46,13 @@ const layout = props.layout ?? imageConfig.layout ?? 'none';
 const useResponsive = layout !== 'none';
 
 if (useResponsive) {
-	// Apply defaults from imageConfig if not provided
 	props.layout ??= imageConfig.layout;
+	props.fit ??= imageConfig.objectFit ?? 'cover';
+	props.position ??= imageConfig.objectPosition ?? 'center';
+} else if (imageConfig.objectFit || imageConfig.objectPosition) {
+	props.fit ??= imageConfig.objectFit;
+	props.position ??= imageConfig.objectPosition;
 }
-
-props.fit ??= imageConfig.objectFit ?? (useResponsive ? 'cover' : undefined);
-props.position ??= imageConfig.objectPosition ?? (useResponsive ? 'center' : undefined);
 
 for (const key in props) {
 	if (key.startsWith('data-astro-cid')) {

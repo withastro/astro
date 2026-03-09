@@ -239,9 +239,6 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		}
 		if (options.width) options.width = Math.round(options.width);
 		if (options.height) options.height = Math.round(options.height);
-		if (options.width && options.height) {
-			options.fit ??= 'cover';
-		}
 		if (options.layout) {
 			delete options.layout;
 		}
