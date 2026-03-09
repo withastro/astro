@@ -174,7 +174,6 @@ export default function createIntegration({
 										return {
 											optimizeDeps: {
 												include: [
-													'@astrojs/cloudflare/entrypoints/server',
 													'@astrojs/cloudflare/image-service-workerd',
 													'astro',
 													'astro/runtime/**',
