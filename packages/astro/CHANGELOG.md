@@ -20,7 +20,7 @@
 
 ### Major Changes
 
-- [#15668](https://github.com/withastro/astro/pull/15668) [`1118ac4`](https://github.com/withastro/astro/commit/1118ac4f299341e15061e8a4e6e8423071c4d41c) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Changes TypeScript configuration - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-typescript-configuration))
+- [#15668](https://github.com/withastro/astro/pull/15668) [`1118ac4`](https://github.com/withastro/astro/commit/1118ac4f299341e15061e8a4e6e8423071c4d41c) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Changes TypeScript configuration - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#changed-typescript-configuration))
 
 - [#15726](https://github.com/withastro/astro/pull/15726) [`6f19ecc`](https://github.com/withastro/astro/commit/6f19ecc35adfb2ddaabbba2269630f95c13f5a57) Thanks [@ocavue](https://github.com/ocavue)! - Updates dependency `shiki` to v4
 
