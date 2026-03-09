@@ -77,5 +77,32 @@ describe('Netlify primitives', () => {
 				assert.equal(imageResponse.headers.get('content-type'), 'image/jpeg');
 			}
 		});
+
+		it('respects imageCDN: false in development', async () => {
+			process.env.DISABLE_IMAGE_CDN = 'true';
+			const cdnDisabledFixture = await loadFixture({
+				root: new URL('./fixtures/primitives/', import.meta.url),
+				output: 'server',
+				adapter: netlifyAdapter({ imageCDN: false }),
+			});
+			const cdnDisabledServer = await cdnDisabledFixture.startDevServer();
+			try {
+				const imgResponse = await cdnDisabledFixture.fetch('/astronaut');
+				const $img = cheerio.load(await imgResponse.text());
+				const images = $img('img').map((_i, el) => {
+					return $img(el).attr('src');
+				});
+
+				for (const imgSrc of images) {
+					assert(
+						!imgSrc.startsWith('/.netlify/images'),
+						`Expected image src to not use Netlify CDN, got: ${imgSrc}`,
+					);
+				}
+			} finally {
+				await cdnDisabledServer.stop();
+				process.env.DISABLE_IMAGE_CDN = undefined;
+			}
+		});
 	});
 });
