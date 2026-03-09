@@ -2,6 +2,7 @@ import { AstroError } from '../../errors/errors.js';
 import { CacheNotEnabled } from '../../errors/errors-data.js';
 import type { CacheLike } from './cache.js';
 import type { CacheOptions } from '../types.js';
+import type { Logger } from '../../logger/core.js';
 
 /**
  * A no-op cache implementation used in dev mode when cache is configured.
@@ -37,12 +38,18 @@ let hasWarned = false;
  */
 export class DisabledAstroCache implements CacheLike {
 	readonly enabled = false;
+	#logger: Logger | undefined;
+
+	constructor(logger?: Logger) {
+		this.#logger = logger;
+	}
 
 	#warn(): void {
 		if (!hasWarned) {
 			hasWarned = true;
-			console.warn(
-				'[astro] `cache.set()` was called but caching is not enabled. Configure a cache provider in your Astro config under `experimental.cache` to enable caching.',
+			this.#logger?.warn(
+				'cache',
+				'`cache.set()` was called but caching is not enabled. Configure a cache provider in your Astro config under `experimental.cache` to enable caching.',
 			);
 		}
 	}

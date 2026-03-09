@@ -161,7 +161,7 @@ export class RenderContext {
 		let cache: CacheLike;
 		if (!pipeline.cacheConfig) {
 			// Cache not configured — no-ops with a one-time warning
-			cache = new DisabledAstroCache();
+			cache = new DisabledAstroCache(pipeline.logger);
 		} else if (pipeline.runtimeMode === 'development') {
 			cache = new NoopAstroCache();
 		} else {
