@@ -31,6 +31,32 @@ const ASTRO_ROUTES_MODULE_ID_RESOLVED = '\0' + ASTRO_ROUTES_MODULE_ID;
 
 const KNOWN_FILE_EXTENSIONS = ['.astro', '.js', '.ts'];
 
+/**
+ * In dev mode, populate route scripts with integration-injected scripts from settings.
+ * This ensures non-runnable environments (e.g. Cloudflare's workerd) can access
+ * scripts injected via `injectScript()` during `astro:config:setup`.
+ */
+export function getDevRouteScripts(
+	command: 'dev' | 'build',
+	scripts: AstroSettings['scripts'],
+): SerializedRouteInfo['scripts'] {
+	if (command !== 'dev') return [];
+	const result: SerializedRouteInfo['scripts'] = [];
+	const hasPageScripts = scripts.some((s) => s.stage === 'page');
+	if (hasPageScripts) {
+		result.push({
+			type: 'external',
+			value: `/@id/${PAGE_SCRIPT_ID}`,
+		});
+	}
+	for (const script of scripts) {
+		if (script.stage === 'head-inline') {
+			result.push({ stage: script.stage, children: script.content });
+		}
+	}
+	return result;
+}
+
 export default async function astroPluginRoutes({
 	settings,
 	logger,
@@ -40,33 +66,12 @@ export default async function astroPluginRoutes({
 }: Payload): Promise<Plugin> {
 	logger.debug('update', 'Re-calculate routes');
 
-	// In dev mode, populate route scripts with integration-injected scripts from settings.
-	// This ensures non-runnable environments (e.g. Cloudflare's workerd) can access
-	// scripts injected via `injectScript()` during `astro:config:setup`.
-	function getDevRouteScripts(): SerializedRouteInfo['scripts'] {
-		if (command !== 'dev') return [];
-		const scripts: SerializedRouteInfo['scripts'] = [];
-		const hasPageScripts = settings.scripts.some((s) => s.stage === 'page');
-		if (hasPageScripts) {
-			scripts.push({
-				type: 'external',
-				value: `/@id/${PAGE_SCRIPT_ID}`,
-			});
-		}
-		for (const script of settings.scripts) {
-			if (script.stage === 'head-inline') {
-				scripts.push({ stage: script.stage, children: script.content });
-			}
-		}
-		return scripts;
-	}
-
 	let serializedRouteInfo: SerializedRouteInfo[] = initialRoutesList.routes.map(
 		(r): SerializedRouteInfo => {
 			return {
 				file: '',
 				links: [],
-				scripts: getDevRouteScripts(),
+				scripts: getDevRouteScripts(command, settings.scripts),
 				styles: [],
 				routeData: serializeRouteData(r, settings.config.trailingSlash),
 			};
@@ -99,7 +104,7 @@ export default async function astroPluginRoutes({
 				return {
 					file: fileURLToPath(file),
 					links: [],
-					scripts: getDevRouteScripts(),
+					scripts: getDevRouteScripts(command, settings.scripts),
 					styles: [],
 					routeData: serializeRouteData(r, settings.config.trailingSlash),
 				};
