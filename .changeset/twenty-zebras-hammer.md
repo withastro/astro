@@ -2,4 +2,4 @@
 '@astrojs/cloudflare': patch
 ---
 
-Fix build errors related to picomatch.
+Fixes a regression where using the adapter would throw an error when using an integration that uses JSX.
