@@ -174,6 +174,8 @@ export default function createIntegration({
 										return {
 											optimizeDeps: {
 												include: [
+													'@astrojs/cloudflare/entrypoints/server',
+													'@astrojs/cloudflare/image-service-workerd',
 													'astro',
 													'astro/runtime/**',
 													'astro > html-escaper',
@@ -191,8 +193,14 @@ export default function createIntegration({
 													'astro > picomatch',
 													'astro/app',
 													'astro/assets',
+													'astro/assets/runtime',
+													'astro/assets/utils/inferRemoteSize.js',
+													'astro/assets/fonts/runtime.js',
+													'astro/content/runtime',
 													'astro/compiler-runtime',
+													'astro/jsx-runtime',
 													'astro/app/entrypoint/dev',
+													'astro/virtual-modules/middleware.js',
 												],
 												exclude: [
 													'unstorage/drivers/cloudflare-kv-binding',
