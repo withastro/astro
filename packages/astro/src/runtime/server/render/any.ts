@@ -1,6 +1,7 @@
-import { escapeHTML, isHTMLString, markHTMLString } from '../escape.js';
+import { type HTMLString, escapeHTML, isHTMLString, markHTMLString } from '../escape.js';
 import { isPromise } from '../util.js';
 import type { RenderDestination } from './common.js';
+import { isSlotString } from './slot.js';
 import { createBufferedRenderer } from './util.js';
 
 export function renderChild(destination: RenderDestination, child: any): void | Promise<void> {
@@ -23,8 +24,25 @@ export function renderChild(destination: RenderDestination, child: any): void | 
 	// from escapeHTML(), addAttribute(), unescapeHTML(), etc.  Checked early
 	// because the Rust compiler wraps simple expressions in $$escapeHTML(),
 	// making this the third most common type after plain strings and numbers.
+	//
+	// For plain HTMLString (not SlotString): extract the primitive string and
+	// write it directly.  This avoids the expensive String() coercion that
+	// stringifyChunk + the write handler would otherwise perform on the wrapper
+	// object.  stringifyChunk's fast path (`typeof chunk === 'string'`) returns
+	// the primitive immediately.
+	//
+	// SlotString must be written as-is because stringifyChunk needs to process
+	// its .instructions array for hydration/head injection.
 	if (isHTMLString(child)) {
-		destination.write(child);
+		if (isSlotString(child as unknown as string)) {
+			destination.write(child);
+		} else {
+			// Extract the primitive string from the HTMLString wrapper.
+			// Writing a primitive lets the write handler's stringifyChunk hit
+			// its fast path (typeof === 'string') instead of the costly
+			// HTMLString.toString() → String() coercion chain.
+			destination.write((child as HTMLString).toString() as unknown as string);
+		}
 		return;
 	}
 
