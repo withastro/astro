@@ -1,0 +1,459 @@
+diff --git a/dist/changesets-get-github-info.cjs.js b/dist/changesets-get-github-info.cjs.js
+index 4187b5c54532a1c1c179b60cb314026f67e48323..04b2b7bde740cfd11c92fd53c61f94e9668b602b 100644
+--- a/dist/changesets-get-github-info.cjs.js
++++ b/dist/changesets-get-github-info.cjs.js
+@@ -81,6 +81,26 @@ function _objectWithoutProperties(e, t) {
+ 
+ const _excluded = ["repo"],
+   _excluded2 = ["repo"];
++function getBatchSize() {
++  const value = Number(process.env.CHANGESETS_GITHUB_INFO_BATCH_SIZE ?? 80);
++  if (!Number.isInteger(value) || value < 1) {
++    return 80;
++  }
++  return value;
++}
++function chunkRequests(values, size) {
++  const chunks = [];
++  for (let index = 0; index < values.length; index += size) {
++    chunks.push(values.slice(index, index + size));
++  }
++  return chunks;
++}
++function getRequestKey(request) {
++  if (request.kind === "pull") {
++    return `${request.repo}:pull:${request.pull}`;
++  }
++  return `${request.repo}:commit:${request.commit}`;
++}
+ function readEnv() {
+   const GITHUB_GRAPHQL_URL = process.env.GITHUB_GRAPHQL_URL || "https://api.github.com/graphql";
+   const GITHUB_SERVER_URL = process.env.GITHUB_SERVER_URL || "https://github.com";
+@@ -153,58 +173,64 @@ const GHDataLoader = new DataLoader__default["default"](async requests => {
+   if (!GITHUB_TOKEN) {
+     throw new Error(`Please create a GitHub personal access token at ${GITHUB_SERVER_URL}/settings/tokens/new with \`read:user\` and \`repo:status\` permissions and add it as the GITHUB_TOKEN environment variable`);
+   }
+-  let repos = {};
+-  requests.forEach(_ref => {
+-    let {
+-        repo
+-      } = _ref,
+-      data = _objectWithoutProperties(_ref, _excluded);
+-    if (repos[repo] === undefined) {
+-      repos[repo] = [];
++  const dataByRequest = new Map();
++  const batches = chunkRequests(requests, getBatchSize());
++  for (const batch of batches) {
++    let repos = {};
++    batch.forEach(_ref => {
++      let {
++          repo
++        } = _ref,
++        data = _objectWithoutProperties(_ref, _excluded);
++      if (repos[repo] === undefined) {
++        repos[repo] = [];
++      }
++      repos[repo].push(data);
++    });
++    const data = await fetch__default["default"](GITHUB_GRAPHQL_URL, {
++      method: "POST",
++      headers: {
++        Authorization: `Token ${GITHUB_TOKEN}`
++      },
++      body: JSON.stringify({
++        query: makeQuery(repos)
++      })
++    }).then(x => x.json());
++    if (data.errors) {
++      throw new Error(`An error occurred when fetching data from GitHub\n${JSON.stringify(data.errors, null, 2)}`);
+     }
+-    repos[repo].push(data);
+-  });
+-  const data = await fetch__default["default"](GITHUB_GRAPHQL_URL, {
+-    method: "POST",
+-    headers: {
+-      Authorization: `Token ${GITHUB_TOKEN}`
+-    },
+-    body: JSON.stringify({
+-      query: makeQuery(repos)
+-    })
+-  }).then(x => x.json());
+-  if (data.errors) {
+-    throw new Error(`An error occurred when fetching data from GitHub\n${JSON.stringify(data.errors, null, 2)}`);
+-  }
+ 
+-  // this is mainly for the case where there's an authentication problem
+-  if (!data.data) {
+-    throw new Error(`An error occurred when fetching data from GitHub\n${JSON.stringify(data)}`);
+-  }
+-  let cleanedData = {};
+-  Object.keys(repos).forEach((repo, index) => {
+-    let output = {
+-      commit: {},
+-      pull: {}
+-    };
+-    cleanedData[repo] = output;
+-    Object.entries(data.data[`a${index}`]).forEach(([field, value]) => {
+-      // this is "a" because that's how it was when it was first written, "a" means it's a commit not a pr
+-      // we could change it to commit__ but then we have to get new GraphQL results from the GH API to put in the tests
+-      if (field[0] === "a") {
+-        output.commit[field.substring(1)] = value;
+-      } else {
+-        output.pull[field.replace("pr__", "")] = value;
+-      }
++    // this is mainly for the case where there's an authentication problem
++    if (!data.data) {
++      throw new Error(`An error occurred when fetching data from GitHub\n${JSON.stringify(data)}`);
++    }
++    let cleanedData = {};
++    Object.keys(repos).forEach((repo, index) => {
++      let output = {
++        commit: {},
++        pull: {}
++      };
++      cleanedData[repo] = output;
++      Object.entries(data.data[`a${index}`]).forEach(([field, value]) => {
++        // this is "a" because that's how it was when it was first written, "a" means it's a commit not a pr
++        // we could change it to commit__ but then we have to get new GraphQL results from the GH API to put in the tests
++        if (field[0] === "a") {
++          output.commit[field.substring(1)] = value;
++        } else {
++          output.pull[field.replace("pr__", "")] = value;
++        }
++      });
++    });
++    batch.forEach(request => {
++      let {
++          repo
++        } = request,
++        data = _objectWithoutProperties(request, _excluded2);
++      const key = getRequestKey(request);
++      dataByRequest.set(key, cleanedData[repo][data.kind][data.kind === "pull" ? data.pull : data.commit]);
+     });
+-  });
+-  return requests.map(_ref2 => {
+-    let {
+-        repo
+-      } = _ref2,
+-      data = _objectWithoutProperties(_ref2, _excluded2);
+-    return cleanedData[repo][data.kind][data.kind === "pull" ? data.pull : data.commit];
+-  });
++  }
++  return requests.map(request => dataByRequest.get(getRequestKey(request)));
+ });
+ async function getInfo(request) {
+   if (!request.commit) {
+diff --git a/dist/changesets-get-github-info.esm.js b/dist/changesets-get-github-info.esm.js
+index 071ec75bb2b5894f09c06d4ead395e56ddbfd1c8..a4ae95131391d25cf23c6d0b3349ef29af81f6da 100644
+--- a/dist/changesets-get-github-info.esm.js
++++ b/dist/changesets-get-github-info.esm.js
+@@ -72,6 +72,26 @@ function _objectWithoutProperties(e, t) {
+ 
+ const _excluded = ["repo"],
+   _excluded2 = ["repo"];
++function getBatchSize() {
++  const value = Number(process.env.CHANGESETS_GITHUB_INFO_BATCH_SIZE ?? 80);
++  if (!Number.isInteger(value) || value < 1) {
++    return 80;
++  }
++  return value;
++}
++function chunkRequests(values, size) {
++  const chunks = [];
++  for (let index = 0; index < values.length; index += size) {
++    chunks.push(values.slice(index, index + size));
++  }
++  return chunks;
++}
++function getRequestKey(request) {
++  if (request.kind === "pull") {
++    return `${request.repo}:pull:${request.pull}`;
++  }
++  return `${request.repo}:commit:${request.commit}`;
++}
+ function readEnv() {
+   const GITHUB_GRAPHQL_URL = process.env.GITHUB_GRAPHQL_URL || "https://api.github.com/graphql";
+   const GITHUB_SERVER_URL = process.env.GITHUB_SERVER_URL || "https://github.com";
+@@ -144,58 +164,64 @@ const GHDataLoader = new DataLoader(async requests => {
+   if (!GITHUB_TOKEN) {
+     throw new Error(`Please create a GitHub personal access token at ${GITHUB_SERVER_URL}/settings/tokens/new with \`read:user\` and \`repo:status\` permissions and add it as the GITHUB_TOKEN environment variable`);
+   }
+-  let repos = {};
+-  requests.forEach(_ref => {
+-    let {
+-        repo
+-      } = _ref,
+-      data = _objectWithoutProperties(_ref, _excluded);
+-    if (repos[repo] === undefined) {
+-      repos[repo] = [];
++  const dataByRequest = new Map();
++  const batches = chunkRequests(requests, getBatchSize());
++  for (const batch of batches) {
++    let repos = {};
++    batch.forEach(_ref => {
++      let {
++          repo
++        } = _ref,
++        data = _objectWithoutProperties(_ref, _excluded);
++      if (repos[repo] === undefined) {
++        repos[repo] = [];
++      }
++      repos[repo].push(data);
++    });
++    const data = await fetch(GITHUB_GRAPHQL_URL, {
++      method: "POST",
++      headers: {
++        Authorization: `Token ${GITHUB_TOKEN}`
++      },
++      body: JSON.stringify({
++        query: makeQuery(repos)
++      })
++    }).then(x => x.json());
++    if (data.errors) {
++      throw new Error(`An error occurred when fetching data from GitHub\n${JSON.stringify(data.errors, null, 2)}`);
+     }
+-    repos[repo].push(data);
+-  });
+-  const data = await fetch(GITHUB_GRAPHQL_URL, {
+-    method: "POST",
+-    headers: {
+-      Authorization: `Token ${GITHUB_TOKEN}`
+-    },
+-    body: JSON.stringify({
+-      query: makeQuery(repos)
+-    })
+-  }).then(x => x.json());
+-  if (data.errors) {
+-    throw new Error(`An error occurred when fetching data from GitHub\n${JSON.stringify(data.errors, null, 2)}`);
+-  }
+ 
+-  // this is mainly for the case where there's an authentication problem
+-  if (!data.data) {
+-    throw new Error(`An error occurred when fetching data from GitHub\n${JSON.stringify(data)}`);
+-  }
+-  let cleanedData = {};
+-  Object.keys(repos).forEach((repo, index) => {
+-    let output = {
+-      commit: {},
+-      pull: {}
+-    };
+-    cleanedData[repo] = output;
+-    Object.entries(data.data[`a${index}`]).forEach(([field, value]) => {
+-      // this is "a" because that's how it was when it was first written, "a" means it's a commit not a pr
+-      // we could change it to commit__ but then we have to get new GraphQL results from the GH API to put in the tests
+-      if (field[0] === "a") {
+-        output.commit[field.substring(1)] = value;
+-      } else {
+-        output.pull[field.replace("pr__", "")] = value;
+-      }
++    // this is mainly for the case where there's an authentication problem
++    if (!data.data) {
++      throw new Error(`An error occurred when fetching data from GitHub\n${JSON.stringify(data)}`);
++    }
++    let cleanedData = {};
++    Object.keys(repos).forEach((repo, index) => {
++      let output = {
++        commit: {},
++        pull: {}
++      };
++      cleanedData[repo] = output;
++      Object.entries(data.data[`a${index}`]).forEach(([field, value]) => {
++        // this is "a" because that's how it was when it was first written, "a" means it's a commit not a pr
++        // we could change it to commit__ but then we have to get new GraphQL results from the GH API to put in the tests
++        if (field[0] === "a") {
++          output.commit[field.substring(1)] = value;
++        } else {
++          output.pull[field.replace("pr__", "")] = value;
++        }
++      });
++    });
++    batch.forEach(request => {
++      let {
++          repo
++        } = request,
++        data = _objectWithoutProperties(request, _excluded2);
++      const key = getRequestKey(request);
++      dataByRequest.set(key, cleanedData[repo][data.kind][data.kind === "pull" ? data.pull : data.commit]);
+     });
+-  });
+-  return requests.map(_ref2 => {
+-    let {
+-        repo
+-      } = _ref2,
+-      data = _objectWithoutProperties(_ref2, _excluded2);
+-    return cleanedData[repo][data.kind][data.kind === "pull" ? data.pull : data.commit];
+-  });
++  }
++  return requests.map(request => dataByRequest.get(getRequestKey(request)));
+ });
+ async function getInfo(request) {
+   if (!request.commit) {
+diff --git a/src/index.ts b/src/index.ts
+index ea172edc7bbf4ab404a2e91a1050e1a424d1ddd4..948eec8084d3e1aa8fba84be861406951c44c285 100644
+--- a/src/index.ts
++++ b/src/index.ts
+@@ -22,6 +22,29 @@ type ReposWithCommitsAndPRsToFetch = Record<
+   ({ kind: "commit"; commit: string } | { kind: "pull"; pull: number })[]
+ >;
+ 
++function getBatchSize() {
++  const value = Number(process.env.CHANGESETS_GITHUB_INFO_BATCH_SIZE ?? 80);
++  if (!Number.isInteger(value) || value < 1) {
++    return 80;
++  }
++  return value;
++}
++
++function chunkRequests<T>(values: T[], size: number): T[][] {
++  const chunks: T[][] = [];
++  for (let index = 0; index < values.length; index += size) {
++    chunks.push(values.slice(index, index + size));
++  }
++  return chunks;
++}
++
++function getRequestKey(request: RequestData) {
++  if (request.kind === "pull") {
++    return `${request.repo}:pull:${request.pull}`;
++  }
++  return `${request.repo}:commit:${request.commit}`;
++}
++
+ function makeQuery(repos: ReposWithCommitsAndPRsToFetch) {
+   return `
+       query {
+@@ -94,68 +117,78 @@ const GHDataLoader = new DataLoader(async (requests: RequestData[]) => {
+       `Please create a GitHub personal access token at ${GITHUB_SERVER_URL}/settings/tokens/new with \`read:user\` and \`repo:status\` permissions and add it as the GITHUB_TOKEN environment variable`
+     );
+   }
+-  let repos: ReposWithCommitsAndPRsToFetch = {};
+-  requests.forEach(({ repo, ...data }) => {
+-    if (repos[repo] === undefined) {
+-      repos[repo] = [];
+-    }
+-    repos[repo].push(data);
+-  });
++  const dataByRequest = new Map<string, any>();
++  const batches = chunkRequests(requests, getBatchSize());
+ 
+-  const data = await fetch(GITHUB_GRAPHQL_URL, {
+-    method: "POST",
+-    headers: {
+-      Authorization: `Token ${GITHUB_TOKEN}`,
+-    },
+-    body: JSON.stringify({ query: makeQuery(repos) }),
+-  }).then((x: any) => x.json());
++  for (const batch of batches) {
++    let repos: ReposWithCommitsAndPRsToFetch = {};
++    batch.forEach(({ repo, ...data }) => {
++      if (repos[repo] === undefined) {
++        repos[repo] = [];
++      }
++      repos[repo].push(data);
++    });
+ 
+-  if (data.errors) {
+-    throw new Error(
+-      `An error occurred when fetching data from GitHub\n${JSON.stringify(
+-        data.errors,
+-        null,
+-        2
+-      )}`
+-    );
+-  }
++    const data = await fetch(GITHUB_GRAPHQL_URL, {
++      method: "POST",
++      headers: {
++        Authorization: `Token ${GITHUB_TOKEN}`,
++      },
++      body: JSON.stringify({ query: makeQuery(repos) }),
++    }).then((x: any) => x.json());
+ 
+-  // this is mainly for the case where there's an authentication problem
+-  if (!data.data) {
+-    throw new Error(
+-      `An error occurred when fetching data from GitHub\n${JSON.stringify(
+-        data
+-      )}`
+-    );
+-  }
++    if (data.errors) {
++      throw new Error(
++        `An error occurred when fetching data from GitHub\n${JSON.stringify(
++          data.errors,
++          null,
++          2
++        )}`
++      );
++    }
+ 
+-  let cleanedData: Record<
+-    string,
+-    { commit: Record<string, any>; pull: Record<string, any> }
+-  > = {};
+-  Object.keys(repos).forEach((repo, index) => {
+-    let output: { commit: Record<string, any>; pull: Record<string, any> } = {
+-      commit: {},
+-      pull: {},
+-    };
+-    cleanedData[repo] = output;
+-    Object.entries(data.data[`a${index}`]).forEach(([field, value]) => {
+-      // this is "a" because that's how it was when it was first written, "a" means it's a commit not a pr
+-      // we could change it to commit__ but then we have to get new GraphQL results from the GH API to put in the tests
+-      if (field[0] === "a") {
+-        output.commit[field.substring(1)] = value;
+-      } else {
+-        output.pull[field.replace("pr__", "")] = value;
+-      }
++    // this is mainly for the case where there's an authentication problem
++    if (!data.data) {
++      throw new Error(
++        `An error occurred when fetching data from GitHub\n${JSON.stringify(
++          data
++        )}`
++      );
++    }
++
++    let cleanedData: Record<
++      string,
++      { commit: Record<string, any>; pull: Record<string, any> }
++    > = {};
++    Object.keys(repos).forEach((repo, index) => {
++      let output: { commit: Record<string, any>; pull: Record<string, any> } = {
++        commit: {},
++        pull: {},
++      };
++      cleanedData[repo] = output;
++      Object.entries(data.data[`a${index}`]).forEach(([field, value]) => {
++        // this is "a" because that's how it was when it was first written, "a" means it's a commit not a pr
++        // we could change it to commit__ but then we have to get new GraphQL results from the GH API to put in the tests
++        if (field[0] === "a") {
++          output.commit[field.substring(1)] = value;
++        } else {
++          output.pull[field.replace("pr__", "")] = value;
++        }
++      });
+     });
+-  });
+ 
+-  return requests.map(
+-    ({ repo, ...data }) =>
+-      cleanedData[repo][data.kind][
+-        data.kind === "pull" ? data.pull : data.commit
+-      ]
+-  );
++    batch.forEach(({ repo, ...requestData }) => {
++      const key = getRequestKey({ repo, ...requestData } as RequestData);
++      dataByRequest.set(
++        key,
++        cleanedData[repo][requestData.kind][
++          requestData.kind === "pull" ? requestData.pull : requestData.commit
++        ]
++      );
++    });
++  }
++
++  return requests.map((request) => dataByRequest.get(getRequestKey(request)));
+ });
+ 
+ export async function getInfo(request: {
