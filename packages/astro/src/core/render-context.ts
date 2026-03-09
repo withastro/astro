@@ -390,7 +390,8 @@ export class RenderContext {
 		}
 
 		const useMiddleware =
-			!this.skipMiddleware && ['classic', 'always'].includes(pipeline.manifest.middlewareMode);
+			!this.skipMiddleware &&
+			['classic', 'always', 'on-request'].includes(pipeline.manifest.middlewareMode);
 
 		const response = useMiddleware
 			? await callMiddleware(middleware, apiContext, lastNext)

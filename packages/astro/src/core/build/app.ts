@@ -15,8 +15,13 @@ export class BuildApp extends BaseApp<BuildPipeline> {
 	}
 
 	async createRenderContext(payload: CreateRenderContext): Promise<RenderContext> {
+		// In 'on-request' mode, middleware is only meant to run at request time,
+		// not during build-time prerendering. Skip it here in the BuildApp.
+		const skipMiddleware = payload.skipMiddleware || this.manifest.middlewareMode === 'on-request';
 		return await super.createRenderContext({
 			...payload,
+
+			skipMiddleware,
 		});
 	}
 
