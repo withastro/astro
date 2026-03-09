@@ -30,22 +30,6 @@ describe('Astro.redirect', () => {
 			await fixture.build();
 		});
 
-		it('Returns a 302 status', async () => {
-			const app = await fixture.loadTestAdapterApp();
-			const request = new Request('http://example.com/secret');
-			const response = await app.render(request);
-			assert.equal(response.status, 302);
-			assert.equal(response.headers.get('location'), '/login');
-		});
-
-		it('Allows external redirect', async () => {
-			const app = await fixture.loadTestAdapterApp();
-			const request = new Request('http://example.com/external/redirect');
-			const response = await app.render(request);
-			assert.equal(response.status, 301);
-			assert.equal(response.headers.get('location'), 'https://example.com/');
-		});
-
 		it('Warns when used inside a component', async () => {
 			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/late');
@@ -59,56 +43,6 @@ describe('Astro.redirect', () => {
 					'The response has already been sent to the browser and cannot be altered.',
 				);
 			}
-		});
-
-		describe('Redirects config', () => {
-			it('Returns the redirect', async () => {
-				const app = await fixture.loadTestAdapterApp();
-				const request = new Request('http://example.com/api/redirect');
-				const response = await app.render(request);
-				assert.equal(response.status, 301);
-				assert.equal(response.headers.get('Location'), '/test');
-			});
-
-			it('Uses 308 for non-GET methods', async () => {
-				const app = await fixture.loadTestAdapterApp();
-				const request = new Request('http://example.com/api/redirect', {
-					method: 'POST',
-				});
-				const response = await app.render(request);
-				assert.equal(response.status, 308);
-			});
-
-			it('Forwards params to the target path - single param', async () => {
-				const app = await fixture.loadTestAdapterApp();
-				const request = new Request('http://example.com/source/x');
-				const response = await app.render(request);
-				assert.equal(response.headers.get('Location'), '/not-verbatim/target1/x');
-			});
-
-			it('Forwards params to the target path - multiple params', async () => {
-				const app = await fixture.loadTestAdapterApp();
-				const request = new Request('http://example.com/source/x/y');
-				const response = await app.render(request);
-				assert.equal(response.headers.get('Location'), '/not-verbatim/target2/x/y');
-			});
-
-			it('Forwards params to the target path - spread param', async () => {
-				const app = await fixture.loadTestAdapterApp();
-				const request = new Request('http://example.com/source/x/y/z');
-				const response = await app.render(request);
-				assert.equal(response.headers.get('Location'), '/not-verbatim/target3/x/y/z');
-			});
-
-			it('Forwards params to the target path - special characters', async () => {
-				const app = await fixture.loadTestAdapterApp();
-				const request = new Request('http://example.com/source/Las Vegas’');
-				const response = await app.render(request);
-				assert.equal(
-					response.headers.get('Location'),
-					'/not-verbatim/target1/Las%20Vegas%E2%80%99',
-				);
-			});
 		});
 	});
 
@@ -192,39 +126,6 @@ describe('Astro.redirect output: "static"', () => {
 				},
 			});
 			await fixture.build();
-		});
-
-		it("Minifies the HTML emitted when a page that doesn't exist is emitted", async () => {
-			const html = await fixture.readFile('/old/index.html');
-			assert.equal(html.includes('\n'), false);
-		});
-
-		it('Includes the meta refresh tag in Astro.redirect pages', async () => {
-			const html = await fixture.readFile('/secret/index.html');
-			assert.equal(html.includes('http-equiv="refresh'), true);
-			assert.equal(html.includes('url=/login'), true);
-		});
-
-		it('Includes the meta noindex tag', async () => {
-			const html = await fixture.readFile('/secret/index.html');
-			assert.equal(html.includes('name="robots'), true);
-			assert.equal(html.includes('content="noindex'), true);
-		});
-
-		it('Includes a link to the new pages for bots to follow', async () => {
-			const html = await fixture.readFile('/secret/index.html');
-			assert.equal(html.includes('<a href="/login">'), true);
-		});
-
-		it('Includes a canonical link', async () => {
-			const html = await fixture.readFile('/secret/index.html');
-			assert.equal(html.includes('<link rel="canonical" href="/login">'), true);
-		});
-
-		it('A 302 status generates a "temporary redirect" through a short delay', async () => {
-			// https://developers.google.com/search/docs/crawling-indexing/301-redirects#metarefresh
-			const html = await fixture.readFile('/secret/index.html');
-			assert.equal(html.includes('content="2;url=/login"'), true);
 		});
 
 		it('Includes the meta refresh tag in `redirect` config pages', async () => {

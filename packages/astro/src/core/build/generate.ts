@@ -80,7 +80,7 @@ export async function generatePages(
 		prerenderer = settingsPrerenderer;
 	}
 
-	// Setup the prerenderer
+	// Set up the prerenderer
 	await prerenderer.setup?.();
 
 	const verb = ssr ? 'prerendering' : 'generating';

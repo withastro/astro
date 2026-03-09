@@ -76,7 +76,7 @@ describe('AstroConfig - config.output', () => {
 				try {
 					html = await fixture.readFile('/index.html');
 				} catch {
-					assert.equal(false, true, 'Couldnt find the file, which mean it did not build.');
+					assert.equal(false, true, 'Could not find the file, which mean it did not build.');
 				}
 				assert.equal(html.length > 0, true);
 			});

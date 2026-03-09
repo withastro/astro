@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/preact",
   "description": "Use Preact components within Astro",
-  "version": "5.0.0-beta.4",
+  "version": "5.0.0-beta.5",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -35,8 +35,10 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
+    "@astrojs/internal-helpers": "workspace:*",
     "@preact/preset-vite": "^2.10.3",
     "@preact/signals": "^2.8.1",
+    "devalue": "^5.6.3",
     "preact-render-to-string": "^6.6.6",
     "vite": "^7.3.1"
   },

@@ -687,6 +687,31 @@ export interface AstroUserConfig<
 
 		/**
 		 * @docs
+		 * @name security.serverIslandBodySizeLimit
+		 * @kind h4
+		 * @type {number}
+		 * @default `1048576` (1 MB)
+		 * @version 6.0.0
+		 * @description
+		 *
+		 * Sets the maximum size in bytes allowed for server island request bodies, which contain the encrypted props and slot HTML passed to the island component.
+		 *
+		 * By default, server island request bodies are limited to 1 MB (1048576 bytes) to prevent abuse.
+		 * You can increase this limit if your server islands need to accept larger payloads.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * export default defineConfig({
+		 *   security: {
+		 *     serverIslandBodySizeLimit: 10 * 1024 * 1024 // 10 MB
+		 *   }
+		 * })
+		 * ```
+		 */
+		serverIslandBodySizeLimit?: number;
+
+		/**
+		 * @docs
 		 * @name security.csp
 		 * @kind h4
 		 * @type {boolean | object}
@@ -2705,7 +2730,7 @@ export interface AstroUserConfig<
 		 * Continue to use the `data-astro-prefetch` attribute on any `<a />` link on your site to opt in to prefetching.
 		 * Instead of appending a `<link>` tag to the head of the document or fetching the page with JavaScript, a `<script>` tag will be appended with the corresponding speculation rules.
 		 *
-		 * Client side prerendering requires browser support. If the Speculation Rules API is not supported, `prefetch` will fallback to the supported strategy.
+		 * Client side prerendering requires browser support. If the Speculation Rules API is not supported, `prefetch` will fall back to the supported strategy.
 		 *
 		 * See the [Prefetch Guide](https://docs.astro.build/en/guides/prefetch/) for more `prefetch` options and usage.
 		 */

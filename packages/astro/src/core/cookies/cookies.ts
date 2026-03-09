@@ -253,7 +253,7 @@ class AstroCookies implements AstroCookiesInterface {
 			this.#parse();
 		}
 		if (!this.#requestValues) {
-			this.#requestValues = {};
+			this.#requestValues = Object.create(null) as Record<string, string | undefined>;
 		}
 		return this.#requestValues;
 	}

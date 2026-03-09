@@ -50,7 +50,7 @@ describe('CSS', function () {
 				for (const [key] of Object.entries(classes[0].attribs)) {
 					if (/^data-astro-cid-[A-Za-z\d-]+/.test(key)) {
 						// Ema: this is ugly, but for reasons that I don't want to explore, cheerio
-						// lower case the hash of the attribute
+						// lowercase the hash of the attribute
 						scopedAttribute = key;
 					}
 				}

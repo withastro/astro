@@ -1,24 +1,34 @@
 import type { AstroComponentMetadata, NamedSSRLoadedRendererValue } from 'astro';
+import opts from 'astro:preact:opts';
 import { Component as BaseComponent, h, type VNode } from 'preact';
 import { renderToStringAsync } from 'preact-render-to-string';
 import { getContext } from './context.js';
 import { restoreSignalsOnProps, serializeSignals } from './signals.js';
 import StaticHtml from './static-html.js';
 import type { AstroPreactAttrs, RendererContext } from './types.js';
+import { createFilter } from '@astrojs/internal-helpers/create-filter';
 
 const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
 
 let originalConsoleError: typeof console.error;
 let consoleFilterRefs = 0;
 
+const filter = opts?.include || opts?.exclude ? createFilter(opts.include, opts.exclude) : null;
+
 async function check(
 	this: RendererContext,
 	Component: any,
 	props: Record<string, any>,
 	children: any,
+	metadata?: AstroComponentMetadata,
 ) {
 	if (typeof Component !== 'function') return false;
 	if (Component.name === 'QwikComponent') return false;
+
+	const componentUrl = metadata?.componentUrl;
+	if (filter && componentUrl && !filter(componentUrl)) {
+		return false;
+	}
 
 	if (Component.prototype != null && typeof Component.prototype.render === 'function') {
 		return BaseComponent.isPrototypeOf(Component);
@@ -131,7 +141,11 @@ function finishUsingConsoleFilter() {
  * Otherwise, simply forwards all arguments to the original function.
  */
 function filteredConsoleError(msg: string, ...rest: any[]) {
-	if (consoleFilterRefs > 0 && typeof msg === 'string') {
+	if (
+		consoleFilterRefs > 0 &&
+		!process.env.ASTRO_INTERNAL_TEST_DISABLE_CONSOLE_FILTER &&
+		typeof msg === 'string'
+	) {
 		// In `check`, we attempt to render JSX components through Preact.
 		// When attempting this on a React component, React may output
 		// the following error, which we can safely filter out:

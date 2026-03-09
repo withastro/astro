@@ -20,6 +20,16 @@ export interface UserOptions {
 	 * - The CSP header of the static pages is added when CSP support is enabled.
 	 */
 	staticHeaders?: boolean;
+
+	/**
+	 * Maximum allowed request body size in bytes. Requests with bodies larger than
+	 * this limit will throw an error when the body is consumed.
+	 *
+	 * Set to `Infinity` or `0` to disable the limit.
+	 *
+	 * @default {1073741824} 1GB
+	 */
+	bodySizeLimit?: number;
 }
 
 export interface Options extends UserOptions {
@@ -28,6 +38,7 @@ export interface Options extends UserOptions {
 	server: string;
 	client: string;
 	staticHeaders: boolean;
+	bodySizeLimit: number;
 }
 
 export type RequestHandler = (...args: RequestHandlerParams) => void | Promise<void>;
