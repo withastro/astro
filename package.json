@@ -63,7 +63,6 @@
     "@astrojs/check": "^0.9.5",
     "@biomejs/biome": "2.4.2",
     "@changesets/changelog-git": "^0.2.1",
-    "@changesets/changelog-github": "^0.5.2",
     "@changesets/cli": "^2.29.8",
     "@flue/cli": "^0.0.47",
     "@flue/client": "^0.0.29",
