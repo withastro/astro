@@ -532,6 +532,9 @@ importers:
       aria-query:
         specifier: ^5.3.2
         version: 5.3.2
+      astro-compiler-rs:
+        specifier: ^0.1.5
+        version: 0.1.5
       axobject-query:
         specifier: ^4.1.0
         version: 4.1.0
@@ -10844,6 +10847,41 @@ packages:
     peerDependencies:
       astro: ^2.0.0 || ^3.0.0-beta || ^4.0.0-beta || ^5.0.0-beta
 
+  astro-compiler-binding-linux-arm64-gnu@0.1.5:
+    resolution: {integrity: sha512-yfxEWTNS0t5046XcMCpppSOfOIm018CiVU38+1NZkCLdvKogWLdyBoM+Cmx2aCqg0aDk+iVpzhlOhF7fUOSDfg==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+    cpu: [arm64]
+    os: [linux]
+    libc: [glibc]
+
+  astro-compiler-binding-linux-arm64-musl@0.1.5:
+    resolution: {integrity: sha512-nlrD91oza+1lpqXz5xl0Fvnrlx3N9ot9b6t4FaiRWeL9rm0jBKeHkI7niEsQFtWLesIChfOhbuXVgwylLRwzZA==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+    cpu: [arm64]
+    os: [linux]
+    libc: [musl]
+
+  astro-compiler-binding-linux-x64-gnu@0.1.5:
+    resolution: {integrity: sha512-6/LRaq3ckPosWzN/PXHv7mPNbLGESXacRGOIMBSi7XAZ/ZwcVrwnNaChHc9P3uh1DBSN4t7GhYphqp/vtNciuA==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+    cpu: [x64]
+    os: [linux]
+    libc: [glibc]
+
+  astro-compiler-binding-linux-x64-musl@0.1.5:
+    resolution: {integrity: sha512-viu+U9EN9uQI3egfKkHBd1wpdOfAtMvbubto7CeYerKL+JXTWne4DSB5FcWBAlzEWCllyNavC7p6ETRwuz9/9Q==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+    cpu: [x64]
+    os: [linux]
+    libc: [musl]
+
+  astro-compiler-binding@0.1.5:
+    resolution: {integrity: sha512-kjUtbhqE23z+STcHUhzLtFTcAg1Vg2WJNtIjRb6DN8jOE6wZE/jRR/O6USahD8CiC7VsxMksZjC4SvpjMio5YA==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+
+  astro-compiler-rs@0.1.5:
+    resolution: {integrity: sha512-uwCgvK/GTy/pucBfJSEkehjsGXyoek2Rn++Nry4pDwtV/tZ+hSPutAJzM0kFoXZgv8Tys1Bv6C+qvvsFlzraeQ==}
+
   astro-embed@0.8.0:
     resolution: {integrity: sha512-zG7SjRKo2TT4LsZLQfttf+Yb9OJ2oty+/qj7SZ9RPPAo0olfbWgoXkAdrDHBJyvVMss9GCgCunIp/kqQ32t9ZA==}
     peerDependencies:
@@ -20129,6 +20167,29 @@ snapshots:
     dependencies:
       acorn: 8.16.0
       astro: link:packages/astro
+
+  astro-compiler-binding-linux-arm64-gnu@0.1.5:
+    optional: true
+
+  astro-compiler-binding-linux-arm64-musl@0.1.5:
+    optional: true
+
+  astro-compiler-binding-linux-x64-gnu@0.1.5:
+    optional: true
+
+  astro-compiler-binding-linux-x64-musl@0.1.5:
+    optional: true
+
+  astro-compiler-binding@0.1.5:
+    optionalDependencies:
+      astro-compiler-binding-linux-arm64-gnu: 0.1.5
+      astro-compiler-binding-linux-arm64-musl: 0.1.5
+      astro-compiler-binding-linux-x64-gnu: 0.1.5
+      astro-compiler-binding-linux-x64-musl: 0.1.5
+
+  astro-compiler-rs@0.1.5:
+    dependencies:
+      astro-compiler-binding: 0.1.5
 
   astro-embed@0.8.0(astro@packages+astro):
     dependencies:
