@@ -50,7 +50,7 @@ export const GET: APIRoute = async ({ request }) => {
 		if (etag) headers.set('ETag', etag);
 
 		return new Response(response.body, { status: 200, headers });
-	} catch (err) {
+	} catch (_err) {
 		return new Response('Internal Server Error', { status: 500 });
 	}
 };
