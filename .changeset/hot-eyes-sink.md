@@ -60,4 +60,4 @@ export default defineConfig({
 });
 ```
 
-For more information on enabling and using this feature in your project, see the [experimental queued rendering docs](https://v6.docs.astro.build/en/reference/experimental-flags/queued-rendering/) for more details.
+For more information on enabling and using this feature in your project, see the [experimental queued rendering docs](https://docs.astro.build/en/reference/experimental-flags/queued-rendering/) for more details.

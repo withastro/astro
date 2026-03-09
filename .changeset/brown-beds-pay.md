@@ -28,4 +28,4 @@ const myService = {
 };
 ```
 
-See the [Image Services API reference documentation](https://v6.docs.astro.build/en/reference/image-service-reference/#getremotesize) for more information.
+See the [Image Services API reference documentation](https://docs.astro.build/en/reference/image-service-reference/#getremotesize) for more information.

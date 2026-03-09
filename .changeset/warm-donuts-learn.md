@@ -16,4 +16,4 @@ import { createApp } from 'astro/app/entrypoint'
 const app = createApp({ streaming: false })
 ```
 
-See more about [the `createApp()` function](https://v6.docs.astro.build/en/reference/adapter-reference/#createapp) in the Adapter API reference.
+See more about [the `createApp()` function](https://docs.astro.build/en/reference/adapter-reference/#createapp) in the Adapter API reference.
