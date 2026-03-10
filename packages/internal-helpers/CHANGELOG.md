@@ -1,5 +1,11 @@
 # @astrojs/internal-helpers
 
+## 0.7.6
+
+### Patch Changes
+
+- [#15828](https://github.com/withastro/astro/pull/15828) [`c2cd371`](https://github.com/withastro/astro/commit/c2cd371f9f2003ab8c9ce70a24fc0af40c5de531) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes glob matching of remote patterns matching more paths than intended in select situations
+
 ## 0.7.5
 
 ### Patch Changes
