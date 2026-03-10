@@ -68,6 +68,7 @@ export default function createVitePluginAstroServer({
 				? (prerenderEnvironment as RunnableDevEnvironment)
 				: undefined;
 
+			// TODO: let this handle non-runnable environments that don't intercept requests
 			if (!runnableSsrEnvironment && !runnablePrerenderEnvironment) {
 				return;
 			}
