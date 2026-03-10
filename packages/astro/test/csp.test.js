@@ -1,6 +1,7 @@
+import * as cheerio from 'cheerio';
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import * as cheerio from 'cheerio';
+import { generateCspDigest } from '../dist/core/encryption.js';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
 
@@ -16,14 +17,11 @@ describe('CSP', () => {
 		const html = await fixture.readFile('/inline/index.html');
 		const $ = cheerio.load(html);
 
+		const styleContent = $('style').text();
+		const styleDigest = await generateCspDigest(styleContent, 'SHA-256');
+
 		const meta = $('meta[http-equiv="Content-Security-Policy"]');
-		// hash of the <style> content
-		assert.ok(
-			meta
-				.attr('content')
-				.toString()
-				.includes("'sha256-fP5hIETY85LoQH4mfn28a0KQgRZ3ZBI/WJOYJRKChes='"),
-		);
+		assert.match(meta.attr('content'), new RegExp(`'${styleDigest}'`));
 	});
 
 	it('should generate hashes and directives for fonts', async () => {

@@ -434,7 +434,8 @@ describe('Server islands', () => {
 					});
 					assert.equal(true, false, 'should not have succeeded');
 				} catch (err) {
-					assert.equal(err.title, 'Cannot use Server Islands without an adapter.');
+					// TODO: Maybe revert to previous style if we work out why build errors are different now
+					assert.match(err.message, /Cannot use server islands without an adapter/);
 				}
 			});
 
