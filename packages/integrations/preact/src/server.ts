@@ -96,6 +96,20 @@ async function renderToStaticMarkup(
 			: children,
 	);
 
+	// Set a unique mask on the VNode so that Preact's useId() hook generates
+	// unique IDs across islands. Each island gets a different mask[0] value.
+	// Preact's useId() checks for `_mask` (source) / `__m` (mangled) on VNodes.
+	// We set both to ensure correctness regardless of which Preact build is resolved.
+	// Only assign an island ID during actual renders, not during check() calls
+	// (check passes metadata as undefined).
+	if (metadata !== undefined) {
+		const islandId = ctx.islandCount++;
+		const mask: [number, number] = [islandId, 0];
+		(vNode as any)._mask = mask;
+		(vNode as any).__m = mask;
+		attrs['data-preact-island-id'] = islandId.toString();
+	}
+
 	const html = await renderToStringAsync(vNode);
 	return { attrs, html };
 }

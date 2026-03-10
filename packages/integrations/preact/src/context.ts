@@ -3,6 +3,8 @@ import type { PropNameToSignalMap, RendererContext, SignalLike } from './types.j
 export type Context = {
 	id: string;
 	c: number;
+	/** Counter for assigning unique island indices, used to generate unique `useId()` values */
+	islandCount: number;
 	signals: Map<SignalLike, string>;
 	propsToSignals: Map<Record<string, any>, PropNameToSignalMap>;
 };
@@ -15,6 +17,7 @@ export function getContext(result: RendererContext['result']): Context {
 	}
 	let ctx = {
 		c: 0,
+		islandCount: 0,
 		get id() {
 			return 'p' + this.c.toString();
 		},

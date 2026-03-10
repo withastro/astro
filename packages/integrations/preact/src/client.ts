@@ -4,6 +4,9 @@ import type { SignalLike } from './types.js';
 
 const sharedSignalMap = new Map<string, SignalLike>();
 
+// Counter for client:only islands that don't have a server-assigned island ID
+let clientOnlyIslandCount = 0;
+
 export default (element: HTMLElement) =>
 	async (
 		Component: any,
@@ -54,6 +57,22 @@ export default (element: HTMLElement) =>
 			props,
 			children != null ? h(StaticHtml, { value: children }) : children,
 		);
+
+		// Set a unique mask on the VNode so that Preact's useId() hook generates
+		// unique IDs across islands, matching the server-rendered IDs.
+		// Preact's useId() checks for `_mask` (source) / `__m` (mangled) on VNodes.
+		// We set both to ensure correctness regardless of which Preact build is resolved.
+		const islandIdAttr = element.dataset.preactIslandId;
+		if (islandIdAttr != null) {
+			const mask: [number, number] = [Number.parseInt(islandIdAttr, 10), 0];
+			(child as any)._mask = mask;
+			(child as any).__m = mask;
+		} else if (client === 'only') {
+			// For client:only components, use a client-side counter to ensure uniqueness
+			const mask: [number, number] = [clientOnlyIslandCount++, 0];
+			(child as any)._mask = mask;
+			(child as any).__m = mask;
+		}
 
 		if (client === 'only') {
 			element.innerHTML = '';
