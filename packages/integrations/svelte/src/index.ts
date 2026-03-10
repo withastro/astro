@@ -1,7 +1,7 @@
 import type { Options } from '@sveltejs/vite-plugin-svelte';
 import { svelte, vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import type { AstroIntegration, AstroRenderer } from 'astro';
-import type { Plugin } from 'vite';
+import type { EnvironmentOptions, Plugin } from 'vite';
 
 function getRenderer(): AstroRenderer {
 	return {
@@ -33,25 +33,45 @@ function configEnvironmentPlugin(): Plugin {
 	return {
 		name: '@astrojs/svelte:config-environment',
 		configEnvironment(environmentName, options) {
+			const isServerEnvironment = environmentName === 'ssr' || environmentName === 'prerender';
+			const environmentOptions: EnvironmentOptions = {};
+
+			if (isServerEnvironment && options.resolve?.noExternal !== true) {
+				const noExternal = options.resolve?.noExternal;
+				const noExternalEntries = Array.isArray(noExternal)
+					? noExternal
+					: noExternal
+						? [noExternal]
+						: [];
+
+				if (!noExternalEntries.includes('lucide-svelte')) {
+					environmentOptions.resolve = {
+						noExternal: [...noExternalEntries, 'lucide-svelte'],
+					};
+				}
+			}
+
 			if (
 				environmentName === 'client' ||
 				((environmentName === 'ssr' || environmentName === 'prerender') &&
 					options.optimizeDeps?.noDiscovery === false)
 			) {
-				return {
-					optimizeDeps: {
-						include:
-							environmentName === 'client'
-								? ['@astrojs/svelte/client.js']
-								: environmentName === 'ssr' || environmentName === 'prerender'
-									? ['svelte/server', 'svelte/internal/server']
-									: [],
-						exclude:
-							environmentName === 'ssr' || environmentName === 'prerender'
-								? ['@astrojs/svelte/server.js']
+				environmentOptions.optimizeDeps = {
+					include:
+						environmentName === 'client'
+							? ['@astrojs/svelte/client.js']
+							: environmentName === 'ssr' || environmentName === 'prerender'
+								? ['svelte/server', 'svelte/internal/server']
 								: [],
-					},
+					exclude:
+						environmentName === 'ssr' || environmentName === 'prerender'
+							? ['@astrojs/svelte/server.js']
+							: [],
 				};
+			}
+
+			if (Object.keys(environmentOptions).length > 0) {
+				return environmentOptions;
 			}
 		},
 	};
