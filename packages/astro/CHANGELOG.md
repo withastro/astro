@@ -1,5 +1,11 @@
 # astro
 
+## 6.0.2
+
+### Patch Changes
+
+- [#15832](https://github.com/withastro/astro/pull/15832) [`95e12a2`](https://github.com/withastro/astro/commit/95e12a250ece206f55f8c0c07c9c05489f3df93f) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes `return;` syntax not working in the frontmatter correctly in certain contexts
+
 ## 6.0.1
 
 ### Patch Changes
