@@ -4,7 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parseFrontmatter } from '@astrojs/markdown-remark';
 import { slug as githubSlug } from 'github-slugger';
 import colors from 'piccolore';
-import type { PluginContext } from 'rollup';
+import type { PluginContext } from 'rolldown';
 import type { RunnableDevEnvironment } from 'vite';
 import xxhash from 'xxhash-wasm';
 import * as z from 'zod/v4';

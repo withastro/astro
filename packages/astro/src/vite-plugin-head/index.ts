@@ -1,4 +1,4 @@
-import type { ModuleInfo } from 'rollup';
+import type { ModuleInfo } from 'rolldown';
 import type * as vite from 'vite';
 import type { DevEnvironment } from 'vite';
 import { getParentModuleInfos, getTopLevelPageModuleInfos } from '../core/build/graph.js';

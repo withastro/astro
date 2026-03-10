@@ -1,11 +1,11 @@
-import { type ESBuildTransformResult, transformWithEsbuild } from 'vite';
+import { transformWithEsbuild, transformWithOxc } from 'vite';
 import { type CompileProps, type CompileResult, compile } from '../core/compile/index.js';
 import type { Logger } from '../core/logger/core.js';
 import type { AstroConfig } from '../types/public/config.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 import type { CompileMetadata } from './types.js';
 import { frontmatterRE } from './utils.js';
-import type { SourceMapInput } from 'rollup';
+import type { SourceMapInput } from 'rolldown';
 
 interface CompileAstroOption {
 	compileProps: CompileProps;
@@ -31,17 +31,17 @@ export async function compileAstro({
 	logger,
 }: CompileAstroOption): Promise<CompileAstroResult> {
 	let transformResult: CompileResult;
-	let esbuildResult: ESBuildTransformResult;
+	let oxcResult: Awaited<ReturnType<typeof transformWithOxc>>;
 
 	try {
 		transformResult = await compile(compileProps);
 		// Compile all TypeScript to JavaScript.
 		// Also, catches invalid JS/TS in the compiled output before returning.
-		esbuildResult = await transformWithEsbuild(transformResult.code, compileProps.filename, {
-			...compileProps.viteConfig.esbuild,
-			loader: 'ts',
-			sourcemap: 'external',
-			tsconfigRaw: {
+		oxcResult = await transformWithOxc(transformResult.code, compileProps.filename, {
+			...compileProps.viteConfig.oxc,
+			lang: 'ts',
+			sourcemap: true,
+			tsconfig: {
 				compilerOptions: {
 					// Ensure client:only imports are treeshaken
 					verbatimModuleSyntax: false,
@@ -88,8 +88,8 @@ export async function compileAstro({
 
 	return {
 		...transformResult,
-		code: esbuildResult.code + SUFFIX,
-		map: esbuildResult.map,
+		code: oxcResult.code + SUFFIX,
+		map: oxcResult.map!,
 	};
 }
 

@@ -35,7 +35,7 @@ import type { StaticBuildOptions } from './types.js';
 import { encodeName, getTimeStat, viteBuildReturnToRollupOutputs } from './util.js';
 import { NOOP_MODULE_ID } from './plugins/plugin-noop.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
-import type { InputOption } from 'rollup';
+import type { InputOption } from 'rolldown';
 import { getSSRAssets } from './internal.js';
 import { SERVER_ISLAND_MAP_MARKER } from '../server-islands/vite-plugin-server-islands.js';
 
@@ -233,7 +233,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 		},
 	});
 
-	function isRollupInput(moduleName: string | null): boolean {
+	function isRollupInput(moduleName: string | undefined): boolean {
 		if (!currentRollupInput || !moduleName) {
 			return false;
 		}

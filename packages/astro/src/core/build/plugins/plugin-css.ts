@@ -1,4 +1,4 @@
-import type { GetModuleInfo } from 'rollup';
+import type { GetModuleInfo } from 'rolldown';
 import type { BuildOptions, ResolvedConfig, Plugin as VitePlugin } from 'vite';
 import { isCSSRequest } from 'vite';
 import { hasAssetPropagationFlag } from '../../../content/index.js';
