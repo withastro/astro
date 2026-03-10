@@ -2,4 +2,4 @@
 'astro-vscode': patch
 ---
 
-Fixes failed publish (again)
+Fixes failed publish for 2.16.11.
