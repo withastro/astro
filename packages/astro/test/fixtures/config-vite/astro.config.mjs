@@ -5,7 +5,7 @@ export default defineConfig({
 		environments: {
 			prerender: {
 				build: {
-						rollupOptions: {
+						rolldownOptions: {
 								output: {
 										chunkFileNames: 'assets/testing-[name].mjs',
 										assetFileNames: 'assets/testing-[name].[ext]'

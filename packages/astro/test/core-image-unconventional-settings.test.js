@@ -96,7 +96,7 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 		assert.equal(data instanceof Buffer, true);
 	});
 
-	it('supports custom vite.build.rollupOptions.output.assetFileNames', async () => {
+	it('supports custom vite.build.rolldownOptions.output.assetFileNames', async () => {
 		fixture = await loadFixture({
 			...defaultSettings,
 			build: {
@@ -106,7 +106,7 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 				environments: {
 					prerender: {
 						build: {
-							rollupOptions: {
+							rolldownOptions: {
 								output: {
 									assetFileNames: 'images/hello_[name].[ext]',
 								},
@@ -129,7 +129,7 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 		assert.equal(data instanceof Buffer, true);
 	});
 
-	it('supports complex vite.build.rollupOptions.output.assetFileNames', async () => {
+	it('supports complex vite.build.rolldownOptions.output.assetFileNames', async () => {
 		fixture = await loadFixture({
 			...defaultSettings,
 			build: {
@@ -139,7 +139,7 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 				environments: {
 					prerender: {
 						build: {
-							rollupOptions: {
+							rolldownOptions: {
 								output: {
 									assetFileNames: 'assets/[hash]/[name][extname]',
 								},
@@ -163,14 +163,14 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 		assert.equal(data instanceof Buffer, true);
 	});
 
-	it('supports custom vite.build.rollupOptions.output.assetFileNames with assetsPrefix', async () => {
+	it('supports custom vite.build.rolldownOptions.output.assetFileNames with assetsPrefix', async () => {
 		fixture = await loadFixture({
 			...defaultSettings,
 			vite: {
 				environments: {
 					prerender: {
 						build: {
-							rollupOptions: {
+							rolldownOptions: {
 								output: {
 									assetFileNames: 'images/hello_[name].[ext]',
 								},
