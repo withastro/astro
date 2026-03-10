@@ -7,7 +7,7 @@ import { mergeConfig as mergeViteConfig } from 'vite';
 import astroIntegrationActionsRouteHandler from '../actions/integration.js';
 import { isActionsFilePresent } from '../actions/utils.js';
 import { CONTENT_LAYER_TYPE } from '../content/consts.js';
-import { globalContentLayer } from '../content/content-layer.js';
+import { globalContentLayer } from '../content/instance.js';
 import { globalContentConfigObserver } from '../content/utils.js';
 import type { SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
@@ -585,8 +585,11 @@ export async function runHookBuildGenerated({
 	logger: Logger;
 	routeToHeaders: RouteToHeaders;
 }) {
+	const preserveStructure = settings.adapter?.adapterFeatures?.preserveBuildClientDir;
 	const dir =
-		settings.buildOutput === 'server' ? settings.config.build.client : settings.config.outDir;
+		settings.buildOutput === 'server' || preserveStructure
+			? settings.config.build.client
+			: settings.config.outDir;
 
 	for (const integration of settings.config.integrations) {
 		await runHookInternal({

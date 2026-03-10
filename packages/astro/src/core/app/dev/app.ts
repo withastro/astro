@@ -2,7 +2,6 @@ import type { RouteData } from '../../../types/public/index.js';
 import { MiddlewareNoDataOrNextCalled, MiddlewareNotAResponse } from '../../errors/errors-data.js';
 import { type AstroError, isAstroError } from '../../errors/index.js';
 import type { Logger } from '../../logger/core.js';
-import type { CreateRenderContext, RenderContext } from '../../render-context.js';
 import {
 	BaseApp,
 	type DevMatch,
@@ -20,7 +19,6 @@ import { req } from '../../messages/runtime.js';
 
 export class DevApp extends BaseApp<NonRunnablePipeline> {
 	logger: Logger;
-	resolvedPathname: string | undefined = undefined;
 	constructor(manifest: SSRManifest, streaming = true, logger: Logger) {
 		super(manifest, streaming, logger);
 		this.logger = logger;
@@ -60,23 +58,21 @@ export class DevApp extends BaseApp<NonRunnablePipeline> {
 		);
 		if (!matchedRoute) return undefined;
 
-		this.resolvedPathname = matchedRoute.resolvedPathname;
 		return {
 			routeData: matchedRoute.route,
 			resolvedPathname: matchedRoute.resolvedPathname,
 		};
 	}
 
-	async createRenderContext(payload: CreateRenderContext): Promise<RenderContext> {
-		return super.createRenderContext({
-			...payload,
-			pathname: this.resolvedPathname ?? payload.pathname,
-		});
-	}
-
 	async renderError(
 		request: Request,
-		{ locals, skipMiddleware = false, error, clientAddress, status }: RenderErrorOptions,
+		{
+			skipMiddleware = false,
+			error,
+			status,
+			response: _response,
+			...resolvedRenderOptions
+		}: RenderErrorOptions,
 	): Promise<Response> {
 		// we always throw when we have Astro errors around the middleware
 		if (
@@ -90,13 +86,13 @@ export class DevApp extends BaseApp<NonRunnablePipeline> {
 			try {
 				const preloadedComponent = await this.pipeline.getComponentByRoute(routeData);
 				const renderContext = await this.createRenderContext({
-					locals,
+					locals: resolvedRenderOptions.locals,
 					pipeline: this.pipeline,
-					pathname: await this.getPathnameFromRequest(request),
+					pathname: this.getPathnameFromRequest(request),
 					skipMiddleware,
 					request,
 					routeData,
-					clientAddress,
+					clientAddress: resolvedRenderOptions.clientAddress,
 					status,
 					shouldInjectCspMetaTags: false,
 				});
@@ -112,8 +108,7 @@ export class DevApp extends BaseApp<NonRunnablePipeline> {
 			} catch (_err) {
 				if (skipMiddleware === false) {
 					return this.renderError(request, {
-						clientAddress: undefined,
-						prerenderedErrorPageFetch: fetch,
+						...resolvedRenderOptions,
 						status: 500,
 						skipMiddleware: true,
 						error: _err,

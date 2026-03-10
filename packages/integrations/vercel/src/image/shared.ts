@@ -116,15 +116,15 @@ export function sharedValidateOptions(
 
 	// The logic for finding the perfect width is a bit confusing, here it goes:
 	// For images where no width has been specified:
-	// - For local, imported images, fallback to nearest width we can find in our configured
+	// - For local, imported images, fall back to nearest width we can find in our configured
 	// - For remote images, that's an error, width is always required.
 	// For images where a width has been specified:
-	// - If the width that the user asked for isn't in `sizes`, then fallback to the nearest one, but save the width
+	// - If the width that the user asked for isn't in `sizes`, then fall back to the nearest one, but save the width
 	// 	the user asked for so we can put it on the `img` tag later.
 	// - Otherwise, just use as-is.
 	// The end goal is:
-	// - The size on the page is always the one the user asked for or the base image's size
-	// - The actual size of the image file is always one of `sizes`, either the one the user asked for or the nearest to it
+	// - The size on the page is always the one that the user asked for or the base image's size
+	// - The actual size of the image file is always one of `sizes`, either the one that the user asked for or the nearest to it
 	if (!options.width) {
 		const src = options.src;
 		if (isESMImportedImage(src)) {
@@ -144,7 +144,7 @@ export function sharedValidateOptions(
 				return Math.abs(curr - options.width!) < Math.abs(prev - options.width!) ? curr : prev;
 			});
 
-			// Save the width the user asked for to inform the `width` and `height` on the `img` tag
+			// Save the user's requested width to inform the `width` and `height` on the `img` tag
 			options.inputtedWidth = options.width;
 			options.width = nearestWidth;
 		}

@@ -9,6 +9,7 @@ import { createSlotValueFromString } from '../../runtime/server/render/slot.js';
 import type { ComponentInstance, RoutesList } from '../../types/astro.js';
 import type { RouteData, SSRManifest } from '../../types/public/internal.js';
 import { decryptString } from '../encryption.js';
+import { BodySizeLimitError, readBodyWithLimit } from '../request-body.js';
 import { getPattern } from '../routing/pattern.js';
 
 export const SERVER_ISLAND_ROUTE = '/_server-islands/[name]';
@@ -41,7 +42,7 @@ export function injectServerIslandRoute(config: ConfigFields, routeManifest: Rou
 	routeManifest.routes.unshift(getServerIslandRouteData(config));
 }
 
-type RenderOptions = {
+export type RenderOptions = {
 	encryptedComponentExport: string;
 	encryptedProps: string;
 	encryptedSlots: string;
@@ -54,7 +55,12 @@ function badRequest(reason: string) {
 	});
 }
 
-async function getRequestData(request: Request): Promise<Response | RenderOptions> {
+const DEFAULT_BODY_SIZE_LIMIT = 1024 * 1024; // 1MB
+
+export async function getRequestData(
+	request: Request,
+	bodySizeLimit: number = DEFAULT_BODY_SIZE_LIMIT,
+): Promise<Response | RenderOptions> {
 	switch (request.method) {
 		case 'GET': {
 			const url = new URL(request.url);
@@ -73,7 +79,8 @@ async function getRequestData(request: Request): Promise<Response | RenderOption
 		}
 		case 'POST': {
 			try {
-				const raw = await request.text();
+				const body = await readBodyWithLimit(request, bodySizeLimit);
+				const raw = new TextDecoder().decode(body);
 				const data = JSON.parse(raw);
 
 				// Validate that slots is not plaintext
@@ -90,6 +97,12 @@ async function getRequestData(request: Request): Promise<Response | RenderOption
 
 				return data as RenderOptions;
 			} catch (e) {
+				if (e instanceof BodySizeLimitError) {
+					return new Response(null, {
+						status: 413,
+						statusText: e.message,
+					});
+				}
 				if (e instanceof SyntaxError) {
 					return badRequest('Request format is invalid.');
 				}
@@ -115,7 +128,7 @@ export function createEndpoint(manifest: SSRManifest) {
 		const componentId = params.name;
 
 		// Get the request data from the body or search params
-		const data = await getRequestData(result.request);
+		const data = await getRequestData(result.request, manifest.serverIslandBodySizeLimit);
 		// probably error
 		if (data instanceof Response) {
 			return data;

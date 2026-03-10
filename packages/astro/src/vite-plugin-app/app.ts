@@ -31,7 +31,6 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 	loader: ModuleLoader;
 	manifestData: RoutesList;
 	currentRenderContext: RenderContext | undefined = undefined;
-	resolvedPathname: string | undefined = undefined;
 	constructor(
 		manifest: SSRManifest,
 		streaming = true,
@@ -119,10 +118,7 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 	}
 
 	async createRenderContext(payload: CreateRenderContext): Promise<RenderContext> {
-		this.currentRenderContext = await super.createRenderContext({
-			...payload,
-			pathname: this.resolvedPathname ?? payload.pathname,
-		});
+		this.currentRenderContext = await super.createRenderContext(payload);
 		return this.currentRenderContext;
 	}
 
@@ -184,7 +180,6 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 					throw new Error('No route matched, and default 404 route was not found.');
 				}
 
-				self.resolvedPathname = matchedRoute.resolvedPathname;
 				const request = createRequest({
 					url,
 					headers: incomingRequest.headers,
@@ -234,7 +229,13 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 
 	async renderError(
 		request: Request,
-		{ locals, skipMiddleware = false, error, clientAddress, status }: RenderErrorOptions,
+		{
+			skipMiddleware = false,
+			error,
+			status,
+			response: _response,
+			...resolvedRenderOptions
+		}: RenderErrorOptions,
 	): Promise<Response> {
 		// we always throw when we have Astro errors around the middleware
 		if (
@@ -248,13 +249,13 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 			try {
 				const preloadedComponent = await this.pipeline.getComponentByRoute(routeData);
 				const renderContext = await this.createRenderContext({
-					locals,
+					locals: resolvedRenderOptions.locals,
 					pipeline: this.pipeline,
-					pathname: await this.getPathnameFromRequest(request),
+					pathname: this.getPathnameFromRequest(request),
 					skipMiddleware,
 					request,
 					routeData,
-					clientAddress,
+					clientAddress: resolvedRenderOptions.clientAddress,
 					status,
 					shouldInjectCspMetaTags: !!this.manifest.csp,
 				});
@@ -270,8 +271,7 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 			} catch (_err) {
 				if (skipMiddleware === false) {
 					return this.renderError(request, {
-						clientAddress: undefined,
-						prerenderedErrorPageFetch: fetch,
+						...resolvedRenderOptions,
 						status: 500,
 						skipMiddleware: true,
 						error: _err,

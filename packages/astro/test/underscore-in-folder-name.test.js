@@ -3,7 +3,7 @@ import { before, describe, it } from 'node:test';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
 
-describe('Projects with a underscore in the folder name', () => {
+describe('Projects with an underscore in the folder name', () => {
 	let fixture;
 
 	before(async () => {

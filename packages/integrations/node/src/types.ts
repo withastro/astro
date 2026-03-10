@@ -22,13 +22,14 @@ export interface UserOptions {
 	staticHeaders?: boolean;
 
 	/**
-	 * The host that should be used if the server needs to fetch the prerendered error page.
-	 * If not provided, this will default to the host of the server. This should be set if the server
-	 * should fetch prerendered error pages from a different host than the public URL of the server.
-	 * This is useful for example if the server is behind a reverse proxy or a load balancer, or if
-	 * static files are hosted on a different domain. Do not include a path in the URL: it will be ignored.
+	 * Maximum allowed request body size in bytes. Requests with bodies larger than
+	 * this limit will throw an error when the body is consumed.
+	 *
+	 * Set to `Infinity` or `0` to disable the limit.
+	 *
+	 * @default {1073741824} 1GB
 	 */
-	experimentalErrorPageHost?: string | URL;
+	bodySizeLimit?: number;
 }
 
 export interface Options extends UserOptions {
@@ -37,6 +38,7 @@ export interface Options extends UserOptions {
 	server: string;
 	client: string;
 	staticHeaders: boolean;
+	bodySizeLimit: number;
 }
 
 export type RequestHandler = (...args: RequestHandlerParams) => void | Promise<void>;

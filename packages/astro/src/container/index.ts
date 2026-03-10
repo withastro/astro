@@ -79,7 +79,7 @@ export type ContainerRenderOptions = {
 	 */
 	params?: Record<string, string | undefined>;
 	/**
-	 * Useful if your component needs to access some locals without the use a middleware.
+	 * Useful if your component needs to access some locals without the use of middleware.
 	 * ```js
 	 * container.renderToString(Component, { locals: { getSomeValue() {} } });
 	 * ```
@@ -150,6 +150,7 @@ function createManifest(
 		compressHTML: manifest?.compressHTML ?? ASTRO_CONFIG_DEFAULTS.compressHTML,
 		assetsDir: manifest?.assetsDir ?? ASTRO_CONFIG_DEFAULTS.build.assets,
 		serverLike: manifest?.serverLike ?? true,
+		middlewareMode: manifest?.middlewareMode ?? 'classic',
 		assets: manifest?.assets ?? new Set(),
 		assetsPrefix: manifest?.assetsPrefix ?? undefined,
 		entryModules: manifest?.entryModules ?? {},
@@ -164,6 +165,8 @@ function createManifest(
 		i18n: manifest?.i18n,
 		checkOrigin: false,
 		allowedDomains: manifest?.allowedDomains ?? [],
+		actionBodySizeLimit: 1024 * 1024,
+		serverIslandBodySizeLimit: 1024 * 1024,
 		middleware: manifest?.middleware ?? middlewareInstance,
 		key: createKey(),
 		csp: manifest?.csp,
@@ -267,6 +270,7 @@ type AstroContainerManifest = Pick<
 	| 'csp'
 	| 'allowedDomains'
 	| 'serverLike'
+	| 'middlewareMode'
 	| 'assetsDir'
 	| 'image'
 	| 'experimentalQueuedRendering'

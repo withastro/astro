@@ -36,7 +36,11 @@ import { renderRedirect } from './redirects/render.js';
 import { getParams, getProps, type Pipeline, Slots } from './render/index.js';
 import { isRoute404or500, isRouteExternalRedirect, isRouteServerIsland } from './routing/match.js';
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
+import { AstroCache, type CacheLike } from './cache/runtime/cache.js';
+import { NoopAstroCache, DisabledAstroCache } from './cache/runtime/noop.js';
+import { compileCacheRoutes, matchCacheRoute } from './cache/runtime/route-matching.js';
 import { AstroSession } from './session/runtime.js';
+import { collapseDuplicateSlashes } from '@astrojs/internal-helpers/path';
 import { validateAndDecodePathname } from './util/pathname.js';
 
 /**
@@ -81,6 +85,7 @@ export class RenderContext {
 		public partial: undefined | boolean = undefined,
 		public shouldInjectCspMetaTags = pipeline.manifest.shouldInjectCspMetaTags,
 		public session: AstroSession | undefined = undefined,
+		public cache: CacheLike,
 		public skipMiddleware = false,
 	) {}
 
@@ -99,6 +104,10 @@ export class RenderContext {
 				// If even basic decoding fails, return URL as-is
 			}
 		}
+		// This must run after decoding so it catches slashes introduced by decoding (e.g., `%5C` → `\` → `/`).
+		// Collapse duplicate slashes so middleware sees the canonical pathname
+		// and bypass attacks like `//admin` evading `/admin` checks are prevented.
+		url.pathname = collapseDuplicateSlashes(url.pathname);
 		return url;
 	}
 
@@ -148,6 +157,33 @@ export class RenderContext {
 					})
 				: undefined;
 
+		// Create cache instance
+		let cache: CacheLike;
+		if (!pipeline.cacheConfig) {
+			// Cache not configured — no-ops with a one-time warning
+			cache = new DisabledAstroCache(pipeline.logger);
+		} else if (pipeline.runtimeMode === 'development') {
+			cache = new NoopAstroCache();
+		} else {
+			const cacheProvider = await pipeline.getCacheProvider();
+			cache = new AstroCache(cacheProvider);
+
+			// Apply config-level cache route matching as initial state
+			if (pipeline.cacheConfig?.routes) {
+				if (!pipeline.compiledCacheRoutes) {
+					pipeline.compiledCacheRoutes = compileCacheRoutes(
+						pipeline.cacheConfig.routes,
+						pipeline.manifest.base,
+						pipeline.manifest.trailingSlash,
+					);
+				}
+				const matched = matchCacheRoute(pathname, pipeline.compiledCacheRoutes);
+				if (matched) {
+					cache.set(matched);
+				}
+			}
+		}
+
 		return new RenderContext(
 			pipeline,
 			locals,
@@ -166,6 +202,7 @@ export class RenderContext {
 			partial,
 			shouldInjectCspMetaTags ?? pipeline.manifest.shouldInjectCspMetaTags,
 			session,
+			cache,
 			skipMiddleware,
 		);
 	}
@@ -266,7 +303,10 @@ export class RenderContext {
 			}
 			let response: Response;
 
-			if (!ctx.isPrerendered) {
+			// Only auto-execute form actions when middleware is part of the pipeline.
+			// When middleware is skipped (e.g. during error page recovery), form actions
+			// should not run since the full request handling pipeline is not active.
+			if (!ctx.isPrerendered && !this.skipMiddleware) {
 				const { action, setActionResult, serializeActionResult } = getActionContext(ctx);
 
 				if (action?.calledFrom === 'form') {
@@ -329,7 +369,7 @@ export class RenderContext {
 			return response;
 		};
 
-		// If we are rendering an extrnal redirect, we don't need go through the middleware,
+		// If we are rendering an external redirect, we don't need go through the middleware,
 		// otherwise Astro will attempt to render the external website
 		if (isRouteExternalRedirect(this.routeData)) {
 			return renderRedirect(this);
@@ -479,6 +519,9 @@ export class RenderContext {
 				}
 				return renderContext.session;
 			},
+			get cache() {
+				return renderContext.cache;
+			},
 			get csp(): APIContext['csp'] {
 				if (!pipeline.manifest.csp) {
 					if (pipeline.runtimeMode === 'production') {
@@ -607,7 +650,7 @@ export class RenderContext {
 			cspDestination: manifest.csp?.cspDestination ?? (routeData.prerender ? 'meta' : 'header'),
 			shouldInjectCspMetaTags,
 			cspAlgorithm,
-			// The following arrays must be cloned, otherwise they become mutable across routes.
+			// The following arrays must be cloned; otherwise, they become mutable across routes.
 			scriptHashes: manifest.csp?.scriptHashes ? [...manifest.csp.scriptHashes] : [],
 			scriptResources: manifest.csp?.scriptResources ? [...manifest.csp.scriptResources] : [],
 			styleHashes: manifest.csp?.styleHashes ? [...manifest.csp.styleHashes] : [],
@@ -715,6 +758,9 @@ export class RenderContext {
 					return undefined;
 				}
 				return renderContext.session;
+			},
+			get cache() {
+				return renderContext.cache;
 			},
 			get clientAddress() {
 				return renderContext.getClientAddress();
