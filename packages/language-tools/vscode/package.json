@@ -24,7 +24,7 @@
     "color": "#17191E",
     "theme": "dark"
   },
-  "version": "2.16.9-beta.0",
+  "version": "2.16.9",
   "author": "withastro",
   "license": "MIT",
   "publisher": "astro-build",
@@ -247,7 +247,7 @@
     "update-grammar-snapshots": "node ./test/grammar/test.mjs --updateSnapshot"
   },
   "devDependencies": {
-    "@astrojs/language-server": "^2.16.1-alpha.0",
+    "@astrojs/language-server": "^2.16.1",
     "@astrojs/ts-plugin": "^1.10.6",
     "@types/mocha": "^10.0.10",
     "@types/node": "^20.9.0",
