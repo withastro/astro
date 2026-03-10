@@ -1076,6 +1076,12 @@ async function updateTSConfig(
 		`\n  ${magenta(`Astro will make the following changes to your ${configFileName}:`)}`,
 	);
 
+	clack.box(diff, configFileName, {
+		rounded: true,
+		withGuide: false,
+		width: 'auto',
+	});
+
 	if (firstIntegrationWithTSSettings) {
 		// Every major framework, apart from Vue and Svelte requires different `jsxImportSource`, as such it's impossible to config
 		// all of them in the same `tsconfig.json`. However, Vue only need `"jsx": "preserve"` for template intellisense which
