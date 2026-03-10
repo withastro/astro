@@ -111,7 +111,7 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 				return (
 					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
 					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.client ||
-					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.astro
+					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
 				);
 			},
 
@@ -218,11 +218,10 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 		{
 			name: MODULE_DEV_CSS_ALL,
 			applyToEnvironment(env) {
-				// This should only run in dev mode so `prerender` is excluded.
 				return (
 					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
 					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.client ||
-					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.astro
+					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
 				);
 			},
 			resolveId: {
