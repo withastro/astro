@@ -14,6 +14,7 @@ describe('Hoisted Imports', () => {
 
 	async function getAllScriptText(page) {
 		const html = await fixture.readFile(page);
+			console.log(html);
 		const $ = cheerio.load(html);
 		return $('script')
 			.map((_, el) => $(el).text())
@@ -37,6 +38,7 @@ describe('Hoisted Imports', () => {
 
 		it('includes all imported scripts', async () => {
 			const scripts = await getAllScriptText('/all/index.html');
+			console.log(scripts);
 			expectScript(scripts, 'A');
 			expectScript(scripts, 'B');
 			expectScript(scripts, 'C');
