@@ -1,5 +1,11 @@
 # astro
 
+## 6.0.1
+
+### Patch Changes
+
+- [#15827](https://github.com/withastro/astro/pull/15827) [`a4c0d0b`](https://github.com/withastro/astro/commit/a4c0d0b4df540b23fa85bf926f9cc97470737fa1) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `astro add` so the tsconfig preview shows the actual pending changes before confirmation
+
 ## 6.0.0
 
 ### Major Changes
