@@ -1,5 +1,5 @@
 import type { HydratedComponent } from '@astrojs/compiler/types';
-import type { SourceDescription } from 'rollup';
+import type { SourceDescription } from 'rolldown';
 import type * as vite from 'vite';
 import { defaultClientConditions, defaultServerConditions, normalizePath } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
