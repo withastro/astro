@@ -1,5 +1,25 @@
 # @astrojs/svelte
 
+## 8.0.0
+
+### Major Changes
+
+- [#14427](https://github.com/withastro/astro/pull/14427) [`e131261`](https://github.com/withastro/astro/commit/e1312615b39c59ebc05d5bb905ee0960b50ad3cf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Increases minimum Node.js version to 22.12.0 - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#node-22))
+
+- [#14445](https://github.com/withastro/astro/pull/14445) [`ecb0b98`](https://github.com/withastro/astro/commit/ecb0b98396f639d830a99ddb5895ab9223e4dc87) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Astro v6.0 upgrades to Vite v7.0 as the development server and production bundler - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#vite-70))
+
+### Minor Changes
+
+- [#14821](https://github.com/withastro/astro/pull/14821) [`48ea241`](https://github.com/withastro/astro/commit/48ea2413ec6a248e097a741ecb9e1f8698871e28) Thanks [@ocavue](https://github.com/ocavue)! - Update `@sveltejs/vite-plugin-svelte` to v6.
+
+### Patch Changes
+
+- [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improve Svelte `children` prop type checking
+
+- [#15264](https://github.com/withastro/astro/pull/15264) [`11efb05`](https://github.com/withastro/astro/commit/11efb058e85cda68f9a8e8f15a2c7edafe5a4789) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Lower the Node version requirement to allow running on Stackblitz until it supports v22
+
+- [#15581](https://github.com/withastro/astro/pull/15581) [`2851f10`](https://github.com/withastro/astro/commit/2851f1094c03d696682efb4f3b321ef27e29e88c) Thanks [@renovate](https://github.com/apps/renovate)! - Updates `svelte` to v5.51.5
+
 ## 8.0.0-beta.3
 
 ### Patch Changes

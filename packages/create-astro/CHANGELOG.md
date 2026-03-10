@@ -1,5 +1,26 @@
 # create-astro
 
+## 5.0.0
+
+### Major Changes
+
+- [#14427](https://github.com/withastro/astro/pull/14427) [`e131261`](https://github.com/withastro/astro/commit/e1312615b39c59ebc05d5bb905ee0960b50ad3cf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Increases minimum Node.js version to 22.12.0 - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#node-22))
+
+### Patch Changes
+
+- [#15187](https://github.com/withastro/astro/pull/15187) [`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795) Thanks [@matthewp](https://github.com/matthewp)! - Update to Astro 6 beta
+
+- [#15344](https://github.com/withastro/astro/pull/15344) [`9d87f77`](https://github.com/withastro/astro/commit/9d87f77e57f5486802ef9e1c11ccece5914c7006) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a hang that could occur when the npm registry is slow or unresponsive by adding a 10 second timeout to the version check
+
+- [#15350](https://github.com/withastro/astro/pull/15350) [`d758b68`](https://github.com/withastro/astro/commit/d758b68ff776c3bef04553dde3996da8e58ffaee) Thanks [@matthewp](https://github.com/matthewp)! - Errors when `--add` and `--no-install` flags are used together, as `--add` requires dependencies to be installed
+
+- [#15264](https://github.com/withastro/astro/pull/15264) [`11efb05`](https://github.com/withastro/astro/commit/11efb058e85cda68f9a8e8f15a2c7edafe5a4789) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Lower the Node version requirement to allow running on Stackblitz until it supports v22
+
+- [#15419](https://github.com/withastro/astro/pull/15419) [`a18d727`](https://github.com/withastro/astro/commit/a18d727fc717054df85177c8e0c3d38a5252f2da) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where `--add` could accept any kind of string, leading to different errors. Now `--add` accepts only values of valid integrations and adapters.
+
+- [#15419](https://github.com/withastro/astro/pull/15419) [`a18d727`](https://github.com/withastro/astro/commit/a18d727fc717054df85177c8e0c3d38a5252f2da) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the `add` command could accept any arbitrary value, leading the possible command injections. Now `add` and `--add` accepts
+  values that are only acceptable npmjs.org names.
+
 ## 5.0.0-beta.4
 
 ### Patch Changes
