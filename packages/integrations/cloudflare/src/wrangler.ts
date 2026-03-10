@@ -33,13 +33,14 @@ export function cloudflareConfigCustomizer(
 
 		return {
 			main: config.main ?? '@astrojs/cloudflare/entrypoints/server',
-			kv_namespaces: !needsSessionKVBinding || hasSessionBinding
-				? undefined
-				: [
-						{
-							binding: sessionKVBindingName,
-						},
-					],
+			kv_namespaces:
+				!needsSessionKVBinding || hasSessionBinding
+					? undefined
+					: [
+							{
+								binding: sessionKVBindingName,
+							},
+						],
 			images:
 				hasImagesBinding || !imagesBindingName
 					? undefined

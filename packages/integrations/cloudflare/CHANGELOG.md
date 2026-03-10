@@ -1,5 +1,16 @@
 # @astrojs/cloudflare
 
+## 13.0.2
+
+### Patch Changes
+
+- [#15832](https://github.com/withastro/astro/pull/15832) [`95e12a2`](https://github.com/withastro/astro/commit/95e12a250ece206f55f8c0c07c9c05489f3df93f) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes `return;` syntax not working in the frontmatter correctly in certain contexts
+
+- [#15803](https://github.com/withastro/astro/pull/15803) [`e42b015`](https://github.com/withastro/astro/commit/e42b015916b7f46a80676628f6d7c95279baf55a) Thanks [@merlinnot](https://github.com/merlinnot)! - Fixes the Cloudflare adapter adding a `SESSION` KV binding even when sessions are explicitly configured to use a different driver, such as `unstorage/drivers/null`.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.1
+
 ## 13.0.1
 
 ### Patch Changes
