@@ -8,6 +8,7 @@ import { compileAstro } from '../../../dist/vite-plugin-astro/compile.js';
 /**
  * @param {string} source
  * @param {string} id
+ * @param {import('vite').InlineConfig} [inlineConfig]
  */
 async function compile(source, id, inlineConfig = {}) {
 	const viteConfig = await resolveConfig({ configFile: false, ...inlineConfig }, 'serve');
@@ -69,7 +70,7 @@ const name = 'world
 		assert.equal(names.includes('url'), true);
 	});
 
-	describe('when the code contains syntax that is transformed by esbuild', () => {
+	describe('when the code contains syntax that is transformed by oxc', () => {
 		let code = `\
 ---
 using x = {}
@@ -80,9 +81,9 @@ using x = {}
 			assert.equal(result.code.includes('using x = {}'), true);
 		});
 
-		it('should transform the syntax by esbuild.target', async () => {
+		it('should transform the syntax by oxc.target', async () => {
 			const result = await compile(code, '/src/components/index.astro', {
-				esbuild: { target: 'es2018' },
+				oxc: { target: 'es2018' },
 			});
 			assert.equal(result.code.includes('using x = {}'), false);
 		});
