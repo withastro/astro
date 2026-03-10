@@ -36,19 +36,10 @@ function configEnvironmentPlugin(): Plugin {
 			const isServerEnvironment = environmentName === 'ssr' || environmentName === 'prerender';
 			const environmentOptions: EnvironmentOptions = {};
 
-			if (isServerEnvironment && options.resolve?.noExternal !== true) {
-				const noExternal = options.resolve?.noExternal;
-				const noExternalEntries = Array.isArray(noExternal)
-					? noExternal
-					: noExternal
-						? [noExternal]
-						: [];
-
-				if (!noExternalEntries.includes('lucide-svelte')) {
-					environmentOptions.resolve = {
-						noExternal: [...noExternalEntries, 'lucide-svelte'],
-					};
-				}
+			if (isServerEnvironment) {
+				environmentOptions.resolve = {
+					noExternal: ['lucide-svelte'],
+				};
 			}
 
 			if (
