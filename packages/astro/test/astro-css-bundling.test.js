@@ -89,7 +89,7 @@ describe('CSS Bundling', function () {
 					environments: {
 						prerender: {
 							build: {
-								rollupOptions: {
+								rolldownOptions: {
 									output: {
 										assetFileNames: 'assets/[name][extname]',
 									},

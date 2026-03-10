@@ -8,7 +8,7 @@ export default defineConfig({
   	environments: {
   		client: {
 		    build: {
-		      rollupOptions: {
+		      rolldownOptions: {
 		        output: {
 		          entryFileNames: `assets/js/[name].js`,
 		        },
