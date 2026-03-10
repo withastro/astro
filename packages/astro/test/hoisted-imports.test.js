@@ -14,7 +14,6 @@ describe('Hoisted Imports', () => {
 
 	async function getAllScriptText(page) {
 		const html = await fixture.readFile(page);
-			console.log(html);
 		const $ = cheerio.load(html);
 		return $('script')
 			.map((_, el) => $(el).text())
@@ -28,17 +27,16 @@ describe('Hoisted Imports', () => {
 		});
 
 		function expectScript(scripts, letter) {
-			const regex = new RegExp(`console.log\\(['"]${letter}['"]\\)`);
+			const regex = new RegExp(`console.log\\(['"\`]${letter}['"\`]\\)`);
 			assert.match(scripts, regex, 'missing component ' + letter);
 		}
 		function expectNotScript(scripts, letter) {
-			const regex = new RegExp(`console.log\\(['"]${letter}['"]\\)`);
+			const regex = new RegExp(`console.log\\(['"\`]${letter}['"\`]\\)`);
 			assert.doesNotMatch(scripts, regex, "shouldn't include component " + letter);
 		}
 
 		it('includes all imported scripts', async () => {
 			const scripts = await getAllScriptText('/all/index.html');
-			console.log(scripts);
 			expectScript(scripts, 'A');
 			expectScript(scripts, 'B');
 			expectScript(scripts, 'C');
