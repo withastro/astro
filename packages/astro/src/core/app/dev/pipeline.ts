@@ -5,6 +5,7 @@ import type {
 	RouteData,
 	SSRElement,
 } from '../../../types/public/index.js';
+import type { SSRResult } from '../../../types/public/internal.js';
 import { type HeadElements, Pipeline, type TryRewriteResult } from '../../base-pipeline.js';
 import { ASTRO_VERSION } from '../../constants.js';
 import { createModuleScriptElement, createStylesheetElementSet } from '../../render/ssr-element.js';
@@ -131,7 +132,20 @@ export class NonRunnablePipeline extends Pipeline {
 		return { scripts, styles, links };
 	}
 
-	componentMetadata() {}
+	async componentMetadata(): Promise<SSRResult['componentMetadata']> {
+		// Import component metadata from the virtual module exposed by the head-metadata plugin.
+		// This module is dynamically generated from the SSR environment's module graph,
+		// which contains propagation hints and containsHead flags set during resolveId/transform.
+		// This is needed because NonRunnablePipeline (e.g. Cloudflare workerd) cannot access
+		// the Vite module graph directly at render time.
+		try {
+			const { componentMetadata } = await import('virtual:astro:dev-component-metadata');
+			return componentMetadata;
+		} catch {
+			// If the virtual module is not available, fall back to empty metadata.
+			return new Map();
+		}
+	}
 
 	async getComponentByRoute(routeData: RouteData): Promise<ComponentInstance> {
 		try {

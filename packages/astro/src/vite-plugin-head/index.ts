@@ -11,8 +11,12 @@ import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 // Detect this in comments, both in .astro components and in js/ts files.
 const injectExp = /(?:^\/\/|\/\/!)\s*astro-head-inject/;
 
-export default function configHeadVitePlugin(): vite.Plugin {
+export const DEV_COMPONENT_METADATA_ID = 'virtual:astro:dev-component-metadata';
+const DEV_COMPONENT_METADATA_RESOLVED_ID = '\0' + DEV_COMPONENT_METADATA_ID;
+
+export default function configHeadVitePlugin(): vite.Plugin[] {
 	let environment: DevEnvironment;
+	let server: vite.ViteDevServer;
 
 	function propagateMetadata<
 		P extends keyof PluginMetadata['astro'],
@@ -43,47 +47,97 @@ export default function configHeadVitePlugin(): vite.Plugin {
 		}
 	}
 
-	return {
-		name: 'astro:head-metadata',
-		enforce: 'pre',
-		apply: 'serve',
-		configureServer(server) {
-			environment = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
-		},
-		resolveId(source, importer) {
-			if (importer) {
-				// Do propagation any time a new module is imported. This is because
-				// A module with propagation might be loaded before one of its parent pages
-				// is loaded, in which case that parent page won't have the in-tree and containsHead
-				// values. Walking up the tree in resolveId ensures that they do
-				return this.resolve(source, importer, { skipSelf: true }).then((result) => {
-					if (result) {
-						let info = this.getModuleInfo(result.id);
-						const astro = info && getAstroMetadata(info);
-						if (astro) {
-							if (astro.propagation === 'self' || astro.propagation === 'in-tree') {
-								propagateMetadata.call(this, importer, 'propagation', 'in-tree');
+	return [
+		{
+			name: 'astro:head-metadata',
+			enforce: 'pre',
+			apply: 'serve',
+			configureServer(_server) {
+				server = _server;
+				environment = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
+			},
+			resolveId(source, importer) {
+				if (importer) {
+					// Do propagation any time a new module is imported. This is because
+					// A module with propagation might be loaded before one of its parent pages
+					// is loaded, in which case that parent page won't have the in-tree and containsHead
+					// values. Walking up the tree in resolveId ensures that they do
+					return this.resolve(source, importer, { skipSelf: true }).then((result) => {
+						if (result) {
+							let info = this.getModuleInfo(result.id);
+							const astro = info && getAstroMetadata(info);
+							if (astro) {
+								if (astro.propagation === 'self' || astro.propagation === 'in-tree') {
+									propagateMetadata.call(this, importer, 'propagation', 'in-tree');
+								}
+								if (astro.containsHead) {
+									propagateMetadata.call(this, importer, 'containsHead', true);
+								}
 							}
-							if (astro.containsHead) {
-								propagateMetadata.call(this, importer, 'containsHead', true);
+						}
+						return result;
+					});
+				}
+			},
+			transform(source, id) {
+				let info = this.getModuleInfo(id);
+				if (info && getAstroMetadata(info)?.containsHead) {
+					propagateMetadata.call(this, id, 'containsHead', true);
+				}
+
+				if (injectExp.test(source)) {
+					propagateMetadata.call(this, id, 'propagation', 'in-tree');
+				}
+			},
+		},
+		{
+			// Virtual module that exposes componentMetadata collected by the head-metadata plugin.
+			// This is used by NonRunnablePipeline (e.g. Cloudflare workerd) which cannot access
+			// the Vite module graph directly at render time.
+			name: 'astro:dev-component-metadata',
+			apply: 'serve',
+			resolveId: {
+				filter: {
+					id: new RegExp(`^${DEV_COMPONENT_METADATA_ID}$`),
+				},
+				handler() {
+					return DEV_COMPONENT_METADATA_RESOLVED_ID;
+				},
+			},
+			load: {
+				filter: {
+					id: new RegExp(`^\\0${DEV_COMPONENT_METADATA_ID}$`),
+				},
+				handler() {
+					// Collect all component metadata from the SSR environment's module graph.
+					// The head-metadata plugin has already propagated 'in-tree' and 'containsHead'
+					// up through the module graph during resolveId/transform.
+					const entries: [string, SSRComponentMetadata][] = [];
+					const ssrEnv = server?.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
+					if (ssrEnv) {
+						for (const [id] of ssrEnv.moduleGraph.idToModuleMap) {
+							const info = ssrEnv.pluginContainer.getModuleInfo(id);
+							if (info) {
+								const astro = getAstroMetadata(info);
+								if (astro && (astro.propagation !== 'none' || astro.containsHead)) {
+									entries.push([
+										id,
+										{
+											propagation: astro.propagation || 'none',
+											containsHead: astro.containsHead || false,
+										},
+									]);
+								}
 							}
 						}
 					}
-					return result;
-				});
-			}
+					return {
+						code: `export const componentMetadata = new Map(${JSON.stringify(entries)});`,
+					};
+				},
+			},
 		},
-		transform(source, id) {
-			let info = this.getModuleInfo(id);
-			if (info && getAstroMetadata(info)?.containsHead) {
-				propagateMetadata.call(this, id, 'containsHead', true);
-			}
-
-			if (injectExp.test(source)) {
-				propagateMetadata.call(this, id, 'propagation', 'in-tree');
-			}
-		},
-	};
+	];
 }
 
 export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
