@@ -23,6 +23,28 @@ import { sessionDrivers } from 'astro/config';
 import { createCloudflarePrerenderer } from './prerenderer.js';
 import { createRequire } from 'node:module';
 
+const CLOUDFLARE_KV_SESSION_DRIVER_ENTRYPOINT = sessionDrivers.cloudflareKVBinding().entrypoint;
+
+function usesCloudflareKVSessionDriver(session: AstroConfig['session']): boolean {
+	const driver = session?.driver;
+
+	if (!driver) {
+		return false;
+	}
+
+	if (typeof driver === 'string') {
+		return driver === 'cloudflareKVBinding' || driver === 'cloudflare-kv-binding';
+	}
+
+	const entrypoint =
+		typeof driver.entrypoint === 'string' ? driver.entrypoint : driver.entrypoint.toString();
+
+	return (
+		entrypoint === CLOUDFLARE_KV_SESSION_DRIVER_ENTRYPOINT ||
+		entrypoint.endsWith('cloudflare-kv-binding')
+	);
+}
+
 export type { Runtime } from './utils/handler.js';
 
 export interface Options
@@ -111,6 +133,8 @@ export default function createIntegration({
 					};
 				}
 
+				const needsSessionKVBinding = usesCloudflareKVSessionDriver(session);
+
 				// In dev, `compile` needs the IMAGES binding for real transforms
 				// (the image-transform-endpoint uses it). At build time,
 				// `compile` uses Sharp on the Node side instead.
@@ -118,6 +142,7 @@ export default function createIntegration({
 
 				cfPluginConfig = {
 					config: cloudflareConfigCustomizer({
+						needsSessionKVBinding,
 						sessionKVBindingName,
 						imagesBindingName:
 							needsImagesBinding || needsImagesBindingForDev ? imagesBindingName : false,
