@@ -1,7 +1,7 @@
-import type { Environment, Rollup } from 'vite';
+import type { Environment, Rolldown } from 'vite';
 
-type PluginContext = Rollup.PluginContext;
-type EmitFileOptions = Parameters<Rollup.PluginContext['emitFile']>[0];
+type PluginContext = Rolldown.PluginContext;
+type EmitFileOptions = Parameters<Rolldown.PluginContext['emitFile']>[0];
 
 // WeakMap keyed by Environment objects to track emitted asset handles
 // Using WeakMap ensures automatic cleanup when environments are garbage collected
@@ -32,7 +32,7 @@ export function resetHandles(env: Environment): void {
  * Use this instead of pluginContext.emitFile for assets that should
  * be moved from the server/prerender directory to the client directory.
  *
- * Note: The pluginContext is typed as Rollup.PluginContext for compatibility
+ * Note: The pluginContext is typed as Rolldown.PluginContext for compatibility
  * with content entry types, but in practice it will always have the `environment`
  * property when running in Vite.
  */

@@ -2,7 +2,7 @@ import type fsMod from 'node:fs';
 import { extname } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import * as devalue from 'devalue';
-import type { Plugin, Rollup, RunnableDevEnvironment } from 'vite';
+import type { Plugin, Rolldown, RunnableDevEnvironment } from 'vite';
 import { getProxyCode } from '../assets/utils/proxy.js';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
@@ -236,7 +236,7 @@ type GetEntryModuleParams<TEntryType extends ContentEntryType | DataEntryType> =
 	fs: typeof fsMod;
 	fileId: string;
 	contentDir: URL;
-	pluginContext: Rollup.PluginContext;
+	pluginContext: Rolldown.PluginContext;
 	entryConfigByExt: Map<string, TEntryType>;
 	config: AstroConfig;
 	shouldEmitFile: boolean;

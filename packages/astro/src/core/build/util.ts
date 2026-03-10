@@ -1,4 +1,4 @@
-import type { Rollup } from 'vite';
+import type { Rolldown } from 'vite';
 import type { AstroConfig } from '../../types/public/config.js';
 import type { ViteBuildReturn } from './types.js';
 
@@ -47,10 +47,10 @@ export function encodeName(name: string): string {
 	return name;
 }
 
-export function viteBuildReturnToRollupOutputs(
+export function viteBuildReturnToRolldownOutputs(
 	viteBuildReturn: ViteBuildReturn,
-): Rollup.RollupOutput[] {
-	const result: Rollup.RollupOutput[] = [];
+): Rolldown.RolldownOutput[] {
+	const result: Rolldown.RolldownOutput[] = [];
 	if (Array.isArray(viteBuildReturn)) {
 		result.push(...viteBuildReturn);
 	} else if ('output' in viteBuildReturn) {

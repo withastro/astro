@@ -5,7 +5,7 @@ import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 
 export function pluginPrerender(_opts: StaticBuildOptions, internals: BuildInternals): VitePlugin {
 	return {
-		name: 'astro:rollup-plugin-prerender',
+		name: 'astro:rolldown-plugin-prerender',
 
 		applyToEnvironment(environment) {
 			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;

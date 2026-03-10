@@ -10,7 +10,7 @@ export default defineConfig({
     build: {
       cssCodeSplit: false,
       assetsInlineLimit: 0,
-      rollupOptions: {
+      rolldownOptions: {
         output: {
           
           entryFileNames: 'assets/script/a.[hash].js',

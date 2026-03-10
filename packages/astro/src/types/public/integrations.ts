@@ -153,7 +153,7 @@ interface AdapterExplicitProperties {
 	 * or `"explicit"` (default, but deprecated):
 	 *
 	 * - **`"auto"` (recommended):** You are responsible for providing a valid module as an entrypoint
-	 * using either `serverEntrypoint` or, if you need further customization at the Vite level using `vite.build.rollupOptions.input`.
+	 * using either `serverEntrypoint` or, if you need further customization at the Vite level using `vite.build.rolldownOptions.input`.
 	 * - **`"explicit"` (deprecated)**: You must provide the exports required by the host in the server entrypoint
 	 * using a `createExports()` function before passing them to `setAdapter()` as an [`exports`](#exports) list. This supports
 	 * adapters built using the Astro 5 version of the Adapter API. By default, all adapters will receive this value to allow backwards
@@ -188,7 +188,7 @@ interface AdapterAutoProperties {
 	 * or `"explicit"` (default, but deprecated):
 	 *
 	 * - **`"auto"` (recommended):** You are responsible for providing a valid module as an entrypoint
-	 * using either `serverEntrypoint` or, if you need further customization at the Vite level using `vite.build.rollupOptions.input`.
+	 * using either `serverEntrypoint` or, if you need further customization at the Vite level using `vite.build.rolldownOptions.input`.
 	 * - **`"explicit"` (deprecated)**: You must provide the exports required by the host in the server entrypoint
 	 * using a `createExports()` function before passing them to `setAdapter()` as an [`exports`](#exports) list. This supports
 	 * adapters built using the Astro 5 version of the Adapter API. By default, all adapters will receive this value to allow backwards

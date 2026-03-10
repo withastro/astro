@@ -26,7 +26,7 @@ export function pluginInternals(
 			if (environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.prerender) {
 				return {
 					build: {
-						rollupOptions: {
+						rolldownOptions: {
 							// These packages as they're not bundle-friendly. Users with strict package installations
 							// need to manually install these themselves if they use the related features.
 							external: [
@@ -43,14 +43,14 @@ export function pluginInternals(
 		},
 
 		configResolved(config) {
-			// Get input from rollupOptions
-			const rollupInput = config.build?.rollupOptions?.input;
-			if (Array.isArray(rollupInput)) {
-				input = new Set(rollupInput);
-			} else if (typeof rollupInput === 'string') {
-				input = new Set([rollupInput]);
-			} else if (rollupInput && typeof rollupInput === 'object') {
-				input = new Set(Object.values(rollupInput) as string[]);
+			// Get input from rolldownOptions
+			const rolldownInput = config.build?.rolldownOptions?.input;
+			if (Array.isArray(rolldownInput)) {
+				input = new Set(rolldownInput);
+			} else if (typeof rolldownInput === 'string') {
+				input = new Set([rolldownInput]);
+			} else if (rolldownInput && typeof rolldownInput === 'object') {
+				input = new Set(Object.values(rolldownInput) as string[]);
 			} else {
 				input = new Set();
 			}
