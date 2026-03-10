@@ -50,7 +50,6 @@
     "typescriptServerPlugins": [
       {
         "name": "astro-ts-plugin-bundle",
-        "path": "./dist/astro-ts-plugin-bundle",
         "enableForWorkspaceTypeScriptVersions": true
       }
     ],
