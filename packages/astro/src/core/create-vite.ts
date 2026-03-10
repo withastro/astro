@@ -225,12 +225,6 @@ export async function createVite(
 				// This is all that's needed to create a new RunnableDevEnvironment
 				dev: {},
 			},
-			...(command === 'dev' && {
-				[ASTRO_VITE_ENVIRONMENT_NAMES.prerender]: {
-					// Dev prerender environment used to emulate build-time prerender behavior.
-					dev: {},
-				},
-			}),
 		},
 	};
 
