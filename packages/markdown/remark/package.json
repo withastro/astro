@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/markdown-remark",
-  "version": "7.0.0-beta.7",
+  "version": "7.0.0",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -14,9 +14,7 @@
   "main": "./dist/index.js",
   "exports": {
     ".": "./dist/index.js",
-    "./shiki": "./dist/shiki.js",
-    "./shiki-style-collector": "./dist/shiki-style-collector.js",
-    "./transformers/style-to-class": "./dist/transformers/style-to-class.js"
+    "./shiki": "./dist/shiki.js"
   },
   "imports": {
     "#import-plugin": {
@@ -52,7 +50,7 @@
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.2",
     "remark-smartypants": "^3.0.2",
-    "shiki": "^3.22.0",
+    "shiki": "^4.0.0",
     "smol-toml": "^1.6.0",
     "unified": "^11.0.5",
     "unist-util-remove-position": "^5.0.0",
@@ -67,7 +65,7 @@
     "@types/mdast": "^4.0.4",
     "@types/unist": "^3.0.3",
     "astro-scripts": "workspace:*",
-    "esbuild": "^0.24.2",
+    "esbuild": "^0.27.3",
     "mdast-util-mdx-expression": "^2.0.1"
   },
   "publishConfig": {

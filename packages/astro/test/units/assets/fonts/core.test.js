@@ -194,7 +194,7 @@ describe('fonts core', () => {
 				},
 				filterAndTransformFontFaces: () => [
 					{
-						src: [{ url: 'overriden' }],
+						src: [{ url: 'overridden' }],
 					},
 				],
 				collectFontAssetsFromFaces: () => {
@@ -211,7 +211,7 @@ describe('fonts core', () => {
 					family: families[0],
 					fonts: [
 						{
-							src: [{ url: 'overriden' }],
+							src: [{ url: 'overridden' }],
 						},
 					],
 					preloads: [],

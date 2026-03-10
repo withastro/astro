@@ -5,8 +5,8 @@ export const DEFAULT_IMAGES_BINDING_NAME = 'IMAGES';
 export const DEFAULT_ASSETS_BINDING_NAME = 'ASSETS';
 
 interface CloudflareConfigOptions {
-	sessionKVBindingName?: string;
-	imagesBindingName?: string | false;
+	sessionKVBindingName: string | undefined;
+	imagesBindingName: string | false | undefined;
 }
 
 /**
@@ -14,7 +14,7 @@ interface CloudflareConfigOptions {
  * Sets the main entrypoint and adds bindings for auto-provisioning.
  */
 export function cloudflareConfigCustomizer(
-	options?: CloudflareConfigOptions,
+	options: CloudflareConfigOptions,
 ): PluginConfig['config'] {
 	const sessionKVBindingName = options?.sessionKVBindingName ?? DEFAULT_SESSION_KV_BINDING_NAME;
 	const imagesBindingName =

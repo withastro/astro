@@ -27,7 +27,7 @@ describe('astro:image:layout', () => {
 						foo: 'bar',
 						transform: { path: walrusImagePath, scale: imageScale },
 					}),
-					domains: ['avatars.githubusercontent.com'],
+					domains: ['avatars.githubusercontent.com', 'images.unsplash.com'],
 				},
 			});
 
@@ -56,7 +56,7 @@ describe('astro:image:layout', () => {
 				let $img = $('#local img');
 				assert.equal($img.attr('loading'), 'lazy');
 				assert.equal($img.attr('decoding'), 'async');
-				assert.equal($img.attr('fetchpriority'), 'auto');
+				assert.equal($img.attr('fetchpriority'), undefined);
 			});
 
 			it('includes priority loading attributes', () => {
@@ -599,7 +599,7 @@ describe('astro:image:layout', () => {
 				root: './fixtures/core-image-layout/',
 				image: {
 					service: testImageService({ foo: 'bar' }),
-					domains: ['avatars.githubusercontent.com'],
+					domains: ['avatars.githubusercontent.com', 'images.unsplash.com'],
 				},
 			});
 
@@ -623,7 +623,7 @@ describe('astro:image:layout', () => {
 				let $img = $('#local img');
 				assert.equal($img.attr('loading'), 'lazy');
 				assert.equal($img.attr('decoding'), 'async');
-				assert.equal($img.attr('fetchpriority'), 'auto');
+				assert.equal($img.attr('fetchpriority'), undefined);
 			});
 
 			it('includes priority loading attributes', () => {
@@ -710,7 +710,7 @@ describe('astro:image:layout', () => {
 					root: './fixtures/core-image-layout/',
 					image: {
 						service: testImageService({ foo: 'bar' }),
-						domains: ['avatars.githubusercontent.com'],
+						domains: ['avatars.githubusercontent.com', 'images.unsplash.com'],
 						responsiveStyles: false,
 					},
 				});

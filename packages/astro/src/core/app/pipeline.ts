@@ -12,7 +12,6 @@ import {
 import { getFallbackRoute, routeIsFallback, routeIsRedirect } from '../routing/helpers.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
 import { createConsoleLogger } from './logging.js';
-
 export class AppPipeline extends Pipeline {
 	getName(): string {
 		return 'AppPipeline';
@@ -100,7 +99,7 @@ export class AppPipeline extends Pipeline {
 				return RedirectSinglePageBuiltModule;
 			}
 		} else if (routeIsFallback(route)) {
-			// This is a i18n fallback route
+			// This is an i18n fallback route
 			routeToProcess = getFallbackRoute(route, this.manifest.routes);
 		}
 

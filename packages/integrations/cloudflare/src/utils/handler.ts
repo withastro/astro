@@ -1,5 +1,9 @@
 import { env as globalEnv } from 'cloudflare:workers';
-import { sessionKVBindingName, isPrerender } from 'virtual:astro-cloudflare:config';
+import {
+	sessionKVBindingName,
+	compileImageConfig,
+	isPrerender,
+} from 'virtual:astro-cloudflare:config';
 import { createApp } from 'astro/app/entrypoint';
 import { setGetEnv } from 'astro/env/setup';
 import { createGetEnv } from '../utils/env.js';
@@ -9,7 +13,10 @@ import {
 	isPrerenderRequest,
 	handleStaticPathsRequest,
 	handlePrerenderRequest,
+	isStaticImagesRequest,
+	handleStaticImagesRequest,
 } from './prerender.js';
+import { getValidatedIpFromHeader } from '@astrojs/internal-helpers/request';
 
 setGetEnv(createGetEnv(globalEnv));
 
@@ -33,11 +40,19 @@ export async function handle(
 ): Promise<CfResponse> {
 	// Handle prerender endpoints (only active during build prerender phase)
 	if (isPrerender) {
+		if (compileImageConfig) {
+			const { installAddStaticImage } = await import('./static-image-collection.js');
+			installAddStaticImage(compileImageConfig);
+		}
+
 		if (isStaticPathsRequest(request)) {
 			return handleStaticPathsRequest(app) as unknown as CfResponse;
 		}
 		if (isPrerenderRequest(request)) {
 			return handlePrerenderRequest(app, request) as unknown as CfResponse;
+		}
+		if (isStaticImagesRequest(request)) {
+			return handleStaticImagesRequest() as unknown as CfResponse;
 		}
 	}
 
@@ -111,7 +126,7 @@ export async function handle(
 			// NOTE this ASSETS binding path is needed for users who are using `run_worker_first` routing
 			return env.ASSETS.fetch(url.replace(/\.html$/, ''));
 		},
-		clientAddress: request.headers.get('cf-connecting-ip') ?? undefined,
+		clientAddress: getValidatedIpFromHeader(request.headers.get('cf-connecting-ip')),
 	});
 
 	if (app.setCookieHeaders) {

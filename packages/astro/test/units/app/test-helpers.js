@@ -1,10 +1,24 @@
 // @ts-check
 
-export function createManifest({ routes, pageMap, base = '/', trailingSlash = 'ignore' } = {}) {
+/**
+ * @param {object} [options]
+ * @param {any[]} [options.routes]
+ * @param {Map<string, Function>} [options.pageMap]
+ * @param {string} [options.base]
+ * @param {string} [options.trailingSlash]
+ * @param {Function} [options.middleware]
+ */
+export function createManifest({
+	routes,
+	pageMap,
+	base = '/',
+	trailingSlash = 'ignore',
+	middleware = undefined,
+} = {}) {
 	const rootDir = new URL('file:///astro-test/');
 	const buildDir = new URL('file:///astro-test/dist/');
 
-	return {
+	return /** @type {import('../../../dist/core/app/types.js').SSRManifest} */ ({
 		adapterName: 'test-adapter',
 		routes,
 		site: undefined,
@@ -16,6 +30,7 @@ export function createManifest({ routes, pageMap, base = '/', trailingSlash = 'i
 		assetsPrefix: undefined,
 		renderers: [],
 		serverLike: true,
+		middlewareMode: /** @type {'classic'} */ ('classic'),
 		clientDirectives: new Map(),
 		entryModules: {},
 		inlinedScripts: new Map(),
@@ -26,11 +41,13 @@ export function createManifest({ routes, pageMap, base = '/', trailingSlash = 'i
 		serverIslandMappings: undefined,
 		key: Promise.resolve(/** @type {CryptoKey} */ ({})),
 		i18n: undefined,
-		middleware: undefined,
+		middleware,
 		actions: undefined,
 		sessionDriver: undefined,
 		checkOrigin: false,
 		allowedDomains: undefined,
+		actionBodySizeLimit: 0,
+		serverIslandBodySizeLimit: 1024 * 1024,
 		sessionConfig: undefined,
 		cacheDir: rootDir,
 		srcDir: rootDir,
@@ -51,7 +68,10 @@ export function createManifest({ routes, pageMap, base = '/', trailingSlash = 'i
 		},
 		internalFetchHeaders: undefined,
 		logLevel: /** @type {'silent'} */ ('silent'),
-	};
+		experimentalQueuedRendering: {
+			enabled: false,
+		},
+	});
 }
 
 export function createRouteInfo(routeData) {

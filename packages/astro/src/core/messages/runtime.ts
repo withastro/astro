@@ -9,6 +9,9 @@ import {
 	type ErrorWithMetadata,
 } from '../errors/index.js';
 import { padMultilineString } from '../util-runtime.js';
+import type { AstroVersionProvider, TextStyler } from '../../cli/definitions.js';
+import type { AstroConfig } from '../../types/public/index.js';
+import type { Logger } from '../logger/core.js';
 
 const {
 	bgGreen,
@@ -62,45 +65,49 @@ export function serverStart({
 	resolvedUrls,
 	host,
 	base,
+	astroVersionProvider,
+	textStyler,
 }: {
 	startupTime: number;
 	resolvedUrls: ResolvedServerUrls;
 	host: string | boolean;
 	base: string;
+	astroVersionProvider: AstroVersionProvider;
+	textStyler: TextStyler;
 }): string {
-	// PACKAGE_VERSION is injected at build-time
-	const version = process.env.PACKAGE_VERSION ?? '0.0.0';
-	const localPrefix = `${dim('┃')} Local    `;
-	const networkPrefix = `${dim('┃')} Network  `;
+	const localPrefix = `${textStyler.dim('┃')} Local    `;
+	const networkPrefix = `${textStyler.dim('┃')} Network  `;
 	const emptyPrefix = ' '.repeat(11);
 
 	const localUrlMessages = resolvedUrls.local.map((url, i) => {
-		return `${i === 0 ? localPrefix : emptyPrefix}${cyan(new URL(url).origin + base)}`;
+		return `${i === 0 ? localPrefix : emptyPrefix}${textStyler.cyan(new URL(url).origin + base)}`;
 	});
 	const networkUrlMessages = resolvedUrls.network.map((url, i) => {
-		return `${i === 0 ? networkPrefix : emptyPrefix}${cyan(new URL(url).origin + base)}`;
+		return `${i === 0 ? networkPrefix : emptyPrefix}${textStyler.cyan(new URL(url).origin + base)}`;
 	});
 
 	if (networkUrlMessages.length === 0) {
 		const networkLogging = getNetworkLogging(host);
 		if (networkLogging === 'host-to-expose') {
-			networkUrlMessages.push(`${networkPrefix}${dim('use --host to expose')}`);
+			networkUrlMessages.push(`${networkPrefix}${textStyler.dim('use --host to expose')}`);
 		} else if (networkLogging === 'visible') {
-			networkUrlMessages.push(`${networkPrefix}${dim('unable to find network to expose')}`);
+			networkUrlMessages.push(
+				`${networkPrefix}${textStyler.dim('unable to find network to expose')}`,
+			);
 		}
 	}
 
 	const messages = [
 		'',
-		`${bgGreen(bold(` astro `))} ${green(`v${version}`)} ${dim(`ready in`)} ${Math.round(
+		`${textStyler.bgGreen(textStyler.bold(` astro `))} ${textStyler.green(`v${astroVersionProvider.version}`)} ${textStyler.dim(`ready in`)} ${Math.round(
 			startupTime,
-		)} ${dim('ms')}`,
+		)} ${textStyler.dim('ms')}`,
 		'',
 		...localUrlMessages,
 		...networkUrlMessages,
 		'',
 	];
-	return messages.filter((msg) => typeof msg === 'string').join('\n');
+	return messages.filter(Boolean).join('\n');
 }
 
 /** Display custom dev server shortcuts */
@@ -386,4 +393,24 @@ export function printHelp({
 
 	// biome-ignore lint/suspicious/noConsole: allowed
 	console.log(message.join('\n') + '\n');
+}
+
+export function warnIfCspWithShiki(config: AstroConfig, logger: Logger): void {
+	// Check if CSP is enabled
+	const cspEnabled = config.security.csp !== false;
+	if (!cspEnabled) return;
+
+	// Check if Shiki is being used (string or object form)
+	const syntaxHighlight = config.markdown.syntaxHighlight;
+	const isShiki =
+		syntaxHighlight === 'shiki' ||
+		(typeof syntaxHighlight === 'object' && syntaxHighlight?.type === 'shiki');
+
+	if (isShiki) {
+		logger.warn(
+			'config',
+			'Shiki syntax highlighting uses inline styles that are not compatible with Content Security Policy (CSP). ' +
+				'Consider using Prism syntax highlighting instead, or disable CSP if Shiki is required.',
+		);
+	}
 }

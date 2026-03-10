@@ -1,12 +1,13 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import mdx from '@astrojs/mdx';
+import rehypeShiki from '@shikijs/rehype';
+import { transformerTwoslash } from '@shikijs/twoslash';
 import { parseHTML } from 'linkedom';
 import rehypePrettyCode from 'rehype-pretty-code';
-import shikiTwoslash from 'remark-shiki-twoslash';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 
-const FIXTURE_ROOT = new URL('./fixtures/mdx-syntax-hightlighting/', import.meta.url);
+const FIXTURE_ROOT = new URL('./fixtures/mdx-syntax-highlighting/', import.meta.url);
 
 describe('MDX syntax highlighting', () => {
 	describe('shiki', () => {
@@ -25,14 +26,7 @@ describe('MDX syntax highlighting', () => {
 
 			const shikiCodeBlock = document.querySelector('pre.astro-code');
 			assert.notEqual(shikiCodeBlock, null);
-
-			// With class-based styles, background-color is in a CSS class, not inline style
-			const className = shikiCodeBlock.getAttribute('class');
-			assert.ok(className && className.includes('__a_'), 'Should have Shiki token class');
-			assert.ok(
-				className && className.includes('astro-code-overflow'),
-				'Should have overflow class',
-			);
+			assert.equal(shikiCodeBlock.getAttribute('style').includes('background-color:#24292e'), true);
 		});
 
 		it('respects markdown.shikiConfig.theme', async () => {
@@ -53,15 +47,7 @@ describe('MDX syntax highlighting', () => {
 
 			const shikiCodeBlock = document.querySelector('pre.astro-code');
 			assert.notEqual(shikiCodeBlock, null);
-
-			// With class-based styles, theme colors are in CSS classes, not inline styles
-			// Verify the theme is applied by checking for Shiki classes
-			const className = shikiCodeBlock.getAttribute('class');
-			assert.ok(className && className.includes('__a_'), 'Should have Shiki token class');
-			assert.ok(
-				className && className.includes('astro-code-overflow'),
-				'Should have overflow class',
-			);
+			assert.equal(shikiCodeBlock.getAttribute('style').includes('background-color:#282A36'), true);
 		});
 	});
 
@@ -110,7 +96,7 @@ describe('MDX syntax highlighting', () => {
 		}
 	});
 
-	it('supports custom highlighter - shiki-twoslash', async () => {
+	it('supports custom highlighter - @shikijs/rehype and @shikijs/twoslash', async () => {
 		const fixture = await loadFixture({
 			root: FIXTURE_ROOT,
 			markdown: {
@@ -118,7 +104,15 @@ describe('MDX syntax highlighting', () => {
 			},
 			integrations: [
 				mdx({
-					remarkPlugins: [shikiTwoslash.default ?? shikiTwoslash],
+					rehypePlugins: [
+						[
+							rehypeShiki,
+							{
+								theme: 'vitesse-light',
+								transformers: [transformerTwoslash({})],
+							},
+						],
+					],
 				}),
 			],
 		});
@@ -127,8 +121,11 @@ describe('MDX syntax highlighting', () => {
 		const html = await fixture.readFile('/index.html');
 		const { document } = parseHTML(html);
 
-		const twoslashCodeBlock = document.querySelector('pre.shiki');
-		assert.notEqual(twoslashCodeBlock, null);
+		const shikiCodeBlock = document.querySelector('pre.shiki');
+		assert.notEqual(shikiCodeBlock, null);
+
+		const twoslashPopup = document.querySelector('div.twoslash-popup-docs');
+		assert.notEqual(twoslashPopup, null);
 	});
 
 	it('supports custom highlighter - rehype-pretty-code', async () => {

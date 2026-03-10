@@ -3,7 +3,7 @@ import type { Pipeline } from '../../core/base-pipeline.js';
 import type { PathWithRoute } from '../../types/public/integrations.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { stringifyParams } from '../../core/routing/params.js';
-import { routeIsRedirect, routeIsFallback, getFallbackRoute } from '../../core/routing/helpers.js';
+import { getFallbackRoute, routeIsFallback, routeIsRedirect } from '../../core/routing/helpers.js';
 import { callGetStaticPaths } from '../../core/render/route-cache.js';
 
 export type { PathWithRoute } from '../../types/public/integrations.js';

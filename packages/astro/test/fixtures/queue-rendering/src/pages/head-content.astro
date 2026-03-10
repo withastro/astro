@@ -1,0 +1,31 @@
+---
+import WithHead from '../components/WithHead.astro';
+---
+<html>
+	<head>
+		<title>Head Content Test</title>
+		<meta name="description" content="Testing head content propagation" />
+	</head>
+	<body>
+		<h1>Head Content Test</h1>
+
+		<section id="inline-styles">
+			<style>
+				.inline-test {
+					color: green;
+				}
+			</style>
+			<p class="inline-test">Inline styles test</p>
+		</section>
+
+		<section id="inline-scripts">
+			<script is:inline>
+				console.log('Inline script executed');
+			</script>
+		</section>
+
+		<section id="component-head">
+			<WithHead title="Component with Head Content" />
+		</section>
+	</body>
+</html>

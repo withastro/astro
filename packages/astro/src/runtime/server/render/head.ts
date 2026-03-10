@@ -5,14 +5,30 @@ import type { MaybeRenderHeadInstruction, RenderHeadInstruction } from './instru
 import { createRenderInstruction } from './instruction.js';
 import { renderElement } from './util.js';
 
-// Filter out duplicate elements in our set
-const uniqueElements = (item: any, index: number, all: any[]) => {
-	const props = JSON.stringify(item.props);
-	const children = item.children;
-	return (
-		index === all.findIndex((i) => JSON.stringify(i.props) === props && i.children === children)
-	);
-};
+// Deterministic stringification of props that is key-order independent,
+// so elements with the same props in different insertion order are still deduped.
+function stablePropsKey(props: Record<string, unknown>): string {
+	const keys = Object.keys(props).sort();
+	let result = '{';
+	for (let i = 0; i < keys.length; i++) {
+		if (i > 0) result += ',';
+		result += JSON.stringify(keys[i]) + ':' + JSON.stringify(props[keys[i]]);
+	}
+	result += '}';
+	return result;
+}
+
+// Filter out duplicate elements using a Set for O(N) instead of O(N²)
+function deduplicateElements(elements: any[]): any[] {
+	if (elements.length <= 1) return elements;
+	const seen = new Set<string>();
+	return elements.filter((item) => {
+		const key = stablePropsKey(item.props) + item.children;
+		if (seen.has(key)) return false;
+		seen.add(key);
+		return true;
+	});
+}
 
 export function renderAllHeadContent(result: SSRResult) {
 	result._metadata.hasRenderedHead = true;
@@ -30,27 +46,21 @@ export function renderAllHeadContent(result: SSRResult) {
 			false,
 		);
 	}
-	const styles = Array.from(result.styles)
-		.filter(uniqueElements)
-		.map((style) =>
-			style.props.rel === 'stylesheet'
-				? renderElement('link', style)
-				: renderElement('style', style),
-		);
+	const styles = deduplicateElements(Array.from(result.styles)).map((style) =>
+		style.props.rel === 'stylesheet' ? renderElement('link', style) : renderElement('style', style),
+	);
 	// Clear result.styles so that any new styles added will be inlined.
 	result.styles.clear();
-	const scripts = Array.from(result.scripts)
-		.filter(uniqueElements)
-		.map((script) => {
-			if (result.userAssetsBase) {
-				script.props.src =
-					(result.base === '/' ? '' : result.base) + result.userAssetsBase + script.props.src;
-			}
-			return renderElement('script', script, false);
-		});
-	const links = Array.from(result.links)
-		.filter(uniqueElements)
-		.map((link) => renderElement('link', link, false));
+	const scripts = deduplicateElements(Array.from(result.scripts)).map((script) => {
+		if (result.userAssetsBase) {
+			script.props.src =
+				(result.base === '/' ? '' : result.base) + result.userAssetsBase + script.props.src;
+		}
+		return renderElement('script', script, false);
+	});
+	const links = deduplicateElements(Array.from(result.links)).map((link) =>
+		renderElement('link', link, false),
+	);
 
 	// Order styles -> links -> scripts similar to src/content/runtime.ts
 	// The order is usually fine as the ordering between these groups are mutually exclusive,

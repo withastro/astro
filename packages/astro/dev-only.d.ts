@@ -81,7 +81,3 @@ declare module 'virtual:astro:dev-css-all' {
 declare module 'virtual:astro:app' {
 	export const createApp: import('./src/core/app/types.js').CreateApp;
 }
-
-declare module 'virtual:astro:shiki-styles.css' {
-	// CSS module - no exports, imported for side effects
-}

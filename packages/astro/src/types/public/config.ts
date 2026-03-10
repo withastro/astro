@@ -12,6 +12,7 @@ import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions
 import type { FontFamily, FontProvider } from '../../assets/fonts/types.js';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
 import type { AssetsPrefix } from '../../core/app/types.js';
+import type { CacheProviderConfig, RouteRules } from '../../core/cache/types.js';
 import type { AstroConfigType } from '../../core/config/schemas/index.js';
 import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
 import type { CspAlgorithm, CspDirective, CspHash } from '../../core/csp/config.js';
@@ -622,6 +623,9 @@ export interface AstroUserConfig<
 		 * Each pattern can specify `protocol`, `hostname`, and `port`. All three are validated if provided.
 		 * The patterns support wildcards for flexible hostname matching:
 		 *
+		 * - `*.example.com` - matches exactly one subdomain level (e.g., `sub.example.com` but not `deep.sub.example.com`)
+		 * - `**.example.com` - matches any subdomain depth (e.g., both `sub.example.com` and `deep.sub.example.com`)
+		 *
 		 * ```js
 		 * {
 		 *   security: {
@@ -641,9 +645,70 @@ export interface AstroUserConfig<
 		 * }
 		 * ```
 		 *
+		 * In some specific contexts (e.g., applications behind trusted reverse proxies with dynamic domains), you may need to allow all domains. To do this, use an empty object:
+		 *
+		 * ```js
+		 * {
+		 *   security: {
+		 *     // Allow any domain - use this only when necessary
+		 *     allowedDomains: [{}]
+		 *   }
+		 * }
+		 * ```
+		 *
 		 * When not configured, `X-Forwarded-Host` headers are not trusted and will be ignored.
 		 */
 		allowedDomains?: Partial<RemotePattern>[];
+
+		/**
+		 * @docs
+		 * @name security.actionBodySizeLimit
+		 * @kind h4
+		 * @type {number}
+		 * @default `1048576` (1 MB)
+		 * @version 5.18.0
+		 * @description
+		 *
+		 * Sets the maximum size in bytes allowed for action request bodies.
+		 *
+		 * By default, action request bodies are limited to 1 MB (1048576 bytes) to prevent abuse.
+		 * You can increase this limit if your actions need to accept larger payloads, for example when handling file uploads.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * export default defineConfig({
+		 *   security: {
+		 *     actionBodySizeLimit: 10 * 1024 * 1024 // 10 MB
+		 *   }
+		 * })
+		 * ```
+		 */
+		actionBodySizeLimit?: number;
+
+		/**
+		 * @docs
+		 * @name security.serverIslandBodySizeLimit
+		 * @kind h4
+		 * @type {number}
+		 * @default `1048576` (1 MB)
+		 * @version 6.0.0
+		 * @description
+		 *
+		 * Sets the maximum size in bytes allowed for server island request bodies, which contain the encrypted props and slot HTML passed to the island component.
+		 *
+		 * By default, server island request bodies are limited to 1 MB (1048576 bytes) to prevent abuse.
+		 * You can increase this limit if your server islands need to accept larger payloads.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * export default defineConfig({
+		 *   security: {
+		 *     serverIslandBodySizeLimit: 10 * 1024 * 1024 // 10 MB
+		 *   }
+		 * })
+		 * ```
+		 */
+		serverIslandBodySizeLimit?: number;
 
 		/**
 		 * @docs
@@ -659,16 +724,17 @@ export interface AstroUserConfig<
 		 * Enabling this feature adds additional security to Astro's handling of processed and bundled scripts and styles by default, and allows you to further configure these, and additional, content types.
 		 *
 		 * This feature comes with some limitations:
-		 * - External scripts and external styles are not supported out of the box, but you can [provide your own hashes](https://v6.docs.astro.build/en/reference/configuration-reference/#hashes).
-		 * - [Astro's view transitions](https://v6.docs.astro.build/en/guides/view-transitions/) using the `<ClientRouter />` are not supported, but you can [consider migrating to the browser native View Transition API](https://events-3bg.pages.dev/jotter/astro-view-transitions/) instead if you are not using Astro's enhancements to the native View Transitions and Navigation APIs.
-		 * - Shiki isn't currently supported. By design, Shiki functions using inline styles.
+		 * - External scripts and external styles are not supported out of the box, but you can [provide your own hashes](https://docs.astro.build/en/reference/configuration-reference/#securitycspscriptdirectivehashes).
+		 * - [Astro's view transitions](https://docs.astro.build/en/guides/view-transitions/) using the `<ClientRouter />` are not supported, but you can [consider migrating to the browser native View Transition API](https://events-3bg.pages.dev/jotter/astro-view-transitions/) instead if you are not using Astro's enhancements to the native View Transitions and Navigation APIs.
+		 * - Shiki isn't currently supported. By design, Shiki functions use inline styles that cannot work with Astro CSP implementation. Consider [using `<Prism />`](https://docs.astro.build/en/guides/syntax-highlighting/#prism-) when your project requires both CSP and syntax highlighting.
+		 * - `unsafe-inline` directives are incompatible with Astro's CSP implementation. By default, Astro will emit hashes for all its bundled scripts (e.g. client islands) and all modern browsers will automatically reject `unsafe-inline` when it occurs in a directive with a hash or nonce.
 		 *
 		 * :::note
 		 * Due to the nature of the Vite dev server, this feature isn't supported while working in `dev` mode. Instead, you can test this in your Astro project using `build` and `preview`.
 		 * :::
 		 *
 		 * When enabled, Astro will add a `<meta>` element inside the `<head>` element of each page.
-		 * This element will have the `http-equiv="content-security-policy"` attribute, and the `content` attribute will provide values for the `script-src` and `style-src` [directives](https://v6.docs.astro.build/en/reference/configuration-reference/#securitycspdirectives) based on the script and styles used in the page.
+		 * This element will have the `http-equiv="content-security-policy"` attribute, and the `content` attribute will provide values for the `script-src` and `style-src` [directives](https://docs.astro.build/en/reference/configuration-reference/#securitycspdirectives) based on the script and styles used in the page.
 		 *
 		 * ```html
 		 *
@@ -763,7 +829,7 @@ export interface AstroUserConfig<
 					 * @version 6.0.0
 					 * @description
 					 *
-					 * A configuration object that allows you to override the default sources for the `style-src` directive with the [`resources`](https://v6.docs.astro.build/en/reference/configuration-reference/#resources) property, or to provide additional [hashes](https://v6.docs.astro.build/en/reference/configuration-reference#hashes) to be rendered.					 */
+					 * A configuration object that allows you to override the default sources for the `style-src` directive with the [`resources`](https://docs.astro.build/en/reference/configuration-reference/#securitycspstyledirectiveresources) property, or to provide additional [hashes](https://docs.astro.build/en/reference/configuration-reference/#securitycspstyledirectivehashes) to be rendered.					 */
 					styleDirective?: {
 						/**
 						 * @docs
@@ -864,7 +930,7 @@ export interface AstroUserConfig<
 					 * @version 6.0.0
 					 * @description
 					 *
-					 * A configuration object that allows you to override the default sources for the `script-src` directive with the [`resources`](https://v6.docs.astro.build/en/reference/configuration-reference/#resources) property, or to provide additional [hashes](https://v6.docs.astro.build/en/reference/configuration-reference#hashes) to be rendered.
+					 * A configuration object that allows you to override the default sources for the `script-src` directive with the [`resources`](https://docs.astro.build/en/reference/configuration-reference/#securitycspscriptdirectiveresources) property, or to provide additional [hashes](https://docs.astro.build/en/reference/configuration-reference/#securitycspscriptdirectivehashes) to be rendered.
 					 */
 					scriptDirective?: {
 						/**
@@ -1457,7 +1523,7 @@ export interface AstroUserConfig<
 	 * An optional default time-to-live expiration period for session values, in seconds.
 	 *
 	 * By default, session values persist until they are deleted or the session is destroyed, and do not automatically expire because a particular amount of time has passed.
-	 * Set `session.ttl` to add a default expiration period for your session values. Passing a `ttl` option to [`session.set()`](https://docs.astro.build/en/reference/api-reference/#set) will override the global default
+	 * Set `session.ttl` to add a default expiration period for your session values. Passing a `ttl` option to [`session.set()`](https://docs.astro.build/en/reference/api-reference/#sessionset) will override the global default
 	 * for that individual entry.
 	 *
 	 * ```js title="astro.config.mjs" ins={3-4}
@@ -2293,7 +2359,7 @@ export interface AstroUserConfig<
 		 * @version 5.0.0
 		 * @description
 		 *
-		 * Defines environment variables to be enforced by Zod validation and for which TypeScript support (e.g. autocompletion, type-safety) is available. Each key corresponds to the variable name and the value to the data type and validations [defined with `envField`](https://v6.docs.astro.build/en/reference/modules/astro-config/#envfield).
+		 * Defines environment variables to be enforced by Zod validation and for which TypeScript support (e.g. autocompletion, type-safety) is available. Each key corresponds to the variable name and the value to the data type and validations [defined with `envField`](https://docs.astro.build/en/reference/modules/astro-config/#envfield).
 		 *
 		 * Four data types are supported: string, number, enumeration, and boolean. Each type requires a `context` (client or server), an `access` level (public or secret), and additional validations, such as a `default` value and an indication of whether the variable is `optional` (defaults to `false`).
 		 *
@@ -2353,7 +2419,7 @@ export interface AstroUserConfig<
 	 * @description
 	 * Configures fonts and allows you to specify some customization options on a per-font basis.
 	 *
-	 * See our guide for more information on [using custom fonts in Astro](https://v6.docs.astro.build/en/guides/fonts/).
+	 * See our guide for more information on [using custom fonts in Astro](https://docs.astro.build/en/guides/fonts/).
 	 */
 
 	/**
@@ -2362,7 +2428,7 @@ export interface AstroUserConfig<
 	 * @type {FontProvider}
 	 * @version 6.0.0
 	 * @description
-	 * The source of your font files. You can use a [built-in provider](https://v6.docs.astro.build/en/reference/font-provider-reference/#built-in-providers) or write your own [custom provider](https://v6.docs.astro.build/en/reference/font-provider-reference/#building-a-font-provider):
+	 * The source of your font files. You can use a [built-in provider](https://docs.astro.build/en/reference/font-provider-reference/#built-in-providers) or write your own [custom provider](https://docs.astro.build/en/reference/font-provider-reference/#building-a-font-provider):
 	 *
 	 * ```js
 	 * import { defineConfig, fontProviders } from "astro/config";
@@ -2432,7 +2498,7 @@ export interface AstroUserConfig<
 	 * @default `true`
 	 * @version 6.0.0
 	 * @description
-	 * Whether or not to enable Astro's default optimization when generating fallback fonts. You may disable this default optimization to have full control over how [`fallbacks`](https://v6.docs.astro.build/en/reference/configuration-reference/#fontfallbacks) are generated:
+	 * Whether or not to enable Astro's default optimization when generating fallback fonts. You may disable this default optimization to have full control over how [`fallbacks`](https://docs.astro.build/en/reference/configuration-reference/#fontfallbacks) are generated:
 	 *
 	 * ```js
 	 * optimizedFallbacks: false
@@ -2507,7 +2573,7 @@ export interface AstroUserConfig<
 	 * @type {Record<string, any>}
 	 * @version 6.0.0
 	 * @description
-	 * An object to pass provider specific options. It is typed automatically based on the font family [provider](https://v6.docs.astro.build/en/reference/configuration-reference/#fontprovider):
+	 * An object to pass provider specific options. It is typed automatically based on the font family [provider](https://docs.astro.build/en/reference/configuration-reference/#fontprovider):
 	 *
 	 * ```js
 	 * options: {
@@ -2539,7 +2605,7 @@ export interface AstroUserConfig<
 	 * @default `undefined`
 	 * @version 6.0.0
 	 * @description
-	 * Determines when a font must be downloaded and used based on a specific [range of unicode characters](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/unicode-range). If a character on the page matches the configured range, the browser will download the font and all characters will be available for use on the page. To configure a subset of characters preloaded for a single font, see the [subsets](https://v6.docs.astro.build/en/reference/configuration-reference/#fontsubsets) property instead.
+	 * Determines when a font must be downloaded and used based on a specific [range of unicode characters](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/unicode-range). If a character on the page matches the configured range, the browser will download the font and all characters will be available for use on the page. To configure a subset of characters preloaded for a single font, see the [subsets](https://docs.astro.build/en/reference/configuration-reference/#fontsubsets) property instead.
 	 *
 	 * This can be useful for localization to avoid unnecessary font downloads when a specific part of your website uses a different alphabet and will be displayed with a separate font. For example, a website that offers both English and Japanese versions can prevent the browser from downloading the Japanese font on English versions of the page that do not contain any of the Japanese characters provided in `unicodeRange`.
 	 *
@@ -2664,7 +2730,7 @@ export interface AstroUserConfig<
 		 * Continue to use the `data-astro-prefetch` attribute on any `<a />` link on your site to opt in to prefetching.
 		 * Instead of appending a `<link>` tag to the head of the document or fetching the page with JavaScript, a `<script>` tag will be appended with the corresponding speculation rules.
 		 *
-		 * Client side prerendering requires browser support. If the Speculation Rules API is not supported, `prefetch` will fallback to the supported strategy.
+		 * Client side prerendering requires browser support. If the Speculation Rules API is not supported, `prefetch` will fall back to the supported strategy.
 		 *
 		 * See the [Prefetch Guide](https://docs.astro.build/en/guides/prefetch/) for more `prefetch` options and usage.
 		 */
@@ -2763,6 +2829,170 @@ export interface AstroUserConfig<
 		 * See the [experimental SVGO optimization docs](https://docs.astro.build/en/reference/experimental-flags/svg-optimization/) for more information.
 		 */
 		svgo?: boolean | SvgoConfig;
+
+		/**
+		 * @name experimental.cache
+		 * @type {object}
+		 * @default `undefined`
+		 * @description
+		 *
+		 * Enables route caching for SSR responses. Provides a platform-agnostic API
+		 * for caching rendered pages and API responses, with pluggable providers
+		 * that adapters can configure automatically.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { memoryCache } from 'astro/config';
+		 *
+		 * {
+		 *   experimental: {
+		 *     cache: {
+		 *       provider: memoryCache(),
+		 *     },
+		 *     routeRules: {
+		 *       '/blog/[...path]': { maxAge: 300, swr: 60 },
+		 *     },
+		 *   },
+		 * }
+		 * ```
+		 *
+		 * Use `Astro.cache.set()` in routes and `context.cache.set()` in middleware
+		 * or API routes to control caching per-request.
+		 */
+		cache?: {
+			/**
+			 * @name experimental.cache.provider
+			 * @type {import('../../core/cache/types.js').CacheProviderConfig}
+			 * @description
+			 *
+			 * The cache provider. Adapters typically set a default, but you can
+			 * override it with your own.
+			 *
+			 * Use the provider's config function to get type-safe configuration:
+			 *
+			 * ```js
+			 * import { memoryCache } from 'astro/config';
+			 *
+			 * export default defineConfig({
+			 *   experimental: {
+			 *     cache: { provider: memoryCache() },
+			 *   },
+			 * });
+			 * ```
+			 */
+			provider?: CacheProviderConfig;
+		};
+
+		/**
+		 * @name experimental.routeRules
+		 * @type {Record<string, RouteRule>}
+		 * @default `undefined`
+		 * @description
+		 *
+		 * Route patterns mapped to cache rules.
+		 * Uses the same `[param]` and `[...rest]` syntax as file-based routing.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { memoryCache } from 'astro/config';
+		 *
+		 * {
+		 *   experimental: {
+		 *     cache: { provider: memoryCache() },
+		 *     routeRules: {
+		 *       '/api/*': { swr: 600 },
+		 *       '/products/*': { maxAge: 3600, tags: ['products'] },
+		 *     },
+		 *   },
+		 * }
+		 * ```
+		 */
+		routeRules?: RouteRules;
+		/*
+		 * @name experimental.rustCompiler
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 6.0.0
+		 * @description
+		 *
+		 * Enables the experimental Rust-based Astro compiler (`@astrojs/compiler-rs`) as a replacement to the current Go compiler.
+		 *
+		 * This option requires installing the `@astrojs/compiler-rs` package manually in your project. This compiler is a work in progress and may not yet support all features of the current Go compiler, but it should offer improved performance and better error messages. This compiler is more strict than the previous Go compiler regarding invalid syntax. For instance, unclosed HTML tags or missing closing brackets will throw an error instead of being ignored.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   experimental: {
+		 *     rustCompiler: true,
+		 *   },
+		 * });
+		 * ```
+		 */
+		rustCompiler?: boolean;
+
+		/**
+		 * @name experimental.queuedRendering
+		 * @type {boolean | { poolSize?: number; cache?: boolean }}
+		 * @default `false`
+		 * @version 6.0.0
+		 * @description
+		 * Enable queue-based rendering engine instead of the default recursive rendering.
+		 *
+		 * This new rendering engine comes with a different set of features that you can tweak based on your needs.
+		 *
+		 * ```js
+		 * {
+		 *   experimental: {
+		 *     queuedRendering: {
+		 *       enabled: true
+		 *     }
+		 *   }
+		 * }
+		 * ```
+		 *
+		 * You can optionally configure the object pool size and HTMLString caching:
+		 *
+		 * ```js
+		 * {
+		 *   experimental: {
+		 *     queuedRendering: {
+		 *       enabled: true,
+		 *       poolSize: 1000,  // default: 1000 for static builds, 0 for SSR
+		 *       cache: false     // default: false (caching can hurt performance)
+		 *     }
+		 *   }
+		 * }
+		 * ```
+		 */
+		queuedRendering?: {
+			/**
+			 * @default `false`
+			 * @version 6.0.0
+			 * @description
+			 * Enables the queue-based rendering.
+			 */
+			enabled: boolean;
+			/**
+			 * @default 1000
+			 * @version 6.0.0
+			 * @description
+			 * Allows to change how many nodes should be saved in the pool. If 0 is provided, the pool is disabled.
+			 * The pool is disabled for dynamic pages, because server requests don't share the same memory.
+			 */
+			poolSize?: number;
+			/**
+			 * @default `false`
+			 * @version 6.0.0
+			 * @description
+			 * Enables HTMLString caching to deduplicate repeated HTML fragments during rendering.
+			 * When enabled, identical HTML strings (e.g., repeated `<li>` tags) share a single
+			 * `HTMLString` object instead of creating a new wrapper per occurrence.
+			 * This caching is disabled for dynamic pages.
+			 */
+			contentCache?: boolean;
+		};
 	};
 }
 

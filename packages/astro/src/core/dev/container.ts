@@ -12,7 +12,8 @@ import type { AstroSettings } from '../../types/astro.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
 import { createVite } from '../create-vite.js';
 import type { Logger } from '../logger/core.js';
-import { createRoutesList } from '../routing/manifest/create.js';
+import { createRoutesList } from '../routing/create-manifest.js';
+import { getPrerenderDefault } from '../../prerender/utils.js';
 import { syncInternal } from '../sync/index.js';
 import { warnMissingAdapter } from './adapter-validation.js';
 
@@ -77,6 +78,13 @@ export async function createContainer({
 		.map((r) => r.clientEntrypoint)
 		.filter(Boolean) as string[];
 
+	// Set the initial buildOutput default before runHookConfigDone, so that
+	// setAdapter() inside astro:config:done can upgrade it to 'server'.
+	// This matches the ordering in the build path (packages/astro/src/core/build/index.ts).
+	if (!settings.adapter?.adapterFeatures?.buildOutput) {
+		settings.buildOutput = getPrerenderDefault(settings.config) ? 'static' : 'server';
+	}
+
 	// Create the route manifest already outside of Vite so that `runHookConfigDone` can use it to inform integrations of the build output
 	await runHookConfigDone({ settings, logger, command: 'dev' });
 
@@ -91,8 +99,6 @@ export async function createContainer({
 		logger,
 		{
 			dev: true,
-			// If the adapter explicitly set a buildOutput, don't override it
-			skipBuildOutputAssignment: !!settings.adapter?.adapterFeatures?.buildOutput,
 		},
 	);
 	const viteConfig = await createVite(

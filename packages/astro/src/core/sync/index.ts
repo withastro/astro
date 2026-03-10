@@ -6,7 +6,8 @@ import colors from 'piccolore';
 import { createServer, type FSWatcher, type HotPayload, type ViteDevServer } from 'vite';
 import { syncFonts } from '../../assets/fonts/sync.js';
 import { CONTENT_TYPES_FILE } from '../../content/consts.js';
-import { getDataStoreFile, globalContentLayer } from '../../content/content-layer.js';
+import { getDataStoreFile } from '../../content/content-layer.js';
+import { globalContentLayer } from '../../content/instance.js';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { MutableDataStore } from '../../content/mutable-data-store.js';
 import { getContentPaths, globalContentConfigObserver } from '../../content/utils.js';
@@ -30,7 +31,7 @@ import {
 	isAstroError,
 } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
-import { createRoutesList } from '../routing/manifest/create.js';
+import { createRoutesList } from '../routing/create-manifest.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { normalizePath } from '../viteUtils.js';
 
@@ -230,7 +231,7 @@ async function createTempViteServer(
 			fsMod: fs,
 		},
 		logger,
-		{ dev: true, skipBuildOutputAssignment: true },
+		{ dev: true },
 	);
 
 	const tempViteServer = await createServer(
@@ -280,7 +281,7 @@ async function createTempViteServer(
  *
  * A non-zero process signal is emitted in case there's an error while generating content collection types.
  *
- * This should only be used when the callee already has an `AstroSetting`, otherwise use `sync()` instead.
+ * This should only be used when the callee already has an `AstroSetting`; otherwise, use `sync()` instead.
  * @internal
  *
  * @param {SyncOptions} options

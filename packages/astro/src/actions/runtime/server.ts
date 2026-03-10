@@ -10,6 +10,7 @@ import {
 } from '../../core/errors/errors-data.js';
 import { AstroError } from '../../core/errors/errors.js';
 import { removeTrailingForwardSlash } from '../../core/path.js';
+import { BodySizeLimitError, readBodyWithLimit } from '../../core/request-body.js';
 import type { APIContext } from '../../types/public/index.js';
 import { ACTION_QUERY_PARAMS, ACTION_RPC_ROUTE_PATTERN } from '../consts.js';
 import {
@@ -195,10 +196,14 @@ export function getActionContext(context: APIContext): AstroActionContext {
 					throw error;
 				}
 
+				const bodySizeLimit = pipeline.manifest.actionBodySizeLimit;
 				let input;
 				try {
-					input = await parseRequestBody(context.request);
+					input = await parseRequestBody(context.request, bodySizeLimit);
 				} catch (e) {
+					if (e instanceof ActionError) {
+						return { data: undefined, error: e };
+					}
 					if (e instanceof TypeError) {
 						return { data: undefined, error: new ActionError({ code: 'UNSUPPORTED_MEDIA_TYPE' }) };
 					}
@@ -250,16 +255,49 @@ function getCallerInfo(ctx: APIContext) {
 	return undefined;
 }
 
-async function parseRequestBody(request: Request) {
+async function parseRequestBody(request: Request, bodySizeLimit: number) {
 	const contentType = request.headers.get('content-type');
-	const contentLength = request.headers.get('Content-Length');
+	const contentLengthHeader = request.headers.get('content-length');
+	const contentLength = contentLengthHeader ? Number.parseInt(contentLengthHeader, 10) : undefined;
+	const hasContentLength = typeof contentLength === 'number' && Number.isFinite(contentLength);
 
 	if (!contentType) return undefined;
-	if (hasContentType(contentType, formContentTypes)) {
-		return await request.clone().formData();
+	if (hasContentLength && contentLength > bodySizeLimit) {
+		throw new ActionError({
+			code: 'CONTENT_TOO_LARGE',
+			message: `Request body exceeds ${bodySizeLimit} bytes`,
+		});
 	}
-	if (hasContentType(contentType, ['application/json'])) {
-		return contentLength === '0' ? undefined : await request.clone().json();
+	try {
+		if (hasContentType(contentType, formContentTypes)) {
+			if (!hasContentLength) {
+				const body = await readBodyWithLimit(request.clone(), bodySizeLimit);
+				const formRequest = new Request(request.url, {
+					method: request.method,
+					headers: request.headers,
+					body: toArrayBuffer(body),
+				});
+				return await formRequest.formData();
+			}
+			return await request.clone().formData();
+		}
+		if (hasContentType(contentType, ['application/json'])) {
+			if (contentLength === 0) return undefined;
+			if (!hasContentLength) {
+				const body = await readBodyWithLimit(request.clone(), bodySizeLimit);
+				if (body.byteLength === 0) return undefined;
+				return JSON.parse(new TextDecoder().decode(body));
+			}
+			return await request.clone().json();
+		}
+	} catch (e) {
+		if (e instanceof BodySizeLimitError) {
+			throw new ActionError({
+				code: 'CONTENT_TOO_LARGE',
+				message: `Request body exceeds ${bodySizeLimit} bytes`,
+			});
+		}
+		throw e;
 	}
 	throw new TypeError('Unsupported content type');
 }
@@ -443,4 +481,9 @@ export function serializeActionResult(res: SafeResult<any, any>): SerializedActi
 		contentType: 'application/json+devalue',
 		body,
 	};
+}
+function toArrayBuffer(buffer: Uint8Array): ArrayBuffer {
+	const copy = new Uint8Array(buffer.byteLength);
+	copy.set(buffer);
+	return copy.buffer;
 }

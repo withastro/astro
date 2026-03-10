@@ -29,10 +29,16 @@ describe('BindingImageService', () => {
 	});
 
 	it('returns 400 for unsupported format', async () => {
-		const res = await fixture.fetch('/_image?href=/placeholder.jpg&f=png');
+		const res = await fixture.fetch('/_image?href=/placeholder.jpg&f=tiff');
 		const text = await res.text();
 		assert.equal(res.status, 400);
-		assert.ok(text.includes('not supported'));
+		assert.ok(text.includes('Unsupported format'));
+	});
+
+	it('transforms local images to png', async () => {
+		const res = await fixture.fetch('/_image?href=/placeholder.jpg&f=png&w=100');
+		assert.equal(res.status, 200);
+		assert.equal(res.headers.get('content-type'), 'image/png');
 	});
 
 	it('transforms local images to webp', async () => {
