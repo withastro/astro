@@ -96,7 +96,7 @@ describe('Using Astro.request in SSR', () => {
 		assert.equal(data instanceof Array, true);
 	});
 
-	it('middleware gets the actual path sent in the request', async () => {
+	it('middleware gets the normalized path sent in the request', async () => {
 		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/this//is/my/////directory');
 		const response = await app.render(request);

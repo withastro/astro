@@ -4,7 +4,7 @@ Generate a GitHub issue comment from triage findings.
 
 **CRITICAL: You MUST always read `report.md` and produce a GitHub comment as your final output, regardless of what input files are available. Even if `report.md` is missing or empty, you must still produce a comment. In that case, produce a minimal comment stating that automated triage could not be completed.**
 
-**SCOPE: Your job is comment generation only. Finish your work once you've completed this workflow. Do NOT go further than this. It is no longer time to attempt reproduction, diagnosis, or fixing of the issue.**
+**SCOPE: Your job is comment generation only. Finish your work once you've completed this workflow. Do NOT go further than this. It is no longer time to attempt reproduction, diagnosis, or fixing of the issue. Do not spawn tasks/sub-agents.**
 
 ## Prerequisites
 
@@ -36,7 +36,7 @@ Generate and return a GitHub comment following the template below.
 The **Fix** line in the template has three possible forms. Choose the one that matches the triage outcome:
 
 1. **You created a fix:** Use `I was able to fix this issue.` and include the suggested fix link.
-2. **The issue is already fixed on main** (e.g. the user is on an older major version and the bug doesn't reproduce on current main): Use `This issue has already been fixed.` and tell the user how to get the fix (e.g. upgrade). Link the relevant upgrade guide if applicable: [v6](https://v6.docs.astro.build/en/guides/upgrade-to/v6/), [v5](https://docs.astro.build/en/guides/upgrade-to/v5/).
+2. **The issue is already fixed on main** (e.g. the user is on an older major version and the bug doesn't reproduce on current main): Use `This issue has already been fixed.` and tell the user how to get the fix (e.g. upgrade). Link the relevant upgrade guide if applicable: [v6](https://docs.astro.build/en/guides/upgrade-to/v6/), [v5](https://docs.astro.build/en/guides/upgrade-to/v5/).
 3. **You could not find or create a fix:** Use `I was unable to find a fix for this issue.` and give guidance or a best guess at where the fix might be.
 
 ### "Priority" Instructions

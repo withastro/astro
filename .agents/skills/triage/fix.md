@@ -4,6 +4,8 @@ Develop and verify a fix for a diagnosed Astro bug.
 
 **CRITICAL: You MUST always read `report.md` and append to `report.md` before finishing, regardless of outcome. Even if the fix attempt fails, you encounter errors, or you cannot resolve the bug — always update `report.md` with your findings. The orchestrator and downstream skills depend on this file to determine what happened.**
 
+**SCOPE: Do not spawn tasks/sub-agents.**
+
 ## Prerequisites
 
 These variables are referenced throughout this skill. They may be passed as args by an orchestrator, or inferred from the conversation when run standalone.

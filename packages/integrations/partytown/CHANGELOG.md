@@ -1,5 +1,11 @@
 # @astrojs/partytown
 
+## 2.1.5
+
+### Patch Changes
+
+- [#15820](https://github.com/withastro/astro/pull/15820) [`e20474b`](https://github.com/withastro/astro/commit/e20474b98c6d868ed9734f7eeb7564bffe8bfd77) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes broken publish
+
 ## 2.1.4
 
 ### Patch Changes

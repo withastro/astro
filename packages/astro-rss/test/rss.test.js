@@ -105,7 +105,7 @@ describe('getRssString', () => {
 		assertXmlDeepEqual(str, validXmlWithContentResult);
 	});
 
-	it('should generate on valid RSSFeedItem array with missing date', async () => {
+	it('should generate on valid RSSFeedItem array that is missing date', async () => {
 		const str = await getRssString({
 			title,
 			description,

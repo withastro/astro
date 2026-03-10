@@ -6,10 +6,10 @@ import {
 } from '../../i18n/utils.js';
 import type { Params, RewritePayload } from '../../types/public/common.js';
 import type { APIContext } from '../../types/public/context.js';
+import { DisabledAstroCache } from '../cache/runtime/noop.js';
 import { ASTRO_GENERATOR } from '../constants.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { getClientIpAddress } from '../routing/request.js';
 import { getOriginPathname } from '../routing/rewrite.js';
 import { sequence } from './sequence.js';
 
@@ -40,6 +40,14 @@ export type CreateContext = {
 	 * Initial value of the locals
 	 */
 	locals?: App.Locals;
+
+	/**
+	 * The client IP address. Must be provided by the adapter or platform from a
+	 * trusted source (e.g. socket address, platform-provided header).
+	 *
+	 * If not provided, accessing `context.clientAddress` will throw an error.
+	 */
+	clientAddress?: string;
 };
 
 /**
@@ -51,11 +59,11 @@ function createContext({
 	userDefinedLocales = [],
 	defaultLocale = '',
 	locals = {},
+	clientAddress,
 }: CreateContext): APIContext {
 	let preferredLocale: string | undefined = undefined;
 	let preferredLocaleList: string[] | undefined = undefined;
 	let currentLocale: string | undefined = undefined;
-	let clientIpAddress: string | undefined;
 	const url = new URL(request.url);
 	const route = url.pathname;
 
@@ -96,14 +104,10 @@ function createContext({
 			return getOriginPathname(request);
 		},
 		get clientAddress() {
-			if (clientIpAddress) {
-				return clientIpAddress;
+			if (clientAddress) {
+				return clientAddress;
 			}
-			clientIpAddress = getClientIpAddress(request);
-			if (!clientIpAddress) {
-				throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);
-			}
-			return clientIpAddress;
+			throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);
 		},
 		get locals() {
 			if (typeof locals !== 'object') {
@@ -115,6 +119,7 @@ function createContext({
 			throw new AstroError(AstroErrorData.LocalsReassigned);
 		},
 		session: undefined,
+		cache: new DisabledAstroCache(),
 		csp: undefined,
 	};
 	return Object.assign(context, {

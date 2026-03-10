@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    // TODO: remove when upgrading to TS 6
     "baseUrl": ".",
     "paths": {
       "@components/*": [
