@@ -33,11 +33,7 @@ import { NOOP_MODULE_ID } from './plugins/plugin-noop.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 import type { InputOption } from 'rollup';
 import { getSSRAssets } from './internal.js';
-import {
-	serverIslandPlaceholderMap,
-	serverIslandPlaceholderNameMap,
-	type ResolvedServerIslandData,
-} from '../server-islands/vite-plugin-server-islands.js';
+import { serverIslandPlaceholderMap } from '../server-islands/vite-plugin-server-islands.js';
 
 const PRERENDER_ENTRY_FILENAME_PREFIX = 'prerender-entry';
 
@@ -51,6 +47,11 @@ export interface ExtractedChunk {
 	moduleIds: string[];
 	prerender: boolean;
 }
+
+type BuildPostHook = (params: {
+	chunks: ExtractedChunk[];
+	mutate: (fileName: string, code: string, prerender: boolean) => void;
+}) => void | Promise<void>;
 
 /**
  * Extracts only the chunks that need post-build injection from RollupOutput.
@@ -165,6 +166,9 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 	const flatPlugins = buildPlugins.flat().filter(Boolean);
 	const plugins = [...flatPlugins, ...(viteConfig.plugins || [])];
 	let currentRollupInput: InputOption | undefined = undefined;
+	let buildPostHooks: BuildPostHook[] = [];
+	// Reference to the server islands plugin, captured during buildApp for the dedicated island build.
+	let serverIslandsPlugin: vite.Plugin | undefined = undefined;
 	plugins.push({
 		name: 'astro:resolve-input',
 		// When the rollup input is safe to update, we normalize it to always be an object
@@ -193,7 +197,12 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 			order: 'post',
 			async handler() {
 				// Inject manifest and content placeholders into extracted chunks
-				await runManifestInjection(opts, internals, internals.extractedChunks ?? []);
+				await runManifestInjection(
+					opts,
+					internals,
+					internals.extractedChunks ?? [],
+					buildPostHooks,
+				);
 
 				// Generation and cleanup
 				const prerenderOutputDir = new URL('./.prerender/', getServerOutputDirectory(settings));
@@ -341,19 +350,50 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				const prerenderChunks = extractRelevantChunks(prerenderOutputs, true);
 				prerenderOutput = undefined as any;
 
-				// Capture resolved server island data from the prerender build.
-				// When server islands are only used in prerendered pages, the SSR build
-				// leaves placeholders in its output. The prerender build resolves the
-				// island chunk filenames, which we store on internals for post-build patching.
-				const serverIslandsPlugin = builder.environments[
-					ASTRO_VITE_ENVIRONMENT_NAMES.ssr
-				].config.plugins.find((p: vite.Plugin) => p.name === 'astro:server-islands');
-				if (serverIslandsPlugin?.api?.getResolvedServerIslandData) {
-					const data: ResolvedServerIslandData =
-						serverIslandsPlugin.api.getResolvedServerIslandData();
-					if (data.resolvedImports.size > 0) {
-						internals.resolvedServerIslandImports = data.resolvedImports;
-						internals.serverIslandNameMap = data.nameMap;
+				const ssrPlugins =
+					builder.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr]?.config.plugins ?? [];
+				buildPostHooks = ssrPlugins
+					.map((plugin) =>
+						typeof plugin.api?.buildPostHook === 'function' ? plugin.api.buildPostHook : undefined,
+					)
+					.filter(Boolean) as BuildPostHook[];
+
+				// Capture the server islands plugin and run a dedicated build if islands were discovered.
+				serverIslandsPlugin = ssrPlugins.find(
+					(p: vite.Plugin) => p.name === 'astro:server-islands',
+				);
+
+				if (serverIslandsPlugin?.api?.getServerIslandMap) {
+					const islandMap: Map<string, string> = serverIslandsPlugin.api.getServerIslandMap();
+
+					if (islandMap.size > 0) {
+						// Build server island components as top-level entries into the SSR output dir.
+						// Using a dedicated environment so Rollup properly resolves all transitive
+						// dependencies — no fragile file copying needed.
+						const serverIslandsEnv =
+							builder.environments[ASTRO_VITE_ENVIRONMENT_NAMES.serverIslands];
+						const islandInputs = Object.fromEntries(
+							Array.from(islandMap.entries()).map(([name, resolvedPath]) => [name, resolvedPath]),
+						);
+						serverIslandsEnv.config.build.rollupOptions.input = islandInputs;
+
+						settings.timer.start('Server islands build');
+						let islandBuildOutput = await builder.build(serverIslandsEnv);
+						settings.timer.end('Server islands build');
+
+						// Extract the output filenames and store them on the plugin
+						const resolvedImports = new Map<string, string>();
+						const outputs = viteBuildReturnToRollupOutputs(islandBuildOutput);
+						for (const output of outputs) {
+							for (const chunk of output.output) {
+								if (chunk.type === 'chunk' && chunk.isEntry && chunk.name) {
+									resolvedImports.set(chunk.name, chunk.fileName);
+								}
+							}
+						}
+						islandBuildOutput = undefined as any;
+
+						serverIslandsPlugin.api.setResolvedIslandImports(resolvedImports);
 					}
 				}
 
@@ -431,6 +471,25 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					},
 				},
 			},
+			// Environment for building server island components as separate entry points.
+			// Uses NOOP_MODULE_ID as default input since Vite requires at least one.
+			// The real input is set dynamically in buildApp after SSR and prerender builds
+			// discover which components use server:defer.
+			[ASTRO_VITE_ENVIRONMENT_NAMES.serverIslands]: {
+				build: {
+					outDir: fileURLToPath(getServerOutputDirectory(settings)),
+					emptyOutDir: false,
+					ssr: true,
+					rollupOptions: {
+						input: NOOP_MODULE_ID,
+						output: {
+							format: 'esm',
+							entryFileNames: `${CHUNKS_PATH}[name]_[hash].mjs`,
+							chunkFileNames: `${CHUNKS_PATH}[name]_[hash].mjs`,
+						},
+					},
+				},
+			},
 		},
 	};
 
@@ -492,6 +551,7 @@ async function runManifestInjection(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
 	chunks: ExtractedChunk[],
+	buildPostHooks: BuildPostHook[],
 ) {
 	const mutations = new Map<string, { code: string; prerender: boolean }>();
 
@@ -507,99 +567,11 @@ async function runManifestInjection(
 		{ chunks, mutate },
 	);
 
-	// Patch SSR chunks that still have server island placeholders.
-	// This happens when server islands are only used in prerendered pages:
-	// the SSR build doesn't discover them and leaves placeholders, while the
-	// prerender build resolves the actual chunk filenames.
-	await serverIslandBuildPostHook(opts, internals, { chunks, mutate });
+	for (const buildPostHook of buildPostHooks) {
+		await buildPostHook({ chunks, mutate });
+	}
 
 	await writeMutatedChunks(opts, mutations);
-}
-
-/**
- * Post-build hook that patches SSR chunks containing server island placeholders.
- *
- * During build, the SSR environment's renderChunk always leaves server island
- * placeholders in place (since the prerender build may discover islands later).
- * This hook runs after all environments have built and handles two cases:
- *
- * 1. Islands were discovered (in prerender): Replace placeholders with real import
- *    maps and copy island component chunks from prerender output to server output.
- * 2. No islands found: Replace placeholders with empty maps.
- */
-async function serverIslandBuildPostHook(
-	opts: StaticBuildOptions,
-	internals: BuildInternals,
-	{
-		chunks,
-		mutate,
-	}: {
-		chunks: ExtractedChunk[];
-		mutate: (fileName: string, code: string, prerender: boolean) => void;
-	},
-) {
-	// Find SSR chunks that still have the placeholder (not prerender chunks)
-	const ssrChunkWithPlaceholder = chunks.find(
-		(c) => !c.prerender && c.code.includes(serverIslandPlaceholderMap),
-	);
-
-	if (!ssrChunkWithPlaceholder) {
-		return;
-	}
-
-	const resolvedImports = internals.resolvedServerIslandImports;
-	const nameMap = internals.serverIslandNameMap;
-
-	if (resolvedImports && resolvedImports.size > 0 && nameMap) {
-		// Server islands were discovered during the prerender build.
-		// Build the replacement map source and name map source.
-		// The island component chunks were emitted by the prerender build into .prerender/,
-		// so we need to copy them to the server output and construct import paths relative
-		// to the SSR chunk's location.
-		const isRelativeChunk = ssrChunkWithPlaceholder.fileName.includes('/');
-		const dots = isRelativeChunk ? '..' : '.';
-
-		let mapSource = 'new Map([';
-		for (const [islandName, fileName] of resolvedImports) {
-			mapSource += `\n\t['${islandName}', () => import('${dots}/${fileName}')],`;
-		}
-		mapSource += '\n])';
-
-		let nameMapSource = 'new Map(';
-		nameMapSource += `${JSON.stringify(Array.from(nameMap.entries()), null, 2)}`;
-		nameMapSource += '\n)';
-
-		const newCode = ssrChunkWithPlaceholder.code
-			.replace(serverIslandPlaceholderMap, mapSource)
-			.replace(serverIslandPlaceholderNameMap, nameMapSource);
-
-		mutate(ssrChunkWithPlaceholder.fileName, newCode, false);
-
-		// Copy island component chunks from prerender output to server output.
-		// The prerender build emitted these chunks into .prerender/ but the SSR
-		// entry needs them in the server output directory.
-		const { settings } = opts;
-		const serverOutputDir = getServerOutputDirectory(settings);
-		const prerenderOutputDir = new URL('./.prerender/', serverOutputDir);
-
-		for (const [_islandName, fileName] of resolvedImports) {
-			const srcPath = new URL(fileName, appendForwardSlash(prerenderOutputDir.toString()));
-			const destPath = new URL(fileName, appendForwardSlash(serverOutputDir.toString()));
-
-			if (fs.existsSync(srcPath)) {
-				const destDir = new URL('./', destPath);
-				await fs.promises.mkdir(destDir, { recursive: true });
-				await fs.promises.copyFile(srcPath, destPath);
-			}
-		}
-	} else {
-		// No server islands found — replace placeholders with empty maps
-		const newCode = ssrChunkWithPlaceholder.code
-			.replace(serverIslandPlaceholderMap, 'new Map()')
-			.replace(serverIslandPlaceholderNameMap, 'new Map()');
-
-		mutate(ssrChunkWithPlaceholder.fileName, newCode, false);
-	}
 }
 
 /**

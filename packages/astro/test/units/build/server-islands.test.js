@@ -1,15 +1,30 @@
 import assert from 'node:assert/strict';
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { AstroBuilder } from '../../../dist/core/build/index.js';
 import { parseRoute } from '../../../dist/core/routing/parse-route.js';
 import { createBasicSettings, defaultLogger } from '../test-utils.js';
-import { captureBuildOutput, virtualAstroModules } from './test-helpers.js';
+import { virtualAstroModules } from './test-helpers.js';
+
+async function readFilesRecursive(dir) {
+	const entries = await fs.readdir(dir, { withFileTypes: true });
+	const files = await Promise.all(
+		entries.map(async (entry) => {
+			const fullPath = path.join(dir, entry.name);
+			if (entry.isDirectory()) {
+				return readFilesRecursive(fullPath);
+			}
+			return [fullPath];
+		}),
+	);
+	return files.flat();
+}
 
 describe('Build: Server islands in prerendered pages', () => {
 	it('builds successfully when server:defer is only used in prerendered pages', async () => {
 		const root = new URL('./_temp-fixtures/', import.meta.url);
-		const capture = captureBuildOutput();
 
 		const settings = await createBasicSettings({
 			root: fileURLToPath(root),
@@ -53,7 +68,6 @@ describe('Build: Server islands in prerendered pages', () => {
 							'</html>',
 						].join('\n'),
 					}),
-					capture,
 				],
 			},
 		});
@@ -85,31 +99,24 @@ describe('Build: Server islands in prerendered pages', () => {
 				sync: false,
 			});
 			await builder.run();
-		} catch {
-			// Generation may fail since chunks aren't written to disk — that's OK,
-			// we only need the captured chunks to inspect the manifest.
 		} finally {
 			delete process.env.ASTRO_KEY;
 		}
 
-		// Find the server island manifest among captured chunks
-		let manifestContent = null;
-		for (const [name, chunk] of capture.chunks) {
-			if (name.includes('server-island-manifest') && chunk.type === 'chunk') {
-				manifestContent = chunk.code;
-				break;
-			}
-		}
+		const serverOutputDir = fileURLToPath(settings.config.build.server);
+		const outputFiles = await readFilesRecursive(serverOutputDir);
+		const manifestFilePath = outputFiles.find((file) => file.includes('server-island-manifest'));
+		const manifestContent = manifestFilePath ? await fs.readFile(manifestFilePath, 'utf-8') : null;
 
-		assert.ok(manifestContent, 'Server island manifest chunk should be captured');
+		assert.ok(manifestContent, 'Server island manifest chunk should be emitted');
 
 		assert.ok(
 			manifestContent.includes("'Island'"),
 			`Server island manifest should contain Island component but got:\n${manifestContent}`,
 		);
 		assert.ok(
-			!manifestContent.includes('new Map()'),
-			`Server island manifest should not have empty maps but got:\n${manifestContent}`,
+			!manifestContent.includes('$$server-islands-map$$'),
+			`Server island manifest should not include placeholders but got:\n${manifestContent}`,
 		);
 	});
 });

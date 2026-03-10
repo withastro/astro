@@ -114,22 +114,6 @@ export interface BuildInternals {
 		moduleIds: string[];
 		prerender: boolean;
 	}>;
-
-	/**
-	 * Resolved server island chunk filenames from the prerender build.
-	 * When server islands are only used in prerendered pages, the SSR build leaves
-	 * placeholders in its output. This data is populated during the prerender build's
-	 * generateBundle hook so the post-build phase can patch the SSR output.
-	 *
-	 * Map of island display name → chunk fileName (e.g. 'Island' → 'chunks/Island_abc123.mjs')
-	 */
-	resolvedServerIslandImports?: Map<string, string>;
-
-	/**
-	 * Server island name map from the build (resolvedPath → display name).
-	 * Populated alongside resolvedServerIslandImports during the prerender build.
-	 */
-	serverIslandNameMap?: Map<string, string>;
 }
 
 /**
