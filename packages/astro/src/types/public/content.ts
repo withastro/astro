@@ -1,5 +1,5 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
-import type * as rollup from 'rollup';
+import type * as rollup from 'rolldown';
 import type { DataEntry, RenderedContent } from '../../content/data-store.js';
 import type { LiveCollectionError } from '../../content/loaders/errors.js';
 import type { AstroComponentFactory } from '../../runtime/server/index.js';
