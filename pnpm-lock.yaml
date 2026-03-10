@@ -189,22 +189,22 @@ importers:
   examples/basics:
     dependencies:
       astro:
-        specifier: ^6.0.0-beta.20
+        specifier: ^6.0.0
         version: link:../../packages/astro
 
   examples/blog:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^5.0.0-beta.12
+        specifier: ^5.0.0
         version: link:../../packages/integrations/mdx
       '@astrojs/rss':
-        specifier: ^4.0.15-beta.4
-        version: 4.0.15
+        specifier: ^4.0.16
+        version: link:../../packages/astro-rss
       '@astrojs/sitemap':
-        specifier: ^3.6.1-beta.3
-        version: 3.7.0
+        specifier: ^3.7.1
+        version: link:../../packages/integrations/sitemap
       astro:
-        specifier: ^6.0.0-beta.20
+        specifier: ^6.0.0
         version: link:../../packages/astro
       sharp:
         specifier: ^0.34.3
@@ -213,16 +213,16 @@ importers:
   examples/component:
     devDependencies:
       astro:
-        specifier: ^6.0.0-beta.20
+        specifier: ^6.0.0
         version: link:../../packages/astro
 
   examples/container-with-vitest:
     dependencies:
       '@astrojs/react':
-        specifier: ^5.0.0-beta.4
+        specifier: ^5.0.0
         version: link:../../packages/integrations/react
       astro:
-        specifier: ^6.0.0-beta.20
+        specifier: ^6.0.0
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -244,7 +244,7 @@ importers:
   examples/framework-alpine:
     dependencies:
       '@astrojs/alpinejs':
-        specifier: ^0.5.0-beta.1
+        specifier: ^0.5.0
         version: link:../../packages/integrations/alpinejs
       '@types/alpinejs':
         specifier: ^3.13.11
@@ -253,25 +253,25 @@ importers:
         specifier: ^3.15.8
         version: 3.15.8
       astro:
-        specifier: ^6.0.0-beta.20
+        specifier: ^6.0.0
         version: link:../../packages/astro
 
   examples/framework-multiple:
     dependencies:
       '@astrojs/preact':
-        specifier: ^5.0.0-beta.5
+        specifier: ^5.0.0
         version: link:../../packages/integrations/preact
       '@astrojs/react':
-        specifier: ^5.0.0-beta.4
+        specifier: ^5.0.0
         version: link:../../packages/integrations/react
       '@astrojs/solid-js':
-        specifier: ^6.0.0-beta.2
+        specifier: ^6.0.0
         version: link:../../packages/integrations/solid
       '@astrojs/svelte':
-        specifier: ^8.0.0-beta.3
+        specifier: ^8.0.0
         version: link:../../packages/integrations/svelte
       '@astrojs/vue':
-        specifier: ^6.0.0-beta.1
+        specifier: ^6.0.0
         version: link:../../packages/integrations/vue
       '@types/react':
         specifier: ^18.3.28
@@ -280,7 +280,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.28)
       astro:
-        specifier: ^6.0.0-beta.20
+        specifier: ^6.0.0
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -304,13 +304,13 @@ importers:
   examples/framework-preact:
     dependencies:
       '@astrojs/preact':
-        specifier: ^5.0.0-beta.5
+        specifier: ^5.0.0
         version: link:../../packages/integrations/preact
       '@preact/signals':
         specifier: ^2.8.1
         version: 2.8.1(preact@10.28.4)
       astro:
-        specifier: ^6.0.0-beta.20
+        specifier: ^6.0.0
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -319,7 +319,7 @@ importers:
   examples/framework-react:
     dependencies:
       '@astrojs/react':
-        specifier: ^5.0.0-beta.4
+        specifier: ^5.0.0
         version: link:../../packages/integrations/react
       '@types/react':
         specifier: ^18.3.28
@@ -328,7 +328,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.28)
       astro:
-        specifier: ^6.0.0-beta.20
+        specifier: ^6.0.0
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -340,10 +340,10 @@ importers:
   examples/framework-solid:
     dependencies:
       '@astrojs/solid-js':
-        specifier: ^6.0.0-beta.2
+        specifier: ^6.0.0
         version: link:../../packages/integrations/solid
       astro:
-        specifier: ^6.0.0-beta.20
+        specifier: ^6.0.0
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.9.11
@@ -352,10 +352,10 @@ importers:
   examples/framework-svelte:
     dependencies:
       '@astrojs/svelte':
-        specifier: ^8.0.0-beta.3
+        specifier: ^8.0.0
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^6.0.0-beta.20
+        specifier: ^6.0.0
         version: link:../../packages/astro
       svelte:
         specifier: ^5.53.5
@@ -364,10 +364,10 @@ importers:
   examples/framework-vue:
     dependencies:
       '@astrojs/vue':
-        specifier: ^6.0.0-beta.1
+        specifier: ^6.0.0
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^6.0.0-beta.20
+        specifier: ^6.0.0
         version: link:../../packages/astro
       vue:
         specifier: ^3.5.29
@@ -376,40 +376,40 @@ importers:
   examples/hackernews:
     dependencies:
       '@astrojs/node':
-        specifier: ^10.0.0-beta.9
+        specifier: ^10.0.0
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^6.0.0-beta.20
+        specifier: ^6.0.0
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-        specifier: ^6.0.0-beta.20
+        specifier: ^6.0.0
         version: link:../../packages/astro
 
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^6.0.0-beta.20
+        specifier: ^6.0.0
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-        specifier: ^6.0.0-beta.20
+        specifier: ^6.0.0
         version: link:../../packages/astro
 
   examples/ssr:
     dependencies:
       '@astrojs/node':
-        specifier: ^10.0.0-beta.9
+        specifier: ^10.0.0
         version: link:../../packages/integrations/node
       '@astrojs/svelte':
-        specifier: ^8.0.0-beta.3
+        specifier: ^8.0.0
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^6.0.0-beta.20
+        specifier: ^6.0.0
         version: link:../../packages/astro
       svelte:
         specifier: ^5.53.5
@@ -418,7 +418,7 @@ importers:
   examples/starlog:
     dependencies:
       astro:
-        specifier: ^6.0.0-beta.20
+        specifier: ^6.0.0
         version: link:../../packages/astro
       sass:
         specifier: ^1.97.3
@@ -433,28 +433,28 @@ importers:
         specifier: ^18.17.8
         version: 18.19.130
       astro:
-        specifier: ^6.0.0-beta.20
+        specifier: ^6.0.0
         version: link:../../packages/astro
 
   examples/with-markdoc:
     dependencies:
       '@astrojs/markdoc':
-        specifier: ^1.0.0-beta.15
+        specifier: ^1.0.0
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^6.0.0-beta.20
+        specifier: ^6.0.0
         version: link:../../packages/astro
 
   examples/with-mdx:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^5.0.0-beta.12
+        specifier: ^5.0.0
         version: link:../../packages/integrations/mdx
       '@astrojs/preact':
-        specifier: ^5.0.0-beta.5
+        specifier: ^5.0.0
         version: link:../../packages/integrations/preact
       astro:
-        specifier: ^6.0.0-beta.20
+        specifier: ^6.0.0
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -463,13 +463,13 @@ importers:
   examples/with-nanostores:
     dependencies:
       '@astrojs/preact':
-        specifier: ^5.0.0-beta.5
+        specifier: ^5.0.0
         version: link:../../packages/integrations/preact
       '@nanostores/preact':
         specifier: ^1.0.0
         version: 1.0.0(nanostores@1.1.1)(preact@10.28.4)
       astro:
-        specifier: ^6.0.0-beta.20
+        specifier: ^6.0.0
         version: link:../../packages/astro
       nanostores:
         specifier: ^1.1.1
@@ -481,7 +481,7 @@ importers:
   examples/with-tailwindcss:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^5.0.0-beta.12
+        specifier: ^5.0.0
         version: link:../../packages/integrations/mdx
       '@tailwindcss/vite':
         specifier: ^4.2.1
@@ -490,7 +490,7 @@ importers:
         specifier: ^1.9.0
         version: 1.9.0
       astro:
-        specifier: ^6.0.0-beta.20
+        specifier: ^6.0.0
         version: link:../../packages/astro
       canvas-confetti:
         specifier: ^1.9.4
@@ -502,7 +502,7 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^6.0.0-beta.20
+        specifier: ^6.0.0
         version: link:../../packages/astro
       vitest:
         specifier: ^3.2.4
@@ -6702,7 +6702,7 @@ importers:
   packages/language-tools/astro-check:
     dependencies:
       '@astrojs/language-server':
-        specifier: ^2.16.1-beta.1
+        specifier: ^2.16.1
         version: link:../language-server
       chokidar:
         specifier: ^4.0.3
@@ -6899,7 +6899,7 @@ importers:
         version: 0.14.1
     devDependencies:
       '@astrojs/language-server':
-        specifier: ^2.16.1-alpha.0
+        specifier: ^2.16.1
         version: link:../language-server
       '@astrojs/ts-plugin':
         specifier: ^1.10.6
@@ -7267,12 +7267,6 @@ packages:
         optional: true
       prettier-plugin-astro:
         optional: true
-
-  '@astrojs/rss@4.0.15':
-    resolution: {integrity: sha512-uXO/k6AhRkIDXmRoc6xQpoPZrimQNUmS43X4+60yunfuMNHtSRN5e/FiSi7NApcZqmugSMc5+cJi8ovqgO+qIg==}
-
-  '@astrojs/sitemap@3.7.0':
-    resolution: {integrity: sha512-+qxjUrz6Jcgh+D5VE1gKUJTA3pSthuPHe6Ao5JCxok794Lewx8hBFaWHtOnN0ntb2lfOf7gvOi9TefUswQ/ZVA==}
 
   '@astrojs/solid-js@5.1.3':
     resolution: {integrity: sha512-KxfYt4y1d7BuSw6EsN1EaPoGYsIES7bEI6AtTbncuabRUUMZs+mOWOeOdmgnwVLj+jbNbhBjUZsqr77eUviZdw==}
@@ -10169,9 +10163,6 @@ packages:
 
   '@types/node@12.20.55':
     resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
-
-  '@types/node@17.0.45':
-    resolution: {integrity: sha512-w+tIMs3rq2afQdsPJlODhoUEKzFP1ayaoyl1CcnwtIlsVe7K7bA1NGm4s3PraqTLlXnbIN84zuBlxBWo1u9BLw==}
 
   '@types/node@18.19.130':
     resolution: {integrity: sha512-GRaXQx6jGfL8sKfaIDD6OupbIHBr9jv7Jnaml9tB7l4v068PAOXqfcujMMo5PhbIs6ggR1XODELqahT2R8v0fg==}
@@ -14805,11 +14796,6 @@ packages:
   sisteransi@1.0.5:
     resolution: {integrity: sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg==}
 
-  sitemap@8.0.3:
-    resolution: {integrity: sha512-9Ew1tR2WYw8RGE2XLy7GjkusvYXy8Rg6y8TYuBuQMfIEdGcWoJpY2Wr5DzsEiL/TKCw56+YKTCCUHglorEYK+A==}
-    engines: {node: '>=14.0.0', npm: '>=6.0.0'}
-    hasBin: true
-
   sitemap@9.0.0:
     resolution: {integrity: sha512-J/SU27FJ+I52TcDLKZzPRRVQUMj0Pp1i/HLb2lrkU+hrMLM+qdeRjdacrNxnSW48Waa3UcEOGOdX1+0Lob7TgA==}
     engines: {node: '>=20.19.5', npm: '>=10.8.2'}
@@ -16311,17 +16297,6 @@ snapshots:
       prettier-plugin-astro: 0.14.1
     transitivePeerDependencies:
       - typescript
-
-  '@astrojs/rss@4.0.15':
-    dependencies:
-      fast-xml-parser: 5.4.1
-      piccolore: 0.1.3
-
-  '@astrojs/sitemap@3.7.0':
-    dependencies:
-      sitemap: 8.0.3
-      stream-replace-string: 2.0.0
-      zod: 3.25.76
 
   '@astrojs/solid-js@5.1.3(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(solid-js@1.9.11)(tsx@4.21.0)(yaml@2.8.2)':
     dependencies:
@@ -19234,8 +19209,6 @@ snapshots:
       '@types/unist': 3.0.3
 
   '@types/node@12.20.55': {}
-
-  '@types/node@17.0.45': {}
 
   '@types/node@18.19.130':
     dependencies:
@@ -24836,13 +24809,6 @@ snapshots:
       totalist: 3.0.1
 
   sisteransi@1.0.5: {}
-
-  sitemap@8.0.3:
-    dependencies:
-      '@types/node': 17.0.45
-      '@types/sax': 1.2.7
-      arg: 5.0.2
-      sax: 1.4.4
 
   sitemap@9.0.0:
     dependencies:
