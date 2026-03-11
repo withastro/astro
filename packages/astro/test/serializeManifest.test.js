@@ -2,7 +2,6 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { ServerOnlyModule } from '../dist/core/errors/errors-data.js';
-import { AstroError } from '../dist/core/errors/index.js';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
 
