@@ -1,4 +1,4 @@
-import { transformWithEsbuild, transformWithOxc } from 'vite';
+import { transformWithOxc } from 'vite';
 import { type CompileProps, type CompileResult, compile } from '../core/compile/index.js';
 import type { Logger } from '../core/logger/core.js';
 import type { AstroConfig } from '../types/public/config.js';
@@ -116,14 +116,14 @@ async function enhanceCompileError({
 		if (lineText && !frontmatter.includes(lineText)) throw err;
 
 		try {
-			await transformWithEsbuild(frontmatter, id, {
-				loader: 'ts',
+			await transformWithOxc(frontmatter, id, {
 				target: 'esnext',
 				sourcemap: false,
 			});
 		} catch (frontmatterErr: any) {
 			// Improve the error by replacing the phrase "unexpected end of file"
 			// with "unexpected end of frontmatter" in the esbuild error message.
+			console.log('ERROROROROR', frontmatterErr);
 			if (frontmatterErr?.message) {
 				frontmatterErr.message = frontmatterErr.message.replace(
 					'end of file',

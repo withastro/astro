@@ -55,7 +55,7 @@ const name = 'world
 				'/src/components/index.astro',
 			);
 		} catch (e) {
-			assert.equal(e.message.includes('Unterminated string literal'), true);
+			assert.equal(e.message.includes('Unterminated string'), true);
 		}
 		assert.equal(result, undefined);
 	});

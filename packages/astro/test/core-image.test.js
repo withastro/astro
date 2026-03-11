@@ -1192,7 +1192,7 @@ describe('astro:image', () => {
 			let $script = $('script');
 
 			// Find image
-			const regex = /src:"([^"]*)/;
+			const regex = /src:`([^`]*)/;
 			const imageSrc = regex.exec($script.html())[1];
 			const data = await fixture.readFile(imageSrc, null);
 			assert.equal(data instanceof Buffer, true);

@@ -132,7 +132,7 @@ describe('Server islands', () => {
 					});
 					assert.equal(true, false, 'should not have succeeded');
 				} catch (err) {
-					assert.equal(err.title, 'Cannot use Server Islands without an adapter.');
+					assert.equal(err.errors[0].title, 'Cannot use Server Islands without an adapter.');
 				}
 			});
 		});
