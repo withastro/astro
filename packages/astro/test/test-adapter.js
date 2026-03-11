@@ -106,6 +106,8 @@ export default function ({
 													createApp: (streaming) => new MyApp(manifest, streaming)
 												};
 											}
+											
+											export default createExports;
 										`,
 										};
 									},
