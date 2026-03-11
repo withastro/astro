@@ -31,7 +31,6 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 	loader: ModuleLoader;
 	manifestData: RoutesList;
 	currentRenderContext: RenderContext | undefined = undefined;
-	resolvedPathname: string | undefined = undefined;
 	constructor(
 		manifest: SSRManifest,
 		streaming = true,
@@ -119,10 +118,7 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 	}
 
 	async createRenderContext(payload: CreateRenderContext): Promise<RenderContext> {
-		this.currentRenderContext = await super.createRenderContext({
-			...payload,
-			pathname: this.resolvedPathname ?? payload.pathname,
-		});
+		this.currentRenderContext = await super.createRenderContext(payload);
 		return this.currentRenderContext;
 	}
 
@@ -184,7 +180,6 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 					throw new Error('No route matched, and default 404 route was not found.');
 				}
 
-				self.resolvedPathname = matchedRoute.resolvedPathname;
 				const request = createRequest({
 					url,
 					headers: incomingRequest.headers,

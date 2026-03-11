@@ -21,7 +21,7 @@ export interface RouteOptions {
 	readonly component: string;
 	/**
 	 * Whether this route should be prerendered. If the route has an explicit `prerender` export,
-	 * the value will be passed here. Otherwise, it's undefined and will fallback to a prerender
+	 * the value will be passed here. Otherwise, it's undefined and will fall back to a prerender
 	 * default depending on the `output` option.
 	 */
 	prerender?: boolean;
@@ -147,7 +147,7 @@ export interface AstroAdapterClientConfig {
 interface AdapterExplicitProperties {
 	/**
 	 * @deprecated `entrypointResolution: "explicit"` is deprecated. `entrypointResolution: "auto"` will become the default,
-	 * and only, behavior in a future major version. See [how to migrate](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#deprecated-createexports-and-start-adapter-api).
+	 * and only, behavior in a future major version. See [how to migrate](https://docs.astro.build/en/guides/upgrade-to/v6/#deprecated-createexports-and-start-adapter-api).
 	 *
 	 * Specifies the method Astro will use to resolve the server entrypoint: `"auto"` (recommended)
 	 * or `"explicit"` (default, but deprecated):

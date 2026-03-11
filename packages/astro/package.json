@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "6.0.0-beta.18",
+  "version": "6.0.3",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -117,7 +117,7 @@
     "test:integration": "astro-scripts test \"test/*.test.js\""
   },
   "dependencies": {
-    "@astrojs/compiler": "^3.0.0-beta.1",
+    "@astrojs/compiler": "^3.0.0",
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
@@ -158,6 +158,7 @@
     "shiki": "^4.0.0",
     "smol-toml": "^1.6.0",
     "svgo": "^4.0.0",
+    "tinyclip": "^0.1.6",
     "tinyexec": "^1.0.2",
     "tinyglobby": "^0.2.15",
     "tsconfck": "^3.1.6",

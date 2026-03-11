@@ -74,7 +74,7 @@ export interface RenderOptions {
 	/**
 	 * A custom fetch function for retrieving prerendered pages - 404 or 500.
 	 *
-	 * If not provided, Astro will fallback to its default behavior for fetching error pages.
+	 * If not provided, Astro will fall back to its default behavior for fetching error pages.
 	 *
 	 * When a dynamic route is matched but ultimately results in a 404, this function will be used
 	 * to fetch the prerendered 404 page if available. Similarly, it may be used to fetch a
@@ -469,7 +469,12 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				status: 404,
 			});
 		}
-		const pathname = this.getPathnameFromRequest(request);
+		let pathname = this.getPathnameFromRequest(request);
+		// In dev, the route may have matched a normalized pathname (after .html stripping).
+		// Apply the same normalization for correct param extraction.
+		if (this.isDev()) {
+			pathname = pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
+		}
 		const defaultStatus = this.getDefaultStatusCode(routeData, pathname);
 
 		let response;
@@ -728,9 +733,17 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				: originalResponse.status;
 
 		try {
-			// this function could throw an error...
+			// this function could throw an error if the headers are immutable...
 			originalResponse.headers.delete('Content-type');
-		} catch {}
+			// Framing headers describe the original response's body encoding/size and must
+			// not carry over to the error page response which has a different body.
+			originalResponse.headers.delete('Content-Length');
+			originalResponse.headers.delete('Transfer-Encoding');
+		} catch {
+			// Headers may be immutable (e.g. when the Response was constructed by a fetch).
+			// In that case, the loop below still copies from originalResponse.headers,
+			// so we need to filter out framing headers there instead.
+		}
 		// Build merged headers using append() to preserve multi-value headers (e.g. Set-Cookie).
 		// Headers from the original response take priority over new response headers for
 		// single-value headers, but we use append to avoid collapsing multi-value entries.

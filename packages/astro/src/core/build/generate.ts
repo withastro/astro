@@ -80,7 +80,7 @@ export async function generatePages(
 		prerenderer = settingsPrerenderer;
 	}
 
-	// Setup the prerenderer
+	// Set up the prerenderer
 	await prerenderer.setup?.();
 
 	const verb = ssr ? 'prerendering' : 'generating';
@@ -186,6 +186,24 @@ export async function generatePages(
 				routeToHeaders,
 				logger,
 			);
+		}
+	}
+
+	// After generation, propagate distURL from the deserialized routes (used during generation)
+	// back to the original routes in allPages. The prerenderer operates on deserialized route
+	// objects (reconstructed from the serialized manifest), so distURL mutations during generation
+	// don't affect the original route objects that are later passed to the astro:build:done hook.
+	for (const { route: generatedRoute } of filteredPaths) {
+		if (generatedRoute.distURL && generatedRoute.distURL.length > 0) {
+			for (const pageData of Object.values(options.allPages)) {
+				if (
+					pageData.route.route === generatedRoute.route &&
+					pageData.route.component === generatedRoute.component
+				) {
+					pageData.route.distURL = generatedRoute.distURL;
+					break;
+				}
+			}
 		}
 	}
 
