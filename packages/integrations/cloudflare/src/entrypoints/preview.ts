@@ -5,6 +5,8 @@ import {
 	type CLIShortcut,
 	type ResolvedServerUrls,
 } from 'vite';
+import fs from 'node:fs';
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { cloudflare as cfVitePlugin } from '@cloudflare/vite-plugin';
 import type * as http from 'node:http';
@@ -22,6 +24,16 @@ const createPreviewServer: CreatePreviewServer = async ({
 }) => {
 	const startServerTime = performance.now();
 	let previewServer: VitePreviewServer;
+
+	// Check that the build output from @cloudflare/vite-plugin exists before starting
+	// the preview server. Without this, a missing build produces a cryptic ENOENT error.
+	const rootPath = fileURLToPath(root);
+	const deployConfigPath = path.join(rootPath, '.wrangler', 'deploy', 'config.json');
+	if (!fs.existsSync(deployConfigPath)) {
+		throw new Error(
+			`The Cloudflare build output does not exist. You must run \`astro build\` before previewing.`,
+		);
+	}
 
 	try {
 		previewServer = await preview({

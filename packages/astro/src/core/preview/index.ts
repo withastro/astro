@@ -66,6 +66,17 @@ export default async function preview(inlineConfig: AstroInlineConfig): Promise<
 			`[preview] The ${settings.adapter.name} adapter does not support the preview command.`,
 		);
 	}
+
+	// Check that the server build output exists before delegating to the adapter.
+	// Without this check, adapters may throw cryptic errors (e.g. ENOENT for missing
+	// internal files) when the user hasn't run `astro build` first.
+	if (!fs.existsSync(settings.config.build.server)) {
+		const serverPath = fileURLToPath(settings.config.build.server);
+		throw new Error(
+			`[preview] The server output directory ${serverPath} does not exist. Did you run \`astro build\`?`,
+		);
+	}
+
 	// We need to use require.resolve() here so that advanced package managers like pnpm
 	// don't treat this as a dependency of Astro itself. This correctly resolves the
 	// preview entrypoint of the integration package, relative to the user's project root.
