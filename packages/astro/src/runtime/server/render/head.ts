@@ -1,6 +1,6 @@
 import type { SSRResult } from '../../../types/public/internal.js';
 import { markHTMLString } from '../escape.js';
-import { renderCspContent } from './csp.js';
+import { CSP_META_PLACEHOLDER } from './csp.js';
 import type { MaybeRenderHeadInstruction, RenderHeadInstruction } from './instruction.js';
 import { createRenderInstruction } from './instruction.js';
 import { renderElement } from './util.js';
@@ -34,12 +34,15 @@ export function renderAllHeadContent(result: SSRResult) {
 	result._metadata.hasRenderedHead = true;
 	let content = '';
 	if (result.shouldInjectCspMetaTags && result.cspDestination === 'meta') {
+		// Emit a placeholder that will be replaced with the final CSP content
+		// after the full page has been rendered. This ensures that hashes
+		// computed during body rendering (e.g. SVG inline styles) are included.
 		content += renderElement(
 			'meta',
 			{
 				props: {
 					'http-equiv': 'content-security-policy',
-					content: renderCspContent(result),
+					content: CSP_META_PLACEHOLDER,
 				},
 				children: '',
 			},

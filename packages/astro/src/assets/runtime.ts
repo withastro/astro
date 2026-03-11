@@ -1,3 +1,6 @@
+import { encodeBase64 } from '@oslojs/encoding';
+import { ALGORITHMS } from '../core/csp/config.js';
+import type { SSRResult } from '../types/public/internal.js';
 import {
 	createComponent,
 	render,
@@ -10,10 +13,39 @@ export interface SvgComponentProps {
 	meta: ImageMetadata;
 	attributes: Record<string, string>;
 	children: string;
+	/** Text content of any `<style>` elements embedded in the SVG */
+	styles?: string[];
 }
 
-export function createSvgComponent({ meta, attributes, children }: SvgComponentProps) {
-	const Component = createComponent((_, props) => {
+const encoder = new TextEncoder();
+
+/**
+ * Compute a CSP hash for the given text using the Web Crypto API.
+ * Uses the same format as `generateCspDigest` in core/encryption.ts
+ * but avoids importing from that module to prevent pulling in Node.js-specific code.
+ */
+async function hashForCsp(
+	content: string,
+	algorithm: NonNullable<SSRResult['cspAlgorithm']>,
+): Promise<string> {
+	const hashBuffer = await crypto.subtle.digest(algorithm, encoder.encode(content));
+	const hash = encodeBase64(new Uint8Array(hashBuffer));
+	return `${ALGORITHMS[algorithm]}${hash}`;
+}
+
+export function createSvgComponent({ meta, attributes, children, styles }: SvgComponentProps) {
+	const Component = createComponent(async (result: SSRResult, props) => {
+		// When CSP is enabled, hash any embedded SVG <style> contents
+		// and register them so the CSP policy includes them.
+		if (styles && styles.length > 0 && result.shouldInjectCspMetaTags && result.cspAlgorithm) {
+			for (const style of styles) {
+				const hash = await hashForCsp(style, result.cspAlgorithm);
+				if (!result._metadata.extraStyleHashes.includes(hash)) {
+					result._metadata.extraStyleHashes.push(hash);
+				}
+			}
+		}
+
 		const normalizedProps = normalizeProps(attributes, props);
 
 		return render`<svg${spreadAttributes(normalizedProps)}>${unescapeHTML(children)}</svg>`;

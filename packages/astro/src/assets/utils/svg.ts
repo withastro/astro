@@ -6,6 +6,32 @@ import type { SvgComponentProps } from '../runtime.js';
 import { dropAttributes } from '../runtime.js';
 import type { ImageMetadata } from '../types.js';
 
+/**
+ * Recursively collects the text content of all `<style>` elements
+ * found in the ultrahtml AST children array.
+ */
+function collectStyleContents(children: any[]): string[] {
+	const styles: string[] = [];
+	for (const child of children) {
+		if (child.type === 1 /* Element */ && child.name === 'style') {
+			// Collect text nodes (type 2) inside the <style> element
+			let text = '';
+			for (const textNode of child.children ?? []) {
+				if (textNode.type === 2 /* Text */ && textNode.value) {
+					text += textNode.value;
+				}
+			}
+			if (text) {
+				styles.push(text);
+			}
+		}
+		if (child.children) {
+			styles.push(...collectStyleContents(child.children));
+		}
+	}
+	return styles;
+}
+
 function parseSvg({
 	path,
 	contents,
@@ -40,8 +66,9 @@ function parseSvg({
 	}
 	const { attributes, children } = svgNode;
 	const body = renderSync({ ...root, children });
+	const styles = collectStyleContents(children);
 
-	return { attributes, body };
+	return { attributes, body, styles };
 }
 
 export function makeSvgComponent(
@@ -50,7 +77,11 @@ export function makeSvgComponent(
 	svgoConfig: AstroConfig['experimental']['svgo'],
 ): string {
 	const file = typeof contents === 'string' ? contents : contents.toString('utf-8');
-	const { attributes, body: children } = parseSvg({
+	const {
+		attributes,
+		body: children,
+		styles,
+	} = parseSvg({
 		path: meta.fsPath,
 		contents: file,
 		svgoConfig,
@@ -59,6 +90,7 @@ export function makeSvgComponent(
 		meta,
 		attributes: dropAttributes(attributes),
 		children,
+		styles,
 	};
 
 	return `import { createSvgComponent } from 'astro/assets/runtime';
@@ -74,12 +106,16 @@ export function parseSvgComponentData(
 	meta: ImageMetadata,
 	contents: Buffer | string,
 	svgoConfig: AstroConfig['experimental']['svgo'],
-): { attributes: Record<string, string>; children: string } {
+): { attributes: Record<string, string>; children: string; styles: string[] } {
 	const file = typeof contents === 'string' ? contents : contents.toString('utf-8');
-	const { attributes, body: children } = parseSvg({
+	const {
+		attributes,
+		body: children,
+		styles,
+	} = parseSvg({
 		path: meta.fsPath,
 		contents: file,
 		svgoConfig,
 	});
-	return { attributes: dropAttributes(attributes), children };
+	return { attributes: dropAttributes(attributes), children, styles };
 }

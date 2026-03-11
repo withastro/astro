@@ -2,7 +2,7 @@ import type { RouteData, SSRResult } from '../../../types/public/internal.js';
 import { renderToAsyncIterable, renderToReadableStream, renderToString } from './astro/render.js';
 import { encoder } from './common.js';
 import { type NonAstroPageComponent, renderComponentToString } from './component.js';
-import { renderCspContent } from './csp.js';
+import { renderCspContent, replaceCspMetaPlaceholder } from './csp.js';
 import type { AstroComponentFactory } from './index.js';
 import { isDeno, isNode } from './util.js';
 import { isAstroComponentFactory } from './astro/factory.js';
@@ -76,6 +76,10 @@ export async function renderPage(
 			);
 		}
 
+		// Replace the CSP meta placeholder with the final CSP content now
+		// that the full page has been rendered and all hashes are collected.
+		str = replaceCspMetaPlaceholder(str, result);
+
 		const bytes = encoder.encode(str);
 		const headers = new Headers([
 			['Content-Type', 'text/html'],
@@ -124,6 +128,20 @@ export async function renderPage(
 
 	// If the Astro component returns a Response on init, return that response
 	if (body instanceof Response) return body;
+
+	// Replace the CSP meta placeholder with the final CSP content now
+	// that the full page has been rendered and all hashes are collected.
+	// For streaming bodies with meta CSP destination, consume the stream
+	// into a string to perform the replacement.
+	if (typeof body === 'string') {
+		body = replaceCspMetaPlaceholder(body, result);
+	} else if (result.shouldInjectCspMetaTags && result.cspDestination === 'meta') {
+		const response = new Response(body as any);
+		let text = await response.text();
+		text = replaceCspMetaPlaceholder(text, result);
+		body = text;
+		streaming = false;
+	}
 
 	// Create final response from body
 	const init = result.response;

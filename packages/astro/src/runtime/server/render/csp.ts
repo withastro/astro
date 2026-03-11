@@ -1,5 +1,23 @@
 import type { SSRResult } from '../../../types/public/index.js';
 
+/**
+ * A unique placeholder used in the CSP `<meta>` tag during rendering.
+ * After the full page has been rendered (so that all body-level hashes
+ * have been collected), `replaceCspMetaPlaceholder` swaps this marker
+ * for the real CSP directives.
+ */
+export const CSP_META_PLACEHOLDER = '<!--astro:csp-placeholder-->';
+
+/**
+ * Replace the CSP placeholder in a fully-rendered page string with the
+ * actual CSP content.  Returns the original string untouched when the
+ * placeholder is not present (e.g. `header` destination or CSP disabled).
+ */
+export function replaceCspMetaPlaceholder(html: string, result: SSRResult): string {
+	if (!html.includes(CSP_META_PLACEHOLDER)) return html;
+	return html.replace(CSP_META_PLACEHOLDER, renderCspContent(result));
+}
+
 export function renderCspContent(result: SSRResult): string {
 	const finalScriptHashes = new Set();
 	const finalStyleHashes = new Set();
