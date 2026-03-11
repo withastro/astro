@@ -18,7 +18,7 @@ describe('head injection', () => {
 					<div id="other">Other</div>
 				`,
 				'/src/common/head.js': `
-					// astro-head-inject
+					const $$astro_head_inject = true;
 					import Other from '../components/Other.astro';
 					import {
 						createComponent,
@@ -96,7 +96,7 @@ describe('head injection', () => {
 					<div id="other">Other</div>
 				`,
 				'/src/common/head.js': `
-					// astro-head-inject
+					const $$astro_head_inject = true;
 					import Other from '../components/Other.astro';
 					import {
 						createComponent,

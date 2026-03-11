@@ -45,7 +45,6 @@ export async function compileAstro({
 				compilerOptions: {
 					// Ensure client:only imports are treeshaken
 					verbatimModuleSyntax: false,
-					importsNotUsedAsValues: 'remove',
 				},
 			},
 		});
