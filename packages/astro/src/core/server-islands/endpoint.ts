@@ -84,12 +84,12 @@ export async function getRequestData(
 				const data = JSON.parse(raw);
 
 				// Validate that slots is not plaintext
-				if ('slots' in data && typeof data.slots === 'object') {
+				if (Object.hasOwn(data, 'slots') && typeof data.slots === 'object') {
 					return badRequest('Plaintext slots are not allowed. Slots must be encrypted.');
 				}
 
 				// Validate that componentExport is not plaintext
-				if ('componentExport' in data && typeof data.componentExport === 'string') {
+				if (Object.hasOwn(data, 'componentExport') && typeof data.componentExport === 'string') {
 					return badRequest(
 						'Plaintext componentExport is not allowed. componentExport must be encrypted.',
 					);

@@ -109,15 +109,26 @@ export default async function astroPluginRoutes({
 					routeData: serializeRouteData(r, settings.config.trailingSlash),
 				};
 			});
-			let environment = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
-			const virtualMod = environment.moduleGraph.getModuleById(ASTRO_ROUTES_MODULE_ID_RESOLVED);
-			if (!virtualMod) return;
+			const environmentsToInvalidate = [];
+			for (const name of [
+				ASTRO_VITE_ENVIRONMENT_NAMES.ssr,
+				ASTRO_VITE_ENVIRONMENT_NAMES.prerender,
+			] as const) {
+				const environment = server.environments[name];
+				if (environment) {
+					environmentsToInvalidate.push(environment);
+				}
+			}
 
-			environment.moduleGraph.invalidateModule(virtualMod);
+			for (const environment of environmentsToInvalidate) {
+				const virtualMod = environment.moduleGraph.getModuleById(ASTRO_ROUTES_MODULE_ID_RESOLVED);
+				if (!virtualMod) continue;
 
-			// Signal that routes have changed so running apps can update
-			// NOTE: Consider adding debouncing here if rapid file changes cause performance issues
-			environment.hot.send('astro:routes-updated', {});
+				environment.moduleGraph.invalidateModule(virtualMod);
+				// Signal that routes have changed so running apps can update
+				// NOTE: Consider adding debouncing here if rapid file changes cause performance issues
+				environment.hot.send('astro:routes-updated', {});
+			}
 		}
 	}
 	return {

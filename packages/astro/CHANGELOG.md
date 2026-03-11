@@ -1,5 +1,29 @@
 # astro
 
+## 6.0.3
+
+### Patch Changes
+
+- [#15711](https://github.com/withastro/astro/pull/15711) [`b2bd27b`](https://github.com/withastro/astro/commit/b2bd27bcb605d1e44e94ab922a8d7d2aa685149d) Thanks [@OliverSpeir](https://github.com/OliverSpeir)! - Improves Astro core's dev environment handling for prerendered routes by ensuring route/CSS updates and prerender middleware behavior work correctly across both SSR and prerender environments.
+
+  This enables integrations that use Astro's prerender dev environment (such as Cloudflare with `prerenderEnvironment: 'node'`) to get consistent route matching and HMR behavior during development.
+
+- [#15852](https://github.com/withastro/astro/pull/15852) [`1cdaf9f`](https://github.com/withastro/astro/commit/1cdaf9f488e4db158db2c80ce192890b0b9bfa00) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a regression where the the routes emitted by the `astro:build:done` hook didn't have the `distURL` array correctly populated.
+
+- [#15765](https://github.com/withastro/astro/pull/15765) [`ca76ff1`](https://github.com/withastro/astro/commit/ca76ff1dedafdc764f551e753e0772b54f807fa1) Thanks [@matthewp](https://github.com/matthewp)! - Hardens server island POST endpoint validation to use own-property checks for improved consistency
+
+## 6.0.2
+
+### Patch Changes
+
+- [#15832](https://github.com/withastro/astro/pull/15832) [`95e12a2`](https://github.com/withastro/astro/commit/95e12a250ece206f55f8c0c07c9c05489f3df93f) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes `return;` syntax not working in the frontmatter correctly in certain contexts
+
+## 6.0.1
+
+### Patch Changes
+
+- [#15827](https://github.com/withastro/astro/pull/15827) [`a4c0d0b`](https://github.com/withastro/astro/commit/a4c0d0b4df540b23fa85bf926f9cc97470737fa1) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `astro add` so the tsconfig preview shows the actual pending changes before confirmation
+
 ## 6.0.0
 
 ### Major Changes

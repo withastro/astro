@@ -1,0 +1,24 @@
+---
+export const prerender = true;
+
+import fs from 'node:fs';
+import path from 'node:path';
+
+const packageJsonPath = path.join(process.cwd(), 'package.json');
+const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Prerendered with Node</title>
+		<style>
+			body { background: red; color: white; }
+			h1 { color: rebeccapurple; }
+		</style>
+	</head>
+	<body>
+		<h1>Prerendered</h1>
+		<p id="pkg-name">{packageJson.name}</p>
+	</body>
+</html>

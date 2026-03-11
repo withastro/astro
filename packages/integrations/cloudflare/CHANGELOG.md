@@ -1,5 +1,60 @@
 # @astrojs/cloudflare
 
+## 13.1.0
+
+### Minor Changes
+
+- [#15711](https://github.com/withastro/astro/pull/15711) [`b2bd27b`](https://github.com/withastro/astro/commit/b2bd27bcb605d1e44e94ab922a8d7d2aa685149d) Thanks [@OliverSpeir](https://github.com/OliverSpeir)! - Adds a `prerenderEnvironment` option to the Cloudflare adapter.
+
+  By default, Cloudflare uses its workerd runtime for prerendering static pages. Set `prerenderEnvironment` to `'node'` to use Astro's built-in Node.js prerender environment instead, giving prerendered pages access to the full Node.js ecosystem during both build and dev. This is useful when your prerendered pages depend on Node.js-specific APIs or NPM packages that aren't compatible with workerd.
+
+  ```js
+  // astro.config.mjs
+  import cloudflare from '@astrojs/cloudflare';
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    adapter: cloudflare({
+      prerenderEnvironment: 'node',
+    }),
+  });
+  ```
+
+### Patch Changes
+
+- [#15845](https://github.com/withastro/astro/pull/15845) [`50fcc8b`](https://github.com/withastro/astro/commit/50fcc8be3b3ae67558933b61fa00c706de27dc40) Thanks [@aqiray](https://github.com/aqiray)! - fix: show actionable error when running astro preview without prior build
+
+- [#15794](https://github.com/withastro/astro/pull/15794) [`d1ac58e`](https://github.com/withastro/astro/commit/d1ac58e917e78052d2b7dfc6b16f4522e8bb2bb2) Thanks [@OliverSpeir](https://github.com/OliverSpeir)! - Fixes image serving in `passthrough` mode by using the Cloudflare `ASSETS` binding instead of generic fetch, which does not work in Workers for local assets
+
+- [#15850](https://github.com/withastro/astro/pull/15850) [`660da74`](https://github.com/withastro/astro/commit/660da74854c17ecf7dc326c8731b55b4dcc17615) Thanks [@tristanbes](https://github.com/tristanbes)! - fix(cloudflare): forward `configPath` and other `PluginConfig` options to the Cloudflare Vite Plugin
+
+  Options like `configPath`, `inspectorPort`, `persistState`, `remoteBindings`, and `auxiliaryWorkers` were accepted by the type system but never forwarded to `cfVitePlugin()`, making them silently ignored.
+
+  Also fixes `addWatchFile` for `configPath` which resolved the path relative to the adapter's `node_modules` directory instead of the project root.
+
+- [#15843](https://github.com/withastro/astro/pull/15843) [`fcd237d`](https://github.com/withastro/astro/commit/fcd237d62b1b4fdf499ad5a36694d86ffdcd5250) Thanks [@Calvin-LL](https://github.com/Calvin-LL)! - fix cloudflare image transform ignoring quality parameter
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.1
+
+## 13.0.2
+
+### Patch Changes
+
+- [#15832](https://github.com/withastro/astro/pull/15832) [`95e12a2`](https://github.com/withastro/astro/commit/95e12a250ece206f55f8c0c07c9c05489f3df93f) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes `return;` syntax not working in the frontmatter correctly in certain contexts
+
+- [#15803](https://github.com/withastro/astro/pull/15803) [`e42b015`](https://github.com/withastro/astro/commit/e42b015916b7f46a80676628f6d7c95279baf55a) Thanks [@merlinnot](https://github.com/merlinnot)! - Fixes the Cloudflare adapter adding a `SESSION` KV binding even when sessions are explicitly configured to use a different driver, such as `unstorage/drivers/null`.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.1
+
+## 13.0.1
+
+### Patch Changes
+
+- Updated dependencies [[`e20474b`](https://github.com/withastro/astro/commit/e20474b98c6d868ed9734f7eeb7564bffe8bfd77)]:
+  - @astrojs/underscore-redirects@1.0.1
+
 ## 13.0.0
 
 ### Major Changes
