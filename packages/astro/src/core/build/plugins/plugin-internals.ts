@@ -35,8 +35,11 @@ export function pluginInternals(
 						},
 					},
 					resolve: {
-						// Always bundle Astro runtime when building for SSR
-						noExternal: ['astro'],
+						// Bundle all dependencies for prerendering to avoid Node.js ESM resolution
+						// issues with packages that use non-JS file extensions (e.g. .svelte, .vue)
+						// or extensionless imports. The prerender bundle is ephemeral and only used
+						// for static HTML generation.
+						noExternal: true,
 					},
 				};
 			}
