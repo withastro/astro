@@ -175,7 +175,11 @@ export default function createIntegration({
 					session,
 					vite: {
 						plugins: [
-							cfVitePlugin({ ...cloudflareOptions, ...cfPluginConfig, viteEnvironment: { name: 'ssr' } }),
+							cfVitePlugin({
+								...cloudflareOptions,
+								...cfPluginConfig,
+								viteEnvironment: { name: 'ssr' },
+							}),
 							{
 								name: '@astrojs/cloudflare:cf-imports',
 								enforce: 'pre',
