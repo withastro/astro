@@ -1,5 +1,5 @@
 ---
-'astro': patch
+'astro': minor
 ---
 
 Adds codec-specific defaults for Astro's built-in Sharp image service via `image.service.config`.
