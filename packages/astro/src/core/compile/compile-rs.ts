@@ -41,7 +41,7 @@ export async function compile({
 	let preprocessStyles;
 	let transform;
 	try {
-		({ preprocessStyles, transform } = await import('@astrojs/compiler-rs'));
+		({ preprocessStyles, transform } = await import('astro-compiler-rs'));
 	} catch (err: unknown) {
 		throw new Error(
 			`Failed to load @astrojs/compiler-rs. Make sure it is installed and up to date. Original error: ${err}`,

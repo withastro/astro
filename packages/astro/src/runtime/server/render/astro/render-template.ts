@@ -2,6 +2,7 @@ import { markHTMLString } from '../../escape.js';
 import { isPromise } from '../../util.js';
 import { renderChild } from '../any.js';
 import type { RenderDestination } from '../common.js';
+import { decoder } from '../common.js';
 import { createBufferedRenderer } from '../util.js';
 
 const renderTemplateResultSym = Symbol.for('astro.renderTemplateResult');
@@ -16,20 +17,9 @@ export class RenderTemplateResult {
 	constructor(htmlParts: TemplateStringsArray, expressions: unknown[]) {
 		this.htmlParts = htmlParts;
 		this.error = undefined;
-		this.expressions = expressions.map((expression) => {
-			// Wrap Promise expressions so we can catch errors
-			// There can only be 1 error that we rethrow from an Astro component,
-			// so this keeps track of whether or not we have already done so.
-			if (isPromise(expression)) {
-				return Promise.resolve(expression).catch((err) => {
-					if (!this.error) {
-						this.error = err;
-						throw err;
-					}
-				});
-			}
-			return expression;
-		});
+		// Store the raw expressions array — avoid allocating a new array via
+		// .map() on every call.  Promise-wrapping is deferred to render().
+		this.expressions = expressions as any[];
 	}
 
 	render(destination: RenderDestination): void | Promise<void> {
@@ -52,9 +42,20 @@ export class RenderTemplateResult {
 			// expressions[i] doesn't exist for the last htmlPart
 			if (i >= expressions.length) break;
 
-			const exp = expressions[i];
+			let exp = expressions[i];
 			// Skip render if falsy, except the number 0
 			if (!(exp || exp === 0)) continue;
+
+			// Lazily wrap promises for error dedup
+			if (isPromise(exp)) {
+				exp = Promise.resolve(exp).catch((err) => {
+					if (!this.error) {
+						this.error = err;
+						throw err;
+					}
+				});
+				expressions[i] = exp;
+			}
 
 			const result = renderChild(destination, exp);
 
@@ -65,7 +66,16 @@ export class RenderTemplateResult {
 				const remaining = expressions.length - startIdx;
 				const flushers = new Array(remaining);
 				for (let j = 0; j < remaining; j++) {
-					const rExp = expressions[startIdx + j];
+					let rExp = expressions[startIdx + j];
+					if (isPromise(rExp)) {
+						rExp = Promise.resolve(rExp).catch((err) => {
+							if (!this.error) {
+								this.error = err;
+								throw err;
+							}
+						});
+						expressions[startIdx + j] = rExp;
+					}
 					flushers[j] = createBufferedRenderer(destination, (bufferDestination) => {
 						if (rExp || rExp === 0) {
 							return renderChild(bufferDestination, rExp);
@@ -108,4 +118,122 @@ export function isRenderTemplateResult(obj: unknown): obj is RenderTemplateResul
 
 export function renderTemplate(htmlParts: TemplateStringsArray, ...expressions: any[]) {
 	return new RenderTemplateResult(htmlParts, expressions);
+}
+
+// ---------------------------------------------------------------------------
+// RenderBytesResult — like RenderTemplateResult but the static parts are
+// pre-encoded Uint8Arrays emitted by the compiler at module scope.  This
+// avoids per-request TextEncoder.encode() calls and markHTMLString allocations
+// for all static HTML content.
+// ---------------------------------------------------------------------------
+
+export class RenderBytesResult {
+	public [renderTemplateResultSym] = true;
+	// Static HTML parts as pre-encoded UTF-8 byte arrays (module-level constants).
+	private staticParts: Uint8Array[];
+	public expressions: any[];
+	private error: Error | undefined;
+
+	constructor(staticParts: Uint8Array[], expressions: unknown[]) {
+		this.staticParts = staticParts;
+		this.error = undefined;
+		// Store the raw expressions array directly — avoid allocating a new array
+		// via .map() on every call.  Promise-wrapping (for error de-duplication)
+		// is deferred to render() where it only runs if an async expression is
+		// actually encountered.  For fully-sync components (the common case) this
+		// saves one array allocation + N isPromise checks per renderBytes() call.
+		this.expressions = expressions as any[];
+	}
+
+	// Lazy-decoded string view used by the queue builder (builder.ts) which
+	// accesses node['htmlParts'] directly.  Decoded once and cached.
+	private _htmlParts: string[] | undefined;
+	get htmlParts(): string[] {
+		if (!this._htmlParts) {
+			this._htmlParts = this.staticParts.map((b) => (b.length > 0 ? decoder.decode(b) : ''));
+		}
+		return this._htmlParts;
+	}
+
+	render(destination: RenderDestination): void | Promise<void> {
+		const { staticParts, expressions } = this;
+
+		for (let i = 0; i < staticParts.length; i++) {
+			const bytes = staticParts[i];
+			// Write the pre-encoded bytes directly — no encoding, no allocation.
+			if (bytes.length > 0) {
+				destination.write(bytes);
+			}
+
+			if (i >= expressions.length) break;
+
+			let exp = expressions[i];
+			if (!(exp || exp === 0)) continue;
+
+			// Lazily wrap promises for error dedup — only when we actually
+			// encounter one, avoiding the cost for sync-only renders.
+			if (isPromise(exp)) {
+				exp = Promise.resolve(exp).catch((err) => {
+					if (!this.error) {
+						this.error = err;
+						throw err;
+					}
+				});
+				expressions[i] = exp;
+			}
+
+			const result = renderChild(destination, exp);
+
+			if (isPromise(result)) {
+				// Async expression encountered — wrap remaining promises lazily
+				// and buffer for ordered flushing.
+				const startIdx = i + 1;
+				const remaining = expressions.length - startIdx;
+				const flushers = new Array(remaining);
+				for (let j = 0; j < remaining; j++) {
+					let rExp = expressions[startIdx + j];
+					if (isPromise(rExp)) {
+						rExp = Promise.resolve(rExp).catch((err) => {
+							if (!this.error) {
+								this.error = err;
+								throw err;
+							}
+						});
+						expressions[startIdx + j] = rExp;
+					}
+					flushers[j] = createBufferedRenderer(destination, (bufferDestination) => {
+						if (rExp || rExp === 0) {
+							return renderChild(bufferDestination, rExp);
+						}
+					});
+				}
+
+				return result.then(() => {
+					let k = 0;
+					const iterate = (): void | Promise<void> => {
+						while (k < flushers.length) {
+							const rBytes = staticParts[startIdx + k];
+							if (rBytes.length > 0) {
+								destination.write(rBytes);
+							}
+							const flushResult = flushers[k++].flush();
+							if (isPromise(flushResult)) {
+								return flushResult.then(iterate);
+							}
+						}
+						// Write the final trailing static part.
+						const lastBytes = staticParts[staticParts.length - 1];
+						if (lastBytes.length > 0) {
+							destination.write(lastBytes);
+						}
+					};
+					return iterate();
+				});
+			}
+		}
+	}
+}
+
+export function renderBytes(staticParts: Uint8Array[], expressions: any[]) {
+	return new RenderBytesResult(staticParts, expressions);
 }

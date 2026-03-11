@@ -178,7 +178,6 @@
   },
   "devDependencies": {
     "@astrojs/check": "workspace:*",
-    "@astrojs/compiler-rs": "^0.1.4",
     "@playwright/test": "1.58.2",
     "@types/aria-query": "^5.0.4",
     "@types/dlv": "^1.1.5",
@@ -189,6 +188,7 @@
     "@types/picomatch": "^4.0.2",
     "@types/semver": "^7.7.1",
     "@types/yargs-parser": "^21.0.3",
+    "astro-compiler-rs": "^0.1.6",
     "astro-scripts": "workspace:*",
     "cheerio": "1.2.0",
     "eol": "^0.10.0",

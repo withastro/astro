@@ -1,30 +1,67 @@
-import { escapeHTML, isHTMLString, markHTMLString } from '../escape.js';
+import { type HTMLString, escapeHTML, isHTMLString, markHTMLString } from '../escape.js';
 import { isPromise } from '../util.js';
-import { isAstroComponentInstance, isRenderTemplateResult } from './astro/index.js';
-import { isRenderInstance, type RenderDestination } from './common.js';
-import { SlotString } from './slot.js';
+import type { RenderDestination } from './common.js';
+import { isSlotString } from './slot.js';
 import { createBufferedRenderer } from './util.js';
 
 export function renderChild(destination: RenderDestination, child: any): void | Promise<void> {
 	// Strings are the most common child type (text expressions like {title}, {name})
 	// so check them first for the fastest dispatch in the common case.
+	// markHTMLString wraps the escaped result to signal "already escaped" and
+	// prevent any downstream double-escaping if the chunk is seen again.
 	if (typeof child === 'string') {
 		destination.write(markHTMLString(escapeHTML(child)));
 		return;
 	}
 
+	// Numbers can't contain HTML special chars — skip escaping and write directly.
+	if (typeof child === 'number') {
+		destination.write('' + child);
+		return;
+	}
+
+	// HTMLString (including SlotString which extends it) — pre-escaped content
+	// from escapeHTML(), addAttribute(), unescapeHTML(), etc.  Checked early
+	// because the Rust compiler wraps simple expressions in $$escapeHTML(),
+	// making this the third most common type after plain strings and numbers.
+	//
+	// For plain HTMLString (not SlotString): extract the primitive string and
+	// write it directly.  This avoids the expensive String() coercion that
+	// stringifyChunk + the write handler would otherwise perform on the wrapper
+	// object.  stringifyChunk's fast path (`typeof chunk === 'string'`) returns
+	// the primitive immediately.
+	//
+	// SlotString must be written as-is because stringifyChunk needs to process
+	// its .instructions array for hydration/head injection.
+	if (isHTMLString(child)) {
+		if (isSlotString(child as unknown as string)) {
+			destination.write(child);
+		} else {
+			// Extract the primitive string from the HTMLString wrapper.
+			// Writing a primitive lets the write handler's stringifyChunk hit
+			// its fast path (typeof === 'string') instead of the costly
+			// HTMLString.toString() → String() coercion chain.
+			destination.write((child as HTMLString).toString() as unknown as string);
+		}
+		return;
+	}
+
+	// Unified renderable check: catches RenderTemplateResult, RenderBytesResult,
+	// AstroComponentInstance, and other RenderInstance objects in a single check.
+	// This is the 4th check — much earlier than the previous separate checks at
+	// positions 4, 9, and 10.  The `typeof child.render` check is fast in V8
+	// (inline cache hit for known shapes).
+	if (typeof child === 'object' && child !== null && typeof child.render === 'function') {
+		return child.render(destination);
+	}
+
+	// Arrays — every .map() expression produces one.
+	if (Array.isArray(child)) {
+		return renderArray(destination, child);
+	}
+
 	if (isPromise(child)) {
 		return child.then((x) => renderChild(destination, x));
-	}
-
-	if (child instanceof SlotString) {
-		destination.write(child);
-		return;
-	}
-
-	if (isHTMLString(child)) {
-		destination.write(child);
-		return;
 	}
 
 	if (!child && child !== 0) {
@@ -32,27 +69,11 @@ export function renderChild(destination: RenderDestination, child: any): void | 
 		return;
 	}
 
-	if (Array.isArray(child)) {
-		return renderArray(destination, child);
-	}
-
 	if (typeof child === 'function') {
 		// Special: If a child is a function, call it automatically.
 		// This lets you do {() => ...} without the extra boilerplate
 		// of wrapping it in a function and calling it.
 		return renderChild(destination, child());
-	}
-
-	if (isRenderInstance(child)) {
-		return child.render(destination);
-	}
-
-	if (isRenderTemplateResult(child)) {
-		return child.render(destination);
-	}
-
-	if (isAstroComponentInstance(child)) {
-		return child.render(destination);
 	}
 
 	if (ArrayBuffer.isView(child)) {
