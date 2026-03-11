@@ -135,6 +135,25 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 		// Expose the components and different utilities from `astro:assets`
 		{
 			name: 'astro:assets',
+			configEnvironment(environmentName, _options) {
+				if (
+					(environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.astro ||
+						environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
+						environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.prerender) &&
+					_options.optimizeDeps?.noDiscovery === false
+				) {
+					return {
+						optimizeDeps: {
+							include: [
+								'astro/assets',
+								'astro/assets/runtime',
+								'astro/assets/utils/inferRemoteSize.js',
+								'astro/assets/fonts/runtime.js',
+							],
+						},
+					};
+				}
+			},
 			config(_, env) {
 				isBuild = env.command === 'build';
 			},

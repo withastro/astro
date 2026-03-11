@@ -1,7 +1,9 @@
 ---
+import { getCollection } from 'astro:content';
 import ms from 'ms';
 
 const duration = ms('2 days');
+const posts = await getCollection('posts');
 ---
 <html>
 <head>
@@ -10,5 +12,6 @@ const duration = ms('2 days');
 <body>
 	<h1>SSR Dependencies</h1>
 	<p>Two days in milliseconds: {duration}</p>
+	<p>Total posts: {posts.length}</p>
 </body>
 </html>

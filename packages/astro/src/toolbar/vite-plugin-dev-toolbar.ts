@@ -3,7 +3,6 @@ import { telemetry } from '../events/index.js';
 import { eventAppToggled } from '../events/toolbar.js';
 import type { AstroPluginOptions } from '../types/astro.js';
 
-// This is used by Cloudflare optimizeDeps config
 const VIRTUAL_MODULE_ID = 'astro:toolbar:internal';
 const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
 
@@ -12,11 +11,20 @@ export default function astroDevToolbar({ settings, logger }: AstroPluginOptions
 
 	return {
 		name: 'astro:dev-toolbar',
-		config() {
+		configEnvironment(environmentName) {
+			if (environmentName !== 'client' || !settings.config.devToolbar.enabled) {
+				return;
+			}
+
 			return {
 				optimizeDeps: {
 					// Optimize CJS dependencies used by the dev toolbar
-					include: ['astro > aria-query', 'astro > axobject-query'],
+					include: [
+						'astro > aria-query',
+						'astro > axobject-query',
+						'astro/runtime/client/dev-toolbar/entrypoint.js',
+						...(settings.devToolbarApps.length > 0 ? (['astro/toolbar'] as const) : []),
+					],
 				},
 			};
 		},

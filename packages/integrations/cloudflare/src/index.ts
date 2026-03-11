@@ -47,25 +47,6 @@ function usesCloudflareKVSessionDriver(session: AstroConfig['session']): boolean
 
 export type { Runtime } from './utils/handler.js';
 
-function hasContentCollectionsConfig(srcDir: URL) {
-	const contentConfigPaths = [
-		'content.config.mjs',
-		'content.config.js',
-		'content.config.mts',
-		'content.config.ts',
-		'content/config.mjs',
-		'content/config.js',
-		'content/config.mts',
-		'content/config.ts',
-		'live.config.mjs',
-		'live.config.js',
-		'live.config.mts',
-		'live.config.ts',
-	];
-
-	return contentConfigPaths.some((configPath) => existsSync(new URL(`./${configPath}`, srcDir)));
-}
-
 export interface Options
 	extends Pick<
 		PluginConfig,
@@ -167,8 +148,6 @@ export default function createIntegration({
 				// (the image-transform-endpoint uses it). At build time,
 				// `compile` uses Sharp on the Node side instead.
 				const needsImagesBindingForDev = isCompile && command === 'dev';
-				const usesContentCollections = hasContentCollectionsConfig(config.srcDir);
-				const prebundleContentRuntime = command === 'dev' && usesContentCollections;
 
 				cfPluginConfig = {
 					config: cloudflareConfigCustomizer({
@@ -237,34 +216,7 @@ export default function createIntegration({
 									if (isServerEnvironment && !_options.optimizeDeps?.noDiscovery) {
 										return {
 											optimizeDeps: {
-												include: [
-													'@astrojs/cloudflare/image-service-workerd',
-													'astro',
-													'astro/runtime/**',
-													'astro > html-escaper',
-													'astro > mrmime',
-													'astro > zod/v4',
-													'astro > zod/v4/core',
-													'astro > clsx',
-													'astro > cookie',
-													'astro > devalue',
-													'astro > @oslojs/encoding',
-													'astro > es-module-lexer',
-													'astro > unstorage',
-													'astro > neotraverse/modern',
-													'astro > piccolore',
-													'astro > picomatch',
-													'astro/app',
-													'astro/assets',
-													'astro/assets/runtime',
-													'astro/assets/utils/inferRemoteSize.js',
-													'astro/assets/fonts/runtime.js',
-													...(prebundleContentRuntime ? (['astro/content/runtime'] as const) : []),
-													'astro/compiler-runtime',
-													'astro/jsx-runtime',
-													'astro/app/entrypoint/dev',
-													'astro/virtual-modules/middleware.js',
-												],
+												include: ['@astrojs/cloudflare/image-service-workerd'],
 												exclude: [
 													'unstorage/drivers/cloudflare-kv-binding',
 													'astro:*',
@@ -280,7 +232,6 @@ export default function createIntegration({
 									} else if (environmentName === 'client') {
 										return {
 											optimizeDeps: {
-												include: ['astro/runtime/client/dev-toolbar/entrypoint.js'],
 												// Workaround for https://github.com/vitejs/vite/issues/20867
 												// When dependencies are discovered mid-request (e.g. a linked package
 												// used with client:only), concurrent requests can fail with 504 because

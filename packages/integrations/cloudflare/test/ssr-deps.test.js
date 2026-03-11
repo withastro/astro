@@ -45,6 +45,7 @@ describe('SSR dependencies', () => {
 
 		// Verify the page rendered correctly with the dependency
 		assert.ok(html.includes('172800000'), 'Expected ms() to compute 2 days in milliseconds');
+		assert.ok(html.includes('Total posts:'), 'Expected content runtime to load in dev');
 
 		// Check that we didn't get the "new dependencies optimized" warning
 		// This message indicates dependencies weren't discovered ahead of time

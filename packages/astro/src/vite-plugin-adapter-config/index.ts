@@ -4,7 +4,6 @@ import type { AstroSettings } from '../types/astro.js';
 import { fileURLToPath } from 'node:url';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
-// This is used by Cloudflare's optimizeDeps
 const VIRTUAL_CLIENT_ID = 'virtual:astro:adapter-config/client';
 const RESOLVED_VIRTUAL_CLIENT_ID = '\0' + VIRTUAL_CLIENT_ID;
 

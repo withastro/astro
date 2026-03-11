@@ -9,8 +9,6 @@ import { MissingMiddlewareForInternationalization } from '../errors/errors-data.
 import { AstroError } from '../errors/index.js';
 import { normalizePath } from '../viteUtils.js';
 
-// This module name is used in Cloudflare's optimizedDeps configuration,
-// if th name changes that needs to be updated as well.
 export const MIDDLEWARE_MODULE_ID = 'virtual:astro:middleware';
 const MIDDLEWARE_RESOLVED_MODULE_ID = '\0' + MIDDLEWARE_MODULE_ID;
 const NOOP_MIDDLEWARE = '\0noop-middleware';
@@ -23,6 +21,20 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 
 	return {
 		name: '@astro/plugin-middleware',
+		configEnvironment(environmentName, _options) {
+			if (
+				(environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
+					environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.astro ||
+					environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.prerender) &&
+				_options.optimizeDeps?.noDiscovery === false
+			) {
+				return {
+					optimizeDeps: {
+						include: ['astro/virtual-modules/middleware.js'],
+					},
+				};
+			}
+		},
 		applyToEnvironment(environment) {
 			return (
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||

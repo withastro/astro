@@ -28,7 +28,6 @@ import { sessionConfigToManifest } from '../core/session/utils.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { resolveMiddlewareMode } from '../integrations/adapter-utils.js';
 
-// This is used by Cloudflare optimizeDeps config
 export const SERIALIZED_MANIFEST_ID = 'virtual:astro:manifest';
 export const SERIALIZED_MANIFEST_RESOLVED_ID = '\0' + SERIALIZED_MANIFEST_ID;
 

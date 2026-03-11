@@ -28,6 +28,28 @@ const ALWAYS_NOEXTERNAL = [
 	'@fontsource/*',
 ];
 
+const SERVER_OPTIMIZE_DEPS_INCLUDE = [
+	'astro',
+	'astro/runtime/**',
+	'astro > html-escaper',
+	'astro > mrmime',
+	'astro > zod/v4',
+	'astro > zod/v4/core',
+	'astro > clsx',
+	'astro > cookie',
+	'astro > devalue',
+	'astro > @oslojs/encoding',
+	'astro > es-module-lexer',
+	'astro > unstorage',
+	'astro > neotraverse/modern',
+	'astro > piccolore',
+	'astro > picomatch',
+	'astro/app',
+	'astro/compiler-runtime',
+	'astro/jsx-runtime',
+	'astro/app/entrypoint/dev',
+];
+
 interface Payload {
 	command: 'dev' | 'build';
 	settings: AstroSettings;
@@ -78,7 +100,10 @@ export function vitePluginEnvironment({
 				if (_options.optimizeDeps?.noDiscovery === false) {
 					finalEnvironmentOptions.optimizeDeps = {
 						entries: [`${srcDirPattern}**/*.{jsx,tsx,vue,svelte,html,astro}`],
-						include: [],
+						include:
+							environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.client
+								? []
+								: [...SERVER_OPTIMIZE_DEPS_INCLUDE],
 						exclude: ['node-fetch'],
 					};
 				}

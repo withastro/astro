@@ -58,6 +58,28 @@ export function astroContentVirtualModPlugin({
 	return {
 		name: 'astro-content-virtual-mod-plugin',
 		enforce: 'pre',
+		configEnvironment(environmentName, _options) {
+			if (
+				(environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.astro ||
+					environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
+					environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.prerender) &&
+				_options.optimizeDeps?.noDiscovery === false
+			) {
+				const { config, liveConfig } = getContentPaths(
+					settings.config,
+					undefined,
+					settings.config.legacy?.collectionsBackwardsCompat,
+				);
+
+				if (config.exists || liveConfig.exists) {
+					return {
+						optimizeDeps: {
+							include: ['astro/content/runtime'],
+						},
+					};
+				}
+			}
+		},
 		config(_, env) {
 			dataStoreFile = getDataStoreFile(settings, env.command === 'serve');
 			const contentPaths = getContentPaths(
