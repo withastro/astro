@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 2.16.11
+
+### Patch Changes
+
+- [#15825](https://github.com/withastro/astro/pull/15825) [`2cfe935`](https://github.com/withastro/astro/commit/2cfe935db452fce91553784157e31c26bb3b2a05) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes failed publish for 2.16.11.
+
 ## 2.16.10
 
 ### Patch Changes
