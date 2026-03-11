@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import type { ConfigEnv, DevEnvironment, Plugin as VitePlugin } from 'vite';
-import { getServerOutputDirectory } from '../../prerender/utils.js';
+import { getPrerenderOutputDirectory, getServerOutputDirectory } from '../../prerender/utils.js';
 import type { AstroPluginOptions } from '../../types/astro.js';
 import type { AstroPluginMetadata } from '../../vite-plugin-astro/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
@@ -288,7 +288,7 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 					mutate(ssrChunkWithPlaceholder.fileName, newCode, false);
 
 					const serverOutputDir = getServerOutputDirectory(settings);
-					const prerenderOutputDir = new URL('./.prerender/', serverOutputDir);
+					const prerenderOutputDir = getPrerenderOutputDirectory(settings);
 					for (const [, fileName] of resolvedIslandImports) {
 						const srcPath = new URL(fileName, appendForwardSlash(prerenderOutputDir.toString()));
 						const destPath = new URL(fileName, appendForwardSlash(serverOutputDir.toString()));

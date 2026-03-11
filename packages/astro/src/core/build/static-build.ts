@@ -10,7 +10,11 @@ import { emptyDir, removeEmptyDirs } from '../../core/fs/index.js';
 import { appendForwardSlash, prependForwardSlash } from '../../core/path.js';
 import { runHookBuildSetup } from '../../integrations/hooks.js';
 import { SERIALIZED_MANIFEST_RESOLVED_ID } from '../../manifest/serialized.js';
-import { getClientOutputDirectory, getServerOutputDirectory } from '../../prerender/utils.js';
+import {
+	getClientOutputDirectory,
+	getPrerenderOutputDirectory,
+	getServerOutputDirectory,
+} from '../../prerender/utils.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../vite-plugin-pages/const.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
@@ -203,7 +207,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				);
 
 				// Generation and cleanup
-				const prerenderOutputDir = new URL('./.prerender/', getServerOutputDirectory(settings));
+				const prerenderOutputDir = getPrerenderOutputDirectory(settings);
 
 				// TODO: The `static` and `server` branches below are nearly identical now.
 				// Consider refactoring to remove the else-if and unify the logic.
@@ -385,7 +389,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 			[ASTRO_VITE_ENVIRONMENT_NAMES.prerender]: {
 				build: {
 					emitAssets: true,
-					outDir: fileURLToPath(new URL('./.prerender/', getServerOutputDirectory(settings))),
+					outDir: fileURLToPath(getPrerenderOutputDirectory(settings)),
 					rollupOptions: {
 						// Only skip the default prerender entrypoint if an adapter with `entrypointResolution: 'self'` is used
 						// AND provides a custom prerenderer. Otherwise, use the default.
@@ -525,14 +529,13 @@ async function writeMutatedChunks(
 ) {
 	const { settings } = opts;
 	const config = settings.config;
-	const serverOutputDir = getServerOutputDirectory(settings);
 
 	for (const [fileName, mutation] of mutations) {
 		let root: URL;
 
 		if (mutation.prerender) {
 			// Write to prerender directory
-			root = new URL('./.prerender/', serverOutputDir);
+			root = getPrerenderOutputDirectory(settings);
 		} else if (settings.buildOutput === 'server') {
 			root = config.build.server;
 		} else {
