@@ -911,4 +911,55 @@ describe('Middleware via App.render()', () => {
 			assert.equal(response.headers.get('X-Custom-Header'), 'custom-value');
 		});
 	});
+
+	describe("middlewareMode: 'on-request'", () => {
+		it('runs middleware at request time', async () => {
+			const onRequest = async (ctx, next) => {
+				ctx.locals.name = 'from-middleware';
+				return next();
+			};
+			const pageMap = new Map([
+				[indexRouteData.component, async () => ({ page: async () => ({ default: simplePage() }) })],
+			]);
+			const manifest = createManifest({
+				routes: [{ routeData: indexRouteData }],
+				pageMap,
+			});
+			manifest.middleware = () => ({ onRequest });
+			manifest.middlewareMode = /** @type {'on-request'} */ ('on-request');
+			const app = new App(manifest);
+
+			const response = await app.render(new Request('http://localhost/'));
+			const html = await response.text();
+
+			assert.match(html, /<p>from-middleware<\/p>/);
+		});
+
+		it('does not run middleware when skipMiddleware is set (build-time prerendering)', async () => {
+			let middlewareWasCalled = false;
+			const onRequest = async (_ctx, next) => {
+				middlewareWasCalled = true;
+				return next();
+			};
+			const pageMap = new Map([
+				[indexRouteData.component, async () => ({ page: async () => ({ default: simplePage() }) })],
+			]);
+			const manifest = createManifest({
+				routes: [{ routeData: indexRouteData }],
+				pageMap,
+			});
+			manifest.middleware = () => ({ onRequest });
+			manifest.middlewareMode = /** @type {'on-request'} */ ('on-request');
+			const app = new App(manifest);
+
+			// Simulate what BuildApp.createRenderContext does: set skipMiddleware for on-request mode
+			const origCreateRenderContext = app.createRenderContext.bind(app);
+			app.createRenderContext = (payload) =>
+				origCreateRenderContext({ ...payload, skipMiddleware: true });
+
+			await app.render(new Request('http://localhost/'));
+
+			assert.equal(middlewareWasCalled, false);
+		});
+	});
 });

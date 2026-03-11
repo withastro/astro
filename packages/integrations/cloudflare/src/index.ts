@@ -4,7 +4,7 @@ import { createInterface } from 'node:readline/promises';
 import { removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
 import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
 import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
-import type { AstroConfig, AstroIntegration, IntegrationResolvedRoute } from 'astro';
+import type { AstroConfig, AstroIntegration, IntegrationResolvedRoute, MiddlewareMode } from 'astro';
 import { astroFrontmatterScanPlugin } from './esbuild-plugin-astro-frontmatter.js';
 import { getParts } from './utils/generate-routes-json.js';
 import {
@@ -80,12 +80,21 @@ export interface Options
 		NonNullable<PluginConfig['experimental']>,
 		'headersAndRedirectsDevModeSupport'
 	>;
+
+	/**
+	 * The middleware mode determines when and how middleware executes.
+	 * - `'classic'` (default): Middleware runs for prerendered pages at build time, and for SSR pages at request time. Does not run for prerendered pages at request time.
+	 * - `'always'`: Middleware runs for prerendered pages at build time, and for both prerendered and SSR pages at request time.
+	 * - `'on-request'`: Middleware runs for both prerendered and SSR pages at request time. Middleware does not run at build time.
+	 */
+	middlewareMode?: Exclude<MiddlewareMode, 'edge'>;
 }
 
 export default function createIntegration({
 	imageService,
 	sessionKVBindingName = DEFAULT_SESSION_KV_BINDING_NAME,
 	imagesBindingName = DEFAULT_IMAGES_BINDING_NAME,
+	middlewareMode = 'classic',
 	...cloudflareOptions
 }: Options = {}): AstroIntegration {
 	let _config: AstroConfig;
@@ -307,7 +316,7 @@ export default function createIntegration({
 					name: '@astrojs/cloudflare',
 					adapterFeatures: {
 						buildOutput: 'server',
-						middlewareMode: 'classic',
+						middlewareMode,
 						preserveBuildClientDir: true,
 					},
 					entrypointResolution: 'auto',

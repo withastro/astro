@@ -1,3 +1,4 @@
+import type { MiddlewareMode } from 'astro';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
 export interface UserOptions {
@@ -29,6 +30,15 @@ export interface UserOptions {
 	 *
 	 * @default {1073741824} 1GB
 	 */
+	experimentalErrorPageHost?: string | URL;
+
+	/**
+	 * The middleware mode determines when and how middleware executes.
+	 * - `'classic'` (default): Middleware runs for prerendered pages at build time, and for SSR pages at request time. Does not run for prerendered pages at request time.
+	 * - `'always'`: Middleware runs for prerendered pages at build time, and for both prerendered and SSR pages at request time.
+	 * - `'on-request'`: Middleware runs for both prerendered and SSR pages at request time. Middleware does not run at build time.
+	 */
+	middlewareMode?: Exclude<MiddlewareMode, 'edge'>;
 	bodySizeLimit?: number;
 }
 

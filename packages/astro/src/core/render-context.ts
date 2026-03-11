@@ -62,6 +62,7 @@ export type CreateRenderContext = Pick<
 			| 'actions'
 			| 'shouldInjectCspMetaTags'
 			| 'skipMiddleware'
+			| 'prerenderedPageFetch'
 		>
 	>;
 
@@ -87,6 +88,7 @@ export class RenderContext {
 		public session: AstroSession | undefined = undefined,
 		public cache: CacheLike,
 		public skipMiddleware = false,
+		public prerenderedPageFetch: ((url: string) => Promise<Response>) | undefined = undefined,
 	) {}
 
 	static #createNormalizedUrl(requestUrl: string): URL {
@@ -134,6 +136,7 @@ export class RenderContext {
 		partial = undefined,
 		shouldInjectCspMetaTags,
 		skipMiddleware = false,
+		prerenderedPageFetch,
 	}: CreateRenderContext): Promise<RenderContext> {
 		const pipelineMiddleware = await pipeline.getMiddleware();
 		const pipelineActions = await pipeline.getActions();
@@ -204,6 +207,7 @@ export class RenderContext {
 			session,
 			cache,
 			skipMiddleware,
+			prerenderedPageFetch,
 		);
 	}
 	/**
@@ -224,18 +228,22 @@ export class RenderContext {
 		const { middleware, pipeline } = this;
 		const { logger, streaming, manifest } = pipeline;
 		const props =
-			Object.keys(this.props).length > 0
+			// For prerendered pages served via prerenderedPageFetch, skip props resolution
+			// since the component module is not available in the server bundle.
+			this.routeData.prerender && this.prerenderedPageFetch
 				? this.props
-				: await getProps({
-						mod: componentInstance,
-						routeData: this.routeData,
-						routeCache: this.pipeline.routeCache,
-						pathname: this.pathname,
-						logger,
-						serverLike: manifest.serverLike,
-						base: manifest.base,
-						trailingSlash: manifest.trailingSlash,
-					});
+				: Object.keys(this.props).length > 0
+					? this.props
+					: await getProps({
+							mod: componentInstance,
+							routeData: this.routeData,
+							routeCache: this.pipeline.routeCache,
+							pathname: this.pathname,
+							logger,
+							serverLike: manifest.serverLike,
+							base: manifest.base,
+							trailingSlash: manifest.trailingSlash,
+						});
 		const actionApiContext = this.createActionAPIContext();
 		const apiContext = this.createAPIContext(props, actionApiContext);
 
@@ -328,21 +336,27 @@ export class RenderContext {
 				case 'redirect':
 					return renderRedirect(this);
 				case 'page': {
-					this.result = await this.createResult(componentInstance!, actionApiContext);
-					try {
-						response = await renderPage(
-							this.result,
-							componentInstance?.default as any,
-							props,
-							slots,
-							streaming,
-							this.routeData,
-						);
-					} catch (e) {
-						// If there is an error in the page's frontmatter or instantiation of the RenderTemplate fails midway,
-						// we signal to the rest of the internals that we can ignore the results of existing renders and avoid kicking off more of them.
-						this.result.cancelled = true;
-						throw e;
+					if (this.routeData.prerender && this.prerenderedPageFetch) {
+						// The component module is not available in the server bundle for prerendered pages.
+						// Use the provided fetch function to read the pre-built HTML from disk.
+						response = await this.prerenderedPageFetch(this.request.url);
+					} else {
+						this.result = await this.createResult(componentInstance!, actionApiContext);
+						try {
+							response = await renderPage(
+								this.result,
+								componentInstance?.default as any,
+								props,
+								slots,
+								streaming,
+								this.routeData,
+							);
+						} catch (e) {
+							// If there is an error in the page's frontmatter or instantiation of the RenderTemplate fails midway,
+							// we signal to the rest of the internals that we can ignore the results of existing renders and avoid kicking off more of them.
+							this.result.cancelled = true;
+							throw e;
+						}
 					}
 
 					// Signal to the i18n middleware to maybe act on this response
@@ -375,9 +389,13 @@ export class RenderContext {
 			return renderRedirect(this);
 		}
 
-		const response = this.skipMiddleware
-			? await lastNext(apiContext)
-			: await callMiddleware(middleware, apiContext, lastNext);
+		const useMiddleware =
+			!this.skipMiddleware &&
+			['classic', 'always', 'on-request'].includes(pipeline.manifest.middlewareMode);
+
+		const response = useMiddleware
+			? await callMiddleware(middleware, apiContext, lastNext)
+			: await lastNext(apiContext);
 		if (response.headers.get(ROUTE_TYPE_HEADER)) {
 			response.headers.delete(ROUTE_TYPE_HEADER);
 		}
