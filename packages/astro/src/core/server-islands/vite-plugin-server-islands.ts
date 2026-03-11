@@ -13,6 +13,22 @@ const RESOLVED_SERVER_ISLAND_MANIFEST = '\0' + SERVER_ISLAND_MANIFEST;
 export const serverIslandPlaceholderMap = "'$$server-islands-map$$'";
 const serverIslandPlaceholderNameMap = "'$$server-islands-name-map$$'";
 
+function createServerIslandImportMapSource(
+	entries: Iterable<[string, string]>,
+	toImportPath: (fileName: string) => string,
+) {
+	const mappings = Array.from(entries, ([islandName, fileName]) => {
+		const importPath = toImportPath(fileName);
+		return `\t[${JSON.stringify(islandName)}, () => import(${JSON.stringify(importPath)})],`;
+	});
+
+	return `new Map([\n${mappings.join('\n')}\n])`;
+}
+
+function createNameMapSource(entries: Iterable<[string, string]>) {
+	return `new Map(${JSON.stringify(Array.from(entries), null, 2)})`;
+}
+
 export function vitePluginServerIslands({ settings }: AstroPluginOptions): VitePlugin {
 	let command: ConfigEnv['command'] = 'serve';
 	let ssrEnvironment: DevEnvironment | null = null;
@@ -130,16 +146,16 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 					}
 
 					if (serverIslandNameMap.size > 0 && serverIslandMap.size > 0) {
-						let mapSource = 'new Map([\n\t';
-						for (let [name, path] of serverIslandMap) {
-							mapSource += `\n\t['${name}', () => import('${path}')],`;
-						}
-						mapSource += ']);';
+						const mapSource = createServerIslandImportMapSource(
+							serverIslandMap,
+							(fileName) => fileName,
+						);
+						const nameMapSource = createNameMapSource(serverIslandNameMap);
 
 						return {
 							code: `
 					export const serverIslandMap = ${mapSource};
-					\n\nexport const serverIslandNameMap = new Map(${JSON.stringify(Array.from(serverIslandNameMap.entries()), null, 2)});
+					\n\nexport const serverIslandNameMap = ${nameMapSource};
 					`,
 						};
 					}
@@ -158,7 +174,7 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 
 					const isRelativeChunk = !chunk.isEntry;
 					const dots = isRelativeChunk ? '..' : '.';
-					let mapSource = 'new Map([';
+					const mapEntries: Array<[string, string]> = [];
 					for (const [resolvedPath, referenceId] of referenceIdMap) {
 						const fileName = this.getFileName(referenceId);
 						const islandName = serverIslandNameMap.get(resolvedPath);
@@ -166,13 +182,13 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 						if (!resolvedIslandImports.has(islandName)) {
 							resolvedIslandImports.set(islandName, fileName);
 						}
-						mapSource += `\n\t['${islandName}', () => import('${dots}/${fileName}')],`;
+						mapEntries.push([islandName, fileName]);
 					}
-					mapSource += '\n])';
-
-					let nameMapSource = 'new Map(';
-					nameMapSource += `${JSON.stringify(Array.from(serverIslandNameMap.entries()), null, 2)}`;
-					nameMapSource += '\n)';
+					const mapSource = createServerIslandImportMapSource(
+						mapEntries,
+						(fileName) => `${dots}/${fileName}`,
+					);
+					const nameMapSource = createNameMapSource(serverIslandNameMap);
 
 					return {
 						code: code
@@ -207,16 +223,11 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 				if (resolvedIslandImports.size > 0) {
 					const isRelativeChunk = ssrManifestChunk.fileName.includes('/');
 					const dots = isRelativeChunk ? '..' : '.';
-
-					let mapSource = 'new Map([';
-					for (const [islandName, fileName] of resolvedIslandImports) {
-						mapSource += `\n\t['${islandName}', () => import('${dots}/${fileName}')],`;
-					}
-					mapSource += '\n])';
-
-					let nameMapSource = 'new Map(';
-					nameMapSource += `${JSON.stringify(Array.from(serverIslandNameMap.entries()), null, 2)}`;
-					nameMapSource += '\n)';
+					const mapSource = createServerIslandImportMapSource(
+						resolvedIslandImports,
+						(fileName) => `${dots}/${fileName}`,
+					);
+					const nameMapSource = createNameMapSource(serverIslandNameMap);
 
 					ssrManifestChunk.code = ssrManifestChunk.code
 						.replace(serverIslandPlaceholderMap, mapSource)
@@ -264,15 +275,11 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 					const isRelativeChunk = ssrChunkWithPlaceholder.fileName.includes('/');
 					const dots = isRelativeChunk ? '..' : '.';
 
-					let mapSource = 'new Map([';
-					for (const [islandName, fileName] of resolvedIslandImports) {
-						mapSource += `\n\t['${islandName}', () => import('${dots}/${fileName}')],`;
-					}
-					mapSource += '\n])';
-
-					let nameMapSource = 'new Map(';
-					nameMapSource += `${JSON.stringify(Array.from(serverIslandNameMap.entries()), null, 2)}`;
-					nameMapSource += '\n)';
+					const mapSource = createServerIslandImportMapSource(
+						resolvedIslandImports,
+						(fileName) => `${dots}/${fileName}`,
+					);
+					const nameMapSource = createNameMapSource(serverIslandNameMap);
 
 					const newCode = ssrChunkWithPlaceholder.code
 						.replace(serverIslandPlaceholderMap, mapSource)
