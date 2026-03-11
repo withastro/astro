@@ -65,13 +65,13 @@ export function astroContentVirtualModPlugin({
 					environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.prerender) &&
 				_options.optimizeDeps?.noDiscovery === false
 			) {
-				const { config, liveConfig } = getContentPaths(
+				const { config, liveConfig: liveConfigFile } = getContentPaths(
 					settings.config,
 					undefined,
 					settings.config.legacy?.collectionsBackwardsCompat,
 				);
 
-				if (config.exists || liveConfig.exists) {
+				if (config.exists || liveConfigFile.exists) {
 					return {
 						optimizeDeps: {
 							include: ['astro/content/runtime'],
