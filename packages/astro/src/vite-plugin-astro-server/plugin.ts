@@ -168,7 +168,7 @@ export default function createVitePluginAstroServer({
 								return next();
 							}
 
-							if (request.url.includes('/node_modules/') || request.url.includes('.')) {
+							if (request.url.includes('/node_modules/')) {
 								return next();
 							}
 
