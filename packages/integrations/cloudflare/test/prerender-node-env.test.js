@@ -52,13 +52,7 @@ describe('prerenderEnvironment: node', () => {
 		const res = await fixture.fetch('/ssr');
 		assert.equal(res.status, 200);
 		const html = await res.text();
-		assert.ok(
-			html.includes('id="has-cf"'),
-			'Expected the SSR page to contain the has-cf element',
-		);
-		assert.ok(
-			html.includes('>true<'),
-			'Expected Astro.request.cf to be available in the SSR page',
-		);
+		assert.ok(html.includes('id="has-cf"'), 'Expected the SSR page to contain the has-cf element');
+		assert.ok(html.includes('>true<'), 'Expected Astro.request.cf to be available in the SSR page');
 	});
 });

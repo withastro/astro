@@ -97,7 +97,10 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 	const cssContentCache = new Map<string, string>();
 
 	function getCurrentEnvironment(pluginEnv?: DevEnvironment): DevEnvironment | undefined {
-		return pluginEnv ?? server?.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr] as DevEnvironment | undefined;
+		return (
+			pluginEnv ??
+			(server?.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr] as DevEnvironment | undefined)
+		);
 	}
 
 	return [

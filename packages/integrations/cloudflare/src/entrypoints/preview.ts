@@ -24,9 +24,7 @@ const createPreviewServer: CreatePreviewServer = async ({
 }) => {
 	const wranglerConfigPath = resolvePath(fileURLToPath(root), '.wrangler/deploy/config.json');
 	if (!existsSync(wranglerConfigPath)) {
-		logger.error(
-			'No build output found. Run `astro build` before running `astro preview`.',
-		);
+		logger.error('No build output found. Run `astro build` before running `astro preview`.');
 		process.exit(1);
 	}
 
