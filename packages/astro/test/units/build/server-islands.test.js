@@ -111,7 +111,7 @@ describe('Build: Server islands in prerendered pages', () => {
 		assert.ok(manifestContent, 'Server island manifest chunk should be emitted');
 
 		assert.ok(
-			manifestContent.includes("'Island'"),
+			/["']Island["']/.test(manifestContent),
 			`Server island manifest should contain Island component but got:\n${manifestContent}`,
 		);
 		assert.ok(
