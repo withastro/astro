@@ -1,4 +1,4 @@
-import type { ModuleInfo } from 'rollup';
+import type { ModuleInfo } from 'rolldown';
 import type * as vite from 'vite';
 import type { DevEnvironment } from 'vite';
 import { getParentModuleInfos, getTopLevelPageModuleInfos } from '../core/build/graph.js';
@@ -8,8 +8,9 @@ import { getAstroMetadata } from '../vite-plugin-astro/index.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
-// Detect this in comments, both in .astro components and in js/ts files.
-const injectExp = /(?:^\/\/|\/\/!)\s*astro-head-inject/;
+// Detect the head injection marker in .astro components and js/ts files.
+// Uses a variable declaration instead of a comment so it survives bundler minification.
+const injectExp = /\$\$astro_head_inject/;
 
 export default function configHeadVitePlugin(): vite.Plugin {
 	let environment: DevEnvironment;

@@ -1,4 +1,4 @@
-import type { GetModuleInfo } from 'rollup';
+import type { GetModuleInfo } from 'rolldown';
 import type { BuildOptions, ResolvedConfig, Plugin as VitePlugin } from 'vite';
 import { isCSSRequest } from 'vite';
 import { hasAssetPropagationFlag } from '../../../content/index.js';
@@ -17,20 +17,20 @@ import { shouldInlineAsset } from './util.js';
 /***** ASTRO PLUGIN *****/
 
 export function pluginCSS(options: StaticBuildOptions, internals: BuildInternals): VitePlugin[] {
-	return rollupPluginAstroBuildCSS({
+	return rolldownPluginAstroBuildCSS({
 		buildOptions: options,
 		internals,
 	});
 }
 
-/***** ROLLUP SUB-PLUGINS *****/
+/***** ROLLDOWN SUB-PLUGINS *****/
 
 interface PluginOptions {
 	internals: BuildInternals;
 	buildOptions: StaticBuildOptions;
 }
 
-function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
+function rolldownPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 	const { internals, buildOptions } = options;
 	const { settings } = buildOptions;
 
@@ -42,7 +42,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 	const moduleIdToPropagatedCss: Record<string, Set<string>> = {};
 
 	const cssBuildPlugin: VitePlugin = {
-		name: 'astro:rollup-plugin-build-css',
+		name: 'astro:rolldown-plugin-build-css',
 
 		applyToEnvironment(environment) {
 			return (
@@ -256,7 +256,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 	};
 
 	const singleCssPlugin: VitePlugin = {
-		name: 'astro:rollup-plugin-single-css',
+		name: 'astro:rolldown-plugin-single-css',
 		enforce: 'post',
 		applyToEnvironment(environment) {
 			return (
@@ -286,7 +286,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 
 	let assetsInlineLimit: NonNullable<BuildOptions['assetsInlineLimit']>;
 	const inlineStylesheetsPlugin: VitePlugin = {
-		name: 'astro:rollup-plugin-inline-stylesheets',
+		name: 'astro:rolldown-plugin-inline-stylesheets',
 		enforce: 'post',
 		applyToEnvironment(environment) {
 			return (

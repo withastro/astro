@@ -15,7 +15,7 @@ export default function fakeAdapter(options) {
                 params.updateConfig({
                     vite: {
                         build: {
-                            rollupOptions: {
+                            rolldownOptions: {
                                 input: {
                                     string: ENTRYPOINT,
                                     object: { foo: ENTRYPOINT },

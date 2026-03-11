@@ -8,8 +8,8 @@ import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 export const SERVER_ISLAND_MANIFEST = 'virtual:astro:server-island-manifest';
 const RESOLVED_SERVER_ISLAND_MANIFEST = '\0' + SERVER_ISLAND_MANIFEST;
 
-const serverIslandPlaceholderMap = "'$$server-islands-map$$'";
-const serverIslandPlaceholderNameMap = "'$$server-islands-name-map$$'";
+const serverIslandPlaceholderMap = '`$$server-islands-map$$`';
+const serverIslandPlaceholderNameMap = '`$$server-islands-name-map$$`';
 
 export function vitePluginServerIslands({ settings }: AstroPluginOptions): VitePlugin {
 	let command: ConfigEnv['command'] = 'serve';

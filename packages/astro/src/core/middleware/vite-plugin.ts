@@ -1,7 +1,7 @@
 import type { Plugin as VitePlugin } from 'vite';
 import { getServerOutputDirectory } from '../../prerender/utils.js';
 import type { AstroSettings } from '../../types/astro.js';
-import { addRollupInput } from '../build/add-rollup-input.js';
+import { addRolldownInput } from '../build/add-rolldown-input.js';
 import type { BuildInternals } from '../build/internal.js';
 import type { StaticBuildOptions } from '../build/types.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES, MIDDLEWARE_PATH_SEGMENT_NAME } from '../constants.js';
@@ -130,9 +130,9 @@ export function vitePluginMiddlewareBuild(
 
 		options(options) {
 			if (canSplitMiddleware) {
-				// Add middleware as a separate rollup input for environments that support multiple entrypoints.
+				// Add middleware as a separate rolldown input for environments that support multiple entrypoints.
 				// This allows the middleware to be bundled independently.
-				return addRollupInput(options, [MIDDLEWARE_MODULE_ID]);
+				return addRolldownInput(options, [MIDDLEWARE_MODULE_ID]);
 			} else {
 				// TODO warn if edge middleware is enabled
 			}

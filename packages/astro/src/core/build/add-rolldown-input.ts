@@ -1,4 +1,4 @@
-import type { Rollup } from 'vite';
+import type { Rolldown } from 'vite';
 
 function fromEntries<V>(entries: [string, V][]) {
 	const obj: Record<string, V> = {};
@@ -8,10 +8,10 @@ function fromEntries<V>(entries: [string, V][]) {
 	return obj;
 }
 
-export function addRollupInput(
-	inputOptions: Rollup.InputOptions,
+export function addRolldownInput(
+	inputOptions: Rolldown.InputOptions,
 	newInputs: string[],
-): Rollup.InputOptions {
+): Rolldown.InputOptions {
 	// Add input module ids to existing input option, whether it's a string, array or object
 	// this way you can use multiple html plugins all adding their own inputs
 	if (!inputOptions.input) {
@@ -42,5 +42,5 @@ export function addRollupInput(
 		};
 	}
 
-	throw new Error(`Unknown rollup input type. Supported inputs are string, array and object.`);
+	throw new Error(`Unknown rolldown input type. Supported inputs are string, array and object.`);
 }

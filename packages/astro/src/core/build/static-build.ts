@@ -28,17 +28,17 @@ import {
 } from './plugins/plugin-ssr.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { StaticBuildOptions } from './types.js';
-import { encodeName, getTimeStat, viteBuildReturnToRollupOutputs } from './util.js';
+import { encodeName, getTimeStat, viteBuildReturnToRolldownOutputs } from './util.js';
 import { NOOP_MODULE_ID } from './plugins/plugin-noop.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
-import type { InputOption } from 'rollup';
+import type { InputOption } from 'rolldown';
 import { getSSRAssets } from './internal.js';
 
 const PRERENDER_ENTRY_FILENAME_PREFIX = 'prerender-entry';
 
 /**
- * Minimal chunk data extracted from RollupOutput for deferred manifest/content injection.
- * Allows releasing full RollupOutput objects early to reduce memory usage.
+ * Minimal chunk data extracted from RolldownOutput for deferred manifest/content injection.
+ * Allows releasing full RolldownOutput objects early to reduce memory usage.
  */
 export interface ExtractedChunk {
 	fileName: string;
@@ -48,11 +48,11 @@ export interface ExtractedChunk {
 }
 
 /**
- * Extracts only the chunks that need post-build injection from RollupOutput.
- * This allows releasing the full RollupOutput to reduce memory usage.
+ * Extracts only the chunks that need post-build injection from RolldownOutput.
+ * This allows releasing the full RolldownOutput to reduce memory usage.
  */
 function extractRelevantChunks(
-	outputs: vite.Rollup.RollupOutput[],
+	outputs: vite.Rolldown.RolldownOutput[],
 	prerender: boolean,
 ): ExtractedChunk[] {
 	const extracted: ExtractedChunk[] = [];
@@ -142,9 +142,9 @@ export async function viteBuild(opts: StaticBuildOptions) {
  *      - Components with hydration directives (client:*)
  *      - Client-only components
  *      - Page scripts
- *    - These discoveries populate `internals.clientInput` which becomes the rollup input
+ *    - These discoveries populate `internals.clientInput` which becomes the rolldown input
  *    - Config is mutated after builder creation to set dynamic inputs
- *    - If no client scripts exist, uses a "noop" entrypoint to satisfy Rollup's input requirement
+ *    - If no client scripts exist, uses a "noop" entrypoint to satisfy Rolldown's input requirement
  *    - public/ folder is copied during this build
  *
  * Returns outputs from each environment for post-build processing (manifest injection, etc).
@@ -158,24 +158,24 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 	const buildPlugins = getAllBuildPlugins(internals, opts);
 	const flatPlugins = buildPlugins.flat().filter(Boolean);
 	const plugins = [...flatPlugins, ...(viteConfig.plugins || [])];
-	let currentRollupInput: InputOption | undefined = undefined;
+	let currentRolldownInput: InputOption | undefined = undefined;
 	plugins.push({
 		name: 'astro:resolve-input',
-		// When the rollup input is safe to update, we normalize it to always be an object
+		// When the rolldown input is safe to update, we normalize it to always be an object
 		// so we can reliably identify which entrypoint corresponds to the adapter
 		enforce: 'post',
 		config(config) {
-			if (typeof config.build?.rollupOptions?.input === 'string') {
-				config.build.rollupOptions.input = { index: config.build.rollupOptions.input };
-			} else if (Array.isArray(config.build?.rollupOptions?.input)) {
-				config.build.rollupOptions.input = Object.fromEntries(
-					config.build.rollupOptions.input.map((v, i) => [`index_${i}`, v]),
+			if (typeof config.build?.rolldownOptions?.input === 'string') {
+				config.build.rolldownOptions.input = { index: config.build.rolldownOptions.input };
+			} else if (Array.isArray(config.build?.rolldownOptions?.input)) {
+				config.build.rolldownOptions.input = Object.fromEntries(
+					config.build.rolldownOptions.input.map((v, i) => [`index_${i}`, v]),
 				);
 			}
 		},
-		// We save the rollup input to be able to check later on
+		// We save the rolldown input to be able to check later on
 		configResolved(config) {
-			currentRollupInput = config.build.rollupOptions.input;
+			currentRolldownInput = config.build.rolldownOptions.input;
 		},
 	});
 	// Post plugin for manifest injection, page generation, and cleanup
@@ -216,16 +216,16 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 		},
 	});
 
-	function isRollupInput(moduleName: string | null): boolean {
-		if (!currentRollupInput || !moduleName) {
+	function isRolldownInput(moduleName: string | undefined): boolean {
+		if (!currentRolldownInput || !moduleName) {
 			return false;
 		}
-		if (typeof currentRollupInput === 'string') {
-			return currentRollupInput === moduleName;
-		} else if (Array.isArray(currentRollupInput)) {
-			return currentRollupInput.includes(moduleName);
+		if (typeof currentRolldownInput === 'string') {
+			return currentRolldownInput === moduleName;
+		} else if (Array.isArray(currentRolldownInput)) {
+			return currentRolldownInput.includes(moduleName);
 		} else {
-			return Object.keys(currentRollupInput).includes(moduleName);
+			return Object.keys(currentRolldownInput).includes(moduleName);
 		}
 	}
 
@@ -241,8 +241,8 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 			emptyOutDir: false,
 			copyPublicDir: false,
 			manifest: false,
-			rollupOptions: {
-				...viteConfig.build?.rollupOptions,
+			rolldownOptions: {
+				...viteConfig.build?.rolldownOptions,
 				// Setting as `exports-only` allows us to safely delete inputs that are only used during prerendering
 				preserveEntrySignatures: 'exports-only',
 				...(legacyAdapter && settings.buildOutput === 'server'
@@ -274,7 +274,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 						return [prefix, encoded, suffix].join('');
 					},
 					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
-					...viteConfig.build?.rollupOptions?.output,
+					...viteConfig.build?.rolldownOptions?.output,
 					entryFileNames(chunkInfo) {
 						if (chunkInfo.facadeModuleId?.startsWith(VIRTUAL_PAGE_RESOLVED_MODULE_ID)) {
 							return makeAstroPageEntryPointFileName(
@@ -285,9 +285,9 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 						} else if (
 							chunkInfo.facadeModuleId === RESOLVED_LEGACY_SSR_ENTRY_VIRTUAL_MODULE ||
 							// This catches the case when the adapter uses `entrypointResolution: 'auto'`. When doing so,
-							// the adapter must set rollupOptions.input or Astro sets it from `serverEntrypoint`.
-							isRollupInput(chunkInfo.name) ||
-							isRollupInput(chunkInfo.facadeModuleId)
+							// the adapter must set rolldownOptions.input or Astro sets it from `serverEntrypoint`.
+							isRolldownInput(chunkInfo.name) ||
+							isRolldownInput(chunkInfo.facadeModuleId)
 						) {
 							return opts.settings.config.build.serverEntry;
 						} else {
@@ -317,7 +317,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					);
 					settings.timer.end('SSR build');
 					// Extract chunks needing injection, then release output for GC
-					const ssrOutputs = viteBuildReturnToRollupOutputs(ssrOutput);
+					const ssrOutputs = viteBuildReturnToRolldownOutputs(ssrOutput);
 					ssrChunks = extractRelevantChunks(ssrOutputs, false);
 					ssrOutput = undefined as any;
 				}
@@ -331,7 +331,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				extractPrerenderEntryFileName(internals, prerenderOutput);
 
 				// Extract chunks needing injection, then release output for GC
-				const prerenderOutputs = viteBuildReturnToRollupOutputs(prerenderOutput);
+				const prerenderOutputs = viteBuildReturnToRolldownOutputs(prerenderOutput);
 				const prerenderChunks = extractRelevantChunks(prerenderOutputs, true);
 				prerenderOutput = undefined as any;
 
@@ -346,7 +346,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					// So using the noop plugin here which will give us an input that just gets thrown away.
 					internals.clientInput.add(NOOP_MODULE_ID);
 				}
-				builder.environments.client.config.build.rollupOptions.input = Array.from(
+				builder.environments.client.config.build.rolldownOptions.input = Array.from(
 					internals.clientInput,
 				);
 				settings.timer.start('Client build');
@@ -365,7 +365,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				build: {
 					emitAssets: true,
 					outDir: fileURLToPath(new URL('./.prerender/', getServerOutputDirectory(settings))),
-					rollupOptions: {
+					rolldownOptions: {
 						// Only skip the default prerender entrypoint if an adapter with `entrypointResolution: 'self'` is used
 						// AND provides a custom prerenderer. Otherwise, use the default.
 						...(!legacyAdapter && settings.prerenderer
@@ -374,7 +374,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 						output: {
 							entryFileNames: `${PRERENDER_ENTRY_FILENAME_PREFIX}.[hash].mjs`,
 							format: 'esm',
-							...viteConfig.environments?.prerender?.build?.rollupOptions?.output,
+							...viteConfig.environments?.prerender?.build?.rolldownOptions?.output,
 						},
 					},
 					ssr: true,
@@ -388,13 +388,13 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					copyPublicDir: true,
 					sourcemap: viteConfig.environments?.client?.build?.sourcemap ?? false,
 					minify: true,
-					rollupOptions: {
+					rolldownOptions: {
 						preserveEntrySignatures: 'exports-only',
 						output: {
 							entryFileNames: `${settings.config.build.assets}/[name].[hash].js`,
 							chunkFileNames: `${settings.config.build.assets}/[name].[hash].js`,
 							assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
-							...viteConfig.environments?.client?.build?.rollupOptions?.output,
+							...viteConfig.environments?.client?.build?.rolldownOptions?.output,
 						},
 					},
 				},
@@ -402,9 +402,9 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 			[ASTRO_VITE_ENVIRONMENT_NAMES.ssr]: {
 				build: {
 					outDir: fileURLToPath(getServerOutputDirectory(settings)),
-					rollupOptions: {
+					rolldownOptions: {
 						output: {
-							...viteConfig.environments?.ssr?.build?.rollupOptions?.output,
+							...viteConfig.environments?.ssr?.build?.rolldownOptions?.output,
 						},
 					},
 				},
@@ -430,11 +430,11 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
  */
 function getPrerenderEntryFileName(
 	prerenderOutput:
-		| vite.Rollup.RollupOutput
-		| vite.Rollup.RollupOutput[]
-		| vite.Rollup.RollupWatcher,
+		| vite.Rolldown.RolldownOutput
+		| vite.Rolldown.RolldownOutput[]
+		| vite.Rolldown.RolldownWatcher,
 ): string {
-	const outputs = viteBuildReturnToRollupOutputs(prerenderOutput);
+	const outputs = viteBuildReturnToRolldownOutputs(prerenderOutput);
 
 	for (const output of outputs) {
 		for (const chunk of output.output) {
@@ -459,9 +459,9 @@ function getPrerenderEntryFileName(
 function extractPrerenderEntryFileName(
 	internals: BuildInternals,
 	prerenderOutput:
-		| vite.Rollup.RollupOutput
-		| vite.Rollup.RollupOutput[]
-		| vite.Rollup.RollupWatcher,
+		| vite.Rolldown.RolldownOutput
+		| vite.Rolldown.RolldownOutput[]
+		| vite.Rolldown.RolldownWatcher,
 ) {
 	internals.prerenderEntryFileName = getPrerenderEntryFileName(prerenderOutput);
 }

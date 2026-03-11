@@ -1,4 +1,4 @@
-// astro-head-inject
+globalThis.$$astro_head_inject = true;
 import {
 	createDeprecatedFunction,
 	createGetCollection,

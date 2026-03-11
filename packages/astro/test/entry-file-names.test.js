@@ -3,7 +3,7 @@ import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-describe('vite.build.rollupOptions.entryFileNames', () => {
+describe('vite.build.rolldownOptions.entryFileNames', () => {
 	let fixture;
 
 	before(async () => {
