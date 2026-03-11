@@ -37,6 +37,9 @@
     "stream-replace-string": "^2.0.0",
     "zod": "^4.3.6"
   },
+  "peerDependencies": {
+    "astro": "^6.0.0-alpha.0"
+  },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
