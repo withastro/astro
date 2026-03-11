@@ -141,6 +141,7 @@ export default function createIntegration({
 				const needsImagesBindingForDev = isCompile && command === 'dev';
 
 				cfPluginConfig = {
+					...cloudflareOptions,
 					config: cloudflareConfigCustomizer({
 						needsSessionKVBinding,
 						sessionKVBindingName,
@@ -148,6 +149,7 @@ export default function createIntegration({
 							needsImagesBinding || needsImagesBindingForDev ? imagesBindingName : false,
 					}),
 					experimental: {
+						...cloudflareOptions.experimental,
 						prerenderWorker: {
 							config(_, { entryWorkerConfig }) {
 								return {
