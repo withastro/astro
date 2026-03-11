@@ -1,5 +1,139 @@
 # @astrojs/node
 
+## 10.0.0
+
+### Major Changes
+
+- [#15654](https://github.com/withastro/astro/pull/15654) [`a32aee6`](https://github.com/withastro/astro/commit/a32aee6eb8bb9ae46caf2249ff56df27db2d4e2a) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the `experimentalErrorPageHost` option
+
+  This option allowed fetching a prerendered error page from a different host than the server is currently running on.
+
+  However, there can be security implications with prefetching from other hosts, and often more customization was required to do this safely. This has now been removed as a built-in option so that you can implement your own secure solution as needed and appropriate for your project via middleware.
+
+  #### What should I do?
+
+  If you were previously using this feature, you must remove the option from your adapter configuration as it no longer exists:
+
+  ```diff
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config'
+  import node from '@astrojs/node'
+
+  export default defineConfig({
+    adapter: node({
+      mode: 'standalone',
+  -    experimentalErrorPageHost: 'http://localhost:4321'
+    })
+  })
+  ```
+
+  You can replicate the previous behavior by checking the response status in a middleware and fetching the prerendered page yourself:
+
+  ```ts
+  // src/middleware.ts
+  import { defineMiddleware } from 'astro:middleware';
+
+  export const onRequest = defineMiddleware(async (ctx, next) => {
+    const response = await next();
+    if (response.status === 404 || response.status === 500) {
+      return fetch(`http://localhost:4321/${response.status}.html`);
+    }
+    return response;
+  });
+  ```
+
+### Minor Changes
+
+- [#15258](https://github.com/withastro/astro/pull/15258) [`d339a18`](https://github.com/withastro/astro/commit/d339a182b387a7a1b0d5dd0d67a0638aaa2b4262) Thanks [@ematipico](https://github.com/ematipico)! - Stabilizes the adapter feature `experimentalStatiHeaders`. If you were using this feature in any of the supported adapters, you'll need to change the name of the flag:
+
+  ```diff
+  export default defineConfig({
+    adapter: netlify({
+  -    experimentalStaticHeaders: true
+  +    staticHeaders: true
+    })
+  })
+  ```
+
+- [#15759](https://github.com/withastro/astro/pull/15759) [`39ff2a5`](https://github.com/withastro/astro/commit/39ff2a565614250acae83d35bf196e0463857d9e) Thanks [@matthewp](https://github.com/matthewp)! - Adds a new `bodySizeLimit` option to the `@astrojs/node` adapter
+
+  You can now configure a maximum allowed request body size for your Node.js standalone server. The default limit is 1 GB. Set the value in bytes, or pass `0` to disable the limit entirely:
+
+  ```js
+  import node from '@astrojs/node';
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    adapter: node({
+      mode: 'standalone',
+      bodySizeLimit: 1024 * 1024 * 100, // 100 MB
+    }),
+  });
+  ```
+
+- [#15006](https://github.com/withastro/astro/pull/15006) [`f361730`](https://github.com/withastro/astro/commit/f361730bc820c01a2ec3e508ac940be8077d8c04) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds new session driver object shape
+
+  For greater flexibility and improved consistency with other Astro code, session drivers are now specified as an object:
+
+  ```diff
+  -import { defineConfig } from 'astro/config'
+  +import { defineConfig, sessionDrivers } from 'astro/config'
+
+  export default defineConfig({
+    session: {
+  -    driver: 'redis',
+  -    options: {
+  -      url: process.env.REDIS_URL
+  -    },
+  +    driver: sessionDrivers.redis({
+  +      url: process.env.REDIS_URL
+  +    }),
+    }
+  })
+  ```
+
+  Specifying the session driver as a string has been deprecated, but will continue to work until this feature is removed completely in a future major version. The object shape is the current recommended and documented way to configure a session driver.
+
+- [#14946](https://github.com/withastro/astro/pull/14946) [`95c40f7`](https://github.com/withastro/astro/commit/95c40f7109ce240206c3951761a7bb439dd809cb) Thanks [@ematipico](https://github.com/ematipico)! - Removes the `experimental.csp` flag and replaces it with a new configuration option `security.csp` - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#experimental-flags))
+
+### Patch Changes
+
+- [#15473](https://github.com/withastro/astro/pull/15473) [`d653b86`](https://github.com/withastro/astro/commit/d653b864252e0b39a3774f0e1ecf4b7b69851288) Thanks [@matthewp](https://github.com/matthewp)! - Improves error page loading to read from disk first before falling back to configured host
+
+- [#15562](https://github.com/withastro/astro/pull/15562) [`e14a51d`](https://github.com/withastro/astro/commit/e14a51d30196bad534bacb14aac7033b91aed741) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates to new Adapter API introduced in v6
+
+- [#15585](https://github.com/withastro/astro/pull/15585) [`98ea30c`](https://github.com/withastro/astro/commit/98ea30c56d6d317d76e2290ed903f11961204714) Thanks [@matthewp](https://github.com/matthewp)! - Add a default body size limit for server actions to prevent oversized requests from exhausting memory.
+
+- [#15777](https://github.com/withastro/astro/pull/15777) [`02e24d9`](https://github.com/withastro/astro/commit/02e24d952de29c1c633744e7408215bedeb4d436) Thanks [@matthewp](https://github.com/matthewp)! - Fixes CSRF origin check mismatch by passing the actual server listening port to `createRequest`, ensuring the constructed URL origin includes the correct port (e.g., `http://localhost:4321` instead of `http://localhost`). Also restricts `X-Forwarded-Proto` to only be trusted when `allowedDomains` is configured.
+
+- [#15714](https://github.com/withastro/astro/pull/15714) [`9a2c949`](https://github.com/withastro/astro/commit/9a2c949a2527cc921cfc80803f1bf49e9d945a37) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where static headers weren't correctly applied when the website uses `base`.
+
+- [#15763](https://github.com/withastro/astro/pull/15763) [`1567e8c`](https://github.com/withastro/astro/commit/1567e8cc9153f4e8089b2d942ffb73c14cca8031) Thanks [@matthewp](https://github.com/matthewp)! - Normalizes static file paths before evaluating dotfile access rules for improved consistency
+
+- [#15164](https://github.com/withastro/astro/pull/15164) [`54dc11d`](https://github.com/withastro/astro/commit/54dc11deb09ca2ad4683504011786008a8f3674a) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes an issue where the Node.js adapter could fail to serve a 404 page matching a pre-rendered dynamic route pattern.
+
+- [#15745](https://github.com/withastro/astro/pull/15745) [`20b05c0`](https://github.com/withastro/astro/commit/20b05c042bde561f53d47348fd4cb2ec478bca23) Thanks [@matthewp](https://github.com/matthewp)! - Hardens static file handler path resolution to ensure resolved paths stay within the client directory
+
+- [#15495](https://github.com/withastro/astro/pull/15495) [`5b99e90`](https://github.com/withastro/astro/commit/5b99e9077a92602f1e46e9b6eb9094bcd00c640e) Thanks [@leekeh](https://github.com/leekeh)! - Refactors to use `middlewareMode` adapter feature (set to `classic`)
+
+- [#15657](https://github.com/withastro/astro/pull/15657) [`cb625b6`](https://github.com/withastro/astro/commit/cb625b62596582047ec8cc4256960cc11804e931) Thanks [@qzio](https://github.com/qzio)! - Adds a new `security.actionBodySizeLimit` option to configure the maximum size of Astro Actions request bodies.
+
+  This lets you increase the default 1 MB limit when your actions need to accept larger payloads. For example, actions that handle file uploads or large JSON payloads can now opt in to a higher limit.
+
+  If you do not set this option, Astro continues to enforce the 1 MB default to help prevent abuse.
+
+  ```js
+  // astro.config.mjs
+  export default defineConfig({
+    security: {
+      actionBodySizeLimit: 10 * 1024 * 1024, // set to 10 MB
+    },
+  });
+  ```
+
+- Updated dependencies [[`4ebc1e3`](https://github.com/withastro/astro/commit/4ebc1e328ac40e892078031ed9dfecf60691fd56), [`4e7f3e8`](https://github.com/withastro/astro/commit/4e7f3e8e6849c314a0ab031ebd7f23fb982f0529), [`a164c77`](https://github.com/withastro/astro/commit/a164c77336059f2dc3e7f7fe992aa754ed145ef3), [`cf6ea6b`](https://github.com/withastro/astro/commit/cf6ea6b36b67c7712395ed3f9ca19cb14ba1a013), [`a18d727`](https://github.com/withastro/astro/commit/a18d727fc717054df85177c8e0c3d38a5252f2da), [`240c317`](https://github.com/withastro/astro/commit/240c317faab52d7f22494e9181f5d2c2c404b0bd), [`745e632`](https://github.com/withastro/astro/commit/745e632fc590e41a5701509e9cc4ed971bdddf74)]:
+  - @astrojs/internal-helpers@0.8.0
+
 ## 10.0.0-beta.9
 
 ### Minor Changes
@@ -185,7 +319,7 @@
 
 ### Minor Changes
 
-- [#14946](https://github.com/withastro/astro/pull/14946) [`95c40f7`](https://github.com/withastro/astro/commit/95c40f7109ce240206c3951761a7bb439dd809cb) Thanks [@ematipico](https://github.com/ematipico)! - Removes the `experimental.csp` flag and replaces it with a new configuration option `security.csp` - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#experimental-flags))
+- [#14946](https://github.com/withastro/astro/pull/14946) [`95c40f7`](https://github.com/withastro/astro/commit/95c40f7109ce240206c3951761a7bb439dd809cb) Thanks [@ematipico](https://github.com/ematipico)! - Removes the `experimental.csp` flag and replaces it with a new configuration option `security.csp` - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#experimental-flags))
 
 ## 10.0.0-alpha.0
 

@@ -53,5 +53,8 @@ onlyBuiltDependencies:
   - 'keytar'
   - '@vscode/vsce-sign'
 
+patchedDependencies:
+  '@changesets/get-github-info@0.7.0': patches/@changesets__get-github-info@0.7.0.patch
+
 # TODO: enable when viable
 # trustPolicy: 'no-downgrade'

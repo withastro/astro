@@ -167,6 +167,30 @@ type ImageSharedProps<T> = T & {
 	 * ```
 	 */
 	priority?: boolean;
+
+	/**
+	 * Defines how the image should be cropped if the aspect ratio is changed.
+	 *
+	 * Default is `cover`. Allowed values are `fill`, `contain`, `cover`, `none` or `scale-down`. These behave like the equivalent CSS `object-fit` values. Other values may be passed if supported by the image service.
+	 *
+	 * **Example**:
+	 * ```astro
+	 * <Image src={...} fit="contain" alt="..." />
+	 * ```
+	 */
+	fit?: ImageFit;
+
+	/**
+	 * Defines the position of the image when cropping.
+	 *
+	 * The value is a string that specifies the position of the image, which matches the CSS `object-position` property. Other values may be passed if supported by the image service.
+	 *
+	 * **Example**:
+	 * ```astro
+	 * <Image src={...} position="center top" alt="..." />
+	 * ```
+	 */
+	position?: string;
 } & (
 		| {
 				/**
@@ -187,32 +211,6 @@ type ImageSharedProps<T> = T & {
 				layout?: ImageLayout;
 
 				/**
-				 * Defines how the image should be cropped if the aspect ratio is changed. Requires `layout` to be set.
-				 *
-				 * Default is `cover`. Allowed values are `fill`, `contain`, `cover`, `none` or `scale-down`. These behave like the equivalent CSS `object-fit` values. Other values may be passed if supported by the image service.
-				 *
-				 * **Example**:
-				 * ```astro
-				 * <Image src={...} fit="contain" alt="..." />
-				 * ```
-				 */
-
-				fit?: ImageFit;
-
-				/**
-				 * Defines the position of the image when cropping. Requires `layout` to be set.
-				 *
-				 * The value is a string that specifies the position of the image, which matches the CSS `object-position` property. Other values may be passed if supported by the image service.
-				 *
-				 * **Example**:
-				 * ```astro
-				 * <Image src={...} position="center top" alt="..." />
-				 * ```
-				 */
-
-				position?: string;
-
-				/**
 				 * A list of widths to generate images for. The value of this property will be used to assign the `srcset` property on the final `img` element.
 				 *
 				 * This attribute is incompatible with `densities`.
@@ -229,8 +227,6 @@ type ImageSharedProps<T> = T & {
 				densities?: (number | `${number}x`)[];
 				widths?: never;
 				layout?: never;
-				fit?: never;
-				position?: never;
 		  }
 	) &
 	Astro.CustomImageProps;

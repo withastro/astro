@@ -21,7 +21,28 @@ import {
 import { parseEnv } from 'node:util';
 import { sessionDrivers } from 'astro/config';
 import { createCloudflarePrerenderer } from './prerenderer.js';
-import { createRequire } from 'node:module';
+
+const CLOUDFLARE_KV_SESSION_DRIVER_ENTRYPOINT = sessionDrivers.cloudflareKVBinding().entrypoint;
+
+function usesCloudflareKVSessionDriver(session: AstroConfig['session']): boolean {
+	const driver = session?.driver;
+
+	if (!driver) {
+		return false;
+	}
+
+	if (typeof driver === 'string') {
+		return driver === 'cloudflareKVBinding' || driver === 'cloudflare-kv-binding';
+	}
+
+	const entrypoint =
+		typeof driver.entrypoint === 'string' ? driver.entrypoint : driver.entrypoint.toString();
+
+	return (
+		entrypoint === CLOUDFLARE_KV_SESSION_DRIVER_ENTRYPOINT ||
+		entrypoint.endsWith('cloudflare-kv-binding')
+	);
+}
 
 export type { Runtime } from './utils/handler.js';
 
@@ -111,6 +132,8 @@ export default function createIntegration({
 					};
 				}
 
+				const needsSessionKVBinding = usesCloudflareKVSessionDriver(session);
+
 				// In dev, `compile` needs the IMAGES binding for real transforms
 				// (the image-transform-endpoint uses it). At build time,
 				// `compile` uses Sharp on the Node side instead.
@@ -118,6 +141,7 @@ export default function createIntegration({
 
 				cfPluginConfig = {
 					config: cloudflareConfigCustomizer({
+						needsSessionKVBinding,
 						sessionKVBindingName,
 						imagesBindingName:
 							needsImagesBinding || needsImagesBindingForDev ? imagesBindingName : false,
@@ -151,7 +175,11 @@ export default function createIntegration({
 					session,
 					vite: {
 						plugins: [
-							cfVitePlugin({ ...cfPluginConfig, viteEnvironment: { name: 'ssr' } }),
+							cfVitePlugin({
+								...cloudflareOptions,
+								...cfPluginConfig,
+								viteEnvironment: { name: 'ssr' },
+							}),
 							{
 								name: '@astrojs/cloudflare:cf-imports',
 								enforce: 'pre',
@@ -188,6 +216,7 @@ export default function createIntegration({
 													'astro > unstorage',
 													'astro > neotraverse/modern',
 													'astro > piccolore',
+													'astro > picomatch',
 													'astro/app',
 													'astro/assets',
 													'astro/compiler-runtime',
@@ -252,7 +281,7 @@ export default function createIntegration({
 				});
 
 				if (cloudflareOptions.configPath) {
-					addWatchFile(createRequire(import.meta.url).resolve(cloudflareOptions.configPath));
+					addWatchFile(new URL(cloudflareOptions.configPath, config.root));
 				}
 
 				addWatchFile(new URL('./wrangler.toml', config.root));
