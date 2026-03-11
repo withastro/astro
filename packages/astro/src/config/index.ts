@@ -60,6 +60,17 @@ export function getViteConfig(
 			{ routesList, settings, command: cmd, logger, mode, sync: false },
 		);
 		await runHookConfigDone({ settings, logger });
+		// Remove dev-server-only plugins that are not needed for external tools (e.g. vitest).
+		// The `astro:server` plugin eagerly imports Astro modules via the Vite module runner
+		// inside its `configureServer` hook, which can crash in non-Astro server contexts.
+		if (viteConfig.plugins) {
+			viteConfig.plugins = viteConfig.plugins.filter((p) => {
+				if (p && typeof p === 'object' && 'name' in p) {
+					return p.name !== 'astro:server' && p.name !== 'astro:server-client';
+				}
+				return true;
+			});
+		}
 		return mergeConfig(viteConfig, userViteConfig);
 	};
 }
