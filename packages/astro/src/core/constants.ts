@@ -128,7 +128,7 @@ export const ASTRO_VITE_ENVIRONMENT_NAMES = {
 	prerender: 'prerender',
 	// Environment used during the build to compile server island components
 	// as separate entry points into the SSR output directory.
-	serverIslands: 'server_islands',
+	ssrEntries: 'ssr_entries',
 } as const;
 
 export type AstroEnvironmentNames =

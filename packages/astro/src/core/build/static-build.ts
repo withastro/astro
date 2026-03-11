@@ -370,8 +370,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 						// Build server island components as top-level entries into the SSR output dir.
 						// Using a dedicated environment so Rollup properly resolves all transitive
 						// dependencies — no fragile file copying needed.
-						const serverIslandsEnv =
-							builder.environments[ASTRO_VITE_ENVIRONMENT_NAMES.serverIslands];
+						const serverIslandsEnv = builder.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssrEntries];
 						const islandInputs = Object.fromEntries(
 							Array.from(islandMap.entries()).map(([name, resolvedPath]) => [name, resolvedPath]),
 						);
@@ -475,7 +474,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 			// Uses NOOP_MODULE_ID as default input since Vite requires at least one.
 			// The real input is set dynamically in buildApp after SSR and prerender builds
 			// discover which components use server:defer.
-			[ASTRO_VITE_ENVIRONMENT_NAMES.serverIslands]: {
+			[ASTRO_VITE_ENVIRONMENT_NAMES.ssrEntries]: {
 				build: {
 					outDir: fileURLToPath(getServerOutputDirectory(settings)),
 					emptyOutDir: false,
