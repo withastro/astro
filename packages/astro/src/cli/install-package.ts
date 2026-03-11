@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module';
+import { pathToFileURL } from 'node:url';
 import * as clack from '@clack/prompts';
 import ci from 'ci-info';
 import { detect, resolveCommand } from 'package-manager-detector';
@@ -23,9 +24,10 @@ export async function getPackage<T>(
 ): Promise<T | undefined> {
 	try {
 		// Try to resolve with `createRequire` first to prevent ESM caching of the package
-		// if it errors and fails here
-		require.resolve(packageName, { paths: [options.cwd ?? process.cwd()] });
-		const packageImport = await import(packageName);
+		// if it errors and fails here. Resolve from the project CWD to handle strict
+		// package managers like pnpm where bare specifiers won't reach user-installed packages.
+		const resolvedPath = require.resolve(packageName, { paths: [options.cwd ?? process.cwd()] });
+		const packageImport = await import(pathToFileURL(resolvedPath).toString());
 		return packageImport as T;
 	} catch {
 		if (options.optional) return undefined;
@@ -46,7 +48,10 @@ export async function getPackage<T>(
 		const result = await installPackage([packageName, ...otherDeps], options, logger);
 
 		if (result) {
-			const packageImport = await import(packageName);
+			const resolvedPath = require.resolve(packageName, {
+				paths: [options.cwd ?? process.cwd()],
+			});
+			const packageImport = await import(pathToFileURL(resolvedPath).toString());
 			return packageImport;
 		} else {
 			return undefined;
