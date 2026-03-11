@@ -43,23 +43,15 @@ describe(
 			// The manifest is embedded in the build output
 			// Check the manifest file which contains the serialized manifest
 			const manifestURL = new URL(
-				'./fixtures/skew-protection/.netlify/build/chunks/',
+				'./fixtures/skew-protection/.netlify/build/entry.mjs',
 				import.meta.url,
 			);
 
 			// Find the manifest file (it has a hash in the name)
-			const { readdir } = await import('node:fs/promises');
-			const files = await readdir(manifestURL);
-			let found = false;
-			for (const file of files) {
-				const contents = await readFile(new URL(file, manifestURL), 'utf-8');
-				if (contents.includes('"internalFetchHeaders":{"X-Netlify-Deploy-ID":"test-deploy-123"}')) {
-					found = true;
-					break;
-				}
-			}
+			const contents = await readFile(manifestURL, 'utf-8');
+
 			assert.ok(
-				found,
+				contents.includes('"internalFetchHeaders":{"X-Netlify-Deploy-ID":"test-deploy-123"}'),
 				'Manifest should include internalFetchHeaders field with the correct deploy ID value',
 			);
 		});
