@@ -21,7 +21,6 @@ import {
 import { parseEnv } from 'node:util';
 import { sessionDrivers } from 'astro/config';
 import { createCloudflarePrerenderer } from './prerenderer.js';
-import { createRequire } from 'node:module';
 
 const CLOUDFLARE_KV_SESSION_DRIVER_ENTRYPOINT = sessionDrivers.cloudflareKVBinding().entrypoint;
 
@@ -176,7 +175,7 @@ export default function createIntegration({
 					session,
 					vite: {
 						plugins: [
-							cfVitePlugin({ ...cfPluginConfig, viteEnvironment: { name: 'ssr' } }),
+							cfVitePlugin({ ...cloudflareOptions, ...cfPluginConfig, viteEnvironment: { name: 'ssr' } }),
 							{
 								name: '@astrojs/cloudflare:cf-imports',
 								enforce: 'pre',
@@ -278,7 +277,7 @@ export default function createIntegration({
 				});
 
 				if (cloudflareOptions.configPath) {
-					addWatchFile(createRequire(import.meta.url).resolve(cloudflareOptions.configPath));
+					addWatchFile(new URL(cloudflareOptions.configPath, config.root));
 				}
 
 				addWatchFile(new URL('./wrangler.toml', config.root));
