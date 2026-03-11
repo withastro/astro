@@ -28,6 +28,39 @@ export default function vitePluginRenderers(options: PluginOptions): VitePlugin 
 	return {
 		name: 'astro:plugin-renderers',
 		enforce: 'pre',
+		configEnvironment(environmentName, _options) {
+			if (
+				(environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
+					environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.prerender) &&
+				_options.optimizeDeps?.noDiscovery === false
+			) {
+				const include = renderers.map((renderer) => renderer.serverEntrypoint.toString());
+				if (include.length === 0) {
+					return;
+				}
+
+				return {
+					optimizeDeps: {
+						include,
+					},
+				};
+			}
+
+			if (environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
+				const include = renderers
+					.flatMap((renderer) => renderer.clientEntrypoint ?? [])
+					.map((entrypoint) => entrypoint.toString());
+				if (include.length === 0) {
+					return;
+				}
+
+				return {
+					optimizeDeps: {
+						include,
+					},
+				};
+			}
+		},
 
 		resolveId: {
 			filter: {
