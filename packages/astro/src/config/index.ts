@@ -60,6 +60,17 @@ export function getViteConfig(
 			{ routesList, settings, command: cmd, logger, mode, sync: false },
 		);
 		await runHookConfigDone({ settings, logger });
+		// Remove dev-server-specific plugins that are not needed when using getViteConfig
+		// for test runners (e.g., vitest). These plugins set up middleware and handlers for
+		// the `astro dev` HTTP server, and their configureServer hooks can cause errors
+		// when vitest makes the SSR environment runnable (e.g., CJS modules like `cookie`
+		// fail under Vite's ESModulesEvaluator).
+		if (viteConfig.plugins) {
+			viteConfig.plugins = viteConfig.plugins.filter((p) => {
+				const name = p && typeof p === 'object' && 'name' in p ? p.name : undefined;
+				return name !== 'astro:server' && name !== 'astro:server-client';
+			});
+		}
 		return mergeConfig(viteConfig, userViteConfig);
 	};
 }
