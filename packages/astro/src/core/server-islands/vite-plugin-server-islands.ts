@@ -11,7 +11,7 @@ export const SERVER_ISLAND_MANIFEST = 'virtual:astro:server-island-manifest';
 const RESOLVED_SERVER_ISLAND_MANIFEST = '\0' + SERVER_ISLAND_MANIFEST;
 
 export const serverIslandPlaceholderMap = "'$$server-islands-map$$'";
-export const serverIslandPlaceholderNameMap = "'$$server-islands-name-map$$'";
+const serverIslandPlaceholderNameMap = "'$$server-islands-name-map$$'";
 
 export function vitePluginServerIslands({ settings }: AstroPluginOptions): VitePlugin {
 	let command: ConfigEnv['command'] = 'serve';

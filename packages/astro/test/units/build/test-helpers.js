@@ -79,30 +79,3 @@ export function virtualAstroModules(root, files) {
 		},
 	};
 }
-
-/**
- * A Vite plugin that captures all generated bundle chunks in memory and
- * deletes them from the bundle so nothing is written to disk.
- *
- * After the build, inspect `plugin.chunks` to access the captured output.
- *
- * @returns {{ name: string, chunks: Map<string, import('rollup').OutputChunk | import('rollup').OutputAsset>, generateBundle: Function }}
- */
-export function captureBuildOutput() {
-	/** @type {Map<string, import('rollup').OutputChunk | import('rollup').OutputAsset>} */
-	const chunks = new Map();
-
-	return {
-		name: 'capture-build-output',
-		enforce: 'post',
-		generateBundle: {
-			handler(_options, bundle) {
-				for (const [name, chunk] of Object.entries(bundle)) {
-					chunks.set(name, chunk);
-					delete bundle[name];
-				}
-			},
-		},
-		chunks,
-	};
-}
