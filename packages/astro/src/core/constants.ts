@@ -82,11 +82,6 @@ export const originPathnameSymbol = Symbol.for('astro.originPathname');
 export const pipelineSymbol = Symbol.for('astro.pipeline');
 
 /**
- * Use this symbol to set and retrieve AstroSettings on ViteDevServer.
- */
-export const settingsSymbol = Symbol.for('astro.settings');
-
-/**
  * Use this symbol to opt into handling prerender routes in Astro core dev middleware.
  */
 export const devPrerenderMiddlewareSymbol = Symbol.for('astro.devPrerenderMiddleware');

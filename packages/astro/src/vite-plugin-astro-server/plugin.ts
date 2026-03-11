@@ -8,7 +8,6 @@ import type { SSRManifest, SSRManifestCSP, SSRManifestI18n } from '../core/app/t
 import {
 	ASTRO_VITE_ENVIRONMENT_NAMES,
 	devPrerenderMiddlewareSymbol,
-	settingsSymbol,
 } from '../core/constants.js';
 import {
 	getAlgorithm,
@@ -55,9 +54,6 @@ export default function createVitePluginAstroServer({
 			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
 		},
 		async configureServer(viteServer) {
-			// Expose settings so integration plugins can access them
-			(viteServer as any)[settingsSymbol] = settings;
-
 			const ssrEnvironment = viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
 			const prerenderEnvironment = viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.prerender];
 
