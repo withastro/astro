@@ -13,6 +13,7 @@ import {
 	setImageConfig,
 } from './utils/image-config.js';
 import { createConfigPlugin } from './vite-plugin-config.js';
+import { createNodePrerenderPlugin } from './vite-plugin-dev-server-prerender-middleware.js';
 import {
 	cloudflareConfigCustomizer,
 	DEFAULT_SESSION_KV_BINDING_NAME,
@@ -76,6 +77,14 @@ export interface Options
 	 */
 	imagesBindingName?: string;
 
+	/**
+	 * Controls which runtime is used for prerendering static pages at build time.
+	 *
+	 * - `'workerd'` (default): Uses Cloudflare's workerd runtime.
+	 * - `'node'`: Uses Astro's default node prerender environment.
+	 */
+	prerenderEnvironment?: 'workerd' | 'node';
+
 	experimental?: Pick<
 		NonNullable<PluginConfig['experimental']>,
 		'headersAndRedirectsDevModeSupport'
@@ -86,6 +95,7 @@ export default function createIntegration({
 	imageService,
 	sessionKVBindingName = DEFAULT_SESSION_KV_BINDING_NAME,
 	imagesBindingName = DEFAULT_IMAGES_BINDING_NAME,
+	prerenderEnvironment = 'workerd',
 	...cloudflareOptions
 }: Options = {}): AstroIntegration {
 	let _config: AstroConfig;
@@ -146,20 +156,22 @@ export default function createIntegration({
 						imagesBindingName:
 							needsImagesBinding || needsImagesBindingForDev ? imagesBindingName : false,
 					}),
-					experimental: {
-						prerenderWorker: {
-							config(_, { entryWorkerConfig }) {
-								return {
-									...entryWorkerConfig,
-									name: 'prerender',
-									...(needsImagesBinding &&
-										!entryWorkerConfig.images && {
-											images: { binding: imagesBindingName },
-										}),
-								};
+					...(prerenderEnvironment === 'workerd' && {
+						experimental: {
+							prerenderWorker: {
+								config(_, { entryWorkerConfig }) {
+									return {
+										...entryWorkerConfig,
+										name: 'prerender',
+										...(needsImagesBinding &&
+											!entryWorkerConfig.images && {
+												images: { binding: imagesBindingName },
+											}),
+									};
+								},
 							},
 						},
-					},
+					}),
 				};
 
 				// The preview entrypoint uses Cloudflare's vite plugin and so it needs access
@@ -175,6 +187,9 @@ export default function createIntegration({
 					session,
 					vite: {
 						plugins: [
+							...(prerenderEnvironment === 'node' && command === 'dev'
+								? [createNodePrerenderPlugin()]
+								: []),
 							cfVitePlugin({
 								...cloudflareOptions,
 								...cfPluginConfig,
@@ -344,17 +359,19 @@ export default function createIntegration({
 				}
 			},
 			'astro:build:start': ({ setPrerenderer }) => {
-				setPrerenderer(
-					createCloudflarePrerenderer({
-						root: _config.root,
-						serverDir: _config.build.server,
-						clientDir: _config.build.client,
-						base: _config.base,
-						trailingSlash: _config.trailingSlash,
-						cfPluginConfig,
-						hasCompileImageService: buildService === 'compile',
-					}),
-				);
+				if (prerenderEnvironment === 'workerd') {
+					setPrerenderer(
+						createCloudflarePrerenderer({
+							root: _config.root,
+							serverDir: _config.build.server,
+							clientDir: _config.build.client,
+							base: _config.base,
+							trailingSlash: _config.trailingSlash,
+							cfPluginConfig,
+							hasCompileImageService: buildService === 'compile',
+						}),
+					);
+				}
 			},
 			'astro:build:setup': ({ vite, target }) => {
 				if (target === 'server') {
