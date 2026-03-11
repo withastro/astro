@@ -109,7 +109,6 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 					if (command === 'build' && settings.buildOutput) {
 						const hasServerIslands = serverIslandNameMap.size > 0;
 						// Error if there are server islands but no adapter provided.
-						console.log('here', hasServerIslands);
 						if (hasServerIslands && settings.buildOutput !== 'server') {
 							throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
 						}
