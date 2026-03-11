@@ -126,9 +126,6 @@ export const ASTRO_VITE_ENVIRONMENT_NAMES = {
 	// If your plugin runs in `ASTRO_VITE_ENVIRONMENT_NAMES.ssr`, you might
 	// want to add `ASTRO_VITE_ENVIRONMENT_NAMES.prerender` too
 	prerender: 'prerender',
-	// Environment used during the build to compile server island components
-	// as separate entry points into the SSR output directory.
-	ssrEntries: 'ssr_entries',
 } as const;
 
 export type AstroEnvironmentNames =

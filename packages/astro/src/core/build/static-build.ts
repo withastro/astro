@@ -167,8 +167,6 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 	const plugins = [...flatPlugins, ...(viteConfig.plugins || [])];
 	let currentRollupInput: InputOption | undefined = undefined;
 	let buildPostHooks: BuildPostHook[] = [];
-	// Reference to the server islands plugin, captured during buildApp for the dedicated island build.
-	let serverIslandsPlugin: vite.Plugin | undefined = undefined;
 	plugins.push({
 		name: 'astro:resolve-input',
 		// When the rollup input is safe to update, we normalize it to always be an object
@@ -358,44 +356,6 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					)
 					.filter(Boolean) as BuildPostHook[];
 
-				// Capture the server islands plugin and run a dedicated build if islands were discovered.
-				serverIslandsPlugin = ssrPlugins.find(
-					(p: vite.Plugin) => p.name === 'astro:server-islands',
-				);
-
-				if (serverIslandsPlugin?.api?.getServerIslandMap) {
-					const islandMap: Map<string, string> = serverIslandsPlugin.api.getServerIslandMap();
-
-					if (islandMap.size > 0) {
-						// Build server island components as top-level entries into the SSR output dir.
-						// Using a dedicated environment so Rollup properly resolves all transitive
-						// dependencies — no fragile file copying needed.
-						const serverIslandsEnv = builder.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssrEntries];
-						const islandInputs = Object.fromEntries(
-							Array.from(islandMap.entries()).map(([name, resolvedPath]) => [name, resolvedPath]),
-						);
-						serverIslandsEnv.config.build.rollupOptions.input = islandInputs;
-
-						settings.timer.start('Server islands build');
-						let islandBuildOutput = await builder.build(serverIslandsEnv);
-						settings.timer.end('Server islands build');
-
-						// Extract the output filenames and store them on the plugin
-						const resolvedImports = new Map<string, string>();
-						const outputs = viteBuildReturnToRollupOutputs(islandBuildOutput);
-						for (const output of outputs) {
-							for (const chunk of output.output) {
-								if (chunk.type === 'chunk' && chunk.isEntry && chunk.name) {
-									resolvedImports.set(chunk.name, chunk.fileName);
-								}
-							}
-						}
-						islandBuildOutput = undefined as any;
-
-						serverIslandsPlugin.api.setResolvedIslandImports(resolvedImports);
-					}
-				}
-
 				// Build client environment
 				// We must discover client inputs after SSR build because hydration/client-only directives
 				// are only detected during SSR. We mutate the config here since the builder was already created
@@ -466,25 +426,6 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					rollupOptions: {
 						output: {
 							...viteConfig.environments?.ssr?.build?.rollupOptions?.output,
-						},
-					},
-				},
-			},
-			// Environment for building server island components as separate entry points.
-			// Uses NOOP_MODULE_ID as default input since Vite requires at least one.
-			// The real input is set dynamically in buildApp after SSR and prerender builds
-			// discover which components use server:defer.
-			[ASTRO_VITE_ENVIRONMENT_NAMES.ssrEntries]: {
-				build: {
-					outDir: fileURLToPath(getServerOutputDirectory(settings)),
-					emptyOutDir: false,
-					ssr: true,
-					rollupOptions: {
-						input: NOOP_MODULE_ID,
-						output: {
-							format: 'esm',
-							entryFileNames: `${CHUNKS_PATH}[name]_[hash].mjs`,
-							chunkFileNames: `${CHUNKS_PATH}[name]_[hash].mjs`,
 						},
 					},
 				},

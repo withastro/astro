@@ -1,7 +1,10 @@
+import fs from 'node:fs';
 import type { ConfigEnv, DevEnvironment, Plugin as VitePlugin } from 'vite';
+import { getServerOutputDirectory } from '../../prerender/utils.js';
 import type { AstroPluginOptions } from '../../types/astro.js';
 import type { AstroPluginMetadata } from '../../vite-plugin-astro/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
+import { appendForwardSlash } from '../path.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 
 export const SERVER_ISLAND_MANIFEST = 'virtual:astro:server-island-manifest';
@@ -21,11 +24,9 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 	const serverIslandMap = new Map<string, string>();
 	const serverIslandNameMap = new Map<string, string>();
 
-	// Resolved island chunk filenames from the dedicated server islands build.
-	// Set by the buildApp orchestrator via api.setResolvedIslandImports() after
-	// the dedicated build completes.
+	// Resolved island chunk filenames discovered across SSR + prerender builds.
 	// Map of displayName → chunk fileName (e.g. 'Island' → 'chunks/Island_abc123.mjs')
-	let resolvedIslandImports: Map<string, string> | null = null;
+	const resolvedIslandImports = new Map<string, string>();
 
 	// Reference to the SSR manifest chunk, saved during SSR's generateBundle.
 	// Patched in-memory during prerender's generateBundle so test capture plugins
@@ -162,6 +163,9 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 						const fileName = this.getFileName(referenceId);
 						const islandName = serverIslandNameMap.get(resolvedPath);
 						if (!islandName) continue;
+						if (!resolvedIslandImports.has(islandName)) {
+							resolvedIslandImports.set(islandName, fileName);
+						}
 						mapSource += `\n\t['${islandName}', () => import('${dots}/${fileName}')],`;
 					}
 					mapSource += '\n])';
@@ -200,15 +204,12 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 			}
 
 			if (envName === ASTRO_VITE_ENVIRONMENT_NAMES.prerender && ssrManifestChunk) {
-				if (referenceIdMap.size > 0) {
+				if (resolvedIslandImports.size > 0) {
 					const isRelativeChunk = ssrManifestChunk.fileName.includes('/');
 					const dots = isRelativeChunk ? '..' : '.';
 
 					let mapSource = 'new Map([';
-					for (const [resolvedPath, referenceId] of referenceIdMap) {
-						const fileName = this.getFileName(referenceId);
-						const islandName = serverIslandNameMap.get(resolvedPath);
-						if (!islandName) continue;
+					for (const [islandName, fileName] of resolvedIslandImports) {
 						mapSource += `\n\t['${islandName}', () => import('${dots}/${fileName}')],`;
 					}
 					mapSource += '\n])';
@@ -216,8 +217,6 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 					let nameMapSource = 'new Map(';
 					nameMapSource += `${JSON.stringify(Array.from(serverIslandNameMap.entries()), null, 2)}`;
 					nameMapSource += '\n)';
-
-					referenceIdMap.clear();
 
 					ssrManifestChunk.code = ssrManifestChunk.code
 						.replace(serverIslandPlaceholderMap, mapSource)
@@ -232,34 +231,18 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 
 		api: {
 			/**
-			 * Returns the discovered server island components.
-			 * Map of displayName → resolvedPath (e.g. 'Island' → '/abs/path/Island.astro').
-			 * Used by buildApp to determine inputs for the dedicated server islands build.
-			 */
-			getServerIslandMap(): Map<string, string> {
-				return serverIslandMap;
-			},
-
-			/**
-			 * Store the resolved island chunk filenames from the dedicated build.
-			 * Called by buildApp after the server islands build completes.
-			 */
-			setResolvedIslandImports(imports: Map<string, string>) {
-				resolvedIslandImports = imports;
-			},
-
-			/**
 			 * Post-build hook that patches SSR chunks containing server island placeholders.
 			 *
-			 * During build, renderChunk always leaves placeholders in place. After the
-			 * dedicated server islands build produces the island chunks in the SSR output
-			 * directory, this hook replaces the placeholders with the real import maps.
+			 * During build, SSR can run before all server islands are discovered (e.g. islands
+			 * only used in prerendered pages). This hook runs after SSR + prerender builds and:
+			 * 1) replaces placeholders with the complete map of discovered islands
+			 * 2) copies island chunks emitted in prerender into the SSR output directory
 			 *
 			 * Two cases:
 			 * 1. Islands were discovered: Replace placeholders with real import maps.
 			 * 2. No islands found: Replace placeholders with empty maps.
 			 */
-			buildPostHook({
+			async buildPostHook({
 				chunks,
 				mutate,
 			}: {
@@ -275,8 +258,8 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 					return;
 				}
 
-				if (resolvedIslandImports && resolvedIslandImports.size > 0) {
-					// Server islands were built by the dedicated build step.
+				if (resolvedIslandImports.size > 0) {
+					// Server islands were discovered across SSR/prerender builds.
 					// Construct import paths relative to the SSR chunk's location.
 					const isRelativeChunk = ssrChunkWithPlaceholder.fileName.includes('/');
 					const dots = isRelativeChunk ? '..' : '.';
@@ -296,6 +279,18 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 						.replace(serverIslandPlaceholderNameMap, nameMapSource);
 
 					mutate(ssrChunkWithPlaceholder.fileName, newCode, false);
+
+					const serverOutputDir = getServerOutputDirectory(settings);
+					const prerenderOutputDir = new URL('./.prerender/', serverOutputDir);
+					for (const [, fileName] of resolvedIslandImports) {
+						const srcPath = new URL(fileName, appendForwardSlash(prerenderOutputDir.toString()));
+						const destPath = new URL(fileName, appendForwardSlash(serverOutputDir.toString()));
+
+						if (!fs.existsSync(srcPath)) continue;
+						const destDir = new URL('./', destPath);
+						await fs.promises.mkdir(destDir, { recursive: true });
+						await fs.promises.copyFile(srcPath, destPath);
+					}
 				} else {
 					// No server islands found — replace placeholders with empty maps
 					const newCode = ssrChunkWithPlaceholder.code
