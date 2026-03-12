@@ -2,9 +2,7 @@ import { setGetEnv } from 'astro/env/setup';
 import {
 	ASTRO_LOCALS_HEADER,
 	ASTRO_MIDDLEWARE_SECRET_HEADER,
-	ASTRO_MIDDLEWARE_SECRET_PARAM,
 	ASTRO_PATH_HEADER,
-	ASTRO_PATH_PARAM,
 } from '../index.js';
 import { middlewareSecret, skewProtection } from 'virtual:astro-vercel:config';
 import { createApp } from 'astro/app/entrypoint';
@@ -18,15 +16,9 @@ export default {
 	async fetch(request: Request): Promise<Response> {
 		const url = new URL(request.url);
 		const middlewareSecretHeader = request.headers.get(ASTRO_MIDDLEWARE_SECRET_HEADER);
-		const middlewareSecretParam = url.searchParams.get(ASTRO_MIDDLEWARE_SECRET_PARAM);
-		const hasValidMiddlewareSecret =
-			middlewareSecretHeader === middlewareSecret || middlewareSecretParam === middlewareSecret;
-		const realPath =
-			(hasValidMiddlewareSecret ? request.headers.get(ASTRO_PATH_HEADER) : null) ??
-			(hasValidMiddlewareSecret ? url.searchParams.get(ASTRO_PATH_PARAM) : null);
+		const hasValidMiddlewareSecret = middlewareSecretHeader === middlewareSecret;
+		const realPath = hasValidMiddlewareSecret ? request.headers.get(ASTRO_PATH_HEADER) : null;
 		if (typeof realPath === 'string') {
-			url.searchParams.delete(ASTRO_PATH_PARAM);
-			url.searchParams.delete(ASTRO_MIDDLEWARE_SECRET_PARAM);
 			url.pathname = realPath;
 			request = new Request(url.toString(), {
 				method: request.method,

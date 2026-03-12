@@ -43,7 +43,6 @@ const PACKAGE_NAME = '@astrojs/vercel';
  */
 export const ASTRO_PATH_HEADER = 'x-astro-path';
 export const ASTRO_PATH_PARAM = 'x_astro_path';
-export const ASTRO_MIDDLEWARE_SECRET_PARAM = 'x_astro_middleware_secret';
 
 /**
  * The edge function calls the node server at /_render,
@@ -61,8 +60,7 @@ const MIDDLEWARE_PATH = '_middleware';
 // This isn't documented by vercel anywhere, but unlike serverless
 // and edge functions, isr functions are not passed the original path.
 // Instead, we have to use $0 to refer to the regex match from "src".
-const getISRPath = (middlewareSecret: string) =>
-	`/_isr?${ASTRO_PATH_PARAM}=$0&${ASTRO_MIDDLEWARE_SECRET_PARAM}=${middlewareSecret}`;
+const ISR_PATH = `/_isr?${ASTRO_PATH_PARAM}=$0`;
 
 // https://vercel.com/docs/concepts/functions/serverless-functions/runtimes/node-js#node.js-version
 const SUPPORTED_NODE_VERSIONS: Record<
@@ -261,7 +259,6 @@ export default function vercelAdapter({
 	const extraFilesToInclude: URL[] = [];
 	// Secret used to verify that the caller is the astro-generated edge middleware and not a third-party
 	const middlewareSecret = crypto.randomUUID();
-	const isrPath = getISRPath(middlewareSecret);
 
 	let _buildOutput: 'server' | 'static';
 
@@ -490,7 +487,7 @@ export default function vercelAdapter({
 								const dest =
 									src.startsWith('^\\/_image') || src.startsWith('^\\/_server-islands')
 										? NODE_PATH
-										: isrPath;
+										: ISR_PATH;
 								if (!route.isPrerendered)
 									routeDefinitions.push({
 										src,
@@ -712,7 +709,7 @@ class VercelBuilder {
 		await writeJson(prerenderConfig, {
 			expiration: isr.expiration ?? false,
 			bypassToken: isr.bypassToken,
-			allowQuery: [ASTRO_PATH_PARAM, ASTRO_MIDDLEWARE_SECRET_PARAM],
+			allowQuery: [ASTRO_PATH_PARAM],
 			passQuery: true,
 		});
 	}
