@@ -45,6 +45,10 @@ describe('App render error pages', () => {
 
 		assert.equal(response.status, 500);
 		assert.equal(response.headers.get('x-debug'), '1234');
+		assert.equal(
+			[...response.headers.keys()].some((e) => e.startsWith('X-Astro-')),
+			false,
+		);
 		assert.match(await response.text(), /oops/);
 	});
 

@@ -16,6 +16,7 @@ import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { isAstroServerEnvironment } from '../environments.js';
+import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 
 type Payload = {
 	settings: AstroSettings;
@@ -29,6 +30,32 @@ export const ASTRO_ROUTES_MODULE_ID = 'virtual:astro:routes';
 const ASTRO_ROUTES_MODULE_ID_RESOLVED = '\0' + ASTRO_ROUTES_MODULE_ID;
 
 const KNOWN_FILE_EXTENSIONS = ['.astro', '.js', '.ts'];
+
+/**
+ * In dev mode, populate route scripts with integration-injected scripts from settings.
+ * This ensures non-runnable environments (e.g. Cloudflare's workerd) can access
+ * scripts injected via `injectScript()` during `astro:config:setup`.
+ */
+export function getDevRouteScripts(
+	command: 'dev' | 'build',
+	scripts: AstroSettings['scripts'],
+): SerializedRouteInfo['scripts'] {
+	if (command !== 'dev') return [];
+	const result: SerializedRouteInfo['scripts'] = [];
+	const hasPageScripts = scripts.some((s) => s.stage === 'page');
+	if (hasPageScripts) {
+		result.push({
+			type: 'external',
+			value: `/@id/${PAGE_SCRIPT_ID}`,
+		});
+	}
+	for (const script of scripts) {
+		if (script.stage === 'head-inline') {
+			result.push({ stage: script.stage, children: script.content });
+		}
+	}
+	return result;
+}
 
 export default async function astroPluginRoutes({
 	settings,
@@ -44,7 +71,7 @@ export default async function astroPluginRoutes({
 			return {
 				file: '',
 				links: [],
-				scripts: [],
+				scripts: getDevRouteScripts(command, settings.scripts),
 				styles: [],
 				routeData: serializeRouteData(r, settings.config.trailingSlash),
 			};
@@ -77,20 +104,31 @@ export default async function astroPluginRoutes({
 				return {
 					file: fileURLToPath(file),
 					links: [],
-					scripts: [],
+					scripts: getDevRouteScripts(command, settings.scripts),
 					styles: [],
 					routeData: serializeRouteData(r, settings.config.trailingSlash),
 				};
 			});
-			let environment = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
-			const virtualMod = environment.moduleGraph.getModuleById(ASTRO_ROUTES_MODULE_ID_RESOLVED);
-			if (!virtualMod) return;
+			const environmentsToInvalidate = [];
+			for (const name of [
+				ASTRO_VITE_ENVIRONMENT_NAMES.ssr,
+				ASTRO_VITE_ENVIRONMENT_NAMES.prerender,
+			] as const) {
+				const environment = server.environments[name];
+				if (environment) {
+					environmentsToInvalidate.push(environment);
+				}
+			}
 
-			environment.moduleGraph.invalidateModule(virtualMod);
+			for (const environment of environmentsToInvalidate) {
+				const virtualMod = environment.moduleGraph.getModuleById(ASTRO_ROUTES_MODULE_ID_RESOLVED);
+				if (!virtualMod) continue;
 
-			// Signal that routes have changed so running apps can update
-			// NOTE: Consider adding debouncing here if rapid file changes cause performance issues
-			environment.hot.send('astro:routes-updated', {});
+				environment.moduleGraph.invalidateModule(virtualMod);
+				// Signal that routes have changed so running apps can update
+				// NOTE: Consider adding debouncing here if rapid file changes cause performance issues
+				environment.hot.send('astro:routes-updated', {});
+			}
 		}
 	}
 	return {

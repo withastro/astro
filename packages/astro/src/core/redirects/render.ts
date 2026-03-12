@@ -2,13 +2,15 @@ import type { RedirectConfig } from '../../types/public/index.js';
 import type { RenderContext } from '../render-context.js';
 import { getRouteGenerator } from '../routing/generator.js';
 
+function isExternalURL(url: string): boolean {
+	return url.startsWith('http://') || url.startsWith('https://') || url.startsWith('//');
+}
+
 export function redirectIsExternal(redirect: RedirectConfig): boolean {
 	if (typeof redirect === 'string') {
-		return redirect.startsWith('http://') || redirect.startsWith('https://');
+		return isExternalURL(redirect);
 	} else {
-		return (
-			redirect.destination.startsWith('http://') || redirect.destination.startsWith('https://')
-		);
+		return isExternalURL(redirect.destination);
 	}
 }
 

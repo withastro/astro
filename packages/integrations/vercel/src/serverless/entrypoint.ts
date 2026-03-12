@@ -7,6 +7,7 @@ import {
 } from '../index.js';
 import { middlewareSecret, skewProtection } from 'virtual:astro-vercel:config';
 import { createApp } from 'astro/app/entrypoint';
+import { getClientIpAddress } from '@astrojs/internal-helpers/request';
 
 setGetEnv((key) => process.env[key]);
 
@@ -48,7 +49,7 @@ export default {
 
 		const response = await app.render(request, {
 			routeData,
-			clientAddress: request.headers.get('x-forwarded-for') ?? undefined,
+			clientAddress: getClientIpAddress(request),
 			locals,
 		});
 

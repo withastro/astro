@@ -12,6 +12,7 @@ import {
 	astroContentVirtualModPlugin,
 } from '../content/index.js';
 import { createEnvLoader } from '../env/env-loader.js';
+import { validateEnvPrefixAgainstSchema } from '../env/validators.js';
 import { astroEnv } from '../env/vite-plugin-env.js';
 import { importMetaEnv } from '../env/vite-plugin-import-meta-env.js';
 import astroInternationalization from '../i18n/vite-plugin-i18n.js';
@@ -45,6 +46,7 @@ import { createViteLogger } from './logger/vite.js';
 import { vitePluginMiddleware } from './middleware/vite-plugin.js';
 import { joinPaths } from './path.js';
 import { vitePluginServerIslands } from './server-islands/vite-plugin-server-islands.js';
+import { vitePluginCacheProvider } from './cache/vite-plugin.js';
 import { vitePluginSessionDriver } from './session/vite-plugin.js';
 import { isObject } from './util-runtime.js';
 import { vitePluginEnvironment } from '../vite-plugin-environment/index.js';
@@ -111,6 +113,9 @@ export async function createVite(
 		config: settings.config,
 	});
 
+	// Validate that envPrefix doesn't conflict with secret env schema variables
+	validateEnvPrefixAgainstSchema(settings.config);
+
 	// Start with the Vite configuration that Astro core needs
 	const commonConfig: vite.InlineConfig = {
 		// Tell Vite not to combine config from vite.config.js with our provided inline config
@@ -164,6 +169,7 @@ export async function createVite(
 			vitePluginActions({ fs, settings }),
 			vitePluginServerIslands({ settings, logger }),
 			vitePluginSessionDriver({ settings }),
+			vitePluginCacheProvider({ settings }),
 			astroContainer(),
 			astroHmrReloadPlugin(),
 			vitePluginChromedevtools({ settings }),
@@ -225,7 +231,7 @@ export async function createVite(
 	};
 
 	// If the user provides a custom assets prefix, make sure assets handled by Vite
-	// are prefixed with it too. This uses one of it's experimental features, but it
+	// are prefixed with it too. This uses one of its experimental features, but it
 	// has been stable for a long time now.
 	const assetsPrefix = settings.config.build.assetsPrefix;
 	if (assetsPrefix) {
