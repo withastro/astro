@@ -54,6 +54,9 @@
     "@fastify/static": "^9.0.0",
     "node-mocks-http": "^1.17.2"
   },
+  "astro": {
+    "external": true
+  },
   "publishConfig": {
     "provenance": true
   }

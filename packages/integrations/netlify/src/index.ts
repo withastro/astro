@@ -664,9 +664,6 @@ export default function netlifyIntegration(
 								cacheOnDemandPages: !!integrationConfig?.cacheOnDemandPages,
 							}),
 						],
-						ssr: {
-							noExternal: ['@astrojs/netlify'],
-						},
 						server: {
 							watch: {
 								ignored: [fileURLToPath(new URL('./.netlify/**', rootDir))],
