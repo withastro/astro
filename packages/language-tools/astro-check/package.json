@@ -11,9 +11,11 @@
     "directory": "packages/language-tools/astro-check"
   },
   "type": "module",
-  "main": "dist/index.js",
   "exports": {
-    ".": "./dist/index.js"
+    ".": {
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
   },
   "bin": {
     "astro-check": "./bin/astro-check.js"
