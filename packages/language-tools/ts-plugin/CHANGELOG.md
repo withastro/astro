@@ -1,5 +1,14 @@
 # @astrojs/ts-plugin
 
+## 1.10.7
+
+### Patch Changes
+
+- [#15820](https://github.com/withastro/astro/pull/15820) [`e20474b`](https://github.com/withastro/astro/commit/e20474b98c6d868ed9734f7eeb7564bffe8bfd77) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes broken publish
+
+- Updated dependencies [[`e20474b`](https://github.com/withastro/astro/commit/e20474b98c6d868ed9734f7eeb7564bffe8bfd77)]:
+  - @astrojs/yaml2ts@0.2.3
+
 ## 1.10.6
 
 ### Patch Changes

@@ -93,7 +93,6 @@ export abstract class Pipeline {
 		if (manifest.experimentalQueuedRendering.enabled) {
 			this.nodePool = this.createNodePool(
 				manifest.experimentalQueuedRendering.poolSize ?? 1000,
-				manifest.experimentalQueuedRendering.contentCache ?? false,
 				false,
 			);
 			if (manifest.experimentalQueuedRendering.contentCache) {
@@ -269,8 +268,8 @@ export abstract class Pipeline {
 		}
 	}
 
-	public createNodePool(poolSize: number, contentCache: boolean, stats: boolean): NodePool {
-		return new NodePool(poolSize, contentCache, stats);
+	public createNodePool(poolSize: number, stats: boolean): NodePool {
+		return new NodePool(poolSize, stats);
 	}
 
 	public createStringCache(): HTMLStringCache {

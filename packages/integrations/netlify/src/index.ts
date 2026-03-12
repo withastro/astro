@@ -456,7 +456,8 @@ export default function netlifyIntegration(
 				const ctx = createContext({
 					request,
 					params: {},
-					locals: { netlify: { context } }
+					locals: { netlify: { context } },
+					clientAddress: context.ip,
 				});
 				// https://docs.netlify.com/edge-functions/api/#return-a-rewrite
 				ctx.rewrite = (target) => {
@@ -502,8 +503,8 @@ export default function netlifyIntegration(
 			plugins: [
 				{
 					name: 'allowNodePrefixedImports',
-					setup(puglinBuild) {
-						puglinBuild.onResolve({ filter: /^node:.*$/ }, (args) => ({
+					setup(pluginBuild) {
+						pluginBuild.onResolve({ filter: /^node:.*$/ }, (args) => ({
 							path: args.path,
 							external: true,
 						}));
@@ -677,7 +678,8 @@ export default function netlifyIntegration(
 							// defaults to true, so should only be disabled if the user has
 							// explicitly set false
 							entrypoint:
-								(command === 'build' && integrationConfig?.imageCDN === false) ||
+								integrationConfig?.imageCDN === false ||
+								// In dev, if the vite plugin's image proxy isn't enabled, don't try to use the Netlify service since it won't work
 								(command === 'dev' && vitePluginOptions?.images?.enabled === false)
 									? undefined
 									: '@astrojs/netlify/image-service.js',

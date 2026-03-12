@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { beforeEach, describe, it } from 'node:test';
 import { createI18nMiddleware } from '../../../dist/i18n/middleware.js';
-import { createMockAPIContext } from '../middleware/test-helpers.js';
+import { createMockAPIContext } from '../mocks.js';
 
 /**
  * Creates a "page" response that mimics what the render pipeline returns.

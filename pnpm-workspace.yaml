@@ -33,8 +33,7 @@ minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   # TODO: remove once more stable
   - '@flue/*'
-  - '@astrojs/compiler-rs'
-  - '@astrojs/compiler-binding*'
+  - '@astrojs/*'
   # Renovate security update: fast-xml-parser@5.3.8
   - fast-xml-parser@5.3.8
   # Renovate security update: svelte@5.53.5
@@ -51,6 +50,9 @@ onlyBuiltDependencies:
   - '@parcel/watcher'
   - 'keytar'
   - '@vscode/vsce-sign'
+
+patchedDependencies:
+  '@changesets/get-github-info@0.7.0': patches/@changesets__get-github-info@0.7.0.patch
 
 # TODO: enable when viable
 # trustPolicy: 'no-downgrade'
