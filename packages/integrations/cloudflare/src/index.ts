@@ -302,6 +302,17 @@ export default function createIntegration({
 										conf.ssr.noExternal = true;
 									}
 								},
+								configEnvironment(environmentName, options) {
+									// Clear resolve.external for the SSR environment because Cloudflare Workers
+									// don't support externalized modules. This is needed because other tools
+									// (e.g. Vitest) may inject Node.js builtins into resolve.external during
+									// the config phase, before configEnvironment runs. Direct mutation is
+									// required because returning { resolve: { external: [] } } would be merged
+									// via mergeConfig, which concatenates arrays rather than replacing them.
+									if (environmentName === 'ssr' && options.resolve) {
+										options.resolve.external = [];
+									}
+								},
 							},
 							createConfigPlugin({
 								sessionKVBindingName,
