@@ -12,11 +12,45 @@ Describe the **change**, **how it works**, and **why it matters**.
 
 Do not use PR sections as a task log.
 
+## Brevity and Depth
+
+Be concise by default, detailed where needed.
+
+- Keep simple changes simple: 1 short bullet can be enough.
+- Add detail only when it helps reviewer understanding (complex logic, non-obvious tradeoffs, edge cases).
+- Prefer 2-4 bullets per section for typical PRs.
+- Avoid repeating the same point across `Changes`, `Testing`, and `Docs`.
+
+Rule of thumb: include the minimum context needed for a reviewer to understand and trust the change.
+
+## PR Title
+
+Use a human, reviewer-friendly title.
+
+- Describe the outcome in plain language.
+- Keep it concise and specific.
+- Prefer phrasing a person would naturally write in a review queue.
+
+Do not use:
+
+- Conventional commit prefixes in PR titles (`fix:`, `feat:`, `docs:`, etc.)
+- Scope tags in commit format (`fix(astro): ...`)
+
+Examples:
+
+- Bad: `fix(cloudflare): surface prerenderer body details`
+- Good: `Surface Cloudflare prerenderer error details during build`
+
 ## Section-by-Section Rules
 
 ### Changes
 
 Use this section for the core code change: behavior, implementation approach, and impact.
+
+Length guidance:
+
+- Simple fix: 1-2 concise bullets.
+- Complex change: add implementation detail, but keep each bullet focused on one idea.
 
 Good content:
 
@@ -35,6 +69,11 @@ Do not include:
 
 Use this section to explain validation quality.
 
+Length guidance:
+
+- Summarize scenarios and outcomes in 1-3 bullets.
+- Mention test file/name when useful; skip unnecessary narrative.
+
 Include:
 
 - What scenarios were tested (happy path, failure path, regression)
@@ -48,6 +87,11 @@ Do not include:
 ### Docs
 
 Explain docs impact based on user-facing behavior.
+
+Length guidance:
+
+- Usually 1 bullet is enough.
+- Add a second bullet only when linking/following up on a docs PR needs context.
 
 - If docs are not needed, briefly explain why (for example: internal bug fix, no docs-facing behavior change).
 - If docs are needed, link the associated docs PR.
