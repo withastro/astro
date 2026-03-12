@@ -10,8 +10,23 @@ import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 export const SERVER_ISLAND_MANIFEST = 'virtual:astro:server-island-manifest';
 const RESOLVED_SERVER_ISLAND_MANIFEST = '\0' + SERVER_ISLAND_MANIFEST;
 
+// The placeholder includes single quotes so it can be emitted as a JS string literal
+// in the virtual module's load hook. Rollup may later change these to double quotes,
+// so we use regex patterns for matching/replacing in renderChunk and generateBundle.
 export const serverIslandPlaceholderMap = "'$$server-islands-map$$'";
 const serverIslandPlaceholderNameMap = "'$$server-islands-name-map$$'";
+
+// Bare marker (without quotes) for .includes() checks on generated code,
+// since Rollup may change single quotes to double quotes during code generation.
+export const SERVER_ISLAND_MAP_MARKER = '$$server-islands-map$$';
+
+// Regex patterns that match the placeholder with either single or double quotes,
+// similar to how MANIFEST_REPLACE handles quote style changes by Rollup.
+const serverIslandMapReplaceExp = new RegExp(`['"]\\$\\$server-islands-map\\$\\$['"]`, 'g');
+const serverIslandNameMapReplaceExp = new RegExp(
+	`['"]\\$\\$server-islands-name-map\\$\\$['"]`,
+	'g',
+);
 
 function createServerIslandImportMapSource(
 	entries: Iterable<[string, string]>,
@@ -164,7 +179,8 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 		},
 
 		renderChunk(code, chunk) {
-			if (code.includes(serverIslandPlaceholderMap)) {
+			// Use bare marker for .includes() check since Rollup may change quote styles
+			if (code.includes(SERVER_ISLAND_MAP_MARKER)) {
 				if (command === 'build') {
 					if (referenceIdMap.size === 0) {
 						// SSR may not discover islands if they only appear in prerendered pages.
@@ -192,16 +208,16 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 
 					return {
 						code: code
-							.replace(serverIslandPlaceholderMap, mapSource)
-							.replace(serverIslandPlaceholderNameMap, nameMapSource),
+							.replace(serverIslandMapReplaceExp, mapSource)
+							.replace(serverIslandNameMapReplaceExp, nameMapSource),
 						map: null,
 					};
 				}
 				// Dev mode: fast-path to empty map replacement
 				return {
 					code: code
-						.replace(serverIslandPlaceholderMap, 'new Map();')
-						.replace(serverIslandPlaceholderNameMap, 'new Map()'),
+						.replace(serverIslandMapReplaceExp, 'new Map();')
+						.replace(serverIslandNameMapReplaceExp, 'new Map()'),
 					map: null,
 				};
 			}
@@ -212,7 +228,7 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 
 			if (envName === ASTRO_VITE_ENVIRONMENT_NAMES.ssr) {
 				for (const chunk of Object.values(bundle)) {
-					if (chunk.type === 'chunk' && chunk.code.includes(serverIslandPlaceholderMap)) {
+					if (chunk.type === 'chunk' && chunk.code.includes(SERVER_ISLAND_MAP_MARKER)) {
 						ssrManifestChunk = chunk;
 						break;
 					}
@@ -230,12 +246,12 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 					const nameMapSource = createNameMapSource(serverIslandNameMap);
 
 					ssrManifestChunk.code = ssrManifestChunk.code
-						.replace(serverIslandPlaceholderMap, mapSource)
-						.replace(serverIslandPlaceholderNameMap, nameMapSource);
+						.replace(serverIslandMapReplaceExp, mapSource)
+						.replace(serverIslandNameMapReplaceExp, nameMapSource);
 				} else {
 					ssrManifestChunk.code = ssrManifestChunk.code
-						.replace(serverIslandPlaceholderMap, 'new Map()')
-						.replace(serverIslandPlaceholderNameMap, 'new Map()');
+						.replace(serverIslandMapReplaceExp, 'new Map()')
+						.replace(serverIslandNameMapReplaceExp, 'new Map()');
 				}
 			}
 		},
@@ -261,8 +277,9 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 				mutate: (fileName: string, code: string, prerender: boolean) => void;
 			}) {
 				// Find SSR chunks that still have the placeholder (not prerender chunks)
+				// Use bare marker for .includes() since Rollup may change quote styles
 				const ssrChunkWithPlaceholder = chunks.find(
-					(c) => !c.prerender && c.code.includes(serverIslandPlaceholderMap),
+					(c) => !c.prerender && c.code.includes(SERVER_ISLAND_MAP_MARKER),
 				);
 
 				if (!ssrChunkWithPlaceholder) {
@@ -282,8 +299,8 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 					const nameMapSource = createNameMapSource(serverIslandNameMap);
 
 					const newCode = ssrChunkWithPlaceholder.code
-						.replace(serverIslandPlaceholderMap, mapSource)
-						.replace(serverIslandPlaceholderNameMap, nameMapSource);
+						.replace(serverIslandMapReplaceExp, mapSource)
+						.replace(serverIslandNameMapReplaceExp, nameMapSource);
 
 					mutate(ssrChunkWithPlaceholder.fileName, newCode, false);
 
@@ -301,8 +318,8 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 				} else {
 					// No server islands found — replace placeholders with empty maps
 					const newCode = ssrChunkWithPlaceholder.code
-						.replace(serverIslandPlaceholderMap, 'new Map()')
-						.replace(serverIslandPlaceholderNameMap, 'new Map()');
+						.replace(serverIslandMapReplaceExp, 'new Map()')
+						.replace(serverIslandNameMapReplaceExp, 'new Map()');
 
 					mutate(ssrChunkWithPlaceholder.fileName, newCode, false);
 				}

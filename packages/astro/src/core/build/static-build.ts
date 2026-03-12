@@ -37,7 +37,7 @@ import { NOOP_MODULE_ID } from './plugins/plugin-noop.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 import type { InputOption } from 'rollup';
 import { getSSRAssets } from './internal.js';
-import { serverIslandPlaceholderMap } from '../server-islands/vite-plugin-server-islands.js';
+import { SERVER_ISLAND_MAP_MARKER } from '../server-islands/vite-plugin-server-islands.js';
 
 const PRERENDER_ENTRY_FILENAME_PREFIX = 'prerender-entry';
 
@@ -73,7 +73,7 @@ function extractRelevantChunks(
 
 			const needsContentInjection = chunk.code.includes(LINKS_PLACEHOLDER);
 			const needsManifestInjection = chunk.moduleIds.includes(SERIALIZED_MANIFEST_RESOLVED_ID);
-			const needsServerIslandInjection = chunk.code.includes(serverIslandPlaceholderMap);
+			const needsServerIslandInjection = chunk.code.includes(SERVER_ISLAND_MAP_MARKER);
 
 			if (needsContentInjection || needsManifestInjection || needsServerIslandInjection) {
 				extracted.push({
