@@ -1,0 +1,5 @@
+---
+const files = Object.values(import.meta.glob('./**/*.mdx', { eager: true }));
+---
+
+{files.map((file: any) => <file.Content />)}

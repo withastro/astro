@@ -1,0 +1,137 @@
+import type { Plugin } from 'vite';
+import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { SERIALIZED_MANIFEST_ID } from './serialized.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
+
+const VIRTUAL_SERVER_ID = 'astro:config/server';
+const RESOLVED_VIRTUAL_SERVER_ID = '\0' + VIRTUAL_SERVER_ID;
+const VIRTUAL_CLIENT_ID = 'astro:config/client';
+const RESOLVED_VIRTUAL_CLIENT_ID = '\0' + VIRTUAL_CLIENT_ID;
+
+export default function virtualModulePlugin(): Plugin {
+	return {
+		name: 'astro-manifest-plugin',
+		resolveId: {
+			filter: {
+				id: new RegExp(`^(${VIRTUAL_SERVER_ID}|${VIRTUAL_CLIENT_ID})$`),
+			},
+			handler(id) {
+				if (id === VIRTUAL_SERVER_ID) {
+					return RESOLVED_VIRTUAL_SERVER_ID;
+				}
+				if (id === VIRTUAL_CLIENT_ID) {
+					return RESOLVED_VIRTUAL_CLIENT_ID;
+				}
+			},
+		},
+		load: {
+			filter: {
+				id: new RegExp(`^(${RESOLVED_VIRTUAL_SERVER_ID}|${RESOLVED_VIRTUAL_CLIENT_ID})$`),
+			},
+			handler(id) {
+				if (id === RESOLVED_VIRTUAL_CLIENT_ID) {
+					// There's nothing wrong about using `/client` on the server
+					const code = `
+import { manifest } from '${SERIALIZED_MANIFEST_ID}'
+import { fromRoutingStrategy } from 'astro/app';
+
+let i18n = undefined;
+if (manifest.i18n) {
+i18n = {
+  defaultLocale: manifest.i18n.defaultLocale,
+  locales: manifest.i18n.locales,
+  routing: fromRoutingStrategy(manifest.i18n.strategy, manifest.i18n.fallbackType),
+  fallback: manifest.i18n.fallback
+  };
+}
+
+let image = undefined;
+if (manifest.image) {
+  image = {
+    objectFit: manifest.image.objectFit,
+    objectPosition: manifest.image.objectPosition,
+    layout: manifest.image.layout,
+  };
+}
+
+const base = manifest.base;
+const trailingSlash = manifest.trailingSlash;
+const site = manifest.site;
+const compressHTML = manifest.compressHTML;
+const build = {
+  format: manifest.buildFormat,
+};
+
+export { base, i18n, trailingSlash, site, compressHTML, build, image };
+				`;
+					return { code };
+				}
+				if (id === RESOLVED_VIRTUAL_SERVER_ID) {
+					if (this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
+						throw new AstroError({
+							...AstroErrorData.ServerOnlyModule,
+							message: AstroErrorData.ServerOnlyModule.message(VIRTUAL_SERVER_ID),
+						});
+					}
+					const code = `
+import { manifest } from '${SERIALIZED_MANIFEST_ID}'
+import { fromRoutingStrategy } from "astro/app";
+
+let i18n = undefined;
+if (manifest.i18n) {
+ i18n = {
+   defaultLocale: manifest.i18n.defaultLocale,
+   locales: manifest.i18n.locales,
+   routing: fromRoutingStrategy(manifest.i18n.strategy, manifest.i18n.fallbackType),
+   fallback: manifest.i18n.fallback,
+   domains: manifest.i18n.domains,
+ };
+}
+
+let image = undefined;
+if (manifest.image) {
+  image = {
+    objectFit: manifest.image.objectFit,
+    objectPosition: manifest.image.objectPosition,
+    layout: manifest.image.layout,
+  };
+}
+
+const base = manifest.base;
+const build = {
+  server: new URL(manifest.buildServerDir),
+  client: new URL(manifest.buildClientDir),
+  format: manifest.buildFormat,
+};
+
+const cacheDir = new URL(manifest.cacheDir);
+const outDir = new URL(manifest.outDir);
+const publicDir = new URL(manifest.publicDir);
+const srcDir = new URL(manifest.srcDir);
+const root = new URL(manifest.rootDir);
+const trailingSlash = manifest.trailingSlash;
+const site = manifest.site;
+const compressHTML = manifest.compressHTML;
+
+export {
+ base,
+ build,
+ cacheDir,
+ outDir,
+ publicDir,
+ srcDir,
+ root,
+ trailingSlash,
+ site,
+ compressHTML,
+ i18n,
+ image,
+}; 
+
+				`;
+					return { code };
+				}
+			},
+		},
+	};
+}

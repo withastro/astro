@@ -1,0 +1,15 @@
+{
+  "name": "@test/performance",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "benchmark": "node ./content-benchmark.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "piccolore": "^0.1.3"
+  }
+}

@@ -1,0 +1,15 @@
+---
+import { ClientRouter } from "astro:transitions";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <ClientRouter />
+		<script is:inline>document.addEventListener("astro:page-load", () => console.log("[test] page-load"))</script>
+    <script is:inline type="module">console.log("[test] inline module")</script>
+  </head>
+  <body>
+    <h1>Astro</h1>
+  </body>
+</html>
