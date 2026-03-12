@@ -92,21 +92,29 @@ function* collectCSSWithOrder(
  * @param routesList
  */
 export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOptions): Plugin[] {
-	let ssrEnvironment: undefined | DevEnvironment = undefined;
+	let server: vite.ViteDevServer | undefined;
 	// Cache CSS content by module ID to avoid re-reading
 	const cssContentCache = new Map<string, string>();
+
+	function getCurrentEnvironment(pluginEnv?: DevEnvironment): DevEnvironment | undefined {
+		return (
+			pluginEnv ??
+			(server?.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr] as DevEnvironment | undefined)
+		);
+	}
 
 	return [
 		{
 			name: MODULE_DEV_CSS,
 
-			async configureServer(server) {
-				ssrEnvironment = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
+			async configureServer(viteServer) {
+				server = viteServer;
 			},
 			applyToEnvironment(env) {
 				return (
 					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
-					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.client
+					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.client ||
+					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
 				);
 			},
 
@@ -144,9 +152,11 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 						// The virtual module name for this page, like virtual:astro:dev-css:index@_@astro
 						const componentPageId = getVirtualModulePageNameForComponent(componentPath);
 
+						const env = getCurrentEnvironment(this.environment as DevEnvironment);
+
 						// Ensure the page module is loaded. This will populate the graph and allow us to walk through.
-						await ssrEnvironment?.fetchModule(componentPageId);
-						const resolved = await ssrEnvironment?.pluginContainer.resolveId(componentPageId);
+						await env?.fetchModule(componentPageId);
+						const resolved = await env?.pluginContainer.resolveId(componentPageId);
 
 						if (!resolved?.id) {
 							return {
@@ -155,7 +165,7 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 						}
 
 						// the vite.EnvironmentModuleNode has all of the info we need
-						const mod = ssrEnvironment?.moduleGraph.getModuleById(resolved.id);
+						const mod = env?.moduleGraph.getModuleById(resolved.id);
 
 						if (!mod) {
 							return {
@@ -164,7 +174,7 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 						}
 
 						// Walk through the graph depth-first
-						for (const collected of collectCSSWithOrder(componentPageId, mod!)) {
+						for (const collected of collectCSSWithOrder(componentPageId, mod)) {
 							// Use the CSS file ID as the key to deduplicate while keeping best ordering
 							if (!cssWithOrder.has(collected.idKey)) {
 								// Look up actual content from cache if available
@@ -200,7 +210,8 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 					}
 
 					// Cache CSS content as we see it
-					const mod = ssrEnvironment?.moduleGraph.getModuleById(id);
+					const env = getCurrentEnvironment(this.environment as DevEnvironment);
+					const mod = env?.moduleGraph.getModuleById(id);
 					if (mod) {
 						cssContentCache.set(id, code);
 					}
@@ -210,11 +221,10 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 		{
 			name: MODULE_DEV_CSS_ALL,
 			applyToEnvironment(env) {
-				// This should only run in dev mode so `prerender` is excluded.
 				return (
 					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
 					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.client ||
-					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.astro
+					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
 				);
 			},
 			resolveId: {

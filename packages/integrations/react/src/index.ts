@@ -8,6 +8,8 @@ import {
 	versionsConfig,
 } from './version.js';
 import type { EnvironmentOptions } from 'vite';
+import type { VirtualModuleOptions } from './types.js';
+import * as devalue from 'devalue';
 
 export type ReactIntegrationOptions = Pick<
 	ViteReactPluginOptions,
@@ -31,9 +33,13 @@ function getRenderer(reactConfig: ReactVersionConfig) {
 }
 
 function optionsPlugin({
+	include,
+	exclude,
 	experimentalReactChildren = false,
 	experimentalDisableStreaming = false,
 }: {
+	include?: ViteReactPluginOptions['include'];
+	exclude?: ViteReactPluginOptions['exclude'];
 	experimentalReactChildren: boolean;
 	experimentalDisableStreaming: boolean;
 }): vite.Plugin {
@@ -54,11 +60,14 @@ function optionsPlugin({
 				id: new RegExp(`^${virtualModuleId}$`),
 			},
 			handler() {
+				const opts: VirtualModuleOptions = {
+					include,
+					exclude,
+					experimentalReactChildren,
+					experimentalDisableStreaming,
+				};
 				return {
-					code: `export default {
-						experimentalReactChildren: ${JSON.stringify(experimentalReactChildren)},
-						experimentalDisableStreaming: ${JSON.stringify(experimentalDisableStreaming)}
-					}`,
+					code: `export default ${devalue.uneval(opts)}`,
 				};
 			},
 		},
@@ -79,6 +88,8 @@ function getViteConfiguration(
 		plugins: [
 			react({ include, exclude, babel }),
 			optionsPlugin({
+				include,
+				exclude,
 				experimentalReactChildren: !!experimentalReactChildren,
 				experimentalDisableStreaming: !!experimentalDisableStreaming,
 			}),

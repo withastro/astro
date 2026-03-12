@@ -1,5 +1,100 @@
 # @astrojs/vercel
 
+## 10.0.0
+
+### Major Changes
+
+- [#15413](https://github.com/withastro/astro/pull/15413) [`736216b`](https://github.com/withastro/astro/commit/736216b2c46f758c6b4a607ccfadcc191c1d56b4) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the deprecated `@astrojs/vercel/serverless` and `@astrojs/vercel/static` exports. Use the `@astrojs/vercel` export instead
+
+### Minor Changes
+
+- [#15258](https://github.com/withastro/astro/pull/15258) [`d339a18`](https://github.com/withastro/astro/commit/d339a182b387a7a1b0d5dd0d67a0638aaa2b4262) Thanks [@ematipico](https://github.com/ematipico)! - Stabilizes the adapter feature `experimentalStatiHeaders`. If you were using this feature in any of the supported adapters, you'll need to change the name of the flag:
+
+  ```diff
+  export default defineConfig({
+    adapter: netlify({
+  -    experimentalStaticHeaders: true
+  +    staticHeaders: true
+    })
+  })
+  ```
+
+- [#15413](https://github.com/withastro/astro/pull/15413) [`736216b`](https://github.com/withastro/astro/commit/736216b2c46f758c6b4a607ccfadcc191c1d56b4) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates the implementation to use the new Adapter API
+
+- [#15495](https://github.com/withastro/astro/pull/15495) [`5b99e90`](https://github.com/withastro/astro/commit/5b99e9077a92602f1e46e9b6eb9094bcd00c640e) Thanks [@leekeh](https://github.com/leekeh)! - Adds new `middlewareMode` adapter feature and deprecates `edgeMiddleware` option
+
+  The `edgeMiddleware` option is now deprecated and will be removed in a future release, so users should transition to using the new `middlewareMode` feature as soon as possible.
+
+  ```diff
+  export default defineConfig({
+    adapter: vercel({
+  -    edgeMiddleware: true
+  +    middlewareMode: 'edge'
+    })
+  })
+  ```
+
+- [#14946](https://github.com/withastro/astro/pull/14946) [`95c40f7`](https://github.com/withastro/astro/commit/95c40f7109ce240206c3951761a7bb439dd809cb) Thanks [@ematipico](https://github.com/ematipico)! - Removes the `experimental.csp` flag and replaces it with a new configuration option `security.csp` - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#experimental-flags))
+
+### Patch Changes
+
+- [#15781](https://github.com/withastro/astro/pull/15781) [`2de969d`](https://github.com/withastro/astro/commit/2de969d1f5279d2d0f3024208146f9cd895267b6) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new `clientAddress` option to the `createContext()` function
+
+  Providing this value gives adapter and middleware authors explicit control over the client IP address. When not provided, accessing `clientAddress` throws an error consistent with other contexts where it is not set by the adapter.
+
+  Additionally, both of the official Netlify and Vercel adapters have been updated to provide this information in their edge middleware.
+
+  ```js
+  import { createContext } from 'astro/middleware';
+
+  createContext({
+    clientAddress: context.headers.get('x-real-ip'),
+  });
+  ```
+
+- [#15778](https://github.com/withastro/astro/pull/15778) [`4ebc1e3`](https://github.com/withastro/astro/commit/4ebc1e328ac40e892078031ed9dfecf60691fd56) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the computed `clientAddress` was incorrect in cases of a Request header with multiple values. The `clientAddress` is now also validated to contain only characters valid in IP addresses, rejecting injection payloads.
+
+- [#15460](https://github.com/withastro/astro/pull/15460) [`ee7e53f`](https://github.com/withastro/astro/commit/ee7e53f9de2338517e149895efd26fca44ad80b6) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates to use the new Adapter API
+
+- [#15450](https://github.com/withastro/astro/pull/15450) [`50c9129`](https://github.com/withastro/astro/commit/50c912978cca4afbe4b3ebd11c30305d5e9c8315) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where `build.serverEntry` would not be respected when using the new Adapter API
+
+- [#15461](https://github.com/withastro/astro/pull/15461) [`9f21b24`](https://github.com/withastro/astro/commit/9f21b243d21478cdc5fb0193e05adad8e753839f) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates to new Adapter API introduced in v6
+
+- [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates Node versions data to account for v24 as the default
+
+- Updated dependencies [[`4ebc1e3`](https://github.com/withastro/astro/commit/4ebc1e328ac40e892078031ed9dfecf60691fd56), [`4e7f3e8`](https://github.com/withastro/astro/commit/4e7f3e8e6849c314a0ab031ebd7f23fb982f0529), [`a164c77`](https://github.com/withastro/astro/commit/a164c77336059f2dc3e7f7fe992aa754ed145ef3), [`cf6ea6b`](https://github.com/withastro/astro/commit/cf6ea6b36b67c7712395ed3f9ca19cb14ba1a013), [`a18d727`](https://github.com/withastro/astro/commit/a18d727fc717054df85177c8e0c3d38a5252f2da), [`240c317`](https://github.com/withastro/astro/commit/240c317faab52d7f22494e9181f5d2c2c404b0bd), [`745e632`](https://github.com/withastro/astro/commit/745e632fc590e41a5701509e9cc4ed971bdddf74)]:
+  - @astrojs/internal-helpers@0.8.0
+
+## 10.0.0-beta.8
+
+### Patch Changes
+
+- [#15781](https://github.com/withastro/astro/pull/15781) [`2de969d`](https://github.com/withastro/astro/commit/2de969d1f5279d2d0f3024208146f9cd895267b6) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new `clientAddress` option to the `createContext()` function
+
+  Providing this value gives adapter and middleware authors explicit control over the client IP address. When not provided, accessing `clientAddress` throws an error consistent with other contexts where it is not set by the adapter.
+
+  Additionally, both of the official Netlify and Vercel adapters have been updated to provide this information in their edge middleware.
+
+  ```js
+  import { createContext } from 'astro/middleware';
+
+  createContext({
+    clientAddress: context.headers.get('x-real-ip'),
+  });
+  ```
+
+- [#15778](https://github.com/withastro/astro/pull/15778) [`4ebc1e3`](https://github.com/withastro/astro/commit/4ebc1e328ac40e892078031ed9dfecf60691fd56) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the computed `clientAddress` was incorrect in cases of a Request header with multiple values. The `clientAddress` is now also validated to contain only characters valid in IP addresses, rejecting injection payloads.
+
+- Updated dependencies [[`4ebc1e3`](https://github.com/withastro/astro/commit/4ebc1e328ac40e892078031ed9dfecf60691fd56), [`4e7f3e8`](https://github.com/withastro/astro/commit/4e7f3e8e6849c314a0ab031ebd7f23fb982f0529)]:
+  - @astrojs/internal-helpers@0.8.0-beta.3
+
+## 10.0.0-beta.7
+
+### Patch Changes
+
+- Updated dependencies [[`745e632`](https://github.com/withastro/astro/commit/745e632fc590e41a5701509e9cc4ed971bdddf74)]:
+  - @astrojs/internal-helpers@0.8.0-beta.2
+
 ## 10.0.0-beta.6
 
 ### Minor Changes
@@ -78,7 +173,7 @@
 
 ### Minor Changes
 
-- [#14946](https://github.com/withastro/astro/pull/14946) [`95c40f7`](https://github.com/withastro/astro/commit/95c40f7109ce240206c3951761a7bb439dd809cb) Thanks [@ematipico](https://github.com/ematipico)! - Removes the `experimental.csp` flag and replaces it with a new configuration option `security.csp` - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#experimental-flags))
+- [#14946](https://github.com/withastro/astro/pull/14946) [`95c40f7`](https://github.com/withastro/astro/commit/95c40f7109ce240206c3951761a7bb439dd809cb) Thanks [@ematipico](https://github.com/ematipico)! - Removes the `experimental.csp` flag and replaces it with a new configuration option `security.csp` - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#experimental-flags))
 
 ## 10.0.0-alpha.0
 
@@ -1099,7 +1194,7 @@
   });
   ```
 
-  This adapter had several known limitations and compatibility issues that prevented many people from using it in production. To reduce maintenance costs and because we have a better story with Serveless + Edge Middleware, we are removing the Edge adapter.
+  This adapter had several known limitations and compatibility issues that prevented many people from using it in production. To reduce maintenance costs and because we have a better story with Serverless + Edge Middleware, we are removing the Edge adapter.
 
 - [#8239](https://github.com/withastro/astro/pull/8239) [`52f0837bd`](https://github.com/withastro/astro/commit/52f0837bdeca0b54e07cbf76a7570bd042b98922) Thanks [@matthewp](https://github.com/matthewp)! - Vercel adapter now defaults to `functionPerRoute`.
 
@@ -1241,7 +1336,7 @@
   });
   ```
 
-  This adapter had several known limitations and compatibility issues that prevented many people from using it in production. To reduce maintenance costs and because we have a better story with Serveless + Edge Middleware, we are removing the Edge adapter.
+  This adapter had several known limitations and compatibility issues that prevented many people from using it in production. To reduce maintenance costs and because we have a better story with Serverless + Edge Middleware, we are removing the Edge adapter.
 
 ### Patch Changes
 
@@ -1910,7 +2005,7 @@
 
   When using the `"server"` output target, you must also include a runtime adapter via the `adapter` configuration. An adapter will _adapt_ your final build to run on the deployed platform of your choice (Netlify, Vercel, Node.js, Deno, etc).
 
-  To migrate: No action is required for most users. If you currently define an `adapter`, you will need to also add `output: 'server'` to your config file to make it explicit that you are building a server. Here is an example of what that change would look like for someone deploying to Netlify:
+  To migrate: No action is required for most users. If you currently define an `adapter`, you will also need to add `output: 'server'` to your config file to make it explicit that you are building a server. Here is an example of what that change would look like for someone deploying to Netlify:
 
   ```diff
   import { defineConfig } from 'astro/config';

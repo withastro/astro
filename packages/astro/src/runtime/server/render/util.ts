@@ -120,11 +120,6 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 		return markHTMLString(` class="${toAttributeString(value, shouldEscape)}"`);
 	}
 
-	// Prevents URLs in attributes from being escaped in static builds
-	if (typeof value === 'string' && value.includes('&') && isHttpUrl(value)) {
-		return markHTMLString(` ${key}="${toAttributeString(value, false)}"`);
-	}
-
 	// Boolean values only need the key
 	if (htmlBooleanAttributes.test(key)) {
 		return handleBooleanAttribute(key, value, shouldEscape, tagName);
@@ -307,14 +302,4 @@ export function promiseWithResolvers<T = any>(): PromiseWithResolvers<T> {
 		resolve,
 		reject,
 	};
-}
-
-const VALID_PROTOCOLS = ['http:', 'https:'];
-function isHttpUrl(url: string) {
-	try {
-		const parsedUrl = new URL(url);
-		return VALID_PROTOCOLS.includes(parsedUrl.protocol);
-	} catch {
-		return false;
-	}
 }
