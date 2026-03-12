@@ -17,6 +17,7 @@ import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { isAstroServerEnvironment } from '../environments.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
+import { RESOLVED_MODULE_DEV_CSS_ALL } from '../vite-plugin-css/const.js';
 
 type Payload = {
 	settings: AstroSettings;
@@ -125,6 +126,13 @@ export default async function astroPluginRoutes({
 				if (!virtualMod) continue;
 
 				environment.moduleGraph.invalidateModule(virtualMod);
+
+				// Also invalidate the dev CSS map so new routes get their CSS resolved
+				const cssMod = environment.moduleGraph.getModuleById(RESOLVED_MODULE_DEV_CSS_ALL);
+				if (cssMod) {
+					environment.moduleGraph.invalidateModule(cssMod);
+				}
+
 				// Signal that routes have changed so running apps can update
 				// NOTE: Consider adding debouncing here if rapid file changes cause performance issues
 				environment.hot.send('astro:routes-updated', {});
