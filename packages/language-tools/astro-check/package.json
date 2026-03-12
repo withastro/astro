@@ -11,6 +11,7 @@
     "directory": "packages/language-tools/astro-check"
   },
   "type": "module",
+  "main": "dist/index.js",
   "exports": {
     ".": "./dist/index.js"
   },
