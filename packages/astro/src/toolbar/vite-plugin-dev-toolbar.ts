@@ -16,7 +16,11 @@ export default function astroDevToolbar({ settings, logger }: AstroPluginOptions
 			return {
 				optimizeDeps: {
 					// Optimize CJS dependencies used by the dev toolbar
-					include: ['astro > aria-query', 'astro > axobject-query'],
+					include: [
+						'astro > aria-query',
+						'astro > axobject-query',
+						...(settings.devToolbarApps.length > 0 ? ['astro/toolbar'] : []),
+					],
 				},
 			};
 		},
