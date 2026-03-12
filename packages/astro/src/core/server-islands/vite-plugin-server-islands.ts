@@ -12,6 +12,12 @@ const RESOLVED_SERVER_ISLAND_MANIFEST = '\0' + SERVER_ISLAND_MANIFEST;
 
 export const serverIslandPlaceholderMap = "'$$server-islands-map$$'";
 const serverIslandPlaceholderNameMap = "'$$server-islands-name-map$$'";
+export const SERVER_ISLAND_MAP_MARKER = '$$server-islands-map$$';
+const serverIslandMapReplaceExp = new RegExp(`['"]\\$\\$server-islands-map\\$\\$['"]`, 'g');
+const serverIslandNameMapReplaceExp = new RegExp(
+	`['"]\\$\\$server-islands-name-map\\$\\$['"]`,
+	'g',
+);
 
 function createServerIslandImportMapSource(
 	entries: Iterable<[string, string]>,
@@ -164,7 +170,7 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 		},
 
 		renderChunk(code, chunk) {
-			if (code.includes(serverIslandPlaceholderMap)) {
+			if (code.includes(SERVER_ISLAND_MAP_MARKER)) {
 				if (command === 'build') {
 					if (referenceIdMap.size === 0) {
 						// SSR may not discover islands if they only appear in prerendered pages.
@@ -192,16 +198,16 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 
 					return {
 						code: code
-							.replace(serverIslandPlaceholderMap, mapSource)
-							.replace(serverIslandPlaceholderNameMap, nameMapSource),
+							.replace(serverIslandMapReplaceExp, mapSource)
+							.replace(serverIslandNameMapReplaceExp, nameMapSource),
 						map: null,
 					};
 				}
 				// Dev mode: fast-path to empty map replacement
 				return {
 					code: code
-						.replace(serverIslandPlaceholderMap, 'new Map();')
-						.replace(serverIslandPlaceholderNameMap, 'new Map()'),
+						.replace(serverIslandMapReplaceExp, 'new Map();')
+						.replace(serverIslandNameMapReplaceExp, 'new Map()'),
 					map: null,
 				};
 			}
@@ -212,7 +218,7 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 
 			if (envName === ASTRO_VITE_ENVIRONMENT_NAMES.ssr) {
 				for (const chunk of Object.values(bundle)) {
-					if (chunk.type === 'chunk' && chunk.code.includes(serverIslandPlaceholderMap)) {
+					if (chunk.type === 'chunk' && chunk.code.includes(SERVER_ISLAND_MAP_MARKER)) {
 						ssrManifestChunk = chunk;
 						break;
 					}
@@ -230,12 +236,12 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 					const nameMapSource = createNameMapSource(serverIslandNameMap);
 
 					ssrManifestChunk.code = ssrManifestChunk.code
-						.replace(serverIslandPlaceholderMap, mapSource)
-						.replace(serverIslandPlaceholderNameMap, nameMapSource);
+						.replace(serverIslandMapReplaceExp, mapSource)
+						.replace(serverIslandNameMapReplaceExp, nameMapSource);
 				} else {
 					ssrManifestChunk.code = ssrManifestChunk.code
-						.replace(serverIslandPlaceholderMap, 'new Map()')
-						.replace(serverIslandPlaceholderNameMap, 'new Map()');
+						.replace(serverIslandMapReplaceExp, 'new Map()')
+						.replace(serverIslandNameMapReplaceExp, 'new Map()');
 				}
 			}
 		},
@@ -262,7 +268,7 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 			}) {
 				// Find SSR chunks that still have the placeholder (not prerender chunks)
 				const ssrChunkWithPlaceholder = chunks.find(
-					(c) => !c.prerender && c.code.includes(serverIslandPlaceholderMap),
+					(c) => !c.prerender && c.code.includes(SERVER_ISLAND_MAP_MARKER),
 				);
 
 				if (!ssrChunkWithPlaceholder) {
@@ -282,8 +288,8 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 					const nameMapSource = createNameMapSource(serverIslandNameMap);
 
 					const newCode = ssrChunkWithPlaceholder.code
-						.replace(serverIslandPlaceholderMap, mapSource)
-						.replace(serverIslandPlaceholderNameMap, nameMapSource);
+						.replace(serverIslandMapReplaceExp, mapSource)
+						.replace(serverIslandNameMapReplaceExp, nameMapSource);
 
 					mutate(ssrChunkWithPlaceholder.fileName, newCode, false);
 
@@ -301,8 +307,8 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 				} else {
 					// No server islands found — replace placeholders with empty maps
 					const newCode = ssrChunkWithPlaceholder.code
-						.replace(serverIslandPlaceholderMap, 'new Map()')
-						.replace(serverIslandPlaceholderNameMap, 'new Map()');
+						.replace(serverIslandMapReplaceExp, 'new Map()')
+						.replace(serverIslandNameMapReplaceExp, 'new Map()');
 
 					mutate(ssrChunkWithPlaceholder.fileName, newCode, false);
 				}
