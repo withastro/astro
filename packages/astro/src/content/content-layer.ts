@@ -66,9 +66,6 @@ export class ContentLayer {
 		watcher,
 		contentConfigObserver = globalContentConfigObserver,
 	}: ContentLayerOptions) {
-		// The default max listeners is 10, which can be exceeded when using a lot of loaders
-		watcher?.setMaxListeners(50);
-
 		this.#logger = logger;
 		this.#store = store;
 		this.#settings = settings;

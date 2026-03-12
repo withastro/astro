@@ -120,6 +120,10 @@ export async function createContainer({
 	);
 	const viteServer = await vite.createServer(viteConfig);
 
+	// Astro adds many watcher listeners across various plugins and subsystems.
+	// Increase the limit to prevent spurious MaxListenersExceeded warnings.
+	viteServer.watcher.setMaxListeners(50);
+
 	await syncInternal({
 		settings,
 		mode,
