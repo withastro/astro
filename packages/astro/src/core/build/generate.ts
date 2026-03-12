@@ -86,7 +86,7 @@ export async function generatePages(
 	const verb = ssr ? 'prerendering' : 'generating';
 	logger.info('SKIP_FORMAT', `\n${colors.bgGreen(colors.black(` ${verb} static routes `))}`);
 	const routeToHeaders: RouteToHeaders = new Map();
-	const staticImageList = getStaticImageList();
+	let staticImageList = getStaticImageList();
 
 	try {
 		// Get all static paths with their routes from the prerenderer
@@ -210,6 +210,7 @@ export async function generatePages(
 		}
 
 		// Must happen before teardown since collectStaticImages fetches from the prerender server
+		staticImageList = getStaticImageList();
 		if (prerenderer.collectStaticImages) {
 			const adapterImages = await prerenderer.collectStaticImages();
 			for (const [path, entry] of adapterImages) {
