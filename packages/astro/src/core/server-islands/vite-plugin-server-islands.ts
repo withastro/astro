@@ -1,4 +1,6 @@
 import fs from 'node:fs';
+import path from 'node:path';
+import * as eslexer from 'es-module-lexer';
 import type { ConfigEnv, DevEnvironment, Plugin as VitePlugin } from 'vite';
 import { getPrerenderOutputDirectory, getServerOutputDirectory } from '../../prerender/utils.js';
 import type { AstroPluginOptions } from '../../types/astro.js';
@@ -30,6 +32,32 @@ function createServerIslandImportMapSource(
 
 function createNameMapSource(entries: Iterable<[string, string]>) {
 	return `new Map(${JSON.stringify(Array.from(entries), null, 2)})`;
+}
+
+let didInitLexer = false;
+
+async function extractRelativeImports(code: string) {
+	if (!didInitLexer) {
+		await eslexer.init;
+		didInitLexer = true;
+	}
+
+	const [imports] = eslexer.parse(code);
+	const relativeImports = new Set<string>();
+
+	for (const entry of imports) {
+		if (!entry.n) continue;
+		if (entry.n.startsWith('./') || entry.n.startsWith('../')) {
+			relativeImports.add(entry.n);
+		}
+	}
+
+	return relativeImports;
+}
+
+function resolveRelativeFileName(baseFileName: string, relativeImport: string) {
+	const baseDir = path.posix.dirname(baseFileName);
+	return path.posix.normalize(path.posix.join(baseDir, relativeImport));
 }
 
 export function vitePluginServerIslands({ settings }: AstroPluginOptions): VitePlugin {
@@ -223,6 +251,15 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 			}
 
 			if (envName === ASTRO_VITE_ENVIRONMENT_NAMES.prerender && ssrManifestChunk) {
+				resolvedIslandImports.clear();
+				for (const [resolvedPath, referenceId] of referenceIdMap) {
+					const islandName = serverIslandNameMap.get(resolvedPath);
+					if (!islandName) continue;
+
+					const fileName = this.getFileName(referenceId);
+					resolvedIslandImports.set(islandName, fileName);
+				}
+
 				if (resolvedIslandImports.size > 0) {
 					const isRelativeChunk = ssrManifestChunk.fileName.includes('/');
 					const dots = isRelativeChunk ? '..' : '.';
@@ -292,14 +329,35 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 
 					const serverOutputDir = getServerOutputDirectory(settings);
 					const prerenderOutputDir = getPrerenderOutputDirectory(settings);
-					for (const [, fileName] of resolvedIslandImports) {
-						const srcPath = new URL(fileName, appendForwardSlash(prerenderOutputDir.toString()));
-						const destPath = new URL(fileName, appendForwardSlash(serverOutputDir.toString()));
+					const copied = new Set<string>();
 
-						if (!fs.existsSync(srcPath)) continue;
+					const copyChunkWithDependencies = async (fileName: string): Promise<void> => {
+						if (copied.has(fileName)) {
+							return;
+						}
+						copied.add(fileName);
+
+						const srcPath = new URL(fileName, appendForwardSlash(prerenderOutputDir.toString()));
+						if (!fs.existsSync(srcPath)) {
+							return;
+						}
+
+						const code = await fs.promises.readFile(srcPath, 'utf-8');
+						const imports = await extractRelativeImports(code);
+
+						const destPath = new URL(fileName, appendForwardSlash(serverOutputDir.toString()));
 						const destDir = new URL('./', destPath);
 						await fs.promises.mkdir(destDir, { recursive: true });
 						await fs.promises.copyFile(srcPath, destPath);
+
+						for (const relativeImport of imports) {
+							const dependencyFileName = resolveRelativeFileName(fileName, relativeImport);
+							await copyChunkWithDependencies(dependencyFileName);
+						}
+					};
+
+					for (const [, fileName] of resolvedIslandImports) {
+						await copyChunkWithDependencies(fileName);
 					}
 				} else {
 					// No server islands found — replace placeholders with empty maps

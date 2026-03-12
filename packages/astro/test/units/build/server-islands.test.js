@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { describe, it } from 'node:test';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { AstroBuilder } from '../../../dist/core/build/index.js';
 import { parseRoute } from '../../../dist/core/routing/parse-route.js';
 import { createBasicSettings, defaultLogger } from '../test-utils.js';
@@ -146,6 +146,15 @@ describe('Build: Server islands in prerendered pages', () => {
 				!manifestContent.includes('$$server-islands-name-map$$'),
 			`Server island manifest should not include placeholders but got:\n${manifestContent}`,
 		);
+
+		assert.ok(manifestFilePath, 'Server island manifest chunk path should exist');
+		const manifestModule = await import(pathToFileURL(manifestFilePath).href);
+		const islandLoader = manifestModule.serverIslandMap.get('Island');
+		assert.equal(typeof islandLoader, 'function', 'Island loader should be a function');
+		await assert.doesNotReject(
+			async () => islandLoader(),
+			'Server island chunk import should resolve at runtime',
+		);
 	});
 
 	it('replaces server island placeholders even when quote style changes in generated chunks', async () => {
@@ -250,6 +259,15 @@ describe('Build: Server islands in prerendered pages', () => {
 			!manifestContent.includes('$$server-islands-map$$') &&
 				!manifestContent.includes('$$server-islands-name-map$$'),
 			`Server island manifest should not include placeholders but got:\n${manifestContent}`,
+		);
+
+		assert.ok(manifestFilePath, 'Server island manifest chunk path should exist');
+		const manifestModule = await import(pathToFileURL(manifestFilePath).href);
+		const islandLoader = manifestModule.serverIslandMap.get('Island');
+		assert.equal(typeof islandLoader, 'function', 'Island loader should be a function');
+		await assert.doesNotReject(
+			async () => islandLoader(),
+			'Server island chunk import should resolve at runtime',
 		);
 	});
 });
