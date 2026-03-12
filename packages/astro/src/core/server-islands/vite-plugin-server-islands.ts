@@ -10,14 +10,11 @@ import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 export const SERVER_ISLAND_MANIFEST = 'virtual:astro:server-island-manifest';
 const RESOLVED_SERVER_ISLAND_MANIFEST = '\0' + SERVER_ISLAND_MANIFEST;
 
-export const serverIslandPlaceholderMap = "'$$server-islands-map$$'";
+const serverIslandPlaceholderMap = "'$$server-islands-map$$'";
 const serverIslandPlaceholderNameMap = "'$$server-islands-name-map$$'";
 export const SERVER_ISLAND_MAP_MARKER = '$$server-islands-map$$';
-const serverIslandMapReplaceExp = new RegExp(`['"]\\$\\$server-islands-map\\$\\$['"]`, 'g');
-const serverIslandNameMapReplaceExp = new RegExp(
-	`['"]\\$\\$server-islands-name-map\\$\\$['"]`,
-	'g',
-);
+const serverIslandMapReplaceExp = /['"]\$\$server-islands-map\$\$['"]/g;
+const serverIslandNameMapReplaceExp = /['"]\$\$server-islands-name-map\$\$['"]/g;
 
 function createServerIslandImportMapSource(
 	entries: Iterable<[string, string]>,
