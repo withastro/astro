@@ -48,6 +48,27 @@ describe('prerenderEnvironment: node', () => {
 		);
 	});
 
+	it('serves server islands for prerendered routes in dev', async () => {
+		const res = await fixture.fetch('/');
+		assert.equal(res.status, 200);
+		const html = await res.text();
+		assert.ok(
+			html.includes('id="deferred-fallback"'),
+			'Expected fallback content in prerendered HTML',
+		);
+
+		const islandUrlMatch = html.match(/fetch\('(\/_server-islands\/[^']+)'/);
+		assert.ok(islandUrlMatch, 'Expected prerendered HTML to include a server island fetch URL');
+
+		const islandRes = await fixture.fetch(islandUrlMatch[1]);
+		assert.equal(islandRes.status, 200, 'Expected server island endpoint to return 200 in dev');
+		const islandHtml = await islandRes.text();
+		assert.ok(
+			islandHtml.includes('id="deferred-content"'),
+			'Expected server island response to include deferred island content',
+		);
+	});
+
 	it('renders SSR page through workerd with Astro.request.cf', async () => {
 		const res = await fixture.fetch('/ssr');
 		assert.equal(res.status, 200);

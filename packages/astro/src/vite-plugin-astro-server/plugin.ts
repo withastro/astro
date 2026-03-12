@@ -22,7 +22,7 @@ import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
 import { createViteLoader } from '../core/module-loader/index.js';
-import { matchAllRoutes } from '../core/routing/match.js';
+import { isRouteServerIsland, matchAllRoutes } from '../core/routing/match.js';
 import { resolveMiddlewareMode } from '../integrations/adapter-utils.js';
 import { SERIALIZED_MANIFEST_ID } from '../manifest/serialized.js';
 import type { AstroSettings } from '../types/astro.js';
@@ -176,7 +176,7 @@ export default function createVitePluginAstroServer({
 								const routesList = { routes: routes.map((r: any) => r.routeData) };
 								const matches = matchAllRoutes(pathname, routesList);
 
-								if (!matches.some((route) => route.prerender)) {
+								if (!matches.some((route) => route.prerender || isRouteServerIsland(route))) {
 									return next();
 								}
 
