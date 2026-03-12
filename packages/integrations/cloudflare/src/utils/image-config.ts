@@ -65,6 +65,16 @@ export function setImageConfig(
 			};
 
 		case 'cloudflare':
+			// The external Cloudflare image service generates `/cdn-cgi/image/...` URLs,
+			// which only work on Cloudflare's production edge network. In dev mode,
+			// fall back to passthrough so images render normally without transformation.
+			if (command === 'dev') {
+				return {
+					...config,
+					service: passthroughImageService(),
+					endpoint: GENERIC_ENDPOINT,
+				};
+			}
 			return {
 				...config,
 				service: { entrypoint: '@astrojs/cloudflare/image-service' },
