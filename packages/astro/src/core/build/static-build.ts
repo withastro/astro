@@ -292,6 +292,21 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					},
 					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
 					...viteConfig.build?.rollupOptions?.output,
+					// CSS assets are emitted during the SSR/prerender build, not the client build.
+					// If the user configured assetFileNames in `environments.client`, apply it here
+					// so that CSS asset naming respects the user's client-side configuration.
+					...((
+						viteConfig.environments?.client?.build?.rollupOptions?.output as
+							| vite.Rollup.OutputOptions
+							| undefined
+					)?.assetFileNames != null
+						? {
+								assetFileNames: (
+									viteConfig.environments?.client?.build?.rollupOptions
+										?.output as vite.Rollup.OutputOptions
+								).assetFileNames,
+							}
+						: {}),
 					entryFileNames(chunkInfo) {
 						if (chunkInfo.facadeModuleId?.startsWith(VIRTUAL_PAGE_RESOLVED_MODULE_ID)) {
 							return makeAstroPageEntryPointFileName(
