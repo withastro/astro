@@ -636,6 +636,41 @@ describe('Astro Actions', () => {
 	});
 });
 
+describe('Astro Actions in static mode with prerender = false routes', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let devServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/actions-static-prerender-false/',
+		});
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer?.stop();
+	});
+
+	it('starts in dev and exposes action RPC routes', async () => {
+		assert.ok(devServer, 'Expected dev server to start');
+
+		const res = await fixture.fetch('/_actions/ping', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: '{}',
+		});
+
+		assert.equal(res.ok, true);
+		assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
+
+		const data = devalue.parse(await res.text());
+		assert.equal(data.ok, true);
+	});
+});
+
 it('Base path should be used', async () => {
 	const fixture = await loadFixture({
 		root: './fixtures/actions/',

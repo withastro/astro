@@ -1,4 +1,5 @@
 import type { RouteData } from '../../types/public/internal.js';
+import type { IntegrationResolvedRoute } from '../../types/public/integrations.js';
 import type { RouteInfo } from '../app/types.js';
 import type { RoutesList } from '../../types/astro.js';
 import { isRoute404, isRoute500 } from './internal/route-errors.js';
@@ -61,4 +62,28 @@ export function getCustom404Route(manifestData: RoutesList): RouteData | undefin
  */
 export function getCustom500Route(manifestData: RoutesList): RouteData | undefined {
 	return manifestData.routes.find((r) => isRoute500(r.route));
+}
+
+export function hasNonPrerenderedProjectRoute(
+	routes: Array<Pick<RouteData, 'type' | 'origin' | 'prerender'>>,
+	options?: { includeEndpoints?: boolean },
+): boolean;
+export function hasNonPrerenderedProjectRoute(
+	routes: Array<Pick<IntegrationResolvedRoute, 'type' | 'origin' | 'isPrerendered'>>,
+	options?: { includeEndpoints?: boolean },
+): boolean;
+export function hasNonPrerenderedProjectRoute(
+	routes: Array<
+		| Pick<RouteData, 'type' | 'origin' | 'prerender'>
+		| Pick<IntegrationResolvedRoute, 'type' | 'origin' | 'isPrerendered'>
+	>,
+	options?: { includeEndpoints?: boolean },
+): boolean {
+	const includeEndpoints = options?.includeEndpoints ?? true;
+	const routeTypes: ReadonlyArray<string> = includeEndpoints ? ['page', 'endpoint'] : ['page'];
+
+	return routes.some((route) => {
+		const isPrerendered = 'isPrerendered' in route ? route.isPrerendered : route.prerender;
+		return routeTypes.includes(route.type) && route.origin === 'project' && !isPrerendered;
+	});
 }
