@@ -538,7 +538,11 @@ function getUrlForPath(
 	}
 	let buildPathname: string;
 	if (pathname === '/' || pathname === '') {
-		buildPathname = collapseDuplicateTrailingSlashes(base + ending, trailingSlash !== 'never');
+		if (format === 'file') {
+			buildPathname = base;
+		} else {
+			buildPathname = collapseDuplicateTrailingSlashes(base + ending, trailingSlash !== 'never');
+		}
 	} else if (routeType === 'endpoint') {
 		const buildPathRelative = removeLeadingForwardSlash(pathname);
 		buildPathname = joinPaths(base, buildPathRelative);
