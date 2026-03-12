@@ -440,11 +440,13 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				});
 			}
 		}
+		let resolvedPathname: string | undefined;
 		if (!routeData) {
 			if (this.isDev()) {
 				const result = await this.devMatch(this.getPathnameFromRequest(request));
 				if (result) {
 					routeData = result.routeData;
+					resolvedPathname = result.resolvedPathname;
 				}
 			} else {
 				routeData = this.match(request);
@@ -469,12 +471,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				status: 404,
 			});
 		}
-		let pathname = this.getPathnameFromRequest(request);
-		// In dev, the route may have matched a normalized pathname (after .html stripping).
-		// Apply the same normalization for correct param extraction.
-		if (this.isDev()) {
-			pathname = pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
-		}
+		let pathname = resolvedPathname ?? this.getPathnameFromRequest(request);
 		const defaultStatus = this.getDefaultStatusCode(routeData, pathname);
 
 		let response;

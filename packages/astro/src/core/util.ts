@@ -45,6 +45,11 @@ export function getOutputFilename(
 	if (buildFormat === 'preserve' && !routeData.isIndex) {
 		return `${removeTrailingForwardSlash(name || 'index')}.html`;
 	}
+	// If the name already ends with .html (e.g. user slug 'products.html'),
+	// return it directly instead of creating a directory path
+	if (name.endsWith('.html')) {
+		return removeTrailingForwardSlash(name);
+	}
 	return path.posix.join(name, 'index.html');
 }
 

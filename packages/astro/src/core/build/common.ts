@@ -38,6 +38,12 @@ export function getOutFolder(
 					if (STATUS_CODE_PAGES.has(pathname)) {
 						return new URL('.' + appendForwardSlash(npath.dirname(pathname)), outRoot);
 					}
+					// If the pathname already ends with .html, treat it as a file path
+					// rather than a directory name (e.g. user slug 'products.html')
+					if (pathname.endsWith('.html')) {
+						const d = pathname === '' ? pathname : npath.dirname(pathname);
+						return new URL('.' + appendForwardSlash(d), outRoot);
+					}
 					return new URL('.' + appendForwardSlash(pathname), outRoot);
 				}
 				case 'file': {
@@ -77,6 +83,12 @@ export function getOutFile(
 					if (STATUS_CODE_PAGES.has(pathname)) {
 						const baseName = npath.basename(pathname);
 						return new URL('./' + (baseName || 'index') + '.html', outFolder);
+					}
+					// If the pathname already ends with .html, use it as the filename
+					// directly instead of creating a directory (e.g. user slug 'products.html')
+					if (pathname.endsWith('.html')) {
+						const baseName = npath.basename(pathname);
+						return new URL('./' + baseName, outFolder);
 					}
 					return new URL('./index.html', outFolder);
 				}

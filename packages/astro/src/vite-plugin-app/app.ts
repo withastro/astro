@@ -180,8 +180,17 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 					throw new Error('No route matched, and default 404 route was not found.');
 				}
 
+				// Use the resolved pathname from route matching, which may differ from the
+				// original request URL (e.g. when .html is stripped for buildFormat: 'file').
+				// This ensures param extraction uses the same pathname the route was matched with.
+				const resolvedUrl = new URL(url);
+				if (matchedRoute.resolvedPathname !== pathname) {
+					resolvedUrl.pathname =
+						removeTrailingForwardSlash(self.manifest.base) + matchedRoute.resolvedPathname;
+				}
+
 				const request = createRequest({
-					url,
+					url: resolvedUrl,
 					headers: incomingRequest.headers,
 					method: incomingRequest.method,
 					body,
