@@ -20,7 +20,7 @@ describe('ISR', () => {
 		assert.deepEqual(vcConfig, {
 			expiration: 120,
 			bypassToken: '1c9e601d-9943-4e7c-9575-005556d774a8',
-			allowQuery: ['x_astro_path'],
+			allowQuery: ['x_astro_path', 'x_astro_middleware_secret'],
 			passQuery: true,
 		});
 	});
@@ -28,48 +28,66 @@ describe('ISR', () => {
 	it('generates expected routes', async () => {
 		const deploymentConfig = JSON.parse(await fixture.readFile('../.vercel/output/config.json'));
 		// the first two are /_astro/*, and filesystem routes
-		assert.deepEqual(deploymentConfig.routes.slice(2), [
-			{
-				src: '^/two$',
-				dest: '_render',
-			},
-			{
-				src: '^/excluded/([^/]+?)$',
-				dest: '_render',
-			},
-			{
-				src: '^/excluded(?:/(.*?))?$',
-				dest: '_render',
-			},
-			{
-				src: '^/api/([^/]+?)$',
-				dest: '_render',
-			},
-			{
-				src: '^/api$',
-				dest: '_render',
-			},
-			{
-				src: '^/_server-islands/([^/]+?)/?$',
-				dest: '_render',
-			},
-			{
-				src: '^/_image/?$',
-				dest: '_render',
-			},
-			{
-				src: '^/one/?$',
-				dest: '/_isr?x_astro_path=$0',
-			},
-			{
-				src: '^/404/?$',
-				dest: '/_isr?x_astro_path=$0',
-			},
-			{
-				dest: '_render',
-				src: '^/.*$',
-				status: 404,
-			},
-		]);
+		const isrRoutes = deploymentConfig.routes.slice(2);
+		for (const route of isrRoutes) {
+			if (route.dest?.startsWith('/_isr?')) {
+				assert.match(
+					route.dest,
+					/^\/_isr\?x_astro_path=\$0&x_astro_middleware_secret=[0-9a-f-]{36}$/,
+				);
+			}
+		}
+		assert.deepEqual(
+			isrRoutes.map((route) => ({
+				...route,
+				dest: route.dest?.replace(
+					/x_astro_middleware_secret=[^&]+/,
+					'x_astro_middleware_secret=<secret>',
+				),
+			})),
+			[
+				{
+					src: '^/two$',
+					dest: '_render',
+				},
+				{
+					src: '^/excluded/([^/]+?)$',
+					dest: '_render',
+				},
+				{
+					src: '^/excluded(?:/(.*?))?$',
+					dest: '_render',
+				},
+				{
+					src: '^/api/([^/]+?)$',
+					dest: '_render',
+				},
+				{
+					src: '^/api$',
+					dest: '_render',
+				},
+				{
+					src: '^/_server-islands/([^/]+?)/?$',
+					dest: '_render',
+				},
+				{
+					src: '^/_image/?$',
+					dest: '_render',
+				},
+				{
+					src: '^/one/?$',
+					dest: '/_isr?x_astro_path=$0&x_astro_middleware_secret=<secret>',
+				},
+				{
+					src: '^/404/?$',
+					dest: '/_isr?x_astro_path=$0&x_astro_middleware_secret=<secret>',
+				},
+				{
+					dest: '_render',
+					src: '^/.*$',
+					status: 404,
+				},
+			],
+		);
 	});
 });
