@@ -1,5 +1,16 @@
 # @astrojs/cloudflare
 
+## 13.1.1
+
+### Patch Changes
+
+- [#15815](https://github.com/withastro/astro/pull/15815) [`d1872ee`](https://github.com/withastro/astro/commit/d1872ee6456e4a8ed821ee2b357465a116690be1) Thanks [@matthewp](https://github.com/matthewp)! - Prebundle additional Astro runtime dependencies for Cloudflare development server, speeding up initial start time and preventing required restarts.
+
+- [#15872](https://github.com/withastro/astro/pull/15872) [`3b47b89`](https://github.com/withastro/astro/commit/3b47b898ebc587251d2674e7fae2e6bcc86c7809) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes images not working in dev mode when using the `cloudflare` option
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.1
+
 ## 13.1.0
 
 ### Minor Changes
