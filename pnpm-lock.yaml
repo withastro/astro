@@ -3388,6 +3388,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/hmr-markdown-glob:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/hmr-new-page:
     dependencies:
       astro:
@@ -7148,6 +7154,18 @@ importers:
       tsconfck:
         specifier: ^3.1.6
         version: 3.1.6(typescript@5.9.3)
+
+  triage/gh-15861:
+    dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../packages/integrations/mdx
+      '@astrojs/sitemap':
+        specifier: workspace:*
+        version: link:../../packages/integrations/sitemap
+      astro:
+        specifier: workspace:*
+        version: link:../../packages/astro
 
 packages:
 

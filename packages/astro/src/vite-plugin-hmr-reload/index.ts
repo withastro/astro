@@ -1,4 +1,4 @@
-import type { EnvironmentModuleNode, Plugin } from 'vite';
+import { isRunnableDevEnvironment, type EnvironmentModuleNode, type Plugin } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../vite-plugin-pages/const.js';
 import { getDevCssModuleNameFromPageVirtualModuleName } from '../vite-plugin-css/util.js';
@@ -42,6 +42,18 @@ export default function hmrReload(): Plugin {
 				}
 
 				if (hasSsrOnlyModules) {
+					// Clear the SSR runner's evaluated modules cache so that
+					// module-level state in dependencies (e.g. global singletons,
+					// import.meta.glob results) is re-evaluated on the next request,
+					// not served from stale cache.
+					if (isRunnableDevEnvironment(this.environment)) {
+						this.environment.runner.evaluatedModules.clear();
+					}
+					// Clear the route cache so that getStaticPaths() is re-evaluated
+					// with fresh module data on the next request. Without this, pages
+					// using import.meta.glob in getStaticPaths would serve stale data
+					// because the cached getStaticPaths result wouldn't be invalidated.
+					this.environment.hot.send('astro:content-changed', {});
 					server.ws.send({ type: 'full-reload' });
 					return [];
 				}
