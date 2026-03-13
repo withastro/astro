@@ -61,7 +61,8 @@ export default function astroScriptsPlugin({ settings }: { settings: AstroSettin
 			const hasHydrationScripts = settings.scripts.some((s) => s.stage === 'before-hydration');
 			if (
 				hasHydrationScripts &&
-				(this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender ||
+				(this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client ||
+					this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender ||
 					this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr)
 			) {
 				this.emitFile({
