@@ -88,6 +88,12 @@ describe('Aliases with tsconfig.json', () => {
 			assert.equal($('#alias').text(), 'foo');
 		});
 
+		it('resolves Sass @use via baseUrl', async () => {
+			const html = await fixture.fetch('/').then((res) => res.text());
+			// The Sass variable $accent: green should be applied via baseUrl resolution
+			assert.ok(html.includes('green'));
+		});
+
 		it('works for import.meta.glob', async () => {
 			const html = await fixture.fetch('/').then((res) => res.text());
 			const $ = cheerio.load(html);
@@ -142,6 +148,14 @@ describe('Aliases with tsconfig.json', () => {
 			const $ = cheerio.load(html);
 
 			assert.equal($('#alias').text(), 'foo');
+		});
+
+		it('resolves Sass @use via baseUrl', async () => {
+			const html = await fixture.readFile('/index.html');
+			const content = await Promise.all(getLinks(html).map((href) => getLinkContent(href)));
+			const allCss = content.map(({ css }) => css).join('');
+			// The Sass variable $accent: green should be compiled into the CSS
+			assert.ok(allCss.includes('green'));
 		});
 
 		it('handles multiple replacements in one alias', async () => {
