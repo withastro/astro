@@ -15,6 +15,7 @@ import { createSafeError } from '../errors/index.js';
 import { formatErrorMessage, warnIfCspWithShiki } from '../messages/runtime.js';
 import type { Container } from './container.js';
 import { createContainer, startContainer } from './container.js';
+import { kSetRestartHandler } from './vite-plugin-restart.js';
 
 async function createRestartedContainer(
 	container: Container,
@@ -225,13 +226,26 @@ export async function createContainerWithAutomaticRestart({
 		watcher.on('unlink', handleChangeRestart('Configuration file removed.'));
 		watcher.on('add', handleChangeRestart('Configuration file added.'));
 
-		// Restart the Astro dev server instead of Vite's when the API is called by plugins.
-		// Ignore the `forceOptimize` parameter for now.
-		restart.container.viteServer.restart = async () => {
-			if (!restart.container.restartInFlight) {
-				await handleServerRestart('', restart.container.viteServer);
-			}
-		};
+		// Use the astro:restart Vite plugin's handler mechanism if available.
+		// This ensures that plugins which wrapped viteServer.restart during configureServer
+		// (like @cloudflare/vite-plugin tracking isRestartingDevServer) continue to work
+		// correctly when Astro performs its container-based restart.
+		const setRestartHandler = restart.container.viteServer[kSetRestartHandler];
+		if (setRestartHandler) {
+			setRestartHandler(async () => {
+				if (!restart.container.restartInFlight) {
+					await handleServerRestart('', restart.container.viteServer);
+				}
+			});
+		} else {
+			// Fallback: directly replace viteServer.restart (original behavior).
+			// This path is taken if the astro:restart plugin is not present.
+			restart.container.viteServer.restart = async () => {
+				if (!restart.container.restartInFlight) {
+					await handleServerRestart('', restart.container.viteServer);
+				}
+			};
+		}
 	}
 	setupContainer();
 	return restart;

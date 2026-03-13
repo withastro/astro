@@ -53,6 +53,7 @@ import { vitePluginEnvironment } from '../vite-plugin-environment/index.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from './constants.js';
 import { vitePluginChromedevtools } from '../vite-plugin-chromedevtools/index.js';
 import { vitePluginAstroServerClient } from '../vite-plugin-overlay/index.js';
+import { vitePluginRestart } from './dev/vite-plugin-restart.js';
 
 type CreateViteOptions = {
 	settings: AstroSettings;
@@ -125,6 +126,10 @@ export async function createVite(
 		customLogger: createViteLogger(logger, settings.config.vite.logLevel),
 		appType: 'custom',
 		plugins: [
+			// This plugin must be registered early so that integration plugins
+			// (like @cloudflare/vite-plugin) capture its restart wrapper when they
+			// wrap viteServer.restart in their configureServer hooks.
+			command === 'dev' && vitePluginRestart(),
 			serializedManifestPlugin({ settings, command, sync }),
 			vitePluginRenderers({
 				settings,
