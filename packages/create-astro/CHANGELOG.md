@@ -1,5 +1,11 @@
 # create-astro
 
+## 5.0.1
+
+### Patch Changes
+
+- [#15885](https://github.com/withastro/astro/pull/15885) [`817afb6`](https://github.com/withastro/astro/commit/817afb6d2217a9ed590690163e5df8d50c910ab6) Thanks [@matthewp](https://github.com/matthewp)! - Avoid spawning package manager commands with `shell: true` to prevent Node.js DEP0190 warnings during `create-astro` runs on newer Node versions.
+
 ## 5.0.0
 
 ### Major Changes

@@ -1,5 +1,14 @@
 # @astrojs/cloudflare
 
+## 13.1.2
+
+### Patch Changes
+
+- [#15875](https://github.com/withastro/astro/pull/15875) [`c43ef8a`](https://github.com/withastro/astro/commit/c43ef8a565564770f022bd7cf9d2fcccf5949308) Thanks [@matthewp](https://github.com/matthewp)! - Include workerd response details in Cloudflare prerenderer errors to make `getStaticPaths()` failures easier to diagnose.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.1
+
 ## 13.1.1
 
 ### Patch Changes

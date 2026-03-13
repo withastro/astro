@@ -1,5 +1,25 @@
 # astro
 
+## 6.0.5
+
+### Patch Changes
+
+- [#15891](https://github.com/withastro/astro/pull/15891) [`b889231`](https://github.com/withastro/astro/commit/b88923114e3cfe30c945680a62c7bd7f667bbf4d) Thanks [@matthewp](https://github.com/matthewp)! - Fix dev routing for `server:defer` islands when adapters opt into handling prerendered routes in Astro core. Server island requests are now treated as prerender-handler eligible so prerendered pages using `prerenderEnvironment: 'node'` can load island content without `400` errors.
+
+- [#15890](https://github.com/withastro/astro/pull/15890) [`765a887`](https://github.com/withastro/astro/commit/765a8871ed5fb30bb0211e2f8524bd97081acbca) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `astro:actions` validation to check resolved routes, so projects using default static output with at least one `prerender = false` page or endpoint no longer fail during startup.
+
+- [#15884](https://github.com/withastro/astro/pull/15884) [`dcd2c8e`](https://github.com/withastro/astro/commit/dcd2c8e2df88ad81a027b49f6f9dcdba614f836a) Thanks [@matthewp](https://github.com/matthewp)! - Avoid a `MaxListenersExceededWarning` during `astro dev` startup by increasing the shared Vite watcher listener limit when attaching content server listeners.
+
+- [#15904](https://github.com/withastro/astro/pull/15904) [`23d5244`](https://github.com/withastro/astro/commit/23d5244361f9452c1d124600d2cc97aa3fe4a63c) Thanks [@jlukic](https://github.com/jlukic)! - Emit the `before-hydration` script chunk for the `client` Vite environment. The chunk was only emitted for `prerender` and `ssr` environments, causing a 404 when browsers tried to load it. This broke hydration for any integration using `injectScript('before-hydration', ...)`, including Lit SSR.
+
+- [#15875](https://github.com/withastro/astro/pull/15875) [`c43ef8a`](https://github.com/withastro/astro/commit/c43ef8a565564770f022bd7cf9d2fcccf5949308) Thanks [@matthewp](https://github.com/matthewp)! - Ensure custom prerenderers are always torn down during build, even when `getStaticPaths()` throws.
+
+- [#15887](https://github.com/withastro/astro/pull/15887) [`1861fed`](https://github.com/withastro/astro/commit/1861fedef36394ff89604125b785aca073c0d35d) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the build incorrectly leaked server entrypoint into the client environment, causing adapters to emit warnings during the build.
+
+- [#15901](https://github.com/withastro/astro/pull/15901) [`07c1002`](https://github.com/withastro/astro/commit/07c1002835f9bd91c9acaa82515254e4e11094d4) Thanks [@delucis](https://github.com/delucis)! - Fixes JSON schema generation for content collection schemas that have differences between their input and output shapes.
+
+- [#15882](https://github.com/withastro/astro/pull/15882) [`759f946`](https://github.com/withastro/astro/commit/759f9461bf8818380e3cc83a9bc1844c82a52c6d) Thanks [@matthewp](https://github.com/matthewp)! - Fix `Astro.url.pathname` for the root page when using `build.format: "file"` so it resolves to `/index.html` instead of `/.html` during builds.
+
 ## 6.0.4
 
 ### Patch Changes
