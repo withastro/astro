@@ -444,7 +444,11 @@ describe('CSS', function () {
 			assert.equal(allInjectedStyles.includes('.vue-css{'), true);
 			assert.equal(allInjectedStyles.includes('.vue-sass{'), true);
 			assert.equal(allInjectedStyles.includes('.vue-scss{'), true);
-			assert.equal(allInjectedStyles.includes('.vue-scoped{'), true);
+			// Vue scoped styles include [data-v-*] attributes after compilation.
+			// In dev mode, the CSS cache now captures the fully processed CSS
+			// (after Vue's scoped style compiler runs), so we check for the
+			// scoped selector with the data attribute.
+			assert.equal(/\.vue-scoped\[data-v-[a-f0-9]+\]\{/.test(allInjectedStyles), true);
 			assert.equal(allInjectedStyles.includes('._vueModules_'), true);
 		});
 

@@ -196,7 +196,40 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 					}
 				},
 			},
-
+		},
+		{
+			// This plugin caches CSS content for use in SSR-rendered <style> tags.
+			// It uses configResolved to reorder itself to run just before vite:css-post,
+			// ensuring it captures CSS AFTER all framework-specific transforms (e.g. Vue's
+			// scoped style compiler, Svelte's style processing) have run. Without this
+			// reordering, it would run before framework transforms and cache raw/unprocessed
+			// CSS (e.g. with uncompiled `:deep()` selectors), causing broken styles on
+			// client-side navigation with ClientRouter.
+			name: `${MODULE_DEV_CSS}:cache`,
+			applyToEnvironment(env) {
+				return (
+					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
+					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.client ||
+					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
+				);
+			},
+			configResolved(resolvedConfig) {
+				// Move this plugin to just before vite:css-post so it runs after all
+				// normal-phase framework plugins (like vite:vue) but before vite:css-post
+				// discards the CSS content in the SSR environment.
+				const cssPostIndex = resolvedConfig.plugins.findIndex((p) => p.name === 'vite:css-post');
+				const myIndex = resolvedConfig.plugins.findIndex(
+					(p) => p.name === `${MODULE_DEV_CSS}:cache`,
+				);
+				if (cssPostIndex !== -1 && myIndex !== -1 && myIndex < cssPostIndex) {
+					const myPlugin = resolvedConfig.plugins[myIndex];
+					// @ts-ignore-error ignore readonly annotation
+					resolvedConfig.plugins.splice(myIndex, 1);
+					// Insert before vite:css-post (index shifted by -1 after removal)
+					// @ts-ignore-error ignore readonly annotation
+					resolvedConfig.plugins.splice(cssPostIndex - 1, 0, myPlugin);
+				}
+			},
 			transform: {
 				filter: {
 					id: {
@@ -209,12 +242,8 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 						return;
 					}
 
-					// Cache CSS content as we see it
-					const env = getCurrentEnvironment(this.environment as DevEnvironment);
-					const mod = env?.moduleGraph.getModuleById(id);
-					if (mod) {
-						cssContentCache.set(id, code);
-					}
+					// Cache CSS content after all framework transforms have processed it
+					cssContentCache.set(id, code);
 				},
 			},
 		},
