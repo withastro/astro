@@ -40,6 +40,8 @@ minimumReleaseAgeExclude:
   - svelte@5.53.5
   # Renovate security update: fastify@5.8.1
   - fastify@5.8.1
+  # Renovate security update: rollup@4.59.0
+  - rollup@4.59.0
 peerDependencyRules:
   allowAny:
     - 'astro'
