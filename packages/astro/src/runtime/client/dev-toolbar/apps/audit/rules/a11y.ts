@@ -301,9 +301,8 @@ export const a11y: AuditRuleWithSelector[] = [
 			const nestedLabelableElement = element.querySelector(`${labelableElements.join(', ')}`);
 			if (!hasFor && !nestedLabelableElement) return true;
 
-			// Label must have text content, using innerText to ignore hidden text
-			const innerText = element.innerText.trim();
-			if (innerText === '') return true;
+			// Label must have text content
+			if (getAccessibleText(element) === '') return true;
 		},
 	},
 	{
@@ -367,9 +366,8 @@ export const a11y: AuditRuleWithSelector[] = [
 			'Headings and anchors must have an accessible name, which can come from: inner text, aria-label, aria-labelledby, an img with alt property, or an svg with a tag <title></title>.',
 		selector: a11y_required_content.join(','),
 		match(element: HTMLElement) {
-			// innerText is used to ignore hidden text
-			const innerText = element.innerText?.trim();
-			if (innerText && innerText !== '') return false;
+			// Check for text content using rendering-aware helper
+			if (getAccessibleText(element) !== '') return false;
 
 			// Check for aria-label
 			const ariaLabel = element.getAttribute('aria-label')?.trim();
@@ -381,7 +379,8 @@ export const a11y: AuditRuleWithSelector[] = [
 				const ids = ariaLabelledby.split(' ');
 				for (const id of ids) {
 					const referencedElement = document.getElementById(id);
-					if (referencedElement && referencedElement.innerText.trim() !== '') return false;
+					if (referencedElement && getAccessibleText(referencedElement as HTMLElement) !== '')
+						return false;
 				}
 			}
 
@@ -417,7 +416,8 @@ export const a11y: AuditRuleWithSelector[] = [
 					const ids = inputAriaLabelledby.split(' ');
 					for (const id of ids) {
 						const referencedElement = document.getElementById(id);
-						if (referencedElement && referencedElement.innerText.trim() !== '') return false;
+						if (referencedElement && getAccessibleText(referencedElement as HTMLElement) !== '')
+							return false;
 					}
 				}
 
@@ -706,4 +706,29 @@ function is_semantic_role_element(
 		}
 	}
 	return false;
+}
+
+/**
+ * Gets text content relevant for accessibility checks.
+ *
+ * Uses `innerText` by default because it is rendering-aware: text hidden via CSS
+ * (`display: none`, `visibility: hidden`, etc.) is excluded, which matches the
+ * accessibility tree behavior.
+ *
+ * Falls back to `textContent` when the element is inside a closed `<details>`,
+ * because `innerText` returns `""` for non-rendered content even though
+ * closed `<details>` content is still part of the accessibility tree.
+ */
+function getAccessibleText(element: HTMLElement): string {
+	const text = element.innerText?.trim() ?? '';
+	if (text !== '') return text;
+
+	// innerText returned empty — check if the element is inside a closed <details>.
+	// Content inside closed <details> is part of the accessibility tree even though
+	// the browser does not render it, so innerText incorrectly returns "".
+	if (element.closest('details:not([open])')) {
+		return element.textContent?.trim() ?? '';
+	}
+
+	return '';
 }
