@@ -554,7 +554,7 @@ importers:
         version: 1.1.1
       devalue:
         specifier: ^5.6.3
-        version: 5.6.3
+        version: 5.6.4
       diff:
         specifier: ^8.0.3
         version: 8.0.3
@@ -4924,7 +4924,7 @@ importers:
         version: 1.2.0
       devalue:
         specifier: ^5.6.3
-        version: 5.6.3
+        version: 5.6.4
 
   packages/integrations/cloudflare/test/fixtures/astro-dev-platform:
     dependencies:
@@ -5280,7 +5280,7 @@ importers:
         version: link:../../../scripts
       devalue:
         specifier: ^5.6.3
-        version: 5.6.3
+        version: 5.6.4
       linkedom:
         specifier: ^0.18.12
         version: 0.18.12
@@ -5789,7 +5789,7 @@ importers:
         version: 1.2.0
       devalue:
         specifier: ^5.6.3
-        version: 5.6.3
+        version: 5.6.4
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -5914,7 +5914,7 @@ importers:
         version: 1.2.0
       devalue:
         specifier: ^5.6.3
-        version: 5.6.3
+        version: 5.6.4
       express:
         specifier: ^5.2.1
         version: 5.2.1
@@ -6119,7 +6119,7 @@ importers:
         version: 2.8.1(preact@10.28.4)
       devalue:
         specifier: ^5.6.3
-        version: 5.6.3
+        version: 5.6.4
       preact-render-to-string:
         specifier: ^6.6.6
         version: 6.6.6(preact@10.28.4)
@@ -6147,7 +6147,7 @@ importers:
         version: 5.1.4(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
       devalue:
         specifier: ^5.6.3
-        version: 5.6.3
+        version: 5.6.4
       ultrahtml:
         specifier: ^1.6.0
         version: 1.6.0
@@ -11603,8 +11603,8 @@ packages:
   dettle@1.0.5:
     resolution: {integrity: sha512-ZVyjhAJ7sCe1PNXEGveObOH9AC8QvMga3HJIghHawtG7mE4K5pW9nz/vDGAr/U7a3LWgdOzEE7ac9MURnyfaTA==}
 
-  devalue@5.6.3:
-    resolution: {integrity: sha512-nc7XjUU/2Lb+SvEFVGcWLiKkzfw8+qHI7zn8WYXKkLMgfGSHbgCEaR6bJpev8Cm6Rmrb19Gfd/tZvGqx9is3wg==}
+  devalue@5.6.4:
+    resolution: {integrity: sha512-Gp6rDldRsFh/7XuouDbxMH3Mx8GMCcgzIb1pDTvNyn8pZGQ22u+Wa+lGV9dQCltFQ7uVw0MhRyb8XDskNFOReA==}
 
   devlop@1.1.0:
     resolution: {integrity: sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA==}
@@ -20822,7 +20822,7 @@ snapshots:
 
   dettle@1.0.5: {}
 
-  devalue@5.6.3: {}
+  devalue@5.6.4: {}
 
   devlop@1.1.0:
     dependencies:
@@ -24999,7 +24999,7 @@ snapshots:
       aria-query: 5.3.1
       axobject-query: 4.1.0
       clsx: 2.1.1
-      devalue: 5.6.3
+      devalue: 5.6.4
       esm-env: 1.2.2
       esrap: 2.2.3
       is-reference: 3.0.3
