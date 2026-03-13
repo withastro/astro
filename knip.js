@@ -54,6 +54,10 @@ export default {
 				'@astrojs/cloudflare',
 			],
 		},
+		'packages/astro-prism': {
+			// package.json#imports are not resolved at the moment
+			ignore: ['src/loadLanguages-workerd.ts'],
+		},
 		'packages/db': {
 			entry: [testEntry, 'test/types/**/*'],
 		},

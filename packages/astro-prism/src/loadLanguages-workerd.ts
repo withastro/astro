@@ -1,0 +1,90 @@
+// This implementation was based from: https://github.com/PrismJS/prism/blob/76dde18a575831c91491895193f56081ac08b0c5/components/index.js
+
+// We use dynamic import instead of static import to load the `prismjs` module here.
+// Replacing this with a static import can cause instability in the workerd environment,
+// occasionally producing the following error:
+// "The Workers runtime canceled this request because it detected that your Worker's code had hung and would never generate a response."
+// Using dynamic import resolves this instability, so this module must be loaded this way.
+
+const prismLanguageFiles = import.meta.glob('../node_modules/prismjs/components/prism-*.js');
+
+// Since Prism language files are written assuming the Prism instance is defined
+// as a global variable, we will temporarily set the Prism instance globally.
+function setPrismAsGlobal(prism: typeof import('prismjs')) {
+	globalThis.Prism = prism;
+
+	return () => {
+		// @ts-expect-error globalThis type
+		delete globalThis.Prism;
+	};
+}
+
+let prismCache: typeof import('prismjs') | undefined = undefined;
+
+export async function loadPrism() {
+	if (!prismCache) {
+		({ default: prismCache } = await import('prismjs'));
+	}
+
+	return prismCache;
+}
+
+/**
+ * The set of all languages which have been loaded using the below function.
+ *
+ * @type {Set<string>}
+ */
+const loadedLanguages = new Set<string>();
+
+/**
+ * Loads the given languages and adds them to the current Prism instance.
+ *
+ * If no languages are provided, __all__ Prism languages will be loaded.
+ *
+ * @param {string|string[]} [languages]
+ * @returns {Promise<void>}
+ */
+export async function loadLanguages(languages: string | string[]) {
+	const Prism = await loadPrism();
+	const { default: components } = await import('prismjs/components.js');
+	const { default: getLoader } = await import('prismjs/dependencies.js');
+
+	const cleanUp = setPrismAsGlobal(Prism);
+
+	if (languages === undefined) {
+		languages = Object.keys(components.languages).filter((l) => l !== 'meta');
+	} else if (!Array.isArray(languages)) {
+		languages = [languages];
+	}
+
+	// the user might have loaded languages via some other way or used `prism.js` which already includes some
+	// we don't need to validate the ids because `getLoader` will ignore invalid ones
+	const loaded = [...loadedLanguages, ...Object.keys(Prism.languages)];
+
+	await getLoader(components, languages, loaded).load(async (lang: string) => {
+		if (!(lang in components.languages)) {
+			if (!loadLanguages.silent) {
+				console.warn('Language does not exist: ' + lang);
+			}
+			return;
+		}
+
+		const pathToLanguage = `../node_modules/prismjs/components/prism-${lang}.js`;
+
+		// remove from Prism
+		delete Prism.languages[lang];
+
+		if (Object.hasOwn(prismLanguageFiles, pathToLanguage)) {
+			await prismLanguageFiles[pathToLanguage]();
+		}
+
+		loadedLanguages.add(lang);
+	});
+
+	cleanUp();
+}
+
+/**
+ * Set this to `true` to prevent all warning messages `loadLanguages` logs.
+ */
+loadLanguages.silent = false;

@@ -70,4 +70,15 @@ describe('AstroDevPlatform', () => {
 		// Verify the code block was rendered
 		assert.ok($('pre').length > 0, 'Code block should be rendered');
 	});
+
+	it('Prism component works in dev mode (no CommonJS module errors)', async () => {
+		const res = await fixture.fetch('/prism-test');
+		assert.equal(res.status, 200);
+		const html = await res.text();
+		const $ = cheerio.load(html);
+		// Verify the page rendered successfully with Prism component
+		assert.equal($('h1').text(), 'Testing Prism Component');
+		// Verify the code block was rendered
+		assert.ok($('pre').length > 0, 'Code block should be rendered');
+	});
 });

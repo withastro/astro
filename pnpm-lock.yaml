@@ -786,6 +786,9 @@ importers:
       astro-scripts:
         specifier: workspace:*
         version: link:../../scripts
+      vite:
+        specifier: ^7.3.1
+        version: 7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
 
   packages/astro-rss:
     dependencies:
@@ -4931,6 +4934,9 @@ importers:
       '@astrojs/cloudflare':
         specifier: workspace:*
         version: link:../../..
+      '@astrojs/prism':
+        specifier: workspace:*
+        version: link:../../../../../astro-prism
       astro:
         specifier: workspace:*
         version: link:../../../../../astro
