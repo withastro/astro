@@ -60,6 +60,13 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 		config(_config, { command: _command }) {
 			command = _command;
 		},
+		buildStart() {
+			if (command !== 'build' || this.environment?.name !== ASTRO_VITE_ENVIRONMENT_NAMES.ssr) {
+				return;
+			}
+
+			ensureServerIslandReferenceIds(this);
+		},
 		configureServer(server) {
 			ssrEnvironment = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
 		},
@@ -91,23 +98,35 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 			async handler(_code, id) {
 				const info = this.getModuleInfo(id);
 				const astro = info ? (info.meta.astro as AstroPluginMetadata['astro']) : undefined;
+				const isBuildSsr =
+					command === 'build' && this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
 
 				if (astro) {
 					for (const comp of astro.serverComponents) {
-						if (serverIslandNameMap.has(comp.resolvedPath)) continue;
+						if (!serverIslandNameMap.has(comp.resolvedPath)) {
+							if (!settings.adapter) {
+								throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
+							}
 
-						if (!settings.adapter) {
-							throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
+							let name = comp.localName;
+							let idx = 1;
+							while (serverIslandMap.has(name)) {
+								name += idx++;
+							}
+
+							serverIslandNameMap.set(comp.resolvedPath, name);
+							serverIslandMap.set(name, comp.resolvedPath);
 						}
 
-						let name = comp.localName;
-						let idx = 1;
-						while (serverIslandMap.has(name)) {
-							name += idx++;
+						if (isBuildSsr && !referenceIdMap.has(comp.resolvedPath)) {
+							const islandName = serverIslandNameMap.get(comp.resolvedPath);
+							const referenceId = this.emitFile({
+								type: 'chunk',
+								id: comp.resolvedPath,
+								name: islandName,
+							});
+							referenceIdMap.set(comp.resolvedPath, referenceId);
 						}
-
-						serverIslandNameMap.set(comp.resolvedPath, name);
-						serverIslandMap.set(name, comp.resolvedPath);
 					}
 				}
 
@@ -153,8 +172,6 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 				let mapSource: string;
 
 				if (envName === ASTRO_VITE_ENVIRONMENT_NAMES.ssr) {
-					ensureServerIslandReferenceIds(this);
-
 					const isRelativeChunk = !chunk.isEntry;
 					const dots = isRelativeChunk ? '..' : '.';
 					const mapEntries: Array<[string, string]> = [];
