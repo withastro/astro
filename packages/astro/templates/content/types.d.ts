@@ -85,6 +85,7 @@ declare module 'astro:content' {
 		entry: DataEntryMap[C][string],
 	): Promise<RenderResult>;
 
+	/** OLD (1-arg): returns a Zod schema for use inside a function-based `schema` option. @deprecated Use Standard Schema with `transform` instead. */
 	export function reference<
 		C extends
 			| keyof DataEntryMap
@@ -106,11 +107,31 @@ declare module 'astro:content' {
 			string
 		>
 	>;
+	/** NEW (2-arg): returns `{ id, collection }` directly for use inside a `transform` function. */
+	export function reference<
+		C extends
+			| keyof DataEntryMap
+			| (string & {}),
+	>(
+		collection: C,
+		id: string,
+	): { id: string; collection: C };
 
 	type ReturnTypeOrOriginal<T> = T extends (...args: any[]) => infer R ? R : T;
-	type InferEntrySchema<C extends keyof DataEntryMap> = import('astro/zod').infer<
-		ReturnTypeOrOriginal<Required<ContentConfig['collections'][C]>['schema']>
-	>;
+
+	/** Infers the output type of a Standard Schema. */
+	type InferStandardSchema<S> = S extends {
+		'~standard': { types?: { output: infer O } | undefined };
+	}
+		? O
+		: unknown;
+
+	/** Infers the entry data type for a collection. Handles both `transform` and raw schema inference. */
+	type InferEntrySchema<C extends keyof DataEntryMap> =
+		Required<ContentConfig['collections'][C]> extends { transform: infer T }
+			? Awaited<ReturnTypeOrOriginal<T>>
+			: InferStandardSchema<ReturnTypeOrOriginal<Required<ContentConfig['collections'][C]>['schema']>>;
+
 	type InferLoaderSchema<
 		C extends keyof DataEntryMap,
 		L = Required<ContentConfig['collections'][C]>['loader'],
@@ -136,8 +157,8 @@ declare module 'astro:content' {
 
 	type LiveLoaderDataType<C extends keyof LiveContentConfig['collections']> =
 		LiveContentConfig['collections'][C]['schema'] extends undefined
-			? ExtractDataType<LiveContentConfig['collections'][C]['loader']>
-			: import('astro/zod').infer<
+			? ExtractLoaderTypes<LiveContentConfig['collections'][C]['loader']>['data']
+			: InferStandardSchema<
 					Exclude<LiveContentConfig['collections'][C]['schema'], undefined>
 				>;
 	type LiveLoaderEntryFilterType<C extends keyof LiveContentConfig['collections']> =

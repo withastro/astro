@@ -1,5 +1,5 @@
+import type { StandardSchemaV1 } from '@standard-schema/spec';
 import type { FSWatcher } from 'vite';
-import type * as z from 'zod/v4/core';
 import type { AstroIntegrationLogger } from '../../core/logger/core.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import type {
@@ -62,12 +62,12 @@ export type Loader = {
 } & (
 	| {
 			/** Optionally, define the schema of the data. Will be overridden by user-defined schema */
-			schema?: z.$ZodType;
+			schema?: StandardSchemaV1;
 	  }
 	| {
 			/** Optionally, provide a function to dynamically provide a schema. Will be overridden by user-defined schema */
 			createSchema?: () => Promise<{
-				schema: z.$ZodType;
+				schema: StandardSchemaV1;
 				types: string;
 			}>;
 	  }

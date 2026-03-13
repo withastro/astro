@@ -1,5 +1,7 @@
+import type { StandardSchemaV1 } from '@standard-schema/spec';
 import type * as zCore from 'zod/v4/core';
 import type * as z from 'zod/v4';
+import type { ImageMetadata } from '../assets/types.js';
 import { AstroError, AstroErrorData, AstroUserError } from '../core/errors/index.js';
 import { CONTENT_LAYER_TYPE, LIVE_CONTENT_TYPE } from './consts.js';
 import type { LiveLoader, Loader } from './loaders/types.js';
@@ -25,6 +27,7 @@ function getImporterFilename() {
 }
 
 // This needs to be in sync with ImageMetadata
+/** @deprecated Use a Standard Schema with `transform` instead. */
 type ImageFunction = () => z.ZodObject<{
 	src: zCore.$ZodString;
 	width: zCore.$ZodNumber;
@@ -68,11 +71,20 @@ export interface MetaStore {
 	has: (key: string) => boolean;
 }
 
-export type BaseSchema = zCore.$ZodType;
+export type BaseSchema = StandardSchemaV1;
 
 export type { ImageFunction };
 
+/** @deprecated Use a Standard Schema with `transform` instead. */
 export type SchemaContext = { image: ImageFunction };
+
+/** Context provided to the `transform` function of a collection. */
+export type TransformContext = {
+	/** Resolves a relative image path for the current entry to ImageMetadata. Async. */
+	image: (path: string) => Promise<ImageMetadata>;
+};
+
+export type TransformFn<TIn, TOut> = (data: TIn, context: TransformContext) => TOut | Promise<TOut>;
 
 type LoaderConstraint<TData extends { id: string }> =
 	| Loader
@@ -82,21 +94,28 @@ type LoaderConstraint<TData extends { id: string }> =
 			| Record<string, Omit<TData, 'id'> & { id?: string }>
 			| Promise<Record<string, Omit<TData, 'id'> & { id?: string }>>);
 
-type ContentLayerConfig<S extends BaseSchema, TLoader extends LoaderConstraint<{ id: string }>> = {
+type ContentLayerConfig<
+	S extends BaseSchema,
+	TOut,
+	TLoader extends LoaderConstraint<{ id: string }>,
+> = {
 	type?: 'content_layer';
 	schema?: S | ((context: SchemaContext) => S);
 	loader: TLoader;
+	transform?: TransformFn<StandardSchemaV1.InferOutput<S>, TOut>;
 };
 
-type DataCollectionConfig<S extends BaseSchema> = {
+type DataCollectionConfig<S extends BaseSchema, TOut> = {
 	type: 'data';
 	schema?: S | ((context: SchemaContext) => S);
+	transform?: TransformFn<StandardSchemaV1.InferOutput<S>, TOut>;
 };
 
-type ContentCollectionConfig<S extends BaseSchema> = {
+type ContentCollectionConfig<S extends BaseSchema, TOut> = {
 	type?: 'content';
 	schema?: S | ((context: SchemaContext) => S);
 	loader?: never;
+	transform?: TransformFn<StandardSchemaV1.InferOutput<S>, TOut>;
 };
 
 export type LiveCollectionConfig<
@@ -110,8 +129,12 @@ export type LiveCollectionConfig<
 
 export type CollectionConfig<
 	S extends BaseSchema,
+	TOut = StandardSchemaV1.InferOutput<S>,
 	TLoader extends LoaderConstraint<{ id: string }> = LoaderConstraint<{ id: string }>,
-> = ContentCollectionConfig<S> | DataCollectionConfig<S> | ContentLayerConfig<S, TLoader>;
+> =
+	| ContentCollectionConfig<S, TOut>
+	| DataCollectionConfig<S, TOut>
+	| ContentLayerConfig<S, TOut, TLoader>;
 
 export function defineLiveCollection<
 	L extends LiveLoader,
@@ -175,8 +198,9 @@ export function defineLiveCollection<
 
 export function defineCollection<
 	S extends BaseSchema,
+	TOut = StandardSchemaV1.InferOutput<S>,
 	TLoader extends LoaderConstraint<{ id: string }> = LoaderConstraint<{ id: string }>,
->(config: CollectionConfig<S, TLoader>): CollectionConfig<S, TLoader> {
+>(config: CollectionConfig<S, TOut, TLoader>): CollectionConfig<S, TOut, TLoader> {
 	const importerFilename = getImporterFilename();
 
 	if (importerFilename?.includes('live.config')) {

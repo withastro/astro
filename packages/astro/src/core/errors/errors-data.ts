@@ -1738,10 +1738,11 @@ export const InvalidContentEntryFrontmatterError = {
 export const InvalidContentEntryDataError = {
 	name: 'InvalidContentEntryDataError',
 	title: 'Content entry data does not match schema.',
-	message(collection: string, entryId: string, error: $ZodError) {
+	message(collection: string, entryId: string, error: $ZodError | string) {
+		const errorMessage = typeof error === 'string' ? error : `  **: ${error.message}`;
 		return [
 			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.\n`,
-			`  **: ${error.message}`,
+			errorMessage,
 			'',
 		].join('\n');
 	},
