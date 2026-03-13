@@ -10,6 +10,7 @@ import Baz from "@short/Baz"
 import StyleComp from 'src/components/Style.astro';
 import { foo, index } from 'src/utils/constants';
 import { doNothing } from '@pages';
+import SassBaseUrl from '@components/SassBaseUrl.astro';
 
 const globResult = Object.keys(import.meta.glob('@components/glob/*.js')).join(', ')
 
@@ -37,6 +38,7 @@ doNothing()
       <p id="style-red">style-red</p>
       <p id="style-blue">style-blue</p>
       <p id="glob">{globResult}</p>
+      <SassBaseUrl />
     </main>
   </body>
 </html>
