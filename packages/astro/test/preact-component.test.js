@@ -46,6 +46,27 @@ describe('Preact component', () => {
 		assert.equal($('#world').length, 1);
 	});
 
+	it('Can generate unique useId values across islands', async () => {
+		const html = await fixture.readFile('/use-id/index.html');
+		const $ = cheerio.load(html);
+
+		const useIdInputs = $('.use-id-component input');
+		assert.equal(useIdInputs.length, 2);
+
+		const firstInputId = $(useIdInputs[0]).attr('id');
+		const secondInputId = $(useIdInputs[1]).attr('id');
+		assert.notEqual(firstInputId, undefined);
+		assert.notEqual(secondInputId, undefined);
+		assert.notEqual(firstInputId, secondInputId);
+
+		const islands = $('astro-island');
+		const firstIslandId = $(islands[0]).attr('data-preact-island-id');
+		const secondIslandId = $(islands[1]).attr('data-preact-island-id');
+		assert.notEqual(firstIslandId, undefined);
+		assert.notEqual(secondIslandId, undefined);
+		assert.notEqual(firstIslandId, secondIslandId);
+	});
+
 	it('Can export a Fragment', async () => {
 		const html = await fixture.readFile('/frag/index.html');
 		const $ = cheerio.load(html);

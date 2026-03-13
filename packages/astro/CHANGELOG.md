@@ -1,5 +1,23 @@
 # astro
 
+## 6.0.4
+
+### Patch Changes
+
+- [#15870](https://github.com/withastro/astro/pull/15870) [`920f10b`](https://github.com/withastro/astro/commit/920f10bb3a49da8355967df99c32c43cc9f53b46) Thanks [@matthewp](https://github.com/matthewp)! - Prebundle `astro/toolbar` in dev when custom dev toolbar apps are registered, preventing re-optimization reloads that can hide or break the toolbar.
+
+- [#15876](https://github.com/withastro/astro/pull/15876) [`f47ac53`](https://github.com/withastro/astro/commit/f47ac5352dcb36daa64ec12b7d4ac193045d10e3) Thanks [@ematipico](https://github.com/ematipico)! - Fixes `redirectToDefaultLocale` producing a protocol-relative URL (`//locale`) instead of an absolute path (`/locale`) when `base` is `'/'`.
+
+- [#15767](https://github.com/withastro/astro/pull/15767) [`e0042f7`](https://github.com/withastro/astro/commit/e0042f720274d8763907c1d429723192a71d6932) Thanks [@matthewp](https://github.com/matthewp)! - Fixes server islands (`server:defer`) not working when only used in prerendered pages with `output: 'server'`.
+
+- [#15873](https://github.com/withastro/astro/pull/15873) [`35841ed`](https://github.com/withastro/astro/commit/35841ed273581a567cd726bb2d14d2ed3886bed0) Thanks [@matthewp](https://github.com/matthewp)! - Fix a dev server bug where newly created pages could miss layout-imported CSS until restart.
+
+- [#15874](https://github.com/withastro/astro/pull/15874) [`ce0669d`](https://github.com/withastro/astro/commit/ce0669d68115c5e2d00238f3e780a2af50f5be11) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a warning when using `prefetchAll`
+
+- [#15754](https://github.com/withastro/astro/pull/15754) [`58f1d63`](https://github.com/withastro/astro/commit/58f1d63cbcdd351d80cc65ceff4cb1a8d1aa1853) Thanks [@rururux](https://github.com/rururux)! - Fixes a bug where a directory at the project root sharing the same name as a page route would cause the dev server to return a 404 instead of serving the page.
+
+- [#15869](https://github.com/withastro/astro/pull/15869) [`76b3a5e`](https://github.com/withastro/astro/commit/76b3a5e4bb1e9f2855d4169602295d601d7e7436) Thanks [@matthewp](https://github.com/matthewp)! - Update the unknown file extension error hint to recommend `vite.resolve.noExternal`, which is the correct Vite 7 config key.
+
 ## 6.0.3
 
 ### Patch Changes

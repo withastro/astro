@@ -12,7 +12,10 @@
   },
   "type": "module",
   "exports": {
-    ".": "./dist/index.js"
+    ".": {
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
   },
   "bin": {
     "astro-check": "./bin/astro-check.js"
