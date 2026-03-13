@@ -77,6 +77,9 @@ export class AstroComponentInstance {
 
 	private renderImpl(destination: RenderDestination, returnValue: AstroFactoryReturnValue) {
 		if (isHeadAndContent(returnValue)) {
+			if (returnValue.head) {
+				this.result._metadata.extraHead.push(returnValue.head);
+			}
 			return returnValue.content.render(destination);
 		} else {
 			return renderChild(destination, returnValue);
@@ -111,7 +114,8 @@ export function createAstroComponentInstance(
 ) {
 	validateComponentProps(props, result.clientDirectives, displayName);
 	const instance = new AstroComponentInstance(result, props, slots, factory);
-	if (isAPropagatingComponent(result, factory)) {
+	const isPropagating = isAPropagatingComponent(result, factory);
+	if (isPropagating) {
 		result._metadata.propagators.add(instance);
 	}
 	return instance;
