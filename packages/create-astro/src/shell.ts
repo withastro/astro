@@ -5,7 +5,7 @@ import { spawn } from 'node:child_process';
 import type { Readable } from 'node:stream';
 import { text as textFromStream } from 'node:stream/consumers';
 
-const WINDOWS_CMD_SHIMS = new Set(['npm', 'npx', 'pnpm', 'pnpx', 'yarn', 'yarnpkg']);
+const WINDOWS_CMD_SHIMS = new Set(['npm', 'npx', 'pnpm', 'pnpx', 'yarn', 'yarnpkg', 'bun', 'bunx']);
 
 interface ExecaOptions {
 	cwd?: string | URL;
