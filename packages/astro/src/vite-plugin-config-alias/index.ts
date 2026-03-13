@@ -110,6 +110,24 @@ const getViteResolveAlias = (settings: AstroSettings) => {
 		}
 	}
 
+	// Add baseUrl catch-all alias so that bare specifiers (e.g. in Sass @use)
+	// are resolved against baseUrl. This mirrors the baseUrl handling in getConfigAlias()
+	// but uses a customResolver to avoid intercepting package imports.
+	if (baseUrl) {
+		aliases.push({
+			find: /^(?!\.*\/|\.*$|\w:)(.+)$/,
+			replacement: '$1',
+			customResolver(id: string) {
+				const resolved = path.resolve(resolvedBaseUrl, id);
+				const stats = fs.statSync(resolved, { throwIfNoEntry: false });
+				if (stats?.isFile()) {
+					return normalizePath(resolved);
+				}
+				return null;
+			},
+		});
+	}
+
 	return aliases;
 };
 
