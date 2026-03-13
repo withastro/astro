@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 2.16.5
+
+### Patch Changes
+
+- [#15895](https://github.com/withastro/astro/pull/15895) [`7b4b254`](https://github.com/withastro/astro/commit/7b4b2549437eb099c5e96025dcf8d24ea56f30d0) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updates Volar services to 0.0.70. This updates notably mean that the transitive dependency yaml-language-server no longer depends on a vulnerable version of lodash, causing warnings to show when installing the language server.
+
 ## 2.16.4
 
 ### Patch Changes
