@@ -116,7 +116,6 @@ const getViteResolveAlias = (settings: AstroSettings) => {
 	// which are handled by the resolveId hook instead.
 	if (baseUrl) {
 		aliases.push({
-			// catch all css like files
 			find: /^(?!\.*\/|\.*$|\w:)(.+\.(?:css|scss|sass|less|styl|stylus))$/,
 			replacement: '$1',
 			customResolver(id: string) {
