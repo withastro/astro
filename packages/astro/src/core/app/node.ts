@@ -393,7 +393,23 @@ async function* limitAsyncIterable(
 	}
 }
 
-function getAbortControllerCleanup(req?: NodeRequest): (() => void) | undefined {
+/**
+ * Returns the cleanup function for the AbortController and socket listeners created by `createRequest()`
+ * for the NodeJS IncomingMessage. This should only be called directly if the request is not
+ * being handled by Astro, i.e. if not calling `writeResponse()` after `createRequest()`.
+ * ```js
+ * import { createRequest, getAbortControllerCleanup } from 'astro/app/node';
+ * import { createServer } from 'node:http';
+ *
+ * const server = createServer(async (req, res) => {
+ *     const request = createRequest(req);
+ *     const cleanup = getAbortControllerCleanup(req);
+ *     if (cleanup) cleanup();
+ *     // can now safely call another handler
+ * })
+ * ```
+ */
+export function getAbortControllerCleanup(req?: NodeRequest): (() => void) | undefined {
 	if (!req) return undefined;
 	const cleanup = Reflect.get(req, nodeRequestAbortControllerCleanupSymbol);
 	return typeof cleanup === 'function' ? cleanup : undefined;
