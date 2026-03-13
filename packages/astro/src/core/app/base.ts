@@ -472,7 +472,9 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		let pathname = this.getPathnameFromRequest(request);
 		// In dev, the route may have matched a normalized pathname (after .html stripping).
 		// Apply the same normalization for correct param extraction.
-		if (this.isDev()) {
+		// But skip this for endpoint routes, where `.html` in the pathname may be intentional
+		// (e.g. a file endpoint returning an HTML file via getStaticPaths params).
+		if (this.isDev() && routeData.type !== 'endpoint') {
 			pathname = pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
 		}
 		const defaultStatus = this.getDefaultStatusCode(routeData, pathname);
