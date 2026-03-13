@@ -24,6 +24,7 @@ import type {
 } from '../../core/session/types.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
+import type { BundledLanguage, BundledTheme } from 'shiki';
 
 export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
 
@@ -2992,6 +2993,56 @@ export interface AstroUserConfig<
 			 * This caching is disabled for dynamic pages.
 			 */
 			contentCache?: boolean;
+		};
+
+		/**
+		 * @name experimental.optimizeShiki
+		 * @type {{ includeLangs?: BundledLanguage[]; includeThemes?: BundledTheme[] }}
+		 * @default `{}`
+		 * @version 6.0.0
+		 * @description
+		 * Reduces the bundle size of the `<Code />` component when using `output: 'server'`
+		 * by limiting the languages and themes included in the server bundle.
+		 *
+		 * By default, all Shiki languages and themes are bundled, which can result in significantly
+		 * larger bundle sizes. This option allows you to specify only the languages and themes
+		 * your application needs for SSR, reducing the bundle size considerably.
+		 *
+		 * Note: During prerendering and SSG, all languages and themes remain available
+		 * regardless of this setting.
+		 *
+		 * ```js
+		 * {
+		 *   experimental: {
+		 *     optimizeShiki: {
+		 *       includeLangs: ['javascript', 'typescript'],
+		 *       includeThemes: ['github-dark'],
+		 *     },
+		 *   },
+		 * }
+		 * ```
+		 *
+		 * If `includeLangs` or `includeThemes` is omitted, all languages or themes will be included.
+		 */
+		optimizeShiki?: {
+			/**
+			 * @default `undefined`
+			 * @version 6.0.0
+			 * @description
+			 * A list of Shiki language IDs to include in the server bundle.
+			 * Any language not in this list will be unavailable during SSR and will fall back to plain text.
+			 * If omitted, all languages are included.
+			 */
+			includeLangs?: BundledLanguage[];
+			/**
+			 * @default `undefined`
+			 * @version 6.0.0
+			 * @description
+			 * A list of Shiki theme IDs to include in the server bundle.
+			 * Any theme not in this list will be unavailable during SSR and will result in a runtime error.
+			 * If omitted, all themes are included.
+			 */
+			includeThemes?: BundledTheme[];
 		};
 	};
 }
