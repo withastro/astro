@@ -37,17 +37,21 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 	const serverIslandMap = new Map<string, string>();
 	// serverIslandNameMap: resolvedPath -> displayName
 	const serverIslandNameMap = new Map<string, string>();
+	// resolvedPath -> source import details used for Rollup emission
+	const serverIslandSourceMap = new Map<string, { id: string; importer: string }>();
 	// resolvedPath -> rollup reference id
 	const referenceIdMap = new Map<string, string>();
 
 	function ensureServerIslandReferenceIds(ctx: {
-		emitFile: (file: { type: 'chunk'; id: string; name?: string }) => string;
+		emitFile: (file: { type: 'chunk'; id: string; importer?: string; name?: string }) => string;
 	}) {
 		for (const [resolvedPath, islandName] of serverIslandNameMap) {
 			if (referenceIdMap.has(resolvedPath)) continue;
+			const source = serverIslandSourceMap.get(resolvedPath);
 			const referenceId = ctx.emitFile({
 				type: 'chunk',
-				id: resolvedPath,
+				id: source?.id ?? resolvedPath,
+				importer: source?.importer,
 				name: islandName,
 			});
 			referenceIdMap.set(resolvedPath, referenceId);
@@ -116,13 +120,16 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 
 							serverIslandNameMap.set(comp.resolvedPath, name);
 							serverIslandMap.set(name, comp.resolvedPath);
+							serverIslandSourceMap.set(comp.resolvedPath, { id: comp.specifier, importer: id });
 						}
 
 						if (isBuildSsr && !referenceIdMap.has(comp.resolvedPath)) {
 							const islandName = serverIslandNameMap.get(comp.resolvedPath);
+							const source = serverIslandSourceMap.get(comp.resolvedPath);
 							const referenceId = this.emitFile({
 								type: 'chunk',
-								id: comp.resolvedPath,
+								id: source?.id ?? comp.resolvedPath,
+								importer: source?.importer,
 								name: islandName,
 							});
 							referenceIdMap.set(comp.resolvedPath, referenceId);
