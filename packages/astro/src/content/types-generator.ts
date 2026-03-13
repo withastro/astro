@@ -648,6 +648,9 @@ async function generateJSONSchema(
 					ctx.jsonSchema.format = 'date-time';
 				}
 			},
+			// Collection schemas are used for parsing collection input, so we need to tell Zod to use the
+			// input shape when generating a JSON schema.
+			io: 'input',
 		});
 		const schemaStr = JSON.stringify(schema, null, 2);
 		const schemaJsonPath = new URL(
