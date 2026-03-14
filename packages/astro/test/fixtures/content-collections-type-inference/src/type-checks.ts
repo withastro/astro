@@ -50,7 +50,7 @@ const _legacyFieldCheck: LegacyData = { title: 'ok', legacyField: 'not a boolean
 type SchemalessData = InferLoaderSchema<'schemaless'>;
 
 // If the type is correctly `any`, then any assignment is valid and
-// @ts-expect-error on a valid assignment would be an error itself.
+// a ts-expect-error on a valid assignment would be an error itself.
 // So we verify `any` by checking that arbitrary property access works:
 const _schemalessValue: SchemalessData = { anything: 'goes', count: 42 };
 const _schemalessAccess: string = _schemalessValue.nonExistentProp;
