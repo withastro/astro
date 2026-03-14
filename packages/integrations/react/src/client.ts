@@ -19,7 +19,8 @@ let clientIds = 0;
 
 function createReactElementFromDOMElement(element: any, id?: number, key?: number): any {
 	if (id === undefined) {
-		id = clientIds++;
+		clientIds += 1;
+		id = clientIds;
 		key = 0;
 	}
 
