@@ -1,6 +1,4 @@
-import type { ZodType } from 'zod';
-import type { ActionAccept, ActionClient } from '../../actions/runtime/server.js';
-import type { RoutingStrategies } from '../../i18n/utils.js';
+import type { ActionClient } from '../../actions/runtime/types.js';
 import type { ComponentInstance, SerializedRouteData } from '../../types/astro.js';
 import type { AstroMiddlewareInstance } from '../../types/public/common.js';
 import type {
@@ -8,7 +6,6 @@ import type {
 	CspAlgorithm,
 	Locales,
 	RemotePattern,
-	ResolvedSessionConfig,
 } from '../../types/public/config.js';
 import type {
 	RouteData,
@@ -18,6 +15,13 @@ import type {
 } from '../../types/public/internal.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 import type { CspDirective } from '../csp/config.js';
+import type { LoggerLevel } from '../logger/core.js';
+import type { RoutingStrategies } from './common.js';
+import type { CacheProviderFactory, SSRManifestCache } from '../cache/types.js';
+import type { BaseSessionConfig, SessionDriverFactory } from '../session/types.js';
+import type { DevToolbarPlacement } from '../../types/public/toolbar.js';
+import type { MiddlewareMode } from '../../types/public/integrations.js';
+import type { BaseApp } from './base.js';
 
 type ComponentPath = string;
 
@@ -25,16 +29,16 @@ export type StylesheetAsset =
 	| { type: 'inline'; content: string }
 	| { type: 'external'; src: string };
 
+type ScriptAsset =
+	| { children: string; stage: string }
+	// Hoisted
+	| { type: 'inline' | 'external'; value: string };
+
 export interface RouteInfo {
 	routeData: RouteData;
 	file: string;
 	links: string[];
-	scripts: // Integration injected
-	(
-		| { children: string; stage: string }
-		// Hoisted
-		| { type: 'inline' | 'external'; value: string }
-	)[];
+	scripts: ScriptAsset[];
 	styles: StylesheetAsset[];
 }
 
@@ -44,6 +48,11 @@ export type SerializedRouteInfo = Omit<RouteInfo, 'routeData'> & {
 
 type ImportComponentInstance = () => Promise<SinglePageBuiltModule>;
 
+export type ServerIslandMappings = {
+	serverIslandMap?: Map<string, () => Promise<ComponentInstance>>;
+	serverIslandNameMap?: Map<string, string>;
+};
+
 export type AssetsPrefix =
 	| string
 	| ({
@@ -52,7 +61,6 @@ export type AssetsPrefix =
 	| undefined;
 
 export type SSRManifest = {
-	hrefRoot: string;
 	adapterName: string;
 	routes: RouteInfo[];
 	site?: string;
@@ -67,8 +75,28 @@ export type SSRManifest = {
 	trailingSlash: AstroConfig['trailingSlash'];
 	buildFormat: NonNullable<AstroConfig['build']>['format'];
 	compressHTML: boolean;
+	experimentalQueuedRendering: {
+		enabled: boolean;
+		/** Node pool size for memory reuse (default: 1000, set to 0 to disable pooling) */
+		poolSize?: number;
+		/** Whether to enable HTMLString caching for deduplicating repeated HTML fragments (default: true) */
+		contentCache?: boolean;
+	};
 	assetsPrefix?: AssetsPrefix;
 	renderers: SSRLoadedRenderer[];
+	/**
+	 * Based on Astro config's `output` option, `true` if "server" or "hybrid".
+	 *
+	 * Whether this application is SSR-like. If so, this has some implications, such as
+	 * the creation of `dist/client` and `dist/server` folders.
+	 */
+	serverLike: boolean;
+	/**
+	 * The middleware mode determines when and how middleware executes.
+	 * - 'classic' (default): Build-time for prerendered pages, request-time for SSR pages
+	 * - 'edge': Middleware deployed as separate edge function
+	 */
+	middlewareMode: MiddlewareMode;
 	/**
 	 * Map of directive name (e.g. `load`) to the directive script code
 	 */
@@ -79,27 +107,54 @@ export type SSRManifest = {
 	componentMetadata: SSRResult['componentMetadata'];
 	pageModule?: SinglePageBuiltModule;
 	pageMap?: Map<ComponentPath, ImportComponentInstance>;
-	serverIslandMap?: Map<string, () => Promise<ComponentInstance>>;
-	serverIslandNameMap?: Map<string, string>;
+	serverIslandMappings?: () => Promise<ServerIslandMappings> | ServerIslandMappings;
 	key: Promise<CryptoKey>;
 	i18n: SSRManifestI18n | undefined;
 	middleware?: () => Promise<AstroMiddlewareInstance> | AstroMiddlewareInstance;
 	actions?: () => Promise<SSRActions> | SSRActions;
+	sessionDriver?: () => Promise<{ default: SessionDriverFactory | null }>;
+	cacheProvider?: () => Promise<{ default: CacheProviderFactory | null }>;
 	checkOrigin: boolean;
 	allowedDomains?: Partial<RemotePattern>[];
-	sessionConfig?: ResolvedSessionConfig<any>;
-	cacheDir: string | URL;
-	srcDir: string | URL;
-	outDir: string | URL;
-	publicDir: string | URL;
-	buildClientDir: string | URL;
-	buildServerDir: string | URL;
+	actionBodySizeLimit: number;
+	serverIslandBodySizeLimit: number;
+	sessionConfig?: SSRManifestSession;
+	cacheConfig?: SSRManifestCache;
+	cacheDir: URL;
+	srcDir: URL;
+	outDir: URL;
+	rootDir: URL;
+	publicDir: URL;
+	assetsDir: string;
+	buildClientDir: URL;
+	buildServerDir: URL;
 	csp: SSRManifestCSP | undefined;
+	image: {
+		objectFit?: string;
+		objectPosition?: string;
+		layout?: string;
+	};
+	shouldInjectCspMetaTags: boolean;
+	devToolbar: {
+		// This should always be false in prod/SSR
+		enabled: boolean;
+		/**
+		 * Latest version of Astro, will be undefined if:
+		 * - unable to check
+		 * - the user has disabled the check
+		 * - the check has not completed yet
+		 * - the user is on the latest version already
+		 */
+		latestAstroVersion: string | undefined;
+		debugInfoOutput: string | undefined;
+		placement: DevToolbarPlacement | undefined;
+	};
 	internalFetchHeaders?: Record<string, string>;
+	logLevel: LoggerLevel;
 };
 
 export type SSRActions = {
-	server: Record<string, ActionClient<unknown, ActionAccept, ZodType>>;
+	server: Record<string, ActionClient<any, any, any>>;
 };
 
 export type SSRManifestI18n = {
@@ -109,6 +164,7 @@ export type SSRManifestI18n = {
 	locales: Locales;
 	defaultLocale: string;
 	domainLookupTable: Record<string, string>;
+	domains: Record<string, string> | undefined;
 };
 
 export type SSRManifestCSP = {
@@ -122,6 +178,11 @@ export type SSRManifestCSP = {
 	directives: CspDirective[];
 };
 
+export interface SSRManifestSession extends BaseSessionConfig {
+	driver: string;
+	options?: Record<string, any> | undefined;
+}
+
 /** Public type exposed through the `astro:build:ssr` integration hook */
 export type SerializedSSRManifest = Omit<
 	SSRManifest,
@@ -133,16 +194,30 @@ export type SerializedSSRManifest = Omit<
 	| 'clientDirectives'
 	| 'serverIslandNameMap'
 	| 'key'
+	| 'rootDir'
+	| 'srcDir'
+	| 'cacheDir'
+	| 'outDir'
+	| 'publicDir'
+	| 'buildClientDir'
+	| 'buildServerDir'
 > & {
+	rootDir: string;
+	srcDir: string;
+	cacheDir: string;
+	outDir: string;
+	publicDir: string;
+	buildClientDir: string;
+	buildServerDir: string;
 	routes: SerializedRouteInfo[];
 	assets: string[];
 	componentMetadata: [string, SSRComponentMetadata][];
 	inlinedScripts: [string, string][];
 	clientDirectives: [string, string][];
-	serverIslandNameMap: [string, string][];
 	key: string;
 };
 
+/** @deprecated This will be removed in a future major version. */
 export type NodeAppHeadersJson = {
 	pathname: string;
 	headers: {
@@ -150,3 +225,5 @@ export type NodeAppHeadersJson = {
 		value: string;
 	}[];
 }[];
+
+export type CreateApp = (options?: { streaming?: boolean }) => BaseApp;

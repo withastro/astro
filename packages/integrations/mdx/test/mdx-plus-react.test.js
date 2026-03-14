@@ -43,7 +43,7 @@ describe('MDX and React', () => {
 		assert.equal(h.textContent, 'Testing');
 	});
 
-	it('does not get a invalid hook call warning', () => {
+	it('does not get an invalid hook call warning', () => {
 		const errors = unhook();
 		assert.equal(errors.length === 0, true);
 	});
@@ -51,5 +51,14 @@ describe('MDX and React', () => {
 	it('renders inline mdx component', async () => {
 		const html = await fixture.readFile('/inline-component/index.html');
 		assert.match(html, /This is an inline component: <span>Comp<\/span>/);
+	});
+
+	it('hydrates React component in Astro.slots.render()', async () => {
+		const fooHtml = await fixture.readFile('/foo/index.html');
+		assert.match(fooHtml, /<astro-island/, 'foo should have astro-island element');
+
+		// bar slot should also work (this was the bug - bar had no hydration)
+		const barHtml = await fixture.readFile('/bar/index.html');
+		assert.match(barHtml, /<astro-island/, 'bar should have astro-island element');
 	});
 });

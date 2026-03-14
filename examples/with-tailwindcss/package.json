@@ -3,6 +3,9 @@
   "type": "module",
   "version": "0.0.1",
   "private": true,
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -10,11 +13,11 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/mdx": "^4.3.13",
-    "@tailwindcss/vite": "^4.1.18",
+    "@astrojs/mdx": "^5.0.0",
+    "@tailwindcss/vite": "^4.2.1",
     "@types/canvas-confetti": "^1.9.0",
-    "astro": "^5.16.7",
+    "astro": "^6.0.4",
     "canvas-confetti": "^1.9.4",
-    "tailwindcss": "^4.1.18"
+    "tailwindcss": "^4.2.1"
   }
 }

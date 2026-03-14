@@ -1,0 +1,210 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+	return Array.from({ length: 100 }, (_, i) => ({
+		params: { id: String(i + 1) },
+		props: { postNumber: i + 1 },
+	}));
+}
+
+const { postNumber } = Astro.props;
+---
+
+<BaseLayout title={`Blog Post ${postNumber} - Static Site`}>
+	<article>
+		<h1>Blog Post {postNumber}</h1>
+		<p class="meta">Published on January {(postNumber % 28) + 1}, 2024</p>
+		<p>
+			<strong>Lorem</strong>
+			<em>Ipsum</em> is simply <span>dummy</span> text of the printing and typesetting industry. <strong
+				>Lorem</strong
+			>
+			<em>Ipsum</em> has been the industry's standard <span>dummy</span> text ever since the 1500s, when
+			an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived
+			not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+			It was popularised in the 1960s with the release of Letraset sheets containing <strong
+				>Lorem</strong
+			>
+			<em>Ipsum</em> passages, and more recently with desktop publishing software like Aldus PageMaker
+			including versions of <strong>Lorem</strong>
+			<em>Ipsum</em>. <strong>Lorem</strong>
+			<em>Ipsum</em> is simply <span>dummy</span> text of the printing and typesetting industry. <strong
+				>Lorem</strong
+			>
+			<em>Ipsum</em> has been the industry's standard <span>dummy</span> text ever since the 1500s, when
+			an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived
+			not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+			It was popularised in the 1960s with the release of Letraset sheets containing <strong
+				>Lorem</strong
+			>
+			<em>Ipsum</em> passages, and more recently with desktop publishing software like Aldus PageMaker
+			including versions of <strong>Lorem</strong>
+			<em>Ipsum</em>.
+		</p>
+		<p>
+			<strong>Lorem</strong>
+			<em>Ipsum</em> is simply <span>dummy</span> text of the printing and typesetting industry. <strong
+				>Lorem</strong
+			>
+			<em>Ipsum</em> has been the industry's standard <span>dummy</span> text ever since the 1500s, when
+			an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived
+			not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+			It was popularised in the 1960s with the release of Letraset sheets containing <strong
+				>Lorem</strong
+			>
+			<em>Ipsum</em> passages, and more recently with desktop publishing software like Aldus PageMaker
+			including versions of <strong>Lorem</strong>
+			<em>Ipsum</em>. <strong>Lorem</strong>
+			<em>Ipsum</em> is simply <span>dummy</span> text of the printing and typesetting industry. <strong
+				>Lorem</strong
+			>
+			<em>Ipsum</em> has been the industry's standard <span>dummy</span> text ever since the 1500s, when
+			an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived
+			not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+			It was popularised in the 1960s with the release of Letraset sheets containing <strong
+				>Lorem</strong
+			>
+			<em>Ipsum</em> passages, and more recently with desktop publishing software like Aldus PageMaker
+			including versions of <strong>Lorem</strong>
+			<em>Ipsum</em>.
+		</p>
+		<p>
+			<strong>Lorem</strong>
+			<em>Ipsum</em> is simply <span>dummy</span> text of the printing and typesetting industry. <strong
+				>Lorem</strong
+			>
+			<em>Ipsum</em> has been the industry's standard <span>dummy</span> text ever since the 1500s, when
+			an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived
+			not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+			It was popularised in the 1960s with the release of Letraset sheets containing <strong
+				>Lorem</strong
+			>
+			<em>Ipsum</em> passages, and more recently with desktop publishing software like Aldus PageMaker
+			including versions of <strong>Lorem</strong>
+			<em>Ipsum</em>. <strong>Lorem</strong>
+			<em>Ipsum</em> is simply <span>dummy</span> text of the printing and typesetting industry. <strong
+				>Lorem</strong
+			>
+			<em>Ipsum</em> has been the industry's standard <span>dummy</span> text ever since the 1500s, when
+			an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived
+			not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+			It was popularised in the 1960s with the release of Letraset sheets containing <strong
+				>Lorem</strong
+			>
+			<em>Ipsum</em> passages, and more recently with desktop publishing software like Aldus PageMaker
+			including versions of <strong>Lorem</strong>
+			<em>Ipsum</em>.
+		</p>
+		<p>
+			<strong>Lorem</strong>
+			<em>Ipsum</em> is simply <span>dummy</span> text of the printing and typesetting industry. <strong
+				>Lorem</strong
+			>
+			<em>Ipsum</em> has been the industry's standard <span>dummy</span> text ever since the 1500s, when
+			an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived
+			not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+			It was popularised in the 1960s with the release of Letraset sheets containing <strong
+				>Lorem</strong
+			>
+			<em>Ipsum</em> passages, and more recently with desktop publishing software like Aldus PageMaker
+			including versions of <strong>Lorem</strong>
+			<em>Ipsum</em>. <strong>Lorem</strong>
+			<em>Ipsum</em> is simply <span>dummy</span> text of the printing and typesetting industry. <strong
+				>Lorem</strong
+			>
+			<em>Ipsum</em> has been the industry's standard <span>dummy</span> text ever since the 1500s, when
+			an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived
+			not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+			It was popularised in the 1960s with the release of Letraset sheets containing <strong
+				>Lorem</strong
+			>
+			<em>Ipsum</em> passages, and more recently with desktop publishing software like Aldus PageMaker
+			including versions of <strong>Lorem</strong>
+			<em>Ipsum</em>.
+		</p>
+		<p>
+			<strong>Lorem</strong>
+			<em>Ipsum</em> is simply <span>dummy</span> text of the printing and typesetting industry. <strong
+				>Lorem</strong
+			>
+			<em>Ipsum</em> has been the industry's standard <span>dummy</span> text ever since the 1500s, when
+			an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived
+			not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+			It was popularised in the 1960s with the release of Letraset sheets containing <strong
+				>Lorem</strong
+			>
+			<em>Ipsum</em> passages, and more recently with desktop publishing software like Aldus PageMaker
+			including versions of <strong>Lorem</strong>
+			<em>Ipsum</em>. <strong>Lorem</strong>
+			<em>Ipsum</em> is simply <span>dummy</span> text of the printing and typesetting industry. <strong
+				>Lorem</strong
+			>
+			<em>Ipsum</em> has been the industry's standard <span>dummy</span> text ever since the 1500s, when
+			an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived
+			not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+			It was popularised in the 1960s with the release of Letraset sheets containing <strong
+				>Lorem</strong
+			>
+			<em>Ipsum</em> passages, and more recently with desktop publishing software like Aldus PageMaker
+			including versions of <strong>Lorem</strong>
+			<em>Ipsum</em>.
+		</p>
+		<section>
+			<h2>Section 1</h2>
+			<p>
+				<strong>Lorem</strong>
+				<em>Ipsum</em> is simply <span>dummy</span> text of the printing and typesetting industry. <strong
+					>Lorem</strong
+				>
+				<em>Ipsum</em> has been the industry's standard <span>dummy</span> text ever since the 1500s,
+				when an unknown printer took a galley of type and scrambled it to make a type specimen book. It
+				has survived not only five centuries, but also the leap into electronic typesetting, remaining
+				essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing
+				<strong>Lorem</strong>
+				<em>Ipsum</em> passages, and more recently with desktop publishing software like Aldus PageMaker
+				including versions of <strong>Lorem</strong>
+				<em>Ipsum</em>. <strong>Lorem</strong>
+				<em>Ipsum</em> is simply <span>dummy</span> text of the printing and typesetting industry. <strong
+					>Lorem</strong
+				>
+				<em>Ipsum</em> has been the industry's standard <span>dummy</span> text ever since the 1500s,
+				when an unknown printer took a galley of type and scrambled it to make a type specimen book. It
+				has survived not only five centuries, but also the leap into electronic typesetting, remaining
+				essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing
+				<strong>Lorem</strong>
+				<em>Ipsum</em> passages, and more recently with desktop publishing software like Aldus PageMaker
+				including versions of <strong>Lorem</strong>
+				<em>Ipsum</em>.
+			</p>
+		</section>
+		<section>
+			<h2>Section 2</h2>
+			<p>
+				<strong>Lorem</strong>
+				<em>Ipsum</em> is simply <span>dummy</span> text of the printing and typesetting industry. <strong
+					>Lorem</strong
+				>
+				<em>Ipsum</em> has been the industry's standard <span>dummy</span> text ever since the 1500s,
+				when an unknown printer took a galley of type and scrambled it to make a type specimen book. It
+				has survived not only five centuries, but also the leap into electronic typesetting, remaining
+				essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing
+				<strong>Lorem</strong>
+				<em>Ipsum</em> passages, and more recently with desktop publishing software like Aldus PageMaker
+				including versions of <strong>Lorem</strong>
+				<em>Ipsum</em>. <strong>Lorem</strong>
+				<em>Ipsum</em> is simply <span>dummy</span> text of the printing and typesetting industry. <strong
+					>Lorem</strong
+				>
+				<em>Ipsum</em> has been the industry's standard <span>dummy</span> text ever since the 1500s,
+				when an unknown printer took a galley of type and scrambled it to make a type specimen book. It
+				has survived not only five centuries, but also the leap into electronic typesetting, remaining
+				essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing
+				<strong>Lorem</strong>
+				<em>Ipsum</em> passages, and more recently with desktop publishing software like Aldus PageMaker
+				including versions of <strong>Lorem</strong>
+				<em>Ipsum</em>.
+			</p>
+		</section>
+	</article>
+</BaseLayout>

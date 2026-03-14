@@ -11,6 +11,8 @@ interface LoadFallbackPluginParams {
 	root: URL;
 }
 
+const FALLBACK_FLAG = 'astroFallbackFlag';
+
 export default function loadFallbackPlugin({
 	fs,
 	root,
@@ -53,16 +55,22 @@ export default function loadFallbackPlugin({
 						// Check to see if this file exists and is not a directory.
 						const stats = await fs.promises.stat(candidateId);
 						if (!stats.isDirectory()) {
-							return candidateId;
+							const params = new URLSearchParams(FALLBACK_FLAG);
+							return `${candidateId}?${params.toString()}`;
 						}
 					} catch {}
 				}
 			},
-			async load(id) {
-				const code = await tryLoadModule(id);
-				if (code) {
-					return { code };
-				}
+			load: {
+				filter: {
+					id: new RegExp(`(?:\\?|&)${FALLBACK_FLAG}(?:&|=|$)`),
+				},
+				async handler(id) {
+					const code = await tryLoadModule(id.slice(0, -(1 + FALLBACK_FLAG.length)));
+					if (code) {
+						return { code };
+					}
+				},
 			},
 		},
 		{

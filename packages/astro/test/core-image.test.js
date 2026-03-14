@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createServer } from 'node:http';
 import { basename } from 'node:path';
 import { Writable } from 'node:stream';
 import { after, afterEach, before, describe, it } from 'node:test';
@@ -19,8 +20,30 @@ describe('astro:image', () => {
 		let devServer;
 		/** @type {Array<{ type: any, level: 'error', message: string; }>} */
 		let logs = [];
+		/** @type {import('node:http').Server | undefined} */
+		let redirectServer;
+		/** @type {string | undefined} */
+		let redirectUrl;
 
 		before(async () => {
+			redirectServer = createServer((req, res) => {
+				if (req.url === '/redirect') {
+					res.statusCode = 302;
+					res.setHeader('Location', 'https://example.com/image.png');
+					res.end();
+					return;
+				}
+
+				res.statusCode = 404;
+				res.end();
+			});
+
+			await new Promise((resolve) => redirectServer.listen(0, '127.0.0.1', resolve));
+			const address = redirectServer.address();
+			if (address && typeof address === 'object') {
+				redirectUrl = `http://127.0.0.1:${address.port}/redirect`;
+			}
+
 			fixture = await loadFixture({
 				root: './fixtures/core-image/',
 				image: {
@@ -30,6 +53,15 @@ describe('astro:image', () => {
 						{
 							protocol: 'data',
 						},
+						...(redirectUrl
+							? [
+									{
+										protocol: 'http',
+										hostname: '127.0.0.1',
+										port: new URL(redirectUrl).port,
+									},
+								]
+							: []),
 					],
 				},
 			});
@@ -50,6 +82,9 @@ describe('astro:image', () => {
 
 		after(async () => {
 			await devServer.stop();
+			if (redirectServer) {
+				await new Promise((resolve) => redirectServer.close(resolve));
+			}
 		});
 
 		describe('basics', () => {
@@ -487,6 +522,13 @@ describe('astro:image', () => {
 					assert.ok($img.attr('width'));
 					assert.ok($img.attr('height'));
 				});
+
+				it('rejects remote redirects', async () => {
+					assert.ok(redirectUrl, 'Expected redirect URL to be set');
+					const src = `/_image?href=${encodeURIComponent(redirectUrl)}&w=1&h=1&f=png`;
+					const imageRequest = await fixture.fetch(src);
+					assert.ok(imageRequest.status >= 400);
+				});
 			});
 
 			it('error if no width and height', async () => {
@@ -608,23 +650,18 @@ describe('astro:image', () => {
 
 			it('Adds the <img> tags', () => {
 				let $img = $('img');
-				assert.equal($img.length, 8);
+				assert.equal($img.length, 7);
 			});
 
 			it('image in cc folder is processed', () => {
 				let $imgs = $('img');
-				let $blogfolderimg = $($imgs[7]);
+				let $blogfolderimg = $($imgs[6]);
 				assert.equal($blogfolderimg.attr('src').includes('blogfolder.jpg'), true);
 				assert.equal($blogfolderimg.attr('src').endsWith('f=webp'), true);
 			});
 
 			it('has proper source for directly used image', () => {
 				let $img = $('#direct-image img');
-				assert.equal($img.attr('src').startsWith('/'), true);
-			});
-
-			it('has proper source for refined image', () => {
-				let $img = $('#refined-image img');
 				assert.equal($img.attr('src').startsWith('/'), true);
 			});
 
@@ -737,7 +774,7 @@ describe('astro:image', () => {
 				assert.equal(res.status, 200);
 				assert.equal(
 					await res.text(),
-					"You fool! I'm not a image endpoint at all, I just return this!",
+					"You fool! I'm not an image endpoint at all, I just return this!",
 				);
 			});
 
@@ -814,7 +851,11 @@ describe('astro:image', () => {
 			await res.text();
 
 			assert.equal(logs.length, 1);
-			assert.equal(logs[0].message.includes('does not exist. Is the path correct?'), true);
+			assert.ok(
+				logs[0].message.includes(
+					'Could not find requested image `./does-not-exist.jpg`. Does it exist\?',
+				),
+			);
 		});
 
 		it('properly error image in Markdown content is not found', async () => {
@@ -905,7 +946,7 @@ describe('astro:image', () => {
 			assert.equal(img.status, 200);
 		});
 
-		it('returns 403 when loading a relative pattern iamge', async () => {
+		it('returns 403 when loading a relative pattern image', async () => {
 			const fixtureWithBase = await loadFixture({
 				root: './fixtures/core-image-ssr/',
 				output: 'server',

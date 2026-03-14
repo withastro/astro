@@ -4,7 +4,15 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 
 export type AstroCookieSetOptions = Pick<
 	SerializeOptions,
-	'domain' | 'path' | 'expires' | 'maxAge' | 'httpOnly' | 'sameSite' | 'secure' | 'encode'
+	| 'domain'
+	| 'path'
+	| 'expires'
+	| 'maxAge'
+	| 'httpOnly'
+	| 'sameSite'
+	| 'secure'
+	| 'encode'
+	| 'partitioned'
 >;
 
 export interface AstroCookieGetOptions {
@@ -245,7 +253,7 @@ class AstroCookies implements AstroCookiesInterface {
 			this.#parse();
 		}
 		if (!this.#requestValues) {
-			this.#requestValues = {};
+			this.#requestValues = Object.create(null) as Record<string, string | undefined>;
 		}
 		return this.#requestValues;
 	}

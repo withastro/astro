@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod/v4';
 import type { SitemapOptions } from './index.js';
 import { SitemapOptionsSchema } from './schema.js';
 

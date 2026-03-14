@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import * as devalue from 'devalue';
-import { serializeActionResult } from '../dist/actions/runtime/shared.js';
+import { serializeActionResult } from '../dist/actions/runtime/server.js';
 import { REDIRECT_STATUS_CODES } from '../dist/core/constants.js';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
@@ -64,6 +64,26 @@ describe('Astro Actions', () => {
 
 			assert.equal(data.channel, 'bholmesdev');
 			assert.equal(data.subscribeButtonState, 'smashed');
+		});
+
+		it('Rejects oversized JSON action body', async () => {
+			const largeActionPayload = JSON.stringify({
+				channel: 'a'.repeat(2 * 1024 * 1024),
+			});
+			const res = await fixture.fetch('/_actions/subscribe', {
+				method: 'POST',
+				body: largeActionPayload,
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			});
+
+			assert.equal(res.ok, false);
+			assert.equal(res.status, 413);
+			assert.equal(res.headers.get('Content-Type'), 'application/json');
+
+			const data = await res.json();
+			assert.equal(data.code, 'CONTENT_TOO_LARGE');
 		});
 
 		it('Exposes comment action', async () => {
@@ -133,7 +153,7 @@ describe('Astro Actions', () => {
 			}
 		});
 
-		it('Returns 404 for non-existent action', async () => {
+		it('Returns 404 for nonexistent action', async () => {
 			const res = await fixture.fetch('/_actions/nonExistent', {
 				method: 'POST',
 				body: JSON.stringify({}),
@@ -146,10 +166,24 @@ describe('Astro Actions', () => {
 			assert.equal(data.code, 'NOT_FOUND');
 		});
 
+		it('Returns 404 for prototype methods used as action names', async () => {
+			for (const name of ['constructor', '__proto__', 'toString', 'valueOf']) {
+				const res = await fixture.fetch(`/_actions/${name}`, {
+					method: 'POST',
+					body: JSON.stringify({}),
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				});
+				assert.equal(res.status, 404, `Expected 404 for /_actions/${name}`);
+			}
+		});
+
 		it('Should fail when calling an action without using Astro.callAction', async () => {
 			const res = await fixture.fetch('/invalid/');
+			assert.equal(res.status, 500);
 			const text = await res.text();
-			assert.match(text, /ActionCalledFromServerError/);
+			assert.match(text, /@vite\/client/);
 		});
 	});
 
@@ -177,6 +211,27 @@ describe('Astro Actions', () => {
 			const data = devalue.parse(await res.text());
 			assert.equal(data.channel, 'bholmesdev');
 			assert.equal(data.subscribeButtonState, 'smashed');
+		});
+
+		it('Rejects oversized JSON action body', async () => {
+			const largeActionPayload = JSON.stringify({
+				channel: 'a'.repeat(2 * 1024 * 1024),
+			});
+			const req = new Request('http://example.com/_actions/subscribe', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: largeActionPayload,
+			});
+			const res = await app.render(req);
+
+			assert.equal(res.ok, false);
+			assert.equal(res.status, 413);
+			assert.equal(res.headers.get('Content-Type'), 'application/json');
+
+			const data = await res.json();
+			assert.equal(data.code, 'CONTENT_TOO_LARGE');
 		});
 
 		it('Exposes comment action', async () => {
@@ -551,7 +606,7 @@ describe('Astro Actions', () => {
 			}
 		});
 
-		it('Returns 404 for non-existent action', async () => {
+		it('Returns 404 for nonexistent action', async () => {
 			const req = new Request('http://example.com/_actions/nonExistent', {
 				method: 'POST',
 				headers: {
@@ -564,6 +619,55 @@ describe('Astro Actions', () => {
 			const data = await res.json();
 			assert.equal(data.code, 'NOT_FOUND');
 		});
+
+		it('Returns 404 for prototype methods used as action names', async () => {
+			for (const name of ['constructor', '__proto__', 'toString', 'valueOf']) {
+				const req = new Request(`http://example.com/_actions/${name}`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({}),
+				});
+				const res = await app.render(req);
+				assert.equal(res.status, 404, `Expected 404 for /_actions/${name}`);
+			}
+		});
+	});
+});
+
+describe('Astro Actions in static mode with prerender = false routes', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let devServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/actions-static-prerender-false/',
+		});
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer?.stop();
+	});
+
+	it('starts in dev and exposes action RPC routes', async () => {
+		assert.ok(devServer, 'Expected dev server to start');
+
+		const res = await fixture.fetch('/_actions/ping', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: '{}',
+		});
+
+		assert.equal(res.ok, true);
+		assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
+
+		const data = devalue.parse(await res.text());
+		assert.equal(data.ok, true);
 	});
 });
 

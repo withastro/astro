@@ -1,13 +1,16 @@
 import type { RedirectConfig } from '../../types/public/index.js';
 import type { RenderContext } from '../render-context.js';
+import { getRouteGenerator } from '../routing/generator.js';
+
+function isExternalURL(url: string): boolean {
+	return url.startsWith('http://') || url.startsWith('https://') || url.startsWith('//');
+}
 
 export function redirectIsExternal(redirect: RedirectConfig): boolean {
 	if (typeof redirect === 'string') {
-		return redirect.startsWith('http://') || redirect.startsWith('https://');
+		return isExternalURL(redirect);
 	} else {
-		return (
-			redirect.destination.startsWith('http://') || redirect.destination.startsWith('https://')
-		);
+		return isExternalURL(redirect.destination);
 	}
 }
 
@@ -34,10 +37,12 @@ function redirectRouteGenerate(renderContext: RenderContext): string {
 	const {
 		params,
 		routeData: { redirect, redirectRoute },
+		pipeline,
 	} = renderContext;
 
 	if (typeof redirectRoute !== 'undefined') {
-		return redirectRoute?.generate(params) || redirectRoute?.pathname || '/';
+		const generate = getRouteGenerator(redirectRoute.segments, pipeline.manifest.trailingSlash);
+		return generate(params) || redirectRoute?.pathname || '/';
 	} else if (typeof redirect === 'string') {
 		if (redirectIsExternal(redirect)) {
 			return redirect;

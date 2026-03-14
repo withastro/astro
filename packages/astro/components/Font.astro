@@ -1,13 +1,7 @@
 ---
-import * as mod from 'virtual:astro:assets/fonts/internal';
-import { filterPreloads } from 'astro/assets/fonts/runtime';
+import { componentDataByCssVariable } from 'virtual:astro:assets/fonts/internal';
+import { filterPreloads } from '../dist/assets/fonts/core/filter-preloads.js';
 import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
-
-// TODO: remove check when fonts are stabilized
-const { internalConsumableMap } = mod;
-if (!internalConsumableMap) {
-	throw new AstroError(AstroErrorData.ExperimentalFontsNotEnabled);
-}
 
 interface Props {
 	/** The `cssVariable` registered in your Astro configuration. */
@@ -17,7 +11,7 @@ interface Props {
 }
 
 const { cssVariable, preload = false } = Astro.props as Props;
-const data = internalConsumableMap.get(cssVariable);
+const data = componentDataByCssVariable.get(cssVariable);
 if (!data) {
 	throw new AstroError({
 		...AstroErrorData.FontFamilyNotFound,
@@ -25,7 +19,7 @@ if (!data) {
 	});
 }
 
-const filteredPreloadData = filterPreloads(data.preloadData, preload);
+const filteredPreloadData = filterPreloads(data.preloads, preload);
 ---
 
 <style set:html={data.css}></style>

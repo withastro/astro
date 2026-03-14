@@ -9,7 +9,11 @@ export type RemoteCacheEntry = {
 
 export async function loadRemoteImage(src: string) {
 	const req = new Request(src);
-	const res = await fetch(req);
+	const res = await fetch(req, { redirect: 'manual' });
+
+	if (res.status >= 300 && res.status < 400) {
+		throw new Error(`Failed to load remote image ${src}. The request was redirected.`);
+	}
 
 	if (!res.ok) {
 		throw new Error(
@@ -47,7 +51,11 @@ export async function revalidateRemoteImage(
 		...(revalidationData.lastModified && { 'If-Modified-Since': revalidationData.lastModified }),
 	};
 	const req = new Request(src, { headers, cache: 'no-cache' });
-	const res = await fetch(req);
+	const res = await fetch(req, { redirect: 'manual' });
+
+	if (res.status >= 300 && res.status < 400) {
+		throw new Error(`Failed to revalidate cached remote image ${src}. The request was redirected.`);
+	}
 
 	// Asset not modified: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/304
 	if (!res.ok && res.status !== 304) {
@@ -82,27 +90,17 @@ export async function revalidateRemoteImage(
 	};
 }
 
-function webToCachePolicyRequest({ url, method, headers: _headers }: Request): CachePolicy.Request {
-	let headers: CachePolicy.Headers = {};
-	// Be defensive here due to a cookie header bug in node@18.14.1 + undici
-	try {
-		headers = Object.fromEntries(_headers.entries());
-	} catch {}
+function webToCachePolicyRequest({ url, method, headers }: Request): CachePolicy.Request {
 	return {
 		method,
 		url,
-		headers,
+		headers: Object.fromEntries(headers.entries()),
 	};
 }
 
-function webToCachePolicyResponse({ status, headers: _headers }: Response): CachePolicy.Response {
-	let headers: CachePolicy.Headers = {};
-	// Be defensive here due to a cookie header bug in node@18.14.1 + undici
-	try {
-		headers = Object.fromEntries(_headers.entries());
-	} catch {}
+function webToCachePolicyResponse({ status, headers }: Response): CachePolicy.Response {
 	return {
 		status,
-		headers,
+		headers: Object.fromEntries(headers.entries()),
 	};
 }

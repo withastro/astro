@@ -1,9 +1,13 @@
 import { existsSync, promises as fs } from 'node:fs';
-import { createMarkdownProcessor, type MarkdownProcessor } from '@astrojs/markdown-remark';
+import {
+	createMarkdownProcessor,
+	parseFrontmatter,
+	type MarkdownProcessor,
+} from '@astrojs/markdown-remark';
 import PQueue from 'p-queue';
 import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
-import type { z } from 'zod';
+import type * as z from 'zod/v4';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
@@ -16,23 +20,24 @@ import {
 	MODULES_IMPORTS_FILE,
 } from './consts.js';
 import type { RenderedContent } from './data-store.js';
-import type { LoaderContext } from './loaders/types.js';
+import type { LoaderContext, RenderMarkdownOptions } from './loaders/types.js';
 import type { MutableDataStore } from './mutable-data-store.js';
 import {
 	type ContentObservable,
 	getEntryConfigByExtMap,
-	getEntryDataAndImages,
+	getEntryData,
 	globalContentConfigObserver,
 	loaderReturnSchema,
 	safeStringify,
 } from './utils.js';
 import { createWatcherWrapper, type WrappedWatcher } from './watcher.js';
 
-interface ContentLayerOptions {
+export interface ContentLayerOptions {
 	store: MutableDataStore;
 	settings: AstroSettings;
 	logger: Logger;
 	watcher?: FSWatcher;
+	contentConfigObserver?: ContentObservable;
 }
 
 type CollectionLoader<TData> = () =>
@@ -41,7 +46,7 @@ type CollectionLoader<TData> = () =>
 	| Record<string, Record<string, unknown>>
 	| Promise<Record<string, Record<string, unknown>>>;
 
-class ContentLayer {
+export class ContentLayer {
 	#logger: Logger;
 	#store: MutableDataStore;
 	#settings: AstroSettings;
@@ -50,16 +55,24 @@ class ContentLayer {
 	#unsubscribe?: () => void;
 	#markdownProcessor?: MarkdownProcessor;
 	#generateDigest?: (data: Record<string, unknown> | string) => string;
+	#contentConfigObserver: ContentObservable;
 
 	#queue: PQueue;
 
-	constructor({ settings, logger, store, watcher }: ContentLayerOptions) {
+	constructor({
+		settings,
+		logger,
+		store,
+		watcher,
+		contentConfigObserver = globalContentConfigObserver,
+	}: ContentLayerOptions) {
 		// The default max listeners is 10, which can be exceeded when using a lot of loaders
 		watcher?.setMaxListeners(50);
 
 		this.#logger = logger;
 		this.#store = store;
 		this.#settings = settings;
+		this.#contentConfigObserver = contentConfigObserver;
 		if (watcher) {
 			this.#watcher = createWatcherWrapper(watcher);
 		}
@@ -78,7 +91,7 @@ class ContentLayer {
 	 */
 	watchContentConfig() {
 		this.#unsubscribe?.();
-		this.#unsubscribe = globalContentConfigObserver.subscribe(async (ctx) => {
+		this.#unsubscribe = this.#contentConfigObserver.subscribe(async (ctx) => {
 			if (ctx.status === 'loaded' && ctx.config.digest !== this.#lastConfigDigest) {
 				this.sync();
 			}
@@ -140,9 +153,16 @@ class ContentLayer {
 		};
 	}
 
-	async #processMarkdown(content: string): Promise<RenderedContent> {
+	async #processMarkdown(
+		content: string,
+		options?: RenderMarkdownOptions,
+	): Promise<RenderedContent> {
 		this.#markdownProcessor ??= await createMarkdownProcessor(this.#settings.config.markdown);
-		const { code, metadata } = await this.#markdownProcessor.render(content);
+		const { frontmatter, content: body } = parseFrontmatter(content);
+		const { code, metadata } = await this.#markdownProcessor.render(body, {
+			frontmatter,
+			fileURL: options?.fileURL,
+		});
 		return {
 			html: code,
 			metadata,
@@ -161,13 +181,13 @@ class ContentLayer {
 	}
 
 	async #doSync(options: RefreshContentOptions) {
-		let contentConfig = globalContentConfigObserver.get();
+		let contentConfig = this.#contentConfigObserver.get();
 		const logger = this.#logger.forkIntegrationLogger('content');
 
 		if (contentConfig?.status === 'loading') {
 			contentConfig = await Promise.race<ReturnType<ContentObservable['get']>>([
 				new Promise((resolve) => {
-					const unsub = globalContentConfigObserver.subscribe((ctx) => {
+					const unsub = this.#contentConfigObserver.subscribe((ctx) => {
 						unsub();
 						resolve(ctx);
 					});
@@ -182,15 +202,27 @@ class ContentLayer {
 			]);
 		}
 
-		if (contentConfig?.status === 'error') {
-			logger.error(`Error loading content config. Skipping sync.\n${contentConfig.error.message}`);
-			return;
-		}
-
-		// It shows as loaded with no collections even if there's no config
-		if (contentConfig?.status !== 'loaded') {
-			logger.error(`Content config not loaded, skipping sync. Status was ${contentConfig?.status}`);
-			return;
+		switch (contentConfig?.status) {
+			case 'loaded':
+				// Proceed with sync
+				break;
+			case 'error':
+				// Log error and skip sync
+				logger.error(
+					`Error loading content config. Skipping sync.\n${contentConfig.error.message}`,
+				);
+				return;
+			case 'does-not-exist':
+				// No content config file exists, skip sync silently
+				return;
+			case 'init':
+			case 'loading':
+			case undefined:
+				// Should have loaded by now, but didn't
+				logger.error(
+					`Content config not loaded, skipping sync. Status was ${contentConfig?.status}`,
+				);
+				return;
 		}
 
 		logger.info('Syncing content');
@@ -207,9 +239,9 @@ class ContentLayer {
 		this.#lastConfigDigest = currentConfigDigest;
 
 		let shouldClear = false;
-		const previousConfigDigest = await this.#store.metaStore().get('content-config-digest');
-		const previousAstroConfigDigest = await this.#store.metaStore().get('astro-config-digest');
-		const previousAstroVersion = await this.#store.metaStore().get('astro-version');
+		const previousConfigDigest = this.#store.metaStore().get('content-config-digest');
+		const previousAstroConfigDigest = this.#store.metaStore().get('astro-config-digest');
+		const previousAstroVersion = this.#store.metaStore().get('astro-version');
 
 		if (previousAstroConfigDigest && previousAstroConfigDigest !== astroConfigDigest) {
 			logger.info('Astro config changed');
@@ -229,13 +261,13 @@ class ContentLayer {
 			this.#store.clearAll();
 		}
 		if (process.env.ASTRO_VERSION) {
-			await this.#store.metaStore().set('astro-version', process.env.ASTRO_VERSION);
+			this.#store.metaStore().set('astro-version', process.env.ASTRO_VERSION);
 		}
 		if (currentConfigDigest) {
-			await this.#store.metaStore().set('content-config-digest', currentConfigDigest);
+			this.#store.metaStore().set('content-config-digest', currentConfigDigest);
 		}
 		if (astroConfigDigest) {
-			await this.#store.metaStore().set('astro-config-digest', astroConfigDigest);
+			this.#store.metaStore().set('astro-config-digest', astroConfigDigest);
 		}
 
 		if (!options?.loaders?.length) {
@@ -243,68 +275,71 @@ class ContentLayer {
 			this.#watcher?.removeAllTrackedListeners();
 		}
 
+		const backwardsCompatEnabled =
+			this.#settings.config.legacy?.collectionsBackwardsCompat ?? false;
+
 		await Promise.all(
 			Object.entries(contentConfig.config.collections).map(async ([name, collection]) => {
-				if (collection.type !== CONTENT_LAYER_TYPE) {
+				// Skip non-content_layer collections unless backwards compat is enabled
+				if (collection.type !== CONTENT_LAYER_TYPE && !backwardsCompatEnabled) {
+					return;
+				}
+				// If backwards compat is disabled, skip old-style collections
+				if (collection.type !== CONTENT_LAYER_TYPE && !('loader' in collection)) {
 					return;
 				}
 
 				let { schema } = collection;
+				const loaderName = 'loader' in collection ? (collection as any).loader.name : 'content';
 
-				if (!schema && typeof collection.loader === 'object') {
+				if (!schema && 'loader' in collection && typeof collection.loader === 'object') {
 					schema = collection.loader.schema;
-					if (typeof schema === 'function') {
-						schema = await schema();
+					if (!schema && collection.loader.createSchema) {
+						({ schema } = await collection.loader.createSchema());
 					}
 				}
 
 				// If loaders are specified, only sync the specified loaders
 				if (
 					options?.loaders &&
+					'loader' in collection &&
 					(typeof collection.loader !== 'object' ||
-						!options.loaders.includes(collection.loader.name))
+						!options.loaders.includes((collection as any).loader.name))
 				) {
 					return;
 				}
 
-				const collectionWithResolvedSchema = { ...collection, schema };
-
-				const parseData: LoaderContext['parseData'] = async ({ id, data, filePath = '' }) => {
-					const { data: parsedData } = await getEntryDataAndImages(
-						{
-							id,
-							collection: name,
-							unvalidatedData: data,
-							_internal: {
-								rawData: undefined,
-								filePath,
-							},
-						},
-						collectionWithResolvedSchema,
-						false,
-						// FUTURE: Remove in this in v6
-						id.endsWith('.svg'),
-					);
-
-					return parsedData;
-				};
-
 				const context = await this.#getLoaderContext({
 					collectionName: name,
-					parseData,
-					loaderName: collection.loader.name,
+					parseData: ({ id, data, filePath = '' }) =>
+						getEntryData(
+							{
+								id,
+								collection: name,
+								unvalidatedData: data,
+								_internal: {
+									rawData: undefined,
+									filePath,
+								},
+							},
+							{ ...collection, schema },
+							false,
+						),
+					loaderName,
 					refreshContextData: options?.context,
 				});
 
-				if (typeof collection.loader === 'function') {
-					return simpleLoader(collection.loader as CollectionLoader<{ id: string }>, context);
-				}
+				if ('loader' in collection) {
+					if (typeof collection.loader === 'function') {
+						return simpleLoader(collection.loader as CollectionLoader<{ id: string }>, context);
+					}
 
-				if (!collection.loader.load) {
-					throw new Error(`Collection loader for ${name} does not have a load method`);
-				}
+					if (!collection.loader?.load) {
+						throw new Error(`Collection loader for ${name} does not have a load method`);
+					}
 
-				return collection.loader.load(context);
+					return collection.loader.load(context);
+				}
 			}),
 		);
 		await fs.mkdir(this.#settings.config.cacheDir, { recursive: true });
@@ -362,13 +397,13 @@ async function simpleLoader<TData extends { id: string }>(
 	const parsedData = loaderReturnSchema.safeParse(unsafeData);
 
 	if (!parsedData.success) {
-		const issue = parsedData.error.issues[0] as z.ZodInvalidUnionIssue;
+		const issue = parsedData.error.issues[0] as z.core.$ZodIssueInvalidUnion;
 
 		// Due to this being a union, zod will always throw an "Expected array, received object" error along with the other errors.
 		// This error is in the second position if the data is an array, and in the first position if the data is an object.
-		const parseIssue = Array.isArray(unsafeData) ? issue.unionErrors[0] : issue.unionErrors[1];
+		const parseIssue = Array.isArray(unsafeData) ? issue.errors[0] : issue.errors[1];
 
-		const error = parseIssue.errors[0];
+		const error = parseIssue[0];
 		const firstPathItem = error.path[0];
 
 		const entry = Array.isArray(unsafeData)
@@ -433,21 +468,3 @@ async function simpleLoader<TData extends { id: string }>(
 export function getDataStoreFile(settings: AstroSettings, isDev: boolean) {
 	return new URL(DATA_STORE_FILE, isDev ? settings.dotAstroDir : settings.config.cacheDir);
 }
-
-function contentLayerSingleton() {
-	let instance: ContentLayer | null = null;
-	return {
-		init: (options: ContentLayerOptions) => {
-			instance?.dispose();
-			instance = new ContentLayer(options);
-			return instance;
-		},
-		get: () => instance,
-		dispose: () => {
-			instance?.dispose();
-			instance = null;
-		},
-	};
-}
-
-export const globalContentLayer = contentLayerSingleton();

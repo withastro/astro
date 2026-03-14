@@ -1,0 +1,24 @@
+---
+import { Picture } from 'astro:assets';
+import Penguin from '../assets/penguin.jpg';
+import Walrus from '../assets/walrus.jpg';
+import PolarBear from '../assets/polarBear.jpg';
+---
+<html>
+<head>
+
+</head>
+<body>
+	<div id="picture">
+		<Picture src={Penguin} alt="a penguin" />
+	</div>
+
+	<div id="picture-widths">
+		<Picture src={Walrus} alt="a walrus" widths={[100, 200]} />
+	</div>
+
+  <div id="picture-densities">
+		<Picture src={PolarBear} alt="a polar bear" densities={[1.5, 2]} />
+	</div>
+</body>
+</html>

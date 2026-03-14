@@ -7,6 +7,9 @@ import {
 	type ReactVersionConfig,
 	versionsConfig,
 } from './version.js';
+import type { EnvironmentOptions } from 'vite';
+import type { VirtualModuleOptions } from './types.js';
+import * as devalue from 'devalue';
 
 export type ReactIntegrationOptions = Pick<
 	ViteReactPluginOptions,
@@ -30,9 +33,13 @@ function getRenderer(reactConfig: ReactVersionConfig) {
 }
 
 function optionsPlugin({
+	include,
+	exclude,
 	experimentalReactChildren = false,
 	experimentalDisableStreaming = false,
 }: {
+	include?: ViteReactPluginOptions['include'];
+	exclude?: ViteReactPluginOptions['exclude'];
 	experimentalReactChildren: boolean;
 	experimentalDisableStreaming: boolean;
 }): vite.Plugin {
@@ -40,20 +47,29 @@ function optionsPlugin({
 	const virtualModuleId = '\0' + virtualModule;
 	return {
 		name: '@astrojs/react:opts',
-		resolveId(id) {
-			if (id === virtualModule) {
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${virtualModule}$`),
+			},
+			handler() {
 				return virtualModuleId;
-			}
+			},
 		},
-		load(id) {
-			if (id === virtualModuleId) {
-				return {
-					code: `export default {
-						experimentalReactChildren: ${JSON.stringify(experimentalReactChildren)},
-						experimentalDisableStreaming: ${JSON.stringify(experimentalDisableStreaming)}
-					}`,
+		load: {
+			filter: {
+				id: new RegExp(`^${virtualModuleId}$`),
+			},
+			handler() {
+				const opts: VirtualModuleOptions = {
+					include,
+					exclude,
+					experimentalReactChildren,
+					experimentalDisableStreaming,
 				};
-			}
+				return {
+					code: `export default ${devalue.uneval(opts)}`,
+				};
+			},
 		},
 	};
 }
@@ -69,16 +85,15 @@ function getViteConfiguration(
 	reactConfig: ReactVersionConfig,
 ) {
 	return {
-		optimizeDeps: {
-			include: [reactConfig.client],
-			exclude: [reactConfig.server],
-		},
 		plugins: [
 			react({ include, exclude, babel }),
 			optionsPlugin({
+				include,
+				exclude,
 				experimentalReactChildren: !!experimentalReactChildren,
 				experimentalDisableStreaming: !!experimentalDisableStreaming,
 			}),
+			configEnvironmentPlugin(reactConfig),
 		],
 		ssr: {
 			noExternal: [
@@ -89,6 +104,54 @@ function getViteConfiguration(
 				'use-immer',
 				'@material-tailwind/react',
 			],
+		},
+	};
+}
+
+function configEnvironmentPlugin(reactConfig: ReactVersionConfig): vite.Plugin {
+	return {
+		name: '@astrojs/react:environment',
+		configEnvironment(environmentName, options): EnvironmentOptions {
+			const finalOptions: EnvironmentOptions = {
+				resolve: {
+					dedupe: ['react', 'react-dom'],
+				},
+				optimizeDeps: {},
+			};
+
+			if (
+				environmentName === 'client' ||
+				((environmentName === 'ssr' || environmentName === 'prerender') &&
+					options.optimizeDeps?.noDiscovery === false)
+			) {
+				// SAFETY: we initialized it before
+				finalOptions.optimizeDeps!.include = [
+					'react',
+					'react/jsx-runtime',
+					'react/jsx-dev-runtime',
+					'react-dom',
+				];
+				finalOptions.optimizeDeps!.exclude = [reactConfig.server];
+				if (environmentName === 'ssr' || environmentName === 'prerender') {
+					finalOptions.optimizeDeps!.include.push('react-dom/server');
+					if (!options.resolve?.noExternal) {
+						finalOptions.resolve!.noExternal = [
+							// These are all needed to get mui to work.
+							'@mui/material',
+							'@mui/base',
+							'@babel/runtime',
+							'use-immer',
+							'@material-tailwind/react',
+						];
+					}
+				}
+				if (environmentName === 'client') {
+					finalOptions.optimizeDeps!.include.push('react-dom/client');
+					finalOptions.optimizeDeps!.include.push(reactConfig.client);
+				}
+			}
+
+			return finalOptions;
 		},
 	};
 }

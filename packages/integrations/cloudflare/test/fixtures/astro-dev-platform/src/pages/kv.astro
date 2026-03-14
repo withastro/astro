@@ -1,6 +1,6 @@
 ---
-const runtime = Astro.locals.runtime;
-const kv = runtime.env?.KV;
+import { env } from "cloudflare:workers";
+const kv = env.KV;
 await kv.put("test", "true");
 const result = await kv.get("test")
 ---
@@ -13,8 +13,8 @@ const result = await kv.get("test")
   <title>KV</title>
 </head>
 <body>
-  <pre id="hasKV">{!!runtime.env?.KV}</pre>
-  <pre id="hasPRODKV">{!!runtime.env?.KV_PROD}</pre>
+  <pre id="hasKV">{!!env.KV}</pre>
+  <pre id="hasPRODKV">{!!env.KV_PROD}</pre>
   <pre id="hasACCESS">{!!result}</pre>
 </body>
 </html>

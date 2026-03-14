@@ -1,14 +1,14 @@
 {
   "name": "@astrojs/node",
   "description": "Deploy your site to a Node.js server",
-  "version": "9.5.1",
+  "version": "10.0.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/withastro/astro.git",
+    "url": "git+https://github.com/withastro/astro.git",
     "directory": "packages/integrations/node"
   },
   "keywords": [
@@ -38,18 +38,24 @@
     "server-destroy": "^1.0.1"
   },
   "peerDependencies": {
-    "astro": "^5.14.3"
+    "astro": "^6.0.0-alpha.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.6",
-    "@types/send": "^0.17.6",
+    "@types/send": "^1.2.1",
     "@types/server-destroy": "^1.0.4",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "cheerio": "1.1.2",
-    "devalue": "^5.6.1",
-    "express": "^4.22.1",
+    "cheerio": "1.2.0",
+    "devalue": "^5.6.3",
+    "express": "^5.2.1",
+    "fastify": "^5.7.4",
+    "@fastify/middie": "^9.1.0",
+    "@fastify/static": "^9.0.0",
     "node-mocks-http": "^1.17.2"
+  },
+  "astro": {
+    "external": true
   },
   "publishConfig": {
     "provenance": true

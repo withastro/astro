@@ -1,5 +1,53 @@
 # astro-vscode
 
+## 2.16.11
+
+### Patch Changes
+
+- [#15825](https://github.com/withastro/astro/pull/15825) [`2cfe935`](https://github.com/withastro/astro/commit/2cfe935db452fce91553784157e31c26bb3b2a05) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes failed publish for 2.16.11.
+
+## 2.16.10
+
+### Patch Changes
+
+- [#15823](https://github.com/withastro/astro/pull/15823) [`29e03fa`](https://github.com/withastro/astro/commit/29e03faa9a542556d0cf996ce770c5ea7815ce3b) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes broken publishing
+
+## 2.16.9
+
+### Patch Changes
+
+- [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fix "Find All References" and other TypeScript features by ensuring the plugin bundle is correctly included
+
+- [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes syntax highlighting sometimes not working when the frontmatter or script tags ended with certain TypeScript constructs
+
+- [#15496](https://github.com/withastro/astro/pull/15496) [`eb7cdda`](https://github.com/withastro/astro/commit/eb7cdda6837a8b28e279f668d0fe2a06f02f6990) Thanks [@matthewp](https://github.com/matthewp)! - Fix syntax highlighting for lowercase component tags that start with "style" or "script".
+
+## 2.16.9-beta.0
+
+### Patch Changes
+
+- [#15496](https://github.com/withastro/astro/pull/15496) [`eb7cdda`](https://github.com/withastro/astro/commit/eb7cdda6837a8b28e279f668d0fe2a06f02f6990) Thanks [@matthewp](https://github.com/matthewp)! - Fix syntax highlighting for lowercase component tags that start with "style" or "script".
+
+## 2.16.9-beta.0
+
+### Patch Changes
+
+- [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fix "Find All References" and other TypeScript features by ensuring the plugin bundle is correctly included
+
+- [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes syntax highlighting sometimes not working when the frontmatter or script tags ended with certain TypeScript constructs
+
+## 2.16.8
+
+### Patch Changes
+
+- [#15156](https://github.com/withastro/astro/pull/15156) [`9cc2c71`](https://github.com/withastro/astro/commit/9cc2c71a601c04415f13b3ac62c361ef2c40b63d) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes TypeScript plugin not working
+
+## 2.16.7
+
+### Patch Changes
+
+- [#15131](https://github.com/withastro/astro/pull/15131) [`d40ff7d`](https://github.com/withastro/astro/commit/d40ff7d8570f30c82402d8e2b01d4da890e3e771) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes extension asking for the wrong version of VS Code
+
 ## 2.16.6
 
 ### Patch Changes
@@ -805,7 +853,7 @@ In the background, this update means that we now have to maintain a lot less cod
 
 ### Patch Changes
 
-- c4f7a36: Trying desesperately to figure deployment out
+- c4f7a36: Trying desperately to figure deployment out
 
 ## 0.26.0
 

@@ -26,7 +26,7 @@ The `<description>` attribute of your RSS feed's output xml.
 
 Type: `string (required)`
 
-The base URL to use when generating RSS item links. We recommend using the [endpoint context object](https://docs.astro.build/en/reference/api-reference/#contextsite), which includes the `site` configured in your project's `astro.config.*`:
+The base URL to use when generating RSS item links. We recommend using the [endpoint context object](https://docs.astro.build/en/reference/api-reference/#site), which includes the `site` configured in your project's `astro.config.*`:
 
 ```ts
 import rss from '@astrojs/rss';
@@ -49,7 +49,7 @@ An `RSSFeedItem` is a single item in the list of items in your feed. An example 
 ```js
 const item = {
   title: 'Alpha Centauri: so close you can touch it',
-  link: '/blog/alpha-centuari',
+  link: '/blog/alpha-centauri',
   pubDate: new Date('2023-06-04'),
   description:
     'Alpha Centauri is a triple star system, containing Proxima Centauri, the closest star to our sun at only 4.24 light-years away.',
@@ -87,7 +87,7 @@ Type: `string (optional)`
 
 The full text content of the item suitable for presentation as HTML. If used, you should also provide a short article summary in the `description` field.
 
-To render Markdown content from a glob result or from a content collection, see the [content rendering guide](https://docs.astro.build/en/guides/rss/#including-full-post-content).
+To render Markdown content from a glob result or from a content collection, see the [content rendering guide](https://docs.astro.build/en/recipes/rss/#including-full-post-content).
 
 #### `categories`
 
@@ -116,7 +116,7 @@ An object that defines the `title` and `url` of the original feed for items that
 ```js
 const item = {
   title: 'Alpha Centauri: so close you can touch it',
-  link: '/blog/alpha-centuari',
+  link: '/blog/alpha-centauri',
   pubDate: new Date('2023-06-04'),
   description:
     'Alpha Centauri is a triple star system, containing Proxima Centauri, the closest star to our sun at only 4.24 light-years away.',
@@ -304,10 +304,8 @@ MIT
 
 Copyright (c) 2023–present [Astro][astro]
 
-[docs]: https://docs.astro.build/en/guides/rss/
-[astro-endpoints]: https://docs.astro.build/en/core-concepts/astro-pages/#non-html-pages
+[docs]: https://docs.astro.build/en/recipes/rss/
 [astro]: https://astro.build/
-[docs]: https://docs.astro.build/en/guides/integrations-guide/alpinejs/
 [contributing]: https://github.com/withastro/astro/blob/main/CONTRIBUTING.md
 [coc]: https://github.com/withastro/.github/blob/main/CODE_OF_CONDUCT.md
 [community]: https://github.com/withastro/.github/blob/main/COMMUNITY_GUIDE.md

@@ -3,7 +3,7 @@ import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 
 export default defineConfig({
-	experimental: {
+	security: {
 		csp: true,
 	},
 	integrations: [react()],

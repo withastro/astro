@@ -2,7 +2,6 @@
 export async function getStaticPaths({ routePattern }) {
 	return [
 		{ params: { year: '2022', slug: 'post-1' }, props: { routePattern } },
-		{ params: { year: 2022, slug: 'post-2' }, props: { routePattern } },
 		{ params: { slug: 'post-2', year: '2022' }, props: { routePattern } },
 	]
 }

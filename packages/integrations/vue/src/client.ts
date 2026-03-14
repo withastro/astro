@@ -1,4 +1,4 @@
-import { setup } from 'virtual:@astrojs/vue/app';
+import { setup } from 'virtual:astro:vue-app';
 import { createApp, createSSRApp, h, Suspense } from 'vue';
 import StaticHtml from './static-html.js';
 
