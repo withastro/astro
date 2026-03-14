@@ -6,7 +6,12 @@ import type {
 import { CompletionItemKind } from '@volar/language-server';
 import { URI } from 'vscode-uri';
 import { AstroVirtualCode } from '../../core/index.js';
-import { mapEdit } from './utils.js';
+import {
+	isAstroComponentImportSource,
+	mapEdit,
+	rewriteAstroImportText,
+	stripAstroComponentSuffix,
+} from './utils.js';
 
 export function enhancedProvideCompletionItems(completions: CompletionList): CompletionList {
 	completions.items = completions.items.filter(isValidCompletion).map((completion) => {
@@ -23,6 +28,10 @@ export function enhancedProvideCompletionItems(completions: CompletionList): Com
 				completion.detail = completion.detail + '\n\n' + source;
 				completion.sortText = '\u0001' + (completion.sortText ?? completion.label);
 				completion.data.isComponent = true;
+
+				if (isAstroComponentImportSource(source)) {
+					rewriteAstroComponentCompletion(completion);
+				}
 			}
 		}
 
@@ -44,6 +53,10 @@ export function enhancedResolveCompletionItem(
 		);
 	}
 
+	if (isAstroComponentImportSource(resolvedCompletion.data.originalItem.source)) {
+		rewriteAstroComponentCompletion(resolvedCompletion);
+	}
+
 	if (resolvedCompletion.additionalTextEdits) {
 		const decoded = context.decodeEmbeddedDocumentUri(URI.parse(resolvedCompletion.data.uri));
 		const sourceScript = decoded && context.language.scripts.get(decoded[0]);
@@ -57,6 +70,27 @@ export function enhancedResolveCompletionItem(
 	}
 
 	return resolvedCompletion;
+}
+
+function rewriteAstroComponentCompletion(completion: CompletionItem) {
+	completion.label = stripAstroComponentSuffix(String(completion.label));
+	completion.filterText = completion.filterText
+		? stripAstroComponentSuffix(completion.filterText)
+		: completion.filterText;
+	completion.insertText = completion.insertText
+		? stripAstroComponentSuffix(completion.insertText)
+		: completion.insertText;
+
+	if (completion.textEdit && 'newText' in completion.textEdit) {
+		completion.textEdit.newText = stripAstroComponentSuffix(completion.textEdit.newText);
+	}
+
+	if (completion.additionalTextEdits) {
+		completion.additionalTextEdits = completion.additionalTextEdits.map((edit) => ({
+			...edit,
+			newText: rewriteAstroImportText(edit.newText),
+		}));
+	}
 }
 
 function getDetailForFileCompletion(detail: string, source: string): string {
