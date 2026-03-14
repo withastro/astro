@@ -6,6 +6,7 @@ import * as html from 'vscode-html-languageservice';
 import { getTSXRangesAsLSPRanges, safeConvertToTSX } from '../../dist/core/astro2tsx.js';
 import { getAstroMetadata } from '../../dist/core/parseAstro.js';
 import { patchTSX } from '../../dist/core/utils.js';
+import { rewriteAstroImportText } from '../../dist/plugins/typescript/utils.js';
 import * as utils from '../../dist/plugins/utils.js';
 
 describe('Utilities', async () => {
@@ -121,7 +122,21 @@ describe('Utilities', async () => {
 		});
 	});
 
-	it('patchTSX - avoids import declaration conflicts', () => {
+	it('rewriteAstroImportText - strips AstroComponent suffixes from default Astro imports', () => {
+		assert.strictEqual(
+			rewriteAstroImportText(`import ImageAstroComponent from "../components/Image.astro";\n`),
+			`import Image from "../components/Image.astro";\n`,
+		);
+	});
+
+	it('rewriteAstroImportText - only rewrites Astro imports', () => {
+		assert.strictEqual(
+			rewriteAstroImportText(`import ImageAstroComponent from "astro:assets";\n`),
+			`import ImageAstroComponent from "astro:assets";\n`,
+		);
+	});
+
+	it('patchTSX - keeps AstroComponent suffixes when import names conflict', () => {
 		const input = `/* @jsxImportSource astro */
 
 import { Image } from 'astro:assets';
@@ -146,7 +161,7 @@ export default function Image__AstroComponent_(_props: Record<string, any>): any
 
 		assert.match(
 			patchTSX(input, 'file:///src/pages/image.astro'),
-			/export default function Image\(/,
+			/export default function ImageAstroComponent\(/,
 		);
 	});
 
@@ -155,7 +170,7 @@ export default function Image__AstroComponent_(_props: Record<string, any>): any
 
 		assert.match(
 			patchTSX(input, 'file:///src/pages/[slug].astro'),
-			/export default function _slug_\(/,
+			/export default function _slug_AstroComponent\(/,
 		);
 	});
 });

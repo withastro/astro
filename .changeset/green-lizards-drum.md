@@ -1,6 +1,5 @@
 ---
 '@astrojs/language-server': patch
-'@astrojs/ts-plugin': patch
 ---
 
-Avoid component name collisions when Astro files share names with imported or locally declared symbols like `Image`.
+Keep generated `AstroComponent` suffixes in language-server output while rewriting `.astro` auto-import suggestions and edits back to the expected component name.
