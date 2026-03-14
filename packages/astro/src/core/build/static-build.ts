@@ -413,6 +413,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					copyPublicDir: true,
 					sourcemap: viteConfig.environments?.client?.build?.sourcemap ?? false,
 					minify: true,
+					ssr: false,
 					rollupOptions: {
 						preserveEntrySignatures: 'exports-only',
 						output: {
@@ -437,6 +438,9 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 		},
 	};
 
+	// Snapshot the define before calling the server hook, so we can detect what was added
+	const defineBeforeServerHook = viteBuildConfig.define ? { ...viteBuildConfig.define } : undefined;
+
 	const updatedViteBuildConfig = await runHookBuildSetup({
 		config: settings.config,
 		pages: internals.pagesByKeys,
@@ -444,6 +448,57 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 		target: 'server',
 		logger: opts.logger,
 	});
+
+	// Run the build setup hook again with target: 'client' so integrations can
+	// provide client-specific config (e.g. different `define` values).
+	// This restores the Astro v5 behavior where the hook was called separately
+	// for server and client builds.
+	const clientViteConfig: vite.InlineConfig = {
+		build: {
+			ssr: false,
+		},
+	};
+	const updatedClientViteConfig = await runHookBuildSetup({
+		config: settings.config,
+		pages: internals.pagesByKeys,
+		vite: clientViteConfig,
+		target: 'client',
+		logger: opts.logger,
+	});
+
+	// Prevent server-only `define` values from leaking to the client environment.
+	// In Astro v5, separate builds meant integrations could set different `define`
+	// values for server and client via the `astro:build:setup` hook. In v6's unified
+	// builder, the top-level config is shared across all environments. To restore
+	// isolation, we apply client-specific `define` to the client environment config
+	// and reset the top-level `define` to what it was before the server hook ran.
+	const serverDefine = updatedViteBuildConfig.define;
+	const clientDefine = updatedClientViteConfig.define;
+
+	// Restore the top-level define to its pre-hook value so server-only
+	// defines don't leak to all environments by default
+	updatedViteBuildConfig.define = defineBeforeServerHook;
+
+	// Apply server-specific define to ssr and prerender environments
+	if (serverDefine) {
+		const ssrEnv = updatedViteBuildConfig.environments?.[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
+		const prerenderEnv =
+			updatedViteBuildConfig.environments?.[ASTRO_VITE_ENVIRONMENT_NAMES.prerender];
+		if (ssrEnv) {
+			(ssrEnv as any).define = { ...serverDefine, ...(ssrEnv as any).define };
+		}
+		if (prerenderEnv) {
+			(prerenderEnv as any).define = { ...serverDefine, ...(prerenderEnv as any).define };
+		}
+	}
+
+	// Apply client-specific define to the client environment
+	if (clientDefine) {
+		const clientEnv = updatedViteBuildConfig.environments?.[ASTRO_VITE_ENVIRONMENT_NAMES.client];
+		if (clientEnv) {
+			(clientEnv as any).define = { ...clientDefine, ...(clientEnv as any).define };
+		}
+	}
 
 	const builder = await vite.createBuilder(updatedViteBuildConfig);
 	await builder.buildApp();
