@@ -61,11 +61,6 @@ export default function createVitePluginAstroServer({
 				? (prerenderEnvironment as RunnableDevEnvironment)
 				: undefined;
 
-			// TODO: let this handle non-runnable environments that don't intercept requests
-			if (!runnableSsrEnvironment && !runnablePrerenderEnvironment) {
-				return;
-			}
-
 			async function createHandler(environment: RunnableDevEnvironment) {
 				const loader = createViteLoader(viteServer, environment);
 				const { default: createAstroServerApp } =
@@ -88,50 +83,47 @@ export default function createVitePluginAstroServer({
 				: undefined;
 			const localStorage = new AsyncLocalStorage();
 
-			function handleUnhandledRejection(rejection: any) {
-				const error = AstroError.is(rejection)
-					? rejection
-					: new AstroError({
-							...AstroErrorData.UnhandledRejection,
-							message: AstroErrorData.UnhandledRejection.message(rejection?.stack || rejection),
-						});
-				const store = localStorage.getStore();
-				const handlers = [];
-				if (ssrHandler) handlers.push(ssrHandler);
-				if (prerenderHandler) handlers.push(prerenderHandler);
-				for (const currentHandler of handlers) {
-					if (store instanceof IncomingMessage) {
-						setRouteError(currentHandler.controller.state, store.url!, error);
+			if (ssrHandler || prerenderHandler) {
+				function handleUnhandledRejection(rejection: any) {
+					const error = AstroError.is(rejection)
+						? rejection
+						: new AstroError({
+								...AstroErrorData.UnhandledRejection,
+								message: AstroErrorData.UnhandledRejection.message(rejection?.stack || rejection),
+							});
+					const store = localStorage.getStore();
+					const handlers = [];
+					if (ssrHandler) handlers.push(ssrHandler);
+					if (prerenderHandler) handlers.push(prerenderHandler);
+					for (const currentHandler of handlers) {
+						if (store instanceof IncomingMessage) {
+							setRouteError(currentHandler.controller.state, store.url!, error);
+						}
+						const { errorWithMetadata } = recordServerError(
+							currentHandler.loader,
+							currentHandler.manifest,
+							logger,
+							error,
+						);
+						setTimeout(
+							async () =>
+								currentHandler.loader.webSocketSend(await getViteErrorPayload(errorWithMetadata)),
+							200,
+						);
 					}
-					const { errorWithMetadata } = recordServerError(
-						currentHandler.loader,
-						currentHandler.manifest,
-						logger,
-						error,
-					);
-					setTimeout(
-						async () =>
-							currentHandler.loader.webSocketSend(await getViteErrorPayload(errorWithMetadata)),
-						200,
-					);
 				}
+
+				process.on('unhandledRejection', handleUnhandledRejection);
+				viteServer.httpServer?.on('close', () => {
+					process.off('unhandledRejection', handleUnhandledRejection);
+				});
 			}
 
-			process.on('unhandledRejection', handleUnhandledRejection);
-			viteServer.httpServer?.on('close', () => {
-				process.off('unhandledRejection', handleUnhandledRejection);
-			});
-
 			return () => {
-				const shouldHandlePrerenderInCore = Boolean(
-					(viteServer as any)[devPrerenderMiddlewareSymbol],
-				);
-
-				if (!ssrHandler && !(prerenderHandler && shouldHandlePrerenderInCore)) {
-					return;
-				}
-
-				// Push this middleware to the front of the stack so that it can intercept responses.
+				// Always register core middlewares (base path stripping, trailing slash,
+				// route guard, sec-fetch) even when environments are non-runnable (e.g.
+				// when using the Cloudflare adapter). These middlewares are needed by all
+				// downstream handlers, including adapter-provided ones.
 				// fix(#6067): always inject this to ensure zombie base handling is killed after restarts
 				viteServer.middlewares.stack.unshift({
 					route: '',
@@ -151,6 +143,10 @@ export default function createVitePluginAstroServer({
 					route: '',
 					handle: secFetchMiddleware(logger, settings.config.security?.allowedDomains),
 				});
+
+				const shouldHandlePrerenderInCore = Boolean(
+					(viteServer as any)[devPrerenderMiddlewareSymbol],
+				);
 
 				if (prerenderHandler && shouldHandlePrerenderInCore) {
 					viteServer.middlewares.use(
