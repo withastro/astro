@@ -33,7 +33,7 @@ export function parseQuality(quality: string): string | number {
 }
 
 type ImageConfig<T> = Omit<AstroConfig['image'], 'service'> & {
-	service: { entrypoint: string; config: T };
+	service: { entrypoint: string; config: T; defaultFormat: string };
 	assetQueryParams?: URLSearchParams;
 };
 
@@ -225,7 +225,7 @@ export function verifyOptions(options: ImageTransform): void {
  */
 export const baseService: Omit<LocalImageService, 'transform'> = {
 	propertiesToHash: DEFAULT_HASH_PROPS,
-	validateOptions(options) {
+	validateOptions(options, imageConfig) {
 		// Run verification-only checks
 		verifyOptions(options);
 
@@ -233,8 +233,10 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		if (!options.format) {
 			if (isESMImportedImage(options.src) && options.src.format === 'svg') {
 				options.format = 'svg';
+			} else if (imageConfig.service.defaultFormat !== 'original') {
+				options.format = imageConfig.service.defaultFormat;
 			} else {
-				options.format = DEFAULT_OUTPUT_FORMAT;
+				options.format = isESMImportedImage(options.src) ? options.src.format : DEFAULT_OUTPUT_FORMAT;
 			}
 		}
 		if (options.width) options.width = Math.round(options.width);
@@ -277,7 +279,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		const { targetWidth, targetHeight } = getTargetDimensions(options);
 		const aspectRatio = targetWidth / targetHeight;
 		const { widths, densities } = options;
-		const targetFormat = options.format ?? DEFAULT_OUTPUT_FORMAT;
+		const targetFormat = options.format;
 
 		let transformedWidths = (widths ?? []).sort(sortNumeric);
 
