@@ -44,7 +44,8 @@ function createReactElementFromDOMElement(element: any, id?: number, key?: numbe
 				if (c.nodeType === Node.TEXT_NODE) {
 					return c.data;
 				} else if (c.nodeType === Node.ELEMENT_NODE) {
-					return createReactElementFromDOMElement(c, id, childKey++);
+					childKey += 1;
+					return createReactElementFromDOMElement(c, id, childKey);
 				} else {
 					return undefined;
 				}
