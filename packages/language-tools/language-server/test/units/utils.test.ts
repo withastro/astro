@@ -136,6 +136,24 @@ describe('Utilities', async () => {
 		);
 	});
 
+	it('rewriteAstroImportText - preserves named imports on Astro component imports', () => {
+		assert.strictEqual(
+			rewriteAstroImportText(
+				`import ImageAstroComponent, { type Props } from "../components/Image.astro";\n`,
+			),
+			`import Image, { type Props } from "../components/Image.astro";\n`,
+		);
+	});
+
+	it('rewriteAstroImportText - strips AstroComponent suffixes from default aliases', () => {
+		assert.strictEqual(
+			rewriteAstroImportText(
+				`import { default as ImageAstroComponent } from "../components/Image.astro";\n`,
+			),
+			`import { default as Image } from "../components/Image.astro";\n`,
+		);
+	});
+
 	it('patchTSX - keeps AstroComponent suffixes when import names conflict', () => {
 		const input = `/* @jsxImportSource astro */
 

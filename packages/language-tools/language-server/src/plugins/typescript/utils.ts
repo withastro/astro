@@ -3,6 +3,11 @@ import type { AstroVirtualCode } from '../../core/index.js';
 import { editShouldBeInFrontmatter, ensureProperEditForFrontmatter } from '../utils.js';
 
 const ASTRO_COMPONENT_SUFFIX = 'AstroComponent';
+const ASTRO_IMPORT_FROM_PATTERN = /\bfrom\s+['"][^'"]+\.astro['"]/;
+const ASTRO_DEFAULT_IMPORT_PATTERN =
+	/^(\s*import(?:\s+type)?\s+)([A-Za-z_$][\w$]*)AstroComponent(?=\s*,|\s+from\b)/;
+const ASTRO_DEFAULT_ALIAS_PATTERN =
+	/(default\s+as\s+)([A-Za-z_$][\w$]*)AstroComponent(?=\s*\})/;
 
 export function isAstroComponentImportSource(source: string | undefined): source is string {
 	return !!source && source.endsWith('.astro');
@@ -18,14 +23,17 @@ export function stripAstroComponentSuffix(name: string) {
 
 export function rewriteAstroImportText(text: string) {
 	return text
-		.replace(
-			/(import\s+(?:type\s+)?)([A-Za-z_$][\w$]*?)AstroComponent(\s*(?:,\s*\{[^}]*\})?\s*from\s*['"][^'"]+\.astro['"])/g,
-			'$1$2$3',
-		)
-		.replace(
-			/(import\s+\{\s*default\s+as\s+)([A-Za-z_$][\w$]*?)AstroComponent(\s*\}\s*from\s*['"][^'"]+\.astro['"])/g,
-			'$1$2$3',
-		);
+		.split('\n')
+		.map((line) => {
+			if (!ASTRO_IMPORT_FROM_PATTERN.test(line)) {
+				return line;
+			}
+
+			return line
+				.replace(ASTRO_DEFAULT_IMPORT_PATTERN, '$1$2')
+				.replace(ASTRO_DEFAULT_ALIAS_PATTERN, '$1$2');
+		})
+		.join('\n');
 }
 
 export function mapEdit(edit: TextEdit, code: AstroVirtualCode, languageId: string) {
