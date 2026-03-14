@@ -6345,6 +6345,18 @@ importers:
         specifier: ^5.53.6
         version: 5.53.8
 
+  packages/integrations/svelte/test/fixtures/empty-class:
+    dependencies:
+      '@astrojs/svelte':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+      svelte:
+        specifier: ^5.17.1
+        version: 5.53.1
+
   packages/integrations/svelte/test/fixtures/prop-types:
     dependencies:
       '@astrojs/svelte':
