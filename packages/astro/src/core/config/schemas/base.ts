@@ -407,11 +407,11 @@ export const AstroConfigSchema = z.object({
 			gfm: z.boolean().default(ASTRO_CONFIG_DEFAULTS.markdown.gfm),
 			smartypants: z
 				.union([z.boolean(), smartypantsOptionsSchema])
-				.default(ASTRO_CONFIG_DEFAULTS.markdown.smartypants)
 				.transform((val) => {
 					if (val === true) return smartypantsOptionsSchema.parse({});
 					return val;
-				}),
+				})
+				.default(smartypantsOptionsSchema.parse({})),
 		})
 		.prefault({}),
 	vite: z
