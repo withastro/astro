@@ -129,8 +129,8 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						});
 
 					const routeUrls = _routes.reduce<string[]>((urls, r) => {
-						// Only expose pages, not endpoints or redirects
-						if (r.type !== 'page') return urls;
+						// Only expose pages and fallback routes, not endpoints or redirects
+						if (r.type !== 'page' && r.type !== 'fallback') return urls;
 
 						/**
 						 * Dynamic URLs have entries with `undefined` pathnames
