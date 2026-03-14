@@ -60,7 +60,7 @@ describe('Astro Markdown plugins', () => {
 
 			const smartypantsHtml = await fixture.readFile('/with-smartypants/index.html');
 			const $2 = cheerio.load(smartypantsHtml);
-			assert.equal($2('p').html(), '“Smartypants” is — awesome');
+			assert.equal($2('p').html(), '“Smartypants” is — awesome …');
 
 			testRemark(gfmHtml);
 			testRehype(gfmHtml, '#github-flavored-markdown-test');
@@ -82,7 +82,7 @@ describe('Astro Markdown plugins', () => {
 			const $ = cheerio.load(html);
 
 			// test 1: smartypants applied correctly
-			assert.equal($('p').html(), '“Smartypants” is — awesome');
+			assert.equal($('p').html(), '“Smartypants” is — awesome …');
 
 			testRemark(html);
 			testRehype(html, '#smartypants-test');
@@ -115,7 +115,7 @@ describe('Astro Markdown plugins', () => {
 		const html = await fixture.readFile('/with-smartypants/index.html');
 		const $ = cheerio.load(html);
 
-		assert.equal($('p').html(), '"Smartypants" is -- awesome');
+		assert.equal($('p').html(), '"Smartypants" is -- awesome ...');
 
 		testRemark(html);
 		testRehype(html, '#smartypants-test');
@@ -144,6 +144,79 @@ describe('Astro Markdown plugins', () => {
 				$('#frontmatter-custom-property').text(),
 				'Generated property via remark plugin!',
 			);
+		});
+	});
+
+	describe('Advanced Smartypants configurations', () => {
+		it('Handles custom dashes (oldschool)', async () => {
+			const fixture = await loadFixture({
+				root: './fixtures/astro-markdown-plugins/',
+				markdown: {
+					...defaultMarkdownConfig,
+					smartypants: { dashes: 'oldschool' },
+				},
+			});
+			await fixture.build();
+
+			const html = await fixture.readFile('/with-smartypants/index.html');
+			const $ = cheerio.load(html);
+
+			// In 'oldschool', -- becomes en-dash (–) instead of em-dash (—)
+			assert.equal($('p').html(), '“Smartypants” is – awesome …');
+		});
+
+		it('Handles disabled ellipses', async () => {
+			const fixture = await loadFixture({
+				root: './fixtures/astro-markdown-plugins/',
+				markdown: {
+					...defaultMarkdownConfig,
+					smartypants: { ellipses: false },
+				},
+			});
+			await fixture.build();
+
+			const html = await fixture.readFile('/with-smartypants/index.html');
+			const $ = cheerio.load(html);
+
+			// Dashes should still be smart (em-dash), but dots should remain dots
+			assert.equal($('p').html(), '“Smartypants” is — awesome ...');
+		});
+
+		it('Handles custom opening and closing quotes', async () => {
+			const fixture = await loadFixture({
+				root: './fixtures/astro-markdown-plugins/',
+				markdown: {
+					...defaultMarkdownConfig,
+					smartypants: {
+						openingQuotes: { double: '«', single: '‹' },
+						closingQuotes: { double: '»', single: '›' },
+					},
+				},
+			});
+			await fixture.build();
+
+			const html = await fixture.readFile('/with-smartypants/index.html');
+			const $ = cheerio.load(html);
+
+			// Verify the custom guillemets are used
+			assert.equal($('p').html(), '«Smartypants» is — awesome …');
+		});
+
+		it('Handles backticks: "all"', async () => {
+			const fixture = await loadFixture({
+				root: './fixtures/astro-markdown-plugins/',
+				markdown: {
+					...defaultMarkdownConfig,
+					smartypants: { backticks: 'all', quotes: false },
+				},
+			});
+			await fixture.build();
+
+			const html = await fixture.readFile('/with-backticks/index.html');
+			const $ = cheerio.load(html);
+
+			// With backticks: 'all', single and double backticks are transformed
+			assert.ok($('p').html().includes('“Smarty”'));
 		});
 	});
 });
