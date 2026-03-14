@@ -48,6 +48,9 @@ export async function GET() {
 
 	const renderMarkdownTest = await getEntry('renderMarkdownTest', 'with-frontmatter');
 	const renderMarkdownWithImage = await getEntry('renderMarkdownTest', 'with-image');
+
+	// Test for #12689 - dynamic import in loader
+	const dynamicImportLoader = await getCollection('dynamicImport');
 	
 	return new Response(
 		devalue.stringify({
@@ -77,6 +80,7 @@ export async function GET() {
 			spacecraftNoBody: spacecraftNoBody.map(({id, body}) => ({id, body})),
 			renderMarkdownTest,
 			renderMarkdownWithImage,
+			dynamicImportLoader,
 		})
 	);
 }

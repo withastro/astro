@@ -1,7 +1,8 @@
 import type { RouteData } from '../../types/public/internal.js';
+import type { IntegrationResolvedRoute } from '../../types/public/integrations.js';
 import type { RouteInfo } from '../app/types.js';
 import type { RoutesList } from '../../types/astro.js';
-import { isRoute404, isRoute500 } from './match.js';
+import { isRoute404, isRoute500 } from './internal/route-errors.js';
 
 type RedirectRouteData = RouteData & {
 	redirect: string;
@@ -16,6 +17,9 @@ export function routeIsRedirect(route: RouteData | undefined): route is Redirect
 	return route?.type === 'redirect';
 }
 
+/**
+ * True if the route represents a fallback entry.
+ */
 export function routeIsFallback(route: RouteData | undefined): boolean {
 	return route?.type === 'fallback';
 }
@@ -46,10 +50,40 @@ export function getFallbackRoute(route: RouteData, routeList: RouteInfo[]): Rout
 	return fallbackRoute.routeData;
 }
 
+/**
+ * Return a user-provided 404 route if one exists.
+ */
 export function getCustom404Route(manifestData: RoutesList): RouteData | undefined {
 	return manifestData.routes.find((r) => isRoute404(r.route));
 }
 
+/**
+ * Return a user-provided 500 route if one exists.
+ */
 export function getCustom500Route(manifestData: RoutesList): RouteData | undefined {
 	return manifestData.routes.find((r) => isRoute500(r.route));
+}
+
+export function hasNonPrerenderedProjectRoute(
+	routes: Array<Pick<RouteData, 'type' | 'origin' | 'prerender'>>,
+	options?: { includeEndpoints?: boolean },
+): boolean;
+export function hasNonPrerenderedProjectRoute(
+	routes: Array<Pick<IntegrationResolvedRoute, 'type' | 'origin' | 'isPrerendered'>>,
+	options?: { includeEndpoints?: boolean },
+): boolean;
+export function hasNonPrerenderedProjectRoute(
+	routes: Array<
+		| Pick<RouteData, 'type' | 'origin' | 'prerender'>
+		| Pick<IntegrationResolvedRoute, 'type' | 'origin' | 'isPrerendered'>
+	>,
+	options?: { includeEndpoints?: boolean },
+): boolean {
+	const includeEndpoints = options?.includeEndpoints ?? true;
+	const routeTypes: ReadonlyArray<string> = includeEndpoints ? ['page', 'endpoint'] : ['page'];
+
+	return routes.some((route) => {
+		const isPrerendered = 'isPrerendered' in route ? route.isPrerendered : route.prerender;
+		return routeTypes.includes(route.type) && route.origin === 'project' && !isPrerendered;
+	});
 }

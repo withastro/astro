@@ -2,12 +2,13 @@ import { fileURLToPath } from 'node:url';
 import { glob } from 'tinyglobby';
 import { getAssetsPrefix } from '../../../assets/utils/getAssetsPrefix.js';
 import { normalizeTheLocale } from '../../../i18n/index.js';
+import { resolveMiddlewareMode } from '../../../integrations/adapter-utils.js';
 import { runHookBuildSsr } from '../../../integrations/hooks.js';
 import { SERIALIZED_MANIFEST_RESOLVED_ID } from '../../../manifest/serialized.js';
 import type { ExtractedChunk } from '../static-build.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import { toFallbackType } from '../../app/common.js';
-import { serializeRouteData, toRoutingStrategy } from '../../app/index.js';
+import { serializeRouteData, toRoutingStrategy } from '../../app/entrypoints/index.js';
 import type {
 	SerializedRouteInfo,
 	SerializedSSRManifest,
@@ -34,6 +35,7 @@ import type { BuildInternals } from '../internal.js';
 import { cssOrder, mergeInlineCss } from '../runtime.js';
 import type { StaticBuildOptions } from '../types.js';
 import { makePageDataKey } from './util.js';
+import { cacheConfigToManifest } from '../../cache/utils.js';
 import { sessionConfigToManifest } from '../../session/utils.js';
 
 /**
@@ -83,8 +85,8 @@ export async function manifestBuildPostHook(
 	);
 
 	if (ssrManifestChunk) {
-		const shouldPassMiddlewareEntryPoint =
-			options.settings.adapter?.adapterFeatures?.edgeMiddleware;
+		const middlewareMode = resolveMiddlewareMode(options.settings.adapter?.adapterFeatures);
+		const shouldPassMiddlewareEntryPoint = middlewareMode === 'edge';
 		await runHookBuildSsr({
 			config: options.settings.config,
 			manifest,
@@ -280,9 +282,7 @@ async function buildManifest(
 		];
 
 		csp = {
-			cspDestination: settings.adapter?.adapterFeatures?.experimentalStaticHeaders
-				? 'adapter'
-				: undefined,
+			cspDestination: settings.adapter?.adapterFeatures?.staticHeaders ? 'adapter' : undefined,
 			scriptHashes,
 			scriptResources: getScriptResources(settings.config.security.csp),
 			styleHashes,
@@ -305,6 +305,8 @@ async function buildManifest(
 		}
 	}
 
+	const middlewareMode = resolveMiddlewareMode(opts.settings.adapter?.adapterFeatures);
+
 	return {
 		rootDir: opts.settings.config.root.toString(),
 		cacheDir: opts.settings.config.cacheDir.toString(),
@@ -317,12 +319,18 @@ async function buildManifest(
 		assetsDir: opts.settings.config.build.assets,
 		routes,
 		serverLike: opts.settings.buildOutput === 'server',
+		middlewareMode,
 		site: settings.config.site,
 		base: settings.config.base,
 		userAssetsBase: settings.config?.vite?.base,
 		trailingSlash: settings.config.trailingSlash,
 		compressHTML: settings.config.compressHTML,
 		assetsPrefix: settings.config.build.assetsPrefix,
+		experimentalQueuedRendering: {
+			enabled: settings.config.experimental.queuedRendering?.enabled ?? false,
+			poolSize: 0,
+			contentCache: false,
+		},
 		componentMetadata: Array.from(internals.componentMetadata),
 		renderers: [],
 		clientDirectives: Array.from(settings.clientDirectives),
@@ -333,10 +341,27 @@ async function buildManifest(
 		buildFormat: settings.config.build.format,
 		checkOrigin:
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
+		actionBodySizeLimit:
+			settings.config.security?.actionBodySizeLimit && settings.buildOutput === 'server'
+				? settings.config.security.actionBodySizeLimit
+				: 1024 * 1024,
+		serverIslandBodySizeLimit:
+			settings.config.security?.serverIslandBodySizeLimit && settings.buildOutput === 'server'
+				? settings.config.security.serverIslandBodySizeLimit
+				: 1024 * 1024,
 		allowedDomains: settings.config.security?.allowedDomains,
 		key: encodedKey,
 		sessionConfig: sessionConfigToManifest(settings.config.session),
+		cacheConfig: cacheConfigToManifest(
+			settings.config.experimental?.cache,
+			settings.config.experimental?.routeRules,
+		),
 		csp,
+		image: {
+			objectFit: settings.config.image.objectFit,
+			objectPosition: settings.config.image.objectPosition,
+			layout: settings.config.image.layout,
+		},
 		devToolbar: {
 			enabled: false,
 			latestAstroVersion: undefined,
@@ -345,5 +370,6 @@ async function buildManifest(
 		},
 		internalFetchHeaders,
 		logLevel: settings.logLevel,
+		shouldInjectCspMetaTags: shouldTrackCspHashes(settings.config.security.csp),
 	};
 }

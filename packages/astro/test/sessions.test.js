@@ -8,7 +8,7 @@ describe('Astro.session', () => {
 	describe('Production', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
-		/** @type {import('../src/core/app/index').App} response */
+		/** @type {import('../src/core/app/app.js').App} response */
 		let app;
 
 		before(async () => {
@@ -98,6 +98,88 @@ describe('Astro.session', () => {
 			assert.equal(
 				secondData.message,
 				'Favorite URL set to https://example.com/ from https://domain.invalid/',
+			);
+		});
+
+		it('generates a new session ID when cookie value has no server-side data', async () => {
+			const unknownId = 'nonexistent-session-id-12345';
+			const response = await fetchResponse('/login', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					cookie: `astro-session=${unknownId}`,
+				},
+				body: JSON.stringify({ username: 'testuser' }),
+			});
+			assert.equal(response.ok, true);
+			const headers = Array.from(app.setCookieHeaders(response));
+			const sessionId = headers[0].split(';')[0].split('=')[1];
+			// A new ID should be generated since the cookie value had no stored data
+			assert.notEqual(sessionId, unknownId, 'Should not adopt a session ID with no stored data');
+
+			// The original ID should not give access to the new session's data
+			const secondResponse = await fetchResponse('/update', {
+				method: 'GET',
+				headers: {
+					cookie: `astro-session=${unknownId}`,
+				},
+			});
+			const secondData = await secondResponse.json();
+			assert.equal(secondData.previousValue, 'none', 'Original ID should not have session data');
+		});
+
+		it('preserves session ID when cookie value has existing server-side data', async () => {
+			const firstResponse = await fetchResponse('/update');
+			const firstHeaders = Array.from(app.setCookieHeaders(firstResponse));
+			const firstSessionId = firstHeaders[0].split(';')[0].split('=')[1];
+
+			const secondResponse = await fetchResponse('/update', {
+				method: 'GET',
+				headers: {
+					cookie: `astro-session=${firstSessionId}`,
+				},
+			});
+			const secondHeaders = Array.from(app.setCookieHeaders(secondResponse));
+			const secondSessionId = secondHeaders[0].split(';')[0].split('=')[1];
+			assert.equal(secondSessionId, firstSessionId, 'Valid session ID should be preserved');
+		});
+
+		it('regenerate() creates a new ID and cleans up the old session', async () => {
+			const firstResponse = await fetchResponse('/update', {
+				method: 'GET',
+			});
+			const firstHeaders = Array.from(app.setCookieHeaders(firstResponse));
+			const firstSessionId = firstHeaders[0].split(';')[0].split('=')[1];
+
+			const secondResponse = await fetchResponse('/login-safe', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					cookie: `astro-session=${firstSessionId}`,
+				},
+				body: JSON.stringify({ username: 'testuser' }),
+			});
+			assert.equal(secondResponse.ok, true);
+			const secondHeaders = Array.from(app.setCookieHeaders(secondResponse));
+			const secondSessionIds = secondHeaders
+				.filter((h) => h.startsWith('astro-session='))
+				.map((h) => h.split(';')[0].split('=')[1]);
+			const secondSessionId = secondSessionIds[secondSessionIds.length - 1];
+
+			assert.notEqual(secondSessionId, firstSessionId, 'regenerate() should create new ID');
+
+			// Old session ID should no longer have data after regeneration
+			const thirdResponse = await fetchResponse('/update', {
+				method: 'GET',
+				headers: {
+					cookie: `astro-session=${firstSessionId}`,
+				},
+			});
+			const thirdData = await thirdResponse.json();
+			assert.equal(
+				thirdData.previousValue,
+				'none',
+				'Old session ID should have no data after regeneration',
 			);
 		});
 

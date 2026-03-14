@@ -14,20 +14,22 @@ import {
 import type { AstroSettings, RoutesList } from '../../types/astro.js';
 import type { AstroInlineConfig, RuntimeMode } from '../../types/public/config.js';
 import { resolveConfig } from '../config/config.js';
-import { createNodeLogger } from '../config/logging.js';
+import { createNodeLogger } from '../logger/node.js';
 import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
 import { createKey, getEnvironmentKey, hasEnvironmentKey } from '../encryption.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
 import { levels, timerMessage } from '../logger/core.js';
-import { createRoutesList } from '../routing/manifest/create.js';
+import { createRoutesList } from '../routing/create-manifest.js';
+import { getPrerenderDefault } from '../../prerender/utils.js';
 import { clearContentLayerCache } from '../sync/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { collectPagesData } from './page-data.js';
-import { staticBuild, viteBuild } from './static-build.js';
+import { viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
+import { warnIfCspWithShiki } from '../messages/runtime.js';
 
 interface BuildOptions {
 	/**
@@ -64,6 +66,8 @@ export default async function build(
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig, 'build');
 	telemetry.record(eventCliSession('build', userConfig));
 
+	warnIfCspWithShiki(astroConfig, logger);
+
 	const settings = await createSettings(
 		astroConfig,
 		inlineConfig.logLevel,
@@ -88,9 +92,19 @@ interface AstroBuilderOptions extends BuildOptions {
 	logger: Logger;
 	mode: string;
 	runtimeMode: RuntimeMode;
+	/**
+	 * Provide a pre-built routes list to skip filesystem route scanning.
+	 * Useful for testing builds with in-memory virtual modules.
+	 */
+	routesList?: RoutesList;
+	/**
+	 * Whether to run `syncInternal` during setup. Defaults to true.
+	 * Set to false for in-memory builds that don't need type generation.
+	 */
+	sync?: boolean;
 }
 
-class AstroBuilder {
+export class AstroBuilder {
 	private settings: AstroSettings;
 	private logger: Logger;
 	private mode: string;
@@ -99,6 +113,7 @@ class AstroBuilder {
 	private routesList: RoutesList;
 	private timer: Record<string, number>;
 	private teardownCompiler: boolean;
+	private sync: boolean;
 
 	constructor(settings: AstroSettings, options: AstroBuilderOptions) {
 		this.mode = options.mode;
@@ -106,10 +121,11 @@ class AstroBuilder {
 		this.settings = settings;
 		this.logger = options.logger;
 		this.teardownCompiler = options.teardownCompiler ?? true;
+		this.sync = options.sync ?? true;
 		this.origin = settings.config.site
 			? new URL(settings.config.site).origin
 			: `http://localhost:${settings.config.server.port}`;
-		this.routesList = { routes: [] };
+		this.routesList = options.routesList ?? { routes: [] };
 		this.timer = {};
 	}
 
@@ -123,7 +139,12 @@ class AstroBuilder {
 			command: 'build',
 			logger: logger,
 		});
-		this.routesList = await createRoutesList({ settings: this.settings }, this.logger);
+		this.settings.buildOutput = getPrerenderDefault(this.settings.config) ? 'static' : 'server';
+
+		// Skip filesystem route scanning if routesList was pre-populated (e.g. in-memory builds)
+		if (this.routesList.routes.length === 0) {
+			this.routesList = await createRoutesList({ settings: this.settings }, this.logger);
+		}
 
 		await runHookConfigDone({ settings: this.settings, logger: logger, command: 'build' });
 
@@ -150,21 +171,23 @@ class AstroBuilder {
 			},
 		);
 
-		const { syncInternal } = await import('../sync/index.js');
-		await syncInternal({
-			mode: this.mode,
-			settings: this.settings,
-			logger,
-			fs,
-			command: 'build',
-		});
+		if (this.sync) {
+			const { syncInternal } = await import('../sync/index.js');
+			await syncInternal({
+				mode: this.mode,
+				settings: this.settings,
+				logger,
+				fs,
+				command: 'build',
+			});
+		}
 
 		return { viteConfig };
 	}
 
 	/** Run the build logic. build() is marked private because usage should go through ".run()" */
 	private async build({ viteConfig }: { viteConfig: vite.InlineConfig }) {
-		await runHookBuildStart({ config: this.settings.config, logger: this.logger });
+		await runHookBuildStart({ settings: this.settings, logger: this.logger });
 		this.validateConfig();
 
 		this.logger.info('build', `output: ${colors.blue('"' + this.settings.config.output + '"')}`);
@@ -213,9 +236,7 @@ class AstroBuilder {
 			key: keyPromise,
 		};
 
-		const { internals, prerenderOutputDir } = await viteBuild(opts);
-
-		await staticBuild(opts, internals, prerenderOutputDir);
+		await viteBuild(opts);
 
 		// Write any additionally generated assets to disk.
 		this.timer.assetsStart = performance.now();

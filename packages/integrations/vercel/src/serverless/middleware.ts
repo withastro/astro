@@ -119,7 +119,8 @@ import { createContext, trySerializeLocals } from 'astro/middleware';
 export default async function middleware(request, context) {
 	const ctx = createContext({
 		request,
-		params: {}
+		params: {},
+		clientAddress: request.headers.get('x-real-ip') || undefined,
 	});
 	Object.assign(ctx.locals, { vercel: { edge: context }, ...${handlerTemplateCall} });
 	const { origin } = new URL(request.url);

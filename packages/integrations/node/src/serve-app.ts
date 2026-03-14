@@ -1,13 +1,50 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
-import { NodeApp } from 'astro/app/node';
+import { createReadStream } from 'node:fs';
+import path from 'node:path';
+import { Readable } from 'node:stream';
+import { createRequest, writeResponse } from 'astro/app/node';
+import type { BaseApp } from 'astro/app';
+import { resolveClientDir } from './shared.js';
 import type { Options, RequestHandler } from './types.js';
+
+/**
+ * Read a prerendered error page from disk and return it as a Response.
+ * Returns undefined if the file doesn't exist or can't be read.
+ */
+async function readErrorPageFromDisk(
+	client: string,
+	status: number,
+): Promise<Response | undefined> {
+	// Try both /404.html and /404/index.html patterns
+	const filePaths = [`${status}.html`, `${status}/index.html`];
+
+	for (const filePath of filePaths) {
+		const fullPath = path.join(client, filePath);
+		try {
+			const stream = createReadStream(fullPath);
+			// Wait for the stream to open successfully or error
+			await new Promise<void>((resolve, reject) => {
+				stream.once('open', () => resolve());
+				stream.once('error', reject);
+			});
+			const webStream = Readable.toWeb(stream) as ReadableStream;
+			return new Response(webStream, {
+				headers: { 'Content-Type': 'text/html; charset=utf-8' },
+			});
+		} catch {
+			// File doesn't exist or can't be read, try next pattern
+		}
+	}
+
+	return undefined;
+}
 
 /**
  * Creates a Node.js http listener for on-demand rendered pages, compatible with http.createServer and Connect middleware.
  * If the next callback is provided, it will be called if the request does not have a matching route.
  * Intended to be used in both standalone and middleware mode.
  */
-export function createAppHandler(app: NodeApp, options: Options): RequestHandler {
+export function createAppHandler(app: BaseApp, options: Options): RequestHandler {
 	/**
 	 * Keep track of the current request path using AsyncLocalStorage.
 	 * Used to log unhandled rejections with a helpful message.
@@ -20,24 +57,37 @@ export function createAppHandler(app: NodeApp, options: Options): RequestHandler
 		console.error(reason);
 	});
 
-	const originUrl = options.experimentalErrorPageHost
-		? new URL(options.experimentalErrorPageHost)
-		: undefined;
+	const client = resolveClientDir(options);
 
-	const prerenderedErrorPageFetch = originUrl
-		? (url: string) => {
-				const errorPageUrl = new URL(url);
-				errorPageUrl.protocol = originUrl.protocol;
-				errorPageUrl.host = originUrl.host;
-				return fetch(errorPageUrl);
-			}
-		: undefined;
+	// Read prerendered error pages directly from disk instead of fetching over HTTP.
+	// This avoids SSRF risks and is more efficient.
+	const prerenderedErrorPageFetch = async (url: string): Promise<Response> => {
+		const { pathname } = new URL(url);
+		if (pathname.endsWith('/404.html') || pathname.endsWith('/404/index.html')) {
+			const response = await readErrorPageFromDisk(client, 404);
+			if (response) return response;
+		}
+		if (pathname.endsWith('/500.html') || pathname.endsWith('/500/index.html')) {
+			const response = await readErrorPageFromDisk(client, 500);
+			if (response) return response;
+		}
+		// No file found and no fallback configured - return empty response
+		return new Response(null, { status: 404 });
+	};
+
+	// Use the configured body size limit. A value of 0 or Infinity disables the limit.
+	const effectiveBodySizeLimit =
+		options.bodySizeLimit === 0 || options.bodySizeLimit === Number.POSITIVE_INFINITY
+			? undefined
+			: options.bodySizeLimit;
 
 	return async (req, res, next, locals) => {
 		let request: Request;
 		try {
-			request = NodeApp.createRequest(req, {
+			request = createRequest(req, {
 				allowedDomains: app.getAllowedDomains?.() ?? [],
+				bodySizeLimit: effectiveBodySizeLimit,
+				port: options.port,
 			});
 		} catch (err) {
 			logger.error(`Could not render ${req.url}`);
@@ -60,12 +110,15 @@ export function createAppHandler(app: NodeApp, options: Options): RequestHandler
 					prerenderedErrorPageFetch,
 				}),
 			);
-			await NodeApp.writeResponse(response, res);
+			await writeResponse(response, res);
 		} else if (next) {
 			return next();
 		} else {
-			const response = await app.render(req, { addCookieHeader: true, prerenderedErrorPageFetch });
-			await NodeApp.writeResponse(response, res);
+			const response = await app.render(request, {
+				addCookieHeader: true,
+				prerenderedErrorPageFetch,
+			});
+			await writeResponse(response, res);
 		}
 	};
 }

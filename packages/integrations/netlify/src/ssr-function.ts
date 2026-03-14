@@ -1,76 +1,66 @@
 import type { Context } from '@netlify/functions';
-import type { SSRManifest } from 'astro';
-import { App } from 'astro/app';
 import { setGetEnv } from 'astro/env/setup';
+import { middlewareSecret, cacheOnDemandPages } from 'virtual:astro-netlify:config';
+import { createApp } from 'astro/app/entrypoint';
 
 setGetEnv((key) => process.env[key]);
 
-export interface Args {
-	middlewareSecret: string;
-}
+const app = createApp();
 
-export const createExports = (manifest: SSRManifest, { middlewareSecret }: Args) => {
-	const app = new App(manifest);
+export function createHandler({ notFoundContent }: { notFoundContent: string | undefined }) {
+	return async function handler(request: Request, context: Context): Promise<Response> {
+		const routeData = app.match(request);
 
-	function createHandler(integrationConfig: {
-		cacheOnDemandPages: boolean;
-		notFoundContent?: string;
-	}) {
-		return async function handler(request: Request, context: Context) {
-			const routeData = app.match(request);
-			if (!routeData && typeof integrationConfig.notFoundContent !== 'undefined') {
-				return new Response(integrationConfig.notFoundContent, {
-					status: 404,
-					headers: { 'Content-Type': 'text/html; charset=utf-8' },
-				});
-			}
-
-			let locals: Record<string, unknown> = {};
-
-			const astroLocalsHeader = request.headers.get('x-astro-locals');
-			const middlewareSecretHeader = request.headers.get('x-astro-middleware-secret');
-			if (astroLocalsHeader) {
-				if (middlewareSecretHeader !== middlewareSecret) {
-					return new Response('Forbidden', { status: 403 });
-				}
-				// hide the secret from the rest of user and library code
-				request.headers.delete('x-astro-middleware-secret');
-				locals = JSON.parse(astroLocalsHeader);
-			}
-
-			locals.netlify = { context };
-
-			const response = await app.render(request, {
-				routeData,
-				locals,
-				clientAddress: context.ip,
+		if (!routeData && typeof notFoundContent !== 'undefined') {
+			return new Response(notFoundContent, {
+				status: 404,
+				headers: { 'Content-Type': 'text/html; charset=utf-8' },
 			});
+		}
 
-			if (app.setCookieHeaders) {
-				for (const setCookieHeader of app.setCookieHeaders(response)) {
-					response.headers.append('Set-Cookie', setCookieHeader);
-				}
+		let locals: Record<string, unknown> = {};
+
+		const astroLocalsHeader = request.headers.get('x-astro-locals');
+		const middlewareSecretHeader = request.headers.get('x-astro-middleware-secret');
+		if (astroLocalsHeader) {
+			if (middlewareSecretHeader !== middlewareSecret) {
+				return new Response('Forbidden', { status: 403 });
 			}
+			// hide the secret from the rest of user and library code
+			request.headers.delete('x-astro-middleware-secret');
+			locals = JSON.parse(astroLocalsHeader);
+		}
 
-			if (integrationConfig.cacheOnDemandPages) {
-				const isCacheableMethod = ['GET', 'HEAD'].includes(request.method);
+		locals.netlify = { context };
 
-				// any user-provided Cache-Control headers take precedence
-				const hasCacheControl = [
-					'Cache-Control',
-					'CDN-Cache-Control',
-					'Netlify-CDN-Cache-Control',
-				].some((header) => response.headers.has(header));
+		const response = await app.render(request, {
+			routeData,
+			locals,
+			clientAddress: context.ip,
+		});
 
-				if (isCacheableMethod && !hasCacheControl) {
-					// caches this page for up to a year
-					response.headers.append('CDN-Cache-Control', 'public, max-age=31536000, must-revalidate');
-				}
+		if (app.setCookieHeaders) {
+			for (const setCookieHeader of app.setCookieHeaders(response)) {
+				response.headers.append('Set-Cookie', setCookieHeader);
 			}
+		}
 
-			return response;
-		};
-	}
+		if (cacheOnDemandPages) {
+			const isCacheableMethod = ['GET', 'HEAD'].includes(request.method);
 
-	return { default: createHandler };
-};
+			// any user-provided Cache-Control headers take precedence
+			const hasCacheControl = [
+				'Cache-Control',
+				'CDN-Cache-Control',
+				'Netlify-CDN-Cache-Control',
+			].some((header) => response.headers.has(header));
+
+			if (isCacheableMethod && !hasCacheControl) {
+				// caches this page for up to a year
+				response.headers.append('CDN-Cache-Control', 'public, max-age=31536000, must-revalidate');
+			}
+		}
+
+		return response;
+	};
+}

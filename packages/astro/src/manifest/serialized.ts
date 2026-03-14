@@ -1,7 +1,7 @@
 import type { Plugin, ViteDevServer } from 'vite';
 import { ACTIONS_ENTRYPOINT_VIRTUAL_MODULE_ID } from '../actions/consts.js';
 import { toFallbackType } from '../core/app/common.js';
-import { toRoutingStrategy } from '../core/app/index.js';
+import { toRoutingStrategy } from '../core/app/entrypoints/index.js';
 import type { SerializedSSRManifest, SSRManifestCSP, SSRManifestI18n } from '../core/app/types.js';
 import { MANIFEST_REPLACE } from '../core/build/plugins/plugin-manifest.js';
 import {
@@ -17,13 +17,16 @@ import {
 import { createKey, encodeKey, getEnvironmentKey, hasEnvironmentKey } from '../core/encryption.js';
 import { MIDDLEWARE_MODULE_ID } from '../core/middleware/vite-plugin.js';
 import { SERVER_ISLAND_MANIFEST } from '../core/server-islands/vite-plugin-server-islands.js';
+import { VIRTUAL_CACHE_PROVIDER_ID } from '../core/cache/vite-plugin.js';
 import { VIRTUAL_SESSION_DRIVER_ID } from '../core/session/vite-plugin.js';
 import type { AstroSettings } from '../types/astro.js';
 import { VIRTUAL_PAGES_MODULE_ID } from '../vite-plugin-pages/index.js';
 import { ASTRO_RENDERERS_MODULE_ID } from '../vite-plugin-renderers/index.js';
 import { ASTRO_ROUTES_MODULE_ID } from '../vite-plugin-routes/index.js';
+import { cacheConfigToManifest } from '../core/cache/utils.js';
 import { sessionConfigToManifest } from '../core/session/utils.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
+import { resolveMiddlewareMode } from '../integrations/adapter-utils.js';
 
 // This is used by Cloudflare optimizeDeps config
 export const SERIALIZED_MANIFEST_ID = 'virtual:astro:manifest';
@@ -80,6 +83,10 @@ export function serializedManifestPlugin({
 					const serialized = await createSerializedManifest(settings);
 					manifestData = JSON.stringify(serialized);
 				}
+				const hasCacheConfig = !!settings.config.experimental?.cache?.provider;
+				const cacheProviderLine = hasCacheConfig
+					? `cacheProvider: () => import('${VIRTUAL_CACHE_PROVIDER_ID}'),`
+					: '';
 				const code = `
 					import { deserializeManifest as _deserializeManifest } from 'astro/app';
 					import { renderers } from '${ASTRO_RENDERERS_MODULE_ID}';
@@ -99,6 +106,7 @@ export function serializedManifestPlugin({
 					  actions: () => import('${ACTIONS_ENTRYPOINT_VIRTUAL_MODULE_ID}'),
 					  middleware: () => import('${MIDDLEWARE_MODULE_ID}'),
 					  sessionDriver: () => import('${VIRTUAL_SESSION_DRIVER_ID}'),
+					  ${cacheProviderLine}
 					  serverIslandMappings: () => import('${SERVER_ISLAND_MANIFEST}'),
 					  routes: manifestRoutes,
 					  pageMap,
@@ -128,9 +136,7 @@ async function createSerializedManifest(settings: AstroSettings): Promise<Serial
 
 	if (shouldTrackCspHashes(settings.config.security.csp)) {
 		csp = {
-			cspDestination: settings.adapter?.adapterFeatures?.experimentalStaticHeaders
-				? 'adapter'
-				: undefined,
+			cspDestination: settings.adapter?.adapterFeatures?.staticHeaders ? 'adapter' : undefined,
 			scriptHashes: getScriptHashes(settings.config.security.csp),
 			scriptResources: getScriptResources(settings.config.security.csp),
 			styleHashes: getStyleHashes(settings.config.security.csp),
@@ -154,6 +160,7 @@ async function createSerializedManifest(settings: AstroSettings): Promise<Serial
 		buildFormat: settings.config.build.format,
 		compressHTML: settings.config.compressHTML,
 		serverLike: settings.buildOutput === 'server',
+		middlewareMode: resolveMiddlewareMode(settings.adapter?.adapterFeatures),
 		assets: [],
 		entryModules: {},
 		routes: [],
@@ -169,9 +176,24 @@ async function createSerializedManifest(settings: AstroSettings): Promise<Serial
 		i18n: i18nManifest,
 		checkOrigin:
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
+		actionBodySizeLimit: settings.config.security?.actionBodySizeLimit
+			? settings.config.security.actionBodySizeLimit
+			: 1024 * 1024, // 1mb default
+		serverIslandBodySizeLimit: settings.config.security?.serverIslandBodySizeLimit
+			? settings.config.security.serverIslandBodySizeLimit
+			: 1024 * 1024, // 1mb default
 		key: await encodeKey(hasEnvironmentKey() ? await getEnvironmentKey() : await createKey()),
 		sessionConfig: sessionConfigToManifest(settings.config.session),
+		cacheConfig: cacheConfigToManifest(
+			settings.config.experimental?.cache,
+			settings.config.experimental?.routeRules,
+		),
 		csp,
+		image: {
+			objectFit: settings.config.image.objectFit,
+			objectPosition: settings.config.image.objectPosition,
+			layout: settings.config.image.layout,
+		},
 		devToolbar: {
 			enabled:
 				settings.config.devToolbar.enabled &&
@@ -181,5 +203,7 @@ async function createSerializedManifest(settings: AstroSettings): Promise<Serial
 			placement: settings.config.devToolbar.placement,
 		},
 		logLevel: settings.logLevel,
+		shouldInjectCspMetaTags: false,
+		experimentalQueuedRendering: settings.config.experimental?.queuedRendering,
 	};
 }

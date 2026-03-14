@@ -1,8 +1,8 @@
 import fs, { readFileSync } from 'node:fs';
 import { basename } from 'node:path/posix';
 import colors from 'piccolore';
-import type { BuildApp } from '../../core/build/app.js';
 import { getOutDirWithinCwd } from '../../core/build/common.js';
+import type { StaticBuildOptions } from '../../core/build/types.js';
 import { getTimeStat } from '../../core/build/util.js';
 import { AstroError } from '../../core/errors/errors.js';
 import { AstroErrorData } from '../../core/errors/index.js';
@@ -50,14 +50,12 @@ type ImageData = {
 };
 
 export async function prepareAssetsGenerationEnv(
-	app: BuildApp,
+	options: StaticBuildOptions,
 	totalCount: number,
 ): Promise<AssetEnv> {
-	const settings = app.getSettings();
-	const logger = app.logger;
-	const manifest = app.getManifest();
+	const { settings, logger } = options;
 	let useCache = true;
-	const assetsCacheDir = new URL('assets/', app.manifest.cacheDir);
+	const assetsCacheDir = new URL('assets/', settings.config.cacheDir);
 	const count = { total: totalCount, current: 1 };
 
 	// Ensure that the cache directory exists
@@ -75,11 +73,11 @@ export async function prepareAssetsGenerationEnv(
 	let serverRoot: URL, clientRoot: URL;
 	if (isServerOutput) {
 		// Images are collected during prerender, which outputs to .prerender/ subdirectory
-		serverRoot = new URL('.prerender/', manifest.buildServerDir);
-		clientRoot = manifest.buildClientDir;
+		serverRoot = new URL('.prerender/', settings.config.build.server);
+		clientRoot = settings.config.build.client;
 	} else {
-		serverRoot = getOutDirWithinCwd(manifest.outDir);
-		clientRoot = manifest.outDir;
+		serverRoot = getOutDirWithinCwd(settings.config.outDir);
+		clientRoot = settings.config.outDir;
 	}
 
 	return {
@@ -91,7 +89,7 @@ export async function prepareAssetsGenerationEnv(
 		serverRoot,
 		clientRoot,
 		imageConfig: settings.config.image,
-		assetsFolder: manifest.assetsDir,
+		assetsFolder: settings.config.build.assets,
 	};
 }
 
@@ -110,10 +108,9 @@ export async function generateImagesForPath(
 		await generateImage(transform.finalPath, transform.transform);
 	}
 
-	// In SSR, we cannot know if an image is referenced in a server-rendered page, so we can't delete anything
-	// For instance, the same image could be referenced in both a server-rendered page and build-time-rendered page
+	// Delete original images that are only used for optimization
+	// The referencedImages set tracks images that were used via raw `src` access (e.g., <img src={img.src}>).
 	if (
-		!env.isSSR &&
 		transformsAndPath.originalSrcPath &&
 		!globalThis.astroAsset.referencedImages?.has(transformsAndPath.originalSrcPath)
 	) {

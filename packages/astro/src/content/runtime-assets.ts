@@ -1,6 +1,7 @@
 import type { PluginContext } from 'rollup';
 import * as z from 'zod/v4';
 import type { ImageMetadata, OmitBrand } from '../assets/types.js';
+import { emitClientAsset } from '../assets/utils/assets.js';
 import { emitImageMetadata } from '../assets/utils/node.js';
 
 export function createImage(
@@ -13,7 +14,10 @@ export function createImage(
 			const resolvedFilePath = (await pluginContext.resolve(imagePath, entryFilePath))?.id;
 			const metadata = (await emitImageMetadata(
 				resolvedFilePath,
-				shouldEmitFile ? pluginContext.emitFile : undefined,
+				shouldEmitFile
+					? (opts: Parameters<typeof pluginContext.emitFile>[0]) =>
+							emitClientAsset(pluginContext, opts)
+					: undefined,
 			)) as OmitBrand<ImageMetadata>;
 
 			if (!metadata) {

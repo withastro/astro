@@ -5,6 +5,7 @@ import { parseFrontmatter } from '@astrojs/markdown-remark';
 import type { Config as MarkdocConfig, Node } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, ContentEntryType } from 'astro';
+import { emitClientAsset } from 'astro/assets/utils';
 import { emitImageMetadata } from 'astro/assets/utils/node';
 import type { Rollup, ErrorPayload as ViteErrorPayload } from 'vite';
 import type { ComponentConfig } from './config.js';
@@ -313,7 +314,12 @@ async function emitOptimizedImages(
 				const resolved = await ctx.pluginContext.resolve(node.attributes.src, ctx.filePath);
 
 				if (resolved?.id && fs.existsSync(new URL(prependForwardSlash(resolved.id), 'file://'))) {
-					const src = await emitImageMetadata(resolved.id, ctx.pluginContext.emitFile);
+					// Only emit files during build, not in dev mode
+					const fileEmitter = ctx.pluginContext.meta.watchMode
+						? undefined
+						: (opts: Parameters<typeof ctx.pluginContext.emitFile>[0]) =>
+								emitClientAsset(ctx.pluginContext, opts);
+					const src = await emitImageMetadata(resolved.id, fileEmitter);
 
 					const fsPath = resolved.id;
 
@@ -336,7 +342,7 @@ async function emitOptimizedImages(
 				}
 			} else if (isComponent) {
 				// If the user is using the {% image %} tag, always pass the `src` attribute as `__optimizedSrc`, even if it's an external URL or absolute path.
-				// That way, the component can decide whether to optimize it or not.
+				// That way, the component can decide whether or not to optimize it.
 				node.attributes[attributeName] = node.attributes.src;
 			}
 		}

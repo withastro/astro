@@ -1,18 +1,18 @@
 import type nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import * as vite from 'vite';
-import { globalContentLayer } from '../../content/content-layer.js';
+import { globalContentLayer } from '../../content/instance.js';
 import { attachContentServerListeners } from '../../content/server-listeners.js';
 import { eventCliSession, telemetry } from '../../events/index.js';
 import { SETTINGS_FILE } from '../../preferences/constants.js';
 import type { AstroSettings } from '../../types/astro.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
 import { createSettings, resolveConfig } from '../config/index.js';
-import { createNodeLogger } from '../config/logging.js';
+import { createNodeLogger } from '../logger/node.js';
 import { collectErrorMetadata } from '../errors/dev/utils.js';
 import { isAstroConfigZodError } from '../errors/errors.js';
 import { createSafeError } from '../errors/index.js';
-import { formatErrorMessage } from '../messages.js';
+import { formatErrorMessage, warnIfCspWithShiki } from '../messages/runtime.js';
 import type { Container } from './container.js';
 import { createContainer, startContainer } from './container.js';
 
@@ -84,6 +84,7 @@ async function restartContainer(container: Container): Promise<Container | Error
 				"Astro's Content Security Policy (CSP) does not work in development mode. To verify your CSP implementation, build the project and run the preview server.",
 			);
 		}
+		warnIfCspWithShiki(astroConfig, logger);
 		const settings = await createSettings(
 			astroConfig,
 			container.inlineConfig.logLevel,
@@ -121,6 +122,7 @@ interface CreateContainerWithAutomaticRestart {
 
 interface Restart {
 	container: Container;
+	bindCLIShortcuts: () => void;
 	restarted: () => Promise<Error | null>;
 }
 
@@ -136,6 +138,7 @@ export async function createContainerWithAutomaticRestart({
 			"Astro's Content Security Policy (CSP) does not work in development mode. To verify your CSP implementation, build the project and run the preview server.",
 		);
 	}
+	warnIfCspWithShiki(astroConfig, logger);
 	telemetry.record(eventCliSession('dev', userConfig));
 
 	const settings = await createSettings(
@@ -158,6 +161,25 @@ export async function createContainerWithAutomaticRestart({
 
 	let restart: Restart = {
 		container: initialContainer,
+		bindCLIShortcuts() {
+			const customShortcuts: Array<vite.CLIShortcut> = [
+				// Disable default Vite shortcuts that don't work well with Astro
+				{ key: 'r', description: '' },
+				{ key: 'u', description: '' },
+				{ key: 'c', description: '' },
+			];
+
+			customShortcuts.push({
+				key: 's',
+				description: 'sync content layer',
+				action: () => {
+					globalContentLayer.get()?.sync();
+				},
+			});
+			restart.container.viteServer.bindCLIShortcuts({
+				customShortcuts,
+			});
+		},
 		restarted() {
 			return restartComplete;
 		},
@@ -210,26 +232,6 @@ export async function createContainerWithAutomaticRestart({
 				await handleServerRestart('', restart.container.viteServer);
 			}
 		};
-
-		// Set up shortcuts
-
-		const customShortcuts: Array<vite.CLIShortcut> = [
-			// Disable default Vite shortcuts that don't work well with Astro
-			{ key: 'r', description: '' },
-			{ key: 'u', description: '' },
-			{ key: 'c', description: '' },
-		];
-
-		customShortcuts.push({
-			key: 's',
-			description: 'sync content layer',
-			action: () => {
-				globalContentLayer.get()?.sync();
-			},
-		});
-		restart.container.viteServer.bindCLIShortcuts({
-			customShortcuts,
-		});
 	}
 	setupContainer();
 	return restart;

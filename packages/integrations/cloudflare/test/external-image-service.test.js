@@ -23,7 +23,7 @@ describe('ExternalImageService', () => {
 
 	it('has correct image service', async () => {
 		const files = await glob('**/image-service*', {
-			cwd: fileURLToPath(new URL('dist/_worker.js', root)),
+			cwd: fileURLToPath(new URL('dist/server', root)),
 			filesOnly: true,
 			absolute: true,
 			flush: true,
@@ -31,5 +31,27 @@ describe('ExternalImageService', () => {
 		// the image service seems to be bundled inside the entry point
 		const outFileToCheck = readFileSync(files[0], 'utf-8');
 		assert.equal(outFileToCheck.includes('cdn-cgi/image'), true);
+	});
+});
+
+describe('ExternalImageService dev mode', () => {
+	let fixture;
+	let devServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/external-image-service/',
+		});
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	it('does not generate /cdn-cgi/image/ URLs in dev mode', async () => {
+		const res = await fixture.fetch('/');
+		const html = await res.text();
+		assert.ok(!html.includes('/cdn-cgi/image/'), 'expected no cdn-cgi URL in dev mode');
 	});
 });

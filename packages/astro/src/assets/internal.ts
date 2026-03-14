@@ -1,4 +1,5 @@
 import { isRemotePath } from '@astrojs/internal-helpers/path';
+import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { AstroConfig } from '../types/public/config.js';
 import type { AstroAdapterClientConfig } from '../types/public/integrations.js';
@@ -17,10 +18,11 @@ import {
 	type SrcSetValue,
 	type UnresolvedImageTransform,
 } from './types.js';
-import { addCSSVarsToStyle, cssFitValues } from './utils/imageAttributes.js';
 import { isESMImportedImage, isRemoteImage, resolveSrc } from './utils/imageKind.js';
 import { inferRemoteSize } from './utils/remoteProbe.js';
 import { createPlaceholderURL, stringifyPlaceholderURL } from './utils/url.js';
+
+export const cssFitValues = ['fill', 'contain', 'cover', 'scale-down'];
 
 export async function getConfiguredImageService(): Promise<ImageService> {
 	if (!globalThis?.astroAsset?.imageService) {
@@ -78,17 +80,25 @@ export async function getImage(
 	let originalHeight: number | undefined;
 
 	// Infer size for remote images if inferSize is true
-	if (
-		options.inferSize &&
-		isRemoteImage(resolvedOptions.src) &&
-		isRemotePath(resolvedOptions.src)
-	) {
-		const result = await inferRemoteSize(resolvedOptions.src); // Directly probe the image URL
-		resolvedOptions.width ??= result.width;
-		resolvedOptions.height ??= result.height;
-		originalWidth = result.width;
-		originalHeight = result.height;
+	if (resolvedOptions.inferSize) {
 		delete resolvedOptions.inferSize; // Delete so it doesn't end up in the attributes
+
+		if (isRemoteImage(resolvedOptions.src) && isRemotePath(resolvedOptions.src)) {
+			if (!isRemoteAllowed(resolvedOptions.src, imageConfig)) {
+				throw new AstroError({
+					...AstroErrorData.RemoteImageNotAllowed,
+					message: AstroErrorData.RemoteImageNotAllowed.message(resolvedOptions.src),
+				});
+			}
+
+			const getRemoteSize = (url: string) =>
+				service.getRemoteSize?.(url, imageConfig) ?? inferRemoteSize(url, imageConfig);
+			const result = await getRemoteSize(resolvedOptions.src); // Directly probe the image URL
+			resolvedOptions.width ??= result.width;
+			resolvedOptions.height ??= result.height;
+			originalWidth = result.width;
+			originalHeight = result.height;
+		}
 	}
 
 	const originalFilePath = isESMImportedImage(resolvedOptions.src)
@@ -131,7 +141,8 @@ export async function getImage(
 	} else {
 		resolvedOptions.loading ??= 'lazy';
 		resolvedOptions.decoding ??= 'async';
-		resolvedOptions.fetchpriority ??= 'auto';
+		// Omit fetchpriority to use the default `"auto"` value
+		resolvedOptions.fetchpriority ??= undefined;
 	}
 
 	if (layout !== 'none') {
@@ -148,14 +159,19 @@ export async function getImage(
 		resolvedOptions.sizes ||= getSizesAttribute({ width: resolvedOptions.width, layout });
 		// The densities option is incompatible with the `layout` option
 		delete resolvedOptions.densities;
-		resolvedOptions.style = addCSSVarsToStyle(
-			{
-				fit: cssFitValues.includes(resolvedOptions.fit ?? '') && resolvedOptions.fit,
-				pos: resolvedOptions.position,
-			},
-			resolvedOptions.style,
-		);
+
+		// Set data attribute for layout
 		resolvedOptions['data-astro-image'] = layout;
+
+		// Set data attributes for fit and position for CSP-compliant styling
+		if (resolvedOptions.fit && cssFitValues.includes(resolvedOptions.fit)) {
+			resolvedOptions['data-astro-image-fit'] = resolvedOptions.fit;
+		}
+
+		if (resolvedOptions.position) {
+			// Normalize position value for data attribute (spaces to dashes)
+			resolvedOptions['data-astro-image-pos'] = resolvedOptions.position.replace(/\s+/g, '-');
+		}
 	}
 
 	const validatedOptions = service.validateOptions
@@ -167,7 +183,15 @@ export async function getImage(
 		? await service.getSrcSet(validatedOptions, imageConfig)
 		: [];
 
-	let imageURL = await service.getURL(validatedOptions, imageConfig);
+	// In the Picture component, the optimized original-sized image is typically not used when `widths` is set.
+	// Since `globalThis.astroAsset.addStaticImage()` triggers image generation immediately,
+	// we fetch it lazily to avoid creating unnecessary assets.
+	const lazyImageURLFactory = (getValue: () => string) => {
+		let cached: string | null = null;
+		return () => (cached ??= getValue());
+	};
+	const initialImageURL = await service.getURL(validatedOptions, imageConfig);
+	let lazyImageURL = lazyImageURLFactory(() => initialImageURL);
 
 	const matchesValidatedTransform = (transform: ImageTransform) =>
 		transform.width === validatedOptions.width &&
@@ -179,7 +203,7 @@ export async function getImage(
 			return {
 				transform: srcSet.transform,
 				url: matchesValidatedTransform(srcSet.transform)
-					? imageURL
+					? initialImageURL
 					: await service.getURL(srcSet.transform, imageConfig),
 				descriptor: srcSet.descriptor,
 				attributes: srcSet.attributes,
@@ -190,19 +214,17 @@ export async function getImage(
 	if (
 		isLocalService(service) &&
 		globalThis.astroAsset.addStaticImage &&
-		!(isRemoteImage(validatedOptions.src) && imageURL === validatedOptions.src)
+		!(isRemoteImage(validatedOptions.src) && initialImageURL === validatedOptions.src)
 	) {
 		const propsToHash = service.propertiesToHash ?? DEFAULT_HASH_PROPS;
-		imageURL = globalThis.astroAsset.addStaticImage(
-			validatedOptions,
-			propsToHash,
-			originalFilePath,
+		lazyImageURL = lazyImageURLFactory(() =>
+			globalThis.astroAsset.addStaticImage!(validatedOptions, propsToHash, originalFilePath),
 		);
 		srcSets = srcSetTransforms.map((srcSet) => {
 			return {
 				transform: srcSet.transform,
 				url: matchesValidatedTransform(srcSet.transform)
-					? imageURL
+					? lazyImageURL()
 					: globalThis.astroAsset.addStaticImage!(srcSet.transform, propsToHash, originalFilePath),
 				descriptor: srcSet.descriptor,
 				attributes: srcSet.attributes,
@@ -210,11 +232,11 @@ export async function getImage(
 		});
 	} else if (imageConfig.assetQueryParams) {
 		// For SSR-rendered images without addStaticImage, append assetQueryParams manually
-		const imageURLObj = createPlaceholderURL(imageURL);
+		const imageURLObj = createPlaceholderURL(initialImageURL);
 		imageConfig.assetQueryParams.forEach((value, key) => {
 			imageURLObj.searchParams.set(key, value);
 		});
-		imageURL = stringifyPlaceholderURL(imageURLObj);
+		lazyImageURL = lazyImageURLFactory(() => stringifyPlaceholderURL(imageURLObj));
 
 		srcSets = srcSets.map((srcSet) => {
 			const urlObj = createPlaceholderURL(srcSet.url);
@@ -231,7 +253,9 @@ export async function getImage(
 	return {
 		rawOptions: resolvedOptions,
 		options: validatedOptions,
-		src: imageURL,
+		get src() {
+			return lazyImageURL();
+		},
 		srcSet: {
 			values: srcSets,
 			attribute: srcSets.map((srcSet) => `${srcSet.url} ${srcSet.descriptor}`).join(', '),
