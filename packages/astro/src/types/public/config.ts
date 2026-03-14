@@ -2064,7 +2064,7 @@ export interface AstroUserConfig<
 					 * @kind h4
 					 * @type {boolean | 'all'}
 					 * @default `true`
-					 * @version 6.0.0
+					 * @version 6.1.0
 					 * @description
 					 * Whether to transform backticks into smart quotes.
 					 * When set to `'all'`, double backticks are converted to double quotes and single backticks are converted to single quotes.
@@ -2077,7 +2077,7 @@ export interface AstroUserConfig<
 					 * @kind h4
 					 * @type {boolean}
 					 * @default `true`
-					 * @version 6.0.0
+					 * @version 6.1.0
 					 * @description
 					 * Whether to transform straight quotes into curly "smart" quotes.
 					 * * Note: If `backticks` is set to `'all'`, this should typically be set to `false`.
@@ -2090,7 +2090,7 @@ export interface AstroUserConfig<
 					 * @kind h4
 					 * @type {boolean | 'oldschool' | 'inverted'}
 					 * @default `true`
-					 * @version 6.0.0
+					 * @version 6.1.0
 					 * @description
 					 * How to transform dashes.
 					 * - `true`: turns two dashes into an em dash.
@@ -2105,7 +2105,7 @@ export interface AstroUserConfig<
 					 * @kind h4
 					 * @type {boolean | 'spaced' | 'unspaced'}
 					 * @default `true`
-					 * @version 6.0.0
+					 * @version 6.1.0
 					 * @description
 					 * Whether to transform triple dots into ellipses.
 					 * - `'spaced'`: only transforms triple dots with spaces (e.g. `. . .`).
@@ -2119,7 +2119,7 @@ export interface AstroUserConfig<
 					 * @kind h4
 					 * @type {QuoteCharacterMap}
 					 * @default `{ double: '“', single: '‘' }`
-					 * @version 6.0.0
+					 * @version 6.1.0
 					 * @description
 					 * The specific characters to use for opening double and single quotes.
 					 */
@@ -2131,7 +2131,7 @@ export interface AstroUserConfig<
 					 * @kind h4
 					 * @type {QuoteCharacterMap}
 					 * @default `{ double: '”', single: '’' }`
-					 * @version 6.0.0
+					 * @version 6.1.0
 					 * @description
 					 * The specific characters to use for closing double and single quotes.
 					 */
