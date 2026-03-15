@@ -684,33 +684,47 @@ async function prepareForClientOnlyComponents(
 ) {
 	// Any client:only component on the next page?
 	if (newDocument.body.querySelector(`astro-island[client='only']`)) {
-		// Load the next page with an empty module loader cache
-		const nextPage = document.createElement('iframe');
-		// with srcdoc resolving imports does not work on webkit browsers
-		nextPage.src = toLocation.href;
-		nextPage.style.display = 'none';
-		document.body.append(nextPage);
-		// silence the iframe's console
-		// @ts-ignore
-		nextPage.contentWindow!.console = Object.keys(console).reduce((acc: any, key) => {
-			acc[key] = () => {};
-			return acc;
-		}, {});
-		await hydrationDone(nextPage);
+		// Loading the page in a hidden iframe can trigger Vite's dependency
+		// re-optimization on cold start, which broadcasts a full-reload to all
+		// connected HMR clients — including the main page. We suppress reload
+		// navigations during iframe loading using the Navigation API so the
+		// view transition is not interrupted.
+		const suppressReload = 'navigation' in window ? suppressViteReload() : undefined;
 
-		const nextHead = nextPage.contentDocument?.head;
-		if (nextHead) {
-			// Collect the vite ids of all styles present in the next head
-			const viteIds = [...nextHead.querySelectorAll(`style[${VITE_ID}]`)].map((style) =>
-				style.getAttribute(VITE_ID),
-			);
-			// Copy required styles to the new document if they are from hydration.
-			viteIds.forEach((id) => {
-				const style = nextHead.querySelector(`style[${VITE_ID}="${id}"]`);
-				if (style && !newDocument.head.querySelector(`style[${VITE_ID}="${id}"]`)) {
-					newDocument.head.appendChild(style.cloneNode(true));
-				}
-			});
+		let nextPage: HTMLIFrameElement | undefined;
+		try {
+			// Load the next page with an empty module loader cache
+			nextPage = document.createElement('iframe');
+			// with srcdoc resolving imports does not work on webkit browsers
+			nextPage.src = toLocation.href;
+			nextPage.style.display = 'none';
+			document.body.append(nextPage);
+			// silence the iframe's console
+			// @ts-ignore
+			nextPage.contentWindow!.console = Object.keys(console).reduce((acc: any, key) => {
+				acc[key] = () => {};
+				return acc;
+			}, {});
+			await hydrationDone(nextPage);
+
+			const nextHead = nextPage.contentDocument?.head;
+			if (nextHead) {
+				// Collect the vite ids of all styles present in the next head
+				const viteIds = [...nextHead.querySelectorAll(`style[${VITE_ID}]`)].map((style) =>
+					style.getAttribute(VITE_ID),
+				);
+				// Copy required styles to the new document if they are from hydration.
+				viteIds.forEach((id) => {
+					const style = nextHead.querySelector(`style[${VITE_ID}="${id}"]`);
+					if (style && !newDocument.head.querySelector(`style[${VITE_ID}="${id}"]`)) {
+						newDocument.head.appendChild(style.cloneNode(true));
+					}
+				});
+			}
+		} finally {
+			// Always clean up: remove the iframe and stop suppressing reloads
+			nextPage?.remove();
+			suppressReload?.stop();
 		}
 
 		// return a promise that resolves when all astro-islands are hydrated
@@ -730,4 +744,25 @@ async function prepareForClientOnlyComponents(
 			});
 		}
 	}
+}
+
+// Suppress Vite-triggered page reloads (e.g. from dependency re-optimization)
+// during view transitions by intercepting reload navigations via the Navigation API.
+// The reload is unnecessary because the view transition itself navigates to the new
+// page, which will load the freshly optimized dependencies.
+function suppressViteReload() {
+	const nav = (window as any).navigation;
+
+	function onNavigate(e: any) {
+		if (e.navigationType === 'reload' && e.canIntercept) {
+			e.intercept({ handler: () => Promise.resolve() });
+		}
+	}
+	nav.addEventListener('navigate', onNavigate);
+
+	return {
+		stop() {
+			nav.removeEventListener('navigate', onNavigate);
+		},
+	};
 }
