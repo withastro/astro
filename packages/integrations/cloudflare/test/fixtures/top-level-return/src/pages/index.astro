@@ -13,6 +13,10 @@ if (guard()) {
   return Astro.redirect("/404")
 }
 
+// Bare return (no value) — must not produce invalid `throw ;` syntax during dep scanning
+const source = "hello";
+if (!source) return;
+
 ---
 
 <html>

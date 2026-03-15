@@ -85,122 +85,143 @@ export async function generatePages(
 
 	const verb = ssr ? 'prerendering' : 'generating';
 	logger.info('SKIP_FORMAT', `\n${colors.bgGreen(colors.black(` ${verb} static routes `))}`);
-
-	// Get all static paths with their routes from the prerenderer
-	const pathsWithRoutes = await prerenderer.getStaticPaths();
 	const routeToHeaders: RouteToHeaders = new Map();
+	let staticImageList = getStaticImageList();
 
-	// Check if i18n domains are configured (incompatible with prerendering)
-	const hasI18nDomains =
-		ssr &&
-		options.settings.config.i18n?.domains &&
-		Object.keys(options.settings.config.i18n.domains).length > 0;
+	try {
+		// Get all static paths with their routes from the prerenderer
+		const pathsWithRoutes = await prerenderer.getStaticPaths();
 
-	// Filter paths for conflicts (same path from multiple routes)
-	const { config } = options.settings;
-	const builtPaths = new Set<string>();
-	const filteredPaths = pathsWithRoutes.filter(({ pathname, route }) => {
-		// i18n domains won't work with prerendered routes
-		if (hasI18nDomains && route.prerender) {
-			throw new AstroError({
-				...AstroErrorData.NoPrerenderedRoutesWithDomains,
-				message: AstroErrorData.NoPrerenderedRoutesWithDomains.message(route.component),
-			});
-		}
+		// Check if i18n domains are configured (incompatible with prerendering)
+		const hasI18nDomains =
+			ssr &&
+			options.settings.config.i18n?.domains &&
+			Object.keys(options.settings.config.i18n.domains).length > 0;
 
-		const normalized = removeTrailingForwardSlash(pathname);
+		// Filter paths for conflicts (same path from multiple routes)
+		const { config } = options.settings;
+		const builtPaths = new Set<string>();
+		const filteredPaths = pathsWithRoutes.filter(({ pathname, route }) => {
+			// i18n domains won't work with prerendered routes
+			if (hasI18nDomains && route.prerender) {
+				throw new AstroError({
+					...AstroErrorData.NoPrerenderedRoutesWithDomains,
+					message: AstroErrorData.NoPrerenderedRoutesWithDomains.message(route.component),
+				});
+			}
 
-		// Path hasn't been built yet, include it
-		if (!builtPaths.has(normalized)) {
-			builtPaths.add(normalized);
-			return true;
-		}
+			const normalized = removeTrailingForwardSlash(pathname);
 
-		// Path was already built. Check if this route has higher priority.
-		const matchedRoute = matchRoute(decodeURI(pathname), options.routesList);
-		if (!matchedRoute) {
-			return false;
-		}
+			// Path hasn't been built yet, include it
+			if (!builtPaths.has(normalized)) {
+				builtPaths.add(normalized);
+				return true;
+			}
 
-		if (matchedRoute === route) {
-			// Current route is higher-priority. Include it for building.
-			return true;
-		}
+			// Path was already built. Check if this route has higher priority.
+			const matchedRoute = matchRoute(decodeURI(pathname), options.routesList);
+			if (!matchedRoute) {
+				return false;
+			}
 
-		// Current route is lower-priority. Warn or error based on config.
-		if (config.prerenderConflictBehavior === 'error') {
-			throw new AstroError({
-				...AstroErrorData.PrerenderRouteConflict,
-				message: AstroErrorData.PrerenderRouteConflict.message(
+			if (matchedRoute === route) {
+				// Current route is higher-priority. Include it for building.
+				return true;
+			}
+
+			// Current route is lower-priority. Warn or error based on config.
+			if (config.prerenderConflictBehavior === 'error') {
+				throw new AstroError({
+					...AstroErrorData.PrerenderRouteConflict,
+					message: AstroErrorData.PrerenderRouteConflict.message(
+						matchedRoute.route,
+						route.route,
+						normalized,
+					),
+					hint: AstroErrorData.PrerenderRouteConflict.hint(matchedRoute.route, route.route),
+				});
+			} else if (config.prerenderConflictBehavior === 'warn') {
+				const msg = AstroErrorData.PrerenderRouteConflict.message(
 					matchedRoute.route,
 					route.route,
 					normalized,
-				),
-				hint: AstroErrorData.PrerenderRouteConflict.hint(matchedRoute.route, route.route),
-			});
-		} else if (config.prerenderConflictBehavior === 'warn') {
-			const msg = AstroErrorData.PrerenderRouteConflict.message(
-				matchedRoute.route,
-				route.route,
-				normalized,
-			);
-			logger.warn('build', msg);
-		}
+				);
+				logger.warn('build', msg);
+			}
 
-		return false;
-	});
+			return false;
+		});
 
-	// Generate each path
-	if (config.build.concurrency > 1) {
-		const limit = PLimit(config.build.concurrency);
-		// Process in batches to avoid V8's Promise.all element limit, which is around ~123k items
-		//
-		// NOTE: ideally we could consider an iterator to avoid the batching limitation
-		const BATCH_SIZE = 100_000;
-		for (let i = 0; i < filteredPaths.length; i += BATCH_SIZE) {
-			const batch = filteredPaths.slice(i, i + BATCH_SIZE);
-			const promises: Promise<void>[] = [];
-			for (const { pathname, route } of batch) {
-				promises.push(
-					limit(() =>
-						generatePathWithPrerenderer(
-							prerenderer,
-							pathname,
-							route,
-							options,
-							routeToHeaders,
-							logger,
+		// Generate each path
+		if (config.build.concurrency > 1) {
+			const limit = PLimit(config.build.concurrency);
+			// Process in batches to avoid V8's Promise.all element limit, which is around ~123k items
+			//
+			// NOTE: ideally we could consider an iterator to avoid the batching limitation
+			const BATCH_SIZE = 100_000;
+			for (let i = 0; i < filteredPaths.length; i += BATCH_SIZE) {
+				const batch = filteredPaths.slice(i, i + BATCH_SIZE);
+				const promises: Promise<void>[] = [];
+				for (const { pathname, route } of batch) {
+					promises.push(
+						limit(() =>
+							generatePathWithPrerenderer(
+								prerenderer,
+								pathname,
+								route,
+								options,
+								routeToHeaders,
+								logger,
+							),
 						),
-					),
+					);
+				}
+				await Promise.all(promises);
+			}
+		} else {
+			for (const { pathname, route } of filteredPaths) {
+				await generatePathWithPrerenderer(
+					prerenderer,
+					pathname,
+					route,
+					options,
+					routeToHeaders,
+					logger,
 				);
 			}
-			await Promise.all(promises);
 		}
-	} else {
-		for (const { pathname, route } of filteredPaths) {
-			await generatePathWithPrerenderer(
-				prerenderer,
-				pathname,
-				route,
-				options,
-				routeToHeaders,
-				logger,
-			);
+
+		// After generation, propagate distURL from the deserialized routes (used during generation)
+		// back to the original routes in allPages. The prerenderer operates on deserialized route
+		// objects (reconstructed from the serialized manifest), so distURL mutations during generation
+		// don't affect the original route objects that are later passed to the astro:build:done hook.
+		for (const { route: generatedRoute } of filteredPaths) {
+			if (generatedRoute.distURL && generatedRoute.distURL.length > 0) {
+				for (const pageData of Object.values(options.allPages)) {
+					if (
+						pageData.route.route === generatedRoute.route &&
+						pageData.route.component === generatedRoute.component
+					) {
+						pageData.route.distURL = generatedRoute.distURL;
+						break;
+					}
+				}
+			}
 		}
+
+		// Must happen before teardown since collectStaticImages fetches from the prerender server
+		staticImageList = getStaticImageList();
+		if (prerenderer.collectStaticImages) {
+			const adapterImages = await prerenderer.collectStaticImages();
+			for (const [path, entry] of adapterImages) {
+				staticImageList.set(path, entry);
+			}
+		}
+	} finally {
+		// Always teardown to avoid leaking adapter resources when generation fails.
+		await prerenderer.teardown?.();
 	}
 
-	const staticImageList = getStaticImageList();
-
-	// Must happen before teardown since collectStaticImages fetches from the prerender server
-	if (prerenderer.collectStaticImages) {
-		const adapterImages = await prerenderer.collectStaticImages();
-		for (const [path, entry] of adapterImages) {
-			staticImageList.set(path, entry);
-		}
-	}
-
-	// Teardown the prerenderer
-	await prerenderer.teardown?.();
 	logger.info(
 		null,
 		colors.green(`✓ Completed in ${getTimeStat(generatePagesTimer, performance.now())}.\n`),
@@ -520,7 +541,11 @@ function getUrlForPath(
 	}
 	let buildPathname: string;
 	if (pathname === '/' || pathname === '') {
-		buildPathname = collapseDuplicateTrailingSlashes(base + ending, trailingSlash !== 'never');
+		if (format === 'file') {
+			buildPathname = joinPaths(base, 'index.html');
+		} else {
+			buildPathname = collapseDuplicateTrailingSlashes(base + ending, trailingSlash !== 'never');
+		}
 	} else if (routeType === 'endpoint') {
 		const buildPathRelative = removeLeadingForwardSlash(pathname);
 		buildPathname = joinPaths(base, buildPathRelative);

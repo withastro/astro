@@ -664,9 +664,6 @@ export default function netlifyIntegration(
 								cacheOnDemandPages: !!integrationConfig?.cacheOnDemandPages,
 							}),
 						],
-						ssr: {
-							noExternal: ['@astrojs/netlify'],
-						},
 						server: {
 							watch: {
 								ignored: [fileURLToPath(new URL('./.netlify/**', rootDir))],
@@ -678,7 +675,8 @@ export default function netlifyIntegration(
 							// defaults to true, so should only be disabled if the user has
 							// explicitly set false
 							entrypoint:
-								(command === 'build' && integrationConfig?.imageCDN === false) ||
+								integrationConfig?.imageCDN === false ||
+								// In dev, if the vite plugin's image proxy isn't enabled, don't try to use the Netlify service since it won't work
 								(command === 'dev' && vitePluginOptions?.images?.enabled === false)
 									? undefined
 									: '@astrojs/netlify/image-service.js',

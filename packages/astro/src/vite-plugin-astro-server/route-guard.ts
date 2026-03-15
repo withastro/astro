@@ -68,12 +68,18 @@ export function routeGuardMiddleware(settings: AstroSettings): vite.Connect.Next
 			return next();
 		}
 
-		// Check if the file exists at project root (outside srcDir/publicDir)
+		// Check if a file exists at project root (outside srcDir/publicDir)
+		// Only block files, not directories — directories may share names with valid page routes
 		const rootFilePath = new URL('.' + pathname, config.root);
-		if (fs.existsSync(rootFilePath)) {
-			// File exists at root but not in srcDir or publicDir - block it
-			const html = notFoundTemplate(pathname);
-			return writeHtmlResponse(res, 404, html);
+		try {
+			const stat = fs.statSync(rootFilePath);
+			if (stat.isFile()) {
+				// File exists at root but not in srcDir or publicDir - block it
+				const html = notFoundTemplate(pathname);
+				return writeHtmlResponse(res, 404, html);
+			}
+		} catch {
+			// Path doesn't exist, continue to next middleware
 		}
 
 		// File doesn't exist anywhere, let other middleware handle it

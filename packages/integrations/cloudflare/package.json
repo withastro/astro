@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/cloudflare",
   "description": "Deploy your site to Cloudflare Workers",
-  "version": "13.0.0-beta.14",
+  "version": "13.1.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -25,6 +25,7 @@
     "./entrypoints/server.js": "./dist/entrypoints/server.js",
     "./image-service": "./dist/entrypoints/image-service-external.js",
     "./image-transform-endpoint": "./dist/entrypoints/image-transform-endpoint.js",
+    "./image-passthrough-endpoint": "./dist/entrypoints/image-passthrough-endpoint.js",
     "./image-service-workerd": "./dist/entrypoints/image-service-workerd.js",
     "./handler": "./dist/utils/handler.js",
     "./types.d.ts": "./types.d.ts",
