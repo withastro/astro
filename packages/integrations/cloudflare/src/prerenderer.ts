@@ -118,6 +118,14 @@ export function createCloudflarePrerenderer({
 				body: JSON.stringify(body),
 			});
 
+			if (!response.ok) {
+				const text = await response.text();
+				const details = text ? `\n${text}` : '';
+				throw new Error(
+					`Failed to prerender ${request.url} from the Cloudflare prerender server (${response.status}: ${response.statusText}).${details}`,
+				);
+			}
+
 			return response;
 		},
 
