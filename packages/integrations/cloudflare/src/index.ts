@@ -13,6 +13,7 @@ import {
 	setImageConfig,
 } from './utils/image-config.js';
 import { createConfigPlugin } from './vite-plugin-config.js';
+import { createNodePrerenderPlugin } from './vite-plugin-dev-server-prerender-middleware.js';
 import {
 	cloudflareConfigCustomizer,
 	DEFAULT_SESSION_KV_BINDING_NAME,
@@ -46,6 +47,25 @@ function usesCloudflareKVSessionDriver(session: AstroConfig['session']): boolean
 
 export type { Runtime } from './utils/handler.js';
 
+function hasContentCollectionsConfig(srcDir: URL) {
+	const contentConfigPaths = [
+		'content.config.mjs',
+		'content.config.js',
+		'content.config.mts',
+		'content.config.ts',
+		'content/config.mjs',
+		'content/config.js',
+		'content/config.mts',
+		'content/config.ts',
+		'live.config.mjs',
+		'live.config.js',
+		'live.config.mts',
+		'live.config.ts',
+	];
+
+	return contentConfigPaths.some((configPath) => existsSync(new URL(`./${configPath}`, srcDir)));
+}
+
 export interface Options
 	extends Pick<
 		PluginConfig,
@@ -76,6 +96,14 @@ export interface Options
 	 */
 	imagesBindingName?: string;
 
+	/**
+	 * Controls which runtime is used for prerendering static pages at build time.
+	 *
+	 * - `'workerd'` (default): Uses Cloudflare's workerd runtime.
+	 * - `'node'`: Uses Astro's default node prerender environment.
+	 */
+	prerenderEnvironment?: 'workerd' | 'node';
+
 	experimental?: Pick<
 		NonNullable<PluginConfig['experimental']>,
 		'headersAndRedirectsDevModeSupport'
@@ -86,6 +114,7 @@ export default function createIntegration({
 	imageService,
 	sessionKVBindingName = DEFAULT_SESSION_KV_BINDING_NAME,
 	imagesBindingName = DEFAULT_IMAGES_BINDING_NAME,
+	prerenderEnvironment = 'workerd',
 	...cloudflareOptions
 }: Options = {}): AstroIntegration {
 	let _config: AstroConfig;
@@ -138,6 +167,8 @@ export default function createIntegration({
 				// (the image-transform-endpoint uses it). At build time,
 				// `compile` uses Sharp on the Node side instead.
 				const needsImagesBindingForDev = isCompile && command === 'dev';
+				const usesContentCollections = hasContentCollectionsConfig(config.srcDir);
+				const prebundleContentRuntime = command === 'dev' && usesContentCollections;
 
 				cfPluginConfig = {
 					config: cloudflareConfigCustomizer({
@@ -146,20 +177,22 @@ export default function createIntegration({
 						imagesBindingName:
 							needsImagesBinding || needsImagesBindingForDev ? imagesBindingName : false,
 					}),
-					experimental: {
-						prerenderWorker: {
-							config(_, { entryWorkerConfig }) {
-								return {
-									...entryWorkerConfig,
-									name: 'prerender',
-									...(needsImagesBinding &&
-										!entryWorkerConfig.images && {
-											images: { binding: imagesBindingName },
-										}),
-								};
+					...(prerenderEnvironment === 'workerd' && {
+						experimental: {
+							prerenderWorker: {
+								config(_, { entryWorkerConfig }) {
+									return {
+										...entryWorkerConfig,
+										name: 'prerender',
+										...(needsImagesBinding &&
+											!entryWorkerConfig.images && {
+												images: { binding: imagesBindingName },
+											}),
+									};
+								},
 							},
 						},
-					},
+					}),
 				};
 
 				// The preview entrypoint uses Cloudflare's vite plugin and so it needs access
@@ -175,6 +208,9 @@ export default function createIntegration({
 					session,
 					vite: {
 						plugins: [
+							...(prerenderEnvironment === 'node' && command === 'dev'
+								? [createNodePrerenderPlugin()]
+								: []),
 							cfVitePlugin({
 								...cloudflareOptions,
 								...cfPluginConfig,
@@ -202,6 +238,7 @@ export default function createIntegration({
 										return {
 											optimizeDeps: {
 												include: [
+													'@astrojs/cloudflare/image-service-workerd',
 													'astro',
 													'astro/runtime/**',
 													'astro > html-escaper',
@@ -219,8 +256,14 @@ export default function createIntegration({
 													'astro > picomatch',
 													'astro/app',
 													'astro/assets',
+													'astro/assets/runtime',
+													'astro/assets/utils/inferRemoteSize.js',
+													'astro/assets/fonts/runtime.js',
+													...(prebundleContentRuntime ? (['astro/content/runtime'] as const) : []),
 													'astro/compiler-runtime',
+													'astro/jsx-runtime',
 													'astro/app/entrypoint/dev',
+													'astro/virtual-modules/middleware.js',
 												],
 												exclude: [
 													'unstorage/drivers/cloudflare-kv-binding',
@@ -344,17 +387,19 @@ export default function createIntegration({
 				}
 			},
 			'astro:build:start': ({ setPrerenderer }) => {
-				setPrerenderer(
-					createCloudflarePrerenderer({
-						root: _config.root,
-						serverDir: _config.build.server,
-						clientDir: _config.build.client,
-						base: _config.base,
-						trailingSlash: _config.trailingSlash,
-						cfPluginConfig,
-						hasCompileImageService: buildService === 'compile',
-					}),
-				);
+				if (prerenderEnvironment === 'workerd') {
+					setPrerenderer(
+						createCloudflarePrerenderer({
+							root: _config.root,
+							serverDir: _config.build.server,
+							clientDir: _config.build.client,
+							base: _config.base,
+							trailingSlash: _config.trailingSlash,
+							cfPluginConfig,
+							hasCompileImageService: buildService === 'compile',
+						}),
+					);
+				}
 			},
 			'astro:build:setup': ({ vite, target }) => {
 				if (target === 'server') {
