@@ -3,15 +3,16 @@ import { fileExtension, joinPaths, prependForwardSlash, slash } from '../../core
 import type { SSRElement } from '../../types/public/internal.js';
 import type { AssetsPrefix, StylesheetAsset } from '../app/types.js';
 
+const URL_PARSE_BASE = 'https://astro.build';
+
 function splitAssetPath(path: string): { pathname: string; suffix: string } {
-	const queryOrHashIndex = path.search(/[?#]/);
-	if (queryOrHashIndex === -1) {
-		return { pathname: path, suffix: '' };
-	}
+	const parsed = new URL(path, URL_PARSE_BASE);
+	const isAbsolute = URL.canParse(path);
+	const pathname = !isAbsolute && !path.startsWith('/') ? parsed.pathname.slice(1) : parsed.pathname;
 
 	return {
-		pathname: path.slice(0, queryOrHashIndex),
-		suffix: path.slice(queryOrHashIndex),
+		pathname,
+		suffix: `${parsed.search}${parsed.hash}`,
 	};
 }
 
