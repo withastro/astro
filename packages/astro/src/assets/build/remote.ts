@@ -53,12 +53,13 @@ export async function revalidateRemoteImage(
 	const req = new Request(src, { headers, cache: 'no-cache' });
 	const res = await fetch(req, { redirect: 'manual' });
 
-	if (res.status >= 300 && res.status < 400) {
-		throw new Error(`Failed to revalidate cached remote image ${src}. The request was redirected.`);
-	}
-
-	// Asset not modified: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/304
+	// Allow 304 Not Modified: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/304
 	if (!res.ok && res.status !== 304) {
+		if (res.status >= 300 && res.status < 400) {
+			throw new Error(
+				`Failed to revalidate cached remote image ${src}. The request was redirected.`,
+			);
+		}
 		throw new Error(
 			`Failed to revalidate cached remote image ${src}. The request did not return a 200 OK / 304 NOT MODIFIED response. (received ${res.status} ${res.statusText})`,
 		);
