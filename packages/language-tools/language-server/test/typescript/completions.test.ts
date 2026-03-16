@@ -137,10 +137,7 @@ describe('TypeScript - Completions', async () => {
 
 		for (const { content, position } of documents) {
 			const document = await languageServer.openFakeDocument(content, 'astro');
-			const completions = await languageServer.handle.sendCompletionRequest(
-				document.uri,
-				position,
-			);
+			const completions = await languageServer.handle.sendCompletionRequest(document.uri, position);
 
 			const allLabels = completions?.items.map((item) => item.label);
 			assert.ok(allLabels);
