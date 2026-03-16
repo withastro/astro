@@ -1,0 +1,6 @@
+---
+// Server island that verifies it runs in the workerd runtime (not Node)
+// by checking for Astro.request.cf which is only available in workerd
+const hasCf = !!Astro.request.cf;
+---
+<p id="island-has-cf">{String(hasCf)}</p>

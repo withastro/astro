@@ -69,6 +69,30 @@ describe('prerenderEnvironment: node', () => {
 		);
 	});
 
+	it('serves server islands through workerd runtime (not Node prerender env)', async () => {
+		const res = await fixture.fetch('/');
+		assert.equal(res.status, 200);
+		const html = await res.text();
+
+		// Find the workerd island fetch URL
+		const islandUrls = [...html.matchAll(/fetch\('(\/_server-islands\/[^']+)'/g)];
+		// Find the WorkerdIsland URL (second server island on the page)
+		const workerdIslandUrl = islandUrls.find((m) => m[1].includes('WorkerdIsland'));
+		assert.ok(workerdIslandUrl, 'Expected prerendered HTML to include a WorkerdIsland fetch URL');
+
+		const islandRes = await fixture.fetch(workerdIslandUrl[1]);
+		assert.equal(islandRes.status, 200, 'Expected WorkerdIsland endpoint to return 200');
+		const islandHtml = await islandRes.text();
+		assert.ok(
+			islandHtml.includes('id="island-has-cf"'),
+			'Expected WorkerdIsland response to include island-has-cf element',
+		);
+		assert.ok(
+			islandHtml.includes('>true<'),
+			'Expected server island to have access to Astro.request.cf (runs in workerd, not Node)',
+		);
+	});
+
 	it('renders SSR page through workerd with Astro.request.cf', async () => {
 		const res = await fixture.fetch('/ssr');
 		assert.equal(res.status, 200);
