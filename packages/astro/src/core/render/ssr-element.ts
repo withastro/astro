@@ -3,23 +3,50 @@ import { fileExtension, joinPaths, prependForwardSlash, slash } from '../../core
 import type { SSRElement } from '../../types/public/internal.js';
 import type { AssetsPrefix, StylesheetAsset } from '../app/types.js';
 
+function splitAssetPath(path: string): { pathname: string; suffix: string } {
+	const queryOrHashIndex = path.search(/[?#]/);
+	if (queryOrHashIndex === -1) {
+		return { pathname: path, suffix: '' };
+	}
+
+	return {
+		pathname: path.slice(0, queryOrHashIndex),
+		suffix: path.slice(queryOrHashIndex),
+	};
+}
+
+function appendQueryParams(path: string, queryParams: URLSearchParams): string {
+	const queryString = queryParams.toString();
+	if (!queryString) {
+		return path;
+	}
+
+	const hashIndex = path.indexOf('#');
+	const basePath = hashIndex === -1 ? path : path.slice(0, hashIndex);
+	const hash = hashIndex === -1 ? '' : path.slice(hashIndex);
+	const separator = basePath.includes('?') ? '&' : '?';
+
+	return `${basePath}${separator}${queryString}${hash}`;
+}
+
 export function createAssetLink(
 	href: string,
 	base?: string,
 	assetsPrefix?: AssetsPrefix,
 	queryParams?: URLSearchParams,
 ): string {
+	const { pathname, suffix } = splitAssetPath(href);
 	let url = '';
 	if (assetsPrefix) {
-		const pf = getAssetsPrefix(fileExtension(href), assetsPrefix);
-		url = joinPaths(pf, slash(href));
+		const pf = getAssetsPrefix(fileExtension(pathname), assetsPrefix);
+		url = joinPaths(pf, slash(pathname)) + suffix;
 	} else if (base) {
-		url = prependForwardSlash(joinPaths(base, slash(href)));
+		url = prependForwardSlash(joinPaths(base, slash(pathname))) + suffix;
 	} else {
 		url = href;
 	}
 	if (queryParams) {
-		url += '?' + queryParams.toString();
+		url = appendQueryParams(url, queryParams);
 	}
 	return url;
 }
