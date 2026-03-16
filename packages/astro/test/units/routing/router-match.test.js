@@ -317,4 +317,28 @@ describe('Router.match', () => {
 			assert.equal(match.status, 301);
 		}
 	});
+
+	it('matches dynamic routes with .html extension', () => {
+    const trailingSlash = 'ignore';
+    const routes = [
+      makeRoute({
+        segments: [[dynamicPart('slug'), staticPart('.html')]],
+        trailingSlash,
+        route: '/[slug].html',
+        pathname: undefined,
+      }),
+    ];
+
+    const router = new Router(routes, {
+      base: '/',
+      trailingSlash,
+      buildFormat: 'directory',
+    });
+
+    const match = router.match('/hoge.html');
+
+    assert.equal(match.type, 'match');
+    assert.equal(match.route.route, '/[slug].html');
+    assert.deepEqual(match.params, { slug: 'hoge' });
+  });
 });
