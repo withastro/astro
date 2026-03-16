@@ -294,10 +294,11 @@ export default function createIntegration({
 							{
 								enforce: 'post',
 								name: '@astrojs/cloudflare:cf-externals',
-								applyToEnvironment: (environment) => environment.name === 'ssr',
+								applyToEnvironment: (environment) =>
+									environment.name === 'ssr' || environment.name === 'prerender',
 								config(conf) {
 									if (conf.ssr) {
-										// Cloudflare does not support externalizing modules in the ssr environment
+										// Cloudflare does not support externalizing modules in server environments
 										conf.ssr.external = undefined;
 										conf.ssr.noExternal = true;
 									}
