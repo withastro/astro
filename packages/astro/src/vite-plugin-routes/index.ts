@@ -79,11 +79,13 @@ export default async function astroPluginRoutes({
 		},
 	);
 
+	const normalizedSrcDir = normalizePath(fileURLToPath(settings.config.srcDir));
+
 	async function rebuildRoutes(path: string | null = null, server: ViteDevServer) {
-		if (path != null && path.startsWith(settings.config.srcDir.pathname)) {
+		if (path != null && normalizePath(path).startsWith(normalizedSrcDir)) {
 			logger.debug(
 				'update',
-				`Re-calculating routes for ${path.slice(settings.config.srcDir.pathname.length)}`,
+				`Re-calculating routes for ${normalizePath(path).slice(normalizedSrcDir.length)}`,
 			);
 			const file = pathToFileURL(normalizePath(path));
 			const newRoutesList = await createRoutesList(
