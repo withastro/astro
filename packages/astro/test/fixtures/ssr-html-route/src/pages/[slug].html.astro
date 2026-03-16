@@ -1,0 +1,10 @@
+---
+// URL: /dummy.html にアクセスすると slug が "dummy" になることを期待
+const { slug } = Astro.params;
+---
+<html>
+  <head><title>Dynamic HTML Route</title></head>
+  <body>
+    <div>Slug: {slug}</div>
+  </body>
+</html>

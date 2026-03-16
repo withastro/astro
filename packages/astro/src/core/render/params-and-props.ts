@@ -88,15 +88,19 @@ export function getParams(route: RouteData, pathname: string): Params {
 	// The RegExp pattern expects a decoded string, but the pathname is encoded
 	// when the URL contains non-English characters.
 	let path = pathname;
-	// The path could contain `.html` at the end. We remove it so we can correctly the parameters
-	// with the generated keyed parameters.
-	if (pathname.endsWith('.html')) {
-		path = path.slice(0, -5);
-	}
+	// The path could contain `.html` at the end. We remove it for standard routes
+	// to match parameters correctly, but we keep it if the route explicitly 
+	// targets `.html` files (e.g. [slug].html.astro) to ensure correct extraction.
+	let paramsMatch =
+    route.pattern.exec(path) ||
+    route.fallbackRoutes.map((fallbackRoute) => fallbackRoute.pattern.exec(path)).find((x) => x);
 
-	const paramsMatch =
-		route.pattern.exec(path) ||
-		route.fallbackRoutes.map((fallbackRoute) => fallbackRoute.pattern.exec(path)).find((x) => x);
+  if (!paramsMatch && pathname.endsWith('.html')) {
+    path = pathname.slice(0, -5);
+    paramsMatch =
+      route.pattern.exec(path) ||
+      route.fallbackRoutes.map((fallbackRoute) => fallbackRoute.pattern.exec(path)).find((x) => x);
+  }
 	if (!paramsMatch) return {};
 	const params: Params = {};
 	route.params.forEach((key, i) => {

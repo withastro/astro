@@ -1,0 +1,9 @@
+{
+  "name": "ssr-html-route",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "astro": "workspace:*",
+    "@astrojs/node": "workspace:*"
+  }
+}
