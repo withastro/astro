@@ -62,7 +62,7 @@ describe('Cloudflare server island prerender dependencies', () => {
 			assert.equal(pageRes.status, 200);
 			const pageHtml = await pageRes.text();
 
-			const islandUrlMatch = pageHtml.match(/fetch\((["'])(\/_server-islands\/[^"']+)\1/);
+			const islandUrlMatch = /fetch\((["'])(\/_server-islands\/[^"']+)\1/.exec(pageHtml);
 			assert.ok(
 				islandUrlMatch,
 				`Expected prerendered HTML to include server island fetch URL, got:\n${pageHtml}`,
