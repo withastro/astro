@@ -1,5 +1,11 @@
 # @astrojs/preact
 
+## 5.0.1
+
+### Patch Changes
+
+- [#15881](https://github.com/withastro/astro/pull/15881) [`de2860c`](https://github.com/withastro/astro/commit/de2860c88c8ce500f8f747df770d3b8cc2d3c1c6) Thanks [@matthewp](https://github.com/matthewp)! - Fix `useId()` collisions across multiple Astro islands by seeding a unique per-island root mask for Preact SSR and hydration.
+
 ## 5.0.0
 
 ### Major Changes
