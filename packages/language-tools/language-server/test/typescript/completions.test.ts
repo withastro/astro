@@ -122,4 +122,29 @@ describe('TypeScript - Completions', async () => {
 		const allLabels = completions?.items.map((item) => item.label);
 		assert.ok(allLabels.includes('alert'));
 	});
+
+	it('Can get completions inside HTML attribute expressions', async () => {
+		const documents = [
+			{
+				content: '---\nconst something = "Hello";\n---\n\n<a href={some}>Click here</a>',
+				position: Position.create(4, 13),
+			},
+			{
+				content: '---\nconst something = "Hello";\n---\n\n<img alt={some} />',
+				position: Position.create(4, 12),
+			},
+		];
+
+		for (const { content, position } of documents) {
+			const document = await languageServer.openFakeDocument(content, 'astro');
+			const completions = await languageServer.handle.sendCompletionRequest(
+				document.uri,
+				position,
+			);
+
+			const allLabels = completions?.items.map((item) => item.label);
+			assert.ok(allLabels);
+			assert.ok(allLabels.includes('something'));
+		}
+	});
 });
