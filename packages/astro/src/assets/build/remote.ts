@@ -53,7 +53,7 @@ export async function revalidateRemoteImage(
 	const req = new Request(src, { headers, cache: 'no-cache' });
 	const res = await fetch(req, { redirect: 'manual' });
 
-	if (res.status >= 300 && res.status < 400) {
+	if (res.status >= 300 && res.status < 400 && res.status !== 304) {
 		throw new Error(`Failed to revalidate cached remote image ${src}. The request was redirected.`);
 	}
 
