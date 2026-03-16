@@ -5076,6 +5076,21 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/cloudflare/test/fixtures/server-island-prerender-framework:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      '@astrojs/solid-js':
+        specifier: ^5.1.3
+        version: 5.1.3(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.97.3)(solid-js@1.9.11)(tsx@4.21.0)(yaml@2.8.2)
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+      solid-js:
+        specifier: ^1.9.11
+        version: 1.9.11
+
   packages/integrations/cloudflare/test/fixtures/sessions:
     dependencies:
       '@astrojs/cloudflare':

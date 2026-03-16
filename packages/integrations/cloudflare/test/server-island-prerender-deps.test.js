@@ -43,4 +43,42 @@ describe('Cloudflare server island prerender dependencies', () => {
 			`Server island chunk should not keep bare devalue imports:\n${islandChunkCode}`,
 		);
 	});
+
+	it('renders framework components in prerender-only server islands', async () => {
+		const fixture = await loadFixture({
+			root: './fixtures/server-island-prerender-framework/',
+		});
+
+		await fixture.build();
+		const previewServer = await fixture.preview({
+			server: {
+				host: '127.0.0.1',
+				port: 48081,
+			},
+		});
+
+		try {
+			const pageRes = await fixture.fetch('/');
+			assert.equal(pageRes.status, 200);
+			const pageHtml = await pageRes.text();
+
+			const islandUrlMatch = pageHtml.match(/fetch\((["'])(\/_server-islands\/[^"']+)\1/);
+			assert.ok(
+				islandUrlMatch,
+				`Expected prerendered HTML to include server island fetch URL, got:\n${pageHtml}`,
+			);
+
+			const islandRes = await fixture.fetch(islandUrlMatch[2]);
+			assert.equal(islandRes.status, 200);
+			const islandHtml = await islandRes.text();
+
+			assert.ok(
+				islandHtml.includes('id="framework-content"'),
+				`Expected framework content in server island response, got:\n${islandHtml}`,
+			);
+		} finally {
+			await previewServer.stop();
+			await fixture.clean();
+		}
+	});
 });
