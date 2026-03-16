@@ -89,9 +89,10 @@ export function createCloudflarePrerenderer({
 			});
 
 			if (!response.ok) {
+				const body = await response.text();
+				const details = body ? `\n${body}` : '';
 				throw new Error(
-					`Failed to get static paths from the Cloudflare prerender server (${response.status}: ${response.statusText}). ` +
-						'This is likely a bug in @astrojs/cloudflare. Please file an issue at https://github.com/withastro/astro/issues',
+					`Failed to get static paths from the Cloudflare prerender server (${response.status}: ${response.statusText}).${details}`,
 				);
 			}
 
@@ -128,8 +129,10 @@ export function createCloudflarePrerenderer({
 					});
 
 					if (!response.ok) {
+						const body = await response.text();
+						const details = body ? `\n${body}` : '';
 						throw new Error(
-							`Failed to get static images from the Cloudflare prerender server (${response.status}: ${response.statusText}).`,
+							`Failed to get static images from the Cloudflare prerender server (${response.status}: ${response.statusText}).${details}`,
 						);
 					}
 

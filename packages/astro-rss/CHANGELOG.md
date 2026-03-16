@@ -1,5 +1,11 @@
 # @astrojs/rss
 
+## 4.0.17
+
+### Patch Changes
+
+- [#15830](https://github.com/withastro/astro/pull/15830) [`8d3f3aa`](https://github.com/withastro/astro/commit/8d3f3aa1fdefebc22bb45de26591d3ec3d6da580) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Pin `fast-xml-parser` to 5.4.1 in order to fix an upstream bug
+
 ## 4.0.16
 
 ### Patch Changes
