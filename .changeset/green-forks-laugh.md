@@ -1,4 +1,6 @@
+---
 '@astrojs/language-server': patch
+'astro-vscode': patch
 ---
 
-Fix completions in HTML attribute expressions like `href={value}` by deferring those positions to the TypeScript service.
+Fixes completions sometimes not working inside the `href` attribute
