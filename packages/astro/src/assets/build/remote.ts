@@ -40,7 +40,7 @@ export async function loadRemoteImage(src: string) {
  * The remote server may respond that the cached asset is still up-to-date if the entity-tag or modification time matches (304 Not Modified), or respond with an updated asset (200 OK)
  * @param src - url to remote asset
  * @param revalidationData - an object containing the stored Entity-Tag of the cached asset and/or the Last Modified time
- * @returns An ImageData object containing the asset data, a new expiry time, and the asset's etag. The data buffer will be empty if the asset was not modified.
+ * @returns An object containing the refreshed expiry time and cache headers. `data` will be a `Buffer` of the new image if the asset was modified (200 OK), or `null` if the cached version is still valid (304 Not Modified).
  */
 export async function revalidateRemoteImage(
 	src: string,
@@ -77,12 +77,12 @@ export async function revalidateRemoteImage(
 		webToCachePolicyRequest(req),
 		webToCachePolicyResponse(
 			res.ok ? res : new Response(null, { status: 200, headers: res.headers }),
-		), // 304 responses themselves are not cacheable, so just pretend to get the refreshed TTL
+		), // 304 responses are not cacheable, so just use its headers to get the refreshed TTL
 	);
 	const expires = policy.storable() ? policy.timeToLive() : 0;
 
 	return {
-		data,
+		data: res.ok ? data : null,
 		expires: Date.now() + expires,
 		// While servers should respond with the same headers as a 200 response, if they don't we should reuse the stored value
 		etag: res.headers.get('Etag') ?? (res.ok ? undefined : revalidationData.etag),
