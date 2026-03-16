@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Asset cache revalidation refactor
+Fix cached assets failing to revalidate due to redirect check mishandling Not Modified responses.
