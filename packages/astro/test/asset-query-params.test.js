@@ -188,3 +188,71 @@ describe('Asset Query Parameters with Islands and assetsPrefix map', () => {
 		);
 	});
 });
+
+describe('Asset Query Parameters in inter-chunk JS imports', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/asset-query-params-chunks/',
+			output: 'server',
+			adapter: testAdapter({
+				extendAdapter: {
+					client: {
+						assetQueryParams: new URLSearchParams({ dpl: 'test-deploy-id' }),
+					},
+				},
+			}),
+		});
+		await fixture.build();
+	});
+
+	it('appends assetQueryParams to hoisted script src in rendered HTML', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const response = await app.render(new Request('http://example.com/'));
+		assert.equal(response.status, 200);
+		const html = await response.text();
+		const $ = cheerio.load(html);
+		const scripts = $('script[type="module"][src]');
+		assert.ok(scripts.length > 0, 'Should have at least one module script');
+		scripts.each((_i, el) => {
+			const src = $(el).attr('src');
+			assert.match(
+				src,
+				/\?dpl=test-deploy-id/,
+				`Hoisted script src should include assetQueryParams: ${src}`,
+			);
+		});
+	});
+
+	it('appends assetQueryParams to relative JS import specifiers inside chunks', async () => {
+		// Find all JS files in the client output
+		const jsFiles = await fixture.glob('client/_astro/**/*.js');
+		assert.ok(jsFiles.length > 0, 'Should have at least one JS file in client output');
+
+		let foundRelativeImport = false;
+		for (const jsFile of jsFiles) {
+			const code = await fixture.readFile(jsFile);
+			// Check for relative imports: from"./something.js" or import("./something.js")
+			const relativeImportMatches = code.match(/from\s*["'](\.\/[^"']+\.js[^"']*)["']/g) || [];
+			const dynamicImportMatches =
+				code.match(/import\(\s*["'](\.\/[^"']+\.js[^"']*)["']\s*\)/g) || [];
+			const allImports = [...relativeImportMatches, ...dynamicImportMatches];
+
+			for (const imp of allImports) {
+				foundRelativeImport = true;
+				assert.match(
+					imp,
+					/\?dpl=test-deploy-id/,
+					`Relative JS import should include assetQueryParams: ${imp} (in ${jsFile})`,
+				);
+			}
+		}
+
+		assert.ok(
+			foundRelativeImport,
+			'Should have found at least one relative JS import in client chunks (needed for code-splitting test)',
+		);
+	});
+});

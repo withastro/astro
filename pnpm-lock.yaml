@@ -1937,6 +1937,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/asset-query-params-chunks:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/asset-url-base:
     dependencies:
       astro:
@@ -7157,6 +7163,15 @@ importers:
       tsconfck:
         specifier: ^3.1.6
         version: 3.1.6(typescript@5.9.3)
+
+  triage/gh-15964:
+    dependencies:
+      '@astrojs/vercel':
+        specifier: workspace:*
+        version: link:../../packages/integrations/vercel
+      astro:
+        specifier: workspace:*
+        version: link:../../packages/astro
 
 packages:
 

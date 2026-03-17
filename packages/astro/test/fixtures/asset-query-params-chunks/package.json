@@ -1,0 +1,7 @@
+{
+  "name": "@test/asset-query-params-chunks",
+  "private": true,
+  "dependencies": {
+    "astro": "workspace:*"
+  }
+}

@@ -12,6 +12,7 @@ import { pluginPrerender } from './plugin-prerender.js';
 import { pluginScripts } from './plugin-scripts.js';
 import { pluginSSR } from './plugin-ssr.js';
 import { pluginNoop } from './plugin-noop.js';
+import { pluginChunkAssetQueryParams } from './plugin-chunk-asset-query-params.js';
 import { vitePluginSSRAssets } from '../vite-plugin-ssr-assets.js';
 
 export function getAllBuildPlugins(
@@ -30,6 +31,7 @@ export function getAllBuildPlugins(
 		pluginScripts(internals),
 		...pluginSSR(options, internals),
 		pluginNoop(),
+		pluginChunkAssetQueryParams(options),
 		vitePluginSSRAssets(internals),
 	].filter(Boolean);
 }
