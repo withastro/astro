@@ -118,8 +118,7 @@ export function getTemplateTarget(tmpl: string, ref = 'latest') {
 	}
 
 	// Handle third-party templates
-	const isThirdParty = tmpl.includes('/');
-	if (isThirdParty) return tmpl;
+	if (isThirdPartyTemplate(tmpl)) return tmpl;
 
 	// Handle Astro templates
 	if (ref === 'latest') {
@@ -130,6 +129,11 @@ export function getTemplateTarget(tmpl: string, ref = 'latest') {
 	} else {
 		return `github:withastro/astro/examples/${tmpl}#${ref}`;
 	}
+}
+
+export function isThirdPartyTemplate(tmpl: string) {
+	if (tmpl.startsWith('starlight')) return false;
+	return tmpl.includes('/');
 }
 
 async function copyTemplate(tmpl: string, ctx: Context) {

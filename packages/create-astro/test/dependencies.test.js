@@ -20,6 +20,36 @@ describe('dependencies', () => {
 		assert.ok(fixture.hasMessage('Skipping dependency installation'));
 	});
 
+	it('--yes with third-party template warns', async () => {
+		const context = {
+			cwd: '',
+			yes: true,
+			template: 'github:someone/starter',
+			packageManager: 'npm',
+			dryRun: true,
+			prompt: () => ({ deps: true }),
+		};
+
+		await dependencies(context);
+
+		assert.ok(fixture.hasMessage('Third-party template detected'));
+	});
+
+	it('does not warn without --yes', async () => {
+		const context = {
+			cwd: '',
+			install: true,
+			template: 'github:someone/starter',
+			packageManager: 'npm',
+			dryRun: true,
+			prompt: () => ({ deps: true }),
+		};
+
+		await dependencies(context);
+
+		assert.equal(fixture.hasMessage('Third-party template detected'), false);
+	});
+
 	it('prompt yes', async () => {
 		const context = {
 			cwd: '',
