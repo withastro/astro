@@ -2,15 +2,31 @@ import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './_test-utils.js';
+import { Writable } from 'node:stream';
+import { Logger } from '../../../astro/dist/core/logger/core.js';
 
 describe('AstroDevPlatform', () => {
 	let fixture;
 	let devServer;
+	const logs = [];
+
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-dev-platform/',
 		});
-		devServer = await fixture.startDevServer();
+		devServer = await fixture.startDevServer({
+			vite: { logLevel: 'info' },
+			logger: new Logger({
+				level: 'info',
+				dest: new Writable({
+					objectMode: true,
+					write(event, _, callback) {
+						logs.push(event);
+						callback();
+					},
+				}),
+			}),
+		});
 		// Do an initial request to prime preloading
 		await fixture.fetch('/');
 	});
@@ -80,5 +96,16 @@ describe('AstroDevPlatform', () => {
 		assert.equal($('h1').text(), 'Testing Prism Component');
 		// Verify the code block was rendered
 		assert.ok($('pre').length > 0, 'Code block should be rendered');
+	});
+
+	it('Prism component loads languages correctly in dev mode', async () => {
+		const prismUnableToLoadLog = logs.find((log) =>
+			log.message.includes('Unable to load the language'),
+		);
+
+		assert.ok(
+			!prismUnableToLoadLog,
+			`Should not see "Unable to load the language" message, but got: ${prismUnableToLoadLog?.message}`,
+		);
 	});
 });

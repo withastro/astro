@@ -7,6 +7,7 @@ import { Prism } from '@astrojs/prism';
 </head>
 <body>
 <h1>Testing Prism Component</h1>
-<Prism code={`const hello = "world";`} lang="js" />
+<!-- To verify that Prism is loading the language data correctly, we use `ts` here -->
+<Prism code={`const hello = "world";`} lang="ts" />
 </body>
 </html>

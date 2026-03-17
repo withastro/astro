@@ -1,4 +1,5 @@
 // This implementation was based from: https://github.com/PrismJS/prism/blob/76dde18a575831c91491895193f56081ac08b0c5/components/index.js
+import type { LoadChainer } from 'prismjs/dependencies.js';
 
 // We use dynamic import instead of static import to load the `prismjs` module here.
 // Replacing this with a static import can cause instability in the workerd environment,
@@ -7,6 +8,18 @@
 // Using dynamic import resolves this instability, so this module must be loaded this way.
 
 const prismLanguageFiles = import.meta.glob('../node_modules/prismjs/components/prism-*.js');
+
+// This `loadChainer` is required when working with Promises in Prism's loader.
+// ref: https://github.com/PrismJS/prism/blob/76dde18a575831c91491895193f56081ac08b0c5/dependencies.js#L346-L360
+const loadChainer: LoadChainer<Promise<void>> = {
+	series: async (before, after) => {
+		await before;
+		await after();
+	},
+	parallel: async (values) => {
+		await Promise.all(values);
+	},
+};
 
 // Since Prism language files are written assuming the Prism instance is defined
 // as a global variable, we will temporarily set the Prism instance globally.
@@ -79,7 +92,7 @@ export async function loadLanguages(languages: string | string[]) {
 		}
 
 		loadedLanguages.add(lang);
-	});
+	}, loadChainer);
 
 	cleanUp();
 }
