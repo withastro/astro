@@ -1,11 +1,7 @@
 // This implementation was based from: https://github.com/PrismJS/prism/blob/76dde18a575831c91491895193f56081ac08b0c5/components/index.js
-import type { LoadChainer } from 'prismjs/dependencies.js';
-
-// We use dynamic import instead of static import to load the `prismjs` module here.
-// Replacing this with a static import can cause instability in the workerd environment,
-// occasionally producing the following error:
-// "The Workers runtime canceled this request because it detected that your Worker's code had hung and would never generate a response."
-// Using dynamic import resolves this instability, so this module must be loaded this way.
+import Prism from 'prismjs';
+import components from 'prismjs/components.js';
+import getLoader, { type LoadChainer } from 'prismjs/dependencies.js';
 
 const prismLanguageFiles = import.meta.glob('../node_modules/prismjs/components/prism-*.js');
 
@@ -23,23 +19,13 @@ const loadChainer: LoadChainer<Promise<void>> = {
 
 // Since Prism language files are written assuming the Prism instance is defined
 // as a global variable, we will temporarily set the Prism instance globally.
-function setPrismAsGlobal(prism: typeof import('prismjs')) {
-	globalThis.Prism = prism;
+function setPrismAsGlobal() {
+	globalThis.Prism = Prism;
 
 	return () => {
 		// @ts-expect-error globalThis type
 		delete globalThis.Prism;
 	};
-}
-
-let prismCache: typeof import('prismjs') | undefined = undefined;
-
-export async function loadPrism() {
-	if (!prismCache) {
-		({ default: prismCache } = await import('prismjs'));
-	}
-
-	return prismCache;
 }
 
 /**
@@ -58,11 +44,7 @@ const loadedLanguages = new Set<string>();
  * @returns {Promise<void>}
  */
 export async function loadLanguages(languages: string | string[]) {
-	const Prism = await loadPrism();
-	const { default: components } = await import('prismjs/components.js');
-	const { default: getLoader } = await import('prismjs/dependencies.js');
-
-	const cleanUp = setPrismAsGlobal(Prism);
+	const cleanUp = setPrismAsGlobal();
 
 	if (languages === undefined) {
 		languages = Object.keys(components.languages).filter((l) => l !== 'meta');

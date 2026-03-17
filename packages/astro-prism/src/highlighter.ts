@@ -1,11 +1,10 @@
-import { loadPrism, loadLanguages } from '#prism-loadLanguages';
+import Prism from 'prismjs';
+import { loadLanguages } from '#prism-loadLanguages';
 import { addAstro } from './plugin.js';
 
 const languageMap = new Map([['ts', 'typescript']]);
 
 export async function runHighlighterWithAstro(lang: string | undefined, code: string) {
-	const Prism = await loadPrism();
-
 	if (!lang) {
 		lang = 'plaintext';
 	}
