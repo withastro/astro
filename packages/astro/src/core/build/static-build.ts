@@ -37,7 +37,7 @@ import { NOOP_MODULE_ID } from './plugins/plugin-noop.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 import type { InputOption } from 'rollup';
 import { getSSRAssets } from './internal.js';
-import { serverIslandPlaceholderMap } from '../server-islands/vite-plugin-server-islands.js';
+import { SERVER_ISLAND_MAP_MARKER } from '../server-islands/vite-plugin-server-islands.js';
 
 const PRERENDER_ENTRY_FILENAME_PREFIX = 'prerender-entry';
 
@@ -73,7 +73,7 @@ function extractRelevantChunks(
 
 			const needsContentInjection = chunk.code.includes(LINKS_PLACEHOLDER);
 			const needsManifestInjection = chunk.moduleIds.includes(SERIALIZED_MANIFEST_RESOLVED_ID);
-			const needsServerIslandInjection = chunk.code.includes(serverIslandPlaceholderMap);
+			const needsServerIslandInjection = chunk.code.includes(SERVER_ISLAND_MAP_MARKER);
 
 			if (needsContentInjection || needsManifestInjection || needsServerIslandInjection) {
 				extracted.push({
@@ -138,14 +138,14 @@ export async function viteBuild(opts: StaticBuildOptions) {
  *
  * ## Build Order & Dependencies
  *
- * 1. **SSR Environment** (built first)
- *    - Generates the server runtime entry point
- *    - Outputs to server directory
- *
- * 2. **Prerender Environment** (built second)
+ * 1. **Prerender Environment** (built first)
  *    - Generates code for static prerenderable routes
  *    - Entry: `astro/entrypoints/prerender`
  *    - Outputs to `.prerender/` in server directory
+ *
+ * 2. **SSR Environment** (built second)
+ *    - Generates the server runtime entry point
+ *    - Outputs to server directory
  *
  * 3. **Client Environment** (built last)
  *    - MUST be built after SSR/prerender because client inputs are discovered during those builds
@@ -325,6 +325,19 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 		// This takes precedence over platform plugin fallbacks (e.g., Cloudflare)
 		builder: {
 			async buildApp(builder) {
+				// Build prerender environment for static generation
+				settings.timer.start('Prerender build');
+				let prerenderOutput = await builder.build(builder.environments.prerender);
+				settings.timer.end('Prerender build');
+
+				// Extract prerender entry filename and store in internals
+				extractPrerenderEntryFileName(internals, prerenderOutput);
+
+				// Extract chunks needing injection, then release output for GC
+				const prerenderOutputs = viteBuildReturnToRollupOutputs(prerenderOutput);
+				const prerenderChunks = extractRelevantChunks(prerenderOutputs, true);
+				prerenderOutput = undefined as any;
+
 				// Build ssr environment for server output (only for non-static builds)
 				let ssrChunks: BuildInternals['extractedChunks'] = [];
 				if (settings.buildOutput !== 'static') {
@@ -338,19 +351,6 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					ssrChunks = extractRelevantChunks(ssrOutputs, false);
 					ssrOutput = undefined as any;
 				}
-
-				// Build prerender environment for static generation
-				settings.timer.start('Prerender build');
-				let prerenderOutput = await builder.build(builder.environments.prerender);
-				settings.timer.end('Prerender build');
-
-				// Extract prerender entry filename and store in internals
-				extractPrerenderEntryFileName(internals, prerenderOutput);
-
-				// Extract chunks needing injection, then release output for GC
-				const prerenderOutputs = viteBuildReturnToRollupOutputs(prerenderOutput);
-				const prerenderChunks = extractRelevantChunks(prerenderOutputs, true);
-				prerenderOutput = undefined as any;
 
 				const ssrPlugins =
 					builder.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr]?.config.plugins ?? [];
