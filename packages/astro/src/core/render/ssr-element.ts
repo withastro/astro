@@ -8,7 +8,8 @@ const URL_PARSE_BASE = 'https://astro.build';
 function splitAssetPath(path: string): { pathname: string; suffix: string } {
 	const parsed = new URL(path, URL_PARSE_BASE);
 	const isAbsolute = URL.canParse(path);
-	const pathname = !isAbsolute && !path.startsWith('/') ? parsed.pathname.slice(1) : parsed.pathname;
+	const pathname =
+		!isAbsolute && !path.startsWith('/') ? parsed.pathname.slice(1) : parsed.pathname;
 
 	return {
 		pathname,
