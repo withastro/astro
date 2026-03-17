@@ -1,5 +1,6 @@
+import { createRequire } from 'node:module';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { prependForwardSlash, slash } from '../core/path.js';
 import type { ModuleLoader } from './module-loader/index.js';
 import { resolveJsToTs, unwrapId, VALID_ID_PREFIX, viteID } from './util.js';
@@ -20,6 +21,22 @@ export function resolvePath(specifier: string, importer: string) {
 	if (specifier.startsWith('.')) {
 		const absoluteSpecifier = path.resolve(path.dirname(importer), specifier);
 		return resolveJsToTs(normalizePath(absoluteSpecifier));
+	} else if (specifier.startsWith('#')) {
+		try {
+			const resolved = createRequire(pathToFileURL(importer)).resolve(specifier);
+			return resolveJsToTs(normalizePath(resolved));
+		} catch {
+			try {
+				const importerURL = pathToFileURL(importer).toString();
+				const resolved = import.meta.resolve(specifier, importerURL);
+				if (resolved.startsWith('file:')) {
+					return resolveJsToTs(normalizePath(fileURLToPath(resolved)));
+				}
+			} catch {
+				// fall through
+			}
+		}
+		return specifier;
 	} else {
 		return specifier;
 	}
