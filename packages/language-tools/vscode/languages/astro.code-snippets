@@ -21,7 +21,7 @@
 			"</html>",
 		],
 		"description": "Page with full HTML",
-		"include": "*.astro"
+		"include": "*.astro",
 	},
 	"page_layout": {
 		"prefix": "page_layout",
@@ -37,7 +37,7 @@
 			"</$1>",
 		],
 		"description": "Page from Layout",
-		"include": "*.astro"
+		"include": "*.astro",
 	},
 	"component": {
 		"prefix": "component",
@@ -45,6 +45,6 @@
 		"scope": "astro",
 		"body": ["---", "$1", "---", "", "$0"],
 		"description": "Component",
-		"include": "*.astro"
+		"include": "*.astro",
 	},
 }
