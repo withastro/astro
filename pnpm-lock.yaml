@@ -5119,6 +5119,21 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/cloudflare/test/fixtures/svelte-rune-deps:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      '@astrojs/svelte':
+        specifier: workspace:*
+        version: link:../../../../svelte
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+      svelte:
+        specifier: ^5.53.5
+        version: 5.53.8
+
   packages/integrations/cloudflare/test/fixtures/top-level-return:
     dependencies:
       '@astrojs/cloudflare':
