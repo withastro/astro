@@ -1,5 +1,5 @@
 // @ts-expect-error This is an internal module
-import * as config from 'astro:config/server';
+import * as config from 'astro:config/client';
 import { toFallbackType } from '../core/app/common.js';
 import { toRoutingStrategy } from '../core/app/entrypoints/index.js';
 import type { SSRManifest } from '../core/app/types.js';
