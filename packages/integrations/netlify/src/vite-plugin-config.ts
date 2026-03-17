@@ -8,9 +8,20 @@ export interface Config {
 	cacheOnDemandPages: boolean;
 }
 
+const SERVER_ENVIRONMENTS = ['ssr', 'prerender', 'astro'];
+
 export function createConfigPlugin(config: Config): PluginOption {
 	return {
 		name: VIRTUAL_CONFIG_ID,
+		configEnvironment(environmentName) {
+			if (SERVER_ENVIRONMENTS.includes(environmentName)) {
+				return {
+					resolve: {
+						noExternal: ['@astrojs/netlify'],
+					},
+				};
+			}
+		},
 		resolveId: {
 			filter: {
 				id: new RegExp(`^${VIRTUAL_CONFIG_ID}$`),

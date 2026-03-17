@@ -1,5 +1,23 @@
 # @astrojs/netlify
 
+## 7.0.3
+
+### Patch Changes
+
+- [#15934](https://github.com/withastro/astro/pull/15934) [`6f8f0bc`](https://github.com/withastro/astro/commit/6f8f0bc4e22e958ccc2164acb1aa8cce21c43148) Thanks [@ematipico](https://github.com/ematipico)! - Updates the Astro `peerDependencies#astro` to be `6.0.0`.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.1
+
+## 7.0.2
+
+### Patch Changes
+
+- [#15868](https://github.com/withastro/astro/pull/15868) [`bb2b8f5`](https://github.com/withastro/astro/commit/bb2b8f5cd3c9f3140b4bb0fb5a1d4c62b41883b8) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the adapter would cause a series of warnings during the build.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.1
+
 ## 7.0.1
 
 ### Patch Changes

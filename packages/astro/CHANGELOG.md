@@ -1,5 +1,47 @@
 # astro
 
+## 6.0.5
+
+### Patch Changes
+
+- [#15891](https://github.com/withastro/astro/pull/15891) [`b889231`](https://github.com/withastro/astro/commit/b88923114e3cfe30c945680a62c7bd7f667bbf4d) Thanks [@matthewp](https://github.com/matthewp)! - Fix dev routing for `server:defer` islands when adapters opt into handling prerendered routes in Astro core. Server island requests are now treated as prerender-handler eligible so prerendered pages using `prerenderEnvironment: 'node'` can load island content without `400` errors.
+
+- [#15890](https://github.com/withastro/astro/pull/15890) [`765a887`](https://github.com/withastro/astro/commit/765a8871ed5fb30bb0211e2f8524bd97081acbca) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `astro:actions` validation to check resolved routes, so projects using default static output with at least one `prerender = false` page or endpoint no longer fail during startup.
+
+- [#15884](https://github.com/withastro/astro/pull/15884) [`dcd2c8e`](https://github.com/withastro/astro/commit/dcd2c8e2df88ad81a027b49f6f9dcdba614f836a) Thanks [@matthewp](https://github.com/matthewp)! - Avoid a `MaxListenersExceededWarning` during `astro dev` startup by increasing the shared Vite watcher listener limit when attaching content server listeners.
+
+- [#15904](https://github.com/withastro/astro/pull/15904) [`23d5244`](https://github.com/withastro/astro/commit/23d5244361f9452c1d124600d2cc97aa3fe4a63c) Thanks [@jlukic](https://github.com/jlukic)! - Emit the `before-hydration` script chunk for the `client` Vite environment. The chunk was only emitted for `prerender` and `ssr` environments, causing a 404 when browsers tried to load it. This broke hydration for any integration using `injectScript('before-hydration', ...)`, including Lit SSR.
+
+- [#15933](https://github.com/withastro/astro/pull/15933) [`325901e`](https://github.com/withastro/astro/commit/325901e623462babd8d07ba7527e141e08ef1901) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where `<style>` tags inside SVG components weren't correctly tracked when enabling CSP.
+
+- [#15875](https://github.com/withastro/astro/pull/15875) [`c43ef8a`](https://github.com/withastro/astro/commit/c43ef8a565564770f022bd7cf9d2fcccf5949308) Thanks [@matthewp](https://github.com/matthewp)! - Ensure custom prerenderers are always torn down during build, even when `getStaticPaths()` throws.
+
+- [#15887](https://github.com/withastro/astro/pull/15887) [`1861fed`](https://github.com/withastro/astro/commit/1861fedef36394ff89604125b785aca073c0d35d) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the build incorrectly leaked server entrypoint into the client environment, causing adapters to emit warnings during the build.
+
+- [#15888](https://github.com/withastro/astro/pull/15888) [`925252e`](https://github.com/withastro/astro/commit/925252e8c361a169d1f4dc1e3677b96b9e815dea) Thanks [@matthewp](https://github.com/matthewp)! - Fix a bug where `server:defer` could fail at runtime in prerendered pages for some adapters (including Cloudflare), causing errors like `serverIslandMap?.get is not a function`.
+
+- [#15901](https://github.com/withastro/astro/pull/15901) [`07c1002`](https://github.com/withastro/astro/commit/07c1002835f9bd91c9acaa82515254e4e11094d4) Thanks [@delucis](https://github.com/delucis)! - Fixes JSON schema generation for content collection schemas that have differences between their input and output shapes.
+
+- [#15882](https://github.com/withastro/astro/pull/15882) [`759f946`](https://github.com/withastro/astro/commit/759f9461bf8818380e3cc83a9bc1844c82a52c6d) Thanks [@matthewp](https://github.com/matthewp)! - Fix `Astro.url.pathname` for the root page when using `build.format: "file"` so it resolves to `/index.html` instead of `/.html` during builds.
+
+## 6.0.4
+
+### Patch Changes
+
+- [#15870](https://github.com/withastro/astro/pull/15870) [`920f10b`](https://github.com/withastro/astro/commit/920f10bb3a49da8355967df99c32c43cc9f53b46) Thanks [@matthewp](https://github.com/matthewp)! - Prebundle `astro/toolbar` in dev when custom dev toolbar apps are registered, preventing re-optimization reloads that can hide or break the toolbar.
+
+- [#15876](https://github.com/withastro/astro/pull/15876) [`f47ac53`](https://github.com/withastro/astro/commit/f47ac5352dcb36daa64ec12b7d4ac193045d10e3) Thanks [@ematipico](https://github.com/ematipico)! - Fixes `redirectToDefaultLocale` producing a protocol-relative URL (`//locale`) instead of an absolute path (`/locale`) when `base` is `'/'`.
+
+- [#15767](https://github.com/withastro/astro/pull/15767) [`e0042f7`](https://github.com/withastro/astro/commit/e0042f720274d8763907c1d429723192a71d6932) Thanks [@matthewp](https://github.com/matthewp)! - Fixes server islands (`server:defer`) not working when only used in prerendered pages with `output: 'server'`.
+
+- [#15873](https://github.com/withastro/astro/pull/15873) [`35841ed`](https://github.com/withastro/astro/commit/35841ed273581a567cd726bb2d14d2ed3886bed0) Thanks [@matthewp](https://github.com/matthewp)! - Fix a dev server bug where newly created pages could miss layout-imported CSS until restart.
+
+- [#15874](https://github.com/withastro/astro/pull/15874) [`ce0669d`](https://github.com/withastro/astro/commit/ce0669d68115c5e2d00238f3e780a2af50f5be11) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a warning when using `prefetchAll`
+
+- [#15754](https://github.com/withastro/astro/pull/15754) [`58f1d63`](https://github.com/withastro/astro/commit/58f1d63cbcdd351d80cc65ceff4cb1a8d1aa1853) Thanks [@rururux](https://github.com/rururux)! - Fixes a bug where a directory at the project root sharing the same name as a page route would cause the dev server to return a 404 instead of serving the page.
+
+- [#15869](https://github.com/withastro/astro/pull/15869) [`76b3a5e`](https://github.com/withastro/astro/commit/76b3a5e4bb1e9f2855d4169602295d601d7e7436) Thanks [@matthewp](https://github.com/matthewp)! - Update the unknown file extension error hint to recommend `vite.resolve.noExternal`, which is the correct Vite 7 config key.
+
 ## 6.0.3
 
 ### Patch Changes
