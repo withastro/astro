@@ -28,6 +28,27 @@ describe('ServerIslandsState', () => {
 		assert.equal(Array.from(state.getDiscoveredIslands()).length, 1);
 	});
 
+	it('does not deduplicate when resolved paths differ', () => {
+		const state = new ServerIslandsState();
+
+		const first = state.discover({
+			resolvedPath: '/src/components/IslandA.astro',
+			localName: 'Island',
+			specifier: './Island.astro',
+			importer: '/src/pages/index.astro',
+		});
+
+		const second = state.discover({
+			resolvedPath: '/src/components/IslandB.astro',
+			localName: 'Island',
+			specifier: './Island.astro',
+			importer: '/src/pages/other.astro',
+		});
+
+		assert.notDeepEqual(second, first);
+		assert.equal(Array.from(state.getDiscoveredIslands()).length, 2);
+	});
+
 	it('generates unique island names and map sources', () => {
 		const state = new ServerIslandsState();
 

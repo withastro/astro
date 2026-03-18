@@ -24,15 +24,15 @@ export function vitePluginServerIslands({
 	function ensureServerIslandReferenceIds(ctx: {
 		emitFile: (file: { type: 'chunk'; id: string; importer?: string; name?: string }) => string;
 	}) {
-		for (const island of serverIslandsState.getDiscoveredIslands()) {
-			if (serverIslandsState.hasReferenceId(island.resolvedPath)) continue;
+		for (const [resolvedPath, island] of serverIslandsState.getDiscoveredIslandEntries()) {
+			if (serverIslandsState.hasReferenceId(resolvedPath)) continue;
 			const referenceId = ctx.emitFile({
 				type: 'chunk',
 				id: island.specifier,
 				importer: island.importer,
 				name: island.islandName,
 			});
-			serverIslandsState.setReferenceId(island.resolvedPath, referenceId);
+			serverIslandsState.setReferenceId(resolvedPath, referenceId);
 		}
 	}
 
