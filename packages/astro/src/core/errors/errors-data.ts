@@ -1739,11 +1739,9 @@ export const InvalidContentEntryDataError = {
 	name: 'InvalidContentEntryDataError',
 	title: 'Content entry data does not match schema.',
 	message(collection: string, entryId: string, error: $ZodError) {
-		const errorList = error.issues.map((issue) => {
-			const path = issue.path.join('.');
-			const message = issue.message;
-			return path ? `  - ${path}: ${message}` : `  - ${message}`;
-		}).join('\n');
+		const errorList = error.issues
+			.map((issue) => `  - ${issue.path.join('.')}: ${issue.message}`)
+			.join('\n');
 		return [
 			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.\n`,
 			errorList,
@@ -1850,11 +1848,9 @@ export const ContentEntryDataError = {
 	name: 'ContentEntryDataError',
 	title: 'Content entry data does not match schema.',
 	message(collection: string, entryId: string, error: $ZodError) {
-		const errorList = error.issues.map((issue) => {
-			const path = issue.path.join('.');
-			const message = issue.message;
-			return path ? `  - ${path}: ${message}` : `  - ${message}`;
-		}).join('\n');
+		const errorList = error.issues
+			.map((issue) => `  - ${issue.path.join('.')}: ${issue.message}`)
+			.join('\n');
 		return [
 			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.\n`,
 			errorList,
