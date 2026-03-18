@@ -7,6 +7,8 @@
  * @param {string} [options.base]
  * @param {string} [options.trailingSlash]
  * @param {Function} [options.middleware]
+ * @param {Function} [options.actions]
+ * @param {number} [options.actionBodySizeLimit]
  */
 export function createManifest({
 	routes,
@@ -14,6 +16,8 @@ export function createManifest({
 	base = '/',
 	trailingSlash = 'ignore',
 	middleware = undefined,
+	actions = undefined,
+	actionBodySizeLimit = 0,
 } = {}) {
 	const rootDir = new URL('file:///astro-test/');
 	const buildDir = new URL('file:///astro-test/dist/');
@@ -42,11 +46,11 @@ export function createManifest({
 		key: Promise.resolve(/** @type {CryptoKey} */ ({})),
 		i18n: undefined,
 		middleware,
-		actions: undefined,
+		actions,
 		sessionDriver: undefined,
 		checkOrigin: false,
 		allowedDomains: undefined,
-		actionBodySizeLimit: 0,
+		actionBodySizeLimit,
 		serverIslandBodySizeLimit: 1024 * 1024,
 		sessionConfig: undefined,
 		cacheDir: rootDir,
