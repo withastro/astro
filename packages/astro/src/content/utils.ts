@@ -194,7 +194,7 @@ export async function getEntryData<
 							const resolvedPath = path.resolve(entryDir, val);
 
 							// If the file exists, normalize to relative path
-							// Otherwise keep as-is (likely a Vite alias)
+							// Otherwise, keep as-is (likely a Vite alias)
 							if (fsMod.existsSync(resolvedPath)) {
 								normalizedPath = `./${val}`;
 							}
@@ -245,11 +245,11 @@ export async function getEntryData<
 }
 
 export function getContentEntryExts(settings: Pick<AstroSettings, 'contentEntryTypes'>) {
-	return settings.contentEntryTypes.map((t) => t.extensions).flat();
+	return settings.contentEntryTypes.flatMap((t) => t.extensions);
 }
 
 export function getDataEntryExts(settings: Pick<AstroSettings, 'dataEntryTypes'>) {
-	return settings.dataEntryTypes.map((t) => t.extensions).flat();
+	return settings.dataEntryTypes.flatMap((t) => t.extensions);
 }
 
 export function getEntryConfigByExtMap<TEntryType extends ContentEntryType | DataEntryType>(

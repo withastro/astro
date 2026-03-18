@@ -2,10 +2,37 @@ import fs from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import path from 'node:path';
 import { hasFileExtension, isInternalPath } from '@astrojs/internal-helpers/path';
-import type { NodeApp } from 'astro/app/node';
+import type { BaseApp } from 'astro/app';
 import send from 'send';
 import { resolveClientDir } from './shared.js';
-import type { Options } from './types.js';
+import type { NodeAppHeadersJson, Options } from './types.js';
+import { createRequest } from 'astro/app/node';
+
+/**
+ * Resolves a URL path to a filesystem path within the client directory,
+ * and checks whether it is a directory.
+ *
+ * Returns `isDirectory: false` if the resolved path escapes the client root
+ * (e.g. via `..` path traversal segments).
+ */
+export function resolveStaticPath(client: string, urlPath: string) {
+	const filePath = path.join(client, urlPath);
+	const resolved = path.resolve(filePath);
+	const resolvedClient = path.resolve(client);
+
+	// Prevent path traversal: if the resolved path is outside the client
+	// directory, treat it as non-existent rather than probing the filesystem.
+	if (resolved !== resolvedClient && !resolved.startsWith(resolvedClient + path.sep)) {
+		return { filePath: resolved, isDirectory: false };
+	}
+
+	let isDirectory = false;
+	try {
+		isDirectory = fs.lstatSync(filePath).isDirectory();
+	} catch {}
+
+	return { filePath: resolved, isDirectory };
+}
 
 /**
  * Creates a Node.js http listener for static files and prerendered pages.
@@ -13,7 +40,11 @@ import type { Options } from './types.js';
  * If one matching the request path is not found, it relegates to the SSR handler.
  * Intended to be used only in the standalone mode.
  */
-export function createStaticHandler(app: NodeApp, options: Options) {
+export function createStaticHandler(
+	app: BaseApp,
+	options: Options,
+	headersMap: NodeAppHeadersJson | undefined,
+) {
 	const client = resolveClientDir(options);
 	/**
 	 * @param ssr The SSR handler to be called if the static handler does not find a matching file.
@@ -27,22 +58,25 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 			}
 
 			const [urlPath, urlQuery] = fullUrl.split('?');
-			const filePath = path.join(client, app.removeBase(urlPath));
-
-			let isDirectory = false;
-			try {
-				isDirectory = fs.lstatSync(filePath).isDirectory();
-			} catch {}
-
-			const { trailingSlash = 'ignore' } = options;
+			const { isDirectory } = resolveStaticPath(client, app.removeBase(urlPath));
 
 			const hasSlash = urlPath.endsWith('/');
 			let pathname = urlPath;
 
-			if (app.headersMap && app.headersMap.length > 0) {
-				const routeData = app.match(req, true);
+			if (headersMap && headersMap.length > 0) {
+				const request = createRequest(req, {
+					allowedDomains: app.getAllowedDomains?.() ?? [],
+					port: options.port,
+				});
+				const routeData = app.match(request, true);
 				if (routeData && routeData.prerender) {
-					const matchedRoute = app.headersMap.find((header) => header.pathname.includes(pathname));
+					// Headers are stored keyed by base-less route paths (e.g. "/one"), so we
+					// must strip config.base from the incoming URL before matching, just as
+					// we do for filesystem access above.
+					const baselessPathname = prependForwardSlash(app.removeBase(urlPath));
+					const matchedRoute = headersMap.find((header) =>
+						header.pathname.includes(baselessPathname),
+					);
 					if (matchedRoute) {
 						for (const header of matchedRoute.headers) {
 							res.setHeader(header.key, header.value);
@@ -51,7 +85,7 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 				}
 			}
 
-			switch (trailingSlash) {
+			switch (app.manifest.trailingSlash) {
 				case 'never': {
 					if (isDirectory && urlPath !== '/' && hasSlash) {
 						pathname = urlPath.slice(0, -1) + (urlQuery ? '?' + urlQuery : '');
@@ -86,9 +120,10 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 			// app.removeBase sometimes returns a path without a leading slash
 			pathname = prependForwardSlash(app.removeBase(pathname));
 
-			const stream = send(req, pathname, {
+			const normalizedPathname = path.posix.normalize(pathname);
+			const stream = send(req, normalizedPathname, {
 				root: client,
-				dotfiles: pathname.startsWith('/.well-known/') ? 'allow' : 'deny',
+				dotfiles: normalizedPathname.startsWith('/.well-known/') ? 'allow' : 'deny',
 			});
 
 			let forwardError = false;
@@ -105,7 +140,7 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 			});
 			stream.on('headers', (_res: ServerResponse) => {
 				// assets in dist/_astro are hashed and should get the immutable header
-				if (pathname.startsWith(`/${options.assets}/`)) {
+				if (normalizedPathname.startsWith(`/${app.manifest.assetsDir}/`)) {
 					// This is the "far future" cache header, used for static files whose name includes their digest hash.
 					// 1 year (31,536,000 seconds) is convention.
 					// Taken from https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#immutable

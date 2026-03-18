@@ -4,10 +4,10 @@ import type { BuildInternals } from '../internal.js';
 import type { StaticBuildOptions } from '../types.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 
-type LegacyAdapter = Extract<AstroAdapter, { entryType?: 'legacy-dynamic' }>;
+type LegacyAdapter = Extract<AstroAdapter, { entrypointResolution?: 'explicit' }>;
 
-function isLegacyAdapter(adapter: AstroAdapter): adapter is LegacyAdapter {
-	return adapter.entryType === undefined || adapter.entryType === 'legacy-dynamic';
+export function isLegacyAdapter(adapter: AstroAdapter): adapter is LegacyAdapter {
+	return adapter.entrypointResolution === undefined || adapter.entrypointResolution === 'explicit';
 }
 
 export const LEGACY_SSR_ENTRY_VIRTUAL_MODULE = 'virtual:astro:legacy-ssr-entry';

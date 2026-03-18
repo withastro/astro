@@ -8,18 +8,15 @@ const CI_INSTRUCTIONS = {
 	VERCEL: 'https://vercel.com/docs/runtimes#official-runtimes/node-js/node-js-version',
 };
 
-// TODO: remove once Stackblitz supports Node 22
-const IS_STACKBLITZ = !!process.versions.webcontainer;
-
 // Hardcode supported Node.js version so we don't have to read differently in CJS & ESM.
-const engines = IS_STACKBLITZ ? '>=20.19.1' : '>=22.12.0';
-const skipSemverCheckIfAbove = IS_STACKBLITZ ? 21 : 23;
+const engines = '>=22.12.0';
+const skipSemverCheckIfAbove = 23;
 
 /** `astro *` */
 async function main() {
 	const version = process.versions.node;
 	// Fast-path for higher Node.js versions
-	if ((parseInt(version) || 0) <= skipSemverCheckIfAbove) {
+	if ((Number.parseInt(version) || 0) <= skipSemverCheckIfAbove) {
 		const semver = await import('semver');
 		try {
 			if (!semver.satisfies(version, engines)) {

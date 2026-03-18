@@ -17,8 +17,17 @@
 import type { BaseApp } from 'astro/app';
 import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
 import { StaticPaths } from 'astro:static-paths';
-import type { StaticPathsResponse, PrerenderRequest } from '../prerender-types.js';
-import { STATIC_PATHS_ENDPOINT, PRERENDER_ENDPOINT } from './prerender-constants.js';
+import type {
+	StaticPathsResponse,
+	PrerenderRequest,
+	SerializedStaticImageEntry,
+	StaticImagesResponse,
+} from '../prerender-types.js';
+import {
+	STATIC_PATHS_ENDPOINT,
+	PRERENDER_ENDPOINT,
+	STATIC_IMAGES_ENDPOINT,
+} from './prerender-constants.js';
 
 /**
  * Checks if the request is for the static paths prerender endpoint.
@@ -70,4 +79,36 @@ export async function handlePrerenderRequest(app: BaseApp, request: Request): Pr
 		headers,
 	});
 	return app.render(prerenderRequest, { routeData });
+}
+
+export function isStaticImagesRequest(request: Request): boolean {
+	const { pathname } = new URL(request.url);
+	return pathname === STATIC_IMAGES_ENDPOINT && request.method === 'POST';
+}
+
+/** Serializes the global staticImages map collected in workerd back to the Node-side build. */
+export function handleStaticImagesRequest(): Response {
+	const staticImages = globalThis.astroAsset?.staticImages;
+	if (!staticImages || staticImages.size === 0) {
+		return new Response('[]', {
+			headers: { 'Content-Type': 'application/json' },
+		});
+	}
+
+	const entries: StaticImagesResponse = [];
+	for (const [originalPath, { originalSrcPath, transforms }] of staticImages) {
+		const serializedTransforms: SerializedStaticImageEntry['transforms'] = [];
+		for (const [hash, { finalPath, transform }] of transforms) {
+			serializedTransforms.push({
+				hash,
+				finalPath,
+				transform: transform as Record<string, any>,
+			});
+		}
+		entries.push({ originalPath, originalSrcPath, transforms: serializedTransforms });
+	}
+
+	return new Response(JSON.stringify(entries), {
+		headers: { 'Content-Type': 'application/json' },
+	});
 }

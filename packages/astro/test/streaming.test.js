@@ -144,7 +144,7 @@ describe('Streaming disabled', () => {
 			assert.equal(response.status, 200);
 			assert.equal(response.headers.get('content-type'), 'text/html');
 			assert.equal(response.headers.has('content-length'), true);
-			assert.equal(parseInt(response.headers.get('content-length')) > 0, true);
+			assert.equal(Number.parseInt(response.headers.get('content-length')) > 0, true);
 
 			const html = await response.text();
 			const $ = cheerio.load(html);

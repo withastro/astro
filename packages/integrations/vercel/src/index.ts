@@ -14,16 +14,17 @@ import type {
 	AstroIntegrationLogger,
 	HookParameters,
 	IntegrationResolvedRoute,
+	MiddlewareMode,
 	RouteToHeaders,
 } from 'astro';
 import { AstroError } from 'astro/errors';
 import { globSync } from 'tinyglobby';
-import type { RemotePattern } from './image/shared.js';
 import {
 	type DevImageService,
 	getAstroImageConfig,
 	getDefaultImageConfig,
 	type VercelImageConfig,
+	type RemotePattern,
 } from './image/shared.js';
 import { copyDependenciesToFunction } from './lib/nft.js';
 import { escapeRegex, getRedirects } from './lib/redirects.js';
@@ -97,23 +98,23 @@ const SUPPORTED_NODE_VERSIONS: Record<
 };
 
 function getAdapter({
-	edgeMiddleware,
+	middlewareMode,
 	skewProtection,
 	buildOutput,
 	staticHeaders,
 }: {
 	buildOutput: 'server' | 'static';
-	edgeMiddleware: NonNullable<VercelServerlessConfig['edgeMiddleware']>;
+	middlewareMode: NonNullable<VercelServerlessConfig['middlewareMode']>;
 	skewProtection: boolean;
 	staticHeaders: NonNullable<VercelServerlessConfig['staticHeaders']>;
 }): AstroAdapter {
 	return {
 		name: PACKAGE_NAME,
-		entryType: 'self',
+		entrypointResolution: 'auto',
 		serverEntrypoint: `${PACKAGE_NAME}/entrypoint`,
 		adapterFeatures: {
-			edgeMiddleware,
 			buildOutput,
+			middlewareMode,
 			staticHeaders,
 		},
 		supportedAstroFeatures: {
@@ -161,7 +162,16 @@ export interface VercelServerlessConfig {
 	/** Allows you to configure which image service to use in development when imageService is enabled. */
 	devImageService?: DevImageService;
 
-	/** Whether to create the Vercel Edge middleware from an Astro middleware in your code base. */
+	/**
+	 * Controls when and how middleware executes.
+	 * - 'classic' (default): Middleware runs for prerendered pages at build time, and for SSR pages at request time.
+	 * - 'edge': Middleware is deployed as a separate edge function.
+	 */
+	middlewareMode?: MiddlewareMode;
+
+	/**
+	 * @deprecated Use `middlewareMode: 'edge'` instead.
+	 */
 	edgeMiddleware?: boolean;
 
 	/** The maximum duration (in seconds) that Serverless Functions can run before timing out. See the [Vercel documentation](https://vercel.com/docs/functions/serverless-functions/runtimes#maxduration) for the default and maximum limit for your account plan. */
@@ -217,12 +227,16 @@ export default function vercelAdapter({
 	imageService,
 	imagesConfig,
 	devImageService = 'sharp',
-	edgeMiddleware = false,
+	middlewareMode,
+	edgeMiddleware,
 	maxDuration,
 	isr = false,
 	skewProtection = process.env.VERCEL_SKEW_PROTECTION_ENABLED === '1',
 	staticHeaders = false,
 }: VercelServerlessConfig = {}): AstroIntegration {
+	// Resolve middleware mode with backward compatibility
+	const resolvedMiddlewareMode = middlewareMode ?? (edgeMiddleware ? 'edge' : 'classic');
+
 	if (maxDuration) {
 		if (typeof maxDuration !== 'number') {
 			throw new TypeError(`maxDuration must be a number`, {
@@ -347,7 +361,7 @@ export default function vercelAdapter({
 					setAdapter(
 						getAdapter({
 							buildOutput: _buildOutput,
-							edgeMiddleware,
+							middlewareMode: resolvedMiddlewareMode,
 							skewProtection,
 							staticHeaders: staticHeaders,
 						}),
@@ -355,7 +369,7 @@ export default function vercelAdapter({
 				} else {
 					setAdapter(
 						getAdapter({
-							edgeMiddleware: false,
+							middlewareMode: resolvedMiddlewareMode,
 							skewProtection,
 							buildOutput: _buildOutput,
 							staticHeaders: staticHeaders,
@@ -438,18 +452,15 @@ export default function vercelAdapter({
 						const isrConfig = typeof isr === 'object' ? isr : {};
 						await builder.buildServerlessFolder(entryFile, NODE_PATH, _config.root);
 						if (isrConfig.exclude?.length) {
-							const expandedExclusions = isrConfig.exclude.reduce<string[]>((acc, exclusion) => {
+							const expandedExclusions = isrConfig.exclude.flatMap((exclusion) => {
 								if (exclusion instanceof RegExp) {
-									return [
-										...acc,
-										...routes
-											.filter((route) => exclusion.test(route.pattern))
-											.map((route) => route.pattern),
-									];
+									return routes
+										.filter((route) => exclusion.test(route.pattern))
+										.map((route) => route.pattern);
 								}
 
-								return [...acc, exclusion];
-							}, []);
+								return [exclusion];
+							});
 
 							const dest = _middlewareEntryPoint ? MIDDLEWARE_PATH : NODE_PATH;
 							for (const route of expandedExclusions) {

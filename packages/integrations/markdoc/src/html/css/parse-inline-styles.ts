@@ -180,12 +180,12 @@ export function parseInlineStyles(style, options) {
 	 */
 	function comment() {
 		const pos = position();
-		if (FORWARD_SLASH != style.charAt(0) || ASTERISK != style.charAt(1)) return;
+		if (FORWARD_SLASH !== style.charAt(0) || ASTERISK !== style.charAt(1)) return;
 
 		let i = 2;
 		while (
-			EMPTY_STRING != style.charAt(i) &&
-			(ASTERISK != style.charAt(i) || FORWARD_SLASH != style.charAt(i + 1))
+			EMPTY_STRING !== style.charAt(i) &&
+			(ASTERISK !== style.charAt(i) || FORWARD_SLASH !== style.charAt(i + 1))
 		) {
 			++i;
 		}

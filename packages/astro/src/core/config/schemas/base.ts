@@ -13,9 +13,10 @@ import { FontFamilySchema } from '../../../assets/fonts/config.js';
 import { EnvSchema } from '../../../env/schema.js';
 import type { AstroUserConfig, ViteUserConfig } from '../../../types/public/config.js';
 import { allowedDirectivesSchema, cspAlgorithmSchema, cspHashSchema } from '../../csp/config.js';
+import { CacheSchema, RouteRulesSchema } from '../../cache/config.js';
 import { SessionSchema } from '../../session/config.js';
 
-// The below types are required boilerplate to workaround a Zod issue since v3.21.2. Since that version,
+// The below types are required boilerplate to work around a Zod issue since v3.21.2. Since that version,
 // Zod's compiled TypeScript would "simplify" certain values to their base representation, causing references
 // to transitive dependencies that Astro don't depend on (e.g. `mdast-util-to-hast` or `remark-rehype`). For example:
 //
@@ -29,7 +30,7 @@ import { SessionSchema } from '../../session/config.js';
 // ```
 //
 // The types below will "complexify" the types so that TypeScript would not simplify them. This way it will
-// reference the complex type directly, instead of referencing non-existent transitive dependencies.
+// reference the complex type directly, instead of referencing nonexistent transitive dependencies.
 //
 // Also, make sure to not index the complexified type, as it would return a simplified value type, which goes
 // back to the issue again. The complexified type should be the base representation that we want to expose.
@@ -93,6 +94,8 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		checkOrigin: true,
 		allowedDomains: [],
 		csp: false,
+		actionBodySizeLimit: 1024 * 1024,
+		serverIslandBodySizeLimit: 1024 * 1024,
 	},
 	env: {
 		schema: {},
@@ -104,6 +107,10 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		contentIntellisense: false,
 		chromeDevtoolsWorkspace: false,
 		svgo: false,
+		rustCompiler: false,
+		queuedRendering: {
+			enabled: false,
+		},
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -159,7 +166,7 @@ export const AstroConfigSchema = z.object({
 	adapter: z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }).optional(),
 	integrations: z.preprocess(
 		// preprocess
-		(val) => (Array.isArray(val) ? val.flat(Infinity).filter(Boolean) : val),
+		(val) => (Array.isArray(val) ? val.flat(Number.POSITIVE_INFINITY).filter(Boolean) : val),
 		// validate
 		z
 			.array(z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }))
@@ -435,6 +442,14 @@ export const AstroConfigSchema = z.object({
 				)
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.security.allowedDomains),
+			actionBodySizeLimit: z
+				.number()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.security.actionBodySizeLimit),
+			serverIslandBodySizeLimit: z
+				.number()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.security.serverIslandBodySizeLimit),
 			csp: z
 				.union([
 					z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.security.csp),
@@ -493,6 +508,17 @@ export const AstroConfigSchema = z.object({
 				.union([z.boolean(), z.custom<SvgoConfig>((value) => value && typeof value === 'object')])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.svgo),
+			cache: CacheSchema.optional(),
+			routeRules: RouteRulesSchema.optional(),
+			rustCompiler: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.rustCompiler),
+			queuedRendering: z
+				.object({
+					enabled: z.boolean().optional().prefault(false),
+					poolSize: z.number().int().nonnegative().optional(),
+					contentCache: z.boolean().optional(),
+				})
+				.optional()
+				.prefault(ASTRO_CONFIG_DEFAULTS.experimental.queuedRendering),
 		})
 		.prefault({}),
 	legacy: z

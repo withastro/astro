@@ -7,7 +7,7 @@ import { fixtureDir } from '../utils.ts';
 
 describe(
 	'Content Intellisense - Hover',
-	{ skip: parseInt(process.versions.node) === 20 },
+	{ skip: Number.parseInt(process.versions.node) === 20 },
 	async () => {
 		let languageServer: LanguageServer;
 
@@ -28,7 +28,7 @@ describe(
 
 			assert.deepStrictEqual(hover?.contents, {
 				kind: 'markdown',
-				value: "The blog post's title\\.",
+				value: "The blog post's title.",
 			});
 		});
 	},

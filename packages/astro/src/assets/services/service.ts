@@ -24,7 +24,7 @@ export function isLocalService(service: ImageService | undefined): service is Lo
 }
 
 export function parseQuality(quality: string): string | number {
-	let result = parseInt(quality);
+	let result = Number.parseInt(quality);
 	if (Number.isNaN(result)) {
 		return quality;
 	}
@@ -239,8 +239,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		}
 		if (options.width) options.width = Math.round(options.width);
 		if (options.height) options.height = Math.round(options.height);
-		if (options.layout && options.width && options.height) {
-			options.fit ??= 'cover';
+		if (options.layout) {
 			delete options.layout;
 		}
 		if (options.fit === 'none') {
@@ -285,7 +284,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		// For remote images, we don't know the original image's dimensions, so we cannot know the maximum width
 		// It is ultimately the user's responsibility to make sure they don't request images larger than the original
 		let imageWidth = options.width;
-		let maxWidth = Infinity;
+		let maxWidth = Number.POSITIVE_INFINITY;
 
 		// However, if it's an imported image, we can use the original image's width as a maximum width
 		if (isESMImportedImage(options.src)) {
@@ -304,7 +303,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		transformedWidths = Array.from(new Set(transformedWidths));
 
 		// Since `widths` and `densities` ultimately control the width and height of the image,
-		// we don't want the dimensions the user specified, we'll create those ourselves.
+		// we don't want the dimensions to be user specified, we'll create those ourselves.
 		const {
 			width: transformWidth,
 			height: transformHeight,
@@ -322,7 +321,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 				if (typeof density === 'number') {
 					return density;
 				} else {
-					return parseFloat(density);
+					return Number.parseFloat(density);
 				}
 			});
 
@@ -402,8 +401,8 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 
 		const transform: BaseServiceTransform = {
 			src: params.get('href')!,
-			width: params.has('w') ? parseInt(params.get('w')!) : undefined,
-			height: params.has('h') ? parseInt(params.get('h')!) : undefined,
+			width: params.has('w') ? Number.parseInt(params.get('w')!) : undefined,
+			height: params.has('h') ? Number.parseInt(params.get('h')!) : undefined,
 			format: params.get('f') as ImageOutputFormat,
 			quality: params.get('q'),
 			fit: params.get('fit') as ImageFit,
@@ -413,8 +412,8 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 
 		return transform;
 	},
-	getRemoteSize(url, _imageConfig) {
-		return inferRemoteSize(url);
+	getRemoteSize(url, imageConfig) {
+		return inferRemoteSize(url, imageConfig);
 	},
 };
 

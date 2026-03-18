@@ -58,7 +58,7 @@ export async function generatePages(
 	}
 
 	// Get or create the prerenderer
-	let prerenderer: AstroPrerenderer;
+	let prerenderer: DefaultPrerenderer;
 	const settingsPrerenderer = options.settings.prerenderer;
 	if (!settingsPrerenderer) {
 		// No custom prerenderer - create default
@@ -80,126 +80,187 @@ export async function generatePages(
 		prerenderer = settingsPrerenderer;
 	}
 
-	// Setup the prerenderer
+	// Set up the prerenderer
 	await prerenderer.setup?.();
 
 	const verb = ssr ? 'prerendering' : 'generating';
 	logger.info('SKIP_FORMAT', `\n${colors.bgGreen(colors.black(` ${verb} static routes `))}`);
-
-	// Get all static paths with their routes from the prerenderer
-	const pathsWithRoutes = await prerenderer.getStaticPaths();
 	const routeToHeaders: RouteToHeaders = new Map();
+	let staticImageList = getStaticImageList();
 
-	// Check if i18n domains are configured (incompatible with prerendering)
-	const hasI18nDomains =
-		ssr &&
-		options.settings.config.i18n?.domains &&
-		Object.keys(options.settings.config.i18n.domains).length > 0;
+	try {
+		// Get all static paths with their routes from the prerenderer
+		const pathsWithRoutes = await prerenderer.getStaticPaths();
 
-	// Filter paths for conflicts (same path from multiple routes)
-	const { config } = options.settings;
-	const builtPaths = new Set<string>();
-	const filteredPaths = pathsWithRoutes.filter(({ pathname, route }) => {
-		// i18n domains won't work with prerendered routes
-		if (hasI18nDomains && route.prerender) {
-			throw new AstroError({
-				...AstroErrorData.NoPrerenderedRoutesWithDomains,
-				message: AstroErrorData.NoPrerenderedRoutesWithDomains.message(route.component),
-			});
-		}
+		// Check if i18n domains are configured (incompatible with prerendering)
+		const hasI18nDomains =
+			ssr &&
+			options.settings.config.i18n?.domains &&
+			Object.keys(options.settings.config.i18n.domains).length > 0;
 
-		const normalized = removeTrailingForwardSlash(pathname);
+		// Filter paths for conflicts (same path from multiple routes)
+		const { config } = options.settings;
+		const builtPaths = new Set<string>();
+		const filteredPaths = pathsWithRoutes.filter(({ pathname, route }) => {
+			// i18n domains won't work with prerendered routes
+			if (hasI18nDomains && route.prerender) {
+				throw new AstroError({
+					...AstroErrorData.NoPrerenderedRoutesWithDomains,
+					message: AstroErrorData.NoPrerenderedRoutesWithDomains.message(route.component),
+				});
+			}
 
-		// Path hasn't been built yet, include it
-		if (!builtPaths.has(normalized)) {
-			builtPaths.add(normalized);
-			return true;
-		}
+			const normalized = removeTrailingForwardSlash(pathname);
 
-		// Path was already built. Check if this route has higher priority.
-		const matchedRoute = matchRoute(decodeURI(pathname), options.routesList);
-		if (!matchedRoute) {
-			return false;
-		}
+			// Path hasn't been built yet, include it
+			if (!builtPaths.has(normalized)) {
+				builtPaths.add(normalized);
+				return true;
+			}
 
-		if (matchedRoute === route) {
-			// Current route is higher-priority. Include it for building.
-			return true;
-		}
+			// Path was already built. Check if this route has higher priority.
+			const matchedRoute = matchRoute(decodeURI(pathname), options.routesList);
+			if (!matchedRoute) {
+				return false;
+			}
 
-		// Current route is lower-priority. Warn or error based on config.
-		if (config.prerenderConflictBehavior === 'error') {
-			throw new AstroError({
-				...AstroErrorData.PrerenderRouteConflict,
-				message: AstroErrorData.PrerenderRouteConflict.message(
+			if (matchedRoute === route) {
+				// Current route is higher-priority. Include it for building.
+				return true;
+			}
+
+			// Current route is lower-priority. Warn or error based on config.
+			if (config.prerenderConflictBehavior === 'error') {
+				throw new AstroError({
+					...AstroErrorData.PrerenderRouteConflict,
+					message: AstroErrorData.PrerenderRouteConflict.message(
+						matchedRoute.route,
+						route.route,
+						normalized,
+					),
+					hint: AstroErrorData.PrerenderRouteConflict.hint(matchedRoute.route, route.route),
+				});
+			} else if (config.prerenderConflictBehavior === 'warn') {
+				const msg = AstroErrorData.PrerenderRouteConflict.message(
 					matchedRoute.route,
 					route.route,
 					normalized,
-				),
-				hint: AstroErrorData.PrerenderRouteConflict.hint(matchedRoute.route, route.route),
-			});
-		} else if (config.prerenderConflictBehavior === 'warn') {
-			const msg = AstroErrorData.PrerenderRouteConflict.message(
-				matchedRoute.route,
-				route.route,
-				normalized,
-			);
-			logger.warn('build', msg);
+				);
+				logger.warn('build', msg);
+			}
+
+			return false;
+		});
+
+		// Generate each path
+		if (config.build.concurrency > 1) {
+			const limit = PLimit(config.build.concurrency);
+			// Process in batches to avoid V8's Promise.all element limit, which is around ~123k items
+			//
+			// NOTE: ideally we could consider an iterator to avoid the batching limitation
+			const BATCH_SIZE = 100_000;
+			for (let i = 0; i < filteredPaths.length; i += BATCH_SIZE) {
+				const batch = filteredPaths.slice(i, i + BATCH_SIZE);
+				const promises: Promise<void>[] = [];
+				for (const { pathname, route } of batch) {
+					promises.push(
+						limit(() =>
+							generatePathWithPrerenderer(
+								prerenderer,
+								pathname,
+								route,
+								options,
+								routeToHeaders,
+								logger,
+							),
+						),
+					);
+				}
+				await Promise.all(promises);
+			}
+		} else {
+			for (const { pathname, route } of filteredPaths) {
+				await generatePathWithPrerenderer(
+					prerenderer,
+					pathname,
+					route,
+					options,
+					routeToHeaders,
+					logger,
+				);
+			}
 		}
 
-		return false;
-	});
+		// After generation, propagate distURL from the deserialized routes (used during generation)
+		// back to the original routes in allPages. The prerenderer operates on deserialized route
+		// objects (reconstructed from the serialized manifest), so distURL mutations during generation
+		// don't affect the original route objects that are later passed to the astro:build:done hook.
+		for (const { route: generatedRoute } of filteredPaths) {
+			if (generatedRoute.distURL && generatedRoute.distURL.length > 0) {
+				for (const pageData of Object.values(options.allPages)) {
+					if (
+						pageData.route.route === generatedRoute.route &&
+						pageData.route.component === generatedRoute.component
+					) {
+						pageData.route.distURL = generatedRoute.distURL;
+						break;
+					}
+				}
+			}
+		}
 
-	// Generate each path
-	if (config.build.concurrency > 1) {
-		const limit = PLimit(config.build.concurrency);
-		const promises: Promise<void>[] = [];
-		for (const { pathname, route } of filteredPaths) {
-			promises.push(
-				limit(() =>
-					generatePathWithPrerenderer(
-						prerenderer,
-						pathname,
-						route,
-						options,
-						routeToHeaders,
-						logger,
-					),
-				),
-			);
+		// Must happen before teardown since collectStaticImages fetches from the prerender server
+		staticImageList = getStaticImageList();
+		if (prerenderer.collectStaticImages) {
+			const adapterImages = await prerenderer.collectStaticImages();
+			for (const [path, entry] of adapterImages) {
+				staticImageList.set(path, entry);
+			}
 		}
-		await Promise.all(promises);
-	} else {
-		for (const { pathname, route } of filteredPaths) {
-			await generatePathWithPrerenderer(
-				prerenderer,
-				pathname,
-				route,
-				options,
-				routeToHeaders,
-				logger,
-			);
-		}
+	} finally {
+		// Always teardown to avoid leaking adapter resources when generation fails.
+		await prerenderer.teardown?.();
 	}
 
-	// Teardown the prerenderer
-	await prerenderer.teardown?.();
 	logger.info(
 		null,
 		colors.green(`✓ Completed in ${getTimeStat(generatePagesTimer, performance.now())}.\n`),
 	);
 
-	const staticImageList = getStaticImageList();
-	// Get app from default prerenderer for assets generation (custom prerenderers handle assets differently)
-	const app = (prerenderer as DefaultPrerenderer).app;
-	if (staticImageList.size && app) {
+	// Log pool statistics if queue rendering is enabled
+	if (
+		options.settings.logLevel === 'debug' &&
+		options.settings.config.experimental?.queuedRendering &&
+		prerenderer.app
+	) {
+		try {
+			const stats = prerenderer.app.getQueueStats();
+			// Dynamic import to avoid loading pool module when not using queue rendering
+			// Only log if there was actual pool activity
+			if (stats && (stats.acquireFromPool > 0 || stats.acquireNew > 0)) {
+				logger.info(
+					null,
+					colors.dim(
+						`[Queue Pool] ${stats.acquireFromPool.toLocaleString()} reused / ${stats.acquireNew.toLocaleString()} new nodes | ` +
+							`Hit rate: ${stats.hitRate.toFixed(1)}% | ` +
+							`Pool: ${stats.poolSize}/${stats.maxSize}`,
+					),
+				);
+			}
+		} catch {
+			// Silently ignore if pool module is not available
+		}
+	}
+
+	// Default pipeline always runs
+	if (staticImageList.size) {
 		logger.info('SKIP_FORMAT', `${colors.bgGreen(colors.black(` generating optimized images `))}`);
 
 		const totalCount = Array.from(staticImageList.values())
 			.map((x) => x.transforms.size)
 			.reduce((a, b) => a + b, 0);
 		const cpuCount = os.cpus().length;
-		const assetsCreationPipeline = await prepareAssetsGenerationEnv(app, totalCount);
+		const assetsCreationPipeline = await prepareAssetsGenerationEnv(options, totalCount);
 		const queue = new PQueue({ concurrency: Math.max(cpuCount, 1) });
 
 		const assetsTimer = performance.now();
@@ -326,7 +387,7 @@ async function generatePathWithPrerenderer(
 								(url) =>
 									url.href
 										.replace(config.outDir.toString(), '')
-										.replace(/(?:\/index\.html|\.html)$/, '') == trimSlashes(pathname),
+										.replace(/(?:\/index\.html|\.html)$/, '') === trimSlashes(pathname),
 							)
 						) {
 							return false;
@@ -480,7 +541,11 @@ function getUrlForPath(
 	}
 	let buildPathname: string;
 	if (pathname === '/' || pathname === '') {
-		buildPathname = collapseDuplicateTrailingSlashes(base + ending, trailingSlash !== 'never');
+		if (format === 'file') {
+			buildPathname = joinPaths(base, 'index.html');
+		} else {
+			buildPathname = collapseDuplicateTrailingSlashes(base + ending, trailingSlash !== 'never');
+		}
 	} else if (routeType === 'endpoint') {
 		const buildPathRelative = removeLeadingForwardSlash(pathname);
 		buildPathname = joinPaths(base, buildPathRelative);
@@ -504,7 +569,9 @@ function checkPublicConflict(
 ): boolean {
 	const outFilePath = fileURLToPath(outFile);
 	const outRoot = fileURLToPath(
-		settings.buildOutput === 'static' ? settings.config.outDir : settings.config.build.client,
+		settings.buildOutput === 'static' && !settings.adapter?.adapterFeatures?.preserveBuildClientDir
+			? settings.config.outDir
+			: settings.config.build.client,
 	);
 	const relativePath = outFilePath.slice(outRoot.length);
 	const publicFilePath = new URL(relativePath, settings.config.publicDir);

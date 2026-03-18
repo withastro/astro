@@ -1,6 +1,6 @@
 import type http from 'node:http';
 import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
-import { BaseApp, type RenderErrorOptions } from '../core/app/index.js';
+import { BaseApp, type RenderErrorOptions } from '../core/app/entrypoints/index.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { clientLocalsSymbol } from '../core/constants.js';
 import {
@@ -22,7 +22,8 @@ import { RunnablePipeline } from './pipeline.js';
 import { getCustom404Route, getCustom500Route } from '../core/routing/helpers.js';
 import { ensure404Route } from '../core/routing/astro-designed-error-pages.js';
 import { matchRoute } from '../core/routing/dev.js';
-import type { DevMatch } from '../core/app/base.js';
+import type { DevMatch, LogRequestPayload } from '../core/app/base.js';
+import { req } from '../core/messages/runtime.js';
 
 export class AstroServerApp extends BaseApp<RunnablePipeline> {
 	settings: AstroSettings;
@@ -30,7 +31,6 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 	loader: ModuleLoader;
 	manifestData: RoutesList;
 	currentRenderContext: RenderContext | undefined = undefined;
-	resolvedPathname: string | undefined = undefined;
 	constructor(
 		manifest: SSRManifest,
 		streaming = true,
@@ -59,6 +59,14 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 		this.manifestData = newRoutesList;
 		this.pipeline.setManifestData(newRoutesList);
 		ensure404Route(this.manifestData);
+	}
+
+	/**
+	 * Clears the route cache so that getStaticPaths() is re-evaluated.
+	 * Called via HMR when content collection data changes.
+	 */
+	clearRouteCache(): void {
+		this.pipeline.clearRouteCache();
 	}
 
 	async devMatch(pathname: string): Promise<DevMatch | undefined> {
@@ -110,10 +118,7 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 	}
 
 	async createRenderContext(payload: CreateRenderContext): Promise<RenderContext> {
-		this.currentRenderContext = await super.createRenderContext({
-			...payload,
-			pathname: this.resolvedPathname ?? payload.pathname,
-		});
+		this.currentRenderContext = await super.createRenderContext(payload);
 		return this.currentRenderContext;
 	}
 
@@ -175,7 +180,6 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 					throw new Error('No route matched, and default 404 route was not found.');
 				}
 
-				self.resolvedPathname = matchedRoute.resolvedPathname;
 				const request = createRequest({
 					url,
 					headers: incomingRequest.headers,
@@ -225,7 +229,13 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 
 	async renderError(
 		request: Request,
-		{ locals, skipMiddleware = false, error, clientAddress, status }: RenderErrorOptions,
+		{
+			skipMiddleware = false,
+			error,
+			status,
+			response: _response,
+			...resolvedRenderOptions
+		}: RenderErrorOptions,
 	): Promise<Response> {
 		// we always throw when we have Astro errors around the middleware
 		if (
@@ -239,13 +249,13 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 			try {
 				const preloadedComponent = await this.pipeline.getComponentByRoute(routeData);
 				const renderContext = await this.createRenderContext({
-					locals,
+					locals: resolvedRenderOptions.locals,
 					pipeline: this.pipeline,
-					pathname: await this.getPathnameFromRequest(request),
+					pathname: this.getPathnameFromRequest(request),
 					skipMiddleware,
 					request,
 					routeData,
-					clientAddress,
+					clientAddress: resolvedRenderOptions.clientAddress,
 					status,
 					shouldInjectCspMetaTags: !!this.manifest.csp,
 				});
@@ -261,8 +271,7 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 			} catch (_err) {
 				if (skipMiddleware === false) {
 					return this.renderError(request, {
-						clientAddress: undefined,
-						prerenderedErrorPageFetch: fetch,
+						...resolvedRenderOptions,
 						status: 500,
 						skipMiddleware: true,
 						error: _err,
@@ -288,6 +297,22 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 		} else {
 			return renderRoute(custom500);
 		}
+	}
+
+	logRequest({ pathname, method, statusCode, isRewrite, reqTime }: LogRequestPayload) {
+		if (pathname === '/favicon.ico') {
+			return;
+		}
+		this.logger.info(
+			null,
+			req({
+				url: pathname,
+				method,
+				statusCode,
+				isRewrite,
+				reqTime,
+			}),
+		);
 	}
 }
 

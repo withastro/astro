@@ -10,13 +10,6 @@ const RESOLVED_VIRTUAL_CLIENT_MODULE_ID = '\0' + VIRTUAL_CLIENT_MODULE_ID;
 export default function astroTransitions({ settings }: { settings: AstroSettings }): vite.Plugin {
 	return {
 		name: 'astro:transitions',
-		config() {
-			return {
-				optimizeDeps: {
-					include: ['astro > cssesc'],
-				},
-			};
-		},
 		resolveId: {
 			filter: {
 				id: new RegExp(`^(${VIRTUAL_MODULE_ID}|${VIRTUAL_CLIENT_MODULE_ID})$`),

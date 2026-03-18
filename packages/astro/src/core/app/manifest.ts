@@ -129,3 +129,12 @@ export function deserializeRouteInfo(rawRouteInfo: SerializedRouteInfo): RouteIn
 		routeData: deserializeRouteData(rawRouteInfo.routeData),
 	};
 }
+
+export function queuePoolSize(
+	config: NonNullable<SSRManifest['experimentalQueuedRendering']>,
+): number {
+	return config?.poolSize ?? 1000;
+}
+export function queueRenderingEnabled(config: SSRManifest['experimentalQueuedRendering']): boolean {
+	return config?.enabled ?? false;
+}

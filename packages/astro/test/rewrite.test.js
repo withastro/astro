@@ -119,7 +119,7 @@ describe('Dev rewrite, trailing slash -> never, with base', () => {
 		assert.equal($('p').text(), '/base');
 	});
 
-	it('should rewrite and always inlcude base', async () => {
+	it('should rewrite and always include base', async () => {
 		//rewrite('/') will rewrite to '/base'
 		const html = await fixture.fetch('/base/bar').then((res) => res.text());
 		const $ = cheerioLoad(html);
