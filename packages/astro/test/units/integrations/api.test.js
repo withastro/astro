@@ -392,8 +392,15 @@ describe('Integration API', () => {
 					},
 				},
 				async () => {
-					routes.sort((a, b) => a.component.localeCompare(b.component));
-					deepEqual(routes, [
+					// Deduplicate routes since they may be evaluated multiple times per environment in Vite 6
+					const uniqueRoutes = [];
+					for (const r of routes) {
+						if (!uniqueRoutes.some((ur) => ur.component === r.component)) {
+							uniqueRoutes.push(r);
+						}
+					}
+					uniqueRoutes.sort((a, b) => a.component.localeCompare(b.component));
+					deepEqual(uniqueRoutes, [
 						{
 							component: 'src/pages/no-prerender.astro',
 							prerender: false,
