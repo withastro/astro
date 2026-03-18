@@ -54,6 +54,7 @@ export function swapRootAttributes(newDoc: Document) {
  * make the old head look like the new one
  */
 export function swapHeadElements(doc: Document) {
+	const toRemove: Element[] = [];
 	for (const el of Array.from(document.head.children)) {
 		const newEl = persistedHeadElement(el as HTMLElement, doc);
 		// If the element exists in the document already, remove it
@@ -61,13 +62,19 @@ export function swapHeadElements(doc: Document) {
 		if (newEl) {
 			newEl.remove();
 		} else {
-			// Otherwise, remove the element in the head. It doesn't exist in the new page.
-			el.remove();
+			// Mark for removal after new elements are added.
+			toRemove.push(el);
 		}
 	}
 
-	// Everything left in the new head is new, append it all.
+	// Append new elements before removing old ones. This ensures styles
+	// (especially those using CSS features like @container queries with native
+	// nesting) are never absent from the document during the swap, which would
+	// cause browsers to lose track of container query contexts.
 	document.head.append(...doc.head.children);
+	for (const el of toRemove) {
+		el.remove();
+	}
 }
 
 export function swapBodyElement(newElement: Element, oldElement: Element) {
