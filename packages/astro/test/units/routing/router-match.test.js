@@ -270,6 +270,93 @@ describe('Router.match', () => {
 		assert.equal(aboutMatch.route.route, '/about');
 	});
 
+	it('matches [slug].html routes and extracts slug without .html', () => {
+		// Routes like `[slug].html.astro` have `.html` as a static segment part.
+		// The router must not strip `.html` before matching, or params extraction fails.
+		const trailingSlash = 'ignore';
+		const routes = [
+			makeRoute({
+				segments: [[dynamicPart('slug'), staticPart('.html')]],
+				trailingSlash,
+				route: '/[slug].html',
+				pathname: undefined,
+			}),
+		];
+
+		const router = new Router(routes, {
+			base: '/',
+			trailingSlash,
+			buildFormat: 'directory',
+		});
+
+		const match = router.match('/dummy.html');
+		assert.equal(match.type, 'match');
+		assert.equal(match.route.route, '/[slug].html');
+		assert.deepEqual(match.params, { slug: 'dummy' });
+	});
+
+	it('[slug].html routes do not match non-.html paths', () => {
+		const trailingSlash = 'ignore';
+		const routes = [
+			makeRoute({
+				segments: [[dynamicPart('slug'), staticPart('.html')]],
+				trailingSlash,
+				route: '/[slug].html',
+				pathname: undefined,
+			}),
+		];
+
+		const router = new Router(routes, {
+			base: '/',
+			trailingSlash,
+			buildFormat: 'directory',
+		});
+
+		// `/dummy` (without .html) should not match `/[slug].html`
+		const noMatch = router.match('/dummy');
+		assert.equal(noMatch.type, 'none');
+	});
+
+	it('[slug].html routes still work alongside buildFormat=file stripping', () => {
+		// When buildFormat=file, ordinary routes get .html stripped. But a route
+		// that explicitly includes .html in its pattern should still match correctly.
+		const trailingSlash = 'ignore';
+		const routes = [
+			makeRoute({
+				segments: [[staticPart('about')]],
+				trailingSlash,
+				route: '/about',
+				pathname: '/about',
+			}),
+			makeRoute({
+				segments: [[dynamicPart('slug'), staticPart('.html')]],
+				trailingSlash,
+				route: '/[slug].html',
+				pathname: undefined,
+			}),
+		];
+
+		const router = new Router(routes, {
+			base: '/',
+			trailingSlash,
+			buildFormat: 'file',
+		});
+
+		// Ordinary static route: /about.html → strips to /about → matches /about
+		const aboutMatch = router.match('/about.html');
+		assert.equal(aboutMatch.type, 'match');
+		assert.equal(aboutMatch.route.route, '/about');
+
+		// Dynamic .html route: the pattern itself matches /dummy.html, but
+		// normalizeFileFormatPathname strips it to /dummy which won't match.
+		// This is a known limitation with buildFormat=file + [slug].html routes.
+		// The primary fix targets SSR (buildFormat=directory) as in the bug report.
+		const dynamicMatch = router.match('/dummy.html');
+		// With buildFormat=file the .html is stripped before matching, so /dummy.html → /dummy,
+		// which doesn't match /[slug].html. This is expected current behavior.
+		assert.equal(dynamicMatch.type, 'none');
+	});
+
 	it('redirects multiple leading slashes at root', () => {
 		const trailingSlash = 'ignore';
 		const routes = [
@@ -317,28 +404,4 @@ describe('Router.match', () => {
 			assert.equal(match.status, 301);
 		}
 	});
-
-	it('matches dynamic routes with .html extension', () => {
-    const trailingSlash = 'ignore';
-    const routes = [
-      makeRoute({
-        segments: [[dynamicPart('slug'), staticPart('.html')]],
-        trailingSlash,
-        route: '/[slug].html',
-        pathname: undefined,
-      }),
-    ];
-
-    const router = new Router(routes, {
-      base: '/',
-      trailingSlash,
-      buildFormat: 'directory',
-    });
-
-    const match = router.match('/hoge.html');
-
-    assert.equal(match.type, 'match');
-    assert.equal(match.route.route, '/[slug].html');
-    assert.deepEqual(match.params, { slug: 'hoge' });
-  });
 });

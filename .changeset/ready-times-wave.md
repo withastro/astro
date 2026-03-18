@@ -1,5 +1,5 @@
 ---
-'astro': major
+'astro': patch
 ---
 
-allow dynamic parameters in .html.astro routes
+Fixes SSR dynamic routes with `.html` extension (e.g. `[slug].html.astro`) not working
