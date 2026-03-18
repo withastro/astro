@@ -35,7 +35,37 @@ describe('dependencies', () => {
 		assert.ok(fixture.hasMessage('Third-party template detected'));
 	});
 
-	it('does not warn without --yes', async () => {
+	it('starlight templates do not warn', async () => {
+		const context = {
+			cwd: '',
+			yes: true,
+			template: 'starlight/tailwind',
+			packageManager: 'npm',
+			dryRun: true,
+			prompt: () => ({ deps: true }),
+		};
+
+		await dependencies(context);
+
+		assert.equal(fixture.hasMessage('Third-party template detected'), false);
+	});
+
+	it('starlight-prefixed third-party templates warn', async () => {
+		const context = {
+			cwd: '',
+			yes: true,
+			template: 'starlightevil/foo',
+			packageManager: 'npm',
+			dryRun: true,
+			prompt: () => ({ deps: true }),
+		};
+
+		await dependencies(context);
+
+		assert.ok(fixture.hasMessage('Third-party template detected'));
+	});
+
+	it('warns without --yes when install is enabled', async () => {
 		const context = {
 			cwd: '',
 			install: true,
@@ -47,7 +77,7 @@ describe('dependencies', () => {
 
 		await dependencies(context);
 
-		assert.equal(fixture.hasMessage('Third-party template detected'), false);
+		assert.ok(fixture.hasMessage('Third-party template detected'));
 	});
 
 	it('prompt yes', async () => {

@@ -112,7 +112,7 @@ const FILES_TO_UPDATE = {
 
 export function getTemplateTarget(tmpl: string, ref = 'latest') {
 	// Handle Starlight templates
-	if (tmpl.startsWith('starlight')) {
+	if (tmpl === 'starlight' || tmpl.startsWith('starlight/')) {
 		const [, starter = 'basics'] = tmpl.split('/');
 		return `github:withastro/starlight/examples/${starter}`;
 	}
@@ -132,7 +132,10 @@ export function getTemplateTarget(tmpl: string, ref = 'latest') {
 }
 
 export function isThirdPartyTemplate(tmpl: string) {
-	if (tmpl.startsWith('starlight')) return false;
+	// A template is considered third-party when it includes a path separator
+	// (for example `owner/repo` or `github:owner/repo`) and is not one of the
+	// built-in `starlight` templates (`starlight` / `starlight/<starter>`).
+	if (tmpl === 'starlight' || tmpl.startsWith('starlight/')) return false;
 	return tmpl.includes('/');
 }
 

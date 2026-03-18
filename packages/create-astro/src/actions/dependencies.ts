@@ -42,10 +42,10 @@ export async function dependencies(
 		}
 	}
 
-	if (ctx.yes && deps && ctx.template && isThirdPartyTemplate(ctx.template)) {
+	if (deps && ctx.template && isThirdPartyTemplate(ctx.template)) {
 		await info(
 			'warn',
-			`Third-party template detected. Installing dependencies may run lifecycle scripts. Use ${color.bold('--no-install')} to skip automatic install.`,
+			`Third-party template detected. Installing dependencies may run lifecycle scripts. Continue only if you trust this template. Use ${color.bold('--no-install')} to skip automatic install.`,
 		);
 	}
 
