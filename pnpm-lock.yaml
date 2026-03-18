@@ -2792,6 +2792,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/content-collections-type-inference:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/content-collections-with-config-mjs:
     dependencies:
       astro:
@@ -3389,6 +3395,12 @@ importers:
         version: link:../../..
 
   packages/astro/test/fixtures/hmr-new-page:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/hmr-slots-render:
     dependencies:
       astro:
         specifier: workspace:*

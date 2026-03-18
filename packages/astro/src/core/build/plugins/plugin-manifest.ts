@@ -149,15 +149,21 @@ async function buildManifest(
 
 	const routes: SerializedRouteInfo[] = [];
 	const domainLookupTable: Record<string, string> = {};
-	const entryModules = Object.fromEntries(internals.entrySpecifierToBundleMap.entries());
-	if (settings.scripts.some((script) => script.stage === 'page')) {
-		staticFiles.push(entryModules[PAGE_SCRIPT_ID]);
-	}
+	const rawEntryModules = Object.fromEntries(internals.entrySpecifierToBundleMap.entries());
 
 	const assetQueryParams = settings.adapter?.client?.assetQueryParams;
 	const assetQueryString = assetQueryParams ? assetQueryParams.toString() : undefined;
 
 	const appendAssetQuery = (pth: string) => (assetQueryString ? `${pth}?${assetQueryString}` : pth);
+	const entryModules = Object.fromEntries(
+		Object.entries(rawEntryModules).map(([key, value]) => [
+			key,
+			value ? appendAssetQuery(value) : value,
+		]),
+	);
+	if (settings.scripts.some((script) => script.stage === 'page')) {
+		staticFiles.push(rawEntryModules[PAGE_SCRIPT_ID]);
+	}
 
 	const prefixAssetPath = (pth: string) => {
 		let result = '';
@@ -195,7 +201,7 @@ async function buildManifest(
 
 		const scripts: SerializedRouteInfo['scripts'] = [];
 		if (settings.scripts.some((script) => script.stage === 'page')) {
-			const src = entryModules[PAGE_SCRIPT_ID];
+			const src = rawEntryModules[PAGE_SCRIPT_ID];
 
 			scripts.push({
 				type: 'external',

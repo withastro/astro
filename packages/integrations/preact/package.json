@@ -51,7 +51,7 @@
     "preact": "^10.6.5"
   },
   "engines": {
-    "node": "^20.19.1 || >=22.12.0"
+    "node": ">=22.12.0"
   },
   "publishConfig": {
     "provenance": true
