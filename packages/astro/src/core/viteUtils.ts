@@ -42,8 +42,9 @@ export function resolvePath(specifier: string, importer: string) {
 				// Fallback: ESM resolver in case environments differ.
 				const importerURL = pathToFileURL(importer).toString();
 				const resolved = import.meta.resolve(specifier, importerURL);
-				if (resolved.startsWith('file:')) {
-					return resolveJsToTs(normalizePath(fileURLToPath(resolved)));
+				const resolvedUrl = new URL(resolved);
+				if (resolvedUrl.protocol === 'file:') {
+					return resolveJsToTs(normalizePath(fileURLToPath(resolvedUrl)));
 				}
 			} catch {
 				// fall through
