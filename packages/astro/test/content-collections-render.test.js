@@ -183,9 +183,12 @@ describe('Content Collections - render()', () => {
 
 		it('Includes component scripts for rendered entry', async () => {
 			const response = await fixture.fetch('/launch-week-component-scripts', { method: 'GET' });
-			assert.equal(response.status, 200);
-
 			const html = await response.text();
+			if (response.status !== 200) {
+				console.log('RESPONSE STATUS:', response.status);
+				console.log('RESPONSE BODY:', html.substring(0, 2000));
+			}
+			assert.equal(response.status, 200);
 			const $ = cheerio.load(html);
 
 			// Includes script
