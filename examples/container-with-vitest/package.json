@@ -14,8 +14,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@astrojs/react": "^5.0.0-beta.3",
-    "astro": "^6.0.0-beta.19",
+    "@astrojs/react": "^5.0.1",
+    "astro": "^6.0.6",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "vitest": "^3.2.4"

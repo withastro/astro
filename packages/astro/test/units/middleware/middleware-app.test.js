@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { App } from '../../../dist/core/app/app.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
-import { createManifest, createRouteData } from './test-helpers.js';
+import { createRouteData } from '../mocks.js';
+import { createManifest } from '../app/test-helpers.js';
 
 /**
  * Helper: creates an App with the given middleware and routes.

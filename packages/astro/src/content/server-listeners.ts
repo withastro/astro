@@ -18,6 +18,13 @@ export async function attachContentServerListeners({
 	logger,
 	settings,
 }: ContentServerListenerParams) {
+	// The default max listeners is 10, which is easy to exceed in dev when
+	// integrations and internal features all subscribe to the same watcher.
+	const maxListeners = viteServer.watcher.getMaxListeners();
+	if (maxListeners !== 0 && maxListeners < 50) {
+		viteServer.watcher.setMaxListeners(50);
+	}
+
 	const contentGenerator = await createContentTypesGenerator({
 		fs,
 		settings,

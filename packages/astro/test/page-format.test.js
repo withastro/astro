@@ -43,6 +43,18 @@ describe('build.format', () => {
 				await fixture.build();
 			});
 
+			it('Astro.url pathname includes /index.html for root page in build', async () => {
+				let html = await fixture.readFile('/index.html');
+				let $ = cheerio.load(html);
+				assert.equal($('#url').text(), '/index.html');
+			});
+
+			it('Astro.url pathname includes .html for non-root pages in build', async () => {
+				let html = await fixture.readFile('/nested/page.html');
+				let $ = cheerio.load(html);
+				assert.equal($('#url').text(), '/nested/page.html');
+			});
+
 			it('relative urls created point to sibling folders', async () => {
 				let html = await fixture.readFile('/nested/page.html');
 				let $ = cheerio.load(html);

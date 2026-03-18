@@ -35,6 +35,7 @@ import { AstroIntegrationLogger, Logger } from '../logger/core.js';
 import { type CreateRenderContext, RenderContext } from '../render-context.js';
 import { redirectTemplate } from '../routing/3xx.js';
 import { ensure404Route } from '../routing/astro-designed-error-pages.js';
+import { routeHasHtmlExtension } from '../routing/helpers.js';
 import { matchRoute } from '../routing/match.js';
 import { type CacheLike, applyCacheHeaders } from '../cache/runtime/cache.js';
 import { Router } from '../routing/router.js';
@@ -469,7 +470,12 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				status: 404,
 			});
 		}
-		const pathname = this.getPathnameFromRequest(request);
+		let pathname = this.getPathnameFromRequest(request);
+		// In dev, the route may have matched a normalized pathname (after .html stripping).
+		// Skip normalization if the route already has an .html extension in its definition.
+		if (this.isDev() && !routeHasHtmlExtension(routeData)) {
+			pathname = pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
+		}
 		const defaultStatus = this.getDefaultStatusCode(routeData, pathname);
 
 		let response;

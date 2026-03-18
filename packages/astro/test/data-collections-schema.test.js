@@ -41,14 +41,12 @@ describe('Content Collections - data collections', () => {
 								},
 							},
 							required: ['greeting', 'preamble'],
-							additionalProperties: false,
 						},
 						$schema: {
 							type: 'string',
 						},
 					},
 					required: ['homepage'],
-					additionalProperties: false,
 				}),
 				JSON.stringify(JSON.parse(rawJson)),
 			);
@@ -80,14 +78,12 @@ describe('Content Collections - data collections', () => {
 								},
 							},
 							required: ['greeting', 'preamble', 'image'],
-							additionalProperties: false,
 						},
 						$schema: {
 							type: 'string',
 						},
 					},
 					required: ['homepage'],
-					additionalProperties: false,
 				}),
 				JSON.stringify(JSON.parse(rawJson)),
 			);

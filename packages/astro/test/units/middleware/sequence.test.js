@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { beforeEach, describe, it } from 'node:test';
 import { callMiddleware } from '../../../dist/core/middleware/callMiddleware.js';
 import { sequence } from '../../../dist/core/middleware/sequence.js';
-import { createMockAPIContext, createResponseFunction } from './test-helpers.js';
+import { createMockAPIContext, createResponseFunction } from '../mocks.js';
 
 describe('sequence', () => {
 	/** @type {import('astro').APIContext} */
