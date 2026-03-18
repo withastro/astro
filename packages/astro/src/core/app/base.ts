@@ -35,6 +35,7 @@ import { AstroIntegrationLogger, Logger } from '../logger/core.js';
 import { type CreateRenderContext, RenderContext } from '../render-context.js';
 import { redirectTemplate } from '../routing/3xx.js';
 import { ensure404Route } from '../routing/astro-designed-error-pages.js';
+import { routeHasHtmlExtension } from '../routing/helpers.js';
 import { matchRoute } from '../routing/match.js';
 import { type CacheLike, applyCacheHeaders } from '../cache/runtime/cache.js';
 import { Router } from '../routing/router.js';
@@ -470,27 +471,11 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			});
 		}
 		let pathname = this.getPathnameFromRequest(request);
-		// In dev, normalized paths (like stripping .html) are often used for matching.
-    // However, if the route explicitly matches the .html path (e.g., [slug].html.astro),
-    // we skip normalization to ensure correct param extraction.
-    if (this.isDev()) {
-      if (pathname.endsWith('.html')) {
-        const isIndexHtml = /\/index\.html$/.test(pathname);
-        const isExactMatch = routeData && routeData.pattern.test(pathname);
-
-        // Normalize only if it's index.html or if the current route doesn't 
-        // explicitly support the .html extension.
-        if (isIndexHtml || !isExactMatch) {
-          pathname = pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
-          
-          // Re-match to ensure routeData aligns with the newly normalized pathname.
-          const result = await this.devMatch(pathname);
-          if (result) {
-            routeData = result.routeData;
-          }
-        }
-      }
-    }
+		// In dev, the route may have matched a normalized pathname (after .html stripping).
+		// Skip normalization if the route already has an .html extension in its definition.
+		if (this.isDev() && !routeHasHtmlExtension(routeData)) {
+			pathname = pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
+		}
 		const defaultStatus = this.getDefaultStatusCode(routeData, pathname);
 
 		let response;

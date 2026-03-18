@@ -5,7 +5,7 @@ import type { RouteData } from '../../types/public/internal.js';
 import { DEFAULT_404_COMPONENT } from '../constants.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
-import { routeIsFallback, routeIsRedirect } from '../routing/helpers.js';
+import { routeHasHtmlExtension, routeIsFallback, routeIsRedirect } from '../routing/helpers.js';
 import type { RouteCache } from './route-cache.js';
 import { callGetStaticPaths, findPathItemByKey } from './route-cache.js';
 
@@ -87,15 +87,14 @@ export function getParams(route: RouteData, pathname: string): Params {
 	if (!route.params.length) return {};
 	// The RegExp pattern expects a decoded string, but the pathname is encoded
 	// when the URL contains non-English characters.
-	// Try the full pathname first (preserving `.html` for routes like `[slug].html.astro`),
-	// then fall back to stripping `.html` for routes where it was added by the build format.
-	const candidates = [pathname];
-	if (pathname.endsWith('.html')) candidates.push(pathname.slice(0, -5));
+	// Strip `.html` from the pathname unless `.html` is a static part of the route definition
+	// itself (e.g. `[slug].html.astro`). Dynamic params like `[id]` would otherwise greedily
+	// capture the `.html` suffix (e.g. `id = '42.html'` instead of `id = '42'`).
+	const path =
+		pathname.endsWith('.html') && !routeHasHtmlExtension(route) ? pathname.slice(0, -5) : pathname;
 
 	const allPatterns = [route, ...route.fallbackRoutes].map((r) => r.pattern);
-	const paramsMatch = candidates
-		.flatMap((path) => allPatterns.map((pattern) => pattern.exec(path)))
-		.find((x) => x);
+	const paramsMatch = allPatterns.map((pattern) => pattern.exec(path)).find((x) => x);
 
 	if (!paramsMatch) return {};
 	const params: Params = {};
