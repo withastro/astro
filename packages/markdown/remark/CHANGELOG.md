@@ -1,5 +1,12 @@
 # @astrojs/markdown-remark
 
+## 7.0.1
+
+### Patch Changes
+
+- Updated dependencies [[`d3c7de9`](https://github.com/withastro/astro/commit/d3c7de9253e9cb31fa5c4bf9f4bdf59dd1ada7b0)]:
+  - @astrojs/prism@4.0.1
+
 ## 7.0.0
 
 ### Major Changes
