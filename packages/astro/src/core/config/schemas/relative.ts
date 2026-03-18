@@ -117,7 +117,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 				.prefault({}),
 		),
 	}).transform((config) => {
-		// If the user changed `outDir`, we need to also update `build.client` and `build.server`
+		// If the user changed `outDir`, we also need to update `build.client` and `build.server`
 		// the be based on the correct `outDir`
 		if (
 			config.outDir.toString() !==

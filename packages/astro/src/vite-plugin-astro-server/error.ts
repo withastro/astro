@@ -1,7 +1,7 @@
 import type { SSRManifest } from '../core/app/types.js';
 import { collectErrorMetadata } from '../core/errors/dev/index.js';
 import type { Logger } from '../core/logger/core.js';
-import { formatErrorMessage } from '../core/messages.js';
+import { formatErrorMessage } from '../core/messages/runtime.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 
 export function recordServerError(

@@ -2,12 +2,12 @@ import fs from 'node:fs';
 import http from 'node:http';
 import https from 'node:https';
 import type { PreviewServer } from 'astro';
-import type { NodeApp } from 'astro/app/node';
+import type { BaseApp } from 'astro/app';
 import enableDestroy from 'server-destroy';
 import { logListeningOn } from './log-listening-on.js';
 import { createAppHandler } from './serve-app.js';
 import { createStaticHandler } from './serve-static.js';
-import type { Options } from './types.js';
+import type { NodeAppHeadersJson, Options } from './types.js';
 
 // Used to get Host Value at Runtime
 export const hostOptions = (host: Options['host']): string => {
@@ -17,10 +17,18 @@ export const hostOptions = (host: Options['host']): string => {
 	return host;
 };
 
-export default function standalone(app: NodeApp, options: Options) {
+export default function standalone(
+	app: BaseApp,
+	options: Options,
+	headersMap: NodeAppHeadersJson | undefined,
+) {
 	const port = process.env.PORT ? Number(process.env.PORT) : (options.port ?? 8080);
 	const host = process.env.HOST ?? hostOptions(options.host);
-	const handler = createStandaloneHandler(app, options);
+	// Ensure the resolved port (which may come from process.env.PORT) is used
+	// by createRequest for origin construction, not just the build-time config port.
+	// We spread a new object because `options` may be a frozen module namespace.
+	const resolvedOptions = { ...options, port };
+	const handler = createStandaloneHandler(app, resolvedOptions, headersMap);
 	const server = createServer(handler, host, port);
 	server.server.listen(port, host);
 	if (process.env.ASTRO_NODE_LOGGING !== 'disabled') {
@@ -33,9 +41,13 @@ export default function standalone(app: NodeApp, options: Options) {
 }
 
 // also used by server entrypoint
-export function createStandaloneHandler(app: NodeApp, options: Options) {
+export function createStandaloneHandler(
+	app: BaseApp,
+	options: Options,
+	headersMap: NodeAppHeadersJson | undefined,
+) {
 	const appHandler = createAppHandler(app, options);
-	const staticHandler = createStaticHandler(app, options);
+	const staticHandler = createStaticHandler(app, options, headersMap);
 	return (req: http.IncomingMessage, res: http.ServerResponse) => {
 		try {
 			// validate request path

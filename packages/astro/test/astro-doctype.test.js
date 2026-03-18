@@ -35,7 +35,7 @@ describe('Doctype', () => {
 		);
 	});
 
-	it('User provided doctype is case insensitive', async () => {
+	it('User provided doctype is case-insensitive', async () => {
 		const html = await fixture.readFile('/capital/index.html');
 
 		// test 1: Doctype left alone

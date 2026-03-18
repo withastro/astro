@@ -1,15 +1,25 @@
-import type { EnvironmentOptions, Plugin as VitePlugin } from 'vite';
+import type { EnvironmentOptions, Plugin as VitePlugin, Rollup } from 'vite';
 import type { BuildInternals } from '../internal.js';
 import type { StaticBuildOptions } from '../types.js';
 import { normalizeEntryId } from './plugin-component-entry.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 
+function getRollupInputAsSet(rollupInput: Rollup.InputOption | undefined): Set<string> {
+	if (Array.isArray(rollupInput)) {
+		return new Set(rollupInput);
+	} else if (typeof rollupInput === 'string') {
+		return new Set([rollupInput]);
+	} else if (rollupInput && typeof rollupInput === 'object') {
+		return new Set(Object.values(rollupInput) as string[]);
+	} else {
+		return new Set();
+	}
+}
+
 export function pluginInternals(
 	options: StaticBuildOptions,
 	internals: BuildInternals,
 ): VitePlugin {
-	let input: Set<string>;
-
 	return {
 		name: '@astro/plugin-build-internals',
 
@@ -25,34 +35,32 @@ export function pluginInternals(
 			// Prender environment is only enabled during the build
 			if (environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.prerender) {
 				return {
+					build: {
+						rollupOptions: {
+							// These packages as they're not bundle-friendly. Users with strict package installations
+							// need to manually install these themselves if they use the related features.
+							external: [
+								'sharp', // For sharp image service
+							],
+						},
+					},
 					resolve: {
 						// Always bundle Astro runtime when building for SSR
 						noExternal: ['astro'],
-						// Except for these packages as they're not bundle-friendly. Users with strict package installations
-						// need to manually install these themselves if they use the related features.
-						external: [
-							'sharp', // For sharp image service
-						],
 					},
 				};
 			}
 		},
 
-		configResolved(config) {
-			// Get input from rollupOptions
-			const rollupInput = config.build?.rollupOptions?.input;
-			if (Array.isArray(rollupInput)) {
-				input = new Set(rollupInput);
-			} else if (typeof rollupInput === 'string') {
-				input = new Set([rollupInput]);
-			} else if (rollupInput && typeof rollupInput === 'object') {
-				input = new Set(Object.values(rollupInput) as string[]);
-			} else {
-				input = new Set();
-			}
-		},
-
 		async generateBundle(_options, bundle) {
+			// Read the rollup input directly from the current environment's config rather than
+			// relying on a closure variable from configResolved. With Vite's per-environment config
+			// resolution, a shared closure variable would be overwritten by the last environment's
+			// configResolved call, causing inputs from one environment (e.g. SSR) to leak into
+			// another (e.g. client). This caused server-only modules like @astrojs/node/server.js
+			// to be resolved in the client environment, triggering spurious "externalized for
+			// browser compatibility" warnings.
+			const input = getRollupInputAsSet(this.environment?.config.build.rollupOptions.input);
 			const promises = [];
 			const mapping = new Map<string, Set<string>>();
 			const allInput = new Set([...input, ...internals.clientInput]);

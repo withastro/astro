@@ -1,7 +1,0 @@
-{
-    "name": "@test/virtual-routes",
-    "dependencies": {
-      "astro": "workspace:*"
-    }
-  }
-  

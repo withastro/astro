@@ -8,6 +8,7 @@ import type { AstroConfig } from './public/config.js';
 import type { ContentEntryType, DataEntryType } from './public/content.js';
 import type {
 	AstroAdapter,
+	AstroPrerenderer,
 	AstroRenderer,
 	InjectedScriptStage,
 	InjectedType,
@@ -32,6 +33,10 @@ type CspObject = Required<Exclude<AstroConfig['security']['csp'], boolean>>;
 export interface AstroSettings {
 	config: AstroConfig;
 	adapter: AstroAdapter | undefined;
+	prerenderer:
+		| AstroPrerenderer
+		| ((defaultPrerenderer: AstroPrerenderer) => AstroPrerenderer)
+		| undefined;
 	preferences: AstroPreferences;
 	injectedRoutes: InternalInjectedRoute[];
 	resolvedInjectedRoutes: ResolvedInjectedRoute[];
@@ -65,7 +70,7 @@ export interface AstroSettings {
 	// This makes content optional. Internal only so it's not optional on InjectedType
 	injectedTypes: Array<Omit<InjectedType, 'content'> & Partial<Pick<InjectedType, 'content'>>>;
 	/**
-	 * Determine if the build output should be a static, dist folder or a adapter-based server output
+	 * Determine if the build output should be a static, dist folder or an adapter-based server output
 	 * undefined when unknown
 	 */
 	buildOutput: undefined | 'static' | 'server';

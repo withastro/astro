@@ -4,7 +4,7 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
 	output: "server",
 	adapter: vercel({
-		experimentalStaticHeaders: true,
+		staticHeaders: true,
 	}),
 	security: {
 		csp: true

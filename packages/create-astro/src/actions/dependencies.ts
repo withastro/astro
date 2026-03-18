@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { assertValidPackageName } from '@astrojs/internal-helpers/cli';
 import { color } from '@astrojs/cli-kit';
 import { error, info, title } from '../messages.js';
 import { shell } from '../shell.js';
@@ -23,8 +24,14 @@ export async function dependencies(
 		}));
 		ctx.install = deps;
 	}
-
 	ctx.add = ctx.add?.reduce<string[]>((acc, item) => acc.concat(item.split(',')), []);
+
+	if (ctx.add) {
+		for (const addValue of ctx.add) {
+			// Validate package name to prevent command injection attacks
+			assertValidPackageName(addValue);
+		}
+	}
 
 	if (ctx.dryRun) {
 		await info(
@@ -86,11 +93,15 @@ async function astroAdd({
 	cwd: string;
 }) {
 	if (packageManager === 'yarn') await ensureYarnLock({ cwd });
-	return shell(
-		packageManager === 'npm' ? 'npx' : `${packageManager} dlx`,
-		['astro add', integrations.join(' '), '-y'],
-		{ cwd, timeout: 90_000, stdio: 'ignore' },
-	);
+
+	// Build command and args properly for spawn without shell interpretation
+	const command = packageManager === 'npm' ? 'npx' : packageManager;
+	const args =
+		packageManager === 'npm'
+			? ['astro', 'add', ...integrations, '-y']
+			: ['dlx', 'astro', 'add', ...integrations, '-y'];
+
+	return shell(command, args, { cwd, timeout: 90_000, stdio: 'ignore' });
 }
 
 async function install({ packageManager, cwd }: { packageManager: string; cwd: string }) {

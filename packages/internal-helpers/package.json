@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/internal-helpers",
   "description": "Internal helpers used by core Astro packages.",
-  "version": "0.7.5",
+  "version": "0.8.0",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -14,7 +14,10 @@
   "exports": {
     "./path": "./dist/path.js",
     "./remote": "./dist/remote.js",
-    "./fs": "./dist/fs.js"
+    "./fs": "./dist/fs.js",
+    "./cli": "./dist/cli.js",
+    "./create-filter": "./dist/create-filter.js",
+    "./request": "./dist/request.js"
   },
   "typesVersions": {
     "*": {
@@ -26,6 +29,12 @@
       ],
       "fs": [
         "./dist/fs.d.ts"
+      ],
+      "cli": [
+        "./dist/cli.d.ts"
+      ],
+      "create-filter": [
+        "./dist/create-filter.d.ts"
       ]
     }
   },
@@ -39,7 +48,11 @@
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "test": "astro-scripts test \"test/**/*.test.js\""
   },
+  "dependencies": {
+    "picomatch": "^4.0.3"
+  },
   "devDependencies": {
+    "@types/picomatch": "^4.0.2",
     "astro-scripts": "workspace:*"
   },
   "keywords": [

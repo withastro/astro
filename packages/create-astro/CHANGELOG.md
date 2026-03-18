@@ -1,5 +1,49 @@
 # create-astro
 
+## 5.0.1
+
+### Patch Changes
+
+- [#15885](https://github.com/withastro/astro/pull/15885) [`817afb6`](https://github.com/withastro/astro/commit/817afb6d2217a9ed590690163e5df8d50c910ab6) Thanks [@matthewp](https://github.com/matthewp)! - Avoid spawning package manager commands with `shell: true` to prevent Node.js DEP0190 warnings during `create-astro` runs on newer Node versions.
+
+## 5.0.0
+
+### Major Changes
+
+- [#14427](https://github.com/withastro/astro/pull/14427) [`e131261`](https://github.com/withastro/astro/commit/e1312615b39c59ebc05d5bb905ee0960b50ad3cf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Increases minimum Node.js version to 22.12.0 - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#node-22))
+
+### Patch Changes
+
+- [#15187](https://github.com/withastro/astro/pull/15187) [`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795) Thanks [@matthewp](https://github.com/matthewp)! - Update to Astro 6 beta
+
+- [#15344](https://github.com/withastro/astro/pull/15344) [`9d87f77`](https://github.com/withastro/astro/commit/9d87f77e57f5486802ef9e1c11ccece5914c7006) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a hang that could occur when the npm registry is slow or unresponsive by adding a 10 second timeout to the version check
+
+- [#15350](https://github.com/withastro/astro/pull/15350) [`d758b68`](https://github.com/withastro/astro/commit/d758b68ff776c3bef04553dde3996da8e58ffaee) Thanks [@matthewp](https://github.com/matthewp)! - Errors when `--add` and `--no-install` flags are used together, as `--add` requires dependencies to be installed
+
+- [#15264](https://github.com/withastro/astro/pull/15264) [`11efb05`](https://github.com/withastro/astro/commit/11efb058e85cda68f9a8e8f15a2c7edafe5a4789) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Lower the Node version requirement to allow running on Stackblitz until it supports v22
+
+- [#15419](https://github.com/withastro/astro/pull/15419) [`a18d727`](https://github.com/withastro/astro/commit/a18d727fc717054df85177c8e0c3d38a5252f2da) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where `--add` could accept any kind of string, leading to different errors. Now `--add` accepts only values of valid integrations and adapters.
+
+- [#15419](https://github.com/withastro/astro/pull/15419) [`a18d727`](https://github.com/withastro/astro/commit/a18d727fc717054df85177c8e0c3d38a5252f2da) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the `add` command could accept any arbitrary value, leading the possible command injections. Now `add` and `--add` accepts
+  values that are only acceptable npmjs.org names.
+
+## 5.0.0-beta.4
+
+### Patch Changes
+
+- [#15419](https://github.com/withastro/astro/pull/15419) [`a18d727`](https://github.com/withastro/astro/commit/a18d727fc717054df85177c8e0c3d38a5252f2da) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where `--add` could accept any kind of string, leading to different errors. Now `--add` accepts only values of valid integrations and adapters.
+
+- [#15419](https://github.com/withastro/astro/pull/15419) [`a18d727`](https://github.com/withastro/astro/commit/a18d727fc717054df85177c8e0c3d38a5252f2da) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the `add` command could accept any arbitrary value, leading the possible command injections. Now `add` and `--add` accepts
+  values that are only acceptable npmjs.org names.
+
+## 5.0.0-beta.3
+
+### Patch Changes
+
+- [#15344](https://github.com/withastro/astro/pull/15344) [`9d87f77`](https://github.com/withastro/astro/commit/9d87f77e57f5486802ef9e1c11ccece5914c7006) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a hang that could occur when the npm registry is slow or unresponsive by adding a 10 second timeout to the version check
+
+- [#15350](https://github.com/withastro/astro/pull/15350) [`d758b68`](https://github.com/withastro/astro/commit/d758b68ff776c3bef04553dde3996da8e58ffaee) Thanks [@matthewp](https://github.com/matthewp)! - Errors when `--add` and `--no-install` flags are used together, as `--add` requires dependencies to be installed
+
 ## 5.0.0-beta.2
 
 ### Patch Changes
@@ -16,7 +60,7 @@
 
 ### Major Changes
 
-- [#14427](https://github.com/withastro/astro/pull/14427) [`e131261`](https://github.com/withastro/astro/commit/e1312615b39c59ebc05d5bb905ee0960b50ad3cf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Increases minimum Node.js version to 22.12.0 - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#node-22))
+- [#14427](https://github.com/withastro/astro/pull/14427) [`e131261`](https://github.com/withastro/astro/commit/e1312615b39c59ebc05d5bb905ee0960b50ad3cf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Increases minimum Node.js version to 22.12.0 - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#node-22))
 
 ## 4.13.2
 
@@ -147,7 +191,7 @@
 
 ### Minor Changes
 
-- [#11924](https://github.com/withastro/astro/pull/11924) [`7d70ba3`](https://github.com/withastro/astro/commit/7d70ba317889b9281c7891038779a68fcb8f0778) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates the default Astro config with `// @ts-check` if the Typescript preset is `strict` or `strictest`
+- [#11924](https://github.com/withastro/astro/pull/11924) [`7d70ba3`](https://github.com/withastro/astro/commit/7d70ba317889b9281c7891038779a68fcb8f0778) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates the default Astro config with `// @ts-check` if the TypeScript preset is `strict` or `strictest`
 
 ## 4.8.4
 
@@ -381,7 +425,7 @@
 
 ### Patch Changes
 
-- [#7527](https://github.com/withastro/astro/pull/7527) [`9e2426f75`](https://github.com/withastro/astro/commit/9e2426f75637a6318961f483de90b635f3fdadeb) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Default registry logic to fallback to NPM if registry command fails (sorry, Bun users!)
+- [#7527](https://github.com/withastro/astro/pull/7527) [`9e2426f75`](https://github.com/withastro/astro/commit/9e2426f75637a6318961f483de90b635f3fdadeb) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Default registry logic to fall back to NPM if registry command fails (sorry, Bun users!)
 
 - [#7539](https://github.com/withastro/astro/pull/7539) [`1170877b5`](https://github.com/withastro/astro/commit/1170877b51aaa13203e8c488dcf4e39d1b5553ee) Thanks [@jc1144096387](https://github.com/jc1144096387)! - Update registry logic, improving edge cases (http support, redirects, registries ending with '/')
 
@@ -481,7 +525,7 @@
 
 ### Patch Changes
 
-- [#5953](https://github.com/withastro/astro/pull/5953) [`5c64324c0`](https://github.com/withastro/astro/commit/5c64324c0a1b06e836c3d53668940faca4cb517d) Thanks [@ZermattChris](https://github.com/ZermattChris)! - Check for a pre-existing .git directory and if found, skip trying to create a new one.
+- [#5953](https://github.com/withastro/astro/pull/5953) [`5c64324c0`](https://github.com/withastro/astro/commit/5c64324c0a1b06e836c3d53668940faca4cb517d) Thanks [@ZermattChris](https://github.com/ZermattChris)! - Check for a preexisting .git directory and if found, skip trying to create a new one.
 
 ## 2.0.1
 

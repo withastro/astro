@@ -8,11 +8,15 @@ import type { ModuleLoader } from '../core/module-loader/index.js';
 import { RedirectComponentInstance } from '../core/redirects/index.js';
 import { loadRenderer } from '../core/render/index.js';
 import { createDefaultRoutes } from '../core/routing/default.js';
-import { routeIsRedirect } from '../core/routing/index.js';
+import { routeIsRedirect } from '../core/routing/helpers.js';
 import { findRouteToRewrite } from '../core/routing/rewrite.js';
 import { isPage } from '../core/util.js';
-import { resolveIdToUrl } from '../core/viteUtils.js';
-import type { AstroSettings, ComponentInstance, RoutesList } from '../types/astro.js';
+import type {
+	AstroSettings,
+	ComponentInstance,
+	ImportedDevStyle,
+	RoutesList,
+} from '../types/astro.js';
 import type {
 	DevToolbarMetadata,
 	RewritePayload,
@@ -24,7 +28,9 @@ import type {
 import { getComponentMetadata } from '../vite-plugin-astro-server/metadata.js';
 import { createResolve } from '../vite-plugin-astro-server/resolve.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
-import { getDevCSSModuleName } from '../vite-plugin-css/util.js';
+import { newNodePool } from '../runtime/server/render/queue/pool.js';
+import { HTMLStringCache } from '../runtime/server/html-string-cache.js';
+import { queueRenderingEnabled } from '../core/app/manifest.js';
 
 /**
  * This Pipeline is used when the Vite SSR environment is runnable.
@@ -65,11 +71,17 @@ export class RunnablePipeline extends Pipeline {
 	) {
 		const pipeline = new RunnablePipeline(loader, logger, manifest, settings, getDebugInfo);
 		pipeline.routesList = manifestData;
+		if (queueRenderingEnabled(manifest.experimentalQueuedRendering)) {
+			pipeline.nodePool = newNodePool(manifest.experimentalQueuedRendering!);
+			if (manifest.experimentalQueuedRendering!.contentCache) {
+				pipeline.htmlStringCache = new HTMLStringCache(1000);
+			}
+		}
 		return pipeline;
 	}
 
 	async headElements(routeData: RouteData): Promise<HeadElements> {
-		const { manifest, loader, runtimeMode, settings } = this;
+		const { manifest, runtimeMode, settings } = this;
 		const filePath = new URL(`${routeData.component}`, manifest.rootDir);
 		const scripts = new Set<SSRElement>();
 
@@ -81,15 +93,14 @@ export class RunnablePipeline extends Pipeline {
 					children: '',
 				});
 
-				if (
-					settings.config.devToolbar.enabled &&
-					(await settings.preferences.get('devToolbar.enabled'))
-				) {
-					const src = await resolveIdToUrl(
-						loader,
-						'astro/runtime/client/dev-toolbar/entrypoint.js',
-					);
-					scripts.add({ props: { type: 'module', src }, children: '' });
+				if (this.manifest.devToolbar.enabled) {
+					scripts.add({
+						props: {
+							type: 'module',
+							src: '/@id/astro/runtime/client/dev-toolbar/entrypoint.js',
+						},
+						children: '',
+					});
 
 					const additionalMetadata: DevToolbarMetadata['__astro_dev_toolbar__'] = {
 						root: fileURLToPath(settings.config.root),
@@ -125,7 +136,19 @@ export class RunnablePipeline extends Pipeline {
 			}
 		}
 
-		const { css } = await loader.import(getDevCSSModuleName(routeData.component));
+		const { devCSSMap } = await import('virtual:astro:dev-css-all');
+
+		const importer = devCSSMap.get(routeData.component);
+		let css = new Set<ImportedDevStyle>();
+		if (importer) {
+			const cssModule = await importer();
+			css = cssModule.css;
+		} else {
+			this.logger.warn(
+				'assets',
+				`Unable to find CSS for ${routeData.component}. This is likely a bug in Astro.`,
+			);
+		}
 
 		// Pass framework CSS in as style tags to be appended to the page.
 		const links = new Set<SSRElement>();

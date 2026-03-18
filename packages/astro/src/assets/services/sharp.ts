@@ -59,6 +59,7 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 	parseURL: baseService.parseURL,
 	getHTMLAttributes: baseService.getHTMLAttributes,
 	getSrcSet: baseService.getSrcSet,
+	getRemoteSize: baseService.getRemoteSize,
 	async transform(inputBuffer, transformOptions, config) {
 		if (!sharp) sharp = await loadSharp();
 		const transform: BaseServiceTransform = transformOptions as BaseServiceTransform;
@@ -79,10 +80,6 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 
 		// get some information about the input
 		const { format } = await result.metadata();
-
-		// If `fit` isn't set then use old behavior:
-		// - Do not use both width and height for resizing, and prioritize width over height
-		// - Allow enlarging images
 
 		if (transform.width && transform.height) {
 			const fit: keyof FitEnum | undefined = transform.fit

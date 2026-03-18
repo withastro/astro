@@ -23,7 +23,7 @@ function filterRequiredMetrics({
 
 // Source: https://github.com/seek-oss/capsize/blob/b752693428b45994442433f7e3476ca4e3e3c507/packages/core/src/round.ts
 function round(value: number) {
-	return parseFloat(value.toFixed(4));
+	return Number.parseFloat(value.toFixed(4));
 }
 
 // Source: https://github.com/seek-oss/capsize/blob/b752693428b45994442433f7e3476ca4e3e3c507/packages/core/src/createFontStack.ts#L5

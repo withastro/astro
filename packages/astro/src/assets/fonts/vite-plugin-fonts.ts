@@ -8,7 +8,7 @@ import { generateCspDigest } from '../../core/encryption.js';
 import { collectErrorMetadata } from '../../core/errors/dev/utils.js';
 import { AstroError, AstroErrorData, isAstroError } from '../../core/errors/index.js';
 import type { Logger } from '../../core/logger/core.js';
-import { formatErrorMessage } from '../../core/messages.js';
+import { formatErrorMessage } from '../../core/messages/runtime.js';
 import { appendForwardSlash, joinPaths, prependForwardSlash } from '../../core/path.js';
 import { getClientOutputDirectory } from '../../prerender/utils.js';
 import type { AstroSettings } from '../../types/astro.js';
@@ -237,7 +237,8 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				if (!req.url) {
 					return next();
 				}
-				const fontId = req.url.slice(1);
+				const url = new URL(req.url, 'http://localhost');
+				const fontId = url.pathname.slice(1);
 				const fontData = fontFileById?.get(fontId);
 				if (!fontData) {
 					return next();

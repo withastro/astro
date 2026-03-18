@@ -558,6 +558,20 @@ export const FailedToFetchRemoteImageDimensions = {
 } satisfies ErrorData;
 /**
  * @docs
+ * @message
+ * Remote image `IMAGE_URL` is not allowed by your image configuration.
+ * @description
+ * The remote image URL does not match your configured `image.domains` or `image.remotePatterns`.
+ */
+export const RemoteImageNotAllowed = {
+	name: 'RemoteImageNotAllowed',
+	title: 'Remote image is not allowed',
+	message: (imageURL: string) =>
+		`Remote image ${imageURL} is not allowed by your image configuration.`,
+	hint: 'Update `image.domains` or `image.remotePatterns`, or remove `inferSize` for this image.',
+} satisfies ErrorData;
+/**
+ * @docs
  * @description
  * The built-in image services do not currently support optimizing all image formats.
  *
@@ -592,6 +606,17 @@ export const UnsupportedImageConversion = {
 	title: 'Unsupported image conversion',
 	message:
 		'Converting between vector (such as SVGs) and raster (such as PNGs and JPEGs) images is not currently supported.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message An error occurred while optimizing the SVG file with SVGO.
+ */
+export const CannotOptimizeSvg = {
+	name: 'CannotOptimizeSvg',
+	title: 'Cannot optimize SVG',
+	message: (path: string) => `An error occurred while optimizing SVG file "${path}" with SVGO.`,
+	hint: 'Review the included SVGO error message provided for guidance.',
 } satisfies ErrorData;
 
 /**
@@ -701,6 +726,36 @@ export const ExpectedNotESMImage = {
 	message:
 		'An ESM-imported image cannot be passed directly to `getImage()`. Instead, pass an object with the image in the `src` property.',
 	hint: 'Try changing `getImage(myImage)` to `getImage({ src: myImage })`',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ * - [Images](https://docs.astro.build/en/guides/images/)
+ * - [getImage()](https://docs.astro.build/en/reference/modules/astro-assets/#getimage)
+ * @description
+ * The `getImage()` function is only available on the server. To use images on the client, either render the `src` from `getImage()` during the server render so it can be used in client-side scripts, or use a standard `<img>` tag.
+ *
+ * ```astro
+ * ---
+ * import { getImage } from "astro:assets";
+ * import myImage from "../assets/my_image.png";
+ *
+ * const optimizedImage = await getImage({ src: myImage, width: 300 });
+ * ---
+ *
+ * <script define:vars={{ imageSrc: optimizedImage.src }}>
+ *   // Use imageSrc in client-side code
+ *   document.getElementById('myImage').src = imageSrc;
+ * </script>
+ * ```
+ */
+export const GetImageNotUsedOnServer = {
+	name: 'GetImageNotUsedOnServer',
+	title: '`getImage()` must be used on the server.',
+	message:
+		'`getImage()` should only be used on the server. To use images on the client, render the `src` from `getImage()` during the server render, then pass it to the client for usage.',
+	hint: 'See https://docs.astro.build/en/reference/modules/astro-assets/#getimage for more information on getImage().',
 } satisfies ErrorData;
 
 /**
@@ -875,7 +930,7 @@ export const LocalsNotAnObject = {
 export const LocalsReassigned = {
 	name: 'LocalsReassigned',
 	title: '`locals` must not be reassigned.',
-	message: '`locals` can not be assigned directly.',
+	message: '`locals` cannot be assigned directly.',
 	hint: 'Set a `locals` property instead.',
 } satisfies ErrorData;
 
@@ -999,6 +1054,23 @@ export const UnsupportedExternalRedirect = {
 	message: (from: string, to: string) =>
 		`The destination URL in the external redirect from "${from}" to "${to}" is unsupported.`,
 	hint: 'An external redirect must start with http or https, and must be a valid URL.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ * - [Configured redirects](https://docs.astro.build/en/guides/routing/#configured-redirects)
+ * @description
+ * A dynamic redirect destination must match an existing route pattern.
+ * This error occurs when a redirect with dynamic parameters points to a destination
+ * that doesn't correspond to any page in your project.
+ */
+export const InvalidRedirectDestination = {
+	name: 'InvalidRedirectDestination',
+	title: 'Invalid redirect destination.',
+	message: (from: string, to: string) =>
+		`The redirect from "${from}" to "${to}" is invalid. The destination "${to}" does not match any existing route in your project.`,
+	hint: 'If you are redirecting to a specific page of a dynamic route (e.g., "/posts/[slug]/1"), this is not supported. The destination must be either a static path or a route pattern that matches an existing page (e.g., "/posts/[slug]/[page]").',
 } satisfies ErrorData;
 
 /**
@@ -1173,7 +1245,7 @@ export const InvalidI18nMiddlewareConfiguration = {
 	name: 'InvalidI18nMiddlewareConfiguration',
 	title: 'Invalid internationalization middleware configuration',
 	message:
-		'The option `redirectToDefaultLocale` can be enabled only when `prefixDefaultLocale` is also set to `true`, otherwise redirects might cause infinite loops. Enable the option `prefixDefaultLocale` to continue to use `redirectToDefaultLocale`, or ensure both are set to `false`.',
+		'The option `redirectToDefaultLocale` can be enabled only when `prefixDefaultLocale` is also set to `true`; otherwise, redirects might cause infinite loops. Enable the option `prefixDefaultLocale` to continue to use `redirectToDefaultLocale`, or ensure both are set to `false`.',
 } satisfies ErrorData;
 
 /**
@@ -1205,7 +1277,7 @@ export const UnhandledRejection = {
 /**
  * @docs
  * @description
- * The `astro:i18n` module can not be used without enabling i18n in your Astro config. To enable i18n, add a default locale and a list of supported locales to your Astro config:
+ * The `astro:i18n` module cannot be used without enabling i18n in your Astro config. To enable i18n, add a default locale and a list of supported locales to your Astro config:
  * ```js
  * import { defineConfig } from 'astro'
  * export default defineConfig({
@@ -1224,7 +1296,7 @@ export const UnhandledRejection = {
 export const i18nNotEnabled = {
 	name: 'i18nNotEnabled',
 	title: 'i18n Not Enabled',
-	message: 'The `astro:i18n` module can not be used without enabling i18n in your Astro config.',
+	message: 'The `astro:i18n` module cannot be used without enabling i18n in your Astro config.',
 	hint: 'See https://docs.astro.build/en/guides/internationalization for a guide on setting up i18n.',
 } satisfies ErrorData;
 
@@ -1264,6 +1336,23 @@ export const EnvInvalidVariables = {
 	title: 'Invalid Environment Variables',
 	message: (errors: Array<string>) =>
 		`The following environment variables defined in \`env.schema\` are invalid:\n\n${errors.map((err) => `- ${err}`).join('\n')}\n`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * The configured `vite.envPrefix` includes prefixes that match environment variables declared with `access: "secret"` in `env.schema`.
+ * This would cause Vite to expose those secret values in client-side JavaScript bundles, bypassing the `access: "secret"` protection.
+ *
+ * To fix this, either:
+ * - Remove the conflicting prefixes from `vite.envPrefix`, or
+ * - Rename your secret environment variables to use a prefix that is not in `vite.envPrefix`.
+ */
+export const EnvPrefixConflictsWithSecret = {
+	name: 'EnvPrefixConflictsWithSecret',
+	title: 'envPrefix conflicts with secret environment variables',
+	message: (conflicts: Array<string>) =>
+		`The following environment variables are declared with \`access: "secret"\` in \`env.schema\`, but their names match a prefix in \`vite.envPrefix\`, which would expose them in client-side bundles:\n\n${conflicts.map((c) => `- ${c}`).join('\n')}\n\nEither remove the conflicting prefixes from \`vite.envPrefix\`, or rename these variables to use a prefix not in \`vite.envPrefix\`.`,
 } satisfies ErrorData;
 
 /**
@@ -1311,7 +1400,7 @@ export const ForbiddenRewrite = {
 	title: 'Forbidden rewrite to a static route.',
 	message: (from: string, to: string, component: string) =>
 		`You tried to rewrite the on-demand route '${from}' with the static route '${to}', when using the 'server' output. \n\nThe static route '${to}' is rendered by the component
-'${component}', which is marked as prerendered. This is a forbidden operation because during the build the component '${component}' is compiled to an
+'${component}', which is marked as prerendered. This is a forbidden operation because during the build, the component '${component}' is compiled to an
 HTML file, which can't be retrieved at runtime by Astro.`,
 	hint: (component: string) =>
 		`Add \`export const prerender = false\` to the component '${component}', or use a Astro.redirect().`,
@@ -1449,9 +1538,9 @@ export const UnknownMarkdownError = {
  * @docs
  * @message
  * **Example error messages:**<br/>
- * can not read an implicit mapping pair; a colon is missed<br/>
+ * cannot read an implicit mapping pair; a colon is missed<br/>
  * unexpected end of the stream within a double quoted scalar<br/>
- * can not read a block mapping entry; a multiline key may not be an implicit key
+ * cannot read a block mapping entry; a multiline key may not be an implicit key
  * @description
  * Astro encountered an error while parsing the frontmatter of your Markdown file.
  * This is often caused by a mistake in the syntax, such as a missing colon or a missing end quote.
@@ -1602,7 +1691,7 @@ export const GetEntryDeprecationError = {
 	title: 'Invalid use of `getDataEntryById` or `getEntryBySlug` function.',
 	message: (collection: string, method: string) =>
 		`The \`${method}\` function is deprecated and cannot be used to query the "${collection}" collection. Use \`getEntry\` instead.`,
-	hint: 'See https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information.',
+	hint: 'See https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information.',
 } satisfies ErrorData;
 
 /**
@@ -1666,7 +1755,7 @@ export const InvalidContentEntryDataError = {
  * Found legacy content config file in "src/content/config.ts". Please move this file to "src/content.config.ts" and ensure each collection has a loader defined.<br/>
  * @description
  * A legacy content config file was found. Move the file to `src/content.config.ts` and update any collection definitions if needed.
- * See the [Astro 6 migration guide](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections) for more information.
+ * See the [Astro 6 migration guide](https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections) for more information.
  */
 
 export const LegacyContentConfigError = {
@@ -1674,7 +1763,7 @@ export const LegacyContentConfigError = {
 	title: 'Legacy content config file found.',
 	message: (filename: string) =>
 		`Found legacy content config file in "${filename}". Please move this file to "src/content.config.${filename.split('.').at(-1)}" and ensure each collection has a loader defined.`,
-	hint: 'See https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information on updating collections.',
+	hint: 'See https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information on updating collections.',
 } satisfies ErrorData;
 
 /**
@@ -1692,7 +1781,7 @@ export const ContentCollectionMissingLoader = {
 	title: 'Content collection is missing a `loader` definition.',
 	message: (file = 'your content config file') =>
 		`Collections must have a \`loader\` defined. Check your collection definitions in ${file}.`,
-	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content loaders and https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information on migrating from legacy collections.',
+	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content loaders and https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information on migrating from legacy collections.',
 } satisfies ErrorData;
 
 /**
@@ -1702,7 +1791,7 @@ export const ContentCollectionMissingLoader = {
  * Invalid collection type "data". Remove the type from your collection definition in your content config file.
  * @description
  * Content collections should no longer have a `type` field. Remove this field from your content config file.
- * See the [Astro 6 migration guide](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections) for more information.
+ * See the [Astro 6 migration guide](https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections) for more information.
  */
 
 export const ContentCollectionInvalidType = {
@@ -1710,7 +1799,7 @@ export const ContentCollectionInvalidType = {
 	title: 'Content collection has an invalid `type` field.',
 	message: (type: string, file = 'your content config file') =>
 		`Invalid collection type "${type}". Remove the type from your collection definition in ${file}.`,
-	hint: 'See https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information on migrating from legacy collections.',
+	hint: 'See https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information on migrating from legacy collections.',
 } satisfies ErrorData;
 
 /**
@@ -1773,7 +1862,7 @@ export const ContentEntryDataError = {
  * @description
  * Error in live content config.
  * @see
- * - [Defining live content schemas](https://v6.docs.astro.build/en/reference/modules/astro-content/#schema-1)
+ * - [Defining live content schemas](https://docs.astro.build/en/reference/modules/astro-content/#schema-1)
  */
 
 export const LiveContentConfigError = {
@@ -1915,7 +2004,7 @@ export const UnsupportedConfigTransformError = {
 /**
  * @docs
  * @see
- *  - [Passing a `parser` to the `file` loader](https://v6.docs.astro.build/en/reference/content-loader-reference/#parser)
+ *  - [Passing a `parser` to the `file` loader](https://docs.astro.build/en/reference/content-loader-reference/#parser)
  * @description
  * The `file` loader can’t determine which parser to use. Please provide a custom parser (e.g. `csv-parse`) to create a collection from your file type.
  */
@@ -2059,13 +2148,52 @@ export const SessionStorageSaveError = {
 
 /**
  * @docs
- * @message An error occurred while optimizing the SVG file with SVGO.
+ * @kind heading
+ * @name Cache Errors
  */
-export const CannotOptimizeSvg = {
-	name: 'CannotOptimizeSvg',
-	title: 'Cannot optimize SVG',
-	message: (path: string) => `An error occurred while optimizing SVG file "${path}" with SVGO.`,
-	hint: 'Review the included SVGO error message provided for guidance.',
+// Cache Errors
+/**
+ * @docs
+ * @message Could not resolve the cache provider `PROVIDER`. Make sure the package is installed.
+ * @description
+ * Thrown when the configured cache provider cannot be resolved. This usually means the package is not installed or the import path is wrong.
+ */
+export const CacheProviderNotFound = {
+	name: 'CacheProviderNotFound',
+	title: 'Cache provider not found.',
+	message: (provider: string) =>
+		`Could not resolve the cache provider \`${provider}\`. Make sure the package is installed.`,
+	hint: "If your adapter provides a default cache provider, you may not need to set one explicitly. Check your adapter's documentation.",
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message `Astro.cache` is not available because the cache feature is not enabled.
+ * @description
+ * Thrown when `Astro.cache` or `context.cache` is used but the cache feature has not been enabled in the Astro config.
+ */
+export const CacheNotEnabled = {
+	name: 'CacheNotEnabled',
+	title: 'Cache is not enabled.',
+	message:
+		'`Astro.cache` is not available because the cache feature is not enabled. To use caching, configure a cache provider in your Astro config under `experimental.cache`.',
+	hint: 'Use an adapter that provides a default cache provider, or set one explicitly: `experimental: { cache: { provider: "..." } }`. See https://docs.astro.build/en/reference/experimental-flags/route-caching/.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message `query.include` and `query.exclude` cannot be used together.
+ * @description
+ * The memory cache provider's `query.include` and `query.exclude` options are mutually exclusive.
+ * Use `include` to allowlist specific query parameters that affect the cache key, or `exclude` to
+ * blocklist parameters. When `include` is set, all other parameters are automatically ignored.
+ */
+export const CacheQueryConfigConflict = {
+	name: 'CacheQueryConfigConflict',
+	title: 'Conflicting cache query configuration.',
+	message:
+		'`query.include` and `query.exclude` cannot be used together. Use `include` to allowlist specific parameters, or `exclude` to blocklist them.',
+	hint: 'When using `include`, all parameters not in the list are automatically excluded, making `exclude` redundant.',
 } satisfies ErrorData;
 
 /*
@@ -2077,6 +2205,6 @@ export const CannotOptimizeSvg = {
  * 		- If your message is fully dynamic (ex: lots of conditional logic), make `message` a proper function, like such: `message(parameters) { logic }`.
  * 			Make sure to add a `@message` tag with a static example of the error message, the docs won't be able to parse it otherwise.
  *  	- If your message is static, you can just use a string, `message: "my message"`.
- * 5. Make sure to add a JSdoc comment with the `@docs` tag so that it shows up in the docs, otherwise the error overlay will point to a 404!
+ * 5. Make sure to add a JSdoc comment with the `@docs` tag so that it shows up in the docs; otherwise, the error overlay will point to a 404!
  * For more information, see the README in this folder!
  */

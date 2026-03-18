@@ -37,7 +37,7 @@ describe('i18n double-prefix prevention', () => {
 	});
 
 	it('should generate correct fallback redirects for missing Spanish pages', async () => {
-		// item2 only exists in English, so Spanish should fallback to English
+		// item2 only exists in English, so Spanish should fall back to English
 		let spanishRedirect = false;
 		try {
 			await fixture.readFile('/es/test/item2/index.html');

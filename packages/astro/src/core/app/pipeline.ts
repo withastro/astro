@@ -12,7 +12,6 @@ import {
 import { getFallbackRoute, routeIsFallback, routeIsRedirect } from '../routing/helpers.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
 import { createConsoleLogger } from './logging.js';
-
 export class AppPipeline extends Pipeline {
 	getName(): string {
 		return 'AppPipeline';
@@ -52,7 +51,9 @@ export class AppPipeline extends Pipeline {
 
 	async headElements(routeData: RouteData): Promise<HeadElements> {
 		const { assetsPrefix, base } = this.manifest;
-		const routeInfo = this.manifest.routes.find((route) => route.routeData === routeData);
+		const routeInfo = this.manifest.routes.find(
+			(route) => route.routeData.route === routeData.route,
+		);
 		// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
 		const links = new Set<never>();
 		const scripts = new Set<SSRElement>();
@@ -98,7 +99,7 @@ export class AppPipeline extends Pipeline {
 				return RedirectSinglePageBuiltModule;
 			}
 		} else if (routeIsFallback(route)) {
-			// This is a i18n fallback route
+			// This is an i18n fallback route
 			routeToProcess = getFallbackRoute(route, this.manifest.routes);
 		}
 

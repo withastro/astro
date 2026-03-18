@@ -1,5 +1,28 @@
 # @astrojs/language-server
 
+## 2.16.5
+
+### Patch Changes
+
+- [#15895](https://github.com/withastro/astro/pull/15895) [`7b4b254`](https://github.com/withastro/astro/commit/7b4b2549437eb099c5e96025dcf8d24ea56f30d0) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updates Volar services to 0.0.70. This updates notably mean that the transitive dependency yaml-language-server no longer depends on a vulnerable version of lodash, causing warnings to show when installing the language server.
+
+## 2.16.4
+
+### Patch Changes
+
+- [#15820](https://github.com/withastro/astro/pull/15820) [`e20474b`](https://github.com/withastro/astro/commit/e20474b98c6d868ed9734f7eeb7564bffe8bfd77) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes broken publish
+
+- Updated dependencies [[`e20474b`](https://github.com/withastro/astro/commit/e20474b98c6d868ed9734f7eeb7564bffe8bfd77)]:
+  - @astrojs/yaml2ts@0.2.3
+
+## 2.16.1
+
+### Patch Changes
+
+- [#15187](https://github.com/withastro/astro/pull/15187) [`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795) Thanks [@matthewp](https://github.com/matthewp)! - Update to Astro 6 beta
+
+- [#14421](https://github.com/withastro/astro/pull/14421) [`df6d2d7`](https://github.com/withastro/astro/commit/df6d2d7bbcaf6b6a327a37a6437d4adade6e2485) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the previously deprecated `Astro.glob()` - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#removed-astroglob))
+
 ## 2.16.1-beta.1
 
 ### Patch Changes
@@ -10,7 +33,7 @@
 
 ### Patch Changes
 
-- [#14421](https://github.com/withastro/astro/pull/14421) [`df6d2d7`](https://github.com/withastro/astro/commit/df6d2d7bbcaf6b6a327a37a6437d4adade6e2485) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the previously deprecated `Astro.glob()` - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-astroglob))
+- [#14421](https://github.com/withastro/astro/pull/14421) [`df6d2d7`](https://github.com/withastro/astro/commit/df6d2d7bbcaf6b6a327a37a6437d4adade6e2485) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the previously deprecated `Astro.glob()` - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#removed-astroglob))
 
 ## 2.16.3
 
@@ -655,7 +678,7 @@ In the background, this update means that we now have to maintain a lot less cod
 
 ### Patch Changes
 
-- c4f7a36: Trying desesperately to figure deployment out
+- c4f7a36: Trying desperately to figure deployment out
 
 ## 0.26.0
 
@@ -717,7 +740,7 @@ In the background, this update means that we now have to maintain a lot less cod
 ### Patch Changes
 
 - 61620f1: Add support for Go To Type Definition
-- 9337f00: Fix language server not working when no initlizationOptions were passed
+- 9337f00: Fix language server not working when no initializationOptions were passed
 
 ## 0.21.1
 
@@ -748,7 +771,7 @@ In the background, this update means that we now have to maintain a lot less cod
 ### Patch Changes
 
 - e6996f5: Fixed many situations where the language server would warn abusively about not being able to find Astro
-- 4589c2b: Fix the language server not warning properly when a package is implicitely any due to missing types
+- 4589c2b: Fix the language server not warning properly when a package is implicitly any due to missing types
 
 ## 0.20.0
 
@@ -772,7 +795,7 @@ In the background, this update means that we now have to maintain a lot less cod
 
 - 421ab52: Added a new setting (`astro.typescript.allowArbitraryAttributes`) to enable support for arbitrary attributes
 - 06e3c95: Updated behaviour when no settings are provided. All features are now considered enabled by default
-- 301dcfb: Remove Lodash from the code base, significally reducing the file count of the package
+- 301dcfb: Remove Lodash from the code base, significantly reducing the file count of the package
 - dd1283b: Updated Component detection so completions now work for namespaced components (for example, typing `<myMarkdown.` will now give you a completion for the Content component)
 
 ## 0.19.4
