@@ -64,6 +64,17 @@ export function getCustom500Route(manifestData: RoutesList): RouteData | undefin
 	return manifestData.routes.find((r) => isRoute500(r.route));
 }
 
+/**
+ * Returns true if the route definition contains `.html` as a static segment part,
+ * as is the case for routes like `[slug].html.astro`. Used to avoid stripping the
+ * `.html` suffix from pathnames that intentionally include it.
+ */
+export function routeHasHtmlExtension(route: RouteData): boolean {
+	return route.segments.some((segment) =>
+		segment.some((part) => !part.dynamic && part.content.includes('.html')),
+	);
+}
+
 export function hasNonPrerenderedProjectRoute(
 	routes: Array<Pick<RouteData, 'type' | 'origin' | 'prerender'>>,
 	options?: { includeEndpoints?: boolean },

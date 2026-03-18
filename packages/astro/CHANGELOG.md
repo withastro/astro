@@ -1,5 +1,52 @@
 # astro
 
+## 6.0.6
+
+### Patch Changes
+
+- [#15965](https://github.com/withastro/astro/pull/15965) [`2dca307`](https://github.com/withastro/astro/commit/2dca3074ed3de24bd23d0a17fd10a168660b2ac1) Thanks [@matthewp](https://github.com/matthewp)! - Fixes client hydration for components imported through Node.js subpath imports (`package.json#imports`, e.g. `#components/*`), for example when using the Cloudflare adapter in development.
+
+- [#15770](https://github.com/withastro/astro/pull/15770) [`6102ca2`](https://github.com/withastro/astro/commit/6102ca2c16d5bf0ea621764351a33a99455fa0a0) Thanks [@jpc-ae](https://github.com/jpc-ae)! - Updates the `create astro` welcome message to highlight the graceful dev/preview server quit command rather than the kill process shortcut
+
+- [#15953](https://github.com/withastro/astro/pull/15953) [`7eddf22`](https://github.com/withastro/astro/commit/7eddf22cd4d4719d966ed7168e9890fac8fc29f5) Thanks [@Desel72](https://github.com/Desel72)! - fix(hmr): eagerly recompile on style-only change to prevent stale slots render
+
+- [#15916](https://github.com/withastro/astro/pull/15916) [`5201ed4`](https://github.com/withastro/astro/commit/5201ed464258e799a1e898f4c4adc84d7445bad3) Thanks [@trueberryless](https://github.com/trueberryless)! - Fixes `InferLoaderSchema` type inference for content collections defined with a loader that includes a `schema`
+
+- [#15864](https://github.com/withastro/astro/pull/15864) [`d3c7de9`](https://github.com/withastro/astro/commit/d3c7de9253e9cb31fa5c4bf9f4bdf59dd1ada7b0) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes temporary support for Node >=20.19.1 because Stackblitz now uses Node 22 by default
+
+- [#15944](https://github.com/withastro/astro/pull/15944) [`a5e1acd`](https://github.com/withastro/astro/commit/a5e1acdebef4e061341eca24128667a3009a7048) Thanks [@fkatsuhiro](https://github.com/fkatsuhiro)! - Fixes SSR dynamic routes with `.html` extension (e.g. `[slug].html.astro`) not working
+
+- [#15937](https://github.com/withastro/astro/pull/15937) [`d236245`](https://github.com/withastro/astro/commit/d236245faf676082df6756654e504ad69e2e4d28) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where HMR didn't correctly work on Windows when adding/changing/deleting routes in `pages/`.
+
+- [#15931](https://github.com/withastro/astro/pull/15931) [`98dfb61`](https://github.com/withastro/astro/commit/98dfb61f963d70961dc2b28d786a6280f52603a1) Thanks [@Strernd](https://github.com/Strernd)! - Fix skew protection query params not being applied to island hydration `component-url` and `renderer-url`, and ensure query params are appended safely for asset URLs with existing search/hash parts.
+
+- Updated dependencies []:
+  - @astrojs/markdown-remark@7.0.1
+
+## 6.0.5
+
+### Patch Changes
+
+- [#15891](https://github.com/withastro/astro/pull/15891) [`b889231`](https://github.com/withastro/astro/commit/b88923114e3cfe30c945680a62c7bd7f667bbf4d) Thanks [@matthewp](https://github.com/matthewp)! - Fix dev routing for `server:defer` islands when adapters opt into handling prerendered routes in Astro core. Server island requests are now treated as prerender-handler eligible so prerendered pages using `prerenderEnvironment: 'node'` can load island content without `400` errors.
+
+- [#15890](https://github.com/withastro/astro/pull/15890) [`765a887`](https://github.com/withastro/astro/commit/765a8871ed5fb30bb0211e2f8524bd97081acbca) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `astro:actions` validation to check resolved routes, so projects using default static output with at least one `prerender = false` page or endpoint no longer fail during startup.
+
+- [#15884](https://github.com/withastro/astro/pull/15884) [`dcd2c8e`](https://github.com/withastro/astro/commit/dcd2c8e2df88ad81a027b49f6f9dcdba614f836a) Thanks [@matthewp](https://github.com/matthewp)! - Avoid a `MaxListenersExceededWarning` during `astro dev` startup by increasing the shared Vite watcher listener limit when attaching content server listeners.
+
+- [#15904](https://github.com/withastro/astro/pull/15904) [`23d5244`](https://github.com/withastro/astro/commit/23d5244361f9452c1d124600d2cc97aa3fe4a63c) Thanks [@jlukic](https://github.com/jlukic)! - Emit the `before-hydration` script chunk for the `client` Vite environment. The chunk was only emitted for `prerender` and `ssr` environments, causing a 404 when browsers tried to load it. This broke hydration for any integration using `injectScript('before-hydration', ...)`, including Lit SSR.
+
+- [#15933](https://github.com/withastro/astro/pull/15933) [`325901e`](https://github.com/withastro/astro/commit/325901e623462babd8d07ba7527e141e08ef1901) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where `<style>` tags inside SVG components weren't correctly tracked when enabling CSP.
+
+- [#15875](https://github.com/withastro/astro/pull/15875) [`c43ef8a`](https://github.com/withastro/astro/commit/c43ef8a565564770f022bd7cf9d2fcccf5949308) Thanks [@matthewp](https://github.com/matthewp)! - Ensure custom prerenderers are always torn down during build, even when `getStaticPaths()` throws.
+
+- [#15887](https://github.com/withastro/astro/pull/15887) [`1861fed`](https://github.com/withastro/astro/commit/1861fedef36394ff89604125b785aca073c0d35d) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the build incorrectly leaked server entrypoint into the client environment, causing adapters to emit warnings during the build.
+
+- [#15888](https://github.com/withastro/astro/pull/15888) [`925252e`](https://github.com/withastro/astro/commit/925252e8c361a169d1f4dc1e3677b96b9e815dea) Thanks [@matthewp](https://github.com/matthewp)! - Fix a bug where `server:defer` could fail at runtime in prerendered pages for some adapters (including Cloudflare), causing errors like `serverIslandMap?.get is not a function`.
+
+- [#15901](https://github.com/withastro/astro/pull/15901) [`07c1002`](https://github.com/withastro/astro/commit/07c1002835f9bd91c9acaa82515254e4e11094d4) Thanks [@delucis](https://github.com/delucis)! - Fixes JSON schema generation for content collection schemas that have differences between their input and output shapes.
+
+- [#15882](https://github.com/withastro/astro/pull/15882) [`759f946`](https://github.com/withastro/astro/commit/759f9461bf8818380e3cc83a9bc1844c82a52c6d) Thanks [@matthewp](https://github.com/matthewp)! - Fix `Astro.url.pathname` for the root page when using `build.format: "file"` so it resolves to `/index.html` instead of `/.html` during builds.
+
 ## 6.0.4
 
 ### Patch Changes

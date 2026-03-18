@@ -1,0 +1,17 @@
+---
+import Each from '../components/Each.astro';
+import Item from '../components/Item.astro';
+const items = ['one', 'two', 'three'];
+---
+<html>
+	<head>
+		<title>HMR Slots Render Test</title>
+	</head>
+	<body>
+		<div id="result">
+			<Each items={items}>
+				{(item) => <Item name={item} />}
+			</Each>
+		</div>
+	</body>
+</html>

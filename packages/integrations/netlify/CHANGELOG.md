@@ -1,5 +1,14 @@
 # @astrojs/netlify
 
+## 7.0.3
+
+### Patch Changes
+
+- [#15934](https://github.com/withastro/astro/pull/15934) [`6f8f0bc`](https://github.com/withastro/astro/commit/6f8f0bc4e22e958ccc2164acb1aa8cce21c43148) Thanks [@ematipico](https://github.com/ematipico)! - Updates the Astro `peerDependencies#astro` to be `6.0.0`.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.1
+
 ## 7.0.2
 
 ### Patch Changes
