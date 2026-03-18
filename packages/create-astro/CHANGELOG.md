@@ -1,5 +1,17 @@
 # create-astro
 
+## 5.0.2
+
+### Patch Changes
+
+- [#15864](https://github.com/withastro/astro/pull/15864) [`d3c7de9`](https://github.com/withastro/astro/commit/d3c7de9253e9cb31fa5c4bf9f4bdf59dd1ada7b0) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes temporary support for Node >=20.19.1 because Stackblitz now uses Node 22 by default
+
+## 5.0.1
+
+### Patch Changes
+
+- [#15885](https://github.com/withastro/astro/pull/15885) [`817afb6`](https://github.com/withastro/astro/commit/817afb6d2217a9ed590690163e5df8d50c910ab6) Thanks [@matthewp](https://github.com/matthewp)! - Avoid spawning package manager commands with `shell: true` to prevent Node.js DEP0190 warnings during `create-astro` runs on newer Node versions.
+
 ## 5.0.0
 
 ### Major Changes

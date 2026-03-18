@@ -59,6 +59,16 @@ describe('Astro Scripts before-hydration', () => {
 					let $ = cheerio.load(html);
 					assert.equal($('astro-island[before-hydration-url]').length, 1);
 				});
+
+				it('Emits the before-hydration chunk to the client output', async () => {
+					let html = await fixture.readFile('/index.html');
+					let $ = cheerio.load(html);
+					let url = $('astro-island').attr('before-hydration-url');
+					assert.ok(url, 'before-hydration-url attribute should have a value');
+					// The URL should point to a file that exists in the build output
+					let content = await fixture.readFile(url);
+					assert.ok(content, 'before-hydration chunk should exist in the client build output');
+				});
 			});
 		});
 

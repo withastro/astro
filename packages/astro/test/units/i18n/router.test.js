@@ -88,6 +88,45 @@ describe('I18nRouter', () => {
 				assert.equal(result.type, 'notFound');
 			});
 		});
+
+		describe('with base "/" (root base path)', () => {
+			let routerWithSlashBase;
+
+			before(() => {
+				const config = makeI18nRouterConfig({
+					strategy: 'pathname-prefix-always',
+					defaultLocale: 'en',
+					locales: ['en', 'es'],
+					base: '/',
+				});
+				routerWithSlashBase = new I18nRouter(config);
+			});
+
+			it('redirects root to /defaultLocale, not //defaultLocale (#15844)', () => {
+				const context = makeRouterContext({ currentLocale: undefined });
+
+				const result = routerWithSlashBase.match('/', context);
+
+				assert.equal(result.type, 'redirect');
+				assert.equal(result.location, '/en');
+			});
+
+			it('continues for paths with valid locale prefix', () => {
+				const context = makeRouterContext({ currentLocale: 'es' });
+
+				const result = routerWithSlashBase.match('/es/about', context);
+
+				assert.equal(result.type, 'continue');
+			});
+
+			it('returns 404 for paths without locale prefix', () => {
+				const context = makeRouterContext({ currentLocale: undefined });
+
+				const result = routerWithSlashBase.match('/about', context);
+
+				assert.equal(result.type, 'notFound');
+			});
+		});
 	});
 
 	describe('strategy: pathname-prefix-other-locales', () => {
@@ -211,6 +250,22 @@ describe('I18nRouter', () => {
 
 			assert.equal(result.type, 'continue');
 		});
+
+		it('continues for root path when base is "/" (#15844)', () => {
+			const routerWithSlashBase = new I18nRouter(
+				makeI18nRouterConfig({
+					strategy: 'pathname-prefix-always-no-redirect',
+					defaultLocale: 'en',
+					locales: ['en', 'es'],
+					base: '/',
+				}),
+			);
+			const context = makeRouterContext({ currentLocale: undefined });
+
+			const result = routerWithSlashBase.match('/', context);
+
+			assert.equal(result.type, 'continue');
+		});
 	});
 
 	describe('strategy: domains-prefix-always', () => {
@@ -262,6 +317,30 @@ describe('I18nRouter', () => {
 			const result = router.match('/about', context);
 
 			assert.equal(result.type, 'notFound');
+		});
+
+		it('redirects root to /locale, not //locale, when base is "/" (#15844)', () => {
+			const routerWithSlashBase = new I18nRouter(
+				makeI18nRouterConfig({
+					strategy: 'domains-prefix-always',
+					defaultLocale: 'en',
+					locales: ['en', 'es'],
+					base: '/',
+					domains: {
+						'en.example.com': ['en'],
+						'es.example.com': ['es'],
+					},
+				}),
+			);
+			const context = makeRouterContext({
+				currentLocale: 'en',
+				currentDomain: 'en.example.com',
+			});
+
+			const result = routerWithSlashBase.match('/', context);
+
+			assert.equal(result.type, 'redirect');
+			assert.equal(result.location, '/en');
 		});
 	});
 

@@ -61,11 +61,6 @@ export default function createVitePluginAstroServer({
 				? (prerenderEnvironment as RunnableDevEnvironment)
 				: undefined;
 
-			// TODO: let this handle non-runnable environments that don't intercept requests
-			if (!runnableSsrEnvironment && !runnablePrerenderEnvironment) {
-				return;
-			}
-
 			async function createHandler(environment: RunnableDevEnvironment) {
 				const loader = createViteLoader(viteServer, environment);
 				const { default: createAstroServerApp } =
@@ -117,19 +112,17 @@ export default function createVitePluginAstroServer({
 				}
 			}
 
-			process.on('unhandledRejection', handleUnhandledRejection);
-			viteServer.httpServer?.on('close', () => {
-				process.off('unhandledRejection', handleUnhandledRejection);
-			});
+			if (ssrHandler || prerenderHandler) {
+				process.on('unhandledRejection', handleUnhandledRejection);
+				viteServer.httpServer?.on('close', () => {
+					process.off('unhandledRejection', handleUnhandledRejection);
+				});
+			}
 
 			return () => {
 				const shouldHandlePrerenderInCore = Boolean(
 					(viteServer as any)[devPrerenderMiddlewareSymbol],
 				);
-
-				if (!ssrHandler && !(prerenderHandler && shouldHandlePrerenderInCore)) {
-					return;
-				}
 
 				// Push this middleware to the front of the stack so that it can intercept responses.
 				// fix(#6067): always inject this to ensure zombie base handling is killed after restarts
