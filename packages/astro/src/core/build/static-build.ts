@@ -334,7 +334,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				extractPrerenderEntryFileName(internals, prerenderOutput);
 
 				// Extract chunks needing injection, then release output for GC
-				const prerenderOutputs = viteBuildReturnToRollupOutputs(prerenderOutput);
+				const prerenderOutputs = viteBuildReturnToRolldownOutputs(prerenderOutput);
 				const prerenderChunks = extractRelevantChunks(prerenderOutputs, true);
 				prerenderOutput = undefined as any;
 

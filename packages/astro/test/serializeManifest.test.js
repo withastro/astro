@@ -123,10 +123,10 @@ describe('astro:config/server', () => {
 
 		it('should return an error when using inside a client script', async () => {
 			const error = await fixture.build().catch((err) => err);
-			// TODO: Figure out why the error is now generic.
-			// assert.equal(error instanceof AstroError, true);
-			// assert.equal(error.name, ServerOnlyModule.name);
-			assert.ok(error.message.includes(ServerOnlyModule.message('astro:env/server')));
+			const astroError = error.errors[0];
+			assert.equal(astroError.type, 'AstroError');
+			assert.equal(astroError.name, ServerOnlyModule.name);
+			assert.ok(astroError.message.includes(ServerOnlyModule.message('astro:config/server')));
 		});
 	});
 
