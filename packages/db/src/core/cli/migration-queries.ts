@@ -358,7 +358,10 @@ function getDropped<T>(oldObj: Record<string, T>, newObj: Record<string, T>) {
 	return dropped;
 }
 
-function getUpdated<T extends Record<string, unknown>>(oldObj: Record<string, T>, newObj: Record<string, T>) {
+function getUpdated<T extends Record<string, unknown>>(
+	oldObj: Record<string, T>,
+	newObj: Record<string, T>,
+) {
 	const updated: Record<string, T> = {};
 	for (const [key, value] of Object.entries(newObj)) {
 		const oldValue = oldObj[key];
