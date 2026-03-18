@@ -1,5 +1,28 @@
 # astro
 
+## 6.0.6
+
+### Patch Changes
+
+- [#15965](https://github.com/withastro/astro/pull/15965) [`2dca307`](https://github.com/withastro/astro/commit/2dca3074ed3de24bd23d0a17fd10a168660b2ac1) Thanks [@matthewp](https://github.com/matthewp)! - Fixes client hydration for components imported through Node.js subpath imports (`package.json#imports`, e.g. `#components/*`), for example when using the Cloudflare adapter in development.
+
+- [#15770](https://github.com/withastro/astro/pull/15770) [`6102ca2`](https://github.com/withastro/astro/commit/6102ca2c16d5bf0ea621764351a33a99455fa0a0) Thanks [@jpc-ae](https://github.com/jpc-ae)! - Updates the `create astro` welcome message to highlight the graceful dev/preview server quit command rather than the kill process shortcut
+
+- [#15953](https://github.com/withastro/astro/pull/15953) [`7eddf22`](https://github.com/withastro/astro/commit/7eddf22cd4d4719d966ed7168e9890fac8fc29f5) Thanks [@Desel72](https://github.com/Desel72)! - fix(hmr): eagerly recompile on style-only change to prevent stale slots render
+
+- [#15916](https://github.com/withastro/astro/pull/15916) [`5201ed4`](https://github.com/withastro/astro/commit/5201ed464258e799a1e898f4c4adc84d7445bad3) Thanks [@trueberryless](https://github.com/trueberryless)! - Fixes `InferLoaderSchema` type inference for content collections defined with a loader that includes a `schema`
+
+- [#15864](https://github.com/withastro/astro/pull/15864) [`d3c7de9`](https://github.com/withastro/astro/commit/d3c7de9253e9cb31fa5c4bf9f4bdf59dd1ada7b0) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes temporary support for Node >=20.19.1 because Stackblitz now uses Node 22 by default
+
+- [#15944](https://github.com/withastro/astro/pull/15944) [`a5e1acd`](https://github.com/withastro/astro/commit/a5e1acdebef4e061341eca24128667a3009a7048) Thanks [@fkatsuhiro](https://github.com/fkatsuhiro)! - Fixes SSR dynamic routes with `.html` extension (e.g. `[slug].html.astro`) not working
+
+- [#15937](https://github.com/withastro/astro/pull/15937) [`d236245`](https://github.com/withastro/astro/commit/d236245faf676082df6756654e504ad69e2e4d28) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where HMR didn't correctly work on Windows when adding/changing/deleting routes in `pages/`.
+
+- [#15931](https://github.com/withastro/astro/pull/15931) [`98dfb61`](https://github.com/withastro/astro/commit/98dfb61f963d70961dc2b28d786a6280f52603a1) Thanks [@Strernd](https://github.com/Strernd)! - Fix skew protection query params not being applied to island hydration `component-url` and `renderer-url`, and ensure query params are appended safely for asset URLs with existing search/hash parts.
+
+- Updated dependencies []:
+  - @astrojs/markdown-remark@7.0.1
+
 ## 6.0.5
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 2.16.6
+
+### Patch Changes
+
+- [#15927](https://github.com/withastro/astro/pull/15927) [`421e8de`](https://github.com/withastro/astro/commit/421e8de6e9e13ca45864c2d3deed7e98e3ee6138) Thanks [@FelmonFekadu](https://github.com/FelmonFekadu)! - Fixes completions sometimes not working inside the `href` attribute
+
 ## 2.16.5
 
 ### Patch Changes
