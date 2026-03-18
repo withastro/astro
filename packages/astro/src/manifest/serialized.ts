@@ -1,4 +1,5 @@
-import type { Plugin, ViteDevServer } from 'vite';
+import { fileURLToPath } from 'node:url';
+import { normalizePath, type Plugin, type ViteDevServer } from 'vite';
 import { ACTIONS_ENTRYPOINT_VIRTUAL_MODULE_ID } from '../actions/consts.js';
 import { toFallbackType } from '../core/app/common.js';
 import { toRoutingStrategy } from '../core/app/entrypoints/index.js';
@@ -41,8 +42,10 @@ export function serializedManifestPlugin({
 	command: 'dev' | 'build';
 	sync: boolean;
 }): Plugin {
+	const normalizedSrcDir = normalizePath(fileURLToPath(settings.config.srcDir));
+
 	function reloadManifest(path: string | null, server: ViteDevServer) {
-		if (path != null && path.startsWith(settings.config.srcDir.pathname)) {
+		if (path != null && normalizePath(path).startsWith(normalizedSrcDir)) {
 			const environment = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
 			const virtualMod = environment.moduleGraph.getModuleById(SERIALIZED_MANIFEST_RESOLVED_ID);
 			if (!virtualMod) return;
@@ -178,6 +181,9 @@ async function createSerializedManifest(settings: AstroSettings): Promise<Serial
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		actionBodySizeLimit: settings.config.security?.actionBodySizeLimit
 			? settings.config.security.actionBodySizeLimit
+			: 1024 * 1024, // 1mb default
+		serverIslandBodySizeLimit: settings.config.security?.serverIslandBodySizeLimit
+			? settings.config.security.serverIslandBodySizeLimit
 			: 1024 * 1024, // 1mb default
 		key: await encodeKey(hasEnvironmentKey() ? await getEnvironmentKey() : await createKey()),
 		sessionConfig: sessionConfigToManifest(settings.config.session),

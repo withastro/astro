@@ -521,7 +521,13 @@ function updateImageReferencesInData<T extends Record<string, unknown>>(
 				return;
 			}
 			const imported = imageAssetMap?.get(id) as
-				| (ImageMetadata & { __svgData?: { attributes: Record<string, string>; children: string } })
+				| (ImageMetadata & {
+						__svgData?: {
+							attributes: Record<string, string>;
+							children: string;
+							styles: string[];
+						};
+				  })
 				| undefined;
 			if (imported) {
 				if (imported.__svgData) {

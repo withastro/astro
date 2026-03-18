@@ -1,10 +1,11 @@
+import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { attachContentServerListeners } from '../../../dist/content/index.js';
 import { createFixture, runInContainer } from '../test-utils.js';
 
 describe('frontmatter', () => {
-	it('errors in content/ does not crash server', async () => {
-		const fixture = await createFixture({
+	async function createContentFixture() {
+		return await createFixture({
 			'/src/content/posts/blog.md': `\
 					---
 					title: One
@@ -35,6 +36,10 @@ describe('frontmatter', () => {
 					</html>
 				`,
 		});
+	}
+
+	it('errors in content/ does not crash server', async () => {
+		const fixture = await createContentFixture();
 
 		await runInContainer({ inlineConfig: { root: fixture.path } }, async (container) => {
 			await attachContentServerListeners(container);
@@ -50,6 +55,19 @@ describe('frontmatter', () => {
 			);
 			await new Promise((resolve) => setTimeout(resolve, 100));
 			// Note, if we got here, it didn't crash
+		});
+	});
+
+	it('increases watcher max listeners to avoid startup warnings', async () => {
+		const fixture = await createContentFixture();
+
+		await runInContainer({ inlineConfig: { root: fixture.path } }, async (container) => {
+			const watcher = container.viteServer.watcher;
+			watcher.setMaxListeners(10);
+
+			await attachContentServerListeners(container);
+
+			assert.equal(watcher.getMaxListeners(), 50);
 		});
 	});
 });
