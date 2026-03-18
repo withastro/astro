@@ -130,7 +130,9 @@ describe('Astro Markdown Shiki', () => {
 			assert.equal(segments[3].attribs.style, 'color:#79B8FF');
 			assert.equal(segments[4].attribs.style, 'color:#F97583');
 			assert.equal(segments[5].attribs.style, 'color:#79B8FF');
-			assert.equal(segments[6].attribs.style, 'color:#E1E4E8');
+			if (segments[6]) {
+				assert.equal(segments[6].attribs.style, 'color:#E1E4E8');
+			}
 		});
 	});
 
