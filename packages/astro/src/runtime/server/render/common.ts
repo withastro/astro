@@ -105,6 +105,13 @@ function stringifyChunk(
 			}
 			case 'script': {
 				const { id, content } = instruction;
+				// If we're inside a <template> element, still render the script but
+				// don't mark it as deduplicated. Template content is inert, scripts
+				// inside don't execute, so the script must also appear outside the
+				// template for non-template instances to work
+				if (result._metadata.templateDepth > 0) {
+					return content;
+				}
 				if (result._metadata.renderedScripts.has(id)) {
 					return '';
 				}
