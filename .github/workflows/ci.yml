@@ -340,7 +340,10 @@ jobs:
         run: pnpm run build
 
       - name: Remove docs translations except for English and Korean
-        run: find smoke/docs/src/content/docs ! -name 'en' ! -name 'ko' -type d -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+        run: |
+          if [ -d "smoke/docs/src/content/docs" ]; then
+            find smoke/docs/src/content/docs ! -name 'en' ! -name 'ko' -type d -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+          fi
 
       - name: Check if docs changed
         id: changes
