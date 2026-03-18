@@ -82,7 +82,6 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@types/prompts": "^2.4.9",
     "@types/yargs-parser": "^21.0.3",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
