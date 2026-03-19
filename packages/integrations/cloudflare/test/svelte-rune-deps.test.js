@@ -42,11 +42,15 @@ export function getCount() {
 		rmSync(fileURLToPath(depDir), { recursive: true, force: true });
 	});
 
-	it('compiles .svelte.js dependencies in cloudflare dev', async () => {
-		const res = await fixture.fetch('/');
-		assert.equal(res.status, 200);
+	it(
+		'compiles .svelte.js dependencies in cloudflare dev',
+		{ skip: 'Svelte is still in experimental mode for rolldown and vite v8' },
+		async () => {
+			const res = await fixture.fetch('/');
+			assert.equal(res.status, 200);
 
-		const html = await res.text();
-		assert.ok(html.includes('Rune Count: 0'));
-	});
+			const html = await res.text();
+			assert.ok(html.includes('Rune Count: 0'));
+		},
+	);
 });
