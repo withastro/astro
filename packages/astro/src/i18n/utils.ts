@@ -197,23 +197,28 @@ export function computeCurrentLocaleFromParams(
 	params: Record<string, string | undefined>,
 	locales: Locales,
 ): string | undefined {
-	for (const value of Object.values(params)) {
-		if (!value) continue;
-		for (const locale of locales) {
-			if (typeof locale === 'string') {
-				if (normalizeTheLocale(locale) === normalizeTheLocale(value)) {
-					return locale;
-				}
-			} else {
-				if (locale.path === value) {
-					return locale.codes.at(0);
-				}
-				for (const code of locale.codes) {
-					if (normalizeTheLocale(code) === normalizeTheLocale(value)) {
-						return code;
-					}
-				}
+	// Precompute lookup maps for O(1) matching instead of nested loops.
+	// normalizedCode -> original locale string or first code for object locales
+	const byNormalizedCode = new Map<string, string>();
+	// path -> first code (for object locales)
+	const byPath = new Map<string, string>();
+
+	for (const locale of locales) {
+		if (typeof locale === 'string') {
+			byNormalizedCode.set(normalizeTheLocale(locale), locale);
+		} else {
+			byPath.set(locale.path, locale.codes[0]);
+			for (const code of locale.codes) {
+				byNormalizedCode.set(normalizeTheLocale(code), code);
 			}
 		}
+	}
+
+	for (const value of Object.values(params)) {
+		if (!value) continue;
+		const pathMatch = byPath.get(value);
+		if (pathMatch) return pathMatch;
+		const codeMatch = byNormalizedCode.get(normalizeTheLocale(value));
+		if (codeMatch) return codeMatch;
 	}
 }
