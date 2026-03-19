@@ -13,7 +13,10 @@ import {
 	setImageConfig,
 } from './utils/image-config.js';
 import { createConfigPlugin } from './vite-plugin-config.js';
-import { createNodePrerenderPlugin } from './vite-plugin-dev-server-prerender-middleware.js';
+import {
+	createNodePrerenderPlugin,
+	createNodeSsrPlugin,
+} from './vite-plugin-dev-server-prerender-middleware.js';
 import {
 	cloudflareConfigCustomizer,
 	DEFAULT_SESSION_KV_BINDING_NAME,
@@ -178,7 +181,6 @@ export default function createIntegration({
 				const needsImagesBindingForDev = isCompile && command === 'dev';
 				const usesContentCollections = hasContentCollectionsConfig(config.srcDir);
 				const prebundleContentRuntime = command === 'dev' && usesContentCollections;
-				const useNodeDevEnvironment = command === 'dev' && devEnvironment === 'node';
 
 				cfPluginConfig = {
 					config: cloudflareConfigCustomizer({
@@ -218,18 +220,15 @@ export default function createIntegration({
 					session,
 					vite: {
 						plugins: [
+							...(devEnvironment === 'node' && command === 'dev' ? [createNodeSsrPlugin()] : []),
 							...(prerenderEnvironment === 'node' && command === 'dev'
 								? [createNodePrerenderPlugin()]
 								: []),
-							...(!useNodeDevEnvironment
-								? [
-										cfVitePlugin({
-											...cloudflareOptions,
-											...cfPluginConfig,
-											viteEnvironment: { name: 'ssr' },
-										}),
-									]
-								: []),
+							cfVitePlugin({
+								...cloudflareOptions,
+								...cfPluginConfig,
+								viteEnvironment: { name: 'ssr' },
+							}),
 							{
 								name: '@astrojs/cloudflare:cf-imports',
 								enforce: 'pre',

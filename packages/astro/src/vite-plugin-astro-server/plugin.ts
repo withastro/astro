@@ -5,7 +5,11 @@ import { isRunnableDevEnvironment, type RunnableDevEnvironment } from 'vite';
 import { toFallbackType } from '../core/app/common.js';
 import { toRoutingStrategy } from '../core/app/entrypoints/index.js';
 import type { SSRManifest, SSRManifestCSP, SSRManifestI18n } from '../core/app/types.js';
-import { ASTRO_VITE_ENVIRONMENT_NAMES, devPrerenderMiddlewareSymbol } from '../core/constants.js';
+import {
+	ASTRO_VITE_ENVIRONMENT_NAMES,
+	devPrerenderMiddlewareSymbol,
+	devSsrMiddlewareSymbol,
+} from '../core/constants.js';
 import {
 	getAlgorithm,
 	getDirectives,
@@ -52,10 +56,14 @@ export default function createVitePluginAstroServer({
 		},
 		async configureServer(viteServer) {
 			const ssrEnvironment = viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
+			const astroEnvironment = viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.astro];
 			const prerenderEnvironment = viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.prerender];
 
 			const runnableSsrEnvironment = isRunnableDevEnvironment(ssrEnvironment)
 				? (ssrEnvironment as RunnableDevEnvironment)
+				: undefined;
+			const runnableAstroEnvironment = isRunnableDevEnvironment(astroEnvironment)
+				? (astroEnvironment as RunnableDevEnvironment)
 				: undefined;
 			const runnablePrerenderEnvironment = isRunnableDevEnvironment(prerenderEnvironment)
 				? (prerenderEnvironment as RunnableDevEnvironment)
@@ -123,6 +131,7 @@ export default function createVitePluginAstroServer({
 				const shouldHandlePrerenderInCore = Boolean(
 					(viteServer as any)[devPrerenderMiddlewareSymbol],
 				);
+				const shouldHandleSsrInCore = Boolean((viteServer as any)[devSsrMiddlewareSymbol]);
 
 				// Push this middleware to the front of the stack so that it can intercept responses.
 				// fix(#6067): always inject this to ensure zombie base handling is killed after restarts
@@ -183,7 +192,53 @@ export default function createVitePluginAstroServer({
 					);
 				}
 
-				if (ssrHandler) {
+				let astroHandlerPromise: Promise<Awaited<ReturnType<typeof createHandler>>> | undefined;
+
+				if (shouldHandleSsrInCore) {
+					viteServer.middlewares.use(async function astroDevSsrHandler(request, response, next) {
+						if (request.url === undefined || !request.method) {
+							response.writeHead(500, 'Incomplete request');
+							response.end();
+							return;
+						}
+
+						if (request.url.startsWith('/@') || request.url.startsWith('/__')) {
+							return next();
+						}
+
+						if (request.url.includes('/node_modules/')) {
+							return next();
+						}
+
+						try {
+							const coreSsrHandler =
+								ssrHandler ??
+								(runnableAstroEnvironment
+									? await (astroHandlerPromise ??= createHandler(runnableAstroEnvironment))
+									: undefined);
+
+							if (!coreSsrHandler) {
+								return next();
+							}
+
+							const pathname = decodeURI(new URL(request.url, 'http://localhost').pathname);
+							const { routes } =
+								await coreSsrHandler.environment.runner.import('virtual:astro:routes');
+							const routesList = { routes: routes.map((r: any) => r.routeData) };
+							const matches = matchAllRoutes(pathname, routesList);
+
+							if (!matches.some((route) => !route.prerender)) {
+								return next();
+							}
+
+							localStorage.run(request, () => {
+								coreSsrHandler.handler(request, response);
+							});
+						} catch (err) {
+							next(err);
+						}
+					});
+				} else if (ssrHandler) {
 					// Note that this function has a name so other middleware can find it.
 					viteServer.middlewares.use(async function astroDevHandler(request, response) {
 						if (request.url === undefined || !request.method) {
