@@ -49,8 +49,9 @@ for (let i = 0; i < args.length; i += 1) {
 	turboArgs.push(arg);
 }
 
-// Use the platform-specific pnpm executable for Windows compatibility.
-const pnpmCommand = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
+// On Windows, spawn via the shell so command resolution handles pnpm.cmd.
+const isWindows = process.platform === 'win32';
+const pnpmCommand = 'pnpm';
 const commandArgs = ['exec', 'turbo', 'run', ...turboArgs];
 
 console.info('[turbo-run-affected] platform:', process.platform);
@@ -62,6 +63,7 @@ console.info('[turbo-run-affected] command:', pnpmCommand, commandArgs.join(' ')
 const turbo = spawn(pnpmCommand, commandArgs, {
 	stdio: 'inherit',
 	env: process.env,
+	shell: isWindows,
 });
 
 // Mirror Turbo's exit status so CI fails/succeeds correctly.
