@@ -1,5 +1,17 @@
 # @astrojs/preact
 
+## 5.0.2
+
+### Patch Changes
+
+- [#15864](https://github.com/withastro/astro/pull/15864) [`d3c7de9`](https://github.com/withastro/astro/commit/d3c7de9253e9cb31fa5c4bf9f4bdf59dd1ada7b0) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes temporary support for Node >=20.19.1 because Stackblitz now uses Node 22 by default
+
+## 5.0.1
+
+### Patch Changes
+
+- [#15881](https://github.com/withastro/astro/pull/15881) [`de2860c`](https://github.com/withastro/astro/commit/de2860c88c8ce500f8f747df770d3b8cc2d3c1c6) Thanks [@matthewp](https://github.com/matthewp)! - Fix `useId()` collisions across multiple Astro islands by seeding a unique per-island root mask for Preact SSR and hydration.
+
 ## 5.0.0
 
 ### Major Changes

@@ -5,11 +5,20 @@ import { color } from '@astrojs/cli-kit';
 import { error, info, title } from '../messages.js';
 import { shell } from '../shell.js';
 import type { Context } from './context.js';
+import { isThirdPartyTemplate } from './template.js';
 
 export async function dependencies(
 	ctx: Pick<
 		Context,
-		'install' | 'yes' | 'prompt' | 'packageManager' | 'cwd' | 'dryRun' | 'tasks' | 'add'
+		| 'install'
+		| 'yes'
+		| 'prompt'
+		| 'packageManager'
+		| 'cwd'
+		| 'dryRun'
+		| 'tasks'
+		| 'add'
+		| 'template'
 	>,
 ) {
 	let deps = ctx.install ?? ctx.yes;
@@ -31,6 +40,13 @@ export async function dependencies(
 			// Validate package name to prevent command injection attacks
 			assertValidPackageName(addValue);
 		}
+	}
+
+	if (deps && ctx.template && isThirdPartyTemplate(ctx.template)) {
+		await info(
+			'warn',
+			`Third-party template detected. Installing dependencies may run lifecycle scripts. Continue only if you trust this template. Use ${color.bold('--no-install')} to skip automatic install.`,
+		);
 	}
 
 	if (ctx.dryRun) {

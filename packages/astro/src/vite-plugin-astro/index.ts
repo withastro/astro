@@ -310,7 +310,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 				},
 			},
 			async handleHotUpdate(ctx) {
-				return handleHotUpdate(ctx, { logger, astroFileToCompileMetadata });
+				return handleHotUpdate(ctx, { logger, compile, astroFileToCompileMetadata });
 			},
 		},
 		{

@@ -111,11 +111,12 @@ declare module 'astro:content' {
 	type InferEntrySchema<C extends keyof DataEntryMap> = import('astro/zod').infer<
 		ReturnTypeOrOriginal<Required<ContentConfig['collections'][C]>['schema']>
 	>;
+	type ExtractLoaderConfig<T> = T extends { loader: infer L } ? L : never;
 	type InferLoaderSchema<
 		C extends keyof DataEntryMap,
-		L = Required<ContentConfig['collections'][C]>['loader'],
+		L = ExtractLoaderConfig<ContentConfig['collections'][C]>,
 	> = L extends { schema: import('astro/zod').ZodSchema }
-		? import('astro/zod').infer<Required<ContentConfig['collections'][C]>['loader']['schema']>
+		? import('astro/zod').infer<L['schema']>
 		: any;
 
 	type DataEntryMap = {

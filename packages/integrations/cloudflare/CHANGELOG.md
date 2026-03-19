@@ -1,5 +1,29 @@
 # @astrojs/cloudflare
 
+## 13.1.2
+
+### Patch Changes
+
+- [#15888](https://github.com/withastro/astro/pull/15888) [`925252e`](https://github.com/withastro/astro/commit/925252e8c361a169d1f4dc1e3677b96b9e815dea) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a bug where dependencies imported by prerender-only `server:defer` islands could remain as bare imports in server output, causing module resolution failures in preview and Cloudflare Workers.
+
+- [#15934](https://github.com/withastro/astro/pull/15934) [`6f8f0bc`](https://github.com/withastro/astro/commit/6f8f0bc4e22e958ccc2164acb1aa8cce21c43148) Thanks [@ematipico](https://github.com/ematipico)! - Updates the Astro `peerDependencies#astro` to be `6.0.0`.
+
+- [#15875](https://github.com/withastro/astro/pull/15875) [`c43ef8a`](https://github.com/withastro/astro/commit/c43ef8a565564770f022bd7cf9d2fcccf5949308) Thanks [@matthewp](https://github.com/matthewp)! - Include workerd response details in Cloudflare prerenderer errors to make `getStaticPaths()` failures easier to diagnose.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.1
+
+## 13.1.1
+
+### Patch Changes
+
+- [#15815](https://github.com/withastro/astro/pull/15815) [`d1872ee`](https://github.com/withastro/astro/commit/d1872ee6456e4a8ed821ee2b357465a116690be1) Thanks [@matthewp](https://github.com/matthewp)! - Prebundle additional Astro runtime dependencies for Cloudflare development server, speeding up initial start time and preventing required restarts.
+
+- [#15872](https://github.com/withastro/astro/pull/15872) [`3b47b89`](https://github.com/withastro/astro/commit/3b47b898ebc587251d2674e7fae2e6bcc86c7809) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes images not working in dev mode when using the `cloudflare` option
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.1
+
 ## 13.1.0
 
 ### Minor Changes
