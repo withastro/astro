@@ -1,5 +1,11 @@
 # create-astro
 
+## 5.0.3
+
+### Patch Changes
+
+- [#15967](https://github.com/withastro/astro/pull/15967) [`8db1f62`](https://github.com/withastro/astro/commit/8db1f629c364ab41413fa99b1d00e71484cb0112) Thanks [@matthewp](https://github.com/matthewp)! - Warn when `--yes` is used with a third-party template to clarify that dependency installation may run lifecycle scripts.
+
 ## 5.0.2
 
 ### Patch Changes

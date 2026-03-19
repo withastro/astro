@@ -1,5 +1,11 @@
 # @astrojs/svelte
 
+## 8.0.3
+
+### Patch Changes
+
+- [#15961](https://github.com/withastro/astro/pull/15961) [`7e8d0ee`](https://github.com/withastro/astro/commit/7e8d0ee9ca2e473a276ed5d400e40965ace4c3e8) Thanks [@matthewp](https://github.com/matthewp)! - Fix Cloudflare dev SSR dependency optimization to compile `.svelte.js` and `.svelte.ts` dependency modules that use Svelte runes.
+
 ## 8.0.2
 
 ### Patch Changes
