@@ -1,44 +1,65 @@
 import type { ModuleInfo } from 'rollup';
 import type * as vite from 'vite';
 import type { DevEnvironment } from 'vite';
-import { getParentModuleInfos, getTopLevelPageModuleInfos } from '../core/build/graph.js';
+import { hasHeadInjectComment } from '../core/head-propagation/comment.js';
+import {
+	buildImporterGraphFromModuleInfo,
+	computeInTreeAncestors,
+} from '../core/head-propagation/graph.js';
+import { getTopLevelPageModuleInfos } from '../core/build/graph.js';
 import type { BuildInternals } from '../core/build/internal.js';
 import type { SSRComponentMetadata, SSRResult } from '../types/public/internal.js';
 import { getAstroMetadata } from '../vite-plugin-astro/index.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
-// Detect this in comments, both in .astro components and in js/ts files.
-const injectExp = /(?:^\/\/|\/\/!)\s*astro-head-inject/;
-
 export default function configHeadVitePlugin(): vite.Plugin {
 	let environment: DevEnvironment;
+
+	function buildImporterGraphFromEnvironment(seed: string) {
+		const queue: string[] = [seed];
+		const collected = new Set<string>();
+		while (queue.length > 0) {
+			const current = queue.pop()!;
+			if (collected.has(current)) continue;
+			collected.add(current);
+			const mod = environment.moduleGraph.getModuleById(current);
+			for (const importer of mod?.importers ?? []) {
+				if (importer.id) {
+					queue.push(importer.id);
+				}
+			}
+		}
+
+		return buildImporterGraphFromModuleInfo(collected, (id) => {
+			const mod = environment.moduleGraph.getModuleById(id);
+			if (!mod) return null;
+			return {
+				importers: Array.from(mod.importers)
+					.map((importer) => importer.id)
+					.filter((id): id is string => !!id),
+				dynamicImporters: [],
+			};
+		});
+	}
 
 	function propagateMetadata<
 		P extends keyof PluginMetadata['astro'],
 		V extends PluginMetadata['astro'][P],
-	>(
-		this: { getModuleInfo(id: string): ModuleInfo | null },
-		id: string,
-		prop: P,
-		value: V,
-		seen = new Set<string>(),
-	) {
-		if (seen.has(id)) return;
-		seen.add(id);
-		const mod = environment.moduleGraph.getModuleById(id);
-		const info = this.getModuleInfo(id);
+	>(this: { getModuleInfo(id: string): ModuleInfo | null }, seed: string, prop: P, value: V) {
+		const importerGraph = buildImporterGraphFromEnvironment(seed);
+		const allAncestors = computeInTreeAncestors({
+			seeds: [seed],
+			importerGraph,
+		});
 
-		if (info?.meta.astro) {
-			const astroMetadata = getAstroMetadata(info);
-			if (astroMetadata) {
-				Reflect.set(astroMetadata, prop, value);
-			}
-		}
-
-		for (const parent of mod?.importers || []) {
-			if (parent.id) {
-				propagateMetadata.call(this, parent.id, prop, value, seen);
+		for (const id of allAncestors) {
+			const info = this.getModuleInfo(id);
+			if (info?.meta.astro) {
+				const astroMetadata = getAstroMetadata(info);
+				if (astroMetadata) {
+					Reflect.set(astroMetadata, prop, value);
+				}
 			}
 		}
 	}
@@ -79,7 +100,7 @@ export default function configHeadVitePlugin(): vite.Plugin {
 				propagateMetadata.call(this, id, 'containsHead', true);
 			}
 
-			if (injectExp.test(source)) {
+			if (hasHeadInjectComment(source)) {
 				propagateMetadata.call(this, id, 'propagation', 'in-tree');
 			}
 		},
@@ -97,6 +118,9 @@ export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
 		},
 		generateBundle(_opts, bundle) {
 			const map: SSRResult['componentMetadata'] = internals.componentMetadata;
+			const moduleIds = new Set<string>();
+			const selfPropagationSeeds = new Set<string>();
+			const commentPropagationSeeds = new Set<string>();
 			function getOrCreateMetadata(id: string): SSRComponentMetadata {
 				if (map.has(id)) return map.get(id)!;
 				const metadata: SSRComponentMetadata = {
@@ -110,6 +134,7 @@ export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
 			for (const [, output] of Object.entries(bundle)) {
 				if (output.type !== 'chunk') continue;
 				for (const [id, mod] of Object.entries(output.modules)) {
+					moduleIds.add(id);
 					const modinfo = this.getModuleInfo(id);
 
 					// <head> tag in the tree
@@ -122,21 +147,30 @@ export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
 							}
 						}
 						if (meta?.propagation === 'self') {
-							for (const info of getParentModuleInfos(id, this)) {
-								let metadata = getOrCreateMetadata(info.id);
-								if (metadata.propagation !== 'self') {
-									metadata.propagation = 'in-tree';
-								}
-							}
+							selfPropagationSeeds.add(id);
 						}
 					}
 
 					// Head propagation (aka bubbling)
-					if (mod.code && injectExp.test(mod.code)) {
-						for (const info of getParentModuleInfos(id, this)) {
-							getOrCreateMetadata(info.id).propagation = 'in-tree';
-						}
+					if (mod.code && hasHeadInjectComment(mod.code)) {
+						commentPropagationSeeds.add(id);
 					}
+				}
+			}
+
+			const importerGraph = buildImporterGraphFromModuleInfo(moduleIds, (id) =>
+				this.getModuleInfo(id),
+			);
+			const allPropagationSeeds = new Set([...selfPropagationSeeds, ...commentPropagationSeeds]);
+			const allAncestors = computeInTreeAncestors({
+				seeds: allPropagationSeeds,
+				importerGraph,
+			});
+
+			for (const id of allAncestors) {
+				const metadata = getOrCreateMetadata(id);
+				if (metadata.propagation !== 'self') {
+					metadata.propagation = 'in-tree';
 				}
 			}
 		},
