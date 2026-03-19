@@ -5,7 +5,7 @@ import * as cheerio from 'cheerio';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { getParams } from '../../../dist/core/render/params-and-props.js';
 import { dynamicPart, makeRoute, spreadPart, staticPart } from './test-helpers.js';
-import { createTestApp } from '../mocks.js';
+import { createTestApp, createPage } from '../mocks.js';
 
 describe('getParams', () => {
 	describe('basic dynamic routes', () => {
@@ -176,16 +176,16 @@ describe('Params rendered via App', () => {
 	});
 
 	function createParamApp(options = {}) {
-		return createTestApp(paramPage, {
-			route: '/[category]',
-			routeOverrides: {
-				segments: [[dynamicPart('category')]],
-				pathname: undefined,
-			},
-			manifestOverrides: {
-				base: options.base ?? '/',
-			},
-		});
+		return createTestApp(
+			[
+				createPage(paramPage, {
+					route: '/[category]',
+					segments: [[dynamicPart('category')]],
+					pathname: undefined,
+				}),
+			],
+			{ base: options.base ?? '/' },
+		);
 	}
 
 	it('passes params to a rendered component', async () => {

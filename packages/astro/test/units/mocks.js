@@ -112,44 +112,48 @@ export function createResponseFunction(body = '<html><body>OK</body></html>', in
 }
 
 /**
- * Creates an App instance with routes mapped to components or modules.
- * Useful for testing rendering behavior without fixtures.
+ * Converts a component + route config into the shape expected by createTestApp.
  *
- * @param {Function} pageComponent - A component created via `createComponent()`
- * @param {object} [options]
- * @param {string} [options.route] - Route pattern (default: '/test')
- * @param {object} [options.routeOverrides] - Extra fields passed to createRouteData()
- * @param {object} [options.manifestOverrides] - Extra fields passed to createManifest()
- * @param {{ routeData: object, module: Function }[]} [options.extraRoutes] - Additional routes with their modules
+ * @param {Function} component - A component created via `createComponent()`
+ * @param {object} routeConfig - Fields passed to createRouteData()
+ * @param {string} routeConfig.route - The route pattern (e.g. '/about', '/[slug]')
+ * @returns {{ routeData: object, module: Function }}
+ */
+export function createPage(component, routeConfig) {
+	const routeData = createRouteData(routeConfig);
+	return {
+		routeData,
+		module: async () => ({ page: async () => ({ default: component }) }),
+	};
+}
+
+/**
+ * Creates an App instance with one or more pages.
+ *
+ * @param {Array<{ routeData: object, module: Function }>} pages - Pages created via createPage()
+ * @param {object} [manifestOverrides] - Extra fields passed to createManifest()
  * @returns {import('../../dist/core/app/app.js').App}
  *
  * @example
- * const page = createComponent(() => render`<h1>Hello</h1>`);
- * const app = createTestApp(page);
- * const response = await app.render(new Request('http://example.com/test'));
+ * const app = createTestApp([
+ *   createPage(myComponent, { route: '/about' }),
+ *   createPage(indexComponent, { route: '/', isIndex: true }),
+ * ]);
+ * const response = await app.render(new Request('http://example.com/about'));
  */
-export function createTestApp(pageComponent, options = {}) {
-	const routeData = createRouteData({
-		route: options.route ?? '/test',
-		...options.routeOverrides,
-	});
-	const routes = [createRouteInfo(routeData)];
-	const pageMap = new Map([
-		[routeData.component, async () => ({ page: async () => ({ default: pageComponent }) })],
-	]);
-
-	if (options.extraRoutes) {
-		for (const { routeData: extra, module } of options.extraRoutes) {
-			routes.push(createRouteInfo(extra));
-			pageMap.set(extra.component, module);
-		}
+export function createTestApp(pages, manifestOverrides = {}) {
+	const routes = [];
+	const pageMap = new Map();
+	for (const { routeData, module } of pages) {
+		routes.push(createRouteInfo(routeData));
+		pageMap.set(routeData.component, module);
 	}
 
 	return new App(
 		createManifest({
 			routes,
 			pageMap,
-			...options.manifestOverrides,
+			...manifestOverrides,
 		}),
 	);
 }
@@ -178,7 +182,7 @@ export const spreadPropsSpan = createComponent((result, props, slots) => {
  *   { 'class:list': ['foo', 'bar'] },
  *   { style: { color: 'red' } },
  * ]);
- * const app = createTestApp(page);
+ * const app = createTestApp([createPage(page, { route: '/test' })]);
  */
 export function createMultiChildPage(childComponent, propsArray) {
 	return createComponent((result) => {

@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { defineAction } from '../../../dist/actions/runtime/server.js';
 import { ActionError } from '../../../dist/actions/runtime/client.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
-import { createTestApp, createRouteData } from '../mocks.js';
+import { createTestApp, createPage, createRouteData } from '../mocks.js';
 import { spreadPart, staticPart } from '../routing/test-helpers.js';
 
 const noopPage = createComponent(() => render``);
@@ -27,8 +27,9 @@ const actionRouteData = createRouteData({
  * @param {number} [options.actionBodySizeLimit]
  */
 function createActionsApp(serverActions, options = {}) {
-	return createTestApp(noopPage, {
-		extraRoutes: [
+	return createTestApp(
+		[
+			createPage(noopPage, { route: '/test' }),
 			{
 				routeData: actionRouteData,
 				module: async () => ({
@@ -36,11 +37,11 @@ function createActionsApp(serverActions, options = {}) {
 				}),
 			},
 		],
-		manifestOverrides: {
+		{
 			actions: () => ({ server: serverActions }),
 			actionBodySizeLimit: options.actionBodySizeLimit ?? 1024 * 1024,
 		},
-	});
+	);
 }
 
 describe('Actions via App', () => {

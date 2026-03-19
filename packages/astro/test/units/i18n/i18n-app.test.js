@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createI18nMiddleware } from '../../../dist/i18n/middleware.js';
-import { createTestApp, createRouteData } from '../mocks.js';
+import { createTestApp, createPage } from '../mocks.js';
 import { dynamicPart, staticPart } from '../routing/test-helpers.js';
 
 /**
@@ -37,33 +37,23 @@ const notFoundPage = createComponent(() => {
 	return render`<h1 id="not-found">404 Not Found</h1>`;
 });
 
+/** Shorthand for a locale-prefixed catch-all route */
+function localeCatchAll(locale) {
+	return createPage(localePage, {
+		route: `/${locale}/[...slug]`,
+		segments: [[staticPart(locale)], [dynamicPart('slug')]],
+		pathname: undefined,
+	});
+}
+
 describe('i18n via App - prefix-always', () => {
 	const i18n = makeI18nConfig({ strategy: 'pathname-prefix-always' });
 	const middleware = createI18nMiddleware(i18n, '/', 'ignore', 'directory');
 
-	const frRoute = createRouteData({
-		route: '/fr/[...slug]',
-		segments: [[staticPart('fr')], [dynamicPart('slug')]],
-		pathname: undefined,
-	});
-
 	function createI18nApp() {
-		return createTestApp(localePage, {
-			route: '/en/[...slug]',
-			routeOverrides: {
-				segments: [[staticPart('en')], [dynamicPart('slug')]],
-				pathname: undefined,
-			},
-			extraRoutes: [
-				{
-					routeData: frRoute,
-					module: async () => ({ page: async () => ({ default: localePage }) }),
-				},
-			],
-			manifestOverrides: {
-				i18n,
-				middleware: () => ({ onRequest: middleware }),
-			},
+		return createTestApp([localeCatchAll('en'), localeCatchAll('fr')], {
+			i18n,
+			middleware: () => ({ onRequest: middleware }),
 		});
 	}
 
@@ -102,28 +92,17 @@ describe('i18n via App - prefix-other-locales', () => {
 	const middleware = createI18nMiddleware(i18n, '/', 'ignore', 'directory');
 
 	function createI18nApp() {
-		const frRoute = createRouteData({
-			route: '/fr/[...slug]',
-			segments: [[staticPart('fr')], [dynamicPart('slug')]],
-			pathname: undefined,
-		});
-		return createTestApp(localePage, {
-			route: '/[...slug]',
-			routeOverrides: {
-				segments: [[dynamicPart('slug')]],
-				pathname: undefined,
-			},
-			extraRoutes: [
-				{
-					routeData: frRoute,
-					module: async () => ({ page: async () => ({ default: localePage }) }),
-				},
+		return createTestApp(
+			[
+				createPage(localePage, {
+					route: '/[...slug]',
+					segments: [[dynamicPart('slug')]],
+					pathname: undefined,
+				}),
+				localeCatchAll('fr'),
 			],
-			manifestOverrides: {
-				i18n,
-				middleware: () => ({ onRequest: middleware }),
-			},
-		});
+			{ i18n, middleware: () => ({ onRequest: middleware }) },
+		);
 	}
 
 	it('renders default locale without prefix', async () => {
@@ -154,17 +133,10 @@ describe('i18n via App - with base path', () => {
 	const middleware = createI18nMiddleware(i18n, '/docs/', 'ignore', 'directory');
 
 	function createI18nApp() {
-		return createTestApp(localePage, {
-			route: '/en/[...slug]',
-			routeOverrides: {
-				segments: [[staticPart('en')], [dynamicPart('slug')]],
-				pathname: undefined,
-			},
-			manifestOverrides: {
-				base: '/docs/',
-				i18n,
-				middleware: () => ({ onRequest: middleware }),
-			},
+		return createTestApp([localeCatchAll('en')], {
+			base: '/docs/',
+			i18n,
+			middleware: () => ({ onRequest: middleware }),
 		});
 	}
 
@@ -202,36 +174,9 @@ describe('i18n via App - domains-prefix-always', () => {
 	const middleware = createI18nMiddleware(i18n, '/', 'ignore', 'directory');
 
 	function createDomainApp() {
-		const ptRoute = createRouteData({
-			route: '/pt/[...slug]',
-			segments: [[staticPart('pt')], [dynamicPart('slug')]],
-			pathname: undefined,
-		});
-		const itRoute = createRouteData({
-			route: '/it/[...slug]',
-			segments: [[staticPart('it')], [dynamicPart('slug')]],
-			pathname: undefined,
-		});
-		return createTestApp(localePage, {
-			route: '/en/[...slug]',
-			routeOverrides: {
-				segments: [[staticPart('en')], [dynamicPart('slug')]],
-				pathname: undefined,
-			},
-			extraRoutes: [
-				{
-					routeData: ptRoute,
-					module: async () => ({ page: async () => ({ default: localePage }) }),
-				},
-				{
-					routeData: itRoute,
-					module: async () => ({ page: async () => ({ default: localePage }) }),
-				},
-			],
-			manifestOverrides: {
-				i18n,
-				middleware: () => ({ onRequest: middleware }),
-			},
+		return createTestApp([localeCatchAll('en'), localeCatchAll('pt'), localeCatchAll('it')], {
+			i18n,
+			middleware: () => ({ onRequest: middleware }),
 		});
 	}
 
@@ -239,10 +184,7 @@ describe('i18n via App - domains-prefix-always', () => {
 		const app = createDomainApp();
 		const res = await app.render(
 			new Request('https://example.pt/about', {
-				headers: {
-					'X-Forwarded-Host': 'example.pt',
-					'X-Forwarded-Proto': 'https',
-				},
+				headers: { 'X-Forwarded-Host': 'example.pt', 'X-Forwarded-Proto': 'https' },
 			}),
 		);
 		assert.equal(res.status, 200);
@@ -254,10 +196,7 @@ describe('i18n via App - domains-prefix-always', () => {
 		const app = createDomainApp();
 		const res = await app.render(
 			new Request('https://it.example.com/about', {
-				headers: {
-					'X-Forwarded-Host': 'it.example.com',
-					'X-Forwarded-Proto': 'https',
-				},
+				headers: { 'X-Forwarded-Host': 'it.example.com', 'X-Forwarded-Proto': 'https' },
 			}),
 		);
 		assert.equal(res.status, 200);
@@ -277,9 +216,7 @@ describe('i18n via App - domains-prefix-always', () => {
 		const app = createDomainApp();
 		const res = await app.render(
 			new Request('https://example.pt/about', {
-				headers: {
-					Host: 'example.pt',
-				},
+				headers: { Host: 'example.pt' },
 			}),
 		);
 		assert.equal(res.status, 200);
@@ -289,16 +226,11 @@ describe('i18n via App - domains-prefix-always', () => {
 
 	it('protocol mismatch: HTTP request to HTTPS-configured domain', async () => {
 		const app = createDomainApp();
-		// domainLookupTable has 'https://example.pt', but request comes via HTTP
 		const res = await app.render(
 			new Request('http://example.pt/about', {
-				headers: {
-					'X-Forwarded-Host': 'example.pt',
-					'X-Forwarded-Proto': 'http',
-				},
+				headers: { 'X-Forwarded-Host': 'example.pt', 'X-Forwarded-Proto': 'http' },
 			}),
 		);
-		// Protocol mismatch: http vs https — should NOT match the domain
 		assert.equal(res.status, 404);
 	});
 
@@ -306,10 +238,7 @@ describe('i18n via App - domains-prefix-always', () => {
 		const app = createDomainApp();
 		const res = await app.render(
 			new Request('https://example.pt:8080/about', {
-				headers: {
-					'X-Forwarded-Host': 'example.pt:8080',
-					'X-Forwarded-Proto': 'https',
-				},
+				headers: { 'X-Forwarded-Host': 'example.pt:8080', 'X-Forwarded-Proto': 'https' },
 			}),
 		);
 		assert.equal(res.status, 200);
@@ -321,13 +250,9 @@ describe('i18n via App - domains-prefix-always', () => {
 		const app = createDomainApp();
 		const res = await app.render(
 			new Request('https://unknown.com/en/about', {
-				headers: {
-					'X-Forwarded-Host': 'unknown.com',
-					'X-Forwarded-Proto': 'https',
-				},
+				headers: { 'X-Forwarded-Host': 'unknown.com', 'X-Forwarded-Proto': 'https' },
 			}),
 		);
-		// No domain match, so no locale prepended — falls through to /en/about via pathname
 		assert.equal(res.status, 200);
 		const $ = cheerio.load(await res.text());
 		assert.equal($('#locale').text(), 'en');
@@ -335,7 +260,6 @@ describe('i18n via App - domains-prefix-always', () => {
 
 	it('missing both Host and X-Forwarded-Host falls through to pathname routing', async () => {
 		const app = createDomainApp();
-		// Request without any host headers — computePathnameFromDomain returns undefined
 		const res = await app.render(new Request('http://localhost/en/about'));
 		assert.equal(res.status, 200);
 		const $ = cheerio.load(await res.text());
@@ -346,10 +270,7 @@ describe('i18n via App - domains-prefix-always', () => {
 		const app = createDomainApp();
 		const res = await app.render(
 			new Request('https://example.pt/about/', {
-				headers: {
-					'X-Forwarded-Host': 'example.pt',
-					'X-Forwarded-Proto': 'https',
-				},
+				headers: { 'X-Forwarded-Host': 'example.pt', 'X-Forwarded-Proto': 'https' },
 			}),
 		);
 		assert.equal(res.status, 200);
@@ -365,48 +286,30 @@ describe('i18n via App - domains-prefix-other-locales', () => {
 		locales: ['en', 'pt'],
 		defaultLocale: 'en',
 	});
-	i18n.domainLookupTable = {
-		'https://example.pt': 'pt',
-	};
-	i18n.domains = {
-		pt: 'https://example.pt',
-	};
+	i18n.domainLookupTable = { 'https://example.pt': 'pt' };
+	i18n.domains = { pt: 'https://example.pt' };
 
 	const middleware = createI18nMiddleware(i18n, '/', 'ignore', 'directory');
 
 	function createDomainApp() {
-		const ptRoute = createRouteData({
-			route: '/pt/[...slug]',
-			segments: [[staticPart('pt')], [dynamicPart('slug')]],
-			pathname: undefined,
-		});
-		return createTestApp(localePage, {
-			route: '/[...slug]',
-			routeOverrides: {
-				segments: [[dynamicPart('slug')]],
-				pathname: undefined,
-			},
-			extraRoutes: [
-				{
-					routeData: ptRoute,
-					module: async () => ({ page: async () => ({ default: localePage }) }),
-				},
+		return createTestApp(
+			[
+				createPage(localePage, {
+					route: '/[...slug]',
+					segments: [[dynamicPart('slug')]],
+					pathname: undefined,
+				}),
+				localeCatchAll('pt'),
 			],
-			manifestOverrides: {
-				i18n,
-				middleware: () => ({ onRequest: middleware }),
-			},
-		});
+			{ i18n, middleware: () => ({ onRequest: middleware }) },
+		);
 	}
 
 	it('renders Portuguese from domain without locale prefix in URL', async () => {
 		const app = createDomainApp();
 		const res = await app.render(
 			new Request('https://example.pt/about', {
-				headers: {
-					'X-Forwarded-Host': 'example.pt',
-					'X-Forwarded-Proto': 'https',
-				},
+				headers: { 'X-Forwarded-Host': 'example.pt', 'X-Forwarded-Proto': 'https' },
 			}),
 		);
 		assert.equal(res.status, 200);
@@ -432,32 +335,18 @@ describe('i18n via App - invalid locale with dynamic [locale] route (#15098)', (
 	});
 	const middleware = createI18nMiddleware(i18n, '/', 'ignore', 'directory');
 
-	const notFoundRoute = createRouteData({
-		route: '/404',
-		segments: [[staticPart('404')]],
-		pathname: '/404',
-		type: 'page',
-		component: '404.astro',
-	});
-
 	function createApp() {
-		return createTestApp(localePage, {
-			route: '/[locale]',
-			routeOverrides: {
-				segments: [[dynamicPart('locale')]],
-				pathname: undefined,
-			},
-			extraRoutes: [
-				{
-					routeData: notFoundRoute,
-					module: async () => ({ page: async () => ({ default: notFoundPage }) }),
-				},
+		return createTestApp(
+			[
+				createPage(localePage, {
+					route: '/[locale]',
+					segments: [[dynamicPart('locale')]],
+					pathname: undefined,
+				}),
+				createPage(notFoundPage, { route: '/404', component: '404.astro' }),
 			],
-			manifestOverrides: {
-				i18n,
-				middleware: () => ({ onRequest: middleware }),
-			},
-		});
+			{ i18n, middleware: () => ({ onRequest: middleware }) },
+		);
 	}
 
 	it('valid locale /en/ returns 200 with locale page', async () => {
@@ -509,28 +398,17 @@ describe('i18n via App - domain with localhost and ports (#12385)', () => {
 	const middleware = createI18nMiddleware(i18n, '/', 'ignore', 'directory');
 
 	function createApp() {
-		const zhRoute = createRouteData({
-			route: '/zh/[...slug]',
-			segments: [[staticPart('zh')], [dynamicPart('slug')]],
-			pathname: undefined,
-		});
-		return createTestApp(localePage, {
-			route: '/[...slug]',
-			routeOverrides: {
-				segments: [[dynamicPart('slug')]],
-				pathname: undefined,
-			},
-			extraRoutes: [
-				{
-					routeData: zhRoute,
-					module: async () => ({ page: async () => ({ default: localePage }) }),
-				},
+		return createTestApp(
+			[
+				createPage(localePage, {
+					route: '/[...slug]',
+					segments: [[dynamicPart('slug')]],
+					pathname: undefined,
+				}),
+				localeCatchAll('zh'),
 			],
-			manifestOverrides: {
-				i18n,
-				middleware: () => ({ onRequest: middleware }),
-			},
-		});
+			{ i18n, middleware: () => ({ onRequest: middleware }) },
+		);
 	}
 
 	it('zh.test without port resolves to Chinese locale', async () => {
