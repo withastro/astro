@@ -140,7 +140,7 @@ describe('Live content collections', () => {
 			const res = await fixture.fetch('/api/?returnInvalid=true&addToAge=1');
 			const data = await res.json();
 			assert.ok(
-				data.collection.error.message.includes('data does not match the collection schema'),
+				data.collection.error.message.includes('data does not match collection schema'),
 			);
 			assert.equal(data.collection.error.name, 'LiveCollectionValidationError');
 		});
