@@ -23,6 +23,8 @@ import { sequence } from './middleware/sequence.js';
 import { RedirectSinglePageBuiltModule } from './redirects/index.js';
 import { RouteCache } from './render/route-cache.js';
 import { createDefaultRoutes } from './routing/default.js';
+import type { CacheProvider, CacheProviderFactory } from './cache/types.js';
+import type { CompiledCacheRoute } from './cache/runtime/route-matching.js';
 import type { SessionDriverFactory } from './session/types.js';
 import { NodePool } from '../runtime/server/render/queue/pool.js';
 import { HTMLStringCache } from '../runtime/server/html-string-cache.js';
@@ -38,6 +40,8 @@ export abstract class Pipeline {
 	resolvedMiddleware: MiddlewareHandler | undefined = undefined;
 	resolvedActions: SSRActions | undefined = undefined;
 	resolvedSessionDriver: SessionDriverFactory | null | undefined = undefined;
+	resolvedCacheProvider: CacheProvider | null | undefined = undefined;
+	compiledCacheRoutes: CompiledCacheRoute[] | undefined = undefined;
 	nodePool: NodePool | undefined;
 	htmlStringCache: HTMLStringCache | undefined;
 
@@ -74,6 +78,8 @@ export abstract class Pipeline {
 
 		readonly actions = manifest.actions,
 		readonly sessionDriver = manifest.sessionDriver,
+		readonly cacheProvider = manifest.cacheProvider,
+		readonly cacheConfig = manifest.cacheConfig,
 		readonly serverIslands = manifest.serverIslandMappings,
 	) {
 		this.internalMiddleware = [];
@@ -87,7 +93,6 @@ export abstract class Pipeline {
 		if (manifest.experimentalQueuedRendering.enabled) {
 			this.nodePool = this.createNodePool(
 				manifest.experimentalQueuedRendering.poolSize ?? 1000,
-				manifest.experimentalQueuedRendering.contentCache ?? false,
 				false,
 			);
 			if (manifest.experimentalQueuedRendering.contentCache) {
@@ -133,7 +138,7 @@ export abstract class Pipeline {
 		}
 		// The middleware can be undefined when using edge middleware.
 		// This is set to undefined by the plugin-ssr.ts
-		else if (this.middleware) {
+		if (this.middleware) {
 			const middlewareInstance = await this.middleware();
 			const onRequest = middlewareInstance.onRequest ?? NOOP_MIDDLEWARE_FN;
 			const internalMiddlewares = [onRequest];
@@ -176,6 +181,25 @@ export abstract class Pipeline {
 		return null;
 	}
 
+	async getCacheProvider(): Promise<CacheProvider | null> {
+		// Return cached value if already resolved (including null)
+		if (this.resolvedCacheProvider !== undefined) {
+			return this.resolvedCacheProvider;
+		}
+
+		// Try to load the provider from the manifest
+		if (this.cacheProvider) {
+			const mod = await this.cacheProvider();
+			const factory: CacheProviderFactory | null = mod?.default || null;
+			this.resolvedCacheProvider = factory ? factory(this.cacheConfig?.options) : null;
+			return this.resolvedCacheProvider;
+		}
+
+		// No provider configured
+		this.resolvedCacheProvider = null;
+		return null;
+	}
+
 	async getServerIslands(): Promise<ServerIslandMappings> {
 		if (this.serverIslands) {
 			return this.serverIslands();
@@ -198,7 +222,7 @@ export abstract class Pipeline {
 		}
 
 		for (const key of pathKeys) {
-			if (!(key in server)) {
+			if (!Object.hasOwn(server, key)) {
 				throw new AstroError({
 					...ActionNotFoundError,
 					message: ActionNotFoundError.message(pathKeys.join('.')),
@@ -244,8 +268,8 @@ export abstract class Pipeline {
 		}
 	}
 
-	public createNodePool(poolSize: number, contentCache: boolean, stats: boolean): NodePool {
-		return new NodePool(poolSize, contentCache, stats);
+	public createNodePool(poolSize: number, stats: boolean): NodePool {
+		return new NodePool(poolSize, stats);
 	}
 
 	public createStringCache(): HTMLStringCache {

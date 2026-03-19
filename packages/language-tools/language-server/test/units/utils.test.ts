@@ -1,11 +1,9 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
-import type { Point } from '@astrojs/compiler/types.js';
 import { Range } from '@volar/language-server';
 import type { Node } from 'vscode-html-languageservice';
 import * as html from 'vscode-html-languageservice';
 import { getTSXRangesAsLSPRanges, safeConvertToTSX } from '../../dist/core/astro2tsx.js';
-import * as compilerUtils from '../../dist/core/compilerUtils.js';
 import { getAstroMetadata } from '../../dist/core/parseAstro.js';
 import * as utils from '../../dist/plugins/utils.js';
 
@@ -62,18 +60,6 @@ describe('Utilities', async () => {
 		const openFrontmatter = getAstroMetadata('file.astro', '---\nfoo\n');
 		assert.strictEqual(utils.isInsideFrontmatter(0, openFrontmatter.frontmatter), false);
 		assert.strictEqual(utils.isInsideFrontmatter(6, openFrontmatter.frontmatter), true);
-	});
-
-	it('PointToPosition - properly transform a Point from the Astro compiler to an LSP Position', () => {
-		const point: Point = {
-			line: 1,
-			column: 2,
-			offset: 3,
-		};
-		assert.deepStrictEqual(compilerUtils.PointToPosition(point), {
-			line: 0,
-			character: 1,
-		});
 	});
 
 	it('ensureRangeIsInFrontmatter - properly return a range inside the frontmatter', () => {

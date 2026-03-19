@@ -21,7 +21,7 @@ export interface RouteOptions {
 	readonly component: string;
 	/**
 	 * Whether this route should be prerendered. If the route has an explicit `prerender` export,
-	 * the value will be passed here. Otherwise, it's undefined and will fallback to a prerender
+	 * the value will be passed here. Otherwise, it's undefined and will fall back to a prerender
 	 * default depending on the `output` option.
 	 */
 	prerender?: boolean;
@@ -81,12 +81,24 @@ export type AdapterSupportWithMessage = {
 
 export type AdapterSupport = AdapterSupportsKind | AdapterSupportWithMessage;
 
+export type MiddlewareMode = 'classic' | 'edge';
+
 export interface AstroAdapterFeatures {
 	/**
-	 * Defines whether any on-demand rendering middleware code will be bundled when built. When enabled, this prevents
-	 * middleware code from being bundled and imported by all pages during the build.
+	 * Creates an edge function that will communicate with the Astro middleware
+	 *
+	 * @deprecated Use `middlewareMode: 'edge'` instead
 	 */
-	edgeMiddleware: boolean;
+	edgeMiddleware?: boolean;
+
+	/**
+	 * Determines when and how middleware executes:
+	 * - `'classic'` (default): Middleware runs for prerendered pages at build time, and for SSR pages at request time. Does not run for prerendered pages at request time.
+	 * - `'edge'`: Middleware is deployed as a separate edge function. Middleware code will not be bundled and imported by all pages during the build.
+	 *
+	 * @default 'classic'
+	 */
+	middlewareMode?: MiddlewareMode;
 
 	/**
 	 * Allows you to force a specific output shape for the build. This can be useful for adapters that only work with
@@ -102,6 +114,15 @@ export interface AstroAdapterFeatures {
 	 * for example, to create a `_headers` file for platforms that support it.
 	 */
 	staticHeaders?: boolean;
+
+	/**
+	 * When true, static builds will preserve the client/server directory structure
+	 * instead of outputting directly to outDir. This ensures static builds use
+	 * build.client for assets, maintaining consistency with server builds.
+	 * Useful for adapters that require a specific directory structure regardless
+	 * of the build output type.
+	 */
+	preserveBuildClientDir?: boolean;
 }
 
 /**
@@ -126,7 +147,7 @@ export interface AstroAdapterClientConfig {
 interface AdapterExplicitProperties {
 	/**
 	 * @deprecated `entrypointResolution: "explicit"` is deprecated. `entrypointResolution: "auto"` will become the default,
-	 * and only, behavior in a future major version. See [how to migrate](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#deprecated-createexports-and-start-adapter-api).
+	 * and only, behavior in a future major version. See [how to migrate](https://docs.astro.build/en/guides/upgrade-to/v6/#deprecated-createexports-and-start-adapter-api).
 	 *
 	 * Specifies the method Astro will use to resolve the server entrypoint: `"auto"` (recommended)
 	 * or `"explicit"` (default, but deprecated):

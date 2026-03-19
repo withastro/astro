@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "6.0.0-beta.15",
+  "version": "6.0.6",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -70,6 +70,7 @@
     "./assets/endpoint/*": "./dist/assets/endpoint/*.js",
     "./assets/services/sharp": "./dist/assets/services/sharp.js",
     "./assets/services/noop": "./dist/assets/services/noop.js",
+    "./cache/memory": "./dist/core/cache/memory-provider.js",
     "./assets/fonts/runtime.js": "./dist/assets/fonts/runtime.js",
     "./loaders": "./dist/content/loaders/index.js",
     "./content/config": "./dist/content/config.js",
@@ -116,7 +117,7 @@
     "test:integration": "astro-scripts test \"test/*.test.js\""
   },
   "dependencies": {
-    "@astrojs/compiler": "^3.0.0-beta.1",
+    "@astrojs/compiler": "^3.0.0",
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
@@ -130,7 +131,6 @@
     "clsx": "^2.1.1",
     "common-ancestor-path": "^2.0.0",
     "cookie": "^1.1.1",
-    "cssesc": "^3.0.0",
     "devalue": "^5.6.3",
     "diff": "^8.0.3",
     "dlv": "^1.1.3",
@@ -155,9 +155,10 @@
     "picomatch": "^4.0.3",
     "rehype": "^13.0.2",
     "semver": "^7.7.4",
-    "shiki": "^3.22.0",
+    "shiki": "^4.0.0",
     "smol-toml": "^1.6.0",
     "svgo": "^4.0.0",
+    "tinyclip": "^0.1.6",
     "tinyexec": "^1.0.2",
     "tinyglobby": "^0.2.15",
     "tsconfck": "^3.1.6",
@@ -167,7 +168,7 @@
     "unstorage": "2.0.0-alpha.6",
     "vfile": "^6.0.3",
     "vite": "^7.3.1",
-    "vitefu": "^1.1.1",
+    "vitefu": "^1.1.2",
     "xxhash-wasm": "^1.1.0",
     "yargs-parser": "^22.0.0",
     "zod": "^4.3.6"
@@ -177,10 +178,9 @@
   },
   "devDependencies": {
     "@astrojs/check": "workspace:*",
-    "@astrojs/compiler-rs": "^0.1.1",
+    "@astrojs/compiler-rs": "^0.1.4",
     "@playwright/test": "1.58.2",
     "@types/aria-query": "^5.0.4",
-    "@types/cssesc": "^3.0.2",
     "@types/dlv": "^1.1.5",
     "@types/hast": "^3.0.4",
     "@types/html-escaper": "3.0.4",
@@ -210,7 +210,7 @@
     "vitest": "^3.2.4"
   },
   "engines": {
-    "node": "^20.19.1 || >=22.12.0",
+    "node": ">=22.12.0",
     "npm": ">=9.6.5",
     "pnpm": ">=7.1.0"
   },

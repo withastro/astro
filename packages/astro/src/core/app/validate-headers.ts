@@ -50,7 +50,7 @@ function matchesAllowedDomains(
 
 /**
  * Validate a host against allowedDomains.
- * Returns the host only if it matches an allowed pattern, otherwise undefined.
+ * Returns the host only if it matches an allowed pattern; otherwise, undefined.
  * This prevents SSRF attacks by ensuring the Host header is trusted.
  */
 export function validateHost(
@@ -106,10 +106,11 @@ export function validateForwardedHeaders(
 				// allowedDomains exist but no protocol patterns, allow http/https
 				result.protocol = forwardedProtocol;
 			}
-		} else if (/^https?$/.test(forwardedProtocol)) {
-			// No allowedDomains, only allow http/https
-			result.protocol = forwardedProtocol;
 		}
+		// When no allowedDomains is configured, do not trust X-Forwarded-Proto.
+		// Without allowedDomains there is no proxy configuration to validate against,
+		// so accepting a forwarded protocol could let an attacker change the origin
+		// used for comparisons (e.g., switching http to https).
 	}
 
 	// Validate port first

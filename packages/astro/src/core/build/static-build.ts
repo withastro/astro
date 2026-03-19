@@ -10,7 +10,11 @@ import { emptyDir, removeEmptyDirs } from '../../core/fs/index.js';
 import { appendForwardSlash, prependForwardSlash } from '../../core/path.js';
 import { runHookBuildSetup } from '../../integrations/hooks.js';
 import { SERIALIZED_MANIFEST_RESOLVED_ID } from '../../manifest/serialized.js';
-import { getClientOutputDirectory, getServerOutputDirectory } from '../../prerender/utils.js';
+import {
+	getClientOutputDirectory,
+	getPrerenderOutputDirectory,
+	getServerOutputDirectory,
+} from '../../prerender/utils.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../vite-plugin-pages/const.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
@@ -33,6 +37,7 @@ import { NOOP_MODULE_ID } from './plugins/plugin-noop.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 import type { InputOption } from 'rollup';
 import { getSSRAssets } from './internal.js';
+import { SERVER_ISLAND_MAP_MARKER } from '../server-islands/vite-plugin-server-islands.js';
 
 const PRERENDER_ENTRY_FILENAME_PREFIX = 'prerender-entry';
 
@@ -46,6 +51,11 @@ export interface ExtractedChunk {
 	moduleIds: string[];
 	prerender: boolean;
 }
+
+type BuildPostHook = (params: {
+	chunks: ExtractedChunk[];
+	mutate: (fileName: string, code: string, prerender: boolean) => void;
+}) => void | Promise<void>;
 
 /**
  * Extracts only the chunks that need post-build injection from RollupOutput.
@@ -63,8 +73,9 @@ function extractRelevantChunks(
 
 			const needsContentInjection = chunk.code.includes(LINKS_PLACEHOLDER);
 			const needsManifestInjection = chunk.moduleIds.includes(SERIALIZED_MANIFEST_RESOLVED_ID);
+			const needsServerIslandInjection = chunk.code.includes(SERVER_ISLAND_MAP_MARKER);
 
-			if (needsContentInjection || needsManifestInjection) {
+			if (needsContentInjection || needsManifestInjection || needsServerIslandInjection) {
 				extracted.push({
 					fileName: chunk.fileName,
 					code: chunk.code,
@@ -127,14 +138,14 @@ export async function viteBuild(opts: StaticBuildOptions) {
  *
  * ## Build Order & Dependencies
  *
- * 1. **SSR Environment** (built first)
- *    - Generates the server runtime entry point
- *    - Outputs to server directory
- *
- * 2. **Prerender Environment** (built second)
+ * 1. **Prerender Environment** (built first)
  *    - Generates code for static prerenderable routes
  *    - Entry: `astro/entrypoints/prerender`
  *    - Outputs to `.prerender/` in server directory
+ *
+ * 2. **SSR Environment** (built second)
+ *    - Generates the server runtime entry point
+ *    - Outputs to server directory
  *
  * 3. **Client Environment** (built last)
  *    - MUST be built after SSR/prerender because client inputs are discovered during those builds
@@ -159,6 +170,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 	const flatPlugins = buildPlugins.flat().filter(Boolean);
 	const plugins = [...flatPlugins, ...(viteConfig.plugins || [])];
 	let currentRollupInput: InputOption | undefined = undefined;
+	let buildPostHooks: BuildPostHook[] = [];
 	plugins.push({
 		name: 'astro:resolve-input',
 		// When the rollup input is safe to update, we normalize it to always be an object
@@ -187,10 +199,15 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 			order: 'post',
 			async handler() {
 				// Inject manifest and content placeholders into extracted chunks
-				await runManifestInjection(opts, internals, internals.extractedChunks ?? []);
+				await runManifestInjection(
+					opts,
+					internals,
+					internals.extractedChunks ?? [],
+					buildPostHooks,
+				);
 
 				// Generation and cleanup
-				const prerenderOutputDir = new URL('./.prerender/', getServerOutputDirectory(settings));
+				const prerenderOutputDir = getPrerenderOutputDirectory(settings);
 
 				// TODO: The `static` and `server` branches below are nearly identical now.
 				// Consider refactoring to remove the else-if and unify the logic.
@@ -308,6 +325,19 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 		// This takes precedence over platform plugin fallbacks (e.g., Cloudflare)
 		builder: {
 			async buildApp(builder) {
+				// Build prerender environment for static generation
+				settings.timer.start('Prerender build');
+				let prerenderOutput = await builder.build(builder.environments.prerender);
+				settings.timer.end('Prerender build');
+
+				// Extract prerender entry filename and store in internals
+				extractPrerenderEntryFileName(internals, prerenderOutput);
+
+				// Extract chunks needing injection, then release output for GC
+				const prerenderOutputs = viteBuildReturnToRollupOutputs(prerenderOutput);
+				const prerenderChunks = extractRelevantChunks(prerenderOutputs, true);
+				prerenderOutput = undefined as any;
+
 				// Build ssr environment for server output (only for non-static builds)
 				let ssrChunks: BuildInternals['extractedChunks'] = [];
 				if (settings.buildOutput !== 'static') {
@@ -322,18 +352,13 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					ssrOutput = undefined as any;
 				}
 
-				// Build prerender environment for static generation
-				settings.timer.start('Prerender build');
-				let prerenderOutput = await builder.build(builder.environments.prerender);
-				settings.timer.end('Prerender build');
-
-				// Extract prerender entry filename and store in internals
-				extractPrerenderEntryFileName(internals, prerenderOutput);
-
-				// Extract chunks needing injection, then release output for GC
-				const prerenderOutputs = viteBuildReturnToRollupOutputs(prerenderOutput);
-				const prerenderChunks = extractRelevantChunks(prerenderOutputs, true);
-				prerenderOutput = undefined as any;
+				const ssrPlugins =
+					builder.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr]?.config.plugins ?? [];
+				buildPostHooks = ssrPlugins
+					.map((plugin) =>
+						typeof plugin.api?.buildPostHook === 'function' ? plugin.api.buildPostHook : undefined,
+					)
+					.filter(Boolean) as BuildPostHook[];
 
 				// Build client environment
 				// We must discover client inputs after SSR build because hydration/client-only directives
@@ -341,7 +366,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				// and this is the only way to update the input after instantiation.
 				internals.clientInput = getClientInput(internals, settings);
 				if (!internals.clientInput.size) {
-					// At least 1 input is required to do a build, otherwise Vite throws.
+					// At least 1 input is required to do a build; otherwise, Vite throws.
 					// We need the client build to happen in order to copy over the `public/` folder
 					// So using the noop plugin here which will give us an input that just gets thrown away.
 					internals.clientInput.add(NOOP_MODULE_ID);
@@ -364,7 +389,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 			[ASTRO_VITE_ENVIRONMENT_NAMES.prerender]: {
 				build: {
 					emitAssets: true,
-					outDir: fileURLToPath(new URL('./.prerender/', getServerOutputDirectory(settings))),
+					outDir: fileURLToPath(getPrerenderOutputDirectory(settings)),
 					rollupOptions: {
 						// Only skip the default prerender entrypoint if an adapter with `entrypointResolution: 'self'` is used
 						// AND provides a custom prerenderer. Otherwise, use the default.
@@ -470,6 +495,7 @@ async function runManifestInjection(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
 	chunks: ExtractedChunk[],
+	buildPostHooks: BuildPostHook[],
 ) {
 	const mutations = new Map<string, { code: string; prerender: boolean }>();
 
@@ -484,6 +510,11 @@ async function runManifestInjection(
 		internals,
 		{ chunks, mutate },
 	);
+
+	for (const buildPostHook of buildPostHooks) {
+		await buildPostHook({ chunks, mutate });
+	}
+
 	await writeMutatedChunks(opts, mutations);
 }
 
@@ -498,14 +529,13 @@ async function writeMutatedChunks(
 ) {
 	const { settings } = opts;
 	const config = settings.config;
-	const serverOutputDir = getServerOutputDirectory(settings);
 
 	for (const [fileName, mutation] of mutations) {
 		let root: URL;
 
 		if (mutation.prerender) {
 			// Write to prerender directory
-			root = new URL('./.prerender/', serverOutputDir);
+			root = getPrerenderOutputDirectory(settings);
 		} else if (settings.buildOutput === 'server') {
 			root = config.build.server;
 		} else {
@@ -533,10 +563,12 @@ async function ssrMoveAssets(
 ) {
 	opts.logger.info('build', 'Rearranging server assets...');
 	const isFullyStaticSite = opts.settings.buildOutput === 'static';
+	const preserveStructure = opts.settings.adapter?.adapterFeatures?.preserveBuildClientDir;
 	const serverRoot = opts.settings.config.build.server;
-	const clientRoot = isFullyStaticSite
-		? opts.settings.config.outDir
-		: opts.settings.config.build.client;
+	const clientRoot =
+		isFullyStaticSite && !preserveStructure
+			? opts.settings.config.outDir
+			: opts.settings.config.build.client;
 
 	// Move prerender assets
 	const prerenderAssetsToMove = getSSRAssets(internals, ASTRO_VITE_ENVIRONMENT_NAMES.prerender);
@@ -607,7 +639,7 @@ function getClientInput(
  * Output: `pages/injected.mjs`
  *
  * 1. We clean the `facadeModuleId` by removing the `ASTRO_PAGE_MODULE_ID` prefix and `ASTRO_PAGE_EXTENSION_POST_PATTERN`.
- * 2. We find the matching route pattern in the manifest (or fallback to the cleaned module id)
+ * 2. We find the matching route pattern in the manifest (or fall back to the cleaned module id)
  * 3. We replace square brackets with underscore (`[slug]` => `_slug_`) and `...` with `` (`[...slug]` => `_---slug_`).
  * 4. We append the `.mjs` extension, so the file will always be an ESM module
  *

@@ -30,7 +30,9 @@ export function astroFrontmatterScanPlugin(): ESBuildPlugin {
 						//
 						// Known Limitation: Using regex /\breturn\b/ will incorrectly match
 						// identifiers like `$return` or aliases like `import { return as ret }`.
-						const contents = frontmatterMatch[1].replace(/\breturn\b/g, 'throw ');
+						const contents = frontmatterMatch[1]
+							.replace(/\breturn\s*;/g, 'throw 0;')
+							.replace(/\breturn\b/g, 'throw ');
 
 						return {
 							contents,

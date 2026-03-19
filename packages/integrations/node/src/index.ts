@@ -15,7 +15,7 @@ export function getAdapter({ staticHeaders }: Pick<Options, 'staticHeaders'>): A
 		previewEntrypoint: '@astrojs/node/preview.js',
 		adapterFeatures: {
 			buildOutput: 'server',
-			edgeMiddleware: false,
+			middlewareMode: 'classic',
 			staticHeaders,
 		},
 		supportedAstroFeatures: {
@@ -29,21 +29,9 @@ export function getAdapter({ staticHeaders }: Pick<Options, 'staticHeaders'>): A
 	};
 }
 
-const protocols = ['http:', 'https:'];
-
 export default function createIntegration(userOptions: UserOptions): AstroIntegration {
 	if (!userOptions?.mode) {
 		throw new AstroError(`Setting the 'mode' option is required.`);
-	}
-	const { experimentalErrorPageHost } = userOptions;
-	if (
-		experimentalErrorPageHost &&
-		(!URL.canParse(experimentalErrorPageHost) ||
-			!protocols.includes(new URL(experimentalErrorPageHost).protocol))
-	) {
-		throw new AstroError(
-			`Invalid experimentalErrorPageHost: ${experimentalErrorPageHost}. It should be a valid URL.`,
-		);
 	}
 
 	let _config: AstroConfig | undefined = undefined;
@@ -79,9 +67,6 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 					},
 					session,
 					vite: {
-						ssr: {
-							noExternal: ['@astrojs/node'],
-						},
 						plugins: [
 							createConfigPlugin({
 								...userOptions,
@@ -90,7 +75,8 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 								host: _config.server.host,
 								port: _config.server.port,
 								staticHeaders: userOptions.staticHeaders ?? false,
-								experimentalErrorPageHost,
+								bodySizeLimit: userOptions.bodySizeLimit ?? 1024 * 1024 * 1024,
+								experimentalDisableStreaming: userOptions.experimentalDisableStreaming ?? false,
 							}),
 						],
 					},
