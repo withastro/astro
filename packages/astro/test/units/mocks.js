@@ -1,6 +1,14 @@
 import { createBasicPipeline } from './test-utils.js';
 import { makeRoute, staticPart } from './routing/test-helpers.js';
 import { AstroCookies } from '../../dist/core/cookies/index.js';
+import { App } from '../../dist/core/app/app.js';
+import {
+	createComponent,
+	render,
+	renderComponent,
+	spreadAttributes,
+} from '../../dist/runtime/server/index.js';
+import { createManifest, createRouteInfo } from './app/test-helpers.js';
 
 /**
  * Mock utilities for unit tests.
@@ -104,6 +112,84 @@ export function createResponseFunction(body = '<html><body>OK</body></html>', in
 }
 
 /**
+ * Creates an App instance with routes mapped to components or modules.
+ * Useful for testing rendering behavior without fixtures.
+ *
+ * @param {Function} pageComponent - A component created via `createComponent()`
+ * @param {object} [options]
+ * @param {string} [options.route] - Route pattern (default: '/test')
+ * @param {object} [options.routeOverrides] - Extra fields passed to createRouteData()
+ * @param {object} [options.manifestOverrides] - Extra fields passed to createManifest()
+ * @param {{ routeData: object, module: Function }[]} [options.extraRoutes] - Additional routes with their modules
+ * @returns {import('../../dist/core/app/app.js').App}
+ *
+ * @example
+ * const page = createComponent(() => render`<h1>Hello</h1>`);
+ * const app = createTestApp(page);
+ * const response = await app.render(new Request('http://example.com/test'));
+ */
+export function createTestApp(pageComponent, options = {}) {
+	const routeData = createRouteData({
+		route: options.route ?? '/test',
+		...options.routeOverrides,
+	});
+	const routes = [createRouteInfo(routeData)];
+	const pageMap = new Map([
+		[routeData.component, async () => ({ page: async () => ({ default: pageComponent }) })],
+	]);
+
+	if (options.extraRoutes) {
+		for (const { routeData: extra, module } of options.extraRoutes) {
+			routes.push(createRouteInfo(extra));
+			pageMap.set(extra.component, module);
+		}
+	}
+
+	return new App(
+		createManifest({
+			routes,
+			pageMap,
+			...options.manifestOverrides,
+		}),
+	);
+}
+
+/**
+ * Creates a component that spreads all props onto a `<span>` and renders
+ * `Astro.props.class` as text content. Useful for testing prop forwarding.
+ *
+ * Equivalent to: `<span {...Astro.props}>{Astro.props.class}</span>`
+ */
+export const spreadPropsSpan = createComponent((result, props, slots) => {
+	const Astro = result.createAstro(props, slots);
+	return render`<span${spreadAttributes(Astro.props)}>${Astro.props.class ?? ''}</span>`;
+});
+
+/**
+ * Creates a page component that renders the given child component once for each
+ * props object in the array.
+ *
+ * @param {Function} childComponent - The component to render
+ * @param {Record<string, any>[]} propsArray - Array of props objects
+ * @returns {Function} A page component
+ *
+ * @example
+ * const page = createMultiChildPage(spreadPropsSpan, [
+ *   { 'class:list': ['foo', 'bar'] },
+ *   { style: { color: 'red' } },
+ * ]);
+ * const app = createTestApp(page);
+ */
+export function createMultiChildPage(childComponent, propsArray) {
+	return createComponent((result) => {
+		const renders = propsArray.map(
+			(props) => render`${renderComponent(result, 'Child', childComponent, props)}`,
+		);
+		return render`${renders}`;
+	});
+}
+
+/**
  * Convenience wrapper around `makeRoute` from routing test-helpers.
  * Auto-generates segments from the route string for simple static routes,
  * while using the real `getPattern()` for regex generation.
@@ -115,7 +201,7 @@ export function createResponseFunction(body = '<html><body>OK</body></html>', in
  * @param {boolean} [overrides.prerender]
  * @param {boolean} [overrides.isIndex]
  * @param {string} [overrides.pathname]
- * @param {import('../../../dist/types/public/internal.js').RoutePart[][]} [overrides.segments]
+ * @param {import('../../dist/types/public/internal.js').RoutePart[][]} [overrides.segments]
  * @param {'always' | 'never' | 'ignore'} [overrides.trailingSlash]
  */
 export function createRouteData(overrides) {

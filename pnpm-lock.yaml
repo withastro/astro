@@ -2057,12 +2057,6 @@ importers:
         specifier: ^3.5.29
         version: 3.5.29(typescript@5.9.3)
 
-  packages/astro/test/fixtures/astro-class-list:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/astro-client-only:
     dependencies:
       '@astrojs/react':
@@ -2399,12 +2393,6 @@ importers:
         version: link:../../..
 
   packages/astro/test/fixtures/astro-not-response:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/astro-object-style:
     dependencies:
       astro:
         specifier: workspace:*
@@ -3000,12 +2988,6 @@ importers:
         version: link:../../..
 
   packages/astro/test/fixtures/csp-fonts:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/csrf-check-origin:
     dependencies:
       astro:
         specifier: workspace:*
