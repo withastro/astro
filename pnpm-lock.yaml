@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  unstorage: 2.0.0-alpha.6
+  unstorage: 2.0.0-alpha.7
 
 patchedDependencies:
   '@changesets/get-github-info@0.7.0':
@@ -658,8 +658,8 @@ importers:
         specifier: ^5.1.0
         version: 5.1.0
       unstorage:
-        specifier: 2.0.0-alpha.6
-        version: 2.0.0-alpha.6(@azure/identity@4.13.0)(@netlify/blobs@10.7.0)(@vercel/functions@3.4.3)(chokidar@4.0.3)(lru-cache@11.2.6)(ofetch@1.5.1)
+        specifier: 2.0.0-alpha.7
+        version: 2.0.0-alpha.7(@azure/identity@4.13.0)(@netlify/blobs@10.7.0)(@vercel/functions@3.4.3)(chokidar@4.0.3)(lru-cache@11.2.6)(ofetch@1.5.1)
       vfile:
         specifier: ^6.0.3
         version: 6.0.3
@@ -15432,8 +15432,8 @@ packages:
     resolution: {integrity: sha512-5lWVjgi6vuHhJ526bI4nlCOmkCIF3nnfXkCMDeMJrtdvxTs6ZFCM8oNufGTsDbKv/tJ/xj8RpvXjRuPBZJuJog==}
     engines: {node: '>=20.19.0'}
 
-  unstorage@2.0.0-alpha.6:
-    resolution: {integrity: sha512-w5vLYCJtnSx3OBtDk7cG4c1p3dfAnHA4WSZq9Xsurjbl2wMj7zqfOIjaHQI1Bl7yKzUxXAi+kbMr8iO2RhJmBA==}
+  unstorage@2.0.0-alpha.7:
+    resolution: {integrity: sha512-ELPztchk2zgFJnakyodVY3vJWGW9jy//keJ32IOJVGUMyaPydwcA1FtVvWqT0TNRch9H+cMNEGllfVFfScImog==}
     peerDependencies:
       '@azure/app-configuration': ^1.11.0
       '@azure/cosmos': ^4.9.1
@@ -22064,7 +22064,7 @@ snapshots:
       sharp: 0.34.5
       svgo: 4.0.0
       ufo: 1.6.3
-      unstorage: 2.0.0-alpha.6(@azure/identity@4.13.0)(@netlify/blobs@10.7.0)(@vercel/functions@3.4.3)(chokidar@4.0.3)(lru-cache@11.2.6)(ofetch@1.5.1)
+      unstorage: 2.0.0-alpha.7(@azure/identity@4.13.0)(@netlify/blobs@10.7.0)(@vercel/functions@3.4.3)(chokidar@4.0.3)(lru-cache@11.2.6)(ofetch@1.5.1)
       xss: 1.0.15
     transitivePeerDependencies:
       - '@azure/app-configuration'
@@ -25433,7 +25433,7 @@ snapshots:
       pathe: 2.0.3
       picomatch: 4.0.3
 
-  unstorage@2.0.0-alpha.6(@azure/identity@4.13.0)(@netlify/blobs@10.7.0)(@vercel/functions@3.4.3)(chokidar@4.0.3)(lru-cache@11.2.6)(ofetch@1.5.1):
+  unstorage@2.0.0-alpha.7(@azure/identity@4.13.0)(@netlify/blobs@10.7.0)(@vercel/functions@3.4.3)(chokidar@4.0.3)(lru-cache@11.2.6)(ofetch@1.5.1):
     optionalDependencies:
       '@azure/identity': 4.13.0
       '@netlify/blobs': 10.7.0
