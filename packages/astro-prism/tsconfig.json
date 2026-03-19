@@ -3,7 +3,6 @@
   "include": ["src", "virtual.d.ts"],
   "compilerOptions": {
     "rootDir": "./src",
-    "outDir": "./dist",
-    "types": ["vite/client"]
+    "outDir": "./dist"
   }
 }
