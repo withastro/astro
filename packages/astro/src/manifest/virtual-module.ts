@@ -2,13 +2,15 @@ import type { Plugin } from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { SERIALIZED_MANIFEST_ID } from './serialized.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
+import { fromRoutingStrategy, toFallbackType, toRoutingStrategy } from '../core/app/common.js';
+import type { AstroSettings } from '../types/astro.js';
 
 const VIRTUAL_SERVER_ID = 'astro:config/server';
 const RESOLVED_VIRTUAL_SERVER_ID = '\0' + VIRTUAL_SERVER_ID;
 const VIRTUAL_CLIENT_ID = 'astro:config/client';
 const RESOLVED_VIRTUAL_CLIENT_ID = '\0' + VIRTUAL_CLIENT_ID;
 
-export default function virtualModulePlugin(): Plugin {
+export default function virtualModulePlugin({ settings }: { settings: AstroSettings }): Plugin {
 	return {
 		name: 'astro-manifest-plugin',
 		resolveId: {
@@ -30,41 +32,57 @@ export default function virtualModulePlugin(): Plugin {
 			},
 			handler(id) {
 				if (id === RESOLVED_VIRTUAL_CLIENT_ID) {
-					// There's nothing wrong about using `/client` on the server
+					// Inline safe, client-only data directly from settings.
+					// This avoids importing from virtual:astro:manifest, which
+					// contains sensitive server paths and the crypto key.
+					let i18nData: Record<string, unknown> | undefined;
+					if (settings.config.i18n) {
+						const i18nConfig = settings.config.i18n;
+						// Perform the same round-trip conversion as the server config
+						// to produce fully resolved routing with defaults applied
+						const strategy = toRoutingStrategy(i18nConfig.routing, i18nConfig.domains);
+						const fallbackType = toFallbackType(i18nConfig.routing);
+						const routing = fromRoutingStrategy(strategy, fallbackType);
+						i18nData = {
+							defaultLocale: i18nConfig.defaultLocale,
+							locales: i18nConfig.locales,
+							routing,
+							fallback: i18nConfig.fallback,
+							domains: i18nConfig.domains,
+						};
+					}
+
+					let imageData: Record<string, unknown> | undefined;
+					if (settings.config.image) {
+						imageData = {
+							objectFit: settings.config.image.objectFit,
+							objectPosition: settings.config.image.objectPosition,
+							layout: settings.config.image.layout,
+						};
+					}
+
+					const clientConfig = {
+						base: settings.config.base,
+						trailingSlash: settings.config.trailingSlash,
+						site: settings.config.site,
+						compressHTML: settings.config.compressHTML,
+						build: {
+							format: settings.config.build.format,
+						},
+						i18n: i18nData,
+						image: imageData,
+					};
+
 					const code = `
-import { manifest } from '${SERIALIZED_MANIFEST_ID}'
-import { fromRoutingStrategy } from 'astro/app';
-
-let i18n = undefined;
-if (manifest.i18n) {
-i18n = {
-  defaultLocale: manifest.i18n.defaultLocale,
-  locales: manifest.i18n.locales,
-  routing: fromRoutingStrategy(manifest.i18n.strategy, manifest.i18n.fallbackType),
-  fallback: manifest.i18n.fallback,
-  domains: manifest.i18n.domains,
-  };
-}
-
-let image = undefined;
-if (manifest.image) {
-  image = {
-    objectFit: manifest.image.objectFit,
-    objectPosition: manifest.image.objectPosition,
-    layout: manifest.image.layout,
-  };
-}
-
-const base = manifest.base;
-const trailingSlash = manifest.trailingSlash;
-const site = manifest.site;
-const compressHTML = manifest.compressHTML;
-const build = {
-  format: manifest.buildFormat,
-};
-
-export { base, i18n, trailingSlash, site, compressHTML, build, image };
-				`;
+const _config = ${JSON.stringify(clientConfig)};
+export const base = _config.base;
+export const trailingSlash = _config.trailingSlash;
+export const site = _config.site;
+export const compressHTML = _config.compressHTML;
+export const build = _config.build;
+export const i18n = _config.i18n;
+export const image = _config.image;
+					`;
 					return { code };
 				}
 				if (id === RESOLVED_VIRTUAL_SERVER_ID) {

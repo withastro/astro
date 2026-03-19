@@ -75,17 +75,6 @@ export function serializedManifestPlugin({
 			},
 			async handler() {
 				let manifestData: string;
-				if (this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
-					const serialized = await createSerializedManifest(settings);
-					manifestData = JSON.stringify(serialized);
-					return {
-						code: `
-					import { deserializeManifest as _deserializeManifest } from 'astro/app';
-
-					export const manifest = _deserializeManifest((${manifestData}));
-				`,
-					};
-				}
 
 				if (command === 'build' && !sync) {
 					// Emit placeholder token that will be replaced by plugin-manifest.ts in build:post
