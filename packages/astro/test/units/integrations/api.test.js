@@ -79,6 +79,47 @@ describe('Integration API', () => {
 		deepEqual(updatedViteConfig, updatedInternalConfig);
 	});
 
+	it('runHookBuildSetup: server-only defines are absent when called with target=client and ssr=false', async () => {
+		// Simulates an integration (e.g. @analogjs/astro-angular) that sets a server-only
+		// define global when build.ssr is truthy. Verifies that calling the hook with
+		// build.ssr: false (the client-target call path) does NOT produce that define,
+		// which is the contract static-build.ts relies on to prevent server defines from
+		// leaking into the client bundle.
+		const integration = {
+			name: 'test-ssr-define',
+			hooks: {
+				'astro:build:setup'({ vite, updateConfig }) {
+					if (vite.build?.ssr) {
+						updateConfig({ define: { SSR_ONLY_FLAG: 'true' } });
+					}
+				},
+			},
+		};
+		const config = { ...defaultConfig, integrations: [integration] };
+
+		const serverResult = await runHookBuildSetup({
+			config,
+			vite: { build: { ssr: true } },
+			logger: defaultLogger,
+			pages: new Map(),
+			target: 'server',
+		});
+		assert.equal(serverResult.define?.SSR_ONLY_FLAG, 'true', 'server target should have SSR_ONLY_FLAG');
+
+		const clientResult = await runHookBuildSetup({
+			config,
+			vite: { build: { ssr: false } },
+			logger: defaultLogger,
+			pages: new Map(),
+			target: 'client',
+		});
+		assert.equal(
+			clientResult.define?.SSR_ONLY_FLAG,
+			undefined,
+			'client target (ssr: false) should NOT have SSR_ONLY_FLAG',
+		);
+	});
+
 	it('runHookConfigSetup can update Astro config', async () => {
 		const site = 'https://test.com/';
 		const updatedSettings = await runHookConfigSetup({
