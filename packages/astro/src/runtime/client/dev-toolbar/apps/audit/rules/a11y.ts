@@ -349,6 +349,16 @@ export const a11y: AuditRuleWithSelector[] = [
 		},
 		selector: Object.keys(a11y_required_attributes).join(','),
 		match(element) {
+			// If the element has an explicit role that differs from its implicit role,
+			// the default required attributes may not apply. For example, <a role="button">
+			// doesn't need href because it's semantically a button, not a link.
+			// See: https://www.w3.org/WAI/ARIA/apg/patterns/button/examples/button/
+			const explicitRole = element.getAttribute('role');
+			if (explicitRole) {
+				const implicitRole = a11y_implicit_semantics.get(element.localName);
+				if (explicitRole !== implicitRole) return false;
+			}
+
 			const requiredAttributes =
 				a11y_required_attributes[element.localName as keyof typeof a11y_required_attributes];
 
