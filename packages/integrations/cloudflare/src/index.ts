@@ -104,6 +104,14 @@ export interface Options
 	 */
 	prerenderEnvironment?: 'workerd' | 'node';
 
+	/**
+	 * Controls which runtime is used for on-demand rendering in development.
+	 *
+	 * - `'workerd'` (default): Uses Cloudflare's workerd runtime.
+	 * - `'node'`: Uses Astro's default node SSR environment.
+	 */
+	devEnvironment?: 'workerd' | 'node';
+
 	experimental?: Pick<
 		NonNullable<PluginConfig['experimental']>,
 		'headersAndRedirectsDevModeSupport'
@@ -115,6 +123,7 @@ export default function createIntegration({
 	sessionKVBindingName = DEFAULT_SESSION_KV_BINDING_NAME,
 	imagesBindingName = DEFAULT_IMAGES_BINDING_NAME,
 	prerenderEnvironment = 'workerd',
+	devEnvironment = 'workerd',
 	...cloudflareOptions
 }: Options = {}): AstroIntegration {
 	let _config: AstroConfig;
@@ -169,6 +178,7 @@ export default function createIntegration({
 				const needsImagesBindingForDev = isCompile && command === 'dev';
 				const usesContentCollections = hasContentCollectionsConfig(config.srcDir);
 				const prebundleContentRuntime = command === 'dev' && usesContentCollections;
+				const useNodeDevEnvironment = command === 'dev' && devEnvironment === 'node';
 
 				cfPluginConfig = {
 					config: cloudflareConfigCustomizer({
@@ -211,11 +221,15 @@ export default function createIntegration({
 							...(prerenderEnvironment === 'node' && command === 'dev'
 								? [createNodePrerenderPlugin()]
 								: []),
-							cfVitePlugin({
-								...cloudflareOptions,
-								...cfPluginConfig,
-								viteEnvironment: { name: 'ssr' },
-							}),
+							...(!useNodeDevEnvironment
+								? [
+										cfVitePlugin({
+											...cloudflareOptions,
+											...cfPluginConfig,
+											viteEnvironment: { name: 'ssr' },
+										}),
+									]
+								: []),
 							{
 								name: '@astrojs/cloudflare:cf-imports',
 								enforce: 'pre',

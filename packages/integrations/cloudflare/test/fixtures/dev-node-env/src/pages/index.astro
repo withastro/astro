@@ -1,0 +1,21 @@
+---
+export const prerender = false;
+
+import fs from 'node:fs';
+import path from 'node:path';
+
+const packageJsonPath = path.join(process.cwd(), 'package.json');
+const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
+const hasCf = !!Astro.request.cf;
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>SSR with Node dev environment</title>
+	</head>
+	<body>
+		<p id="pkg-name">{packageJson.name}</p>
+		<p id="has-cf">{String(hasCf)}</p>
+	</body>
+</html>
