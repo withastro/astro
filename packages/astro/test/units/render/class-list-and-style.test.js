@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { addAttribute } from '../../../dist/runtime/server/index.js';
 import { toStyleString } from '../../../dist/runtime/server/render/util.js';
-import { createTestApp, createMultiChildPage, spreadPropsSpan } from '../mocks.js';
+import { createTestApp, createPage, createMultiChildPage, spreadPropsSpan } from '../mocks.js';
 
 describe('class:list', () => {
 	it('handles a plain string', () => {
@@ -151,7 +151,7 @@ describe('class:list forwarded to components', () => {
 			{ 'class:list': ['foo', false && 'bar', true && 'baz'] },
 			{ 'class:list': [false && 'empty'] },
 		]);
-		const app = createTestApp(page);
+		const app = createTestApp([createPage(page, { route: '/test' })]);
 		const response = await app.render(new Request('http://example.com/test'));
 		const html = await response.text();
 		const $ = cheerio.load(html);
@@ -187,7 +187,7 @@ describe('style object forwarded to components', () => {
 			{ style: { backgroundColor: 'blue' } },
 			{ style: { backgroundImage: 'url("a")' } },
 		]);
-		const app = createTestApp(page);
+		const app = createTestApp([createPage(page, { route: '/test' })]);
 		const response = await app.render(new Request('http://example.com/test'));
 		const html = await response.text();
 		const $ = cheerio.load(html);
