@@ -74,7 +74,7 @@ describe('dev container restarts', { timeout: 20000 }, () => {
 			);
 
 			hmrError = await restartComplete;
-			assert.ok(hmrError instanceof Error);
+			assert.ok(hmrError instanceof ReferenceError);
 		} finally {
 			await restart.container.close();
 		}
