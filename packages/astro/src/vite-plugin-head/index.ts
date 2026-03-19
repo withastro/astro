@@ -17,6 +17,7 @@ export default function configHeadVitePlugin(): vite.Plugin {
 	let environment: DevEnvironment;
 
 	function buildImporterGraphFromEnvironment(seed: string) {
+		// Start from one changed/imported module and walk upward to collect ancestors.
 		const queue: string[] = [seed];
 		const collected = new Set<string>();
 		while (queue.length > 0) {
@@ -31,6 +32,7 @@ export default function configHeadVitePlugin(): vite.Plugin {
 			}
 		}
 
+		// Convert Vite's module graph shape into our plain importer adjacency map.
 		return buildImporterGraphFromModuleInfo(collected, (id) => {
 			const mod = environment.moduleGraph.getModuleById(id);
 			if (!mod) return null;
@@ -47,6 +49,7 @@ export default function configHeadVitePlugin(): vite.Plugin {
 		P extends keyof PluginMetadata['astro'],
 		V extends PluginMetadata['astro'][P],
 	>(this: { getModuleInfo(id: string): ModuleInfo | null }, seed: string, prop: P, value: V) {
+		// Example: `HeadEntry -> Layout -> /src/pages/blog.astro` marks both ancestors.
 		const importerGraph = buildImporterGraphFromEnvironment(seed);
 		const allAncestors = computeInTreeAncestors({
 			seeds: [seed],
@@ -97,10 +100,12 @@ export default function configHeadVitePlugin(): vite.Plugin {
 		transform(source, id) {
 			let info = this.getModuleInfo(id);
 			if (info && getAstroMetadata(info)?.containsHead) {
+				// Keep bubbling `containsHead` when this module was already marked earlier.
 				propagateMetadata.call(this, id, 'containsHead', true);
 			}
 
 			if (hasHeadInjectComment(source)) {
+				// `// astro-head-inject` and `//! astro-head-inject` opt a module into bubbling.
 				propagateMetadata.call(this, id, 'propagation', 'in-tree');
 			}
 		},
@@ -119,7 +124,9 @@ export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
 		generateBundle(_opts, bundle) {
 			const map: SSRResult['componentMetadata'] = internals.componentMetadata;
 			const moduleIds = new Set<string>();
+			// Explicit runtime entries (`createComponent({ propagation: 'self' })`).
 			const selfPropagationSeeds = new Set<string>();
+			// Comment-driven seeds (`astro-head-inject` marker in source).
 			const commentPropagationSeeds = new Set<string>();
 			function getOrCreateMetadata(id: string): SSRComponentMetadata {
 				if (map.has(id)) return map.get(id)!;
@@ -158,6 +165,7 @@ export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
 				}
 			}
 
+			// Build once, then compute all ancestors from both seed kinds.
 			const importerGraph = buildImporterGraphFromModuleInfo(moduleIds, (id) =>
 				this.getModuleInfo(id),
 			);
@@ -169,6 +177,7 @@ export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
 
 			for (const id of allAncestors) {
 				const metadata = getOrCreateMetadata(id);
+				// Preserve explicit `self`; only promote others to `in-tree`.
 				if (metadata.propagation !== 'self') {
 					metadata.propagation = 'in-tree';
 				}
