@@ -124,7 +124,6 @@ async function enhanceCompileError({
 		} catch (frontmatterErr: any) {
 			// Improve the error by replacing the phrase "unexpected end of file"
 			// with "unexpected end of frontmatter" in the esbuild error message.
-			console.log('ERROROROROR', frontmatterErr);
 			if (frontmatterErr?.message) {
 				frontmatterErr.message = frontmatterErr.message.replace(
 					'end of file',
