@@ -22,6 +22,7 @@ import {
 import { parseEnv } from 'node:util';
 import { sessionDrivers } from 'astro/config';
 import { createCloudflarePrerenderer } from './prerenderer.js';
+import cfPrismPlugin from './vite-plugin-prism.js';
 
 const CLOUDFLARE_KV_SESSION_DRIVER_ENTRYPOINT = sessionDrivers.cloudflareKVBinding().entrypoint;
 
@@ -334,6 +335,7 @@ export default function createIntegration({
 											}
 										: null,
 							}),
+							cfPrismPlugin(),
 						],
 					},
 					image: setImageConfig(imageService, config.image, command, logger),

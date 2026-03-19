@@ -2,8 +2,7 @@
 import Prism from 'prismjs';
 import components from 'prismjs/components.js';
 import getLoader, { type LoadChainer } from 'prismjs/dependencies.js';
-
-const prismLanguageFiles = import.meta.glob('../node_modules/prismjs/components/prism-*.js');
+import { bundledLanguages } from 'virtual:astro-cloudflare:prism';
 
 // This `loadChainer` is required when working with Promises in Prism's loader.
 // ref: https://github.com/PrismJS/prism/blob/76dde18a575831c91491895193f56081ac08b0c5/dependencies.js#L346-L360
@@ -64,13 +63,11 @@ export async function loadLanguages(languages: string | string[]) {
 			return;
 		}
 
-		const pathToLanguage = `../node_modules/prismjs/components/prism-${lang}.js`;
-
 		// remove from Prism
 		delete Prism.languages[lang];
 
-		if (Object.hasOwn(prismLanguageFiles, pathToLanguage)) {
-			await prismLanguageFiles[pathToLanguage]();
+		if (Object.hasOwn(bundledLanguages, lang)) {
+			await bundledLanguages[lang]();
 		}
 
 		loadedLanguages.add(lang);
