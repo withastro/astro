@@ -33,8 +33,10 @@ export class ServerIslandsState {
 	 * This keeps island names stable across repeated scans.
 	 */
 	discover(island: ServerIslandDiscovery): ServerIslandRecord {
+		const { resolvedPath, ...discovery } = island;
+
 		// If this island was already discovered from another importer, keep the first record.
-		const existing = this.islandsByResolvedPath.get(island.resolvedPath);
+		const existing = this.islandsByResolvedPath.get(resolvedPath);
 		if (existing) {
 			return existing;
 		}
@@ -46,12 +48,12 @@ export class ServerIslandsState {
 		}
 
 		const record: ServerIslandRecord = {
-			...island,
+			...discovery,
 			islandName: name,
 		};
 
-		this.islandsByResolvedPath.set(island.resolvedPath, record);
-		this.resolvedPathByIslandName.set(name, island.resolvedPath);
+		this.islandsByResolvedPath.set(resolvedPath, record);
+		this.resolvedPathByIslandName.set(name, resolvedPath);
 
 		return record;
 	}
