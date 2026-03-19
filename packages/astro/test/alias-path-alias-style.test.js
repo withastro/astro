@@ -11,6 +11,7 @@ describe('Style compilation with tsconfig path aliases', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/alias-path-alias-style/',
+			build: { inlineStylesheets: 'never' },
 		});
 		await fixture.build();
 	});
@@ -22,13 +23,12 @@ describe('Style compilation with tsconfig path aliases', () => {
 		// The styled component should be rendered
 		assert.ok($('.styled').length > 0, 'Styled component should be present in output');
 
-		// Scoped styles should be inlined or linked
-		const inlineStyles = $('style').text();
-		const hasBlueStyle =
-			(inlineStyles.includes('color') && inlineStyles.includes('blue')) ||
-			inlineStyles.includes('#00f') ||
-			inlineStyles.includes('color:blue') ||
-			inlineStyles.includes('color: blue');
-		assert.ok(hasBlueStyle, 'Scoped .styled CSS should be present in output');
+		// With inlineStylesheets: 'never', styles are emitted as external CSS files
+		const links = $('link[rel=stylesheet]').map((_i, el) => $(el).attr('href')).get();
+		assert.ok(links.length > 0, 'Should have at least one linked stylesheet');
+
+		const cssContents = await Promise.all(links.map((href) => fixture.readFile(href)));
+		const allCss = cssContents.join('\n');
+		assert.ok(allCss.includes('.styled'), 'Scoped .styled CSS should be present in emitted stylesheet');
 	});
 });
