@@ -11,10 +11,18 @@ import type { SSRResult } from '../../../../types/public/internal.js';
 import type { AstroComponentFactory } from '../astro/factory.js';
 import { isHeadAndContent } from '../astro/head-and-content.js';
 
+/** Facade helper used by runtime adapters to read effective hint resolution. */
 export function getPropagationHint(result: SSRResult, factory: AstroComponentFactory) {
 	return getHint(result, factory);
 }
 
+/**
+ * Registers an instance in the propagation set when its hint requires buffering.
+ *
+ * @example
+ * A runtime-created component with `propagation: 'self'` is registered so its
+ * styles can be collected before head flush.
+ */
 export function registerIfPropagating(input: {
 	result: SSRResult;
 	factory: AstroComponentFactory;
@@ -33,6 +41,7 @@ export function registerIfPropagating(input: {
 }
 
 export async function bufferPropagatedHead(result: SSRResult): Promise<void> {
+	// Initialize potential propagators, then append all emitted head parts.
 	const collected = await collectPropagatedHeadParts({
 		propagators: result._metadata.propagators,
 		result,
@@ -41,6 +50,7 @@ export async function bufferPropagatedHead(result: SSRResult): Promise<void> {
 	result._metadata.extraHead.push(...collected);
 }
 
+/** Facade helper for render instruction gating (`head` vs `maybe-head`). */
 export function shouldRenderInstruction(
 	type: 'head' | 'maybe-head',
 	state: HeadInstructionRenderState,
@@ -48,6 +58,7 @@ export function shouldRenderInstruction(
 	return shouldRenderInstructionByPolicy(type, state);
 }
 
+/** Projects `SSRResult` into the minimal state needed by instruction policy. */
 export function getInstructionRenderState(result: SSRResult): HeadInstructionRenderState {
 	return {
 		hasRenderedHead: result._metadata.hasRenderedHead,

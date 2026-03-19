@@ -1,6 +1,13 @@
 export type ModuleId = string;
 export type ImporterGraph = Map<ModuleId, Set<ModuleId>>;
 
+/**
+ * Computes all importer ancestors that should be treated as `in-tree`.
+ *
+ * @example
+ * If `Button.astro` is imported by `PostLayout.astro`, which is imported by
+ * `src/pages/blog.astro`, then seeding with `Button.astro` marks all three.
+ */
 export function computeInTreeAncestors(input: {
 	seeds: Iterable<ModuleId>;
 	importerGraph: ImporterGraph;
@@ -13,6 +20,7 @@ export function computeInTreeAncestors(input: {
 		if (seen.has(moduleId)) return;
 		seen.add(moduleId);
 
+		// Stop traversal at propagation boundaries.
 		if (input.stopAt?.(moduleId)) {
 			return;
 		}
@@ -36,6 +44,7 @@ export function buildImporterGraphFromModuleInfo(
 		id: string,
 	) => { importers: readonly string[]; dynamicImporters: readonly string[] } | null,
 ): ImporterGraph {
+	// Normalize host graph APIs into a single adjacency map.
 	const graph: ImporterGraph = new Map();
 
 	for (const id of moduleIds) {
