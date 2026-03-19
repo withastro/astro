@@ -45,6 +45,7 @@ import type { Logger } from './logger/core.js';
 import { createViteLogger } from './logger/vite.js';
 import { vitePluginMiddleware } from './middleware/vite-plugin.js';
 import { joinPaths } from './path.js';
+import { ServerIslandsState } from './server-islands/shared-state.js';
 import { vitePluginServerIslands } from './server-islands/vite-plugin-server-islands.js';
 import { vitePluginCacheProvider } from './cache/vite-plugin.js';
 import { vitePluginSessionDriver } from './session/vite-plugin.js';
@@ -111,6 +112,7 @@ export async function createVite(
 		mode,
 		config: settings.config,
 	});
+	const serverIslandsState = new ServerIslandsState();
 
 	// Validate that envPrefix doesn't conflict with secret env schema variables
 	validateEnvPrefixAgainstSchema(settings.config);
@@ -129,6 +131,7 @@ export async function createVite(
 			vitePluginRenderers({
 				settings,
 				routesList,
+				serverIslandsState,
 				command: command === 'dev' ? 'serve' : 'build',
 			}),
 			vitePluginStaticPaths(),
@@ -166,7 +169,7 @@ export async function createVite(
 			vitePluginFileURL(),
 			astroInternationalization({ settings }),
 			vitePluginActions({ fs, settings }),
-			vitePluginServerIslands({ settings, logger }),
+			vitePluginServerIslands({ settings, logger, serverIslandsState }),
 			vitePluginSessionDriver({ settings }),
 			vitePluginCacheProvider({ settings }),
 			astroContainer(),
