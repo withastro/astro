@@ -10,7 +10,6 @@ import xxhash from 'xxhash-wasm';
 import * as z from 'zod/v4';
 import { AstroError, AstroErrorData, errorMap, MarkdownError } from '../core/errors/index.js';
 import { isYAMLException } from '../core/errors/utils.js';
-import { isPropagatedAssetBoundary } from '../core/head-propagation/boundary.js';
 import type { Logger } from '../core/logger/core.js';
 import { appendForwardSlash } from '../core/path.js';
 import { normalizePath } from '../core/viteUtils.js';
@@ -852,10 +851,6 @@ function globWithUnderscoresIgnored(relContentDir: string, exts: string[]): stri
 		`!${contentDir}**/_*/**/*${extGlob}`,
 		`!${contentDir}**/_*${extGlob}`,
 	];
-}
-
-export function hasAssetPropagationFlag(id: string): boolean {
-	return isPropagatedAssetBoundary(id);
 }
 
 /**

@@ -39,7 +39,7 @@ export default function configHeadVitePlugin(): vite.Plugin {
 			return {
 				importers: Array.from(mod.importers)
 					.map((importer) => importer.id)
-					.filter((id): id is string => !!id),
+					.filter((moduleId): moduleId is string => !!moduleId),
 				dynamicImporters: [],
 			};
 		});
