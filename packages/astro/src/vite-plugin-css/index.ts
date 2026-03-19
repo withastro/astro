@@ -52,6 +52,9 @@ async function ensureModulesLoaded(
 	for (const imp of mod.importedModules) {
 		if (!imp.id) continue;
 		if (seen.has(imp.id)) continue;
+		// Mirror the stopping point used by collectCSSWithOrder — don't descend into propagated
+		// asset modules, as the CSS walk intentionally stops there too.
+		if (imp.id.includes(PROPAGATED_ASSET_QUERY_PARAM)) continue;
 
 		// If this module hasn't been transformed yet, fetch it to populate its importedModules
 		if (!imp.transformResult) {
