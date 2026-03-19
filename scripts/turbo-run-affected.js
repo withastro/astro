@@ -46,11 +46,11 @@ for (let i = 0; i < args.length; i += 1) {
 const pnpmCommand = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
 const commandArgs = ['exec', 'turbo', 'run', ...turboArgs];
 
-console.log('[turbo-run-affected] platform:', process.platform);
-console.log('[turbo-run-affected] event:', eventName ?? '(unknown)');
-console.log('[turbo-run-affected] baseRef:', baseRef ?? '(none)');
-console.log('[turbo-run-affected] range:', range ?? '(none)');
-console.log('[turbo-run-affected] command:', pnpmCommand, commandArgs.join(' '));
+console.info('[turbo-run-affected] platform:', process.platform);
+console.info('[turbo-run-affected] event:', eventName ?? '(unknown)');
+console.info('[turbo-run-affected] baseRef:', baseRef ?? '(none)');
+console.info('[turbo-run-affected] range:', range ?? '(none)');
+console.info('[turbo-run-affected] command:', pnpmCommand, commandArgs.join(' '));
 
 const turbo = spawn(pnpmCommand, commandArgs, {
 	stdio: 'inherit',
