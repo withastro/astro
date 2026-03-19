@@ -187,3 +187,33 @@ export function computeCurrentLocale(
 		}
 	}
 }
+
+/**
+ * Check if any of the route's resolved param values match a configured locale.
+ * This handles dynamic routes like `[locale]` or `[...path]` where the locale
+ * isn't in a static segment of the route pathname.
+ */
+export function computeCurrentLocaleFromParams(
+	params: Record<string, string | undefined>,
+	locales: Locales,
+): string | undefined {
+	for (const value of Object.values(params)) {
+		if (!value) continue;
+		for (const locale of locales) {
+			if (typeof locale === 'string') {
+				if (normalizeTheLocale(locale) === normalizeTheLocale(value)) {
+					return locale;
+				}
+			} else {
+				if (locale.path === value) {
+					return locale.codes.at(0);
+				}
+				for (const code of locale.codes) {
+					if (normalizeTheLocale(code) === normalizeTheLocale(value)) {
+						return code;
+					}
+				}
+			}
+		}
+	}
+}

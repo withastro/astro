@@ -71,15 +71,11 @@ export function createI18nMiddleware(
 				return context.redirect(location, routeDecision.status);
 			}
 			case 'notFound': {
-				const notFoundRes = new Response(response.body, {
-					status: 404,
-					headers: response.headers,
-				});
-				notFoundRes.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
+				const headers = new Headers();
 				if (routeDecision.location) {
-					notFoundRes.headers.set('Location', routeDecision.location);
+					headers.set('Location', routeDecision.location);
 				}
-				return notFoundRes;
+				return new Response(null, { status: 404, headers });
 			}
 			case 'continue':
 				break; // Continue to fallback check
