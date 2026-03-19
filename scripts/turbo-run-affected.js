@@ -7,6 +7,8 @@ const eventName = process.env.GITHUB_EVENT_NAME;
 const baseRef = process.env.GITHUB_BASE_REF?.trim();
 const isPullRequest = eventName === 'pull_request' || eventName === 'pull_request_target';
 
+// Only scope to changed packages when CI runs in a PR context.
+// On pushes or local runs we pass filters through unchanged.
 const range = isPullRequest && baseRef ? `origin/${baseRef}...HEAD` : undefined;
 
 const isFilterFlag = (value) => value === '--filter' || value === '-F';
@@ -15,12 +17,16 @@ const hasRange = (value) => /\[[^\]]+\]/.test(value);
 const formatFilter = (value) => {
 	if (!range || hasRange(value)) return value;
 
+	// Turbo needs directory filters wrapped in braces before appending [range].
+	// Example: ./packages/astro -> {./packages/astro}[origin/main...HEAD]
 	const isDirectoryFilter = value.startsWith('.') || value.startsWith('/');
 	const wrapped = value.startsWith('{') ? value : isDirectoryFilter ? `{${value}}` : value;
 
 	return `${wrapped}[${range}]`;
 };
 
+// Rewrite any filter args to include [base...HEAD] while preserving
+// all other Turbo arguments exactly as provided.
 const turboArgs = [];
 for (let i = 0; i < args.length; i += 1) {
 	const arg = args[i];
@@ -43,6 +49,7 @@ for (let i = 0; i < args.length; i += 1) {
 	turboArgs.push(arg);
 }
 
+// Use the platform-specific pnpm executable for Windows compatibility.
 const pnpmCommand = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
 const commandArgs = ['exec', 'turbo', 'run', ...turboArgs];
 
@@ -57,6 +64,7 @@ const turbo = spawn(pnpmCommand, commandArgs, {
 	env: process.env,
 });
 
+// Mirror Turbo's exit status so CI fails/succeeds correctly.
 turbo.on('close', (code) => {
 	process.exitCode = code ?? 1;
 });
