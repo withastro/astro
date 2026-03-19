@@ -1,7 +1,7 @@
 import type * as z from 'zod/v4/core';
 
 function formatZodError(error: z.$ZodError): string[] {
-	return error.issues.map((issue) => `  **${issue.path.join('.')}**: ${issue.message}`);
+	return error.issues.map((issue) => `  - ${issue.path.join('.')}: ${issue.message}`);
 }
 
 export class LiveCollectionError extends Error {
@@ -39,7 +39,7 @@ export class LiveCollectionValidationError extends LiveCollectionError {
 		super(
 			collection,
 			[
-				`**${collection} → ${entryId}** data does not match the collection schema.\n`,
+				`**${collection} → ${entryId}** data does not match collection schema.\n`,
 				...formatZodError(error),
 				'',
 			].join('\n'),
