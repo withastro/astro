@@ -212,10 +212,9 @@ export default function createVitePluginAstroServer({
 
 						try {
 							const coreSsrHandler =
-								ssrHandler ??
 								(runnableAstroEnvironment
 									? await (astroHandlerPromise ??= createHandler(runnableAstroEnvironment))
-									: undefined);
+									: undefined) ?? ssrHandler;
 
 							if (!coreSsrHandler) {
 								return next();
