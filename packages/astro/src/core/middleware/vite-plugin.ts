@@ -1,4 +1,5 @@
-import type { Plugin as VitePlugin } from 'vite';
+import { fileURLToPath } from 'node:url';
+import { normalizePath as viteNormalizePath, type Plugin as VitePlugin } from 'vite';
 import { getServerOutputDirectory } from '../../prerender/utils.js';
 import type { AstroSettings } from '../../types/astro.js';
 import { addRollupInput } from '../build/add-rollup-input.js';
@@ -20,6 +21,7 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 	const hasIntegrationMiddleware =
 		settings.middlewares.pre.length > 0 || settings.middlewares.post.length > 0;
 	let userMiddlewareIsPresent = false;
+	const normalizedSrcDir = viteNormalizePath(fileURLToPath(settings.config.srcDir));
 
 	return {
 		name: '@astro/plugin-middleware',
@@ -29,6 +31,37 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.astro ||
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
 			);
+		},
+		configureServer(server) {
+			function handleMiddlewareChange(path: string) {
+				const normalizedPath = viteNormalizePath(path);
+				// Check if the changed file is the middleware file
+				if (
+					!normalizedPath.startsWith(normalizedSrcDir) ||
+					!normalizedPath.includes(MIDDLEWARE_PATH_SEGMENT_NAME)
+				) {
+					return;
+				}
+
+				// Invalidate the virtual middleware module in all relevant environments
+				for (const name of [
+					ASTRO_VITE_ENVIRONMENT_NAMES.ssr,
+					ASTRO_VITE_ENVIRONMENT_NAMES.prerender,
+				] as const) {
+					const environment = server.environments[name];
+					if (!environment) continue;
+
+					const virtualMod = environment.moduleGraph.getModuleById(MIDDLEWARE_RESOLVED_MODULE_ID);
+					if (virtualMod) {
+						environment.moduleGraph.invalidateModule(virtualMod);
+					}
+
+					// Signal that middleware has changed so running apps can update
+					environment.hot.send('astro:middleware-updated', {});
+				}
+			}
+
+			server.watcher.on('change', handleMiddlewareChange);
 		},
 		resolveId: {
 			filter: {

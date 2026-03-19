@@ -33,6 +33,13 @@ export const createApp: CreateApp = ({ streaming } = {}) => {
 			if (!currentDevApp) return;
 			currentDevApp.pipeline.routeCache.clearAll();
 		});
+
+		// Listen for middleware changes via HMR.
+		// Clear the cached middleware so it's re-imported on the next request.
+		import.meta.hot.on('astro:middleware-updated', () => {
+			if (!currentDevApp) return;
+			currentDevApp.pipeline.resolvedMiddleware = undefined;
+		});
 	}
 
 	return currentDevApp;
