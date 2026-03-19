@@ -473,7 +473,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 
 	const serverOnlyDefine: Record<string, string> = {};
 	for (const [key, value] of Object.entries(serverDefine)) {
-		if (!(key in clientDefine)) {
+		if (!(key in clientDefine) || clientDefine[key] !== value) {
 			serverOnlyDefine[key] = value;
 		}
 	}

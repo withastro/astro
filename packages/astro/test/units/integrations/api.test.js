@@ -120,6 +120,60 @@ describe('Integration API', () => {
 		);
 	});
 
+	it('runHookBuildSetup: same define key with different server/client values is treated as server-specific', async () => {
+		// Simulates an integration that sets a define key to different values depending on
+		// build target. The server value must win for SSR/prerender environments even though
+		// the key is present in both results.
+		const integration = {
+			name: 'test-differing-define',
+			hooks: {
+				'astro:build:setup'({ vite, updateConfig }) {
+					updateConfig({ define: { MODE: vite.build?.ssr ? '"server"' : '"client"' } });
+				},
+			},
+		};
+		const config = { ...defaultConfig, integrations: [integration] };
+
+		const serverResult = await runHookBuildSetup({
+			config,
+			vite: { build: { ssr: true } },
+			logger: defaultLogger,
+			pages: new Map(),
+			target: 'server',
+		});
+		assert.equal(serverResult.define?.MODE, '"server"', 'server result should have MODE="server"');
+
+		const clientResult = await runHookBuildSetup({
+			config,
+			vite: { build: { ssr: false } },
+			logger: defaultLogger,
+			pages: new Map(),
+			target: 'client',
+		});
+		assert.equal(clientResult.define?.MODE, '"client"', 'client result should have MODE="client"');
+
+		// The server value differs from the client value, so it must be treated as
+		// server-specific and scoped to SSR/prerender environments (not top-level).
+		const serverDefine = serverResult.define ?? {};
+		const clientDefine = clientResult.define ?? {};
+		const serverOnlyDefine = {};
+		for (const [key, value] of Object.entries(serverDefine)) {
+			if (!(key in clientDefine) || clientDefine[key] !== value) {
+				serverOnlyDefine[key] = value;
+			}
+		}
+		assert.equal(
+			serverOnlyDefine.MODE,
+			'"server"',
+			'MODE with differing values should be captured as server-specific',
+		);
+		assert.notEqual(
+			serverOnlyDefine.MODE,
+			clientDefine.MODE,
+			'server-specific MODE must not equal the client value',
+		);
+	});
+
 	it('runHookConfigSetup can update Astro config', async () => {
 		const site = 'https://test.com/';
 		const updatedSettings = await runHookConfigSetup({
