@@ -14,6 +14,7 @@ import {
 } from '../path.js';
 import { createRequest } from '../request.js';
 import { DEFAULT_404_ROUTE } from './internal/astro-designed-error-pages.js';
+import { isRoute404, isRoute500 } from './internal/route-errors.js';
 
 type FindRouteToRewrite = {
 	payload: RewritePayload;
@@ -99,6 +100,22 @@ export function findRouteToRewrite({
 	}
 
 	const decodedPathname = decodeURI(pathname);
+
+	// Error pages (404/500) take precedence over dynamic routes that might
+	// capture the same path (e.g. [locale] matching /404). See #15098.
+	if (isRoute404(decodedPathname)) {
+		const errorRoute = routes.find((route) => route.route === '/404');
+		if (errorRoute) {
+			return { routeData: errorRoute, newUrl, pathname: decodedPathname };
+		}
+	}
+	if (isRoute500(decodedPathname)) {
+		const errorRoute = routes.find((route) => route.route === '/500');
+		if (errorRoute) {
+			return { routeData: errorRoute, newUrl, pathname: decodedPathname };
+		}
+	}
+
 	let foundRoute;
 	for (const route of routes) {
 		if (route.pattern.test(decodedPathname)) {

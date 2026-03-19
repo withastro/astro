@@ -5,6 +5,7 @@ import type { ActionAPIContext } from '../actions/runtime/types.js';
 import { createCallAction, createGetActionResult, hasActionPayload } from '../actions/utils.js';
 import {
 	computeCurrentLocale,
+	computeCurrentLocaleFromParams,
 	computePreferredLocale,
 	computePreferredLocaleList,
 } from '../i18n/utils.js';
@@ -898,6 +899,16 @@ export class RenderContext {
 			}
 			pathname = pathname && !isRoute404or500(routeData) ? pathname : url.pathname;
 			computedLocale = computeCurrentLocale(pathname, locales, defaultLocale);
+			// If the route has dynamic params, check if any param value matches a
+			// configured locale. This handles routes like [locale].astro where the
+			// pathname contains unresolved placeholders and computeCurrentLocale
+			// falls back to the default locale.
+			if (routeData.params.length > 0) {
+				const localeFromParams = computeCurrentLocaleFromParams(this.params, locales);
+				if (localeFromParams) {
+					computedLocale = localeFromParams;
+				}
+			}
 		}
 
 		this.#currentLocale = computedLocale ?? fallbackTo;
