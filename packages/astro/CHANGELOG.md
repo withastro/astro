@@ -1,5 +1,25 @@
 # astro
 
+## 6.0.7
+
+### Patch Changes
+
+- [#15950](https://github.com/withastro/astro/pull/15950) [`acce5e8`](https://github.com/withastro/astro/commit/acce5e84046f1f459a8f37686cf6054e2243f5ad) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a build regression in projects with multiple frontend integrations where `server:defer` server islands could fail at runtime when all pages are prerendered.
+
+- [#15988](https://github.com/withastro/astro/pull/15988) [`c93b4a0`](https://github.com/withastro/astro/commit/c93b4a02fdf3b477d1668a8576f23d4526f25d87) Thanks [@ossaidqadri](https://github.com/ossaidqadri)! - Fix styles from dynamically imported components not being injected on first dev server load.
+
+- [#15968](https://github.com/withastro/astro/pull/15968) [`3e7a9d5`](https://github.com/withastro/astro/commit/3e7a9d5fe07ef17057ede6f6f443f47e11905701) Thanks [@chasemccoy](https://github.com/chasemccoy)! - Fixes `renderMarkdown` in custom content loaders not resolving images in markdown content. Images referenced in markdown processed by `renderMarkdown` are now correctly optimized, matching the behavior of the built-in `glob()` loader.
+
+- [#15990](https://github.com/withastro/astro/pull/15990) [`1e6017f`](https://github.com/withastro/astro/commit/1e6017ffdfa11ccb5f5de33a0b8b57096c76e675) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where `Astro.currentLocale` would always be the default locale instead of the actual one when using a dynamic route like `[locale].astro` or `[locale]/index.astro`. It now resolves to the correct locale from the URL.
+
+- [#15990](https://github.com/withastro/astro/pull/15990) [`1e6017f`](https://github.com/withastro/astro/commit/1e6017ffdfa11ccb5f5de33a0b8b57096c76e675) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where visiting an invalid locale URL (e.g. `/asdf/`) would show the content of a dynamic `[locale]` page with a 404 status code, instead of showing your custom 404 page. Now, the correct 404 page is rendered when the locale in the URL doesn't match any configured locale.
+
+- [#15960](https://github.com/withastro/astro/pull/15960) [`1d84020`](https://github.com/withastro/astro/commit/1d840201c63f2b0dae91f5b4894afe25fc5d23ad) Thanks [@matthewp](https://github.com/matthewp)! - Fixes Cloudflare dev server islands with `prerenderEnvironment: 'node'` by sharing the serialized manifest encryption key across dev environments and routing server island requests through the SSR runtime.
+
+- [#15735](https://github.com/withastro/astro/pull/15735) [`9685e2d`](https://github.com/withastro/astro/commit/9685e2d5ef132ca113144c1714163511a93fd29e) Thanks [@fa-sharp](https://github.com/fa-sharp)! - Fixes an EventEmitter memory leak when serving static pages from Node.js middleware.
+
+  When using the middleware handler, requests that were being passed on to Express / Fastify (e.g. static files / pre-rendered pages / etc.) weren't cleaning up socket listeners before calling `next()`, causing a memory leak warning. This fix makes sure to run the cleanup before calling `next()`.
+
 ## 6.0.6
 
 ### Patch Changes
