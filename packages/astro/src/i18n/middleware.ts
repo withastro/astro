@@ -71,6 +71,23 @@ export function createI18nMiddleware(
 				return context.redirect(location, routeDecision.status);
 			}
 			case 'notFound': {
+				if (context.isPrerendered) {
+					// Prerendered pages are authored content — preserve the body so the
+					// build pipeline can write the file. The REROUTE_DIRECTIVE prevents
+					// the App from rerouting to the error page.
+					const prerenderedRes = new Response(response.body, {
+						status: 404,
+						headers: response.headers,
+					});
+					prerenderedRes.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
+					if (routeDecision.location) {
+						prerenderedRes.headers.set('Location', routeDecision.location);
+					}
+					return prerenderedRes;
+				}
+				// For SSR, return a null-body 404 so the App reroutes to the actual
+				// 404 page. This prevents dynamic routes like [locale] from serving
+				// their content for invalid locale paths.
 				const headers = new Headers();
 				if (routeDecision.location) {
 					headers.set('Location', routeDecision.location);
