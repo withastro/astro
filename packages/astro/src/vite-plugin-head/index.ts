@@ -80,6 +80,7 @@ export default function configHeadVitePlugin(): vite.Plugin {
 				propagateMetadata.call(this, id, 'containsHead', true);
 			}
 
+			// eslint-disable-next-line @typescript-eslint/prefer-includes
 			if (injectExp.test(source)) {
 				propagateMetadata.call(this, id, 'propagation', 'in-tree');
 			}
@@ -133,6 +134,7 @@ export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
 					}
 
 					// Head propagation (aka bubbling)
+					// eslint-disable-next-line @typescript-eslint/prefer-includes
 					if (mod.code && injectExp.test(mod.code)) {
 						for (const info of getParentModuleInfos(id, this)) {
 							getOrCreateMetadata(info.id).propagation = 'in-tree';
