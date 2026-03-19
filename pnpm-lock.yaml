@@ -1896,6 +1896,12 @@ importers:
         specifier: ^5.53.6
         version: 5.53.8
 
+  packages/astro/test/fixtures/alias-path-alias-style:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/alias-tsconfig:
     dependencies:
       '@astrojs/svelte':
