@@ -4,6 +4,7 @@ import type {
 	RewritePayload,
 	RouteData,
 	SSRElement,
+	SSRResult,
 } from '../../../types/public/index.js';
 import { type HeadElements, Pipeline, type TryRewriteResult } from '../../base-pipeline.js';
 import { ASTRO_VERSION } from '../../constants.js';
@@ -131,7 +132,15 @@ export class NonRunnablePipeline extends Pipeline {
 		return { scripts, styles, links };
 	}
 
-	componentMetadata() {}
+	async componentMetadata(routeData: RouteData): Promise<SSRResult['componentMetadata']> {
+		const { devComponentMetadataMap } = await import('virtual:astro:dev-component-metadata-all');
+		const importer = devComponentMetadataMap.get(routeData.component);
+		if (importer) {
+			const mod = await importer();
+			return mod.metadata as SSRResult['componentMetadata'];
+		}
+		return new Map();
+	}
 
 	async getComponentByRoute(routeData: RouteData): Promise<ComponentInstance> {
 		try {

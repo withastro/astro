@@ -74,7 +74,7 @@ export class AppPipeline extends Pipeline {
 		return { links, styles, scripts };
 	}
 
-	componentMetadata() {}
+	componentMetadata(_routeData: RouteData) {}
 
 	async getComponentByRoute(routeData: RouteData): Promise<ComponentInstance> {
 		const module = await this.getModuleForRoute(routeData);
