@@ -55,6 +55,17 @@ async function ensureModulesLoaded(
 		// Mirror the stopping point used by collectCSSWithOrder — don't descend into propagated
 		// asset modules, as the CSS walk intentionally stops there too.
 		if (imp.id.includes(PROPAGATED_ASSET_QUERY_PARAM)) continue;
+		// Skip virtual dev-css modules to prevent circular deadlocks with the Cloudflare adapter.
+		// The dev-css-all module statically imports all per-route dev-css:* modules, and those
+		// modules' load handlers may already be running (waiting on ensureModulesLoaded), causing
+		// a permanent deadlock via Vite's _pendingRequests map. These are CSS collector virtuals
+		// that don't contain CSS themselves, so skipping them has no effect on CSS injection.
+		if (
+			imp.id === RESOLVED_MODULE_DEV_CSS ||
+			imp.id === RESOLVED_MODULE_DEV_CSS_ALL ||
+			imp.id.startsWith(RESOLVED_MODULE_DEV_CSS_PREFIX)
+		)
+			continue;
 
 		// If this module hasn't been transformed yet, fetch it to populate its importedModules
 		if (!imp.transformResult) {
