@@ -7,41 +7,41 @@ import { Logger } from '../../../astro/dist/core/logger/core.js';
 import { fileURLToPath } from 'node:url';
 
 describe('base', () => {
-  let fixture;
-  const logs = [];
+	let fixture;
+	const logs = [];
 
-  before(async () => {
-    fixture = await loadFixture({
-      root: './fixtures/with-base/',
-    });
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/with-base/',
+		});
 
-    // Clear the Vite cache before testing
-    const viteCacheDir = new URL('./node_modules/.vite/', fixture.config.root);
+		// Clear the Vite cache before testing
+		const viteCacheDir = new URL('./node_modules/.vite/', fixture.config.root);
 
-    rmSync(fileURLToPath(viteCacheDir), { recursive: true, force: true });
+		rmSync(fileURLToPath(viteCacheDir), { recursive: true, force: true });
 
-    await fixture.build({
-      vite: { logLevel: 'debug' },
-      logger: new Logger({
-        level: 'debug',
-        dest: new Writable({
-          objectMode: true,
-          write(event, _, callback) {
-            logs.push(event);
-            callback();
-          },
-        }),
-      }),
-    });
-  });
+		await fixture.build({
+			vite: { logLevel: 'debug' },
+			logger: new Logger({
+				level: 'debug',
+				dest: new Writable({
+					objectMode: true,
+					write(event, _, callback) {
+						logs.push(event);
+						callback();
+					},
+				}),
+			}),
+		});
+	});
 
-  after(async () => {
-    await fixture.clean();
-  });
+	after(async () => {
+		await fixture.clean();
+	});
 
-  it('correctly prints redirects', async () => {
-    const fileContent = await fixture.readFile('client/_redirects');
-    assert.match(fileContent, /\/a\/redirect\s+\/\s+301/);
-    assert.match(fileContent, /\/a\/redirect\/\s+\/\s+301/);
-  });
+	it('correctly prints redirects', async () => {
+		const fileContent = await fixture.readFile('client/_redirects');
+		assert.match(fileContent, /\/a\/redirect\s+\/\s+301/);
+		assert.match(fileContent, /\/a\/redirect\/\s+\/\s+301/);
+	});
 });
