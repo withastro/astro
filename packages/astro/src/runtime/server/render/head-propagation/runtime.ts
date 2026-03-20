@@ -30,13 +30,40 @@ export function registerIfPropagating(input: {
 		init(result: SSRResult): unknown | Promise<unknown>;
 	};
 }) {
-	const hint = getHint(input.result, input.factory);
+	const { result, factory, instance } = input;
+	const hint = getHint(result, factory);
 	if (isPropagatingHint(hint)) {
 		// The runtime set supports both AstroComponentInstance and ServerIslandComponent,
 		// and integrations may push objects that satisfy this minimal `init()` contract.
-		input.result._metadata.propagators.add(
-			input.instance as typeof input.result._metadata.propagators extends Set<infer T> ? T : never,
+		result._metadata.propagators.add(
+			instance as typeof result._metadata.propagators extends Set<infer T> ? T : never,
 		);
+	}
+}
+
+export function registerIfPropagatingFast(
+	result: SSRResult,
+	factory: AstroComponentFactory,
+	instance: {
+		init(result: SSRResult): unknown | Promise<unknown>;
+	},
+) {
+	// Fast path: explicit runtime hint is cheapest and most common for dynamic entries.
+	if (factory.propagation === 'self' || factory.propagation === 'in-tree') {
+		result._metadata.propagators.add(
+			instance as typeof result._metadata.propagators extends Set<infer T> ? T : never,
+		);
+		return;
+	}
+
+	// Otherwise fall back to metadata (`.astro` compile/build analysis).
+	if (factory.moduleId) {
+		const hint = result.componentMetadata.get(factory.moduleId)?.propagation;
+		if (hint === 'self' || hint === 'in-tree') {
+			result._metadata.propagators.add(
+				instance as typeof result._metadata.propagators extends Set<infer T> ? T : never,
+			);
+		}
 	}
 }
 

@@ -2,7 +2,7 @@ import type { SSRResult } from '../../../../types/public/internal.js';
 import { isPromise } from '../../util.js';
 import { renderChild } from '../any.js';
 import type { RenderDestination } from '../common.js';
-import { registerIfPropagating } from '../head-propagation/runtime.js';
+import { registerIfPropagatingFast } from '../head-propagation/runtime.js';
 import type { ComponentSlots } from '../slot.js';
 import type { AstroComponentFactory, AstroFactoryReturnValue } from './factory.js';
 import { isHeadAndContent } from './head-and-content.js';
@@ -111,7 +111,7 @@ export function createAstroComponentInstance(
 ) {
 	validateComponentProps(props, result.clientDirectives, displayName);
 	const instance = new AstroComponentInstance(result, props, slots, factory);
-	registerIfPropagating({ result, factory, instance });
+	registerIfPropagatingFast(result, factory, instance);
 	return instance;
 }
 
