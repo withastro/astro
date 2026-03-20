@@ -139,6 +139,66 @@ describe('Astro Actions', () => {
 			assert.equal(data.type, 'AstroActionInputError');
 		});
 
+		it('Handles nested form objects with dot notation', async () => {
+			const formData = new FormData();
+			formData.append('a', 'hello');
+			formData.append('bc.b', 'hoge');
+			formData.append('bc.c', 'world');
+			const req = new Request('http://example.com/_actions/nestedFormObject', {
+				method: 'POST',
+				body: formData,
+			});
+			const res = await app.render(req);
+
+			assert.equal(res.ok, true);
+			assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
+
+			const data = devalue.parse(await res.text());
+			assert.equal(data.a, 'hello');
+			assert.deepEqual(data.bc, { b: 'hoge', c: 'world' });
+		});
+
+		it('Validates nested form objects with superRefine', async () => {
+			const formData = new FormData();
+			formData.append('a', 'hello');
+			formData.append('bc.b', 'huga');
+			// Omit bc.c to trigger superRefine validation
+			const req = new Request('http://example.com/_actions/nestedFormObject', {
+				method: 'POST',
+				body: formData,
+			});
+			const res = await app.render(req);
+
+			assert.equal(res.ok, false);
+			assert.equal(res.status, 400);
+
+			const data = await res.json();
+			assert.equal(data.type, 'AstroActionInputError');
+			assert.ok(
+				data.issues.some((issue) => issue.path.includes('c')),
+				'Should have a validation issue for field c',
+			);
+		});
+
+		it('Handles nested discriminatedUnion in form data', async () => {
+			const formData = new FormData();
+			formData.append('name', 'Ben');
+			formData.append('contact.type', 'email');
+			formData.append('contact.email', 'ben@test.test');
+			const req = new Request('http://example.com/_actions/nestedDiscriminatedUnion', {
+				method: 'POST',
+				body: formData,
+			});
+			const res = await app.render(req);
+
+			assert.equal(res.ok, true);
+			assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
+
+			const data = devalue.parse(await res.text());
+			assert.equal(data.name, 'Ben');
+			assert.deepEqual(data.contact, { type: 'email', email: 'ben@test.test' });
+		});
+
 		it('Exposes plain formData action', async () => {
 			const formData = new FormData();
 			formData.append('channel', 'bholmesdev');

@@ -323,11 +323,19 @@ function isActionAPIContext(ctx: ActionAPIContext): boolean {
 export function formDataToObject<T extends z.$ZodObject>(
 	formData: FormData,
 	schema: T,
+	/** @internal */
+	prefix = '',
 ): Record<string, unknown> {
+	const formKeys = [...formData.keys()];
 	const obj: Record<string, unknown> = schema._zod.def.catchall
-		? Object.fromEntries(formData.entries())
+		? Object.fromEntries(
+				[...formData.entries()]
+					.filter(([k]) => k.startsWith(prefix))
+					.map(([k, v]) => [k.slice(prefix.length), v]),
+			)
 		: {};
 	for (const [key, baseValidator] of Object.entries(schema._zod.def.shape)) {
+		const prefixedKey = prefix + key;
 		let validator = baseValidator;
 
 		while (
@@ -336,7 +344,7 @@ export function formDataToObject<T extends z.$ZodObject>(
 			validator instanceof z.$ZodDefault
 		) {
 			// use default value when key is undefined
-			if (validator instanceof z.$ZodDefault && !formData.has(key)) {
+			if (validator instanceof z.$ZodDefault && !formDataHasKeyOrPrefix(formKeys, prefixedKey)) {
 				obj[key] =
 					validator._zod.def.defaultValue instanceof Function
 						? validator._zod.def.defaultValue()
@@ -345,19 +353,53 @@ export function formDataToObject<T extends z.$ZodObject>(
 			validator = validator._zod.def.innerType;
 		}
 
-		if (!formData.has(key) && key in obj) {
+		// Unwrap pipe (from .transform() / .pipe()) to find nested objects
+		while (validator instanceof z.$ZodPipe) {
+			validator = validator._zod.def.in;
+		}
+
+		// Resolve nested discriminatedUnion to the matching variant
+		if (validator instanceof z.$ZodDiscriminatedUnion) {
+			const typeKey = validator._zod.def.discriminator;
+			const typeValue = formData.get(prefixedKey + '.' + typeKey);
+			if (typeof typeValue === 'string') {
+				const match = validator._zod.def.options.find((option: any) =>
+					option.def.shape[typeKey].values.has(typeValue),
+				);
+				if (match) {
+					validator = match;
+				}
+			}
+		}
+
+		if (validator instanceof z.$ZodObject) {
+			const nestedPrefix = prefixedKey + '.';
+			const hasNestedKeys = formKeys.some((k) => k.startsWith(nestedPrefix));
+			if (hasNestedKeys) {
+				obj[key] = formDataToObject(formData, validator, nestedPrefix);
+			} else if (!(key in obj)) {
+				// No nested keys and no default was set — respect optional/nullable
+				obj[key] = baseValidator instanceof z.$ZodNullable ? null : undefined;
+			}
+		} else if (!formData.has(prefixedKey) && key in obj) {
 			// continue loop if form input is not found and default value is set
 			continue;
 		} else if (validator instanceof z.$ZodBoolean) {
-			const val = formData.get(key);
-			obj[key] = val === 'true' ? true : val === 'false' ? false : formData.has(key);
+			const val = formData.get(prefixedKey);
+			obj[key] = val === 'true' ? true : val === 'false' ? false : formData.has(prefixedKey);
 		} else if (validator instanceof z.$ZodArray) {
-			obj[key] = handleFormDataGetAll(key, formData, validator);
+			obj[key] = handleFormDataGetAll(prefixedKey, formData, validator);
 		} else {
-			obj[key] = handleFormDataGet(key, formData, validator, baseValidator);
+			obj[key] = handleFormDataGet(prefixedKey, formData, validator, baseValidator);
 		}
 	}
 	return obj;
+}
+
+/** Check if formKeys contains an exact key or any keys with the given prefix (for nested objects). */
+function formDataHasKeyOrPrefix(formKeys: string[], key: string): boolean {
+	const prefix = key + '.';
+	return formKeys.some((k) => k === key || k.startsWith(prefix));
 }
 
 function handleFormDataGetAll(key: string, formData: FormData, validator: z.$ZodArray) {
