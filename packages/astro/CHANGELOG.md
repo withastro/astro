@@ -1,5 +1,15 @@
 # astro
 
+## 6.0.8
+
+### Patch Changes
+
+- [#15978](https://github.com/withastro/astro/pull/15978) [`6d182fe`](https://github.com/withastro/astro/commit/6d182fe267586e2ee57113ad559912a456019306) Thanks [@seroperson](https://github.com/seroperson)! - Fixes a bug where Astro Actions didn't properly support nested object properties, causing problems when users used zod functions such as `superRefine` or `discriminatedUnion`.
+
+- [#16011](https://github.com/withastro/astro/pull/16011) [`e752170`](https://github.com/withastro/astro/commit/e752170b64f436ccb4acef9612951c50927afa0c) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a dev server hang on the first request when using the Cloudflare adapter
+
+- [#15997](https://github.com/withastro/astro/pull/15997) [`1fddff7`](https://github.com/withastro/astro/commit/1fddff7ae6510812f04e62c77eea9de6fbc76f57) Thanks [@ematipico](https://github.com/ematipico)! - Fixes `Astro.rewrite()` failing when the target path contains duplicate slashes (e.g. `//about`). The duplicate slashes are now collapsed before URL parsing, preventing them from being interpreted as a protocol-relative URL.
+
 ## 6.0.7
 
 ### Patch Changes
