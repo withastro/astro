@@ -2287,6 +2287,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/astro-manifest-client-script:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/astro-manifest-invalid:
     dependencies:
       astro:

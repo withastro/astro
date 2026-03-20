@@ -136,7 +136,7 @@ export async function createVite(
 			}),
 			vitePluginStaticPaths(),
 			await astroPluginRoutes({ routesList, settings, logger, fsMod: fs, command }),
-			astroVirtualManifestPlugin(),
+			astroVirtualManifestPlugin({ settings }),
 			vitePluginEnvironment({ settings, astroPkgsConfig, command }),
 			pluginPage({ routesList }),
 			pluginPages({ routesList }),
