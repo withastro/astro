@@ -105,6 +105,9 @@ export function formatTOMLError(e: TomlError): ViteErrorPayload['err'] {
 /** Coalesce any throw variable to an Error instance. */
 export function createSafeError(err: any): Error {
 	if (err instanceof Error || (err?.name && err.message)) {
+		if (typeof err.message !== 'string') {
+			err.message = String(err.message);
+		}
 		return err;
 	} else {
 		const error = new Error(JSON.stringify(err));
