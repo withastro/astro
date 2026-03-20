@@ -111,7 +111,7 @@ export function createAstroComponentInstance(
 ) {
 	validateComponentProps(props, result.clientDirectives, displayName);
 	const instance = new AstroComponentInstance(result, props, slots, factory);
-	registerIfPropagating({ result, factory, instance });
+	registerIfPropagating(result, factory, instance);
 	return instance;
 }
 

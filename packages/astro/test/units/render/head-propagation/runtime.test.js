@@ -25,18 +25,10 @@ function createResult() {
 describe('head propagation runtime facade', () => {
 	it('registers only propagating components', () => {
 		const result = createResult();
-		registerIfPropagating({
-			result,
-			factory: { propagation: 'none' },
-			instance: { init: () => null },
-		});
+		registerIfPropagating(result, { propagation: 'none' }, { init: () => null });
 		assert.equal(result._metadata.propagators.size, 0);
 
-		registerIfPropagating({
-			result,
-			factory: { propagation: 'self' },
-			instance: { init: () => null },
-		});
+		registerIfPropagating(result, { propagation: 'self' }, { init: () => null });
 		assert.equal(result._metadata.propagators.size, 1);
 	});
 

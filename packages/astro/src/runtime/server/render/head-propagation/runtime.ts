@@ -23,14 +23,13 @@ export function getPropagationHint(result: SSRResult, factory: AstroComponentFac
  * A runtime-created component with `propagation: 'self'` is registered so its
  * styles can be collected before head flush.
  */
-export function registerIfPropagating(input: {
-	result: SSRResult;
-	factory: AstroComponentFactory;
+export function registerIfPropagating(
+	result: SSRResult,
+	factory: AstroComponentFactory,
 	instance: {
 		init(result: SSRResult): unknown | Promise<unknown>;
-	};
-}) {
-	const { result, factory, instance } = input;
+	},
+) {
 	// Fast path: explicit runtime hint is cheapest and most common for dynamic entries.
 	if (factory.propagation === 'self' || factory.propagation === 'in-tree') {
 		// The runtime set supports both AstroComponentInstance and ServerIslandComponent,
