@@ -12,7 +12,7 @@
  */
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
-import { describe, it } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import { renderPath } from '../../../dist/core/build/generate.js';
 import {
 	createComponent,
@@ -23,18 +23,28 @@ import { createMemFs, createMockPrerenderer, createStaticBuildOptions } from './
 import { createRouteData } from '../mocks.js';
 
 describe('renderPath()', () => {
+	let vfs = createMemFs();
+	let options;
+
+	before(async () => {
+		options = await createStaticBuildOptions({ vfs });
+	});
+
+	after(() => {
+		vfs.unmount();
+	});
+
 	it('returns a Buffer body for a normal HTML page', async () => {
 		const html = '<html><body>Hello</body></html>';
 		const prerenderer = createMockPrerenderer({ '/': html });
 		const route = createRouteData({ route: '/' });
-		const opts = await createStaticBuildOptions();
 
 		const result = await renderPath({
 			prerenderer,
 			pathname: '/',
 			route,
-			options: opts,
-			logger: opts.logger,
+			options,
+			logger: options.logger,
 		});
 
 		assert.ok(result !== null, 'expected a result, not null');
@@ -47,14 +57,13 @@ describe('renderPath()', () => {
 			'/empty': new Response(null, { status: 200 }),
 		});
 		const route = createRouteData({ route: '/empty' });
-		const opts = await createStaticBuildOptions();
 
 		const result = await renderPath({
 			prerenderer,
 			pathname: '/empty',
 			route,
-			options: opts,
-			logger: opts.logger,
+			options,
+			logger: options.logger,
 		});
 
 		assert.equal(result, null, 'empty body should yield null');
@@ -62,20 +71,20 @@ describe('renderPath()', () => {
 
 	it('produces a redirect HTML body for a 301 response', async () => {
 		const prerenderer = createMockPrerenderer({
-			'/old': new Response(null, {
-				status: 301,
-				headers: { location: '/new' },
-			}),
+			'/old': new Response(null, { status: 301, headers: { location: '/new' } }),
 		});
 		const route = createRouteData({ route: '/old', type: 'page' });
-		const opts = await createStaticBuildOptions({ inlineConfig: { build: { redirects: true } } });
+		const redirectOptions = await createStaticBuildOptions({
+			vfs,
+			inlineConfig: { build: { redirects: true } },
+		});
 
 		const result = await renderPath({
 			prerenderer,
 			pathname: '/old',
 			route,
-			options: opts,
-			logger: opts.logger,
+			options: redirectOptions,
+			logger: redirectOptions.logger,
 		});
 
 		assert.ok(result !== null, 'redirect should produce a result');
@@ -85,21 +94,20 @@ describe('renderPath()', () => {
 
 	it('returns null for redirect routes when config.build.redirects is false', async () => {
 		const prerenderer = createMockPrerenderer({
-			'/old': new Response(null, {
-				status: 301,
-				headers: { location: '/new' },
-			}),
+			'/old': new Response(null, { status: 301, headers: { location: '/new' } }),
 		});
-		// type: 'redirect' + redirects: false → should be suppressed
 		const route = createRouteData({ route: '/old', type: 'redirect' });
-		const opts = await createStaticBuildOptions({ inlineConfig: { build: { redirects: false } } });
+		const noRedirectOptions = await createStaticBuildOptions({
+			vfs,
+			inlineConfig: { build: { redirects: false } },
+		});
 
 		const result = await renderPath({
 			prerenderer,
 			pathname: '/old',
 			route,
-			options: opts,
-			logger: opts.logger,
+			options: noRedirectOptions,
+			logger: noRedirectOptions.logger,
 		});
 
 		assert.equal(
@@ -111,13 +119,11 @@ describe('renderPath()', () => {
 
 	it('strips newlines from redirect body when compressHTML is true', async () => {
 		const prerenderer = createMockPrerenderer({
-			'/old': new Response(null, {
-				status: 301,
-				headers: { location: '/new' },
-			}),
+			'/old': new Response(null, { status: 301, headers: { location: '/new' } }),
 		});
 		const route = createRouteData({ route: '/old', type: 'page' });
-		const opts = await createStaticBuildOptions({
+		const compressOptions = await createStaticBuildOptions({
+			vfs,
 			inlineConfig: { compressHTML: true, build: { redirects: true } },
 		});
 
@@ -125,8 +131,8 @@ describe('renderPath()', () => {
 			prerenderer,
 			pathname: '/old',
 			route,
-			options: opts,
-			logger: opts.logger,
+			options: compressOptions,
+			logger: compressOptions.logger,
 		});
 
 		assert.ok(result !== null);
@@ -139,7 +145,8 @@ describe('renderPath()', () => {
 		const prerenderer = createMockPrerenderer({ '/page': html });
 		const route = createRouteData({ route: '/page' });
 		const routeToHeaders = new Map();
-		const opts = await createStaticBuildOptions({
+		const adapterOptions = await createStaticBuildOptions({
+			vfs,
 			adapter: { adapterFeatures: { staticHeaders: true } },
 		});
 
@@ -147,9 +154,9 @@ describe('renderPath()', () => {
 			prerenderer,
 			pathname: '/page',
 			route,
-			options: opts,
+			options: adapterOptions,
 			routeToHeaders,
-			logger: opts.logger,
+			logger: adapterOptions.logger,
 		});
 
 		assert.ok(result !== null);
@@ -161,15 +168,14 @@ describe('renderPath()', () => {
 		const prerenderer = createMockPrerenderer({ '/page': html });
 		const route = createRouteData({ route: '/page' });
 		const routeToHeaders = new Map();
-		const opts = await createStaticBuildOptions({ adapter: undefined });
 
 		await renderPath({
 			prerenderer,
 			pathname: '/page',
 			route,
-			options: opts,
+			options,
 			routeToHeaders,
-			logger: opts.logger,
+			logger: options.logger,
 		});
 
 		assert.equal(routeToHeaders.size, 0, 'routeToHeaders should remain empty');
@@ -179,26 +185,21 @@ describe('renderPath()', () => {
 		const html = '<html><body>Index</body></html>';
 		const prerenderer = createMockPrerenderer({ '/': html });
 		const route = createRouteData({ route: '/' });
-
-		// Pre-populate the VFS with a public file at the conflicting path
-		// outDir=/project/dist/, public=/project/public/, outFile=dist/index.html
-		// The relative path from outDir to the output file is 'index.html'
-		// → public conflict is at /project/public/index.html
-		const vfs = createMemFs({
-			'/project/public/index.html': '<html>public file</html>',
-		});
-		const opts = await createStaticBuildOptions({ fsMod: vfs });
+		const conflictVfs = createMemFs({ 'public/index.html': '<html>public file</html>' });
+		const conflictOptions = await createStaticBuildOptions({ vfs: conflictVfs });
 
 		const warnings = [];
-		opts.logger.warn = (_label, msg) => warnings.push(msg);
+		conflictOptions.logger.warn = (_label, msg) => warnings.push(msg);
 
 		const result = await renderPath({
 			prerenderer,
 			pathname: '/',
 			route,
-			options: opts,
-			logger: opts.logger,
+			options: conflictOptions,
+			logger: conflictOptions.logger,
 		});
+
+		conflictVfs.unmount();
 
 		assert.equal(result, null, 'public conflict should yield null');
 		assert.equal(warnings.length, 1);
@@ -214,48 +215,38 @@ describe('renderPath()', () => {
 			throw new Error('render exploded');
 		};
 		const route = createRouteData({ route: '/boom' });
-		const opts = await createStaticBuildOptions();
 
 		const errors = [];
-		opts.logger.error = (_label, msg) => errors.push(msg);
+		options.logger.error = (_label, msg) => errors.push(msg);
 
 		await assert.rejects(
-			() =>
-				renderPath({ prerenderer, pathname: '/boom', route, options: opts, logger: opts.logger }),
+			() => renderPath({ prerenderer, pathname: '/boom', route, options, logger: options.logger }),
 			/render exploded/,
 		);
 		assert.ok(errors.length > 0, 'error should be logged before re-throwing');
 	});
 
-	it('writes the rendered body to the in-memory filesystem via generatePathWithPrerenderer (integration smoke)', async () => {
-		// This is a shallow integration test: we call generatePages indirectly by
-		// verifying that renderPath + the write layer together place a file in the VFS.
-		// We do NOT run a Vite build — just verify the two-step render→write pipeline.
+	it('writes the rendered body to the in-memory filesystem (integration smoke)', async () => {
 		const html = '<html><body>Written to VFS</body></html>';
 		const prerenderer = createMockPrerenderer({ '/vfs-test': html });
 		const route = createRouteData({ route: '/vfs-test' });
-		const vfs = createMemFs();
-		const opts = await createStaticBuildOptions({ fsMod: vfs });
 
 		const result = await renderPath({
 			prerenderer,
 			pathname: '/vfs-test',
 			route,
-			options: opts,
-			logger: opts.logger,
+			options,
+			logger: options.logger,
 		});
 
 		assert.ok(result !== null);
 
 		// Simulate what generatePathWithPrerenderer does after renderPath returns.
-		// @platformatic/vfs requires string paths (not URL objects), mirroring the
-		// fileURLToPath() calls in generatePathWithPrerenderer itself.
 		const outFolderPath = fileURLToPath(result.outFolder);
 		const outFilePath = fileURLToPath(result.outFile);
 		await vfs.promises.mkdir(outFolderPath, { recursive: true });
 		await vfs.promises.writeFile(outFilePath, /** @type {Buffer} */ (result.body));
 
-		// Verify the file landed in the VFS
 		assert.ok(vfs.existsSync(outFilePath), `expected ${outFilePath} to exist in VFS`);
 		const content = vfs.readFileSync(outFilePath, 'utf-8');
 		assert.equal(content, html);
@@ -267,21 +258,28 @@ describe('renderPath()', () => {
 // ---------------------------------------------------------------------------
 
 describe('createMockPrerenderer with ComponentInstance', () => {
-	it('renders a bare ComponentInstance to HTML via RenderContext', async () => {
-		// Define a simple page component using the compiled-form API
-		const Page = createComponent((_result) => renderTemplate`<h1>Hello from component</h1>`);
-		const PageModule = { default: Page };
+	let vfs = createMemFs();
+	let options;
 
-		const prerenderer = createMockPrerenderer({ '/': PageModule });
+	before(async () => {
+		options = await createStaticBuildOptions({ vfs });
+	});
+
+	after(() => {
+		vfs.unmount();
+	});
+
+	it('renders a bare ComponentInstance to HTML via RenderContext', async () => {
+		const Page = createComponent((_result) => renderTemplate`<h1>Hello from component</h1>`);
+		const prerenderer = createMockPrerenderer({ '/': { default: Page } });
 		const route = createRouteData({ route: '/' });
-		const opts = await createStaticBuildOptions();
 
 		const result = await renderPath({
 			prerenderer,
 			pathname: '/',
 			route,
-			options: opts,
-			logger: opts.logger,
+			options,
+			logger: options.logger,
 		});
 
 		assert.ok(result !== null, 'expected a render result');
@@ -300,24 +298,24 @@ describe('createMockPrerenderer with ComponentInstance', () => {
 		const Page = createComponent(
 			(_result, { title }) => renderTemplate`<title>${title}</title><h1>${title}</h1>`,
 		);
-
 		const prerenderer = createMockPrerenderer({
 			'/blog/hello': { default: Page, props: { title: 'Hello World' } },
 		});
 		const route = createRouteData({ route: '/blog/hello' });
-		const opts = await createStaticBuildOptions();
 
 		const result = await renderPath({
 			prerenderer,
 			pathname: '/blog/hello',
 			route,
-			options: opts,
-			logger: opts.logger,
+			options,
+			logger: options.logger,
 		});
 
 		assert.ok(result !== null);
-		const html = result.body.toString();
-		assert.ok(html.includes('Hello World'), 'props should be forwarded to the component');
+		assert.ok(
+			result.body.toString().includes('Hello World'),
+			'props should be forwarded to the component',
+		);
 	});
 
 	it('renders nested components', async () => {
@@ -328,49 +326,46 @@ describe('createMockPrerenderer with ComponentInstance', () => {
 			(result) =>
 				renderTemplate`<div>${renderComponent(result, 'Inner', Inner, { label: 'nested' })}</div>`,
 		);
-
 		const prerenderer = createMockPrerenderer({ '/nested': { default: Page } });
 		const route = createRouteData({ route: '/nested' });
-		const opts = await createStaticBuildOptions();
 
 		const result = await renderPath({
 			prerenderer,
 			pathname: '/nested',
 			route,
-			options: opts,
-			logger: opts.logger,
+			options,
+			logger: options.logger,
 		});
 
 		assert.ok(result !== null);
-		const html = result.body.toString();
-		assert.ok(html.includes('<span class="inner">nested</span>'), 'nested component should render');
+		assert.ok(
+			result.body.toString().includes('<span class="inner">nested</span>'),
+			'nested component should render',
+		);
 	});
 
 	it('falls back to string pages and ComponentInstance pages in the same prerenderer', async () => {
 		const Component = createComponent((_result) => renderTemplate`<p>component page</p>`);
-
 		const prerenderer = createMockPrerenderer({
 			'/string': '<p>string page</p>',
 			'/component': { default: Component },
 		});
-
 		const routeString = createRouteData({ route: '/string' });
 		const routeComponent = createRouteData({ route: '/component' });
-		const opts = await createStaticBuildOptions();
 
 		const r1 = await renderPath({
 			prerenderer,
 			pathname: '/string',
 			route: routeString,
-			options: opts,
-			logger: opts.logger,
+			options,
+			logger: options.logger,
 		});
 		const r2 = await renderPath({
 			prerenderer,
 			pathname: '/component',
 			route: routeComponent,
-			options: opts,
-			logger: opts.logger,
+			options,
+			logger: options.logger,
 		});
 
 		assert.ok(r1 !== null);
@@ -382,14 +377,13 @@ describe('createMockPrerenderer with ComponentInstance', () => {
 	it('throws a descriptive error when a pathname has no registered page', async () => {
 		const prerenderer = createMockPrerenderer({ '/registered': '<p>ok</p>' });
 		const route = createRouteData({ route: '/not-registered' });
-		const opts = await createStaticBuildOptions();
 
 		const err = await renderPath({
 			prerenderer,
 			pathname: '/not-registered',
 			route,
-			options: opts,
-			logger: opts.logger,
+			options,
+			logger: options.logger,
 		}).catch((e) => e);
 
 		assert.ok(err instanceof Error, 'should throw an Error');

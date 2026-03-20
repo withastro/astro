@@ -699,7 +699,7 @@ export async function createRoutesList(
 				// External redirects aren't taken into account
 				if (route.type === 'redirect' && !route.redirectRoute) return;
 				const localFs = params.fsMod ?? nodeFs;
-				const content = await localFs.promises.readFile(
+				const content = localFs.readFileSync(
 					fileURLToPath(
 						new URL(
 							// The destination redirect might be a prerendered

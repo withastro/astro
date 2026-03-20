@@ -1,22 +1,22 @@
 // @ts-check
 import assert from 'node:assert/strict';
-import { before, describe, it } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import { renderPath } from '../../../dist/core/build/generate.js';
-import { createMockPrerenderer, createStaticBuildOptions } from '../build/test-helpers.js';
+import {
+	createMemFs,
+	createMockPrerenderer,
+	createStaticBuildOptions,
+} from '../build/test-helpers.js';
 import { createMockAstroSource, createRouteData } from '../mocks.js';
 
 // Page sources — mirrors the structure of the deleted fixture.
 // createStaticBuildOptions writes these into its VFS and derives routesList
 // from them using the same config, so routes and settings are always in sync.
 const pages = {
-	'/project/src/pages/index.astro': createMockAstroSource('<body><h1>Index</h1></body>'),
-	'/project/src/pages/es/test/item1.astro': createMockAstroSource(
-		'<body><h1>Test Item 1 (ES)</h1></body>',
-	),
-	'/project/src/pages/test/item1.astro': createMockAstroSource(
-		'<body><h1>Test Item 1 (EN)</h1></body>',
-	),
-	'/project/src/pages/test/item2.astro': createMockAstroSource(
+	'src/pages/index.astro': createMockAstroSource('<body><h1>Index</h1></body>'),
+	'src/pages/es/test/item1.astro': createMockAstroSource('<body><h1>Test Item 1 (ES)</h1></body>'),
+	'src/pages/test/item1.astro': createMockAstroSource('<body><h1>Test Item 1 (EN)</h1></body>'),
+	'src/pages/test/item2.astro': createMockAstroSource(
 		'<body><h1>Test Item 2 (EN only)</h1></body>',
 	),
 };
@@ -31,10 +31,11 @@ describe('i18n double-prefix prevention', () => {
 	// A single shared options object is sufficient — none of these tests inspect the
 	// written files; they only assert on the `result` returned by renderPath().
 	let sharedOpts;
+	let vfs = createMemFs(pages);
 
 	before(async () => {
 		sharedOpts = await createStaticBuildOptions({
-			pages,
+			vfs,
 			inlineConfig: {
 				i18n: {
 					defaultLocale: 'en',
@@ -44,6 +45,10 @@ describe('i18n double-prefix prevention', () => {
 				},
 			},
 		});
+	});
+
+	after(() => {
+		vfs.unmount();
 	});
 
 	it('should not create double-prefixed redirect pages', async () => {
