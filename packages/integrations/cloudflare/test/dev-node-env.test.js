@@ -30,7 +30,7 @@ describe('devEnvironment: node', () => {
 
 		assert.ok(html.includes('id="pkg-name"'));
 		assert.ok(
-			html.includes('dev-node-env-fixture'),
+			html.includes('@astrojs/cloudflare'),
 			'Expected node:fs to successfully read package.json in dev SSR',
 		);
 	});

@@ -1,4 +1,9 @@
 {
-	"name": "dev-node-env-fixture",
-	"type": "module"
+	"name": "@test/astro-cloudflare-dev-node-env",
+	"version": "0.0.0",
+	"private": true,
+	"dependencies": {
+		"@astrojs/cloudflare": "workspace:*",
+		"astro": "workspace:*"
+	}
 }

@@ -13,10 +13,7 @@ import {
 	setImageConfig,
 } from './utils/image-config.js';
 import { createConfigPlugin } from './vite-plugin-config.js';
-import {
-	createNodePrerenderPlugin,
-	createNodeSsrPlugin,
-} from './vite-plugin-dev-server-prerender-middleware.js';
+import { createNodePrerenderPlugin } from './vite-plugin-dev-server-prerender-middleware.js';
 import {
 	cloudflareConfigCustomizer,
 	DEFAULT_SESSION_KV_BINDING_NAME,
@@ -134,6 +131,7 @@ export default function createIntegration({
 	let _routes: IntegrationResolvedRoute[];
 	let _isFullyStatic = false;
 	let cfPluginConfig: PluginConfig;
+	let _useNodeDevEnvironment = false;
 
 	const { buildService, runtimeService } = normalizeImageServiceConfig(imageService);
 	const needsImagesBinding = runtimeService === 'cloudflare-binding';
@@ -148,6 +146,8 @@ export default function createIntegration({
 
 				let session = config.session;
 				const isCompile = buildService === 'compile';
+				const useNodeDevEnvironment = command === 'dev' && devEnvironment === 'node';
+				_useNodeDevEnvironment = useNodeDevEnvironment;
 
 				if (needsImagesBinding) {
 					logger.info(
@@ -159,7 +159,7 @@ export default function createIntegration({
 					);
 				}
 
-				if (!session?.driver) {
+				if (!session?.driver && !useNodeDevEnvironment) {
 					logger.info(
 						`Enabling sessions with Cloudflare KV with the "${sessionKVBindingName}" KV binding.`,
 					);
@@ -220,118 +220,139 @@ export default function createIntegration({
 					session,
 					vite: {
 						plugins: [
-							...(devEnvironment === 'node' && command === 'dev' ? [createNodeSsrPlugin()] : []),
 							...(prerenderEnvironment === 'node' && command === 'dev'
 								? [createNodePrerenderPlugin()]
 								: []),
-							cfVitePlugin({
-								...cloudflareOptions,
-								...cfPluginConfig,
-								viteEnvironment: { name: 'ssr' },
-							}),
-							{
-								name: '@astrojs/cloudflare:cf-imports',
-								enforce: 'pre',
-								resolveId: {
-									filter: {
-										id: /^cloudflare:/,
-									},
-									handler(id) {
-										return { id, external: true };
-									},
-								},
-							},
-							{
-								name: '@astrojs/cloudflare:environment',
-								configEnvironment(environmentName, _options) {
-									const isServerEnvironment = ['astro', 'ssr', 'prerender'].includes(
-										environmentName,
-									);
-									if (isServerEnvironment && !_options.optimizeDeps?.noDiscovery) {
-										return {
-											optimizeDeps: {
-												include: [
-													'@astrojs/cloudflare/image-service-workerd',
-													'astro',
-													'astro/runtime/**',
-													'astro > html-escaper',
-													'astro > mrmime',
-													'astro > zod/v4',
-													'astro > zod/v4/core',
-													'astro > clsx',
-													'astro > cookie',
-													'astro > devalue',
-													'astro > @oslojs/encoding',
-													'astro > es-module-lexer',
-													'astro > unstorage',
-													'astro > neotraverse/modern',
-													'astro > piccolore',
-													'astro > picomatch',
-													'astro/app',
-													'astro/assets',
-													'astro/assets/runtime',
-													'astro/assets/utils/inferRemoteSize.js',
-													'astro/assets/fonts/runtime.js',
-													...(prebundleContentRuntime ? (['astro/content/runtime'] as const) : []),
-													'astro/compiler-runtime',
-													'astro/jsx-runtime',
-													'astro/app/entrypoint/dev',
-													'astro/virtual-modules/middleware.js',
-												],
-												exclude: [
-													'unstorage/drivers/cloudflare-kv-binding',
-													'astro:*',
-													'virtual:astro:*',
-													'virtual:astro-cloudflare:*',
-													'virtual:@astrojs/*',
-												],
-												esbuildOptions: {
-													plugins: [astroFrontmatterScanPlugin()],
+							...(!useNodeDevEnvironment
+								? [
+										cfVitePlugin({
+											...cloudflareOptions,
+											...cfPluginConfig,
+											viteEnvironment: { name: 'ssr' },
+										}),
+									]
+								: []),
+							...(!useNodeDevEnvironment
+								? [
+										{
+											name: '@astrojs/cloudflare:cf-imports',
+											enforce: 'pre' as const,
+											resolveId: {
+												filter: {
+													id: /^cloudflare:/,
+												},
+												handler(id: string) {
+													return { id, external: true };
 												},
 											},
-										};
-									} else if (environmentName === 'client') {
-										return {
-											optimizeDeps: {
-												include: ['astro/runtime/client/dev-toolbar/entrypoint.js'],
-												// Workaround for https://github.com/vitejs/vite/issues/20867
-												// When dependencies are discovered mid-request (e.g. a linked package
-												// used with client:only), concurrent requests can fail with 504 because
-												// the dep optimizer's metadata object gets replaced during `await info.processing`.
-												ignoreOutdatedRequests: true,
+										},
+									]
+								: []),
+							...(!useNodeDevEnvironment
+								? [
+										{
+											name: '@astrojs/cloudflare:environment',
+											configEnvironment(environmentName: string, _options: any) {
+												const isServerEnvironment = ['astro', 'ssr', 'prerender'].includes(
+													environmentName,
+												);
+												if (isServerEnvironment && !_options.optimizeDeps?.noDiscovery) {
+													return {
+														optimizeDeps: {
+															include: [
+																'@astrojs/cloudflare/image-service-workerd',
+																'astro',
+																'astro/runtime/**',
+																'astro > html-escaper',
+																'astro > mrmime',
+																'astro > zod/v4',
+																'astro > zod/v4/core',
+																'astro > clsx',
+																'astro > cookie',
+																'astro > devalue',
+																'astro > @oslojs/encoding',
+																'astro > es-module-lexer',
+																'astro > unstorage',
+																'astro > neotraverse/modern',
+																'astro > piccolore',
+																'astro > picomatch',
+																'astro/app',
+																'astro/assets',
+																'astro/assets/runtime',
+																'astro/assets/utils/inferRemoteSize.js',
+																'astro/assets/fonts/runtime.js',
+																...(prebundleContentRuntime
+																	? (['astro/content/runtime'] as const)
+																	: []),
+																'astro/compiler-runtime',
+																'astro/jsx-runtime',
+																'astro/app/entrypoint/dev',
+																'astro/virtual-modules/middleware.js',
+															],
+															exclude: [
+																'unstorage/drivers/cloudflare-kv-binding',
+																'astro:*',
+																'virtual:astro:*',
+																'virtual:astro-cloudflare:*',
+																'virtual:@astrojs/*',
+															],
+															esbuildOptions: {
+																plugins: [astroFrontmatterScanPlugin()],
+															},
+														},
+													};
+												} else if (environmentName === 'client') {
+													return {
+														optimizeDeps: {
+															include: ['astro/runtime/client/dev-toolbar/entrypoint.js'],
+															// Workaround for https://github.com/vitejs/vite/issues/20867
+															// When dependencies are discovered mid-request (e.g. a linked package
+															// used with client:only), concurrent requests can fail with 504 because
+															// the dep optimizer's metadata object gets replaced during `await info.processing`.
+															ignoreOutdatedRequests: true,
+														},
+													};
+												}
 											},
-										};
-									}
-								},
-							},
-							{
-								enforce: 'post',
-								name: '@astrojs/cloudflare:cf-externals',
-								applyToEnvironment: (environment) =>
-									environment.name === 'ssr' || environment.name === 'prerender',
-								config(conf) {
-									if (conf.ssr) {
-										// Cloudflare does not support externalizing modules in server environments
-										conf.ssr.external = undefined;
-										conf.ssr.noExternal = true;
-									}
-								},
-							},
-							createConfigPlugin({
-								sessionKVBindingName,
-								compileImageConfig:
-									isCompile && command !== 'dev'
-										? {
-												base: config.base,
-												assetsPrefix:
-													typeof config.build.assetsPrefix === 'string'
-														? config.build.assetsPrefix
-														: undefined,
-												imageServiceEntrypoint: '@astrojs/cloudflare/image-service-workerd',
-												buildAssets: config.build.assets ?? '_astro',
-											}
-										: null,
-							}),
+										},
+									]
+								: []),
+							...(!useNodeDevEnvironment
+								? [
+										{
+											enforce: 'post' as const,
+											name: '@astrojs/cloudflare:cf-externals',
+											applyToEnvironment: (environment: any) =>
+												environment.name === 'ssr' || environment.name === 'prerender',
+											config(conf: any) {
+												if (conf.ssr) {
+													// Cloudflare does not support externalizing modules in server environments
+													conf.ssr.external = undefined;
+													conf.ssr.noExternal = true;
+												}
+											},
+										},
+									]
+								: []),
+							...(!useNodeDevEnvironment
+								? [
+										createConfigPlugin({
+											sessionKVBindingName,
+											compileImageConfig:
+												isCompile && command !== 'dev'
+													? {
+															base: config.base,
+															assetsPrefix:
+																typeof config.build.assetsPrefix === 'string'
+																	? config.build.assetsPrefix
+																	: undefined,
+															imageServiceEntrypoint: '@astrojs/cloudflare/image-service-workerd',
+															buildAssets: config.build.assets ?? '_astro',
+														}
+													: null,
+										}),
+									]
+								: []),
 						],
 					},
 					image: setImageConfig(imageService, config.image, command, logger),
@@ -359,6 +380,10 @@ export default function createIntegration({
 					filename: 'cloudflare.d.ts',
 					content: '/// <reference types="@astrojs/cloudflare/types.d.ts" />',
 				});
+
+				if (_useNodeDevEnvironment) {
+					return;
+				}
 
 				setAdapter({
 					name: '@astrojs/cloudflare',
