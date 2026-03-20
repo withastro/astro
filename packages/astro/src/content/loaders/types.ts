@@ -84,7 +84,7 @@ export interface LoadCollectionContext<TCollectionFilter = unknown> {
 }
 
 export interface LiveLoader<
-	TData extends Record<string, any> = Record<string, unknown>,
+	TData extends Record<string, any> = Record<string, any>,
 	TEntryFilter extends Record<string, any> | never = never,
 	TCollectionFilter extends Record<string, any> | never = never,
 	TError extends Error = Error,
