@@ -127,7 +127,7 @@ function createFileBasedRoutes(
 	const localFs = fsMod ?? nodeFs;
 	const rootPath = fileURLToPath(config.root);
 
-	if (!localFs.existsSync(pages)) {
+	if (!localFs.existsSync(fileURLToPath(pages))) {
 		if (settings.injectedRoutes.length === 0) {
 			const pagesDirRootRelative = pages.href.slice(settings.config.root.href.length);
 			logger.warn(null, `Missing pages directory: ${pagesDirRootRelative}`);

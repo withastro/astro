@@ -257,10 +257,18 @@ export interface AstroPrerenderer {
 	getStaticPaths: () => Promise<PathWithRoute[]>;
 	/**
 	 * Renders a single page. Called by Astro for each path returned by getStaticPaths.
-	 * @param request - The request to render
-	 * @param options - Render options including routeData
+	 * @param request - The request to render. The URL reflects the build format
+	 *   (e.g. trailing slash for `directory` format) and may differ from `pathname`.
+	 * @param options - Render options
+	 * @param options.routeData - The matched route for this path
+	 * @param options.pathname - The canonical decoded pathname (e.g. `/about`),
+	 *   independent of build format. Use this to identify the page being rendered
+	 *   rather than parsing the request URL.
 	 */
-	render: (request: Request, options: { routeData: RouteData }) => Promise<Response>;
+	render: (
+		request: Request,
+		options: { routeData: RouteData; pathname: string },
+	) => Promise<Response>;
 	/**
 	 * Returns images collected in the adapter's runtime (e.g. workerd) to be merged
 	 * into the Node-side static image list. The default Sharp pipeline runs after.

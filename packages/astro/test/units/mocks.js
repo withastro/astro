@@ -285,3 +285,7 @@ export function installImageService(overrides = {}) {
 		},
 	};
 }
+
+export function createMockAstroSource(html) {
+	return `---\n---\n<html>${html}</html>`;
+}

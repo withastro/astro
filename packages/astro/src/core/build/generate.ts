@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+import nodeFs from 'node:fs';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 import PLimit from 'p-limit';
@@ -351,26 +351,59 @@ export async function generatePages(
 const THRESHOLD_SLOW_RENDER_TIME_MS = 500;
 
 /**
- * Generate a single path using the prerenderer interface.
+ * The result of rendering a single path, ready to be written to the filesystem.
+ * `null` means no file should be written (empty body, redirect skipped, or a file with the
+ * same output path already exists in `publicDir`).
  */
-async function generatePathWithPrerenderer(
-	prerenderer: AstroPrerenderer,
-	pathname: string,
-	route: RouteData,
-	options: StaticBuildOptions,
-	routeToHeaders: RouteToHeaders,
-	logger: Logger,
-): Promise<void> {
-	const timeStart = performance.now();
+export interface RenderPathResult {
+	body: string | Uint8Array;
+	outFile: URL;
+	outFolder: URL;
+}
+
+interface RenderToPathPayload {
+	prerenderer: AstroPrerenderer;
+	pathname: string;
+	route: RouteData;
+	options: StaticBuildOptions;
+	routeToHeaders?: RouteToHeaders;
+	logger: Logger;
+}
+
+/**
+ * Renders a single prerendered path to an in-memory result.
+ *
+ * This function is intentionally free of filesystem writes — it only calls
+ * `prerenderer.render()` and computes output paths.  The caller is responsible
+ * for persisting the returned `body` to disk (or any other destination).
+ *
+ * Returning `null` signals that no output file should be created for this path:
+ * - the response body was empty
+ * - the redirect was suppressed by `config.build.redirects`
+ * - a file with the same output path already exists in `publicDir` (public files
+ *   take priority over generated pages, so the generated page is skipped)
+ *
+ * @param params
+ * @param params.prerenderer    - The prerenderer used to obtain a `Response` for the path.
+ * @param params.pathname       - The URL pathname being rendered (e.g. `/about`).
+ * @param params.route          - Route data for the page being rendered.
+ * @param params.options        - Build options; `options.fsMod` is used to check whether a
+ *                                file already exists in `publicDir` at the output path.
+ * @param [params.routeToHeaders=new Map()] - Mutable map populated with response headers when
+ *                                the adapter requests static-header tracking. Callers that do
+ *                                not need to inspect the headers after the call can omit this.
+ * @param params.logger         - Logger instance.
+ */
+export async function renderPath({
+	prerenderer,
+	pathname,
+	route,
+	options,
+	routeToHeaders = new Map(),
+	logger,
+}: RenderToPathPayload): Promise<RenderPathResult | null> {
 	const { config } = options.settings;
-
-	const filePath = getOutputFilename(config.build.format, pathname, route);
-	logger.info(null, `  ${colors.blue('├─')} ${colors.dim(filePath)}`, false);
-
-	// Track page name for stats
-	if (route.type === 'page') {
-		addPageName(pathname, options);
-	}
+	const localFs = options.fsMod ?? nodeFs;
 
 	// Do not render the fallback route if there is already a translated page
 	// with the same path
@@ -400,7 +433,7 @@ async function generatePathWithPrerenderer(
 				}
 			})
 		) {
-			return;
+			return null;
 		}
 	}
 
@@ -425,7 +458,7 @@ async function generatePathWithPrerenderer(
 	// Render using the prerenderer
 	let response: Response;
 	try {
-		response = await prerenderer.render(request, { routeData: route });
+		response = await prerenderer.render(request, { routeData: route, pathname });
 	} catch (err) {
 		logger.error('build', `Caught error rendering ${pathname}: ${err}`);
 		if (err && !AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {
@@ -441,8 +474,7 @@ async function generatePathWithPrerenderer(
 	if (response.status >= 300 && response.status < 400) {
 		// Handle redirects
 		if (routeIsRedirect(route) && !config.build.redirects) {
-			logRenderTime(logger, timeStart, false);
-			return;
+			return null;
 		}
 		const locationSite = getRedirectLocationOrThrow(responseHeaders);
 		const siteURL = config.site;
@@ -462,13 +494,12 @@ async function generatePathWithPrerenderer(
 		}
 	} else {
 		if (!response.body) {
-			logRenderTime(logger, timeStart, true);
-			return;
+			return null;
 		}
 		body = Buffer.from(await response.arrayBuffer());
 	}
 
-	// Write the file
+	// Compute output paths
 	const encodedPath = encodeURI(pathname);
 	const outFolder = getOutFolder(options.settings, encodedPath, route);
 	const outFile = getOutFile(config.build.format, outFolder, encodedPath, route);
@@ -485,10 +516,51 @@ async function generatePathWithPrerenderer(
 	}
 
 	// Public files take priority over generated routes
-	if (checkPublicConflict(outFile, route, options.settings, logger)) return;
+	if (checkPublicConflict(outFile, route, options.settings, logger, localFs)) return null;
 
-	await fs.promises.mkdir(outFolder, { recursive: true });
-	await fs.promises.writeFile(outFile, body);
+	return { body, outFile, outFolder };
+}
+
+/**
+ * Generate a single path using the prerenderer interface.
+ * Orchestrates rendering via `renderPath()` and writes the result to the filesystem.
+ */
+async function generatePathWithPrerenderer(
+	prerenderer: AstroPrerenderer,
+	pathname: string,
+	route: RouteData,
+	options: StaticBuildOptions,
+	routeToHeaders: RouteToHeaders,
+	logger: Logger,
+): Promise<void> {
+	const timeStart = performance.now();
+	const { config } = options.settings;
+	const localFs = options.fsMod ?? nodeFs;
+
+	const filePath = getOutputFilename(config.build.format, pathname, route);
+	logger.info(null, `  ${colors.blue('├─')} ${colors.dim(filePath)}`, false);
+
+	// Track page name for stats
+	if (route.type === 'page') {
+		addPageName(pathname, options);
+	}
+
+	const result = await renderPath({
+		prerenderer,
+		pathname,
+		route,
+		options,
+		routeToHeaders,
+		logger,
+	});
+
+	if (!result) {
+		logRenderTime(logger, timeStart, true);
+		return;
+	}
+
+	await localFs.promises.mkdir(fileURLToPath(result.outFolder), { recursive: true });
+	await localFs.promises.writeFile(fileURLToPath(result.outFile), result.body);
 
 	logRenderTime(logger, timeStart, false);
 }
@@ -566,6 +638,7 @@ function checkPublicConflict(
 	route: RouteData,
 	settings: AstroSettings,
 	logger: Logger,
+	fsMod: typeof nodeFs,
 ): boolean {
 	const outFilePath = fileURLToPath(outFile);
 	const outRoot = fileURLToPath(
@@ -574,8 +647,8 @@ function checkPublicConflict(
 			: settings.config.build.client,
 	);
 	const relativePath = outFilePath.slice(outRoot.length);
-	const publicFilePath = new URL(relativePath, settings.config.publicDir);
-	if (fs.existsSync(publicFilePath)) {
+	const publicFilePath = fileURLToPath(new URL(relativePath, settings.config.publicDir));
+	if (fsMod.existsSync(publicFilePath)) {
 		logger.warn(
 			'build',
 			`Skipping ${route.component} because a file with the same name exists in the public folder: ${relativePath}`,
