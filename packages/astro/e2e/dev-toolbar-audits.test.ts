@@ -260,7 +260,10 @@ test.describe('Dev Toolbar - Audits', () => {
 		expect(count).toEqual(0);
 	});
 
-	test('does not warn about anchor text inside closed details', async ({ page, astro }) => {
+	test('does not warn about anchor text inside closed details but still warns for hidden text', async ({
+		page,
+		astro,
+	}) => {
 		await page.goto(astro.resolveUrl('/a11y-hidden-anchor'));
 
 		const toolbar = page.locator('astro-dev-toolbar');
@@ -272,6 +275,6 @@ test.describe('Dev Toolbar - Audits', () => {
 			'astro-dev-toolbar-highlight[data-audit-code="a11y-missing-content"]',
 		);
 
-		await expect(missingContentHighlights).toHaveCount(0);
+		await expect(missingContentHighlights).toHaveCount(1);
 	});
 });

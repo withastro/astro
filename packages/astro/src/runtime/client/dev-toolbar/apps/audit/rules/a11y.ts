@@ -31,8 +31,15 @@ import type { AuditRuleWithSelector } from './index.js';
 
 const WHITESPACE_REGEX = /\s+/;
 
-function getTrimmedTextContent(element: Node | null | undefined): string {
-	return element?.textContent?.trim() ?? '';
+function isHiddenByClosedDetails(element: HTMLElement): boolean {
+	for (let parent = element.parentElement; parent; parent = parent.parentElement) {
+		if (parent.localName !== 'details' || (parent as HTMLDetailsElement).open) continue;
+
+		const summary = Array.from(parent.children).find((child) => child.localName === 'summary');
+		if (!summary?.contains(element)) return true;
+	}
+
+	return false;
 }
 
 const a11y_required_attributes = {
@@ -305,8 +312,9 @@ export const a11y: AuditRuleWithSelector[] = [
 			const nestedLabelableElement = element.querySelector(`${labelableElements.join(', ')}`);
 			if (!hasFor && !nestedLabelableElement) return true;
 
-			const textContent = getTrimmedTextContent(element);
-			if (textContent === '') return true;
+			// Label must have text content, using innerText to ignore hidden text
+			const innerText = element.innerText.trim();
+			if (innerText === '') return true;
 		},
 	},
 	{
@@ -367,11 +375,14 @@ export const a11y: AuditRuleWithSelector[] = [
 		code: 'a11y-missing-content',
 		title: 'Missing content',
 		message:
-			'Headings and anchors must have an accessible name, which can come from: text content, aria-label, aria-labelledby, an img with alt property, or an svg with a tag <title></title>.',
+			'Headings and anchors must have an accessible name, which can come from: inner text, aria-label, aria-labelledby, an img with alt property, or an svg with a tag <title></title>.',
 		selector: a11y_required_content.join(','),
 		match(element: HTMLElement) {
-			const textContent = getTrimmedTextContent(element);
-			if (textContent !== '') return false;
+			if (isHiddenByClosedDetails(element)) return false;
+
+			// innerText is used to ignore hidden text
+			const innerText = element.innerText?.trim();
+			if (innerText && innerText !== '') return false;
 
 			// Check for aria-label
 			const ariaLabel = element.getAttribute('aria-label')?.trim();
@@ -383,7 +394,7 @@ export const a11y: AuditRuleWithSelector[] = [
 				const ids = ariaLabelledby.split(' ');
 				for (const id of ids) {
 					const referencedElement = document.getElementById(id);
-					if (getTrimmedTextContent(referencedElement) !== '') return false;
+					if (referencedElement && referencedElement.innerText.trim() !== '') return false;
 				}
 			}
 
@@ -419,7 +430,7 @@ export const a11y: AuditRuleWithSelector[] = [
 					const ids = inputAriaLabelledby.split(' ');
 					for (const id of ids) {
 						const referencedElement = document.getElementById(id);
-						if (getTrimmedTextContent(referencedElement) !== '') return false;
+						if (referencedElement && referencedElement.innerText.trim() !== '') return false;
 					}
 				}
 
