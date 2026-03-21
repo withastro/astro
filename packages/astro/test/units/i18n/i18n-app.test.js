@@ -5,7 +5,7 @@ import * as cheerio from 'cheerio';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createI18nMiddleware } from '../../../dist/i18n/middleware.js';
 import { createTestApp, createPage } from '../mocks.js';
-import { dynamicPart, staticPart } from '../routing/test-helpers.js';
+import { dynamicPart, spreadPart, staticPart } from '../routing/test-helpers.js';
 
 /**
  * @param {Partial<{
@@ -277,6 +277,64 @@ describe('i18n via App - domains-prefix-always', () => {
 		const $ = cheerio.load(await res.text());
 		assert.equal($('#locale').text(), 'pt');
 		assert.ok($('#path').text().endsWith('/'));
+	});
+});
+
+describe('i18n via App - domains-prefix-always with trailingSlash: never', () => {
+	const i18n = makeI18nConfig({
+		strategy: 'domains-prefix-always',
+		locales: ['fi', 'en'],
+		defaultLocale: 'fi',
+	});
+	i18n.domainLookupTable = {
+		'https://example.com': 'en',
+	};
+	i18n.domains = {
+		en: 'https://example.com',
+	};
+
+	const middleware = createI18nMiddleware(i18n, '/', 'never', 'directory');
+
+	/** Like localeCatchAll but with spread param and trailingSlash: never */
+	function localeSpreadCatchAll(locale) {
+		return createPage(localePage, {
+			route: `/${locale}/[...slug]`,
+			segments: [[staticPart(locale)], [spreadPart('slug')]],
+			pathname: undefined,
+			trailingSlash: 'never',
+		});
+	}
+
+	function createDomainApp() {
+		return createTestApp([localeSpreadCatchAll('fi'), localeSpreadCatchAll('en')], {
+			i18n,
+			trailingSlash: 'never',
+			middleware: () => ({ onRequest: middleware }),
+		});
+	}
+
+	it('root path of domain-mapped locale returns 200 (not 404)', async () => {
+		const app = createDomainApp();
+		const res = await app.render(
+			new Request('https://example.com/', {
+				headers: { 'X-Forwarded-Host': 'example.com', 'X-Forwarded-Proto': 'https' },
+			}),
+		);
+		assert.equal(res.status, 200);
+		const $ = cheerio.load(await res.text());
+		assert.equal($('#locale').text(), 'en');
+	});
+
+	it('non-root path of domain-mapped locale returns 200', async () => {
+		const app = createDomainApp();
+		const res = await app.render(
+			new Request('https://example.com/about', {
+				headers: { 'X-Forwarded-Host': 'example.com', 'X-Forwarded-Proto': 'https' },
+			}),
+		);
+		assert.equal(res.status, 200);
+		const $ = cheerio.load(await res.text());
+		assert.equal($('#locale').text(), 'en');
 	});
 });
 
