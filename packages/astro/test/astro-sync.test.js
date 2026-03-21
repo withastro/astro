@@ -5,7 +5,7 @@ import { beforeEach, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
 import { Logger } from '../dist/core/logger/core.js';
-import { loadFixture } from './test-utils.js';
+import { cli, loadFixture } from './test-utils.js';
 
 const createFixture = () => {
 	/** @type {Awaited<ReturnType<typeof loadFixture>>} */
@@ -199,6 +199,20 @@ describe('astro sync', () => {
 			fixture.clean();
 			await fixture.whenSyncing();
 			fixture.thenWarnLogsInclude("Your loader's schema is defined using a function.");
+		});
+
+		it('shows a descriptive error when getImage is called during sync', async () => {
+			const projectRootURL = new URL(
+				'./fixtures/content-collections-getimage-sync-error/',
+				import.meta.url,
+			);
+			const result = await cli('sync', '--root', fileURLToPath(projectRootURL)).getResult();
+			const output = result.stdout + result.stderr;
+
+			assert.equal(result.exitCode, 1);
+			assert.equal(output.includes('[object Object]'), false);
+			assert.equal(output.includes('`getImage()` should only be used on the server.'), true);
+			assert.equal(output.includes('getImage()'), true);
 		});
 	});
 
