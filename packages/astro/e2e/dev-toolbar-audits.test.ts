@@ -259,4 +259,19 @@ test.describe('Dev Toolbar - Audits', () => {
 		const count = await auditHighlights.count();
 		expect(count).toEqual(0);
 	});
+
+	test('does not warn about anchor text inside closed details', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/a11y-hidden-anchor'));
+
+		const toolbar = page.locator('astro-dev-toolbar');
+		const appButton = toolbar.locator('button[data-app-id="astro:audit"]');
+		await appButton.click();
+
+		const auditCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:audit"]');
+		const missingContentHighlights = auditCanvas.locator(
+			'astro-dev-toolbar-highlight[data-audit-code="a11y-missing-content"]',
+		);
+
+		await expect(missingContentHighlights).toHaveCount(0);
+	});
 });
