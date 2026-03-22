@@ -343,6 +343,7 @@ async function transition(
 	to: URL,
 	options: Options,
 	historyState?: State,
+	hasUAVisualTransition?: boolean,
 ) {
 	// The most recent navigation always has precedence
 	// Yes, there can be several navigation instances as the user can click links
@@ -504,11 +505,29 @@ async function transition(
 
 	document.documentElement.setAttribute(DIRECTION_ATTR, prepEvent.direction);
 	if (supportsViewTransitions) {
-		// This automatically cancels any previous transition
-		// We also already took care that the earlier update callback got through
-		currentTransition.viewTransition = document.startViewTransition(
-			async () => await updateDOM(prepEvent, options, currentTransition, historyState),
-		);
+		if (hasUAVisualTransition) {
+			// PopStateEvent.hasUAVisualTransition: the browser already provided a visual
+			// transition (e.g. Safari swipe gesture), so skip the author transition.
+			const updateDone = (async () => {
+				// Immediately paused to set up the ViewTransition object below
+				await Promise.resolve();
+				await updateDOM(prepEvent, options, currentTransition, historyState);
+				return undefined;
+			})();
+			currentTransition.viewTransition = {
+				updateCallbackDone: updateDone,
+				ready: updateDone,
+				finished: updateDone,
+				skipTransition: () => {},
+				types: new Set<string>(),
+			};
+		} else {
+			// This automatically cancels any previous transition
+			// We also already took care that the earlier update callback got through
+			currentTransition.viewTransition = document.startViewTransition(
+				async () => await updateDOM(prepEvent, options, currentTransition, historyState),
+			);
+		}
 	} else {
 		// Simulation mode requires a bit more manual work
 		const updateDone = (async () => {
@@ -612,7 +631,14 @@ function onPopState(ev: PopStateEvent) {
 	const nextIndex = state.index;
 	const direction: Direction = nextIndex > currentHistoryIndex ? 'forward' : 'back';
 	currentHistoryIndex = nextIndex;
-	transition(direction, originalLocation, new URL(location.href), {}, state);
+	transition(
+		direction,
+		originalLocation,
+		new URL(location.href),
+		{},
+		state,
+		ev.hasUAVisualTransition,
+	);
 }
 
 const onScrollEnd = () => {
