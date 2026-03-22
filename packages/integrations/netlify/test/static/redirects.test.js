@@ -13,30 +13,24 @@ describe('SSG - Redirects', () => {
 	it('Creates a redirects file', async () => {
 		const redirects = await fixture.readFile('./_redirects');
 		const parts = redirects.split(/\s+/);
-		// With trailingSlash: 'ignore' (the default), both variants are generated for static redirects
+		// based on https://github.com/withastro/astro/issues/16030 for the default option `trailingSlash: 'ignore'` both variants should be generated
 		assert.deepEqual(parts, [
 			'',
-
 			'/two/',
 			'/',
 			'302',
-
 			'/two',
 			'/',
 			'302',
-
 			'/other/',
 			'/',
 			'301',
-
 			'/other',
 			'/',
 			'301',
-
 			'/blog/*',
 			'/team/articles/*/index.html',
 			'301',
-
 			'',
 		]);
 	});
