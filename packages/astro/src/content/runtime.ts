@@ -455,7 +455,10 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 	const imageObjects = new Map<string, GetImageResult>();
 
 	// @ts-expect-error Virtual module resolved at runtime
-	const { getImage } = await import('astro:assets');
+	// Use astro:assets/getImage instead of astro:assets to avoid pulling in
+	// Astro component exports (Image, Picture) which cause TDZ errors when
+	// Rollup creates namespace objects during prerender bundling (#16036).
+	const { getImage } = await import('astro:assets/getImage');
 
 	// First load all the images. This is done outside of the replaceAll
 	// function because getImage is async.
