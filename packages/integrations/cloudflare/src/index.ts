@@ -388,6 +388,14 @@ export default function createIntegration({
 				}
 			},
 			'astro:build:start': ({ setPrerenderer }) => {
+				// Both `compile` and `cloudflare-binding` need build-time image optimization
+				// via Sharp. The `cloudflare-binding` image service is a passthrough stub that
+				// does not actually transform images — it's meant for runtime use only.
+				// Without this flag, prerendered pages get corrupt image files (e.g. PNG data
+				// written as .avif/.webp).
+				const needsSharpFallback =
+					buildService === 'compile' || buildService === 'cloudflare-binding';
+
 				if (prerenderEnvironment === 'workerd') {
 					setPrerenderer(
 						createCloudflarePrerenderer({
@@ -397,9 +405,23 @@ export default function createIntegration({
 							base: _config.base,
 							trailingSlash: _config.trailingSlash,
 							cfPluginConfig,
-							hasCompileImageService: buildService === 'compile',
+							hasCompileImageService: needsSharpFallback,
 						}),
 					);
+				} else if (needsSharpFallback) {
+					// For `prerenderEnvironment: "node"`, the default prerenderer is used
+					// and static images are collected in-process. We still need to swap
+					// the image service to Sharp so that build-time image generation
+					// produces correctly transformed files instead of passthrough copies.
+					setPrerenderer((defaultPrerenderer) => ({
+						...defaultPrerenderer,
+						async collectStaticImages() {
+							const { default: sharpService } = await import('astro/assets/services/sharp');
+							globalThis.astroAsset ??= {};
+							globalThis.astroAsset.imageService = sharpService;
+							return new Map();
+						},
+					}));
 				}
 			},
 			'astro:build:setup': ({ vite, target }) => {
