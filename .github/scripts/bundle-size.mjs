@@ -12,7 +12,7 @@ function formatBytes(bytes, decimals = 2) {
 
 	const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-	return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+	return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }
 
 export default async function checkBundleSize({ github, context }) {
@@ -75,7 +75,7 @@ async function bundle(files) {
 		bundle: true,
 		minify: true,
 		sourcemap: false,
-		target: ['es2018'],
+		target: ['esnext'],
 		outdir: 'out',
 		external: ['astro:*', 'aria-query', 'axobject-query'],
 		metafile: true,

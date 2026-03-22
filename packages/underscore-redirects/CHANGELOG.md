@@ -1,5 +1,17 @@
 # @astrojs/underscore-redirects
 
+## 1.0.2
+
+### Patch Changes
+
+- [#15979](https://github.com/withastro/astro/pull/15979) [`3b8d473`](https://github.com/withastro/astro/commit/3b8d473768bf7d356a21a0a432e6a33f90928a9e) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fixes an issue where redirects in `_redirects` file where not correctly created with trailing slashes.
+
+## 1.0.1
+
+### Patch Changes
+
+- [#15820](https://github.com/withastro/astro/pull/15820) [`e20474b`](https://github.com/withastro/astro/commit/e20474b98c6d868ed9734f7eeb7564bffe8bfd77) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes broken publish
+
 ## 1.0.0
 
 ### Major Changes

@@ -92,6 +92,12 @@ describe('remote-pattern', () => {
 			assert.equal(matchPathname(url2, '/*', true), false);
 		});
 
+		it('does not match pathname when prefix appears mid-path', async () => {
+			// /en/* should NOT match /evil/en/getting-started
+			const evilUrl = new URL('https://docs.astro.build/evil/en/getting-started');
+			assert.equal(matchPathname(evilUrl, '/en/*', true), false);
+		});
+
 		it('matches patterns', async () => {
 			assert.equal(matchPattern(url1, {}), true);
 

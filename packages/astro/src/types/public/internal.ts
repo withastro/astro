@@ -6,8 +6,10 @@ import type { AstroCookies } from '../../core/cookies/cookies.js';
 import type { AstroComponentInstance, ServerIslandComponent } from '../../runtime/server/index.js';
 import type { Params } from './common.js';
 import type { AstroConfig, RedirectConfig } from './config.js';
-import type { AstroGlobal, AstroGlobalPartial } from './context.js';
+import type { AstroGlobal } from './context.js';
 import type { AstroRenderer } from './integrations.js';
+import type { NodePool } from '../../runtime/server/render/queue/pool.js';
+import type { HTMLStringCache } from '../../runtime/server/html-string-cache.js';
 
 export type { SSRActions, SSRManifest, SSRManifestCSP } from '../../core/app/types.js';
 
@@ -53,21 +55,6 @@ export interface RouteData {
 	 */
 	component: string;
 	/**
-	 * @param {any} data The optional parameters of the route
-	 *
-	 * @description
-	 * A function that accepts a list of params, interpolates them with the route pattern, and returns the path name of the route.
-	 *
-	 * ## Example
-	 *
-	 * For a route such as `/blog/[...id].astro`, the `generate` function would return something like this:
-	 *
-	 * ```js
-	 * console.log(generate({ id: 'presentation' })) // will log `/blog/presentation`
-	 * ```
-	 */
-	generate: (data?: any) => string;
-	/**
 	 * Dynamic and spread route params
 	 * ex. "/pages/[lang]/[...slug].astro" will output the params ['lang', '...slug']
 	 */
@@ -80,7 +67,7 @@ export interface RouteData {
 	/**
 	 * The paths of the physical files emitted by this route. When a route **isn't** prerendered, the value is either `undefined` or an empty array.
 	 */
-	distURL?: URL[];
+	distURL: URL[];
 	/**
 	 *
 	 * regex used for matching an input URL against a requested route
@@ -126,7 +113,7 @@ export interface RouteData {
 	 */
 	redirectRoute?: RouteData;
 	/**
-	 * A list of {@link RouteData} to fallback to. They are present when `i18n.fallback` has a list of locales.
+	 * A list of {@link RouteData} to fall back to. They are present when `i18n.fallback` has a list of locales.
 	 */
 	fallbackRoutes: RouteData[];
 
@@ -221,11 +208,7 @@ export interface SSRResult {
 	links: Set<SSRElement>;
 	componentMetadata: Map<string, SSRComponentMetadata>;
 	inlinedScripts: Map<string, string>;
-	createAstro(
-		Astro: AstroGlobalPartial,
-		props: Record<string, any>,
-		slots: Record<string, any> | null,
-	): AstroGlobal;
+	createAstro(props: Record<string, any>, slots: Record<string, any> | null): AstroGlobal;
 	params: Params;
 	resolve: (s: string) => Promise<string>;
 	response: AstroGlobal['response'];
@@ -271,6 +254,20 @@ export interface SSRResult {
 	directives: SSRManifestCSP['directives'];
 	isStrictDynamic: SSRManifestCSP['isStrictDynamic'];
 	internalFetchHeaders?: Record<string, string>;
+
+	/**
+	 * Experimental: Configuration for queue-based rendering.
+	 * - enabled: Whether to use queue-based rendering (default: true if config is object)
+	 * - poolSize: Maximum number of nodes to keep in the object pool (default: 1000, 0 to disable)
+	 * - cache: Whether to enable HTMLString caching (default: true)
+	 */
+	_experimentalQueuedRendering?: {
+		pool?: NodePool;
+		htmlStringCache?: HTMLStringCache;
+		enabled?: boolean;
+		poolSize?: number;
+		contentCache?: boolean;
+	};
 }
 
 /**

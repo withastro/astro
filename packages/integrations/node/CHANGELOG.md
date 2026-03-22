@@ -1,10 +1,358 @@
 # @astrojs/node
 
+## 10.0.3
+
+### Patch Changes
+
+- [#15735](https://github.com/withastro/astro/pull/15735) [`9685e2d`](https://github.com/withastro/astro/commit/9685e2d5ef132ca113144c1714163511a93fd29e) Thanks [@fa-sharp](https://github.com/fa-sharp)! - Fixes an EventEmitter memory leak when serving static pages from Node.js middleware.
+
+  When using the middleware handler, requests that were being passed on to Express / Fastify (e.g. static files / pre-rendered pages / etc.) weren't cleaning up socket listeners before calling `next()`, causing a memory leak warning. This fix makes sure to run the cleanup before calling `next()`.
+
+## 10.0.2
+
+### Patch Changes
+
+- [#15934](https://github.com/withastro/astro/pull/15934) [`6f8f0bc`](https://github.com/withastro/astro/commit/6f8f0bc4e22e958ccc2164acb1aa8cce21c43148) Thanks [@ematipico](https://github.com/ematipico)! - Updates the Astro `peerDependencies#astro` to be `6.0.0`.
+
+## 10.0.1
+
+### Patch Changes
+
+- [#15868](https://github.com/withastro/astro/pull/15868) [`bb2b8f5`](https://github.com/withastro/astro/commit/bb2b8f5cd3c9f3140b4bb0fb5a1d4c62b41883b8) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the adapter would cause a series of warnings during the build.
+
+## 10.0.0
+
+### Major Changes
+
+- [#15654](https://github.com/withastro/astro/pull/15654) [`a32aee6`](https://github.com/withastro/astro/commit/a32aee6eb8bb9ae46caf2249ff56df27db2d4e2a) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the `experimentalErrorPageHost` option
+
+  This option allowed fetching a prerendered error page from a different host than the server is currently running on.
+
+  However, there can be security implications with prefetching from other hosts, and often more customization was required to do this safely. This has now been removed as a built-in option so that you can implement your own secure solution as needed and appropriate for your project via middleware.
+
+  #### What should I do?
+
+  If you were previously using this feature, you must remove the option from your adapter configuration as it no longer exists:
+
+  ```diff
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config'
+  import node from '@astrojs/node'
+
+  export default defineConfig({
+    adapter: node({
+      mode: 'standalone',
+  -    experimentalErrorPageHost: 'http://localhost:4321'
+    })
+  })
+  ```
+
+  You can replicate the previous behavior by checking the response status in a middleware and fetching the prerendered page yourself:
+
+  ```ts
+  // src/middleware.ts
+  import { defineMiddleware } from 'astro:middleware';
+
+  export const onRequest = defineMiddleware(async (ctx, next) => {
+    const response = await next();
+    if (response.status === 404 || response.status === 500) {
+      return fetch(`http://localhost:4321/${response.status}.html`);
+    }
+    return response;
+  });
+  ```
+
+### Minor Changes
+
+- [#15258](https://github.com/withastro/astro/pull/15258) [`d339a18`](https://github.com/withastro/astro/commit/d339a182b387a7a1b0d5dd0d67a0638aaa2b4262) Thanks [@ematipico](https://github.com/ematipico)! - Stabilizes the adapter feature `experimentalStatiHeaders`. If you were using this feature in any of the supported adapters, you'll need to change the name of the flag:
+
+  ```diff
+  export default defineConfig({
+    adapter: netlify({
+  -    experimentalStaticHeaders: true
+  +    staticHeaders: true
+    })
+  })
+  ```
+
+- [#15759](https://github.com/withastro/astro/pull/15759) [`39ff2a5`](https://github.com/withastro/astro/commit/39ff2a565614250acae83d35bf196e0463857d9e) Thanks [@matthewp](https://github.com/matthewp)! - Adds a new `bodySizeLimit` option to the `@astrojs/node` adapter
+
+  You can now configure a maximum allowed request body size for your Node.js standalone server. The default limit is 1 GB. Set the value in bytes, or pass `0` to disable the limit entirely:
+
+  ```js
+  import node from '@astrojs/node';
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    adapter: node({
+      mode: 'standalone',
+      bodySizeLimit: 1024 * 1024 * 100, // 100 MB
+    }),
+  });
+  ```
+
+- [#15006](https://github.com/withastro/astro/pull/15006) [`f361730`](https://github.com/withastro/astro/commit/f361730bc820c01a2ec3e508ac940be8077d8c04) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds new session driver object shape
+
+  For greater flexibility and improved consistency with other Astro code, session drivers are now specified as an object:
+
+  ```diff
+  -import { defineConfig } from 'astro/config'
+  +import { defineConfig, sessionDrivers } from 'astro/config'
+
+  export default defineConfig({
+    session: {
+  -    driver: 'redis',
+  -    options: {
+  -      url: process.env.REDIS_URL
+  -    },
+  +    driver: sessionDrivers.redis({
+  +      url: process.env.REDIS_URL
+  +    }),
+    }
+  })
+  ```
+
+  Specifying the session driver as a string has been deprecated, but will continue to work until this feature is removed completely in a future major version. The object shape is the current recommended and documented way to configure a session driver.
+
+- [#14946](https://github.com/withastro/astro/pull/14946) [`95c40f7`](https://github.com/withastro/astro/commit/95c40f7109ce240206c3951761a7bb439dd809cb) Thanks [@ematipico](https://github.com/ematipico)! - Removes the `experimental.csp` flag and replaces it with a new configuration option `security.csp` - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#experimental-flags))
+
+### Patch Changes
+
+- [#15473](https://github.com/withastro/astro/pull/15473) [`d653b86`](https://github.com/withastro/astro/commit/d653b864252e0b39a3774f0e1ecf4b7b69851288) Thanks [@matthewp](https://github.com/matthewp)! - Improves error page loading to read from disk first before falling back to configured host
+
+- [#15562](https://github.com/withastro/astro/pull/15562) [`e14a51d`](https://github.com/withastro/astro/commit/e14a51d30196bad534bacb14aac7033b91aed741) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates to new Adapter API introduced in v6
+
+- [#15585](https://github.com/withastro/astro/pull/15585) [`98ea30c`](https://github.com/withastro/astro/commit/98ea30c56d6d317d76e2290ed903f11961204714) Thanks [@matthewp](https://github.com/matthewp)! - Add a default body size limit for server actions to prevent oversized requests from exhausting memory.
+
+- [#15777](https://github.com/withastro/astro/pull/15777) [`02e24d9`](https://github.com/withastro/astro/commit/02e24d952de29c1c633744e7408215bedeb4d436) Thanks [@matthewp](https://github.com/matthewp)! - Fixes CSRF origin check mismatch by passing the actual server listening port to `createRequest`, ensuring the constructed URL origin includes the correct port (e.g., `http://localhost:4321` instead of `http://localhost`). Also restricts `X-Forwarded-Proto` to only be trusted when `allowedDomains` is configured.
+
+- [#15714](https://github.com/withastro/astro/pull/15714) [`9a2c949`](https://github.com/withastro/astro/commit/9a2c949a2527cc921cfc80803f1bf49e9d945a37) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where static headers weren't correctly applied when the website uses `base`.
+
+- [#15763](https://github.com/withastro/astro/pull/15763) [`1567e8c`](https://github.com/withastro/astro/commit/1567e8cc9153f4e8089b2d942ffb73c14cca8031) Thanks [@matthewp](https://github.com/matthewp)! - Normalizes static file paths before evaluating dotfile access rules for improved consistency
+
+- [#15164](https://github.com/withastro/astro/pull/15164) [`54dc11d`](https://github.com/withastro/astro/commit/54dc11deb09ca2ad4683504011786008a8f3674a) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes an issue where the Node.js adapter could fail to serve a 404 page matching a pre-rendered dynamic route pattern.
+
+- [#15745](https://github.com/withastro/astro/pull/15745) [`20b05c0`](https://github.com/withastro/astro/commit/20b05c042bde561f53d47348fd4cb2ec478bca23) Thanks [@matthewp](https://github.com/matthewp)! - Hardens static file handler path resolution to ensure resolved paths stay within the client directory
+
+- [#15495](https://github.com/withastro/astro/pull/15495) [`5b99e90`](https://github.com/withastro/astro/commit/5b99e9077a92602f1e46e9b6eb9094bcd00c640e) Thanks [@leekeh](https://github.com/leekeh)! - Refactors to use `middlewareMode` adapter feature (set to `classic`)
+
+- [#15657](https://github.com/withastro/astro/pull/15657) [`cb625b6`](https://github.com/withastro/astro/commit/cb625b62596582047ec8cc4256960cc11804e931) Thanks [@qzio](https://github.com/qzio)! - Adds a new `security.actionBodySizeLimit` option to configure the maximum size of Astro Actions request bodies.
+
+  This lets you increase the default 1 MB limit when your actions need to accept larger payloads. For example, actions that handle file uploads or large JSON payloads can now opt in to a higher limit.
+
+  If you do not set this option, Astro continues to enforce the 1 MB default to help prevent abuse.
+
+  ```js
+  // astro.config.mjs
+  export default defineConfig({
+    security: {
+      actionBodySizeLimit: 10 * 1024 * 1024, // set to 10 MB
+    },
+  });
+  ```
+
+- Updated dependencies [[`4ebc1e3`](https://github.com/withastro/astro/commit/4ebc1e328ac40e892078031ed9dfecf60691fd56), [`4e7f3e8`](https://github.com/withastro/astro/commit/4e7f3e8e6849c314a0ab031ebd7f23fb982f0529), [`a164c77`](https://github.com/withastro/astro/commit/a164c77336059f2dc3e7f7fe992aa754ed145ef3), [`cf6ea6b`](https://github.com/withastro/astro/commit/cf6ea6b36b67c7712395ed3f9ca19cb14ba1a013), [`a18d727`](https://github.com/withastro/astro/commit/a18d727fc717054df85177c8e0c3d38a5252f2da), [`240c317`](https://github.com/withastro/astro/commit/240c317faab52d7f22494e9181f5d2c2c404b0bd), [`745e632`](https://github.com/withastro/astro/commit/745e632fc590e41a5701509e9cc4ed971bdddf74)]:
+  - @astrojs/internal-helpers@0.8.0
+
+## 10.0.0-beta.9
+
+### Minor Changes
+
+- [#15759](https://github.com/withastro/astro/pull/15759) [`39ff2a5`](https://github.com/withastro/astro/commit/39ff2a565614250acae83d35bf196e0463857d9e) Thanks [@matthewp](https://github.com/matthewp)! - Adds a new `bodySizeLimit` option to the `@astrojs/node` adapter
+
+  You can now configure a maximum allowed request body size for your Node.js standalone server. The default limit is 1 GB. Set the value in bytes, or pass `0` to disable the limit entirely:
+
+  ```js
+  import node from '@astrojs/node';
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    adapter: node({
+      mode: 'standalone',
+      bodySizeLimit: 1024 * 1024 * 100, // 100 MB
+    }),
+  });
+  ```
+
+### Patch Changes
+
+- [#15777](https://github.com/withastro/astro/pull/15777) [`02e24d9`](https://github.com/withastro/astro/commit/02e24d952de29c1c633744e7408215bedeb4d436) Thanks [@matthewp](https://github.com/matthewp)! - Fixes CSRF origin check mismatch by passing the actual server listening port to `createRequest`, ensuring the constructed URL origin includes the correct port (e.g., `http://localhost:4321` instead of `http://localhost`). Also restricts `X-Forwarded-Proto` to only be trusted when `allowedDomains` is configured.
+
+- [#15763](https://github.com/withastro/astro/pull/15763) [`1567e8c`](https://github.com/withastro/astro/commit/1567e8cc9153f4e8089b2d942ffb73c14cca8031) Thanks [@matthewp](https://github.com/matthewp)! - Normalizes static file paths before evaluating dotfile access rules for improved consistency
+
+- Updated dependencies [[`4ebc1e3`](https://github.com/withastro/astro/commit/4ebc1e328ac40e892078031ed9dfecf60691fd56), [`4e7f3e8`](https://github.com/withastro/astro/commit/4e7f3e8e6849c314a0ab031ebd7f23fb982f0529)]:
+  - @astrojs/internal-helpers@0.8.0-beta.3
+
+## 10.0.0-beta.8
+
+### Patch Changes
+
+- Updated dependencies [[`745e632`](https://github.com/withastro/astro/commit/745e632fc590e41a5701509e9cc4ed971bdddf74)]:
+  - @astrojs/internal-helpers@0.8.0-beta.2
+
+## 10.0.0-beta.7
+
+### Major Changes
+
+- [#15654](https://github.com/withastro/astro/pull/15654) [`a32aee6`](https://github.com/withastro/astro/commit/a32aee6eb8bb9ae46caf2249ff56df27db2d4e2a) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the `experimentalErrorPageHost` option
+
+  This option allowed fetching a prerendered error page from a different host than the server is currently running on.
+
+  However, there can be security implications with prefetching from other hosts, and often more customization was required to do this safely. This has now been removed as a built-in option so that you can implement your own secure solution as needed and appropriate for your project via middleware.
+
+  #### What should I do?
+
+  If you were previously using this feature, you must remove the option from your adapter configuration as it no longer exists:
+
+  ```diff
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config'
+  import node from '@astrojs/node'
+
+  export default defineConfig({
+    adapter: node({
+      mode: 'standalone',
+  -    experimentalErrorPageHost: 'http://localhost:4321'
+    })
+  })
+  ```
+
+  You can replicate the previous behavior by checking the response status in a middleware and fetching the prerendered page yourself:
+
+  ```ts
+  // src/middleware.ts
+  import { defineMiddleware } from 'astro:middleware';
+
+  export const onRequest = defineMiddleware(async (ctx, next) => {
+    const response = await next();
+    if (response.status === 404 || response.status === 500) {
+      return fetch(`http://localhost:4321/${response.status}.html`);
+    }
+    return response;
+  });
+  ```
+
+### Patch Changes
+
+- [#15714](https://github.com/withastro/astro/pull/15714) [`9a2c949`](https://github.com/withastro/astro/commit/9a2c949a2527cc921cfc80803f1bf49e9d945a37) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where static headers weren't correctly applied when the website uses `base`.
+
+- [#15745](https://github.com/withastro/astro/pull/15745) [`20b05c0`](https://github.com/withastro/astro/commit/20b05c042bde561f53d47348fd4cb2ec478bca23) Thanks [@matthewp](https://github.com/matthewp)! - Hardens static file handler path resolution to ensure resolved paths stay within the client directory
+
+## 10.0.0-beta.6
+
+### Patch Changes
+
+- [#15495](https://github.com/withastro/astro/pull/15495) [`5b99e90`](https://github.com/withastro/astro/commit/5b99e9077a92602f1e46e9b6eb9094bcd00c640e) Thanks [@leekeh](https://github.com/leekeh)! - Refactors to use `middlewareMode` adapter feature (set to `classic`)
+
+- [#15657](https://github.com/withastro/astro/pull/15657) [`cb625b6`](https://github.com/withastro/astro/commit/cb625b62596582047ec8cc4256960cc11804e931) Thanks [@qzio](https://github.com/qzio)! - Adds a new `security.actionBodySizeLimit` option to configure the maximum size of Astro Actions request bodies.
+
+  This lets you increase the default 1 MB limit when your actions need to accept larger payloads. For example, actions that handle file uploads or large JSON payloads can now opt in to a higher limit.
+
+  If you do not set this option, Astro continues to enforce the 1 MB default to help prevent abuse.
+
+  ```js
+  // astro.config.mjs
+  export default defineConfig({
+    security: {
+      actionBodySizeLimit: 10 * 1024 * 1024, // set to 10 MB
+    },
+  });
+  ```
+
+## 10.0.0-beta.5
+
+### Patch Changes
+
+- [#15562](https://github.com/withastro/astro/pull/15562) [`e14a51d`](https://github.com/withastro/astro/commit/e14a51d30196bad534bacb14aac7033b91aed741) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates to new Adapter API introduced in v6
+
+- [#15585](https://github.com/withastro/astro/pull/15585) [`98ea30c`](https://github.com/withastro/astro/commit/98ea30c56d6d317d76e2290ed903f11961204714) Thanks [@matthewp](https://github.com/matthewp)! - Add a default body size limit for server actions to prevent oversized requests from exhausting memory.
+
+## 10.0.0-beta.4
+
+### Patch Changes
+
+- [#15473](https://github.com/withastro/astro/pull/15473) [`d653b86`](https://github.com/withastro/astro/commit/d653b864252e0b39a3774f0e1ecf4b7b69851288) Thanks [@matthewp](https://github.com/matthewp)! - Improves error page loading to read from disk first before falling back to configured host
+
+## 10.0.0-beta.3
+
+### Patch Changes
+
+- Updated dependencies [[`a164c77`](https://github.com/withastro/astro/commit/a164c77336059f2dc3e7f7fe992aa754ed145ef3), [`a18d727`](https://github.com/withastro/astro/commit/a18d727fc717054df85177c8e0c3d38a5252f2da)]:
+  - @astrojs/internal-helpers@0.8.0-beta.1
+
+## 10.0.0-beta.2
+
+### Minor Changes
+
+- [#15258](https://github.com/withastro/astro/pull/15258) [`d339a18`](https://github.com/withastro/astro/commit/d339a182b387a7a1b0d5dd0d67a0638aaa2b4262) Thanks [@ematipico](https://github.com/ematipico)! - Stabilizes the adapter feature `experimentalStatiHeaders`. If you were using this feature in any of the supported adapters, you'll need to change the name of the flag:
+
+  ```diff
+  export default defineConfig({
+    adapter: netlify({
+  -    experimentalStaticHeaders: true
+  +    staticHeaders: true
+    })
+  })
+  ```
+
+## 10.0.0-beta.1
+
+### Patch Changes
+
+- Updated dependencies [[`240c317`](https://github.com/withastro/astro/commit/240c317faab52d7f22494e9181f5d2c2c404b0bd)]:
+  - @astrojs/internal-helpers@0.8.0-beta.0
+
+## 10.0.0-beta.0
+
+### Patch Changes
+
+- [#15164](https://github.com/withastro/astro/pull/15164) [`54dc11d`](https://github.com/withastro/astro/commit/54dc11deb09ca2ad4683504011786008a8f3674a) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes an issue where the Node.js adapter could fail to serve a 404 page matching a pre-rendered dynamic route pattern.
+
+## 10.0.0-alpha.3
+
+### Minor Changes
+
+- [#15006](https://github.com/withastro/astro/pull/15006) [`f361730`](https://github.com/withastro/astro/commit/f361730bc820c01a2ec3e508ac940be8077d8c04) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds new session driver object shape
+
+  For greater flexibility and improved consistency with other Astro code, session drivers are now specified as an object:
+
+  ```diff
+  -import { defineConfig } from 'astro/config'
+  +import { defineConfig, sessionDrivers } from 'astro/config'
+
+  export default defineConfig({
+    session: {
+  -    driver: 'redis',
+  -    options: {
+  -      url: process.env.REDIS_URL
+  -    },
+  +    driver: sessionDrivers.redis({
+  +      url: process.env.REDIS_URL
+  +    }),
+    }
+  })
+  ```
+
+  Specifying the session driver as a string has been deprecated, but will continue to work until this feature is removed completely in a future major version. The object shape is the current recommended and documented way to configure a session driver.
+
+## 10.0.0-alpha.2
+
+### Minor Changes
+
+- [#14946](https://github.com/withastro/astro/pull/14946) [`95c40f7`](https://github.com/withastro/astro/commit/95c40f7109ce240206c3951761a7bb439dd809cb) Thanks [@ematipico](https://github.com/ematipico)! - Removes the `experimental.csp` flag and replaces it with a new configuration option `security.csp` - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#experimental-flags))
+
+## 10.0.0-alpha.0
+
+### Patch Changes
+
+- Updated dependencies [[`ece667a`](https://github.com/withastro/astro/commit/ece667a737a96c8bfea2702de7207bed0842b37c), [`861b9cc`](https://github.com/withastro/astro/commit/861b9cc770a05d9fcfcb2f1f442a3ba41e94b510), [`ece667a`](https://github.com/withastro/astro/commit/ece667a737a96c8bfea2702de7207bed0842b37c), [`9fdfd4c`](https://github.com/withastro/astro/commit/9fdfd4c620313827e65664632a9c9cb435ad07ca), [`91780cf`](https://github.com/withastro/astro/commit/91780cffa7cf97cc22694d55962710609a5475b0), [`9fdfd4c`](https://github.com/withastro/astro/commit/9fdfd4c620313827e65664632a9c9cb435ad07ca), [`b1d87ec`](https://github.com/withastro/astro/commit/b1d87ec3bc2fbe214437990e871df93909d18f62), [`049da87`](https://github.com/withastro/astro/commit/049da87cb7ce1828f3025062ce079dbf132f5b86), [`727b0a2`](https://github.com/withastro/astro/commit/727b0a205eb765f1c36f13a73dfc69e17e44df8f), [`55a1a91`](https://github.com/withastro/astro/commit/55a1a911aa4e0d38191f8cb9464ffd58f3eb7608), [`669ca5b`](https://github.com/withastro/astro/commit/669ca5b0199d9933f54c76448de9ec5a9f13c430), [`df6d2d7`](https://github.com/withastro/astro/commit/df6d2d7bbcaf6b6a327a37a6437d4adade6e2485), [`9fdfd4c`](https://github.com/withastro/astro/commit/9fdfd4c620313827e65664632a9c9cb435ad07ca), [`e131261`](https://github.com/withastro/astro/commit/e1312615b39c59ebc05d5bb905ee0960b50ad3cf), [`c69c7de`](https://github.com/withastro/astro/commit/c69c7de1ffeff29f919d97c262f245927556f875), [`666d5a7`](https://github.com/withastro/astro/commit/666d5a7ef486aa57f20f87b6cb210619dabd9c4c), [`4f11510`](https://github.com/withastro/astro/commit/4f11510c9ed932f5cb6d1075b1172909dd5db23e), [`25fe093`](https://github.com/withastro/astro/commit/25fe09396dbcda2e1008c01a982f4eb2d1f33ae6), [`9c282b5`](https://github.com/withastro/astro/commit/9c282b5e6d3f0d678bc478a863e883fa4765dd17), [`ecb0b98`](https://github.com/withastro/astro/commit/ecb0b98396f639d830a99ddb5895ab9223e4dc87), [`6f67c6e`](https://github.com/withastro/astro/commit/6f67c6eef2647ef1a1eab78a65a906ab633974bb), [`36a461b`](https://github.com/withastro/astro/commit/36a461bf3f64c467bc52aecf511cd831d238e18b), [`3bda3ce`](https://github.com/withastro/astro/commit/3bda3ce4edcb1bd1349890c6ed8110f05954c791)]:
+  - astro@6.0.0-alpha.0
+
 ## 9.5.2
 
 ### Patch Changes
 
-- [#15196](https://github.com/withastro/astro/pull/15196) [`a8317c1`](https://github.com/withastro/astro/commit/a8317c1e1fe72ff3b86890801f5e898a5244c1b0) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where some prendered pages weren't correctly rendered when using the Node.js adapter in middleware mode.
+- [#15196](https://github.com/withastro/astro/pull/15196) [`a8317c1`](https://github.com/withastro/astro/commit/a8317c1e1fe72ff3b86890801f5e898a5244c1b0) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where some prerendered pages weren't correctly rendered when using the Node.js adapter in middleware mode.
 
 - [#15169](https://github.com/withastro/astro/pull/15169) [`b803d8b`](https://github.com/withastro/astro/commit/b803d8b4b4e5e71ef4b28b23186e2786dc80a308) Thanks [@rururux](https://github.com/rururux)! - fix: fix image 500 error when moving dist directory in standalone Node
 
@@ -25,7 +373,7 @@
 
   This update ensures that configured redirects are always handled as HTTP redirects regardless of output mode, and the default HTML files for the redirects are no longer generated in `static` output. It makes the Node.js adapter more consistent with the other official adapters.
 
-  No change to your project is required to take advantage of this new adapter functionality. It is not expected to cause any breaking changes. However, if you relied on the previous redirecting behavior, you may need to handle your redirects differently now. Otherwise you should notice smoother redirects, with more accurate HTTP status codes, and may potentially see some SEO gains.
+  No change to your project is required to take advantage of this new adapter functionality. It is not expected to cause any breaking changes. However, if you relied on the previous redirecting behavior, you may need to handle your redirects differently now. Otherwise, you should notice smoother redirects, with more accurate HTTP status codes, and may potentially see some SEO gains.
 
 ## 9.4.6
 
@@ -465,7 +813,7 @@
 
 ### Major Changes
 
-- [#9661](https://github.com/withastro/astro/pull/9661) [`d6edc7540864cf5d294d7b881eb886a3804f6d05`](https://github.com/withastro/astro/commit/d6edc7540864cf5d294d7b881eb886a3804f6d05) Thanks [@ematipico](https://github.com/ematipico)! - If host is unset in standalone mode, the server host will now fallback to `localhost` instead of `127.0.0.1`. When `localhost` is used, the operating system can decide to use either `::1` (ipv6) or `127.0.0.1` (ipv4) itself. This aligns with how the Astro dev and preview server works by default.
+- [#9661](https://github.com/withastro/astro/pull/9661) [`d6edc7540864cf5d294d7b881eb886a3804f6d05`](https://github.com/withastro/astro/commit/d6edc7540864cf5d294d7b881eb886a3804f6d05) Thanks [@ematipico](https://github.com/ematipico)! - If host is unset in standalone mode, the server host will now fall back to `localhost` instead of `127.0.0.1`. When `localhost` is used, the operating system can decide to use either `::1` (ipv6) or `127.0.0.1` (ipv4) itself. This aligns with how the Astro dev and preview server works by default.
 
   If you relied on `127.0.0.1` (ipv4) before, you can set the `HOST` environment variable to `127.0.0.1` to explicitly use ipv4. For example, `HOST=127.0.0.1 node ./dist/server/entry.mjs`.
 
@@ -697,7 +1045,7 @@
 
 ### Patch Changes
 
-- [#7708](https://github.com/withastro/astro/pull/7708) [`4dd6c7900`](https://github.com/withastro/astro/commit/4dd6c7900ca40db1b2cebed9bd02a9eb00874d8d) Thanks [@DixCouleur](https://github.com/DixCouleur)! - fix issuse #7590 "res.writeHead is not a function" in Express/Node middleware
+- [#7708](https://github.com/withastro/astro/pull/7708) [`4dd6c7900`](https://github.com/withastro/astro/commit/4dd6c7900ca40db1b2cebed9bd02a9eb00874d8d) Thanks [@DixCouleur](https://github.com/DixCouleur)! - fix issue #7590 "res.writeHead is not a function" in Express/Node middleware
 
 - Updated dependencies [[`41afb8405`](https://github.com/withastro/astro/commit/41afb84057f606b0e7f9a73c1e40487068e43948), [`c00b6f0c4`](https://github.com/withastro/astro/commit/c00b6f0c49027125ea3026e89b21fef84380d187), [`1f0ee494a`](https://github.com/withastro/astro/commit/1f0ee494a5190356d130282f1f51ba2a5e6ea63f), [`00cb28f49`](https://github.com/withastro/astro/commit/00cb28f4964a60bc609770108d491acc277997b9), [`c264be349`](https://github.com/withastro/astro/commit/c264be3497db4aa8b3bcce0d2f79a26e35b8e91e), [`e1e958a75`](https://github.com/withastro/astro/commit/e1e958a75860292688569e82b4617fc141056202)]:
   - astro@2.10.0
@@ -836,7 +1184,7 @@
 
 ### Patch Changes
 
-- [#6088](https://github.com/withastro/astro/pull/6088) [`6a03649f0`](https://github.com/withastro/astro/commit/6a03649f0084f0df6738236d4a86c9936325cee7) Thanks [@QingXia-Ela](https://github.com/QingXia-Ela)! - fix incorrent encoded when path has other language characters
+- [#6088](https://github.com/withastro/astro/pull/6088) [`6a03649f0`](https://github.com/withastro/astro/commit/6a03649f0084f0df6738236d4a86c9936325cee7) Thanks [@QingXia-Ela](https://github.com/QingXia-Ela)! - fix incorrect encoded when path has other language characters
 
 ## 5.0.1
 
@@ -1184,7 +1532,7 @@
 
   When using the `"server"` output target, you must also include a runtime adapter via the `adapter` configuration. An adapter will _adapt_ your final build to run on the deployed platform of your choice (Netlify, Vercel, Node.js, Deno, etc).
 
-  To migrate: No action is required for most users. If you currently define an `adapter`, you will need to also add `output: 'server'` to your config file to make it explicit that you are building a server. Here is an example of what that change would look like for someone deploying to Netlify:
+  To migrate: No action is required for most users. If you currently define an `adapter`, you will also need to add `output: 'server'` to your config file to make it explicit that you are building a server. Here is an example of what that change would look like for someone deploying to Netlify:
 
   ```diff
   import { defineConfig } from 'astro/config';

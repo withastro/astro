@@ -9,15 +9,15 @@ import { createSlotValueFromString } from '../../runtime/server/render/slot.js';
 import type { ComponentInstance, RoutesList } from '../../types/astro.js';
 import type { RouteData, SSRManifest } from '../../types/public/internal.js';
 import { decryptString } from '../encryption.js';
-import { getPattern } from '../routing/manifest/pattern.js';
+import { BodySizeLimitError, readBodyWithLimit } from '../request-body.js';
+import { getPattern } from '../routing/pattern.js';
 
 export const SERVER_ISLAND_ROUTE = '/_server-islands/[name]';
 export const SERVER_ISLAND_COMPONENT = '_server-islands.astro';
-export const SERVER_ISLAND_BASE_PREFIX = '_server-islands';
 
 type ConfigFields = Pick<SSRManifest, 'base' | 'trailingSlash'>;
 
-export function getServerIslandRouteData(config: ConfigFields) {
+function getServerIslandRouteData(config: ConfigFields) {
 	const segments = [
 		[{ content: '_server-islands', dynamic: false, spread: false }],
 		[{ content: 'name', dynamic: true, spread: false }],
@@ -25,7 +25,6 @@ export function getServerIslandRouteData(config: ConfigFields) {
 	const route: RouteData = {
 		type: 'page',
 		component: SERVER_ISLAND_COMPONENT,
-		generate: () => '',
 		params: ['name'],
 		segments,
 		pattern: getPattern(segments, config.base, config.trailingSlash),
@@ -34,6 +33,7 @@ export function getServerIslandRouteData(config: ConfigFields) {
 		fallbackRoutes: [],
 		route: SERVER_ISLAND_ROUTE,
 		origin: 'internal',
+		distURL: [],
 	};
 	return route;
 }
@@ -42,8 +42,8 @@ export function injectServerIslandRoute(config: ConfigFields, routeManifest: Rou
 	routeManifest.routes.unshift(getServerIslandRouteData(config));
 }
 
-type RenderOptions = {
-	componentExport: string;
+export type RenderOptions = {
+	encryptedComponentExport: string;
 	encryptedProps: string;
 	encryptedSlots: string;
 };
@@ -55,7 +55,12 @@ function badRequest(reason: string) {
 	});
 }
 
-async function getRequestData(request: Request): Promise<Response | RenderOptions> {
+const DEFAULT_BODY_SIZE_LIMIT = 1024 * 1024; // 1MB
+
+export async function getRequestData(
+	request: Request,
+	bodySizeLimit: number = DEFAULT_BODY_SIZE_LIMIT,
+): Promise<Response | RenderOptions> {
 	switch (request.method) {
 		case 'GET': {
 			const url = new URL(request.url);
@@ -67,23 +72,37 @@ async function getRequestData(request: Request): Promise<Response | RenderOption
 
 			const encryptedSlots = params.get('s')!;
 			return {
-				componentExport: params.get('e')!,
+				encryptedComponentExport: params.get('e')!,
 				encryptedProps: params.get('p')!,
 				encryptedSlots,
 			};
 		}
 		case 'POST': {
 			try {
-				const raw = await request.text();
-				const data = JSON.parse(raw) as RenderOptions;
+				const body = await readBodyWithLimit(request, bodySizeLimit);
+				const raw = new TextDecoder().decode(body);
+				const data = JSON.parse(raw);
 
 				// Validate that slots is not plaintext
-				if ('slots' in data && typeof (data as any).slots === 'object') {
+				if (Object.hasOwn(data, 'slots') && typeof data.slots === 'object') {
 					return badRequest('Plaintext slots are not allowed. Slots must be encrypted.');
 				}
 
-				return data;
+				// Validate that componentExport is not plaintext
+				if (Object.hasOwn(data, 'componentExport') && typeof data.componentExport === 'string') {
+					return badRequest(
+						'Plaintext componentExport is not allowed. componentExport must be encrypted.',
+					);
+				}
+
+				return data as RenderOptions;
 			} catch (e) {
+				if (e instanceof BodySizeLimitError) {
+					return new Response(null, {
+						status: 413,
+						statusText: e.message,
+					});
+				}
 				if (e instanceof SyntaxError) {
 					return badRequest('Request format is invalid.');
 				}
@@ -109,13 +128,15 @@ export function createEndpoint(manifest: SSRManifest) {
 		const componentId = params.name;
 
 		// Get the request data from the body or search params
-		const data = await getRequestData(result.request);
+		const data = await getRequestData(result.request, manifest.serverIslandBodySizeLimit);
 		// probably error
 		if (data instanceof Response) {
 			return data;
 		}
 
-		const imp = manifest.serverIslandMap?.get(componentId);
+		const serverIslandMappings = await manifest.serverIslandMappings?.();
+		const serverIslandMap = await serverIslandMappings?.serverIslandMap;
+		let imp = serverIslandMap?.get(componentId);
 		if (!imp) {
 			return new Response(null, {
 				status: 404,
@@ -124,8 +145,16 @@ export function createEndpoint(manifest: SSRManifest) {
 		}
 
 		const key = await manifest.key;
-		const encryptedProps = data.encryptedProps;
 
+		// Decrypt componentExport
+		let componentExport: string;
+		try {
+			componentExport = await decryptString(key, data.encryptedComponentExport);
+		} catch (_e) {
+			return badRequest('Encrypted componentExport value is invalid.');
+		}
+
+		const encryptedProps = data.encryptedProps;
 		let props = {};
 
 		if (encryptedProps !== '') {
@@ -152,7 +181,7 @@ export function createEndpoint(manifest: SSRManifest) {
 		}
 
 		const componentModule = await imp();
-		let Component = (componentModule as any)[data.componentExport];
+		let Component = (componentModule as any)[componentExport];
 
 		const slots: ComponentSlots = {};
 		for (const prop in decryptedSlots) {

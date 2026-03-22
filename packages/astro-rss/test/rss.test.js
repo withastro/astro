@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-
-import { z } from 'astro/zod';
+import * as z from 'zod/v4';
 import rss, { getRssString } from '../dist/index.js';
 import { rssSchema } from '../dist/schema.js';
 import {
@@ -106,7 +105,7 @@ describe('getRssString', () => {
 		assertXmlDeepEqual(str, validXmlWithContentResult);
 	});
 
-	it('should generate on valid RSSFeedItem array with missing date', async () => {
+	it('should generate on valid RSSFeedItem array that is missing date', async () => {
 		const str = await getRssString({
 			title,
 			description,

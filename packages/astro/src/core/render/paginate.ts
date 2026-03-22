@@ -9,15 +9,18 @@ import type { AstroConfig } from '../../types/public/index.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { joinPaths } from '../path.js';
+import { getRouteGenerator } from '../routing/generator.js';
 
 export function generatePaginateFunction(
 	routeMatch: RouteData,
 	base: AstroConfig['base'],
+	trailingSlash: AstroConfig['trailingSlash'],
 ): (...args: Parameters<PaginateFunction>) => ReturnType<PaginateFunction> {
 	return function paginateUtility(
 		data: readonly any[],
 		args: PaginateOptions<Props, Params> = {},
 	): ReturnType<PaginateFunction> {
+		const generate = getRouteGenerator(routeMatch.segments, trailingSlash);
 		let { pageSize: _pageSize, params: _params, props: _props } = args;
 		const pageSize = _pageSize || 10;
 		const paramName = 'page';
@@ -38,22 +41,22 @@ export function generatePaginateFunction(
 
 		const result = [...Array(lastPage).keys()].map((num) => {
 			const pageNum = num + 1;
-			const start = pageSize === Infinity ? 0 : (pageNum - 1) * pageSize; // currentPage is 1-indexed
+			const start = pageSize === Number.POSITIVE_INFINITY ? 0 : (pageNum - 1) * pageSize; // currentPage is 1-indexed
 			const end = Math.min(start + pageSize, data.length);
 			const params = {
 				...additionalParams,
 				[paramName]: includesFirstPageNumber || pageNum > 1 ? String(pageNum) : undefined,
 			};
-			const current = addRouteBase(routeMatch.generate({ ...params }), base);
+			const current = addRouteBase(generate({ ...params }), base);
 			const next =
 				pageNum === lastPage
 					? undefined
-					: addRouteBase(routeMatch.generate({ ...params, page: String(pageNum + 1) }), base);
+					: addRouteBase(generate({ ...params, page: String(pageNum + 1) }), base);
 			const prev =
 				pageNum === 1
 					? undefined
 					: addRouteBase(
-							routeMatch.generate({
+							generate({
 								...params,
 								page:
 									!includesFirstPageNumber && pageNum - 1 === 1 ? undefined : String(pageNum - 1),
@@ -64,7 +67,7 @@ export function generatePaginateFunction(
 				pageNum === 1
 					? undefined
 					: addRouteBase(
-							routeMatch.generate({
+							generate({
 								...params,
 								page: includesFirstPageNumber ? '1' : undefined,
 							}),
@@ -73,7 +76,7 @@ export function generatePaginateFunction(
 			const last =
 				pageNum === lastPage
 					? undefined
-					: addRouteBase(routeMatch.generate({ ...params, page: String(lastPage) }), base);
+					: addRouteBase(generate({ ...params, page: String(lastPage) }), base);
 			return {
 				params,
 				props: {

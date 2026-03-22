@@ -1,11 +1,15 @@
+import * as clack from '@clack/prompts';
 import type { AstroConfig } from 'astro';
 import { sql } from 'drizzle-orm';
-import prompts from 'prompts';
 import type { Arguments } from 'yargs-parser';
 import { MIGRATION_VERSION } from '../../../consts.js';
 import { createClient } from '../../../db-client/libsql-node.js';
 import type { DBConfig, DBSnapshot } from '../../../types.js';
-import { getRemoteDatabaseInfo, type RemoteDatabaseInfo } from '../../../utils.js';
+import {
+	getRemoteDatabaseInfo,
+	type RemoteDatabaseInfo,
+	resolveDbAppToken,
+} from '../../../utils.js';
 import {
 	createCurrentSnapshot,
 	createEmptySnapshot,
@@ -25,7 +29,8 @@ export async function cmd({
 	const isDryRun = flags.dryRun;
 	const isForceReset = flags.forceReset;
 	const dbInfo = getRemoteDatabaseInfo();
-	const productionSnapshot = await getProductionCurrentSnapshot(dbInfo);
+	const appToken = resolveDbAppToken(flags, dbInfo.token);
+	const productionSnapshot = await getProductionCurrentSnapshot({ ...dbInfo, token: appToken });
 	const currentSnapshot = createCurrentSnapshot(dbConfig);
 	const isFromScratch = !productionSnapshot;
 	const { queries: migrationQueries, confirmations } = await getMigrationQueries({
@@ -42,14 +47,13 @@ export async function cmd({
 	}
 
 	if (isForceReset) {
-		const { begin } = await prompts({
-			type: 'confirm',
-			name: 'begin',
+		const begin = await clack.confirm({
 			message: `Reset your database? All of your data will be erased and your schema created from scratch.`,
-			initial: false,
+			initialValue: false,
+			withGuide: false,
 		});
 
-		if (!begin) {
+		if (begin !== true) {
 			console.log('Canceled.');
 			process.exit(0);
 		}
@@ -67,7 +71,7 @@ export async function cmd({
 		await pushSchema({
 			statements: migrationQueries,
 			dbInfo,
-			appToken: flags.token ?? dbInfo.token,
+			appToken,
 			isDryRun,
 			currentSnapshot: currentSnapshot,
 		});

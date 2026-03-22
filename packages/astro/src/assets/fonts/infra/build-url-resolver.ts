@@ -24,17 +24,17 @@ export class BuildUrlResolver implements UrlResolver {
 		this.#searchParams = searchParams;
 	}
 
-	resolve(hash: string): string {
+	resolve(id: string): string {
 		const prefix = this.#assetsPrefix
-			? getAssetsPrefix(fileExtension(hash), this.#assetsPrefix)
+			? getAssetsPrefix(fileExtension(id), this.#assetsPrefix)
 			: undefined;
 		let urlPath: string;
 		if (prefix) {
 			this.#resources.add(prefix);
-			urlPath = joinPaths(prefix, this.#base, hash);
+			urlPath = joinPaths(prefix, this.#base, id);
 		} else {
 			this.#resources.add("'self'");
-			urlPath = prependForwardSlash(joinPaths(this.#base, hash));
+			urlPath = prependForwardSlash(joinPaths(this.#base, id));
 		}
 
 		// Create URL object and append searchParams if available (for adapter-level tracking like skew protection)

@@ -1,6 +1,7 @@
 import { describe, it } from 'node:test';
 import { expectTypeOf } from 'expect-type';
-import { type ActionInputSchema, defineAction } from '../../dist/actions/runtime/server.js';
+import { defineAction } from '../../dist/actions/runtime/server.js';
+import type { ActionInputSchema } from '../../dist/actions/runtime/types.js';
 import { z } from '../../dist/zod.js';
 
 describe('ActionInputSchema', () => {

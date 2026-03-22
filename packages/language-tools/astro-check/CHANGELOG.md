@@ -1,5 +1,47 @@
 # @astrojs/check
 
+## 0.9.8
+
+### Patch Changes
+
+- [#15892](https://github.com/withastro/astro/pull/15892) [`a2f597d`](https://github.com/withastro/astro/commit/a2f597d02c70c1d8aa4b0f88168de6a8b5f5186e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes Astro not being able to find astro check sometimes
+
+- Updated dependencies [[`7b4b254`](https://github.com/withastro/astro/commit/7b4b2549437eb099c5e96025dcf8d24ea56f30d0)]:
+  - @astrojs/language-server@2.16.5
+
+## 0.9.7
+
+### Patch Changes
+
+- [#15187](https://github.com/withastro/astro/pull/15187) [`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795) Thanks [@matthewp](https://github.com/matthewp)! - Update to Astro 6 beta
+
+- [#15198](https://github.com/withastro/astro/pull/15198) [`55107a1`](https://github.com/withastro/astro/commit/55107a1bc6e578e036be45ade5e259e77f31105b) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Updates to Astro 6 beta
+
+- Updated dependencies [[`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795), [`df6d2d7`](https://github.com/withastro/astro/commit/df6d2d7bbcaf6b6a327a37a6437d4adade6e2485)]:
+  - @astrojs/language-server@2.16.1
+
+## 0.9.7-beta.1
+
+### Patch Changes
+
+- [#15198](https://github.com/withastro/astro/pull/15198) [`55107a1`](https://github.com/withastro/astro/commit/55107a1bc6e578e036be45ade5e259e77f31105b) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Updates to Astro 6 beta
+
+## 0.9.6-beta.1
+
+### Patch Changes
+
+- [#15187](https://github.com/withastro/astro/pull/15187) [`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795) Thanks [@matthewp](https://github.com/matthewp)! - Update to Astro 6 beta
+
+- Updated dependencies [[`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795)]:
+  - @astrojs/language-server@2.16.1-beta.1
+
+## 0.9.6-alpha.0
+
+### Patch Changes
+
+- Updated dependencies [[`df6d2d7`](https://github.com/withastro/astro/commit/df6d2d7bbcaf6b6a327a37a6437d4adade6e2485)]:
+  - @astrojs/language-server@2.16.1-alpha.0
+
 ## 0.9.6
 
 ### Patch Changes

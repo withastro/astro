@@ -1,12 +1,16 @@
 /// <reference types="vite/types/import-meta.d.ts" />
-/// <reference path="./types/content.d.ts" />
+
 /// <reference path="./types/actions.d.ts" />
+/// <reference path="./types/content.d.ts" />
 /// <reference path="./types/env.d.ts" />
 /// <reference path="./types/fonts.d.ts" />
+/// <reference path="./types/transitions.d.ts" />
 
 interface ImportMetaEnv {
+	// TODO: remove in Astro 7
 	/**
 	 * The prefix for Astro-generated asset links if the build.assetsPrefix config option is set. This can be used to create asset links not handled by Astro.
+	 * @deprecated This will be removed in a future major version of Astro. Use `build.assetsPrefix` from `astro:config/server` instead.
 	 */
 	readonly ASSETS_PREFIX: string | Record<string, string>;
 	/**
@@ -26,36 +30,36 @@ interface ImportMeta {
 }
 
 declare module 'astro:assets' {
-	// Exporting things one by one is a bit cumbersome, not sure if there's a better way - erika, 2023-02-03
-	type AstroAssets = {
-		// getImage's type here is different from the internal function since the Vite module implicitly pass the service config
-		/**
-		 * Get an optimized image and the necessary attributes to render it.
-		 *
-		 * **Example**
-		 * ```astro
-		 * ---
-		 * import { getImage } from 'astro:assets';
-		 * import originalImage from '../assets/image.png';
-		 *
-		 * const optimizedImage = await getImage({src: originalImage, width: 1280 });
-		 * ---
-		 * <img src={optimizedImage.src} {...optimizedImage.attributes} />
-		 * ```
-		 *
-		 * This is functionally equivalent to using the `<Image />` component, as the component calls this function internally.
-		 */
-		getImage: (
-			options: import('./dist/assets/types.js').UnresolvedImageTransform,
-		) => Promise<import('./dist/assets/types.js').GetImageResult>;
-		imageConfig: import('./dist/types/public/config.js').AstroConfig['image'];
-		getConfiguredImageService: typeof import('./dist/assets/index.js').getConfiguredImageService;
-		inferRemoteSize: typeof import('./dist/assets/utils/index.js').inferRemoteSize;
-		Image: typeof import('./components/Image.astro').default;
-		Picture: typeof import('./components/Picture.astro').default;
-		Font: typeof import('./components/Font.astro').default;
-		fontData: Record<import('astro:assets').CssVariable, Array<import('astro:assets').FontData>>;
-	};
+	// getImage's type here is different from the internal function since the Vite module implicitly pass the service config
+	/**
+	 * Get an optimized image and the necessary attributes to render it.
+	 *
+	 * **Example**
+	 * ```astro
+	 * ---
+	 * import { getImage } from 'astro:assets';
+	 * import originalImage from '../assets/image.png';
+	 *
+	 * const optimizedImage = await getImage({src: originalImage, width: 1280 });
+	 * ---
+	 * <img src={optimizedImage.src} {...optimizedImage.attributes} />
+	 * ```
+	 *
+	 * This is functionally equivalent to using the `<Image />` component, as the component calls this function internally.
+	 */
+	export const getImage: (
+		options: import('./dist/assets/types.js').UnresolvedImageTransform,
+	) => Promise<import('./dist/assets/types.js').GetImageResult>;
+	export const imageConfig: import('./dist/types/public/config.js').AstroConfig['image'];
+	export const getConfiguredImageService: typeof import('./dist/assets/index.js').getConfiguredImageService;
+	export const inferRemoteSize: typeof import('./dist/assets/utils/index.js').inferRemoteSize;
+	export const Image: typeof import('./components/Image.astro').default;
+	export const Picture: typeof import('./components/Picture.astro').default;
+	export const Font: typeof import('./components/Font.astro').default;
+	export const fontData: Record<
+		import('astro:assets').CssVariable,
+		Array<import('astro:assets').FontData>
+	>;
 
 	type ImgAttributes = import('./dist/type-utils.js').WithRequired<
 		Omit<import('./types').HTMLAttributes<'img'>, 'src' | 'width' | 'height'>,
@@ -68,16 +72,11 @@ declare module 'astro:assets' {
 	export type RemoteImageProps = import('./dist/type-utils.js').Simplify<
 		import('./dist/assets/types.js').RemoteImageProps<ImgAttributes>
 	>;
-	export const {
-		getImage,
-		getConfiguredImageService,
-		imageConfig,
-		Image,
-		Picture,
-		Font,
-		inferRemoteSize,
-		fontData,
-	}: AstroAssets;
+}
+
+declare module 'virtual:astro:image-styles.css' {
+	const styles: string;
+	export default styles;
 }
 
 type ImageMetadata = import('./dist/assets/types.js').ImageMetadata;
@@ -115,50 +114,6 @@ declare module '*.svg' {
 	export default Component;
 }
 
-declare module 'astro:transitions' {
-	type TransitionModule = typeof import('./dist/virtual-modules/transitions.js');
-	export const slide: TransitionModule['slide'];
-	export const fade: TransitionModule['fade'];
-	export const createAnimationScope: TransitionModule['createAnimationScope'];
-
-	type ClientRouterModule = typeof import('./components/ClientRouter.astro');
-	/**
-	 * @deprecated The ViewTransitions component has been renamed to ClientRouter
-	 */
-	export const ViewTransitions: ClientRouterModule['default'];
-	export const ClientRouter: ClientRouterModule['default'];
-}
-
-declare module 'astro:transitions/client' {
-	type TransitionRouterModule = typeof import('./dist/virtual-modules/transitions-router.js');
-	export const navigate: TransitionRouterModule['navigate'];
-	export const supportsViewTransitions: TransitionRouterModule['supportsViewTransitions'];
-	export const getFallback: TransitionRouterModule['getFallback'];
-	export const transitionEnabledOnThisPage: TransitionRouterModule['transitionEnabledOnThisPage'];
-
-	export type Fallback = import('./dist/virtual-modules/transitions-types.js').Fallback;
-	export type Direction = import('./dist/virtual-modules/transitions-types.ts').Direction;
-	// biome-ignore format: bug
-	export type NavigationTypeString = import('./dist/virtual-modules/transitions-types.js').NavigationTypeString;
-	export type Options = import('./dist/virtual-modules/transitions-types.js').Options;
-
-	type EventModule = typeof import('./dist/virtual-modules/transitions-events.js');
-	export const TRANSITION_BEFORE_PREPARATION: EventModule['TRANSITION_BEFORE_PREPARATION'];
-	export const TRANSITION_AFTER_PREPARATION: EventModule['TRANSITION_AFTER_PREPARATION'];
-	export const TRANSITION_BEFORE_SWAP: EventModule['TRANSITION_BEFORE_SWAP'];
-	export const TRANSITION_AFTER_SWAP: EventModule['TRANSITION_AFTER_SWAP'];
-	export const TRANSITION_PAGE_LOAD: EventModule['TRANSITION_PAGE_LOAD'];
-	// biome-ignore format: bug
-	export type TransitionBeforePreparationEvent = import('./dist/virtual-modules/transitions-events.js').TransitionBeforePreparationEvent;
-	// biome-ignore format: bug
-	export type TransitionBeforeSwapEvent = import('./dist/virtual-modules/transitions-events.js').TransitionBeforeSwapEvent;
-	export const isTransitionBeforePreparationEvent: EventModule['isTransitionBeforePreparationEvent'];
-	export const isTransitionBeforeSwapEvent: EventModule['isTransitionBeforeSwapEvent'];
-	// biome-ignore format: bug
-	type TransitionSwapFunctionModule = typeof import('./dist/virtual-modules/transitions-swap-functions.js');
-	export const swapFunctions: TransitionSwapFunctionModule['swapFunctions'];
-}
-
 declare module 'astro:prefetch' {
 	export { prefetch, PrefetchOptions } from 'astro/virtual-modules/prefetch.js';
 }
@@ -193,8 +148,22 @@ declare module 'astro:components' {
 	export * from 'astro/components';
 }
 
+// TODO: remove in Astro 7
+/**
+ * @deprecated
+ * `import { z } from 'astro:schema'` is deprecated and will be removed
+ * in Astro 7. Use `import { z } from 'astro/zod'` instead.
+ */
 declare module 'astro:schema' {
 	export * from 'astro/zod';
+	import zod from 'astro/zod';
+
+	/**
+	 * @deprecated
+	 * `import { z } from 'astro:schema'` is deprecated and will be removed
+	 * in Astro 7. Use `import { z } from 'astro/zod'` instead.
+	 */
+	export const z = zod.z;
 }
 
 type MD = import('./dist/types/public/content.js').MarkdownInstance<Record<string, any>>;
@@ -308,8 +277,8 @@ declare module '*.mdx' {
 	export default load;
 }
 
-declare module 'astro:ssr-manifest' {
-	export const manifest: import('./dist/types/public/internal.js').SSRManifest;
+declare module 'astro:static-paths' {
+	export const StaticPaths: typeof import('./dist/runtime/prerender/static-paths.js').StaticPaths;
 }
 
 // Everything below are Vite's types (apart from image types, which are in `client.d.ts`)

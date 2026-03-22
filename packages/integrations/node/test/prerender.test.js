@@ -84,6 +84,21 @@ describe('Prerendering', () => {
 			assert.equal(res.status, 200);
 			assert.equal($('h1').text(), 'Two');
 		});
+
+		it('Can render prerendered dynamic route', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/some-base/dogs/rover`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Good dog, rover!');
+		});
+
+		it('Can render 404 matching a prerendered dynamic route pattern', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/some-base/dogs/unknown`);
+
+			assert.equal(res.status, 404);
+		});
 	});
 
 	describe('Without base', async () => {
@@ -145,6 +160,21 @@ describe('Prerendering', () => {
 
 			assert.equal(res.status, 200);
 			assert.equal($('h1').text(), 'Two');
+		});
+
+		it('Can render prerendered dynamic route', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/dogs/rover`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Good dog, rover!');
+		});
+
+		it('Can render 404 matching a prerendered dynamic route pattern', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/dogs/unknown`);
+
+			assert.equal(res.status, 404);
 		});
 	});
 
@@ -318,6 +348,21 @@ describe('Hybrid rendering', () => {
 			assert.equal(res.status, 200);
 			assert.equal($('h1').text(), 'One');
 		});
+
+		it('Can render prerendered dynamic route', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/some-base/dogs/rover`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Good dog, rover!');
+		});
+
+		it('Can render 404 matching a prerendered dynamic route pattern', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/some-base/dogs/unknown`);
+
+			assert.equal(res.status, 404);
+		});
 	});
 
 	describe('Without base', () => {
@@ -378,6 +423,21 @@ describe('Hybrid rendering', () => {
 
 			assert.equal(res.status, 200);
 			assert.equal($('h1').text(), 'One');
+		});
+
+		it('Can render prerendered dynamic route', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/dogs/rover`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Good dog, rover!');
+		});
+
+		it('Can render 404 matching a prerendered dynamic route pattern', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/dogs/unknown`);
+
+			assert.equal(res.status, 404);
 		});
 	});
 

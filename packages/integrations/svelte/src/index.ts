@@ -1,6 +1,8 @@
 import type { Options } from '@sveltejs/vite-plugin-svelte';
 import { svelte, vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import type { AstroIntegration, AstroRenderer } from 'astro';
+import type { Plugin } from 'vite';
+import { createSvelteOptimizeEsbuildPlugins } from './optimize-esbuild-plugins.js';
 
 function getRenderer(): AstroRenderer {
 	return {
@@ -20,14 +22,40 @@ export default function svelteIntegration(options?: Options): AstroIntegration {
 				addRenderer(getRenderer());
 				updateConfig({
 					vite: {
-						optimizeDeps: {
-							include: ['@astrojs/svelte/client.js'],
-							exclude: ['@astrojs/svelte/server.js'],
-						},
-						plugins: [svelte(options)],
+						plugins: [svelte(options), configEnvironmentPlugin()],
 					},
 				});
 			},
+		},
+	};
+}
+
+function configEnvironmentPlugin(): Plugin {
+	return {
+		name: '@astrojs/svelte:config-environment',
+		configEnvironment(environmentName, options) {
+			if (
+				environmentName === 'client' ||
+				((environmentName === 'ssr' || environmentName === 'prerender') &&
+					options.optimizeDeps?.noDiscovery === false)
+			) {
+				const isServer = environmentName !== 'client';
+				return {
+					optimizeDeps: {
+						include: isServer
+							? ['svelte/server', 'svelte/internal/server']
+							: ['@astrojs/svelte/client.js'],
+						exclude: isServer ? ['@astrojs/svelte/server.js'] : [],
+						...(isServer
+							? {
+									esbuildOptions: {
+										plugins: createSvelteOptimizeEsbuildPlugins('server'),
+									},
+								}
+							: {}),
+					},
+				};
+			}
 		},
 	};
 }

@@ -6,7 +6,7 @@ import colors from 'piccolore';
 import { resolveConfig } from '../../core/config/config.js';
 import { createSettings } from '../../core/config/settings.js';
 import { collectErrorMetadata } from '../../core/errors/dev/utils.js';
-import * as msg from '../../core/messages.js';
+import * as msg from '../../core/messages/runtime.js';
 import { DEFAULT_PREFERENCES } from '../../preferences/defaults.js';
 import { coerce, isValidKey, type PreferenceKey } from '../../preferences/index.js';
 import type { AstroSettings } from '../../types/astro.js';
@@ -70,7 +70,11 @@ export async function preferences(
 	const inlineConfig = flagsToAstroInlineConfig(flags);
 	const logger = createLoggerFromFlags(flags);
 	const { astroConfig } = await resolveConfig(inlineConfig ?? {}, 'dev');
-	const settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
+	const settings = await createSettings(
+		astroConfig,
+		inlineConfig.logLevel,
+		fileURLToPath(astroConfig.root),
+	);
 	const opts: SubcommandOptions = {
 		location: flags.global ? 'global' : undefined,
 		json: !!flags.json,

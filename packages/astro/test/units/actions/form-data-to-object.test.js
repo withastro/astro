@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { z } from 'zod';
+import * as z from 'zod/v4';
 import { formDataToObject } from '../../../dist/actions/runtime/server.js';
 
 describe('formDataToObject', () => {
@@ -191,6 +191,212 @@ describe('formDataToObject', () => {
 
 		assert.equal(res.files instanceof Array, true);
 		assert.deepEqual(res.files, [file1, file2]);
+	});
+
+	it('should handle nested objects with dot notation keys', () => {
+		const formData = new FormData();
+		formData.set('a', 'hello');
+		formData.set('bc.b', 'hoge');
+		formData.set('bc.c', 'world');
+
+		const input = z.object({
+			a: z.string(),
+			bc: z.object({
+				b: z.enum(['hoge', 'huga']),
+				c: z.string().optional(),
+			}),
+		});
+
+		const res = formDataToObject(formData, input);
+		assert.deepEqual(res, {
+			a: 'hello',
+			bc: { b: 'hoge', c: 'world' },
+		});
+	});
+
+	it('should parse nested objects with superRefine wrapping', () => {
+		const formData = new FormData();
+		formData.set('a', 'hello');
+		formData.set('bc.b', 'huga');
+		formData.set('bc.c', 'test');
+
+		const input = z.object({
+			a: z.string(),
+			bc: z
+				.object({
+					b: z.enum(['hoge', 'huga']),
+					c: z.string().optional(),
+				})
+				.superRefine((data, ctx) => {
+					if (data.b === 'huga' && (!data.c || data.c.trim() === '')) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							path: ['bc', 'c'],
+							message: 'C is required when B is "huga"',
+						});
+					}
+				}),
+		});
+
+		const res = formDataToObject(formData, input);
+		assert.deepEqual(res, {
+			a: 'hello',
+			bc: { b: 'huga', c: 'test' },
+		});
+	});
+
+	it('should handle deeply nested objects', () => {
+		const formData = new FormData();
+		formData.set('a.b.c', 'deep');
+		formData.set('a.b.d', '42');
+
+		const input = z.object({
+			a: z.object({
+				b: z.object({
+					c: z.string(),
+					d: z.number(),
+				}),
+			}),
+		});
+
+		const res = formDataToObject(formData, input);
+		assert.deepEqual(res, {
+			a: { b: { c: 'deep', d: 42 } },
+		});
+	});
+
+	it('should return undefined for optional nested objects when no keys present', () => {
+		const formData = new FormData();
+		formData.set('name', 'Ben');
+
+		const input = z.object({
+			name: z.string(),
+			address: z
+				.object({
+					street: z.string(),
+					city: z.string(),
+				})
+				.optional(),
+		});
+
+		const res = formDataToObject(formData, input);
+		assert.equal(res.name, 'Ben');
+		assert.equal(res.address, undefined);
+	});
+
+	it('should return null for nullable nested objects when no keys present', () => {
+		const formData = new FormData();
+		formData.set('name', 'Ben');
+
+		const input = z.object({
+			name: z.string(),
+			address: z
+				.object({
+					street: z.string(),
+					city: z.string(),
+				})
+				.nullable(),
+		});
+
+		const res = formDataToObject(formData, input);
+		assert.equal(res.name, 'Ben');
+		assert.equal(res.address, null);
+	});
+
+	it('should parse optional nested objects when keys are present', () => {
+		const formData = new FormData();
+		formData.set('name', 'Ben');
+		formData.set('address.street', '123 Main');
+		formData.set('address.city', 'Springfield');
+
+		const input = z.object({
+			name: z.string(),
+			address: z
+				.object({
+					street: z.string(),
+					city: z.string(),
+				})
+				.optional(),
+		});
+
+		const res = formDataToObject(formData, input);
+		assert.equal(res.name, 'Ben');
+		assert.deepEqual(res.address, { street: '123 Main', city: 'Springfield' });
+	});
+
+	it('should use default value for nested objects when no keys present', () => {
+		const formData = new FormData();
+		formData.set('name', 'Ben');
+
+		const input = z.object({
+			name: z.string(),
+			settings: z
+				.object({
+					theme: z.string(),
+				})
+				.default({ theme: 'dark' }),
+		});
+
+		const res = formDataToObject(formData, input);
+		assert.equal(res.name, 'Ben');
+		assert.deepEqual(res.settings, { theme: 'dark' });
+	});
+
+	it('should override default for nested objects when keys are present', () => {
+		const formData = new FormData();
+		formData.set('name', 'Ben');
+		formData.set('settings.theme', 'light');
+
+		const input = z.object({
+			name: z.string(),
+			settings: z
+				.object({
+					theme: z.string(),
+				})
+				.default({ theme: 'dark' }),
+		});
+
+		const res = formDataToObject(formData, input);
+		assert.equal(res.name, 'Ben');
+		assert.deepEqual(res.settings, { theme: 'light' });
+	});
+
+	it('should handle nested discriminatedUnion', () => {
+		const formData = new FormData();
+		formData.set('name', 'Ben');
+		formData.set('contact.type', 'email');
+		formData.set('contact.email', 'ben@test.test');
+
+		const input = z.object({
+			name: z.string(),
+			contact: z.discriminatedUnion('type', [
+				z.object({ type: z.literal('email'), email: z.string() }),
+				z.object({ type: z.literal('phone'), phone: z.string() }),
+			]),
+		});
+
+		const res = formDataToObject(formData, input);
+		assert.equal(res.name, 'Ben');
+		assert.deepEqual(res.contact, { type: 'email', email: 'ben@test.test' });
+	});
+
+	it('should handle nested discriminatedUnion with alternate variant', () => {
+		const formData = new FormData();
+		formData.set('name', 'Ben');
+		formData.set('contact.type', 'phone');
+		formData.set('contact.phone', '555-1234');
+
+		const input = z.object({
+			name: z.string(),
+			contact: z.discriminatedUnion('type', [
+				z.object({ type: z.literal('email'), email: z.string() }),
+				z.object({ type: z.literal('phone'), phone: z.string() }),
+			]),
+		});
+
+		const res = formDataToObject(formData, input);
+		assert.equal(res.name, 'Ben');
+		assert.deepEqual(res.contact, { type: 'phone', phone: '555-1234' });
 	});
 
 	it('should allow object passthrough when chaining .passthrough() on root object', () => {

@@ -1,5 +1,57 @@
 # astro-vscode
 
+## 2.16.13
+
+### Patch Changes
+
+- [#15943](https://github.com/withastro/astro/pull/15943) [`1a627e2`](https://github.com/withastro/astro/commit/1a627e25267f8525e11237a1422c228f1bfc2ef1) Thanks [@alexanderdombroski](https://github.com/alexanderdombroski)! - Improves astro file templates to be scoped to `.astro` file extensions
+
+- [#15927](https://github.com/withastro/astro/pull/15927) [`421e8de`](https://github.com/withastro/astro/commit/421e8de6e9e13ca45864c2d3deed7e98e3ee6138) Thanks [@FelmonFekadu](https://github.com/FelmonFekadu)! - Fixes completions sometimes not working inside the `href` attribute
+
+- [#15602](https://github.com/withastro/astro/pull/15602) [`7832dfe`](https://github.com/withastro/astro/commit/7832dfef25dffe55a9dcb1913d03375ecac9ad42) Thanks [@0xRozier](https://github.com/0xRozier)! - Fix syntax highlighting for script and style tags inside expressions (e.g. ternaries and logical operators)
+
+## 2.16.12
+
+### Patch Changes
+
+- [#15895](https://github.com/withastro/astro/pull/15895) [`7b4b254`](https://github.com/withastro/astro/commit/7b4b2549437eb099c5e96025dcf8d24ea56f30d0) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updates Volar services to 0.0.70. This updates notably mean that the transitive dependency yaml-language-server no longer depends on a vulnerable version of lodash, causing warnings to show when installing the language server.
+
+## 2.16.11
+
+### Patch Changes
+
+- [#15825](https://github.com/withastro/astro/pull/15825) [`2cfe935`](https://github.com/withastro/astro/commit/2cfe935db452fce91553784157e31c26bb3b2a05) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes failed publish for 2.16.11.
+
+## 2.16.10
+
+### Patch Changes
+
+- [#15823](https://github.com/withastro/astro/pull/15823) [`29e03fa`](https://github.com/withastro/astro/commit/29e03faa9a542556d0cf996ce770c5ea7815ce3b) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes broken publishing
+
+## 2.16.9
+
+### Patch Changes
+
+- [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fix "Find All References" and other TypeScript features by ensuring the plugin bundle is correctly included
+
+- [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes syntax highlighting sometimes not working when the frontmatter or script tags ended with certain TypeScript constructs
+
+- [#15496](https://github.com/withastro/astro/pull/15496) [`eb7cdda`](https://github.com/withastro/astro/commit/eb7cdda6837a8b28e279f668d0fe2a06f02f6990) Thanks [@matthewp](https://github.com/matthewp)! - Fix syntax highlighting for lowercase component tags that start with "style" or "script".
+
+## 2.16.9-beta.0
+
+### Patch Changes
+
+- [#15496](https://github.com/withastro/astro/pull/15496) [`eb7cdda`](https://github.com/withastro/astro/commit/eb7cdda6837a8b28e279f668d0fe2a06f02f6990) Thanks [@matthewp](https://github.com/matthewp)! - Fix syntax highlighting for lowercase component tags that start with "style" or "script".
+
+## 2.16.9-beta.0
+
+### Patch Changes
+
+- [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fix "Find All References" and other TypeScript features by ensuring the plugin bundle is correctly included
+
+- [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes syntax highlighting sometimes not working when the frontmatter or script tags ended with certain TypeScript constructs
+
 ## 2.16.8
 
 ### Patch Changes
@@ -817,7 +869,7 @@ In the background, this update means that we now have to maintain a lot less cod
 
 ### Patch Changes
 
-- c4f7a36: Trying desesperately to figure deployment out
+- c4f7a36: Trying desperately to figure deployment out
 
 ## 0.26.0
 

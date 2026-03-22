@@ -9,7 +9,9 @@ const STATUS_CODE_PAGES = new Set(['/404', '/500']);
 const FALLBACK_OUT_DIR_NAME = './.astro/';
 
 function getOutRoot(astroSettings: AstroSettings): URL {
-	if (astroSettings.buildOutput === 'static') {
+	const preserveStructure = astroSettings.adapter?.adapterFeatures?.preserveBuildClientDir;
+
+	if (astroSettings.buildOutput === 'static' && !preserveStructure) {
 		return new URL('./', astroSettings.config.outDir);
 	} else {
 		return new URL('./', astroSettings.config.build.client);
@@ -58,7 +60,7 @@ export function getOutFolder(
 }
 
 export function getOutFile(
-	astroConfig: AstroConfig,
+	buildFormat: NonNullable<AstroConfig['build']>['format'],
 	outFolder: URL,
 	pathname: string,
 	routeData: RouteData,
@@ -70,7 +72,7 @@ export function getOutFile(
 		case 'page':
 		case 'fallback':
 		case 'redirect':
-			switch (astroConfig.build.format) {
+			switch (buildFormat) {
 				case 'directory': {
 					if (STATUS_CODE_PAGES.has(pathname)) {
 						const baseName = npath.basename(pathname);
@@ -96,7 +98,7 @@ export function getOutFile(
 }
 
 /**
- * Ensures the `outDir` is within `process.cwd()`. If not it will fallback to `<cwd>/.astro`.
+ * Ensures the `outDir` is within `process.cwd()`. If not it will fall back to `<cwd>/.astro`.
  * This is used for static `ssrBuild` so the output can access node_modules when we import
  * the output files. A hardcoded fallback dir is fine as it would be cleaned up after build.
  */

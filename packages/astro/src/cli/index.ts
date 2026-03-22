@@ -1,5 +1,4 @@
 import yargs from 'yargs-parser';
-import { apply as applyPolyfill } from '../core/polyfill.js';
 
 type CLICommand =
 	| 'help'
@@ -52,8 +51,6 @@ function resolveCommand(flags: yargs.Arguments): CLICommand {
  * to present user-friendly error output where the fn is called.
  **/
 async function runCommand(cmd: string, flags: yargs.Arguments) {
-	applyPolyfill();
-
 	const [
 		{ createLoggerFromFlags },
 		{ piccoloreTextStyler: textStyler },
@@ -104,8 +101,8 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				{ TinyexecCommandExecutor },
 				{ getPackageManager },
 				{ StyledDebugInfoFormatter },
-				{ PromptsPrompt },
-				{ CliClipboard },
+				{ ClackPrompt },
+				{ TinyclipClipboard },
 				{ PassthroughTextStyler },
 				{ infoCommand },
 			] = await Promise.all([
@@ -117,8 +114,8 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				import('./infra/tinyexec-command-executor.js'),
 				import('./info/core/get-package-manager.js'),
 				import('./info/infra/styled-debug-info-formatter.js'),
-				import('./info/infra/prompts-prompt.js'),
-				import('./info/infra/cli-clipboard.js'),
+				import('./info/infra/clack-prompt.js'),
+				import('./info/infra/tinyclip-clipboard.js'),
 				import('./infra/passthrough-text-styler.js'),
 				import('./info/core/info.js'),
 			]);
@@ -137,11 +134,9 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				}),
 				nodeVersionProvider,
 			});
-			const prompt = new PromptsPrompt({ force: flags.copy });
-			const clipboard = new CliClipboard({
-				commandExecutor,
+			const prompt = new ClackPrompt({ force: flags.copy });
+			const clipboard = new TinyclipClipboard({
 				logger,
-				operatingSystemProvider,
 				prompt,
 			});
 

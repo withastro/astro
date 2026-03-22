@@ -117,18 +117,6 @@ test.describe('Error display', () => {
 		expect(await page.locator('vite-error-overlay').count()).toEqual(0);
 	});
 
-	test('astro glob no match error', async ({ page, astro }) => {
-		await page.goto(astro.resolveUrl('/astro-glob-no-match'), { waitUntil: 'networkidle' });
-		const message = (await getErrorOverlayContent(page)).message;
-		expect(message).toMatch('did not return any matching files');
-	});
-
-	test('astro glob used outside of an astro file', async ({ page, astro }) => {
-		await page.goto(astro.resolveUrl('/astro-glob-outside-astro'), { waitUntil: 'networkidle' });
-		const message = (await getErrorOverlayContent(page)).message;
-		expect(message).toMatch('can only be used in');
-	});
-
 	test('can handle DomException errors', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/dom-exception'), { waitUntil: 'networkidle' });
 		const message = (await getErrorOverlayContent(page)).message;

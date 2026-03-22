@@ -1,5 +1,5 @@
 import type { MiddlewareHandler } from '../../types/public/common.js';
-import { defineMiddleware } from '../middleware/index.js';
+import { defineMiddleware } from '../middleware/defineMiddleware.js';
 
 /**
  * Content types that can be passed when sending a request via a form
@@ -54,7 +54,7 @@ export function createOriginCheckMiddleware(): MiddlewareHandler {
 	});
 }
 
-function hasFormLikeHeader(contentType: string | null): boolean {
+export function hasFormLikeHeader(contentType: string | null): boolean {
 	if (contentType) {
 		for (const FORM_CONTENT_TYPE of FORM_CONTENT_TYPES) {
 			if (contentType.toLowerCase().includes(FORM_CONTENT_TYPE)) {

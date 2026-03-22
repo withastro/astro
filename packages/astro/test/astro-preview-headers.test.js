@@ -23,6 +23,7 @@ describe('Astro preview headers', () => {
 	// important: close preview server (free up port and connection)
 	after(async () => {
 		await previewServer.stop();
+		await fixture.clean();
 	});
 
 	describe('preview', () => {

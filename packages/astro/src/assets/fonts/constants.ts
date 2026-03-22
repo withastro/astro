@@ -1,7 +1,5 @@
 import type { Defaults, FontType } from './types.js';
 
-export const LOCAL_PROVIDER_NAME = 'local';
-
 export const DEFAULTS: Defaults = {
 	weights: ['400'],
 	styles: ['normal', 'italic'],
@@ -12,9 +10,11 @@ export const DEFAULTS: Defaults = {
 	formats: ['woff2'],
 };
 
-/** Used to serialize data, to be used by public APIs */
 export const VIRTUAL_MODULE_ID = 'virtual:astro:assets/fonts/internal';
 export const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
+
+export const RUNTIME_VIRTUAL_MODULE_ID = 'virtual:astro:assets/fonts/runtime';
+export const RESOLVED_RUNTIME_VIRTUAL_MODULE_ID = '\0' + RUNTIME_VIRTUAL_MODULE_ID;
 
 export const ASSETS_DIR = 'fonts';
 export const CACHE_DIR = './fonts/';

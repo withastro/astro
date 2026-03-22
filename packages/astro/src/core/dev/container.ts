@@ -10,11 +10,10 @@ import {
 } from '../../integrations/hooks.js';
 import type { AstroSettings } from '../../types/astro.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
-import { createDevelopmentManifest } from '../../vite-plugin-astro-server/plugin.js';
 import { createVite } from '../create-vite.js';
 import type { Logger } from '../logger/core.js';
-import { apply as applyPolyfill } from '../polyfill.js';
-import { createRoutesList } from '../routing/index.js';
+import { createRoutesList } from '../routing/create-manifest.js';
+import { getPrerenderDefault } from '../../prerender/utils.js';
 import { syncInternal } from '../sync/index.js';
 import { warnMissingAdapter } from './adapter-validation.js';
 
@@ -45,7 +44,6 @@ export async function createContainer({
 	fs = nodeFs,
 }: CreateContainerParams): Promise<Container> {
 	// Initialize
-	applyPolyfill();
 	settings = await runHookConfigSetup({
 		settings,
 		command: 'dev',
@@ -67,7 +65,7 @@ export async function createContainer({
 	// expected behavior: do not spawn a new tab
 	// ------------------------------------------------------
 	// Non-config files don't reach this point
-	const isServerOpenURL = typeof serverOpen == 'string' && !isRestart;
+	const isServerOpenURL = typeof serverOpen === 'string' && !isRestart;
 	const isServerOpenBoolean = serverOpen && !isRestart;
 
 	// Open server to the correct path. We pass the `base` here as we didn't pass the
@@ -80,15 +78,29 @@ export async function createContainer({
 		.map((r) => r.clientEntrypoint)
 		.filter(Boolean) as string[];
 
-	// Create the route manifest already outside of Vite so that `runHookConfigDone` can use it to inform integrations of the build output
-	const routesList = await createRoutesList({ settings, fsMod: fs }, logger, { dev: true });
-	const manifest = createDevelopmentManifest(settings);
+	// Set the initial buildOutput default before runHookConfigDone, so that
+	// setAdapter() inside astro:config:done can upgrade it to 'server'.
+	// This matches the ordering in the build path (packages/astro/src/core/build/index.ts).
+	if (!settings.adapter?.adapterFeatures?.buildOutput) {
+		settings.buildOutput = getPrerenderDefault(settings.config) ? 'static' : 'server';
+	}
 
+	// Create the route manifest already outside of Vite so that `runHookConfigDone` can use it to inform integrations of the build output
 	await runHookConfigDone({ settings, logger, command: 'dev' });
 
 	warnMissingAdapter(logger, settings);
 
 	const mode = inlineConfig?.mode ?? 'development';
+	const initialRoutesList = await createRoutesList(
+		{
+			settings,
+			fsMod: nodeFs,
+		},
+		logger,
+		{
+			dev: true,
+		},
+	);
 	const viteConfig = await createVite(
 		{
 			server: { host, headers, open, allowedHosts },
@@ -103,8 +115,7 @@ export async function createContainer({
 			command: 'dev',
 			fs,
 			sync: false,
-			routesList,
-			manifest,
+			routesList: initialRoutesList,
 		},
 	);
 	const viteServer = await vite.createServer(viteConfig);
@@ -118,8 +129,6 @@ export async function createContainer({
 			cleanup: true,
 		},
 		force: inlineConfig?.force,
-		routesList,
-		manifest,
 		command: 'dev',
 		watcher: viteServer.watcher,
 	});

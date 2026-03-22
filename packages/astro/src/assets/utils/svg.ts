@@ -1,5 +1,5 @@
 import { optimize } from 'svgo';
-import { parse, renderSync } from 'ultrahtml';
+import { ELEMENT_NODE, TEXT_NODE, parse, renderSync } from 'ultrahtml';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import type { SvgComponentProps } from '../runtime.js';
@@ -33,7 +33,7 @@ function parseSvg({
 	}
 	const root = parse(processedContents);
 	const svgNode = root.children.find(
-		({ name, type }: { name: string; type: number }) => type === 1 /* Element */ && name === 'svg',
+		({ name, type }: { name: string; type: number }) => type === ELEMENT_NODE && name === 'svg',
 	);
 	if (!svgNode) {
 		throw new Error('SVG file does not contain an <svg> element');
@@ -41,7 +41,21 @@ function parseSvg({
 	const { attributes, children } = svgNode;
 	const body = renderSync({ ...root, children });
 
-	return { attributes, body };
+	// Collect text content of <style> elements for head propagation and CSP hashing
+	const styles: string[] = [];
+	for (const child of children) {
+		if (child.type === ELEMENT_NODE && child.name === 'style') {
+			const textContent = child.children
+				?.filter((c: { type: number }) => c.type === TEXT_NODE)
+				.map((c: { value: string }) => c.value)
+				.join('');
+			if (textContent) {
+				styles.push(textContent);
+			}
+		}
+	}
+
+	return { attributes, body, styles };
 }
 
 export function makeSvgComponent(
@@ -50,7 +64,11 @@ export function makeSvgComponent(
 	svgoConfig: AstroConfig['experimental']['svgo'],
 ): string {
 	const file = typeof contents === 'string' ? contents : contents.toString('utf-8');
-	const { attributes, body: children } = parseSvg({
+	const {
+		attributes,
+		body: children,
+		styles,
+	} = parseSvg({
 		path: meta.fsPath,
 		contents: file,
 		svgoConfig,
@@ -59,8 +77,32 @@ export function makeSvgComponent(
 		meta,
 		attributes: dropAttributes(attributes),
 		children,
+		styles,
 	};
 
 	return `import { createSvgComponent } from 'astro/assets/runtime';
 export default createSvgComponent(${JSON.stringify(props)})`;
+}
+
+/**
+ * Parse an SVG file and return the serialisable component data
+ * (attributes + inner HTML body) without generating any module code.
+ * @internal Used by the asset pipeline for content-collection SVG images.
+ */
+export function parseSvgComponentData(
+	meta: ImageMetadata,
+	contents: Buffer | string,
+	svgoConfig: AstroConfig['experimental']['svgo'],
+): { attributes: Record<string, string>; children: string; styles: string[] } {
+	const file = typeof contents === 'string' ? contents : contents.toString('utf-8');
+	const {
+		attributes,
+		body: children,
+		styles,
+	} = parseSvg({
+		path: meta.fsPath,
+		contents: file,
+		svgoConfig,
+	});
+	return { attributes: dropAttributes(attributes), children, styles };
 }
