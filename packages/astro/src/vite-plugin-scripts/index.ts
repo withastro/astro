@@ -14,8 +14,13 @@ export const PAGE_SCRIPT_ID = `${SCRIPT_ID_PREFIX}${'page' as InjectedScriptStag
 export const PAGE_SSR_SCRIPT_ID = `${SCRIPT_ID_PREFIX}${'page-ssr' as InjectedScriptStage}.js`;
 
 export default function astroScriptsPlugin({ settings }: { settings: AstroSettings }): VitePlugin {
+	let isBuild = false;
 	return {
 		name: 'astro:scripts',
+
+		config(_config, env) {
+			isBuild = env.command === 'build';
+		},
 
 		resolveId: {
 			filter: {
@@ -58,6 +63,7 @@ export default function astroScriptsPlugin({ settings }: { settings: AstroSettin
 			},
 		},
 		buildStart() {
+			if (!isBuild) return;
 			const hasHydrationScripts = settings.scripts.some((s) => s.stage === 'before-hydration');
 			if (
 				hasHydrationScripts &&
