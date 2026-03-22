@@ -16,9 +16,8 @@ describe(
 		it('Creates a redirects file', async () => {
 			const redirects = await fixture.readFile('./_redirects');
 			const parts = redirects.split(/\s+/);
-			assert.deepEqual(parts, ['', '/other', '/', '301', '']);
-			// Snapshots are not supported in Node.js test yet (https://github.com/nodejs/node/issues/48260)
-			assert.equal(redirects, '\n/other    /       301\n');
+			// With trailingSlash: 'ignore' (the default), both variants are generated
+			assert.deepEqual(parts, ['', '/other/', '/', '301', '/other', '/', '301', '']);
 		});
 
 		it('Does not create .html files', async () => {

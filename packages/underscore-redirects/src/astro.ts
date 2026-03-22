@@ -17,7 +17,7 @@ function getRedirectStatus(route: IntegrationResolvedRoute): ValidRedirectStatus
 }
 
 interface CreateRedirectsFromAstroRoutesParams {
-	config: Pick<AstroConfig, 'build' | 'output' | 'base'>;
+	config: Pick<AstroConfig, 'build' | 'output' | 'base' | 'trailingSlash'>;
 	/**
 	 * Maps a `RouteData` to a dynamic target
 	 */
@@ -25,6 +25,38 @@ interface CreateRedirectsFromAstroRoutesParams {
 	dir: URL;
 	buildOutput: 'static' | 'server';
 	assets: HookParameters<'astro:build:done'>['assets'];
+}
+
+/**
+ * Returns the path(s) to use for a redirect entry based on the trailingSlash config.
+ * - 'always': ensures the path ends with '/'
+ * - 'never': ensures the path does not end with '/'
+ * - 'ignore': returns both with and without trailing slash variants
+ *
+ * The root path '/' is always returned as-is since it inherently has a trailing slash.
+ */
+function getTrailingSlashPaths(
+	inputPath: string,
+	trailingSlash: 'always' | 'never' | 'ignore',
+): string[] {
+	// Root path is always just '/'
+	if (inputPath === '/') {
+		return ['/'];
+	}
+
+	const hasTrailingSlash = inputPath.endsWith('/');
+	const withoutSlash = hasTrailingSlash ? inputPath.slice(0, -1) : inputPath;
+	const withSlash = hasTrailingSlash ? inputPath : inputPath + '/';
+
+	switch (trailingSlash) {
+		case 'always':
+			return [withSlash];
+		case 'never':
+			return [withoutSlash];
+		case 'ignore':
+		default:
+			return [withoutSlash, withSlash];
+	}
 }
 
 /**
@@ -57,13 +89,25 @@ export function createRedirectsFromAstroRoutes({
 				// Use `entrypoint` when available to keep trailing slashes in _redirects.
 				const inputPath =
 					route.type === 'redirect' && route.entrypoint ? route.entrypoint : route.pathname;
-				redirects.add({
-					dynamic: false,
-					input: `${base}${inputPath}`,
-					target: typeof route.redirect === 'object' ? route.redirect.destination : route.redirect,
-					status: getRedirectStatus(route),
-					weight: 2,
-				});
+				const target =
+					typeof route.redirect === 'object' ? route.redirect.destination : route.redirect;
+				const status = getRedirectStatus(route);
+
+				// Generate redirect entries based on trailingSlash config.
+				// Host platforms like Cloudflare/Netlify use exact path matching in
+				// _redirects files, so we need to emit both variants when trailingSlash
+				// is 'ignore' (the default).
+				const trailingSlash = config.trailingSlash ?? 'ignore';
+				const paths = getTrailingSlashPaths(inputPath, trailingSlash);
+				for (const path of paths) {
+					redirects.add({
+						dynamic: false,
+						input: `${base}${path}`,
+						target,
+						status,
+						weight: 2,
+					});
+				}
 				continue;
 			}
 

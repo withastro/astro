@@ -13,12 +13,21 @@ describe('SSG - Redirects', () => {
 	it('Creates a redirects file', async () => {
 		const redirects = await fixture.readFile('./_redirects');
 		const parts = redirects.split(/\s+/);
+		// With trailingSlash: 'ignore' (the default), both variants are generated for static redirects
 		assert.deepEqual(parts, [
 			'',
+
+			'/two/',
+			'/',
+			'302',
 
 			'/two',
 			'/',
 			'302',
+
+			'/other/',
+			'/',
+			'301',
 
 			'/other',
 			'/',
