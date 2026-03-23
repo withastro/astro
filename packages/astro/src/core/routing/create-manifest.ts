@@ -126,6 +126,7 @@ function createFileBasedRoutes(
 	const pages = resolvePages(config);
 	const localFs = fsMod ?? nodeFs;
 	const rootPath = fileURLToPath(config.root);
+	const pagesPath = fileURLToPath(pages);
 
 	if (!localFs.existsSync(pages)) {
 		if (settings.injectedRoutes.length === 0) {
@@ -261,7 +262,7 @@ function createFileBasedRoutes(
 		}
 	}
 
-	walk(localFs, fileURLToPath(pages), [], []);
+	walk(localFs, pagesPath, [], []);
 	return routes;
 }
 
@@ -699,18 +700,14 @@ export async function createRoutesList(
 				// External redirects aren't taken into account
 				if (route.type === 'redirect' && !route.redirectRoute) return;
 				const localFs = params.fsMod ?? nodeFs;
-				const content = await localFs.promises.readFile(
-					fileURLToPath(
-						new URL(
-							// The destination redirect might be a prerendered
-							route.type === 'redirect' && route.redirectRoute
-								? route.redirectRoute.component
-								: route.component,
-							settings.config.root,
-						),
-					),
-					'utf-8',
+				const componentUrl = new URL(
+					// The destination redirect might be a prerendered
+					route.type === 'redirect' && route.redirectRoute
+						? route.redirectRoute.component
+						: route.component,
+					settings.config.root,
 				);
+				const content = await localFs.promises.readFile(componentUrl, 'utf-8');
 
 				await getRoutePrerenderOption(content, route, settings, logger);
 			}),
