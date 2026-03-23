@@ -343,7 +343,7 @@ async function transition(
 	to: URL,
 	options: Options,
 	historyState?: State,
-	hasUAVisualTransition?: boolean,
+	hasUAVisualTransition = false,
 ) {
 	// The most recent navigation always has precedence
 	// Yes, there can be several navigation instances as the user can click links
