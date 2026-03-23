@@ -1,47 +1,11 @@
 // @ts-check
-import { posix } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { create as createVfs } from '@platformatic/vfs';
-import { prependForwardSlash, removeLeadingForwardSlash } from '../../../dist/core/path.js';
+import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { RenderContext } from '../../../dist/core/render-context.js';
 import { createRoutesList as _createRoutesList } from '../../../dist/core/routing/create-manifest.js';
 import { createBasicPipeline, createBasicSettings, defaultLogger } from '../test-utils.js';
-
-// The virtual project root used by all helpers. All page paths in `pages`
-// records are relative to this root (e.g. 'src/pages/index.astro').
-const VIRTUAL_ROOT_URL = new URL('file:///project/');
-// The pathname component of the root URL — used only where a string is
-// unavoidable: vfs.mount() and createBasicSettings() both require strings.
-const VIRTUAL_ROOT_PATH = VIRTUAL_ROOT_URL.pathname.replace(/\/$/, '');
-/**
- * @param {object} options
- * @param {'static' | 'server'} options.buildOutput
- * @param {boolean} [options.preserveBuildClientDir]
- * @param {URL} [options.outDir]
- * @param {URL} [options.clientDir]
- * @param {'directory' | 'file' | 'preserve'} [options.buildFormat]
- */
-export function createSettings({
-	buildOutput,
-	preserveBuildClientDir = false,
-	outDir = new URL('dist/', VIRTUAL_ROOT_URL),
-	clientDir = new URL('dist/client/', VIRTUAL_ROOT_URL),
-	buildFormat = 'directory',
-}) {
-	return {
-		buildOutput,
-		adapter: preserveBuildClientDir
-			? { adapterFeatures: { preserveBuildClientDir: true } }
-			: undefined,
-		config: {
-			outDir,
-			build: {
-				client: clientDir,
-				format: buildFormat,
-			},
-		},
-	};
-}
 
 /**
  * A Vite plugin that provides in-memory .astro source files as virtual modules.
@@ -62,130 +26,83 @@ export function virtualAstroModules(root, files) {
 		enforce: 'pre',
 		resolveId: {
 			handler(id, importer) {
-				// Handle absolute paths (used by server island manifest dynamic imports)
-				if (virtualFiles.has(id)) {
-					return id;
-				}
-				// Handle bare paths like "/src/pages/index.astro"
+				if (virtualFiles.has(id)) return id;
 				if (id.startsWith('/')) {
 					const absolute = fileURLToPath(new URL('.' + id, root));
-					if (virtualFiles.has(absolute)) {
-						return absolute;
-					}
+					if (virtualFiles.has(absolute)) return absolute;
 				}
-				// Handle relative imports from within virtual files
 				if (importer && virtualFiles.has(importer) && id.startsWith('.')) {
 					const resolved = fileURLToPath(new URL(id, 'file://' + importer));
-					if (virtualFiles.has(resolved)) {
-						return resolved;
-					}
+					if (virtualFiles.has(resolved)) return resolved;
 				}
 			},
 		},
 		load: {
 			handler(id) {
-				if (virtualFiles.has(id)) {
-					return { code: virtualFiles.get(id) };
-				}
+				if (virtualFiles.has(id)) return { code: virtualFiles.get(id) };
 			},
 		},
 	};
 }
 
 /**
- * Creates an in-memory filesystem backed by `@platformatic/vfs` and mounts it
- * at `VIRTUAL_ROOT` (`/project`).
+ * Creates a temporary directory pre-populated with the given files, and
+ * returns its URL alongside a cleanup function.
  *
- * **Path convention**: keys in `initialFiles` are paths relative to the project
- * root — i.e. they start with `src/`, `public/`, `dist/`, etc., **without** a
- * leading `/project/` prefix. The VFS stores files relative to its mount point,
- * so this maps directly:
- *
- * ```js
- * createMemFs({
- *   'src/pages/index.astro': '---\n---\n<h1>Home</h1>',
- *   'public/favicon.ico': '<binary>',
- * });
- * // node:fs will see these at /project/src/pages/index.astro etc.
- * ```
- *
- * The returned VFS supports `Symbol.dispose` for automatic unmounting:
- *
- * ```js
- * {
- *   using vfs = createMemFs({ 'src/pages/index.astro': '...' });
- *   // node:fs transparently serves /project/src/pages/index.astro
- * }
- * // automatically unmounted here
- * ```
+ * All page paths are project-relative (e.g. `'src/pages/index.astro'`).
+ * Call `cleanup()` when done to remove the directory.
  *
  * @param {Record<string, string | Buffer>} [initialFiles]
- *   Map of project-relative paths → file contents (e.g. `'src/pages/index.astro'`).
- * @returns {import('@platformatic/vfs').VirtualFileSystem}
+ * @returns {URL}
  */
-export function createMemFs(initialFiles = {}) {
-	// overlay: true — only paths that exist in the VFS are intercepted;
-	// real filesystem paths fall through unchanged.
-	const vfs = createVfs(undefined, { overlay: true });
-
-	for (const [filePath, content] of Object.entries(initialFiles)) {
-		if (filePath.startsWith(VIRTUAL_ROOT_PATH)) {
-			throw new Error(
-				`createMemFs: paths must be project-relative (e.g. 'src/pages/index.astro'), ` +
-					`not prefixed with '${VIRTUAL_ROOT_PATH}'. Got: '${filePath}'`,
-			);
-		}
-		// Files are written at provider-relative paths (e.g. '/src/pages/index.astro').
-		// When the VFS is mounted at VIRTUAL_ROOT (/project), #toProviderPath strips
-		// the mount prefix so node:fs sees /project/src/pages/index.astro and the
-		// provider lookup finds /src/pages/index.astro — a consistent match.
-		const providerPath = prependForwardSlash(removeLeadingForwardSlash(filePath));
-		const dir = posix.dirname(providerPath);
-		if (dir !== '/') vfs.mkdirSync(dir, { recursive: true });
-		vfs.writeFileSync(providerPath, content);
+export function createTmpRootDir(initialFiles = {}) {
+	const rootPath = mkdtempSync(join(tmpdir(), 'astro-test-'));
+	for (const [relativePath, content] of Object.entries(initialFiles)) {
+		const absPath = join(rootPath, relativePath);
+		mkdirSync(join(absPath, '..'), { recursive: true });
+		writeFileSync(absPath, content);
 	}
-
-	vfs.mount(VIRTUAL_ROOT_PATH);
-	return vfs;
+	return pathToFileURL(rootPath + '/');
 }
 
 /**
  * Creates a minimal `StaticBuildOptions` object suitable for passing to
  * `renderPath()` and `generatePages()` in unit tests.
  *
- * When `pages` is provided, the files are written into `fsMod` and the VFS is
- * mounted so that `createRoutesList` (which uses `node:fs` internally) picks
- * them up transparently. `routesList` is then derived by scanning them with the
- * same config, so routes and `settings.config` are always in sync.
+ * When `pages` is provided, the files are written into a real temporary
+ * directory, `createRoutesList` scans them, and `cleanup()` removes them when
+ * the test is done. Without `pages`, an empty options object is returned
+ * (no routes, no disk I/O).
  *
  * @param {object} [overrides]
- * @param {import('@platformatic/vfs').VirtualFileSystem} overrides.vfs
- *   An in-memory VFS created with `createMemFs()`. The VFS must already be
- *   mounted — `createMemFs()` does this automatically.
+ * @param {Record<string, string>} [overrides.pages]
+ *   Map of project-relative paths (e.g. `'src/pages/index.astro'`) to source
+ *   content. Written to a temp directory and scanned to produce `routesList`.
  * @param {'static' | 'server'} [overrides.buildOutput]
  * @param {object | undefined} [overrides.adapter]
  * @param {any} [overrides.inlineConfig]
  *   Astro inline config overrides (e.g. `i18n`, `base`, `trailingSlash`).
- *   Passed to `createBasicSettings` when scanning routes, and merged into
- *   `settings.config` for the returned options object.
  * @returns {Promise<import('../../../dist/core/build/types.js').StaticBuildOptions>}
  */
 export async function createStaticBuildOptions({
-	vfs,
+	pages = {},
 	buildOutput = /** @type {'static'} */ ('static'),
 	adapter = undefined,
 	inlineConfig = {},
 } = {}) {
-	if (!vfs) {
-		throw new Error('createStaticBuildOptions: a vfs created with createMemFs() is required');
-	}
+	const hasPages = Object.keys(pages).length > 0;
 
-	// Build the resolved config first — everything else derives from it.
+	// Write page sources to a real temp directory so createRoutesList can scan them.
+	// The OS cleans up tmpdir on reboot; no explicit cleanup needed.
+	const rootUrl = hasPages
+		? createTmpRootDir(pages)
+		: pathToFileURL(mkdtempSync(join(tmpdir(), 'astro-test-')) + '/');
+
 	const resolvedConfig = /** @type {any} */ ({
-		root: VIRTUAL_ROOT_URL,
-		srcDir: new URL('src/', VIRTUAL_ROOT_URL),
-		outDir: new URL('dist/', VIRTUAL_ROOT_URL),
-		publicDir: new URL('public/', VIRTUAL_ROOT_URL),
+		root: rootUrl,
+		srcDir: new URL('src/', rootUrl),
+		outDir: new URL('dist/', rootUrl),
+		publicDir: new URL('public/', rootUrl),
 		base: '/',
 		site: undefined,
 		trailingSlash: 'ignore',
@@ -194,26 +111,23 @@ export async function createStaticBuildOptions({
 		build: {
 			format: 'directory',
 			redirects: true,
-			client: new URL('dist/client/', VIRTUAL_ROOT_URL),
-			server: new URL('dist/server/', VIRTUAL_ROOT_URL),
+			client: new URL('dist/client/', rootUrl),
+			server: new URL('dist/server/', rootUrl),
 			...(inlineConfig.build ?? {}),
 		},
 	});
 
-	// Derive routesList by scanning the VFS via the real createRoutesList.
-	// Because the VFS is mounted at VIRTUAL_ROOT, node:fs calls inside createRoutesList
-	// transparently hit the in-memory store — no fsMod threading required.
 	let routesList = { routes: [] };
-	const settings = await createBasicSettings({
-		root: VIRTUAL_ROOT_PATH + '/',
-		srcDir: VIRTUAL_ROOT_PATH + '/src/',
-		...inlineConfig,
-	});
-	routesList = await _createRoutesList({ settings, useVirtualFs: true }, defaultLogger);
+	if (hasPages) {
+		const settings = await createBasicSettings({
+			root: fileURLToPath(rootUrl),
+			srcDir: fileURLToPath(new URL('src/', rootUrl)),
+			...inlineConfig,
+		});
+		routesList = await _createRoutesList({ settings }, defaultLogger);
+	}
 
 	const options = /** @type {any} */ ({
-		fsMod: vfs,
-		useVirtualFs: true,
 		origin: 'http://localhost:4321',
 		pageNames: [],
 		routesList,
@@ -252,46 +166,12 @@ export async function createStaticBuildOptions({
  * `generatePages()` which routes to render.  Each entry is a `{ pathname, route }`
  * pair — the same shape as `PathWithRoute` in the public integrations API.
  *
- * When omitted, `getStaticPaths()` returns `[]` and nothing will be generated
- * unless you call `renderPath()` directly in your test.
- *
  * @example Basic usage
  * ```js
- * import { createComponent, render } from '../../../dist/runtime/server/index.js';
- *
- * const Home = createComponent((_r, { title }) => render`<h1>${title}</h1>`);
- *
  * const prerenderer = createMockPrerenderer({
- *   // Raw HTML string
  *   '/about': '<html><body>About</body></html>',
- *
- *   // ComponentInstance (no props)
- *   '/': { default: Home },
- *
- *   // ComponentInstance + props — same shape, just add a `props` key
- *   '/home': { default: Home, props: { title: 'Welcome' } },
- *
- *   // Explicit Response (redirect)
  *   '/old': new Response(null, { status: 301, headers: { location: '/new' } }),
  * });
- * ```
- *
- * @example Using staticPaths to drive generatePages()
- * ```js
- * // staticPaths tells generatePages() which routes to render.
- * // Each pathname must have a matching entry in the pages map.
- * const prerenderer = createMockPrerenderer(
- *   {
- *     '/blog/a': '<html><body>Post A</body></html>',
- *     '/blog/b': '<html><body>Post B</body></html>',
- *   },
- *   {
- *     staticPaths: [
- *       { pathname: '/blog/a', route: createRouteData({ route: '/blog/a' }) },
- *       { pathname: '/blog/b', route: createRouteData({ route: '/blog/b' }) },
- *     ],
- *   },
- * );
  * ```
  *
  * @param {Record<string, string | (() => string) | Response | (import('../../../dist/types/astro.js').ComponentInstance & { props?: Record<string, unknown> })>} pages

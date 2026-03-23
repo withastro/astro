@@ -682,9 +682,6 @@ importers:
       '@astrojs/compiler-rs':
         specifier: ^0.1.4
         version: 0.1.4
-      '@platformatic/vfs':
-        specifier: ^0.3.0
-        version: 0.3.0
       '@playwright/test':
         specifier: 1.58.2
         version: 1.58.2
@@ -3444,12 +3441,6 @@ importers:
       preact:
         specifier: ^10.28.4
         version: 10.28.4
-
-  packages/astro/test/fixtures/i18n-double-prefix:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
 
   packages/astro/test/fixtures/i18n-locale-index-format-file:
     dependencies:
@@ -9596,10 +9587,6 @@ packages:
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
-
-  '@platformatic/vfs@0.3.0':
-    resolution: {integrity: sha512-BGXVOAz59HYPZCgI9v/MtiTF/ng8YAWtkooxVwOPR3TatNgGy0WZ/t15ScqytiZi5NdSRqWNRfuAbXKeAlKDdQ==}
-    engines: {node: '>= 22'}
 
   '@playwright/test@1.58.2':
     resolution: {integrity: sha512-akea+6bHYBBfA9uQqSYmlJXn61cTa+jbO87xVLCWbTqbWadRVmhxlXATaOjOgcBaWU4ePo0wB41KMFv3o35IXA==}
@@ -18628,8 +18615,6 @@ snapshots:
 
   '@pkgjs/parseargs@0.11.0':
     optional: true
-
-  '@platformatic/vfs@0.3.0': {}
 
   '@playwright/test@1.58.2':
     dependencies:

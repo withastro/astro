@@ -403,7 +403,6 @@ export async function renderPath({
 	logger,
 }: RenderToPathPayload): Promise<RenderPathResult | null> {
 	const { config } = options.settings;
-	const localFs = options.fsMod ?? nodeFs;
 
 	// Do not render the fallback route if there is already a translated page
 	// with the same path
@@ -516,17 +515,7 @@ export async function renderPath({
 	}
 
 	// Public files take priority over generated routes
-	if (
-		checkPublicConflict(
-			outFile,
-			route,
-			options.settings,
-			logger,
-			localFs,
-			options.useVirtualFs ?? false,
-		)
-	)
-		return null;
+	if (checkPublicConflict(outFile, route, options.settings, logger)) return null;
 
 	return { body, outFile, outFolder };
 }
@@ -545,7 +534,6 @@ async function generatePathWithPrerenderer(
 ): Promise<void> {
 	const timeStart = performance.now();
 	const { config } = options.settings;
-	const localFs = options.fsMod ?? nodeFs;
 
 	const filePath = getOutputFilename(config.build.format, pathname, route);
 	logger.info(null, `  ${colors.blue('├─')} ${colors.dim(filePath)}`, false);
@@ -569,14 +557,8 @@ async function generatePathWithPrerenderer(
 		return;
 	}
 
-	const useVirtualFs = options.useVirtualFs ?? false;
-	await localFs.promises.mkdir(useVirtualFs ? result.outFolder.pathname : result.outFolder, {
-		recursive: true,
-	});
-	await localFs.promises.writeFile(
-		useVirtualFs ? result.outFile.pathname : result.outFile,
-		result.body,
-	);
+	await nodeFs.promises.mkdir(result.outFolder, { recursive: true });
+	await nodeFs.promises.writeFile(result.outFile, result.body);
 
 	logRenderTime(logger, timeStart, false);
 }
@@ -654,27 +636,17 @@ function checkPublicConflict(
 	route: RouteData,
 	settings: AstroSettings,
 	logger: Logger,
-	fsMod: typeof nodeFs,
-	useVirtualFs: boolean,
 ): boolean {
 	const outRoot =
 		settings.buildOutput === 'static' && !settings.adapter?.adapterFeatures?.preserveBuildClientDir
 			? settings.config.outDir
 			: settings.config.build.client;
 
-	// Compute the relative path by comparing URL hrefs directly. Using
-	// fileURLToPath here would throw on Windows when given non-native paths
-	// (e.g. Unix-style virtual paths used in tests) or on URLs with encoded
-	// characters like %2F.
+	// Compute the relative path by comparing URL hrefs directly to avoid
+	// fileURLToPath issues with encoded characters like %2F.
 	const relativePath = outFile.href.slice(outRoot.href.length);
 	const publicFileUrl = new URL(relativePath, settings.config.publicDir);
-
-	// When using a virtual filesystem, use the URL pathname directly — the VFS
-	// stores files keyed by their pathname (e.g. '/project/public/index.html'),
-	// and fileURLToPath would throw on Windows with non-native virtual paths.
-	// In production, pass the URL object so Node's fs handles platform differences.
-	const publicFileArg = useVirtualFs ? publicFileUrl.pathname : publicFileUrl;
-	if (fsMod.existsSync(publicFileArg)) {
+	if (nodeFs.existsSync(publicFileUrl)) {
 		logger.warn(
 			'build',
 			`Skipping ${route.component} because a file with the same name exists in the public folder: ${relativePath}`,

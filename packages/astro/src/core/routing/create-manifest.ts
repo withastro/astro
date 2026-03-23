@@ -116,28 +116,19 @@ interface CreateRouteManifestParams {
 	cwd?: string;
 	/** fs module, for testing */
 	fsMod?: typeof nodeFs;
-	/**
-	 * When `true`, filesystem calls use string paths via `fileURLToPath` instead
-	 * of `URL` objects. Required when `fsMod` is a virtual filesystem (e.g.
-	 * `@platformatic/vfs`) that does not accept `URL` objects. Defaults to `false`.
-	 */
-	useVirtualFs?: boolean;
 }
 
 function createFileBasedRoutes(
-	{ settings, cwd, fsMod, useVirtualFs }: CreateRouteManifestParams,
+	{ settings, cwd, fsMod }: CreateRouteManifestParams,
 	logger: Logger,
 ): RouteData[] {
 	const { config } = settings;
 	const pages = resolvePages(config);
 	const localFs = fsMod ?? nodeFs;
-	// When using a virtual filesystem, derive string paths from URL.pathname
-	// directly to avoid fileURLToPath throwing on non-native paths (e.g. Unix-
-	// style virtual paths on Windows). In production, fileURLToPath is correct.
-	const rootPath = useVirtualFs ? config.root.pathname : fileURLToPath(config.root);
-	const pagesPath = useVirtualFs ? pages.pathname : fileURLToPath(pages);
+	const rootPath = fileURLToPath(config.root);
+	const pagesPath = fileURLToPath(pages);
 
-	if (!localFs.existsSync(useVirtualFs ? pagesPath : pages)) {
+	if (!localFs.existsSync(pages)) {
 		if (settings.injectedRoutes.length === 0) {
 			const pagesDirRootRelative = pages.href.slice(settings.config.root.href.length);
 			logger.warn(null, `Missing pages directory: ${pagesDirRootRelative}`);
@@ -716,13 +707,7 @@ export async function createRoutesList(
 						: route.component,
 					settings.config.root,
 				);
-				// Virtual filesystems (e.g. @platformatic/vfs) only patch sync fs
-				// methods, not fs.promises. Use readFileSync with a string path when
-				// useVirtualFs is true. In production, use the async API with the URL
-				// directly so Node's fs handles platform differences internally.
-				const content = params.useVirtualFs
-					? localFs.readFileSync(fileURLToPath(componentUrl), 'utf-8')
-					: await localFs.promises.readFile(componentUrl, 'utf-8');
+				const content = await localFs.promises.readFile(componentUrl, 'utf-8');
 
 				await getRoutePrerenderOption(content, route, settings, logger);
 			}),

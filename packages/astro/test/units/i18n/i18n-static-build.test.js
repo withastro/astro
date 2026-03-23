@@ -1,17 +1,14 @@
 // @ts-check
+
 import assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import { renderPath } from '../../../dist/core/build/generate.js';
-import {
-	createMemFs,
-	createMockPrerenderer,
-	createStaticBuildOptions,
-} from '../build/test-helpers.js';
+import { createMockPrerenderer, createStaticBuildOptions } from '../build/test-helpers.js';
 import { createMockAstroSource, createRouteData } from '../mocks.js';
 
 // Page sources — mirrors the structure of the deleted fixture.
-// createStaticBuildOptions writes these into its VFS and derives routesList
-// from them using the same config, so routes and settings are always in sync.
+// createStaticBuildOptions writes these into a temp directory and derives
+// routesList from them using the same config, so routes and settings are in sync.
 const pages = {
 	'src/pages/index.astro': createMockAstroSource('<body><h1>Index</h1></body>'),
 	'src/pages/es/test/item1.astro': createMockAstroSource('<body><h1>Test Item 1 (ES)</h1></body>'),
@@ -27,15 +24,14 @@ const prerenderer = createMockPrerenderer({
 	'/test/item2': '<html><body><h1>Test Item 2 (EN only)</h1></body></html>',
 });
 
-describe('i18n double-prefix prevention', () => {
-	// A single shared options object is sufficient — none of these tests inspect the
-	// written files; they only assert on the `result` returned by renderPath().
-	let sharedOpts;
-	let vfs = createMemFs(pages);
+// A single shared options object is sufficient — none of these tests inspect the
+// written files; they only assert on the `result` returned by renderPath().
+let sharedOpts;
 
+describe('i18n double-prefix prevention', () => {
 	before(async () => {
 		sharedOpts = await createStaticBuildOptions({
-			vfs,
+			pages,
 			inlineConfig: {
 				i18n: {
 					defaultLocale: 'en',
@@ -46,11 +42,6 @@ describe('i18n double-prefix prevention', () => {
 			},
 		});
 	});
-
-	after(() => {
-		vfs.unmount();
-	});
-
 	it('should not create double-prefixed redirect pages', async () => {
 		// The Spanish page exists as a real route in routesList
 		const esRoute = sharedOpts.routesList.routes.find(

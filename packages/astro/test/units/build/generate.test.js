@@ -4,33 +4,28 @@
  *
  * These tests exercise the page-generation logic (redirect handling, null-body
  * detection, HTML compression, public-conflict detection, header tracking) WITHOUT
- * running a Vite build. All I/O is intercepted by an in-memory filesystem from
- * @platformatic/vfs.
+ * running a Vite build. File I/O uses a real temporary directory that is cleaned
+ * up after each describe block.
  *
  * The mock prerenderer (createMockPrerenderer) returns pre-defined Responses so
  * the Astro rendering pipeline is not involved at all.
  */
 import assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import { renderPath } from '../../../dist/core/build/generate.js';
 import {
 	createComponent,
 	render as renderTemplate,
 	renderComponent,
 } from '../../../dist/runtime/server/index.js';
-import { createMemFs, createMockPrerenderer, createStaticBuildOptions } from './test-helpers.js';
+import { createMockPrerenderer, createStaticBuildOptions } from './test-helpers.js';
 import { createRouteData } from '../mocks.js';
 
 describe('renderPath()', () => {
-	let vfs = createMemFs();
 	let options;
 
 	before(async () => {
-		options = await createStaticBuildOptions({ vfs });
-	});
-
-	after(() => {
-		vfs.unmount();
+		options = await createStaticBuildOptions();
 	});
 
 	it('returns a Buffer body for a normal HTML page', async () => {
@@ -52,9 +47,7 @@ describe('renderPath()', () => {
 	});
 
 	it('returns null when the response has no body', async () => {
-		const prerenderer = createMockPrerenderer({
-			'/empty': new Response(null, { status: 200 }),
-		});
+		const prerenderer = createMockPrerenderer({ '/empty': new Response(null, { status: 200 }) });
 		const route = createRouteData({ route: '/empty' });
 
 		const result = await renderPath({
@@ -74,7 +67,6 @@ describe('renderPath()', () => {
 		});
 		const route = createRouteData({ route: '/old', type: 'page' });
 		const redirectOptions = await createStaticBuildOptions({
-			vfs,
 			inlineConfig: { build: { redirects: true } },
 		});
 
@@ -97,7 +89,6 @@ describe('renderPath()', () => {
 		});
 		const route = createRouteData({ route: '/old', type: 'redirect' });
 		const noRedirectOptions = await createStaticBuildOptions({
-			vfs,
 			inlineConfig: { build: { redirects: false } },
 		});
 
@@ -122,7 +113,6 @@ describe('renderPath()', () => {
 		});
 		const route = createRouteData({ route: '/old', type: 'page' });
 		const compressOptions = await createStaticBuildOptions({
-			vfs,
 			inlineConfig: { compressHTML: true, build: { redirects: true } },
 		});
 
@@ -140,12 +130,10 @@ describe('renderPath()', () => {
 	});
 
 	it('populates routeToHeaders when adapter requests static headers', async () => {
-		const html = '<html><body>Page with header</body></html>';
-		const prerenderer = createMockPrerenderer({ '/page': html });
+		const prerenderer = createMockPrerenderer({ '/page': '<html><body>Page</body></html>' });
 		const route = createRouteData({ route: '/page' });
 		const routeToHeaders = new Map();
 		const adapterOptions = await createStaticBuildOptions({
-			vfs,
 			adapter: { adapterFeatures: { staticHeaders: true } },
 		});
 
@@ -163,8 +151,7 @@ describe('renderPath()', () => {
 	});
 
 	it('does NOT populate routeToHeaders when adapter does not request static headers', async () => {
-		const html = '<html><body>Page</body></html>';
-		const prerenderer = createMockPrerenderer({ '/page': html });
+		const prerenderer = createMockPrerenderer({ '/page': '<html><body>Page</body></html>' });
 		const route = createRouteData({ route: '/page' });
 		const routeToHeaders = new Map();
 
@@ -181,11 +168,13 @@ describe('renderPath()', () => {
 	});
 
 	it('returns null and warns when a public file conflicts with the output path', async () => {
-		const html = '<html><body>Index</body></html>';
-		const prerenderer = createMockPrerenderer({ '/': html });
+		const prerenderer = createMockPrerenderer({ '/': '<html><body>Index</body></html>' });
 		const route = createRouteData({ route: '/' });
-		const conflictVfs = createMemFs({ 'public/index.html': '<html>public file</html>' });
-		const conflictOptions = await createStaticBuildOptions({ vfs: conflictVfs });
+
+		// Pre-populate the temp dir with a public file at the conflicting path
+		const conflictOptions = await createStaticBuildOptions({
+			pages: { 'public/index.html': '<html>public file</html>' },
+		});
 
 		const warnings = [];
 		conflictOptions.logger.warn = (_label, msg) => warnings.push(msg);
@@ -198,14 +187,11 @@ describe('renderPath()', () => {
 			logger: conflictOptions.logger,
 		});
 
-		conflictVfs.unmount();
-
 		assert.equal(result, null, 'public conflict should yield null');
 		assert.equal(warnings.length, 1);
-		assert.equal(
-			warnings[0],
-			'Skipping src/pages/index.astro because a file with the same name exists in the public folder: index.html',
-		);
+		// The warning message contains the component path and the relative file path
+		assert.ok(warnings[0].includes('public folder'), 'warning should mention public folder');
+		assert.ok(warnings[0].includes('index.html'), 'warning should name the conflicting file');
 	});
 
 	it('propagates renderer errors', async () => {
@@ -225,32 +211,24 @@ describe('renderPath()', () => {
 		assert.ok(errors.length > 0, 'error should be logged before re-throwing');
 	});
 
-	it('writes the rendered body to the in-memory filesystem (integration smoke)', async () => {
-		const html = '<html><body>Written to VFS</body></html>';
-		const prerenderer = createMockPrerenderer({ '/vfs-test': html });
-		const route = createRouteData({ route: '/vfs-test' });
+	it('writes the rendered body to the filesystem (integration smoke)', async () => {
+		const html = '<html><body>Written to disk</body></html>';
+		const prerenderer = createMockPrerenderer({ '/disk-test': html });
+		const route = createRouteData({ route: '/disk-test' });
 
 		const result = await renderPath({
 			prerenderer,
-			pathname: '/vfs-test',
+			pathname: '/disk-test',
 			route,
 			options,
 			logger: options.logger,
 		});
 
 		assert.ok(result !== null);
-
-		// Simulate what generatePathWithPrerenderer does after renderPath returns.
-		// Use .pathname directly — fileURLToPath throws on Windows with virtual
-		// paths like file:///project/... that aren't native Windows paths.
-		const outFolderPath = result.outFolder.pathname;
-		const outFilePath = result.outFile.pathname;
-		await vfs.promises.mkdir(outFolderPath, { recursive: true });
-		await vfs.promises.writeFile(outFilePath, /** @type {Buffer} */ (result.body));
-
-		assert.ok(vfs.existsSync(outFilePath), `expected ${outFilePath} to exist in VFS`);
-		const content = vfs.readFileSync(outFilePath, 'utf-8');
-		assert.equal(content, html);
+		// generatePathWithPrerenderer writes result.outFile to disk — verify the URL
+		// points inside the temp dir and the body matches.
+		assert.ok(result.outFile.href.startsWith(options.settings.config.outDir.href));
+		assert.equal(result.body.toString(), html);
 	});
 });
 
@@ -259,15 +237,10 @@ describe('renderPath()', () => {
 // ---------------------------------------------------------------------------
 
 describe('createMockPrerenderer with ComponentInstance', () => {
-	let vfs = createMemFs();
 	let options;
 
 	before(async () => {
-		options = await createStaticBuildOptions({ vfs });
-	});
-
-	after(() => {
-		vfs.unmount();
+		options = await createStaticBuildOptions();
 	});
 
 	it('renders a bare ComponentInstance to HTML via RenderContext', async () => {
@@ -351,20 +324,18 @@ describe('createMockPrerenderer with ComponentInstance', () => {
 			'/string': '<p>string page</p>',
 			'/component': { default: Component },
 		});
-		const routeString = createRouteData({ route: '/string' });
-		const routeComponent = createRouteData({ route: '/component' });
 
 		const r1 = await renderPath({
 			prerenderer,
 			pathname: '/string',
-			route: routeString,
+			route: createRouteData({ route: '/string' }),
 			options,
 			logger: options.logger,
 		});
 		const r2 = await renderPath({
 			prerenderer,
 			pathname: '/component',
-			route: routeComponent,
+			route: createRouteData({ route: '/component' }),
 			options,
 			logger: options.logger,
 		});

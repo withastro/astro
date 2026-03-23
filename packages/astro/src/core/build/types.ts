@@ -1,4 +1,3 @@
-import type * as nodeFs from 'node:fs';
 import type * as vite from 'vite';
 import type { InlineConfig } from 'vite';
 import type { AstroSettings, ComponentInstance, RoutesList } from '../../types/astro.js';
@@ -37,17 +36,6 @@ export interface StaticBuildOptions {
 	viteConfig: InlineConfig;
 	teardownCompiler: boolean;
 	key: Promise<CryptoKey>;
-	/**
-	 * Injectable filesystem module. Defaults to `node:fs`.
-	 */
-	fsMod?: typeof nodeFs;
-	/**
-	 * When `true`, filesystem calls that normally receive `URL` objects will instead
-	 * receive string paths (via `fileURLToPath`). Required when `fsMod` is a virtual
-	 * filesystem (e.g. `@platformatic/vfs`) that does not accept `URL` objects.
-	 * Defaults to `false`.
-	 */
-	useVirtualFs?: boolean;
 }
 
 type ImportComponentInstance = () => Promise<ComponentInstance>;
