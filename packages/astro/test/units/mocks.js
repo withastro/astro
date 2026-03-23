@@ -237,7 +237,7 @@ export function createRouteData(overrides) {
  * An image service for unit tests that extends baseService with a getURL
  * that doesn't depend on import.meta.env.BASE_URL.
  */
-export const unitTestImageService = {
+const unitTestImageService = {
 	...baseService,
 	getURL(options, imageConfig) {
 		const src = typeof options.src === 'string' ? options.src : options.src.src;
