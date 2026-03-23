@@ -1,5 +1,6 @@
 ---
-"astro": patch
+"@astrojs/node": patch
+"@astrojs/partytown": patch
 ---
 
-fix: destroy read streams to prevent file descriptor leaks
+Fixes file descriptor leaks from read streams that were not destroyed on client disconnect or read errors
