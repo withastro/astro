@@ -124,6 +124,18 @@ async function createManifest(
 		internals.staticFiles.add(file);
 	}
 
+	// Also include SSR-emitted assets (CSS, fonts, images) that are tracked in
+	// ssrAssetsPerEnvironment. These assets will be moved to the client directory
+	// by ssrMoveAssets() later, but the manifest is created first, so we need to
+	// add them here. Without this, non-legacy adapters (entrypointResolution != 'explicit')
+	// would be missing SSR assets in the manifest, causing middleware mode to fail
+	// to recognize asset requests and instead match them against catch-all routes.
+	for (const [, ssrAssets] of internals.ssrAssetsPerEnvironment) {
+		for (const asset of ssrAssets) {
+			internals.staticFiles.add(asset);
+		}
+	}
+
 	const staticFiles = internals.staticFiles;
 	const encodedKey = await encodeKey(await buildOpts.key);
 	const manifest = await buildManifest(buildOpts, internals, Array.from(staticFiles), encodedKey);
