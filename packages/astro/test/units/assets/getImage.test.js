@@ -1,4 +1,3 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { getImage } from '../../../dist/assets/internal.js';
