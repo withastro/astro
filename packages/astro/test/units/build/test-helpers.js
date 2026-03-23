@@ -8,6 +8,33 @@ import { createRoutesList as _createRoutesList } from '../../../dist/core/routin
 import { createBasicPipeline, createBasicSettings, defaultLogger } from '../test-utils.js';
 
 /**
+ * @param {object} options
+ * @param {'static' | 'server'} options.buildOutput
+ * @param {boolean} [options.preserveBuildClientDir]
+ * @param {URL} [options.outDir]
+ * @param {URL} [options.clientDir]
+ * @param {'directory' | 'file' | 'preserve'} [options.buildFormat]
+ */
+export function createSettings({
+	buildOutput,
+	preserveBuildClientDir = false,
+	outDir = new URL('file:///project/dist/'),
+	clientDir = new URL('file:///project/dist/client/'),
+	buildFormat = 'directory',
+}) {
+	return {
+		buildOutput,
+		adapter: preserveBuildClientDir
+			? { adapterFeatures: { preserveBuildClientDir: true } }
+			: undefined,
+		config: {
+			outDir,
+			build: { client: clientDir, format: buildFormat },
+		},
+	};
+}
+
+/**
  * A Vite plugin that provides in-memory .astro source files as virtual modules.
  * This allows running a full Astro build without any files on disk.
  *
@@ -55,7 +82,7 @@ export function virtualAstroModules(root, files) {
  * @param {Record<string, string | Buffer>} [initialFiles]
  * @returns {URL}
  */
-export function createTmpRootDir(initialFiles = {}) {
+function createTmpRootDir(initialFiles = {}) {
 	const rootPath = mkdtempSync(join(tmpdir(), 'astro-test-'));
 	for (const [relativePath, content] of Object.entries(initialFiles)) {
 		const absPath = join(rootPath, relativePath);
