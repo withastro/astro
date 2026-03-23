@@ -314,7 +314,10 @@ export function createMockPrerenderer(pages, options = {}) {
 			return staticPaths ?? [];
 		},
 
-		async render(request, { routeData, pathname }) {
+		async render(request, { routeData }) {
+			// Use routeData.pathname as the canonical key — it is the same value
+			// that was returned by getStaticPaths() and registered in the pages map.
+			const pathname = routeData.pathname;
 			const page = pages[pathname];
 
 			if (page === undefined) {

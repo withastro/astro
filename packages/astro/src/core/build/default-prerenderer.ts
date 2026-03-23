@@ -53,10 +53,7 @@ export function createDefaultPrerenderer({
 			return staticPaths.getAll();
 		},
 
-		async render(request, { routeData, pathname: _pathname }) {
-			// pathname is available for custom prerenderers that need the canonical
-			// decoded path without build-format artifacts (trailing slash, .html suffix).
-			// The default implementation derives the pathname from the request URL internally.
+		async render(request, { routeData }) {
 			return prerenderer.app!.render(request, { routeData });
 		},
 

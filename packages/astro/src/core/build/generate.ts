@@ -458,7 +458,7 @@ export async function renderPath({
 	// Render using the prerenderer
 	let response: Response;
 	try {
-		response = await prerenderer.render(request, { routeData: route, pathname });
+		response = await prerenderer.render(request, { routeData: route });
 	} catch (err) {
 		logger.error('build', `Caught error rendering ${pathname}: ${err}`);
 		if (err && !AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {
