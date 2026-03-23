@@ -1,0 +1,4 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["types/generics/multi-fail.astro", "types/generics/MultiGeneric.svelte"]
+}
