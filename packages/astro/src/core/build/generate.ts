@@ -1,6 +1,6 @@
 import nodeFs from 'node:fs';
 import os from 'node:os';
-import { fileURLToPath } from 'node:url';
+
 import PLimit from 'p-limit';
 import PQueue from 'p-queue';
 import colors from 'piccolore';
@@ -570,11 +570,11 @@ async function generatePathWithPrerenderer(
 	}
 
 	const useVirtualFs = options.useVirtualFs ?? false;
-	await localFs.promises.mkdir(useVirtualFs ? fileURLToPath(result.outFolder) : result.outFolder, {
+	await localFs.promises.mkdir(useVirtualFs ? result.outFolder.pathname : result.outFolder, {
 		recursive: true,
 	});
 	await localFs.promises.writeFile(
-		useVirtualFs ? fileURLToPath(result.outFile) : result.outFile,
+		useVirtualFs ? result.outFile.pathname : result.outFile,
 		result.body,
 	);
 
@@ -669,10 +669,11 @@ function checkPublicConflict(
 	const relativePath = outFile.href.slice(outRoot.href.length);
 	const publicFileUrl = new URL(relativePath, settings.config.publicDir);
 
-	// When using a virtual filesystem, pass a string path since it does not
-	// accept URL objects. In production, pass the URL directly so Node's fs
-	// handles all platform differences internally.
-	const publicFileArg = useVirtualFs ? fileURLToPath(publicFileUrl) : publicFileUrl;
+	// When using a virtual filesystem, use the URL pathname directly — the VFS
+	// stores files keyed by their pathname (e.g. '/project/public/index.html'),
+	// and fileURLToPath would throw on Windows with non-native virtual paths.
+	// In production, pass the URL object so Node's fs handles platform differences.
+	const publicFileArg = useVirtualFs ? publicFileUrl.pathname : publicFileUrl;
 	if (fsMod.existsSync(publicFileArg)) {
 		logger.warn(
 			'build',
