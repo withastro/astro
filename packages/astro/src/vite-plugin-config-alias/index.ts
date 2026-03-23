@@ -67,6 +67,12 @@ const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
 	return aliases;
 };
 
+/** Check if a file exists at the given path */
+function fileExists(filePath: string): boolean {
+	const stats = fs.statSync(filePath, { throwIfNoEntry: false });
+	return stats?.isFile() === true;
+}
+
 /** Generate vite.resolve.alias entries from tsconfig paths */
 const getViteResolveAlias = (settings: AstroSettings) => {
 	const { tsConfig, tsConfigPath } = settings;
@@ -84,15 +90,38 @@ const getViteResolveAlias = (settings: AstroSettings) => {
 		for (const [aliasPattern, values] of Object.entries(paths)) {
 			const resolvedValues = values.map((v) => path.resolve(resolvedBaseUrl, v));
 
-			const customResolver = (id: string) => {
+			// The customResolver is called by @rollup/plugin-alias with the plugin
+			// context as `this`, allowing us to use `this.resolve()` which goes
+			// through the full Vite resolve pipeline (including extension resolution
+			// for CSS preprocessors like Sass, Less, Stylus).
+			const customResolver = async function (
+				this: { resolve: (id: string, importer?: string, options?: any) => Promise<any> },
+				id: string,
+				importer: string | undefined,
+				resolveOptions: any,
+			) {
 				// Try each path in order
 				// id is already the wildcard part (e.g., 'extra.css' for '@styles/*')
 				// resolvedValues still have the * in them, so replace * with id
 				for (const resolvedValue of resolvedValues) {
-					const resolved = resolvedValue.replace('*', id);
-					const stats = fs.statSync(resolved, { throwIfNoEntry: false });
-					if (stats && stats.isFile()) {
+					const resolved = normalizePath(resolvedValue.replace('*', id));
+
+					// First, check if the file exists exactly (fast path for explicit extensions)
+					if (fileExists(resolved)) {
 						return normalizePath(resolved);
+					}
+
+					// Use this.resolve() to go through the full Vite resolve pipeline,
+					// which handles CSS preprocessor extension resolution (e.g. .scss, .sass,
+					// .less, .css) and Sass partial prefix (_) resolution.
+					if (this.resolve) {
+						const result = await this.resolve(resolved, importer, {
+							skipSelf: true,
+							...resolveOptions,
+						});
+						if (result) {
+							return result;
+						}
 					}
 				}
 				return null;
