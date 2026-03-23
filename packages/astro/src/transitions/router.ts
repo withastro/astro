@@ -504,36 +504,21 @@ async function transition(
 	}
 
 	document.documentElement.setAttribute(DIRECTION_ATTR, prepEvent.direction);
-	if (supportsViewTransitions) {
-		if (hasUAVisualTransition) {
-			// PopStateEvent.hasUAVisualTransition: the browser already provided a visual
-			// transition (e.g. Safari swipe gesture), so skip the author transition.
-			const updateDone = (async () => {
-				// Immediately paused to set up the ViewTransition object below
-				await Promise.resolve();
-				await updateDOM(prepEvent, options, currentTransition, historyState);
-				return undefined;
-			})();
-			currentTransition.viewTransition = {
-				updateCallbackDone: updateDone,
-				ready: updateDone,
-				finished: updateDone,
-				skipTransition: () => {},
-				types: new Set<string>(),
-			};
-		} else {
-			// This automatically cancels any previous transition
-			// We also already took care that the earlier update callback got through
-			currentTransition.viewTransition = document.startViewTransition(
-				async () => await updateDOM(prepEvent, options, currentTransition, historyState),
-			);
-		}
+	if (supportsViewTransitions && !hasUAVisualTransition) {
+		// This automatically cancels any previous transition
+		// We also already took care that the earlier update callback got through
+		currentTransition.viewTransition = document.startViewTransition(
+			async () => await updateDOM(prepEvent, options, currentTransition, historyState),
+		);
 	} else {
-		// Simulation mode requires a bit more manual work
+		// Simulation mode requires a bit more manual work.
+		// Also used when PopStateEvent.hasUAVisualTransition indicates the browser already
+		// provided a visual transition (e.g. Safari swipe gesture) — in that case, fallback
+		// is "swap" to skip animations.
 		const updateDone = (async () => {
 			// Immediately paused to set up the ViewTransition object for Fallback mode
 			await Promise.resolve(); // hop through the micro task queue
-			await updateDOM(prepEvent, options, currentTransition, historyState, getFallback());
+			await updateDOM(prepEvent, options, currentTransition, historyState, hasUAVisualTransition ? 'swap' : getFallback());
 			return undefined;
 		})();
 
