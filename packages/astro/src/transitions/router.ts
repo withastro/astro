@@ -321,12 +321,13 @@ async function updateDOM(
 	moveToLocation(swapEvent.to, swapEvent.from, options, pageTitleForBrowserHistory, historyState);
 	triggerEvent(TRANSITION_AFTER_SWAP);
 
-	if (fallback === 'animate') {
-		if (!currentTransition.transitionSkipped && !swapEvent.signal.aborted) {
-			animate('new').finally(() => currentTransition.viewTransitionFinished!());
-		} else {
-			currentTransition.viewTransitionFinished!();
-		}
+	// Resolve the finished promise of the simulation's ViewTransition.
+	// For 'animate', wait for the new-page animation to complete first.
+	// For other fallback modes (e.g. 'swap'), resolve immediately — no animation needed.
+	if (fallback === 'animate' && !currentTransition.transitionSkipped && !swapEvent.signal.aborted) {
+		animate('new').finally(() => currentTransition.viewTransitionFinished!());
+	} else {
+		currentTransition.viewTransitionFinished?.();
 	}
 }
 
