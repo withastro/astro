@@ -41,6 +41,13 @@ export interface StaticBuildOptions {
 	 * Injectable filesystem module. Defaults to `node:fs`.
 	 */
 	fsMod?: typeof nodeFs;
+	/**
+	 * When `true`, filesystem calls that normally receive `URL` objects will instead
+	 * receive string paths (via `fileURLToPath`). Required when `fsMod` is a virtual
+	 * filesystem (e.g. `@platformatic/vfs`) that does not accept `URL` objects.
+	 * Defaults to `false`.
+	 */
+	useVirtualFs?: boolean;
 }
 
 type ImportComponentInstance = () => Promise<ComponentInstance>;

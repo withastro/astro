@@ -207,10 +207,11 @@ export async function createStaticBuildOptions({
 		srcDir: `${VIRTUAL_ROOT}/src/`,
 		...inlineConfig,
 	});
-	routesList = await _createRoutesList({ settings }, defaultLogger);
+	routesList = await _createRoutesList({ settings, useVirtualFs: true }, defaultLogger);
 
 	const options = /** @type {any} */ ({
 		fsMod: vfs,
+		useVirtualFs: true,
 		origin: 'http://localhost:4321',
 		pageNames: [],
 		routesList,

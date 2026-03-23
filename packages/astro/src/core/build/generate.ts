@@ -516,7 +516,17 @@ export async function renderPath({
 	}
 
 	// Public files take priority over generated routes
-	if (checkPublicConflict(outFile, route, options.settings, logger, localFs)) return null;
+	if (
+		checkPublicConflict(
+			outFile,
+			route,
+			options.settings,
+			logger,
+			localFs,
+			options.useVirtualFs ?? false,
+		)
+	)
+		return null;
 
 	return { body, outFile, outFolder };
 }
@@ -559,8 +569,14 @@ async function generatePathWithPrerenderer(
 		return;
 	}
 
-	await localFs.promises.mkdir(fileURLToPath(result.outFolder), { recursive: true });
-	await localFs.promises.writeFile(fileURLToPath(result.outFile), result.body);
+	const useVirtualFs = options.useVirtualFs ?? false;
+	await localFs.promises.mkdir(useVirtualFs ? fileURLToPath(result.outFolder) : result.outFolder, {
+		recursive: true,
+	});
+	await localFs.promises.writeFile(
+		useVirtualFs ? fileURLToPath(result.outFile) : result.outFile,
+		result.body,
+	);
 
 	logRenderTime(logger, timeStart, false);
 }
@@ -639,23 +655,25 @@ function checkPublicConflict(
 	settings: AstroSettings,
 	logger: Logger,
 	fsMod: typeof nodeFs,
+	useVirtualFs: boolean,
 ): boolean {
-	const outFilePath = fileURLToPath(outFile);
-	const outRoot = fileURLToPath(
+	const outRoot =
 		settings.buildOutput === 'static' && !settings.adapter?.adapterFeatures?.preserveBuildClientDir
 			? settings.config.outDir
-			: settings.config.build.client,
-	);
-	const relativePath = outFilePath.slice(outRoot.length);
-	let publicFilePath: string;
-	try {
-		publicFilePath = fileURLToPath(new URL(relativePath, settings.config.publicDir));
-	} catch {
-		// relativePath contains encoded characters (e.g. %2F) that fileURLToPath
-		// cannot decode — no public file can exist at such a path, so skip the check.
-		return false;
-	}
-	if (fsMod.existsSync(publicFilePath)) {
+			: settings.config.build.client;
+
+	// Compute the relative path by comparing URL hrefs directly. Using
+	// fileURLToPath here would throw on Windows when given non-native paths
+	// (e.g. Unix-style virtual paths used in tests) or on URLs with encoded
+	// characters like %2F.
+	const relativePath = outFile.href.slice(outRoot.href.length);
+	const publicFileUrl = new URL(relativePath, settings.config.publicDir);
+
+	// When using a virtual filesystem, pass a string path since it does not
+	// accept URL objects. In production, pass the URL directly so Node's fs
+	// handles all platform differences internally.
+	const publicFileArg = useVirtualFs ? fileURLToPath(publicFileUrl) : publicFileUrl;
+	if (fsMod.existsSync(publicFileArg)) {
 		logger.warn(
 			'build',
 			`Skipping ${route.component} because a file with the same name exists in the public folder: ${relativePath}`,
