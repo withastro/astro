@@ -519,7 +519,13 @@ async function transition(
 		const updateDone = (async () => {
 			// Immediately paused to set up the ViewTransition object for Fallback mode
 			await Promise.resolve(); // hop through the micro task queue
-			await updateDOM(prepEvent, options, currentTransition, historyState, hasUAVisualTransition ? 'swap' : getFallback());
+			await updateDOM(
+				prepEvent,
+				options,
+				currentTransition,
+				historyState,
+				hasUAVisualTransition ? 'swap' : getFallback(),
+			);
 			return undefined;
 		})();
 
