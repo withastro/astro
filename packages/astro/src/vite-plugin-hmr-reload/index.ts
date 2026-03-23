@@ -42,7 +42,10 @@ export default function hmrReload(): Plugin {
 				}
 
 				if (hasSsrOnlyModules) {
-					server.ws.send({ type: 'full-reload' });
+					server.environments.client.hot.send({
+						type: 'full-reload',
+						path: '*',
+					});
 					return [];
 				}
 			},
