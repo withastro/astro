@@ -8,8 +8,11 @@ import { createRoutesList as _createRoutesList } from '../../../dist/core/routin
 import { createBasicPipeline, createBasicSettings, defaultLogger } from '../test-utils.js';
 
 // The virtual project root used by all helpers. All page paths in `pages`
-// records use this as their prefix (e.g. '/project/src/pages/index.astro').
-const VIRTUAL_ROOT = '/project';
+// records are relative to this root (e.g. 'src/pages/index.astro').
+const VIRTUAL_ROOT_URL = new URL('file:///project/');
+// The pathname component of the root URL — used only where a string is
+// unavoidable: vfs.mount() and createBasicSettings() both require strings.
+const VIRTUAL_ROOT_PATH = VIRTUAL_ROOT_URL.pathname.replace(/\/$/, '');
 /**
  * @param {object} options
  * @param {'static' | 'server'} options.buildOutput
@@ -21,8 +24,8 @@ const VIRTUAL_ROOT = '/project';
 export function createSettings({
 	buildOutput,
 	preserveBuildClientDir = false,
-	outDir = new URL('file:///project/dist/'),
-	clientDir = new URL('file:///project/dist/client/'),
+	outDir = new URL('dist/', VIRTUAL_ROOT_URL),
+	clientDir = new URL('dist/client/', VIRTUAL_ROOT_URL),
 	buildFormat = 'directory',
 }) {
 	return {
@@ -126,10 +129,10 @@ export function createMemFs(initialFiles = {}) {
 	const vfs = createVfs(undefined, { overlay: true });
 
 	for (const [filePath, content] of Object.entries(initialFiles)) {
-		if (filePath.startsWith(VIRTUAL_ROOT)) {
+		if (filePath.startsWith(VIRTUAL_ROOT_PATH)) {
 			throw new Error(
 				`createMemFs: paths must be project-relative (e.g. 'src/pages/index.astro'), ` +
-					`not prefixed with '${VIRTUAL_ROOT}'. Got: '${filePath}'`,
+					`not prefixed with '${VIRTUAL_ROOT_PATH}'. Got: '${filePath}'`,
 			);
 		}
 		// Files are written at provider-relative paths (e.g. '/src/pages/index.astro').
@@ -142,7 +145,7 @@ export function createMemFs(initialFiles = {}) {
 		vfs.writeFileSync(providerPath, content);
 	}
 
-	vfs.mount(VIRTUAL_ROOT);
+	vfs.mount(VIRTUAL_ROOT_PATH);
 	return vfs;
 }
 
@@ -179,10 +182,10 @@ export async function createStaticBuildOptions({
 
 	// Build the resolved config first — everything else derives from it.
 	const resolvedConfig = /** @type {any} */ ({
-		root: new URL(`file://${VIRTUAL_ROOT}/`),
-		srcDir: new URL(`file://${VIRTUAL_ROOT}/src/`),
-		outDir: new URL(`file://${VIRTUAL_ROOT}/dist/`),
-		publicDir: new URL(`file://${VIRTUAL_ROOT}/public/`),
+		root: VIRTUAL_ROOT_URL,
+		srcDir: new URL('src/', VIRTUAL_ROOT_URL),
+		outDir: new URL('dist/', VIRTUAL_ROOT_URL),
+		publicDir: new URL('public/', VIRTUAL_ROOT_URL),
 		base: '/',
 		site: undefined,
 		trailingSlash: 'ignore',
@@ -191,20 +194,19 @@ export async function createStaticBuildOptions({
 		build: {
 			format: 'directory',
 			redirects: true,
-			client: new URL(`file://${VIRTUAL_ROOT}/dist/client/`),
-			server: new URL(`file://${VIRTUAL_ROOT}/dist/server/`),
+			client: new URL('dist/client/', VIRTUAL_ROOT_URL),
+			server: new URL('dist/server/', VIRTUAL_ROOT_URL),
 			...(inlineConfig.build ?? {}),
 		},
 	});
 
 	// Derive routesList by scanning the VFS via the real createRoutesList.
-	// Because the VFS is mounted, node:fs calls inside createRoutesList
-	// (existsSync, readdirSync, readFile) transparently hit the in-memory store
-	// — no fsMod threading required here.
+	// Because the VFS is mounted at VIRTUAL_ROOT, node:fs calls inside createRoutesList
+	// transparently hit the in-memory store — no fsMod threading required.
 	let routesList = { routes: [] };
 	const settings = await createBasicSettings({
-		root: `${VIRTUAL_ROOT}/`,
-		srcDir: `${VIRTUAL_ROOT}/src/`,
+		root: VIRTUAL_ROOT_PATH + '/',
+		srcDir: VIRTUAL_ROOT_PATH + '/src/',
 		...inlineConfig,
 	});
 	routesList = await _createRoutesList({ settings, useVirtualFs: true }, defaultLogger);

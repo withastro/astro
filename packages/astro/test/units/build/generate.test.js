@@ -11,7 +11,6 @@
  * the Astro rendering pipeline is not involved at all.
  */
 import assert from 'node:assert/strict';
-import { fileURLToPath } from 'node:url';
 import { after, before, describe, it } from 'node:test';
 import { renderPath } from '../../../dist/core/build/generate.js';
 import {
@@ -242,8 +241,10 @@ describe('renderPath()', () => {
 		assert.ok(result !== null);
 
 		// Simulate what generatePathWithPrerenderer does after renderPath returns.
-		const outFolderPath = fileURLToPath(result.outFolder);
-		const outFilePath = fileURLToPath(result.outFile);
+		// Use .pathname directly — fileURLToPath throws on Windows with virtual
+		// paths like file:///project/... that aren't native Windows paths.
+		const outFolderPath = result.outFolder.pathname;
+		const outFilePath = result.outFile.pathname;
 		await vfs.promises.mkdir(outFolderPath, { recursive: true });
 		await vfs.promises.writeFile(outFilePath, /** @type {Buffer} */ (result.body));
 
