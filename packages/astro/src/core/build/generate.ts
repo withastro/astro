@@ -647,7 +647,14 @@ function checkPublicConflict(
 			: settings.config.build.client,
 	);
 	const relativePath = outFilePath.slice(outRoot.length);
-	const publicFilePath = fileURLToPath(new URL(relativePath, settings.config.publicDir));
+	let publicFilePath: string;
+	try {
+		publicFilePath = fileURLToPath(new URL(relativePath, settings.config.publicDir));
+	} catch {
+		// relativePath contains encoded characters (e.g. %2F) that fileURLToPath
+		// cannot decode — no public file can exist at such a path, so skip the check.
+		return false;
+	}
 	if (fsMod.existsSync(publicFilePath)) {
 		logger.warn(
 			'build',
