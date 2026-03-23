@@ -116,6 +116,7 @@ export function createCloudflarePrerenderer({
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(body),
+				redirect: 'manual',
 			});
 
 			return response;
