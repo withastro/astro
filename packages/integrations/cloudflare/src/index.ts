@@ -22,6 +22,7 @@ import {
 import { parseEnv } from 'node:util';
 import { sessionDrivers } from 'astro/config';
 import { createCloudflarePrerenderer } from './prerenderer.js';
+import stripJsonComments from 'strip-json-comments';
 
 const CLOUDFLARE_KV_SESSION_DRIVER_ENTRYPOINT = sessionDrivers.cloudflareKVBinding().entrypoint;
 
@@ -373,19 +374,41 @@ export default function createIntegration({
 				});
 
 				// QUESTION could be removed based on https://developers.cloudflare.com/workers/configuration/compatibility-flags/#enable-auto-populating-processenv
-				// Assign .dev.vars to process.env so astro:env can find these vars
-				const devVarsPath = new URL('.dev.vars', config.root);
-				if (existsSync(devVarsPath)) {
-					try {
-						const data = readFileSync(devVarsPath, 'utf-8');
-						const parsed = parseEnv(data);
-						Object.assign(process.env, parsed);
-					} catch {
-						logger.error(
-							`Unable to parse .dev.vars, variables will not be available to your application.`,
-						);
-					}
+        // Assign wrangler.json or wrangler.jsonc's root vars property to process.env so astro:env can find these vars
+				const wranglerConfigJSONPath = new URL("wrangler.json", config.root);
+				const wranglerConfigJSONCPath = new URL("wrangler.jsonc", config.root);
+				let resolvedWranglerConfigJSONPath;
+        if (existsSync(wranglerConfigJSONPath)) {
+					resolvedWranglerConfigJSONPath = wranglerConfigJSONPath;
+				} else if (existsSync(wranglerConfigJSONCPath)) {
+					resolvedWranglerConfigJSONPath = wranglerConfigJSONCPath;
 				}
+				if (resolvedWranglerConfigJSONPath) {
+          try {
+            const data = readFileSync(resolvedWranglerConfigJSONPath, "utf-8");
+            const parsed = JSON.parse(stripJsonComments(data));
+            if (parsed.vars) {
+              Object.assign(process.env, parsed.vars);
+            }
+          } catch {
+            logger.error(
+              `Unable to parse wrangler.json/c, variables defined in it will not be available to your application.`
+            );
+          }
+        }
+				// Assign .dev.vars to process.env so astro:env can find these vars
+				const devVarsPath = new URL(".dev.vars", config.root);
+        if (existsSync(devVarsPath)) {
+          try {
+            const data = readFileSync(devVarsPath, "utf-8");
+            const parsed = parseEnv(data);
+            Object.assign(process.env, parsed);
+          } catch {
+            logger.error(
+              `Unable to parse .dev.vars, variables defined in it will not be available to your application.`
+            );
+          }
+        }
 			},
 			'astro:build:start': ({ setPrerenderer }) => {
 				if (prerenderEnvironment === 'workerd') {
