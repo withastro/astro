@@ -631,8 +631,8 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0
       svgo:
-        specifier: ^4.0.0
-        version: 4.0.0
+        specifier: ^4.0.1
+        version: 4.0.1
       tinyclip:
         specifier: ^0.1.6
         version: 0.1.6
@@ -14618,6 +14618,10 @@ packages:
     resolution: {integrity: sha512-1n3r/tGXO6b6VXMdFT54SHzT9ytu9yr7TaELowdYpMqY/Ao7EnlQGmAQ1+RatX7Tkkdm6hONI2owqNx2aZj5Sw==}
     engines: {node: '>=11.0.0'}
 
+  sax@1.6.0:
+    resolution: {integrity: sha512-6R3J5M4AcbtLUdZmRv2SygeVaM7IhrLXu9BmnOGmmACak8fiUtOsYNWUS4uK7upbmHIBbLBeFeI//477BKLBzA==}
+    engines: {node: '>=11.0.0'}
+
   scheduler@0.23.2:
     resolution: {integrity: sha512-UOShsPwz7NrMUqhR6t0hWjFduvOzbtv7toDH1/hIrfRNIDBnnBWd0CwJTGvTpngVlmwGCdP9/Zl/tVrDqcuYzQ==}
 
@@ -15005,8 +15009,8 @@ packages:
     engines: {node: '>=14.0.0'}
     hasBin: true
 
-  svgo@4.0.0:
-    resolution: {integrity: sha512-VvrHQ+9uniE+Mvx3+C9IEe/lWasXCU0nXMY2kZeLrHNICuRiC8uMPyM14UEaMOFA5mhyQqEkB02VoQ16n3DLaw==}
+  svgo@4.0.1:
+    resolution: {integrity: sha512-XDpWUOPC6FEibaLzjfe0ucaV0YrOjYotGJO1WpF0Zd+n6ZGEQUsSugaoLq9QkEZtAfQIxT42UChcssDVPP3+/w==}
     engines: {node: '>=16'}
     hasBin: true
 
@@ -22012,7 +22016,7 @@ snapshots:
       ofetch: 1.5.1
       pathe: 2.0.3
       sharp: 0.34.5
-      svgo: 4.0.0
+      svgo: 4.0.1
       ufo: 1.6.3
       unstorage: 1.17.4(@azure/identity@4.13.0)(@netlify/blobs@10.7.0)(@vercel/functions@3.4.3)
       xss: 1.0.15
@@ -24537,6 +24541,8 @@ snapshots:
 
   sax@1.4.4: {}
 
+  sax@1.6.0: {}
+
   scheduler@0.23.2:
     dependencies:
       loose-envify: 1.4.0
@@ -24996,7 +25002,7 @@ snapshots:
       csso: 5.0.5
       picocolors: 1.1.1
 
-  svgo@4.0.0:
+  svgo@4.0.1:
     dependencies:
       commander: 11.1.0
       css-select: 5.2.2
@@ -25004,7 +25010,7 @@ snapshots:
       css-what: 6.2.2
       csso: 5.0.5
       picocolors: 1.1.1
-      sax: 1.4.4
+      sax: 1.6.0
 
   system-architecture@0.1.0: {}
 
