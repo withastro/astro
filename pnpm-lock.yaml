@@ -3442,18 +3442,6 @@ importers:
         specifier: ^10.28.4
         version: 10.28.4
 
-  packages/astro/test/fixtures/i18n-locale-index-format-file:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/i18n-routing:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/i18n-routing-base:
     dependencies:
       astro:
@@ -3461,30 +3449,6 @@ importers:
         version: link:../../..
 
   packages/astro/test/fixtures/i18n-routing-dynamic:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/i18n-routing-fallback:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/i18n-routing-fallback-index:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/i18n-routing-fallback-rewrite:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/i18n-routing-fallback-rewrite-filename:
     dependencies:
       astro:
         specifier: workspace:*
@@ -3506,18 +3470,6 @@ importers:
         version: link:../../..
 
   packages/astro/test/fixtures/i18n-routing-manual-with-default-middleware:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/i18n-routing-prefix-always:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/i18n-routing-prefix-other-locales:
     dependencies:
       astro:
         specifier: workspace:*
