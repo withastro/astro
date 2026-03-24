@@ -1,7 +1,8 @@
 import preact from '@astrojs/preact';
 import react from '@astrojs/react';
 import solid from '@astrojs/solid-js';
-import svelte from '@astrojs/svelte';
+// TODO: Re-enable once Svelte supports Vite v8
+// import svelte from '@astrojs/svelte';
 import vue from '@astrojs/vue';
 import { defineConfig } from 'astro/config';
 
@@ -12,7 +13,7 @@ export default defineConfig({
 		react({ include: ['**/react/*'] }),
 		preact({ include: ['**/preact/*'] }),
 		solid({ include: ['**/solid/*'] }),
-		svelte(),
+		// svelte(),
 		vue(),
 	],
 });
