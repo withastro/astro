@@ -157,7 +157,7 @@
     "semver": "^7.7.4",
     "shiki": "^4.0.0",
     "smol-toml": "^1.6.0",
-    "svgo": "^4.0.0",
+    "svgo": "^4.0.1",
     "tinyclip": "^0.1.6",
     "tinyexec": "^1.0.2",
     "tinyglobby": "^0.2.15",
