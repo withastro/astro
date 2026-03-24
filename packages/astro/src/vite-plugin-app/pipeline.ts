@@ -208,10 +208,6 @@ export class RunnablePipeline extends Pipeline {
 		this.routeCache.clearAll();
 	}
 
-	clearMiddleware() {
-		this.resolvedMiddleware = undefined;
-	}
-
 	async getComponentByRoute(routeData: RouteData): Promise<ComponentInstance> {
 		const filePath = new URL(`${routeData.component}`, this.manifest.rootDir);
 		return await this.preload(routeData, filePath);

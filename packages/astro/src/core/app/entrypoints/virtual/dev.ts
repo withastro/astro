@@ -38,7 +38,7 @@ export const createApp: CreateApp = ({ streaming } = {}) => {
 		// Clear the cached middleware so it is re-resolved on the next request.
 		import.meta.hot.on('astro:middleware-updated', () => {
 			if (!currentDevApp) return;
-			currentDevApp.pipeline.resolvedMiddleware = undefined;
+			currentDevApp.clearMiddleware();
 		});
 	}
 

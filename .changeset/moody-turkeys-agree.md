@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fix middleware changes were not picked up during development without a full server restart.
+Fixes an issue with the development server, where changes to the middleware weren't picked, and it required a full restart of the server.
