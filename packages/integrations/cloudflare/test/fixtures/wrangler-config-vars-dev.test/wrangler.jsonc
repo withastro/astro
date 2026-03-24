@@ -1,0 +1,8 @@
+{
+  "name": "test",
+  "compatibility_date": "2026-01-28",
+  "main": "@astrojs/cloudflare/entrypoints/server",
+  "vars": {
+    "COOL": "ME"
+  }
+}
