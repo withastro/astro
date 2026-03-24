@@ -9,6 +9,7 @@ import { isAstroComponentFactory } from './astro/factory.js';
 import { buildRenderQueue } from './queue/builder.js';
 import { renderQueue } from './queue/renderer.js';
 import { chunkToString } from './common.js';
+import { markHTMLString } from '../escape.js';
 
 export async function renderPage(
 	result: SSRResult,
@@ -32,7 +33,13 @@ export async function renderPage(
 			// then process it through the queue system
 
 			// Call the component function to get the vnode tree
-			const vnode = await (componentFactory as any)(pageProps);
+			let vnode = await (componentFactory as any)(pageProps);
+
+			// .html pages return plain strings that are already valid HTML.
+			// Mark them as safe HTML so the queue builder doesn't escape the content.
+			if ((componentFactory as any)['astro:html'] && typeof vnode === 'string') {
+				vnode = markHTMLString(vnode);
+			}
 
 			// Build a render queue from the vnode tree
 			const queue = await buildRenderQueue(
