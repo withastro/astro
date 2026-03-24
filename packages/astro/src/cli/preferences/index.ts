@@ -6,7 +6,7 @@ import colors from 'piccolore';
 import { resolveConfig } from '../../core/config/config.js';
 import { createSettings } from '../../core/config/settings.js';
 import { collectErrorMetadata } from '../../core/errors/dev/utils.js';
-import * as msg from '../../core/messages.js';
+import * as msg from '../../core/messages/runtime.js';
 import { DEFAULT_PREFERENCES } from '../../preferences/defaults.js';
 import { coerce, isValidKey, type PreferenceKey } from '../../preferences/index.js';
 import type { AstroSettings } from '../../types/astro.js';

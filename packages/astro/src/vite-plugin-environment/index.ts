@@ -14,8 +14,6 @@ const ONLY_DEV_EXTERNAL = [
 	'prismjs/components/index.js',
 	// Imported by `astro/assets` -> `packages/astro/src/core/logger/core.ts`
 	'string-width',
-	// Imported by `astro:transitions` -> packages/astro/src/runtime/server/transition.ts
-	'cssesc',
 ];
 
 const ALWAYS_NOEXTERNAL = [
@@ -92,7 +90,7 @@ export function vitePluginEnvironment({
 						// For the dev toolbar
 						'astro > html-escaper',
 					],
-					exclude: ['astro:*', 'virtual:astro:*'],
+					exclude: ['astro:*', 'virtual:astro:*', 'astro/virtual-modules/prefetch.js'],
 					// Astro files can't be rendered on the client
 					entries: [`${srcDirPattern}**/*.{jsx,tsx,vue,svelte,html}`],
 				};

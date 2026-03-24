@@ -8,20 +8,21 @@ import { inlineRE, isBuildableCSSRequest, rawRE } from '../vite-plugin-astro-ser
 import { getVirtualModulePageNameForComponent } from '../vite-plugin-pages/util.js';
 import { getDevCSSModuleName } from './util.js';
 import { CSS_LANGS_RE } from '../core/viteUtils.js';
+import { PROPAGATED_ASSET_QUERY_PARAM } from '../content/consts.js';
+import {
+	ASTRO_CSS_EXTENSION_POST_PATTERN,
+	MODULE_DEV_CSS,
+	MODULE_DEV_CSS_ALL,
+	MODULE_DEV_CSS_PREFIX,
+	RESOLVED_MODULE_DEV_CSS,
+	RESOLVED_MODULE_DEV_CSS_ALL,
+	RESOLVED_MODULE_DEV_CSS_PREFIX,
+} from './const.js';
 
 interface AstroVitePluginOptions {
 	routesList: RoutesList;
 	command: 'dev' | 'build';
 }
-
-const MODULE_DEV_CSS = 'virtual:astro:dev-css';
-const RESOLVED_MODULE_DEV_CSS = '\0' + MODULE_DEV_CSS;
-const MODULE_DEV_CSS_PREFIX = 'virtual:astro:dev-css:';
-const RESOLVED_MODULE_DEV_CSS_PREFIX = '\0' + MODULE_DEV_CSS_PREFIX;
-// This is used by Cloudflare optimizeDeps config
-const MODULE_DEV_CSS_ALL = 'virtual:astro:dev-css-all';
-const RESOLVED_MODULE_DEV_CSS_ALL = '\0' + MODULE_DEV_CSS_ALL;
-const ASTRO_CSS_EXTENSION_POST_PATTERN = '@_@';
 
 /**
  * Extract the original component path from a masked virtual module name.
@@ -34,6 +35,54 @@ function getComponentFromVirtualModuleCssName(virtualModulePrefix: string, id: s
 }
 
 /**
+ * Ensure all modules reachable from the given module have been fetched and transformed.
+ * This is needed for dynamically imported components whose modules may be registered
+ * in the graph (via Vite's import analysis) but not yet transformed, meaning their
+ * own imports (including CSS) would not be visible during the CSS graph walk.
+ */
+async function ensureModulesLoaded(
+	env: DevEnvironment,
+	mod: vite.EnvironmentModuleNode,
+	seen = new Set<string>(),
+): Promise<void> {
+	const id = mod.id ?? mod.url;
+	if (seen.has(id)) return;
+	seen.add(id);
+
+	for (const imp of mod.importedModules) {
+		if (!imp.id) continue;
+		if (seen.has(imp.id)) continue;
+		// Mirror the stopping point used by collectCSSWithOrder — don't descend into propagated
+		// asset modules, as the CSS walk intentionally stops there too.
+		if (imp.id.includes(PROPAGATED_ASSET_QUERY_PARAM)) continue;
+		// Skip virtual dev-css modules to prevent circular deadlocks with the Cloudflare adapter.
+		// The dev-css-all module statically imports all per-route dev-css:* modules, and those
+		// modules' load handlers may already be running (waiting on ensureModulesLoaded), causing
+		// a permanent deadlock via Vite's _pendingRequests map. These are CSS collector virtuals
+		// that don't contain CSS themselves, so skipping them has no effect on CSS injection.
+		if (
+			imp.id === RESOLVED_MODULE_DEV_CSS ||
+			imp.id === RESOLVED_MODULE_DEV_CSS_ALL ||
+			imp.id.startsWith(RESOLVED_MODULE_DEV_CSS_PREFIX)
+		)
+			continue;
+
+		// If this module hasn't been transformed yet, fetch it to populate its importedModules
+		if (!imp.transformResult) {
+			try {
+				await env.fetchModule(imp.id);
+			} catch {
+				// Module may not be fetchable (e.g., virtual modules that resolve differently).
+				// Silently continue — the CSS walk will simply skip modules with empty importedModules.
+			}
+		}
+
+		// Recursively ensure child modules are loaded
+		await ensureModulesLoaded(env, imp, seen);
+	}
+}
+
+/**
  * Walk down the dependency tree to collect CSS with depth/order.
  * Performs depth-first traversal to ensure correct CSS ordering based on import order.
  */
@@ -43,6 +92,16 @@ function* collectCSSWithOrder(
 	seen = new Set<string>(),
 ): Generator<ImportedDevStyle & { id: string; idKey: string }, void, unknown> {
 	seen.add(id);
+
+	// Stop traversing if we reach an asset propagation stopping point to ensure we only collect CSS
+	// relevant to a content collection entry, if any. Not doing so could cause CSS from other
+	// entries to potentially be collected and bleed into the CSS included on the page, causing
+	// unexpected styles, for example when a module shared between 2 pages would import
+	// `astro:content` and thus potentially adding multiple content collection entry assets to the
+	// module graph.
+	if (id.includes(PROPAGATED_ASSET_QUERY_PARAM)) {
+		return;
+	}
 
 	// Keep all of the imported modules into an array so we can go through them one at a time
 	const imported = Array.from(mod.importedModules);
@@ -81,21 +140,29 @@ function* collectCSSWithOrder(
  * @param routesList
  */
 export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOptions): Plugin[] {
-	let ssrEnvironment: undefined | DevEnvironment = undefined;
+	let server: vite.ViteDevServer | undefined;
 	// Cache CSS content by module ID to avoid re-reading
 	const cssContentCache = new Map<string, string>();
+
+	function getCurrentEnvironment(pluginEnv?: DevEnvironment): DevEnvironment | undefined {
+		return (
+			pluginEnv ??
+			(server?.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr] as DevEnvironment | undefined)
+		);
+	}
 
 	return [
 		{
 			name: MODULE_DEV_CSS,
 
-			async configureServer(server) {
-				ssrEnvironment = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
+			async configureServer(viteServer) {
+				server = viteServer;
 			},
 			applyToEnvironment(env) {
 				return (
 					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
-					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.client
+					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.client ||
+					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
 				);
 			},
 
@@ -133,9 +200,11 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 						// The virtual module name for this page, like virtual:astro:dev-css:index@_@astro
 						const componentPageId = getVirtualModulePageNameForComponent(componentPath);
 
+						const env = getCurrentEnvironment(this.environment as DevEnvironment);
+
 						// Ensure the page module is loaded. This will populate the graph and allow us to walk through.
-						await ssrEnvironment?.fetchModule(componentPageId);
-						const resolved = await ssrEnvironment?.pluginContainer.resolveId(componentPageId);
+						await env?.fetchModule(componentPageId);
+						const resolved = await env?.pluginContainer.resolveId(componentPageId);
 
 						if (!resolved?.id) {
 							return {
@@ -144,7 +213,7 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 						}
 
 						// the vite.EnvironmentModuleNode has all of the info we need
-						const mod = ssrEnvironment?.moduleGraph.getModuleById(resolved.id);
+						const mod = env?.moduleGraph.getModuleById(resolved.id);
 
 						if (!mod) {
 							return {
@@ -152,8 +221,16 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 							};
 						}
 
+						// Ensure all reachable modules have been transformed.
+						// Dynamically imported components may be in the graph (detected by Vite's
+						// import analysis) but not yet transformed, so their own CSS imports would
+						// be invisible during the graph walk. This eagerly fetches them.
+						if (env) {
+							await ensureModulesLoaded(env, mod);
+						}
+
 						// Walk through the graph depth-first
-						for (const collected of collectCSSWithOrder(componentPageId, mod!)) {
+						for (const collected of collectCSSWithOrder(componentPageId, mod)) {
 							// Use the CSS file ID as the key to deduplicate while keeping best ordering
 							if (!cssWithOrder.has(collected.idKey)) {
 								// Look up actual content from cache if available
@@ -189,7 +266,8 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 					}
 
 					// Cache CSS content as we see it
-					const mod = ssrEnvironment?.moduleGraph.getModuleById(id);
+					const env = getCurrentEnvironment(this.environment as DevEnvironment);
+					const mod = env?.moduleGraph.getModuleById(id);
 					if (mod) {
 						cssContentCache.set(id, code);
 					}
@@ -198,6 +276,13 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 		},
 		{
 			name: MODULE_DEV_CSS_ALL,
+			applyToEnvironment(env) {
+				return (
+					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
+					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.client ||
+					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
+				);
+			},
 			resolveId: {
 				filter: {
 					id: new RegExp(`^${MODULE_DEV_CSS_ALL}$`),

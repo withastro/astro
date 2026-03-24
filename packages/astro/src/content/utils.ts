@@ -23,7 +23,6 @@ import {
 	DEFERRED_MODULE,
 	IMAGE_IMPORT_PREFIX,
 	LIVE_CONTENT_TYPE,
-	PROPAGATED_ASSET_FLAG,
 } from './consts.js';
 import { glob, secretLegacyFlag } from './loaders/glob.js';
 import type { LoaderContext } from './loaders/types.js';
@@ -194,7 +193,7 @@ export async function getEntryData<
 							const resolvedPath = path.resolve(entryDir, val);
 
 							// If the file exists, normalize to relative path
-							// Otherwise keep as-is (likely a Vite alias)
+							// Otherwise, keep as-is (likely a Vite alias)
 							if (fsMod.existsSync(resolvedPath)) {
 								normalizedPath = `./${val}`;
 							}
@@ -245,11 +244,11 @@ export async function getEntryData<
 }
 
 export function getContentEntryExts(settings: Pick<AstroSettings, 'contentEntryTypes'>) {
-	return settings.contentEntryTypes.map((t) => t.extensions).flat();
+	return settings.contentEntryTypes.flatMap((t) => t.extensions);
 }
 
 export function getDataEntryExts(settings: Pick<AstroSettings, 'dataEntryTypes'>) {
-	return settings.dataEntryTypes.map((t) => t.extensions).flat();
+	return settings.dataEntryTypes.flatMap((t) => t.extensions);
 }
 
 export function getEntryConfigByExtMap<TEntryType extends ContentEntryType | DataEntryType>(
@@ -852,14 +851,6 @@ function globWithUnderscoresIgnored(relContentDir: string, exts: string[]): stri
 		`!${contentDir}**/_*/**/*${extGlob}`,
 		`!${contentDir}**/_*${extGlob}`,
 	];
-}
-
-export function hasAssetPropagationFlag(id: string): boolean {
-	try {
-		return new URL(id, 'file://').searchParams.has(PROPAGATED_ASSET_FLAG);
-	} catch {
-		return false;
-	}
 }
 
 /**

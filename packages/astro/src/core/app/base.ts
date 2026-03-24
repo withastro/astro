@@ -1,5 +1,6 @@
 import {
 	appendForwardSlash,
+	collapseDuplicateLeadingSlashes,
 	collapseDuplicateTrailingSlashes,
 	hasFileExtension,
 	isInternalPath,
@@ -15,18 +16,29 @@ import type { Pipeline } from '../base-pipeline.js';
 import {
 	clientAddressSymbol,
 	DEFAULT_404_COMPONENT,
+	NOOP_MIDDLEWARE_HEADER,
 	REROUTABLE_STATUS_CODES,
 	REROUTE_DIRECTIVE_HEADER,
 	responseSentSymbol,
+	REWRITE_DIRECTIVE_HEADER_KEY,
+	ROUTE_TYPE_HEADER,
 } from '../constants.js';
-import { getSetCookiesFromResponse } from '../cookies/index.js';
+import {
+	AstroCookies,
+	attachCookiesToResponse,
+	getSetCookiesFromResponse,
+} from '../cookies/index.js';
+import { getCookiesFromResponse } from '../cookies/response.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { AstroIntegrationLogger, Logger } from '../logger/core.js';
 import { type CreateRenderContext, RenderContext } from '../render-context.js';
 import { redirectTemplate } from '../routing/3xx.js';
 import { ensure404Route } from '../routing/astro-designed-error-pages.js';
+import { routeHasHtmlExtension } from '../routing/helpers.js';
 import { matchRoute } from '../routing/match.js';
+import { type CacheLike, applyCacheHeaders } from '../cache/runtime/cache.js';
+import { Router } from '../routing/router.js';
 import { type AstroSession, PERSIST_SYMBOL } from '../session/runtime.js';
 import type { AppPipeline } from './pipeline.js';
 import type { SSRManifest } from './types.js';
@@ -63,7 +75,7 @@ export interface RenderOptions {
 	/**
 	 * A custom fetch function for retrieving prerendered pages - 404 or 500.
 	 *
-	 * If not provided, Astro will fallback to its default behavior for fetching error pages.
+	 * If not provided, Astro will fall back to its default behavior for fetching error pages.
 	 *
 	 * When a dynamic route is matched but ultimately results in a 404, this function will be used
 	 * to fetch the prerendered 404 page if available. Similarly, it may be used to fetch a
@@ -82,9 +94,17 @@ export interface RenderOptions {
 	routeData?: RouteData;
 }
 
-export interface RenderErrorOptions {
-	locals?: App.Locals;
-	routeData?: RouteData;
+type RequiredRenderOptions = Required<RenderOptions>;
+
+interface ResolvedRenderOptions {
+	addCookieHeader: RequiredRenderOptions['addCookieHeader'];
+	clientAddress: RequiredRenderOptions['clientAddress'] | undefined;
+	prerenderedErrorPageFetch: RequiredRenderOptions['prerenderedErrorPageFetch'] | undefined;
+	locals: RequiredRenderOptions['locals'] | undefined;
+	routeData: RequiredRenderOptions['routeData'] | undefined;
+}
+
+export interface RenderErrorOptions extends ResolvedRenderOptions {
 	response?: Response;
 	status: 404 | 500;
 	/**
@@ -95,8 +115,6 @@ export interface RenderErrorOptions {
 	 * Allows passing an error to 500.astro. It will be available through `Astro.props.error`.
 	 */
 	error?: unknown;
-	clientAddress: string | undefined;
-	prerenderedErrorPageFetch: ((url: ErrorPagePath) => Promise<Response>) | undefined;
 }
 
 type ErrorPagePath =
@@ -114,6 +132,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	adapterLogger: AstroIntegrationLogger;
 	baseWithoutTrailingSlash: string;
 	logger: Logger;
+	#router: Router;
 	constructor(manifest: SSRManifest, streaming = true, ...args: any[]) {
 		this.manifest = manifest;
 		this.manifestData = { routes: manifest.routes.map((route) => route.routeData) };
@@ -127,6 +146,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		// This is necessary to allow running middlewares for 404 in SSR. There's special handling
 		// to return the host 404 if the user doesn't provide a custom 404
 		ensure404Route(this.manifestData);
+		this.#router = this.createRouter(this.manifestData);
 	}
 
 	public abstract isDev(): boolean;
@@ -179,9 +199,14 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 
 	set setManifestData(newManifestData: RoutesList) {
 		this.manifestData = newManifestData;
+		this.#router = this.createRouter(this.manifestData);
 	}
 
 	public removeBase(pathname: string) {
+		// Collapse multiple leading slashes to prevent middleware authorization bypass.
+		// Without this, `//admin` would be treated as starting with base `/` and sliced
+		// to `/admin` for routing, while middleware still sees `//admin` in the URL.
+		pathname = collapseDuplicateLeadingSlashes(pathname);
 		if (pathname.startsWith(this.manifest.base)) {
 			return pathname.slice(this.baseWithoutTrailingSlash.length + 1);
 		}
@@ -221,8 +246,9 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		if (!pathname) {
 			pathname = prependForwardSlash(this.removeBase(url.pathname));
 		}
-		let routeData = matchRoute(decodeURI(pathname), this.manifestData);
-		if (!routeData) return undefined;
+		const match = this.#router.match(decodeURI(pathname), { allowWithoutBase: true });
+		if (match.type !== 'match') return undefined;
+		const routeData = match.route;
 		if (allowPrerenderedRoutes) {
 			return routeData;
 		}
@@ -231,6 +257,14 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			return undefined;
 		}
 		return routeData;
+	}
+
+	private createRouter(manifestData: RoutesList): Router {
+		return new Router(manifestData.routes, {
+			base: this.manifest.base,
+			trailingSlash: this.manifest.trailingSlash,
+			buildFormat: this.manifest.buildFormat,
+		});
 	}
 
 	/**
@@ -341,18 +375,23 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		return pathname;
 	}
 
-	public async render(request: Request, renderOptions?: RenderOptions): Promise<Response> {
-		let routeData: RouteData | undefined = renderOptions?.routeData;
-		let locals: object | undefined;
-		let clientAddress: string | undefined;
-		let addCookieHeader: boolean | undefined;
+	public async render(
+		request: Request,
+		{
+			addCookieHeader = false,
+			clientAddress = Reflect.get(request, clientAddressSymbol),
+			locals,
+			prerenderedErrorPageFetch = fetch,
+			routeData,
+		}: RenderOptions = {},
+	): Promise<Response> {
+		const timeStart = performance.now();
 		const url = new URL(request.url);
 		const redirect = this.redirectTrailingSlash(url.pathname);
-		const prerenderedErrorPageFetch = renderOptions?.prerenderedErrorPageFetch ?? fetch;
 
 		if (redirect !== url.pathname) {
 			const status = request.method === 'GET' ? 301 : 308;
-			return new Response(
+			const response = new Response(
 				redirectTemplate({
 					status,
 					relativeLocation: url.pathname,
@@ -366,12 +405,9 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 					},
 				},
 			);
+			this.#prepareResponse(response, { addCookieHeader });
+			return response;
 		}
-
-		addCookieHeader = renderOptions?.addCookieHeader;
-		clientAddress = renderOptions?.clientAddress ?? Reflect.get(request, clientAddressSymbol);
-		routeData = renderOptions?.routeData;
-		locals = renderOptions?.locals;
 
 		if (routeData) {
 			this.logger.debug(
@@ -379,17 +415,29 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				'The adapter ' + this.manifest.adapterName + ' provided a custom RouteData for ',
 				request.url,
 			);
-			this.logger.debug('router', 'RouteData:\n' + routeData);
+			this.logger.debug('router', 'RouteData');
+			this.logger.debug('router', routeData);
 		}
+
+		const resolvedRenderOptions: ResolvedRenderOptions = {
+			addCookieHeader,
+			clientAddress,
+			prerenderedErrorPageFetch,
+			locals,
+			routeData,
+		};
+
 		if (locals) {
 			if (typeof locals !== 'object') {
 				const error = new AstroError(AstroErrorData.LocalsNotAnObject);
 				this.logger.error(null, error.stack!);
 				return this.renderError(request, {
+					...resolvedRenderOptions,
+					// If locals are invalid, we don't want to include them when
+					// rendering the error page
+					locals: undefined,
 					status: 500,
 					error,
-					clientAddress,
-					prerenderedErrorPageFetch: prerenderedErrorPageFetch,
 				});
 			}
 		}
@@ -418,17 +466,21 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			this.logger.debug('router', "Astro hasn't found routes that match " + request.url);
 			this.logger.debug('router', "Here's the available routes:\n", this.manifestData);
 			return this.renderError(request, {
-				locals,
+				...resolvedRenderOptions,
 				status: 404,
-				clientAddress,
-				prerenderedErrorPageFetch: prerenderedErrorPageFetch,
 			});
 		}
-		const pathname = this.getPathnameFromRequest(request);
+		let pathname = this.getPathnameFromRequest(request);
+		// In dev, the route may have matched a normalized pathname (after .html stripping).
+		// Skip normalization if the route already has an .html extension in its definition.
+		if (this.isDev() && !routeHasHtmlExtension(routeData)) {
+			pathname = pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
+		}
 		const defaultStatus = this.getDefaultStatusCode(routeData, pathname);
 
 		let response;
 		let session: AstroSession | undefined;
+		let cache: CacheLike | undefined;
 		try {
 			// Load route module. We also catch its error here if it fails on initialization
 			const componentInstance = await this.pipeline.getComponentByRoute(routeData);
@@ -442,15 +494,52 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				clientAddress,
 			});
 			session = renderContext.session;
-			response = await renderContext.render(componentInstance);
+			cache = renderContext.cache;
+
+			if (this.pipeline.cacheProvider) {
+				// If the cache provider has an onRequest handler (runtime caching),
+				// wrap the render call so the provider can serve from cache
+				const cacheProvider = await this.pipeline.getCacheProvider();
+				if (cacheProvider?.onRequest) {
+					response = await cacheProvider.onRequest(
+						{
+							request,
+							url: new URL(request.url),
+						},
+						async () => {
+							const res = await renderContext.render(componentInstance);
+							// Apply cache headers before the provider reads them
+							applyCacheHeaders(cache!, res);
+							return res;
+						},
+					);
+					// Strip CDN headers after the runtime provider has read them
+					response.headers.delete('CDN-Cache-Control');
+					response.headers.delete('Cache-Tag');
+				} else {
+					response = await renderContext.render(componentInstance);
+					// Apply cache headers for CDN-based providers (no onRequest)
+					applyCacheHeaders(cache!, response);
+				}
+			} else {
+				response = await renderContext.render(componentInstance);
+			}
+
+			const isRewrite = response.headers.has(REWRITE_DIRECTIVE_HEADER_KEY);
+
+			this.logThisRequest({
+				pathname,
+				method: request.method,
+				statusCode: response.status,
+				isRewrite,
+				timeStart,
+			});
 		} catch (err: any) {
 			this.logger.error(null, err.stack || err.message || String(err));
 			return this.renderError(request, {
-				locals,
+				...resolvedRenderOptions,
 				status: 500,
 				error: err,
-				clientAddress,
-				prerenderedErrorPageFetch: prerenderedErrorPageFetch,
 			});
 		} finally {
 			await session?.[PERSIST_SYMBOL]();
@@ -464,30 +553,39 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
 		) {
 			return this.renderError(request, {
-				locals,
+				...resolvedRenderOptions,
 				response,
 				status: response.status as 404 | 500,
 				// We don't have an error to report here. Passing null means we pass nothing intentionally
 				// while undefined means there's no error
 				error: response.status === 500 ? null : undefined,
-				clientAddress,
-				prerenderedErrorPageFetch: prerenderedErrorPageFetch,
 			});
 		}
 
+		this.#prepareResponse(response, { addCookieHeader });
+		return response;
+	}
+
+	#prepareResponse(response: Response, { addCookieHeader }: { addCookieHeader: boolean }): void {
 		// We remove internally-used header before we send the response to the user agent.
-		if (response.headers.has(REROUTE_DIRECTIVE_HEADER)) {
-			response.headers.delete(REROUTE_DIRECTIVE_HEADER);
+		for (const headerName of [
+			REROUTE_DIRECTIVE_HEADER,
+			REWRITE_DIRECTIVE_HEADER_KEY,
+			NOOP_MIDDLEWARE_HEADER,
+			ROUTE_TYPE_HEADER,
+		]) {
+			if (response.headers.has(headerName)) {
+				response.headers.delete(headerName);
+			}
 		}
 
 		if (addCookieHeader) {
-			for (const setCookieHeaderValue of BaseApp.getSetCookieFromResponse(response)) {
+			for (const setCookieHeaderValue of getSetCookiesFromResponse(response)) {
 				response.headers.append('set-cookie', setCookieHeaderValue);
 			}
 		}
 
 		Reflect.set(response, responseSentSymbol, true);
-		return response;
 	}
 
 	setCookieHeaders(response: Response) {
@@ -514,13 +612,11 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	public async renderError(
 		request: Request,
 		{
-			locals,
 			status,
 			response: originalResponse,
 			skipMiddleware = false,
 			error,
-			clientAddress,
-			prerenderedErrorPageFetch,
+			...resolvedRenderOptions
 		}: RenderErrorOptions,
 	): Promise<Response> {
 		const errorRoutePath = `/${status}${this.manifest.trailingSlash === 'always' ? '/' : ''}`;
@@ -530,8 +626,13 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			if (errorRouteData.prerender) {
 				const maybeDotHtml = errorRouteData.route.endsWith(`/${status}`) ? '.html' : '';
 				const statusURL = new URL(`${this.baseWithoutTrailingSlash}/${status}${maybeDotHtml}`, url);
-				if (statusURL.toString() !== request.url && prerenderedErrorPageFetch) {
-					const response = await prerenderedErrorPageFetch(statusURL.toString() as ErrorPagePath);
+				if (
+					statusURL.toString() !== request.url &&
+					resolvedRenderOptions.prerenderedErrorPageFetch
+				) {
+					const response = await resolvedRenderOptions.prerenderedErrorPageFetch(
+						statusURL.toString() as ErrorPagePath,
+					);
 
 					// In order for the response of the remote to be usable as a response
 					// for this request, it needs to have our status code in the response
@@ -545,14 +646,16 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 					// not match the body we provide and need to be removed.
 					const override = { status, removeContentEncodingHeaders: true };
 
-					return this.mergeResponses(response, originalResponse, override);
+					const newResponse = this.mergeResponses(response, originalResponse, override);
+					this.#prepareResponse(newResponse, resolvedRenderOptions);
+					return newResponse;
 				}
 			}
 			const mod = await this.pipeline.getComponentByRoute(errorRouteData);
 			let session: AstroSession | undefined;
 			try {
 				const renderContext = await this.createRenderContext({
-					locals,
+					locals: resolvedRenderOptions.locals,
 					pipeline: this.pipeline,
 					skipMiddleware,
 					pathname: this.getPathnameFromRequest(request),
@@ -560,21 +663,21 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 					routeData: errorRouteData,
 					status,
 					props: { error },
-					clientAddress,
+					clientAddress: resolvedRenderOptions.clientAddress,
 				});
 				session = renderContext.session;
 				const response = await renderContext.render(mod);
-				return this.mergeResponses(response, originalResponse);
+				const newResponse = this.mergeResponses(response, originalResponse);
+				this.#prepareResponse(newResponse, resolvedRenderOptions);
+				return newResponse;
 			} catch {
 				// Middleware may be the cause of the error, so we try rendering 404/500.astro without it.
 				if (skipMiddleware === false) {
 					return this.renderError(request, {
-						locals,
+						...resolvedRenderOptions,
 						status,
 						response: originalResponse,
 						skipMiddleware: true,
-						clientAddress,
-						prerenderedErrorPageFetch,
 					});
 				}
 			} finally {
@@ -583,7 +686,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		}
 
 		const response = this.mergeResponses(new Response(null, { status }), originalResponse);
-		Reflect.set(response, responseSentSymbol, true);
+		this.#prepareResponse(response, resolvedRenderOptions);
 		return response;
 	}
 
@@ -631,19 +734,35 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				: originalResponse.status;
 
 		try {
-			// this function could throw an error...
+			// this function could throw an error if the headers are immutable...
 			originalResponse.headers.delete('Content-type');
-		} catch {}
-		// we use a map to remove duplicates
-		const mergedHeaders = new Map([
-			...Array.from(newResponseHeaders),
-			...Array.from(originalResponse.headers),
-		]);
-		const newHeaders = new Headers();
-		for (const [name, value] of mergedHeaders) {
-			newHeaders.set(name, value);
+			// Framing headers describe the original response's body encoding/size and must
+			// not carry over to the error page response which has a different body.
+			originalResponse.headers.delete('Content-Length');
+			originalResponse.headers.delete('Transfer-Encoding');
+		} catch {
+			// Headers may be immutable (e.g. when the Response was constructed by a fetch).
+			// In that case, the loop below still copies from originalResponse.headers,
+			// so we need to filter out framing headers there instead.
 		}
-		return new Response(newResponse.body, {
+		// Build merged headers using append() to preserve multi-value headers (e.g. Set-Cookie).
+		// Headers from the original response take priority over new response headers for
+		// single-value headers, but we use append to avoid collapsing multi-value entries.
+		const newHeaders = new Headers();
+		const seen = new Set<string>();
+		// Add original response headers first (they take priority)
+		for (const [name, value] of originalResponse.headers) {
+			newHeaders.append(name, value);
+			seen.add(name.toLowerCase());
+		}
+		// Add new response headers that weren't already set by the original response,
+		// but skip content-type since the error page must return text/html
+		for (const [name, value] of newResponseHeaders) {
+			if (!seen.has(name.toLowerCase())) {
+				newHeaders.append(name, value);
+			}
+		}
+		const mergedResponse = new Response(newResponse.body, {
 			status,
 			statusText: status === 200 ? newResponse.statusText : originalResponse.statusText,
 			// If you're looking at here for possible bugs, it means that it's not a bug.
@@ -653,6 +772,24 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			// Although, we don't want it to replace the content-type, because the error page must return `text/html`
 			headers: newHeaders,
 		});
+
+		// Transfer AstroCookies from the original or new response so that
+		// #prepareResponse can read them when addCookieHeader is true.
+		const originalCookies = getCookiesFromResponse(originalResponse);
+		const newCookies = getCookiesFromResponse(newResponse);
+		if (originalCookies) {
+			// If both responses have cookies, merge new response cookies into original
+			if (newCookies) {
+				for (const cookieValue of AstroCookies.consume(newCookies)) {
+					originalResponse.headers.append('set-cookie', cookieValue);
+				}
+			}
+			attachCookiesToResponse(mergedResponse, originalCookies);
+		} else if (newCookies) {
+			attachCookiesToResponse(mergedResponse, newCookies);
+		}
+
+		return mergedResponse;
 	}
 
 	getDefaultStatusCode(routeData: RouteData, pathname: string): number {
@@ -672,4 +809,52 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	public getManifest() {
 		return this.pipeline.manifest;
 	}
+
+	logThisRequest({
+		pathname,
+		method,
+		statusCode,
+		isRewrite,
+		timeStart,
+	}: {
+		pathname: string;
+		method: string;
+		statusCode: number;
+		isRewrite: boolean;
+		timeStart: number;
+	}) {
+		const timeEnd = performance.now();
+		this.logRequest({
+			pathname,
+			method,
+			statusCode,
+			isRewrite,
+			reqTime: timeEnd - timeStart,
+		});
+	}
+
+	public abstract logRequest(_options: LogRequestPayload): void;
 }
+
+export type LogRequestPayload = {
+	/**
+	 * The current path being rendered
+	 */
+	pathname: string;
+	/**
+	 * The method of the request
+	 */
+	method: string;
+	/**
+	 * The status code of the request
+	 */
+	statusCode: number;
+	/**
+	 * If the current request is a rewrite
+	 */
+	isRewrite: boolean;
+	/**
+	 * How long it took to render the request
+	 */
+	reqTime: number;
+};

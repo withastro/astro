@@ -550,7 +550,7 @@ async function writeContentFiles({
 					contentPaths.contentDir + `${key}/`,
 				).toString();
 
-				// Save entry path in lower case to avoid case sensitivity issues between Windows and Unix
+				// Save entry path in lowercase to avoid case sensitivity issues between Windows and Unix
 				contentCollectionManifest.entries[entryPath.toLowerCase()] = key;
 			});
 		});
@@ -648,6 +648,9 @@ async function generateJSONSchema(
 					ctx.jsonSchema.format = 'date-time';
 				}
 			},
+			// Collection schemas are used for parsing collection input, so we need to tell Zod to use the
+			// input shape when generating a JSON schema.
+			io: 'input',
 		});
 		const schemaStr = JSON.stringify(schema, null, 2);
 		const schemaJsonPath = new URL(

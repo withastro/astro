@@ -4,6 +4,30 @@ import type { SignalLike } from './types.js';
 
 const sharedSignalMap = new Map<string, SignalLike>();
 
+type MaskId = number | string;
+
+function getIslandMaskId(element: HTMLElement): MaskId | null {
+	const islandId = element.getAttribute('data-preact-island-id');
+	if (islandId !== null) {
+		const parsed = Number.parseInt(islandId, 10);
+		if (!Number.isNaN(parsed)) {
+			return parsed;
+		}
+	}
+
+	return element.getAttribute('uid');
+}
+
+function setVNodeMask(child: any, maskId: MaskId) {
+	// Keep hydration/client-only behavior aligned with SSR by seeding the same
+	// internal root mask that Preact's useId reads (`_mask`/`__m`).
+	// Without this, each island root can start from the same default and collide.
+	// Tracked upstream: https://github.com/preactjs/preact/issues/3781
+	const mask: [MaskId, number] = [maskId, 0];
+	child._mask = mask;
+	child.__m = mask;
+}
+
 export default (element: HTMLElement) =>
 	async (
 		Component: any,
@@ -27,7 +51,7 @@ export default (element: HTMLElement) =>
 						const mapValue = props[propName][indexOrKeyInProps];
 						let valueOfSignal = mapValue;
 
-						// not an property key
+						// not a property key
 						if (typeof indexOrKeyInProps !== 'string') {
 							valueOfSignal = mapValue[0];
 							indexOrKeyInProps = mapValue[1];
@@ -54,6 +78,10 @@ export default (element: HTMLElement) =>
 			props,
 			children != null ? h(StaticHtml, { value: children }) : children,
 		);
+		const islandMaskId = getIslandMaskId(element);
+		if (islandMaskId !== null) {
+			setVNodeMask(child, islandMaskId);
+		}
 
 		if (client === 'only') {
 			element.innerHTML = '';

@@ -23,10 +23,11 @@ env:
 
 jobs:
   codspeed:
+    if: ${{ github.repository_owner == 'withastro' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        shard: [ "1/4","2/4", "3/4", "4/4" ]
+        shard: [ "1/4", "2/4", "3/4", "4/4" ]
     permissions:
       contents: read
       pull-requests: write
@@ -40,7 +41,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
-          node-version: 22
+          node-version: 24.13.1
           cache: "pnpm"
 
       - name: Install dependencies
@@ -55,9 +56,10 @@ jobs:
         timeout-minutes: 15
         
       - name: Run the benchmarks
-        uses: CodSpeedHQ/action@208425962c215de49ed713e18c4b9bde9bda5c52 # v4.10.2
+        uses: CodSpeedHQ/action@2ac572851726409c88c02a307f1ea2632a9ea59b # v4.11.0
         timeout-minutes: 30
         with:
           working-directory: ./benchmark
           run: pnpm bench --shard=${{ matrix.shard }}
           token: ${{ secrets.CODSPEED_TOKEN }}
+          mode: simulation

@@ -15,6 +15,24 @@ export function prependForwardSlash(path: string) {
 	return path[0] === '/' ? path : '/' + path;
 }
 
+export const MANY_LEADING_SLASHES = /^\/{2,}/;
+
+export function collapseDuplicateLeadingSlashes(path: string) {
+	if (!path) {
+		return path;
+	}
+	return path.replace(MANY_LEADING_SLASHES, '/');
+}
+
+const MANY_SLASHES = /\/{2,}/g;
+
+export function collapseDuplicateSlashes(path: string) {
+	if (!path) {
+		return path;
+	}
+	return path.replace(MANY_SLASHES, '/');
+}
+
 export const MANY_TRAILING_SLASHES = /\/{2,}$/g;
 
 export function collapseDuplicateTrailingSlashes(path: string, trailingSlash: boolean) {
@@ -242,4 +260,43 @@ const WITH_FILE_EXT = /\/[^/]+\.\w+$/;
 
 export function hasFileExtension(path: string) {
 	return WITH_FILE_EXT.test(path);
+}
+
+/**
+ * Normalizes a URL pathname to match the canonical form used by route generation.
+ * This reverses the transformations done by `getUrlForPath` in generate.ts.
+ *
+ * - For `buildFormat: 'file'`: strips `.html` extension
+ * - For `buildFormat: 'directory'/'preserve'` with `trailingSlash: 'ignore'`: strips trailing slash
+ *
+ * @param pathname - The URL pathname to normalize
+ * @param buildFormat - The build format ('file', 'directory', or 'preserve')
+ * @param trailingSlash - The trailing slash setting ('always', 'never', or 'ignore')
+ */
+export function normalizePathname(
+	pathname: string,
+	buildFormat: 'file' | 'directory' | 'preserve',
+	trailingSlash: 'always' | 'never' | 'ignore',
+): string {
+	if (buildFormat === 'file') {
+		// Strip .html extension (but not for root like /.html)
+		if (pathname.endsWith('.html') && pathname !== '/.html') {
+			return pathname.slice(0, -5);
+		}
+		// Handle edge case: index page with base gets mangled by removeBase
+		// e.g., /blog.html with base /blog → removeBase gives /html (missing the dot)
+		// In file format, all non-index paths should end with .html, so if it doesn't
+		// and it's not root, it's likely a mangled index pathname
+		if (pathname !== '/' && !pathname.endsWith('.html')) {
+			return '/';
+		}
+	} else {
+		// directory or preserve format
+		// Strip trailing slash when trailingSlash is 'ignore'
+		// (because getUrlForPath adds it, but getRouteGenerator doesn't)
+		if (trailingSlash === 'ignore' && pathname.endsWith('/') && pathname !== '/') {
+			return pathname.slice(0, -1);
+		}
+	}
+	return pathname;
 }

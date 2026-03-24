@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
+import createTestPrerenderer from './test-prerenderer.js';
 
 describe('Astro basic build', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -227,5 +228,38 @@ describe('Astro basic development', () => {
 		// However we don't check them here as dev plugins could add scripts and styles dynam
 		assert.doesNotMatch(html, /_content.astro\?astro&type=style/);
 		assert.doesNotMatch(html, /_content.astro\?astro&type=script/);
+	});
+});
+
+describe('Astro custom prerenderer', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let testPrerenderer;
+
+	before(async () => {
+		testPrerenderer = createTestPrerenderer();
+		fixture = await loadFixture({
+			root: './fixtures/astro-basic/',
+			integrations: [testPrerenderer.integration],
+		});
+		await fixture.build();
+	});
+
+	it('calls prerenderer lifecycle methods', () => {
+		assert.equal(testPrerenderer.calls.setup, 1, 'setup should be called once');
+		assert.equal(testPrerenderer.calls.getStaticPaths, 1, 'getStaticPaths should be called once');
+		assert.ok(testPrerenderer.calls.render > 0, 'render should be called at least once');
+		assert.equal(testPrerenderer.calls.teardown, 1, 'teardown should be called once');
+	});
+
+	it('renders pages through the custom prerenderer', () => {
+		assert.ok(testPrerenderer.renderedPaths.includes('/'), 'should render index page');
+		assert.ok(testPrerenderer.renderedPaths.length > 0, 'should render at least one page');
+	});
+
+	it('produces valid output', async () => {
+		const html = await fixture.readFile('/index.html');
+		const $ = cheerio.load(html);
+		assert.equal($('h1').text(), 'Hello world!');
 	});
 });
