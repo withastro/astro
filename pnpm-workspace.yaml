@@ -13,6 +13,11 @@ packages:
   - '!packages/astro/test/units/_temp-fixtures/*'
   - '!**/.vercel/**'
 
+# TODO: remove once the stable unstorage v2 comes and out and downstream deps are using it
+overrides:
+  # Enforce use of v2
+  'unstorage': '2.0.0-alpha.7'
+
 # Important! Never install `astro` even when new version is in registry
 preferWorkspacePackages: true
 linkWorkspacePackages: true
@@ -34,6 +39,7 @@ minimumReleaseAgeExclude:
   # TODO: remove once more stable
   - '@flue/*'
   - '@astrojs/*'
+  - 'unstorage'
   # Renovate security update: fast-xml-parser@5.3.8
   - fast-xml-parser@5.3.8
   # Renovate security update: svelte@5.53.5
