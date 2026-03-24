@@ -80,10 +80,13 @@ export function vitePluginEnvironment({
 					// are discovered and pre-bundled as ESM before reaching non-Node runtimes
 					// like Cloudflare Workers (workerd). We scope to known framework packages
 					// (identified by vitefu) rather than all of node_modules to avoid slow
-					// glob traversal on large dependency trees.
-					const frameworkPkgEntries = astroPkgsConfig.ssr.noExternal.map(
-						(pkg) => `node_modules/${pkg}/**/*.astro`,
-					);
+					// glob traversal on large dependency trees. Negative patterns are added to
+					// prevent traversal into each package's own node_modules, which can cause
+					// circular symlink issues in monorepo environments.
+					const frameworkPkgEntries = astroPkgsConfig.ssr.noExternal.flatMap((pkg) => [
+						`node_modules/${pkg}/**/*.astro`,
+						`!node_modules/${pkg}/node_modules/**`,
+					]);
 					finalEnvironmentOptions.optimizeDeps = {
 						entries: [
 							`${srcDirPattern}**/*.{jsx,tsx,vue,svelte,html,astro}`,
