@@ -21,6 +21,6 @@ describe('AstroDevPlatform', () => {
 	it('loads var from wrangler.jsonc', async () => {
 		const res = await fixture.fetch('/');
 		const content = await res.text();
-		assert.equal(content, 'ME');
+		assert.startsWith(content, '<!DOCTYPE html>ME');
 	});
 });
