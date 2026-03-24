@@ -1,5 +1,17 @@
 # @astrojs/vercel
 
+## 10.0.2
+
+### Patch Changes
+
+- [#15959](https://github.com/withastro/astro/pull/15959) [`335a204`](https://github.com/withastro/astro/commit/335a204161f5a7293c128db570901d4f8639c6ed) Thanks [@matthewp](https://github.com/matthewp)! - Fix Vercel serverless path override handling so override values are only applied when the trusted middleware secret is present.
+
+## 10.0.1
+
+### Patch Changes
+
+- [#15934](https://github.com/withastro/astro/pull/15934) [`6f8f0bc`](https://github.com/withastro/astro/commit/6f8f0bc4e22e958ccc2164acb1aa8cce21c43148) Thanks [@ematipico](https://github.com/ematipico)! - Updates the Astro `peerDependencies#astro` to be `6.0.0`.
+
 ## 10.0.0
 
 ### Major Changes

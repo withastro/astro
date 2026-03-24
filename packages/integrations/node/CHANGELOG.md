@@ -1,5 +1,19 @@
 # @astrojs/node
 
+## 10.0.3
+
+### Patch Changes
+
+- [#15735](https://github.com/withastro/astro/pull/15735) [`9685e2d`](https://github.com/withastro/astro/commit/9685e2d5ef132ca113144c1714163511a93fd29e) Thanks [@fa-sharp](https://github.com/fa-sharp)! - Fixes an EventEmitter memory leak when serving static pages from Node.js middleware.
+
+  When using the middleware handler, requests that were being passed on to Express / Fastify (e.g. static files / pre-rendered pages / etc.) weren't cleaning up socket listeners before calling `next()`, causing a memory leak warning. This fix makes sure to run the cleanup before calling `next()`.
+
+## 10.0.2
+
+### Patch Changes
+
+- [#15934](https://github.com/withastro/astro/pull/15934) [`6f8f0bc`](https://github.com/withastro/astro/commit/6f8f0bc4e22e958ccc2164acb1aa8cce21c43148) Thanks [@ematipico](https://github.com/ematipico)! - Updates the Astro `peerDependencies#astro` to be `6.0.0`.
+
 ## 10.0.1
 
 ### Patch Changes
