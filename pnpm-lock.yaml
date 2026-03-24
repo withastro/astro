@@ -5263,6 +5263,19 @@ importers:
         specifier: ^3.5.29
         version: 3.5.29(typescript@5.9.3)
 
+  packages/integrations/cloudflare/test/fixtures/wrangler-config-vars-dev:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+    devDependencies:
+      wrangler:
+        specifier: ^4.69.0
+        version: 4.69.0(@cloudflare/workers-types@4.20260228.0)
+
   packages/integrations/cloudflare/test/fixtures/wrangler-preview-platform:
     dependencies:
       '@astrojs/cloudflare':
