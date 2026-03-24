@@ -148,7 +148,7 @@ Adds logging for content collections configuration errors.
 Fixes a bug where the toolbar audit would incorrectly flag images as above the fold
 ```
 
-**New features (minor)** — start with "Adds", name the new API, and describe what users can now do. Include a code example when helpful:
+**New features (minor)** — start with "Adds", name the new API, and describe what users can now do. Include a code example when helpful. New features are also an opportunity to write a richer description that can feed into blog posts — see https://contribute.docs.astro.build/docs-for-code-changes/changesets/#new-features for guidance.
 
 ```md
 ---
