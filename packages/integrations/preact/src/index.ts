@@ -1,7 +1,9 @@
 import { fileURLToPath } from 'node:url';
 import { preact, type PreactPluginOptions as VitePreactPluginOptions } from '@preact/preset-vite';
 import type { AstroIntegration, AstroRenderer, ViteUserConfig } from 'astro';
+import * as devalue from 'devalue';
 import type { EnvironmentOptions, Plugin } from 'vite';
+import type { VirtualModuleOptions } from './types.js';
 
 const babelCwd = new URL('../', import.meta.url);
 
@@ -14,6 +16,36 @@ function getRenderer(development: boolean): AstroRenderer {
 }
 
 export const getContainerRenderer = (): AstroRenderer => getRenderer(false);
+
+function optionsPlugin(include: Options['include'], exclude: Options['exclude']): Plugin {
+	const virtualModule = 'astro:preact:opts';
+	const virtualModuleId = '\0' + virtualModule;
+	return {
+		name: '@astrojs/preact:opts',
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${virtualModule}$`),
+			},
+			handler() {
+				return virtualModuleId;
+			},
+		},
+		load: {
+			filter: {
+				id: new RegExp(`^${virtualModuleId}$`),
+			},
+			handler() {
+				const opts: VirtualModuleOptions = {
+					include,
+					exclude,
+				};
+				return {
+					code: `export default ${devalue.uneval(opts)}`,
+				};
+			},
+		},
+	};
+}
 
 export interface Options extends Pick<VitePreactPluginOptions, 'include' | 'exclude'> {
 	compat?: boolean;
@@ -34,9 +66,19 @@ export default function ({ include, exclude, compat, devtools }: Options = {}): 
 					},
 				});
 
-				const viteConfig: ViteUserConfig = {};
+				const viteConfig: ViteUserConfig = {
+					optimizeDeps: {
+						// Ideally would be environment config, but
+						// putting it there does not result in it being optimized
+						include: ['@astrojs/preact/server.js'],
+					},
+				};
 
-				viteConfig.plugins = [preactPlugin, configEnvironmentPlugin(compat)];
+				viteConfig.plugins = [
+					preactPlugin,
+					optionsPlugin(include, exclude),
+					configEnvironmentPlugin(compat),
+				];
 
 				addRenderer(getRenderer(command === 'dev'));
 				updateConfig({
@@ -68,9 +110,7 @@ function configEnvironmentPlugin(compat: boolean | undefined): Plugin {
 		name: '@astrojs/preact:environment',
 		configEnvironment(environmentName, options) {
 			const environmentOptions: EnvironmentOptions = {
-				optimizeDeps: {
-					exclude: ['@astrojs/preact/server.js'],
-				},
+				optimizeDeps: {},
 				resolve: {},
 			};
 

@@ -2,6 +2,7 @@ import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { remotePatternToRegex } from '@astrojs/netlify';
 import { loadFixture } from '../../../../astro/test/test-utils.js';
+import imageService from '../../dist/image-service.js';
 
 describe(
 	'Image CDN',
@@ -116,6 +117,61 @@ describe(
 				assert.equal(
 					calls[0].arguments[0],
 					'Could not generate a valid regex from the remotePattern "{"hostname":"*.examp[le.org","pathname":"/images/*"}". Please check the syntax.',
+				);
+			});
+		});
+
+		describe('fit parameter', () => {
+			it('includes fit parameter in image URL', () => {
+				const url = imageService.getURL({
+					src: 'images/astronaut.jpg',
+					width: 300,
+					height: 400,
+					fit: 'cover',
+					format: 'webp',
+				});
+				assert.ok(url.includes('fit=cover'), `Expected fit=cover in URL, got: ${url}`);
+			});
+
+			it('maps Astro fit values to Netlify equivalents', () => {
+				const cases = [
+					['contain', 'contain'],
+					['cover', 'cover'],
+					['fill', 'fill'],
+					['inside', 'contain'],
+					['outside', 'cover'],
+					['scale-down', 'contain'],
+				];
+				for (const [astroFit, netlifyFit] of cases) {
+					const url = imageService.getURL({
+						src: 'img.jpg',
+						width: 100,
+						height: 100,
+						fit: astroFit,
+					});
+					assert.ok(
+						url.includes(`fit=${netlifyFit}`),
+						`Expected fit=${netlifyFit} for astro fit="${astroFit}", got: ${url}`,
+					);
+				}
+			});
+
+			it('omits fit parameter when fit is none or unset', () => {
+				const withNone = imageService.getURL({
+					src: 'img.jpg',
+					width: 100,
+					height: 100,
+					fit: 'none',
+				});
+				assert.ok(
+					!withNone.includes('fit='),
+					`Expected no fit param for fit="none", got: ${withNone}`,
+				);
+
+				const withoutFit = imageService.getURL({ src: 'img.jpg', width: 100, height: 100 });
+				assert.ok(
+					!withoutFit.includes('fit='),
+					`Expected no fit param when unset, got: ${withoutFit}`,
 				);
 			});
 		});

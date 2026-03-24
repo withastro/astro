@@ -6,7 +6,7 @@ import * as z from 'zod/v4';
 import { fontProviders } from '../../../dist/assets/fonts/providers/index.js';
 import { LocalFontProvider } from '../../../dist/assets/fonts/providers/local.js';
 import { validateConfig as _validateConfig } from '../../../dist/core/config/validate.js';
-import { formatConfigErrorMessage } from '../../../dist/core/messages.js';
+import { formatConfigErrorMessage } from '../../../dist/core/messages/runtime.js';
 import { envField } from '../../../dist/env/config.js';
 
 /**
@@ -226,7 +226,7 @@ describe('Config Validation', () => {
 				assert.equal(configError instanceof z.ZodError, true);
 				assert.equal(
 					configError.issues[0].message,
-					'The option `i18n.routing.redirectToDefaultLocale` can be used only when `i18n.routing.prefixDefaultLocale` is set to `true`, otherwise redirects might cause infinite loops. Remove the option `i18n.routing.redirectToDefaultLocale`, or change its value to `false`.',
+					'The option `i18n.routing.redirectToDefaultLocale` can be used only when `i18n.routing.prefixDefaultLocale` is set to `true`; otherwise, redirects might cause infinite loops. Remove the option `i18n.routing.redirectToDefaultLocale`, or change its value to `false`.',
 				);
 			},
 		);

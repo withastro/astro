@@ -2,8 +2,10 @@
 export const prerender = false;
 
 import { getCollection, getEntry, render } from 'astro:content';
-import Hello from '../components/Hello.tsx';
+import Hello from '../components/react/Hello.tsx';
+import SubpathCounter from '#components/react/SubpathCounter.tsx';
 import HelloVue from '../components/Hello.vue';
+import PreactCounter from '../components/preact/Counter.tsx';
 import Island from '../components/Island.astro';
 import IslandProps from '../components/IslandProps.astro';
 import { Font } from 'astro:assets';
@@ -16,7 +18,7 @@ const dogs = await getCollection('dogs');
 const increment = await getEntry('increment', 'value');
 const { Content } = await render(increment);
 
-const surnamne = Astro.url.searchParams.get('surname');
+const surname = Astro.url.searchParams.get('surname');
 ---
 
 <html>
@@ -46,13 +48,15 @@ const surnamne = Astro.url.searchParams.get('surname');
 	<p id="runtime">Running on: {workerRuntime ?? 'unknown runtime'}</p>
 	<div id="framework">
 		<Hello client:load />
+		<SubpathCounter client:load />
 		<HelloVue client:load />
+		<PreactCounter client:load />
 	</div>
 	<div id="island">
 		<Island server:defer/>
 	</div>
 	<div id="island-props">
-		<IslandProps server:defer name="Aria" surname={surnamne}/>
+		<IslandProps server:defer name="Aria" surname={surname}/>
 	</div>
 	<ul id="dogs-list">
 		{dogs.map(dog => (
@@ -80,4 +84,3 @@ const surnamne = Astro.url.searchParams.get('surname');
 		font-family: var(--font-roboto);
 	}
 </style>
-

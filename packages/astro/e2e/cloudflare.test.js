@@ -38,9 +38,30 @@ function sharedTests(testRunner, infoLogs = null) {
 		await expect(page.locator('#framework')).toContainText('Hello from React');
 	});
 
+	testRunner(
+		'subpath import react component hydrates with client:load',
+		async ({ page, astro }) => {
+			await page.goto(astro.resolveUrl('/'));
+			const counter = page.locator('#subpath-counter');
+			await expect(counter).toBeVisible();
+			await expect(counter).toContainText('Subpath count: 0');
+			await counter.locator('button').click();
+			await expect(counter).toContainText('Subpath count: 1');
+		},
+	);
+
 	testRunner('vue component with client:load', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 		await expect(page.locator('#framework')).toContainText('Hello from vue component');
+	});
+
+	testRunner('preact component with client:load and useEffect', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
+		const counter = page.locator('#preact-counter');
+		await expect(counter).toBeVisible();
+		await expect(counter).toContainText('Preact count: 0');
+		await counter.locator('button').click();
+		await expect(counter).toContainText('Preact count: 1');
 	});
 
 	testRunner('server island with server:defer', async ({ page, astro }) => {

@@ -24,9 +24,14 @@ describe('Static build: pages routes have distURL', () => {
 	});
 	it('Pages routes have distURL', async () => {
 		assert.equal(assets.size > 0, true, 'Pages not found: build end hook not being called');
-		for (const [p, distURL] of assets.entries()) {
+		for (const [route, distURL] of assets.entries()) {
+			assert.equal(
+				distURL.length > 0,
+				true,
+				`Route "${route}" has an empty distURL array — asset URLs were not propagated to astro:build:done`,
+			);
 			for (const url of distURL) {
-				assert.equal(url instanceof URL, true, `${p.pathname} doesn't include distURL`);
+				assert.equal(url instanceof URL, true, `Route "${route}" distURL entry is not a URL`);
 			}
 		}
 	});

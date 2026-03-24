@@ -2,8 +2,8 @@ import type { GetStaticPathsItem } from '../../types/public/common.js';
 import type { AstroConfig } from '../../types/public/index.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { trimSlashes } from '../path.js';
-import { getRouteGenerator } from './manifest/generator.js';
-import { validateGetStaticPathsParameter } from './validation.js';
+import { getRouteGenerator } from './generator.js';
+import { validateGetStaticPathsParameter } from './internal/validation.js';
 
 /**
  * given a route's Params object, validate parameter

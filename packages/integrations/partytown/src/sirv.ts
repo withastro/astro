@@ -111,8 +111,8 @@ function send(req, res, file, stats, headers) {
 	if (req.headers.range) {
 		code = 206;
 		let [x, y] = req.headers.range.replace('bytes=', '').split('-');
-		let end = (opts.end = parseInt(y, 10) || stats.size - 1);
-		let start = (opts.start = parseInt(x, 10) || 0);
+		let end = (opts.end = Number.parseInt(y, 10) || stats.size - 1);
+		let start = (opts.start = Number.parseInt(x, 10) || 0);
 
 		if (start >= stats.size || end >= stats.size) {
 			res.setHeader('Content-Range', `bytes */${stats.size}`);
@@ -126,7 +126,9 @@ function send(req, res, file, stats, headers) {
 	}
 
 	res.writeHead(code, headers);
-	fs.createReadStream(file, opts).pipe(res);
+	const stream = fs.createReadStream(file, opts);
+	stream.pipe(res);
+	res.on('close', () => stream.destroy());
 }
 
 const ENCODING = {
@@ -221,7 +223,7 @@ export default function (dir, opts = {}) {
 			try {
 				pathname = decodeURIComponent(pathname);
 			} catch {
-				/* malform uri */
+				/* malformed uri */
 			}
 		}
 

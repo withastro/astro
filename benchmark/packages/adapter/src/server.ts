@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import type { SSRManifest } from 'astro';
-import { AppPipeline, BaseApp } from 'astro/app';
+import { AppPipeline, BaseApp, type LogRequestPayload } from 'astro/app';
 
 class MyApp extends BaseApp {
 	#manifest: SSRManifest | undefined;
@@ -30,11 +30,15 @@ class MyApp extends BaseApp {
 			streaming,
 		});
 	}
+
+	logRequest(_options: LogRequestPayload) {}
 }
 
 export function createExports(manifest: SSRManifest) {
 	return {
 		manifest,
 		createApp: (streaming: boolean) => new MyApp(manifest, streaming),
+		// Export App class directly for benchmarks that need to pass custom manifests
+		App: MyApp,
 	};
 }

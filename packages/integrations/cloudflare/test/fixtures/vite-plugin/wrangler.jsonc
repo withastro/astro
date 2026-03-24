@@ -1,15 +1,15 @@
 {
-	"compatibility_date": "2025-10-30",
-	"name": "astro-cloudflare-custom-entryfile",
-	"main": "@astrojs/cloudflare/entrypoints/server",
-	"assets": {
-		"directory": "./dist",
-		"binding": "ASSETS"
-	},
-	"images": {
-		"binding": "IMAGES"
-	},
-	"kv_namespaces": [
+  "compatibility_date": "2026-01-28",
+  "name": "astro-cloudflare-custom-entryfile",
+  "main": "@astrojs/cloudflare/entrypoints/server",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS"
+  },
+  "images": {
+    "binding": "IMAGES"
+  },
+  "kv_namespaces": [
     {
       "binding": "SESSION",
       "id": "SESSION"

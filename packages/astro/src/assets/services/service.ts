@@ -5,11 +5,13 @@ import type { AstroConfig } from '../../types/public/config.js';
 import { DEFAULT_HASH_PROPS, DEFAULT_OUTPUT_FORMAT, VALID_SUPPORTED_FORMATS } from '../consts.js';
 import type {
 	ImageFit,
+	ImageMetadata,
 	ImageOutputFormat,
 	ImageTransform,
 	UnresolvedSrcSetValue,
 } from '../types.js';
 import { isESMImportedImage, isRemoteImage } from '../utils/imageKind.js';
+import { inferRemoteSize } from '../utils/remoteProbe.js';
 
 export type ImageService = LocalImageService | ExternalImageService;
 
@@ -22,7 +24,7 @@ export function isLocalService(service: ImageService | undefined): service is Lo
 }
 
 export function parseQuality(quality: string): string | number {
-	let result = parseInt(quality);
+	let result = Number.parseInt(quality);
 	if (Number.isNaN(result)) {
 		return quality;
 	}
@@ -77,6 +79,16 @@ interface SharedServiceProps<T extends Record<string, any> = Record<string, any>
 		options: ImageTransform,
 		imageConfig: ImageConfig<T>,
 	) => ImageTransform | Promise<ImageTransform>;
+	/**
+	 * Return the dimensions of a remote image.
+	 *
+	 * This is used to infer the width and height of an image from its URL,
+	 * allowing the service to provide necessary metadata when it's not available locally.
+	 */
+	getRemoteSize?: (
+		url: string,
+		imageConfig: ImageConfig<T>,
+	) => Omit<ImageMetadata, 'src' | 'fsPath'> | Promise<Omit<ImageMetadata, 'src' | 'fsPath'>>;
 }
 
 export type ExternalImageService<T extends Record<string, any> = Record<string, any>> =
@@ -186,10 +198,7 @@ export function verifyOptions(options: ImageTransform): void {
 			throw new AstroError(AstroErrorData.IncompatibleDescriptorOptions);
 		}
 
-		if (
-			(options.src.format === 'svg' && options.format !== 'svg') ||
-			(options.src.format !== 'svg' && options.format === 'svg')
-		) {
+		if (options.src.format !== 'svg' && options.format === 'svg') {
 			throw new AstroError(AstroErrorData.UnsupportedImageConversion);
 		}
 	}
@@ -217,22 +226,20 @@ export function verifyOptions(options: ImageTransform): void {
 export const baseService: Omit<LocalImageService, 'transform'> = {
 	propertiesToHash: DEFAULT_HASH_PROPS,
 	validateOptions(options) {
-		// We currently do not support processing SVGs, so whenever the input format is a SVG, force the output to also be one
-		if (isESMImportedImage(options.src) && options.src.format === 'svg') {
-			options.format = 'svg';
-		}
-
 		// Run verification-only checks
 		verifyOptions(options);
 
 		// Apply defaults and normalization separate from verification
 		if (!options.format) {
-			options.format = DEFAULT_OUTPUT_FORMAT;
+			if (isESMImportedImage(options.src) && options.src.format === 'svg') {
+				options.format = 'svg';
+			} else {
+				options.format = DEFAULT_OUTPUT_FORMAT;
+			}
 		}
 		if (options.width) options.width = Math.round(options.width);
 		if (options.height) options.height = Math.round(options.height);
-		if (options.layout && options.width && options.height) {
-			options.fit ??= 'cover';
+		if (options.layout) {
 			delete options.layout;
 		}
 		if (options.fit === 'none') {
@@ -277,7 +284,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		// For remote images, we don't know the original image's dimensions, so we cannot know the maximum width
 		// It is ultimately the user's responsibility to make sure they don't request images larger than the original
 		let imageWidth = options.width;
-		let maxWidth = Infinity;
+		let maxWidth = Number.POSITIVE_INFINITY;
 
 		// However, if it's an imported image, we can use the original image's width as a maximum width
 		if (isESMImportedImage(options.src)) {
@@ -296,7 +303,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		transformedWidths = Array.from(new Set(transformedWidths));
 
 		// Since `widths` and `densities` ultimately control the width and height of the image,
-		// we don't want the dimensions the user specified, we'll create those ourselves.
+		// we don't want the dimensions to be user specified, we'll create those ourselves.
 		const {
 			width: transformWidth,
 			height: transformHeight,
@@ -314,7 +321,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 				if (typeof density === 'number') {
 					return density;
 				} else {
-					return parseFloat(density);
+					return Number.parseFloat(density);
 				}
 			});
 
@@ -394,8 +401,8 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 
 		const transform: BaseServiceTransform = {
 			src: params.get('href')!,
-			width: params.has('w') ? parseInt(params.get('w')!) : undefined,
-			height: params.has('h') ? parseInt(params.get('h')!) : undefined,
+			width: params.has('w') ? Number.parseInt(params.get('w')!) : undefined,
+			height: params.has('h') ? Number.parseInt(params.get('h')!) : undefined,
 			format: params.get('f') as ImageOutputFormat,
 			quality: params.get('q'),
 			fit: params.get('fit') as ImageFit,
@@ -404,6 +411,9 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		};
 
 		return transform;
+	},
+	getRemoteSize(url, imageConfig) {
+		return inferRemoteSize(url, imageConfig);
 	},
 };
 

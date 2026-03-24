@@ -36,6 +36,7 @@ export function createBaseSettings(
 		tsConfig: undefined,
 		tsConfigPath: undefined,
 		adapter: undefined,
+		prerenderer: undefined,
 		injectedRoutes: [],
 		resolvedInjectedRoutes: [],
 		pageExtensions: ['.astro', '.html', ...SUPPORTED_MARKDOWN_FILE_EXTENSIONS],

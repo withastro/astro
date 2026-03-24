@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { Logger } from '../../../dist/core/logger/core.js';
-import { createRoutesList } from '../../../dist/core/routing/manifest/create.js';
+import { createRoutesList } from '../../../dist/core/routing/create-manifest.js';
 import { createBasicSettings, createFixture } from '../test-utils.js';
 
 function getManifestRoutes(manifest) {
@@ -373,7 +373,7 @@ describe('routing - createRoutesList', () => {
 			{
 				label: 'router',
 				level: 'warn',
-				message: 'A collision will result in an hard error in following versions of Astro.',
+				message: 'A collision will result in a hard error in following versions of Astro.',
 				newLine: true,
 			},
 		]);
@@ -412,7 +412,7 @@ describe('routing - createRoutesList', () => {
 			{
 				label: 'router',
 				level: 'warn',
-				message: 'A collision will result in an hard error in following versions of Astro.',
+				message: 'A collision will result in a hard error in following versions of Astro.',
 				newLine: true,
 			},
 		]);

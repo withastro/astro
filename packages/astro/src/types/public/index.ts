@@ -11,6 +11,7 @@ export type {
 	LocalImageService,
 } from '../../assets/services/service.js';
 export type {
+	AssetsGlobalStaticImagesList,
 	GetImageResult,
 	ImageInputFormat,
 	ImageMetadata,
@@ -37,6 +38,13 @@ export type { AstroSession } from '../../core/session/runtime.js';
 export type { ToolbarServerHelpers } from '../../runtime/client/dev-toolbar/helpers.js';
 export type { AstroEnvironmentNames } from '../../core/constants.js';
 export type { SessionDriver, SessionDriverConfig } from '../../core/session/types.js';
+export type {
+	CacheProvider,
+	CacheProviderConfig,
+	CacheProviderFactory,
+	CacheOptions,
+	InvalidateOptions,
+} from '../../core/cache/types.js';
 export type * from './common.js';
 export type * from './config.js';
 export type * from './content.js';

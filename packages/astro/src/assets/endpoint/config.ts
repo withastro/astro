@@ -1,9 +1,5 @@
-import {
-	removeLeadingForwardSlash,
-	removeTrailingForwardSlash,
-} from '@astrojs/internal-helpers/path';
-import { resolveInjectedRoute } from '../../core/routing/manifest/create.js';
-import { getPattern } from '../../core/routing/manifest/pattern.js';
+import { resolveInjectedRoute } from '../../core/routing/create-manifest.js';
+import { parseRoute } from '../../core/routing/parse-route.js';
 import type { AstroSettings, RoutesList } from '../../types/astro.js';
 import type { RouteData } from '../../types/public/internal.js';
 
@@ -28,30 +24,14 @@ function getImageEndpointData(
 				: 'astro/assets/endpoint/generic'
 			: settings.config.image.endpoint.entrypoint;
 
-	const segments = [
-		[
-			{
-				content: removeTrailingForwardSlash(
-					removeLeadingForwardSlash(settings.config.image.endpoint.route),
-				),
-				dynamic: false,
-				spread: false,
-			},
-		],
-	];
+	const component = resolveInjectedRoute(endpointEntrypoint, settings.config.root, cwd).component;
 
-	return {
+	return parseRoute(settings.config.image.endpoint.route, settings, {
+		component,
 		type: 'endpoint',
-		isIndex: false,
-		route: settings.config.image.endpoint.route,
-		pattern: getPattern(segments, settings.config.base, settings.config.trailingSlash),
-		segments,
-		params: [],
-		component: resolveInjectedRoute(endpointEntrypoint, settings.config.root, cwd).component,
-		pathname: settings.config.image.endpoint.route,
-		prerender: false,
-		fallbackRoutes: [],
 		origin: 'internal',
-		distURL: [],
-	};
+		isIndex: false,
+		prerender: false,
+		params: [],
+	});
 }
