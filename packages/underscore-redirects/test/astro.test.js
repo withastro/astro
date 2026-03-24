@@ -26,6 +26,12 @@ describe('Astro', () => {
 		assert.equal(_redirects.definitions.length, 2);
 	});
 
+	it('Generates correct paths for root', () => {
+		assert.deepEqual(getTrailingSlashPaths('/', 'ignore'), ['/']);
+		assert.deepEqual(getTrailingSlashPaths('/', 'always'), ['/']);
+		assert.deepEqual(getTrailingSlashPaths('/', 'never'), ['/']);
+	});
+
 	it('Generates correct paths for trailingslash ignore', () => {
 		assert.deepEqual(getTrailingSlashPaths('/path', 'ignore'), ['/path', '/path/']);
 		assert.deepEqual(getTrailingSlashPaths('/path/', 'ignore'), ['/path', '/path/']);
