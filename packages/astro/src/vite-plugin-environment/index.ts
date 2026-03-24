@@ -82,7 +82,7 @@ export function vitePluginEnvironment({
 					// (identified by vitefu) rather than all of node_modules to avoid slow
 					// glob traversal on large dependency trees.
 					const frameworkPkgEntries = astroPkgsConfig.ssr.noExternal.map(
-						(pkg) => `**/node_modules/${pkg}/**/*.astro`,
+						(pkg) => `node_modules/${pkg}/**/*.astro`,
 					);
 					finalEnvironmentOptions.optimizeDeps = {
 						entries: [
