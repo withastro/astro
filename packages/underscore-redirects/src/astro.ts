@@ -33,7 +33,7 @@ interface CreateRedirectsFromAstroRoutesParams {
  * - 'never': ensures the path does not end with '/'
  * - 'ignore'(default): returns both with and without trailing slash variants
  */
-function getTrailingSlashPaths(
+export function getTrailingSlashPaths(
 	inputPath: string,
 	trailingSlash: 'always' | 'never' | 'ignore',
 ): string[] {
