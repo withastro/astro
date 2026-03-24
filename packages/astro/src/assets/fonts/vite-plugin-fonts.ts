@@ -8,7 +8,7 @@ import { generateCspDigest } from '../../core/encryption.js';
 import { collectErrorMetadata } from '../../core/errors/dev/utils.js';
 import { AstroError, AstroErrorData, isAstroError } from '../../core/errors/index.js';
 import type { Logger } from '../../core/logger/core.js';
-import { formatErrorMessage } from '../../core/messages.js';
+import { formatErrorMessage } from '../../core/messages/runtime.js';
 import { appendForwardSlash, joinPaths, prependForwardSlash } from '../../core/path.js';
 import { getClientOutputDirectory } from '../../prerender/utils.js';
 import type { AstroSettings } from '../../types/astro.js';
@@ -74,6 +74,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 	let isBuild: boolean;
 	let fontFetcher: FontFetcher | null = null;
 	let fontTypeExtractor: FontTypeExtractor | null = null;
+	let built = false;
 
 	const cleanup = () => {
 		componentDataByCssVariable = null;
@@ -88,6 +89,9 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			isBuild = command === 'build';
 		},
 		async buildStart() {
+			if (sync) {
+				return;
+			}
 			const { root } = settings.config;
 			// Dependencies. Once extracted to a dedicated vite plugin, those may be passed as
 			// a Vite plugin option.
@@ -304,6 +308,10 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			},
 		},
 		async buildEnd() {
+			// Run once during the build, no matter how many environments there are
+			if (built) {
+				return;
+			}
 			if (sync || !settings.config.fonts?.length || !isBuild) {
 				cleanup();
 				return;
@@ -335,6 +343,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				}
 			} finally {
 				cleanup();
+				built = true;
 			}
 		},
 	};

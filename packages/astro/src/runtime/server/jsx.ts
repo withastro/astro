@@ -187,7 +187,7 @@ async function renderElement(
 ) {
 	return markHTMLString(
 		`<${tag}${spreadAttributes(props)}${markHTMLString(
-			(children == null || children == '') && voidElementNames.test(tag)
+			(children == null || children === '') && voidElementNames.test(tag)
 				? `/>`
 				: `>${
 						children == null ? '' : await renderJSX(result, prerenderElementChildren(tag, children))

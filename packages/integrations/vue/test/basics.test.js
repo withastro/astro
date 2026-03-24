@@ -40,4 +40,12 @@ describe('Basics', () => {
 		assert.equal(els.length, 2);
 		assert.notEqual(els[0].getAttribute('id'), els[1].getAttribute('id'));
 	});
+
+	it('Can load Vue JSX', async () => {
+		const data = await fixture.readFile('/jsx/index.html');
+		const { document } = parseHTML(data);
+
+		const allPreValues = [...document.querySelectorAll('pre')].map((e) => e.textContent);
+		assert.deepEqual(allPreValues, ['2345', '0', '1', '1', '1', '10', '100', '1000']);
+	});
 });

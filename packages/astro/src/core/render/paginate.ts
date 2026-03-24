@@ -9,7 +9,7 @@ import type { AstroConfig } from '../../types/public/index.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { joinPaths } from '../path.js';
-import { getRouteGenerator } from '../routing/manifest/generator.js';
+import { getRouteGenerator } from '../routing/generator.js';
 
 export function generatePaginateFunction(
 	routeMatch: RouteData,
@@ -41,7 +41,7 @@ export function generatePaginateFunction(
 
 		const result = [...Array(lastPage).keys()].map((num) => {
 			const pageNum = num + 1;
-			const start = pageSize === Infinity ? 0 : (pageNum - 1) * pageSize; // currentPage is 1-indexed
+			const start = pageSize === Number.POSITIVE_INFINITY ? 0 : (pageNum - 1) * pageSize; // currentPage is 1-indexed
 			const end = Math.min(start + pageSize, data.length);
 			const params = {
 				...additionalParams,

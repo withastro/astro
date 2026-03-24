@@ -106,3 +106,42 @@ describe('sessions with custom binding name', () => {
 		);
 	});
 });
+
+describe('session wrangler config', () => {
+	it('does not include the SESSION KV binding when sessions are disabled', async () => {
+		const fixture = await loadFixture({
+			root: './fixtures/static/',
+		});
+
+		await fixture.build({
+			session: {
+				driver: {
+					entrypoint: 'unstorage/drivers/null',
+				},
+			},
+		});
+
+		const wrangler = JSON.parse(await fixture.readFile('/server/wrangler.json'));
+		assert.equal(
+			wrangler.kv_namespaces?.some(({ binding }) => binding === 'SESSION'),
+			false,
+		);
+	});
+
+	it('includes the SESSION KV binding when Cloudflare KV is configured explicitly', async () => {
+		const fixture = await loadFixture({
+			root: './fixtures/static/',
+		});
+
+		await fixture.build({
+			session: {
+				driver: {
+					entrypoint: 'unstorage/drivers/cloudflare-kv-binding',
+				},
+			},
+		});
+
+		const wrangler = JSON.parse(await fixture.readFile('/server/wrangler.json'));
+		assert.deepEqual(wrangler.kv_namespaces, [{ binding: 'SESSION' }]);
+	});
+});

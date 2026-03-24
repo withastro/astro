@@ -194,7 +194,7 @@ describe('fonts core', () => {
 				},
 				filterAndTransformFontFaces: () => [
 					{
-						src: [{ url: 'overriden' }],
+						src: [{ url: 'overridden' }],
 					},
 				],
 				collectFontAssetsFromFaces: () => {
@@ -211,7 +211,7 @@ describe('fonts core', () => {
 					family: families[0],
 					fonts: [
 						{
-							src: [{ url: 'overriden' }],
+							src: [{ url: 'overridden' }],
 						},
 					],
 					preloads: [],
@@ -461,87 +461,128 @@ describe('fonts core', () => {
 		});
 	});
 
-	it('getOrCreateFontFamilyAssets()', () => {
-		/** @type {Array<import('../../../../dist/assets/fonts/types.js').ResolvedFontFamily>} */
-		const families = [
-			{
-				name: 'Foo',
-				uniqueName: 'Foo-xxx',
-				cssVariable: '--foo',
-				provider: {
-					name: 'foo',
-					resolveFont: () => undefined,
+	describe('getOrCreateFontFamilyAssets()', () => {
+		it('reuses the same object as needed', () => {
+			/** @type {Array<import('../../../../dist/assets/fonts/types.js').ResolvedFontFamily>} */
+			const families = [
+				{
+					name: 'Foo',
+					uniqueName: 'Foo-xxx',
+					cssVariable: '--foo',
+					provider: {
+						name: 'foo',
+						resolveFont: () => undefined,
+					},
+					weights: ['400'],
 				},
-				weights: ['400'],
-			},
-			{
-				name: 'Foo',
-				uniqueName: 'Foo-yyy',
-				cssVariable: '--foo',
-				provider: {
-					name: 'foo',
-					resolveFont: () => undefined,
+				{
+					name: 'Foo',
+					uniqueName: 'Foo-yyy',
+					cssVariable: '--foo',
+					provider: {
+						name: 'foo',
+						resolveFont: () => undefined,
+					},
+					styles: ['italic'],
 				},
-				styles: ['italic'],
-			},
-			{
-				name: 'Bar',
-				uniqueName: 'Bar-xxx',
-				cssVariable: '--bar',
-				provider: {
-					name: 'bar',
-					resolveFont: () => undefined,
+				{
+					name: 'Bar',
+					uniqueName: 'Bar-xxx',
+					cssVariable: '--bar',
+					provider: {
+						name: 'bar',
+						resolveFont: () => undefined,
+					},
 				},
-			},
-		];
+			];
 
-		/** @type {import('../../../../dist/assets/fonts/types.js').FontFamilyAssetsByUniqueKey} */
-		const fontFamilyAssetsByUniqueKey = new Map();
-		const logger = new SpyLogger();
+			/** @type {import('../../../../dist/assets/fonts/types.js').FontFamilyAssetsByUniqueKey} */
+			const fontFamilyAssetsByUniqueKey = new Map();
+			const logger = new SpyLogger();
 
-		assert.deepStrictEqual(
+			assert.deepStrictEqual(
+				getOrCreateFontFamilyAssets({
+					fontFamilyAssetsByUniqueKey,
+					family: families[0],
+					logger,
+					bold: markdownBold,
+				}),
+				{
+					collectedFontsForMetricsByUniqueKey: new Map(),
+					family: families[0],
+					fonts: [],
+					preloads: [],
+				},
+			);
+			assert.deepStrictEqual(
+				getOrCreateFontFamilyAssets({
+					fontFamilyAssetsByUniqueKey,
+					family: families[1],
+					logger,
+					bold: markdownBold,
+				}),
+				{
+					collectedFontsForMetricsByUniqueKey: new Map(),
+					family: families[0],
+					fonts: [],
+					preloads: [],
+				},
+			);
+			assert.deepStrictEqual(
+				getOrCreateFontFamilyAssets({
+					fontFamilyAssetsByUniqueKey,
+					family: families[2],
+					logger,
+					bold: markdownBold,
+				}),
+				{
+					collectedFontsForMetricsByUniqueKey: new Map(),
+					family: families[2],
+					fonts: [],
+					preloads: [],
+				},
+			);
+			assert.equal(fontFamilyAssetsByUniqueKey.size, 2);
+		});
+
+		it('logs warnings for conflicting css variables', () => {
+			/** @type {import('../../../../dist/assets/fonts/types.js').FontFamilyAssetsByUniqueKey} */
+			const fontFamilyAssetsByUniqueKey = new Map();
+			const logger = new SpyLogger();
+
 			getOrCreateFontFamilyAssets({
 				fontFamilyAssetsByUniqueKey,
-				family: families[0],
+				family: {
+					name: 'Foo',
+					uniqueName: 'Foo-xxx',
+					cssVariable: '--foo',
+					provider: {
+						name: 'foo',
+						resolveFont: () => undefined,
+					},
+				},
 				logger,
 				bold: markdownBold,
-			}),
-			{
-				collectedFontsForMetricsByUniqueKey: new Map(),
-				family: families[0],
-				fonts: [],
-				preloads: [],
-			},
-		);
-		assert.deepStrictEqual(
+			});
 			getOrCreateFontFamilyAssets({
 				fontFamilyAssetsByUniqueKey,
-				family: families[1],
+				family: {
+					name: 'Bar',
+					uniqueName: 'Bar-xxx',
+					cssVariable: '--foo',
+					provider: {
+						name: 'foo',
+						resolveFont: () => undefined,
+					},
+				},
 				logger,
 				bold: markdownBold,
-			}),
-			{
-				collectedFontsForMetricsByUniqueKey: new Map(),
-				family: families[0],
-				fonts: [],
-				preloads: [],
-			},
-		);
-		assert.deepStrictEqual(
-			getOrCreateFontFamilyAssets({
-				fontFamilyAssetsByUniqueKey,
-				family: families[2],
-				logger,
-				bold: markdownBold,
-			}),
-			{
-				collectedFontsForMetricsByUniqueKey: new Map(),
-				family: families[2],
-				fonts: [],
-				preloads: [],
-			},
-		);
-		assert.equal(fontFamilyAssetsByUniqueKey.size, 2);
+			});
+			assert.deepStrictEqual(
+				logger.logs.map((e) => e.type),
+				['warn', 'warn'],
+			);
+		});
 	});
 
 	describe('filterAndTransformFontFaces()', () => {

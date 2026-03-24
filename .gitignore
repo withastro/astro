@@ -1,5 +1,8 @@
 node_modules/
+/triage/
+/.compiler/
 dist/
+temp/
 *.tsbuildinfo
 .DS_Store
 .vercel
@@ -17,6 +20,7 @@ package-lock.json
 .eslintcache
 .pnpm-store
 .vscode-test/
+.claude
 
 # do not commit .env files or any files that end with `.env`
 *.env

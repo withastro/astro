@@ -59,7 +59,7 @@ const name = 'world
 		assert.equal(result, undefined);
 	});
 
-	it('has file and url exports for markdwon compat', async () => {
+	it('has file and url exports for markdown compat', async () => {
 		const result = await compile(`<h1>Hello World</h1>`, '/src/components/index.astro');
 		await init;
 		const [, exports] = parse(result.code);

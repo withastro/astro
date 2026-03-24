@@ -1,7 +1,7 @@
 import type { Plugin as VitePlugin } from 'vite';
 import { prependForwardSlash } from '../core/path.js';
 import { DEFAULT_COMPONENTS } from '../core/routing/default.js';
-import { routeIsRedirect } from '../core/routing/index.js';
+import { routeIsRedirect } from '../core/routing/helpers.js';
 import type { RoutesList } from '../types/astro.js';
 import { VIRTUAL_PAGE_MODULE_ID, VIRTUAL_PAGE_RESOLVED_MODULE_ID } from './const.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';

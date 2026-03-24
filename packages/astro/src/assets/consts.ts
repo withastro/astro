@@ -1,6 +1,9 @@
 export const VIRTUAL_MODULE_ID = 'astro:assets';
 export const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
 export const VIRTUAL_SERVICE_ID = 'virtual:image-service';
+// Must keep the extension so we trigger the pipeline of CSS files
+export const VIRTUAL_IMAGE_STYLES_ID = 'virtual:astro:image-styles.css';
+export const RESOLVED_VIRTUAL_IMAGE_STYLES_ID = '\0' + VIRTUAL_IMAGE_STYLES_ID;
 export const VALID_INPUT_FORMATS = [
 	'jpeg',
 	'jpg',

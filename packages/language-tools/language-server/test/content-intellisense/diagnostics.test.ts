@@ -9,7 +9,7 @@ import { fixtureDir } from '../utils.ts';
 // TODO: We can't sync the fixture with these mistakes at all, as such we can't run these tests.
 describe.skip(
 	'Content Intellisense - Diagnostics',
-	{ skip: parseInt(process.versions.node) === 20 },
+	{ skip: Number.parseInt(process.versions.node) === 20 },
 	async () => {
 		let languageServer: LanguageServer;
 

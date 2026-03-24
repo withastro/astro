@@ -3,7 +3,7 @@ import type { Pipeline } from '../../core/base-pipeline.js';
 import type { PathWithRoute } from '../../types/public/integrations.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { stringifyParams } from '../../core/routing/params.js';
-import { routeIsRedirect, routeIsFallback, getFallbackRoute } from '../../core/routing/helpers.js';
+import { getFallbackRoute, routeIsFallback, routeIsRedirect } from '../../core/routing/helpers.js';
 import { callGetStaticPaths } from '../../core/render/route-cache.js';
 
 export type { PathWithRoute } from '../../types/public/integrations.js';
@@ -63,7 +63,13 @@ export class StaticPaths {
 			// Also process fallback routes
 			for (const currentRoute of eachRouteInRouteData(route)) {
 				const paths = await this.#getPathsForRoute(currentRoute);
-				allPaths.push(...paths);
+				// Use a loop instead of spread operator (allPaths.push(...paths)) to avoid
+				// "Maximum call stack size exceeded" error with large arrays (issue #15578).
+				// The spread operator tries to pass all array elements as individual arguments,
+				// which hits the call stack limit when dealing with 100k+ routes.
+				for (const path of paths) {
+					allPaths.push(path);
+				}
 			}
 		}
 

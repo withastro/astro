@@ -9,6 +9,7 @@ import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
 import { normalizeFilename, specialQueriesRE } from '../vite-plugin-utils/index.js';
 import { type CompileAstroResult, compileAstro } from './compile.js';
+import { compileAstro as compileAstroRs } from './compile-rs.js';
 import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest } from './query.js';
 import type { PluginMetadata as AstroPluginMetadata, CompileMetadata } from './types.js';
@@ -58,7 +59,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 				},
 				async handler(_source, id) {
 					const parsedId = parseAstroRequest(id);
-					// Special edge case handling for Vite 6 beta, the style dependencies need to be registered here take affect
+					// Special edge case handling for Vite 6 beta, the style dependencies need to be registered here to take effect
 					// TODO: Remove this when Vite fixes it (https://github.com/vitejs/vite/pull/18103)
 					const astroFilename = normalizePath(normalizeFilename(parsedId.filename, config.root));
 					const compileMetadata = astroFileToCompileMetadata.get(astroFilename);
@@ -90,14 +91,21 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 				const toolbarEnabled = await settings.preferences.get('devToolbar.enabled');
 				// Initialize `compile` function to simplify usage later
 				compile = (code, filename) => {
+					const compileProps = {
+						astroConfig: config,
+						viteConfig,
+						toolbarEnabled,
+						filename,
+						source: code,
+					};
+					if (config.experimental.rustCompiler) {
+						return compileAstroRs({
+							compileProps,
+							astroFileToCompileMetadata,
+						});
+					}
 					return compileAstro({
-						compileProps: {
-							astroConfig: config,
-							viteConfig,
-							toolbarEnabled,
-							filename,
-							source: code,
-						},
+						compileProps,
 						astroFileToCompileMetadata,
 						logger,
 					});
@@ -302,7 +310,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 				},
 			},
 			async handleHotUpdate(ctx) {
-				return handleHotUpdate(ctx, { logger, astroFileToCompileMetadata });
+				return handleHotUpdate(ctx, { logger, compile, astroFileToCompileMetadata });
 			},
 		},
 		{
