@@ -27,7 +27,7 @@ import { BuildTimeAstroVersionProvider } from '../../cli/infra/build-time-astro-
 import { piccoloreTextStyler } from '../../cli/infra/piccolore-text-styler.js';
 import type { Logger } from '../logger/core.js';
 
-function warnIfVite8({ root, logger }: { root: string; logger: Logger }) {
+function warnIfVite8({ root, logger }: { root: URL | string; logger: Logger }) {
 	try {
 		const require = createRequire(root);
 		const { version } = require('vite/package.json') as { version: string };
