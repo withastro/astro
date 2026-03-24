@@ -50,17 +50,26 @@ export class MutableDataStore extends ImmutableDataStore {
 		if (collection) {
 			collection.delete(String(key));
 			this.#saveToDiskDebounced();
+			// Trigger a rebuild of asset imports so stale entries from the
+			// deleted content entry are removed from content-assets.mjs.
+			this.#writeAssetsImportsDebounced();
 		}
 	}
 
 	clear(collectionName: string) {
 		this._collections.delete(collectionName);
 		this.#saveToDiskDebounced();
+		// Trigger a rebuild of asset imports so stale entries from the
+		// cleared collection are removed from content-assets.mjs.
+		this.#writeAssetsImportsDebounced();
 	}
 
 	clearAll() {
 		this._collections.clear();
 		this.#saveToDiskDebounced();
+		// Trigger a rebuild of asset imports so stale entries are removed
+		// from content-assets.mjs.
+		this.#writeAssetsImportsDebounced();
 	}
 
 	addAssetImport(assetImport: string, filePath?: string) {
@@ -89,8 +98,35 @@ export class MutableDataStore extends ImmutableDataStore {
 		}
 	}
 
+	/**
+	 * Rebuilds #assetImports from the current entries in the data store.
+	 * This ensures stale imports from deleted/moved/renamed content entries
+	 * are removed, preventing unrecoverable errors in the dev server.
+	 */
+	#rebuildAssetImports() {
+		this.#assetImports.clear();
+		for (const collection of this._collections.values()) {
+			for (const entry of collection.values()) {
+				if (entry?.assetImports?.length && entry.filePath) {
+					for (const asset of entry.assetImports) {
+						const id = imageSrcToImportId(asset, entry.filePath);
+						if (id) {
+							this.#assetImports.add(id);
+						}
+					}
+				}
+			}
+		}
+	}
+
 	async writeAssetImports(filePath: PathLike) {
 		this.#assetsFile = filePath;
+
+		// Rebuild #assetImports from the current state of the data store to remove
+		// stale entries. Without this, deleted or renamed images would leave behind
+		// stale import IDs that cause unrecoverable ImageNotFound errors in the dev
+		// server (see https://github.com/withastro/astro/issues/13149).
+		this.#rebuildAssetImports();
 
 		if (this.#assetImports.size === 0) {
 			try {
