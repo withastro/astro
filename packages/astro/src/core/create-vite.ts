@@ -225,8 +225,22 @@ export async function createVite(
 		build: { assetsDir: settings.config.build.assets },
 		environments: {
 			[ASTRO_VITE_ENVIRONMENT_NAMES.astro]: {
-				// This is all that's needed to create a new RunnableDevEnvironment
-				dev: {},
+				// This is all that's needed to create a new RunnableDevEnvironment.
+				// When HMR is disabled globally (test/production), we also disable it on
+				// the module runner. Vite 8 introduced a `full-reload` handler that eagerly
+				// re-imports all SSR entrypoints via `fetchModule`. If the transport closes
+				// mid-flight (e.g. during concurrent e2e tests) this throws
+				// "transport was disconnected". Astro's HMR works through plugin `hotUpdate`
+				// hooks + module graph invalidation, not the runner's HMR client, so this is safe.
+				dev: {
+					createEnvironment(name, config) {
+						const hmrDisabled =
+							process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'production';
+						return vite.createRunnableDevEnvironment(name, config, {
+							runnerOptions: { hmr: hmrDisabled ? false : undefined },
+						});
+					},
+				},
 			},
 		},
 	};

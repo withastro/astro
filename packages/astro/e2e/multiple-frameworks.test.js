@@ -167,8 +167,7 @@ test.skip('Multiple frameworks', () => {
 			await expect(count, 'initial count updated to 5').toHaveText('5');
 		});
 
-		// TODO: Re-enable once Svelte is compatible with Vite v8 (fetchModule transport disconnect)
-		test.skip('Svelte component', async ({ astro, page }) => {
+		test('Svelte component', async ({ astro, page }) => {
 			await page.goto(astro.resolveUrl('/'));
 
 			const count = page.locator('#svelte-counter pre');
