@@ -27,7 +27,7 @@ const StaticHtml = ({
 
 /**
  * React.memo is the modern functional equivalent of shouldComponentUpdate.
- * 
+ *
  * By returning `true` in the comparison function (the second argument),
  * we tell React that the props are "equal" and it should skip re-rendering,
  * effectively making this subtree static.
