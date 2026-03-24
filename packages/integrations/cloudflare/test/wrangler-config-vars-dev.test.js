@@ -7,7 +7,7 @@ describe('AstroDevPlatform', () => {
 	let devServer;
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/wrangler-vars-dev/',
+			root: './fixtures/wrangler-config-vars-dev/',
 		});
 		devServer = await fixture.startDevServer();
 		// Do an initial request to prime preloading

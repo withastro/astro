@@ -2,11 +2,7 @@ import cloudflare from '@astrojs/cloudflare';
 import { defineConfig, envField } from 'astro/config';
 
 export default defineConfig({
-	adapter: cloudflare({
-		platformProxy: {
-			enabled: true,
-		},
-	}),
+	adapter: cloudflare(),
 	output: 'server',
 	env: {
 		schema: {
