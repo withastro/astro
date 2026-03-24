@@ -311,7 +311,7 @@ function addClientOnlyMetadata(
 			value: node.name,
 		});
 	}
-	if (!attributeNames.includes('client:component-hydration')) {
+	if (!attributeNames.includes('client:component-path')) {
 		node.attributes.push({
 			type: 'mdxJsxAttribute',
 			name: 'client:component-path',
