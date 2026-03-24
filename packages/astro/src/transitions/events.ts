@@ -1,5 +1,6 @@
 import { swap } from './swap-functions.js';
 import type { Direction, NavigationTypeString } from './types.js';
+import { isIOSSafari } from './util.js';
 
 /** @deprecated This will be removed in Astro 7 */
 export const TRANSITION_BEFORE_PREPARATION = 'astro:before-preparation';
@@ -187,7 +188,9 @@ export async function doPreparation(
 // leave other entries alone and do not accidentally add state.
 export const updateScrollPosition = (positions: { scrollX: number; scrollY: number }) => {
 	if (history.state) {
-		history.scrollRestoration = 'manual';
+		if (!isIOSSafari) {
+			history.scrollRestoration = 'manual';
+		}
 		history.replaceState({ ...history.state, ...positions }, '');
 	}
 };
