@@ -91,7 +91,6 @@ const aria_non_interactive_roles = [
 	'main',
 	'marquee',
 	'math',
-	'menuitemradio',
 	'navigation',
 	'none',
 	'note',
