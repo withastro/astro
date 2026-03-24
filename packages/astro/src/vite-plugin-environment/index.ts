@@ -76,14 +76,18 @@ export function vitePluginEnvironment({
 				}
 
 				if (_options.optimizeDeps?.noDiscovery === false) {
+					// Scan .astro files in known framework packages so that their CJS dependencies
+					// are discovered and pre-bundled as ESM before reaching non-Node runtimes
+					// like Cloudflare Workers (workerd). We scope to known framework packages
+					// (identified by vitefu) rather than all of node_modules to avoid slow
+					// glob traversal on large dependency trees.
+					const frameworkPkgEntries = astroPkgsConfig.ssr.noExternal.map(
+						(pkg) => `**/node_modules/${pkg}/**/*.astro`,
+					);
 					finalEnvironmentOptions.optimizeDeps = {
 						entries: [
 							`${srcDirPattern}**/*.{jsx,tsx,vue,svelte,html,astro}`,
-							// Also scan .astro files in node_modules so that their CJS dependencies
-							// (e.g. prismjs/components/index.js imported by @astrojs/prism) are
-							// discovered and pre-bundled as ESM before reaching non-Node runtimes
-							// like Cloudflare Workers (workerd).
-							'**/node_modules/**/*.astro',
+							...frameworkPkgEntries,
 						],
 						include: [],
 						exclude: ['node-fetch'],
