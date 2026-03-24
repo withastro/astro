@@ -72,6 +72,16 @@ export function serializedManifestPlugin({
 			server.watcher.on('change', (path) => reloadManifest(path, server));
 		},
 
+		// Restrict to server environments only since the generated code imports
+		// server-only virtual modules (virtual:astro:routes, virtual:astro:pages)
+		applyToEnvironment(environment) {
+			return (
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.astro ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
+			);
+		},
+
 		resolveId: {
 			filter: {
 				id: new RegExp(`^${SERIALIZED_MANIFEST_ID}$`),
