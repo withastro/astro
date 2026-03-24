@@ -327,7 +327,7 @@ jobs:
           # For a pull_request event merging into the `next` branch (`base_ref`), use the `v6` branch.
           # NOTE: For a pull_request event, the `ref_name` is something like `<pr-number>/merge` than the branch name.
           # NOTE: Perhaps docs repo should use a consistent `next` branch in the future.
-          ref: ${{ (github.ref_name == 'next' || github.base_ref == 'next') && 'v6' || 'main' }}
+          ref: ${{ (github.ref_name == 'next' || github.base_ref == 'next') && 'main' || 'main' }}
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
