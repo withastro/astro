@@ -266,11 +266,6 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 
 					const filename = normalizePath(parsedId.filename);
 
-					// Vite 8 no longer automatically watches files outside the project root.
-					// Explicitly register the file so changes to symlinked/external .astro
-					// components (e.g. linked packages) still trigger HMR.
-					this.addWatchFile(filename);
-
 					// If an Astro component is imported in code used on the client, we return an empty
 					// module so that Vite doesn’t bundle the server-side Astro code for the client.
 					if (this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {

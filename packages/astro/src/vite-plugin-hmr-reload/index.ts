@@ -22,8 +22,17 @@ export default function hmrReload(): Plugin {
 				const invalidatedModules = new Set<EnvironmentModuleNode>();
 				for (const mod of modules) {
 					if (mod.id == null) continue;
-					const clientModule = server.environments.client.moduleGraph.getModuleById(mod.id);
-					if (clientModule != null) continue;
+					// .astro files always have a client stub injected by the astro:build plugin
+					// to prevent them from being bundled for the browser. That stub is not a
+					// real client module, so we must not skip main .astro module entries even
+					// if a client module entry exists for them. Virtual sub-modules (e.g.
+					// CSS virtual modules with query params) do have real client counterparts
+					// and should still be checked.
+					const isMainAstroModule = mod.id.endsWith('.astro');
+					if (!isMainAstroModule) {
+						const clientModule = server.environments.client.moduleGraph.getModuleById(mod.id);
+						if (clientModule != null) continue;
+					}
 
 					this.environment.moduleGraph.invalidateModule(mod, invalidatedModules, timestamp, true);
 					hasSsrOnlyModules = true;
