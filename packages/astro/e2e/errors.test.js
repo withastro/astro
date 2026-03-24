@@ -98,7 +98,8 @@ test.describe('Error display', () => {
 		expect(fileLocation).toMatch(/^pages\/astro-sass-error.astro/);
 	});
 
-	test('framework errors recover when fixed', async ({ page, astro }) => {
+	// TODO: Re-enable once Svelte is compatible with Vite v8 (fetchModule transport disconnect)
+	test.skip('framework errors recover when fixed', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/svelte-syntax-error'), { waitUntil: 'networkidle' });
 
 		const message = (await getErrorOverlayContent(page)).message;
