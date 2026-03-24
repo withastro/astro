@@ -302,6 +302,12 @@ export default function createIntegration({
 										conf.ssr.external = undefined;
 										conf.ssr.noExternal = true;
 									}
+									// Workaround for https://github.com/vitejs/vite/issues/21969
+									conf.resolve ||= {};
+									conf.resolve.alias = {
+										'module': '@astrojs/cloudflare/node-module-polyfill',
+										...conf.resolve.alias,
+									};
 								},
 							},
 							createConfigPlugin({

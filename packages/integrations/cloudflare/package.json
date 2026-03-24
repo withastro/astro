@@ -28,6 +28,7 @@
     "./image-passthrough-endpoint": "./dist/entrypoints/image-passthrough-endpoint.js",
     "./image-service-workerd": "./dist/entrypoints/image-service-workerd.js",
     "./handler": "./dist/utils/handler.js",
+    "./node-module-polyfill": "./dist/node-module-polyfill.js",
     "./types.d.ts": "./types.d.ts",
     "./package.json": "./package.json"
   },
