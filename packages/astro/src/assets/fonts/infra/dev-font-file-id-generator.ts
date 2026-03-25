@@ -28,7 +28,7 @@ export class DevFontFileIdGenerator implements FontFileIdGenerator {
 	}
 
 	#formatStyle(style: unifont.FontFaceData['style']): string | undefined {
-		return style?.replace(/\s+/g, '-')
+		return style?.replace(/\s+/g, '-');
 	}
 
 	generate({
