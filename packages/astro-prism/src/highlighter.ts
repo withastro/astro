@@ -1,6 +1,25 @@
 import Prism from 'prismjs';
-import loadLanguages from 'prismjs/components/index.js';
 import { addAstro } from './plugin.js';
+
+// Expose Prism as a global so that `prismjs/components/index.js` can find it.
+// PrismJS's language loader references `Prism` as a bare global identifier and relies on
+// `global.Prism` being set, which only works in Node.js. In runtimes like Cloudflare Workers
+// (workerd), `global` doesn't exist, so the global is never set. Using `globalThis` ensures
+// the Prism object is accessible in all environments.
+globalThis.Prism = Prism;
+
+// `prismjs/components/index.js` is a CJS module that uses `require()` to dynamically load
+// language grammars at runtime. This works in Node.js but fails in ESM-only runtimes like
+// Cloudflare Workers (workerd) where `require()` is not available. We wrap the import in a
+// try/catch and fall back to a no-op, so that only the built-in Prism languages
+// (markup, css, clike, javascript) are available when dynamic loading is unsupported.
+let loadLanguages: ((languages: string[]) => void) | undefined;
+try {
+	loadLanguages = (await import('prismjs/components/index.js')).default;
+} catch {
+	// Dynamic language loading unavailable (e.g. Cloudflare Workers / workerd).
+	// Only built-in Prism grammars will be available.
+}
 
 const languageMap = new Map([['ts', 'typescript']]);
 
@@ -10,8 +29,12 @@ export function runHighlighterWithAstro(lang: string | undefined, code: string) 
 	}
 	let classLanguage = `language-${lang}`;
 	const ensureLoaded = (language: string) => {
-		if (language && !Prism.languages[language]) {
-			loadLanguages([language]);
+		if (language && !Prism.languages[language] && loadLanguages) {
+			try {
+				loadLanguages([language]);
+			} catch {
+				// Language loading failed (e.g. `require()` unavailable in the current runtime).
+			}
 		}
 	};
 
