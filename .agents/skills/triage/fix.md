@@ -18,14 +18,15 @@ These variables are referenced throughout this skill. They may be passed as args
 ## Overview
 
 1. Review the diagnosis from `report.md`
-2. Verify fix feasibility (browser/runtime compatibility)
-3. Implement a minimal fix in `packages/`
-4. Rebuild the affected package(s)
-5. Verify the fix resolves the reproduction
-6. Ensure no regressions
-7. Generate git diff
-8. Append fix details to `report.md`
-9. Clean up the working directory
+2. Load any domain-specific skills relevant to the bug category
+3. Verify fix feasibility (browser/runtime compatibility)
+4. Implement a minimal fix in `packages/`
+5. Rebuild the affected package(s)
+6. Verify the fix resolves the reproduction
+7. Ensure no regressions
+8. Generate git diff
+9. Append fix details to `report.md`
+10. Clean up the working directory
 
 ## Step 1: Review the Diagnosis
 
@@ -39,14 +40,20 @@ Read `report.md` from the `triageDir` directory to understand:
 
 **Note:** The repo may be messy from previous steps. Check `git status` and either work from the current state or `git reset --hard` to start clean.
 
-## Step 2: Verify Fix Feasibility
+## Step 2: Load Domain-Specific Skills
+
+Before implementing, check whether any skills in `.agents/skills/` are relevant to this bug category. Use `ls .agents/skills/` to see what's available, then read the `---` frontmatter of any that look relevant to get their description.
+
+If a skill covers the subsystem you're fixing, load it with the `skill` tool. Domain skills often contain fix approaches, key files, and caveats that aren't captured in `report.md`.
+
+## Step 3: Verify Fix Feasibility
 
 Consider your potential fixes and verify that any modern features you plan to use are supported:
 
 - **Node.js:** When writing code for the runtime (server, build logic, integrations, etc.), target Node.js version `>=22.12.0`.
 - **Browsers:** If your fix relies on browser support for any web platform feature, check the browser compatibility table on MDN to confirm it is supported across our browser targets. Do not treat specification compliance as proof of browser support. If the feature lacks sufficient support, choose a different approach.
 
-## Step 3: Implement the Fix
+## Step 4: Implement the Fix
 
 Make changes in `packages/` source files. Follow these principles:
 
@@ -82,7 +89,7 @@ export function renderComponent(component: AstroComponent, props: Props) {
 }
 ```
 
-## Step 4: Rebuild the Package
+## Step 5: Rebuild the Package
 
 After making changes, rebuild the affected package:
 
@@ -92,15 +99,15 @@ pnpm -C packages/astro build    # or packages/integrations/<name>
 
 Watch for build errors — fix any TypeScript issues before proceeding.
 
-## Step 5: Verify the Fix
+## Step 6: Verify the Fix
 
 Re-run the reproduction, often using `pnpm run build`/`astro build` or `pnpm run dev`/`astro dev`.
 
-## Step 6: Check for Regressions
+## Step 7: Check for Regressions
 
 Test that you didn't break anything new, and that normal cases still work. If you find regressions, refine the fix to handle all cases.
 
-## Step 7: Generate Git Diff
+## Step 8: Generate Git Diff
 
 From the repository root, generate the diff:
 
@@ -110,7 +117,7 @@ git diff packages/
 
 This captures all your changes for the report.
 
-## Step 8: Write Output
+## Step 9: Write Output
 
 Append your fix details to the existing `report.md` (written by reproduce and diagnose skills).
 
@@ -125,7 +132,7 @@ The report must include all information needed for a final GitHub comment to be 
 - Any alternative approaches considered and their tradeoffs
 - If the fix failed: what was tried and why it didn't work
 
-## Step 9: Clean Up the Working Directory
+## Step 10: Clean Up the Working Directory
 
 1. Run `git status` and review all changed files
 2. Revert any changes that are NOT part of the fix:
