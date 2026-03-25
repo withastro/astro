@@ -6896,7 +6896,7 @@ importers:
         specifier: ^20.9.0
         version: 20.19.33
       '@types/vscode':
-        specifier: ^1.90.0
+        specifier: ^1.92.0
         version: 1.109.0
       '@volar/language-server':
         specifier: ~2.4.28
