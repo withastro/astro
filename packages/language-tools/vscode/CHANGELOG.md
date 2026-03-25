@@ -1,5 +1,21 @@
 # astro-vscode
 
+## 2.16.13
+
+### Patch Changes
+
+- [#15943](https://github.com/withastro/astro/pull/15943) [`1a627e2`](https://github.com/withastro/astro/commit/1a627e25267f8525e11237a1422c228f1bfc2ef1) Thanks [@alexanderdombroski](https://github.com/alexanderdombroski)! - Improves astro file templates to be scoped to `.astro` file extensions
+
+- [#15927](https://github.com/withastro/astro/pull/15927) [`421e8de`](https://github.com/withastro/astro/commit/421e8de6e9e13ca45864c2d3deed7e98e3ee6138) Thanks [@FelmonFekadu](https://github.com/FelmonFekadu)! - Fixes completions sometimes not working inside the `href` attribute
+
+- [#15602](https://github.com/withastro/astro/pull/15602) [`7832dfe`](https://github.com/withastro/astro/commit/7832dfef25dffe55a9dcb1913d03375ecac9ad42) Thanks [@0xRozier](https://github.com/0xRozier)! - Fix syntax highlighting for script and style tags inside expressions (e.g. ternaries and logical operators)
+
+## 2.16.12
+
+### Patch Changes
+
+- [#15895](https://github.com/withastro/astro/pull/15895) [`7b4b254`](https://github.com/withastro/astro/commit/7b4b2549437eb099c5e96025dcf8d24ea56f30d0) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updates Volar services to 0.0.70. This updates notably mean that the transitive dependency yaml-language-server no longer depends on a vulnerable version of lodash, causing warnings to show when installing the language server.
+
 ## 2.16.11
 
 ### Patch Changes

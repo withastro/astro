@@ -1,6 +1,6 @@
-import fs from 'node:fs';
+import nodeFs from 'node:fs';
 import os from 'node:os';
-import { fileURLToPath } from 'node:url';
+
 import PLimit from 'p-limit';
 import PQueue from 'p-queue';
 import colors from 'piccolore';
@@ -351,26 +351,58 @@ export async function generatePages(
 const THRESHOLD_SLOW_RENDER_TIME_MS = 500;
 
 /**
- * Generate a single path using the prerenderer interface.
+ * The result of rendering a single path, ready to be written to the filesystem.
+ * `null` means no file should be written (empty body, redirect skipped, or a file with the
+ * same output path already exists in `publicDir`).
  */
-async function generatePathWithPrerenderer(
-	prerenderer: AstroPrerenderer,
-	pathname: string,
-	route: RouteData,
-	options: StaticBuildOptions,
-	routeToHeaders: RouteToHeaders,
-	logger: Logger,
-): Promise<void> {
-	const timeStart = performance.now();
+export interface RenderPathResult {
+	body: string | Uint8Array;
+	outFile: URL;
+	outFolder: URL;
+}
+
+interface RenderToPathPayload {
+	prerenderer: AstroPrerenderer;
+	pathname: string;
+	route: RouteData;
+	options: StaticBuildOptions;
+	routeToHeaders?: RouteToHeaders;
+	logger: Logger;
+}
+
+/**
+ * Renders a single prerendered path to an in-memory result.
+ *
+ * This function is intentionally free of filesystem writes — it only calls
+ * `prerenderer.render()` and computes output paths.  The caller is responsible
+ * for persisting the returned `body` to disk (or any other destination).
+ *
+ * Returning `null` signals that no output file should be created for this path:
+ * - the response body was empty
+ * - the redirect was suppressed by `config.build.redirects`
+ * - a file with the same output path already exists in `publicDir` (public files
+ *   take priority over generated pages, so the generated page is skipped)
+ *
+ * @param params
+ * @param params.prerenderer    - The prerenderer used to obtain a `Response` for the path.
+ * @param params.pathname       - The URL pathname being rendered (e.g. `/about`).
+ * @param params.route          - Route data for the page being rendered.
+ * @param params.options        - Build options; `options.fsMod` is used to check whether a
+ *                                file already exists in `publicDir` at the output path.
+ * @param [params.routeToHeaders=new Map()] - Mutable map populated with response headers when
+ *                                the adapter requests static-header tracking. Callers that do
+ *                                not need to inspect the headers after the call can omit this.
+ * @param params.logger         - Logger instance.
+ */
+export async function renderPath({
+	prerenderer,
+	pathname,
+	route,
+	options,
+	routeToHeaders = new Map(),
+	logger,
+}: RenderToPathPayload): Promise<RenderPathResult | null> {
 	const { config } = options.settings;
-
-	const filePath = getOutputFilename(config.build.format, pathname, route);
-	logger.info(null, `  ${colors.blue('├─')} ${colors.dim(filePath)}`, false);
-
-	// Track page name for stats
-	if (route.type === 'page') {
-		addPageName(pathname, options);
-	}
 
 	// Do not render the fallback route if there is already a translated page
 	// with the same path
@@ -400,7 +432,7 @@ async function generatePathWithPrerenderer(
 				}
 			})
 		) {
-			return;
+			return null;
 		}
 	}
 
@@ -441,8 +473,7 @@ async function generatePathWithPrerenderer(
 	if (response.status >= 300 && response.status < 400) {
 		// Handle redirects
 		if (routeIsRedirect(route) && !config.build.redirects) {
-			logRenderTime(logger, timeStart, false);
-			return;
+			return null;
 		}
 		const locationSite = getRedirectLocationOrThrow(responseHeaders);
 		const siteURL = config.site;
@@ -462,13 +493,12 @@ async function generatePathWithPrerenderer(
 		}
 	} else {
 		if (!response.body) {
-			logRenderTime(logger, timeStart, true);
-			return;
+			return null;
 		}
 		body = Buffer.from(await response.arrayBuffer());
 	}
 
-	// Write the file
+	// Compute output paths
 	const encodedPath = encodeURI(pathname);
 	const outFolder = getOutFolder(options.settings, encodedPath, route);
 	const outFile = getOutFile(config.build.format, outFolder, encodedPath, route);
@@ -485,10 +515,50 @@ async function generatePathWithPrerenderer(
 	}
 
 	// Public files take priority over generated routes
-	if (checkPublicConflict(outFile, route, options.settings, logger)) return;
+	if (checkPublicConflict(outFile, route, options.settings, logger)) return null;
 
-	await fs.promises.mkdir(outFolder, { recursive: true });
-	await fs.promises.writeFile(outFile, body);
+	return { body, outFile, outFolder };
+}
+
+/**
+ * Generate a single path using the prerenderer interface.
+ * Orchestrates rendering via `renderPath()` and writes the result to the filesystem.
+ */
+async function generatePathWithPrerenderer(
+	prerenderer: AstroPrerenderer,
+	pathname: string,
+	route: RouteData,
+	options: StaticBuildOptions,
+	routeToHeaders: RouteToHeaders,
+	logger: Logger,
+): Promise<void> {
+	const timeStart = performance.now();
+	const { config } = options.settings;
+
+	const filePath = getOutputFilename(config.build.format, pathname, route);
+	logger.info(null, `  ${colors.blue('├─')} ${colors.dim(filePath)}`, false);
+
+	// Track page name for stats
+	if (route.type === 'page') {
+		addPageName(pathname, options);
+	}
+
+	const result = await renderPath({
+		prerenderer,
+		pathname,
+		route,
+		options,
+		routeToHeaders,
+		logger,
+	});
+
+	if (!result) {
+		logRenderTime(logger, timeStart, true);
+		return;
+	}
+
+	await nodeFs.promises.mkdir(result.outFolder, { recursive: true });
+	await nodeFs.promises.writeFile(result.outFile, result.body);
 
 	logRenderTime(logger, timeStart, false);
 }
@@ -567,15 +637,16 @@ function checkPublicConflict(
 	settings: AstroSettings,
 	logger: Logger,
 ): boolean {
-	const outFilePath = fileURLToPath(outFile);
-	const outRoot = fileURLToPath(
+	const outRoot =
 		settings.buildOutput === 'static' && !settings.adapter?.adapterFeatures?.preserveBuildClientDir
 			? settings.config.outDir
-			: settings.config.build.client,
-	);
-	const relativePath = outFilePath.slice(outRoot.length);
-	const publicFilePath = new URL(relativePath, settings.config.publicDir);
-	if (fs.existsSync(publicFilePath)) {
+			: settings.config.build.client;
+
+	// Compute the relative path by comparing URL hrefs directly to avoid
+	// fileURLToPath issues with encoded characters like %2F.
+	const relativePath = outFile.href.slice(outRoot.href.length);
+	const publicFileUrl = new URL(relativePath, settings.config.publicDir);
+	if (nodeFs.existsSync(publicFileUrl)) {
 		logger.warn(
 			'build',
 			`Skipping ${route.component} because a file with the same name exists in the public folder: ${relativePath}`,
