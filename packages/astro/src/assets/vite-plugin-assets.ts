@@ -165,7 +165,10 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 							export const getImage = async (options) => await getImageInternal(options, imageConfig);`
 						: `import { AstroError, AstroErrorData } from "astro/errors";
 							export const getImage = async () => {
-								throw new AstroError(AstroErrorData.GetImageNotUsedOnServer);
+								throw new AstroError(
+									AstroErrorData.GetImageNotUsedOnServer.message,
+									AstroErrorData.GetImageNotUsedOnServer.hint,
+								);
 							};`;
 
 					return {
