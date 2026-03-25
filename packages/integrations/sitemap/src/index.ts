@@ -160,7 +160,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						addRouteUrl(urls, r);
 
 						// Include i18n fallback routes (e.g. /fr/ falling back to /en/)
-						for (const fallbackRoute of (r.fallbackRoutes ?? [])) {
+						for (const fallbackRoute of r.fallbackRoutes ?? []) {
 							addRouteUrl(urls, fallbackRoute);
 						}
 
