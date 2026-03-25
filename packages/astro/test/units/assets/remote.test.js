@@ -4,10 +4,10 @@ import { describe, it } from 'node:test';
 import { revalidateRemoteImage } from '../../../dist/assets/build/remote.js';
 
 /**
- * 
- * @param {number} status 
- * @param {Record<string, string>} headerInit 
- * @param {ArrayBuffer} body 
+ *
+ * @param {number} status
+ * @param {Record<string, string>} headerInit
+ * @param {ArrayBuffer} body
  * @returns {() => Promise<Response>}
  */
 function makeFetchMock(status, headerInit = {}, body = new ArrayBuffer(0)) {
