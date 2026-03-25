@@ -21,23 +21,46 @@ export function createViteLoader(
 		return result;
 	}
 
-	// Skip event emit on tsconfig change as Vite restarts the server, and we don't
-	// want to trigger unnecessary work that will be invalidated shortly.
-	viteServer.watcher.on('add', (...args) => {
-		if (!isTsconfigUpdate(args[0])) {
-			events.emit('file-add', args);
+	// Use prependListener to ensure the isTsconfigUpdated flag is set BEFORE Vite's
+	// internal watcher handlers run. Vite's handlers (registered during createServer)
+	// call reloadOnTsconfigChange which sends full-reload to all environments. By
+	// prepending our handler, the flag is set before those hot.send calls happen,
+	// allowing our hot.send intercepts below to block them.
+	const watcher = viteServer.watcher as EventEmitter;
+	watcher.prependListener('add', (filePath: string) => {
+		if (!isTsconfigUpdate(filePath)) {
+			events.emit('file-add', [filePath]);
 		}
 	});
-	viteServer.watcher.on('unlink', (...args) => {
-		if (!isTsconfigUpdate(args[0])) {
-			events.emit('file-unlink', args);
+	watcher.prependListener('unlink', (filePath: string) => {
+		if (!isTsconfigUpdate(filePath)) {
+			events.emit('file-unlink', [filePath]);
 		}
 	});
-	viteServer.watcher.on('change', (...args) => {
-		if (!isTsconfigUpdate(args[0])) {
-			events.emit('file-change', args);
+	watcher.prependListener('change', (filePath: string) => {
+		if (!isTsconfigUpdate(filePath)) {
+			events.emit('file-change', [filePath]);
 		}
 	});
+
+	// When tsconfig.json changes, Vite triggers a full-reload on all environments.
+	// However, Astro restarts the entire server when tsconfig changes. If Vite's
+	// full-reload reaches the SSR module runners, they try to re-import modules
+	// through a transport that gets disconnected during restart, causing
+	// "transport was disconnected, cannot call fetchModule" errors.
+	// Block full-reload messages on all non-client environments when a tsconfig
+	// change is detected.
+	for (const [name, env] of Object.entries(viteServer.environments)) {
+		if (name === 'client') continue; // client is handled separately below with error enhancement
+		const _origSend = env.hot.send;
+		env.hot.send = function (...args: any) {
+			if (isTsconfigUpdated) {
+				const msg = args[0] as vite.HotPayload;
+				if (msg?.type === 'full-reload') return;
+			}
+			_origSend.apply(this, args);
+		};
+	}
 
 	const _wsSend = viteServer.environments.client.hot.send;
 	viteServer.environments.client.hot.send = function (...args: any) {
@@ -46,8 +69,15 @@ export function createViteLoader(
 		// do a restart and reload at the same time, the browser will refetch and the server
 		// is not ready yet, causing a blank page. Here we block that reload from happening.
 		if (isTsconfigUpdated) {
-			isTsconfigUpdated = false;
-			return;
+			const msg = args[0] as vite.HotPayload;
+			if (msg?.type === 'full-reload') {
+				// Reset the flag asynchronously so it persists for all synchronous hot.send
+				// calls in Vite's environment iteration loop, then gets cleared afterward.
+				queueMicrotask(() => {
+					isTsconfigUpdated = false;
+				});
+				return;
+			}
 		}
 		const msg = args[0] as vite.HotPayload;
 		if (msg?.type === 'error') {
