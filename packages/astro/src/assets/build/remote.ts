@@ -7,9 +7,9 @@ export type RemoteCacheEntry = {
 	lastModified?: string;
 };
 
-export async function loadRemoteImage(src: string) {
+export async function loadRemoteImage(src: string, fetchFn: typeof fetch = globalThis.fetch) {
 	const req = new Request(src);
-	const res = await fetch(req, { redirect: 'manual' });
+	const res = await fetchFn(req, { redirect: 'manual' });
 
 	if (res.status >= 300 && res.status < 400) {
 		throw new Error(`Failed to load remote image ${src}. The request was redirected.`);
@@ -45,13 +45,14 @@ export async function loadRemoteImage(src: string) {
 export async function revalidateRemoteImage(
 	src: string,
 	revalidationData: { etag?: string; lastModified?: string },
+	fetchFn: typeof fetch = globalThis.fetch,
 ) {
 	const headers = {
 		...(revalidationData.etag && { 'If-None-Match': revalidationData.etag }),
 		...(revalidationData.lastModified && { 'If-Modified-Since': revalidationData.lastModified }),
 	};
 	const req = new Request(src, { headers, cache: 'no-cache' });
-	const res = await fetch(req, { redirect: 'manual' });
+	const res = await fetchFn(req, { redirect: 'manual' });
 
 	// Allow 304 Not Modified: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/304
 	if (!res.ok && res.status !== 304) {
@@ -69,7 +70,7 @@ export async function revalidateRemoteImage(
 
 	if (res.ok && !data.length) {
 		// Server did not include body but indicated cache was stale
-		return await loadRemoteImage(src);
+		return await loadRemoteImage(src, fetchFn);
 	}
 
 	// calculate an expiration date based on the response's TTL
