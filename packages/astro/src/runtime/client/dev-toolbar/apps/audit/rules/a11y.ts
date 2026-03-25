@@ -66,8 +66,6 @@ const labelableElements = ['button', 'input', 'meter', 'output', 'progress', 'se
 
 const aria_non_interactive_roles = [
 	'alert',
-	'alertdialog',
-	'application',
 	'article',
 	'banner',
 	'cell',
@@ -345,7 +343,7 @@ export const a11y: AuditRuleWithSelector[] = [
 
 			return `${
 				element.localName
-			} element is missing required attributes for accessibility: ${missingAttributes.join(', ')} `;
+			} element is missing required attributes for accessibility: ${missingAttributes.join(', ')}`;
 		},
 		selector: Object.keys(a11y_required_attributes).join(','),
 		match(element) {
