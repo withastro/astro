@@ -1,13 +1,19 @@
 ---
-'astro': patch
-'@astrojs/sitemap': patch
+'astro': minor
 ---
 
-Fixes i18n fallback pages missing from the generated sitemap
+Adds `fallbackRoutes` to the `IntegrationResolvedRoute` type, exposing i18n fallback routes to integrations via the `astro:routes:resolved` hook for projects using `fallbackType: 'rewrite'`.
 
-When using i18n with `fallbackType: 'rewrite'`, the fallback locale pages (e.g., `/fr/about/`) were correctly generated as HTML files but excluded from the sitemap. This happened because:
+This allows integrations such as the sitemap integration to properly include generated fallback routes in their output.
 
-1. `addPageName` in `generate.ts` only tracked routes with `type: 'page'`, skipping `type: 'fallback'` routes
-2. The sitemap integration's route filter also excluded fallback routes
-
-Both are now updated to include fallback routes.
+```js
+{
+  'astro:routes:resolved': ({ routes }) => {
+    for (const route of routes) {
+      for (const fallback of route.fallbackRoutes) {
+        console.log(fallback.pathname) // e.g. /fr/about/
+      }
+    }
+  }
+}
+```
