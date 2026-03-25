@@ -20,19 +20,24 @@ async function readErrorPageFromDisk(
 
 	for (const filePath of filePaths) {
 		const fullPath = path.join(client, filePath);
+		// Declare stream outside try so it's accessible in catch for cleanup.
+		let stream: ReturnType<typeof createReadStream> | undefined;
 		try {
-			const stream = createReadStream(fullPath);
+			stream = createReadStream(fullPath);
 			// Wait for the stream to open successfully or error
 			await new Promise<void>((resolve, reject) => {
-				stream.once('open', () => resolve());
-				stream.once('error', reject);
+				stream!.once('open', () => resolve());
+				stream!.once('error', reject);
 			});
 			const webStream = Readable.toWeb(stream) as ReadableStream;
 			return new Response(webStream, {
 				headers: { 'Content-Type': 'text/html; charset=utf-8' },
 			});
 		} catch {
-			// File doesn't exist or can't be read, try next pattern
+			// File doesn't exist or can't be read, try next pattern.
+			// Destroy the stream to release the file descriptor if it was
+			// partially opened before the error fired.
+			stream?.destroy();
 		}
 	}
 
