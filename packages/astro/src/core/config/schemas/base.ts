@@ -4,6 +4,7 @@ import type {
 	RemarkPlugin as _RemarkPlugin,
 	RemarkRehype as _RemarkRehype,
 	ShikiConfig,
+	Smartypants as _Smartypants,
 } from '@astrojs/markdown-remark';
 import { markdownConfigDefaults, syntaxHighlightDefaults } from '@astrojs/markdown-remark';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
@@ -49,6 +50,7 @@ type RehypePlugin = ComplexifyWithUnion<_RehypePlugin>;
 type RemarkPlugin = ComplexifyWithUnion<_RemarkPlugin>;
 /** @lintignore */
 export type RemarkRehype = ComplexifyWithOmit<_RemarkRehype>;
+export type Smartypants = ComplexifyWithOmit<_Smartypants>;
 
 export const ASTRO_CONFIG_DEFAULTS = {
 	root: '.',
@@ -123,7 +125,7 @@ const quoteCharacterMapSchema = z.object({
 	single: z.string(),
 });
 
-const smartypantsOptionsSchema = z.object({
+const smartypantsOptionsSchema: z.ZodType<Smartypants> = z.object({
 	backticks: z.union([z.boolean(), z.literal('all')]).default(true),
 	closingQuotes: quoteCharacterMapSchema.default({
 		double: '”',
@@ -407,11 +409,11 @@ export const AstroConfigSchema = z.object({
 			gfm: z.boolean().default(ASTRO_CONFIG_DEFAULTS.markdown.gfm),
 			smartypants: z
 				.union([z.boolean(), smartypantsOptionsSchema])
-				.transform((val) => {
+				.transform((val): false | Smartypants => {
 					if (val === true) return smartypantsOptionsSchema.parse({});
 					return val;
 				})
-				.default(smartypantsOptionsSchema.parse({})),
+				.prefault(ASTRO_CONFIG_DEFAULTS.markdown.smartypants),
 		})
 		.prefault({}),
 	vite: z

@@ -2,6 +2,7 @@ import type { RemotePattern } from '@astrojs/internal-helpers/remote';
 import type * as hast from 'hast';
 import type * as mdast from 'mdast';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
+import type { Options as SmartypantsOptions } from "retext-smartypants";
 import type { BuiltinTheme } from 'shiki';
 import type * as unified from 'unified';
 import type { CreateShikiHighlighterOptions, ShikiHighlighterHighlightOptions } from './shiki.js';
@@ -35,19 +36,7 @@ export type RehypePlugins = (string | [string, any] | RehypePlugin | [RehypePlug
 
 export type RemarkRehype = RemarkRehypeOptions;
 
-export interface QuoteCharacterMap {
-	double: string;
-	single: string;
-}
-
-export interface SmartypantsOptions {
-	backticks?: boolean | 'all';
-	closingQuotes?: QuoteCharacterMap;
-	dashes?: boolean | 'oldschool' | 'inverted';
-	ellipses?: boolean | 'spaced' | 'unspaced';
-	openingQuotes?: QuoteCharacterMap;
-	quotes?: boolean;
-}
+export type Smartypants = SmartypantsOptions;
 
 export type ThemePresets = BuiltinTheme | 'css-variables';
 

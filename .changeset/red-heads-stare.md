@@ -24,4 +24,4 @@ export default defineConfig({
 });
 ```
 
-See [the `markdown.smartypants` reference documentation](https://docs.astro.build/en/reference/configuration-reference/#markdownsmartypants) for more information.
+See [the `retext-smartypants` options](https://github.com/retextjs/retext-smartypants?tab=readme-ov-file#fields) for more information.
