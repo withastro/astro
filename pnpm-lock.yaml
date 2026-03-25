@@ -6214,6 +6214,15 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/sitemap/test/fixtures/i18n-fallback:
+    dependencies:
+      '@astrojs/sitemap':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/sitemap/test/fixtures/ssr:
     dependencies:
       '@astrojs/node':
@@ -6992,6 +7001,9 @@ importers:
       remark-smartypants:
         specifier: ^3.0.2
         version: 3.0.2
+      retext-smartypants:
+        specifier: ^6.2.0
+        version: 6.2.0
       shiki:
         specifier: ^4.0.0
         version: 4.0.2
