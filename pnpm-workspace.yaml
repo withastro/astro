@@ -44,6 +44,8 @@ minimumReleaseAgeExclude:
   - rollup@4.59.0
   # Renovate security update: undici@7.24.0
   - undici@7.24.0
+  # Renovate security update: smol-toml@1.6.1
+  - smol-toml@1.6.1
 peerDependencyRules:
   allowAny:
     - 'astro'
