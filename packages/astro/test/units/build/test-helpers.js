@@ -225,9 +225,12 @@ export function createMockPrerenderer(pages, options = {}) {
 		},
 
 		async render(request, { routeData }) {
-			// Use routeData.pathname as the canonical key — it is the same value
-			// that was returned by getStaticPaths() and registered in the pages map.
-			const pathname = routeData.pathname;
+			// For static routes routeData.pathname is the canonical key.
+			// For dynamic routes (pathname === undefined), derive it from the
+			// request URL by stripping build-format artifacts (trailing slash, .html).
+			const raw = new URL(request.url).pathname;
+			const normalized = raw === '/' ? raw : raw.replace(/\/$/, '').replace(/\.html$/, '');
+			const pathname = routeData.pathname ?? normalized;
 			const page = pages[pathname];
 
 			if (page === undefined) {

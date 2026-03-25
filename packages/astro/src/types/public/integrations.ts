@@ -457,6 +457,11 @@ export interface IntegrationResolvedRoute
 	redirectRoute?: IntegrationResolvedRoute;
 
 	/**
+	 * {@link RouteData.fallbackRoutes}
+	 */
+	fallbackRoutes: IntegrationResolvedRoute[];
+
+	/**
 	 * @param {any} data The optional parameters of the route
 	 *
 	 * @description
