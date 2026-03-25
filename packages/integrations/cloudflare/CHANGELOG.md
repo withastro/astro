@@ -1,5 +1,25 @@
 # @astrojs/cloudflare
 
+## 13.1.3
+
+### Patch Changes
+
+- Updated dependencies [[`3b8d473`](https://github.com/withastro/astro/commit/3b8d473768bf7d356a21a0a432e6a33f90928a9e)]:
+  - @astrojs/underscore-redirects@1.0.2
+
+## 13.1.2
+
+### Patch Changes
+
+- [#15888](https://github.com/withastro/astro/pull/15888) [`925252e`](https://github.com/withastro/astro/commit/925252e8c361a169d1f4dc1e3677b96b9e815dea) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a bug where dependencies imported by prerender-only `server:defer` islands could remain as bare imports in server output, causing module resolution failures in preview and Cloudflare Workers.
+
+- [#15934](https://github.com/withastro/astro/pull/15934) [`6f8f0bc`](https://github.com/withastro/astro/commit/6f8f0bc4e22e958ccc2164acb1aa8cce21c43148) Thanks [@ematipico](https://github.com/ematipico)! - Updates the Astro `peerDependencies#astro` to be `6.0.0`.
+
+- [#15875](https://github.com/withastro/astro/pull/15875) [`c43ef8a`](https://github.com/withastro/astro/commit/c43ef8a565564770f022bd7cf9d2fcccf5949308) Thanks [@matthewp](https://github.com/matthewp)! - Include workerd response details in Cloudflare prerenderer errors to make `getStaticPaths()` failures easier to diagnose.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.1
+
 ## 13.1.1
 
 ### Patch Changes

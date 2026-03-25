@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 // plugins
 import regexpEslint from 'eslint-plugin-regexp';
 import tseslint from 'typescript-eslint';
+import { globalIgnores } from 'eslint/config';
 
 const typescriptEslint = tseslint.plugin;
 
@@ -15,24 +16,22 @@ const __dirname = path.dirname(__filename);
 export default [
 	// If ignores is used without any other keys in the configuration object, then the patterns act as global ignores.
 	// ref: https://eslint.org/docs/latest/use/configure/configuration-files#globally-ignoring-files-with-ignores
-	{
-		ignores: [
-			'**/.*',
-			'**/*.d.ts',
-			'packages/**/*.min.js',
-			'packages/**/dist/',
-			'packages/**/fixtures/',
-			'packages/**/_temp-fixtures/',
-			'packages/astro/vendor/vite/',
-			'benchmark/**/dist/',
-			'benchmark/static-projects/**',
-			'examples/',
-			'scripts/',
-			'triage/',
-			'.github/',
-			'.changeset/',
-		],
-	},
+	globalIgnores([
+		'**/.*',
+		'**/*.d.ts',
+		'packages/**/*.min.js',
+		'packages/**/dist/',
+		'packages/**/fixtures/',
+		'packages/**/_temp-fixtures/',
+		'packages/astro/vendor/vite/',
+		'benchmark/**/dist/',
+		'benchmark/static-projects/**',
+		'examples/',
+		'scripts/',
+		'triage/',
+		'.github/',
+		'.changeset/',
+	]),
 
 	...tseslint.configs.recommendedTypeChecked,
 	...tseslint.configs.stylisticTypeChecked,

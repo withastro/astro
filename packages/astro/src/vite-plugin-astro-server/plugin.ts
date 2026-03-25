@@ -22,7 +22,7 @@ import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
 import { createViteLoader } from '../core/module-loader/index.js';
-import { isRouteServerIsland, matchAllRoutes } from '../core/routing/match.js';
+import { matchAllRoutes } from '../core/routing/match.js';
 import { resolveMiddlewareMode } from '../integrations/adapter-utils.js';
 import { SERIALIZED_MANIFEST_ID } from '../manifest/serialized.js';
 import type { AstroSettings } from '../types/astro.js';
@@ -60,11 +60,6 @@ export default function createVitePluginAstroServer({
 			const runnablePrerenderEnvironment = isRunnableDevEnvironment(prerenderEnvironment)
 				? (prerenderEnvironment as RunnableDevEnvironment)
 				: undefined;
-
-			// TODO: let this handle non-runnable environments that don't intercept requests
-			if (!runnableSsrEnvironment && !runnablePrerenderEnvironment) {
-				return;
-			}
 
 			async function createHandler(environment: RunnableDevEnvironment) {
 				const loader = createViteLoader(viteServer, environment);
@@ -117,19 +112,17 @@ export default function createVitePluginAstroServer({
 				}
 			}
 
-			process.on('unhandledRejection', handleUnhandledRejection);
-			viteServer.httpServer?.on('close', () => {
-				process.off('unhandledRejection', handleUnhandledRejection);
-			});
+			if (ssrHandler || prerenderHandler) {
+				process.on('unhandledRejection', handleUnhandledRejection);
+				viteServer.httpServer?.on('close', () => {
+					process.off('unhandledRejection', handleUnhandledRejection);
+				});
+			}
 
 			return () => {
 				const shouldHandlePrerenderInCore = Boolean(
 					(viteServer as any)[devPrerenderMiddlewareSymbol],
 				);
-
-				if (!ssrHandler && !(prerenderHandler && shouldHandlePrerenderInCore)) {
-					return;
-				}
 
 				// Push this middleware to the front of the stack so that it can intercept responses.
 				// fix(#6067): always inject this to ensure zombie base handling is killed after restarts
@@ -176,7 +169,7 @@ export default function createVitePluginAstroServer({
 								const routesList = { routes: routes.map((r: any) => r.routeData) };
 								const matches = matchAllRoutes(pathname, routesList);
 
-								if (!matches.some((route) => route.prerender || isRouteServerIsland(route))) {
+								if (!matches.some((route) => route.prerender)) {
 									return next();
 								}
 
@@ -275,8 +268,8 @@ export async function createDevelopmentManifest(settings: AstroSettings): Promis
 		componentMetadata: new Map(),
 		inlinedScripts: new Map(),
 		i18n: i18nManifest,
-		checkOrigin:
-			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
+		checkOrigin: settings.config.security?.checkOrigin ?? false,
+		allowedDomains: settings.config.security?.allowedDomains,
 		actionBodySizeLimit: settings.config.security?.actionBodySizeLimit
 			? settings.config.security.actionBodySizeLimit
 			: 1024 * 1024, // 1mb default

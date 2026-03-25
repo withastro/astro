@@ -5,7 +5,7 @@ import * as html from 'vscode-html-languageservice';
 import { URI, Utils } from 'vscode-uri';
 import { AstroVirtualCode } from '../core/index.js';
 import { astroAttributes, astroElements, classListAttribute } from './html-data.js';
-import { isInComponentStartTag } from './utils.js';
+import { isInComponentStartTag, isInsideExpression } from './utils.js';
 
 export const create = (): LanguageServicePlugin => {
 	const htmlPlugin = createHtmlService({
@@ -44,9 +44,18 @@ export const create = (): LanguageServicePlugin => {
 					const sourceScript = decoded && context.language.scripts.get(decoded[0]);
 					const root = sourceScript?.generated?.root;
 					if (!(root instanceof AstroVirtualCode)) return;
+					const offset = document.offsetAt(position);
 
 					// Don't return completions if the current node is a component
-					if (isInComponentStartTag(root.htmlDocument, document.offsetAt(position))) {
+					if (isInComponentStartTag(root.htmlDocument, offset)) {
+						return null;
+					}
+
+					const currentNode = root.htmlDocument.findNodeAt(offset);
+					const sourceText = root.snapshot.getText(0, root.snapshot.getLength());
+
+					// Let the TypeScript service handle `{...}` expressions in HTML attributes.
+					if (isInsideExpression(sourceText, currentNode.start, offset)) {
 						return null;
 					}
 

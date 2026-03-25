@@ -17,7 +17,6 @@ Context-loading skill for AI agents and developers working in the Astro monorepo
 | Fixing a bug               | [debugging.md](debugging.md)                                         | [architecture.md](architecture.md) |
 | Writing/fixing tests       | [testing.md](testing.md)                                             | [constraints.md](constraints.md)   |
 | Creating an integration    | Explore `packages/integrations/` for examples                        | [testing.md](testing.md)           |
-| Creating/updating a PR     | [pull-requests.md](pull-requests.md)                                 | [testing.md](testing.md)           |
 | Understanding architecture | [architecture.md](architecture.md)                                   | -                                  |
 | Dealing with errors        | [debugging.md](debugging.md), [constraints.md](constraints.md)       | [testing.md](testing.md)           |
 | Understanding constraints  | [constraints.md](constraints.md)                                     | [architecture.md](architecture.md) |

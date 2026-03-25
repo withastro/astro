@@ -165,7 +165,10 @@ export class ContentLayer {
 		});
 		return {
 			html: code,
-			metadata,
+			metadata: {
+				...metadata,
+				imagePaths: (metadata.localImagePaths ?? []).concat(metadata.remoteImagePaths ?? []),
+			},
 		};
 	}
 

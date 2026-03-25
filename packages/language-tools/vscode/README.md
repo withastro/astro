@@ -18,6 +18,7 @@ Provides language support for `.astro` files. This extension is powered by the [
 - [Go to Definition](https://code.visualstudio.com/docs/editor/editingevolved#_go-to-definition), [Go to Type Definition](https://code.visualstudio.com/docs/editor/editingevolved#_go-to-type-definition), [Go to Implementation](https://code.visualstudio.com/docs/editor/editingevolved#_go-to-implementation) etc
 - [Inlay hints](https://code.visualstudio.com/docs/editor/editingevolved#_inlay-hints)
 - [Code folding](https://code.visualstudio.com/docs/editor/codebasics#_folding)
+- [Snippets & File Templates](https://code.visualstudio.com/docs/editing/userdefinedsnippets)
 - and more!
 
 A TypeScript plugin adding support for importing and exporting Astro components inside JavaScript and TypeScript files is also included.

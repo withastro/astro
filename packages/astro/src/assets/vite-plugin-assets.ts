@@ -332,7 +332,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 							};
 						}
 						// In SSR builds, any image loaded by the SSR environment could be reachable at
-						// request time without us knowning, so we'll always consider them as referenced.
+						// request time without us knowing, so we'll always consider them as referenced.
 						const isSSROnlyEnvironment =
 							settings.buildOutput === 'server' &&
 							this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;

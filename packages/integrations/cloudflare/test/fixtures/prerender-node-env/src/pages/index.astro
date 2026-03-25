@@ -4,6 +4,7 @@ export const prerender = true;
 import fs from 'node:fs';
 import path from 'node:path';
 import DeferredIsland from '../components/DeferredIsland.astro';
+import WorkerdIsland from '../components/WorkerdIsland.astro';
 
 const packageJsonPath = path.join(process.cwd(), 'package.json');
 const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
@@ -24,5 +25,8 @@ const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
 		<DeferredIsland server:defer>
 			<p slot="fallback" id="deferred-fallback">loading...</p>
 		</DeferredIsland>
+		<WorkerdIsland server:defer>
+			<p slot="fallback" id="workerd-fallback">loading workerd island...</p>
+		</WorkerdIsland>
 	</body>
 </html>

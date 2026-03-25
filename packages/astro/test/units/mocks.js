@@ -1,6 +1,16 @@
 import { createBasicPipeline } from './test-utils.js';
 import { makeRoute, staticPart } from './routing/test-helpers.js';
 import { AstroCookies } from '../../dist/core/cookies/index.js';
+import { App } from '../../dist/core/app/app.js';
+import { baseService } from '../../dist/assets/services/service.js';
+import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
+import {
+	createComponent,
+	render,
+	renderComponent,
+	spreadAttributes,
+} from '../../dist/runtime/server/index.js';
+import { createManifest, createRouteInfo } from './app/test-helpers.js';
 
 /**
  * Mock utilities for unit tests.
@@ -104,6 +114,88 @@ export function createResponseFunction(body = '<html><body>OK</body></html>', in
 }
 
 /**
+ * Converts a component + route config into the shape expected by createTestApp.
+ *
+ * @param {Function} component - A component created via `createComponent()`
+ * @param {object} routeConfig - Fields passed to createRouteData()
+ * @param {string} routeConfig.route - The route pattern (e.g. '/about', '/[slug]')
+ * @returns {{ routeData: object, module: Function }}
+ */
+export function createPage(component, routeConfig) {
+	const routeData = createRouteData(routeConfig);
+	return {
+		routeData,
+		module: async () => ({ page: async () => ({ default: component }) }),
+	};
+}
+
+/**
+ * Creates an App instance with one or more pages.
+ *
+ * @param {Array<{ routeData: object, module: Function }>} pages - Pages created via createPage()
+ * @param {object} [manifestOverrides] - Extra fields passed to createManifest()
+ * @returns {import('../../dist/core/app/app.js').App}
+ *
+ * @example
+ * const app = createTestApp([
+ *   createPage(myComponent, { route: '/about' }),
+ *   createPage(indexComponent, { route: '/', isIndex: true }),
+ * ]);
+ * const response = await app.render(new Request('http://example.com/about'));
+ */
+export function createTestApp(pages, manifestOverrides = {}) {
+	const routes = [];
+	const pageMap = new Map();
+	for (const { routeData, module } of pages) {
+		routes.push(createRouteInfo(routeData));
+		pageMap.set(routeData.component, module);
+	}
+
+	return new App(
+		createManifest({
+			routes,
+			pageMap,
+			...manifestOverrides,
+		}),
+	);
+}
+
+/**
+ * Creates a component that spreads all props onto a `<span>` and renders
+ * `Astro.props.class` as text content. Useful for testing prop forwarding.
+ *
+ * Equivalent to: `<span {...Astro.props}>{Astro.props.class}</span>`
+ */
+export const spreadPropsSpan = createComponent((result, props, slots) => {
+	const Astro = result.createAstro(props, slots);
+	return render`<span${spreadAttributes(Astro.props)}>${Astro.props.class ?? ''}</span>`;
+});
+
+/**
+ * Creates a page component that renders the given child component once for each
+ * props object in the array.
+ *
+ * @param {Function} childComponent - The component to render
+ * @param {Record<string, any>[]} propsArray - Array of props objects
+ * @returns {Function} A page component
+ *
+ * @example
+ * const page = createMultiChildPage(spreadPropsSpan, [
+ *   { 'class:list': ['foo', 'bar'] },
+ *   { style: { color: 'red' } },
+ * ]);
+ * const app = createTestApp([createPage(page, { route: '/test' })]);
+ */
+export function createMultiChildPage(childComponent, propsArray) {
+	return createComponent((result) => {
+		const renders = propsArray.map(
+			(props) => render`${renderComponent(result, 'Child', childComponent, props)}`,
+		);
+		return render`${renders}`;
+	});
+}
+
+/**
  * Convenience wrapper around `makeRoute` from routing test-helpers.
  * Auto-generates segments from the route string for simple static routes,
  * while using the real `getPattern()` for regex generation.
@@ -115,7 +207,7 @@ export function createResponseFunction(body = '<html><body>OK</body></html>', in
  * @param {boolean} [overrides.prerender]
  * @param {boolean} [overrides.isIndex]
  * @param {string} [overrides.pathname]
- * @param {import('../../../dist/types/public/internal.js').RoutePart[][]} [overrides.segments]
+ * @param {import('../../dist/types/public/internal.js').RoutePart[][]} [overrides.segments]
  * @param {'always' | 'never' | 'ignore'} [overrides.trailingSlash]
  */
 export function createRouteData(overrides) {
@@ -139,4 +231,66 @@ export function createRouteData(overrides) {
 		isIndex: overrides.isIndex ?? route === '/',
 		prerender: overrides.prerender ?? false,
 	});
+}
+
+/**
+ * An image service for unit tests that extends baseService with a getURL
+ * that doesn't depend on import.meta.env.BASE_URL.
+ */
+const unitTestImageService = {
+	...baseService,
+	getURL(options, imageConfig) {
+		const src = typeof options.src === 'string' ? options.src : options.src.src;
+		// Replicate baseService's allowlist check without import.meta.env.BASE_URL
+		if (typeof options.src === 'string' && !isRemoteAllowed(options.src, imageConfig)) {
+			return options.src;
+		}
+		const params = new URLSearchParams();
+		params.set('href', src);
+		if (options.width) params.set('w', String(options.width));
+		if (options.height) params.set('h', String(options.height));
+		if (options.format) params.set('f', options.format);
+		if (options.fit) params.set('fit', options.fit);
+		if (options.position) params.set('pos', options.position);
+		return '/_image?' + params.toString();
+	},
+};
+
+/**
+ * Installs the unit test image service on globalThis so that getImage()
+ * can resolve it without the virtual:image-service Vite module.
+ * Returns the imageConfig object to pass to getImage(), and a cleanup function.
+ *
+ * Use the cleanup function inside the after testing hook.
+ *
+ * @param {object} [overrides]
+ * @param {string[]} [overrides.domains]
+ * @param {object[]} [overrides.remotePatterns]
+ * @returns {{ imageConfig: object, cleanup: () => void }}
+ */
+export function installImageService(overrides = {}) {
+	globalThis.astroAsset = { imageService: unitTestImageService };
+
+	const imageConfig = {
+		service: { entrypoint: 'test', config: {} },
+		domains: overrides.domains ?? [],
+		remotePatterns: overrides.remotePatterns ?? [],
+		endpoint: { route: '/_image' },
+	};
+
+	return {
+		imageConfig,
+		cleanup() {
+			globalThis.astroAsset = undefined;
+		},
+	};
+}
+
+/**
+ * Creates a small Astro source component with an empty frontmatter
+ * @param html
+ * @returns {string}
+ */
+export function createMockAstroSource(html) {
+	return `---\n---\n<html>${html}</html>`;
 }
