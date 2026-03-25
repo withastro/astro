@@ -70,7 +70,7 @@ async function ensureModulesLoaded(
 		// If this module hasn't been transformed yet, fetch it to populate its importedModules
 		if (!imp.transformResult) {
 			try {
-				await env.fetchModule(imp.id);
+				await env.transformRequest(imp.url);
 			} catch {
 				// Module may not be fetchable (e.g., virtual modules that resolve differently).
 				// Silently continue — the CSS walk will simply skip modules with empty importedModules.
@@ -203,7 +203,8 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 						const env = getCurrentEnvironment(this.environment as DevEnvironment);
 
 						// Ensure the page module is loaded. This will populate the graph and allow us to walk through.
-						await env?.fetchModule(componentPageId);
+						// await env?.fetchModule(componentPageId);
+						await env?.transformRequest(componentPath);
 						const resolved = await env?.pluginContainer.resolveId(componentPageId);
 
 						if (!resolved?.id) {
