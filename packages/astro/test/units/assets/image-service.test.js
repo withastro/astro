@@ -13,17 +13,13 @@ describe('sharp encoder options', async () => {
 
 	it('uses codec-specific config defaults when no transform quality is provided', () => {
 		assert.deepEqual(
-			resolveSharpEncoderOptions(
-				{ format: 'webp' },
-				undefined,
-				{
-					webp: {
-						effort: 6,
-						alphaQuality: 80,
-						quality: 72,
-					},
+			resolveSharpEncoderOptions({ format: 'webp' }, undefined, {
+				webp: {
+					effort: 6,
+					alphaQuality: 80,
+					quality: 72,
 				},
-			),
+			}),
 			{
 				effort: 6,
 				alphaQuality: 80,
@@ -34,16 +30,12 @@ describe('sharp encoder options', async () => {
 
 	it('prefers transform quality over config quality', () => {
 		assert.deepEqual(
-			resolveSharpEncoderOptions(
-				{ format: 'avif', quality: '70' },
-				undefined,
-				{
-					avif: {
-						effort: 9,
-						quality: 50,
-					},
+			resolveSharpEncoderOptions({ format: 'avif', quality: '70' }, undefined, {
+				avif: {
+					effort: 9,
+					quality: 50,
 				},
-			),
+			}),
 			{
 				effort: 9,
 				quality: 70,
@@ -53,16 +45,12 @@ describe('sharp encoder options', async () => {
 
 	it('maps jpg output to jpeg encoder defaults', () => {
 		assert.deepEqual(
-			resolveSharpEncoderOptions(
-				{ format: 'jpg' },
-				undefined,
-				{
-					jpeg: {
-						mozjpeg: true,
-						chromaSubsampling: '4:2:0',
-					},
+			resolveSharpEncoderOptions({ format: 'jpg' }, undefined, {
+				jpeg: {
+					mozjpeg: true,
+					chromaSubsampling: '4:2:0',
 				},
-			),
+			}),
 			{
 				mozjpeg: true,
 				chromaSubsampling: '4:2:0',
@@ -72,15 +60,11 @@ describe('sharp encoder options', async () => {
 
 	it('keeps animated gif webp loop default unless config overrides it', () => {
 		assert.deepEqual(
-			resolveSharpEncoderOptions(
-				{ format: 'webp' },
-				'gif',
-				{
-					webp: {
-						effort: 5,
-					},
+			resolveSharpEncoderOptions({ format: 'webp' }, 'gif', {
+				webp: {
+					effort: 5,
 				},
-			),
+			}),
 			{
 				effort: 5,
 				loop: 0,
@@ -88,16 +72,12 @@ describe('sharp encoder options', async () => {
 		);
 
 		assert.deepEqual(
-			resolveSharpEncoderOptions(
-				{ format: 'webp' },
-				'gif',
-				{
-					webp: {
-						effort: 5,
-						loop: 2,
-					},
+			resolveSharpEncoderOptions({ format: 'webp' }, 'gif', {
+				webp: {
+					effort: 5,
+					loop: 2,
 				},
-			),
+			}),
 			{
 				effort: 5,
 				loop: 2,

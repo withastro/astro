@@ -73,13 +73,7 @@ export function resolveSharpEncoderOptions(
 	transform: Pick<BaseServiceTransform, 'format' | 'quality'>,
 	inputFormat: string | undefined,
 	serviceConfig: SharpImageServiceConfig = {},
-):
-	| JpegOptions
-	| PngOptions
-	| WebpOptions
-	| AvifOptions
-	| { quality?: number }
-	| undefined {
+): JpegOptions | PngOptions | WebpOptions | AvifOptions | { quality?: number } | undefined {
 	const quality = resolveSharpQuality(transform.quality);
 
 	switch (transform.format) {
