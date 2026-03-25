@@ -42,6 +42,8 @@ minimumReleaseAgeExclude:
   - fastify@5.8.1
   # Renovate security update: rollup@4.59.0
   - rollup@4.59.0
+  # Renovate security update: undici@7.24.0
+  - undici@7.24.0
 peerDependencyRules:
   allowAny:
     - 'astro'
