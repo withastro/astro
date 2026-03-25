@@ -20,4 +20,5 @@ interface Env extends Cloudflare.Env {}
 type ImagesBinding = import('@cloudflare/workers-types').ImagesBinding;
 type Fetcher = import('@cloudflare/workers-types').Fetcher;
 
+// biome-ignore lint/style/noVar: Global ambient declarations must use var to be accessible on globalThis
 declare var astroCloudflareOptions: import('@cloudflare/vite-plugin').PluginConfig;
