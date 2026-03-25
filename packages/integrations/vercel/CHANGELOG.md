@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 10.0.2
+
+### Patch Changes
+
+- [#15959](https://github.com/withastro/astro/pull/15959) [`335a204`](https://github.com/withastro/astro/commit/335a204161f5a7293c128db570901d4f8639c6ed) Thanks [@matthewp](https://github.com/matthewp)! - Fix Vercel serverless path override handling so override values are only applied when the trusted middleware secret is present.
+
 ## 10.0.1
 
 ### Patch Changes

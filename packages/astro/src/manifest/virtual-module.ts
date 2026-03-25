@@ -11,6 +11,50 @@ const VIRTUAL_CLIENT_ID = 'astro:config/client';
 const RESOLVED_VIRTUAL_CLIENT_ID = '\0' + VIRTUAL_CLIENT_ID;
 
 export default function virtualModulePlugin({ settings }: { settings: AstroSettings }): Plugin {
+	// Pre-compute the client config values from settings so that astro:config/client
+	// doesn't need to import from virtual:astro:manifest (which pulls in server-only
+	// virtual modules like virtual:astro:routes and virtual:astro:pages that are
+	// restricted to server environments via applyToEnvironment).
+	const config = settings.config;
+
+	let i18nCode = 'const i18n = undefined;';
+	if (config.i18n) {
+		// Apply the same toRoutingStrategy → fromRoutingStrategy roundtrip that the
+		// serialized manifest uses, to ensure consistent routing config values.
+		const strategy = toRoutingStrategy(config.i18n.routing, config.i18n.domains);
+		const fallbackType = toFallbackType(config.i18n.routing);
+		const routing = fromRoutingStrategy(strategy, fallbackType);
+		i18nCode = `const i18n = {
+  defaultLocale: ${JSON.stringify(config.i18n.defaultLocale)},
+  locales: ${JSON.stringify(config.i18n.locales)},
+  routing: ${JSON.stringify(routing)},
+  fallback: ${JSON.stringify(config.i18n.fallback)}
+};`;
+	}
+
+	let imageCode = 'const image = undefined;';
+	if (config.image) {
+		imageCode = `const image = {
+  objectFit: ${JSON.stringify(config.image.objectFit)},
+  objectPosition: ${JSON.stringify(config.image.objectPosition)},
+  layout: ${JSON.stringify(config.image.layout)},
+};`;
+	}
+
+	const clientConfigCode = `
+${i18nCode}
+${imageCode}
+const base = ${JSON.stringify(config.base)};
+const trailingSlash = ${JSON.stringify(config.trailingSlash)};
+const site = ${JSON.stringify(config.site)};
+const compressHTML = ${JSON.stringify(config.compressHTML)};
+const build = {
+  format: ${JSON.stringify(config.build.format)},
+};
+
+export { base, i18n, trailingSlash, site, compressHTML, build, image };
+`;
+
 	return {
 		name: 'astro-manifest-plugin',
 		resolveId: {

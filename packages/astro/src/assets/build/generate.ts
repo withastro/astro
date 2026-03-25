@@ -176,13 +176,11 @@ export async function generateImagesForPath(
 			} else {
 				const JSONData = JSON.parse(readFileSync(cachedMetaFileURL, 'utf-8')) as RemoteCacheEntry;
 
-				if (!JSONData.expires) {
-					try {
-						await fs.promises.unlink(cachedFileURL);
-					} catch {
-						/* Old caches may not have a separate image binary, no-op */
-					}
-					await fs.promises.unlink(cachedMetaFileURL);
+				if (typeof JSONData.expires !== 'number') {
+					await Promise.allSettled([
+						fs.promises.unlink(cachedFileURL),
+						fs.promises.unlink(cachedMetaFileURL),
+					]);
 
 					throw new Error(
 						`Malformed cache entry for ${filepath}, cache will be regenerated for this file.`,
@@ -203,9 +201,7 @@ export async function generateImagesForPath(
 				if (JSONData.expires > Date.now()) {
 					await fs.promises.copyFile(cachedFileURL, finalFileURL, fs.constants.COPYFILE_FICLONE);
 
-					return {
-						cached: 'hit',
-					};
+					return { cached: 'hit' };
 				}
 
 				// Try to revalidate the cache
@@ -216,18 +212,16 @@ export async function generateImagesForPath(
 							lastModified: JSONData.lastModified,
 						});
 
-						if (revalidatedData.data.length) {
+						if (revalidatedData.data !== null) {
 							// Image cache was stale, update original image to avoid redownload
-							originalImage = revalidatedData;
+							originalImage = revalidatedData as ImageData;
 						} else {
-							// Freshen cache on disk
-							await writeCacheMetaFile(cachedMetaFileURL, revalidatedData, env);
+							// Freshen cache on disk and output cached image
+							await Promise.all([
+								writeCacheMetaFile(cachedMetaFileURL, revalidatedData, env),
+								fs.promises.copyFile(cachedFileURL, finalFileURL, fs.constants.COPYFILE_FICLONE),
+							]);
 
-							await fs.promises.copyFile(
-								cachedFileURL,
-								finalFileURL,
-								fs.constants.COPYFILE_FICLONE,
-							);
 							return { cached: 'revalidated' };
 						}
 					} catch (e) {
@@ -242,8 +236,10 @@ export async function generateImagesForPath(
 					}
 				}
 
-				await fs.promises.unlink(cachedFileURL);
-				await fs.promises.unlink(cachedMetaFileURL);
+				await Promise.allSettled([
+					fs.promises.unlink(cachedFileURL),
+					fs.promises.unlink(cachedMetaFileURL),
+				]);
 			}
 		} catch (e: any) {
 			if (e.code !== 'ENOENT') {
@@ -339,6 +335,7 @@ async function writeCacheMetaFile(
 				etag: resultData.etag,
 				lastModified: resultData.lastModified,
 			}),
+			'utf-8',
 		);
 	} catch (e) {
 		env.logger.warn(

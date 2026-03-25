@@ -1,4 +1,5 @@
 import * as assert from 'node:assert/strict';
+import { existsSync, readdirSync } from 'node:fs';
 import { before, describe, it } from 'node:test';
 import { loadFixture } from '../../../../astro/test/test-utils.js';
 
@@ -8,6 +9,15 @@ describe('Static headers', () => {
 	before(async () => {
 		fixture = await loadFixture({ root: new URL('./fixtures/static-headers/', import.meta.url) });
 		await fixture.build();
+	});
+
+	it('SSR function is generated when server islands are used with output: static', async () => {
+		const ssrFunctionDir = new URL(
+			'./fixtures/static-headers/.netlify/v1/functions/ssr/',
+			import.meta.url,
+		);
+		assert.ok(existsSync(ssrFunctionDir), 'SSR function directory should exist');
+		assert.ok(readdirSync(ssrFunctionDir).length > 0, 'SSR function directory should not be empty');
 	});
 
 	it('CSP headers are added when CSP is enabled', async () => {

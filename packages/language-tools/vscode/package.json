@@ -24,12 +24,12 @@
     "color": "#17191E",
     "theme": "dark"
   },
-  "version": "2.16.12",
+  "version": "2.16.13",
   "author": "withastro",
   "license": "MIT",
   "publisher": "astro-build",
   "engines": {
-    "vscode": "^1.90.0"
+    "vscode": "^1.92.0"
   },
   "activationEvents": [
     "workspaceContains:astro.config.*"
@@ -246,11 +246,11 @@
     "update-grammar-snapshots": "node ./test/grammar/test.mjs --updateSnapshot"
   },
   "devDependencies": {
-    "@astrojs/language-server": "^2.16.5",
+    "@astrojs/language-server": "^2.16.6",
     "@astrojs/ts-plugin": "^1.10.7",
     "@types/mocha": "^10.0.10",
     "@types/node": "^20.9.0",
-    "@types/vscode": "^1.90.0",
+    "@types/vscode": "^1.92.0",
     "@volar/language-server": "~2.4.28",
     "@volar/vscode": "~2.4.28",
     "@vscode/test-electron": "^2.5.2",
