@@ -1742,6 +1742,7 @@ export interface AstroUserConfig<
 		 * @name image.service.config.jpeg
 		 * @kind h4
 		 * @type {Record<string, any> | undefined}
+		 * @default `undefined`
 		 * @version 6.0.0
 		 * @description
 		 *
@@ -1756,6 +1757,7 @@ export interface AstroUserConfig<
 		 * @name image.service.config.webp
 		 * @kind h4
 		 * @type {Record<string, any> | undefined}
+		 * @default `undefined`
 		 * @version 6.0.0
 		 * @description
 		 *
@@ -1770,6 +1772,7 @@ export interface AstroUserConfig<
 		 * @name image.service.config.avif
 		 * @kind h4
 		 * @type {Record<string, any> | undefined}
+		 * @default `undefined`
 		 * @version 6.0.0
 		 * @description
 		 *
@@ -1784,6 +1787,7 @@ export interface AstroUserConfig<
 		 * @name image.service.config.png
 		 * @kind h4
 		 * @type {Record<string, any> | undefined}
+		 * @default `undefined`
 		 * @version 6.0.0
 		 * @description
 		 *
