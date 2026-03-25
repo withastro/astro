@@ -1743,7 +1743,7 @@ export interface AstroUserConfig<
 		 * @kind h4
 		 * @type {Record<string, any> | undefined}
 		 * @default `undefined`
-		 * @version 6.0.0
+		 * @version 6.1.0
 		 * @description
 		 *
 		 * The default encoder options passed to `sharp().jpeg()` when using Astro's built-in Sharp image service.
