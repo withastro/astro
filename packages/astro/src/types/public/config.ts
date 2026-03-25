@@ -1745,7 +1745,7 @@ export interface AstroUserConfig<
 		 * @version 6.0.0
 		 * @description
 		 *
-		 * Default encoder options passed to `sharp().jpeg()` when using Astro's built-in Sharp image service.
+		 * The default encoder options passed to `sharp().jpeg()` when using Astro's built-in Sharp image service.
 		 *
 		 * This can be used for options such as `mozjpeg`, `progressive`, `chromaSubsampling`, or a default `quality`.
 		 * Per-image `quality` values from `<Image />`, `<Picture />`, and `getImage()` still take precedence.
@@ -1759,7 +1759,7 @@ export interface AstroUserConfig<
 		 * @version 6.0.0
 		 * @description
 		 *
-		 * Default encoder options passed to `sharp().webp()` when using Astro's built-in Sharp image service.
+		 * The default encoder options passed to `sharp().webp()` when using Astro's built-in Sharp image service.
 		 *
 		 * This can be used for options such as `effort`, `alphaQuality`, `lossless`, `nearLossless`, or a default `quality`.
 		 * Per-image `quality` values from `<Image />`, `<Picture />`, and `getImage()` still take precedence.
@@ -1773,7 +1773,7 @@ export interface AstroUserConfig<
 		 * @version 6.0.0
 		 * @description
 		 *
-		 * Default encoder options passed to `sharp().avif()` when using Astro's built-in Sharp image service.
+		 * The default encoder options passed to `sharp().avif()` when using Astro's built-in Sharp image service.
 		 *
 		 * This can be used for options such as `effort`, `chromaSubsampling`, `bitdepth`, `lossless`, or a default `quality`.
 		 * Per-image `quality` values from `<Image />`, `<Picture />`, and `getImage()` still take precedence.
@@ -1787,7 +1787,7 @@ export interface AstroUserConfig<
 		 * @version 6.0.0
 		 * @description
 		 *
-		 * Default encoder options passed to `sharp().png()` when using Astro's built-in Sharp image service.
+		 * The default encoder options passed to `sharp().png()` when using Astro's built-in Sharp image service.
 		 *
 		 * This can be used for options such as `compressionLevel`, `effort`, `palette`, or a default `quality`.
 		 * Per-image `quality` values from `<Image />`, `<Picture />`, and `getImage()` still take precedence.

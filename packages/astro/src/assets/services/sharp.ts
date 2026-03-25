@@ -29,22 +29,22 @@ export interface SharpImageServiceConfig {
 	kernel?: ResizeOptions['kernel'];
 
 	/**
-	 * Default encoder options passed to `sharp().jpeg()`.
+	 * The default encoder options passed to `sharp().jpeg()`.
 	 */
 	jpeg?: JpegOptions;
 
 	/**
-	 * Default encoder options passed to `sharp().png()`.
+	 * The default encoder options passed to `sharp().png()`.
 	 */
 	png?: PngOptions;
 
 	/**
-	 * Default encoder options passed to `sharp().webp()`.
+	 * The default encoder options passed to `sharp().webp()`.
 	 */
 	webp?: WebpOptions;
 
 	/**
-	 * Default encoder options passed to `sharp().avif()`.
+	 * The default encoder options passed to `sharp().avif()`.
 	 */
 	avif?: AvifOptions;
 }

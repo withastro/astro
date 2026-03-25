@@ -2,7 +2,7 @@
 'astro': minor
 ---
 
-Adds codec-specific defaults for Astro's built-in Sharp image service via `image.service.config`.
+Allows setting codec-specific defaults for Astro's built-in Sharp image service via `image.service.config`.
 
 You can now configure encoder-level options such as `jpeg.mozjpeg`, `webp.effort`, `webp.alphaQuality`, `avif.effort`, `avif.chromaSubsampling`, and `png.compressionLevel` when using `astro/assets/services/sharp` for compile-time image generation.
 
