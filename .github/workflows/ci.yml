@@ -212,13 +212,13 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        # VS Code 1.90 (minimum supported version) ships with Node 20.9.0
-        node_version: [20.9.0, 22]
+        # VS Code 1.92 (minimum supported version) ships with Node 20.14.0
+        node_version: [20.14.0, 22]
         include:
           - os: windows-latest
-            node_version: 20.9.0
+            node_version: 20.14.0
           - os: macos-latest
-            node_version: 20.9.0
+            node_version: 20.14.0
       fail-fast: false
 
     name: 'Test (language-tools): node-${{ matrix.node_version }}, ${{ matrix.os }}'
