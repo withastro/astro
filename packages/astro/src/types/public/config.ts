@@ -5,6 +5,7 @@ import type {
 	RemarkPlugins,
 	RemarkRehype,
 	ShikiConfig,
+	Smartypants,
 	SyntaxHighlightConfigType,
 } from '@astrojs/markdown-remark';
 import type { Config as SvgoConfig } from 'svgo';
@@ -2107,24 +2108,24 @@ export interface AstroUserConfig<
 		 * ```
 		 */
 		gfm?: boolean;
+
 		/**
 		 * @docs
 		 * @name markdown.smartypants
-		 * @type {boolean}
+		 * @type {boolean | Smartypants}
 		 * @default `true`
 		 * @version 2.0.0
 		 * @description
-		 * Astro uses the [SmartyPants formatter](https://daringfireball.net/projects/smartypants/) by default. To disable this, set the `smartypants` flag to `false`:
+		 * Whether to use the [SmartyPants formatter](https://daringfireball.net/projects/smartypants/) to transform straight quotes into smart quotes, dashes into en/em dashes, and triple dots into ellipses.
 		 *
-		 * ```js
-		 * {
-		 *   markdown: {
-		 *     smartypants: false,
-		 *   }
-		 * }
-		 * ```
+		 * To disable this, set the `smartypants` flag to `false`.
+		 *
+		 * For more control over typography, you can instead specify a configuration object with the [properties supported by `retext-smartypants`](https://github.com/retextjs/retext-smartypants?tab=readme-ov-file#fields).
 		 */
-		smartypants?: boolean;
+		smartypants?:
+			| boolean
+			| Smartypants;
+
 		/**
 		 * @docs
 		 * @name markdown.remarkRehype

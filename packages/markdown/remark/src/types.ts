@@ -2,6 +2,7 @@ import type { RemotePattern } from '@astrojs/internal-helpers/remote';
 import type * as hast from 'hast';
 import type * as mdast from 'mdast';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
+import type { Options as SmartypantsOptions } from "retext-smartypants";
 import type { BuiltinTheme } from 'shiki';
 import type * as unified from 'unified';
 import type { CreateShikiHighlighterOptions, ShikiHighlighterHighlightOptions } from './shiki.js';
@@ -35,6 +36,8 @@ export type RehypePlugins = (string | [string, any] | RehypePlugin | [RehypePlug
 
 export type RemarkRehype = RemarkRehypeOptions;
 
+export type Smartypants = SmartypantsOptions;
+
 export type ThemePresets = BuiltinTheme | 'css-variables';
 
 export type SyntaxHighlightConfigType = 'shiki' | 'prism';
@@ -58,7 +61,7 @@ export interface AstroMarkdownOptions {
 	rehypePlugins?: RehypePlugins;
 	remarkRehype?: RemarkRehype;
 	gfm?: boolean;
-	smartypants?: boolean;
+	smartypants?: boolean | SmartypantsOptions;
 }
 
 /**
