@@ -10,8 +10,6 @@ import { defaultExcludeLanguages } from './highlight.js';
 import { loadPlugins } from './load-plugins.js';
 import { rehypeHeadingIds } from './rehype-collect-headings.js';
 import { rehypeImages } from './rehype-images.js';
-import { rehypePrism } from './rehype-prism.js';
-import { rehypeShiki } from './rehype-shiki.js';
 import { remarkCollectImages } from './remark-collect-images.js';
 import type {
 	AstroMarkdownOptions,
@@ -119,8 +117,10 @@ export async function createMarkdownProcessor(
 			typeof syntaxHighlight === 'object' ? syntaxHighlight?.excludeLangs : undefined;
 		// Syntax highlighting
 		if (syntaxHighlightType === 'shiki') {
+			const { rehypeShiki } = await import('./rehype-shiki.js');
 			parser.use(rehypeShiki, shikiConfig, excludeLangs);
 		} else if (syntaxHighlightType === 'prism') {
+			const { rehypePrism } = await import('./rehype-prism.js');
 			parser.use(rehypePrism, excludeLangs);
 		}
 	}
