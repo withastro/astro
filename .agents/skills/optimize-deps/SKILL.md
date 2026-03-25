@@ -7,7 +7,7 @@ description: Deep reference on Vite's dep optimizer (optimizeDeps) as it applies
 
 ## Why this matters
 
-`astro build` uses Rollup/Rolldown and handles CJS→ESM transformation reliably. `astro dev` uses Vite's dev server, which serves modules individually and relies on esbuild's **dep optimizer** to pre-bundle certain dependencies as ESM before they reach the runtime. When a dep bypasses the optimizer — especially with ESM-only runtimes like Cloudflare Workers (workerd) — you get errors like `require is not defined` at runtime in dev, even though the build works fine.
+`astro build` uses Rollup and handles CJS→ESM transformation reliably. `astro dev` uses Vite 7's dev server, which serves modules individually and relies on esbuild's **dep optimizer** to pre-bundle certain dependencies as ESM before they reach the runtime. When a dep bypasses the optimizer — especially with ESM-only runtimes like Cloudflare Workers (workerd) — you get errors like `require is not defined` at runtime in dev, even though the build works fine.
 
 This is a category of subtle bugs. There is rarely one definitive fix — the right approach depends on _why_ the dep was missed by the optimizer.
 
