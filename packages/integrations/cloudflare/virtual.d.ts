@@ -20,4 +20,4 @@ interface Env extends Cloudflare.Env {}
 type ImagesBinding = import('@cloudflare/workers-types').ImagesBinding;
 type Fetcher = import('@cloudflare/workers-types').Fetcher;
 
-declare var astroCloudflareOptions: import('@cloudflare/vite-plugin').PluginConfig;
+declare let astroCloudflareOptions: import('@cloudflare/vite-plugin').PluginConfig;
