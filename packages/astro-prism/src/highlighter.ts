@@ -11,7 +11,13 @@ export function runHighlighterWithAstro(lang: string | undefined, code: string) 
 	let classLanguage = `language-${lang}`;
 	const ensureLoaded = (language: string) => {
 		if (language && !Prism.languages[language]) {
-			loadLanguages([language]);
+			try {
+				loadLanguages([language]);
+			} catch {
+				// `prismjs/components/index.js` relies on Node.js globals (`global.Prism`,
+				// `require()`) that are not available in non-Node runtimes like Cloudflare
+				// Workers (workerd). Silently degrade to only built-in Prism grammars.
+			}
 		}
 	};
 
