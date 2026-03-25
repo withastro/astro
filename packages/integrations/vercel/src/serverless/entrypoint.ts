@@ -19,9 +19,9 @@ export default {
 		const middlewareSecretHeader = request.headers.get(ASTRO_MIDDLEWARE_SECRET_HEADER);
 		const hasValidMiddlewareSecret = middlewareSecretHeader === middlewareSecret;
 		let realPath = undefined;
-		if(hasValidMiddlewareSecret) {
-			realPath = request.headers.get(ASTRO_PATH_HEADER)
-		} else if(request.headers.get('x-vercel-isr') === '1') {
+		if (hasValidMiddlewareSecret) {
+			realPath = request.headers.get(ASTRO_PATH_HEADER);
+		} else if (request.headers.get('x-vercel-isr') === '1') {
 			realPath = url.searchParams.get(ASTRO_PATH_PARAM);
 		}
 		if (typeof realPath === 'string') {
