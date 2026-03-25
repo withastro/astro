@@ -1,8 +1,3 @@
----
-name: optimize-deps
-description: Deep reference on Vite's dep optimizer (optimizeDeps) as it applies to the Astro monorepo. Covers how the optimizer works, how non-JS files are handled during dep scanning, the roles of vitefu and vite-plugin-environment, and how to diagnose and fix issues where deps are not being pre-bundled correctly in dev. Use this skill whenever you are investigating why something works in `astro build` but fails in `astro dev`, why a component or package throws an error only in dev, anything related to `optimizeDeps`, `require is not defined`, CJS deps in dev, deps missing from `.vite/deps_ssr/` or `.vite/deps/`, or any situation where you need to understand how Vite discovers and pre-bundles dependencies in the Astro dev server. Also load this skill when debugging issues with third-party Astro component packages (e.g. packages that ship `.astro` files) and their dependencies.
----
-
 # Vite Dep Optimizer — Astro Reference
 
 ## Why this matters
