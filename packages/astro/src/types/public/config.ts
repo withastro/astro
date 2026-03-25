@@ -2053,7 +2053,7 @@ export interface AstroUserConfig<
 		 *
 		 * To disable this, set the `smartypants` flag to `false`.
 		 *
-		 * For more control over typography, you can instead specify a configuration object with the properties [supported by `retext-smartypants`](https://github.com/retextjs/retext-smartypants?tab=readme-ov-file#fields).
+		 * For more control over typography, you can instead specify a configuration object with the [properties supported by `retext-smartypants`](https://github.com/retextjs/retext-smartypants?tab=readme-ov-file#fields).
 		 */
 		smartypants?:
 			| boolean
