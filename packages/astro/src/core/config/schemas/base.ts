@@ -50,7 +50,8 @@ type RehypePlugin = ComplexifyWithUnion<_RehypePlugin>;
 type RemarkPlugin = ComplexifyWithUnion<_RemarkPlugin>;
 /** @lintignore */
 export type RemarkRehype = ComplexifyWithOmit<_RemarkRehype>;
-type Smartypants = ComplexifyWithOmit<_Smartypants>;
+/** @lintignore */
+export type Smartypants = ComplexifyWithOmit<_Smartypants>;
 
 export const ASTRO_CONFIG_DEFAULTS = {
 	root: '.',
