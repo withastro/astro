@@ -128,15 +128,12 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 							return new URL(fullPath, finalSiteUrl).href;
 						});
 
-					const routeUrls = _routes.reduce<string[]>((urls, r) => {
-						// Only expose pages, not endpoints or redirects
-						if (r.type !== 'page') return urls;
-
+					const addRouteUrl = (urls: string[], r: IntegrationResolvedRoute): void => {
 						/**
 						 * Dynamic URLs have entries with `undefined` pathnames
 						 */
 						if (r.pathname) {
-							if (shouldIgnoreStatus(r.pathname ?? r.pattern)) return urls;
+							if (shouldIgnoreStatus(r.pathname ?? r.pattern)) return;
 
 							// `finalSiteUrl` may end with a trailing slash
 							// or not because of base paths.
@@ -153,6 +150,18 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 							} else {
 								urls.push(newUrl);
 							}
+						}
+					};
+
+					const routeUrls = _routes.reduce<string[]>((urls, r) => {
+						// Only expose pages, not endpoints or redirects
+						if (r.type !== 'page') return urls;
+
+						addRouteUrl(urls, r);
+
+						// Include i18n fallback routes (e.g. /fr/ falling back to /en/)
+						for (const fallbackRoute of (r.fallbackRoutes ?? [])) {
+							addRouteUrl(urls, fallbackRoute);
 						}
 
 						return urls;
