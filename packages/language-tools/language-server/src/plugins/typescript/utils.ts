@@ -2,16 +2,14 @@ import type { TextEdit } from 'vscode-html-languageservice';
 import type { AstroVirtualCode } from '../../core/index.js';
 import { editShouldBeInFrontmatter, ensureProperEditForFrontmatter } from '../utils.js';
 
+const ts: typeof import('typescript') = require('typescript');
+
 const ASTRO_COMPONENT_SUFFIX = 'AstroComponent';
 const ASTRO_IMPORT_FROM_PATTERN = /\bfrom\s+['"][^'"]+\.astro['"]/;
 const ASTRO_DEFAULT_IMPORT_PATTERN =
 	/^(\s*import(?:\s+type)?\s+)([A-Za-z_$][\w$]*)AstroComponent(?=\s*,|\s+from\b)/;
 const ASTRO_DEFAULT_ALIAS_PATTERN =
 	/(default\s+as\s+)([A-Za-z_$][\w$]*)AstroComponent(?=\s*\})/;
-const EXISTING_ASTRO_VALUE_IMPORT_PATTERN =
-	/^\s*import\s+(?!type\b)([\s\S]*?)\s+from\s+['"]([^'"]+\.astro)['"]/gm;
-const DEFAULT_IMPORT_CLAUSE_PATTERN = /^[A-Za-z_$][\w$]*(?:\s*,|$)/;
-const DEFAULT_ALIAS_IMPORT_CLAUSE_PATTERN = /\{\s*default\s+as\s+[A-Za-z_$][\w$]*/;
 
 export function isAstroComponentImportSource(source: string | undefined): source is string {
 	return !!source && source.endsWith('.astro');
@@ -42,24 +40,57 @@ export function rewriteAstroImportText(text: string) {
 
 export function getAlreadyImportedAstroComponentSources(documentText: string) {
 	const sources = new Set<string>();
+	const sourceFile = ts.createSourceFile(
+		'component-imports.tsx',
+		getImportParseText(documentText),
+		ts.ScriptTarget.Latest,
+		false,
+		ts.ScriptKind.TSX,
+	);
 
-	for (const match of documentText.matchAll(EXISTING_ASTRO_VALUE_IMPORT_PATTERN)) {
-		const importClause = match[1]?.trim();
-		const source = match[2];
-
-		if (
-			!importClause ||
-			!source ||
-			(!DEFAULT_IMPORT_CLAUSE_PATTERN.test(importClause) &&
-				!DEFAULT_ALIAS_IMPORT_CLAUSE_PATTERN.test(importClause))
-		) {
+	for (const statement of sourceFile.statements) {
+		if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier)) {
 			continue;
 		}
 
-		sources.add(source);
+		const source = statement.moduleSpecifier.text;
+		const importClause = statement.importClause;
+		if (!importClause || importClause.isTypeOnly || !isAstroComponentImportSource(source)) {
+			continue;
+		}
+
+		if (importClause.name) {
+			sources.add(source);
+			continue;
+		}
+
+		const namedBindings = importClause.namedBindings;
+		if (!namedBindings || !ts.isNamedImports(namedBindings)) {
+			continue;
+		}
+
+		if (namedBindings.elements.some((element) => element.propertyName?.text === 'default')) {
+			sources.add(source);
+		}
 	}
 
 	return sources;
+}
+
+function getImportParseText(documentText: string) {
+	if (!documentText.startsWith('---')) {
+		return documentText;
+	}
+
+	const lines = documentText.split('\n');
+	if (lines[0]?.trim() !== '---') {
+		return documentText;
+	}
+
+	const closingFrontmatterLine = lines.findIndex((line, index) => index > 0 && line.trim() === '---');
+	return lines
+		.slice(1, closingFrontmatterLine === -1 ? undefined : closingFrontmatterLine)
+		.join('\n');
 }
 
 export function mapEdit(edit: TextEdit, code: AstroVirtualCode, languageId: string) {

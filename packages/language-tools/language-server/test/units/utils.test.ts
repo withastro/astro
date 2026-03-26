@@ -179,6 +179,21 @@ describe('Utilities', async () => {
 		);
 	});
 
+	it('getAlreadyImportedAstroComponentSources - parses Astro frontmatter imports', () => {
+		assert.deepStrictEqual(
+			Array.from(
+				getAlreadyImportedAstroComponentSources(
+					`---
+import Image from "../components/Image.astro";
+---
+<Image />
+`,
+				),
+			),
+			['../components/Image.astro'],
+		);
+	});
+
 	it('patchTSX - keeps AstroComponent suffixes when import names conflict', () => {
 		const input = `/* @jsxImportSource astro */
 
