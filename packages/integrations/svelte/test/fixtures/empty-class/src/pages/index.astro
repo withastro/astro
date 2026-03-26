@@ -1,0 +1,15 @@
+---
+import ClassExtract from '../components/ClassExtract.svelte';
+---
+<html>
+	<head>
+		<title>Empty Class Test</title>
+	</head>
+	<body>
+		<!-- Should NOT have class attribute -->
+		<ClassExtract id="without-class" />
+		
+		<!-- Should have class="my-class" -->
+		<ClassExtract class="my-class" id="with-class" />
+	</body>
+</html>
