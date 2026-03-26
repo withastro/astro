@@ -91,29 +91,31 @@ if (process.env.CI) {
 			builds[line.fixture].totalDuration += line.duration;
 		}
 
-		let summary = '';
+		/** @type {{ summary: string; content: string }[]} */
+		const sections = [];
 		const urlBase = 'https://github.com/withastro/astro/blob/main/';
 
 		const slowestBuilds = Object.values(builds)
 			.sort((a, b) => b.totalDuration - a.totalDuration)
 			.slice(0, 10);
 
-		summary += '<details><summary><strong>Slowest fixture builds this run</strong></summary>\n\n';
+		const slowestBuildsSection = { summary: 'Slowest fixture builds this run', content: '' };
+		sections.push(slowestBuildsSection);
+
 		if (slowestBuilds.length === 0) {
-			summary += 'No builds detected.\n';
+			slowestBuildsSection.content += 'No builds detected.\n';
 		} else {
-			summary +=
+			slowestBuildsSection.content +=
 				'| Fixture | Builds | Total Duration (s) |\n' +
 				'|---------|-------:|-------------------:|\n';
 			for (const entry of slowestBuilds) {
 				const url = `${urlBase}${encodeURI(entry.fixture.replaceAll('\\', '/'))}`;
-				summary += `| [\`${path.basename(entry.fixture)}\`](${url}) | ${entry.count} | ${(entry.totalDuration / 1000).toFixed(2)} |\n`;
+				slowestBuildsSection.content += `| [\`${path.basename(entry.fixture)}\`](${url}) | ${entry.count} | ${(entry.totalDuration / 1000).toFixed(2)} |\n`;
 			}
-			summary +=
+			slowestBuildsSection.content +=
 				'\n' +
 				'> These stats show the total time spent running `fixture.build()` in tests. Avoiding unnecessary rebuilds of fixtures/sharing a build between tests can help speed up test runs.\n';
 		}
-		summary += '</details>\n';
 
 		const tests = lines.filter(
 			/** @returns {entry is TestLogEntry} */
@@ -129,38 +131,46 @@ if (process.env.CI) {
 			.sort((a, b) => b.duration - a.duration)
 			.slice(0, 20);
 
-		summary += '\n<details><summary><strong>Slowest tests this run</strong></summary>\n\n';
+		const slowestTestsSection = { summary: 'Slowest tests this run', content: '' };
+		sections.push(slowestTestsSection);
+
 		if (slowestTests.length === 0) {
 			if (tests.length === 0) {
-				summary += 'No tests detected.\n';
+				slowestTestsSection.content += 'No tests detected.\n';
 			} else {
-				summary += 'No slow tests detected! Great job! 🎉\n';
+				slowestTestsSection.content += 'No slow tests detected! Great job! 🎉\n';
 			}
-			return summary;
 		} else {
-			summary += '| Test | Duration (s) | Location |\n';
-			summary += '|------|-------------:|----------|\n';
+			slowestTestsSection.content += '| Test | Duration (s) | Location |\n';
+			slowestTestsSection.content += '|------|-------------:|----------|\n';
 
 			for (const test of slowestTests) {
 				const seconds = (test.duration / 1000).toFixed(2);
 				if (!test.file) {
-					summary += `| ${test.name} | ${seconds} | Unknown |\n`;
+					slowestTestsSection.content += `| ${test.name} | ${seconds} | Unknown |\n`;
 				} else {
 					const location = `${path.basename(test.file)}:${test.line ?? '?'}`;
 					const url = `${urlBase}${encodeURI(test.file.replace(repoRoot, '').replaceAll('\\', '/'))}#L${test.line ?? '?'}`;
-					summary += `| ${test.name} | ${seconds} | [\`${location}\`](${url}) |\n`;
+					slowestTestsSection.content += `| ${test.name} | ${seconds} | [\`${location}\`](${url}) |\n`;
 				}
 			}
-			summary +=
+			slowestTestsSection.content +=
 				'\n' +
 				`> These stats show the slowest ${slowestTests.length} tests that took longer than ${reportingConfig.slowTestThreshold}ms.\n` +
 				`> You can adjust the threshold and ignore known slow tests by editing \`reportingConfig\` in [\`${path.basename(import.meta.url)}\`](${urlBase}${path.relative(repoRoot, fileURLToPath(import.meta.url))}).`;
 		}
-		summary += '</details>\n';
 
-		summary += '\n\n' + testDurationHistogram(tests);
+		const histogramSection = testDurationHistogram(tests);
+		if (histogramSection) sections.push(histogramSection);
 
-		return summary;
+		sections.push(copyPasteSection(sections));
+
+		return sections
+			.map(
+				(section) =>
+					`<details><summary><strong>${section.summary}</strong></summary>\n\n${section.content}</details>`,
+			)
+			.join('\n');
 	};
 
 	// When the process exits, read the logs and create the step summary.
@@ -181,7 +191,7 @@ function testDurationHistogram(logEntries) {
 	const testEntries = logEntries.sort((a, b) => a.duration - b.duration);
 
 	if (testEntries.length === 0) {
-		return '';
+		return;
 	}
 
 	const targetBucketCount = 10;
@@ -201,7 +211,7 @@ function testDurationHistogram(logEntries) {
 	const biggestBucket = Math.max(...buckets);
 	const chartWidth = 40; // Max width of the bar in characters
 
-	let histogram = `<details><summary><strong>Test Duration Distribution</strong></summary>\n\n`;
+	let histogram = '';
 	// Render the histogram using block characters
 	histogram += '| Duration Range | Count |\n';
 	histogram += '|----------------|-------|\n';
@@ -215,7 +225,21 @@ function testDurationHistogram(logEntries) {
 		const bar = '█'.repeat(barLength);
 		histogram += `| ${durationLabel} | ${bar} ${count} |\n`;
 	}
-	histogram += '</details>\n';
 
-	return histogram;
+	return { summary: 'Test Duration Distribution', content: histogram };
+}
+
+/**
+ * Creates a section with a Markdown code block that contains the source for the other sections.
+ * This allows maintainers to easily copy-paste the source if they need it.
+ * @param {{ summary: string; content: string }[]} sections
+ */
+function copyPasteSection(sections) {
+	return {
+		summary: 'Markdown source for this summary',
+		content:
+			'```md\n' +
+			`${sections.map((s) => `## ${s.summary}\n\n${s.content}\n`).join('\n')}\n` +
+			'```',
+	};
 }
