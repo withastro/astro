@@ -171,7 +171,7 @@ if (process.env.CI) {
 		return sections
 			.map(
 				(section) =>
-					`<details><summary><strong>${section.summary}</strong></summary>\n\n${section.content}</details>`,
+					`<details><summary><strong>${section.summary}</strong></summary>\n\n${section.content}\n</details>`,
 			)
 			.join('\n');
 	};
