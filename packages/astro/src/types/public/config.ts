@@ -5,6 +5,7 @@ import type {
 	RemarkPlugins,
 	RemarkRehype,
 	ShikiConfig,
+	Smartypants,
 	SyntaxHighlightConfigType,
 } from '@astrojs/markdown-remark';
 import type { Config as SvgoConfig } from 'svgo';
@@ -356,7 +357,7 @@ export interface AstroUserConfig<
 	 *
 	 * Extend Astro with custom integrations. Integrations are your one-stop-shop for adding framework support (like Solid.js), new features (like sitemaps), and new libraries (like Partytown).
 	 *
-	 * Read our [Integrations Guide](https://docs.astro.build/en/guides/integrations-guide/) for help getting started with Astro Integrations.
+	 * Read our [Integrations Guide](https://docs.astro.build/en/guides/integrations/) for help getting started with Astro Integrations.
 	 *
 	 * ```js
 	 * import react from '@astrojs/react';
@@ -1695,6 +1696,13 @@ export interface AstroUserConfig<
 		 * 			 entrypoint: 'astro/assets/services/sharp',
 		 * 			 config: {
 		 * 				 limitInputPixels: false,
+		 * 				 webp: {
+		 * 					 effort: 6,
+		 * 					 alphaQuality: 80,
+		 * 				 },
+		 * 				 jpeg: {
+		 * 					 mozjpeg: true,
+		 * 				 },
 		 *       },
 		 * 		 },
 		 *   },
@@ -1728,6 +1736,66 @@ export interface AstroUserConfig<
 		 * The default [kernel used for resizing images](https://sharp.pixelplumbing.com/api-resize/#resize) in the Sharp image service.
 		 *
 		 * By default this is `undefined`, which maps to Sharp's default kernel of `lanczos3`.
+		 */
+
+		/**
+		 * @docs
+		 * @name image.service.config.jpeg
+		 * @kind h4
+		 * @type {Record<string, any> | undefined}
+		 * @default `undefined`
+		 * @version 6.1.0
+		 * @description
+		 *
+		 * The default encoder options passed to `sharp().jpeg()` when using Astro's built-in Sharp image service.
+		 *
+		 * This can be used for options such as `mozjpeg`, `progressive`, `chromaSubsampling`, or a default `quality`.
+		 * Per-image `quality` values from `<Image />`, `<Picture />`, and `getImage()` still take precedence.
+		 */
+
+		/**
+		 * @docs
+		 * @name image.service.config.webp
+		 * @kind h4
+		 * @type {Record<string, any> | undefined}
+		 * @default `undefined`
+		 * @version 6.1.0
+		 * @description
+		 *
+		 * The default encoder options passed to `sharp().webp()` when using Astro's built-in Sharp image service.
+		 *
+		 * This can be used for options such as `effort`, `alphaQuality`, `lossless`, `nearLossless`, or a default `quality`.
+		 * Per-image `quality` values from `<Image />`, `<Picture />`, and `getImage()` still take precedence.
+		 */
+
+		/**
+		 * @docs
+		 * @name image.service.config.avif
+		 * @kind h4
+		 * @type {Record<string, any> | undefined}
+		 * @default `undefined`
+		 * @version 6.1.0
+		 * @description
+		 *
+		 * The default encoder options passed to `sharp().avif()` when using Astro's built-in Sharp image service.
+		 *
+		 * This can be used for options such as `effort`, `chromaSubsampling`, `bitdepth`, `lossless`, or a default `quality`.
+		 * Per-image `quality` values from `<Image />`, `<Picture />`, and `getImage()` still take precedence.
+		 */
+
+		/**
+		 * @docs
+		 * @name image.service.config.png
+		 * @kind h4
+		 * @type {Record<string, any> | undefined}
+		 * @default `undefined`
+		 * @version 6.1.0
+		 * @description
+		 *
+		 * The default encoder options passed to `sharp().png()` when using Astro's built-in Sharp image service.
+		 *
+		 * This can be used for options such as `compressionLevel`, `effort`, `palette`, or a default `quality`.
+		 * Per-image `quality` values from `<Image />`, `<Picture />`, and `getImage()` still take precedence.
 		 */
 
 		/**
@@ -2040,24 +2108,22 @@ export interface AstroUserConfig<
 		 * ```
 		 */
 		gfm?: boolean;
+
 		/**
 		 * @docs
 		 * @name markdown.smartypants
-		 * @type {boolean}
+		 * @type {boolean | Smartypants}
 		 * @default `true`
 		 * @version 2.0.0
 		 * @description
-		 * Astro uses the [SmartyPants formatter](https://daringfireball.net/projects/smartypants/) by default. To disable this, set the `smartypants` flag to `false`:
+		 * Whether to use the [SmartyPants formatter](https://daringfireball.net/projects/smartypants/) to transform straight quotes into smart quotes, dashes into en/em dashes, and triple dots into ellipses.
 		 *
-		 * ```js
-		 * {
-		 *   markdown: {
-		 *     smartypants: false,
-		 *   }
-		 * }
-		 * ```
+		 * To disable this, set the `smartypants` flag to `false`.
+		 *
+		 * For more control over typography, you can instead specify a configuration object with the [properties supported by `retext-smartypants`](https://github.com/retextjs/retext-smartypants?tab=readme-ov-file#fields).
 		 */
-		smartypants?: boolean;
+		smartypants?: boolean | Smartypants;
+
 		/**
 		 * @docs
 		 * @name markdown.remarkRehype

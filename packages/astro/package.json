@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "6.0.5",
+  "version": "6.1.1",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -117,12 +117,12 @@
     "test:integration": "astro-scripts test \"test/*.test.js\""
   },
   "dependencies": {
-    "@astrojs/compiler": "^3.0.0",
+    "@astrojs/compiler": "^3.0.1",
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
     "@capsizecss/unpack": "^4.0.0",
-    "@clack/prompts": "^1.0.1",
+    "@clack/prompts": "^1.1.0",
     "@oslojs/encoding": "^1.1.0",
     "@rollup/pluginutils": "^5.3.0",
     "aria-query": "^5.3.2",
@@ -155,11 +155,11 @@
     "picomatch": "^4.0.3",
     "rehype": "^13.0.2",
     "semver": "^7.7.4",
-    "shiki": "^4.0.0",
+    "shiki": "^4.0.2",
     "smol-toml": "^1.6.0",
-    "svgo": "^4.0.0",
-    "tinyclip": "^0.1.6",
-    "tinyexec": "^1.0.2",
+    "svgo": "^4.0.1",
+    "tinyclip": "^0.1.12",
+    "tinyexec": "^1.0.4",
     "tinyglobby": "^0.2.15",
     "tsconfck": "^3.1.6",
     "ultrahtml": "^1.6.0",
@@ -178,7 +178,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "workspace:*",
-    "@astrojs/compiler-rs": "^0.1.4",
+    "@astrojs/compiler-rs": "^0.1.6",
     "@playwright/test": "1.58.2",
     "@types/aria-query": "^5.0.4",
     "@types/dlv": "^1.1.5",
@@ -203,11 +203,11 @@
     "rehype-toc": "^3.0.2",
     "remark-code-titles": "^0.1.2",
     "rollup": "^4.58.0",
-    "sass": "^1.97.3",
+    "sass": "^1.98.0",
     "typescript": "^5.9.3",
     "undici": "^7.22.0",
     "unified": "^11.0.5",
-    "vitest": "^3.2.4"
+    "vitest": "^4.1.0"
   },
   "engines": {
     "node": ">=22.12.0",

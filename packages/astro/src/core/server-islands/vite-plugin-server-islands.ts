@@ -3,6 +3,7 @@ import type { AstroPluginOptions } from '../../types/astro.js';
 import type { AstroPluginMetadata } from '../../vite-plugin-astro/index.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
+import type { ServerIslandsState } from './shared-state.js';
 
 export const SERVER_ISLAND_MANIFEST = 'virtual:astro:server-island-manifest';
 const RESOLVED_SERVER_ISLAND_MANIFEST = '\0' + SERVER_ISLAND_MANIFEST;
@@ -13,48 +14,25 @@ export const SERVER_ISLAND_MAP_MARKER = '$$server-islands-map$$';
 const serverIslandMapReplaceExp = /['"]\$\$server-islands-map\$\$['"]/g;
 const serverIslandNameMapReplaceExp = /['"]\$\$server-islands-name-map\$\$['"]/g;
 
-function createServerIslandImportMapSource(
-	entries: Iterable<[string, string]>,
-	toImportPath: (fileName: string) => string,
-) {
-	const mappings = Array.from(entries, ([islandName, fileName]) => {
-		const importPath = toImportPath(fileName);
-		return `\t[${JSON.stringify(islandName)}, () => import(${JSON.stringify(importPath)})],`;
-	});
-
-	return `new Map([\n${mappings.join('\n')}\n])`;
-}
-
-function createNameMapSource(entries: Iterable<[string, string]>) {
-	return `new Map(${JSON.stringify(Array.from(entries), null, 2)})`;
-}
-
-export function vitePluginServerIslands({ settings }: AstroPluginOptions): VitePlugin {
+export function vitePluginServerIslands({
+	settings,
+	serverIslandsState,
+}: AstroPluginOptions & { serverIslandsState: ServerIslandsState }): VitePlugin {
 	let command: ConfigEnv['command'] = 'serve';
-	let ssrEnvironment: DevEnvironment | null = null;
-
-	// serverIslandMap: displayName -> resolvedPath
-	const serverIslandMap = new Map<string, string>();
-	// serverIslandNameMap: resolvedPath -> displayName
-	const serverIslandNameMap = new Map<string, string>();
-	// resolvedPath -> source import details used for Rollup emission
-	const serverIslandSourceMap = new Map<string, { id: string; importer: string }>();
-	// resolvedPath -> rollup reference id
-	const referenceIdMap = new Map<string, string>();
+	let serverEnvironments: DevEnvironment[] = [];
 
 	function ensureServerIslandReferenceIds(ctx: {
 		emitFile: (file: { type: 'chunk'; id: string; importer?: string; name?: string }) => string;
 	}) {
-		for (const [resolvedPath, islandName] of serverIslandNameMap) {
-			if (referenceIdMap.has(resolvedPath)) continue;
-			const source = serverIslandSourceMap.get(resolvedPath);
+		for (const [resolvedPath, island] of serverIslandsState.getDiscoveredIslandEntries()) {
+			if (serverIslandsState.hasReferenceId(resolvedPath)) continue;
 			const referenceId = ctx.emitFile({
 				type: 'chunk',
-				id: source?.id ?? resolvedPath,
-				importer: source?.importer,
-				name: islandName,
+				id: island.specifier,
+				importer: island.importer,
+				name: island.islandName,
 			});
-			referenceIdMap.set(resolvedPath, referenceId);
+			serverIslandsState.setReferenceId(resolvedPath, referenceId);
 		}
 	}
 
@@ -72,7 +50,20 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 			ensureServerIslandReferenceIds(this);
 		},
 		configureServer(server) {
-			ssrEnvironment = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
+			// Collect all server-side environments that might cache the manifest module.
+			// With adapters like Cloudflare that use a separate `prerender` environment,
+			// we need to invalidate the manifest in all of them, not just `ssr`.
+			serverEnvironments = [];
+			for (const name of [
+				ASTRO_VITE_ENVIRONMENT_NAMES.ssr,
+				ASTRO_VITE_ENVIRONMENT_NAMES.prerender,
+				ASTRO_VITE_ENVIRONMENT_NAMES.astro,
+			]) {
+				const env = server.environments[name];
+				if (env) {
+					serverEnvironments.push(env);
+				}
+			}
 		},
 		resolveId: {
 			filter: {
@@ -107,57 +98,51 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 
 				if (astro) {
 					for (const comp of astro.serverComponents) {
-						if (!serverIslandNameMap.has(comp.resolvedPath)) {
-							if (!settings.adapter) {
-								throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
-							}
-
-							let name = comp.localName;
-							let idx = 1;
-							while (serverIslandMap.has(name)) {
-								name += idx++;
-							}
-
-							serverIslandNameMap.set(comp.resolvedPath, name);
-							serverIslandMap.set(name, comp.resolvedPath);
-							serverIslandSourceMap.set(comp.resolvedPath, { id: comp.specifier, importer: id });
+						if (!settings.adapter) {
+							throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
 						}
 
-						if (isBuildSsr && !referenceIdMap.has(comp.resolvedPath)) {
-							const islandName = serverIslandNameMap.get(comp.resolvedPath);
-							const source = serverIslandSourceMap.get(comp.resolvedPath);
+						const island = serverIslandsState.discover({
+							resolvedPath: comp.resolvedPath,
+							localName: comp.localName,
+							specifier: comp.specifier ?? comp.resolvedPath,
+							importer: id,
+						});
+
+						if (isBuildSsr && !serverIslandsState.hasReferenceId(comp.resolvedPath)) {
 							const referenceId = this.emitFile({
 								type: 'chunk',
-								id: source?.id ?? comp.resolvedPath,
-								importer: source?.importer,
-								name: islandName,
+								id: island.specifier,
+								importer: island.importer,
+								name: island.islandName,
 							});
-							referenceIdMap.set(comp.resolvedPath, referenceId);
+							serverIslandsState.setReferenceId(comp.resolvedPath, referenceId);
 						}
 					}
 				}
 
-				if (serverIslandNameMap.size > 0 && serverIslandMap.size > 0 && ssrEnvironment) {
-					const mod = ssrEnvironment.moduleGraph.getModuleById(RESOLVED_SERVER_ISLAND_MANIFEST);
-					if (mod) {
-						ssrEnvironment.moduleGraph.invalidateModule(mod);
+				if (serverIslandsState.hasIslands()) {
+					for (const env of serverEnvironments) {
+						const mod = env.moduleGraph.getModuleById(RESOLVED_SERVER_ISLAND_MANIFEST);
+						if (mod) {
+							env.moduleGraph.invalidateModule(mod);
+						}
 					}
 				}
 
 				if (id === RESOLVED_SERVER_ISLAND_MANIFEST) {
 					if (command === 'build' && settings.buildOutput) {
-						const hasServerIslands = serverIslandNameMap.size > 0;
+						const hasServerIslands = serverIslandsState.hasIslands();
 						if (hasServerIslands && settings.buildOutput !== 'server') {
 							throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
 						}
 					}
 
-					if (command !== 'build' && serverIslandNameMap.size > 0 && serverIslandMap.size > 0) {
-						const mapSource = createServerIslandImportMapSource(
-							serverIslandMap,
+					if (command !== 'build' && serverIslandsState.hasIslands()) {
+						const mapSource = serverIslandsState.createImportMapSourceFromDiscovered(
 							(fileName) => fileName,
 						);
-						const nameMapSource = createNameMapSource(serverIslandNameMap);
+						const nameMapSource = serverIslandsState.createNameMapSource();
 
 						return {
 							code: `
@@ -181,24 +166,18 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 				if (envName === ASTRO_VITE_ENVIRONMENT_NAMES.ssr) {
 					const isRelativeChunk = !chunk.isEntry;
 					const dots = isRelativeChunk ? '..' : '.';
-					const mapEntries: Array<[string, string]> = [];
 
-					for (const [resolvedPath, referenceId] of referenceIdMap) {
-						const fileName = this.getFileName(referenceId);
-						const islandName = serverIslandNameMap.get(resolvedPath);
-						if (!islandName) continue;
-						mapEntries.push([islandName, fileName]);
-					}
-
-					mapSource = createServerIslandImportMapSource(
-						mapEntries,
+					mapSource = serverIslandsState.createImportMapSourceFromReferences(
+						(referenceId) => this.getFileName(referenceId),
 						(fileName) => `${dots}/${fileName}`,
 					);
 				} else {
-					mapSource = createServerIslandImportMapSource(serverIslandMap, (fileName) => fileName);
+					mapSource = serverIslandsState.createImportMapSourceFromDiscovered(
+						(fileName) => fileName,
+					);
 				}
 
-				const nameMapSource = createNameMapSource(serverIslandNameMap);
+				const nameMapSource = serverIslandsState.createNameMapSource();
 
 				return {
 					code: code
