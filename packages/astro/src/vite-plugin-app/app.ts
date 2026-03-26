@@ -1,6 +1,7 @@
 import type http from 'node:http';
 import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
 import { BaseApp, type RenderErrorOptions } from '../core/app/entrypoints/index.js';
+import { getFirstForwardedValue, validateForwardedHeaders } from '../core/app/validate-headers.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { clientLocalsSymbol } from '../core/constants.js';
 import {
@@ -128,10 +129,27 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 		incomingResponse,
 		isHttps,
 	}: HandleRequest): Promise<void> {
-		const origin = `${isHttps ? 'https' : 'http'}://${
-			incomingRequest.headers[':authority'] ?? incomingRequest.headers.host
-		}`;
+		// When the dev server runs behind a TLS-terminating reverse proxy (e.g.
+		// Caddy, nginx, Traefik), the proxy connects to Vite over plain HTTP while
+		// the browser communicates over HTTPS. In that setup isHttps is false, but
+		// the proxy forwards the original scheme via X-Forwarded-Proto: https.
+		// We trust that header only when security.allowedDomains is configured —
+		// the same guard used in production (core/app/node.ts). Without it the
+		// header is untrusted and we fall back to isHttps.
+		const validated = validateForwardedHeaders(
+			getFirstForwardedValue(incomingRequest.headers['x-forwarded-proto']),
+			getFirstForwardedValue(incomingRequest.headers['x-forwarded-host']),
+			getFirstForwardedValue(incomingRequest.headers['x-forwarded-port']),
+			this.manifest.allowedDomains,
+		);
 
+		const protocol = validated.protocol ?? (isHttps ? 'https' : 'http');
+		const host =
+			validated.host ??
+			(incomingRequest.headers[':authority'] as string | undefined) ??
+			incomingRequest.headers.host;
+
+		const origin = `${protocol}://${host}`;
 		const url = new URL(origin + incomingRequest.url);
 		let pathname: string;
 		if (this.manifest.trailingSlash === 'never' && !incomingRequest.url) {

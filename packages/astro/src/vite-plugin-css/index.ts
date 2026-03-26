@@ -35,6 +35,54 @@ function getComponentFromVirtualModuleCssName(virtualModulePrefix: string, id: s
 }
 
 /**
+ * Ensure all modules reachable from the given module have been fetched and transformed.
+ * This is needed for dynamically imported components whose modules may be registered
+ * in the graph (via Vite's import analysis) but not yet transformed, meaning their
+ * own imports (including CSS) would not be visible during the CSS graph walk.
+ */
+async function ensureModulesLoaded(
+	env: DevEnvironment,
+	mod: vite.EnvironmentModuleNode,
+	seen = new Set<string>(),
+): Promise<void> {
+	const id = mod.id ?? mod.url;
+	if (seen.has(id)) return;
+	seen.add(id);
+
+	for (const imp of mod.importedModules) {
+		if (!imp.id) continue;
+		if (seen.has(imp.id)) continue;
+		// Mirror the stopping point used by collectCSSWithOrder — don't descend into propagated
+		// asset modules, as the CSS walk intentionally stops there too.
+		if (imp.id.includes(PROPAGATED_ASSET_QUERY_PARAM)) continue;
+		// Skip virtual dev-css modules to prevent circular deadlocks with the Cloudflare adapter.
+		// The dev-css-all module statically imports all per-route dev-css:* modules, and those
+		// modules' load handlers may already be running (waiting on ensureModulesLoaded), causing
+		// a permanent deadlock via Vite's _pendingRequests map. These are CSS collector virtuals
+		// that don't contain CSS themselves, so skipping them has no effect on CSS injection.
+		if (
+			imp.id === RESOLVED_MODULE_DEV_CSS ||
+			imp.id === RESOLVED_MODULE_DEV_CSS_ALL ||
+			imp.id.startsWith(RESOLVED_MODULE_DEV_CSS_PREFIX)
+		)
+			continue;
+
+		// If this module hasn't been transformed yet, fetch it to populate its importedModules
+		if (!imp.transformResult) {
+			try {
+				await env.fetchModule(imp.id);
+			} catch {
+				// Module may not be fetchable (e.g., virtual modules that resolve differently).
+				// Silently continue — the CSS walk will simply skip modules with empty importedModules.
+			}
+		}
+
+		// Recursively ensure child modules are loaded
+		await ensureModulesLoaded(env, imp, seen);
+	}
+}
+
+/**
  * Walk down the dependency tree to collect CSS with depth/order.
  * Performs depth-first traversal to ensure correct CSS ordering based on import order.
  */
@@ -171,6 +219,14 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 							return {
 								code: 'export const css = new Set()',
 							};
+						}
+
+						// Ensure all reachable modules have been transformed.
+						// Dynamically imported components may be in the graph (detected by Vite's
+						// import analysis) but not yet transformed, so their own CSS imports would
+						// be invisible during the graph walk. This eagerly fetches them.
+						if (env) {
+							await ensureModulesLoaded(env, mod);
 						}
 
 						// Walk through the graph depth-first

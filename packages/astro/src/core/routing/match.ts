@@ -6,6 +6,17 @@ import { isRoute404, isRoute500 } from './internal/route-errors.js';
 
 /** Find matching route from pathname */
 export function matchRoute(pathname: string, manifest: RoutesList): RouteData | undefined {
+	// Error pages (404/500) take precedence over dynamic routes that might
+	// capture the same path (e.g. [locale] matching /404). See #15098.
+	if (isRoute404(pathname)) {
+		const errorRoute = manifest.routes.find((route) => isRoute404(route.route));
+		if (errorRoute) return errorRoute;
+	}
+	if (isRoute500(pathname)) {
+		const errorRoute = manifest.routes.find((route) => isRoute500(route.route));
+		if (errorRoute) return errorRoute;
+	}
+
 	return manifest.routes.find((route) => {
 		return (
 			route.pattern.test(pathname) ||
