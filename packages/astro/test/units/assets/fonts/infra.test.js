@@ -409,6 +409,15 @@ describe('fonts infra', () => {
 			}),
 			'foo-200-700-italic-cyrillic-whatever.woff2',
 		);
+		assert.equal(
+			resolver.generate({
+				cssVariable: '--foo',
+				font: { weight: '500', style: 'oblique 0deg 15deg', meta: { subset: 'latin' }, src: [] },
+				originalUrl: 'whatever',
+				type: 'woff2',
+			}),
+			'foo-500-oblique-0deg-15deg-latin-whatever.woff2',
+		);
 	});
 
 	describe('UnifontFontResolver', () => {

@@ -268,8 +268,8 @@ export async function createDevelopmentManifest(settings: AstroSettings): Promis
 		componentMetadata: new Map(),
 		inlinedScripts: new Map(),
 		i18n: i18nManifest,
-		checkOrigin:
-			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
+		checkOrigin: settings.config.security?.checkOrigin ?? false,
+		allowedDomains: settings.config.security?.allowedDomains,
 		actionBodySizeLimit: settings.config.security?.actionBodySizeLimit
 			? settings.config.security.actionBodySizeLimit
 			: 1024 * 1024, // 1mb default

@@ -38,7 +38,7 @@ export const UnknownCompilerError = {
 /**
  * @docs
  * @see
- * - [Official integrations](https://docs.astro.build/en/guides/integrations-guide/#official-integrations)
+ * - [Official integrations](https://docs.astro.build/en/guides/integrations/#official-integrations)
  * - [Astro.clientAddress](https://docs.astro.build/en/reference/api-reference/#clientaddress)
  * @description
  * The adapter you're using unfortunately does not support `Astro.clientAddress`.
@@ -145,7 +145,7 @@ export const MissingMediaQueryDirective = {
  * @message Unable to render `COMPONENT_NAME`. There are `RENDERER_COUNT` renderer(s) configured in your `astro.config.mjs` file, but none were able to server-side render `COMPONENT_NAME`.
  * @see
  * - [Frameworks components](https://docs.astro.build/en/guides/framework-components/)
- * - [UI Frameworks](https://docs.astro.build/en/guides/integrations-guide/#official-integrations)
+ * - [UI Frameworks](https://docs.astro.build/en/guides/integrations/#official-integrations)
  * @description
  * None of the installed integrations were able to render the component you imported. Make sure to install the appropriate integration for the type of component you are trying to include in your page.
  *

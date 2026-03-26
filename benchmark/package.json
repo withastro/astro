@@ -13,8 +13,8 @@
   "dependencies": {
     "@astrojs/mdx": "workspace:*",
     "@astrojs/node": "workspace:*",
-    "@benchmark/timer": "workspace:*",
     "@benchmark/adapter": "workspace:*",
+    "@benchmark/timer": "workspace:*",
     "astro": "workspace:*",
     "autocannon": "^8.0.0",
     "markdown-table": "^3.0.4",

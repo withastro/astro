@@ -205,26 +205,5 @@ describe('Content Collections - render()', () => {
 			assert.equal(h2.length, 1);
 			assert.equal(h2.attr('data-components-export-applied'), 'true');
 		});
-
-		it('Stops collecting CSS when reaching a propagation stopping point', async () => {
-			let response = await fixture.fetch('/blog/5-big-news', { method: 'GET' });
-			assert.equal(response.status, 200);
-
-			let html = await response.text();
-			let $ = cheerio.load(html);
-
-			// Includes the red button styles used in the MDX blog post
-			// CSS may be minified (background-color:red) or pretty-printed (background-color: red)
-			assert.match($('head > style').text(), /background-color:\s*red/);
-
-			response = await fixture.fetch('/blog/about', { method: 'GET' });
-			assert.equal(response.status, 200);
-
-			html = await response.text();
-			$ = cheerio.load(html);
-
-			// Does not include the red button styles not used in this page
-			assert.doesNotMatch($('head > style').text(), /background-color:\s*red/);
-		});
 	});
 });

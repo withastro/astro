@@ -285,3 +285,12 @@ export function installImageService(overrides = {}) {
 		},
 	};
 }
+
+/**
+ * Creates a small Astro source component with an empty frontmatter
+ * @param html
+ * @returns {string}
+ */
+export function createMockAstroSource(html) {
+	return `---\n---\n<html>${html}</html>`;
+}

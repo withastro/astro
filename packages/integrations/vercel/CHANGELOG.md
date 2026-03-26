@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 10.0.3
+
+### Patch Changes
+
+- [#16079](https://github.com/withastro/astro/pull/16079) [`aa26636`](https://github.com/withastro/astro/commit/aa266364fe9e105317b66e218fe04567307fb57f) Thanks [@empoulter-uclan](https://github.com/empoulter-uclan)! - Fix vercel ISR path rewrite
+
 ## 10.0.2
 
 ### Patch Changes
