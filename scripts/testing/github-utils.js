@@ -93,7 +93,10 @@ if (process.env.CI) {
 
 		/** @type {{ summary: string; content: string }[]} */
 		const sections = [];
-		const urlBase = 'https://github.com/withastro/astro/blob/main/';
+
+		const repo = process.env.GITHUB_REPOSITORY || 'withastro/astro';
+		const ref = process.env.GITHUB_REF || 'main';
+		const urlBase = `https://github.com/${repo}/blob/${ref}/`;
 
 		const slowestBuilds = Object.values(builds)
 			.sort((a, b) => b.totalDuration - a.totalDuration)
