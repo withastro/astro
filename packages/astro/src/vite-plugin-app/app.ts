@@ -70,6 +70,14 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 		this.pipeline.clearRouteCache();
 	}
 
+	/**
+	 * Clears the cached middleware so it is re-resolved on the next request.
+	 * Called via HMR when middleware files change.
+	 */
+	clearMiddleware(): void {
+		this.pipeline.clearMiddleware();
+	}
+
 	async devMatch(pathname: string): Promise<DevMatch | undefined> {
 		const matchedRoute = await matchRoute(
 			pathname,

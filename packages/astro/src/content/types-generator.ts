@@ -633,9 +633,13 @@ async function generateJSONSchema(
 	}
 
 	if (zodSchemaForJson instanceof z.ZodObject) {
+		const existingMeta = z.globalRegistry.get(zodSchemaForJson);
 		zodSchemaForJson = zodSchemaForJson.extend({
 			$schema: z.string().optional(),
 		});
+		if (existingMeta) {
+			z.globalRegistry.add(zodSchemaForJson, existingMeta);
+		}
 	}
 
 	try {
