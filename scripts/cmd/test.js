@@ -112,6 +112,6 @@ export default async function test() {
 		});
 
 	// Pipe to our custom GitHub reporter, and also the default spec reporter for terminal output
-	testRun.pipe(githubTestReporter);
+	if (process.env.CI) testRun.pipe(githubTestReporter);
 	testRun.pipe(new spec()).pipe(process.stdout);
 }
