@@ -95,7 +95,7 @@ if (process.env.CI) {
 		const sections = [];
 
 		const repo = process.env.GITHUB_REPOSITORY || 'withastro/astro';
-		const ref = process.env.GITHUB_REF || 'main';
+		const ref = process.env.GITHUB_HEAD_REF || 'main';
 		const urlBase = `https://github.com/${repo}/blob/${ref}/`;
 
 		const slowestBuilds = Object.values(builds)
