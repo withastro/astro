@@ -1,9 +1,31 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import type { KeyGenerator } from '../../../src/cli/create-key/definitions.js';
+import type { CommandRunner } from '../../../src/cli/definitions.js';
+import type { AnyCommand } from '../../../src/cli/domain/command.js';
 import { createKeyCommand } from '../../../dist/cli/create-key/core/create-key.js';
 import { SpyLogger } from '../test-utils.js';
-import { FakeKeyGenerator, PassthroughCommandRunner } from './utils.js';
+
+class FakeKeyGenerator implements KeyGenerator {
+	readonly #key: string;
+
+	constructor(key: string) {
+		this.#key = key;
+	}
+
+	async generate(): Promise<string> {
+		return this.#key;
+	}
+}
+
+class PassthroughCommandRunner implements CommandRunner {
+	run<T extends AnyCommand>(
+		command: T,
+		...args: Parameters<T['run']>
+	): ReturnType<T['run']> | undefined {
+		return command.run(...args) as ReturnType<T['run']>;
+	}
+}
 
 describe('CLI create-key', () => {
 	describe('core', () => {
