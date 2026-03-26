@@ -7,6 +7,36 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { options } from './options.js';
 
+const DEFAULT_WATCH_EXTENSIONS = [
+	'.astro',
+	'.ts',
+	'.tsx',
+	'.js',
+	'.jsx',
+	'.mjs',
+	'.cjs',
+	'.mts',
+	'.cts',
+	'.json',
+];
+
+export function resolveWatchExtensions(rootFileNames: string[]): string[] {
+	const uniqueExtensions = Array.from(
+		new Set(
+			rootFileNames
+				.map((fileName) => path.extname(fileName))
+				.filter((extension) => extension.length > 0),
+		),
+	);
+
+	// Keep watch mode useful even when a project has no discoverable root-file extensions.
+	if (uniqueExtensions.length === 0) {
+		return DEFAULT_WATCH_EXTENSIONS;
+	}
+
+	return uniqueExtensions;
+}
+
 /**
  * Given a list of arguments from the command line (such as `process.argv`), return parsed and processed options
  */
@@ -42,9 +72,7 @@ export async function check(flags: Partial<Flags>): Promise<boolean | void> {
 		}
 
 		// Dynamically get the list of extensions to watch from the files already included in the project
-		const checkedExtensions = Array.from(
-			new Set(checker.linter.getRootFileNames().map((fileName) => path.extname(fileName))),
-		);
+		const checkedExtensions = resolveWatchExtensions(checker.linter.getRootFileNames());
 		createWatcher(workspaceRoot, checkedExtensions)
 			.on('add', (fileName) => {
 				checker.linter.fileCreated(fileName);
@@ -61,7 +89,9 @@ export async function check(flags: Partial<Flags>): Promise<boolean | void> {
 	}
 
 	async function update() {
-		if (!flags.preserveWatchOutput) process.stdout.write('\x1Bc');
+		if (!flags.preserveWatchOutput && process.stdout.isTTY) {
+			process.stdout.write('\x1Bc');
+		}
 		await lint();
 	}
 
