@@ -55,9 +55,7 @@ describe('Content Collections - data collections', () => {
 		});
 
 		it('Preserves .meta() definitions in the generated JSON schema', async () => {
-			const schema = JSON.parse(
-				await fixture.readFile('../.astro/collections/i18n.schema.json'),
-			);
+			const schema = JSON.parse(await fixture.readFile('../.astro/collections/i18n.schema.json'));
 			assert.equal(schema.title, 'Translations');
 			assert.equal(schema.description, 'Translation strings for the site');
 		});
