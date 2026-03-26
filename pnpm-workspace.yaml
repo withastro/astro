@@ -46,6 +46,8 @@ minimumReleaseAgeExclude:
   - undici@7.24.0
   # Renovate security update: smol-toml@1.6.1
   - smol-toml@1.6.1
+  # Renovate security update: picomatch@4.0.4
+  - picomatch@4.0.4
 peerDependencyRules:
   allowAny:
     - 'astro'
