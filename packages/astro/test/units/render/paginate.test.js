@@ -7,8 +7,6 @@ import { createRouteData } from '../mocks.js';
 const items = Array.from({ length: 25 }, (_, i) => `item-${i + 1}`);
 
 describe('Pagination — optional root page (spread route)', () => {
-	// Mirrors: fixtures/astro-pagination/src/pages/posts/optional-root-page/[...page].astro
-	// Spread route => page 1 has page param undefined (no number in URL)
 	const route = createRouteData({
 		route: '/posts/optional-root-page/[...page]',
 		params: ['...page'],
@@ -48,7 +46,6 @@ describe('Pagination — optional root page (spread route)', () => {
 });
 
 describe('Pagination — named root page (non-spread route)', () => {
-	// Mirrors: fixtures/astro-pagination/src/pages/posts/named-root-page/[page].astro
 	// Non-spread route => page 1 has page param "1" (always included)
 	const route = createRouteData({
 		route: '/posts/named-root-page/[page]',
@@ -82,7 +79,6 @@ describe('Pagination — named root page (non-spread route)', () => {
 });
 
 describe('Pagination — multiple params (color + page)', () => {
-	// Mirrors: fixtures/astro-pagination/src/pages/posts/[color]/[page].astro
 	// Each color has its own set of pages; base='/blog', trailingSlash='never'
 	const route = createRouteData({
 		route: '/posts/[color]/[page]',
@@ -142,7 +138,6 @@ describe('Pagination — multiple params (color + page)', () => {
 });
 
 describe('Pagination — root spread, correct prev URL — Migrated from astro-pagination-root-spread.test.js', () => {
-	// Mirrors: fixtures/astro-pagination-root-spread/src/pages/[...page].astro
 	// 4 items, pageSize 1 → 4 pages; root spread means page 1 has no number in URL.
 	const route = createRouteData({
 		route: '/[...page]',

@@ -85,7 +85,6 @@ describe('createStylesheetElementSet', () => {
 	});
 
 	it('applies assetsPrefix to external stylesheet href — Migrated from astro-assets-prefix.test.js', () => {
-		// Mirrors: 'all stylesheets should start with assetPrefix'
 		const set = createStylesheetElementSet(
 			[{ type: 'external', src: '/_astro/style.css' }],
 			'/',
@@ -99,7 +98,6 @@ describe('createStylesheetElementSet', () => {
 	});
 
 	it('applies css-specific prefix — Migrated from astro-assets-prefix-multi-cdn.test.js', () => {
-		// Mirrors: 'all stylesheets should start with cssAssetPrefix'
 		const set = createStylesheetElementSet([{ type: 'external', src: '/_astro/style.css' }], '/', {
 			css: 'https://css.cdn.com',
 			fallback: 'https://cdn.com',
@@ -136,7 +134,6 @@ describe('createModuleScriptElement', () => {
 	});
 
 	it('applies string assetsPrefix to external script src — Migrated from astro-assets-prefix.test.js', () => {
-		// Mirrors: 'react component astro-island should import from assetsPrefix'
 		const el = createModuleScriptElement(
 			{ type: 'external', value: '/_astro/app.js' },
 			'/',
@@ -149,7 +146,6 @@ describe('createModuleScriptElement', () => {
 	});
 
 	it('applies js-specific prefix to external script src — Migrated from astro-assets-prefix-multi-cdn.test.js', () => {
-		// Mirrors: 'react component astro-island should import from jsAssetsPrefix'
 		const el = createModuleScriptElement({ type: 'external', value: '/_astro/app.js' }, '/', {
 			js: 'https://js.cdn.com',
 			fallback: 'https://cdn.com',
