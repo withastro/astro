@@ -207,7 +207,7 @@
     "typescript": "^5.9.3",
     "undici": "^7.22.0",
     "unified": "^11.0.5",
-    "vitest": "^4.0.18"
+    "vitest": "^4.1.0"
   },
   "engines": {
     "node": ">=22.12.0",

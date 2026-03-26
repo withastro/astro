@@ -15,6 +15,6 @@
   },
   "dependencies": {
     "astro": "^6.0.8",
-    "vitest": "^4.0.18"
+    "vitest": "^4.1.0"
   }
 }
