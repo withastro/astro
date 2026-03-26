@@ -47,9 +47,19 @@ describe('Content Collections - data collections', () => {
 						},
 					},
 					required: ['homepage'],
+					title: 'Translations',
+					description: 'Translation strings for the site',
 				}),
 				JSON.stringify(JSON.parse(rawJson)),
 			);
+		});
+
+		it('Preserves .meta() definitions in the generated JSON schema', async () => {
+			const schema = JSON.parse(
+				await fixture.readFile('../.astro/collections/i18n.schema.json'),
+			);
+			assert.equal(schema.title, 'Translations');
+			assert.equal(schema.description, 'Translation strings for the site');
 		});
 
 		it('Generates schema file when the schema uses the image function', async () => {
