@@ -11,6 +11,7 @@ import { pluginMiddleware } from './plugin-middleware.js';
 import { pluginPrerender } from './plugin-prerender.js';
 import { pluginScripts } from './plugin-scripts.js';
 import { pluginSSR } from './plugin-ssr.js';
+import { pluginChunkImports } from './plugin-chunk-imports.js';
 import { pluginNoop } from './plugin-noop.js';
 import { vitePluginSSRAssets } from '../vite-plugin-ssr-assets.js';
 
@@ -31,5 +32,6 @@ export function getAllBuildPlugins(
 		...pluginSSR(options, internals),
 		pluginNoop(),
 		vitePluginSSRAssets(internals),
+		pluginChunkImports(options),
 	].filter(Boolean);
 }
