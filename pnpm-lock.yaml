@@ -629,7 +629,7 @@ importers:
         version: 4.0.2
       smol-toml:
         specifier: ^1.6.0
-        version: 1.6.0
+        version: 1.6.1
       svgo:
         specifier: ^4.0.1
         version: 4.0.1
@@ -2186,12 +2186,6 @@ importers:
         version: link:../../..
 
   packages/astro/test/fixtures/astro-env-required-public:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/astro-env-secret-envprefix:
     dependencies:
       astro:
         specifier: workspace:*
@@ -3888,12 +3882,6 @@ importers:
         version: link:../../..
 
   packages/astro/test/fixtures/redirects:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/redirects-i18n:
     dependencies:
       astro:
         specifier: workspace:*
@@ -7009,7 +6997,7 @@ importers:
         version: 4.0.2
       smol-toml:
         specifier: ^1.6.0
-        version: 1.6.0
+        version: 1.6.1
       unified:
         specifier: ^11.0.5
         version: 11.0.5
@@ -14793,8 +14781,8 @@ packages:
     resolution: {integrity: sha512-TzobUYoEft/xBtb2voRPryAUIvYguG0V7Tt3de79I1WfXgCwelqVsGuZSnu3GFGRZhXR90AeEYIM+icuB/S06Q==}
     hasBin: true
 
-  smol-toml@1.6.0:
-    resolution: {integrity: sha512-4zemZi0HvTnYwLfrpk/CF9LOd9Lt87kAt50GnqhMpyF9U3poDAP2+iukq2bZsO/ufegbYehBkqINbsWxj4l4cw==}
+  smol-toml@1.6.1:
+    resolution: {integrity: sha512-dWUG8F5sIIARXih1DTaQAX4SsiTXhInKf1buxdY9DIg4ZYPZK5nGM1VRIYmEbDbsHt7USo99xSLFu5Q1IqTmsg==}
     engines: {node: '>= 18'}
 
   solid-js@1.9.11:
@@ -22291,7 +22279,7 @@ snapshots:
       oxc-resolver: 11.17.1
       picocolors: 1.1.1
       picomatch: 4.0.3
-      smol-toml: 1.6.0
+      smol-toml: 1.6.1
       strip-json-comments: 5.0.3
       typescript: 5.9.3
       zod: 4.3.6
@@ -24753,7 +24741,7 @@ snapshots:
 
   smartypants@0.2.2: {}
 
-  smol-toml@1.6.0: {}
+  smol-toml@1.6.1: {}
 
   solid-js@1.9.11:
     dependencies:
