@@ -190,7 +190,7 @@ const persistedHeadElement = (el: HTMLElement, newDoc: Document): Element | null
 	// textContent is later transformed by HMR (e.g. Vue's `:deep()` → `[data-v-xxx]`).
 	// Match these by their stable dev ID so the already-transformed style is preserved
 	// across ClientRouter soft navigations instead of being replaced by the raw version.
-	if (el.tagName === 'STYLE') {
+	if (import.meta.env.DEV && el.tagName === 'STYLE') {
 		const viteDevId = el.getAttribute('data-vite-dev-id');
 		if (viteDevId) {
 			return newDoc.head.querySelector(`style[data-vite-dev-id="${viteDevId}"]`);
