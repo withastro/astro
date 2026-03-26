@@ -789,7 +789,7 @@ export function createI18nFallbackRoutes(
 
 	// Group page routes by locale
 	const routesByLocale = new Map<string, RouteData[]>();
-	const setRoutes = new Set(routes.filter((route) => route.type === 'page'));
+	const pageRoutes = new Set(routes.filter((route) => route.type === 'page'));
 
 	const filteredLocales = i18n.locales
 		.filter((loc) => {
@@ -806,7 +806,7 @@ export function createI18nFallbackRoutes(
 		});
 
 	for (const locale of filteredLocales) {
-		for (const route of setRoutes) {
+		for (const route of pageRoutes) {
 			const hasLocaleInRoute = route.route.split('/').includes(locale);
 			if (!hasLocaleInRoute) {
 				continue;
@@ -818,11 +818,11 @@ export function createI18nFallbackRoutes(
 			} else {
 				routesByLocale.set(locale, [route]);
 			}
-			setRoutes.delete(route);
+			pageRoutes.delete(route);
 		}
 	}
 
-	for (const route of setRoutes) {
+	for (const route of pageRoutes) {
 		const currentRoutes = routesByLocale.get(i18n.defaultLocale);
 		if (currentRoutes) {
 			currentRoutes.push(route);
@@ -830,7 +830,7 @@ export function createI18nFallbackRoutes(
 		} else {
 			routesByLocale.set(i18n.defaultLocale, [route]);
 		}
-		setRoutes.delete(route);
+		pageRoutes.delete(route);
 	}
 
 	if (strategy === 'pathname-prefix-always') {
