@@ -661,7 +661,7 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
       vite:
-        specifier: ^8.0.1
+        specifier: ^8.0.3
         version: 8.0.3(@types/node@25.2.3)(esbuild@0.27.3)(jiti@2.6.1)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
       vitefu:
         specifier: ^1.1.2
@@ -4565,7 +4565,7 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
       vite:
-        specifier: ^8.0.1
+        specifier: ^8.0.3
         version: 8.0.3(@types/node@25.2.3)(esbuild@0.27.3)(jiti@2.6.1)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
 
   packages/db/test/fixtures/basics:
@@ -4721,7 +4721,7 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
       vite:
-        specifier: ^8.0.1
+        specifier: ^8.0.3
         version: 8.0.3(@types/node@25.2.3)(esbuild@0.27.3)(jiti@2.6.1)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
 
   packages/integrations/alpinejs/test/fixtures/basics:
@@ -4787,7 +4787,7 @@ importers:
         specifier: ^0.2.15
         version: 0.2.15
       vite:
-        specifier: ^8.0.1
+        specifier: ^8.0.3
         version: 8.0.3(@types/node@25.2.3)(esbuild@0.27.3)(jiti@2.6.1)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
     devDependencies:
       '@cloudflare/workers-types':
@@ -5225,7 +5225,7 @@ importers:
         specifier: ^0.18.12
         version: 0.18.12
       vite:
-        specifier: ^8.0.1
+        specifier: ^8.0.3
         version: 8.0.3(@types/node@25.2.3)(esbuild@0.27.3)(jiti@2.6.1)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
 
   packages/integrations/markdoc/test/fixtures/content-collections:
@@ -5517,7 +5517,7 @@ importers:
         specifier: ^11.0.5
         version: 11.0.5
       vite:
-        specifier: ^8.0.1
+        specifier: ^8.0.3
         version: 8.0.3(@types/node@25.2.3)(esbuild@0.27.3)(jiti@2.6.1)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
 
   packages/integrations/mdx/test/fixtures/content-layer:
@@ -5712,7 +5712,7 @@ importers:
         specifier: ^0.2.15
         version: 0.2.15
       vite:
-        specifier: ^8.0.1
+        specifier: ^8.0.3
         version: 8.0.3(@types/node@22.19.11)(esbuild@0.27.3)(jiti@2.6.1)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
     devDependencies:
       '@types/node':
@@ -6064,7 +6064,7 @@ importers:
         specifier: ^6.6.6
         version: 6.6.6(preact@10.29.0)
       vite:
-        specifier: ^8.0.1
+        specifier: ^8.0.3
         version: 8.0.3(@types/node@25.2.3)(esbuild@0.27.3)(jiti@2.6.1)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
     devDependencies:
       astro:
@@ -6092,7 +6092,7 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0
       vite:
-        specifier: ^8.0.1
+        specifier: ^8.0.3
         version: 8.0.3(@types/node@25.2.3)(esbuild@0.27.3)(jiti@2.6.1)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
     devDependencies:
       '@types/react':
@@ -6220,7 +6220,7 @@ importers:
   packages/integrations/solid:
     dependencies:
       vite:
-        specifier: ^8.0.1
+        specifier: ^8.0.3
         version: 8.0.3(@types/node@25.2.3)(esbuild@0.27.3)(jiti@2.6.1)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
       vite-plugin-solid:
         specifier: ^2.11.11
@@ -6245,7 +6245,7 @@ importers:
         specifier: ^0.7.52
         version: 0.7.52(svelte@5.54.1)(typescript@5.9.3)
       vite:
-        specifier: ^8.0.1
+        specifier: ^8.0.3
         version: 8.0.3(@types/node@25.2.3)(esbuild@0.27.3)(jiti@2.6.1)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
     devDependencies:
       astro:
@@ -6343,7 +6343,7 @@ importers:
         specifier: 1.2.0
         version: 1.2.0
       vite:
-        specifier: ^8.0.1
+        specifier: ^8.0.3
         version: 8.0.3(@types/node@25.2.3)(esbuild@0.27.3)(jiti@2.6.1)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
 
   packages/integrations/vercel/test/fixtures/basic:
@@ -6541,7 +6541,7 @@ importers:
         specifier: ^3.5.30
         version: 3.5.30
       vite:
-        specifier: ^8.0.1
+        specifier: ^8.0.3
         version: 8.0.3(@types/node@25.2.3)(esbuild@0.27.3)(jiti@2.6.1)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
       vite-plugin-vue-devtools:
         specifier: ^8.1.0
@@ -18544,7 +18544,7 @@ snapshots:
   '@parcel/watcher-wasm@2.5.6':
     dependencies:
       is-glob: 4.0.3
-      picomatch: 4.0.3
+      picomatch: 4.0.4
 
   '@parcel/watcher-win32-arm64@2.5.6':
     optional: true
@@ -19394,7 +19394,7 @@ snapshots:
       glob: 10.5.0
       graceful-fs: 4.2.11
       node-gyp-build: 4.8.4
-      picomatch: 4.0.3
+      picomatch: 4.0.4
       resolve-from: 5.0.0
     transitivePeerDependencies:
       - encoding
@@ -21370,6 +21370,10 @@ snapshots:
   fdir@6.5.0(picomatch@4.0.3):
     optionalDependencies:
       picomatch: 4.0.3
+
+  fdir@6.5.0(picomatch@4.0.4):
+    optionalDependencies:
+      picomatch: 4.0.4
 
   fecha@4.2.3: {}
 
@@ -25368,7 +25372,7 @@ snapshots:
   unplugin-utils@0.3.1:
     dependencies:
       pathe: 2.0.3
-      picomatch: 4.0.3
+      picomatch: 4.0.4
 
   unstorage@1.17.4(@azure/identity@4.13.0)(@netlify/blobs@10.7.0)(@vercel/functions@3.4.3):
     dependencies:
@@ -25607,8 +25611,8 @@ snapshots:
   vite@6.4.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3):
     dependencies:
       esbuild: 0.25.5
-      fdir: 6.5.0(picomatch@4.0.3)
-      picomatch: 4.0.3
+      fdir: 6.5.0(picomatch@4.0.4)
+      picomatch: 4.0.4
       postcss: 8.5.8
       rollup: 4.59.1
       tinyglobby: 0.2.15
