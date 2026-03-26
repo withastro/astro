@@ -1,6 +1,6 @@
 // Detect this in comments, both in .astro components and in js/ts files.
 // Keep behavior aligned with the existing plugin usage.
-const HEAD_INJECT_COMMENT_EXP = /(?:^\/\/|\/\/!)\s*astro-head-inject/;
+const HEAD_INJECT_COMMENT_EXP = /\$\$astro_head_inject/;
 
 /**
  * Returns true when source contains the `astro-head-inject` marker comment.
