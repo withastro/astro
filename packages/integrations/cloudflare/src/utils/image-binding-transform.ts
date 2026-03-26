@@ -1,7 +1,15 @@
 import { imageConfig } from 'astro:assets';
 import { isRemotePath } from '@astrojs/internal-helpers/path';
 import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
-import type { ImageTransform } from '@cloudflare/workers-types';
+import type { ImageOutputOptions, ImageTransform } from '@cloudflare/workers-types';
+import type { ImageQualityPreset } from 'astro';
+
+const qualityTable: Record<ImageQualityPreset, number> = {
+	low: 25,
+	mid: 50,
+	high: 80,
+	max: 100,
+};
 
 export async function transform(
 	rawUrl: string,
@@ -23,21 +31,34 @@ export async function transform(
 	}
 	const input = images.input(content.body);
 
-	const format = url.searchParams.get('f');
+	const supportedFormats: Record<string, ImageOutputOptions['format']> = {
+		jpeg: 'image/jpeg',
+		jpg: 'image/jpeg',
+		png: 'image/png',
+		gif: 'image/gif',
+		webp: 'image/webp',
+		avif: 'image/avif',
+	};
 
-	if (!format || !['avif', 'webp', 'jpeg'].includes(format)) {
-		return new Response(`The "${format}" format is not supported`, { status: 400 });
+	const outputFormat = supportedFormats[url.searchParams.get('f') ?? ''];
+
+	if (!outputFormat) {
+		return new Response(`Unsupported format: ${url.searchParams.get('f')}`, { status: 400 });
 	}
 
 	return (
 		await input
 			.transform({
-				width: url.searchParams.has('w') ? parseInt(url.searchParams.get('w')!) : undefined,
-				height: url.searchParams.has('h') ? parseInt(url.searchParams.get('h')!) : undefined,
-				// `quality` is documented, but doesn't appear to work in manual testing...
-				// quality: url.searchParams.get('q'),
+				width: url.searchParams.has('w') ? Number.parseInt(url.searchParams.get('w')!) : undefined,
+				height: url.searchParams.has('h') ? Number.parseInt(url.searchParams.get('h')!) : undefined,
 				fit: url.searchParams.get('fit') as ImageTransform['fit'],
 			})
-			.output({ format: `image/${format as 'webp' | 'avif' | 'jpeg'}` })
+			.output({
+				quality: url.searchParams.get('q')
+					? (qualityTable[url.searchParams.get('q') as ImageQualityPreset] ??
+						Number.parseInt(url.searchParams.get('q')!))
+					: undefined,
+				format: outputFormat,
+			})
 	).response();
 }

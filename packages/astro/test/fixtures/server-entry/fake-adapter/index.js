@@ -30,7 +30,7 @@ export default function fakeAdapter(options) {
             'astro:config:done': (params) => {
                 params.setAdapter({
                     name:'@test/server-entry-fake-adapter',
-                    entryType: 'self',
+                    entrypointResolution: 'auto',
                     serverEntrypoint: options.type === 'serverEntrypoint' ? ENTRYPOINT : undefined,
                     supportedAstroFeatures: {
                         serverOutput: 'stable'

@@ -5,6 +5,7 @@ import type { AstroConfig } from '../types/public/config.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 import type { CompileMetadata } from './types.js';
 import { frontmatterRE } from './utils.js';
+import type { SourceMapInput } from 'rollup';
 
 interface CompileAstroOption {
 	compileProps: CompileProps;
@@ -13,7 +14,7 @@ interface CompileAstroOption {
 }
 
 export interface CompileAstroResult extends Omit<CompileResult, 'map'> {
-	map: ESBuildTransformResult['map'];
+	map: SourceMapInput;
 }
 
 interface EnhanceCompilerErrorOptions {
@@ -109,7 +110,9 @@ async function enhanceCompileError({
 	const scannedFrontmatter = frontmatterRE.exec(source);
 	if (scannedFrontmatter) {
 		// Top-level return is not supported, so replace `return` with throw
-		const frontmatter = scannedFrontmatter[1].replace(/\breturn\b/g, 'throw');
+		const frontmatter = scannedFrontmatter[1]
+			.replace(/\breturn\s*;/g, 'throw 0;')
+			.replace(/\breturn\b/g, 'throw ');
 
 		// If frontmatter does not actually include the offending line, skip
 		if (lineText && !frontmatter.includes(lineText)) throw err;

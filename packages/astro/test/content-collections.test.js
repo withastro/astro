@@ -96,14 +96,6 @@ describe('Content Collections', () => {
 			});
 		});
 
-		describe('Propagation', () => {
-			it('Applies styles', async () => {
-				const html = await fixture.readFile('/propagation/index.html');
-				const $ = cheerio.load(html);
-				assert.equal($('style').text().includes('content:"works!"'), true);
-			});
-		});
-
 		describe('Entry', () => {
 			let json;
 			before(async () => {

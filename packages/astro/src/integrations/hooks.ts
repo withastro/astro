@@ -7,7 +7,7 @@ import { mergeConfig as mergeViteConfig } from 'vite';
 import astroIntegrationActionsRouteHandler from '../actions/integration.js';
 import { isActionsFilePresent } from '../actions/utils.js';
 import { CONTENT_LAYER_TYPE } from '../content/consts.js';
-import { globalContentLayer } from '../content/content-layer.js';
+import { globalContentLayer } from '../content/instance.js';
 import { globalContentConfigObserver } from '../content/utils.js';
 import type { SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
@@ -16,7 +16,7 @@ import { mergeConfig } from '../core/config/merge.js';
 import { validateConfigRefined } from '../core/config/validate.js';
 import { validateSetAdapter } from '../core/dev/adapter-validation.js';
 import type { AstroIntegrationLogger, Logger } from '../core/logger/core.js';
-import { getRouteGenerator } from '../core/routing/manifest/generator.js';
+import { getRouteGenerator } from '../core/routing/generator.js';
 import { getClientOutputDirectory } from '../prerender/utils.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
@@ -303,7 +303,7 @@ export async function runHookConfigSetup({
 				// though accessible to integration authors if discovered.
 
 				function addPageExtension(...input: (string | string[])[]) {
-					const exts = (input.flat(Infinity) as string[]).map(
+					const exts = (input.flat(Number.POSITIVE_INFINITY) as string[]).map(
 						(ext) => `.${ext.replace(/^\./, '')}`,
 					);
 					updatedSettings.pageExtensions.push(...exts);
@@ -585,8 +585,11 @@ export async function runHookBuildGenerated({
 	logger: Logger;
 	routeToHeaders: RouteToHeaders;
 }) {
+	const preserveStructure = settings.adapter?.adapterFeatures?.preserveBuildClientDir;
 	const dir =
-		settings.buildOutput === 'server' ? settings.config.build.client : settings.config.outDir;
+		settings.buildOutput === 'server' || preserveStructure
+			? settings.config.build.client
+			: settings.config.outDir;
 
 	for (const integration of settings.config.integrations) {
 		await runHookInternal({
@@ -700,5 +703,8 @@ export function toIntegrationResolvedRoute(
 		redirectRoute: route.redirectRoute
 			? toIntegrationResolvedRoute(route.redirectRoute, trailingSlash)
 			: undefined,
+		fallbackRoutes: route.fallbackRoutes.map((fallbackRoute) =>
+			toIntegrationResolvedRoute(fallbackRoute, trailingSlash),
+		),
 	};
 }

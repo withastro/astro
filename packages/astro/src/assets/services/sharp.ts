@@ -1,4 +1,13 @@
-import type { FitEnum, FormatEnum, ResizeOptions, SharpOptions } from 'sharp';
+import type {
+	AvifOptions,
+	FitEnum,
+	FormatEnum,
+	JpegOptions,
+	PngOptions,
+	ResizeOptions,
+	SharpOptions,
+	WebpOptions,
+} from 'sharp';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { ImageFit, ImageOutputFormat, ImageQualityPreset } from '../types.js';
 import {
@@ -18,6 +27,26 @@ export interface SharpImageServiceConfig {
 	 * The `kernel` option is passed to resize calls. See https://sharp.pixelplumbing.com/api-resize/ for more information
 	 */
 	kernel?: ResizeOptions['kernel'];
+
+	/**
+	 * The default encoder options passed to `sharp().jpeg()`.
+	 */
+	jpeg?: JpegOptions;
+
+	/**
+	 * The default encoder options passed to `sharp().png()`.
+	 */
+	png?: PngOptions;
+
+	/**
+	 * The default encoder options passed to `sharp().webp()`.
+	 */
+	webp?: WebpOptions;
+
+	/**
+	 * The default encoder options passed to `sharp().avif()`.
+	 */
+	avif?: AvifOptions;
 }
 
 let sharp: typeof import('sharp');
@@ -28,6 +57,56 @@ const qualityTable: Record<ImageQualityPreset, number> = {
 	high: 80,
 	max: 100,
 };
+
+function resolveSharpQuality(quality: BaseServiceTransform['quality']): number | undefined {
+	if (!quality) return undefined;
+
+	const parsedQuality = parseQuality(quality);
+	if (typeof parsedQuality === 'number') {
+		return parsedQuality;
+	}
+
+	return quality in qualityTable ? qualityTable[quality] : undefined;
+}
+
+export function resolveSharpEncoderOptions(
+	transform: Pick<BaseServiceTransform, 'format' | 'quality'>,
+	inputFormat: string | undefined,
+	serviceConfig: SharpImageServiceConfig = {},
+): JpegOptions | PngOptions | WebpOptions | AvifOptions | { quality?: number } | undefined {
+	const quality = resolveSharpQuality(transform.quality);
+
+	switch (transform.format) {
+		case 'jpg':
+		case 'jpeg':
+			return {
+				...serviceConfig.jpeg,
+				...(quality === undefined ? {} : { quality }),
+			};
+		case 'png':
+			return {
+				...serviceConfig.png,
+				...(quality === undefined ? {} : { quality }),
+			};
+		case 'webp': {
+			const webpOptions: WebpOptions = {
+				...serviceConfig.webp,
+				...(quality === undefined ? {} : { quality }),
+			};
+			if (inputFormat === 'gif') {
+				webpOptions.loop ??= 0;
+			}
+			return webpOptions;
+		}
+		case 'avif':
+			return {
+				...serviceConfig.avif,
+				...(quality === undefined ? {} : { quality }),
+			};
+		default:
+			return quality === undefined ? undefined : { quality };
+	}
+}
 
 async function loadSharp() {
 	let sharpImport: typeof import('sharp');
@@ -81,10 +160,6 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 		// get some information about the input
 		const { format } = await result.metadata();
 
-		// If `fit` isn't set then use old behavior:
-		// - Do not use both width and height for resizing, and prioritize width over height
-		// - Allow enlarging images
-
 		if (transform.width && transform.height) {
 			const fit: keyof FitEnum | undefined = transform.fit
 				? (fitMap[transform.fit] ?? 'inside')
@@ -120,21 +195,21 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 		}
 
 		if (transform.format) {
-			let quality: number | string | undefined = undefined;
-			if (transform.quality) {
-				const parsedQuality = parseQuality(transform.quality);
-				if (typeof parsedQuality === 'number') {
-					quality = parsedQuality;
-				} else {
-					quality = transform.quality in qualityTable ? qualityTable[transform.quality] : undefined;
-				}
-			}
+			const encoderOptions = resolveSharpEncoderOptions(transform, format, config.service.config);
 
 			if (transform.format === 'webp' && format === 'gif') {
-				// Convert animated GIF to animated WebP with loop=0 (infinite)
-				result.webp({ quality: typeof quality === 'number' ? quality : undefined, loop: 0 });
+				// Convert animated GIF to animated WebP with loop=0 (infinite) unless overridden in config.
+				result.webp(encoderOptions as WebpOptions | undefined);
+			} else if (transform.format === 'webp') {
+				result.webp(encoderOptions as WebpOptions | undefined);
+			} else if (transform.format === 'png') {
+				result.png(encoderOptions as PngOptions | undefined);
+			} else if (transform.format === 'avif') {
+				result.avif(encoderOptions as AvifOptions | undefined);
+			} else if (transform.format === 'jpeg' || transform.format === 'jpg') {
+				result.jpeg(encoderOptions as JpegOptions | undefined);
 			} else {
-				result.toFormat(transform.format as keyof FormatEnum, { quality });
+				result.toFormat(transform.format as keyof FormatEnum, encoderOptions);
 			}
 		}
 

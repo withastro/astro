@@ -117,6 +117,42 @@ export const server = {
 			return data;
 		},
 	}),
+	nestedDiscriminatedUnion: defineAction({
+		accept: 'form',
+		input: z.object({
+			name: z.string(),
+			contact: z.discriminatedUnion('type', [
+				z.object({ type: z.literal('email'), email: z.string() }),
+				z.object({ type: z.literal('phone'), phone: z.string() }),
+			]),
+		}),
+		handler: async (data) => {
+			return data;
+		},
+	}),
+	nestedFormObject: defineAction({
+		accept: 'form',
+		input: z.object({
+			a: z.string(),
+			bc: z
+				.object({
+					b: z.enum(['hoge', 'huga']),
+					c: z.string().optional(),
+				})
+				.superRefine((data, ctx) => {
+					if (data.b === 'huga' && (!data.c || data.c.trim() === '')) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							path: ['bc', 'c'],
+							message: 'C is required when B is "huga"',
+						});
+					}
+				}),
+		}),
+		handler: async (data) => {
+			return data;
+		},
+	}),
 	transformFormInput: defineAction({
 		accept: 'form',
 		input: z.instanceof(FormData).transform((formData) => Object.fromEntries(formData.entries())),

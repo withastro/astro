@@ -1,6 +1,20 @@
 import { matchPattern, type RemotePattern } from '@astrojs/internal-helpers/remote';
 
 /**
+ * Parses a potentially comma-separated multi-value header (as produced by
+ * proxy chains) and returns the first value, trimmed of whitespace.
+ * Returns `undefined` when the header is absent or empty.
+ */
+export function getFirstForwardedValue(
+	multiValueHeader: string | string[] | undefined,
+): string | undefined {
+	return multiValueHeader
+		?.toString()
+		.split(',')
+		.map((e) => e.trim())[0];
+}
+
+/**
  * Sanitize a hostname by rejecting any with path separators.
  * Prevents path injection attacks. Invalid hostnames return undefined.
  */
@@ -50,7 +64,7 @@ function matchesAllowedDomains(
 
 /**
  * Validate a host against allowedDomains.
- * Returns the host only if it matches an allowed pattern, otherwise undefined.
+ * Returns the host only if it matches an allowed pattern; otherwise, undefined.
  * This prevents SSRF attacks by ensuring the Host header is trusted.
  */
 export function validateHost(
@@ -90,10 +104,12 @@ export function validateForwardedHeaders(
 		if (allowedDomains && allowedDomains.length > 0) {
 			const hasProtocolPatterns = allowedDomains.some((pattern) => pattern.protocol !== undefined);
 			if (hasProtocolPatterns) {
-				// Validate against allowedDomains patterns
+				// Only validate the protocol here; host+proto combination is checked in the host block below
 				try {
 					const testUrl = new URL(`${forwardedProtocol}://example.com`);
-					const isAllowed = allowedDomains.some((pattern) => matchPattern(testUrl, pattern));
+					const isAllowed = allowedDomains.some((pattern) =>
+						matchPattern(testUrl, { protocol: pattern.protocol }),
+					);
 					if (isAllowed) {
 						result.protocol = forwardedProtocol;
 					}
@@ -104,10 +120,11 @@ export function validateForwardedHeaders(
 				// allowedDomains exist but no protocol patterns, allow http/https
 				result.protocol = forwardedProtocol;
 			}
-		} else if (/^https?$/.test(forwardedProtocol)) {
-			// No allowedDomains, only allow http/https
-			result.protocol = forwardedProtocol;
 		}
+		// When no allowedDomains is configured, do not trust X-Forwarded-Proto.
+		// Without allowedDomains there is no proxy configuration to validate against,
+		// so accepting a forwarded protocol could let an attacker change the origin
+		// used for comparisons (e.g., switching http to https).
 	}
 
 	// Validate port first

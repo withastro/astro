@@ -27,7 +27,7 @@ describe('astro:image:layout', () => {
 						foo: 'bar',
 						transform: { path: walrusImagePath, scale: imageScale },
 					}),
-					domains: ['avatars.githubusercontent.com'],
+					domains: ['avatars.githubusercontent.com', 'images.unsplash.com'],
 				},
 			});
 
@@ -56,7 +56,7 @@ describe('astro:image:layout', () => {
 				let $img = $('#local img');
 				assert.equal($img.attr('loading'), 'lazy');
 				assert.equal($img.attr('decoding'), 'async');
-				assert.equal($img.attr('fetchpriority'), 'auto');
+				assert.equal($img.attr('fetchpriority'), undefined);
 			});
 
 			it('includes priority loading attributes', () => {
@@ -127,143 +127,12 @@ describe('astro:image:layout', () => {
 			});
 		});
 
-		describe('srcsets', () => {
-			let $;
-			before(async () => {
-				let res = await fixture.fetch('/');
-				let html = await res.text();
-				$ = cheerio.load(html);
-			});
-
-			it('has srcset', () => {
-				let $img = $('#local img');
-				assert.ok($img.attr('srcset'));
-				const srcset = parseSrcset($img.attr('srcset'));
-				assert.equal(srcset.length, 8);
-				assert.equal(srcset[0].url.startsWith('/_image'), true);
-				const widths = srcset.map((x) => x.w);
-				assert.deepEqual(widths, [640, 750, 828, 1080, 1280, 1668, 2048, 2316]);
-			});
-
-			it('constrained - has max of 2x requested size', () => {
-				let $img = $('#local-constrained img');
-				const widths = parseSrcset($img.attr('srcset')).map((x) => x.w);
-				assert.equal(widths.at(-1), 1600);
-			});
-
-			it('constrained - just has 1x and 2x when smaller than min breakpoint', () => {
-				let $img = $('#local-both img');
-				const widths = parseSrcset($img.attr('srcset')).map((x) => x.w);
-				assert.deepEqual(widths, [300, 600]);
-			});
-
-			it('fixed - has just 1x and 2x', () => {
-				let $img = $('#local-fixed img');
-				const widths = parseSrcset($img.attr('srcset')).map((x) => x.w);
-				assert.deepEqual(widths, [800, 1600]);
-			});
-
-			it('full-width: has all breakpoints below image size, ignoring dimensions', () => {
-				let $img = $('#local-full-width img');
-				const widths = parseSrcset($img.attr('srcset')).map((x) => x.w);
-				assert.deepEqual(widths, [640, 750, 828, 1080, 1280, 1668, 2048]);
-			});
-		});
-
-		describe('generated URLs', () => {
-			let $;
-			before(async () => {
-				let res = await fixture.fetch('/fit');
-				let html = await res.text();
-				$ = cheerio.load(html);
-			});
-			it('generates width and height in image URLs when both are provided', () => {
-				let $img = $('#local-both img');
-				const aspectRatio = 300 / 400;
-				const srcset = parseSrcset($img.attr('srcset'));
-				for (const { url } of srcset) {
-					const params = new URL(url, 'https://example.com').searchParams;
-					const width = parseInt(params.get('w'));
-					const height = parseInt(params.get('h'));
-					assert.equal(width / height, aspectRatio);
-				}
-			});
-
-			it('does not pass through fit and position', async () => {
-				const fit = $('#fit-cover img');
-				assert.ok(!fit.attr('fit'));
-				const position = $('#position img');
-				assert.ok(!position.attr('position'));
-			});
-
-			it('sets a default fit of "cover" when no fit is provided', () => {
-				let $img = $('#fit-default img');
-				const srcset = parseSrcset($img.attr('srcset'));
-				for (const { url } of srcset) {
-					const params = new URL(url, 'https://example.com').searchParams;
-					assert.equal(params.get('fit'), 'cover');
-				}
-			});
-
-			it('sets a fit of "contain" when fit="contain" is provided', () => {
-				let $img = $('#fit-contain img');
-				const srcset = parseSrcset($img.attr('srcset'));
-				for (const { url } of srcset) {
-					const params = new URL(url, 'https://example.com').searchParams;
-					assert.equal(params.get('fit'), 'contain');
-				}
-			});
-
-			it('sets no fit when fit="none" is provided', () => {
-				let $img = $('#fit-none img');
-				const srcset = parseSrcset($img.attr('srcset'));
-				for (const { url } of srcset) {
-					const params = new URL(url, 'https://example.com').searchParams;
-					assert.ok(!params.has('fit'));
-				}
-			});
-		});
-
 		describe('remote images', () => {
 			let $;
 			before(async () => {
 				let res = await fixture.fetch('/remote');
 				let html = await res.text();
 				$ = cheerio.load(html);
-			});
-
-			describe('srcset', () => {
-				it('has srcset', () => {
-					let $img = $('#constrained img');
-					assert.ok($img.attr('srcset'));
-					const srcset = parseSrcset($img.attr('srcset'));
-					const widths = srcset.map((x) => x.w);
-					assert.deepEqual(widths, [640, 750, 800, 828, 1080, 1280, 1600]);
-				});
-
-				it('constrained - has max of 2x requested size', () => {
-					let $img = $('#constrained img');
-					const widths = parseSrcset($img.attr('srcset')).map((x) => x.w);
-					assert.equal(widths.at(-1), 1600);
-				});
-
-				it('constrained - just has 1x and 2x when smaller than min breakpoint', () => {
-					let $img = $('#small img');
-					const widths = parseSrcset($img.attr('srcset')).map((x) => x.w);
-					assert.deepEqual(widths, [300, 600]);
-				});
-
-				it('fixed - has just 1x and 2x', () => {
-					let $img = $('#fixed img');
-					const widths = parseSrcset($img.attr('srcset')).map((x) => x.w);
-					assert.deepEqual(widths, [800, 1600]);
-				});
-
-				it('full-width: has all breakpoints', () => {
-					let $img = $('#full-width img');
-					const widths = parseSrcset($img.attr('srcset')).map((x) => x.w);
-					assert.deepEqual(widths, [640, 750, 828, 1080, 1280, 1668, 2048, 2560]);
-				});
 			});
 
 			describe('inferSize', () => {
@@ -382,8 +251,8 @@ describe('astro:image:layout', () => {
 
 				it('maintains original aspect ratio', () => {
 					let $img = $('#picture-fallback img');
-					const width = parseInt($img.attr('width'));
-					const height = parseInt($img.attr('height'));
+					const width = Number.parseInt($img.attr('width'));
+					const height = Number.parseInt($img.attr('height'));
 					const imageAspectRatio = width / height;
 					const originalAspectRatio = originalWidth / originalHeight;
 
@@ -501,96 +370,6 @@ describe('astro:image:layout', () => {
 		after(async () => {
 			await devServer.stop();
 		});
-
-		describe('srcsets', () => {
-			let $;
-			before(async () => {
-				let res = await fixture.fetch('/');
-				let html = await res.text();
-				$ = cheerio.load(html);
-			});
-
-			it('has full srcset', () => {
-				let $img = $('#local img');
-				assert.ok($img.attr('srcset'));
-				const srcset = parseSrcset($img.attr('srcset'));
-				assert.equal(srcset.length, 10);
-				assert.equal(srcset[0].url.startsWith('/_image'), true);
-				const widths = srcset.map((x) => x.w);
-				assert.deepEqual(widths, [640, 750, 828, 960, 1080, 1280, 1668, 1920, 2048, 2316]);
-			});
-
-			it('constrained - has max of 2x requested size', () => {
-				let $img = $('#local-constrained img');
-				const widths = parseSrcset($img.attr('srcset')).map((x) => x.w);
-				assert.equal(widths.at(-1), 1600);
-			});
-
-			it('constrained - just has 1x and 2x when smaller than min breakpoint', () => {
-				let $img = $('#local-both img');
-				const widths = parseSrcset($img.attr('srcset')).map((x) => x.w);
-				assert.deepEqual(widths, [300, 600]);
-			});
-
-			it('fixed - has just 1x and 2x', () => {
-				let $img = $('#local-fixed img');
-				const widths = parseSrcset($img.attr('srcset')).map((x) => x.w);
-				assert.deepEqual(widths, [800, 1600]);
-			});
-
-			it('full-width: has all breakpoints below image size, ignoring dimensions', () => {
-				let $img = $('#local-full-width img');
-				const widths = parseSrcset($img.attr('srcset')).map((x) => x.w);
-				assert.deepEqual(widths, [640, 750, 828, 960, 1080, 1280, 1668, 1920, 2048]);
-			});
-		});
-
-		describe('remote', () => {
-			describe('srcset', () => {
-				let $;
-				before(async () => {
-					let res = await fixture.fetch('/remote');
-					let html = await res.text();
-					$ = cheerio.load(html);
-				});
-				it('has srcset', () => {
-					let $img = $('#constrained img');
-					assert.ok($img.attr('srcset'));
-					const srcset = parseSrcset($img.attr('srcset'));
-					assert.equal(srcset.length, 8);
-					assert.equal(srcset[0].url.startsWith('/_image'), true);
-					const widths = srcset.map((x) => x.w);
-					assert.deepEqual(widths, [640, 750, 800, 828, 960, 1080, 1280, 1600]);
-				});
-
-				it('constrained - has max of 2x requested size', () => {
-					let $img = $('#constrained img');
-					const widths = parseSrcset($img.attr('srcset')).map((x) => x.w);
-					assert.equal(widths.at(-1), 1600);
-				});
-
-				it('constrained - just has 1x and 2x when smaller than min breakpoint', () => {
-					let $img = $('#small img');
-					const widths = parseSrcset($img.attr('srcset')).map((x) => x.w);
-					assert.deepEqual(widths, [300, 600]);
-				});
-
-				it('fixed - has just 1x and 2x', () => {
-					let $img = $('#fixed img');
-					const widths = parseSrcset($img.attr('srcset')).map((x) => x.w);
-					assert.deepEqual(widths, [800, 1600]);
-				});
-
-				it('full-width: has all breakpoints', () => {
-					let $img = $('#full-width img');
-					const widths = parseSrcset($img.attr('srcset')).map((x) => x.w);
-					assert.deepEqual(
-						widths,
-						[640, 750, 828, 960, 1080, 1280, 1668, 1920, 2048, 2560, 3200, 3840, 4480, 5120, 6016],
-					);
-				});
-			});
-		});
 	});
 
 	describe('build', () => {
@@ -599,7 +378,7 @@ describe('astro:image:layout', () => {
 				root: './fixtures/core-image-layout/',
 				image: {
 					service: testImageService({ foo: 'bar' }),
-					domains: ['avatars.githubusercontent.com'],
+					domains: ['avatars.githubusercontent.com', 'images.unsplash.com'],
 				},
 			});
 
@@ -623,7 +402,7 @@ describe('astro:image:layout', () => {
 				let $img = $('#local img');
 				assert.equal($img.attr('loading'), 'lazy');
 				assert.equal($img.attr('decoding'), 'async');
-				assert.equal($img.attr('fetchpriority'), 'auto');
+				assert.equal($img.attr('fetchpriority'), undefined);
 			});
 
 			it('includes priority loading attributes', () => {
@@ -710,7 +489,7 @@ describe('astro:image:layout', () => {
 					root: './fixtures/core-image-layout/',
 					image: {
 						service: testImageService({ foo: 'bar' }),
-						domains: ['avatars.githubusercontent.com'],
+						domains: ['avatars.githubusercontent.com', 'images.unsplash.com'],
 						responsiveStyles: false,
 					},
 				});

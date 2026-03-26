@@ -4,6 +4,7 @@ packages:
   - 'examples/**/*'
   - 'triage/*'
   - 'smoke/**/*'
+  - 'temp/*'
   - 'scripts'
   - 'benchmark'
   - 'benchmark/packages/*'
@@ -28,12 +29,25 @@ publicHoistPattern:
   # We hoist it here so that it can easily resolve `@astrojs/db` without hardcoded handling.
   - '@astrojs/db'
 # Wait until three days after release to install new versions of packages
-# TODO: uncomment before merging into main
-# minimumReleaseAge: 4320
+minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
-  # Temporary, so we can install new updates
-  - '@cloudflare/*'
-  - 'wrangler'
+  # TODO: remove once more stable
+  - '@flue/*'
+  - '@astrojs/*'
+  # Renovate security update: fast-xml-parser@5.3.8
+  - fast-xml-parser@5.3.8
+  # Renovate security update: svelte@5.53.5
+  - svelte@5.53.5
+  # Renovate security update: fastify@5.8.1 || 5.8.3
+  - fastify@5.8.1 || 5.8.3
+  # Renovate security update: rollup@4.59.0
+  - rollup@4.59.0
+  # Renovate security update: undici@7.24.0
+  - undici@7.24.0
+  # Renovate security update: smol-toml@1.6.1
+  - smol-toml@1.6.1
+  # Renovate security update: picomatch@4.0.4
+  - picomatch@4.0.4
 peerDependencyRules:
   allowAny:
     - 'astro'
@@ -46,5 +60,9 @@ onlyBuiltDependencies:
   - '@parcel/watcher'
   - 'keytar'
   - '@vscode/vsce-sign'
+
+patchedDependencies:
+  '@changesets/get-github-info@0.7.0': patches/@changesets__get-github-info@0.7.0.patch
+
 # TODO: enable when viable
 # trustPolicy: 'no-downgrade'

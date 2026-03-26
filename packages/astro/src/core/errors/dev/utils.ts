@@ -9,7 +9,6 @@ import type { SSRError } from '../../../types/public/internal.js';
 import { removeLeadingForwardSlashWindows } from '../../path.js';
 import { normalizePath } from '../../viteUtils.js';
 import { AggregateError, type ErrorWithMetadata } from '../errors.js';
-import { AstroErrorData } from '../index.js';
 import { codeFrame } from '../printer.js';
 import { normalizeLF } from '../utils.js';
 
@@ -141,7 +140,7 @@ function generateHint(err: ErrorWithMetadata): string | undefined {
 	const commonBrowserAPIs = ['document', 'window'];
 
 	if (/Unknown file extension "\.(?:jsx|vue|svelte|astro|css)" for /.test(err.message)) {
-		return 'You likely need to add this package to `vite.ssr.noExternal` in your astro config file.';
+		return 'You likely need to add this package to `vite.resolve.noExternal` in your astro config file.';
 	} else if (commonBrowserAPIs.some((api) => err.toString().includes(api))) {
 		const hint = `Browser APIs are not available on the server.
 
@@ -179,9 +178,7 @@ function collectInfoFromStacktrace(error: SSRError & { stack: string }): StackIn
 			error.pluginCode ||
 			error.id ||
 			// TODO: this could be better, `src` might be something else
-			stackText
-				.split('\n')
-				.find((ln) => ln.includes('src') || ln.includes('node_modules'));
+			stackText.split('\n').find((ln) => ln.includes('src') || ln.includes('node_modules'));
 		// Disable eslint as we're not sure how to improve this regex yet
 		// eslint-disable-next-line regexp/no-super-linear-backtracking
 		const source = possibleFilePath?.replace?.(/^[^(]+\(([^)]+).*$/, '$1').replace(/^\s+at\s+/, '');
@@ -223,22 +220,6 @@ function cleanErrorStack(stack: string) {
 		.split(/\n/)
 		.map((l) => l.replace(/\/@fs\//g, '/'))
 		.join('\n');
-}
-
-export function getDocsForError(err: ErrorWithMetadata): string | undefined {
-	if (err.name !== 'UnknownError' && err.name in AstroErrorData) {
-		return `https://docs.astro.build/en/reference/errors/${getKebabErrorName(err.name)}/`;
-	}
-
-	return undefined;
-
-	/**
-	 * The docs has kebab-case urls for errors, so we need to convert the error name
-	 * @param errorName
-	 */
-	function getKebabErrorName(errorName: string): string {
-		return errorName.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
-	}
 }
 
 const linkRegex = /\[([^[]+)\]\(([^)]*)\)/g;

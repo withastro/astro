@@ -7,9 +7,13 @@ export type RemoteCacheEntry = {
 	lastModified?: string;
 };
 
-export async function loadRemoteImage(src: string) {
+export async function loadRemoteImage(src: string, fetchFn: typeof fetch = globalThis.fetch) {
 	const req = new Request(src);
-	const res = await fetch(req);
+	const res = await fetchFn(req, { redirect: 'manual' });
+
+	if (res.status >= 300 && res.status < 400) {
+		throw new Error(`Failed to load remote image ${src}. The request was redirected.`);
+	}
 
 	if (!res.ok) {
 		throw new Error(
@@ -36,21 +40,27 @@ export async function loadRemoteImage(src: string) {
  * The remote server may respond that the cached asset is still up-to-date if the entity-tag or modification time matches (304 Not Modified), or respond with an updated asset (200 OK)
  * @param src - url to remote asset
  * @param revalidationData - an object containing the stored Entity-Tag of the cached asset and/or the Last Modified time
- * @returns An ImageData object containing the asset data, a new expiry time, and the asset's etag. The data buffer will be empty if the asset was not modified.
+ * @returns An object containing the refreshed expiry time and cache headers. `data` will be a `Buffer` of the new image if the asset was modified (200 OK), or `null` if the cached version is still valid (304 Not Modified).
  */
 export async function revalidateRemoteImage(
 	src: string,
 	revalidationData: { etag?: string; lastModified?: string },
+	fetchFn: typeof fetch = globalThis.fetch,
 ) {
 	const headers = {
 		...(revalidationData.etag && { 'If-None-Match': revalidationData.etag }),
 		...(revalidationData.lastModified && { 'If-Modified-Since': revalidationData.lastModified }),
 	};
 	const req = new Request(src, { headers, cache: 'no-cache' });
-	const res = await fetch(req);
+	const res = await fetchFn(req, { redirect: 'manual' });
 
-	// Asset not modified: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/304
+	// Allow 304 Not Modified: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/304
 	if (!res.ok && res.status !== 304) {
+		if (res.status >= 300 && res.status < 400) {
+			throw new Error(
+				`Failed to revalidate cached remote image ${src}. The request was redirected.`,
+			);
+		}
 		throw new Error(
 			`Failed to revalidate cached remote image ${src}. The request did not return a 200 OK / 304 NOT MODIFIED response. (received ${res.status} ${res.statusText})`,
 		);
@@ -60,7 +70,7 @@ export async function revalidateRemoteImage(
 
 	if (res.ok && !data.length) {
 		// Server did not include body but indicated cache was stale
-		return await loadRemoteImage(src);
+		return await loadRemoteImage(src, fetchFn);
 	}
 
 	// calculate an expiration date based on the response's TTL
@@ -68,12 +78,12 @@ export async function revalidateRemoteImage(
 		webToCachePolicyRequest(req),
 		webToCachePolicyResponse(
 			res.ok ? res : new Response(null, { status: 200, headers: res.headers }),
-		), // 304 responses themselves are not cacheable, so just pretend to get the refreshed TTL
+		), // 304 responses are not cacheable, so just use its headers to get the refreshed TTL
 	);
 	const expires = policy.storable() ? policy.timeToLive() : 0;
 
 	return {
-		data,
+		data: res.ok ? data : null,
 		expires: Date.now() + expires,
 		// While servers should respond with the same headers as a 200 response, if they don't we should reuse the stored value
 		etag: res.headers.get('Etag') ?? (res.ok ? undefined : revalidationData.etag),

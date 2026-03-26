@@ -90,7 +90,7 @@ describe('serialize', () => {
 		assert.equal(serializeProps(input), output);
 	});
 	it('serializes Infinity and -Infinity', () => {
-		const input = { a: Infinity, b: -Infinity };
+		const input = { a: Number.POSITIVE_INFINITY, b: Number.NEGATIVE_INFINITY };
 		const output = `{"a":[11,1],"b":[11,-1]}`;
 		assert.equal(serializeProps(input), output);
 	});
@@ -115,5 +115,29 @@ describe('serialize', () => {
 		const b = {};
 		const input = { a: { b, b }, b };
 		assert.doesNotThrow(() => serializeProps(input));
+	});
+	it('serializes NaN as null (JSON cannot represent NaN)', () => {
+		// NaN is not representable in JSON; serializeProps treats it as null
+		const input = { a: Number.NaN };
+		const output = `{"a":[0,null]}`;
+		assert.equal(serializeProps(input), output);
+	});
+	it('serializes a mixed-type array', () => {
+		const date = new Date(0);
+		const output = `{"a":[1,[[0,1],[0,"hello"],[3,"${date.toISOString()}"]]]}`;
+		assert.equal(serializeProps({ a: [1, 'hello', date] }), output);
+	});
+	it('includes component displayName and hydrate in cyclic error message', () => {
+		const a = {};
+		a.b = a;
+		const metadata = { displayName: 'MyComponent', hydrate: 'load' };
+		assert.throws(
+			() => serializeProps({ a }, metadata),
+			(err) => {
+				assert.ok(err.message.includes('MyComponent'), 'should include displayName');
+				assert.ok(err.message.includes('load'), 'should include hydrate directive');
+				return true;
+			},
+		);
 	});
 });

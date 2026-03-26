@@ -61,6 +61,12 @@ describe('React Components', () => {
 			const islandsWithId = $('.react-use-id');
 			assert.equal(islandsWithId.length, 2);
 			assert.notEqual($(islandsWithId[0]).attr('id'), $(islandsWithId[1]).attr('id'));
+
+			// test 12: Passes boolean attributes to components as expected
+			assert.equal($('#true').attr('attr'), 'attr-true');
+			assert.equal($('#true').attr('type'), 'boolean');
+			assert.equal($('#false').attr('attr'), 'attr-false');
+			assert.equal($('#false').attr('type'), 'boolean');
 		});
 
 		it('Can load Vue', async () => {
@@ -113,7 +119,25 @@ describe('React Components', () => {
 		it('Client children passes option to the client', async () => {
 			const html = await fixture.readFile('/children/index.html');
 			const $ = cheerioLoad(html);
-			assert.equal($('[data-react-children]').length, 1);
+			assert.equal($('[data-react-children]').length, 2);
+		});
+
+		it('Children with class attributes are properly rendered', async () => {
+			const html = await fixture.readFile('/children/index.html');
+			const $ = cheerioLoad(html);
+			assert.equal($('#three .title').length, 1);
+			assert.equal($('#three .subtitle').length, 1);
+			assert.equal($('#three .title').text(), 'Hello');
+			assert.equal($('#three .subtitle').text(), 'World');
+		});
+
+		it('Does not render astro-slot for empty slots', async () => {
+			const html = await fixture.readFile('/slots/index.html');
+			const $ = cheerioLoad(html);
+
+			assert.equal($('#empty astro-slot[name="conditional"]').length, 0);
+			assert.equal($('#filled astro-slot[name="conditional"]').length, 1);
+			assert.equal($('#filled astro-slot[name="conditional"]').text().trim(), 'Visible');
 		});
 	});
 

@@ -52,9 +52,14 @@ export function createRedirectsFromAstroRoutes({
 			if (route.redirect) {
 				// A redirect route without dynamic parts. Get the redirect status
 				// from the user if provided.
+				// For redirect routes, `entrypoint` preserves the original source path
+				// (including trailing slash) while `pathname` normalizes it away.
+				// Use `entrypoint` when available to keep trailing slashes in _redirects.
+				const inputPath =
+					route.type === 'redirect' && route.entrypoint ? route.entrypoint : route.pathname;
 				redirects.add({
 					dynamic: false,
-					input: `${base}${route.pathname}`,
+					input: `${base}${inputPath}`,
 					target: typeof route.redirect === 'object' ? route.redirect.destination : route.redirect,
 					status: getRedirectStatus(route),
 					weight: 2,

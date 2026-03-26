@@ -22,3 +22,15 @@ export interface PrerenderRequest {
 	url: string;
 	routeData: SerializedRouteData;
 }
+
+export interface SerializedStaticImageEntry {
+	originalPath: string;
+	originalSrcPath: string | undefined;
+	transforms: Array<{
+		hash: string;
+		finalPath: string;
+		transform: Record<string, any>;
+	}>;
+}
+
+export type StaticImagesResponse = SerializedStaticImageEntry[];

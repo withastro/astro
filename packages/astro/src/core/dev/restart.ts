@@ -1,18 +1,18 @@
 import type nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import * as vite from 'vite';
-import { globalContentLayer } from '../../content/content-layer.js';
+import { globalContentLayer } from '../../content/instance.js';
 import { attachContentServerListeners } from '../../content/server-listeners.js';
 import { eventCliSession, telemetry } from '../../events/index.js';
 import { SETTINGS_FILE } from '../../preferences/constants.js';
 import type { AstroSettings } from '../../types/astro.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
 import { createSettings, resolveConfig } from '../config/index.js';
-import { createNodeLogger } from '../config/logging.js';
+import { createNodeLogger } from '../logger/node.js';
 import { collectErrorMetadata } from '../errors/dev/utils.js';
 import { isAstroConfigZodError } from '../errors/errors.js';
 import { createSafeError } from '../errors/index.js';
-import { formatErrorMessage } from '../messages.js';
+import { formatErrorMessage, warnIfCspWithShiki } from '../messages/runtime.js';
 import type { Container } from './container.js';
 import { createContainer, startContainer } from './container.js';
 
@@ -84,6 +84,7 @@ async function restartContainer(container: Container): Promise<Container | Error
 				"Astro's Content Security Policy (CSP) does not work in development mode. To verify your CSP implementation, build the project and run the preview server.",
 			);
 		}
+		warnIfCspWithShiki(astroConfig, logger);
 		const settings = await createSettings(
 			astroConfig,
 			container.inlineConfig.logLevel,
@@ -137,6 +138,7 @@ export async function createContainerWithAutomaticRestart({
 			"Astro's Content Security Policy (CSP) does not work in development mode. To verify your CSP implementation, build the project and run the preview server.",
 		);
 	}
+	warnIfCspWithShiki(astroConfig, logger);
 	telemetry.record(eventCliSession('dev', userConfig));
 
 	const settings = await createSettings(
