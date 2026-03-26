@@ -122,6 +122,25 @@ describe('cloudflareConfigCustomizer', () => {
 
 			assert.equal(result.assets, undefined);
 		});
+
+		it('does not add ASSETS binding for Pages projects', () => {
+			const customizer = cloudflareConfigCustomizer();
+			const result = customizer({
+				pages_build_output_dir: './dist',
+			});
+
+			assert.equal(result.assets, undefined);
+		});
+
+		it('does not add ASSETS binding for Pages projects even without existing binding', () => {
+			const customizer = cloudflareConfigCustomizer();
+			const result = customizer({
+				pages_build_output_dir: './dist',
+				assets: undefined,
+			});
+
+			assert.equal(result.assets, undefined);
+		});
 	});
 
 	describe('default binding names', () => {

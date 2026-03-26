@@ -30,6 +30,10 @@ export function cloudflareConfigCustomizer(
 		);
 		const hasImagesBinding = config.images?.binding !== undefined;
 		const hasAssetsBinding = config.assets?.binding !== undefined;
+		// In Cloudflare Pages projects, the ASSETS binding is automatically
+		// provided by the platform. Explicitly declaring it causes wrangler to
+		// error with "The name 'ASSETS' is reserved in Pages projects".
+		const isPagesProject = config.pages_build_output_dir !== undefined;
 
 		return {
 			main: config.main ?? '@astrojs/cloudflare/entrypoints/server',
@@ -47,11 +51,12 @@ export function cloudflareConfigCustomizer(
 					: {
 							binding: imagesBindingName,
 						},
-			assets: hasAssetsBinding
-				? undefined
-				: {
-						binding: DEFAULT_ASSETS_BINDING_NAME,
-					},
+			assets:
+				hasAssetsBinding || isPagesProject
+					? undefined
+					: {
+							binding: DEFAULT_ASSETS_BINDING_NAME,
+						},
 		};
 	};
 }
