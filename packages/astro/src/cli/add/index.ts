@@ -246,6 +246,13 @@ export async function add(names: string[], { flags }: AddOptions) {
 					logger,
 					scripts: { 'generate-types': 'wrangler types' },
 				});
+
+				await updatePackageJsonOverrides({
+					configURL,
+					flags,
+					logger,
+					overrides: { vite: '^7' },
+				});
 			}
 			if (integrations.find((integration) => integration.id === 'tailwind')) {
 				const dir = new URL('./styles/', new URL(userConfig.srcDir ?? './src/', root));
@@ -715,6 +722,67 @@ async function updateAstroConfig({
 	}
 }
 
+async function updatePackageJsonOverrides({
+	configURL,
+	flags,
+	logger,
+	overrides,
+}: {
+	configURL: URL;
+	flags: Flags;
+	logger: Logger;
+	overrides: Record<string, string>;
+}): Promise<UpdateResult> {
+	const pkgURL = new URL('./package.json', configURL);
+	if (!existsSync(pkgURL)) {
+		logger.debug('add', 'No package.json found, skipping overrides update');
+		return UpdateResult.none;
+	}
+
+	const pkgPath = fileURLToPath(pkgURL);
+	const input = await fs.readFile(pkgPath, { encoding: 'utf-8' });
+	const pkgJson = JSON.parse(input);
+
+	pkgJson.overrides ??= {};
+	let hasChanges = false;
+	for (const [name, range] of Object.entries(overrides)) {
+		if (!(name in pkgJson.overrides)) {
+			pkgJson.overrides[name] = range;
+			hasChanges = true;
+		}
+	}
+
+	if (!hasChanges) {
+		return UpdateResult.none;
+	}
+
+	const output = JSON.stringify(pkgJson, null, 2);
+	const diff = getDiffContent(input, output);
+
+	if (!diff) {
+		return UpdateResult.none;
+	}
+
+	logger.info(
+		'SKIP_FORMAT',
+		`\n  ${magenta('Astro will add the following overrides to your package.json:')}`,
+	);
+
+	clack.box(diff, 'package.json', {
+		rounded: true,
+		withGuide: false,
+		width: 'auto',
+	});
+
+	if (await askToContinue({ flags, logger })) {
+		await fs.writeFile(pkgPath, output, { encoding: 'utf-8' });
+		logger.debug('add', 'Updated package.json overrides');
+		return UpdateResult.updated;
+	} else {
+		return UpdateResult.cancelled;
+	}
+}
+
 async function updatePackageJsonScripts({
 	configURL,
 	flags,
@@ -1075,6 +1143,12 @@ async function updateTSConfig(
 		'SKIP_FORMAT',
 		`\n  ${magenta(`Astro will make the following changes to your ${configFileName}:`)}`,
 	);
+
+	clack.box(diff, configFileName, {
+		rounded: true,
+		withGuide: false,
+		width: 'auto',
+	});
 
 	if (firstIntegrationWithTSSettings) {
 		// Every major framework, apart from Vue and Svelte requires different `jsxImportSource`, as such it's impossible to config

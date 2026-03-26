@@ -2,6 +2,7 @@ import type { RouteData, SSRResult } from '../../../types/public/internal.js';
 import { renderToAsyncIterable, renderToReadableStream, renderToString } from './astro/render.js';
 import { encoder } from './common.js';
 import { type NonAstroPageComponent, renderComponentToString } from './component.js';
+import { markHTMLString } from '../escape.js';
 import { renderCspContent } from './csp.js';
 import type { AstroComponentFactory } from './index.js';
 import { isDeno, isNode } from './util.js';
@@ -32,7 +33,13 @@ export async function renderPage(
 			// then process it through the queue system
 
 			// Call the component function to get the vnode tree
-			const vnode = await (componentFactory as any)(pageProps);
+			let vnode = await (componentFactory as any)(pageProps);
+
+			// .html pages return plain strings that are already valid HTML.
+			// Mark them as safe HTML so the queue builder doesn't escape the content.
+			if ((componentFactory as any)['astro:html'] && typeof vnode === 'string') {
+				vnode = markHTMLString(vnode);
+			}
 
 			// Build a render queue from the vnode tree
 			const queue = await buildRenderQueue(
@@ -102,7 +109,7 @@ export async function renderPage(
 	let body: BodyInit | Response;
 	if (streaming) {
 		// isNode is true in Deno node-compat mode but response construction from
-		// async iterables is not supported, so we fallback to ReadableStream if isDeno is true.
+		// async iterables is not supported, so we fall back to ReadableStream if isDeno is true.
 		if (isNode && !isDeno) {
 			const nodeBody = await renderToAsyncIterable(
 				result,

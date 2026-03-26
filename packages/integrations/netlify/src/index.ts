@@ -456,7 +456,8 @@ export default function netlifyIntegration(
 				const ctx = createContext({
 					request,
 					params: {},
-					locals: { netlify: { context } }
+					locals: { netlify: { context } },
+					clientAddress: context.ip,
 				});
 				// https://docs.netlify.com/edge-functions/api/#return-a-rewrite
 				ctx.rewrite = (target) => {
@@ -502,8 +503,8 @@ export default function netlifyIntegration(
 			plugins: [
 				{
 					name: 'allowNodePrefixedImports',
-					setup(puglinBuild) {
-						puglinBuild.onResolve({ filter: /^node:.*$/ }, (args) => ({
+					setup(pluginBuild) {
+						pluginBuild.onResolve({ filter: /^node:.*$/ }, (args) => ({
 							path: args.path,
 							external: true,
 						}));
@@ -663,9 +664,6 @@ export default function netlifyIntegration(
 								cacheOnDemandPages: !!integrationConfig?.cacheOnDemandPages,
 							}),
 						],
-						ssr: {
-							noExternal: ['@astrojs/netlify'],
-						},
 						server: {
 							watch: {
 								ignored: [fileURLToPath(new URL('./.netlify/**', rootDir))],
@@ -677,7 +675,8 @@ export default function netlifyIntegration(
 							// defaults to true, so should only be disabled if the user has
 							// explicitly set false
 							entrypoint:
-								(command === 'build' && integrationConfig?.imageCDN === false) ||
+								integrationConfig?.imageCDN === false ||
+								// In dev, if the vite plugin's image proxy isn't enabled, don't try to use the Netlify service since it won't work
 								(command === 'dev' && vitePluginOptions?.images?.enabled === false)
 									? undefined
 									: '@astrojs/netlify/image-service.js',
@@ -688,11 +687,9 @@ export default function netlifyIntegration(
 			'astro:routes:resolved': (params) => {
 				routes = params.routes;
 			},
-			'astro:config:done': async ({ config, setAdapter, buildOutput }) => {
-				rootDir = config.root;
-				_config = config;
-
-				finalBuildOutput = buildOutput;
+			'astro:config:done': async (params) => {
+				rootDir = params.config.root;
+				_config = params.config;
 
 				// Resolve middleware mode with backward compatibility
 				const middlewareMode =
@@ -700,7 +697,7 @@ export default function netlifyIntegration(
 					(integrationConfig?.edgeMiddleware ? 'edge' : 'classic');
 				const useStaticHeaders = integrationConfig?.staticHeaders ?? false;
 
-				setAdapter({
+				params.setAdapter({
 					name: '@astrojs/netlify',
 					entrypointResolution: 'auto',
 					serverEntrypoint: '@astrojs/netlify/ssr-function.js',
@@ -728,6 +725,11 @@ export default function netlifyIntegration(
 							: undefined,
 					},
 				});
+
+				// Read buildOutput AFTER setAdapter() so we get the value that setAdapter()
+				// may have updated. Destructuring before setAdapter() would capture a stale
+				// 'static' snapshot even when setAdapter() upgrades it to 'server'.
+				finalBuildOutput = params.buildOutput;
 			},
 			'astro:build:generated': ({ routeToHeaders }) => {
 				staticHeadersMap = routeToHeaders;

@@ -703,5 +703,8 @@ export function toIntegrationResolvedRoute(
 		redirectRoute: route.redirectRoute
 			? toIntegrationResolvedRoute(route.redirectRoute, trailingSlash)
 			: undefined,
+		fallbackRoutes: route.fallbackRoutes.map((fallbackRoute) =>
+			toIntegrationResolvedRoute(fallbackRoute, trailingSlash),
+		),
 	};
 }

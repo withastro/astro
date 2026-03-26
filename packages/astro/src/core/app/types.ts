@@ -79,7 +79,7 @@ export type SSRManifest = {
 		enabled: boolean;
 		/** Node pool size for memory reuse (default: 1000, set to 0 to disable pooling) */
 		poolSize?: number;
-		/** Whether to enable HTMLString caching (default: true) */
+		/** Whether to enable HTMLString caching for deduplicating repeated HTML fragments (default: true) */
 		contentCache?: boolean;
 	};
 	assetsPrefix?: AssetsPrefix;
@@ -117,6 +117,7 @@ export type SSRManifest = {
 	checkOrigin: boolean;
 	allowedDomains?: Partial<RemotePattern>[];
 	actionBodySizeLimit: number;
+	serverIslandBodySizeLimit: number;
 	sessionConfig?: SSRManifestSession;
 	cacheConfig?: SSRManifestCache;
 	cacheDir: URL;

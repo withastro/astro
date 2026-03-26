@@ -12,6 +12,7 @@ import {
 	astroContentVirtualModPlugin,
 } from '../content/index.js';
 import { createEnvLoader } from '../env/env-loader.js';
+import { validateEnvPrefixAgainstSchema } from '../env/validators.js';
 import { astroEnv } from '../env/vite-plugin-env.js';
 import { importMetaEnv } from '../env/vite-plugin-import-meta-env.js';
 import astroInternationalization from '../i18n/vite-plugin-i18n.js';
@@ -44,6 +45,7 @@ import type { Logger } from './logger/core.js';
 import { createViteLogger } from './logger/vite.js';
 import { vitePluginMiddleware } from './middleware/vite-plugin.js';
 import { joinPaths } from './path.js';
+import { ServerIslandsState } from './server-islands/shared-state.js';
 import { vitePluginServerIslands } from './server-islands/vite-plugin-server-islands.js';
 import { vitePluginCacheProvider } from './cache/vite-plugin.js';
 import { vitePluginSessionDriver } from './session/vite-plugin.js';
@@ -110,6 +112,10 @@ export async function createVite(
 		mode,
 		config: settings.config,
 	});
+	const serverIslandsState = new ServerIslandsState();
+
+	// Validate that envPrefix doesn't conflict with secret env schema variables
+	validateEnvPrefixAgainstSchema(settings.config);
 
 	// Start with the Vite configuration that Astro core needs
 	const commonConfig: vite.InlineConfig = {
@@ -125,11 +131,12 @@ export async function createVite(
 			vitePluginRenderers({
 				settings,
 				routesList,
+				serverIslandsState,
 				command: command === 'dev' ? 'serve' : 'build',
 			}),
 			vitePluginStaticPaths(),
 			await astroPluginRoutes({ routesList, settings, logger, fsMod: fs, command }),
-			astroVirtualManifestPlugin(),
+			astroVirtualManifestPlugin({ settings }),
 			vitePluginEnvironment({ settings, astroPkgsConfig, command }),
 			pluginPage({ routesList }),
 			pluginPages({ routesList }),
@@ -162,7 +169,7 @@ export async function createVite(
 			vitePluginFileURL(),
 			astroInternationalization({ settings }),
 			vitePluginActions({ fs, settings }),
-			vitePluginServerIslands({ settings, logger }),
+			vitePluginServerIslands({ settings, logger, serverIslandsState }),
 			vitePluginSessionDriver({ settings }),
 			vitePluginCacheProvider({ settings }),
 			astroContainer(),
@@ -225,7 +232,7 @@ export async function createVite(
 	};
 
 	// If the user provides a custom assets prefix, make sure assets handled by Vite
-	// are prefixed with it too. This uses one of it's experimental features, but it
+	// are prefixed with it too. This uses one of its experimental features, but it
 	// has been stable for a long time now.
 	const assetsPrefix = settings.config.build.assetsPrefix;
 	if (assetsPrefix) {

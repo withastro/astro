@@ -146,7 +146,7 @@
 
 - [#9121](https://github.com/withastro/astro/pull/9121) [`f4efd1c80`](https://github.com/withastro/astro/commit/f4efd1c808476c7e60fe00fcfb86276cf14fee79) Thanks [@peng](https://github.com/peng)! - Adds a warning if `astro add` fetches a package but returns a non-404 status
 
-- [#9142](https://github.com/withastro/astro/pull/9142) [`7d55cf68d`](https://github.com/withastro/astro/commit/7d55cf68d89cb46bfb89a109b09af61be8431c89) Thanks [@ematipico](https://github.com/ematipico)! - Consistely emit fallback routes in the correct folders.
+- [#9142](https://github.com/withastro/astro/pull/9142) [`7d55cf68d`](https://github.com/withastro/astro/commit/7d55cf68d89cb46bfb89a109b09af61be8431c89) Thanks [@ematipico](https://github.com/ematipico)! - Consistently emit fallback routes in the correct folders.
 
 - [#9119](https://github.com/withastro/astro/pull/9119) [`306781795`](https://github.com/withastro/astro/commit/306781795d5f4b755bbdf650a937f1f3c00030bd) Thanks [@ematipico](https://github.com/ematipico)! - Fix a flaw in the i18n fallback logic, where the routes didn't preserve their metadata, such as hoisted scripts
 
@@ -166,7 +166,7 @@
 
 ### Patch Changes
 
-- [#9085](https://github.com/withastro/astro/pull/9085) [`fc66ecff1`](https://github.com/withastro/astro/commit/fc66ecff18a20dd436026cb8e75bcc8b5ab0e681) Thanks [@ematipico](https://github.com/ematipico)! - When redirecting to the default root locale, Astro middleare should take into consideration the value of `trailingSlash`
+- [#9085](https://github.com/withastro/astro/pull/9085) [`fc66ecff1`](https://github.com/withastro/astro/commit/fc66ecff18a20dd436026cb8e75bcc8b5ab0e681) Thanks [@ematipico](https://github.com/ematipico)! - When redirecting to the default root locale, Astro middleware should take into consideration the value of `trailingSlash`
 
 - [#9067](https://github.com/withastro/astro/pull/9067) [`c6e449c5b`](https://github.com/withastro/astro/commit/c6e449c5b3e6e994b362b9ce441c8a1a81129f23) Thanks [@danielhajduk](https://github.com/danielhajduk)! - Fixes display of debug messages when using the `--verbose` flag
 
@@ -403,7 +403,7 @@
 
 ### Patch Changes
 
-- [#9016](https://github.com/withastro/astro/pull/9016) [`1ecc9aa32`](https://github.com/withastro/astro/commit/1ecc9aa3240b79a3879b1329aa4f671d80e87649) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add ability to "Click to go editor" on auditted elements in the dev overlay
+- [#9016](https://github.com/withastro/astro/pull/9016) [`1ecc9aa32`](https://github.com/withastro/astro/commit/1ecc9aa3240b79a3879b1329aa4f671d80e87649) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add ability to "Click to go editor" on audited elements in the dev overlay
 
 - [#9029](https://github.com/withastro/astro/pull/9029) [`29b83e9e4`](https://github.com/withastro/astro/commit/29b83e9e4b906cc0b5d92fae854fb350fc2be7c8) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Use UInt8Array instead of Buffer for both the input and return values of the `transform()` hook of the Image Service API to ensure compatibility with non-Node runtimes.
 
@@ -873,7 +873,7 @@
 
 - [#8484](https://github.com/withastro/astro/pull/8484) [`78b82bb39`](https://github.com/withastro/astro/commit/78b82bb3929bee5d8d9bd32d65374956ddb05859) Thanks [@bb010g](https://github.com/bb010g)! - fix(astro): add support for `src/content/config.mts` files
 
-- [#8504](https://github.com/withastro/astro/pull/8504) [`5e1099f68`](https://github.com/withastro/astro/commit/5e1099f686abcc7026bd4fa74727f3b311c6d6d6) Thanks [@ematipico](https://github.com/ematipico)! - Minify the HTML of the redicts emitted during the build.
+- [#8504](https://github.com/withastro/astro/pull/8504) [`5e1099f68`](https://github.com/withastro/astro/commit/5e1099f686abcc7026bd4fa74727f3b311c6d6d6) Thanks [@ematipico](https://github.com/ematipico)! - Minify the HTML of the redirects emitted during the build.
 
 - [#8480](https://github.com/withastro/astro/pull/8480) [`644825845`](https://github.com/withastro/astro/commit/644825845c11c8d100a9b0d16b69a23c165c529e) Thanks [@yamanoku](https://github.com/yamanoku)! - Do not add type="text/css" to inline style tag
 

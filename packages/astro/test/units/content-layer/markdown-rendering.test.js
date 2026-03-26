@@ -674,4 +674,76 @@ Even more text
 		assert.equal(entry.data.localImages[0], './image.png');
 		assert.equal(entry.data.remoteImages.length, 0); // Remote images are not tracked in localImagePaths
 	});
+
+	it('renderMarkdown populates combined imagePaths in metadata', async () => {
+		const store = new MutableDataStore();
+		const settings = createMinimalSettings(root);
+		const logger = new Logger({
+			dest: { write: () => true },
+			level: 'silent',
+		});
+
+		const imagePathsLoader = {
+			name: 'imagepaths-test-loader',
+			load: async (context) => {
+				const markdownWithImages = `# Post with Images
+
+![Photo](./photo.jpg)
+![Screenshot](screenshot.png)`;
+
+				const fileURL = new URL('./test-post.md', root);
+				const result = await context.renderMarkdown(markdownWithImages, { fileURL });
+
+				await context.store.set({
+					id: 'imagepaths-test',
+					data: {
+						imagePaths: result.metadata.imagePaths || [],
+						localImagePaths: result.metadata.localImagePaths || [],
+					},
+					rendered: {
+						html: result.html,
+						metadata: result.metadata,
+					},
+					filePath: 'test-post.md',
+				});
+			},
+		};
+
+		const collections = {
+			imagePathsTest: defineCollection({
+				loader: imagePathsLoader,
+				schema: z.object({
+					imagePaths: z.array(z.string()),
+					localImagePaths: z.array(z.string()),
+				}),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await contentLayer.sync();
+
+		const entry = store.get('imagePathsTest', 'imagepaths-test');
+		assert.ok(entry);
+
+		// imagePaths should be the combined localImagePaths + remoteImagePaths
+		assert.ok(Array.isArray(entry.data.imagePaths), 'imagePaths should be an array');
+		assert.equal(entry.data.imagePaths.length, 2, 'should have 2 image paths');
+		assert.ok(entry.data.imagePaths.includes('./photo.jpg'));
+		assert.ok(entry.data.imagePaths.includes('screenshot.png'));
+
+		// imagePaths should match localImagePaths when there are no remote images
+		assert.deepEqual(entry.data.imagePaths, entry.data.localImagePaths);
+
+		// The rendered metadata should also have imagePaths for renderEntry to use
+		assert.ok(entry.rendered);
+		assert.ok(entry.rendered.metadata);
+		assert.ok(Array.isArray(entry.rendered.metadata.imagePaths));
+		assert.equal(entry.rendered.metadata.imagePaths.length, 2);
+	});
 });

@@ -4,6 +4,7 @@ import type {
 	RemarkPlugin as _RemarkPlugin,
 	RemarkRehype as _RemarkRehype,
 	ShikiConfig,
+	Smartypants as _Smartypants,
 } from '@astrojs/markdown-remark';
 import { markdownConfigDefaults, syntaxHighlightDefaults } from '@astrojs/markdown-remark';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
@@ -16,7 +17,7 @@ import { allowedDirectivesSchema, cspAlgorithmSchema, cspHashSchema } from '../.
 import { CacheSchema, RouteRulesSchema } from '../../cache/config.js';
 import { SessionSchema } from '../../session/config.js';
 
-// The below types are required boilerplate to workaround a Zod issue since v3.21.2. Since that version,
+// The below types are required boilerplate to work around a Zod issue since v3.21.2. Since that version,
 // Zod's compiled TypeScript would "simplify" certain values to their base representation, causing references
 // to transitive dependencies that Astro don't depend on (e.g. `mdast-util-to-hast` or `remark-rehype`). For example:
 //
@@ -30,7 +31,7 @@ import { SessionSchema } from '../../session/config.js';
 // ```
 //
 // The types below will "complexify" the types so that TypeScript would not simplify them. This way it will
-// reference the complex type directly, instead of referencing non-existent transitive dependencies.
+// reference the complex type directly, instead of referencing nonexistent transitive dependencies.
 //
 // Also, make sure to not index the complexified type, as it would return a simplified value type, which goes
 // back to the issue again. The complexified type should be the base representation that we want to expose.
@@ -49,6 +50,8 @@ type RehypePlugin = ComplexifyWithUnion<_RehypePlugin>;
 type RemarkPlugin = ComplexifyWithUnion<_RemarkPlugin>;
 /** @lintignore */
 export type RemarkRehype = ComplexifyWithOmit<_RemarkRehype>;
+/** @lintignore */
+export type Smartypants = ComplexifyWithOmit<_Smartypants>;
 
 export const ASTRO_CONFIG_DEFAULTS = {
 	root: '.',
@@ -95,6 +98,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		allowedDomains: [],
 		csp: false,
 		actionBodySizeLimit: 1024 * 1024,
+		serverIslandBodySizeLimit: 1024 * 1024,
 	},
 	env: {
 		schema: {},
@@ -116,6 +120,26 @@ export const ASTRO_CONFIG_DEFAULTS = {
 const highlighterTypesSchema = z
 	.union([z.literal('shiki'), z.literal('prism')])
 	.default(syntaxHighlightDefaults.type);
+
+const quoteCharacterMapSchema = z.object({
+	double: z.string(),
+	single: z.string(),
+});
+
+const smartypantsOptionsSchema: z.ZodType<Smartypants> = z.object({
+	backticks: z.union([z.boolean(), z.literal('all')]).default(true),
+	closingQuotes: quoteCharacterMapSchema.default({
+		double: '”',
+		single: '’',
+	}),
+	dashes: z.union([z.boolean(), z.literal('inverted'), z.literal('oldschool')]).default(true),
+	ellipses: z.union([z.boolean(), z.literal('spaced'), z.literal('unspaced')]).default(true),
+	openingQuotes: quoteCharacterMapSchema.default({
+		double: '“',
+		single: '‘',
+	}),
+	quotes: z.boolean().default(true),
+});
 
 export const AstroConfigSchema = z.object({
 	root: z
@@ -384,7 +408,13 @@ export const AstroConfigSchema = z.object({
 				.custom<RemarkRehype>((data) => data instanceof Object && !Array.isArray(data))
 				.default(ASTRO_CONFIG_DEFAULTS.markdown.remarkRehype),
 			gfm: z.boolean().default(ASTRO_CONFIG_DEFAULTS.markdown.gfm),
-			smartypants: z.boolean().default(ASTRO_CONFIG_DEFAULTS.markdown.smartypants),
+			smartypants: z
+				.union([z.boolean(), smartypantsOptionsSchema])
+				.transform((val): false | Smartypants => {
+					if (val === true) return smartypantsOptionsSchema.parse({});
+					return val;
+				})
+				.prefault(ASTRO_CONFIG_DEFAULTS.markdown.smartypants),
 		})
 		.prefault({}),
 	vite: z
@@ -445,6 +475,10 @@ export const AstroConfigSchema = z.object({
 				.number()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.security.actionBodySizeLimit),
+			serverIslandBodySizeLimit: z
+				.number()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.security.serverIslandBodySizeLimit),
 			csp: z
 				.union([
 					z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.security.csp),
@@ -509,7 +543,7 @@ export const AstroConfigSchema = z.object({
 			queuedRendering: z
 				.object({
 					enabled: z.boolean().optional().prefault(false),
-					poolSize: z.number().int().positive().optional(),
+					poolSize: z.number().int().nonnegative().optional(),
 					contentCache: z.boolean().optional(),
 				})
 				.optional()

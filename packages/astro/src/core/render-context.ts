@@ -5,6 +5,7 @@ import type { ActionAPIContext } from '../actions/runtime/types.js';
 import { createCallAction, createGetActionResult, hasActionPayload } from '../actions/utils.js';
 import {
 	computeCurrentLocale,
+	computeCurrentLocaleFromParams,
 	computePreferredLocale,
 	computePreferredLocaleList,
 } from '../i18n/utils.js';
@@ -40,7 +41,7 @@ import { AstroCache, type CacheLike } from './cache/runtime/cache.js';
 import { NoopAstroCache, DisabledAstroCache } from './cache/runtime/noop.js';
 import { compileCacheRoutes, matchCacheRoute } from './cache/runtime/route-matching.js';
 import { AstroSession } from './session/runtime.js';
-import { collapseDuplicateLeadingSlashes } from '@astrojs/internal-helpers/path';
+import { collapseDuplicateSlashes } from '@astrojs/internal-helpers/path';
 import { validateAndDecodePathname } from './util/pathname.js';
 
 /**
@@ -91,10 +92,6 @@ export class RenderContext {
 
 	static #createNormalizedUrl(requestUrl: string): URL {
 		const url = new URL(requestUrl);
-		// Collapse multiple leading slashes so middleware sees the canonical pathname.
-		// Without this, a request to `//admin` would preserve `//admin` in context.url.pathname,
-		// bypassing middleware checks like `pathname.startsWith('/admin')`.
-		url.pathname = collapseDuplicateLeadingSlashes(url.pathname);
 		try {
 			// Decode and validate pathname to prevent multi-level encoding bypass attacks
 			url.pathname = validateAndDecodePathname(url.pathname);
@@ -108,6 +105,10 @@ export class RenderContext {
 				// If even basic decoding fails, return URL as-is
 			}
 		}
+		// This must run after decoding so it catches slashes introduced by decoding (e.g., `%5C` → `\` → `/`).
+		// Collapse duplicate slashes so middleware sees the canonical pathname
+		// and bypass attacks like `//admin` evading `/admin` checks are prevented.
+		url.pathname = collapseDuplicateSlashes(url.pathname);
 		return url;
 	}
 
@@ -160,8 +161,8 @@ export class RenderContext {
 		// Create cache instance
 		let cache: CacheLike;
 		if (!pipeline.cacheConfig) {
-			// Cache not configured — throws on use
-			cache = new DisabledAstroCache();
+			// Cache not configured — no-ops with a one-time warning
+			cache = new DisabledAstroCache(pipeline.logger);
 		} else if (pipeline.runtimeMode === 'development') {
 			cache = new NoopAstroCache();
 		} else {
@@ -303,7 +304,10 @@ export class RenderContext {
 			}
 			let response: Response;
 
-			if (!ctx.isPrerendered) {
+			// Only auto-execute form actions when middleware is part of the pipeline.
+			// When middleware is skipped (e.g. during error page recovery), form actions
+			// should not run since the full request handling pipeline is not active.
+			if (!ctx.isPrerendered && !this.skipMiddleware) {
 				const { action, setActionResult, serializeActionResult } = getActionContext(ctx);
 
 				if (action?.calledFrom === 'form') {
@@ -366,7 +370,7 @@ export class RenderContext {
 			return response;
 		};
 
-		// If we are rendering an extrnal redirect, we don't need go through the middleware,
+		// If we are rendering an external redirect, we don't need go through the middleware,
 		// otherwise Astro will attempt to render the external website
 		if (isRouteExternalRedirect(this.routeData)) {
 			return renderRedirect(this);
@@ -647,7 +651,7 @@ export class RenderContext {
 			cspDestination: manifest.csp?.cspDestination ?? (routeData.prerender ? 'meta' : 'header'),
 			shouldInjectCspMetaTags,
 			cspAlgorithm,
-			// The following arrays must be cloned, otherwise they become mutable across routes.
+			// The following arrays must be cloned; otherwise, they become mutable across routes.
 			scriptHashes: manifest.csp?.scriptHashes ? [...manifest.csp.scriptHashes] : [],
 			scriptResources: manifest.csp?.scriptResources ? [...manifest.csp.scriptResources] : [],
 			styleHashes: manifest.csp?.styleHashes ? [...manifest.csp.styleHashes] : [],
@@ -895,6 +899,16 @@ export class RenderContext {
 			}
 			pathname = pathname && !isRoute404or500(routeData) ? pathname : url.pathname;
 			computedLocale = computeCurrentLocale(pathname, locales, defaultLocale);
+			// If the route has dynamic params, check if any param value matches a
+			// configured locale. This handles routes like [locale].astro where the
+			// pathname contains unresolved placeholders and computeCurrentLocale
+			// falls back to the default locale.
+			if (routeData.params.length > 0) {
+				const localeFromParams = computeCurrentLocaleFromParams(this.params, locales);
+				if (localeFromParams) {
+					computedLocale = localeFromParams;
+				}
+			}
 		}
 
 		this.#currentLocale = computedLocale ?? fallbackTo;

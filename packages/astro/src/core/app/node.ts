@@ -9,7 +9,11 @@ import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders.js';
 import type { RenderOptions } from './base.js';
 import { App } from './app.js';
 import type { NodeAppHeadersJson, SerializedSSRManifest, SSRManifest } from './types.js';
-import { validateForwardedHeaders, validateHost } from './validate-headers.js';
+import {
+	getFirstForwardedValue,
+	validateForwardedHeaders,
+	validateHost,
+} from './validate-headers.js';
 
 /**
  * Allow the request body to be explicitly overridden. For example, this
@@ -39,19 +43,18 @@ export function createRequest(
 	{
 		skipBody = false,
 		allowedDomains = [],
-	}: { skipBody?: boolean; allowedDomains?: Partial<RemotePattern>[] } = {},
+		bodySizeLimit,
+		port: serverPort,
+	}: {
+		skipBody?: boolean;
+		allowedDomains?: Partial<RemotePattern>[];
+		bodySizeLimit?: number;
+		port?: number;
+	} = {},
 ): Request {
 	const controller = new AbortController();
 
 	const isEncrypted = 'encrypted' in req.socket && req.socket.encrypted;
-
-	// Parses multiple header and returns first value if available.
-	const getFirstForwardedValue = (multiValueHeader?: string | string[]) => {
-		return multiValueHeader
-			?.toString()
-			?.split(',')
-			.map((e) => e.trim())?.[0];
-	};
 
 	const providedProtocol = isEncrypted ? 'https' : 'http';
 	const untrustedHostname = req.headers.host ?? req.headers[':authority'];
@@ -76,7 +79,14 @@ export function createRequest(
 		allowedDomains,
 	);
 	const hostname = validated.host ?? validatedHostname ?? 'localhost';
-	const port = validated.port;
+	// Use the validated forwarded port if available. When falling back to 'localhost'
+	// (no validated host), use the actual server listening port so that the constructed
+	// URL origin includes it (e.g., http://localhost:4321 instead of http://localhost).
+	// This ensures the CSRF origin comparison uses the correct port without trusting
+	// any value from the request headers.
+	const port =
+		validated.port ??
+		(!validated.host && !validatedHostname && serverPort ? String(serverPort) : undefined);
 
 	let url: URL;
 	try {
@@ -95,7 +105,7 @@ export function createRequest(
 	};
 	const bodyAllowed = options.method !== 'HEAD' && options.method !== 'GET' && skipBody === false;
 	if (bodyAllowed) {
-		Object.assign(options, makeRequestBody(req));
+		Object.assign(options, makeRequestBody(req, bodySizeLimit));
 	}
 
 	const request = new Request(url, options);
@@ -314,7 +324,7 @@ function makeRequestHeaders(req: NodeRequest): Headers {
 	return headers;
 }
 
-function makeRequestBody(req: NodeRequest): RequestInit {
+function makeRequestBody(req: NodeRequest, bodySizeLimit?: number): RequestInit {
 	if (req.body !== undefined) {
 		if (typeof req.body === 'string' && req.body.length > 0) {
 			return { body: Buffer.from(req.body) };
@@ -330,20 +340,24 @@ function makeRequestBody(req: NodeRequest): RequestInit {
 			req.body !== null &&
 			typeof (req.body as any)[Symbol.asyncIterator] !== 'undefined'
 		) {
-			return asyncIterableToBodyProps(req.body as AsyncIterable<any>);
+			return asyncIterableToBodyProps(req.body as AsyncIterable<any>, bodySizeLimit);
 		}
 	}
 
 	// Return default body.
-	return asyncIterableToBodyProps(req);
+	return asyncIterableToBodyProps(req, bodySizeLimit);
 }
 
-function asyncIterableToBodyProps(iterable: AsyncIterable<any>): RequestInit {
+function asyncIterableToBodyProps(
+	iterable: AsyncIterable<any>,
+	bodySizeLimit?: number,
+): RequestInit {
+	const source = bodySizeLimit != null ? limitAsyncIterable(iterable, bodySizeLimit) : iterable;
 	return {
 		// Node uses undici for the Request implementation. Undici accepts
 		// a non-standard async iterable for the body.
 		// @ts-expect-error
-		body: iterable,
+		body: source,
 		// The duplex property is required when using a ReadableStream or async
 		// iterable for the body. The type definitions do not include the duplex
 		// property because they are not up-to-date.
@@ -351,7 +365,47 @@ function asyncIterableToBodyProps(iterable: AsyncIterable<any>): RequestInit {
 	};
 }
 
-function getAbortControllerCleanup(req?: NodeRequest): (() => void) | undefined {
+/**
+ * Wraps an async iterable with a size limit. If the total bytes received
+ * exceed the limit, an error is thrown.
+ */
+async function* limitAsyncIterable(
+	iterable: AsyncIterable<any>,
+	limit: number,
+): AsyncGenerator<any> {
+	let received = 0;
+	for await (const chunk of iterable) {
+		const byteLength =
+			chunk instanceof Uint8Array
+				? chunk.byteLength
+				: typeof chunk === 'string'
+					? Buffer.byteLength(chunk)
+					: 0;
+		received += byteLength;
+		if (received > limit) {
+			throw new Error(`Body size limit exceeded: received more than ${limit} bytes`);
+		}
+		yield chunk;
+	}
+}
+
+/**
+ * Returns the cleanup function for the AbortController and socket listeners created by `createRequest()`
+ * for the NodeJS IncomingMessage. This should only be called directly if the request is not
+ * being handled by Astro, i.e. if not calling `writeResponse()` after `createRequest()`.
+ * ```js
+ * import { createRequest, getAbortControllerCleanup } from 'astro/app/node';
+ * import { createServer } from 'node:http';
+ *
+ * const server = createServer(async (req, res) => {
+ *     const request = createRequest(req);
+ *     const cleanup = getAbortControllerCleanup(req);
+ *     if (cleanup) cleanup();
+ *     // can now safely call another handler
+ * })
+ * ```
+ */
+export function getAbortControllerCleanup(req?: NodeRequest): (() => void) | undefined {
 	if (!req) return undefined;
 	const cleanup = Reflect.get(req, nodeRequestAbortControllerCleanupSymbol);
 	return typeof cleanup === 'function' ? cleanup : undefined;

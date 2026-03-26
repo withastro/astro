@@ -93,7 +93,6 @@ export abstract class Pipeline {
 		if (manifest.experimentalQueuedRendering.enabled) {
 			this.nodePool = this.createNodePool(
 				manifest.experimentalQueuedRendering.poolSize ?? 1000,
-				manifest.experimentalQueuedRendering.contentCache ?? false,
 				false,
 			);
 			if (manifest.experimentalQueuedRendering.contentCache) {
@@ -153,6 +152,14 @@ export abstract class Pipeline {
 			this.resolvedMiddleware = NOOP_MIDDLEWARE_FN;
 			return this.resolvedMiddleware;
 		}
+	}
+
+	/**
+	 * Clears the cached middleware so it is re-resolved on the next request.
+	 * Called via HMR when middleware files change during development.
+	 */
+	clearMiddleware() {
+		this.resolvedMiddleware = undefined;
 	}
 
 	async getActions(): Promise<SSRActions> {
@@ -269,8 +276,8 @@ export abstract class Pipeline {
 		}
 	}
 
-	public createNodePool(poolSize: number, contentCache: boolean, stats: boolean): NodePool {
-		return new NodePool(poolSize, contentCache, stats);
+	public createNodePool(poolSize: number, stats: boolean): NodePool {
+		return new NodePool(poolSize, stats);
 	}
 
 	public createStringCache(): HTMLStringCache {
