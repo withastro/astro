@@ -1,5 +1,15 @@
 # @astrojs/react
 
+## 5.0.2
+
+### Patch Changes
+
+- [#15378](https://github.com/withastro/astro/pull/15378) [`a8a926e`](https://github.com/withastro/astro/commit/a8a926eecc2fb9a2e48a63afcf444d3ca2921a9c) Thanks [@dmgawel](https://github.com/dmgawel)! - Fix React hydration errors when using conditional slot rendering
+
+- [#15146](https://github.com/withastro/astro/pull/15146) [`f771f75`](https://github.com/withastro/astro/commit/f771f75db3873fb0f945e4fa0dbf5fc2c9c2d62c) Thanks [@kedarvartak](https://github.com/kedarvartak)! - Fixes hydration mismatch when using `experimentalReactChildren`
+
+- [#14917](https://github.com/withastro/astro/pull/14917) [`769265b`](https://github.com/withastro/astro/commit/769265b4c6ce0ef09e883382a4dab83f6d25ae26) Thanks [@sanjaiyan-dev](https://github.com/sanjaiyan-dev)! - Refactors to improve the performance of rendering static HTML content in React
+
 ## 5.0.1
 
 ### Patch Changes
