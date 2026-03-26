@@ -7,14 +7,29 @@ import { CompletionItemKind } from '@volar/language-server';
 import { URI } from 'vscode-uri';
 import { AstroVirtualCode } from '../../core/index.js';
 import {
+	getAlreadyImportedAstroComponentSources,
 	isAstroComponentImportSource,
 	mapEdit,
 	rewriteAstroImportText,
 	stripAstroComponentSuffix,
 } from './utils.js';
 
-export function enhancedProvideCompletionItems(completions: CompletionList): CompletionList {
-	completions.items = completions.items.filter(isValidCompletion).map((completion) => {
+export function enhancedProvideCompletionItems(
+	completions: CompletionList,
+	documentText: string,
+): CompletionList {
+	const importedAstroSources = getAlreadyImportedAstroComponentSources(documentText);
+
+	completions.items = completions.items
+		.filter((completion) => {
+			if (!isValidCompletion(completion)) {
+				return false;
+			}
+
+			const source = completion?.data?.originalItem?.source;
+			return !(source && importedAstroSources.has(source));
+		})
+		.map((completion) => {
 		const source = completion?.data?.originalItem?.source;
 		if (source) {
 			// Sort completions starting with `astro:` higher than other imports

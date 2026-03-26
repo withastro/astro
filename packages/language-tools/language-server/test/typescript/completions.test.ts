@@ -122,6 +122,30 @@ describe('TypeScript - Completions', async () => {
 		assert.strictEqual(edits?.additionalTextEdits?.[0].newText.includes('AstroComponent'), false);
 	});
 
+	it('does not keep offering the same Astro component as an auto-import after it is already imported', async () => {
+		const document = await languageServer.handle.openTextDocument(
+			path.join(fixtureDir, 'src/pages/componentAlreadyImported.astro'),
+			'astro',
+		);
+		const completions = await languageServer.handle.sendCompletionRequest(
+			document.uri,
+			Position.create(4, 4),
+		);
+
+		assert.ok(
+			completions?.items.some(
+				(item) => item.label === 'Image' && item.labelDetails?.description === undefined,
+			),
+		);
+		assert.ok(
+			!completions?.items.some(
+				(item) =>
+					item.label === 'Image' &&
+					item.labelDetails?.description === '../components/Image.astro',
+			),
+		);
+	});
+
 	it('Can get completions inside HTML events', async () => {
 		const document = await languageServer.openFakeDocument('<div onload="a"></div>', 'astro');
 		const completions = await languageServer.handle.sendCompletionRequest(

@@ -6,7 +6,10 @@ import * as html from 'vscode-html-languageservice';
 import { getTSXRangesAsLSPRanges, safeConvertToTSX } from '../../dist/core/astro2tsx.js';
 import { getAstroMetadata } from '../../dist/core/parseAstro.js';
 import { patchTSX } from '../../dist/core/utils.js';
-import { rewriteAstroImportText } from '../../dist/plugins/typescript/utils.js';
+import {
+	getAlreadyImportedAstroComponentSources,
+	rewriteAstroImportText,
+} from '../../dist/plugins/typescript/utils.js';
 import * as utils from '../../dist/plugins/utils.js';
 
 describe('Utilities', async () => {
@@ -151,6 +154,28 @@ describe('Utilities', async () => {
 				`import { default as ImageAstroComponent } from "../components/Image.astro";\n`,
 			),
 			`import { default as Image } from "../components/Image.astro";\n`,
+		);
+	});
+
+	it('getAlreadyImportedAstroComponentSources - detects runtime Astro component imports', () => {
+		assert.deepStrictEqual(
+			Array.from(
+				getAlreadyImportedAstroComponentSources(
+					`import Image from "../components/Image.astro";\nimport { default as Card } from "../components/Card.astro";\n`,
+				),
+			),
+			['../components/Image.astro', '../components/Card.astro'],
+		);
+	});
+
+	it('getAlreadyImportedAstroComponentSources - ignores type-only Astro imports', () => {
+		assert.deepStrictEqual(
+			Array.from(
+				getAlreadyImportedAstroComponentSources(
+					`import type { Props } from "../components/Image.astro";\n`,
+				),
+			),
+			[],
 		);
 	});
 

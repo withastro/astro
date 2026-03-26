@@ -8,6 +8,10 @@ const ASTRO_DEFAULT_IMPORT_PATTERN =
 	/^(\s*import(?:\s+type)?\s+)([A-Za-z_$][\w$]*)AstroComponent(?=\s*,|\s+from\b)/;
 const ASTRO_DEFAULT_ALIAS_PATTERN =
 	/(default\s+as\s+)([A-Za-z_$][\w$]*)AstroComponent(?=\s*\})/;
+const EXISTING_ASTRO_VALUE_IMPORT_PATTERN =
+	/^\s*import\s+(?!type\b)([\s\S]*?)\s+from\s+['"]([^'"]+\.astro)['"]/gm;
+const DEFAULT_IMPORT_CLAUSE_PATTERN = /^[A-Za-z_$][\w$]*(?:\s*,|$)/;
+const DEFAULT_ALIAS_IMPORT_CLAUSE_PATTERN = /\{\s*default\s+as\s+[A-Za-z_$][\w$]*/;
 
 export function isAstroComponentImportSource(source: string | undefined): source is string {
 	return !!source && source.endsWith('.astro');
@@ -34,6 +38,28 @@ export function rewriteAstroImportText(text: string) {
 				.replace(ASTRO_DEFAULT_ALIAS_PATTERN, '$1$2');
 		})
 		.join('\n');
+}
+
+export function getAlreadyImportedAstroComponentSources(documentText: string) {
+	const sources = new Set<string>();
+
+	for (const match of documentText.matchAll(EXISTING_ASTRO_VALUE_IMPORT_PATTERN)) {
+		const importClause = match[1]?.trim();
+		const source = match[2];
+
+		if (
+			!importClause ||
+			!source ||
+			(!DEFAULT_IMPORT_CLAUSE_PATTERN.test(importClause) &&
+				!DEFAULT_ALIAS_IMPORT_CLAUSE_PATTERN.test(importClause))
+		) {
+			continue;
+		}
+
+		sources.add(source);
+	}
+
+	return sources;
 }
 
 export function mapEdit(edit: TextEdit, code: AstroVirtualCode, languageId: string) {
