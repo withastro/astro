@@ -23,6 +23,9 @@
       ],
       "middleware": [
         "./dist/virtual-modules/middleware.d.ts"
+      ],
+      "hono": [
+        "./dist/core/app/hono"
       ]
     }
   },
@@ -81,6 +84,7 @@
     "./zod": "./dist/zod.js",
     "./errors": "./dist/core/errors/userError.js",
     "./middleware": "./dist/core/middleware/index.js",
+    "./hono": "./dist/core/app/hono.js",
     "./virtual-modules/*": "./dist/virtual-modules/*"
   },
   "bin": {
@@ -140,6 +144,7 @@
     "flattie": "^1.1.1",
     "fontace": "~0.4.1",
     "github-slugger": "^2.0.0",
+    "hono": "^4.10.6",
     "html-escaper": "3.0.3",
     "http-cache-semantics": "^4.2.0",
     "js-yaml": "^4.1.1",

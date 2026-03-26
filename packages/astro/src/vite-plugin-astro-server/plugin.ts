@@ -1,5 +1,7 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { IncomingMessage } from 'node:http';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
 import { isRunnableDevEnvironment, type RunnableDevEnvironment } from 'vite';
 import { toFallbackType } from '../core/app/common.js';
@@ -51,6 +53,8 @@ export default function createVitePluginAstroServer({
 			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
 		},
 		async configureServer(viteServer) {
+			const userAppFile = path.resolve(fileURLToPath(new URL('./app.ts', settings.config.srcDir)));
+
 			const ssrEnvironment = viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
 			const prerenderEnvironment = viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.prerender];
 
@@ -75,13 +79,37 @@ export default function createVitePluginAstroServer({
 				return { controller, handler, loader, manifest, environment };
 			}
 
-			const ssrHandler = runnableSsrEnvironment
+			let ssrHandler = runnableSsrEnvironment
 				? await createHandler(runnableSsrEnvironment)
 				: undefined;
-			const prerenderHandler = runnablePrerenderEnvironment
+			let prerenderHandler = runnablePrerenderEnvironment
 				? await createHandler(runnablePrerenderEnvironment)
 				: undefined;
 			const localStorage = new AsyncLocalStorage();
+
+			const reloadUserAppHandler = async (changedPath: string) => {
+				if (path.resolve(changedPath) !== userAppFile) {
+					return;
+				}
+
+				if (runnableSsrEnvironment) {
+					ssrHandler = await createHandler(runnableSsrEnvironment);
+				}
+				if (runnablePrerenderEnvironment) {
+					prerenderHandler = await createHandler(runnablePrerenderEnvironment);
+				}
+				logger.info('router', 'Reloaded app handler from src/app.ts');
+			};
+
+			viteServer.watcher.on('add', reloadUserAppHandler);
+			viteServer.watcher.on('change', reloadUserAppHandler);
+			viteServer.watcher.on('unlink', reloadUserAppHandler);
+
+			viteServer.httpServer?.on('close', () => {
+				viteServer.watcher.off('add', reloadUserAppHandler);
+				viteServer.watcher.off('change', reloadUserAppHandler);
+				viteServer.watcher.off('unlink', reloadUserAppHandler);
+			});
 
 			function handleUnhandledRejection(rejection: any) {
 				const error = AstroError.is(rejection)
@@ -146,6 +174,7 @@ export default function createVitePluginAstroServer({
 				});
 
 				if (prerenderHandler && shouldHandlePrerenderInCore) {
+					const currentPrerenderHandler = prerenderHandler;
 					viteServer.middlewares.use(
 						async function astroDevPrerenderHandler(request, response, next) {
 							if (request.url === undefined || !request.method) {
@@ -165,7 +194,7 @@ export default function createVitePluginAstroServer({
 							try {
 								const pathname = decodeURI(new URL(request.url, 'http://localhost').pathname);
 								const { routes } =
-									await prerenderHandler.environment.runner.import('virtual:astro:routes');
+									await currentPrerenderHandler.environment.runner.import('virtual:astro:routes');
 								const routesList = { routes: routes.map((r: any) => r.routeData) };
 								const matches = matchAllRoutes(pathname, routesList);
 
@@ -174,7 +203,7 @@ export default function createVitePluginAstroServer({
 								}
 
 								localStorage.run(request, () => {
-									prerenderHandler.handler(request, response);
+									currentPrerenderHandler.handler(request, response);
 								});
 							} catch (err) {
 								next(err);
@@ -184,6 +213,7 @@ export default function createVitePluginAstroServer({
 				}
 
 				if (ssrHandler) {
+					const currentSsrHandler = ssrHandler;
 					// Note that this function has a name so other middleware can find it.
 					viteServer.middlewares.use(async function astroDevHandler(request, response) {
 						if (request.url === undefined || !request.method) {
@@ -193,7 +223,7 @@ export default function createVitePluginAstroServer({
 						}
 
 						localStorage.run(request, () => {
-							ssrHandler.handler(request, response);
+							currentSsrHandler.handler(request, response);
 						});
 					});
 				}

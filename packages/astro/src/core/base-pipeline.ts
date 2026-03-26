@@ -1,7 +1,6 @@
 import type { $ZodType } from 'zod/v4/core';
 import { NOOP_ACTIONS_MOD } from '../actions/noop-actions.js';
 import type { ActionAccept, ActionClient } from '../actions/runtime/types.js';
-import { createI18nMiddleware } from '../i18n/middleware.js';
 import type { ComponentInstance } from '../types/astro.js';
 import type { MiddlewareHandler, RewritePayload } from '../types/public/common.js';
 import type { RuntimeMode } from '../types/public/config.js';
@@ -83,12 +82,6 @@ export abstract class Pipeline {
 		readonly serverIslands = manifest.serverIslandMappings,
 	) {
 		this.internalMiddleware = [];
-		// We do use our middleware only if the user isn't using the manual setup
-		if (i18n?.strategy !== 'manual') {
-			this.internalMiddleware.push(
-				createI18nMiddleware(i18n, manifest.base, manifest.trailingSlash, manifest.buildFormat),
-			);
-		}
 
 		if (manifest.experimentalQueuedRendering.enabled) {
 			this.nodePool = this.createNodePool(

@@ -255,7 +255,7 @@ function getCallerInfo(ctx: APIContext) {
 	return undefined;
 }
 
-async function parseRequestBody(request: Request, bodySizeLimit: number) {
+export async function parseRequestBody(request: Request, bodySizeLimit: number) {
 	const contentType = request.headers.get('content-type');
 	const contentLengthHeader = request.headers.get('content-length');
 	const contentLength = contentLengthHeader ? Number.parseInt(contentLengthHeader, 10) : undefined;

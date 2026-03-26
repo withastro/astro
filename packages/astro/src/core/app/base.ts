@@ -8,6 +8,7 @@ import {
 	prependForwardSlash,
 	removeTrailingForwardSlash,
 } from '@astrojs/internal-helpers/path';
+import { Hono, type Context } from 'hono';
 import { matchPattern } from '../../assets/utils/index.js';
 import { normalizeTheLocale } from '../../i18n/index.js';
 import type { RoutesList } from '../../types/astro.js';
@@ -375,7 +376,24 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		return pathname;
 	}
 
-	public async render(
+	public astroMiddleware(options: RenderOptions = {}) {
+		return async (context: Context) => {
+			return this.renderWithAstro(context.req.raw, options);
+		};
+	}
+
+	public createHonoApp(options: RenderOptions = {}) {
+		const app = new Hono();
+		app.use('*', this.astroMiddleware(options));
+		return app;
+	}
+
+	public async render(request: Request, options: RenderOptions = {}): Promise<Response> {
+		const app = this.createHonoApp(options);
+		return app.fetch(request);
+	}
+
+	private async renderWithAstro(
 		request: Request,
 		{
 			addCookieHeader = false,

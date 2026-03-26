@@ -191,6 +191,9 @@ importers:
       astro:
         specifier: ^6.0.8
         version: link:../../packages/astro
+      hono:
+        specifier: ^4.10.6
+        version: 4.12.7
 
   examples/blog:
     dependencies:
@@ -579,6 +582,9 @@ importers:
       github-slugger:
         specifier: ^2.0.0
         version: 2.0.0
+      hono:
+        specifier: ^4.10.6
+        version: 4.12.7
       html-escaper:
         specifier: 3.0.3
         version: 3.0.3
@@ -12457,6 +12463,10 @@ packages:
     resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
     hasBin: true
 
+  hono@4.12.7:
+    resolution: {integrity: sha512-jq9l1DM0zVIvsm3lv9Nw9nlJnMNPOcAtsbsgiUhWcFzPE99Gvo6yRTlszSLLYacMeQ6quHD6hMfId8crVHvexw==}
+    engines: {node: '>=16.9.0'}
+
   hookable@5.5.3:
     resolution: {integrity: sha512-Yc+BQe8SvoXH1643Qez1zqLRmbA5rCL+sSmk6TVos0LWVfNIB7PGncdlId77WzLGSIB5KaWgTaNTs2lNVEI6VQ==}
 
@@ -21872,6 +21882,8 @@ snapshots:
   hdr-histogram-percentiles-obj@3.0.0: {}
 
   he@1.2.0: {}
+
+  hono@4.12.7: {}
 
   hookable@5.5.3: {}
 

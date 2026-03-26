@@ -80,4 +80,5 @@ declare module 'virtual:astro:dev-css-all' {
 
 declare module 'virtual:astro:app' {
 	export const createApp: import('./src/core/app/types.js').CreateApp;
+	export const app: ReturnType<import('./src/core/app/types.js').CreateApp>;
 }
