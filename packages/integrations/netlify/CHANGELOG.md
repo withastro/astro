@@ -1,5 +1,14 @@
 # @astrojs/netlify
 
+## 7.0.5
+
+### Patch Changes
+
+- [#16063](https://github.com/withastro/astro/pull/16063) [`ccb6a9c`](https://github.com/withastro/astro/commit/ccb6a9c918c1747ffab905af1492c45e5ca65f4b) Thanks [@matthewp](https://github.com/matthewp)! - Fixes server islands returning 404 in production when using `output: 'static'` (the default)
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.2
+
 ## 7.0.4
 
 ### Patch Changes
