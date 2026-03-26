@@ -14,13 +14,13 @@ declare const Astro: {
 
 {
 	interface PropTypeSelector {
-		[k: string]: (value: any) => any;
+		[k: string]: (value: any, extra?: any) => any;
 	}
 
 	const propTypes: PropTypeSelector = {
 		0: (value) => reviveObject(value),
 		1: (value) => reviveArray(value),
-		2: (value) => new RegExp(value),
+		2: (value, flags) => new RegExp(value, flags),
 		3: (value) => new Date(value),
 		4: (value) => new Map(reviveArray(value)),
 		5: (value) => new Set(reviveArray(value)),
@@ -35,7 +35,7 @@ declare const Astro: {
 	// Not using JSON.parse reviver because it's bottom-up but we want top-down
 	const reviveTuple = (raw: any): any => {
 		const [type, value] = raw;
-		return type in propTypes ? propTypes[type](value) : undefined;
+		return type in propTypes ? propTypes[type](value, raw[2]) : undefined;
 	};
 
 	const reviveArray = (raw: any): any => (raw as Array<any>).map(reviveTuple);

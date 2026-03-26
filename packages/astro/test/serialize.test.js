@@ -45,8 +45,8 @@ describe('serialize', () => {
 		assert.equal(serializeProps(input), output);
 	});
 	it('serializes a regular expression', () => {
-		const input = { a: /b/ };
-		const output = `{"a":[2,"b"]}`;
+		const input = { a: /b/gi };
+		const output = `{"a":[2,"b","gi"]}`;
 		assert.equal(serializeProps(input), output);
 	});
 	it('serializes a Date', () => {

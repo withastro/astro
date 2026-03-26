@@ -58,14 +58,14 @@ function convertToSerializedForm(
 	value: any,
 	metadata: AstroComponentMetadata | Record<string, any> = {},
 	parents = new WeakSet<any>(),
-): [ValueOf<typeof PROP_TYPE>, any] | [ValueOf<typeof PROP_TYPE>] {
+): [ValueOf<typeof PROP_TYPE>, any] | [ValueOf<typeof PROP_TYPE>] | [ValueOf<typeof PROP_TYPE>, any, any] {
 	const tag = Object.prototype.toString.call(value);
 	switch (tag) {
 		case '[object Date]': {
 			return [PROP_TYPE.Date, (value as Date).toISOString()];
 		}
 		case '[object RegExp]': {
-			return [PROP_TYPE.RegExp, (value as RegExp).source];
+			return [PROP_TYPE.RegExp, (value as RegExp).source, (value as RegExp).flags];
 		}
 		case '[object Map]': {
 			return [PROP_TYPE.Map, serializeArray(Array.from(value as Map<any, any>), metadata, parents)];
