@@ -374,28 +374,45 @@ export default function createIntegration({
 				});
 
 				// QUESTION could be removed based on https://developers.cloudflare.com/workers/configuration/compatibility-flags/#enable-auto-populating-processenv
-        // Assign wrangler.json or wrangler.jsonc's root vars property to process.env so astro:env can find these vars
+
+				// Assign wrangler.json or wrangler.jsonc's root vars property to process.env so astro:env can find these vars
+				// supports worker environments
 				const wranglerConfigJSONPath = new URL("wrangler.json", config.root);
-				const wranglerConfigJSONCPath = new URL("wrangler.jsonc", config.root);
-				let resolvedWranglerConfigJSONPath;
+        const wranglerConfigJSONCPath = new URL("wrangler.jsonc", config.root);
+        let resolvedWranglerConfigJSONPath;
         if (existsSync(wranglerConfigJSONPath)) {
-					resolvedWranglerConfigJSONPath = wranglerConfigJSONPath;
-				} else if (existsSync(wranglerConfigJSONCPath)) {
-					resolvedWranglerConfigJSONPath = wranglerConfigJSONCPath;
-				}
-				if (resolvedWranglerConfigJSONPath) {
+          resolvedWranglerConfigJSONPath = wranglerConfigJSONPath;
+        } else if (existsSync(wranglerConfigJSONCPath)) {
+          resolvedWranglerConfigJSONPath = wranglerConfigJSONCPath;
+        }
+        if (resolvedWranglerConfigJSONPath) {
+          logger.log("Loading wrangler.json/c from " + resolvedWranglerConfigJSONPath);
           try {
             const data = readFileSync(resolvedWranglerConfigJSONPath, "utf-8");
             const parsed = JSON.parse(stripJsonComments(data));
-            if (parsed.vars) {
-              Object.assign(process.env, parsed.vars);
+            logger.log("Cloudflare environment:", process.env.CLOUDFLARE_ENV);
+            // logger.log(parsed);
+            if (process.env.CLOUDFLARE_ENV) {
+              if (parsed.env?.[process.env.CLOUDFLARE_ENV]?.vars) {
+                logger.log(`Using vars from Cloudflare config environment "${process.env.CLOUDFLARE_ENV}"`);
+                Object.assign(process.env, parsed.env[process.env.CLOUDFLARE_ENV].vars);
+              }
+            } else {
+              if (parsed.vars) {
+                logger.log(`Using vars from Cloudflare config root`);
+                Object.assign(process.env, parsed.vars);
+              }
             }
-          } catch {
+          } catch (err: any) {
             logger.error(
               `Unable to parse wrangler.json/c, variables defined in it will not be available to your application.`
             );
+            logger.error(err);
           }
         }
+
+				// TO DO: also support .env since wrangler supports that now, too
+
 				// Assign .dev.vars to process.env so astro:env can find these vars
 				const devVarsPath = new URL(".dev.vars", config.root);
         if (existsSync(devVarsPath)) {
