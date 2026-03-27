@@ -92,8 +92,13 @@ async function restartContainerInPlace(container: Container): Promise<AstroSetti
 			.map((r) => r.clientEntrypoint)
 			.filter(Boolean) as string[];
 		const routesList = await createRoutesList({ settings, fsMod: fs }, logger, { dev: true });
+		const address = container.viteServer.httpServer?.address();
+		const port = address !== null && typeof address === 'object' ? address.port : undefined;
 		const newViteConfig = await createVite(
-			{ server: { host, headers, allowedHosts }, optimizeDeps: { include: rendererClientEntries } },
+			{
+				server: { host, headers, allowedHosts, port },
+				optimizeDeps: { include: rendererClientEntries },
+			},
 			{ settings, logger, mode, command: 'dev', fs, sync: false, routesList },
 		);
 
