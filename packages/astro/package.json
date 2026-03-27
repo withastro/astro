@@ -118,7 +118,7 @@
     "test:unit:js": "astro-scripts test \"test/units/**/*.test.js\" --teardown ./test/units/teardown.js",
     "test:unit:ts": "astro-scripts test \"test/units/**/*.test.ts\" --strip-types --teardown ./test/units/teardown.js",
     "test:integration": "pnpm run test:integration:js && pnpm run test:integration:ts",
-    "test:integration:js": "astro-scripts test \"test/*.test.ts\"",
+    "test:integration:js": "astro-scripts test \"test/*.test.js\"",
     "test:integration:ts": "astro-scripts test \"test/*.test.ts\" --strip-types"
   },
   "dependencies": {

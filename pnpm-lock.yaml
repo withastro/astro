@@ -2344,12 +2344,6 @@ importers:
         specifier: workspace:*
         version: link:../../../..
 
-  packages/astro/test/fixtures/astro-markdown-shiki/normal:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../../..
-
   packages/astro/test/fixtures/astro-markdown-shiki/themes-custom:
     dependencies:
       astro:
