@@ -1232,7 +1232,7 @@ describe('redirectToFallback', () => {
 			const payload = createMiddlewarePayload({
 				locales: ['en', { path: 'spanish', codes: ['es'] }],
 				defaultLocale: 'en',
-				fallback: { spanish: 'en' },
+				fallback: { es: 'en' },
 				fallbackType: 'redirect',
 			});
 			const fallbackFn = redirectToFallback(payload);

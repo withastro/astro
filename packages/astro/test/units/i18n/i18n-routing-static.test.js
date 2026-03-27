@@ -218,7 +218,7 @@ describe('[SSG] i18n routing — fallback (it → en, spanish → en)', () => {
 					defaultLocale: 'en',
 					locales: ['en', 'pt', 'it', { path: 'spanish', codes: ['es', 'es-AR'] }],
 					routing: { prefixDefaultLocale: false },
-					fallback: { it: 'en', spanish: 'en' },
+					fallback: { it: 'en', es: 'en' },
 				},
 			},
 		});
@@ -527,7 +527,7 @@ describe('[SSG] i18n routing — page starting with locale-like segment', () => 
 			pages,
 			inlineConfig: {
 				i18n: {
-					defaultLocale: 'spanish',
+					defaultLocale: 'es',
 					locales: ['en', 'pt', 'it', { path: 'spanish', codes: ['es', 'es-SP'] }],
 					routing: { prefixDefaultLocale: false },
 				},

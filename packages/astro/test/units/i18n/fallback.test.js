@@ -350,7 +350,7 @@ describe('computeFallbackRoute', () => {
 					responseStatus: 404,
 					currentLocale: 'es',
 					locales: ['en', { path: 'spanish', codes: ['es', 'es-ES'] }, 'pt'],
-					fallback: { spanish: 'en' },
+					fallback: { es: 'en' },
 					fallbackType: 'redirect',
 					strategy: 'pathname-prefix-always',
 				}),

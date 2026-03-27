@@ -175,6 +175,26 @@ describe('Config Validation', () => {
 			});
 		});
 
+		it('errors if defaultLocale matches object locale path but not codes', async () => {
+			const configError = await validateConfig({
+				i18n: {
+					defaultLocale: 'spanish',
+					locales: [
+						'en',
+						{
+							path: 'spanish',
+							codes: ['es'],
+						},
+					],
+				},
+			}).catch((err) => err);
+			assert.equal(configError instanceof z.ZodError, true);
+			assert.equal(
+				configError.issues[0].message,
+				'The default locale `spanish` is not present in the `i18n.locales` array.',
+			);
+		});
+
 		it('errors if a fallback value does not exist', async () => {
 			const configError = await validateConfig({
 				i18n: {

@@ -99,7 +99,7 @@ describe('createI18nFallbackRoutes — multiple fallback locales', () => {
 			makeI18n({
 				defaultLocale: 'en',
 				locales: ['en', 'it', { path: 'spanish', codes: ['es', 'es-AR'] }],
-				fallback: { it: 'en', spanish: 'en' },
+				fallback: { it: 'en', es: 'en' },
 			}),
 			BASE_CONFIG,
 		);
