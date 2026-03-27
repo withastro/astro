@@ -2344,12 +2344,6 @@ importers:
         specifier: workspace:*
         version: link:../../../..
 
-  packages/astro/test/fixtures/astro-markdown-shiki/normal:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../../..
-
   packages/astro/test/fixtures/astro-markdown-shiki/themes-custom:
     dependencies:
       astro:
@@ -5986,6 +5980,15 @@ importers:
         version: link:../../../../../astro
 
   packages/integrations/node/test/fixtures/sessions:
+    dependencies:
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
+  packages/integrations/node/test/fixtures/ssr-assets-middleware:
     dependencies:
       '@astrojs/node':
         specifier: workspace:*
