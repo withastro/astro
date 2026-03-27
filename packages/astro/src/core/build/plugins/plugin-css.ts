@@ -164,7 +164,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 								const parentModuleInfos = getParentExtendedModuleInfos(
 									scopedToModule,
 									this,
-									(id) => isBuildCssBoundary(id, this),
+									(moduleId) => isBuildCssBoundary(moduleId, this),
 								);
 								for (const { info: pageInfo, depth, order } of parentModuleInfos) {
 									if (moduleIsTopLevelPage(pageInfo)) {
