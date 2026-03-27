@@ -36,6 +36,10 @@ export async function optimizeFallbacks({
 	if (!isGenericFontFamily(lastFallback)) {
 		return null;
 	}
+	// Respect explicit fallback stacks like `Georgia, serif` instead of prepending a generated face.
+	if (fallbacks.length > 1) {
+		return null;
+	}
 
 	// If it's a generic family name, we get the associated local fonts (eg. Arial)
 	const localFonts = systemFallbacksProvider.getLocalFonts(lastFallback);

@@ -1511,21 +1511,34 @@ describe('fonts core', () => {
 			);
 		});
 
-		it('places optimized fallbacks at the start', async () => {
+		it('places optimized fallbacks at the start for a generic fallback', async () => {
 			const result = await optimizeFallbacks({
 				family,
-				fallbacks: ['foo', 'sans-serif'],
+				fallbacks: ['sans-serif'],
 				collectedFonts: [{ url: '', id: '', data: {}, init: undefined }],
 				systemFallbacksProvider,
 				fontMetricsResolver,
 			});
-			assert.deepStrictEqual(result?.fallbacks, ['Test-xxx fallback: Arial', 'foo', 'sans-serif']);
+			assert.deepStrictEqual(result?.fallbacks, ['Test-xxx fallback: Arial', 'sans-serif']);
+		});
+
+		it('skips if explicit fallbacks precede a generic fallback', async () => {
+			assert.equal(
+				await optimizeFallbacks({
+					family,
+					fallbacks: ['Georgia', 'serif'],
+					collectedFonts: [{ url: '', id: '', data: {}, init: undefined }],
+					systemFallbacksProvider,
+					fontMetricsResolver,
+				}),
+				null,
+			);
 		});
 
 		it('outputs correct css', async () => {
 			const result = await optimizeFallbacks({
 				family,
-				fallbacks: ['foo', 'sans-serif'],
+				fallbacks: ['sans-serif'],
 				collectedFonts: [
 					{ url: '', id: '', data: { weight: '400' }, init: undefined },
 					{ url: '', id: '', data: { weight: '500' }, init: undefined },

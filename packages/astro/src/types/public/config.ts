@@ -2554,7 +2554,7 @@ export interface AstroUserConfig<
 	 * fallbacks: []
 	 * ```
 	 *
-	 * Specify at least a [generic family name](https://developer.mozilla.org/en-US/docs/Web/CSS/font-family#generic-name) matching the intended appearance of your font. Astro will then attempt to generate [optimized fallbacks](https://developer.chrome.com/blog/font-fallbacks) using font metrics. To disable this optimization, set `optimizedFallbacks` to false.
+	 * If the `fallbacks` array only contains a [generic family name](https://developer.mozilla.org/en-US/docs/Web/CSS/font-family#generic-name) matching the intended appearance of your font, Astro will attempt to generate [optimized fallbacks](https://developer.chrome.com/blog/font-fallbacks) using font metrics. If you provide named fallback fonts yourself, Astro preserves that stack as-is. To disable this optimization, set `optimizedFallbacks` to false.
 	 */
 
 	/**

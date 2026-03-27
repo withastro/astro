@@ -177,8 +177,9 @@ export type FontFamily<TFontProvider extends FontProvider = FontProvider> = Fami
 		 * fallbacks: []
 		 * ```
 		 *
-		 * If the last font in the `fallbacks` array is a [generic family name](https://developer.mozilla.org/en-US/docs/Web/CSS/font-family#generic-name), Astro will attempt to
-		 * generate [optimized fallbacks](https://developer.chrome.com/blog/font-fallbacks) using font metrics will be generated. To disable this optimization, set `optimizedFallbacks` to false.
+		 * If the `fallbacks` array only contains a [generic family name](https://developer.mozilla.org/en-US/docs/Web/CSS/font-family#generic-name), Astro will attempt to
+		 * generate [optimized fallbacks](https://developer.chrome.com/blog/font-fallbacks) using font metrics. If you provide explicit fallback fonts yourself, Astro preserves that stack as-is.
+		 * To disable this optimization, set `optimizedFallbacks` to false.
 		 */
 		fallbacks?: Array<string> | undefined;
 		/**
