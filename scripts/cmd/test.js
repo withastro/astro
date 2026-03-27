@@ -31,6 +31,8 @@ export default async function test() {
 			teardown: { type: 'string' },
 			// Use tsx to run the tests,
 			tsx: { type: 'boolean' },
+			// Use Node.js experimental strip types to run TypeScript tests
+			'strip-types': { type: 'boolean' },
 			// Configures the test runner to exit the process once all known tests have finished executing even if the event loop would otherwise remain active
 			'force-exit': { type: 'boolean' },
 			// Test teardown file to include in the test files list
@@ -62,6 +64,11 @@ export default async function test() {
 	if (args.values.tsx) {
 		process.env.NODE_OPTIONS ??= '';
 		process.env.NODE_OPTIONS += ' --import tsx';
+	}
+
+	if (args.values['strip-types']) {
+		process.env.NODE_OPTIONS ??= '';
+		process.env.NODE_OPTIONS += ' --experimental-strip-types';
 	}
 
 	if (!args.values.parallel) {

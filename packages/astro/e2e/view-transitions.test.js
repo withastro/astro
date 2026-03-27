@@ -1821,4 +1821,21 @@ test.describe('View Transitions', () => {
 		await expect(page.locator('#style')).toHaveCount(1);
 		await expect(page.locator('#preload')).toHaveCount(1);
 	});
+
+	test('Styles with data-vite-dev-id persist through head swap', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/island-vue-one'));
+		let cnt = page.locator('.counter pre');
+		await expect(cnt).toHaveText('AA0');
+		await page
+			.locator('[data-vite-dev-id*="VueCounter.vue?vue&type=style"]')
+			.evaluate((el) => (el.dataset.marker = 'this'), undefined);
+		await page.click('#click-two');
+		const p = page.locator('#island-two');
+		await expect(p).toBeVisible();
+		cnt = page.locator('.counter pre');
+		await expect(cnt).toHaveText('BB0');
+		await expect(
+			page.locator('[data-vite-dev-id*="VueCounter.vue?vue&type=style"][data-marker="this"]'),
+		).toHaveCount(1);
+	});
 });
