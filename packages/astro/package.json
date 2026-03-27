@@ -105,7 +105,7 @@
     "build": "pnpm run prebuild && astro-scripts build \"src/**/*.{ts,js}\" --copy-wasm && tsc && astro-check -- -- --root ./components",
     "build:ci": "pnpm run prebuild && astro-scripts build \"src/**/*.{ts,js}\" --copy-wasm",
     "dev": "astro-scripts dev --copy-wasm --prebuild \"src/runtime/server/astro-island.ts\" --prebuild \"src/runtime/client/{idle,load,media,only,visible}.ts\" \"src/**/*.{ts,js}\"",
-    "test": "pnpm run test:unit && pnpm run test:integration && pnpm run test:integration:ts && pnpm run test:types",
+    "test": "pnpm run test:unit && pnpm run test:integration && pnpm run test:types",
     "test:match": "astro-scripts test \"test/**/*.test.js\" --match",
     "test:cli": "astro-scripts test \"test/**/cli.test.js\"",
     "test:e2e": "pnpm test:e2e:chrome && pnpm test:e2e:firefox",
@@ -118,7 +118,7 @@
     "test:unit:js": "astro-scripts test \"test/units/**/*.test.js\" --teardown ./test/units/teardown.js",
     "test:unit:ts": "astro-scripts test \"test/units/**/*.test.ts\" --strip-types --teardown ./test/units/teardown.js",
     "test:integration": "pnpm run test:integration:js && pnpm run test:integration:ts",
-    "test:integration:js": "astro-scripts test \"test/*.test.ts\"",
+    "test:integration:js": "astro-scripts test \"test/*.test.js\"",
     "test:integration:ts": "astro-scripts test \"test/*.test.ts\" --strip-types"
   },
   "dependencies": {
