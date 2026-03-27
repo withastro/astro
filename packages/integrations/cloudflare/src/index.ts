@@ -386,20 +386,20 @@ export default function createIntegration({
           resolvedWranglerConfigJSONPath = wranglerConfigJSONCPath;
         }
         if (resolvedWranglerConfigJSONPath) {
-          logger.log("Loading wrangler.json/c from " + resolvedWranglerConfigJSONPath);
+          logger.info("Loading wrangler.json/c from " + resolvedWranglerConfigJSONPath);
           try {
             const data = readFileSync(resolvedWranglerConfigJSONPath, "utf-8");
             const parsed = JSON.parse(stripJsonComments(data));
-            logger.log("Cloudflare environment:", process.env.CLOUDFLARE_ENV);
-            // logger.log(parsed);
+            logger.info("Cloudflare environment:", process.env.CLOUDFLARE_ENV);
+            // logger.info(parsed);
             if (process.env.CLOUDFLARE_ENV) {
               if (parsed.env?.[process.env.CLOUDFLARE_ENV]?.vars) {
-                logger.log(`Using vars from Cloudflare config environment "${process.env.CLOUDFLARE_ENV}"`);
+                logger.info(`Using vars from Cloudflare config environment "${process.env.CLOUDFLARE_ENV}"`);
                 Object.assign(process.env, parsed.env[process.env.CLOUDFLARE_ENV].vars);
               }
             } else {
               if (parsed.vars) {
-                logger.log(`Using vars from Cloudflare config root`);
+                logger.info(`Using vars from Cloudflare config root`);
                 Object.assign(process.env, parsed.vars);
               }
             }
