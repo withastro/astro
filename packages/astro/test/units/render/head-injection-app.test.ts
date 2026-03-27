@@ -1,7 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import type { RouteData } from '../../../dist/types/public/internal.js';
 import { RenderContext } from '../../../dist/core/render-context.js';
 import {
 	createComponent,
@@ -16,6 +15,7 @@ import {
 	unescapeHTML,
 } from '../../../dist/runtime/server/index.js';
 import { createBasicPipeline } from '../test-utils.js';
+import { createRouteData } from '../mocks.js';
 
 const createAstroModule = (AstroComponent: ReturnType<typeof createComponent>) => ({
 	default: AstroComponent,
@@ -35,12 +35,11 @@ describe('head injection app-level rendering', () => {
 
 	async function renderPage(Component: ReturnType<typeof createComponent>) {
 		const request = new Request('http://example.com/');
-		const routeData = {
-			type: 'page',
+		const routeData = createRouteData({
+			route: '/',
 			pathname: '/index',
 			component: 'src/pages/index.astro',
-			params: {},
-		} as unknown as RouteData;
+		});
 		const renderContext = await RenderContext.create({
 			pipeline,
 			request,
@@ -56,12 +55,13 @@ describe('head injection app-level rendering', () => {
 		const Other = createComponent(() => render`<div id="other">Other</div>`);
 		const HeadEntry = createComponent({
 			factory(result, props, slots) {
+				// renderUniqueStylesheet returns a string — pass it directly to createHeadAndContent
 				const link = renderUniqueStylesheet(result, {
 					type: 'external',
 					src: '/some/fake/styles.css',
 				});
 				return createHeadAndContent(
-					unescapeHTML(link as string) as unknown as string,
+					link ?? '',
 					render`${renderComponent(result, 'Other', Other, props, slots)}`,
 				);
 			},
@@ -88,7 +88,7 @@ describe('head injection app-level rendering', () => {
 					src: '/some/fake/styles.css',
 				});
 				return createHeadAndContent(
-					unescapeHTML(link as string) as unknown as string,
+					link ?? '',
 					render`${renderComponent(result, 'Other', Other, props, slots)}`,
 				);
 			},
@@ -127,10 +127,7 @@ describe('head injection app-level rendering', () => {
 					type: 'external',
 					src: '/styles/from-slot.css',
 				});
-				return createHeadAndContent(
-					unescapeHTML(link as string) as unknown as string,
-					render`<p>Paragraph.</p>`,
-				);
+				return createHeadAndContent(link ?? '', render`<p>Paragraph.</p>`);
 			},
 			propagation: 'self',
 		});
@@ -143,7 +140,7 @@ describe('head injection app-level rendering', () => {
 					src: '/styles/slot-render.css',
 				});
 				return createHeadAndContent(
-					ownLink as unknown as string,
+					ownLink ?? '',
 					render`<div class="p-sample">${unescapeHTML(html)}</div>`,
 				);
 			},

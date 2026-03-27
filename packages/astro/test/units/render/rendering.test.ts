@@ -2,17 +2,15 @@ import * as assert from 'node:assert/strict';
 import { beforeEach, describe, it } from 'node:test';
 import { isPromise } from 'node:util/types';
 import * as cheerio from 'cheerio';
-import type { SSRResult } from '../../../dist/types/public/internal.js';
 import {
 	createComponent,
 	HTMLString,
 	renderComponent,
 	renderTemplate,
 } from '../../../dist/runtime/server/index.js';
+import { createMockResult } from '../mocks.js';
 
-const DEFAULT_RESULT = {
-	clientDirectives: new Map(),
-} as unknown as SSRResult;
+const DEFAULT_RESULT = createMockResult();
 
 describe('rendering', () => {
 	const evaluated: string[] = [];

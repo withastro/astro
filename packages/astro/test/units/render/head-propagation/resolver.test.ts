@@ -1,11 +1,11 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import type { SSRResult } from '../../../../dist/types/public/internal.js';
 import {
 	getPropagationHint,
 	isPropagatingHint,
 	resolvePropagationHint,
 } from '../../../../dist/core/head-propagation/resolver.js';
+import { createMockResult } from '../../mocks.js';
 
 describe('head propagation resolver', () => {
 	it('defaults to none', () => {
@@ -36,9 +36,11 @@ describe('head propagation resolver', () => {
 	});
 
 	it('getPropagationHint reads from SSR result metadata', () => {
-		const result = {
-			componentMetadata: new Map([['/src/Comp.astro', { propagation: 'in-tree' }]]),
-		} as unknown as SSRResult;
+		const result = createMockResult();
+		result.componentMetadata.set('/src/Comp.astro', {
+			propagation: 'in-tree',
+			containsHead: false,
+		});
 		const hint = getPropagationHint(result, {
 			moduleId: '/src/Comp.astro',
 			propagation: 'none',

@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import { createRoutesFromEntries } from '../../../dist/core/routing/create-manifest.js';
 import type { RouteData } from '../../../dist/types/public/internal.js';
 
-const baseSettings = {
+const baseSettings: any = {
 	config: {
 		base: '/',
 		trailingSlash: 'always' as const,
@@ -14,9 +14,10 @@ const baseSettings = {
 	},
 	pageExtensions: [] as string[],
 	injectedRoutes: [] as any[],
+	buildOutput: 'static' as const,
 };
 
-const logger = { warn() {} };
+const logger: any = { warn() {} };
 
 function stripPattern(route: RouteData) {
 	return { ...route, pattern: route.pattern.toString() };

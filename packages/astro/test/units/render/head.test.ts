@@ -1,8 +1,8 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import type { RouteData } from '../../../dist/types/public/internal.js';
 import { RenderContext } from '../../../dist/core/render-context.js';
+import { createRouteData } from '../mocks.js';
 import {
 	createComponent,
 	Fragment,
@@ -100,13 +100,18 @@ describe('core/render', () => {
 
 			const PageModule = createAstroModule(Page);
 			const request = new Request('http://example.com/');
-			const routeData = {
-				type: 'page',
+			const routeData = createRouteData({
+				route: '/',
 				pathname: '/index',
 				component: 'src/pages/index.astro',
-				params: {},
-			} as unknown as RouteData;
-			const renderContext = await RenderContext.create({ pipeline, request, routeData, pathname: "/", clientAddress: "127.0.0.1" });
+			});
+			const renderContext = await RenderContext.create({
+				pipeline,
+				request,
+				routeData,
+				pathname: '/',
+				clientAddress: '127.0.0.1',
+			});
 			const response = await renderContext.render(PageModule);
 
 			const html = await response.text();
@@ -181,13 +186,18 @@ describe('core/render', () => {
 
 			const PageModule = createAstroModule(Page);
 			const request = new Request('http://example.com/');
-			const routeData = {
-				type: 'page',
+			const routeData = createRouteData({
+				route: '/',
 				pathname: '/index',
 				component: 'src/pages/index.astro',
-				params: {},
-			} as unknown as RouteData;
-			const renderContext = await RenderContext.create({ pipeline, request, routeData, pathname: "/", clientAddress: "127.0.0.1" });
+			});
+			const renderContext = await RenderContext.create({
+				pipeline,
+				request,
+				routeData,
+				pathname: '/',
+				clientAddress: '127.0.0.1',
+			});
 			const response = await renderContext.render(PageModule);
 
 			const html = await response.text();
@@ -229,13 +239,18 @@ describe('core/render', () => {
 
 			const PageModule = createAstroModule(Page);
 			const request = new Request('http://example.com/');
-			const routeData = {
-				type: 'page',
+			const routeData = createRouteData({
+				route: '/',
 				pathname: '/index',
 				component: 'src/pages/index.astro',
-				params: {},
-			} as unknown as RouteData;
-			const renderContext = await RenderContext.create({ pipeline, request, routeData, pathname: "/", clientAddress: "127.0.0.1" });
+			});
+			const renderContext = await RenderContext.create({
+				pipeline,
+				request,
+				routeData,
+				pathname: '/',
+				clientAddress: '127.0.0.1',
+			});
 			const response = await renderContext.render(PageModule);
 
 			const html = await response.text();

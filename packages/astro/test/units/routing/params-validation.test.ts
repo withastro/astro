@@ -38,7 +38,7 @@ describe('getStaticPaths param validation', () => {
 		it(`${shouldPass ? 'accepts' : 'rejects'} param type ${type}`, async () => {
 			routeCache.clearAll();
 
-			const mod = {
+			const mod: any = {
 				default: () => {},
 				getStaticPaths: async () => [{ params: { testParam: value } }],
 			};

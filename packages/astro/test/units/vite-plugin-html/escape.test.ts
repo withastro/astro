@@ -76,7 +76,9 @@ describe('vite-plugin-html: escape utilities', () => {
 });
 
 describe('vite-plugin-html: escape transformer', () => {
-	async function testEscapeTransform(html) {
+	// The optional `_expected` parameter is accepted but ignored — it was used
+	// in JS for inline documentation of what the transform should produce.
+	async function testEscapeTransform(html: string, _expected?: string) {
 		const s = new MagicString(html);
 		const processor = rehype().data('settings', { fragment: true }).use(rehypeEscape, { s });
 

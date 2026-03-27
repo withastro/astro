@@ -294,3 +294,36 @@ export function installImageService(overrides = {}) {
 export function createMockAstroSource(html) {
 	return `---\n---\n<html>${html}</html>`;
 }
+
+/**
+ * Creates a minimal SSRResult suitable for unit-testing rendering internals.
+ * All required fields are populated with safe defaults; tests can mutate the
+ * returned object to set up the specific state they need.
+ *
+ * @returns {import('../../dist/types/public/internal.js').SSRResult}
+ */
+export function createMockResult() {
+	return {
+		_metadata: {
+			hasHydrationScript: false,
+			rendererSpecificHydrationScripts: new Set(),
+			hasRenderedHead: false,
+			renderedScripts: new Set(),
+			hasDirectives: new Set(),
+			hasRenderedServerIslandRuntime: false,
+			headInTree: false,
+			extraHead: [],
+			extraStyleHashes: [],
+			extraScriptHashes: [],
+			propagators: new Set(),
+		},
+		styles: new Set(),
+		scripts: new Set(),
+		links: new Set(),
+		componentMetadata: new Map(),
+		clientDirectives: new Map(),
+		cancelled: false,
+		compressHTML: false,
+		partial: false,
+	};
+}

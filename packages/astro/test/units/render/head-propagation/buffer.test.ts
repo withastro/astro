@@ -1,7 +1,8 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import type { SSRResult } from '../../../../dist/types/public/internal.js';
+import type { AstroComponentInstance } from '../../../../dist/runtime/server/render/astro/instance.js';
 import { collectPropagatedHeadParts } from '../../../../dist/core/head-propagation/buffer.js';
+import { createMockResult } from '../../mocks.js';
 
 const headAndContentSym = Symbol.for('astro.headAndContent');
 
@@ -21,15 +22,16 @@ function isHeadAndContent(value: unknown): value is { head: string } {
 	);
 }
 
-function createResult() {
-	return {} as unknown as SSRResult;
+/** Creates a stub propagator that returns the given value from init(). */
+function stubPropagator(initResult: unknown): AstroComponentInstance {
+	return { init: () => initResult } as unknown as AstroComponentInstance;
 }
 
 describe('head propagation buffer', () => {
 	it('returns empty head parts when no propagators exist', async () => {
 		const collected = await collectPropagatedHeadParts({
 			propagators: new Set(),
-			result: createResult(),
+			result: createMockResult(),
 			isHeadAndContent,
 		});
 		assert.deepEqual(collected, []);
@@ -37,13 +39,13 @@ describe('head propagation buffer', () => {
 
 	it('collects non-empty head strings from propagators', async () => {
 		const propagators = new Set([
-			{ init: () => createHeadAndContentLike('<link rel="stylesheet" href="/a.css">') },
-			{ init: () => createHeadAndContentLike('<style>body{color:red}</style>') },
+			stubPropagator(createHeadAndContentLike('<link rel="stylesheet" href="/a.css">')),
+			stubPropagator(createHeadAndContentLike('<style>body{color:red}</style>')),
 		]);
 
 		const collected = await collectPropagatedHeadParts({
 			propagators,
-			result: createResult(),
+			result: createMockResult(),
 			isHeadAndContent,
 		});
 
@@ -55,14 +57,14 @@ describe('head propagation buffer', () => {
 
 	it('skips non-head-and-content values and empty heads', async () => {
 		const propagators = new Set([
-			{ init: () => 'value' },
-			{ init: () => createHeadAndContentLike('') },
-			{ init: () => createHeadAndContentLike('<meta charset="utf-8">') },
+			stubPropagator('value'),
+			stubPropagator(createHeadAndContentLike('')),
+			stubPropagator(createHeadAndContentLike('<meta charset="utf-8">')),
 		]);
 
 		const collected = await collectPropagatedHeadParts({
 			propagators,
-			result: createResult(),
+			result: createMockResult(),
 			isHeadAndContent,
 		});
 
@@ -70,21 +72,22 @@ describe('head propagation buffer', () => {
 	});
 
 	it('processes propagators added while iterating', async () => {
-		const propagators = new Set<{ init: () => unknown }>();
-		propagators.add({
+		const propagators = new Set<AstroComponentInstance>();
+		// This propagator adds a second one to the set when init() is called,
+		// testing that newly-added propagators during iteration are also processed.
+		const earlyPropagator: AstroComponentInstance = {
 			init() {
-				propagators.add({
-					init() {
-						return createHeadAndContentLike('<link rel="stylesheet" href="/late.css">');
-					},
-				});
+				propagators.add(
+					stubPropagator(createHeadAndContentLike('<link rel="stylesheet" href="/late.css">')),
+				);
 				return createHeadAndContentLike('<link rel="stylesheet" href="/early.css">');
 			},
-		});
+		} as unknown as AstroComponentInstance;
+		propagators.add(earlyPropagator);
 
 		const collected = await collectPropagatedHeadParts({
 			propagators,
-			result: createResult(),
+			result: createMockResult(),
 			isHeadAndContent,
 		});
 

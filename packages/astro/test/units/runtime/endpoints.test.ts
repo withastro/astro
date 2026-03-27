@@ -1,5 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
+import type { Container } from '../../../dist/core/dev/container.js';
 import { createContainer } from '../../../dist/core/dev/container.js';
 import testAdapter from '../../test-adapter.js';
 import {
@@ -9,19 +10,17 @@ import {
 	defaultLogger,
 } from '../test-utils.js';
 
-const root = new URL('../../fixtures/api-routes/', import.meta.url);
 const fileSystem = {
 	'/src/pages/incorrect.ts': `export const GET = _ => {}`,
 	'/src/pages/headers.ts': `export const GET = () => { return new Response('content', { status: 201, headers: { Test: 'value' } }) }`,
 };
 
 describe('endpoints', () => {
-	let container;
-	let settings;
+	let container: Container;
 
 	before(async () => {
-		const fixture = await createFixture(fileSystem, root);
-		settings = await createBasicSettings({
+		const fixture = await createFixture(fileSystem);
+		const settings = await createBasicSettings({
 			root: fixture.path,
 			output: 'server',
 			adapter: testAdapter(),

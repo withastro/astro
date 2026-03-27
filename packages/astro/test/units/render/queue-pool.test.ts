@@ -193,7 +193,7 @@ describe('NodePool', () => {
 
 		// Instruction node - instruction should be cleared
 		const instrNode = pool.acquire('instruction') as InstructionNode;
-		instrNode.instruction = { type: 'head' } as unknown as InstructionNode['instruction']; // Simulate an instruction
+		instrNode.instruction = { type: 'head' }; // RenderHeadInstruction satisfies RenderInstruction directly
 		pool.release(instrNode);
 
 		const reusedInstr = pool.acquire('instruction') as InstructionNode;

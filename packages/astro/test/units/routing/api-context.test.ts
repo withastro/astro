@@ -2,6 +2,14 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { createContext } from '../../../dist/core/middleware/index.js';
 
+declare global {
+	namespace App {
+		interface Locals {
+			foo?: string;
+		}
+	}
+}
+
 describe('createAPIContext', () => {
 	it('should return the clientAddress when explicitly provided', () => {
 		const request = new Request('http://example.com');
@@ -9,6 +17,7 @@ describe('createAPIContext', () => {
 		const context = createContext({
 			request,
 			clientAddress: '192.0.2.43',
+			defaultLocale: 'en',
 		});
 
 		assert.equal(context.clientAddress, '192.0.2.43');
@@ -19,6 +28,7 @@ describe('createAPIContext', () => {
 
 		const context = createContext({
 			request,
+			defaultLocale: 'en',
 		});
 
 		assert.throws(
@@ -39,6 +49,7 @@ describe('createAPIContext', () => {
 
 		const context = createContext({
 			request,
+			defaultLocale: 'en',
 		});
 
 		assert.throws(
@@ -55,6 +66,7 @@ describe('createAPIContext', () => {
 
 		const context = createContext({
 			request,
+			defaultLocale: 'en',
 			locals: {
 				foo: 'bar',
 			},

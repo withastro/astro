@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import type { InvalidateOptions } from '../../../dist/core/cache/types.js';
 import {
 	AstroCache,
 	applyCacheHeaders,
@@ -7,10 +8,10 @@ import {
 } from '../../../dist/core/cache/runtime/cache.js';
 
 // Mock provider
-function createMockProvider(overrides = {}) {
+function createMockProvider(overrides: Record<string, unknown> = {}) {
 	return {
 		name: 'test-provider',
-		invalidate: async () => {},
+		invalidate: async (_opts: InvalidateOptions) => {},
 		...overrides,
 	};
 }
@@ -168,7 +169,7 @@ describe('AstroCache - options getter', () => {
 		const cache = new AstroCache(null);
 		cache.set({ maxAge: 300 });
 
-		const options = cache.options;
+		const options = cache.options as Record<string, unknown>;
 		options.maxAge = 999;
 		assert.equal(cache.options.maxAge, 300);
 	});
@@ -186,7 +187,7 @@ describe('AstroCache - invalidate()', () => {
 	it('calls provider.invalidate() with correct options', async () => {
 		let captured;
 		const provider = createMockProvider({
-			invalidate: async (opts) => {
+			invalidate: async (opts: InvalidateOptions) => {
 				captured = opts;
 			},
 		});
@@ -198,7 +199,7 @@ describe('AstroCache - invalidate()', () => {
 	it('extracts tags from LiveDataEntry for invalidate', async () => {
 		let captured;
 		const provider = createMockProvider({
-			invalidate: async (opts) => {
+			invalidate: async (opts: InvalidateOptions) => {
 				captured = opts;
 			},
 		});

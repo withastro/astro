@@ -1,27 +1,10 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import type { SSRResult } from '../../../dist/types/public/internal.js';
 import { buildRenderQueue } from '../../../dist/runtime/server/render/queue/builder.js';
 import { renderQueue } from '../../../dist/runtime/server/render/queue/renderer.js';
 import { NodePool } from '../../../dist/runtime/server/render/queue/pool.js';
 import { markHTMLString } from '../../../dist/runtime/server/index.js';
-
-// Mock SSRResult for testing
-function createMockResult() {
-	return {
-		_metadata: {
-			hasHydrationScript: false,
-			hasRenderedHead: false,
-			hasDirectives: new Set(),
-			headInTree: false,
-			extraHead: [],
-			propagators: new Set(),
-		},
-		styles: new Set(),
-		scripts: new Set(),
-		links: new Set(),
-	} as unknown as SSRResult;
-}
+import { createMockResult } from '../mocks.js';
 
 // Create a NodePool for testing
 function createMockPool() {

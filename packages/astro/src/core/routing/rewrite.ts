@@ -172,7 +172,7 @@ export function copyRequest(
 
 export function setOriginPathname(
 	request: Request,
-	pathname: string,
+	pathname: string | undefined,
 	trailingSlash: AstroConfig['trailingSlash'],
 	buildFormat: AstroConfig['build']['format'],
 ): void {

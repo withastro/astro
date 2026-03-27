@@ -19,6 +19,7 @@ import type { SinglePageBuiltModule } from '../../dist/core/build/types.js';
 import type { RouteData, RoutePart } from '../../dist/types/public/internal.js';
 import type { APIContext } from '../../dist/types/public/context.js';
 import type { Pipeline } from '../../dist/core/render/index.js';
+import type { SSRResult } from '../../dist/types/public/internal.js';
 
 export async function createMockRenderContext(
 	overrides: {
@@ -228,4 +229,60 @@ export function installImageService(
 
 export function createMockAstroSource(html: string): string {
 	return `---\n---\n<html>${html}</html>`;
+}
+
+/**
+ * Creates a minimal SSRResult suitable for unit-testing rendering internals.
+ * All required fields are populated with safe defaults; tests can mutate the
+ * returned object to set up the specific state they need.
+ */
+export function createMockResult(): SSRResult {
+	return {
+		cancelled: false,
+		base: '/',
+		userAssetsBase: undefined,
+		styles: new Set(),
+		scripts: new Set(),
+		links: new Set(),
+		componentMetadata: new Map(),
+		inlinedScripts: new Map(),
+		createAstro() {
+			throw new Error('createAstro() is not available in unit tests');
+		},
+		params: {},
+		resolve: async (s: string) => s,
+		response: { status: 200, statusText: 'OK', headers: new Headers() },
+		request: new Request('http://localhost/'),
+		renderers: [],
+		clientDirectives: new Map(),
+		compressHTML: false,
+		partial: false,
+		pathname: '/',
+		cookies: undefined,
+		serverIslandNameMap: new Map(),
+		trailingSlash: 'ignore',
+		key: Promise.resolve({} as CryptoKey),
+		_metadata: {
+			hasHydrationScript: false,
+			rendererSpecificHydrationScripts: new Set(),
+			hasRenderedHead: false,
+			renderedScripts: new Set(),
+			hasDirectives: new Set(),
+			hasRenderedServerIslandRuntime: false,
+			headInTree: false,
+			extraHead: [],
+			extraStyleHashes: [],
+			extraScriptHashes: [],
+			propagators: new Set(),
+		},
+		cspDestination: 'header',
+		shouldInjectCspMetaTags: false,
+		cspAlgorithm: 'SHA-256',
+		scriptHashes: [],
+		scriptResources: [],
+		styleHashes: [],
+		styleResources: [],
+		directives: [],
+		isStrictDynamic: false,
+	};
 }

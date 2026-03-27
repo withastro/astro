@@ -19,14 +19,6 @@ export const spreadPart = (content: string): RoutePart => ({
 });
 
 /**
- * Fields that makeRoute computes or defaults — callers don't need to supply them.
- * `pattern` is derived from `segments` + `trailingSlash`.
- * `fallbackRoutes` and `distURL` are always empty arrays.
- * `params` is derived from `segments` when not supplied.
- */
-type ComputedFields = 'pattern' | 'fallbackRoutes' | 'distURL';
-
-/**
  * makeRoute builds a RouteData from the fields that actually vary between tests.
  * `trailingSlash` is the only extra field not on RouteData itself — it's needed
  * to compute `pattern` via getPattern().

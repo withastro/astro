@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { renderPath } from '../../../dist/core/build/generate.js';
-// @ts-ignore — build/test-helpers.js has no .ts counterpart yet
 import { createMockPrerenderer, createStaticBuildOptions } from '../build/test-helpers.js';
 import { createRouteData } from '../mocks.js';
 

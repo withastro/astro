@@ -1,5 +1,15 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+
+declare global {
+	namespace App {
+		interface Locals {
+			auth?: string;
+			interjected?: string;
+			pattern?: string;
+		}
+	}
+}
 import * as cheerio from 'cheerio';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { sequence } from '../../../dist/core/middleware/index.js';

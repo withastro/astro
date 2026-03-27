@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import { Logger } from '../../../dist/core/logger/core.js';
 import { createRoutesList } from '../../../dist/core/routing/create-manifest.js';
 import type { RoutesList } from '../../../dist/types/astro.js';
-import { createBasicSettings, createFixture } from '../test-utils.js';
+import { createBasicSettings, createFixture, defaultLogger } from '../test-utils.js';
 
 function getManifestRoutes(manifest: RoutesList) {
 	return manifest.routes.map((route) => ({
@@ -17,7 +17,12 @@ function getLogger() {
 
 	return {
 		logger: new Logger({
-			dest: { write: (msg: any) => logs.push(msg) },
+			dest: {
+				write: (msg: any) => {
+					logs.push(msg);
+					return true;
+				},
+			},
 			level: 'debug',
 		}),
 		logs,
@@ -48,7 +53,7 @@ describe('routing - createRoutesList', () => {
 			base: '/search',
 			trailingSlash: 'never',
 		});
-		const manifest = await createRoutesList({ cwd: fixture.path, settings });
+		const manifest = await createRoutesList({ cwd: fixture.path, settings }, defaultLogger);
 		const [{ pattern }] = manifest.routes;
 		assert.equal(pattern.test(''), true);
 		assert.equal(pattern.test('/'), false);
@@ -67,10 +72,10 @@ describe('routing - createRoutesList', () => {
 			trailingSlash: 'never',
 		});
 		settings.injectedRoutes = [
-			{ pattern: '/about', entrypoint: 'src/entrypoint.astro' },
-			{ pattern: '/api', entrypoint: 'src/entrypoint.ts' },
+			{ origin: 'project' as const, pattern: '/about', entrypoint: 'src/entrypoint.astro' },
+			{ origin: 'project' as const, pattern: '/api', entrypoint: 'src/entrypoint.ts' },
 		];
-		const manifest = await createRoutesList({ cwd: fixture.path, settings });
+		const manifest = await createRoutesList({ cwd: fixture.path, settings }, defaultLogger);
 		assert.deepEqual(getManifestRoutes(manifest), [
 			{ route: '/about', type: 'page' },
 			{ route: '/api', type: 'endpoint' },
@@ -92,7 +97,7 @@ describe('routing - createRoutesList', () => {
 			base: '/search',
 			trailingSlash: 'never',
 		});
-		const manifest = await createRoutesList({ cwd: fixture.path, settings });
+		const manifest = await createRoutesList({ cwd: fixture.path, settings }, defaultLogger);
 		assertRouteRelations(getManifestRoutes(manifest), [
 			['/', '/[...rest]'],
 			['/static', '/static-[dynamic]'],
@@ -119,7 +124,7 @@ describe('routing - createRoutesList', () => {
 			base: '/search',
 			trailingSlash: 'never',
 		});
-		const manifest = await createRoutesList({ cwd: fixture.path, settings });
+		const manifest = await createRoutesList({ cwd: fixture.path, settings }, defaultLogger);
 		assertRouteRelations(getManifestRoutes(manifest), [
 			['/test', '/test/[...slug]'],
 			['/modules', '/modules/[...slug]'],
@@ -151,7 +156,7 @@ describe('routing - createRoutesList', () => {
 			base: '/search',
 			trailingSlash: 'never',
 		});
-		const manifest = await createRoutesList({ cwd: fixture.path, settings });
+		const manifest = await createRoutesList({ cwd: fixture.path, settings }, defaultLogger);
 		assertRouteRelations(getManifestRoutes(manifest), [
 			['/', '/[...rest]'],
 			['/', '/[...other]'],
@@ -187,10 +192,10 @@ describe('routing - createRoutesList', () => {
 			trailingSlash: 'never',
 		});
 		settings.injectedRoutes = [
-			{ pattern: '/contributing', entrypoint: 'src/entrypoint.astro' },
-			{ pattern: '/[...slug]', entrypoint: 'src/entrypoint.astro', priority: 'normal' },
+			{ origin: 'project' as const, pattern: '/contributing', entrypoint: 'src/entrypoint.astro' },
+			{ origin: 'project' as const, pattern: '/[...slug]', entrypoint: 'src/entrypoint.astro' },
 		];
-		const manifest = await createRoutesList({ cwd: fixture.path, settings });
+		const manifest = await createRoutesList({ cwd: fixture.path, settings }, defaultLogger);
 		assert.deepEqual(getManifestRoutes(manifest), [
 			{ route: '/_image', type: 'endpoint' },
 			{ route: '/blog/[...slug]', type: 'page' },
@@ -215,7 +220,7 @@ describe('routing - createRoutesList', () => {
 				'/blog/about': { status: 302, destination: '/another' },
 			},
 		});
-		const manifest = await createRoutesList({ cwd: fixture.path, settings });
+		const manifest = await createRoutesList({ cwd: fixture.path, settings }, defaultLogger);
 		assert.deepEqual(getManifestRoutes(manifest), [
 			{ route: '/_image', type: 'endpoint' },
 			{ route: '/blog/about', type: 'redirect' },
@@ -237,7 +242,7 @@ describe('routing - createRoutesList', () => {
 			trailingSlash: 'never',
 			integrations: [],
 		});
-		settings.injectedRoutes = [{ pattern: '/contributing', entrypoint: 'src/entrypoint.astro' }];
+		settings.injectedRoutes = [{ origin: 'project' as const, pattern: '/contributing', entrypoint: 'src/entrypoint.astro' }];
 		const { logger, logs } = getLogger();
 		await createRoutesList({ cwd: fixture.path, settings }, logger);
 		assert.deepEqual(logs, [
@@ -302,9 +307,9 @@ describe('routing - createRoutesList', () => {
 			redirects: { '/posts/a-[b].233': '/blog/a-[b].233' },
 		});
 		settings.injectedRoutes = [
-			{ pattern: '/[c]-d', entrypoint: 'src/entrypoint.astro', priority: 'normal' },
+			{ origin: 'project' as const, pattern: '/[c]-d', entrypoint: 'src/entrypoint.astro' },
 		];
-		const manifest = await createRoutesList({ cwd: fixture.path, settings });
+		const manifest = await createRoutesList({ cwd: fixture.path, settings }, defaultLogger);
 		assert.deepEqual(getManifestRoutes(manifest), [
 			{ type: 'endpoint', route: '/_image' },
 			{ type: 'endpoint', route: '/blog/a-[b].233' },

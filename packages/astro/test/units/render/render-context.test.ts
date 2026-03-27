@@ -1,9 +1,9 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import type { RouteData } from '../../../dist/types/public/internal.js';
 import { RenderContext } from '../../../dist/core/render-context.js';
 import { createComponent, maybeRenderHead, render } from '../../../dist/runtime/server/index.js';
 import { createBasicPipeline } from '../test-utils.js';
+import { createRouteData } from '../mocks.js';
 
 const createAstroModule = (AstroComponent: ReturnType<typeof createComponent>) => ({
 	default: AstroComponent,
@@ -43,14 +43,12 @@ describe('RenderContext', () => {
 				body: new FormData(),
 			});
 
-			const routeData = {
-				type: 'page',
+			const routeData = createRouteData({
+				route: '/404',
 				pathname: '/404',
 				component: 'src/pages/404.astro',
-				params: {},
-				route: '/404',
 				prerender: false,
-			} as unknown as RouteData;
+			});
 
 			// Create context with skipMiddleware=true (as happens during error recovery)
 			const renderContext = await RenderContext.create({
@@ -105,14 +103,12 @@ describe('RenderContext', () => {
 				body: new FormData(),
 			});
 
-			const routeData = {
-				type: 'page',
+			const routeData = createRouteData({
+				route: '/page',
 				pathname: '/page',
 				component: 'src/pages/page.astro',
-				params: {},
-				route: '/page',
 				prerender: false,
-			} as unknown as RouteData;
+			});
 
 			// Create context with skipMiddleware=false (normal flow)
 			const renderContext = await RenderContext.create({

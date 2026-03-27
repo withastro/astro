@@ -28,7 +28,7 @@ describe('getStaticPaths caching behavior', () => {
 			prerender: true,
 		});
 
-		const mod = {
+		const mod: any = {
 			default: () => {},
 			getStaticPaths: async () => {
 				callCount++;
@@ -81,7 +81,7 @@ describe('getStaticPaths caching behavior', () => {
 			prerender: true,
 		});
 
-		const mod = {
+		const mod: any = {
 			default: () => {},
 			getStaticPaths: async () => {
 				callCount++;
