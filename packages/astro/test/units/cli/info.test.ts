@@ -1,15 +1,14 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { getPackageManager } from '../../../dist/cli/info/core/get-package-manager.js';
 import { infoCommand } from '../../../dist/cli/info/core/info.js';
-import { TinyclipClipboard } from '../../../dist/cli/info/infra/tinyclip-clipboard.js';
 import { CliDebugInfoProvider } from '../../../dist/cli/info/infra/cli-debug-info-provider.js';
 import { DevDebugInfoProvider } from '../../../dist/cli/info/infra/dev-debug-info-provider.js';
 import { ProcessNodeVersionProvider } from '../../../dist/cli/info/infra/process-node-version-provider.js';
 import { ProcessPackageManagerUserAgentProvider } from '../../../dist/cli/info/infra/process-package-manager-user-agent-provider.js';
-import { SpyLogger } from '../test-utils.js';
+import { TinyclipClipboard } from '../../../dist/cli/info/infra/tinyclip-clipboard.js';
 import {
+	SpyLogger,
 	FakeAstroVersionProvider,
 	FakeDebugInfoProvider,
 	FakeNodeVersionProvider,
@@ -19,7 +18,7 @@ import {
 	PassthroughCommandRunner,
 	SpyClipboard,
 	SpyCommandExecutor,
-} from './utils.js';
+} from './utils.ts';
 
 describe('CLI info', () => {
 	describe('core', () => {
@@ -32,8 +31,9 @@ describe('CLI info', () => {
 
 				await runner.run(infoCommand, {
 					debugInfoProvider,
-					getDebugInfoFormatter: ({ pretty }) => ({
-						format: (debugInfo) => `${pretty}-${JSON.stringify(debugInfo)}`,
+					getDebugInfoFormatter: ({ pretty }: { pretty: boolean }) => ({
+						format: (debugInfo: Array<[string, string | Array<string>]>) =>
+							`${pretty}-${JSON.stringify(debugInfo)}`,
 					}),
 					clipboard,
 					logger,
@@ -51,8 +51,9 @@ describe('CLI info', () => {
 
 				await runner.run(infoCommand, {
 					debugInfoProvider,
-					getDebugInfoFormatter: ({ pretty }) => ({
-						format: (debugInfo) => `${pretty}-${JSON.stringify(debugInfo)}`,
+					getDebugInfoFormatter: ({ pretty }: { pretty: boolean }) => ({
+						format: (debugInfo: Array<[string, string | Array<string>]>) =>
+							`${pretty}-${JSON.stringify(debugInfo)}`,
 					}),
 					clipboard,
 					logger,

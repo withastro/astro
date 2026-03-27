@@ -140,6 +140,9 @@ jobs:
       - name: Lint publish code
         run: pnpm run publint
 
+      - name: Type-check test files
+        run: pnpm -C packages/astro run typecheck:tests
+
   test:
     name: 'Test (${{ matrix.TEST_SUITE.name }}): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})'
     runs-on: ${{ matrix.os }}

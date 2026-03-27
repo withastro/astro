@@ -1,4 +1,3 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { BuildTimeAstroVersionProvider } from '../../../dist/cli/infra/build-time-astro-version-provider.js';
@@ -7,8 +6,7 @@ import { LoggerHelpDisplay } from '../../../dist/cli/infra/logger-help-display.j
 import { PassthroughTextStyler } from '../../../dist/cli/infra/passthrough-text-styler.js';
 import { ProcessOperatingSystemProvider } from '../../../dist/cli/infra/process-operating-system-provider.js';
 import packageJson from '../../../package.json' with { type: 'json' };
-import { SpyLogger } from '../test-utils.js';
-import { FakeAstroVersionProvider, SpyHelpDisplay } from './utils.js';
+import { FakeAstroVersionProvider, SpyHelpDisplay, SpyLogger } from './utils.ts';
 
 describe('CLI shared', () => {
 	describe('infra', () => {
