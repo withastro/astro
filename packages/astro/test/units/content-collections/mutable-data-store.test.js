@@ -82,16 +82,16 @@ describe('MutableDataStore', () => {
 		});
 
 		await store.writeAssetImports(assetsFilePath);
-		const before = await fs.readFile(assetsFilePath, 'utf-8');
-		assert.ok(before.includes('to-be-removed.webp'), 'should contain the image before deletion');
+		const contentBefore = await fs.readFile(assetsFilePath, 'utf-8');
+		assert.ok(contentBefore.includes('to-be-removed.webp'), 'should contain the image before deletion');
 
 		scoped.delete('deleted-entry');
 		await store.writeAssetImports(assetsFilePath);
 		await store.waitUntilSaveComplete();
 
-		const after = await fs.readFile(assetsFilePath, 'utf-8');
+		const contentAfter = await fs.readFile(assetsFilePath, 'utf-8');
 		assert.ok(
-			!after.includes('to-be-removed.webp'),
+			!contentAfter.includes('to-be-removed.webp'),
 			'should NOT contain the image after the entry is deleted',
 		);
 	});
@@ -110,16 +110,16 @@ describe('MutableDataStore', () => {
 		});
 
 		await store.writeAssetImports(assetsFilePath);
-		const before = await fs.readFile(assetsFilePath, 'utf-8');
-		assert.ok(before.includes('cover.webp'), 'should contain the image before clear');
+		const contentBefore = await fs.readFile(assetsFilePath, 'utf-8');
+		assert.ok(contentBefore.includes('cover.webp'), 'should contain the image before clear');
 
 		scoped.clear();
 		await store.writeAssetImports(assetsFilePath);
 		await store.waitUntilSaveComplete();
 
-		const after = await fs.readFile(assetsFilePath, 'utf-8');
+		const contentAfter = await fs.readFile(assetsFilePath, 'utf-8');
 		assert.ok(
-			!after.includes('cover.webp'),
+			!contentAfter.includes('cover.webp'),
 			'should NOT contain the image after the collection is cleared',
 		);
 	});
