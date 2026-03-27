@@ -111,7 +111,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 							internals.cssModuleToChunkIdMap.has(moduleId),
 						);
 
-						if (allCssInSSR && shouldDeleteCSSChunk(allModules, internals)) {
+						if (allCssInSSR && shouldDeleteCSSChunk(allModules, internals, this)) {
 							// Delete the CSS assets that were imported by this chunk
 							for (const cssId of meta.importedCss) {
 								delete bundle[cssId];
@@ -407,7 +407,11 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
  * Check if a CSS chunk should be deleted. Only delete if it contains client-only or hydrated
  * components that are NOT also used on other pages.
  */
-function shouldDeleteCSSChunk(allModules: string[], internals: BuildInternals): boolean {
+function shouldDeleteCSSChunk(
+	allModules: string[],
+	internals: BuildInternals,
+	ctx: { getModuleInfo: GetModuleInfo },
+): boolean {
 	// Find all components in this chunk that are client-only or hydrated
 	const componentPaths = new Set<string>();
 
@@ -425,6 +429,15 @@ function shouldDeleteCSSChunk(allModules: string[], internals: BuildInternals): 
 
 	// If no special components found, don't delete
 	if (componentPaths.size === 0) return false;
+
+	// Check if any module in this chunk is a descendant of a client:only component.
+	// If so, the CSS may not have been included via SSR for those pages (since client:only
+	// skips SSR), so we must keep it to avoid missing styles.
+	for (const moduleId of allModules) {
+		for (const _pageData of getParentClientOnlys(moduleId, ctx, internals)) {
+			return false;
+		}
+	}
 
 	// Check if any component is used on non-client-only pages
 	for (const componentPath of componentPaths) {
