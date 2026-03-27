@@ -97,10 +97,9 @@ async function restartContainerInPlace(container: Container): Promise<AstroSetti
 			{ settings, logger, mode, command: 'dev', fs, sync: false, routesList },
 		);
 
-		// Patch the new inline config onto the existing server so Vite's own
-		// restartServer() picks up the new plugins when it calls _createServer().
-		// viteServer.config.inlineConfig is typed as readonly so we use Object.assign.
-		Object.assign(container.viteServer.config, { inlineConfig: newViteConfig });
+		// Resolve the new inline config into a full ResolvedConfig and assign it
+		// onto the existing server so Vite's restartServer() uses the new plugins.
+		container.viteServer.config = await vite.resolveConfig(newViteConfig, 'serve');
 
 		await container.viteServer.restart();
 
