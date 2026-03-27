@@ -104,7 +104,6 @@ async function restartContainerInPlace(container: Container): Promise<AstroSetti
 		await container.viteServer.restart();
 
 		container.settings = settings;
-		container.restartInFlight = false;
 		return settings;
 	} catch (_err) {
 		const error = createSafeError(_err);
@@ -114,13 +113,14 @@ async function restartContainerInPlace(container: Container): Promise<AstroSetti
 				formatErrorMessage(collectErrorMetadata(error), logger.level() === 'debug') + '\n',
 			);
 		}
-		container.viteServer.environments.client.hot.send({
+		container.viteServer.environments?.client?.hot?.send({
 			type: 'error',
 			err: { message: error.message, stack: error.stack || '' },
 		});
-		container.restartInFlight = false;
 		logger.error(null, 'Continuing with previous valid configuration\n');
 		return error;
+	} finally {
+		container.restartInFlight = false;
 	}
 }
 
@@ -212,11 +212,21 @@ export async function createContainerWithAutomaticRestart({
 		};
 	}
 
+	let changeHandler: (file: string) => void;
+	let unlinkHandler: (file: string) => void;
+	let addHandler: (file: string) => void;
+
 	function setupContainer() {
 		const watcher = restart.container.viteServer.watcher;
-		watcher.on('change', handleChangeRestart('Configuration file updated.'));
-		watcher.on('unlink', handleChangeRestart('Configuration file removed.'));
-		watcher.on('add', handleChangeRestart('Configuration file added.'));
+		if (changeHandler) watcher.off('change', changeHandler);
+		if (unlinkHandler) watcher.off('unlink', unlinkHandler);
+		if (addHandler) watcher.off('add', addHandler);
+		changeHandler = handleChangeRestart('Configuration file updated.');
+		unlinkHandler = handleChangeRestart('Configuration file removed.');
+		addHandler = handleChangeRestart('Configuration file added.');
+		watcher.on('change', changeHandler);
+		watcher.on('unlink', unlinkHandler);
+		watcher.on('add', addHandler);
 	}
 
 	setupContainer();
