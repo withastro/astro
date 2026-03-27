@@ -8,11 +8,29 @@ import {
 	getParentModuleInfos,
 	moduleIsTopLevelPage,
 } from '../graph.js';
+
 import type { BuildInternals } from '../internal.js';
 import { getPageDataByViteID, getPageDatasByClientOnlyID } from '../internal.js';
 import type { PageBuildData, StaticBuildOptions, StylesheetAsset } from '../types.js';
 import { normalizeEntryId } from './plugin-component-entry.js';
 import { shouldInlineAsset } from './util.js';
+
+/**
+ * Creates a boundary check that stops CSS graph traversal at both
+ * propagated-asset boundaries and top-level page boundaries.
+ *
+ * Without the page boundary check, the walk can escape through
+ * `virtual:astro:pages` → `virtual:astro:manifest` → `astro:config/server`
+ * and re-enter unrelated page trees via shared virtual modules like `astro:i18n`,
+ * leaking CSS from one page into another.
+ */
+function createCssTraversalBoundary(getModuleInfo: GetModuleInfo) {
+	return (moduleId: string): boolean => {
+		if (isPropagatedAssetBoundary(moduleId)) return true;
+		const info = getModuleInfo(moduleId);
+		return info ? moduleIsTopLevelPage(info) : false;
+	};
+}
 
 /***** ASTRO PLUGIN *****/
 
@@ -158,7 +176,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 								const parentModuleInfos = getParentExtendedModuleInfos(
 									scopedToModule,
 									this,
-									isPropagatedAssetBoundary,
+									createCssTraversalBoundary(this.getModuleInfo),
 								);
 								for (const { info: pageInfo, depth, order } of parentModuleInfos) {
 									if (moduleIsTopLevelPage(pageInfo)) {
@@ -230,7 +248,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 					const parentModuleInfos = getParentExtendedModuleInfos(
 						id,
 						this,
-						isPropagatedAssetBoundary,
+						createCssTraversalBoundary(this.getModuleInfo),
 					);
 					for (const { info: pageInfo, depth, order } of parentModuleInfos) {
 						if (isPropagatedAssetBoundary(pageInfo.id)) {
