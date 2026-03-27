@@ -6,7 +6,6 @@ import {
 	createContainerWithAutomaticRestart,
 	startContainer,
 } from '../../../dist/core/dev/index.js';
-import { kSetRestartHandler } from '../../../dist/core/dev/vite-plugin-restart.js';
 import { createFixture, createRequestAndResponse } from '../test-utils.js';
 
 /** @type {import('astro').AstroInlineConfig} */
@@ -195,83 +194,10 @@ describe('dev container restarts', { timeout: 20000 }, () => {
 		assert.equal(isStarted(restart.container), true);
 
 		try {
-			let restartComplete = restart.restarted();
+			// viteServer.restart() is now handled natively by Vite — just verify
+			// it completes without error and the server is still running.
 			await restart.container.viteServer.restart();
-			await restartComplete;
-		} finally {
-			await restart.container.close();
-		}
-	});
-
-	it('Preserves plugin restart wrapper chain during restarts', async () => {
-		// This test verifies that plugins which wrap viteServer.restart
-		// (like @cloudflare/vite-plugin for tracking isRestartingDevServer)
-		// have their wrappers called when Astro performs a restart.
-		const fixture = await createFixture({
-			'/src/pages/index.astro': ``,
-			'/astro.config.mjs': ``,
-		});
-
-		let beginCalled = false;
-		let endCalled = false;
-
-		const restart = await createContainerWithAutomaticRestart({
-			inlineConfig: {
-				...defaultInlineConfig,
-				root: fixture.path,
-				vite: {
-					plugins: [
-						{
-							name: 'test-restart-wrapper',
-							configureServer(server) {
-								// Simulate what @cloudflare/vite-plugin does:
-								// wrap viteServer.restart to track restart state
-								const originalRestart = server.restart.bind(server);
-								server.restart = async () => {
-									beginCalled = true;
-									try {
-										await originalRestart();
-									} finally {
-										endCalled = true;
-									}
-								};
-							},
-						},
-					],
-				},
-			},
-		});
-		await startContainer(restart.container);
-		assert.equal(isStarted(restart.container), true);
-
-		try {
-			let restartComplete = restart.restarted();
-			await restart.container.viteServer.restart();
-			await restartComplete;
-
-			// Verify that the plugin's wrapper was called during the restart
-			assert.equal(beginCalled, true, 'Plugin restart wrapper begin should be called');
-			assert.equal(endCalled, true, 'Plugin restart wrapper end should be called');
-		} finally {
-			await restart.container.close();
-		}
-	});
-
-	it('Exposes kSetRestartHandler on the Vite server', async () => {
-		const fixture = await createFixture({
-			'/src/pages/index.astro': ``,
-		});
-
-		const restart = await createContainerWithAutomaticRestart({
-			inlineConfig: {
-				...defaultInlineConfig,
-				root: fixture.path,
-			},
-		});
-
-		try {
-			// The astro:restart plugin should have set up the handler mechanism
-			assert.equal(typeof restart.container.viteServer[kSetRestartHandler], 'function');
+			assert.equal(isStarted(restart.container), true);
 		} finally {
 			await restart.container.close();
 		}
