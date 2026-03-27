@@ -1,9 +1,8 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { serverStart } from '../../../dist/core/messages/runtime.js';
 import { PassthroughTextStyler } from '../../../dist/cli/infra/passthrough-text-styler.js';
-import { FakeAstroVersionProvider } from './utils.js';
+import { serverStart } from '../../../dist/core/messages/runtime.js';
+import { FakeAstroVersionProvider } from './utils.ts';
 
 const textStyler = new PassthroughTextStyler();
 const astroVersionProvider = new FakeAstroVersionProvider('1.2.3');

@@ -1,11 +1,15 @@
-import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
+import type { AstroConfig } from '../../../dist/types/public/config.js';
+import type { AstroSettings } from '../../../dist/types/astro.js';
 import { parseRoute } from '../../../dist/core/routing/parse-route.js';
+
+type ParseRouteConfig = Pick<AstroSettings, 'config' | 'pageExtensions'>;
 
 describe('parseRoute', () => {
 	it('uses pageExtensions to strip file extensions', () => {
-		const options = {
-			config: { base: '/', trailingSlash: 'ignore' },
+		const options: ParseRouteConfig = {
+			config: { base: '/', trailingSlash: 'ignore' } as AstroConfig,
 			pageExtensions: ['.mdx'],
 		};
 

@@ -5,7 +5,9 @@ import { spawn } from 'node:child_process';
 import type { Readable } from 'node:stream';
 import { text as textFromStream } from 'node:stream/consumers';
 
-const WINDOWS_CMD_SHIMS = new Set(['npm', 'npx', 'pnpm', 'pnpx', 'yarn', 'yarnpkg', 'bun', 'bunx']);
+const WINDOWS_CMD_SHIMS = new Set(['npm', 'npx', 'pnpm', 'pnpx', 'yarn', 'yarnpkg']);
+// Bun ships as .exe on Windows, not .cmd, so it can be spawned directly with the .exe extension
+const WINDOWS_EXE_SHIMS = new Set(['bun', 'bunx']);
 
 interface ExecaOptions {
 	cwd?: string | URL;
@@ -23,14 +25,19 @@ const text = (stream: NodeJS.ReadableStream | Readable | null) =>
 /**
  * On Windows, `.cmd` and `.bat` files cannot be spawned directly without a shell.
  * For known package manager shims, we invoke them via `cmd.exe /d /s /c` instead.
+ * Bun ships as `.exe` on Windows (not `.cmd`), so it can be spawned directly.
  * Returns [resolvedCommand, resolvedFlags] to use with spawn.
  */
 function resolveCommand(command: string, flags: string[]): [string, string[]] {
 	if (process.platform !== 'win32') return [command, flags];
 	if (command.includes('/') || command.includes('\\') || command.includes('.'))
 		return [command, flags];
-	if (WINDOWS_CMD_SHIMS.has(command.toLowerCase())) {
+	const cmd = command.toLowerCase();
+	if (WINDOWS_CMD_SHIMS.has(cmd)) {
 		return ['cmd.exe', ['/d', '/s', '/c', `${command}.cmd`, ...flags]];
+	}
+	if (WINDOWS_EXE_SHIMS.has(cmd)) {
+		return [`${command}.exe`, flags];
 	}
 	return [command, flags];
 }
