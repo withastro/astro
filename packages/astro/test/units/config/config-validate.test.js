@@ -158,6 +158,23 @@ describe('Config Validation', () => {
 			);
 		});
 
+		it('allows defaultLocale when present in object locale codes', async () => {
+			assert.doesNotThrow(async () => {
+				await validateConfig({
+					i18n: {
+						defaultLocale: 'zh',
+						locales: [
+							'en',
+							{
+								path: 'cn',
+								codes: ['zh'],
+							},
+						],
+					},
+				});
+			});
+		});
+
 		it('errors if a fallback value does not exist', async () => {
 			const configError = await validateConfig({
 				i18n: {

@@ -67,14 +67,13 @@ export const AstroConfigRefinedSchema = z.custom<AstroConfig>().superRefine((con
 
 	if (config.i18n) {
 		const { defaultLocale, locales: _locales, fallback, domains } = config.i18n;
-		const locales = _locales.map((locale) => {
+		const localeCodes = _locales.flatMap((locale) => {
 			if (typeof locale === 'string') {
-				return locale;
-			} else {
-				return locale.path;
+				return [locale];
 			}
+			return locale.codes;
 		});
-		if (!locales.includes(defaultLocale)) {
+		if (!localeCodes.includes(defaultLocale)) {
 			ctx.addIssue({
 				code: z.ZodIssueCode.custom,
 				message: `The default locale \`${defaultLocale}\` is not present in the \`i18n.locales\` array.`,
@@ -83,7 +82,7 @@ export const AstroConfigRefinedSchema = z.custom<AstroConfig>().superRefine((con
 		}
 		if (fallback) {
 			for (const [fallbackFrom, fallbackTo] of Object.entries(fallback)) {
-				if (!locales.includes(fallbackFrom)) {
+				if (!localeCodes.includes(fallbackFrom)) {
 					ctx.addIssue({
 						code: z.ZodIssueCode.custom,
 						message: `The locale \`${fallbackFrom}\` key in the \`i18n.fallback\` record doesn't exist in the \`i18n.locales\` array.`,
@@ -99,7 +98,7 @@ export const AstroConfigRefinedSchema = z.custom<AstroConfig>().superRefine((con
 					});
 				}
 
-				if (!locales.includes(fallbackTo)) {
+				if (!localeCodes.includes(fallbackTo)) {
 					ctx.addIssue({
 						code: z.ZodIssueCode.custom,
 						message: `The locale \`${fallbackTo}\` value in the \`i18n.fallback\` record doesn't exist in the \`i18n.locales\` array.`,
@@ -138,7 +137,7 @@ export const AstroConfigRefinedSchema = z.custom<AstroConfig>().superRefine((con
 			}
 
 			for (const [domainKey, domainValue] of entries) {
-				if (!locales.includes(domainKey)) {
+				if (!localeCodes.includes(domainKey)) {
 					ctx.addIssue({
 						code: z.ZodIssueCode.custom,
 						message: `The locale \`${domainKey}\` key in the \`i18n.domains\` record doesn't exist in the \`i18n.locales\` array.`,
