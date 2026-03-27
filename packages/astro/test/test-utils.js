@@ -160,11 +160,13 @@ export async function loadFixture(inlineConfig) {
 		check: async (opts) => {
 			return await check(opts);
 		},
-		startDevServer: async (extraInlineConfig = {}) => {
+		startDevServer: async (extraInlineConfig = {}, extraEnvVars = {}) => {
 			globalContentLayer.dispose();
 			globalContentConfigObserver.set({ status: 'init' });
 			// Reset NODE_ENV so it can be re-set by `dev()`
 			delete process.env.NODE_ENV;
+			// Assign extra environment variables
+			Object.assign(process.env, extraEnvVars);
 			try {
 				devServer = await dev(mergeConfig(inlineConfig, extraInlineConfig));
 			} catch (e) {
