@@ -131,7 +131,7 @@ export async function syncInternal({
 		// Create the Vite server once and keep it alive for both content config loading
 		// and content layer sync. This is needed because loaders may use dynamic imports
 		// which require the Vite server to be running. See https://github.com/withastro/astro/issues/12689
-		const tempViteServer = await createTempViteServer(settings, { mode, fs, logger });
+		const tempViteServer = await createTempViteServer(settings, { mode, fs, logger, command });
 
 		try {
 			await syncContentCollections(settings, { fs, logger, viteServer: tempViteServer });
@@ -223,7 +223,12 @@ function writeInjectedTypes(settings: AstroSettings, fs: typeof fsMod) {
  */
 async function createTempViteServer(
 	settings: AstroSettings,
-	{ mode, logger, fs }: Required<Pick<SyncOptions, 'mode' | 'logger' | 'fs'>>,
+	{
+		mode,
+		logger,
+		fs,
+		command,
+	}: Required<Pick<SyncOptions, 'mode' | 'logger' | 'fs' | 'command'>>,
 ): Promise<ViteDevServer> {
 	const routesList = await createRoutesList(
 		{
@@ -256,7 +261,7 @@ async function createTempViteServer(
 				},
 				logger,
 				mode,
-				command: 'build',
+				command: command === 'dev' ? 'dev' : 'build',
 				fs,
 				sync: true,
 			},
