@@ -20,10 +20,19 @@ interface Output {
 const text = (stream: NodeJS.ReadableStream | Readable | null) =>
 	stream ? textFromStream(stream).then((t) => t.trimEnd()) : '';
 
-function resolveCommand(command: string) {
-	if (process.platform !== 'win32') return command;
-	if (command.includes('/') || command.includes('\\') || command.includes('.')) return command;
-	return WINDOWS_CMD_SHIMS.has(command.toLowerCase()) ? `${command}.cmd` : command;
+/**
+ * On Windows, `.cmd` and `.bat` files cannot be spawned directly without a shell.
+ * For known package manager shims, we invoke them via `cmd.exe /d /s /c` instead.
+ * Returns [resolvedCommand, resolvedFlags] to use with spawn.
+ */
+function resolveCommand(command: string, flags: string[]): [string, string[]] {
+	if (process.platform !== 'win32') return [command, flags];
+	if (command.includes('/') || command.includes('\\') || command.includes('.'))
+		return [command, flags];
+	if (WINDOWS_CMD_SHIMS.has(command.toLowerCase())) {
+		return ['cmd.exe', ['/d', '/s', '/c', `${command}.cmd`, ...flags]];
+	}
+	return [command, flags];
 }
 
 export async function shell(
@@ -35,7 +44,8 @@ export async function shell(
 	let stdout = '';
 	let stderr = '';
 	try {
-		child = spawn(resolveCommand(command), flags, {
+		const [resolvedCommand, resolvedFlags] = resolveCommand(command, flags);
+		child = spawn(resolvedCommand, resolvedFlags, {
 			cwd: opts.cwd,
 			stdio: opts.stdio,
 			timeout: opts.timeout,
@@ -45,15 +55,16 @@ export async function shell(
 			child.once('close', () => resolve());
 		});
 		[stdout, stderr] = await Promise.all([text(child.stdout), text(child.stderr), done]);
-	} catch {
-		throw { stdout, stderr, exitCode: 1 };
+	} catch (e) {
+		const message = e instanceof Error ? e.message : stderr || 'Unknown error';
+		throw new Error(message);
 	}
 	const { exitCode } = child;
 	if (exitCode === null) {
 		throw new Error('Timeout');
 	}
 	if (exitCode !== 0) {
-		throw new Error(stderr);
+		throw new Error(stderr || `Process exited with code ${exitCode}`);
 	}
 	return { stdout, stderr, exitCode };
 }

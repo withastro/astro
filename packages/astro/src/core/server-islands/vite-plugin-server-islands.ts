@@ -19,7 +19,7 @@ export function vitePluginServerIslands({
 	serverIslandsState,
 }: AstroPluginOptions & { serverIslandsState: ServerIslandsState }): VitePlugin {
 	let command: ConfigEnv['command'] = 'serve';
-	let ssrEnvironment: DevEnvironment | null = null;
+	let serverEnvironments: DevEnvironment[] = [];
 
 	function ensureServerIslandReferenceIds(ctx: {
 		emitFile: (file: { type: 'chunk'; id: string; importer?: string; name?: string }) => string;
@@ -50,7 +50,20 @@ export function vitePluginServerIslands({
 			ensureServerIslandReferenceIds(this);
 		},
 		configureServer(server) {
-			ssrEnvironment = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
+			// Collect all server-side environments that might cache the manifest module.
+			// With adapters like Cloudflare that use a separate `prerender` environment,
+			// we need to invalidate the manifest in all of them, not just `ssr`.
+			serverEnvironments = [];
+			for (const name of [
+				ASTRO_VITE_ENVIRONMENT_NAMES.ssr,
+				ASTRO_VITE_ENVIRONMENT_NAMES.prerender,
+				ASTRO_VITE_ENVIRONMENT_NAMES.astro,
+			]) {
+				const env = server.environments[name];
+				if (env) {
+					serverEnvironments.push(env);
+				}
+			}
 		},
 		resolveId: {
 			filter: {
@@ -108,10 +121,12 @@ export function vitePluginServerIslands({
 					}
 				}
 
-				if (serverIslandsState.hasIslands() && ssrEnvironment) {
-					const mod = ssrEnvironment.moduleGraph.getModuleById(RESOLVED_SERVER_ISLAND_MANIFEST);
-					if (mod) {
-						ssrEnvironment.moduleGraph.invalidateModule(mod);
+				if (serverIslandsState.hasIslands()) {
+					for (const env of serverEnvironments) {
+						const mod = env.moduleGraph.getModuleById(RESOLVED_SERVER_ISLAND_MANIFEST);
+						if (mod) {
+							env.moduleGraph.invalidateModule(mod);
+						}
 					}
 				}
 

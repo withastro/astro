@@ -1,13 +1,7 @@
 import { internalFetchHeaders } from 'virtual:astro:adapter-config/client';
 import type { TransitionBeforePreparationEvent } from './events.js';
-import {
-	doPreparation,
-	doSwap,
-	TRANSITION_AFTER_SWAP,
-	onPageLoad,
-	triggerEvent,
-	updateScrollPosition,
-} from './events.js';
+
+import { doPreparation, doSwap, onPageLoad, triggerEvent, updateScrollPosition } from './events.js';
 import { detectScriptExecuted } from './swap-functions.js';
 import type { Direction, Fallback, Options } from './types.js';
 
@@ -319,7 +313,7 @@ async function updateDOM(
 		animateFallbackOld,
 	);
 	moveToLocation(swapEvent.to, swapEvent.from, options, pageTitleForBrowserHistory, historyState);
-	triggerEvent(TRANSITION_AFTER_SWAP);
+	triggerEvent('astro:after-swap');
 
 	// Resolve the finished promise of the simulation's ViewTransition.
 	// For 'animate', wait for the new-page animation to complete first.
