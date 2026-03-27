@@ -358,7 +358,7 @@ export class RenderContext {
 					break;
 				}
 				case 'fallback': {
-					return new Response(null, { status: 500, headers: { [ROUTE_TYPE_HEADER]: 'fallback' } });
+					return new Response(null, { status: 404, headers: { [ROUTE_TYPE_HEADER]: 'fallback' } });
 				}
 			}
 			// We need to merge the cookies from the response back into this.cookies
