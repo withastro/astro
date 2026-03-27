@@ -31,6 +31,7 @@ export default {
 				// Can't be detected automatically since it's only in package.json#files
 				'templates/**/*',
 				testEntry,
+				'test/**/*.ts',
 				'test/types/**/*',
 				'e2e/**/*.test.js',
 				'test/units/teardown.js',
