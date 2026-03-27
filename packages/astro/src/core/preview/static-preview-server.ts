@@ -2,7 +2,7 @@ import type http from 'node:http';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
-import { preview, type PreviewServer as VitePreviewServer } from 'vite';
+import { mergeConfig, preview, type PreviewServer as VitePreviewServer } from 'vite';
 import type { AstroSettings } from '../../types/astro.js';
 import type { Logger } from '../logger/core.js';
 import * as msg from '../messages/runtime.js';
@@ -27,7 +27,7 @@ export default async function createStaticPreviewServer(
 
 	let previewServer: VitePreviewServer;
 	try {
-		previewServer = await preview({
+		const previewDefaults: vite.InlineConfig = {
 			configFile: false,
 			base: settings.config.base,
 			appType: 'mpa',
@@ -40,10 +40,23 @@ export default async function createStaticPreviewServer(
 				port: settings.config.server.port,
 				headers: settings.config.server.headers,
 				open: settings.config.server.open,
-				allowedHosts: settings.config.server.allowedHosts,
 			},
 			plugins: [vitePluginAstroPreview(settings)],
-		});
+		};
+
+		const { plugins: _ignoredPlugins, ...projectViteConfig } = settings.config.vite ?? {};
+		const previewViteConfig = mergeConfig(projectViteConfig, previewDefaults);
+
+		const { allowedHosts: serverAllowedHosts } = settings.config.server;
+		if (
+			typeof serverAllowedHosts === 'boolean' ||
+			(Array.isArray(serverAllowedHosts) && serverAllowedHosts.length > 0)
+		) {
+			previewViteConfig.preview ??= {};
+			previewViteConfig.preview.allowedHosts = serverAllowedHosts;
+		}
+
+		previewServer = await preview(previewViteConfig);
 	} catch (err) {
 		if (err instanceof Error) {
 			logger.error(null, err.stack || err.message);
