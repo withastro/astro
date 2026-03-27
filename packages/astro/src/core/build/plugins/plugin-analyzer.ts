@@ -1,3 +1,4 @@
+import type { GetModuleInfo } from 'rollup';
 import type { Plugin as VitePlugin } from 'vite';
 import type { PluginMetadata as AstroPluginMetadata } from '../../../vite-plugin-astro/types.js';
 import { getTopLevelPageModuleInfos } from '../graph.js';
@@ -9,6 +10,27 @@ import {
 	trackScriptPageDatas,
 } from '../internal.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
+
+function collectImportedModuleIds(
+	id: string,
+	ctx: { getModuleInfo: GetModuleInfo },
+	seen = new Set<string>(),
+	accumulated: string[] = [],
+): string[] {
+	if (seen.has(id)) return accumulated;
+	seen.add(id);
+
+	const info = ctx.getModuleInfo(id);
+	if (!info) return accumulated;
+
+	for (const importedId of info.importedIds.concat(info.dynamicallyImportedIds)) {
+		if (seen.has(importedId)) continue;
+		accumulated.push(importedId);
+		collectImportedModuleIds(importedId, ctx, seen, accumulated);
+	}
+
+	return accumulated;
+}
 
 export function pluginAnalyzer(internals: BuildInternals): VitePlugin {
 	return {
@@ -52,7 +74,7 @@ export function pluginAnalyzer(internals: BuildInternals): VitePlugin {
 				}
 
 				if (astro.clientOnlyComponents.length) {
-					const clientOnlys: string[] = [];
+					const clientOnlys = new Set<string>();
 
 					for (const c of astro.clientOnlyComponents) {
 						const cid = c.resolvedPath ? decodeURI(c.resolvedPath) : c.specifier;
@@ -62,11 +84,14 @@ export function pluginAnalyzer(internals: BuildInternals): VitePlugin {
 						} else {
 							internals.discoveredClientOnlyComponents.set(cid, [c.exportName]);
 						}
-						clientOnlys.push(cid);
+						clientOnlys.add(cid);
 
 						const resolvedId = await this.resolve(c.specifier, id);
 						if (resolvedId) {
-							clientOnlys.push(resolvedId.id);
+							clientOnlys.add(resolvedId.id);
+							for (const importedId of collectImportedModuleIds(resolvedId.id, this)) {
+								clientOnlys.add(importedId);
+							}
 						}
 					}
 
@@ -74,7 +99,7 @@ export function pluginAnalyzer(internals: BuildInternals): VitePlugin {
 						const newPageData = getPageDataByViteID(internals, pageInfo.id);
 						if (!newPageData) continue;
 
-						trackClientOnlyPageDatas(internals, newPageData, clientOnlys);
+						trackClientOnlyPageDatas(internals, newPageData, [...clientOnlys]);
 					}
 				}
 

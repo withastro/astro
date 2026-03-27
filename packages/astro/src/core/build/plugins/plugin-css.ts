@@ -75,8 +75,6 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 			// and which pages/entries contain them. This is used to handle CSS with cssScopeTo
 			// metadata for conditionally rendered components.
 			const renderedComponentExports = new Map<string, string[]>();
-			// Map from component module ID to the pages that include it (via facadeModuleId)
-			const componentToPages = new Map<string, Set<string>>();
 
 			// Remove CSS files from client bundle that were already bundled with pages during SSR
 			if (this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
@@ -86,15 +84,6 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 					for (const [moduleId, moduleRenderedInfo] of Object.entries(item.modules)) {
 						if (moduleRenderedInfo.renderedExports.length > 0) {
 							renderedComponentExports.set(moduleId, moduleRenderedInfo.renderedExports);
-							// Track which entry/page this component belongs to
-							if (item.facadeModuleId) {
-								let pages = componentToPages.get(moduleId);
-								if (!pages) {
-									pages = new Set();
-									componentToPages.set(moduleId, pages);
-								}
-								pages.add(item.facadeModuleId);
-							}
 						}
 					}
 
@@ -129,9 +118,6 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 				// Skip if the chunk has no CSS, we want to handle CSS chunks only
 				if (meta.importedCss.size < 1) continue;
 
-				// For the client build, client:only styles need to be mapped
-				// over to their page. For this chunk, determine if it's a child of a
-				// client:only component and if so, add its CSS to the page it belongs to.
 				if (this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
 					for (const id of Object.keys(chunk.modules)) {
 						for (const pageData of getParentClientOnlys(id, this, internals)) {
@@ -426,16 +412,21 @@ function shouldDeleteCSSChunk(allModules: string[], internals: BuildInternals): 
 	// If no special components found, don't delete
 	if (componentPaths.size === 0) return false;
 
-	// Check if any component is used on non-client-only pages
+	// Only delete the client CSS chunk when every tracked usage of the component
+	// already belongs to a client:only page. If the component is also used on a
+	// hydrated page, that client CSS asset may still be the only stylesheet the
+	// client:only page can link to.
 	for (const componentPath of componentPaths) {
-		const pagesUsingClientOnly = internals.pagesByClientOnly.get(componentPath);
-		if (pagesUsingClientOnly) {
-			// If every page using this component is in the client-only set, it's safe to delete
-			// Otherwise, keep the CSS for pages that use it normally
-			for (const pageData of internals.pagesByKeys.values()) {
-				if (!pagesUsingClientOnly.has(pageData)) {
-					return false;
-				}
+		const pagesUsingClientOnly = new Set(getPageDatasByClientOnlyID(internals, componentPath));
+		if (pagesUsingClientOnly.size === 0) {
+			return false;
+		}
+
+		const hydratedPages =
+			internals.pagesByHydratedComponent.get(normalizeEntryId(componentPath)) ?? new Set();
+		for (const pageData of hydratedPages) {
+			if (!pagesUsingClientOnly.has(pageData)) {
+				return false;
 			}
 		}
 	}
