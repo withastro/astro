@@ -111,7 +111,11 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 							internals.cssModuleToChunkIdMap.has(moduleId),
 						);
 
-						if (allCssInSSR && shouldDeleteCSSChunk(allModules, internals)) {
+						if (
+							allCssInSSR &&
+							!hasClientOnlyOwner(allModules, componentToPages, internals) &&
+							shouldDeleteCSSChunk(allModules, internals)
+						) {
 							// Delete the CSS assets that were imported by this chunk
 							for (const cssId of meta.importedCss) {
 								delete bundle[cssId];
@@ -126,6 +130,24 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 				if ('viteMetadata' in chunk === false) continue;
 				const meta = chunk.viteMetadata as ViteMetadata;
 
+				if (
+					this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.client &&
+					chunk.facadeModuleId
+				) {
+					const clientOnlyPages = [
+						...getPageDatasByClientOnlyID(internals, normalizeEntryId(chunk.facadeModuleId)),
+					];
+					if (clientOnlyPages.length > 0) {
+						const entryModuleIds = collectModuleIdsForChunk(bundle, chunk.fileName);
+						const externalCss = collectHydratedExternalCss(entryModuleIds, internals);
+						for (const pageData of clientOnlyPages) {
+							for (const cssChunkId of externalCss) {
+								appendExternalCSSToPage(pageData, cssChunkId);
+							}
+						}
+					}
+				}
+
 				// Skip if the chunk has no CSS, we want to handle CSS chunks only
 				if (meta.importedCss.size < 1) continue;
 
@@ -134,7 +156,24 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 				// client:only component and if so, add its CSS to the page it belongs to.
 				if (this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
 					for (const id of Object.keys(chunk.modules)) {
+						const clientOnlyOwners = new Set<PageBuildData>();
 						for (const pageData of getParentClientOnlys(id, this, internals)) {
+							clientOnlyOwners.add(pageData);
+						}
+
+						const componentEntries = getComponentEntriesForModuleId(id, componentToPages);
+						if (componentEntries) {
+							for (const componentEntry of componentEntries) {
+								for (const pageData of getPageDatasByClientOnlyID(
+									internals,
+									normalizeEntryId(componentEntry),
+								)) {
+									clientOnlyOwners.add(pageData);
+								}
+							}
+						}
+
+						for (const pageData of clientOnlyOwners) {
 							for (const importedCssImport of meta.importedCss) {
 								const cssToInfoRecord = (pagesToCss[pageData.moduleSpecifier] ??= {});
 								cssToInfoRecord[importedCssImport] = { depth: -1, order: -1 };
@@ -191,29 +230,28 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 									}
 								}
 
-								// If we couldn't find a page through normal traversal,
-								// check if any parent in the chain is a hydrated component and
-								// use the pagesByHydratedComponent mapping from the server build.
-								let addedToAnyPage = false;
-								for (const importedCssImport of meta.importedCss) {
-									for (const pageData of internals.pagesByKeys.values()) {
-										const cssToInfoRecord = pagesToCss[pageData.moduleSpecifier];
-										if (cssToInfoRecord && importedCssImport in cssToInfoRecord) {
-											addedToAnyPage = true;
-											break;
+								// A scoped component can be rendered by multiple client entries.
+								// Associate its CSS with every client:only owner, even if another page
+								// already pulled the same stylesheet in through SSR or hydration.
+								const componentEntries = componentToPages.get(scopedToModule);
+								if (componentEntries) {
+									for (const componentEntry of componentEntries) {
+										for (const pageData of getPageDatasByClientOnlyID(
+											internals,
+											normalizeEntryId(componentEntry),
+										)) {
+											appendCSSToPage(pageData, meta, pagesToCss, -1, -1, this.environment?.name);
 										}
 									}
 								}
-								if (!addedToAnyPage) {
-									// Walk up the parent chain and check if any parent is a hydrated component
-									for (const { info: parentInfo } of parentModuleInfos) {
-										const normalizedParent = normalizeEntryId(parentInfo.id);
-										// Check if this parent is tracked as a hydrated component
-										const pages = internals.pagesByHydratedComponent.get(normalizedParent);
-										if (pages) {
-											for (const pageData of pages) {
-												appendCSSToPage(pageData, meta, pagesToCss, -1, -1, this.environment?.name);
-											}
+
+								// Walk up the parent chain and check if any parent is a hydrated component.
+								for (const { info: parentInfo } of parentModuleInfos) {
+									const normalizedParent = normalizeEntryId(parentInfo.id);
+									const pages = internals.pagesByHydratedComponent.get(normalizedParent);
+									if (pages) {
+										for (const pageData of pages) {
+											appendCSSToPage(pageData, meta, pagesToCss, -1, -1, this.environment?.name);
 										}
 									}
 								}
@@ -441,6 +479,112 @@ function shouldDeleteCSSChunk(allModules: string[], internals: BuildInternals): 
 	}
 
 	return true;
+}
+
+function hasClientOnlyOwner(
+	allModules: string[],
+	componentToPages: Map<string, Set<string>>,
+	internals: BuildInternals,
+): boolean {
+	for (const moduleId of allModules) {
+		const componentEntries = getComponentEntriesForModuleId(moduleId, componentToPages);
+		if (!componentEntries) continue;
+		for (const componentEntry of componentEntries) {
+			for (const _pageData of getPageDatasByClientOnlyID(
+				internals,
+				normalizeEntryId(componentEntry),
+			)) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+function getComponentEntriesForModuleId(
+	moduleId: string,
+	componentToPages: Map<string, Set<string>>,
+): Set<string> | undefined {
+	const directEntries = componentToPages.get(moduleId);
+	if (directEntries) {
+		return directEntries;
+	}
+
+	let matchedEntries: Set<string> | undefined;
+	for (const [componentId, entryIds] of componentToPages) {
+		if (!moduleId.includes(componentId)) continue;
+		matchedEntries ??= new Set();
+		for (const entryId of entryIds) {
+			matchedEntries.add(entryId);
+		}
+	}
+
+	return matchedEntries;
+}
+
+function collectModuleIdsForChunk(
+	bundle: Record<string, { type: string; imports?: string[]; modules?: Record<string, unknown> }>,
+	chunkFileName: string,
+	seen = new Set<string>(),
+): Set<string> {
+	if (seen.has(chunkFileName)) {
+		return new Set();
+	}
+	seen.add(chunkFileName);
+
+	const moduleIds = new Set<string>();
+	const chunk = bundle[chunkFileName];
+	if (!chunk || chunk.type !== 'chunk') {
+		return moduleIds;
+	}
+
+	for (const moduleId of Object.keys(chunk.modules ?? {})) {
+		moduleIds.add(moduleId);
+	}
+
+	for (const importedChunk of chunk.imports ?? []) {
+		for (const moduleId of collectModuleIdsForChunk(bundle, importedChunk, seen)) {
+			moduleIds.add(moduleId);
+		}
+	}
+
+	return moduleIds;
+}
+
+function collectHydratedExternalCss(
+	moduleIds: Set<string>,
+	internals: BuildInternals,
+): Set<string> {
+	const collectedCss = new Set<string>();
+	for (const moduleId of moduleIds) {
+		for (const [hydratedComponentId, pageDatas] of internals.pagesByHydratedComponent) {
+			if (!moduleId.includes(hydratedComponentId) && !hydratedComponentId.includes(moduleId)) {
+				continue;
+			}
+			for (const pageData of pageDatas) {
+				for (const style of pageData.styles) {
+					if (style.sheet.type === 'external') {
+						collectedCss.add(style.sheet.src);
+					}
+				}
+			}
+		}
+	}
+	return collectedCss;
+}
+
+function appendExternalCSSToPage(pageData: PageBuildData, cssChunkId: string) {
+	const alreadyAdded = pageData.styles.some(
+		(style) => style.sheet.type === 'external' && style.sheet.src === cssChunkId,
+	);
+	if (!alreadyAdded) {
+		pageData.styles.push({
+			depth: -1,
+			order: -1,
+			sheet: { type: 'external', src: cssChunkId },
+		});
+	}
 }
 
 function* getParentClientOnlys(

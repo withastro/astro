@@ -334,6 +334,21 @@ describe('CSS', function () {
 				assert.equal(onlyHtmlCss.includes('.svelte-only-and-ssr'), true);
 				assert.equal(ssrHtmlCss.includes('.svelte-only-and-ssr'), true);
 			});
+
+			it('client:only Vue wrappers keep nested child styles across pages', async () => {
+				const directHtml = await fixture.readFile('/client-only-and-client-load-vue/direct/index.html');
+				const $directHtml = cheerio.load(directHtml);
+				const directCssHref = $directHtml('link[rel=stylesheet][href^=/_astro/]').attr('href');
+				const directCss = await fixture.readFile(directCssHref.replace(/^\/?/, '/'));
+
+				const nestedHtml = await fixture.readFile('/client-only-and-client-load-vue/nested/index.html');
+				const $nestedHtml = cheerio.load(nestedHtml);
+				const nestedCssHref = $nestedHtml('link[rel=stylesheet][href^=/_astro/]').attr('href');
+				const nestedCss = await fixture.readFile(nestedCssHref.replace(/^\/?/, '/'));
+
+				assert.equal(directCss.includes('.client-load-nested-vue-header'), true);
+				assert.equal(nestedCss.includes('.client-load-nested-vue-header'), true);
+			});
 		});
 
 		describe('Vite features', () => {
