@@ -10,8 +10,6 @@ describe('Astro Cloudflare local dev vars from wrangler.json/c', () => {
 			root: './fixtures/wrangler-config-vars-dev/',
 		});
 		devServer = await fixture.startDevServer();
-		// Do an initial request to prime preloading
-		await fixture.fetch('/');
 	});
 
 	after(async () => {
@@ -33,8 +31,6 @@ describe('Astro Cloudflare environment-specific local dev vars from wrangler.jso
 			root: './fixtures/wrangler-config-vars-dev/',
 		});
 		devServer = await fixture.startDevServer(null, { CLOUDFLARE_ENV: 'testenv' });
-		// Do an initial request to prime preloading
-		await fixture.fetch('/');
 	});
 
 	after(async () => {

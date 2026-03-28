@@ -3,7 +3,7 @@ import { defineConfig, envField } from 'astro/config';
 
 export default defineConfig({
 	adapter: cloudflare(),
-	output: 'server',
+	output: 'static',
 	env: {
 		schema: {
 			TEST_VAR: envField.string({
