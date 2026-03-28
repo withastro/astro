@@ -52,6 +52,7 @@ type SyncOptions = {
 	};
 	command: 'build' | 'dev' | 'sync';
 	watcher?: FSWatcher;
+	viteServer?: ViteDevServer;
 };
 
 export default async function sync(
@@ -119,6 +120,7 @@ export async function syncInternal({
 	force,
 	command,
 	watcher,
+	viteServer,
 }: SyncOptions): Promise<void> {
 	const isDev = command === 'dev';
 	if (force) {
@@ -128,13 +130,15 @@ export async function syncInternal({
 	const timerStart = performance.now();
 
 	if (!skip?.content) {
-		// Create the Vite server once and keep it alive for both content config loading
-		// and content layer sync. This is needed because loaders may use dynamic imports
-		// which require the Vite server to be running. See https://github.com/withastro/astro/issues/12689
-		const tempViteServer = await createTempViteServer(settings, { mode, fs, logger, command });
+		// During dev restarts we already have the new container's Vite server created.
+		// Reuse it for sync so linked integrations do not need a second concurrent server.
+		const contentViteServer =
+			command === 'dev' && viteServer
+				? viteServer
+				: await createTempViteServer(settings, { mode, fs, logger, command });
 
 		try {
-			await syncContentCollections(settings, { fs, logger, viteServer: tempViteServer });
+			await syncContentCollections(settings, { fs, logger, viteServer: contentViteServer });
 			settings.timer.start('Sync content layer');
 
 			let store: MutableDataStore | undefined;
@@ -165,7 +169,9 @@ export async function syncInternal({
 			}
 			settings.timer.end('Sync content layer');
 		} finally {
-			await tempViteServer.close();
+			if (contentViteServer !== viteServer) {
+				await contentViteServer.close();
+			}
 		}
 	} else {
 		const paths = getContentPaths(

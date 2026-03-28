@@ -131,6 +131,7 @@ export async function createContainer({
 		force: inlineConfig?.force,
 		command: 'dev',
 		watcher: viteServer.watcher,
+		viteServer,
 	});
 
 	const container: Container = {
