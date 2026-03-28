@@ -12,6 +12,75 @@ import type {
 
 export type { SerializedRouteData } from '../../types/astro.js';
 
+const WINDOWS_DRIVE_PATH_RE = /^[A-Za-z]:[\\/]/;
+const WINDOWS_UNC_PATH_RE = /^\\\\[^\\]/;
+
+const SERIALIZED_DIRECTORY_FIELDS = [
+	'rootDir',
+	'srcDir',
+	'publicDir',
+	'outDir',
+	'cacheDir',
+	'buildClientDir',
+	'buildServerDir',
+] as const;
+
+type SerializedDirectoryField = (typeof SERIALIZED_DIRECTORY_FIELDS)[number];
+
+function toFileDirectoryURL(serializedDirectory: string): URL {
+	const normalizedDirectory = serializedDirectory.replace(/\\/g, '/');
+	const directoryWithTrailingSlash = normalizedDirectory.endsWith('/')
+		? normalizedDirectory
+		: `${normalizedDirectory}/`;
+
+	if (WINDOWS_DRIVE_PATH_RE.test(serializedDirectory)) {
+		return new URL(`file:///${encodeURI(directoryWithTrailingSlash)}`);
+	}
+
+	if (WINDOWS_UNC_PATH_RE.test(serializedDirectory)) {
+		return new URL(`file:${encodeURI(directoryWithTrailingSlash)}`);
+	}
+
+	return new URL(`file://${encodeURI(directoryWithTrailingSlash)}`);
+}
+
+function deserializeDirectoryPath(serializedDirectory: string): URL {
+	if (serializedDirectory.startsWith('file:')) {
+		return new URL(serializedDirectory);
+	}
+
+	if (
+		serializedDirectory.startsWith('/') ||
+		WINDOWS_DRIVE_PATH_RE.test(serializedDirectory) ||
+		WINDOWS_UNC_PATH_RE.test(serializedDirectory)
+	) {
+		return toFileDirectoryURL(serializedDirectory);
+	}
+
+	return new URL(serializedDirectory);
+}
+
+function getSerializedDirectoryPath(
+	serializedManifest: SerializedSSRManifest,
+	fieldName: SerializedDirectoryField,
+): string {
+	const serializedDirectory = serializedManifest[fieldName];
+
+	if (typeof serializedDirectory === 'string') {
+		return serializedDirectory;
+	}
+
+	const manifestType =
+		serializedManifest === null ? 'null' : Array.isArray(serializedManifest) ? 'array' : typeof serializedManifest;
+	const manifestValue =
+		manifestType === 'string'
+			? ` Manifest value: ${JSON.stringify(serializedManifest)}.`
+			: '';
+	throw new TypeError(
+		`Expected virtual:astro:manifest.${fieldName} to be a string, received ${typeof serializedDirectory}. Manifest type: ${manifestType}.${manifestValue}`,
+	);
+}
+
 export function deserializeManifest(
 	serializedManifest: SerializedSSRManifest,
 	routesList?: RoutesList,
@@ -51,13 +120,17 @@ export function deserializeManifest(
 			return { onRequest: NOOP_MIDDLEWARE_FN };
 		},
 		...serializedManifest,
-		rootDir: new URL(serializedManifest.rootDir),
-		srcDir: new URL(serializedManifest.srcDir),
-		publicDir: new URL(serializedManifest.publicDir),
-		outDir: new URL(serializedManifest.outDir),
-		cacheDir: new URL(serializedManifest.cacheDir),
-		buildClientDir: new URL(serializedManifest.buildClientDir),
-		buildServerDir: new URL(serializedManifest.buildServerDir),
+		rootDir: deserializeDirectoryPath(getSerializedDirectoryPath(serializedManifest, 'rootDir')),
+		srcDir: deserializeDirectoryPath(getSerializedDirectoryPath(serializedManifest, 'srcDir')),
+		publicDir: deserializeDirectoryPath(getSerializedDirectoryPath(serializedManifest, 'publicDir')),
+		outDir: deserializeDirectoryPath(getSerializedDirectoryPath(serializedManifest, 'outDir')),
+		cacheDir: deserializeDirectoryPath(getSerializedDirectoryPath(serializedManifest, 'cacheDir')),
+		buildClientDir: deserializeDirectoryPath(
+			getSerializedDirectoryPath(serializedManifest, 'buildClientDir'),
+		),
+		buildServerDir: deserializeDirectoryPath(
+			getSerializedDirectoryPath(serializedManifest, 'buildServerDir'),
+		),
 		assets,
 		componentMetadata,
 		inlinedScripts,

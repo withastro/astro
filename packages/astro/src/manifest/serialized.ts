@@ -43,6 +43,7 @@ export function serializedManifestPlugin({
 	sync: boolean;
 }): Plugin {
 	const normalizedSrcDir = normalizePath(fileURLToPath(settings.config.srcDir));
+	let viteCommand: 'serve' | 'build';
 	let encodedKeyPromise: Promise<string> | undefined;
 
 	function getEncodedKey() {
@@ -66,6 +67,9 @@ export function serializedManifestPlugin({
 	return {
 		name: SERIALIZED_MANIFEST_ID,
 		enforce: 'pre',
+		configResolved(config) {
+			viteCommand = config.command;
+		},
 		configureServer(server) {
 			server.watcher.on('add', (path) => reloadManifest(path, server));
 			server.watcher.on('unlink', (path) => reloadManifest(path, server));
@@ -97,7 +101,7 @@ export function serializedManifestPlugin({
 			},
 			async handler() {
 				let manifestData: string;
-				if (command === 'build' && !sync) {
+				if (command === 'build' && viteCommand === 'build' && !sync) {
 					// Emit placeholder token that will be replaced by plugin-manifest.ts in build:post
 					// See plugin-manifest.ts for full architecture explanation
 					manifestData = `'${MANIFEST_REPLACE}'`;

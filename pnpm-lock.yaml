@@ -4654,6 +4654,9 @@ importers:
 
   packages/db/test/fixtures/static-remote:
     dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../../../integrations/cloudflare
       '@astrojs/db':
         specifier: workspace:*
         version: link:../../..

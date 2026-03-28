@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@astrojs/cloudflare": "workspace:*",
     "@astrojs/db": "workspace:*",
     "astro": "workspace:*"
   }
