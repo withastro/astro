@@ -1,6 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { loadFixture } from './_test-utils.js';
+import cloudflare from '../dist/index.js';
 
 describe('Astro Cloudflare local dev vars from wrangler.json/c', () => {
 	let fixture;
