@@ -2,7 +2,7 @@ import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { loadFixture } from './_test-utils.js';
 
-describe('AstroDevPlatform', () => {
+describe('Astro Cloudflare local dev vars from wrangler.json/c', () => {
 	let fixture;
 	let devServer;
 	before(async () => {
@@ -18,9 +18,32 @@ describe('AstroDevPlatform', () => {
 		await devServer.stop();
 	});
 
-	it('loads var from wrangler.jsonc', async () => {
+	it('loads var from the root of wrangler.jsonc', async () => {
 		const res = await fixture.fetch('/');
 		const content = await res.text();
-		assert.match(content, /^<!DOCTYPE html>BAR.*/);
+		assert.match(content, /^<!DOCTYPE html>FOO/);
+	});
+});
+
+describe('Astro Cloudflare environment-specific local dev vars from wrangler.json/c', () => {
+	let fixture;
+	let devServer;
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/wrangler-config-vars-dev/',
+		});
+		devServer = await fixture.startDevServer(null, { CLOUDFLARE_ENV: 'testenv' });
+		// Do an initial request to prime preloading
+		await fixture.fetch('/');
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	it('loads var from an environment in wrangler.jsonc', async () => {
+		const res = await fixture.fetch('/');
+		const content = await res.text();
+		assert.match(content, /^<!DOCTYPE html>BAR/);
 	});
 });

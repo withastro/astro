@@ -6,7 +6,7 @@ export default defineConfig({
 	output: 'server',
 	env: {
 		schema: {
-			COOL: envField.string({
+			TEST_VAR: envField.string({
         context: 'server',
         access: 'public',
       }),
