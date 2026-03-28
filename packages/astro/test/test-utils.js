@@ -168,8 +168,10 @@ export async function loadFixture(inlineConfig) {
 			globalContentConfigObserver.set({ status: 'init' });
 			// Reset NODE_ENV so it can be re-set by `dev()`
 			delete process.env.NODE_ENV;
-			// Assign extra environment variables
-			Object.assign(process.env, extraEnvVars);
+			// Assign supported extra environment variables
+			if (extraEnvVars.CLOUDFLARE_ENV) {
+				process.env.CLOUDFLARE_ENV = extraEnvVars.CLOUDFLARE_ENV;
+			}
 			try {
 				devServer = await dev(mergeConfig(inlineConfig, extraInlineConfig));
 			} catch (e) {
