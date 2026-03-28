@@ -30,10 +30,12 @@ describe('Astro Cloudflare environment-specific local dev vars from wrangler.jso
 		fixture = await loadFixture({
 			root: './fixtures/wrangler-config-vars-dev/',
 		});
-		devServer = await fixture.startDevServer(null, { CLOUDFLARE_ENV: 'testenv' });
+		process.env.CLOUDFLARE_ENV = 'testenv';
+		devServer = await fixture.startDevServer();
 	});
 
 	after(async () => {
+		delete process.env.CLOUDFLARE_ENV;
 		await devServer.stop();
 	});
 
