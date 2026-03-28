@@ -1,5 +1,6 @@
 ---
+'astro': patch
 '@astrojs/netlify': patch
 ---
 
-fix(netlify): enforce validation for remote image dimensions
+Fixes a bug where remote image dimensions were not validated during static builds on Netlify.
