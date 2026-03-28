@@ -100,7 +100,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 							internals.cssModuleToChunkIdMap.has(moduleId),
 						);
 
-						if (allCssInSSR && shouldDeleteCSSChunk(allModules, internals, this)) {
+						if (allCssInSSR && shouldDeleteCSSChunk(allModules, internals)) {
 							// Delete the CSS assets that were imported by this chunk
 							for (const cssId of meta.importedCss) {
 								delete bundle[cssId];
@@ -390,14 +390,10 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 /***** UTILITY FUNCTIONS *****/
 
 /**
- * Check if a CSS chunk should be deleted. Only delete if it contains client-only or hydrated
- * components that are NOT also used on other pages.
+ * Delete a client CSS chunk only when every tracked usage of its special components
+ * comes from client:only pages.
  */
-function shouldDeleteCSSChunk(
-	allModules: string[],
-	internals: BuildInternals,
-	ctx: { getModuleInfo: GetModuleInfo },
-): boolean {
+function shouldDeleteCSSChunk(allModules: string[], internals: BuildInternals): boolean {
 	// Find all components in this chunk that are client-only or hydrated
 	const componentPaths = new Set<string>();
 
@@ -415,37 +411,20 @@ function shouldDeleteCSSChunk(
 
 	// If no special components found, don't delete
 	if (componentPaths.size === 0) return false;
-	const chunkClientOnlyPages = new Set<PageBuildData>();
-	for (const moduleId of allModules) {
-		for (const pageData of getParentClientOnlys(moduleId, ctx, internals)) {
-			chunkClientOnlyPages.add(pageData);
-		}
-		for (const pageData of getPageDatasByClientOnlyID(internals, moduleId)) {
-			chunkClientOnlyPages.add(pageData);
-		}
-	}
 
-	// Check if any component is used on non-client-only pages
+	// If the component is also used on a hydrated page, that client CSS asset may
+	// still be the only stylesheet the client:only page can link to.
 	for (const componentPath of componentPaths) {
-		if (chunkClientOnlyPages.size === 0) {
-			continue;
+		const pagesUsingClientOnly = new Set(getPageDatasByClientOnlyID(internals, componentPath));
+		if (pagesUsingClientOnly.size === 0) {
+			return false;
 		}
 
 		const hydratedPages =
 			internals.pagesByHydratedComponent.get(normalizeEntryId(componentPath)) ?? new Set();
 		for (const pageData of hydratedPages) {
-			if (!chunkClientOnlyPages.has(pageData)) {
+			if (!pagesUsingClientOnly.has(pageData)) {
 				return false;
-			}
-		}
-
-		if (hydratedPages.size === 0) {
-			// If every tracked usage of the component is client:only, it's safe to delete.
-			// Otherwise, keep the CSS for SSR pages that still need a client-side asset.
-			for (const pageData of internals.pagesByKeys.values()) {
-				if (!chunkClientOnlyPages.has(pageData)) {
-					return false;
-				}
 			}
 		}
 	}
