@@ -9,6 +9,8 @@ import {
 	type HotPayload,
 	loadEnv,
 	mergeConfig,
+	type Plugin,
+	type PluginOption,
 	type RunnableDevEnvironment,
 	type UserConfig,
 	type ViteDevServer,
@@ -49,6 +51,12 @@ const astroDBConfigSchema = z
 	.prefault({});
 
 export type AstroDBConfig = z.infer<typeof astroDBConfigSchema>;
+
+const CONCRETE_SERIALIZED_MANIFEST_CONTEXT = Symbol.for(
+	'astro.serializedManifest.concreteContext',
+);
+const SERIALIZED_MANIFEST_PLUGIN_NAME = 'virtual:astro:manifest';
+const concreteSerializedManifestGlobal = globalThis as typeof globalThis & Record<symbol, unknown>;
 
 function astroDBIntegration(options?: AstroDBConfig): AstroIntegration {
 	const resolvedConfig = astroDBConfigSchema.parse(options);
@@ -245,8 +253,14 @@ async function executeSeedFile({
  * Inspired by Astro content collection config loader.
  */
 async function getTempViteServer({ viteConfig }: { viteConfig: UserConfig }) {
+	const tempViteConfig = {
+		...viteConfig,
+		plugins: clonePluginOptions(viteConfig.plugins),
+	};
+	wrapSerializedManifestPluginLoad(tempViteConfig.plugins);
+
 	const tempViteServer = await createServer(
-		mergeConfig(viteConfig, {
+		mergeConfig(tempViteConfig, {
 			server: { middlewareMode: true, hmr: false, watch: null, ws: false },
 			optimizeDeps: { noDiscovery: true },
 			ssr: { external: [] },
@@ -263,4 +277,80 @@ async function getTempViteServer({ viteConfig }: { viteConfig: UserConfig }) {
 	};
 
 	return tempViteServer;
+}
+
+function clonePluginOptions(plugins: UserConfig['plugins']): UserConfig['plugins'] {
+	if (!Array.isArray(plugins)) {
+		return plugins;
+	}
+
+	return plugins.map(clonePluginOption);
+}
+
+function clonePluginOption(option: PluginOption): PluginOption {
+	if (Array.isArray(option)) {
+		return option.map(clonePluginOption);
+	}
+
+	if (!option || typeof option !== 'object' || 'then' in option) {
+		return option;
+	}
+
+	const plugin = option as Plugin;
+	return {
+		...plugin,
+		load:
+			typeof plugin.load === 'object' && plugin.load !== null ? { ...plugin.load } : plugin.load,
+	};
+}
+
+function wrapSerializedManifestPluginLoad(plugins: UserConfig['plugins']) {
+	if (!Array.isArray(plugins)) {
+		return;
+	}
+
+	for (const option of plugins) {
+		if (Array.isArray(option)) {
+			wrapSerializedManifestPluginLoad(option);
+			continue;
+		}
+
+		if (!option || typeof option !== 'object' || 'then' in option) {
+			continue;
+		}
+
+		const plugin = option as Plugin;
+		if (plugin.name !== SERIALIZED_MANIFEST_PLUGIN_NAME) {
+			continue;
+		}
+
+		if (
+			typeof plugin.load !== 'object' ||
+			plugin.load === null ||
+			typeof plugin.load.handler !== 'function'
+		) {
+			return;
+		}
+
+		const originalHandler = plugin.load.handler;
+		plugin.load = {
+			...plugin.load,
+			async handler(this: unknown, id: string) {
+				const previousContext =
+					concreteSerializedManifestGlobal[CONCRETE_SERIALIZED_MANIFEST_CONTEXT];
+				concreteSerializedManifestGlobal[CONCRETE_SERIALIZED_MANIFEST_CONTEXT] = this;
+				try {
+					return await originalHandler.call(this, id);
+				} finally {
+					if (previousContext === undefined) {
+						delete concreteSerializedManifestGlobal[CONCRETE_SERIALIZED_MANIFEST_CONTEXT];
+					} else {
+						concreteSerializedManifestGlobal[CONCRETE_SERIALIZED_MANIFEST_CONTEXT] =
+							previousContext;
+					}
+				}
+			},
+		};
+		return;
+	}
 }

@@ -1,3 +1,5 @@
+import { isAbsolute, win32 } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import type { SerializedRouteData } from '../../types/astro.js';
 import type { AstroConfig, RouteData } from '../../types/public/index.js';
 import type { RoutesList } from '../../types/astro.js';
@@ -11,6 +13,22 @@ import type {
 } from './types.js';
 
 export type { SerializedRouteData } from '../../types/astro.js';
+
+function ensureDirectoryPath(pathname: string): string {
+	return /[\\/]/.test(pathname.at(-1) ?? '') ? pathname : `${pathname}/`;
+}
+
+function deserializeDirectoryURL(pathOrUrl: string): URL {
+	if (win32.isAbsolute(pathOrUrl)) {
+		return pathToFileURL(ensureDirectoryPath(pathOrUrl), { windows: true });
+	}
+
+	if (isAbsolute(pathOrUrl)) {
+		return pathToFileURL(ensureDirectoryPath(pathOrUrl), { windows: false });
+	}
+
+	return new URL(pathOrUrl);
+}
 
 export function deserializeManifest(
 	serializedManifest: SerializedSSRManifest,
@@ -51,13 +69,13 @@ export function deserializeManifest(
 			return { onRequest: NOOP_MIDDLEWARE_FN };
 		},
 		...serializedManifest,
-		rootDir: new URL(serializedManifest.rootDir),
-		srcDir: new URL(serializedManifest.srcDir),
-		publicDir: new URL(serializedManifest.publicDir),
-		outDir: new URL(serializedManifest.outDir),
-		cacheDir: new URL(serializedManifest.cacheDir),
-		buildClientDir: new URL(serializedManifest.buildClientDir),
-		buildServerDir: new URL(serializedManifest.buildServerDir),
+		rootDir: deserializeDirectoryURL(serializedManifest.rootDir),
+		srcDir: deserializeDirectoryURL(serializedManifest.srcDir),
+		publicDir: deserializeDirectoryURL(serializedManifest.publicDir),
+		outDir: deserializeDirectoryURL(serializedManifest.outDir),
+		cacheDir: deserializeDirectoryURL(serializedManifest.cacheDir),
+		buildClientDir: deserializeDirectoryURL(serializedManifest.buildClientDir),
+		buildServerDir: deserializeDirectoryURL(serializedManifest.buildServerDir),
 		assets,
 		componentMetadata,
 		inlinedScripts,

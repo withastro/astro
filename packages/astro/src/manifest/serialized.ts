@@ -32,6 +32,10 @@ import { resolveMiddlewareMode } from '../integrations/adapter-utils.js';
 // This is used by Cloudflare optimizeDeps config
 export const SERIALIZED_MANIFEST_ID = 'virtual:astro:manifest';
 export const SERIALIZED_MANIFEST_RESOLVED_ID = '\0' + SERIALIZED_MANIFEST_ID;
+const CONCRETE_SERIALIZED_MANIFEST_CONTEXT = Symbol.for(
+	'astro.serializedManifest.concreteContext',
+);
+const concreteSerializedManifestGlobal = globalThis as typeof globalThis & Record<symbol, unknown>;
 
 export function serializedManifestPlugin({
 	settings,
@@ -97,7 +101,11 @@ export function serializedManifestPlugin({
 			},
 			async handler() {
 				let manifestData: string;
-				if (command === 'build' && !sync) {
+				const shouldUseConcreteManifest =
+					command !== 'build' ||
+					sync ||
+					concreteSerializedManifestGlobal[CONCRETE_SERIALIZED_MANIFEST_CONTEXT] === this;
+				if (!shouldUseConcreteManifest) {
 					// Emit placeholder token that will be replaced by plugin-manifest.ts in build:post
 					// See plugin-manifest.ts for full architecture explanation
 					manifestData = `'${MANIFEST_REPLACE}'`;
