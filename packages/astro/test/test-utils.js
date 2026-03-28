@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { glob } from 'tinyglobby';
 import { Agent } from 'undici';
+import { CILogger } from '../../../scripts/testing/github-utils.js';
 import { check } from '../dist/cli/check/index.js';
 import { globalContentLayer } from '../dist/content/instance.js';
 import { globalContentConfigObserver } from '../dist/content/utils.js';
@@ -151,10 +152,12 @@ export async function loadFixture(inlineConfig) {
 			globalContentConfigObserver.set({ status: 'init' });
 			// Reset NODE_ENV so it can be re-set by `build()`
 			delete process.env.NODE_ENV;
-			return build(mergeConfig(inlineConfig, extraInlineConfig), {
+			const t0 = performance.now();
+			await build(mergeConfig(inlineConfig, extraInlineConfig), {
 				teardownCompiler: false,
 				...options,
 			});
+			CILogger.logBuild({ fixture: root, duration: performance.now() - t0 });
 		},
 		sync,
 		check: async (opts) => {
