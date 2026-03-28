@@ -7,7 +7,8 @@ describe('Astro Cloudflare local dev vars from wrangler.json/c', () => {
 	let devServer;
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/wrangler-config-vars-dev/',
+			root: new URL('./fixtures/wrangler-config-vars-dev/', import.meta.url).toString(),
+			adapter: cloudflare(),
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -28,7 +29,8 @@ describe('Astro Cloudflare environment-specific local dev vars from wrangler.jso
 	let devServer;
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/wrangler-config-vars-dev/',
+			root: new URL('./fixtures/wrangler-config-vars-dev/', import.meta.url).toString(),
+			adapter: cloudflare(),
 		});
 		process.env.CLOUDFLARE_ENV = 'testenv';
 		devServer = await fixture.startDevServer();
