@@ -1,0 +1,32 @@
+---
+import Layout from '../components/Layout.astro';
+---
+<Layout>
+	<article id="fragment-shift-to">
+		<div id="shift-insert-before"></div>
+		<h2 id="shift-target">Shift target</h2>
+		<p id="shift-target-copy">This target should stay in view after navigation.</p>
+		<div style="height: 2200px">Content that stays below the target.</div>
+	</article>
+</Layout>
+<style is:global>
+	html,
+	body {
+		overflow-anchor: none;
+	}
+</style>
+<script is:inline>
+	document.addEventListener(
+		'astro:page-load',
+		() => {
+			setTimeout(() => {
+				if (document.getElementById('shift-spacer')) return;
+				const spacer = document.createElement('div');
+				spacer.id = 'shift-spacer';
+				spacer.style.height = '1800px';
+				document.getElementById('shift-insert-before')?.before(spacer);
+			}, 300);
+		},
+		{ once: true },
+	);
+</script>

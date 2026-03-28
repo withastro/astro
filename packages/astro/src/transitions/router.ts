@@ -68,6 +68,8 @@ let parser: DOMParser;
 // you can figure it using an index. On pushState the index is incremented so you
 // can use that to determine popstate if going forward or back.
 let currentHistoryIndex = 0;
+const HASH_SCROLL_CORRECTION_TIMEOUT_MS = 1000;
+let stopHashScrollCorrection: (() => void) | undefined;
 
 if (inBrowser) {
 	if (history.state) {
@@ -163,6 +165,58 @@ function runScripts() {
 	return wait;
 }
 
+function findHashTarget(hash: string) {
+	const id = hash.slice(1);
+	if (!id) return document.body;
+
+	let decodedId = id;
+	try {
+		decodedId = decodeURIComponent(id);
+	} catch {
+		// Leave malformed hashes untouched and let the browser behavior stand.
+	}
+
+	return (
+		document.getElementById(decodedId) ??
+		document.querySelector(`[name="${CSS.escape(decodedId)}"]`)
+	);
+}
+
+function scrollToHashTarget(hash: string) {
+	findHashTarget(hash)?.scrollIntoView();
+}
+
+function queueHashScrollCorrection(hash: string) {
+	stopHashScrollCorrection?.();
+
+	if (!hash) return;
+
+	let animationFrame = 0;
+	let timeoutId = 0;
+	const observer = new ResizeObserver(() => {
+		cancelAnimationFrame(animationFrame);
+		animationFrame = requestAnimationFrame(() => {
+			scrollToHashTarget(hash);
+		});
+	});
+
+	const cleanup = () => {
+		cancelAnimationFrame(animationFrame);
+		clearTimeout(timeoutId);
+		observer.disconnect();
+		if (stopHashScrollCorrection === cleanup) {
+			stopHashScrollCorrection = undefined;
+		}
+	};
+
+	stopHashScrollCorrection = cleanup;
+	timeoutId = window.setTimeout(cleanup, HASH_SCROLL_CORRECTION_TIMEOUT_MS);
+
+	observer.observe(document.documentElement);
+	if (document.body) observer.observe(document.body);
+	scrollToHashTarget(hash);
+}
+
 // Add a new entry to the browser history. This also sets the new page in the browser address bar.
 // Sets the scroll position according to the hash fragment of the new location.
 const moveToLocation = (
@@ -225,6 +279,9 @@ const moveToLocation = (
 				if (intraPage) {
 					window.dispatchEvent(new PopStateEvent('popstate'));
 				}
+			}
+			if (!intraPage) {
+				queueHashScrollCorrection(to.hash);
 			}
 		} else {
 			if (!scrolledToTop) {
@@ -326,6 +383,7 @@ async function updateDOM(
 }
 
 function abortAndRecreateMostRecentNavigation(): Navigation {
+	stopHashScrollCorrection?.();
 	mostRecentNavigation?.controller.abort();
 	return (mostRecentNavigation = {
 		controller: new AbortController(),
