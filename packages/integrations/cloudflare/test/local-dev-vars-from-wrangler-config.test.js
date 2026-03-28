@@ -19,9 +19,9 @@ describe('Astro Cloudflare local dev vars from wrangler.json/c', () => {
 	});
 
 	it('loads var from the root of wrangler.jsonc', async () => {
-		const res = await fixture.fetch('/');
+		const res = await fixture.fetch('/test');
 		const content = await res.text();
-		assert.match(content, /^<!DOCTYPE html>FOO/);
+		assert.match(content, /^<!doctype html>FOO/);
 	});
 });
 
@@ -42,8 +42,8 @@ describe('Astro Cloudflare environment-specific local dev vars from wrangler.jso
 	});
 
 	it('loads var from an environment in wrangler.jsonc', async () => {
-		const res = await fixture.fetch('/');
+		const res = await fixture.fetch('/test');
 		const content = await res.text();
-		assert.match(content, /^<!DOCTYPE html>BAR/);
+		assert.match(content, /^<!doctype html>BAR/);
 	});
 });
