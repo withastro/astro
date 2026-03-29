@@ -270,6 +270,28 @@ describe('Router.match', () => {
 		assert.equal(aboutMatch.route.route, '/about');
 	});
 
+	it('matches dynamic routes that contain .html in their params', () => {
+    const trailingSlash = 'ignore';
+    const routes = [
+      makeRoute({
+        segments: [[dynamicPart('path')]], 
+        trailingSlash,
+        route: '/[path]',
+        pathname: undefined,
+      }),
+    ];
+
+    const router = new Router(routes, {
+      base: '/',
+      trailingSlash,
+      buildFormat: 'directory',
+    });
+
+    const match = router.match('/file.html');
+    assert.equal(match.type, 'match');
+    assert.deepEqual(match.params, { path: 'file.html' });
+  });
+
 	it('matches [slug].html routes and extracts slug without .html', () => {
 		// Routes like `[slug].html.astro` have `.html` as a static segment part.
 		// The router must not strip `.html` before matching, or params extraction fails.
