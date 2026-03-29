@@ -92,6 +92,15 @@ export interface RenderOptions {
 	 * Default: `app.match(request)`
 	 */
 	routeData?: RouteData;
+
+	/**
+	 * A platform-provided function that extends the lifetime of the request handler
+	 * to perform background work after the response has been sent.
+	 *
+	 * When provided, this is passed to the cache provider's `onRequest` context so it can
+	 * hand off cache writes as background tasks instead of blocking the response.
+	 */
+	waitUntil?: (promise: Promise<unknown>) => void;
 }
 
 type RequiredRenderOptions = Required<RenderOptions>;
@@ -102,6 +111,7 @@ interface ResolvedRenderOptions {
 	prerenderedErrorPageFetch: RequiredRenderOptions['prerenderedErrorPageFetch'] | undefined;
 	locals: RequiredRenderOptions['locals'] | undefined;
 	routeData: RequiredRenderOptions['routeData'] | undefined;
+	waitUntil: RequiredRenderOptions['waitUntil'] | undefined;
 }
 
 export interface RenderErrorOptions extends ResolvedRenderOptions {
@@ -383,6 +393,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			locals,
 			prerenderedErrorPageFetch = fetch,
 			routeData,
+			waitUntil,
 		}: RenderOptions = {},
 	): Promise<Response> {
 		const timeStart = performance.now();
@@ -425,6 +436,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			prerenderedErrorPageFetch,
 			locals,
 			routeData,
+			waitUntil,
 		};
 
 		if (locals) {
@@ -505,6 +517,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 						{
 							request,
 							url: new URL(request.url),
+							waitUntil,
 						},
 						async () => {
 							const res = await renderContext.render(componentInstance);

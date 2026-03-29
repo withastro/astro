@@ -27,7 +27,10 @@ export interface InvalidateOptions {
 export interface CacheProvider {
 	name: string;
 	setHeaders?(options: CacheOptions): Headers;
-	onRequest?(context: { request: Request; url: URL }, next: MiddlewareNext): Promise<Response>;
+	onRequest?(
+		context: { request: Request; url: URL; waitUntil?: (promise: Promise<unknown>) => void },
+		next: MiddlewareNext,
+	): Promise<Response>;
 	invalidate(options: InvalidateOptions): Promise<void>;
 }
 

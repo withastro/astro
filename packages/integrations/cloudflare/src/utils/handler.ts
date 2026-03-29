@@ -127,6 +127,7 @@ export async function handle(
 			return env.ASSETS.fetch(url.replace(/\.html$/, ''));
 		},
 		clientAddress: getValidatedIpFromHeader(request.headers.get('cf-connecting-ip')),
+		waitUntil: (promise: Promise<unknown>) => context.waitUntil(promise),
 	});
 
 	if (app.setCookieHeaders) {
