@@ -48,7 +48,7 @@ export const markHTMLString = (value: any) => {
 };
 
 export function isHTMLString(value: any): value is HTMLString {
-	return value[Symbol.toStringTag] === 'HTMLString';
+	return value?.[Symbol.toStringTag] === 'HTMLString';
 }
 
 function markHTMLBytes(bytes: Uint8Array) {
