@@ -1,0 +1,16 @@
+---
+import { getCollection, render } from "astro:content";
+import { experimental_AstroContainer } from "astro/container";
+import { loadRenderers } from "astro:container";
+import { getContainerRenderer } from "@astrojs/mdx";
+
+const renderers = await  loadRenderers([getContainerRenderer()]);
+const contentContainer = await experimental_AstroContainer.create({
+	renderers,
+});
+const posts = await getCollection("posts");
+const { Content } = await render(posts[0]);
+const html = await contentContainer.renderToString(Content);
+---
+
+<Fragment set:html={html} />
