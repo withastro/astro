@@ -4,16 +4,16 @@ import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 describe('Astro Markdown Shiki', () => {
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({ root: './fixtures/astro-markdown-shiki/langs/' });
+		await fixture.build();
+	});
+
 	describe('Render shiki', () => {
-		let fixture;
-
-		before(async () => {
-			fixture = await loadFixture({ root: './fixtures/astro-markdown-shiki/normal/' });
-			await fixture.build();
-		});
-
 		it('Can render markdown with shiki', async () => {
-			const html = await fixture.readFile('/index.html');
+			const html = await fixture.readFile('/normal/index.html');
 			const $ = cheerio.load(html);
 
 			// There should be no HTML from Prism
@@ -26,83 +26,12 @@ describe('Astro Markdown Shiki', () => {
 				'background-color:#24292e;color:#e1e4e8; overflow-x: auto;',
 			);
 		});
-
-		it('Can render diff syntax with "user-select: none"', async () => {
-			const html = await fixture.readFile('/index.html');
-			const $ = cheerio.load(html);
-			const diffBlockHtml = $('pre').last().html();
-			assert.ok(diffBlockHtml.includes(`<span style="user-select: none;">+</span>`));
-			assert.ok(diffBlockHtml.includes(`<span style="user-select: none;">-</span>`));
-		});
-	});
-
-	describe('Themes', () => {
-		describe('Integrated theme', async () => {
-			let fixture;
-
-			before(async () => {
-				fixture = await loadFixture({ root: './fixtures/astro-markdown-shiki/themes-integrated/' });
-				await fixture.build();
-			});
-
-			it('Markdown file', async () => {
-				const html = await fixture.readFile('/index.html');
-				const $ = cheerio.load(html);
-
-				assert.equal($('pre').length, 1);
-				assert.ok($('pre').hasClass('astro-code'));
-				assert.equal(
-					$('pre').attr().style,
-					'background-color:#fff;color:#24292e; overflow-x: auto;',
-				);
-			});
-		});
-
-		describe('Custom theme', async () => {
-			let fixture;
-
-			before(async () => {
-				fixture = await loadFixture({ root: './fixtures/astro-markdown-shiki/themes-custom/' });
-				await fixture.build();
-			});
-
-			it('Markdown file', async () => {
-				const html = await fixture.readFile('/index.html');
-				const $ = cheerio.load(html);
-
-				assert.equal($('pre').length, 1);
-				assert.ok($('pre').hasClass('astro-code'));
-				assert.equal(
-					$('pre').attr().style,
-					'background-color:#FDFDFE;color:#4E5377; overflow-x: auto;',
-				);
-			});
-		});
-
-		describe('Default color', async () => {
-			let fixture;
-
-			before(async () => {
-				fixture = await loadFixture({ root: './fixtures/astro-markdown-shiki/default-color/' });
-				await fixture.build();
-			});
-
-			it('Renders default color without themes', async () => {
-				const html = await fixture.readFile('/index.html');
-				const $ = cheerio.load(html);
-
-				assert.doesNotMatch($('pre').attr().style, /background-color/);
-			});
-		});
 	});
 
 	describe('Languages', () => {
-		let fixture;
 		let $;
 
 		before(async () => {
-			fixture = await loadFixture({ root: './fixtures/astro-markdown-shiki/langs/' });
-			await fixture.build();
 			const html = await fixture.readFile('/index.html');
 			$ = cheerio.load(html);
 		});

@@ -78,6 +78,13 @@ export default async function createAstroServerApp(
 			app.clearRouteCache();
 			actualLogger.debug('router', 'Route cache cleared due to content change');
 		});
+
+		// Listen for middleware file changes via HMR.
+		// Clear the cached middleware so it is re-resolved on the next request.
+		import.meta.hot.on('astro:middleware-updated', () => {
+			app.clearMiddleware();
+			actualLogger.debug('router', 'Middleware cache cleared due to file change');
+		});
 	}
 
 	return {

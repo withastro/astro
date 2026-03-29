@@ -20,6 +20,8 @@ export function createManifest({
 	actions = undefined,
 	actionBodySizeLimit = 0,
 	i18n = undefined,
+	csp = undefined,
+	serverLike = true,
 } = {}) {
 	const rootDir = new URL('file:///astro-test/');
 	const buildDir = new URL('file:///astro-test/dist/');
@@ -35,7 +37,7 @@ export function createManifest({
 		compressHTML: false,
 		assetsPrefix: undefined,
 		renderers: [],
-		serverLike: true,
+		serverLike,
 		middlewareMode: /** @type {'classic'} */ ('classic'),
 		clientDirectives: new Map(),
 		entryModules: {},
@@ -63,7 +65,7 @@ export function createManifest({
 		assetsDir: 'assets',
 		buildClientDir: buildDir,
 		buildServerDir: buildDir,
-		csp: undefined,
+		csp,
 		image: {},
 		shouldInjectCspMetaTags: false,
 		devToolbar: {

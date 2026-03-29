@@ -18,11 +18,10 @@ These variables are referenced throughout this skill. They may be passed as args
 ## Overview
 
 1. Review the reproduction and error details from `report.md`
-2. Load any domain-specific skills relevant to the bug category
-3. Locate the relevant source files in `packages/`
-4. Add instrumentation to understand the code path
-5. Identify the root cause
-6. Append diagnosis findings to `report.md`
+2. Locate the relevant source files in `packages/`
+3. Add instrumentation to understand the code path
+4. Identify the root cause
+5. Append diagnosis findings to `report.md`
 
 ## Step 1: Review the Reproduction
 
@@ -36,17 +35,11 @@ Re-run the reproduction if needed to see the error firsthand:
 pnpm -C <triageDir> run build  # or dev/preview
 ```
 
-## Step 2: Load Domain-Specific Skills
-
-Before diving into the source, check whether any skills in `.agents/skills/` are relevant to this bug category. Use `ls .agents/skills/` to see what's available, then read the `---` frontmatter of any that look relevant to get their description.
-
-If a skill covers the category of bug you're investigating, load it with the `skill` tool and follow its guidance during diagnosis. Domain skills contain deep knowledge about specific subsystems that can significantly speed up root cause identification.
-
-## Step 3: Locate Relevant Source Files
+## Step 2: Locate Relevant Source Files
 
 Using the error messages, stack traces, and any other reproduction details from Step 1, identify the source files in `packages/` that are likely involved.
 
-## Step 4: Investigate with Instrumentation
+## Step 3: Investigate with Instrumentation
 
 Add `console.log` statements to understand the code path:
 
@@ -68,7 +61,7 @@ Iterate until you understand:
 - What data is being passed
 - Where the logic diverges from expected behavior
 
-## Step 5: Identify Root Cause
+## Step 4: Identify Root Cause
 
 Once you understand the issue, document:
 
@@ -83,7 +76,7 @@ Consider:
 - Does this affect other similar use cases?
 - Are there edge cases to consider?
 
-## Step 6: Write Output
+## Step 5: Write Output
 
 Append your diagnosis findings to the existing `report.md` (written by the reproduce skill).
 
