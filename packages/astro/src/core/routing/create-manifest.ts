@@ -238,16 +238,17 @@ function createFileBasedRoutes(
 				walk(fsMod ?? fs, path.join(dir, item.basename), segments, params);
 			} else {
 				const component = item.file;
+				const type = item.isPage ? 'page' : 'endpoint';
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 					? `/${segments.map((segment) => segment[0].content).join('/')}`
 					: null;
-				const trailingSlash = trailingSlashForPath(pathname, settings.config);
+				const trailingSlash = trailingSlashForPath(pathname, settings.config, type);
 				const pattern = getPattern(segments, settings.config.base, trailingSlash);
 				const route = joinSegments(segments);
 				routes.push({
 					route,
 					isIndex: item.isIndex,
-					type: item.isPage ? 'page' : 'endpoint',
+					type,
 					pattern,
 					segments,
 					params,
@@ -379,16 +380,17 @@ function createRoutesFromEntriesByDir(
 				walk(path.posix.join(dir, item.basename), segments, params);
 			} else {
 				const component = item.file;
+				const type = item.isPage ? 'page' : 'endpoint';
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 					? `/${segments.map((segment) => segment[0].content).join('/')}`
 					: null;
-				const trailingSlash = trailingSlashForPath(pathname, settings.config);
+				const trailingSlash = trailingSlashForPath(pathname, settings.config, type);
 				const pattern = getPattern(segments, settings.config.base, trailingSlash);
 				const route = joinSegments(segments);
 				routes.push({
 					route,
 					isIndex: item.isIndex,
-					type: item.isPage ? 'page' : 'endpoint',
+					type,
 					pattern,
 					segments,
 					params,
@@ -428,11 +430,15 @@ function groupEntriesByDir(entries: RouteEntry[]): Map<string, RouteEntry[]> {
 }
 
 // Get trailing slash rule for a path, based on the config and whether the path has an extension.
+// Only force 'never' for endpoints (e.g. feed.xml.ts) since they serve non-HTML content.
+// Pages (e.g. hello.world.astro) should respect the user's trailingSlash config even if
+// the pathname contains dots, because dots in page names are not file extensions.
 const trailingSlashForPath = (
 	pathname: string | null,
 	config: AstroConfig,
+	type: 'page' | 'endpoint',
 ): AstroConfig['trailingSlash'] =>
-	pathname && hasFileExtension(pathname) ? 'never' : config.trailingSlash;
+	type === 'endpoint' && pathname && hasFileExtension(pathname) ? 'never' : config.trailingSlash;
 
 function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): RouteData[] {
 	const { config } = settings;
@@ -457,7 +463,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Rou
 			? `/${segments.map((segment) => segment[0].content).join('/')}`
 			: null;
 
-		const trailingSlash = trailingSlashForPath(pathname, config);
+		const trailingSlash = trailingSlashForPath(pathname, config, type);
 		const pattern = getPattern(segments, settings.config.base, trailingSlash);
 		const params = segments
 			.flat()
