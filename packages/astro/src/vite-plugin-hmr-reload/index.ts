@@ -1,5 +1,5 @@
 import type { EnvironmentModuleNode, Plugin } from 'vite';
-import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
+import { isAstroServerEnvironment } from '../environments.js';
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../vite-plugin-pages/const.js';
 import { getDevCssModuleNameFromPageVirtualModuleName } from '../vite-plugin-css/util.js';
 
@@ -15,7 +15,7 @@ export default function hmrReload(): Plugin {
 		hotUpdate: {
 			order: 'post',
 			handler({ modules, server, timestamp }) {
-				if (this.environment.name !== ASTRO_VITE_ENVIRONMENT_NAMES.ssr) return;
+				if (!isAstroServerEnvironment(this.environment)) return;
 
 				let hasSsrOnlyModules = false;
 

@@ -1,0 +1,26 @@
+{
+  "devserver": {
+    "pid": 2350,
+    "command": [
+      "pnpm",
+      "-C",
+      "triage/gh-16141",
+      "dev",
+      "--host",
+      "0.0.0.0"
+    ],
+    "cwd": "/home/runner/work/astro/astro",
+    "startedAt": "2026-03-29T06:15:36.688Z"
+  },
+  "hmr-test": {
+    "pid": 2874,
+    "command": [
+      "pnpm",
+      "-C",
+      "triage/gh-16141",
+      "dev"
+    ],
+    "cwd": "/home/runner/work/astro/astro",
+    "startedAt": "2026-03-29T06:15:52.554Z"
+  }
+}

@@ -49,6 +49,7 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 				for (const name of [
 					ASTRO_VITE_ENVIRONMENT_NAMES.ssr,
 					ASTRO_VITE_ENVIRONMENT_NAMES.astro,
+					ASTRO_VITE_ENVIRONMENT_NAMES.prerender,
 				] as const) {
 					const environment = server.environments[name];
 					if (!environment) continue;
