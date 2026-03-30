@@ -110,12 +110,26 @@ export async function waitForHydrate(page, el) {
 export async function warmupDevServer(browser, url) {
 	const page = await browser.newPage();
 	await page.goto(url, { waitUntil: 'load' });
-	// Wait for all astro-islands on the page to hydrate
+	// Wait for potential dep re-optimization reload to settle, then wait for
+	// all astro-islands to hydrate so client modules are fully loaded.
+	await page.waitForLoadState('networkidle').catch(() => {});
+	// Wait for each island to hydrate with a short timeout per island.
+	// Some islands may not hydrate (e.g., if their framework has issues),
+	// so we catch and continue.
 	const islands = page.locator('astro-island');
 	const count = await islands.count();
 	for (let i = 0; i < count; i++) {
 		const island = islands.nth(i);
-		await waitForHydrate(page, island).catch(() => {});
+		const uid = await island.getAttribute('uid').catch(() => null);
+		if (uid) {
+			await page
+				.waitForFunction(
+					(selector) => document.querySelector(selector)?.hasAttribute('ssr') === false,
+					`astro-island[uid="${uid}"]`,
+					{ timeout: 5_000 },
+				)
+				.catch(() => {});
+		}
 	}
 	await page.close();
 }

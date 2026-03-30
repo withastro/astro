@@ -564,6 +564,8 @@ test.describe('View Transitions', () => {
 		let cnt = page.locator('.counter pre');
 		await expect(cnt).toHaveText('5');
 
+		const counter = page.locator('.counter');
+		await waitForHydrate(page, counter);
 		await page.click('.increment');
 		await expect(cnt).toHaveText('6');
 
