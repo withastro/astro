@@ -175,6 +175,33 @@ describe('dev container', () => {
 		);
 	});
 
+	it('Vite internal paths are not matched by SSR catch-all routes', async () => {
+		const fixture = await createFixture({
+			'/src/pages/[...slug].astro': `
+				---
+				export const prerender = false;
+				---
+				<h1>{Astro.params.slug}</h1>
+			`,
+		});
+
+		await runInContainer(
+			{ inlineConfig: { root: fixture.path, output: 'server' } },
+			async (container) => {
+				// A Vite internal path should not be matched by the catch-all route
+				const r = createRequestAndResponse({
+					method: 'GET',
+					url: '/@id/astro/runtime/client/dev-toolbar/entrypoint.js',
+				});
+				container.handle(r.req, r.res);
+				await r.done;
+				// Should not render the catch-all page (which would return 200 with HTML)
+				const html = await r.text();
+				assert.equal(html.includes('<h1>'), false);
+			},
+		);
+	});
+
 	it('items in public/ are available from root when not using a base', async () => {
 		const fixture = await createFixture({
 			'/public/test.txt': `Test`,

@@ -185,11 +185,19 @@ export default function createVitePluginAstroServer({
 
 				if (ssrHandler) {
 					// Note that this function has a name so other middleware can find it.
-					viteServer.middlewares.use(async function astroDevHandler(request, response) {
+					viteServer.middlewares.use(async function astroDevHandler(request, response, next) {
 						if (request.url === undefined || !request.method) {
 							response.writeHead(500, 'Incomplete request');
 							response.end();
 							return;
+						}
+
+						if (request.url.startsWith('/@') || request.url.startsWith('/__')) {
+							return next();
+						}
+
+						if (request.url.includes('/node_modules/')) {
+							return next();
 						}
 
 						localStorage.run(request, () => {
