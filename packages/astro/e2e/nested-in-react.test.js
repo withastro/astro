@@ -98,7 +98,8 @@ test.describe('Nested Frameworks in React', () => {
 		await expect(count, 'count incremented by 1').toHaveText('1');
 	});
 
-	test('Svelte counter', async ({ astro, page }) => {
+	// TODO: Re-enable once Svelte is compatible with Vite v8
+	test.skip('Svelte counter', async ({ astro, page }) => {
 		await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#svelte-counter');

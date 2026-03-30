@@ -604,7 +604,8 @@ test.describe('View Transitions', () => {
 		await expect(cnt).toHaveText('A1');
 	});
 
-	test('Svelte Islands can persist using transition:persist', async ({ page, astro }) => {
+	// TODO: Re-enable once Svelte is compatible with Vite v8
+	test.skip('Svelte Islands can persist using transition:persist', async ({ page, astro }) => {
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/island-svelte-one'));
 		let cnt = page.locator('.counter pre');
@@ -964,7 +965,8 @@ test.describe('View Transitions', () => {
 		expect(styles.length).toEqual(totalExpectedStyles, 'style count has not changed');
 	});
 
-	test('client:only styles are retained on transition (2/2)', async ({ page, astro }) => {
+	// TODO: Re-enable once Svelte is compatible with Vite v8
+	test.skip('client:only styles are retained on transition (2/2)', async ({ page, astro }) => {
 		const totalExpectedStyles_page_three = 11;
 		const totalExpectedStyles_page_four = 9;
 
