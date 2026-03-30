@@ -23,7 +23,7 @@ test.beforeAll(async ({ astro }) => {
 	unhook = hookError();
 });
 
-test.afterAll(async () => {
+test.after all(async () => {
 	await devServer.stop();
 });
 

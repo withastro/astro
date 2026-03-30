@@ -55,7 +55,7 @@ Use `pnpm -C <dir> <command>` for project-local script commands when working in 
 
 # `bgproc`
 
-Use `pnpm exec bgproc` to start, stop, and manage long-running `astro dev` & `astro preview` servers in the background. Do not manually start detatched servers with `&` if you can use `bgproc` instead.
+Use `pnpm exec bgproc` to start, stop, and manage long-running `astro dev` & `astro preview` servers in the background. Do not manually start detached servers with `&` if you can use `bgproc` instead.
 
 Use `pnpm exec bgproc --help` to see all available commands.
 

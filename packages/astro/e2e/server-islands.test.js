@@ -11,7 +11,7 @@ test.describe('Server islands', () => {
 			devServer = await astro.startDevServer();
 		});
 
-		test.afterAll(async () => {
+		test.after all(async () => {
 			await devServer.stop();
 		});
 
@@ -96,7 +96,7 @@ test.describe('Server islands', () => {
 			devServer = await astro.startDevServer();
 		});
 
-		test.afterAll(async () => {
+		test.after all(async () => {
 			await devServer.stop();
 		});
 
@@ -119,7 +119,7 @@ test.describe('Server islands', () => {
 			previewServer = await astro.preview();
 		});
 
-		test.afterAll(async () => {
+		test.after all(async () => {
 			await previewServer.stop();
 		});
 

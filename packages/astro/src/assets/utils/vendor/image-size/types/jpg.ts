@@ -68,7 +68,7 @@ function extractOrientation(exifBlock: Uint8Array, isBigEndian: boolean) {
         return
       }
 
-      // unsinged int has 2 bytes per component
+      // unsigned int has 2 bytes per component
       // if there would more than 4 bytes in total it's a pointer
       const numberOfComponents = readUInt(block, 32, 4, isBigEndian)
       if (numberOfComponents !== 1) {

@@ -88,7 +88,7 @@
 
 - [#16064](https://github.com/withastro/astro/pull/16064) [`ba58e0d`](https://github.com/withastro/astro/commit/ba58e0d6edbc3f8a651ab0c20df9b1f33572bd7b) Thanks [@ematipico](https://github.com/ematipico)! - Updates the dependency `svgo` to the latest, to fix a security issue.
 
-- [#16007](https://github.com/withastro/astro/pull/16007) [`2dcd8d5`](https://github.com/withastro/astro/commit/2dcd8d54c6fb00183228d757bf684e67c79029d8) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where fonts files would unecessarily be copied several times during the build
+- [#16007](https://github.com/withastro/astro/pull/16007) [`2dcd8d5`](https://github.com/withastro/astro/commit/2dcd8d54c6fb00183228d757bf684e67c79029d8) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where fonts files would unnecessarily be copied several times during the build
 
 - [#16017](https://github.com/withastro/astro/pull/16017) [`b089b90`](https://github.com/withastro/astro/commit/b089b904f1ed578e9edaefd129bf9843120a808f) Thanks [@felmonon](https://github.com/felmonon)! - Fix the `astro sync` error message when `getImage()` is called while loading content collections.
 
@@ -573,7 +573,7 @@
   });
   ```
 
-- [#15529](https://github.com/withastro/astro/pull/15529) [`a509941`](https://github.com/withastro/astro/commit/a509941a7a7a1e53f402757234bb88e5503e5119) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a new build-in font provider `npm` to access fonts installed as NPM packages
+- [#15529](https://github.com/withastro/astro/pull/15529) [`a509941`](https://github.com/withastro/astro/commit/a509941a7a7a1e53f402757234bb88e5503e5119) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a new built-in font provider `npm` to access fonts installed as NPM packages
 
   You can now add web fonts specified in your `package.json` through Astro's type-safe Fonts API. The `npm` font provider allows you to add fonts either from locally installed packages in `node_modules` or from a CDN.
 
@@ -649,7 +649,7 @@
     experimental: {
       queuedRendering: {
         enabled: true,
-        contentCache: true, // enable re-use of node values
+        contentCache: true, // enable reuse of node values
       },
     },
   });
@@ -1181,7 +1181,7 @@
 
 - [#15322](https://github.com/withastro/astro/pull/15322) [`18e0980`](https://github.com/withastro/astro/commit/18e09800e459ff292f33370d4cf5f70d97bdbdb4) Thanks [@matthewp](https://github.com/matthewp)! - Prevents missing CSS when using both SSR and prerendered routes
 
-- [#15760](https://github.com/withastro/astro/pull/15760) [`f49a27f`](https://github.com/withastro/astro/commit/f49a27fd2ac2559c06671979487f642360791a92) Thanks [@ematipico](https://github.com/ematipico)! - Fixed an issue where queued rendering wasn't correctly re-using the saved nodes.
+- [#15760](https://github.com/withastro/astro/pull/15760) [`f49a27f`](https://github.com/withastro/astro/commit/f49a27fd2ac2559c06671979487f642360791a92) Thanks [@ematipico](https://github.com/ematipico)! - Fixed an issue where queued rendering wasn't correctly reusing the saved nodes.
 
 - [#15277](https://github.com/withastro/astro/pull/15277) [`cb99214`](https://github.com/withastro/astro/commit/cb99214ebb991d1b929978f46e1b3ae68b561366) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the function `createShikiHighlighter` would always create a new Shiki highlighter instance. Now the function returns a cached version of the highlighter based on the Shiki options. This should improve the performance for sites that heavily rely on Shiki and code in their pages.
 
@@ -1597,7 +1597,7 @@
 
 ### Patch Changes
 
-- [#15760](https://github.com/withastro/astro/pull/15760) [`f49a27f`](https://github.com/withastro/astro/commit/f49a27fd2ac2559c06671979487f642360791a92) Thanks [@ematipico](https://github.com/ematipico)! - Fixed an issue where queued rendering wasn't correctly re-using the saved nodes.
+- [#15760](https://github.com/withastro/astro/pull/15760) [`f49a27f`](https://github.com/withastro/astro/commit/f49a27fd2ac2559c06671979487f642360791a92) Thanks [@ematipico](https://github.com/ematipico)! - Fixed an issue where queued rendering wasn't correctly reusing the saved nodes.
 
 - [#15728](https://github.com/withastro/astro/pull/15728) [`12ca621`](https://github.com/withastro/astro/commit/12ca6213a68280293485d091e14899e7f2a4fee8) Thanks [@SvetimFM](https://github.com/SvetimFM)! - Improves internal state retention for persisted elements during view transitions, especially avoiding WebGL context loss in Safari and resets of CSS transitions and iframes in modern Chromium and Firefox browsers
 
@@ -1942,7 +1942,7 @@
     experimental: {
       queuedRendering: {
         enabled: true,
-        contentCache: true, // enable re-use of node values
+        contentCache: true, // enable reuse of node values
       },
     },
   });
@@ -2024,7 +2024,7 @@
 
 ### Minor Changes
 
-- [#15529](https://github.com/withastro/astro/pull/15529) [`a509941`](https://github.com/withastro/astro/commit/a509941a7a7a1e53f402757234bb88e5503e5119) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a new build-in font provider `npm` to access fonts installed as NPM packages
+- [#15529](https://github.com/withastro/astro/pull/15529) [`a509941`](https://github.com/withastro/astro/commit/a509941a7a7a1e53f402757234bb88e5503e5119) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a new built-in font provider `npm` to access fonts installed as NPM packages
 
   You can now add web fonts specified in your `package.json` through Astro's type-safe Fonts API. The `npm` font provider allows you to add fonts either from locally installed packages in `node_modules` or from a CDN.
 
@@ -6772,7 +6772,7 @@
 
   The types of `imagePaths` has also been updated from `Set<string>` to `string[]`. The `vfile.data.astro.frontmatter` metadata is left unchanged.
 
-  While we don't consider these APIs public, they can be accessed by Remark and Rehype plugins that want to re-use Astro's metadata. If you are using these APIs, make sure to access them in the new locations.
+  While we don't consider these APIs public, they can be accessed by Remark and Rehype plugins that want to reuse Astro's metadata. If you are using these APIs, make sure to access them in the new locations.
 
 - [#11987](https://github.com/withastro/astro/pull/11987) [`bf90a53`](https://github.com/withastro/astro/commit/bf90a5343f9cd1bb46f30e4b331e7ae675f5e720) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - The `locals` object can no longer be overridden
 
@@ -9075,7 +9075,7 @@
 
   The types of `imagePaths` has also been updated from `Set<string>` to `string[]`. The `vfile.data.astro.frontmatter` metadata is left unchanged.
 
-  While we don't consider these APIs public, they can be accessed by Remark and Rehype plugins that want to re-use Astro's metadata. If you are using these APIs, make sure to access them in the new locations.
+  While we don't consider these APIs public, they can be accessed by Remark and Rehype plugins that want to reuse Astro's metadata. If you are using these APIs, make sure to access them in the new locations.
 
 - [#11825](https://github.com/withastro/astro/pull/11825) [`560ef15`](https://github.com/withastro/astro/commit/560ef15ad23bd137b56ef1048eb2df548b99fdce) Thanks [@bluwy](https://github.com/bluwy)! - Updates internal Shiki rehype plugin to highlight code blocks as hast (using Shiki's `codeToHast()` API). This allows a more direct Markdown and MDX processing, and improves the performance when building the project, but may cause issues with existing Shiki transformers.
 

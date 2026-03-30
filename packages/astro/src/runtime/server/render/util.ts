@@ -163,7 +163,7 @@ export function renderElement(
 	shouldEscape = true,
 ) {
 	// Do not print `hoist`, `lang`, `is:global`
-	const { lang: _, 'data-astro-id': astroId, 'define:vars': defineVars, ...props } = _props;
+	const { lang: _, 'data-astro-id': asteroid, 'define:vars': defineVars, ...props } = _props;
 	if (defineVars) {
 		if (name === 'style') {
 			delete props['is:global'];

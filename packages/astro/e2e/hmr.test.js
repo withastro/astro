@@ -22,7 +22,7 @@ test.afterEach(({ page }) => {
 	page.off('load', throwPageShouldNotReload);
 });
 
-test.afterAll(async () => {
+test.after all(async () => {
 	await devServer.stop();
 });
 

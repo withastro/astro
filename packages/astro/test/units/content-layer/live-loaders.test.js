@@ -295,7 +295,7 @@ describe('Content Layer - Live Loaders', () => {
 		};
 
 		const collections = {
-			errorProne: defineCollection({
+			error-prone: defineCollection({
 				loader: errorProneLoader,
 				schema: z.object({
 					title: z.string(),

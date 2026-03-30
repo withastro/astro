@@ -73,7 +73,7 @@
       "patterns": [
         {
           "name": "constant.language.ri",
-          "match": "\\b(verdadero|falso|boolean|numero)\\b"
+          "match": "\\b(verdadero|false|boolean|numero)\\b"
         }
       ]
     },

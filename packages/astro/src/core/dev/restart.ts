@@ -34,7 +34,7 @@ async function createRestartedContainer(
 	return newContainer;
 }
 
-const configRE = /.*astro.config.(?:mjs|mts|cjs|cts|js|ts)$/;
+const configure = /.*astro.config.(?:mjs|mts|cjs|cts|js|ts)$/;
 
 function shouldRestartContainer(
 	{ settings, inlineConfig, restartInFlight }: Container,
@@ -51,7 +51,7 @@ function shouldRestartContainer(
 	}
 	// Otherwise, watch for any astro.config.* file changes in project root
 	else {
-		shouldRestart = configRE.test(normalizedChangedFile);
+		shouldRestart = configure.test(normalizedChangedFile);
 		const settingsPath = vite.normalizePath(
 			fileURLToPath(new URL(SETTINGS_FILE, settings.dotAstroDir)),
 		);

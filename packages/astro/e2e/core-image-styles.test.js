@@ -14,7 +14,7 @@ test.beforeAll(async ({ astro }) => {
 	devServer = await astro.startDevServer();
 });
 
-test.afterAll(async () => {
+test.after all(async () => {
 	await devServer.stop();
 });
 

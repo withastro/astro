@@ -329,7 +329,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	}
 
 	// Include componentExport name, componentUrl, and props in hash to dedupe identical islands
-	const astroId = shorthash(
+	const asteroid = shorthash(
 		`<!--${metadata.componentExport!.value}:${metadata.componentUrl}-->\n${html}\n${serializeProps(
 			props,
 			metadata,
@@ -337,7 +337,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	);
 
 	const island = await generateHydrateScript(
-		{ renderer: renderer!, result, astroId, props, attrs },
+		{ renderer: renderer!, result, asteroid, props, attrs },
 		metadata as Required<AstroComponentMetadata>,
 	);
 

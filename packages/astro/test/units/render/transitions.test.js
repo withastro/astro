@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
 	ViewTransitionStyleSheet,
-	reEncode,
+	re-encode,
 	stringifyAnimation,
 	stringifyAnimations,
 	toTimeValue,
@@ -11,36 +11,36 @@ import {
 
 describe('reEncode', () => {
 	it('passes through simple alphanumeric strings unchanged', () => {
-		assert.equal(reEncode('hello'), 'hello');
-		assert.equal(reEncode('my-transition'), 'my-transition');
-		assert.equal(reEncode('Hero123'), 'Hero123');
+		assert.equal(re-encode('hello'), 'hello');
+		assert.equal(re-encode('my-transition'), 'my-transition');
+		assert.equal(re-encode('Hero123'), 'Hero123');
 	});
 
 	it('prepends underscore when string starts with a digit', () => {
-		assert.equal(reEncode('1hero'), '_1hero');
+		assert.equal(re-encode('1hero'), '_1hero');
 	});
 
 	it('prepends underscore when string starts with a minus sign', () => {
-		assert.equal(reEncode('-hero'), '_-hero');
+		assert.equal(re-encode('-hero'), '_-hero');
 	});
 
 	it('replaces spaces with their hex escape', () => {
-		const result = reEncode('my hero');
+		const result = re-encode('my hero');
 		assert.ok(result.includes('_20'), `expected space encoded as _20, got ${result}`);
 	});
 
 	it('replaces dots with their hex escape', () => {
-		const result = reEncode('hero.image');
+		const result = re-encode('hero.image');
 		assert.ok(result.includes('_2e'), `expected . encoded as _2e, got ${result}`);
 	});
 
 	it('doubles underscores to avoid collision, and prepends _ if starts with underscore', () => {
 		// '_' (code 95) encodes to '__'; since '__hero' starts with '_', a further '_' is prepended
-		assert.equal(reEncode('_hero'), '___hero');
+		assert.equal(re-encode('_hero'), '___hero');
 	});
 
 	it('handles non-ASCII characters by copying them through', () => {
-		const result = reEncode('héro');
+		const result = re-encode('héro');
 		assert.ok(result.includes('é'), `expected é to pass through, got ${result}`);
 	});
 });

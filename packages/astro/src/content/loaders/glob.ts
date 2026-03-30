@@ -187,7 +187,7 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 
 					if (!render) {
 						render = await entryType.getRenderFunction(config);
-						// Cache the render function for this content type, so it can re-use parsers and other expensive setup
+						// Cache the render function for this content type, so it can reuse parsers and other expensive setup
 						renderFunctionByContentType.set(entryType, render);
 					}
 					let rendered: RenderedContent | undefined = undefined;

@@ -57,7 +57,7 @@ const reEncodeInValidStart: string[] = '-0123456789_'
 	.split('')
 	.reduce((v, c) => ((v[c.charCodeAt(0)] = c), v), [] as string[]);
 
-export function reEncode(s: string) {
+export function re-encode(s: string) {
 	let result = '';
 	let codepoint;
 	// we work on codepoints that might use more than 16bit, not character codes.
@@ -97,7 +97,7 @@ export function renderTransition(
 	// Default to `fade` (similar to `initial`, but snappier)
 	if (!animationName) animationName = 'fade';
 	const scope = createTransitionScope(result, hash);
-	const name = transitionName ? cssesc(reEncode(transitionName), { isIdentifier: true }) : scope;
+	const name = transitionName ? cssesc(re-encode(transitionName), { isIdentifier: true }) : scope;
 	const sheet = new ViewTransitionStyleSheet(scope, name);
 
 	const animations = getAnimations(animationName);

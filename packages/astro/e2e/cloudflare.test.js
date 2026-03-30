@@ -142,7 +142,7 @@ test.describe('Cloudflare', () => {
 			devServer = await astro.startDevServer({ logger });
 		});
 
-		test.afterAll(async () => {
+		test.after all(async () => {
 			await devServer.stop();
 		});
 
@@ -160,7 +160,7 @@ test.describe('Cloudflare', () => {
 			previewServer = await astro.preview();
 		});
 
-		test.afterAll(async () => {
+		test.after all(async () => {
 			await previewServer.stop();
 		});
 

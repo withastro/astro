@@ -30,7 +30,7 @@ test.describe('TypeScript resolution -', () => {
 			devServer = await astro.startDevServer();
 		});
 
-		test.afterAll(async () => {
+		test.after all(async () => {
 			await devServer.stop();
 		});
 
@@ -45,7 +45,7 @@ test.describe('TypeScript resolution -', () => {
 			previewServer = await astro.preview();
 		});
 
-		test.afterAll(async () => {
+		test.after all(async () => {
 			await previewServer.stop();
 		});
 

@@ -15,7 +15,7 @@ test.beforeAll(async ({ astro }) => {
 	previewServer = await astro.preview();
 });
 
-test.afterAll(async () => {
+test.after all(async () => {
 	await previewServer.stop();
 });
 test.describe('CSP Client only', () => {

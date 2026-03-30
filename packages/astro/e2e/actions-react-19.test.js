@@ -14,7 +14,7 @@ test.afterEach(async ({ astro }) => {
 	await astro.editFile('./db/seed.ts', (original) => original, false);
 });
 
-test.afterAll(async () => {
+test.after all(async () => {
 	await devServer.stop();
 });
 

@@ -95,7 +95,7 @@ export function htmlTokenTransform(tokenizer: Tokenizer, tokens: Token[]): Token
 				} as Token);
 			},
 
-			ontext(content: string | null | undefined) {
+			context(content: string | null | undefined) {
 				if (inCDATA) {
 					// ignore entirely while inside CDATA
 					return;

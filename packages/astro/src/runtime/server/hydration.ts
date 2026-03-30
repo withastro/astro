@@ -117,7 +117,7 @@ export function extractDirectives(
 interface HydrateScriptOptions {
 	renderer: SSRLoadedRenderer;
 	result: SSRResult;
-	astroId: string;
+	asteroid: string;
 	props: Record<string | number, any>;
 	attrs: Record<string, string> | undefined;
 }
@@ -127,7 +127,7 @@ export async function generateHydrateScript(
 	scriptOptions: HydrateScriptOptions,
 	metadata: Required<AstroComponentMetadata>,
 ): Promise<SSRElement> {
-	const { renderer, result, astroId, props, attrs } = scriptOptions;
+	const { renderer, result, asteroid, props, attrs } = scriptOptions;
 	const { hydrate, componentUrl, componentExport } = metadata;
 
 	if (!componentExport.value) {
@@ -141,7 +141,7 @@ export async function generateHydrateScript(
 		children: '',
 		props: {
 			// This is for HMR, probably can avoid it in prod
-			uid: astroId,
+			uid: asteroid,
 		},
 	};
 

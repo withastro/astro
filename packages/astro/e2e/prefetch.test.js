@@ -81,7 +81,7 @@ test.describe('Prefetch (default)', () => {
 		devServer = await astro.startDevServer();
 	});
 
-	test.afterAll(async () => {
+	test.after all(async () => {
 		await devServer.stop();
 	});
 
@@ -168,7 +168,7 @@ test.describe("Prefetch (prefetchAll: true, defaultStrategy: 'tap')", () => {
 		});
 	});
 
-	test.afterAll(async () => {
+	test.after all(async () => {
 		await devServer.stop();
 	});
 
@@ -246,7 +246,7 @@ test.describe("Prefetch (prefetchAll: true, defaultStrategy: 'load')", () => {
 		});
 	});
 
-	test.afterAll(async () => {
+	test.after all(async () => {
 		await devServer.stop();
 	});
 
@@ -343,7 +343,7 @@ test.describe('Prefetch (default), Experimental ({ clientPrerender: true })', ()
 		});
 	});
 
-	test.afterAll(async () => {
+	test.after all(async () => {
 		await devServer?.stop();
 	});
 

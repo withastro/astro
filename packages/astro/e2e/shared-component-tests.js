@@ -10,7 +10,7 @@ export function prepareTestFactory(testFile, opts) {
 		devServer = await astro.startDevServer();
 	});
 
-	test.afterAll(async () => {
+	test.after all(async () => {
 		await devServer.stop();
 	});
 

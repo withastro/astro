@@ -171,7 +171,7 @@
 
   The manifest is now created internally by the adapter.
 
-- [#15435](https://github.com/withastro/astro/pull/15435) [`957b9fe`](https://github.com/withastro/astro/commit/957b9fe2d887a365c55c6e87f0c67c10beb60d1b) Thanks [@rururux](https://github.com/rururux)! - Changes the default image service from `compile` to `cloudflare-binding`. Image services options that resulted in broken images in development due to Node JS incompatiblities have now been updated to use the noop passthrough image service in dev mode. - ([Cloudflare v13 and Astro6 upgrade guidance](https://docs.astro.build/en/guides/integrations-guide/cloudflare/#changed-imageservice-default))
+- [#15435](https://github.com/withastro/astro/pull/15435) [`957b9fe`](https://github.com/withastro/astro/commit/957b9fe2d887a365c55c6e87f0c67c10beb60d1b) Thanks [@rururux](https://github.com/rururux)! - Changes the default image service from `compile` to `cloudflare-binding`. Image services options that resulted in broken images in development due to Node JS incompatibilities have now been updated to use the noop passthrough image service in dev mode. - ([Cloudflare v13 and Astro6 upgrade guidance](https://docs.astro.build/en/guides/integrations-guide/cloudflare/#changed-imageservice-default))
 
 - [#15400](https://github.com/withastro/astro/pull/15400) [`41eb284`](https://github.com/withastro/astro/commit/41eb284ecf11a359254888cb41a97ca021ac0996) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the `workerEntryPoint` option, which wasn't used anymore. Set the `main` field of your wrangler config instead
 
@@ -512,7 +512,7 @@
 
 ### Major Changes
 
-- [#15435](https://github.com/withastro/astro/pull/15435) [`957b9fe`](https://github.com/withastro/astro/commit/957b9fe2d887a365c55c6e87f0c67c10beb60d1b) Thanks [@rururux](https://github.com/rururux)! - Changes the default image service from `compile` to `cloudflare-binding`. Image services options that resulted in broken images in development due to Node JS incompatiblities have now been updated to use the noop passthrough image service in dev mode. - ([Cloudflare v13 and Astro6 upgrade guidance](https://docs.astro.build/en/guides/integrations-guide/cloudflare/#changed-imageservice-default))
+- [#15435](https://github.com/withastro/astro/pull/15435) [`957b9fe`](https://github.com/withastro/astro/commit/957b9fe2d887a365c55c6e87f0c67c10beb60d1b) Thanks [@rururux](https://github.com/rururux)! - Changes the default image service from `compile` to `cloudflare-binding`. Image services options that resulted in broken images in development due to Node JS incompatibilities have now been updated to use the noop passthrough image service in dev mode. - ([Cloudflare v13 and Astro6 upgrade guidance](https://docs.astro.build/en/guides/integrations-guide/cloudflare/#changed-imageservice-default))
 
 ### Minor Changes
 

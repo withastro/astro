@@ -387,7 +387,7 @@
 
   The types of `imagePaths` has also been updated from `Set<string>` to `string[]`. The `vfile.data.astro.frontmatter` metadata is left unchanged.
 
-  While we don't consider these APIs public, they can be accessed by Remark and Rehype plugins that want to re-use Astro's metadata. If you are using these APIs, make sure to access them in the new locations.
+  While we don't consider these APIs public, they can be accessed by Remark and Rehype plugins that want to reuse Astro's metadata. If you are using these APIs, make sure to access them in the new locations.
 
 - [#12008](https://github.com/withastro/astro/pull/12008) [`5608338`](https://github.com/withastro/astro/commit/560833843c6d3ce2b6c6c473ec4ae70e744bf255) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Welcome to the Astro 5 beta! This release has no changes from the latest alpha of this package, but it does bring us one step closer to the final, stable release.
 
@@ -445,7 +445,7 @@
 
   The types of `imagePaths` has also been updated from `Set<string>` to `string[]`. The `vfile.data.astro.frontmatter` metadata is left unchanged.
 
-  While we don't consider these APIs public, they can be accessed by Remark and Rehype plugins that want to re-use Astro's metadata. If you are using these APIs, make sure to access them in the new locations.
+  While we don't consider these APIs public, they can be accessed by Remark and Rehype plugins that want to reuse Astro's metadata. If you are using these APIs, make sure to access them in the new locations.
 
 - [#11825](https://github.com/withastro/astro/pull/11825) [`560ef15`](https://github.com/withastro/astro/commit/560ef15ad23bd137b56ef1048eb2df548b99fdce) Thanks [@bluwy](https://github.com/bluwy)! - Updates return object of `createShikiHighlighter` as `codeToHast` and `codeToHtml` to allow generating either the hast or html string directly
 

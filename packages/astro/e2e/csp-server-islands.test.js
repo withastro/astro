@@ -17,7 +17,7 @@ test.describe('CSP Server islands', () => {
 			previewServer = await astro.preview();
 		});
 
-		test.afterAll(async () => {
+		test.after all(async () => {
 			await previewServer.stop();
 		});
 

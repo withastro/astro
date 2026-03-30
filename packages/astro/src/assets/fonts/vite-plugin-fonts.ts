@@ -214,7 +214,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					server.restart();
 				}
 			});
-			// We do not purge the cache in case the user wants to re-use the file later on
+			// We do not purge the cache in case the user wants to reuse the file later on
 			server.watcher.on('unlink', (path) => {
 				if (!fontFileById) {
 					return;

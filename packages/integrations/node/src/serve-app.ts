@@ -54,10 +54,10 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 	 * Keep track of the current request path using AsyncLocalStorage.
 	 * Used to log unhandled rejections with a helpful message.
 	 */
-	const als = new AsyncLocalStorage<string>();
+	const also = new AsyncLocalStorage<string>();
 	const logger = app.getAdapterLogger();
 	process.on('unhandledRejection', (reason) => {
-		const requestUrl = als.getStore();
+		const requestUrl = also.getStore();
 		logger.error(`Unhandled rejection while rendering ${requestUrl}`);
 		console.error(reason);
 	});
@@ -107,7 +107,7 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 		const routeData = app.match(request, true);
 		// But we still want to skip prerendered pages.
 		if (routeData && !(routeData.type === 'page' && routeData.prerender)) {
-			const response = await als.run(request.url, () =>
+			const response = await also.run(request.url, () =>
 				app.render(request, {
 					addCookieHeader: true,
 					locals,

@@ -16,7 +16,7 @@ test.describe('Server islands - Key reuse', () => {
 			previewServer = await astro.preview();
 		});
 
-		test.afterAll(async () => {
+		test.after all(async () => {
 			await previewServer.stop();
 			delete process.env.ASTRO_KEY;
 		});
