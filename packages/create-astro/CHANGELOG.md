@@ -1,5 +1,11 @@
 # create-astro
 
+## 5.0.4
+
+### Patch Changes
+
+- [#16106](https://github.com/withastro/astro/pull/16106) [`d241012`](https://github.com/withastro/astro/commit/d241012107c7df55ac46192bcb7b1fbe650f3d93) Thanks [@matthewp](https://github.com/matthewp)! - Fixes dependency installation failing on Windows when running `npm create astro@latest`. The previous fix for DEP0190 warnings incorrectly assumed `.cmd` shims could be spawned directly without a shell — on Windows, `.cmd` files require `cmd.exe` to execute. Package manager commands are now invoked via `cmd.exe /d /s /c` on Windows. Also fixes the `[object Object]` error message that appeared when installation failed, replacing it with the actual error.
+
 ## 5.0.3
 
 ### Patch Changes

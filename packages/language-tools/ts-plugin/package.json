@@ -39,8 +39,8 @@
     "@types/mocha": "^10.0.10",
     "@types/node": "^20.9.0",
     "@types/semver": "^7.7.1",
-    "@vscode/test-electron": "^2.5.2",
     "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2",
     "mocha": "^11.7.5",
     "typescript": "^5.9.3",
     "vscode-uri": "^3.1.0"
