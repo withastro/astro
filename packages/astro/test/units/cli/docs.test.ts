@@ -1,15 +1,14 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { openDocsCommand } from '../../../dist/cli/docs/core/open-docs.js';
 import { ProcessCloudIdeProvider } from '../../../dist/cli/docs/infra/process-cloud-ide-provider.js';
-import { SpyLogger } from '../test-utils.js';
 import {
+	SpyLogger,
 	FakeCloudIdeProvider,
 	FakeOperatingSystemProvider,
 	PassthroughCommandRunner,
 	SpyCommandExecutor,
-} from './utils.js';
+} from './utils.ts';
 
 describe('CLI docs', () => {
 	describe('core', () => {
@@ -58,8 +57,7 @@ describe('CLI docs', () => {
 
 	describe('infra', () => {
 		describe('ProcessCloudIdeProvider', () => {
-			/** @type {string | undefined} */
-			let prev;
+			let prev: string | undefined;
 
 			before(() => {
 				prev = process.env.GITPOD_REPO_ROOT;

@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "6.1.0",
+  "version": "6.1.2",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -113,8 +113,13 @@
     "test:e2e:chrome": "playwright test",
     "test:e2e:firefox": "playwright test --config playwright.firefox.config.js",
     "test:types": "tsc --project test/types/tsconfig.json",
-    "test:unit": "astro-scripts test \"test/units/**/*.test.js\" --teardown ./test/units/teardown.js",
-    "test:integration": "astro-scripts test \"test/*.test.js\""
+    "typecheck:tests": "tsc --project tsconfig.test.json",
+    "test:unit": "pnpm run test:unit:js && pnpm run test:unit:ts",
+    "test:unit:js": "astro-scripts test \"test/units/**/*.test.js\" --teardown ./test/units/teardown.js",
+    "test:unit:ts": "astro-scripts test \"test/units/**/*.test.ts\" --strip-types --teardown ./test/units/teardown.js",
+    "test:integration": "pnpm run test:integration:js && pnpm run test:integration:ts",
+    "test:integration:js": "astro-scripts test \"test/*.test.js\"",
+    "test:integration:ts": "astro-scripts test \"test/*.test.ts\" --strip-types"
   },
   "dependencies": {
     "@astrojs/compiler": "^3.0.1",

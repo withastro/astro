@@ -1,5 +1,23 @@
 # astro
 
+## 6.1.2
+
+### Patch Changes
+
+- [#16104](https://github.com/withastro/astro/pull/16104) [`47a394d`](https://github.com/withastro/astro/commit/47a394d7cf2eb735fcee8e90830737f9e900a274) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `astro preview` ignoring `vite.preview.allowedHosts` set in `astro.config.mjs`
+
+- [#16047](https://github.com/withastro/astro/pull/16047) [`711f837`](https://github.com/withastro/astro/commit/711f837cfa3374a458f1f91e08bc388e7c0e12e6) Thanks [@matthewp](https://github.com/matthewp)! - Fixes catch-all routes incorrectly intercepting requests for static assets when using the `@astrojs/node` adapter in middleware mode.
+
+- [#15981](https://github.com/withastro/astro/pull/15981) [`a60cbb6`](https://github.com/withastro/astro/commit/a60cbb6963d55aa272281edfeecf7251d987b0fb) Thanks [@moktamd](https://github.com/moktamd)! - Fix Zod v4 validation error formatting to show human-readable messages instead of raw JSON
+
+## 6.1.1
+
+### Patch Changes
+
+- [#16105](https://github.com/withastro/astro/pull/16105) [`23d60de`](https://github.com/withastro/astro/commit/23d60dee6eae3d7148ef87f8b44c3d7470fef0ed) Thanks [@matthewp](https://github.com/matthewp)! - Fix dev toolbar audit crash when encountering the `image` ARIA role
+
+- [#16089](https://github.com/withastro/astro/pull/16089) [`999c875`](https://github.com/withastro/astro/commit/999c875da5914735458e0939be8a2be2e012e580) Thanks [@martrapp](https://github.com/martrapp)! - Fixes an issue with the client router where Vue's `:deep()` notation was ignored in dev mode.
+
 ## 6.1.0
 
 ### Minor Changes
