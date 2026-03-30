@@ -5519,8 +5519,8 @@ importers:
         specifier: ^0.1.3
         version: 0.1.3
       tryckeri:
-        specifier: 0.1.13
-        version: 0.1.13
+        specifier: 0.1.14
+        version: 0.1.14
     devDependencies:
       '@mdx-js/mdx':
         specifier: ^3.1.1
@@ -15173,8 +15173,8 @@ packages:
   trough@2.2.0:
     resolution: {integrity: sha512-tmMpK00BjZiUyVyvrBK7knerNgmgvcV/KLVyuma/SC+TQN167GrMRciANTz09+k3zW8L8t60jWO1GpfkZdjTaw==}
 
-  tryckeri@0.1.13:
-    resolution: {integrity: sha512-QGMyXBdqjRZZV6FXaRqtwpWRRrdAcVITziN8lg933ebUD5oylhvS3sqkzG3aBzanhrA56fq9puiw4FVtUDgNrQ==}
+  tryckeri@0.1.14:
+    resolution: {integrity: sha512-1nMFWWQG1hY/0H2qZDmOqbMRshvwVRodgJ+j6UvqSjCPIFuDrGfiSdZqjhFpgCoCMJcy595x8hP5D82aBTFZjA==}
 
   ts-api-utils@2.4.0:
     resolution: {integrity: sha512-3TaVTaAv2gTiMB35i3FiGJaRfwb3Pyn/j3m/bfAvGe8FB7CF6u+LMYqYlDh7reQf7UNvoTvdfAqHGmPGOSsPmA==}
@@ -25164,7 +25164,7 @@ snapshots:
 
   trough@2.2.0: {}
 
-  tryckeri@0.1.13: {}
+  tryckeri@0.1.14: {}
 
   ts-api-utils@2.4.0(typescript@5.9.3):
     dependencies:
