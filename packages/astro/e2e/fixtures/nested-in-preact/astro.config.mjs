@@ -16,4 +16,14 @@ export default defineConfig({
 		// svelte(),
 		vue(),
 	],
+	vite: {
+		optimizeDeps: {
+			// Pre-include framework deps to avoid re-optimization mid-page-load in CI,
+			// which causes full page reloads that break hydration-dependent tests.
+			include: [
+				'preact', 'preact/hooks', 'preact/jsx-runtime',
+				'react', 'react-dom', 'react/jsx-runtime',
+			],
+		},
+	},
 });

@@ -1,13 +1,14 @@
 import { expect } from '@playwright/test';
-import { testFactory } from './test-utils.js';
+import { testFactory, warmupDevServer } from './test-utils.js';
 
 const test = testFactory(import.meta.url, { root: './fixtures/vite-virtual-modules/' });
 const VIRTUAL_MODULE_ID = '/@id/__x00__virtual:dynamic.css';
 
 let devServer;
 
-test.beforeAll(async ({ astro }) => {
+test.beforeAll(async ({ astro, browser }) => {
 	devServer = await astro.startDevServer();
+	await warmupDevServer(browser, astro.resolveUrl('/'));
 });
 
 test.afterAll(async () => {

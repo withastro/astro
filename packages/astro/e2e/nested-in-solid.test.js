@@ -1,12 +1,13 @@
 import { expect } from '@playwright/test';
-import { testFactory, waitForHydrate } from './test-utils.js';
+import { testFactory, waitForHydrate, warmupDevServer } from './test-utils.js';
 
 const test = testFactory(import.meta.url, { root: './fixtures/nested-in-solid/' });
 
 let devServer;
 
-test.beforeAll(async ({ astro }) => {
+test.beforeAll(async ({ astro, browser }) => {
 	devServer = await astro.startDevServer();
+	await warmupDevServer(browser, astro.resolveUrl('/'));
 });
 
 test.afterAll(async () => {

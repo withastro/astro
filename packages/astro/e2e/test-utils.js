@@ -101,6 +101,26 @@ export async function waitForHydrate(page, el) {
 }
 
 /**
+ * Warm up the dev server by visiting a page in a real browser context and waiting
+ * for hydration. This triggers Vite's dep optimizer so that subsequent test page
+ * loads don't cause unexpected full-page reloads from re-optimization.
+ * @param {import('@playwright/test').Browser} browser
+ * @param {string} url - The full URL to visit for warmup
+ */
+export async function warmupDevServer(browser, url) {
+	const page = await browser.newPage();
+	await page.goto(url, { waitUntil: 'load' });
+	// Wait for all astro-islands on the page to hydrate
+	const islands = page.locator('astro-island');
+	const count = await islands.count();
+	for (let i = 0; i < count; i++) {
+		const island = islands.nth(i);
+		await waitForHydrate(page, island).catch(() => {});
+	}
+	await page.close();
+}
+
+/**
  * Scroll to element manually without making sure the `el` is stable
  * @param {import('@playwright/test').Locator} el
  */
