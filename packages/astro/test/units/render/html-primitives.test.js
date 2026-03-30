@@ -107,7 +107,26 @@ describe('defineScriptVars', () => {
 	it('sanitizes </script> to prevent XSS injection', () => {
 		const result = String(defineScriptVars({ evil: '</script>' }));
 		assert.ok(!result.includes('</script>'), 'should not contain literal </script>');
-		assert.ok(result.includes('\\x3C/script>'), 'should escape the closing tag');
+		assert.ok(result.includes('\\u003c/script>'), 'should escape the closing tag');
+	});
+
+	it('sanitizes case-insensitive </script> variants', () => {
+		for (const tag of ['</Script>', '</SCRIPT>', '</sCrIpT>']) {
+			const result = String(defineScriptVars({ evil: tag }));
+			assert.ok(!result.includes(tag), `should not contain literal ${tag}`);
+		}
+	});
+
+	it('sanitizes </script> with trailing whitespace before >', () => {
+		for (const tag of ['</script >', '</script\t>', '</script\n>']) {
+			const result = String(defineScriptVars({ evil: tag }));
+			assert.ok(!result.includes(tag), `should not contain literal ${JSON.stringify(tag)}`);
+		}
+	});
+
+	it('sanitizes self-closing </script/>', () => {
+		const result = String(defineScriptVars({ evil: '</script/>' }));
+		assert.ok(!result.includes('</script/>'), 'should not contain literal </script/>');
 	});
 
 	it('converts keys with spaces to valid JS identifiers', () => {
