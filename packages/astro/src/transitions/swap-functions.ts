@@ -186,6 +186,16 @@ const persistedHeadElement = (el: HTMLElement, newDoc: Document): Element | null
 		const href = el.getAttribute('href');
 		return newDoc.head.querySelector(`link[rel=stylesheet][href="${href}"]`);
 	}
+	// In dev mode, Vite injects <style data-vite-dev-id="..."> elements whose
+	// textContent is later transformed by HMR (e.g. Vue's `:deep()` → `[data-v-xxx]`).
+	// Match these by their stable dev ID so the already-transformed style is preserved
+	// across ClientRouter soft navigations instead of being replaced by the raw version.
+	if (import.meta.env.DEV && el.tagName === 'STYLE') {
+		const viteDevId = el.getAttribute('data-vite-dev-id');
+		if (viteDevId) {
+			return newDoc.head.querySelector(`style[data-vite-dev-id="${viteDevId}"]`);
+		}
+	}
 	// Preserve inline <style> elements with identical content across navigations.
 	// This prevents unnecessary removal and re-insertion of styles (e.g. @font-face
 	// declarations from <Font>), which would cause the browser to re-evaluate them

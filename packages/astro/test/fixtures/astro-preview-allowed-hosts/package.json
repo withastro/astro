@@ -1,5 +1,5 @@
 {
-  "name": "@test/astro-markdown-skiki-normal",
+  "name": "@test/astro-preview-allowed-hosts",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

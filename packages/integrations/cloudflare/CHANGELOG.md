@@ -1,5 +1,14 @@
 # @astrojs/cloudflare
 
+## 13.1.5
+
+### Patch Changes
+
+- [#16109](https://github.com/withastro/astro/pull/16109) [`c887b4a`](https://github.com/withastro/astro/commit/c887b4a60329b704f18e9aad6106034aac7e7ab6) Thanks [@matthewp](https://github.com/matthewp)! - Fix HMR crash when editing content collection files caused by Vite's SSR transform colliding with zod v4's `meta` export
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.2
+
 ## 13.1.4
 
 ### Patch Changes
