@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
+import testAdapter from './temp-test-adapter.js';
 
 describe('Queue-based rendering - Static', () => {
 	/** @type {import('./test-utils.js').Fixture} */
@@ -200,7 +201,7 @@ describe('Queue-based rendering - SSR', () => {
 		fixture = await loadFixture({
 			root: './fixtures/queue-rendering/',
 			output: 'server',
-			adapter: await import('./test-adapter.js').then((mod) => mod.default()),
+			adapter: testAdapter(),
 		});
 		await fixture.build();
 		app = await fixture.loadTestAdapterApp();

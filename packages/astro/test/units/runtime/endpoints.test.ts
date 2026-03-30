@@ -2,7 +2,7 @@ import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import type { Container } from '../../../dist/core/dev/container.js';
 import { createContainer } from '../../../dist/core/dev/container.js';
-import testAdapter from '../../test-adapter.js';
+import testAdapter from '../../temp-test-adapter.js';
 import {
 	createBasicSettings,
 	createFixture,
