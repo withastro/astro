@@ -84,9 +84,21 @@ function getViteConfiguration(
 	}: ReactIntegrationOptions = {},
 	reactConfig: ReactVersionConfig,
 ) {
+	// Always exclude .astro files from the React plugin. In Vite 8, @vitejs/plugin-react
+	// sets jsxRefreshInclude/jsxRefreshExclude which controls vite:oxc's JSX refresh filter.
+	// Without excluding .astro, the filter matches .astro virtual module scripts (e.g.
+	// Foo.astro?astro&type=script&index=0&lang.ts) and forces lang to 'js', causing OXC
+	// to fail parsing TypeScript syntax like `import type`.
+	const astroExclude = /\.astro$/;
+	const mergedExclude = exclude
+		? Array.isArray(exclude)
+			? [...exclude, astroExclude]
+			: [exclude, astroExclude]
+		: astroExclude;
+
 	return {
 		plugins: [
-			react({ include, exclude, babel }),
+			react({ include, exclude: mergedExclude, babel }),
 			optionsPlugin({
 				include,
 				exclude,
