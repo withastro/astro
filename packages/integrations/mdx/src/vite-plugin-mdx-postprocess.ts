@@ -1,11 +1,9 @@
 import type { AstroConfig } from 'astro';
 import { type ExportSpecifier, type ImportSpecifier, parse } from 'es-module-lexer';
 import type { Plugin } from 'vite';
-import {
-	ASTRO_IMAGE_ELEMENT,
-	ASTRO_IMAGE_IMPORT,
-	USES_ASTRO_IMAGE_FLAG,
-} from './rehype-images-to-component.js';
+const ASTRO_IMAGE_ELEMENT = 'astro-image';
+const ASTRO_IMAGE_IMPORT = '__AstroImage__';
+const USES_ASTRO_IMAGE_FLAG = '__usesAstroImage';
 import { type FileInfo, getFileInfo } from './utils.js';
 
 const underscoreFragmentImportRegex = /[\s,{]_Fragment[\s,}]/;

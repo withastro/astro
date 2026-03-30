@@ -10,7 +10,7 @@ import type {
 } from 'astro';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import type { PluggableList } from 'unified';
-import type { OptimizeOptions } from './rehype-optimize-static.js';
+import type { MdastPluginDefinition, HastPluginDefinition } from './tryckeri-plugins.js';
 import { ignoreStringPlugins, safeParseFrontmatter } from './utils.js';
 import { type VitePluginMdxOptions, vitePluginMdx } from './vite-plugin-mdx.js';
 import { vitePluginMdxPostprocess } from './vite-plugin-mdx-postprocess.js';
@@ -23,7 +23,9 @@ export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | '
 	remarkPlugins: PluggableList;
 	rehypePlugins: PluggableList;
 	remarkRehype: RemarkRehypeOptions;
-	optimize: boolean | OptimizeOptions;
+	optimize: boolean | { ignoreElementNames?: string[] };
+	mdastPlugins: MdastPluginDefinition[];
+	hastPlugins: HastPluginDefinition[];
 };
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
@@ -101,6 +103,8 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 				Object.assign(vitePluginMdxOptions, {
 					mdxOptions: resolvedMdxOptions,
 					srcDir: config.srcDir,
+					mdastPlugins: resolvedMdxOptions.mdastPlugins,
+					hastPlugins: resolvedMdxOptions.hastPlugins,
 				});
 				// @ts-expect-error After we assign, we don't need to reference `mdxOptions` in this context anymore.
 				// Re-assign it so that the garbage can be collected later.
@@ -114,6 +118,8 @@ const defaultMdxOptions = {
 	extendMarkdownConfig: true,
 	recmaPlugins: [],
 	optimize: false,
+	mdastPlugins: [],
+	hastPlugins: [],
 } satisfies Partial<MdxOptions>;
 
 function markdownConfigToMdxOptions(
@@ -147,5 +153,7 @@ function applyDefaultOptions({
 		rehypePlugins: options.rehypePlugins ?? defaults.rehypePlugins,
 		shikiConfig: options.shikiConfig ?? defaults.shikiConfig,
 		optimize: options.optimize ?? defaults.optimize,
+		mdastPlugins: options.mdastPlugins ?? defaults.mdastPlugins,
+		hastPlugins: options.hastPlugins ?? defaults.hastPlugins,
 	};
 }

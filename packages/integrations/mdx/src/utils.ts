@@ -1,8 +1,5 @@
 import { parseFrontmatter } from '@astrojs/markdown-remark';
-import type { Options as AcornOpts } from 'acorn';
-import { parse } from 'acorn';
 import type { AstroConfig, AstroIntegrationLogger, SSRError } from 'astro';
-import type { MdxjsEsm } from 'mdast-util-mdx';
 import colors from 'piccolore';
 import type { PluggableList } from 'unified';
 
@@ -62,27 +59,6 @@ export function safeParseFrontmatter(code: string, id: string) {
 			throw e;
 		}
 	}
-}
-
-export function jsToTreeNode(
-	jsString: string,
-	acornOpts: AcornOpts = {
-		ecmaVersion: 'latest',
-		sourceType: 'module',
-	},
-): MdxjsEsm {
-	return {
-		type: 'mdxjsEsm',
-		value: '',
-		data: {
-			// @ts-expect-error `parse` return types is incompatible but it should work in runtime
-			estree: {
-				...parse(jsString, acornOpts),
-				type: 'Program',
-				sourceType: 'module',
-			},
-		},
-	};
 }
 
 export function ignoreStringPlugins(plugins: any[], logger: AstroIntegrationLogger): PluggableList {
