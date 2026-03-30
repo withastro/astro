@@ -348,7 +348,7 @@ export function getDataEntryId({
 }: Pick<ContentPaths, 'contentDir'> & { entry: URL; collection: string }): string {
 	const relativePath = getRelativeEntryPath(entry, collection, contentDir);
 	const withoutFileExt = normalizePath(relativePath).replace(
-		new RegExp(path.extname(relativePath) + '$'),
+		new RegExp(escapeRegExp(path.extname(relativePath)) + '$'),
 		'',
 	);
 
@@ -364,7 +364,7 @@ export function getContentEntryIdAndSlug({
 	slug: string;
 } {
 	const relativePath = getRelativeEntryPath(entry, collection, contentDir);
-	const withoutFileExt = relativePath.replace(new RegExp(path.extname(relativePath) + '$'), '');
+	const withoutFileExt = relativePath.replace(new RegExp(escapeRegExp(path.extname(relativePath)) + '$'), '');
 	const rawSlugSegments = withoutFileExt.split(path.sep);
 
 	const slug = rawSlugSegments
@@ -429,12 +429,17 @@ function hasUnderscoreBelowContentDirectoryPath(
 	return false;
 }
 
+/** Escape special regex metacharacters so the string is matched literally in a RegExp. */
+function escapeRegExp(str: string): string {
+	return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function getYAMLErrorLine(rawData: string | undefined, objectKey: string) {
 	if (!rawData) return 0;
 	const indexOfObjectKey = rawData.search(
 		// Match key either at the top of the file or after a newline
 		// Ensures matching on top-level object keys only
-		new RegExp(`(\n|^)${objectKey}`),
+		new RegExp(`(\n|^)${escapeRegExp(objectKey)}`),
 	);
 	if (indexOfObjectKey === -1) return 0;
 
