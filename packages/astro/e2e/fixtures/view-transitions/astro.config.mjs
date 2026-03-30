@@ -1,6 +1,7 @@
 import nodejs from '@astrojs/node';
 import react from '@astrojs/react';
-import svelte from '@astrojs/svelte';
+// TODO: Re-enable once Svelte is compatible with Vite v8
+// import svelte from '@astrojs/svelte';
 import solidjs from '@astrojs/solid-js';
 import vue from '@astrojs/vue';
 import { defineConfig } from 'astro/config';
@@ -12,7 +13,7 @@ export default defineConfig({
 	integrations: [
 		react({ exclude: ['**/solid/**'] }),
 		vue(),
-		svelte(),
+		// svelte(),
 		solidjs({ include: ['**/solid/**'] }),
 	],
 	redirects: {

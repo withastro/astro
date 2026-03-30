@@ -198,6 +198,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 							if (isAstroServerEnvironment(this.environment)) {
 								return {
 									code: `/* client script, empty in SSR: ${id} */`,
+									moduleType: 'ts',
 								};
 							}
 
@@ -219,6 +220,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 
 							const result: SourceDescription = {
 								code: '',
+								moduleType: 'ts',
 								meta: {
 									vite: {
 										lang: 'ts',
@@ -277,6 +279,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 											);
 										}
 									: {};`,
+							moduleType: 'ts',
 							meta: { vite: { lang: 'ts' } },
 						};
 					}
@@ -298,6 +301,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 					return {
 						code: transformResult.code,
 						map: transformResult.map,
+						moduleType: 'ts',
 						meta: {
 							astro: astroMetadata,
 							vite: {
