@@ -132,14 +132,10 @@ export class NonRunnablePipeline extends Pipeline {
 		return { scripts, styles, links };
 	}
 
-	async componentMetadata(_routeData: RouteData) {
-		const metadata = new Map(this.manifest.componentMetadata);
-
+	componentMetadata() {
 		for (const [id, entry] of componentMetadataEntries) {
-			metadata.set(id, entry);
+			this.manifest.componentMetadata.set(id, entry);
 		}
-
-		return metadata;
 	}
 
 	async getComponentByRoute(routeData: RouteData): Promise<ComponentInstance> {
