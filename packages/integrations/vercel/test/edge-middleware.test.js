@@ -42,6 +42,18 @@ describe('Vercel edge middleware', () => {
 		assert.ok((await response.text()).length, 'Body is included');
 	});
 
+	it('edge middleware forwards HTTP method and body', async () => {
+		const contents = await build.readFile(
+			'../.vercel/output/functions/_middleware.func/middleware.mjs',
+		);
+		assert.ok(contents.includes('method: request.method'), 'forwards the HTTP method');
+		assert.ok(contents.includes('body: request.body'), 'forwards the request body');
+		assert.ok(
+			contents.includes("duplex: 'half'") || contents.includes('duplex: "half"'),
+			'sets duplex to half for streaming body',
+		);
+	});
+
 	// TODO: The path here seems to be inconsistent?
 	it.skip('with edge handle file, should successfully build the middleware', async () => {
 		const fixture = await loadFixture({
