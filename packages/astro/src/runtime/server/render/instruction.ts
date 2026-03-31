@@ -35,13 +35,23 @@ export type RenderScriptInstruction = {
 	content: string;
 };
 
+export type TemplateEnterInstruction = {
+	type: 'template-enter';
+};
+
+export type TemplateExitInstruction = {
+	type: 'template-exit';
+};
+
 export type RenderInstruction =
 	| RenderDirectiveInstruction
 	| RenderHeadInstruction
 	| MaybeRenderHeadInstruction
 	| RendererHydrationScriptInstruction
 	| ServerIslandRuntimeInstruction
-	| RenderScriptInstruction;
+	| RenderScriptInstruction
+	| TemplateEnterInstruction
+	| TemplateExitInstruction;
 
 export function createRenderInstruction<T extends RenderInstruction>(instruction: T): T {
 	return Object.defineProperty(instruction as T, RenderInstructionSymbol, {
