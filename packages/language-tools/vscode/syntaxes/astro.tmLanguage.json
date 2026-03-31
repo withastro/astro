@@ -99,8 +99,19 @@
     "L:meta.style.astro meta.lang.stylus - (meta.embedded.block source)": {
       "patterns": [
         {
+          "begin": "(?<=>)(?=[^\\n]+</style[\\s>])",
+          "end": "(?=</style[\\s>])",
+          "name": "meta.embedded.block.astro",
+          "contentName": "source.stylus",
+          "patterns": [
+            {
+              "include": "source.stylus"
+            }
+          ]
+        },
+        {
           "begin": "(?<=>)(?!</)",
-          "end": "(?=</)",
+          "while": "^(?!\\s*</style[\\s>])",
           "name": "meta.embedded.block.astro",
           "contentName": "source.stylus",
           "patterns": [
@@ -114,8 +125,19 @@
     "L:meta.style.astro meta.lang.sass - (meta.embedded.block source)": {
       "patterns": [
         {
+          "begin": "(?<=>)(?=[^\\n]+</style[\\s>])",
+          "end": "(?=</style[\\s>])",
+          "name": "meta.embedded.block.astro",
+          "contentName": "source.sass",
+          "patterns": [
+            {
+              "include": "source.sass"
+            }
+          ]
+        },
+        {
           "begin": "(?<=>)(?!</)",
-          "end": "(?=</)",
+          "while": "^(?!\\s*</style[\\s>])",
           "name": "meta.embedded.block.astro",
           "contentName": "source.sass",
           "patterns": [
@@ -129,8 +151,19 @@
     "L:meta.style.astro meta.lang.css - (meta.embedded.block source)": {
       "patterns": [
         {
+          "begin": "(?<=>)(?=[^\\n]+</style[\\s>])",
+          "end": "(?=</style[\\s>])",
+          "name": "meta.embedded.block.astro",
+          "contentName": "source.css",
+          "patterns": [
+            {
+              "include": "source.css"
+            }
+          ]
+        },
+        {
           "begin": "(?<=>)(?!</)",
-          "end": "(?=</)",
+          "while": "^(?!\\s*</style[\\s>])",
           "name": "meta.embedded.block.astro",
           "contentName": "source.css",
           "patterns": [
@@ -144,8 +177,19 @@
     "L:meta.style.astro meta.lang.scss - (meta.embedded.block source)": {
       "patterns": [
         {
+          "begin": "(?<=>)(?=[^\\n]+</style[\\s>])",
+          "end": "(?=</style[\\s>])",
+          "name": "meta.embedded.block.astro",
+          "contentName": "source.css.scss",
+          "patterns": [
+            {
+              "include": "source.css.scss"
+            }
+          ]
+        },
+        {
           "begin": "(?<=>)(?!</)",
-          "end": "(?=</)",
+          "while": "^(?!\\s*</style[\\s>])",
           "name": "meta.embedded.block.astro",
           "contentName": "source.css.scss",
           "patterns": [
@@ -159,8 +203,19 @@
     "L:meta.style.astro meta.lang.less - (meta.embedded.block source)": {
       "patterns": [
         {
+          "begin": "(?<=>)(?=[^\\n]+</style[\\s>])",
+          "end": "(?=</style[\\s>])",
+          "name": "meta.embedded.block.astro",
+          "contentName": "source.css.less",
+          "patterns": [
+            {
+              "include": "source.css.less"
+            }
+          ]
+        },
+        {
           "begin": "(?<=>)(?!</)",
-          "end": "(?=</)",
+          "while": "^(?!\\s*</style[\\s>])",
           "name": "meta.embedded.block.astro",
           "contentName": "source.css.less",
           "patterns": [
@@ -174,8 +229,19 @@
     "L:meta.style.astro meta.lang.postcss - (meta.embedded.block source)": {
       "patterns": [
         {
+          "begin": "(?<=>)(?=[^\\n]+</style[\\s>])",
+          "end": "(?=</style[\\s>])",
+          "name": "meta.embedded.block.astro",
+          "contentName": "source.css.postcss",
+          "patterns": [
+            {
+              "include": "source.css.postcss"
+            }
+          ]
+        },
+        {
           "begin": "(?<=>)(?!</)",
-          "end": "(?=</)",
+          "while": "^(?!\\s*</style[\\s>])",
           "name": "meta.embedded.block.astro",
           "contentName": "source.css.postcss",
           "patterns": [
@@ -189,8 +255,19 @@
     "L:meta.style.astro - meta.lang - (meta.embedded.block source)": {
       "patterns": [
         {
+          "begin": "(?<=>)(?=[^\\n]+</style[\\s>])",
+          "end": "(?=</style[\\s>])",
+          "name": "meta.embedded.block.astro",
+          "contentName": "source.css",
+          "patterns": [
+            {
+              "include": "source.css"
+            }
+          ]
+        },
+        {
           "begin": "(?<=>)(?!</)",
-          "end": "(?=</)",
+          "while": "^(?!\\s*</style[\\s>])",
           "name": "meta.embedded.block.astro",
           "contentName": "source.css",
           "patterns": [
