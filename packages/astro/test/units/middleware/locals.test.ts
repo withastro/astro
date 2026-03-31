@@ -1,4 +1,3 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { isLocalsSerializable, trySerializeLocals } from '../../../dist/core/middleware/index.js';
@@ -56,8 +55,9 @@ describe('isLocalsSerializable', () => {
 
 	it('handles deeply nested objects without stack overflow (iterative implementation)', () => {
 		// Build a 10,000-level deep object — would overflow the call stack with recursion
-		let deep = /** @type {any} */ ({});
-		let current = deep;
+		type DeepObject = { child?: DeepObject; value?: string };
+		const deep: DeepObject = {};
+		let current: DeepObject = deep;
 		for (let i = 0; i < 10_000; i++) {
 			current.child = {};
 			current = current.child;

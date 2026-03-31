@@ -10,7 +10,7 @@ import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
 import { imageSrcToImportId } from '../../../dist/assets/utils/resolveImports.js';
 
 describe('MutableDataStore', () => {
-	let tmpDir;
+	let tmpDir: string;
 
 	before(async () => {
 		tmpDir = await mkdtemp(path.join(tmpdir(), 'astro-test-'));

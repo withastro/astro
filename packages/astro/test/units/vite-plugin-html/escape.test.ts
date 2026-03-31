@@ -76,7 +76,7 @@ describe('vite-plugin-html: escape utilities', () => {
 });
 
 describe('vite-plugin-html: escape transformer', () => {
-	async function testEscapeTransform(html) {
+	async function testEscapeTransform(html: string) {
 		const s = new MagicString(html);
 		const processor = rehype().data('settings', { fragment: true }).use(rehypeEscape, { s });
 
@@ -85,7 +85,7 @@ describe('vite-plugin-html: escape transformer', () => {
 	}
 
 	it('escapes text content', async () => {
-		const result = await testEscapeTransform('<div>${foo}</div>', '<div>\\${foo}</div>');
+		const result = await testEscapeTransform('<div>${foo}</div>');
 		assert.equal(result, '<div>\\${foo}</div>');
 	});
 
@@ -96,14 +96,13 @@ describe('vite-plugin-html: escape transformer', () => {
 	});
 
 	it('escapes attribute names with template literal characters', async () => {
-		const result = await testEscapeTransform('<span ${attr}></span>', '<span \\${attr}></span>');
+		const result = await testEscapeTransform('<span ${attr}></span>');
 		assert.equal(result, '<span \\${attr}></span>');
 	});
 
 	it('escapes attribute values with template literal characters', async () => {
 		const result = await testEscapeTransform(
 			'<custom-element x-data="`${test}`"></custom-element>',
-			'<custom-element x-data="\\`\\${test}\\`"></custom-element>',
 		);
 		assert.equal(result, '<custom-element x-data="\\`\\${test}\\`"></custom-element>');
 	});
@@ -118,7 +117,7 @@ describe('vite-plugin-html: escape transformer', () => {
 	it('escapes complex nested structures', async () => {
 		const input = '<script>console.log(`hello ${"world"}!`)</script>';
 		const expected = '<script>console.log(\\`hello \\${"world"}!\\`)</script>';
-		const result = await testEscapeTransform(input, expected);
+		const result = await testEscapeTransform(input);
 		assert.equal(result, expected);
 	});
 
@@ -132,14 +131,14 @@ describe('vite-plugin-html: escape transformer', () => {
 
 	it('preserves content without template literal characters', async () => {
 		const input = '<div class="test" id="foo">Hello world!</div>';
-		const result = await testEscapeTransform(input, input);
+		const result = await testEscapeTransform(input);
 		assert.equal(result, input);
 	});
 
 	it('handles empty attributes correctly', async () => {
 		const input = '<div ${attr}></div>';
 		const expected = '<div \\${attr}></div>';
-		const result = await testEscapeTransform(input, expected);
+		const result = await testEscapeTransform(input);
 		assert.equal(result, expected);
 	});
 });

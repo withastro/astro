@@ -4,6 +4,7 @@ import { pathToFileURL } from 'node:url';
 import { resolveConfig } from 'vite';
 import { compile } from '../../../dist/core/compile/index.js';
 import { AggregateError } from '../../../dist/core/errors/index.js';
+import type { AstroConfig } from '../../../dist/types/public/config.js';
 
 describe('astro/src/core/compile', () => {
 	describe('Invalid CSS', () => {
@@ -14,8 +15,9 @@ describe('astro/src/core/compile', () => {
 					astroConfig: {
 						root: pathToFileURL('/'),
 						experimental: {},
-					},
+					} as AstroConfig,
 					viteConfig: await resolveConfig({ configFile: false }, 'serve'),
+					toolbarEnabled: false,
 					filename: '/src/pages/index.astro',
 					source: `
 	---
@@ -37,7 +39,7 @@ describe('astro/src/core/compile', () => {
 			}
 
 			assert.equal(error instanceof AggregateError, true);
-			assert.equal(error.errors[0].message.includes('expected ")"'), true);
+			assert.equal((error as AggregateError).errors[0].message.includes('expected ")"'), true);
 		});
 	});
 });

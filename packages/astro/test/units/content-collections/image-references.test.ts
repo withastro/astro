@@ -1,18 +1,19 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { updateImageReferencesInData } from '../../../dist/content/runtime.js';
 import { imageSrcToImportId } from '../../../dist/assets/utils/resolveImports.js';
+import type { ImageMetadata } from '../../../dist/assets/types.js';
 
 const IMAGE_PREFIX = '__ASTRO_IMAGE_';
 const FILE_NAME = 'src/content/blog/post.md';
 
-function makeImageMap(src, meta) {
+function makeImageMap(src: string, meta: ImageMetadata): Map<string, ImageMetadata> {
 	const id = imageSrcToImportId(src, FILE_NAME);
+	assert.ok(id, `imageSrcToImportId returned undefined for src="${src}"`);
 	return new Map([[id, meta]]);
 }
 
-const heroMeta = {
+const heroMeta: ImageMetadata = {
 	src: '/_astro/hero.abc123.png',
 	width: 800,
 	height: 600,
@@ -76,10 +77,12 @@ describe('updateImageReferencesInData', () => {
 	});
 
 	it('resolves multiple different images in the same entry', () => {
-		const thumbMeta = { src: '/_astro/thumb.xyz.png', width: 100, height: 100, format: 'png' };
+		const thumbMeta: ImageMetadata = { src: '/_astro/thumb.xyz.png', width: 100, height: 100, format: 'png' };
 		const heroId = imageSrcToImportId('./hero.png', FILE_NAME);
 		const thumbId = imageSrcToImportId('./thumb.png', FILE_NAME);
-		const map = new Map([
+		assert.ok(heroId);
+		assert.ok(thumbId);
+		const map = new Map<string, ImageMetadata>([
 			[heroId, heroMeta],
 			[thumbId, thumbMeta],
 		]);

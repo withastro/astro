@@ -1,4 +1,3 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import * as devalue from 'devalue';
@@ -8,6 +7,7 @@ import {
 	ActionInputError,
 	deserializeActionResult,
 } from '../../../dist/actions/runtime/client.js';
+import type { ActionErrorCode } from '../../../dist/actions/runtime/types.js';
 
 describe('serializeActionResult', () => {
 	describe('data results', () => {
@@ -89,7 +89,8 @@ describe('serializeActionResult', () => {
 			const result = serializeActionResult({ data: undefined, error: undefined });
 			assert.equal(result.type, 'empty');
 			assert.equal(result.status, 204);
-			assert.equal(result.body, undefined);
+			// The 'empty' variant has no body field — verify it's absent at runtime
+			assert.equal('body' in result ? result.body : undefined, undefined);
 		});
 	});
 
@@ -110,7 +111,7 @@ describe('serializeActionResult', () => {
 		it('serializes an ActionInputError with issues and fields', () => {
 			const issues = [
 				{ code: 'invalid_type', expected: 'string', message: 'Required', path: ['comment'] },
-			];
+			] as unknown as ConstructorParameters<typeof ActionInputError>[0];
 			const error = new ActionInputError(issues);
 			const result = serializeActionResult({ data: undefined, error });
 			assert.equal(result.type, 'error');
@@ -125,7 +126,7 @@ describe('serializeActionResult', () => {
 		});
 
 		it('uses correct status for different error codes', () => {
-			const codes = [
+			const codes: [ActionErrorCode, number][] = [
 				['BAD_REQUEST', 400],
 				['NOT_FOUND', 404],
 				['INTERNAL_SERVER_ERROR', 500],
@@ -183,7 +184,7 @@ describe('deserializeActionResult', () => {
 	it('deserializes an ActionInputError result', () => {
 		const issues = [
 			{ code: 'invalid_type', expected: 'string', message: 'Required', path: ['name'] },
-		];
+		] as unknown as ConstructorParameters<typeof ActionInputError>[0];
 		const serialized = serializeActionResult({
 			data: undefined,
 			error: new ActionInputError(issues),
