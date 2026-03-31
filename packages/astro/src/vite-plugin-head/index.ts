@@ -13,7 +13,7 @@ import { getAstroMetadata } from '../vite-plugin-astro/index.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
-export const VIRTUAL_COMPONENT_METADATA = 'virtual:astro:component-metadata';
+const VIRTUAL_COMPONENT_METADATA = 'virtual:astro:component-metadata';
 const RESOLVED_VIRTUAL_COMPONENT_METADATA = `\0${VIRTUAL_COMPONENT_METADATA}`;
 
 export default function configHeadVitePlugin(): vite.Plugin {
