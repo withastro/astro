@@ -5,6 +5,7 @@ import type {
 	RouteData,
 	SSRElement,
 } from '../../../types/public/index.js';
+import type { SSRComponentMetadata } from '../../../types/public/internal.js';
 import { type HeadElements, Pipeline, type TryRewriteResult } from '../../base-pipeline.js';
 import { ASTRO_VERSION } from '../../constants.js';
 import { createModuleScriptElement, createStylesheetElementSet } from '../../render/ssr-element.js';
@@ -12,7 +13,6 @@ import { findRouteToRewrite } from '../../routing/rewrite.js';
 import { newNodePool } from '../../../runtime/server/render/queue/pool.js';
 import { HTMLStringCache } from '../../../runtime/server/html-string-cache.js';
 import { queueRenderingEnabled } from '../manifest.js';
-import { componentMetadataEntries } from 'virtual:astro:component-metadata';
 
 type DevPipelineCreate = Pick<NonRunnablePipeline, 'logger' | 'manifest' | 'streaming'>;
 
@@ -59,6 +59,13 @@ export class NonRunnablePipeline extends Pipeline {
 	}
 
 	async headElements(routeData: RouteData): Promise<HeadElements> {
+		const { componentMetadataEntries } = (await import('virtual:astro:component-metadata')) as {
+			componentMetadataEntries: [string, SSRComponentMetadata][];
+		};
+		for (const [id, entry] of componentMetadataEntries) {
+			this.manifest.componentMetadata.set(id, entry);
+		}
+
 		const { assetsPrefix, base } = this.manifest;
 		const routeInfo = this.manifest.routes.find((route) => route.routeData === routeData);
 		// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
@@ -132,11 +139,7 @@ export class NonRunnablePipeline extends Pipeline {
 		return { scripts, styles, links };
 	}
 
-	componentMetadata() {
-		for (const [id, entry] of componentMetadataEntries) {
-			this.manifest.componentMetadata.set(id, entry);
-		}
-	}
+	componentMetadata() {}
 
 	async getComponentByRoute(routeData: RouteData): Promise<ComponentInstance> {
 		try {
