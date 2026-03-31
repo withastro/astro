@@ -127,6 +127,9 @@ export default async function middleware(request, context) {
 	const next = async () => {
 		const { vercel, ...locals } = ctx.locals;
 		const response = await fetch(new URL('/${NODE_PATH}', request.url), {
+			method: request.method,
+			body: request.body,
+			duplex: 'half',
 			headers: {
 				...Object.fromEntries(request.headers.entries()),
 				'${ASTRO_MIDDLEWARE_SECRET_HEADER}': '${middlewareSecret}',
