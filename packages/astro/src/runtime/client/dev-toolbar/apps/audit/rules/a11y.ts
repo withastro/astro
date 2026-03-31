@@ -349,6 +349,10 @@ export const a11y: AuditRuleWithSelector[] = [
 		},
 		selector: Object.keys(a11y_required_attributes).join(','),
 		match(element) {
+			if (element.localName === 'a' && element.getAttribute('role') === 'button') {
+				return false;
+			}
+
 			const requiredAttributes =
 				a11y_required_attributes[element.localName as keyof typeof a11y_required_attributes];
 
