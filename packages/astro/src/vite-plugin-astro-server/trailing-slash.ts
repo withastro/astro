@@ -8,6 +8,11 @@ import { trailingSlashMismatchTemplate } from '../template/4xx.js';
 import type { AstroSettings } from '../types/astro.js';
 import { writeHtmlResponse, writeRedirectResponse } from './response.js';
 
+function shouldTreatAsFilePath(pathname: string) {
+	// Paths ending with / are directory-like and should not be treated as file requests.
+	return !pathname.endsWith('/') && hasFileExtension(pathname);
+}
+
 export function trailingSlashMiddleware(settings: AstroSettings): vite.Connect.NextHandleFunction {
 	const { trailingSlash } = settings.config;
 
@@ -31,7 +36,9 @@ export function trailingSlashMiddleware(settings: AstroSettings): vite.Connect.N
 
 		if (
 			(trailingSlash === 'never' && pathname.endsWith('/') && pathname !== '/') ||
-			(trailingSlash === 'always' && !pathname.endsWith('/') && !hasFileExtension(pathname))
+			(trailingSlash === 'always' &&
+				!pathname.endsWith('/') &&
+				!shouldTreatAsFilePath(pathname))
 		) {
 			const html = trailingSlashMismatchTemplate(pathname, trailingSlash);
 			return writeHtmlResponse(res, 404, html);

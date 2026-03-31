@@ -44,6 +44,10 @@ describe('trailingSlash', () => {
 								pattern: '/injected.json',
 								entrypoint: './src/pages/api.ts',
 							});
+							injectRoute({
+								pattern: '/dot.in.directory',
+								entrypoint: './src/pages/api.ts',
+							});
 						},
 					},
 				},
@@ -169,6 +173,27 @@ describe('trailingSlash', () => {
 		container.handle(req, res);
 		const json = await text();
 		assert.equal(json, '{"success":true}');
+	});
+
+	it('should match a dotted injected route when request has a trailing slash', async () => {
+		const { req, res, text } = createRequestAndResponse({
+			method: 'GET',
+			url: '/dot.in.directory/',
+		});
+		container.handle(req, res);
+		const json = await text();
+		assert.equal(json, '{"success":true}');
+	});
+
+	it('should NOT match a dotted injected route when request lacks a trailing slash', async () => {
+		const { req, res, text } = createRequestAndResponse({
+			method: 'GET',
+			url: '/dot.in.directory',
+		});
+		container.handle(req, res);
+		const html = await text();
+		assert.equal(html.includes(`<span class="statusMessage">Not found</span>`), true);
+		assert.equal(res.statusCode, 404);
 	});
 
 	it('should NOT match the API route when request has a trailing slash, with a file extension', async () => {

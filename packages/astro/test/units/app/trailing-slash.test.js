@@ -41,6 +41,7 @@ const notFoundPage = createComponent(() => {
 const anotherRouteData = createRouteData('/another');
 const subPathRouteData = createRouteData('/sub/path');
 const dotPathRouteData = createRouteData('/dot.in.directory/path');
+const dottedFinalSegmentRouteData = createRouteData('/dot.in.directory');
 const notFoundRouteData = {
 	...createRouteData('/404'),
 	component: 'src/pages/404.astro',
@@ -72,6 +73,14 @@ const pageMap = new Map([
 		}),
 	],
 	[
+		dottedFinalSegmentRouteData.component,
+		async () => ({
+			page: async () => ({
+				default: okPage,
+			}),
+		}),
+	],
+	[
 		notFoundRouteData.component,
 		async () => ({
 			page: async () => ({
@@ -90,6 +99,7 @@ describe('Redirecting trailing slashes in SSR', () => {
 					{ routeData: anotherRouteData },
 					{ routeData: subPathRouteData },
 					{ routeData: dotPathRouteData },
+					{ routeData: dottedFinalSegmentRouteData },
 					{ routeData: notFoundRouteData },
 				],
 				pageMap,
@@ -172,6 +182,13 @@ describe('Redirecting trailing slashes in SSR', () => {
 			const response = await app.render(request);
 			assert.equal(response.status, 301);
 			assert.equal(response.headers.get('Location'), '/dot.in.directory/path/');
+		});
+
+		it('Does redirect when the final segment includes a dot and is a route', async () => {
+			const request = new Request('http://example.com/dot.in.directory');
+			const response = await app.render(request);
+			assert.equal(response.status, 301);
+			assert.equal(response.headers.get('Location'), '/dot.in.directory/');
 		});
 
 		it('Does not redirect internal paths', async () => {
