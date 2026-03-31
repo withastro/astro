@@ -30,6 +30,12 @@ interface PluginOptions {
 	buildOptions: StaticBuildOptions;
 }
 
+function isBuildCssBoundary(id: string, ctx: { getModuleInfo: GetModuleInfo }): boolean {
+	if (isPropagatedAssetBoundary(id)) return true;
+	const info = ctx.getModuleInfo(id);
+	return info ? moduleIsTopLevelPage(info) : false;
+}
+
 function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 	const { internals, buildOptions } = options;
 	const { settings } = buildOptions;
@@ -158,7 +164,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 								const parentModuleInfos = getParentExtendedModuleInfos(
 									scopedToModule,
 									this,
-									isPropagatedAssetBoundary,
+									(moduleId) => isBuildCssBoundary(moduleId, this),
 								);
 								for (const { info: pageInfo, depth, order } of parentModuleInfos) {
 									if (moduleIsTopLevelPage(pageInfo)) {
@@ -230,7 +236,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 					const parentModuleInfos = getParentExtendedModuleInfos(
 						id,
 						this,
-						isPropagatedAssetBoundary,
+						(importer) => isBuildCssBoundary(importer, this),
 					);
 					for (const { info: pageInfo, depth, order } of parentModuleInfos) {
 						if (isPropagatedAssetBoundary(pageInfo.id)) {
