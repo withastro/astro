@@ -21,8 +21,8 @@ const htmlString = Symbol.for('astro:html-string');
  * has already been escaped. This helps prevent double-escaping of HTML.
  */
 export class HTMLString extends String {
-	[htmlString] = true
-	
+	[htmlString] = true;
+
 	get [Symbol.toStringTag]() {
 		return 'HTMLString';
 	}
