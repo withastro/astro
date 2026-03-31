@@ -233,10 +233,8 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 					// Only walk up for dependencies that are CSS
 					if (!isCSSRequest(id)) continue;
 
-					const parentModuleInfos = getParentExtendedModuleInfos(
-						id,
-						this,
-						(importer) => isBuildCssBoundary(importer, this),
+					const parentModuleInfos = getParentExtendedModuleInfos(id, this, (importer) =>
+						isBuildCssBoundary(importer, this),
 					);
 					for (const { info: pageInfo, depth, order } of parentModuleInfos) {
 						if (isPropagatedAssetBoundary(pageInfo.id)) {
