@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 13.1.6
+
+### Patch Changes
+
+- [#16151](https://github.com/withastro/astro/pull/16151) [`4978165`](https://github.com/withastro/astro/commit/4978165af4ca4c672edad904d7b6c85fc3647dd9) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a dev-mode crash loop in the Cloudflare adapter when using Starlight by excluding `@astrojs/starlight` from SSR dependency optimization
+
 ## 13.1.5
 
 ### Patch Changes
