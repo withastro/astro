@@ -12,6 +12,7 @@ import { findRouteToRewrite } from '../../routing/rewrite.js';
 import { newNodePool } from '../../../runtime/server/render/queue/pool.js';
 import { HTMLStringCache } from '../../../runtime/server/html-string-cache.js';
 import { queueRenderingEnabled } from '../manifest.js';
+import { componentMetadataEntries } from 'virtual:astro:component-metadata';
 
 type DevPipelineCreate = Pick<NonRunnablePipeline, 'logger' | 'manifest' | 'streaming'>;
 
@@ -131,7 +132,15 @@ export class NonRunnablePipeline extends Pipeline {
 		return { scripts, styles, links };
 	}
 
-	componentMetadata() {}
+	async componentMetadata(_routeData: RouteData) {
+		const metadata = new Map(this.manifest.componentMetadata);
+
+		for (const [id, entry] of componentMetadataEntries) {
+			metadata.set(id, entry);
+		}
+
+		return metadata;
+	}
 
 	async getComponentByRoute(routeData: RouteData): Promise<ComponentInstance> {
 		try {
