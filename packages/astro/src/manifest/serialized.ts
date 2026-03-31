@@ -97,6 +97,7 @@ export function serializedManifestPlugin({
 			},
 			async handler() {
 				let manifestData: string;
+
 				if (command === 'build' && !sync) {
 					// Emit placeholder token that will be replaced by plugin-manifest.ts in build:post
 					// See plugin-manifest.ts for full architecture explanation

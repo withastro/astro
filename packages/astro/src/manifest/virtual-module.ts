@@ -11,50 +11,6 @@ const VIRTUAL_CLIENT_ID = 'astro:config/client';
 const RESOLVED_VIRTUAL_CLIENT_ID = '\0' + VIRTUAL_CLIENT_ID;
 
 export default function virtualModulePlugin({ settings }: { settings: AstroSettings }): Plugin {
-	// Pre-compute the client config values from settings so that astro:config/client
-	// doesn't need to import from virtual:astro:manifest (which pulls in server-only
-	// virtual modules like virtual:astro:routes and virtual:astro:pages that are
-	// restricted to server environments via applyToEnvironment).
-	const config = settings.config;
-
-	let i18nCode = 'const i18n = undefined;';
-	if (config.i18n) {
-		// Apply the same toRoutingStrategy → fromRoutingStrategy roundtrip that the
-		// serialized manifest uses, to ensure consistent routing config values.
-		const strategy = toRoutingStrategy(config.i18n.routing, config.i18n.domains);
-		const fallbackType = toFallbackType(config.i18n.routing);
-		const routing = fromRoutingStrategy(strategy, fallbackType);
-		i18nCode = `const i18n = {
-  defaultLocale: ${JSON.stringify(config.i18n.defaultLocale)},
-  locales: ${JSON.stringify(config.i18n.locales)},
-  routing: ${JSON.stringify(routing)},
-  fallback: ${JSON.stringify(config.i18n.fallback)}
-};`;
-	}
-
-	let imageCode = 'const image = undefined;';
-	if (config.image) {
-		imageCode = `const image = {
-  objectFit: ${JSON.stringify(config.image.objectFit)},
-  objectPosition: ${JSON.stringify(config.image.objectPosition)},
-  layout: ${JSON.stringify(config.image.layout)},
-};`;
-	}
-
-	const clientConfigCode = `
-${i18nCode}
-${imageCode}
-const base = ${JSON.stringify(config.base)};
-const trailingSlash = ${JSON.stringify(config.trailingSlash)};
-const site = ${JSON.stringify(config.site)};
-const compressHTML = ${JSON.stringify(config.compressHTML)};
-const build = {
-  format: ${JSON.stringify(config.build.format)},
-};
-
-export { base, i18n, trailingSlash, site, compressHTML, build, image };
-`;
-
 	return {
 		name: 'astro-manifest-plugin',
 		resolveId: {
@@ -76,11 +32,58 @@ export { base, i18n, trailingSlash, site, compressHTML, build, image };
 			},
 			handler(id) {
 				if (id === RESOLVED_VIRTUAL_CLIENT_ID) {
-					// astro:config/client inlines values directly from settings instead of
-					// importing from virtual:astro:manifest to avoid pulling server-only
-					// virtual modules (virtual:astro:routes, virtual:astro:pages) into the
-					// client environment where they are not available.
-					return { code: clientConfigCode };
+					// Inline safe, client-only data directly from settings.
+					// This avoids importing from virtual:astro:manifest, which
+					// contains sensitive server paths and the crypto key.
+					let i18nData: Record<string, unknown> | undefined;
+					if (settings.config.i18n) {
+						const i18nConfig = settings.config.i18n;
+						// Perform the same round-trip conversion as the server config
+						// to produce fully resolved routing with defaults applied
+						const strategy = toRoutingStrategy(i18nConfig.routing, i18nConfig.domains);
+						const fallbackType = toFallbackType(i18nConfig.routing);
+						const routing = fromRoutingStrategy(strategy, fallbackType);
+						i18nData = {
+							defaultLocale: i18nConfig.defaultLocale,
+							locales: i18nConfig.locales,
+							routing,
+							fallback: i18nConfig.fallback,
+							domains: i18nConfig.domains,
+						};
+					}
+
+					let imageData: Record<string, unknown> | undefined;
+					if (settings.config.image) {
+						imageData = {
+							objectFit: settings.config.image.objectFit,
+							objectPosition: settings.config.image.objectPosition,
+							layout: settings.config.image.layout,
+						};
+					}
+
+					const clientConfig = {
+						base: settings.config.base,
+						trailingSlash: settings.config.trailingSlash,
+						site: settings.config.site,
+						compressHTML: settings.config.compressHTML,
+						build: {
+							format: settings.config.build.format,
+						},
+						i18n: i18nData,
+						image: imageData,
+					};
+
+					const code = `
+const _config = ${JSON.stringify(clientConfig)};
+export const base = _config.base;
+export const trailingSlash = _config.trailingSlash;
+export const site = _config.site;
+export const compressHTML = _config.compressHTML;
+export const build = _config.build;
+export const i18n = _config.i18n;
+export const image = _config.image;
+					`;
+					return { code };
 				}
 				if (id === RESOLVED_VIRTUAL_SERVER_ID) {
 					if (this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
