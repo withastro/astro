@@ -58,6 +58,7 @@ describe('MutableDataStore', () => {
 		const validId = imageSrcToImportId('./images/seed.webp', entryFilePath);
 		const staleId = imageSrcToImportId('./images/non-existing.jpg', entryFilePath);
 
+		assert.ok(!!validId);
 		assert.ok(
 			content.includes(validId),
 			`content-assets.mjs should reference the valid image import "${validId}"`,
