@@ -40,7 +40,7 @@ function makeInvalidPostRequest(body: Record<string, unknown>) {
 	});
 }
 
-function makeMethodRequest(method: string = 'GET') {
+function makeMethodRequest(method = 'GET') {
 	return new Request('http://localhost/_server-islands/Island', { method });
 }
 
