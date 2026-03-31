@@ -3,41 +3,34 @@ import { describe, it } from 'node:test';
 import { pathToFileURL } from 'node:url';
 import { resolveConfig } from 'vite';
 import { compileAstro } from '../../../dist/vite-plugin-astro/compile.js';
+import type { AstroConfig } from '../../../dist/types/public/config.js';
+import type { CompileProps } from '../../../dist/core/compile/compile.js';
+import { Logger } from '../../../dist/core/logger/core.js';
+import { nodeLogDestination } from '../../../dist/core/logger/node.js';
 
-/**
- * Compile Astro source with a given base path
- * @param {string} source - Astro source code
- * @param {string} base - Base path configuration
- */
-async function compileWithBase(source, base = '/') {
+const logger = new Logger({ dest: nodeLogDestination, level: 'silent' });
+
+/** Compile Astro source with a given base path. */
+async function compileWithBase(source: string, base = '/') {
 	const viteConfig = await resolveConfig({ configFile: false }, 'serve');
-	const result = await compileAstro({
-		compileProps: {
-			astroConfig: {
-				root: pathToFileURL('/'),
-				base,
-				experimental: {},
-				build: {
-					format: 'directory',
-				},
-				trailingSlash: 'ignore',
-			},
-			viteConfig,
-			preferences: {
-				get: () => Promise.resolve(false),
-			},
-			filename: '/src/pages/index.astro',
-			source,
-		},
+	const props: CompileProps = {
+		astroConfig: {
+			root: pathToFileURL('/'),
+			base,
+			experimental: {},
+			build: { format: 'directory' },
+			trailingSlash: 'ignore',
+		} as AstroConfig,
+		viteConfig,
+		toolbarEnabled: false,
+		filename: '/src/pages/index.astro',
+		source,
+	};
+	return compileAstro({
+		compileProps: props as any,
 		astroFileToCompileMetadata: new Map(),
-		logger: {
-			info: () => {},
-			warn: () => {},
-			error: () => {},
-			debug: () => {},
-		},
+		logger,
 	});
-	return result;
 }
 
 describe('CSS Base Path Rewriting', () => {

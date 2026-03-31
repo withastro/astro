@@ -3,24 +3,48 @@ import { describe, it } from 'node:test';
 import { pathToFileURL } from 'node:url';
 import { init, parse } from 'es-module-lexer';
 import { resolveConfig } from 'vite';
+import type { InlineConfig } from 'vite';
 import { compileAstro } from '../../../dist/vite-plugin-astro/compile.js';
+import type { AstroConfig } from '../../../dist/types/public/config.js';
+import type { CompileProps } from '../../../dist/core/compile/compile.js';
 
-/**
- * @param {string} source
- * @param {string} id
- */
-async function compile(source, id, inlineConfig = {}) {
+// #region Helpers
+
+/** Minimal AstroConfig stub for compile tests. */
+function makeAstroConfig(overrides: Partial<AstroConfig> = {}): AstroConfig {
+	return {
+		root: pathToFileURL('/'),
+		base: '/',
+		experimental: {},
+		...overrides,
+	} as AstroConfig;
+}
+
+async function compile(source: string, id: string, inlineConfig: InlineConfig = {}) {
 	const viteConfig = await resolveConfig({ configFile: false, ...inlineConfig }, 'serve');
-	return await compileAstro({
-		compileProps: {
-			astroConfig: { root: pathToFileURL('/'), base: '/', experimental: {} },
-			viteConfig,
-			filename: id,
-			source,
-		},
+	// compileAstro's CompileAstroOption traces back to src/AstroConfig via rewriteRelativeImportExtensions,
+	// but we import from dist/. The types are structurally identical at runtime; cast to bridge the gap.
+	const props: CompileProps = {
+		astroConfig: makeAstroConfig(),
+		viteConfig,
+		toolbarEnabled: false,
+		filename: id,
+		source,
+	};
+	return (
+		compileAstro as (opts: {
+			compileProps: CompileProps;
+			astroFileToCompileMetadata: Map<unknown, unknown>;
+		}) => ReturnType<typeof compileAstro>
+	)({
+		compileProps: props,
 		astroFileToCompileMetadata: new Map(),
 	});
 }
+
+// #endregion
+
+// #region Tests
 
 describe('astro full compile', () => {
 	it('should compile a single file', async () => {
@@ -53,8 +77,8 @@ const name = 'world
 <h1>Hello {name}</h1>`,
 				'/src/components/index.astro',
 			);
-		} catch (e) {
-			assert.equal(e.message.includes('Unterminated string literal'), true);
+		} catch (e: unknown) {
+			assert.equal((e as Error).message.includes('Unterminated string literal'), true);
 		}
 		assert.equal(result, undefined);
 	});
@@ -70,7 +94,7 @@ const name = 'world
 	});
 
 	describe('when the code contains syntax that is transformed by esbuild', () => {
-		let code = `\
+		const code = `\
 ---
 using x = {}
 ---`;
@@ -88,3 +112,5 @@ using x = {}
 		});
 	});
 });
+
+// #endregion

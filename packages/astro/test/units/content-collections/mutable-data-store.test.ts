@@ -10,7 +10,7 @@ import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
 import { imageSrcToImportId } from '../../../dist/assets/utils/resolveImports.js';
 
 describe('MutableDataStore', () => {
-	let tmpDir;
+	let tmpDir: string;
 
 	before(async () => {
 		tmpDir = await mkdtemp(path.join(tmpdir(), 'astro-test-'));
@@ -58,6 +58,7 @@ describe('MutableDataStore', () => {
 		const validId = imageSrcToImportId('./images/seed.webp', entryFilePath);
 		const staleId = imageSrcToImportId('./images/non-existing.jpg', entryFilePath);
 
+		assert.ok(!!validId);
 		assert.ok(
 			content.includes(validId),
 			`content-assets.mjs should reference the valid image import "${validId}"`,

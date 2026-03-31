@@ -3,12 +3,9 @@ import { describe, it } from 'node:test';
 import { pathToFileURL } from 'node:url';
 import { resolveConfig } from 'vite';
 import { compile } from '../../../dist/core/compile/compile-rs.js';
+import type { AstroConfig } from '../../../dist/types/public/config.js';
 
-/**
- * @param {string} source
- * @param {object} [configOverrides]
- */
-async function compileWithRust(source, configOverrides = {}) {
+async function compileWithRust(source: string, configOverrides: Partial<AstroConfig> = {}) {
 	const viteConfig = await resolveConfig({ configFile: false }, 'serve');
 	return compile({
 		astroConfig: {
@@ -20,7 +17,7 @@ async function compileWithRust(source, configOverrides = {}) {
 			devToolbar: { enabled: false },
 			site: undefined,
 			...configOverrides,
-		},
+		} as AstroConfig,
 		viteConfig,
 		toolbarEnabled: false,
 		filename: '/src/components/index.astro',
@@ -130,9 +127,10 @@ console.log('hello');
 	it('throws a CompilerError on unclosed tags', async () => {
 		await assert.rejects(
 			() => compileWithRust('<p>Unclosed tag'),
-			(err) => {
-				assert.ok(err.message || err.name);
-				assert.ok(err.message.includes('Unexpected token'));
+			(err: unknown) => {
+				const e = err as { message?: string; name?: string };
+				assert.ok(e.message || e.name);
+				assert.ok(e.message?.includes('Unexpected token'));
 				return true;
 			},
 		);

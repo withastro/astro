@@ -40,14 +40,14 @@ describe('formDataToObject', () => {
 		});
 
 		const res = formDataToObject(formData, input);
-		assert.ok(isNaN(res.age));
+		assert.ok(isNaN(res.age as number));
 	});
 
 	it('should handle boolean checks', () => {
 		const formData = new FormData();
 		formData.set('isCool', 'yes');
-		formData.set('isTrue', true);
-		formData.set('isFalse', false);
+		formData.set('isTrue', String(true));
+		formData.set('isFalse', String(false));
 		formData.set('falseString', 'false');
 
 		const input = z.object({

@@ -1,4 +1,3 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
@@ -8,6 +7,7 @@ import {
 	isActionError,
 	isInputError,
 } from '../../../dist/actions/runtime/client.js';
+import type { ActionErrorCode } from '../../../dist/actions/runtime/types.js';
 
 describe('ActionError', () => {
 	it('sets code, status, and message from constructor', () => {
@@ -42,7 +42,7 @@ describe('ActionError', () => {
 
 describe('ActionError.codeToStatus', () => {
 	it('maps all known codes to correct HTTP status', () => {
-		for (const [code, status] of Object.entries(codeToStatusMap)) {
+		for (const [code, status] of Object.entries(codeToStatusMap) as [ActionErrorCode, number][]) {
 			assert.equal(ActionError.codeToStatus(code), status, `Expected ${code} to map to ${status}`);
 		}
 	});
@@ -95,7 +95,7 @@ describe('ActionInputError', () => {
 			{ code: 'invalid_type', message: 'Expected string', path: ['name'] },
 			{ code: 'too_small', message: 'Too short', path: ['name'] },
 			{ code: 'invalid_type', message: 'Required', path: ['email'] },
-		];
+		] as unknown as ConstructorParameters<typeof ActionInputError>[0];
 		const error = new ActionInputError(issues);
 		assert.equal(error.code, 'BAD_REQUEST');
 		assert.equal(error.status, 400);
@@ -111,7 +111,9 @@ describe('ActionInputError', () => {
 	});
 
 	it('handles issues without paths', () => {
-		const issues = [{ code: 'custom', message: 'Something wrong', path: [] }];
+		const issues = [
+			{ code: 'custom', message: 'Something wrong', path: [] },
+		] as unknown as ConstructorParameters<typeof ActionInputError>[0];
 		const error = new ActionInputError(issues);
 		assert.deepEqual(error.fields, {});
 	});
@@ -146,7 +148,7 @@ describe('isActionError', () => {
 
 describe('isInputError', () => {
 	it('returns true for ActionInputError instances', () => {
-		const issues = [{ code: 'invalid_type', message: 'bad', path: ['x'] }];
+		const issues = [{ code: 'invalid_type', message: 'bad', path: ['x'] }] as unknown as ConstructorParameters<typeof ActionInputError>[0];
 		assert.equal(isInputError(new ActionInputError(issues)), true);
 	});
 
