@@ -59,6 +59,10 @@ export class NonRunnablePipeline extends Pipeline {
 	}
 
 	async headElements(routeData: RouteData): Promise<HeadElements> {
+		// NonRunnablePipeline cannot call getComponentMetadata() (requires a ModuleLoader) so we
+		// hydrate the manifest's componentMetadata from the virtual module exposed by vite-plugin-head.
+		// This ensures head placement (containsHead / headInTree) is correct for adapters that run
+		// requests outside of Vite's module runner, such as Cloudflare.
 		const { componentMetadataEntries } = (await import('virtual:astro:component-metadata')) as {
 			componentMetadataEntries: [string, SSRComponentMetadata][];
 		};
