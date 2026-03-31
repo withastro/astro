@@ -271,6 +271,7 @@ export default function createIntegration({
 													'virtual:astro:*',
 													'virtual:astro-cloudflare:*',
 													'virtual:@astrojs/*',
+													'@astrojs/starlight',
 												],
 												esbuildOptions: {
 													// Suppress Vite's `createRequire(import.meta.url)` banner to work around
