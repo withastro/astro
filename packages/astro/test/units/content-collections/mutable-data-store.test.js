@@ -83,7 +83,10 @@ describe('MutableDataStore', () => {
 
 		await store.writeAssetImports(assetsFilePath);
 		const contentBefore = await fs.readFile(assetsFilePath, 'utf-8');
-		assert.ok(contentBefore.includes('to-be-removed.webp'), 'should contain the image before deletion');
+		assert.ok(
+			contentBefore.includes('to-be-removed.webp'),
+			'should contain the image before deletion',
+		);
 
 		scoped.delete('deleted-entry');
 		await store.writeAssetImports(assetsFilePath);

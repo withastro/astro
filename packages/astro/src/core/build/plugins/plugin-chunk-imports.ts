@@ -48,8 +48,7 @@ export function pluginChunkImports(options: StaticBuildOptions): VitePlugin | un
 			for (let i = relativeImports.length - 1; i >= 0; i--) {
 				const imp = relativeImports[i];
 				// imp.s and imp.e are the start/end offsets of the module specifier (without quotes)
-				rewritten =
-					rewritten.slice(0, imp.e) + '?' + queryString + rewritten.slice(imp.e);
+				rewritten = rewritten.slice(0, imp.e) + '?' + queryString + rewritten.slice(imp.e);
 			}
 
 			return { code: rewritten, map: null };
