@@ -43,6 +43,11 @@ import { type AstroSession, PERSIST_SYMBOL } from '../session/runtime.js';
 import type { AppPipeline } from './pipeline.js';
 import type { SSRManifest } from './types.js';
 
+function shouldTreatAsFilePath(pathname: string) {
+	// Paths ending with / are directory-like and should not be treated as file requests.
+	return !pathname.endsWith('/') && hasFileExtension(pathname);
+}
+
 export interface DevMatch {
 	routeData: RouteData;
 	resolvedPathname: string;
@@ -365,7 +370,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			return pathname;
 		}
 
-		if (trailingSlash === 'always' && !hasFileExtension(pathname)) {
+		if (trailingSlash === 'always' && !shouldTreatAsFilePath(pathname)) {
 			return appendForwardSlash(pathname);
 		}
 		if (trailingSlash === 'never') {

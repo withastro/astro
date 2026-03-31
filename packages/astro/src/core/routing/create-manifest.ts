@@ -432,7 +432,9 @@ const trailingSlashForPath = (
 	pathname: string | null,
 	config: AstroConfig,
 ): AstroConfig['trailingSlash'] =>
-	pathname && hasFileExtension(pathname) ? 'never' : config.trailingSlash;
+	pathname && !pathname.endsWith('/') && hasFileExtension(pathname)
+		? 'never'
+		: config.trailingSlash;
 
 function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): RouteData[] {
 	const { config } = settings;
