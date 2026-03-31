@@ -122,10 +122,10 @@ importers:
     devDependencies:
       '@codspeed/vitest-plugin':
         specifier: 5.2.0
-        version: 5.2.0(tinybench@2.9.0)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.0(@opentelemetry/api@1.9.0)(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3))
+        version: 5.2.0(tinybench@2.9.0)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.0(@opentelemetry/api@1.9.0)(@types/node@25.2.3)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)))
       vitest:
         specifier: ^4.1.0
-        version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
+        version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@25.2.3)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3))
 
   benchmark/packages/adapter:
     dependencies:
@@ -188,9 +188,30 @@ importers:
 
   examples/basics:
     dependencies:
+      '@astrojs/react':
+        specifier: ^5.0.2
+        version: link:../../packages/integrations/react
+      '@tailwindcss/vite':
+        specifier: ^4.2.2
+        version: 4.2.2(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3))
+      '@types/react':
+        specifier: ^19.2.14
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.14)
       astro:
         specifier: ^6.1.2
         version: link:../../packages/astro
+      react:
+        specifier: ^19.2.4
+        version: 19.2.4
+      react-dom:
+        specifier: ^19.2.4
+        version: 19.2.4(react@19.2.4)
+      tailwindcss:
+        specifier: ^4.2.2
+        version: 4.2.2
 
   examples/blog:
     dependencies:
@@ -232,7 +253,7 @@ importers:
         version: 18.3.1(react@18.3.1)
       vitest:
         specifier: ^4.1.0
-        version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
+        version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@25.2.3)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3))
     devDependencies:
       '@types/react':
         specifier: ^18.3.28
@@ -506,7 +527,7 @@ importers:
         version: link:../../packages/astro
       vitest:
         specifier: ^4.1.0
-        version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
+        version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@25.2.3)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/astro:
     dependencies:
@@ -768,7 +789,7 @@ importers:
         version: 11.0.5
       vitest:
         specifier: ^4.1.0
-        version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
+        version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@25.2.3)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3))
     optionalDependencies:
       sharp:
         specifier: ^0.34.0
@@ -4445,7 +4466,7 @@ importers:
         version: link:../../..
       vitest:
         specifier: ^4.1.0
-        version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
+        version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@25.2.3)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/astro/test/fixtures/vue-component:
     dependencies:
@@ -5204,7 +5225,7 @@ importers:
         version: link:../../astro-prism
       '@markdoc/markdoc':
         specifier: ^0.5.4
-        version: 0.5.4(@types/react@18.3.28)(react@19.2.4)
+        version: 0.5.4(@types/react@19.2.14)(react@19.2.4)
       esbuild:
         specifier: ^0.27.3
         version: 0.27.3
@@ -10156,8 +10177,16 @@ packages:
     peerDependencies:
       '@types/react': ^18.0.0
 
+  '@types/react-dom@19.2.3':
+    resolution: {integrity: sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==}
+    peerDependencies:
+      '@types/react': ^19.2.0
+
   '@types/react@18.3.28':
     resolution: {integrity: sha512-z9VXpC7MWrhfWipitjNdgCauoMLRdIILQsAEV+ZesIzBq/oUlxk0m3ApZuMFCXdnS4U7KrI+l3WRUEGQ8K1QKw==}
+
+  '@types/react@19.2.14':
+    resolution: {integrity: sha512-ilcTH/UniCkMdtexkoCN0bI7pMcJDvmQFPvuPvmEaYA/NSfFTAgdUSLAoVjaRJm7+6PvcM+q1zYOwS4wTYMF9w==}
 
   '@types/retry@0.12.2':
     resolution: {integrity: sha512-XISRgDJ2Tc5q4TRqvgJtzsRkFYNJzZrhTdtMoGVBttwzzQJkPnS3WWTFc7kuDRoPtPakl+T+OfdEUjYJj7Jbow==}
@@ -15641,6 +15670,7 @@ packages:
       '@vitest/ui': 4.1.0
       happy-dom: '*'
       jsdom: '*'
+      vite: ^6.0.0 || ^7.0.0 || ^8.0.0-0
     peerDependenciesMeta:
       '@edge-runtime/vm':
         optional: true
@@ -16755,12 +16785,12 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  '@codspeed/vitest-plugin@5.2.0(tinybench@2.9.0)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.0(@opentelemetry/api@1.9.0)(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3))':
+  '@codspeed/vitest-plugin@5.2.0(tinybench@2.9.0)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.0(@opentelemetry/api@1.9.0)(@types/node@25.2.3)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)))':
     dependencies:
       '@codspeed/core': 5.2.0
       tinybench: 2.9.0
       vite: 7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
-      vitest: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
+      vitest: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@25.2.3)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3))
     transitivePeerDependencies:
       - debug
 
@@ -17825,11 +17855,11 @@ snapshots:
       - encoding
       - supports-color
 
-  '@markdoc/markdoc@0.5.4(@types/react@18.3.28)(react@19.2.4)':
+  '@markdoc/markdoc@0.5.4(@types/react@19.2.14)(react@19.2.4)':
     optionalDependencies:
       '@types/linkify-it': 3.0.5
       '@types/markdown-it': 12.2.3
-      '@types/react': 18.3.28
+      '@types/react': 19.2.14
       react: 19.2.4
 
   '@mdx-js/mdx@3.1.1':
@@ -19060,9 +19090,17 @@ snapshots:
     dependencies:
       '@types/react': 18.3.28
 
+  '@types/react-dom@19.2.3(@types/react@19.2.14)':
+    dependencies:
+      '@types/react': 19.2.14
+
   '@types/react@18.3.28':
     dependencies:
       '@types/prop-types': 15.7.15
+      csstype: 3.2.3
+
+  '@types/react@19.2.14':
+    dependencies:
       csstype: 3.2.3
 
   '@types/retry@0.12.2': {}
@@ -25499,7 +25537,7 @@ snapshots:
     optionalDependencies:
       vite: 7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
 
-  vitest@4.1.0(@opentelemetry/api@1.9.0)(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3):
+  vitest@4.1.0(@opentelemetry/api@1.9.0)(@types/node@25.2.3)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)):
     dependencies:
       '@vitest/expect': 4.1.0
       '@vitest/mocker': 4.1.0(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3))
@@ -25525,17 +25563,7 @@ snapshots:
       '@opentelemetry/api': 1.9.0
       '@types/node': 25.2.3
     transitivePeerDependencies:
-      - jiti
-      - less
-      - lightningcss
       - msw
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - terser
-      - tsx
-      - yaml
 
   volar-service-css@0.0.70(@volar/language-service@2.4.28):
     dependencies:
