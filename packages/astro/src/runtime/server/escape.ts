@@ -37,7 +37,7 @@ type BlessedType = string | HTMLBytes;
  */
 export const markHTMLString = (value: any) => {
 	// If value is already marked as an HTML string, there is nothing to do.
-	if (value instanceof HTMLString) {
+	if (isHTMLString(value)) {
 		return value;
 	}
 	// Cast to `HTMLString` to mark the string as valid HTML. Any HTML escaping
