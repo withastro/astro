@@ -22,10 +22,6 @@ const htmlString = Symbol.for('astro:html-string');
  */
 export class HTMLString extends String {
 	[htmlString] = true;
-
-	get [Symbol.toStringTag]() {
-		return 'HTMLString';
-	}
 }
 
 type BlessedType = string | HTMLBytes;
