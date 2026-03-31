@@ -6,27 +6,74 @@ import {
 	containsServerDirective,
 	renderServerIslandRuntime,
 } from '../../../dist/runtime/server/render/server-islands.js';
+import type { SSRResult } from '../../../dist/types/public/internal.js';
+import type {
+	RenderDestination,
+	RenderDestinationChunk,
+} from '../../../dist/runtime/server/render/common.js';
+import type { ComponentSlotValue } from '../../../dist/runtime/server/render/slot.js';
+import { renderTemplate } from '../../../dist/runtime/server/index.js';
 
 // #region Helpers
 
-/** Minimal SSRResult stub sufficient for ServerIslandComponent. */
-async function createStubResult(overrides = {}) {
+/**
+ * Minimal SSRResult stub sufficient for ServerIslandComponent.
+ *
+ * TODO: Replace with a shared `createMockResult()` helper once
+ * the unit test suite is fully migrated to TypeScript.
+ */
+async function createStubResult(overrides: Partial<SSRResult> = {}): Promise<SSRResult> {
 	const key = await createKey();
 	return {
-		key: Promise.resolve(key),
+		cancelled: false,
+		base: '/',
+		userAssetsBase: undefined,
+		styles: new Set(),
+		scripts: new Set(),
+		links: new Set(),
+		componentMetadata: new Map(),
+		inlinedScripts: new Map(),
+		createAstro() {
+			throw new Error('createAstro() not available in unit tests');
+		},
+		params: {},
+		resolve: async (s: string) => s,
+		response: { status: 200, statusText: 'OK', headers: new Headers() },
+		request: new Request('http://localhost/'),
+		renderers: [],
+		clientDirectives: new Map(),
+		compressHTML: false,
+		partial: false,
+		pathname: '/',
+		cookies: undefined,
 		serverIslandNameMap: new Map([
 			['src/components/Island.astro', 'Island'],
 			['src/components/BigIsland.astro', 'BigIsland'],
 		]),
-		base: '/',
 		trailingSlash: 'never',
+		key: Promise.resolve(key),
 		_metadata: {
-			extraHead: [],
-			extraScriptHashes: [],
+			hasHydrationScript: false,
+			rendererSpecificHydrationScripts: new Set<string>(),
+			hasRenderedHead: false,
+			renderedScripts: new Set<string>(),
+			hasDirectives: new Set<string>(),
 			hasRenderedServerIslandRuntime: false,
+			headInTree: false,
+			extraHead: [],
+			extraStyleHashes: [],
+			extraScriptHashes: [],
 			propagators: new Set(),
 		},
-		cspDestination: undefined,
+		cspDestination: 'header',
+		shouldInjectCspMetaTags: false,
+		cspAlgorithm: 'SHA-256',
+		scriptHashes: [],
+		scriptResources: [],
+		styleHashes: [],
+		styleResources: [],
+		directives: [],
+		isStrictDynamic: false,
 		internalFetchHeaders: {},
 		...overrides,
 	};
@@ -34,9 +81,9 @@ async function createStubResult(overrides = {}) {
 
 /** Collect all chunks written to a destination into a single string. */
 function createDestination() {
-	const chunks = [];
-	const destination = {
-		write(chunk) {
+	const chunks: RenderDestinationChunk[] = [];
+	const destination: RenderDestination = {
+		write(chunk: RenderDestinationChunk) {
 			chunks.push(chunk);
 		},
 	};
@@ -273,7 +320,7 @@ describe('ServerIslandComponent', () => {
 		it('renders fallback slot content inline', async () => {
 			const result = await createStubResult();
 			// The fallback slot is a function that returns a renderable value
-			const fallbackSlot = () => 'Loading...';
+			const fallbackSlot: ComponentSlotValue = () => renderTemplate`Loading...`;
 			const component = new ServerIslandComponent(
 				result,
 				islandProps(),
@@ -293,7 +340,8 @@ describe('ServerIslandComponent', () => {
 			const result = await createStubResult();
 			// A non-fallback slot called "content" — its HTML should NOT appear directly in render()
 			// output; instead it is encrypted and sent to the island endpoint.
-			const contentSlot = () => 'Slot content that should be encrypted';
+			const contentSlot: ComponentSlotValue = () =>
+				renderTemplate`Slot content that should be encrypted`;
 			const component = new ServerIslandComponent(
 				result,
 				islandProps(),

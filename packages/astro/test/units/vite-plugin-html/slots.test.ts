@@ -6,7 +6,7 @@ import { VFile } from 'vfile';
 import rehypeSlots, { SLOT_PREFIX } from '../../../dist/vite-plugin-html/transform/slots.js';
 
 describe('vite-plugin-html: slot transformer', () => {
-	async function testSlotTransform(html) {
+	async function testSlotTransform(html: string) {
 		const s = new MagicString(html);
 		const processor = rehype().data('settings', { fragment: true }).use(rehypeSlots, { s });
 

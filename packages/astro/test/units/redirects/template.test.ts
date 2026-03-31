@@ -38,8 +38,8 @@ describe('redirects/template', () => {
 		const link = $('body a');
 		assert.equal(link.length, 1);
 		assert.equal(link.attr('href'), '/new-page');
-		assert.ok(link.html().includes('Redirecting'));
-		assert.ok(link.html().includes('/new-page'));
+		assert.ok(link.html()?.includes('Redirecting'));
+		assert.ok(link.html()?.includes('/new-page'));
 	});
 
 	it('uses 2 second delay for 302 redirects', () => {
@@ -88,8 +88,8 @@ describe('redirects/template', () => {
 
 		const $ = cheerio.load(html);
 		const bodyText = $('body').html();
-		assert.ok(bodyText.includes('from <code>/old</code>'));
-		assert.ok(bodyText.includes('to <code>/new</code>'));
+		assert.ok(bodyText?.includes('from <code>/old</code>'));
+		assert.ok(bodyText?.includes('to <code>/new</code>'));
 	});
 
 	it('omits "from" text when not provided', () => {
@@ -101,8 +101,8 @@ describe('redirects/template', () => {
 
 		const $ = cheerio.load(html);
 		const bodyText = $('body').html();
-		assert.ok(!bodyText.includes('from <code>'));
-		assert.ok(bodyText.includes('to <code>/new</code>'));
+		assert.ok(!bodyText?.includes('from <code>'));
+		assert.ok(bodyText?.includes('to <code>/new</code>'));
 	});
 
 	it('handles special characters in URLs', () => {

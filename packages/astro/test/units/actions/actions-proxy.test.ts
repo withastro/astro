@@ -1,19 +1,26 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import type { APIContext } from '../../../dist/types/public/context.js';
+import type { SafeResult } from '../../../dist/actions/runtime/types.js';
 import { createActionsProxy, ActionError } from '../../../dist/actions/runtime/client.js';
 
-/**
- * Creates a proxy with a spy handleAction that records calls and returns a configurable result.
- * @param {object} [opts]
- * @param {import('../../../dist/actions/runtime/client.js').SafeResult} [opts.result]
- */
-function setup(opts = {}) {
-	const result = opts.result ?? { data: 'ok', error: undefined };
-	/** @type {{ param: any; path: string; context: any }[]} */
-	const calls = [];
+// #region Helpers
 
-	const handleAction = async (param, path, context) => {
+interface SetupOptions {
+	result?: SafeResult<any, any>;
+}
+
+interface CallRecord {
+	param: unknown;
+	path: string;
+	context: APIContext | undefined;
+}
+
+function setup(opts: SetupOptions = {}) {
+	const result: SafeResult<any, any> = opts.result ?? { data: 'ok', error: undefined };
+	const calls: CallRecord[] = [];
+
+	const handleAction = async (param: unknown, path: string, context: APIContext | undefined) => {
 		calls.push({ param, path, context });
 		return result;
 	};
@@ -21,6 +28,10 @@ function setup(opts = {}) {
 	const proxy = createActionsProxy({ handleAction });
 	return { proxy, calls };
 }
+
+// #endregion
+
+// #region Tests
 
 describe('createActionsProxy', () => {
 	describe('path building', () => {
@@ -121,3 +132,5 @@ describe('createActionsProxy', () => {
 		});
 	});
 });
+
+// #endregion

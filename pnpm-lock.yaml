@@ -1937,6 +1937,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/asset-query-params-chunks:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/asset-url-base:
     dependencies:
       astro:
@@ -4491,15 +4497,6 @@ importers:
 
   packages/astro/test/fixtures/without-site-config:
     dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/units/_temp-fixtures:
-    dependencies:
-      '@astrojs/mdx':
-        specifier: workspace:*
-        version: link:../../../../integrations/mdx
       astro:
         specifier: workspace:*
         version: link:../../..

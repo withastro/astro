@@ -1,20 +1,12 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { flagsToAstroInlineConfig } from '../../../dist/cli/flags.js';
+import { flagsToAstroInlineConfig, type Flags } from '../../../dist/cli/flags.js';
 import { resolveConfig } from '../../../dist/core/config/index.js';
 
-const cwd = fileURLToPath(new URL('../../fixtures/config-host/', import.meta.url));
-
 describe('config.server', () => {
-	function resolveConfigWithFlags(flags) {
-		return resolveConfig(
-			flagsToAstroInlineConfig({
-				root: cwd,
-				...flags,
-			}),
-			'dev',
-		);
+	function resolveConfigWithFlags(flags: Partial<Flags>) {
+		return resolveConfig(flagsToAstroInlineConfig(flags as Flags), 'dev');
 	}
 
 	describe('host', () => {
@@ -64,8 +56,8 @@ describe('config.server', () => {
 						config: configFileURL,
 					});
 					assert.equal(false, true, 'this should not have resolved');
-				} catch (err) {
-					assert.equal(err.message.includes('Unable to resolve'), true);
+				} catch (err: unknown) {
+					assert.equal((err as Error).message.includes('Unable to resolve'), true);
 				}
 			});
 		});

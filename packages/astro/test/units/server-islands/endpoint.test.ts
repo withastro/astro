@@ -1,13 +1,18 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { getRequestData } from '../../../dist/core/server-islands/endpoint.js';
+import type { RenderOptions } from '../../../dist/core/server-islands/endpoint.js';
 
 // #region Helpers
+
+function isRenderOptions(result: Response | RenderOptions): result is RenderOptions {
+	return !(result instanceof Response);
+}
 
 /**
  * Construct a minimal Request for testing getRequestData.
  */
-function makeGetRequest(params = {}) {
+function makeGetRequest(params: Record<string, string> = {}) {
 	const url = new URL('http://localhost/_server-islands/Island');
 	for (const [key, value] of Object.entries(params)) {
 		url.searchParams.set(key, value);
@@ -15,7 +20,7 @@ function makeGetRequest(params = {}) {
 	return new Request(url.toString(), { method: 'GET' });
 }
 
-function makePostRequest(body) {
+function makePostRequest(body: RenderOptions) {
 	return new Request('http://localhost/_server-islands/Island', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
@@ -23,7 +28,19 @@ function makePostRequest(body) {
 	});
 }
 
-function makeMethodRequest(method) {
+/**
+ * Like makePostRequest but accepts any payload — used to test server-side
+ * validation of intentionally malformed or invalid request bodies.
+ */
+function makeInvalidPostRequest(body: Record<string, unknown>) {
+	return new Request('http://localhost/_server-islands/Island', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify(body),
+	});
+}
+
+function makeMethodRequest(method = 'GET') {
 	return new Request('http://localhost/_server-islands/Island', { method });
 }
 
@@ -35,7 +52,7 @@ describe('getRequestData', () => {
 		it('returns RenderOptions when all required params are present', async () => {
 			const req = makeGetRequest({ s: 'slots', e: 'export', p: 'props' });
 			const result = await getRequestData(req);
-			assert.ok(!(result instanceof Response), 'should not return a Response');
+			assert.ok(isRenderOptions(result), 'should not return a Response');
 			assert.equal(result.encryptedSlots, 'slots');
 			assert.equal(result.encryptedComponentExport, 'export');
 			assert.equal(result.encryptedProps, 'props');
@@ -72,7 +89,7 @@ describe('getRequestData', () => {
 		it('accepts empty-string param values (empty props / slots are valid)', async () => {
 			const req = makeGetRequest({ s: '', e: 'export', p: '' });
 			const result = await getRequestData(req);
-			assert.ok(!(result instanceof Response), 'should not return a Response');
+			assert.ok(isRenderOptions(result), 'should not return a Response');
 			assert.equal(result.encryptedSlots, '');
 			assert.equal(result.encryptedProps, '');
 		});
@@ -88,14 +105,14 @@ describe('getRequestData', () => {
 				encryptedSlots: 'encSlots',
 			});
 			const result = await getRequestData(req);
-			assert.ok(!(result instanceof Response), 'should not return a Response');
+			assert.ok(isRenderOptions(result), 'should not return a Response');
 			assert.equal(result.encryptedComponentExport, 'encExport');
 			assert.equal(result.encryptedProps, 'encProps');
 			assert.equal(result.encryptedSlots, 'encSlots');
 		});
 
 		it('returns 400 when POST body contains plaintext `slots` object', async () => {
-			const req = makePostRequest({
+			const req = makeInvalidPostRequest({
 				encryptedComponentExport: 'encExport',
 				encryptedProps: '',
 				slots: { default: '<p>Hello</p>' },
@@ -110,7 +127,7 @@ describe('getRequestData', () => {
 		});
 
 		it('returns 400 when POST body contains plaintext `componentExport` string', async () => {
-			const req = makePostRequest({
+			const req = makeInvalidPostRequest({
 				componentExport: 'default',
 				encryptedProps: '',
 				encryptedSlots: '',
@@ -142,14 +159,14 @@ describe('getRequestData', () => {
 				encryptedSlots: '',
 			});
 			const result = await getRequestData(req);
-			assert.ok(!(result instanceof Response), 'should not return a Response');
+			assert.ok(isRenderOptions(result), 'should not return a Response');
 			assert.equal(result.encryptedProps, '');
 			assert.equal(result.encryptedSlots, '');
 		});
 
 		it('only checks own properties for `slots` validation', async () => {
 			// Temporarily pollute Object.prototype to simulate inherited properties
-			Object.prototype.slots = { default: 'polluted' };
+			(Object.prototype as any).slots = { default: 'polluted' };
 			try {
 				const req = makePostRequest({
 					encryptedComponentExport: 'encExport',
@@ -158,17 +175,17 @@ describe('getRequestData', () => {
 				});
 				const result = await getRequestData(req);
 				assert.ok(
-					!(result instanceof Response),
+					isRenderOptions(result),
 					`Expected RenderOptions but got Response with status ${result instanceof Response ? result.status : 'N/A'} — inherited 'slots' should not trigger rejection`,
 				);
 			} finally {
-				delete Object.prototype.slots;
+				delete (Object.prototype as any).slots;
 			}
 		});
 
 		it('only checks own properties for `componentExport` validation', async () => {
 			// Temporarily pollute Object.prototype to simulate inherited properties
-			Object.prototype.componentExport = 'default';
+			(Object.prototype as any).componentExport = 'default';
 			try {
 				const req = makePostRequest({
 					encryptedComponentExport: 'encExport',
@@ -177,11 +194,11 @@ describe('getRequestData', () => {
 				});
 				const result = await getRequestData(req);
 				assert.ok(
-					!(result instanceof Response),
+					isRenderOptions(result),
 					`Expected RenderOptions but got Response with status ${result instanceof Response ? result.status : 'N/A'} — inherited 'componentExport' should not trigger rejection`,
 				);
 			} finally {
-				delete Object.prototype.componentExport;
+				delete (Object.prototype as any).componentExport;
 			}
 		});
 	});
@@ -240,7 +257,7 @@ describe('getRequestData', () => {
 				body: JSON.stringify(body),
 			});
 			const result = await getRequestData(req, limit);
-			assert.ok(!(result instanceof Response), 'should not return a Response');
+			assert.ok(isRenderOptions(result), 'should not return a Response');
 			assert.equal(result.encryptedComponentExport, 'encExport');
 		});
 
@@ -253,7 +270,7 @@ describe('getRequestData', () => {
 			};
 			const req = makePostRequest(body);
 			const result = await getRequestData(req);
-			assert.ok(!(result instanceof Response), 'should not return a Response');
+			assert.ok(isRenderOptions(result), 'should not return a Response');
 			assert.equal(result.encryptedComponentExport, 'encExport');
 		});
 	});

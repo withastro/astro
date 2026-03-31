@@ -1,5 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import type { EnvironmentModuleNode } from 'vite';
 import { createLoader } from '../../../dist/core/module-loader/index.js';
 import {
 	createController,
@@ -9,8 +10,8 @@ import {
 describe('vite-plugin-astro-server', () => {
 	describe('controller', () => {
 		it('calls the onError method when an error occurs in the handler', async () => {
-			const controller = createController({ loader: createLoader() });
-			let error = undefined;
+			const controller = createController({ loader: createLoader({}) });
+			let error: unknown = undefined;
 			await runWithErrorHandling({
 				controller,
 				pathname: '/',
@@ -19,6 +20,7 @@ describe('vite-plugin-astro-server', () => {
 				},
 				onError(err) {
 					error = err;
+					return err instanceof Error ? err : undefined;
 				},
 			});
 			assert.equal(typeof error !== 'undefined', true);
@@ -26,14 +28,16 @@ describe('vite-plugin-astro-server', () => {
 		});
 
 		it('sets the state to error when an error occurs in the handler', async () => {
-			const controller = createController({ loader: createLoader() });
+			const controller = createController({ loader: createLoader({}) });
 			await runWithErrorHandling({
 				controller,
 				pathname: '/',
 				run() {
 					throw new Error('oh no');
 				},
-				onError() {},
+				onError() {
+					return undefined;
+				},
 			});
 			assert.equal(controller.state.state, 'error');
 		});
@@ -47,7 +51,7 @@ describe('vite-plugin-astro-server', () => {
 				},
 			});
 			const controller = createController({ loader });
-			loader.events.emit('file-change');
+			loader.events.emit('file-change', ['/some/file.ts']);
 			assert.equal(reloads, 0);
 			await runWithErrorHandling({
 				controller,
@@ -55,10 +59,12 @@ describe('vite-plugin-astro-server', () => {
 				run() {
 					throw new Error('oh no');
 				},
-				onError() {},
+				onError() {
+					return undefined;
+				},
 			});
 			assert.equal(reloads, 0);
-			loader.events.emit('file-change');
+			loader.events.emit('file-change', ['/some/file.ts']);
 			assert.equal(reloads, 1);
 		});
 
@@ -71,7 +77,7 @@ describe('vite-plugin-astro-server', () => {
 				},
 			});
 			const controller = createController({ loader });
-			loader.events.emit('file-change');
+			loader.events.emit('file-change', ['/some/file.ts']);
 			assert.equal(reloads, 0);
 			await runWithErrorHandling({
 				controller,
@@ -79,34 +85,41 @@ describe('vite-plugin-astro-server', () => {
 				run() {
 					throw new Error('oh no');
 				},
-				onError() {},
+				onError() {
+					return undefined;
+				},
 			});
 			assert.equal(reloads, 0);
-			loader.events.emit('file-change');
+			loader.events.emit('file-change', ['/some/file.ts']);
 			assert.equal(reloads, 1);
-			loader.events.emit('file-change');
+			loader.events.emit('file-change', ['/some/file.ts']);
 			assert.equal(reloads, 2);
 
 			await runWithErrorHandling({
 				controller,
 				pathname: '/',
 				// No error here
-				run() {},
+				async run() {},
+				onError() {
+					return undefined;
+				},
 			});
-			loader.events.emit('file-change');
+			loader.events.emit('file-change', ['/some/file.ts']);
 			assert.equal(reloads, 2);
 		});
 
 		it('Invalidates broken modules when a change occurs in an error state', async () => {
-			const mods = [
-				{ id: 'one', ssrError: new Error('one') },
-				{ id: 'two', ssrError: null },
-				{ id: 'three', ssrError: new Error('three') },
+			const mods: EnvironmentModuleNode[] = [
+				{ id: 'one', ssrError: new Error('one') } as unknown as EnvironmentModuleNode,
+				{ id: 'two', ssrError: null } as unknown as EnvironmentModuleNode,
+				{ id: 'three', ssrError: new Error('three') } as unknown as EnvironmentModuleNode,
 			];
 
 			const loader = createLoader({
 				eachModule(cb) {
-					return mods.forEach(cb);
+					return mods.forEach((mod, index, arr) =>
+						cb(mod, String(index), arr as unknown as Map<string, EnvironmentModuleNode>),
+					);
 				},
 				invalidateModule(mod) {
 					mod.ssrError = null;
@@ -120,16 +133,21 @@ describe('vite-plugin-astro-server', () => {
 				run() {
 					throw new Error('oh no');
 				},
-				onError() {},
+				onError() {
+					return undefined;
+				},
 			});
 
-			loader.events.emit('file-change');
+			loader.events.emit('file-change', ['/some/file.ts']);
 
-			assert.deepEqual(mods, [
-				{ id: 'one', ssrError: null },
-				{ id: 'two', ssrError: null },
-				{ id: 'three', ssrError: null },
-			]);
+			assert.deepEqual(
+				mods.map((m) => ({ id: m.id, ssrError: m.ssrError })),
+				[
+					{ id: 'one', ssrError: null },
+					{ id: 'two', ssrError: null },
+					{ id: 'three', ssrError: null },
+				],
+			);
 		});
 	});
 });

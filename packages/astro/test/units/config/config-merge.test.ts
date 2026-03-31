@@ -6,15 +6,17 @@ describe('mergeConfig', () => {
 	it('keeps server.allowedHosts as boolean', () => {
 		const defaults = {
 			server: {
-				allowedHosts: [],
+				// Typed as string[] to match AstroConfig's allowedHosts field
+				allowedHosts: [] as string[],
 			},
 		};
+		// allowedHosts can also be true (allow all) — cast to satisfy DeepPartial
 		const overrides = {
 			server: {
-				allowedHosts: true,
+				allowedHosts: true as boolean | string[],
 			},
 		};
-		const merged = mergeConfig(defaults, overrides);
+		const merged = mergeConfig(defaults, overrides as typeof defaults);
 		assert.equal(merged.server.allowedHosts, true);
 	});
 });

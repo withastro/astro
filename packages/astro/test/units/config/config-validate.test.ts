@@ -1,4 +1,3 @@
-// @ts-check
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { stripVTControlCharacters } from 'node:util';
@@ -9,11 +8,7 @@ import { validateConfig as _validateConfig } from '../../../dist/core/config/val
 import { formatConfigErrorMessage } from '../../../dist/core/messages/runtime.js';
 import { envField } from '../../../dist/env/config.js';
 
-/**
- *
- * @param {any} userConfig
- */
-async function validateConfig(userConfig) {
+async function validateConfig(userConfig: Record<string, unknown>) {
 	return _validateConfig(userConfig, process.cwd(), '');
 }
 
@@ -544,8 +539,8 @@ describe('Config Validation', () => {
 					ttl: 60 * 60, // 1 hour
 				},
 			});
-			assert.equal(result.session.ttl, 60 * 60);
-			assert.equal(result.session.driver, undefined);
+			assert.equal(result.session?.ttl, 60 * 60);
+			assert.equal(result.session?.driver, undefined);
 		});
 	});
 
