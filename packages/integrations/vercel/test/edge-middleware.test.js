@@ -43,15 +43,30 @@ describe('Vercel edge middleware', () => {
 	});
 
 	it('edge middleware forwards HTTP method and body', async () => {
-		const contents = await build.readFile(
+		const entry = new URL(
 			'../.vercel/output/functions/_middleware.func/middleware.mjs',
+			build.config.outDir,
 		);
-		assert.ok(contents.includes('method: request.method'), 'forwards the HTTP method');
-		assert.ok(contents.includes('body: request.body'), 'forwards the request body');
-		assert.ok(
-			contents.includes("duplex: 'half'") || contents.includes('duplex: "half"'),
-			'sets duplex to half for streaming body',
-		);
+		const module = await import(entry);
+
+		const originalFetch = globalThis.fetch;
+		let captured;
+		globalThis.fetch = async (_url, opts) => {
+			captured = opts;
+			return new Response('ok', { status: 200 });
+		};
+		try {
+			const request = new Request('http://example.com/api/test', {
+				method: 'POST',
+				body: '{"data":"test"}',
+				headers: { 'Content-Type': 'application/json' },
+			});
+			await module.default(request, {});
+			assert.equal(captured.method, 'POST', 'forwards the HTTP method');
+			assert.ok(captured.body, 'forwards the request body');
+		} finally {
+			globalThis.fetch = originalFetch;
+		}
 	});
 
 	// TODO: The path here seems to be inconsistent?

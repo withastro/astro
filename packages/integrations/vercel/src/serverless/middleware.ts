@@ -134,8 +134,7 @@ export default async function middleware(request, context) {
 				'${ASTRO_PATH_HEADER}': request.url.replace(origin, ''),
 				'${ASTRO_LOCALS_HEADER}': trySerializeLocals(locals)
 			},
-			body: request.body,
-			duplex: 'half',
+			...(request.body ? { body: request.body, duplex: 'half' } : {}),
 		});
 		return new Response(response.body, {
 			status: response.status,
