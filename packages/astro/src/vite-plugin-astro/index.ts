@@ -1,7 +1,7 @@
 import type { HydratedComponent } from '@astrojs/compiler/types';
 import type { SourceDescription } from 'rollup';
 import type * as vite from 'vite';
-import { defaultClientConditions, defaultServerConditions, normalizePath } from 'vite';
+import { defaultClientConditions, defaultServerConditions, normalizePath, parseAst } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import type { Logger } from '../core/logger/core.js';
 import { isAstroServerEnvironment } from '../environments.js';
@@ -90,7 +90,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			async configResolved(viteConfig) {
 				const toolbarEnabled = await settings.preferences.get('devToolbar.enabled');
 				// Initialize `compile` function to simplify usage later
-				compile = (code, filename) => {
+				compile = async (code, filename) => {
 					const compileProps = {
 						astroConfig: config,
 						viteConfig,
@@ -99,10 +99,25 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 						source: code,
 					};
 					if (config.experimental.rustCompiler) {
-						return compileAstroRs({
-							compileProps,
-							astroFileToCompileMetadata,
-						});
+						try {
+							const result = await compileAstroRs({
+								compileProps,
+								astroFileToCompileMetadata,
+							});
+							// Validate the Rust compiler output is valid JavaScript.
+							// The Rust compiler has known issues where it can output raw JSX
+							// (e.g. in variable assignments inside .map()/.flatMap() callbacks)
+							// instead of wrapping them in $$render tagged template literals.
+							// If parsing fails, fall back to the Go compiler.
+							parseAst(result.code);
+							return result;
+						} catch {
+							logger.warn(
+								'build',
+								`Rust compiler produced invalid output for "${filename}", falling back to the default compiler.`,
+							);
+							// Fall through to the Go compiler below
+						}
 					}
 					return compileAstro({
 						compileProps,
