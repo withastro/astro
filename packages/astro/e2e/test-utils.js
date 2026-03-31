@@ -92,12 +92,10 @@ export async function getErrorOverlayContent(page) {
  * @param {import('@playwright/test').Locator} el
  */
 export async function waitForHydrate(page, el) {
-	const astroIsland = page.locator('astro-island', { has: el });
-	const astroIslandId = await astroIsland.last().getAttribute('uid');
-	await page.waitForFunction(
-		(selector) => document.querySelector(selector)?.hasAttribute('ssr') === false,
-		`astro-island[uid="${astroIslandId}"]`,
-	);
+	await page.waitForFunction((node) => {
+		const island = node?.closest?.('astro-island');
+		return island?.hasAttribute('ssr') === false;
+	}, await el.elementHandle());
 }
 
 /**
