@@ -134,28 +134,30 @@ function createContext({
  * A serializable value contains plain values. For example, `Proxy`, `Set`, `Map`, functions, etc.
  * are not accepted because they can't be serialized.
  */
-function isLocalsSerializable(value: unknown): boolean {
-	let type = typeof value;
-	let plainObject = true;
-	if (type === 'object' && isPlainObject(value)) {
-		for (const [, nestedValue] of Object.entries(value)) {
-			if (!isLocalsSerializable(nestedValue)) {
-				plainObject = false;
-				break;
-			}
-		}
-	} else {
-		plainObject = false;
-	}
-	let result =
-		value === null ||
-		type === 'string' ||
-		type === 'number' ||
-		type === 'boolean' ||
-		Array.isArray(value) ||
-		plainObject;
+export function isLocalsSerializable(value: unknown): boolean {
+	const stack: unknown[] = [value];
+	while (stack.length > 0) {
+		const current = stack.pop();
+		const type = typeof current;
 
-	return result;
+		if (current === null || type === 'string' || type === 'number' || type === 'boolean') {
+			continue;
+		}
+
+		if (Array.isArray(current)) {
+			stack.push(...current);
+			continue;
+		}
+
+		if (type === 'object' && isPlainObject(current)) {
+			stack.push(...Object.values(current as Record<string, unknown>));
+			continue;
+		}
+
+		// Any other type (Date, Map, Set, class instance, function, …) is not serializable.
+		return false;
+	}
+	return true;
 }
 
 /**

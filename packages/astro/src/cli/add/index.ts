@@ -576,7 +576,7 @@ function createPrettyError(err: Error) {
 Reason: ${err.message}
 
 You will need to add these integration(s) manually.
-Documentation: https://docs.astro.build/en/guides/integrations-guide/`;
+Documentation: https://docs.astro.build/en/guides/integrations/`;
 	return err;
 }
 

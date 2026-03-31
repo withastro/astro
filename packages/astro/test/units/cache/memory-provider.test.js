@@ -178,6 +178,57 @@ describe('memory-provider query parameters', () => {
 		assert.equal(res2.headers.get('X-Astro-Cache'), 'HIT');
 	});
 
+	it('excludes fbclid from cache key by default', async () => {
+		const provider = createProvider();
+
+		const req1 = makeRequest('http://localhost/page?page=2');
+		await provider.onRequest(
+			{ request: req1, url: new URL(req1.url) },
+			makeNext({ maxAge: 60, body: 'page-2' }),
+		);
+
+		const req2 = makeRequest('http://localhost/page?page=2&fbclid=abc123');
+		const res2 = await provider.onRequest(
+			{ request: req2, url: new URL(req2.url) },
+			makeNext({ maxAge: 60, body: 'should-not-see' }),
+		);
+		assert.equal(res2.headers.get('X-Astro-Cache'), 'HIT');
+	});
+
+	it('excludes gclid from cache key by default', async () => {
+		const provider = createProvider();
+
+		const req1 = makeRequest('http://localhost/page?page=3');
+		await provider.onRequest(
+			{ request: req1, url: new URL(req1.url) },
+			makeNext({ maxAge: 60, body: 'page-3' }),
+		);
+
+		const req2 = makeRequest('http://localhost/page?page=3&gclid=xyz789');
+		const res2 = await provider.onRequest(
+			{ request: req2, url: new URL(req2.url) },
+			makeNext({ maxAge: 60, body: 'should-not-see' }),
+		);
+		assert.equal(res2.headers.get('X-Astro-Cache'), 'HIT');
+	});
+
+	it('request with only excluded params matches request with no params', async () => {
+		const provider = createProvider();
+
+		const req1 = makeRequest('http://localhost/page');
+		await provider.onRequest(
+			{ request: req1, url: new URL(req1.url) },
+			makeNext({ maxAge: 60, body: 'no-params' }),
+		);
+
+		const req2 = makeRequest('http://localhost/page?utm_source=twitter&fbclid=abc&gclid=xyz');
+		const res2 = await provider.onRequest(
+			{ request: req2, url: new URL(req2.url) },
+			makeNext({ maxAge: 60, body: 'should-not-see' }),
+		);
+		assert.equal(res2.headers.get('X-Astro-Cache'), 'HIT');
+	});
+
 	it('differentiates on non-excluded params', async () => {
 		const provider = createProvider();
 
@@ -209,6 +260,23 @@ describe('memory-provider query parameters', () => {
 		const res2 = await provider.onRequest(
 			{ request: req2, url: new URL(req2.url) },
 			makeNext({ maxAge: 60, body: 'page-1-date' }),
+		);
+		assert.equal(res2.headers.get('X-Astro-Cache'), 'HIT');
+	});
+
+	it('request with params not in include list matches request with no params', async () => {
+		const provider = createProvider({ query: { include: ['page'] } });
+
+		const req1 = makeRequest('http://localhost/list');
+		await provider.onRequest(
+			{ request: req1, url: new URL(req1.url) },
+			makeNext({ maxAge: 60, body: 'no-params' }),
+		);
+
+		const req2 = makeRequest('http://localhost/list?sort=name&filter=active');
+		const res2 = await provider.onRequest(
+			{ request: req2, url: new URL(req2.url) },
+			makeNext({ maxAge: 60, body: 'should-not-see' }),
 		);
 		assert.equal(res2.headers.get('X-Astro-Cache'), 'HIT');
 	});

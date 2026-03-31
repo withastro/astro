@@ -147,6 +147,14 @@ export abstract class Pipeline {
 		}
 	}
 
+	/**
+	 * Clears the cached middleware so it is re-resolved on the next request.
+	 * Called via HMR when middleware files change during development.
+	 */
+	clearMiddleware() {
+		this.resolvedMiddleware = undefined;
+	}
+
 	async getActions(): Promise<SSRActions> {
 		if (this.resolvedActions) {
 			return this.resolvedActions;
