@@ -148,7 +148,9 @@ describe('isActionError', () => {
 
 describe('isInputError', () => {
 	it('returns true for ActionInputError instances', () => {
-		const issues = [{ code: 'invalid_type', message: 'bad', path: ['x'] }] as unknown as ConstructorParameters<typeof ActionInputError>[0];
+		const issues = [
+			{ code: 'invalid_type', message: 'bad', path: ['x'] },
+		] as unknown as ConstructorParameters<typeof ActionInputError>[0];
 		assert.equal(isInputError(new ActionInputError(issues)), true);
 	});
 

@@ -13,10 +13,7 @@ const cwd = fileURLToPath(new URL('../../fixtures/tsconfig-handling/', import.me
 function assertValidConfig(
 	config: Awaited<ReturnType<typeof loadTSConfig>>,
 ): asserts config is Exclude<typeof config, string> {
-	assert.ok(
-		typeof config !== 'string',
-		`Expected a valid config but got error: ${config}`,
-	);
+	assert.ok(typeof config !== 'string', `Expected a valid config but got error: ${config}`);
 }
 
 describe('TSConfig handling', () => {

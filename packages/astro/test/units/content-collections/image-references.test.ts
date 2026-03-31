@@ -77,7 +77,12 @@ describe('updateImageReferencesInData', () => {
 	});
 
 	it('resolves multiple different images in the same entry', () => {
-		const thumbMeta: ImageMetadata = { src: '/_astro/thumb.xyz.png', width: 100, height: 100, format: 'png' };
+		const thumbMeta: ImageMetadata = {
+			src: '/_astro/thumb.xyz.png',
+			width: 100,
+			height: 100,
+			format: 'png',
+		};
 		const heroId = imageSrcToImportId('./hero.png', FILE_NAME);
 		const thumbId = imageSrcToImportId('./thumb.png', FILE_NAME);
 		assert.ok(heroId);
