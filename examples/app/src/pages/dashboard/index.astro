@@ -1,0 +1,18 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { actions } from 'astro:actions';
+---
+
+<Layout title="Dashboard">
+	<h1>Dashboard</h1>
+	<p>You're authenticated! The auth middleware in <code>src/app.ts</code> let you through.</p>
+
+	<h2>Create a task</h2>
+	<form method="POST" action={actions.createTask.queryString}>
+		<label>
+			Task name
+			<input type="text" name="title" required />
+		</label>
+		<button type="submit">Create</button>
+	</form>
+</Layout>

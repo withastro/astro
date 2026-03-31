@@ -1,0 +1,12 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Login">
+	<h1>Login</h1>
+	<p>You were redirected here because you don't have a session cookie.</p>
+	<p>
+		The auth middleware in <code>src/app.ts</code> runs <em>before</em> Astro page rendering,
+		so the dashboard page is never even rendered for unauthenticated requests.
+	</p>
+</Layout>

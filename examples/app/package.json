@@ -1,5 +1,5 @@
 {
-  "name": "@example/basics",
+  "name": "@example/app",
   "type": "module",
   "version": "0.0.1",
   "private": true,
@@ -13,6 +13,8 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^6.1.2"
+    "@astrojs/node": "^10.0.4",
+    "astro": "^6.1.2",
+    "hono": "^4.10.6"
   }
 }

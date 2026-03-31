@@ -1,0 +1,15 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Home">
+	<h1>App Entrypoint Example</h1>
+	<p>
+		This example uses <code>src/app.ts</code> to control the request pipeline with Hono.
+	</p>
+	<ul>
+		<li><a href="/dashboard">Dashboard</a> — protected by auth middleware in <code>app.ts</code></li>
+		<li><a href="/old-dashboard">Old dashboard link</a> — redirected via <code>redirects()</code></li>
+		<li><a href="/es">Spanish (i18n)</a></li>
+	</ul>
+</Layout>
