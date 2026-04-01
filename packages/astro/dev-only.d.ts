@@ -78,6 +78,11 @@ declare module 'virtual:astro:dev-css-all' {
 	export const devCSSMap: Map<string, () => Promise<{ css: Set<ImportedDevStyles> }>>;
 }
 
+declare module 'virtual:astro:component-metadata' {
+	import type { SSRComponentMetadata } from './src/types/public/internal.js';
+	export const componentMetadataEntries: [string, SSRComponentMetadata][];
+}
+
 declare module 'virtual:astro:app' {
 	export const createApp: import('./src/core/app/types.js').CreateApp;
 }
