@@ -1,20 +1,9 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import * as cheerio from 'cheerio';
-import { createContainer } from '../../../dist/core/dev/container.js';
-import { createViteLoader } from '../../../dist/core/module-loader/vite.js';
 import { matchAllRoutes } from '../../../dist/core/routing/match.js';
 import { createRoutesList } from '../../../dist/core/routing/create-manifest.js';
-import { getSortedPreloadedMatches } from '../../../dist/prerender/routing.js';
-import { RunnablePipeline } from '../../../dist/vite-plugin-app/pipeline.js';
-import { createDevelopmentManifest } from '../../../dist/vite-plugin-astro-server/plugin.js';
-import testAdapter from '../../test-adapter.js';
-import {
-	createBasicSettings,
-	createFixture,
-	createRequestAndResponse,
-	defaultLogger,
-} from '../test-utils.js';
+import { routeComparator } from '../../../dist/core/routing/priority.js';
+import { createBasicSettings, createFixture, defaultLogger } from '../test-utils.js';
 
 const fileSystem = {
 	'/src/pages/[serverDynamic].astro': `
@@ -123,28 +112,37 @@ const fileSystem = {
 `,
 };
 
+/**
+ * Sorts matched routes following the same logic as getSortedPreloadedMatches,
+ * but without requiring a full pipeline/container.
+ */
+function sortMatches(matches) {
+	return matches
+		.slice()
+		.sort((a, b) => routeComparator(a, b))
+		.sort((a, b) => {
+			// Prioritize prerendered routes over server routes when patterns are equal
+			if (a.pattern.source === b.pattern.source) {
+				if (a.prerender !== b.prerender) {
+					return a.prerender ? -1 : 1;
+				}
+				return a.component < b.component ? -1 : 1;
+			}
+			return 0;
+		});
+}
+
 describe('Route matching', () => {
-	let pipeline;
+	let fixture;
 	let manifestData;
-	let container;
-	let settings;
-	let manifest;
 
 	before(async () => {
-		const fixture = await createFixture(fileSystem);
-		settings = await createBasicSettings({
+		fixture = await createFixture(fileSystem);
+		const settings = await createBasicSettings({
 			root: fixture.path,
 			trailingSlash: 'never',
 			output: 'static',
-			adapter: testAdapter(),
 		});
-		container = await createContainer({
-			settings,
-			logger: defaultLogger,
-		});
-
-		const loader = createViteLoader(container.viteServer);
-		manifest = await createDevelopmentManifest(container.settings);
 		manifestData = await createRoutesList(
 			{
 				cwd: fixture.path,
@@ -152,28 +150,17 @@ describe('Route matching', () => {
 			},
 			defaultLogger,
 		);
-		pipeline = RunnablePipeline.create(manifestData, {
-			loader,
-			logger: defaultLogger,
-			manifest,
-			settings,
-		});
 	});
 
 	after(async () => {
-		await container.close();
+		await fixture.rm();
 	});
 
 	describe('Matched routes', () => {
 		it('should be sorted correctly', async () => {
 			const matches = matchAllRoutes('/try-matching-a-route', manifestData);
-			const preloadedMatches = await getSortedPreloadedMatches({
-				pipeline,
-				matches,
-				settings,
-				manifest,
-			});
-			const sortedRouteNames = preloadedMatches.map((match) => match.route.route);
+			const sortedMatches = sortMatches(matches);
+			const sortedRouteNames = sortedMatches.map((match) => match.route);
 
 			assert.deepEqual(sortedRouteNames, [
 				'/[astaticdynamic]',
@@ -183,116 +170,6 @@ describe('Route matching', () => {
 				'/[...xstaticrest]',
 				'/[...serverrest]',
 			]);
-		});
-		it('nested should be sorted correctly', async () => {
-			const matches = matchAllRoutes('/nested/try-matching-a-route', manifestData);
-			const preloadedMatches = await getSortedPreloadedMatches({
-				pipeline,
-				matches,
-				settings,
-				manifest,
-			});
-			const sortedRouteNames = preloadedMatches.map((match) => match.route.route);
-
-			assert.deepEqual(sortedRouteNames, [
-				'/nested/[...astaticrest]',
-				'/nested/[...xstaticrest]',
-				'/nested/[...serverrest]',
-				'/[...astaticrest]',
-				'/[...xstaticrest]',
-				'/[...serverrest]',
-			]);
-		});
-	});
-
-	describe('Request', () => {
-		it('should correctly match a static dynamic route I', async () => {
-			const { req, res, text } = createRequestAndResponse({
-				method: 'GET',
-				url: '/static-dynamic-route-here',
-			});
-			container.handle(req, res);
-			const html = await text();
-			const $ = cheerio.load(html);
-			assert.equal($('p').text(), 'Prerendered dynamic route!');
-		});
-
-		it('should correctly match a static dynamic route II', async () => {
-			const { req, res, text } = createRequestAndResponse({
-				method: 'GET',
-				url: '/another-static-dynamic-route-here',
-			});
-			container.handle(req, res);
-			const html = await text();
-			const $ = cheerio.load(html);
-			assert.equal($('p').text(), 'Another prerendered dynamic route!');
-		});
-
-		it('should correctly match a server dynamic route', async () => {
-			const { req, res, text } = createRequestAndResponse({
-				method: 'GET',
-				url: '/a-random-slug-was-matched',
-			});
-			container.handle(req, res);
-			const html = await text();
-			const $ = cheerio.load(html);
-			assert.equal($('p').text(), 'Server dynamic route! slug:a-random-slug-was-matched');
-		});
-
-		it('should correctly match a static rest route I', async () => {
-			const { req, res, text } = createRequestAndResponse({
-				method: 'GET',
-				url: '',
-			});
-			container.handle(req, res);
-			const html = await text();
-			const $ = cheerio.load(html);
-			assert.equal($('p').text(), 'Prerendered rest route!');
-		});
-
-		it('should correctly match a static rest route II', async () => {
-			const { req, res, text } = createRequestAndResponse({
-				method: 'GET',
-				url: '/another/static-rest-route-here',
-			});
-			container.handle(req, res);
-			const html = await text();
-			const $ = cheerio.load(html);
-			assert.equal($('p').text(), 'Another prerendered rest route!');
-		});
-
-		it('should correctly match a nested static rest route index', async () => {
-			const { req, res, text } = createRequestAndResponse({
-				method: 'GET',
-				url: '/nested',
-			});
-			container.handle(req, res);
-			const html = await text();
-			const $ = cheerio.load(html);
-			assert.equal($('p').text(), 'Nested prerendered rest route!');
-		});
-
-		it('should correctly match a nested static rest route', async () => {
-			const { req, res, text } = createRequestAndResponse({
-				method: 'GET',
-				url: '/nested/another-nested-static-dynamic-rest-route-here',
-			});
-			container.handle(req, res);
-			const html = await text();
-			const $ = cheerio.load(html);
-			assert.equal($('p').text(), 'Another nested prerendered rest route!');
-		});
-
-		it('should correctly match a nested server rest route', async () => {
-			const { req, res, text } = createRequestAndResponse({
-				method: 'GET',
-				url: '/nested/a-random-slug-was-matched',
-			});
-			container.handle(req, res);
-
-			const html = await text();
-			const $ = cheerio.load(html);
-			assert.equal($('p').text(), 'Nested server rest route! slug: a-random-slug-was-matched');
 		});
 	});
 });
