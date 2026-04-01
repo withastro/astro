@@ -14,14 +14,14 @@ Object.defineProperty(HTMLBytes.prototype, Symbol.toStringTag, {
 	},
 });
 
-const htmlString = Symbol.for('astro:html-string');
+const htmlStringSymbol = Symbol.for('astro:html-string');
 
 /**
  * A "blessed" extension of String that tells Astro that the string
  * has already been escaped. This helps prevent double-escaping of HTML.
  */
 export class HTMLString extends String {
-	[htmlString] = true;
+	[htmlStringSymbol] = true;
 }
 
 type BlessedType = string | HTMLBytes;
@@ -48,7 +48,7 @@ export const markHTMLString = (value: any) => {
 };
 
 export function isHTMLString(value: any): value is HTMLString {
-	return !!value?.[htmlString];
+	return !!value?.[htmlStringSymbol];
 }
 
 function markHTMLBytes(bytes: Uint8Array) {
