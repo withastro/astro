@@ -70,8 +70,7 @@ export const app = createApp();
 					if (id === DEFAULT_ASTRO_DEV_USER_APP_ID) {
 						return {
 							code: `
-import { astro } from 'astro/hono';
-import { Hono } from 'hono';
+import { Hono, astro } from 'astro/hono';
 
 const app = new Hono();
 app.use(astro());

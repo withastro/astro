@@ -4,17 +4,14 @@ import { context, pages, actions, i18n, redirects, rewrite } from 'astro/hono';
 
 const app = new Hono();
 
-// 1. Request logging — see every request in the terminal
+// Request logging — see every request in the terminal
 app.use(logger());
 
-// 2. Astro context — sets up locals and clientAddress
-app.use(context());
-
-// 3. Auth gate — runs before any Astro rendering
+// Auth gate — uses context() to access Astro's locals, cookies, etc.
 app.use(async (c, next) => {
-	const url = new URL(c.req.url);
+	const { url, cookies } = await context(c);
 	if (url.pathname.startsWith('/dashboard')) {
-		const session = c.req.header('cookie')?.includes('session=');
+		const session = cookies.get('session');
 		if (!session) {
 			return c.redirect('/login');
 		}
@@ -22,8 +19,7 @@ app.use(async (c, next) => {
 	await next();
 });
 
-// 4. Astro features, composed individually so you can see (and control) the order
-app.use(redirects());
+app.use(redirects({ '/old-dashboard': '/dashboard' }));
 app.use(actions());
 app.use(rewrite());
 app.use(i18n());

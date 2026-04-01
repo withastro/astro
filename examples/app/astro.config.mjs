@@ -10,7 +10,4 @@ export default defineConfig({
 		defaultLocale: 'en',
 		locales: ['en', 'es'],
 	},
-	redirects: {
-		'/old-dashboard': '/dashboard',
-	},
 });

@@ -32,7 +32,8 @@ export function createOriginCheckMiddleware(): MiddlewareHandler {
 		if (SAFE_METHODS.includes(request.method)) {
 			return next();
 		}
-		const isSameOrigin = request.headers.get('origin') === url.origin;
+		const origin = request.headers.get('origin');
+		const isSameOrigin = origin === url.origin;
 
 		const hasContentType = request.headers.has('content-type');
 		if (hasContentType) {

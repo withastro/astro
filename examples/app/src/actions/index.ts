@@ -2,6 +2,18 @@ import { defineAction } from 'astro:actions';
 import { z } from 'astro/zod';
 
 export const server = {
+	login: defineAction({
+		accept: 'form',
+		input: z.object({
+			email: z.string().email(),
+			password: z.string().min(1),
+		}),
+		handler: async (_input, context) => {
+			// In a real app, validate credentials against a database here.
+			context.cookies.set('session', '1', { path: '/' });
+			return { success: true };
+		},
+	}),
 	createTask: defineAction({
 		accept: 'form',
 		input: z.object({

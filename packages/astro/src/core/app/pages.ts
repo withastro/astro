@@ -68,7 +68,7 @@ export class Pages {
 	logger: Logger;
 	#router: Router;
 
-	constructor(manifest: SSRManifest) {
+	constructor(manifest: SSRManifest, pipeline?: Pipeline) {
 		this.manifest = manifest;
 		this.manifestData = { routes: manifest.routes.map((route) => route.routeData) };
 		this.logger = new Logger({
@@ -76,7 +76,7 @@ export class Pages {
 			level: manifest.logLevel,
 		});
 		ensure404Route(this.manifestData);
-		this.pipeline = AppPipeline.create({ manifest, streaming: true });
+		this.pipeline = pipeline ?? AppPipeline.create({ manifest, streaming: true });
 		this.#router = this.#createRouter(this.manifestData);
 	}
 
@@ -98,9 +98,7 @@ export class Pages {
 		);
 		const match = this.#router.match(decodeURI(pathname), { allowWithoutBase: true });
 		if (match.type !== 'match') return undefined;
-		const routeData = match.route;
-		if (routeData.prerender) return undefined;
-		return routeData;
+		return match.route;
 	}
 
 	public async render(request: Request, options: RenderOptions = {}): Promise<Response> {

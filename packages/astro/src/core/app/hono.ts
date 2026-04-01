@@ -1,94 +1,207 @@
-import type { MiddlewareHandler } from 'hono';
+import { Hono } from 'hono';
+import type { Context as HonoContext, MiddlewareHandler } from 'hono';
+
+export { Hono };
 import { manifest } from 'virtual:astro:manifest';
-import { computeCurrentLocale } from '../../i18n/utils.js';
-import { clientAddressSymbol } from '../constants.js';
+import { app } from 'virtual:astro:app';
+import {
+	computeCurrentLocale,
+	computePreferredLocale,
+	computePreferredLocaleList,
+} from '../../i18n/utils.js';
+import { ASTRO_GENERATOR, clientAddressSymbol, pipelineSymbol } from '../constants.js';
 import { computeFallbackRoute } from '../../i18n/fallback.js';
 import { I18nRouter, type I18nRouterContext } from '../../i18n/router.js';
-import { ACTION_RPC_ROUTE_PATTERN } from '../../actions/consts.js';
-import { parseRequestBody, serializeActionResult } from '../../actions/runtime/server.js';
+import {
+	ACTION_API_CONTEXT_SYMBOL,
+	parseRequestBody,
+	serializeActionResult,
+} from '../../actions/runtime/server.js';
 import type { RedirectConfig, RouteInfo } from '../../types/public/index.js';
+import type { APIContext } from '../../types/public/context.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { computeRedirectStatus, resolveRedirectTarget } from '../redirects/render.js';
 import { getParams } from '../render/params-and-props.js';
-import { getAPIContext } from './api-context.js';
+import { getOriginPathname } from '../routing/rewrite.js';
+import { AstroCookies } from '../cookies/index.js';
+import { AstroError, AstroErrorData } from '../errors/index.js';
+import { AstroSession } from '../session/runtime.js';
+import { AstroCache, type CacheLike } from '../cache/runtime/cache.js';
+import { DisabledAstroCache, NoopAstroCache } from '../cache/runtime/noop.js';
 import { Pages, type RenderOptions } from './pages.js';
 
-const pagesApp = new Pages(manifest);
+const pagesApp = new Pages(manifest, app.pipeline);
 
-export const ASTRO_LOCALS_KEY = 'astro.locals';
-export const ASTRO_CLIENT_ADDRESS_KEY = 'astro.clientAddress';
+const ASTRO_CONTEXT_KEY = 'astro.context';
 export const ASTRO_ROUTE_DATA_KEY = 'astro.routeData';
 export const ASTRO_REWRITE_PATHNAME_KEY = 'astro.rewritePathname';
 
 export type AstroHonoEnv = {
 	Variables: {
-		[ASTRO_LOCALS_KEY]: object;
-		[ASTRO_CLIENT_ADDRESS_KEY]: string | undefined;
+		[ASTRO_CONTEXT_KEY]: APIContext;
 		[ASTRO_ROUTE_DATA_KEY]: RouteData | undefined;
 		[ASTRO_REWRITE_PATHNAME_KEY]: string | undefined;
 	};
 };
 
-export function context(): MiddlewareHandler<AstroHonoEnv> {
-	return async (context, next) => {
-		const locals = context.get(ASTRO_LOCALS_KEY);
-		if (!locals) {
-			context.set(ASTRO_LOCALS_KEY, {});
-		}
+/**
+ * Creates (or returns a cached) Astro API context from a Hono context.
+ * This gives you the same `APIContext` object that traditional Astro middleware receives:
+ * locals, cookies, clientAddress, redirect, rewrite, params, i18n, session, etc.
+ *
+ * The context is created lazily on first call and cached for the duration of the request.
+ */
+export async function context(c: HonoContext<AstroHonoEnv>): Promise<APIContext> {
+	const existing = c.get(ASTRO_CONTEXT_KEY);
+	if (existing) return existing;
 
-		const clientAddress = context.get(ASTRO_CLIENT_ADDRESS_KEY);
-		if (clientAddress === undefined) {
-			const requestClientAddress = Reflect.get(context.req.raw, clientAddressSymbol) as
-				| string
-				| undefined;
-			if (requestClientAddress !== undefined) {
-				context.set(ASTRO_CLIENT_ADDRESS_KEY, requestClientAddress);
+	const request = c.req.raw;
+	const url = new URL(request.url);
+	const pipeline = pagesApp.pipeline;
+	const i18nConfig = pipeline.i18n;
+
+	const cookies = new AstroCookies(request);
+
+	const requestClientAddress = Reflect.get(request, clientAddressSymbol) as string | undefined;
+
+	const pipelineSessionDriver = await pipeline.getSessionDriver();
+	const session =
+		pipeline.manifest.sessionConfig && pipelineSessionDriver
+			? new AstroSession({
+					cookies,
+					config: pipeline.manifest.sessionConfig,
+					runtimeMode: pipeline.runtimeMode,
+					driverFactory: pipelineSessionDriver,
+					mockStorage: null,
+				})
+			: undefined;
+
+	let cache: CacheLike;
+	if (!pipeline.cacheConfig) {
+		cache = new DisabledAstroCache(pipeline.logger);
+	} else if (pipeline.runtimeMode === 'development') {
+		cache = new NoopAstroCache();
+	} else {
+		const cacheProvider = await pipeline.getCacheProvider();
+		cache = new AstroCache(cacheProvider);
+	}
+
+	const locals: App.Locals = {} as App.Locals;
+
+	const ctx: APIContext = {
+		get cookies() {
+			return cookies;
+		},
+		request,
+		url,
+		site: pipeline.site,
+		generator: ASTRO_GENERATOR,
+		props: {} as any,
+		params: {},
+		routePattern: '',
+		isPrerendered: false,
+		locals,
+		get clientAddress() {
+			if (requestClientAddress) return requestClientAddress;
+			if (pipeline.adapterName) {
+				throw new AstroError({
+					...AstroErrorData.ClientAddressNotAvailable,
+					message: AstroErrorData.ClientAddressNotAvailable.message(pipeline.adapterName),
+				});
 			}
-		}
-
-		await next();
+			throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);
+		},
+		get currentLocale() {
+			if (!i18nConfig) return undefined;
+			return computeCurrentLocale(url.pathname, i18nConfig.locales, i18nConfig.defaultLocale);
+		},
+		get preferredLocale() {
+			if (!i18nConfig) return undefined;
+			return computePreferredLocale(request, i18nConfig.locales);
+		},
+		get preferredLocaleList() {
+			if (!i18nConfig) return undefined;
+			return computePreferredLocaleList(request, i18nConfig.locales);
+		},
+		get originPathname() {
+			return getOriginPathname(request);
+		},
+		get session() {
+			if (!session) {
+				pipeline.logger.warn(
+					'session',
+					`context.session was used but no storage configuration was provided.`,
+				);
+				return undefined;
+			}
+			return session;
+		},
+		get cache() {
+			return cache;
+		},
+		get csp() {
+			if (!pipeline.manifest.csp) {
+				if (pipeline.runtimeMode === 'production') {
+					pipeline.logger.warn(
+						'csp',
+						`context.csp was used but CSP was not configured.`,
+					);
+				}
+				return undefined;
+			}
+			return undefined;
+		},
+		redirect(path: string, status = 302) {
+			return new Response(null, {
+				status,
+				headers: { Location: path },
+			});
+		},
+		async rewrite(_rewritePayload) {
+			// Rewrites in app.ts are handled via the rewrite() middleware,
+			// not directly on the context. This is a stub for API compatibility.
+			throw new AstroError({
+				...AstroErrorData.RewriteWithBodyUsed,
+				message: 'Use the rewrite() middleware in app.ts instead of ctx.rewrite().',
+			});
+		},
+		getActionResult(_action) {
+			// Action results are available after form submissions via the actions() middleware.
+			return undefined;
+		},
+		async callAction(action, input) {
+			const handler = (action as any).bind(ctx);
+			return handler(input);
+		},
 	};
+
+	Reflect.set(ctx, pipelineSymbol, pipeline);
+	Reflect.set(ctx, ACTION_API_CONTEXT_SYMBOL, true);
+	c.set(ASTRO_CONTEXT_KEY, ctx);
+	return ctx;
 }
 
-function getRouteData(context: Parameters<MiddlewareHandler<AstroHonoEnv>>[0]) {
-	const fromContext = context.get(ASTRO_ROUTE_DATA_KEY);
+function getRouteData(c: HonoContext<AstroHonoEnv>) {
+	const fromContext = c.get(ASTRO_ROUTE_DATA_KEY);
 	if (fromContext !== undefined) {
 		return fromContext;
 	}
 
-	const routeData = pagesApp.match(context.req.raw);
-	context.set(ASTRO_ROUTE_DATA_KEY, routeData);
+	const routeData = pagesApp.match(c.req.raw);
+	c.set(ASTRO_ROUTE_DATA_KEY, routeData);
 	return routeData;
 }
 
-function getRenderOptions(
-	context: Parameters<MiddlewareHandler<AstroHonoEnv>>[0],
-	options: RenderOptions,
-): RenderOptions {
-	const locals = context.get(ASTRO_LOCALS_KEY) ?? options.locals ?? {};
-	const clientAddress =
-		context.get(ASTRO_CLIENT_ADDRESS_KEY) ??
-		options.clientAddress ??
-		(Reflect.get(context.req.raw, clientAddressSymbol) as string | undefined);
-
-	if (!context.get(ASTRO_LOCALS_KEY)) {
-		context.set(ASTRO_LOCALS_KEY, locals);
-	}
-
-	return {
-		...options,
-		addCookieHeader: options.addCookieHeader ?? true,
-		locals,
-		clientAddress,
-	};
-}
-
 export function pages(options: RenderOptions = {}): MiddlewareHandler<AstroHonoEnv> {
-	return async (context) => {
-		const routeData = getRouteData(context);
-		context.res = await pagesApp.render(context.req.raw, {
-			...getRenderOptions(context, options),
+	return async (c) => {
+		const ctx = await context(c);
+		const routeData = getRouteData(c);
+		c.res = await pagesApp.render(c.req.raw, {
+			addCookieHeader: options.addCookieHeader ?? true,
+			locals: ctx.locals,
+			clientAddress: Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
 			routeData,
+			...options,
 		});
 	};
 }
@@ -119,15 +232,15 @@ export function i18n(): MiddlewareHandler<AstroHonoEnv> {
 			: undefined,
 	});
 
-	return async (context, next) => {
-		const routeData = getRouteData(context);
+	return async (c, next) => {
+		const routeData = getRouteData(c);
 		const routeType = routeData?.type;
 
 		if (routeType !== 'page' && routeType !== 'fallback') {
 			return next();
 		}
 
-		const requestUrl = new URL(context.req.url);
+		const requestUrl = new URL(c.req.url);
 		const currentLocale = computeCurrentLocale(
 			requestUrl.pathname,
 			i18nConfig.locales,
@@ -135,7 +248,7 @@ export function i18n(): MiddlewareHandler<AstroHonoEnv> {
 		);
 
 		await next();
-		let response = context.res;
+		let response = c.res;
 
 		const routerContext: I18nRouterContext = {
 			currentLocale,
@@ -147,7 +260,7 @@ export function i18n(): MiddlewareHandler<AstroHonoEnv> {
 		const routeDecision = i18nRouter.match(requestUrl.pathname, routerContext);
 		switch (routeDecision.type) {
 			case 'redirect':
-				context.res = context.redirect(routeDecision.location, routeDecision.status);
+				c.res = c.redirect(routeDecision.location, routeDecision.status);
 				return;
 			case 'notFound': {
 				if (!response) {
@@ -160,7 +273,7 @@ export function i18n(): MiddlewareHandler<AstroHonoEnv> {
 				if (routeDecision.location) {
 					notFoundRes.headers.set('Location', routeDecision.location);
 				}
-				context.res = notFoundRes;
+				c.res = notFoundRes;
 				return;
 			}
 			case 'continue':
@@ -186,10 +299,10 @@ export function i18n(): MiddlewareHandler<AstroHonoEnv> {
 
 			switch (fallbackDecision.type) {
 				case 'redirect':
-					context.res = context.redirect(fallbackDecision.pathname + requestUrl.search);
+					c.res = c.redirect(fallbackDecision.pathname + requestUrl.search);
 					return;
 				case 'rewrite': {
-					context.set(ASTRO_REWRITE_PATHNAME_KEY, fallbackDecision.pathname + requestUrl.search);
+					c.set(ASTRO_REWRITE_PATHNAME_KEY, fallbackDecision.pathname + requestUrl.search);
 					return;
 				}
 				case 'none':
@@ -200,24 +313,27 @@ export function i18n(): MiddlewareHandler<AstroHonoEnv> {
 }
 
 export function rewrite(options: RenderOptions = {}): MiddlewareHandler<AstroHonoEnv> {
-	return async (context, next) => {
+	return async (c, next) => {
 		await next();
 
-		const rewritePathname = context.get(ASTRO_REWRITE_PATHNAME_KEY);
+		const rewritePathname = c.get(ASTRO_REWRITE_PATHNAME_KEY);
 		if (!rewritePathname) {
 			return;
 		}
 
-		context.set(ASTRO_REWRITE_PATHNAME_KEY, undefined);
+		c.set(ASTRO_REWRITE_PATHNAME_KEY, undefined);
 
-		const rewriteUrl = new URL(rewritePathname, context.req.url);
-
-		const rewrittenRequest = new Request(rewriteUrl, context.req.raw);
+		const ctx = await context(c);
+		const rewriteUrl = new URL(rewritePathname, c.req.url);
+		const rewrittenRequest = new Request(rewriteUrl, c.req.raw);
 		const rewrittenRouteData = pagesApp.match(rewrittenRequest);
-		context.set(ASTRO_ROUTE_DATA_KEY, rewrittenRouteData);
-		context.res = await pagesApp.render(rewrittenRequest, {
-			...getRenderOptions(context, options),
+		c.set(ASTRO_ROUTE_DATA_KEY, rewrittenRouteData);
+		c.res = await pagesApp.render(rewrittenRequest, {
+			addCookieHeader: options.addCookieHeader ?? true,
+			locals: ctx.locals,
+			clientAddress: Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
 			routeData: rewrittenRouteData,
+			...options,
 		});
 	};
 }
@@ -232,32 +348,29 @@ export function redirects(
 				.map((r: RouteInfo) => r.routeData)
 				.filter((r: RouteData) => r.type === 'redirect');
 
-	return async (context, next) => {
-		const url = new URL(context.req.url);
+	return async (c, next) => {
+		const url = new URL(c.req.url);
 		const pathname = url.pathname;
 
 		if (config) {
-			// User-provided redirects: match against the provided map
 			for (const [from, to] of Object.entries(config)) {
-				// Simple string match for static routes, or regex for dynamic ones
 				const pattern = new RegExp(
 					`^${from.replace(/\[([^\]]+)\]/g, '([^/]+)').replace(/\[\.\.\.([^\]]+)\]/g, '(.*)')}$`,
 				);
 				const match = pattern.exec(pathname);
 				if (match) {
 					const status =
-						typeof to === 'object' ? to.status : context.req.method === 'GET' ? 301 : 308;
+						typeof to === 'object' ? to.status : c.req.method === 'GET' ? 301 : 308;
 					const destination = typeof to === 'object' ? to.destination : to;
-					return context.redirect(destination, status);
+					return c.redirect(destination, status);
 				}
 			}
 		} else {
-			// Manifest-based redirects: use RouteData for proper param extraction
 			for (const routeData of redirectRoutes) {
 				if (routeData.pattern.test(pathname)) {
 					const params = getParams(routeData, pathname);
 					const status = computeRedirectStatus(
-						context.req.method,
+						c.req.method,
 						routeData.redirect,
 						routeData.redirectRoute,
 					);
@@ -277,14 +390,22 @@ export function redirects(
 }
 
 export function actions(): MiddlewareHandler<AstroHonoEnv> {
-	return async (context, next) => {
-		const url = new URL(context.req.url);
+	return async (c, next) => {
+		const url = new URL(c.req.url);
 
-		if (context.req.method !== 'POST' || !url.pathname.startsWith('/_actions/')) {
+		if (c.req.method !== 'POST') {
+			return next();
+		}
+
+		// Only handle RPC calls to /_actions/{name}
+		// Form submissions (with ?_action=) fall through to pages() middleware
+		// where RenderContext handles them via the standard flow
+		if (!url.pathname.startsWith('/_actions/')) {
 			return next();
 		}
 
 		const actionName = decodeURIComponent(url.pathname.slice('/_actions/'.length));
+
 		const pipeline = pagesApp.pipeline;
 
 		let baseAction: Awaited<ReturnType<typeof pipeline.getAction>>;
@@ -294,15 +415,11 @@ export function actions(): MiddlewareHandler<AstroHonoEnv> {
 			return next();
 		}
 
-		const apiContext = await getAPIContext(context.req.raw, pipeline, {
-			locals: context.get(ASTRO_LOCALS_KEY),
-			clientAddress: context.get(ASTRO_CLIENT_ADDRESS_KEY),
-			routePattern: ACTION_RPC_ROUTE_PATTERN,
-		});
+		const ctx = await context(c);
 
 		let input: unknown;
 		try {
-			input = await parseRequestBody(context.req.raw, pipeline.manifest.actionBodySizeLimit);
+			input = await parseRequestBody(c.req.raw, pipeline.manifest.actionBodySizeLimit);
 		} catch (e) {
 			const { ActionError } = await import('../../actions/runtime/client.js');
 			if (e instanceof ActionError) {
@@ -317,7 +434,7 @@ export function actions(): MiddlewareHandler<AstroHonoEnv> {
 			throw e;
 		}
 
-		const handler = baseAction.bind(apiContext);
+		const handler = baseAction.bind(ctx);
 		const result = await handler(input);
 		const serialized = serializeActionResult(result);
 
@@ -332,25 +449,22 @@ export function actions(): MiddlewareHandler<AstroHonoEnv> {
 }
 
 export function astro(options: RenderOptions = {}): MiddlewareHandler<AstroHonoEnv> {
-	const contextMiddleware = context();
 	const redirectsMiddleware = redirects();
 	const actionsMiddleware = actions();
 	const rewriteMiddleware = rewrite(options);
 	const i18nMiddleware = i18n();
 	const renderMiddleware = pages(options);
 
-	return async (context, next) => {
-		await contextMiddleware(context, async () => {
-			await redirectsMiddleware(context, async () => {
-				await actionsMiddleware(context, async () => {
-					await rewriteMiddleware(context, async () => {
-						await i18nMiddleware(context, async () => {
-							await renderMiddleware(context, next);
-						});
+	return async (c, next) => {
+		await redirectsMiddleware(c, async () => {
+			await actionsMiddleware(c, async () => {
+				await rewriteMiddleware(c, async () => {
+					await i18nMiddleware(c, async () => {
+						await renderMiddleware(c, next);
 					});
 				});
 			});
 		});
-		return context.res;
+		return c.res;
 	};
 }

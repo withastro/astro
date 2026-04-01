@@ -324,7 +324,7 @@ function makeRequestHeaders(req: NodeRequest): Headers {
 	return headers;
 }
 
-function makeRequestBody(req: NodeRequest, bodySizeLimit?: number): RequestInit {
+export function makeRequestBody(req: NodeRequest, bodySizeLimit?: number): RequestInit {
 	if (req.body !== undefined) {
 		if (typeof req.body === 'string' && req.body.length > 0) {
 			return { body: Buffer.from(req.body) };
