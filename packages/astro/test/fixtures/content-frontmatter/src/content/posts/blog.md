@@ -1,4 +1,3 @@
 ---
 title: One
-title: two
 ---
