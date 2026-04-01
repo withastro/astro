@@ -1015,6 +1015,15 @@ importers:
         specifier: ^3.5.30
         version: 3.5.30(typescript@5.9.3)
 
+  packages/astro/e2e/fixtures/cloudflare-node-prerender-hmr:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../../../integrations/cloudflare
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/e2e/fixtures/cloudflare/packages/my-lib: {}
 
   packages/astro/e2e/fixtures/content-collections:

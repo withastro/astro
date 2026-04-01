@@ -126,6 +126,8 @@ function configEnvironmentPlugin(compat: boolean | undefined): Plugin {
 					'@astrojs/preact/client.js',
 					'preact',
 					'preact/jsx-runtime',
+					'preact/hooks',
+					'@astrojs/preact > @preact/signals',
 				];
 			}
 
