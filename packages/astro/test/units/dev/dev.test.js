@@ -1,196 +1,167 @@
 import * as assert from 'node:assert/strict';
-import { describe, it } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { createFixture, createRequestAndResponse, runInContainer } from '../test-utils.js';
+import { loadFixture } from '../../test-utils.js';
 
 describe('dev container', () => {
-	it('can render requests', async () => {
-		const fixture = await createFixture({
-			'/src/pages/index.astro': `
-				---
-				const name = 'Testing';
-				---
-				<html>
-					<head><title>{name}</title></head>
-					<body>
-						<h1>{name}</h1>
-					</body>
-				</html>
-			`,
+	describe('basic rendering', () => {
+		let fixture;
+		let devServer;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/dev-container/',
+			});
+			devServer = await fixture.startDevServer();
 		});
 
-		await runInContainer({ inlineConfig: { root: fixture.path } }, async (container) => {
-			const { req, res, text } = createRequestAndResponse({
-				method: 'GET',
-				url: '/',
-			});
-			container.handle(req, res);
-			const html = await text();
+		after(async () => {
+			await devServer.stop();
+		});
+
+		it('can render requests', async () => {
+			const res = await fixture.fetch('/');
+			const html = await res.text();
 			const $ = cheerio.load(html);
-			assert.equal(res.statusCode, 200);
+			assert.equal(res.status, 200);
 			assert.equal($('h1').length, 1);
 		});
 	});
 
-	it('Allows dynamic segments in injected routes', async () => {
-		const fixture = await createFixture({
-			'/src/components/test.astro': `<h1>{Astro.params.slug}</h1>`,
-			'/src/pages/test-[slug].astro': `<h1>{Astro.params.slug}</h1>`,
-		});
+	describe('injected dynamic routes', () => {
+		let fixture;
+		let devServer;
 
-		await runInContainer(
-			{
-				inlineConfig: {
-					root: fixture.path,
-					output: 'server',
-					integrations: [
-						{
-							name: '@astrojs/test-integration',
-							hooks: {
-								'astro:config:setup': ({ injectRoute }) => {
-									injectRoute({
-										pattern: '/another-[slug]',
-										entrypoint: './src/components/test.astro',
-									});
-								},
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/dev-container/',
+				output: 'server',
+				integrations: [
+					{
+						name: '@astrojs/test-integration',
+						hooks: {
+							'astro:config:setup': ({ injectRoute }) => {
+								injectRoute({
+									pattern: '/another-[slug]',
+									entrypoint: './src/components/test.astro',
+								});
 							},
 						},
-					],
-				},
-			},
-			async (container) => {
-				let r = createRequestAndResponse({
-					method: 'GET',
-					url: '/test-one',
-				});
-				container.handle(r.req, r.res);
-				await r.done;
-				assert.equal(r.res.statusCode, 200);
-
-				// Try with the injected route
-				r = createRequestAndResponse({
-					method: 'GET',
-					url: '/another-two',
-				});
-				container.handle(r.req, r.res);
-				await r.done;
-				assert.equal(r.res.statusCode, 200);
-			},
-		);
-	});
-
-	it('Serves injected 404 route for any 404', async () => {
-		const fixture = await createFixture({
-			'/src/components/404.astro': `<h1>Custom 404</h1>`,
-			'/src/pages/page.astro': `<h1>Regular page</h1>`,
-		});
-
-		await runInContainer(
-			{
-				inlineConfig: {
-					root: fixture.path,
-					output: 'server',
-					integrations: [
-						{
-							name: '@astrojs/test-integration',
-							hooks: {
-								'astro:config:setup': ({ injectRoute }) => {
-									injectRoute({
-										pattern: '/404',
-										entrypoint: './src/components/404.astro',
-									});
-								},
-							},
-						},
-					],
-				},
-			},
-			async (container) => {
-				{
-					// Regular pages are served as expected.
-					const r = createRequestAndResponse({ method: 'GET', url: '/page' });
-					container.handle(r.req, r.res);
-					await r.done;
-					const doc = await r.text();
-					assert.equal(doc.includes('Regular page'), true);
-					assert.equal(r.res.statusCode, 200);
-				}
-				{
-					// `/404` serves the custom 404 page as expected.
-					const r = createRequestAndResponse({ method: 'GET', url: '/404' });
-					container.handle(r.req, r.res);
-					await r.done;
-					const doc = await r.text();
-					assert.equal(doc.includes('Custom 404'), true);
-					assert.equal(r.res.statusCode, 404);
-				}
-				{
-					// A nonexistent page also serves the custom 404 page.
-					const r = createRequestAndResponse({ method: 'GET', url: '/other-page' });
-					container.handle(r.req, r.res);
-					await r.done;
-					const doc = await r.text();
-					assert.equal(doc.includes('Custom 404'), true);
-					assert.equal(r.res.statusCode, 404);
-				}
-			},
-		);
-	});
-
-	it('items in public/ are not available from root when using a base', async () => {
-		const fixture = await createFixture({
-			'/public/test.txt': `Test`,
-		});
-
-		await runInContainer(
-			{
-				inlineConfig: {
-					root: fixture.path,
-					base: '/sub/',
-				},
-			},
-			async (container) => {
-				// First try the subpath
-				let r = createRequestAndResponse({
-					method: 'GET',
-					url: '/sub/test.txt',
-				});
-
-				container.handle(r.req, r.res);
-				await r.done;
-
-				assert.equal(r.res.statusCode, 200);
-
-				// Next try the root path
-				r = createRequestAndResponse({
-					method: 'GET',
-					url: '/test.txt',
-				});
-
-				container.handle(r.req, r.res);
-				await r.done;
-
-				assert.equal(r.res.statusCode, 404);
-			},
-		);
-	});
-
-	it('items in public/ are available from root when not using a base', async () => {
-		const fixture = await createFixture({
-			'/public/test.txt': `Test`,
-		});
-
-		await runInContainer({ inlineConfig: { root: fixture.path } }, async (container) => {
-			// Try the root path
-			let r = createRequestAndResponse({
-				method: 'GET',
-				url: '/test.txt',
+					},
+				],
 			});
+			devServer = await fixture.startDevServer();
+		});
 
-			container.handle(r.req, r.res);
-			await r.done;
+		after(async () => {
+			await devServer.stop();
+		});
 
-			assert.equal(r.res.statusCode, 200);
+		it('Allows dynamic segments in injected routes', async () => {
+			let res = await fixture.fetch('/test-one');
+			assert.equal(res.status, 200);
+
+			// Try with the injected route
+			res = await fixture.fetch('/another-two');
+			assert.equal(res.status, 200);
+		});
+	});
+
+	describe('injected 404 route', () => {
+		let fixture;
+		let devServer;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/dev-container/',
+				output: 'server',
+				integrations: [
+					{
+						name: '@astrojs/test-integration',
+						hooks: {
+							'astro:config:setup': ({ injectRoute }) => {
+								injectRoute({
+									pattern: '/404',
+									entrypoint: './src/components/404.astro',
+								});
+							},
+						},
+					},
+				],
+			});
+			devServer = await fixture.startDevServer();
+		});
+
+		after(async () => {
+			await devServer.stop();
+		});
+
+		it('Serves injected 404 route for any 404', async () => {
+			// Regular pages are served as expected.
+			let res = await fixture.fetch('/page');
+			let html = await res.text();
+			assert.ok(html.includes('Regular page'));
+			assert.equal(res.status, 200);
+
+			// `/404` serves the custom 404 page as expected.
+			res = await fixture.fetch('/404');
+			html = await res.text();
+			assert.ok(html.includes('Custom 404'));
+			assert.equal(res.status, 404);
+
+			// A nonexistent page also serves the custom 404 page.
+			res = await fixture.fetch('/other-page');
+			html = await res.text();
+			assert.ok(html.includes('Custom 404'));
+			assert.equal(res.status, 404);
+		});
+	});
+
+	describe('public/ with base', () => {
+		let fixture;
+		let devServer;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/dev-container/',
+				base: '/sub/',
+			});
+			devServer = await fixture.startDevServer();
+		});
+
+		after(async () => {
+			await devServer.stop();
+		});
+
+		it('items in public/ are not available from root when using a base', async () => {
+			// First try the subpath
+			let res = await fixture.fetch('/sub/test.txt');
+			assert.equal(res.status, 200);
+
+			// Next try the root path
+			res = await fixture.fetch('/test.txt');
+			assert.equal(res.status, 404);
+		});
+	});
+
+	describe('public/ without base', () => {
+		let fixture;
+		let devServer;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/dev-container/',
+			});
+			devServer = await fixture.startDevServer();
+		});
+
+		after(async () => {
+			await devServer.stop();
+		});
+
+		it('items in public/ are available from root when not using a base', async () => {
+			const res = await fixture.fetch('/test.txt');
+			assert.equal(res.status, 200);
 		});
 	});
 });

@@ -28,7 +28,6 @@ export async function matchRoute(
 	const matches = matchAllRoutes(pathname, routesList);
 
 	const preloadedMatches = getSortedPreloadedMatches({
-		pipeline,
 		matches,
 		manifest,
 	});
