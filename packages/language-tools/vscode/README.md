@@ -25,7 +25,7 @@ A TypeScript plugin adding support for importing and exporting Astro components 
 
 ## Configuration
 
-HTML and CSS settings can be configured through the `html` and `css` namespaces. TypeScript settings are available under `js/ts` in recent VS Code versions, and under `typescript` in older versions. For example, HTML documentation on hover can be disabled using `'html.hover.documentation': false`. Formatting can be configured through [Prettier's different configuration methods](https://prettier.io/docs/en/configuration.html).
+HTML and CSS settings can be configured through the `html` and `css` setting prefixes. TypeScript-related settings appear in the VS Code Settings UI under the **JavaScript and TypeScript (js/ts)** category in recent VS Code versions, but the actual JSON keys use the `typescript.*` namespace (for example, `"typescript.preferences.importModuleSpecifier": "non-relative"`). For example, HTML documentation on hover can be disabled using `"html.hover.documentation": false`. Formatting can be configured through [Prettier's different configuration methods](https://prettier.io/docs/en/configuration.html).
 
 ## Troubleshooting
 
