@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fix HTML escaping in `renderToString` for MDX slots during build
+Fixes HTML content being incorrectly escaped as plain text due to a failed `isHTMLString` check
