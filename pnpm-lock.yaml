@@ -5598,6 +5598,15 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/mdx/test/fixtures/mdx-astro-container-escape:
+    dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/mdx/test/fixtures/mdx-frontmatter-injection:
     dependencies:
       '@astrojs/mdx':
