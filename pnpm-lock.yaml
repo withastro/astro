@@ -725,8 +725,8 @@ importers:
         specifier: ^1.3.0
         version: 1.3.0
       fs-fixture:
-        specifier: ^2.11.0
-        version: 2.11.0
+        specifier: ^2.13.0
+        version: 2.13.0
       mdast-util-mdx:
         specifier: ^3.0.0
         version: 3.0.0
@@ -1014,6 +1014,15 @@ importers:
       vue:
         specifier: ^3.5.30
         version: 3.5.30(typescript@5.9.3)
+
+  packages/astro/e2e/fixtures/cloudflare-node-prerender-hmr:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../../../integrations/cloudflare
+      astro:
+        specifier: workspace:*
+        version: link:../../..
 
   packages/astro/e2e/fixtures/cloudflare/packages/my-lib: {}
 
@@ -1937,6 +1946,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/asset-query-params-chunks:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/asset-url-base:
     dependencies:
       astro:
@@ -2780,6 +2795,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/content-frontmatter:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/content-intellisense:
     dependencies:
       '@astrojs/markdoc':
@@ -3238,6 +3259,30 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/dev-container:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/dev-error-pages:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/dev-render:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/dev-request-url:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/dont-delete-me:
     dependencies:
       astro:
@@ -3251,6 +3296,12 @@ importers:
         version: link:../../..
 
   packages/astro/test/fixtures/dynamic-route-build-file:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/endpoint-routing:
     dependencies:
       astro:
         specifier: workspace:*
@@ -3423,6 +3474,12 @@ importers:
       preact:
         specifier: ^10.29.0
         version: 10.29.0
+
+  packages/astro/test/fixtures/i18n-css-leak-basic:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
 
   packages/astro/test/fixtures/i18n-routing-base:
     dependencies:
@@ -4489,15 +4546,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/units/_temp-fixtures:
-    dependencies:
-      '@astrojs/mdx':
-        specifier: workspace:*
-        version: link:../../../../integrations/mdx
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/create-astro:
     dependencies:
       '@astrojs/cli-kit':
@@ -5542,6 +5590,15 @@ importers:
         version: 0.3.4
 
   packages/integrations/mdx/test/fixtures/image-remark-imgattr:
+    dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
+  packages/integrations/mdx/test/fixtures/mdx-astro-container-escape:
     dependencies:
       '@astrojs/mdx':
         specifier: workspace:*
@@ -12178,8 +12235,8 @@ packages:
     resolution: {integrity: sha512-yhlQgA6mnOJUKOsRUFsgJdQCvkKhcz8tlZG5HBQfReYZy46OwLcY+Zia0mtdHsOo9y/hP+CxMN0TU9QxoOtG4g==}
     engines: {node: '>=6 <7 || >=8'}
 
-  fs-fixture@2.11.0:
-    resolution: {integrity: sha512-elzOu5Ru04qPSBT344kngxx1bpq3RbpznEyjTcn+NHI2nvzwDcGt2zde/a6LBmF5SJtgSYBGHAPnel6S1IefeA==}
+  fs-fixture@2.13.0:
+    resolution: {integrity: sha512-bqL4EVFNgoA38OnztLfeHn4NZJ32zWnSNA3ALtessYO0WjpL//QuYl1YkYd7j+TY0cLO6cqgoHxPJpfSwKQAPA==}
     engines: {node: '>=18.0.0'}
 
   fs.realpath@1.0.0:
@@ -21366,7 +21423,7 @@ snapshots:
       jsonfile: 4.0.0
       universalify: 0.1.2
 
-  fs-fixture@2.11.0: {}
+  fs-fixture@2.13.0: {}
 
   fs.realpath@1.0.0: {}
 

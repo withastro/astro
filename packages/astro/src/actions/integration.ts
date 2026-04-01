@@ -1,6 +1,6 @@
 import { AstroError } from '../core/errors/errors.js';
 import { ActionsWithoutServerOutputError } from '../core/errors/errors-data.js';
-import { hasNonPrerenderedProjectRoute } from '../core/routing/helpers.js';
+import { hasNonPrerenderedRoute } from '../core/routing/helpers.js';
 import { viteID } from '../core/util.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroIntegration } from '../types/public/integrations.js';
@@ -41,7 +41,7 @@ export default function astroIntegrationActionsRouteHandler({
 				});
 			},
 			'astro:routes:resolved': ({ routes }) => {
-				if (!hasNonPrerenderedProjectRoute(routes)) {
+				if (!hasNonPrerenderedRoute(routes)) {
 					const error = new AstroError(ActionsWithoutServerOutputError);
 					error.stack = undefined;
 					throw error;

@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { createRedirectsFromAstroRoutes } from '../dist/index.js';
+import { createRedirectsFromAstroRoutes, getTrailingSlashPaths } from '../dist/index.js';
 
 describe('Astro', () => {
 	it('Creates a Redirects object from routes', () => {
@@ -24,5 +24,26 @@ describe('Astro', () => {
 		});
 
 		assert.equal(_redirects.definitions.length, 2);
+	});
+
+	it('Generates correct paths for root', () => {
+		assert.deepEqual(getTrailingSlashPaths('/', 'ignore'), ['/']);
+		assert.deepEqual(getTrailingSlashPaths('/', 'always'), ['/']);
+		assert.deepEqual(getTrailingSlashPaths('/', 'never'), ['/']);
+	});
+
+	it('Generates correct paths for trailingslash ignore', () => {
+		assert.deepEqual(getTrailingSlashPaths('/path', 'ignore'), ['/path', '/path/']);
+		assert.deepEqual(getTrailingSlashPaths('/path/', 'ignore'), ['/path', '/path/']);
+	});
+
+	it('Generates correct paths for trailingslash always', () => {
+		assert.deepEqual(getTrailingSlashPaths('/path', 'always'), ['/path/']);
+		assert.deepEqual(getTrailingSlashPaths('/path/', 'always'), ['/path/']);
+	});
+
+	it('Generates correct paths for trailingslash never', () => {
+		assert.deepEqual(getTrailingSlashPaths('/path', 'never'), ['/path']);
+		assert.deepEqual(getTrailingSlashPaths('/path/', 'never'), ['/path']);
 	});
 });
