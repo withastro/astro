@@ -456,7 +456,7 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 
 	// @ts-expect-error Internal virtual module that exports only getImage (no component
 	// references like Image/Picture) to avoid TDZ errors during prerender bundling (#16036).
-	const { getImage } = await import('virtual:astro-get-image');
+	const { getImage } = await import('virtual:astro:get-image');
 
 	// First load all the images. This is done outside of the replaceAll
 	// function because getImage is async.
