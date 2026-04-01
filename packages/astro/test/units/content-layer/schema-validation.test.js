@@ -385,11 +385,14 @@ describe('Content Layer - Schema Validation', () => {
 		const validationErrors = logs.filter((log) => log.level === 'error');
 		assert.ok(validationErrors.length > 0);
 
-		// Check for the specific "**title**: Required" error format
 		const titleRequiredError = logs.find(
-			(log) => log.level === 'error' && log.message.includes('**title**: Required'),
+			(log) => log.level === 'error' && log.message.includes('**title**:'),
 		);
-		assert.ok(titleRequiredError, 'Should have logged "**title**: Required" error');
+		assert.ok(titleRequiredError, 'Should have logged a human-readable error mentioning **title**');
+		assert.ok(
+			!titleRequiredError.message.includes('[{'),
+			`Error message should not contain raw JSON, got:\n${titleRequiredError.message}`,
+		);
 
 		// Verify no entries were stored (both failed validation)
 		const entries = store.values('requiredFields');
