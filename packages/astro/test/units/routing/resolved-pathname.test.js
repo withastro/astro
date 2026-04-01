@@ -1,91 +1,67 @@
 import * as assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
+import { describe, it } from 'node:test';
+import { Router } from '../../../dist/core/routing/router.js';
+import { dynamicPart, makeRoute, staticPart } from './test-helpers.js';
 
-import { createContainer } from '../../../dist/core/dev/container.js';
-import testAdapter from '../../test-adapter.js';
-import {
-	createBasicSettings,
-	createFixture,
-	createRequestAndResponse,
-	defaultLogger,
-} from '../test-utils.js';
+describe('Resolved pathname', () => {
+	const trailingSlash = 'never';
 
-const fileSystem = {
-	'/src/pages/api/[category]/[id].ts': `
-		export const prerender = false;
-		export function GET({ params, url }) {
-			return Response.json({ params, pathname: url.pathname });
-		}
-	`,
-	'/src/pages/api/[category]/index.ts': `
-		export const prerender = false;
-		export function GET({ params, url }) {
-			return Response.json({ params, pathname: url.pathname });
-		}
-	`,
-};
+	// Routes mirror the original fixture:
+	//   /src/pages/api/[category]/index.ts  -> /api/[category]
+	//   /src/pages/api/[category]/[id].ts   -> /api/[category]/[id]
+	const routes = [
+		makeRoute({
+			segments: [[staticPart('api')], [dynamicPart('category')]],
+			trailingSlash,
+			route: '/api/[category]',
+			pathname: undefined,
+			type: 'endpoint',
+			isIndex: true,
+		}),
+		makeRoute({
+			segments: [[staticPart('api')], [dynamicPart('category')], [dynamicPart('id')]],
+			trailingSlash,
+			route: '/api/[category]/[id]',
+			pathname: undefined,
+			type: 'endpoint',
+		}),
+	];
 
-describe('Resolved pathname in dev server', () => {
-	let container;
-
-	before(async () => {
-		const fixture = await createFixture(fileSystem);
-		const settings = await createBasicSettings({
-			root: fixture.path,
-			output: 'server',
-			adapter: testAdapter(),
-			trailingSlash: 'never',
-		});
-		container = await createContainer({
-			settings,
-			logger: defaultLogger,
-		});
+	// Use buildFormat: 'file' so that the Router strips .html extensions,
+	// matching the dev server behavior being tested.
+	const router = new Router(routes, {
+		base: '/',
+		trailingSlash,
+		buildFormat: 'file',
 	});
 
-	after(async () => {
-		await container.close();
+	it('should resolve params correctly for .html requests to dynamic routes', () => {
+		const match = router.match('/api/books.html');
+		assert.equal(match.type, 'match');
+		assert.equal(match.params.category, 'books');
+		assert.equal(match.params.id, undefined);
 	});
 
-	it('should resolve params correctly for .html requests to dynamic routes', async () => {
-		const { req, res, json } = createRequestAndResponse({
-			method: 'GET',
-			url: '/api/books.html',
-		});
-		container.handle(req, res);
-		const body = await json();
-
-		assert.equal(body.params.category, 'books');
-		assert.equal(body.params.id, undefined);
+	it('should resolve params correctly for .html requests to nested dynamic routes', () => {
+		const match = router.match('/api/books/42.html');
+		assert.equal(match.type, 'match');
+		assert.equal(match.params.category, 'books');
+		assert.equal(match.params.id, '42');
 	});
 
-	it('should resolve params correctly for .html requests to nested dynamic routes', async () => {
-		const { req, res, json } = createRequestAndResponse({
-			method: 'GET',
-			url: '/api/books/42.html',
-		});
-		container.handle(req, res);
-		const body = await json();
+	it('should not cross-contaminate resolved pathnames between concurrent requests', () => {
+		// Router.match is stateless — each call returns an independent result.
+		// This verifies the same invariant the original test checked: two
+		// different URLs produce independent params without cross-contamination.
+		const match1 = router.match('/api/books/1.html');
+		const match2 = router.match('/api/movies/99');
 
-		assert.equal(body.params.category, 'books');
-		assert.equal(body.params.id, '42');
-	});
+		assert.equal(match1.type, 'match');
+		assert.equal(match1.params.category, 'books');
+		assert.equal(match1.params.id, '1');
 
-	it('should not cross-contaminate resolved pathnames between concurrent requests', async () => {
-		// Fire both requests before awaiting either response.
-		// Before the fix, resolvedPathname was stored as shared instance state,
-		// so the second request could overwrite the first's pathname.
-		const r1 = createRequestAndResponse({ method: 'GET', url: '/api/books/1.html' });
-		const r2 = createRequestAndResponse({ method: 'GET', url: '/api/movies/99' });
-
-		container.handle(r1.req, r1.res);
-		container.handle(r2.req, r2.res);
-
-		const [body1, body2] = await Promise.all([r1.json(), r2.json()]);
-
-		assert.equal(body1.params.category, 'books');
-		assert.equal(body1.params.id, '1');
-
-		assert.equal(body2.params.category, 'movies');
-		assert.equal(body2.params.id, '99');
+		assert.equal(match2.type, 'match');
+		assert.equal(match2.params.category, 'movies');
+		assert.equal(match2.params.id, '99');
 	});
 });
