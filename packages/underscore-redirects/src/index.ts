@@ -1,7 +1,7 @@
 export {
 	createHostedRouteDefinition,
 	createRedirectsFromAstroRoutes,
-	getTrailingSlashPaths
+	getTrailingSlashPaths,
 } from './astro.js';
 export { HostRoutes } from './host-route.js';
 export { printAsRedirects } from './print.js';
