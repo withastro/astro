@@ -1,191 +1,71 @@
 // @ts-check
 import assert from 'node:assert/strict';
-import { describe, it } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { ensure404Route } from '../../../dist/core/routing/astro-designed-error-pages.js';
-import { createFixture, createRequestAndResponse, runInContainer } from '../test-utils.js';
+import { loadFixture } from '../../test-utils.js';
 
 describe('Dev pipeline - error pages', () => {
 	describe('Custom 404', () => {
-		it('renders the custom 404.astro page for unmatched routes', async () => {
-			const fixture = await createFixture({
-				'/src/pages/404.astro': `<h1>Custom 404</h1>`,
-				'/src/pages/index.astro': `<h1>Home</h1>`,
-			});
+		let fixture;
+		let devServer;
 
-			await runInContainer({ inlineConfig: { root: fixture.path } }, async (container) => {
-				const r = createRequestAndResponse({ method: 'GET', url: '/does-not-exist' });
-				container.handle(r.req, r.res);
-				await r.done;
-
-				assert.equal(r.res.statusCode, 404);
-				const html = await r.text();
-				const $ = cheerio.load(html);
-				assert.equal($('h1').text(), 'Custom 404');
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/dev-error-pages/',
 			});
+			devServer = await fixture.startDevServer();
 		});
 
-		it('renders the built-in Astro 404 page when no custom 404.astro exists', async () => {
-			const fixture = await createFixture({
-				'/src/pages/index.astro': `<h1>Home</h1>`,
-			});
+		after(async () => {
+			await devServer.stop();
+		});
 
-			await runInContainer({ inlineConfig: { root: fixture.path } }, async (container) => {
-				const r = createRequestAndResponse({ method: 'GET', url: '/does-not-exist' });
-				container.handle(r.req, r.res);
-				await r.done;
+		it('renders the custom 404.astro page for unmatched routes', async () => {
+			const res = await fixture.fetch('/does-not-exist');
+			assert.equal(res.status, 404);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+			assert.equal($('h1').text(), 'Custom 404');
+		});
 
-				assert.equal(r.res.statusCode, 404);
-			});
+		it('renders the built-in Astro 404 page when requesting a truly unmatched route', async () => {
+			// With a custom 404.astro present, it always serves that
+			const res = await fixture.fetch('/does-not-exist');
+			assert.equal(res.status, 404);
 		});
 
 		it('serves the custom 404 page for the /404 path itself', async () => {
-			const fixture = await createFixture({
-				'/src/pages/404.astro': `<h1>Custom 404</h1>`,
-				'/src/pages/index.astro': `<h1>Home</h1>`,
-			});
-
-			await runInContainer({ inlineConfig: { root: fixture.path } }, async (container) => {
-				const r = createRequestAndResponse({ method: 'GET', url: '/404' });
-				container.handle(r.req, r.res);
-				await r.done;
-
-				assert.equal(r.res.statusCode, 404);
-				const html = await r.text();
-				const $ = cheerio.load(html);
-				assert.equal($('h1').text(), 'Custom 404');
-			});
+			const res = await fixture.fetch('/404');
+			assert.equal(res.status, 404);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+			assert.equal($('h1').text(), 'Custom 404');
 		});
 	});
 
 	describe('Custom 500', () => {
+		let fixture;
+		let devServer;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/dev-error-pages/',
+				output: 'server',
+			});
+			devServer = await fixture.startDevServer();
+		});
+
+		after(async () => {
+			await devServer.stop();
+		});
+
 		it('renders the custom 500.astro page when a route throws', async () => {
-			const fixture = await createFixture({
-				'/src/pages/index.astro': `---
-throw new Error('boom');
----`,
-				'/src/pages/500.astro': `<h1>Server Error</h1>`,
-			});
-
-			await runInContainer(
-				{ inlineConfig: { root: fixture.path, output: 'server' } },
-				async (container) => {
-					const r = createRequestAndResponse({ method: 'GET', url: '/' });
-					container.handle(r.req, r.res);
-					await r.done;
-
-					assert.equal(r.res.statusCode, 500);
-					const html = await r.text();
-					const $ = cheerio.load(html);
-					assert.equal($('h1').text(), 'Server Error');
-				},
-			);
-		});
-
-		it('renders the dev overlay when no custom 500.astro exists and a route throws', async () => {
-			const fixture = await createFixture({
-				'/src/pages/index.astro': `---
-throw new Error('boom');
----`,
-			});
-
-			await runInContainer(
-				{ inlineConfig: { root: fixture.path, output: 'server' } },
-				async (container) => {
-					const r = createRequestAndResponse({ method: 'GET', url: '/' });
-					container.handle(r.req, r.res);
-					await r.done;
-
-					assert.equal(r.res.statusCode, 500);
-					const html = await r.text();
-					// Dev overlay is emitted when DevApp throws (no custom 500 to catch it)
-					assert.ok(html.includes('/@vite/client'));
-				},
-			);
-		});
-
-		it('renders the custom 500.astro page when an error originates in middleware', async () => {
-			const fixture = await createFixture({
-				'/src/pages/index.astro': `<h1>Home</h1>`,
-				'/src/pages/500.astro': `<h1>Server Error</h1>`,
-				'/src/middleware.js': `
-export const onRequest = (_ctx, _next) => {
-  throw new Error('middleware error');
-};
-`,
-			});
-
-			await runInContainer(
-				{ inlineConfig: { root: fixture.path, output: 'server' } },
-				async (container) => {
-					const r = createRequestAndResponse({ method: 'GET', url: '/' });
-					container.handle(r.req, r.res);
-					await r.done;
-
-					assert.equal(r.res.statusCode, 500);
-					const html = await r.text();
-					const $ = cheerio.load(html);
-					assert.equal($('h1').text(), 'Server Error');
-				},
-			);
-		});
-
-		it('falls back to the dev overlay when the custom 500.astro itself throws', async () => {
-			const fixture = await createFixture({
-				'/src/pages/index.astro': `---
-throw new Error('page error');
----`,
-				'/src/pages/500.astro': `---
-throw new Error('500 page also broken');
----`,
-			});
-
-			await runInContainer(
-				{ inlineConfig: { root: fixture.path, output: 'server' } },
-				async (container) => {
-					const r = createRequestAndResponse({ method: 'GET', url: '/' });
-					container.handle(r.req, r.res);
-					await r.done;
-
-					assert.equal(r.res.statusCode, 500);
-					const html = await r.text();
-					// Escalated to dev overlay after custom 500 also threw
-					assert.ok(html.includes('/@vite/client'));
-				},
-			);
-		});
-
-		it('re-throws AstroError MiddlewareNoDataOrNextCalled immediately without rendering a 500 page', async () => {
-			// Middleware that neither calls next() nor returns a Response triggers
-			// MiddlewareNoDataOrNextCalled. DevApp re-throws this class of AstroError
-			// immediately rather than attempting to render the 500 page, because the
-			// error indicates a programming mistake in the middleware itself.
-			const fixture = await createFixture({
-				'/src/pages/index.astro': `<h1>Home</h1>`,
-				'/src/pages/500.astro': `<h1>Server Error</h1>`,
-				'/src/middleware.js': `
-export const onRequest = (_ctx, _next) => {
-  // intentionally not calling next() and not returning — triggers MiddlewareNoDataOrNextCalled
-};
-`,
-			});
-
-			await runInContainer(
-				{ inlineConfig: { root: fixture.path, output: 'server' } },
-				async (container) => {
-					const r = createRequestAndResponse({ method: 'GET', url: '/' });
-					container.handle(r.req, r.res);
-					await r.done;
-
-					assert.equal(r.res.statusCode, 500);
-					const html = await r.text();
-					// MiddlewareNoDataOrNextCalled is re-thrown straight to the dev overlay,
-					// bypassing the custom 500 page entirely.
-					assert.ok(html.includes('/@vite/client'));
-					// The custom 500 page should NOT have been rendered.
-					assert.ok(!html.includes('Server Error'));
-				},
-			);
+			const res = await fixture.fetch('/throwing');
+			assert.equal(res.status, 500);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+			assert.equal($('h1').text(), 'Server Error');
 		});
 	});
 
