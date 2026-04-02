@@ -217,18 +217,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 
 					if (await askToContinue({ flags, logger })) {
 						const data = await getPackageJson();
-						let compatibilityDate: string;
-						try {
-							const require = createRequire(root);
-							const { getLocalWorkerdCompatibilityDate } = await import(
-								require.resolve('@astrojs/cloudflare/info')
-							);
-							({ date: compatibilityDate } = getLocalWorkerdCompatibilityDate({
-								projectPath: rootPath,
-							}));
-						} catch {
-							compatibilityDate = new Date().toISOString().slice(0, 10);
-						}
+						let compatibilityDate = new Date().toISOString().slice(0, 10);
 
 						await fs.writeFile(
 							wranglerConfigURL,
