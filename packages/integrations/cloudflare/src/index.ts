@@ -181,9 +181,20 @@ export default function createIntegration({
 						experimental: {
 							prerenderWorker: {
 								config(_, { entryWorkerConfig }) {
+									// Strip `queues.consumers` from the prerender worker config.
+									// The prerender worker only renders static HTML and should not
+									// register as a queue consumer. If both the entry worker and the
+									// prerender worker consume the same queue, Miniflare rejects the
+									// config with ERR_MULTIPLE_CONSUMERS.
+									const { queues, ...rest } = entryWorkerConfig;
 									return {
-										...entryWorkerConfig,
+										...rest,
 										name: 'prerender',
+										// Preserve queue producer bindings (they are just bindings, not
+										// consumer registrations) while dropping consumers.
+										...(queues?.producers?.length && {
+											queues: { producers: queues.producers },
+										}),
 										...(needsImagesBinding &&
 											!entryWorkerConfig.images && {
 												images: { binding: imagesBindingName },
