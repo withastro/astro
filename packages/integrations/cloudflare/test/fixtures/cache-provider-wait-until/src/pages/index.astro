@@ -1,0 +1,11 @@
+---
+Astro.cache.set({ maxAge: 60 });
+
+const hasCfWaitUntil = typeof Astro.locals.cfContext?.waitUntil === 'function';
+---
+
+<html>
+	<body>
+		<div id="has-cf-waituntil">{String(hasCfWaitUntil)}</div>
+	</body>
+</html>

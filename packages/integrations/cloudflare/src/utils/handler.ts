@@ -122,6 +122,7 @@ export async function handle(
 	const response = await app.render(request, {
 		routeData,
 		locals,
+		waitUntil: context.waitUntil.bind(context),
 		prerenderedErrorPageFetch: async (url: string) => {
 			// NOTE this ASSETS binding path is needed for users who are using `run_worker_first` routing
 			return env.ASSETS.fetch(url.replace(/\.html$/, ''));

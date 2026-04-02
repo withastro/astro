@@ -87,6 +87,14 @@ export interface RenderOptions {
 	prerenderedErrorPageFetch?: (url: ErrorPagePath) => Promise<Response>;
 
 	/**
+	 * Optional platform hook to keep background work alive after the response is sent.
+	 *
+	 * Adapters can pass this through so runtime cache providers can schedule cache writes
+	 * without blocking the response path.
+	 */
+	waitUntil?: (promise: Promise<unknown>) => void;
+
+	/**
 	 * **Advanced API**: you probably do not need to use this.
 	 *
 	 * Default: `app.match(request)`
@@ -102,6 +110,7 @@ interface ResolvedRenderOptions {
 	prerenderedErrorPageFetch: RequiredRenderOptions['prerenderedErrorPageFetch'] | undefined;
 	locals: RequiredRenderOptions['locals'] | undefined;
 	routeData: RequiredRenderOptions['routeData'] | undefined;
+	waitUntil: RequiredRenderOptions['waitUntil'] | undefined;
 }
 
 export interface RenderErrorOptions extends ResolvedRenderOptions {
@@ -383,6 +392,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			locals,
 			prerenderedErrorPageFetch = fetch,
 			routeData,
+			waitUntil,
 		}: RenderOptions = {},
 	): Promise<Response> {
 		const timeStart = performance.now();
@@ -425,6 +435,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			prerenderedErrorPageFetch,
 			locals,
 			routeData,
+			waitUntil,
 		};
 
 		if (locals) {
@@ -505,6 +516,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 						{
 							request,
 							url: new URL(request.url),
+							waitUntil: resolvedRenderOptions.waitUntil,
 						},
 						async () => {
 							const res = await renderContext.render(componentInstance);
