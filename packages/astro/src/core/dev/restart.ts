@@ -146,12 +146,6 @@ export async function createContainerWithAutomaticRestart({
 }: CreateContainerWithAutomaticRestart): Promise<Restart> {
 	const logger = createNodeLogger(inlineConfig ?? {});
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'dev', fs);
-	if (astroConfig.security.csp) {
-		logger.warn(
-			'config',
-			"Astro's Content Security Policy (CSP) does not work in development mode. To verify your CSP implementation, build the project and run the preview server.",
-		);
-	}
 	warnIfCspWithShiki(astroConfig, logger);
 	telemetry.record(eventCliSession('dev', userConfig));
 
