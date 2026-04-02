@@ -1,0 +1,31 @@
+{
+  "preview-16198": {
+    "pid": 2478,
+    "command": [
+      "pnpm",
+      "-C",
+      "/home/runner/work/astro/astro/triage/gh-16198",
+      "run",
+      "preview"
+    ],
+    "cwd": "/home/runner/work/astro/astro",
+    "startedAt": "2026-04-02T18:44:22.841Z"
+  },
+  "preview-static": {
+    "pid": 3262,
+    "command": [
+      "pnpm",
+      "-C",
+      "/home/runner/work/astro/astro/triage/gh-16198",
+      "exec",
+      "astro",
+      "preview",
+      "--config",
+      "astro.config.static.mjs",
+      "--port",
+      "4011"
+    ],
+    "cwd": "/home/runner/work/astro/astro",
+    "startedAt": "2026-04-02T18:45:02.284Z"
+  }
+}

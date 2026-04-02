@@ -18,6 +18,7 @@ const createPreviewServer: CreatePreviewServer = async ({
 	base,
 	server,
 	headers,
+	allowedHosts,
 	port,
 	host,
 	root,
@@ -45,7 +46,7 @@ const createPreviewServer: CreatePreviewServer = async ({
 				port,
 				headers,
 				open: false,
-				allowedHosts: [],
+				allowedHosts: allowedHosts ?? [],
 			},
 			plugins: [
 				cfVitePlugin({ ...globalThis.astroCloudflareOptions, viteEnvironment: { name: 'ssr' } }),
