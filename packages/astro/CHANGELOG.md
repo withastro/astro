@@ -1,5 +1,21 @@
 # astro
 
+## 6.1.3
+
+### Patch Changes
+
+- [#16161](https://github.com/withastro/astro/pull/16161) [`b51f297`](https://github.com/withastro/astro/commit/b51f2972d4c5d877f9087b86bb2b1d62c8293be5) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a dev rendering issue with the Cloudflare adapter where head metadata could be missing and dev CSS/scripts could be injected in the wrong place
+
+- [#16110](https://github.com/withastro/astro/pull/16110) [`de669f0`](https://github.com/withastro/astro/commit/de669f0a11c606cc4703762a73c2566d17667453) Thanks [@tmimmanuel](https://github.com/tmimmanuel)! - Fixes skew protection query parameters not being appended to inter-chunk JavaScript imports in client bundles, which could cause version mismatches during rolling deployments on Vercel
+
+- [#16162](https://github.com/withastro/astro/pull/16162) [`a0a49e9`](https://github.com/withastro/astro/commit/a0a49e99fd63419cae8bf143e1a58f532c52ee94) Thanks [@rururux](https://github.com/rururux)! - Fixes an issue where HMR would not trigger when modifying files while using @astrojs/cloudflare with prerenderEnvironment: 'node' enabled.
+
+- [#16142](https://github.com/withastro/astro/pull/16142) [`7454854`](https://github.com/withastro/astro/commit/7454854dfcb9b7e9ae7f825dbf72bdf3106b78e1) Thanks [@rururux](https://github.com/rururux)! - Fixes HTML content being incorrectly escaped as plain text when rendering a MDX component using the `AstroContainer` APIs.
+
+- [#16116](https://github.com/withastro/astro/pull/16116) [`12602a9`](https://github.com/withastro/astro/commit/12602a907c4eba0508145938c652362f37240878) Thanks [@riderx](https://github.com/riderx)! - Fixes a bug where page-level CSS could leak between unrelated pages when traversing style parents across top-level route boundaries
+
+- [#16178](https://github.com/withastro/astro/pull/16178) [`a7e7567`](https://github.com/withastro/astro/commit/a7e75678356488416a31184cdc53204094486820) Thanks [@matthewp](https://github.com/matthewp)! - Fixes SSR builds failing with "No matching renderer found" when a project only has injected routes and no `src/pages/` directory
+
 ## 6.1.2
 
 ### Patch Changes
