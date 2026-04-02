@@ -1,65 +1,39 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { createContainer } from '../../../dist/core/dev/container.js';
-import testAdapter from '../../test-adapter.js';
-import {
-	createBasicSettings,
-	createFixture,
-	createRequestAndResponse,
-	defaultLogger,
-} from '../test-utils.js';
+import { loadFixture } from '../../test-utils.js';
 
 describe('vite-plugin-astro-server', () => {
 	describe('url', () => {
-		let container;
-		let settings;
+		/** @type {import('../../test-utils.js').Fixture} */
+		let fixture;
+		/** @type {import('../../test-utils.js').DevServer} */
+		let devServer;
 
 		before(async () => {
-			const fileSystem = {
-				'/src/pages/url.astro': `{Astro.request.url}`,
-				'/src/pages/prerendered.astro': `---
-			export const prerender = true;
-			---
-			{Astro.request.url}`,
-			};
-			const fixture = await createFixture(fileSystem);
-			settings = await createBasicSettings({
-				root: fixture.path,
+			fixture = await loadFixture({
+				root: './fixtures/dev-request-url/',
 				output: 'server',
-				adapter: testAdapter(),
 			});
-			container = await createContainer({
-				settings,
-				logger: defaultLogger,
-			});
+			devServer = await fixture.startDevServer();
 		});
 
 		after(async () => {
-			await container.close();
+			await devServer.stop();
 		});
 
 		it('params are included', async () => {
-			const { req, res, text } = createRequestAndResponse({
-				method: 'GET',
-				url: '/url?xyz=123',
-			});
-			container.handle(req, res);
-			assert.equal(res.statusCode, 200);
-
-			const html = await text();
-			assert.deepEqual(html, '<!DOCTYPE html>http://localhost/url?xyz=123');
+			const res = await fixture.fetch('/url?xyz=123');
+			assert.equal(res.status, 200);
+			const html = await res.text();
+			assert.ok(html.includes('/url?xyz=123'), 'URL should include query params');
 		});
 
 		it('params are excluded on prerendered routes', async () => {
-			const { req, res, text } = createRequestAndResponse({
-				method: 'GET',
-				url: '/prerendered?xyz=123',
-			});
-			container.handle(req, res);
-			const html = await text();
-			assert.equal(res.statusCode, 200);
-
-			assert.deepEqual(html, '<!DOCTYPE html>http://localhost/prerendered');
+			const res = await fixture.fetch('/prerendered?xyz=123');
+			assert.equal(res.status, 200);
+			const html = await res.text();
+			assert.ok(html.includes('/prerendered'), 'URL should include pathname');
+			assert.ok(!html.includes('xyz=123'), 'URL should not include query params');
 		});
 	});
 });

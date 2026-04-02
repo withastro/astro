@@ -47,12 +47,18 @@ function optionsPlugin(include: Options['include'], exclude: Options['exclude'])
 	};
 }
 
-export interface Options extends Pick<VitePreactPluginOptions, 'include' | 'exclude'> {
+export interface Options extends Pick<VitePreactPluginOptions, 'include' | 'exclude' | 'babel'> {
 	compat?: boolean;
 	devtools?: boolean;
 }
 
-export default function ({ include, exclude, compat, devtools }: Options = {}): AstroIntegration {
+export default function ({
+	include,
+	exclude,
+	compat,
+	devtools,
+	babel,
+}: Options = {}): AstroIntegration {
 	return {
 		name: '@astrojs/preact',
 		hooks: {
@@ -62,6 +68,7 @@ export default function ({ include, exclude, compat, devtools }: Options = {}): 
 					include,
 					exclude,
 					babel: {
+						...babel,
 						cwd: fileURLToPath(babelCwd),
 					},
 				});
@@ -119,6 +126,8 @@ function configEnvironmentPlugin(compat: boolean | undefined): Plugin {
 					'@astrojs/preact/client.js',
 					'preact',
 					'preact/jsx-runtime',
+					'preact/hooks',
+					'@astrojs/preact > @preact/signals',
 				];
 			}
 

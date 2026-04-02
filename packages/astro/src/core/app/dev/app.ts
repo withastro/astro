@@ -37,6 +37,14 @@ export class DevApp extends BaseApp<NonRunnablePipeline> {
 	}
 
 	/**
+	 * Clears the cached middleware so it is re-resolved on the next request.
+	 * Called via HMR when middleware files change.
+	 */
+	clearMiddleware(): void {
+		this.pipeline.clearMiddleware();
+	}
+
+	/**
 	 * Updates the routes list when files change during development.
 	 * Called via HMR when new pages are added/removed.
 	 */

@@ -1,5 +1,128 @@
 # astro
 
+## 6.1.3
+
+### Patch Changes
+
+- [#16161](https://github.com/withastro/astro/pull/16161) [`b51f297`](https://github.com/withastro/astro/commit/b51f2972d4c5d877f9087b86bb2b1d62c8293be5) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a dev rendering issue with the Cloudflare adapter where head metadata could be missing and dev CSS/scripts could be injected in the wrong place
+
+- [#16110](https://github.com/withastro/astro/pull/16110) [`de669f0`](https://github.com/withastro/astro/commit/de669f0a11c606cc4703762a73c2566d17667453) Thanks [@tmimmanuel](https://github.com/tmimmanuel)! - Fixes skew protection query parameters not being appended to inter-chunk JavaScript imports in client bundles, which could cause version mismatches during rolling deployments on Vercel
+
+- [#16162](https://github.com/withastro/astro/pull/16162) [`a0a49e9`](https://github.com/withastro/astro/commit/a0a49e99fd63419cae8bf143e1a58f532c52ee94) Thanks [@rururux](https://github.com/rururux)! - Fixes an issue where HMR would not trigger when modifying files while using @astrojs/cloudflare with prerenderEnvironment: 'node' enabled.
+
+- [#16142](https://github.com/withastro/astro/pull/16142) [`7454854`](https://github.com/withastro/astro/commit/7454854dfcb9b7e9ae7f825dbf72bdf3106b78e1) Thanks [@rururux](https://github.com/rururux)! - Fixes HTML content being incorrectly escaped as plain text when rendering a MDX component using the `AstroContainer` APIs.
+
+- [#16116](https://github.com/withastro/astro/pull/16116) [`12602a9`](https://github.com/withastro/astro/commit/12602a907c4eba0508145938c652362f37240878) Thanks [@riderx](https://github.com/riderx)! - Fixes a bug where page-level CSS could leak between unrelated pages when traversing style parents across top-level route boundaries
+
+- [#16178](https://github.com/withastro/astro/pull/16178) [`a7e7567`](https://github.com/withastro/astro/commit/a7e75678356488416a31184cdc53204094486820) Thanks [@matthewp](https://github.com/matthewp)! - Fixes SSR builds failing with "No matching renderer found" when a project only has injected routes and no `src/pages/` directory
+
+## 6.1.2
+
+### Patch Changes
+
+- [#16104](https://github.com/withastro/astro/pull/16104) [`47a394d`](https://github.com/withastro/astro/commit/47a394d7cf2eb735fcee8e90830737f9e900a274) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `astro preview` ignoring `vite.preview.allowedHosts` set in `astro.config.mjs`
+
+- [#16047](https://github.com/withastro/astro/pull/16047) [`711f837`](https://github.com/withastro/astro/commit/711f837cfa3374a458f1f91e08bc388e7c0e12e6) Thanks [@matthewp](https://github.com/matthewp)! - Fixes catch-all routes incorrectly intercepting requests for static assets when using the `@astrojs/node` adapter in middleware mode.
+
+- [#15981](https://github.com/withastro/astro/pull/15981) [`a60cbb6`](https://github.com/withastro/astro/commit/a60cbb6963d55aa272281edfeecf7251d987b0fb) Thanks [@moktamd](https://github.com/moktamd)! - Fix Zod v4 validation error formatting to show human-readable messages instead of raw JSON
+
+## 6.1.1
+
+### Patch Changes
+
+- [#16105](https://github.com/withastro/astro/pull/16105) [`23d60de`](https://github.com/withastro/astro/commit/23d60dee6eae3d7148ef87f8b44c3d7470fef0ed) Thanks [@matthewp](https://github.com/matthewp)! - Fix dev toolbar audit crash when encountering the `image` ARIA role
+
+- [#16089](https://github.com/withastro/astro/pull/16089) [`999c875`](https://github.com/withastro/astro/commit/999c875da5914735458e0939be8a2be2e012e580) Thanks [@martrapp](https://github.com/martrapp)! - Fixes an issue with the client router where Vue's `:deep()` notation was ignored in dev mode.
+
+## 6.1.0
+
+### Minor Changes
+
+- [#15804](https://github.com/withastro/astro/pull/15804) [`a5e7232`](https://github.com/withastro/astro/commit/a5e723217f30020ae82ca67190794150e9e94e15) Thanks [@merlinnot](https://github.com/merlinnot)! - Allows setting codec-specific defaults for Astro's built-in Sharp image service via `image.service.config`.
+
+  You can now configure encoder-level options such as `jpeg.mozjpeg`, `webp.effort`, `webp.alphaQuality`, `avif.effort`, `avif.chromaSubsampling`, and `png.compressionLevel` when using `astro/assets/services/sharp` for compile-time image generation.
+
+  These settings apply as defaults for the built-in Sharp pipeline, while per-image `quality` still takes precedence when set on `<Image />`, `<Picture />`, or `getImage()`.
+
+- [#15455](https://github.com/withastro/astro/pull/15455) [`babf57f`](https://github.com/withastro/astro/commit/babf57f83f47d4cd1fa73a55863718b71c8eebf0) Thanks [@AhmadYasser1](https://github.com/AhmadYasser1)! - Adds `fallbackRoutes` to the `IntegrationResolvedRoute` type, exposing i18n fallback routes to integrations via the `astro:routes:resolved` hook for projects using `fallbackType: 'rewrite'`.
+
+  This allows integrations such as the sitemap integration to properly include generated fallback routes in their output.
+
+  ```js
+  {
+    'astro:routes:resolved': ({ routes }) => {
+      for (const route of routes) {
+        for (const fallback of route.fallbackRoutes) {
+          console.log(fallback.pathname) // e.g. /fr/about/
+        }
+      }
+    }
+  }
+  ```
+
+- [#15340](https://github.com/withastro/astro/pull/15340) [`10a1a5a`](https://github.com/withastro/astro/commit/10a1a5a5232fa401ca814b396cf79aeccdfdf8a9) Thanks [@trueberryless](https://github.com/trueberryless)! - Adds support for advanced configuration of SmartyPants in Markdown.
+
+  You can now pass an options object to `markdown.smartypants` in your Astro configuration to fine-tune how punctuation, dashes, and quotes are transformed.
+
+  This is helpful for projects that require specific typographic standards, such as "oldschool" dash handling or localized quotation marks.
+
+  ```js
+  // astro.config.mjs
+  export default defineConfig({
+    markdown: {
+      smartypants: {
+        backticks: 'all',
+        dashes: 'oldschool',
+        ellipses: 'unspaced',
+        openingQuotes: { double: '«', single: '‹' },
+        closingQuotes: { double: '»', single: '›' },
+        quotes: false,
+      },
+    },
+  });
+  ```
+
+  See [the `retext-smartypants` options](https://github.com/retextjs/retext-smartypants?tab=readme-ov-file#fields) for more information.
+
+### Patch Changes
+
+- [#16025](https://github.com/withastro/astro/pull/16025) [`a09f319`](https://github.com/withastro/astro/commit/a09f3194f6ddf04874be424c28db03caf33d2c75) Thanks [@koji-1009](https://github.com/koji-1009)! - Instructs the client router to skip view transition animations when the browser is already providing its own visual transition, such as a swipe gesture.
+
+- [#16055](https://github.com/withastro/astro/pull/16055) [`ccecb8f`](https://github.com/withastro/astro/commit/ccecb8fc057cada9b0e70924d364181391c647e4) Thanks [@Gautam-Bharadwaj](https://github.com/Gautam-Bharadwaj)! - Fixes an issue where `client:only` components could have duplicate `client:component-path` attributes added in MDX in rare cases
+
+- [#16081](https://github.com/withastro/astro/pull/16081) [`44fc340`](https://github.com/withastro/astro/commit/44fc34015d702824c55b031c7b800165f7ba807d) Thanks [@crazylogic03](https://github.com/crazylogic03)! - Fixes the `emitFile() is not supported in serve mode` warning that appears during `astro dev` when using integrations that inject before-hydration scripts (e.g. `@astrojs/react`)
+
+- [#16068](https://github.com/withastro/astro/pull/16068) [`31d733b`](https://github.com/withastro/astro/commit/31d733b00a7efe5b29bdadab21daf8b3eea6ae55) Thanks [@Karthikeya1500](https://github.com/Karthikeya1500)! - Fixes the dev toolbar a11y audit incorrectly classifying `menuitemradio` as a non-interactive ARIA role.
+
+- [#16080](https://github.com/withastro/astro/pull/16080) [`e80ac73`](https://github.com/withastro/astro/commit/e80ac73e4433d1ac0518af731f2af00f8aaa46ad) Thanks [@ematipico](https://github.com/ematipico)! - Fixes `experimental.queuedRendering` incorrectly escaping the HTML output of `.html` page files, causing the page content to render as plain text instead of HTML in the browser.
+
+- [#16048](https://github.com/withastro/astro/pull/16048) [`13b9d56`](https://github.com/withastro/astro/commit/13b9d5685d0e1b34b793d0a00d64e3f8310f9f17) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a dev server crash (`serverIslandNameMap.get is not a function`) that occurred when navigating to a page with `server:defer` after first visiting a page without one, when using `@astrojs/cloudflare`
+
+- [#16093](https://github.com/withastro/astro/pull/16093) [`336e086`](https://github.com/withastro/astro/commit/336e086e084202d9c6f218226a3133bb1e10f0ba) Thanks [@Snugug](https://github.com/Snugug)! - Fixes Zod meta not correctly being rendered on top-level schema when converted into JSON Schema
+
+- [#16043](https://github.com/withastro/astro/pull/16043) [`d402485`](https://github.com/withastro/astro/commit/d402485b4b196630e891d7fd21683d9b1e1c1ab8) Thanks [@ematipico](https://github.com/ematipico)! - Fixes `checkOrigin` CSRF protection in `astro dev` behind a TLS-terminating reverse proxy. The dev server now reads `X-Forwarded-Proto` (gated on `security.allowedDomains`, matching production behaviour) so the constructed request origin matches the `https://` origin the browser sends. Also ensures `security.allowedDomains` and `security.checkOrigin` are respected in dev.
+
+- [#16064](https://github.com/withastro/astro/pull/16064) [`ba58e0d`](https://github.com/withastro/astro/commit/ba58e0d6edbc3f8a651ab0c20df9b1f33572bd7b) Thanks [@ematipico](https://github.com/ematipico)! - Updates the dependency `svgo` to the latest, to fix a security issue.
+
+- [#16007](https://github.com/withastro/astro/pull/16007) [`2dcd8d5`](https://github.com/withastro/astro/commit/2dcd8d54c6fb00183228d757bf684e67c79029d8) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where fonts files would unecessarily be copied several times during the build
+
+- [#16017](https://github.com/withastro/astro/pull/16017) [`b089b90`](https://github.com/withastro/astro/commit/b089b904f1ed578e9edaefd129bf9843120a808f) Thanks [@felmonon](https://github.com/felmonon)! - Fix the `astro sync` error message when `getImage()` is called while loading content collections.
+
+- [#16014](https://github.com/withastro/astro/pull/16014) [`fa73fbb`](https://github.com/withastro/astro/commit/fa73fbbac25c96eeadb766666ea3b2aded440bab) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a build error where using `astro:config/client` inside a `<script>` tag would cause Rollup to fail with "failed to resolve import `virtual:astro:routes` from `virtual:astro:manifest`"
+
+- [#16054](https://github.com/withastro/astro/pull/16054) [`f74465a`](https://github.com/withastro/astro/commit/f74465aa406ddfbc9d458189bf7a2e67a227b33c) Thanks [@seroperson](https://github.com/seroperson)! - Fixes an issue with the development server, where changes to the middleware weren't picked, and it required a full restart of the server.
+
+- [#16033](https://github.com/withastro/astro/pull/16033) [`198d31b`](https://github.com/withastro/astro/commit/198d31b3a816c76b9119112589ae2bf8379346ad) Thanks [@adampage](https://github.com/adampage)! - Fixes a bug where the the role `image` was incorrectly reported by audit tool bar.
+
+- [#15935](https://github.com/withastro/astro/pull/15935) [`278828c`](https://github.com/withastro/astro/commit/278828cd35409f6db9dab766c7208fbab5f204c1) Thanks [@oliverlynch](https://github.com/oliverlynch)! - Fixes cached assets failing to revalidate due to redirect check mishandling Not Modified responses.
+
+- [#16075](https://github.com/withastro/astro/pull/16075) [`2c1ae85`](https://github.com/withastro/astro/commit/2c1ae859d915726d95d38ea08c4c141eeda2cd3f) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where invalid URLs would be generated in development when using font families with an oblique `style` and angles
+
+- [#16062](https://github.com/withastro/astro/pull/16062) [`87fd6a4`](https://github.com/withastro/astro/commit/87fd6a4fcb075efa10a518aa8b92a11dd3284964) Thanks [@matthewp](https://github.com/matthewp)! - Warns on dev server startup when Vite 8 is detected at the top level of the user's project, and automatically adds a `"overrides": { "vite": "^7" }` entry to `package.json` when running `astro add cloudflare`. This prevents a `require_dist is not a function` crash caused by a Vite version split between Astro (requires Vite 7) and packages like `@tailwindcss/vite` that hoist Vite 8.
+
+- Updated dependencies [[`10a1a5a`](https://github.com/withastro/astro/commit/10a1a5a5232fa401ca814b396cf79aeccdfdf8a9)]:
+  - @astrojs/markdown-remark@7.1.0
+
 ## 6.0.8
 
 ### Patch Changes

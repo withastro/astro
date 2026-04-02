@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["test/units/**/*.ts"],
+  "exclude": ["test/units/_temp-fixtures/**", "test/fixtures/**"],
+  "compilerOptions": {
+    "noEmit": true,
+    "allowJs": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "rewriteRelativeImportExtensions": true
+  }
+}
