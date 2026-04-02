@@ -25,7 +25,7 @@ import { writeHtmlResponse, writeRedirectResponse } from './response.js';
 export type TrailingSlashDecision =
 	| { action: 'next' }
 	| { action: 'redirect'; status: 301; location: string }
-	| { action: 'reject'; status: 404; pathname: string;  };
+	| { action: 'reject'; status: 404; pathname: string };
 
 /**
  * Pure decision function for trailing-slash dev-server behavior.
