@@ -172,9 +172,10 @@ describe('dev container restarts', { timeout: 20000 }, () => {
 		assert.equal(isStarted(restart.container), true);
 
 		try {
-			let restartComplete = restart.restarted();
+			// viteServer.restart() is now handled natively by Vite — just verify
+			// it completes without error and the server is still running.
 			await restart.container.viteServer.restart();
-			await restartComplete;
+			assert.equal(isStarted(restart.container), true);
 		} finally {
 			await restart.container.close();
 		}
@@ -201,6 +202,70 @@ describe('dev container restarts', { timeout: 20000 }, () => {
 			await restartComplete;
 		} finally {
 			await restart.container.close();
+		}
+	});
+
+	it('Reuses the same viteServer instance on config file change', async () => {
+		cleanupFile('astro.config.mjs');
+		fs.writeFileSync(path.join(fixtureDir, 'astro.config.mjs'), '');
+
+		const restart = await createContainerWithAutomaticRestart({
+			inlineConfig: { ...defaultInlineConfig, root: fixtureDir },
+		});
+		await startContainer(restart.container);
+
+		const originalViteServer = restart.container.viteServer;
+
+		try {
+			let restartComplete = restart.restarted();
+			fs.writeFileSync(path.join(fixtureDir, 'astro.config.mjs'), '');
+			restart.container.viteServer.watcher.emit(
+				'change',
+				path.join(fixtureDir, 'astro.config.mjs').replace(/\\/g, '/'),
+			);
+			await restartComplete;
+
+			// The viteServer object should be the same instance — in-place restart
+			assert.equal(restart.container.viteServer, originalViteServer);
+		} finally {
+			await restart.container.close();
+			cleanupFile('astro.config.mjs');
+		}
+	});
+
+	it('Does not accumulate watcher listeners on repeated restarts', async () => {
+		cleanupFile('astro.config.mjs');
+		fs.writeFileSync(path.join(fixtureDir, 'astro.config.mjs'), '');
+
+		const restart = await createContainerWithAutomaticRestart({
+			inlineConfig: { ...defaultInlineConfig, root: fixtureDir },
+		});
+		await startContainer(restart.container);
+
+		const watcher = restart.container.viteServer.watcher;
+
+		try {
+			// Do a first restart to establish the post-restart listener count
+			let restartComplete = restart.restarted();
+			fs.writeFileSync(path.join(fixtureDir, 'astro.config.mjs'), '// restart 0');
+			watcher.emit('change', path.join(fixtureDir, 'astro.config.mjs').replace(/\\/g, '/'));
+			await restartComplete;
+
+			const listenerCountAfterFirst = watcher.listenerCount('change');
+
+			// Do two more restarts and verify the count stays stable
+			for (let i = 1; i < 3; i++) {
+				restartComplete = restart.restarted();
+				fs.writeFileSync(path.join(fixtureDir, 'astro.config.mjs'), `// restart ${i}`);
+				watcher.emit('change', path.join(fixtureDir, 'astro.config.mjs').replace(/\\/g, '/'));
+				await restartComplete;
+			}
+
+			// Listener count should be stable — old listeners removed before new ones added
+			assert.equal(watcher.listenerCount('change'), listenerCountAfterFirst);
+		} finally {
+			await restart.container.close();
+			cleanupFile('astro.config.mjs');
 		}
 	});
 });
