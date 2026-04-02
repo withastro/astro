@@ -10,7 +10,9 @@ import {
 	prepareAssetsGenerationEnv,
 } from '../../assets/build/generate.js';
 import {
+	appendForwardSlash,
 	collapseDuplicateTrailingSlashes,
+	hasFileExtension,
 	joinPaths,
 	removeLeadingForwardSlash,
 	removeTrailingForwardSlash,
@@ -618,7 +620,15 @@ function getUrlForPath(
 		}
 	} else if (routeType === 'endpoint') {
 		const buildPathRelative = removeLeadingForwardSlash(pathname);
-		buildPathname = joinPaths(base, buildPathRelative);
+		let endpointPathname = joinPaths(base, buildPathRelative);
+		// Apply trailing slash to endpoints without file extensions,
+		// matching how route patterns are generated in create-manifest.ts
+		if (trailingSlash === 'always' && !hasFileExtension(pathname)) {
+			endpointPathname = appendForwardSlash(endpointPathname);
+		} else if (trailingSlash === 'never') {
+			endpointPathname = removeTrailingForwardSlash(endpointPathname);
+		}
+		buildPathname = endpointPathname;
 	} else {
 		const buildPathRelative =
 			removeTrailingForwardSlash(removeLeadingForwardSlash(pathname)) + ending;
