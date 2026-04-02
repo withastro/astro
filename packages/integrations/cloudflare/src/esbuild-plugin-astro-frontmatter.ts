@@ -35,7 +35,7 @@ export function astroFrontmatterScanPlugin(): ESBuildPlugin {
 							.replace(/\breturn\b/g, 'throw ');
 
 						return {
-							contents,
+							contents: contents + '\nexport default {};',
 							loader: 'ts',
 						};
 					}
@@ -43,9 +43,10 @@ export function astroFrontmatterScanPlugin(): ESBuildPlugin {
 					// Ignore read errors
 				}
 
-				// No frontmatter or read error, return empty
+				// No frontmatter or read error, return empty with default export
+				// so that default imports of .astro files resolve correctly
 				return {
-					contents: '',
+					contents: 'export default {};',
 					loader: 'ts',
 				};
 			});
