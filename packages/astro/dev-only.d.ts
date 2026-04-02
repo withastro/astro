@@ -86,3 +86,9 @@ declare module 'virtual:astro:component-metadata' {
 declare module 'virtual:astro:app' {
 	export const createApp: import('./src/core/app/types.js').CreateApp;
 }
+
+declare module 'virtual:astro:get-image' {
+	export const getImage: (
+		options: import('./src/types/public/index.js').UnresolvedImageTransform,
+	) => Promise<import('./src/types/public/index.js').GetImageResult>;
+}
