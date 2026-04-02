@@ -1,5 +1,4 @@
 import fsMod, { existsSync, promises as fs } from 'node:fs';
-import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import * as clack from '@clack/prompts';
