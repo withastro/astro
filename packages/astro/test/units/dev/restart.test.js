@@ -206,13 +206,11 @@ describe('dev container restarts', { timeout: 20000 }, () => {
 	});
 
 	it('Reuses the same viteServer instance on config file change', async () => {
-		const fixture = await createFixture({
-			'/src/pages/index.astro': ``,
-			'/astro.config.mjs': ``,
-		});
+		cleanupFile('astro.config.mjs');
+		fs.writeFileSync(path.join(fixtureDir, 'astro.config.mjs'), '');
 
 		const restart = await createContainerWithAutomaticRestart({
-			inlineConfig: { ...defaultInlineConfig, root: fixture.path },
+			inlineConfig: { ...defaultInlineConfig, root: fixtureDir },
 		});
 		await startContainer(restart.container);
 
@@ -220,10 +218,10 @@ describe('dev container restarts', { timeout: 20000 }, () => {
 
 		try {
 			let restartComplete = restart.restarted();
-			await fixture.writeFile('/astro.config.mjs', ``);
+			fs.writeFileSync(path.join(fixtureDir, 'astro.config.mjs'), '');
 			restart.container.viteServer.watcher.emit(
 				'change',
-				fixture.getPath('/astro.config.mjs').replace(/\\/g, '/'),
+				path.join(fixtureDir, 'astro.config.mjs').replace(/\\/g, '/'),
 			);
 			await restartComplete;
 
@@ -231,17 +229,16 @@ describe('dev container restarts', { timeout: 20000 }, () => {
 			assert.equal(restart.container.viteServer, originalViteServer);
 		} finally {
 			await restart.container.close();
+			cleanupFile('astro.config.mjs');
 		}
 	});
 
 	it('Does not accumulate watcher listeners on repeated restarts', async () => {
-		const fixture = await createFixture({
-			'/src/pages/index.astro': ``,
-			'/astro.config.mjs': ``,
-		});
+		cleanupFile('astro.config.mjs');
+		fs.writeFileSync(path.join(fixtureDir, 'astro.config.mjs'), '');
 
 		const restart = await createContainerWithAutomaticRestart({
-			inlineConfig: { ...defaultInlineConfig, root: fixture.path },
+			inlineConfig: { ...defaultInlineConfig, root: fixtureDir },
 		});
 		await startContainer(restart.container);
 
@@ -250,8 +247,8 @@ describe('dev container restarts', { timeout: 20000 }, () => {
 		try {
 			// Do a first restart to establish the post-restart listener count
 			let restartComplete = restart.restarted();
-			await fixture.writeFile('/astro.config.mjs', `// restart 0`);
-			watcher.emit('change', fixture.getPath('/astro.config.mjs').replace(/\\/g, '/'));
+			fs.writeFileSync(path.join(fixtureDir, 'astro.config.mjs'), '// restart 0');
+			watcher.emit('change', path.join(fixtureDir, 'astro.config.mjs').replace(/\\/g, '/'));
 			await restartComplete;
 
 			const listenerCountAfterFirst = watcher.listenerCount('change');
@@ -259,8 +256,8 @@ describe('dev container restarts', { timeout: 20000 }, () => {
 			// Do two more restarts and verify the count stays stable
 			for (let i = 1; i < 3; i++) {
 				restartComplete = restart.restarted();
-				await fixture.writeFile('/astro.config.mjs', `// restart ${i}`);
-				watcher.emit('change', fixture.getPath('/astro.config.mjs').replace(/\\/g, '/'));
+				fs.writeFileSync(path.join(fixtureDir, 'astro.config.mjs'), `// restart ${i}`);
+				watcher.emit('change', path.join(fixtureDir, 'astro.config.mjs').replace(/\\/g, '/'));
 				await restartComplete;
 			}
 
@@ -268,6 +265,7 @@ describe('dev container restarts', { timeout: 20000 }, () => {
 			assert.equal(watcher.listenerCount('change'), listenerCountAfterFirst);
 		} finally {
 			await restart.container.close();
+			cleanupFile('astro.config.mjs');
 		}
 	});
 });
