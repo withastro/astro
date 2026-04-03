@@ -1,17 +1,24 @@
 import * as path from 'node:path';
+import { createShikiHighlighter } from '@astrojs/markdown-remark';
 import {
 	defineMdastPlugin,
 	defineHastPlugin,
 	compileMdxToJs,
-	type MdastNode,
 	type HastNode,
 	type HastVisitorContext,
 	type MdastPluginDefinition,
 	type HastPluginDefinition,
 } from 'tryckeri';
 import Slugger from 'github-slugger';
+import type { MdxOptions } from './index.js';
 
 export type { MdastPluginDefinition, HastPluginDefinition };
+
+declare module 'hast' {
+	interface ElementData {
+		lang?: string | null;
+	}
+}
 
 export interface MarkdownHeading {
 	depth: number;
@@ -19,43 +26,7 @@ export interface MarkdownHeading {
 	text: string;
 }
 
-interface CollectedMdxData {
-	headings: MarkdownHeading[];
-	localImagePaths: string[];
-	remoteImagePaths: string[];
-}
-
-// --- Reusable plugin definitions (created once, not per file) ---
-
-const collectImagesPlugin = defineMdastPlugin({
-	name: 'collect-images',
-	createOnce() {
-		return {
-			image(node: MdastNode) {
-				const url = node.url ? decodeURI(node.url) : undefined;
-				if (!url) return;
-
-				if (URL.canParse(url)) {
-					_remoteImagePaths!.add(url);
-				} else if (!url.startsWith('/')) {
-					_localImagePaths!.add(url);
-				}
-			},
-		};
-	},
-});
-
-// Module-level refs set before each compile — avoids closure allocation per file
-let _localImagePaths: Set<string> | null = null;
-let _remoteImagePaths: Set<string> | null = null;
-let _headings: MarkdownHeading[] | null = null;
-let _frontmatter: Record<string, any> | undefined = undefined;
-let _filePath: string = '';
-let _astroMetadata: AstroMetadata | null = null;
-let _highlightFn: HighlightFn | undefined = undefined;
-let _excludeLangs: string[] | undefined = undefined;
-
-// --- Heading IDs HAST plugin ---
+type HighlightFn = (code: string, lang: string, meta?: string) => Promise<string>;
 
 function resolveFrontmatterExpression(
 	expr: string,
@@ -82,74 +53,36 @@ function resolveFrontmatterExpression(
 	return typeof value === 'string' ? value : undefined;
 }
 
-function collectHastText(node: HastNode): string {
+function collectHastText(node: HastNode, frontmatter: Record<string, any> | undefined): string {
 	let text = '';
-	if (node.type === 'mdxExpression' && node.value != null && _frontmatter) {
-		const resolved = resolveFrontmatterExpression(node.value.trim(), _frontmatter);
-		text += resolved ?? node.value;
-	} else if (node.value != null) {
+	if (node.type === 'mdxFlowExpression' || node.type === 'mdxTextExpression') {
+		if (node.value != null && frontmatter) {
+			const resolved = resolveFrontmatterExpression(node.value.trim(), frontmatter);
+			text += resolved ?? node.value;
+		}
+	} else if ('value' in node && node.value != null) {
 		text += node.value;
 	}
-	if (node.children) {
+	if ('children' in node && node.children) {
 		for (const child of node.children) {
-			text += collectHastText(child);
+			text += collectHastText(child as HastNode, frontmatter);
 		}
 	}
 	return text;
 }
 
-const headingTagNames = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']);
-const _slugger = new Slugger();
-
-const headingIdsPlugin = defineHastPlugin({
-	name: 'heading-ids',
-	createOnce() {
-		return {
-			before() {
-				_slugger.reset();
-			},
-			element(node: HastNode, ctx: HastVisitorContext) {
-				if (!node.tagName || !headingTagNames.has(node.tagName)) return;
-
-				const text = collectHastText(node);
-				const slug = _slugger.slug(text);
-				const depth = parseInt(node.tagName[1], 10);
-				_headings!.push({ depth, slug, text });
-				ctx.setProperty(node, 'id', slug);
-			},
-		};
-	},
-});
-
-// --- Shiki syntax highlighting MDAST plugin ---
-
 const defaultExcludeLanguages = ['math'];
 
-export type HighlightFn = (code: string, lang: string, meta?: string) => string;
-
-const shikiPlugin = defineMdastPlugin({
-	name: 'shiki-highlight',
-	createOnce() {
-		return {
-			code(node: MdastNode) {
-				if (!_highlightFn) return;
-				const lang = node.lang || 'plaintext';
-				if (
-					(_excludeLangs && _excludeLangs.includes(lang)) ||
-					defaultExcludeLanguages.includes(lang)
-				) {
-					return;
-				}
-
-				const code = (node.value || '').replace(/\n$/, '');
-				const html = _highlightFn(code, lang, node.meta ?? undefined);
-				return { rawHtml: html };
-			},
-		};
-	},
-});
-
-// --- Astro metadata HAST plugin ---
+function makeFragmentNode(html: string): HastNode {
+	return {
+		type: 'mdxJsxFlowElement',
+		name: 'Fragment',
+		attributes: [
+			{ type: 'mdxJsxAttribute', name: 'set:html', value: html },
+		],
+		children: [],
+	} as unknown as HastNode;
+}
 
 interface AstroComponentMetadata {
 	exportName: string;
@@ -182,23 +115,23 @@ function isComponent(tagName: string): boolean {
 }
 
 function parseImportStatement(source: string): { specifiers: ImportSpecifier[]; path: string } | undefined {
-	const match = source.match(
-		/^import\s+(?:(.+?)\s+from\s+)?['"]([^'"]+)['"]\s*;?\s*$/,
-	);
-	if (!match) return undefined;
+	const pathMatch = /['"]([^'"]+)['"]/.exec(source);
+	if (!pathMatch || !source.startsWith('import')) return undefined;
 
-	const [, specPart, importPath] = match;
+	const importPath = pathMatch[1];
+	const fromIdx = source.lastIndexOf(' from ');
+	const specPart = fromIdx > 6 ? source.slice(7, fromIdx).trim() : undefined;
 	if (!specPart) return { specifiers: [], path: importPath };
 
 	const specifiers: ImportSpecifier[] = [];
 
-	const nsMatch = specPart.match(/^\*\s+as\s+(\w+)$/);
+	const nsMatch = /^\*\s+as\s+(\w+)$/.exec(specPart);
 	if (nsMatch) {
 		specifiers.push({ local: nsMatch[1], imported: '*' });
 		return { specifiers, path: importPath };
 	}
 
-	const braceMatch = specPart.match(/^([^{]*?)(?:\{([^}]*)\})?$/);
+	const braceMatch = /^([^{]*)(?:\{([^}]*)\})?$/.exec(specPart);
 	if (!braceMatch) return { specifiers: [], path: importPath };
 
 	const defaultPart = braceMatch[1].replace(/,\s*$/, '').trim();
@@ -212,7 +145,7 @@ function parseImportStatement(source: string): { specifiers: ImportSpecifier[]; 
 		for (const spec of namedPart.split(',')) {
 			const trimmed = spec.trim();
 			if (!trimmed) continue;
-			const aliasMatch = trimmed.match(/^(\w+)\s+as\s+(\w+)$/);
+			const aliasMatch = /^(\w+)\s+as\s+(\w+)$/.exec(trimmed);
 			if (aliasMatch) {
 				specifiers.push({ local: aliasMatch[2], imported: aliasMatch[1] });
 			} else {
@@ -261,21 +194,19 @@ function resolveImportPath(specifier: string, importer: string): string {
 	return specifier;
 }
 
-function hasDirective(node: HastNode, prefix: string): boolean {
-	const attrs = node.attributes;
-	if (!attrs) return false;
-	for (let i = 0; i < attrs.length; i++) {
-		const a = attrs[i];
+type MdxJsxFlowElement = Extract<HastNode, { type: 'mdxJsxFlowElement' }>;
+type MdxJsxTextElement = Extract<HastNode, { type: 'mdxJsxTextElement' }>;
+type MdxJsxHastNode = MdxJsxFlowElement | MdxJsxTextElement;
+
+function hasDirective(node: MdxJsxHastNode, prefix: string): boolean {
+	for (const a of node.attributes) {
 		if (a.type === 'mdxJsxAttribute' && a.name.startsWith(prefix)) return true;
 	}
 	return false;
 }
 
-function findAttrValue(node: HastNode, name: string): string | null {
-	const attrs = node.attributes;
-	if (!attrs) return null;
-	for (let i = 0; i < attrs.length; i++) {
-		const a = attrs[i];
+function findAttrValue(node: MdxJsxHastNode, name: string): string | null {
+	for (const a of node.attributes) {
 		if (a.type === 'mdxJsxAttribute' && a.name === name) {
 			return typeof a.value === 'string' ? a.value : null;
 		}
@@ -283,51 +214,12 @@ function findAttrValue(node: HastNode, name: string): string | null {
 	return null;
 }
 
-// Shared imports map — reused across files, cleared in before()
-const _imports = new Map<string, Set<ImportSpecifier>>();
-
-const astroMetadataPlugin = defineHastPlugin({
-	name: 'astro-metadata',
-	createOnce() {
-		return {
-			before() {
-				_imports.clear();
-				if (_astroMetadata) {
-					_astroMetadata.hydratedComponents.length = 0;
-					_astroMetadata.clientOnlyComponents.length = 0;
-					_astroMetadata.serverComponents.length = 0;
-				}
-			},
-
-			mdxjsEsm(node: HastNode) {
-				if (!node.value) return;
-				const parsed = parseImportStatement(node.value);
-				if (!parsed) return;
-
-				let specSet = _imports.get(parsed.path);
-				if (!specSet) {
-					specSet = new Set();
-					_imports.set(parsed.path, specSet);
-				}
-				for (const spec of parsed.specifiers) {
-					specSet.add(spec);
-				}
-			},
-
-			mdxJsxElement(node: HastNode, ctx: HastVisitorContext) {
-				processJsxNode(node, ctx);
-			},
-
-			mdxJsxTextElement(node: HastNode, ctx: HastVisitorContext) {
-				processJsxNode(node, ctx);
-			},
-		};
-	},
-});
-
 function processJsxNode(
-	node: HastNode,
+	node: MdxJsxHastNode,
 	ctx: HastVisitorContext,
+	metadata: AstroMetadata,
+	imports: Map<string, Set<ImportSpecifier>>,
+	filePath: string,
 ) {
 	const tagName = node.name;
 	if (!tagName || !isComponent(tagName)) return;
@@ -336,9 +228,7 @@ function processJsxNode(
 	const hasServerDefer = !hasClient && hasDirective(node, 'server:defer');
 	if (!hasClient && !hasServerDefer) return;
 
-	const metadata = _astroMetadata!;
-
-	const matchedImport = findMatchingImport(tagName, _imports);
+	const matchedImport = findMatchingImport(tagName, imports);
 	if (!matchedImport) {
 		throw new Error(
 			`Expected a matching import for component \`${tagName}\`. Did you forget to import it?`,
@@ -356,7 +246,7 @@ function processJsxNode(
 		);
 	}
 
-	const resolvedPath = resolveImportPath(matchedImport.path, _filePath);
+	const resolvedPath = resolveImportPath(matchedImport.path, filePath);
 	const exportName = matchedImport.name === '*'
 		? tagName.split('.').slice(1).join('.')
 		: matchedImport.name;
@@ -395,8 +285,6 @@ function processJsxNode(
 	}
 }
 
-// --- Optimize static helpers ---
-
 const exportConstComponentsRe = /export\s+const\s+components\s*=\s*\{([^}]*)\}/;
 
 function extractComponentOverrides(content: string): string[] {
@@ -405,7 +293,7 @@ function extractComponentOverrides(content: string): string[] {
 	const body = match[1];
 	const keys: string[] = [];
 	for (const part of body.split(',')) {
-		const keyMatch = part.trim().match(/^(\w+)\s*:/);
+		const keyMatch = /^(\w+)\s*:/.exec(part.trim());
 		if (keyMatch) {
 			keys.push(keyMatch[1]);
 		}
@@ -413,102 +301,279 @@ function extractComponentOverrides(content: string): string[] {
 	return keys;
 }
 
-// --- Pre-built plugin arrays (avoids allocation per file) ---
+function createCollectImagesPlugin(
+	localImagePaths: Set<string>,
+	remoteImagePaths: Set<string>,
+): MdastPluginDefinition {
+	return defineMdastPlugin({
+		name: 'collect-images',
+		createOnce() {
+			return {
+				image(node) {
+					const url = node.url ? decodeURI(node.url) : undefined;
+					if (!url) return;
 
-const mdastPluginsBase: MdastPluginDefinition[] = [collectImagesPlugin];
-const mdastPluginsWithShiki: MdastPluginDefinition[] = [collectImagesPlugin, shikiPlugin];
-const hastPluginsBase: HastPluginDefinition[] = [headingIdsPlugin, astroMetadataPlugin];
+					if (URL.canParse(url)) {
+						remoteImagePaths.add(url);
+					} else if (!url.startsWith('/')) {
+						localImagePaths.add(url);
+					}
+				},
+			};
+		},
+	});
+}
 
-// --- Main compile function ---
+function createHeadingIdsPlugin(
+	headings: MarkdownHeading[],
+	frontmatter: Record<string, any> | undefined,
+): HastPluginDefinition {
+	return defineHastPlugin({
+		name: 'heading-ids',
+		createOnce() {
+			const slugger = new Slugger();
+			return {
+				element: {
+					filter: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+					visit(node, ctx) {
+						const text = collectHastText(node, frontmatter);
+						const slug = slugger.slug(text);
+						const depth = parseInt(node.tagName[1], 10);
+						headings.push({ depth, slug, text });
+						ctx.setProperty(node, 'id', slug);
+					},
+				},
+			};
+		},
+	});
+}
 
-export interface CompileMdxWithPluginsOptions {
-	filePath: string;
-	frontmatter?: Record<string, any>;
-	highlight?: HighlightFn;
-	excludeLangs?: string[];
-	optimize?: boolean | { ignoreElementNames?: string[] };
-	mdastPlugins?: MdastPluginDefinition[];
-	hastPlugins?: HastPluginDefinition[];
+function createShikiPlugin(
+	highlight: HighlightFn,
+	excludeLangs: string[] | undefined,
+): HastPluginDefinition {
+	return defineHastPlugin({
+		name: 'shiki-highlight',
+		createOnce() {
+			return {
+				element: {
+					filter: ['pre'],
+					async visit(node, ctx) {
+						const codeChild = node.children?.find(
+							(c: HastNode) => c.type === 'element' && c.tagName === 'code',
+						) as HastNode | undefined;
+						if (!codeChild || codeChild.type !== 'element') return;
+
+						const lang = codeChild.data?.lang ?? 'plaintext';
+						const meta = codeChild.data?.meta ?? undefined;
+
+						if (
+							(excludeLangs && excludeLangs.includes(lang)) ||
+							defaultExcludeLanguages.includes(lang)
+						) {
+							return;
+						}
+
+						const code = ctx.textContent(codeChild).replace(/\n$/, '');
+						const html = await highlight(code, lang, meta);
+						return makeFragmentNode(html);
+					},
+				},
+			};
+		},
+	});
+}
+
+function createAstroMetadataPlugin(
+	metadata: AstroMetadata,
+	filePath: string,
+): HastPluginDefinition {
+	return defineHastPlugin({
+		name: 'astro-metadata',
+		createOnce() {
+			const imports = new Map<string, Set<ImportSpecifier>>();
+			return {
+				mdxjsEsm(node) {
+					if (!node.value) return;
+					const parsed = parseImportStatement(node.value);
+					if (!parsed) return;
+
+					let specSet = imports.get(parsed.path);
+					if (!specSet) {
+						specSet = new Set();
+						imports.set(parsed.path, specSet);
+					}
+					for (const spec of parsed.specifiers) {
+						specSet.add(spec);
+					}
+				},
+
+				mdxJsxFlowElement: {
+					filter: [],
+					visit(node, ctx) {
+						processJsxNode(node, ctx, metadata, imports, filePath);
+					},
+				},
+
+				mdxJsxTextElement: {
+					filter: [],
+					visit(node, ctx) {
+						processJsxNode(node, ctx, metadata, imports, filePath);
+					},
+				},
+			};
+		},
+	});
 }
 
 export interface CompileMdxResult {
 	code: string;
-	data: CollectedMdxData;
 	astroMetadata: AstroMetadata;
 }
 
-export function compileMdxWithPlugins(
-	content: string,
-	options: CompileMdxWithPluginsOptions,
-): CompileMdxResult {
-	const headings: MarkdownHeading[] = [];
-	const localImagePaths = new Set<string>();
-	const remoteImagePaths = new Set<string>();
+export function createMdxProcessor(mdxOptions: MdxOptions) {
+	let highlightFn: HighlightFn | undefined;
+	let initPromise: Promise<void> | undefined;
 
-	// Set module-level refs for plugins to use (avoids closure allocation)
-	_headings = headings;
-	_localImagePaths = localImagePaths;
-	_remoteImagePaths = remoteImagePaths;
-	_frontmatter = options.frontmatter;
-	_filePath = options.filePath;
-	_highlightFn = options.highlight;
-	_excludeLangs = options.excludeLangs;
+	function initShiki() {
+		const syntaxHighlight = mdxOptions.syntaxHighlight;
+		const syntaxHighlightType =
+			typeof syntaxHighlight === 'string'
+				? syntaxHighlight
+				: syntaxHighlight
+					? syntaxHighlight.type
+					: undefined;
 
-	const astroMetadata: AstroMetadata = {
-		hydratedComponents: [],
-		clientOnlyComponents: [],
-		serverComponents: [],
-		scripts: [],
-		propagation: 'none',
-		containsHead: false,
-		pageOptions: {},
-	};
-	_astroMetadata = astroMetadata;
-
-	// Use pre-built plugin arrays when no user plugins
-	const builtinMdast = options.highlight ? mdastPluginsWithShiki : mdastPluginsBase;
-	const allMdastPlugins = options.mdastPlugins
-		? [...builtinMdast, ...options.mdastPlugins]
-		: builtinMdast;
-
-	const allHastPlugins = options.hastPlugins
-		? [...hastPluginsBase, ...options.hastPlugins]
-		: hastPluginsBase;
-
-	// Build optimizeStatic config if enabled
-	let optimizeStatic: import('tryckeri').CompileOptions['optimizeStatic'];
-	if (options.optimize) {
-		const userIgnore = typeof options.optimize === 'object'
-			? options.optimize.ignoreElementNames ?? []
-			: [];
-		const componentOverrides = extractComponentOverrides(content);
-
-		optimizeStatic = {
-			component: 'Fragment',
-			prop: 'set:html',
-			ignoreElements: [...userIgnore, ...componentOverrides],
-		};
+		if (syntaxHighlightType === 'shiki') {
+			const shikiConfig = mdxOptions.shikiConfig ?? {};
+			initPromise = createShikiHighlighter({
+				langs: shikiConfig.langs,
+				theme: shikiConfig.theme,
+				themes: shikiConfig.themes,
+				langAlias: shikiConfig.langAlias,
+			}).then((hl) => {
+				highlightFn = (code, lang, meta) =>
+					hl.codeToHtml(code, lang, {
+						meta,
+						wrap: shikiConfig.wrap,
+						defaultColor: shikiConfig.defaultColor,
+						transformers: shikiConfig.transformers,
+					});
+			});
+		}
 	}
 
-	const code = compileMdxToJs(content, {
-		mdastPlugins: allMdastPlugins,
-		hastPlugins: allHastPlugins,
-		optimizeStatic,
-	});
-
-	// Clear refs
-	_headings = null;
-	_localImagePaths = null;
-	_remoteImagePaths = null;
-	_astroMetadata = null;
-
 	return {
-		code,
-		data: {
-			headings,
-			localImagePaths: [...localImagePaths],
-			remoteImagePaths: [...remoteImagePaths],
+		async process(
+			content: string,
+			filePath: string,
+			frontmatter: Record<string, any>,
+		): Promise<CompileMdxResult> {
+			if (!highlightFn && !initPromise) {
+				initShiki();
+			}
+			if (initPromise) await initPromise;
+
+			const headings: MarkdownHeading[] = [];
+			const localImagePaths = new Set<string>();
+			const remoteImagePaths = new Set<string>();
+
+			const astroMetadata: AstroMetadata = {
+				hydratedComponents: [],
+				clientOnlyComponents: [],
+				serverComponents: [],
+				scripts: [],
+				propagation: 'none',
+				containsHead: false,
+				pageOptions: {},
+			};
+
+			const collectImages = createCollectImagesPlugin(localImagePaths, remoteImagePaths);
+			const headingIds = createHeadingIdsPlugin(headings, frontmatter);
+			const astroMeta = createAstroMetadataPlugin(astroMetadata, filePath);
+
+			const syntaxHighlight = mdxOptions.syntaxHighlight;
+			const excludeLangs =
+				typeof syntaxHighlight === 'object' ? syntaxHighlight.excludeLangs : undefined;
+
+			const allMdastPlugins: MdastPluginDefinition[] = mdxOptions.mdastPlugins?.length
+				? [collectImages, ...mdxOptions.mdastPlugins]
+				: [collectImages];
+
+			const hastPlugins: HastPluginDefinition[] = [];
+			if (highlightFn) {
+				hastPlugins.push(createShikiPlugin(highlightFn, excludeLangs));
+			}
+			hastPlugins.push(headingIds, astroMeta);
+			if (mdxOptions.hastPlugins?.length) {
+				hastPlugins.push(...mdxOptions.hastPlugins);
+			}
+
+			let optimizeStatic: import('tryckeri').CompileOptions['optimizeStatic'];
+			if (mdxOptions.optimize) {
+				const userIgnore = typeof mdxOptions.optimize === 'object'
+					? mdxOptions.optimize.ignoreElementNames ?? []
+					: [];
+				const componentOverrides = extractComponentOverrides(content);
+
+				optimizeStatic = {
+					component: 'Fragment',
+					prop: 'set:html',
+					ignoreElements: [...userIgnore, ...componentOverrides],
+				};
+			}
+
+			let compiled = await compileMdxToJs(content, {
+				mdastPlugins: allMdastPlugins,
+				hastPlugins,
+				optimizeStatic,
+				filename: filePath,
+			});
+
+			compiled = compiled.replace(
+				/from\s+["']react\/jsx-runtime["']/g,
+				`from "astro/jsx-runtime"`,
+			);
+			compiled = compiled.replace(/^export default MDXContent;\s*$/m, '');
+
+			compiled += `\nexport const frontmatter = ${JSON.stringify(frontmatter)};`;
+			compiled += `\nexport function getHeadings() { return ${JSON.stringify(headings)}; }`;
+
+			if (frontmatter.layout) {
+				compiled += `
+import { jsx as __astro_layout_jsx__ } from 'astro/jsx-runtime';
+import __astro_layout_component__ from ${JSON.stringify(frontmatter.layout)};`;
+				compiled = compiled.replace(
+					/^function MDXContent\(/m,
+					'function __OriginalMDXContent__(',
+				);
+				compiled += `
+export default function MDXContent(props) {
+	const content = __OriginalMDXContent__(props);
+	const { layout, ...frontmatterContent } = frontmatter;
+	frontmatterContent.file = file;
+	frontmatterContent.url = url;
+	return __astro_layout_jsx__(__astro_layout_component__, {
+		file,
+		url,
+		content: frontmatterContent,
+		frontmatter: frontmatterContent,
+		headings: getHeadings(),
+		'server:root': true,
+		children: content,
+	});
+}`;
+			} else {
+				compiled = compiled.replace(
+					/^function MDXContent\(/m,
+					'export default function MDXContent(',
+				);
+			}
+
+			return {
+				code: compiled,
+				astroMetadata,
+			};
 		},
-		astroMetadata,
 	};
 }

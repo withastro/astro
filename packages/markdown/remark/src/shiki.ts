@@ -28,11 +28,6 @@ export interface ShikiHighlighter {
 		lang?: string,
 		options?: ShikiHighlighterHighlightOptions,
 	): Promise<string>;
-	codeToHtmlSync(
-		code: string,
-		lang?: string,
-		options?: ShikiHighlighterHighlightOptions,
-	): string;
 }
 
 type ShikiLanguage = LanguageInput | BuiltinLanguage | SpecialLanguage;
@@ -285,89 +280,12 @@ async function createShikiHighlighterInternal({
 		});
 	}
 
-	function highlightSync(
-		code: string,
-		lang = 'plaintext',
-		options: ShikiHighlighterHighlightOptions,
-	): string {
-		const resolvedLang = langAlias[lang] ?? lang;
-		const loadedLanguages = highlighter.getLoadedLanguages();
-
-		if (!isSpecialLang(lang) && !loadedLanguages.includes(resolvedLang)) {
-			lang = 'plaintext';
-		}
-
-		code = code.replace(/(?:\r\n|\r|\n)$/, '');
-
-		const themeOptions = Object.values(themes).length ? { themes } : { theme };
-
-		return highlighter.codeToHtml(code, {
-			...themeOptions,
-			defaultColor: options.defaultColor,
-			lang,
-			meta: options?.meta ? { __raw: options?.meta } : undefined,
-			transformers: [
-				{
-					pre(node) {
-						const {
-							class: attributesClass,
-							style: attributesStyle,
-							...rest
-						} = options?.attributes ?? {};
-						Object.assign(node.properties, rest);
-
-						const classValue =
-							(normalizePropAsString(node.properties.class) ?? '') +
-							(attributesClass ? ` ${attributesClass}` : '');
-						const styleValue =
-							(normalizePropAsString(node.properties.style) ?? '') +
-							(attributesStyle ? `; ${attributesStyle}` : '');
-
-						node.properties.class = classValue.replace(/shiki/g, 'astro-code');
-						node.properties.dataLanguage = lang;
-
-						if (options.wrap === false || options.wrap === undefined) {
-							node.properties.style = styleValue + '; overflow-x: auto;';
-						} else if (options.wrap === true) {
-							node.properties.style =
-								styleValue + '; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;';
-						}
-					},
-					line(node) {
-						if (resolvedLang === 'diff') {
-							const innerSpanNode = node.children[0];
-							const innerSpanTextNode =
-								innerSpanNode?.type === 'element' && innerSpanNode.children?.[0];
-
-							if (innerSpanTextNode && innerSpanTextNode.type === 'text') {
-								const start = innerSpanTextNode.value[0];
-								if (start === '+' || start === '-') {
-									innerSpanTextNode.value = innerSpanTextNode.value.slice(1);
-									innerSpanNode.children.unshift({
-										type: 'element',
-										tagName: 'span',
-										properties: { style: 'user-select: none;' },
-										children: [{ type: 'text', value: start }],
-									});
-								}
-							}
-						}
-					},
-				},
-				...(options.transformers ?? []),
-			],
-		});
-	}
-
 	return {
 		codeToHast(code, lang, options = {}) {
 			return highlight(code, lang, options, 'hast') as Promise<Root>;
 		},
 		codeToHtml(code, lang, options = {}) {
 			return highlight(code, lang, options, 'html') as Promise<string>;
-		},
-		codeToHtmlSync(code, lang, options = {}) {
-			return highlightSync(code, lang, options);
 		},
 		loadLanguage(...newLangs) {
 			return highlighter.loadLanguage(...newLangs);
