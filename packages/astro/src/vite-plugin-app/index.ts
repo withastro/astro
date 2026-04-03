@@ -73,6 +73,7 @@ export const app = createApp();
 import { Hono, astro } from 'astro/hono';
 
 const app = new Hono();
+app.onError((err) => { throw err; });
 app.use(astro());
 
 export default app;

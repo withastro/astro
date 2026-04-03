@@ -384,6 +384,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 
 	public createHonoApp(options: RenderOptions = {}) {
 		const app = new Hono();
+		app.onError((err) => { throw err; });
 		app.use('*', this.astroMiddleware(options));
 		return app;
 	}

@@ -1,6 +1,8 @@
 import type http from 'node:http';
 import { createRequest } from '../core/request.js';
 import { makeRequestBody, writeResponse } from '../core/app/node.js';
+import { getViteErrorPayload } from '../core/errors/dev/index.js';
+import { createSafeError, type ErrorWithMetadata } from '../core/errors/index.js';
 import { Logger } from '../core/logger/core.js';
 import { nodeLogDestination } from '../core/logger/node.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
@@ -58,10 +60,30 @@ export default async function createAstroServerApp(
 					const response = await userApp.fetch(request);
 					await writeResponse(response, incomingResponse);
 				})
-				.catch((error) => {
+				.catch(async (error) => {
 					actualLogger.error('router', error?.stack || error?.message || String(error));
-					incomingResponse.statusCode = 500;
-					incomingResponse.end('Internal Server Error');
+					const safeError = createSafeError(error) as ErrorWithMetadata;
+					// Send the Vite error overlay via WebSocket so the browser displays it
+					incomingResponse.on('close', async () => {
+						setTimeout(
+							async () => loader.webSocketSend(await getViteErrorPayload(safeError)),
+							200,
+						);
+					});
+					if (incomingResponse.headersSent) {
+						incomingResponse.write(
+							`<script type="module" src="/@vite/client"></script>`,
+						);
+						incomingResponse.end();
+					} else {
+						const html = `<title>${safeError.name}</title><script type="module" src="/@vite/client"></script>`;
+						incomingResponse.writeHead(500, {
+							'Content-Type': 'text/html',
+							'Content-Length': Buffer.byteLength(html, 'utf-8'),
+						});
+						incomingResponse.write(html);
+						incomingResponse.end();
+					}
 				});
 		},
 	};

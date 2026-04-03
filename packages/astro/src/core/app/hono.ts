@@ -456,15 +456,17 @@ export function astro(options: RenderOptions = {}): MiddlewareHandler<AstroHonoE
 	const renderMiddleware = pages(options);
 
 	return async (c, next) => {
-		await redirectsMiddleware(c, async () => {
-			await actionsMiddleware(c, async () => {
+		const outerRes = await redirectsMiddleware(c, async () => {
+			const innerRes = await actionsMiddleware(c, async () => {
 				await rewriteMiddleware(c, async () => {
 					await i18nMiddleware(c, async () => {
 						await renderMiddleware(c, next);
 					});
 				});
 			});
+			if (innerRes instanceof Response) c.res = innerRes;
 		});
+		if (outerRes instanceof Response) c.res = outerRes;
 		return c.res;
 	};
 }

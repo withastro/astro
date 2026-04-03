@@ -273,6 +273,9 @@ export class Pages {
 			void isRewrite;
 		} catch (err: any) {
 			this.logger.error(null, err.stack || err.message || String(err));
+			// In dev, re-throw so the error reaches the Vite error overlay handler.
+			// In production, render the error page.
+			if (this.#baseStripped) throw err;
 			return this.renderError(request, {
 				...resolvedRenderOptions,
 				status: 500,
