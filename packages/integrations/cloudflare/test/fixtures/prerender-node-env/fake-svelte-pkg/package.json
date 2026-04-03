@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "exports": {
-    ".": "./dist/index.js"
+    ".": "./src/index.js"
   },
   "peerDependencies": {
     "svelte": "^5.0.0"
