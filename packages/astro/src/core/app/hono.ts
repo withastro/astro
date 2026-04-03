@@ -355,7 +355,7 @@ export function redirects(
 		if (config) {
 			for (const [from, to] of Object.entries(config)) {
 				const pattern = new RegExp(
-					`^${from.replace(/\[([^\]]+)\]/g, '([^/]+)').replace(/\[\.\.\.([^\]]+)\]/g, '(.*)')}$`,
+					`^${from.replace(/\[[^\]]+\]/g, '(?:[^/]+)').replace(/\[\.\.\.[^\]]+\]/g, '(?:.*)')}$`,
 				);
 				const match = pattern.exec(pathname);
 				if (match) {

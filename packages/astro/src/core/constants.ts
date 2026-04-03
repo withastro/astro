@@ -65,11 +65,6 @@ export const REROUTABLE_STATUS_CODES = [404, 500];
  */
 export const clientAddressSymbol = Symbol.for('astro.clientAddress');
 
-/**
- * The symbol used as a field on the request object to store the object to be made available to Astro APIs as `locals`.
- * Use judiciously, as locals are now stored within `RenderContext` by default. Tacking it onto request is no longer necessary.
- */
-export const clientLocalsSymbol = Symbol.for('astro.locals');
 
 /**
  * Use this symbol to set and retrieve the original pathname of a request. This is useful when working with redirects and rewrites
