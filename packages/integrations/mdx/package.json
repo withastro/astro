@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/mdx",
   "description": "Add support for MDX pages in your Astro site",
-  "version": "5.0.0-beta.11",
+  "version": "5.0.3",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -49,11 +49,11 @@
     "vfile": "^6.0.3"
   },
   "peerDependencies": {
-    "astro": "^6.0.0-alpha.0"
+    "astro": "^6.0.0"
   },
   "devDependencies": {
-    "@shikijs/rehype": "^4.0.0",
-    "@shikijs/twoslash": "^4.0.0",
+    "@shikijs/rehype": "^4.0.2",
+    "@shikijs/twoslash": "^4.0.2",
     "@types/estree": "^1.0.8",
     "@types/hast": "^3.0.4",
     "@types/mdast": "^4.0.4",
@@ -64,16 +64,16 @@
     "mdast-util-mdx": "^3.0.0",
     "mdast-util-mdx-jsx": "^3.2.0",
     "rehype-mathjax": "^7.1.0",
-    "rehype-pretty-code": "^0.14.1",
+    "rehype-pretty-code": "^0.14.3",
     "remark-math": "^6.0.0",
     "remark-rehype": "^11.1.2",
     "remark-toc": "^9.0.0",
-    "shiki": "^4.0.0",
+    "shiki": "^4.0.2",
     "unified": "^11.0.5",
     "vite": "^7.3.1"
   },
   "engines": {
-    "node": "^20.19.1 || >=22.12.0"
+    "node": ">=22.12.0"
   },
   "publishConfig": {
     "provenance": true

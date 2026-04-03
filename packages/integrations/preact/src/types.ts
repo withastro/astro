@@ -17,6 +17,7 @@ export type PropNameToSignalMap = Map<string, SignalLike | SignalToKeyOrIndexMap
 
 export type AstroPreactAttrs = {
 	['data-preact-signals']?: string;
+	['data-preact-island-id']?: string;
 };
 
 export type VirtualModuleOptions = {

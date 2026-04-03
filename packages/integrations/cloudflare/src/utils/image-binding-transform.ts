@@ -2,6 +2,14 @@ import { imageConfig } from 'astro:assets';
 import { isRemotePath } from '@astrojs/internal-helpers/path';
 import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import type { ImageOutputOptions, ImageTransform } from '@cloudflare/workers-types';
+import type { ImageQualityPreset } from 'astro';
+
+const qualityTable: Record<ImageQualityPreset, number> = {
+	low: 25,
+	mid: 50,
+	high: 80,
+	max: 100,
+};
 
 export async function transform(
 	rawUrl: string,
@@ -43,10 +51,14 @@ export async function transform(
 			.transform({
 				width: url.searchParams.has('w') ? Number.parseInt(url.searchParams.get('w')!) : undefined,
 				height: url.searchParams.has('h') ? Number.parseInt(url.searchParams.get('h')!) : undefined,
-				// `quality` is documented, but doesn't appear to work in manual testing...
-				// quality: url.searchParams.get('q'),
 				fit: url.searchParams.get('fit') as ImageTransform['fit'],
 			})
-			.output({ format: outputFormat })
+			.output({
+				quality: url.searchParams.get('q')
+					? (qualityTable[url.searchParams.get('q') as ImageQualityPreset] ??
+						Number.parseInt(url.searchParams.get('q')!))
+					: undefined,
+				format: outputFormat,
+			})
 	).response();
 }

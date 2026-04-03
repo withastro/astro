@@ -1,125 +1,71 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { createContainer } from '../../../dist/core/dev/container.js';
-import testAdapter from '../../test-adapter.js';
-import {
-	createBasicSettings,
-	createFixture,
-	createRequestAndResponse,
-	defaultLogger,
-} from '../test-utils.js';
+import { loadFixture } from '../../test-utils.js';
 
-const fileSystem = {
-	'/src/pages/index.js': `export const GET = () => {
-		const headers = new Headers();
-		headers.append('x-single', 'single');
-		headers.append('x-triple', 'one');
-		headers.append('x-triple', 'two');
-		headers.append('x-triple', 'three');
-		headers.append('Set-cookie', 'hello');
-		headers.append('Set-Cookie', 'world');
-		return new Response(null, { headers });
-	}`,
-	'/src/pages/streaming.js': `export const GET = ({ locals }) => {
-		let sentChunks = 0;
-
-		const readableStream = new ReadableStream({
-			async pull(controller) {
-				if (sentChunks === 3) return controller.close();
-				else sentChunks++;
-
-				await new Promise(resolve => setTimeout(resolve, 1000));
-				controller.enqueue(new TextEncoder().encode('hello'));
-			},
-			cancel() {
-				locals.cancelledByTheServer = true;
-			}
-		});
-
-		return new Response(readableStream, {
-			headers: {
-				"Content-Type": "text/event-stream"
-			}
-		})
-	}`,
-	'/src/pages/setCookies.js': `export const GET = context => {
-		const headers = new Headers();
-    context.cookies.set('key1', 'value1');
-    context.cookies.set('key2', 'value2');
-    headers.append('set-cookie', 'key3=value3');
-    headers.append('set-cookie', 'key4=value4');
-		return new Response(null, { headers });
-	}`,
-};
-
-describe('endpoints', () => {
-	let container;
-	let settings;
+describe('endpoint responses', () => {
+	/** @type {import('../../test-utils.js').Fixture} */
+	let fixture;
+	/** @type {import('../../test-utils.js').DevServer} */
+	let devServer;
 
 	before(async () => {
-		const fixture = await createFixture(fileSystem);
-		settings = await createBasicSettings({
-			root: fixture.path,
-			output: 'server',
-			adapter: testAdapter(),
+		fixture = await loadFixture({
+			root: './fixtures/endpoint-routing/',
 		});
-		container = await createContainer({
-			settings,
-			logger: defaultLogger,
-		});
+		devServer = await fixture.startDevServer();
 	});
 
 	after(async () => {
-		await container.close();
+		await devServer.stop();
 	});
 
 	it('Headers with multiple values (set-cookie special case)', async () => {
-		const { req, res, done } = createRequestAndResponse({
-			method: 'GET',
-			url: '/',
-		});
-		container.handle(req, res);
-		await done;
-		const headers = res.getHeaders();
-		assert.deepEqual(headers, {
-			'x-single': 'single',
-			'x-triple': 'one, two, three',
-			'set-cookie': ['hello', 'world'],
-			vary: 'Origin',
-		});
+		const res = await fixture.fetch('/multi-headers');
+		assert.equal(res.headers.get('x-single'), 'single');
+		assert.equal(res.headers.get('x-triple'), 'one, two, three');
+		// set-cookie is exposed via getSetCookie() in the fetch API
+		const setCookies = res.headers.getSetCookie();
+		assert.ok(setCookies.includes('hello'), 'Should contain hello cookie');
+		assert.ok(setCookies.includes('world'), 'Should contain world cookie');
 	});
 
 	it('Can bail on streaming', async () => {
-		const { req, res, done } = createRequestAndResponse({
-			method: 'GET',
-			url: '/streaming',
-		});
+		const controller = new AbortController();
 
-		container.handle(req, res);
+		// Start fetching the streaming endpoint
+		const resPromise = fixture.fetch('/streaming', { signal: controller.signal });
 
+		// Wait briefly then abort
 		await new Promise((resolve) => setTimeout(resolve, 500));
-		res.emit('close');
+		controller.abort();
 
+		// The request should be aborted without throwing unhandled errors
 		try {
-			await done;
-
-			assert.ok(true);
+			await resPromise;
 		} catch (err) {
-			assert.fail(err);
+			// AbortError is expected
+			assert.ok(err.name === 'AbortError', 'Expected an AbortError');
 		}
 	});
 
 	it('Accept setCookie from both context and headers', async () => {
-		const { req, res, done } = createRequestAndResponse({
-			method: 'GET',
-			url: '/setCookies',
-		});
-		container.handle(req, res);
-		await done;
-		const headers = res.getHeaders();
-		assert.deepEqual(headers, {
-			'set-cookie': ['key1=value1', 'key2=value2', 'key3=value3', 'key4=value4'],
-			vary: 'Origin',
-		});
+		const res = await fixture.fetch('/setCookies');
+		const setCookies = res.headers.getSetCookie();
+		assert.ok(
+			setCookies.some((c) => c.startsWith('key1=value1')),
+			'Should contain key1 cookie',
+		);
+		assert.ok(
+			setCookies.some((c) => c.startsWith('key2=value2')),
+			'Should contain key2 cookie',
+		);
+		assert.ok(
+			setCookies.some((c) => c.startsWith('key3=value3')),
+			'Should contain key3 cookie',
+		);
+		assert.ok(
+			setCookies.some((c) => c.startsWith('key4=value4')),
+			'Should contain key4 cookie',
+		);
 	});
 });

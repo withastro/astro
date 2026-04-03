@@ -1,4 +1,5 @@
-import type { Plugin, ViteDevServer } from 'vite';
+import { fileURLToPath } from 'node:url';
+import { normalizePath, type Plugin, type ViteDevServer } from 'vite';
 import { ACTIONS_ENTRYPOINT_VIRTUAL_MODULE_ID } from '../actions/consts.js';
 import { toFallbackType } from '../core/app/common.js';
 import { toRoutingStrategy } from '../core/app/entrypoints/index.js';
@@ -41,8 +42,19 @@ export function serializedManifestPlugin({
 	command: 'dev' | 'build';
 	sync: boolean;
 }): Plugin {
+	const normalizedSrcDir = normalizePath(fileURLToPath(settings.config.srcDir));
+	let encodedKeyPromise: Promise<string> | undefined;
+
+	function getEncodedKey() {
+		encodedKeyPromise ??= (async () => {
+			const key = hasEnvironmentKey() ? await getEnvironmentKey() : await createKey();
+			return encodeKey(key);
+		})();
+		return encodedKeyPromise;
+	}
+
 	function reloadManifest(path: string | null, server: ViteDevServer) {
-		if (path != null && path.startsWith(settings.config.srcDir.pathname)) {
+		if (path != null && normalizePath(path).startsWith(normalizedSrcDir)) {
 			const environment = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
 			const virtualMod = environment.moduleGraph.getModuleById(SERIALIZED_MANIFEST_RESOLVED_ID);
 			if (!virtualMod) return;
@@ -58,6 +70,16 @@ export function serializedManifestPlugin({
 			server.watcher.on('add', (path) => reloadManifest(path, server));
 			server.watcher.on('unlink', (path) => reloadManifest(path, server));
 			server.watcher.on('change', (path) => reloadManifest(path, server));
+		},
+
+		// Restrict to server environments only since the generated code imports
+		// server-only virtual modules (virtual:astro:routes, virtual:astro:pages)
+		applyToEnvironment(environment) {
+			return (
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.astro ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
+			);
 		},
 
 		resolveId: {
@@ -80,7 +102,7 @@ export function serializedManifestPlugin({
 					// See plugin-manifest.ts for full architecture explanation
 					manifestData = `'${MANIFEST_REPLACE}'`;
 				} else {
-					const serialized = await createSerializedManifest(settings);
+					const serialized = await createSerializedManifest(settings, await getEncodedKey());
 					manifestData = JSON.stringify(serialized);
 				}
 				const hasCacheConfig = !!settings.config.experimental?.cache?.provider;
@@ -119,7 +141,10 @@ export function serializedManifestPlugin({
 	};
 }
 
-async function createSerializedManifest(settings: AstroSettings): Promise<SerializedSSRManifest> {
+async function createSerializedManifest(
+	settings: AstroSettings,
+	encodedKey?: string,
+): Promise<SerializedSSRManifest> {
 	let i18nManifest: SSRManifestI18n | undefined;
 	let csp: SSRManifestCSP | undefined;
 	if (settings.config.i18n) {
@@ -179,7 +204,12 @@ async function createSerializedManifest(settings: AstroSettings): Promise<Serial
 		actionBodySizeLimit: settings.config.security?.actionBodySizeLimit
 			? settings.config.security.actionBodySizeLimit
 			: 1024 * 1024, // 1mb default
-		key: await encodeKey(hasEnvironmentKey() ? await getEnvironmentKey() : await createKey()),
+		serverIslandBodySizeLimit: settings.config.security?.serverIslandBodySizeLimit
+			? settings.config.security.serverIslandBodySizeLimit
+			: 1024 * 1024, // 1mb default
+		key:
+			encodedKey ??
+			(await encodeKey(hasEnvironmentKey() ? await getEnvironmentKey() : await createKey())),
 		sessionConfig: sessionConfigToManifest(settings.config.session),
 		cacheConfig: cacheConfigToManifest(
 			settings.config.experimental?.cache,

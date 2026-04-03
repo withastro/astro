@@ -24,12 +24,12 @@
     "color": "#17191E",
     "theme": "dark"
   },
-  "version": "2.16.9-beta.0",
+  "version": "2.16.14",
   "author": "withastro",
   "license": "MIT",
   "publisher": "astro-build",
   "engines": {
-    "vscode": "^1.90.0"
+    "vscode": "^1.92.0"
   },
   "activationEvents": [
     "workspaceContains:astro.config.*"
@@ -50,7 +50,6 @@
     "typescriptServerPlugins": [
       {
         "name": "astro-ts-plugin-bundle",
-        "path": "./dist/astro-ts-plugin-bundle",
         "enableForWorkspaceTypeScriptVersions": true
       }
     ],
@@ -247,15 +246,15 @@
     "update-grammar-snapshots": "node ./test/grammar/test.mjs --updateSnapshot"
   },
   "devDependencies": {
-    "@astrojs/language-server": "^2.16.1-alpha.0",
-    "@astrojs/ts-plugin": "^1.10.6",
+    "@astrojs/language-server": "^2.16.6",
+    "@astrojs/ts-plugin": "^1.10.7",
     "@types/mocha": "^10.0.10",
     "@types/node": "^20.9.0",
-    "@types/vscode": "^1.90.0",
+    "@types/vscode": "^1.92.0",
     "@volar/language-server": "~2.4.28",
     "@volar/vscode": "~2.4.28",
-    "@vscode/test-electron": "^2.5.2",
     "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2",
     "@vscode/vsce": "2.32.0",
     "esbuild": "^0.17.19",
     "esbuild-plugin-copy": "^2.1.1",

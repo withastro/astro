@@ -119,6 +119,7 @@ export type SSRManifest = {
 	checkOrigin: boolean;
 	allowedDomains?: Partial<RemotePattern>[];
 	actionBodySizeLimit: number;
+	serverIslandBodySizeLimit: number;
 	sessionConfig?: SSRManifestSession;
 	cacheConfig?: SSRManifestCache;
 	cacheDir: URL;

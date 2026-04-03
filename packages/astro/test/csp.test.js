@@ -121,6 +121,43 @@ describe('CSP', () => {
 		assert.ok(styleMatches && styleMatches.length > 0, 'CSP should contain style hashes');
 	});
 
+	it('should generate hashes for SVG component inline styles', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/csp/',
+			outDir: './dist/csp-svg',
+		});
+		await fixture.build();
+		const html = await fixture.readFile('/svg/index.html');
+		const $ = cheerio.load(html);
+
+		// The SVG should be rendered inline with its <style> tag intact
+		const svg = $('svg');
+		assert.ok(svg.length > 0, 'SVG should be rendered inline');
+		const svgStyle = $('svg style');
+		assert.ok(svgStyle.length > 0, 'SVG should contain its <style> element');
+		assert.ok(
+			svgStyle.text().includes('.square{fill: red}'),
+			'SVG style should have original content',
+		);
+
+		// The style should NOT be duplicated in the <head> — it stays inside the <svg>
+		const headStyles = $('head style');
+		const headHasSvgStyle = headStyles
+			.toArray()
+			.some((el) => $(el).text().includes('.square{fill: red}'));
+		assert.ok(!headHasSvgStyle, 'SVG style should not be duplicated in <head>');
+
+		// The CSP meta tag should contain a hash for the SVG's inline style
+		const meta = $('meta[http-equiv="Content-Security-Policy"]');
+		const cspContent = meta.attr('content').toString();
+		assert.ok(cspContent.includes('style-src'), 'CSP should have style-src directive');
+		// sha256 hash of ".square{fill: red}"
+		assert.ok(
+			cspContent.includes("'sha256-TFjYo91aZcH4Kex6qdJUFz/POAVYu5H/OgkpRfHpLfw='"),
+			'CSP should contain the hash of the SVG inline style',
+		);
+	});
+
 	it('should return CSP header inside a hook', async () => {
 		let routeToHeaders;
 		fixture = await loadFixture({

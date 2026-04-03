@@ -110,7 +110,9 @@ async function enhanceCompileError({
 	const scannedFrontmatter = frontmatterRE.exec(source);
 	if (scannedFrontmatter) {
 		// Top-level return is not supported, so replace `return` with throw
-		const frontmatter = scannedFrontmatter[1].replace(/\breturn\b/g, 'throw');
+		const frontmatter = scannedFrontmatter[1]
+			.replace(/\breturn\s*;/g, 'throw 0;')
+			.replace(/\breturn\b/g, 'throw ');
 
 		// If frontmatter does not actually include the offending line, skip
 		if (lineText && !frontmatter.includes(lineText)) throw err;

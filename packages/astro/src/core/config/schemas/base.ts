@@ -4,6 +4,7 @@ import type {
 	RemarkPlugin as _RemarkPlugin,
 	RemarkRehype as _RemarkRehype,
 	ShikiConfig,
+	Smartypants as _Smartypants,
 } from '@astrojs/markdown-remark';
 import { markdownConfigDefaults, syntaxHighlightDefaults } from '@astrojs/markdown-remark';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
@@ -49,6 +50,8 @@ type RehypePlugin = ComplexifyWithUnion<_RehypePlugin>;
 type RemarkPlugin = ComplexifyWithUnion<_RemarkPlugin>;
 /** @lintignore */
 export type RemarkRehype = ComplexifyWithOmit<_RemarkRehype>;
+/** @lintignore */
+export type Smartypants = ComplexifyWithOmit<_Smartypants>;
 
 export const ASTRO_CONFIG_DEFAULTS = {
 	root: '.',
@@ -95,6 +98,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		allowedDomains: [],
 		csp: false,
 		actionBodySizeLimit: 1024 * 1024,
+		serverIslandBodySizeLimit: 1024 * 1024,
 	},
 	env: {
 		schema: {},
@@ -116,6 +120,26 @@ export const ASTRO_CONFIG_DEFAULTS = {
 const highlighterTypesSchema = z
 	.union([z.literal('shiki'), z.literal('prism')])
 	.default(syntaxHighlightDefaults.type);
+
+const quoteCharacterMapSchema = z.object({
+	double: z.string(),
+	single: z.string(),
+});
+
+const smartypantsOptionsSchema: z.ZodType<Smartypants> = z.object({
+	backticks: z.union([z.boolean(), z.literal('all')]).default(true),
+	closingQuotes: quoteCharacterMapSchema.default({
+		double: '”',
+		single: '’',
+	}),
+	dashes: z.union([z.boolean(), z.literal('inverted'), z.literal('oldschool')]).default(true),
+	ellipses: z.union([z.boolean(), z.literal('spaced'), z.literal('unspaced')]).default(true),
+	openingQuotes: quoteCharacterMapSchema.default({
+		double: '“',
+		single: '‘',
+	}),
+	quotes: z.boolean().default(true),
+});
 
 export const AstroConfigSchema = z.object({
 	root: z
@@ -384,7 +408,13 @@ export const AstroConfigSchema = z.object({
 				.custom<RemarkRehype>((data) => data instanceof Object && !Array.isArray(data))
 				.default(ASTRO_CONFIG_DEFAULTS.markdown.remarkRehype),
 			gfm: z.boolean().default(ASTRO_CONFIG_DEFAULTS.markdown.gfm),
-			smartypants: z.boolean().default(ASTRO_CONFIG_DEFAULTS.markdown.smartypants),
+			smartypants: z
+				.union([z.boolean(), smartypantsOptionsSchema])
+				.transform((val): false | Smartypants => {
+					if (val === true) return smartypantsOptionsSchema.parse({});
+					return val;
+				})
+				.prefault(ASTRO_CONFIG_DEFAULTS.markdown.smartypants),
 		})
 		.prefault({}),
 	vite: z
@@ -445,6 +475,10 @@ export const AstroConfigSchema = z.object({
 				.number()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.security.actionBodySizeLimit),
+			serverIslandBodySizeLimit: z
+				.number()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.security.serverIslandBodySizeLimit),
 			csp: z
 				.union([
 					z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.security.csp),

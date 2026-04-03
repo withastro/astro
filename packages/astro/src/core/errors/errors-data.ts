@@ -38,7 +38,7 @@ export const UnknownCompilerError = {
 /**
  * @docs
  * @see
- * - [Official integrations](https://docs.astro.build/en/guides/integrations-guide/#official-integrations)
+ * - [Official integrations](https://docs.astro.build/en/guides/integrations/#official-integrations)
  * - [Astro.clientAddress](https://docs.astro.build/en/reference/api-reference/#clientaddress)
  * @description
  * The adapter you're using unfortunately does not support `Astro.clientAddress`.
@@ -145,7 +145,7 @@ export const MissingMediaQueryDirective = {
  * @message Unable to render `COMPONENT_NAME`. There are `RENDERER_COUNT` renderer(s) configured in your `astro.config.mjs` file, but none were able to server-side render `COMPONENT_NAME`.
  * @see
  * - [Frameworks components](https://docs.astro.build/en/guides/framework-components/)
- * - [UI Frameworks](https://docs.astro.build/en/guides/integrations-guide/#official-integrations)
+ * - [UI Frameworks](https://docs.astro.build/en/guides/integrations/#official-integrations)
  * @description
  * None of the installed integrations were able to render the component you imported. Make sure to install the appropriate integration for the type of component you are trying to include in your page.
  *
@@ -726,6 +726,36 @@ export const ExpectedNotESMImage = {
 	message:
 		'An ESM-imported image cannot be passed directly to `getImage()`. Instead, pass an object with the image in the `src` property.',
 	hint: 'Try changing `getImage(myImage)` to `getImage({ src: myImage })`',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ * - [Images](https://docs.astro.build/en/guides/images/)
+ * - [getImage()](https://docs.astro.build/en/reference/modules/astro-assets/#getimage)
+ * @description
+ * The `getImage()` function is only available on the server. To use images on the client, either render the `src` from `getImage()` during the server render so it can be used in client-side scripts, or use a standard `<img>` tag.
+ *
+ * ```astro
+ * ---
+ * import { getImage } from "astro:assets";
+ * import myImage from "../assets/my_image.png";
+ *
+ * const optimizedImage = await getImage({ src: myImage, width: 300 });
+ * ---
+ *
+ * <script define:vars={{ imageSrc: optimizedImage.src }}>
+ *   // Use imageSrc in client-side code
+ *   document.getElementById('myImage').src = imageSrc;
+ * </script>
+ * ```
+ */
+export const GetImageNotUsedOnServer = {
+	name: 'GetImageNotUsedOnServer',
+	title: '`getImage()` must be used on the server.',
+	message:
+		'`getImage()` should only be used on the server. To use images on the client, render the `src` from `getImage()` during the server render, then pass it to the client for usage.',
+	hint: 'See https://docs.astro.build/en/reference/modules/astro-assets/#getimage for more information on getImage().',
 } satisfies ErrorData;
 
 /**
@@ -1661,7 +1691,7 @@ export const GetEntryDeprecationError = {
 	title: 'Invalid use of `getDataEntryById` or `getEntryBySlug` function.',
 	message: (collection: string, method: string) =>
 		`The \`${method}\` function is deprecated and cannot be used to query the "${collection}" collection. Use \`getEntry\` instead.`,
-	hint: 'See https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information.',
+	hint: 'See https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information.',
 } satisfies ErrorData;
 
 /**
@@ -1686,7 +1716,7 @@ export const InvalidContentEntryFrontmatterError = {
 			`**${String(collection)} → ${String(
 				entryId,
 			)}** frontmatter does not match collection schema.`,
-			error.message,
+			...error.issues.map((issue) => `  **${issue.path.join('.')}**: ${issue.message}`),
 		].join('\n');
 	},
 	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content schemas.',
@@ -1711,7 +1741,7 @@ export const InvalidContentEntryDataError = {
 	message(collection: string, entryId: string, error: $ZodError) {
 		return [
 			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.\n`,
-			`  **: ${error.message}`,
+			...error.issues.map((issue) => `  **${issue.path.join('.')}**: ${issue.message}`),
 			'',
 		].join('\n');
 	},
@@ -1725,7 +1755,7 @@ export const InvalidContentEntryDataError = {
  * Found legacy content config file in "src/content/config.ts". Please move this file to "src/content.config.ts" and ensure each collection has a loader defined.<br/>
  * @description
  * A legacy content config file was found. Move the file to `src/content.config.ts` and update any collection definitions if needed.
- * See the [Astro 6 migration guide](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections) for more information.
+ * See the [Astro 6 migration guide](https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections) for more information.
  */
 
 export const LegacyContentConfigError = {
@@ -1733,7 +1763,7 @@ export const LegacyContentConfigError = {
 	title: 'Legacy content config file found.',
 	message: (filename: string) =>
 		`Found legacy content config file in "${filename}". Please move this file to "src/content.config.${filename.split('.').at(-1)}" and ensure each collection has a loader defined.`,
-	hint: 'See https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information on updating collections.',
+	hint: 'See https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information on updating collections.',
 } satisfies ErrorData;
 
 /**
@@ -1751,7 +1781,7 @@ export const ContentCollectionMissingLoader = {
 	title: 'Content collection is missing a `loader` definition.',
 	message: (file = 'your content config file') =>
 		`Collections must have a \`loader\` defined. Check your collection definitions in ${file}.`,
-	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content loaders and https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information on migrating from legacy collections.',
+	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content loaders and https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information on migrating from legacy collections.',
 } satisfies ErrorData;
 
 /**
@@ -1761,7 +1791,7 @@ export const ContentCollectionMissingLoader = {
  * Invalid collection type "data". Remove the type from your collection definition in your content config file.
  * @description
  * Content collections should no longer have a `type` field. Remove this field from your content config file.
- * See the [Astro 6 migration guide](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections) for more information.
+ * See the [Astro 6 migration guide](https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections) for more information.
  */
 
 export const ContentCollectionInvalidType = {
@@ -1769,7 +1799,7 @@ export const ContentCollectionInvalidType = {
 	title: 'Content collection has an invalid `type` field.',
 	message: (type: string, file = 'your content config file') =>
 		`Invalid collection type "${type}". Remove the type from your collection definition in ${file}.`,
-	hint: 'See https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information on migrating from legacy collections.',
+	hint: 'See https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information on migrating from legacy collections.',
 } satisfies ErrorData;
 
 /**
@@ -1817,7 +1847,7 @@ export const ContentEntryDataError = {
 	message(collection: string, entryId: string, error: $ZodError) {
 		return [
 			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.\n`,
-			`  **: ${error.message}`,
+			...error.issues.map((issue) => `  **${issue.path.join('.')}**: ${issue.message}`),
 			'',
 		].join('\n');
 	},
@@ -1832,7 +1862,7 @@ export const ContentEntryDataError = {
  * @description
  * Error in live content config.
  * @see
- * - [Defining live content schemas](https://v6.docs.astro.build/en/reference/modules/astro-content/#schema-1)
+ * - [Defining live content schemas](https://docs.astro.build/en/reference/modules/astro-content/#schema-1)
  */
 
 export const LiveContentConfigError = {
@@ -1974,7 +2004,7 @@ export const UnsupportedConfigTransformError = {
 /**
  * @docs
  * @see
- *  - [Passing a `parser` to the `file` loader](https://v6.docs.astro.build/en/reference/content-loader-reference/#parser)
+ *  - [Passing a `parser` to the `file` loader](https://docs.astro.build/en/reference/content-loader-reference/#parser)
  * @description
  * The `file` loader can’t determine which parser to use. Please provide a custom parser (e.g. `csv-parse`) to create a collection from your file type.
  */

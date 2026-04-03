@@ -149,7 +149,7 @@ export interface AstroAdapterClientConfig {
 interface AdapterExplicitProperties {
 	/**
 	 * @deprecated `entrypointResolution: "explicit"` is deprecated. `entrypointResolution: "auto"` will become the default,
-	 * and only, behavior in a future major version. See [how to migrate](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#deprecated-createexports-and-start-adapter-api).
+	 * and only, behavior in a future major version. See [how to migrate](https://docs.astro.build/en/guides/upgrade-to/v6/#deprecated-createexports-and-start-adapter-api).
 	 *
 	 * Specifies the method Astro will use to resolve the server entrypoint: `"auto"` (recommended)
 	 * or `"explicit"` (default, but deprecated):
@@ -259,8 +259,11 @@ export interface AstroPrerenderer {
 	getStaticPaths: () => Promise<PathWithRoute[]>;
 	/**
 	 * Renders a single page. Called by Astro for each path returned by getStaticPaths.
-	 * @param request - The request to render
-	 * @param options - Render options including routeData
+	 * @param request - The request to render. The URL reflects the build format
+	 *   (e.g. trailing slash for `directory` format). To get the canonical pathname,
+	 *   use the `pathname` from the `PathWithRoute` entry returned by `getStaticPaths`.
+	 * @param options - Render options
+	 * @param options.routeData - The matched route for this path
 	 */
 	render: (request: Request, options: { routeData: RouteData }) => Promise<Response>;
 	/**
@@ -454,6 +457,11 @@ export interface IntegrationResolvedRoute
 	 * {@link RouteData.redirectRoute}
 	 */
 	redirectRoute?: IntegrationResolvedRoute;
+
+	/**
+	 * {@link RouteData.fallbackRoutes}
+	 */
+	fallbackRoutes: IntegrationResolvedRoute[];
 
 	/**
 	 * @param {any} data The optional parameters of the route

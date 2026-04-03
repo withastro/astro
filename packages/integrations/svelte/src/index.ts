@@ -2,6 +2,7 @@ import type { Options } from '@sveltejs/vite-plugin-svelte';
 import { svelte, vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import type { AstroIntegration, AstroRenderer } from 'astro';
 import type { Plugin } from 'vite';
+import { createSvelteOptimizeEsbuildPlugins } from './optimize-esbuild-plugins.js';
 
 function getRenderer(): AstroRenderer {
 	return {
@@ -38,18 +39,20 @@ function configEnvironmentPlugin(): Plugin {
 				((environmentName === 'ssr' || environmentName === 'prerender') &&
 					options.optimizeDeps?.noDiscovery === false)
 			) {
+				const isServer = environmentName !== 'client';
 				return {
 					optimizeDeps: {
-						include:
-							environmentName === 'client'
-								? ['@astrojs/svelte/client.js']
-								: environmentName === 'ssr' || environmentName === 'prerender'
-									? ['svelte/server', 'svelte/internal/server']
-									: [],
-						exclude:
-							environmentName === 'ssr' || environmentName === 'prerender'
-								? ['@astrojs/svelte/server.js']
-								: [],
+						include: isServer
+							? ['svelte/server', 'svelte/internal/server']
+							: ['@astrojs/svelte/client.js'],
+						exclude: isServer ? ['@astrojs/svelte/server.js'] : [],
+						...(isServer
+							? {
+									esbuildOptions: {
+										plugins: createSvelteOptimizeEsbuildPlugins('server'),
+									},
+								}
+							: {}),
 					},
 				};
 			}

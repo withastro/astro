@@ -10,6 +10,7 @@ import {
 } from '../../core/errors/errors-data.js';
 import { AstroError } from '../../core/errors/errors.js';
 import { removeTrailingForwardSlash } from '../../core/path.js';
+import { BodySizeLimitError, readBodyWithLimit } from '../../core/request-body.js';
 import type { APIContext } from '../../types/public/index.js';
 import { ACTION_QUERY_PARAMS, ACTION_RPC_ROUTE_PATTERN } from '../consts.js';
 import {
@@ -267,26 +268,36 @@ async function parseRequestBody(request: Request, bodySizeLimit: number) {
 			message: `Request body exceeds ${bodySizeLimit} bytes`,
 		});
 	}
-	if (hasContentType(contentType, formContentTypes)) {
-		if (!hasContentLength) {
-			const body = await readRequestBodyWithLimit(request.clone(), bodySizeLimit);
-			const formRequest = new Request(request.url, {
-				method: request.method,
-				headers: request.headers,
-				body: toArrayBuffer(body),
+	try {
+		if (hasContentType(contentType, formContentTypes)) {
+			if (!hasContentLength) {
+				const body = await readBodyWithLimit(request.clone(), bodySizeLimit);
+				const formRequest = new Request(request.url, {
+					method: request.method,
+					headers: request.headers,
+					body: toArrayBuffer(body),
+				});
+				return await formRequest.formData();
+			}
+			return await request.clone().formData();
+		}
+		if (hasContentType(contentType, ['application/json'])) {
+			if (contentLength === 0) return undefined;
+			if (!hasContentLength) {
+				const body = await readBodyWithLimit(request.clone(), bodySizeLimit);
+				if (body.byteLength === 0) return undefined;
+				return JSON.parse(new TextDecoder().decode(body));
+			}
+			return await request.clone().json();
+		}
+	} catch (e) {
+		if (e instanceof BodySizeLimitError) {
+			throw new ActionError({
+				code: 'CONTENT_TOO_LARGE',
+				message: `Request body exceeds ${bodySizeLimit} bytes`,
 			});
-			return await formRequest.formData();
 		}
-		return await request.clone().formData();
-	}
-	if (hasContentType(contentType, ['application/json'])) {
-		if (contentLength === 0) return undefined;
-		if (!hasContentLength) {
-			const body = await readRequestBodyWithLimit(request.clone(), bodySizeLimit);
-			if (body.byteLength === 0) return undefined;
-			return JSON.parse(new TextDecoder().decode(body));
-		}
-		return await request.clone().json();
+		throw e;
 	}
 	throw new TypeError('Unsupported content type');
 }
@@ -312,11 +323,19 @@ function isActionAPIContext(ctx: ActionAPIContext): boolean {
 export function formDataToObject<T extends z.$ZodObject>(
 	formData: FormData,
 	schema: T,
+	/** @internal */
+	prefix = '',
 ): Record<string, unknown> {
+	const formKeys = [...formData.keys()];
 	const obj: Record<string, unknown> = schema._zod.def.catchall
-		? Object.fromEntries(formData.entries())
+		? Object.fromEntries(
+				[...formData.entries()]
+					.filter(([k]) => k.startsWith(prefix))
+					.map(([k, v]) => [k.slice(prefix.length), v]),
+			)
 		: {};
 	for (const [key, baseValidator] of Object.entries(schema._zod.def.shape)) {
+		const prefixedKey = prefix + key;
 		let validator = baseValidator;
 
 		while (
@@ -325,7 +344,7 @@ export function formDataToObject<T extends z.$ZodObject>(
 			validator instanceof z.$ZodDefault
 		) {
 			// use default value when key is undefined
-			if (validator instanceof z.$ZodDefault && !formData.has(key)) {
+			if (validator instanceof z.$ZodDefault && !formDataHasKeyOrPrefix(formKeys, prefixedKey)) {
 				obj[key] =
 					validator._zod.def.defaultValue instanceof Function
 						? validator._zod.def.defaultValue()
@@ -334,19 +353,53 @@ export function formDataToObject<T extends z.$ZodObject>(
 			validator = validator._zod.def.innerType;
 		}
 
-		if (!formData.has(key) && key in obj) {
+		// Unwrap pipe (from .transform() / .pipe()) to find nested objects
+		while (validator instanceof z.$ZodPipe) {
+			validator = validator._zod.def.in;
+		}
+
+		// Resolve nested discriminatedUnion to the matching variant
+		if (validator instanceof z.$ZodDiscriminatedUnion) {
+			const typeKey = validator._zod.def.discriminator;
+			const typeValue = formData.get(prefixedKey + '.' + typeKey);
+			if (typeof typeValue === 'string') {
+				const match = validator._zod.def.options.find((option: any) =>
+					option.def.shape[typeKey].values.has(typeValue),
+				);
+				if (match) {
+					validator = match;
+				}
+			}
+		}
+
+		if (validator instanceof z.$ZodObject) {
+			const nestedPrefix = prefixedKey + '.';
+			const hasNestedKeys = formKeys.some((k) => k.startsWith(nestedPrefix));
+			if (hasNestedKeys) {
+				obj[key] = formDataToObject(formData, validator, nestedPrefix);
+			} else if (!(key in obj)) {
+				// No nested keys and no default was set — respect optional/nullable
+				obj[key] = baseValidator instanceof z.$ZodNullable ? null : undefined;
+			}
+		} else if (!formData.has(prefixedKey) && key in obj) {
 			// continue loop if form input is not found and default value is set
 			continue;
 		} else if (validator instanceof z.$ZodBoolean) {
-			const val = formData.get(key);
-			obj[key] = val === 'true' ? true : val === 'false' ? false : formData.has(key);
+			const val = formData.get(prefixedKey);
+			obj[key] = val === 'true' ? true : val === 'false' ? false : formData.has(prefixedKey);
 		} else if (validator instanceof z.$ZodArray) {
-			obj[key] = handleFormDataGetAll(key, formData, validator);
+			obj[key] = handleFormDataGetAll(prefixedKey, formData, validator);
 		} else {
-			obj[key] = handleFormDataGet(key, formData, validator, baseValidator);
+			obj[key] = handleFormDataGet(prefixedKey, formData, validator, baseValidator);
 		}
 	}
 	return obj;
+}
+
+/** Check if formKeys contains an exact key or any keys with the given prefix (for nested objects). */
+function formDataHasKeyOrPrefix(formKeys: string[], key: string): boolean {
+	const prefix = key + '.';
+	return formKeys.some((k) => k === key || k.startsWith(prefix));
 }
 
 function handleFormDataGetAll(key: string, formData: FormData, validator: z.$ZodArray) {
@@ -471,34 +524,6 @@ export function serializeActionResult(res: SafeResult<any, any>): SerializedActi
 		body,
 	};
 }
-async function readRequestBodyWithLimit(request: Request, limit: number): Promise<Uint8Array> {
-	if (!request.body) return new Uint8Array();
-	const reader = request.body.getReader();
-	const chunks: Uint8Array[] = [];
-	let received = 0;
-	while (true) {
-		const { done, value } = await reader.read();
-		if (done) break;
-		if (value) {
-			received += value.byteLength;
-			if (received > limit) {
-				throw new ActionError({
-					code: 'CONTENT_TOO_LARGE',
-					message: `Request body exceeds ${limit} bytes`,
-				});
-			}
-			chunks.push(value);
-		}
-	}
-	const buffer = new Uint8Array(received);
-	let offset = 0;
-	for (const chunk of chunks) {
-		buffer.set(chunk, offset);
-		offset += chunk.byteLength;
-	}
-	return buffer;
-}
-
 function toArrayBuffer(buffer: Uint8Array): ArrayBuffer {
 	const copy = new Uint8Array(buffer.byteLength);
 	copy.set(buffer);
