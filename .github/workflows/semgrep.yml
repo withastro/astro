@@ -1,0 +1,27 @@
+# Security scan that runs nightly on the repo, provided courtesy of Cloudflare.
+# This workflow uses Semgrep to scan the codebase for security vulnerabilities.
+
+name: Security (Semgrep)
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: '0 0 * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  semgrep:
+    name: semgrep/ci
+    runs-on: ubuntu-latest
+    env:
+      SEMGREP_APP_TOKEN: ${{ secrets.CLOUDFLARE_SEMGREP_APP_TOKEN }}
+      SEMGREP_URL: https://cloudflare.semgrep.dev
+      SEMGREP_APP_URL: https://cloudflare.semgrep.dev
+      SEMGREP_VERSION_CHECK_URL: https://cloudflare.semgrep.dev/api/check-version
+    container:
+      image: semgrep/semgrep
+    steps:
+      - uses: actions/checkout@v4
+      - run: semgrep ci
