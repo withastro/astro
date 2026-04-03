@@ -1,6 +1,7 @@
 import type { Options } from '@sveltejs/vite-plugin-svelte';
 import { svelte, vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import type { AstroIntegration, AstroRenderer } from 'astro';
+import { fileURLToPath } from 'node:url';
 import type { Plugin } from 'vite';
 import { crawlFrameworkPkgs } from 'vitefu';
 import { createSvelteOptimizeEsbuildPlugins } from './optimize-esbuild-plugins.js';
@@ -23,7 +24,7 @@ export default function svelteIntegration(options?: Options): AstroIntegration {
 				addRenderer(getRenderer());
 
 				const sveltePackages = await crawlFrameworkPkgs({
-					root: config.root.pathname,
+					root: fileURLToPath(config.root),
 					isBuild: false,
 					isFrameworkPkgByJson(pkgJson) {
 						return !!pkgJson.peerDependencies?.svelte;
