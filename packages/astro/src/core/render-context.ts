@@ -394,7 +394,10 @@ export class RenderContext {
 					if (this.routeData.prerender && this.getStaticAsset) {
 						const staticAssetResponse = await this.getStaticAsset(this.routeData, this.pathname);
 						if (!staticAssetResponse) {
-							return new Response(null, { status: 404, headers: { [ROUTE_TYPE_HEADER]: 'fallback' } });
+							return new Response(null, {
+								status: 404,
+								headers: { [ROUTE_TYPE_HEADER]: 'fallback' },
+							});
 						}
 						return new Response(staticAssetResponse.body, {
 							status: 404,

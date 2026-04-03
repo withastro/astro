@@ -17,7 +17,10 @@ import type { Options, RequestHandler } from './types.js';
  * Read a prerendered page from disk by output path and return it as a Response.
  * Returns undefined if the file doesn't exist or can't be read.
  */
-async function readPageFromDisk(client: string, staticAssetPath: string): Promise<Response | undefined> {
+async function readPageFromDisk(
+	client: string,
+	staticAssetPath: string,
+): Promise<Response | undefined> {
 	let stream: ReturnType<typeof createReadStream> | undefined;
 	try {
 		stream = createReadStream(path.join(client, staticAssetPath));
@@ -83,7 +86,10 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 		return new Response(null, { status: 404 });
 	};
 
-	const getStaticAsset = async (_routeData: RouteData, pathname: string): Promise<Response | undefined> => {
+	const getStaticAsset = async (
+		_routeData: RouteData,
+		pathname: string,
+	): Promise<Response | undefined> => {
 		const staticAssetPath = getStaticAssetPath(pathname, {
 			base: app.manifest.base,
 			buildFormat: app.manifest.buildFormat,

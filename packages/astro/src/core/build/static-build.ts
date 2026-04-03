@@ -209,7 +209,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				// Generation and cleanup
 				const prerenderOutputDir = getPrerenderOutputDirectory(settings);
 				const buildOutput = settings.buildOutput;
-				if (buildOutput) {
+				if (buildOutput === 'static' || buildOutput === 'server') {
 					settings.timer.start(`${buildOutput} generate`);
 					if (buildOutput === 'static') {
 						// Keep static output behavior: move assets before generation.

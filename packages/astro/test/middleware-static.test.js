@@ -142,6 +142,22 @@ describe('Middleware for prerendered pages at request time', () => {
 		assert.equal(requestedPathname, '/fr/about');
 		assert.match(await response.text(), /Bonjour page statique/);
 	});
+
+	it('resolves dynamic prerendered static paths through middleware', async () => {
+		const getStaticAsset = async (_route, pathname) => {
+			const html = await readStaticHtml(pathname);
+			return new Response(html, {
+				headers: { 'content-type': 'text/html; charset=utf-8' },
+			});
+		};
+
+		const request = new Request('http://example.com/posts/alpha');
+		const routeData = app.match(request, true);
+		const response = await app.render(request, { routeData, getStaticAsset });
+
+		assert.equal(response.status, 200);
+		assert.match(await response.text(), /Post: alpha/);
+	});
 });
 
 describe('Middleware for prerendered pages with base path', () => {
@@ -217,7 +233,7 @@ describe('Middleware for prerendered pages with base path', () => {
 	});
 });
 
-describe('Middleware NOT executed at request time in classic mode', () => {
+describe('Classic mode without getStaticAsset callback', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 	/** @type {import('../src/core/app/app.js').App} */
@@ -241,14 +257,14 @@ describe('Middleware NOT executed at request time in classic mode', () => {
 		app = await fixture.loadTestAdapterApp();
 	});
 
-	it('prerendered pages return 500 when getStaticAsset is not provided', async () => {
+	it('returns 500 for prerendered pages when getStaticAsset is not provided', async () => {
 		// In classic mode, the adapter does NOT provide getStaticAsset to app.render()
 		// for prerendered pages at request time. When a prerendered page is rendered
 		// without getStaticAsset in a server build (where the component isn't available),
 		// it results in a 500 error.
 		const request = new Request('http://example.com/about');
 		const routeData = app.match(request, true);
-		
+
 		// No getStaticAsset callback provided - emulates classic mode behavior
 		const response = await app.render(request, { routeData });
 
@@ -256,10 +272,10 @@ describe('Middleware NOT executed at request time in classic mode', () => {
 		assert.equal(response.status, 500);
 	});
 
-	it('verifies middleware does not run for prerendered pages in classic mode without getStaticAsset', async () => {
+	it('does not apply middleware redirect behavior in this failure path', async () => {
 		const request = new Request('http://example.com/private');
 		const routeData = app.match(request, true);
-		
+
 		// In classic mode, no getStaticAsset is provided
 		const response = await app.render(request, { routeData });
 
@@ -267,5 +283,94 @@ describe('Middleware NOT executed at request time in classic mode', () => {
 		assert.equal(response.status, 500);
 		// Redirect should not happen because middleware doesn't run for prerendered pages in classic mode
 		assert.notEqual(response.headers.get('Location'), '/login');
+	});
+});
+
+describe('Build-time middleware mode behavior', () => {
+	it('on-request mode skips middleware effects during build prerendering', async () => {
+		const fixture = await loadFixture({
+			root: './fixtures/middleware-static/',
+			output: 'server',
+			outDir: './dist/middleware-static-build-on-request',
+			adapter: testAdapter({
+				extendAdapter: {
+					adapterFeatures: {
+						buildOutput: 'server',
+						middlewareMode: 'on-request',
+					},
+				},
+			}),
+		});
+		await fixture.build();
+		const app = await fixture.loadTestAdapterApp();
+
+		const staticAssetPath = getStaticAssetPath('/build-phase', {
+			base: app.manifest.base,
+			buildFormat: app.manifest.buildFormat,
+		});
+		const html = await fixture.readFile(`/client/${staticAssetPath}`);
+		assert.match(html, /build-phase:no-middleware/);
+	});
+});
+
+describe('Middleware static serving with directory format', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	/** @type {import('../src/core/app/app.js').App} */
+	let app;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/middleware-static/',
+			output: 'server',
+			outDir: './dist/middleware-static-directory',
+			build: {
+				format: 'directory',
+			},
+			adapter: testAdapter({
+				extendAdapter: {
+					adapterFeatures: {
+						buildOutput: 'server',
+						middlewareMode: 'always',
+					},
+				},
+			}),
+		});
+		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
+	});
+
+	async function readStaticHtml(pathname) {
+		const staticAssetPath = getStaticAssetPath(pathname, {
+			base: app.manifest.base,
+			buildFormat: app.manifest.buildFormat,
+		});
+		return fixture.readFile(`/client/${staticAssetPath}`);
+	}
+
+	it('serves directory-formatted prerendered pages through middleware', async () => {
+		const getStaticAsset = async (_route, pathname) => {
+			const html = await readStaticHtml(pathname);
+			return new Response(html, {
+				headers: { 'content-type': 'text/html; charset=utf-8' },
+			});
+		};
+
+		const request = new Request('http://example.com/about');
+		const routeData = app.match(request, true);
+		const response = await app.render(request, { routeData, getStaticAsset });
+
+		assert.equal(response.status, 200);
+		assert.equal(response.headers.get('x-middleware-static'), 'true');
+		assert.match(await response.text(), /About static page/);
+	});
+});
+
+describe('getStaticAssetPath preserve format', () => {
+	it('maps preserve index routes to nested index.html paths', () => {
+		assert.equal(
+			getStaticAssetPath('/blog/index', { base: '/', buildFormat: 'preserve' }),
+			'blog/index/index.html',
+		);
 	});
 });

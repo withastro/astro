@@ -4,7 +4,12 @@ import { createInterface } from 'node:readline/promises';
 import { removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
 import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
 import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
-import type { AstroConfig, AstroIntegration, IntegrationResolvedRoute, MiddlewareMode } from 'astro';
+import type {
+	AstroConfig,
+	AstroIntegration,
+	IntegrationResolvedRoute,
+	MiddlewareMode,
+} from 'astro';
 import { astroFrontmatterScanPlugin } from './esbuild-plugin-astro-frontmatter.js';
 import { getParts } from './utils/generate-routes-json.js';
 import {
@@ -59,13 +64,16 @@ function prependBase(pathname: string, base: string): string {
 	return normalizedBase + (pathname.startsWith('/') ? pathname : `/${pathname}`);
 }
 
-function routeToServeTimeMiddlewarePath(route: IntegrationResolvedRoute, base: string): string | undefined {
-	if (typeof route.pathname === 'string') {
-		return prependBase(route.pathname, base);
-	}
-
+function routeToServeTimeMiddlewarePath(
+	route: IntegrationResolvedRoute,
+	base: string,
+): string | undefined {
 	if (route.type !== 'page') {
 		return undefined;
+	}
+
+	if (typeof route.pathname === 'string') {
+		return prependBase(route.pathname, base);
 	}
 
 	const wildcardPath = route.segments
@@ -499,6 +507,11 @@ export default function createIntegration({
 							const mergedIncludes = Array.from(
 								new Set([...routesJson.include, ..._serveTimeMiddlewareRoutes]),
 							);
+							if (mergedIncludes.length > 100) {
+								logger.warn(
+									`Cloudflare _routes.json include contains ${mergedIncludes.length} entries after adding prerendered page routes. Cloudflare supports up to 100 include rules.`,
+								);
+							}
 							if (mergedIncludes.length !== routesJson.include.length) {
 								routesJson.include = mergedIncludes;
 								await writeFile(routesJsonPath, `${JSON.stringify(routesJson, null, 2)}\n`);

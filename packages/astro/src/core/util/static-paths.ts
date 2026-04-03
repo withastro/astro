@@ -43,6 +43,15 @@ export function getStaticAssetPath(pathname: string, options: StaticAssetPathOpt
 		return `${withoutTrailingSlash}/index.html`;
 	}
 
+	if (options.buildFormat === 'preserve') {
+		if (STATUS_CODE_PATHS.has(withoutTrailingSlash)) {
+			return `${withoutTrailingSlash}.html`;
+		}
+		if (withoutTrailingSlash === 'index' || withoutTrailingSlash.endsWith('/index')) {
+			return `${withoutTrailingSlash}/index.html`;
+		}
+	}
+
 	if (withoutTrailingSlash.endsWith('.html')) {
 		return withoutTrailingSlash;
 	}

@@ -97,6 +97,8 @@ export async function handle(
 	const locals: Runtime = {
 		cfContext: context,
 	};
+	const shouldServePrerenderedThroughMiddleware =
+		middlewareMode === 'always' || middlewareMode === 'on-request';
 	Object.defineProperty(locals, 'runtime', {
 		enumerable: false,
 		value: {
@@ -126,16 +128,17 @@ export async function handle(
 	const response = await app.render(request, {
 		routeData,
 		locals,
-		getStaticAsset: routeData?.prerender
-			? async (_routeData: RouteData, pathname: string) => {
-				const staticAssetPath = getStaticAssetPath(pathname, {
-					base: app.manifest.base,
-					buildFormat: app.manifest.buildFormat,
-				});
-				const staticAssetUrl = new URL(staticAssetPath, request.url);
-				return env.ASSETS.fetch(staticAssetUrl.toString());
-			}
-			: undefined,
+		getStaticAsset:
+			routeData?.prerender && routeData.type === 'page' && shouldServePrerenderedThroughMiddleware
+				? async (_routeData: RouteData, pathname: string) => {
+						const staticAssetPath = getStaticAssetPath(pathname, {
+							base: app.manifest.base,
+							buildFormat: app.manifest.buildFormat,
+						});
+						const staticAssetUrl = new URL(staticAssetPath, request.url);
+						return env.ASSETS.fetch(staticAssetUrl.toString());
+					}
+				: undefined,
 		prerenderedErrorPageFetch: async (url: string) => {
 			// NOTE this ASSETS binding path is needed for users who are using `run_worker_first` routing
 			return env.ASSETS.fetch(url.replace(/\.html$/, ''));
