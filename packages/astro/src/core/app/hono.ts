@@ -10,6 +10,7 @@ import {
 	computePreferredLocaleList,
 } from '../../i18n/utils.js';
 import { ASTRO_GENERATOR, clientAddressSymbol, pipelineSymbol } from '../constants.js';
+import { PERSIST_SYMBOL } from '../session/runtime.js';
 import { computeFallbackRoute } from '../../i18n/fallback.js';
 import { I18nRouter, type I18nRouterContext } from '../../i18n/router.js';
 import {
@@ -438,13 +439,23 @@ export function actions(): MiddlewareHandler<AstroHonoEnv> {
 		const result = await handler(input);
 		const serialized = serializeActionResult(result);
 
-		if (serialized.type === 'empty') {
-			return new Response(null, { status: serialized.status });
+		const response =
+			serialized.type === 'empty'
+				? new Response(null, { status: serialized.status })
+				: new Response(serialized.body, {
+						status: serialized.status,
+						headers: { 'Content-Type': serialized.contentType },
+					});
+
+		// Persist the session and add any cookies set during the action
+		if (ctx.session) {
+			await (ctx.session as any)[PERSIST_SYMBOL]?.();
 		}
-		return new Response(serialized.body, {
-			status: serialized.status,
-			headers: { 'Content-Type': serialized.contentType },
-		});
+		for (const setCookieValue of ctx.cookies.headers()) {
+			response.headers.append('set-cookie', setCookieValue);
+		}
+
+		return response;
 	};
 }
 
