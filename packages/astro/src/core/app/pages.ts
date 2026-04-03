@@ -67,43 +67,81 @@ export class Pages {
 	pipeline: Pipeline;
 	logger: Logger;
 	#router: Router;
+	#getRoutes: (() => RoutesList) | undefined;
+	#lastRoutes: RouteData[] | undefined;
+	#baseStripped: boolean;
 
-	constructor(manifest: SSRManifest, pipeline?: Pipeline) {
+	constructor(manifest: SSRManifest, pipeline?: Pipeline, routeSource?: { manifestData: RoutesList }) {
 		this.manifest = manifest;
 		this.manifestData = { routes: manifest.routes.map((route) => route.routeData) };
 		this.logger = new Logger({
 			dest: consoleLogDestination,
 			level: manifest.logLevel,
 		});
+		// In dev, the connect base middleware strips the base prefix before requests
+		// reach the Hono app, so the Router should use base '/' to avoid double-stripping.
+		this.#baseStripped = !!routeSource;
+		if (routeSource) {
+			// In dev, routes are loaded dynamically. Use a getter that reads from
+			// the source (e.g. DevApp) so we always have the latest routes.
+			this.#getRoutes = () => routeSource.manifestData;
+		}
 		ensure404Route(this.manifestData);
 		this.pipeline = pipeline ?? AppPipeline.create({ manifest, streaming: true });
 		this.#router = this.#createRouter(this.manifestData);
 	}
 
+	updateRoutes(newRoutesList: RoutesList): void {
+		this.manifestData = newRoutesList;
+		ensure404Route(this.manifestData);
+		this.#router = this.#createRouter(this.manifestData);
+	}
+
+	#syncRoutes(): void {
+		if (!this.#getRoutes) return;
+		const current = this.#getRoutes();
+		if (current.routes !== this.#lastRoutes) {
+			this.#lastRoutes = current.routes;
+			this.manifestData = current;
+			ensure404Route(this.manifestData);
+			this.#router = this.#createRouter(this.manifestData);
+		}
+	}
+
 	#createRouter(manifestData: RoutesList): Router {
 		return new Router(manifestData.routes, {
-			base: this.manifest.base,
+			base: this.#baseStripped ? '/' : this.manifest.base,
 			trailingSlash: this.manifest.trailingSlash,
 			buildFormat: this.manifest.buildFormat,
 		});
 	}
 
 	public match(request: Request, { allowPrerenderedRoutes = false } = {}): RouteData | undefined {
+		this.#syncRoutes();
 		const url = new URL(request.url);
 		if (this.manifest.assets.has(url.pathname)) return undefined;
-		const baseWithoutTrailingSlash = removeTrailingForwardSlash(this.manifest.base);
-		const pathname = prependForwardSlash(
-			baseWithoutTrailingSlash.length > 0 && url.pathname.startsWith(this.manifest.base)
-				? url.pathname.slice(baseWithoutTrailingSlash.length)
-				: url.pathname,
-		);
-		const match = this.#router.match(decodeURI(pathname), { allowWithoutBase: true });
-		if (match.type !== 'match') return undefined;
-		if (!allowPrerenderedRoutes && match.route.prerender) return undefined;
-		return match.route;
+		const pathname = decodeURI(url.pathname);
+		const match = this.#router.match(pathname);
+		if (match.type === 'match') {
+			if (!allowPrerenderedRoutes && match.route.prerender) return undefined;
+			return match.route;
+		}
+		// When trailingSlash is 'never' and the base is not '/', the index route pattern
+		// is ^$ (matches empty string). In dev, the base middleware strips the base prefix
+		// leaving '/' for the root URL. The Router prepends '/' internally, so a direct
+		// pattern match is needed for this edge case.
+		if (this.#baseStripped && pathname === '/' && this.manifest.trailingSlash === 'never') {
+			const route = this.manifestData.routes.find((r) => r.pattern.test(''));
+			if (route) {
+				if (!allowPrerenderedRoutes && route.prerender) return undefined;
+				return route;
+			}
+		}
+		return undefined;
 	}
 
 	public async render(request: Request, options: RenderOptions = {}): Promise<Response> {
+		this.#syncRoutes();
 		const {
 			addCookieHeader = false,
 			clientAddress = Reflect.get(request, clientAddressSymbol) as string | undefined,

@@ -30,7 +30,7 @@ import { AstroCache, type CacheLike } from '../cache/runtime/cache.js';
 import { DisabledAstroCache, NoopAstroCache } from '../cache/runtime/noop.js';
 import { Pages, type RenderOptions } from './pages.js';
 
-const pagesApp = new Pages(manifest, app.pipeline);
+const pagesApp = new Pages(manifest, app.pipeline, app);
 
 const ASTRO_CONTEXT_KEY = 'astro.context';
 export const ASTRO_ROUTE_DATA_KEY = 'astro.routeData';

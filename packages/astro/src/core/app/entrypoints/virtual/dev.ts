@@ -1,4 +1,5 @@
 import { manifest } from 'virtual:astro:manifest';
+import { routes as initialRoutes } from 'virtual:astro:routes';
 import { DevApp } from '../../dev/app.js';
 import { createConsoleLogger } from '../../logging.js';
 import type { CreateApp, RouteInfo } from '../../types.js';
@@ -9,6 +10,12 @@ let currentDevApp: DevApp | null = null;
 export const createApp: CreateApp = ({ streaming } = {}) => {
 	const logger = createConsoleLogger(manifest.logLevel);
 	currentDevApp = new DevApp(manifest, streaming, logger);
+
+	// Load initial routes from the virtual module
+	const initialRoutesList: RoutesList = {
+		routes: initialRoutes.map((r: RouteInfo) => r.routeData),
+	};
+	currentDevApp.updateRoutes(initialRoutesList);
 
 	// Listen for route updates via HMR
 	if (import.meta.hot) {
