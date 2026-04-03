@@ -88,16 +88,18 @@ export class Pages {
 		});
 	}
 
-	public match(request: Request): RouteData | undefined {
+	public match(request: Request, { allowPrerenderedRoutes = false } = {}): RouteData | undefined {
 		const url = new URL(request.url);
 		if (this.manifest.assets.has(url.pathname)) return undefined;
+		const baseWithoutTrailingSlash = removeTrailingForwardSlash(this.manifest.base);
 		const pathname = prependForwardSlash(
-			removeTrailingForwardSlash(this.manifest.base).length > 0
-				? url.pathname.slice(removeTrailingForwardSlash(this.manifest.base).length)
+			baseWithoutTrailingSlash.length > 0 && url.pathname.startsWith(this.manifest.base)
+				? url.pathname.slice(baseWithoutTrailingSlash.length)
 				: url.pathname,
 		);
 		const match = this.#router.match(decodeURI(pathname), { allowWithoutBase: true });
 		if (match.type !== 'match') return undefined;
+		if (!allowPrerenderedRoutes && match.route.prerender) return undefined;
 		return match.route;
 	}
 
@@ -155,7 +157,7 @@ export class Pages {
 
 		let routeData = routeDataOption;
 		if (!routeData) {
-			routeData = this.match(request);
+			routeData = this.match(request, { allowPrerenderedRoutes: true });
 			this.logger.debug('router', 'Astro matched the following route for ' + request.url);
 			this.logger.debug('router', 'RouteData:\n' + routeData);
 		}
@@ -173,6 +175,13 @@ export class Pages {
 				...resolvedRenderOptions,
 				status: 404,
 			});
+		}
+
+		// For prerendered routes, strip query params from the request URL
+		// so that Astro.request.url doesn't expose them in static output.
+		if (routeData.prerender && url.search) {
+			url.search = '';
+			request = new Request(url, request);
 		}
 
 		let pathname = this.#getPathnameFromRequest(request);
