@@ -82,19 +82,20 @@ export default function ({
 													})
 												}
 
-												async render(request, { routeData, clientAddress, locals, addCookieHeader, prerenderedErrorPageFetch } = {}) {
-													const url = new URL(request.url);
-													if(this.#manifest.assets.has(url.pathname)) {
-														const filePath = new URL(this.removeBase(url.pathname).replace(/^\\//, ''), this.#manifest.buildClientDir);
-														const data = await fs.promises.readFile(filePath);
-														return new Response(data);
-													}
+											async render(request, { routeData, clientAddress, locals, addCookieHeader, prerenderedErrorPageFetch, getStaticAsset } = {}) {
+												const url = new URL(request.url);
+												if(this.#manifest.assets.has(url.pathname)) {
+													const filePath = new URL(this.removeBase(url.pathname).replace(/^\\//, ''), this.#manifest.buildClientDir);
+													const data = await fs.promises.readFile(filePath);
+													return new Response(data);
+												}
 
-													return super.render(request, {
-														routeData,
-														locals,
-														addCookieHeader,
-														prerenderedErrorPageFetch,
+												return super.render(request, {
+													routeData,
+													locals,
+													addCookieHeader,
+													prerenderedErrorPageFetch,
+													getStaticAsset,
 													${provideAddress ? `clientAddress: clientAddress ?? '0.0.0.0',` : ''}
 													});
 												}
@@ -219,19 +220,20 @@ export function selfTestAdapter({
 													})
 												}
 
-												async render(request, { routeData, clientAddress, locals, addCookieHeader, prerenderedErrorPageFetch } = {}) {
-													const url = new URL(request.url);
-													if(this.#manifest.assets.has(url.pathname)) {
-														const filePath = new URL(this.removeBase(url.pathname).replace(/^\\//, ''), this.#manifest.buildClientDir);
-														const data = await fs.promises.readFile(filePath);
-														return new Response(data);
-													}
+											async render(request, { routeData, clientAddress, locals, addCookieHeader, prerenderedErrorPageFetch, getStaticAsset } = {}) {
+												const url = new URL(request.url);
+												if(this.#manifest.assets.has(url.pathname)) {
+													const filePath = new URL(this.removeBase(url.pathname).replace(/^\\//, ''), this.#manifest.buildClientDir);
+													const data = await fs.promises.readFile(filePath);
+													return new Response(data);
+												}
 
-													return super.render(request, {
-														routeData,
-														locals,
-														addCookieHeader,
-														prerenderedErrorPageFetch,
+												return super.render(request, {
+													routeData,
+													locals,
+													addCookieHeader,
+													prerenderedErrorPageFetch,
+													getStaticAsset,
 													${provideAddress ? `clientAddress: clientAddress ?? '0.0.0.0',` : ''}
 													});
 												}

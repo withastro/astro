@@ -87,19 +87,16 @@ export interface RenderOptions {
 	prerenderedErrorPageFetch?: (url: ErrorPagePath) => Promise<Response>;
 
 	/**
-	 * A custom fetch function for retrieving a prerendered page by URL.
+	 * A custom function for retrieving a prerendered static asset by route and pathname.
 	 *
-	 * When provided and a prerendered page route is matched, Astro will run the user middleware
-	 * pipeline and then call this function (instead of rendering the page component, which is
-	 * not available in the server bundle for prerendered routes) to obtain the page HTML.
+	 * When provided and a prerendered route is matched, Astro will run middleware at request time
+	 * and then call this function (instead of rendering the page component) to obtain the HTML.
 	 *
-	 * The Node adapter uses this to read pre-built HTML files from disk while still executing
-	 * middleware for every request.
-	 *
-	 * @param {string} url - The full URL of the prerendered page being requested.
-	 * @returns {Promise<Response>} A promise resolving to the prerendered HTML response.
+	 * @param {RouteData} route - The matched route data.
+	 * @param {string} pathname - The current request pathname (base-stripped).
+	 * @returns {Promise<Response | undefined>} A prerendered response, or undefined if not found.
 	 */
-	prerenderedPageFetch?: (url: string) => Promise<Response>;
+	getStaticAsset?: (route: RouteData, pathname: string) => Promise<Response | undefined>;
 
 	/**
 	 * **Advanced API**: you probably do not need to use this.
@@ -115,7 +112,7 @@ interface ResolvedRenderOptions {
 	addCookieHeader: RequiredRenderOptions['addCookieHeader'];
 	clientAddress: RequiredRenderOptions['clientAddress'] | undefined;
 	prerenderedErrorPageFetch: RequiredRenderOptions['prerenderedErrorPageFetch'] | undefined;
-	prerenderedPageFetch: RequiredRenderOptions['prerenderedPageFetch'] | undefined;
+	getStaticAsset: RequiredRenderOptions['getStaticAsset'] | undefined;
 	locals: RequiredRenderOptions['locals'] | undefined;
 	routeData: RequiredRenderOptions['routeData'] | undefined;
 }
@@ -398,7 +395,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			clientAddress = Reflect.get(request, clientAddressSymbol),
 			locals,
 			prerenderedErrorPageFetch = fetch,
-			prerenderedPageFetch,
+			getStaticAsset,
 			routeData,
 		}: RenderOptions = {},
 	): Promise<Response> {
@@ -440,7 +437,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			addCookieHeader,
 			clientAddress,
 			prerenderedErrorPageFetch,
-			prerenderedPageFetch,
+			getStaticAsset,
 			locals,
 			routeData,
 		};
@@ -499,11 +496,12 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		let response;
 		let session: AstroSession | undefined;
 		let cache: CacheLike | undefined;
+		const staticAssetFetcher = getStaticAsset;
 		try {
 			// For prerendered pages with a fetch function, skip loading the component module — it is
 			// not available in the server bundle (the page was compiled to a static HTML file).
 			const componentInstance =
-				routeData.prerender && prerenderedPageFetch
+				routeData.prerender && staticAssetFetcher
 					? undefined
 					: await this.pipeline.getComponentByRoute(routeData);
 			const renderContext = await this.createRenderContext({
@@ -514,7 +512,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				routeData,
 				status: defaultStatus,
 				clientAddress,
-				prerenderedPageFetch: routeData.prerender ? prerenderedPageFetch : undefined,
+				getStaticAsset: routeData.prerender ? staticAssetFetcher : undefined,
 			});
 			session = renderContext.session;
 			cache = renderContext.cache;

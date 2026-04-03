@@ -3,8 +3,10 @@ import {
 	sessionKVBindingName,
 	compileImageConfig,
 	isPrerender,
+	middlewareMode,
 } from 'virtual:astro-cloudflare:config';
 import { createApp } from 'astro/app/entrypoint';
+import { getStaticAssetPath } from 'astro/app';
 import { setGetEnv } from 'astro/env/setup';
 import { createGetEnv } from '../utils/env.js';
 import type { RouteData } from 'astro';
@@ -77,7 +79,9 @@ export async function handle(
 			routeData = result.routeData;
 		}
 	} else {
-		routeData = app.match(request);
+		const shouldIncludePrerenderedRoutes =
+			middlewareMode === 'always' || middlewareMode === 'on-request';
+		routeData = app.match(request, shouldIncludePrerenderedRoutes);
 	}
 
 	if (!routeData) {
@@ -122,6 +126,16 @@ export async function handle(
 	const response = await app.render(request, {
 		routeData,
 		locals,
+		getStaticAsset: routeData?.prerender
+			? async (_routeData: RouteData, pathname: string) => {
+				const staticAssetPath = getStaticAssetPath(pathname, {
+					base: app.manifest.base,
+					buildFormat: app.manifest.buildFormat,
+				});
+				const staticAssetUrl = new URL(staticAssetPath, request.url);
+				return env.ASSETS.fetch(staticAssetUrl.toString());
+			}
+			: undefined,
 		prerenderedErrorPageFetch: async (url: string) => {
 			// NOTE this ASSETS binding path is needed for users who are using `run_worker_first` routing
 			return env.ASSETS.fetch(url.replace(/\.html$/, ''));

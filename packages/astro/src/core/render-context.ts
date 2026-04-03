@@ -63,7 +63,7 @@ export type CreateRenderContext = Pick<
 			| 'actions'
 			| 'shouldInjectCspMetaTags'
 			| 'skipMiddleware'
-			| 'prerenderedPageFetch'
+			| 'getStaticAsset'
 		>
 	>;
 
@@ -89,7 +89,9 @@ export class RenderContext {
 		public session: AstroSession | undefined = undefined,
 		public cache: CacheLike,
 		public skipMiddleware = false,
-		public prerenderedPageFetch: ((url: string) => Promise<Response>) | undefined = undefined,
+		public getStaticAsset:
+			| ((route: RouteData, pathname: string) => Promise<Response | undefined>)
+			| undefined = undefined,
 	) {}
 
 	static #createNormalizedUrl(requestUrl: string): URL {
@@ -137,7 +139,7 @@ export class RenderContext {
 		partial = undefined,
 		shouldInjectCspMetaTags,
 		skipMiddleware = false,
-		prerenderedPageFetch,
+		getStaticAsset,
 	}: CreateRenderContext): Promise<RenderContext> {
 		const pipelineMiddleware = await pipeline.getMiddleware();
 		const pipelineActions = await pipeline.getActions();
@@ -208,7 +210,7 @@ export class RenderContext {
 			session,
 			cache,
 			skipMiddleware,
-			prerenderedPageFetch,
+			getStaticAsset,
 		);
 	}
 	/**
@@ -229,9 +231,9 @@ export class RenderContext {
 		const { middleware, pipeline } = this;
 		const { logger, streaming, manifest } = pipeline;
 		const props =
-			// For prerendered pages served via prerenderedPageFetch, skip props resolution
+			// For prerendered pages served via getStaticAsset, skip props resolution
 			// since the component module is not available in the server bundle.
-			this.routeData.prerender && this.prerenderedPageFetch
+			this.routeData.prerender && this.getStaticAsset
 				? this.props
 				: Object.keys(this.props).length > 0
 					? this.props
@@ -337,10 +339,20 @@ export class RenderContext {
 				case 'redirect':
 					return renderRedirect(this);
 				case 'page': {
-					if (this.routeData.prerender && this.prerenderedPageFetch) {
+					if (this.routeData.prerender && this.getStaticAsset) {
 						// The component module is not available in the server bundle for prerendered pages.
-						// Use the provided fetch function to read the pre-built HTML from disk.
-						response = await this.prerenderedPageFetch(this.request.url);
+						// Use the adapter-provided function to read the pre-built HTML.
+						const staticAssetResponse = await this.getStaticAsset(this.routeData, this.pathname);
+						if (!staticAssetResponse) {
+							response = new Response(null, { status: 404 });
+						} else {
+							const status = this.status === 200 ? staticAssetResponse.status : this.status;
+							response = new Response(staticAssetResponse.body, {
+								status,
+								statusText: staticAssetResponse.statusText,
+								headers: staticAssetResponse.headers,
+							});
+						}
 					} else {
 						this.result = await this.createResult(componentInstance!, actionApiContext);
 						try {
@@ -372,6 +384,20 @@ export class RenderContext {
 					break;
 				}
 				case 'fallback': {
+					if (this.routeData.prerender && this.getStaticAsset) {
+						const staticAssetResponse = await this.getStaticAsset(this.routeData, this.pathname);
+						if (!staticAssetResponse) {
+							return new Response(null, { status: 404, headers: { [ROUTE_TYPE_HEADER]: 'fallback' } });
+						}
+						return new Response(staticAssetResponse.body, {
+							status: 404,
+							statusText: staticAssetResponse.statusText,
+							headers: new Headers([
+								...staticAssetResponse.headers,
+								[ROUTE_TYPE_HEADER, 'fallback'],
+							]),
+						});
+					}
 					return new Response(null, { status: 500, headers: { [ROUTE_TYPE_HEADER]: 'fallback' } });
 				}
 			}

@@ -129,6 +129,7 @@ export default function createIntegration({
 	let _config: AstroConfig;
 
 	let _routes: IntegrationResolvedRoute[];
+	let _serveTimeMiddlewareRoutes: string[] = [];
 	let _isFullyStatic = false;
 	let cfPluginConfig: PluginConfig;
 
@@ -185,6 +186,7 @@ export default function createIntegration({
 						sessionKVBindingName,
 						imagesBindingName:
 							needsImagesBinding || needsImagesBindingForDev ? imagesBindingName : false,
+						serveTimeMiddlewareRoutes: () => _serveTimeMiddlewareRoutes,
 					}),
 					...(prerenderEnvironment === 'workerd' && {
 						experimental: {
@@ -321,6 +323,7 @@ export default function createIntegration({
 							},
 							createConfigPlugin({
 								sessionKVBindingName,
+								middlewareMode,
 								compileImageConfig:
 									isCompile && command !== 'dev'
 										? {
@@ -349,6 +352,12 @@ export default function createIntegration({
 			},
 			'astro:routes:resolved': ({ routes }) => {
 				_routes = routes;
+				if (middlewareMode === 'always' || middlewareMode === 'on-request') {
+					_serveTimeMiddlewareRoutes = routes
+						.filter((route) => route.origin !== 'internal' && route.isPrerendered)
+						.map((route) => route.pathname)
+						.filter((pathname): pathname is string => typeof pathname === 'string');
+				}
 				// Check if all non-internal routes are prerendered (fully static site)
 				const nonInternalRoutes = routes.filter((route) => route.origin !== 'internal');
 				_isFullyStatic =
