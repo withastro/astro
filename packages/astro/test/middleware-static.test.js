@@ -2,33 +2,7 @@ import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
-
-function getStaticAssetPath(pathname, { base, buildFormat }) {
-	const baseWithoutTrailingSlash = base === '/' ? '/' : base.replace(/\/$/, '');
-	const baselessPathname =
-		baseWithoutTrailingSlash !== '/' && pathname.startsWith(baseWithoutTrailingSlash)
-			? pathname.slice(baseWithoutTrailingSlash.length)
-			: pathname;
-	const withoutLeadingSlash = baselessPathname.replace(/^\/+/, '');
-	const withoutTrailingSlash = withoutLeadingSlash.replace(/\/+$/, '');
-
-	if (withoutTrailingSlash === '') {
-		return 'index.html';
-	}
-
-	if (buildFormat === 'directory') {
-		if (withoutTrailingSlash === '404' || withoutTrailingSlash === '500') {
-			return `${withoutTrailingSlash}.html`;
-		}
-		return `${withoutTrailingSlash}/index.html`;
-	}
-
-	if (withoutTrailingSlash.endsWith('.html')) {
-		return withoutTrailingSlash;
-	}
-
-	return `${withoutTrailingSlash}.html`;
-}
+import { getStaticAssetPath } from '../dist/core/util/static-paths.js';
 
 describe('Middleware for prerendered pages at request time', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -77,7 +51,10 @@ describe('Middleware for prerendered pages at request time', () => {
 		const getStaticAsset = async (_route, pathname) => {
 			const html = await readStaticHtml(pathname);
 			return new Response(html, {
-				headers: { 'content-type': 'text/html; charset=utf-8' },
+				headers: {
+					'content-type': 'text/html; charset=utf-8',
+					'x-static-asset': 'true',
+				},
 			});
 		};
 
@@ -87,7 +64,24 @@ describe('Middleware for prerendered pages at request time', () => {
 
 		assert.equal(response.status, 200);
 		assert.equal(response.headers.get('x-middleware-static'), 'true');
+		assert.equal(response.headers.get('x-static-asset'), 'true');
 		assert.match(await response.text(), /About static page/);
+	});
+
+	it('resolves encoded pathnames for static assets', async () => {
+		const getStaticAsset = async (_route, pathname) => {
+			const html = await readStaticHtml(pathname);
+			return new Response(html, {
+				headers: { 'content-type': 'text/html; charset=utf-8' },
+			});
+		};
+
+		const request = new Request('http://example.com/My%20Page');
+		const routeData = app.match(request, true);
+		const response = await app.render(request, { routeData, getStaticAsset });
+
+		assert.equal(response.status, 200);
+		assert.match(await response.text(), /Path with a space/);
 	});
 
 	it('redirects in middleware without loading static files', async () => {

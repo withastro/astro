@@ -8,6 +8,15 @@ export interface StaticAssetPathOptions {
 	buildFormat: NonNullable<AstroConfig['build']>['format'];
 }
 
+function decodePathname(pathname: string): string {
+	try {
+		return decodeURI(pathname);
+	} catch {
+		// Keep the original pathname when it contains malformed escape sequences.
+		return pathname;
+	}
+}
+
 export function stripBasePathname(pathname: string, base: string): string {
 	const normalizedBase = removeTrailingForwardSlash(base || '/');
 	if (normalizedBase !== '' && normalizedBase !== '/' && pathname.startsWith(normalizedBase)) {
@@ -18,7 +27,8 @@ export function stripBasePathname(pathname: string, base: string): string {
 }
 
 export function getStaticAssetPath(pathname: string, options: StaticAssetPathOptions): string {
-	const baselessPathname = stripBasePathname(pathname, options.base);
+	const decodedPathname = decodePathname(pathname);
+	const baselessPathname = stripBasePathname(decodedPathname, options.base);
 	const withoutLeadingSlash = baselessPathname.replace(/^\/+/, '');
 	const withoutTrailingSlash = withoutLeadingSlash.replace(/\/+$/, '');
 

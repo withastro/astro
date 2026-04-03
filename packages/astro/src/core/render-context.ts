@@ -347,11 +347,17 @@ export class RenderContext {
 							response = new Response(null, { status: 404 });
 						} else {
 							const status = this.status === 200 ? staticAssetResponse.status : this.status;
-							response = new Response(staticAssetResponse.body, {
-								status,
-								statusText: staticAssetResponse.statusText,
-								headers: staticAssetResponse.headers,
-							});
+							// Reuse the static response object whenever possible so middleware can keep
+							// working with a single response instance and merge headers onto it.
+							if (status === staticAssetResponse.status) {
+								response = staticAssetResponse;
+							} else {
+								response = new Response(staticAssetResponse.body, {
+									status,
+									statusText: staticAssetResponse.statusText,
+									headers: staticAssetResponse.headers,
+								});
+							}
 						}
 					} else {
 						this.result = await this.createResult(componentInstance!, actionApiContext);

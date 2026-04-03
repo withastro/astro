@@ -1,5 +1,5 @@
 import { createReadStream, existsSync, readFileSync } from 'node:fs';
-import { appendFile, stat } from 'node:fs/promises';
+import { appendFile, readFile, stat, writeFile } from 'node:fs/promises';
 import { createInterface } from 'node:readline/promises';
 import { removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
 import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
@@ -43,6 +43,20 @@ function usesCloudflareKVSessionDriver(session: AstroConfig['session']): boolean
 		entrypoint === CLOUDFLARE_KV_SESSION_DRIVER_ENTRYPOINT ||
 		entrypoint.endsWith('cloudflare-kv-binding')
 	);
+}
+
+function prependBase(pathname: string, base: string): string {
+	const normalizedBase = base === '/' ? '/' : base.replace(/\/+$/, '');
+	if (normalizedBase === '/' || normalizedBase === '') {
+		return pathname;
+	}
+	if (pathname === normalizedBase || pathname.startsWith(`${normalizedBase}/`)) {
+		return pathname;
+	}
+	if (pathname === '/') {
+		return `${normalizedBase}/`;
+	}
+	return normalizedBase + (pathname.startsWith('/') ? pathname : `/${pathname}`);
 }
 
 export type { Runtime } from './utils/handler.js';
@@ -353,10 +367,15 @@ export default function createIntegration({
 			'astro:routes:resolved': ({ routes }) => {
 				_routes = routes;
 				if (middlewareMode === 'always' || middlewareMode === 'on-request') {
-					_serveTimeMiddlewareRoutes = routes
+					_serveTimeMiddlewareRoutes = Array.from(
+						new Set(
+							routes
 						.filter((route) => route.origin !== 'internal' && route.isPrerendered)
-						.map((route) => route.pathname)
-						.filter((pathname): pathname is string => typeof pathname === 'string');
+							.map((route) => route.pathname)
+							.filter((pathname): pathname is string => typeof pathname === 'string')
+							.map((pathname) => prependBase(pathname, _config?.base ?? '/')),
+						),
+					);
 				}
 				// Check if all non-internal routes are prerendered (fully static site)
 				const nonInternalRoutes = routes.filter((route) => route.origin !== 'internal');
@@ -452,6 +471,28 @@ export default function createIntegration({
 				}
 			},
 			'astro:build:done': async ({ dir, logger, assets }) => {
+				if (
+					(middlewareMode === 'always' || middlewareMode === 'on-request') &&
+					_serveTimeMiddlewareRoutes.length > 0
+				) {
+					const routesJsonPath = new URL('./_routes.json', _config.build.client);
+					try {
+						const rawRoutesJson = await readFile(routesJsonPath, 'utf-8');
+						const routesJson = JSON.parse(rawRoutesJson);
+						if (Array.isArray(routesJson?.include)) {
+							const mergedIncludes = Array.from(
+								new Set([...routesJson.include, ..._serveTimeMiddlewareRoutes]),
+							);
+							if (mergedIncludes.length !== routesJson.include.length) {
+								routesJson.include = mergedIncludes;
+								await writeFile(routesJsonPath, `${JSON.stringify(routesJson, null, 2)}\n`);
+							}
+						}
+					} catch {
+						// Ignore when _routes.json is not present or unreadable.
+					}
+				}
+
 				let redirectsExists = false;
 				try {
 					const redirectsStat = await stat(new URL('./_redirects', _config.build.client));
