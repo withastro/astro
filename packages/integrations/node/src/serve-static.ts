@@ -69,12 +69,16 @@ export function createStaticHandler(
 				port: options.port,
 			});
 			const routeData = app.match(request, true);
+			const servePrerenderedViaSSR =
+				routeData?.prerender &&
+				routeData.type === 'page' &&
+				(app.manifest.middlewareMode === 'always' || app.manifest.middlewareMode === 'on-request');
 
 			// Prerendered page routes must go through the app handler so that user
 			// middleware can run before the page HTML is served from disk.
 			// Apply any custom static headers (e.g. CSP) onto the response before handing
 			// off — writeResponse merges pre-set headers with those from writeHead.
-			if (routeData?.prerender && routeData.type === 'page') {
+			if (servePrerenderedViaSSR) {
 				if (headersMap && headersMap.length > 0) {
 					const baselessPathname = prependForwardSlash(app.removeBase(urlPath));
 					const matchedRoute = headersMap.find((header) =>

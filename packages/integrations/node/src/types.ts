@@ -23,6 +23,11 @@ export interface UserOptions {
 	staticHeaders?: boolean;
 
 	/**
+	 * Host used when resolving prerendered error pages.
+	 */
+	experimentalErrorPageHost?: string | URL;
+
+	/**
 	 * Maximum allowed request body size in bytes. Requests with bodies larger than
 	 * this limit will throw an error when the body is consumed.
 	 *
@@ -30,7 +35,7 @@ export interface UserOptions {
 	 *
 	 * @default {1073741824} 1GB
 	 */
-	experimentalErrorPageHost?: string | URL;
+	bodySizeLimit?: number;
 
 	/**
 	 * The middleware mode determines when and how middleware executes.
@@ -39,7 +44,6 @@ export interface UserOptions {
 	 * - `'on-request'`: Middleware runs for both prerendered and SSR pages at request time. Middleware does not run at build time.
 	 */
 	middlewareMode?: Exclude<MiddlewareMode, 'edge'>;
-	bodySizeLimit?: number;
 }
 
 export interface Options extends UserOptions {

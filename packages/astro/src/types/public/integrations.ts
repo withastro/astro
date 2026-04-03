@@ -81,7 +81,7 @@ export type AdapterSupportWithMessage = {
 
 export type AdapterSupport = AdapterSupportsKind | AdapterSupportWithMessage;
 
-export type MiddlewareMode = 'classic' | 'edge' | "always" | "on-request";
+export type MiddlewareMode = 'classic' | 'edge' | 'always' | 'on-request';
 
 export interface AstroAdapterFeatures {
 	/**

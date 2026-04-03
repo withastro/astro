@@ -274,6 +274,87 @@ describe('Prerendering', () => {
 	});
 });
 
+describe('Prerendered pages and middleware mode', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let server;
+
+	describe('Classic mode', () => {
+		before(async () => {
+			process.env.PRERENDER = true;
+			fixture = await loadFixture({
+				root: './fixtures/prerender/',
+				output: 'server',
+				outDir: './dist/prerender-classic-mode',
+				adapter: nodejs({ mode: 'standalone', middlewareMode: 'classic' }),
+			});
+			await fixture.build();
+			const { startServer } = await fixture.loadAdapterEntryModule();
+			const res = startServer();
+			server = res.server;
+			await waitServerListen(server.server);
+		});
+
+		after(async () => {
+			await server.stop();
+			await fixture.clean();
+
+			delete process.env.PRERENDER;
+		});
+
+		it('does not execute middleware for prerendered pages at request time', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/private`, {
+				redirect: 'manual',
+			});
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Private');
+			assert.equal(res.headers.get('location'), null);
+			assert.equal(res.headers.get('x-prerender-private'), null);
+		});
+	});
+
+	describe('On-request mode', () => {
+		before(async () => {
+			process.env.PRERENDER = true;
+			fixture = await loadFixture({
+				root: './fixtures/prerender/',
+				output: 'server',
+				outDir: './dist/prerender-on-request-mode',
+				adapter: nodejs({ mode: 'standalone', middlewareMode: 'on-request' }),
+			});
+			await fixture.build();
+			const { startServer } = await fixture.loadAdapterEntryModule();
+			const res = startServer();
+			server = res.server;
+			await waitServerListen(server.server);
+		});
+
+		after(async () => {
+			await server.stop();
+			await fixture.clean();
+
+			delete process.env.PRERENDER;
+		});
+
+		it('executes middleware for prerendered pages at request time', async () => {
+			const redirectRes = await fetch(`http://${server.host}:${server.port}/private`, {
+				redirect: 'manual',
+			});
+			assert.equal(redirectRes.status, 302);
+			assert.equal(redirectRes.headers.get('location'), '/login');
+
+			const authRes = await fetch(`http://${server.host}:${server.port}/private`, {
+				headers: { Cookie: 'auth=1' },
+			});
+			assert.equal(authRes.status, 200);
+			assert.equal(authRes.headers.get('x-prerender-private'), 'true');
+		});
+	});
+});
+
 describe('Hybrid rendering', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;

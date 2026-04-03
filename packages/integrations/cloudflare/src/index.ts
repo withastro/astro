@@ -59,6 +59,23 @@ function prependBase(pathname: string, base: string): string {
 	return normalizedBase + (pathname.startsWith('/') ? pathname : `/${pathname}`);
 }
 
+function routeToServeTimeMiddlewarePath(route: IntegrationResolvedRoute, base: string): string | undefined {
+	if (typeof route.pathname === 'string') {
+		return prependBase(route.pathname, base);
+	}
+
+	if (route.type !== 'page') {
+		return undefined;
+	}
+
+	const wildcardPath = route.segments
+		.map((segment) => segment.map((part) => (part.dynamic ? '*' : part.content)).join(''))
+		.filter((segment) => segment.length > 0)
+		.join('/');
+
+	return prependBase(wildcardPath ? `/${wildcardPath}` : '/', base);
+}
+
 export type { Runtime } from './utils/handler.js';
 
 function hasContentCollectionsConfig(srcDir: URL) {
@@ -370,10 +387,9 @@ export default function createIntegration({
 					_serveTimeMiddlewareRoutes = Array.from(
 						new Set(
 							routes
-						.filter((route) => route.origin !== 'internal' && route.isPrerendered)
-							.map((route) => route.pathname)
-							.filter((pathname): pathname is string => typeof pathname === 'string')
-							.map((pathname) => prependBase(pathname, _config?.base ?? '/')),
+								.filter((route) => route.origin !== 'internal' && route.isPrerendered)
+								.map((route) => routeToServeTimeMiddlewarePath(route, _config?.base ?? '/'))
+								.filter((pathname): pathname is string => typeof pathname === 'string'),
 						),
 					);
 				}

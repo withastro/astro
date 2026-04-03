@@ -277,7 +277,8 @@ export class RenderContext {
 				if (
 					this.pipeline.manifest.serverLike === true &&
 					this.routeData.prerender === false &&
-					routeData.prerender === true
+					routeData.prerender === true &&
+					!this.getStaticAsset
 				) {
 					throw new AstroError({
 						...ForbiddenRewrite,
@@ -474,7 +475,8 @@ export class RenderContext {
 			this.pipeline.manifest.serverLike &&
 			!this.routeData.prerender &&
 			routeData.prerender &&
-			!isI18nFallback
+			!isI18nFallback &&
+			!this.getStaticAsset
 		) {
 			throw new AstroError({
 				...ForbiddenRewrite,

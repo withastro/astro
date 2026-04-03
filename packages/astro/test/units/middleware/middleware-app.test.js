@@ -961,5 +961,50 @@ describe('Middleware via App.render()', () => {
 
 			assert.equal(middlewareWasCalled, false);
 		});
+
+		it('allows rewriting from SSR to prerendered routes when getStaticAsset is provided', async () => {
+			const rewriteSsrRouteData = createRouteData({ route: '/rewrite-ssr', prerender: false });
+			const targetPrerenderRouteData = createRouteData({ route: '/target', prerender: true });
+
+			const onRequest = async (ctx, next) => {
+				if (ctx.url.pathname === '/rewrite-ssr') {
+					return ctx.rewrite(new Request('http://localhost/target'));
+				}
+				return next();
+			};
+
+			const pageMap = new Map([
+				[
+					rewriteSsrRouteData.component,
+					async () => ({ page: async () => ({ default: simplePage() }) }),
+				],
+				[
+					targetPrerenderRouteData.component,
+					async () => ({ page: async () => ({ default: simplePage() }) }),
+				],
+			]);
+
+			const manifest = createManifest({
+				routes: [{ routeData: rewriteSsrRouteData }, { routeData: targetPrerenderRouteData }],
+				pageMap,
+			});
+			manifest.middleware = () => ({ onRequest });
+			manifest.middlewareMode = /** @type {'on-request'} */ ('on-request');
+			const app = new App(manifest);
+
+			const response = await app.render(new Request('http://localhost/rewrite-ssr'), {
+				getStaticAsset: async (_route, pathname) => {
+					if (pathname === '/target') {
+						return new Response('<p>prerendered target</p>', {
+							headers: { 'content-type': 'text/html; charset=utf-8' },
+						});
+					}
+					return undefined;
+				},
+			});
+
+			assert.equal(response.status, 200);
+			assert.match(await response.text(), /<p>prerendered target<\/p>/);
+		});
 	});
 });

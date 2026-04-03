@@ -211,10 +211,16 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				const buildOutput = settings.buildOutput;
 				if (buildOutput) {
 					settings.timer.start(`${buildOutput} generate`);
+					if (buildOutput === 'static') {
+						// Keep static output behavior: move assets before generation.
+						await ssrMoveAssets(opts, internals, prerenderOutputDir);
+					}
 					// Generate the pages
 					await generatePages(opts, internals, prerenderOutputDir);
-					// Move prerender and SSR assets to client directory before cleaning up
-					await ssrMoveAssets(opts, internals, prerenderOutputDir);
+					if (buildOutput !== 'static') {
+						// Server output keeps the previous behavior and moves assets after generation.
+						await ssrMoveAssets(opts, internals, prerenderOutputDir);
+					}
 					// Clean up prerender directory after generation
 					await fs.promises.rm(prerenderOutputDir, { recursive: true, force: true });
 					settings.timer.end(`${buildOutput} generate`);

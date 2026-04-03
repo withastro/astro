@@ -1,6 +1,7 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
-import fs from 'node:fs';
+import { createReadStream } from 'node:fs';
 import path from 'node:path';
+import { Readable } from 'node:stream';
 import {
 	createRequest,
 	writeResponse,
@@ -17,12 +18,19 @@ import type { Options, RequestHandler } from './types.js';
  * Returns undefined if the file doesn't exist or can't be read.
  */
 async function readPageFromDisk(client: string, staticAssetPath: string): Promise<Response | undefined> {
+	let stream: ReturnType<typeof createReadStream> | undefined;
 	try {
-		const data = await fs.promises.readFile(path.join(client, staticAssetPath));
-		return new Response(data, {
+		stream = createReadStream(path.join(client, staticAssetPath));
+		await new Promise<void>((resolve, reject) => {
+			stream!.once('open', () => resolve());
+			stream!.once('error', reject);
+		});
+		const webStream = Readable.toWeb(stream) as ReadableStream;
+		return new Response(webStream, {
 			headers: { 'Content-Type': 'text/html; charset=utf-8' },
 		});
 	} catch {
+		stream?.destroy();
 		return undefined;
 	}
 }
@@ -83,6 +91,9 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 		return readPageFromDisk(client, staticAssetPath);
 	};
 
+	const shouldServePrerenderedThroughMiddleware =
+		app.manifest.middlewareMode === 'always' || app.manifest.middlewareMode === 'on-request';
+
 	// Use the configured body size limit. A value of 0 or Infinity disables the limit.
 	const effectiveBodySizeLimit =
 		options.bodySizeLimit === 0 || options.bodySizeLimit === Number.POSITIVE_INFINITY
@@ -115,7 +126,10 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 					locals,
 					routeData,
 					prerenderedErrorPageFetch,
-					getStaticAsset: routeData.prerender ? getStaticAsset : undefined,
+					getStaticAsset:
+						routeData.prerender && shouldServePrerenderedThroughMiddleware
+							? getStaticAsset
+							: undefined,
 				}),
 			);
 			await writeResponse(response, res);

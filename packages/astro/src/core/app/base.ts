@@ -496,12 +496,11 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		let response;
 		let session: AstroSession | undefined;
 		let cache: CacheLike | undefined;
-		const staticAssetFetcher = getStaticAsset;
 		try {
 			// For prerendered pages with a fetch function, skip loading the component module — it is
 			// not available in the server bundle (the page was compiled to a static HTML file).
 			const componentInstance =
-				routeData.prerender && staticAssetFetcher
+				routeData.prerender && getStaticAsset
 					? undefined
 					: await this.pipeline.getComponentByRoute(routeData);
 			const renderContext = await this.createRenderContext({
@@ -512,7 +511,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				routeData,
 				status: defaultStatus,
 				clientAddress,
-				getStaticAsset: routeData.prerender ? staticAssetFetcher : undefined,
+				getStaticAsset,
 			});
 			session = renderContext.session;
 			cache = renderContext.cache;
