@@ -3,6 +3,6 @@ import { defineConfig } from 'astro/config';
 
 export default defineConfig({
   integrations: [
-    vue({ appEntrypoint: '/src/app.ts' })
+    vue({ appEntrypoint: '/src/vue-app.ts' })
   ],
 })

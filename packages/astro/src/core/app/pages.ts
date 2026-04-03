@@ -273,9 +273,14 @@ export class Pages {
 			void isRewrite;
 		} catch (err: any) {
 			this.logger.error(null, err.stack || err.message || String(err));
-			// In dev, re-throw so the error reaches the Vite error overlay handler.
-			// In production, render the error page.
-			if (this.#baseStripped) throw err;
+			// In dev, try to render the custom 500 page if one exists.
+			// If no custom 500 page, re-throw so the error reaches the Vite error overlay.
+			// In production, always render the error page (falls back to empty 500 response).
+			if (this.#baseStripped) {
+				const errorRoutePath = `/500${this.manifest.trailingSlash === 'always' ? '/' : ''}`;
+				const custom500 = matchRoute(errorRoutePath, this.manifestData);
+				if (!custom500) throw err;
+			}
 			return this.renderError(request, {
 				...resolvedRenderOptions,
 				status: 500,
