@@ -126,15 +126,27 @@ export class Pages {
 			if (!allowPrerenderedRoutes && match.route.prerender) return undefined;
 			return match.route;
 		}
-		// When trailingSlash is 'never' and the base is not '/', the index route pattern
-		// is ^$ (matches empty string). In dev, the base middleware strips the base prefix
-		// leaving '/' for the root URL. The Router prepends '/' internally, so a direct
-		// pattern match is needed for this edge case.
-		if (this.#baseStripped && pathname === '/' && this.manifest.trailingSlash === 'never') {
-			const route = this.manifestData.routes.find((r) => r.pattern.test(''));
-			if (route) {
-				if (!allowPrerenderedRoutes && route.prerender) return undefined;
-				return route;
+		// In dev, try matching without .html extensions or index.html suffixes
+		// to handle URLs like /page/index.html → /page/
+		if (this.#baseStripped) {
+			const altPathname = pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
+			if (altPathname !== pathname) {
+				const altMatch = this.#router.match(altPathname);
+				if (altMatch.type === 'match') {
+					if (!allowPrerenderedRoutes && altMatch.route.prerender) return undefined;
+					return altMatch.route;
+				}
+			}
+			// When trailingSlash is 'never' and the base is not '/', the index route pattern
+			// is ^$ (matches empty string). The Router prepends '/' internally, so a direct
+			// pattern match is needed for this edge case.
+			const testPathname = altPathname !== pathname ? altPathname : pathname;
+			if (testPathname === '/' && this.manifest.trailingSlash === 'never') {
+				const route = this.manifestData.routes.find((r) => r.pattern.test(''));
+				if (route) {
+					if (!allowPrerenderedRoutes && route.prerender) return undefined;
+					return route;
+				}
 			}
 		}
 		return undefined;

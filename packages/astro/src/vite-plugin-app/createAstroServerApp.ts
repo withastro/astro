@@ -76,6 +76,11 @@ export default async function createAstroServerApp(
 
 	return {
 		handler(incomingRequest: http.IncomingMessage, incomingResponse: http.ServerResponse) {
+			// Set user-specified server headers on every response
+			for (const [name, value] of Object.entries(settings.config.server.headers ?? {})) {
+				if (value) incomingResponse.setHeader(name, value);
+			}
+
 			Promise.resolve()
 				.then(async () => {
 					const mod = await loader.import(ASTRO_DEV_USER_APP_ID);
