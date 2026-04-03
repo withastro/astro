@@ -41,8 +41,8 @@ describe('prerenderEnvironment: node', () => {
 
 	it('renders svelte component that imports .svelte files from node_modules', async () => {
 		const res = await fixture.fetch('/svelte');
-		assert.equal(res.status, 200);
 		const html = await res.text();
+		assert.equal(res.status, 200, `Expected 200 but got ${res.status}. Body: ${html.slice(0, 500)}`);
 		assert.ok(
 			html.includes('id="svelte-wrapper"'),
 			'Expected the prerendered page to contain the svelte wrapper',
