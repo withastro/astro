@@ -193,7 +193,17 @@ const persistedHeadElement = (el: HTMLElement, newDoc: Document): Element | null
 	if (import.meta.env.DEV && el.tagName === 'STYLE') {
 		const viteDevId = el.getAttribute('data-vite-dev-id');
 		if (viteDevId) {
-			return newDoc.head.querySelector(`style[data-vite-dev-id="${viteDevId}"]`);
+			const matchingNew = newDoc.head.querySelector(`style[data-vite-dev-id="${viteDevId}"]`);
+			if (matchingNew) {
+				// Update the preserved element's content if the new version differs.
+				// On-demand CSS tools like UnoCSS may generate additional rules as new
+				// modules are discovered during SSR, so the SSR-rendered version can
+				// contain more up-to-date styles than the currently loaded one.
+				if (el.textContent !== matchingNew.textContent) {
+					el.textContent = matchingNew.textContent;
+				}
+				return matchingNew;
+			}
 		}
 	}
 	// Preserve inline <style> elements with identical content across navigations.
