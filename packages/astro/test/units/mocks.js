@@ -2,6 +2,8 @@ import { createBasicPipeline } from './test-utils.js';
 import { makeRoute, staticPart } from './routing/test-helpers.js';
 import { AstroCookies } from '../../dist/core/cookies/index.js';
 import { App } from '../../dist/core/app/app.js';
+import { baseService } from '../../dist/assets/services/service.js';
+import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import {
 	createComponent,
 	render,
@@ -229,4 +231,66 @@ export function createRouteData(overrides) {
 		isIndex: overrides.isIndex ?? route === '/',
 		prerender: overrides.prerender ?? false,
 	});
+}
+
+/**
+ * An image service for unit tests that extends baseService with a getURL
+ * that doesn't depend on import.meta.env.BASE_URL.
+ */
+const unitTestImageService = {
+	...baseService,
+	getURL(options, imageConfig) {
+		const src = typeof options.src === 'string' ? options.src : options.src.src;
+		// Replicate baseService's allowlist check without import.meta.env.BASE_URL
+		if (typeof options.src === 'string' && !isRemoteAllowed(options.src, imageConfig)) {
+			return options.src;
+		}
+		const params = new URLSearchParams();
+		params.set('href', src);
+		if (options.width) params.set('w', String(options.width));
+		if (options.height) params.set('h', String(options.height));
+		if (options.format) params.set('f', options.format);
+		if (options.fit) params.set('fit', options.fit);
+		if (options.position) params.set('pos', options.position);
+		return '/_image?' + params.toString();
+	},
+};
+
+/**
+ * Installs the unit test image service on globalThis so that getImage()
+ * can resolve it without the virtual:image-service Vite module.
+ * Returns the imageConfig object to pass to getImage(), and a cleanup function.
+ *
+ * Use the cleanup function inside the after testing hook.
+ *
+ * @param {object} [overrides]
+ * @param {string[]} [overrides.domains]
+ * @param {object[]} [overrides.remotePatterns]
+ * @returns {{ imageConfig: object, cleanup: () => void }}
+ */
+export function installImageService(overrides = {}) {
+	globalThis.astroAsset = { imageService: unitTestImageService };
+
+	const imageConfig = {
+		service: { entrypoint: 'test', config: {} },
+		domains: overrides.domains ?? [],
+		remotePatterns: overrides.remotePatterns ?? [],
+		endpoint: { route: '/_image' },
+	};
+
+	return {
+		imageConfig,
+		cleanup() {
+			globalThis.astroAsset = undefined;
+		},
+	};
+}
+
+/**
+ * Creates a small Astro source component with an empty frontmatter
+ * @param html
+ * @returns {string}
+ */
+export function createMockAstroSource(html) {
+	return `---\n---\n<html>${html}</html>`;
 }

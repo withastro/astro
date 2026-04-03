@@ -3,6 +3,7 @@ import {
 	ASTRO_LOCALS_HEADER,
 	ASTRO_MIDDLEWARE_SECRET_HEADER,
 	ASTRO_PATH_HEADER,
+	ASTRO_PATH_PARAM,
 } from '../index.js';
 import { middlewareSecret, skewProtection } from 'virtual:astro-vercel:config';
 import { createApp } from 'astro/app/entrypoint';
@@ -17,7 +18,12 @@ export default {
 		const url = new URL(request.url);
 		const middlewareSecretHeader = request.headers.get(ASTRO_MIDDLEWARE_SECRET_HEADER);
 		const hasValidMiddlewareSecret = middlewareSecretHeader === middlewareSecret;
-		const realPath = hasValidMiddlewareSecret ? request.headers.get(ASTRO_PATH_HEADER) : null;
+		let realPath = undefined;
+		if (hasValidMiddlewareSecret) {
+			realPath = request.headers.get(ASTRO_PATH_HEADER);
+		} else if (request.headers.get('x-vercel-isr') === '1') {
+			realPath = url.searchParams.get(ASTRO_PATH_PARAM);
+		}
 		if (typeof realPath === 'string') {
 			url.pathname = realPath;
 			request = new Request(url.toString(), {

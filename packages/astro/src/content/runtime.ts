@@ -506,7 +506,7 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 	});
 }
 
-function updateImageReferencesInData<T extends Record<string, unknown>>(
+export function updateImageReferencesInData<T extends Record<string, unknown>>(
 	data: T,
 	fileName?: string,
 	imageAssetMap?: Map<string, ImageMetadata>,

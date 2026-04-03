@@ -153,3 +153,23 @@ test.describe('Styles', () => {
 		await expect(h).toHaveCSS('color', 'rgb(0, 0, 0)');
 	});
 });
+
+test.describe('Middleware', () => {
+	test('middleware changes are picked up without restart', async ({ astro }) => {
+		// Verify original middleware header
+		const res1 = await astro.fetch('/middleware-test');
+		expect(res1.headers.get('x-test-middleware')).toBe('before');
+
+		// Edit middleware to change the header value
+		await astro.editFile('./src/middleware.ts', (original) =>
+			original.replace("'before'", "'after'"),
+		);
+
+		// Wait briefly for HMR to propagate
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+
+		// Verify the new header value is returned without server restart
+		const res2 = await astro.fetch('/middleware-test');
+		expect(res2.headers.get('x-test-middleware')).toBe('after');
+	});
+});

@@ -46,7 +46,8 @@
         // Enforce separate type imports for type-only imports to avoid bundling unneeded code
         "useImportType": "error",
         "useExportType": "error",
-        "useNumberNamespace": "warn"
+        "useNumberNamespace": "warn",
+        "noInferrableTypes": "error"
       },
       "suspicious": {
         // This one is specific to catch `console.log`. The rest of logs are permitted

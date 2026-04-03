@@ -1,6 +1,11 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { redirectIsExternal, renderRedirect } from '../../../dist/core/redirects/render.js';
+import {
+	computeRedirectStatus,
+	redirectIsExternal,
+	renderRedirect,
+	resolveRedirectTarget,
+} from '../../../dist/core/redirects/render.js';
 import { createMockRenderContext } from '../mocks.js';
 
 describe('redirects/render', () => {
@@ -193,5 +198,66 @@ describe('redirects/render', () => {
 
 			assert.equal(response.headers.get('location'), '/');
 		});
+	});
+});
+
+describe('computeRedirectStatus', () => {
+	it('returns 301 for GET without an explicit status', () => {
+		assert.equal(computeRedirectStatus('GET', '/destination', undefined), 301);
+	});
+
+	it('returns 308 for POST without an explicit status', () => {
+		assert.equal(computeRedirectStatus('POST', '/destination', undefined), 308);
+	});
+
+	it('returns the explicit status when redirectRoute is defined and redirect is an object', () => {
+		const redirectRoute = /** @type {any} */ ({});
+		assert.equal(
+			computeRedirectStatus('GET', { status: 302, destination: '/dest' }, redirectRoute),
+			302,
+		);
+	});
+
+	it('falls back to method-based status when redirect is a string even with redirectRoute', () => {
+		const redirectRoute = /** @type {any} */ ({});
+		assert.equal(computeRedirectStatus('POST', '/dest', redirectRoute), 308);
+	});
+});
+
+describe('resolveRedirectTarget', () => {
+	it('substitutes a simple param into the redirect string', () => {
+		assert.equal(
+			resolveRedirectTarget({ slug: 'hello' }, '/[slug]/page', undefined, 'ignore'),
+			'/hello/page',
+		);
+	});
+
+	it('substitutes a spread param', () => {
+		assert.equal(
+			resolveRedirectTarget({ rest: 'a/b/c' }, '/[...rest]', undefined, 'ignore'),
+			'/a/b/c',
+		);
+	});
+
+	it('returns the string as-is when there are no params', () => {
+		assert.equal(resolveRedirectTarget({}, '/destination', undefined, 'ignore'), '/destination');
+	});
+
+	it('returns / when redirect is undefined', () => {
+		assert.equal(resolveRedirectTarget({}, undefined, undefined, 'ignore'), '/');
+	});
+
+	it('returns the destination from an object redirect', () => {
+		assert.equal(
+			resolveRedirectTarget({}, { status: 301, destination: '/new' }, undefined, 'ignore'),
+			'/new',
+		);
+	});
+
+	it('returns an external URL unchanged', () => {
+		assert.equal(
+			resolveRedirectTarget({}, 'https://example.com/page', undefined, 'ignore'),
+			'https://example.com/page',
+		);
 	});
 });
