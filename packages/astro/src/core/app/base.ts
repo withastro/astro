@@ -9,7 +9,7 @@ import {
 	removeTrailingForwardSlash,
 } from '@astrojs/internal-helpers/path';
 import { Hono, type Context } from 'hono';
-import { matchPattern } from '../../assets/utils/index.js';
+import { matchPattern } from '@astrojs/internal-helpers/remote';
 import { normalizeTheLocale } from '../../i18n/index.js';
 import type { RoutesList } from '../../types/astro.js';
 import type { RemotePattern, RouteData } from '../../types/public/index.js';
