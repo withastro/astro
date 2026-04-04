@@ -129,6 +129,15 @@ async function renderToStaticMarkup(
 	} else {
 		html = await renderToPipeableStreamAsync(vnode, renderOptions);
 	}
+	// React 19 automatically injects `<link>` tags (preloads, stylesheets, etc.)
+	// during SSR via its "Float" mechanism. These belong in `<head>`, not inside
+	// island output, and can cause invalid HTML and duplicate resource downloads.
+	// Strip all React-injected resource hints from the island HTML.
+	// See https://github.com/facebook/react/issues/27910
+	html = html.replace(
+		/<link\s+[^>]*rel="(?:preload|modulepreload|stylesheet|preconnect|dns-prefetch)"[^>]*\/?>/g,
+		'',
+	);
 	return { html, attrs };
 }
 
