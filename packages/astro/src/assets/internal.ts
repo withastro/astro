@@ -171,6 +171,26 @@ export async function getImage(
 		if (resolvedOptions.position) {
 			// Normalize position value for data attribute (spaces to dashes)
 			resolvedOptions['data-astro-image-pos'] = resolvedOptions.position.replace(/\s+/g, '-');
+			// Apply object-position as inline style since position values are arbitrary
+			// and cannot be pre-enumerated in a static stylesheet like fit values can.
+			if (typeof resolvedOptions.style === 'object' && resolvedOptions.style !== null) {
+				// Style is an object (e.g. { border: '2px red solid' })
+				if (!('objectPosition' in resolvedOptions.style)) {
+					resolvedOptions.style = {
+						...resolvedOptions.style,
+						objectPosition: resolvedOptions.position,
+					};
+				}
+			} else {
+				const existingStyle =
+					typeof resolvedOptions.style === 'string' ? resolvedOptions.style : '';
+				if (!existingStyle.includes('object-position')) {
+					const positionStyle = `object-position: ${resolvedOptions.position}`;
+					resolvedOptions.style = existingStyle
+						? existingStyle.replace(/;?\s*$/, '; ') + positionStyle
+						: positionStyle;
+				}
+			}
 		}
 	}
 
