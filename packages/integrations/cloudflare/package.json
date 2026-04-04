@@ -27,6 +27,8 @@
     "./image-transform-endpoint": "./dist/entrypoints/image-transform-endpoint.js",
     "./image-passthrough-endpoint": "./dist/entrypoints/image-passthrough-endpoint.js",
     "./image-service-workerd": "./dist/entrypoints/image-service-workerd.js",
+    "./caches": "./dist/caches.js",
+    "./cdn-cache": "./dist/entrypoints/cdn-cache.js",
     "./handler": "./dist/utils/handler.js",
     "./types.d.ts": "./types.d.ts",
     "./package.json": "./package.json"
