@@ -10,6 +10,7 @@ import {
 import { FontaceFontFileReader } from '../infra/fontace-font-file-reader.js';
 import type { FontProvider } from '../types.js';
 import { type LocalFamilyOptions, LocalFontProvider } from './local.js';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readFile } from 'node:fs/promises';
 
@@ -134,17 +135,43 @@ function npm(
 	options?: Omit<NpmProviderOptions, 'root' | 'readFile'>,
 ): FontProvider<NpmFamilyOptions | undefined> {
 	let initializedProvider: InitializedProvider<NpmFamilyOptions> | undefined;
+	let rootDir: string;
+	const remote = options?.remote ?? true;
+	const cdn = options?.cdn || 'https://cdn.jsdelivr.net/npm';
 	return {
 		name: providers.npm()._name,
 		async init(context) {
+			rootDir = fileURLToPath(context.root);
 			initializedProvider = await providers.npm({
 				...options,
-				root: fileURLToPath(context.root),
+				root: rootDir,
 				readFile: (path) => readFile(path, 'utf-8').catch(() => null),
 			})(context);
 		},
 		async resolveFont({ familyName, ...rest }) {
-			return await initializedProvider?.resolveFont(familyName, rest);
+			const result = await initializedProvider?.resolveFont(familyName, rest);
+			// When remote is false, rewrite CDN URLs to local filesystem paths so that
+			// the font fetcher reads font files from disk instead of making network requests
+			if (!remote && result?.fonts) {
+				const cdnPrefix = cdn.endsWith('/') ? cdn : cdn + '/';
+				for (const font of result.fonts) {
+					for (const source of font.src) {
+						if ('url' in source && source.url.startsWith(cdnPrefix)) {
+							// After stripping the CDN prefix, the rest looks like:
+							// Scoped:     "@fontsource/maple-mono@5.2.6/files/font.woff2"
+							// Non-scoped: "cal-sans@1.0.0/font.woff2"
+							// We need to strip the @version part to get the local node_modules path
+							const afterCdn = source.url.slice(cdnPrefix.length);
+							// Match package name (with optional scope) and strip @version
+							// For scoped: (@scope/name)@version/path -> $1/path
+							// For non-scoped: (name)@version/path -> $1/path
+							const localPath = afterCdn.replace(/^(@[^/]+\/[^@]+|[^@]+)@[^/]+\//, '$1/');
+							source.url = join(rootDir, 'node_modules', localPath);
+						}
+					}
+				}
+			}
+			return result;
 		},
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
