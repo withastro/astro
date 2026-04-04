@@ -9,4 +9,10 @@ export { renderPage } from './page.js';
 export { renderScript } from './script.js';
 export { type ComponentSlots, renderSlot, renderSlotToString } from './slot.js';
 export { renderScriptElement, renderUniqueStylesheet } from './tags.js';
-export { addAttribute, defineScriptVars, voidElementNames } from './util.js';
+export {
+	addAttribute,
+	astroAttrKey,
+	astroSpreadKeys,
+	defineScriptVars,
+	voidElementNames,
+} from './util.js';

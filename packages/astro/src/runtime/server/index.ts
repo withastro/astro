@@ -44,7 +44,7 @@ export type { ServerIslandComponent } from './render/server-islands.js';
 export { createTransitionScope, renderTransition } from './transition.js';
 
 import { markHTMLString } from './escape.js';
-import { addAttribute, Renderer } from './render/index.js';
+import { addAttribute, astroSpreadKeys, Renderer } from './render/index.js';
 
 export function mergeSlots(...slotted: unknown[]) {
 	const slots: Record<string, () => any> = {};
@@ -87,10 +87,28 @@ export function spreadAttributes(
 			values.class = scopedClassName;
 		}
 	}
+	// Collect the effective keys contained in this spread for deduplication.
+	// This allows RenderTemplateResult to suppress preceding addAttribute()
+	// results that would produce duplicate HTML attributes.
+	const keys: Set<string> = new Set();
 	for (const [key, value] of Object.entries(values)) {
+		// Track the effective key name (matching addAttribute's normalization)
+		let effectiveKey = key;
+		if (key === 'className') {
+			effectiveKey = 'class';
+		} else if (key === 'class:list') {
+			effectiveKey = 'class';
+		}
+		if (value != null) {
+			keys.add(effectiveKey);
+		}
 		output += addAttribute(value, key, true, _name);
 	}
-	return markHTMLString(output);
+	const result = markHTMLString(output);
+	if (result && typeof result === 'object') {
+		(result as any)[astroSpreadKeys] = keys;
+	}
+	return result;
 }
 
 // Adds CSS variables to an inline style tag

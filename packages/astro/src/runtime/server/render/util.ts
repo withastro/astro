@@ -77,6 +77,33 @@ function handleBooleanAttribute(
 	return markHTMLString(value ? ` ${key}` : '');
 }
 
+/**
+ * Symbol used to tag the return value of addAttribute with the attribute key.
+ * This enables RenderTemplateResult to detect and suppress attributes that
+ * are overridden by a subsequent spread on the same element.
+ */
+export const astroAttrKey = Symbol.for('astro:attr-key');
+
+/**
+ * Symbol used to tag the return value of spreadAttributes with the set of
+ * attribute keys it contains. This enables RenderTemplateResult to detect
+ * and suppress preceding addAttribute results that share the same key.
+ */
+export const astroSpreadKeys = Symbol.for('astro:spread-keys');
+
+/**
+ * Tags an addAttribute result with the effective attribute key for deduplication.
+ * When an HTMLString is returned, attaches the key via the astroAttrKey symbol
+ * so that RenderTemplateResult can detect and suppress it if a subsequent
+ * spreadAttributes call contains the same key.
+ */
+function tagAttributeResult(result: any, effectiveKey: string): any {
+	if (result && typeof result === 'object') {
+		(result as any)[astroAttrKey] = effectiveKey;
+	}
+	return result;
+}
+
 // A helper used to turn expressions into attribute key/value
 // In the compiler, addAttribute is only printed to process attributes of elements
 // that may contain dynamic values. We don't need to pass tagName to addAttribute
@@ -94,54 +121,82 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 		return '';
 	}
 
+	// Determine the effective attribute name for deduplication purposes.
+	// className maps to class, class:list maps to class.
+	const effectiveKey = key === 'className' || key === 'class:list' ? 'class' : key;
+
 	// support "class" from an expression passed into an element (#782)
 	if (key === 'class:list') {
 		const listValue = toAttributeString(clsx(value), shouldEscape);
 		if (listValue === '') {
 			return '';
 		}
-		return markHTMLString(` ${key.slice(0, -5)}="${listValue}"`);
+		return tagAttributeResult(markHTMLString(` ${key.slice(0, -5)}="${listValue}"`), effectiveKey);
 	}
 
 	// support object styles for better JSX compat
 	if (key === 'style' && !(value instanceof HTMLString)) {
 		if (Array.isArray(value) && value.length === 2) {
-			return markHTMLString(
-				` ${key}="${toAttributeString(`${toStyleString(value[0])};${value[1]}`, shouldEscape)}"`,
+			return tagAttributeResult(
+				markHTMLString(
+					` ${key}="${toAttributeString(`${toStyleString(value[0])};${value[1]}`, shouldEscape)}"`,
+				),
+				effectiveKey,
 			);
 		}
 		if (typeof value === 'object') {
-			return markHTMLString(` ${key}="${toAttributeString(toStyleString(value), shouldEscape)}"`);
+			return tagAttributeResult(
+				markHTMLString(` ${key}="${toAttributeString(toStyleString(value), shouldEscape)}"`),
+				effectiveKey,
+			);
 		}
 	}
 
 	// support `className` for better JSX compat
 	if (key === 'className') {
-		return markHTMLString(` class="${toAttributeString(value, shouldEscape)}"`);
+		return tagAttributeResult(
+			markHTMLString(` class="${toAttributeString(value, shouldEscape)}"`),
+			effectiveKey,
+		);
 	}
 
 	// Boolean values only need the key
 	if (htmlBooleanAttributes.test(key)) {
-		return handleBooleanAttribute(key, value, shouldEscape, tagName);
+		return tagAttributeResult(
+			handleBooleanAttribute(key, value, shouldEscape, tagName),
+			effectiveKey,
+		);
 	}
 
 	// Other attributes with an empty string value can omit rendering the value
 	if (value === '') {
-		return markHTMLString(` ${key}`);
+		return tagAttributeResult(markHTMLString(` ${key}`), effectiveKey);
 	}
 
 	// We cannot add it to htmlBooleanAttributes because it can be: boolean | "auto" | "manual"
 	if (key === 'popover' && typeof value === 'boolean') {
-		return handleBooleanAttribute(key, value, shouldEscape, tagName);
+		return tagAttributeResult(
+			handleBooleanAttribute(key, value, shouldEscape, tagName),
+			effectiveKey,
+		);
 	}
 	if (key === 'download' && typeof value === 'boolean') {
-		return handleBooleanAttribute(key, value, shouldEscape, tagName);
+		return tagAttributeResult(
+			handleBooleanAttribute(key, value, shouldEscape, tagName),
+			effectiveKey,
+		);
 	}
 	if (key === 'hidden' && typeof value === 'boolean') {
-		return handleBooleanAttribute(key, value, shouldEscape, tagName);
+		return tagAttributeResult(
+			handleBooleanAttribute(key, value, shouldEscape, tagName),
+			effectiveKey,
+		);
 	}
 
-	return markHTMLString(` ${key}="${toAttributeString(value, shouldEscape)}"`);
+	return tagAttributeResult(
+		markHTMLString(` ${key}="${toAttributeString(value, shouldEscape)}"`),
+		effectiveKey,
+	);
 }
 
 // Adds support for `<Component {...value} />

@@ -2,7 +2,7 @@ import { markHTMLString } from '../../escape.js';
 import { isPromise } from '../../util.js';
 import { renderChild } from '../any.js';
 import type { RenderDestination } from '../common.js';
-import { createBufferedRenderer } from '../util.js';
+import { astroAttrKey, astroSpreadKeys, createBufferedRenderer } from '../util.js';
 
 const renderTemplateResultSym = Symbol.for('astro.renderTemplateResult');
 
@@ -30,6 +30,57 @@ export class RenderTemplateResult {
 			}
 			return expression;
 		});
+
+		// Deduplicate attributes that are overridden by a subsequent spread.
+		// When an element has both a static/expression attribute and a spread
+		// that contains the same key, e.g.:
+		//   <svg data-icon={icon} {...restProps}>
+		// the compiler generates separate addAttribute + spreadAttributes calls.
+		// Both produce HTML attribute strings that get concatenated, resulting in
+		// duplicate attributes (browsers use the first occurrence). To fix this,
+		// we scan for spreadAttributes results and suppress any preceding
+		// addAttribute results whose key appears in the spread.
+		this._deduplicateAttributes();
+	}
+
+	/**
+	 * Scans the expressions array for spreadAttributes results (tagged with
+	 * astroSpreadKeys) and suppresses preceding addAttribute results (tagged
+	 * with astroAttrKey) that share the same key. This ensures that spread
+	 * props correctly override static/expression attributes, matching the
+	 * expected JS/JSX object spread semantics.
+	 */
+	private _deduplicateAttributes(): void {
+		const { expressions, htmlParts } = this;
+		for (let i = 0; i < expressions.length; i++) {
+			const exp = expressions[i];
+			// Check if this expression is a spreadAttributes result
+			if (exp && typeof exp === 'object' && (exp as any)[astroSpreadKeys]) {
+				const spreadKeys: Set<string> = (exp as any)[astroSpreadKeys];
+				// Look backwards for preceding addAttribute results that conflict.
+				// We stop when we hit a non-attribute expression or an htmlPart
+				// that contains '>' (indicating we've left the current tag's attrs).
+				for (let j = i - 1; j >= 0; j--) {
+					const prevExp = expressions[j];
+					if (prevExp && typeof prevExp === 'object' && (prevExp as any)[astroAttrKey]) {
+						const prevKey: string = (prevExp as any)[astroAttrKey];
+						if (spreadKeys.has(prevKey)) {
+							// Suppress this attribute - the spread will provide the value
+							expressions[j] = '';
+						}
+					} else if (prevExp && typeof prevExp === 'object' && (prevExp as any)[astroSpreadKeys]) {
+						// Hit another spread - stop looking further back
+						break;
+					}
+					// Check the htmlPart between prevExp and the expression after it.
+					// If it contains '>' we've crossed an element boundary.
+					const partBetween = htmlParts[j + 1];
+					if (partBetween && partBetween.includes('>')) {
+						break;
+					}
+				}
+			}
+		}
 	}
 
 	render(destination: RenderDestination): void | Promise<void> {
