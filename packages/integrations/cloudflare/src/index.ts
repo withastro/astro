@@ -181,11 +181,15 @@ export default function createIntegration({
 						experimental: {
 							prerenderWorker: {
 								config(_, { entryWorkerConfig }) {
+									const { queues, ...restWorkerConfig } = entryWorkerConfig;
 									return {
-										...entryWorkerConfig,
+										...restWorkerConfig,
 										name: 'prerender',
+										...(queues?.producers?.length && {
+											queues: { producers: queues.producers },
+										}),
 										...(needsImagesBinding &&
-											!entryWorkerConfig.images && {
+											!restWorkerConfig.images && {
 												images: { binding: imagesBindingName },
 											}),
 									};
