@@ -21,6 +21,7 @@ const createPreviewServer: CreatePreviewServer = async ({
 	port,
 	host,
 	root,
+	allowedHosts,
 }) => {
 	const wranglerConfigPath = resolvePath(fileURLToPath(root), '.wrangler/deploy/config.json');
 	if (!existsSync(wranglerConfigPath)) {
@@ -45,7 +46,7 @@ const createPreviewServer: CreatePreviewServer = async ({
 				port,
 				headers,
 				open: false,
-				allowedHosts: [],
+				allowedHosts: allowedHosts ?? [],
 			},
 			plugins: [
 				cfVitePlugin({ ...globalThis.astroCloudflareOptions, viteEnvironment: { name: 'ssr' } }),
