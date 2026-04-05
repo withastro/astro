@@ -133,8 +133,8 @@ async function renderToStaticMarkup(
 	// These should be in <head>, not inside the island.
 	// See: https://github.com/facebook/react/issues/27910
 	html = html.replace(
-		/<link\s+[^>]*rel="(?:preload|modulepreload|stylesheet|preconnect|dns-prefetch)"[^>]*\/?>/g,
-		'',
+  	/<link\s[^>]*rel="(?:preload|modulepreload|stylesheet|preconnect|dns-prefetch)"[^>]*>/g,
+  	'',
 	);
 	return { html, attrs };
 }
