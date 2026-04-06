@@ -4,6 +4,7 @@ import {
 	hasFileExtension,
 	isInternalPath,
 	prependForwardSlash,
+	removeBase,
 	removeTrailingForwardSlash,
 } from '@astrojs/internal-helpers/path';
 import {
@@ -136,11 +137,12 @@ export class Pages {
 					return altMatch.route;
 				}
 			}
-			// When trailingSlash is 'never' and the base is not '/', the index route pattern
-			// is ^$ (matches empty string). The Router prepends '/' internally, so a direct
-			// pattern match is needed for this edge case.
-			const testPathname = altPathname !== pathname ? altPathname : pathname;
-			if (testPathname === '/' && this.manifest.trailingSlash === 'never') {
+			// When trailingSlash is 'never' and the base is not '/', the index route
+			// pattern is ^$ (matches empty string). After the Router strips the base
+			// from a pathname like '/docs', it gets '/' which doesn't match ^$.
+			// Fall back to a direct pattern test against '' for the index route.
+			const strippedPathname = removeBase(pathname, this.manifest.base) || '/';
+			if (strippedPathname === '/' && this.manifest.trailingSlash === 'never') {
 				const route = this.manifestData.routes.find((r) => r.pattern.test(''));
 				if (route) {
 					if (!allowPrerenderedRoutes && route.prerender) return undefined;
@@ -430,10 +432,7 @@ export class Pages {
 
 	#getPathnameFromRequest(request: Request): string {
 		const url = new URL(request.url);
-		const base = removeTrailingForwardSlash(this.manifest.base);
-		const pathname = prependForwardSlash(
-			base.length > 0 ? url.pathname.slice(base.length) : url.pathname,
-		);
+		const pathname = prependForwardSlash(removeBase(url.pathname, this.manifest.base));
 		try {
 			return decodeURI(pathname);
 		} catch {

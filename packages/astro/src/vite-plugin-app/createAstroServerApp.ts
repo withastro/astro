@@ -144,6 +144,13 @@ export default async function createAstroServerApp(
 					const base = removeTrailingForwardSlash(settings.config.base);
 					if (base.length > 0) {
 						url.pathname = base + url.pathname;
+						// The base middleware can't distinguish `/docs` from `/docs/`
+						// — both are stripped to `/`. Concatenating base + `/` produces
+						// `/docs/`, an artifact that would cause a redirect loop when
+						// trailingSlash is 'never'. Normalize it here.
+						if (settings.config.trailingSlash === 'never') {
+							url.pathname = removeTrailingForwardSlash(url.pathname);
+						}
 					}
 
 					// Get body using the helper that handles async iterables properly (only for non-GET/HEAD)
