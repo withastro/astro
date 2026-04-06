@@ -99,6 +99,7 @@ export default function createVitePluginAstroServer({
 			viteServer.watcher.on('change', reloadUserAppHandler);
 			viteServer.watcher.on('unlink', reloadUserAppHandler);
 			viteServer.watcher.on('add', invalidateUserAppCache);
+			viteServer.watcher.on('change', invalidateUserAppCache);
 			viteServer.watcher.on('unlink', invalidateUserAppCache);
 
 			viteServer.httpServer?.on('close', () => {
@@ -106,6 +107,7 @@ export default function createVitePluginAstroServer({
 				viteServer.watcher.off('change', reloadUserAppHandler);
 				viteServer.watcher.off('unlink', reloadUserAppHandler);
 				viteServer.watcher.off('add', invalidateUserAppCache);
+				viteServer.watcher.off('change', invalidateUserAppCache);
 				viteServer.watcher.off('unlink', invalidateUserAppCache);
 			});
 

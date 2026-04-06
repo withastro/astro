@@ -9,7 +9,7 @@ import {
 	computePreferredLocale,
 	computePreferredLocaleList,
 } from '../../i18n/utils.js';
-import { ASTRO_GENERATOR, clientAddressSymbol, pipelineSymbol } from '../constants.js';
+import { ASTRO_GENERATOR, clientAddressSymbol, clientLocalsSymbol, pipelineSymbol } from '../constants.js';
 import { PERSIST_SYMBOL } from '../session/runtime.js';
 import { computeFallbackRoute } from '../../i18n/fallback.js';
 import { I18nRouter, type I18nRouterContext } from '../../i18n/router.js';
@@ -87,7 +87,8 @@ export async function context(c: HonoContext<any>): Promise<APIContext> {
 		cache = new AstroCache(cacheProvider);
 	}
 
-	const locals: App.Locals = {} as App.Locals;
+	// Read locals set by integration connect middleware (via clientLocalsSymbol)
+	const locals: App.Locals = (Reflect.get(request, clientLocalsSymbol) as App.Locals) ?? ({} as App.Locals);
 
 	const ctx: APIContext = {
 		get cookies() {

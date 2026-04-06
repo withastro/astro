@@ -64,6 +64,7 @@ export const REROUTABLE_STATUS_CODES = [404, 500];
  * The clientAddress provided by the adapter (or the dev server) is stored on this field.
  */
 export const clientAddressSymbol = Symbol.for('astro.clientAddress');
+export const clientLocalsSymbol = Symbol.for('astro.locals');
 
 
 /**

@@ -4,7 +4,7 @@ import { Http2ServerResponse } from 'node:http2';
 import type { Hono } from 'hono';
 import { routes } from 'virtual:astro:routes';
 import { createRequest } from '../core/request.js';
-import { clientAddressSymbol, originalUrlSymbol } from '../core/constants.js';
+import { clientAddressSymbol, clientLocalsSymbol, originalUrlSymbol } from '../core/constants.js';
 import { createOutgoingHttpHeaders } from '../core/app/createOutgoingHttpHeaders.js';
 import { makeRequestBody } from '../core/app/node.js';
 import type { RouteInfo } from '../core/app/types.js';
@@ -154,6 +154,12 @@ export default async function createAstroServerApp(
 
 				// Attach the client address from the socket so ctx.clientAddress works in dev
 				Reflect.set(request, clientAddressSymbol, incomingRequest.socket.remoteAddress);
+
+				// Forward locals set by integration connect middleware (via astro:server:setup)
+				const locals = Reflect.get(incomingRequest, clientLocalsSymbol);
+				if (locals) {
+					Reflect.set(request, clientLocalsSymbol, locals);
+				}
 
 				// If the base middleware saved the original (pre-strip) URL, attach it
 				// to the Request so Pages.render() can use it for ctx.url / ctx.request.

@@ -368,7 +368,10 @@ export class Pages {
 		const errorRouteData = matchRoute(errorRoutePath, this.manifestData);
 		const url = new URL(request.url);
 		if (errorRouteData) {
-			if (errorRouteData.prerender) {
+			// In production, prerendered error pages are fetched as static assets.
+			// In dev (#baseStripped), always render the component directly so that
+			// Astro.url reflects the originally-requested path, not /404.html.
+			if (errorRouteData.prerender && !this.#baseStripped) {
 				const maybeDotHtml = errorRouteData.route.endsWith(`/${status}`) ? '.html' : '';
 				const statusURL = new URL(
 					`${removeTrailingForwardSlash(this.manifest.base)}/${status}${maybeDotHtml}`,
