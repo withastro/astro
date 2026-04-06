@@ -6,7 +6,8 @@ import type {
 } from 'astro';
 import { preview, type PreviewServer as VitePreviewServer } from 'vite';
 import { fileURLToPath } from 'node:url';
-import { mkdir } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { join, dirname } from 'node:path';
 import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
 import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
 import type {
@@ -28,6 +29,8 @@ interface CloudflarePrerendererOptions {
 	trailingSlash: AstroConfig['trailingSlash'];
 	cfPluginConfig: PluginConfig;
 	hasCompileImageService: boolean;
+	/** When true, images were pre-optimized by the IMAGES binding in workerd and can be written directly. */
+	hasBindingImageService: boolean;
 }
 
 /**
@@ -41,6 +44,7 @@ export function createCloudflarePrerenderer({
 	base,
 	trailingSlash,
 	cfPluginConfig,
+	hasBindingImageService,
 	hasCompileImageService,
 }: CloudflarePrerendererOptions): AstroPrerenderer {
 	let previewServer: VitePreviewServer | undefined;
@@ -122,7 +126,7 @@ export function createCloudflarePrerenderer({
 			return response;
 		},
 
-		collectStaticImages: hasCompileImageService
+		collectStaticImages: hasCompileImageService || hasBindingImageService
 			? async (): Promise<AssetsGlobalStaticImagesList> => {
 					const response = await fetch(`${serverUrl}${STATIC_IMAGES_ENDPOINT}`, {
 						method: 'POST',
@@ -139,22 +143,42 @@ export function createCloudflarePrerenderer({
 
 					const entries: StaticImagesResponse = await response.json();
 
-					// Switch from the workerd stub to Sharp for the Node-side generation pipeline
-					const { default: sharpService } = await import('astro/assets/services/sharp');
-					globalThis.astroAsset ??= {};
-					globalThis.astroAsset.imageService = sharpService;
-
+					// For transforms that already have imageData (optimized by the IMAGES binding
+					// in workerd), write the bytes directly to the client output directory.
+					// Remaining transforms without imageData fall through to Sharp.
 					const staticImages: AssetsGlobalStaticImagesList = new Map();
+					let needsSharp = false;
+
 					for (const entry of entries) {
 						const transforms = new Map();
 						for (const t of entry.transforms) {
-							transforms.set(t.hash, { finalPath: t.finalPath, transform: t.transform });
+							if (t.imageData) {
+								// Image was already transformed by the Cloudflare IMAGES binding —
+								// write it directly to the output directory.
+								const outputPath = join(fileURLToPath(clientDir), t.finalPath);
+								await mkdir(dirname(outputPath), { recursive: true });
+								await writeFile(outputPath, Buffer.from(t.imageData, 'base64'));
+							} else {
+								// No pre-transformed data — collect for Sharp processing
+								transforms.set(t.hash, { finalPath: t.finalPath, transform: t.transform });
+								needsSharp = true;
+							}
 						}
-						staticImages.set(entry.originalPath, {
-							originalSrcPath: entry.originalSrcPath,
-							transforms,
-						});
+						if (transforms.size > 0) {
+							staticImages.set(entry.originalPath, {
+								originalSrcPath: entry.originalSrcPath,
+								transforms,
+							});
+						}
 					}
+
+					// Only load Sharp if there are transforms that weren't handled by the binding
+					if (needsSharp) {
+						const { default: sharpService } = await import('astro/assets/services/sharp');
+						globalThis.astroAsset ??= {};
+						globalThis.astroAsset.imageService = sharpService;
+					}
+
 					return staticImages;
 				}
 			: undefined,

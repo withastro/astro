@@ -125,6 +125,7 @@ export default function createIntegration({
 
 	const { buildService, runtimeService } = normalizeImageServiceConfig(imageService);
 	const needsImagesBinding = runtimeService === 'cloudflare-binding';
+	const isBindingBuild = buildService === 'cloudflare-binding';
 
 	return {
 		name: '@astrojs/cloudflare',
@@ -313,7 +314,7 @@ export default function createIntegration({
 							createConfigPlugin({
 								sessionKVBindingName,
 								compileImageConfig:
-									isCompile && command !== 'dev'
+									(isCompile || isBindingBuild) && command !== 'dev'
 										? {
 												base: config.base,
 												assetsPrefix:
@@ -404,6 +405,7 @@ export default function createIntegration({
 							trailingSlash: _config.trailingSlash,
 							cfPluginConfig,
 							hasCompileImageService: buildService === 'compile',
+							hasBindingImageService: isBindingBuild,
 						}),
 					);
 				}
