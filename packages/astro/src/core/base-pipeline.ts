@@ -135,8 +135,8 @@ export abstract class Pipeline {
 		this.defaultRoutes = defaultRoutes;
 		this.actions = actions;
 		this.sessionDriver = sessionDriver;
-		this.cacheProvider = cacheProvider
-		this.cacheConfig = cacheConfig
+		this.cacheProvider = cacheProvider;
+		this.cacheConfig = cacheConfig;
 		this.serverIslands = serverIslands;
 
 		this.internalMiddleware = [];
