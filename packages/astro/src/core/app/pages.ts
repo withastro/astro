@@ -23,7 +23,8 @@ import {
 	getSetCookiesFromResponse,
 } from '../cookies/index.js';
 import { getCookiesFromResponse } from '../cookies/response.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
+import { AstroError, AstroErrorData, isAstroError } from '../errors/index.js';
+import { NoMatchingStaticPathFound } from '../errors/errors-data.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { Logger } from '../logger/core.js';
 import { type CreateRenderContext, RenderContext } from '../render-context.js';
@@ -296,6 +297,16 @@ export class Pages {
 			this.logger.debug('router', `Rendered ${pathname} in ${timeEnd - timeStart}ms`);
 			void isRewrite;
 		} catch (err: any) {
+			// A getStaticPaths route matched the pattern but the specific params
+			// aren't in the static paths list. Treat this as a 404, not a 500.
+			if (isAstroError(err) && err.title === NoMatchingStaticPathFound.title) {
+				this.logger.warn('router', err.message);
+				return this.renderError(request, {
+					...resolvedRenderOptions,
+					status: 404,
+					error: err,
+				});
+			}
 			this.logger.error(null, err.stack || err.message || String(err));
 			// In dev, try to render the custom 500 page if one exists.
 			// If no custom 500 page, re-throw so the error reaches the Vite error overlay.

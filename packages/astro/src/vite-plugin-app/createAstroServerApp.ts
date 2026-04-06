@@ -1,5 +1,7 @@
 import type http from 'node:http';
 import type { ServerResponse } from 'node:http';
+import { Http2ServerResponse } from 'node:http2';
+import type { Hono } from 'hono';
 import { routes } from 'virtual:astro:routes';
 import { createRequest } from '../core/request.js';
 import { clientAddressSymbol, originalUrlSymbol } from '../core/constants.js';
@@ -25,7 +27,10 @@ async function writeDevResponse(
 	loader: ModuleLoader,
 ) {
 	const { status, statusText, headers, body } = source;
-	destination.statusMessage = statusText;
+	// HTTP/2 doesn't support statusMessage (RFC 7540 8.1.2.4)
+	if (!(destination instanceof Http2ServerResponse)) {
+		destination.statusMessage = statusText;
+	}
 	destination.writeHead(status, createOutgoingHttpHeaders(headers));
 	if (!body) return destination.end();
 	try {
@@ -76,6 +81,15 @@ export default async function createAstroServerApp(
 	const routesList: RoutesList = { routes: routes.map((r: RouteInfo) => r.routeData) };
 	let routesSynced = false;
 
+	// Cache the user app module so we don't re-import (and re-evaluate) it on
+	// every request. File-watcher events invalidate virtual:astro:component-metadata
+	// which cascades through the import chain to the user app module, clearing
+	// its transform cache. This causes Vite's module runner to re-evaluate the
+	// entire chain on every loader.import(), recreating the Pages instance and
+	// losing the route cache. Caching here avoids that. The handler is recreated
+	// from scratch when src/app.ts changes (via reloadUserAppHandler in plugin.ts).
+	let cachedUserApp: Hono | undefined;
+
 	return {
 		handler(incomingRequest: http.IncomingMessage, incomingResponse: http.ServerResponse) {
 			// Set user-specified server headers on every response
@@ -85,29 +99,38 @@ export default async function createAstroServerApp(
 
 			Promise.resolve()
 				.then(async () => {
-					const mod = await loader.import(ASTRO_DEV_USER_APP_ID);
+					if (!cachedUserApp) {
+						const mod = await loader.import(ASTRO_DEV_USER_APP_ID);
 
-					// On first request, sync the initial routes captured at createHandler
-					// time into the DevApp. The routes were imported eagerly (at the top
-					// of this file) during createHandler, before file watchers could mutate
-					// the route list. dev.ts may have loaded virtual:astro:routes later
-					// with stale data, so we re-apply the correct routes here.
-					if (!routesSynced) {
-						routesSynced = true;
-						const { app: devApp } = await loader.import('virtual:astro:app');
-						if (devApp && typeof devApp.updateRoutes === 'function') {
-							devApp.updateRoutes(routesList);
+						// On first request, sync the initial routes captured at createHandler
+						// time into the DevApp. The routes were imported eagerly (at the top
+						// of this file) during createHandler, before file watchers could mutate
+						// the route list. dev.ts may have loaded virtual:astro:routes later
+						// with stale data, so we re-apply the correct routes here.
+						if (!routesSynced) {
+							routesSynced = true;
+							const { app: devApp } = await loader.import('virtual:astro:app');
+							if (devApp && typeof devApp.updateRoutes === 'function') {
+								devApp.updateRoutes(routesList);
+							}
 						}
+
+						const defaultExport = mod.default as Hono | undefined;
+						if (!defaultExport || typeof defaultExport.fetch !== 'function') {
+							throw new Error('src/app.ts must default export a Hono app instance.');
+						}
+						cachedUserApp = defaultExport;
 					}
 
-					const userApp = mod.default as
-						| { fetch: (request: Request) => Promise<Response> }
-						| undefined;
+					const userApp = cachedUserApp;
 
 					// Construct URL using Host header (includes port in dev)
 					const isHttps = 'encrypted' in incomingRequest.socket && incomingRequest.socket.encrypted;
 					const protocol = isHttps ? 'https' : 'http';
-					const host = incomingRequest.headers.host ?? 'localhost';
+					const host =
+					(incomingRequest.headers[':authority'] as string | undefined) ??
+					incomingRequest.headers.host ??
+					'localhost';
 					const url = new URL(`${protocol}://${host}${incomingRequest.url}`);
 
 					// Get body using the helper that handles async iterables properly (only for non-GET/HEAD)
@@ -136,11 +159,7 @@ export default async function createAstroServerApp(
 					Reflect.set(request, originalUrlSymbol, originalUrl.href);
 				}
 
-				if (!userApp || typeof userApp.fetch !== 'function') {
-						throw new Error('src/app.ts must default export a Hono app instance.');
-					}
-
-					const response = await userApp.fetch(request);
+				const response = await userApp.fetch(request);
 					await writeDevResponse(response, incomingResponse, loader);
 				})
 				.catch(async (error) => {
