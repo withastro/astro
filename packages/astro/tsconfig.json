@@ -7,6 +7,7 @@
     "allowJs": true,
     "declarationDir": "./dist",
     "outDir": "./dist",
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "erasableSyntaxOnly": true
   }
 }

@@ -5,12 +5,15 @@ function formatZodError(error: z.$ZodError): string[] {
 }
 
 export class LiveCollectionError extends Error {
-	constructor(
-		public readonly collection: string,
-		public readonly message: string,
-		public readonly cause?: Error,
-	) {
+	public readonly collection: string;
+	public readonly message: string;
+	public readonly cause?: Error;
+
+	constructor(collection: string, message: string, cause?: Error) {
 		super(message);
+		this.collection = collection;
+		this.message = message;
+		this.cause = cause;
 		this.name = 'LiveCollectionError';
 		if (cause?.stack) {
 			this.stack = cause.stack;
