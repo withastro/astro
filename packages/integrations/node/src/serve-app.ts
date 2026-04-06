@@ -2,7 +2,7 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 import { createReadStream } from 'node:fs';
 import path from 'node:path';
 import { Readable } from 'node:stream';
-import { createRequest, writeResponse } from 'astro/app/node';
+import { createRequest, writeResponse, getAbortControllerCleanup } from 'astro/app/node';
 import type { BaseApp } from 'astro/app';
 import { resolveClientDir } from './shared.js';
 import type { Options, RequestHandler } from './types.js';
@@ -20,19 +20,24 @@ async function readErrorPageFromDisk(
 
 	for (const filePath of filePaths) {
 		const fullPath = path.join(client, filePath);
+		// Declare stream outside try so it's accessible in catch for cleanup.
+		let stream: ReturnType<typeof createReadStream> | undefined;
 		try {
-			const stream = createReadStream(fullPath);
+			stream = createReadStream(fullPath);
 			// Wait for the stream to open successfully or error
 			await new Promise<void>((resolve, reject) => {
-				stream.once('open', () => resolve());
-				stream.once('error', reject);
+				stream!.once('open', () => resolve());
+				stream!.once('error', reject);
 			});
 			const webStream = Readable.toWeb(stream) as ReadableStream;
 			return new Response(webStream, {
 				headers: { 'Content-Type': 'text/html; charset=utf-8' },
 			});
 		} catch {
-			// File doesn't exist or can't be read, try next pattern
+			// File doesn't exist or can't be read, try next pattern.
+			// Destroy the stream to release the file descriptor if it was
+			// partially opened before the error fired.
+			stream?.destroy();
 		}
 	}
 
@@ -75,11 +80,19 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 		return new Response(null, { status: 404 });
 	};
 
+	// Use the configured body size limit. A value of 0 or Infinity disables the limit.
+	const effectiveBodySizeLimit =
+		options.bodySizeLimit === 0 || options.bodySizeLimit === Number.POSITIVE_INFINITY
+			? undefined
+			: options.bodySizeLimit;
+
 	return async (req, res, next, locals) => {
 		let request: Request;
 		try {
 			request = createRequest(req, {
 				allowedDomains: app.getAllowedDomains?.() ?? [],
+				bodySizeLimit: effectiveBodySizeLimit,
+				port: options.port,
 			});
 		} catch (err) {
 			logger.error(`Could not render ${req.url}`);
@@ -104,6 +117,9 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 			);
 			await writeResponse(response, res);
 		} else if (next) {
+			// Since we're not calling `writeResponse()`, clean up the AbortController and socket listeners
+			const cleanup = getAbortControllerCleanup(req);
+			if (cleanup) cleanup();
 			return next();
 		} else {
 			const response = await app.render(request, {

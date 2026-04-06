@@ -1,5 +1,17 @@
 # @astrojs/partytown
 
+## 2.1.6
+
+### Patch Changes
+
+- [#16002](https://github.com/withastro/astro/pull/16002) [`846f27f`](https://github.com/withastro/astro/commit/846f27f4be8508f728d237e93fcac7c6ec8227b2) Thanks [@buley](https://github.com/buley)! - Fixes file descriptor leaks from read streams that were not destroyed on client disconnect or read errors
+
+## 2.1.5
+
+### Patch Changes
+
+- [#15820](https://github.com/withastro/astro/pull/15820) [`e20474b`](https://github.com/withastro/astro/commit/e20474b98c6d868ed9734f7eeb7564bffe8bfd77) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes broken publish
+
 ## 2.1.4
 
 ### Patch Changes

@@ -5,6 +5,7 @@ import { spec } from 'node:test/reporters';
 import { pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
 import { glob } from 'tinyglobby';
+import githubTestReporter from '../testing/github-test-reporter.js';
 
 const isCI = !!process.env.CI;
 // 30 minutes in CI, 10 locally
@@ -30,6 +31,8 @@ export default async function test() {
 			teardown: { type: 'string' },
 			// Use tsx to run the tests,
 			tsx: { type: 'boolean' },
+			// Use Node.js experimental strip types to run TypeScript tests
+			'strip-types': { type: 'boolean' },
 			// Configures the test runner to exit the process once all known tests have finished executing even if the event loop would otherwise remain active
 			'force-exit': { type: 'boolean' },
 			// Test teardown file to include in the test files list
@@ -63,6 +66,11 @@ export default async function test() {
 		process.env.NODE_OPTIONS += ' --import tsx';
 	}
 
+	if (args.values['strip-types']) {
+		process.env.NODE_OPTIONS ??= '';
+		process.env.NODE_OPTIONS += ' --experimental-strip-types';
+	}
+
 	if (!args.values.parallel) {
 		// If not parallel, we create a temporary file that imports all the test files
 		// so that it all runs in a single process.
@@ -86,7 +94,7 @@ export default async function test() {
 		: undefined;
 
 	// https://nodejs.org/api/test.html#runoptions
-	run({
+	const testRun = run({
 		files,
 		testNamePatterns: args.values.match
 			? args.values['teardown-test']
@@ -101,14 +109,16 @@ export default async function test() {
 		forceExit: args.values['force-exit'],
 	})
 		.on('test:fail', () => {
-			// For some reason, a test fail using the JS API does not set an exit code of 1,
+			// For some reason, a test failure using the JS API does not set an exit code of 1,
 			// so we set it here manually
 			process.exitCode = 1;
 		})
 		.on('end', () => {
 			const testPassed = process.exitCode === 0 || process.exitCode === undefined;
 			teardownModule?.default(testPassed);
-		})
-		.pipe(new spec())
-		.pipe(process.stdout);
+		});
+
+	// Pipe to our custom GitHub reporter, and also the default spec reporter for terminal output
+	if (process.env.CI) testRun.pipe(githubTestReporter);
+	testRun.pipe(new spec()).pipe(process.stdout);
 }

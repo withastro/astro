@@ -6,6 +6,16 @@ import type { Logger } from '../logger/core.js';
 
 const PRERENDER_REGEX = /^\s*export\s+const\s+prerender\s*=\s*(true|false);?/m;
 
+/**
+ * Parses the `export const prerender = true|false` declaration from a route's
+ * source content. Returns `true`, `false`, or `undefined` if not present.
+ */
+export function parsePrerenderExport(content: string): boolean | undefined {
+	const match = PRERENDER_REGEX.exec(content);
+	if (!match) return undefined;
+	return match[1] === 'true';
+}
+
 export async function getRoutePrerenderOption(
 	content: string,
 	route: RouteData,

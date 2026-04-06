@@ -126,6 +126,7 @@ function createFileBasedRoutes(
 	const pages = resolvePages(config);
 	const localFs = fsMod ?? nodeFs;
 	const rootPath = fileURLToPath(config.root);
+	const pagesPath = fileURLToPath(pages);
 
 	if (!localFs.existsSync(pages)) {
 		if (settings.injectedRoutes.length === 0) {
@@ -240,7 +241,11 @@ function createFileBasedRoutes(
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 					? `/${segments.map((segment) => segment[0].content).join('/')}`
 					: null;
-				const trailingSlash = trailingSlashForPath(pathname, settings.config);
+				const trailingSlash = trailingSlashForPath(
+					pathname,
+					settings.config,
+					item.isPage ? 'page' : 'endpoint',
+				);
 				const pattern = getPattern(segments, settings.config.base, trailingSlash);
 				const route = joinSegments(segments);
 				routes.push({
@@ -261,7 +266,7 @@ function createFileBasedRoutes(
 		}
 	}
 
-	walk(localFs, fileURLToPath(pages), [], []);
+	walk(localFs, pagesPath, [], []);
 	return routes;
 }
 
@@ -381,7 +386,11 @@ function createRoutesFromEntriesByDir(
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 					? `/${segments.map((segment) => segment[0].content).join('/')}`
 					: null;
-				const trailingSlash = trailingSlashForPath(pathname, settings.config);
+				const trailingSlash = trailingSlashForPath(
+					pathname,
+					settings.config,
+					item.isPage ? 'page' : 'endpoint',
+				);
 				const pattern = getPattern(segments, settings.config.base, trailingSlash);
 				const route = joinSegments(segments);
 				routes.push({
@@ -427,11 +436,14 @@ function groupEntriesByDir(entries: RouteEntry[]): Map<string, RouteEntry[]> {
 }
 
 // Get trailing slash rule for a path, based on the config and whether the path has an extension.
+// Only endpoints with file extensions (like /feed.xml) should force 'never' for trailing slashes.
+// Pages with dots in their names (like /hello.world) should respect the user's trailingSlash config.
 const trailingSlashForPath = (
 	pathname: string | null,
 	config: AstroConfig,
+	type: 'page' | 'endpoint',
 ): AstroConfig['trailingSlash'] =>
-	pathname && hasFileExtension(pathname) ? 'never' : config.trailingSlash;
+	type === 'endpoint' && pathname && hasFileExtension(pathname) ? 'never' : config.trailingSlash;
 
 function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): RouteData[] {
 	const { config } = settings;
@@ -456,7 +468,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Rou
 			? `/${segments.map((segment) => segment[0].content).join('/')}`
 			: null;
 
-		const trailingSlash = trailingSlashForPath(pathname, config);
+		const trailingSlash = trailingSlashForPath(pathname, config, type);
 		const pattern = getPattern(segments, settings.config.base, trailingSlash);
 		const params = segments
 			.flat()
@@ -611,7 +623,7 @@ function detectRouteCollision(a: RouteData, b: RouteData, _config: AstroConfig, 
 		);
 		logger.warn(
 			'router',
-			'A collision will result in an hard error in following versions of Astro.',
+			'A collision will result in a hard error in following versions of Astro.',
 		);
 		return;
 	}
@@ -647,7 +659,7 @@ function detectRouteCollision(a: RouteData, b: RouteData, _config: AstroConfig, 
 		'router',
 		`The route "${a.route}" is defined in both "${a.component}" and "${b.component}" using SSR mode. A dynamic SSR route cannot be defined more than once.`,
 	);
-	logger.warn('router', 'A collision will result in an hard error in following versions of Astro.');
+	logger.warn('router', 'A collision will result in a hard error in following versions of Astro.');
 }
 
 /**
@@ -699,18 +711,14 @@ export async function createRoutesList(
 				// External redirects aren't taken into account
 				if (route.type === 'redirect' && !route.redirectRoute) return;
 				const localFs = params.fsMod ?? nodeFs;
-				const content = await localFs.promises.readFile(
-					fileURLToPath(
-						new URL(
-							// The destination redirect might be a prerendered
-							route.type === 'redirect' && route.redirectRoute
-								? route.redirectRoute.component
-								: route.component,
-							settings.config.root,
-						),
-					),
-					'utf-8',
+				const componentUrl = new URL(
+					// The destination redirect might be a prerendered
+					route.type === 'redirect' && route.redirectRoute
+						? route.redirectRoute.component
+						: route.component,
+					settings.config.root,
 				);
+				const content = await localFs.promises.readFile(componentUrl, 'utf-8');
 
 				await getRoutePrerenderOption(content, route, settings, logger);
 			}),
@@ -744,179 +752,7 @@ export async function createRoutesList(
 			}
 		}
 
-		// In this block of code we group routes based on their locale
-
-		// A map like: locale => RouteData[]
-		const routesByLocale = new Map<string, RouteData[]>();
-		// This type is here only as a helper. We copy the routes and make them unique, so we don't "process" the same route twice.
-		// The assumption is that a route in the file system belongs to only one locale.
-		const setRoutes = new Set(routes.filter((route) => route.type === 'page'));
-
-		// First loop
-		// We loop over all locales except the default, adding routes that include the locale as a path segment.
-		const filteredLocales = i18n.locales
-			.filter((loc) => {
-				if (typeof loc === 'string') {
-					return loc !== i18n.defaultLocale;
-				}
-				return loc.path !== i18n.defaultLocale;
-			})
-			.map((locale) => {
-				if (typeof locale === 'string') {
-					return locale;
-				}
-				return locale.path;
-			});
-		for (const locale of filteredLocales) {
-			for (const route of setRoutes) {
-				const hasLocaleInRoute = route.route.split('/').includes(locale);
-				if (!hasLocaleInRoute) {
-					continue;
-				}
-				const currentRoutes = routesByLocale.get(locale);
-				if (currentRoutes) {
-					currentRoutes.push(route);
-					routesByLocale.set(locale, currentRoutes);
-				} else {
-					routesByLocale.set(locale, [route]);
-				}
-				setRoutes.delete(route);
-			}
-		}
-
-		// we loop over the remaining routes and add them to the default locale
-		for (const route of setRoutes) {
-			const currentRoutes = routesByLocale.get(i18n.defaultLocale);
-			if (currentRoutes) {
-				currentRoutes.push(route);
-				routesByLocale.set(i18n.defaultLocale, currentRoutes);
-			} else {
-				routesByLocale.set(i18n.defaultLocale, [route]);
-			}
-			setRoutes.delete(route);
-		}
-
-		// Work done, now we start creating "fallback" routes based on the configuration
-
-		if (strategy === 'pathname-prefix-always') {
-			// we attempt to retrieve the index page of the default locale
-			const defaultLocaleRoutes = routesByLocale.get(i18n.defaultLocale);
-			if (defaultLocaleRoutes) {
-				// The index for the default locale will be either already at the root path
-				// or at the root of the locale.
-				const indexDefaultRoute =
-					defaultLocaleRoutes.find(({ route }) => route === '/') ??
-					defaultLocaleRoutes.find(({ route }) => route === `/${i18n.defaultLocale}`);
-
-				if (indexDefaultRoute) {
-					// we found the index of the default locale, now we create a root index that will redirect to the index of the default locale
-					const pathname = '/';
-					const route = '/';
-
-					const segments = removeLeadingForwardSlash(route)
-						.split(path.posix.sep)
-						.filter(Boolean)
-						.map((s: string) => {
-							validateSegment(s);
-							return getParts(s, route);
-						});
-
-					routes.push({
-						...indexDefaultRoute,
-						pathname,
-						route,
-						segments,
-						pattern: getPattern(segments, config.base, config.trailingSlash),
-						type: 'fallback',
-					});
-				}
-			}
-		}
-
-		if (i18n.fallback) {
-			let fallback = Object.entries(i18n.fallback);
-
-			if (fallback.length > 0) {
-				for (const [fallbackFromLocale, fallbackToLocale] of fallback) {
-					let fallbackToRoutes;
-					if (fallbackToLocale === i18n.defaultLocale) {
-						fallbackToRoutes = routesByLocale.get(i18n.defaultLocale);
-					} else {
-						fallbackToRoutes = routesByLocale.get(fallbackToLocale);
-					}
-					const fallbackFromRoutes = routesByLocale.get(fallbackFromLocale);
-
-					// Technically, we should always have a fallback to. Added this to make TS happy.
-					if (!fallbackToRoutes) {
-						continue;
-					}
-
-					for (const fallbackToRoute of fallbackToRoutes) {
-						const hasRoute =
-							fallbackFromRoutes &&
-							// we check if the fallback from locale (the origin) has already this route
-							fallbackFromRoutes.some((route) => {
-								if (fallbackToLocale === i18n.defaultLocale) {
-									// Check both the direct route and the route with locale prefix removed
-									return (
-										route.route === `/${fallbackFromLocale}${fallbackToRoute.route}` ||
-										route.route.replace(`/${fallbackFromLocale}`, '') === fallbackToRoute.route
-									);
-								} else {
-									// Check if the route already exists with the correct locale
-									const expectedRoute = replaceOrKeep(
-										fallbackToRoute.route,
-										fallbackToLocale,
-										fallbackFromLocale,
-									);
-									return route.route === expectedRoute;
-								}
-							});
-
-						if (!hasRoute) {
-							let pathname: string | undefined;
-							let route: string;
-							if (
-								fallbackToLocale === i18n.defaultLocale &&
-								strategy === 'pathname-prefix-other-locales'
-							) {
-								if (fallbackToRoute.pathname) {
-									pathname = `/${fallbackFromLocale}${fallbackToRoute.pathname}`;
-								}
-								route = `/${fallbackFromLocale}${fallbackToRoute.route}`;
-							} else {
-								// Use the helper to avoid double prefixing
-								pathname = fallbackToRoute.pathname
-									? replaceOrKeep(fallbackToRoute.pathname, fallbackToLocale, fallbackFromLocale)
-									: undefined;
-								route = replaceOrKeep(fallbackToRoute.route, fallbackToLocale, fallbackFromLocale);
-							}
-							const segments = removeLeadingForwardSlash(route)
-								.split(path.posix.sep)
-								.filter(Boolean)
-								.map((s: string) => {
-									validateSegment(s);
-									return getParts(s, route);
-								});
-							const index = routes.findIndex((r) => r === fallbackToRoute);
-							if (index >= 0) {
-								const fallbackRoute: RouteData = {
-									...fallbackToRoute,
-									pathname,
-									route,
-									segments,
-									pattern: getPattern(segments, config.base, config.trailingSlash),
-									type: 'fallback',
-									fallbackRoutes: [],
-								};
-								const routeData = routes[index];
-								routeData.fallbackRoutes.push(fallbackRoute);
-							}
-						}
-					}
-				}
-			}
-		}
+		createI18nFallbackRoutes(routes, i18n, config);
 	}
 
 	if (dev) {
@@ -940,6 +776,184 @@ export async function createRoutesList(
 	return {
 		routes,
 	};
+}
+
+/**
+ * Generates i18n fallback routes and attaches them to their source routes.
+ *
+ * For each locale that has a fallback configured (e.g. `{ es: 'en' }`), this
+ * function inspects the existing route list and creates `type: 'fallback'`
+ * entries for any paths that the source locale does not already have.  The
+ * fallback routes are pushed onto `route.fallbackRoutes` of their source route
+ * so that the build pipeline can serve the fallback content.
+ *
+ * @param routes  The full route list — mutated in-place.
+ * @param i18n    The resolved `config.i18n` object.
+ * @param config  The resolved Astro config (needs `base` and `trailingSlash`).
+ */
+export function createI18nFallbackRoutes(
+	routes: RouteData[],
+	i18n: NonNullable<AstroConfig['i18n']>,
+	config: Pick<AstroConfig, 'base' | 'trailingSlash'>,
+): void {
+	const strategy = toRoutingStrategy(i18n.routing, i18n.domains);
+
+	// Group page routes by locale
+	const routesByLocale = new Map<string, RouteData[]>();
+	const setRoutes = new Set(routes.filter((route) => route.type === 'page'));
+
+	const filteredLocales = i18n.locales
+		.filter((loc) => {
+			if (typeof loc === 'string') {
+				return loc !== i18n.defaultLocale;
+			}
+			return loc.path !== i18n.defaultLocale;
+		})
+		.map((locale) => {
+			if (typeof locale === 'string') {
+				return locale;
+			}
+			return locale.path;
+		});
+
+	for (const locale of filteredLocales) {
+		for (const route of setRoutes) {
+			const hasLocaleInRoute = route.route.split('/').includes(locale);
+			if (!hasLocaleInRoute) {
+				continue;
+			}
+			const currentRoutes = routesByLocale.get(locale);
+			if (currentRoutes) {
+				currentRoutes.push(route);
+				routesByLocale.set(locale, currentRoutes);
+			} else {
+				routesByLocale.set(locale, [route]);
+			}
+			setRoutes.delete(route);
+		}
+	}
+
+	for (const route of setRoutes) {
+		const currentRoutes = routesByLocale.get(i18n.defaultLocale);
+		if (currentRoutes) {
+			currentRoutes.push(route);
+			routesByLocale.set(i18n.defaultLocale, currentRoutes);
+		} else {
+			routesByLocale.set(i18n.defaultLocale, [route]);
+		}
+		setRoutes.delete(route);
+	}
+
+	if (strategy === 'pathname-prefix-always') {
+		const defaultLocaleRoutes = routesByLocale.get(i18n.defaultLocale);
+		if (defaultLocaleRoutes) {
+			const indexDefaultRoute =
+				defaultLocaleRoutes.find(({ route }) => route === '/') ??
+				defaultLocaleRoutes.find(({ route }) => route === `/${i18n.defaultLocale}`);
+
+			if (indexDefaultRoute) {
+				const pathname = '/';
+				const route = '/';
+
+				const segments = removeLeadingForwardSlash(route)
+					.split(path.posix.sep)
+					.filter(Boolean)
+					.map((s: string) => {
+						validateSegment(s);
+						return getParts(s, route);
+					});
+
+				routes.push({
+					...indexDefaultRoute,
+					pathname,
+					route,
+					segments,
+					pattern: getPattern(segments, config.base, config.trailingSlash),
+					type: 'fallback',
+				});
+			}
+		}
+	}
+
+	if (i18n.fallback) {
+		const fallback = Object.entries(i18n.fallback);
+
+		if (fallback.length > 0) {
+			for (const [fallbackFromLocale, fallbackToLocale] of fallback) {
+				let fallbackToRoutes;
+				if (fallbackToLocale === i18n.defaultLocale) {
+					fallbackToRoutes = routesByLocale.get(i18n.defaultLocale);
+				} else {
+					fallbackToRoutes = routesByLocale.get(fallbackToLocale);
+				}
+				const fallbackFromRoutes = routesByLocale.get(fallbackFromLocale);
+
+				if (!fallbackToRoutes) {
+					continue;
+				}
+
+				for (const fallbackToRoute of fallbackToRoutes) {
+					const hasRoute =
+						fallbackFromRoutes &&
+						fallbackFromRoutes.some((route) => {
+							if (fallbackToLocale === i18n.defaultLocale) {
+								return (
+									route.route === `/${fallbackFromLocale}${fallbackToRoute.route}` ||
+									route.route.replace(`/${fallbackFromLocale}`, '') === fallbackToRoute.route
+								);
+							} else {
+								const expectedRoute = replaceOrKeep(
+									fallbackToRoute.route,
+									fallbackToLocale,
+									fallbackFromLocale,
+								);
+								return route.route === expectedRoute;
+							}
+						});
+
+					if (!hasRoute) {
+						let pathname: string | undefined;
+						let route: string;
+						if (
+							fallbackToLocale === i18n.defaultLocale &&
+							strategy === 'pathname-prefix-other-locales'
+						) {
+							if (fallbackToRoute.pathname) {
+								pathname = `/${fallbackFromLocale}${fallbackToRoute.pathname}`;
+							}
+							route = `/${fallbackFromLocale}${fallbackToRoute.route}`;
+						} else {
+							pathname = fallbackToRoute.pathname
+								? replaceOrKeep(fallbackToRoute.pathname, fallbackToLocale, fallbackFromLocale)
+								: undefined;
+							route = replaceOrKeep(fallbackToRoute.route, fallbackToLocale, fallbackFromLocale);
+						}
+						const segments = removeLeadingForwardSlash(route)
+							.split(path.posix.sep)
+							.filter(Boolean)
+							.map((s: string) => {
+								validateSegment(s);
+								return getParts(s, route);
+							});
+						const index = routes.findIndex((r) => r === fallbackToRoute);
+						if (index >= 0) {
+							const fallbackRoute: RouteData = {
+								...fallbackToRoute,
+								pathname,
+								route,
+								segments,
+								pattern: getPattern(segments, config.base, config.trailingSlash),
+								type: 'fallback',
+								fallbackRoutes: [],
+							};
+							const routeData = routes[index];
+							routeData.fallbackRoutes.push(fallbackRoute);
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 /**

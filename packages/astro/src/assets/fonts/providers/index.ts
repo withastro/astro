@@ -13,7 +13,7 @@ import { type LocalFamilyOptions, LocalFontProvider } from './local.js';
 import { fileURLToPath } from 'node:url';
 import { readFile } from 'node:fs/promises';
 
-/** [Adobe](https://v6.docs.astro.build/en/reference/font-provider-reference/#adobe) */
+/** [Adobe](https://docs.astro.build/en/reference/font-provider-reference/#adobe) */
 function adobe(config: AdobeProviderOptions): FontProvider {
 	const provider = providers.adobe(config);
 	let initializedProvider: InitializedProvider | undefined;
@@ -32,7 +32,7 @@ function adobe(config: AdobeProviderOptions): FontProvider {
 	};
 }
 
-/** [Bunny](https://v6.docs.astro.build/en/reference/font-provider-reference/#bunny) */
+/** [Bunny](https://docs.astro.build/en/reference/font-provider-reference/#bunny) */
 function bunny(): FontProvider {
 	const provider = providers.bunny();
 	let initializedProvider: InitializedProvider | undefined;
@@ -50,7 +50,7 @@ function bunny(): FontProvider {
 	};
 }
 
-/** [Fontshare](https://v6.docs.astro.build/en/reference/font-provider-reference/#fontshare) */
+/** [Fontshare](https://docs.astro.build/en/reference/font-provider-reference/#fontshare) */
 function fontshare(): FontProvider {
 	const provider = providers.fontshare();
 	let initializedProvider: InitializedProvider | undefined;
@@ -68,7 +68,7 @@ function fontshare(): FontProvider {
 	};
 }
 
-/** [Fontsource](https://v6.docs.astro.build/en/reference/font-provider-reference/#fontsource) */
+/** [Fontsource](https://docs.astro.build/en/reference/font-provider-reference/#fontsource) */
 function fontsource(): FontProvider {
 	const provider = providers.fontsource();
 	let initializedProvider: InitializedProvider | undefined;
@@ -86,7 +86,7 @@ function fontsource(): FontProvider {
 	};
 }
 
-/** [Google](https://v6.docs.astro.build/en/reference/font-provider-reference/#google) */
+/** [Google](https://docs.astro.build/en/reference/font-provider-reference/#google) */
 function google(): FontProvider<GoogleFamilyOptions | undefined> {
 	const provider = providers.google();
 	let initializedProvider: InitializedProvider<GoogleFamilyOptions> | undefined;
@@ -104,7 +104,7 @@ function google(): FontProvider<GoogleFamilyOptions | undefined> {
 	};
 }
 
-/** [Google Icons](https://v6.docs.astro.build/en/reference/font-provider-reference/#google-icons) */
+/** [Google Icons](https://docs.astro.build/en/reference/font-provider-reference/#google-icons) */
 function googleicons(): FontProvider<GoogleiconsFamilyOptions | undefined> {
 	const provider = providers.googleicons();
 	let initializedProvider: InitializedProvider<GoogleiconsFamilyOptions> | undefined;
@@ -122,14 +122,14 @@ function googleicons(): FontProvider<GoogleiconsFamilyOptions | undefined> {
 	};
 }
 
-/** [Local](https://v6.docs.astro.build/en/reference/font-provider-reference/#local) */
+/** [Local](https://docs.astro.build/en/reference/font-provider-reference/#local) */
 function local(): FontProvider<LocalFamilyOptions> {
 	return new LocalFontProvider({
 		fontFileReader: new FontaceFontFileReader(),
 	});
 }
 
-/** [NPM](https://v6.docs.astro.build/en/reference/font-provider-reference/#npm) */
+/** [NPM](https://docs.astro.build/en/reference/font-provider-reference/#npm) */
 function npm(
 	options?: Omit<NpmProviderOptions, 'root' | 'readFile'>,
 ): FontProvider<NpmFamilyOptions | undefined> {
@@ -154,13 +154,13 @@ function npm(
 
 /**
  * Astro exports a few built-in providers:
- * - [Adobe](https://v6.docs.astro.build/en/reference/font-provider-reference/#adobe)
- * - [Bunny](https://v6.docs.astro.build/en/reference/font-provider-reference/#bunny)
- * - [Fontshare](https://v6.docs.astro.build/en/reference/font-provider-reference/#fontshare)
- * - [Fontsource](https://v6.docs.astro.build/en/reference/font-provider-reference/#fontsource)
- * - [Google](https://v6.docs.astro.build/en/reference/font-provider-reference/#google)
- * - [Google Icons](https://v6.docs.astro.build/en/reference/font-provider-reference/#google-icons)
- * - [Local](https://v6.docs.astro.build/en/reference/font-provider-reference/#local)
+ * - [Adobe](https://docs.astro.build/en/reference/font-provider-reference/#adobe)
+ * - [Bunny](https://docs.astro.build/en/reference/font-provider-reference/#bunny)
+ * - [Fontshare](https://docs.astro.build/en/reference/font-provider-reference/#fontshare)
+ * - [Fontsource](https://docs.astro.build/en/reference/font-provider-reference/#fontsource)
+ * - [Google](https://docs.astro.build/en/reference/font-provider-reference/#google)
+ * - [Google Icons](https://docs.astro.build/en/reference/font-provider-reference/#google-icons)
+ * - [Local](https://docs.astro.build/en/reference/font-provider-reference/#local)
  * - [NPM](TODO:)
  */
 export const fontProviders = {

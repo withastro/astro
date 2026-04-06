@@ -373,7 +373,7 @@ describe('routing - createRoutesList', () => {
 			{
 				label: 'router',
 				level: 'warn',
-				message: 'A collision will result in an hard error in following versions of Astro.',
+				message: 'A collision will result in a hard error in following versions of Astro.',
 				newLine: true,
 			},
 		]);
@@ -412,10 +412,71 @@ describe('routing - createRoutesList', () => {
 			{
 				label: 'router',
 				level: 'warn',
-				message: 'A collision will result in an hard error in following versions of Astro.',
+				message: 'A collision will result in a hard error in following versions of Astro.',
 				newLine: true,
 			},
 		]);
+	});
+
+	it('pages with dots in filenames respect trailingSlash config. issues#16140', async () => {
+		const fixture = await createFixture({
+			'/src/pages/hello.world.astro': `<h1>test</h1>`,
+			'/src/pages/feed.xml.ts': `export const GET = () => new Response('<xml />')`,
+		});
+
+		// With trailingSlash: 'ignore', page with dot should match both with and without trailing slash
+		const ignoreSettings = await createBasicSettings({
+			root: fixture.path,
+			trailingSlash: 'ignore',
+		});
+		const ignoreManifest = await createRoutesList({
+			cwd: fixture.path,
+			settings: ignoreSettings,
+		});
+		const pageRoute = ignoreManifest.routes.find((r) => r.route === '/hello.world');
+		assert.ok(pageRoute, 'page route should exist');
+		assert.equal(
+			pageRoute.pattern.test('/hello.world'),
+			true,
+			'should match without trailing slash',
+		);
+		assert.equal(pageRoute.pattern.test('/hello.world/'), true, 'should match with trailing slash');
+
+		// Endpoint with file extension should still force 'never'
+		const endpointRoute = ignoreManifest.routes.find((r) => r.route === '/feed.xml');
+		assert.ok(endpointRoute, 'endpoint route should exist');
+		assert.equal(
+			endpointRoute.pattern.test('/feed.xml'),
+			true,
+			'endpoint should match without trailing slash',
+		);
+		assert.equal(
+			endpointRoute.pattern.test('/feed.xml/'),
+			false,
+			'endpoint should not match with trailing slash',
+		);
+
+		// With trailingSlash: 'always', page with dot should only match with trailing slash
+		const alwaysSettings = await createBasicSettings({
+			root: fixture.path,
+			trailingSlash: 'always',
+		});
+		const alwaysManifest = await createRoutesList({
+			cwd: fixture.path,
+			settings: alwaysSettings,
+		});
+		const alwaysPageRoute = alwaysManifest.routes.find((r) => r.route === '/hello.world');
+		assert.ok(alwaysPageRoute, 'page route should exist with trailingSlash always');
+		assert.equal(
+			alwaysPageRoute.pattern.test('/hello.world/'),
+			true,
+			'should match with trailing slash',
+		);
+		assert.equal(
+			alwaysPageRoute.pattern.test('/hello.world'),
+			false,
+			'should not match without trailing slash',
+		);
 	});
 
 	it('should concatenate each part of the segment. issues#10122', async () => {

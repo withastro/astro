@@ -585,8 +585,11 @@ export async function runHookBuildGenerated({
 	logger: Logger;
 	routeToHeaders: RouteToHeaders;
 }) {
+	const preserveStructure = settings.adapter?.adapterFeatures?.preserveBuildClientDir;
 	const dir =
-		settings.buildOutput === 'server' ? settings.config.build.client : settings.config.outDir;
+		settings.buildOutput === 'server' || preserveStructure
+			? settings.config.build.client
+			: settings.config.outDir;
 
 	for (const integration of settings.config.integrations) {
 		await runHookInternal({
@@ -700,5 +703,8 @@ export function toIntegrationResolvedRoute(
 		redirectRoute: route.redirectRoute
 			? toIntegrationResolvedRoute(route.redirectRoute, trailingSlash)
 			: undefined,
+		fallbackRoutes: route.fallbackRoutes.map((fallbackRoute) =>
+			toIntegrationResolvedRoute(fallbackRoute, trailingSlash),
+		),
 	};
 }

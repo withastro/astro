@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { beforeEach, describe, it } from 'node:test';
 import { createI18nMiddleware } from '../../../dist/i18n/middleware.js';
-import { createMockAPIContext } from '../middleware/test-helpers.js';
+import { createMockAPIContext } from '../mocks.js';
 
 /**
  * Creates a "page" response that mimics what the render pipeline returns.
@@ -68,14 +68,14 @@ describe('createI18nMiddleware', () => {
 			);
 		});
 
-		it('returns 404 for a non-locale-prefixed path', async () => {
+		it('returns null-body 404 for a non-locale-prefixed path', async () => {
 			const ctx = createMockAPIContext({ url: 'http://localhost/blog' });
 			const next = async () => makePageResponse('Blog should not render');
 
 			const result = await handler(ctx, next);
 
 			assert.equal(result.status, 404);
-			assert.equal(await result.text(), 'Blog should not render');
+			assert.equal(result.body, null, 'Body should be null so the App reroutes to the 404 page');
 		});
 
 		it('passes through a locale-prefixed path', async () => {

@@ -1,55 +1,47 @@
-import { describe, it } from 'node:test';
-import { attachContentServerListeners } from '../../../dist/content/index.js';
-import { createFixture, runInContainer } from '../test-utils.js';
+import * as assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import { after, before, describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
+import { loadFixture } from '../../test-utils.js';
 
-describe('frontmatter', () => {
-	it('errors in content/ does not crash server', async () => {
-		const fixture = await createFixture({
-			'/src/content/posts/blog.md': `\
-					---
-					title: One
-					---
-				`,
-			'/src/content.config.ts': `\
-					import { defineCollection } from 'astro:content';
-					import { z } from 'astro/zod';
-					import { glob } from 'astro/loaders';
+describe('frontmatter (loadFixture)', () => {
+	let fixture;
+	let devServer;
+	let blogPath;
+	let originalContent;
 
-					const posts = defineCollection({
-						loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/posts' }),
-						schema: z.string()
-					});
-
-					export const collections = {
-						posts
-					};
-				`,
-			'/src/pages/index.astro': `\
-					---
-					---
-					<html>
-						<head><title>Test</title></head>
-						<body class="one">
-							<h1>Test</h1>
-						</body>
-					</html>
-				`,
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/content-frontmatter/',
 		});
+		blogPath = path.join(fileURLToPath(fixture.config.root), 'src/content/posts/blog.md');
+		originalContent = fs.readFileSync(blogPath, 'utf-8');
+		devServer = await fixture.startDevServer();
+	});
 
-		await runInContainer({ inlineConfig: { root: fixture.path } }, async (container) => {
-			await attachContentServerListeners(container);
+	after(async () => {
+		await devServer.stop();
+		fs.writeFileSync(blogPath, originalContent);
+	});
 
-			await fixture.writeFile(
-				'/src/content/posts/blog.md',
-				`
-				---
-				title: One
-				title: two
-				---
-				`,
-			);
-			await new Promise((resolve) => setTimeout(resolve, 100));
-			// Note, if we got here, it didn't crash
-		});
+	it('errors in content/ does not crash server', { timeout: 2000 }, async () => {
+		// Verify server is alive
+		const res1 = await fixture.fetch('/');
+		assert.equal(res1.status, 200);
+
+		// Write invalid frontmatter (duplicate YAML key)
+		try {
+			fs.writeFileSync(blogPath, `---\ntitle: One\ntitle: two\n---\n`);
+			//
+			// // Give the watcher time to pick up the change
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+			//
+			// // The server should still be alive
+			const res2 = await fixture.fetch('/');
+			assert.equal(res2.status, 200, 'Server should still respond after a content error');
+		} catch (err) {
+			assert.fail(err);
+		}
 	});
 });

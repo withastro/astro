@@ -62,7 +62,7 @@ const interactiveElements = [
 	...MAYBE_INTERACTIVE.keys(),
 ];
 
-const labellableElements = ['button', 'input', 'meter', 'output', 'progress', 'select', 'textarea'];
+const labelableElements = ['button', 'input', 'meter', 'output', 'progress', 'select', 'textarea'];
 
 const aria_non_interactive_roles = [
 	'alert',
@@ -83,6 +83,7 @@ const aria_non_interactive_roles = [
 	'form',
 	'group',
 	'heading',
+	'image',
 	'img',
 	'list',
 	'listitem',
@@ -90,7 +91,6 @@ const aria_non_interactive_roles = [
 	'main',
 	'marquee',
 	'math',
-	'menuitemradio',
 	'navigation',
 	'none',
 	'note',
@@ -149,7 +149,7 @@ const a11y_implicit_semantics = new Map([
 	['h5', 'heading'],
 	['h6', 'heading'],
 	['hr', 'separator'],
-	['img', 'img'],
+	['img', 'image'],
 	['li', 'listitem'],
 	['link', 'link'],
 	['main', 'main'],
@@ -201,7 +201,7 @@ const ariaAttributes = new Set(
 
 // All the WAI-ARIA 1.2 role attribute values from https://www.w3.org/TR/wai-aria-1.2/#role_definitions
 const ariaRoles = new Set(
-	'alert alertdialog application article banner blockquote button caption cell checkbox code columnheader combobox command complementary composite contentinfo definition deletion dialog directory document emphasis feed figure form generic grid gridcell group heading img input insertion landmark link list listbox listitem log main marquee math meter menu menubar menuitem menuitemcheckbox menuitemradio navigation none note option paragraph presentation progressbar radio radiogroup range region roletype row rowgroup rowheader scrollbar search searchbox section sectionhead select separator slider spinbutton status strong structure subscript superscript switch tab table tablist tabpanel term textbox time timer toolbar tooltip tree treegrid treeitem widget window'.split(
+	'alert alertdialog application article banner blockquote button caption cell checkbox code columnheader combobox command complementary composite contentinfo definition deletion dialog directory document emphasis feed figure form generic grid gridcell group heading image img input insertion landmark link list listbox listitem log main marquee math meter menu menubar menuitem menuitemcheckbox menuitemradio navigation none note option paragraph presentation progressbar radio radiogroup range region roletype row rowgroup rowheader scrollbar search searchbox section sectionhead select separator slider spinbutton status strong structure subscript superscript switch tab table tablist tabpanel term textbox time timer toolbar tooltip tree treegrid treeitem widget window'.split(
 		' ',
 	),
 );
@@ -298,8 +298,8 @@ export const a11y: AuditRuleWithSelector[] = [
 		match(element: HTMLLabelElement) {
 			// Label must be associated with a control, either using `for` or having a nested valid element
 			const hasFor = element.hasAttribute('for');
-			const nestedLabellableElement = element.querySelector(`${labellableElements.join(', ')}`);
-			if (!hasFor && !nestedLabellableElement) return true;
+			const nestedLabelableElement = element.querySelector(`${labelableElements.join(', ')}`);
+			if (!hasFor && !nestedLabelableElement) return true;
 
 			// Label must have text content, using innerText to ignore hidden text
 			const innerText = element.innerText.trim();
@@ -545,7 +545,9 @@ export const a11y: AuditRuleWithSelector[] = [
 
 			const elementRoles = role.split(WHITESPACE_REGEX) as ARIARoleDefinitionKey[];
 			for (const elementRole of elementRoles) {
-				const { requiredProps } = roles.get(elementRole)!;
+				const roleData = roles.get(normalizeAriaRole(elementRole));
+				if (!roleData) continue;
+				const { requiredProps } = roleData;
 				const required_role_props = Object.keys(requiredProps);
 				const missingProps = required_role_props.filter((prop) => !element.hasAttribute(prop));
 				if (missingProps.length > 0) {
@@ -575,7 +577,9 @@ export const a11y: AuditRuleWithSelector[] = [
 
 			const elementRoles = role.split(WHITESPACE_REGEX) as ARIARoleDefinitionKey[];
 			for (const elementRole of elementRoles) {
-				const { props } = roles.get(elementRole)!;
+				const roleData = roles.get(normalizeAriaRole(elementRole));
+				if (!roleData) continue;
+				const { props } = roleData;
 				const attributes = getAttributeObject(element);
 				const unsupportedAttributes = aria.keys().filter((attribute) => !(attribute in props));
 				const invalidAttributes: string[] = Object.keys(attributes).filter(
@@ -652,6 +656,18 @@ function menuitem_implicit_role(attributes: Record<string, string>) {
 	const { type } = attributes;
 	if (!type) return;
 	return menuitem_type_to_implicit_role.get(type);
+}
+
+// Some ARIA role names used in the spec (and by browsers) differ from the keys
+// used in aria-query's roles map. This map normalizes those mismatches so that
+// roles.get() lookups succeed. For example, WAI-ARIA 1.2 uses "image" but
+// aria-query only has "img".
+const ariaQueryRoleAliases: Partial<Record<string, ARIARoleDefinitionKey>> = {
+	image: 'img',
+};
+
+function normalizeAriaRole(role: string): ARIARoleDefinitionKey {
+	return (ariaQueryRoleAliases[role] ?? role) as ARIARoleDefinitionKey;
 }
 
 function getRole(element: Element): ARIARoleDefinitionKey | undefined {

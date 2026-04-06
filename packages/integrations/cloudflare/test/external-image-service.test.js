@@ -33,3 +33,25 @@ describe('ExternalImageService', () => {
 		assert.equal(outFileToCheck.includes('cdn-cgi/image'), true);
 	});
 });
+
+describe('ExternalImageService dev mode', () => {
+	let fixture;
+	let devServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/external-image-service/',
+		});
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	it('does not generate /cdn-cgi/image/ URLs in dev mode', async () => {
+		const res = await fixture.fetch('/');
+		const html = await res.text();
+		assert.ok(!html.includes('/cdn-cgi/image/'), 'expected no cdn-cgi URL in dev mode');
+	});
+});
