@@ -5,6 +5,13 @@ import { parseAstroRequest } from './query.js';
 import type { CompileMetadata } from './types.js';
 import { frontmatterRE } from './utils.js';
 
+// Case-insensitive filesystems (Windows, macOS) may report file paths with different
+// casing than the canonical path used to store metadata. Normalize for comparison.
+const isCaseInsensitiveFS = process.platform === 'win32' || process.platform === 'darwin';
+function normalizePathForComparison(path: string) {
+	return isCaseInsensitiveFS ? path.toLowerCase() : path;
+}
+
 interface HandleHotUpdateOptions {
 	logger: Logger;
 	compile: (code: string, filename: string) => Promise<CompileAstroResult>;
@@ -20,7 +27,13 @@ export async function handleHotUpdate(
 	// If any `ctx.file` is part of a CSS dependency of any Astro file, invalidate its `astroFileToCompileMetadata`
 	// so the next transform of the Astro file or Astro script/style virtual module will re-generate it
 	for (const [astroFile, compileData] of astroFileToCompileMetadata) {
-		const isUpdatedFileCssDep = compileData.css.some((css) => css.dependencies?.includes(ctx.file));
+		const isUpdatedFileCssDep = compileData.css.some((css) =>
+			css.dependencies?.some(
+				(dep) =>
+					normalizePathForComparison(dep) === normalizePathForComparison(ctx.file) ||
+					dep === ctx.file,
+			),
+			);
 		if (isUpdatedFileCssDep) {
 			astroFileToCompileMetadata.delete(astroFile);
 		}
@@ -31,7 +44,20 @@ export async function handleHotUpdate(
 	// If only the style code has changed, e.g. editing the `color`, then we can directly invalidate
 	// the Astro CSS virtual modules only. The main Astro module's JS result will be the same and doesn't
 	// need to be invalidated.
-	const oldCode = astroFileToCompileMetadata.get(ctx.file)?.originalCode;
+	// Look up compile metadata using the actual file path from Vite's watcher, which uses
+	// the canonical filesystem casing. Also try the ctx.file as-is to handle case-
+	// insensitive filesystem mismatches.
+	const normalizedFile = normalizePathForComparison(ctx.file);
+	let compileData = astroFileToCompileMetadata.get(ctx.file);
+	if (!compileData) {
+		for (const [key, value] of astroFileToCompileMetadata) {
+			if (normalizePathForComparison(key) === normalizedFile) {
+				compileData = value;
+				break;
+			}
+		}
+	}
+	const oldCode = compileData?.originalCode;
 	if (oldCode == null) return;
 	const newCode = await ctx.read();
 
