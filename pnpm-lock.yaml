@@ -1893,6 +1893,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/actions-middleware-context: {}
+
   packages/astro/test/fixtures/alias:
     dependencies:
       '@astrojs/svelte':
@@ -6182,6 +6184,21 @@ importers:
       react-dom:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
+
+  packages/integrations/react/test/fixtures/react-19-preloads:
+    dependencies:
+      '@astrojs/react':
+        specifier: latest
+        version: link:../../..
+      astro:
+        specifier: latest
+        version: link:../../../../../astro
+      react:
+        specifier: ^19.0.0
+        version: 19.2.4
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
 
   packages/integrations/react/test/fixtures/react-component:
     dependencies:
