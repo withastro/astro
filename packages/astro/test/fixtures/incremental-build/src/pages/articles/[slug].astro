@@ -1,0 +1,22 @@
+---
+import articles from '../../data/articles.json';
+
+export function getStaticPaths() {
+	return articles.map((article) => ({
+		params: { slug: article.slug },
+		props: { article },
+	}));
+}
+
+const { article } = Astro.props;
+---
+
+<html>
+	<head>
+		<title>{article.title}</title>
+	</head>
+	<body>
+		<h1>{article.title}</h1>
+		<p>{article.summary}</p>
+	</body>
+</html>

@@ -106,6 +106,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	},
 	prerenderConflictBehavior: 'warn',
 	experimental: {
+		incrementalBuild: false,
 		clientPrerender: false,
 		contentIntellisense: false,
 		chromeDevtoolsWorkspace: false,
@@ -521,6 +522,10 @@ export const AstroConfigSchema = z.object({
 	fonts: z.array(FontFamilySchema).optional(),
 	experimental: z
 		.strictObject({
+			incrementalBuild: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.incrementalBuild),
 			clientPrerender: z
 				.boolean()
 				.optional()

@@ -2768,6 +2768,30 @@ export interface AstroUserConfig<
 	experimental?: {
 		/**
 		 *
+		 * @name experimental.incrementalBuild
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 6.2.0
+		 * @description
+		 *
+		 * Enables Astro's experimental static incremental-build pipeline.
+		 *
+		 * When enabled, Astro reuses persisted build metadata in `cacheDir` to preserve existing outputs
+		 * and skip re-rendering unchanged static pages on subsequent builds. This feature is conservative:
+		 * when Astro cannot prove reuse is safe, it falls back to rendering that page normally.
+		 *
+		 * ```js
+		 * {
+		 *   experimental: {
+		 *     incrementalBuild: true,
+		 *   },
+		 * }
+		 * ```
+		 */
+		incrementalBuild?: boolean;
+
+		/**
+		 *
 		 * @name experimental.clientPrerender
 		 * @type {boolean}
 		 * @default `false`
@@ -3111,7 +3135,7 @@ export interface AstroInlineOnlyConfig {
 	 */
 	logLevel?: AstroLoggerLevel;
 	/**
-	 * Clear the content layer cache, forcing a rebuild of all content entries.
+	 * Clear the content layer cache and any persisted incremental build state, forcing a rebuild.
 	 */
 	force?: boolean;
 	/**

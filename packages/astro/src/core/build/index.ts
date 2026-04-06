@@ -25,6 +25,16 @@ import { createRoutesList } from '../routing/create-manifest.js';
 import { getPrerenderDefault } from '../../prerender/utils.js';
 import { clearContentLayerCache } from '../sync/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
+import {
+	clearIncrementalBuildState,
+	createIncrementalBuildState,
+	createReusedIncrementalBuildState,
+	getFullStaticBuildReuseInvalidationReason,
+	type IncrementalBuildState,
+	loadIncrementalBuildState,
+	restoreFullStaticBuildOutputs,
+	writeIncrementalBuildState,
+} from './build-state.js';
 import { collectPagesData } from './page-data.js';
 import { viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
@@ -77,6 +87,7 @@ export default async function build(
 	if (inlineConfig.force) {
 		// isDev is always false, because it's interested in the build command, not the output type
 		await clearContentLayerCache({ settings, logger, fs, isDev: false });
+		await clearIncrementalBuildState({ settings, logger, fs });
 	}
 
 	const builder = new AstroBuilder(settings, {
@@ -114,6 +125,7 @@ export class AstroBuilder {
 	private timer: Record<string, number>;
 	private teardownCompiler: boolean;
 	private sync: boolean;
+	private previousIncrementalBuildState: IncrementalBuildState | undefined;
 
 	constructor(settings: AstroSettings, options: AstroBuilderOptions) {
 		this.mode = options.mode;
@@ -127,6 +139,7 @@ export class AstroBuilder {
 			: `http://localhost:${settings.config.server.port}`;
 		this.routesList = options.routesList ?? { routes: [] };
 		this.timer = {};
+		this.previousIncrementalBuildState = undefined;
 	}
 
 	/** Setup Vite and run any async setup logic that couldn't run inside of the constructor. */
@@ -152,6 +165,17 @@ export class AstroBuilder {
 		// If the adapter installed does not support a server output, an error will be thrown when the adapter is added, so no need to check here.
 		if (!this.settings.config.adapter && this.settings.buildOutput === 'server') {
 			throw new AstroError(AstroErrorData.NoAdapterInstalled);
+		}
+
+		if (this.settings.buildOutput === 'static') {
+			const loadedIncrementalBuildState = await loadIncrementalBuildState({
+				settings: this.settings,
+				logger: this.logger,
+				mode: this.mode,
+				runtimeMode: this.runtimeMode,
+				fs,
+			});
+			this.previousIncrementalBuildState = loadedIncrementalBuildState.previousState;
 		}
 
 		const viteConfig = await createVite(
@@ -211,6 +235,21 @@ export class AstroBuilder {
 
 		// The names of each pages
 		const pageNames: string[] = [];
+		const fullStaticReuseReason =
+			this.settings.buildOutput === 'static' &&
+			this.settings.config.experimental.incrementalBuild &&
+			this.previousIncrementalBuildState
+				? getFullStaticBuildReuseInvalidationReason({
+						settings: this.settings,
+						allPages,
+						previousState: this.previousIncrementalBuildState,
+						fs,
+					})
+				: undefined;
+
+		if (this.previousIncrementalBuildState && fullStaticReuseReason) {
+			this.logger.debug('build', `Skipping full incremental reuse: ${fullStaticReuseReason}`);
+		}
 
 		// Bundle the assets in your final build: This currently takes the HTML output
 		// of every page (stored in memory) and bundles the assets pointed to on those pages.
@@ -219,6 +258,55 @@ export class AstroBuilder {
 			'build',
 			colors.green(`✓ Completed in ${getTimeStat(this.timer.init, performance.now())}.`),
 		);
+
+		if (
+			this.settings.buildOutput === 'static' &&
+			this.settings.config.experimental.incrementalBuild &&
+			this.previousIncrementalBuildState &&
+			!fullStaticReuseReason
+		) {
+			restoreFullStaticBuildOutputs({
+				settings: this.settings,
+				allPages,
+				previousState: this.previousIncrementalBuildState,
+				pageNames,
+			});
+			this.logger.info(
+				'build',
+				'Incremental build fully reused previous static build outputs and skipped bundling.',
+			);
+			await runHookBuildDone({
+				settings: this.settings,
+				pages: pageNames,
+				routes: Object.values(allPages)
+					.flat()
+					.map((pageData) => pageData.route),
+				logger: this.logger,
+			});
+			const incrementalBuildState = createReusedIncrementalBuildState({
+				settings: this.settings,
+				mode: this.mode,
+				runtimeMode: this.runtimeMode,
+				previousState: this.previousIncrementalBuildState,
+				pageCount: pageNames.length,
+				buildTimeMs: Math.round(performance.now() - this.timer.init),
+			});
+			await writeIncrementalBuildState({
+				settings: this.settings,
+				logger: this.logger,
+				state: incrementalBuildState,
+				fs,
+			});
+			if (this.logger.level && levels[this.logger.level()] <= levels['info']) {
+				await this.printStats({
+					logger: this.logger,
+					timeStart: this.timer.init,
+					pageCount: pageNames.length,
+					buildMode: this.settings.buildOutput,
+				});
+			}
+			return;
+		}
 
 		const hasKey = hasEnvironmentKey();
 		const keyPromise = hasKey ? getEnvironmentKey() : createKey();
@@ -234,9 +322,13 @@ export class AstroBuilder {
 			teardownCompiler: this.teardownCompiler,
 			viteConfig,
 			key: keyPromise,
+			incremental: {
+				enabled: this.settings.config.experimental.incrementalBuild,
+				previousState: this.previousIncrementalBuildState,
+			},
 		};
 
-		await viteBuild(opts);
+		const { internals } = await viteBuild(opts);
 
 		// Write any additionally generated assets to disk.
 		this.timer.assetsStart = performance.now();
@@ -258,6 +350,24 @@ export class AstroBuilder {
 				.map((pageData) => pageData.route),
 			logger: this.logger,
 		});
+
+		if (this.settings.buildOutput === 'static') {
+			const incrementalBuildState = createIncrementalBuildState({
+				settings: this.settings,
+				mode: this.mode,
+				runtimeMode: this.runtimeMode,
+				pageCount: pageNames.length,
+				buildTimeMs: Math.round(performance.now() - this.timer.init),
+				allPages,
+				internals,
+			});
+			await writeIncrementalBuildState({
+				settings: this.settings,
+				logger: this.logger,
+				state: incrementalBuildState,
+				fs,
+			});
+		}
 
 		if (this.logger.level && levels[this.logger.level()] <= levels['info']) {
 			await this.printStats({
