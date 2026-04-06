@@ -3,7 +3,6 @@ import path from 'node:path';
 import { appendForwardSlash, prependForwardSlash } from '@astrojs/internal-helpers/path';
 import colors from 'piccolore';
 import type * as vite from 'vite';
-import { originalUrlSymbol } from '../core/constants.js';
 import type { Logger } from '../core/logger/core.js';
 import { notFoundTemplate, subpathNotUsedTemplate } from '../template/4xx.js';
 import type { AstroSettings } from '../types/astro.js';
@@ -97,14 +96,6 @@ export function baseMiddleware(
 		} catch (e) {
 			/* malformed uri */
 			return next(e);
-		}
-
-		// Always save the base-prefixed URL so downstream handlers can use it
-		// for ctx.url (matching production behavior). For URLs that already have
-		// the base, this preserves the original. For others, it prepends the base.
-		if (devRoot !== '/') {
-			const baseUrl = pathname.startsWith(devRoot) ? url : devRoot.replace(/\/$/, '') + url;
-			Reflect.set(req, originalUrlSymbol, baseUrl);
 		}
 
 		const decision = evaluateBaseRewrite(

@@ -2,9 +2,10 @@ import type http from 'node:http';
 import type { ServerResponse } from 'node:http';
 import { Http2ServerResponse } from 'node:http2';
 import type { Hono } from 'hono';
+import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
 import { routes } from 'virtual:astro:routes';
 import { createRequest } from '../core/request.js';
-import { clientAddressSymbol, clientLocalsSymbol, originalUrlSymbol } from '../core/constants.js';
+import { clientAddressSymbol, clientLocalsSymbol } from '../core/constants.js';
 import { createOutgoingHttpHeaders } from '../core/app/createOutgoingHttpHeaders.js';
 import { makeRequestBody } from '../core/app/node.js';
 import type { RouteInfo } from '../core/app/types.js';
@@ -132,10 +133,18 @@ export default async function createAstroServerApp(
 					const isHttps = 'encrypted' in incomingRequest.socket && incomingRequest.socket.encrypted;
 					const protocol = isHttps ? 'https' : 'http';
 					const host =
-					(incomingRequest.headers[':authority'] as string | undefined) ??
-					incomingRequest.headers.host ??
-					'localhost';
+						(incomingRequest.headers[':authority'] as string | undefined) ??
+						incomingRequest.headers.host ??
+						'localhost';
 					const url = new URL(`${protocol}://${host}${incomingRequest.url}`);
+
+					// The Vite base middleware strips config.base from the URL before
+					// requests reach us. Restore it so the entire pipeline sees the
+					// full base-prefixed URL, matching production behavior.
+					const base = removeTrailingForwardSlash(settings.config.base);
+					if (base.length > 0) {
+						url.pathname = base + url.pathname;
+					}
 
 					// Get body using the helper that handles async iterables properly (only for non-GET/HEAD)
 					const bodyInit =
@@ -143,34 +152,25 @@ export default async function createAstroServerApp(
 							? undefined
 							: makeRequestBody(incomingRequest);
 
-				const request = createRequest({
-					url,
-					headers: incomingRequest.headers,
-					method: incomingRequest.method,
-					logger: actualLogger,
-					routePattern: 'src/app.ts',
-					init: bodyInit as RequestInit | undefined,
-				});
+					const request = createRequest({
+						url,
+						headers: incomingRequest.headers,
+						method: incomingRequest.method,
+						logger: actualLogger,
+						routePattern: 'src/app.ts',
+						init: bodyInit as RequestInit | undefined,
+					});
 
-				// Attach the client address from the socket so ctx.clientAddress works in dev
-				Reflect.set(request, clientAddressSymbol, incomingRequest.socket.remoteAddress);
+					// Attach the client address from the socket so ctx.clientAddress works in dev
+					Reflect.set(request, clientAddressSymbol, incomingRequest.socket.remoteAddress);
 
-				// Forward locals set by integration connect middleware (via astro:server:setup)
-				const locals = Reflect.get(incomingRequest, clientLocalsSymbol);
-				if (locals) {
-					Reflect.set(request, clientLocalsSymbol, locals);
-				}
+					// Forward locals set by integration connect middleware (via astro:server:setup)
+					const locals = Reflect.get(incomingRequest, clientLocalsSymbol);
+					if (locals) {
+						Reflect.set(request, clientLocalsSymbol, locals);
+					}
 
-				// If the base middleware saved the original (pre-strip) URL, attach it
-				// to the Request so Pages.render() can use it for ctx.url / ctx.request.
-				const savedOriginalUrl = Reflect.get(incomingRequest, originalUrlSymbol) as string | undefined;
-				console.error('CSA_ORIGINAL:', savedOriginalUrl, 'reqUrl:', incomingRequest.url);
-				if (savedOriginalUrl) {
-					const originalUrl = new URL(`${protocol}://${host}${savedOriginalUrl}`);
-					Reflect.set(request, originalUrlSymbol, originalUrl.href);
-				}
-
-				const response = await userApp.fetch(request);
+					const response = await userApp.fetch(request);
 					await writeDevResponse(response, incomingResponse, loader);
 				})
 				.catch(async (error) => {

@@ -98,11 +98,7 @@ export const nodeRequestAbortControllerCleanupSymbol = Symbol.for(
  */
 export const responseSentSymbol = Symbol.for('astro.responseSent');
 
-/**
- * The symbol used as a field on the Node.js IncomingMessage to store
- * the original URL before the Vite base middleware strips the base prefix.
- */
-export const originalUrlSymbol = Symbol.for('astro.originalUrl');
+
 
 // possible extensions for markdown files
 export const SUPPORTED_MARKDOWN_FILE_EXTENSIONS = [

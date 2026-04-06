@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import type { Context as HonoContext, MiddlewareHandler } from 'hono';
 
 export { Hono };
+import { removeBase } from '@astrojs/internal-helpers/path';
 import { manifest } from 'virtual:astro:manifest';
 import { app } from 'virtual:astro:app';
 import {
@@ -244,7 +245,7 @@ export function i18n(): MiddlewareHandler<AstroHonoEnv> {
 
 		const requestUrl = new URL(c.req.url);
 		const currentLocale = computeCurrentLocale(
-			requestUrl.pathname,
+			removeBase(requestUrl.pathname, manifest.base),
 			i18nConfig.locales,
 			i18nConfig.defaultLocale,
 		);
@@ -352,7 +353,8 @@ export function redirects(
 
 	return async (c, next) => {
 		const url = new URL(c.req.url);
-		const pathname = url.pathname;
+		// Route patterns are base-agnostic, so strip the base for matching.
+		const pathname = removeBase(url.pathname, manifest.base);
 
 		if (config) {
 			for (const [from, to] of Object.entries(config)) {
@@ -394,6 +396,7 @@ export function redirects(
 export function actions(): MiddlewareHandler<AstroHonoEnv> {
 	return async (c, next) => {
 		const url = new URL(c.req.url);
+		const pathname = removeBase(url.pathname, manifest.base);
 
 		if (c.req.method !== 'POST') {
 			return next();
@@ -402,11 +405,11 @@ export function actions(): MiddlewareHandler<AstroHonoEnv> {
 		// Only handle RPC calls to /_actions/{name}
 		// Form submissions (with ?_action=) fall through to pages() middleware
 		// where RenderContext handles them via the standard flow
-		if (!url.pathname.startsWith('/_actions/')) {
+		if (!pathname.startsWith('/_actions/')) {
 			return next();
 		}
 
-		const actionName = decodeURIComponent(url.pathname.slice('/_actions/'.length));
+		const actionName = decodeURIComponent(pathname.slice('/_actions/'.length));
 
 		const pipeline = pagesApp.pipeline;
 

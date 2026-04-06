@@ -10,7 +10,6 @@ import {
 	clientAddressSymbol,
 	DEFAULT_404_COMPONENT,
 	NOOP_MIDDLEWARE_HEADER,
-	originalUrlSymbol,
 	REROUTABLE_STATUS_CODES,
 	REROUTE_DIRECTIVE_HEADER,
 	responseSentSymbol,
@@ -71,7 +70,7 @@ export class Pages {
 	#router: Router;
 	#getRoutes: (() => RoutesList) | undefined;
 	#lastRoutes: RouteData[] | undefined;
-	#baseStripped: boolean;
+	#isDev: boolean;
 
 	constructor(manifest: SSRManifest, pipeline?: Pipeline, routeSource?: { manifestData: RoutesList }) {
 		this.manifest = manifest;
@@ -80,9 +79,7 @@ export class Pages {
 			dest: consoleLogDestination,
 			level: manifest.logLevel,
 		});
-		// In dev, the connect base middleware strips the base prefix before requests
-		// reach the Hono app, so the Router should use base '/' to avoid double-stripping.
-		this.#baseStripped = !!routeSource;
+		this.#isDev = !!routeSource;
 		if (routeSource) {
 			// In dev, routes are loaded dynamically. Use a getter that reads from
 			// the source (e.g. DevApp) so we always have the latest routes.
@@ -112,7 +109,7 @@ export class Pages {
 
 	#createRouter(manifestData: RoutesList): Router {
 		return new Router(manifestData.routes, {
-			base: this.#baseStripped ? '/' : this.manifest.base,
+			base: this.manifest.base,
 			trailingSlash: this.manifest.trailingSlash,
 			buildFormat: this.manifest.buildFormat,
 		});
@@ -130,7 +127,7 @@ export class Pages {
 		}
 		// In dev, try matching without .html extensions or index.html suffixes
 		// to handle URLs like /page/index.html → /page/
-		if (this.#baseStripped) {
+		if (this.#isDev) {
 			const altPathname = pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
 			if (altPathname !== pathname) {
 				const altMatch = this.#router.match(altPathname);
@@ -229,12 +226,6 @@ export class Pages {
 			});
 		}
 
-		// Capture the original URL symbol before any Request replacements below,
-		// since new Request() does not preserve symbols.
-		const savedOriginalUrl = this.#baseStripped
-			? (Reflect.get(request, originalUrlSymbol) as string | undefined)
-			: undefined;
-
 		// For prerendered routes, strip query params from the request URL
 		// so that Astro.request.url doesn't expose them in static output.
 		if (routeData.prerender && url.search) {
@@ -245,23 +236,6 @@ export class Pages {
 		let pathname = this.#getPathnameFromRequest(request);
 		if (!routeHasHtmlExtension(routeData)) {
 			pathname = pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
-		}
-
-		// In dev, the Vite base middleware strips config.base from the URL before
-		// requests reach us. Use the original (unstripped) URL saved earlier so
-		// that ctx.url and ctx.request.url include the full base-prefixed path,
-		// matching production behavior.
-		if (savedOriginalUrl) {
-			// For prerendered routes we may have stripped the query string above;
-			// apply the same stripping to the original URL.
-			let restoredUrl = savedOriginalUrl;
-			if (routeData.prerender) {
-				const parsed = new URL(restoredUrl, 'http://localhost');
-				parsed.search = '';
-				restoredUrl = parsed.pathname + parsed.hash;
-			}
-			const fullUrl = new URL(restoredUrl, request.url);
-			request = new Request(fullUrl, request);
 		}
 
 		const defaultStatus = this.#getDefaultStatusCode(routeData, pathname);
@@ -323,7 +297,7 @@ export class Pages {
 			// In dev, try to render the custom 500 page if one exists.
 			// If no custom 500 page, re-throw so the error reaches the Vite error overlay.
 			// In production, always render the error page (falls back to empty 500 response).
-			if (this.#baseStripped) {
+			if (this.#isDev) {
 				const errorRoutePath = `/500${this.manifest.trailingSlash === 'always' ? '/' : ''}`;
 				const custom500 = matchRoute(errorRoutePath, this.manifestData);
 				if (!custom500) throw err;
@@ -369,9 +343,9 @@ export class Pages {
 		const url = new URL(request.url);
 		if (errorRouteData) {
 			// In production, prerendered error pages are fetched as static assets.
-			// In dev (#baseStripped), always render the component directly so that
-			// Astro.url reflects the originally-requested path, not /404.html.
-			if (errorRouteData.prerender && !this.#baseStripped) {
+			// In dev, always render the component directly so that Astro.url
+			// reflects the originally-requested path, not /404.html.
+			if (errorRouteData.prerender && !this.#isDev) {
 				const maybeDotHtml = errorRouteData.route.endsWith(`/${status}`) ? '.html' : '';
 				const statusURL = new URL(
 					`${removeTrailingForwardSlash(this.manifest.base)}/${status}${maybeDotHtml}`,
@@ -456,15 +430,6 @@ export class Pages {
 
 	#getPathnameFromRequest(request: Request): string {
 		const url = new URL(request.url);
-		// When baseStripped is true, the Vite base middleware already removed the
-		// base prefix from the URL, so we must not strip it again.
-		if (this.#baseStripped) {
-			try {
-				return decodeURI(url.pathname);
-			} catch {
-				return url.pathname;
-			}
-		}
 		const base = removeTrailingForwardSlash(this.manifest.base);
 		const pathname = prependForwardSlash(
 			base.length > 0 ? url.pathname.slice(base.length) : url.pathname,
