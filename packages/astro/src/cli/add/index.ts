@@ -731,7 +731,7 @@ async function updatePackageJsonOverrides({
 	const pkgURL = new URL('./package.json', configURL);
 	if (!existsSync(pkgURL)) {
 		logger.debug('add', 'No package.json found, skipping overrides update');
-		return UpdateResult.none;
+		return 'none';
 	}
 
 	const pkgPath = fileURLToPath(pkgURL);
@@ -748,14 +748,14 @@ async function updatePackageJsonOverrides({
 	}
 
 	if (!hasChanges) {
-		return UpdateResult.none;
+		return 'none';
 	}
 
 	const output = JSON.stringify(pkgJson, null, 2);
 	const diff = getDiffContent(input, output);
 
 	if (!diff) {
-		return UpdateResult.none;
+		return 'none';
 	}
 
 	logger.info(
@@ -772,9 +772,9 @@ async function updatePackageJsonOverrides({
 	if (await askToContinue({ flags, logger })) {
 		await fs.writeFile(pkgPath, output, { encoding: 'utf-8' });
 		logger.debug('add', 'Updated package.json overrides');
-		return UpdateResult.updated;
+		return 'updated';
 	} else {
-		return UpdateResult.cancelled;
+		return 'cancelled';
 	}
 }
 
