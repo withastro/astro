@@ -66,8 +66,10 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 					if (compileMetadata && parsedId.query.type === 'style' && parsedId.query.index != null) {
 						const result = compileMetadata.css[parsedId.query.index];
 
+						// The CSS at this index may no longer exist if the style tag was
+						// emptied or removed during HMR, so guard before accessing dependencies.
 						// Register dependencies from preprocessing this style
-						result.dependencies?.forEach((dep) => this.addWatchFile(dep));
+						result?.dependencies?.forEach((dep) => this.addWatchFile(dep));
 					}
 				},
 			},
@@ -171,7 +173,10 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 
 							const result = compileMetadata.css[query.index];
 							if (!result) {
-								throw new Error(`No Astro CSS at index ${query.index}`);
+								// The CSS at this index may no longer exist if the style tag was
+								// emptied or removed during HMR. Return empty CSS so the stale
+								// virtual module reference doesn't cause an error.
+								return { code: '' };
 							}
 
 							// Register dependencies from preprocessing this style
