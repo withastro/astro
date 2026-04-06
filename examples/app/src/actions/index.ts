@@ -5,7 +5,7 @@ export const server = {
 	login: defineAction({
 		accept: 'form',
 		input: z.object({
-			email: z.string().email(),
+			email: z.email(),
 			password: z.string().min(1),
 		}),
 		handler: async (_input, context) => {

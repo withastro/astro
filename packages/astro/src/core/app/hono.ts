@@ -52,7 +52,7 @@ export type AstroHonoEnv = {
  *
  * The context is created lazily on first call and cached for the duration of the request.
  */
-export async function context(c: HonoContext<AstroHonoEnv>): Promise<APIContext> {
+export async function context(c: HonoContext<any>): Promise<APIContext> {
 	const existing = c.get(ASTRO_CONTEXT_KEY);
 	if (existing) return existing;
 

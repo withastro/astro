@@ -16,7 +16,7 @@ app.use(async (c, next) => {
 			return c.redirect('/login');
 		}
 	}
-	await next();
+	return next();
 });
 
 app.use(redirects({ '/old-dashboard': '/dashboard' }));
