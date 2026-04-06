@@ -1,5 +1,17 @@
 # astro
 
+## 6.1.4
+
+### Patch Changes
+
+- [#16197](https://github.com/withastro/astro/pull/16197) [`21f9fe2`](https://github.com/withastro/astro/commit/21f9fe29f5de442a3e0672ea36dbe690491f3e8c) Thanks [@SchahinRohani](https://github.com/SchahinRohani)! - Remove unused re-exports from assets/utils barrel file to fix Vite build warning
+
+- [#16059](https://github.com/withastro/astro/pull/16059) [`6d5469e`](https://github.com/withastro/astro/commit/6d5469e2c8ddd5c2a546052ac7e3b0fb801b9069) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `Expected 'miniflare' to be defined` errors and 404 responses in dev mode when using the Cloudflare adapter and the config file changes. Instead of creating a brand new Vite server on config changes, Astro now performs a Vite in-place restart, allowing the Cloudflare adapter to reuse its existing miniflare instance across restarts.
+
+- [#16154](https://github.com/withastro/astro/pull/16154) [`7610ba4`](https://github.com/withastro/astro/commit/7610ba4552b51a64be59ad16e8450ce6672579f0) Thanks [@Desel72](https://github.com/Desel72)! - Fixes pages with dots in their filenames (e.g. `hello.world.astro`) returning 404 when accessed with a trailing slash in the dev server. The `trailingSlashForPath` function now only forces `trailingSlash: 'never'` for endpoints with file extensions, allowing pages to correctly respect the user's `trailingSlash` config.
+
+- [#16193](https://github.com/withastro/astro/pull/16193) [`23425e2`](https://github.com/withastro/astro/commit/23425e2413b25cd304b64b4711f86f3f889546ff) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `trailingSlash: "always"` producing redirect HTML instead of the actual response for extensionless endpoints during static builds
+
 ## 6.1.3
 
 ### Patch Changes
