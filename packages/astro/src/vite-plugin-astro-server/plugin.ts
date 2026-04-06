@@ -3,7 +3,7 @@ import { IncomingMessage } from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
-import { isRunnableDevEnvironment, type RunnableDevEnvironment } from 'vite';
+import { isRunnableDevEnvironment, normalizePath, type RunnableDevEnvironment } from 'vite';
 import type { SSRManifest } from '../core/app/types.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES, devPrerenderMiddlewareSymbol } from '../core/constants.js';
 import { getViteErrorPayload } from '../core/errors/dev/index.js';
@@ -56,11 +56,11 @@ export default function createVitePluginAstroServer({
 						typeof import('../vite-plugin-app/createAstroServerApp.js')
 					>(ASTRO_DEV_SERVER_APP_ID);
 				const controller = createController({ loader });
-				const { handler } = await createAstroServerApp(controller, settings, loader, logger);
+				const { handler, invalidate } = await createAstroServerApp(controller, settings, loader, logger);
 				const { manifest } = await environment.runner.import<{
 					manifest: SSRManifest;
 				}>(SERIALIZED_MANIFEST_ID);
-				return { controller, handler, loader, manifest, environment };
+				return { controller, handler, invalidate, loader, manifest, environment };
 			}
 
 			let ssrHandler = runnableSsrEnvironment
@@ -85,14 +85,28 @@ export default function createVitePluginAstroServer({
 				logger.info('router', 'Reloaded app handler from src/app.ts');
 			};
 
+			// Invalidate the cached user app when files in srcDir change so that
+			// the next request re-imports it, picking up new/removed routes and
+			// updated component metadata.
+			const normalizedSrcDir = normalizePath(fileURLToPath(settings.config.srcDir));
+			const invalidateUserAppCache = (changedPath: string) => {
+				if (!normalizePath(changedPath).startsWith(normalizedSrcDir)) return;
+				ssrHandler?.invalidate();
+				prerenderHandler?.invalidate();
+			};
+
 			viteServer.watcher.on('add', reloadUserAppHandler);
 			viteServer.watcher.on('change', reloadUserAppHandler);
 			viteServer.watcher.on('unlink', reloadUserAppHandler);
+			viteServer.watcher.on('add', invalidateUserAppCache);
+			viteServer.watcher.on('unlink', invalidateUserAppCache);
 
 			viteServer.httpServer?.on('close', () => {
 				viteServer.watcher.off('add', reloadUserAppHandler);
 				viteServer.watcher.off('change', reloadUserAppHandler);
 				viteServer.watcher.off('unlink', reloadUserAppHandler);
+				viteServer.watcher.off('add', invalidateUserAppCache);
+				viteServer.watcher.off('unlink', invalidateUserAppCache);
 			});
 
 			function handleUnhandledRejection(rejection: any) {

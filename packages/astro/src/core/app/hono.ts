@@ -381,7 +381,7 @@ export function redirects(
 						routeData.redirectRoute,
 						manifest.trailingSlash,
 					);
-					return new Response(null, { status, headers: { location: encodeURI(location) } });
+					return new Response(null, { status, headers: { location } });
 				}
 			}
 		}

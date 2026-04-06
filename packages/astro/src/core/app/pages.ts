@@ -229,6 +229,12 @@ export class Pages {
 			});
 		}
 
+		// Capture the original URL symbol before any Request replacements below,
+		// since new Request() does not preserve symbols.
+		const savedOriginalUrl = this.#baseStripped
+			? (Reflect.get(request, originalUrlSymbol) as string | undefined)
+			: undefined;
+
 		// For prerendered routes, strip query params from the request URL
 		// so that Astro.request.url doesn't expose them in static output.
 		if (routeData.prerender && url.search) {
@@ -242,14 +248,20 @@ export class Pages {
 		}
 
 		// In dev, the Vite base middleware strips config.base from the URL before
-		// requests reach us. Use the original (unstripped) URL saved by the base
-		// middleware so that ctx.url and ctx.request.url include the full
-		// base-prefixed path, matching production behavior.
-		if (this.#baseStripped) {
-			const savedOriginalUrl = Reflect.get(request, originalUrlSymbol) as string | undefined;
-			if (savedOriginalUrl) {
-				request = new Request(savedOriginalUrl, request);
+		// requests reach us. Use the original (unstripped) URL saved earlier so
+		// that ctx.url and ctx.request.url include the full base-prefixed path,
+		// matching production behavior.
+		if (savedOriginalUrl) {
+			// For prerendered routes we may have stripped the query string above;
+			// apply the same stripping to the original URL.
+			let restoredUrl = savedOriginalUrl;
+			if (routeData.prerender) {
+				const parsed = new URL(restoredUrl, 'http://localhost');
+				parsed.search = '';
+				restoredUrl = parsed.pathname + parsed.hash;
 			}
+			const fullUrl = new URL(restoredUrl, request.url);
+			request = new Request(fullUrl, request);
 		}
 
 		const defaultStatus = this.#getDefaultStatusCode(routeData, pathname);

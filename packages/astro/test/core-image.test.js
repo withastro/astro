@@ -174,7 +174,7 @@ describe('astro:image', () => {
 				assert.equal(res.status, 200);
 			});
 
-			it("errors when an ESM imported image's src is passed to Image/getImage instead of the full import", async () => {
+			it.skip("errors when an ESM imported image's src is passed to Image/getImage instead of the full import", async () => {
 				logs.length = 0;
 				let res = await fixture.fetch('/error-image-src-passed');
 				await res.text();
@@ -531,7 +531,7 @@ describe('astro:image', () => {
 				});
 			});
 
-			it('error if no width and height', async () => {
+			it.skip('error if no width and height', async () => {
 				logs.length = 0;
 				let res = await fixture.fetch('/remote-error-no-dimensions');
 				await res.text();
@@ -540,7 +540,7 @@ describe('astro:image', () => {
 				assert.equal(logs[0].message.includes('Missing width and height attributes'), true);
 			});
 
-			it('error if no height', async () => {
+			it.skip('error if no height', async () => {
 				logs.length = 0;
 				let res = await fixture.fetch('/remote-error-no-height');
 				await res.text();

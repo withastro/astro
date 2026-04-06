@@ -91,6 +91,10 @@ export default async function createAstroServerApp(
 	let cachedUserApp: Hono | undefined;
 
 	return {
+		/** Clear the cached user app so the next request re-imports it. */
+		invalidate() {
+			cachedUserApp = undefined;
+		},
 		handler(incomingRequest: http.IncomingMessage, incomingResponse: http.ServerResponse) {
 			// Set user-specified server headers on every response
 			for (const [name, value] of Object.entries(settings.config.server.headers ?? {})) {
@@ -154,6 +158,7 @@ export default async function createAstroServerApp(
 				// If the base middleware saved the original (pre-strip) URL, attach it
 				// to the Request so Pages.render() can use it for ctx.url / ctx.request.
 				const savedOriginalUrl = Reflect.get(incomingRequest, originalUrlSymbol) as string | undefined;
+				console.error('CSA_ORIGINAL:', savedOriginalUrl, 'reqUrl:', incomingRequest.url);
 				if (savedOriginalUrl) {
 					const originalUrl = new URL(`${protocol}://${host}${savedOriginalUrl}`);
 					Reflect.set(request, originalUrlSymbol, originalUrl.href);
