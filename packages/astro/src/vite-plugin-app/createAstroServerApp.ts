@@ -2,6 +2,7 @@ import type http from 'node:http';
 import type { ServerResponse } from 'node:http';
 import { routes } from 'virtual:astro:routes';
 import { createRequest } from '../core/request.js';
+import { clientAddressSymbol, originalUrlSymbol } from '../core/constants.js';
 import { createOutgoingHttpHeaders } from '../core/app/createOutgoingHttpHeaders.js';
 import { makeRequestBody } from '../core/app/node.js';
 import type { RouteInfo } from '../core/app/types.js';
@@ -23,7 +24,8 @@ async function writeDevResponse(
 	destination: ServerResponse,
 	loader: ModuleLoader,
 ) {
-	const { status, headers, body } = source;
+	const { status, statusText, headers, body } = source;
+	destination.statusMessage = statusText;
 	destination.writeHead(status, createOutgoingHttpHeaders(headers));
 	if (!body) return destination.end();
 	try {
@@ -114,16 +116,27 @@ export default async function createAstroServerApp(
 							? undefined
 							: makeRequestBody(incomingRequest);
 
-					const request = createRequest({
-						url,
-						headers: incomingRequest.headers,
-						method: incomingRequest.method,
-						logger: actualLogger,
-						routePattern: 'src/app.ts',
-						init: bodyInit as RequestInit | undefined,
-					});
+				const request = createRequest({
+					url,
+					headers: incomingRequest.headers,
+					method: incomingRequest.method,
+					logger: actualLogger,
+					routePattern: 'src/app.ts',
+					init: bodyInit as RequestInit | undefined,
+				});
 
-					if (!userApp || typeof userApp.fetch !== 'function') {
+				// Attach the client address from the socket so ctx.clientAddress works in dev
+				Reflect.set(request, clientAddressSymbol, incomingRequest.socket.remoteAddress);
+
+				// If the base middleware saved the original (pre-strip) URL, attach it
+				// to the Request so Pages.render() can use it for ctx.url / ctx.request.
+				const savedOriginalUrl = Reflect.get(incomingRequest, originalUrlSymbol) as string | undefined;
+				if (savedOriginalUrl) {
+					const originalUrl = new URL(`${protocol}://${host}${savedOriginalUrl}`);
+					Reflect.set(request, originalUrlSymbol, originalUrl.href);
+				}
+
+				if (!userApp || typeof userApp.fetch !== 'function') {
 						throw new Error('src/app.ts must default export a Hono app instance.');
 					}
 

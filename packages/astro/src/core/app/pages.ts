@@ -10,6 +10,7 @@ import {
 	clientAddressSymbol,
 	DEFAULT_404_COMPONENT,
 	NOOP_MIDDLEWARE_HEADER,
+	originalUrlSymbol,
 	REROUTABLE_STATUS_CODES,
 	REROUTE_DIRECTIVE_HEADER,
 	responseSentSymbol,
@@ -239,6 +240,17 @@ export class Pages {
 			pathname = pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
 		}
 
+		// In dev, the Vite base middleware strips config.base from the URL before
+		// requests reach us. Use the original (unstripped) URL saved by the base
+		// middleware so that ctx.url and ctx.request.url include the full
+		// base-prefixed path, matching production behavior.
+		if (this.#baseStripped) {
+			const savedOriginalUrl = Reflect.get(request, originalUrlSymbol) as string | undefined;
+			if (savedOriginalUrl) {
+				request = new Request(savedOriginalUrl, request);
+			}
+		}
+
 		const defaultStatus = this.#getDefaultStatusCode(routeData, pathname);
 
 		let response: Response;
@@ -418,6 +430,15 @@ export class Pages {
 
 	#getPathnameFromRequest(request: Request): string {
 		const url = new URL(request.url);
+		// When baseStripped is true, the Vite base middleware already removed the
+		// base prefix from the URL, so we must not strip it again.
+		if (this.#baseStripped) {
+			try {
+				return decodeURI(url.pathname);
+			} catch {
+				return url.pathname;
+			}
+		}
 		const base = removeTrailingForwardSlash(this.manifest.base);
 		const pathname = prependForwardSlash(
 			base.length > 0 ? url.pathname.slice(base.length) : url.pathname,
