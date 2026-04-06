@@ -87,13 +87,21 @@ export class FrontmatterHolder implements VirtualCode {
 	id = 'frontmatter-holder';
 	mappings: CodeMapping[];
 	embeddedCodes: VirtualCode[];
+	public fileName: string;
+	public languageId: string;
+	public snapshot: ts.IScriptSnapshot;
+	public collection: string | undefined;
 
 	constructor(
-		public fileName: string,
-		public languageId: string,
-		public snapshot: ts.IScriptSnapshot,
-		public collection: string | undefined,
+		fileName: string,
+		languageId: string,
+		snapshot: ts.IScriptSnapshot,
+		collection: string | undefined,
 	) {
+		this.fileName = fileName;
+		this.languageId = languageId;
+		this.snapshot = snapshot;
+		this.collection = collection;
 		this.mappings = [
 			{
 				sourceOffsets: [0],

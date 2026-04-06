@@ -211,6 +211,44 @@ describe('renderPath()', () => {
 		assert.ok(errors.length > 0, 'error should be logged before re-throwing');
 	});
 
+	// Regression: #16185 — extensionless endpoints with trailingSlash: 'always'
+	// must have a trailing slash in the prerender request URL so that BaseApp.render()
+	// does not emit a redirect instead of the endpoint's actual response.
+	it('sends a trailing-slash request URL for extensionless endpoints when trailingSlash is always', async () => {
+		const endpointOptions = await createStaticBuildOptions({
+			inlineConfig: { trailingSlash: 'always' },
+		});
+
+		let capturedUrl;
+		const prerenderer = createMockPrerenderer({ '/demo': 'hello' });
+		const originalRender = prerenderer.render.bind(prerenderer);
+		prerenderer.render = async (request, opts) => {
+			capturedUrl = new URL(request.url);
+			return originalRender(request, opts);
+		};
+
+		const route = createRouteData({
+			route: '/demo',
+			type: 'endpoint',
+			trailingSlash: 'always',
+			component: 'src/pages/demo.ts',
+		});
+
+		await renderPath({
+			prerenderer,
+			pathname: '/demo',
+			route,
+			options: endpointOptions,
+			logger: endpointOptions.logger,
+		});
+
+		assert.ok(capturedUrl, 'prerenderer.render should have been called');
+		assert.ok(
+			capturedUrl.pathname.endsWith('/'),
+			`expected trailing slash in request URL pathname, got "${capturedUrl.pathname}"`,
+		);
+	});
+
 	it('writes the rendered body to the filesystem (integration smoke)', async () => {
 		const html = '<html><body>Written to disk</body></html>';
 		const prerenderer = createMockPrerenderer({ '/disk-test': html });

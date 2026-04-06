@@ -5,12 +5,11 @@ import { dset } from 'dset';
 import { SETTINGS_FILE } from './constants.js';
 
 export class PreferenceStore {
+	private dir: string;
 	private file: string;
 
-	constructor(
-		private dir: string,
-		filename = SETTINGS_FILE,
-	) {
+	constructor(dir: string, filename = SETTINGS_FILE) {
+		this.dir = dir;
 		this.file = path.join(this.dir, filename);
 	}
 
