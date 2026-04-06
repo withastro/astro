@@ -2777,8 +2777,12 @@ export interface AstroUserConfig<
 		 * Enables Astro's experimental static incremental-build pipeline.
 		 *
 		 * When enabled, Astro reuses persisted build metadata in `cacheDir` to preserve existing outputs
-		 * and skip re-rendering unchanged static pages on subsequent builds. This feature is conservative:
-		 * when Astro cannot prove reuse is safe, it falls back to rendering that page normally.
+		 * and skip re-rendering unchanged static pages on subsequent builds. Exact no-op rebuilds can also
+		 * restore the previous static output and skip bundling entirely.
+		 *
+		 * This feature currently only applies to static output, and it is conservative: when Astro cannot
+		 * prove reuse is safe, it falls back to a normal rebuild for the affected work. Use
+		 * `astro build --force` to clear the cached incremental state and force a fresh build.
 		 *
 		 * ```js
 		 * {

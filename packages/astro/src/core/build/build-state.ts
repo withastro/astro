@@ -499,9 +499,11 @@ export function createIncrementalBuildSnapshot({
 export function planIncrementalPageGeneration({
 	previousState,
 	currentSnapshot,
+	fs = fsMod,
 }: {
 	previousState: IncrementalBuildState;
 	currentSnapshot: IncrementalBuildSnapshot;
+	fs?: typeof fsMod;
 }): IncrementalBuildRenderPlan {
 	const previousPages = new Map((previousState.pages ?? []).map((page) => [page.key, page]));
 	const currentPages = new Map(currentSnapshot.pages.map((page) => [page.key, page]));
@@ -575,7 +577,10 @@ export function planIncrementalPageGeneration({
 
 		for (const currentPath of currentPage.generatedPaths) {
 			const previousPath = previousPaths.get(currentPath.pathname);
-			if (!previousPath || previousPath.output !== currentPath.output) {
+			const previousOutputMissing = previousPath?.output
+				? !fs.existsSync(new URL(previousPath.output))
+				: false;
+			if (!previousPath || previousPath.output !== currentPath.output || previousOutputMissing) {
 				renderPathnames.push(currentPath.pathname);
 				renderedPathCount++;
 			} else {

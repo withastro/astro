@@ -215,6 +215,10 @@ describe('astro/src/core/build/build-state', () => {
 	it('plans reuse for unchanged pages and rerenders changed ones', async () => {
 		const root = createTempRoot();
 		const settings = await createSettings(root);
+		const unchangedOutput = new URL('./dist/build-state/index.html', root).toString();
+		const changedOutputOne = new URL('./dist/build-state/blog/one/index.html', root).toString();
+		const changedOutputTwo = new URL('./dist/build-state/blog/two/index.html', root).toString();
+		const changedOutputThree = new URL('./dist/build-state/blog/three/index.html', root).toString();
 		const unchangedPage = {
 			key: '/&src/pages/index.astro',
 			component: 'src/pages/index.astro',
@@ -243,6 +247,11 @@ describe('astro/src/core/build/build-state', () => {
 			[unchangedPage.key]: unchangedPage,
 			[changedPage.key]: changedPage,
 		};
+		mkdirSync(new URL('./dist/build-state/blog/one/', root), { recursive: true });
+		mkdirSync(new URL('./dist/build-state/blog/two/', root), { recursive: true });
+		writeFileSync(new URL('./dist/build-state/index.html', root), '<html>index</html>');
+		writeFileSync(new URL('./dist/build-state/blog/one/index.html', root), '<html>one</html>');
+		writeFileSync(new URL('./dist/build-state/blog/two/index.html', root), '<html>two</html>');
 		const previousInternals = createBuildInternals();
 
 		trackPageData(
@@ -253,7 +262,7 @@ describe('astro/src/core/build/build-state', () => {
 			new URL('./src/pages/index.astro', root),
 		);
 		trackModulePageDatas(previousInternals, unchangedPage, ['/src/layouts/Main.astro']);
-		recordGeneratedPagePath(previousInternals, unchangedPage.key, '/', 'file:///dist/index.html');
+		recordGeneratedPagePath(previousInternals, unchangedPage.key, '/', unchangedOutput);
 
 		trackPageData(
 			previousInternals,
@@ -263,18 +272,8 @@ describe('astro/src/core/build/build-state', () => {
 			new URL('./src/pages/blog/[slug].astro', root),
 		);
 		trackModulePageDatas(previousInternals, changedPage, ['/src/lib/blog.ts']);
-		recordGeneratedPagePath(
-			previousInternals,
-			changedPage.key,
-			'/blog/one',
-			'file:///dist/blog/one/index.html',
-		);
-		recordGeneratedPagePath(
-			previousInternals,
-			changedPage.key,
-			'/blog/two',
-			'file:///dist/blog/two/index.html',
-		);
+		recordGeneratedPagePath(previousInternals, changedPage.key, '/blog/one', changedOutputOne);
+		recordGeneratedPagePath(previousInternals, changedPage.key, '/blog/two', changedOutputTwo);
 
 		const previousState = createIncrementalBuildState({
 			settings,
@@ -310,13 +309,13 @@ describe('astro/src/core/build/build-state', () => {
 			allPages,
 			internals: currentInternals,
 			generatedPathsByPage: new Map([
-				[unchangedPage.key, [{ pathname: '/', output: 'file:///dist/index.html' }]],
+				[unchangedPage.key, [{ pathname: '/', output: unchangedOutput }]],
 				[
 					changedPage.key,
 					[
-						{ pathname: '/blog/one', output: 'file:///dist/blog/one/index.html' },
-						{ pathname: '/blog/two', output: 'file:///dist/blog/two/index.html' },
-						{ pathname: '/blog/three', output: 'file:///dist/blog/three/index.html' },
+						{ pathname: '/blog/one', output: changedOutputOne },
+						{ pathname: '/blog/two', output: changedOutputTwo },
+						{ pathname: '/blog/three', output: changedOutputThree },
 					],
 				],
 			]),
@@ -337,7 +336,7 @@ describe('astro/src/core/build/build-state', () => {
 			pageKey: changedPage.key,
 			renderPathnames: ['/blog/one', '/blog/two', '/blog/three'],
 			reusedPathnames: [],
-			outputsToDelete: ['file:///dist/blog/one/index.html', 'file:///dist/blog/two/index.html'],
+			outputsToDelete: [changedOutputOne, changedOutputTwo],
 			reason: 'page dependencies changed',
 		});
 		assert.equal(plan.renderedPathCount, 3);
@@ -409,6 +408,86 @@ describe('astro/src/core/build/build-state', () => {
 			outputsToDelete: ['file:///dist/index.html'],
 			reason: 'page styles changed',
 		});
+	});
+
+	it('rerenders a path when its previous output file is missing', async () => {
+		const root = createTempRoot();
+		const settings = await createSettings(root);
+		const pageData = {
+			key: '/&src/pages/index.astro',
+			component: 'src/pages/index.astro',
+			route: {
+				route: '/',
+				component: 'src/pages/index.astro',
+				type: 'page',
+				prerender: true,
+			},
+			moduleSpecifier: '',
+			styles: [],
+		};
+		const allPages = {
+			[pageData.key]: pageData,
+		};
+		mkdirSync(new URL('./src/pages/', root), { recursive: true });
+		writeFileSync(new URL('./src/pages/index.astro', root), '<h1>Hello</h1>');
+
+		const previousInternals = createBuildInternals();
+		trackPageData(
+			previousInternals,
+			pageData.component,
+			pageData,
+			'/src/pages/index.astro',
+			new URL('./src/pages/index.astro', root),
+		);
+		recordGeneratedPagePath(
+			previousInternals,
+			pageData.key,
+			'/',
+			new URL('./dist/build-state/index.html', root).toString(),
+		);
+
+		const previousState = createIncrementalBuildState({
+			settings,
+			mode: 'production',
+			runtimeMode: 'production',
+			pageCount: 1,
+			buildTimeMs: 10,
+			allPages,
+			internals: previousInternals,
+		});
+
+		const currentInternals = createBuildInternals();
+		trackPageData(
+			currentInternals,
+			pageData.component,
+			pageData,
+			'/src/pages/index.astro',
+			new URL('./src/pages/index.astro', root),
+		);
+		recordGeneratedPagePath(
+			currentInternals,
+			pageData.key,
+			'/',
+			new URL('./dist/build-state/index.html', root).toString(),
+		);
+
+		const plan = planIncrementalPageGeneration({
+			previousState,
+			currentSnapshot: createIncrementalBuildSnapshot({
+				settings,
+				allPages,
+				internals: currentInternals,
+			}),
+		});
+
+		assert.deepEqual(plan.pagePlans.get(pageData.key), {
+			pageKey: pageData.key,
+			renderPathnames: ['/'],
+			reusedPathnames: [],
+			outputsToDelete: [],
+		});
+		assert.equal(plan.renderedPathCount, 1);
+		assert.equal(plan.reusedPathCount, 0);
 	});
 
 	it('fully reuses previous static outputs when tracked inputs and public files are unchanged', async () => {
@@ -546,6 +625,121 @@ describe('astro/src/core/build/build-state', () => {
 				previousState,
 			}),
 			'public directory changed',
+		);
+	});
+
+	it('disables full static reuse when a persisted output is missing', async () => {
+		const root = createTempRoot();
+		const settings = await createSettings(root);
+		const pageData = {
+			key: '/&src/pages/index.astro',
+			component: 'src/pages/index.astro',
+			route: {
+				route: '/',
+				component: 'src/pages/index.astro',
+				type: 'page',
+				prerender: true,
+			},
+			moduleSpecifier: '',
+			styles: [],
+		};
+		const allPages = {
+			[pageData.key]: pageData,
+		};
+		mkdirSync(new URL('./src/pages/', root), { recursive: true });
+		writeFileSync(new URL('./src/pages/index.astro', root), '<h1>Hello</h1>');
+
+		const previousInternals = createBuildInternals();
+		trackPageData(
+			previousInternals,
+			pageData.component,
+			pageData,
+			'/src/pages/index.astro',
+			new URL('./src/pages/index.astro', root),
+		);
+		recordGeneratedPagePath(
+			previousInternals,
+			pageData.key,
+			'/',
+			new URL('./dist/build-state/index.html', root).toString(),
+		);
+
+		const previousState = createIncrementalBuildState({
+			settings,
+			mode: 'production',
+			runtimeMode: 'production',
+			pageCount: 1,
+			buildTimeMs: 10,
+			allPages,
+			internals: previousInternals,
+		});
+
+		assert.equal(
+			getFullStaticBuildReuseInvalidationReason({
+				settings,
+				allPages,
+				previousState,
+			}),
+			'persisted outputs missing',
+		);
+	});
+
+	it('disables full static reuse when a persisted asset is missing', async () => {
+		const root = createTempRoot();
+		const settings = await createSettings(root);
+		const pageData = {
+			key: '/&src/pages/index.astro',
+			component: 'src/pages/index.astro',
+			route: {
+				route: '/',
+				component: 'src/pages/index.astro',
+				type: 'page',
+				prerender: true,
+			},
+			moduleSpecifier: '',
+			styles: [],
+		};
+		const allPages = {
+			[pageData.key]: pageData,
+		};
+		mkdirSync(new URL('./src/pages/', root), { recursive: true });
+		writeFileSync(new URL('./src/pages/index.astro', root), '<h1>Hello</h1>');
+		mkdirSync(new URL('./dist/build-state/', root), { recursive: true });
+		writeFileSync(new URL('./dist/build-state/index.html', root), '<html></html>');
+
+		const previousInternals = createBuildInternals();
+		trackPageData(
+			previousInternals,
+			pageData.component,
+			pageData,
+			'/src/pages/index.astro',
+			new URL('./src/pages/index.astro', root),
+		);
+		recordGeneratedPagePath(
+			previousInternals,
+			pageData.key,
+			'/',
+			new URL('./dist/build-state/index.html', root).toString(),
+		);
+
+		const previousState = createIncrementalBuildState({
+			settings,
+			mode: 'production',
+			runtimeMode: 'production',
+			pageCount: 1,
+			buildTimeMs: 10,
+			allPages,
+			internals: previousInternals,
+		});
+		previousState.pages[0].assets.styles = ['external:/_astro/index.css'];
+
+		assert.equal(
+			getFullStaticBuildReuseInvalidationReason({
+				settings,
+				allPages,
+				previousState,
+			}),
+			'persisted assets missing',
 		);
 	});
 

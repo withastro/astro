@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { promises as fs } from 'node:fs';
 import { afterEach, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 async function getOutputStat(fixture, filePath) {
 	return fs.stat(new URL(filePath.replace(/^\//, ''), fixture.config.outDir));
@@ -36,7 +36,7 @@ async function captureBuildOutput(runBuild) {
 	return output.join('');
 }
 
-/** @type {import('./test-utils.js').Fixture[]} */
+/** @type {import('./test-utils.ts').Fixture[]} */
 const fixtures = [];
 
 afterEach(async () => {
@@ -173,5 +173,71 @@ describe('Incremental build', () => {
 			output,
 			/Incremental build fully reused previous static build outputs and skipped bundling\./,
 		);
+	});
+
+	it('rebuilds a missing persisted page output on the next build', async () => {
+		const fixture = await createIncrementalFixture('incremental-build-missing-output');
+		await fixture.build();
+
+		const aboutBefore = await getOutputStat(fixture, '/about/index.html');
+		await fs.rm(new URL('./about/index.html', fixture.config.outDir), { force: true });
+
+		await sleep(50);
+		const output = await captureBuildOutput(() => fixture.build({ logLevel: 'info' }));
+		const aboutAfter = await getOutputStat(fixture, '/about/index.html');
+
+		assert.equal(
+			output.includes(
+				'Incremental build fully reused previous static build outputs and skipped bundling.',
+			),
+			false,
+		);
+		assert.match(output, /Incremental build reused \d+ static paths and rendered 1\./);
+		assert.ok(aboutAfter.mtimeMs > aboutBefore.mtimeMs);
+	});
+
+	it('preserves reused pages while copying changed public assets', async () => {
+		const fixture = await createIncrementalFixture('incremental-build-public-assets');
+		await fixture.build();
+
+		const indexBefore = await getOutputStat(fixture, '/index.html');
+
+		await fixture.editFile('/public/logo.txt', 'updated logo');
+
+		await sleep(50);
+		const output = await captureBuildOutput(() => fixture.build({ logLevel: 'info' }));
+		const indexAfter = await getOutputStat(fixture, '/index.html');
+
+		assert.equal(
+			output.includes(
+				'Incremental build fully reused previous static build outputs and skipped bundling.',
+			),
+			false,
+		);
+		assert.match(output, /Incremental build reused \d+ static paths and rendered 0\./);
+		assert.equal(indexAfter.mtimeMs, indexBefore.mtimeMs);
+		assert.equal(await fixture.readFile('/logo.txt'), 'updated logo');
+	});
+
+	it('removes stale outputs when dynamic static paths are deleted', async () => {
+		const fixture = await createIncrementalFixture('incremental-build-remove-path');
+		await fixture.build();
+
+		const aboutBefore = await getOutputStat(fixture, '/about/index.html');
+		assert.equal(fixture.pathExists('/articles/article-020/index.html'), true);
+
+		await fixture.editFile(
+			'/src/data/articles.json',
+			(contents) => `${JSON.stringify(JSON.parse(contents).slice(0, -1), null, '\t')}\n`,
+		);
+
+		await sleep(50);
+		await fixture.build();
+
+		const aboutAfter = await getOutputStat(fixture, '/about/index.html');
+		assert.equal(fixture.pathExists('/articles/article-020/index.html'), false);
+		assert.equal(fixture.pathExists('/articles/article-019/index.html'), true);
+		assert.equal(aboutAfter.mtimeMs, aboutBefore.mtimeMs);
+		assert.match(await fixture.readFile('/index.html'), /<p id="count">19<\/p>/);
 	});
 });

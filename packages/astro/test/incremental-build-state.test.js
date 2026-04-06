@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { promises as fs } from 'node:fs';
 import { after, before, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('Incremental build state', () => {
-	/** @type {import('./test-utils.js').Fixture} */
+	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
 	let stateFile;
 
