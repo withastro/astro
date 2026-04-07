@@ -413,10 +413,7 @@ function sanitizeElementName(tag: string) {
 	return tag.trim().split(unsafe)[0].trim();
 }
 
-function renderFragmentComponent(
-	result: SSRResult,
-	slots: ComponentSlots = {},
-): RenderInstance {
+function renderFragmentComponent(result: SSRResult, slots: ComponentSlots = {}): RenderInstance {
 	const slot = slots?.default;
 	return {
 		render(destination) {
