@@ -14,7 +14,7 @@ import { cssOrder, mergeInlineCss } from './runtime.js';
 import type { AllPagesData } from './types.js';
 import { shouldAppendForwardSlash } from './util.js';
 
-export const INCREMENTAL_BUILD_STATE_FILE = 'incremental-build-state.json';
+const INCREMENTAL_BUILD_STATE_FILE = 'incremental-build-state.json';
 const INCREMENTAL_BUILD_STATE_VERSION = 3 as const;
 const FULL_STATIC_REUSE_BLOCKING_HOOKS = [
 	'astro:build:setup',
@@ -73,7 +73,7 @@ export interface IncrementalBuildGeneratedPath {
 	output: string | null;
 }
 
-export interface IncrementalBuildPageDependencies {
+interface IncrementalBuildPageDependencies {
 	modules: string[];
 	hydratedComponents: string[];
 	clientOnlyComponents: string[];
@@ -93,7 +93,7 @@ export interface IncrementalBuildPage {
 	generatedPaths: IncrementalBuildGeneratedPath[];
 }
 
-export interface IncrementalBuildPageAssets {
+interface IncrementalBuildPageAssets {
 	styles: string[];
 	scripts: string[];
 }

@@ -126,11 +126,6 @@ export interface BuildInternals {
 	}>;
 }
 
-export interface GeneratedPathMetadata {
-	pathname: string;
-	output: string | null;
-}
-
 export interface PageBuildDependencies {
 	modules: Set<string>;
 	hydratedComponents: Set<string>;
