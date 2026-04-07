@@ -90,6 +90,71 @@ describe('Streaming', () => {
 	});
 });
 
+describe('Fragment streaming (issue #13283)', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	const decoder = new TextDecoder();
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/streaming/',
+			adapter: testAdapter(),
+			output: 'server',
+		});
+		await fixture.build();
+	});
+
+	it('sync sibling inside Fragment streams before async child resolves', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/fragment-streaming');
+		const response = await app.render(request);
+
+		// Collect chunks in arrival order
+		const chunks = [];
+		for await (const bytes of streamAsyncIterator(response.body)) {
+			chunks.push(decoder.decode(bytes));
+		}
+
+		const combined = chunks.join('');
+
+		// Both elements must be present in the final output
+		assert.ok(combined.includes('sync-in-fragment'), 'sync sibling inside Fragment is present');
+		assert.ok(combined.includes('async-in-fragment'), 'async child inside Fragment is present');
+
+		// The sync sibling must appear before the async child in the stream
+		assert.ok(
+			combined.indexOf('sync-in-fragment') < combined.indexOf('async-in-fragment'),
+			'sync sibling appears before async child in output',
+		);
+
+		// Verify the fix: sync content inside Fragment should arrive in an earlier
+		// chunk than async content, just like bare template expressions do.
+		const syncChunkIndex = chunks.findIndex((c) => c.includes('sync-in-fragment'));
+		const asyncChunkIndex = chunks.findIndex((c) => c.includes('async-in-fragment'));
+		assert.ok(syncChunkIndex !== -1, 'sync-in-fragment found in chunks');
+		assert.ok(asyncChunkIndex !== -1, 'async-in-fragment found in chunks');
+		assert.ok(
+			syncChunkIndex < asyncChunkIndex,
+			`sync content (chunk ${syncChunkIndex}) should stream before async content (chunk ${asyncChunkIndex})`,
+		);
+	});
+
+	it('final HTML contains all Fragment content in correct order', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/fragment-streaming');
+		const response = await app.render(request);
+		const html = await response.text();
+		const $ = cheerio.load(html);
+
+		assert.equal($('#sync-in-fragment').length, 1, 'sync sibling renders');
+		assert.equal($('#async-in-fragment').length, 1, 'async child renders');
+		// Verify document order is preserved
+		const syncPos = html.indexOf('sync-in-fragment');
+		const asyncPos = html.indexOf('async-in-fragment');
+		assert.ok(syncPos < asyncPos, 'sync appears before async in final HTML');
+	});
+});
+
 describe('Streaming disabled', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
