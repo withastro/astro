@@ -662,9 +662,6 @@ function getPlannedGeneratedOutput(
 	route: RouteData,
 	options: StaticBuildOptions,
 ): string | null {
-	if (route.type !== 'page') {
-		return null;
-	}
 	if (routeIsRedirect(route) && !options.settings.config.build.redirects) {
 		return null;
 	}

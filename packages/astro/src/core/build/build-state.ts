@@ -910,8 +910,8 @@ function getReuseInvalidationReason(
 	if (!previousState.inputDigests) {
 		return 'missing previous input digests';
 	}
-	if (currentPage.routeType !== 'page' || previousPage.routeType !== 'page') {
-		return 'route type not supported';
+	if (currentPage.routeType !== previousPage.routeType) {
+		return 'route type changed';
 	}
 	if (previousPage.prerender !== currentPage.prerender) {
 		return 'prerender setting changed';

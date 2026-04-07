@@ -181,8 +181,12 @@ describe('Incremental build', () => {
 	it('keeps dynamic routes on the selective generation path even when inputs are unchanged', async () => {
 		const fixture = await createIncrementalFixture('incremental-build-dynamic-no-full-reuse');
 		await fixture.build();
+		const redirectBefore = await getOutputStat(fixture, '/docs-start/index.html');
+		const endpointBefore = await getOutputStat(fixture, '/feed.xml');
 
 		const output = await captureBuildOutput(() => fixture.build({ logLevel: 'info' }));
+		const redirectAfter = await getOutputStat(fixture, '/docs-start/index.html');
+		const endpointAfter = await getOutputStat(fixture, '/feed.xml');
 
 		assert.equal(
 			output.includes(
@@ -195,6 +199,8 @@ describe('Incremental build', () => {
 			/Incremental build skipped full static reuse: dynamic routes require fresh path generation/,
 		);
 		assert.match(output, /Incremental build reused \d+ static paths and rendered 0\./);
+		assert.equal(redirectAfter.mtimeMs, redirectBefore.mtimeMs);
+		assert.equal(endpointAfter.mtimeMs, endpointBefore.mtimeMs);
 	});
 
 	it('rebuilds a missing persisted page output on the next build', async () => {
