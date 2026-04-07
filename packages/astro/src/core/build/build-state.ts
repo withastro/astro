@@ -14,7 +14,9 @@ import { cssOrder, mergeInlineCss } from './runtime.js';
 import type { AllPagesData } from './types.js';
 import { shouldAppendForwardSlash } from './util.js';
 
-const INCREMENTAL_BUILD_STATE_FILE = 'incremental-build-state.json';
+const INCREMENTAL_BUILD_STATE_FILE_BASENAME = 'incremental-build-state';
+const INCREMENTAL_BUILD_STATE_FILE_REGEX =
+	/^incremental-build-state(?:\.[a-f0-9]+)?\.json(?:\.\d+\.\d+\.tmp)?$/;
 const INCREMENTAL_BUILD_STATE_VERSION = 3 as const;
 const FULL_STATIC_REUSE_BLOCKING_HOOKS = [
 	'astro:build:setup',
@@ -160,8 +162,15 @@ interface StaticBuildReuseOptions {
 	fs?: typeof fsMod;
 }
 
-export function getIncrementalBuildStateFile(settings: Pick<AstroSettings, 'config'>): URL {
-	return new URL(INCREMENTAL_BUILD_STATE_FILE, settings.config.cacheDir);
+export function getIncrementalBuildStateFile({
+	settings,
+	mode,
+	runtimeMode,
+}: IncrementalBuildStateOptions): URL {
+	return new URL(
+		getIncrementalBuildStateFileName({ settings, mode, runtimeMode }),
+		settings.config.cacheDir,
+	);
 }
 
 export async function clearIncrementalBuildState({
@@ -173,14 +182,20 @@ export async function clearIncrementalBuildState({
 	logger: Logger;
 	fs?: typeof fsMod;
 }) {
-	const stateFile = getIncrementalBuildStateFile(settings);
-	if (!fs.existsSync(stateFile)) {
+	if (!fs.existsSync(settings.config.cacheDir)) {
 		return;
 	}
 
 	logger.debug('build', 'clearing incremental build state');
 	try {
-		await fs.promises.rm(stateFile, { force: true });
+		const cacheDir = appendDirectoryUrl(settings.config.cacheDir);
+		const stateFiles = (await fs.promises.readdir(cacheDir, { withFileTypes: true }))
+			.filter((entry) => entry.isFile() && isIncrementalBuildStateFileName(entry.name))
+			.map((entry) => new URL(entry.name, cacheDir));
+		if (stateFiles.length === 0) {
+			return;
+		}
+		await Promise.all(stateFiles.map((stateFile) => fs.promises.rm(stateFile, { force: true })));
 		logger.warn('build', 'incremental build state cleared (force)');
 	} catch (error) {
 		logger.warn('build', `Failed to clear incremental build state: ${getErrorMessage(error)}`);
@@ -197,7 +212,7 @@ export async function loadIncrementalBuildState({
 	logger: Logger;
 	fs?: typeof fsMod;
 }): Promise<LoadedIncrementalBuildState> {
-	const stateFile = getIncrementalBuildStateFile(settings);
+	const stateFile = getIncrementalBuildStateFile({ settings, mode, runtimeMode });
 	const currentFingerprint = createIncrementalBuildFingerprint({ settings, mode, runtimeMode });
 	const currentArtifacts = createIncrementalBuildArtifacts(settings);
 
@@ -430,16 +445,21 @@ export async function writeIncrementalBuildState({
 	state,
 	fs = fsMod,
 }: {
-	settings: Pick<AstroSettings, 'config'>;
+	settings: AstroSettings;
 	logger: Logger;
 	state: IncrementalBuildState;
 	fs?: typeof fsMod;
 }) {
-	const stateFile = getIncrementalBuildStateFile(settings);
+	const stateFileName = getIncrementalBuildStateFileName({
+		settings,
+		mode: state.fingerprint.mode,
+		runtimeMode: state.fingerprint.runtimeMode,
+	});
+	const stateFile = new URL(stateFileName, settings.config.cacheDir);
 	try {
 		await fs.promises.mkdir(new URL('./', stateFile), { recursive: true });
 		const tempStateFile = new URL(
-			`${INCREMENTAL_BUILD_STATE_FILE}.${process.pid}.${Date.now()}.tmp`,
+			`${stateFileName}.${process.pid}.${Date.now()}.tmp`,
 			settings.config.cacheDir,
 		);
 		await fs.promises.writeFile(tempStateFile, `${JSON.stringify(state, null, 2)}\n`, 'utf-8');
@@ -1239,6 +1259,42 @@ function pathnameToPageName(settings: AstroSettings, pathname: string): string {
 function appendDirectoryUrl(directory: URL | string): URL {
 	const value = typeof directory === 'string' ? directory : directory.toString();
 	return new URL(value.endsWith('/') ? value : `${value}/`);
+}
+
+function getIncrementalBuildStateFileName({
+	settings,
+	mode,
+	runtimeMode,
+}: IncrementalBuildStateOptions): string {
+	return `${INCREMENTAL_BUILD_STATE_FILE_BASENAME}.${createIncrementalBuildStateConsumerKey({
+		settings,
+		mode,
+		runtimeMode,
+	})}.json`;
+}
+
+function createIncrementalBuildStateConsumerKey({
+	settings,
+	mode,
+	runtimeMode,
+}: IncrementalBuildStateOptions): string {
+	const buildOutput = settings.buildOutput;
+	if (!buildOutput) {
+		throw new Error('Cannot resolve incremental build state before the build output is known.');
+	}
+	return createDigest({
+		root: settings.config.root.toString(),
+		mode,
+		runtimeMode,
+		buildOutput,
+		outDir: settings.config.outDir.toString(),
+		clientDir: settings.config.build.client.toString(),
+		serverDir: settings.config.build.server.toString(),
+	}).slice(0, 12);
+}
+
+function isIncrementalBuildStateFileName(fileName: string): boolean {
+	return INCREMENTAL_BUILD_STATE_FILE_REGEX.test(fileName);
 }
 
 function hasDynamicPrerenderedRoutes(allPages: AllPagesData): boolean {

@@ -6,7 +6,6 @@ import { loadFixture } from './test-utils.ts';
 describe('Incremental build state', () => {
 	/** @type {import('./test-utils.ts').Fixture} */
 	let fixture;
-	let stateFile;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -15,7 +14,6 @@ describe('Incremental build state', () => {
 			cacheDir: './node_modules/.astro-incremental-build-state/',
 			build: { inlineStylesheets: 'never' },
 		});
-		stateFile = new URL('./incremental-build-state.json', fixture.config.cacheDir);
 	});
 
 	after(async () => {
@@ -23,9 +21,18 @@ describe('Incremental build state', () => {
 		await fs.rm(fixture.config.cacheDir, { recursive: true, force: true });
 	});
 
+	async function getOnlyStateFile() {
+		const stateFiles = (await fs.readdir(fixture.config.cacheDir)).filter((fileName) =>
+			/^incremental-build-state\.[a-f0-9]+\.json$/.test(fileName),
+		);
+		assert.equal(stateFiles.length, 1);
+		return new URL(`./${stateFiles[0]}`, fixture.config.cacheDir);
+	}
+
 	it('writes incremental build state for static builds', async () => {
 		await fixture.build();
 
+		const stateFile = await getOnlyStateFile();
 		const state = JSON.parse(await fs.readFile(stateFile, 'utf-8'));
 		assert.equal(state.version, 3);
 		assert.equal(state.fingerprint.buildOutput, 'static');
@@ -77,6 +84,9 @@ describe('Incremental build state', () => {
 	});
 
 	it('recreates incremental build state on force rebuilds', async () => {
+		await fixture.build();
+
+		const stateFile = await getOnlyStateFile();
 		await fs.mkdir(new URL('./', stateFile), { recursive: true });
 		await fs.writeFile(stateFile, '{ invalid json', 'utf-8');
 

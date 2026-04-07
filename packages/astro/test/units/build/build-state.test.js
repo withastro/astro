@@ -46,6 +46,10 @@ async function createSettings(root, inlineConfig = {}) {
 	return settings;
 }
 
+function getStateFile(settings, mode = 'production', runtimeMode = 'production') {
+	return getIncrementalBuildStateFile({ settings, mode, runtimeMode });
+}
+
 describe('astro/src/core/build/build-state', () => {
 	it('round-trips incremental build state from cacheDir', async () => {
 		const root = createTempRoot();
@@ -73,6 +77,19 @@ describe('astro/src/core/build/build-state', () => {
 		assert.equal(loaded.previousState.summary.pageCount, 3);
 		assert.equal(loaded.previousState.artifacts.outDir, settings.config.outDir.toString());
 		assert.equal(loaded.previousState.publicDirDigest, null);
+	});
+
+	it('uses different state files for different build consumers in the same cacheDir', async () => {
+		const root = createTempRoot();
+		const settings = await createSettings(root);
+
+		const productionFile = getStateFile(settings, 'production', 'production');
+		const stagingFile = getStateFile(settings, 'staging', 'production');
+		const devOutputFile = getStateFile(settings, 'production', 'development');
+
+		assert.notEqual(productionFile.toString(), stagingFile.toString());
+		assert.notEqual(productionFile.toString(), devOutputFile.toString());
+		assert.match(productionFile.toString(), /incremental-build-state\.[a-f0-9]+\.json$/);
 	});
 
 	it('invalidates cached state when the Astro config changes', async () => {
@@ -198,13 +215,27 @@ describe('astro/src/core/build/build-state', () => {
 				buildTimeMs: 12,
 			}),
 		});
+		await writeIncrementalBuildState({
+			settings,
+			logger,
+			state: createIncrementalBuildState({
+				settings,
+				mode: 'staging',
+				runtimeMode: 'production',
+				pageCount: 2,
+				buildTimeMs: 12,
+			}),
+		});
 
-		const stateFile = getIncrementalBuildStateFile(settings);
-		assert.equal(existsSync(stateFile), true);
+		const productionStateFile = getStateFile(settings);
+		const stagingStateFile = getStateFile(settings, 'staging', 'production');
+		assert.equal(existsSync(productionStateFile), true);
+		assert.equal(existsSync(stagingStateFile), true);
 
 		await clearIncrementalBuildState({ settings, logger });
 
-		assert.equal(existsSync(stateFile), false);
+		assert.equal(existsSync(productionStateFile), false);
+		assert.equal(existsSync(stagingStateFile), false);
 	});
 
 	it('captures page dependency and generated path metadata', async () => {
