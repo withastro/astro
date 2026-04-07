@@ -268,6 +268,11 @@ export default function createIntegration({
 													'astro/jsx-runtime',
 													'astro/app/entrypoint/dev',
 													'astro/virtual-modules/middleware.js',
+													'astro/virtual-modules/transitions.js',
+													'astro/virtual-modules/transitions-router.js',
+													'astro/virtual-modules/transitions-types.js',
+													'astro/virtual-modules/transitions-events.js',
+													'astro/virtual-modules/transitions-swap-functions.js',
 												],
 												exclude: [
 													'unstorage/drivers/cloudflare-kv-binding',
@@ -285,6 +290,12 @@ export default function createIntegration({
 													banner: { js: '' },
 													plugins: [astroFrontmatterScanPlugin()],
 												},
+												// When dependencies are discovered mid-request, concurrent requests
+												// can fail because the dep optimizer's metadata object gets replaced
+												// during processing. This prevents cascading "program reload" crashes
+												// where chunk files from optimization pass N are invalidated by pass N+1.
+												// See: https://github.com/vitejs/vite/issues/20867
+												ignoreOutdatedRequests: true,
 											},
 										};
 									} else if (environmentName === 'client') {
