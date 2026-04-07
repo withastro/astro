@@ -1,4 +1,3 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { extractDirectives } from '../../../dist/runtime/server/hydration.js';
@@ -138,9 +137,9 @@ describe('extractDirectives', () => {
 	it('throws for an invalid hydration directive', () => {
 		assert.throws(
 			() => extractDirectives({ 'client:unknown': '' }, clientDirectives),
-			(err) => {
-				assert.ok(err.message.includes('invalid hydration directive'));
-				assert.ok(err.message.includes('client:unknown'));
+			(err: unknown) => {
+				assert.ok((err as Error).message.includes('invalid hydration directive'));
+				assert.ok((err as Error).message.includes('client:unknown'));
 				return true;
 			},
 		);

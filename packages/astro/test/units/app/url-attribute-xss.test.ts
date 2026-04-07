@@ -1,4 +1,3 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { addAttribute } from '../../../dist/runtime/server/render/util.js';

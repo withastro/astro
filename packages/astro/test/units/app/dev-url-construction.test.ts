@@ -1,22 +1,22 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import type { SSRManifest } from '../../../dist/core/app/types.js';
 import {
 	getFirstForwardedValue,
 	validateForwardedHeaders,
 } from '../../../dist/core/app/validate-headers.js';
 
-/**
- * Mirrors the URL construction logic in AstroServerApp.handleRequest so that
- * the protocol and host derivation can be exercised in isolation.
- *
- * @param {object} opts
- * @param {Record<string, string>} opts.headers - Incoming request headers
- * @param {boolean} [opts.isHttps=false] - Whether Vite itself is running TLS
- * @param {import('../../../dist/core/app/types.js').SSRManifest['allowedDomains']} [opts.allowedDomains]
- * @param {string} [opts.requestUrl='/']
- * @returns {URL}
- */
-function buildDevUrl({ headers, isHttps = false, allowedDomains, requestUrl = '/' }) {
+function buildDevUrl({
+	headers,
+	isHttps = false,
+	allowedDomains,
+	requestUrl = '/',
+}: {
+	headers: Record<string, string>;
+	isHttps?: boolean;
+	allowedDomains?: SSRManifest['allowedDomains'];
+	requestUrl?: string;
+}): URL {
 	const validated = validateForwardedHeaders(
 		getFirstForwardedValue(headers['x-forwarded-proto']),
 		getFirstForwardedValue(headers['x-forwarded-host']),
