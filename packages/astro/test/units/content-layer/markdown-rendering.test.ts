@@ -10,7 +10,7 @@ import {
 	createTestConfigObserver,
 	createMinimalSettings,
 	parseSimpleMarkdownFrontmatter,
-} from './test-helpers.js';
+} from './test-helpers.ts';
 
 describe('Content Layer - Markdown Rendering', () => {
 	// Create a real temp directory for tests
@@ -22,7 +22,7 @@ describe('Content Layer - Markdown Rendering', () => {
 		// Inline loader with markdown content
 		const markdownLoader = {
 			name: 'test-markdown-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				const posts = [
 					{
 						id: 'post-1',
@@ -100,7 +100,7 @@ Content with [a link](https://astro.build).`,
 		await contentLayer.sync();
 
 		// Verify markdown was processed
-		const post1 = store.get('posts', 'post-1');
+		const post1: any = store.get('posts', 'post-1');
 		assert.ok(post1);
 		assert.equal(post1.data.title, 'Test Post');
 		assert.equal(post1.data.description, 'This is a test post');
@@ -109,7 +109,7 @@ Content with [a link](https://astro.build).`,
 		assert.ok(post1.body);
 		assert.ok(post1.body.includes('# Hello World'));
 
-		const post2 = store.get('posts', 'post-2');
+		const post2: any = store.get('posts', 'post-2');
 		assert.ok(post2);
 		assert.equal(post2.data.title, 'Another Post');
 		assert.ok(post2.data.publishedDate instanceof Date);
@@ -123,7 +123,7 @@ Content with [a link](https://astro.build).`,
 		// Custom loader that uses renderMarkdown
 		const customMarkdownLoader = {
 			name: 'custom-markdown-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				const markdownContent = `---
 title: Rendered Post
 author: Test Author
@@ -183,7 +183,7 @@ This content is processed by the loader using renderMarkdown.
 		await contentLayer.sync();
 
 		// Check that markdown was rendered
-		const entry = store.get('custom', 'rendered-post');
+		const entry: any = store.get('custom', 'rendered-post');
 		assert.ok(entry);
 		assert.ok(entry.rendered);
 		assert.ok(entry.rendered.html);
@@ -201,7 +201,7 @@ This content is processed by the loader using renderMarkdown.
 
 		const customLoader = {
 			name: 'headings-test-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				const content = `---
 title: Headings Test
 ---
@@ -257,7 +257,7 @@ Section 2 content.`;
 
 		await contentLayer.sync();
 
-		const entry = store.get('headings', 'headings-test');
+		const entry: any = store.get('headings', 'headings-test');
 		assert.ok(entry);
 		assert.ok(entry.rendered);
 		assert.ok(entry.rendered.metadata);
@@ -268,11 +268,11 @@ Section 2 content.`;
 		assert.ok(headings.length >= 4);
 
 		// Check heading structure
-		const h1 = headings.find((h) => h.depth === 1);
+		const h1 = headings.find((h: any) => h.depth === 1);
 		assert.ok(h1);
 		assert.equal(h1.text, 'Main Title');
 
-		const h2s = headings.filter((h) => h.depth === 2);
+		const h2s = headings.filter((h: any) => h.depth === 2);
 		assert.ok(h2s.length >= 2);
 	});
 
@@ -281,7 +281,7 @@ Section 2 content.`;
 
 		const noFrontmatterLoader = {
 			name: 'no-frontmatter-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				const content = `# Just Markdown
 
 This file has no frontmatter, just content.`;
@@ -318,7 +318,7 @@ This file has no frontmatter, just content.`;
 
 		await contentLayer.sync();
 
-		const entry = store.get('noFrontmatter', 'plain');
+		const entry: any = store.get('noFrontmatter', 'plain');
 		assert.ok(entry);
 		assert.ok(entry.body);
 		assert.ok(entry.body.includes('# Just Markdown'));
@@ -330,7 +330,7 @@ This file has no frontmatter, just content.`;
 
 		const customLoader = {
 			name: 'code-test-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				const content = `---
 title: Code Examples
 ---
@@ -391,7 +391,7 @@ And some inline code: \`const x = 42\`.`;
 
 		await contentLayer.sync();
 
-		const entry = store.get('code', 'code-test');
+		const entry: any = store.get('code', 'code-test');
 		assert.ok(entry);
 		assert.ok(entry.rendered);
 		assert.ok(entry.rendered.html);
@@ -411,7 +411,7 @@ And some inline code: \`const x = 42\`.`;
 
 		const frontmatterTestLoader = {
 			name: 'frontmatter-test-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				const markdownWithFrontmatter = `---
 title: Test Post
 description: A test post for renderMarkdown
@@ -470,7 +470,7 @@ More content here.`;
 
 		await contentLayer.sync();
 
-		const entry = store.get('frontmatterTest', 'frontmatter-test');
+		const entry: any = store.get('frontmatterTest', 'frontmatter-test');
 		assert.ok(entry);
 		assert.equal(entry.data.title, 'Test Post');
 		assert.equal(entry.data.description, 'A test post for renderMarkdown');
@@ -487,7 +487,7 @@ More content here.`;
 
 		const htmlTestLoader = {
 			name: 'html-test-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				const markdownWithFrontmatter = `---
 title: Test Post
 ---
@@ -527,7 +527,7 @@ title: Test Post
 
 		await contentLayer.sync();
 
-		const entry = store.get('htmlTest', 'html-test');
+		const entry: any = store.get('htmlTest', 'html-test');
 		assert.ok(entry);
 		// HTML should not contain frontmatter
 		assert.ok(!entry.data.html.includes('title:'));
@@ -548,7 +548,7 @@ title: Test Post
 
 		const headingsTestLoader = {
 			name: 'headings-test-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				const markdown = `# Heading 1
 Some text
 
@@ -565,7 +565,7 @@ Even more text
 				});
 
 				// Extract heading information
-				const headings = result.metadata.headings.map((h) => ({
+				const headings = result.metadata.headings.map((h: any) => ({
 					depth: h.depth,
 					text: h.text,
 				}));
@@ -604,7 +604,7 @@ Even more text
 
 		await contentLayer.sync();
 
-		const entry = store.get('headingsTest', 'headings-test');
+		const entry: any = store.get('headingsTest', 'headings-test');
 		assert.ok(entry);
 		assert.equal(entry.data.headingCount, 4);
 		assert.deepEqual(entry.data.headings, [
@@ -625,7 +625,7 @@ Even more text
 
 		const imageTestLoader = {
 			name: 'image-test-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				const markdownWithImage = `# Post with Image
 
 ![Local image](./image.png)
@@ -667,7 +667,7 @@ Even more text
 
 		await contentLayer.sync();
 
-		const entry = store.get('imageTest', 'image-test');
+		const entry: any = store.get('imageTest', 'image-test');
 		assert.ok(entry);
 		assert.ok(entry.data.hasImages);
 		assert.equal(entry.data.localImages.length, 1);
@@ -685,7 +685,7 @@ Even more text
 
 		const imagePathsLoader = {
 			name: 'imagepaths-test-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				const markdownWithImages = `# Post with Images
 
 ![Photo](./photo.jpg)
@@ -728,7 +728,7 @@ Even more text
 
 		await contentLayer.sync();
 
-		const entry = store.get('imagePathsTest', 'imagepaths-test');
+		const entry: any = store.get('imagePathsTest', 'imagepaths-test');
 		assert.ok(entry);
 
 		// imagePaths should be the combined localImagePaths + remoteImagePaths

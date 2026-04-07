@@ -11,7 +11,7 @@ describe('astro/src/core/cookies', () => {
 				},
 			});
 			let cookies = new AstroCookies(req);
-			assert.equal(cookies.get('foo').value, 'bar');
+			assert.equal(cookies.get('foo')!.value, 'bar');
 
 			cookies.delete('foo');
 			let headers = Array.from(cookies.headers());
@@ -25,7 +25,7 @@ describe('astro/src/core/cookies', () => {
 				},
 			});
 			let cookies = new AstroCookies(req);
-			assert.equal(cookies.get('foo').value, 'bar');
+			assert.equal(cookies.get('foo')!.value, 'bar');
 
 			cookies.delete('foo');
 			assert.equal(cookies.get('foo'), undefined);
@@ -55,7 +55,7 @@ describe('astro/src/core/cookies', () => {
 				secure: true,
 				httpOnly: true,
 				sameSite: 'strict',
-			});
+			} as any);
 
 			let headers = Array.from(cookies.headers());
 			assert.equal(headers.length, 1);
@@ -75,7 +75,7 @@ describe('astro/src/core/cookies', () => {
 
 			cookies.delete('foo', {
 				expires: new Date(),
-			});
+			} as any);
 
 			let headers = Array.from(cookies.headers());
 			assert.equal(headers.length, 1);
@@ -89,7 +89,7 @@ describe('astro/src/core/cookies', () => {
 
 			cookies.delete('foo', {
 				maxAge: 60,
-			});
+			} as any);
 
 			let headers = Array.from(cookies.headers());
 			assert.equal(headers.length, 1);

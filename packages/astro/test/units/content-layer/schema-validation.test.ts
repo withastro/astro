@@ -5,7 +5,7 @@ import { defineCollection } from '../../../dist/content/config.js';
 import { ContentLayer } from '../../../dist/content/content-layer.js';
 import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
 import { Logger } from '../../../dist/core/logger/core.js';
-import { createTempDir, createTestConfigObserver, createMinimalSettings } from './test-helpers.js';
+import { createTempDir, createTestConfigObserver, createMinimalSettings } from './test-helpers.ts';
 
 describe('Content Layer - Schema Validation', () => {
 	const root = createTempDir();
@@ -21,7 +21,7 @@ describe('Content Layer - Schema Validation', () => {
 		// Loader that provides dates in various formats
 		const dateLoader = {
 			name: 'date-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				const entries = [
 					{
 						id: 'one',
@@ -99,17 +99,17 @@ describe('Content Layer - Schema Validation', () => {
 		}
 
 		// Verify specific date values
-		const entryOne = store.get('withDates', 'one');
+		const entryOne: any = store.get('withDates', 'one');
 		assert.equal(entryOne.data.publishedAt.toISOString(), '2021-01-01T00:00:00.000Z');
 		assert.equal(entryOne.data.updatedAt.toISOString(), '2021-01-02T00:00:00.000Z');
 		assert.equal(entryOne.data.createdAt.toISOString(), '2021-01-03T00:00:00.000Z');
 
 		// Check timestamp conversion
-		const entryTwo = store.get('withDates', 'two');
+		const entryTwo: any = store.get('withDates', 'two');
 		assert.equal(entryTwo.data.createdAt.toISOString(), '2021-01-02T00:00:00.000Z');
 
 		// Check date string parsing - just verify it's a valid Date
-		const entryThree = store.get('withDates', 'three');
+		const entryThree: any = store.get('withDates', 'three');
 		assert.ok(entryThree.data.createdAt instanceof Date);
 		assert.ok(!isNaN(entryThree.data.createdAt.getTime()));
 	});
@@ -125,7 +125,7 @@ describe('Content Layer - Schema Validation', () => {
 		// Loader that provides entries with custom slugs
 		const customSlugLoader = {
 			name: 'custom-slug-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				const entries = [
 					{
 						id: 'fancy-one',
@@ -183,7 +183,7 @@ describe('Content Layer - Schema Validation', () => {
 		assert.deepEqual(ids, ['excellent-three', 'fancy-one', 'interesting-two']);
 
 		// Verify data is correct
-		const fancyOne = store.get('withCustomSlugs', 'fancy-one');
+		const fancyOne: any = store.get('withCustomSlugs', 'fancy-one');
 		assert.equal(fancyOne.data.slug, 'fancy-one');
 		assert.equal(fancyOne.data.title, 'First Entry');
 	});
@@ -199,7 +199,7 @@ describe('Content Layer - Schema Validation', () => {
 		// Loader that provides different types of content
 		const unionLoader = {
 			name: 'union-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				const entries = [
 					{
 						id: 'post',
@@ -272,7 +272,7 @@ describe('Content Layer - Schema Validation', () => {
 		assert.equal(entries.length, 3);
 
 		// Verify post entry
-		const post = store.get('withUnionSchema', 'post');
+		const post: any = store.get('withUnionSchema', 'post');
 		assert.deepEqual(post.data, {
 			type: 'post',
 			title: 'My Post',
@@ -280,14 +280,14 @@ describe('Content Layer - Schema Validation', () => {
 		});
 
 		// Verify newsletter entry
-		const newsletter = store.get('withUnionSchema', 'newsletter');
+		const newsletter: any = store.get('withUnionSchema', 'newsletter');
 		assert.deepEqual(newsletter.data, {
 			type: 'newsletter',
 			subject: 'My Newsletter',
 		});
 
 		// Verify announcement entry
-		const announcement = store.get('withUnionSchema', 'announcement');
+		const announcement: any = store.get('withUnionSchema', 'announcement');
 		assert.deepEqual(announcement.data, {
 			type: 'announcement',
 			message: 'Important Update',
@@ -298,12 +298,12 @@ describe('Content Layer - Schema Validation', () => {
 	it('validates required fields in empty content', async () => {
 		const store = new MutableDataStore();
 		const settings = createMinimalSettings(root);
-		const logs = [];
+		const logs: any[] = [];
 
 		const logger = new Logger({
 			level: 'error',
 			dest: {
-				write: (event) => {
+				write: (event: any) => {
 					logs.push(event);
 					return true;
 				},
@@ -313,7 +313,7 @@ describe('Content Layer - Schema Validation', () => {
 		// Loader that simulates empty markdown file scenario
 		const emptyContentLoader = {
 			name: 'empty-content-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				// Simulate empty markdown file - no frontmatter data
 				const entries = [
 					{
@@ -342,15 +342,15 @@ describe('Content Layer - Schema Validation', () => {
 							data: parsed,
 							body: entry.body,
 						});
-					} catch (error) {
+					} catch (error: any) {
 						// Log validation error
 						context.logger.error(`Validation failed for ${entry.id}: ${error.message}`);
 
 						// Check if it's a Zod error with issues
 						if (error.errors) {
 							const requiredFields = error.errors
-								.filter((issue) => issue.message === 'Required')
-								.map((issue) => `**${issue.path.join('.')}**: ${issue.message}`);
+								.filter((issue: any) => issue.message === 'Required')
+								.map((issue: any) => `**${issue.path.join('.')}**: ${issue.message}`);
 
 							if (requiredFields.length > 0) {
 								context.logger.error(requiredFields.join(', '));
@@ -402,12 +402,12 @@ describe('Content Layer - Schema Validation', () => {
 	it('validates ID types and rejects invalid IDs', async () => {
 		const store = new MutableDataStore();
 		const settings = createMinimalSettings(root);
-		const logs = [];
+		const logs: any[] = [];
 
 		const logger = new Logger({
 			level: 'error',
 			dest: {
-				write: (event) => {
+				write: (event: any) => {
 					logs.push(event);
 					return true;
 				},
@@ -417,7 +417,7 @@ describe('Content Layer - Schema Validation', () => {
 		// Loader that provides entries with various ID types
 		const invalidIdLoader = {
 			name: 'invalid-id-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				const entries = [
 					{
 						id: 'valid-string-id',
@@ -455,7 +455,7 @@ describe('Content Layer - Schema Validation', () => {
 							id: entry.id,
 							data: parsed,
 						});
-					} catch (error) {
+					} catch (error: any) {
 						context.logger.error(error.message);
 					}
 				}
@@ -504,7 +504,7 @@ describe('Content Layer - Schema Validation', () => {
 		// Loader that returns no entries
 		const emptyLoader = {
 			name: 'empty-loader',
-			load: async (_context) => {
+			load: async (_context: any) => {
 				// Simulate an empty directory - no entries to load
 				// Just return without adding anything to the store
 			},
@@ -548,7 +548,7 @@ describe('Content Layer - Schema Validation', () => {
 
 		const defaultsLoader = {
 			name: 'defaults-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				const entries = [
 					{
 						id: 'full-entry',
@@ -604,13 +604,13 @@ describe('Content Layer - Schema Validation', () => {
 		await contentLayer.sync();
 
 		// Check full entry
-		const fullEntry = store.get('withDefaults', 'full-entry');
+		const fullEntry: any = store.get('withDefaults', 'full-entry');
 		assert.equal(fullEntry.data.draft, false);
 		assert.deepEqual(fullEntry.data.tags, ['tag1', 'tag2']);
 		assert.equal(fullEntry.data.rating, 5);
 
 		// Check minimal entry has defaults applied
-		const minimalEntry = store.get('withDefaults', 'minimal-entry');
+		const minimalEntry: any = store.get('withDefaults', 'minimal-entry');
 		assert.equal(minimalEntry.data.draft, true); // Default value
 		assert.deepEqual(minimalEntry.data.tags, []); // Default value
 		assert.equal(minimalEntry.data.rating, 0); // Default value

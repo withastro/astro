@@ -6,7 +6,7 @@ import { createReference } from '../../../dist/content/runtime.js';
 import { ContentLayer } from '../../../dist/content/content-layer.js';
 import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
 import { Logger } from '../../../dist/core/logger/core.js';
-import { createTempDir, createTestConfigObserver, createMinimalSettings } from './test-helpers.js';
+import { createTempDir, createTestConfigObserver, createMinimalSettings } from './test-helpers.ts';
 
 describe('Content Layer - Data Transforms', () => {
 	const root = createTempDir();
@@ -23,7 +23,7 @@ describe('Content Layer - Data Transforms', () => {
 		// Create a loader that returns data with reference strings
 		const dogsLoader = {
 			name: 'dogs-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				const data = {
 					id: 'beagle',
 					name: 'Beagle Dog',
@@ -62,7 +62,7 @@ describe('Content Layer - Data Transforms', () => {
 
 		await contentLayer.sync();
 
-		const result = store.get('dogs', 'beagle');
+		const result: any = store.get('dogs', 'beagle');
 		assert.ok(result);
 		assert.equal(result.data.id, 'beagle');
 		assert.equal(result.data.name, 'Beagle Dog');
@@ -79,7 +79,7 @@ describe('Content Layer - Data Transforms', () => {
 
 		const eventsLoader = {
 			name: 'events-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				const data = {
 					id: 'event1',
 					title: 'Launch Event',
@@ -120,7 +120,7 @@ describe('Content Layer - Data Transforms', () => {
 
 		await contentLayer.sync();
 
-		const result = store.get('events', 'event1');
+		const result: any = store.get('events', 'event1');
 		assert.ok(result);
 		assert.ok(result.data.publishedDate instanceof Date);
 		assert.ok(result.data.eventTime instanceof Date);
@@ -138,7 +138,7 @@ describe('Content Layer - Data Transforms', () => {
 
 		const productsLoader = {
 			name: 'products-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				const data = {
 					id: 'product1',
 					name: 'Basic Product',
@@ -179,7 +179,7 @@ describe('Content Layer - Data Transforms', () => {
 
 		await contentLayer.sync();
 
-		const result = store.get('products', 'product1');
+		const result: any = store.get('products', 'product1');
 		assert.ok(result);
 		assert.equal(result.data.inStock, false);
 		assert.equal(result.data.category, 'uncategorized');
@@ -196,7 +196,7 @@ describe('Content Layer - Data Transforms', () => {
 
 		const teamsLoader = {
 			name: 'teams-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				const data = {
 					id: 'team1',
 					name: 'Rocket Team',
@@ -235,7 +235,7 @@ describe('Content Layer - Data Transforms', () => {
 
 		await contentLayer.sync();
 
-		const result = store.get('teams', 'team1');
+		const result: any = store.get('teams', 'team1');
 		assert.ok(result);
 		assert.equal(result.data.members.length, 3);
 		assert.deepEqual(result.data.members[0], { collection: 'people', id: 'john' });
@@ -253,7 +253,7 @@ describe('Content Layer - Data Transforms', () => {
 
 		const itemsLoader = {
 			name: 'items-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				const data = {
 					id: 'invalid',
 					name: 'Test Item',
@@ -271,7 +271,7 @@ describe('Content Layer - Data Transforms', () => {
 						id: 'invalid',
 						data: parsed,
 					});
-				} catch (error) {
+				} catch (error: any) {
 					// Store error info for testing
 					await context.store.set({
 						id: 'error',
@@ -306,11 +306,11 @@ describe('Content Layer - Data Transforms', () => {
 		await contentLayer.sync();
 
 		// The invalid entry should not be stored
-		const invalidEntry = store.get('items', 'invalid');
+		const invalidEntry: any = store.get('items', 'invalid');
 		assert.equal(invalidEntry, undefined);
 
 		// Check if error was captured
-		const errorEntry = store.get('items', 'error');
+		const errorEntry: any = store.get('items', 'error');
 		assert.ok(errorEntry);
 		assert.equal(errorEntry.data.hasError, true);
 		assert.ok(errorEntry.data.errorMessage.includes('data does not match collection schema'));
@@ -326,7 +326,7 @@ describe('Content Layer - Data Transforms', () => {
 
 		const articlesLoader = {
 			name: 'articles-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				const data = {
 					id: 'complex',
 					metadata: {
@@ -380,7 +380,7 @@ describe('Content Layer - Data Transforms', () => {
 
 		await contentLayer.sync();
 
-		const result = store.get('articles', 'complex');
+		const result: any = store.get('articles', 'complex');
 		assert.ok(result);
 		assert.ok(result.data.metadata.created instanceof Date);
 		assert.ok(result.data.metadata.updated instanceof Date);
@@ -400,7 +400,7 @@ describe('Content Layer - Data Transforms', () => {
 
 		const minimalProductLoader = {
 			name: 'minimal-product-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				const data = {
 					id: 'minimal',
 					name: 'Minimal Product',
@@ -441,7 +441,7 @@ describe('Content Layer - Data Transforms', () => {
 
 		await contentLayer.sync();
 
-		const result = store.get('products', 'minimal');
+		const result: any = store.get('products', 'minimal');
 		assert.ok(result);
 		assert.equal(result.data.description, undefined);
 		assert.equal(result.data.price, undefined);
@@ -458,7 +458,7 @@ describe('Content Layer - Data Transforms', () => {
 
 		const itemsLoader = {
 			name: 'items-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				// Load two items - one with category, one without
 				const items = [
 					{
@@ -493,7 +493,7 @@ describe('Content Layer - Data Transforms', () => {
 				schema: z.object({
 					id: z.string(),
 					name: z.string(),
-					category: reference('categories').default('general'),
+					category: (reference as any)('categories').default('general'),
 				}),
 			}),
 		};
@@ -507,10 +507,10 @@ describe('Content Layer - Data Transforms', () => {
 
 		await contentLayer.sync();
 
-		const result1 = store.get('items', 'item1');
+		const result1: any = store.get('items', 'item1');
 		assert.deepEqual(result1.data.category, { collection: 'categories', id: 'electronics' });
 
-		const result2 = store.get('items', 'item2');
+		const result2: any = store.get('items', 'item2');
 		// The default is applied as a string, not transformed to a reference object
 		assert.equal(result2.data.category, 'general');
 	});

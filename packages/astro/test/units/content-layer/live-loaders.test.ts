@@ -5,7 +5,7 @@ import { defineCollection } from '../../../dist/content/config.js';
 import { ContentLayer } from '../../../dist/content/content-layer.js';
 import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
 import { Logger } from '../../../dist/core/logger/core.js';
-import { createTempDir, createTestConfigObserver, createMinimalSettings } from './test-helpers.js';
+import { createTempDir, createTestConfigObserver, createMinimalSettings } from './test-helpers.ts';
 
 describe('Content Layer - Live Loaders', () => {
 	const root = createTempDir();
@@ -38,7 +38,7 @@ describe('Content Layer - Live Loaders', () => {
 		// Create a live loader
 		const testLoader = {
 			name: 'test-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				// Sync loader that loads initial data
 				for (const entry of Object.values(entries)) {
 					const parsed = await context.parseData({
@@ -49,7 +49,7 @@ describe('Content Layer - Live Loaders', () => {
 					await context.store.set({
 						id: entry.id,
 						data: parsed,
-						rendered: entry.rendered,
+						rendered: (entry as any).rendered,
 					});
 				}
 			},
@@ -79,20 +79,20 @@ describe('Content Layer - Live Loaders', () => {
 		assert.equal(allEntries.length, 3);
 
 		// Check individual entries
-		const entry1 = store.get('liveStuff', '123');
+		const entry1: any = store.get('liveStuff', '123');
 		assert.ok(entry1);
 		assert.equal(entry1.data.title, 'Page 123');
 		assert.equal(entry1.data.age, 10);
 		assert.ok(entry1.rendered);
 		assert.equal(entry1.rendered.html, '<h1>Page 123</h1><p>This is rendered content.</p>');
 
-		const entry2 = store.get('liveStuff', '456');
+		const entry2: any = store.get('liveStuff', '456');
 		assert.ok(entry2);
 		assert.equal(entry2.data.title, 'Page 456');
 		assert.equal(entry2.data.age, 20);
 		assert.ok(!entry2.rendered); // No rendered content for this entry
 
-		const entry3 = store.get('liveStuff', '789');
+		const entry3: any = store.get('liveStuff', '789');
 		assert.ok(entry3);
 		assert.equal(entry3.data.title, 'Page 789');
 		assert.equal(entry3.data.age, 30);
@@ -115,7 +115,7 @@ describe('Content Layer - Live Loaders', () => {
 		// Loader that simulates live loading behavior
 		const liveSimulationLoader = {
 			name: 'live-simulation-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				// Initial load - only load entry 123
 				const entry = dataSource['123'];
 				const parsed = await context.parseData({
@@ -161,16 +161,16 @@ describe('Content Layer - Live Loaders', () => {
 		await contentLayer.sync();
 
 		// Check initial state
-		const entry123 = store.get('liveSimulation', '123');
+		const entry123: any = store.get('liveSimulation', '123');
 		assert.ok(entry123);
 		assert.equal(entry123.data.title, 'Page 123');
 
 		// Entry 456 would not be loaded initially
-		const entry456 = store.get('liveSimulation', '456');
+		const entry456: any = store.get('liveSimulation', '456');
 		assert.ok(!entry456);
 
 		// Check metadata
-		const meta = store.get('liveSimulation', '_meta');
+		const meta: any = store.get('liveSimulation', '_meta');
 		assert.ok(meta);
 		assert.deepEqual(meta.data.availableIds, ['123', '456']);
 		assert.equal(meta.data.supportsLiveLoading, true);
@@ -187,7 +187,7 @@ describe('Content Layer - Live Loaders', () => {
 		// Loader that transforms data based on context
 		const transformLoader = {
 			name: 'transform-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				const entries = [
 					{ id: '1', data: { title: 'Entry 1', value: 10, category: 'A' } },
 					{ id: '2', data: { title: 'Entry 2', value: 20, category: 'B' } },
@@ -241,12 +241,12 @@ describe('Content Layer - Live Loaders', () => {
 		await contentLayer.sync();
 
 		// Verify transformations
-		const entry1 = store.get('transformed', '1');
+		const entry1: any = store.get('transformed', '1');
 		assert.ok(entry1);
 		assert.equal(entry1.data.doubled, 20);
 		assert.equal(entry1.data.categoryLabel, 'Category A');
 
-		const entry2 = store.get('transformed', '2');
+		const entry2: any = store.get('transformed', '2');
 		assert.ok(entry2);
 		assert.equal(entry2.data.doubled, 40);
 		assert.equal(entry2.data.categoryLabel, 'Category B');
@@ -263,7 +263,7 @@ describe('Content Layer - Live Loaders', () => {
 		// Loader that simulates error conditions
 		const errorProneLoader = {
 			name: 'error-prone-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				// Add some valid entries
 				await context.store.set({
 					id: 'valid-1',
@@ -280,7 +280,7 @@ describe('Content Layer - Live Loaders', () => {
 						id: 'invalid-1',
 						data: parsed,
 					});
-				} catch (error) {
+				} catch (error: any) {
 					// Store error information
 					await context.store.set({
 						id: 'error-log',
@@ -315,17 +315,17 @@ describe('Content Layer - Live Loaders', () => {
 		await contentLayer.sync();
 
 		// Check valid entry
-		const validEntry = store.get('errorProne', 'valid-1');
+		const validEntry: any = store.get('errorProne', 'valid-1');
 		assert.ok(validEntry);
 		assert.equal(validEntry.data.title, 'Valid Entry 1');
 		assert.equal(validEntry.data.status, 'ok');
 
 		// Check that invalid entry was not stored
-		const invalidEntry = store.get('errorProne', 'invalid-1');
+		const invalidEntry: any = store.get('errorProne', 'invalid-1');
 		assert.ok(!invalidEntry);
 
 		// Check error log
-		const errorLog = store.get('errorProne', 'error-log');
+		const errorLog: any = store.get('errorProne', 'error-log');
 		assert.ok(errorLog);
 		assert.ok(errorLog.data.errorMessage);
 	});
@@ -340,7 +340,7 @@ describe('Content Layer - Live Loaders', () => {
 
 		const renderedContentLoader = {
 			name: 'rendered-content-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				const articles = [
 					{
 						id: 'article-1',
@@ -413,7 +413,7 @@ describe('Content Layer - Live Loaders', () => {
 		await contentLayer.sync();
 
 		// Check first article
-		const article1 = store.get('articles', 'article-1');
+		const article1: any = store.get('articles', 'article-1');
 		assert.ok(article1);
 		assert.equal(article1.data.title, 'First Article');
 		assert.ok(article1.body);
@@ -424,7 +424,7 @@ describe('Content Layer - Live Loaders', () => {
 		assert.ok(article1.rendered.metadata.wordCount > 0);
 
 		// Check second article
-		const article2 = store.get('articles', 'article-2');
+		const article2: any = store.get('articles', 'article-2');
 		assert.ok(article2);
 		assert.ok(article2.rendered);
 		// Check for code block rendering
@@ -441,7 +441,7 @@ describe('Content Layer - Live Loaders', () => {
 
 		const cacheAwareLoader = {
 			name: 'cache-aware-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				const now = new Date();
 				const entries = [
 					{
@@ -532,19 +532,19 @@ describe('Content Layer - Live Loaders', () => {
 		await contentLayer.sync();
 
 		// Verify static content caching
-		const staticContent = store.get('cached', 'static-content');
+		const staticContent: any = store.get('cached', 'static-content');
 		assert.ok(staticContent);
 		assert.equal(staticContent.data.cacheInfo.maxAge, 86400 * 30);
 		assert.ok(staticContent.data.cacheInfo.tags.includes('static'));
 
 		// Verify dynamic content caching
-		const dynamicContent = store.get('cached', 'dynamic-content');
+		const dynamicContent: any = store.get('cached', 'dynamic-content');
 		assert.ok(dynamicContent);
 		assert.equal(dynamicContent.data.cacheInfo.maxAge, 300);
 		assert.ok(dynamicContent.data.cacheInfo.tags.includes('realtime'));
 
 		// Verify personalized content caching
-		const userContent = store.get('cached', 'user-content');
+		const userContent: any = store.get('cached', 'user-content');
 		assert.ok(userContent);
 		assert.equal(userContent.data.cacheInfo.maxAge, 0);
 		assert.ok(userContent.data.cacheInfo.tags.includes('no-cache'));
@@ -560,7 +560,7 @@ describe('Content Layer - Live Loaders', () => {
 
 		const validationLoader = {
 			name: 'validation-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				const testData = [
 					// Valid entries
 					{ id: 'valid-1', data: { name: 'Alice', age: 30, email: 'alice@example.com' } },
@@ -586,7 +586,7 @@ describe('Content Layer - Live Loaders', () => {
 							data: parsed,
 						});
 						successCount++;
-					} catch (_error) {
+					} catch (_error: any) {
 						errorCount++;
 						// Optionally store validation errors
 						if (item.id.startsWith('invalid')) {
@@ -641,27 +641,27 @@ describe('Content Layer - Live Loaders', () => {
 		await contentLayer.sync();
 
 		// Check valid entries
-		const valid1 = store.get('validated', 'valid-1');
+		const valid1: any = store.get('validated', 'valid-1');
 		assert.ok(valid1);
 		assert.equal(valid1.data.name, 'Alice');
 		assert.equal(valid1.data.age, 30);
 
-		const valid2 = store.get('validated', 'valid-2');
+		const valid2: any = store.get('validated', 'valid-2');
 		assert.ok(valid2);
 		assert.equal(valid2.data.name, 'Bob');
 
 		// Check that invalid entries were not stored
-		const invalidAge = store.get('validated', 'invalid-age');
+		const invalidAge: any = store.get('validated', 'invalid-age');
 		assert.ok(!invalidAge);
 
-		const invalidEmail = store.get('validated', 'invalid-email');
+		const invalidEmail: any = store.get('validated', 'invalid-email');
 		assert.ok(!invalidEmail);
 
-		const missingField = store.get('validated', 'missing-field');
+		const missingField: any = store.get('validated', 'missing-field');
 		assert.ok(!missingField);
 
 		// Check summary
-		const summary = store.get('validated', '_validation_summary');
+		const summary: any = store.get('validated', '_validation_summary');
 		assert.ok(summary);
 		assert.equal(summary.data.successCount, 2); // Only valid-1 and valid-2
 		assert.equal(summary.data.errorCount, 3); // Three invalid entries

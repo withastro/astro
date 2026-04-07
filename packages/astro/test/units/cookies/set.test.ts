@@ -60,7 +60,7 @@ describe('astro/src/core/cookies', () => {
 		it('Can pass a number', () => {
 			let req = new Request('http://example.com/');
 			let cookies = new AstroCookies(req);
-			cookies.set('one', 2);
+			cookies.set('one', 2 as any);
 			let headers = Array.from(cookies.headers());
 			assert.equal(headers.length, 1);
 			assert.equal(headers[0], 'one=2');
@@ -69,8 +69,8 @@ describe('astro/src/core/cookies', () => {
 		it('Can pass a boolean', () => {
 			let req = new Request('http://example.com/');
 			let cookies = new AstroCookies(req);
-			cookies.set('admin', true);
-			assert.equal(cookies.get('admin').boolean(), true);
+			cookies.set('admin', true as any);
+			assert.equal(cookies.get('admin')!.boolean(), true);
 			let headers = Array.from(cookies.headers());
 			assert.equal(headers.length, 1);
 			assert.equal(headers[0], 'admin=true');
@@ -80,7 +80,7 @@ describe('astro/src/core/cookies', () => {
 			let req = new Request('http://example.com/');
 			let cookies = new AstroCookies(req);
 			cookies.set('foo', 'bar');
-			let r = cookies.get('foo');
+			let r = cookies.get('foo')!;
 			assert.equal(r.value, 'bar');
 		});
 
@@ -88,7 +88,7 @@ describe('astro/src/core/cookies', () => {
 			let req = new Request('http://example.com/');
 			let cookies = new AstroCookies(req);
 			cookies.set('options', { one: 'two', three: 4 });
-			let cook = cookies.get('options');
+			let cook = cookies.get('options')!;
 			let value = cook.json();
 			assert.equal(typeof value, 'object');
 			assert.equal(value.one, 'two');
@@ -103,11 +103,11 @@ describe('astro/src/core/cookies', () => {
 				},
 			});
 			let cookies = new AstroCookies(req);
-			assert.equal(cookies.get('foo').value, 'bar');
+			assert.equal(cookies.get('foo')!.value, 'bar');
 
 			// Set a new value
 			cookies.set('foo', 'baz');
-			assert.equal(cookies.get('foo').value, 'baz');
+			assert.equal(cookies.get('foo')!.value, 'baz');
 		});
 	});
 });
