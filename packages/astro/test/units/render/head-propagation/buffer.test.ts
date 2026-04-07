@@ -1,28 +1,30 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import type { HeadPropagator } from '../../../../dist/core/head-propagation/buffer.js';
 import { collectPropagatedHeadParts } from '../../../../dist/core/head-propagation/buffer.js';
+import type { SSRResult } from '../../../../dist/types/public/internal.js';
 
 const headAndContentSym = Symbol.for('astro.headAndContent');
 
-function createHeadAndContentLike(head) {
+function createHeadAndContentLike(head: string) {
 	return {
 		[headAndContentSym]: true,
 		head,
 	};
 }
 
-function isHeadAndContent(value) {
+function isHeadAndContent(value: unknown): value is { head: string } {
 	return typeof value === 'object' && value !== null && headAndContentSym in value;
 }
 
-function createResult() {
-	return {};
+function createResult(): SSRResult {
+	return {} as SSRResult;
 }
 
 describe('head propagation buffer', () => {
 	it('returns empty head parts when no propagators exist', async () => {
 		const collected = await collectPropagatedHeadParts({
-			propagators: new Set(),
+			propagators: new Set<HeadPropagator>(),
 			result: createResult(),
 			isHeadAndContent,
 		});
@@ -30,7 +32,7 @@ describe('head propagation buffer', () => {
 	});
 
 	it('collects non-empty head strings from propagators', async () => {
-		const propagators = new Set([
+		const propagators: Set<HeadPropagator> = new Set([
 			{ init: () => createHeadAndContentLike('<link rel="stylesheet" href="/a.css">') },
 			{ init: () => createHeadAndContentLike('<style>body{color:red}</style>') },
 		]);
@@ -48,7 +50,7 @@ describe('head propagation buffer', () => {
 	});
 
 	it('skips non-head-and-content values and empty heads', async () => {
-		const propagators = new Set([
+		const propagators: Set<HeadPropagator> = new Set([
 			{ init: () => 'value' },
 			{ init: () => createHeadAndContentLike('') },
 			{ init: () => createHeadAndContentLike('<meta charset="utf-8">') },
@@ -64,7 +66,7 @@ describe('head propagation buffer', () => {
 	});
 
 	it('processes propagators added while iterating', async () => {
-		const propagators = new Set();
+		const propagators: Set<HeadPropagator> = new Set();
 		propagators.add({
 			init() {
 				propagators.add({

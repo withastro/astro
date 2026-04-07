@@ -2,19 +2,20 @@ import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { createAstroComponentInstance } from '../../../../dist/runtime/server/render/astro/instance.js';
 import { bufferHeadContent } from '../../../../dist/runtime/server/render/astro/render.js';
+import type { SSRResult } from '../../../../dist/types/public/internal.js';
 
 const headAndContentSym = Symbol.for('astro.headAndContent');
 
 function createResult() {
 	return {
 		clientDirectives: new Map(),
-		componentMetadata: new Map(),
+		componentMetadata: new Map<string, { propagation: string; containsHead: boolean }>(),
 		partial: false,
 		_metadata: {
 			hasRenderedHead: false,
 			headInTree: false,
 			propagators: new Set(),
-			extraHead: [],
+			extraHead: [] as string[],
 		},
 	};
 }
@@ -28,12 +29,12 @@ describe('head propagation runtime adapters', () => {
 		});
 
 		createAstroComponentInstance(
-			result,
+			result as unknown as SSRResult,
 			'Comp',
-			Object.assign(() => null, {
+			Object.assign((() => null) as () => null, {
 				moduleId: '/src/Comp.astro',
-				propagation: 'none',
-			}),
+				propagation: 'none' as const,
+			}) as unknown as Parameters<typeof createAstroComponentInstance>[2],
 			{},
 			{},
 		);
@@ -52,7 +53,7 @@ describe('head propagation runtime adapters', () => {
 			},
 		});
 
-		await bufferHeadContent(result);
+		await bufferHeadContent(result as unknown as SSRResult);
 		assert.deepEqual(result._metadata.extraHead, [
 			'<style>.from-adapter{color:rebeccapurple}</style>',
 		]);

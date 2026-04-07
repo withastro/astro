@@ -35,7 +35,7 @@ describe('head propagation resolver', () => {
 	});
 
 	it('getPropagationHint reads from SSR result metadata', () => {
-		const result = {
+		const result: any = {
 			componentMetadata: new Map([['/src/Comp.astro', { propagation: 'in-tree' }]]),
 		};
 		const hint = getPropagationHint(result, {

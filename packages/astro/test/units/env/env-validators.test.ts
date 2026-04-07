@@ -6,42 +6,27 @@ import {
 	validateEnvPrefixAgainstSchema,
 } from '../../../dist/env/validators.js';
 
-/**
- * @typedef {Parameters<typeof validateEnvVariable>} Params
- */
+type Params = Parameters<typeof validateEnvVariable>;
 
 const createFixture = () => {
-	/**
-	 * @type {{ value: Params[1]; options: Params[2] }} input
-	 */
-	let input;
+	let input: { value: Params[0]; options: Params[1] } | undefined;
 
 	return {
-		/**
-		 * @param {Params[1]} value
-		 * @param {Params[2]} options
-		 */
-		givenInput(value, options) {
+		givenInput(value: Params[0], options: Params[1]) {
 			input = { value, options };
 		},
-		/**
-		 * @param {import("../../../src/env/validators.js").ValidationResultValue} value
-		 */
-		thenResultShouldBeValid(value) {
-			const result = validateEnvVariable(input.value, input.options);
+		thenResultShouldBeValid(value: any) {
+			const result: any = validateEnvVariable(input!.value, input!.options);
 			assert.equal(result.ok, true);
 			assert.equal(result.value, value);
 			input = undefined;
 		},
-		/**
-		 * @param {string | Array<string>} providedErrors
-		 */
-		thenResultShouldBeInvalid(providedErrors) {
-			const result = validateEnvVariable(input.value, input.options);
+		thenResultShouldBeInvalid(providedErrors: string | string[]) {
+			const result: any = validateEnvVariable(input!.value, input!.options);
 			assert.equal(result.ok, false);
 			const errors = typeof providedErrors === 'string' ? [providedErrors] : providedErrors;
 			assert.equal(
-				result.errors.every((element) => errors.includes(element)),
+				result.errors.every((element: string) => errors.includes(element)),
 				true,
 			);
 			input = undefined;
@@ -50,8 +35,7 @@ const createFixture = () => {
 };
 
 describe('astro:env validators', () => {
-	/** @type {ReturnType<typeof createFixture>} */
-	let fixture;
+	let fixture: ReturnType<typeof createFixture>;
 
 	before(() => {
 		fixture = createFixture();
@@ -556,18 +540,11 @@ describe('astro:env validators', () => {
 });
 
 describe('validateEnvPrefixAgainstSchema', () => {
-	/**
-	 * Helper to build a minimal config object matching the shape
-	 * validateEnvPrefixAgainstSchema expects.
-	 *
-	 * @param {Record<string, any>} schema
-	 * @param {string | string[] | undefined} envPrefix
-	 */
-	function makeConfig(schema, envPrefix) {
-		return /** @type {any} */ ({
+	function makeConfig(schema: Record<string, any>, envPrefix?: string | string[]): any {
+		return {
 			env: { schema },
 			vite: envPrefix !== undefined ? { envPrefix } : {},
-		});
+		};
 	}
 
 	it('should not throw when schema is empty', () => {
@@ -619,7 +596,7 @@ describe('validateEnvPrefixAgainstSchema', () => {
 					]),
 				);
 			},
-			(err) => {
+			(err: any) => {
 				assert.equal(err.name, 'EnvPrefixConflictsWithSecret');
 				assert.equal(err.message.includes('API_SECRET'), true);
 				return true;
@@ -637,7 +614,7 @@ describe('validateEnvPrefixAgainstSchema', () => {
 					),
 				);
 			},
-			(err) => {
+			(err: any) => {
 				assert.equal(err.name, 'EnvPrefixConflictsWithSecret');
 				assert.equal(err.message.includes('SECRET_KEY'), true);
 				return true;
@@ -659,7 +636,7 @@ describe('validateEnvPrefixAgainstSchema', () => {
 					),
 				);
 			},
-			(err) => {
+			(err: any) => {
 				assert.equal(err.name, 'EnvPrefixConflictsWithSecret');
 				assert.equal(err.message.includes('API_SECRET'), true);
 				assert.equal(err.message.includes('API_KEY'), true);

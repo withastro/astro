@@ -1,5 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import type { ImporterGraph } from '../../../../dist/core/head-propagation/graph.js';
 import {
 	buildImporterGraphFromModuleInfo,
 	computeInTreeAncestors,
@@ -7,10 +8,10 @@ import {
 
 describe('head propagation graph', () => {
 	it('computes in-tree ancestors for a linear chain', () => {
-		const importerGraph = new Map([
+		const importerGraph: ImporterGraph = new Map([
 			['leaf', new Set(['parent'])],
 			['parent', new Set(['page'])],
-			['page', new Set()],
+			['page', new Set<string>()],
 		]);
 		const result = computeInTreeAncestors({
 			seeds: ['leaf'],
@@ -20,11 +21,11 @@ describe('head propagation graph', () => {
 	});
 
 	it('supports multiple seeds and cycles', () => {
-		const importerGraph = new Map([
+		const importerGraph: ImporterGraph = new Map([
 			['a', new Set(['b'])],
 			['b', new Set(['a', 'page'])],
 			['c', new Set(['page'])],
-			['page', new Set()],
+			['page', new Set<string>()],
 		]);
 		const result = computeInTreeAncestors({
 			seeds: ['a', 'c'],
@@ -37,21 +38,21 @@ describe('head propagation graph', () => {
 	});
 
 	it('stops traversal at boundary predicate', () => {
-		const importerGraph = new Map([
+		const importerGraph: ImporterGraph = new Map([
 			['leaf', new Set(['boundary'])],
 			['boundary', new Set(['page'])],
-			['page', new Set()],
+			['page', new Set<string>()],
 		]);
 		const result = computeInTreeAncestors({
 			seeds: ['leaf'],
 			importerGraph,
-			stopAt: (id) => id === 'boundary',
+			stopAt: (id: string) => id === 'boundary',
 		});
 		assert.deepEqual(Array.from(result), ['leaf']);
 	});
 
 	it('builds importer graph from module info provider', () => {
-		const provider = (id) => {
+		const provider = (id: string) => {
 			if (id === 'a') return { importers: ['page'], dynamicImporters: [] };
 			if (id === 'b') return { importers: [], dynamicImporters: ['page'] };
 			if (id === 'page') return { importers: [], dynamicImporters: [] };
