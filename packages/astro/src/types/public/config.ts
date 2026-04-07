@@ -2778,11 +2778,14 @@ export interface AstroUserConfig<
 		 *
 		 * When enabled, Astro reuses persisted build metadata in `cacheDir` to preserve existing outputs
 		 * and skip re-rendering unchanged static pages on subsequent builds. Exact no-op rebuilds can also
-		 * restore the previous static output and skip bundling entirely.
+		 * restore the previous static output and skip bundling entirely when Astro does not need to rerun
+		 * path generation (for example, on static routes without dynamic path discovery).
 		 *
 		 * This feature currently only applies to static output, and it is conservative: when Astro cannot
 		 * prove reuse is safe, it falls back to a normal rebuild for the affected work. Use
-		 * `astro build --force` to clear the cached incremental state and force a fresh build.
+		 * `astro build --force` to clear the cached incremental state and force a fresh build. To reuse
+		 * state across CI runs, cache both `cacheDir` and the corresponding build outputs with branch-scoped
+		 * cache keys.
 		 *
 		 * ```js
 		 * {

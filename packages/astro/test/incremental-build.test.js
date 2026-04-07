@@ -48,9 +48,9 @@ afterEach(async () => {
 	}
 });
 
-async function createIncrementalFixture(suffix) {
+async function createIncrementalFixture(suffix, root = './fixtures/incremental-build/') {
 	const fixture = await loadFixture({
-		root: './fixtures/incremental-build/',
+		root,
 		outDir: `./dist/${suffix}/`,
 		cacheDir: `./node_modules/.astro-${suffix}/`,
 	});
@@ -164,7 +164,10 @@ describe('Incremental build', () => {
 	});
 
 	it('skips bundling entirely when the static build inputs are unchanged', async () => {
-		const fixture = await createIncrementalFixture('incremental-build-full-reuse');
+		const fixture = await createIncrementalFixture(
+			'incremental-build-full-reuse',
+			'./fixtures/incremental-build-static-only/',
+		);
 		await fixture.build();
 
 		const output = await captureBuildOutput(() => fixture.build({ logLevel: 'info' }));
@@ -173,6 +176,25 @@ describe('Incremental build', () => {
 			output,
 			/Incremental build fully reused previous static build outputs and skipped bundling\./,
 		);
+	});
+
+	it('keeps dynamic routes on the selective generation path even when inputs are unchanged', async () => {
+		const fixture = await createIncrementalFixture('incremental-build-dynamic-no-full-reuse');
+		await fixture.build();
+
+		const output = await captureBuildOutput(() => fixture.build({ logLevel: 'info' }));
+
+		assert.equal(
+			output.includes(
+				'Incremental build fully reused previous static build outputs and skipped bundling.',
+			),
+			false,
+		);
+		assert.match(
+			output,
+			/Incremental build skipped full static reuse: dynamic routes require fresh path generation/,
+		);
+		assert.match(output, /Incremental build reused \d+ static paths and rendered 0\./);
 	});
 
 	it('rebuilds a missing persisted page output on the next build', async () => {

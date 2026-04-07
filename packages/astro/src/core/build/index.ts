@@ -248,7 +248,10 @@ export class AstroBuilder {
 				: undefined;
 
 		if (this.previousIncrementalBuildState && fullStaticReuseReason) {
-			this.logger.debug('build', `Skipping full incremental reuse: ${fullStaticReuseReason}`);
+			this.logger.info(
+				'build',
+				`Incremental build skipped full static reuse: ${fullStaticReuseReason}`,
+			);
 		}
 
 		// Bundle the assets in your final build: This currently takes the HTML output

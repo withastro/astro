@@ -27,8 +27,12 @@ describe('Incremental build state', () => {
 		await fixture.build();
 
 		const state = JSON.parse(await fs.readFile(stateFile, 'utf-8'));
-		assert.equal(state.version, 2);
+		assert.equal(state.version, 3);
 		assert.equal(state.fingerprint.buildOutput, 'static');
+		assert.equal(typeof state.fingerprint.viteConfigDigest, 'string');
+		assert.equal(typeof state.fingerprint.integrationHooksDigest, 'string');
+		assert.equal(typeof state.fingerprint.projectMetadataDigest, 'string');
+		assert.equal(typeof state.fingerprint.buildImplementationDigest, 'string');
 		assert.equal(state.artifacts.outDir, fixture.config.outDir.toString());
 		assert.equal(state.artifacts.cacheDir, fixture.config.cacheDir.toString());
 		assert.equal(typeof state.summary.pageCount, 'number');
@@ -79,7 +83,7 @@ describe('Incremental build state', () => {
 		await fixture.build({ force: true });
 
 		const state = JSON.parse(await fs.readFile(stateFile, 'utf-8'));
-		assert.equal(state.version, 2);
+		assert.equal(state.version, 3);
 		assert.equal(state.fingerprint.buildOutput, 'static');
 	});
 });

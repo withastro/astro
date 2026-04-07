@@ -104,6 +104,84 @@ describe('astro/src/core/build/build-state', () => {
 		assert.equal(loaded.invalidationReason, 'Astro config changed');
 	});
 
+	it('invalidates cached state when the Vite config changes', async () => {
+		const root = createTempRoot();
+		const logger = new SpyLogger();
+		const initialSettings = await createSettings(root, {
+			vite: {
+				define: {
+					__FEATURE_FLAG__: JSON.stringify('a'),
+				},
+			},
+		});
+
+		await writeIncrementalBuildState({
+			settings: initialSettings,
+			logger,
+			state: createIncrementalBuildState({
+				settings: initialSettings,
+				mode: 'production',
+				runtimeMode: 'production',
+				pageCount: 1,
+				buildTimeMs: 10,
+			}),
+		});
+
+		const changedSettings = await createSettings(root, {
+			vite: {
+				define: {
+					__FEATURE_FLAG__: JSON.stringify('b'),
+				},
+			},
+		});
+		const loaded = await loadIncrementalBuildState({
+			settings: changedSettings,
+			logger,
+			mode: 'production',
+			runtimeMode: 'production',
+		});
+
+		assert.equal(loaded.previousState, undefined);
+		assert.equal(loaded.invalidationReason, 'Vite config changed');
+	});
+
+	it('invalidates cached state when project metadata changes', async () => {
+		const root = createTempRoot();
+		const logger = new SpyLogger();
+		writeFileSync(
+			new URL('./package.json', root),
+			JSON.stringify({ name: 'incremental-build-test', version: '1.0.0' }, null, 2),
+		);
+		const initialSettings = await createSettings(root);
+
+		await writeIncrementalBuildState({
+			settings: initialSettings,
+			logger,
+			state: createIncrementalBuildState({
+				settings: initialSettings,
+				mode: 'production',
+				runtimeMode: 'production',
+				pageCount: 1,
+				buildTimeMs: 10,
+			}),
+		});
+
+		writeFileSync(
+			new URL('./package.json', root),
+			JSON.stringify({ name: 'incremental-build-test', version: '1.0.1' }, null, 2),
+		);
+
+		const loaded = await loadIncrementalBuildState({
+			settings: initialSettings,
+			logger,
+			mode: 'production',
+			runtimeMode: 'production',
+		});
+
+		assert.equal(loaded.previousState, undefined);
+		assert.equal(loaded.invalidationReason, 'project metadata changed');
+	});
+
 	it('clears the cached incremental build state', async () => {
 		const root = createTempRoot();
 		const settings = await createSettings(root);
@@ -430,6 +508,7 @@ describe('astro/src/core/build/build-state', () => {
 		};
 		mkdirSync(new URL('./src/pages/', root), { recursive: true });
 		writeFileSync(new URL('./src/pages/index.astro', root), '<h1>Hello</h1>');
+		mkdirSync(new URL('./dist/build-state/', root), { recursive: true });
 
 		const previousInternals = createBuildInternals();
 		trackPageData(
@@ -648,6 +727,7 @@ describe('astro/src/core/build/build-state', () => {
 		};
 		mkdirSync(new URL('./src/pages/', root), { recursive: true });
 		writeFileSync(new URL('./src/pages/index.astro', root), '<h1>Hello</h1>');
+		mkdirSync(new URL('./dist/build-state/', root), { recursive: true });
 
 		const previousInternals = createBuildInternals();
 		trackPageData(
@@ -743,6 +823,198 @@ describe('astro/src/core/build/build-state', () => {
 		);
 	});
 
+	it('disables full static reuse when dynamic routes are present', async () => {
+		const root = createTempRoot();
+		const settings = await createSettings(root);
+		const pageData = {
+			key: '/blog/[slug]&src/pages/blog/[slug].astro',
+			component: 'src/pages/blog/[slug].astro',
+			route: {
+				route: '/blog/[slug]',
+				component: 'src/pages/blog/[slug].astro',
+				type: 'page',
+				prerender: true,
+			},
+			moduleSpecifier: '',
+			styles: [],
+		};
+		const allPages = {
+			[pageData.key]: pageData,
+		};
+		mkdirSync(new URL('./src/pages/blog/', root), { recursive: true });
+		writeFileSync(new URL('./src/pages/blog/[slug].astro', root), '<h1>Hello</h1>');
+		mkdirSync(new URL('./dist/build-state/blog/example/', root), { recursive: true });
+		writeFileSync(new URL('./dist/build-state/blog/example/index.html', root), '<html></html>');
+
+		const previousInternals = createBuildInternals();
+		trackPageData(
+			previousInternals,
+			pageData.component,
+			pageData,
+			'/src/pages/blog/[slug].astro',
+			new URL('./src/pages/blog/[slug].astro', root),
+		);
+		recordGeneratedPagePath(
+			previousInternals,
+			pageData.key,
+			'/blog/example',
+			new URL('./dist/build-state/blog/example/index.html', root).toString(),
+		);
+
+		const previousState = createIncrementalBuildState({
+			settings,
+			mode: 'production',
+			runtimeMode: 'production',
+			pageCount: 1,
+			buildTimeMs: 10,
+			allPages,
+			internals: previousInternals,
+		});
+
+		assert.equal(
+			getFullStaticBuildReuseInvalidationReason({
+				settings,
+				allPages,
+				previousState,
+			}),
+			'dynamic routes require fresh path generation',
+		);
+	});
+
+	it('disables full static reuse when an integration needs build:setup', async () => {
+		const root = createTempRoot();
+		const settings = await createSettings(root, {
+			integrations: [
+				{
+					name: 'hooked',
+					hooks: {
+						'astro:build:setup': () => {},
+					},
+				},
+			],
+		});
+		const pageData = {
+			key: '/&src/pages/index.astro',
+			component: 'src/pages/index.astro',
+			route: {
+				route: '/',
+				component: 'src/pages/index.astro',
+				type: 'page',
+				prerender: true,
+			},
+			moduleSpecifier: '',
+			styles: [],
+		};
+		const allPages = {
+			[pageData.key]: pageData,
+		};
+		mkdirSync(new URL('./src/pages/', root), { recursive: true });
+		writeFileSync(new URL('./src/pages/index.astro', root), '<h1>Hello</h1>');
+		mkdirSync(new URL('./dist/build-state/', root), { recursive: true });
+		writeFileSync(new URL('./dist/build-state/index.html', root), '<html></html>');
+
+		const previousInternals = createBuildInternals();
+		trackPageData(
+			previousInternals,
+			pageData.component,
+			pageData,
+			'/src/pages/index.astro',
+			new URL('./src/pages/index.astro', root),
+		);
+		recordGeneratedPagePath(
+			previousInternals,
+			pageData.key,
+			'/',
+			new URL('./dist/build-state/index.html', root).toString(),
+		);
+
+		const previousState = createIncrementalBuildState({
+			settings,
+			mode: 'production',
+			runtimeMode: 'production',
+			pageCount: 1,
+			buildTimeMs: 10,
+			allPages,
+			internals: previousInternals,
+		});
+
+		assert.equal(
+			getFullStaticBuildReuseInvalidationReason({
+				settings,
+				allPages,
+				previousState,
+			}),
+			'astro:build:setup hook requires fresh generation',
+		);
+	});
+
+	it('disables full static reuse when an integration needs build:ssr', async () => {
+		const root = createTempRoot();
+		const settings = await createSettings(root, {
+			integrations: [
+				{
+					name: 'hooked',
+					hooks: {
+						'astro:build:ssr': () => {},
+					},
+				},
+			],
+		});
+		const pageData = {
+			key: '/&src/pages/index.astro',
+			component: 'src/pages/index.astro',
+			route: {
+				route: '/',
+				component: 'src/pages/index.astro',
+				type: 'page',
+				prerender: true,
+			},
+			moduleSpecifier: '',
+			styles: [],
+		};
+		const allPages = {
+			[pageData.key]: pageData,
+		};
+		mkdirSync(new URL('./src/pages/', root), { recursive: true });
+		writeFileSync(new URL('./src/pages/index.astro', root), '<h1>Hello</h1>');
+		mkdirSync(new URL('./dist/build-state/', root), { recursive: true });
+		writeFileSync(new URL('./dist/build-state/index.html', root), '<html></html>');
+
+		const previousInternals = createBuildInternals();
+		trackPageData(
+			previousInternals,
+			pageData.component,
+			pageData,
+			'/src/pages/index.astro',
+			new URL('./src/pages/index.astro', root),
+		);
+		recordGeneratedPagePath(
+			previousInternals,
+			pageData.key,
+			'/',
+			new URL('./dist/build-state/index.html', root).toString(),
+		);
+
+		const previousState = createIncrementalBuildState({
+			settings,
+			mode: 'production',
+			runtimeMode: 'production',
+			pageCount: 1,
+			buildTimeMs: 10,
+			allPages,
+			internals: previousInternals,
+		});
+
+		assert.equal(
+			getFullStaticBuildReuseInvalidationReason({
+				settings,
+				allPages,
+				previousState,
+			}),
+			'astro:build:ssr hook requires fresh generation',
+		);
+	});
+
 	it('disables full static reuse when an integration needs build:generated', async () => {
 		const root = createTempRoot();
 		const settings = await createSettings(root, {
@@ -806,7 +1078,7 @@ describe('astro/src/core/build/build-state', () => {
 				allPages,
 				previousState,
 			}),
-			'build:generated hooks require fresh generation',
+			'astro:build:generated hook requires fresh generation',
 		);
 	});
 });

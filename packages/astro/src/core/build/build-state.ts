@@ -15,7 +15,30 @@ import type { AllPagesData } from './types.js';
 import { shouldAppendForwardSlash } from './util.js';
 
 export const INCREMENTAL_BUILD_STATE_FILE = 'incremental-build-state.json';
-const INCREMENTAL_BUILD_STATE_VERSION = 2 as const;
+const INCREMENTAL_BUILD_STATE_VERSION = 3 as const;
+const FULL_STATIC_REUSE_BLOCKING_HOOKS = [
+	'astro:build:setup',
+	'astro:build:ssr',
+	'astro:build:generated',
+] as const;
+const PROJECT_METADATA_FILES = [
+	'package.json',
+	'pnpm-lock.yaml',
+	'package-lock.json',
+	'yarn.lock',
+	'bun.lock',
+	'bun.lockb',
+] as const;
+const BUILD_IMPLEMENTATION_FILES = [
+	'build-state',
+	'index',
+	'generate',
+	'static-build',
+	'internal',
+	'default-prerenderer',
+	'plugins/plugin-analyzer',
+	'plugins/plugin-manifest',
+] as const;
 
 export interface IncrementalBuildFingerprint {
 	astroVersion: string;
@@ -27,6 +50,10 @@ export interface IncrementalBuildFingerprint {
 	integrationNames: string[];
 	rendererNames: string[];
 	configDigest: string;
+	viteConfigDigest: string;
+	integrationHooksDigest: string;
+	projectMetadataDigest: string;
+	buildImplementationDigest: string;
 }
 
 export interface IncrementalBuildArtifacts {
@@ -289,8 +316,11 @@ export function getFullStaticBuildReuseInvalidationReason({
 	previousState,
 	fs = fsMod,
 }: StaticBuildReuseOptions): string | undefined {
-	if (hasBuildGeneratedHook(settings)) {
-		return 'build:generated hooks require fresh generation';
+	const blockingHooks = getFullStaticReuseBlockingHooks(settings);
+	if (blockingHooks.length > 0) {
+		return `${blockingHooks.join(', ')} ${
+			blockingHooks.length === 1 ? 'hook requires' : 'hooks require'
+		} fresh generation`;
 	}
 	if (!previousState.pages) {
 		return 'missing previous pages';
@@ -300,6 +330,12 @@ export function getFullStaticBuildReuseInvalidationReason({
 	}
 	if (previousState.publicDirDigest === undefined) {
 		return 'missing previous public directory digest';
+	}
+	if (hasDynamicPrerenderedRoutes(allPages)) {
+		return 'dynamic routes require fresh path generation';
+	}
+	if (!outputDirectoryExists(previousState, fs)) {
+		return 'persisted output directory missing';
 	}
 	const currentPageKeys = Object.keys(allPages).sort((left, right) => left.localeCompare(right));
 	const previousPageKeys = previousState.pages
@@ -349,7 +385,10 @@ export function restoreFullStaticBuildOutputs({
 			continue;
 		}
 		currentPage.route.distURL = previousPage.generatedPaths.flatMap((generatedPath) =>
-			generatedPath.output ? [new URL(generatedPath.output)] : [],
+			generatedPath.output &&
+			persistedFileExists(generatedPath.output, [previousState.artifacts.outDir], fsMod)
+				? [new URL(generatedPath.output)]
+				: [],
 		);
 		if (previousPage.routeType === 'page') {
 			for (const generatedPath of previousPage.generatedPaths) {
@@ -399,7 +438,21 @@ export async function writeIncrementalBuildState({
 	const stateFile = getIncrementalBuildStateFile(settings);
 	try {
 		await fs.promises.mkdir(new URL('./', stateFile), { recursive: true });
-		await fs.promises.writeFile(stateFile, `${JSON.stringify(state, null, 2)}\n`, 'utf-8');
+		const tempStateFile = new URL(
+			`${INCREMENTAL_BUILD_STATE_FILE}.${process.pid}.${Date.now()}.tmp`,
+			settings.config.cacheDir,
+		);
+		await fs.promises.writeFile(tempStateFile, `${JSON.stringify(state, null, 2)}\n`, 'utf-8');
+		try {
+			await fs.promises.rename(tempStateFile, stateFile);
+		} catch (error) {
+			const renameError = error as NodeJS.ErrnoException;
+			if (renameError.code !== 'EEXIST' && renameError.code !== 'EPERM') {
+				throw error;
+			}
+			await fs.promises.rm(stateFile, { force: true });
+			await fs.promises.rename(tempStateFile, stateFile);
+		}
 		logger.debug('build', 'Persisted incremental build state');
 	} catch (error) {
 		logger.warn('build', `Unable to persist incremental build state: ${getErrorMessage(error)}`);
@@ -786,19 +839,19 @@ function createFileDigest(filePath: string, fs: typeof fsMod): string {
 	try {
 		return createHash('sha256').update(fs.readFileSync(filePath)).digest('hex');
 	} catch {
-		return 'missing';
+		return fs.existsSync(filePath) ? 'unreadable' : 'missing';
 	}
 }
 
 function getDataStoreDigest(settings: AstroSettings, fs: typeof fsMod): string | null {
+	const dataStoreFile = new URL('./data-store.json', settings.config.cacheDir);
 	try {
-		const dataStoreFile = new URL('./data-store.json', settings.config.cacheDir);
 		if (!fs.existsSync(dataStoreFile)) {
 			return null;
 		}
 		return createHash('sha256').update(fs.readFileSync(dataStoreFile)).digest('hex');
 	} catch {
-		return null;
+		return fs.existsSync(dataStoreFile) ? 'unreadable' : null;
 	}
 }
 
@@ -808,20 +861,20 @@ function getPublicDirDigest(settings: AstroSettings, fs: typeof fsMod = fsMod): 
 			return null;
 		}
 		const files = collectDirectoryFiles(settings.config.publicDir, fs);
-		return createHash('sha256')
-			.update(
-				JSON.stringify(
-					files.map((file) => [
-						file,
-						createHash('sha256')
-							.update(fs.readFileSync(new URL(file, appendDirectoryUrl(settings.config.publicDir))))
-							.digest('hex'),
-					]),
-				),
-			)
-			.digest('hex');
+		const digest = createHash('sha256');
+		for (const file of files) {
+			digest.update(file);
+			digest.update('\0');
+			digest.update(
+				createHash('sha256')
+					.update(fs.readFileSync(new URL(file, appendDirectoryUrl(settings.config.publicDir))))
+					.digest('hex'),
+			);
+			digest.update('\0');
+		}
+		return digest.digest('hex');
 	} catch {
-		return null;
+		return fs.existsSync(settings.config.publicDir) ? 'unreadable' : null;
 	}
 }
 
@@ -897,9 +950,11 @@ function shouldInvalidateFromDataStoreDigest(page: IncrementalBuildPage): boolea
 	return !page.dependencies.modules.some((moduleId) => moduleId.startsWith('/src/content/'));
 }
 
-function hasBuildGeneratedHook(settings: AstroSettings): boolean {
-	return settings.config.integrations.some(
-		(integration) => typeof integration.hooks['astro:build:generated'] === 'function',
+function getFullStaticReuseBlockingHooks(settings: AstroSettings): string[] {
+	return FULL_STATIC_REUSE_BLOCKING_HOOKS.filter((hookName) =>
+		settings.config.integrations.some(
+			(integration) => typeof integration.hooks[hookName] === 'function',
+		),
 	);
 }
 
@@ -907,7 +962,9 @@ function persistedOutputsExist(state: IncrementalBuildState, fs: typeof fsMod = 
 	return (
 		state.pages?.every((page) =>
 			page.generatedPaths.every(
-				(generatedPath) => !generatedPath.output || fs.existsSync(new URL(generatedPath.output)),
+				(generatedPath) =>
+					!generatedPath.output ||
+					persistedFileExists(generatedPath.output, [state.artifacts.outDir], fs),
 			),
 		) ?? true
 	);
@@ -946,17 +1003,20 @@ function persistedAssetExists(
 	}
 	const relativeAssetPath = normalizePersistedAssetPath(settings, cleanedAssetPath);
 	return [state.artifacts.outDir, state.artifacts.clientDir, state.artifacts.serverDir].some(
-		(root) => fs.existsSync(new URL(relativeAssetPath, appendDirectoryUrl(root))),
+		(root) => {
+			const resolvedAssetPath = resolveContainedArtifactPath(root, relativeAssetPath);
+			return resolvedAssetPath ? fs.existsSync(resolvedAssetPath) : false;
+		},
 	);
 }
 
 function normalizePersistedAssetPath(settings: AstroSettings, assetPath: string): string {
-	let normalizedAssetPath = assetPath;
-	const base = settings.config.base;
+	let normalizedAssetPath = assetPath.replace(/\\/g, '/');
+	const base = settings.config.base.replace(/\\/g, '/');
 	if (base !== '/' && normalizedAssetPath.startsWith(base)) {
 		normalizedAssetPath = normalizedAssetPath.slice(base.length);
 	}
-	return normalizedAssetPath.replace(/^\/+/, '');
+	return path.posix.normalize(normalizedAssetPath).replace(/^\/+/, '');
 }
 
 function inputDigestsEqual(left: Record<string, string>, right: Record<string, string>): boolean {
@@ -978,6 +1038,9 @@ function collectDirectoryFilesAt(directory: URL, fs: typeof fsMod): URL[] {
 		.sort((left, right) => left.name.localeCompare(right.name));
 	return entries.flatMap((entry) => {
 		const entryUrl = new URL(entry.name, appendDirectoryUrl(directory));
+		if (entry.isSymbolicLink()) {
+			return [];
+		}
 		if (entry.isDirectory()) {
 			return collectDirectoryFilesAt(entryUrl, fs);
 		}
@@ -1019,6 +1082,17 @@ function createIncrementalBuildFingerprint({
 		integrationNames: settings.config.integrations.map((integration) => integration.name),
 		rendererNames: settings.renderers.map((renderer) => renderer.name),
 		configDigest: createDigest(hashableConfig),
+		viteConfigDigest: createDigest(settings.config.vite ?? null),
+		integrationHooksDigest: createDigest(
+			settings.config.integrations.map((integration) => ({
+				name: integration.name,
+				hooks: Object.keys(integration.hooks)
+					.filter((hookName) => hookName.startsWith('astro:build:'))
+					.sort((left, right) => left.localeCompare(right)),
+			})),
+		),
+		projectMetadataDigest: getProjectMetadataDigest(settings, mode),
+		buildImplementationDigest: getBuildImplementationDigest(),
 	};
 }
 
@@ -1134,6 +1208,18 @@ function getInvalidationReason(
 	if (previous.configDigest !== current.configDigest) {
 		return 'Astro config changed';
 	}
+	if (previous.viteConfigDigest !== current.viteConfigDigest) {
+		return 'Vite config changed';
+	}
+	if (previous.integrationHooksDigest !== current.integrationHooksDigest) {
+		return 'integration build hooks changed';
+	}
+	if (previous.projectMetadataDigest !== current.projectMetadataDigest) {
+		return 'project metadata changed';
+	}
+	if (previous.buildImplementationDigest !== current.buildImplementationDigest) {
+		return 'Astro build implementation changed';
+	}
 	return undefined;
 }
 
@@ -1153,6 +1239,105 @@ function pathnameToPageName(settings: AstroSettings, pathname: string): string {
 function appendDirectoryUrl(directory: URL | string): URL {
 	const value = typeof directory === 'string' ? directory : directory.toString();
 	return new URL(value.endsWith('/') ? value : `${value}/`);
+}
+
+function hasDynamicPrerenderedRoutes(allPages: AllPagesData): boolean {
+	return Object.values(allPages).some(
+		(pageData) => pageData.route.prerender && pageData.route.route.includes('['),
+	);
+}
+
+function outputDirectoryExists(state: IncrementalBuildState, fs: typeof fsMod = fsMod): boolean {
+	try {
+		return fs.existsSync(new URL(state.artifacts.outDir));
+	} catch {
+		return false;
+	}
+}
+
+function persistedFileExists(
+	fileUrlValue: string,
+	artifactRoots: string[],
+	fs: typeof fsMod = fsMod,
+): boolean {
+	try {
+		const fileUrl = new URL(fileUrlValue);
+		if (fileUrl.protocol !== 'file:') {
+			return false;
+		}
+		return isContainedWithinArtifactRoots(fileUrl, artifactRoots) && fs.existsSync(fileUrl);
+	} catch {
+		return false;
+	}
+}
+
+function isContainedWithinArtifactRoots(fileUrl: URL, artifactRoots: string[]): boolean {
+	const filePath = normalizePath(fileURLToPath(fileUrl));
+	return artifactRoots.some((root) => {
+		try {
+			const rootPath = normalizePath(fileURLToPath(new URL(root))).replace(/\/$/, '');
+			return filePath === rootPath || filePath.startsWith(`${rootPath}/`);
+		} catch {
+			return false;
+		}
+	});
+}
+
+function resolveContainedArtifactPath(root: string, relativeAssetPath: string): string | undefined {
+	try {
+		const rootPath = normalizePath(fileURLToPath(new URL(root))).replace(/\/$/, '');
+		const resolvedPath = normalizePath(
+			path.resolve(rootPath, relativeAssetPath.replace(/\//g, path.sep)),
+		);
+		return resolvedPath === rootPath || resolvedPath.startsWith(`${rootPath}/`)
+			? resolvedPath
+			: undefined;
+	} catch {
+		return undefined;
+	}
+}
+
+function getProjectMetadataDigest(
+	settings: AstroSettings,
+	mode: string,
+	fs: typeof fsMod = fsMod,
+): string {
+	const rootDirectory = appendDirectoryUrl(settings.config.root);
+	const metadataFiles = [
+		...PROJECT_METADATA_FILES,
+		'.env',
+		'.env.local',
+		`.env.${mode}`,
+		`.env.${mode}.local`,
+	];
+	return createHash('sha256')
+		.update(
+			JSON.stringify(
+				metadataFiles
+					.map((relativePath) => [
+						relativePath,
+						createFileDigest(fileURLToPath(new URL(relativePath, rootDirectory)), fs),
+					])
+					.sort(([left], [right]) => left.localeCompare(right)),
+			),
+		)
+		.digest('hex');
+}
+
+function getBuildImplementationDigest(fs: typeof fsMod = fsMod): string {
+	const currentFilePath = fileURLToPath(import.meta.url);
+	const currentExtension = path.extname(currentFilePath);
+	const currentDirectory = path.dirname(currentFilePath);
+	return createHash('sha256')
+		.update(
+			JSON.stringify(
+				BUILD_IMPLEMENTATION_FILES.map((relativePath) => [
+					relativePath,
+					createFileDigest(path.join(currentDirectory, `${relativePath}${currentExtension}`), fs),
+				]),
+			),
+		)
+		.digest('hex');
 }
 
 function isIncrementalBuildState(value: unknown): value is IncrementalBuildState {
@@ -1195,7 +1380,11 @@ function isFingerprint(value: unknown): value is IncrementalBuildFingerprint {
 		candidate.integrationNames.every((entry) => typeof entry === 'string') &&
 		Array.isArray(candidate.rendererNames) &&
 		candidate.rendererNames.every((entry) => typeof entry === 'string') &&
-		typeof candidate.configDigest === 'string'
+		typeof candidate.configDigest === 'string' &&
+		typeof candidate.viteConfigDigest === 'string' &&
+		typeof candidate.integrationHooksDigest === 'string' &&
+		typeof candidate.projectMetadataDigest === 'string' &&
+		typeof candidate.buildImplementationDigest === 'string'
 	);
 }
 
