@@ -3,7 +3,6 @@ import type { RoutePart } from '../../types/public/internal.js';
 
 export function getPattern(
 	segments: RoutePart[][],
-	base: AstroConfig['base'],
 	addTrailingSlash: AstroConfig['trailingSlash'],
 ) {
 	const pathname = segments
@@ -38,9 +37,6 @@ export function getPattern(
 	const trailing =
 		addTrailingSlash && segments.length ? getTrailingSlashPattern(addTrailingSlash) : '$';
 	let initial = '\\/';
-	if (addTrailingSlash === 'never' && base !== '/') {
-		initial = '';
-	}
 	return new RegExp(`^${pathname || initial}${trailing}`);
 }
 

@@ -27,7 +27,7 @@ function getServerIslandRouteData(config: ConfigFields) {
 		component: SERVER_ISLAND_COMPONENT,
 		params: ['name'],
 		segments,
-		pattern: getPattern(segments, config.base, config.trailingSlash),
+		pattern: getPattern(segments, config.trailingSlash),
 		prerender: false,
 		isIndex: false,
 		fallbackRoutes: [],

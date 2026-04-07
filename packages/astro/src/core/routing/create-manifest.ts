@@ -246,7 +246,7 @@ function createFileBasedRoutes(
 					settings.config,
 					item.isPage ? 'page' : 'endpoint',
 				);
-				const pattern = getPattern(segments, settings.config.base, trailingSlash);
+				const pattern = getPattern(segments, trailingSlash);
 				const route = joinSegments(segments);
 				routes.push({
 					route,
@@ -391,7 +391,7 @@ function createRoutesFromEntriesByDir(
 					settings.config,
 					item.isPage ? 'page' : 'endpoint',
 				);
-				const pattern = getPattern(segments, settings.config.base, trailingSlash);
+				const pattern = getPattern(segments, trailingSlash);
 				const route = joinSegments(segments);
 				routes.push({
 					route,
@@ -469,7 +469,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Rou
 			: null;
 
 		const trailingSlash = trailingSlashForPath(pathname, config, type);
-		const pattern = getPattern(segments, settings.config.base, trailingSlash);
+		const pattern = getPattern(segments, trailingSlash);
 		const params = segments
 			.flat()
 			.filter((p) => p.dynamic)
@@ -517,7 +517,7 @@ function createRedirectRoutes(
 				return getParts(s, from);
 			});
 
-		const pattern = getPattern(segments, settings.config.base, trailingSlash);
+		const pattern = getPattern(segments, trailingSlash);
 		const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 			? `/${segments.map((segment) => segment[0].content).join('/')}`
 			: null;
@@ -868,7 +868,7 @@ export function createI18nFallbackRoutes(
 					pathname,
 					route,
 					segments,
-					pattern: getPattern(segments, config.base, config.trailingSlash),
+					pattern: getPattern(segments, config.trailingSlash),
 					type: 'fallback',
 				});
 			}
@@ -942,7 +942,7 @@ export function createI18nFallbackRoutes(
 								pathname,
 								route,
 								segments,
-								pattern: getPattern(segments, config.base, config.trailingSlash),
+								pattern: getPattern(segments, config.trailingSlash),
 								type: 'fallback',
 								fallbackRoutes: [],
 							};

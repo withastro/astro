@@ -10,7 +10,7 @@ import {
  * Helper: compile routes with default base '/' and trailingSlash 'ignore'.
  */
 function compile(routes: Record<string, CacheOptions>) {
-	return compileCacheRoutes(routes, '/', 'ignore');
+	return compileCacheRoutes(routes, 'ignore');
 }
 
 describe('compileCacheRoutes', () => {

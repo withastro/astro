@@ -215,7 +215,6 @@ export class RenderContext {
 				if (!pipeline.compiledCacheRoutes) {
 					pipeline.compiledCacheRoutes = compileCacheRoutes(
 						pipeline.cacheConfig.routes,
-						pipeline.manifest.base,
 						pipeline.manifest.trailingSlash,
 					);
 				}

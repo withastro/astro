@@ -21,7 +21,6 @@ export interface CompiledCacheRoute {
  */
 export function compileCacheRoutes(
 	routes: Record<string, CacheOptions>,
-	base: AstroConfig['base'],
 	trailingSlash: AstroConfig['trailingSlash'],
 ): CompiledCacheRoute[] {
 	const compiled = Object.entries(routes).map(([path, options]) => {
@@ -29,7 +28,7 @@ export function compileCacheRoutes(
 			.split('/')
 			.filter(Boolean)
 			.map((s: string) => getParts(s, path));
-		const pattern = getPattern(segments, base, trailingSlash);
+		const pattern = getPattern(segments, trailingSlash);
 		return { pattern, options, segments, route: path };
 	});
 	// Sort using Astro's standard route priority comparator

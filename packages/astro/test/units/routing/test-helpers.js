@@ -44,7 +44,7 @@ const makeRoute = ({
 		component: component ?? route,
 		params: routeParams,
 		pathname,
-		pattern: getPattern(segments, '/', trailingSlash),
+		pattern: getPattern(segments, trailingSlash),
 		segments,
 		type,
 		prerender,
