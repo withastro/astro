@@ -32,7 +32,7 @@ describe('head propagation buffer', () => {
 	});
 
 	it('collects non-empty head strings from propagators', async () => {
-		const propagators: Set<HeadPropagator> = new Set([
+		const propagators = new Set<HeadPropagator>([
 			{ init: () => createHeadAndContentLike('<link rel="stylesheet" href="/a.css">') },
 			{ init: () => createHeadAndContentLike('<style>body{color:red}</style>') },
 		]);
@@ -50,7 +50,7 @@ describe('head propagation buffer', () => {
 	});
 
 	it('skips non-head-and-content values and empty heads', async () => {
-		const propagators: Set<HeadPropagator> = new Set([
+		const propagators = new Set<HeadPropagator>([
 			{ init: () => 'value' },
 			{ init: () => createHeadAndContentLike('') },
 			{ init: () => createHeadAndContentLike('<meta charset="utf-8">') },
@@ -66,7 +66,7 @@ describe('head propagation buffer', () => {
 	});
 
 	it('processes propagators added while iterating', async () => {
-		const propagators: Set<HeadPropagator> = new Set();
+		const propagators = new Set<HeadPropagator>();
 		propagators.add({
 			init() {
 				propagators.add({
