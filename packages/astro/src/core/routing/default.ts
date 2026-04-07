@@ -8,12 +8,12 @@ import {
 } from '../server-islands/endpoint.js';
 import { DEFAULT_404_ROUTE, default404Instance } from './internal/astro-designed-error-pages.js';
 
-type DefaultRouteParams = {
+export interface DefaultRouteParams {
 	instance: ComponentInstance;
 	matchesComponent(filePath: URL): boolean;
 	route: string;
 	component: string;
-};
+}
 
 export const DEFAULT_COMPONENTS = [DEFAULT_404_COMPONENT, SERVER_ISLAND_COMPONENT];
 
