@@ -37,7 +37,7 @@ function assertRouteRelations(routes, relations) {
 }
 
 describe('routing - createRoutesList', () => {
-	it('using trailingSlash: "never" does not match the index route when it contains a trailing slash', async () => {
+	it('using trailingSlash: "never" with base matches the index route for "/" and not empty string', async () => {
 		const fixture = await createFixture({
 			'/src/pages/index.astro': `<h1>test</h1>`,
 		});
@@ -51,8 +51,8 @@ describe('routing - createRoutesList', () => {
 			settings,
 		});
 		const [{ pattern }] = manifest.routes;
-		assert.equal(pattern.test(''), true);
-		assert.equal(pattern.test('/'), false);
+		assert.equal(pattern.test('/'), true);
+		assert.equal(pattern.test(''), false);
 	});
 
 	it('endpoint routes are sorted before page routes', async () => {
