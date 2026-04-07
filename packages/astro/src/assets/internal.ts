@@ -172,11 +172,10 @@ export async function getImage(
 		// Always output 'data-astro-image-pos', defaulting to 'center' if unspecified.
 		// This ensures compatibility with existing CSP tests and allows consistent CSS control.
 		const currentPosition = resolvedOptions.position || 'center';
-    resolvedOptions['data-astro-image-pos'] = currentPosition.replace(/\s+/g, '-');
+		resolvedOptions['data-astro-image-pos'] = currentPosition.replace(/\s+/g, '-');
 
 		if (resolvedOptions.position) {
 			// Normalize position value for data attribute (spaces to dashes)
-			//resolvedOptions['data-astro-image-pos'] = resolvedOptions.position.replace(/\s+/g, '-');
 			// Apply object-position as inline style since position values are arbitrary
 			// and cannot be pre-enumerated in a static stylesheet like fit values can.
 			if (typeof resolvedOptions.style === 'object' && resolvedOptions.style !== null) {
