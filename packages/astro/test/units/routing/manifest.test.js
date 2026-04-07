@@ -364,6 +364,7 @@ describe('routing - createRoutesList', () => {
 
 		assert.deepEqual(logs, [
 			{
+				format: 'default',
 				label: 'router',
 				level: 'warn',
 				message:
@@ -371,6 +372,7 @@ describe('routing - createRoutesList', () => {
 				newLine: true,
 			},
 			{
+				format: 'default',
 				label: 'router',
 				level: 'warn',
 				message: 'A collision will result in a hard error in following versions of Astro.',
@@ -403,6 +405,7 @@ describe('routing - createRoutesList', () => {
 
 		assert.deepEqual(logs, [
 			{
+				format: 'default',
 				label: 'router',
 				level: 'warn',
 				message:
@@ -410,6 +413,7 @@ describe('routing - createRoutesList', () => {
 				newLine: true,
 			},
 			{
+				format: 'default',
 				label: 'router',
 				level: 'warn',
 				message: 'A collision will result in a hard error in following versions of Astro.',

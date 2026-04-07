@@ -81,6 +81,7 @@
     "./zod": "./dist/zod.js",
     "./errors": "./dist/core/errors/userError.js",
     "./middleware": "./dist/core/middleware/index.js",
+		"./logger": "./disto/core/logger/public.js",
     "./virtual-modules/*": "./dist/virtual-modules/*"
   },
   "bin": {

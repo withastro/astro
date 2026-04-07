@@ -11,7 +11,7 @@ import {
 import { padMultilineString } from '../util-runtime.js';
 import type { AstroVersionProvider, TextStyler } from '../../cli/definitions.js';
 import type { AstroConfig } from '../../types/public/index.js';
-import type { Logger } from '../logger/core.js';
+import type { AstroLogger } from '../logger/core.js';
 
 const {
 	bgGreen,
@@ -401,7 +401,7 @@ export function printHelp({
 	console.log(message.join('\n') + '\n');
 }
 
-export function warnIfCspWithShiki(config: AstroConfig, logger: Logger): void {
+export function warnIfCspWithShiki(config: AstroConfig, logger: AstroLogger): void {
 	// Check if CSP is enabled
 	const cspEnabled = config.security.csp !== false;
 	if (!cspEnabled) return;

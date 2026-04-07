@@ -4,7 +4,25 @@ export interface LogWritable<T> {
 	write: (chunk: T) => boolean;
 }
 
-export type LoggerLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent'; // same as Pino
+// NOTE: this is a public type
+/**
+ * How the log should be formatted
+ * - 'default': how Astro usually format the logs
+ * - 'json': logs are formatted in JSON format
+ */
+export type AstroLoggerFormat = 'default' | 'json';
+
+// NOTE: this is a public type
+
+/**
+ * The level of logging. Priority is the following:
+ * 1. debug
+ * 2. error
+ * 3. warn
+ * 4. info
+ * 5. silent
+ */
+export type AstroLoggerLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent'; // same as Pino
 
 /**
  * Defined logger labels. Add more as needed, but keep them high-level & reusable,
@@ -42,8 +60,9 @@ type LoggerLabel =
 	| 'SKIP_FORMAT';
 
 export interface LogOptions {
-	dest: LogWritable<LogMessage>;
-	level: LoggerLevel;
+	destination: LogWritable<AstroLogMessage>;
+	level: AstroLoggerLevel;
+	format: AstroLoggerFormat;
 }
 
 // Hey, locales are pretty complicated! Be careful modifying this logic...
@@ -63,14 +82,29 @@ export const dateTimeFormat = new Intl.DateTimeFormat([], {
 	hour12: false,
 });
 
-export interface LogMessage {
+// NOTE: this is a public type now
+export interface AstroLogMessage {
+	/**
+	 * Label associated to the message. Used by Astro for pretty logging
+	 */
 	label: string | null;
-	level: LoggerLevel;
+	/**
+	 * The level of the log
+	 */
+	level: AstroLoggerLevel;
+	/**
+	 * The message of the log
+	 */
 	message: string;
+	/**
+	 * Whether a newline should be appended to the end of the message i.e. message + '\n'
+	 */
 	newLine: boolean;
+
+	format: AstroLoggerFormat;
 }
 
-export const levels: Record<LoggerLevel, number> = {
+export const levels: Record<AstroLoggerLevel, number> = {
 	debug: 20,
 	info: 30,
 	warn: 40,
@@ -81,18 +115,19 @@ export const levels: Record<LoggerLevel, number> = {
 /** Full logging API */
 function log(
 	opts: LogOptions,
-	level: LoggerLevel,
+	level: AstroLoggerLevel,
 	label: string | null,
 	message: string,
 	newLine = true,
 ) {
 	const logLevel = opts.level;
-	const dest = opts.dest;
-	const event: LogMessage = {
+	const dest = opts.destination;
+	const event: AstroLogMessage = {
 		label,
 		level,
 		message,
 		newLine,
+		format: opts.format,
 	};
 
 	// test if this level is enabled or not
@@ -103,7 +138,7 @@ function log(
 	dest.write(event);
 }
 
-export function isLogLevelEnabled(configuredLogLevel: LoggerLevel, level: LoggerLevel) {
+export function isLogLevelEnabled(configuredLogLevel: AstroLoggerLevel, level: AstroLoggerLevel) {
 	return levels[configuredLogLevel] <= levels[level];
 }
 
@@ -133,7 +168,7 @@ export function debug(...args: any[]) {
  * This includes the timestamp, log level, and label all properly formatted
  * with colors. This is shared across different loggers, so it's defined here.
  */
-export function getEventPrefix({ level, label }: LogMessage) {
+export function getEventPrefix({ level, label }: AstroLogMessage) {
 	const timestamp = `${dateTimeFormat.format(new Date())}`;
 	const prefix = [];
 	if (level === 'error' || level === 'warn') {
@@ -165,9 +200,12 @@ export function timerMessage(message: string, startTime: number = Date.now()) {
 	return `${message}   ${colors.dim(timeDisplay)}`;
 }
 
-export class Logger {
+export class AstroLogger {
 	options: LogOptions;
 	constructor(options: LogOptions) {
+		if (!options.format) {
+			options.format = 'default';
+		}
 		this.options = options;
 	}
 

@@ -3,7 +3,7 @@ import { getDefaultClientDirectives } from '../core/client-directive/index.js';
 import { ASTRO_CONFIG_DEFAULTS } from '../core/config/schemas/index.js';
 import { validateConfig } from '../core/config/validate.js';
 import { createKey } from '../core/encryption.js';
-import { Logger } from '../core/logger/core.js';
+import { AstroLogger } from '../core/logger/core.js';
 import { nodeLogDestination } from '../core/logger/node.js';
 import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
 import { removeLeadingForwardSlash } from '../core/path.js';
@@ -301,9 +301,10 @@ export class experimental_AstroContainer {
 		astroConfig,
 	}: AstroContainerConstructor) {
 		this.#pipeline = ContainerPipeline.create({
-			logger: new Logger({
+			logger: new AstroLogger({
 				level: 'info',
-				dest: nodeLogDestination,
+				destination: nodeLogDestination,
+				format: 'default',
 			}),
 			manifest: createManifest(manifest, renderers),
 			streaming,

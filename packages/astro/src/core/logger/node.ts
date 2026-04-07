@@ -1,26 +1,35 @@
 import type { Writable } from 'node:stream';
 import { createDebug, enable as obugEnable } from 'obug';
 import type { AstroInlineConfig } from '../../types/public/config.js';
-import { Logger } from './core.js';
-import { getEventPrefix, type LogMessage, type LogWritable, levels } from './core.js';
+import { AstroLogger } from './core.js';
+import { getEventPrefix, type AstroLogMessage, type LogWritable, levels } from './core.js';
 
 type ConsoleStream = Writable & {
 	fd: 1 | 2;
 };
 
-export const nodeLogDestination: LogWritable<LogMessage> = {
-	write(event: LogMessage) {
+export const nodeLogDestination: LogWritable<AstroLogMessage> = {
+	write(event: AstroLogMessage) {
 		let dest: ConsoleStream = process.stderr;
 		if (levels[event.level] < levels['error']) {
 			dest = process.stdout;
 		}
+
 		let trailingLine = event.newLine ? '\n' : '';
-		if (event.label === 'SKIP_FORMAT') {
-			dest.write(event.message + trailingLine);
-		} else {
-			dest.write(getEventPrefix(event) + ' ' + event.message + trailingLine);
+		switch (event.format) {
+			case 'json': {
+				dest.write(JSON.stringify({ message: event.message, label: event.label }) + trailingLine);
+				return true;
+			}
+			case 'default': {
+				if (event.label === 'SKIP_FORMAT') {
+					dest.write(event.message + trailingLine);
+				} else {
+					dest.write(getEventPrefix(event) + ' ' + event.message + trailingLine);
+				}
+				return true;
+			}
 		}
-		return true;
 	},
 };
 
@@ -52,11 +61,12 @@ export function enableVerboseLogging() {
 	);
 }
 
-export function createNodeLogger(inlineConfig: AstroInlineConfig): Logger {
+export function createNodeLogger(inlineConfig: AstroInlineConfig): AstroLogger {
 	if (inlineConfig.logger) return inlineConfig.logger;
 
-	return new Logger({
-		dest: nodeLogDestination,
+	return new AstroLogger({
+		destination: nodeLogDestination,
 		level: inlineConfig.logLevel ?? 'info',
+		format: 'default',
 	});
 }
