@@ -24,7 +24,8 @@ import { injectServerIslandRoute } from '../server-islands/endpoint.js';
 import { resolvePages } from '../util.js';
 import { ensure404Route } from './astro-designed-error-pages.js';
 import { routeComparator } from './priority.js';
-import { getPattern } from './pattern.js';
+import { getRoutePath, getPattern } from './pattern.js';
+export { getRoutePath };
 import { getRoutePrerenderOption } from './prerender.js';
 import { validateSegment } from './segment.js';
 
@@ -247,12 +248,14 @@ function createFileBasedRoutes(
 					item.isPage ? 'page' : 'endpoint',
 				);
 				const pattern = getPattern(segments, settings.config.base, trailingSlash);
+				const routePath = getRoutePath(segments, settings.config.base);
 				const route = joinSegments(segments);
 				routes.push({
 					route,
 					isIndex: item.isIndex,
 					type: item.isPage ? 'page' : 'endpoint',
 					pattern,
+					path: routePath,
 					segments,
 					params,
 					component,
@@ -392,12 +395,14 @@ function createRoutesFromEntriesByDir(
 					item.isPage ? 'page' : 'endpoint',
 				);
 				const pattern = getPattern(segments, settings.config.base, trailingSlash);
+				const routePath = getRoutePath(segments, settings.config.base);
 				const route = joinSegments(segments);
 				routes.push({
 					route,
 					isIndex: item.isIndex,
 					type: item.isPage ? 'page' : 'endpoint',
 					pattern,
+					path: routePath,
 					segments,
 					params,
 					component,
@@ -470,6 +475,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Rou
 
 		const trailingSlash = trailingSlashForPath(pathname, config, type);
 		const pattern = getPattern(segments, settings.config.base, trailingSlash);
+		const routePath = getRoutePath(segments, settings.config.base);
 		const params = segments
 			.flat()
 			.filter((p) => p.dynamic)
@@ -482,6 +488,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Rou
 			isIndex: false,
 			route,
 			pattern,
+			path: routePath,
 			segments,
 			params,
 			component,
@@ -518,6 +525,7 @@ function createRedirectRoutes(
 			});
 
 		const pattern = getPattern(segments, settings.config.base, trailingSlash);
+		const routePath = getRoutePath(segments, settings.config.base);
 		const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 			? `/${segments.map((segment) => segment[0].content).join('/')}`
 			: null;
@@ -565,6 +573,7 @@ function createRedirectRoutes(
 			isIndex: false,
 			route,
 			pattern,
+			path: routePath,
 			segments,
 			params,
 			component: from,
@@ -869,6 +878,7 @@ export function createI18nFallbackRoutes(
 					route,
 					segments,
 					pattern: getPattern(segments, config.base, config.trailingSlash),
+					path: getRoutePath(segments, config.base),
 					type: 'fallback',
 				});
 			}
@@ -943,6 +953,7 @@ export function createI18nFallbackRoutes(
 								route,
 								segments,
 								pattern: getPattern(segments, config.base, config.trailingSlash),
+								path: getRoutePath(segments, config.base),
 								type: 'fallback',
 								fallbackRoutes: [],
 							};

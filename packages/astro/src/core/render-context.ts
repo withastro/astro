@@ -78,9 +78,9 @@ export class RenderContext {
 	public routeData: RouteData;
 	public status: number;
 	public clientAddress: string | undefined;
-	protected cookies: AstroCookies;
+	public cookies: AstroCookies;
 	public params: Params;
-	protected url: URL;
+	public url: URL;
 	public props: Props;
 	public partial: undefined | boolean;
 	public shouldInjectCspMetaTags: boolean;
@@ -160,7 +160,7 @@ export class RenderContext {
 	/**
 	 * A safety net in case of loops
 	 */
-	counter = 0;
+
 
 	result: SSRResult | undefined = undefined;
 
@@ -281,15 +281,6 @@ export class RenderContext {
 		const actionApiContext = this.createActionAPIContext();
 		const apiContext = this.createAPIContext(props, actionApiContext);
 
-		this.counter++;
-		if (this.counter === 4) {
-			return new Response('Loop Detected', {
-				// https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/508
-				status: 508,
-				statusText:
-					'Astro detected a loop where you tried to call the rewriting logic more than four times.',
-			});
-		}
 		const lastNext = async (ctx: APIContext, payload?: RewritePayload) => {
 			if (payload) {
 				const oldPathname = this.pathname;

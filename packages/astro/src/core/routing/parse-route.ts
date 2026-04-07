@@ -3,7 +3,7 @@ import type { RouteData, RoutePart } from '../../types/public/internal.js';
 import { fileExtension } from '@astrojs/internal-helpers/path';
 import { removeLeadingForwardSlash, removeTrailingForwardSlash } from '../path.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../constants.js';
-import { getPattern } from './pattern.js';
+import { getRoutePath, getPattern } from './pattern.js';
 import { getParts } from './parts.js';
 import { validateSegment } from './segment.js';
 
@@ -86,6 +86,7 @@ export function parseRoute(
 		params,
 		pathname: pathname || undefined,
 		pattern: getPattern(segments, options.config.base, options.config.trailingSlash),
+		path: getRoutePath(segments, options.config.base),
 		segments,
 		type: parseOptions.type ?? 'page',
 		prerender: parseOptions.prerender ?? false,

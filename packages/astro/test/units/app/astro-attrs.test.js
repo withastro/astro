@@ -14,6 +14,7 @@ import { createManifest, createRouteInfo } from './test-helpers.js';
 
 const attributesRouteData = {
 	route: '/attributes',
+		path: '/attributes',
 	component: 'src/pages/attributes.astro',
 	params: [],
 	pathname: '/attributes',
@@ -29,6 +30,7 @@ const attributesRouteData = {
 
 const attributesNamespacedRouteData = {
 	route: '/namespaced',
+		path: '/namespaced',
 	component: 'src/pages/namespaced.astro',
 	params: [],
 	pathname: '/namespaced',
@@ -44,6 +46,7 @@ const attributesNamespacedRouteData = {
 
 const attributesNamespacedComponentRouteData = {
 	route: '/namespaced-component',
+		path: '/namespaced-component',
 	component: 'src/pages/namespaced-component.astro',
 	params: [],
 	pathname: '/namespaced-component',

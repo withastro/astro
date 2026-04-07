@@ -21,6 +21,7 @@ function createRouteData(route) {
 		pathname: route,
 		distURL: [],
 		pattern: new RegExp(`^${escapeRoute(route)}\\/?$`),
+		path: route,
 		segments,
 		type: 'page',
 		prerender: false,

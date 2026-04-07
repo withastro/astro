@@ -44,6 +44,39 @@ export function getPattern(
 	return new RegExp(`^${pathname || initial}${trailing}`);
 }
 
+/**
+ * Generates a standard route path from parsed route segments.
+ *
+ * Translates Astro's segment-based route definitions to standard HTTP
+ * router path syntax (used by Express, Hono, Fastify, etc.):
+ * - `[slug]` → `:slug`
+ * - `[...rest]` → `*`
+ * - static segments are passed through as-is
+ */
+export function getRoutePath(segments: RoutePart[][], base: AstroConfig['base']): string {
+	const normalizedBase = base === '/' ? '' : base.replace(/\/$/, '');
+	if (segments.length === 0) {
+		return normalizedBase + '/';
+	}
+
+	const path = segments
+		.map((segment) => {
+			if (segment.length === 1 && segment[0].spread) {
+				return '*';
+			}
+			return segment
+				.map((part) => {
+					if (part.spread) return '*';
+					if (part.dynamic) return `:${part.content}`;
+					return part.content;
+				})
+				.join('');
+		})
+		.join('/');
+
+	return `${normalizedBase}/${path}`;
+}
+
 function getTrailingSlashPattern(addTrailingSlash: AstroConfig['trailingSlash']): string {
 	if (addTrailingSlash === 'always') {
 		return '\\/$';

@@ -89,6 +89,7 @@ export function deserializeRouteData(rawRouteData: SerializedRouteData): RouteDa
 		route: rawRouteData.route,
 		type: rawRouteData.type,
 		pattern: new RegExp(rawRouteData.pattern),
+		path: rawRouteData.path,
 		params: rawRouteData.params,
 		component: rawRouteData.component,
 		pathname: rawRouteData.pathname || undefined,

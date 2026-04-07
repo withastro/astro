@@ -9,6 +9,7 @@ describe('App render error pages', () => {
 	it('preserves headers and body for 500 responses from routes', async () => {
 		const routeData = {
 			route: '/[...slug]',
+			path: "/*",
 			component: 'src/pages/[...slug].astro',
 			params: ['...slug'],
 			pathname: undefined,
@@ -55,6 +56,7 @@ describe('App render error pages', () => {
 	it('renders the 404 page when an API route lacks a handler for the request method', async () => {
 		const apiRouteData = {
 			route: '/api/route',
+			path: "/api/route",
 			component: 'src/pages/api/route.js',
 			params: [],
 			pathname: '/api/route',
@@ -73,6 +75,7 @@ describe('App render error pages', () => {
 
 		const notFoundRouteData = {
 			route: '/404',
+			path: "/404",
 			component: 'src/pages/404.astro',
 			params: [],
 			pathname: '/404',
@@ -125,6 +128,7 @@ describe('App render error pages', () => {
 	it('renders the 404 page when a route does not match', async () => {
 		const notFoundRouteData = {
 			route: '/404',
+			path: "/404",
 			component: 'src/pages/404.astro',
 			params: [],
 			pathname: '/404',
@@ -164,6 +168,7 @@ describe('App render error pages', () => {
 	it('renders the 404 page when a route does not match and routeData is provided', async () => {
 		const notFoundRouteData = {
 			route: '/404',
+			path: "/404",
 			component: 'src/pages/404.astro',
 			params: [],
 			pathname: '/404',
@@ -204,6 +209,7 @@ describe('App render error pages', () => {
 	it('renders the 404 page with imports when a matching route returns 404', async () => {
 		const blogRouteData = {
 			route: '/blog/[...ssrPath]',
+			path: "/blog/*",
 			component: 'src/pages/blog/[...ssrPath].astro',
 			params: ['...ssrPath'],
 			pathname: undefined,
@@ -222,6 +228,7 @@ describe('App render error pages', () => {
 
 		const notFoundRouteData = {
 			route: '/404',
+			path: "/404",
 			component: 'src/pages/404.astro',
 			params: [],
 			pathname: '/404',
@@ -284,6 +291,7 @@ describe('App render error pages', () => {
 	it('renders the 500 page when a route throws an error', async () => {
 		const errorRouteData = {
 			route: '/causes-error',
+			path: "/causes-error",
 			component: 'src/pages/causes-error.astro',
 			params: [],
 			pathname: '/causes-error',
@@ -299,6 +307,7 @@ describe('App render error pages', () => {
 
 		const internalErrorRouteData = {
 			route: '/500',
+			path: "/500",
 			component: 'src/pages/500.astro',
 			params: [],
 			pathname: '/500',
@@ -353,6 +362,7 @@ describe('App render error pages', () => {
 	it('renders the 404 page when an API route lacks a handler in production', async () => {
 		const apiRouteData = {
 			route: '/api/route',
+			path: "/api/route",
 			component: 'src/pages/api/route.js',
 			params: [],
 			pathname: '/api/route',
@@ -371,6 +381,7 @@ describe('App render error pages', () => {
 
 		const notFoundRouteData = {
 			route: '/404',
+			path: "/404",
 			component: 'src/pages/404.astro',
 			params: [],
 			pathname: '/404',
@@ -423,6 +434,7 @@ describe('App render error pages', () => {
 	it('renders the 404 page when a route does not match with trailingSlash always', async () => {
 		const notFoundRouteData = {
 			route: '/404',
+			path: "/404",
 			component: 'src/pages/404.astro',
 			params: [],
 			pathname: '/404',
@@ -468,6 +480,7 @@ describe('App render error pages', () => {
 	it('renders the 404 page when a route does not match with trailingSlash always and routeData', async () => {
 		const notFoundRouteData = {
 			route: '/404',
+			path: "/404",
 			component: 'src/pages/404.astro',
 			params: [],
 			pathname: '/404',

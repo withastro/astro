@@ -1,4 +1,4 @@
-import { getPattern } from '../../../dist/core/routing/pattern.js';
+import { getPattern, getRoutePath } from '../../../dist/core/routing/pattern.js';
 
 /** @param {string} content */
 const staticPart = (content) => ({ content, dynamic: false, spread: false });
@@ -45,6 +45,7 @@ const makeRoute = ({
 		params: routeParams,
 		pathname,
 		pattern: getPattern(segments, '/', trailingSlash),
+		path: getRoutePath(segments, '/'),
 		segments,
 		type,
 		prerender,

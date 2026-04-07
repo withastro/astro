@@ -1,4 +1,4 @@
-import { BaseApp, type RenderErrorOptions } from '../app/entrypoints/index.js';
+import { BaseApp } from '../app/entrypoints/index.js';
 import type { SSRManifest } from '../app/types.js';
 import type { BuildInternals } from './internal.js';
 import { BuildPipeline } from './pipeline.js';
@@ -39,20 +39,6 @@ export class BuildApp extends BaseApp<BuildPipeline> {
 
 	public getSettings() {
 		return this.pipeline.getSettings();
-	}
-
-	async renderError(request: Request, options: RenderErrorOptions): Promise<Response> {
-		if (options.status === 500) {
-			if (options.response) {
-				return options.response;
-			}
-			throw options.error;
-		} else {
-			return super.renderError(request, {
-				...options,
-				prerenderedErrorPageFetch: undefined,
-			});
-		}
 	}
 
 	getQueueStats(): PoolStatsReport | undefined {

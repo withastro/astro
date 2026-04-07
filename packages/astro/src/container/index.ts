@@ -9,7 +9,7 @@ import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
 import { removeLeadingForwardSlash } from '../core/path.js';
 import { RenderContext } from '../core/render-context.js';
 import { getParts } from '../core/routing/parts.js';
-import { getPattern } from '../core/routing/pattern.js';
+import { getRoutePath, getPattern } from '../core/routing/pattern.js';
 import { validateSegment } from '../core/routing/segment.js';
 import type { AstroComponentFactory } from '../runtime/server/index.js';
 import { SlotString } from '../runtime/server/render/slot.js';
@@ -605,6 +605,7 @@ export class experimental_AstroContainer {
 				ASTRO_CONFIG_DEFAULTS.base,
 				ASTRO_CONFIG_DEFAULTS.trailingSlash,
 			),
+			path: getRoutePath(segments, ASTRO_CONFIG_DEFAULTS.base),
 			prerender: false,
 			segments,
 			type,

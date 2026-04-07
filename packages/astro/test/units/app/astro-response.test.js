@@ -7,6 +7,7 @@ import { createManifest, createRouteInfo } from './test-helpers.js';
 
 const notFoundRouteData = {
 	route: '/not-found',
+		path: '/not-found',
 	component: 'src/pages/not-found.astro',
 	params: [],
 	pathname: '/not-found',
@@ -22,6 +23,7 @@ const notFoundRouteData = {
 
 const notFoundCustomRouteData = {
 	route: '/not-found-custom',
+		path: '/not-found-custom',
 	component: 'src/pages/not-found-custom.astro',
 	params: [],
 	pathname: '/not-found-custom',

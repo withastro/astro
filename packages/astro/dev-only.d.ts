@@ -87,3 +87,9 @@ declare module 'virtual:astro:app' {
 	export const createApp: import('./src/core/app/types.js').CreateApp;
 	export const app: ReturnType<import('./src/core/app/types.js').CreateApp>;
 }
+
+declare module 'astro:user-app' {
+	import type { Hono } from 'hono';
+	const app: Hono;
+	export default app;
+}

@@ -6,6 +6,7 @@ import { createManifest } from './test-helpers.js';
 
 const statusRouteData = {
 	route: '/status-code',
+		path: '/status-code',
 	component: 'src/pages/status-code.astro',
 	params: [],
 	pathname: '/status-code',
@@ -21,6 +22,7 @@ const statusRouteData = {
 
 const someHeaderRouteData = {
 	route: '/some-header',
+		path: '/some-header',
 	component: 'src/pages/some-header.astro',
 	params: [],
 	pathname: '/some-header',
@@ -36,6 +38,7 @@ const someHeaderRouteData = {
 
 const notFoundRouteData = {
 	route: '/404',
+		path: '/404',
 	component: 'src/pages/404.astro',
 	params: [],
 	pathname: '/404',

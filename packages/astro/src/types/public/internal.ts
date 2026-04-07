@@ -84,6 +84,17 @@ export interface RouteData {
 	 */
 	pattern: RegExp;
 	/**
+	 * Standard route path for registering this route with an HTTP router.
+	 *
+	 * Uses the widely-supported path syntax:
+	 * - `/blog/:slug` for dynamic params
+	 * - `/blog/*` for rest/spread params
+	 * - `/blog` for static routes
+	 *
+	 * Generated from the route's `segments` at the same time as `pattern`.
+	 */
+	path: string;
+	/**
 	 * Similar to the "params" field, but with more associated metadata. For example, for `/site/[blog]/[...slug].astro`, the segments are:
 	 *
 	 * 1. `{ content: 'site', dynamic: false, spread: false }`

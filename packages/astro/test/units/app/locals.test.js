@@ -6,6 +6,7 @@ import { createManifest } from './test-helpers.js';
 
 const fooRouteData = {
 	route: '/foo',
+		path: '/foo',
 	component: 'src/pages/foo.astro',
 	params: [],
 	pathname: '/foo',
@@ -21,6 +22,7 @@ const fooRouteData = {
 
 const apiRouteData = {
 	route: '/api',
+		path: '/api',
 	component: 'src/pages/api.js',
 	params: [],
 	pathname: '/api',
@@ -36,6 +38,7 @@ const apiRouteData = {
 
 const errorRouteData = {
 	route: '/go-to-error-page',
+		path: '/go-to-error-page',
 	component: 'src/pages/go-to-error-page.astro',
 	params: [],
 	pathname: '/go-to-error-page',
@@ -51,6 +54,7 @@ const errorRouteData = {
 
 const notFoundRouteData = {
 	route: '/404',
+		path: '/404',
 	component: 'src/pages/404.astro',
 	params: [],
 	pathname: '/404',
@@ -66,6 +70,7 @@ const notFoundRouteData = {
 
 const internalErrorRouteData = {
 	route: '/500',
+		path: '/500',
 	component: 'src/pages/500.astro',
 	params: [],
 	pathname: '/500',
