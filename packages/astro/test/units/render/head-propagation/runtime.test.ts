@@ -1,5 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import type { SSRResult } from '../../../../dist/types/public/internal.js';
 import {
 	bufferPropagatedHead,
 	getInstructionRenderState,
@@ -17,7 +18,7 @@ function createResult() {
 			hasRenderedHead: false,
 			headInTree: false,
 			propagators: new Set(),
-			extraHead: [],
+			extraHead: [] as string[],
 		},
 	};
 }
@@ -25,10 +26,18 @@ function createResult() {
 describe('head propagation runtime facade', () => {
 	it('registers only propagating components', () => {
 		const result = createResult();
-		registerIfPropagating(result, { propagation: 'none' }, { init: () => null });
+		registerIfPropagating(
+			result as unknown as SSRResult,
+			{ propagation: 'none' } as Parameters<typeof registerIfPropagating>[1],
+			{ init: () => null },
+		);
 		assert.equal(result._metadata.propagators.size, 0);
 
-		registerIfPropagating(result, { propagation: 'self' }, { init: () => null });
+		registerIfPropagating(
+			result as unknown as SSRResult,
+			{ propagation: 'self' } as Parameters<typeof registerIfPropagating>[1],
+			{ init: () => null },
+		);
 		assert.equal(result._metadata.propagators.size, 1);
 	});
 
@@ -43,13 +52,13 @@ describe('head propagation runtime facade', () => {
 			},
 		});
 
-		await bufferPropagatedHead(result);
+		await bufferPropagatedHead(result as unknown as SSRResult);
 		assert.deepEqual(result._metadata.extraHead, ['<link rel="stylesheet" href="/one.css">']);
 	});
 
 	it('exposes render state and evaluates instruction policy', () => {
 		const result = createResult();
-		const state = getInstructionRenderState(result);
+		const state = getInstructionRenderState(result as unknown as SSRResult);
 		assert.deepEqual(state, {
 			hasRenderedHead: false,
 			headInTree: false,

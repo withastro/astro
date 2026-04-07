@@ -9,7 +9,7 @@ import {
 	createTestConfigObserver,
 	createMinimalSettings,
 	createMarkdownEntryType,
-} from './test-helpers.js';
+} from './test-helpers.ts';
 
 describe('Glob Loader', () => {
 	const root = new URL('../../fixtures/content-layer/', import.meta.url);
@@ -47,7 +47,7 @@ describe('Glob Loader', () => {
 		assert.ok(columbia);
 		assert.ok(columbia.body);
 		assert.ok(columbia.body.includes('Space Shuttle Columbia'));
-		assert.equal(columbia.filePath.replace(/\\/g, '/'), 'src/content/space/columbia.md');
+		assert.equal(columbia.filePath!.replace(/\\/g, '/'), 'src/content/space/columbia.md');
 	});
 
 	it('handles negative matches in glob pattern', async () => {
@@ -157,11 +157,11 @@ describe('Glob Loader', () => {
 		// Create custom YAML data entry type
 		const yamlEntryType = {
 			extensions: ['.yaml', '.yml'],
-			getEntryInfo: ({ contents }) => {
+			getEntryInfo: ({ contents }: any) => {
 				// Simple YAML parser
 				const lines = contents.trim().split('\n');
-				const data = {};
-				lines.forEach((line) => {
+				const data: Record<string, any> = {};
+				lines.forEach((line: string) => {
 					const colonIndex = line.indexOf(':');
 					if (colonIndex > -1) {
 						const key = line.substring(0, colonIndex).trim();
@@ -221,11 +221,11 @@ describe('Glob Loader', () => {
 		// Create custom TOML data entry type
 		const tomlEntryType = {
 			extensions: ['.toml'],
-			getEntryInfo: ({ contents }) => {
+			getEntryInfo: ({ contents }: any) => {
 				// Simple TOML parser for key-value pairs
 				const lines = contents.trim().split('\n');
-				const data = {};
-				lines.forEach((line) => {
+				const data: Record<string, any> = {};
+				lines.forEach((line: string) => {
 					const equalIndex = line.indexOf('=');
 					if (equalIndex > -1) {
 						const key = line.substring(0, equalIndex).trim();
@@ -281,10 +281,10 @@ describe('Glob Loader', () => {
 
 	it('warns about missing directory', async () => {
 		const store = new MutableDataStore();
-		const warnings = [];
+		const warnings: string[] = [];
 		const logger = new Logger({
 			dest: {
-				write: (msg) => {
+				write: (msg: any) => {
 					if (msg.level === 'warn') {
 						warnings.push(msg.message);
 					}
@@ -316,10 +316,10 @@ describe('Glob Loader', () => {
 
 	it('warns about no matching files', async () => {
 		const store = new MutableDataStore();
-		const warnings = [];
+		const warnings: string[] = [];
 		const logger = new Logger({
 			dest: {
-				write: (msg) => {
+				write: (msg: any) => {
 					if (msg.level === 'warn') {
 						warnings.push(msg.message);
 					}

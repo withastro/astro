@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import fs from 'node:fs/promises';
 import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
-import { createTempDir } from './test-helpers.js';
+import { createTempDir } from './test-helpers.ts';
 
 describe('Content Layer - Store Persistence', () => {
 	it('updates the store on new builds', async () => {
@@ -207,7 +207,7 @@ describe('Content Layer - Store Persistence', () => {
 		assert.ok(!store3.get('cats', 'siamese')); // Old entry gone
 		assert.ok(store3.get('cats', 'siamese-cat')); // New entry exists
 
-		const updatedPost = store3.get('posts', 'post1');
+		const updatedPost: any = store3.get('posts', 'post1');
 		assert.equal(updatedPost.data.cat.id, 'siamese-cat'); // Reference updated
 	});
 });

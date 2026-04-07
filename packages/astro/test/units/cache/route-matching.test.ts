@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import type { CacheOptions } from '../../../dist/core/cache/types.js';
 import {
 	compileCacheRoutes,
 	matchCacheRoute,
@@ -8,7 +9,7 @@ import {
 /**
  * Helper: compile routes with default base '/' and trailingSlash 'ignore'.
  */
-function compile(routes) {
+function compile(routes: Record<string, CacheOptions>) {
 	return compileCacheRoutes(routes, '/', 'ignore');
 }
 

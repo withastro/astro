@@ -5,7 +5,7 @@ import { defineCollection } from '../../../dist/content/config.js';
 import { ContentLayer } from '../../../dist/content/content-layer.js';
 import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
 import { Logger } from '../../../dist/core/logger/core.js';
-import { createTempDir, createTestConfigObserver, createMinimalSettings } from './test-helpers.js';
+import { createTempDir, createTestConfigObserver, createMinimalSettings } from './test-helpers.ts';
 import { Writable } from 'node:stream';
 import fs from 'node:fs/promises';
 
@@ -13,13 +13,13 @@ describe('Content Layer - Loader Warnings', () => {
 	it('warns about missing data in loaders', async () => {
 		const root = createTempDir();
 		const store = new MutableDataStore();
-		const logs = [];
+		const logs: any[] = [];
 
 		const logger = new Logger({
 			level: 'warn',
 			dest: new Writable({
 				objectMode: true,
-				write(event, _, callback) {
+				write(event: any, _: any, callback: any) {
 					logs.push(event);
 					callback();
 				},
@@ -29,7 +29,7 @@ describe('Content Layer - Loader Warnings', () => {
 		// Loader that simulates various warning scenarios
 		const warningLoader = {
 			name: 'warning-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				// Warn about missing directory
 				context.logger.warn('Directory "src/content/non-existent-dir" does not exist');
 
@@ -90,12 +90,12 @@ describe('Content Layer - Loader Warnings', () => {
 		assert.ok(duplicateWarning, 'Should warn about duplicate ID');
 
 		// Verify entries
-		const validEntry = store.get('warnings', 'valid-1');
+		const validEntry: any = store.get('warnings', 'valid-1');
 		assert.ok(validEntry);
 		assert.equal(validEntry.data.title, 'Valid Entry');
 
 		// Duplicate ID should have the second entry's data (overwritten)
-		const duplicateEntry = store.get('warnings', 'duplicate-id');
+		const duplicateEntry: any = store.get('warnings', 'duplicate-id');
 		assert.ok(duplicateEntry);
 		assert.equal(duplicateEntry.data.title, 'Second Entry');
 		assert.equal(duplicateEntry.data.value, 2);
@@ -104,13 +104,13 @@ describe('Content Layer - Loader Warnings', () => {
 	it('warns about no files found in pattern matching', async () => {
 		const root = createTempDir();
 		const store = new MutableDataStore();
-		const logs = [];
+		const logs: any[] = [];
 
 		const logger = new Logger({
 			level: 'warn',
 			dest: new Writable({
 				objectMode: true,
-				write(event, _, callback) {
+				write(event: any, _: any, callback: any) {
 					logs.push(event);
 					callback();
 				},
@@ -124,7 +124,7 @@ describe('Content Layer - Loader Warnings', () => {
 		// Loader that simulates glob pattern with no matches
 		const emptyPatternLoader = {
 			name: 'empty-pattern-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				// Simulate checking for files and finding none
 				const pattern = '*.mdx';
 				const base = 'src/content/empty';
@@ -174,7 +174,7 @@ describe('Content Layer - Loader Warnings', () => {
 		assert.ok(noFilesWarning, 'Should warn about no files found');
 
 		// Check metadata
-		const meta = store.get('emptyPattern', '_meta');
+		const meta: any = store.get('emptyPattern', '_meta');
 		assert.ok(meta);
 		assert.equal(meta.data.filesFound, 0);
 	});
@@ -182,13 +182,13 @@ describe('Content Layer - Loader Warnings', () => {
 	it('handles validation errors gracefully', async () => {
 		const root = createTempDir();
 		const store = new MutableDataStore();
-		const logs = [];
+		const logs: any[] = [];
 
 		const logger = new Logger({
 			level: 'error',
 			dest: new Writable({
 				objectMode: true,
-				write(event, _, callback) {
+				write(event: any, _: any, callback: any) {
 					logs.push(event);
 					callback();
 				},
@@ -198,7 +198,7 @@ describe('Content Layer - Loader Warnings', () => {
 		// Loader that produces validation errors
 		const validationErrorLoader = {
 			name: 'validation-error-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				const testData = [
 					{ id: 'item1', name: 'Valid Item', count: 5 },
 					{ id: 'item2', count: 10 }, // Missing required 'name'
@@ -221,7 +221,7 @@ describe('Content Layer - Loader Warnings', () => {
 							data: parsed,
 						});
 						successCount++;
-					} catch (error) {
+					} catch (error: any) {
 						errorCount++;
 						context.logger.error(`Validation failed for ${item.id || 'unknown'}: ${error.message}`);
 					}
@@ -276,13 +276,13 @@ describe('Content Layer - Loader Warnings', () => {
 		assert.ok(validationErrors.length > 0, 'Should log validation errors');
 
 		// Check valid entry
-		const validEntry = store.get('validated', 'item1');
+		const validEntry: any = store.get('validated', 'item1');
 		assert.ok(validEntry);
 		assert.equal(validEntry.data.name, 'Valid Item');
 		assert.equal(validEntry.data.count, 5);
 
 		// Check summary
-		const summary = store.get('validated', '_summary');
+		const summary: any = store.get('validated', '_summary');
 		assert.ok(summary);
 		assert.ok(summary.data.validationStats.errors > 0);
 	});
@@ -290,13 +290,13 @@ describe('Content Layer - Loader Warnings', () => {
 	it('handles malformed data gracefully', async () => {
 		const root = createTempDir();
 		const store = new MutableDataStore();
-		const logs = [];
+		const logs: any[] = [];
 
 		const logger = new Logger({
 			level: 'error',
 			dest: new Writable({
 				objectMode: true,
-				write(event, _, callback) {
+				write(event: any, _: any, callback: any) {
 					logs.push(event);
 					callback();
 				},
@@ -306,7 +306,7 @@ describe('Content Layer - Loader Warnings', () => {
 		// Loader that simulates processing malformed data
 		const malformedDataLoader = {
 			name: 'malformed-data-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				// Simulate trying to parse malformed JSON
 				const malformedJson = '{ "id": "test", "name": "Missing closing brace"';
 
@@ -317,7 +317,7 @@ describe('Content Layer - Loader Warnings', () => {
 						id: 'should-not-exist',
 						data,
 					});
-				} catch (error) {
+				} catch (error: any) {
 					context.logger.error(`Failed to parse JSON: ${error.message}`);
 
 					// Store error info
@@ -370,13 +370,13 @@ describe('Content Layer - Loader Warnings', () => {
 		assert.ok(jsonError, 'Should log JSON parse error');
 
 		// Check that error was handled
-		const errorEntry = store.get('malformed', 'parse-error');
+		const errorEntry: any = store.get('malformed', 'parse-error');
 		assert.ok(errorEntry);
 		assert.equal(errorEntry.data.error, 'JSON Parse Error');
 		assert.ok(errorEntry.data.recovered);
 
 		// Check that loader continued after error
-		const validEntry = store.get('malformed', 'valid-after-error');
+		const validEntry: any = store.get('malformed', 'valid-after-error');
 		assert.ok(validEntry);
 		assert.equal(validEntry.data.error, 'None');
 	});
@@ -384,13 +384,13 @@ describe('Content Layer - Loader Warnings', () => {
 	it('warns about duplicate IDs across multiple entries', async () => {
 		const root = createTempDir();
 		const store = new MutableDataStore();
-		const logs = [];
+		const logs: any[] = [];
 
 		const logger = new Logger({
 			level: 'warn',
 			dest: new Writable({
 				objectMode: true,
-				write(event, _, callback) {
+				write(event: any, _: any, callback: any) {
 					logs.push(event);
 					callback();
 				},
@@ -414,7 +414,7 @@ describe('Content Layer - Loader Warnings', () => {
 		// Loader that processes array data and warns about duplicates
 		const duplicateCheckLoader = {
 			name: 'duplicate-check-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				// Read and parse the file
 				const filePath = new URL('./dogs.json', dataDir);
 				const content = await fs.readFile(filePath, 'utf-8');
@@ -477,7 +477,7 @@ describe('Content Layer - Loader Warnings', () => {
 		const entries = store.values('dogs');
 		assert.equal(entries.length, 2); // Only 2 unique IDs
 
-		const germanShepherd = store.get('dogs', 'german-shepherd');
+		const germanShepherd: any = store.get('dogs', 'german-shepherd');
 		assert.ok(germanShepherd);
 		assert.equal(germanShepherd.data.breed, 'German Shepherd Mix'); // Last one wins
 		assert.equal(germanShepherd.data.size, 'Medium');
@@ -486,13 +486,13 @@ describe('Content Layer - Loader Warnings', () => {
 	it('handles missing required fields with helpful errors', async () => {
 		const root = createTempDir();
 		const store = new MutableDataStore();
-		const logs = [];
+		const logs: any[] = [];
 
 		const logger = new Logger({
 			level: 'error',
 			dest: new Writable({
 				objectMode: true,
-				write(event, _, callback) {
+				write(event: any, _: any, callback: any) {
 					logs.push(event);
 					callback();
 				},
@@ -502,7 +502,7 @@ describe('Content Layer - Loader Warnings', () => {
 		// Loader with strict schema validation
 		const strictSchemaLoader = {
 			name: 'strict-schema-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				const items = [
 					{ id: 'complete', title: 'Complete Item', priority: 'high', tags: ['important'] },
 					{ id: 'missing-title', priority: 'low', tags: [] }, // Missing required title
@@ -521,10 +521,10 @@ describe('Content Layer - Loader Warnings', () => {
 							id: item.id,
 							data: parsed,
 						});
-					} catch (error) {
+					} catch (error: any) {
 						// Log detailed validation error
 						const issues = error.errors || [];
-						const fields = issues.map((issue) => issue.path.join('.')).join(', ');
+						const fields = issues.map((issue: any) => issue.path.join('.')).join(', ');
 						context.logger.error(
 							`Validation failed for item "${item.id}": Missing or invalid fields: ${fields || error.message}`,
 						);
@@ -562,7 +562,7 @@ describe('Content Layer - Loader Warnings', () => {
 		assert.ok(validationLogs.length >= 2, 'Should have validation errors for invalid items');
 
 		// Only complete item should be stored
-		const completeItem = store.get('strictItems', 'complete');
+		const completeItem: any = store.get('strictItems', 'complete');
 		assert.ok(completeItem);
 		assert.equal(completeItem.data.title, 'Complete Item');
 		assert.equal(completeItem.data.priority, 'high');

@@ -6,10 +6,10 @@ import { ContentLayer } from '../../../dist/content/content-layer.js';
 import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
 import { Logger } from '../../../dist/core/logger/core.js';
 
-import { createTempDir, createTestConfigObserver, createMinimalSettings } from './test-helpers.js';
+import { createTempDir, createTestConfigObserver, createMinimalSettings } from './test-helpers.ts';
 
 describe('Core Content Layer loader', () => {
-	let logger;
+	let logger: any;
 	const root = createTempDir();
 
 	before(() => {
@@ -130,7 +130,7 @@ hello
 		// Create a loader that renders markdown
 		const markdownRenderingLoader = {
 			name: 'markdown-rendering-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				const result = await context.renderMarkdown(markdownContent, {
 					fileURL: new URL('test.md', root),
 				});
@@ -179,7 +179,7 @@ hello
 		// Sync content
 		await contentLayer.sync();
 
-		const entry = store.get('increment', 'value');
+		const entry: any = store.get('increment', 'value');
 		assert.ok(entry);
 		assert.ok(entry.data.renderedHtml);
 		assert.ok(entry.data.renderedHtml.includes('<h1 id="heading-1">heading 1</h1>'));
@@ -195,7 +195,7 @@ hello
 		// Create a loader that returns Date objects
 		const dateLoader = {
 			name: 'date-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				await context.store.set({
 					id: 'test-date',
 					data: {
@@ -228,7 +228,7 @@ hello
 		// Sync content
 		await contentLayer.sync();
 
-		const entry = store.get('dates', 'test-date');
+		const entry: any = store.get('dates', 'test-date');
 		assert.ok(entry);
 		assert.ok(entry.data.created instanceof Date);
 		assert.equal(entry.data.created.toISOString(), now.toISOString());
@@ -241,7 +241,7 @@ hello
 		// Create a loader that uses slug field
 		const slugLoader = {
 			name: 'slug-loader',
-			load: async (context) => {
+			load: async (context: any) => {
 				const data = {
 					lastValue: 1,
 					lastUpdated: new Date(),
@@ -283,7 +283,7 @@ hello
 		// Sync content
 		await contentLayer.sync();
 
-		const entry = store.get('increment', 'value');
+		const entry: any = store.get('increment', 'value');
 		assert.ok(entry);
 		assert.equal(entry.data.slug, 'slimy');
 	});

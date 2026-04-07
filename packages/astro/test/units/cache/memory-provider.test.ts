@@ -1,35 +1,44 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import type { CacheProvider } from '../../../dist/core/cache/types.js';
+import type { MemoryCacheProviderOptions } from '../../../dist/core/cache/memory-provider.js';
 import memoryProvider from '../../../dist/core/cache/memory-provider.js';
 
 /**
  * Helper: create a CacheProvider instance with optional config.
  */
-function createProvider(config) {
+function createProvider(config?: MemoryCacheProviderOptions): CacheProvider {
 	return memoryProvider(config);
 }
 
 /**
  * Helper: create a minimal Request.
  */
-function makeRequest(url, headers = {}) {
+function makeRequest(url: string, headers: Record<string, string> = {}): Request {
 	return new Request(url, { headers });
 }
 
 /**
  * Helper: create a next() function that returns a Response with cache headers.
- * @param {object} opts
- * @param {string} [opts.body='ok']
- * @param {number} [opts.status=200]
- * @param {number} [opts.maxAge]
- * @param {number} [opts.swr]
- * @param {string[]} [opts.tags]
- * @param {Record<string,string>} [opts.headers]
  */
-function makeNext({ body = 'ok', status = 200, maxAge, swr, tags, headers = {} } = {}) {
+function makeNext({
+	body = 'ok',
+	status = 200,
+	maxAge,
+	swr,
+	tags,
+	headers = {},
+}: {
+	body?: string;
+	status?: number;
+	maxAge?: number;
+	swr?: number;
+	tags?: string[];
+	headers?: Record<string, string>;
+} = {}): () => Promise<Response> {
 	return async () => {
 		const h = new Headers(headers);
-		const parts = [];
+		const parts: string[] = [];
 		if (maxAge !== undefined) parts.push(`max-age=${maxAge}`);
 		if (swr !== undefined) parts.push(`stale-while-revalidate=${swr}`);
 		if (parts.length > 0) h.set('CDN-Cache-Control', parts.join(', '));
@@ -38,13 +47,13 @@ function makeNext({ body = 'ok', status = 200, maxAge, swr, tags, headers = {} }
 	};
 }
 
-// ─── onRequest: basic caching ────────────────────────────────────────────────
+// #region onRequest: basic caching
 
 describe('memory-provider onRequest', () => {
 	it('passes through when no cache headers on response', async () => {
 		const provider = createProvider();
 		const req = makeRequest('http://localhost/page');
-		const res = await provider.onRequest({ request: req, url: new URL(req.url) }, makeNext());
+		const res = await provider.onRequest!({ request: req, url: new URL(req.url) }, makeNext());
 		assert.equal(await res.text(), 'ok');
 		assert.equal(res.headers.has('X-Astro-Cache'), false);
 	});
@@ -52,7 +61,7 @@ describe('memory-provider onRequest', () => {
 	it('returns MISS on first cacheable request', async () => {
 		const provider = createProvider();
 		const req = makeRequest('http://localhost/page');
-		const res = await provider.onRequest(
+		const res = await provider.onRequest!(
 			{ request: req, url: new URL(req.url) },
 			makeNext({ maxAge: 60 }),
 		);
@@ -66,14 +75,14 @@ describe('memory-provider onRequest', () => {
 
 		// First request — MISS
 		const req1 = makeRequest(url);
-		await provider.onRequest(
+		await provider.onRequest!(
 			{ request: req1, url: new URL(req1.url) },
 			makeNext({ maxAge: 60, body: 'first' }),
 		);
 
 		// Second request — HIT
 		const req2 = makeRequest(url);
-		const res2 = await provider.onRequest(
+		const res2 = await provider.onRequest!(
 			{ request: req2, url: new URL(req2.url) },
 			makeNext({ maxAge: 60, body: 'second' }),
 		);
@@ -85,7 +94,7 @@ describe('memory-provider onRequest', () => {
 		const provider = createProvider();
 		const req = new Request('http://localhost/page', { method: 'POST' });
 		let called = false;
-		const res = await provider.onRequest({ request: req, url: new URL(req.url) }, async () => {
+		const res = await provider.onRequest!({ request: req, url: new URL(req.url) }, async () => {
 			called = true;
 			return new Response('posted');
 		});
@@ -100,7 +109,7 @@ describe('memory-provider onRequest', () => {
 
 		// First request — has Set-Cookie, should not cache
 		const req1 = makeRequest(url);
-		await provider.onRequest(
+		await provider.onRequest!(
 			{ request: req1, url: new URL(req1.url) },
 			makeNext({ maxAge: 60, headers: { 'Set-Cookie': 'session=abc' } }),
 		);
@@ -108,7 +117,7 @@ describe('memory-provider onRequest', () => {
 		// Second request — should be a miss (not cached)
 		const req2 = makeRequest(url);
 		let nextCalled = false;
-		await provider.onRequest({ request: req2, url: new URL(req2.url) }, async () => {
+		await provider.onRequest!({ request: req2, url: new URL(req2.url) }, async () => {
 			nextCalled = true;
 			const h = new Headers({ 'CDN-Cache-Control': 'max-age=60' });
 			return new Response('fresh', { headers: h });
@@ -117,20 +126,22 @@ describe('memory-provider onRequest', () => {
 	});
 });
 
-// ─── onRequest: host-aware keys ──────────────────────────────────────────────
+// #endregion
+
+// #region onRequest: host-aware keys
 
 describe('memory-provider host-aware cache keys', () => {
 	it('different hosts produce different cache entries', async () => {
 		const provider = createProvider();
 
 		const req1 = makeRequest('http://host-a.com/page');
-		await provider.onRequest(
+		await provider.onRequest!(
 			{ request: req1, url: new URL(req1.url) },
 			makeNext({ maxAge: 60, body: 'host-a' }),
 		);
 
 		const req2 = makeRequest('http://host-b.com/page');
-		const res2 = await provider.onRequest(
+		const res2 = await provider.onRequest!(
 			{ request: req2, url: new URL(req2.url) },
 			makeNext({ maxAge: 60, body: 'host-b' }),
 		);
@@ -140,21 +151,23 @@ describe('memory-provider host-aware cache keys', () => {
 	});
 });
 
-// ─── onRequest: query parameter handling ─────────────────────────────────────
+// #endregion
+
+// #region onRequest: query parameter handling
 
 describe('memory-provider query parameters', () => {
 	it('sorts query parameters by default (order-independent keys)', async () => {
 		const provider = createProvider();
 
 		const req1 = makeRequest('http://localhost/page?b=2&a=1');
-		await provider.onRequest(
+		await provider.onRequest!(
 			{ request: req1, url: new URL(req1.url) },
 			makeNext({ maxAge: 60, body: 'first' }),
 		);
 
 		// Same params, different order — should HIT
 		const req2 = makeRequest('http://localhost/page?a=1&b=2');
-		const res2 = await provider.onRequest(
+		const res2 = await provider.onRequest!(
 			{ request: req2, url: new URL(req2.url) },
 			makeNext({ maxAge: 60, body: 'second' }),
 		);
@@ -165,13 +178,13 @@ describe('memory-provider query parameters', () => {
 		const provider = createProvider();
 
 		const req1 = makeRequest('http://localhost/page');
-		await provider.onRequest(
+		await provider.onRequest!(
 			{ request: req1, url: new URL(req1.url) },
 			makeNext({ maxAge: 60, body: 'first' }),
 		);
 
 		const req2 = makeRequest('http://localhost/page?utm_source=twitter&utm_medium=social');
-		const res2 = await provider.onRequest(
+		const res2 = await provider.onRequest!(
 			{ request: req2, url: new URL(req2.url) },
 			makeNext({ maxAge: 60, body: 'second' }),
 		);
@@ -182,13 +195,13 @@ describe('memory-provider query parameters', () => {
 		const provider = createProvider();
 
 		const req1 = makeRequest('http://localhost/page?page=2');
-		await provider.onRequest(
+		await provider.onRequest!(
 			{ request: req1, url: new URL(req1.url) },
 			makeNext({ maxAge: 60, body: 'page-2' }),
 		);
 
 		const req2 = makeRequest('http://localhost/page?page=2&fbclid=abc123');
-		const res2 = await provider.onRequest(
+		const res2 = await provider.onRequest!(
 			{ request: req2, url: new URL(req2.url) },
 			makeNext({ maxAge: 60, body: 'should-not-see' }),
 		);
@@ -199,13 +212,13 @@ describe('memory-provider query parameters', () => {
 		const provider = createProvider();
 
 		const req1 = makeRequest('http://localhost/page?page=3');
-		await provider.onRequest(
+		await provider.onRequest!(
 			{ request: req1, url: new URL(req1.url) },
 			makeNext({ maxAge: 60, body: 'page-3' }),
 		);
 
 		const req2 = makeRequest('http://localhost/page?page=3&gclid=xyz789');
-		const res2 = await provider.onRequest(
+		const res2 = await provider.onRequest!(
 			{ request: req2, url: new URL(req2.url) },
 			makeNext({ maxAge: 60, body: 'should-not-see' }),
 		);
@@ -216,13 +229,13 @@ describe('memory-provider query parameters', () => {
 		const provider = createProvider();
 
 		const req1 = makeRequest('http://localhost/page');
-		await provider.onRequest(
+		await provider.onRequest!(
 			{ request: req1, url: new URL(req1.url) },
 			makeNext({ maxAge: 60, body: 'no-params' }),
 		);
 
 		const req2 = makeRequest('http://localhost/page?utm_source=twitter&fbclid=abc&gclid=xyz');
-		const res2 = await provider.onRequest(
+		const res2 = await provider.onRequest!(
 			{ request: req2, url: new URL(req2.url) },
 			makeNext({ maxAge: 60, body: 'should-not-see' }),
 		);
@@ -233,13 +246,13 @@ describe('memory-provider query parameters', () => {
 		const provider = createProvider();
 
 		const req1 = makeRequest('http://localhost/page?id=1');
-		await provider.onRequest(
+		await provider.onRequest!(
 			{ request: req1, url: new URL(req1.url) },
 			makeNext({ maxAge: 60, body: 'id-1' }),
 		);
 
 		const req2 = makeRequest('http://localhost/page?id=2');
-		const res2 = await provider.onRequest(
+		const res2 = await provider.onRequest!(
 			{ request: req2, url: new URL(req2.url) },
 			makeNext({ maxAge: 60, body: 'id-2' }),
 		);
@@ -250,14 +263,14 @@ describe('memory-provider query parameters', () => {
 		const provider = createProvider({ query: { include: ['page'] } });
 
 		const req1 = makeRequest('http://localhost/list?page=1&sort=name');
-		await provider.onRequest(
+		await provider.onRequest!(
 			{ request: req1, url: new URL(req1.url) },
 			makeNext({ maxAge: 60, body: 'page-1' }),
 		);
 
 		// Different sort but same page — should HIT (sort not in include list)
 		const req2 = makeRequest('http://localhost/list?page=1&sort=date');
-		const res2 = await provider.onRequest(
+		const res2 = await provider.onRequest!(
 			{ request: req2, url: new URL(req2.url) },
 			makeNext({ maxAge: 60, body: 'page-1-date' }),
 		);
@@ -268,13 +281,13 @@ describe('memory-provider query parameters', () => {
 		const provider = createProvider({ query: { include: ['page'] } });
 
 		const req1 = makeRequest('http://localhost/list');
-		await provider.onRequest(
+		await provider.onRequest!(
 			{ request: req1, url: new URL(req1.url) },
 			makeNext({ maxAge: 60, body: 'no-params' }),
 		);
 
 		const req2 = makeRequest('http://localhost/list?sort=name&filter=active');
-		const res2 = await provider.onRequest(
+		const res2 = await provider.onRequest!(
 			{ request: req2, url: new URL(req2.url) },
 			makeNext({ maxAge: 60, body: 'should-not-see' }),
 		);
@@ -285,13 +298,13 @@ describe('memory-provider query parameters', () => {
 		const provider = createProvider({ query: { exclude: ['session_*'] } });
 
 		const req1 = makeRequest('http://localhost/page?id=1');
-		await provider.onRequest(
+		await provider.onRequest!(
 			{ request: req1, url: new URL(req1.url) },
 			makeNext({ maxAge: 60, body: 'first' }),
 		);
 
 		const req2 = makeRequest('http://localhost/page?id=1&session_id=abc');
-		const res2 = await provider.onRequest(
+		const res2 = await provider.onRequest!(
 			{ request: req2, url: new URL(req2.url) },
 			makeNext({ maxAge: 60, body: 'second' }),
 		);
@@ -305,7 +318,9 @@ describe('memory-provider query parameters', () => {
 	});
 });
 
-// ─── onRequest: Vary header support ──────────────────────────────────────────
+// #endregion
+
+// #region onRequest: Vary header support
 
 describe('memory-provider Vary header', () => {
 	it('caches different entries for different Vary header values', async () => {
@@ -314,14 +329,14 @@ describe('memory-provider Vary header', () => {
 
 		// First request: Accept-Language: en
 		const req1 = makeRequest(url, { 'Accept-Language': 'en' });
-		await provider.onRequest(
+		await provider.onRequest!(
 			{ request: req1, url: new URL(req1.url) },
 			makeNext({ maxAge: 60, body: 'english', headers: { Vary: 'Accept-Language' } }),
 		);
 
 		// Second request: Accept-Language: fr — should MISS
 		const req2 = makeRequest(url, { 'Accept-Language': 'fr' });
-		const res2 = await provider.onRequest(
+		const res2 = await provider.onRequest!(
 			{ request: req2, url: new URL(req2.url) },
 			makeNext({ maxAge: 60, body: 'french', headers: { Vary: 'Accept-Language' } }),
 		);
@@ -330,7 +345,7 @@ describe('memory-provider Vary header', () => {
 
 		// Third request: Accept-Language: en — should HIT from first
 		const req3 = makeRequest(url, { 'Accept-Language': 'en' });
-		const res3 = await provider.onRequest(
+		const res3 = await provider.onRequest!(
 			{ request: req3, url: new URL(req3.url) },
 			makeNext({ maxAge: 60, body: 'should-not-see' }),
 		);
@@ -343,14 +358,14 @@ describe('memory-provider Vary header', () => {
 		const url = 'http://localhost/page';
 
 		const req1 = makeRequest(url, { Cookie: 'user=a' });
-		await provider.onRequest(
+		await provider.onRequest!(
 			{ request: req1, url: new URL(req1.url) },
 			makeNext({ maxAge: 60, body: 'first', headers: { Vary: 'Cookie' } }),
 		);
 
 		// Different cookie — should still HIT (Cookie is ignored in Vary)
 		const req2 = makeRequest(url, { Cookie: 'user=b' });
-		const res2 = await provider.onRequest(
+		const res2 = await provider.onRequest!(
 			{ request: req2, url: new URL(req2.url) },
 			makeNext({ maxAge: 60, body: 'second' }),
 		);
@@ -358,7 +373,9 @@ describe('memory-provider Vary header', () => {
 	});
 });
 
-// ─── onRequest: LRU eviction ─────────────────────────────────────────────────
+// #endregion
+
+// #region onRequest: LRU eviction
 
 describe('memory-provider LRU eviction', () => {
 	it('evicts oldest entry when max is exceeded', async () => {
@@ -367,7 +384,7 @@ describe('memory-provider LRU eviction', () => {
 		// Fill cache with 2 entries
 		for (const path of ['/a', '/b']) {
 			const req = makeRequest(`http://localhost${path}`);
-			await provider.onRequest(
+			await provider.onRequest!(
 				{ request: req, url: new URL(req.url) },
 				makeNext({ maxAge: 60, body: path }),
 			);
@@ -375,14 +392,14 @@ describe('memory-provider LRU eviction', () => {
 
 		// Add a third — should evict /a (oldest)
 		const req3 = makeRequest('http://localhost/c');
-		await provider.onRequest(
+		await provider.onRequest!(
 			{ request: req3, url: new URL(req3.url) },
 			makeNext({ maxAge: 60, body: '/c' }),
 		);
 
 		// /b should still be cached (HIT)
 		const reqB = makeRequest('http://localhost/b');
-		const resB = await provider.onRequest(
+		const resB = await provider.onRequest!(
 			{ request: reqB, url: new URL(reqB.url) },
 			makeNext({ maxAge: 60, body: '/b-new' }),
 		);
@@ -390,7 +407,7 @@ describe('memory-provider LRU eviction', () => {
 
 		// /c should still be cached (HIT)
 		const reqC = makeRequest('http://localhost/c');
-		const resC = await provider.onRequest(
+		const resC = await provider.onRequest!(
 			{ request: reqC, url: new URL(reqC.url) },
 			makeNext({ maxAge: 60, body: '/c-new' }),
 		);
@@ -399,7 +416,7 @@ describe('memory-provider LRU eviction', () => {
 		// /a should have been evicted (MISS) — check without caching the result
 		// by using a next() that returns no cache headers
 		const reqA = makeRequest('http://localhost/a');
-		const resA = await provider.onRequest(
+		const resA = await provider.onRequest!(
 			{ request: reqA, url: new URL(reqA.url) },
 			makeNext({ body: '/a-evicted' }),
 		);
@@ -407,7 +424,9 @@ describe('memory-provider LRU eviction', () => {
 	});
 });
 
-// ─── invalidate ──────────────────────────────────────────────────────────────
+// #endregion
+
+// #region invalidate
 
 describe('memory-provider invalidate', () => {
 	it('invalidates by tag', async () => {
@@ -416,14 +435,14 @@ describe('memory-provider invalidate', () => {
 
 		// Cache an entry with tags
 		const req1 = makeRequest(url);
-		await provider.onRequest(
+		await provider.onRequest!(
 			{ request: req1, url: new URL(req1.url) },
 			makeNext({ maxAge: 60, tags: ['product'] }),
 		);
 
 		// Verify cached
 		const req2 = makeRequest(url);
-		const res2 = await provider.onRequest(
+		const res2 = await provider.onRequest!(
 			{ request: req2, url: new URL(req2.url) },
 			makeNext({ maxAge: 60 }),
 		);
@@ -434,7 +453,7 @@ describe('memory-provider invalidate', () => {
 
 		// Should be MISS now
 		const req3 = makeRequest(url);
-		const res3 = await provider.onRequest(
+		const res3 = await provider.onRequest!(
 			{ request: req3, url: new URL(req3.url) },
 			makeNext({ maxAge: 60, body: 'fresh' }),
 		);
@@ -447,7 +466,7 @@ describe('memory-provider invalidate', () => {
 		// Cache two entries
 		for (const path of ['/a', '/b']) {
 			const req = makeRequest(`http://localhost${path}`);
-			await provider.onRequest(
+			await provider.onRequest!(
 				{ request: req, url: new URL(req.url) },
 				makeNext({ maxAge: 60, body: path }),
 			);
@@ -458,7 +477,7 @@ describe('memory-provider invalidate', () => {
 
 		// /a should miss
 		const reqA = makeRequest('http://localhost/a');
-		const resA = await provider.onRequest(
+		const resA = await provider.onRequest!(
 			{ request: reqA, url: new URL(reqA.url) },
 			makeNext({ maxAge: 60, body: 'a-new' }),
 		);
@@ -466,7 +485,7 @@ describe('memory-provider invalidate', () => {
 
 		// /b should still hit
 		const reqB = makeRequest('http://localhost/b');
-		const resB = await provider.onRequest(
+		const resB = await provider.onRequest!(
 			{ request: reqB, url: new URL(reqB.url) },
 			makeNext({ maxAge: 60, body: 'b-new' }),
 		);
@@ -478,7 +497,7 @@ describe('memory-provider invalidate', () => {
 		const url = 'http://localhost/page';
 
 		const req1 = makeRequest(url);
-		await provider.onRequest(
+		await provider.onRequest!(
 			{ request: req1, url: new URL(req1.url) },
 			makeNext({ maxAge: 60, tags: ['product'] }),
 		);
@@ -486,7 +505,7 @@ describe('memory-provider invalidate', () => {
 		await provider.invalidate({ tags: ['blog'] });
 
 		const req2 = makeRequest(url);
-		const res2 = await provider.onRequest(
+		const res2 = await provider.onRequest!(
 			{ request: req2, url: new URL(req2.url) },
 			makeNext({ maxAge: 60 }),
 		);
@@ -494,7 +513,9 @@ describe('memory-provider invalidate', () => {
 	});
 });
 
-// ─── onRequest: SWR (stale-while-revalidate) ────────────────────────────────
+// #endregion
+
+// #region onRequest: SWR (stale-while-revalidate)
 
 describe('memory-provider SWR', () => {
 	it('serves STALE and triggers background revalidation', async () => {
@@ -505,7 +526,7 @@ describe('memory-provider SWR', () => {
 		// We can't easily manipulate time, so use a very short maxAge.
 		// Instead, seed with maxAge=1, swr=60, then wait briefly.
 		const req1 = makeRequest(url);
-		await provider.onRequest(
+		await provider.onRequest!(
 			{ request: req1, url: new URL(req1.url) },
 			makeNext({ maxAge: 1, swr: 60, body: 'stale-body' }),
 		);
@@ -515,7 +536,7 @@ describe('memory-provider SWR', () => {
 
 		// Second request should get STALE
 		const req2 = makeRequest(url);
-		const res2 = await provider.onRequest(
+		const res2 = await provider.onRequest!(
 			{ request: req2, url: new URL(req2.url) },
 			makeNext({ maxAge: 60, swr: 60, body: 'fresh-body' }),
 		);
@@ -527,7 +548,7 @@ describe('memory-provider SWR', () => {
 
 		// Third request should now get HIT with the fresh content
 		const req3 = makeRequest(url);
-		const res3 = await provider.onRequest(
+		const res3 = await provider.onRequest!(
 			{ request: req3, url: new URL(req3.url) },
 			makeNext({ maxAge: 60, body: 'should-not-see' }),
 		);
@@ -536,7 +557,9 @@ describe('memory-provider SWR', () => {
 	});
 });
 
-// ─── response body correctness ───────────────────────────────────────────────
+// #endregion
+
+// #region response body correctness
 
 describe('memory-provider response body', () => {
 	it('serves correct body from cache', async () => {
@@ -545,13 +568,13 @@ describe('memory-provider response body', () => {
 		const body = JSON.stringify({ data: [1, 2, 3], nested: { key: 'value' } });
 
 		const req1 = makeRequest(url);
-		await provider.onRequest(
+		await provider.onRequest!(
 			{ request: req1, url: new URL(req1.url) },
 			makeNext({ maxAge: 60, body }),
 		);
 
 		const req2 = makeRequest(url);
-		const res2 = await provider.onRequest(
+		const res2 = await provider.onRequest!(
 			{ request: req2, url: new URL(req2.url) },
 			makeNext({ maxAge: 60, body: 'wrong' }),
 		);
@@ -563,13 +586,13 @@ describe('memory-provider response body', () => {
 		const url = 'http://localhost/page';
 
 		const req1 = makeRequest(url);
-		await provider.onRequest(
+		await provider.onRequest!(
 			{ request: req1, url: new URL(req1.url) },
 			makeNext({ maxAge: 60, status: 201, body: 'created' }),
 		);
 
 		const req2 = makeRequest(url);
-		const res2 = await provider.onRequest(
+		const res2 = await provider.onRequest!(
 			{ request: req2, url: new URL(req2.url) },
 			makeNext({ maxAge: 60 }),
 		);
@@ -581,7 +604,7 @@ describe('memory-provider response body', () => {
 		const url = 'http://localhost/page';
 
 		const req1 = makeRequest(url);
-		await provider.onRequest(
+		await provider.onRequest!(
 			{ request: req1, url: new URL(req1.url) },
 			makeNext({
 				maxAge: 60,
@@ -590,7 +613,7 @@ describe('memory-provider response body', () => {
 		);
 
 		const req2 = makeRequest(url);
-		const res2 = await provider.onRequest(
+		const res2 = await provider.onRequest!(
 			{ request: req2, url: new URL(req2.url) },
 			makeNext({ maxAge: 60 }),
 		);
@@ -598,3 +621,5 @@ describe('memory-provider response body', () => {
 		assert.equal(res2.headers.get('X-Custom'), 'hello');
 	});
 });
+
+// #endregion

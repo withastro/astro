@@ -5,22 +5,18 @@ import { pathToFileURL } from 'node:url';
 
 /**
  * Creates a temporary directory for tests
- * @param {string} prefix - Optional prefix for the temp directory name
- * @returns {URL} The file URL of the created temp directory
  */
-export function createTempDir(prefix = 'astro-test-') {
+export function createTempDir(prefix = 'astro-test-'): URL {
 	const tempDir = mkdtempSync(path.join(tmpdir(), prefix));
 	return pathToFileURL(tempDir + path.sep);
 }
 
 /**
  * Creates a test content config observer for unit tests
- * @param {Object} collections - The collections configuration
- * @returns {Object} A mock content config observer
  */
-export function createTestConfigObserver(collections) {
+export function createTestConfigObserver(collections: Record<string, any>): any {
 	const contentConfig = {
-		status: 'loaded',
+		status: 'loaded' as const,
 		config: {
 			collections,
 			digest: 'test-digest',
@@ -30,8 +26,7 @@ export function createTestConfigObserver(collections) {
 	return {
 		get: () => contentConfig,
 		set: () => {},
-		subscribe: (fn) => {
-			// Call immediately with current config
+		subscribe: (fn: (config: typeof contentConfig) => void) => {
 			fn(contentConfig);
 			return () => {};
 		},
@@ -40,11 +35,8 @@ export function createTestConfigObserver(collections) {
 
 /**
  * Creates minimal Astro settings for content layer tests
- * @param {URL} root - The root URL for the test
- * @param {Object} overrides - Optional overrides for specific settings
- * @returns {Object} Astro settings object
  */
-export function createMinimalSettings(root, overrides = {}) {
+export function createMinimalSettings(root: URL, overrides: Record<string, any> = {}): any {
 	const defaultConfig = {
 		root,
 		srcDir: new URL('./src/', root),
@@ -53,7 +45,7 @@ export function createMinimalSettings(root, overrides = {}) {
 		experimental: {},
 	};
 
-	const settings = {
+	const settings: Record<string, any> = {
 		config: {
 			...defaultConfig,
 			...(overrides.config || {}),
@@ -63,7 +55,6 @@ export function createMinimalSettings(root, overrides = {}) {
 		dataEntryTypes: [],
 	};
 
-	// Apply non-config overrides
 	Object.keys(overrides).forEach((key) => {
 		if (key !== 'config') {
 			settings[key] = overrides[key];
@@ -75,62 +66,56 @@ export function createMinimalSettings(root, overrides = {}) {
 
 /**
  * Simple YAML frontmatter parser for markdown files
- * @param {string} contents - The file contents
- * @param {string} fileUrl - The file URL
- * @returns {Object} Parsed frontmatter data, body, and slug
  */
-export function parseSimpleMarkdownFrontmatter(contents, fileUrl) {
+export function parseSimpleMarkdownFrontmatter(contents: string, fileUrl: string | URL) {
 	const lines = contents.split('\n');
-	const frontmatterStart = lines.findIndex((l) => l === '---');
-	const frontmatterEnd = lines.findIndex((l, i) => i > frontmatterStart && l === '---');
+	const frontmatterStart = lines.findIndex((l: string) => l === '---');
+	const frontmatterEnd = lines.findIndex(
+		(l: string, i: number) => i > frontmatterStart && l === '---',
+	);
 
 	if (frontmatterStart === -1 || frontmatterEnd === -1) {
-		const slug = path.basename(fileUrl.pathname || fileUrl, '.md');
-		return { data: {}, body: contents, slug, rawData: {} };
+		const pathname = typeof fileUrl === 'string' ? fileUrl : fileUrl.pathname;
+		const slug = path.basename(pathname, '.md');
+		return { data: {} as Record<string, any>, body: contents, slug, rawData: {} };
 	}
 
 	const frontmatterLines = lines.slice(frontmatterStart + 1, frontmatterEnd);
 	const body = lines.slice(frontmatterEnd + 1).join('\n');
 
-	// Parse YAML-like frontmatter
-	const data = {};
+	const data: Record<string, any> = {};
 	for (const line of frontmatterLines) {
 		const [key, ...valueParts] = line.split(':');
 		if (key && valueParts.length) {
 			const value = valueParts.join(':').trim();
 			if (value.startsWith('[') && value.endsWith(']')) {
-				// Parse YAML-style arrays
 				const arrayContent = value.slice(1, -1);
 				data[key.trim()] = arrayContent
 					.split(',')
-					.map((item) => item.trim().replace(/^["']|["']$/g, ''))
-					.filter((item) => item.length > 0);
+					.map((item: string) => item.trim().replace(/^["']|["']$/g, ''))
+					.filter((item: string) => item.length > 0);
 			} else if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-				// Keep dates as strings for schema to parse
 				data[key.trim()] = value;
 			} else {
-				// Remove quotes if present
 				data[key.trim()] = value.replace(/^["']|["']$/g, '');
 			}
 		}
 	}
 
-	const slug = path.basename(fileUrl.pathname || fileUrl, '.md');
+	const pathname = typeof fileUrl === 'string' ? fileUrl : fileUrl.pathname;
+	const slug = path.basename(pathname, '.md');
 	return { data, body, slug, rawData: data };
 }
 
 /**
  * Creates a markdown entry type configuration
- * @param {Function} getEntryInfo - Optional custom getEntryInfo function
- * @returns {Object} Entry type configuration for markdown files
  */
-export function createMarkdownEntryType(getEntryInfo = parseSimpleMarkdownFrontmatter) {
+export function createMarkdownEntryType(
+	getEntryInfo: (contents: string, fileUrl: string | URL) => any = parseSimpleMarkdownFrontmatter,
+) {
 	return {
 		extensions: ['.md'],
-		getEntryInfo: async ({ contents, fileUrl }) => {
-			if (typeof fileUrl === 'string') {
-				return getEntryInfo(contents, fileUrl);
-			}
+		getEntryInfo: async ({ contents, fileUrl }: { contents: string; fileUrl: string | URL }) => {
 			return getEntryInfo(contents, fileUrl);
 		},
 	};

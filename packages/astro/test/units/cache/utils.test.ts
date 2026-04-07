@@ -41,7 +41,7 @@ describe('defaultSetHeaders()', () => {
 
 	it('empty options produces no headers', () => {
 		const headers = defaultSetHeaders({});
-		assert.equal([...headers.entries()].length, 0);
+		assert.equal([...(headers as any).entries()].length, 0);
 	});
 
 	it('tags-only produces Cache-Tag but no CDN-Cache-Control', () => {

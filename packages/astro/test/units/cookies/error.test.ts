@@ -7,11 +7,11 @@ describe('astro/src/core/cookies', () => {
 		it('Produces an error if the response is already sent', () => {
 			const req = new Request('http://example.com/', {});
 			const cookies = new AstroCookies(req);
-			req[Symbol.for('astro.responseSent')] = true;
+			(req as any)[Symbol.for('astro.responseSent')] = true;
 			try {
 				cookies.set('foo', 'bar');
 				assert.equal(false, true);
-			} catch (err) {
+			} catch (err: any) {
 				assert.equal(err.name, 'ResponseSentError');
 			}
 		});
