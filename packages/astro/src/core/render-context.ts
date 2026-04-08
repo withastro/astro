@@ -64,6 +64,7 @@ export type CreateRenderContext = Pick<
 			| 'actions'
 			| 'shouldInjectCspMetaTags'
 			| 'skipMiddleware'
+			| 'cookies'
 		>
 	>;
 
@@ -177,6 +178,7 @@ export class RenderContext {
 		partial = undefined,
 		shouldInjectCspMetaTags,
 		skipMiddleware = false,
+		cookies: existingCookies,
 	}: CreateRenderContext): Promise<RenderContext> {
 		const pipelineMiddleware = await pipeline.getMiddleware();
 		const pipelineActions = await pipeline.getActions();
@@ -189,7 +191,7 @@ export class RenderContext {
 			pipeline.manifest.trailingSlash,
 			pipeline.manifest.buildFormat,
 		);
-		const cookies = new AstroCookies(request);
+		const cookies = existingCookies ?? new AstroCookies(request);
 		const session =
 			pipeline.manifest.sessionConfig && pipelineSessionDriver
 				? new AstroSession({

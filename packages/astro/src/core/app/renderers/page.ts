@@ -108,7 +108,7 @@ export class PageRenderer {
 						return prepareForRender(
 							pipeline, manifest, getManifestData(), logger,
 							newRequest, rewriteRouteData,
-							{ locals: renderContext.locals },
+							{ locals: renderContext.locals, cookies: renderContext.cookies },
 							(ctx, comp) => ctx.render(comp),
 						);
 					},
