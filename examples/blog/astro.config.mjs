@@ -8,26 +8,28 @@ import { defineConfig, fontProviders } from 'astro/config';
 export default defineConfig({
 	site: 'https://example.com',
 	integrations: [mdx(), sitemap()],
-	fonts: [{
-		provider: fontProviders.local(),
-		name: "Atkinson",
-		cssVariable: "--font-atkinson",
-		fallbacks: ["sans-serif"],
-		options: {
-			variants: [
-				{
-					src: ['./src/assets/fonts/atkinson-regular.woff'],
-					weight: 400,
-					style: 'normal',
-					display: 'swap'
-				},
-				{
-					src: ['./src/assets/fonts/atkinson-bold.woff'],
-					weight: 700,
-					style: 'normal',
-					display: 'swap'
-				}
-			]
-		}
-	}]
+	fonts: [
+		{
+			provider: fontProviders.local(),
+			name: 'Atkinson',
+			cssVariable: '--font-atkinson',
+			fallbacks: ['sans-serif'],
+			options: {
+				variants: [
+					{
+						src: ['./src/assets/fonts/atkinson-regular.woff'],
+						weight: 400,
+						style: 'normal',
+						display: 'swap',
+					},
+					{
+						src: ['./src/assets/fonts/atkinson-bold.woff'],
+						weight: 700,
+						style: 'normal',
+						display: 'swap',
+					},
+				],
+			},
+		},
+	],
 });
