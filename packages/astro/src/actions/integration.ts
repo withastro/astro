@@ -41,7 +41,7 @@ export default function astroIntegrationActionsRouteHandler({
 				});
 			},
 			'astro:routes:resolved': ({ routes }) => {
-				if (!hasNonPrerenderedRoute(routes)) {
+				if (settings.config.output !== 'server' && !hasNonPrerenderedRoute(routes)) {
 					const error = new AstroError(ActionsWithoutServerOutputError);
 					error.stack = undefined;
 					throw error;
