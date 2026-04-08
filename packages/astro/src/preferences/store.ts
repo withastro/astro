@@ -1,8 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import dget from 'dlv';
 import { dset } from 'dset';
 import { SETTINGS_FILE } from './constants.js';
+import dget from './dlv.js';
 
 export class PreferenceStore {
 	private dir: string;
