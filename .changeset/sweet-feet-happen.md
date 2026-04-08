@@ -2,4 +2,4 @@
 '@astrojs/cloudflare': patch
 ---
 
-Removes unused re-export from info helper function 
+Removes an unused function re-export from the `/info` package path
