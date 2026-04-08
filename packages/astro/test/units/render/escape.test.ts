@@ -1,4 +1,3 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
@@ -86,8 +85,8 @@ describe('unescapeHTML', () => {
 			yield '<li>1</li>';
 			yield '<li>2</li>';
 		}
-		const result = unescapeHTML(gen());
-		const chunks = [];
+		const result = unescapeHTML(gen()) as AsyncIterable<unknown>;
+		const chunks: string[] = [];
 		for await (const chunk of result) {
 			chunks.push(String(chunk));
 		}
@@ -100,8 +99,8 @@ describe('unescapeHTML', () => {
 			yield '<li>a</li>';
 			yield '<li>b</li>';
 		}
-		const result = unescapeHTML(gen());
-		const chunks = [];
+		const result = unescapeHTML(gen()) as AsyncIterable<unknown>;
+		const chunks: string[] = [];
 		for await (const chunk of result) {
 			chunks.push(String(chunk));
 		}
@@ -110,8 +109,8 @@ describe('unescapeHTML', () => {
 
 	it('can take a Response', async () => {
 		const response = new Response('<p>hello</p>', { headers: { 'content-type': 'text/html' } });
-		const result = unescapeHTML(response);
-		const chunks = [];
+		const result = unescapeHTML(response) as AsyncIterable<unknown>;
+		const chunks: string[] = [];
 		const dec = new TextDecoder();
 		for await (const chunk of result) {
 			chunks.push(chunk instanceof Uint8Array ? dec.decode(chunk) : String(chunk));
@@ -126,8 +125,8 @@ describe('unescapeHTML', () => {
 				controller.close();
 			},
 		});
-		const result = unescapeHTML(stream);
-		const chunks = [];
+		const result = unescapeHTML(stream) as AsyncIterable<unknown>;
+		const chunks: string[] = [];
 		for await (const chunk of result) {
 			chunks.push(String(chunk));
 		}
