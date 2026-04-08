@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import { formatWithOptions } from 'node:util';
-import dlv from 'dlv';
+import dlv from '../../preferences/dlv.js';
 import { flattie } from 'flattie';
 import colors from 'piccolore';
 import { resolveConfig } from '../../core/config/config.js';
