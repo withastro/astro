@@ -25,7 +25,7 @@ import {
 	computePreferredLocale,
 	computePreferredLocaleList,
 } from '../../i18n/utils.js';
-import { ASTRO_GENERATOR, clientAddressSymbol, clientLocalsSymbol, pipelineSymbol, REROUTABLE_STATUS_CODES, REROUTE_DIRECTIVE_HEADER, ROUTE_TYPE_HEADER } from '../constants.js';
+import { ASTRO_GENERATOR, clientAddressSymbol, clientLocalsSymbol, NOOP_MIDDLEWARE_HEADER, pipelineSymbol, REROUTABLE_STATUS_CODES, REROUTE_DIRECTIVE_HEADER, REWRITE_DIRECTIVE_HEADER_KEY, ROUTE_TYPE_HEADER } from '../constants.js';
 import { PERSIST_SYMBOL } from '../session/runtime.js';
 import { computeFallbackRoute } from '../../i18n/fallback.js';
 import { ForbiddenRewrite } from '../errors/errors-data.js';
@@ -766,7 +766,7 @@ function createPagesMiddleware(
 
 		if (routeData.type === 'endpoint') {
 			c.res = await endpointRenderer.render(routeData, ctx);
-			c.res.headers.set(ROUTE_TYPE_HEADER, 'endpoint');
+			try { c.res.headers.set(ROUTE_TYPE_HEADER, 'endpoint'); } catch { /* immutable headers */ }
 			if (
 				REROUTABLE_STATUS_CODES.includes(c.res.status) &&
 				c.res.body === null &&
@@ -885,6 +885,20 @@ export function createAstroMiddleware(
 
 	return async (c, _next) => {
 		c.res = await inner.fetch(c.req.raw);
+		// Strip internally-used headers before the response reaches the client.
+		// Use try/catch because some Responses (e.g. Response.redirect()) have immutable headers.
+		try {
+			for (const header of [REROUTE_DIRECTIVE_HEADER, ROUTE_TYPE_HEADER, NOOP_MIDDLEWARE_HEADER, REWRITE_DIRECTIVE_HEADER_KEY]) {
+				c.res.headers.delete(header);
+			}
+		} catch {
+			// Headers are immutable — create a new Response with cleaned headers
+			const headers = new Headers(c.res.headers);
+			for (const header of [REROUTE_DIRECTIVE_HEADER, ROUTE_TYPE_HEADER, NOOP_MIDDLEWARE_HEADER, REWRITE_DIRECTIVE_HEADER_KEY]) {
+				headers.delete(header);
+			}
+			c.res = new Response(c.res.body, { status: c.res.status, statusText: c.res.statusText, headers });
+		}
 	};
 }
 
