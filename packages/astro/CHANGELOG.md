@@ -1,5 +1,23 @@
 # astro
 
+## 6.1.5
+
+### Patch Changes
+
+- [#16171](https://github.com/withastro/astro/pull/16171) [`5bcd03c`](https://github.com/withastro/astro/commit/5bcd03c1852cb7a7e165017089cc39c111599530) Thanks [@Desel72](https://github.com/Desel72)! - Fixes a build error that occurred when a pre-rendered page used the `<Picture>` component and another page called `render()` on content collection entries.
+
+- [#16239](https://github.com/withastro/astro/pull/16239) [`7c65c04`](https://github.com/withastro/astro/commit/7c65c0495a12dcb86e6566223e398094566d1435) Thanks [@dataCenter430](https://github.com/dataCenter430)! - Fixes sync content inside `<Fragment>` not streaming to the browser until all async sibling expressions have resolved.
+
+- [#16242](https://github.com/withastro/astro/pull/16242) [`686c312`](https://github.com/withastro/astro/commit/686c3124c1f4078d8395c86047020d92225e71ae) Thanks [@martrapp](https://github.com/martrapp)! - Revives UnoCSS in dev mode when used with the client router.
+
+  This change partly reverts [#16089](https://github.com/withastro/astro/pull/16089), which in hindsight turned out to be too general. Instead of automatically persisting all style sheets, we now do this only for styles from Vue components.
+
+- [#16192](https://github.com/withastro/astro/pull/16192) [`79d86b8`](https://github.com/withastro/astro/commit/79d86b88ef199d6a2195584ec53b225c6a9df5f9) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Uses today’s date for Cloudflare `compatibility_date` in `astro add cloudflare`
+
+  When creating new projects, `astro add cloudflare` now sets `compatibility_date` to the current date. Previously, this date was resolved from locally installed packages, which could be unreliable in some package manager environments. Using today’s date is simpler and more reliable across environments, and is supported by [`workerd`](https://github.com/cloudflare/workers-sdk/pull/13051).
+
+- [#16259](https://github.com/withastro/astro/pull/16259) [`34df955`](https://github.com/withastro/astro/commit/34df95585662d8d00f09e1295cdfe51f2dc78e3f) Thanks [@gameroman](https://github.com/gameroman)! - Removed `dlv` dependency
+
 ## 6.1.4
 
 ### Patch Changes
