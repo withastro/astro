@@ -2711,6 +2711,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/content-collection-picture-render:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/content-collection-references:
     dependencies:
       astro:
@@ -4968,6 +4974,15 @@ importers:
         version: link:../../../../../astro
 
   packages/integrations/cloudflare/test/fixtures/prerender-node-env:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
+  packages/integrations/cloudflare/test/fixtures/prerender-queue-consumers:
     dependencies:
       '@astrojs/cloudflare':
         specifier: workspace:*
