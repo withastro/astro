@@ -1,7 +1,7 @@
 import type { SSRError } from 'astro';
 import type { Plugin } from 'vite';
 import type { MdxOptions } from './index.js';
-import { createMdxProcessor } from './tryckeri-plugins.js';
+import { createMdxProcessor } from './satteri-plugins.js';
 import { safeParseFrontmatter } from './utils.js';
 
 export interface VitePluginMdxOptions {

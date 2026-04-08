@@ -3,12 +3,12 @@ import { createShikiHighlighter } from '@astrojs/markdown-remark';
 import {
 	defineMdastPlugin,
 	defineHastPlugin,
-	compileMdxToJs,
+	mdxToJs,
 	type HastNode,
 	type HastVisitorContext,
 	type MdastPluginDefinition,
 	type HastPluginDefinition,
-} from 'tryckeri';
+} from 'satteri';
 import Slugger from 'github-slugger';
 import type { MdxOptions } from './index.js';
 
@@ -307,19 +307,15 @@ function createCollectImagesPlugin(
 ): MdastPluginDefinition {
 	return defineMdastPlugin({
 		name: 'collect-images',
-		createOnce() {
-			return {
-				image(node) {
-					const url = node.url ? decodeURI(node.url) : undefined;
-					if (!url) return;
+		image(node) {
+			const url = node.url ? decodeURI(node.url) : undefined;
+			if (!url) return;
 
-					if (URL.canParse(url)) {
-						remoteImagePaths.add(url);
-					} else if (!url.startsWith('/')) {
-						localImagePaths.add(url);
-					}
-				},
-			};
+			if (URL.canParse(url)) {
+				remoteImagePaths.add(url);
+			} else if (!url.startsWith('/')) {
+				localImagePaths.add(url);
+			}
 		},
 	});
 }
@@ -328,22 +324,18 @@ function createHeadingIdsPlugin(
 	headings: MarkdownHeading[],
 	frontmatter: Record<string, any> | undefined,
 ): HastPluginDefinition {
+	const slugger = new Slugger();
 	return defineHastPlugin({
 		name: 'heading-ids',
-		createOnce() {
-			const slugger = new Slugger();
-			return {
-				element: {
-					filter: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
-					visit(node, ctx) {
-						const text = collectHastText(node, frontmatter);
-						const slug = slugger.slug(text);
-						const depth = parseInt(node.tagName[1], 10);
-						headings.push({ depth, slug, text });
-						ctx.setProperty(node, 'id', slug);
-					},
-				},
-			};
+		element: {
+			filter: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+			visit(node, ctx) {
+				const text = collectHastText(node, frontmatter);
+				const slug = slugger.slug(text);
+				const depth = parseInt(node.tagName[1], 10);
+				headings.push({ depth, slug, text });
+				ctx.setProperty(node, 'id', slug);
+			},
 		},
 	});
 }
@@ -354,32 +346,28 @@ function createShikiPlugin(
 ): HastPluginDefinition {
 	return defineHastPlugin({
 		name: 'shiki-highlight',
-		createOnce() {
-			return {
-				element: {
-					filter: ['pre'],
-					async visit(node, ctx) {
-						const codeChild = node.children?.find(
-							(c: HastNode) => c.type === 'element' && c.tagName === 'code',
-						) as HastNode | undefined;
-						if (!codeChild || codeChild.type !== 'element') return;
+		element: {
+			filter: ['pre'],
+			async visit(node, ctx) {
+				const codeChild = node.children?.find(
+					(c: HastNode) => c.type === 'element' && c.tagName === 'code',
+				) as HastNode | undefined;
+				if (!codeChild || codeChild.type !== 'element') return;
 
-						const lang = codeChild.data?.lang ?? 'plaintext';
-						const meta = codeChild.data?.meta ?? undefined;
+				const lang = codeChild.data?.lang ?? 'plaintext';
+				const meta = codeChild.data?.meta ?? undefined;
 
-						if (
-							(excludeLangs && excludeLangs.includes(lang)) ||
-							defaultExcludeLanguages.includes(lang)
-						) {
-							return;
-						}
+				if (
+					(excludeLangs && excludeLangs.includes(lang)) ||
+					defaultExcludeLanguages.includes(lang)
+				) {
+					return;
+				}
 
-						const code = ctx.textContent(codeChild).replace(/\n$/, '');
-						const html = await highlight(code, lang, meta);
-						return makeFragmentNode(html);
-					},
-				},
-			};
+				const code = ctx.textContent(codeChild).replace(/\n$/, '');
+				const html = await highlight(code, lang, meta);
+				return makeFragmentNode(html);
+			},
 		},
 	});
 }
@@ -388,40 +376,36 @@ function createAstroMetadataPlugin(
 	metadata: AstroMetadata,
 	filePath: string,
 ): HastPluginDefinition {
+	const imports = new Map<string, Set<ImportSpecifier>>();
 	return defineHastPlugin({
 		name: 'astro-metadata',
-		createOnce() {
-			const imports = new Map<string, Set<ImportSpecifier>>();
-			return {
-				mdxjsEsm(node) {
-					if (!node.value) return;
-					const parsed = parseImportStatement(node.value);
-					if (!parsed) return;
+		mdxjsEsm(node) {
+			if (!node.value) return;
+			const parsed = parseImportStatement(node.value);
+			if (!parsed) return;
 
-					let specSet = imports.get(parsed.path);
-					if (!specSet) {
-						specSet = new Set();
-						imports.set(parsed.path, specSet);
-					}
-					for (const spec of parsed.specifiers) {
-						specSet.add(spec);
-					}
-				},
+			let specSet = imports.get(parsed.path);
+			if (!specSet) {
+				specSet = new Set();
+				imports.set(parsed.path, specSet);
+			}
+			for (const spec of parsed.specifiers) {
+				specSet.add(spec);
+			}
+		},
 
-				mdxJsxFlowElement: {
-					filter: [],
-					visit(node, ctx) {
-						processJsxNode(node, ctx, metadata, imports, filePath);
-					},
-				},
+		mdxJsxFlowElement: {
+			filter: [],
+			visit(node, ctx) {
+				processJsxNode(node, ctx, metadata, imports, filePath);
+			},
+		},
 
-				mdxJsxTextElement: {
-					filter: [],
-					visit(node, ctx) {
-						processJsxNode(node, ctx, metadata, imports, filePath);
-					},
-				},
-			};
+		mdxJsxTextElement: {
+			filter: [],
+			visit(node, ctx) {
+				processJsxNode(node, ctx, metadata, imports, filePath);
+			},
 		},
 	});
 }
@@ -509,7 +493,7 @@ export function createMdxProcessor(mdxOptions: MdxOptions) {
 				hastPlugins.push(...mdxOptions.hastPlugins);
 			}
 
-			let optimizeStatic: import('tryckeri').CompileOptions['optimizeStatic'];
+			let optimizeStatic: import('satteri').MdxCompileOptions['optimizeStatic'];
 			if (mdxOptions.optimize) {
 				const userIgnore = typeof mdxOptions.optimize === 'object'
 					? mdxOptions.optimize.ignoreElementNames ?? []
@@ -523,7 +507,7 @@ export function createMdxProcessor(mdxOptions: MdxOptions) {
 				};
 			}
 
-			let compiled = await compileMdxToJs(content, {
+			let compiled = await mdxToJs(content, {
 				mdastPlugins: allMdastPlugins,
 				hastPlugins,
 				optimizeStatic,

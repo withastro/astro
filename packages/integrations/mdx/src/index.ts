@@ -10,7 +10,7 @@ import type {
 } from 'astro';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import type { PluggableList } from 'unified';
-import type { MdastPluginDefinition, HastPluginDefinition } from './tryckeri-plugins.js';
+import type { MdastPluginDefinition, HastPluginDefinition } from './satteri-plugins.js';
 import { ignoreStringPlugins, safeParseFrontmatter } from './utils.js';
 import { type VitePluginMdxOptions, vitePluginMdx } from './vite-plugin-mdx.js';
 import { vitePluginMdxPostprocess } from './vite-plugin-mdx-postprocess.js';
