@@ -25,7 +25,6 @@ import { resolvePages } from '../util.js';
 import { ensure404Route } from './astro-designed-error-pages.js';
 import { routeComparator } from './priority.js';
 import { getRoutePath, getPattern } from './pattern.js';
-export { getRoutePath };
 import { getRoutePrerenderOption } from './prerender.js';
 import { validateSegment } from './segment.js';
 

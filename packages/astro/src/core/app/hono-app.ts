@@ -73,7 +73,7 @@ export interface AstroAppDeps {
  * This allows createAstroServerApp to update the deps (e.g. manifestData)
  * on the cached Hono app before each request.
  */
-export const ASTRO_APP_DEPS = Symbol.for('astro.appDeps');
+const ASTRO_APP_DEPS = Symbol.for('astro.appDeps');
 
 const ASTRO_CONTEXT_KEY = 'astro.context';
 export const ASTRO_ROUTE_DATA_KEY = 'astro.routeData';
@@ -741,10 +741,8 @@ export {
 	createContextFactory,
 	createMatchRouteData,
 	createRedirectsMiddleware,
-	createUserMiddleware,
 	createActionsMiddleware,
 	createRewriteMiddleware,
 	createI18nMiddleware,
 	createPagesMiddleware,
-	createTrailingSlashMiddleware,
 };

@@ -436,5 +436,4 @@ function mergeResponses(
 	return mergedResponse;
 }
 
-/** Re-export for external use (e.g. BaseApp adapter path). */
-export { getPathnameFromRequest, getDefaultStatusCode, prepareResponse, mergeResponses, renderErrorPage };
+export { renderErrorPage };

@@ -60,10 +60,6 @@ export function getCustom404Route(manifestData: RoutesList): RouteData | undefin
 /**
  * Return a user-provided 500 route if one exists.
  */
-export function getCustom500Route(manifestData: RoutesList): RouteData | undefined {
-	return manifestData.routes.find((r) => isRoute500(r.route));
-}
-
 /**
  * Returns true if the route definition contains `.html` as a static segment part,
  * as is the case for routes like `[slug].html.astro`. Used to avoid stripping the
