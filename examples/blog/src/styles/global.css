@@ -17,7 +17,7 @@
 		0 16px 32px rgba(var(--gray), 33%);
 }
 body {
-	font-family: var(--font);
+	font-family: var(--font-atkinson);
 	margin: 0;
 	padding: 0;
 	text-align: left;

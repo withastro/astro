@@ -11,7 +11,7 @@ export default defineConfig({
 	fonts: [{
 		provider: fontProviders.local(),
 		name: "Atkinson",
-		cssVariable: "--font",
+		cssVariable: "--font-atkinson",
 		fallbacks: ["sans-serif"],
 		options: {
 			variants: [
