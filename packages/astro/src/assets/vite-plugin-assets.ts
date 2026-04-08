@@ -17,9 +17,11 @@ import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { isAstroServerEnvironment } from '../environments.js';
 import type { AstroSettings } from '../types/astro.js';
 import {
+	RESOLVED_VIRTUAL_GET_IMAGE_ID,
 	RESOLVED_VIRTUAL_IMAGE_STYLES_ID,
 	RESOLVED_VIRTUAL_MODULE_ID,
 	VALID_INPUT_FORMATS,
+	VIRTUAL_GET_IMAGE_ID,
 	VIRTUAL_IMAGE_STYLES_ID,
 	VIRTUAL_MODULE_ID,
 	VIRTUAL_SERVICE_ID,
@@ -140,7 +142,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 			},
 			resolveId: {
 				filter: {
-					id: new RegExp(`^(${VIRTUAL_SERVICE_ID}|${VIRTUAL_MODULE_ID})$`),
+					id: new RegExp(`^(${VIRTUAL_SERVICE_ID}|${VIRTUAL_MODULE_ID}|${VIRTUAL_GET_IMAGE_ID})$`),
 				},
 				async handler(id) {
 					if (id === VIRTUAL_SERVICE_ID) {
@@ -152,13 +154,51 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 					if (id === VIRTUAL_MODULE_ID) {
 						return RESOLVED_VIRTUAL_MODULE_ID;
 					}
+					if (id === VIRTUAL_GET_IMAGE_ID) {
+						return RESOLVED_VIRTUAL_GET_IMAGE_ID;
+					}
 				},
 			},
 			load: {
 				filter: {
-					id: new RegExp(`^(${RESOLVED_VIRTUAL_MODULE_ID})$`),
+					id: new RegExp(`^(${RESOLVED_VIRTUAL_MODULE_ID}|${RESOLVED_VIRTUAL_GET_IMAGE_ID})$`),
 				},
-				handler() {
+				handler(id) {
+					if (id === RESOLVED_VIRTUAL_GET_IMAGE_ID) {
+						// Lightweight module exporting only getImage + imageConfig.
+						// No component references (Image, Picture, Font) to avoid TDZ
+						// errors when the content runtime and component pages are
+						// bundled into the same prerender chunk (see #16036).
+						const isServerEnvironment = isAstroServerEnvironment(this.environment);
+						const getImageExport = isServerEnvironment
+							? `import { getImage as getImageInternal } from "astro/assets";
+								export const getImage = async (options) => await getImageInternal(options, imageConfig);`
+							: `import { AstroError, AstroErrorData } from "astro/errors";
+								export const getImage = async () => {
+									throw new AstroError(
+										AstroErrorData.GetImageNotUsedOnServer.message,
+										AstroErrorData.GetImageNotUsedOnServer.hint,
+									);
+								};`;
+
+						const assetQueryParams = settings.adapter?.client?.assetQueryParams
+							? `new URLSearchParams(${JSON.stringify(
+									Array.from(settings.adapter.client.assetQueryParams.entries()),
+								)})`
+							: 'undefined';
+
+						return {
+							code: `
+								export const imageConfig = ${JSON.stringify(settings.config.image)};
+								Object.defineProperty(imageConfig, 'assetQueryParams', {
+									value: ${assetQueryParams},
+									enumerable: false,
+									configurable: true,
+								});
+								${getImageExport}
+							`,
+						};
+					}
 					const isServerEnvironment = isAstroServerEnvironment(this.environment);
 					const getImageExport = isServerEnvironment
 						? `import { getImage as getImageInternal } from "astro/assets";
