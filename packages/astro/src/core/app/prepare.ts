@@ -7,11 +7,9 @@ import type { ComponentInstance } from '../../types/astro.js';
 import type { RouteData } from '../../types/public/internal.js';
 import type { SSRManifest } from '../../types/public/index.js';
 import {
-	NOOP_MIDDLEWARE_HEADER,
 	REROUTABLE_STATUS_CODES,
 	REROUTE_DIRECTIVE_HEADER,
 	responseSentSymbol,
-	REWRITE_DIRECTIVE_HEADER_KEY,
 	ROUTE_TYPE_HEADER,
 } from '../constants.js';
 import { isAstroError } from '../errors/index.js';
@@ -21,7 +19,7 @@ import { matchRoute } from '../routing/match.js';
 import { routeHasHtmlExtension } from '../routing/helpers.js';
 import { type CacheLike, applyCacheHeaders } from '../cache/runtime/cache.js';
 import { type AstroSession, PERSIST_SYMBOL } from '../session/runtime.js';
-import { attachCookiesToResponse, getCookiesFromResponse, getSetCookiesFromResponse } from '../cookies/response.js';
+import { attachCookiesToResponse, getCookiesFromResponse } from '../cookies/response.js';
 import { AstroCookies } from '../cookies/index.js';
 import type { Pipeline } from '../base-pipeline.js';
 import type { Logger } from '../logger/core.js';
@@ -33,8 +31,6 @@ import { setOriginPathname } from '../routing/rewrite.js';
 import { originPathnameSymbol } from '../constants.js';
 
 export interface PrepareOptions {
-	/** Add Set-Cookie headers from the render context to the response. */
-	addCookieHeader?: boolean;
 	/** Client IP address for Astro.clientAddress. */
 	clientAddress?: string | undefined;
 	/** Astro.locals object. */
@@ -69,7 +65,6 @@ export async function prepareForRender(
 	renderFn: (renderContext: RenderContext, componentInstance: ComponentInstance) => Promise<Response>,
 ): Promise<Response> {
 	const {
-		addCookieHeader = false,
 		clientAddress,
 		locals,
 		skipMiddleware = false,
@@ -143,7 +138,6 @@ export async function prepareForRender(
 		if (isAstroError(err) && err.title === NoMatchingStaticPathFound.title) {
 			logger.warn('router', err.message);
 			return renderErrorPage(pipeline, manifest, manifestData, logger, request, {
-				addCookieHeader,
 				clientAddress,
 				locals,
 				prerenderedErrorPageFetch,
@@ -161,7 +155,6 @@ export async function prepareForRender(
 			if (!custom500) throw err;
 		}
 		return renderErrorPage(pipeline, manifest, manifestData, logger, request, {
-			addCookieHeader,
 			clientAddress,
 			locals,
 			prerenderedErrorPageFetch,
@@ -181,7 +174,6 @@ export async function prepareForRender(
 		response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
 	) {
 		return renderErrorPage(pipeline, manifest, manifestData, logger, request, {
-			addCookieHeader,
 			clientAddress,
 			locals,
 			prerenderedErrorPageFetch,
@@ -192,13 +184,12 @@ export async function prepareForRender(
 		});
 	}
 
-	// Attach RenderContext cookies to the response so prepareResponse can read them.
-	// Needed because PageRenderer bypasses RenderContext.render() which normally handles this.
+	// Attach RenderContext cookies to the response so createPagesMiddleware can collect them.
 	if (renderContext) {
 		attachCookiesToResponse(response, renderContext.cookies);
 	}
 
-	prepareResponse(response, addCookieHeader);
+	prepareResponse(response);
 	return response;
 }
 
@@ -224,7 +215,6 @@ async function renderErrorPage(
 		status,
 		response: originalResponse,
 		error,
-		addCookieHeader = false,
 		clientAddress,
 		locals,
 		prerenderedErrorPageFetch = fetch,
@@ -249,7 +239,7 @@ async function renderErrorPage(
 				const response = await prerenderedErrorPageFetch(statusURL.toString());
 				const override = { status, removeContentEncodingHeaders: true };
 				const newResponse = mergeResponses(response, originalResponse, override);
-				prepareResponse(newResponse, addCookieHeader);
+				prepareResponse(newResponse);
 				return newResponse;
 			}
 		}
@@ -311,7 +301,7 @@ async function renderErrorPage(
 			response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
 
 			const newResponse = mergeResponses(response, originalResponse);
-			prepareResponse(newResponse, addCookieHeader);
+			prepareResponse(newResponse);
 			return newResponse;
 		} catch (renderError) {
 			logger.error(null, (renderError as any)?.stack || String(renderError));
@@ -321,7 +311,7 @@ async function renderErrorPage(
 	}
 
 	const response = mergeResponses(new Response(null, { status }), originalResponse);
-	prepareResponse(response, addCookieHeader);
+	prepareResponse(response);
 	return response;
 }
 
@@ -353,24 +343,7 @@ function getDefaultStatusCode(routeData: RouteData, pathname: string): number {
 	return 200;
 }
 
-function prepareResponse(response: Response, addCookieHeader: boolean): void {
-	for (const headerName of [
-		REROUTE_DIRECTIVE_HEADER,
-		REWRITE_DIRECTIVE_HEADER_KEY,
-		NOOP_MIDDLEWARE_HEADER,
-		ROUTE_TYPE_HEADER,
-	]) {
-		if (response.headers.has(headerName)) {
-			response.headers.delete(headerName);
-		}
-	}
-
-	if (addCookieHeader) {
-		for (const setCookieHeaderValue of getSetCookiesFromResponse(response)) {
-			response.headers.append('set-cookie', setCookieHeaderValue);
-		}
-	}
-
+function prepareResponse(response: Response): void {
 	Reflect.set(response, responseSentSymbol, true);
 }
 

@@ -47,6 +47,7 @@ import { getParams } from '../render/params-and-props.js';
 import { getOriginPathname } from '../routing/rewrite.js';
 import { validateAndDecodePathname } from '../util/pathname.js';
 import { AstroCookies } from '../cookies/index.js';
+import { getSetCookiesFromResponse } from '../cookies/response.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { AstroSession } from '../session/runtime.js';
 import { AstroCache, type CacheLike } from '../cache/runtime/cache.js';
@@ -334,7 +335,6 @@ function createContextFactory(deps: AstroAppDeps, _matchRouteData: (req: Request
 				}
 				return prepareForRender(pipeline, manifest, deps.manifestData, logger, newRequest, routeData, {
 					locals,
-					addCookieHeader: true,
 				}, (renderContext, componentInstance) => renderContext.render(componentInstance));
 			},
 			getActionResult(_action) {
@@ -432,7 +432,6 @@ function createUserMiddleware(
 				}
 				return prepareForRender(pipeline, manifest, deps.manifestData, logger, newRequest, routeData, {
 					locals: ctx.locals,
-					addCookieHeader: true,
 					skipMiddleware: true,
 				}, (renderCtx, comp) => renderCtx.render(comp));
 			}
@@ -449,7 +448,6 @@ function createUserMiddleware(
 			}
 			logger.error(null, (err as any)?.stack || String(err));
 			c.res = await renderErrorPage(pipeline, manifest, deps.manifestData, logger, c.req.raw, {
-				addCookieHeader: options.addCookieHeader ?? true,
 				locals: ctx.locals,
 				clientAddress: Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
 				status: 500,
@@ -468,18 +466,12 @@ function createUserMiddleware(
 			c.res.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
 		) {
 			c.res = await renderErrorPage(pipeline, manifest, deps.manifestData, logger, c.req.raw, {
-				addCookieHeader: options.addCookieHeader ?? true,
 				locals: ctx.locals,
 				clientAddress: Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
 				status: c.res.status as 404 | 500,
 				response: c.res,
 				isDev,
 			});
-		}
-
-		// Append cookies set by user middleware to the final response
-		for (const setCookieValue of ctx.cookies.headers()) {
-			c.res.headers.append('set-cookie', setCookieValue);
 		}
 
 		return c.res;
@@ -597,13 +589,11 @@ function createRewriteMiddleware(
 		c.set(ASTRO_ROUTE_DATA_KEY, rewrittenRouteData);
 		if (rewrittenRouteData) {
 			c.res = await prepareForRender(pipeline, manifest, deps.manifestData, logger, rewrittenRequest, rewrittenRouteData, {
-				addCookieHeader: true,
 				locals: ctx.locals,
 				clientAddress: Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
 			}, (renderContext, componentInstance) => renderContext.render(componentInstance));
 		} else {
 			c.res = await renderErrorPage(pipeline, manifest, deps.manifestData, logger, rewrittenRequest, {
-				addCookieHeader: true,
 				locals: ctx.locals,
 				clientAddress: Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
 				status: 404,
@@ -741,7 +731,6 @@ function createPagesMiddleware(
 		if (!routeData) {
 			const ctx = await contextFn(c);
 			c.res = await renderErrorPage(pipeline, manifest, deps.manifestData, logger, c.req.raw, {
-				addCookieHeader: options.addCookieHeader ?? true,
 				locals: ctx.locals,
 				clientAddress: Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
 				status: 404,
@@ -773,7 +762,6 @@ function createPagesMiddleware(
 				c.res.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
 			) {
 				c.res = await renderErrorPage(pipeline, manifest, deps.manifestData, logger, c.req.raw, {
-					addCookieHeader: options.addCookieHeader ?? true,
 					locals: ctx.locals,
 					clientAddress: Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
 					status: c.res.status as 404 | 500,
@@ -781,9 +769,7 @@ function createPagesMiddleware(
 				});
 			}
 		} else {
-			const addCookieHeader = Reflect.get(c.req.raw, Symbol.for('astro.addCookieHeader')) ?? options.addCookieHeader ?? true;
 			c.res = await pageRenderer.render(c.req.raw, routeData, {
-				addCookieHeader,
 				locals: ctx.locals,
 				clientAddress: Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
 				isDev,
@@ -797,11 +783,20 @@ function createPagesMiddleware(
 			}
 		}
 
-		// Append cookies from the Hono APIContext (set by middleware or endpoints)
-		// to the response. These are separate from RenderContext cookies which are
-		// handled by prepareForRender's addCookieHeader.
-		for (const setCookieValue of ctx.cookies.headers()) {
-			c.res.headers.append('set-cookie', setCookieValue);
+		// Collect all cookies and append to the response.
+		// This is the single place where cookies are added to responses.
+		// Cookies come from two sources:
+		// 1. ctx.cookies — set by middleware or endpoint handlers
+		// 2. Response-attached AstroCookies — set by page components via Astro.cookies
+		// Respect addCookieHeader option from app.render()
+		const shouldAddCookies = Reflect.get(c.req.raw, Symbol.for('astro.addCookieHeader')) ?? options.addCookieHeader ?? true;
+		if (shouldAddCookies) {
+			for (const setCookieValue of ctx.cookies.headers()) {
+				c.res.headers.append('set-cookie', setCookieValue);
+			}
+			for (const setCookieValue of getSetCookiesFromResponse(c.res)) {
+				c.res.headers.append('set-cookie', setCookieValue);
+			}
 		}
 	};
 }
@@ -908,6 +903,8 @@ export function createAstroMiddleware(
 
 export interface CreateAstroAppOptions extends PrepareOptions {
 	isDev?: boolean;
+	/** Whether to add Set-Cookie headers to the response. Defaults to true. */
+	addCookieHeader?: boolean;
 }
 
 /**
