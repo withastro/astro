@@ -14,7 +14,7 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 import { generateCspDigest } from '../encryption.js';
 import { pushDirective } from '../csp/runtime.js';
 import type { Pipeline } from '../base-pipeline.js';
-import { AstroCookies } from '../cookies/index.js';
+import type { AstroCookies } from '../cookies/index.js';
 import { ASTRO_GENERATOR, responseSentSymbol } from '../constants.js';
 import { getOriginPathname } from '../routing/rewrite.js';
 import { Slots } from '../render/index.js';
