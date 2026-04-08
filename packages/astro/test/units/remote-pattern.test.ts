@@ -160,11 +160,11 @@ describe('remote-pattern', () => {
 				],
 			};
 
-			assert.equal(isRemoteAllowed(url1, patterns), true);
-			assert.equal(isRemoteAllowed(url2, patterns), true);
-			assert.equal(isRemoteAllowed(url3, patterns), false);
-			assert.equal(isRemoteAllowed(url4, patterns), false);
-			assert.equal(isRemoteAllowed(url5, patterns), false);
+			assert.equal(isRemoteAllowed(url1.href, patterns), true);
+			assert.equal(isRemoteAllowed(url2.href, patterns), true);
+			assert.equal(isRemoteAllowed(url3.href, patterns), false);
+			assert.equal(isRemoteAllowed(url4.href, patterns), false);
+			assert.equal(isRemoteAllowed(url5.href, patterns), false);
 		});
 	});
 });

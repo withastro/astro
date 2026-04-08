@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import type { SSRResult } from '../../../dist/types/public/internal.js';
 import { buildRenderQueue } from '../../../dist/runtime/server/render/queue/builder.js';
 import { renderQueue } from '../../../dist/runtime/server/render/queue/renderer.js';
 import { NodePool } from '../../../dist/runtime/server/render/queue/pool.js';
@@ -19,7 +20,7 @@ function createMockResult() {
 		styles: new Set(),
 		scripts: new Set(),
 		links: new Set(),
-	};
+	} as unknown as SSRResult;
 }
 
 // Create a NodePool for testing
@@ -46,7 +47,7 @@ describe('Queue batching optimization', () => {
 		let writeCount = 0;
 		let output = '';
 		const destination = {
-			write(chunk) {
+			write(chunk: unknown) {
 				writeCount++;
 				output += String(chunk);
 			},
@@ -69,7 +70,7 @@ describe('Queue batching optimization', () => {
 		let writeCount = 0;
 		let output = '';
 		const destination = {
-			write(chunk) {
+			write(chunk: unknown) {
 				writeCount++;
 				output += String(chunk);
 			},
@@ -88,7 +89,7 @@ describe('Queue batching optimization', () => {
 
 		// Create a simple component
 		const componentInstance = {
-			render(dest) {
+			render(dest: { write(chunk: unknown): void }) {
 				dest.write('<p>Component</p>');
 			},
 		};
@@ -100,7 +101,7 @@ describe('Queue batching optimization', () => {
 		let writeCount = 0;
 		let output = '';
 		const destination = {
-			write(chunk) {
+			write(chunk: unknown) {
 				writeCount++;
 				output += String(chunk);
 			},
@@ -154,7 +155,7 @@ describe('Queue batching optimization', () => {
 		let writeCount = 0;
 		let output = '';
 		const destination = {
-			write(chunk) {
+			write(chunk: unknown) {
 				writeCount++;
 				output += String(chunk);
 			},

@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-
+import type { AstroConfig } from '../../../dist/types/public/config.js';
 import { getRouteGenerator } from '../../../dist/core/routing/generator.js';
 
 describe('routing - generator', () => {
@@ -137,7 +137,7 @@ describe('routing - generator', () => {
 		},
 	].forEach(({ routeData, trailingSlash, params, path }) => {
 		it(`generates ${path}`, () => {
-			const generator = getRouteGenerator(routeData, trailingSlash);
+			const generator = getRouteGenerator(routeData, trailingSlash as AstroConfig['trailingSlash']);
 			assert.equal(generator(params), path);
 		});
 	});

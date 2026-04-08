@@ -1,15 +1,32 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { StaticPaths } from '../../../dist/runtime/prerender/static-paths.js';
+import type { StaticPathsApp } from '../../../dist/runtime/prerender/static-paths.js';
 
-/**
- * Creates a minimal mock app for testing StaticPaths.
- * @param {object} options
- * @param {Array} options.routes - Array of route objects with routeData
- * @param {Map} [options.routeCache] - Optional route cache
- * @param {object} [options.i18n] - Optional i18n config
- */
-function createMockApp({ routes, routeCache = new Map(), i18n = undefined }) {
+interface MockRouteData {
+	route: string;
+	pathname: string | undefined;
+	prerender: boolean;
+	type: string;
+	pattern: RegExp;
+	params: string[];
+	component: string;
+	generate: (data: { route: string }) => string;
+	segments: { content: string; dynamic: boolean; spread: boolean }[][];
+	fallbackRoutes: unknown[];
+	isIndex: boolean;
+	mockGetStaticPaths?: () => { params: Record<string, string> }[];
+}
+
+function createMockApp({
+	routes,
+	routeCache = new Map(),
+	i18n = undefined,
+}: {
+	routes: { routeData: MockRouteData }[];
+	routeCache?: Map<unknown, unknown>;
+	i18n?: undefined;
+}) {
 	return {
 		manifest: {
 			routes,
@@ -20,8 +37,7 @@ function createMockApp({ routes, routeCache = new Map(), i18n = undefined }) {
 		},
 		pipeline: {
 			routeCache,
-			async getComponentByRoute(route) {
-				// Return a mock component with getStaticPaths if route is dynamic
+			async getComponentByRoute(route: MockRouteData) {
 				if (!route.pathname) {
 					return {
 						getStaticPaths: route.mockGetStaticPaths || (() => []),
@@ -30,15 +46,10 @@ function createMockApp({ routes, routeCache = new Map(), i18n = undefined }) {
 				return {};
 			},
 		},
-	};
+	} as unknown as StaticPathsApp;
 }
 
-/**
- * Creates segments array from a route pattern.
- * @param {string} route - Route pattern like '/blog/[slug]' or '/items/[id]'
- * @returns {Array} Segments array
- */
-function createSegments(route) {
+function createSegments(route: string) {
 	const parts = route.split('/').filter(Boolean);
 	return parts.map((part) => {
 		if (part.startsWith('[') && part.endsWith(']')) {
@@ -49,21 +60,17 @@ function createSegments(route) {
 	});
 }
 
-/**
- * Creates a mock route data object.
- * @param {object} options
- * @param {string} [options.pathname] - Static pathname (if undefined, route is dynamic)
- * @param {boolean} [options.prerender=true] - Whether route should be prerendered
- * @param {Function} [options.mockGetStaticPaths] - Mock getStaticPaths function for dynamic routes
- * @param {string} [options.route='/[slug]'] - Route pattern for dynamic routes
- */
 function createMockRoute({
 	pathname,
 	prerender = true,
 	mockGetStaticPaths,
 	route = '/[slug]',
+}: {
+	pathname?: string;
+	prerender?: boolean;
+	mockGetStaticPaths?: () => { params: Record<string, string> }[];
+	route?: string;
 } = {}) {
-	// Extract param names from route pattern
 	const paramMatches = route.matchAll(/\[([^\]]+)\]/g);
 	const params = pathname ? [] : Array.from(paramMatches, (m) => m[1]);
 
@@ -76,7 +83,7 @@ function createMockRoute({
 			pattern: new RegExp('^' + route.replace(/\[[^\]]+\]/g, '([^/]+)') + '$'),
 			params,
 			component: 'src/pages' + route + '.astro',
-			generate: (data) => data.route,
+			generate: (data: { route: string }) => data.route,
 			segments: pathname ? [] : createSegments(route),
 			fallbackRoutes: [],
 			isIndex: false,
