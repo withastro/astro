@@ -189,8 +189,8 @@ const persistedHeadElement = (el: HTMLElement, newDoc: Document): Element | null
 	// textContent may later be transformed (especially Vue's `:deep()` → `[data-v-xxx]`).
 	// Match these by their stable dev ID so the already-transformed style is preserved
 	// across ClientRouter soft navigations instead of being replaced by the raw version.
-	// There are other ids that can't be preserved and need a refresh, like Uno's /__uno.css, 
-	// which keeps the id with different contents. 
+	// There are other ids that can't be preserved and need a refresh, like Uno's /__uno.css,
+	// which keeps the id with different contents.
 	// To avoid enumerating all exceptions, we only apply the auto-persist logic to elements
 	// that look like Vue's dev styles.
 	if (import.meta.env.DEV && el.tagName === 'STYLE') {
