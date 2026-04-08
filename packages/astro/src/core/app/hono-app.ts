@@ -14,17 +14,21 @@ import {
 	collapseDuplicateTrailingSlashes,
 	hasFileExtension,
 	isInternalPath,
+	joinPaths,
+	prependForwardSlash,
 	removeBase,
 	removeTrailingForwardSlash,
 } from '@astrojs/internal-helpers/path';
+import { normalizeTheLocale } from '../../i18n/index.js';
 import {
 	computeCurrentLocale,
 	computePreferredLocale,
 	computePreferredLocaleList,
 } from '../../i18n/utils.js';
-import { ASTRO_GENERATOR, clientAddressSymbol, clientLocalsSymbol, pipelineSymbol, REROUTABLE_STATUS_CODES, REROUTE_DIRECTIVE_HEADER } from '../constants.js';
+import { ASTRO_GENERATOR, clientAddressSymbol, clientLocalsSymbol, pipelineSymbol, REROUTABLE_STATUS_CODES, REROUTE_DIRECTIVE_HEADER, ROUTE_TYPE_HEADER } from '../constants.js';
 import { PERSIST_SYMBOL } from '../session/runtime.js';
 import { computeFallbackRoute } from '../../i18n/fallback.js';
+import { ForbiddenRewrite } from '../errors/errors-data.js';
 import { I18nRouter, type I18nRouterContext } from '../../i18n/router.js';
 import {
 	ACTION_API_CONTEXT_SYMBOL,
@@ -80,6 +84,7 @@ export const ASTRO_ROUTE_DATA_KEY = 'astro.routeData';
 export const ASTRO_REWRITE_PATHNAME_KEY = 'astro.rewritePathname';
 const ASTRO_REWRITE_COUNT_KEY = 'astro.rewriteCount';
 
+
 export type AstroHonoEnv = {
 	Variables: {
 		[ASTRO_CONTEXT_KEY]: APIContext;
@@ -88,6 +93,52 @@ export type AstroHonoEnv = {
 		[ASTRO_REWRITE_COUNT_KEY]: number;
 	};
 };
+
+// ---------------------------------------------------------------------------
+// Domain locale resolution
+// ---------------------------------------------------------------------------
+
+function resolveDomainLocale(request: Request, manifest: SSRManifest): string | undefined {
+	const i18n = manifest.i18n;
+	if (
+		!i18n ||
+		(i18n.strategy !== 'domains-prefix-always' &&
+			i18n.strategy !== 'domains-prefix-other-locales' &&
+			i18n.strategy !== 'domains-prefix-always-no-redirect')
+	) {
+		return undefined;
+	}
+
+	const url = new URL(request.url);
+	let host = request.headers.get('X-Forwarded-Host');
+	let protocol = request.headers.get('X-Forwarded-Proto');
+	if (protocol) {
+		protocol = protocol + ':';
+	} else {
+		protocol = url.protocol;
+	}
+	if (!host) {
+		host = request.headers.get('Host');
+	}
+	if (!host || !protocol) return undefined;
+
+	host = host.split(':')[0];
+	try {
+		const hostAsUrl = new URL(`${protocol}//${host}`);
+		for (const [domainKey, localeValue] of Object.entries(i18n.domainLookupTable)) {
+			const domainKeyAsUrl = new URL(domainKey);
+			if (
+				hostAsUrl.host === domainKeyAsUrl.host &&
+				hostAsUrl.protocol === domainKeyAsUrl.protocol
+			) {
+				return localeValue;
+			}
+		}
+	} catch {
+		// Invalid URL
+	}
+	return undefined;
+}
 
 // ---------------------------------------------------------------------------
 // Route matching
@@ -99,8 +150,18 @@ function createMatchRouteData(deps: AstroAppDeps) {
 		const manifestData = deps.manifestData;
 		const url = new URL(request.url);
 		if (manifest.assets.has(url.pathname)) return undefined;
-		const pathname = decodeURI(url.pathname);
-		const strippedPathname = removeBase(pathname, manifest.base) || '/';
+		let strippedPathname = removeBase(decodeURI(url.pathname), manifest.base) || '/';
+
+		// For domain-based i18n, prepend the resolved locale to the pathname
+		const domainLocale = resolveDomainLocale(request, manifest);
+		if (domainLocale) {
+			strippedPathname = prependForwardSlash(
+				joinPaths(normalizeTheLocale(domainLocale), strippedPathname),
+			);
+			if (url.pathname.endsWith('/')) {
+				strippedPathname = appendForwardSlash(strippedPathname);
+			}
+		}
 
 		for (const route of manifestData.routes) {
 			if (route.pattern.test(strippedPathname)) return route;
@@ -168,6 +229,8 @@ function createContextFactory(deps: AstroAppDeps, _matchRouteData: (req: Request
 		}
 
 		const locals: App.Locals = (Reflect.get(request, clientLocalsSymbol) as App.Locals) ?? ({} as App.Locals);
+		let _paramsOverride: Record<string, string | undefined> | undefined;
+		let _routePatternOverride: string | undefined;
 
 		const ctx: APIContext = {
 			get cookies() {
@@ -179,13 +242,20 @@ function createContextFactory(deps: AstroAppDeps, _matchRouteData: (req: Request
 			generator: ASTRO_GENERATOR,
 			props: {} as any,
 			get params() {
+				if (_paramsOverride) return _paramsOverride;
 				const routeData = c.get(ASTRO_ROUTE_DATA_KEY);
 				if (!routeData) return {};
 				const pathname = removeBase(url.pathname, manifest.base) || '/';
 				return getParams(routeData, pathname);
 			},
+			set params(value) {
+				_paramsOverride = value;
+			},
 			get routePattern() {
-				return c.get(ASTRO_ROUTE_DATA_KEY)?.route ?? '';
+				return _routePatternOverride ?? c.get(ASTRO_ROUTE_DATA_KEY)?.route ?? '';
+			},
+			set routePattern(value) {
+				_routePatternOverride = value;
 			},
 			get isPrerendered() {
 				return c.get(ASTRO_ROUTE_DATA_KEY)?.prerender ?? false;
@@ -203,6 +273,9 @@ function createContextFactory(deps: AstroAppDeps, _matchRouteData: (req: Request
 			},
 			get currentLocale() {
 				if (!i18nConfig) return undefined;
+				// For domain-based i18n, resolve locale from domain first
+				const domainLocale = resolveDomainLocale(request, manifest);
+				if (domainLocale) return domainLocale;
 				return computeCurrentLocale(url.pathname, i18nConfig.locales, i18nConfig.defaultLocale);
 			},
 			get preferredLocale() {
@@ -239,7 +312,20 @@ function createContextFactory(deps: AstroAppDeps, _matchRouteData: (req: Request
 				return new Response(null, { status, headers: { Location: path } });
 			},
 			async rewrite(rewritePayload) {
-				const { routeData, newUrl } = await pipeline.tryRewrite(rewritePayload, request);
+				const { routeData, pathname: rewritePathname, newUrl } = await pipeline.tryRewrite(rewritePayload, request);
+				// Forbid SSR → prerendered rewrites in server mode
+				const sourceRouteData = c.get(ASTRO_ROUTE_DATA_KEY);
+				if (
+					pipeline.manifest.serverLike === true &&
+					sourceRouteData && !sourceRouteData.prerender &&
+					routeData.prerender === true
+				) {
+					throw new AstroError({
+						...ForbiddenRewrite,
+						message: ForbiddenRewrite.message(url.pathname, rewritePathname, routeData.component),
+						hint: ForbiddenRewrite.hint(routeData.component),
+					});
+				}
 				const newRequest = rewritePayload instanceof Request
 					? rewritePayload
 					: new Request(newUrl, request);
@@ -301,8 +387,10 @@ function createRedirectsMiddleware(deps: AstroAppDeps): MiddlewareHandler<AstroH
 function createUserMiddleware(
 	deps: AstroAppDeps,
 	contextFn: (c: HonoContext<any>) => Promise<APIContext>,
+	options: CreateAstroAppOptions = {},
 ): MiddlewareHandler<AstroHonoEnv> {
-	const { pipeline } = deps;
+	const { pipeline, manifest, logger } = deps;
+	const isDev = options.isDev ?? (pipeline.runtimeMode === 'development');
 	let resolvedMiddleware: Awaited<ReturnType<typeof pipeline.getMiddleware>> | undefined;
 
 	return async (c, next) => {
@@ -314,15 +402,87 @@ function createUserMiddleware(
 		}
 
 		const ctx = await contextFn(c);
-		const response = await callMiddleware(resolvedMiddleware, ctx, async () => {
+		let response: Response;
+		try {
+		response = await callMiddleware(resolvedMiddleware, ctx, async (_apiContext, rewritePayload) => {
+			if (rewritePayload) {
+				// Middleware called next(rewritePayload) — resolve the rewrite target.
+				const { routeData, pathname: rewritePathname, newUrl } = await pipeline.tryRewrite(rewritePayload, c.req.raw);
+				// Forbid SSR → prerendered rewrites in server mode
+				if (
+					pipeline.manifest.serverLike === true &&
+					!ctx.isPrerendered &&
+					routeData.prerender === true
+				) {
+					throw new AstroError({
+						...ForbiddenRewrite,
+						message: ForbiddenRewrite.message(
+							new URL(c.req.url).pathname,
+							rewritePathname,
+							routeData.component,
+						),
+						hint: ForbiddenRewrite.hint(routeData.component),
+					});
+				}
+				const newRequest = rewritePayload instanceof Request
+					? rewritePayload
+					: new Request(newUrl, c.req.raw);
+				for (const setCookieValue of ctx.cookies.headers()) {
+					newRequest.headers.append('cookie', setCookieValue.split(';')[0]);
+				}
+				return prepareForRender(pipeline, manifest, deps.manifestData, logger, newRequest, routeData, {
+					locals: ctx.locals,
+					addCookieHeader: true,
+					skipMiddleware: true,
+				}, (renderCtx, comp) => renderCtx.render(comp));
+			}
 			await next();
 			return c.res;
 		});
-		// Don't append cookies here — createPagesMiddleware handles cookie
-		// collection after rendering, which includes both middleware and
-		// endpoint/page cookies from the shared ctx.cookies.
+		} catch (err) {
+			// In dev, re-throw if there's no custom 500 page so the Vite error overlay shows.
+			if (isDev) {
+				const { matchRoute } = await import('../routing/match.js');
+				const errorRoutePath = `/500${manifest.trailingSlash === 'always' ? '/' : ''}`;
+				const custom500 = matchRoute(errorRoutePath, deps.manifestData);
+				if (!custom500) throw err;
+			}
+			logger.error(null, (err as any)?.stack || String(err));
+			c.res = await renderErrorPage(pipeline, manifest, deps.manifestData, logger, c.req.raw, {
+				addCookieHeader: options.addCookieHeader ?? true,
+				locals: ctx.locals,
+				clientAddress: Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
+				status: 500,
+				error: err,
+				isDev,
+			});
+			return c.res;
+		}
 		c.res = response;
-		return response;
+
+		// If user middleware returned a reroutable status (404/500) with no body
+		// (e.g. i18n middleware rejecting an invalid locale), render the error page.
+		if (
+			REROUTABLE_STATUS_CODES.includes(c.res.status) &&
+			c.res.body === null &&
+			c.res.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
+		) {
+			c.res = await renderErrorPage(pipeline, manifest, deps.manifestData, logger, c.req.raw, {
+				addCookieHeader: options.addCookieHeader ?? true,
+				locals: ctx.locals,
+				clientAddress: Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
+				status: c.res.status as 404 | 500,
+				response: c.res,
+				isDev,
+			});
+		}
+
+		// Append cookies set by user middleware to the final response
+		for (const setCookieValue of ctx.cookies.headers()) {
+			c.res.headers.append('set-cookie', setCookieValue);
+		}
+
+		return c.res;
 	};
 }
 
@@ -355,6 +515,9 @@ function createActionsMiddleware(
 			try {
 				input = await parseRequestBody(c.req.raw, pipeline.manifest.actionBodySizeLimit);
 			} catch (e) {
+				if (e instanceof TypeError) {
+					return new Response(e.message, { status: 415 });
+				}
 				const { ActionError } = await import('../../actions/runtime/client.js');
 				if (e instanceof ActionError) {
 					const serialized = serializeActionResult({ data: undefined, error: e });
@@ -584,6 +747,10 @@ function createPagesMiddleware(
 				status: 404,
 				isDev,
 			});
+			// Ensure ROUTE_TYPE_HEADER is set so i18n middleware can detect page responses
+			if (!c.res.headers.has(ROUTE_TYPE_HEADER)) {
+				c.res.headers.set(ROUTE_TYPE_HEADER, 'page');
+			}
 			return;
 		}
 
@@ -591,6 +758,7 @@ function createPagesMiddleware(
 
 		if (routeData.type === 'redirect') {
 			c.res = redirectRenderer.render(c.req.raw, routeData);
+			c.res.headers.set(ROUTE_TYPE_HEADER, 'redirect');
 			return;
 		}
 
@@ -598,10 +766,7 @@ function createPagesMiddleware(
 
 		if (routeData.type === 'endpoint') {
 			c.res = await endpointRenderer.render(routeData, ctx);
-			// Collect cookies set by the endpoint and any earlier middleware.
-			for (const setCookieValue of ctx.cookies.headers()) {
-				c.res.headers.append('set-cookie', setCookieValue);
-			}
+			c.res.headers.set(ROUTE_TYPE_HEADER, 'endpoint');
 			if (
 				REROUTABLE_STATUS_CODES.includes(c.res.status) &&
 				c.res.body === null &&
@@ -615,17 +780,29 @@ function createPagesMiddleware(
 					isDev,
 				});
 			}
-			return;
+		} else {
+			const addCookieHeader = Reflect.get(c.req.raw, Symbol.for('astro.addCookieHeader')) ?? options.addCookieHeader ?? true;
+			c.res = await pageRenderer.render(c.req.raw, routeData, {
+				addCookieHeader,
+				locals: ctx.locals,
+				clientAddress: Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
+				isDev,
+				skipMiddleware: true,
+				...options,
+			});
+			// PageRenderer already sets ROUTE_TYPE_HEADER via renderPage, but ensure
+			// it's set for fallback/error paths too
+			if (!c.res.headers.has(ROUTE_TYPE_HEADER)) {
+				c.res.headers.set(ROUTE_TYPE_HEADER, routeData.type);
+			}
 		}
 
-		c.res = await pageRenderer.render(c.req.raw, routeData, {
-			addCookieHeader: options.addCookieHeader ?? true,
-			locals: ctx.locals,
-			clientAddress: Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
-			isDev,
-			skipMiddleware: true,
-			...options,
-		});
+		// Append cookies from the Hono APIContext (set by middleware or endpoints)
+		// to the response. These are separate from RenderContext cookies which are
+		// handled by prepareForRender's addCookieHeader.
+		for (const setCookieValue of ctx.cookies.headers()) {
+			c.res.headers.append('set-cookie', setCookieValue);
+		}
 	};
 }
 
@@ -700,7 +877,7 @@ export function createAstroMiddleware(
 		return next();
 	});
 	inner.use(createRedirectsMiddleware(deps));
-	inner.use(createUserMiddleware(deps, contextFn));
+	inner.use(createUserMiddleware(deps, contextFn, options));
 	inner.use(createActionsMiddleware(deps, contextFn));
 	inner.use(createRewriteMiddleware(deps, contextFn, matchRouteData));
 	inner.use(createI18nMiddleware(deps, matchRouteData));

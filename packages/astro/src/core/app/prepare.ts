@@ -30,6 +30,7 @@ import { createSSRResult } from './ssr-result.js';
 import { renderPage } from '../../runtime/server/render/page.js';
 import { getParams } from '../render/index.js';
 import { setOriginPathname } from '../routing/rewrite.js';
+import { originPathnameSymbol } from '../constants.js';
 
 export interface PrepareOptions {
 	/** Add Set-Cookie headers from the render context to the response. */
@@ -90,14 +91,20 @@ export async function prepareForRender(
 		pathname = pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
 	}
 
+	// Set originPathname on the request if not already set (rewrites preserve the original).
+	if (!Reflect.get(request, originPathnameSymbol)) {
+		setOriginPathname(request, pathname, manifest.trailingSlash, manifest.buildFormat);
+	}
+
 	const defaultStatus = getDefaultStatusCode(routeData, pathname);
 
 	let response: Response;
 	let session: AstroSession | undefined;
 	let cache: CacheLike | undefined;
+	let renderContext: RenderContext | undefined;
 	try {
 		const componentInstance = await pipeline.getComponentByRoute(routeData);
-		const renderContext = await RenderContext.create({
+		renderContext = await RenderContext.create({
 			pipeline,
 			locals,
 			pathname,
@@ -116,7 +123,7 @@ export async function prepareForRender(
 				response = await cacheProvider.onRequest(
 					{ request, url: new URL(request.url) },
 					async () => {
-						const res = await renderFn(renderContext, componentInstance);
+						const res = await renderFn(renderContext!, componentInstance);
 						applyCacheHeaders(cache!, res);
 						return res;
 					},
@@ -124,11 +131,11 @@ export async function prepareForRender(
 				response.headers.delete('CDN-Cache-Control');
 				response.headers.delete('Cache-Tag');
 			} else {
-				response = await renderFn(renderContext, componentInstance);
-				applyCacheHeaders(cache!, response);
-			}
-		} else {
-			response = await renderFn(renderContext, componentInstance);
+			response = await renderFn(renderContext!, componentInstance);
+			applyCacheHeaders(cache!, response);
+		}
+	} else {
+		response = await renderFn(renderContext!, componentInstance);
 		}
 	} catch (err: any) {
 		// A getStaticPaths route matched the pattern but the specific params
@@ -183,6 +190,12 @@ export async function prepareForRender(
 			response,
 			error: response.status === 500 ? null : undefined,
 		});
+	}
+
+	// Attach RenderContext cookies to the response so prepareResponse can read them.
+	// Needed because PageRenderer bypasses RenderContext.render() which normally handles this.
+	if (renderContext) {
+		attachCookiesToResponse(response, renderContext.cookies);
 	}
 
 	prepareResponse(response, addCookieHeader);

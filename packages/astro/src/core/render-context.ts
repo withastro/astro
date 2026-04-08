@@ -24,6 +24,7 @@ import {
 	REWRITE_DIRECTIVE_HEADER_VALUE,
 	ROUTE_TYPE_HEADER,
 	responseSentSymbol,
+	originPathnameSymbol,
 } from './constants.js';
 import { AstroCookies, attachCookiesToResponse } from './cookies/index.js';
 import { getCookiesFromResponse } from './cookies/response.js';
@@ -181,7 +182,8 @@ export class RenderContext {
 		const pipelineActions = await pipeline.getActions();
 		const pipelineSessionDriver = await pipeline.getSessionDriver();
 		const serverIslands = await pipeline.getServerIslands();
-		setOriginPathname(
+		// Only set originPathname if not already set (rewrites preserve the original).
+		if (!Reflect.get(request, originPathnameSymbol)) setOriginPathname(
 			request,
 			pathname,
 			pipeline.manifest.trailingSlash,

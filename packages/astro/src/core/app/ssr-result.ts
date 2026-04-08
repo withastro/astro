@@ -27,6 +27,7 @@ import {
 	computePreferredLocaleList,
 } from '../../i18n/utils.js';
 
+
 export interface CreateSSRResultOptions {
 	pipeline: Pipeline;
 	routeData: RouteData;
@@ -254,6 +255,30 @@ function createAstroGlobal(
 		},
 		get currentLocale() {
 			if (!i18nConfig) return undefined;
+			// For domain-based i18n, resolve locale from the request domain
+			if (
+				i18nConfig.strategy === 'domains-prefix-always' ||
+				i18nConfig.strategy === 'domains-prefix-other-locales' ||
+				i18nConfig.strategy === 'domains-prefix-always-no-redirect'
+			) {
+				let host = request.headers.get('X-Forwarded-Host');
+				let protocol = request.headers.get('X-Forwarded-Proto');
+				if (protocol) protocol += ':';
+				else protocol = url.protocol;
+				if (!host) host = request.headers.get('Host');
+				if (host && protocol) {
+					host = host.split(':')[0];
+					try {
+						const hostAsUrl = new URL(`${protocol}//${host}`);
+						for (const [domainKey, localeValue] of Object.entries(i18nConfig.domainLookupTable)) {
+							const domainKeyAsUrl = new URL(domainKey);
+							if (hostAsUrl.host === domainKeyAsUrl.host && hostAsUrl.protocol === domainKeyAsUrl.protocol) {
+								return localeValue;
+							}
+						}
+					} catch { /* invalid URL */ }
+				}
+			}
 			return computeCurrentLocale(url.pathname, i18nConfig.locales, i18nConfig.defaultLocale);
 		},
 		params,

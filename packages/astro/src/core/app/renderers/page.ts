@@ -7,7 +7,9 @@ import { prepareForRender, type PrepareOptions } from '../prepare.js';
 import { createSSRResult } from '../ssr-result.js';
 import { renderPage } from '../../../runtime/server/render/page.js';
 import { getProps } from '../../render/index.js';
-import { ROUTE_TYPE_HEADER, REROUTE_DIRECTIVE_HEADER } from '../../constants.js';
+import { ROUTE_TYPE_HEADER, REROUTE_DIRECTIVE_HEADER, originPathnameSymbol } from '../../constants.js';
+import { ForbiddenRewrite } from '../../errors/errors-data.js';
+import { AstroError } from '../../errors/index.js';
 
 /**
  * Renders page routes. This class is framework-agnostic and does not
@@ -73,11 +75,32 @@ export class PageRenderer {
 					serverIslandNameMap: renderContext.serverIslands.serverIslandNameMap ?? new Map(),
 					partial: renderContext.partial,
 					async rewrite(rewritePayload) {
-						const { routeData: rewriteRouteData, newUrl } =
+						const { routeData: rewriteRouteData, pathname: rewritePathname, newUrl } =
 							await pipeline.tryRewrite(rewritePayload, renderContext.request);
+						// Forbid SSR → prerendered rewrites in server mode
+						if (
+							pipeline.manifest.serverLike === true &&
+							!renderContext.routeData.prerender &&
+							rewriteRouteData.prerender === true
+						) {
+							throw new AstroError({
+								...ForbiddenRewrite,
+								message: ForbiddenRewrite.message(
+									renderContext.pathname,
+									rewritePathname,
+									rewriteRouteData.component,
+								),
+								hint: ForbiddenRewrite.hint(rewriteRouteData.component),
+							});
+						}
 						const newRequest = rewritePayload instanceof Request
 							? rewritePayload
 							: new Request(newUrl, renderContext.request);
+						// Preserve the original request's origin pathname across the rewrite
+						const origin = Reflect.get(renderContext.request, originPathnameSymbol);
+						if (origin) {
+							Reflect.set(newRequest, originPathnameSymbol, origin);
+						}
 						// Merge cookies set during this render into the rewrite request.
 						for (const setCookieValue of renderContext.cookies.headers()) {
 							newRequest.headers.append('cookie', setCookieValue.split(';')[0]);

@@ -2,7 +2,7 @@ import type { RouteData } from '../../types/public/internal.js';
 import type { IntegrationResolvedRoute } from '../../types/public/integrations.js';
 import type { RouteInfo } from '../app/types.js';
 import type { RoutesList } from '../../types/astro.js';
-import { isRoute404, isRoute500 } from './internal/route-errors.js';
+import { isRoute404 } from './internal/route-errors.js';
 
 type RedirectRouteData = RouteData & {
 	redirect: string;
