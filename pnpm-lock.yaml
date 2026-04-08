@@ -4274,6 +4274,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/ssr-preview-allowed-hosts:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/ssr-renderers-static-vue:
     dependencies:
       '@astrojs/vue':
