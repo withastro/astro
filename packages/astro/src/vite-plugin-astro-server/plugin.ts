@@ -174,9 +174,9 @@ export default function createVitePluginAstroServer({
 				});
 
 				if (prerenderHandler && shouldHandlePrerenderInCore) {
-					const currentPrerenderHandler = prerenderHandler;
 					viteServer.middlewares.use(
 						async function astroDevPrerenderHandler(request, response, next) {
+							if (!prerenderHandler) return next();
 							if (request.url === undefined || !request.method) {
 								response.writeHead(500, 'Incomplete request');
 								response.end();
@@ -194,7 +194,7 @@ export default function createVitePluginAstroServer({
 							try {
 								const pathname = decodeURI(new URL(request.url, 'http://localhost').pathname);
 								const { routes } =
-									await currentPrerenderHandler.environment.runner.import('virtual:astro:routes');
+									await prerenderHandler.environment.runner.import('virtual:astro:routes');
 								const routesList = { routes: routes.map((r: any) => r.routeData) };
 								const matches = matchAllRoutes(pathname, routesList);
 
@@ -203,7 +203,7 @@ export default function createVitePluginAstroServer({
 								}
 
 								localStorage.run(request, () => {
-									currentPrerenderHandler.handler(request, response);
+									prerenderHandler!.handler(request, response);
 								});
 							} catch (err) {
 								next(err);
@@ -213,9 +213,9 @@ export default function createVitePluginAstroServer({
 				}
 
 				if (ssrHandler) {
-					const currentSsrHandler = ssrHandler;
 					// Note that this function has a name so other middleware can find it.
 					viteServer.middlewares.use(async function astroDevHandler(request, response) {
+						if (!ssrHandler) return;
 						if (request.url === undefined || !request.method) {
 							response.writeHead(500, 'Incomplete request');
 							response.end();
@@ -223,7 +223,7 @@ export default function createVitePluginAstroServer({
 						}
 
 						localStorage.run(request, () => {
-							currentSsrHandler.handler(request, response);
+							ssrHandler!.handler(request, response);
 						});
 					});
 				}
