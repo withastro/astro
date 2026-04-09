@@ -181,6 +181,7 @@ describe('setOriginPathname / getOriginPathname', () => {
 
 	it('handles undefined pathname', () => {
 		const req = new Request('http://example.com/');
+		// @ts-expect-error Testing runtime behavior with undefined pathname
 		setOriginPathname(req, undefined, 'ignore', 'directory');
 		assert.equal(getOriginPathname(req), '/');
 	});

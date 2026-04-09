@@ -1,5 +1,6 @@
-import * as assert from 'node:assert/strict';
+import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import type { AstroConfig } from '../../../dist/types/public/config.js';
 import { Router } from '../../../dist/core/routing/router.js';
 import { makeRoute, staticPart } from './test-helpers.js';
 
@@ -8,7 +9,7 @@ import { makeRoute, staticPart } from './test-helpers.js';
  * Mirrors the original fixture's pages: api, dot.json, pathname, subpage,
  * plus optionally injected routes.
  */
-function makeRoutes(trailingSlash, { injected = [] } = {}) {
+function makeRoutes(trailingSlash: AstroConfig['trailingSlash'], { injected = [] as ReturnType<typeof makeRoute>[] } = {}) {
 	const routes = [
 		makeRoute({
 			segments: [[staticPart('api')]],

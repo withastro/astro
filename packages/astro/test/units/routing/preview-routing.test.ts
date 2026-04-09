@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import type { AstroConfig } from '../../../dist/types/public/config.js';
 import { Router } from '../../../dist/core/routing/router.js';
 import { dynamicPart, makeRoute, staticPart } from './test-helpers.js';
 
 describe('preview routing (unit)', () => {
-	const routes = (trailingSlash) => [
+	const routes = (trailingSlash: AstroConfig['trailingSlash']) => [
 		makeRoute({ segments: [], trailingSlash, route: '/', pathname: '/', isIndex: true }),
 		makeRoute({
 			segments: [[staticPart('another')]],
