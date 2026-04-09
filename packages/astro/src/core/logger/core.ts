@@ -64,9 +64,6 @@ export interface AstroLogOptions {
 	level: AstroLoggerLevel;
 	// Intentionally optional so we don't leak to public code. It will be public and non-optional
 	// once we expose to users
-	/**
-	 * @internal
-	 */
 	_format?: AstroLoggerFormat;
 }
 

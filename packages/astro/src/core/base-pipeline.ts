@@ -45,7 +45,7 @@ export abstract class Pipeline {
 	nodePool: NodePool | undefined;
 	htmlStringCache: HTMLStringCache | undefined;
 
-	readonly logger: Logger;
+	readonly logger: AstroLogger;
 	readonly manifest: SSRManifest;
 	/**
 	 * "development" or "production" only
