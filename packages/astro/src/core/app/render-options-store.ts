@@ -9,7 +9,7 @@ import { AsyncLocalStorage } from 'node:async_hooks';
  * shared even when the module is duplicated across bundles (e.g. the
  * adapter's runtime App import vs. the bundled fixture/server code).
  */
-export interface RenderOptions {
+interface RenderOptions {
 	locals?: App.Locals;
 	clientAddress?: string;
 	addCookieHeader?: boolean;
