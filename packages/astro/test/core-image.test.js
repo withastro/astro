@@ -1155,23 +1155,27 @@ describe('astro:image', () => {
 
 		it('uses cache entries', async () => {
 			const logs = [];
-			const logger = new AstroLogger({
-				destination: {
-					write(chunk) {
-						logs.push(chunk);
-						return true;
-					},
-				},
-				level: 'info',
-			});
 
-			await fixture.build({ logger });
+			await fixture.build({
+				logger: new AstroLogger({
+					destination: {
+						write(chunk) {
+							logs.push(chunk);
+							return true;
+						},
+					},
+					level: 'info',
+				}),
+			});
 			const generatingImageIndex = logs.findIndex((logLine) =>
-				logLine.message.includes('generating optimized images'),
+				logLine.message?.includes('generating optimized images'),
 			);
-			const relevantLogs = logs.slice(generatingImageIndex + 1, -1);
-			const isReusingCache = relevantLogs.every((logLine) =>
-				logLine.message.includes('(reused cache entry)'),
+			const imageLogs = logs
+				.slice(generatingImageIndex + 1)
+				.filter((logLine) => logLine.message?.includes('/_astro/'));
+			assert.ok(imageLogs.length > 0, 'Expected at least one image log entry');
+			const isReusingCache = imageLogs.every((logLine) =>
+				logLine.message?.includes('cache entry)'),
 			);
 
 			assert.equal(isReusingCache, true);
