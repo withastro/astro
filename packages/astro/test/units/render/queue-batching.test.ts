@@ -4,6 +4,7 @@ import { buildRenderQueue } from '../../../dist/runtime/server/render/queue/buil
 import { renderQueue } from '../../../dist/runtime/server/render/queue/renderer.js';
 import { NodePool } from '../../../dist/runtime/server/render/queue/pool.js';
 import { markHTMLString } from '../../../dist/runtime/server/index.js';
+import type { RenderDestination } from '../../../dist/runtime/server/render/common.js';
 
 // Mock SSRResult for testing
 function createMockResult() {
@@ -13,7 +14,7 @@ function createMockResult() {
 			hasRenderedHead: false,
 			hasDirectives: new Set(),
 			headInTree: false,
-			extraHead: [],
+			extraHead: [] as string[],
 			propagators: new Set(),
 		},
 		styles: new Set(),
@@ -23,7 +24,7 @@ function createMockResult() {
 }
 
 // Create a NodePool for testing
-function createMockPool() {
+function createMockPool(): NodePool {
 	return new NodePool(1000);
 }
 
@@ -33,7 +34,7 @@ describe('Queue batching optimization', () => {
 		const pool = createMockPool();
 		const items = ['Hello', ' ', 'world', '!'];
 
-		const queue = await buildRenderQueue(items, result, pool);
+		const queue = await buildRenderQueue(items, result as any, pool);
 
 		// All text nodes should be in the queue
 		assert.equal(queue.nodes.length, 4);
@@ -45,7 +46,7 @@ describe('Queue batching optimization', () => {
 		// When rendered, they should be batched into one write
 		let writeCount = 0;
 		let output = '';
-		const destination = {
+		const destination: RenderDestination = {
 			write(chunk) {
 				writeCount++;
 				output += String(chunk);
@@ -64,11 +65,11 @@ describe('Queue batching optimization', () => {
 
 		const items = [markHTMLString('<div>'), markHTMLString('content'), markHTMLString('</div>')];
 
-		const queue = await buildRenderQueue(items, result, pool);
+		const queue = await buildRenderQueue(items, result as any, pool);
 
 		let writeCount = 0;
 		let output = '';
-		const destination = {
+		const destination: RenderDestination = {
 			write(chunk) {
 				writeCount++;
 				output += String(chunk);
@@ -88,18 +89,18 @@ describe('Queue batching optimization', () => {
 
 		// Create a simple component
 		const componentInstance = {
-			render(dest) {
+			render(dest: RenderDestination) {
 				dest.write('<p>Component</p>');
 			},
 		};
 
 		const items = ['before', componentInstance, 'after'];
 
-		const queue = await buildRenderQueue(items, result, pool);
+		const queue = await buildRenderQueue(items, result as any, pool);
 
 		let writeCount = 0;
 		let output = '';
-		const destination = {
+		const destination: RenderDestination = {
 			write(chunk) {
 				writeCount++;
 				output += String(chunk);
@@ -120,12 +121,12 @@ describe('Queue batching optimization', () => {
 		// Create a large array of text items (simulating a list)
 		const items = Array.from({ length: 1000 }, (_, i) => `Item ${i + 1}`);
 
-		const queue = await buildRenderQueue(items, result, pool);
+		const queue = await buildRenderQueue(items, result as any, pool);
 
 		assert.equal(queue.nodes.length, 1000);
 
 		let writeCount = 0;
-		const destination = {
+		const destination: RenderDestination = {
 			write() {
 				writeCount++;
 			},
@@ -149,11 +150,11 @@ describe('Queue batching optimization', () => {
 			markHTMLString('<i>Italic</i>'),
 		];
 
-		const queue = await buildRenderQueue(items, result, pool);
+		const queue = await buildRenderQueue(items, result as any, pool);
 
 		let writeCount = 0;
 		let output = '';
-		const destination = {
+		const destination: RenderDestination = {
 			write(chunk) {
 				writeCount++;
 				output += String(chunk);

@@ -8,15 +8,16 @@ import {
 	renderComponent,
 	renderTemplate,
 } from '../../../dist/runtime/server/index.js';
+import type { RenderDestination } from '../../../dist/runtime/server/render/common.js';
 
 const DEFAULT_RESULT = {
 	clientDirectives: new Map(),
 };
 
 describe('rendering', () => {
-	const evaluated = [];
+	const evaluated: string[] = [];
 
-	const Scalar = createComponent((_result, props) => {
+	const Scalar = createComponent((_result, props: { id: string }) => {
 		evaluated.push(props.id);
 		return renderTemplate`<scalar id="${props.id}"></scalar>`;
 	});
@@ -26,7 +27,7 @@ describe('rendering', () => {
 	});
 
 	it('components are evaluated and rendered depth-first', async () => {
-		const Root = createComponent((result, props) => {
+		const Root = createComponent((result, props: { id: string }) => {
 			evaluated.push(props.id);
 			return renderTemplate`<root id="${props.id}">
 				${renderComponent(result, '', Scalar, { id: `${props.id}/scalar_1` })}
@@ -35,7 +36,7 @@ describe('rendering', () => {
 			</root>`;
 		});
 
-		const Nested = createComponent((result, props) => {
+		const Nested = createComponent((result, props: { id: string }) => {
 			evaluated.push(props.id);
 			return renderTemplate`<nested id="${props.id}">
 				${renderComponent(result, '', Scalar, { id: `${props.id}/scalar` })}
@@ -63,7 +64,7 @@ describe('rendering', () => {
 	});
 
 	it('synchronous component trees are rendered without promises', () => {
-		const Root = createComponent((result, props) => {
+		const Root = createComponent((result, props: { id: string }) => {
 			evaluated.push(props.id);
 			return renderTemplate`<root id="${props.id}">
 				${() => renderComponent(result, '', Scalar, { id: `${props.id}/scalar_1` })}
@@ -78,7 +79,7 @@ describe('rendering', () => {
 		const result = renderToString(Root(DEFAULT_RESULT, { id: 'root' }, {}));
 		assert.ok(!isPromise(result));
 
-		const rendered = getRenderedIds(result);
+		const rendered = getRenderedIds(result as string);
 
 		assert.deepEqual(evaluated, [
 			'root',
@@ -98,7 +99,7 @@ describe('rendering', () => {
 	});
 
 	it('async component children are deferred', async () => {
-		const Root = createComponent((result, props) => {
+		const Root = createComponent((result, props: { id: string }) => {
 			evaluated.push(props.id);
 			return renderTemplate`<root id="${props.id}">
 				${renderComponent(result, '', AsyncNested, { id: `${props.id}/asyncnested` })}
@@ -106,7 +107,7 @@ describe('rendering', () => {
 			</root>`;
 		});
 
-		const AsyncNested = createComponent(async (result, props) => {
+		const AsyncNested = createComponent(async (result, props: { id: string }) => {
 			evaluated.push(props.id);
 			await new Promise((resolve) => setTimeout(resolve, 0));
 			return renderTemplate`<asyncnested id="${props.id}">
@@ -136,7 +137,7 @@ describe('rendering', () => {
 	it('adjacent async components are evaluated eagerly', async () => {
 		const resetEvent = new ManualResetEvent();
 
-		const Root = createComponent((result, props) => {
+		const Root = createComponent((result, props: { id: string }) => {
 			evaluated.push(props.id);
 			return renderTemplate`<root id="${props.id}">
 				${renderComponent(result, '', AsyncNested, { id: `${props.id}/asyncnested_1` })}
@@ -144,7 +145,7 @@ describe('rendering', () => {
 			</root>`;
 		});
 
-		const AsyncNested = createComponent(async (result, props) => {
+		const AsyncNested = createComponent(async (result, props: { id: string }) => {
 			evaluated.push(props.id);
 			await resetEvent.wait();
 			return renderTemplate`<asyncnested id="${props.id}">
@@ -187,10 +188,10 @@ describe('rendering', () => {
 			return renderTemplate`${message}`;
 		});
 
-		const renderInstance = await renderComponent(DEFAULT_RESULT, '', Root, {});
+		const renderInstance = await renderComponent(DEFAULT_RESULT as any, '', Root, {});
 
-		const chunks = [];
-		const destination = {
+		const chunks: unknown[] = [];
+		const destination: RenderDestination = {
 			write: (chunk) => {
 				chunks.push(chunk);
 			},
@@ -202,7 +203,7 @@ describe('rendering', () => {
 	});
 
 	it('all primitives are rendered in order', async () => {
-		const Root = createComponent((result, props) => {
+		const Root = createComponent((result, props: { id: string }) => {
 			evaluated.push(props.id);
 			return renderTemplate`<root id="${props.id}">
 				${renderComponent(result, '', Scalar, { id: `${props.id}/first` })}
@@ -248,14 +249,14 @@ describe('rendering', () => {
 	});
 });
 
-function renderToString(item) {
+function renderToString(item: any): string | Promise<string> {
 	if (isPromise(item)) {
 		return item.then(renderToString);
 	}
 
 	let result = '';
 
-	const destination = {
+	const destination: RenderDestination = {
 		write: (chunk) => {
 			result += chunk.toString();
 		},
@@ -270,23 +271,23 @@ function renderToString(item) {
 	return result;
 }
 
-function getRenderedIds(html) {
+function getRenderedIds(html: string): string[] {
 	return cheerio
 		.load(
 			html,
 			null,
 			false,
 		)('*')
-		.map((_, node) => node.attribs['id'])
+		.map((_: number, node: any) => node.attribs['id'])
 		.toArray();
 }
 
 class ManualResetEvent {
-	#resolve;
-	#promise;
+	#resolve: (() => void) | undefined;
+	#promise: Promise<void> | undefined;
 	#done = false;
 
-	release() {
+	release(): void {
 		if (this.#done) {
 			return;
 		}
@@ -298,7 +299,7 @@ class ManualResetEvent {
 		}
 	}
 
-	wait() {
+	wait(): Promise<void> {
 		// Promise constructor callbacks are called immediately
 		// so retrieving the value of "resolve" should
 		// be safe to do.

@@ -1,3 +1,7 @@
+// These tests pass partial config objects to i18n utility functions. The functions accept
+// full config types but the tests intentionally exercise only the relevant subset.
+// Using `as any` for the spread configs avoids maintaining full config literals in tests.
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { toRoutingStrategy } from '../../../dist/core/app/common.js';
@@ -12,12 +16,14 @@ import {
 } from '../../../dist/i18n/index.js';
 import { parseLocale } from '../../../dist/i18n/utils.js';
 
+// Helper wrappers that accept partial config objects (matching original JS test behavior)
+const relativeUrl = (opts: Record<string, any>) => getLocaleRelativeUrl(opts as any);
+const relativeUrlList = (opts: Record<string, any>) => getLocaleRelativeUrlList(opts as any);
+const absoluteUrl = (opts: Record<string, any>) => getLocaleAbsoluteUrl(opts as any);
+const absoluteUrlList = (opts: Record<string, any>) => getLocaleAbsoluteUrlList(opts as any);
+
 describe('getLocaleRelativeUrl', () => {
 	it('should correctly return the URL with the base', () => {
-		/**
-		 *
-		 * @type {import("../../../dist/@types").AstroUserConfig}
-		 */
 		const config = {
 			base: '/blog',
 			experimental: {
@@ -38,7 +44,7 @@ describe('getLocaleRelativeUrl', () => {
 
 		// directory format
 		assert.equal(
-			getLocaleRelativeUrl({
+			relativeUrl({
 				locale: 'en',
 				base: '/blog/',
 				trailingSlash: 'always',
@@ -48,7 +54,7 @@ describe('getLocaleRelativeUrl', () => {
 			'/blog/',
 		);
 		assert.equal(
-			getLocaleRelativeUrl({
+			relativeUrl({
 				locale: 'es',
 				base: '/blog/',
 				...config.experimental.i18n,
@@ -60,7 +66,7 @@ describe('getLocaleRelativeUrl', () => {
 
 		// file format
 		assert.equal(
-			getLocaleRelativeUrl({
+			relativeUrl({
 				locale: 'en',
 				base: '/blog/',
 				...config.experimental.i18n,
@@ -70,7 +76,7 @@ describe('getLocaleRelativeUrl', () => {
 			'/blog/',
 		);
 		assert.equal(
-			getLocaleRelativeUrl({
+			relativeUrl({
 				locale: 'es',
 				base: '/blog/',
 				...config.experimental.i18n,
@@ -81,7 +87,7 @@ describe('getLocaleRelativeUrl', () => {
 		);
 
 		assert.equal(
-			getLocaleRelativeUrl({
+			relativeUrl({
 				locale: 'it-VA',
 				base: '/blog/',
 				...config.experimental.i18n,
@@ -93,10 +99,6 @@ describe('getLocaleRelativeUrl', () => {
 	});
 
 	it('should correctly return the URL without base', () => {
-		/**
-		 *
-		 * @type {import("../../../dist/@types").AstroUserConfig}
-		 */
 		const config = {
 			experimental: {
 				i18n: {
@@ -107,7 +109,7 @@ describe('getLocaleRelativeUrl', () => {
 		};
 
 		assert.equal(
-			getLocaleRelativeUrl({
+			relativeUrl({
 				locale: 'en',
 				base: '/',
 				...config.experimental.i18n,
@@ -117,7 +119,7 @@ describe('getLocaleRelativeUrl', () => {
 			'/',
 		);
 		assert.equal(
-			getLocaleRelativeUrl({
+			relativeUrl({
 				locale: 'es',
 				base: '/',
 				...config.experimental.i18n,
@@ -128,7 +130,7 @@ describe('getLocaleRelativeUrl', () => {
 		);
 
 		assert.equal(
-			getLocaleRelativeUrl({
+			relativeUrl({
 				locale: 'en',
 				base: '/',
 				...config.experimental.i18n,
@@ -139,7 +141,7 @@ describe('getLocaleRelativeUrl', () => {
 		);
 
 		assert.equal(
-			getLocaleRelativeUrl({
+			relativeUrl({
 				locale: 'es',
 				base: '/',
 				...config.experimental.i18n,
@@ -150,7 +152,7 @@ describe('getLocaleRelativeUrl', () => {
 		);
 
 		assert.equal(
-			getLocaleRelativeUrl({
+			relativeUrl({
 				locale: 'en',
 				base: '/',
 				...config.experimental.i18n,
@@ -162,10 +164,6 @@ describe('getLocaleRelativeUrl', () => {
 	});
 
 	it('should correctly handle the trailing slash', () => {
-		/**
-		 *
-		 * @type {import("../../../dist/@types").AstroUserConfig}
-		 */
 		const config = {
 			i18n: {
 				defaultLocale: 'en',
@@ -181,7 +179,7 @@ describe('getLocaleRelativeUrl', () => {
 		};
 		// directory format
 		assert.equal(
-			getLocaleRelativeUrl({
+			relativeUrl({
 				locale: 'en',
 				base: '/blog',
 				...config.i18n,
@@ -191,7 +189,7 @@ describe('getLocaleRelativeUrl', () => {
 			'/blog',
 		);
 		assert.equal(
-			getLocaleRelativeUrl({
+			relativeUrl({
 				locale: 'es',
 				base: '/blog/',
 				...config.i18n,
@@ -202,7 +200,7 @@ describe('getLocaleRelativeUrl', () => {
 		);
 
 		assert.equal(
-			getLocaleRelativeUrl({
+			relativeUrl({
 				locale: 'it-VA',
 				base: '/blog/',
 				...config.i18n,
@@ -213,7 +211,7 @@ describe('getLocaleRelativeUrl', () => {
 		);
 
 		assert.equal(
-			getLocaleRelativeUrl({
+			relativeUrl({
 				locale: 'en',
 				base: '/blog/',
 				...config.i18n,
@@ -225,7 +223,7 @@ describe('getLocaleRelativeUrl', () => {
 
 		// directory file
 		assert.equal(
-			getLocaleRelativeUrl({
+			relativeUrl({
 				locale: 'en',
 				base: '/blog',
 				...config.i18n,
@@ -235,7 +233,7 @@ describe('getLocaleRelativeUrl', () => {
 			'/blog',
 		);
 		assert.equal(
-			getLocaleRelativeUrl({
+			relativeUrl({
 				locale: 'es',
 				base: '/blog/',
 				...config.i18n,
@@ -246,7 +244,7 @@ describe('getLocaleRelativeUrl', () => {
 		);
 
 		assert.equal(
-			getLocaleRelativeUrl({
+			relativeUrl({
 				locale: 'en',
 				// ignore + file => no trailing slash
 				base: '/blog',
@@ -259,10 +257,6 @@ describe('getLocaleRelativeUrl', () => {
 	});
 
 	it('should normalize locales by default', () => {
-		/**
-		 *
-		 * @type {import("../../../dist/@types").AstroUserConfig}
-		 */
 		const config = {
 			base: '/blog',
 			i18n: {
@@ -272,7 +266,7 @@ describe('getLocaleRelativeUrl', () => {
 		};
 
 		assert.equal(
-			getLocaleRelativeUrl({
+			relativeUrl({
 				locale: 'en_US',
 				base: '/blog/',
 				...config.i18n,
@@ -284,7 +278,7 @@ describe('getLocaleRelativeUrl', () => {
 		);
 
 		assert.equal(
-			getLocaleRelativeUrl({
+			relativeUrl({
 				locale: 'en_US',
 				base: '/blog/',
 				...config.i18n,
@@ -297,7 +291,7 @@ describe('getLocaleRelativeUrl', () => {
 		);
 
 		assert.equal(
-			getLocaleRelativeUrl({
+			relativeUrl({
 				locale: 'en_AU',
 				base: '/blog/',
 				...config.i18n,
@@ -310,10 +304,6 @@ describe('getLocaleRelativeUrl', () => {
 	});
 
 	it('should return the default locale when routing strategy is [pathname-prefix-always]', () => {
-		/**
-		 *
-		 * @type {import("../../../dist/@types").AstroUserConfig}
-		 */
 		const config = {
 			base: '/blog',
 			i18n: {
@@ -327,7 +317,7 @@ describe('getLocaleRelativeUrl', () => {
 
 		// directory format
 		assert.equal(
-			getLocaleRelativeUrl({
+			relativeUrl({
 				locale: 'en',
 				base: '/blog/',
 				trailingSlash: 'always',
@@ -338,7 +328,7 @@ describe('getLocaleRelativeUrl', () => {
 			'/blog/en/',
 		);
 		assert.equal(
-			getLocaleRelativeUrl({
+			relativeUrl({
 				locale: 'es',
 				base: '/blog/',
 				...config.i18n,
@@ -351,7 +341,7 @@ describe('getLocaleRelativeUrl', () => {
 
 		// file format
 		assert.equal(
-			getLocaleRelativeUrl({
+			relativeUrl({
 				locale: 'en',
 				base: '/blog/',
 				...config.i18n,
@@ -362,7 +352,7 @@ describe('getLocaleRelativeUrl', () => {
 			'/blog/en/',
 		);
 		assert.equal(
-			getLocaleRelativeUrl({
+			relativeUrl({
 				locale: 'es',
 				base: '/blog/',
 				...config.i18n,
@@ -375,10 +365,6 @@ describe('getLocaleRelativeUrl', () => {
 	});
 
 	it('should return the default locale when routing strategy is [pathname-prefix-always-no-redirect]', () => {
-		/**
-		 *
-		 * @type {import("../../../dist/@types").AstroUserConfig}
-		 */
 		const config = {
 			base: '/blog',
 			i18n: {
@@ -393,7 +379,7 @@ describe('getLocaleRelativeUrl', () => {
 
 		// directory format
 		assert.equal(
-			getLocaleRelativeUrl({
+			relativeUrl({
 				locale: 'en',
 				base: '/blog/',
 				trailingSlash: 'always',
@@ -404,7 +390,7 @@ describe('getLocaleRelativeUrl', () => {
 			'/blog/en/',
 		);
 		assert.equal(
-			getLocaleRelativeUrl({
+			relativeUrl({
 				locale: 'es',
 				base: '/blog/',
 				...config.i18n,
@@ -417,7 +403,7 @@ describe('getLocaleRelativeUrl', () => {
 
 		// file format
 		assert.equal(
-			getLocaleRelativeUrl({
+			relativeUrl({
 				locale: 'en',
 				base: '/blog/',
 				...config.i18n,
@@ -428,7 +414,7 @@ describe('getLocaleRelativeUrl', () => {
 			'/blog/en/',
 		);
 		assert.equal(
-			getLocaleRelativeUrl({
+			relativeUrl({
 				locale: 'es',
 				base: '/blog/',
 				...config.i18n,
@@ -443,10 +429,6 @@ describe('getLocaleRelativeUrl', () => {
 
 describe('getLocaleRelativeUrlList', () => {
 	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: never]', () => {
-		/**
-		 *
-		 * @type {import("../../../dist/@types").AstroUserConfig}
-		 */
 		const config = {
 			experimental: {
 				i18n: {
@@ -465,7 +447,7 @@ describe('getLocaleRelativeUrlList', () => {
 		};
 		// directory format
 		assert.deepEqual(
-			getLocaleRelativeUrlList({
+			relativeUrlList({
 				locale: 'en',
 				base: '/blog',
 				...config.experimental.i18n,
@@ -477,10 +459,6 @@ describe('getLocaleRelativeUrlList', () => {
 	});
 
 	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: always]', () => {
-		/**
-		 *
-		 * @type {import("../../../dist/@types").AstroUserConfig}
-		 */
 		const config = {
 			experimental: {
 				i18n: {
@@ -499,7 +477,7 @@ describe('getLocaleRelativeUrlList', () => {
 		};
 		// directory format
 		assert.deepEqual(
-			getLocaleRelativeUrlList({
+			relativeUrlList({
 				locale: 'en',
 				base: '/blog/',
 				...config.experimental.i18n,
@@ -511,10 +489,6 @@ describe('getLocaleRelativeUrlList', () => {
 	});
 
 	it('should retrieve the correct list of base URL with locales [format: file, trailingSlash: always]', () => {
-		/**
-		 *
-		 * @type {import("../../../dist/@types").AstroUserConfig}
-		 */
 		const config = {
 			experimental: {
 				i18n: {
@@ -525,7 +499,7 @@ describe('getLocaleRelativeUrlList', () => {
 		};
 		// directory format
 		assert.deepEqual(
-			getLocaleRelativeUrlList({
+			relativeUrlList({
 				locale: 'en',
 				base: '/blog/',
 				...config.experimental.i18n,
@@ -537,10 +511,6 @@ describe('getLocaleRelativeUrlList', () => {
 	});
 
 	it('should retrieve the correct list of base URL with locales [format: file, trailingSlash: never]', () => {
-		/**
-		 *
-		 * @type {import("../../../dist/@types").AstroUserConfig}
-		 */
 		const config = {
 			experimental: {
 				i18n: {
@@ -551,7 +521,7 @@ describe('getLocaleRelativeUrlList', () => {
 		};
 		// directory format
 		assert.deepEqual(
-			getLocaleRelativeUrlList({
+			relativeUrlList({
 				locale: 'en',
 				base: '/blog',
 				...config.experimental.i18n,
@@ -563,10 +533,6 @@ describe('getLocaleRelativeUrlList', () => {
 	});
 
 	it('should retrieve the correct list of base URL with locales [format: file, trailingSlash: ignore]', () => {
-		/**
-		 *
-		 * @type {import("../../../dist/@types").AstroUserConfig}
-		 */
 		const config = {
 			experimental: {
 				i18n: {
@@ -577,7 +543,7 @@ describe('getLocaleRelativeUrlList', () => {
 		};
 		// directory format
 		assert.deepEqual(
-			getLocaleRelativeUrlList({
+			relativeUrlList({
 				locale: 'en',
 				base: '/blog',
 				...config.experimental.i18n,
@@ -589,10 +555,6 @@ describe('getLocaleRelativeUrlList', () => {
 	});
 
 	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: ignore]', () => {
-		/**
-		 *
-		 * @type {import("../../../dist/@types").AstroUserConfig}
-		 */
 		const config = {
 			experimental: {
 				i18n: {
@@ -603,7 +565,7 @@ describe('getLocaleRelativeUrlList', () => {
 		};
 		// directory format
 		assert.deepEqual(
-			getLocaleRelativeUrlList({
+			relativeUrlList({
 				locale: 'en',
 				base: '/blog/',
 				...config.experimental.i18n,
@@ -615,10 +577,6 @@ describe('getLocaleRelativeUrlList', () => {
 	});
 
 	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: never, routingStrategy: pathname-prefix-always]', () => {
-		/**
-		 *
-		 * @type {import("../../../dist/@types").AstroUserConfig}
-		 */
 		const config = {
 			i18n: {
 				defaultLocale: 'en',
@@ -630,7 +588,7 @@ describe('getLocaleRelativeUrlList', () => {
 		};
 		// directory format
 		assert.deepEqual(
-			getLocaleRelativeUrlList({
+			relativeUrlList({
 				locale: 'en',
 				base: '/blog',
 				...config.i18n,
@@ -643,10 +601,6 @@ describe('getLocaleRelativeUrlList', () => {
 	});
 
 	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: never, routingStrategy: pathname-prefix-always-no-redirect]', () => {
-		/**
-		 *
-		 * @type {import("../../../dist/@types").AstroUserConfig}
-		 */
 		const config = {
 			i18n: {
 				defaultLocale: 'en',
@@ -659,7 +613,7 @@ describe('getLocaleRelativeUrlList', () => {
 		};
 		// directory format
 		assert.deepEqual(
-			getLocaleRelativeUrlList({
+			relativeUrlList({
 				locale: 'en',
 				base: '/blog',
 				...config.i18n,
@@ -675,10 +629,6 @@ describe('getLocaleRelativeUrlList', () => {
 describe('getLocaleAbsoluteUrl', () => {
 	describe('with [prefix-other-locales]', () => {
 		it('should correctly return the URL with the base', () => {
-			/**
-			 *
-			 * @type {import("../../../dist/@types").AstroUserConfig}
-			 */
 			const config = {
 				base: '/blog',
 				i18n: {
@@ -701,7 +651,7 @@ describe('getLocaleAbsoluteUrl', () => {
 
 			// directory format
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'en',
 					base: '/blog/',
 					trailingSlash: 'always',
@@ -712,7 +662,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				'https://example.com/blog/',
 			);
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'es',
 					base: '/blog/',
 					...config.i18n,
@@ -724,7 +674,7 @@ describe('getLocaleAbsoluteUrl', () => {
 			);
 
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'es',
 					base: '/blog/',
 					...config.i18n,
@@ -738,7 +688,7 @@ describe('getLocaleAbsoluteUrl', () => {
 
 			assert.throws(
 				() =>
-					getLocaleAbsoluteUrl({
+					absoluteUrl({
 						locale: 'ff',
 						base: '/blog/',
 						...config.i18n,
@@ -755,7 +705,7 @@ describe('getLocaleAbsoluteUrl', () => {
 
 			// file format
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'en',
 					base: '/blog/',
 					...config.i18n,
@@ -766,7 +716,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				'https://example.com/blog/',
 			);
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'es',
 					base: '/blog/',
 					...config.i18n,
@@ -778,7 +728,7 @@ describe('getLocaleAbsoluteUrl', () => {
 			);
 
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'it-VA',
 					base: '/blog/',
 					...config.i18n,
@@ -790,7 +740,7 @@ describe('getLocaleAbsoluteUrl', () => {
 			);
 
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'es',
 					base: '/blog/',
 					...config.i18n,
@@ -803,7 +753,7 @@ describe('getLocaleAbsoluteUrl', () => {
 			);
 
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'es',
 					base: '/blog/',
 					prependWith: 'some-name',
@@ -819,7 +769,7 @@ describe('getLocaleAbsoluteUrl', () => {
 
 			// en isn't mapped to a domain
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'en',
 					base: '/blog/',
 					prependWith: 'some-name',
@@ -836,10 +786,6 @@ describe('getLocaleAbsoluteUrl', () => {
 	});
 	describe('with [prefix-always]', () => {
 		it('should correctly return the URL with the base', () => {
-			/**
-			 *
-			 * @type {import("../../../dist/@types").AstroUserConfig}
-			 */
 			const config = {
 				base: '/blog',
 				i18n: {
@@ -856,7 +802,7 @@ describe('getLocaleAbsoluteUrl', () => {
 
 			// directory format
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'en',
 					base: '/blog/',
 					trailingSlash: 'always',
@@ -869,7 +815,7 @@ describe('getLocaleAbsoluteUrl', () => {
 			);
 
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'es',
 					base: '/blog/',
 					...config.i18n,
@@ -883,7 +829,7 @@ describe('getLocaleAbsoluteUrl', () => {
 
 			// file format
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'en',
 					base: '/blog/',
 					...config.i18n,
@@ -895,7 +841,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				'https://example.com/blog/en/',
 			);
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'es',
 					base: '/blog/',
 					...config.i18n,
@@ -908,7 +854,7 @@ describe('getLocaleAbsoluteUrl', () => {
 			);
 
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'es',
 					base: '/blog/',
 					...config.i18n,
@@ -922,7 +868,7 @@ describe('getLocaleAbsoluteUrl', () => {
 			);
 
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'es',
 					base: '/blog/',
 					prependWith: 'some-name',
@@ -938,10 +884,6 @@ describe('getLocaleAbsoluteUrl', () => {
 			);
 		});
 		it('should correctly return the URL without base', () => {
-			/**
-			 *
-			 * @type {import("../../../dist/@types").AstroUserConfig}
-			 */
 			const config = {
 				i18n: {
 					defaultLocale: 'en',
@@ -953,7 +895,7 @@ describe('getLocaleAbsoluteUrl', () => {
 			};
 
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'en',
 					base: '/',
 					...config.i18n,
@@ -965,7 +907,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				'https://example.com/en/',
 			);
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'es',
 					base: '/',
 					...config.i18n,
@@ -979,10 +921,6 @@ describe('getLocaleAbsoluteUrl', () => {
 		});
 
 		it('should correctly handle the trailing slash', () => {
-			/**
-			 *
-			 * @type {import("../../../dist/@types").AstroUserConfig}
-			 */
 			const config = {
 				i18n: {
 					defaultLocale: 'en',
@@ -994,7 +932,7 @@ describe('getLocaleAbsoluteUrl', () => {
 			};
 			// directory format
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'en',
 					base: '/blog',
 					...config.i18n,
@@ -1006,7 +944,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				'https://example.com/blog/en',
 			);
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'es',
 					base: '/blog/',
 					...config.i18n,
@@ -1019,7 +957,7 @@ describe('getLocaleAbsoluteUrl', () => {
 			);
 
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'en',
 					base: '/blog/',
 					...config.i18n,
@@ -1033,7 +971,7 @@ describe('getLocaleAbsoluteUrl', () => {
 
 			// directory file
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'en',
 					base: '/blog',
 					...config.i18n,
@@ -1045,7 +983,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				'https://example.com/blog/en',
 			);
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'es',
 					base: '/blog/',
 					...config.i18n,
@@ -1058,7 +996,7 @@ describe('getLocaleAbsoluteUrl', () => {
 			);
 
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'en',
 					// ignore + file => no trailing slash
 					base: '/blog',
@@ -1073,10 +1011,6 @@ describe('getLocaleAbsoluteUrl', () => {
 		});
 
 		it('should normalize locales', () => {
-			/**
-			 *
-			 * @type {import("../../../dist/@types").AstroUserConfig}
-			 */
 			const config = {
 				base: '/blog',
 				experimental: {
@@ -1089,7 +1023,7 @@ describe('getLocaleAbsoluteUrl', () => {
 			};
 
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'en_US',
 					base: '/blog/',
 					...config.experimental.i18n,
@@ -1100,7 +1034,7 @@ describe('getLocaleAbsoluteUrl', () => {
 			);
 
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'en_AU',
 					base: '/blog/',
 					...config.experimental.i18n,
@@ -1111,7 +1045,7 @@ describe('getLocaleAbsoluteUrl', () => {
 			);
 
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'en_US',
 					base: '/blog/',
 					...config.experimental.i18n,
@@ -1124,10 +1058,6 @@ describe('getLocaleAbsoluteUrl', () => {
 		});
 
 		it('should return the default locale when routing strategy is [pathname-prefix-always]', () => {
-			/**
-			 *
-			 * @type {import("../../../dist/@types").AstroUserConfig}
-			 */
 			const config = {
 				base: '/blog',
 				i18n: {
@@ -1141,7 +1071,7 @@ describe('getLocaleAbsoluteUrl', () => {
 
 			// directory format
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'en',
 					base: '/blog/',
 					trailingSlash: 'always',
@@ -1153,7 +1083,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				'https://example.com/blog/en/',
 			);
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'es',
 					base: '/blog/',
 					...config.i18n,
@@ -1167,7 +1097,7 @@ describe('getLocaleAbsoluteUrl', () => {
 
 			// file format
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'en',
 					base: '/blog/',
 					...config.i18n,
@@ -1179,7 +1109,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				'https://example.com/blog/en/',
 			);
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'es',
 					base: '/blog/',
 					...config.i18n,
@@ -1193,10 +1123,6 @@ describe('getLocaleAbsoluteUrl', () => {
 		});
 
 		it('should return the default locale when routing strategy is [pathname-prefix-always-no-redirect]', () => {
-			/**
-			 *
-			 * @type {import("../../../dist/@types").AstroUserConfig}
-			 */
 			const config = {
 				base: '/blog',
 				i18n: {
@@ -1211,7 +1137,7 @@ describe('getLocaleAbsoluteUrl', () => {
 
 			// directory format
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'en',
 					base: '/blog/',
 					trailingSlash: 'always',
@@ -1223,7 +1149,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				'https://example.com/blog/en/',
 			);
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'es',
 					base: '/blog/',
 					...config.i18n,
@@ -1237,7 +1163,7 @@ describe('getLocaleAbsoluteUrl', () => {
 
 			// file format
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'en',
 					base: '/blog/',
 					...config.i18n,
@@ -1249,7 +1175,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				'https://example.com/blog/en/',
 			);
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'es',
 					base: '/blog/',
 					...config.i18n,
@@ -1264,10 +1190,6 @@ describe('getLocaleAbsoluteUrl', () => {
 	});
 	describe('with [prefix-other-locales]', () => {
 		it('should correctly return the URL without base', () => {
-			/**
-			 *
-			 * @type {import("../../../dist/@types").AstroUserConfig}
-			 */
 			const config = {
 				experimental: {
 					i18n: {
@@ -1286,7 +1208,7 @@ describe('getLocaleAbsoluteUrl', () => {
 			};
 
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'en',
 					base: '/',
 					...config.experimental.i18n,
@@ -1297,7 +1219,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				'https://example.com/',
 			);
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'es',
 					base: '/',
 					...config.experimental.i18n,
@@ -1308,7 +1230,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				'https://example.com/es/',
 			);
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'it-VA',
 					base: '/',
 					...config.experimental.i18n,
@@ -1319,7 +1241,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				'https://example.com/italiano/',
 			);
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'en',
 					base: '/',
 					...config.experimental.i18n,
@@ -1330,7 +1252,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				'https://example.com',
 			);
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'es',
 					base: '/',
 					...config.experimental.i18n,
@@ -1341,7 +1263,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				'https://example.com/es',
 			);
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'it-VA',
 					base: '/',
 					...config.experimental.i18n,
@@ -1354,10 +1276,6 @@ describe('getLocaleAbsoluteUrl', () => {
 		});
 
 		it('should correctly handle the trailing slash', () => {
-			/**
-			 *
-			 * @type {import("../../../dist/@types").AstroUserConfig}
-			 */
 			const config = {
 				experimental: {
 					i18n: {
@@ -1369,7 +1287,7 @@ describe('getLocaleAbsoluteUrl', () => {
 			};
 			// directory format
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'en',
 					base: '/blog',
 					...config.experimental.i18n,
@@ -1380,7 +1298,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				'https://example.com/blog',
 			);
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'es',
 					base: '/blog/',
 					...config.experimental.i18n,
@@ -1392,7 +1310,7 @@ describe('getLocaleAbsoluteUrl', () => {
 			);
 
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'en',
 					base: '/blog/',
 					...config.experimental.i18n,
@@ -1405,7 +1323,7 @@ describe('getLocaleAbsoluteUrl', () => {
 
 			// directory file
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'en',
 					base: '/blog',
 					...config.experimental.i18n,
@@ -1416,7 +1334,7 @@ describe('getLocaleAbsoluteUrl', () => {
 				'https://example.com/blog',
 			);
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'es',
 					base: '/blog/',
 					...config.experimental.i18n,
@@ -1428,7 +1346,7 @@ describe('getLocaleAbsoluteUrl', () => {
 			);
 
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'en',
 					// ignore + file => no trailing slash
 					base: '/blog',
@@ -1442,10 +1360,6 @@ describe('getLocaleAbsoluteUrl', () => {
 		});
 
 		it('should normalize locales', () => {
-			/**
-			 *
-			 * @type {import("../../../dist/@types").AstroUserConfig}
-			 */
 			const config = {
 				base: '/blog',
 				experimental: {
@@ -1458,7 +1372,7 @@ describe('getLocaleAbsoluteUrl', () => {
 			};
 
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'en_US',
 					base: '/blog/',
 					...config.experimental.i18n,
@@ -1469,7 +1383,7 @@ describe('getLocaleAbsoluteUrl', () => {
 			);
 
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'en_AU',
 					base: '/blog/',
 					...config.experimental.i18n,
@@ -1480,7 +1394,7 @@ describe('getLocaleAbsoluteUrl', () => {
 			);
 
 			assert.equal(
-				getLocaleAbsoluteUrl({
+				absoluteUrl({
 					locale: 'en_US',
 					base: '/blog/',
 					...config.experimental.i18n,
@@ -1496,10 +1410,6 @@ describe('getLocaleAbsoluteUrl', () => {
 
 describe('getLocaleAbsoluteUrlList', () => {
 	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: never]', async () => {
-		/**
-		 *
-		 * @type {import("../../../dist/@types").AstroUserConfig}
-		 */
 		const config = await validateConfig(
 			{
 				trailingSlash: 'never',
@@ -1523,7 +1433,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 		);
 		// directory format
 		assert.deepEqual(
-			getLocaleAbsoluteUrlList({
+			absoluteUrlList({
 				locale: 'en',
 				...config,
 				...config.i18n,
@@ -1539,10 +1449,6 @@ describe('getLocaleAbsoluteUrlList', () => {
 	});
 
 	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: always]', async () => {
-		/**
-		 *
-		 * @type {import("../../../dist/@types").AstroUserConfig}
-		 */
 		const config = await validateConfig(
 			{
 				trailingSlash: 'always',
@@ -1558,7 +1464,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 		);
 		// directory format
 		assert.deepEqual(
-			getLocaleAbsoluteUrlList({
+			absoluteUrlList({
 				locale: 'en',
 				...config,
 				...config.i18n,
@@ -1572,10 +1478,6 @@ describe('getLocaleAbsoluteUrlList', () => {
 	});
 
 	it('should retrieve the correct list of base URL with locales and path [format: directory, trailingSlash: always]', async () => {
-		/**
-		 *
-		 * @type {import("../../../dist/@types").AstroUserConfig}
-		 */
 		const config = await validateConfig(
 			{
 				format: 'directory',
@@ -1593,7 +1495,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 		);
 		// directory format
 		assert.deepEqual(
-			getLocaleAbsoluteUrlList({
+			absoluteUrlList({
 				locale: 'en',
 				path: 'download',
 				...config,
@@ -1609,10 +1511,6 @@ describe('getLocaleAbsoluteUrlList', () => {
 	});
 
 	it('should retrieve the correct list of base URL with locales and path [format: directory, trailingSlash: always, domains]', async () => {
-		/**
-		 *
-		 * @type {import("../../../dist/@types").AstroUserConfig}
-		 */
 		const config = await validateConfig(
 			{
 				format: 'directory',
@@ -1634,7 +1532,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 		);
 		// directory format
 		assert.deepEqual(
-			getLocaleAbsoluteUrlList({
+			absoluteUrlList({
 				locale: 'en',
 				path: 'download',
 				...config,
@@ -1651,10 +1549,6 @@ describe('getLocaleAbsoluteUrlList', () => {
 	});
 
 	it('should retrieve the correct list of base URL with locales [format: file, trailingSlash: always]', () => {
-		/**
-		 *
-		 * @type {import("../../../dist/@types").AstroUserConfig}
-		 */
 		const config = {
 			i18n: {
 				defaultLocale: 'en',
@@ -1671,7 +1565,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 		};
 		// directory format
 		assert.deepEqual(
-			getLocaleAbsoluteUrlList({
+			absoluteUrlList({
 				locale: 'en',
 				base: '/blog/',
 				...config.i18n,
@@ -1689,10 +1583,6 @@ describe('getLocaleAbsoluteUrlList', () => {
 	});
 
 	it('should retrieve the correct list of base URL with locales [format: file, trailingSlash: never]', () => {
-		/**
-		 *
-		 * @type {import("../../../dist/@types").AstroUserConfig}
-		 */
 		const config = {
 			experimental: {
 				i18n: {
@@ -1703,7 +1593,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 		};
 		// directory format
 		assert.deepEqual(
-			getLocaleAbsoluteUrlList({
+			absoluteUrlList({
 				locale: 'en',
 				base: '/blog',
 				...config.experimental.i18n,
@@ -1716,10 +1606,6 @@ describe('getLocaleAbsoluteUrlList', () => {
 	});
 
 	it('should retrieve the correct list of base URL with locales [format: file, trailingSlash: ignore]', () => {
-		/**
-		 *
-		 * @type {import("../../../dist/@types").AstroUserConfig}
-		 */
 		const config = {
 			experimental: {
 				i18n: {
@@ -1730,7 +1616,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 		};
 		// directory format
 		assert.deepEqual(
-			getLocaleAbsoluteUrlList({
+			absoluteUrlList({
 				locale: 'en',
 				base: '/blog',
 				...config.experimental.i18n,
@@ -1743,10 +1629,6 @@ describe('getLocaleAbsoluteUrlList', () => {
 	});
 
 	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: ignore]', () => {
-		/**
-		 *
-		 * @type {import("../../../dist/@types").AstroUserConfig}
-		 */
 		const config = {
 			experimental: {
 				i18n: {
@@ -1757,7 +1639,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 		};
 		// directory format
 		assert.deepEqual(
-			getLocaleAbsoluteUrlList({
+			absoluteUrlList({
 				locale: 'en',
 				base: '/blog/',
 				...config.experimental.i18n,
@@ -1774,10 +1656,6 @@ describe('getLocaleAbsoluteUrlList', () => {
 	});
 
 	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: ignore,  routingStrategy: pathname-prefix-always]', () => {
-		/**
-		 *
-		 * @type {import("../../../dist/@types").AstroUserConfig}
-		 */
 		const config = {
 			i18n: {
 				defaultLocale: 'en',
@@ -1789,7 +1667,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 		};
 		// directory format
 		assert.deepEqual(
-			getLocaleAbsoluteUrlList({
+			absoluteUrlList({
 				locale: 'en',
 				base: '/blog/',
 				...config.i18n,
@@ -1807,10 +1685,6 @@ describe('getLocaleAbsoluteUrlList', () => {
 	});
 
 	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: ignore,  routingStrategy: pathname-prefix-always-no-redirect]', () => {
-		/**
-		 *
-		 * @type {import("../../../dist/@types").AstroUserConfig}
-		 */
 		const config = {
 			i18n: {
 				defaultLocale: 'en',
@@ -1823,7 +1697,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 		};
 		// directory format
 		assert.deepEqual(
-			getLocaleAbsoluteUrlList({
+			absoluteUrlList({
 				locale: 'en',
 				base: '/blog/',
 				...config.i18n,
@@ -1841,10 +1715,6 @@ describe('getLocaleAbsoluteUrlList', () => {
 	});
 
 	it('should retrieve the correct list of base URLs, swapped with the correct domain', () => {
-		/**
-		 *
-		 * @type {import("../../../dist/@types").AstroUserConfig}
-		 */
 		const config = {
 			experimental: {
 				i18n: {
@@ -1860,7 +1730,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 		};
 		// directory format
 		assert.deepEqual(
-			getLocaleAbsoluteUrlList({
+			absoluteUrlList({
 				base: '/blog/',
 				...config.experimental.i18n,
 				trailingSlash: 'ignore',

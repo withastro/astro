@@ -1,6 +1,12 @@
 import { describe, it } from 'node:test';
 import { strictEqual, notStrictEqual } from 'node:assert';
 import { NodePool } from '../../../dist/runtime/server/render/queue/pool.js';
+import type {
+	TextNode,
+	HtmlStringNode,
+	ComponentNode,
+	InstructionNode,
+} from '../../../dist/runtime/server/render/queue/types.js';
 
 describe('NodePool', () => {
 	it('should acquire a new node when pool is empty', () => {
@@ -15,7 +21,7 @@ describe('NodePool', () => {
 		const pool = new NodePool();
 
 		// Acquire and set up a text node
-		const node1 = pool.acquire('text');
+		const node1 = pool.acquire('text') as TextNode;
 		node1.content = 'Hello';
 
 		// Release it back to the pool
@@ -36,13 +42,13 @@ describe('NodePool', () => {
 		const pool = new NodePool();
 
 		// Acquire and release a text node
-		const node1 = pool.acquire('text');
+		const node1 = pool.acquire('text') as TextNode;
 		node1.content = 'Hello';
 		pool.release(node1);
 		strictEqual(pool.size(), 1);
 
 		// Acquire an html-string node - should NOT reuse the text node
-		const node2 = pool.acquire('html-string');
+		const node2 = pool.acquire('html-string') as HtmlStringNode;
 		strictEqual(node2.type, 'html-string');
 		strictEqual(node2.html, '');
 
@@ -159,7 +165,7 @@ describe('NodePool', () => {
 		const pool = new NodePool();
 
 		// Test all four node types for identity reuse
-		const types = ['text', 'html-string', 'component', 'instruction'];
+		const types = ['text', 'html-string', 'component', 'instruction'] as const;
 
 		for (const type of types) {
 			const original = pool.acquire(type);
@@ -173,20 +179,20 @@ describe('NodePool', () => {
 		const pool = new NodePool();
 
 		// Component node - instance should be cleared
-		const compNode = pool.acquire('component');
-		compNode.instance = { render: () => {} }; // Simulate a component instance
+		const compNode = pool.acquire('component') as ComponentNode;
+		compNode.instance = { render: () => {} } as any; // Simulate a component instance
 		pool.release(compNode);
 
-		const reusedComp = pool.acquire('component');
+		const reusedComp = pool.acquire('component') as ComponentNode;
 		strictEqual(reusedComp, compNode); // Same object
 		strictEqual(reusedComp.instance, undefined); // Instance cleared on release
 
 		// Instruction node - instruction should be cleared
-		const instrNode = pool.acquire('instruction');
-		instrNode.instruction = { type: 'head' }; // Simulate an instruction
+		const instrNode = pool.acquire('instruction') as InstructionNode;
+		instrNode.instruction = { type: 'head' } as any; // Simulate an instruction
 		pool.release(instrNode);
 
-		const reusedInstr = pool.acquire('instruction');
+		const reusedInstr = pool.acquire('instruction') as InstructionNode;
 		strictEqual(reusedInstr, instrNode); // Same object
 		strictEqual(reusedInstr.instruction, undefined); // Instruction cleared on release
 	});
@@ -242,12 +248,12 @@ describe('NodePool', () => {
 		const pool = new NodePool();
 
 		// Release a text node
-		const node = pool.acquire('text');
+		const node = pool.acquire('text') as TextNode;
 		node.content = 'old content';
 		pool.release(node);
 
 		// Acquire with content parameter - content should be set on the reused node
-		const reused = pool.acquire('text', 'new content');
+		const reused = pool.acquire('text', 'new content') as TextNode;
 		strictEqual(reused, node); // Same object
 		strictEqual(reused.content, 'new content');
 	});

@@ -3,7 +3,10 @@ import { EventEmitter } from 'node:events';
 import { describe, it } from 'node:test';
 import { createRequest, writeResponse } from '../../../dist/core/app/node.js';
 
-const mockNodeRequest = {
+// Minimal mock satisfying the subset of IncomingMessage used by createRequest.
+// We intentionally omit the full IncomingMessage interface members not exercised here.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const mockNodeRequest: any = {
 	url: '/',
 	method: 'GET',
 	headers: {
@@ -860,7 +863,7 @@ describe('node', () => {
 			const { Readable } = await import('node:stream');
 			// Create a stream that produces data exceeding the limit
 			const limit = 1024; // 1KB limit
-			const chunks = [];
+			const chunks: Buffer[] = [];
 			// Create 2KB of data (exceeds 1KB limit)
 			for (let i = 0; i < 4; i++) {
 				chunks.push(Buffer.alloc(512, 0x41));
@@ -882,13 +885,13 @@ describe('node', () => {
 			// The request should be created, but reading the body should fail
 			await assert.rejects(
 				async () => {
-					const reader = request.body.getReader();
+					const reader = request.body!.getReader();
 					while (true) {
 						const { done } = await reader.read();
 						if (done) break;
 					}
 				},
-				(err) => {
+				(err: Error) => {
 					assert.ok(err.message.includes('Body size limit exceeded'));
 					return true;
 				},
@@ -914,14 +917,14 @@ describe('node', () => {
 			const request = createRequest(req, { bodySizeLimit: limit });
 
 			// Reading the body should succeed
-			const reader = request.body.getReader();
-			const chunks = [];
+			const reader = request.body!.getReader();
+			const readChunks: Uint8Array[] = [];
 			while (true) {
 				const { done, value } = await reader.read();
 				if (done) break;
-				chunks.push(value);
+				readChunks.push(value);
 			}
-			const totalSize = chunks.reduce((sum, chunk) => sum + chunk.byteLength, 0);
+			const totalSize = readChunks.reduce((sum, chunk) => sum + chunk.byteLength, 0);
 			assert.equal(totalSize, 1024);
 		});
 
@@ -944,21 +947,22 @@ describe('node', () => {
 			const request = createRequest(req);
 
 			// Reading the body should succeed without limit
-			const reader = request.body.getReader();
-			const chunks = [];
+			const reader = request.body!.getReader();
+			const readChunks: Uint8Array[] = [];
 			while (true) {
 				const { done, value } = await reader.read();
 				if (done) break;
-				chunks.push(value);
+				readChunks.push(value);
 			}
-			const totalSize = chunks.reduce((sum, chunk) => sum + chunk.byteLength, 0);
+			const totalSize = readChunks.reduce((sum, chunk) => sum + chunk.byteLength, 0);
 			assert.equal(totalSize, 2048);
 		});
 	});
 
 	describe('abort signal', () => {
 		it('aborts the request.signal when the underlying socket closes', () => {
-			const socket = new EventEmitter();
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			const socket: any = new EventEmitter();
 			socket.encrypted = true;
 			socket.remoteAddress = '2.2.2.2';
 			socket.destroyed = false;
@@ -973,7 +977,8 @@ describe('node', () => {
 		});
 
 		it('cleans up socket listeners after the response finishes', async () => {
-			const socket = new EventEmitter();
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			const socket: any = new EventEmitter();
 			socket.encrypted = true;
 			socket.remoteAddress = '2.2.2.2';
 			socket.destroyed = false;
@@ -986,7 +991,8 @@ describe('node', () => {
 			assert.equal(socket.listenerCount('close') > 0, true);
 
 			const response = new Response('ok');
-			const destination = new MockServerResponse(nodeRequest);
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			const destination = new MockServerResponse(nodeRequest) as any;
 			await writeResponse(response, destination);
 
 			assert.equal(result.signal.aborted, false);
@@ -996,7 +1002,15 @@ describe('node', () => {
 });
 
 class MockServerResponse extends EventEmitter {
-	constructor(req) {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	req: any;
+	statusCode: number;
+	statusMessage: string | undefined;
+	headers: Record<string, string>;
+	body: unknown[];
+
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	constructor(req: any) {
 		super();
 		this.req = req;
 		this.statusCode = 200;
@@ -1005,21 +1019,21 @@ class MockServerResponse extends EventEmitter {
 		this.body = [];
 	}
 
-	writeHead(status, headers) {
+	writeHead(status: number, headers: Record<string, string>): void {
 		this.statusCode = status;
 		this.headers = headers;
 	}
 
-	write(chunk) {
+	write(chunk: unknown): boolean {
 		this.body.push(chunk);
 		return true;
 	}
 
-	end() {
+	end(): void {
 		this.emit('finish');
 	}
 
-	destroy() {
+	destroy(): void {
 		this.emit('close');
 	}
 }

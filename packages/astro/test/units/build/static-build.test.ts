@@ -1,10 +1,11 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { makeAstroPageEntryPointFileName } from '../../../dist/core/build/static-build.js';
+import type { RouteData } from '../../../dist/types/public/internal.js';
 
 describe('astro/src/core/build', () => {
 	describe('makeAstroPageEntryPointFileName', () => {
-		const routes = [
+		const routes: RouteData[] = [
 			{
 				route: '/',
 				component: 'src/pages/index.astro',
@@ -25,7 +26,7 @@ describe('astro/src/core/build', () => {
 				component: 'src/pages/blog/[year]/[...slug].astro',
 				pathname: undefined,
 			},
-		];
+		] as RouteData[];
 
 		it('handles local pages', async () => {
 			const input = '@astro-page:src/pages/index@_@astro';

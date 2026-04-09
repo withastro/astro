@@ -1,12 +1,10 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { ensure404Route } from '../../../dist/core/routing/astro-designed-error-pages.js';
 
 describe('ensure404Route', () => {
 	it('adds the default /404 route when none exists in the manifest', () => {
-		/** @type {{ routes: any[] }} */
-		const manifest = { routes: [] };
+		const manifest: { routes: Array<Record<string, unknown>> } = { routes: [] };
 		ensure404Route(manifest);
 
 		const route404 = manifest.routes.find((r) => r.route === '/404');
@@ -14,8 +12,7 @@ describe('ensure404Route', () => {
 	});
 
 	it('does not add a duplicate /404 route when one already exists', () => {
-		/** @type {{ routes: any[] }} */
-		const manifest = {
+		const manifest: { routes: Array<Record<string, unknown>> } = {
 			routes: [
 				{
 					route: '/404',
@@ -42,8 +39,7 @@ describe('ensure404Route', () => {
 
 	it('preserves the user-provided 404 component rather than substituting the default', () => {
 		const userComponent = 'src/pages/404.astro';
-		/** @type {{ routes: any[] }} */
-		const manifest = {
+		const manifest: { routes: Array<Record<string, unknown>> } = {
 			routes: [
 				{
 					route: '/404',
@@ -72,8 +68,7 @@ describe('ensure404Route', () => {
 	});
 
 	it('does not affect /500 routes', () => {
-		/** @type {{ routes: any[] }} */
-		const manifest = {
+		const manifest: { routes: Array<Record<string, unknown>> } = {
 			routes: [
 				{
 					route: '/500',

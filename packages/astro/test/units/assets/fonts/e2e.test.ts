@@ -1,4 +1,3 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { readFile, rm } from 'node:fs/promises';
@@ -27,13 +26,11 @@ import { UnifontFontResolver } from '../../../../dist/assets/fonts/infra/unifont
 import { UnstorageFsStorage } from '../../../../dist/assets/fonts/infra/unstorage-fs-storage.js';
 import { XxhashHasher } from '../../../../dist/assets/fonts/infra/xxhash-hasher.js';
 import { fontProviders } from '../../../../dist/assets/fonts/providers/index.js';
+import type { FontFamily } from '../../../../dist/assets/fonts/types.js';
 import { AstroLogger } from '../../../../dist/core/logger/core.js';
 import { nodeLogDestination } from '../../../../dist/core/logger/node.js';
 
-/**
- * @param {{ fonts: Array<import('../../../../dist/assets/fonts/types.js').FontFamily> }} param0
- */
-async function run({ fonts: _fonts }) {
+async function run({ fonts: _fonts }: { fonts: Array<FontFamily> }) {
 	const hasher = await XxhashHasher.create();
 	const resolvedFamilies = _fonts.map((family) => resolveFamily({ family, hasher }));
 	const defaults = DEFAULTS;
@@ -49,7 +46,7 @@ async function run({ fonts: _fonts }) {
 	const storage = new UnstorageFsStorage({ base });
 	const root = new URL('./data/fonts/', import.meta.url);
 	const contentResolver = new FsFontFileContentResolver({
-		readFileSync: (path) => readFileSync(path, 'utf-8'),
+		readFileSync: (path: string) => readFileSync(path, 'utf-8'),
 	});
 	const fontFileIdGenerator = new DevFontFileIdGenerator({ contentResolver, hasher });
 	const fontTypeExtractor = new NodeFontTypeExtractor();
@@ -131,11 +128,9 @@ describe('Fonts E2E', () => {
 					name: 'Test',
 					cssVariable: '--font-test',
 					provider: fontProviders.local(),
-					options: /** @type {any} */ (
-						/** @type {import('../../../../dist/assets/fonts/providers/local.js').LocalFamilyOptions} */ ({
-							variants: [{ src: ['./test.woff2'], weight: '400', style: 'normal' }],
-						})
-					),
+					options: {
+						variants: [{ src: ['./test.woff2'], weight: '400', style: 'normal' }],
+					} as unknown as Record<string, unknown>,
 				},
 			],
 		});
@@ -269,11 +264,9 @@ describe('Fonts E2E', () => {
 					name: 'Test',
 					cssVariable: '--font-test',
 					provider: fontProviders.local(),
-					options: /** @type {any} */ (
-						/** @type {import('../../../../dist/assets/fonts/providers/local.js').LocalFamilyOptions} */ ({
-							variants: [{ src: ['./test.woff2'], weight: '400', style: 'normal' }],
-						})
-					),
+					options: {
+						variants: [{ src: ['./test.woff2'], weight: '400', style: 'normal' }],
+					} as unknown as Record<string, unknown>,
 				},
 			],
 		});

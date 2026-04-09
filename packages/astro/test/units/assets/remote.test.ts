@@ -1,26 +1,20 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { revalidateRemoteImage } from '../../../dist/assets/build/remote.js';
 
-/**
- *
- * @param {number} status
- * @param {Record<string, string>} headerInit
- * @param {ArrayBuffer} body
- * @returns {() => Promise<Response>}
- */
-function makeFetchMock(status, headerInit = {}, body = new ArrayBuffer(0)) {
+function makeFetchMock(
+	status: number,
+	headerInit: Record<string, string> = {},
+	body: ArrayBuffer = new ArrayBuffer(0),
+): () => Promise<Response> {
 	const headers = new Headers(headerInit);
 	return async () =>
-		/** @type {Response} */ (
-			/** @type {unknown} */ ({
-				status,
-				ok: status >= 200 && status < 300,
-				headers,
-				arrayBuffer: async () => body,
-			})
-		);
+		({
+			status,
+			ok: status >= 200 && status < 300,
+			headers,
+			arrayBuffer: async () => body,
+		}) as unknown as Response;
 }
 
 describe('revalidateRemoteImage', () => {
