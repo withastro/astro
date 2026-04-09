@@ -9,7 +9,10 @@ import { makeRoute, staticPart } from './test-helpers.js';
  * Mirrors the original fixture's pages: api, dot.json, pathname, subpage,
  * plus optionally injected routes.
  */
-function makeRoutes(trailingSlash: AstroConfig['trailingSlash'], { injected = [] as ReturnType<typeof makeRoute>[] } = {}) {
+function makeRoutes(
+	trailingSlash: AstroConfig['trailingSlash'],
+	{ injected = [] as ReturnType<typeof makeRoute>[] } = {},
+) {
 	const routes = [
 		makeRoute({
 			segments: [[staticPart('api')]],

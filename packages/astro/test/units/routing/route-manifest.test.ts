@@ -11,7 +11,9 @@ const logger = new Logger({ dest, level: 'silent' });
 
 type RoutingSettings = Parameters<typeof createRoutesFromEntries>[1];
 
-function createSettings(overrides: { trailingSlash?: AstroConfig['trailingSlash']; base?: string } = {}): RoutingSettings {
+function createSettings(
+	overrides: { trailingSlash?: AstroConfig['trailingSlash']; base?: string } = {},
+): RoutingSettings {
 	const config: Partial<AstroConfig> = {
 		base: overrides.base ?? '/',
 		trailingSlash: overrides.trailingSlash ?? 'always',
@@ -19,7 +21,11 @@ function createSettings(overrides: { trailingSlash?: AstroConfig['trailingSlash'
 		root: new URL('file:///'),
 		redirects: {},
 	};
-	const settings: Partial<RoutingSettings> = { config: config as AstroConfig, pageExtensions: [], injectedRoutes: [] };
+	const settings: Partial<RoutingSettings> = {
+		config: config as AstroConfig,
+		pageExtensions: [],
+		injectedRoutes: [],
+	};
 	return settings as RoutingSettings;
 }
 
