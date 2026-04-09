@@ -6,6 +6,5 @@ export function createConsoleLogger(level: AstroInlineConfig['logLevel']): Astro
 	return new AstroLogger({
 		destination: consoleLogDestination,
 		level: level ?? 'info',
-		format: 'default',
 	});
 }

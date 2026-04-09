@@ -141,7 +141,6 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		this.logger = new AstroLogger({
 			destination: consoleLogDestination,
 			level: manifest.logLevel,
-			format: 'default',
 		});
 		this.adapterLogger = new AstroIntegrationLogger(this.logger.options, manifest.adapterName);
 		// This is necessary to allow running middlewares for 404 in SSR. There's special handling

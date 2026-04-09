@@ -304,7 +304,6 @@ export class experimental_AstroContainer {
 			logger: new AstroLogger({
 				level: 'info',
 				destination: nodeLogDestination,
-				format: 'default',
 			}),
 			manifest: createManifest(manifest, renderers),
 			streaming,

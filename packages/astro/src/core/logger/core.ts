@@ -1,6 +1,6 @@
 import colors from 'piccolore';
 
-export interface LogWritable<T> {
+export interface LoggerDestination<T> {
 	write: (chunk: T) => boolean;
 }
 
@@ -60,9 +60,14 @@ type LoggerLabel =
 	| 'SKIP_FORMAT';
 
 export interface LogOptions {
-	destination: LogWritable<AstroLogMessage>;
+	destination: LoggerDestination<AstroLogMessage>;
 	level: AstroLoggerLevel;
-	format: AstroLoggerFormat;
+	// Intentionally optional so we don't leak to public code. It will be public and non-optional
+	// once we expose to users
+	/**
+	 * @internal
+	 */
+	_format?: AstroLoggerFormat;
 }
 
 // Hey, locales are pretty complicated! Be careful modifying this logic...
@@ -101,7 +106,11 @@ export interface AstroLogMessage {
 	 */
 	newLine: boolean;
 
-	format: AstroLoggerFormat;
+	/**
+	 * @internal
+	 * How the log should be formatted when printed inside the destination
+	 */
+	_format?: AstroLoggerFormat;
 }
 
 export const levels: Record<AstroLoggerLevel, number> = {
@@ -127,7 +136,7 @@ function log(
 		level,
 		message,
 		newLine,
-		format: opts.format,
+		_format: opts._format,
 	};
 
 	// test if this level is enabled or not
@@ -203,8 +212,8 @@ export function timerMessage(message: string, startTime: number = Date.now()) {
 export class AstroLogger {
 	options: LogOptions;
 	constructor(options: LogOptions) {
-		if (!options.format) {
-			options.format = 'default';
+		if (!options._format) {
+			options._format = 'default';
 		}
 		this.options = options;
 	}

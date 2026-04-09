@@ -29,7 +29,6 @@ export default async function createAstroServerApp(
 		new AstroLogger({
 			destination: nodeLogDestination,
 			level: settings.logLevel,
-			format: 'default',
 		});
 	const routesList: RoutesList = { routes: routes.map((r: RouteInfo) => r.routeData) };
 

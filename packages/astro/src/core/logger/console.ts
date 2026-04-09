@@ -1,6 +1,6 @@
-import { getEventPrefix, type AstroLogMessage, type LogWritable, levels } from './core.js';
+import { getEventPrefix, type AstroLogMessage, type LoggerDestination, levels } from './core.js';
 
-export const consoleLogDestination: LogWritable<AstroLogMessage> = {
+export const consoleLogDestination: LoggerDestination<AstroLogMessage> = {
 	write(event: AstroLogMessage) {
 		let dest = console.error;
 		if (levels[event.level] < levels['error']) {

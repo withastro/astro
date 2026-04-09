@@ -44,7 +44,6 @@ export function createLoggerFromFlags(flags: Flags): AstroLogger {
 	const logging: LogOptions = {
 		destination: nodeLogDestination,
 		level: 'info',
-		format: 'default',
 	};
 
 	if (flags.verbose) {
