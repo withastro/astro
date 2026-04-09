@@ -16,6 +16,7 @@ import { AstroIntegrationLogger, Logger } from '../logger/core.js';
 import { type CreateRenderContext, RenderContext } from '../render-context.js';
 import { ensure404Route } from '../routing/astro-designed-error-pages.js';
 import { Router } from '../routing/router.js';
+import type { AstroHonoEnv } from './hono-app.js';
 import type { AppPipeline } from './pipeline.js';
 import type { SSRManifest } from './types.js';
 
@@ -109,7 +110,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	baseWithoutTrailingSlash: string;
 	logger: Logger;
 	#router: Router;
-	#userApp: { fetch: (request: Request) => Response | Promise<Response> } | undefined;
+	#userApp: { fetch: (request: Request, env?: AstroHonoEnv['Bindings']) => Response | Promise<Response> } | undefined;
 	constructor(manifest: SSRManifest, streaming = true, ...args: any[]) {
 		this.manifest = manifest;
 		this.manifestData = { routes: manifest.routes.map((route) => route.routeData) };
@@ -128,7 +129,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 
 	public abstract isDev(): boolean;
 
-	setUserApp(userApp: { fetch: (request: Request) => Response | Promise<Response> }): void {
+	setUserApp(userApp: { fetch: (request: Request, env?: AstroHonoEnv['Bindings']) => Response | Promise<Response> }): void {
 		this.#userApp = userApp;
 	}
 
@@ -346,10 +347,9 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		if (options.clientAddress) {
 			Reflect.set(request, Symbol.for('astro.clientAddress'), options.clientAddress);
 		}
-		if (options.addCookieHeader) {
-			Reflect.set(request, Symbol.for('astro.addCookieHeader'), true);
-		}
-		return this.#userApp.fetch(request);
+		return this.#userApp.fetch(request, {
+			addCookieHeader: options.addCookieHeader,
+		});
 	}
 
 

@@ -47,7 +47,7 @@ import { getParams } from '../render/params-and-props.js';
 import { getOriginPathname } from '../routing/rewrite.js';
 import { validateAndDecodePathname } from '../util/pathname.js';
 import { AstroCookies } from '../cookies/index.js';
-import { getSetCookiesFromResponse } from '../cookies/response.js';
+import { attachCookiesToResponse, getSetCookiesFromResponse } from '../cookies/response.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { AstroSession } from '../session/runtime.js';
 import { AstroCache, type CacheLike } from '../cache/runtime/cache.js';
@@ -87,6 +87,10 @@ const ASTRO_REWRITE_COUNT_KEY = 'astro.rewriteCount';
 
 
 export type AstroHonoEnv = {
+	Bindings: {
+		/** Whether to add Set-Cookie headers to the response. Passed per-request via app.fetch(). */
+		addCookieHeader?: boolean;
+	};
 	Variables: {
 		[ASTRO_CONTEXT_KEY]: APIContext;
 		[ASTRO_ROUTE_DATA_KEY]: RouteData | undefined;
@@ -336,6 +340,8 @@ function createContextFactory(deps: AstroAppDeps, _matchRouteData: (req: Request
 				}
 				return prepareForRender(pipeline, manifest, deps.manifestData, logger, newRequest, routeData, {
 					locals,
+					cookies,
+					session,
 				}, (renderContext, componentInstance) => renderContext.render(componentInstance));
 			},
 			getActionResult(_action) {
@@ -433,6 +439,7 @@ function createUserMiddleware(
 				}
 				return prepareForRender(pipeline, manifest, deps.manifestData, logger, newRequest, routeData, {
 					locals: ctx.locals,
+					cookies: ctx.cookies, session: ctx.session as any,
 					skipMiddleware: true,
 				}, (renderCtx, comp) => renderCtx.render(comp));
 			}
@@ -459,6 +466,16 @@ function createUserMiddleware(
 		}
 		c.res = response;
 
+		// Ensure cookies are attached and appended for responses that bypassed
+		// createPagesMiddleware (e.g. rewrite responses from ctx.rewrite()).
+		attachCookiesToResponse(c.res, ctx.cookies);
+		const shouldAddCookies = c.env?.addCookieHeader ?? options.addCookieHeader ?? true;
+		if (shouldAddCookies && !c.res.headers.has('set-cookie')) {
+			for (const setCookieValue of getSetCookiesFromResponse(c.res)) {
+				c.res.headers.append('set-cookie', setCookieValue);
+			}
+		}
+
 		// If user middleware returned a reroutable status (404/500) with no body
 		// (e.g. i18n middleware rejecting an invalid locale), render the error page.
 		if (
@@ -473,6 +490,12 @@ function createUserMiddleware(
 				response: c.res,
 				isDev,
 			});
+			// Re-apply cookies to the error page response since the original response was replaced.
+			if (shouldAddCookies) {
+				for (const setCookieValue of ctx.cookies.headers()) {
+					c.res.headers.append('set-cookie', setCookieValue);
+				}
+			}
 		}
 
 		return c.res;
@@ -591,6 +614,7 @@ function createRewriteMiddleware(
 		if (rewrittenRouteData) {
 			c.res = await prepareForRender(pipeline, manifest, deps.manifestData, logger, rewrittenRequest, rewrittenRouteData, {
 				locals: ctx.locals,
+				cookies: ctx.cookies, session: ctx.session as any,
 				clientAddress: Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
 			}, (renderContext, componentInstance) => renderContext.render(componentInstance));
 		} else {
@@ -773,6 +797,7 @@ function createPagesMiddleware(
 			c.res = await pageRenderer.render(c.req.raw, routeData, {
 				locals: ctx.locals,
 				clientAddress: Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
+				cookies: ctx.cookies, session: ctx.session as any,
 				isDev,
 				skipMiddleware: true,
 				...options,
@@ -790,7 +815,7 @@ function createPagesMiddleware(
 		// 1. ctx.cookies — set by middleware or endpoint handlers
 		// 2. Response-attached AstroCookies — set by page components via Astro.cookies
 		// Respect addCookieHeader option from app.render()
-		const shouldAddCookies = Reflect.get(c.req.raw, Symbol.for('astro.addCookieHeader')) ?? options.addCookieHeader ?? true;
+		const shouldAddCookies = c.env?.addCookieHeader ?? options.addCookieHeader ?? true;
 		if (shouldAddCookies) {
 			for (const setCookieValue of ctx.cookies.headers()) {
 				c.res.headers.append('set-cookie', setCookieValue);
