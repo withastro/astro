@@ -1,6 +1,6 @@
 import colors from 'piccolore';
 
-export interface LoggerDestination<T> {
+export interface AstroLoggerDestination<T> {
 	write: (chunk: T) => boolean;
 }
 
@@ -29,7 +29,7 @@ export type AstroLoggerLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent'; /
  * rather than specific to a single command, function, use, etc. The label will be
  * shown in the log message to the user, so it should be relevant.
  */
-type LoggerLabel =
+type AstroLoggerLabel =
 	| 'add'
 	| 'build'
 	| 'check'
@@ -59,8 +59,8 @@ type LoggerLabel =
 	// Useful for messages that are already formatted, like the server start message.
 	| 'SKIP_FORMAT';
 
-export interface LogOptions {
-	destination: LoggerDestination<AstroLogMessage>;
+export interface AstroLogOptions {
+	destination: AstroLoggerDestination<AstroLogMessage>;
 	level: AstroLoggerLevel;
 	// Intentionally optional so we don't leak to public code. It will be public and non-optional
 	// once we expose to users
@@ -123,7 +123,7 @@ export const levels: Record<AstroLoggerLevel, number> = {
 
 /** Full logging API */
 function log(
-	opts: LogOptions,
+	opts: AstroLogOptions,
 	level: AstroLoggerLevel,
 	label: string | null,
 	message: string,
@@ -152,17 +152,17 @@ export function isLogLevelEnabled(configuredLogLevel: AstroLoggerLevel, level: A
 }
 
 /** Emit a user-facing message. Useful for UI and other console messages. */
-function info(opts: LogOptions, label: string | null, message: string, newLine = true) {
+function info(opts: AstroLogOptions, label: string | null, message: string, newLine = true) {
 	return log(opts, 'info', label, message, newLine);
 }
 
 /** Emit a warning message. Useful for high-priority messages that aren't necessarily errors. */
-function warn(opts: LogOptions, label: string | null, message: string, newLine = true) {
+function warn(opts: AstroLogOptions, label: string | null, message: string, newLine = true) {
 	return log(opts, 'warn', label, message, newLine);
 }
 
 /** Emit an error message, Useful when Astro can't recover from some error. */
-function error(opts: LogOptions, label: string | null, message: string, newLine = true) {
+function error(opts: AstroLogOptions, label: string | null, message: string, newLine = true) {
 	return log(opts, 'error', label, message, newLine);
 }
 
@@ -210,24 +210,24 @@ export function timerMessage(message: string, startTime: number = Date.now()) {
 }
 
 export class AstroLogger {
-	options: LogOptions;
-	constructor(options: LogOptions) {
+	options: AstroLogOptions;
+	constructor(options: AstroLogOptions) {
 		if (!options._format) {
 			options._format = 'default';
 		}
 		this.options = options;
 	}
 
-	info(label: LoggerLabel | null, message: string, newLine = true) {
+	info(label: AstroLoggerLabel | null, message: string, newLine = true) {
 		info(this.options, label, message, newLine);
 	}
-	warn(label: LoggerLabel | null, message: string, newLine = true) {
+	warn(label: AstroLoggerLabel | null, message: string, newLine = true) {
 		warn(this.options, label, message, newLine);
 	}
-	error(label: LoggerLabel | null, message: string, newLine = true) {
+	error(label: AstroLoggerLabel | null, message: string, newLine = true) {
 		error(this.options, label, message, newLine);
 	}
-	debug(label: LoggerLabel, ...messages: any[]) {
+	debug(label: AstroLoggerLabel, ...messages: any[]) {
 		debug(label, ...messages);
 	}
 
@@ -241,10 +241,10 @@ export class AstroLogger {
 }
 
 export class AstroIntegrationLogger {
-	options: LogOptions;
+	options: AstroLogOptions;
 	label: string;
 
-	constructor(logging: LogOptions, label: string) {
+	constructor(logging: AstroLogOptions, label: string) {
 		this.options = logging;
 		this.label = label;
 	}

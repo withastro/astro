@@ -1,19 +1,19 @@
 import * as assert from 'node:assert/strict';
 import { beforeEach, describe, it } from 'node:test';
-import type { AstroLogMessage, LoggerDestination } from '../../../src/core/logger/core.js';
+import type { AstroLogMessage, AstroLoggerDestination } from '../../../src/core/logger/core.js';
 import { AstroLogger } from '../../../dist/core/logger/core.js';
 
 let logs: AstroLogMessage[] = [];
 let jsonLogs: string[] = [];
 
-const testDestination: LoggerDestination<AstroLogMessage> = {
+const testDestination: AstroLoggerDestination<AstroLogMessage> = {
 	write(event: AstroLogMessage) {
 		logs.push(event);
 		return true;
 	},
 };
 
-const jsonDestination: LoggerDestination<AstroLogMessage> = {
+const jsonDestination: AstroLoggerDestination<AstroLogMessage> = {
 	write(event: AstroLogMessage) {
 		if (event._format === 'json') {
 			jsonLogs.push(JSON.stringify({ message: event.message, label: event.label }));

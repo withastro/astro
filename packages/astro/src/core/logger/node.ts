@@ -2,13 +2,18 @@ import type { Writable } from 'node:stream';
 import { createDebug, enable as obugEnable } from 'obug';
 import type { AstroInlineConfig } from '../../types/public/config.js';
 import { AstroLogger } from './core.js';
-import { getEventPrefix, type AstroLogMessage, type LoggerDestination, levels } from './core.js';
+import {
+	getEventPrefix,
+	type AstroLogMessage,
+	type AstroLoggerDestination,
+	levels,
+} from './core.js';
 
 type ConsoleStream = Writable & {
 	fd: 1 | 2;
 };
 
-export const nodeLogDestination: LoggerDestination<AstroLogMessage> = {
+export const nodeLogDestination: AstroLoggerDestination<AstroLogMessage> = {
 	write(event: AstroLogMessage) {
 		let dest: ConsoleStream = process.stderr;
 		if (levels[event.level] < levels['error']) {
