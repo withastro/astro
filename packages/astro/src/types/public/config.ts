@@ -1712,6 +1712,19 @@ export interface AstroUserConfig<
 		service?: ImageServiceConfig;
 		/**
 		 * @docs
+		 * @name image.dangerouslyAllowSVG
+		 * @type {boolean}
+		 * @default `false`
+		 * @description
+		 *
+		 * Allow SVG source images to be processed by the image optimization pipeline.
+		 *
+		 * This is disabled by default because SVG files can contain scripts and other active content.
+		 * Enable this option only if you trust your SVG sources.
+		 */
+		dangerouslyAllowSVG?: boolean;
+		/**
+		 * @docs
 		 * @name image.service.config.limitInputPixels
 		 * @kind h4
 		 * @type {number | boolean}
