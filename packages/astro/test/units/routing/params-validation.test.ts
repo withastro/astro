@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { describe, it, before } from 'node:test';
 import type { ComponentInstance } from '../../../dist/types/astro.js';
-import type { LogMessage, LogWritable } from '../../../dist/core/logger/core.js';
-import { Logger } from '../../../dist/core/logger/core.js';
+import type { AstroLogMessage, AstroLoggerDestination } from '../../../dist/core/logger/core.js';
+import { AstroLogger } from '../../../dist/core/logger/core.js';
 import { RouteCache, callGetStaticPaths } from '../../../dist/core/render/route-cache.js';
 import { makeRoute } from './test-helpers.js';
 
@@ -12,14 +12,14 @@ function mod(overrides: Partial<ComponentInstance>): ComponentInstance {
 
 describe('getStaticPaths param validation', () => {
 	let routeCache: RouteCache;
-	let logger: Logger;
+	let logger: AstroLogger;
 
-	const dest: LogWritable<LogMessage> = {
+	const destination: AstroLoggerDestination<AstroLogMessage> = {
 		write: () => true,
 	};
 
 	before(() => {
-		logger = new Logger({ dest, level: 'error' });
+		logger = new AstroLogger({ destination, level: 'error' });
 		routeCache = new RouteCache(logger, 'production');
 	});
 

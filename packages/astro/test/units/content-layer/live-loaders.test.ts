@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { defineCollection } from '../../../dist/content/config.js';
 import { ContentLayer } from '../../../dist/content/content-layer.js';
 import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
-import { Logger } from '../../../dist/core/logger/core.js';
+import { AstroLogger } from '../../../dist/core/logger/core.js';
 import { createTempDir, createTestConfigObserver, createMinimalSettings } from './test-helpers.ts';
 
 describe('Content Layer - Live Loaders', () => {
@@ -13,8 +13,8 @@ describe('Content Layer - Live Loaders', () => {
 	it('loads initial data through sync', async () => {
 		const store = new MutableDataStore();
 		const settings = createMinimalSettings(root);
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 
@@ -101,8 +101,8 @@ describe('Content Layer - Live Loaders', () => {
 	it('simulates live loader with loadEntry functionality', async () => {
 		const store = new MutableDataStore();
 		const settings = createMinimalSettings(root);
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 
@@ -179,8 +179,8 @@ describe('Content Layer - Live Loaders', () => {
 	it('demonstrates dynamic data transformation', async () => {
 		const store = new MutableDataStore();
 		const settings = createMinimalSettings(root);
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 
@@ -255,8 +255,8 @@ describe('Content Layer - Live Loaders', () => {
 	it('handles loader errors gracefully', async () => {
 		const store = new MutableDataStore();
 		const settings = createMinimalSettings(root);
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 
@@ -333,8 +333,8 @@ describe('Content Layer - Live Loaders', () => {
 	it('supports complex rendered content', async () => {
 		const store = new MutableDataStore();
 		const settings = createMinimalSettings(root);
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 
@@ -434,8 +434,8 @@ describe('Content Layer - Live Loaders', () => {
 	it('demonstrates cache metadata patterns', async () => {
 		const store = new MutableDataStore();
 		const settings = createMinimalSettings(root);
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 
@@ -553,8 +553,8 @@ describe('Content Layer - Live Loaders', () => {
 	it('validates schema during data loading', async () => {
 		const store = new MutableDataStore();
 		const settings = createMinimalSettings(root);
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 

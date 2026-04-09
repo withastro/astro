@@ -4,7 +4,7 @@ import MagicString from 'magic-string';
 import picomatch from 'picomatch';
 import type * as vite from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import type { Logger } from '../core/logger/core.js';
+import type { AstroLogger } from '../core/logger/core.js';
 import {
 	appendForwardSlash,
 	joinPaths,
@@ -119,7 +119,7 @@ const addStaticImageFactory = (
 interface Options {
 	settings: AstroSettings;
 	sync: boolean;
-	logger: Logger;
+	logger: AstroLogger;
 	fs: typeof fsMod;
 }
 

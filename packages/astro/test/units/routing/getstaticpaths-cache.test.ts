@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { describe, it, before, beforeEach } from 'node:test';
 import type { ComponentInstance } from '../../../dist/types/astro.js';
-import type { LogMessage, LogWritable } from '../../../dist/core/logger/core.js';
-import { Logger } from '../../../dist/core/logger/core.js';
+import type { AstroLogMessage, AstroLoggerDestination } from '../../../dist/core/logger/core.js';
+import { AstroLogger } from '../../../dist/core/logger/core.js';
 import { RouteCache, callGetStaticPaths } from '../../../dist/core/render/route-cache.js';
 import { dynamicPart, makeRoute } from './test-helpers.js';
 
@@ -12,15 +12,15 @@ function mod(overrides: Partial<ComponentInstance>): ComponentInstance {
 
 describe('getStaticPaths caching behavior', () => {
 	let routeCache: RouteCache;
-	let logger: Logger;
+	let logger: AstroLogger;
 	let callCount: number;
 
-	const dest: LogWritable<LogMessage> = {
+	const destination: AstroLoggerDestination<AstroLogMessage> = {
 		write: () => true,
 	};
 
 	before(() => {
-		logger = new Logger({ dest, level: 'error' });
+		logger = new AstroLogger({ destination, level: 'error' });
 	});
 
 	beforeEach(() => {

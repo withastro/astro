@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { defineCollection } from '../../../dist/content/config.js';
 import { ContentLayer } from '../../../dist/content/content-layer.js';
 import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
-import { Logger } from '../../../dist/core/logger/core.js';
+import { AstroLogger } from '../../../dist/core/logger/core.js';
 
 import { createTempDir, createTestConfigObserver, createMinimalSettings } from './test-helpers.ts';
 
@@ -13,8 +13,8 @@ describe('Core Content Layer loader', () => {
 	const root = createTempDir();
 
 	before(() => {
-		logger = new Logger({
-			dest: { write: () => true },
+		logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 	});
