@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { Writable } from 'node:stream';
 import { after, before, describe, it } from 'node:test';
-import { Logger } from '../dist/core/logger/core.js';
+import { AstroLogger } from '../dist/core/logger/core.js';
 import { loadFixture } from './test-utils.js';
 
 describe('Public', () => {
@@ -14,9 +14,9 @@ describe('Public', () => {
 			vite: {
 				logLevel: 'info',
 			},
-			logger: new Logger({
+			logger: new AstroLogger({
 				level: 'info',
-				dest: new Writable({
+				destination: new Writable({
 					objectMode: true,
 					write(event, _, callback) {
 						buildLogs.push(event);

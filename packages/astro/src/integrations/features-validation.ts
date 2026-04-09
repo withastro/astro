@@ -1,4 +1,4 @@
-import type { Logger } from '../core/logger/core.js';
+import type { AstroLogger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
 import type {
 	AdapterSupport,
@@ -29,7 +29,7 @@ export function validateSupportedFeatures(
 	adapterName: string,
 	featureMap: AstroAdapterFeatureMap,
 	settings: AstroSettings,
-	logger: Logger,
+	logger: AstroLogger,
 ): ValidationResult {
 	const {
 		serverOutput = AdapterFeatureStability.UNSUPPORTED,
@@ -115,7 +115,7 @@ function getSupportMessageSuppression(supportKind: AdapterSupport): 'all' | 'def
 function validateSupportKind(
 	supportKind: AdapterSupport,
 	adapterName: string,
-	logger: Logger,
+	logger: AstroLogger,
 	featureName: string,
 	hasCorrectConfig: () => boolean,
 ): boolean {
@@ -139,7 +139,7 @@ function validateSupportKind(
 
 function logFeatureSupport(
 	adapterName: string,
-	logger: Logger,
+	logger: AstroLogger,
 	featureName: string,
 	supportKind: AdapterSupport,
 	adapterMessage?: string,

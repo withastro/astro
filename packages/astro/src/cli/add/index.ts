@@ -22,7 +22,7 @@ import {
 	presets,
 	updateTSConfigForFramework,
 } from '../../core/config/tsconfig.js';
-import type { Logger } from '../../core/logger/core.js';
+import type { AstroLogger } from '../../core/logger/core.js';
 import * as msg from '../../core/messages/runtime.js';
 import { printHelp } from '../../core/messages/runtime.js';
 import { appendForwardSlash } from '../../core/path.js';
@@ -652,7 +652,7 @@ async function updateAstroConfig({
 	configURL: URL;
 	mod: ProxifiedModule<any>;
 	flags: Flags;
-	logger: Logger;
+	logger: AstroLogger;
 	logAdapterInstructions: boolean;
 }): Promise<UpdateResult> {
 	const input = await fs.readFile(fileURLToPath(configURL), { encoding: 'utf-8' });
@@ -713,7 +713,7 @@ async function updatePackageJsonOverrides({
 }: {
 	configURL: URL;
 	flags: Flags;
-	logger: Logger;
+	logger: AstroLogger;
 	overrides: Record<string, string>;
 }): Promise<UpdateResult> {
 	const pkgURL = new URL('./package.json', configURL);
@@ -774,7 +774,7 @@ async function updatePackageJsonScripts({
 }: {
 	configURL: URL;
 	flags: Flags;
-	logger: Logger;
+	logger: AstroLogger;
 	scripts: Record<string, string>;
 }): Promise<UpdateResult> {
 	const pkgURL = new URL('./package.json', configURL);
@@ -877,7 +877,7 @@ async function tryToInstallIntegrations({
 	integrations: IntegrationInfo[];
 	cwd?: string;
 	flags: Flags;
-	logger: Logger;
+	logger: AstroLogger;
 }): Promise<UpdateResult> {
 	const packageManager = await detect({
 		cwd,
@@ -950,7 +950,7 @@ async function tryToInstallIntegrations({
 async function validateIntegrations(
 	integrations: string[],
 	flags: yargsParser.Arguments,
-	logger: Logger,
+	logger: AstroLogger,
 ): Promise<IntegrationInfo[]> {
 	// First, validate all package names to prevent command injection
 	for (const integration of integrations) {
@@ -1069,7 +1069,7 @@ async function validateIntegrations(
 
 async function updateTSConfig(
 	cwd = process.cwd(),
-	logger: Logger,
+	logger: AstroLogger,
 	integrationsInfo: IntegrationInfo[],
 	flags: Flags,
 	options?: { addIncludes?: string[] },
@@ -1193,7 +1193,7 @@ async function askToContinue({
 	logger,
 }: {
 	flags: Flags;
-	logger: Logger;
+	logger: AstroLogger;
 }): Promise<boolean> {
 	if (flags.yes || flags.y) return true;
 	if (!hasHintedAboutYesFlag) {
@@ -1237,7 +1237,7 @@ function getDiffContent(input: string, output: string): string | null {
 
 async function setupIntegrationConfig(opts: {
 	root: URL;
-	logger: Logger;
+	logger: AstroLogger;
 	flags: Flags;
 	integrationName: string;
 	possibleConfigFiles: string[];

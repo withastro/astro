@@ -1,16 +1,26 @@
 import assert from 'node:assert/strict';
 import { describe, it, before, beforeEach } from 'node:test';
-import { Logger } from '../../../dist/core/logger/core.js';
+import type { ComponentInstance } from '../../../dist/types/astro.js';
+import type { AstroLogMessage, AstroLoggerDestination } from '../../../dist/core/logger/core.js';
+import { AstroLogger } from '../../../dist/core/logger/core.js';
 import { RouteCache, callGetStaticPaths } from '../../../dist/core/render/route-cache.js';
 import { dynamicPart, makeRoute } from './test-helpers.js';
 
+function mod(overrides: Partial<ComponentInstance>): ComponentInstance {
+	return overrides as ComponentInstance;
+}
+
 describe('getStaticPaths caching behavior', () => {
-	let routeCache;
-	let logger;
-	let callCount;
+	let routeCache: RouteCache;
+	let logger: AstroLogger;
+	let callCount: number;
+
+	const destination: AstroLoggerDestination<AstroLogMessage> = {
+		write: () => true,
+	};
 
 	before(() => {
-		logger = new Logger({ dest: 'memory', level: 'error' });
+		logger = new AstroLogger({ destination, level: 'error' });
 	});
 
 	beforeEach(() => {
@@ -28,17 +38,16 @@ describe('getStaticPaths caching behavior', () => {
 			prerender: true,
 		});
 
-		const mod = {
-			default: () => {},
+		const testMod = mod({
 			getStaticPaths: async () => {
 				callCount++;
 				return [{ params: { param: 'a' } }, { params: { param: 'b' } }, { params: { param: 'c' } }];
 			},
-		};
+		});
 
 		// First call should execute getStaticPaths
 		const result1 = await callGetStaticPaths({
-			mod,
+			mod: testMod,
 			route,
 			routeCache,
 			ssr: false,
@@ -51,7 +60,7 @@ describe('getStaticPaths caching behavior', () => {
 
 		// Second call should use cache
 		const result2 = await callGetStaticPaths({
-			mod,
+			mod: testMod,
 			route,
 			routeCache,
 			ssr: false,
@@ -65,7 +74,7 @@ describe('getStaticPaths caching behavior', () => {
 
 		// Third call should also use cache
 		const result3 = await callGetStaticPaths({
-			mod,
+			mod: testMod,
 			route,
 			routeCache,
 			ssr: false,
@@ -87,17 +96,16 @@ describe('getStaticPaths caching behavior', () => {
 			prerender: true,
 		});
 
-		const mod = {
-			default: () => {},
+		const testMod = mod({
 			getStaticPaths: async () => {
 				callCount++;
 				return [{ params: { test: 'value' } }];
 			},
-		};
+		});
 
 		// First call
 		await callGetStaticPaths({
-			mod,
+			mod: testMod,
 			route,
 			routeCache,
 			ssr: false,
@@ -112,7 +120,7 @@ describe('getStaticPaths caching behavior', () => {
 
 		// Second call after clearing should call getStaticPaths again
 		await callGetStaticPaths({
-			mod,
+			mod: testMod,
 			route,
 			routeCache,
 			ssr: false,

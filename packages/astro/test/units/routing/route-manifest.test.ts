@@ -1,35 +1,44 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import type { AstroConfig } from '../../../dist/types/public/config.js';
+import type { RouteData } from '../../../dist/types/public/internal.js';
+import type { AstroLogMessage, AstroLoggerDestination } from '../../../dist/core/logger/core.js';
+import { AstroLogger } from '../../../dist/core/logger/core.js';
 import { createRoutesFromEntries } from '../../../dist/core/routing/create-manifest.js';
 
-const baseSettings = {
-	config: {
-		base: '/',
-		trailingSlash: 'always',
-		pageExtensions: [],
+const destination: AstroLoggerDestination<AstroLogMessage> = { write: () => true };
+const logger = new AstroLogger({ destination, level: 'silent' });
+
+type RoutingSettings = Parameters<typeof createRoutesFromEntries>[1];
+
+function createSettings(
+	overrides: { trailingSlash?: AstroConfig['trailingSlash']; base?: string } = {},
+): RoutingSettings {
+	const config: Partial<AstroConfig> = {
+		base: overrides.base ?? '/',
+		trailingSlash: overrides.trailingSlash ?? 'always',
 		srcDir: new URL('file:///src/'),
 		root: new URL('file:///'),
 		redirects: {},
-	},
-	pageExtensions: [],
-	injectedRoutes: [],
-};
+	};
+	const settings: Partial<RoutingSettings> = {
+		config: config as AstroConfig,
+		pageExtensions: [],
+		injectedRoutes: [],
+	};
+	return settings as RoutingSettings;
+}
 
-const logger = {
-	warn() {},
-};
+const baseSettings = createSettings();
 
-const stripPattern = (route) => ({
+const stripPattern = (route: RouteData) => ({
 	...route,
 	pattern: route.pattern.toString(),
 });
 
 describe('route manifest (entries)', () => {
 	it('creates routes with trailingSlash=always', () => {
-		const settings = {
-			...baseSettings,
-			config: { ...baseSettings.config, trailingSlash: 'always' },
-		};
+		const settings = createSettings({ trailingSlash: 'always' });
 		const routes = createRoutesFromEntries(
 			[
 				{ path: 'index.astro', isDir: false },
@@ -59,10 +68,7 @@ describe('route manifest (entries)', () => {
 	});
 
 	it('creates routes with trailingSlash=never', () => {
-		const settings = {
-			...baseSettings,
-			config: { ...baseSettings.config, trailingSlash: 'never' },
-		};
+		const settings = createSettings({ trailingSlash: 'never' });
 		const routes = createRoutesFromEntries(
 			[
 				{ path: 'index.astro', isDir: false },
@@ -92,10 +98,7 @@ describe('route manifest (entries)', () => {
 	});
 
 	it('creates routes with trailingSlash=ignore', () => {
-		const settings = {
-			...baseSettings,
-			config: { ...baseSettings.config, trailingSlash: 'ignore' },
-		};
+		const settings = createSettings({ trailingSlash: 'ignore' });
 		const routes = createRoutesFromEntries(
 			[
 				{ path: 'index.astro', isDir: false },
@@ -215,7 +218,7 @@ describe('route manifest (entries)', () => {
 			routes.map((route) => route.route),
 			['/', '/about', '/note', '/endpoint'],
 		);
-		const endpoint = routes.find((route) => route.route === '/endpoint');
+		const endpoint = routes.find((route) => route.route === '/endpoint')!;
 		assert.equal(endpoint.type, 'endpoint');
 	});
 

@@ -2,7 +2,7 @@ import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
 import { ContentLayer } from '../../../dist/content/content-layer.js';
 import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
-import { Logger } from '../../../dist/core/logger/core.js';
+import { AstroLogger } from '../../../dist/core/logger/core.js';
 import { defineCollection } from '../../../dist/content/config.js';
 import { z } from 'zod';
 import {
@@ -83,8 +83,8 @@ Content with [a link](https://astro.build).`,
 		};
 
 		const settings = createMinimalSettings(root);
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 
@@ -168,8 +168,8 @@ This content is processed by the loader using renderMarkdown.
 
 		const settings = createMinimalSettings(root);
 
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 
@@ -243,8 +243,8 @@ Section 2 content.`;
 
 		const settings = createMinimalSettings(root);
 
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 
@@ -304,8 +304,8 @@ This file has no frontmatter, just content.`;
 		};
 
 		const settings = createMinimalSettings(root);
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 
@@ -377,8 +377,8 @@ And some inline code: \`const x = 42\`.`;
 			},
 		});
 
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 
@@ -404,8 +404,8 @@ And some inline code: \`const x = 42\`.`;
 	it('renderMarkdown parses frontmatter correctly through loader', async () => {
 		const store = new MutableDataStore();
 		const settings = createMinimalSettings(root);
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 
@@ -480,8 +480,8 @@ More content here.`;
 	it('renderMarkdown excludes frontmatter from HTML output through loader', async () => {
 		const store = new MutableDataStore();
 		const settings = createMinimalSettings(root);
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 
@@ -541,8 +541,8 @@ title: Test Post
 	it('renderMarkdown extracts headings correctly through loader', async () => {
 		const store = new MutableDataStore();
 		const settings = createMinimalSettings(root);
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 
@@ -618,8 +618,8 @@ Even more text
 	it('renderMarkdown resolves relative image paths through loader', async () => {
 		const store = new MutableDataStore();
 		const settings = createMinimalSettings(root);
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 
@@ -678,8 +678,8 @@ Even more text
 	it('renderMarkdown populates combined imagePaths in metadata', async () => {
 		const store = new MutableDataStore();
 		const settings = createMinimalSettings(root);
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 

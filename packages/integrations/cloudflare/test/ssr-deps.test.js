@@ -3,7 +3,7 @@ import { rmSync } from 'node:fs';
 import { Writable } from 'node:stream';
 import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { Logger } from '../../../astro/dist/core/logger/core.js';
+import { AstroLogger } from '../../../astro/dist/core/logger/core.js';
 import { loadFixture } from './_test-utils.js';
 
 describe('SSR dependencies', () => {
@@ -21,9 +21,9 @@ describe('SSR dependencies', () => {
 		rmSync(fileURLToPath(viteCacheDir), { recursive: true, force: true });
 
 		devServer = await fixture.startDevServer({
-			logger: new Logger({
+			logger: new AstroLogger({
 				level: 'info',
-				dest: new Writable({
+				destination: new Writable({
 					objectMode: true,
 					write(event, _, callback) {
 						logs.push(event);
