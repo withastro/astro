@@ -1,16 +1,11 @@
-// @ts-check
+import type {
+	SSRManifest,
+	SSRManifestI18n,
+	SSRManifestCSP,
+	RouteInfo,
+} from '../../../dist/core/app/types.js';
+import type { RouteData } from '../../../dist/types/public/internal.js';
 
-/**
- * @param {object} [options]
- * @param {any[]} [options.routes]
- * @param {Map<string, Function>} [options.pageMap]
- * @param {string} [options.base]
- * @param {string} [options.trailingSlash]
- * @param {Function} [options.middleware]
- * @param {Function} [options.actions]
- * @param {number} [options.actionBodySizeLimit]
- * @param {object} [options.i18n]
- */
 export function createManifest({
 	routes,
 	pageMap,
@@ -22,23 +17,34 @@ export function createManifest({
 	i18n = undefined,
 	csp = undefined,
 	serverLike = true,
-} = {}) {
+}: {
+	routes?: RouteInfo[];
+	pageMap?: SSRManifest['pageMap'];
+	base?: string;
+	trailingSlash?: 'always' | 'never' | 'ignore';
+	middleware?: SSRManifest['middleware'];
+	actions?: SSRManifest['actions'];
+	actionBodySizeLimit?: number;
+	i18n?: SSRManifestI18n;
+	csp?: SSRManifestCSP;
+	serverLike?: boolean;
+} = {}): SSRManifest {
 	const rootDir = new URL('file:///astro-test/');
 	const buildDir = new URL('file:///astro-test/dist/');
 
-	return /** @type {import('../../../dist/core/app/types.js').SSRManifest} */ ({
+	return {
 		adapterName: 'test-adapter',
 		routes,
 		site: undefined,
 		base,
 		userAssetsBase: undefined,
-		trailingSlash: /** @type {'always' | 'never' | 'ignore'} */ (trailingSlash),
-		buildFormat: /** @type {'directory'} */ ('directory'),
+		trailingSlash,
+		buildFormat: 'directory',
 		compressHTML: false,
 		assetsPrefix: undefined,
 		renderers: [],
 		serverLike,
-		middlewareMode: /** @type {'classic'} */ ('classic'),
+		middlewareMode: 'classic',
 		clientDirectives: new Map(),
 		entryModules: {},
 		inlinedScripts: new Map(),
@@ -47,7 +53,7 @@ export function createManifest({
 		pageModule: undefined,
 		pageMap,
 		serverIslandMappings: undefined,
-		key: Promise.resolve(/** @type {CryptoKey} */ ({})),
+		key: Promise.resolve({} as CryptoKey),
 		i18n,
 		middleware,
 		actions,
@@ -75,14 +81,14 @@ export function createManifest({
 			placement: undefined,
 		},
 		internalFetchHeaders: undefined,
-		logLevel: /** @type {'silent'} */ ('silent'),
+		logLevel: 'silent',
 		experimentalQueuedRendering: {
 			enabled: false,
 		},
-	});
+	} as SSRManifest;
 }
 
-export function createRouteInfo(routeData) {
+export function createRouteInfo(routeData: RouteData): RouteInfo {
 	return {
 		routeData,
 		file: routeData.component,
