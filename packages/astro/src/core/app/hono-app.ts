@@ -47,7 +47,7 @@ import { getParams } from '../render/params-and-props.js';
 import { getOriginPathname } from '../routing/rewrite.js';
 import { validateAndDecodePathname } from '../util/pathname.js';
 import { AstroCookies } from '../cookies/index.js';
-import { attachCookiesToResponse, getSetCookiesFromResponse } from '../cookies/response.js';
+import { getSetCookiesFromResponse } from '../cookies/response.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { AstroSession } from '../session/runtime.js';
 import { AstroCache, type CacheLike } from '../cache/runtime/cache.js';
@@ -146,7 +146,7 @@ function resolveDomainLocale(request: Request, manifest: SSRManifest): string | 
 // ---------------------------------------------------------------------------
 
 function createMatchRouteData(deps: AstroAppDeps) {
-	return function matchRouteData(request: Request): RouteData | undefined {
+	return function matchRouteData(request: Request, { allowPrerenderedRoutes = false } = {}): RouteData | undefined {
 		const manifest = deps.manifest;
 		const manifestData = deps.manifestData;
 		const url = new URL(request.url);
@@ -165,6 +165,7 @@ function createMatchRouteData(deps: AstroAppDeps) {
 		}
 
 		for (const route of manifestData.routes) {
+			if (!allowPrerenderedRoutes && route.prerender) continue;
 			if (route.pattern.test(strippedPathname)) return route;
 			if (manifest.trailingSlash === 'never' && strippedPathname === '/' && route.pattern.test('')) {
 				return route;
@@ -335,7 +336,6 @@ function createContextFactory(deps: AstroAppDeps, _matchRouteData: (req: Request
 				}
 				return prepareForRender(pipeline, manifest, deps.manifestData, logger, newRequest, routeData, {
 					locals,
-					cookies,
 				}, (renderContext, componentInstance) => renderContext.render(componentInstance));
 			},
 			getActionResult(_action) {
@@ -433,7 +433,6 @@ function createUserMiddleware(
 				}
 				return prepareForRender(pipeline, manifest, deps.manifestData, logger, newRequest, routeData, {
 					locals: ctx.locals,
-					cookies: ctx.cookies,
 					skipMiddleware: true,
 				}, (renderCtx, comp) => renderCtx.render(comp));
 			}
@@ -460,16 +459,6 @@ function createUserMiddleware(
 		}
 		c.res = response;
 
-		// Ensure cookies are attached and appended for responses that bypassed
-		// createPagesMiddleware (e.g. rewrite responses from ctx.rewrite()).
-		attachCookiesToResponse(c.res, ctx.cookies);
-		const shouldAddCookies = Reflect.get(c.req.raw, Symbol.for('astro.addCookieHeader')) ?? options.addCookieHeader ?? true;
-		if (shouldAddCookies && !c.res.headers.has('set-cookie')) {
-			for (const setCookieValue of getSetCookiesFromResponse(c.res)) {
-				c.res.headers.append('set-cookie', setCookieValue);
-			}
-		}
-
 		// If user middleware returned a reroutable status (404/500) with no body
 		// (e.g. i18n middleware rejecting an invalid locale), render the error page.
 		if (
@@ -484,10 +473,6 @@ function createUserMiddleware(
 				response: c.res,
 				isDev,
 			});
-			// Preserve cookies set by middleware on the error page response
-			for (const setCookieValue of ctx.cookies.headers()) {
-				c.res.headers.append('set-cookie', setCookieValue);
-			}
 		}
 
 		return c.res;
@@ -788,7 +773,6 @@ function createPagesMiddleware(
 			c.res = await pageRenderer.render(c.req.raw, routeData, {
 				locals: ctx.locals,
 				clientAddress: Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
-				cookies: ctx.cookies,
 				isDev,
 				skipMiddleware: true,
 				...options,
@@ -800,17 +784,17 @@ function createPagesMiddleware(
 			}
 		}
 
-		// Attach ctx.cookies to the response for the setCookieHeaders() adapter API,
-		// and store on the request so createAstroMiddleware can re-attach after inner.fetch().
-		// Since ctx.cookies IS the same instance as RenderContext.cookies (shared via
-		// PrepareOptions.cookies), this single object has all cookies from both
-		// middleware and page components.
-		attachCookiesToResponse(c.res, ctx.cookies);
-		Reflect.set(c.req.raw, Symbol.for('astro.pipelineCookies'), ctx.cookies);
-
-		// Append to set-cookie headers when addCookieHeader is true
+		// Collect all cookies and append to the response.
+		// This is the single place where cookies are added to responses.
+		// Cookies come from two sources:
+		// 1. ctx.cookies — set by middleware or endpoint handlers
+		// 2. Response-attached AstroCookies — set by page components via Astro.cookies
+		// Respect addCookieHeader option from app.render()
 		const shouldAddCookies = Reflect.get(c.req.raw, Symbol.for('astro.addCookieHeader')) ?? options.addCookieHeader ?? true;
 		if (shouldAddCookies) {
+			for (const setCookieValue of ctx.cookies.headers()) {
+				c.res.headers.append('set-cookie', setCookieValue);
+			}
 			for (const setCookieValue of getSetCookiesFromResponse(c.res)) {
 				c.res.headers.append('set-cookie', setCookieValue);
 			}
@@ -874,7 +858,11 @@ export function createAstroMiddleware(
 	deps: AstroAppDeps,
 	options: CreateAstroAppOptions = {},
 ): MiddlewareHandler<AstroHonoEnv> {
-	const matchRouteData = createMatchRouteData(deps);
+	const isDev = options.isDev ?? (deps.pipeline.runtimeMode === 'development');
+	const rawMatchRouteData = createMatchRouteData(deps);
+	// In dev, always match prerendered routes. In production, skip them
+	// (they're served as static assets by the adapter/CDN).
+	const matchRouteData = (req: Request) => rawMatchRouteData(req, { allowPrerenderedRoutes: isDev });
 	const contextFn = createContextFactory(deps, matchRouteData);
 
 	const inner = new Hono<AstroHonoEnv>();
@@ -895,8 +883,6 @@ export function createAstroMiddleware(
 	inner.use(createI18nMiddleware(deps, matchRouteData));
 	inner.use(createPagesMiddleware(deps, contextFn, matchRouteData, options));
 
-	const COOKIES_SYMBOL = Symbol.for('astro.pipelineCookies');
-
 	return async (c, _next) => {
 		c.res = await inner.fetch(c.req.raw);
 		// Strip internally-used headers before the response reaches the client.
@@ -912,13 +898,6 @@ export function createAstroMiddleware(
 				headers.delete(header);
 			}
 			c.res = new Response(c.res.body, { status: c.res.status, statusText: c.res.statusText, headers });
-		}
-		// Re-attach AstroCookies to the response so app.setCookieHeaders() works.
-		// The AstroCookies symbol is lost when inner.fetch() creates a new Response.
-		// createPagesMiddleware stores them on the request via COOKIES_SYMBOL.
-		const storedCookies = Reflect.get(c.req.raw, COOKIES_SYMBOL) as AstroCookies | undefined;
-		if (storedCookies) {
-			attachCookiesToResponse(c.res, storedCookies);
 		}
 	};
 }

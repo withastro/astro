@@ -346,8 +346,8 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		if (options.clientAddress) {
 			Reflect.set(request, Symbol.for('astro.clientAddress'), options.clientAddress);
 		}
-		if (options.addCookieHeader !== undefined) {
-			Reflect.set(request, Symbol.for('astro.addCookieHeader'), options.addCookieHeader);
+		if (options.addCookieHeader) {
+			Reflect.set(request, Symbol.for('astro.addCookieHeader'), true);
 		}
 		return this.#userApp.fetch(request);
 	}

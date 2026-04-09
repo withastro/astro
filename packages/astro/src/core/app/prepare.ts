@@ -37,8 +37,6 @@ export interface PrepareOptions {
 	locals?: object | undefined;
 	/** Skip user middleware in RenderContext. */
 	skipMiddleware?: boolean;
-	/** Shared AstroCookies instance from the Hono APIContext. */
-	cookies?: AstroCookies;
 	/** Fetch function for prerendered error pages in production. */
 	prerenderedErrorPageFetch?: (url: string) => Promise<Response>;
 	/** Whether the app is running in dev mode. */
@@ -70,7 +68,6 @@ export async function prepareForRender(
 		clientAddress,
 		locals,
 		skipMiddleware = false,
-		cookies: sharedCookies,
 		prerenderedErrorPageFetch = fetch,
 		isDev = false,
 	} = options;
@@ -111,7 +108,6 @@ export async function prepareForRender(
 			status: defaultStatus,
 			clientAddress,
 			skipMiddleware,
-			cookies: sharedCookies,
 		} as CreateRenderContext);
 		session = renderContext.session;
 		cache = renderContext.cache;
