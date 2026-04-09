@@ -64,6 +64,8 @@ export type CreateRenderContext = Pick<
 			| 'actions'
 			| 'shouldInjectCspMetaTags'
 			| 'skipMiddleware'
+			| 'cookies'
+			| 'session'
 		>
 	>;
 
@@ -177,6 +179,8 @@ export class RenderContext {
 		partial = undefined,
 		shouldInjectCspMetaTags,
 		skipMiddleware = false,
+		cookies: existingCookies,
+		session: existingSession,
 	}: CreateRenderContext): Promise<RenderContext> {
 		const pipelineMiddleware = await pipeline.getMiddleware();
 		const pipelineActions = await pipeline.getActions();
@@ -189,8 +193,8 @@ export class RenderContext {
 			pipeline.manifest.trailingSlash,
 			pipeline.manifest.buildFormat,
 		);
-		const cookies = new AstroCookies(request);
-		const session =
+		const cookies = existingCookies ?? new AstroCookies(request);
+		const session = existingSession ?? (
 			pipeline.manifest.sessionConfig && pipelineSessionDriver
 				? new AstroSession({
 						cookies,
@@ -199,7 +203,8 @@ export class RenderContext {
 						driverFactory: pipelineSessionDriver,
 						mockStorage: null,
 					})
-				: undefined;
+				: undefined
+		);
 
 		// Create cache instance
 		let cache: CacheLike;
