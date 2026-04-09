@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { Logger } from '../../../dist/core/logger/core.js';
+import { AstroLogger } from '../../../dist/core/logger/core.js';
 import { createRoutesList } from '../../../dist/core/routing/create-manifest.js';
 import { createBasicSettings, createFixture } from '../test-utils.js';
 
@@ -15,8 +15,8 @@ function getLogger() {
 	const logs = [];
 
 	return {
-		logger: new Logger({
-			dest: { write: (msg) => logs.push(msg) },
+		logger: new AstroLogger({
+			destination: { write: (msg) => logs.push(msg) },
 			level: 'debug',
 		}),
 		logs,

@@ -4,7 +4,7 @@ import { glob } from '../../../dist/content/loaders/glob.js';
 import { defineCollection } from '../../../dist/content/config.js';
 import { ContentLayer } from '../../../dist/content/content-layer.js';
 import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
-import { Logger } from '../../../dist/core/logger/core.js';
+import { AstroLogger } from '../../../dist/core/logger/core.js';
 import {
 	createTestConfigObserver,
 	createMinimalSettings,
@@ -19,8 +19,8 @@ describe('Glob Loader', () => {
 		const settings = createMinimalSettings(root, {
 			contentEntryTypes: [createMarkdownEntryType()],
 		});
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 
@@ -55,8 +55,8 @@ describe('Glob Loader', () => {
 		const settings = createMinimalSettings(root, {
 			contentEntryTypes: [createMarkdownEntryType()],
 		});
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 
@@ -91,8 +91,8 @@ describe('Glob Loader', () => {
 		const settings = createMinimalSettings(root, {
 			contentEntryTypes: [createMarkdownEntryType()],
 		});
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 
@@ -124,8 +124,8 @@ describe('Glob Loader', () => {
 		const settings = createMinimalSettings(root, {
 			contentEntryTypes: [createMarkdownEntryType()],
 		});
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 
@@ -183,8 +183,8 @@ describe('Glob Loader', () => {
 			},
 			dataEntryTypes: [yamlEntryType],
 		});
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 
@@ -247,8 +247,8 @@ describe('Glob Loader', () => {
 			},
 			dataEntryTypes: [tomlEntryType],
 		});
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 
@@ -282,8 +282,8 @@ describe('Glob Loader', () => {
 	it('warns about missing directory', async () => {
 		const store = new MutableDataStore();
 		const warnings: string[] = [];
-		const logger = new Logger({
-			dest: {
+		const logger = new AstroLogger({
+			destination: {
 				write: (msg: any) => {
 					if (msg.level === 'warn') {
 						warnings.push(msg.message);
@@ -317,8 +317,8 @@ describe('Glob Loader', () => {
 	it('warns about no matching files', async () => {
 		const store = new MutableDataStore();
 		const warnings: string[] = [];
-		const logger = new Logger({
-			dest: {
+		const logger = new AstroLogger({
+			destination: {
 				write: (msg: any) => {
 					if (msg.level === 'warn') {
 						warnings.push(msg.message);

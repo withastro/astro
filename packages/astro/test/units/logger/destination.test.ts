@@ -32,7 +32,7 @@ describe('log destination', () => {
 		const logger = new AstroLogger({
 			destination: testDestination,
 			level: 'info',
-			format: 'default',
+			_format: 'default',
 		});
 
 		it('info() pushes an event with level info', () => {
@@ -75,7 +75,7 @@ describe('log destination', () => {
 			const logger = new AstroLogger({
 				destination: testDestination,
 				level: 'info',
-				format: 'default',
+				_format: 'default',
 			});
 			logger.info('build', 'test');
 			assert.equal(logs[0]._format, 'default');
@@ -85,7 +85,7 @@ describe('log destination', () => {
 			const logger = new AstroLogger({
 				destination: testDestination,
 				level: 'info',
-				format: 'json',
+				_format: 'json',
 			});
 			logger.info('build', 'test');
 			assert.equal(logs[0]._format, 'json');
@@ -96,7 +96,7 @@ describe('log destination', () => {
 		const logger = new AstroLogger({
 			destination: jsonDestination,
 			level: 'info',
-			format: 'json',
+			_format: 'json',
 		});
 
 		it('serializes message and label as JSON', () => {
@@ -119,7 +119,7 @@ describe('log destination', () => {
 			const defaultLogger = new AstroLogger({
 				destination: jsonDestination,
 				level: 'info',
-				format: 'default',
+				_format: 'default',
 			});
 			defaultLogger.info('build', 'should not appear');
 			assert.equal(jsonLogs.length, 0);
@@ -131,7 +131,7 @@ describe('log destination', () => {
 			const logger = new AstroLogger({
 				destination: testDestination,
 				level: 'warn',
-				format: 'default',
+				_format: 'default',
 			});
 			logger.info('build', 'should be filtered');
 			assert.equal(logs.length, 0);
@@ -141,7 +141,7 @@ describe('log destination', () => {
 			const logger = new AstroLogger({
 				destination: testDestination,
 				level: 'warn',
-				format: 'default',
+				_format: 'default',
 			});
 			logger.warn('build', 'should pass');
 			assert.equal(logs.length, 1);
@@ -151,7 +151,7 @@ describe('log destination', () => {
 			const logger = new AstroLogger({
 				destination: testDestination,
 				level: 'warn',
-				format: 'default',
+				_format: 'default',
 			});
 			logger.error('build', 'should pass');
 			assert.equal(logs.length, 1);
@@ -161,7 +161,7 @@ describe('log destination', () => {
 			const logger = new AstroLogger({
 				destination: testDestination,
 				level: 'silent',
-				format: 'default',
+				_format: 'default',
 			});
 			logger.info('build', 'nope');
 			logger.warn('build', 'nope');

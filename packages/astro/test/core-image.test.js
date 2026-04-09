@@ -6,7 +6,7 @@ import { after, afterEach, before, describe, it } from 'node:test';
 import { removeDir } from '@astrojs/internal-helpers/fs';
 import * as cheerio from 'cheerio';
 import parseSrcset from 'parse-srcset';
-import { Logger } from '../dist/core/logger/core.js';
+import { AstroLogger } from '../dist/core/logger/core.js';
 import testAdapter from './test-adapter.js';
 import { testImageService } from './test-image-service.js';
 import { loadFixture } from './test-utils.js';
@@ -67,9 +67,9 @@ describe('astro:image', () => {
 			});
 
 			devServer = await fixture.startDevServer({
-				logger: new Logger({
+				logger: new AstroLogger({
 					level: 'error',
-					dest: new Writable({
+					destination: new Writable({
 						objectMode: true,
 						write(event, _, callback) {
 							logs.push(event);
@@ -799,9 +799,9 @@ describe('astro:image', () => {
 			});
 
 			devServer = await fixture.startDevServer({
-				logger: new Logger({
+				logger: new AstroLogger({
 					level: 'error',
-					dest: new Writable({
+					destination: new Writable({
 						objectMode: true,
 						write(event, _, callback) {
 							logs.push(event);
@@ -1155,15 +1155,17 @@ describe('astro:image', () => {
 
 		it('uses cache entries', async () => {
 			const logs = [];
-			const logging = {
-				dest: {
+			const logger = new AstroLogger({
+				destination: {
 					write(chunk) {
 						logs.push(chunk);
+						return true;
 					},
 				},
-			};
+				level: 'info',
+			});
 
-			await fixture.build({ logging });
+			await fixture.build({ logger });
 			const generatingImageIndex = logs.findIndex((logLine) =>
 				logLine.message.includes('generating optimized images'),
 			);
