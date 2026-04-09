@@ -338,6 +338,7 @@ function createContextFactory(deps: AstroAppDeps, _matchRouteData: (req: Request
 				}
 				return prepareForRender(pipeline, manifest, deps.manifestData, logger, newRequest, routeData, {
 					locals,
+					clientAddress: storeOptions?.clientAddress ?? Reflect.get(request, clientAddressSymbol) as string | undefined,
 					cookies,
 					session,
 				}, (renderContext, componentInstance) => renderContext.render(componentInstance));
@@ -437,8 +438,10 @@ function createUserMiddleware(
 				}
 				return prepareForRender(pipeline, manifest, deps.manifestData, logger, newRequest, routeData, {
 					locals: ctx.locals,
+					clientAddress: renderOptionsStore.getStore()?.clientAddress ?? Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
 					cookies: ctx.cookies, session: ctx.session as any,
 					skipMiddleware: true,
+					isDev,
 				}, (renderCtx, comp) => renderCtx.render(comp));
 			}
 			await next();
@@ -793,12 +796,12 @@ function createPagesMiddleware(
 			}
 		} else {
 			c.res = await pageRenderer.render(c.req.raw, routeData, {
+				...options,
 				locals: ctx.locals,
 				clientAddress: renderOptionsStore.getStore()?.clientAddress ?? Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
 				cookies: ctx.cookies, session: ctx.session as any,
 				isDev,
 				skipMiddleware: true,
-				...options,
 			});
 			// PageRenderer already sets ROUTE_TYPE_HEADER via renderPage, but ensure
 			// it's set for fallback/error paths too
@@ -942,7 +945,13 @@ export interface CreateAstroAppOptions extends PrepareOptions {
  */
 export function createAstroApp(deps: AstroAppDeps, options: CreateAstroAppOptions = {}): Hono<AstroHonoEnv> {
 	const app = new Hono<AstroHonoEnv>();
-	app.onError((err) => { throw err; });
+	app.onError((err) => {
+		const message = err instanceof Error ? err.message : String(err);
+		return new Response(JSON.stringify({ error: message }), {
+			status: 500,
+			headers: { 'Content-Type': 'application/json' },
+		});
+	});
 	app.use(createAstroMiddleware(deps, options));
 
 	// Store deps on the app so they can be updated externally

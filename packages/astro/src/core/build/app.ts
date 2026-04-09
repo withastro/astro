@@ -41,6 +41,33 @@ export class BuildApp extends BaseApp<BuildPipeline> {
 		return this.pipeline.getSettings();
 	}
 
+	async render(request: Request, options: any = {}): Promise<Response> {
+		// During build, force prerendered routes to be matchable since the
+		// build pipeline needs to render them. Also re-throw 500 errors so
+		// the build fails on broken pages.
+		if (!this._userAppCreated) {
+			const { createAstroApp } = await import('../app/hono-app.js');
+			this.setUserApp(createAstroApp({
+				pipeline: this.pipeline,
+				manifest: this.manifest,
+				manifestData: this.manifestData,
+				logger: this.logger,
+			}, { isDev: true }));
+			this._userAppCreated = true;
+		}
+		const response = await super.render(request, options);
+		if (response.status >= 500) {
+			let message = `Build error for ${request.url}: status ${response.status}`;
+			try {
+				const body = await response.json();
+				if (body?.error) message = body.error;
+			} catch {}
+			throw new Error(message);
+		}
+		return response;
+	}
+	private _userAppCreated = false;
+
 	getQueueStats(): PoolStatsReport | undefined {
 		if (this.pipeline.nodePool) {
 			return this.pipeline.nodePool.getStats();
