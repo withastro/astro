@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { loadFixture } from '../../test-utils.js';
+import { loadFixture } from './test-utils.js';
 
 describe('frontmatter (loadFixture)', () => {
 	let fixture;

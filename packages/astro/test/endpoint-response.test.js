@@ -1,11 +1,11 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { loadFixture } from '../../test-utils.js';
+import { loadFixture } from './test-utils.js';
 
 describe('endpoint responses', () => {
-	/** @type {import('../../test-utils.js').Fixture} */
+	/** @type {import('./test-utils.js').Fixture} */
 	let fixture;
-	/** @type {import('../../test-utils.js').DevServer} */
+	/** @type {import('./test-utils.js').DevServer} */
 	let devServer;
 
 	before(async () => {

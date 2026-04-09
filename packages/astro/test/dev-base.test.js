@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { loadFixture } from '../../test-utils.js';
+import { loadFixture } from './test-utils.js';
 
 describe('base configuration', () => {
 	describe('with trailingSlash: "never"', () => {

@@ -3,12 +3,9 @@ import { describe, it } from 'node:test';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import {
-	createContainerWithAutomaticRestart,
-	startContainer,
-} from '../../../dist/core/dev/index.js';
+import { createContainerWithAutomaticRestart, startContainer } from '../dist/core/dev/index.js';
 
-const fixtureDir = fileURLToPath(new URL('../../fixtures/dev-container/', import.meta.url));
+const fixtureDir = fileURLToPath(new URL('./fixtures/dev-container/', import.meta.url));
 
 /** @type {import('astro').AstroInlineConfig} */
 const defaultInlineConfig = {
