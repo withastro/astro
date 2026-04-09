@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 
-export default function teardown(testPassed) {
+export default function teardown(testPassed: boolean): void {
 	// Delete all directories within `_temp-fixtures` directory if all test passed
 	if (testPassed) {
 		try {
