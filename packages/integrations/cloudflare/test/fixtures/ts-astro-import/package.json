@@ -1,0 +1,9 @@
+{
+	"name": "@test/cf-ts-astro-import",
+	"version": "0.0.0",
+	"private": true,
+	"dependencies": {
+		"astro": "workspace:*",
+		"@astrojs/cloudflare": "workspace:*"
+	}
+}
