@@ -27,6 +27,7 @@ import {
 } from '../../i18n/utils.js';
 import { ASTRO_GENERATOR, clientAddressSymbol, clientLocalsSymbol, NOOP_MIDDLEWARE_HEADER, pipelineSymbol, REROUTABLE_STATUS_CODES, REROUTE_DIRECTIVE_HEADER, REWRITE_DIRECTIVE_HEADER_KEY, ROUTE_TYPE_HEADER } from '../constants.js';
 import { PERSIST_SYMBOL } from '../session/runtime.js';
+import { renderOptionsStore } from './render-options-store.js';
 import { computeFallbackRoute } from '../../i18n/fallback.js';
 import { ForbiddenRewrite } from '../errors/errors-data.js';
 import { I18nRouter, type I18nRouterContext } from '../../i18n/router.js';
@@ -87,10 +88,6 @@ const ASTRO_REWRITE_COUNT_KEY = 'astro.rewriteCount';
 
 
 export type AstroHonoEnv = {
-	Bindings: {
-		/** Whether to add Set-Cookie headers to the response. Passed per-request via app.fetch(). */
-		addCookieHeader?: boolean;
-	};
 	Variables: {
 		[ASTRO_CONTEXT_KEY]: APIContext;
 		[ASTRO_ROUTE_DATA_KEY]: RouteData | undefined;
@@ -210,7 +207,8 @@ function createContextFactory(deps: AstroAppDeps, _matchRouteData: (req: Request
 		const i18nConfig = pipeline.i18n;
 
 		const cookies = new AstroCookies(request);
-		const requestClientAddress = Reflect.get(request, clientAddressSymbol) as string | undefined;
+		const storeOptions = renderOptionsStore.getStore();
+		const requestClientAddress = storeOptions?.clientAddress ?? Reflect.get(request, clientAddressSymbol) as string | undefined;
 
 		const pipelineSessionDriver = await pipeline.getSessionDriver();
 		const session =
@@ -234,7 +232,7 @@ function createContextFactory(deps: AstroAppDeps, _matchRouteData: (req: Request
 			cache = new AstroCache(cacheProvider);
 		}
 
-		const locals: App.Locals = (Reflect.get(request, clientLocalsSymbol) as App.Locals) ?? ({} as App.Locals);
+		const locals: App.Locals = storeOptions?.locals ?? (Reflect.get(request, clientLocalsSymbol) as App.Locals) ?? ({} as App.Locals);
 		let _paramsOverride: Record<string, string | undefined> | undefined;
 		let _routePatternOverride: string | undefined;
 
@@ -457,7 +455,7 @@ function createUserMiddleware(
 			logger.error(null, (err as any)?.stack || String(err));
 			c.res = await renderErrorPage(pipeline, manifest, deps.manifestData, logger, c.req.raw, {
 				locals: ctx.locals,
-				clientAddress: Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
+				clientAddress: renderOptionsStore.getStore()?.clientAddress ?? Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
 				status: 500,
 				error: err,
 				isDev,
@@ -469,7 +467,7 @@ function createUserMiddleware(
 		// Ensure cookies are attached and appended for responses that bypassed
 		// createPagesMiddleware (e.g. rewrite responses from ctx.rewrite()).
 		attachCookiesToResponse(c.res, ctx.cookies);
-		const shouldAddCookies = c.env?.addCookieHeader ?? options.addCookieHeader ?? true;
+		const shouldAddCookies = renderOptionsStore.getStore()?.addCookieHeader ?? options.addCookieHeader ?? true;
 		if (shouldAddCookies && !c.res.headers.has('set-cookie')) {
 			for (const setCookieValue of getSetCookiesFromResponse(c.res)) {
 				c.res.headers.append('set-cookie', setCookieValue);
@@ -485,7 +483,7 @@ function createUserMiddleware(
 		) {
 			c.res = await renderErrorPage(pipeline, manifest, deps.manifestData, logger, c.req.raw, {
 				locals: ctx.locals,
-				clientAddress: Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
+				clientAddress: renderOptionsStore.getStore()?.clientAddress ?? Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
 				status: c.res.status as 404 | 500,
 				response: c.res,
 				isDev,
@@ -615,12 +613,12 @@ function createRewriteMiddleware(
 			c.res = await prepareForRender(pipeline, manifest, deps.manifestData, logger, rewrittenRequest, rewrittenRouteData, {
 				locals: ctx.locals,
 				cookies: ctx.cookies, session: ctx.session as any,
-				clientAddress: Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
+				clientAddress: renderOptionsStore.getStore()?.clientAddress ?? Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
 			}, (renderContext, componentInstance) => renderContext.render(componentInstance));
 		} else {
 			c.res = await renderErrorPage(pipeline, manifest, deps.manifestData, logger, rewrittenRequest, {
 				locals: ctx.locals,
-				clientAddress: Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
+				clientAddress: renderOptionsStore.getStore()?.clientAddress ?? Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
 				status: 404,
 				isDev: pipeline.runtimeMode === 'development',
 			});
@@ -757,7 +755,7 @@ function createPagesMiddleware(
 			const ctx = await contextFn(c);
 			c.res = await renderErrorPage(pipeline, manifest, deps.manifestData, logger, c.req.raw, {
 				locals: ctx.locals,
-				clientAddress: Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
+				clientAddress: renderOptionsStore.getStore()?.clientAddress ?? Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
 				status: 404,
 				isDev,
 			});
@@ -788,7 +786,7 @@ function createPagesMiddleware(
 			) {
 				c.res = await renderErrorPage(pipeline, manifest, deps.manifestData, logger, c.req.raw, {
 					locals: ctx.locals,
-					clientAddress: Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
+					clientAddress: renderOptionsStore.getStore()?.clientAddress ?? Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
 					status: c.res.status as 404 | 500,
 					isDev,
 				});
@@ -796,7 +794,7 @@ function createPagesMiddleware(
 		} else {
 			c.res = await pageRenderer.render(c.req.raw, routeData, {
 				locals: ctx.locals,
-				clientAddress: Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
+				clientAddress: renderOptionsStore.getStore()?.clientAddress ?? Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
 				cookies: ctx.cookies, session: ctx.session as any,
 				isDev,
 				skipMiddleware: true,
@@ -815,7 +813,7 @@ function createPagesMiddleware(
 		// 1. ctx.cookies — set by middleware or endpoint handlers
 		// 2. Response-attached AstroCookies — set by page components via Astro.cookies
 		// Respect addCookieHeader option from app.render()
-		const shouldAddCookies = c.env?.addCookieHeader ?? options.addCookieHeader ?? true;
+		const shouldAddCookies = renderOptionsStore.getStore()?.addCookieHeader ?? options.addCookieHeader ?? true;
 		if (shouldAddCookies) {
 			for (const setCookieValue of ctx.cookies.headers()) {
 				c.res.headers.append('set-cookie', setCookieValue);

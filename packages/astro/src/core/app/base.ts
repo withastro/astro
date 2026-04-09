@@ -16,8 +16,8 @@ import { AstroIntegrationLogger, Logger } from '../logger/core.js';
 import { type CreateRenderContext, RenderContext } from '../render-context.js';
 import { ensure404Route } from '../routing/astro-designed-error-pages.js';
 import { Router } from '../routing/router.js';
-import type { AstroHonoEnv } from './hono-app.js';
 import type { AppPipeline } from './pipeline.js';
+import { renderOptionsStore } from './render-options-store.js';
 import type { SSRManifest } from './types.js';
 
 export interface DevMatch {
@@ -110,7 +110,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	baseWithoutTrailingSlash: string;
 	logger: Logger;
 	#router: Router;
-	#userApp: { fetch: (request: Request, env?: AstroHonoEnv['Bindings']) => Response | Promise<Response> } | undefined;
+	#userApp: { fetch: (request: Request) => Response | Promise<Response> } | undefined;
 	constructor(manifest: SSRManifest, streaming = true, ...args: any[]) {
 		this.manifest = manifest;
 		this.manifestData = { routes: manifest.routes.map((route) => route.routeData) };
@@ -129,7 +129,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 
 	public abstract isDev(): boolean;
 
-	setUserApp(userApp: { fetch: (request: Request, env?: AstroHonoEnv['Bindings']) => Response | Promise<Response> }): void {
+	setUserApp(userApp: { fetch: (request: Request) => Response | Promise<Response> }): void {
 		this.#userApp = userApp;
 	}
 
@@ -340,16 +340,18 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				logger: this.logger,
 			});
 		}
-		// Attach per-request options to the Request so the Hono pipeline can read them.
-		if (options.locals) {
-			Reflect.set(request, Symbol.for('astro.locals'), options.locals);
-		}
-		if (options.clientAddress) {
-			Reflect.set(request, Symbol.for('astro.clientAddress'), options.clientAddress);
-		}
-		return this.#userApp.fetch(request, {
-			addCookieHeader: options.addCookieHeader,
-		});
+		// Pass per-request render options into the Hono pipeline via AsyncLocalStorage.
+		// This avoids smuggling values on the Request object (which breaks when
+		// Requests are cloned for rewrites).
+		const userApp = this.#userApp;
+		return renderOptionsStore.run(
+			{
+				locals: options.locals,
+				clientAddress: options.clientAddress,
+				addCookieHeader: options.addCookieHeader,
+			},
+			() => userApp.fetch(request),
+		);
 	}
 
 
