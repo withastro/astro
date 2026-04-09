@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
+import { AstroLogger } from '../dist/core/logger/core.js';
 import { loadFixture } from './test-utils.js';
 
 describe('react-jsx-export', () => {
@@ -25,18 +26,19 @@ describe('react-jsx-export', () => {
 	const reactInvalidHookWarning =
 		'Warning: Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons';
 	before(async () => {
-		const logging = {
-			dest: {
+		const logger = new AstroLogger({
+			destination: {
 				write(chunk) {
 					logs.push(chunk);
+					return true;
 				},
 			},
 			level: 'warn',
-		};
+		});
 		fixture = await loadFixture({
 			root: './fixtures/react-jsx-export/',
 		});
-		await fixture.build({ logging });
+		await fixture.build({ logger });
 	});
 
 	it('Can load all JSX components', async () => {

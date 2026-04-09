@@ -58,7 +58,7 @@ import { EndpointRenderer } from './renderers/endpoint.js';
 import { RedirectRenderer } from './renderers/redirect.js';
 import { prepareForRender, renderErrorPage, type PrepareOptions } from './prepare.js';
 import type { Pipeline } from '../base-pipeline.js';
-import type { Logger } from '../logger/core.js';
+import type { AstroLogger } from '../logger/core.js';
 import type { RoutesList } from '../../types/astro.js';
 
 export { Hono };
@@ -71,7 +71,7 @@ export interface AstroAppDeps {
 	pipeline: Pipeline;
 	manifest: SSRManifest;
 	manifestData: RoutesList;
-	logger: Logger;
+	logger: AstroLogger;
 }
 
 /**

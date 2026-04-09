@@ -1,7 +1,7 @@
 import type { RouteData } from '../../../types/public/internal.js';
 import type { SSRManifest } from '../../../types/public/index.js';
 import type { Pipeline } from '../../base-pipeline.js';
-import type { Logger } from '../../logger/core.js';
+import type { AstroLogger } from '../../logger/core.js';
 import type { RoutesList } from '../../../types/astro.js';
 import { prepareForRender, type PrepareOptions } from '../prepare.js';
 import { createSSRResult } from '../ssr-result.js';
@@ -19,9 +19,9 @@ export class PageRenderer {
 	#pipeline: Pipeline;
 	#manifest: SSRManifest;
 	#getManifestData: () => RoutesList;
-	#logger: Logger;
+	#logger: AstroLogger;
 
-	constructor(pipeline: Pipeline, manifest: SSRManifest, getManifestData: () => RoutesList, logger: Logger) {
+	constructor(pipeline: Pipeline, manifest: SSRManifest, getManifestData: () => RoutesList, logger: AstroLogger) {
 		this.#pipeline = pipeline;
 		this.#manifest = manifest;
 		this.#getManifestData = getManifestData;

@@ -41,7 +41,7 @@ import astroPluginRoutes from '../vite-plugin-routes/index.js';
 import vitePluginStaticPaths from '../vite-plugin-static-paths/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
-import type { Logger } from './logger/core.js';
+import type { AstroLogger } from './logger/core.js';
 import { createViteLogger } from './logger/vite.js';
 import { vitePluginMiddleware } from './middleware/vite-plugin.js';
 import { joinPaths } from './path.js';
@@ -57,7 +57,7 @@ import { vitePluginAstroServerClient } from '../vite-plugin-overlay/index.js';
 
 type CreateViteOptions = {
 	settings: AstroSettings;
-	logger: Logger;
+	logger: AstroLogger;
 	mode: string;
 	fs?: typeof nodeFs;
 	routesList: RoutesList;

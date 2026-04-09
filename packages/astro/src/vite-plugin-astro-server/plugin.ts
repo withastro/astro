@@ -8,7 +8,7 @@ import type { SSRManifest } from '../core/app/types.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES, devPrerenderMiddlewareSymbol } from '../core/constants.js';
 import { getViteErrorPayload } from '../core/errors/dev/index.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import type { Logger } from '../core/logger/core.js';
+import type { AstroLogger } from '../core/logger/core.js';
 import { createViteLoader } from '../core/module-loader/index.js';
 import { matchAllRoutes } from '../core/routing/match.js';
 import { SERIALIZED_MANIFEST_ID } from '../manifest/serialized.js';
@@ -24,7 +24,7 @@ import { trailingSlashMiddleware } from './trailing-slash.js';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
-	logger: Logger;
+	logger: AstroLogger;
 }
 
 export default function createVitePluginAstroServer({

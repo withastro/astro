@@ -1,5 +1,5 @@
 import type { RouteData } from '../../../types/public/index.js';
-import type { Logger } from '../../logger/core.js';
+import type { AstroLogger } from '../../logger/core.js';
 import {
 	BaseApp,
 	type DevMatch,
@@ -14,13 +14,17 @@ import type { RoutesList } from '../../../types/astro.js';
 import { req } from '../../messages/runtime.js';
 
 export class DevApp extends BaseApp<NonRunnablePipeline> {
-	logger: Logger;
-	constructor(manifest: SSRManifest, streaming = true, logger: Logger) {
+	logger: AstroLogger;
+	constructor(manifest: SSRManifest, streaming = true, logger: AstroLogger) {
 		super(manifest, streaming, logger);
 		this.logger = logger;
 	}
 
-	createPipeline(streaming: boolean, manifest: SSRManifest, logger: Logger): NonRunnablePipeline {
+	createPipeline(
+		streaming: boolean,
+		manifest: SSRManifest,
+		logger: AstroLogger,
+	): NonRunnablePipeline {
 		return NonRunnablePipeline.create({
 			logger,
 			manifest,

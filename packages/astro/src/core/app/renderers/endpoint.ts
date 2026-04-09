@@ -1,6 +1,6 @@
 import type { RouteData } from '../../../types/public/internal.js';
 import type { Pipeline } from '../../base-pipeline.js';
-import type { Logger } from '../../logger/core.js';
+import type { AstroLogger } from '../../logger/core.js';
 import type { APIContext } from '../../../types/public/context.js';
 import { renderEndpoint } from '../../../runtime/server/endpoint.js';
 
@@ -10,9 +10,9 @@ import { renderEndpoint } from '../../../runtime/server/endpoint.js';
  */
 export class EndpointRenderer {
 	#pipeline: Pipeline;
-	#logger: Logger;
+	#logger: AstroLogger;
 
-	constructor(pipeline: Pipeline, logger: Logger) {
+	constructor(pipeline: Pipeline, logger: AstroLogger) {
 		this.#pipeline = pipeline;
 		this.#logger = logger;
 	}

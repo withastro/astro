@@ -22,7 +22,7 @@ import { type AstroSession, PERSIST_SYMBOL } from '../session/runtime.js';
 import { attachCookiesToResponse, getCookiesFromResponse } from '../cookies/response.js';
 import { AstroCookies } from '../cookies/index.js';
 import type { Pipeline } from '../base-pipeline.js';
-import type { Logger } from '../logger/core.js';
+import type { AstroLogger } from '../logger/core.js';
 import type { RoutesList } from '../../types/astro.js';
 import { createSSRResult } from './ssr-result.js';
 import { renderPage } from '../../runtime/server/render/page.js';
@@ -62,7 +62,7 @@ export async function prepareForRender(
 	pipeline: Pipeline,
 	manifest: SSRManifest,
 	manifestData: RoutesList,
-	logger: Logger,
+	logger: AstroLogger,
 	request: Request,
 	routeData: RouteData,
 	options: PrepareOptions,
@@ -215,7 +215,7 @@ async function renderErrorPage(
 	pipeline: Pipeline,
 	manifest: SSRManifest,
 	manifestData: RoutesList,
-	logger: Logger,
+	logger: AstroLogger,
 	request: Request,
 	options: RenderErrorOptions,
 ): Promise<Response> {

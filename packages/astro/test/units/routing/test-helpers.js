@@ -17,7 +17,7 @@ const spreadPart = (content) => ({ content, dynamic: true, spread: true });
  * @param {string | undefined} [options.component]
  * @param {boolean} [options.isIndex]
  * @param {boolean} [options.prerender]
- * @param {'project' | 'internal'} [options.origin]
+ * @param {'project' | 'internal' | 'external'} [options.origin]
  * @param {string[] | undefined} [options.params]
  */
 const makeRoute = ({

@@ -11,7 +11,7 @@ import { makeRequestBody } from '../core/app/node.js';
 import type { RouteInfo } from '../core/app/types.js';
 import { getViteErrorPayload } from '../core/errors/dev/index.js';
 import { createSafeError, type ErrorWithMetadata } from '../core/errors/index.js';
-import { Logger } from '../core/logger/core.js';
+import { AstroLogger } from '../core/logger/core.js';
 import { nodeLogDestination } from '../core/logger/node.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import type { AstroSettings, RoutesList } from '../types/astro.js';
@@ -67,12 +67,12 @@ export default async function createAstroServerApp(
 	_controller: DevServerController,
 	settings: AstroSettings,
 	loader: ModuleLoader,
-	logger?: Logger,
+	logger?: AstroLogger,
 ) {
 	const actualLogger =
 		logger ??
-		new Logger({
-			dest: nodeLogDestination,
+		new AstroLogger({
+			destination: nodeLogDestination,
 			level: settings.logLevel,
 		});
 

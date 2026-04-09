@@ -93,3 +93,9 @@ declare module 'astro:user-app' {
 	const app: Hono;
 	export default app;
 }
+
+declare module 'virtual:astro:get-image' {
+	export const getImage: (
+		options: import('./src/types/public/index.js').UnresolvedImageTransform,
+	) => Promise<import('./src/types/public/index.js').GetImageResult>;
+}
