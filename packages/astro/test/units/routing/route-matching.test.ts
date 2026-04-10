@@ -3,9 +3,12 @@ import { after, before, describe, it } from 'node:test';
 import { matchAllRoutes } from '../../../dist/core/routing/match.js';
 import { createRoutesList } from '../../../dist/core/routing/create-manifest.js';
 import { routeComparator } from '../../../dist/core/routing/priority.js';
-import { createBasicSettings, createFixture, defaultLogger } from '../test-utils.js';
+import type { RouteData } from '../../../dist/types/public/internal.js';
+import type { RoutesList } from '../../../dist/types/astro.js';
+import { createBasicSettings, createFixture, defaultLogger } from '../test-utils.ts';
+import type { FsFixture } from 'fs-fixture';
 
-const fileSystem = {
+const fileSystem: Record<string, string> = {
 	'/src/pages/[serverDynamic].astro': `
 		---
 		export const prerender = false;
@@ -116,7 +119,7 @@ const fileSystem = {
  * Sorts matched routes following the same logic as getSortedPreloadedMatches,
  * but without requiring a full pipeline/container.
  */
-function sortMatches(matches) {
+function sortMatches(matches: RouteData[]): RouteData[] {
 	return matches
 		.slice()
 		.sort((a, b) => routeComparator(a, b))
@@ -133,8 +136,8 @@ function sortMatches(matches) {
 }
 
 describe('Route matching', () => {
-	let fixture;
-	let manifestData;
+	let fixture: FsFixture;
+	let manifestData: RoutesList;
 
 	before(async () => {
 		fixture = await createFixture(fileSystem);
