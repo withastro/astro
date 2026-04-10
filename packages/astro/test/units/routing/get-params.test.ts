@@ -1,11 +1,10 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { getParams } from '../../../dist/core/render/params-and-props.js';
-import { dynamicPart, makeRoute, spreadPart, staticPart } from './test-helpers.js';
-import { createTestApp, createPage } from '../mocks.js';
+import { dynamicPart, makeRoute, spreadPart, staticPart } from './test-helpers.ts';
+import { createTestApp, createPage } from '../mocks.ts';
 
 describe('getParams', () => {
 	describe('basic dynamic routes', () => {
@@ -169,13 +168,13 @@ describe('getParams', () => {
 });
 
 describe('Params rendered via App', () => {
-	const paramPage = createComponent((result, props, slots) => {
+	const paramPage = createComponent((result: any, props: any, slots: any) => {
 		const Astro = result.createAstro(props, slots);
 		const { category } = Astro.params;
 		return render`<h2 class="category">${category}</h2>`;
 	});
 
-	function createParamApp(options = {}) {
+	function createParamApp(options: { base?: string } = {}) {
 		return createTestApp(
 			[
 				createPage(paramPage, {
