@@ -8,9 +8,12 @@ import {
 	runHookBuildSetup,
 	runHookConfigSetup,
 } from '../../../dist/integrations/hooks.js';
-import { defaultLogger } from '../test-utils.js';
+import { defaultLogger } from '../test-utils.ts';
 
-const defaultConfig = {
+import type { AstroConfig } from '../../../dist/types/public/config.js';
+import type { AstroSettings } from '../../../dist/types/astro.js';
+
+const defaultConfig: Record<string, unknown> = {
 	root: new URL('./', import.meta.url),
 	srcDir: new URL('src/', import.meta.url),
 	build: {},
@@ -21,7 +24,8 @@ const defaultConfig = {
 	publicDir: new URL('./public/', import.meta.url),
 	experimental: {},
 };
-const dotAstroDir = new URL('./.astro/', defaultConfig.root);
+
+const dotAstroDir = new URL('./.astro/', defaultConfig.root as URL);
 
 describe('Integration API', () => {
 	it('runHookBuildSetup should work', async () => {
@@ -32,7 +36,7 @@ describe('Integration API', () => {
 					{
 						name: 'test',
 						hooks: {
-							'astro:build:setup'({ updateConfig }) {
+							'astro:build:setup'({ updateConfig }: { updateConfig: (cfg: object) => object }) {
 								updateConfig({
 									define: {
 										foo: 'bar',
@@ -42,7 +46,7 @@ describe('Integration API', () => {
 						},
 					},
 				],
-			},
+			} as unknown as AstroConfig,
 			vite: {},
 			logger: defaultLogger,
 			pages: new Map(),
@@ -52,7 +56,7 @@ describe('Integration API', () => {
 	});
 
 	it('runHookBuildSetup should return updated config', async () => {
-		let updatedInternalConfig;
+		let updatedInternalConfig: unknown;
 		const updatedViteConfig = await runHookBuildSetup({
 			config: {
 				...defaultConfig,
@@ -60,7 +64,7 @@ describe('Integration API', () => {
 					{
 						name: 'test',
 						hooks: {
-							'astro:build:setup'({ updateConfig }) {
+							'astro:build:setup'({ updateConfig }: { updateConfig: (cfg: object) => object }) {
 								updatedInternalConfig = updateConfig({
 									define: {
 										foo: 'bar',
@@ -70,7 +74,7 @@ describe('Integration API', () => {
 						},
 					},
 				],
-			},
+			} as unknown as AstroConfig,
 			vite: {},
 			logger: defaultLogger,
 			pages: new Map(),
@@ -90,7 +94,11 @@ describe('Integration API', () => {
 						{
 							name: 'test',
 							hooks: {
-								'astro:config:setup': ({ updateConfig }) => {
+								'astro:config:setup': ({
+									updateConfig,
+								}: {
+									updateConfig: (cfg: object) => void;
+								}) => {
 									updateConfig({ site });
 								},
 							},
@@ -98,8 +106,8 @@ describe('Integration API', () => {
 					],
 				},
 				dotAstroDir,
-			},
-		});
+			} as unknown as AstroSettings,
+		} as Parameters<typeof runHookConfigSetup>[0]);
 		assert.equal(updatedSettings.config.site, site);
 	});
 
@@ -114,15 +122,22 @@ describe('Integration API', () => {
 						{
 							name: 'test',
 							hooks: {
-								'astro:config:setup': ({ updateConfig }) => {
+								'astro:config:setup': ({
+									updateConfig,
+								}: {
+									updateConfig: (cfg: object) => void;
+								}) => {
 									updateConfig({
 										integrations: [
 											{
 												name: 'dynamically-added',
 												hooks: {
-													// eslint-disable-next-line @typescript-eslint/no-shadow
-													'astro:config:setup': ({ updateConfig }) => {
-														updateConfig({ site });
+													'astro:config:setup': ({
+														updateConfig: innerUpdateConfig,
+													}: {
+														updateConfig: (cfg: object) => void;
+													}) => {
+														innerUpdateConfig({ site });
 													},
 												},
 											},
@@ -134,8 +149,8 @@ describe('Integration API', () => {
 					],
 				},
 				dotAstroDir,
-			},
-		});
+			} as unknown as AstroSettings,
+		} as Parameters<typeof runHookConfigSetup>[0]);
 		assert.equal(updatedSettings.config.site, site);
 		assert.equal(updatedSettings.config.integrations.length, 2);
 	});
@@ -143,41 +158,40 @@ describe('Integration API', () => {
 
 describe('Astro feature map', function () {
 	it('should support the feature when stable', () => {
-		let result = validateSupportedFeatures(
+		const result = validateSupportedFeatures(
 			'test',
 			{
 				hybridOutput: 'stable',
 			},
 			{
 				config: { output: 'static' },
-			},
-			{},
+			} as unknown as AstroSettings,
 			defaultLogger,
 		);
 		assert.equal(result['hybridOutput'], true);
 	});
 
 	it('should not support the feature when not provided', () => {
-		let result = validateSupportedFeatures(
+		const result = validateSupportedFeatures(
 			'test',
 			{},
 			{
 				buildOutput: 'server',
 				config: { output: 'static' },
-			},
+			} as unknown as AstroSettings,
 			defaultLogger,
 		);
 		assert.equal(result['hybridOutput'], false);
 	});
 
 	it('should not support the feature when an empty object is provided', () => {
-		let result = validateSupportedFeatures(
+		const result = validateSupportedFeatures(
 			'test',
 			{},
 			{
 				buildOutput: 'server',
 				config: { output: 'static' },
-			},
+			} as unknown as AstroSettings,
 			defaultLogger,
 		);
 		assert.equal(result['hybridOutput'], false);
@@ -185,25 +199,25 @@ describe('Astro feature map', function () {
 
 	describe('static output', function () {
 		it('should be supported with the correct config', () => {
-			let result = validateSupportedFeatures(
+			const result = validateSupportedFeatures(
 				'test',
 				{ staticOutput: 'stable' },
 				{
 					config: { output: 'static' },
-				},
+				} as unknown as AstroSettings,
 				defaultLogger,
 			);
 			assert.equal(result['staticOutput'], true);
 		});
 
 		it("should not be valid if the config is correct, but the it's unsupported", () => {
-			let result = validateSupportedFeatures(
+			const result = validateSupportedFeatures(
 				'test',
 				{ staticOutput: 'unsupported' },
 				{
 					buildOutput: 'static',
 					config: { output: 'static' },
-				},
+				} as unknown as AstroSettings,
 				defaultLogger,
 			);
 			assert.equal(result['staticOutput'], false);
@@ -211,19 +225,19 @@ describe('Astro feature map', function () {
 	});
 	describe('hybrid output', function () {
 		it('should be supported with the correct config', () => {
-			let result = validateSupportedFeatures(
+			const result = validateSupportedFeatures(
 				'test',
 				{ hybridOutput: 'stable' },
 				{
 					config: { output: 'static' },
-				},
+				} as unknown as AstroSettings,
 				defaultLogger,
 			);
 			assert.equal(result['hybridOutput'], true);
 		});
 
 		it("should not be valid if the config is correct, but the it's unsupported", () => {
-			let result = validateSupportedFeatures(
+			const result = validateSupportedFeatures(
 				'test',
 				{
 					hybridOutput: 'unsupported',
@@ -231,7 +245,7 @@ describe('Astro feature map', function () {
 				{
 					buildOutput: 'server',
 					config: { output: 'static' },
-				},
+				} as unknown as AstroSettings,
 				defaultLogger,
 			);
 			assert.equal(result['hybridOutput'], false);
@@ -239,26 +253,26 @@ describe('Astro feature map', function () {
 	});
 	describe('server output', function () {
 		it('should be supported with the correct config', () => {
-			let result = validateSupportedFeatures(
+			const result = validateSupportedFeatures(
 				'test',
 				{ serverOutput: 'stable' },
 				{
 					config: { output: 'server' },
-				},
+				} as unknown as AstroSettings,
 				defaultLogger,
 			);
 			assert.equal(result['serverOutput'], true);
 		});
 
 		it("should not be valid if the config is correct, but the it's unsupported", () => {
-			let result = validateSupportedFeatures(
+			const result = validateSupportedFeatures(
 				'test',
 				{
 					serverOutput: 'unsupported',
 				},
 				{
 					config: { output: 'server' },
-				},
+				} as unknown as AstroSettings,
 				defaultLogger,
 			);
 			assert.equal(result['serverOutput'], false);
