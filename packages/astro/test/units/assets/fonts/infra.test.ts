@@ -1,8 +1,8 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { defineFontProvider } from 'unifont';
+import type { InitializedProvider } from 'unifont';
 import { BuildFontFileIdGenerator } from '../../../../dist/assets/fonts/infra/build-font-file-id-generator.js';
 import { BuildUrlResolver } from '../../../../dist/assets/fonts/infra/build-url-resolver.js';
 import { CachedFontFetcher } from '../../../../dist/assets/fonts/infra/cached-font-fetcher.js';
@@ -19,7 +19,8 @@ import {
 } from '../../../../dist/assets/fonts/infra/minifiable-css-renderer.js';
 import { NodeFontTypeExtractor } from '../../../../dist/assets/fonts/infra/node-font-type-extractor.js';
 import { UnifontFontResolver } from '../../../../dist/assets/fonts/infra/unifont-font-resolver.js';
-import { FakeHasher, SpyStorage } from './utils.js';
+import type { FontProvider } from '../../../../dist/index.js';
+import { FakeHasher, SpyStorage } from './utils.ts';
 
 describe('fonts infra', () => {
 	describe('MinifiableCssRenderer', () => {
@@ -61,17 +62,11 @@ describe('fonts infra', () => {
 	});
 
 	describe('CachedFontFetcher', () => {
-		/**
-		 *
-		 * @param {{ ok: boolean }} param0
-		 */
-		function createReadFileMock({ ok }) {
-			/** @type {Array<string>} */
-			const filesUrls = [];
+		function createReadFileMock({ ok }: { ok: boolean }) {
+			const filesUrls: Array<string> = [];
 			return {
 				filesUrls,
-				/** @type {(url: string) => Promise<Buffer>} */
-				readFile: async (url) => {
+				readFile: async (url: string): Promise<Buffer> => {
 					filesUrls.push(url);
 					if (!ok) {
 						throw 'fs error';
@@ -81,24 +76,17 @@ describe('fonts infra', () => {
 			};
 		}
 
-		/**
-		 *
-		 * @param {{ ok: boolean }} param0
-		 */
-		function createFetchMock({ ok }) {
-			/** @type {Array<string>} */
-			const fetchUrls = [];
+		function createFetchMock({ ok }: { ok: boolean }) {
+			const fetchUrls: Array<string> = [];
 			return {
 				fetchUrls,
-				/** @type {(url: string) => Promise<Response>} */
-				fetch: async (url) => {
+				fetch: async (url: string): Promise<Response> => {
 					fetchUrls.push(url);
-					// @ts-expect-error
 					return {
 						ok,
 						status: ok ? 200 : 500,
-						arrayBuffer: async () => new ArrayBuffer(),
-					};
+						arrayBuffer: async () => new ArrayBuffer(0),
+					} as unknown as Response;
 				},
 			};
 		}
@@ -166,16 +154,19 @@ describe('fonts infra', () => {
 
 			let error = await fontFetcher
 				.fetch({ id: 'abc', url: '/foo/bar', init: undefined })
-				.catch((err) => err);
+				.catch((err: unknown) => err);
 			assert.equal(error instanceof Error, true);
-			assert.equal(error.cause, 'fs error');
+			assert.equal((error as Error).cause, 'fs error');
 
 			error = await fontFetcher
 				.fetch({ id: 'abc', url: 'https://example.com', init: undefined })
-				.catch((err) => err);
+				.catch((err: unknown) => err);
 			assert.equal(error instanceof Error, true);
-			assert.equal(error.cause instanceof Error, true);
-			assert.equal(error.cause.message.includes('Response was not successful'), true);
+			assert.equal((error as Error).cause instanceof Error, true);
+			assert.equal(
+				((error as Error).cause as Error).message.includes('Response was not successful'),
+				true,
+			);
 		});
 	});
 
@@ -219,8 +210,7 @@ describe('fonts infra', () => {
 	});
 
 	it('NodeFontTypeExtractor', () => {
-		/** @type {Array<[string, false | string]>} */
-		const data = [
+		const data: Array<[string, false | string]> = [
 			['', false],
 			['.', false],
 			['test.', false],
@@ -338,7 +328,7 @@ describe('fonts infra', () => {
 		const resolver = new BuildFontFileIdGenerator({
 			hasher: new FakeHasher(),
 			contentResolver: {
-				resolve: (url) => url,
+				resolve: (url: string) => url,
 			},
 		});
 		assert.equal(
@@ -361,7 +351,7 @@ describe('fonts infra', () => {
 		const resolver = new DevFontFileIdGenerator({
 			hasher: new FakeHasher(),
 			contentResolver: {
-				resolve: (url) => url,
+				resolve: (url: string) => url,
 			},
 		});
 		assert.equal(
@@ -421,12 +411,7 @@ describe('fonts infra', () => {
 	});
 
 	describe('UnifontFontResolver', () => {
-		/**
-		 * @param {string} name
-		 * @param {any} [config]
-		 * @returns {import('../../../../dist/index.js').FontProvider}
-		 * */
-		const createProvider = (name, config) => ({
+		const createProvider = (name: string, config?: Record<string, unknown>): FontProvider => ({
 			name,
 			config,
 			resolveFont: () => undefined,
@@ -597,11 +582,9 @@ describe('fonts infra', () => {
 						listFonts: () => ['a', 'b', 'c'],
 					};
 				});
-				/** @returns {import('../../../../dist/index.js').FontProvider} */
-				const astroProvider = () => {
+				const astroProvider = (): FontProvider => {
 					const provider = unifontProvider();
-					/** @type {import('unifont').InitializedProvider | undefined} */
-					let initializedProvider;
+					let initializedProvider: InitializedProvider | undefined;
 					return {
 						name: provider._name,
 						async init(context) {
