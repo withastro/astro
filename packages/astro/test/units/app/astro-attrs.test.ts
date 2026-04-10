@@ -1,4 +1,3 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { App } from '../../../dist/core/app/app.js';
@@ -10,7 +9,7 @@ import {
 	addAttribute,
 } from '../../../dist/runtime/server/index.js';
 import * as cheerio from 'cheerio';
-import { createManifest, createRouteInfo } from './test-helpers.js';
+import { createManifest, createRouteInfo } from './test-helpers.ts';
 
 const attributesRouteData = {
 	route: '/attributes',
@@ -20,11 +19,11 @@ const attributesRouteData = {
 	distURL: [],
 	pattern: /^\/attributes\/?$/,
 	segments: [[{ content: 'attributes', dynamic: false, spread: false }]],
-	type: 'page',
+	type: 'page' as const,
 	prerender: false,
 	fallbackRoutes: [],
 	isIndex: false,
-	origin: 'project',
+	origin: 'project' as const,
 };
 
 const attributesNamespacedRouteData = {
@@ -35,11 +34,11 @@ const attributesNamespacedRouteData = {
 	distURL: [],
 	pattern: /^\/namespaced\/?$/,
 	segments: [[{ content: 'namespaced', dynamic: false, spread: false }]],
-	type: 'page',
+	type: 'page' as const,
 	prerender: false,
 	fallbackRoutes: [],
 	isIndex: false,
-	origin: 'project',
+	origin: 'project' as const,
 };
 
 const attributesNamespacedComponentRouteData = {
@@ -50,11 +49,11 @@ const attributesNamespacedComponentRouteData = {
 	distURL: [],
 	pattern: /^\/namespaced-component\/?$/,
 	segments: [[{ content: 'namespaced-component', dynamic: false, spread: false }]],
-	type: 'page',
+	type: 'page' as const,
 	prerender: false,
 	fallbackRoutes: [],
 	isIndex: false,
-	origin: 'project',
+	origin: 'project' as const,
 };
 
 const attributesPage = createComponent(() => {
@@ -120,7 +119,7 @@ const attributesNamespacedPage = createComponent(() => {
   `;
 });
 
-const namespacedSpanComponent = createComponent((result, props, slots) => {
+const namespacedSpanComponent = createComponent((result: any, props: any, slots: any) => {
 	const Astro = result.createAstro(props, slots);
 
 	return render`
@@ -128,10 +127,12 @@ const namespacedSpanComponent = createComponent((result, props, slots) => {
   `;
 });
 
-const attributesNamespacedComponentPage = createComponent((result) => {
-	return render`${renderComponent(result, 'NamespacedSpan', namespacedSpanComponent, {
+const attributesNamespacedComponentPage = createComponent((result: any) => {
+	const onClick: (e: unknown) => void =
 		// biome-ignore lint/suspicious/noConsole: allowed
-		'on:click': /** @type {(e: unknown) => void} */ (event) => console.log(event),
+		(event) => console.log(event);
+	return render`${renderComponent(result, 'NamespacedSpan', namespacedSpanComponent, {
+		'on:click': onClick,
 	})}`;
 });
 
@@ -164,15 +165,19 @@ const pageMap = new Map([
 
 const app = new App(
 	createManifest({
-		// @ts-expect-error routes prop is not yet type-defined
 		routes: [
 			createRouteInfo(attributesRouteData),
 			createRouteInfo(attributesNamespacedRouteData),
 			createRouteInfo(attributesNamespacedComponentRouteData),
 		],
-		pageMap,
-	}),
+		pageMap: pageMap as any,
+	}) as any,
 );
+
+interface TestAttribute {
+	attribute: string;
+	value: string | undefined;
+}
 
 describe('Attributes', async () => {
 	it('Passes attributes to elements as expected', async () => {
@@ -181,14 +186,7 @@ describe('Attributes', async () => {
 		const html = await response.text();
 		const $ = cheerio.load(html);
 
-		/**
-		 * @typedef {Object} TestAttribute
-		 * @property {string} attribute
-		 * @property {string | undefined} value
-		 */
-
-		/** @type {Record<string, TestAttribute>} */
-		const attrs = {
+		const attrs: Record<string, TestAttribute> = {
 			'download-true': { attribute: 'download', value: '' },
 			'download-false': { attribute: 'download', value: undefined },
 			'download-undefined': { attribute: 'download', value: undefined },
