@@ -1,29 +1,36 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { App } from '../../../dist/core/app/app.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
-import { createRouteData } from '../mocks.js';
-import { createManifest } from '../app/test-helpers.js';
+import { createRouteData } from '../mocks.ts';
+import { createManifest } from '../app/test-helpers.ts';
+
+import type { MiddlewareHandler } from 'astro';
+import type { RouteData } from '../../../dist/types/public/internal.js';
 
 /**
  * Helper: creates an App with the given middleware and routes.
- * @param {object} opts
- * @param {import('astro').MiddlewareHandler} opts.onRequest - The middleware handler
- * @param {Array<{ routeData: any; component?: any }>} opts.routes - Route definitions
- * @param {Map} opts.pageMap - Component map
- * @param {string} [opts.base]
  */
-function createAppWithMiddleware({ onRequest, routes, pageMap, base }) {
+function createAppWithMiddleware({
+	onRequest,
+	routes,
+	pageMap,
+	base,
+}: {
+	onRequest: MiddlewareHandler;
+	routes: Array<{ routeData: RouteData; component?: unknown }>;
+	pageMap: Map<string, () => Promise<Record<string, unknown>>>;
+	base?: string;
+}): App {
 	const manifest = createManifest({
-		routes: routes.map((r) => ({ routeData: r.routeData })),
-		pageMap,
+		routes: routes.map((r) => ({ routeData: r.routeData })) as any,
+		pageMap: pageMap as any,
 		base,
 	});
 	// Override the middleware field — createManifest sets it to undefined,
 	// but the pipeline reads it from manifest.middleware
-	manifest.middleware = () => ({ onRequest });
-	return new App(manifest);
+	(manifest as any).middleware = () => ({ onRequest });
+	return new App(manifest as any);
 }
 
 // ----- Shared route data -----
@@ -46,17 +53,17 @@ const spacesRouteData = createRouteData({
 // ----- Shared page components -----
 
 const simplePage = (localKey = 'name') =>
-	createComponent((result, props, slots) => {
+	createComponent((result: any, props: any, slots: any) => {
 		const Astro = result.createAstro(props, slots);
 		return render`<p>${Astro.locals[localKey]}</p>`;
 	});
 
-const notFoundPage = createComponent((result, props, slots) => {
+const notFoundPage = createComponent((result: any, props: any, slots: any) => {
 	const Astro = result.createAstro(props, slots);
 	return render`<html><head><title>Error</title></head><body><p>${Astro.locals.name}</p></body></html>`;
 });
 
-const serverErrorPage = createComponent((result, props, slots) => {
+const serverErrorPage = createComponent((result: any, props: any, slots: any) => {
 	const Astro = result.createAstro(props, slots);
 	return render`<html><head><title>500</title></head><body><p>${Astro.locals.name}</p></body></html>`;
 });
@@ -65,7 +72,7 @@ const throwingPage = createComponent(() => {
 	throw new Error('page threw an error');
 });
 
-const cookiePage = createComponent((result, props, slots) => {
+const cookiePage = createComponent((result: any, props: any, slots: any) => {
 	const Astro = result.createAstro(props, slots);
 	Astro.cookies.set('from-component', 'component-value');
 	return render`<p>cookies</p>`;
@@ -76,8 +83,8 @@ const cookiePage = createComponent((result, props, slots) => {
 describe('Middleware via App.render()', () => {
 	describe('locals', () => {
 		it('should render locals data set by middleware', async () => {
-			const onRequest = async (ctx, next) => {
-				ctx.locals.name = 'bar';
+			const onRequest: MiddlewareHandler = async (ctx, next) => {
+				(ctx.locals as Record<string, unknown>).name = 'bar';
 				return next();
 			};
 			const pageMap = new Map([
@@ -96,11 +103,11 @@ describe('Middleware via App.render()', () => {
 		});
 
 		it('should change locals data based on URL', async () => {
-			const onRequest = async (ctx, next) => {
+			const onRequest: MiddlewareHandler = async (ctx, next) => {
 				if (ctx.url.pathname === '/lorem') {
-					ctx.locals.name = 'ipsum';
+					(ctx.locals as Record<string, unknown>).name = 'ipsum';
 				} else {
-					ctx.locals.name = 'bar';
+					(ctx.locals as Record<string, unknown>).name = 'bar';
 				}
 				return next();
 			};
@@ -126,17 +133,17 @@ describe('Middleware via App.render()', () => {
 	describe('sequence', () => {
 		it('should call a second middleware in a sequence via manifest', async () => {
 			// We test sequence by making the manifest middleware itself a sequence.
-			// sequence() is already tested in sequence.test.js; here we verify it works
+			// sequence() is already tested in sequence.test.ts; here we verify it works
 			// when wired through the App pipeline.
 			const { sequence } = await import('../../../dist/core/middleware/sequence.js');
 
-			const first = async (ctx, next) => {
-				ctx.locals.name = 'first';
+			const first: MiddlewareHandler = async (ctx, next) => {
+				(ctx.locals as Record<string, unknown>).name = 'first';
 				return next();
 			};
-			const second = async (ctx, next) => {
+			const second: MiddlewareHandler = async (ctx, next) => {
 				if (ctx.url.pathname === '/second') {
-					ctx.locals.name = 'second';
+					(ctx.locals as Record<string, unknown>).name = 'second';
 				}
 				return next();
 			};
@@ -162,7 +169,7 @@ describe('Middleware via App.render()', () => {
 
 	describe('short-circuit responses', () => {
 		it('should successfully create a new response bypassing the page', async () => {
-			const onRequest = async (ctx, next) => {
+			const onRequest: MiddlewareHandler = async (ctx, next) => {
 				if (ctx.url.pathname === '/rewrite') {
 					return new Response('<span>New content!!</span>', { status: 200 });
 				}
@@ -187,7 +194,7 @@ describe('Middleware via App.render()', () => {
 		});
 
 		it('should return a new response that is a 500', async () => {
-			const onRequest = async (ctx, next) => {
+			const onRequest: MiddlewareHandler = async (ctx, next) => {
 				if (ctx.url.pathname === '/broken-500') {
 					return new Response(null, { status: 500 });
 				}
@@ -210,7 +217,7 @@ describe('Middleware via App.render()', () => {
 		});
 
 		it('should return 200 if middleware returns a 200 Response for a non-existent route', async () => {
-			const onRequest = async (ctx, next) => {
+			const onRequest: MiddlewareHandler = async (ctx, next) => {
 				if (ctx.url.pathname === '/no-route-but-200') {
 					return new Response("It's OK!", { status: 200 });
 				}
@@ -238,7 +245,7 @@ describe('Middleware via App.render()', () => {
 
 	describe('pass-through middleware', () => {
 		it('should render the page normally if middleware only calls next()', async () => {
-			const onRequest = async (_ctx, next) => {
+			const onRequest: MiddlewareHandler = async (_ctx, next) => {
 				return next();
 			};
 			const pageMap = new Map([
@@ -262,8 +269,8 @@ describe('Middleware via App.render()', () => {
 
 	describe('error handling', () => {
 		it('should throw when middleware returns undefined without calling next()', async () => {
-			const onRequest = async () => {
-				return undefined;
+			const onRequest: MiddlewareHandler = async () => {
+				return undefined as unknown as Response;
 			};
 			const pageMap = new Map([
 				[indexRouteData.component, async () => ({ page: async () => ({ default: simplePage() }) })],
@@ -280,7 +287,7 @@ describe('Middleware via App.render()', () => {
 		});
 
 		it('should render 500.astro when middleware throws an error', async () => {
-			const onRequest = async (ctx, next) => {
+			const onRequest: MiddlewareHandler = async (ctx, next) => {
 				if (ctx.url.pathname === '/throw') {
 					throw new Error('middleware error');
 				}
@@ -307,7 +314,7 @@ describe('Middleware via App.render()', () => {
 
 	describe('redirect', () => {
 		it('should successfully redirect to another page', async () => {
-			const onRequest = async (ctx, next) => {
+			const onRequest: MiddlewareHandler = async (ctx, next) => {
 				if (ctx.url.pathname === '/redirect') {
 					return ctx.redirect('/', 302);
 				}
@@ -334,7 +341,7 @@ describe('Middleware via App.render()', () => {
 
 	describe('cookies', () => {
 		it('should allow middleware to set cookies', async () => {
-			const onRequest = async (ctx, next) => {
+			const onRequest: MiddlewareHandler = async (ctx, next) => {
 				ctx.cookies.set('foo', 'bar');
 				return next();
 			};
@@ -358,7 +365,7 @@ describe('Middleware via App.render()', () => {
 		});
 
 		it('should forward cookies set in a component when middleware returns a new response', async () => {
-			const onRequest = async (_ctx, next) => {
+			const onRequest: MiddlewareHandler = async (_ctx, next) => {
 				const response = await next();
 				const html = await response.text();
 				return new Response(html, { status: 200, headers: response.headers });
@@ -384,7 +391,7 @@ describe('Middleware via App.render()', () => {
 
 	describe('response modification', () => {
 		it('should be able to clone the response and modify it', async () => {
-			const onRequest = async (_ctx, next) => {
+			const onRequest: MiddlewareHandler = async (_ctx, next) => {
 				const response = await next();
 				const cloned = response.clone();
 				const html = await cloned.text();
@@ -413,7 +420,7 @@ describe('Middleware via App.render()', () => {
 
 	describe('API endpoints', () => {
 		it('should correctly work for API endpoints that return a Response object', async () => {
-			const onRequest = async (_ctx, next) => {
+			const onRequest: MiddlewareHandler = async (_ctx, next) => {
 				return next();
 			};
 			const pageMap = new Map([
@@ -444,7 +451,7 @@ describe('Middleware via App.render()', () => {
 		});
 
 		it('should correctly manipulate the response coming from API endpoints', async () => {
-			const onRequest = async (ctx, next) => {
+			const onRequest: MiddlewareHandler = async (ctx, next) => {
 				if (ctx.url.pathname === '/api/endpoint') {
 					const response = await next();
 					const data = await response.json();
@@ -484,8 +491,8 @@ describe('Middleware via App.render()', () => {
 
 	describe('404 handling', () => {
 		it('should correctly call middleware for 404 routes', async () => {
-			const onRequest = async (ctx, next) => {
-				ctx.locals.name = 'bar';
+			const onRequest: MiddlewareHandler = async (ctx, next) => {
+				(ctx.locals as Record<string, unknown>).name = 'bar';
 				return next();
 			};
 			const pageMap = new Map([
@@ -513,7 +520,7 @@ describe('Middleware via App.render()', () => {
 		/**
 		 * Auth middleware that protects /admin
 		 */
-		const authMiddleware = async (ctx, next) => {
+		const authMiddleware: MiddlewareHandler = async (ctx, next) => {
 			if (ctx.url.pathname === '/admin') {
 				const authToken = ctx.request.headers.get('Authorization');
 				if (!authToken) {
@@ -523,7 +530,7 @@ describe('Middleware via App.render()', () => {
 			return next();
 		};
 
-		function createAuthApp() {
+		function createAuthApp(): App {
 			const page = simplePage();
 			const pageMap = new Map([
 				[adminRouteData.component, async () => ({ page: async () => ({ default: page }) })],
@@ -565,7 +572,7 @@ describe('Middleware via App.render()', () => {
 		});
 
 		it('should handle requests with spaces in path correctly', async () => {
-			const onRequest = async (_ctx, next) => {
+			const onRequest: MiddlewareHandler = async (_ctx, next) => {
 				return next();
 			};
 			const spacesPage = createComponent(() => {
@@ -589,7 +596,7 @@ describe('Middleware via App.render()', () => {
 	describe('cookies on error pages', () => {
 		it('should preserve cookies set by middleware when returning Response(null, { status: 404 })', async () => {
 			// Middleware sets a cookie and returns 404 with null body (common auth guard pattern)
-			const onRequest = async (ctx, next) => {
+			const onRequest: MiddlewareHandler = async (ctx, next) => {
 				ctx.cookies.set('session', 'abc123', { path: '/' });
 				if (ctx.url.pathname.startsWith('/api/guarded')) {
 					return new Response(null, { status: 404 });
@@ -599,13 +606,13 @@ describe('Middleware via App.render()', () => {
 
 			const guardedRouteData = createRouteData({
 				route: '/api/guarded/[...path]',
-				pathname: undefined,
-				segments: undefined,
+				pathname: undefined as unknown as string,
+				segments: undefined as unknown as undefined,
 			});
 			// Override for spread route
-			guardedRouteData.params = ['...path'];
+			(guardedRouteData as any).params = ['...path'];
 			guardedRouteData.pattern = /^\/api\/guarded(?:\/(.*))?$/;
-			guardedRouteData.pathname = undefined;
+			(guardedRouteData as any).pathname = undefined;
 			guardedRouteData.segments = [
 				[{ content: 'api', dynamic: false, spread: false }],
 				[{ content: 'guarded', dynamic: false, spread: false }],
@@ -643,7 +650,7 @@ describe('Middleware via App.render()', () => {
 		});
 
 		it('should preserve cookies set by middleware when returning Response(null, { status: 500 })', async () => {
-			const onRequest = async (ctx, next) => {
+			const onRequest: MiddlewareHandler = async (ctx, next) => {
 				ctx.cookies.set('csrf', 'token456', { path: '/' });
 				if (ctx.url.pathname.startsWith('/api/error')) {
 					return new Response(null, { status: 500 });
@@ -653,12 +660,12 @@ describe('Middleware via App.render()', () => {
 
 			const errorRouteData = createRouteData({
 				route: '/api/error/[...path]',
-				pathname: undefined,
-				segments: undefined,
+				pathname: undefined as unknown as string,
+				segments: undefined as unknown as undefined,
 			});
-			errorRouteData.params = ['...path'];
+			(errorRouteData as any).params = ['...path'];
 			errorRouteData.pattern = /^\/api\/error(?:\/(.*))?$/;
-			errorRouteData.pathname = undefined;
+			(errorRouteData as any).pathname = undefined;
 			errorRouteData.segments = [
 				[{ content: 'api', dynamic: false, spread: false }],
 				[{ content: 'error', dynamic: false, spread: false }],
@@ -696,7 +703,7 @@ describe('Middleware via App.render()', () => {
 		});
 
 		it('should preserve multiple cookies from sequenced middleware during error page rerouting', async () => {
-			const onRequest = async (ctx, next) => {
+			const onRequest: MiddlewareHandler = async (ctx, next) => {
 				ctx.cookies.set('session', 'abc123', { path: '/' });
 				ctx.cookies.set('csrf', 'token456', { path: '/' });
 				if (ctx.url.pathname.startsWith('/api/guarded')) {
@@ -708,12 +715,12 @@ describe('Middleware via App.render()', () => {
 
 			const guardedRouteData = createRouteData({
 				route: '/api/guarded/[...path]',
-				pathname: undefined,
-				segments: undefined,
+				pathname: undefined as unknown as string,
+				segments: undefined as unknown as undefined,
 			});
-			guardedRouteData.params = ['...path'];
+			(guardedRouteData as any).params = ['...path'];
 			guardedRouteData.pattern = /^\/api\/guarded(?:\/(.*))?$/;
-			guardedRouteData.pathname = undefined;
+			(guardedRouteData as any).pathname = undefined;
 			guardedRouteData.segments = [
 				[{ content: 'api', dynamic: false, spread: false }],
 				[{ content: 'guarded', dynamic: false, spread: false }],
@@ -767,7 +774,7 @@ describe('Middleware via App.render()', () => {
 			// Middleware calls next(), then decides to return 404 with a stale Content-Length header.
 			// On re-render for the error page, middleware passes the response through unchanged.
 			let callCount = 0;
-			const onRequest = async (ctx, next) => {
+			const onRequest: MiddlewareHandler = async (ctx, next) => {
 				callCount++;
 				const response = await next();
 				if (callCount === 1 && ctx.url.pathname.startsWith('/api/guarded')) {
@@ -781,12 +788,12 @@ describe('Middleware via App.render()', () => {
 
 			const guardedRouteData = createRouteData({
 				route: '/api/guarded/[...path]',
-				pathname: undefined,
-				segments: undefined,
+				pathname: undefined as unknown as string,
+				segments: undefined as unknown as undefined,
 			});
-			guardedRouteData.params = ['...path'];
+			(guardedRouteData as any).params = ['...path'];
 			guardedRouteData.pattern = /^\/api\/guarded(?:\/(.*))?$/;
-			guardedRouteData.pathname = undefined;
+			(guardedRouteData as any).pathname = undefined;
 			guardedRouteData.segments = [
 				[{ content: 'api', dynamic: false, spread: false }],
 				[{ content: 'guarded', dynamic: false, spread: false }],
@@ -828,7 +835,7 @@ describe('Middleware via App.render()', () => {
 
 		it('should not preserve Transfer-Encoding from middleware when rendering 500 error page', async () => {
 			let callCount = 0;
-			const onRequest = async (ctx, next) => {
+			const onRequest: MiddlewareHandler = async (ctx, next) => {
 				callCount++;
 				const response = await next();
 				if (callCount === 1 && ctx.url.pathname.startsWith('/api/error')) {
@@ -842,12 +849,12 @@ describe('Middleware via App.render()', () => {
 
 			const errorRouteData = createRouteData({
 				route: '/api/error/[...path]',
-				pathname: undefined,
-				segments: undefined,
+				pathname: undefined as unknown as string,
+				segments: undefined as unknown as undefined,
 			});
-			errorRouteData.params = ['...path'];
+			(errorRouteData as any).params = ['...path'];
 			errorRouteData.pattern = /^\/api\/error(?:\/(.*))?$/;
-			errorRouteData.pathname = undefined;
+			(errorRouteData as any).pathname = undefined;
 			errorRouteData.segments = [
 				[{ content: 'api', dynamic: false, spread: false }],
 				[{ content: 'error', dynamic: false, spread: false }],
@@ -890,7 +897,7 @@ describe('Middleware via App.render()', () => {
 
 	describe('middleware with custom headers', () => {
 		it('should correctly set custom headers in middleware', async () => {
-			const onRequest = async (_ctx, next) => {
+			const onRequest: MiddlewareHandler = async (_ctx, next) => {
 				const response = await next();
 				response.headers.set('X-Custom-Header', 'custom-value');
 				return response;
