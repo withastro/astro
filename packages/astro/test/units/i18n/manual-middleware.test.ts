@@ -1,8 +1,9 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { requestHasLocale, redirectToDefaultLocale, notFound } from '../../../dist/i18n/index.js';
-import { createManualRoutingContext, createMiddlewarePayload } from './test-helpers.js';
-import { createMockNext } from '../test-utils.js';
+import type { Locales } from '../../../dist/types/public/config.js';
+import { createManualRoutingContext, createMiddlewarePayload } from './test-helpers.ts';
+import { createMockNext } from '../test-utils.ts';
 
 describe('Custom Middleware with Allowlist Pattern', () => {
 	describe('allowlist bypasses i18n routing', () => {
@@ -12,13 +13,13 @@ describe('Custom Middleware with Allowlist Pattern', () => {
 			const next = createMockNext(new Response('Help page'));
 
 			// Middleware logic: if allowlist matches, call next()
-			let response;
+			let response: Response | undefined;
 			if (allowList.has(context.url.pathname)) {
 				response = await next();
 			}
 
 			assert.ok(next.called);
-			assert.equal(await response.text(), 'Help page');
+			assert.equal(await response!.text(), 'Help page');
 		});
 
 		it('should allow /about if in allowlist', async () => {
@@ -26,13 +27,13 @@ describe('Custom Middleware with Allowlist Pattern', () => {
 			const context = createManualRoutingContext({ pathname: '/about' });
 			const next = createMockNext(new Response('About page'));
 
-			let response;
+			let response: Response | undefined;
 			if (allowList.has(context.url.pathname)) {
 				response = await next();
 			}
 
 			assert.ok(next.called);
-			assert.equal(await response.text(), 'About page');
+			assert.equal(await response!.text(), 'About page');
 		});
 
 		it('should not call next() for non-allowlisted paths', async () => {
@@ -40,7 +41,7 @@ describe('Custom Middleware with Allowlist Pattern', () => {
 			const context = createManualRoutingContext({ pathname: '/blog' });
 			const next = createMockNext();
 
-			let response = null;
+			let response: Response | null = null;
 			if (!allowList.has(context.url.pathname)) {
 				// Path not in allowlist, don't call next
 				response = new Response(null, { status: 404 });
@@ -54,27 +55,27 @@ describe('Custom Middleware with Allowlist Pattern', () => {
 
 	describe('paths with locales proceed to next()', () => {
 		it('should call next() when requestHasLocale returns true', async () => {
-			const locales = ['en', 'es'];
+			const locales: Locales = ['en', 'es'];
 			const hasLocale = requestHasLocale(locales);
 			const context = createManualRoutingContext({ pathname: '/en/blog' });
 			const next = createMockNext(new Response('Blog page'));
 
-			let response;
+			let response: Response | undefined;
 			if (hasLocale(context)) {
 				response = await next();
 			}
 
 			assert.ok(next.called);
-			assert.equal(await response.text(), 'Blog page');
+			assert.equal(await response!.text(), 'Blog page');
 		});
 
 		it('should call next() for /spanish with locale object', async () => {
-			const locales = ['en', { path: 'spanish', codes: ['es'] }];
+			const locales: Locales = ['en', { path: 'spanish', codes: ['es'] }];
 			const hasLocale = requestHasLocale(locales);
 			const context = createManualRoutingContext({ pathname: '/spanish' });
 			const next = createMockNext(new Response('Spanish page'));
 
-			let response = null;
+			let response: Response | null = null;
 			if (hasLocale(context)) {
 				response = await next();
 			}
@@ -84,12 +85,12 @@ describe('Custom Middleware with Allowlist Pattern', () => {
 		});
 
 		it('should not call next() for paths without locale', async () => {
-			const locales = ['en', 'es'];
+			const locales: Locales = ['en', 'es'];
 			const hasLocale = requestHasLocale(locales);
 			const context = createManualRoutingContext({ pathname: '/blog' });
 			const next = createMockNext();
 
-			let response = null;
+			let response: Response | null = null;
 			if (hasLocale(context)) {
 				response = await next();
 			} else {
@@ -109,7 +110,7 @@ describe('Custom Middleware with Allowlist Pattern', () => {
 			const context = createManualRoutingContext({ pathname: '/' });
 			const next = createMockNext();
 
-			let response;
+			let response: Response;
 			if (context.url.pathname === '/') {
 				response = redirect(context);
 			} else {
@@ -134,12 +135,12 @@ describe('Custom Middleware with Allowlist Pattern', () => {
 
 	describe('unknown paths return 404', () => {
 		it('should return 404 for unknown paths without calling next()', async () => {
-			const locales = ['en', 'es'];
+			const locales: Locales = ['en', 'es'];
 			const hasLocale = requestHasLocale(locales);
 			const context = createManualRoutingContext({ pathname: '/unknown' });
 			const next = createMockNext();
 
-			let response = null;
+			let response: Response | null = null;
 			if (hasLocale(context)) {
 				response = await next();
 			} else if (context.url.pathname !== '/') {
@@ -152,11 +153,11 @@ describe('Custom Middleware with Allowlist Pattern', () => {
 		});
 
 		it('should return 404 for /blog without locale', async () => {
-			const locales = ['en', 'es'];
+			const locales: Locales = ['en', 'es'];
 			const hasLocale = requestHasLocale(locales);
 			const context = createManualRoutingContext({ pathname: '/blog' });
 
-			let response = null;
+			let response: Response | null = null;
 			if (!hasLocale(context) && context.url.pathname !== '/') {
 				response = new Response(null, { status: 404 });
 			}
@@ -173,7 +174,7 @@ describe('Custom Middleware with Allowlist Pattern', () => {
 			const context = createManualRoutingContext({ pathname: '/redirect-me' });
 
 			// Middleware logic from fixture
-			let response = null;
+			let response: Response | null = null;
 			if (context.url.pathname === '/' || context.url.pathname === '/redirect-me') {
 				response = redirect(context);
 			}
@@ -189,13 +190,13 @@ describe('Middleware Flow Control', () => {
 	describe('decision tree execution order', () => {
 		it('should check allowlist first, then locale, then root, then 404', async () => {
 			const allowList = new Set(['/help']);
-			const locales = ['en', 'es'];
+			const locales: Locales = ['en', 'es'];
 			const hasLocale = requestHasLocale(locales);
 			const payload = createMiddlewarePayload({ defaultLocale: 'en' });
 			const redirect = redirectToDefaultLocale(payload);
 
 			// Test function that mimics the middleware from fixture
-			async function middleware(pathname) {
+			async function middleware(pathname: string) {
 				const context = createManualRoutingContext({ pathname });
 				const next = createMockNext(new Response('Page content'));
 
@@ -240,13 +241,13 @@ describe('Middleware Flow Control', () => {
 
 		it('should short-circuit on allowlist match', async () => {
 			const allowList = new Set(['/help']);
-			const locales = ['en', 'es'];
+			const locales: Locales = ['en', 'es'];
 			const hasLocale = requestHasLocale(locales);
 			const context = createManualRoutingContext({ pathname: '/help' });
 			const next = createMockNext(new Response('Help page'));
 
 			// Middleware should return immediately after allowlist check
-			let response = null;
+			let response: Response | null = null;
 			if (allowList.has(context.url.pathname)) {
 				response = await next();
 			} else if (hasLocale(context)) {
@@ -259,12 +260,12 @@ describe('Middleware Flow Control', () => {
 		});
 
 		it('should short-circuit on locale match', async () => {
-			const locales = ['en', 'es'];
+			const locales: Locales = ['en', 'es'];
 			const hasLocale = requestHasLocale(locales);
 			const context = createManualRoutingContext({ pathname: '/en/blog' });
 			const next = createMockNext(new Response('Blog'));
 
-			let response = null;
+			let response: Response | null = null;
 			if (hasLocale(context)) {
 				response = await next();
 			} else if (context.url.pathname === '/') {
@@ -286,7 +287,7 @@ describe('Middleware Flow Control', () => {
 			let executedNext = false;
 			let executedOther = false;
 
-			let response = null;
+			let response: Response | null = null;
 			if (allowList.has(context.url.pathname)) {
 				executedNext = true;
 				response = await next();
@@ -306,7 +307,7 @@ describe('Middleware Flow Control', () => {
 			const context = createManualRoutingContext({ pathname: '/' });
 			const next = createMockNext();
 
-			let response;
+			let response: Response;
 			if (context.url.pathname === '/') {
 				response = redirect(context);
 				// Should return here, not call next()
@@ -319,12 +320,12 @@ describe('Middleware Flow Control', () => {
 		});
 
 		it('should not call next() when returning 404', async () => {
-			const locales = ['en', 'es'];
+			const locales: Locales = ['en', 'es'];
 			const hasLocale = requestHasLocale(locales);
 			const context = createManualRoutingContext({ pathname: '/unknown' });
 			const next = createMockNext();
 
-			let response = null;
+			let response: Response | null = null;
 			if (hasLocale(context)) {
 				response = await next();
 			} else {
@@ -340,7 +341,7 @@ describe('Middleware Flow Control', () => {
 
 	describe('response propagation', () => {
 		it('should propagate response from next() when locale found', async () => {
-			const locales = ['en', 'es'];
+			const locales: Locales = ['en', 'es'];
 			const hasLocale = requestHasLocale(locales);
 			const context = createManualRoutingContext({ pathname: '/en/blog' });
 			const expectedResponse = new Response('Blog content', {
@@ -349,13 +350,13 @@ describe('Middleware Flow Control', () => {
 			});
 			const next = createMockNext(expectedResponse);
 
-			let response;
+			let response: Response | undefined;
 			if (hasLocale(context)) {
 				response = await next();
 			}
 
 			assert.equal(response, expectedResponse);
-			assert.equal(response.headers.get('X-Custom'), 'value');
+			assert.equal(response!.headers.get('X-Custom'), 'value');
 		});
 
 		it('should propagate custom response from allowlist route', async () => {
@@ -366,13 +367,13 @@ describe('Middleware Flow Control', () => {
 			});
 			const next = createMockNext(healthResponse);
 
-			let response;
+			let response: Response | undefined;
 			if (allowList.has(context.url.pathname)) {
 				response = await next();
 			}
 
-			assert.equal(response.headers.get('Content-Type'), 'application/json');
-			assert.equal(await response.text(), JSON.stringify({ status: 'ok' }));
+			assert.equal(response!.headers.get('Content-Type'), 'application/json');
+			assert.equal(await response!.text(), JSON.stringify({ status: 'ok' }));
 		});
 	});
 });
@@ -382,9 +383,9 @@ describe('Complete Middleware Scenarios', () => {
 		/**
 		 * This replicates the exact middleware from the i18n-routing-manual fixture
 		 */
-		async function fixtureMiddleware(pathname) {
+		async function fixtureMiddleware(pathname: string): Promise<Response> {
 			const allowList = new Set(['/help', '/help/']);
-			const locales = ['en', 'pt', 'it', { path: 'spanish', codes: ['es', 'es-ar'] }];
+			const locales: Locales = ['en', 'pt', 'it', { path: 'spanish', codes: ['es', 'es-ar'] }];
 			const payload = createMiddlewarePayload({
 				defaultLocale: 'en',
 				locales,
@@ -457,8 +458,8 @@ describe('Complete Middleware Scenarios', () => {
 	});
 
 	describe('middleware with base path', () => {
-		async function middlewareWithBase(pathname, base = '/blog') {
-			const locales = ['en', 'es'];
+		async function middlewareWithBase(pathname: string, base = '/blog'): Promise<Response> {
+			const locales: Locales = ['en', 'es'];
 			const payload = createMiddlewarePayload({
 				base,
 				defaultLocale: 'en',
@@ -504,7 +505,7 @@ describe('Complete Middleware Scenarios', () => {
 			const context = createManualRoutingContext({ pathname: '/api/status' });
 			const next = createMockNext();
 
-			let response;
+			let response: Response;
 			if (allowList.has(context.url.pathname)) {
 				// Return custom JSON response without calling next()
 				response = new Response(JSON.stringify({ status: 'healthy' }), {
@@ -521,12 +522,12 @@ describe('Complete Middleware Scenarios', () => {
 		});
 
 		it('should modify response after next() call', async () => {
-			const locales = ['en'];
+			const locales: Locales = ['en'];
 			const hasLocale = requestHasLocale(locales);
 			const context = createManualRoutingContext({ pathname: '/en/api' });
 			const next = createMockNext(new Response('Data'));
 
-			let response;
+			let response: Response | undefined;
 			if (hasLocale(context)) {
 				const originalResponse = await next();
 				// Add custom header to response from next()
@@ -540,7 +541,7 @@ describe('Complete Middleware Scenarios', () => {
 			}
 
 			assert.ok(next.called);
-			assert.equal(response.headers.get('X-Custom-Header'), 'added-by-middleware');
+			assert.equal(response!.headers.get('X-Custom-Header'), 'added-by-middleware');
 		});
 	});
 });
