@@ -1,10 +1,10 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import type { MiddlewareHandler } from '../../../dist/types/public/common.js';
 import { App } from '../../../dist/core/app/app.js';
 import { parseRoute } from '../../../dist/core/routing/parse-route.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
-import { createManifest } from './test-helpers.js';
+import { createManifest, createRouteInfo } from './test-helpers.ts';
 
 /**
  * Security tests for double-slash URL prefix middleware authorization bypass.
@@ -21,12 +21,10 @@ import { createManifest } from './test-helpers.js';
  * CWE-285: Improper Authorization
  */
 
-const routeOptions = /** @type {Parameters<typeof parseRoute>[1]} */ (
-	/** @type {any} */ ({
-		config: { base: '/', trailingSlash: 'ignore' },
-		pageExtensions: [],
-	})
-);
+const routeOptions: Parameters<typeof parseRoute>[1] = {
+	config: { base: '/', trailingSlash: 'ignore' },
+	pageExtensions: [],
+} as any;
 
 const adminRouteData = parseRoute('admin', routeOptions, {
 	component: 'src/pages/admin.astro',
@@ -40,15 +38,15 @@ const publicRouteData = parseRoute('index.astro', routeOptions, {
 	component: 'src/pages/index.astro',
 });
 
-const adminPage = createComponent(() => {
+const adminPage = createComponent((_result: any, _props: any, _slots: any) => {
 	return render`<h1>Admin Panel</h1>`;
 });
 
-const dashboardPage = createComponent(() => {
+const dashboardPage = createComponent((_result: any, _props: any, _slots: any) => {
 	return render`<h1>Dashboard</h1>`;
 });
 
-const publicPage = createComponent(() => {
+const publicPage = createComponent((_result: any, _props: any, _slots: any) => {
 	return render`<h1>Public</h1>`;
 });
 
@@ -82,36 +80,30 @@ const pageMap = new Map([
 /**
  * Middleware that blocks access to /admin and /dashboard routes,
  * as recommended in the official Astro authentication docs.
- * @returns {() => Promise<{onRequest: import('../../../dist/types/public/common.js').MiddlewareHandler}>}
  */
 function createAuthMiddleware() {
-	return async () => ({
-		onRequest: /** @type {import('../../../dist/types/public/common.js').MiddlewareHandler} */ (
-			async (context, next) => {
-				const protectedPaths = ['/admin', '/dashboard'];
-				if (protectedPaths.some((p) => context.url.pathname.startsWith(p))) {
-					return new Response('Forbidden', { status: 403 });
-				}
-				return next();
+	return (async () => ({
+		onRequest: (async (context, next) => {
+			const protectedPaths = ['/admin', '/dashboard'];
+			if (protectedPaths.some((p) => context.url.pathname.startsWith(p))) {
+				return new Response('Forbidden', { status: 403 });
 			}
-		),
-	});
+			return next();
+		}) satisfies MiddlewareHandler,
+	})) as () => Promise<{ onRequest: MiddlewareHandler }>;
 }
 
-/**
- * @param {ReturnType<typeof createAuthMiddleware>} middleware
- */
-function createApp(middleware) {
+function createApp(middleware: ReturnType<typeof createAuthMiddleware>) {
 	return new App(
 		createManifest({
 			routes: [
-				{ routeData: adminRouteData },
-				{ routeData: dashboardRouteData },
-				{ routeData: publicRouteData },
+				createRouteInfo(adminRouteData),
+				createRouteInfo(dashboardRouteData),
+				createRouteInfo(publicRouteData),
 			],
-			pageMap,
-			middleware,
-		}),
+			pageMap: pageMap as any,
+			middleware: middleware as any,
+		}) as any,
 	);
 }
 
