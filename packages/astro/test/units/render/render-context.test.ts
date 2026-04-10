@@ -6,13 +6,14 @@ import {
 	maybeRenderHead as _maybeRenderHead,
 	render,
 } from '../../../dist/runtime/server/index.js';
+import type { AstroComponentFactory } from '../../../dist/runtime/server/render/index.js';
 import { createBasicPipeline } from '../test-utils.ts';
 
 // The public types for maybeRenderHead declare zero params,
 // but the runtime implementation accepts a result argument.
 const maybeRenderHead = _maybeRenderHead as (result: any) => any;
 
-const createAstroModule = (AstroComponent: any) => ({ default: AstroComponent });
+const createAstroModule = (AstroComponent: AstroComponentFactory) => ({ default: AstroComponent });
 
 describe('RenderContext', () => {
 	describe('skipMiddleware and form action handling', () => {

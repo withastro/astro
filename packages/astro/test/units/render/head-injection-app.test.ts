@@ -14,6 +14,7 @@ import {
 	renderUniqueStylesheet,
 	unescapeHTML,
 } from '../../../dist/runtime/server/index.js';
+import type { AstroComponentFactory } from '../../../dist/runtime/server/render/index.js';
 import type { Pipeline } from '../../../dist/core/render/index.js';
 import { createBasicPipeline } from '../test-utils.ts';
 
@@ -22,7 +23,7 @@ import { createBasicPipeline } from '../test-utils.ts';
 const renderHead = _renderHead as (result: any) => any;
 const maybeRenderHead = _maybeRenderHead as (result: any) => any;
 
-const createAstroModule = (AstroComponent: any) => ({ default: AstroComponent });
+const createAstroModule = (AstroComponent: AstroComponentFactory) => ({ default: AstroComponent });
 
 describe('head injection app-level rendering', () => {
 	let pipeline: Pipeline;
@@ -36,7 +37,7 @@ describe('head injection app-level rendering', () => {
 		});
 	});
 
-	async function renderPage(Component: any) {
+	async function renderPage(Component: AstroComponentFactory) {
 		const request = new Request('http://example.com/');
 		const routeData = {
 			type: 'page',

@@ -8,6 +8,7 @@ import { createRoutesList as _createRoutesList } from '../../../dist/core/routin
 import type { StaticBuildOptions } from '../../../dist/core/build/types.js';
 import type { Pipeline } from '../../../dist/core/base-pipeline.js';
 import type { RouteData } from '../../../dist/types/public/internal.js';
+import type { AstroInlineConfig } from '../../../dist/types/public/config.js';
 import type { ComponentInstance } from '../../../dist/types/astro.js';
 import { createBasicPipeline, createBasicSettings, defaultLogger } from '../test-utils.ts';
 
@@ -101,7 +102,7 @@ export async function createStaticBuildOptions({
 	pages = {},
 	buildOutput = 'static' as 'static' | 'server',
 	adapter = undefined as object | undefined,
-	inlineConfig = {} as Record<string, any>,
+	inlineConfig = {} as AstroInlineConfig,
 } = {}): Promise<StaticBuildOptions> {
 	const hasPages = Object.keys(pages).length > 0;
 
@@ -111,7 +112,7 @@ export async function createStaticBuildOptions({
 		? createTmpRootDir(pages)
 		: pathToFileURL(mkdtempSync(join(tmpdir(), 'astro-test-')) + '/');
 
-	const resolvedConfig: any = {
+	const resolvedConfig = {
 		root: rootUrl,
 		srcDir: new URL('src/', rootUrl),
 		outDir: new URL('dist/', rootUrl),
@@ -140,7 +141,7 @@ export async function createStaticBuildOptions({
 		routesList = await _createRoutesList({ settings }, defaultLogger);
 	}
 
-	const options: any = {
+	const options = {
 		origin: 'http://localhost:4321',
 		pageNames: [],
 		routesList,
@@ -150,7 +151,7 @@ export async function createStaticBuildOptions({
 			config: resolvedConfig,
 		},
 		logger: { info() {}, warn() {}, error() {}, debug() {} },
-	};
+	} as unknown as StaticBuildOptions;
 
 	return options;
 }

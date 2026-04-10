@@ -75,11 +75,12 @@ describe('getStaticPaths param validation', () => {
 				if (!shouldPass) {
 					assert.fail(`Expected validation error for param type ${type}`);
 				}
-			} catch (err: any) {
+			} catch (err: unknown) {
 				if (shouldPass) {
 					throw err;
 				}
 
+				assert.ok(err instanceof Error);
 				assert.equal(err.name, 'GetStaticPathsInvalidRouteParam');
 				// Arrays report as 'object' in typeof, so adjust the check
 				const expectedType = type === 'array' ? 'object' : type;

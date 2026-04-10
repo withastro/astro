@@ -5,6 +5,8 @@ import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { sequence } from '../../../dist/core/middleware/index.js';
 import { createTestApp, createPage } from '../mocks.ts';
 import { staticPart, dynamicPart, spreadPart } from './test-helpers.ts';
+import type { APIContext } from '../../../dist/types/public/context.js';
+import type { MiddlewareNext } from '../../../dist/types/public/common.js';
 
 const indexPage = createComponent((result: any, props: any, slots: any) => {
 	const Astro = result.createAstro(props, slots);
@@ -353,7 +355,7 @@ describe('Rewrites via App - runtime error without custom 500', () => {
 });
 
 describe('Rewrites via App - middleware rewrite with next()', () => {
-	const middleware = async (_ctx: any, next: any) => {
+	const middleware = async (_ctx: APIContext, next: MiddlewareNext) => {
 		const response = await next('/');
 		return response;
 	};
@@ -386,7 +388,7 @@ describe('Rewrites via App - middleware rewrite with next()', () => {
 });
 
 describe('Rewrites via App - i18n manual routing middleware rewrite', () => {
-	const middleware = async (_ctx: any, next: any) => {
+	const middleware = async (_ctx: APIContext, next: MiddlewareNext) => {
 		const response = await next('/');
 		return response;
 	};
@@ -421,7 +423,7 @@ describe('Rewrites via App - i18n manual routing middleware rewrite', () => {
 });
 
 describe('Rewrites via App - issue 13633 middleware rewrite', () => {
-	const middleware = async (_ctx: any, next: any) => {
+	const middleware = async (_ctx: APIContext, next: MiddlewareNext) => {
 		const response = await next('/');
 		return response;
 	};
@@ -464,9 +466,9 @@ describe('Rewrites via App - middleware sequence with next() vs context.rewrite(
 
 	let contextReroute = false;
 
-	const first = async (_context: any, next: any) => next();
+	const first = async (_context: APIContext, next: MiddlewareNext) => next();
 
-	const second = async (context: any, next: any) => {
+	const second = async (context: APIContext, next: MiddlewareNext) => {
 		if (context.url.pathname.includes('/auth')) {
 			if (context.url.pathname.includes('/auth/dashboard')) {
 				contextReroute = true;
@@ -485,12 +487,12 @@ describe('Rewrites via App - middleware sequence with next() vs context.rewrite(
 		return next();
 	};
 
-	const third = async (context: any, next: any) => {
+	const third = async (context: APIContext, next: MiddlewareNext) => {
 		if (context.url.pathname.startsWith('/') && contextReroute === false) {
-			context.locals.auth = 'Third function called';
+			(context.locals as Record<string, unknown>).auth = 'Third function called';
 		}
 		if (context.params?.id === '1234') {
-			context.locals.auth = 'Params changed';
+			(context.locals as Record<string, unknown>).auth = 'Params changed';
 		}
 		return next();
 	};
@@ -567,9 +569,9 @@ describe('Rewrites via App - middleware with custom 404 and 500', () => {
 		return render`<h1>Custom error</h1><p>${interjected}</p>`;
 	});
 
-	const middleware = async (context: any, next: any) => {
+	const middleware = async (context: APIContext, next: MiddlewareNext) => {
 		if (context.url.pathname.startsWith('/404') || context.url.pathname.startsWith('/500')) {
-			context.locals.interjected = 'Interjected';
+			(context.locals as Record<string, unknown>).interjected = 'Interjected';
 		}
 		return await next();
 	};
@@ -632,15 +634,15 @@ describe('Rewrites via App - routePattern updated after sequence rewrite', () =>
 		return render`<p>${Astro.locals.pattern}</p>`;
 	});
 
-	const first = async (context: any, next: any) => {
+	const first = async (context: APIContext, next: MiddlewareNext) => {
 		if (context.url.pathname === '/index2') {
 			return next('/123/post');
 		}
 		return next('/destination');
 	};
 
-	const second = async (context: any, next: any) => {
-		context.locals.pattern = context.routePattern;
+	const second = async (context: APIContext, next: MiddlewareNext) => {
+		(context.locals as Record<string, unknown>).pattern = context.routePattern;
 		return next();
 	};
 

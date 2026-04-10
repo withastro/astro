@@ -1,5 +1,6 @@
 import type { RoutingStrategies } from '../../../dist/core/app/common.js';
 import type { Locales } from '../../../dist/types/public/config.js';
+import type { MiddlewarePayload } from '../../../dist/i18n/index.js';
 
 export function makeI18nRouterConfig({
 	strategy = 'pathname-prefix-other-locales',
@@ -103,7 +104,7 @@ export function createMiddlewarePayload({
 	domains = undefined as Record<string, string> | undefined,
 	fallback = undefined as Record<string, string> | undefined,
 	fallbackType = 'redirect' as 'redirect' | 'rewrite',
-} = {}) {
+}: Partial<MiddlewarePayload> = {}): MiddlewarePayload {
 	return {
 		base,
 		locales,

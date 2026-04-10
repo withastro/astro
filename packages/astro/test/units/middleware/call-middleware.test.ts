@@ -44,7 +44,7 @@ describe('callMiddleware', () => {
 
 			await assert.rejects(
 				() => callMiddleware(middleware, ctx, defaultResponseFn),
-				(err: any) => {
+				(err: Error) => {
 					assert.equal(err.name, 'MiddlewareNotAResponse');
 					return true;
 				},
@@ -81,7 +81,7 @@ describe('callMiddleware', () => {
 
 			await assert.rejects(
 				() => callMiddleware(middleware, ctx, defaultResponseFn),
-				(err: any) => {
+				(err: Error) => {
 					assert.equal(err.name, 'MiddlewareNoDataOrNextCalled');
 					return true;
 				},
@@ -95,7 +95,7 @@ describe('callMiddleware', () => {
 
 			await assert.rejects(
 				() => callMiddleware(middleware, ctx, defaultResponseFn),
-				(err: any) => {
+				(err: Error) => {
 					assert.equal(err.name, 'MiddlewareNotAResponse');
 					return true;
 				},

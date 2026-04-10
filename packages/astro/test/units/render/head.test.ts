@@ -11,6 +11,7 @@ import {
 	renderHead as _renderHead,
 	renderSlot,
 } from '../../../dist/runtime/server/index.js';
+import type { AstroComponentFactory } from '../../../dist/runtime/server/render/index.js';
 import type { Pipeline } from '../../../dist/core/render/index.js';
 import { createBasicPipeline } from '../test-utils.ts';
 
@@ -19,7 +20,7 @@ import { createBasicPipeline } from '../test-utils.ts';
 const renderHead = _renderHead as (result: any) => any;
 const maybeRenderHead = _maybeRenderHead as (result: any) => any;
 
-const createAstroModule = (AstroComponent: any) => ({ default: AstroComponent });
+const createAstroModule = (AstroComponent: AstroComponentFactory) => ({ default: AstroComponent });
 
 describe('core/render', () => {
 	describe('Injected head contents', () => {

@@ -610,9 +610,9 @@ describe('Middleware via App.render()', () => {
 				segments: undefined as unknown as undefined,
 			});
 			// Override for spread route
-			(guardedRouteData as any).params = ['...path'];
+			guardedRouteData.params = ['...path'];
 			guardedRouteData.pattern = /^\/api\/guarded(?:\/(.*))?$/;
-			(guardedRouteData as any).pathname = undefined;
+			guardedRouteData.pathname = undefined;
 			guardedRouteData.segments = [
 				[{ content: 'api', dynamic: false, spread: false }],
 				[{ content: 'guarded', dynamic: false, spread: false }],
@@ -663,9 +663,9 @@ describe('Middleware via App.render()', () => {
 				pathname: undefined as unknown as string,
 				segments: undefined as unknown as undefined,
 			});
-			(errorRouteData as any).params = ['...path'];
+			errorRouteData.params = ['...path'];
 			errorRouteData.pattern = /^\/api\/error(?:\/(.*))?$/;
-			(errorRouteData as any).pathname = undefined;
+			errorRouteData.pathname = undefined;
 			errorRouteData.segments = [
 				[{ content: 'api', dynamic: false, spread: false }],
 				[{ content: 'error', dynamic: false, spread: false }],
@@ -718,9 +718,9 @@ describe('Middleware via App.render()', () => {
 				pathname: undefined as unknown as string,
 				segments: undefined as unknown as undefined,
 			});
-			(guardedRouteData as any).params = ['...path'];
+			guardedRouteData.params = ['...path'];
 			guardedRouteData.pattern = /^\/api\/guarded(?:\/(.*))?$/;
-			(guardedRouteData as any).pathname = undefined;
+			guardedRouteData.pathname = undefined;
 			guardedRouteData.segments = [
 				[{ content: 'api', dynamic: false, spread: false }],
 				[{ content: 'guarded', dynamic: false, spread: false }],
@@ -791,9 +791,9 @@ describe('Middleware via App.render()', () => {
 				pathname: undefined as unknown as string,
 				segments: undefined as unknown as undefined,
 			});
-			(guardedRouteData as any).params = ['...path'];
+			guardedRouteData.params = ['...path'];
 			guardedRouteData.pattern = /^\/api\/guarded(?:\/(.*))?$/;
-			(guardedRouteData as any).pathname = undefined;
+			guardedRouteData.pathname = undefined;
 			guardedRouteData.segments = [
 				[{ content: 'api', dynamic: false, spread: false }],
 				[{ content: 'guarded', dynamic: false, spread: false }],
@@ -852,9 +852,9 @@ describe('Middleware via App.render()', () => {
 				pathname: undefined as unknown as string,
 				segments: undefined as unknown as undefined,
 			});
-			(errorRouteData as any).params = ['...path'];
+			errorRouteData.params = ['...path'];
 			errorRouteData.pattern = /^\/api\/error(?:\/(.*))?$/;
-			(errorRouteData as any).pathname = undefined;
+			errorRouteData.pathname = undefined;
 			errorRouteData.segments = [
 				[{ content: 'api', dynamic: false, spread: false }],
 				[{ content: 'error', dynamic: false, spread: false }],

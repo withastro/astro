@@ -1,9 +1,6 @@
-// These tests pass partial config objects to i18n utility functions. The functions accept
-// full config types but the tests intentionally exercise only the relevant subset.
-// Using `as any` for the spread configs avoids maintaining full config literals in tests.
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import type { AstroConfig } from '../../../dist/types/public/config.js';
 import { toRoutingStrategy } from '../../../dist/core/app/common.js';
 import { validateConfig } from '../../../dist/core/config/validate.js';
 import { MissingLocale } from '../../../dist/core/errors/errors-data.js';
@@ -16,13 +13,21 @@ import {
 } from '../../../dist/i18n/index.js';
 import { parseLocale } from '../../../dist/i18n/utils.js';
 
+type I18nRouting = NonNullable<AstroConfig['i18n']>['routing'];
+type I18nRoutingInput = Partial<Exclude<I18nRouting, 'manual'>> | 'manual' | undefined;
+
 // Helper wrappers that accept partial config objects (matching original JS test behavior).
 // The i18n functions require full config types but these tests intentionally pass subsets.
-const relativeUrl = (opts: Record<string, any>) => getLocaleRelativeUrl(opts as any);
-const relativeUrlList = (opts: Record<string, any>) => getLocaleRelativeUrlList(opts as any);
-const absoluteUrl = (opts: Record<string, any>) => getLocaleAbsoluteUrl(opts as any);
-const absoluteUrlList = (opts: Record<string, any>) => getLocaleAbsoluteUrlList(opts as any);
-const routingStrategy = (routing: any, opts: any = {}) => toRoutingStrategy(routing, opts);
+const relativeUrl = (opts: Record<string, unknown>) =>
+	getLocaleRelativeUrl(opts as unknown as Parameters<typeof getLocaleRelativeUrl>[0]);
+const relativeUrlList = (opts: Record<string, unknown>) =>
+	getLocaleRelativeUrlList(opts as unknown as Parameters<typeof getLocaleRelativeUrlList>[0]);
+const absoluteUrl = (opts: Record<string, unknown>) =>
+	getLocaleAbsoluteUrl(opts as unknown as Parameters<typeof getLocaleAbsoluteUrl>[0]);
+const absoluteUrlList = (opts: Record<string, unknown>) =>
+	getLocaleAbsoluteUrlList(opts as unknown as Parameters<typeof getLocaleAbsoluteUrlList>[0]);
+const routingStrategy = (routing?: I18nRoutingInput, domains?: Record<string, string>) =>
+	toRoutingStrategy(routing as I18nRouting, domains);
 
 describe('getLocaleRelativeUrl', () => {
 	it('should correctly return the URL with the base', () => {
@@ -259,7 +264,7 @@ describe('getLocaleRelativeUrl', () => {
 	});
 
 	it('should normalize locales by default', () => {
-		const config: any = {
+		const config = {
 			base: '/blog',
 			i18n: {
 				defaultLocale: 'en',
@@ -274,7 +279,7 @@ describe('getLocaleRelativeUrl', () => {
 				...config.i18n,
 				trailingSlash: 'always',
 				format: 'directory',
-				strategy: routingStrategy(config.i18n.routing),
+				strategy: routingStrategy(),
 			}),
 			'/blog/en-us/',
 		);
@@ -287,7 +292,7 @@ describe('getLocaleRelativeUrl', () => {
 				trailingSlash: 'always',
 				format: 'directory',
 				normalizeLocale: false,
-				strategy: routingStrategy(config.i18n.routing),
+				strategy: routingStrategy(),
 			}),
 			'/blog/en_US/',
 		);
@@ -299,7 +304,7 @@ describe('getLocaleRelativeUrl', () => {
 				...config.i18n,
 				trailingSlash: 'always',
 				format: 'directory',
-				strategy: routingStrategy(config.i18n.routing),
+				strategy: routingStrategy(),
 			}),
 			'/blog/en-au/',
 		);
@@ -1412,7 +1417,7 @@ describe('getLocaleAbsoluteUrl', () => {
 
 describe('getLocaleAbsoluteUrlList', () => {
 	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: never]', async () => {
-		const config: any = await validateConfig(
+		const config: AstroConfig = await validateConfig(
 			{
 				trailingSlash: 'never',
 				format: 'directory',
@@ -1432,7 +1437,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 				},
 			},
 			process.cwd(),
-			"build",
+			'build',
 		);
 		// directory format
 		assert.deepEqual(
@@ -1452,7 +1457,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 	});
 
 	it('should retrieve the correct list of base URL with locales [format: directory, trailingSlash: always]', async () => {
-		const config: any = await validateConfig(
+		const config: AstroConfig = await validateConfig(
 			{
 				trailingSlash: 'always',
 				format: 'directory',
@@ -1464,7 +1469,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 				},
 			},
 			process.cwd(),
-			"build",
+			'build',
 		);
 		// directory format
 		assert.deepEqual(
@@ -1482,7 +1487,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 	});
 
 	it('should retrieve the correct list of base URL with locales and path [format: directory, trailingSlash: always]', async () => {
-		const config: any = await validateConfig(
+		const config: AstroConfig = await validateConfig(
 			{
 				format: 'directory',
 				site: 'https://example.com/',
@@ -1496,7 +1501,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 				},
 			},
 			process.cwd(),
-			"build",
+			'build',
 		);
 		// directory format
 		assert.deepEqual(
@@ -1504,8 +1509,8 @@ describe('getLocaleAbsoluteUrlList', () => {
 				locale: 'en',
 				path: 'download',
 				...config,
-				...config.i18n,
-				strategy: routingStrategy(config.i18n.routing),
+				...config.i18n!,
+				strategy: routingStrategy(config.i18n!.routing),
 			}),
 			[
 				'https://example.com/en/download/',
@@ -1516,7 +1521,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 	});
 
 	it('should retrieve the correct list of base URL with locales and path [format: directory, trailingSlash: always, domains]', async () => {
-		const config: any = await validateConfig(
+		const config: AstroConfig = await validateConfig(
 			{
 				format: 'directory',
 				output: 'server',
@@ -1534,7 +1539,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 				},
 			},
 			process.cwd(),
-			"build",
+			'build',
 		);
 		// directory format
 		assert.deepEqual(
@@ -1542,8 +1547,8 @@ describe('getLocaleAbsoluteUrlList', () => {
 				locale: 'en',
 				path: 'download',
 				...config,
-				...config.i18n,
-				strategy: routingStrategy(config.i18n.routing),
+				...config.i18n!,
+				strategy: routingStrategy(config.i18n!.routing),
 				isBuild: true,
 			}),
 			[

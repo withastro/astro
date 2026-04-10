@@ -376,7 +376,8 @@ describe('output: "server"', () => {
 		try {
 			await response.text();
 			assert.equal(false, true);
-		} catch (e: any) {
+		} catch (e: unknown) {
+			assert.ok(e instanceof Error);
 			assert.equal(
 				e.message,
 				'The response has already been sent to the browser and cannot be altered.',

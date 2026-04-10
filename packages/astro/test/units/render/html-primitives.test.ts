@@ -371,7 +371,7 @@ describe('Allows using the Fragment element', async () => {
 		// Collect chunks as they are written so we can inspect ordering.
 		const chunks: string[] = [];
 		const destination = {
-			write(chunk: any) {
+			write(chunk: unknown) {
 				chunks.push(String(chunk));
 			},
 		};
