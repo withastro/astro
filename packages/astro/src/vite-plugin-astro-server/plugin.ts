@@ -35,6 +35,14 @@ export default function createVitePluginAstroServer({
 			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
 		},
 		async configureServer(viteServer) {
+			// Skip Astro dev server setup when running inside Vitest, as the module
+			// runner in that context may not support the dynamic imports used by the
+			// server app (e.g. Vitest's browser server does not wire up
+			// `wrapDynamicImport` on the runner evaluator).
+			if (process.env.VITEST) {
+				return;
+			}
+
 			const ssrEnvironment = viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
 			const prerenderEnvironment = viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.prerender];
 
