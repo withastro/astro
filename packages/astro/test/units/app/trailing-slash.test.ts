@@ -1,14 +1,16 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { App } from '../../../dist/core/app/app.js';
+import type { SSRManifest } from '../../../dist/core/app/types.js';
+import type { RouteData } from '../../../dist/types/public/internal.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
-import { createManifest } from './test-helpers.js';
+import { createManifest } from './test-helpers.ts';
 
-function escapeRoute(route) {
+function escapeRoute(route: string): string {
 	return route.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-function createRouteData(route) {
+function makeRouteData(route: string): RouteData {
 	const segments = route
 		.split('/')
 		.filter(Boolean)
@@ -27,22 +29,26 @@ function createRouteData(route) {
 		fallbackRoutes: [],
 		isIndex: false,
 		origin: 'project',
-	};
+	} as RouteData;
 }
 
-const okPage = createComponent(() => {
+function makeApp(opts: Record<string, any>): App {
+	return new App(createManifest(opts as any) as unknown as SSRManifest);
+}
+
+const okPage = createComponent((_result: any, _props: any, _slots: any) => {
 	return render`<h1>Ok</h1>`;
 });
 
-const notFoundPage = createComponent(() => {
+const notFoundPage = createComponent((_result: any, _props: any, _slots: any) => {
 	return render`<h1>Not Found</h1>`;
 });
 
-const anotherRouteData = createRouteData('/another');
-const subPathRouteData = createRouteData('/sub/path');
-const dotPathRouteData = createRouteData('/dot.in.directory/path');
-const notFoundRouteData = {
-	...createRouteData('/404'),
+const anotherRouteData = makeRouteData('/another');
+const subPathRouteData = makeRouteData('/sub/path');
+const dotPathRouteData = makeRouteData('/dot.in.directory/path');
+const notFoundRouteData: RouteData = {
+	...makeRouteData('/404'),
 	component: 'src/pages/404.astro',
 };
 
@@ -83,18 +89,16 @@ const pageMap = new Map([
 
 describe('Redirecting trailing slashes in SSR', () => {
 	describe('trailingSlash: always', () => {
-		const app = new App(
-			createManifest({
-				trailingSlash: 'always',
-				routes: [
-					{ routeData: anotherRouteData },
-					{ routeData: subPathRouteData },
-					{ routeData: dotPathRouteData },
-					{ routeData: notFoundRouteData },
-				],
-				pageMap,
-			}),
-		);
+		const app = makeApp({
+			trailingSlash: 'always',
+			routes: [
+				{ routeData: anotherRouteData },
+				{ routeData: subPathRouteData },
+				{ routeData: dotPathRouteData },
+				{ routeData: notFoundRouteData },
+			],
+			pageMap,
+		});
 
 		it('Redirects to add a trailing slash', async () => {
 			const request = new Request('http://example.com/another');
@@ -198,17 +202,15 @@ describe('Redirecting trailing slashes in SSR', () => {
 	});
 
 	describe('trailingSlash: never', () => {
-		const app = new App(
-			createManifest({
-				trailingSlash: 'never',
-				routes: [
-					{ routeData: anotherRouteData },
-					{ routeData: subPathRouteData },
-					{ routeData: notFoundRouteData },
-				],
-				pageMap,
-			}),
-		);
+		const app = makeApp({
+			trailingSlash: 'never',
+			routes: [
+				{ routeData: anotherRouteData },
+				{ routeData: subPathRouteData },
+				{ routeData: notFoundRouteData },
+			],
+			pageMap,
+		});
 
 		it('Redirects to remove a trailing slash', async () => {
 			const request = new Request('http://example.com/another/');
@@ -287,14 +289,12 @@ describe('Redirecting trailing slashes in SSR', () => {
 	});
 
 	describe('trailingSlash: never with base path', () => {
-		const app = new App(
-			createManifest({
-				base: '/mybase',
-				trailingSlash: 'never',
-				routes: [{ routeData: anotherRouteData }, { routeData: notFoundRouteData }],
-				pageMap,
-			}),
-		);
+		const app = makeApp({
+			base: '/mybase',
+			trailingSlash: 'never',
+			routes: [{ routeData: anotherRouteData }, { routeData: notFoundRouteData }],
+			pageMap,
+		});
 
 		it('Redirects to remove a trailing slash on base path', async () => {
 			const request = new Request('http://example.com/mybase/');
@@ -325,13 +325,11 @@ describe('Redirecting trailing slashes in SSR', () => {
 	});
 
 	describe('trailingSlash: ignore', () => {
-		const app = new App(
-			createManifest({
-				trailingSlash: 'ignore',
-				routes: [{ routeData: anotherRouteData }, { routeData: notFoundRouteData }],
-				pageMap,
-			}),
-		);
+		const app = makeApp({
+			trailingSlash: 'ignore',
+			routes: [{ routeData: anotherRouteData }, { routeData: notFoundRouteData }],
+			pageMap,
+		});
 
 		it('Redirects to collapse multiple trailing slashes', async () => {
 			const request = new Request('http://example.com/another///');
