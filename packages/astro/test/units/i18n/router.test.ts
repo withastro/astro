@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { I18nRouter } from '../../../dist/i18n/router.js';
-import { makeI18nRouterConfig, makeRouterContext } from './test-helpers.js';
+import type { I18nRouterMatch } from '../../../dist/i18n/router.js';
+import { makeI18nRouterConfig, makeRouterContext } from './test-helpers.ts';
 
 describe('I18nRouter', () => {
 	describe('strategy: pathname-prefix-always', () => {
-		let router;
+		let router: I18nRouter;
 
 		before(() => {
 			const config = makeI18nRouterConfig({
@@ -19,16 +20,16 @@ describe('I18nRouter', () => {
 		it('redirects root path to default locale', () => {
 			const context = makeRouterContext({ currentLocale: undefined });
 
-			const result = router.match('/', context);
+			const result: I18nRouterMatch = router.match('/', context);
 
 			assert.equal(result.type, 'redirect');
-			assert.equal(result.location, '/en');
+			assert.equal((result as Extract<I18nRouterMatch, { type: 'redirect' }>).location, '/en');
 		});
 
 		it('returns 404 for paths without locale prefix', () => {
 			const context = makeRouterContext({ currentLocale: undefined });
 
-			const result = router.match('/about', context);
+			const result: I18nRouterMatch = router.match('/about', context);
 
 			assert.equal(result.type, 'notFound');
 		});
@@ -36,7 +37,7 @@ describe('I18nRouter', () => {
 		it('continues for paths with valid locale prefix', () => {
 			const context = makeRouterContext({ currentLocale: 'es' });
 
-			const result = router.match('/es/about', context);
+			const result: I18nRouterMatch = router.match('/es/about', context);
 
 			assert.equal(result.type, 'continue');
 		});
@@ -44,13 +45,13 @@ describe('I18nRouter', () => {
 		it('continues for default locale with prefix', () => {
 			const context = makeRouterContext({ currentLocale: 'en' });
 
-			const result = router.match('/en/about', context);
+			const result: I18nRouterMatch = router.match('/en/about', context);
 
 			assert.equal(result.type, 'continue');
 		});
 
 		describe('with base path', () => {
-			let routerWithBase;
+			let routerWithBase: I18nRouter;
 
 			before(() => {
 				const configWithBase = makeI18nRouterConfig({
@@ -65,32 +66,38 @@ describe('I18nRouter', () => {
 			it('handles base path - redirects base root to base + default locale', () => {
 				const context = makeRouterContext({ currentLocale: undefined });
 
-				const result = routerWithBase.match('/new-site/', context);
+				const result: I18nRouterMatch = routerWithBase.match('/new-site/', context);
 
 				assert.equal(result.type, 'redirect');
-				assert.equal(result.location, '/new-site/en');
+				assert.equal(
+					(result as Extract<I18nRouterMatch, { type: 'redirect' }>).location,
+					'/new-site/en',
+				);
 			});
 
 			it('handles base path without trailing slash', () => {
 				const context = makeRouterContext({ currentLocale: undefined });
 
-				const result = routerWithBase.match('/new-site', context);
+				const result: I18nRouterMatch = routerWithBase.match('/new-site', context);
 
 				assert.equal(result.type, 'redirect');
-				assert.equal(result.location, '/new-site/en');
+				assert.equal(
+					(result as Extract<I18nRouterMatch, { type: 'redirect' }>).location,
+					'/new-site/en',
+				);
 			});
 
 			it('returns 404 for path without locale under base', () => {
 				const context = makeRouterContext({ currentLocale: undefined });
 
-				const result = routerWithBase.match('/new-site/about', context);
+				const result: I18nRouterMatch = routerWithBase.match('/new-site/about', context);
 
 				assert.equal(result.type, 'notFound');
 			});
 		});
 
 		describe('with base "/" (root base path)', () => {
-			let routerWithSlashBase;
+			let routerWithSlashBase: I18nRouter;
 
 			before(() => {
 				const config = makeI18nRouterConfig({
@@ -105,16 +112,16 @@ describe('I18nRouter', () => {
 			it('redirects root to /defaultLocale, not //defaultLocale (#15844)', () => {
 				const context = makeRouterContext({ currentLocale: undefined });
 
-				const result = routerWithSlashBase.match('/', context);
+				const result: I18nRouterMatch = routerWithSlashBase.match('/', context);
 
 				assert.equal(result.type, 'redirect');
-				assert.equal(result.location, '/en');
+				assert.equal((result as Extract<I18nRouterMatch, { type: 'redirect' }>).location, '/en');
 			});
 
 			it('continues for paths with valid locale prefix', () => {
 				const context = makeRouterContext({ currentLocale: 'es' });
 
-				const result = routerWithSlashBase.match('/es/about', context);
+				const result: I18nRouterMatch = routerWithSlashBase.match('/es/about', context);
 
 				assert.equal(result.type, 'continue');
 			});
@@ -122,7 +129,7 @@ describe('I18nRouter', () => {
 			it('returns 404 for paths without locale prefix', () => {
 				const context = makeRouterContext({ currentLocale: undefined });
 
-				const result = routerWithSlashBase.match('/about', context);
+				const result: I18nRouterMatch = routerWithSlashBase.match('/about', context);
 
 				assert.equal(result.type, 'notFound');
 			});
@@ -130,7 +137,7 @@ describe('I18nRouter', () => {
 	});
 
 	describe('strategy: pathname-prefix-other-locales', () => {
-		let router;
+		let router: I18nRouter;
 
 		before(() => {
 			const config = makeI18nRouterConfig({
@@ -144,16 +151,16 @@ describe('I18nRouter', () => {
 		it('returns 404 with Location header for default locale with prefix', () => {
 			const context = makeRouterContext({ currentLocale: 'en' });
 
-			const result = router.match('/en/about', context);
+			const result: I18nRouterMatch = router.match('/en/about', context);
 
 			assert.equal(result.type, 'notFound');
-			assert.equal(result.location, '/about');
+			assert.equal((result as Extract<I18nRouterMatch, { type: 'notFound' }>).location, '/about');
 		});
 
 		it('continues for non-default locale with prefix', () => {
 			const context = makeRouterContext({ currentLocale: 'es' });
 
-			const result = router.match('/es/about', context);
+			const result: I18nRouterMatch = router.match('/es/about', context);
 
 			assert.equal(result.type, 'continue');
 		});
@@ -161,7 +168,7 @@ describe('I18nRouter', () => {
 		it('continues for default locale without prefix', () => {
 			const context = makeRouterContext({ currentLocale: 'en' });
 
-			const result = router.match('/about', context);
+			const result: I18nRouterMatch = router.match('/about', context);
 
 			assert.equal(result.type, 'continue');
 		});
@@ -169,7 +176,7 @@ describe('I18nRouter', () => {
 		it('continues for root path (default locale)', () => {
 			const context = makeRouterContext({ currentLocale: 'en' });
 
-			const result = router.match('/', context);
+			const result: I18nRouterMatch = router.match('/', context);
 
 			assert.equal(result.type, 'continue');
 		});
@@ -177,10 +184,13 @@ describe('I18nRouter', () => {
 		it('handles default locale in middle of path', () => {
 			const context = makeRouterContext({ currentLocale: 'en' });
 
-			const result = router.match('/blog/en/post', context);
+			const result: I18nRouterMatch = router.match('/blog/en/post', context);
 
 			assert.equal(result.type, 'notFound');
-			assert.equal(result.location, '/blog/post');
+			assert.equal(
+				(result as Extract<I18nRouterMatch, { type: 'notFound' }>).location,
+				'/blog/post',
+			);
 		});
 
 		it('handles base path with default locale prefix', () => {
@@ -193,15 +203,18 @@ describe('I18nRouter', () => {
 			const routerWithBase = new I18nRouter(configWithBase);
 			const context = makeRouterContext({ currentLocale: 'en' });
 
-			const result = routerWithBase.match('/new-site/en/about', context);
+			const result: I18nRouterMatch = routerWithBase.match('/new-site/en/about', context);
 
 			assert.equal(result.type, 'notFound');
-			assert.equal(result.location, '/new-site/about');
+			assert.equal(
+				(result as Extract<I18nRouterMatch, { type: 'notFound' }>).location,
+				'/new-site/about',
+			);
 		});
 	});
 
 	describe('strategy: pathname-prefix-always-no-redirect', () => {
-		let router;
+		let router: I18nRouter;
 
 		before(() => {
 			const config = makeI18nRouterConfig({
@@ -215,7 +228,7 @@ describe('I18nRouter', () => {
 		it('continues for root path (allows serving, no redirect)', () => {
 			const context = makeRouterContext({ currentLocale: undefined });
 
-			const result = router.match('/', context);
+			const result: I18nRouterMatch = router.match('/', context);
 
 			assert.equal(result.type, 'continue');
 		});
@@ -223,7 +236,7 @@ describe('I18nRouter', () => {
 		it('returns 404 for non-root paths without locale prefix', () => {
 			const context = makeRouterContext({ currentLocale: undefined });
 
-			const result = router.match('/about', context);
+			const result: I18nRouterMatch = router.match('/about', context);
 
 			assert.equal(result.type, 'notFound');
 		});
@@ -231,7 +244,7 @@ describe('I18nRouter', () => {
 		it('continues for paths with valid locale prefix', () => {
 			const context = makeRouterContext({ currentLocale: 'es' });
 
-			const result = router.match('/es/about', context);
+			const result: I18nRouterMatch = router.match('/es/about', context);
 
 			assert.equal(result.type, 'continue');
 		});
@@ -246,7 +259,7 @@ describe('I18nRouter', () => {
 			const routerWithBase = new I18nRouter(configWithBase);
 			const context = makeRouterContext({ currentLocale: undefined });
 
-			const result = routerWithBase.match('/new-site', context);
+			const result: I18nRouterMatch = routerWithBase.match('/new-site', context);
 
 			assert.equal(result.type, 'continue');
 		});
@@ -262,14 +275,14 @@ describe('I18nRouter', () => {
 			);
 			const context = makeRouterContext({ currentLocale: undefined });
 
-			const result = routerWithSlashBase.match('/', context);
+			const result: I18nRouterMatch = routerWithSlashBase.match('/', context);
 
 			assert.equal(result.type, 'continue');
 		});
 	});
 
 	describe('strategy: domains-prefix-always', () => {
-		let router;
+		let router: I18nRouter;
 
 		before(() => {
 			const config = makeI18nRouterConfig({
@@ -291,10 +304,10 @@ describe('I18nRouter', () => {
 				currentDomain: 'en.example.com',
 			});
 
-			const result = router.match('/', context);
+			const result: I18nRouterMatch = router.match('/', context);
 
 			assert.equal(result.type, 'redirect');
-			assert.equal(result.location, '/en');
+			assert.equal((result as Extract<I18nRouterMatch, { type: 'redirect' }>).location, '/en');
 		});
 
 		it('continues when locale does not match domain (fallback to pathname logic)', () => {
@@ -303,7 +316,7 @@ describe('I18nRouter', () => {
 				currentDomain: 'en.example.com',
 			});
 
-			const result = router.match('/es/about', context);
+			const result: I18nRouterMatch = router.match('/es/about', context);
 
 			assert.equal(result.type, 'continue');
 		});
@@ -314,7 +327,7 @@ describe('I18nRouter', () => {
 				currentDomain: 'en.example.com',
 			});
 
-			const result = router.match('/about', context);
+			const result: I18nRouterMatch = router.match('/about', context);
 
 			assert.equal(result.type, 'notFound');
 		});
@@ -337,15 +350,15 @@ describe('I18nRouter', () => {
 				currentDomain: 'en.example.com',
 			});
 
-			const result = routerWithSlashBase.match('/', context);
+			const result: I18nRouterMatch = routerWithSlashBase.match('/', context);
 
 			assert.equal(result.type, 'redirect');
-			assert.equal(result.location, '/en');
+			assert.equal((result as Extract<I18nRouterMatch, { type: 'redirect' }>).location, '/en');
 		});
 	});
 
 	describe('strategy: domains-prefix-other-locales', () => {
-		let router;
+		let router: I18nRouter;
 
 		before(() => {
 			const config = makeI18nRouterConfig({
@@ -367,10 +380,10 @@ describe('I18nRouter', () => {
 				currentDomain: 'en.example.com',
 			});
 
-			const result = router.match('/en/about', context);
+			const result: I18nRouterMatch = router.match('/en/about', context);
 
 			assert.equal(result.type, 'notFound');
-			assert.equal(result.location, '/about');
+			assert.equal((result as Extract<I18nRouterMatch, { type: 'notFound' }>).location, '/about');
 		});
 
 		it('continues for non-default locale when locale matches domain', () => {
@@ -379,7 +392,7 @@ describe('I18nRouter', () => {
 				currentDomain: 'es.example.com',
 			});
 
-			const result = router.match('/es/about', context);
+			const result: I18nRouterMatch = router.match('/es/about', context);
 
 			assert.equal(result.type, 'continue');
 		});
@@ -390,14 +403,14 @@ describe('I18nRouter', () => {
 				currentDomain: 'en.example.com',
 			});
 
-			const result = router.match('/es/about', context);
+			const result: I18nRouterMatch = router.match('/es/about', context);
 
 			assert.equal(result.type, 'continue');
 		});
 	});
 
 	describe('strategy: domains-prefix-always-no-redirect', () => {
-		let router;
+		let router: I18nRouter;
 
 		before(() => {
 			const config = makeI18nRouterConfig({
@@ -419,7 +432,7 @@ describe('I18nRouter', () => {
 				currentDomain: 'en.example.com',
 			});
 
-			const result = router.match('/', context);
+			const result: I18nRouterMatch = router.match('/', context);
 
 			assert.equal(result.type, 'continue');
 		});
@@ -430,14 +443,14 @@ describe('I18nRouter', () => {
 				currentDomain: 'en.example.com',
 			});
 
-			const result = router.match('/en/about', context);
+			const result: I18nRouterMatch = router.match('/en/about', context);
 
 			assert.equal(result.type, 'continue');
 		});
 	});
 
 	describe('route filtering - skips i18n processing', () => {
-		let router;
+		let router: I18nRouter;
 
 		before(() => {
 			const config = makeI18nRouterConfig({
@@ -451,7 +464,7 @@ describe('I18nRouter', () => {
 		it('skips 404 pages', () => {
 			const context = makeRouterContext({ currentLocale: undefined });
 
-			const result = router.match('/404', context);
+			const result: I18nRouterMatch = router.match('/404', context);
 
 			assert.equal(result.type, 'continue');
 		});
@@ -459,7 +472,7 @@ describe('I18nRouter', () => {
 		it('skips 500 pages', () => {
 			const context = makeRouterContext({ currentLocale: undefined });
 
-			const result = router.match('/500', context);
+			const result: I18nRouterMatch = router.match('/500', context);
 
 			assert.equal(result.type, 'continue');
 		});
@@ -467,7 +480,7 @@ describe('I18nRouter', () => {
 		it('skips server islands', () => {
 			const context = makeRouterContext({ currentLocale: undefined });
 
-			const result = router.match('/_server-islands/Counter', context);
+			const result: I18nRouterMatch = router.match('/_server-islands/Counter', context);
 
 			assert.equal(result.type, 'continue');
 		});
@@ -478,7 +491,7 @@ describe('I18nRouter', () => {
 				routeType: 'endpoint',
 			});
 
-			const result = router.match('/api/data', context);
+			const result: I18nRouterMatch = router.match('/api/data', context);
 
 			assert.equal(result.type, 'continue');
 		});
@@ -489,7 +502,7 @@ describe('I18nRouter', () => {
 				isReroute: true,
 			});
 
-			const result = router.match('/about', context);
+			const result: I18nRouterMatch = router.match('/about', context);
 
 			assert.equal(result.type, 'continue');
 		});
@@ -500,14 +513,14 @@ describe('I18nRouter', () => {
 				routeType: 'fallback',
 			});
 
-			const result = router.match('/about', context);
+			const result: I18nRouterMatch = router.match('/about', context);
 
 			assert.equal(result.type, 'notFound');
 		});
 	});
 
 	describe('strategy: manual', () => {
-		let router;
+		let router: I18nRouter;
 
 		before(() => {
 			const config = makeI18nRouterConfig({
@@ -521,7 +534,7 @@ describe('I18nRouter', () => {
 		it('always continues (no automatic routing)', () => {
 			const context = makeRouterContext({ currentLocale: undefined });
 
-			const result = router.match('/', context);
+			const result: I18nRouterMatch = router.match('/', context);
 
 			assert.equal(result.type, 'continue');
 		});
@@ -529,7 +542,7 @@ describe('I18nRouter', () => {
 		it('continues for any path', () => {
 			const context = makeRouterContext({ currentLocale: undefined });
 
-			const result = router.match('/any/path', context);
+			const result: I18nRouterMatch = router.match('/any/path', context);
 
 			assert.equal(result.type, 'continue');
 		});

@@ -5,19 +5,25 @@ import { RenderContext } from '../../../dist/core/render-context.js';
 import {
 	createComponent,
 	Fragment,
-	maybeRenderHead,
+	maybeRenderHead as _maybeRenderHead,
 	render,
 	renderComponent,
-	renderHead,
+	renderHead as _renderHead,
 	renderSlot,
 } from '../../../dist/runtime/server/index.js';
+import type { Pipeline } from '../../../dist/core/render/index.js';
 import { createBasicPipeline } from '../test-utils.js';
 
-const createAstroModule = (AstroComponent) => ({ default: AstroComponent });
+// The public types for renderHead/maybeRenderHead declare zero params,
+// but the runtime implementation accepts a result argument.
+const renderHead = _renderHead as (result: any) => any;
+const maybeRenderHead = _maybeRenderHead as (result: any) => any;
+
+const createAstroModule = (AstroComponent: any) => ({ default: AstroComponent });
 
 describe('core/render', () => {
 	describe('Injected head contents', () => {
-		let pipeline;
+		let pipeline: Pipeline;
 		before(async () => {
 			pipeline = createBasicPipeline();
 			pipeline.headElements = () => ({
@@ -30,7 +36,7 @@ describe('core/render', () => {
 		});
 
 		it('Multi-level layouts and head injection, with explicit head', async () => {
-			const BaseLayout = createComponent((result, _props, slots) => {
+			const BaseLayout = createComponent((result: any, _props: any, slots: any) => {
 				return render`<html>
 					<head>
 					${renderSlot(result, slots['head'])}
@@ -43,7 +49,7 @@ describe('core/render', () => {
 				</html>`;
 			});
 
-			const PageLayout = createComponent((result, _props, slots) => {
+			const PageLayout = createComponent((result: any, _props: any, slots: any) => {
 				return render`${renderComponent(
 					result,
 					'Layout',
@@ -72,7 +78,7 @@ describe('core/render', () => {
 				`;
 			});
 
-			const Page = createComponent((result) => {
+			const Page = createComponent((result: any) => {
 				return render`${renderComponent(
 					result,
 					'PageLayout',
@@ -103,7 +109,7 @@ describe('core/render', () => {
 				component: 'src/pages/index.astro',
 				params: {},
 			};
-			const renderContext = await RenderContext.create({ pipeline, request, routeData });
+			const renderContext = await RenderContext.create({ pipeline, request, routeData } as any);
 			const response = await renderContext.render(PageModule);
 
 			const html = await response.text();
@@ -114,7 +120,7 @@ describe('core/render', () => {
 		});
 
 		it('Multi-level layouts and head injection, without explicit head', async () => {
-			const BaseLayout = createComponent((result, _props, slots) => {
+			const BaseLayout = createComponent((result: any, _props: any, slots: any) => {
 				return render`<html>
 					${renderSlot(result, slots['head'])}
 					${maybeRenderHead(result)}
@@ -124,7 +130,7 @@ describe('core/render', () => {
 				</html>`;
 			});
 
-			const PageLayout = createComponent((result, _props, slots) => {
+			const PageLayout = createComponent((result: any, _props: any, slots: any) => {
 				return render`${renderComponent(
 					result,
 					'Layout',
@@ -153,7 +159,7 @@ describe('core/render', () => {
 				`;
 			});
 
-			const Page = createComponent((result) => {
+			const Page = createComponent((result: any) => {
 				return render`${renderComponent(
 					result,
 					'PageLayout',
@@ -184,7 +190,7 @@ describe('core/render', () => {
 				component: 'src/pages/index.astro',
 				params: {},
 			};
-			const renderContext = await RenderContext.create({ pipeline, request, routeData });
+			const renderContext = await RenderContext.create({ pipeline, request, routeData } as any);
 			const response = await renderContext.render(PageModule);
 
 			const html = await response.text();
@@ -195,11 +201,11 @@ describe('core/render', () => {
 		});
 
 		it('Multi-level layouts and head injection, without any content in layouts', async () => {
-			const BaseLayout = createComponent((result, _props, slots) => {
+			const BaseLayout = createComponent((result: any, _props: any, slots: any) => {
 				return render`${renderSlot(result, slots['default'])}`;
 			});
 
-			const PageLayout = createComponent((result, _props, slots) => {
+			const PageLayout = createComponent((result: any, _props: any, slots: any) => {
 				return render`${renderComponent(
 					result,
 					'Layout',
@@ -212,7 +218,7 @@ describe('core/render', () => {
 				`;
 			});
 
-			const Page = createComponent((result) => {
+			const Page = createComponent((result: any) => {
 				return render`${renderComponent(
 					result,
 					'PageLayout',
@@ -232,7 +238,7 @@ describe('core/render', () => {
 				component: 'src/pages/index.astro',
 				params: {},
 			};
-			const renderContext = await RenderContext.create({ pipeline, request, routeData });
+			const renderContext = await RenderContext.create({ pipeline, request, routeData } as any);
 			const response = await renderContext.render(PageModule);
 
 			const html = await response.text();

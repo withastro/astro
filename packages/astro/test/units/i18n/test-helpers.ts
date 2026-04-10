@@ -28,7 +28,7 @@ export function makeRouterContext({
 	routeType?: string;
 	isReroute?: boolean;
 } = {}) {
-	return { currentLocale, currentDomain, routeType, isReroute };
+	return { currentLocale, currentDomain, routeType: routeType as 'page' | 'fallback', isReroute };
 }
 
 export function makeFallbackOptions({
