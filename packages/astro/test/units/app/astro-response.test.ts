@@ -1,9 +1,8 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { App } from '../../../dist/core/app/app.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
-import { createManifest, createRouteInfo } from './test-helpers.js';
+import { createManifest, createRouteInfo } from './test-helpers.ts';
 
 const notFoundRouteData = {
 	route: '/not-found',
@@ -13,11 +12,11 @@ const notFoundRouteData = {
 	distURL: [],
 	pattern: /^\/not-found\/?$/,
 	segments: [[{ content: 'not-found', dynamic: false, spread: false }]],
-	type: 'page',
+	type: 'page' as const,
 	prerender: false,
 	fallbackRoutes: [],
 	isIndex: false,
-	origin: 'project',
+	origin: 'project' as const,
 };
 
 const notFoundCustomRouteData = {
@@ -28,11 +27,11 @@ const notFoundCustomRouteData = {
 	distURL: [],
 	pattern: /^\/not-found-custom\/?$/,
 	segments: [[{ content: 'not-found-custom', dynamic: false, spread: false }]],
-	type: 'page',
+	type: 'page' as const,
 	prerender: false,
 	fallbackRoutes: [],
 	isIndex: false,
-	origin: 'project',
+	origin: 'project' as const,
 };
 
 const notFoundPage = createComponent(() => {
@@ -42,7 +41,7 @@ const notFoundPage = createComponent(() => {
 	});
 });
 
-const notFoundCustomPage = createComponent((result, props, slots) => {
+const notFoundCustomPage = createComponent((result: any, props: any, slots: any) => {
 	const Astro = result.createAstro(props, slots);
 	Astro.response.status = 404;
 	return render`<div>Custom 404</div>`;
@@ -70,8 +69,8 @@ const pageMap = new Map([
 const app = new App(
 	createManifest({
 		routes: [createRouteInfo(notFoundRouteData), createRouteInfo(notFoundCustomRouteData)],
-		pageMap,
-	}),
+		pageMap: pageMap as any,
+	}) as any,
 );
 
 describe('Returning responses', () => {
