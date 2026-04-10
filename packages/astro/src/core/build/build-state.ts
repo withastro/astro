@@ -4,7 +4,7 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import type { AstroSettings } from '../../types/astro.js';
 import type { RuntimeMode } from '../../types/public/config.js';
-import type { Logger } from '../logger/core.js';
+import type { AstroLogger } from '../logger/core.js';
 import { prependForwardSlash } from '../path.js';
 import { normalizePath } from '../viteUtils.js';
 import { cleanUrl, normalizeFilename } from '../../vite-plugin-utils/index.js';
@@ -186,7 +186,7 @@ export async function clearIncrementalBuildState({
 	fs = fsMod,
 }: {
 	settings: Pick<AstroSettings, 'config'>;
-	logger: Logger;
+	logger: AstroLogger;
 	fs?: typeof fsMod;
 }) {
 	if (!fs.existsSync(settings.config.cacheDir)) {
@@ -216,7 +216,7 @@ export async function loadIncrementalBuildState({
 	runtimeMode,
 	fs = fsMod,
 }: IncrementalBuildStateOptions & {
-	logger: Logger;
+	logger: AstroLogger;
 	fs?: typeof fsMod;
 }): Promise<LoadedIncrementalBuildState> {
 	const stateFile = getIncrementalBuildStateFile({ settings, mode, runtimeMode });
@@ -462,7 +462,7 @@ export async function writeIncrementalBuildState({
 	fs = fsMod,
 }: {
 	settings: AstroSettings;
-	logger: Logger;
+	logger: AstroLogger;
 	state: IncrementalBuildState;
 	fs?: typeof fsMod;
 }) {
