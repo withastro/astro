@@ -5,21 +5,27 @@ import { RenderContext } from '../../../dist/core/render-context.js';
 import {
 	createComponent,
 	createHeadAndContent,
-	maybeRenderHead,
+	maybeRenderHead as _maybeRenderHead,
 	render,
 	renderComponent,
-	renderHead,
+	renderHead as _renderHead,
 	renderSlot,
 	renderSlotToString,
 	renderUniqueStylesheet,
 	unescapeHTML,
 } from '../../../dist/runtime/server/index.js';
+import type { Pipeline } from '../../../dist/core/render/index.js';
 import { createBasicPipeline } from '../test-utils.js';
 
-const createAstroModule = (AstroComponent) => ({ default: AstroComponent });
+// The public types for renderHead/maybeRenderHead declare zero params,
+// but the runtime implementation accepts a result argument.
+const renderHead = _renderHead as (result: any) => any;
+const maybeRenderHead = _maybeRenderHead as (result: any) => any;
+
+const createAstroModule = (AstroComponent: any) => ({ default: AstroComponent });
 
 describe('head injection app-level rendering', () => {
-	let pipeline;
+	let pipeline: Pipeline;
 
 	before(async () => {
 		pipeline = createBasicPipeline();
@@ -30,7 +36,7 @@ describe('head injection app-level rendering', () => {
 		});
 	});
 
-	async function renderPage(Component) {
+	async function renderPage(Component: any) {
 		const request = new Request('http://example.com/');
 		const routeData = {
 			type: 'page',
@@ -38,7 +44,7 @@ describe('head injection app-level rendering', () => {
 			component: 'src/pages/index.astro',
 			params: {},
 		};
-		const renderContext = await RenderContext.create({ pipeline, request, routeData });
+		const renderContext = await RenderContext.create({ pipeline, request, routeData } as any);
 		const response = await renderContext.render(createAstroModule(Component));
 		return cheerio.load(await response.text());
 	}
@@ -46,13 +52,13 @@ describe('head injection app-level rendering', () => {
 	it('injects propagated head from component created in page scope', async () => {
 		const Other = createComponent(() => render`<div id="other">Other</div>`);
 		const HeadEntry = createComponent({
-			factory(result, props, slots) {
+			factory(result: any, props: any, slots: any) {
 				const link = renderUniqueStylesheet(result, {
 					type: 'external',
 					src: '/some/fake/styles.css',
 				});
 				return createHeadAndContent(
-					unescapeHTML(link),
+					unescapeHTML(link) as unknown as string,
 					render`${renderComponent(result, 'Other', Other, props, slots)}`,
 				);
 			},
@@ -60,7 +66,7 @@ describe('head injection app-level rendering', () => {
 		});
 
 		const Wrapper = createComponent(
-			(result) =>
+			(result: any) =>
 				render`<html><head>${renderHead(result)}</head><body>${renderComponent(result, 'HeadEntry', HeadEntry, {}, {})}</body></html>`,
 		);
 
@@ -73,13 +79,13 @@ describe('head injection app-level rendering', () => {
 	it('injects propagated head through nested layout components', async () => {
 		const Other = createComponent(() => render`<div id="other">Other</div>`);
 		const HeadEntry = createComponent({
-			factory(result, props, slots) {
+			factory(result: any, props: any, slots: any) {
 				const link = renderUniqueStylesheet(result, {
 					type: 'external',
 					src: '/some/fake/styles.css',
 				});
 				return createHeadAndContent(
-					unescapeHTML(link),
+					unescapeHTML(link) as unknown as string,
 					render`${renderComponent(result, 'Other', Other, props, slots)}`,
 				);
 			},
@@ -87,21 +93,21 @@ describe('head injection app-level rendering', () => {
 		});
 
 		const Content = createComponent(
-			(result) => render`${renderComponent(result, 'HeadEntry', HeadEntry, {}, {})}`,
+			(result: any) => render`${renderComponent(result, 'HeadEntry', HeadEntry, {}, {})}`,
 		);
 		Content.propagation = 'in-tree';
 		const Inner = createComponent(
-			(result) => render`${renderComponent(result, 'Content', Content, {}, {})}`,
+			(result: any) => render`${renderComponent(result, 'Content', Content, {}, {})}`,
 		);
 		Inner.propagation = 'in-tree';
 		const Layout = createComponent({
-			async factory(result, _props, slots) {
+			async factory(result: any, _props: any, slots: any) {
 				const slotted = await renderSlotToString(result, slots.default);
 				return render`<html><head><title>Normal head stuff</title>${renderHead(result)}</head><body>${unescapeHTML(slotted)}</body></html>`;
 			},
 		});
 		const Page = createComponent(
-			(result) =>
+			(result: any) =>
 				render`${renderComponent(result, 'Layout', Layout, {}, { default: () => render`${renderComponent(result, 'Inner', Inner, {}, {})}` })}`,
 		);
 
@@ -113,25 +119,28 @@ describe('head injection app-level rendering', () => {
 
 	it('supports slot rendering during head buffering without style bleed', async () => {
 		const SlottedContent = createComponent({
-			factory(result) {
+			factory(result: any) {
 				const link = renderUniqueStylesheet(result, {
 					type: 'external',
 					src: '/styles/from-slot.css',
 				});
-				return createHeadAndContent(unescapeHTML(link), render`<p>Paragraph.</p>`);
+				return createHeadAndContent(
+					unescapeHTML(link) as unknown as string,
+					render`<p>Paragraph.</p>`,
+				);
 			},
 			propagation: 'self',
 		});
 
 		const SlotRenderComponent = createComponent({
-			async factory(result, _props, slots) {
+			async factory(result: any, _props: any, slots: any) {
 				const html = await renderSlotToString(result, slots.default);
 				const ownLink = renderUniqueStylesheet(result, {
 					type: 'external',
 					src: '/styles/slot-render.css',
 				});
 				return createHeadAndContent(
-					ownLink,
+					ownLink as string,
 					render`<div class="p-sample">${unescapeHTML(html)}</div>`,
 				);
 			},
@@ -139,11 +148,11 @@ describe('head injection app-level rendering', () => {
 		});
 
 		const Layout = createComponent(
-			(result, _props, slots) =>
+			(result: any, _props: any, slots: any) =>
 				render`<html><head></head>${maybeRenderHead(result)}<body>${renderSlot(result, slots.default)}</body></html>`,
 		);
 		const Page = createComponent(
-			(result) =>
+			(result: any) =>
 				render`${renderComponent(
 					result,
 					'Layout',
