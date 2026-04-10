@@ -18,7 +18,7 @@ import {
 	renderSlot,
 	unescapeHTML,
 } from '../../../dist/runtime/server/index.js';
-import { createTestApp, createPage } from '../mocks.js';
+import { createTestApp, createPage } from '../mocks.ts';
 
 describe('toAttributeString', () => {
 	it('escapes & to &#38;', () => {

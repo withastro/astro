@@ -12,7 +12,7 @@ import {
 	renderSlot,
 } from '../../../dist/runtime/server/index.js';
 import type { Pipeline } from '../../../dist/core/render/index.js';
-import { createBasicPipeline } from '../test-utils.js';
+import { createBasicPipeline } from '../test-utils.ts';
 
 // The public types for renderHead/maybeRenderHead declare zero params,
 // but the runtime implementation accepts a result argument.

@@ -6,7 +6,7 @@ import {
 	maybeRenderHead as _maybeRenderHead,
 	render,
 } from '../../../dist/runtime/server/index.js';
-import { createBasicPipeline } from '../test-utils.js';
+import { createBasicPipeline } from '../test-utils.ts';
 
 // The public types for maybeRenderHead declare zero params,
 // but the runtime implementation accepts a result argument.

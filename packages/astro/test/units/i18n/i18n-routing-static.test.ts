@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import type { StaticBuildOptions } from '../../../dist/core/build/types.js';
 import { renderPath } from '../../../dist/core/build/generate.js';
-import { createMockAstroSource, createRouteData } from '../mocks.js';
+import { createMockAstroSource, createRouteData } from '../mocks.ts';
 import { createMockPrerenderer, createStaticBuildOptions } from '../build/test-helpers.ts';
 
 async function renderAndAssertPath(

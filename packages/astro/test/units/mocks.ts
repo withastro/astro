@@ -1,4 +1,4 @@
-import { createBasicPipeline } from './test-utils.js';
+import { createBasicPipeline } from './test-utils.ts';
 import { makeRoute, staticPart } from './routing/test-helpers.ts';
 import { AstroCookies } from '../../dist/core/cookies/index.js';
 import { App } from '../../dist/core/app/app.js';

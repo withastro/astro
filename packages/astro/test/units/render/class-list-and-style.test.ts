@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { addAttribute } from '../../../dist/runtime/server/index.js';
 import { toStyleString } from '../../../dist/runtime/server/render/util.js';
-import { createTestApp, createPage, createMultiChildPage, spreadPropsSpan } from '../mocks.js';
+import { createTestApp, createPage, createMultiChildPage, spreadPropsSpan } from '../mocks.ts';
 
 describe('class:list', () => {
 	it('handles a plain string', () => {

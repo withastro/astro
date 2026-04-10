@@ -4,7 +4,7 @@ import type { MiddlewareHandler } from 'astro';
 import type { RoutingStrategies } from '../../../dist/core/app/common.js';
 import type { Locales } from '../../../dist/types/public/config.js';
 import { createI18nMiddleware } from '../../../dist/i18n/middleware.js';
-import { createMockAPIContext } from '../mocks.js';
+import { createMockAPIContext } from '../mocks.ts';
 
 /**
  * Creates a "page" response that mimics what the render pipeline returns.

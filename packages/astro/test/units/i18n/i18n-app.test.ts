@@ -5,7 +5,7 @@ import type { RoutingStrategies } from '../../../dist/core/app/common.js';
 import { createI18nMiddleware } from '../../../dist/i18n/middleware.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import type { Locales } from '../../../dist/types/public/config.js';
-import { createPage, createTestApp } from '../mocks.js';
+import { createPage, createTestApp } from '../mocks.ts';
 import { dynamicPart, staticPart } from '../routing/test-helpers.ts';
 
 interface I18nConfigOverrides {

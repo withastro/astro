@@ -41,17 +41,17 @@ describe('computeCurrentLocale', () => {
 	});
 
 	it('handles object locales with path', () => {
-		const locales = [{ path: 'spanish', codes: ['es', 'es-ES'] }, 'en'] as const;
+		const locales = [{ path: 'spanish', codes: ['es', 'es-ES'] }, 'en'];
 		assert.equal(computeCurrentLocale('/spanish/about', locales, 'en'), 'es');
 	});
 
 	it('handles object locales with codes matching segment', () => {
-		const locales = [{ path: 'spanish', codes: ['es', 'es-ES'] }, 'en'] as const;
+		const locales = [{ path: 'spanish', codes: ['es', 'es-ES'] }, 'en'];
 		assert.equal(computeCurrentLocale('/es/about', locales, 'en'), 'es');
 	});
 
 	it('returns first code for object locale default', () => {
-		const locales = [{ path: 'english', codes: ['en', 'en-US'] }, 'fr'] as const;
+		const locales = [{ path: 'english', codes: ['en', 'en-US'] }, 'fr'];
 		assert.equal(computeCurrentLocale('/about', locales, 'english'), 'en');
 	});
 });
@@ -103,7 +103,7 @@ describe('getPathByLocale', () => {
 	});
 
 	it('returns the path for object locales', () => {
-		const locales = [{ path: 'spanish', codes: ['es', 'es-ES'] }, 'en'] as const;
+		const locales = [{ path: 'spanish', codes: ['es', 'es-ES'] }, 'en'];
 		assert.equal(getPathByLocale('es', locales), 'spanish');
 	});
 
@@ -118,14 +118,14 @@ describe('getLocaleByPath', () => {
 	});
 
 	it('returns the first code for object locales', () => {
-		const locales = [{ path: 'spanish', codes: ['es', 'es-ES'] }, 'en'] as const;
+		const locales = [{ path: 'spanish', codes: ['es', 'es-ES'] }, 'en'];
 		assert.equal(getLocaleByPath('spanish', locales), 'es');
 	});
 });
 
 describe('getAllCodes', () => {
 	it('returns all codes from string and object locales', () => {
-		const locales = ['en', { path: 'spanish', codes: ['es', 'es-ES'] }] as const;
+		const locales = ['en', { path: 'spanish', codes: ['es', 'es-ES'] }];
 		assert.deepEqual(getAllCodes(locales), ['en', 'es', 'es-ES']);
 	});
 
@@ -136,14 +136,14 @@ describe('getAllCodes', () => {
 
 describe('toCodes', () => {
 	it('returns first code per locale entry', () => {
-		const locales = ['en', { path: 'spanish', codes: ['es', 'es-ES'] }] as const;
+		const locales = ['en', { path: 'spanish', codes: ['es', 'es-ES'] }];
 		assert.deepEqual(toCodes(locales), ['en', 'es']);
 	});
 });
 
 describe('toPaths', () => {
 	it('returns path strings for all locales', () => {
-		const locales = ['en', { path: 'spanish', codes: ['es'] }] as const;
+		const locales = ['en', { path: 'spanish', codes: ['es'] }];
 		assert.deepEqual(toPaths(locales), ['en', 'spanish']);
 	});
 });
