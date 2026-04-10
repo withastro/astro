@@ -1,4 +1,3 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
@@ -249,7 +248,7 @@ describe('Supports void elements whose name is a string (#2062)', async () => {
 	// Mirrors Input.astro: a component that picks between input/select/textarea
 	// based on the `type` prop, demonstrating that void element detection works
 	// when the tag name is a runtime string value, not a literal.
-	const Input = createComponent((result, props, slots) => {
+	const Input = createComponent((result: any, props: any, slots: any) => {
 		const Astro = result.createAstro(props, slots);
 		const { type: initialType, ...rest } = Astro.props;
 		const isSelect = /^select$/i.test(initialType);
@@ -267,7 +266,7 @@ describe('Supports void elements whose name is a string (#2062)', async () => {
 	});
 
 	const inputPage = createComponent(
-		(result) => renderTemplate`<html><body>
+		(result: any) => renderTemplate`<html><body>
 		${renderComponent(result, 'Input', Input, {})}
 		${renderComponent(result, 'Input', Input, { type: 'password' })}
 		${renderComponent(result, 'Input', Input, { type: 'text' })}
@@ -348,8 +347,8 @@ describe('Allows using the Fragment element', async () => {
 
 	it('streams sync siblings before async children resolve (issue #13283)', async () => {
 		// A deferred promise simulates a slow async child inside the Fragment.
-		let resolveAsync;
-		const asyncChild = new Promise((resolve) => {
+		let resolveAsync: () => void;
+		const asyncChild = new Promise<void>((resolve) => {
 			resolveAsync = resolve;
 		});
 
@@ -357,12 +356,12 @@ describe('Allows using the Fragment element', async () => {
 
 		// Build a Fragment whose default slot contains a sync <p> followed by an async <p>.
 		const renderInstance = renderComponent(
-			DEFAULT_RESULT,
+			DEFAULT_RESULT as any,
 			'Fragment',
 			Fragment,
 			{},
 			{
-				default: (_result) =>
+				default: (_result: any) =>
 					renderTemplate`<p id="sync">sync</p>${asyncChild.then(
 						() => renderTemplate`<p id="async">async</p>`,
 					)}`,
@@ -370,16 +369,16 @@ describe('Allows using the Fragment element', async () => {
 		);
 
 		// Collect chunks as they are written so we can inspect ordering.
-		const chunks = [];
+		const chunks: string[] = [];
 		const destination = {
-			write(chunk) {
+			write(chunk: any) {
 				chunks.push(String(chunk));
 			},
 		};
 
 		// Start rendering — do NOT await yet so we can inspect mid-flight state.
 		const instance = await Promise.resolve(renderInstance);
-		const renderPromise = instance.render(destination);
+		const renderPromise = (instance as any).render(destination);
 
 		// Yield to the microtask queue so the sync portion can flush.
 		await Promise.resolve();
@@ -389,7 +388,7 @@ describe('Allows using the Fragment element', async () => {
 		assert.ok(syncFlushed, 'sync sibling should stream before async child resolves');
 
 		// Now resolve the async child and finish rendering.
-		resolveAsync();
+		resolveAsync!();
 		await renderPromise;
 
 		const html = chunks.join('');
@@ -403,37 +402,37 @@ describe('Allows using the Fragment element', async () => {
 describe('renders the components top-down', async () => {
 	it('renders sibling components in document order', async () => {
 		// Mirrors order.astro + OrderA/B/Last.astro using globalThis to track render order
-		globalThis.__ASTRO_TEST_ORDER__ = [];
+		(globalThis as any).__ASTRO_TEST_ORDER__ = [];
 
-		const OrderA = createComponent((result, _p, slots) => {
-			globalThis.__ASTRO_TEST_ORDER__.push('A');
+		const OrderA = createComponent((result: any, _p: any, slots: any) => {
+			(globalThis as any).__ASTRO_TEST_ORDER__.push('A');
 			return renderTemplate`<p>A</p>${renderSlot(result, slots.default)}`;
 		});
-		const OrderB = createComponent((result, _p, slots) => {
-			globalThis.__ASTRO_TEST_ORDER__.push('B');
+		const OrderB = createComponent((result: any, _p: any, slots: any) => {
+			(globalThis as any).__ASTRO_TEST_ORDER__.push('B');
 			return renderTemplate`<p>B</p>${renderSlot(result, slots.default)}`;
 		});
 		const OrderLast = createComponent(
 			() =>
-				renderTemplate`<p id="rendered-order">Rendered order: ${() => (globalThis.__ASTRO_TEST_ORDER__ ?? []).join(', ')}</p>`,
+				renderTemplate`<p id="rendered-order">Rendered order: ${() => ((globalThis as any).__ASTRO_TEST_ORDER__ ?? []).join(', ')}</p>`,
 		);
 
 		const page = createComponent(
-			(result) =>
+			(result: any) =>
 				renderTemplate`<html><body>${renderComponent(
 					result,
 					'OrderA',
 					OrderA,
 					{},
 					{
-						default: (result2) =>
+						default: (result2: any) =>
 							renderTemplate`${renderComponent(
 								result2,
 								'OrderB',
 								OrderB,
 								{},
 								{
-									default: (result3) =>
+									default: (result3: any) =>
 										renderTemplate`${renderComponent(result3, 'OrderLast', OrderLast, {})}`,
 								},
 							)}`,
