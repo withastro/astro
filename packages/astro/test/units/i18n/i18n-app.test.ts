@@ -1,30 +1,30 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { createComponent, render } from '../../../dist/runtime/server/index.js';
+import type { RoutingStrategies } from '../../../dist/core/app/common.js';
 import { createI18nMiddleware } from '../../../dist/i18n/middleware.js';
-import { createTestApp, createPage } from '../mocks.js';
-import { dynamicPart, staticPart } from '../routing/test-helpers.js';
+import { createComponent, render } from '../../../dist/runtime/server/index.js';
+import type { Locales } from '../../../dist/types/public/config.js';
+import { createPage, createTestApp } from '../mocks.js';
+import { dynamicPart, staticPart } from '../routing/test-helpers.ts';
 
-/**
- * @param {Partial<{
- *   defaultLocale: string,
- *   locales: import('../../../src/types/public/config.js').Locales,
- *   strategy: string,
- *   fallbackType: 'redirect' | 'rewrite',
- *   fallback: Record<string, string>,
- * }>} [overrides]
- */
-function makeI18nConfig(overrides = {}) {
+interface I18nConfigOverrides {
+	defaultLocale?: string;
+	locales?: Locales;
+	strategy?: RoutingStrategies;
+	fallbackType?: 'redirect' | 'rewrite';
+	fallback?: Record<string, string>;
+}
+
+function makeI18nConfig(overrides: I18nConfigOverrides = {}) {
 	return {
 		defaultLocale: overrides.defaultLocale ?? 'en',
-		locales: overrides.locales ?? ['en', 'fr', 'es'],
-		strategy: overrides.strategy ?? 'pathname-prefix-always',
-		fallbackType: overrides.fallbackType ?? 'rewrite',
-		fallback: 'fallback' in overrides ? overrides.fallback : {},
-		domains: {},
-		domainLookupTable: {},
+		locales: overrides.locales ?? (['en', 'fr', 'es'] as Locales),
+		strategy: overrides.strategy ?? ('pathname-prefix-always' as RoutingStrategies),
+		fallbackType: overrides.fallbackType ?? ('rewrite' as const),
+		fallback: 'fallback' in overrides ? overrides.fallback : ({} as Record<string, string>),
+		domains: {} as Record<string, string>,
+		domainLookupTable: {} as Record<string, string>,
 	};
 }
 
@@ -38,7 +38,7 @@ const notFoundPage = createComponent(() => {
 });
 
 /** Shorthand for a locale-prefixed catch-all route */
-function localeCatchAll(locale) {
+function localeCatchAll(locale: string) {
 	return createPage(localePage, {
 		route: `/${locale}/[...slug]`,
 		segments: [[staticPart(locale)], [dynamicPart('slug')]],
