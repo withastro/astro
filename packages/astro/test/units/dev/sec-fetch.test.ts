@@ -1,13 +1,17 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import type { RemotePattern } from '@astrojs/internal-helpers/remote';
 import { secFetchMiddleware } from '../../../dist/vite-plugin-astro-server/sec-fetch.js';
-import { createRequestAndResponse, defaultLogger } from '../test-utils.js';
+import { createRequestAndResponse, defaultLogger } from '../test-utils.ts';
 
 /**
  * Helper to run a request through the secFetchMiddleware and return whether
  * it was blocked (response ended with 403) or allowed (next() was called).
  */
-function runMiddleware(headers, allowedDomains) {
+function runMiddleware(
+	headers: Record<string, string>,
+	allowedDomains?: Partial<RemotePattern>[],
+): Promise<{ nextCalled: boolean; statusCode: number }> {
 	const middleware = secFetchMiddleware(defaultLogger, allowedDomains);
 	const { req, res, done } = createRequestAndResponse({
 		method: 'GET',
@@ -131,7 +135,7 @@ describe('secFetchMiddleware', () => {
 	});
 
 	describe('allowedDomains support', () => {
-		const allowedDomains = [
+		const allowedDomains: Partial<RemotePattern>[] = [
 			{ hostname: 'myproxy.example.com', protocol: 'https' },
 			{ hostname: '*.ngrok.io', protocol: 'https' },
 		];
