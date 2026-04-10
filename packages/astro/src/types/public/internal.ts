@@ -251,6 +251,10 @@ export interface SSRResult {
 	scriptResources: SSRManifestCSP['scriptResources'];
 	styleHashes: SSRManifestCSP['styleHashes'];
 	styleResources: SSRManifestCSP['styleResources'];
+	scriptElemHashes: SSRManifestCSP['scriptElemHashes'];
+	scriptElemResources: SSRManifestCSP['scriptElemResources'];
+	styleElemHashes: SSRManifestCSP['styleElemHashes'];
+	styleElemResources: SSRManifestCSP['styleElemResources'];
 	directives: SSRManifestCSP['directives'];
 	isStrictDynamic: SSRManifestCSP['isStrictDynamic'];
 	internalFetchHeaders?: Record<string, string>;
