@@ -1,5 +1,5 @@
 import { createBasicPipeline } from './test-utils.js';
-import { makeRoute, staticPart } from './routing/test-helpers.js';
+import { makeRoute, staticPart } from './routing/test-helpers.ts';
 import { AstroCookies } from '../../dist/core/cookies/index.js';
 import { App } from '../../dist/core/app/app.js';
 import { baseService } from '../../dist/assets/services/service.js';
@@ -10,7 +10,7 @@ import {
 	renderComponent,
 	spreadAttributes,
 } from '../../dist/runtime/server/index.js';
-import { createManifest, createRouteInfo } from './app/test-helpers.js';
+import { createManifest, createRouteInfo } from './app/test-helpers.ts';
 
 /**
  * Mock utilities for unit tests.

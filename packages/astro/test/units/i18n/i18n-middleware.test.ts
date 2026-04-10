@@ -1,6 +1,8 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { beforeEach, describe, it } from 'node:test';
+import type { MiddlewareHandler } from 'astro';
+import type { RoutingStrategies } from '../../../dist/core/app/common.js';
+import type { Locales } from '../../../dist/types/public/config.js';
 import { createI18nMiddleware } from '../../../dist/i18n/middleware.js';
 import { createMockAPIContext } from '../mocks.js';
 
@@ -8,40 +10,51 @@ import { createMockAPIContext } from '../mocks.js';
  * Creates a "page" response that mimics what the render pipeline returns.
  * The `X-Astro-Route-Type: page` header is what the i18n middleware reads
  * to decide whether to apply routing logic.
- *
- * @param {string} body
- * @param {number} [status]
- * @param {Record<string, string>} [extraHeaders]
  */
-function makePageResponse(body, status = 200, extraHeaders = {}) {
+function makePageResponse(
+	body: string,
+	status = 200,
+	extraHeaders: Record<string, string> = {},
+): Response {
 	return new Response(body, {
 		status,
 		headers: { 'X-Astro-Route-Type': 'page', ...extraHeaders },
 	});
 }
 
+interface I18nManifestOverrides {
+	defaultLocale?: string;
+	locales?: Locales;
+	strategy?: RoutingStrategies;
+	fallbackType?: 'redirect' | 'rewrite';
+	fallback?: Record<string, string>;
+	domainLookupTable?: Record<string, string>;
+	domains?: Record<string, string>;
+}
+
 /**
  * Creates a minimal i18n manifest.
- * @param {Partial<{
- *   defaultLocale: string,
- *   locales: import('../../../src/types/public/config.js').Locales,
- *   strategy: import('../../../dist/core/app/common.js').RoutingStrategies,
- *   fallbackType: 'redirect' | 'rewrite',
- *   fallback: Record<string, string>,
- *   domainLookupTable: Record<string, string>,
- *   domains: Record<string, string>,
- * }>} [overrides]
  */
-function makeI18nManifest(overrides = {}) {
+function makeI18nManifest(overrides: I18nManifestOverrides = {}) {
 	return {
 		defaultLocale: overrides.defaultLocale ?? 'en',
 		locales: overrides.locales ?? ['en', 'it'],
-		strategy: overrides.strategy ?? 'pathname-prefix-always',
-		fallbackType: overrides.fallbackType ?? 'rewrite',
+		strategy: overrides.strategy ?? ('pathname-prefix-always' as RoutingStrategies),
+		fallbackType: overrides.fallbackType ?? ('rewrite' as const),
 		fallback: overrides.fallback ?? {},
 		domains: overrides.domains ?? {},
 		domainLookupTable: overrides.domainLookupTable ?? {},
 	};
+}
+
+/** Calls the handler and asserts the result is a Response (not void). */
+async function callHandler(
+	handler: MiddlewareHandler,
+	...args: Parameters<MiddlewareHandler>
+): Promise<Response> {
+	const result = await handler(...args);
+	assert.ok(result instanceof Response, 'expected handler to return a Response');
+	return result;
 }
 
 describe('createI18nMiddleware', () => {
@@ -50,14 +63,13 @@ describe('createI18nMiddleware', () => {
 		const ctx = createMockAPIContext({ url: 'http://localhost/anything' });
 		const pageResponse = makePageResponse('original');
 
-		const result = await handler(ctx, async () => pageResponse);
+		const result = await callHandler(handler, ctx, async () => pageResponse);
 
 		assert.equal(result, pageResponse, 'should return the exact same response object');
 	});
 
 	describe('pathname-prefix-always strategy', () => {
-		/** @type {import('astro').MiddlewareHandler} */
-		let handler;
+		let handler: MiddlewareHandler;
 
 		beforeEach(() => {
 			handler = createI18nMiddleware(
@@ -72,7 +84,7 @@ describe('createI18nMiddleware', () => {
 			const ctx = createMockAPIContext({ url: 'http://localhost/blog' });
 			const next = async () => makePageResponse('Blog should not render');
 
-			const result = await handler(ctx, next);
+			const result = await callHandler(handler, ctx, next);
 
 			assert.equal(result.status, 404);
 			assert.equal(result.body, null, 'Body should be null so the App reroutes to the 404 page');
@@ -82,7 +94,7 @@ describe('createI18nMiddleware', () => {
 			const ctx = createMockAPIContext({ url: 'http://localhost/en/start' });
 			const next = async () => makePageResponse('en page');
 
-			const result = await handler(ctx, next);
+			const result = await callHandler(handler, ctx, next);
 
 			assert.equal(result.status, 200);
 			assert.equal(await result.text(), 'en page');
@@ -92,7 +104,7 @@ describe('createI18nMiddleware', () => {
 			const ctx = createMockAPIContext({ url: 'http://localhost/' });
 			const next = async () => makePageResponse('root');
 
-			const result = await handler(ctx, next);
+			const result = await callHandler(handler, ctx, next);
 
 			assert.equal(result.status, 302);
 			assert.ok(
@@ -103,8 +115,7 @@ describe('createI18nMiddleware', () => {
 	});
 
 	describe('pathname-prefix-other-locales strategy', () => {
-		/** @type {import('astro').MiddlewareHandler} */
-		let handler;
+		let handler: MiddlewareHandler;
 
 		beforeEach(() => {
 			handler = createI18nMiddleware(
@@ -119,7 +130,7 @@ describe('createI18nMiddleware', () => {
 			const ctx = createMockAPIContext({ url: 'http://localhost/blog' });
 			const next = async () => makePageResponse('en blog');
 
-			const result = await handler(ctx, next);
+			const result = await callHandler(handler, ctx, next);
 
 			assert.equal(result.status, 200);
 		});
@@ -128,7 +139,7 @@ describe('createI18nMiddleware', () => {
 			const ctx = createMockAPIContext({ url: 'http://localhost/en/blog' });
 			const next = async () => makePageResponse('should not be visible');
 
-			const result = await handler(ctx, next);
+			const result = await callHandler(handler, ctx, next);
 
 			assert.equal(result.status, 404);
 		});
@@ -149,7 +160,7 @@ describe('createI18nMiddleware', () => {
 			const ctx = createMockAPIContext({ url: 'http://localhost/it/start' });
 			const next = async () => makePageResponse('no it page', 404);
 
-			const result = await handler(ctx, next);
+			const result = await callHandler(handler, ctx, next);
 
 			assert.equal(result.status, 302);
 			assert.equal(result.headers.get('Location'), '/en/start');
@@ -168,11 +179,11 @@ describe('createI18nMiddleware', () => {
 			);
 			const ctx = createMockAPIContext({
 				url: 'http://localhost/it/start',
-				rewrite: async (path) => new Response(`rewritten to ${path}`, { status: 200 }),
-			});
+				rewrite: async (_path: string) => new Response(`rewritten to ${_path}`, { status: 200 }),
+			} as any);
 			const next = async () => makePageResponse('no it page', 404);
 
-			const result = await handler(ctx, next);
+			const result = await callHandler(handler, ctx, next);
 
 			assert.equal(result.status, 200);
 			assert.equal(await result.text(), 'rewritten to /en/start');
@@ -193,7 +204,7 @@ describe('createI18nMiddleware', () => {
 				headers: { 'X-Astro-Route-Type': 'page', 'X-Astro-Reroute': 'no' },
 			});
 
-			const result = await handler(ctx, async () => pageResponse);
+			const result = await callHandler(handler, ctx, async () => pageResponse);
 
 			assert.equal(result, pageResponse, 'should return the exact same response');
 		});
@@ -205,7 +216,7 @@ describe('createI18nMiddleware', () => {
 				headers: { 'X-Astro-Route-Type': 'endpoint' },
 			});
 
-			const result = await handler(ctx, async () => endpointResponse);
+			const result = await callHandler(handler, ctx, async () => endpointResponse);
 
 			assert.equal(result, endpointResponse, 'should return the exact same response');
 		});
