@@ -1,12 +1,13 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { computeFallbackRoute } from '../../../dist/i18n/fallback.js';
-import { makeFallbackOptions } from './test-helpers.js';
+import type { FallbackRouteResult } from '../../../dist/i18n/fallback.js';
+import { makeFallbackOptions } from './test-helpers.ts';
 
 describe('computeFallbackRoute', () => {
 	describe('when response status is not 404', () => {
 		it('returns none for 200 (success)', () => {
-			const result = computeFallbackRoute(
+			const result: FallbackRouteResult = computeFallbackRoute(
 				makeFallbackOptions({
 					pathname: '/es/missing',
 					responseStatus: 200,
@@ -19,7 +20,7 @@ describe('computeFallbackRoute', () => {
 		});
 
 		it('returns none for 301 (redirect)', () => {
-			const result = computeFallbackRoute(
+			const result: FallbackRouteResult = computeFallbackRoute(
 				makeFallbackOptions({
 					pathname: '/es/redirect',
 					responseStatus: 301,
@@ -32,7 +33,7 @@ describe('computeFallbackRoute', () => {
 		});
 
 		it('returns none for 302 (temporary redirect)', () => {
-			const result = computeFallbackRoute(
+			const result: FallbackRouteResult = computeFallbackRoute(
 				makeFallbackOptions({
 					pathname: '/es/redirect',
 					responseStatus: 302,
@@ -45,7 +46,7 @@ describe('computeFallbackRoute', () => {
 		});
 
 		it('returns none for 403 (forbidden)', () => {
-			const result = computeFallbackRoute(
+			const result: FallbackRouteResult = computeFallbackRoute(
 				makeFallbackOptions({
 					pathname: '/es/forbidden',
 					responseStatus: 403,
@@ -58,7 +59,7 @@ describe('computeFallbackRoute', () => {
 		});
 
 		it('returns none for 500 (server error)', () => {
-			const result = computeFallbackRoute(
+			const result: FallbackRouteResult = computeFallbackRoute(
 				makeFallbackOptions({
 					pathname: '/es/error',
 					responseStatus: 500,
@@ -73,7 +74,7 @@ describe('computeFallbackRoute', () => {
 
 	describe('when no fallback configured', () => {
 		it('returns none for empty fallback object', () => {
-			const result = computeFallbackRoute(
+			const result: FallbackRouteResult = computeFallbackRoute(
 				makeFallbackOptions({
 					pathname: '/es/missing',
 					responseStatus: 404,
@@ -88,7 +89,7 @@ describe('computeFallbackRoute', () => {
 
 	describe('when locale not in fallback config', () => {
 		it('returns none if current locale has no fallback', () => {
-			const result = computeFallbackRoute(
+			const result: FallbackRouteResult = computeFallbackRoute(
 				makeFallbackOptions({
 					pathname: '/pt/missing',
 					responseStatus: 404,
@@ -103,7 +104,7 @@ describe('computeFallbackRoute', () => {
 
 	describe('with fallbackType: redirect', () => {
 		it('returns redirect decision for fallback locale', () => {
-			const result = computeFallbackRoute(
+			const result: FallbackRouteResult = computeFallbackRoute(
 				makeFallbackOptions({
 					pathname: '/es/missing',
 					responseStatus: 404,
@@ -115,11 +116,14 @@ describe('computeFallbackRoute', () => {
 			);
 
 			assert.equal(result.type, 'redirect');
-			assert.equal(result.pathname, '/en/missing');
+			assert.equal(
+				(result as Extract<FallbackRouteResult, { type: 'redirect' }>).pathname,
+				'/en/missing',
+			);
 		});
 
 		it('removes default locale prefix for prefix-other-locales strategy', () => {
-			const result = computeFallbackRoute(
+			const result: FallbackRouteResult = computeFallbackRoute(
 				makeFallbackOptions({
 					pathname: '/es/missing',
 					responseStatus: 404,
@@ -132,11 +136,14 @@ describe('computeFallbackRoute', () => {
 			);
 
 			assert.equal(result.type, 'redirect');
-			assert.equal(result.pathname, '/missing'); // No /en/ prefix
+			assert.equal(
+				(result as Extract<FallbackRouteResult, { type: 'redirect' }>).pathname,
+				'/missing',
+			); // No /en/ prefix
 		});
 
 		it('handles base path correctly', () => {
-			const result = computeFallbackRoute(
+			const result: FallbackRouteResult = computeFallbackRoute(
 				makeFallbackOptions({
 					pathname: '/new-site/es/missing',
 					responseStatus: 404,
@@ -149,11 +156,14 @@ describe('computeFallbackRoute', () => {
 			);
 
 			assert.equal(result.type, 'redirect');
-			assert.equal(result.pathname, '/new-site/en/missing');
+			assert.equal(
+				(result as Extract<FallbackRouteResult, { type: 'redirect' }>).pathname,
+				'/new-site/en/missing',
+			);
 		});
 
 		it('handles base path with prefix-other-locales strategy', () => {
-			const result = computeFallbackRoute(
+			const result: FallbackRouteResult = computeFallbackRoute(
 				makeFallbackOptions({
 					pathname: '/new-site/es/missing',
 					responseStatus: 404,
@@ -167,11 +177,14 @@ describe('computeFallbackRoute', () => {
 			);
 
 			assert.equal(result.type, 'redirect');
-			assert.equal(result.pathname, '/new-site/missing');
+			assert.equal(
+				(result as Extract<FallbackRouteResult, { type: 'redirect' }>).pathname,
+				'/new-site/missing',
+			);
 		});
 
 		it('handles fallback to non-default locale', () => {
-			const result = computeFallbackRoute(
+			const result: FallbackRouteResult = computeFallbackRoute(
 				makeFallbackOptions({
 					pathname: '/pt/missing',
 					responseStatus: 404,
@@ -184,11 +197,14 @@ describe('computeFallbackRoute', () => {
 			);
 
 			assert.equal(result.type, 'redirect');
-			assert.equal(result.pathname, '/es/missing');
+			assert.equal(
+				(result as Extract<FallbackRouteResult, { type: 'redirect' }>).pathname,
+				'/es/missing',
+			);
 		});
 
 		it('only triggers for 404 status, not 3xx', () => {
-			const result = computeFallbackRoute(
+			const result: FallbackRouteResult = computeFallbackRoute(
 				makeFallbackOptions({
 					pathname: '/es/redirect',
 					responseStatus: 301,
@@ -202,7 +218,7 @@ describe('computeFallbackRoute', () => {
 		});
 
 		it('triggers for 404 status', () => {
-			const result = computeFallbackRoute(
+			const result: FallbackRouteResult = computeFallbackRoute(
 				makeFallbackOptions({
 					pathname: '/es/notfound',
 					responseStatus: 404,
@@ -216,7 +232,7 @@ describe('computeFallbackRoute', () => {
 		});
 
 		it('only triggers for 404 status, not 5xx', () => {
-			const result = computeFallbackRoute(
+			const result: FallbackRouteResult = computeFallbackRoute(
 				makeFallbackOptions({
 					pathname: '/es/error',
 					responseStatus: 500,
@@ -232,7 +248,7 @@ describe('computeFallbackRoute', () => {
 
 	describe('with fallbackType: rewrite', () => {
 		it('returns rewrite decision for fallback locale', () => {
-			const result = computeFallbackRoute(
+			const result: FallbackRouteResult = computeFallbackRoute(
 				makeFallbackOptions({
 					pathname: '/es/missing',
 					responseStatus: 404,
@@ -244,11 +260,14 @@ describe('computeFallbackRoute', () => {
 			);
 
 			assert.equal(result.type, 'rewrite');
-			assert.equal(result.pathname, '/en/missing');
+			assert.equal(
+				(result as Extract<FallbackRouteResult, { type: 'rewrite' }>).pathname,
+				'/en/missing',
+			);
 		});
 
 		it('removes default locale prefix for prefix-other-locales strategy', () => {
-			const result = computeFallbackRoute(
+			const result: FallbackRouteResult = computeFallbackRoute(
 				makeFallbackOptions({
 					pathname: '/es/missing',
 					responseStatus: 404,
@@ -261,11 +280,14 @@ describe('computeFallbackRoute', () => {
 			);
 
 			assert.equal(result.type, 'rewrite');
-			assert.equal(result.pathname, '/missing');
+			assert.equal(
+				(result as Extract<FallbackRouteResult, { type: 'rewrite' }>).pathname,
+				'/missing',
+			);
 		});
 
 		it('handles base path correctly', () => {
-			const result = computeFallbackRoute(
+			const result: FallbackRouteResult = computeFallbackRoute(
 				makeFallbackOptions({
 					pathname: '/new-site/es/missing',
 					responseStatus: 404,
@@ -278,11 +300,14 @@ describe('computeFallbackRoute', () => {
 			);
 
 			assert.equal(result.type, 'rewrite');
-			assert.equal(result.pathname, '/new-site/en/missing');
+			assert.equal(
+				(result as Extract<FallbackRouteResult, { type: 'rewrite' }>).pathname,
+				'/new-site/en/missing',
+			);
 		});
 
 		it('works with dynamic routes', () => {
-			const result = computeFallbackRoute(
+			const result: FallbackRouteResult = computeFallbackRoute(
 				makeFallbackOptions({
 					pathname: '/es/blog/my-post',
 					responseStatus: 404,
@@ -294,11 +319,14 @@ describe('computeFallbackRoute', () => {
 			);
 
 			assert.equal(result.type, 'rewrite');
-			assert.equal(result.pathname, '/en/blog/my-post');
+			assert.equal(
+				(result as Extract<FallbackRouteResult, { type: 'rewrite' }>).pathname,
+				'/en/blog/my-post',
+			);
 		});
 
 		it('handles deep nested paths', () => {
-			const result = computeFallbackRoute(
+			const result: FallbackRouteResult = computeFallbackRoute(
 				makeFallbackOptions({
 					pathname: '/es/blog/2024/01/post',
 					responseStatus: 404,
@@ -310,13 +338,16 @@ describe('computeFallbackRoute', () => {
 			);
 
 			assert.equal(result.type, 'rewrite');
-			assert.equal(result.pathname, '/en/blog/2024/01/post');
+			assert.equal(
+				(result as Extract<FallbackRouteResult, { type: 'rewrite' }>).pathname,
+				'/en/blog/2024/01/post',
+			);
 		});
 	});
 
 	describe('locale extraction from pathname', () => {
 		it('finds locale in first segment', () => {
-			const result = computeFallbackRoute(
+			const result: FallbackRouteResult = computeFallbackRoute(
 				makeFallbackOptions({
 					pathname: '/es/page',
 					responseStatus: 404,
@@ -330,7 +361,7 @@ describe('computeFallbackRoute', () => {
 		});
 
 		it('handles paths without locale gracefully', () => {
-			const result = computeFallbackRoute(
+			const result: FallbackRouteResult = computeFallbackRoute(
 				makeFallbackOptions({
 					pathname: '/page',
 					responseStatus: 404,
@@ -344,7 +375,7 @@ describe('computeFallbackRoute', () => {
 		});
 
 		it('handles granular locale configurations (object format)', () => {
-			const result = computeFallbackRoute(
+			const result: FallbackRouteResult = computeFallbackRoute(
 				makeFallbackOptions({
 					pathname: '/spanish/page',
 					responseStatus: 404,
@@ -357,13 +388,16 @@ describe('computeFallbackRoute', () => {
 			);
 
 			assert.equal(result.type, 'redirect');
-			assert.equal(result.pathname, '/en/page');
+			assert.equal(
+				(result as Extract<FallbackRouteResult, { type: 'redirect' }>).pathname,
+				'/en/page',
+			);
 		});
 	});
 
 	describe('edge cases', () => {
 		it('handles root path', () => {
-			const result = computeFallbackRoute(
+			const result: FallbackRouteResult = computeFallbackRoute(
 				makeFallbackOptions({
 					pathname: '/es/',
 					responseStatus: 404,
@@ -375,11 +409,11 @@ describe('computeFallbackRoute', () => {
 			);
 
 			assert.equal(result.type, 'redirect');
-			assert.equal(result.pathname, '/en/');
+			assert.equal((result as Extract<FallbackRouteResult, { type: 'redirect' }>).pathname, '/en/');
 		});
 
 		it('handles pathname without trailing slash', () => {
-			const result = computeFallbackRoute(
+			const result: FallbackRouteResult = computeFallbackRoute(
 				makeFallbackOptions({
 					pathname: '/es',
 					responseStatus: 404,
@@ -391,11 +425,11 @@ describe('computeFallbackRoute', () => {
 			);
 
 			assert.equal(result.type, 'redirect');
-			assert.equal(result.pathname, '/en');
+			assert.equal((result as Extract<FallbackRouteResult, { type: 'redirect' }>).pathname, '/en');
 		});
 
 		it('preserves trailing content after locale replacement', () => {
-			const result = computeFallbackRoute(
+			const result: FallbackRouteResult = computeFallbackRoute(
 				makeFallbackOptions({
 					pathname: '/es/a/b/c/d',
 					responseStatus: 404,
@@ -407,7 +441,10 @@ describe('computeFallbackRoute', () => {
 			);
 
 			assert.equal(result.type, 'rewrite');
-			assert.equal(result.pathname, '/en/a/b/c/d');
+			assert.equal(
+				(result as Extract<FallbackRouteResult, { type: 'rewrite' }>).pathname,
+				'/en/a/b/c/d',
+			);
 		});
 	});
 });
