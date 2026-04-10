@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
+import type { GetImageResult, UnresolvedImageTransform } from '../../../dist/assets/types.js';
 import { getImage } from '../../../dist/assets/internal.js';
-import { installImageService } from '../mocks.js';
+import { installImageService } from '../mocks.ts';
 
 describe('getImage', () => {
-	/** @type {ReturnType<typeof installImageService>} */
-	let imageService;
+	let imageService: ReturnType<typeof installImageService>;
 
 	before(() => {
 		imageService = installImageService({ domains: ['example.com', 'images.unsplash.com'] });
@@ -16,7 +16,7 @@ describe('getImage', () => {
 	});
 
 	/** Shorthand for calling getImage with the installed service config */
-	function renderImage(props) {
+	function renderImage(props: UnresolvedImageTransform): Promise<GetImageResult> {
 		return getImage(props, imageService.imageConfig);
 	}
 
@@ -32,7 +32,7 @@ describe('getImage', () => {
 			const widths = result.srcSet.values.map((v) => v.transform.width);
 			assert.ok(widths.includes(800));
 			assert.equal(widths.at(-1), 1600);
-			assert.ok(widths.every((w) => w <= 1600));
+			assert.ok(widths.every((w) => w! <= 1600));
 		});
 
 		it('has correct sizes attribute', async () => {
@@ -330,8 +330,7 @@ describe('getImage', () => {
 
 describe('getImage - remotePatterns', () => {
 	describe('hostname pattern', () => {
-		/** @type {ReturnType<typeof installImageService>} */
-		let service;
+		let service: ReturnType<typeof installImageService>;
 
 		before(() => {
 			service = installImageService({
@@ -369,8 +368,7 @@ describe('getImage - remotePatterns', () => {
 	});
 
 	describe('hostname + pathname pattern', () => {
-		/** @type {ReturnType<typeof installImageService>} */
-		let service;
+		let service: ReturnType<typeof installImageService>;
 
 		before(() => {
 			service = installImageService({
@@ -400,8 +398,7 @@ describe('getImage - remotePatterns', () => {
 	});
 
 	describe('protocol pattern', () => {
-		/** @type {ReturnType<typeof installImageService>} */
-		let service;
+		let service: ReturnType<typeof installImageService>;
 
 		before(() => {
 			service = installImageService({
@@ -431,8 +428,7 @@ describe('getImage - remotePatterns', () => {
 	});
 
 	describe('domains takes precedence', () => {
-		/** @type {ReturnType<typeof installImageService>} */
-		let service;
+		let service: ReturnType<typeof installImageService>;
 
 		before(() => {
 			service = installImageService({
