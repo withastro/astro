@@ -33,6 +33,23 @@ type CfResponse = Awaited<ReturnType<Required<ExportedHandler<Env>>['fetch']>>;
 
 const app = createApp();
 
+/**
+ * Rewrites a URL so that the base prefix is removed from the pathname.
+ * This is needed because static files on disk are NOT nested under the base
+ * path, but the URLs that Astro generates (and that end up in the manifest's
+ * `assets` set) include the base.  Cloudflare's ASSETS binding resolves
+ * request paths directly against the `dist/client/` directory, so we must
+ * strip the base before handing off to it.
+ */
+function removeBaseFromUrl(url: string): string {
+	const parsed = new URL(url);
+	const newPathname = app.removeBase(parsed.pathname);
+	// removeBase returns the path without a leading slash when the base is
+	// stripped; ensure we always have one.
+	parsed.pathname = newPathname.startsWith('/') ? newPathname : '/' + newPathname;
+	return parsed.toString();
+}
+
 export async function handle(
 	request: Request,
 	env: Env,
@@ -67,7 +84,7 @@ export async function handle(
 
 	// NOTE this ASSETS binding path is needed for users who are using `run_worker_first` routing
 	if (app.manifest.assets.has(requestPathname)) {
-		return env.ASSETS.fetch(request.url.replace(/\.html$/, ''));
+		return env.ASSETS.fetch(removeBaseFromUrl(request.url.replace(/\.html$/, '')));
 	}
 
 	let routeData: RouteData | undefined = undefined;
@@ -83,7 +100,7 @@ export async function handle(
 	if (!routeData) {
 		// NOTE this ASSETS binding path is needed for users who are using `run_worker_first` routing
 		const asset = await env.ASSETS.fetch(
-			request.url.replace(/index.html$/, '').replace(/\.html$/, ''),
+			removeBaseFromUrl(request.url.replace(/index.html$/, '').replace(/\.html$/, '')),
 		);
 		if (asset.status !== 404) {
 			return asset;
@@ -124,7 +141,7 @@ export async function handle(
 		locals,
 		prerenderedErrorPageFetch: async (url: string) => {
 			// NOTE this ASSETS binding path is needed for users who are using `run_worker_first` routing
-			return env.ASSETS.fetch(url.replace(/\.html$/, ''));
+			return env.ASSETS.fetch(removeBaseFromUrl(url.replace(/\.html$/, '')));
 		},
 		clientAddress: getValidatedIpFromHeader(request.headers.get('cf-connecting-ip')),
 	});
