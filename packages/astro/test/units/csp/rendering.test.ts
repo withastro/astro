@@ -8,15 +8,13 @@ import {
 	render,
 	renderHead,
 } from '../../../dist/runtime/server/index.js';
-import { createBasicPipeline } from '../test-utils.js';
+import type { SSRManifestCSP } from '../../../dist/types/public/internal.js';
+import type { Pipeline } from '../../../dist/core/render/index.js';
+import { createBasicPipeline } from '../test-utils.ts';
 
 // #region Test Utilities
 
-/**
- * Creates a pipeline with CSP configuration
- * @param {Partial<import('../../../dist/core/app/types.js').SSRManifestCSP>} cspConfig
- */
-function createCspPipeline(cspConfig = {}) {
+function createCspPipeline(cspConfig: Partial<SSRManifestCSP> = {}): Pipeline {
 	const pipeline = createBasicPipeline();
 	pipeline.manifest = {
 		...pipeline.manifest,
@@ -35,17 +33,15 @@ function createCspPipeline(cspConfig = {}) {
 	return pipeline;
 }
 
-/**
- * Renders a page component and returns HTML and headers
- * @param {any} PageComponent
- * @param {any} pipeline
- * @param {boolean} prerender
- */
-async function renderPage(PageComponent, pipeline, prerender = true) {
+async function renderPage(
+	PageComponent: ReturnType<typeof createComponent>,
+	pipeline: Pipeline,
+	prerender = true,
+): Promise<{ html: string; response: Response }> {
 	const PageModule = { default: PageComponent };
 	const request = new Request('http://localhost/');
 	const routeData = {
-		type: 'page',
+		type: 'page' as const,
 		pathname: '/index',
 		component: 'src/pages/index.astro',
 		params: {},
@@ -86,7 +82,7 @@ describe('CSP Rendering', () => {
 			const $ = cheerio.load(html);
 
 			const meta = $('meta[http-equiv="Content-Security-Policy"]');
-			const content = meta.attr('content');
+			const content = meta.attr('content')!;
 
 			assert.ok(content.includes('sha256-abc123'), 'Should include first style hash');
 			assert.ok(content.includes('sha256-def456'), 'Should include second style hash');
@@ -107,7 +103,7 @@ describe('CSP Rendering', () => {
 			const $ = cheerio.load(html);
 
 			const meta = $('meta[http-equiv="Content-Security-Policy"]');
-			const content = meta.attr('content');
+			const content = meta.attr('content')!;
 
 			assert.ok(content.includes('sha256-xyz789'), 'Should include first script hash');
 			assert.ok(content.includes('sha256-uvw456'), 'Should include second script hash');
@@ -126,7 +122,7 @@ describe('CSP Rendering', () => {
 			const $ = cheerio.load(html);
 
 			const meta = $('meta[http-equiv="Content-Security-Policy"]');
-			const content = meta.attr('content');
+			const content = meta.attr('content')!;
 
 			assert.ok(content.includes('sha512-'), 'Should use sha512 prefix');
 			assert.ok(content.includes('sha512-longhash123abc'), 'Should include SHA-512 hash');
@@ -142,7 +138,7 @@ describe('CSP Rendering', () => {
 			const $ = cheerio.load(html);
 
 			const meta = $('meta[http-equiv="Content-Security-Policy"]');
-			const content = meta.attr('content');
+			const content = meta.attr('content')!;
 
 			assert.ok(content.includes('sha384-'), 'Should use sha384 prefix');
 			assert.ok(content.includes('sha384-mediumhash456'), 'Should include SHA-384 hash');
@@ -160,7 +156,7 @@ describe('CSP Rendering', () => {
 			const $ = cheerio.load(html);
 
 			const meta = $('meta[http-equiv="Content-Security-Policy"]');
-			const content = meta.attr('content');
+			const content = meta.attr('content')!;
 
 			assert.ok(content.includes('sha384-hash2'), 'Should include custom style hash 1');
 			assert.ok(content.includes('sha384-hash4'), 'Should include custom script hash 1');
@@ -179,7 +175,7 @@ describe('CSP Rendering', () => {
 			const $ = cheerio.load(html);
 
 			const meta = $('meta[http-equiv="Content-Security-Policy"]');
-			const content = meta.attr('content');
+			const content = meta.attr('content')!;
 
 			assert.ok(
 				content.includes("img-src 'self' 'https://example.com'"),
@@ -201,7 +197,7 @@ describe('CSP Rendering', () => {
 			const $ = cheerio.load(html);
 
 			const meta = $('meta[http-equiv="Content-Security-Policy"]');
-			const content = meta.attr('content');
+			const content = meta.attr('content')!;
 
 			assert.ok(content.includes('upgrade-insecure-requests'), 'Should include upgrade directive');
 			assert.ok(content.includes('sandbox'), 'Should include sandbox directive');
@@ -224,7 +220,7 @@ describe('CSP Rendering', () => {
 			const $ = cheerio.load(html);
 
 			const meta = $('meta[http-equiv="Content-Security-Policy"]');
-			const content = meta.attr('content');
+			const content = meta.attr('content')!;
 
 			assert.ok(
 				content.includes('script-src https://cdn.example.com https://scripts.cdn.example.com'),
@@ -263,7 +259,7 @@ describe('CSP Rendering', () => {
 			const $ = cheerio.load(html);
 
 			const meta = $('meta[http-equiv="Content-Security-Policy"]');
-			const content = meta.attr('content');
+			const content = meta.attr('content')!;
 
 			// Check resources are merged and deduplicated
 			assert.ok(
@@ -310,7 +306,7 @@ describe('CSP Rendering', () => {
 			const $ = cheerio.load(html);
 
 			const meta = $('meta[http-equiv="Content-Security-Policy"]');
-			const content = meta.attr('content');
+			const content = meta.attr('content')!;
 
 			// Check style resources are merged
 			assert.ok(
@@ -342,7 +338,7 @@ describe('CSP Rendering', () => {
 			const $ = cheerio.load(html);
 
 			const meta = $('meta[http-equiv="Content-Security-Policy"]');
-			const content = meta.attr('content');
+			const content = meta.attr('content')!;
 
 			assert.ok(content.includes("'strict-dynamic'"), "Should include 'strict-dynamic' keyword");
 		});
@@ -401,7 +397,7 @@ describe('CSP Rendering', () => {
 			const $ = cheerio.load(html);
 
 			const meta = $('meta[http-equiv="Content-Security-Policy"]');
-			const content = meta.attr('content');
+			const content = meta.attr('content')!;
 
 			assert.equal(content.includes('font-src'), false, 'Should not include font-src directive');
 		});
@@ -421,7 +417,7 @@ describe('CSP Rendering', () => {
 			const $ = cheerio.load(html);
 
 			const meta = $('meta[http-equiv="Content-Security-Policy"]');
-			const content = meta.attr('content');
+			const content = meta.attr('content')!;
 
 			// Parse CSP content into structured array
 			const parsed = content
@@ -443,22 +439,22 @@ describe('CSP Rendering', () => {
 			// Check script-src has both resources and hashes
 			const scriptSrc = parsed.find((p) => p.directive === 'script-src');
 			assert.ok(
-				scriptSrc.resources.includes('https://cdn.example.com'),
+				scriptSrc!.resources.includes('https://cdn.example.com'),
 				'script-src should include resource',
 			);
 			assert.ok(
-				scriptSrc.resources.some((r) => r.includes('sha256-abc123')),
+				scriptSrc!.resources.some((r) => r.includes('sha256-abc123')),
 				'script-src should include hash',
 			);
 
 			// Check style-src has both resources and hashes
 			const styleSrc = parsed.find((p) => p.directive === 'style-src');
 			assert.ok(
-				styleSrc.resources.includes('https://styles.example.com'),
+				styleSrc!.resources.includes('https://styles.example.com'),
 				'style-src should include resource',
 			);
 			assert.ok(
-				styleSrc.resources.some((r) => r.includes('sha256-def456')),
+				styleSrc!.resources.some((r) => r.includes('sha256-def456')),
 				'style-src should include hash',
 			);
 		});
