@@ -29,6 +29,7 @@ const BUILD_IMPLEMENTATION_FILES = [
 	'common',
 	'dependencies',
 	'fingerprint',
+	'generate',
 	'planner',
 	'reuse',
 	'snapshot',
