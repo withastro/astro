@@ -1,12 +1,12 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it, beforeEach } from 'node:test';
 import { callMiddleware } from '../../../dist/core/middleware/callMiddleware.js';
-import { createMockAPIContext, createResponseFunction } from '../mocks.js';
+import { createMockAPIContext, createResponseFunction } from '../mocks.ts';
+
+import type { APIContext, MiddlewareHandler } from 'astro';
 
 describe('callMiddleware', () => {
-	/** @type {import('astro').APIContext} */
-	let ctx;
+	let ctx: APIContext;
 	const defaultResponseFn = createResponseFunction();
 
 	beforeEach(() => {
@@ -15,7 +15,7 @@ describe('callMiddleware', () => {
 
 	describe('next() called', () => {
 		it('returns the middleware return value when next() is called and a Response is returned', async () => {
-			const middleware = async (_ctx, next) => {
+			const middleware: MiddlewareHandler = async (_ctx, next) => {
 				const response = await next();
 				return new Response('modified', { status: 200, headers: response.headers });
 			};
@@ -26,7 +26,7 @@ describe('callMiddleware', () => {
 		});
 
 		it('returns the responseFunction result when next() is called but middleware returns undefined', async () => {
-			const middleware = async (_ctx, next) => {
+			const middleware: MiddlewareHandler = async (_ctx, next) => {
 				await next();
 				// deliberately returns undefined
 			};
@@ -37,14 +37,14 @@ describe('callMiddleware', () => {
 		});
 
 		it('throws MiddlewareNotAResponse when next() is called but middleware returns a non-Response', async () => {
-			const middleware = async (_ctx, next) => {
+			const middleware: MiddlewareHandler = async (_ctx, next) => {
 				await next();
-				return 'not a response';
+				return 'not a response' as unknown as Response;
 			};
 
 			await assert.rejects(
 				() => callMiddleware(middleware, ctx, defaultResponseFn),
-				(err) => {
+				(err: any) => {
 					assert.equal(err.name, 'MiddlewareNotAResponse');
 					return true;
 				},
@@ -54,7 +54,7 @@ describe('callMiddleware', () => {
 
 	describe('next() not called', () => {
 		it('returns the Response when middleware short-circuits without calling next()', async () => {
-			const middleware = async () => {
+			const middleware: MiddlewareHandler = async () => {
 				return new Response('short-circuit', { status: 200 });
 			};
 
@@ -65,7 +65,7 @@ describe('callMiddleware', () => {
 		});
 
 		it('returns a 500 Response when middleware short-circuits with an error status', async () => {
-			const middleware = async () => {
+			const middleware: MiddlewareHandler = async () => {
 				return new Response(null, { status: 500 });
 			};
 
@@ -75,13 +75,13 @@ describe('callMiddleware', () => {
 		});
 
 		it('throws MiddlewareNoDataOrNextCalled when middleware returns undefined without calling next()', async () => {
-			const middleware = async () => {
+			const middleware: MiddlewareHandler = async () => {
 				// returns undefined, never calls next
 			};
 
 			await assert.rejects(
 				() => callMiddleware(middleware, ctx, defaultResponseFn),
-				(err) => {
+				(err: any) => {
 					assert.equal(err.name, 'MiddlewareNoDataOrNextCalled');
 					return true;
 				},
@@ -89,13 +89,13 @@ describe('callMiddleware', () => {
 		});
 
 		it('throws MiddlewareNotAResponse when middleware returns a non-Response without calling next()', async () => {
-			const middleware = async () => {
-				return 'not a response';
+			const middleware: MiddlewareHandler = async () => {
+				return 'not a response' as unknown as Response;
 			};
 
 			await assert.rejects(
 				() => callMiddleware(middleware, ctx, defaultResponseFn),
-				(err) => {
+				(err: any) => {
 					assert.equal(err.name, 'MiddlewareNotAResponse');
 					return true;
 				},
@@ -105,12 +105,12 @@ describe('callMiddleware', () => {
 
 	describe('context mutation', () => {
 		it('locals mutations are visible in the response function', async () => {
-			const middleware = async (context, next) => {
-				context.locals.name = 'bar';
+			const middleware: MiddlewareHandler = async (context, next) => {
+				(context.locals as Record<string, unknown>).name = 'bar';
 				return next();
 			};
-			const responseFn = async (apiCtx) => {
-				return new Response(`name=${apiCtx.locals.name}`);
+			const responseFn = async (apiCtx: APIContext) => {
+				return new Response(`name=${(apiCtx.locals as Record<string, unknown>).name}`);
 			};
 
 			const response = await callMiddleware(middleware, ctx, responseFn);
@@ -119,7 +119,7 @@ describe('callMiddleware', () => {
 		});
 
 		it('middleware can set response headers after calling next()', async () => {
-			const middleware = async (_context, next) => {
+			const middleware: MiddlewareHandler = async (_context, next) => {
 				const response = await next();
 				response.headers.set('X-Custom', 'value');
 				return response;
@@ -131,7 +131,7 @@ describe('callMiddleware', () => {
 		});
 
 		it('middleware can clone the response, modify body, and return a new Response', async () => {
-			const middleware = async (_context, next) => {
+			const middleware: MiddlewareHandler = async (_context, next) => {
 				const response = await next();
 				const cloned = response.clone();
 				const html = await cloned.text();
@@ -149,7 +149,7 @@ describe('callMiddleware', () => {
 		});
 
 		it('middleware can intercept a JSON response, modify it, and return a new Response', async () => {
-			const middleware = async (_context, next) => {
+			const middleware: MiddlewareHandler = async (_context, next) => {
 				const response = await next();
 				const data = await response.json();
 				data.name = 'REDACTED';
@@ -174,7 +174,7 @@ describe('callMiddleware', () => {
 
 	describe('synchronous middleware', () => {
 		it('works with a synchronous middleware that calls next()', async () => {
-			const middleware = (_context, next) => {
+			const middleware: MiddlewareHandler = (_context, next) => {
 				return next();
 			};
 
@@ -184,7 +184,7 @@ describe('callMiddleware', () => {
 		});
 
 		it('works with a synchronous middleware that returns a Response', async () => {
-			const middleware = () => {
+			const middleware: MiddlewareHandler = () => {
 				return new Response('sync short-circuit');
 			};
 
