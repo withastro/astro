@@ -93,7 +93,9 @@ Did you forget to import the component or is it possible there is a typo?`);
 			}
 			case !vnode.type && (vnode.type as any) !== 0:
 				return '';
-			case typeof vnode.type === 'string' && vnode.type !== ClientOnlyPlaceholder:
+			case typeof vnode.type === 'string' &&
+				vnode.type !== ClientOnlyPlaceholder &&
+				!vnode.type.includes('-'):
 				return markHTMLString(await renderElement(result, vnode.type as string, vnode.props ?? {}));
 		}
 
