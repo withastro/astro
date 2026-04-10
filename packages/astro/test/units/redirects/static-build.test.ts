@@ -1,16 +1,19 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { renderPath } from '../../../dist/core/build/generate.js';
-import { createMockPrerenderer, createStaticBuildOptions } from '../build/test-helpers.js';
-import { createTestApp, createPage } from '../mocks.js';
+import { createMockPrerenderer, createStaticBuildOptions } from '../build/test-helpers.ts';
+import { createTestApp, createPage } from '../mocks.ts';
 import { createComponent, render, renderComponent } from '../../../dist/runtime/server/index.js';
+
+import type { StaticBuildOptions } from '../../../dist/core/build/types.js';
+import type { RouteData } from '../../../dist/types/public/internal.js';
+import type { MiddlewareHandler } from '../../../dist/types/public/common.js';
 
 // Minimal target page for redirect destination routes
 const TARGET_PAGE = '---\n---\n<p>Target</p>';
 
 describe('static redirects — meta refresh output', () => {
-	let options;
+	let options: StaticBuildOptions;
 
 	before(async () => {
 		options = await createStaticBuildOptions({
@@ -37,7 +40,7 @@ describe('static redirects — meta refresh output', () => {
 	});
 
 	it('includes http-equiv refresh and target URL in redirect HTML', async () => {
-		const route = options.routesList.routes.find(
+		const route = (options.routesList as { routes: RouteData[] }).routes.find(
 			(r) => r.route === '/one' && r.type === 'redirect',
 		);
 		assert.ok(route, 'expected /one redirect route');
@@ -59,7 +62,7 @@ describe('static redirects — meta refresh output', () => {
 	});
 
 	it('generates redirect HTML for a 302 redirect', async () => {
-		const route = options.routesList.routes.find(
+		const route = (options.routesList as { routes: RouteData[] }).routes.find(
 			(r) => r.route === '/three' && r.type === 'redirect',
 		);
 		assert.ok(route, 'expected /three redirect route');
@@ -81,7 +84,7 @@ describe('static redirects — meta refresh output', () => {
 	});
 
 	it('generates redirect HTML for an external destination', async () => {
-		const route = options.routesList.routes.find(
+		const route = (options.routesList as { routes: RouteData[] }).routes.find(
 			(r) => r.route === '/external/redirect' && r.type === 'redirect',
 		);
 		assert.ok(route, 'expected /external/redirect route');
@@ -106,7 +109,7 @@ describe('static redirects — meta refresh output', () => {
 	});
 
 	it('generates redirect HTML for a relative destination', async () => {
-		const route = options.routesList.routes.find(
+		const route = (options.routesList as { routes: RouteData[] }).routes.find(
 			(r) => r.route === '/relative/redirect' && r.type === 'redirect',
 		);
 		assert.ok(route, 'expected /relative/redirect route');
@@ -131,7 +134,7 @@ describe('static redirects — meta refresh output', () => {
 	});
 
 	it('generates redirect HTML for a dynamic slug redirect', async () => {
-		const route = options.routesList.routes.find(
+		const route = (options.routesList as { routes: RouteData[] }).routes.find(
 			(r) => r.route === '/blog/[...slug]' && r.type === 'redirect',
 		);
 		assert.ok(route, 'expected /blog/[...slug] redirect route');
@@ -153,7 +156,7 @@ describe('static redirects — meta refresh output', () => {
 	});
 
 	it('falls back to spread rule for multi-segment dynamic paths', async () => {
-		const route = options.routesList.routes.find(
+		const route = (options.routesList as { routes: RouteData[] }).routes.find(
 			(r) => r.route === '/more/old/[...spread]' && r.type === 'redirect',
 		);
 		assert.ok(route, 'expected /more/old/[...spread] redirect route');
@@ -179,7 +182,7 @@ describe('static redirects — meta refresh output', () => {
 });
 
 describe('static redirects — config.build.redirects = false suppresses redirect pages', () => {
-	let options;
+	let options: StaticBuildOptions;
 
 	before(async () => {
 		options = await createStaticBuildOptions({
@@ -192,7 +195,7 @@ describe('static redirects — config.build.redirects = false suppresses redirec
 	});
 
 	it('returns null for a redirect route when build.redirects is false', async () => {
-		const route = options.routesList.routes.find(
+		const route = (options.routesList as { routes: RouteData[] }).routes.find(
 			(r) => r.route === '/one' && r.type === 'redirect',
 		);
 		assert.ok(route, 'expected /one redirect route');
@@ -213,7 +216,7 @@ describe('static redirects — config.build.redirects = false suppresses redirec
 });
 
 describe('static redirects — site config does not affect redirect URL', () => {
-	let options;
+	let options: StaticBuildOptions;
 
 	before(async () => {
 		options = await createStaticBuildOptions({
@@ -226,7 +229,7 @@ describe('static redirects — site config does not affect redirect URL', () => 
 	});
 
 	it('uses relative URL in redirect HTML even when site is set', async () => {
-		const route = options.routesList.routes.find(
+		const route = (options.routesList as { routes: RouteData[] }).routes.find(
 			(r) => r.route === '/one' && r.type === 'redirect',
 		);
 		assert.ok(route, 'expected /one redirect route');
@@ -250,8 +253,10 @@ describe('static redirects — site config does not affect redirect URL', () => 
 
 describe('static redirects — middleware-generated redirect', () => {
 	it('renders redirect HTML for a page that returns a redirect via middleware', async () => {
-		const indexPage = createComponent((_result, _props, _slots) => render`<p>Index</p>`);
-		const middleware = async (ctx, next) => {
+		const indexPage = createComponent(
+			(_result: any, _props: any, _slots: any) => render`<p>Index</p>`,
+		);
+		const middleware: MiddlewareHandler = async (ctx, next) => {
 			if (new URL(ctx.request.url).pathname === '/middleware-redirect/') {
 				return new Response(null, { status: 301, headers: { Location: '/test' } });
 			}
@@ -264,7 +269,7 @@ describe('static redirects — middleware-generated redirect', () => {
 
 		const response = await app.render(new Request('http://example.com/middleware-redirect/'), {
 			routeData: undefined,
-		});
+		} as any);
 		assert.equal(response.status, 301);
 		assert.equal(response.headers.get('Location'), '/test');
 	});
@@ -292,7 +297,7 @@ describe('static redirects — invalid redirect destination throws', () => {
 						},
 					},
 				}),
-			(err) => {
+			(err: Error & { name: string }) => {
 				// Should NOT be the misleading getStaticPaths error
 				assert.ok(!err.message.includes('getStaticPaths()'));
 				// Should be our new clear error message
@@ -309,7 +314,7 @@ describe('Astro.redirect() in a page component — build.redirects = false', () 
 		// /secret calls Astro.redirect('/login') in frontmatter.
 		// build.redirects=false suppresses config-level redirect routes but must NOT
 		// suppress pages that explicitly return a redirect response via Astro.redirect().
-		const secretPage = createComponent((result, props, slots) => {
+		const secretPage = createComponent((result: any, props: any, slots: any) => {
 			const Astro = result.createAstro(props, slots);
 			return Astro.redirect('/login');
 		});
@@ -325,7 +330,7 @@ describe('Astro.redirect() in a page component — build.redirects = false', () 
 describe('Astro.redirect() — site config does not inject absolute URL', () => {
 	it('uses relative URL in Location header even when site is set', async () => {
 		// The site config should not cause redirect URLs to become absolute.
-		const secretPage = createComponent((result, props, slots) => {
+		const secretPage = createComponent((result: any, props: any, slots: any) => {
 			const Astro = result.createAstro(props, slots);
 			return Astro.redirect('/login');
 		});
@@ -333,7 +338,7 @@ describe('Astro.redirect() — site config does not inject absolute URL', () => 
 		const app = createTestApp([createPage(secretPage, { route: '/secret' })]);
 		const response = await app.render(new Request('http://example.com/secret/'));
 
-		const location = response.headers.get('location');
+		const location = response.headers.get('location')!;
 		assert.ok(!location.includes('https://example.com'), 'should not use absolute URL');
 		assert.equal(location, '/login');
 	});
@@ -354,13 +359,13 @@ describe('output: "server"', () => {
 	it('Warns when used inside a component', async () => {
 		// A child component calls Astro.redirect() after the parent has already
 		// started streaming HTML — the same pattern as late.astro + redirect.astro.
-		const redirectChild = createComponent((result, props, slots) => {
+		const redirectChild = createComponent((result: any, props: any, slots: any) => {
 			const Astro = result.createAstro(props, slots);
 			return Astro.redirect('/login');
 		});
 
 		const latePage = createComponent(
-			(result) =>
+			(result: any) =>
 				render`<html><body><h1>Testing</h1>${renderComponent(result, 'Redirect', redirectChild, {})}</body></html>`,
 		);
 
@@ -371,7 +376,7 @@ describe('output: "server"', () => {
 		try {
 			await response.text();
 			assert.equal(false, true);
-		} catch (e) {
+		} catch (e: any) {
 			assert.equal(
 				e.message,
 				'The response has already been sent to the browser and cannot be altered.',
