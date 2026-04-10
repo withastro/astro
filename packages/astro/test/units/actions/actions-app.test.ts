@@ -1,4 +1,3 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import * as devalue from 'devalue';
@@ -6,12 +5,13 @@ import { z } from 'zod';
 import { defineAction } from '../../../dist/actions/runtime/server.js';
 import { ActionError } from '../../../dist/actions/runtime/client.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
-import { createTestApp, createPage, createRouteData } from '../mocks.js';
-import { spreadPart, staticPart } from '../routing/test-helpers.js';
+import { createTestApp, createPage, createRouteData } from '../mocks.ts';
+import { spreadPart, staticPart } from '../routing/test-helpers.ts';
+import type { RouteData } from '../../../dist/types/public/internal.js';
 
 const noopPage = createComponent(() => render``);
 
-const actionRouteData = createRouteData({
+const actionRouteData: RouteData = createRouteData({
 	route: '/_actions/[...path]',
 	type: 'endpoint',
 	component: 'astro/actions/runtime/entrypoints/route.js',
@@ -19,22 +19,20 @@ const actionRouteData = createRouteData({
 	pathname: undefined,
 });
 
-/**
- * Creates an App wired up with action handlers at `/_actions/[...path]`.
- *
- * @param {Record<string, any>} serverActions - The `server` export from an actions file
- * @param {object} [options]
- * @param {number} [options.actionBodySizeLimit]
- */
-function createActionsApp(serverActions, options = {}) {
+function createActionsApp(
+	serverActions: Record<string, ReturnType<typeof defineAction>>,
+	options: { actionBodySizeLimit?: number } = {},
+) {
 	return createTestApp(
 		[
 			createPage(noopPage, { route: '/test' }),
 			{
 				routeData: actionRouteData,
-				module: async () => ({
+				// The action entrypoint isn't a page component, but App routes it by matching.
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				module: (async () => ({
 					page: () => import('../../../dist/actions/runtime/entrypoints/route.js'),
-				}),
+				})) as any,
 			},
 		],
 		{
