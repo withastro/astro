@@ -1,12 +1,12 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { renderPath } from '../../../dist/core/build/generate.js';
-import { createMockPrerenderer, createStaticBuildOptions } from '../build/test-helpers.js';
-import { createRouteData } from '../mocks.js';
+import type { StaticBuildOptions } from '../../../dist/core/build/types.js';
+import { createMockPrerenderer, createStaticBuildOptions } from '../build/test-helpers.ts';
+import { createRouteData } from '../mocks.ts';
 
 describe('Astro.params — encoded characters in static paths', () => {
-	let options;
+	let options: StaticBuildOptions;
 
 	before(async () => {
 		options = await createStaticBuildOptions();
