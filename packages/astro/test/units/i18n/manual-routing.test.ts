@@ -10,7 +10,8 @@ import {
 	redirectToFallback,
 } from '../../../dist/i18n/index.js';
 import { REROUTE_DIRECTIVE_HEADER } from '../../../dist/core/constants.js';
-import { createManualRoutingContext, createMiddlewarePayload } from './test-helpers.js';
+import type { Locales } from '../../../dist/types/public/config.js';
+import { createManualRoutingContext, createMiddlewarePayload } from './test-helpers.ts';
 
 describe('normalizeTheLocale', () => {
 	it('should convert underscores to dashes', () => {
@@ -123,24 +124,24 @@ describe('pathHasLocale', () => {
 
 	describe('object locales - path matching', () => {
 		it('should match locale object by path', () => {
-			const locales = [{ path: 'spanish', codes: ['es', 'es-ar'] }];
+			const locales: Locales = [{ path: 'spanish', codes: ['es', 'es-ar'] }];
 			assert.equal(pathHasLocale('/spanish', locales), true);
 		});
 
 		it('should match locale object in nested path', () => {
-			const locales = [{ path: 'spanish', codes: ['es'] }];
+			const locales: Locales = [{ path: 'spanish', codes: ['es'] }];
 			assert.equal(pathHasLocale('/spanish/blog', locales), true);
 			assert.equal(pathHasLocale('/spanish/blog/post', locales), true);
 		});
 
 		it('should not match locale codes, only path', () => {
-			const locales = [{ path: 'spanish', codes: ['es', 'es-ar'] }];
+			const locales: Locales = [{ path: 'spanish', codes: ['es', 'es-ar'] }];
 			assert.equal(pathHasLocale('/es', locales), false);
 			assert.equal(pathHasLocale('/es-ar', locales), false);
 		});
 
 		it('should match multiple locale objects', () => {
-			const locales = [
+			const locales: Locales = [
 				{ path: 'spanish', codes: ['es'] },
 				{ path: 'portuguese', codes: ['pt'] },
 			];
@@ -151,23 +152,23 @@ describe('pathHasLocale', () => {
 
 	describe('mixed locales', () => {
 		it('should match string locale in mixed array', () => {
-			const locales = ['en', { path: 'spanish', codes: ['es'] }];
+			const locales: Locales = ['en', { path: 'spanish', codes: ['es'] }];
 			assert.equal(pathHasLocale('/en/blog', locales), true);
 		});
 
 		it('should match object locale in mixed array', () => {
-			const locales = ['en', { path: 'spanish', codes: ['es'] }];
+			const locales: Locales = ['en', { path: 'spanish', codes: ['es'] }];
 			assert.equal(pathHasLocale('/spanish/blog', locales), true);
 		});
 
 		it('should not match undefined locale', () => {
-			const locales = ['en', { path: 'spanish', codes: ['es'] }];
+			const locales: Locales = ['en', { path: 'spanish', codes: ['es'] }];
 			assert.equal(pathHasLocale('/pt', locales), false);
 			assert.equal(pathHasLocale('/fr/blog', locales), false);
 		});
 
 		it('should work with complex mixed config', () => {
-			const locales = [
+			const locales: Locales = [
 				'en',
 				'fr',
 				{ path: 'spanish', codes: ['es', 'es-ar'] },
@@ -190,7 +191,7 @@ describe('pathHasLocale', () => {
 		});
 
 		it('should match locale object path with .html', () => {
-			const locales = [{ path: 'spanish', codes: ['es'] }];
+			const locales: Locales = [{ path: 'spanish', codes: ['es'] }];
 			assert.equal(pathHasLocale('/spanish.html', locales), true);
 		});
 
@@ -200,7 +201,7 @@ describe('pathHasLocale', () => {
 		});
 
 		it('should strip .html before checking locale', () => {
-			const locales = [{ path: 'spanish', codes: ['es'] }];
+			const locales: Locales = [{ path: 'spanish', codes: ['es'] }];
 			assert.equal(pathHasLocale('/spanish.html', locales), true);
 			// But not match the code
 			assert.equal(pathHasLocale('/es.html', locales), false);
@@ -222,7 +223,7 @@ describe('pathHasLocale', () => {
 		});
 
 		it('should handle path with only locale and trailing slash', () => {
-			const locales = [{ path: 'spanish', codes: ['es'] }];
+			const locales: Locales = [{ path: 'spanish', codes: ['es'] }];
 			assert.equal(pathHasLocale('/spanish/', locales), true);
 		});
 
@@ -637,7 +638,7 @@ describe('notFound', () => {
 			const response = notFoundFn(context);
 
 			assert.ok(response instanceof Response);
-			assert.equal(response.status, 404);
+			assert.equal(response!.status, 404);
 		});
 
 		it('should return 404 for /about with configured locales', () => {
@@ -650,7 +651,7 @@ describe('notFound', () => {
 
 			const response = notFoundFn(context);
 
-			assert.equal(response.status, 404);
+			assert.equal(response!.status, 404);
 		});
 
 		it('should set REROUTE_DIRECTIVE_HEADER to no', () => {
@@ -663,7 +664,7 @@ describe('notFound', () => {
 
 			const response = notFoundFn(context);
 
-			assert.equal(response.headers.get(REROUTE_DIRECTIVE_HEADER), 'no');
+			assert.equal(response!.headers.get(REROUTE_DIRECTIVE_HEADER), 'no');
 		});
 	});
 
@@ -758,8 +759,8 @@ describe('notFound', () => {
 
 			const response = notFoundFn(context, originalResponse);
 
-			assert.equal(response.status, 404);
-			assert.equal(response.body, originalResponse.body);
+			assert.equal(response!.status, 404);
+			assert.equal(response!.body, originalResponse.body);
 		});
 
 		it('should copy headers when Response is passed', () => {
@@ -776,8 +777,8 @@ describe('notFound', () => {
 
 			const response = notFoundFn(context, originalResponse);
 
-			assert.equal(response.status, 404);
-			assert.equal(response.headers.get('X-Custom'), 'value');
+			assert.equal(response!.status, 404);
+			assert.equal(response!.headers.get('X-Custom'), 'value');
 		});
 
 		it('should override status to 404 when Response is passed', () => {
@@ -791,7 +792,7 @@ describe('notFound', () => {
 
 			const response = notFoundFn(context, originalResponse);
 
-			assert.equal(response.status, 404);
+			assert.equal(response!.status, 404);
 		});
 
 		it('should set REROUTE_DIRECTIVE_HEADER on passed Response', () => {
@@ -805,7 +806,7 @@ describe('notFound', () => {
 
 			const response = notFoundFn(context, originalResponse);
 
-			assert.equal(response.headers.get(REROUTE_DIRECTIVE_HEADER), 'no');
+			assert.equal(response!.headers.get(REROUTE_DIRECTIVE_HEADER), 'no');
 		});
 
 		it('should return original response when REROUTE_DIRECTIVE_HEADER is no and no fallback', () => {
@@ -838,7 +839,7 @@ describe('notFound', () => {
 
 			const response = notFoundFn(context);
 
-			assert.equal(response.status, 404);
+			assert.equal(response!.status, 404);
 		});
 
 		it('should not return original response with fallback when REROUTE_DIRECTIVE_HEADER is no', () => {
@@ -857,7 +858,7 @@ describe('notFound', () => {
 
 			// With fallback defined, it should not return the original
 			assert.notEqual(response, originalResponse);
-			assert.equal(response.status, 404);
+			assert.equal(response!.status, 404);
 		});
 	});
 
@@ -872,7 +873,7 @@ describe('notFound', () => {
 
 			const response = notFoundFn(context);
 
-			assert.equal(response.status, 404);
+			assert.equal(response!.status, 404);
 		});
 
 		it('should allow locale paths with base', () => {
@@ -901,7 +902,7 @@ describe('notFound', () => {
 
 			const response = notFoundFn(createManualRoutingContext({ pathname: '/site/contact' }));
 
-			assert.equal(response.status, 404);
+			assert.equal(response!.status, 404);
 		});
 	});
 
@@ -941,7 +942,7 @@ describe('notFound', () => {
 			const notFoundFn = notFound(payload);
 
 			assert.equal(notFoundFn(createManualRoutingContext({ pathname: '/en' })), undefined);
-			assert.equal(notFoundFn(createManualRoutingContext({ pathname: '/es' })).status, 404);
+			assert.equal(notFoundFn(createManualRoutingContext({ pathname: '/es' }))!.status, 404);
 		});
 
 		it('should return null body for 404 without passed Response', () => {
@@ -954,7 +955,7 @@ describe('notFound', () => {
 
 			const response = notFoundFn(context);
 
-			assert.equal(response.body, null);
+			assert.equal(response!.body, null);
 		});
 	});
 });
@@ -1146,7 +1147,7 @@ describe('redirectToFallback', () => {
 			// Mock context.rewrite
 			const context = {
 				...createManualRoutingContext({ pathname: '/es/blog/post' }),
-				rewrite: async (path) => {
+				rewrite: async (path: string) => {
 					return new Response(null, {
 						status: 200,
 						headers: { 'X-Rewrite-Path': path },
@@ -1172,7 +1173,7 @@ describe('redirectToFallback', () => {
 
 			const context = {
 				...createManualRoutingContext({ pathname: '/es/search?q=test&lang=es' }),
-				rewrite: async (path) => {
+				rewrite: async (path: string) => {
 					return new Response(null, {
 						headers: { 'X-Rewrite-Path': path },
 					});
@@ -1197,7 +1198,7 @@ describe('redirectToFallback', () => {
 
 			const context = {
 				...createManualRoutingContext({ pathname: '/es/about' }),
-				rewrite: async (path) => {
+				rewrite: async (path: string) => {
 					return new Response(null, {
 						headers: { 'X-Rewrite-Path': path },
 					});

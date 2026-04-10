@@ -79,6 +79,7 @@ export function createManualRoutingContext({
 	const url = new URL(`http://${hostname}${pathname}`);
 	const request = new Request(url.toString(), { method });
 
+	// Cast to any — this is a partial mock of APIContext for unit tests
 	return {
 		url,
 		request,
@@ -89,7 +90,7 @@ export function createManualRoutingContext({
 				headers: { Location: path },
 			});
 		},
-	};
+	} as any;
 }
 
 export function createMiddlewarePayload({
