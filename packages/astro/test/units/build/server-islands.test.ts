@@ -3,12 +3,13 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import type { Plugin } from 'vite';
 import { AstroBuilder } from '../../../dist/core/build/index.js';
 import { parseRoute } from '../../../dist/core/routing/parse-route.js';
-import { createBasicSettings, defaultLogger } from '../test-utils.js';
-import { virtualAstroModules } from './test-helpers.js';
+import { createBasicSettings, defaultLogger } from '../test-utils.ts';
+import { virtualAstroModules } from './test-helpers.ts';
 
-async function readFilesRecursive(dir) {
+async function readFilesRecursive(dir: string): Promise<string[]> {
 	const entries = await fs.readdir(dir, { withFileTypes: true });
 	const files = await Promise.all(
 		entries.map(async (entry) => {
@@ -22,11 +23,11 @@ async function readFilesRecursive(dir) {
 	return files.flat();
 }
 
-function forceDoubleQuotedServerIslandPlaceholders() {
+function forceDoubleQuotedServerIslandPlaceholders(): Plugin {
 	return {
 		name: 'force-double-quoted-server-island-placeholders',
 		enforce: 'pre',
-		renderChunk(code) {
+		renderChunk(code: string) {
 			if (!code.includes("'$$server-islands-map$$'")) {
 				return;
 			}
