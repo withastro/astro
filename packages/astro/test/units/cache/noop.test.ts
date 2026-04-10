@@ -12,8 +12,8 @@ describe('NoopAstroCache', () => {
 
 	it('set() is callable and does nothing', () => {
 		const cache = new NoopAstroCache();
-		cache.set({ maxAge: 300, tags: ['a'] });
-		cache.set(false);
+		cache.set();
+		cache.set();
 		// No error thrown
 	});
 
@@ -24,7 +24,7 @@ describe('NoopAstroCache', () => {
 
 	it('invalidate() is callable and resolves', async () => {
 		const cache = new NoopAstroCache();
-		await cache.invalidate({ tags: 'x' });
+		await cache.invalidate();
 		// No error thrown
 	});
 
@@ -57,14 +57,14 @@ describe('DisabledAstroCache', () => {
 
 	it('set() does not throw', () => {
 		const cache = new DisabledAstroCache(defaultLogger);
-		cache.set({ maxAge: 300 });
-		cache.set(false);
+		cache.set();
+		cache.set();
 		// No error thrown
 	});
 
 	it('tags returns empty array', () => {
 		const cache = new DisabledAstroCache(defaultLogger);
-		cache.set({ tags: ['x'] });
+		cache.set();
 		assert.deepEqual(cache.tags, []);
 	});
 
@@ -77,7 +77,7 @@ describe('DisabledAstroCache', () => {
 	it('invalidate() throws AstroError with CacheNotEnabled', async () => {
 		const cache = new DisabledAstroCache(defaultLogger);
 		await assert.rejects(
-			() => cache.invalidate({ tags: 'x' }),
+			() => cache.invalidate(),
 			(err: Error) => err.name === 'CacheNotEnabled',
 		);
 	});

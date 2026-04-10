@@ -7,13 +7,13 @@ import { getDefaultClientDirectives } from '../../dist/core/client-directive/ind
 import { resolveConfig } from '../../dist/core/config/index.js';
 import { createBaseSettings } from '../../dist/core/config/settings.js';
 import { createContainer } from '../../dist/core/dev/container.js';
-import { AstroIntegrationLogger, Logger } from '../../dist/core/logger/core.js';
+import { AstroIntegrationLogger, AstroLogger } from '../../dist/core/logger/core.js';
 import { nodeLogDestination } from '../../dist/core/logger/node.js';
 import { NOOP_MIDDLEWARE_FN } from '../../dist/core/middleware/noop-middleware.js';
 import { Pipeline } from '../../dist/core/render/index.js';
 import { RouteCache } from '../../dist/core/render/route-cache.js';
 import type { Container } from '../../dist/core/dev/container.js';
-import type { LoggerLevel } from '../../dist/core/logger/core.js';
+import type { AstroLoggerLevel } from '../../dist/core/logger/core.js';
 import type { AstroInlineConfig, RuntimeMode } from '../../dist/types/public/config.js';
 import type { AstroSettings } from '../../dist/types/astro.js';
 import type { SSRManifest } from '../../dist/core/app/types.js';
@@ -22,8 +22,8 @@ import type { HeadElements, TryRewriteResult } from '../../dist/core/base-pipeli
 import type { ComponentInstance } from '../../dist/types/astro.js';
 import type { RewritePayload, MiddlewareHandler } from '../../dist/types/public/common.js';
 
-export const defaultLogger: Logger = new Logger({
-	dest: nodeLogDestination,
+export const defaultLogger: AstroLogger = new AstroLogger({
+	destination: nodeLogDestination,
 	level: 'error',
 });
 
@@ -147,7 +147,7 @@ class TestPipeline extends Pipeline {
  */
 export function createBasicPipeline(
 	options: {
-		logger?: Logger;
+		logger?: AstroLogger;
 		manifest?: SSRManifest;
 		mode?: RuntimeMode;
 		renderers?: SSRLoadedRenderer[];
@@ -161,7 +161,7 @@ export function createBasicPipeline(
 		middleware?: SSRManifest['middleware'];
 		routeCache?: RouteCache;
 		site?: string;
-		logging?: Logger;
+		logging?: AstroLogger;
 	} = {},
 ): Pipeline {
 	const mode = options.mode ?? 'development';
@@ -246,10 +246,10 @@ export class SpyLogger {
 		this.#logs.push({ type: 'warn', label, message });
 	}
 	options = {
-		dest: {
+		destination: {
 			write: () => true as const,
 		},
-		level: 'silent' as LoggerLevel,
+		level: 'silent' as AstroLoggerLevel,
 	};
 	level() {
 		return this.options.level;

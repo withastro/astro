@@ -16,20 +16,25 @@ import { createBasicPipeline } from '../test-utils.ts';
 
 function createCspPipeline(cspConfig: Partial<SSRManifestCSP> = {}): Pipeline {
 	const pipeline = createBasicPipeline();
-	pipeline.manifest = {
-		...pipeline.manifest,
-		shouldInjectCspMetaTags: true,
-		csp: {
-			cspDestination: cspConfig.cspDestination,
-			algorithm: cspConfig.algorithm || 'SHA-256',
-			scriptHashes: cspConfig.scriptHashes || [],
-			scriptResources: cspConfig.scriptResources || [],
-			styleHashes: cspConfig.styleHashes || [],
-			styleResources: cspConfig.styleResources || [],
-			directives: cspConfig.directives || [],
-			isStrictDynamic: cspConfig.isStrictDynamic || false,
+	// manifest is readonly, so we use Object.defineProperty to override it for testing
+	Object.defineProperty(pipeline, 'manifest', {
+		value: {
+			...pipeline.manifest,
+			shouldInjectCspMetaTags: true,
+			csp: {
+				cspDestination: cspConfig.cspDestination,
+				algorithm: cspConfig.algorithm || 'SHA-256',
+				scriptHashes: cspConfig.scriptHashes || [],
+				scriptResources: cspConfig.scriptResources || [],
+				styleHashes: cspConfig.styleHashes || [],
+				styleResources: cspConfig.styleResources || [],
+				directives: cspConfig.directives || [],
+				isStrictDynamic: cspConfig.isStrictDynamic || false,
+			},
 		},
-	};
+		writable: false,
+		configurable: true,
+	});
 	return pipeline;
 }
 
@@ -42,13 +47,26 @@ async function renderPage(
 	const request = new Request('http://localhost/');
 	const routeData = {
 		type: 'page' as const,
+		route: '/index',
 		pathname: '/index',
 		component: 'src/pages/index.astro',
-		params: {},
+		params: [] as string[],
+		segments: [] as any[],
+		pattern: /^\/$/ as RegExp,
+		distURL: [] as URL[],
 		prerender,
+		fallbackRoutes: [] as any[],
+		isIndex: true,
+		origin: 'project' as const,
 	};
 
-	const renderContext = await RenderContext.create({ pipeline, request, routeData });
+	const renderContext = await RenderContext.create({
+		pipeline,
+		request,
+		routeData,
+		pathname: '/index',
+		clientAddress: '127.0.0.1',
+	});
 	const response = await renderContext.render(PageModule);
 	const html = await response.text();
 
@@ -60,10 +78,10 @@ async function renderPage(
 // #region Reusable Components
 
 /** Simple page component */
-const SimplePage = createComponent((result) => {
+const SimplePage = createComponent(() => {
 	return render`<html>
-		<head>${renderHead(result)}</head>
-		<body>${maybeRenderHead(result)}<h1>Test</h1></body>
+		<head>${renderHead()}</head>
+		<body>${maybeRenderHead()}<h1>Test</h1></body>
 	</html>`;
 });
 
@@ -240,7 +258,7 @@ describe('CSP Rendering', () => {
 				scriptResources: ['https://global.cdn.example.com'],
 			});
 
-			const PageWithCspApi = createComponent((result) => {
+			const PageWithCspApi = createComponent((result: any) => {
 				const Astro = result.createAstro({}, {});
 
 				// Use runtime CSP API
@@ -250,9 +268,9 @@ describe('CSP Rendering', () => {
 				Astro.csp.insertDirective('img-src https://images.cdn.example.com');
 
 				return render`<html>
-					<head>${renderHead(result)}</head>
-					<body>${maybeRenderHead(result)}<h1>Scripts</h1></body>
-				</html>`;
+				<head>${renderHead()}</head>
+				<body>${maybeRenderHead()}<h1>Scripts</h1></body>
+			</html>`;
 			});
 
 			const { html } = await renderPage(PageWithCspApi, pipeline);
@@ -287,7 +305,7 @@ describe('CSP Rendering', () => {
 				styleResources: ['https://global.cdn.example.com'],
 			});
 
-			const PageWithStyleApi = createComponent((result) => {
+			const PageWithStyleApi = createComponent((result: any) => {
 				const Astro = result.createAstro({}, {});
 
 				// Use runtime CSP API for styles
@@ -297,9 +315,9 @@ describe('CSP Rendering', () => {
 				Astro.csp.insertDirective('img-src https://images.cdn.example.com');
 
 				return render`<html>
-					<head>${renderHead(result)}</head>
-					<body>${maybeRenderHead(result)}<h1>Styles</h1></body>
-				</html>`;
+				<head>${renderHead()}</head>
+				<body>${maybeRenderHead()}<h1>Styles</h1></body>
+			</html>`;
 			});
 
 			const { html } = await renderPage(PageWithStyleApi, pipeline);

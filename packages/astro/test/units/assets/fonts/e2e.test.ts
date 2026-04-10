@@ -130,7 +130,7 @@ describe('Fonts E2E', () => {
 					provider: fontProviders.local(),
 					options: {
 						variants: [{ src: ['./test.woff2'], weight: '400', style: 'normal' }],
-					} as unknown as Record<string, unknown>,
+					} as any,
 				},
 			],
 		});
@@ -266,7 +266,7 @@ describe('Fonts E2E', () => {
 					provider: fontProviders.local(),
 					options: {
 						variants: [{ src: ['./test.woff2'], weight: '400', style: 'normal' }],
-					} as unknown as Record<string, unknown>,
+					} as any,
 				},
 			],
 		});
