@@ -1,11 +1,17 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
+import type { StaticBuildOptions } from '../../../dist/core/build/types.js';
 import { renderPath } from '../../../dist/core/build/generate.js';
 import { createMockAstroSource, createRouteData } from '../mocks.js';
-import { createMockPrerenderer, createStaticBuildOptions } from '../build/test-helpers.js';
+import { createMockPrerenderer, createStaticBuildOptions } from '../build/test-helpers.ts';
 
-async function renderAndAssertPath(prerenderer, pathname, route, options, expectedPathSuffix) {
+async function renderAndAssertPath(
+	prerenderer: ReturnType<typeof createMockPrerenderer>,
+	pathname: string,
+	route: Parameters<typeof renderPath>[0]['route'],
+	options: StaticBuildOptions,
+	expectedPathSuffix: string,
+) {
 	const result = await renderPath({
 		prerenderer,
 		pathname,
@@ -22,9 +28,9 @@ async function renderAndAssertPath(prerenderer, pathname, route, options, expect
 }
 
 describe('[SSG] i18n routing — prefix-always', () => {
-	let options;
+	let options: StaticBuildOptions;
 
-	const pages = {
+	const pages: Record<string, string> = {
 		'src/pages/index.astro': createMockAstroSource('<p>I am index</p>'),
 		'src/pages/404.astro': createMockAstroSource("<p>Can't find the page you're looking for.</p>"),
 		'src/pages/500.astro': createMockAstroSource('<p>Unexpected error.</p>'),
@@ -105,9 +111,9 @@ describe('[SSG] i18n routing — prefix-always', () => {
 });
 
 describe('[SSG] i18n routing — prefix-other-locales', () => {
-	let options;
+	let options: StaticBuildOptions;
 
-	const pages = {
+	const pages: Record<string, string> = {
 		'src/pages/start.astro': createMockAstroSource('<p>Start</p>'),
 		'src/pages/pt/start.astro': createMockAstroSource('<p>Oi essa e start</p>'),
 	};
@@ -164,9 +170,9 @@ describe('[SSG] i18n routing — prefix-other-locales', () => {
 });
 
 describe('[SSG] i18n routing — pathname-prefix-always, no redirect to default locale', () => {
-	let options;
+	let options: StaticBuildOptions;
 
-	const pages = {
+	const pages: Record<string, string> = {
 		'src/pages/index.astro': createMockAstroSource('<p>I am index</p>'),
 	};
 
@@ -197,9 +203,9 @@ describe('[SSG] i18n routing — pathname-prefix-always, no redirect to default 
 });
 
 describe('[SSG] i18n routing — fallback (it → en, spanish → en)', () => {
-	let options;
+	let options: StaticBuildOptions;
 
-	const pages = {
+	const pages: Record<string, string> = {
 		'src/pages/start.astro': createMockAstroSource('<p>Start</p>'),
 		'src/pages/pt/start.astro': createMockAstroSource('<p>Oi essa e start: pt</p>'),
 	};
@@ -304,9 +310,9 @@ describe('[SSG] i18n routing — fallback (it → en, spanish → en)', () => {
 });
 
 describe('[SSG] i18n routing — fallback with prefix-always (it → en)', () => {
-	let options;
+	let options: StaticBuildOptions;
 
-	const pages = {
+	const pages: Record<string, string> = {
 		'src/pages/en/start.astro': createMockAstroSource('<p>Start</p>'),
 	};
 
@@ -348,9 +354,9 @@ describe('[SSG] i18n routing — fallback with prefix-always (it → en)', () =>
 });
 
 describe('[SSG] i18n routing — fallback rewrite with dynamic routes (es → en)', () => {
-	let options;
+	let options: StaticBuildOptions;
 
-	const pages = {
+	const pages: Record<string, string> = {
 		'src/pages/index.astro': createMockAstroSource('<span id="page">Index</span>'),
 		'src/pages/test.astro': createMockAstroSource('<span id="test">test</span>'),
 	};
@@ -417,9 +423,9 @@ describe('[SSG] i18n routing — fallback rewrite with dynamic routes (es → en
 });
 
 describe('[SSG] i18n routing — fallback rewrite with locale-like filenames (de → en)', () => {
-	let options;
+	let options: StaticBuildOptions;
 
-	const pages = {
+	const pages: Record<string, string> = {
 		'src/pages/index.astro': createMockAstroSource('<span id="page">Index</span>'),
 		'src/pages/denmark.astro': createMockAstroSource('<span id="page">Denmark</span>'),
 		'src/pages/norway.astro': createMockAstroSource('<span id="page">Norway</span>'),
@@ -479,7 +485,7 @@ describe('[SSG] i18n routing — fallback rewrite with locale-like filenames (de
 		['/destinations/norway', '/de/destinations/norway', 'Destination: Norway'],
 		['/trade/denmark', '/de/trade/denmark', 'Trade: Denmark'],
 		['/trade/norway', '/de/trade/norway', 'Trade: Norway'],
-	]) {
+	] as const) {
 		it(`renders ${en} (EN)`, async () => {
 			const route = options.routesList.routes.find((r) => r.route === en);
 			assert.ok(route, `expected route ${en}`);
@@ -512,9 +518,9 @@ describe('[SSG] i18n routing — fallback rewrite with locale-like filenames (de
 });
 
 describe('[SSG] i18n routing — page starting with locale-like segment', () => {
-	let options;
+	let options: StaticBuildOptions;
 
-	const pages = {
+	const pages: Record<string, string> = {
 		'src/pages/endurance.astro': createMockAstroSource('<p>Endurance</p>'),
 	};
 
