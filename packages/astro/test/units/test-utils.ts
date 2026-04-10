@@ -1,18 +1,15 @@
 import { EventEmitter } from 'node:events';
-import realFS from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { createFixture as _createFixture, type FileTree } from 'fs-fixture';
 import httpMocks from 'node-mocks-http';
 import { getDefaultClientDirectives } from '../../dist/core/client-directive/index.js';
 import { resolveConfig } from '../../dist/core/config/index.js';
 import { createBaseSettings } from '../../dist/core/config/settings.js';
-import { createContainer } from '../../dist/core/dev/container.js';
 import { AstroIntegrationLogger, AstroLogger } from '../../dist/core/logger/core.js';
 import { nodeLogDestination } from '../../dist/core/logger/node.js';
 import { NOOP_MIDDLEWARE_FN } from '../../dist/core/middleware/noop-middleware.js';
 import { Pipeline } from '../../dist/core/render/index.js';
 import { RouteCache } from '../../dist/core/render/route-cache.js';
-import type { Container } from '../../dist/core/dev/container.js';
 import type { AstroLoggerLevel } from '../../dist/core/logger/core.js';
 import type { AstroInlineConfig, RuntimeMode } from '../../dist/types/public/config.js';
 import type { AstroSettings } from '../../dist/types/astro.js';
@@ -196,29 +193,6 @@ export async function createBasicSettings(
 	}
 	const { astroConfig } = await resolveConfig(inlineConfig, 'dev');
 	return createBaseSettings(astroConfig, inlineConfig.logLevel);
-}
-
-interface RunInContainerOptions {
-	fs?: typeof realFS;
-	inlineConfig?: AstroInlineConfig;
-}
-
-export async function runInContainer(
-	options: RunInContainerOptions = {},
-	callback: (container: Container) => Promise<void> | void,
-): Promise<void> {
-	const settings = await createBasicSettings(options.inlineConfig ?? {});
-	const container = await createContainer({
-		fs: options?.fs ?? realFS,
-		settings,
-		inlineConfig: options.inlineConfig ?? {},
-		logger: defaultLogger,
-	});
-	try {
-		await callback(container);
-	} finally {
-		await container.close();
-	}
 }
 
 interface LogEntry {
