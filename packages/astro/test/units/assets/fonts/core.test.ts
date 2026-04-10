@@ -1,4 +1,3 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { collectComponentData } from '../../../../dist/assets/fonts/core/collect-component-data.js';
@@ -10,14 +9,19 @@ import { filterPreloads } from '../../../../dist/assets/fonts/core/filter-preloa
 import { getOrCreateFontFamilyAssets } from '../../../../dist/assets/fonts/core/get-or-create-font-family-assets.js';
 import { optimizeFallbacks } from '../../../../dist/assets/fonts/core/optimize-fallbacks.js';
 import { resolveFamily } from '../../../../dist/assets/fonts/core/resolve-family.js';
-import { SpyLogger } from '../../test-utils.js';
+import type { SystemFallbacksProvider } from '../../../../dist/assets/fonts/definitions.js';
+import type {
+	FontFamilyAssetsByUniqueKey,
+	ResolvedFontFamily,
+} from '../../../../dist/assets/fonts/types.js';
+import { SpyLogger } from '../../test-utils.ts';
 import {
 	FakeFontMetricsResolver,
 	FakeHasher,
 	FakeStringMatcher,
 	markdownBold,
 	PassthroughFontResolver,
-} from './utils.js';
+} from './utils.ts';
 
 describe('fonts core', () => {
 	describe('resolveFamily()', () => {
@@ -463,8 +467,7 @@ describe('fonts core', () => {
 
 	describe('getOrCreateFontFamilyAssets()', () => {
 		it('reuses the same object as needed', () => {
-			/** @type {Array<import('../../../../dist/assets/fonts/types.js').ResolvedFontFamily>} */
-			const families = [
+			const families: Array<ResolvedFontFamily> = [
 				{
 					name: 'Foo',
 					uniqueName: 'Foo-xxx',
@@ -496,8 +499,7 @@ describe('fonts core', () => {
 				},
 			];
 
-			/** @type {import('../../../../dist/assets/fonts/types.js').FontFamilyAssetsByUniqueKey} */
-			const fontFamilyAssetsByUniqueKey = new Map();
+			const fontFamilyAssetsByUniqueKey: FontFamilyAssetsByUniqueKey = new Map();
 			const logger = new SpyLogger();
 
 			assert.deepStrictEqual(
@@ -546,8 +548,7 @@ describe('fonts core', () => {
 		});
 
 		it('logs warnings for conflicting css variables', () => {
-			/** @type {import('../../../../dist/assets/fonts/types.js').FontFamilyAssetsByUniqueKey} */
-			const fontFamilyAssetsByUniqueKey = new Map();
+			const fontFamilyAssetsByUniqueKey: FontFamilyAssetsByUniqueKey = new Map();
 			const logger = new SpyLogger();
 
 			getOrCreateFontFamilyAssets({
@@ -668,7 +669,7 @@ describe('fonts core', () => {
 						generate: ({ originalUrl }) => originalUrl,
 					},
 					fontTypeExtractor: {
-						extract: (url) => /** @type {any} */ (url.split('.').at(-1)) ?? 'woff',
+						extract: (url) => (url.split('.').at(-1) as any) ?? 'woff',
 					},
 					urlResolver: {
 						resolve: (url) => 'resolved:' + url,
@@ -737,7 +738,7 @@ describe('fonts core', () => {
 						generate: ({ originalUrl }) => originalUrl,
 					},
 					fontTypeExtractor: {
-						extract: (url) => /** @type {any} */ (url.split('.').at(-1)) ?? 'woff',
+						extract: (url) => (url.split('.').at(-1) as any) ?? 'woff',
 					},
 					urlResolver: {
 						resolve: (url) => 'resolved:' + url,
@@ -1427,8 +1428,7 @@ describe('fonts core', () => {
 			name: 'Test',
 			uniqueName: 'Test-xxx',
 		};
-		/** @type {import('../../../../dist/assets/fonts/definitions.js').SystemFallbacksProvider} */
-		const systemFallbacksProvider = {
+		const systemFallbacksProvider: SystemFallbacksProvider = {
 			getLocalFonts: () => ['Arial'],
 			getMetricsForLocalFont: () => ({
 				ascent: 1854,
