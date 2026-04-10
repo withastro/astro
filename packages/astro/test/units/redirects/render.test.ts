@@ -6,7 +6,10 @@ import {
 	renderRedirect,
 	resolveRedirectTarget,
 } from '../../../dist/core/redirects/render.js';
-import { createMockRenderContext } from '../mocks.js';
+import { createMockRenderContext } from '../mocks.ts';
+
+import type { RenderContext } from '../../../dist/core/render-context.js';
+import type { RouteData } from '../../../dist/types/public/internal.js';
 
 describe('redirects/render', () => {
 	describe('redirectIsExternal', () => {
@@ -48,7 +51,7 @@ describe('redirects/render', () => {
 				},
 			});
 
-			const response = await renderRedirect(renderContext);
+			const response = await renderRedirect(renderContext as unknown as RenderContext);
 
 			assert.equal(response.status, 301);
 			assert.equal(response.headers.get('location'), '/target');
@@ -63,7 +66,7 @@ describe('redirects/render', () => {
 				},
 			});
 
-			const response = await renderRedirect(renderContext);
+			const response = await renderRedirect(renderContext as unknown as RenderContext);
 
 			assert.equal(response.status, 308);
 			assert.equal(response.headers.get('location'), '/target');
@@ -76,11 +79,11 @@ describe('redirects/render', () => {
 					redirect: { destination: '/target', status: 302 },
 					redirectRoute: {
 						segments: [[{ content: 'target', dynamic: false, spread: false }]],
-					},
+					} as unknown as RouteData,
 				},
 			});
 
-			const response = await renderRedirect(renderContext);
+			const response = await renderRedirect(renderContext as unknown as RenderContext);
 
 			assert.equal(response.status, 302);
 		});
@@ -93,7 +96,7 @@ describe('redirects/render', () => {
 				},
 			});
 
-			const response = await renderRedirect(renderContext);
+			const response = await renderRedirect(renderContext as unknown as RenderContext);
 
 			assert.equal(response.headers.get('location'), '/target%20with%20spaces');
 		});
@@ -106,7 +109,7 @@ describe('redirects/render', () => {
 				},
 			});
 
-			const response = await renderRedirect(renderContext);
+			const response = await renderRedirect(renderContext as unknown as RenderContext);
 
 			assert.equal(response.status, 301);
 			// External redirects use Response.redirect which sets the Location header differently
@@ -122,7 +125,7 @@ describe('redirects/render', () => {
 				params: { slug: 'my-post' },
 			});
 
-			const response = await renderRedirect(renderContext);
+			const response = await renderRedirect(renderContext as unknown as RenderContext);
 
 			assert.equal(response.headers.get('location'), '/articles/my-post');
 		});
@@ -136,7 +139,7 @@ describe('redirects/render', () => {
 				params: { param1: 'foo', param2: 'bar' },
 			});
 
-			const response = await renderRedirect(renderContext);
+			const response = await renderRedirect(renderContext as unknown as RenderContext);
 
 			assert.equal(response.headers.get('location'), '/new/foo/bar');
 		});
@@ -150,7 +153,7 @@ describe('redirects/render', () => {
 				params: { rest: 'a/b/c' },
 			});
 
-			const response = await renderRedirect(renderContext);
+			const response = await renderRedirect(renderContext as unknown as RenderContext);
 
 			assert.equal(response.headers.get('location'), '/new/a/b/c');
 		});
@@ -164,7 +167,7 @@ describe('redirects/render', () => {
 				params: { city: 'Las Vegas\u2019' },
 			});
 
-			const response = await renderRedirect(renderContext);
+			const response = await renderRedirect(renderContext as unknown as RenderContext);
 
 			assert.equal(response.headers.get('location'), '/new/Las%20Vegas%E2%80%99');
 		});
@@ -177,11 +180,11 @@ describe('redirects/render', () => {
 					redirectRoute: {
 						segments: [[{ content: 'target', dynamic: false, spread: false }]],
 						pathname: '/target',
-					},
+					} as unknown as RouteData,
 				},
 			});
 
-			const response = await renderRedirect(renderContext);
+			const response = await renderRedirect(renderContext as unknown as RenderContext);
 
 			assert.equal(response.headers.get('location'), '/target');
 		});
@@ -194,7 +197,7 @@ describe('redirects/render', () => {
 				},
 			});
 
-			const response = await renderRedirect(renderContext);
+			const response = await renderRedirect(renderContext as unknown as RenderContext);
 
 			assert.equal(response.headers.get('location'), '/');
 		});
@@ -211,7 +214,7 @@ describe('computeRedirectStatus', () => {
 	});
 
 	it('returns the explicit status when redirectRoute is defined and redirect is an object', () => {
-		const redirectRoute = /** @type {any} */ ({});
+		const redirectRoute = {} as RouteData;
 		assert.equal(
 			computeRedirectStatus('GET', { status: 302, destination: '/dest' }, redirectRoute),
 			302,
@@ -219,7 +222,7 @@ describe('computeRedirectStatus', () => {
 	});
 
 	it('falls back to method-based status when redirect is a string even with redirectRoute', () => {
-		const redirectRoute = /** @type {any} */ ({});
+		const redirectRoute = {} as RouteData;
 		assert.equal(computeRedirectStatus('POST', '/dest', redirectRoute), 308);
 	});
 });
