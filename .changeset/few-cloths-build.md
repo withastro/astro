@@ -2,4 +2,4 @@
 '@astrojs/partytown': patch
 ---
 
-Updates @qwik.dev/partytown to 0.13.2
+Updates `@qwik.dev/partytown` to 0.13.2
