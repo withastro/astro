@@ -1,13 +1,13 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { beforeEach, describe, it } from 'node:test';
 import { callMiddleware } from '../../../dist/core/middleware/callMiddleware.js';
 import { sequence } from '../../../dist/core/middleware/sequence.js';
-import { createMockAPIContext, createResponseFunction } from '../mocks.js';
+import { createMockAPIContext, createResponseFunction } from '../mocks.ts';
+
+import type { APIContext, MiddlewareHandler } from 'astro';
 
 describe('sequence', () => {
-	/** @type {import('astro').APIContext} */
-	let globaCtx;
+	let globaCtx: APIContext;
 
 	beforeEach(() => {
 		globaCtx = createMockAPIContext();
@@ -23,8 +23,8 @@ describe('sequence', () => {
 	});
 
 	it('works with a single handler', async () => {
-		const handler = async (ctx, next) => {
-			ctx.locals.touched = true;
+		const handler: MiddlewareHandler = async (ctx, next) => {
+			(ctx.locals as Record<string, unknown>).touched = true;
 			return next();
 		};
 		const combined = sequence(handler);
@@ -33,20 +33,20 @@ describe('sequence', () => {
 		const response = await callMiddleware(combined, globaCtx, responseFn);
 
 		assert.equal(await response.text(), 'single');
-		assert.equal(globaCtx.locals.touched, true);
+		assert.equal((globaCtx.locals as Record<string, unknown>).touched, true);
 	});
 
 	it('executes handlers in order', async () => {
-		const order = [];
-		const handler1 = async (_ctx, next) => {
+		const order: number[] = [];
+		const handler1: MiddlewareHandler = async (_ctx, next) => {
 			order.push(1);
 			return next();
 		};
-		const handler2 = async (_ctx, next) => {
+		const handler2: MiddlewareHandler = async (_ctx, next) => {
 			order.push(2);
 			return next();
 		};
-		const handler3 = async (_ctx, next) => {
+		const handler3: MiddlewareHandler = async (_ctx, next) => {
 			order.push(3);
 			return next();
 		};
@@ -59,18 +59,20 @@ describe('sequence', () => {
 	});
 
 	it('propagates context mutations across handlers', async () => {
-		const first = async (ctx, next) => {
-			ctx.locals.first = 'a';
+		const first: MiddlewareHandler = async (ctx, next) => {
+			(ctx.locals as Record<string, unknown>).first = 'a';
 			return next();
 		};
-		const second = async (ctx, next) => {
+		const second: MiddlewareHandler = async (ctx, next) => {
+			const locals = ctx.locals as Record<string, unknown>;
 			// should see mutation from first
-			ctx.locals.second = ctx.locals.first + 'b';
+			locals.second = (locals.first as string) + 'b';
 			return next();
 		};
 		const combined = sequence(first, second);
-		const responseFn = async (apiCtx) => {
-			return new Response(`${apiCtx.locals.first}-${apiCtx.locals.second}`);
+		const responseFn = async (apiCtx: APIContext) => {
+			const locals = apiCtx.locals as Record<string, unknown>;
+			return new Response(`${locals.first}-${locals.second}`);
 		};
 
 		const response = await callMiddleware(combined, globaCtx, responseFn);
@@ -79,10 +81,10 @@ describe('sequence', () => {
 	});
 
 	it('allows the last handler to modify the response from the page', async () => {
-		const handler1 = async (_ctx, next) => {
+		const handler1: MiddlewareHandler = async (_ctx, next) => {
 			return next();
 		};
-		const handler2 = async (_ctx, next) => {
+		const handler2: MiddlewareHandler = async (_ctx, next) => {
 			const response = await next();
 			const text = await response.text();
 			return new Response(text.toUpperCase());
@@ -96,11 +98,11 @@ describe('sequence', () => {
 	});
 
 	it('supports mixed sync and async handlers', async () => {
-		const syncHandler = (_ctx, next) => {
+		const syncHandler: MiddlewareHandler = (_ctx, next) => {
 			return next();
 		};
-		const asyncHandler = async (ctx, next) => {
-			ctx.locals.async = true;
+		const asyncHandler: MiddlewareHandler = async (ctx, next) => {
+			(ctx.locals as Record<string, unknown>).async = true;
 			return await next();
 		};
 		const combined = sequence(syncHandler, asyncHandler);
@@ -109,20 +111,20 @@ describe('sequence', () => {
 		const response = await callMiddleware(combined, globaCtx, responseFn);
 
 		assert.equal(await response.text(), 'mixed');
-		assert.equal(globaCtx.locals.async, true);
+		assert.equal((globaCtx.locals as Record<string, unknown>).async, true);
 	});
 
 	it('filters out falsy handlers', async () => {
-		const order = [];
-		const handler1 = async (_ctx, next) => {
+		const order: number[] = [];
+		const handler1: MiddlewareHandler = async (_ctx, next) => {
 			order.push(1);
 			return next();
 		};
-		const handler2 = async (_ctx, next) => {
+		const handler2: MiddlewareHandler = async (_ctx, next) => {
 			order.push(2);
 			return next();
 		};
-		const combined = sequence(handler1, null, undefined, handler2);
+		const combined = sequence(handler1, null as any, undefined as any, handler2);
 		const responseFn = createResponseFunction();
 
 		await callMiddleware(combined, globaCtx, responseFn);
@@ -131,12 +133,12 @@ describe('sequence', () => {
 	});
 
 	it('allows earlier handlers to short-circuit the chain', async () => {
-		const order = [];
-		const handler1 = async () => {
+		const order: number[] = [];
+		const handler1: MiddlewareHandler = async () => {
 			order.push(1);
 			return new Response('short-circuit');
 		};
-		const handler2 = async (_ctx, next) => {
+		const handler2: MiddlewareHandler = async (_ctx, next) => {
 			order.push(2);
 			return next();
 		};
@@ -150,11 +152,11 @@ describe('sequence', () => {
 	});
 
 	it('accumulates cookies set by multiple handlers', async () => {
-		const handler1 = async (ctx, next) => {
+		const handler1: MiddlewareHandler = async (ctx, next) => {
 			ctx.cookies.set('cookie1', 'value1');
 			return next();
 		};
-		const handler2 = async (ctx, next) => {
+		const handler2: MiddlewareHandler = async (ctx, next) => {
 			ctx.cookies.set('cookie2', 'value2');
 			return next();
 		};
@@ -168,14 +170,14 @@ describe('sequence', () => {
 	});
 
 	it('handles a chain where middle handler returns a redirect', async () => {
-		const handler1 = async (ctx, next) => {
-			ctx.locals.beforeRedirect = true;
+		const handler1: MiddlewareHandler = async (ctx, next) => {
+			(ctx.locals as Record<string, unknown>).beforeRedirect = true;
 			return next();
 		};
-		const handler2 = async (ctx) => {
+		const handler2: MiddlewareHandler = async (ctx) => {
 			return ctx.redirect('/login');
 		};
-		const handler3 = async (_ctx, next) => {
+		const handler3: MiddlewareHandler = async (_ctx, next) => {
 			// should never be called
 			return next();
 		};
@@ -186,6 +188,6 @@ describe('sequence', () => {
 
 		assert.equal(response.status, 302);
 		assert.equal(response.headers.get('Location'), '/login');
-		assert.equal(globaCtx.locals.beforeRedirect, true);
+		assert.equal((globaCtx.locals as Record<string, unknown>).beforeRedirect, true);
 	});
 });
