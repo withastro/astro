@@ -1,15 +1,14 @@
-// @ts-check
-
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
+import type { StaticBuildOptions } from '../../../dist/core/build/types.js';
 import { renderPath } from '../../../dist/core/build/generate.js';
-import { createMockPrerenderer, createStaticBuildOptions } from '../build/test-helpers.js';
+import { createMockPrerenderer, createStaticBuildOptions } from '../build/test-helpers.ts';
 import { createMockAstroSource, createRouteData } from '../mocks.js';
 
 // Page sources — mirrors the structure of the deleted fixture.
 // createStaticBuildOptions writes these into a temp directory and derives
 // routesList from them using the same config, so routes and settings are in sync.
-const pages = {
+const pages: Record<string, string> = {
 	'src/pages/index.astro': createMockAstroSource('<body><h1>Index</h1></body>'),
 	'src/pages/es/test/item1.astro': createMockAstroSource('<body><h1>Test Item 1 (ES)</h1></body>'),
 	'src/pages/test/item1.astro': createMockAstroSource('<body><h1>Test Item 1 (EN)</h1></body>'),
@@ -26,7 +25,7 @@ const prerenderer = createMockPrerenderer({
 
 // A single shared options object is sufficient — none of these tests inspect the
 // written files; they only assert on the `result` returned by renderPath().
-let sharedOpts;
+let sharedOpts: StaticBuildOptions;
 
 describe('i18n double-prefix prevention', () => {
 	before(async () => {
