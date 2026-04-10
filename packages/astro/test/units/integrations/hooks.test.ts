@@ -11,8 +11,13 @@ import {
 	unwrapSupportKind,
 } from '../../../dist/integrations/features-validation.js';
 import { resolveMiddlewareMode } from '../../../dist/integrations/adapter-utils.js';
-import { createRouteData } from '../mocks.js';
-import { dynamicPart, makeRoute, spreadPart, staticPart } from '../routing/test-helpers.js';
+import { createRouteData } from '../mocks.ts';
+import { dynamicPart, makeRoute, spreadPart, staticPart } from '../routing/test-helpers.ts';
+
+import type {
+	AdapterSupport,
+	AstroAdapterFeatures,
+} from '../../../dist/types/public/integrations.js';
 
 // #region normalizeCodegenDir
 describe('normalizeCodegenDir', () => {
@@ -219,16 +224,22 @@ describe('resolveMiddlewareMode', () => {
 	});
 
 	it('returns "edge" for deprecated edgeMiddleware: true', () => {
-		assert.equal(resolveMiddlewareMode({ edgeMiddleware: true }), 'edge');
+		assert.equal(resolveMiddlewareMode({ edgeMiddleware: true } as AstroAdapterFeatures), 'edge');
 	});
 
 	it('returns "classic" for deprecated edgeMiddleware: false', () => {
-		assert.equal(resolveMiddlewareMode({ edgeMiddleware: false }), 'classic');
+		assert.equal(
+			resolveMiddlewareMode({ edgeMiddleware: false } as AstroAdapterFeatures),
+			'classic',
+		);
 	});
 
 	it('middlewareMode takes precedence over edgeMiddleware', () => {
 		assert.equal(
-			resolveMiddlewareMode({ middlewareMode: 'classic', edgeMiddleware: true }),
+			resolveMiddlewareMode({
+				middlewareMode: 'classic',
+				edgeMiddleware: true,
+			} as AstroAdapterFeatures),
 			'classic',
 		);
 	});
@@ -302,7 +313,7 @@ describe('getSupportMessage', () => {
 	});
 
 	it('returns undefined when supportKind is an object without message', () => {
-		assert.equal(getSupportMessage({ support: 'stable' }), undefined);
+		assert.equal(getSupportMessage({ support: 'stable' } as unknown as AdapterSupport), undefined);
 	});
 });
 // #endregion
