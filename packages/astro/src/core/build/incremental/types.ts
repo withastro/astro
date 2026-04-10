@@ -3,9 +3,8 @@ import type { RuntimeMode } from '../../../types/public/config.js';
 
 export const INCREMENTAL_BUILD_STATE_VERSION = 4 as const;
 export const FILE_DEPENDENCY_KEY_PREFIX = 'file:' as const;
-export const DATA_DEPENDENCY_KEY_PREFIX = 'data:' as const;
-export const CONTENT_STORE_DATA_DEPENDENCY_KEY =
-	`${DATA_DEPENDENCY_KEY_PREFIX}content-store` as const;
+const DATA_DEPENDENCY_KEY_PREFIX = 'data:' as const;
+export const CONTENT_STORE_DATA_DEPENDENCY_KEY = `${DATA_DEPENDENCY_KEY_PREFIX}content-store` as const;
 export const FULL_STATIC_REUSE_BLOCKING_HOOKS = [
 	'astro:build:setup',
 	'astro:build:ssr',

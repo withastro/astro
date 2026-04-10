@@ -183,7 +183,7 @@ export function createFileDigest(filePath: string, fs: typeof fsMod): string {
 	}
 }
 
-export function getDataStoreDigest(
+function getDataStoreDigest(
 	settings: AstroSettings,
 	fs: typeof fsMod = fsMod,
 ): string | null {
