@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { App } from '../../../dist/core/app/app.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
-import { createManifest } from './test-helpers.js';
+import { createManifest, createRouteInfo } from './test-helpers.ts';
 
 const statusRouteData = {
 	route: '/status-code',
@@ -12,11 +12,11 @@ const statusRouteData = {
 	distURL: [],
 	pattern: /^\/status-code\/?$/,
 	segments: [[{ content: 'status-code', dynamic: false, spread: false }]],
-	type: 'page',
+	type: 'page' as const,
 	prerender: false,
 	fallbackRoutes: [],
 	isIndex: false,
-	origin: 'project',
+	origin: 'project' as const,
 };
 
 const someHeaderRouteData = {
@@ -27,11 +27,11 @@ const someHeaderRouteData = {
 	distURL: [],
 	pattern: /^\/some-header\/?$/,
 	segments: [[{ content: 'some-header', dynamic: false, spread: false }]],
-	type: 'page',
+	type: 'page' as const,
 	prerender: false,
 	fallbackRoutes: [],
 	isIndex: false,
-	origin: 'project',
+	origin: 'project' as const,
 };
 
 const notFoundRouteData = {
@@ -42,14 +42,14 @@ const notFoundRouteData = {
 	distURL: [],
 	pattern: /^\/404\/?$/,
 	segments: [[{ content: '404', dynamic: false, spread: false }]],
-	type: 'page',
+	type: 'page' as const,
 	prerender: false,
 	fallbackRoutes: [],
 	isIndex: false,
-	origin: 'project',
+	origin: 'project' as const,
 };
 
-const statusPage = createComponent((result, props, slots) => {
+const statusPage = createComponent((result: any, props: any, slots: any) => {
 	const Astro = result.createAstro(props, slots);
 	Astro.response.status = 404;
 	Astro.response.statusText = 'Oops';
@@ -57,7 +57,7 @@ const statusPage = createComponent((result, props, slots) => {
 	return render`<h1>Testing</h1>`;
 });
 
-const someHeaderPage = createComponent((result, props, slots) => {
+const someHeaderPage = createComponent((result: any, props: any, slots: any) => {
 	const Astro = result.createAstro(props, slots);
 	Astro.response.headers.set('One-Two', 'three');
 	Astro.response.headers.set('Four-Five', 'six');
@@ -99,12 +99,12 @@ const pageMap = new Map([
 const app = new App(
 	createManifest({
 		routes: [
-			{ routeData: statusRouteData },
-			{ routeData: someHeaderRouteData },
-			{ routeData: notFoundRouteData },
+			createRouteInfo(statusRouteData),
+			createRouteInfo(someHeaderRouteData),
+			createRouteInfo(notFoundRouteData),
 		],
-		pageMap,
-	}),
+		pageMap: pageMap as any,
+	}) as any,
 );
 
 describe('Using Astro.response in SSR', () => {
