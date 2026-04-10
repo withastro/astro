@@ -57,8 +57,8 @@ That state records:
 - build fingerprint metadata
 - artifact roots (`outDir`, client dir, server dir, cache dir)
 - build summary data
-- tracked input digests
-- content-layer data store digest
+- file-backed dependency digests
+- logical data dependency digests
 - public directory digest
 - per-page dependency and output metadata
 
@@ -69,16 +69,18 @@ For each page, Astro stores:
 - page key and route
 - component and module specifier
 - route type and prerender flag
-- dependency sets:
+- dependency-key sets:
   - modules
   - hydrated components
   - client-only components
   - scripts
-  - whether the page used the content/data store
+  - data dependencies
 - emitted asset references:
   - styles
   - scripts
 - generated pathnames and output files
+
+These dependency sets now use **namespaced logical keys** rather than assuming every tracked identifier is a file path. Today most of those keys are still file-backed (for example `file:/src/pages/index.astro`), and the first built-in data key is the content-layer store (`data:content-store`). That keeps the current static-first implementation conservative while leaving room for future non-file identities such as CMS records, tags, or HTTP resources.
 
 This is the core data model: Astro compares the current snapshot against the previous one and uses that comparison to decide which outputs are still reusable.
 
@@ -163,7 +165,8 @@ That matters in this monorepo because “same package version” does not necess
 
 Examples of changes that force Astro to rerender a page or pathname:
 
-- a tracked source module digest changed
+- a tracked file-backed dependency digest changed
+- a tracked data dependency digest changed
 - a page dependency set changed
 - a page’s emitted CSS/JS asset references changed
 - a generated pathname disappeared
@@ -182,8 +185,8 @@ The exact no-op skip-bundling path requires all of the following:
 
 - static output
 - previous incremental state exists and matches the current fingerprint
-- tracked input digests match
-- content/data store digest matches
+- tracked dependency digests match
+- tracked data dependency digests match
 - public directory digest matches
 - persisted outputs and assets still exist
 - no blocked build hooks are present
@@ -225,6 +228,8 @@ The incremental state stores file URLs for generated outputs. Reuse is guarded b
 
 Unreadable tracked files and unreadable public/data-store inputs are treated as invalidating signals rather than silently appearing unchanged.
 
+Synthetic route-like identifiers that do not resolve to real files are no longer persisted as file-backed dependency digests. That keeps the invalidation surface closer to actual reusable artifacts instead of producing noisy `"missing"` sentinels for non-file identities.
+
 This is especially important for cache portability and CI, where a reused state file may outlive the exact local filesystem layout it came from.
 
 ---
@@ -237,7 +242,7 @@ This is the core incremental state module. It owns:
 
 - state schema and persistence
 - fingerprint creation and invalidation
-- tracked input, public dir, and data store digests
+- file-backed dependency, logical data, public dir, and artifact digests
 - per-page snapshot creation
 - selective generation planning
 - full static reuse eligibility checks
@@ -443,7 +448,7 @@ Current limitations are intentional:
 1. Static builds only. SSR/hybrid reuse is still future work.
 2. Dynamic prerendered routes cannot use the exact skip-bundling fast path.
 3. Bundles are still rebuilt for selective incremental runs; broader artifact reuse is not finished yet.
-4. Content/data invalidation is still conservative at the route-family level in some cases.
+4. Content/data invalidation is still conservative at the route-family level in some cases, and the only built-in logical data key today is `data:content-store`.
 5. The feature is experimental and may evolve as more real-world repos exercise it.
 
 ---
@@ -459,6 +464,14 @@ The biggest missing piece is broader reuse of prerender/server/client build arti
 ### Narrow route-family invalidation
 
 Content/data invalidation is still conservative in some cases. There is room to reuse more when Astro can prove a smaller affected set than an entire route family.
+
+### Extend logical data dependencies
+
+The new dependency-key model is intentionally broader than file paths, but today it only ships built-in support for file-backed keys plus `data:content-store`. The next external-data step is to let build-time data sources participate with their own stable keys and validators, rather than teaching core incremental logic to guess about arbitrary `fetch()` calls.
+
+### Evaluate a manual `astro build --filter` primitive
+
+A native `--filter` may still be useful as a manual orchestration primitive for CMS webhooks or custom pipelines, but it should stay separate from the correctness story for native incremental reuse. If Astro explores it, it should likely reuse the planner machinery without redefining the invalidation model.
 
 ### Extend the model to SSR/hybrid builds
 

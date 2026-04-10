@@ -34,7 +34,7 @@ describe('Incremental build state', () => {
 
 		const stateFile = await getOnlyStateFile();
 		const state = JSON.parse(await fs.readFile(stateFile, 'utf-8'));
-		assert.equal(state.version, 3);
+		assert.equal(state.version, 4);
 		assert.equal(state.fingerprint.buildOutput, 'static');
 		assert.equal(typeof state.fingerprint.viteConfigDigest, 'string');
 		assert.equal(typeof state.fingerprint.integrationHooksDigest, 'string');
@@ -43,7 +43,8 @@ describe('Incremental build state', () => {
 		assert.equal(state.artifacts.outDir, fixture.config.outDir.toString());
 		assert.equal(state.artifacts.cacheDir, fixture.config.cacheDir.toString());
 		assert.equal(typeof state.summary.pageCount, 'number');
-		assert.equal(typeof state.inputDigests, 'object');
+		assert.equal(typeof state.dependencyDigests, 'object');
+		assert.equal(typeof state.dataDigests, 'object');
 		assert.equal(Array.isArray(state.pages), true);
 		assert.equal(state.pages.length > 0, true);
 		assert.equal(state.publicDirDigest === null || typeof state.publicDirDigest === 'string', true);
@@ -59,8 +60,14 @@ describe('Incremental build state', () => {
 				output: new URL('./index.html', fixture.config.outDir).toString(),
 			},
 		]);
-		assert.equal(indexPage.dependencies.modules.includes('/src/components/MainHead.astro'), true);
-		assert.equal(indexPage.dependencies.modules.includes('/src/components/Nav/index.jsx'), true);
+		assert.equal(
+			indexPage.dependencies.modules.includes('file:/src/components/MainHead.astro'),
+			true,
+		);
+		assert.equal(
+			indexPage.dependencies.modules.includes('file:/src/components/Nav/index.jsx'),
+			true,
+		);
 
 		const dynamicDataPage = state.pages.find(
 			(page) => page.component === 'src/pages/data/[slug].json.ts',
@@ -74,11 +81,11 @@ describe('Incremental build state', () => {
 		const scriptsPage = state.pages.find((page) => page.component === 'src/pages/scripts.astro');
 		assert.ok(scriptsPage);
 		assert.equal(
-			scriptsPage.dependencies.modules.includes('/src/components/InlineScripts.astro'),
+			scriptsPage.dependencies.modules.includes('file:/src/components/InlineScripts.astro'),
 			true,
 		);
 		assert.equal(
-			scriptsPage.dependencies.modules.includes('/src/components/ExternalScripts.astro'),
+			scriptsPage.dependencies.modules.includes('file:/src/components/ExternalScripts.astro'),
 			true,
 		);
 	});
@@ -93,7 +100,7 @@ describe('Incremental build state', () => {
 		await fixture.build({ force: true });
 
 		const state = JSON.parse(await fs.readFile(stateFile, 'utf-8'));
-		assert.equal(state.version, 3);
+		assert.equal(state.version, 4);
 		assert.equal(state.fingerprint.buildOutput, 'static');
 	});
 });

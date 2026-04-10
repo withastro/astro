@@ -257,6 +257,21 @@ describe('astro/src/core/build/build-state', () => {
 			[pageData.key]: pageData,
 		};
 		const internals = createBuildInternals();
+		mkdirSync(new URL('./src/pages/blog/', root), { recursive: true });
+		mkdirSync(new URL('./src/layouts/', root), { recursive: true });
+		mkdirSync(new URL('./src/lib/', root), { recursive: true });
+		mkdirSync(new URL('./src/components/', root), { recursive: true });
+		writeFileSync(new URL('./src/pages/blog/[slug].astro', root), '---\n---\n');
+		writeFileSync(new URL('./src/layouts/Main.astro', root), '---\n---\n');
+		writeFileSync(new URL('./src/lib/shared.ts', root), 'export const shared = true;\n');
+		writeFileSync(
+			new URL('./src/components/Counter.tsx', root),
+			'export default function Counter() {}',
+		);
+		writeFileSync(
+			new URL('./src/components/ClientOnly.tsx', root),
+			'export default function ClientOnly() {}',
+		);
 
 		trackPageData(
 			internals,
@@ -293,12 +308,14 @@ describe('astro/src/core/build/build-state', () => {
 
 		assert.ok(state.pages);
 		assert.equal(state.pages.length, 1);
-		assert.deepEqual(Object.keys(state.inputDigests).sort(), [
-			'/src/layouts/Main.astro',
-			'/src/lib/shared.ts',
-			'/src/pages/blog/[slug].astro',
+		assert.deepEqual(Object.keys(state.dependencyDigests).sort(), [
+			'file:/src/components/ClientOnly.tsx',
+			'file:/src/components/Counter.tsx',
+			'file:/src/layouts/Main.astro',
+			'file:/src/lib/shared.ts',
+			'file:/src/pages/blog/[slug].astro',
 		]);
-		assert.equal(state.dataStoreDigest, null);
+		assert.deepEqual(state.dataDigests, {});
 		assert.deepEqual(state.pages[0], {
 			key: '/blog/[slug]&src/pages/blog/[slug].astro',
 			route: '/blog/[slug]',
@@ -307,11 +324,15 @@ describe('astro/src/core/build/build-state', () => {
 			routeType: 'page',
 			prerender: true,
 			dependencies: {
-				modules: ['/src/layouts/Main.astro', '/src/lib/shared.ts', '/src/pages/blog/[slug].astro'],
-				hydratedComponents: ['/src/components/Counter.tsx'],
-				clientOnlyComponents: ['/src/components/ClientOnly.tsx'],
-				scripts: ['/src/pages/blog/[slug].astro'],
-				usesDataStore: false,
+				modules: [
+					'file:/src/layouts/Main.astro',
+					'file:/src/lib/shared.ts',
+					'file:/src/pages/blog/[slug].astro',
+				],
+				hydratedComponents: ['file:/src/components/Counter.tsx'],
+				clientOnlyComponents: ['file:/src/components/ClientOnly.tsx'],
+				scripts: ['file:/src/pages/blog/[slug].astro'],
+				data: [],
 			},
 			assets: {
 				styles: [],
@@ -319,6 +340,43 @@ describe('astro/src/core/build/build-state', () => {
 			},
 			generatedPaths: [{ pathname: '/blog/hello', output: 'file:///dist/blog/hello/index.html' }],
 		});
+	});
+
+	it('does not persist synthetic route-like identifiers as file-backed dependency keys', async () => {
+		const root = createTempRoot();
+		const settings = await createSettings(root);
+		const pageData = {
+			key: '/docs-start&/docs-start/',
+			component: 'src/pages/docs-start.astro',
+			route: {
+				route: '/docs-start',
+				component: 'src/pages/docs-start.astro',
+				type: 'redirect',
+				prerender: true,
+			},
+			moduleSpecifier: '/docs-start/',
+			styles: [],
+		};
+		const allPages = {
+			[pageData.key]: pageData,
+		};
+		const internals = createBuildInternals();
+
+		const snapshot = createIncrementalBuildSnapshot({
+			settings,
+			allPages,
+			internals,
+		});
+
+		assert.deepEqual(snapshot.dependencyDigests, {});
+		assert.deepEqual(snapshot.pages[0].dependencies, {
+			modules: [],
+			hydratedComponents: [],
+			clientOnlyComponents: [],
+			scripts: [],
+			data: [],
+		});
+		assert.equal(snapshot.pages[0].moduleSpecifier, '/docs-start/');
 	});
 
 	it('plans reuse for unchanged pages and rerenders changed ones', async () => {
@@ -356,8 +414,15 @@ describe('astro/src/core/build/build-state', () => {
 			[unchangedPage.key]: unchangedPage,
 			[changedPage.key]: changedPage,
 		};
+		mkdirSync(new URL('./src/pages/blog/', root), { recursive: true });
+		mkdirSync(new URL('./src/layouts/', root), { recursive: true });
+		mkdirSync(new URL('./src/lib/', root), { recursive: true });
 		mkdirSync(new URL('./dist/build-state/blog/one/', root), { recursive: true });
 		mkdirSync(new URL('./dist/build-state/blog/two/', root), { recursive: true });
+		writeFileSync(new URL('./src/pages/index.astro', root), '---\n---\n');
+		writeFileSync(new URL('./src/pages/blog/[slug].astro', root), '---\n---\n');
+		writeFileSync(new URL('./src/layouts/Main.astro', root), '---\n---\n');
+		writeFileSync(new URL('./src/lib/blog.ts', root), 'export const posts = [];\n');
 		writeFileSync(new URL('./dist/build-state/index.html', root), '<html>index</html>');
 		writeFileSync(new URL('./dist/build-state/blog/one/index.html', root), '<html>one</html>');
 		writeFileSync(new URL('./dist/build-state/blog/two/index.html', root), '<html>two</html>');
@@ -393,6 +458,7 @@ describe('astro/src/core/build/build-state', () => {
 			allPages,
 			internals: previousInternals,
 		});
+		writeFileSync(new URL('./src/lib/extra.ts', root), 'export const extra = true;\n');
 
 		const currentInternals = createBuildInternals();
 		trackPageData(

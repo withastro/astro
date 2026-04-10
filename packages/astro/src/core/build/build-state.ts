@@ -17,7 +17,10 @@ import { shouldAppendForwardSlash } from './util.js';
 const INCREMENTAL_BUILD_STATE_FILE_BASENAME = 'incremental-build-state';
 const INCREMENTAL_BUILD_STATE_FILE_REGEX =
 	/^incremental-build-state(?:\.[a-f0-9]+)?\.json(?:\.\d+\.\d+\.tmp)?$/;
-const INCREMENTAL_BUILD_STATE_VERSION = 3 as const;
+const INCREMENTAL_BUILD_STATE_VERSION = 4 as const;
+const FILE_DEPENDENCY_KEY_PREFIX = 'file:' as const;
+const DATA_DEPENDENCY_KEY_PREFIX = 'data:' as const;
+const CONTENT_STORE_DATA_DEPENDENCY_KEY = `${DATA_DEPENDENCY_KEY_PREFIX}content-store` as const;
 const FULL_STATIC_REUSE_BLOCKING_HOOKS = [
 	'astro:build:setup',
 	'astro:build:ssr',
@@ -75,12 +78,16 @@ export interface IncrementalBuildGeneratedPath {
 	output: string | null;
 }
 
+type IncrementalBuildDependencyKey = string;
+type IncrementalBuildDependencyDigests = Record<IncrementalBuildDependencyKey, string>;
+type IncrementalBuildDataDigests = Record<IncrementalBuildDependencyKey, string | null>;
+
 interface IncrementalBuildPageDependencies {
-	modules: string[];
-	hydratedComponents: string[];
-	clientOnlyComponents: string[];
-	scripts: string[];
-	usesDataStore: boolean;
+	modules: IncrementalBuildDependencyKey[];
+	hydratedComponents: IncrementalBuildDependencyKey[];
+	clientOnlyComponents: IncrementalBuildDependencyKey[];
+	scripts: IncrementalBuildDependencyKey[];
+	data: IncrementalBuildDependencyKey[];
 }
 
 export interface IncrementalBuildPage {
@@ -106,15 +113,15 @@ export interface IncrementalBuildState {
 	fingerprint: IncrementalBuildFingerprint;
 	artifacts: IncrementalBuildArtifacts;
 	summary: IncrementalBuildSummary;
-	inputDigests?: Record<string, string>;
-	dataStoreDigest?: string | null;
+	dependencyDigests?: IncrementalBuildDependencyDigests;
+	dataDigests?: IncrementalBuildDataDigests;
 	publicDirDigest?: string | null;
 	pages?: IncrementalBuildPage[];
 }
 
 export interface IncrementalBuildSnapshot {
-	inputDigests: Record<string, string>;
-	dataStoreDigest: string | null;
+	dependencyDigests: IncrementalBuildDependencyDigests;
+	dataDigests: IncrementalBuildDataDigests;
 	pages: IncrementalBuildPage[];
 }
 
@@ -317,8 +324,8 @@ export function createIncrementalBuildState({
 		publicDirDigest: getPublicDirDigest(settings),
 		...(snapshot
 			? {
-					inputDigests: snapshot.inputDigests,
-					dataStoreDigest: snapshot.dataStoreDigest,
+					dependencyDigests: snapshot.dependencyDigests,
+					dataDigests: snapshot.dataDigests,
 					pages: snapshot.pages,
 				}
 			: {}),
@@ -340,8 +347,11 @@ export function getFullStaticBuildReuseInvalidationReason({
 	if (!previousState.pages) {
 		return 'missing previous pages';
 	}
-	if (!previousState.inputDigests) {
-		return 'missing previous input digests';
+	if (!previousState.dependencyDigests) {
+		return 'missing previous dependency digests';
+	}
+	if (!previousState.dataDigests) {
+		return 'missing previous data digests';
 	}
 	if (previousState.publicDirDigest === undefined) {
 		return 'missing previous public directory digest';
@@ -359,13 +369,19 @@ export function getFullStaticBuildReuseInvalidationReason({
 	if (!arraysEqual(currentPageKeys, previousPageKeys)) {
 		return 'routes changed';
 	}
-	const trackedIds = Object.keys(previousState.inputDigests);
-	const currentInputDigests = createInputDigests(settings, new Set(trackedIds), fs);
-	if (!inputDigestsEqual(previousState.inputDigests, currentInputDigests)) {
-		return 'tracked inputs changed';
+	const trackedDependencyKeys = Object.keys(previousState.dependencyDigests);
+	const currentDependencyDigests = createDependencyDigests(
+		settings,
+		new Set(trackedDependencyKeys),
+		fs,
+	);
+	if (!dependencyDigestsEqual(previousState.dependencyDigests, currentDependencyDigests)) {
+		return 'tracked dependencies changed';
 	}
-	if (previousState.dataStoreDigest !== getDataStoreDigest(settings, fs)) {
-		return 'content store changed';
+	const trackedDataKeys = Object.keys(previousState.dataDigests);
+	const currentDataDigests = createDataDigests(settings, new Set(trackedDataKeys), fs);
+	if (!dataDigestsEqual(previousState.dataDigests, currentDataDigests)) {
+		return 'data dependencies changed';
 	}
 	if (previousState.publicDirDigest !== getPublicDirDigest(settings, fs)) {
 		return 'public directory changed';
@@ -492,7 +508,8 @@ export function createIncrementalBuildSnapshot({
 	generatedPathsByPage?: Map<string, IncrementalBuildGeneratedPath[]>;
 	fs?: typeof fsMod;
 }): IncrementalBuildSnapshot {
-	const trackedInputIds = new Set<string>();
+	const trackedDependencyKeys = new Set<IncrementalBuildDependencyKey>();
+	const trackedDataKeys = new Set<IncrementalBuildDependencyKey>();
 
 	const pages = Object.values(allPages)
 		.map((pageData) => {
@@ -501,28 +518,41 @@ export function createIncrementalBuildSnapshot({
 				settings,
 				pageData.moduleSpecifier,
 			);
-			const modules = new Set<string>();
-			let usesDataStore = false;
+			const modules = new Set<IncrementalBuildDependencyKey>();
+			const data = new Set<IncrementalBuildDependencyKey>();
+			const pageModuleKey = createFileDependencyKey(settings, pageData.moduleSpecifier, fs);
+			const hydratedComponentKeys = createFileDependencyKeys(
+				settings,
+				pageDependencies?.hydratedComponents,
+				fs,
+			);
+			const clientOnlyComponentKeys = createFileDependencyKeys(
+				settings,
+				pageDependencies?.clientOnlyComponents,
+				fs,
+			);
+			const scriptKeys = createFileDependencyKeys(settings, pageDependencies?.scripts, fs);
 
-			if (
-				pageData.moduleSpecifier &&
-				shouldTrackDependencyId(settings, normalizedModuleSpecifier)
-			) {
-				modules.add(normalizedModuleSpecifier);
-				trackedInputIds.add(normalizedModuleSpecifier);
+			if (pageModuleKey) {
+				modules.add(pageModuleKey);
+				trackedDependencyKeys.add(pageModuleKey);
 			}
 
 			for (const rawModuleId of pageDependencies?.modules ?? []) {
 				if (usesContentDataStore(rawModuleId)) {
-					usesDataStore = true;
+					data.add(CONTENT_STORE_DATA_DEPENDENCY_KEY);
+					trackedDataKeys.add(CONTENT_STORE_DATA_DEPENDENCY_KEY);
 				}
-				const normalizedModuleId = normalizeTrackedDependencyId(settings, rawModuleId);
-				if (!shouldTrackDependencyId(settings, normalizedModuleId)) {
+				const moduleKey = createFileDependencyKey(settings, rawModuleId, fs);
+				if (!moduleKey) {
 					continue;
 				}
-				modules.add(normalizedModuleId);
-				trackedInputIds.add(normalizedModuleId);
+				modules.add(moduleKey);
+				trackedDependencyKeys.add(moduleKey);
 			}
+			addDependencyKeys(trackedDependencyKeys, hydratedComponentKeys);
+			addDependencyKeys(trackedDependencyKeys, clientOnlyComponentKeys);
+			addDependencyKeys(trackedDependencyKeys, scriptKeys);
 
 			return {
 				key: pageData.key,
@@ -533,16 +563,10 @@ export function createIncrementalBuildSnapshot({
 				prerender: pageData.route.prerender,
 				dependencies: {
 					modules: Array.from(modules).sort((left, right) => left.localeCompare(right)),
-					hydratedComponents: normalizeTrackedDependencyIds(
-						settings,
-						pageDependencies?.hydratedComponents,
-					),
-					clientOnlyComponents: normalizeTrackedDependencyIds(
-						settings,
-						pageDependencies?.clientOnlyComponents,
-					),
-					scripts: normalizeTrackedDependencyIds(settings, pageDependencies?.scripts),
-					usesDataStore,
+					hydratedComponents: hydratedComponentKeys,
+					clientOnlyComponents: clientOnlyComponentKeys,
+					scripts: scriptKeys,
+					data: Array.from(data).sort((left, right) => left.localeCompare(right)),
 				},
 				assets: createPageAssetSnapshot({
 					settings,
@@ -563,8 +587,8 @@ export function createIncrementalBuildSnapshot({
 		);
 
 	return {
-		inputDigests: createInputDigests(settings, trackedInputIds, fs),
-		dataStoreDigest: getDataStoreDigest(settings, fs),
+		dependencyDigests: createDependencyDigests(settings, trackedDependencyKeys, fs),
+		dataDigests: createDataDigests(settings, trackedDataKeys, fs),
 		pages,
 	};
 }
@@ -758,15 +782,28 @@ function addBundleAssetRef(assetRefs: Set<string>, fileName: string | undefined)
 	}
 }
 
-function normalizeTrackedDependencyIds(
+function addDependencyKeys(
+	target: Set<IncrementalBuildDependencyKey>,
+	keys: Iterable<IncrementalBuildDependencyKey>,
+) {
+	for (const key of keys) {
+		target.add(key);
+	}
+}
+
+function createFileDependencyKeys(
 	settings: AstroSettings,
 	ids: Iterable<string> | undefined,
-): string[] {
-	const normalizedIds = new Set<string>();
+	fs: typeof fsMod,
+): IncrementalBuildDependencyKey[] {
+	const dependencyKeys = new Set<IncrementalBuildDependencyKey>();
 	for (const id of ids ?? []) {
-		normalizedIds.add(normalizeTrackedDependencyId(settings, id));
+		const dependencyKey = createFileDependencyKey(settings, id, fs);
+		if (dependencyKey) {
+			dependencyKeys.add(dependencyKey);
+		}
 	}
-	return Array.from(normalizedIds).sort((left, right) => left.localeCompare(right));
+	return Array.from(dependencyKeys).sort((left, right) => left.localeCompare(right));
 }
 
 function normalizeTrackedDependencyId(settings: AstroSettings, id: string): string {
@@ -800,27 +837,41 @@ function normalizeTrackedDependencyId(settings: AstroSettings, id: string): stri
 	return cleanedId;
 }
 
-function shouldTrackDependencyId(settings: AstroSettings, id: string): boolean {
+function createFileDependencyKey(
+	settings: AstroSettings,
+	id: string,
+	fs: typeof fsMod,
+): IncrementalBuildDependencyKey | undefined {
+	const normalizedId = normalizeTrackedDependencyId(settings, id);
+	const resolvedPath = resolveTrackedDependencyPath(settings, normalizedId);
+	if (!resolvedPath) {
+		return undefined;
+	}
+	const normalizedPathValue = normalizePath(resolvedPath);
+	if (
+		normalizedPathValue.includes('/node_modules/') ||
+		normalizedPathValue.includes('/dist/') ||
+		!fs.existsSync(resolvedPath)
+	) {
+		return undefined;
+	}
+	return `${FILE_DEPENDENCY_KEY_PREFIX}${toProjectRelativeId(settings, normalizedPathValue)}`;
+}
+
+function resolveTrackedDependencyPath(settings: AstroSettings, id: string): string | undefined {
 	if (!id || id.startsWith('\0') || id.startsWith('/@id/') || id.startsWith('virtual:')) {
-		return false;
+		return undefined;
 	}
 	if (id.startsWith('/.astro/')) {
-		return false;
-	}
-	if (/^[a-z]+:/i.test(id)) {
-		return false;
+		return undefined;
 	}
 	if (id.startsWith('/')) {
-		const resolvedPath = fileURLToPath(new URL(`.${id}`, settings.config.root));
-		return !normalizePath(resolvedPath).includes('/node_modules/');
+		return fileURLToPath(new URL(`.${id}`, settings.config.root));
 	}
 	if (path.isAbsolute(id)) {
-		if (id.includes('/node_modules/') || id.includes('/dist/')) {
-			return false;
-		}
-		return true;
+		return id;
 	}
-	return false;
+	return undefined;
 }
 
 function usesContentDataStore(id: string): boolean {
@@ -833,26 +884,62 @@ function usesContentDataStore(id: string): boolean {
 	);
 }
 
-function createInputDigests(
+function createDependencyDigests(
 	settings: AstroSettings,
-	ids: Set<string>,
+	keys: Set<IncrementalBuildDependencyKey>,
 	fs: typeof fsMod,
-): Record<string, string> {
+): IncrementalBuildDependencyDigests {
 	return Object.fromEntries(
-		Array.from(ids)
+		Array.from(keys)
 			.sort((left, right) => left.localeCompare(right))
-			.map((id) => [id, createFileDigest(resolveTrackedDependencyPath(settings, id), fs)]),
+			.map((key) => [key, createDependencyDigest(settings, key, fs)]),
 	);
 }
 
-function resolveTrackedDependencyPath(settings: AstroSettings, id: string): string {
-	if (id.startsWith('/')) {
-		return fileURLToPath(new URL(`.${id}`, settings.config.root));
+function createDependencyDigest(
+	settings: AstroSettings,
+	key: IncrementalBuildDependencyKey,
+	fs: typeof fsMod,
+): string {
+	if (!key.startsWith(FILE_DEPENDENCY_KEY_PREFIX)) {
+		return 'untracked';
 	}
-	if (path.isAbsolute(id)) {
-		return id;
+	const filePath = resolveFileDependencyKeyPath(settings, key);
+	return filePath ? createFileDigest(filePath, fs) : 'missing';
+}
+
+function resolveFileDependencyKeyPath(
+	settings: AstroSettings,
+	key: IncrementalBuildDependencyKey,
+): string | undefined {
+	if (!key.startsWith(FILE_DEPENDENCY_KEY_PREFIX)) {
+		return undefined;
 	}
-	return fileURLToPath(new URL(`./${id}`, settings.config.root));
+	const id = key.slice(FILE_DEPENDENCY_KEY_PREFIX.length);
+	return resolveTrackedDependencyPath(settings, id);
+}
+
+function createDataDigests(
+	settings: AstroSettings,
+	keys: Set<IncrementalBuildDependencyKey>,
+	fs: typeof fsMod,
+): IncrementalBuildDataDigests {
+	return Object.fromEntries(
+		Array.from(keys)
+			.sort((left, right) => left.localeCompare(right))
+			.map((key) => [key, createDataDependencyDigest(settings, key, fs)]),
+	);
+}
+
+function createDataDependencyDigest(
+	settings: AstroSettings,
+	key: IncrementalBuildDependencyKey,
+	fs: typeof fsMod,
+): string | null {
+	if (key === CONTENT_STORE_DATA_DEPENDENCY_KEY) {
+		return getDataStoreDigest(settings, fs);
+	}
+	return null;
 }
 
 function createFileDigest(filePath: string, fs: typeof fsMod): string {
@@ -907,17 +994,17 @@ function getReuseInvalidationReason(
 	if (!previousPage) {
 		return 'new page';
 	}
-	if (!previousState.inputDigests) {
-		return 'missing previous input digests';
+	if (!previousState.dependencyDigests) {
+		return 'missing previous dependency digests';
+	}
+	if (!previousState.dataDigests) {
+		return 'missing previous data digests';
 	}
 	if (currentPage.routeType !== previousPage.routeType) {
 		return 'route type changed';
 	}
 	if (previousPage.prerender !== currentPage.prerender) {
 		return 'prerender setting changed';
-	}
-	if (previousPage.dependencies.usesDataStore !== currentPage.dependencies.usesDataStore) {
-		return 'data store dependency changed';
 	}
 	if (!arraysEqual(previousPage.dependencies.modules, currentPage.dependencies.modules)) {
 		return 'page dependencies changed';
@@ -941,6 +1028,9 @@ function getReuseInvalidationReason(
 	if (!arraysEqual(previousPage.dependencies.scripts, currentPage.dependencies.scripts)) {
 		return 'page scripts changed';
 	}
+	if (!arraysEqual(previousPage.dependencies.data, currentPage.dependencies.data)) {
+		return 'page data dependencies changed';
+	}
 	if (!arraysEqual(previousPage.assets.styles, currentPage.assets.styles)) {
 		return 'page styles changed';
 	}
@@ -953,21 +1043,51 @@ function getReuseInvalidationReason(
 	if (currentPage.generatedPaths.some((generatedPath) => generatedPath.output === null)) {
 		return 'page currently requires a fresh render';
 	}
-	for (const inputId of currentPage.dependencies.modules) {
-		if (previousState.inputDigests[inputId] !== currentSnapshot.inputDigests[inputId]) {
-			return 'page inputs changed';
+	for (const dependencyKey of getPageFileDependencyKeys(currentPage)) {
+		if (
+			previousState.dependencyDigests[dependencyKey] !==
+			currentSnapshot.dependencyDigests[dependencyKey]
+		) {
+			return 'page dependencies changed';
 		}
 	}
-	if (currentPage.dependencies.usesDataStore && shouldInvalidateFromDataStoreDigest(currentPage)) {
-		if (previousState.dataStoreDigest !== currentSnapshot.dataStoreDigest) {
-			return 'content store changed';
+	for (const dataDependencyKey of currentPage.dependencies.data) {
+		if (!shouldInvalidateFromDataDependency(currentPage, dataDependencyKey)) {
+			continue;
+		}
+		if (
+			previousState.dataDigests[dataDependencyKey] !==
+			currentSnapshot.dataDigests[dataDependencyKey]
+		) {
+			return dataDependencyKey === CONTENT_STORE_DATA_DEPENDENCY_KEY
+				? 'content store changed'
+				: 'data dependencies changed';
 		}
 	}
 	return undefined;
 }
 
-function shouldInvalidateFromDataStoreDigest(page: IncrementalBuildPage): boolean {
-	return !page.dependencies.modules.some((moduleId) => moduleId.startsWith('/src/content/'));
+function shouldInvalidateFromDataDependency(
+	page: IncrementalBuildPage,
+	key: IncrementalBuildDependencyKey,
+): boolean {
+	if (key !== CONTENT_STORE_DATA_DEPENDENCY_KEY) {
+		return true;
+	}
+	return !page.dependencies.modules.some((moduleId) =>
+		moduleId.startsWith(`${FILE_DEPENDENCY_KEY_PREFIX}/src/content/`),
+	);
+}
+
+function getPageFileDependencyKeys(page: IncrementalBuildPage): IncrementalBuildDependencyKey[] {
+	return Array.from(
+		new Set([
+			...page.dependencies.modules,
+			...page.dependencies.hydratedComponents,
+			...page.dependencies.clientOnlyComponents,
+			...page.dependencies.scripts,
+		]),
+	).sort((left, right) => left.localeCompare(right));
 }
 
 function getFullStaticReuseBlockingHooks(settings: AstroSettings): string[] {
@@ -1039,7 +1159,19 @@ function normalizePersistedAssetPath(settings: AstroSettings, assetPath: string)
 	return path.posix.normalize(normalizedAssetPath).replace(/^\/+/, '');
 }
 
-function inputDigestsEqual(left: Record<string, string>, right: Record<string, string>): boolean {
+function dependencyDigestsEqual(
+	left: IncrementalBuildDependencyDigests,
+	right: IncrementalBuildDependencyDigests,
+): boolean {
+	const leftKeys = Object.keys(left).sort((first, second) => first.localeCompare(second));
+	const rightKeys = Object.keys(right).sort((first, second) => first.localeCompare(second));
+	return arraysEqual(leftKeys, rightKeys) && leftKeys.every((key) => left[key] === right[key]);
+}
+
+function dataDigestsEqual(
+	left: IncrementalBuildDataDigests,
+	right: IncrementalBuildDataDigests,
+): boolean {
 	const leftKeys = Object.keys(left).sort((first, second) => first.localeCompare(second));
 	const rightKeys = Object.keys(right).sort((first, second) => first.localeCompare(second));
 	return arraysEqual(leftKeys, rightKeys) && leftKeys.every((key) => left[key] === right[key]);
@@ -1408,10 +1540,9 @@ function isIncrementalBuildState(value: unknown): value is IncrementalBuildState
 		isFingerprint(candidate.fingerprint) &&
 		isArtifacts(candidate.artifacts) &&
 		isSummary(candidate.summary) &&
-		(candidate.inputDigests === undefined || isInputDigests(candidate.inputDigests)) &&
-		(candidate.dataStoreDigest === undefined ||
-			typeof candidate.dataStoreDigest === 'string' ||
-			candidate.dataStoreDigest === null) &&
+		(candidate.dependencyDigests === undefined ||
+			isDependencyDigests(candidate.dependencyDigests)) &&
+		(candidate.dataDigests === undefined || isDataDigests(candidate.dataDigests)) &&
 		(candidate.publicDirDigest === undefined ||
 			typeof candidate.publicDirDigest === 'string' ||
 			candidate.publicDirDigest === null) &&
@@ -1508,7 +1639,8 @@ function isPageDependencies(value: unknown): value is IncrementalBuildPageDepend
 		candidate.clientOnlyComponents.every((entry) => typeof entry === 'string') &&
 		Array.isArray(candidate.scripts) &&
 		candidate.scripts.every((entry) => typeof entry === 'string') &&
-		typeof candidate.usesDataStore === 'boolean'
+		Array.isArray(candidate.data) &&
+		candidate.data.every((entry) => typeof entry === 'string')
 	);
 }
 
@@ -1526,11 +1658,18 @@ function isPageAssets(value: unknown): value is IncrementalBuildPageAssets {
 	);
 }
 
-function isInputDigests(value: unknown): value is Record<string, string> {
+function isDependencyDigests(value: unknown): value is IncrementalBuildDependencyDigests {
 	if (!value || typeof value !== 'object' || Array.isArray(value)) {
 		return false;
 	}
 	return Object.values(value).every((entry) => typeof entry === 'string');
+}
+
+function isDataDigests(value: unknown): value is IncrementalBuildDataDigests {
+	if (!value || typeof value !== 'object' || Array.isArray(value)) {
+		return false;
+	}
+	return Object.values(value).every((entry) => typeof entry === 'string' || entry === null);
 }
 
 function isGeneratedPaths(value: unknown): value is IncrementalBuildGeneratedPath[] {
