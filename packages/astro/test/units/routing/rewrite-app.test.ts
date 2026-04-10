@@ -1,26 +1,25 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { sequence } from '../../../dist/core/middleware/index.js';
-import { createTestApp, createPage } from '../mocks.js';
-import { staticPart, dynamicPart, spreadPart } from './test-helpers.js';
+import { createTestApp, createPage } from '../mocks.ts';
+import { staticPart, dynamicPart, spreadPart } from './test-helpers.ts';
 
-const indexPage = createComponent((result, props, slots) => {
+const indexPage = createComponent((result: any, props: any, slots: any) => {
 	const Astro = result.createAstro(props, slots);
 	const auth = Astro.locals.auth || '';
 	return render`<h1>Index</h1><p>${auth}</p><h2>Origin: ${Astro.originPathname}</h2>`;
 });
 
-function rewriteTo(target) {
-	return createComponent((result, props, slots) => {
+function rewriteTo(target: string) {
+	return createComponent((result: any, props: any, slots: any) => {
 		const Astro = result.createAstro(props, slots);
 		return Astro.rewrite(target);
 	});
 }
 
-const postBPage = createComponent(async (result, props, slots) => {
+const postBPage = createComponent(async (result: any, props: any, slots: any) => {
 	const Astro = result.createAstro(props, slots);
 	let email = '';
 	if (Astro.request.method === 'POST') {
@@ -127,7 +126,7 @@ describe('Rewrites via App - POST body forwarding', () => {
 describe('Rewrites via App - URL and Request payloads', () => {
 	const app = createTestApp([
 		createPage(
-			createComponent((result, props, slots) => {
+			createComponent((result: any, props: any, slots: any) => {
 				const Astro = result.createAstro(props, slots);
 				return Astro.rewrite(new URL('/', Astro.url));
 			}),
@@ -135,7 +134,7 @@ describe('Rewrites via App - URL and Request payloads', () => {
 		),
 		createPage(indexPage, { route: '/', isIndex: true }),
 		createPage(
-			createComponent((result, props, slots) => {
+			createComponent((result: any, props: any, slots: any) => {
 				const Astro = result.createAstro(props, slots);
 				return Astro.rewrite(new Request(new URL('/', Astro.url)));
 			}),
@@ -159,7 +158,7 @@ describe('Rewrites via App - URL and Request payloads', () => {
 });
 
 describe('Rewrites via App - base path with trailingSlash never', () => {
-	const pageWithPath = createComponent((result, props, slots) => {
+	const pageWithPath = createComponent((result: any, props: any, slots: any) => {
 		const Astro = result.createAstro(props, slots);
 		return render`<h1>Page</h1><p>${Astro.url.pathname}</p>`;
 	});
@@ -182,11 +181,11 @@ describe('Rewrites via App - base path with trailingSlash never', () => {
 });
 
 describe('Rewrites via App - base path with trailingSlash always', () => {
-	const indexWithPath = createComponent((result, props, slots) => {
+	const indexWithPath = createComponent((result: any, props: any, slots: any) => {
 		const Astro = result.createAstro(props, slots);
 		return render`<h1>Index</h1><p>${Astro.url.pathname}</p>`;
 	});
-	const pageWithPath = createComponent((result, props, slots) => {
+	const pageWithPath = createComponent((result: any, props: any, slots: any) => {
 		const Astro = result.createAstro(props, slots);
 		return render`<h1>Page</h1><p>${Astro.url.pathname}</p>`;
 	});
@@ -234,7 +233,7 @@ describe('Rewrites via App - base path with trailingSlash always', () => {
 });
 
 describe('Rewrites via App - rewrite to dynamic route with slug', () => {
-	const titlePage = createComponent((result, props, slots) => {
+	const titlePage = createComponent((result: any, props: any, slots: any) => {
 		const Astro = result.createAstro(props, slots);
 		const { slug } = Astro.params;
 		return render`<h1>Title</h1><p>${slug}</p>`;
@@ -299,7 +298,7 @@ describe('Rewrites via App - duplicate slashes', () => {
 });
 
 describe('Rewrites via App - dynamic routing with spaces', () => {
-	const dynamicPage = createComponent((result, props, slots) => {
+	const dynamicPage = createComponent((result: any, props: any, slots: any) => {
 		const Astro = result.createAstro(props, slots);
 		return render`<h1>Index</h1><p>${Astro.params.id}</p>`;
 	});
@@ -354,7 +353,7 @@ describe('Rewrites via App - runtime error without custom 500', () => {
 });
 
 describe('Rewrites via App - middleware rewrite with next()', () => {
-	const middleware = async (_ctx, next) => {
+	const middleware = async (_ctx: any, next: any) => {
 		const response = await next('/');
 		return response;
 	};
@@ -387,7 +386,7 @@ describe('Rewrites via App - middleware rewrite with next()', () => {
 });
 
 describe('Rewrites via App - i18n manual routing middleware rewrite', () => {
-	const middleware = async (_ctx, next) => {
+	const middleware = async (_ctx: any, next: any) => {
 		const response = await next('/');
 		return response;
 	};
@@ -422,7 +421,7 @@ describe('Rewrites via App - i18n manual routing middleware rewrite', () => {
 });
 
 describe('Rewrites via App - issue 13633 middleware rewrite', () => {
-	const middleware = async (_ctx, next) => {
+	const middleware = async (_ctx: any, next: any) => {
 		const response = await next('/');
 		return response;
 	};
@@ -450,13 +449,13 @@ describe('Rewrites via App - issue 13633 middleware rewrite', () => {
 });
 
 describe('Rewrites via App - middleware sequence with next() vs context.rewrite()', () => {
-	const indexPageWithLocals = createComponent((result, props, slots) => {
+	const indexPageWithLocals = createComponent((result: any, props: any, slots: any) => {
 		const Astro = result.createAstro(props, slots);
 		const auth = Astro.locals.auth;
 		return render`<h1>Index</h1>${auth ? render`<p>Called auth</p>` : ''}`;
 	});
 
-	const paramsPage = createComponent((result, props, slots) => {
+	const paramsPage = createComponent((result: any, props: any, slots: any) => {
 		const Astro = result.createAstro(props, slots);
 		const { id } = Astro.params;
 		const auth = Astro.locals.auth;
@@ -465,9 +464,9 @@ describe('Rewrites via App - middleware sequence with next() vs context.rewrite(
 
 	let contextReroute = false;
 
-	const first = async (_context, next) => next();
+	const first = async (_context: any, next: any) => next();
 
-	const second = async (context, next) => {
+	const second = async (context: any, next: any) => {
 		if (context.url.pathname.includes('/auth')) {
 			if (context.url.pathname.includes('/auth/dashboard')) {
 				contextReroute = true;
@@ -486,7 +485,7 @@ describe('Rewrites via App - middleware sequence with next() vs context.rewrite(
 		return next();
 	};
 
-	const third = async (context, next) => {
+	const third = async (context: any, next: any) => {
 		if (context.url.pathname.startsWith('/') && contextReroute === false) {
 			context.locals.auth = 'Third function called';
 		}
@@ -562,13 +561,13 @@ describe('Rewrites via App - middleware sequence with next() vs context.rewrite(
 });
 
 describe('Rewrites via App - middleware with custom 404 and 500', () => {
-	const errorPage = createComponent((result, props, slots) => {
+	const errorPage = createComponent((result: any, props: any, slots: any) => {
 		const Astro = result.createAstro(props, slots);
 		const interjected = Astro.locals.interjected;
 		return render`<h1>Custom error</h1><p>${interjected}</p>`;
 	});
 
-	const middleware = async (context, next) => {
+	const middleware = async (context: any, next: any) => {
 		if (context.url.pathname.startsWith('/404') || context.url.pathname.startsWith('/500')) {
 			context.locals.interjected = 'Interjected';
 		}
@@ -601,7 +600,7 @@ describe('Rewrites via App - middleware with custom 404 and 500', () => {
 });
 
 describe('Rewrites via App - body-used rewrite returns 500', () => {
-	const bodyUsedPage = createComponent(async (result, props, slots) => {
+	const bodyUsedPage = createComponent(async (result: any, props: any, slots: any) => {
 		const Astro = result.createAstro(props, slots);
 		if (Astro.request.method === 'POST') {
 			await Astro.request.text();
@@ -628,19 +627,19 @@ describe('Rewrites via App - body-used rewrite returns 500', () => {
 });
 
 describe('Rewrites via App - routePattern updated after sequence rewrite', () => {
-	const patternPage = createComponent((result, props, slots) => {
+	const patternPage = createComponent((result: any, props: any, slots: any) => {
 		const Astro = result.createAstro(props, slots);
 		return render`<p>${Astro.locals.pattern}</p>`;
 	});
 
-	const first = async (context, next) => {
+	const first = async (context: any, next: any) => {
 		if (context.url.pathname === '/index2') {
 			return next('/123/post');
 		}
 		return next('/destination');
 	};
 
-	const second = async (context, next) => {
+	const second = async (context: any, next: any) => {
 		context.locals.pattern = context.routePattern;
 		return next();
 	};
