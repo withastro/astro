@@ -8,6 +8,7 @@ import type { Container } from '../dist/core/dev/container.js';
 import { createContainerWithAutomaticRestart, startContainer } from '../dist/core/dev/index.js';
 
 const fixtureDir = fileURLToPath(new URL('./fixtures/dev-container/', import.meta.url));
+const restartSuiteTimeout = process.platform === 'win32' ? 45000 : 20000;
 
 const defaultInlineConfig: AstroInlineConfig = {
 	logLevel: 'silent',
@@ -27,8 +28,8 @@ function cleanupFile(relPath: string) {
 	} catch {}
 }
 
-// Checking for restarts may hang if no restarts happen, so set a 20s timeout for each test
-describe('dev container restarts', { timeout: 20000, skip: 'Currently flaky' }, () => {
+// Restart checks can hang if no restart occurs, and Windows runners are slower here.
+describe('dev container restarts', { timeout: restartSuiteTimeout, skip: 'Currently flaky' }, () => {
 	it('Surfaces config errors on restarts', async () => {
 		// Ensure clean state
 		cleanupFile('astro.config.mjs');
