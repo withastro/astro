@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { NoopAstroCache, DisabledAstroCache } from '../../../dist/core/cache/runtime/noop.js';
 import { applyCacheHeaders, isCacheActive } from '../../../dist/core/cache/runtime/cache.js';
-import { defaultLogger } from '../test-utils.js';
+import { defaultLogger } from '../test-utils.ts';
 
 describe('NoopAstroCache', () => {
 	it('enabled is false', () => {
@@ -78,7 +78,7 @@ describe('DisabledAstroCache', () => {
 		const cache = new DisabledAstroCache(defaultLogger);
 		await assert.rejects(
 			() => cache.invalidate({ tags: 'x' }),
-			(err) => err.name === 'CacheNotEnabled',
+			(err: Error) => err.name === 'CacheNotEnabled',
 		);
 	});
 
