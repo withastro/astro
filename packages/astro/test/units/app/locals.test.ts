@@ -1,10 +1,20 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { App } from '../../../dist/core/app/app.js';
+import type { SSRManifest } from '../../../dist/core/app/types.js';
+import type { RouteData } from '../../../dist/types/public/internal.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
-import { createManifest } from './test-helpers.js';
+import { createManifest } from './test-helpers.ts';
 
-const fooRouteData = {
+function makeRouteData(partial: Omit<RouteData, 'redirect' | 'redirectRoute'>): RouteData {
+	return partial as RouteData;
+}
+
+function makeApp(opts: Record<string, any>): App {
+	return new App(createManifest(opts as any) as unknown as SSRManifest);
+}
+
+const fooRouteData = makeRouteData({
 	route: '/foo',
 	component: 'src/pages/foo.astro',
 	params: [],
@@ -17,9 +27,9 @@ const fooRouteData = {
 	fallbackRoutes: [],
 	isIndex: false,
 	origin: 'project',
-};
+});
 
-const apiRouteData = {
+const apiRouteData = makeRouteData({
 	route: '/api',
 	component: 'src/pages/api.js',
 	params: [],
@@ -32,9 +42,9 @@ const apiRouteData = {
 	fallbackRoutes: [],
 	isIndex: false,
 	origin: 'project',
-};
+});
 
-const errorRouteData = {
+const errorRouteData = makeRouteData({
 	route: '/go-to-error-page',
 	component: 'src/pages/go-to-error-page.astro',
 	params: [],
@@ -47,9 +57,9 @@ const errorRouteData = {
 	fallbackRoutes: [],
 	isIndex: false,
 	origin: 'project',
-};
+});
 
-const notFoundRouteData = {
+const notFoundRouteData = makeRouteData({
 	route: '/404',
 	component: 'src/pages/404.astro',
 	params: [],
@@ -62,9 +72,9 @@ const notFoundRouteData = {
 	fallbackRoutes: [],
 	isIndex: false,
 	origin: 'project',
-};
+});
 
-const internalErrorRouteData = {
+const internalErrorRouteData = makeRouteData({
 	route: '/500',
 	component: 'src/pages/500.astro',
 	params: [],
@@ -77,24 +87,24 @@ const internalErrorRouteData = {
 	fallbackRoutes: [],
 	isIndex: false,
 	origin: 'project',
-};
+});
 
-const fooPage = createComponent((result, props, slots) => {
+const fooPage = createComponent((result: any, props: any, slots: any) => {
 	const Astro = result.createAstro(props, slots);
 	return render`<h1 id="foo">${Astro.locals.foo}</h1>`;
 });
 
-const notFoundPage = createComponent((result, props, slots) => {
+const notFoundPage = createComponent((result: any, props: any, slots: any) => {
 	const Astro = result.createAstro(props, slots);
 	return render`<h1 id="foo">${Astro.locals.foo}</h1>`;
 });
 
-const internalErrorPage = createComponent((result, props, slots) => {
+const internalErrorPage = createComponent((result: any, props: any, slots: any) => {
 	const Astro = result.createAstro(props, slots);
 	return render`<h1 id="foo">${Astro.locals.foo}</h1>`;
 });
 
-const pageMap = new Map([
+const pageMap = new Map<string, any>([
 	[
 		fooRouteData.component,
 		async () => ({
@@ -107,7 +117,7 @@ const pageMap = new Map([
 		apiRouteData.component,
 		async () => ({
 			page: async () => ({
-				GET: async ({ locals }) =>
+				GET: async ({ locals }: { locals: Record<string, any> }) =>
 					new Response(JSON.stringify({ ...locals }), {
 						headers: {
 							'Content-Type': 'application/json',
@@ -144,18 +154,16 @@ const pageMap = new Map([
 	],
 ]);
 
-const app = new App(
-	createManifest({
-		routes: [
-			{ routeData: fooRouteData },
-			{ routeData: apiRouteData },
-			{ routeData: errorRouteData },
-			{ routeData: notFoundRouteData },
-			{ routeData: internalErrorRouteData },
-		],
-		pageMap,
-	}),
-);
+const app = makeApp({
+	routes: [
+		{ routeData: fooRouteData },
+		{ routeData: apiRouteData },
+		{ routeData: errorRouteData },
+		{ routeData: notFoundRouteData },
+		{ routeData: internalErrorRouteData },
+	],
+	pageMap,
+});
 
 describe('SSR Astro.locals from server', () => {
 	it('Can access Astro.locals in page', async () => {
