@@ -1,22 +1,22 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { createI18nFallbackRoutes } from '../../../dist/core/routing/create-manifest.js';
-import { createRouteData } from '../mocks.js';
+import type { AstroConfig } from '../../../dist/types/public/config.js';
+import { createRouteData } from '../mocks.ts';
 
-const BASE_CONFIG = {
+const BASE_CONFIG: Pick<AstroConfig, 'base' | 'trailingSlash'> = {
 	base: '/',
 	trailingSlash: 'ignore',
 };
 
-function makeI18n(overrides = {}) {
+function makeI18n(overrides: Record<string, unknown> = {}): NonNullable<AstroConfig['i18n']> {
 	return {
 		defaultLocale: 'en',
 		locales: ['en', 'es'],
 		routing: {},
 		domains: {},
 		...overrides,
-	};
+	} as NonNullable<AstroConfig['i18n']>;
 }
 
 describe('createI18nFallbackRoutes — prefix-other-locales, es → en fallback', () => {
