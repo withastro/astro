@@ -1,13 +1,12 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { sequence } from '../../../dist/core/middleware/index.js';
-import { createTestApp, createPage } from '../mocks.js';
+import { createTestApp, createPage } from '../mocks.ts';
 
-function rewriteTo(target) {
-	return createComponent((result, props, slots) => {
+function rewriteTo(target: string) {
+	return createComponent((result: any, props: any, slots: any) => {
 		const Astro = result.createAstro(props, slots);
 		return Astro.rewrite(target);
 	});
@@ -59,8 +58,8 @@ describe('SSR-to-prerendered rewrite validation — via Astro.rewrite() (#execut
 
 describe('SSR-to-prerendered rewrite validation — via sequence()', () => {
 	it('returns 500 when chained middleware via sequence() rewrites from SSR to prerendered', async () => {
-		const firstMiddleware = async (_ctx, next) => next();
-		const secondMiddleware = async (ctx, next) => {
+		const firstMiddleware = async (_ctx: any, next: any) => next();
+		const secondMiddleware = async (ctx: any, next: any) => {
 			if (ctx.url.pathname === '/ssr') {
 				return ctx.rewrite('/prerendered');
 			}
@@ -86,8 +85,8 @@ describe('SSR-to-prerendered rewrite validation — via sequence()', () => {
 	});
 
 	it('succeeds when chained middleware via sequence() rewrites from SSR to SSR', async () => {
-		const firstMiddleware = async (_ctx, next) => next();
-		const secondMiddleware = async (ctx, next) => {
+		const firstMiddleware = async (_ctx: any, next: any) => next();
+		const secondMiddleware = async (ctx: any, next: any) => {
 			if (ctx.url.pathname === '/source') {
 				return ctx.rewrite('/target');
 			}
