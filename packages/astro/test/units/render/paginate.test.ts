@@ -1,4 +1,3 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { generatePaginateFunction } from '../../../dist/core/render/paginate.js';
@@ -9,7 +8,6 @@ const items = Array.from({ length: 25 }, (_, i) => `item-${i + 1}`);
 describe('Pagination — optional root page (spread route)', () => {
 	const route = createRouteData({
 		route: '/posts/optional-root-page/[...page]',
-		params: ['...page'],
 		segments: [
 			[{ content: 'posts', dynamic: false, spread: false }],
 			[{ content: 'optional-root-page', dynamic: false, spread: false }],
@@ -49,7 +47,6 @@ describe('Pagination — named root page (non-spread route)', () => {
 	// Non-spread route => page 1 has page param "1" (always included)
 	const route = createRouteData({
 		route: '/posts/named-root-page/[page]',
-		params: ['page'],
 		segments: [
 			[{ content: 'posts', dynamic: false, spread: false }],
 			[{ content: 'named-root-page', dynamic: false, spread: false }],
@@ -82,7 +79,6 @@ describe('Pagination — multiple params (color + page)', () => {
 	// Each color has its own set of pages; base='/blog', trailingSlash='never'
 	const route = createRouteData({
 		route: '/posts/[color]/[page]',
-		params: ['color', 'page'],
 		segments: [
 			[{ content: 'posts', dynamic: false, spread: false }],
 			[{ content: 'color', dynamic: true, spread: false }],
@@ -141,7 +137,6 @@ describe('Pagination — root spread, correct prev URL — Migrated from astro-p
 	// 4 items, pageSize 1 → 4 pages; root spread means page 1 has no number in URL.
 	const route = createRouteData({
 		route: '/[...page]',
-		params: ['...page'],
 		segments: [[{ content: '...page', dynamic: true, spread: true }]],
 	});
 	const paginate = generatePaginateFunction(route, '/blog', 'ignore');
