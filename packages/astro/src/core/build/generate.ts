@@ -20,7 +20,7 @@ import {
 } from '../../core/path.js';
 import { runHookBuildGenerated, toIntegrationResolvedRoute } from '../../integrations/hooks.js';
 import type { AstroConfig } from '../../types/public/config.js';
-import type { Logger } from '../logger/core.js';
+import type { AstroLogger } from '../logger/core.js';
 import type { AstroPrerenderer, RouteToHeaders } from '../../types/public/index.js';
 import type { RouteData, RouteType, SSRError } from '../../types/public/internal.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
@@ -369,7 +369,7 @@ interface RenderToPathPayload {
 	route: RouteData;
 	options: StaticBuildOptions;
 	routeToHeaders?: RouteToHeaders;
-	logger: Logger;
+	logger: AstroLogger;
 }
 
 /**
@@ -532,7 +532,7 @@ async function generatePathWithPrerenderer(
 	route: RouteData,
 	options: StaticBuildOptions,
 	routeToHeaders: RouteToHeaders,
-	logger: Logger,
+	logger: AstroLogger,
 ): Promise<void> {
 	const timeStart = performance.now();
 	const { config } = options.settings;
@@ -565,7 +565,7 @@ async function generatePathWithPrerenderer(
 	logRenderTime(logger, timeStart, false);
 }
 
-function logRenderTime(logger: Logger, timeStart: number, notCreated: boolean) {
+function logRenderTime(logger: AstroLogger, timeStart: number, notCreated: boolean) {
 	const timeEnd = performance.now();
 	const isSlow = timeEnd - timeStart > THRESHOLD_SLOW_RENDER_TIME_MS;
 	const timeIncrease = (isSlow ? colors.red : colors.dim)(`(+${getTimeStat(timeStart, timeEnd)})`);
@@ -643,7 +643,7 @@ function checkPublicConflict(
 	outFile: URL,
 	route: RouteData,
 	settings: AstroSettings,
-	logger: Logger,
+	logger: AstroLogger,
 ): boolean {
 	const outRoot =
 		settings.buildOutput === 'static' && !settings.adapter?.adapterFeatures?.preserveBuildClientDir

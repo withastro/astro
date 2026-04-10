@@ -3,7 +3,7 @@ import { type HeadElements, Pipeline, type TryRewriteResult } from '../core/base
 import { ASTRO_VERSION } from '../core/constants.js';
 import { enhanceViteSSRError } from '../core/errors/dev/index.js';
 import { AggregateError, CSSError, MarkdownError } from '../core/errors/index.js';
-import type { Logger } from '../core/logger/core.js';
+import type { AstroLogger } from '../core/logger/core.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import { RedirectComponentInstance } from '../core/redirects/index.js';
 import { loadRenderer } from '../core/render/index.js';
@@ -52,7 +52,7 @@ export class RunnablePipeline extends Pipeline {
 
 	private constructor(
 		loader: ModuleLoader,
-		logger: Logger,
+		logger: AstroLogger,
 		manifest: SSRManifest,
 		settings: AstroSettings,
 		getDebugInfo: () => Promise<string>,

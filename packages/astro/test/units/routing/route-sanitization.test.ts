@@ -1,4 +1,4 @@
-import * as assert from 'node:assert/strict';
+import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { Router } from '../../../dist/core/routing/router.js';
 import { makeRoute, spreadPart } from './test-helpers.js';

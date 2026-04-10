@@ -8,6 +8,7 @@ describe('createAPIContext', () => {
 
 		const context = createContext({
 			request,
+			defaultLocale: '',
 			clientAddress: '192.0.2.43',
 		});
 
@@ -19,11 +20,12 @@ describe('createAPIContext', () => {
 
 		const context = createContext({
 			request,
+			defaultLocale: '',
 		});
 
 		assert.throws(
 			() => context.clientAddress,
-			(err) => {
+			(err: Error) => {
 				assert.equal(err.name, 'StaticClientAddressNotAvailable');
 				return true;
 			},
@@ -39,12 +41,13 @@ describe('createAPIContext', () => {
 
 		const context = createContext({
 			request,
+			defaultLocale: '',
 		});
 
 		// Should throw instead of reading from the header
 		assert.throws(
 			() => context.clientAddress,
-			(err) => {
+			(err: Error) => {
 				assert.equal(err.name, 'StaticClientAddressNotAvailable');
 				return true;
 			},
@@ -56,6 +59,7 @@ describe('createAPIContext', () => {
 
 		const context = createContext({
 			request,
+			defaultLocale: '',
 			locals: {
 				foo: 'bar',
 			},

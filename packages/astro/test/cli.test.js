@@ -33,7 +33,7 @@ describe('astro cli', () => {
 			flags: { watch: true },
 			logging: {
 				level: 'info',
-				dest: new Writable({
+				destination: new Writable({
 					objectMode: true,
 					write(event, _, callback) {
 						logs.push({ ...event, message: stripVTControlCharacters(event.message) });
