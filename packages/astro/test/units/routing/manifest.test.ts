@@ -1,10 +1,12 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import type { AstroLogMessage } from '../../../dist/core/logger/core.js';
 import { AstroLogger } from '../../../dist/core/logger/core.js';
 import { createRoutesList } from '../../../dist/core/routing/create-manifest.js';
-import { createBasicSettings, createFixture } from '../test-utils.js';
+import type { RouteData } from '../../../dist/types/public/internal.js';
+import { createBasicSettings, createFixture, defaultLogger } from '../test-utils.ts';
 
-function getManifestRoutes(manifest) {
+function getManifestRoutes(manifest: { routes: RouteData[] }) {
 	return manifest.routes.map((route) => ({
 		type: route.type,
 		route: route.route,
@@ -12,18 +14,23 @@ function getManifestRoutes(manifest) {
 }
 
 function getLogger() {
-	const logs = [];
+	const logs: AstroLogMessage[] = [];
 
 	return {
 		logger: new AstroLogger({
-			destination: { write: (msg) => logs.push(msg) },
+			destination: {
+				write(msg: AstroLogMessage) {
+					logs.push(msg);
+					return true;
+				},
+			},
 			level: 'debug',
 		}),
 		logs,
 	};
 }
 
-function assertRouteRelations(routes, relations) {
+function assertRouteRelations(routes: { route: string }[], relations: [string, string][]) {
 	const routePaths = routes.map((route) => route.route);
 
 	for (const [before, after] of relations) {
@@ -46,10 +53,13 @@ describe('routing - createRoutesList', () => {
 			base: '/search',
 			trailingSlash: 'never',
 		});
-		const manifest = await createRoutesList({
-			cwd: fixture.path,
-			settings,
-		});
+		const manifest = await createRoutesList(
+			{
+				cwd: fixture.path,
+				settings,
+			},
+			defaultLogger,
+		);
 		const [{ pattern }] = manifest.routes;
 		assert.equal(pattern.test(''), true);
 		assert.equal(pattern.test('/'), false);
@@ -72,17 +82,22 @@ describe('routing - createRoutesList', () => {
 			{
 				pattern: '/about',
 				entrypoint: 'src/entrypoint.astro',
+				origin: 'external',
 			},
 			{
 				pattern: '/api',
 				entrypoint: 'src/entrypoint.ts',
+				origin: 'external',
 			},
 		];
 
-		const manifest = await createRoutesList({
-			cwd: fixture.path,
-			settings,
-		});
+		const manifest = await createRoutesList(
+			{
+				cwd: fixture.path,
+				settings,
+			},
+			defaultLogger,
+		);
 
 		assert.deepEqual(getManifestRoutes(manifest), [
 			{
@@ -118,10 +133,13 @@ describe('routing - createRoutesList', () => {
 			trailingSlash: 'never',
 		});
 
-		const manifest = await createRoutesList({
-			cwd: fixture.path,
-			settings,
-		});
+		const manifest = await createRoutesList(
+			{
+				cwd: fixture.path,
+				settings,
+			},
+			defaultLogger,
+		);
 
 		assertRouteRelations(getManifestRoutes(manifest), [
 			['/', '/[...rest]'],
@@ -151,10 +169,13 @@ describe('routing - createRoutesList', () => {
 			trailingSlash: 'never',
 		});
 
-		const manifest = await createRoutesList({
-			cwd: fixture.path,
-			settings,
-		});
+		const manifest = await createRoutesList(
+			{
+				cwd: fixture.path,
+				settings,
+			},
+			defaultLogger,
+		);
 
 		assertRouteRelations(getManifestRoutes(manifest), [
 			// Parent route should come before rest parameters
@@ -193,10 +214,13 @@ describe('routing - createRoutesList', () => {
 			trailingSlash: 'never',
 		});
 
-		const manifest = await createRoutesList({
-			cwd: fixture.path,
-			settings,
-		});
+		const manifest = await createRoutesList(
+			{
+				cwd: fixture.path,
+				settings,
+			},
+			defaultLogger,
+		);
 
 		assertRouteRelations(getManifestRoutes(manifest), [
 			// Parent route should come before rest parameters
@@ -246,18 +270,22 @@ describe('routing - createRoutesList', () => {
 			{
 				pattern: '/contributing',
 				entrypoint: 'src/entrypoint.astro',
+				origin: 'external',
 			},
 			{
 				pattern: '/[...slug]',
 				entrypoint: 'src/entrypoint.astro',
-				priority: 'normal',
-			},
+				origin: 'external',
+			} as any,
 		];
 
-		const manifest = await createRoutesList({
-			cwd: fixture.path,
-			settings,
-		});
+		const manifest = await createRoutesList(
+			{
+				cwd: fixture.path,
+				settings,
+			},
+			defaultLogger,
+		);
 
 		assert.deepEqual(getManifestRoutes(manifest), [
 			{
@@ -304,10 +332,13 @@ describe('routing - createRoutesList', () => {
 				},
 			},
 		});
-		const manifest = await createRoutesList({
-			cwd: fixture.path,
-			settings,
-		});
+		const manifest = await createRoutesList(
+			{
+				cwd: fixture.path,
+				settings,
+			},
+			defaultLogger,
+		);
 
 		assert.deepEqual(getManifestRoutes(manifest), [
 			{
@@ -350,6 +381,7 @@ describe('routing - createRoutesList', () => {
 			{
 				pattern: '/contributing',
 				entrypoint: 'src/entrypoint.astro',
+				origin: 'external',
 			},
 		];
 
@@ -433,10 +465,13 @@ describe('routing - createRoutesList', () => {
 			root: fixture.path,
 			trailingSlash: 'ignore',
 		});
-		const ignoreManifest = await createRoutesList({
-			cwd: fixture.path,
-			settings: ignoreSettings,
-		});
+		const ignoreManifest = await createRoutesList(
+			{
+				cwd: fixture.path,
+				settings: ignoreSettings,
+			},
+			defaultLogger,
+		);
 		const pageRoute = ignoreManifest.routes.find((r) => r.route === '/hello.world');
 		assert.ok(pageRoute, 'page route should exist');
 		assert.equal(
@@ -465,10 +500,13 @@ describe('routing - createRoutesList', () => {
 			root: fixture.path,
 			trailingSlash: 'always',
 		});
-		const alwaysManifest = await createRoutesList({
-			cwd: fixture.path,
-			settings: alwaysSettings,
-		});
+		const alwaysManifest = await createRoutesList(
+			{
+				cwd: fixture.path,
+				settings: alwaysSettings,
+			},
+			defaultLogger,
+		);
 		const alwaysPageRoute = alwaysManifest.routes.find((r) => r.route === '/hello.world');
 		assert.ok(alwaysPageRoute, 'page route should exist with trailingSlash always');
 		assert.equal(
@@ -504,14 +542,17 @@ describe('routing - createRoutesList', () => {
 			{
 				pattern: '/[c]-d',
 				entrypoint: 'src/entrypoint.astro',
-				priority: 'normal',
-			},
+				origin: 'external',
+			} as any,
 		];
 
-		const manifest = await createRoutesList({
-			cwd: fixture.path,
-			settings,
-		});
+		const manifest = await createRoutesList(
+			{
+				cwd: fixture.path,
+				settings,
+			},
+			defaultLogger,
+		);
 
 		assert.deepEqual(getManifestRoutes(manifest), [
 			{ type: 'endpoint', route: '/_image' },
