@@ -435,7 +435,6 @@ export class experimental_AstroContainer {
 	}
 
 	// NOTE: we keep this private via TS instead via `#` so it's still available on the surface, so we can play with it.
-	// @ts-expect-error @ematipico: I plan to use it for a possible integration that could help people
 	private static async createFromManifest(
 		manifest: SSRManifest,
 	): Promise<experimental_AstroContainer> {

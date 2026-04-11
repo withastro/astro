@@ -14,6 +14,7 @@ declare global {
 	namespace App {
 		interface Locals {
 			name?: string;
+			[key: string]: any;
 		}
 	}
 }

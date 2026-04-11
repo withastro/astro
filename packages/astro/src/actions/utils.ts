@@ -5,8 +5,8 @@ import { deserializeActionResult, getActionQueryString } from './runtime/client.
 import { ACTION_API_CONTEXT_SYMBOL } from './runtime/server.js';
 import type { ActionAPIContext, ActionsLocals } from './runtime/types.js';
 
-export function hasActionPayload(locals: APIContext['locals']): locals is ActionsLocals {
-	return '_actionPayload' in locals;
+export function hasActionPayload(locals: unknown): locals is ActionsLocals {
+	return typeof locals === 'object' && locals !== null && '_actionPayload' in locals;
 }
 
 export function createGetActionResult(locals: APIContext['locals']): APIContext['getActionResult'] {

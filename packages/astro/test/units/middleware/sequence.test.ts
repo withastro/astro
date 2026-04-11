@@ -15,6 +15,7 @@ declare global {
 			second?: string;
 			async?: boolean;
 			beforeRedirect?: boolean;
+			[key: string]: any;
 		}
 	}
 }

@@ -5,7 +5,7 @@
  * @param {object} [options]
  * @param {import('../../../dist/core/app/common.js').RoutingStrategies} [options.strategy]
  * @param {string} [options.defaultLocale]
- * @param {import('../../../src/types/public/config.js').Locales} [options.locales]
+ * @param {import('../../../dist/types/public/config.js').Locales} [options.locales]
  * @param {string} [options.base]
  * @param {Record<string, string[]>} [options.domains]
  */
@@ -44,7 +44,7 @@ export function makeRouterContext({
  * @param {string | undefined} [options.currentLocale]
  * @param {Record<string, string>} [options.fallback]
  * @param {'redirect' | 'rewrite'} [options.fallbackType]
- * @param {import('../../../src/types/public/config.js').Locales} [options.locales]
+ * @param {import('../../../dist/types/public/config.js').Locales} [options.locales]
  * @param {string} [options.defaultLocale]
  * @param {import('../../../dist/core/app/common.js').RoutingStrategies} [options.strategy]
  * @param {string} [options.base]
@@ -125,7 +125,7 @@ export function createManualRoutingContext({
  *
  * @param {object} [options] - Configuration options for the middleware payload
  * @param {string} [options.base=''] - The base path for the site (e.g., '/blog')
- * @param {import('../../../src/types/public/config.js').Locales} [options.locales=['en', 'es']] - Array of locale strings or locale objects
+ * @param {import('../../../dist/types/public/config.js').Locales} [options.locales=['en', 'es']] - Array of locale strings or locale objects
  * @param {'always' | 'never' | 'ignore'} [options.trailingSlash='ignore'] - Trailing slash behavior
  * @param {'directory' | 'file'} [options.format='directory'] - Build output format
  * @param {import('../../../dist/core/app/common.js').RoutingStrategies} [options.strategy='pathname-prefix-other-locales'] - i18n routing strategy

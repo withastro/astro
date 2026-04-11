@@ -10,7 +10,7 @@ import { dynamicPart, staticPart } from '../routing/test-helpers.js';
 /**
  * @param {Partial<{
  *   defaultLocale: string,
- *   locales: import('../../../src/types/public/config.js').Locales,
+ *   locales: import('../../../dist/types/public/config.js').Locales,
  *   strategy: string,
  *   fallbackType: 'redirect' | 'rewrite',
  *   fallback: Record<string, string>,

@@ -24,7 +24,7 @@ function makePageResponse(body, status = 200, extraHeaders = {}) {
  * Creates a minimal i18n manifest.
  * @param {Partial<{
  *   defaultLocale: string,
- *   locales: import('../../../src/types/public/config.js').Locales,
+ *   locales: import('../../../dist/types/public/config.js').Locales,
  *   strategy: import('../../../dist/core/app/common.js').RoutingStrategies,
  *   fallbackType: 'redirect' | 'rewrite',
  *   fallback: Record<string, string>,
