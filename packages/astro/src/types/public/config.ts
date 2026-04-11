@@ -2999,6 +2999,65 @@ export interface AstroUserConfig<
 		rustCompiler?: boolean;
 
 		/**
+		 * @name experimental.cspLevel3
+		 * @type {boolean}
+		 * @default `false`
+		 * @description
+		 *
+		 * Enables [CSP Level 3](https://www.w3.org/TR/CSP3/) directive support for `script-src-elem`, `script-src-attr`, `style-src-elem`, and `style-src-attr`.
+		 *
+		 * These granular directives let you apply separate Content Security Policies to inline `<script>`/`<style>` elements
+		 * versus event-handler attributes and the `style` attribute, giving you finer-grained control than the base `script-src`
+		 * and `style-src` directives alone.
+		 *
+		 * To enable this feature, add the experimental flag in your Astro config along with a `security.csp` configuration:
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   experimental: {
+		 *     cspLevel3: true,
+		 *   },
+		 *   security: {
+		 *     csp: {
+		 *       scriptElemDirective: {
+		 *         hashes: ['sha256-123'],
+		 *         resources: ['https://scripts.cdn.example.com/'],
+		 *       },
+		 *       styleElemDirective: {
+		 *         hashes: ['sha256-456'],
+		 *         resources: ['https://styles.cdn.example.com/'],
+		 *       },
+		 *       directives: [
+		 *         "script-src-attr 'none'",
+		 *         "style-src-attr 'unsafe-inline'",
+		 *       ],
+		 *     },
+		 *   },
+		 * });
+		 * ```
+		 *
+		 * This feature requires CSP to be enabled via `security.csp`.
+		 *
+		 * Auto-generated script and style hashes from `script-src` and `style-src` are automatically
+		 * inherited into `script-src-elem` and `style-src-elem` when the feature is enabled and
+		 * you have also configured hash or resource values for the corresponding CSP Level 3 
+		 * directives.
+		 *
+		 * You can also inject Level 3 resources and hashes at runtime via `Astro.csp`:
+		 *
+		 * ```astro
+		 * ---
+		 * Astro.csp.insertScriptElemResource('https://scripts.cdn.example.com/');
+		 * Astro.csp.insertStyleElemHash('sha256-abc123');
+		 * ---
+		 * ```
+		 */
+		cspLevel3?: boolean;
+
+		/**
 		 * @name experimental.queuedRendering
 		 * @type {boolean | { poolSize?: number; cache?: boolean }}
 		 * @default `false`

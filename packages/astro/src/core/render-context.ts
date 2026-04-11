@@ -598,15 +598,19 @@ export class RenderContext {
 						renderContext.result?.scriptHashes.push(hash);
 					},
 					insertScriptElemResource(resource) {
+						if (!pipeline.manifest.experimentalCSPLevel3) return;
 						renderContext.result?.scriptElemResources.push(resource);
 					},
 					insertScriptElemHash(hash) {
+						if (!pipeline.manifest.experimentalCSPLevel3) return;
 						renderContext.result?.scriptElemHashes.push(hash);
 					},
 					insertStyleElemResource(resource) {
+						if (!pipeline.manifest.experimentalCSPLevel3) return;
 						renderContext.result?.styleElemResources.push(resource);
 					},
 					insertStyleElemHash(hash) {
+						if (!pipeline.manifest.experimentalCSPLevel3) return;
 						renderContext.result?.styleElemHashes.push(hash);
 					},
 				};
@@ -889,15 +893,19 @@ export class RenderContext {
 						renderContext.result?.scriptHashes.push(hash);
 					},
 					insertScriptElemResource(resource) {
+						if (!pipeline.manifest.experimentalCSPLevel3) return;
 						renderContext.result?.scriptElemResources.push(resource);
 					},
 					insertScriptElemHash(hash) {
+						if (!pipeline.manifest.experimentalCSPLevel3) return;
 						renderContext.result?.scriptElemHashes.push(hash);
 					},
 					insertStyleElemResource(resource) {
+						if (!pipeline.manifest.experimentalCSPLevel3) return;
 						renderContext.result?.styleElemResources.push(resource);
 					},
 					insertStyleElemHash(hash) {
+						if (!pipeline.manifest.experimentalCSPLevel3) return;
 						renderContext.result?.styleElemHashes.push(hash);
 					},
 				};

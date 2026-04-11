@@ -170,10 +170,10 @@ async function createSerializedManifest(
 			scriptResources: getScriptResources(settings.config.security.csp),
 			styleHashes: getStyleHashes(settings.config.security.csp),
 			styleResources: getStyleResources(settings.config.security.csp),
-			scriptElemHashes: getScriptElemHashes(settings.config.security.csp),
-			scriptElemResources: getScriptElemResources(settings.config.security.csp),
-			styleElemHashes: getStyleElemHashes(settings.config.security.csp),
-			styleElemResources: getStyleElemResources(settings.config.security.csp),
+			scriptElemHashes: settings.config.experimental.cspLevel3 ? getScriptElemHashes(settings.config.security.csp) : [],
+			scriptElemResources: settings.config.experimental.cspLevel3 ? getScriptElemResources(settings.config.security.csp) : [],
+			styleElemHashes: settings.config.experimental.cspLevel3 ? getStyleElemHashes(settings.config.security.csp) : [],
+			styleElemResources: settings.config.experimental.cspLevel3 ? getStyleElemResources(settings.config.security.csp) : [],
 			algorithm: getAlgorithm(settings.config.security.csp),
 			directives: getDirectives(settings),
 			isStrictDynamic: getStrictDynamic(settings.config.security.csp),
@@ -239,6 +239,7 @@ async function createSerializedManifest(
 		},
 		logLevel: settings.logLevel,
 		shouldInjectCspMetaTags: false,
+		experimentalCSPLevel3: settings.config.experimental?.cspLevel3 ?? false,
 		experimentalQueuedRendering: settings.config.experimental?.queuedRendering,
 	};
 }

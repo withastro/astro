@@ -16,11 +16,12 @@ import { createBasicPipeline } from '../test-utils.js';
  * Creates a pipeline with CSP configuration
  * @param {Partial<import('../../../dist/core/app/types.js').SSRManifestCSP>} cspConfig
  */
-function createCspPipeline(cspConfig = {}) {
+function createCspPipeline(cspConfig = {}, { experimentalCSPLevel3 = false } = {}) {
 	const pipeline = createBasicPipeline();
 	pipeline.manifest = {
 		...pipeline.manifest,
 		shouldInjectCspMetaTags: true,
+		experimentalCSPLevel3,
 		csp: {
 			cspDestination: cspConfig.cspDestination,
 			algorithm: cspConfig.algorithm || 'SHA-256',
@@ -486,7 +487,7 @@ describe('CSP Rendering', () => {
 					scriptElemHashes: ['sha256-elemHash1'],
 					scriptElemResources: ['https://scripts.cdn.example.com'],
 					scriptHashes: ['sha256-mainHash1'],
-				});
+				}, { experimentalCSPLevel3: true });
 
 				const { html } = await renderPage(SimplePage, pipeline);
 				const $ = cheerio.load(html);
@@ -507,7 +508,7 @@ describe('CSP Rendering', () => {
 					scriptHashes: ['sha256-autoHash1'],
 					scriptElemHashes: ['sha256-elemExtra'],
 					scriptElemResources: [],
-				});
+				}, { experimentalCSPLevel3: true });
 
 				const { html } = await renderPage(SimplePage, pipeline);
 				const $ = cheerio.load(html);
@@ -538,7 +539,7 @@ describe('CSP Rendering', () => {
 					styleElemHashes: ['sha256-styleElemHash1'],
 					styleElemResources: ['https://styles.cdn.example.com'],
 					styleHashes: ['sha256-mainStyleHash1'],
-				});
+				}, { experimentalCSPLevel3: true });
 
 				const { html } = await renderPage(SimplePage, pipeline);
 				const $ = cheerio.load(html);
@@ -562,7 +563,7 @@ describe('CSP Rendering', () => {
 					styleHashes: ['sha256-autoStyleHash1'],
 					styleElemHashes: ['sha256-styleElemExtra'],
 					styleElemResources: [],
-				});
+				}, { experimentalCSPLevel3: true });
 
 				const { html } = await renderPage(SimplePage, pipeline);
 				const $ = cheerio.load(html);
@@ -630,7 +631,7 @@ describe('CSP Rendering', () => {
 				const pipeline = createCspPipeline({
 					scriptElemHashes: [],
 					scriptElemResources: [],
-				});
+				}, { experimentalCSPLevel3: true });
 
 				const PageWithCspLevel3Api = createComponent((result) => {
 					const Astro = result.createAstro({}, {});
@@ -665,7 +666,7 @@ describe('CSP Rendering', () => {
 				const pipeline = createCspPipeline({
 					styleElemHashes: [],
 					styleElemResources: [],
-				});
+				}, { experimentalCSPLevel3: true });
 
 				const PageWithStyleElemApi = createComponent((result) => {
 					const Astro = result.createAstro({}, {});
