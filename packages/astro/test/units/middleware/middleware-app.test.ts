@@ -2,27 +2,23 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { App } from '../../../dist/core/app/app.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
+import type { MiddlewareHandler } from '../../../dist/types/public/common.js';
 import { createRouteData } from '../mocks.js';
 import { createManifest } from '../app/test-helpers.js';
 
-type MockContext = {
-	url: URL;
-	locals: Record<string, any>;
-	cookies: {
-		set: (...args: any[]) => void;
-		get: (name: string) => { value: string } | undefined;
-	};
-	request: Request;
-	redirect: (path: string, status?: number) => Response;
-};
-type Next = () => Promise<Response>;
-type TestMiddleware = (
-	ctx: MockContext,
-	next: Next,
-) => Response | void | Promise<Response | void>;
 type RouteDefinition = { routeData: ReturnType<typeof createRouteData> };
+type PageModuleLoader = () => Promise<{ page: () => Promise<Record<string, any>> }>;
 
-const middleware = (fn: TestMiddleware) => fn;
+declare global {
+	// eslint-disable-next-line @typescript-eslint/no-namespace
+	namespace App {
+		interface Locals {
+			name?: string;
+		}
+	}
+}
+
+const middleware = (fn: MiddlewareHandler) => fn;
 
 function createAppWithMiddleware({
 	onRequest,
@@ -30,9 +26,9 @@ function createAppWithMiddleware({
 	pageMap,
 	base,
 }: {
-	onRequest: TestMiddleware;
+	onRequest: MiddlewareHandler;
 	routes: RouteDefinition[];
-	pageMap: Map<string, Function>;
+	pageMap: Map<string, PageModuleLoader>;
 	base?: string;
 }) {
 	const manifest = createManifest({
@@ -156,7 +152,7 @@ describe('Middleware via App.render()', () => {
 				[secondRouteData.component, async () => ({ page: async () => ({ default: page }) })],
 			]);
 			const app = createAppWithMiddleware({
-				onRequest: combined as TestMiddleware,
+				onRequest: combined,
 				routes: [{ routeData: indexRouteData }, { routeData: secondRouteData }],
 				pageMap,
 			});
