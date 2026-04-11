@@ -130,6 +130,7 @@ test.describe('Astro Actions - Blog', () => {
 		await page.goto(astro.resolveUrl('/blog/first-post/'));
 
 		const form = page.getByTestId('client');
+		await waitForHydrate(page, form);
 		const authorInput = form.locator('input[name="author"]');
 		const bodyInput = form.locator('textarea[name="body"]');
 
@@ -170,6 +171,7 @@ test.describe('Astro Actions - Blog', () => {
 		await page.goto(astro.resolveUrl('/apply'));
 
 		const form = page.getByTestId('apply-form');
+		await waitForHydrate(page, form);
 		const nameInput = form.locator('input[name="name"]');
 		const emailInput = form.locator('input[name="email"]');
 
