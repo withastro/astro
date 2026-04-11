@@ -76,7 +76,7 @@ describe('Glob Loader', () => {
 		await contentLayer.sync();
 
 		const entries = store.values('probes');
-		assert.equal(entries.length, 7);
+		assert.equal(entries.length, 6);
 
 		// Verify voyager probes are excluded
 		assert.ok(entries.every((e) => !e.id.startsWith('voyager')));

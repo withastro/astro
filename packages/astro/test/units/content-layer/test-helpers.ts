@@ -68,10 +68,10 @@ export function createMinimalSettings(root: URL, overrides: Record<string, any> 
  * Simple YAML frontmatter parser for markdown files
  */
 export function parseSimpleMarkdownFrontmatter(contents: string, fileUrl: string | URL) {
-	const lines = contents.split('\n');
-	const frontmatterStart = lines.findIndex((l: string) => l === '---');
+	const lines = contents.split(/\r?\n/);
+	const frontmatterStart = lines.findIndex((l: string) => l.trim() === '---');
 	const frontmatterEnd = lines.findIndex(
-		(l: string, i: number) => i > frontmatterStart && l === '---',
+		(l: string, i: number) => i > frontmatterStart && l.trim() === '---',
 	);
 
 	if (frontmatterStart === -1 || frontmatterEnd === -1) {

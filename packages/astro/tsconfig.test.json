@@ -8,6 +8,6 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "rewriteRelativeImportExtensions": true,
-    "types": ["node", "vite/client"]
+    "types": ["node"]
   }
 }
