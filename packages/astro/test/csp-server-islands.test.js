@@ -79,6 +79,43 @@ describe('Server islands', () => {
 		});
 	});
 
+	describe('SSR with CSP Level 3', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/server-islands/ssr',
+				adapter: testAdapter(),
+				security: {
+					csp: true,
+				},
+				experimental: {
+					cspLevel3: true,
+				},
+			});
+			process.env.ASTRO_KEY = 'eKBaVEuI7YjfanEXHuJe/pwZKKt3LkAHeMxvTU7aR0M=';
+			await fixture.build();
+		});
+
+		after(async () => {
+			delete process.env.ASTRO_KEY;
+		});
+
+		it('omits the islands HTML with Level 3 enabled', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/');
+			const response = await app.render(request);
+			const html = await response.text();
+
+			const $ = cheerio.load(html);
+			const serverIslandEl = $('h2#island');
+			assert.equal(serverIslandEl.length, 0);
+
+			const serverIslandScript = $('script[data-island-id]');
+			assert.equal(serverIslandScript.length, 1, 'has the island script');
+		});
+	});
+
 	describe('Hybrid', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;

@@ -4,6 +4,24 @@ import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
 
+/**
+ * @param {string} csp
+ * @returns {Array<{ directive: string; resources: Array<string> }>}
+ */
+function parseCsp(csp) {
+	return csp
+		.split(';')
+		.map((part) => part.trim())
+		.filter((part) => part.length > 0)
+		.map((part) => {
+			const [directive, ...resources] = part.split(/\s+/);
+			return {
+				directive,
+				resources,
+			};
+		});
+}
+
 describe('CSP', () => {
 	/** @type {import('./test-utils.js').Fixture} */
 	let fixture;
@@ -33,25 +51,6 @@ describe('CSP', () => {
 		await fixture.build();
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
-
-		/**
-		 *
-		 * @param {string} csp
-		 * @returns {Array<{ directive: string; resources: Array<string> }>}
-		 */
-		function parseCsp(csp) {
-			return csp
-				.split(';')
-				.map((part) => part.trim())
-				.filter((part) => part.length > 0)
-				.map((part) => {
-					const [directive, ...resources] = part.split(/\s+/);
-					return {
-						directive,
-						resources,
-					};
-				});
-		}
 
 		const meta = $('meta[http-equiv="Content-Security-Policy"]');
 		const parsed = parseCsp(meta.attr('content').toString());
@@ -176,15 +175,211 @@ describe('CSP', () => {
 		await fixture.build();
 		await fixture.loadTestAdapterApp();
 
-		assert.equal(routeToHeaders.size, 4, 'expected four routes: /, /scripts, /foo, /bar');
+		assert.equal(routeToHeaders.size, 5, 'expected five routes: /, /scripts, /level3, /foo, /bar');
 
 		assert.ok(routeToHeaders.has('/'), 'should have a CSP header for /');
 		assert.ok(routeToHeaders.has('/scripts'), 'should have a CSP header for /scripts');
+		assert.ok(routeToHeaders.has('/level3'), 'should have a CSP header for /level3');
 		assert.ok(routeToHeaders.has('/foo'), 'should have a CSP header for /foo');
 		assert.ok(routeToHeaders.has('/bar'), 'should have a CSP header for /bar');
 
 		for (const { headers } of routeToHeaders.values()) {
 			assert.ok(headers.has('content-security-policy'), 'should have a CSP header');
 		}
+	});
+
+	it('should not emit Level 3 directives without experimental flag', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/csp/',
+			outDir: './dist/csp-no-level3',
+		});
+		await fixture.build();
+		const html = await fixture.readFile('/inline/index.html');
+		const $ = cheerio.load(html);
+
+		const meta = $('meta[http-equiv="Content-Security-Policy"]');
+		const cspContent = meta.attr('content').toString();
+		assert.ok(!cspContent.includes('script-src-elem'), 'should not contain script-src-elem');
+		assert.ok(!cspContent.includes('style-src-elem'), 'should not contain style-src-elem');
+	});
+
+	it('should generate script-src-elem and style-src-elem with Level 3 config', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/csp/',
+			outDir: './dist/csp-level3-config',
+			security: {
+				csp: {
+					scriptElemDirective: {
+						resources: ['https://scripts-elem.cdn.example.com'],
+						hashes: ['sha256-configElemScriptHash'],
+					},
+					styleElemDirective: {
+						resources: ['https://styles-elem.cdn.example.com'],
+						hashes: ['sha256-configElemStyleHash'],
+					},
+				},
+			},
+			experimental: {
+				cspLevel3: true,
+			},
+		});
+		await fixture.build();
+		const html = await fixture.readFile('/inline/index.html');
+		const $ = cheerio.load(html);
+
+		const meta = $('meta[http-equiv="Content-Security-Policy"]');
+		const parsed = parseCsp(meta.attr('content').toString());
+
+		const scriptElem = parsed.find((e) => e.directive === 'script-src-elem');
+		assert.ok(scriptElem, 'should have script-src-elem directive');
+		assert.ok(
+			scriptElem.resources.includes('https://scripts-elem.cdn.example.com'),
+			'script-src-elem should include configured resource',
+		);
+		assert.ok(
+			scriptElem.resources.some((r) => r.includes('configElemScriptHash')),
+			'script-src-elem should include configured hash',
+		);
+
+		const styleElem = parsed.find((e) => e.directive === 'style-src-elem');
+		assert.ok(styleElem, 'should have style-src-elem directive');
+		assert.ok(
+			styleElem.resources.includes('https://styles-elem.cdn.example.com'),
+			'style-src-elem should include configured resource',
+		);
+		assert.ok(
+			styleElem.resources.some((r) => r.includes('configElemStyleHash')),
+			'style-src-elem should include configured hash',
+		);
+	});
+
+	it('should generate both base and Level 3 directives when configured simultaneously', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/csp/',
+			outDir: './dist/csp-level3-combined',
+			security: {
+				csp: {
+					scriptDirective: {
+						resources: ['https://scripts.cdn.example.com'],
+						hashes: ['sha256-baseScriptHash'],
+					},
+					styleDirective: {
+						resources: ['https://styles.cdn.example.com'],
+						hashes: ['sha256-baseStyleHash'],
+					},
+					scriptElemDirective: {
+						resources: ['https://scripts-elem.cdn.example.com'],
+						hashes: ['sha256-elemScriptHash'],
+					},
+					styleElemDirective: {
+						resources: ['https://styles-elem.cdn.example.com'],
+						hashes: ['sha256-elemStyleHash'],
+					},
+				},
+			},
+			experimental: {
+				cspLevel3: true,
+			},
+		});
+		await fixture.build();
+		const html = await fixture.readFile('/inline/index.html');
+		const $ = cheerio.load(html);
+
+		const meta = $('meta[http-equiv="Content-Security-Policy"]');
+		const parsed = parseCsp(meta.attr('content').toString());
+
+		// Base directives should have their own resources and hashes
+		const scriptSrc = parsed.find((e) => e.directive === 'script-src');
+		assert.ok(scriptSrc, 'should have script-src directive');
+		assert.ok(
+			scriptSrc.resources.includes('https://scripts.cdn.example.com'),
+			'script-src should include base resource',
+		);
+		assert.ok(
+			scriptSrc.resources.some((r) => r.includes('baseScriptHash')),
+			'script-src should include base hash',
+		);
+
+		const styleSrc = parsed.find((e) => e.directive === 'style-src');
+		assert.ok(styleSrc, 'should have style-src directive');
+		assert.ok(
+			styleSrc.resources.includes('https://styles.cdn.example.com'),
+			'style-src should include base resource',
+		);
+		assert.ok(
+			styleSrc.resources.some((r) => r.includes('baseStyleHash')),
+			'style-src should include base hash',
+		);
+
+		// Level 3 directives should have their own resources and hashes
+		const scriptElem = parsed.find((e) => e.directive === 'script-src-elem');
+		assert.ok(scriptElem, 'should have script-src-elem directive');
+		assert.ok(
+			scriptElem.resources.includes('https://scripts-elem.cdn.example.com'),
+			'script-src-elem should include elem resource',
+		);
+		assert.ok(
+			scriptElem.resources.some((r) => r.includes('elemScriptHash')),
+			'script-src-elem should include elem hash',
+		);
+		// script-src-elem should inherit base script hashes
+		assert.ok(
+			scriptElem.resources.some((r) => r.includes('baseScriptHash')),
+			'script-src-elem should inherit base script hash',
+		);
+
+		const styleElem = parsed.find((e) => e.directive === 'style-src-elem');
+		assert.ok(styleElem, 'should have style-src-elem directive');
+		assert.ok(
+			styleElem.resources.includes('https://styles-elem.cdn.example.com'),
+			'style-src-elem should include elem resource',
+		);
+		assert.ok(
+			styleElem.resources.some((r) => r.includes('elemStyleHash')),
+			'style-src-elem should include elem hash',
+		);
+		// style-src-elem should inherit base style hashes
+		assert.ok(
+			styleElem.resources.some((r) => r.includes('baseStyleHash')),
+			'style-src-elem should inherit base style hash',
+		);
+	});
+
+	it('should return Level 3 CSP header inside a hook with experimental flag', async () => {
+		let routeToHeaders;
+		fixture = await loadFixture({
+			root: './fixtures/csp-adapter/',
+			outDir: './dist/csp-hook-level3',
+			adapter: testAdapter({
+				staticHeaders: true,
+				setRouteToHeaders(payload) {
+					routeToHeaders = payload;
+				},
+			}),
+			security: {
+				csp: true,
+			},
+			experimental: {
+				cspLevel3: true,
+			},
+		});
+		await fixture.build();
+		await fixture.loadTestAdapterApp();
+
+		assert.ok(routeToHeaders.has('/level3'), 'should have a CSP header for /level3');
+
+		const { headers } = routeToHeaders.get('/level3');
+		assert.ok(headers.has('content-security-policy'), 'should have a CSP header');
+		const cspContent = headers.get('content-security-policy');
+		assert.ok(cspContent.includes('script-src-elem'), 'should contain script-src-elem');
+		assert.ok(cspContent.includes('style-src-elem'), 'should contain style-src-elem');
+		assert.ok(
+			cspContent.includes('https://scripts-elem.cdn.example.com'),
+			'should contain script elem resource',
+		);
+		assert.ok(
+			cspContent.includes('https://styles-elem.cdn.example.com'),
+			'should contain style elem resource',
+		);
 	});
 });
