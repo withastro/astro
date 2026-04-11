@@ -5,7 +5,7 @@ import type { RouteData } from '../../types/public/internal.js';
 import { DEFAULT_404_COMPONENT } from '../constants.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { AstroLogger } from '../logger/core.js';
-import { routeHasHtmlExtension, routeIsFallback, routeIsRedirect } from '../routing/helpers.js';
+import { /*routeHasHtmlExtension,*/ routeIsFallback, routeIsRedirect } from '../routing/helpers.js';
 import type { RouteCache } from './route-cache.js';
 import { callGetStaticPaths, findPathItemByKey } from './route-cache.js';
 
@@ -61,7 +61,22 @@ export async function getProps(opts: GetParamsAndPropsOptions): Promise<Props> {
 	// Since we decided to not mess up with encoding anymore, we need to decode them back so the parameters can match
 	// the ones expected from the users
 	const params = getParams(route, pathname);
-	const matchedStaticPath = findPathItemByKey(staticPaths, params, route, logger, trailingSlash);
+	let matchedStaticPath = findPathItemByKey(staticPaths, params, route, logger, trailingSlash);
+	// If no match is found and the URL ends in '.html', retry by stripping the extension.
+  // Strip `.html` from the pathname unless `.html` is a static part of the route definition
+	// itself (e.g. `[slug].html.astro`). Dynamic params like `[id]` would otherwise greedily
+	// capture the `.html` suffix (e.g. `id = '42.html'` instead of `id = '42'`).
+	if (!matchedStaticPath && pathname.endsWith('.html')) {
+		const strippedPathname = pathname.slice(0, -5);
+		const strippedParams = getParams(route, strippedPathname);
+		matchedStaticPath = findPathItemByKey(
+			staticPaths,
+			strippedParams,
+			route,
+			logger,
+			trailingSlash,
+		);
+	}
 	if (!matchedStaticPath && (serverLike ? route.prerender : true)) {
 		throw new AstroError({
 			...AstroErrorData.NoMatchingStaticPathFound,
@@ -87,18 +102,9 @@ export function getParams(route: RouteData, pathname: string): Params {
 	if (!route.params.length) return {};
 	// The RegExp pattern expects a decoded string, but the pathname is encoded
 	// when the URL contains non-English characters.
-	// First, try matching the original pathname. This allows dynamic params
-  // to intentionally include a `.html` extension (e.g. { path: 'file.html' }).
-	// Strip `.html` from the pathname unless `.html` is a static part of the route definition
-	// itself (e.g. `[slug].html.astro`). Dynamic params like `[id]` would otherwise greedily
-	// capture the `.html` suffix (e.g. `id = '42.html'` instead of `id = '42'`).
+	const path = pathname;
 	const allPatterns = [route, ...route.fallbackRoutes].map((r) => r.pattern);
-  let paramsMatch = allPatterns.map((pattern) => pattern.exec(pathname)).find((x) => x);
-
-  if (!paramsMatch && pathname.endsWith('.html') && !routeHasHtmlExtension(route)) {
-    const path = pathname.slice(0, -5);
-    paramsMatch = allPatterns.map((pattern) => pattern.exec(path)).find((x) => x);
-  }
+	const paramsMatch = allPatterns.map((pattern) => pattern.exec(path)).find((x) => x);
 
 	if (!paramsMatch) return {};
 	const params: Params = {};
