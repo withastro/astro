@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { App } from '../../../dist/core/app/app.js';
+import { App as AstroApp } from '../../../dist/core/app/app.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import type { MiddlewareHandler } from '../../../dist/types/public/common.js';
 import { createRouteData } from '../mocks.js';
@@ -37,7 +37,7 @@ function createAppWithMiddleware({
 		base,
 	});
 	manifest.middleware = () => ({ onRequest });
-	return new App(manifest);
+	return new AstroApp(manifest);
 }
 
 const indexRouteData = createRouteData({ route: '/' });
