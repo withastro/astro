@@ -18,7 +18,7 @@ export interface PreviewServerParams {
 	base: string;
 	logger: AstroIntegrationLogger;
 	headers?: OutgoingHttpHeaders;
-	allowedHosts?: string[] | boolean;
+	allowedHosts?: string[] | true;
 	root: URL;
 }
 
