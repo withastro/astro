@@ -1,12 +1,17 @@
-// @ts-check
 import assert from 'node:assert/strict';
-import { describe, it, beforeEach } from 'node:test';
+import { beforeEach, describe, it } from 'node:test';
 import { callMiddleware } from '../../../dist/core/middleware/callMiddleware.js';
 import { createMockAPIContext, createResponseFunction } from '../mocks.js';
 
+type MockContext = ReturnType<typeof createMockAPIContext>;
+type Next = () => Promise<Response>;
+type TestMiddleware = (
+	ctx: MockContext,
+	next: Next,
+) => Response | void | Promise<Response | void>;
+
 describe('callMiddleware', () => {
-	/** @type {import('astro').APIContext} */
-	let ctx;
+	let ctx: MockContext;
 	const defaultResponseFn = createResponseFunction();
 
 	beforeEach(() => {
@@ -15,7 +20,7 @@ describe('callMiddleware', () => {
 
 	describe('next() called', () => {
 		it('returns the middleware return value when next() is called and a Response is returned', async () => {
-			const middleware = async (_ctx, next) => {
+			const middleware: TestMiddleware = async (_ctx, next) => {
 				const response = await next();
 				return new Response('modified', { status: 200, headers: response.headers });
 			};
@@ -26,9 +31,8 @@ describe('callMiddleware', () => {
 		});
 
 		it('returns the responseFunction result when next() is called but middleware returns undefined', async () => {
-			const middleware = async (_ctx, next) => {
+			const middleware: TestMiddleware = async (_ctx, next) => {
 				await next();
-				// deliberately returns undefined
 			};
 
 			const response = await callMiddleware(middleware, ctx, createResponseFunction('from page'));
@@ -37,24 +41,21 @@ describe('callMiddleware', () => {
 		});
 
 		it('throws MiddlewareNotAResponse when next() is called but middleware returns a non-Response', async () => {
-			const middleware = async (_ctx, next) => {
+			const middleware: TestMiddleware = async (_ctx, next) => {
 				await next();
-				return 'not a response';
+				return 'not a response' as unknown as Response;
 			};
 
-			await assert.rejects(
-				() => callMiddleware(middleware, ctx, defaultResponseFn),
-				(err) => {
-					assert.equal(err.name, 'MiddlewareNotAResponse');
-					return true;
-				},
-			);
+			await assert.rejects(() => callMiddleware(middleware, ctx, defaultResponseFn), (err: unknown) => {
+				assert.equal((err as Error).name, 'MiddlewareNotAResponse');
+				return true;
+			});
 		});
 	});
 
 	describe('next() not called', () => {
 		it('returns the Response when middleware short-circuits without calling next()', async () => {
-			const middleware = async () => {
+			const middleware: TestMiddleware = async () => {
 				return new Response('short-circuit', { status: 200 });
 			};
 
@@ -65,7 +66,7 @@ describe('callMiddleware', () => {
 		});
 
 		it('returns a 500 Response when middleware short-circuits with an error status', async () => {
-			const middleware = async () => {
+			const middleware: TestMiddleware = async () => {
 				return new Response(null, { status: 500 });
 			};
 
@@ -75,41 +76,35 @@ describe('callMiddleware', () => {
 		});
 
 		it('throws MiddlewareNoDataOrNextCalled when middleware returns undefined without calling next()', async () => {
-			const middleware = async () => {
-				// returns undefined, never calls next
+			const middleware: TestMiddleware = async () => {
+				return undefined as unknown as Response;
 			};
 
-			await assert.rejects(
-				() => callMiddleware(middleware, ctx, defaultResponseFn),
-				(err) => {
-					assert.equal(err.name, 'MiddlewareNoDataOrNextCalled');
-					return true;
-				},
-			);
+			await assert.rejects(() => callMiddleware(middleware, ctx, defaultResponseFn), (err: unknown) => {
+				assert.equal((err as Error).name, 'MiddlewareNoDataOrNextCalled');
+				return true;
+			});
 		});
 
 		it('throws MiddlewareNotAResponse when middleware returns a non-Response without calling next()', async () => {
-			const middleware = async () => {
-				return 'not a response';
+			const middleware: TestMiddleware = async () => {
+				return 'not a response' as unknown as Response;
 			};
 
-			await assert.rejects(
-				() => callMiddleware(middleware, ctx, defaultResponseFn),
-				(err) => {
-					assert.equal(err.name, 'MiddlewareNotAResponse');
-					return true;
-				},
-			);
+			await assert.rejects(() => callMiddleware(middleware, ctx, defaultResponseFn), (err: unknown) => {
+				assert.equal((err as Error).name, 'MiddlewareNotAResponse');
+				return true;
+			});
 		});
 	});
 
 	describe('context mutation', () => {
 		it('locals mutations are visible in the response function', async () => {
-			const middleware = async (context, next) => {
+			const middleware: TestMiddleware = async (context, next) => {
 				context.locals.name = 'bar';
 				return next();
 			};
-			const responseFn = async (apiCtx) => {
+			const responseFn = async (apiCtx: MockContext) => {
 				return new Response(`name=${apiCtx.locals.name}`);
 			};
 
@@ -119,7 +114,7 @@ describe('callMiddleware', () => {
 		});
 
 		it('middleware can set response headers after calling next()', async () => {
-			const middleware = async (_context, next) => {
+			const middleware: TestMiddleware = async (_context, next) => {
 				const response = await next();
 				response.headers.set('X-Custom', 'value');
 				return response;
@@ -131,7 +126,7 @@ describe('callMiddleware', () => {
 		});
 
 		it('middleware can clone the response, modify body, and return a new Response', async () => {
-			const middleware = async (_context, next) => {
+			const middleware: TestMiddleware = async (_context, next) => {
 				const response = await next();
 				const cloned = response.clone();
 				const html = await cloned.text();
@@ -149,9 +144,9 @@ describe('callMiddleware', () => {
 		});
 
 		it('middleware can intercept a JSON response, modify it, and return a new Response', async () => {
-			const middleware = async (_context, next) => {
+			const middleware: TestMiddleware = async (_context, next) => {
 				const response = await next();
-				const data = await response.json();
+				const data = (await response.json()) as { name: string; value: number };
 				data.name = 'REDACTED';
 				return new Response(JSON.stringify(data), {
 					headers: { 'Content-Type': 'application/json' },
@@ -165,7 +160,7 @@ describe('callMiddleware', () => {
 					headers: { 'Content-Type': 'application/json' },
 				}),
 			);
-			const body = await response.json();
+			const body = (await response.json()) as { name: string; value: number };
 
 			assert.equal(body.name, 'REDACTED');
 			assert.equal(body.value, 42);
@@ -174,7 +169,7 @@ describe('callMiddleware', () => {
 
 	describe('synchronous middleware', () => {
 		it('works with a synchronous middleware that calls next()', async () => {
-			const middleware = (_context, next) => {
+			const middleware: TestMiddleware = (_context, next) => {
 				return next();
 			};
 
@@ -184,7 +179,7 @@ describe('callMiddleware', () => {
 		});
 
 		it('works with a synchronous middleware that returns a Response', async () => {
-			const middleware = () => {
+			const middleware: TestMiddleware = () => {
 				return new Response('sync short-circuit');
 			};
 

@@ -10,6 +10,8 @@
  * @param {Function} [options.actions]
  * @param {number} [options.actionBodySizeLimit]
  * @param {object} [options.i18n]
+ * @param {object} [options.csp]
+ * @param {boolean} [options.serverLike]
  */
 export function createManifest({
 	routes,
@@ -26,7 +28,7 @@ export function createManifest({
 	const rootDir = new URL('file:///astro-test/');
 	const buildDir = new URL('file:///astro-test/dist/');
 
-	return /** @type {import('../../../dist/core/app/types.js').SSRManifest} */ ({
+	return /** @type {any} */ ({
 		adapterName: 'test-adapter',
 		routes,
 		site: undefined,
@@ -82,6 +84,9 @@ export function createManifest({
 	});
 }
 
+/**
+ * @param {any} routeData
+ */
 export function createRouteInfo(routeData) {
 	return {
 		routeData,
