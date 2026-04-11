@@ -2,17 +2,20 @@ import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { loadFixture } from '../../test-utils.js';
 
+type Fixture = Awaited<ReturnType<typeof loadFixture>>;
+type DevServer = NonNullable<Awaited<ReturnType<Fixture['startDevServer']>>>;
+
 describe('endpoint responses', () => {
-	/** @type {import('../../test-utils.js').Fixture} */
-	let fixture;
-	/** @type {import('../../test-utils.js').DevServer} */
-	let devServer;
+	let fixture: Fixture;
+	let devServer: DevServer;
 
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/endpoint-routing/',
 		});
-		devServer = await fixture.startDevServer();
+		const startedDevServer = await fixture.startDevServer();
+		assert.ok(startedDevServer);
+		devServer = startedDevServer;
 	});
 
 	after(async () => {
@@ -42,9 +45,9 @@ describe('endpoint responses', () => {
 		// The request should be aborted without throwing unhandled errors
 		try {
 			await resPromise;
-		} catch (err) {
+		} catch (err: unknown) {
 			// AbortError is expected
-			assert.ok(err.name === 'AbortError', 'Expected an AbortError');
+			assert.ok(err instanceof Error && err.name === 'AbortError', 'Expected an AbortError');
 		}
 	});
 
@@ -52,19 +55,19 @@ describe('endpoint responses', () => {
 		const res = await fixture.fetch('/setCookies');
 		const setCookies = res.headers.getSetCookie();
 		assert.ok(
-			setCookies.some((c) => c.startsWith('key1=value1')),
+			setCookies.some((cookie) => cookie.startsWith('key1=value1')),
 			'Should contain key1 cookie',
 		);
 		assert.ok(
-			setCookies.some((c) => c.startsWith('key2=value2')),
+			setCookies.some((cookie) => cookie.startsWith('key2=value2')),
 			'Should contain key2 cookie',
 		);
 		assert.ok(
-			setCookies.some((c) => c.startsWith('key3=value3')),
+			setCookies.some((cookie) => cookie.startsWith('key3=value3')),
 			'Should contain key3 cookie',
 		);
 		assert.ok(
-			setCookies.some((c) => c.startsWith('key4=value4')),
+			setCookies.some((cookie) => cookie.startsWith('key4=value4')),
 			'Should contain key4 cookie',
 		);
 	});

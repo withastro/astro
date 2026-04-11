@@ -2,19 +2,22 @@ import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { loadFixture } from '../../test-utils.js';
 
+type Fixture = Awaited<ReturnType<typeof loadFixture>>;
+type DevServer = NonNullable<Awaited<ReturnType<Fixture['startDevServer']>>>;
+
 describe('vite-plugin-astro-server', () => {
 	describe('url', () => {
-		/** @type {import('../../test-utils.js').Fixture} */
-		let fixture;
-		/** @type {import('../../test-utils.js').DevServer} */
-		let devServer;
+		let fixture: Fixture;
+		let devServer: DevServer;
 
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/dev-request-url/',
 				output: 'server',
 			});
-			devServer = await fixture.startDevServer();
+			const startedDevServer = await fixture.startDevServer();
+			assert.ok(startedDevServer);
+			devServer = startedDevServer;
 		});
 
 		after(async () => {
