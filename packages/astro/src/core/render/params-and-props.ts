@@ -5,7 +5,7 @@ import type { RouteData } from '../../types/public/internal.js';
 import { DEFAULT_404_COMPONENT } from '../constants.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { AstroLogger } from '../logger/core.js';
-import { /*routeHasHtmlExtension,*/ routeIsFallback, routeIsRedirect } from '../routing/helpers.js';
+import { routeIsFallback, routeIsRedirect } from '../routing/helpers.js';
 import type { RouteCache } from './route-cache.js';
 import { callGetStaticPaths, findPathItemByKey } from './route-cache.js';
 
@@ -63,7 +63,7 @@ export async function getProps(opts: GetParamsAndPropsOptions): Promise<Props> {
 	const params = getParams(route, pathname);
 	let matchedStaticPath = findPathItemByKey(staticPaths, params, route, logger, trailingSlash);
 	// If no match is found and the URL ends in '.html', retry by stripping the extension.
-  // Strip `.html` from the pathname unless `.html` is a static part of the route definition
+	// Strip `.html` from the pathname unless `.html` is a static part of the route definition
 	// itself (e.g. `[slug].html.astro`). Dynamic params like `[id]` would otherwise greedily
 	// capture the `.html` suffix (e.g. `id = '42.html'` instead of `id = '42'`).
 	if (!matchedStaticPath && pathname.endsWith('.html')) {
