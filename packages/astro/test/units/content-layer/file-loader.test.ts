@@ -136,9 +136,10 @@ describe('File Loader', () => {
 			plants: defineCollection({
 				loader: file('src/data/plants.csv', {
 					parser: (text) => {
-						const [headers, ...rows] = text.trim().split('\n');
+						const [headersLine, ...rows] = text.trim().split(/\r?\n/);
+						const headers = headersLine.split(',');
 						return rows.map((row) =>
-							Object.fromEntries(headers.split(',').map((h, i) => [h, row.split(',')[i]])),
+							Object.fromEntries(headers.map((h, i) => [h, row.split(',')[i]])),
 						);
 					},
 				}),

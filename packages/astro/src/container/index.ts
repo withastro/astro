@@ -435,7 +435,8 @@ export class experimental_AstroContainer {
 	}
 
 	// NOTE: we keep this private via TS instead via `#` so it's still available on the surface, so we can play with it.
-	private static async createFromManifest(
+	/** @internal */
+	public static async createFromManifest(
 		manifest: SSRManifest,
 	): Promise<experimental_AstroContainer> {
 		const astroConfig = await validateConfig(ASTRO_CONFIG_DEFAULTS, process.cwd(), 'container');
