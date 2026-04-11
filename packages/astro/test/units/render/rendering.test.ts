@@ -9,14 +9,24 @@ import {
 	renderTemplate,
 } from '../../../dist/runtime/server/index.js';
 
-const DEFAULT_RESULT = {
-	clientDirectives: new Map(),
+type IdProps = {
+	id: string;
 };
 
-describe('rendering', () => {
-	const evaluated = [];
+type RenderResultContext = Parameters<typeof renderComponent>[0];
 
-	const Scalar = createComponent((_result, props) => {
+type Renderable = {
+	render(destination: { write(chunk: unknown): void }): void | Promise<void>;
+};
+
+const DEFAULT_RESULT = {
+	clientDirectives: new Map(),
+} as unknown as RenderResultContext;
+
+describe('rendering', () => {
+	const evaluated: string[] = [];
+
+	const Scalar = createComponent((_result: RenderResultContext, props: IdProps) => {
 		evaluated.push(props.id);
 		return renderTemplate`<scalar id="${props.id}"></scalar>`;
 	});
@@ -26,7 +36,7 @@ describe('rendering', () => {
 	});
 
 	it('components are evaluated and rendered depth-first', async () => {
-		const Root = createComponent((result, props) => {
+		const Root = createComponent((result: RenderResultContext, props: IdProps) => {
 			evaluated.push(props.id);
 			return renderTemplate`<root id="${props.id}">
 				${renderComponent(result, '', Scalar, { id: `${props.id}/scalar_1` })}
@@ -35,7 +45,7 @@ describe('rendering', () => {
 			</root>`;
 		});
 
-		const Nested = createComponent((result, props) => {
+		const Nested = createComponent((result: RenderResultContext, props: IdProps) => {
 			evaluated.push(props.id);
 			return renderTemplate`<nested id="${props.id}">
 				${renderComponent(result, '', Scalar, { id: `${props.id}/scalar` })}
@@ -63,7 +73,7 @@ describe('rendering', () => {
 	});
 
 	it('synchronous component trees are rendered without promises', () => {
-		const Root = createComponent((result, props) => {
+		const Root = createComponent((result: RenderResultContext, props: IdProps) => {
 			evaluated.push(props.id);
 			return renderTemplate`<root id="${props.id}">
 				${() => renderComponent(result, '', Scalar, { id: `${props.id}/scalar_1` })}
@@ -77,6 +87,9 @@ describe('rendering', () => {
 
 		const result = renderToString(Root(DEFAULT_RESULT, { id: 'root' }, {}));
 		assert.ok(!isPromise(result));
+		if (isPromise(result)) {
+			assert.fail('expected synchronous render result');
+		}
 
 		const rendered = getRenderedIds(result);
 
@@ -98,7 +111,7 @@ describe('rendering', () => {
 	});
 
 	it('async component children are deferred', async () => {
-		const Root = createComponent((result, props) => {
+		const Root = createComponent((result: RenderResultContext, props: IdProps) => {
 			evaluated.push(props.id);
 			return renderTemplate`<root id="${props.id}">
 				${renderComponent(result, '', AsyncNested, { id: `${props.id}/asyncnested` })}
@@ -106,7 +119,7 @@ describe('rendering', () => {
 			</root>`;
 		});
 
-		const AsyncNested = createComponent(async (result, props) => {
+		const AsyncNested = createComponent(async (result: RenderResultContext, props: IdProps) => {
 			evaluated.push(props.id);
 			await new Promise((resolve) => setTimeout(resolve, 0));
 			return renderTemplate`<asyncnested id="${props.id}">
@@ -136,7 +149,7 @@ describe('rendering', () => {
 	it('adjacent async components are evaluated eagerly', async () => {
 		const resetEvent = new ManualResetEvent();
 
-		const Root = createComponent((result, props) => {
+		const Root = createComponent((result: RenderResultContext, props: IdProps) => {
 			evaluated.push(props.id);
 			return renderTemplate`<root id="${props.id}">
 				${renderComponent(result, '', AsyncNested, { id: `${props.id}/asyncnested_1` })}
@@ -144,7 +157,7 @@ describe('rendering', () => {
 			</root>`;
 		});
 
-		const AsyncNested = createComponent(async (result, props) => {
+		const AsyncNested = createComponent(async (result: RenderResultContext, props: IdProps) => {
 			evaluated.push(props.id);
 			await resetEvent.wait();
 			return renderTemplate`<asyncnested id="${props.id}">
@@ -188,11 +201,10 @@ describe('rendering', () => {
 		});
 
 		const renderInstance = await renderComponent(DEFAULT_RESULT, '', Root, {});
-
-		const chunks = [];
+		const chunks: HTMLString[] = [];
 		const destination = {
-			write: (chunk) => {
-				chunks.push(chunk);
+			write(chunk: unknown) {
+				chunks.push(chunk as HTMLString);
 			},
 		};
 
@@ -202,7 +214,7 @@ describe('rendering', () => {
 	});
 
 	it('all primitives are rendered in order', async () => {
-		const Root = createComponent((result, props) => {
+		const Root = createComponent((result: RenderResultContext, props: IdProps) => {
 			evaluated.push(props.id);
 			return renderTemplate`<root id="${props.id}">
 				${renderComponent(result, '', Scalar, { id: `${props.id}/first` })}
@@ -248,20 +260,20 @@ describe('rendering', () => {
 	});
 });
 
-function renderToString(item) {
+function renderToString(item: unknown): string | Promise<string> {
 	if (isPromise(item)) {
-		return item.then(renderToString);
+		return Promise.resolve(item).then((resolved) => renderToString(resolved));
 	}
 
 	let result = '';
 
 	const destination = {
-		write: (chunk) => {
-			result += chunk.toString();
+		write(chunk: unknown) {
+			result += String(chunk);
 		},
 	};
 
-	const renderResult = item.render(destination);
+	const renderResult = (item as Renderable).render(destination);
 
 	if (isPromise(renderResult)) {
 		return renderResult.then(() => result);
@@ -270,20 +282,20 @@ function renderToString(item) {
 	return result;
 }
 
-function getRenderedIds(html) {
+function getRenderedIds(html: string) {
 	return cheerio
 		.load(
 			html,
 			null,
 			false,
 		)('*')
-		.map((_, node) => node.attribs['id'])
+		.map((_, node) => ('attribs' in node ? node.attribs?.['id'] : undefined))
 		.toArray();
 }
 
 class ManualResetEvent {
-	#resolve;
-	#promise;
+	#resolve?: () => void;
+	#promise?: Promise<void>;
 	#done = false;
 
 	release() {
@@ -306,8 +318,8 @@ class ManualResetEvent {
 		if (!this.#promise) {
 			this.#promise = this.#done
 				? Promise.resolve()
-				: new Promise((resolve) => {
-						this.#resolve = resolve;
+				: new Promise<void>((resolve) => {
+						this.#resolve = () => resolve();
 					});
 		}
 

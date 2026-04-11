@@ -5,13 +5,22 @@ import { renderQueue } from '../../../dist/runtime/server/render/queue/renderer.
 import { NodePool } from '../../../dist/runtime/server/render/queue/pool.js';
 import { renderPage } from '../../../dist/runtime/server/render/page.js';
 
+type QueueSSRResult = Parameters<typeof buildRenderQueue>[1];
+type RenderQueueNode = Awaited<ReturnType<typeof buildRenderQueue>>['nodes'][number];
+type RenderPageResult = Parameters<typeof renderPage>[0];
+type RenderPageComponent = Parameters<typeof renderPage>[1];
+type TestPageFactory = RenderPageComponent & {
+	(props: unknown): string;
+	'astro:html'?: boolean;
+	moduleId: string;
+};
+
 /**
  * Tests for the queue-based rendering engine
  * These are unit tests for the core queue building and rendering logic
  */
 describe('Queue-based rendering engine', () => {
-	// Create a minimal SSRResult mock for testing
-	function createMockResult() {
+	function createMockResult(): QueueSSRResult {
 		return {
 			_metadata: {
 				hasHydrationScript: false,
@@ -32,10 +41,9 @@ describe('Queue-based rendering engine', () => {
 			componentMetadata: new Map(),
 			cancelled: false,
 			compressHTML: false,
-		};
+		} as unknown as QueueSSRResult;
 	}
 
-	// Create a NodePool for testing
 	function createMockPool() {
 		return new NodePool(1000);
 	}
@@ -48,7 +56,7 @@ describe('Queue-based rendering engine', () => {
 
 			assert.ok(queue.nodes.length > 0);
 			assert.equal(queue.nodes[0].type, 'text');
-			assert.equal(queue.nodes[0].content, 'Hello, World!');
+			assert.equal(getTextContent(queue.nodes[0]), 'Hello, World!');
 		});
 
 		it('should handle numbers', async () => {
@@ -58,7 +66,7 @@ describe('Queue-based rendering engine', () => {
 
 			assert.ok(queue.nodes.length > 0);
 			assert.equal(queue.nodes[0].type, 'text');
-			assert.equal(queue.nodes[0].content, '42');
+			assert.equal(getTextContent(queue.nodes[0]), '42');
 		});
 
 		it('should handle booleans', async () => {
@@ -68,7 +76,7 @@ describe('Queue-based rendering engine', () => {
 
 			assert.ok(queue.nodes.length > 0);
 			assert.equal(queue.nodes[0].type, 'text');
-			assert.equal(queue.nodes[0].content, 'true');
+			assert.equal(getTextContent(queue.nodes[0]), 'true');
 		});
 
 		it('should handle arrays', async () => {
@@ -77,15 +85,16 @@ describe('Queue-based rendering engine', () => {
 			const queue = await buildRenderQueue(['Hello', ' ', 'World'], result, pool);
 
 			assert.equal(queue.nodes.length, 3);
-			assert.equal(queue.nodes[0].content, 'Hello');
-			assert.equal(queue.nodes[1].content, ' ');
-			assert.equal(queue.nodes[2].content, 'World');
+			assert.equal(getTextContent(queue.nodes[0]), 'Hello');
+			assert.equal(getTextContent(queue.nodes[1]), ' ');
+			assert.equal(getTextContent(queue.nodes[2]), 'World');
 		});
 
 		it('should handle null and undefined (skip them)', async () => {
 			const result = createMockResult();
-			const nullQueue = await buildRenderQueue(null, result);
-			const undefinedQueue = await buildRenderQueue(undefined, result);
+			const pool = createMockPool();
+			const nullQueue = await buildRenderQueue(null, result, pool);
+			const undefinedQueue = await buildRenderQueue(undefined, result, pool);
 
 			assert.equal(nullQueue.nodes.length, 0);
 			assert.equal(undefinedQueue.nodes.length, 0);
@@ -99,7 +108,7 @@ describe('Queue-based rendering engine', () => {
 
 			assert.equal(falseQueue.nodes.length, 0);
 			assert.equal(zeroQueue.nodes.length, 1);
-			assert.equal(zeroQueue.nodes[0].content, '0');
+			assert.equal(getTextContent(zeroQueue.nodes[0]), '0');
 		});
 
 		it('should handle promises', async () => {
@@ -109,7 +118,7 @@ describe('Queue-based rendering engine', () => {
 			const queue = await buildRenderQueue(promise, result, pool);
 
 			assert.equal(queue.nodes.length, 1);
-			assert.equal(queue.nodes[0].content, 'Resolved value');
+			assert.equal(getTextContent(queue.nodes[0]), 'Resolved value');
 		});
 
 		it('should handle nested arrays', async () => {
@@ -118,9 +127,9 @@ describe('Queue-based rendering engine', () => {
 			const queue = await buildRenderQueue([['Nested', ' '], 'Array'], result, pool);
 
 			assert.equal(queue.nodes.length, 3);
-			assert.equal(queue.nodes[0].content, 'Nested');
-			assert.equal(queue.nodes[1].content, ' ');
-			assert.equal(queue.nodes[2].content, 'Array');
+			assert.equal(getTextContent(queue.nodes[0]), 'Nested');
+			assert.equal(getTextContent(queue.nodes[1]), ' ');
+			assert.equal(getTextContent(queue.nodes[2]), 'Array');
 		});
 
 		it('should handle async iterables', async () => {
@@ -136,9 +145,9 @@ describe('Queue-based rendering engine', () => {
 			const queue = await buildRenderQueue(asyncGen(), result, pool);
 
 			assert.equal(queue.nodes.length, 3);
-			assert.equal(queue.nodes[0].content, 'First');
-			assert.equal(queue.nodes[1].content, 'Second');
-			assert.equal(queue.nodes[2].content, 'Third');
+			assert.equal(getTextContent(queue.nodes[0]), 'First');
+			assert.equal(getTextContent(queue.nodes[1]), 'Second');
+			assert.equal(getTextContent(queue.nodes[2]), 'Third');
 		});
 
 		it('should track parent relationships', async () => {
@@ -147,11 +156,10 @@ describe('Queue-based rendering engine', () => {
 			const pool = createMockPool();
 			const queue = await buildRenderQueue(nestedArray, result, pool);
 
-			// Verify correct node structure
 			assert.equal(queue.nodes.length, 3);
-			assert.equal(queue.nodes[0].content, 'child1');
-			assert.equal(queue.nodes[1].content, 'child2');
-			assert.equal(queue.nodes[2].content, 'sibling');
+			assert.equal(getTextContent(queue.nodes[0]), 'child1');
+			assert.equal(getTextContent(queue.nodes[1]), 'child2');
+			assert.equal(getTextContent(queue.nodes[2]), 'sibling');
 		});
 
 		it('should maintain correct rendering order', async () => {
@@ -159,9 +167,9 @@ describe('Queue-based rendering engine', () => {
 			const pool = createMockPool();
 			const queue = await buildRenderQueue(['A', 'B', 'C'], result, pool);
 
-			assert.equal(queue.nodes[0].content, 'A');
-			assert.equal(queue.nodes[1].content, 'B');
-			assert.equal(queue.nodes[2].content, 'C');
+			assert.equal(getTextContent(queue.nodes[0]), 'A');
+			assert.equal(getTextContent(queue.nodes[1]), 'B');
+			assert.equal(getTextContent(queue.nodes[2]), 'C');
 		});
 
 		it('should handle sync iterables (Set)', async () => {
@@ -171,8 +179,7 @@ describe('Queue-based rendering engine', () => {
 			const queue = await buildRenderQueue(set, result, pool);
 
 			assert.equal(queue.nodes.length, 3);
-			// Set iteration order is insertion order
-			const contents = queue.nodes.map((n) => n.content);
+			const contents = queue.nodes.map((node) => getTextContent(node));
 			assert.ok(contents.includes('One'));
 			assert.ok(contents.includes('Two'));
 			assert.ok(contents.includes('Three'));
@@ -187,7 +194,7 @@ describe('Queue-based rendering engine', () => {
 
 			let output = '';
 			const destination = {
-				write(chunk) {
+				write(chunk: unknown) {
 					output += String(chunk);
 				},
 			};
@@ -203,7 +210,7 @@ describe('Queue-based rendering engine', () => {
 
 			let output = '';
 			const destination = {
-				write(chunk) {
+				write(chunk: unknown) {
 					output += String(chunk);
 				},
 			};
@@ -219,7 +226,7 @@ describe('Queue-based rendering engine', () => {
 
 			let output = '';
 			const destination = {
-				write(chunk) {
+				write(chunk: unknown) {
 					output += String(chunk);
 				},
 			};
@@ -236,7 +243,7 @@ describe('Queue-based rendering engine', () => {
 
 			let output = '';
 			const destination = {
-				write(chunk) {
+				write(chunk: unknown) {
 					output += String(chunk);
 				},
 			};
@@ -252,7 +259,7 @@ describe('Queue-based rendering engine', () => {
 
 			let output = '';
 			const destination = {
-				write(chunk) {
+				write(chunk: unknown) {
 					output += String(chunk);
 				},
 			};
@@ -268,7 +275,7 @@ describe('Queue-based rendering engine', () => {
  * queuedRendering breaks .html pages by escaping their raw HTML string output.
  */
 describe('renderPage() with queuedRendering and .html pages', () => {
-	function createMockResultWithQueue() {
+	function createMockResultWithQueue(): RenderPageResult {
 		const pool = new NodePool(1000);
 		return {
 			_metadata: {
@@ -297,24 +304,22 @@ describe('renderPage() with queuedRendering and .html pages', () => {
 				enabled: true,
 				pool,
 			},
-		};
+		} as unknown as RenderPageResult;
 	}
 
 	it('does not escape HTML tags when rendering a .html page component', async () => {
 		// Simulate the component factory generated by vite-plugin-html for a .html file.
 		// These return a plain string and have `astro:html = true`.
-		const htmlPageFactory = function render(_props) {
+		const htmlPageFactory = function render(_props: unknown) {
 			return '<body>\n  <script src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>\n</body>';
-		};
+		} as TestPageFactory;
 		htmlPageFactory['astro:html'] = true;
 		htmlPageFactory.moduleId = 'src/pages/admin/index.html';
 
 		const result = createMockResultWithQueue();
-
 		const response = await renderPage(result, htmlPageFactory, {}, null, false);
 		const html = await response.text();
 
-		// The raw <script> tag must appear verbatim — not HTML-escaped
 		assert.ok(
 			html.includes('<script src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>'),
 			`Expected unescaped <script> tag in output, got:\n${html}`,
@@ -328,14 +333,12 @@ describe('renderPage() with queuedRendering and .html pages', () => {
 	it('still escapes HTML in non-.html page components with queuedRendering', async () => {
 		// A regular (non-.html) component factory should NOT have astro:html = true,
 		// so raw string output from it should be treated as text and escaped.
-		const regularFactory = function render(_props) {
+		const regularFactory = function render(_props: unknown) {
 			return '<script>alert("xss")</script>';
-		};
-		// No astro:html flag set — this is the default for non-.html components
+		} as TestPageFactory;
 		regularFactory.moduleId = 'src/pages/regular.astro';
 
 		const result = createMockResultWithQueue();
-
 		const response = await renderPage(result, regularFactory, {}, null, false);
 		const html = await response.text();
 
@@ -343,3 +346,11 @@ describe('renderPage() with queuedRendering and .html pages', () => {
 		assert.ok(html.includes('&lt;script&gt;'), `Expected HTML-escaped output, got:\n${html}`);
 	});
 });
+
+function getTextContent(node: RenderQueueNode): string {
+	if (node.type !== 'text') {
+		assert.fail(`expected text node, got ${node.type}`);
+	}
+
+	return node.content;
+}
