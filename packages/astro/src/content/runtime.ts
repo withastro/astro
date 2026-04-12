@@ -96,6 +96,10 @@ export function createGetCollection({
 }: {
 	liveCollections: LiveCollectionConfigMap;
 }) {
+	// Cache resolved collection entries to avoid redundant image reference traversals.
+	// The underlying data store is immutable at runtime, so caching is safe.
+	const collectionCache = new Map<string, any[]>();
+
 	return async function getCollection(
 		collection: string,
 		filter?: ((entry: any) => unknown) | Record<string, unknown>,
@@ -110,25 +114,28 @@ export function createGetCollection({
 		const hasFilter = typeof filter === 'function';
 		const store = await globalDataStore.get();
 		if (store.hasCollection(collection)) {
-			// @ts-expect-error	virtual module
-			const { default: imageAssetMap } = await import('astro:asset-imports');
+			let entries = collectionCache.get(collection);
+			if (!entries) {
+				// @ts-expect-error	virtual module
+				const { default: imageAssetMap } = await import('astro:asset-imports');
 
-			const result = [];
-			for (const rawEntry of store.values<DataEntry>(collection)) {
-				const data = updateImageReferencesInData(rawEntry.data, rawEntry.filePath, imageAssetMap);
+				entries = [];
+				for (const rawEntry of store.values<DataEntry>(collection)) {
+					const data = updateImageReferencesInData(rawEntry.data, rawEntry.filePath, imageAssetMap);
 
-				let entry = {
-					...rawEntry,
-					data,
-					collection,
-				};
-
-				if (hasFilter && !filter(entry)) {
-					continue;
+					entries.push({
+						...rawEntry,
+						data,
+						collection,
+					});
 				}
-				result.push(entry);
+				collectionCache.set(collection, entries);
 			}
-			return result;
+
+			if (hasFilter) {
+				return entries.filter(filter);
+			}
+			return entries.slice();
 		} else {
 			console.warn(
 				`The collection ${JSON.stringify(
