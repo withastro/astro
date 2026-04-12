@@ -3,6 +3,7 @@ import type { BuildOptions, ResolvedConfig, Plugin as VitePlugin } from 'vite';
 import { isCSSRequest } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 import { isPropagatedAssetBoundary } from '../../head-propagation/boundary.js';
+import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../../vite-plugin-pages/const.js';
 import {
 	getParentExtendedModuleInfos,
 	getParentModuleInfos,
@@ -33,7 +34,15 @@ interface PluginOptions {
 function isBuildCssBoundary(id: string, ctx: { getModuleInfo: GetModuleInfo }): boolean {
 	if (isPropagatedAssetBoundary(id)) return true;
 	const info = ctx.getModuleInfo(id);
-	return info ? moduleIsTopLevelPage(info) : false;
+	if (!info || !moduleIsTopLevelPage(info)) return false;
+	// If this page is also imported by other modules (not just the virtual page module),
+	// it's being used as a component (e.g. a partial imported by another page).
+	// In that case, don't treat it as a CSS boundary so CSS can propagate to the importing page.
+	const allImporters = info.importers.concat(info.dynamicImporters);
+	const hasNonVirtualImporter = allImporters.some(
+		(imp) => !imp.includes(VIRTUAL_PAGE_RESOLVED_MODULE_ID),
+	);
+	return !hasNonVirtualImporter;
 }
 
 function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
