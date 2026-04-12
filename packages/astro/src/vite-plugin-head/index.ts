@@ -33,12 +33,24 @@ const VIRTUAL_COMPONENT_METADATA = 'virtual:astro:component-metadata';
 const RESOLVED_VIRTUAL_COMPONENT_METADATA = `\0${VIRTUAL_COMPONENT_METADATA}`;
 
 export default function configHeadVitePlugin(): vite.Plugin {
-	let environment: DevEnvironment;
+	// Adapters like `@astrojs/cloudflare` load page modules in the `prerender`
+	// environment; default dev uses `ssr`. Track both so propagation covers either.
+	let environments: DevEnvironment[] = [];
+
+	function findModule(id: string) {
+		for (const env of environments) {
+			const mod = env.moduleGraph.getModuleById(id);
+			if (mod) return mod;
+		}
+		return undefined;
+	}
 
 	function invalidateComponentMetadataModule() {
-		const virtualMod = environment.moduleGraph.getModuleById(RESOLVED_VIRTUAL_COMPONENT_METADATA);
-		if (virtualMod) {
-			environment.moduleGraph.invalidateModule(virtualMod);
+		for (const env of environments) {
+			const virtualMod = env.moduleGraph.getModuleById(RESOLVED_VIRTUAL_COMPONENT_METADATA);
+			if (virtualMod) {
+				env.moduleGraph.invalidateModule(virtualMod);
+			}
 		}
 	}
 
@@ -50,7 +62,7 @@ export default function configHeadVitePlugin(): vite.Plugin {
 			const current = queue.pop()!;
 			if (collected.has(current)) continue;
 			collected.add(current);
-			const mod = environment.moduleGraph.getModuleById(current);
+			const mod = findModule(current);
 			for (const importer of mod?.importers ?? []) {
 				if (importer.id) {
 					queue.push(importer.id);
@@ -60,7 +72,7 @@ export default function configHeadVitePlugin(): vite.Plugin {
 
 		// Convert Vite's module graph shape into our plain importer adjacency map.
 		return buildImporterGraphFromModuleInfo(collected, (id) => {
-			const mod = environment.moduleGraph.getModuleById(id);
+			const mod = findModule(id);
 			if (!mod) return null;
 			return {
 				importers: Array.from(mod.importers)
@@ -100,7 +112,10 @@ export default function configHeadVitePlugin(): vite.Plugin {
 		enforce: 'pre',
 		apply: 'serve',
 		configureServer(devServer) {
-			environment = devServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
+			environments = [
+				devServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr],
+				devServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.prerender],
+			].filter((e): e is DevEnvironment => !!e);
 			devServer.watcher.on('add', invalidateComponentMetadataModule);
 			devServer.watcher.on('unlink', invalidateComponentMetadataModule);
 			devServer.watcher.on('change', invalidateComponentMetadataModule);
@@ -110,21 +125,26 @@ export default function configHeadVitePlugin(): vite.Plugin {
 				return;
 			}
 
+			const seen = new Set<string>();
 			const componentMetadataEntries: [string, SSRComponentMetadata][] = [];
-			for (const [moduleId, mod] of environment.moduleGraph.idToModuleMap) {
-				const info = this.getModuleInfo(moduleId) ?? (mod.id ? this.getModuleInfo(mod.id) : null);
-				if (!info) continue;
+			for (const env of environments) {
+				for (const [moduleId, mod] of env.moduleGraph.idToModuleMap) {
+					if (seen.has(moduleId)) continue;
+					const info = this.getModuleInfo(moduleId) ?? (mod.id ? this.getModuleInfo(mod.id) : null);
+					if (!info) continue;
 
-				const astro = getAstroMetadata(info);
-				if (!astro) continue;
+					const astro = getAstroMetadata(info);
+					if (!astro) continue;
 
-				componentMetadataEntries.push([
-					moduleId,
-					{
-						containsHead: astro.containsHead,
-						propagation: astro.propagation,
-					},
-				]);
+					seen.add(moduleId);
+					componentMetadataEntries.push([
+						moduleId,
+						{
+							containsHead: astro.containsHead,
+							propagation: astro.propagation,
+						},
+					]);
+				}
 			}
 
 			return {
