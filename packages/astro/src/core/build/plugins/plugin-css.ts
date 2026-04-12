@@ -33,7 +33,13 @@ interface PluginOptions {
 function isBuildCssBoundary(id: string, ctx: { getModuleInfo: GetModuleInfo }): boolean {
 	if (isPropagatedAssetBoundary(id)) return true;
 	const info = ctx.getModuleInfo(id);
-	return info ? moduleIsTopLevelPage(info) : false;
+	if (!info || !moduleIsTopLevelPage(info)) return false;
+	// If this page is also directly imported by another non-virtual module (i.e., used
+	// as a component by another page), allow CSS to propagate through it. Only treat it
+	// as a boundary when all importers are virtual page modules, which prevents CSS from
+	// leaking between unrelated pages via shared virtual modules like astro:i18n.
+	const allImporters = info.importers.concat(info.dynamicImporters);
+	return allImporters.every((imp) => imp.startsWith('\0'));
 }
 
 function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
