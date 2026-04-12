@@ -1,5 +1,6 @@
 import type { ExternalImageService } from 'astro';
-import { baseService, verifyOptions } from 'astro/assets';
+import { baseService } from 'astro/assets';
+import { verifyOptions } from '../../../astro/dist/assets/internal.js';
 import { isESMImportedImage } from 'astro/assets/utils';
 import { AstroError } from 'astro/errors';
 
