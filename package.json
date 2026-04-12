@@ -58,7 +58,8 @@
   },
   "packageManager": "pnpm@10.30.3",
   "dependencies": {
-    "astro-benchmark": "workspace:*"
+    "astro-benchmark": "workspace:*",
+    "drizzle-orm": "0.45.2"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.5",
