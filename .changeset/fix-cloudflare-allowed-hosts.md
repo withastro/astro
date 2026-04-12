@@ -1,6 +1,6 @@
 ---
-'astro': patch
+'astro': minor
 '@astrojs/cloudflare': patch
 ---
 
-Fixes issue where `server.allowedHosts` were ignored when using `astro preview` with the `@astrojs/cloudflare` adapter.
+Ensures that `server.allowedHosts` (and `vite.preview.allowedHosts`) configuration is respected when using `astro preview` with the `@astrojs/cloudflare` adapter. This improves security by preventing DNS rebinding attacks when previewing Cloudflare builds locally.

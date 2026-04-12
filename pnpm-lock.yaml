@@ -4857,6 +4857,15 @@ importers:
         specifier: ^5.6.3
         version: 5.6.4
 
+  packages/integrations/cloudflare/test/fixtures/allowed-hosts:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/cloudflare/test/fixtures/astro-dev-platform:
     dependencies:
       '@astrojs/cloudflare':
