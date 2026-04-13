@@ -138,6 +138,14 @@ export default async function createAstroServerApp(
 						'localhost';
 					const url = new URL(`${protocol}://${host}${incomingRequest.url}`);
 
+					// Normalize /foo/index.html to /foo/ so the Hono route matcher
+					// finds it. Vite's built-in dev middleware handles this but the
+					// Hono pipeline matches against route patterns that don't
+					// include index.html.
+					if (url.pathname.endsWith('/index.html')) {
+						url.pathname = url.pathname.slice(0, -'index.html'.length);
+					}
+
 					// The Vite base middleware strips config.base from the URL before
 					// requests reach us. Restore it so the entire pipeline sees the
 					// full base-prefixed URL, matching production behavior.
