@@ -18,8 +18,6 @@ export function containsServerDirective(props: Record<string | number, any>) {
 	return 'server:component-directive' in props;
 }
 
-
-
 function createSearchParams(
 	encryptedComponentExport: string,
 	encryptedProps: string,
