@@ -130,6 +130,11 @@ describe('defineScriptVars', () => {
 		assert.ok(!result.includes('</script/>'), 'should not contain literal </script/>');
 	});
 
+	it('handles undefined values without throwing', () => {
+		const result = String(defineScriptVars({ undef: undefined }));
+		assert.ok(result.includes('const undef = undefined;'));
+	});
+
 	it('converts keys with spaces to valid JS identifiers', () => {
 		const result = String(defineScriptVars({ 'my key': 'value' }));
 		assert.ok(result.includes('const myKey = "value";'));

@@ -12,7 +12,7 @@ export const escapeHTML = escape;
  * @see https://mathiasbynens.be/notes/etago
  */
 export function stringifyForScript(value: any): string {
-	return JSON.stringify(value).replace(/</g, '\\u003c');
+	return JSON.stringify(value)?.replace(/</g, '\\u003c');
 }
 
 export class HTMLBytes extends Uint8Array {}
