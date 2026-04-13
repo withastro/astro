@@ -1,4 +1,6 @@
 import type { RuntimeFontFetcher } from '../definitions.js';
+import { MissingGetFontBufferRequestUrl } from '../../../core/errors/errors-data.js';
+import { AstroError } from '../../../core/errors/errors.js';
 
 export class SsrRuntimeFontFetcher implements RuntimeFontFetcher {
 	#ids: Set<string>;
@@ -24,8 +26,7 @@ export class SsrRuntimeFontFetcher implements RuntimeFontFetcher {
 			return this.#fetch(url).then((res) => res.arrayBuffer());
 		}
 		if (!requestUrl) {
-			// TODO: error
-			throw new Error('in ssr, pass the request url');
+			throw new AstroError(MissingGetFontBufferRequestUrl);
 		}
 		return this.#fetch(`${requestUrl.origin}${url}`).then((res) => res.arrayBuffer());
 	}

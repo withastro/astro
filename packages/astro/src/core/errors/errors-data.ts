@@ -1490,6 +1490,18 @@ export const FontBufferNotFound = {
 	hint: 'Make sure you pass a valid URL, obtained via the \`fontData\` object.',
 } satisfies ErrorData;
 
+
+/**
+ * @docs
+ * @description
+ * `experimental_getFontBuffer()` requires the request URL in SSR.
+ */
+export const MissingGetFontBufferRequestUrl = {
+	name: 'MissingGetFontBufferRequestUrl',
+	title: '`experimental_getFontBuffer()` requires the request URL in SSR.',
+	hint: 'Pass the request URL as the 2nd argument, for example `Astro.url`.',
+} satisfies ErrorData;
+
 /**
  * @docs
  * @description
