@@ -142,11 +142,9 @@ describe('Integration API', () => {
 	});
 
 	describe('Routes resolved hooks', () => {
-		it.skip(
-			'should work in dev',
-			{ todo: "[p2] Understand why routes aren't deep equal anymore" },
-			async () => {},
-		);
+		it.skip('should work in dev', {
+			todo: "[p2] Understand why routes aren't deep equal anymore",
+		}, async () => {});
 	});
 
 	describe('Routes setup hook', () => {

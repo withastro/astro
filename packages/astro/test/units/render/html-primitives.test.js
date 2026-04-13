@@ -13,6 +13,7 @@ import {
 } from '../../../dist/runtime/server/render/util.js';
 import {
 	createComponent,
+	Fragment,
 	render as renderTemplate,
 	renderComponent,
 	renderSlot,
@@ -107,7 +108,31 @@ describe('defineScriptVars', () => {
 	it('sanitizes </script> to prevent XSS injection', () => {
 		const result = String(defineScriptVars({ evil: '</script>' }));
 		assert.ok(!result.includes('</script>'), 'should not contain literal </script>');
-		assert.ok(result.includes('\\x3C/script>'), 'should escape the closing tag');
+		assert.ok(result.includes('\\u003c/script>'), 'should escape the closing tag');
+	});
+
+	it('sanitizes case-insensitive </script> variants', () => {
+		for (const tag of ['</Script>', '</SCRIPT>', '</sCrIpT>']) {
+			const result = String(defineScriptVars({ evil: tag }));
+			assert.ok(!result.includes(tag), `should not contain literal ${tag}`);
+		}
+	});
+
+	it('sanitizes </script> with trailing whitespace before >', () => {
+		for (const tag of ['</script >', '</script\t>', '</script\n>']) {
+			const result = String(defineScriptVars({ evil: tag }));
+			assert.ok(!result.includes(tag), `should not contain literal ${JSON.stringify(tag)}`);
+		}
+	});
+
+	it('sanitizes self-closing </script/>', () => {
+		const result = String(defineScriptVars({ evil: '</script/>' }));
+		assert.ok(!result.includes('</script/>'), 'should not contain literal </script/>');
+	});
+
+	it('handles undefined values without throwing', () => {
+		const result = String(defineScriptVars({ undef: undefined }));
+		assert.ok(result.includes('const undef = undefined;'));
 	});
 
 	it('converts keys with spaces to valid JS identifiers', () => {
@@ -319,6 +344,59 @@ describe('Allows using the Fragment element', async () => {
 		const response = await app.render(new Request('http://example.com/fragment'));
 		const $ = cheerio.load(await response.text());
 		assert.equal($('#one').length, 1);
+	});
+
+	it('streams sync siblings before async children resolve (issue #13283)', async () => {
+		// A deferred promise simulates a slow async child inside the Fragment.
+		let resolveAsync;
+		const asyncChild = new Promise((resolve) => {
+			resolveAsync = resolve;
+		});
+
+		const DEFAULT_RESULT = { clientDirectives: new Map() };
+
+		// Build a Fragment whose default slot contains a sync <p> followed by an async <p>.
+		const renderInstance = renderComponent(
+			DEFAULT_RESULT,
+			'Fragment',
+			Fragment,
+			{},
+			{
+				default: (_result) =>
+					renderTemplate`<p id="sync">sync</p>${asyncChild.then(
+						() => renderTemplate`<p id="async">async</p>`,
+					)}`,
+			},
+		);
+
+		// Collect chunks as they are written so we can inspect ordering.
+		const chunks = [];
+		const destination = {
+			write(chunk) {
+				chunks.push(String(chunk));
+			},
+		};
+
+		// Start rendering — do NOT await yet so we can inspect mid-flight state.
+		const instance = await Promise.resolve(renderInstance);
+		const renderPromise = instance.render(destination);
+
+		// Yield to the microtask queue so the sync portion can flush.
+		await Promise.resolve();
+
+		// The sync <p> must have been written before the async promise resolved.
+		const syncFlushed = chunks.join('').includes('sync');
+		assert.ok(syncFlushed, 'sync sibling should stream before async child resolves');
+
+		// Now resolve the async child and finish rendering.
+		resolveAsync();
+		await renderPromise;
+
+		const html = chunks.join('');
+		assert.ok(html.includes('sync'), 'sync content present in final output');
+		assert.ok(html.includes('async'), 'async content present in final output');
+		// Sync must appear before async in the output.
+		assert.ok(html.indexOf('sync') < html.indexOf('async'), 'sync appears before async in output');
 	});
 });
 

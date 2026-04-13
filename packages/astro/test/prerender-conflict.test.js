@@ -1,6 +1,6 @@
 import { strict as assert } from 'node:assert';
 import { before, describe, it } from 'node:test';
-import { Logger } from '../dist/core/logger/core.js';
+import { AstroLogger } from '../dist/core/logger/core.js';
 import { loadFixture } from './test-utils.js';
 
 /**
@@ -20,9 +20,9 @@ describe('Prerender conflicts', () => {
 		it('warns by default and succeeds', async () => {
 			const logs = [];
 			await fixture.build({
-				logger: new Logger({
+				logger: new AstroLogger({
 					level: 'warn',
-					dest: {
+					destination: {
 						write(chunk) {
 							logs.push(chunk);
 						},
@@ -68,9 +68,9 @@ describe('Prerender conflicts', () => {
 		it('warns by default and succeeds', async () => {
 			const logs = [];
 			await fixture.build({
-				logger: new Logger({
+				logger: new AstroLogger({
 					level: 'warn',
-					dest: {
+					destination: {
 						write(chunk) {
 							logs.push(chunk);
 						},

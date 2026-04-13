@@ -4,7 +4,7 @@ import { Writable } from 'node:stream';
 import { loadFixture } from './_test-utils.js';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
-import { Logger } from '../../../astro/dist/core/logger/core.js';
+import { AstroLogger } from '../../../astro/dist/core/logger/core.js';
 
 describe('Top-level Return', () => {
 	/** @type {import('../../../astro/test/test-utils').Fixture} */
@@ -23,9 +23,9 @@ describe('Top-level Return', () => {
 
 		await fixture.build({
 			vite: { logLevel: 'error' },
-			logger: new Logger({
+			logger: new AstroLogger({
 				level: 'error',
-				dest: new Writable({
+				destination: new Writable({
 					objectMode: true,
 					write(event, _, callback) {
 						logs.push(event);

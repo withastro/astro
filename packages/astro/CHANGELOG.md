@@ -1,5 +1,35 @@
 # astro
 
+## 6.1.5
+
+### Patch Changes
+
+- [#16171](https://github.com/withastro/astro/pull/16171) [`5bcd03c`](https://github.com/withastro/astro/commit/5bcd03c1852cb7a7e165017089cc39c111599530) Thanks [@Desel72](https://github.com/Desel72)! - Fixes a build error that occurred when a pre-rendered page used the `<Picture>` component and another page called `render()` on content collection entries.
+
+- [#16239](https://github.com/withastro/astro/pull/16239) [`7c65c04`](https://github.com/withastro/astro/commit/7c65c0495a12dcb86e6566223e398094566d1435) Thanks [@dataCenter430](https://github.com/dataCenter430)! - Fixes sync content inside `<Fragment>` not streaming to the browser until all async sibling expressions have resolved.
+
+- [#16242](https://github.com/withastro/astro/pull/16242) [`686c312`](https://github.com/withastro/astro/commit/686c3124c1f4078d8395c86047020d92225e71ae) Thanks [@martrapp](https://github.com/martrapp)! - Revives UnoCSS in dev mode when used with the client router.
+
+  This change partly reverts [#16089](https://github.com/withastro/astro/pull/16089), which in hindsight turned out to be too general. Instead of automatically persisting all style sheets, we now do this only for styles from Vue components.
+
+- [#16192](https://github.com/withastro/astro/pull/16192) [`79d86b8`](https://github.com/withastro/astro/commit/79d86b88ef199d6a2195584ec53b225c6a9df5f9) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Uses today’s date for Cloudflare `compatibility_date` in `astro add cloudflare`
+
+  When creating new projects, `astro add cloudflare` now sets `compatibility_date` to the current date. Previously, this date was resolved from locally installed packages, which could be unreliable in some package manager environments. Using today’s date is simpler and more reliable across environments, and is supported by [`workerd`](https://github.com/cloudflare/workers-sdk/pull/13051).
+
+- [#16259](https://github.com/withastro/astro/pull/16259) [`34df955`](https://github.com/withastro/astro/commit/34df95585662d8d00f09e1295cdfe51f2dc78e3f) Thanks [@gameroman](https://github.com/gameroman)! - Removed `dlv` dependency
+
+## 6.1.4
+
+### Patch Changes
+
+- [#16197](https://github.com/withastro/astro/pull/16197) [`21f9fe2`](https://github.com/withastro/astro/commit/21f9fe29f5de442a3e0672ea36dbe690491f3e8c) Thanks [@SchahinRohani](https://github.com/SchahinRohani)! - Remove unused re-exports from assets/utils barrel file to fix Vite build warning
+
+- [#16059](https://github.com/withastro/astro/pull/16059) [`6d5469e`](https://github.com/withastro/astro/commit/6d5469e2c8ddd5c2a546052ac7e3b0fb801b9069) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `Expected 'miniflare' to be defined` errors and 404 responses in dev mode when using the Cloudflare adapter and the config file changes. Instead of creating a brand new Vite server on config changes, Astro now performs a Vite in-place restart, allowing the Cloudflare adapter to reuse its existing miniflare instance across restarts.
+
+- [#16154](https://github.com/withastro/astro/pull/16154) [`7610ba4`](https://github.com/withastro/astro/commit/7610ba4552b51a64be59ad16e8450ce6672579f0) Thanks [@Desel72](https://github.com/Desel72)! - Fixes pages with dots in their filenames (e.g. `hello.world.astro`) returning 404 when accessed with a trailing slash in the dev server. The `trailingSlashForPath` function now only forces `trailingSlash: 'never'` for endpoints with file extensions, allowing pages to correctly respect the user's `trailingSlash` config.
+
+- [#16193](https://github.com/withastro/astro/pull/16193) [`23425e2`](https://github.com/withastro/astro/commit/23425e2413b25cd304b64b4711f86f3f889546ff) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `trailingSlash: "always"` producing redirect HTML instead of the actual response for extensionless endpoints during static builds
+
 ## 6.1.3
 
 ### Patch Changes

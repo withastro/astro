@@ -17,7 +17,7 @@ import type { CacheProviderConfig, RouteRules } from '../../core/cache/types.js'
 import type { AstroConfigType } from '../../core/config/schemas/index.js';
 import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
 import type { CspAlgorithm, CspDirective, CspHash } from '../../core/csp/config.js';
-import type { Logger, LoggerLevel } from '../../core/logger/core.js';
+import type { AstroLogger, AstroLoggerLevel } from '../../core/logger/core.js';
 import type {
 	SessionConfig,
 	SessionDriverConfig,
@@ -3109,7 +3109,7 @@ export interface AstroInlineOnlyConfig {
 	 *
 	 * @default "info"
 	 */
-	logLevel?: LoggerLevel;
+	logLevel?: AstroLoggerLevel;
 	/**
 	 * Clear the content layer cache, forcing a rebuild of all content entries.
 	 */
@@ -3117,5 +3117,5 @@ export interface AstroInlineOnlyConfig {
 	/**
 	 * @internal for testing only, use `logLevel` instead.
 	 */
-	logger?: Logger;
+	logger?: AstroLogger;
 }

@@ -113,7 +113,7 @@ export async function scrollToElement(el) {
 /**
  * Create a spy logger that captures log messages into provided arrays
  * @param {{info?: Array, warn?: Array, error?: Array, debug?: Array}} options - Optional arrays to push messages into
- * @returns {import('../dist/core/logger/core').Logger}
+ * @returns {import('../dist/core/logger/core').AstroLogger}
  */
 export function createLoggerSpy(options = {}) {
 	const infoLogs = options.info || [];
@@ -135,7 +135,7 @@ export function createLoggerSpy(options = {}) {
 			debugLogs.push(...messages.map((message) => ({ label, message })));
 		},
 		options: {
-			dest: { write: () => true },
+			destination: { write: () => true },
 			level: 'info',
 		},
 		level: () => 'info',

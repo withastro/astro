@@ -90,6 +90,41 @@ describe('Streaming', () => {
 	});
 });
 
+describe('Fragment streaming (issue #13283)', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	const decoder = new TextDecoder();
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/streaming/',
+			adapter: testAdapter(),
+			output: 'server',
+		});
+		await fixture.build();
+	});
+
+	it('sync sibling inside Fragment streams before async child resolves', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/fragment-streaming');
+		const response = await app.render(request);
+
+		const chunks = [];
+		for await (const bytes of streamAsyncIterator(response.body)) {
+			chunks.push(decoder.decode(bytes));
+		}
+
+		const syncChunkIndex = chunks.findIndex((c) => c.includes('sync-in-fragment'));
+		const asyncChunkIndex = chunks.findIndex((c) => c.includes('async-in-fragment'));
+		assert.ok(syncChunkIndex !== -1, 'sync-in-fragment present in output');
+		assert.ok(asyncChunkIndex !== -1, 'async-in-fragment present in output');
+		assert.ok(
+			syncChunkIndex < asyncChunkIndex,
+			`sync content (chunk ${syncChunkIndex}) should stream before async content (chunk ${asyncChunkIndex})`,
+		);
+	});
+});
+
 describe('Streaming disabled', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;

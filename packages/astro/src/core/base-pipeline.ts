@@ -17,7 +17,7 @@ import type { ServerIslandMappings } from './app/types.js';
 import type { SinglePageBuiltModule } from './build/types.js';
 import { ActionNotFoundError } from './errors/errors-data.js';
 import { AstroError } from './errors/index.js';
-import type { Logger } from './logger/core.js';
+import type { AstroLogger } from './logger/core.js';
 import { NOOP_MIDDLEWARE_FN } from './middleware/noop-middleware.js';
 import { sequence } from './middleware/sequence.js';
 import { RedirectSinglePageBuiltModule } from './redirects/index.js';
@@ -45,7 +45,7 @@ export abstract class Pipeline {
 	nodePool: NodePool | undefined;
 	htmlStringCache: HTMLStringCache | undefined;
 
-	readonly logger: Logger;
+	readonly logger: AstroLogger;
 	readonly manifest: SSRManifest;
 	/**
 	 * "development" or "production" only
@@ -82,7 +82,7 @@ export abstract class Pipeline {
 	readonly serverIslands: SSRManifest['serverIslandMappings'];
 
 	constructor(
-		logger: Logger,
+		logger: AstroLogger,
 		manifest: SSRManifest,
 		/**
 		 * "development" or "production" only

@@ -181,11 +181,15 @@ export default function createIntegration({
 						experimental: {
 							prerenderWorker: {
 								config(_, { entryWorkerConfig }) {
+									const { queues, ...restWorkerConfig } = entryWorkerConfig;
 									return {
-										...entryWorkerConfig,
+										...restWorkerConfig,
 										name: 'prerender',
+										...(queues?.producers?.length && {
+											queues: { producers: queues.producers },
+										}),
 										...(needsImagesBinding &&
-											!entryWorkerConfig.images && {
+											!restWorkerConfig.images && {
 												images: { binding: imagesBindingName },
 											}),
 									};
@@ -306,7 +310,6 @@ export default function createIntegration({
 									if (conf.ssr) {
 										// Cloudflare does not support externalizing modules in server environments
 										conf.ssr.external = undefined;
-										conf.ssr.noExternal = true;
 									}
 								},
 							},
