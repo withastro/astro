@@ -1,4 +1,3 @@
-import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { AstroLogger } from '../../../core/logger/core.js';
 import type { FontFetcher, FontTypeExtractor } from '../definitions.js';
 import type { FontFileById } from '../types.js';
@@ -7,8 +6,12 @@ import { formatErrorMessage } from '../../../core/messages/runtime.js';
 import { collectErrorMetadata } from '../../../core/errors/dev/utils.js';
 
 interface Options {
-	req: IncomingMessage;
-	res: ServerResponse<IncomingMessage>;
+	url: string | undefined;
+	response: {
+		setHeader: (name: string, value: string) => void;
+		end: (buffer?: Buffer) => void;
+		setStatusCode: (statusCode: number) => void;
+	};
 	next: () => void;
 	fontFetcher: FontFetcher | null;
 	fontTypeExtractor: FontTypeExtractor | null;
@@ -16,10 +19,9 @@ interface Options {
 	fontFileById: FontFileById | null;
 }
 
-// TODO: test
 export async function fontFileMiddleware({
-	req,
-	res,
+	url: _url,
+	response,
 	next,
 	fontFetcher,
 	fontTypeExtractor,
@@ -30,27 +32,29 @@ export async function fontFileMiddleware({
 		logger.debug('assets', 'Fonts dependencies should be initialized by now, skipping middleware.');
 		return next();
 	}
-	if (!req.url) {
+	if (!_url) {
 		return next();
 	}
-	const fontId = req.url.slice(1);
+	const url = new URL(_url, 'http://localhost');
+	const fontId = url.pathname.slice(1);
 	const fontData = fontFileById?.get(fontId);
 	if (!fontData) {
 		return next();
 	}
 	// We don't want the request to be cached in dev because we cache it already internally,
 	// and it makes it easier to debug without needing hard refreshes
-	res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
-	res.setHeader('Pragma', 'no-cache');
-	res.setHeader('Expires', 0);
+	response.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+	response.setHeader('Pragma', 'no-cache');
+	response.setHeader('Expires', '0');
 
 	try {
 		const buffer = await fontFetcher.fetch({ id: fontId, ...fontData });
 
-		res.setHeader('Content-Length', buffer.byteLength);
-		res.setHeader('Content-Type', `font/${fontTypeExtractor.extract(fontId)}`);
+		response.setHeader('Content-Length', buffer.byteLength.toString());
+		response.setHeader('Content-Type', `font/${fontTypeExtractor.extract(fontId)}`);
 
-		res.end(buffer);
+		response.setStatusCode(200);
+		response.end(buffer);
 	} catch (err) {
 		logger.error('assets', 'Cannot download font file');
 		if (isAstroError(err)) {
@@ -59,7 +63,7 @@ export async function fontFileMiddleware({
 				formatErrorMessage(collectErrorMetadata(err), logger.level() === 'debug'),
 			);
 		}
-		res.statusCode = 500;
-		res.end();
+		response.setStatusCode(500);
+		response.end();
 	}
 }

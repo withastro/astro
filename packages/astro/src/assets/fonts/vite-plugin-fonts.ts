@@ -208,8 +208,14 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				settings.fontsHttpServer = await new Promise<Server>((r) => {
 					const server = createServer((req, res) => {
 						return fontFileMiddleware({
-							req,
-							res,
+							url: req.url,
+							response: {
+								setHeader: res.setHeader,
+								end: res.end,
+								setStatusCode: (statusCode) => {
+									res.statusCode = statusCode;
+								},
+							},
 							next: () => {
 								if (!res.writableEnded) {
 									res.writeHead(404);
@@ -263,8 +269,14 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 
 			server.middlewares.use(assetsDir, (req, res, next) =>
 				fontFileMiddleware({
-					req,
-					res,
+					url: req.url,
+					response: {
+						setHeader: res.setHeader,
+						end: res.end,
+						setStatusCode: (statusCode) => {
+							res.statusCode = statusCode;
+						},
+					},
 					next,
 					fontFetcher,
 					fontFileById,
