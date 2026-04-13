@@ -141,7 +141,7 @@ describe('head injection app-level rendering', () => {
 					src: '/styles/slot-render.css',
 				});
 				return createHeadAndContent(
-					ownLink as string,
+					ownLink!,
 					render`<div class="p-sample">${unescapeHTML(html)}</div>`,
 				);
 			},

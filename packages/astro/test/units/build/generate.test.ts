@@ -132,7 +132,7 @@ describe('renderPath()', () => {
 	it('populates routeToHeaders when adapter requests static headers', async () => {
 		const prerenderer = createMockPrerenderer({ '/page': '<html><body>Page</body></html>' });
 		const route = createRouteData({ route: '/page' });
-		const routeToHeaders: Map<string, any> = new Map();
+		const routeToHeaders = new Map<string, any>();
 		const adapterOptions = await createStaticBuildOptions({
 			adapter: { adapterFeatures: { staticHeaders: true } },
 		});
@@ -153,7 +153,7 @@ describe('renderPath()', () => {
 	it('does NOT populate routeToHeaders when adapter does not request static headers', async () => {
 		const prerenderer = createMockPrerenderer({ '/page': '<html><body>Page</body></html>' });
 		const route = createRouteData({ route: '/page' });
-		const routeToHeaders: Map<string, any> = new Map();
+		const routeToHeaders = new Map<string, any>();
 
 		await renderPath({
 			prerenderer,

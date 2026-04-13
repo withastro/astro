@@ -89,7 +89,6 @@ describe('sharp encoder options', async () => {
 describe('sharp image service', async () => {
 	const sharpService = (await import('../../../dist/assets/services/sharp.js')).default;
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const config: any = { service: { entrypoint: '', config: {} } };
 
 	let inputBuffer: Uint8Array;

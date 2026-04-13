@@ -1,11 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { ensure404Route } from '../../../dist/core/routing/astro-designed-error-pages.js';
 
 describe('ensure404Route', () => {
 	it('adds the default /404 route when none exists in the manifest', () => {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const manifest: any = { routes: [] };
 		ensure404Route(manifest);
 
@@ -14,7 +12,6 @@ describe('ensure404Route', () => {
 	});
 
 	it('does not add a duplicate /404 route when one already exists', () => {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const manifest: any = {
 			routes: [
 				{
@@ -42,7 +39,6 @@ describe('ensure404Route', () => {
 
 	it('preserves the user-provided 404 component rather than substituting the default', () => {
 		const userComponent = 'src/pages/404.astro';
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const manifest: any = {
 			routes: [
 				{
@@ -72,7 +68,6 @@ describe('ensure404Route', () => {
 	});
 
 	it('does not affect /500 routes', () => {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const manifest: any = {
 			routes: [
 				{

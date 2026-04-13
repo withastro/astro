@@ -29,7 +29,6 @@ function createActionsApp(
 			{
 				routeData: actionRouteData,
 				// The action entrypoint isn't a page component, but App routes it by matching.
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				module: (async () => ({
 					page: () => import('../../../dist/actions/runtime/entrypoints/route.js'),
 				})) as any,

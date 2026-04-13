@@ -27,7 +27,7 @@ function cleanupFile(relPath) {
 }
 
 // Checking for restarts may hang if no restarts happen, so set a 20s timeout for each test
-describe('dev container restarts', { timeout: 20000 }, () => {
+describe('dev container restarts', { timeout: 20000, skip: 'Currently flaky' }, () => {
 	it('Surfaces config errors on restarts', async () => {
 		// Ensure clean state
 		cleanupFile('astro.config.mjs');

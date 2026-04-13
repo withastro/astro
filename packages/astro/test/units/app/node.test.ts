@@ -5,7 +5,6 @@ import { createRequest, writeResponse } from '../../../dist/core/app/node.js';
 
 // Minimal mock satisfying the subset of IncomingMessage used by createRequest.
 // We intentionally omit the full IncomingMessage interface members not exercised here.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mockNodeRequest: any = {
 	url: '/',
 	method: 'GET',
@@ -961,7 +960,6 @@ describe('node', () => {
 
 	describe('abort signal', () => {
 		it('aborts the request.signal when the underlying socket closes', () => {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			const socket: any = new EventEmitter();
 			socket.encrypted = true;
 			socket.remoteAddress = '2.2.2.2';
@@ -977,7 +975,6 @@ describe('node', () => {
 		});
 
 		it('cleans up socket listeners after the response finishes', async () => {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			const socket: any = new EventEmitter();
 			socket.encrypted = true;
 			socket.remoteAddress = '2.2.2.2';
@@ -991,7 +988,6 @@ describe('node', () => {
 			assert.equal(socket.listenerCount('close') > 0, true);
 
 			const response = new Response('ok');
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			const destination = new MockServerResponse(nodeRequest) as any;
 			await writeResponse(response, destination);
 
@@ -1002,14 +998,12 @@ describe('node', () => {
 });
 
 class MockServerResponse extends EventEmitter {
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	req: any;
 	statusCode: number;
 	statusMessage: string | undefined;
 	headers: Record<string, string>;
 	body: unknown[];
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	constructor(req: any) {
 		super();
 		this.req = req;
