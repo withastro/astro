@@ -10,6 +10,9 @@ import { CapsizeFontMetricsResolver } from '../../../../dist/assets/fonts/infra/
 import { DevFontFileIdGenerator } from '../../../../dist/assets/fonts/infra/dev-font-file-id-generator.js';
 import { DevUrlResolver } from '../../../../dist/assets/fonts/infra/dev-url-resolver.js';
 import { FsFontFileContentResolver } from '../../../../dist/assets/fonts/infra/fs-font-file-content-resolver.js';
+import { DevRuntimeFontFetcher } from '../../../../dist/assets/fonts/infra/dev-runtime-font-fetcher.js';
+import { BuildRuntimeFontFetcher } from '../../../../dist/assets/fonts/infra/build-runtime-font-fetcher.js';
+import { SsrRuntimeFontFetcher } from '../../../../dist/assets/fonts/infra/ssr-runtime-font-fetcher.js';
 import {
 	handleValueWithSpaces,
 	MinifiableCssRenderer,
@@ -91,9 +94,9 @@ describe('fonts infra', () => {
 			return {
 				fetchUrls,
 				/** @type {(url: string) => Promise<Response>} */
+				// @ts-expect-error
 				fetch: async (url) => {
 					fetchUrls.push(url);
-					// @ts-expect-error
 					return {
 						ok,
 						status: ok ? 200 : 500,
@@ -773,6 +776,157 @@ describe('fonts infra', () => {
 				readFileSync: () => 'content',
 			});
 			assert.equal(fontFileIdContentResolver.resolve(url), url + 'content');
+		});
+	});
+
+	describe('DevRuntimeFontFetcher', () => {
+		it('returns null if id is not found', async () => {
+			/** @type {Array<RequestInfo | URL>} */
+			let inputs = [];
+			const fontFetcher = new DevRuntimeFontFetcher({
+				ids: new Set(['foo.woff2']),
+				base: '/',
+				port: 3000,
+				fetch: async (input) => {
+					inputs.push(input);
+					return new Response();
+				},
+			});
+
+			const buffer = await fontFetcher.fetch('/_astro/fonts/bar.woff2');
+
+			assert.equal(buffer, null);
+			assert.equal(inputs.length, 0);
+		});
+
+		it('works', async () => {
+			/** @type {Array<RequestInfo | URL>} */
+			let inputs = [];
+			const fontFetcher = new DevRuntimeFontFetcher({
+				ids: new Set(['foo.woff2']),
+				base: '/test/',
+				port: 3000,
+				fetch: async (input) => {
+					inputs.push(input);
+					return new Response(new ArrayBuffer(4));
+				},
+			});
+
+			const buffer = await fontFetcher.fetch('/test/_astro/fonts/foo.woff2');
+
+			assert.equal(buffer?.byteLength, 4);
+			assert.deepStrictEqual(inputs, ['http://localhost:3000/test/foo.woff2']);
+		});
+	});
+
+	describe('BuildRuntimeFontFetcher', () => {
+		it('returns null if id is not found', async () => {
+			/** @type {Array<RequestInfo | URL>} */
+			let inputs = [];
+			const fontFetcher = new BuildRuntimeFontFetcher({
+				ids: new Set(['foo.woff2']),
+				port: 3000,
+				fetch: async (input) => {
+					inputs.push(input);
+					return new Response();
+				},
+			});
+
+			const buffer = await fontFetcher.fetch('/_astro/fonts/bar.woff2');
+
+			assert.equal(buffer, null);
+			assert.equal(inputs.length, 0);
+		});
+
+		it('works', async () => {
+			/** @type {Array<RequestInfo | URL>} */
+			let inputs = [];
+			const fontFetcher = new BuildRuntimeFontFetcher({
+				ids: new Set(['foo.woff2']),
+				port: 3000,
+				fetch: async (input) => {
+					inputs.push(input);
+					return new Response(new ArrayBuffer(4));
+				},
+			});
+
+			const buffer = await fontFetcher.fetch('/test/_astro/fonts/foo.woff2');
+
+			assert.equal(buffer?.byteLength, 4);
+			assert.deepStrictEqual(inputs, ['http://localhost:3000/foo.woff2']);
+		});
+	});
+
+	describe('SsrRuntimeFontFetcher', () => {
+		it('returns null if id is not found', async () => {
+			/** @type {Array<RequestInfo | URL>} */
+			let inputs = [];
+			const fontFetcher = new SsrRuntimeFontFetcher({
+				ids: new Set(['foo.woff2']),
+				fetch: async (input) => {
+					inputs.push(input);
+					return new Response();
+				},
+			});
+
+			const buffer = await fontFetcher.fetch('/_astro/fonts/bar.woff2', undefined);
+
+			assert.equal(buffer, null);
+			assert.equal(inputs.length, 0);
+		});
+
+		it('throws if requestUrl is not provided', async () => {
+			/** @type {Array<RequestInfo | URL>} */
+			let inputs = [];
+			const fontFetcher = new SsrRuntimeFontFetcher({
+				ids: new Set(['foo.woff2']),
+				fetch: async (input) => {
+					inputs.push(input);
+					return new Response(new ArrayBuffer(4));
+				},
+			});
+
+			await assert.rejects(() => fontFetcher.fetch('/test/_astro/fonts/foo.woff2', undefined));
+		});
+
+		it('works', async () => {
+			/** @type {Array<RequestInfo | URL>} */
+			let inputs = [];
+			const fontFetcher = new SsrRuntimeFontFetcher({
+				ids: new Set(['foo.woff2']),
+				fetch: async (input) => {
+					inputs.push(input);
+					return new Response(new ArrayBuffer(4));
+				},
+			});
+
+			const buffer = await fontFetcher.fetch(
+				'/_astro/fonts/foo.woff2',
+				new URL('http://example.com'),
+			);
+
+			assert.equal(buffer?.byteLength, 4);
+			assert.deepStrictEqual(inputs, ['http://example.com/_astro/fonts/foo.woff2']);
+		});
+
+		it('works with an http url (assetsPrefix)', async () => {
+			/** @type {Array<RequestInfo | URL>} */
+			let inputs = [];
+			const fontFetcher = new SsrRuntimeFontFetcher({
+				ids: new Set(['foo.woff2']),
+				fetch: async (input) => {
+					inputs.push(input);
+					return new Response(new ArrayBuffer(4));
+				},
+			});
+
+			const buffer = await fontFetcher.fetch(
+				'http://cdn.example.com/_astro/fonts/foo.woff2',
+				undefined,
+			);
+
+			assert.equal(buffer?.byteLength, 4);
+			assert.deepStrictEqual(inputs, ['http://cdn.example.com/_astro/fonts/foo.woff2']);
 		});
 	});
 });

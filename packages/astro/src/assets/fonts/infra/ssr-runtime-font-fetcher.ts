@@ -20,8 +20,8 @@ export class SsrRuntimeFontFetcher implements RuntimeFontFetcher {
 		if (!this.#ids.has(id)) {
 			return null;
 		}
-		if (id.startsWith('http')) {
-			return fetch(url).then((res) => res.arrayBuffer());
+		if (url.startsWith('http')) {
+			return this.#fetch(url).then((res) => res.arrayBuffer());
 		}
 		if (!requestUrl) {
 			// TODO: error
