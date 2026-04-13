@@ -4,19 +4,32 @@ import type { FontFileById } from '../types.js';
 import { isAstroError } from '../../../core/errors/errors.js';
 import { formatErrorMessage } from '../../../core/messages/runtime.js';
 import { collectErrorMetadata } from '../../../core/errors/dev/utils.js';
+import type { ServerResponse } from 'node:http';
+
+interface MinimalResponse {
+	setHeader: (name: string, value: string) => void;
+	end: (buffer?: Buffer) => void;
+	setStatusCode: (statusCode: number) => void;
+}
 
 interface Options {
 	url: string | undefined;
-	response: {
-		setHeader: (name: string, value: string) => void;
-		end: (buffer?: Buffer) => void;
-		setStatusCode: (statusCode: number) => void;
-	};
+	response: MinimalResponse;
 	next: () => void;
 	fontFetcher: FontFetcher | null;
 	fontTypeExtractor: FontTypeExtractor | null;
 	logger: AstroLogger;
 	fontFileById: FontFileById | null;
+}
+
+export function resToMinimalResponse(res: ServerResponse): MinimalResponse {
+	return {
+		setHeader: (...args) => res.setHeader(...args),
+		end: (...args) => res.end(...args),
+		setStatusCode: (statusCode) => {
+			res.statusCode = statusCode;
+		},
+	};
 }
 
 export async function fontFileMiddleware({
@@ -28,7 +41,7 @@ export async function fontFileMiddleware({
 	logger,
 	fontFileById,
 }: Options): Promise<void> {
-	if (!fontFetcher || !fontTypeExtractor) {
+	if (!fontFetcher || !fontTypeExtractor || !fontFileById) {
 		logger.debug('assets', 'Fonts dependencies should be initialized by now, skipping middleware.');
 		return next();
 	}
@@ -37,7 +50,7 @@ export async function fontFileMiddleware({
 	}
 	const url = new URL(_url, 'http://localhost');
 	const fontId = url.pathname.slice(1);
-	const fontData = fontFileById?.get(fontId);
+	const fontData = fontFileById.get(fontId);
 	if (!fontData) {
 		return next();
 	}

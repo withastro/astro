@@ -1775,7 +1775,7 @@ describe('fonts core', () => {
 			await fontFileMiddleware({
 				fontFetcher: null,
 				fontTypeExtractor: null,
-				fontFileById: new Map(),
+				fontFileById: null,
 				logger,
 				next: () => {
 					called = true;

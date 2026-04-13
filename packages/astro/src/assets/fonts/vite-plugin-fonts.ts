@@ -53,7 +53,7 @@ import type {
 	FontFamily,
 	FontFileById,
 } from './types.js';
-import { fontFileMiddleware } from './core/font-file-middleware.js';
+import { fontFileMiddleware, resToMinimalResponse } from './core/font-file-middleware.js';
 
 interface Options {
 	settings: AstroSettings;
@@ -209,16 +209,10 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				fontFileById.size > 0
 			) {
 				settings.fontsHttpServer = await new Promise<Server>((r) => {
-					const server = createServer((req, res) => {
-						return fontFileMiddleware({
+					const server = createServer((req, res) =>
+						fontFileMiddleware({
 							url: req.url,
-							response: {
-								setHeader: res.setHeader,
-								end: res.end,
-								setStatusCode: (statusCode) => {
-									res.statusCode = statusCode;
-								},
-							},
+							response: resToMinimalResponse(res),
 							next: () => {
 								if (!res.writableEnded) {
 									res.writeHead(404);
@@ -229,8 +223,8 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 							fontFileById,
 							fontTypeExtractor,
 							logger,
-						});
-					}).listen(() => {
+						}),
+					).listen(() => {
 						r(server);
 					});
 				});
@@ -273,13 +267,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			server.middlewares.use(assetsDir, (req, res, next) =>
 				fontFileMiddleware({
 					url: req.url,
-					response: {
-						setHeader: res.setHeader,
-						end: res.end,
-						setStatusCode: (statusCode) => {
-							res.statusCode = statusCode;
-						},
-					},
+					response: resToMinimalResponse(res),
 					next,
 					fontFetcher,
 					fontFileById,
