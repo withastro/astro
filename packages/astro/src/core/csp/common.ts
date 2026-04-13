@@ -86,6 +86,34 @@ export function getDirectives(settings: AstroSettings): CspDirective[] {
 	return userDirectives;
 }
 
+export function getScriptElemHashes(csp: EnabledCsp): string[] {
+	if (csp === true) {
+		return [];
+	}
+	return csp.scriptElemDirective?.hashes ?? [];
+}
+
+export function getScriptElemResources(csp: EnabledCsp): string[] {
+	if (csp === true) {
+		return [];
+	}
+	return csp.scriptElemDirective?.resources ?? [];
+}
+
+export function getStyleElemHashes(csp: EnabledCsp): string[] {
+	if (csp === true) {
+		return [];
+	}
+	return csp.styleElemDirective?.hashes ?? [];
+}
+
+export function getStyleElemResources(csp: EnabledCsp): string[] {
+	if (csp === true) {
+		return [];
+	}
+	return csp.styleElemDirective?.resources ?? [];
+}
+
 export function getStrictDynamic(csp: EnabledCsp): boolean {
 	if (csp === true) {
 		return false;

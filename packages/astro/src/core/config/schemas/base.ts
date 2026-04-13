@@ -111,6 +111,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		chromeDevtoolsWorkspace: false,
 		svgo: false,
 		rustCompiler: false,
+		cspLevel3: false,
 		queuedRendering: {
 			enabled: false,
 		},
@@ -498,6 +499,18 @@ export const AstroConfigSchema = z.object({
 								strictDynamic: z.boolean().optional(),
 							})
 							.optional(),
+						scriptElemDirective: z
+							.object({
+								resources: z.array(z.string()).optional(),
+								hashes: z.array(cspHashSchema).optional(),
+							})
+							.optional(),
+						styleElemDirective: z
+							.object({
+								resources: z.array(z.string()).optional(),
+								hashes: z.array(cspHashSchema).optional(),
+							})
+							.optional(),
 					}),
 				])
 				.optional()
@@ -540,6 +553,7 @@ export const AstroConfigSchema = z.object({
 			cache: CacheSchema.optional(),
 			routeRules: RouteRulesSchema.optional(),
 			rustCompiler: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.rustCompiler),
+			cspLevel3: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.cspLevel3),
 			queuedRendering: z
 				.object({
 					enabled: z.boolean().optional().prefault(false),

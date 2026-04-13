@@ -75,6 +75,7 @@ export type SSRManifest = {
 	trailingSlash: AstroConfig['trailingSlash'];
 	buildFormat: NonNullable<AstroConfig['build']>['format'];
 	compressHTML: boolean;
+	experimentalCSPLevel3?: boolean;
 	experimentalQueuedRendering: {
 		enabled: boolean;
 		/** Node pool size for memory reuse (default: 1000, set to 0 to disable pooling) */
@@ -175,6 +176,10 @@ export type SSRManifestCSP = {
 	isStrictDynamic: boolean;
 	styleHashes: string[];
 	styleResources: string[];
+	scriptElemHashes: string[];
+	scriptElemResources: string[];
+	styleElemHashes: string[];
+	styleElemResources: string[];
 	directives: CspDirective[];
 };
 

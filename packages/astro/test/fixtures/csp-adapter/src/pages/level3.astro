@@ -1,0 +1,21 @@
+---
+export const prerender = true;
+
+Astro.csp.insertScriptElemResource("https://scripts-elem.cdn.example.com");
+Astro.csp.insertScriptElemHash('sha256-elemScriptHash');
+Astro.csp.insertStyleElemResource("https://styles-elem.cdn.example.com");
+Astro.csp.insertStyleElemHash('sha256-elemStyleHash');
+---
+
+<html lang="en">
+<head>
+	<meta charset="utf-8"/>
+	<meta name="viewport" content="width=device-width"/>
+	<title>Level 3</title>
+</head>
+<body>
+<main>
+	<h1>Level 3</h1>
+</main>
+</body>
+</html>

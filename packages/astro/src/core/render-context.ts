@@ -597,6 +597,22 @@ export class RenderContext {
 					insertScriptHash(hash) {
 						renderContext.result?.scriptHashes.push(hash);
 					},
+					insertScriptElemResource(resource) {
+						if (!pipeline.manifest.experimentalCSPLevel3) return;
+						renderContext.result?.scriptElemResources.push(resource);
+					},
+					insertScriptElemHash(hash) {
+						if (!pipeline.manifest.experimentalCSPLevel3) return;
+						renderContext.result?.scriptElemHashes.push(hash);
+					},
+					insertStyleElemResource(resource) {
+						if (!pipeline.manifest.experimentalCSPLevel3) return;
+						renderContext.result?.styleElemResources.push(resource);
+					},
+					insertStyleElemHash(hash) {
+						if (!pipeline.manifest.experimentalCSPLevel3) return;
+						renderContext.result?.styleElemHashes.push(hash);
+					},
 				};
 			},
 		};
@@ -697,6 +713,18 @@ export class RenderContext {
 			scriptResources: manifest.csp?.scriptResources ? [...manifest.csp.scriptResources] : [],
 			styleHashes: manifest.csp?.styleHashes ? [...manifest.csp.styleHashes] : [],
 			styleResources: manifest.csp?.styleResources ? [...manifest.csp.styleResources] : [],
+			scriptElemHashes: manifest.csp?.scriptElemHashes
+				? [...manifest.csp.scriptElemHashes]
+				: [],
+			scriptElemResources: manifest.csp?.scriptElemResources
+				? [...manifest.csp.scriptElemResources]
+				: [],
+			styleElemHashes: manifest.csp?.styleElemHashes
+				? [...manifest.csp.styleElemHashes]
+				: [],
+			styleElemResources: manifest.csp?.styleElemResources
+				? [...manifest.csp.styleElemResources]
+				: [],
 			directives: manifest.csp?.directives ? [...manifest.csp.directives] : [],
 			isStrictDynamic: manifest.csp?.isStrictDynamic ?? false,
 			internalFetchHeaders: manifest.internalFetchHeaders,
@@ -863,6 +891,22 @@ export class RenderContext {
 					},
 					insertScriptHash(hash) {
 						renderContext.result?.scriptHashes.push(hash);
+					},
+					insertScriptElemResource(resource) {
+						if (!pipeline.manifest.experimentalCSPLevel3) return;
+						renderContext.result?.scriptElemResources.push(resource);
+					},
+					insertScriptElemHash(hash) {
+						if (!pipeline.manifest.experimentalCSPLevel3) return;
+						renderContext.result?.scriptElemHashes.push(hash);
+					},
+					insertStyleElemResource(resource) {
+						if (!pipeline.manifest.experimentalCSPLevel3) return;
+						renderContext.result?.styleElemResources.push(resource);
+					},
+					insertStyleElemHash(hash) {
+						if (!pipeline.manifest.experimentalCSPLevel3) return;
+						renderContext.result?.styleElemHashes.push(hash);
 					},
 				};
 			},

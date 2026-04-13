@@ -573,6 +573,58 @@ export interface APIContext<
 				 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertscripthash)
 				 */
 				insertScriptHash: (hash: CspHash) => void;
+
+				/**
+				 * It sets the resource for the directive `script-src-elem` (CSP Level 3) in the route being rendered.
+				 *
+				 * @param {string} resource - The source to insert in the `script-src-elem` directive.
+				 *
+				 * ## Example
+				 *
+				 * ```js
+				 * ctx.insertScriptElemResource("https://scripts.cdn.example.com/")
+				 * ```
+				 */
+				insertScriptElemResource: (resource: string) => void;
+
+				/**
+				 * Insert a single script hash to the `script-src-elem` directive (CSP Level 3).
+				 *
+				 * @param {CspHash} hash - The hash to insert in the `script-src-elem` directive.
+				 *
+				 * ## Example
+				 *
+				 * ```js
+				 * ctx.insertScriptElemHash("sha256-1234567890abcdef1234567890")
+				 * ```
+				 */
+				insertScriptElemHash: (hash: CspHash) => void;
+
+				/**
+				 * It sets the resource for the directive `style-src-elem` (CSP Level 3) in the route being rendered.
+				 *
+				 * @param {string} resource - The source to insert in the `style-src-elem` directive.
+				 *
+				 * ## Example
+				 *
+				 * ```js
+				 * ctx.insertStyleElemResource("https://styles.cdn.example.com/")
+				 * ```
+				 */
+				insertStyleElemResource: (resource: string) => void;
+
+				/**
+				 * Insert a single style hash to the `style-src-elem` directive (CSP Level 3).
+				 *
+				 * @param {CspHash} hash - The hash to insert in the `style-src-elem` directive.
+				 *
+				 * ## Example
+				 *
+				 * ```js
+				 * ctx.insertStyleElemHash("sha256-1234567890abcdef1234567890")
+				 * ```
+				 */
+				insertStyleElemHash: (hash: CspHash) => void;
 		  }
 		| undefined;
 
