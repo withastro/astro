@@ -1,5 +1,5 @@
 ---
-'astro': patch
+'astro': minor
 ---
 
 Adds support for experimental CSP Level 3 directives
