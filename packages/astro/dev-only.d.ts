@@ -11,6 +11,10 @@ declare module 'virtual:astro:assets/fonts/internal' {
 	export const fontDataByCssVariable: import('./src/assets/fonts/types.js').FontDataByCssVariable;
 }
 
+declare module 'virtual:astro:assets/fonts/runtime/font-fetcher' {
+	export const runtimeFontFetcher: import('./src/assets/fonts/definitions.js').RuntimeFontFetcher;
+}
+
 declare module 'virtual:astro:adapter-config/client' {
 	export const internalFetchHeaders: Record<string, string>;
 }

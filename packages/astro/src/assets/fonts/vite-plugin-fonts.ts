@@ -20,6 +20,8 @@ import {
 	RESOLVED_VIRTUAL_MODULE_ID,
 	RUNTIME_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
+	RESOLVED_RUNTIME_FONT_FETCHER_VIRTUAL_MODULE_ID,
+	RUNTIME_FONT_FETCHER_VIRTUAL_MODULE_ID,
 } from './constants.js';
 import { collectComponentData } from './core/collect-component-data.js';
 import { collectFontAssetsFromFaces } from './core/collect-font-assets-from-faces.js';
@@ -50,11 +52,72 @@ import type {
 	FontFamily,
 	FontFileById,
 } from './types.js';
+import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
+import type { AddressInfo } from 'node:net';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../core/constants.js';
 
 interface Options {
 	settings: AstroSettings;
 	sync: boolean;
 	logger: AstroLogger;
+}
+
+interface Dependencies {
+	fontFetcher: FontFetcher | null;
+	fontTypeExtractor: FontTypeExtractor | null;
+	logger: AstroLogger;
+	fontFileById: FontFileById | null;
+}
+
+// TODO: extract
+function createFontFileMiddleware(dependencies: Dependencies | (() => Dependencies)) {
+	return async function (
+		req: IncomingMessage,
+		res: ServerResponse<IncomingMessage>,
+		next: () => void,
+	): Promise<void> {
+		const { fontFetcher, fontTypeExtractor, logger, fontFileById } =
+			typeof dependencies === 'function' ? dependencies() : dependencies;
+		if (!fontFetcher || !fontTypeExtractor) {
+			logger.debug(
+				'assets',
+				'Fonts dependencies should be initialized by now, skipping dev middleware.',
+			);
+			return next();
+		}
+		if (!req.url) {
+			return next();
+		}
+		const fontId = req.url.slice(1);
+		const fontData = fontFileById?.get(fontId);
+		if (!fontData) {
+			return next();
+		}
+		// We don't want the request to be cached in dev because we cache it already internally,
+		// and it makes it easier to debug without needing hard refreshes
+		res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+		res.setHeader('Pragma', 'no-cache');
+		res.setHeader('Expires', 0);
+
+		try {
+			const buffer = await fontFetcher.fetch({ id: fontId, ...fontData });
+
+			res.setHeader('Content-Length', buffer.byteLength);
+			res.setHeader('Content-Type', `font/${fontTypeExtractor.extract(fontId)}`);
+
+			res.end(buffer);
+		} catch (err) {
+			logger.error('assets', 'Cannot download font file');
+			if (isAstroError(err)) {
+				logger.error(
+					'SKIP_FORMAT',
+					formatErrorMessage(collectErrorMetadata(err), logger.level() === 'debug'),
+				);
+			}
+			res.statusCode = 500;
+			res.end();
+		}
+	};
 }
 
 export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
@@ -71,28 +134,32 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 	let componentDataByCssVariable: ComponentDataByCssVariable | null = null;
 	let fontDataByCssVariable: FontDataByCssVariable | null = null;
 
-	let isBuild: boolean;
 	let fontFetcher: FontFetcher | null = null;
 	let fontTypeExtractor: FontTypeExtractor | null = null;
 	let built = false;
+	let httpServer: Server | null = null;
+	let serverAddress: AddressInfo | null = null;
 
-	const cleanup = () => {
+	async function cleanup() {
 		componentDataByCssVariable = null;
 		fontDataByCssVariable = null;
 		fontFileById = null;
 		fontFetcher = null;
-	};
+		if (httpServer) {
+			await new Promise((r) => httpServer!.close(r));
+			httpServer = null;
+		}
+		serverAddress = null;
+	}
 
 	return {
 		name: 'astro:fonts',
-		config(_, { command }) {
-			isBuild = command === 'build';
-		},
 		async buildStart() {
 			if (sync) {
 				return;
 			}
 			const { root } = settings.config;
+			const isBuild = this.environment.config.command === 'build';
 			// Dependencies. Once extracted to a dedicated vite plugin, those may be passed as
 			// a Vite plugin option.
 			const hasher = await XxhashHasher.create();
@@ -200,8 +267,34 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					settings.injectedCsp.fontResources.add(resource);
 				}
 			}
+
+			if (this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender) {
+				const dependencies = {
+					fontFetcher,
+					fontFileById,
+					fontTypeExtractor,
+					logger,
+				};
+				httpServer = await new Promise<Server>((r) => {
+					const _server = createServer((req, res) => {
+						return createFontFileMiddleware(dependencies)(req, res, () => {
+							if (!res.writableEnded) {
+								res.writeHead(404);
+								res.end();
+							}
+						});
+					}).listen(() => {
+						r(_server);
+					});
+				});
+				serverAddress = httpServer.address() as AddressInfo;
+			}
 		},
 		async configureServer(server) {
+			server.httpServer?.on('listening', () => {
+				serverAddress = server.httpServer?.address() as AddressInfo;
+			});
+
 			server.watcher.on('change', (path) => {
 				if (!fontFileById) {
 					return;
@@ -230,52 +323,16 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				}
 			});
 
-			server.middlewares.use(assetsDir, async (req, res, next) => {
-				if (!fontFetcher || !fontTypeExtractor) {
-					logger.debug(
-						'assets',
-						'Fonts dependencies should be initialized by now, skipping dev middleware.',
-					);
-					return next();
-				}
-				if (!req.url) {
-					return next();
-				}
-				const url = new URL(req.url, 'http://localhost');
-				const fontId = url.pathname.slice(1);
-				const fontData = fontFileById?.get(fontId);
-				if (!fontData) {
-					return next();
-				}
-				// We don't want the request to be cached in dev because we cache it already internally,
-				// and it makes it easier to debug without needing hard refreshes
-				res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
-				res.setHeader('Pragma', 'no-cache');
-				res.setHeader('Expires', 0);
-
-				try {
-					const buffer = await fontFetcher.fetch({ id: fontId, ...fontData });
-
-					res.setHeader('Content-Length', buffer.length);
-					res.setHeader('Content-Type', `font/${fontTypeExtractor.extract(fontId)}`);
-
-					res.end(buffer);
-				} catch (err) {
-					logger.error('assets', 'Cannot download font file');
-					if (isAstroError(err)) {
-						logger.error(
-							'SKIP_FORMAT',
-							formatErrorMessage(collectErrorMetadata(err), logger.level() === 'debug'),
-						);
-					}
-					res.statusCode = 500;
-					res.end();
-				}
-			});
+			server.middlewares.use(
+				assetsDir,
+				createFontFileMiddleware(() => ({ fontFetcher, fontFileById, fontTypeExtractor, logger })),
+			);
 		},
 		resolveId: {
 			filter: {
-				id: new RegExp(`^(${VIRTUAL_MODULE_ID}|${RUNTIME_VIRTUAL_MODULE_ID})$`),
+				id: new RegExp(
+					`^(${VIRTUAL_MODULE_ID}|${RUNTIME_VIRTUAL_MODULE_ID}|${RUNTIME_FONT_FETCHER_VIRTUAL_MODULE_ID})$`,
+				),
 			},
 			handler(id) {
 				if (id === VIRTUAL_MODULE_ID) {
@@ -284,11 +341,16 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				if (id === RUNTIME_VIRTUAL_MODULE_ID) {
 					return RESOLVED_RUNTIME_VIRTUAL_MODULE_ID;
 				}
+				if (id === RUNTIME_FONT_FETCHER_VIRTUAL_MODULE_ID) {
+					return RESOLVED_RUNTIME_FONT_FETCHER_VIRTUAL_MODULE_ID;
+				}
 			},
 		},
 		load: {
 			filter: {
-				id: new RegExp(`^(${RESOLVED_VIRTUAL_MODULE_ID}|${RESOLVED_RUNTIME_VIRTUAL_MODULE_ID})$`),
+				id: new RegExp(
+					`^(${RESOLVED_VIRTUAL_MODULE_ID}|${RESOLVED_RUNTIME_VIRTUAL_MODULE_ID}|${RESOLVED_RUNTIME_FONT_FETCHER_VIRTUAL_MODULE_ID})$`,
+				),
 			},
 			async handler(id) {
 				if (id === RESOLVED_VIRTUAL_MODULE_ID) {
@@ -305,6 +367,47 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 						code: `export * from 'astro/assets/fonts/runtime.js';`,
 					};
 				}
+
+				if (id === RESOLVED_RUNTIME_FONT_FETCHER_VIRTUAL_MODULE_ID) {
+					const ids = [...(fontFileById?.keys() ?? [])];
+
+					if (this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender) {
+						return {
+							code: `
+								import { BuildRuntimeFontFetcher } from ${JSON.stringify(new URL('./infra/build-runtime-font-fetcher.js', import.meta.url))};
+								export const runtimeFontFetcher = new BuildRuntimeFontFetcher({
+									ids: new Set(${JSON.stringify(ids)}),
+									port: ${serverAddress?.port},
+									fetch,
+								});
+							`,
+						};
+					}
+
+					if (this.environment.config.command === 'build') {
+						return {
+							code: `
+								import { SsrRuntimeFontFetcher } from ${JSON.stringify(new URL('./infra/ssr-runtime-font-fetcher.js', import.meta.url))};
+								export const runtimeFontFetcher = new SsrRuntimeFontFetcher({
+									ids: new Set(${JSON.stringify(ids)}),
+									fetch,
+								});
+							`,
+						};
+					}
+
+					return {
+						code: `
+							import { DevRuntimeFontFetcher } from ${JSON.stringify(new URL('./infra/dev-runtime-font-fetcher.js', import.meta.url))};
+							export const runtimeFontFetcher = new DevRuntimeFontFetcher({
+								ids: new Set(${JSON.stringify(ids)}),
+								port: ${serverAddress?.port},
+								base: ${JSON.stringify(assetsDir)},
+								fetch,
+							});
+						`,
+					};
+				}
 			},
 		},
 		async buildEnd() {
@@ -312,8 +415,8 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			if (built) {
 				return;
 			}
-			if (sync || !settings.config.fonts?.length || !isBuild) {
-				cleanup();
+			if (sync || !settings.config.fonts?.length || this.environment.config.command === 'serve') {
+				await cleanup();
 				return;
 			}
 
@@ -342,7 +445,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					);
 				}
 			} finally {
-				cleanup();
+				await cleanup();
 				built = true;
 			}
 		},
