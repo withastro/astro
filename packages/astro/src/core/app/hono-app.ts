@@ -51,7 +51,7 @@ import { AstroCookies } from '../cookies/index.js';
 import { attachCookiesToResponse, getSetCookiesFromResponse } from '../cookies/response.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { AstroSession } from '../session/runtime.js';
-import { AstroCache, type CacheLike } from '../cache/runtime/cache.js';
+import { AstroCache, type CacheLike, applyCacheHeaders } from '../cache/runtime/cache.js';
 import { DisabledAstroCache, NoopAstroCache } from '../cache/runtime/noop.js';
 import { PageRenderer } from './renderers/page.js';
 import { EndpointRenderer } from './renderers/endpoint.js';
@@ -780,7 +780,28 @@ function createPagesMiddleware(
 		const ctx = await contextFn(c);
 
 		if (routeData.type === 'endpoint') {
-			c.res = await endpointRenderer.render(routeData, ctx);
+			// Wrap endpoint rendering in the cache provider if configured,
+			// so that cache MISS/HIT headers and CDN headers are applied.
+			if (pipeline.cacheProvider) {
+				const cacheProvider = await pipeline.getCacheProvider();
+				if (cacheProvider?.onRequest) {
+					c.res = await cacheProvider.onRequest(
+						{ request: c.req.raw, url: new URL(c.req.url) },
+						async () => {
+							const res = await endpointRenderer.render(routeData, ctx);
+							applyCacheHeaders(ctx.cache, res);
+							return res;
+						},
+					);
+					c.res.headers.delete('CDN-Cache-Control');
+					c.res.headers.delete('Cache-Tag');
+				} else {
+					c.res = await endpointRenderer.render(routeData, ctx);
+					applyCacheHeaders(ctx.cache, c.res);
+				}
+			} else {
+				c.res = await endpointRenderer.render(routeData, ctx);
+			}
 			try { c.res.headers.set(ROUTE_TYPE_HEADER, 'endpoint'); } catch { /* immutable headers */ }
 			if (
 				REROUTABLE_STATUS_CODES.includes(c.res.status) &&
@@ -885,10 +906,11 @@ export function createAstroMiddleware(
 	options: CreateAstroAppOptions = {},
 ): MiddlewareHandler<AstroHonoEnv> {
 	const isDev = options.isDev ?? (deps.pipeline.runtimeMode === 'development');
+	const shouldAllowPrerendered = options.allowPrerenderedRoutes ?? isDev;
 	const rawMatchRouteData = createMatchRouteData(deps);
-	// In dev, always match prerendered routes. In production, skip them
+	// In dev (or during build), match prerendered routes. In production, skip them
 	// (they're served as static assets by the adapter/CDN).
-	const matchRouteData = (req: Request) => rawMatchRouteData(req, { allowPrerenderedRoutes: isDev });
+	const matchRouteData = (req: Request) => rawMatchRouteData(req, { allowPrerenderedRoutes: shouldAllowPrerendered });
 	const contextFn = createContextFactory(deps, matchRouteData);
 
 	const inner = new Hono<AstroHonoEnv>();
@@ -934,6 +956,12 @@ export function createAstroMiddleware(
 
 export interface CreateAstroAppOptions extends PrepareOptions {
 	isDev?: boolean;
+	/**
+	 * Whether to match prerendered routes. Defaults to `isDev` when not set.
+	 * During build, set this to `true` with `isDev: false` so prerendered
+	 * routes can be rendered while still keeping `onError` active.
+	 */
+	allowPrerenderedRoutes?: boolean;
 	/** Whether to add Set-Cookie headers to the response. Defaults to true. */
 	addCookieHeader?: boolean;
 }
@@ -945,13 +973,24 @@ export interface CreateAstroAppOptions extends PrepareOptions {
  */
 export function createAstroApp(deps: AstroAppDeps, options: CreateAstroAppOptions = {}): Hono<AstroHonoEnv> {
 	const app = new Hono<AstroHonoEnv>();
-	app.onError((err) => {
-		const message = err instanceof Error ? err.message : String(err);
-		return new Response(JSON.stringify({ error: message }), {
-			status: 500,
-			headers: { 'Content-Type': 'application/json' },
+	const isDev = options.isDev ?? (deps.pipeline.runtimeMode === 'development');
+	if (isDev) {
+		// In dev, re-throw errors so they propagate out of fetch() and the
+		// dev server can show the Vite error overlay. Without this, Hono's
+		// default handler catches the error and returns a bare "Internal
+		// Server Error" text response.
+		app.onError((err) => { throw err; });
+	} else {
+		// In production/build, catch unhandled errors and return a JSON 500
+		// so adapters and BuildApp can inspect the status and error message.
+		app.onError((err) => {
+			const message = err instanceof Error ? err.message : String(err);
+			return new Response(JSON.stringify({ error: message }), {
+				status: 500,
+				headers: { 'Content-Type': 'application/json' },
+			});
 		});
-	});
+	}
 	app.use(createAstroMiddleware(deps, options));
 
 	// Store deps on the app so they can be updated externally

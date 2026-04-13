@@ -68,10 +68,17 @@ export const app = createApp();
 				},
 				handler(id) {
 					if (id === DEFAULT_ASTRO_DEV_USER_APP_ID) {
+						// Wrap createAstroApp() in a lazy proxy so it isn't called
+						// during module initialisation. This avoids a TDZ in production
+						// bundles caused by the circular import:
+						//   virtual:astro:app → prod.ts → astro:user-app → astro/hono → virtual:astro:app
 						return {
 							code: `
 import { createAstroApp } from 'astro/hono';
-export default createAstroApp();
+
+let _app;
+function getApp() { return _app ??= createAstroApp(); }
+export default { fetch: (req) => getApp().fetch(req) };
 `.trim(),
 						};
 					}

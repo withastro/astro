@@ -13,6 +13,7 @@ interface RenderOptions {
 	locals?: App.Locals;
 	clientAddress?: string;
 	addCookieHeader?: boolean;
+	prerenderedErrorPageFetch?: ((url: string) => Promise<Response>) | undefined;
 }
 
 const key = Symbol.for('astro.renderOptionsStore');

@@ -34,22 +34,33 @@ export { Hono };
 export type { AstroHonoEnv, AstroAppDeps } from './hono-app.js';
 export { ASTRO_ROUTE_DATA_KEY, ASTRO_REWRITE_PATHNAME_KEY } from './hono-app.js';
 
-const pipeline = app.pipeline;
+// Use lazy getters so that `app` is not accessed at module top-level.
+// When the default `astro:user-app` is used there is a circular import:
+//   virtual:astro:app → prod.ts → astro:user-app → astro/hono (this file) → virtual:astro:app
+// Eagerly reading `app.pipeline` here would hit a TDZ error because `app`
+// hasn't been initialised yet. Deferring via a getter breaks the cycle.
+let _pipeline: typeof app.pipeline | undefined;
 const logger = createConsoleLogger(manifest.logLevel);
 
-// Use a getter/setter so route updates from the DevApp are always reflected,
-// and createAstroServerApp can sync live routes into the cached Hono app.
 let _manifestDataOverride: RoutesList | undefined;
 const deps = {
-	pipeline,
+	get pipeline() { return _pipeline ??= app.pipeline; },
 	manifest,
 	get manifestData() { return _manifestDataOverride ?? app.manifestData; },
 	set manifestData(value: RoutesList) { _manifestDataOverride = value; },
 	logger,
 };
 
-const matchRouteData = createMatchRouteData(deps);
-const contextFactory = createContextFactory(deps, matchRouteData);
+// Also defer createMatchRouteData / createContextFactory so they don't
+// destructure `deps` (and thus touch `app`) at module top-level.
+let _matchRouteData: ReturnType<typeof createMatchRouteData> | undefined;
+let _contextFactory: ReturnType<typeof createContextFactory> | undefined;
+function getMatchRouteData() {
+	return _matchRouteData ??= createMatchRouteData(deps);
+}
+function getContextFactory() {
+	return _contextFactory ??= createContextFactory(deps, getMatchRouteData());
+}
 
 // ---------------------------------------------------------------------------
 // Pre-bound exports for user consumption (imported from 'astro/hono')
@@ -59,7 +70,7 @@ const contextFactory = createContextFactory(deps, matchRouteData);
  * Creates (or returns a cached) Astro API context from a Hono context.
  * Provides access to cookies, locals, params, clientAddress, session, etc.
  */
-export const context = contextFactory;
+export const context = ((c: any) => getContextFactory()(c)) as ReturnType<typeof createContextFactory>;
 
 /**
  * Redirect middleware. Without arguments, handles redirects defined in the Astro config.
@@ -88,17 +99,17 @@ export function redirects(config?: Record<string, RedirectConfig>): MiddlewareHa
 
 /** Actions middleware — handles RPC calls and form submissions. */
 export function actions(): MiddlewareHandler<AstroHonoEnv> {
-	return createActionsMiddleware(deps, contextFactory);
+	return createActionsMiddleware(deps, getContextFactory());
 }
 
 /** Rewrite middleware — processes rewrite directives from i18n and user code. */
 export function rewrite(_options?: CreateAstroAppOptions): MiddlewareHandler<AstroHonoEnv> {
-	return createRewriteMiddleware(deps, contextFactory, matchRouteData);
+	return createRewriteMiddleware(deps, getContextFactory(), getMatchRouteData());
 }
 
 /** i18n middleware — handles locale detection and redirects. */
 export function i18n(): MiddlewareHandler<AstroHonoEnv> {
-	return createI18nMiddleware(deps, matchRouteData);
+	return createI18nMiddleware(deps, getMatchRouteData());
 }
 
 /**
@@ -111,7 +122,7 @@ export function astro(options?: CreateAstroAppOptions): MiddlewareHandler<AstroH
 
 /** Pages middleware — matches and renders pages/endpoints/redirects. */
 export function pages(options?: CreateAstroAppOptions): MiddlewareHandler<AstroHonoEnv> {
-	return createPagesMiddleware(deps, contextFactory, matchRouteData, options);
+	return createPagesMiddleware(deps, getContextFactory(), getMatchRouteData(), options);
 }
 
 /**
