@@ -1,3 +1,4 @@
+import type { Server } from 'node:http';
 import type { AstroTimer } from '../core/config/timer.js';
 import type { TSConfig } from '../core/config/tsconfig.js';
 import type { AstroLogger, AstroLoggerLevel } from '../core/logger/core.js';
@@ -79,6 +80,7 @@ export interface AstroSettings {
 		styleHashes: Required<CspObject['styleDirective']>['hashes'];
 	};
 	logLevel: AstroLoggerLevel;
+	fontsHttpServer: Server | null;
 }
 
 /** Generic interface for a component (Astro, Svelte, React, etc.) */

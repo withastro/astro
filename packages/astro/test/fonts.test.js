@@ -107,6 +107,17 @@ describe('astro fonts', () => {
 				await fixture.fetch('/');
 				assert.equal(existsSync(fixture.config.outDir), false);
 			});
+
+			it('Exposes buffer from experimental_getFontBuffer()', async () => {
+				const res = await fixture.fetch('/get-font-buffer');
+				const html = await res.text();
+				const $ = cheerio.load(html);
+				const length = $('#length').html();
+				if (!length) {
+					assert.fail();
+				}
+				assert.equal(length === '0', false);
+			});
 		});
 
 		describe('Respects config to build links', () => {
@@ -200,6 +211,16 @@ describe('astro fonts', () => {
 				assert.equal(Array.isArray(parsed['--font-test']), true);
 				assert.equal(parsed['--font-test'].length > 0, true);
 				assert.equal(parsed['--font-test'][0].src[0].url.startsWith('/_astro/fonts/'), true);
+			});
+
+			it('Exposes buffer from experimental_getFontBuffer()', async () => {
+				const html = await fixture.readFile('/get-font-buffer/index.html');
+				const $ = cheerio.load(html);
+				const length = $('#length').html();
+				if (!length) {
+					assert.fail();
+				}
+				assert.equal(length === '0', false);
 			});
 		});
 
@@ -301,6 +322,16 @@ describe('astro fonts', () => {
 			assert.equal(Array.isArray(parsed['--font-test']), true);
 			assert.equal(parsed['--font-test'].length > 0, true);
 			assert.equal(parsed['--font-test'][0].src[0].url.startsWith('/_astro/fonts/'), true);
+		});
+
+		it('Exposes buffer from experimental_getFontBuffer()', async () => {
+			const html = await fixtureFetch('/get-font-buffer');
+			const $ = cheerio.load(html);
+			const length = $('#length').html();
+			if (!length) {
+				assert.fail();
+			}
+			assert.equal(length === '0', false);
 		});
 	});
 });

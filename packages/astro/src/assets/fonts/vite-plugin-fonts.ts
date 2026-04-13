@@ -137,18 +137,13 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 	let fontFetcher: FontFetcher | null = null;
 	let fontTypeExtractor: FontTypeExtractor | null = null;
 	let built = false;
-	let httpServer: Server | null = null;
 	let serverAddress: AddressInfo | null = null;
 
-	async function cleanup() {
+	function cleanup() {
 		componentDataByCssVariable = null;
 		fontDataByCssVariable = null;
 		fontFileById = null;
 		fontFetcher = null;
-		if (httpServer) {
-			await new Promise((r) => httpServer!.close(r));
-			httpServer = null;
-		}
 		serverAddress = null;
 	}
 
@@ -275,7 +270,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					fontTypeExtractor,
 					logger,
 				};
-				httpServer = await new Promise<Server>((r) => {
+				settings.fontsHttpServer = await new Promise<Server>((r) => {
 					const _server = createServer((req, res) => {
 						return createFontFileMiddleware(dependencies)(req, res, () => {
 							if (!res.writableEnded) {
@@ -287,7 +282,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 						r(_server);
 					});
 				});
-				serverAddress = httpServer.address() as AddressInfo;
+				serverAddress = settings.fontsHttpServer.address() as AddressInfo;
 			}
 		},
 		async configureServer(server) {
@@ -416,7 +411,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				return;
 			}
 			if (sync || !settings.config.fonts?.length || this.environment.config.command === 'serve') {
-				await cleanup();
+				cleanup();
 				return;
 			}
 
@@ -445,7 +440,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					);
 				}
 			} finally {
-				await cleanup();
+				cleanup();
 				built = true;
 			}
 		},
