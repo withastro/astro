@@ -61,7 +61,7 @@ export function createCloudflarePrerenderer({
 					outDir: fileURLToPath(serverDir),
 				},
 				root: fileURLToPath(root),
-				logLevel: 'error',
+				logLevel: 'info',
 				preview: {
 					host: 'localhost',
 					port: 0, // Let the OS pick a free port
