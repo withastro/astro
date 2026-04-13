@@ -306,6 +306,11 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 				}),
 			);
 
+			// Sort entries by key to ensure deterministic order in the data store.
+			// Concurrent processing (pLimit) means entries may be inserted in
+			// non-deterministic order, so we sort after all entries are loaded.
+			store.sortByKey();
+
 			const skipCount = skippedFiles.length;
 
 			if (skipCount > 0) {

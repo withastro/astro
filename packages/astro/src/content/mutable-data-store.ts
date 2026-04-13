@@ -45,6 +45,19 @@ export class MutableDataStore extends ImmutableDataStore {
 		this.#saveToDiskDebounced();
 	}
 
+	/**
+	 * Sorts the entries of a collection by key. This is used by loaders that process entries
+	 * concurrently (e.g. the glob loader) to ensure deterministic entry order in the data store,
+	 * without imposing a sorted order on loaders that rely on insertion order (e.g. API loaders).
+	 */
+	sortCollectionByKey(collectionName: string) {
+		const collection = this._collections.get(collectionName);
+		if (collection) {
+			const sorted = new Map([...collection.entries()].sort(([a], [b]) => a.localeCompare(b)));
+			this._collections.set(collectionName, sorted);
+		}
+	}
+
 	delete(collectionName: string, key: string) {
 		const collection = this._collections.get(collectionName);
 		if (collection) {
@@ -393,6 +406,7 @@ export default new Map([\n${lines.join(',\n')}]);
 			addAssetImports: (assets: Array<string>, fileName: string) =>
 				this.addAssetImports(assets, fileName),
 			addModuleImport: (fileName: string) => this.addModuleImport(fileName),
+			sortByKey: () => this.sortCollectionByKey(collectionName),
 		};
 	}
 	/**
@@ -422,17 +436,12 @@ export default new Map([\n${lines.join(',\n')}]);
 	}
 
 	toString() {
-		// Sort collections and their entries by key to ensure deterministic serialization.
-		// Entry insertion order can vary between builds due to concurrent file processing (pLimit),
-		// so we sort here to guarantee stable output hashes regardless of processing order.
-		const sorted = new Map(
-			[...this._collections.entries()]
-				.sort(([a], [b]) => a.localeCompare(b))
-				.map(([key, collection]) => [
-					key,
-					new Map([...collection.entries()].sort(([a], [b]) => a.localeCompare(b))),
-				]),
-		);
+		// Sort collections by name for deterministic serialization.
+		// Entry order within each collection is NOT sorted here, because some loaders
+		// (e.g. API loaders) rely on insertion order. Loaders that process entries
+		// concurrently (e.g. the glob loader) should call sortCollectionByKey() after
+		// loading to ensure their own deterministic order.
+		const sorted = new Map([...this._collections.entries()].sort(([a], [b]) => a.localeCompare(b)));
 		return devalue.stringify(sorted);
 	}
 
@@ -538,6 +547,11 @@ export interface DataStore {
 	 * @returns
 	 */
 	addModuleImport: (fileName: string) => void;
+	/**
+	 * @internal Sorts the entries in the collection by key. Used by loaders that process
+	 * entries concurrently to ensure deterministic order.
+	 */
+	sortByKey: () => void;
 }
 
 /**
