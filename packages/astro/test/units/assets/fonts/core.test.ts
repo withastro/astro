@@ -1,15 +1,19 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { collectComponentData } from '../../../../dist/assets/fonts/core/collect-component-data.js';
-import { collectFontAssetsFromFaces } from '../../../../dist/assets/fonts/core/collect-font-assets-from-faces.js';
-import { collectFontData } from '../../../../dist/assets/fonts/core/collect-font-data.js';
-import { computeFontFamiliesAssets } from '../../../../dist/assets/fonts/core/compute-font-families-assets.js';
-import { filterAndTransformFontFaces } from '../../../../dist/assets/fonts/core/filter-and-transform-font-faces.js';
-import { filterPreloads } from '../../../../dist/assets/fonts/core/filter-preloads.js';
-import { getOrCreateFontFamilyAssets } from '../../../../dist/assets/fonts/core/get-or-create-font-family-assets.js';
-import { optimizeFallbacks } from '../../../../dist/assets/fonts/core/optimize-fallbacks.js';
-import { resolveFamily } from '../../../../dist/assets/fonts/core/resolve-family.js';
+import { collectComponentData } from '../../../../src/assets/fonts/core/collect-component-data.js';
+import { collectFontAssetsFromFaces } from '../../../../src/assets/fonts/core/collect-font-assets-from-faces.js';
+import { collectFontData } from '../../../../src/assets/fonts/core/collect-font-data.js';
+import { computeFontFamiliesAssets } from '../../../../src/assets/fonts/core/compute-font-families-assets.js';
+import { filterAndTransformFontFaces } from '../../../../src/assets/fonts/core/filter-and-transform-font-faces.js';
+import { filterPreloads } from '../../../../src/assets/fonts/core/filter-preloads.js';
+import { getOrCreateFontFamilyAssets } from '../../../../src/assets/fonts/core/get-or-create-font-family-assets.js';
+import { optimizeFallbacks } from '../../../../src/assets/fonts/core/optimize-fallbacks.js';
+import { resolveFamily } from '../../../../src/assets/fonts/core/resolve-family.js';
+import type {
+	FontFamilyAssetsByUniqueKey,
+	FontType,
+	ResolvedFontFamily,
+} from '../../../../src/assets/fonts/types.js';
 import { SpyLogger } from '../../test-utils.js';
 import {
 	FakeFontMetricsResolver,
@@ -18,6 +22,15 @@ import {
 	markdownBold,
 	PassthroughFontResolver,
 } from './utils.js';
+
+const inferFontType = (url: string): FontType => {
+	const ext = url.split('.').pop()?.toLowerCase();
+	if (ext === 'woff2' || ext === 'woff' || ext === 'otf' || ext === 'ttf' || ext === 'eot') {
+		return ext;
+	}
+	// default used throughout the tests
+	return 'woff';
+};
 
 describe('fonts core', () => {
 	describe('resolveFamily()', () => {
@@ -56,7 +69,7 @@ describe('fonts core', () => {
 					name: '"Foo bar"',
 					cssVariable: '--test',
 					weights: [400, '400', '500', 'bold'],
-					styles: ['normal', 'normal', 'italic'],
+					styles: ['normal', 'normal', 'italic'] as const,
 					subsets: ['latin', 'latin'],
 					fallbacks: ['foo', 'bar', 'foo'],
 					unicodeRange: ['abc', 'def', 'abc'],
@@ -74,7 +87,7 @@ describe('fonts core', () => {
 
 	describe('computeFontFamiliesAssets()', () => {
 		it('returns input data', async () => {
-			const families = [
+			const families: ResolvedFontFamily[] = [
 				{
 					name: 'Test',
 					uniqueName: 'Test-xxx',
@@ -101,7 +114,7 @@ describe('fonts core', () => {
 					fallbacks: ['foo'],
 					formats: ['woff2'],
 					optimizedFallbacks: true,
-					styles: ['normal'],
+					styles: ['normal'] as const,
 					subsets: ['latin'],
 					weights: ['400'],
 				},
@@ -148,7 +161,7 @@ describe('fonts core', () => {
 		});
 
 		it('transforms fonts', async () => {
-			const families = [
+			const families: ResolvedFontFamily[] = [
 				{
 					name: 'Test',
 					uniqueName: 'Test-xxx',
@@ -175,7 +188,7 @@ describe('fonts core', () => {
 					fallbacks: ['foo'],
 					formats: ['woff2'],
 					optimizedFallbacks: true,
-					styles: ['normal'],
+					styles: ['normal'] as const,
 					subsets: ['latin'],
 					weights: ['400'],
 				},
@@ -222,7 +235,7 @@ describe('fonts core', () => {
 		});
 
 		it('warns if no fonts were found', async () => {
-			const families = [
+			const families: ResolvedFontFamily[] = [
 				{
 					name: 'Test',
 					uniqueName: 'Test-xxx',
@@ -243,7 +256,7 @@ describe('fonts core', () => {
 					fallbacks: ['foo'],
 					formats: ['woff2'],
 					optimizedFallbacks: true,
-					styles: ['normal'],
+					styles: ['normal'] as const,
 					subsets: ['latin'],
 					weights: ['400'],
 				},
@@ -288,7 +301,7 @@ describe('fonts core', () => {
 		});
 
 		it('warns if no fonts were found and there is a match', async () => {
-			const families = [
+			const families: ResolvedFontFamily[] = [
 				{
 					name: 'Test',
 					uniqueName: 'Test-xxx',
@@ -310,7 +323,7 @@ describe('fonts core', () => {
 					fallbacks: ['foo'],
 					formats: ['woff2'],
 					optimizedFallbacks: true,
-					styles: ['normal'],
+					styles: ['normal'] as const,
 					subsets: ['latin'],
 					weights: ['400'],
 				},
@@ -360,7 +373,7 @@ describe('fonts core', () => {
 		});
 
 		it('works with several families', async () => {
-			const families = [
+			const families: ResolvedFontFamily[] = [
 				{
 					name: 'Test',
 					uniqueName: 'Test-xxx',
@@ -402,7 +415,7 @@ describe('fonts core', () => {
 					fallbacks: ['foo'],
 					formats: ['woff2'],
 					optimizedFallbacks: true,
-					styles: ['normal'],
+					styles: ['normal'] as const,
 					subsets: ['latin'],
 					weights: ['400'],
 				},
@@ -463,8 +476,7 @@ describe('fonts core', () => {
 
 	describe('getOrCreateFontFamilyAssets()', () => {
 		it('reuses the same object as needed', () => {
-			/** @type {Array<import('../../../../dist/assets/fonts/types.js').ResolvedFontFamily>} */
-			const families = [
+			const families: ResolvedFontFamily[] = [
 				{
 					name: 'Foo',
 					uniqueName: 'Foo-xxx',
@@ -483,7 +495,7 @@ describe('fonts core', () => {
 						name: 'foo',
 						resolveFont: () => undefined,
 					},
-					styles: ['italic'],
+					styles: ['italic'] as const,
 				},
 				{
 					name: 'Bar',
@@ -496,8 +508,7 @@ describe('fonts core', () => {
 				},
 			];
 
-			/** @type {import('../../../../dist/assets/fonts/types.js').FontFamilyAssetsByUniqueKey} */
-			const fontFamilyAssetsByUniqueKey = new Map();
+			const fontFamilyAssetsByUniqueKey: FontFamilyAssetsByUniqueKey = new Map();
 			const logger = new SpyLogger();
 
 			assert.deepStrictEqual(
@@ -546,8 +557,7 @@ describe('fonts core', () => {
 		});
 
 		it('logs warnings for conflicting css variables', () => {
-			/** @type {import('../../../../dist/assets/fonts/types.js').FontFamilyAssetsByUniqueKey} */
-			const fontFamilyAssetsByUniqueKey = new Map();
+			const fontFamilyAssetsByUniqueKey: FontFamilyAssetsByUniqueKey = new Map();
 			const logger = new SpyLogger();
 
 			getOrCreateFontFamilyAssets({
@@ -595,7 +605,7 @@ describe('fonts core', () => {
 						generate: () => '',
 					},
 					fontTypeExtractor: {
-						extract: () => 'woff2',
+						extract: (): FontType => 'woff2',
 					},
 					urlResolver: {
 						resolve: () => '',
@@ -637,7 +647,7 @@ describe('fonts core', () => {
 						generate: () => '',
 					},
 					fontTypeExtractor: {
-						extract: () => 'woff2',
+						extract: (): FontType => 'woff2',
 					},
 					urlResolver: {
 						resolve: () => '',
@@ -668,7 +678,7 @@ describe('fonts core', () => {
 						generate: ({ originalUrl }) => originalUrl,
 					},
 					fontTypeExtractor: {
-						extract: (url) => /** @type {any} */ (url.split('.').at(-1)) ?? 'woff',
+						extract: inferFontType,
 					},
 					urlResolver: {
 						resolve: (url) => 'resolved:' + url,
@@ -737,7 +747,7 @@ describe('fonts core', () => {
 						generate: ({ originalUrl }) => originalUrl,
 					},
 					fontTypeExtractor: {
-						extract: (url) => /** @type {any} */ (url.split('.').at(-1)) ?? 'woff',
+						extract: inferFontType,
 					},
 					urlResolver: {
 						resolve: (url) => 'resolved:' + url,
