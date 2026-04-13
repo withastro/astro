@@ -1,15 +1,15 @@
 import { readFileSync } from 'node:fs';
-import { mkdir, writeFile } from 'node:fs/promises';
-import { readFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { createServer, type Server } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import { isAbsolute } from 'node:path';
 import colors from 'piccolore';
 import type { Plugin } from 'vite';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../core/constants.js';
 import { getAlgorithm, shouldTrackCspHashes } from '../../core/csp/common.js';
 import { generateCspDigest } from '../../core/encryption.js';
-import { collectErrorMetadata } from '../../core/errors/dev/utils.js';
-import { AstroError, AstroErrorData, isAstroError } from '../../core/errors/index.js';
+import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { AstroLogger } from '../../core/logger/core.js';
-import { formatErrorMessage } from '../../core/messages/runtime.js';
 import { appendForwardSlash, joinPaths, prependForwardSlash } from '../../core/path.js';
 import { getClientOutputDirectory } from '../../prerender/utils.js';
 import type { AstroSettings } from '../../types/astro.js';
@@ -17,12 +17,12 @@ import {
 	ASSETS_DIR,
 	CACHE_DIR,
 	DEFAULTS,
+	RESOLVED_RUNTIME_FONT_FETCHER_VIRTUAL_MODULE_ID,
 	RESOLVED_RUNTIME_VIRTUAL_MODULE_ID,
 	RESOLVED_VIRTUAL_MODULE_ID,
+	RUNTIME_FONT_FETCHER_VIRTUAL_MODULE_ID,
 	RUNTIME_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
-	RESOLVED_RUNTIME_FONT_FETCHER_VIRTUAL_MODULE_ID,
-	RUNTIME_FONT_FETCHER_VIRTUAL_MODULE_ID,
 } from './constants.js';
 import { collectComponentData } from './core/collect-component-data.js';
 import { collectFontAssetsFromFaces } from './core/collect-font-assets-from-faces.js';
@@ -53,72 +53,12 @@ import type {
 	FontFamily,
 	FontFileById,
 } from './types.js';
-import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
-import type { AddressInfo } from 'node:net';
-import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../core/constants.js';
+import { fontFileMiddleware } from './core/font-file-middleware.js';
 
 interface Options {
 	settings: AstroSettings;
 	sync: boolean;
 	logger: AstroLogger;
-}
-
-interface Dependencies {
-	fontFetcher: FontFetcher | null;
-	fontTypeExtractor: FontTypeExtractor | null;
-	logger: AstroLogger;
-	fontFileById: FontFileById | null;
-}
-
-// TODO: extract
-function createFontFileMiddleware(dependencies: Dependencies | (() => Dependencies)) {
-	return async function (
-		req: IncomingMessage,
-		res: ServerResponse<IncomingMessage>,
-		next: () => void,
-	): Promise<void> {
-		const { fontFetcher, fontTypeExtractor, logger, fontFileById } =
-			typeof dependencies === 'function' ? dependencies() : dependencies;
-		if (!fontFetcher || !fontTypeExtractor) {
-			logger.debug(
-				'assets',
-				'Fonts dependencies should be initialized by now, skipping dev middleware.',
-			);
-			return next();
-		}
-		if (!req.url) {
-			return next();
-		}
-		const fontId = req.url.slice(1);
-		const fontData = fontFileById?.get(fontId);
-		if (!fontData) {
-			return next();
-		}
-		// We don't want the request to be cached in dev because we cache it already internally,
-		// and it makes it easier to debug without needing hard refreshes
-		res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
-		res.setHeader('Pragma', 'no-cache');
-		res.setHeader('Expires', 0);
-
-		try {
-			const buffer = await fontFetcher.fetch({ id: fontId, ...fontData });
-
-			res.setHeader('Content-Length', buffer.byteLength);
-			res.setHeader('Content-Type', `font/${fontTypeExtractor.extract(fontId)}`);
-
-			res.end(buffer);
-		} catch (err) {
-			logger.error('assets', 'Cannot download font file');
-			if (isAstroError(err)) {
-				logger.error(
-					'SKIP_FORMAT',
-					formatErrorMessage(collectErrorMetadata(err), logger.level() === 'debug'),
-				);
-			}
-			res.statusCode = 500;
-			res.end();
-		}
-	};
 }
 
 export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
@@ -265,22 +205,24 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			}
 
 			if (this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender) {
-				const dependencies = {
-					fontFetcher,
-					fontFileById,
-					fontTypeExtractor,
-					logger,
-				};
 				settings.fontsHttpServer = await new Promise<Server>((r) => {
-					const _server = createServer((req, res) => {
-						return createFontFileMiddleware(dependencies)(req, res, () => {
-							if (!res.writableEnded) {
-								res.writeHead(404);
-								res.end();
-							}
+					const server = createServer((req, res) => {
+						return fontFileMiddleware({
+							req,
+							res,
+							next: () => {
+								if (!res.writableEnded) {
+									res.writeHead(404);
+									res.end();
+								}
+							},
+							fontFetcher,
+							fontFileById,
+							fontTypeExtractor,
+							logger,
 						});
 					}).listen(() => {
-						r(_server);
+						r(server);
 					});
 				});
 				serverAddress = settings.fontsHttpServer.address() as AddressInfo;
@@ -319,9 +261,16 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				}
 			});
 
-			server.middlewares.use(
-				assetsDir,
-				createFontFileMiddleware(() => ({ fontFetcher, fontFileById, fontTypeExtractor, logger })),
+			server.middlewares.use(assetsDir, (req, res, next) =>
+				fontFileMiddleware({
+					req,
+					res,
+					next,
+					fontFetcher,
+					fontFileById,
+					fontTypeExtractor,
+					logger,
+				}),
 			);
 		},
 		resolveId: {
