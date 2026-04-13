@@ -30,8 +30,8 @@ import {
 } from '../cookies/index.js';
 import { getCookiesFromResponse } from '../cookies/response.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { consoleLogDestination } from '../logger/console.js';
-import { AstroIntegrationLogger, AstroLogger } from '../logger/core.js';
+import { createConsoleLogger } from '../logger/impls/console.js';
+import { AstroIntegrationLogger, type AstroLogger } from '../logger/core.js';
 import { type CreateRenderContext, RenderContext } from '../render-context.js';
 import { redirectTemplate } from '../routing/3xx.js';
 import { ensure404Route } from '../routing/astro-designed-error-pages.js';
@@ -138,10 +138,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		this.manifestData = { routes: manifest.routes.map((route) => route.routeData) };
 		this.baseWithoutTrailingSlash = removeTrailingForwardSlash(manifest.base);
 		this.pipeline = this.createPipeline(streaming, manifest, ...args);
-		this.logger = new AstroLogger({
-			destination: consoleLogDestination,
-			level: manifest.logLevel,
-		});
+		this.logger = createConsoleLogger({ level: manifest.logLevel });
 		this.adapterLogger = new AstroIntegrationLogger(this.logger.options, manifest.adapterName);
 		// This is necessary to allow running middlewares for 404 in SSR. There's special handling
 		// to return the host 404 if the user doesn't provide a custom 404

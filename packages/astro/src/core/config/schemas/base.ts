@@ -13,6 +13,7 @@ import * as z from 'zod/v4';
 import { FontFamilySchema } from '../../../assets/fonts/config.js';
 import { EnvSchema } from '../../../env/schema.js';
 import type { AstroUserConfig, ViteUserConfig } from '../../../types/public/config.js';
+import type { LoggerHandlerConfig } from '../../logger/config.js';
 import { allowedDirectivesSchema, cspAlgorithmSchema, cspHashSchema } from '../../csp/config.js';
 import { CacheSchema, RouteRulesSchema } from '../../cache/config.js';
 import { SessionSchema } from '../../session/config.js';
@@ -114,8 +115,13 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		queuedRendering: {
 			enabled: false,
 		},
+		logger: {
+			entrypoint: 'astro/logger/node',
+		},
 	},
-} satisfies AstroUserConfig & { server: { open: boolean } };
+} satisfies AstroUserConfig<never, never, never, LoggerHandlerConfig> & {
+	server: { open: boolean };
+};
 
 const highlighterTypesSchema = z
 	.union([z.literal('shiki'), z.literal('prism')])
@@ -548,6 +554,13 @@ export const AstroConfigSchema = z.object({
 				})
 				.optional()
 				.prefault(ASTRO_CONFIG_DEFAULTS.experimental.queuedRendering),
+			logger: z
+				.object({
+					entrypoint: z.string(),
+					config: z.record(z.string(), z.any()).optional(),
+				})
+				.optional()
+				.prefault(ASTRO_CONFIG_DEFAULTS.experimental.logger),
 		})
 		.prefault({}),
 	legacy: z

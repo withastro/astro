@@ -1,16 +1,15 @@
 import colors from 'piccolore';
 
-export interface AstroLoggerDestination<T> {
-	write: (chunk: T) => boolean;
+export interface AstroLoggerDestination<T extends unknown = unknown> {
+	/**
+	 * It receives a message and writes it into a destination
+	 */
+	write: (chunk: T) => void;
+	// NOTE: will document once we actually use it
+	flush?: () => Promise<void> | void;
+	// NOTE: will document once we actually use it
+	close?: () => Promise<void> | void;
 }
-
-// NOTE: this is a public type
-/**
- * How the log should be formatted
- * - 'default': how Astro usually format the logs
- * - 'json': logs are formatted in JSON format
- */
-export type AstroLoggerFormat = 'default' | 'json';
 
 // NOTE: this is a public type
 
@@ -29,42 +28,46 @@ export type AstroLoggerLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent'; /
  * rather than specific to a single command, function, use, etc. The label will be
  * shown in the log message to the user, so it should be relevant.
  */
-type AstroLoggerLabel =
-	| 'add'
-	| 'build'
-	| 'check'
-	| 'config'
-	| 'content'
-	| 'crypto'
-	| 'deprecated'
-	| 'markdown'
-	| 'router'
-	| 'types'
-	| 'vite'
-	| 'watch'
-	| 'middleware'
-	| 'preferences'
-	| 'redirects'
-	| 'sync'
-	| 'session'
-	| 'toolbar'
-	| 'assets'
-	| 'env'
-	| 'update'
-	| 'adapter'
-	| 'islands'
-	| 'cache'
-	| 'csp'
+const AstroLoggerLabels = [
+	'add',
+	'build',
+	'check',
+	'config',
+	'content',
+	'crypto',
+	'deprecated',
+	'markdown',
+	'router',
+	'types',
+	'vite',
+	'watch',
+	'middleware',
+	'preferences',
+	'redirects',
+	'sync',
+	'session',
+	'toolbar',
+	'assets',
+	'env',
+	'update',
+	'adapter',
+	'islands',
+	'cache',
+	'csp',
 	// SKIP_FORMAT: A special label that tells the logger not to apply any formatting.
 	// Useful for messages that are already formatted, like the server start message.
-	| 'SKIP_FORMAT';
+	'SKIP_FORMAT',
+] as const;
+type AstroLoggerLabel = (typeof AstroLoggerLabels)[number];
 
 export interface AstroLogOptions {
-	destination: AstroLoggerDestination<AstroLogMessage>;
+	destination: AstroLoggerDestination<AstroLoggerMessage>;
 	level: AstroLoggerLevel;
-	// Intentionally optional so we don't leak to public code. It will be public and non-optional
-	// once we expose to users
-	_format?: AstroLoggerFormat;
+
+	/**
+	 * Optional configuration for the logger destination
+	 */
+	config?: Record<string, any> | undefined;
 }
 
 // Hey, locales are pretty complicated! Be careful modifying this logic...
@@ -85,7 +88,7 @@ export const dateTimeFormat = new Intl.DateTimeFormat([], {
 });
 
 // NOTE: this is a public type now
-export interface AstroLogMessage {
+export interface AstroLoggerMessage {
 	/**
 	 * Label associated to the message. Used by Astro for pretty logging
 	 */
@@ -102,12 +105,6 @@ export interface AstroLogMessage {
 	 * Whether a newline should be appended to the end of the message i.e. message + '\n'
 	 */
 	newLine: boolean;
-
-	/**
-	 * @internal
-	 * How the log should be formatted when printed inside the destination
-	 */
-	_format?: AstroLoggerFormat;
 }
 
 export const levels: Record<AstroLoggerLevel, number> = {
@@ -128,12 +125,11 @@ function log(
 ) {
 	const logLevel = opts.level;
 	const dest = opts.destination;
-	const event: AstroLogMessage = {
+	const event: AstroLoggerMessage = {
 		label,
 		level,
 		message,
 		newLine,
-		_format: opts._format,
 	};
 
 	// test if this level is enabled or not
@@ -174,7 +170,7 @@ export function debug(...args: any[]) {
  * This includes the timestamp, log level, and label all properly formatted
  * with colors. This is shared across different loggers, so it's defined here.
  */
-export function getEventPrefix({ level, label }: AstroLogMessage) {
+export function getEventPrefix({ level, label }: AstroLoggerMessage) {
 	const timestamp = `${dateTimeFormat.format(new Date())}`;
 	const prefix = [];
 	if (level === 'error' || level === 'warn') {
@@ -209,9 +205,6 @@ export function timerMessage(message: string, startTime: number = Date.now()) {
 export class AstroLogger {
 	options: AstroLogOptions;
 	constructor(options: AstroLogOptions) {
-		if (!options._format) {
-			options._format = 'default';
-		}
 		this.options = options;
 	}
 
@@ -234,6 +227,10 @@ export class AstroLogger {
 
 	forkIntegrationLogger(label: string) {
 		return new AstroIntegrationLogger(this.options, label);
+	}
+
+	setDestination(destination: AstroLoggerDestination) {
+		this.options.destination = destination;
 	}
 }
 

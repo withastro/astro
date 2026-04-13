@@ -1,38 +1,26 @@
 import * as assert from 'node:assert/strict';
-import { beforeEach, describe, it } from 'node:test';
-import type { AstroLogMessage, AstroLoggerDestination } from '../../../src/core/logger/core.js';
+import { afterEach, beforeEach, describe, it } from 'node:test';
+import type { AstroLoggerMessage, AstroLoggerDestination } from '../../../src/core/logger/core.js';
 import { AstroLogger } from '../../../dist/core/logger/core.js';
+import jsonFactory from '../../../dist/core/logger/impls/json.js';
 
-let logs: AstroLogMessage[] = [];
-let jsonLogs: string[] = [];
+let logs: AstroLoggerMessage[] = [];
 
-const testDestination: AstroLoggerDestination<AstroLogMessage> = {
-	write(event: AstroLogMessage) {
+const testDestination: AstroLoggerDestination<AstroLoggerMessage> = {
+	write(event: AstroLoggerMessage) {
 		logs.push(event);
-		return true;
-	},
-};
-
-const jsonDestination: AstroLoggerDestination<AstroLogMessage> = {
-	write(event: AstroLogMessage) {
-		if (event._format === 'json') {
-			jsonLogs.push(JSON.stringify({ message: event.message, label: event.label }));
-		}
-		return true;
 	},
 };
 
 describe('log destination', () => {
 	beforeEach(() => {
 		logs = [];
-		jsonLogs = [];
 	});
 
 	describe('event shape', () => {
 		const logger = new AstroLogger({
 			destination: testDestination,
 			level: 'info',
-			_format: 'default',
 		});
 
 		it('info() pushes an event with level info', () => {
@@ -70,68 +58,11 @@ describe('log destination', () => {
 		});
 	});
 
-	describe('format propagation', () => {
-		it('propagates default format to events', () => {
-			const logger = new AstroLogger({
-				destination: testDestination,
-				level: 'info',
-				_format: 'default',
-			});
-			logger.info('build', 'test');
-			assert.equal(logs[0]._format, 'default');
-		});
-
-		it('propagates json format to events', () => {
-			const logger = new AstroLogger({
-				destination: testDestination,
-				level: 'info',
-				_format: 'json',
-			});
-			logger.info('build', 'test');
-			assert.equal(logs[0]._format, 'json');
-		});
-	});
-
-	describe('json formatting', () => {
-		const logger = new AstroLogger({
-			destination: jsonDestination,
-			level: 'info',
-			_format: 'json',
-		});
-
-		it('serializes message and label as JSON', () => {
-			logger.info('build', 'compiled successfully');
-			assert.equal(jsonLogs.length, 1);
-			assert.equal(jsonLogs[0], '{"message":"compiled successfully","label":"build"}');
-		});
-
-		it('serializes null label', () => {
-			logger.info(null, 'no label message');
-			assert.equal(jsonLogs[0], '{"message":"no label message","label":null}');
-		});
-
-		it('only includes message and label', () => {
-			logger.warn('build', 'a warning');
-			assert.equal(jsonLogs[0], '{"message":"a warning","label":"build"}');
-		});
-
-		it('does not write when format is not json', () => {
-			const defaultLogger = new AstroLogger({
-				destination: jsonDestination,
-				level: 'info',
-				_format: 'default',
-			});
-			defaultLogger.info('build', 'should not appear');
-			assert.equal(jsonLogs.length, 0);
-		});
-	});
-
 	describe('level filtering', () => {
 		it('filters out info when level is warn', () => {
 			const logger = new AstroLogger({
 				destination: testDestination,
 				level: 'warn',
-				_format: 'default',
 			});
 			logger.info('build', 'should be filtered');
 			assert.equal(logs.length, 0);
@@ -141,7 +72,6 @@ describe('log destination', () => {
 			const logger = new AstroLogger({
 				destination: testDestination,
 				level: 'warn',
-				_format: 'default',
 			});
 			logger.warn('build', 'should pass');
 			assert.equal(logs.length, 1);
@@ -151,7 +81,6 @@ describe('log destination', () => {
 			const logger = new AstroLogger({
 				destination: testDestination,
 				level: 'warn',
-				_format: 'default',
 			});
 			logger.error('build', 'should pass');
 			assert.equal(logs.length, 1);
@@ -161,12 +90,109 @@ describe('log destination', () => {
 			const logger = new AstroLogger({
 				destination: testDestination,
 				level: 'silent',
-				_format: 'default',
 			});
 			logger.info('build', 'nope');
 			logger.warn('build', 'nope');
 			logger.error('build', 'nope');
 			assert.equal(logs.length, 0);
+		});
+	});
+});
+
+describe('json handler', () => {
+	let stdoutWrites: string[];
+	let stderrWrites: string[];
+	let originalStdoutWrite: typeof process.stdout.write;
+	let originalStderrWrite: typeof process.stderr.write;
+
+	beforeEach(() => {
+		stdoutWrites = [];
+		stderrWrites = [];
+		originalStdoutWrite = process.stdout.write;
+		originalStderrWrite = process.stderr.write;
+		process.stdout.write = ((chunk: string) => {
+			stdoutWrites.push(chunk);
+			return true;
+		}) as typeof process.stdout.write;
+		process.stderr.write = ((chunk: string) => {
+			stderrWrites.push(chunk);
+			return true;
+		}) as typeof process.stderr.write;
+	});
+
+	afterEach(() => {
+		process.stdout.write = originalStdoutWrite;
+		process.stderr.write = originalStderrWrite;
+	});
+
+	describe('output format', () => {
+		const destination = jsonFactory({ pretty: false });
+		const logger = new AstroLogger({
+			destination,
+			level: 'info',
+		});
+
+		it('writes JSON with message and label', () => {
+			logger.info('build', 'compiled successfully');
+			assert.equal(stdoutWrites.length, 1);
+			assert.equal(stdoutWrites[0], '{"message":"compiled successfully","label":"build"}\n');
+		});
+
+		it('writes JSON with null label', () => {
+			logger.info(null, 'no label message');
+			assert.equal(stdoutWrites[0], '{"message":"no label message","label":null}\n');
+		});
+
+		it('only includes message and label in output', () => {
+			logger.warn('build', 'a warning');
+			assert.equal(stdoutWrites[0], '{"message":"a warning","label":"build"}\n');
+		});
+
+		it('strips ANSI codes from messages', () => {
+			logger.info('build', '\x1b[32mgreen text\x1b[39m');
+			assert.equal(stdoutWrites[0], '{"message":"green text","label":"build"}\n');
+		});
+	});
+
+	describe('pretty mode', () => {
+		const destination = jsonFactory({ pretty: true });
+		const logger = new AstroLogger({
+			destination,
+			level: 'info',
+		});
+
+		it('writes indented JSON when pretty is true', () => {
+			logger.info('build', 'test');
+			const parsed = JSON.parse(stdoutWrites[0]);
+			assert.equal(parsed.message, 'test');
+			assert.equal(parsed.label, 'build');
+			assert.ok(stdoutWrites[0].includes('\n  '), 'output should be indented');
+		});
+	});
+
+	describe('stream routing', () => {
+		const destination = jsonFactory({ pretty: false });
+		const logger = new AstroLogger({
+			destination,
+			level: 'info',
+		});
+
+		it('routes info to stdout', () => {
+			logger.info('build', 'test');
+			assert.equal(stdoutWrites.length, 1);
+			assert.equal(stderrWrites.length, 0);
+		});
+
+		it('routes warn to stdout', () => {
+			logger.warn('build', 'test');
+			assert.equal(stdoutWrites.length, 1);
+			assert.equal(stderrWrites.length, 0);
+		});
+
+		it('routes error to stderr', () => {
+			logger.error('build', 'test');
+			assert.equal(stdoutWrites.length, 0);
+			assert.equal(stderrWrites.length, 1);
 		});
 	});
 });

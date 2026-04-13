@@ -27,8 +27,7 @@ import { UnifontFontResolver } from '../../../../dist/assets/fonts/infra/unifont
 import { UnstorageFsStorage } from '../../../../dist/assets/fonts/infra/unstorage-fs-storage.js';
 import { XxhashHasher } from '../../../../dist/assets/fonts/infra/xxhash-hasher.js';
 import { fontProviders } from '../../../../dist/assets/fonts/providers/index.js';
-import { AstroLogger } from '../../../../dist/core/logger/core.js';
-import { nodeLogDestination } from '../../../../dist/core/logger/node.js';
+import { createNodeLogger } from '../../../../dist/core/logger/impls/node.js';
 
 /**
  * @param {{ fonts: Array<import('../../../../dist/assets/fonts/types.js').FontFamily> }} param0
@@ -38,10 +37,7 @@ async function run({ fonts: _fonts }) {
 	const resolvedFamilies = _fonts.map((family) => resolveFamily({ family, hasher }));
 	const defaults = DEFAULTS;
 	const { bold } = colors;
-	const logger = new AstroLogger({
-		level: 'silent',
-		destination: nodeLogDestination,
-	});
+	const logger = createNodeLogger({ level: 'silent' });
 	const stringMatcher = new LevenshteinStringMatcher();
 	const base = new URL('./data/cache/', import.meta.url);
 	// Clear cache

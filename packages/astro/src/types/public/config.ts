@@ -25,6 +25,7 @@ import type {
 } from '../../core/session/types.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
+import type { LoggerHandlerConfig } from '../../core/logger/config.js';
 
 export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
 
@@ -161,6 +162,7 @@ export interface AstroUserConfig<
 	TLocales extends Locales = never,
 	TDriver extends SessionDriverName | SessionDriverConfig | undefined = never,
 	TFontProviders extends Array<FontProvider> = never,
+	TLogger extends LoggerHandlerConfig | undefined = never,
 > {
 	/**
 	 * @docs
@@ -3059,6 +3061,15 @@ export interface AstroUserConfig<
 			 */
 			contentCache?: boolean;
 		};
+		/**
+		 * @name experimental.logger
+		 * @type {object}
+		 * @default `undefined`
+		 * @description
+		 *
+		 * Allows to customise how Astro logger behaves
+		 */
+		logger?: TLogger;
 	};
 }
 

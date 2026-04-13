@@ -4,6 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { prependForwardSlash, slash } from '../core/path.js';
 import type { ModuleLoader } from './module-loader/index.js';
 import { resolveJsToTs, unwrapId, VALID_ID_PREFIX, viteID } from './util.js';
+import { createServer, type ViteDevServer, type Plugin } from 'vite';
 
 const isWindows = typeof process !== 'undefined' && process.platform === 'win32';
 
@@ -104,3 +105,19 @@ export async function resolveIdToUrl(loader: ModuleLoader, id: string, root?: UR
 // https://github.com/vitejs/vite/blob/2f9428d1ffd988e30cb253d5bb84844fb1654e86/packages/vite/src/node/constants.ts#L108
 // Used by isCSSRequest() under the hood
 export const CSS_LANGS_RE = /\.(css|less|sass|scss|styl|stylus|pcss|postcss|sss)(?:$|\?)/;
+
+/**
+ * Creates a minimal dev server with a list of plugins. Use this instance for a one-shot usage
+ * @param plugins
+ */
+export async function createMinimalViteDevServer(plugins: Plugin[] = []): Promise<ViteDevServer> {
+	return await createServer({
+		configFile: false,
+		server: { middlewareMode: true, hmr: false, watch: null, ws: false },
+		optimizeDeps: { noDiscovery: true },
+		clearScreen: false,
+		appType: 'custom',
+		ssr: { external: true },
+		plugins,
+	});
+}
