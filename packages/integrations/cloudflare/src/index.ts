@@ -181,11 +181,15 @@ export default function createIntegration({
 						experimental: {
 							prerenderWorker: {
 								config(_, { entryWorkerConfig }) {
+									const { queues, ...restWorkerConfig } = entryWorkerConfig;
 									return {
-										...entryWorkerConfig,
+										...restWorkerConfig,
 										name: 'prerender',
+										...(queues?.producers?.length && {
+											queues: { producers: queues.producers },
+										}),
 										...(needsImagesBinding &&
-											!entryWorkerConfig.images && {
+											!restWorkerConfig.images && {
 												images: { binding: imagesBindingName },
 											}),
 									};
@@ -271,6 +275,7 @@ export default function createIntegration({
 													'virtual:astro:*',
 													'virtual:astro-cloudflare:*',
 													'virtual:@astrojs/*',
+													'@astrojs/starlight',
 												],
 												esbuildOptions: {
 													// Suppress Vite's `createRequire(import.meta.url)` banner to work around

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.4.2/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.4.10/schema.json",
   "files": {
     "includes": [
       "**",
@@ -46,7 +46,8 @@
         // Enforce separate type imports for type-only imports to avoid bundling unneeded code
         "useImportType": "error",
         "useExportType": "error",
-        "useNumberNamespace": "warn"
+        "useNumberNamespace": "warn",
+        "noInferrableTypes": "error"
       },
       "suspicious": {
         // This one is specific to catch `console.log`. The rest of logs are permitted

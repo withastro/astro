@@ -1,5 +1,5 @@
 import type { Arguments } from 'yargs-parser';
-import type { Logger, LogOptions } from '../core/logger/core.js';
+import type { AstroLogger, AstroLogOptions } from '../core/logger/core.js';
 import { createNodeLogger, nodeLogDestination } from '../core/logger/node.js';
 import type { AstroInlineConfig } from '../types/public/config.js';
 
@@ -40,9 +40,9 @@ export function flagsToAstroInlineConfig(flags: Flags): AstroInlineConfig {
  * The `logging` is usually created from an `AstroInlineConfig`, but some flows like `add`
  * doesn't read the AstroConfig directly, so we create a `logging` object from the CLI flags instead.
  */
-export function createLoggerFromFlags(flags: Flags): Logger {
-	const logging: LogOptions = {
-		dest: nodeLogDestination,
+export function createLoggerFromFlags(flags: Flags): AstroLogger {
+	const logging: AstroLogOptions = {
+		destination: nodeLogDestination,
 		level: 'info',
 	};
 

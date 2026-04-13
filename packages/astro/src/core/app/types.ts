@@ -15,7 +15,7 @@ import type {
 } from '../../types/public/internal.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 import type { CspDirective } from '../csp/config.js';
-import type { LoggerLevel } from '../logger/core.js';
+import type { AstroLoggerLevel } from '../logger/core.js';
 import type { RoutingStrategies } from './common.js';
 import type { CacheProviderFactory, SSRManifestCache } from '../cache/types.js';
 import type { BaseSessionConfig, SessionDriverFactory } from '../session/types.js';
@@ -150,7 +150,7 @@ export type SSRManifest = {
 		placement: DevToolbarPlacement | undefined;
 	};
 	internalFetchHeaders?: Record<string, string>;
-	logLevel: LoggerLevel;
+	logLevel: AstroLoggerLevel;
 };
 
 export type SSRActions = {

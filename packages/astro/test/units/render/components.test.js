@@ -1,201 +1,77 @@
 import * as assert from 'node:assert/strict';
-import { describe, it } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { createFixture, createRequestAndResponse, runInContainer } from '../test-utils.js';
+import { loadFixture } from '../../test-utils.js';
 
 describe('core/render components', () => {
-	it('should sanitize dynamic tags', async () => {
-		const fixture = await createFixture({
-			'/src/pages/index.astro': `
-				---
-				const TagA = 'p style=color:red;'
-				const TagB = 'p><script id="pwnd">console.log("pwnd")</script>'
-				---
-				<html>
-					<head><title>testing</title></head>
-					<body>
-						<TagA id="target" />
-						<TagB />
-					</body>
-				</html>
-			`,
+	let fixture;
+	let devServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/dev-render/',
+			logLevel: 'silent',
 		});
+		devServer = await fixture.startDevServer();
+	});
 
-		await runInContainer(
-			{
-				inlineConfig: {
-					root: fixture.path,
-					logLevel: 'silent',
-					integrations: [],
-				},
-			},
-			async (container) => {
-				const { req, res, done, text } = createRequestAndResponse({
-					method: 'GET',
-					url: '/',
-				});
-				container.handle(req, res);
+	after(async () => {
+		await devServer.stop();
+	});
 
-				await done;
-				const html = await text();
-				const $ = cheerio.load(html);
-				const target = $('#target');
+	it('should sanitize dynamic tags', async () => {
+		const res = await fixture.fetch('/');
+		const html = await res.text();
+		const $ = cheerio.load(html);
+		const target = $('#target');
 
-				assert.ok(target);
-				assert.equal(target.attr('id'), 'target');
-				assert.equal(typeof target.attr('style'), 'undefined');
-
-				assert.equal($('#pwnd').length, 0);
-			},
-		);
+		assert.ok(target);
+		assert.equal(target.attr('id'), 'target');
+		assert.equal(typeof target.attr('style'), 'undefined');
+		assert.equal($('#pwnd').length, 0);
 	});
 
 	it('should merge `class` and `class:list`', async () => {
-		const fixture = await createFixture({
-			'/src/pages/index.astro': `
-				---
-				import Class from '../components/Class.astro';
-				import ClassList from '../components/ClassList.astro';
-				import BothLiteral from '../components/BothLiteral.astro';
-				import BothFlipped from '../components/BothFlipped.astro';
-				import BothSpread from '../components/BothSpread.astro';
-				---
-				<Class class="red blue" />
-				<ClassList class:list={{ red: true, blue: true }} />
-				<BothLiteral class="red" class:list={{ blue: true }} />
-				<BothFlipped class:list={{ blue: true }} class="red" />
-				<BothSpread class:list={{ blue: true }} { ...{ class: "red" }} />
-			`,
-			'/src/components/Class.astro': `<pre id="class" set:html={JSON.stringify(Astro.props)} />`,
-			'/src/components/ClassList.astro': `<pre id="class-list" set:html={JSON.stringify(Astro.props)} />`,
-			'/src/components/BothLiteral.astro': `<pre id="both-literal" set:html={JSON.stringify(Astro.props)} />`,
-			'/src/components/BothFlipped.astro': `<pre id="both-flipped" set:html={JSON.stringify(Astro.props)} />`,
-			'/src/components/BothSpread.astro': `<pre id="both-spread" set:html={JSON.stringify(Astro.props)} />`,
-		});
+		const res = await fixture.fetch('/class-merge');
+		const html = await res.text();
+		const $ = cheerio.load(html);
 
-		await runInContainer(
-			{
-				inlineConfig: {
-					root: fixture.path,
-					logLevel: 'silent',
-					integrations: [],
-				},
-			},
-			async (container) => {
-				const { req, res, done, text } = createRequestAndResponse({
-					method: 'GET',
-					url: '/',
-				});
-				container.handle(req, res);
+		const check = (name) => JSON.parse($(name).text() || '{}');
 
-				await done;
-				const html = await text();
-				const $ = cheerio.load(html);
+		const Class = check('#class');
+		const ClassList = check('#class-list');
+		const BothLiteral = check('#both-literal');
+		const BothFlipped = check('#both-flipped');
+		const BothSpread = check('#both-spread');
 
-				const check = (name) => JSON.parse($(name).text() || '{}');
-
-				const Class = check('#class');
-				const ClassList = check('#class-list');
-				const BothLiteral = check('#both-literal');
-				const BothFlipped = check('#both-flipped');
-				const BothSpread = check('#both-spread');
-
-				assert.deepEqual(Class, { class: 'red blue' }, '#class');
-				assert.deepEqual(ClassList, { class: 'red blue' }, '#class-list');
-				assert.deepEqual(BothLiteral, { class: 'red blue' }, '#both-literal');
-				assert.deepEqual(BothFlipped, { class: 'red blue' }, '#both-flipped');
-				assert.deepEqual(BothSpread, { class: 'red blue' }, '#both-spread');
-			},
-		);
+		assert.deepEqual(Class, { class: 'red blue' }, '#class');
+		assert.deepEqual(ClassList, { class: 'red blue' }, '#class-list');
+		assert.deepEqual(BothLiteral, { class: 'red blue' }, '#both-literal');
+		assert.deepEqual(BothFlipped, { class: 'red blue' }, '#both-flipped');
+		assert.deepEqual(BothSpread, { class: 'red blue' }, '#both-spread');
 	});
 
 	it('should render component with `null` response', async () => {
-		const fixture = await createFixture({
-			'/src/pages/index.astro': `
-				---
-				import NullComponent from '../components/NullComponent.astro';
-				---
-				<NullComponent />
-			`,
-			'/src/components/NullComponent.astro': `
-				---
-				return null;
-				---
-			`,
-		});
+		const res = await fixture.fetch('/null-component');
+		const html = await res.text();
+		const $ = cheerio.load(html);
 
-		await runInContainer(
-			{
-				inlineConfig: {
-					root: fixture.path,
-					logLevel: 'silent',
-				},
-			},
-			async (container) => {
-				const { req, res, done, text } = createRequestAndResponse({
-					method: 'GET',
-					url: '/',
-				});
-				container.handle(req, res);
-
-				await done;
-				const html = await text();
-				const $ = cheerio.load(html);
-
-				assert.equal($('body').text(), '');
-				assert.equal(res.statusCode, 200);
-			},
-		);
+		assert.equal($('body').text().trim(), '');
+		assert.equal(res.status, 200);
 	});
 
 	it('should render custom element attributes as strings instead of boolean attributes', async () => {
-		const fixture = await createFixture({
-			'/src/pages/index.astro': `
-				---
-				const selectedColor = "blue";
-				const autoplay = 2000;
-				---
-				<html>
-					<head><title>Custom Element Attributes Test</title></head>
-					<body>
-						<!-- Custom elements with hyphenated names should render string attributes -->
-						<color-picker selected={selectedColor}></color-picker>
-						<test-a autoplay={autoplay}>Test with autoplay prop working</test-a>
-					</body>
-				</html>
-			`,
-		});
+		const res = await fixture.fetch('/custom-elements');
+		const html = await res.text();
 
-		await runInContainer(
-			{
-				inlineConfig: {
-					root: fixture.path,
-					logLevel: 'silent',
-					integrations: [],
-				},
-			},
-			async (container) => {
-				const { req, res, done, text } = createRequestAndResponse({
-					method: 'GET',
-					url: '/',
-				});
-				container.handle(req, res);
+		const hasSelectedBlue = html.includes('selected="blue"');
+		const hasAutoplay2000 = html.includes('autoplay="2000"');
+		const hasBooleanSelected = html.includes('<color-picker selected>');
+		const hasBooleanAutoplay = html.includes('<test-a autoplay>');
 
-				await done;
-				const html = await text();
-
-				// Extract test data - following same pattern as class merging test
-				const hasSelectedBlue = html.includes('selected="blue"');
-				const hasAutoplay2000 = html.includes('autoplay="2000"');
-				const hasBooleanSelected = html.includes('<color-picker selected>');
-				const hasBooleanAutoplay = html.includes('<test-a autoplay>');
-
-				// Test custom elements render string attributes correctly
-				assert.ok(hasSelectedBlue, 'selected="blue"');
-				assert.ok(hasAutoplay2000, 'autoplay="2000"');
-				assert.ok(!hasBooleanSelected, 'no boolean selected');
-				assert.ok(!hasBooleanAutoplay, 'no boolean autoplay');
-			},
-		);
+		assert.ok(hasSelectedBlue, 'selected="blue"');
+		assert.ok(hasAutoplay2000, 'autoplay="2000"');
+		assert.ok(!hasBooleanSelected, 'no boolean selected');
+		assert.ok(!hasBooleanAutoplay, 'no boolean autoplay');
 	});
 });
