@@ -1,5 +1,6 @@
 import type { HydratedComponent } from '@astrojs/compiler/types';
 import type { SourceDescription } from 'rollup';
+import type { EnvironmentModuleNode } from 'vite';
 import type * as vite from 'vite';
 import { defaultClientConditions, defaultServerConditions, normalizePath } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
@@ -24,6 +25,7 @@ interface AstroPluginOptions {
 }
 
 const astroFileToCompileMetadataWeakMap = new WeakMap<AstroConfig, Map<string, CompileMetadata>>();
+const cssFileRE = /\.(?:css|scss|sass|less|styl|pcss)(?:$|\?)/i;
 
 /** Transform .astro files for Vite */
 export default function astro({ settings, logger }: AstroPluginOptions): vite.Plugin[] {
@@ -68,6 +70,40 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 
 						// Register dependencies from preprocessing this style
 						result.dependencies?.forEach((dep) => this.addWatchFile(dep));
+					}
+				},
+			},
+			hotUpdate: {
+				order: 'pre',
+				handler({ file, modules }) {
+					// When a CSS dependency file changes (e.g. a file imported via CSS @import),
+					// its modules in the module graph may only be asset-type or have undefined ids.
+					// Some third-party plugins (e.g. @tailwindcss/vite) check for this condition and
+					// send a full-reload instead of performing a CSS-only hot update.
+					// To prevent this, we walk the importer chain to find proper CSS parent modules
+					// and return them, allowing Vite's native CSS HMR to handle the update.
+					if (!cssFileRE.test(file)) return;
+					if (modules.length === 0) return;
+					if (!modules.every((mod) => mod.type === 'asset' || mod.id == null)) return;
+
+					const cssModules: EnvironmentModuleNode[] = [];
+					const visited = new Set<EnvironmentModuleNode>();
+					const queue = [...modules];
+					while (queue.length > 0) {
+						const mod = queue.shift()!;
+						if (visited.has(mod)) continue;
+						visited.add(mod);
+						for (const importer of mod.importers) {
+							if (importer.id != null && importer.type !== 'asset') {
+								cssModules.push(importer);
+							} else {
+								queue.push(importer);
+							}
+						}
+					}
+
+					if (cssModules.length > 0) {
+						return cssModules;
 					}
 				},
 			},
