@@ -204,7 +204,10 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				}
 			}
 
-			if (this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender && fontFileById.size > 0) {
+			if (
+				this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender &&
+				fontFileById.size > 0
+			) {
 				settings.fontsHttpServer = await new Promise<Server>((r) => {
 					const server = createServer((req, res) => {
 						return fontFileMiddleware({

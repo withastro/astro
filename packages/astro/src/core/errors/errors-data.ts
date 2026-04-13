@@ -1490,7 +1490,6 @@ export const FontBufferNotFound = {
 	hint: 'Make sure you pass a valid URL, obtained via the \`fontData\` object.',
 } satisfies ErrorData;
 
-
 /**
  * @docs
  * @description
