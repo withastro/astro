@@ -1147,6 +1147,13 @@ importers:
         version: 3.5.30(typescript@5.9.3)
 
   packages/astro/e2e/fixtures/hmr:
+    dependencies:
+      '@astrojs/preact':
+        specifier: workspace:*
+        version: link:../../../../integrations/preact
+      preact:
+        specifier: ^10.28.2
+        version: 10.29.0
     devDependencies:
       astro:
         specifier: workspace:*
