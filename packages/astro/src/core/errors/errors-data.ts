@@ -1493,11 +1493,11 @@ export const FontBufferNotFound = {
 /**
  * @docs
  * @description
- * `experimental_getFontBuffer()` requires the request URL in SSR.
+ * `experimental_getFontBuffer()` requires the request URL with on-demand rendering.
  */
 export const MissingGetFontBufferRequestUrl = {
 	name: 'MissingGetFontBufferRequestUrl',
-	title: '`experimental_getFontBuffer()` requires the request URL in SSR.',
+	title: '`experimental_getFontBuffer()` requires the request URL with on-demand rendering.',
 	hint: 'Pass the request URL as the 2nd argument, for example `Astro.url`.',
 } satisfies ErrorData;
 
