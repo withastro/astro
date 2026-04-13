@@ -43,9 +43,8 @@ export class BuildApp extends BaseApp<BuildPipeline> {
 
 	async render(request: Request, options: any = {}): Promise<Response> {
 		// During build, force prerendered routes to be matchable since the
-		// build pipeline needs to render them. Use isDev: true so errors
-		// re-throw through the pipeline (allowing the build to report them)
-		// and prepareForRender re-throws errors without a custom 500 page.
+		// build pipeline needs to render them. Keep isDev: false so onError
+		// returns JSON 500s and prepareForRender renders error pages normally.
 		if (!this._userAppCreated) {
 			const { createAstroApp } = await import('../app/hono-app.js');
 			this.setUserApp(createAstroApp({
@@ -53,7 +52,7 @@ export class BuildApp extends BaseApp<BuildPipeline> {
 				manifest: this.manifest,
 				manifestData: this.manifestData,
 				logger: this.logger,
-			}, { isDev: true, allowPrerenderedRoutes: true }));
+			}, { isDev: false, allowPrerenderedRoutes: true }));
 			this._userAppCreated = true;
 		}
 		return super.render(request, options);
