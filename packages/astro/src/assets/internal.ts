@@ -24,20 +24,41 @@ import { createPlaceholderURL, stringifyPlaceholderURL } from './utils/url.js';
 
 export const cssFitValues = ['fill', 'contain', 'cover', 'scale-down'];
 
+let _imageServiceImportPromise: Promise<ImageService> | undefined;
+
 export async function getConfiguredImageService(): Promise<ImageService> {
 	if (!globalThis?.astroAsset?.imageService) {
-		const { default: service }: { default: ImageService } = await import(
-			// @ts-expect-error
-			'virtual:image-service'
-		).catch((e) => {
-			const error = new AstroError(AstroErrorData.InvalidImageService);
-			error.cause = e;
-			throw error;
-		});
-
-		if (!globalThis.astroAsset) globalThis.astroAsset = {};
-		globalThis.astroAsset.imageService = service;
-		return service;
+		if (!_imageServiceImportPromise) {
+			_imageServiceImportPromise = import(
+				// @ts-expect-error
+				'virtual:image-service'
+			)
+				.catch((e) => {
+					const error = new AstroError(AstroErrorData.InvalidImageService);
+					error.cause = e;
+					throw error;
+				})
+				.then(async (mod) => {
+					let service = mod.default;
+					// In Vite's dev-mode SSR, ESM live bindings may not be settled yet
+					// when the module namespace is first returned. Yield one microtask
+					// to allow the module to finish evaluating.
+					if (!service) {
+						await new Promise<void>((resolve) => setTimeout(resolve, 0));
+						service = mod.default;
+					}
+					if (!service) {
+						throw new AstroError(AstroErrorData.InvalidImageService);
+					}
+					if (!globalThis.astroAsset) globalThis.astroAsset = {};
+					globalThis.astroAsset.imageService = service;
+					return service;
+				})
+				.finally(() => {
+					_imageServiceImportPromise = undefined;
+				});
+		}
+		return _imageServiceImportPromise;
 	}
 
 	return globalThis.astroAsset.imageService;
