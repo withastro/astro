@@ -875,6 +875,13 @@ function createPagesMiddleware(
 			}
 		}
 
+		// Persist session data to storage (e.g. fs, redis) after the request
+		// completes. For pages this happens inside prepareForRender's finally
+		// block, but endpoints bypass that path.
+		if (ctx.session) {
+			await (ctx.session as any)[PERSIST_SYMBOL]?.();
+		}
+
 		// Collect all cookies and append to the response.
 		// This is the single place where cookies are added to responses.
 		// Cookies come from two sources:
