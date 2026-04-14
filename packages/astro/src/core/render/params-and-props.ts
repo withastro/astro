@@ -113,7 +113,7 @@ export function getParams(route: RouteData, pathname: string): Params {
  * is `undefined`, throw an error as we can't generate the `/api` file and `/api` directory
  * at the same time. Using something like `[slug].json.ts` instead will work.
  */
-function validatePrerenderEndpointCollision(
+export function validatePrerenderEndpointCollision(
 	route: RouteData,
 	mod: ComponentInstance,
 	params: Params,
