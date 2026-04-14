@@ -42,7 +42,7 @@ import { NoopAstroCache, DisabledAstroCache } from './cache/runtime/noop.js';
 import { compileCacheRoutes, matchCacheRoute } from './cache/runtime/route-matching.js';
 import { AstroSession } from './session/runtime.js';
 import { collapseDuplicateSlashes } from '@astrojs/internal-helpers/path';
-import { validateAndDecodePathname } from './util/pathname.js';
+import { normalizePathname, validateAndDecodePathname } from './util/pathname.js';
 
 /**
  * Each request is rendered using a `RenderContext`.
@@ -133,20 +133,19 @@ export class RenderContext {
 
 	static #createNormalizedUrl(requestUrl: string): URL {
 		const url = new URL(requestUrl);
+		// Validate that the pathname is not multi-level encoded (security check).
+		// This throws on double-encoding (e.g. %2561dmin) but we don't use the
+		// decoded value — only the validation side effect matters here.
 		try {
-			// Decode and validate pathname to prevent multi-level encoding bypass attacks
-			url.pathname = validateAndDecodePathname(url.pathname);
+			validateAndDecodePathname(url.pathname);
 		} catch {
-			// If validation fails, return URL with pathname as-is
-			// This will be caught elsewhere in the request handling pipeline
-			// For now, just decode without validation to maintain compatibility
-			try {
-				url.pathname = decodeURI(url.pathname);
-			} catch {
-				// If even basic decoding fails, return URL as-is
-			}
+			// If validation fails (multi-level encoding detected or malformed),
+			// leave the URL as-is — downstream handling will deal with it.
 		}
-		// This must run after decoding so it catches slashes introduced by decoding (e.g., `%5C` → `\` → `/`).
+		// Safely normalize the pathname by decoding only unreserved characters
+		// (RFC 3986). This prevents middleware bypass attacks (e.g. /%61dmin → /admin)
+		// without corrupting the URL (e.g. %25 stays as %25 instead of bare %).
+		url.pathname = normalizePathname(url.pathname);
 		// Collapse duplicate slashes so middleware sees the canonical pathname
 		// and bypass attacks like `//admin` evading `/admin` checks are prevented.
 		url.pathname = collapseDuplicateSlashes(url.pathname);
