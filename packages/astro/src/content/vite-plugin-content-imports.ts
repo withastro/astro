@@ -6,7 +6,7 @@ import type { Plugin, Rolldown, RunnableDevEnvironment } from 'vite';
 import { getProxyCode } from '../assets/utils/proxy.js';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
-import type { Logger } from '../core/logger/core.js';
+import type { AstroLogger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
 import type {
@@ -69,7 +69,7 @@ export function astroContentImportPlugin({
 }: {
 	fs: typeof fsMod;
 	settings: AstroSettings;
-	logger: Logger;
+	logger: AstroLogger;
 }): Plugin[] {
 	const contentPaths = getContentPaths(
 		settings.config,

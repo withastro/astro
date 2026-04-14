@@ -39,6 +39,20 @@ describe('prerenderEnvironment: node', () => {
 		);
 	});
 
+	it('renders svelte component that imports .svelte files from node_modules', async () => {
+		const res = await fixture.fetch('/svelte');
+		assert.equal(res.status, 200);
+		const html = await res.text();
+		assert.ok(
+			html.includes('id="svelte-wrapper"'),
+			'Expected the prerendered page to contain the svelte wrapper',
+		);
+		assert.ok(
+			html.includes('Hello from fake svelte component'),
+			'Expected the fake svelte component to be rendered',
+		);
+	});
+
 	it('includes styles in prerendered page', async () => {
 		const res = await fixture.fetch('/');
 		const html = await res.text();

@@ -174,8 +174,7 @@ export const restoreFocus = ({ activeElement, start, end }: SavedFocus) => {
 };
 
 // Check for a head element that should persist and returns it,
-// either because it has the data attribute or is a link el.
-// Returns null if the element is not part of the new head, undefined if it should be left alone.
+// either because it has the data attribute or because replacing it would cause avoidable FOUC.
 const persistedHeadElement = (el: HTMLElement, newDoc: Document): Element | null => {
 	const id = el.getAttribute(PERSIST_ATTR);
 	const newEl = id && newDoc.head.querySelector(`[${PERSIST_ATTR}="${id}"]`);
@@ -187,12 +186,16 @@ const persistedHeadElement = (el: HTMLElement, newDoc: Document): Element | null
 		return newDoc.head.querySelector(`link[rel=stylesheet][href="${href}"]`);
 	}
 	// In dev mode, Vite injects <style data-vite-dev-id="..."> elements whose
-	// textContent is later transformed by HMR (e.g. Vue's `:deep()` → `[data-v-xxx]`).
+	// textContent may later be transformed (especially Vue's `:deep()` → `[data-v-xxx]`).
 	// Match these by their stable dev ID so the already-transformed style is preserved
 	// across ClientRouter soft navigations instead of being replaced by the raw version.
+	// There are other ids that can't be preserved and need a refresh, like Uno's /__uno.css,
+	// which keeps the id with different contents.
+	// To avoid enumerating all exceptions, we only apply the auto-persist logic to elements
+	// that look like Vue's dev styles.
 	if (import.meta.env.DEV && el.tagName === 'STYLE') {
 		const viteDevId = el.getAttribute('data-vite-dev-id');
-		if (viteDevId) {
+		if (/\?vue&type=style&.*lang.css$/.test(viteDevId || '')) {
 			return newDoc.head.querySelector(`style[data-vite-dev-id="${viteDevId}"]`);
 		}
 	}

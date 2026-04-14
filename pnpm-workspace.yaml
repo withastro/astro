@@ -51,6 +51,10 @@ minimumReleaseAgeExclude:
   - smol-toml@1.6.1
   # Renovate security update: picomatch@4.0.4
   - picomatch@4.0.4
+  # Smoke test dependency (docs site)
+  - astro-og-canvas@0.11.0
+  # @types/node@24.12.2 published <3 days ago
+  - '@types/node@24.12.2'
 peerDependencyRules:
   allowAny:
     - 'astro'

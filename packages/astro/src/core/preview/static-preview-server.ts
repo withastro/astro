@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
 import { mergeConfig, preview, type PreviewServer as VitePreviewServer } from 'vite';
 import type { AstroSettings } from '../../types/astro.js';
-import type { Logger } from '../logger/core.js';
+import type { AstroLogger } from '../logger/core.js';
 import * as msg from '../messages/runtime.js';
 import { getResolvedHostForHttpServer } from './util.js';
 import { vitePluginAstroPreview } from './vite-plugin-astro-preview.js';
@@ -21,7 +21,7 @@ interface PreviewServer {
 
 export default async function createStaticPreviewServer(
 	settings: AstroSettings,
-	logger: Logger,
+	logger: AstroLogger,
 ): Promise<PreviewServer> {
 	const startServerTime = performance.now();
 

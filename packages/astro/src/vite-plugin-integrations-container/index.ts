@@ -1,7 +1,7 @@
 import type { PluginContext } from 'rolldown';
 import type { Plugin as VitePlugin } from 'vite';
 import { normalizePath } from 'vite';
-import type { Logger } from '../core/logger/core.js';
+import type { AstroLogger } from '../core/logger/core.js';
 import { runHookServerSetup } from '../integrations/hooks.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { InternalInjectedRoute, ResolvedInjectedRoute } from '../types/public/internal.js';
@@ -12,7 +12,7 @@ export default function astroIntegrationsContainerPlugin({
 	logger,
 }: {
 	settings: AstroSettings;
-	logger: Logger;
+	logger: AstroLogger;
 }): VitePlugin {
 	return {
 		name: 'astro:integration-container',
