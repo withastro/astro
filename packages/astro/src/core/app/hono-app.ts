@@ -52,6 +52,7 @@ import { attachCookiesToResponse, getSetCookiesFromResponse } from '../cookies/r
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { AstroSession } from '../session/runtime.js';
 import { AstroCache, type CacheLike, applyCacheHeaders } from '../cache/runtime/cache.js';
+import { compileCacheRoutes, matchCacheRoute } from '../cache/runtime/route-matching.js';
 import { DisabledAstroCache, NoopAstroCache } from '../cache/runtime/noop.js';
 import { PageRenderer } from './renderers/page.js';
 import { EndpointRenderer } from './renderers/endpoint.js';
@@ -243,6 +244,23 @@ function createContextFactory(deps: AstroAppDeps, _matchRouteData: (req: Request
 		} else {
 			const cacheProvider = await pipeline.getCacheProvider();
 			cache = new AstroCache(cacheProvider);
+
+			// Apply config-level cache route matching (experimental.routeRules)
+			// so cache headers are set automatically without calling cache.set().
+			if (pipeline.cacheConfig?.routes) {
+				if (!pipeline.compiledCacheRoutes) {
+					pipeline.compiledCacheRoutes = compileCacheRoutes(
+						pipeline.cacheConfig.routes,
+						manifest.base,
+						manifest.trailingSlash,
+					);
+				}
+				const pathname = removeBase(decodeURI(url.pathname), manifest.base) || '/';
+				const matched = matchCacheRoute(pathname, pipeline.compiledCacheRoutes);
+				if (matched) {
+					cache.set(matched);
+				}
+			}
 		}
 
 		const locals: App.Locals = storeOptions?.locals ?? (Reflect.get(request, clientLocalsSymbol) as App.Locals) ?? ({} as App.Locals);
