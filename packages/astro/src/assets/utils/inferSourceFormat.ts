@@ -1,6 +1,6 @@
 import { removeQueryString } from '@astrojs/internal-helpers/path';
 
-const DATA_PREFIX = 'data';
+const DATA_PREFIX = 'data:';
 
 /**
  * Infer the image format from a source path or URL by examining
