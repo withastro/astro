@@ -38,7 +38,7 @@ export function getViteConfig(
 			{ runHookConfigSetup, runHookConfigDone },
 		] = await Promise.all([
 			import('vite'),
-			import('../core/logger/node.js'),
+			import('../core/logger/impls/node.js'),
 			import('../core/config/index.js'),
 			import('../core/create-vite.js'),
 			import('../integrations/hooks.js'),

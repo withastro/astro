@@ -1,6 +1,6 @@
 import type { Arguments } from 'yargs-parser';
-import type { AstroLogger, AstroLogOptions } from '../core/logger/core.js';
-import { createNodeLogger, nodeLogDestination } from '../core/logger/node.js';
+import type { AstroLogger } from '../core/logger/core.js';
+import { createNodeLogger } from '../core/logger/impls/node.js';
 import type { AstroInlineConfig } from '../types/public/config.js';
 
 // Alias for now, but allows easier migration to node's `parseArgs` in the future.
@@ -41,16 +41,13 @@ export function flagsToAstroInlineConfig(flags: Flags): AstroInlineConfig {
  * doesn't read the AstroConfig directly, so we create a `logging` object from the CLI flags instead.
  */
 export function createLoggerFromFlags(flags: Flags): AstroLogger {
-	const logging: AstroLogOptions = {
-		destination: nodeLogDestination,
-		level: 'info',
-	};
+	let logLevel = flags.level;
 
 	if (flags.verbose) {
-		logging.level = 'debug';
+		logLevel = 'debug';
 	} else if (flags.silent) {
-		logging.level = 'silent';
+		logLevel = 'silent';
 	}
 
-	return createNodeLogger({ logLevel: logging.level });
+	return createNodeLogger({ logLevel });
 }
