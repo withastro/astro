@@ -1,26 +1,67 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { createKey } from '../../../dist/core/encryption.js';
 import type { SSRResult } from '../../../dist/types/public/internal.js';
+import type {
+	RenderDestination,
+	RenderDestinationChunk,
+} from '../../../dist/runtime/server/render/common.js';
 import { buildRenderQueue } from '../../../dist/runtime/server/render/queue/builder.js';
 import { renderQueue } from '../../../dist/runtime/server/render/queue/renderer.js';
 import { NodePool } from '../../../dist/runtime/server/render/queue/pool.js';
 import { markHTMLString } from '../../../dist/runtime/server/index.js';
 
-// Mock SSRResult for testing
-function createMockResult() {
+async function createMockResult(): Promise<SSRResult> {
+	const key = await createKey();
 	return {
-		_metadata: {
-			hasHydrationScript: false,
-			hasRenderedHead: false,
-			hasDirectives: new Set(),
-			headInTree: false,
-			extraHead: [],
-			propagators: new Set(),
-		},
+		cancelled: false,
+		base: '/',
+		userAssetsBase: undefined,
 		styles: new Set(),
 		scripts: new Set(),
 		links: new Set(),
-	} as unknown as SSRResult;
+		componentMetadata: new Map(),
+		inlinedScripts: new Map(),
+		createAstro() {
+			throw new Error('createAstro() not available in unit tests');
+		},
+		params: {},
+		resolve: async (s: string) => s,
+		response: { status: 200, statusText: 'OK', headers: new Headers() },
+		request: new Request('http://localhost/'),
+		renderers: [],
+		clientDirectives: new Map(),
+		compressHTML: false,
+		partial: false,
+		pathname: '/',
+		cookies: undefined,
+		serverIslandNameMap: new Map(),
+		trailingSlash: 'never',
+		key: Promise.resolve(key),
+		_metadata: {
+			hasHydrationScript: false,
+			rendererSpecificHydrationScripts: new Set<string>(),
+			hasRenderedHead: false,
+			renderedScripts: new Set<string>(),
+			hasDirectives: new Set<string>(),
+			hasRenderedServerIslandRuntime: false,
+			headInTree: false,
+			extraHead: [],
+			extraStyleHashes: [],
+			extraScriptHashes: [],
+			propagators: new Set(),
+		},
+		cspDestination: 'header',
+		shouldInjectCspMetaTags: false,
+		cspAlgorithm: 'SHA-256',
+		scriptHashes: [],
+		scriptResources: [],
+		styleHashes: [],
+		styleResources: [],
+		directives: [],
+		isStrictDynamic: false,
+		internalFetchHeaders: {},
+	};
 }
 
 // Create a NodePool for testing
@@ -30,7 +71,7 @@ function createMockPool() {
 
 describe('Queue batching optimization', () => {
 	it('should batch consecutive text nodes', async () => {
-		const result = createMockResult();
+		const result = await createMockResult();
 		const pool = createMockPool();
 		const items = ['Hello', ' ', 'world', '!'];
 
@@ -46,8 +87,8 @@ describe('Queue batching optimization', () => {
 		// When rendered, they should be batched into one write
 		let writeCount = 0;
 		let output = '';
-		const destination = {
-			write(chunk: unknown) {
+		const destination: RenderDestination = {
+			write(chunk: RenderDestinationChunk) {
 				writeCount++;
 				output += String(chunk);
 			},
@@ -60,7 +101,7 @@ describe('Queue batching optimization', () => {
 	});
 
 	it('should batch consecutive html-string nodes', async () => {
-		const result = createMockResult();
+		const result = await createMockResult();
 		const pool = createMockPool();
 
 		const items = [markHTMLString('<div>'), markHTMLString('content'), markHTMLString('</div>')];
@@ -69,8 +110,8 @@ describe('Queue batching optimization', () => {
 
 		let writeCount = 0;
 		let output = '';
-		const destination = {
-			write(chunk: unknown) {
+		const destination: RenderDestination = {
+			write(chunk: RenderDestinationChunk) {
 				writeCount++;
 				output += String(chunk);
 			},
@@ -84,12 +125,12 @@ describe('Queue batching optimization', () => {
 	});
 
 	it('should NOT batch across component boundaries', async () => {
-		const result = createMockResult();
+		const result = await createMockResult();
 		const pool = createMockPool();
 
 		// Create a simple component
 		const componentInstance = {
-			render(dest: { write(chunk: unknown): void }) {
+			render(dest: RenderDestination) {
 				dest.write('<p>Component</p>');
 			},
 		};
@@ -100,8 +141,8 @@ describe('Queue batching optimization', () => {
 
 		let writeCount = 0;
 		let output = '';
-		const destination = {
-			write(chunk: unknown) {
+		const destination: RenderDestination = {
+			write(chunk: RenderDestinationChunk) {
 				writeCount++;
 				output += String(chunk);
 			},
@@ -115,7 +156,7 @@ describe('Queue batching optimization', () => {
 	});
 
 	it('should demonstrate performance improvement with large arrays', async () => {
-		const result = createMockResult();
+		const result = await createMockResult();
 		const pool = createMockPool();
 
 		// Create a large array of text items (simulating a list)
@@ -126,7 +167,7 @@ describe('Queue batching optimization', () => {
 		assert.equal(queue.nodes.length, 1000);
 
 		let writeCount = 0;
-		const destination = {
+		const destination: RenderDestination = {
 			write() {
 				writeCount++;
 			},
@@ -140,7 +181,7 @@ describe('Queue batching optimization', () => {
 	});
 
 	it('should batch mixed text and html-string nodes', async () => {
-		const result = createMockResult();
+		const result = await createMockResult();
 		const pool = createMockPool();
 
 		const items = [
@@ -154,8 +195,8 @@ describe('Queue batching optimization', () => {
 
 		let writeCount = 0;
 		let output = '';
-		const destination = {
-			write(chunk: unknown) {
+		const destination: RenderDestination = {
+			write(chunk: RenderDestinationChunk) {
 				writeCount++;
 				output += String(chunk);
 			},
