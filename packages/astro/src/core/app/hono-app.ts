@@ -180,9 +180,12 @@ function createMatchRouteData(deps: AstroAppDeps) {
 		}
 
 		for (const route of manifestData.routes) {
-			if (!allowPrerenderedRoutes && route.prerender) continue;
-			if (route.pattern.test(strippedPathname)) return route;
-			if (manifest.trailingSlash === 'never' && strippedPathname === '/' && route.pattern.test('')) {
+			if (route.pattern.test(strippedPathname) || (manifest.trailingSlash === 'never' && strippedPathname === '/' && route.pattern.test(''))) {
+				// If the matching route is prerendered and we're not allowing
+				// prerendered routes, return undefined immediately. This prevents
+				// catch-all routes from handling paths that belong to prerendered
+				// routes (which are served as static assets by the adapter).
+				if (!allowPrerenderedRoutes && route.prerender) return undefined;
 				return route;
 			}
 		}
