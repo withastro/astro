@@ -340,7 +340,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				logger: this.logger,
 			});
 		}
-		// Pass per-request render options into the Hono pipeline via AsyncLocalStorage.
+		// Pass per-request render options into the Hono pipeline via the render options store.
 		// This avoids smuggling values on the Request object (which breaks when
 		// Requests are cloned for rewrites).
 		const userApp = this.#userApp;
