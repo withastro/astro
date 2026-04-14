@@ -48,6 +48,7 @@ async function renderPage(
 	const routeData = {
 		type: 'page' as const,
 		route: '/index',
+		path: '/index',
 		pathname: '/index',
 		component: 'src/pages/index.astro',
 		params: [] as string[],
