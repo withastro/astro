@@ -1,8 +1,8 @@
 import * as assert from 'node:assert/strict';
 import { afterEach, beforeEach, describe, it } from 'node:test';
-import type { AstroLoggerMessage, AstroLoggerDestination } from '../../../src/core/logger/core.js';
+import type { AstroLoggerMessage, AstroLoggerDestination } from '../../../dist/core/logger/core.js';
 import { AstroLogger } from '../../../dist/core/logger/core.js';
-import jsonFactory from '../../../dist/core/logger/impls/json.js';
+import jsonFactory, { SGR_REGEX } from '../../../dist/core/logger/impls/json.js';
 
 let logs: AstroLoggerMessage[] = [];
 
@@ -96,6 +96,47 @@ describe('log destination', () => {
 			logger.error('build', 'nope');
 			assert.equal(logs.length, 0);
 		});
+	});
+});
+
+describe('SGR_REGEX', () => {
+	it('strips a single SGR sequence', () => {
+		assert.equal('hello'.replace(SGR_REGEX, ''), 'hello');
+		assert.equal('\x1b[31mhello\x1b[0m'.replace(SGR_REGEX, ''), 'hello');
+	});
+
+	it('strips bold, dim, italic, and other multi-param sequences', () => {
+		assert.equal('\x1b[1;31mbold red\x1b[0m'.replace(SGR_REGEX, ''), 'bold red');
+		assert.equal('\x1b[2mfaded\x1b[22m'.replace(SGR_REGEX, ''), 'faded');
+	});
+
+	it('strips reset-only sequence', () => {
+		assert.equal('\x1b[0m'.replace(SGR_REGEX, ''), '');
+		assert.equal('\x1b[m'.replace(SGR_REGEX, ''), '');
+	});
+
+	it('strips multiple SGR sequences in one string', () => {
+		const input = '\x1b[32mgreen\x1b[39m and \x1b[34mblue\x1b[39m';
+		assert.equal(input.replace(SGR_REGEX, ''), 'green and blue');
+	});
+
+	it('leaves plain text untouched', () => {
+		assert.equal('no codes here'.replace(SGR_REGEX, ''), 'no codes here');
+		assert.equal(''.replace(SGR_REGEX, ''), '');
+	});
+
+	it('does not strip non-SGR escape sequences', () => {
+		// Cursor movement (CSI H) is not an SGR (does not end with 'm')
+		const cursorMove = '\x1b[2J';
+		assert.equal(cursorMove.replace(SGR_REGEX, ''), cursorMove);
+	});
+
+	it('is stateless across calls (global flag resets lastIndex)', () => {
+		SGR_REGEX.lastIndex = 0;
+		const a = '\x1b[31mred\x1b[0m'.replace(SGR_REGEX, '');
+		const b = '\x1b[32mgreen\x1b[0m'.replace(SGR_REGEX, '');
+		assert.equal(a, 'red');
+		assert.equal(b, 'green');
 	});
 });
 

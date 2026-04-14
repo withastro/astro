@@ -16,6 +16,7 @@ export async function loadLogger(
 	root: AstroConfig['root'],
 ): Promise<AstroLoggerDestination> {
 	let server: ViteDevServer | undefined = undefined;
+	let cause: Error | undefined = undefined;
 
 	try {
 		const plugins = [...loadFallbackPlugin({ fs, root }), astroLoggerVitePlugin({ config })];
@@ -28,16 +29,22 @@ export async function loadLogger(
 			const mod = await environment.runner.import('virtual:astro:logger');
 			return mod.default as AstroLoggerDestination;
 		}
-	} catch (e) {
-		console.error(e);
+	} catch (e: unknown) {
+		if (e instanceof Error) {
+			cause = e;
+		}
 	} finally {
 		if (server) {
 			await server.close();
 		}
 	}
 
-	throw new AstroError({
+	const error = new AstroError({
 		...UnableToLoadLogger,
 		message: UnableToLoadLogger.message(config.entrypoint),
 	});
+	if (cause) {
+		error.cause = cause;
+	}
+	throw error;
 }

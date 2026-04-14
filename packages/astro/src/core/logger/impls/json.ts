@@ -9,11 +9,11 @@ type ConsoleStream = Writable & {
 	fd: 1 | 2;
 };
 
-const SGR_REGEX = /\x1b\[[0-9;]*m/g;
+export const SGR_REGEX = new RegExp(`${String.fromCharCode(0x1b)}\\[[0-9;]*m`, 'g');
 
-export default function (config: JonsHandlerConfig): AstroLoggerDestination<any> {
+export default function (config: JonsHandlerConfig): AstroLoggerDestination<AstroLoggerMessage> {
 	return {
-		write(event: AstroLoggerMessage) {
+		write(event) {
 			let dest: ConsoleStream = process.stderr;
 			if (levels[event.level] < levels['error']) {
 				dest = process.stdout;

@@ -145,7 +145,7 @@ export async function createContainerWithAutomaticRestart({
 	inlineConfig,
 	fs,
 }: CreateContainerWithAutomaticRestart): Promise<Restart> {
-	let logger = createNodeLogger(inlineConfig ?? {});
+	const logger = createNodeLogger(inlineConfig ?? {});
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'dev', fs);
 	// For now, we override only when no inline config has been provided. This won't break tests
 	if (!inlineConfig && astroConfig.experimental.logger) {

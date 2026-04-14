@@ -1,6 +1,6 @@
 import colors from 'piccolore';
 
-export interface AstroLoggerDestination<T extends unknown = unknown> {
+export interface AstroLoggerDestination<T = unknown> {
 	/**
 	 * It receives a message and writes it into a destination
 	 */

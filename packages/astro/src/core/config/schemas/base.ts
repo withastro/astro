@@ -13,7 +13,6 @@ import * as z from 'zod/v4';
 import { FontFamilySchema } from '../../../assets/fonts/config.js';
 import { EnvSchema } from '../../../env/schema.js';
 import type { AstroUserConfig, ViteUserConfig } from '../../../types/public/config.js';
-import type { LoggerHandlerConfig } from '../../logger/config.js';
 import { allowedDirectivesSchema, cspAlgorithmSchema, cspHashSchema } from '../../csp/config.js';
 import { CacheSchema, RouteRulesSchema } from '../../cache/config.js';
 import { SessionSchema } from '../../session/config.js';
@@ -119,7 +118,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 			entrypoint: 'astro/logger/node',
 		},
 	},
-} satisfies AstroUserConfig<never, never, never, LoggerHandlerConfig> & {
+} satisfies AstroUserConfig & {
 	server: { open: boolean };
 };
 

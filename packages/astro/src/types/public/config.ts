@@ -162,7 +162,6 @@ export interface AstroUserConfig<
 	TLocales extends Locales = never,
 	TDriver extends SessionDriverName | SessionDriverConfig | undefined = never,
 	TFontProviders extends Array<FontProvider> = never,
-	TLogger extends LoggerHandlerConfig | undefined = never,
 > {
 	/**
 	 * @docs
@@ -3069,7 +3068,7 @@ export interface AstroUserConfig<
 		 *
 		 * Allows to customise how Astro logger behaves
 		 */
-		logger?: TLogger;
+		logger?: LoggerHandlerConfig;
 	};
 }
 
