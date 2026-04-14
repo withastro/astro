@@ -154,6 +154,19 @@ function createMatchRouteData(deps: AstroAppDeps) {
 		if (manifest.assets.has(url.pathname)) return undefined;
 		let strippedPathname = removeBase(decodeURI(url.pathname), manifest.base) || '/';
 
+		// When build.format is 'file', request URLs may contain .html or
+		// /index.html suffixes (e.g. from getUrlForPath during SSG).
+		// Normalize them away so the route patterns can match.
+		if (manifest.buildFormat === 'file') {
+			if (strippedPathname.endsWith('/index.html')) {
+				const trimmed = strippedPathname.slice(0, -'/index.html'.length);
+				strippedPathname = trimmed === '' ? '/' : trimmed;
+			} else if (strippedPathname.endsWith('.html')) {
+				const trimmed = strippedPathname.slice(0, -'.html'.length);
+				strippedPathname = trimmed === '' ? '/' : trimmed;
+			}
+		}
+
 		// For domain-based i18n, prepend the resolved locale to the pathname
 		const domainLocale = resolveDomainLocale(request, manifest);
 		if (domainLocale) {
@@ -249,7 +262,9 @@ function createContextFactory(deps: AstroAppDeps, _matchRouteData: (req: Request
 				if (_paramsOverride) return _paramsOverride;
 				const routeData = c.get(ASTRO_ROUTE_DATA_KEY);
 				if (!routeData) return {};
-				const pathname = removeBase(url.pathname, manifest.base) || '/';
+				// decodeURI so params with special characters (e.g. spaces)
+				// are returned decoded, matching getStaticPaths values.
+				const pathname = removeBase(decodeURI(url.pathname), manifest.base) || '/';
 				return getParams(routeData, pathname);
 			},
 			set params(value) {
@@ -375,7 +390,7 @@ function createRedirectsMiddleware(deps: AstroAppDeps): MiddlewareHandler<AstroH
 
 	return async (c, next) => {
 		const url = new URL(c.req.url);
-		const pathname = removeBase(url.pathname, manifest.base);
+		const pathname = removeBase(decodeURI(url.pathname), manifest.base);
 
 		for (const routeData of redirectRoutes) {
 			if (routeData.pattern.test(pathname)) {
