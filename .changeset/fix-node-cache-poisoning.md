@@ -2,4 +2,4 @@
 '@astrojs/node': patch
 ---
 
-Fixes a cache poisoning vulnerability where conditional request errors (e.g. malformed `If-Match` header) returned immutable far-future cache headers, allowing CDN caches to serve error responses instead of static assets
+Fixes static asset error responses incorrectly including immutable cache headers. Conditional request failures (e.g. `If-Match` mismatch) now return the correct status code without far-future cache directives.
