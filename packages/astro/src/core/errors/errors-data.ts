@@ -1491,6 +1491,30 @@ export const UnavailableAstroGlobal = {
 
 /**
  * @docs
+ * @description
+ * Unable to load the logger.
+ * @message
+ * Couldn't load the logger at the given path.
+ */
+export const UnableToLoadLogger = {
+	name: 'UnableToLoadLogger',
+	title: 'Unable to load the logger.',
+	message: (path: string) => `Couldn't load the logger at given path "${path}".`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * The configuration of the logger is not serializable.
+ * @message
+ * The configuration of the logger is not serializable.
+ */
+export const LoggerConfigurationNotSerializable = {
+	name: 'LoggerConfigurationNotSerializable',
+	title: 'The configuration of the logger is not serializable',
+} satisfies ErrorData;
+/**
+ * @docs
  * @kind heading
  * @name CSS Errors
  */

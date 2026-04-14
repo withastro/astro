@@ -20,6 +20,7 @@ import type {
 } from '../../../dist/cli/definitions.js';
 import type { KeyGenerator } from '../../../dist/cli/create-key/definitions.js';
 import type { DebugInfoProvider } from '../../../dist/cli/info/definitions.js';
+import type { AstroLoggerDestination } from '../../../dist/core/logger/core.js';
 
 export class PassthroughCommandRunner implements CommandRunner {
 	run<T extends AnyCommand>(
@@ -218,6 +219,10 @@ export class SpyLogger {
 
 	forkIntegrationLogger(label: string): AstroIntegrationLogger {
 		return new AstroIntegrationLogger(this.options, label);
+	}
+
+	setDestination(destination: AstroLoggerDestination): void {
+		this.options.destination = destination;
 	}
 }
 

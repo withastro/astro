@@ -81,7 +81,11 @@
     "./zod": "./dist/zod.js",
     "./errors": "./dist/core/errors/userError.js",
     "./middleware": "./dist/core/middleware/index.js",
-    "./virtual-modules/*": "./dist/virtual-modules/*"
+    "./virtual-modules/*": "./dist/virtual-modules/*",
+    "./logger/json": "./dist/core/logger/impls/json.js",
+    "./logger/node": "./dist/core/logger/impls/node.js",
+    "./logger/compose": "./dist/core/logger/impls/compose.js",
+    "./logger/console": "./dist/core/logger/impls/console.js"
   },
   "bin": {
     "astro": "./bin/astro.mjs"

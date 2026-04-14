@@ -57,3 +57,8 @@ export type * from './manifest.js';
 export type * from './preview.js';
 export type * from './toolbar.js';
 export type * from './view-transitions.js';
+export type {
+	AstroLoggerDestination,
+	AstroLoggerMessage,
+	AstroLoggerLevel,
+} from '../../core/logger/core.js';
