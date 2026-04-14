@@ -4,7 +4,7 @@ import type {
 	AssetsGlobalStaticImagesList,
 	PathWithRoute,
 } from 'astro';
-import { preview, type PreviewServer as VitePreviewServer } from 'vite';
+import { preview, createLogger, type PreviewServer as VitePreviewServer } from 'vite';
 import { fileURLToPath } from 'node:url';
 import { mkdir } from 'node:fs/promises';
 import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
@@ -53,6 +53,20 @@ export function createCloudflarePrerenderer({
 			// Ensure client dir exists (CF plugin expects it for assets)
 			await mkdir(clientDir, { recursive: true });
 
+			// Create a custom logger that filters out HTTP request logs (e.g. "POST /__astro_prerender 200 OK")
+			// from the Cloudflare vite plugin while still allowing user console.log output to pass through.
+			// We strip ANSI codes before testing because the Cloudflare vite plugin wraps messages in color codes.
+			const defaultLogger = createLogger('info');
+			const ansiRe = /\x1b\[[0-9;]*m/g;
+			const requestLogRe = /^(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\s+\S+\s+\d+\s+/;
+			const customLogger: ReturnType<typeof createLogger> = {
+				...defaultLogger,
+				info(msg, opts) {
+					if (requestLogRe.test(msg.replace(ansiRe, ''))) return;
+					defaultLogger.info(msg, opts);
+				},
+			};
+
 			previewServer = await preview({
 				configFile: false,
 				base,
@@ -61,7 +75,7 @@ export function createCloudflarePrerenderer({
 					outDir: fileURLToPath(serverDir),
 				},
 				root: fileURLToPath(root),
-				logLevel: 'info',
+				customLogger,
 				preview: {
 					host: 'localhost',
 					port: 0, // Let the OS pick a free port
