@@ -47,8 +47,11 @@ export function pluginChunkImports(options: StaticBuildOptions): VitePlugin | un
 			let rewritten = code;
 			for (let i = relativeImports.length - 1; i >= 0; i--) {
 				const imp = relativeImports[i];
-				// imp.s and imp.e are the start/end offsets of the module specifier (without quotes)
-				rewritten = rewritten.slice(0, imp.e) + '?' + queryString + rewritten.slice(imp.e);
+				// For dynamic imports (d >= 0), imp.e is exclusive (one past closing quote).
+				// For static imports (d === -1), imp.e is the closing quote itself.
+				// In both cases we want to insert just before the closing quote.
+				const insertAt = imp.d >= 0 ? imp.e - 1 : imp.e;
+				rewritten = rewritten.slice(0, insertAt) + '?' + queryString + rewritten.slice(insertAt);
 			}
 
 			return { code: rewritten, map: null };

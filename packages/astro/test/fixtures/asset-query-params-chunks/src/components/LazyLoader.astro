@@ -1,0 +1,7 @@
+<div id="lazy-loader">Lazy Loader</div>
+<script>
+	const el = document.getElementById('lazy-loader');
+	import('./shared.js').then(({ greet }) => {
+		if (el) el.textContent = greet('Lazy');
+	});
+</script>
