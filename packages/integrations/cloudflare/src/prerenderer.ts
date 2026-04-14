@@ -53,16 +53,16 @@ export function createCloudflarePrerenderer({
 			// Ensure client dir exists (CF plugin expects it for assets)
 			await mkdir(clientDir, { recursive: true });
 
-			// Create a custom logger that filters out HTTP request logs (e.g. "POST /__astro_prerender 200 OK")
+			// Create a custom logger that filters out internal HTTP request logs (e.g. "POST /__astro_prerender 200 OK")
 			// from the Cloudflare vite plugin while still allowing user console.log output to pass through.
 			// We strip ANSI codes before testing because the Cloudflare vite plugin wraps messages in color codes.
 			const defaultLogger = createLogger('info');
 			const ansiRe = /\x1b\[[0-9;]*m/g;
-			const requestLogRe = /^(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\s+\S+\s+\d+\s+/;
+			const astroRequestLogRe = /^(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\s+\/__astro_/;
 			const customLogger: ReturnType<typeof createLogger> = {
 				...defaultLogger,
 				info(msg, opts) {
-					if (requestLogRe.test(msg.replace(ansiRe, ''))) return;
+					if (astroRequestLogRe.test(msg.replace(ansiRe, ''))) return;
 					defaultLogger.info(msg, opts);
 				},
 			};
