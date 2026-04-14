@@ -1,44 +1,4 @@
-import type { Writable } from 'node:stream';
 import { createDebug, enable as obugEnable } from 'obug';
-import type { AstroInlineConfig } from '../../types/public/config.js';
-import { AstroLogger } from './core.js';
-import {
-	getEventPrefix,
-	type AstroLogMessage,
-	type AstroLoggerDestination,
-	levels,
-} from './core.js';
-
-type ConsoleStream = Writable & {
-	fd: 1 | 2;
-};
-
-export const nodeLogDestination: AstroLoggerDestination<AstroLogMessage> = {
-	write(event: AstroLogMessage) {
-		let dest: ConsoleStream = process.stderr;
-		if (levels[event.level] < levels['error']) {
-			dest = process.stdout;
-		}
-
-		let format = event._format ?? 'default';
-
-		let trailingLine = event.newLine ? '\n' : '';
-		switch (format) {
-			case 'json': {
-				dest.write(JSON.stringify({ message: event.message, label: event.label }) + trailingLine);
-				return true;
-			}
-			case 'default': {
-				if (event.label === 'SKIP_FORMAT') {
-					dest.write(event.message + trailingLine);
-				} else {
-					dest.write(getEventPrefix(event) + ' ' + event.message + trailingLine);
-				}
-				return true;
-			}
-		}
-	},
-};
 
 const debuggers: Record<string, ReturnType<typeof createDebug>> = {};
 
@@ -66,13 +26,4 @@ export function enableVerboseLogging() {
 		'cli',
 		'Tip: Set the DEBUG env variable directly for more control. Example: "DEBUG=astro:*,vite:* astro build".',
 	);
-}
-
-export function createNodeLogger(inlineConfig: AstroInlineConfig): AstroLogger {
-	if (inlineConfig.logger) return inlineConfig.logger;
-
-	return new AstroLogger({
-		destination: nodeLogDestination,
-		level: inlineConfig.logLevel ?? 'info',
-	});
 }
