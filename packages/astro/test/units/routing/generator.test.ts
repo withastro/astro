@@ -1,10 +1,18 @@
-import * as assert from 'node:assert/strict';
+import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-
+import type { AstroConfig } from '../../../dist/types/public/config.js';
+import type { RoutePart } from '../../../dist/types/public/internal.js';
 import { getRouteGenerator } from '../../../dist/core/routing/generator.js';
 
+interface TestCase {
+	routeData: RoutePart[][];
+	trailingSlash: AstroConfig['trailingSlash'];
+	params: Record<string, string | number>;
+	path: string;
+}
+
 describe('routing - generator', () => {
-	[
+	const cases: TestCase[] = [
 		{
 			routeData: [],
 			trailingSlash: 'never',
@@ -135,7 +143,9 @@ describe('routing - generator', () => {
 			params: { page: 1 },
 			path: '/fix/1',
 		},
-	].forEach(({ routeData, trailingSlash, params, path }) => {
+	];
+
+	cases.forEach(({ routeData, trailingSlash, params, path }) => {
 		it(`generates ${path}`, () => {
 			const generator = getRouteGenerator(routeData, trailingSlash);
 			assert.equal(generator(params), path);

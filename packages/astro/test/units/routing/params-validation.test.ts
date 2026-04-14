@@ -1,15 +1,25 @@
 import assert from 'node:assert/strict';
 import { describe, it, before } from 'node:test';
-import { Logger } from '../../../dist/core/logger/core.js';
+import type { ComponentInstance } from '../../../dist/types/astro.js';
+import type { AstroLogMessage, AstroLoggerDestination } from '../../../dist/core/logger/core.js';
+import { AstroLogger } from '../../../dist/core/logger/core.js';
 import { RouteCache, callGetStaticPaths } from '../../../dist/core/render/route-cache.js';
 import { makeRoute } from './test-helpers.js';
 
+function mod(overrides: Partial<ComponentInstance>): ComponentInstance {
+	return overrides as ComponentInstance;
+}
+
 describe('getStaticPaths param validation', () => {
-	let routeCache;
-	let logger;
+	let routeCache: RouteCache;
+	let logger: AstroLogger;
+
+	const destination: AstroLoggerDestination<AstroLogMessage> = {
+		write: () => true,
+	};
 
 	before(() => {
-		logger = new Logger({ dest: 'memory', level: 'error' });
+		logger = new AstroLogger({ destination, level: 'error' });
 		routeCache = new RouteCache(logger, 'production');
 	});
 
@@ -43,18 +53,18 @@ describe('getStaticPaths param validation', () => {
 			// Clear route cache before each test to ensure isolation
 			routeCache.clearAll();
 
-			const mod = {
-				default: () => {},
+			const testMod = mod({
 				getStaticPaths: async () => [
 					{
-						params: { testParam: value },
+						// Intentionally passing invalid param types to test validation
+						params: { testParam: value as string | undefined },
 					},
 				],
-			};
+			});
 
 			try {
 				await callGetStaticPaths({
-					mod,
+					mod: testMod,
 					route,
 					routeCache,
 					ssr: false,
@@ -65,7 +75,7 @@ describe('getStaticPaths param validation', () => {
 				if (!shouldPass) {
 					assert.fail(`Expected validation error for param type ${type}`);
 				}
-			} catch (err) {
+			} catch (err: any) {
 				if (shouldPass) {
 					throw err;
 				}

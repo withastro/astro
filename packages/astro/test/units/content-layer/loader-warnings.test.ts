@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { defineCollection } from '../../../dist/content/config.js';
 import { ContentLayer } from '../../../dist/content/content-layer.js';
 import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
-import { Logger } from '../../../dist/core/logger/core.js';
+import { AstroLogger } from '../../../dist/core/logger/core.js';
 import { createTempDir, createTestConfigObserver, createMinimalSettings } from './test-helpers.ts';
 import { Writable } from 'node:stream';
 import fs from 'node:fs/promises';
@@ -15,9 +15,9 @@ describe('Content Layer - Loader Warnings', () => {
 		const store = new MutableDataStore();
 		const logs: any[] = [];
 
-		const logger = new Logger({
+		const logger = new AstroLogger({
 			level: 'warn',
-			dest: new Writable({
+			destination: new Writable({
 				objectMode: true,
 				write(event: any, _: any, callback: any) {
 					logs.push(event);
@@ -106,9 +106,9 @@ describe('Content Layer - Loader Warnings', () => {
 		const store = new MutableDataStore();
 		const logs: any[] = [];
 
-		const logger = new Logger({
+		const logger = new AstroLogger({
 			level: 'warn',
-			dest: new Writable({
+			destination: new Writable({
 				objectMode: true,
 				write(event: any, _: any, callback: any) {
 					logs.push(event);
@@ -184,9 +184,9 @@ describe('Content Layer - Loader Warnings', () => {
 		const store = new MutableDataStore();
 		const logs: any[] = [];
 
-		const logger = new Logger({
+		const logger = new AstroLogger({
 			level: 'error',
-			dest: new Writable({
+			destination: new Writable({
 				objectMode: true,
 				write(event: any, _: any, callback: any) {
 					logs.push(event);
@@ -292,9 +292,9 @@ describe('Content Layer - Loader Warnings', () => {
 		const store = new MutableDataStore();
 		const logs: any[] = [];
 
-		const logger = new Logger({
+		const logger = new AstroLogger({
 			level: 'error',
-			dest: new Writable({
+			destination: new Writable({
 				objectMode: true,
 				write(event: any, _: any, callback: any) {
 					logs.push(event);
@@ -386,9 +386,9 @@ describe('Content Layer - Loader Warnings', () => {
 		const store = new MutableDataStore();
 		const logs: any[] = [];
 
-		const logger = new Logger({
+		const logger = new AstroLogger({
 			level: 'warn',
-			dest: new Writable({
+			destination: new Writable({
 				objectMode: true,
 				write(event: any, _: any, callback: any) {
 					logs.push(event);
@@ -488,9 +488,9 @@ describe('Content Layer - Loader Warnings', () => {
 		const store = new MutableDataStore();
 		const logs: any[] = [];
 
-		const logger = new Logger({
+		const logger = new AstroLogger({
 			level: 'error',
-			dest: new Writable({
+			destination: new Writable({
 				objectMode: true,
 				write(event: any, _: any, callback: any) {
 					logs.push(event);

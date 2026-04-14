@@ -476,6 +476,25 @@ describe('Astro Actions in static mode with prerender = false routes', () => {
 	});
 });
 
+it('Works with adapter and all pages prerendered', async () => {
+	const fixture = await loadFixture({
+		root: './fixtures/actions/',
+		output: 'static',
+		adapter: testAdapter(),
+	});
+	const devServer = await fixture.startDevServer();
+	const res = await fixture.fetch('/_actions/subscribe', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({ channel: 'bholmesdev' }),
+	});
+
+	assert.equal(res.ok, true);
+	await devServer.stop();
+});
+
 it('Base path should be used', async () => {
 	const fixture = await loadFixture({
 		root: './fixtures/actions/',

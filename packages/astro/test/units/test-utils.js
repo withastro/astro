@@ -7,15 +7,15 @@ import { getDefaultClientDirectives } from '../../dist/core/client-directive/ind
 import { resolveConfig } from '../../dist/core/config/index.js';
 import { createBaseSettings } from '../../dist/core/config/settings.js';
 import { createContainer } from '../../dist/core/dev/container.js';
-import { AstroIntegrationLogger, Logger } from '../../dist/core/logger/core.js';
+import { AstroIntegrationLogger, AstroLogger } from '../../dist/core/logger/core.js';
 import { nodeLogDestination } from '../../dist/core/logger/node.js';
 import { NOOP_MIDDLEWARE_FN } from '../../dist/core/middleware/noop-middleware.js';
 import { Pipeline } from '../../dist/core/render/index.js';
 import { RouteCache } from '../../dist/core/render/route-cache.js';
 
-/** @type {import('../../src/core/logger/core').Logger} */
-export const defaultLogger = new Logger({
-	dest: nodeLogDestination,
+/** @type {import('../../src/core/logger/core').AstroLogger} */
+export const defaultLogger = new AstroLogger({
+	destination: nodeLogDestination,
 	level: 'error',
 });
 
@@ -147,7 +147,7 @@ export async function createBasicSettings(inlineConfig = {}) {
  * @typedef {{
  * 	fs?: typeof realFS,
  * 	inlineConfig?: import('../../src/types/public/config.js').AstroInlineConfig,
- *  logging?: import('../../src/core/logger/core').LogOptions,
+ *  logging?: import('../../src/core/logger/core').AstroLogOptions,
  * }} RunInContainerOptions
  */
 
@@ -171,10 +171,10 @@ export async function runInContainer(options = {}, callback) {
 }
 
 /**
- * @import {Logger} from '../../dist/core/logger/core'
+ * @import {AstroLogger} from '../../dist/core/logger/core'
  */
 
-/** @implements {Logger} */
+/** @implements {AstroLogger} */
 export class SpyLogger {
 	/** @type {Array<{ type: string; label: string | null; message: string }>} */
 	#logs = [];
@@ -195,7 +195,7 @@ export class SpyLogger {
 		this.#logs.push({ type: 'warn', label, message });
 	}
 	options = {
-		dest: {
+		destination: {
 			write: () => true,
 		},
 		level: /** @type {const} */ ('silent'),

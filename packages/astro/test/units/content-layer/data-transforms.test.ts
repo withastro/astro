@@ -5,7 +5,7 @@ import { defineCollection } from '../../../dist/content/config.js';
 import { createReference } from '../../../dist/content/runtime.js';
 import { ContentLayer } from '../../../dist/content/content-layer.js';
 import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
-import { Logger } from '../../../dist/core/logger/core.js';
+import { AstroLogger } from '../../../dist/core/logger/core.js';
 import { createTempDir, createTestConfigObserver, createMinimalSettings } from './test-helpers.ts';
 
 describe('Content Layer - Data Transforms', () => {
@@ -15,8 +15,8 @@ describe('Content Layer - Data Transforms', () => {
 	it('transforms reference strings to reference objects', async () => {
 		const store = new MutableDataStore();
 		const settings = createMinimalSettings(root);
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 
@@ -72,8 +72,8 @@ describe('Content Layer - Data Transforms', () => {
 	it('transforms dates correctly', async () => {
 		const store = new MutableDataStore();
 		const settings = createMinimalSettings(root);
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 
@@ -131,8 +131,8 @@ describe('Content Layer - Data Transforms', () => {
 	it('applies schema defaults', async () => {
 		const store = new MutableDataStore();
 		const settings = createMinimalSettings(root);
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 
@@ -189,8 +189,8 @@ describe('Content Layer - Data Transforms', () => {
 	it('handles array of references', async () => {
 		const store = new MutableDataStore();
 		const settings = createMinimalSettings(root);
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 
@@ -246,8 +246,8 @@ describe('Content Layer - Data Transforms', () => {
 	it('validates and rejects invalid data', async () => {
 		const store = new MutableDataStore();
 		const settings = createMinimalSettings(root);
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 
@@ -319,8 +319,8 @@ describe('Content Layer - Data Transforms', () => {
 	it('handles nested schemas with mixed transforms', async () => {
 		const store = new MutableDataStore();
 		const settings = createMinimalSettings(root);
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 
@@ -393,8 +393,8 @@ describe('Content Layer - Data Transforms', () => {
 	it('handles optional fields correctly', async () => {
 		const store = new MutableDataStore();
 		const settings = createMinimalSettings(root);
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 
@@ -451,8 +451,8 @@ describe('Content Layer - Data Transforms', () => {
 	it('transforms reference with default value', async () => {
 		const store = new MutableDataStore();
 		const settings = createMinimalSettings(root);
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 

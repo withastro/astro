@@ -9,7 +9,7 @@ import {
 	MiddlewareNotAResponse,
 } from '../core/errors/errors-data.js';
 import { type AstroError, createSafeError, isAstroError } from '../core/errors/index.js';
-import type { Logger } from '../core/logger/core.js';
+import type { AstroLogger } from '../core/logger/core.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import type { CreateRenderContext, RenderContext } from '../core/render-context.js';
 import { createRequest } from '../core/request.js';
@@ -28,14 +28,14 @@ import { req } from '../core/messages/runtime.js';
 
 export class AstroServerApp extends BaseApp<RunnablePipeline> {
 	settings: AstroSettings;
-	logger: Logger;
+	logger: AstroLogger;
 	loader: ModuleLoader;
 	manifestData: RoutesList;
 	currentRenderContext: RenderContext | undefined = undefined;
 	constructor(
 		manifest: SSRManifest,
 		streaming = true,
-		logger: Logger,
+		logger: AstroLogger,
 		manifestData: RoutesList,
 		loader: ModuleLoader,
 		settings: AstroSettings,
@@ -98,7 +98,7 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 	static async create(
 		manifest: SSRManifest,
 		routesList: RoutesList,
-		logger: Logger,
+		logger: AstroLogger,
 		loader: ModuleLoader,
 		settings: AstroSettings,
 		getDebugInfo: () => Promise<string>,
@@ -110,7 +110,7 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 		_streaming: boolean,
 		manifest: SSRManifest,
 		settings: AstroSettings,
-		logger: Logger,
+		logger: AstroLogger,
 		loader: ModuleLoader,
 		manifestData: RoutesList,
 		getDebugInfo: () => Promise<string>,

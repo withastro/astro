@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { defineCollection } from '../../../dist/content/config.js';
 import { ContentLayer } from '../../../dist/content/content-layer.js';
 import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
-import { Logger } from '../../../dist/core/logger/core.js';
+import { AstroLogger } from '../../../dist/core/logger/core.js';
 import { createTempDir, createTestConfigObserver, createMinimalSettings } from './test-helpers.ts';
 
 describe('Content Layer - Schema Validation', () => {
@@ -13,8 +13,8 @@ describe('Content Layer - Schema Validation', () => {
 	it('parses and coerces Date objects in schemas', async () => {
 		const store = new MutableDataStore();
 		const settings = createMinimalSettings(root);
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 
@@ -117,8 +117,8 @@ describe('Content Layer - Schema Validation', () => {
 	it('handles custom IDs and slugs', async () => {
 		const store = new MutableDataStore();
 		const settings = createMinimalSettings(root);
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 
@@ -191,8 +191,8 @@ describe('Content Layer - Schema Validation', () => {
 	it('supports union schemas (discriminated unions)', async () => {
 		const store = new MutableDataStore();
 		const settings = createMinimalSettings(root);
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 
@@ -300,9 +300,9 @@ describe('Content Layer - Schema Validation', () => {
 		const settings = createMinimalSettings(root);
 		const logs: any[] = [];
 
-		const logger = new Logger({
+		const logger = new AstroLogger({
 			level: 'error',
-			dest: {
+			destination: {
 				write: (event: any) => {
 					logs.push(event);
 					return true;
@@ -404,9 +404,9 @@ describe('Content Layer - Schema Validation', () => {
 		const settings = createMinimalSettings(root);
 		const logs: any[] = [];
 
-		const logger = new Logger({
+		const logger = new AstroLogger({
 			level: 'error',
-			dest: {
+			destination: {
 				write: (event: any) => {
 					logs.push(event);
 					return true;
@@ -496,8 +496,8 @@ describe('Content Layer - Schema Validation', () => {
 	it('handles empty collections gracefully', async () => {
 		const store = new MutableDataStore();
 		const settings = createMinimalSettings(root);
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 
@@ -541,8 +541,8 @@ describe('Content Layer - Schema Validation', () => {
 	it('handles optional fields with defaults', async () => {
 		const store = new MutableDataStore();
 		const settings = createMinimalSettings(root);
-		const logger = new Logger({
-			dest: { write: () => true },
+		const logger = new AstroLogger({
+			destination: { write: () => true },
 			level: 'silent',
 		});
 
