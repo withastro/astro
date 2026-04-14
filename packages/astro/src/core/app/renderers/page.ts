@@ -9,7 +9,7 @@ import { renderPage } from '../../../runtime/server/render/page.js';
 import { getProps } from '../../render/index.js';
 import { ROUTE_TYPE_HEADER, REROUTE_DIRECTIVE_HEADER, originPathnameSymbol } from '../../constants.js';
 import { ForbiddenRewrite } from '../../errors/errors-data.js';
-import { AstroError } from '../../errors/index.js';
+import { AstroError, AstroErrorData } from '../../errors/index.js';
 
 /**
  * Renders page routes. This class is framework-agnostic and does not
@@ -93,9 +93,12 @@ export class PageRenderer {
 								hint: ForbiddenRewrite.hint(rewriteRouteData.component),
 							});
 						}
-						const newRequest = rewritePayload instanceof Request
-							? rewritePayload
-							: new Request(newUrl, renderContext.request);
+					if (renderContext.request.bodyUsed) {
+						throw new AstroError(AstroErrorData.RewriteWithBodyUsed);
+					}
+					const newRequest = rewritePayload instanceof Request
+						? rewritePayload
+						: new Request(newUrl, renderContext.request);
 						// Preserve the original request's origin pathname across the rewrite
 						const origin = Reflect.get(renderContext.request, originPathnameSymbol);
 						if (origin) {
@@ -108,7 +111,7 @@ export class PageRenderer {
 						return prepareForRender(
 							pipeline, manifest, getManifestData(), logger,
 							newRequest, rewriteRouteData,
-							{ locals: renderContext.locals, cookies: renderContext.cookies },
+							{ locals: renderContext.locals, cookies: renderContext.cookies, isDev: pipeline.runtimeMode === 'development' },
 							(ctx, comp) => ctx.render(comp),
 						);
 					},

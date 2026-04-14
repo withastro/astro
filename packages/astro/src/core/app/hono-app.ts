@@ -345,6 +345,9 @@ function createContextFactory(deps: AstroAppDeps, _matchRouteData: (req: Request
 						hint: ForbiddenRewrite.hint(routeData.component),
 					});
 				}
+				if (request.bodyUsed) {
+					throw new AstroError(AstroErrorData.RewriteWithBodyUsed);
+				}
 				const newRequest = rewritePayload instanceof Request
 					? rewritePayload
 					: new Request(newUrl, request);
@@ -356,6 +359,7 @@ function createContextFactory(deps: AstroAppDeps, _matchRouteData: (req: Request
 					clientAddress: storeOptions?.clientAddress ?? Reflect.get(request, clientAddressSymbol) as string | undefined,
 					cookies,
 					session,
+					isDev: pipeline.runtimeMode === 'development',
 				}, (renderContext, componentInstance) => renderContext.render(componentInstance));
 			},
 			getActionResult(_action) {
@@ -623,15 +627,20 @@ function createRewriteMiddleware(
 		}
 
 		const ctx = await contextFn(c);
+		if (c.req.raw.bodyUsed) {
+			throw new AstroError(AstroErrorData.RewriteWithBodyUsed);
+		}
 		const rewriteUrl = new URL(rewritePathname, c.req.url);
 		const rewrittenRequest = new Request(rewriteUrl, c.req.raw);
 		const rewrittenRouteData = matchRouteData(rewrittenRequest);
 		c.set(ASTRO_ROUTE_DATA_KEY, rewrittenRouteData);
 		if (rewrittenRouteData) {
+			const isDev = pipeline.runtimeMode === 'development';
 			c.res = await prepareForRender(pipeline, manifest, deps.manifestData, logger, rewrittenRequest, rewrittenRouteData, {
 				locals: ctx.locals,
 				cookies: ctx.cookies, session: ctx.session as any,
 				clientAddress: renderOptionsStore.getStore()?.clientAddress ?? Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
+				isDev,
 			}, (renderContext, componentInstance) => renderContext.render(componentInstance));
 		} else {
 			c.res = await renderErrorPage(pipeline, manifest, deps.manifestData, logger, rewrittenRequest, {
