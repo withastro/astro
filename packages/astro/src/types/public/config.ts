@@ -3062,10 +3062,10 @@ export interface AstroUserConfig<
 		};
 		/**
 		 * @name experimental.logger
-		 * @type {object}
+		 * @type {{ entrypoint: string; config?: Record<string, unknown> }}
 		 * @default `undefined`
+		 * @version 6.0.0
 		 * @description
-		 *
 		 * Allows to customise how Astro logger behaves
 		 */
 		logger?: LoggerHandlerConfig;
