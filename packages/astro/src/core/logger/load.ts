@@ -1,6 +1,6 @@
 import type { AstroLoggerDestination } from './core.js';
 import loadFallbackPlugin from '../../vite-plugin-load-fallback/index.js';
-import { createMinimalViteDevServer } from '../viteUtils.js';
+import { createMinimalViteDevServer } from '../createMinimalViteDevServer.js';
 import { isRunnableDevEnvironment, type RunnableDevEnvironment, type ViteDevServer } from 'vite';
 import type fsMod from 'node:fs';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';

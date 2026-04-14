@@ -4,7 +4,7 @@ import { isRunnableDevEnvironment, type RunnableDevEnvironment, type ViteDevServ
 import loadFallbackPlugin from '../../vite-plugin-load-fallback/index.js';
 import { debug } from '../logger/core.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
-import { createMinimalViteDevServer } from '../viteUtils.js';
+import { createMinimalViteDevServer } from '../createMinimalViteDevServer.js';
 
 interface LoadConfigWithViteOptions {
 	root: string;
