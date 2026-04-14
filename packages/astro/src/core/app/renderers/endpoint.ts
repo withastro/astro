@@ -6,6 +6,7 @@ import { renderEndpoint } from '../../../runtime/server/endpoint.js';
 import { getProps } from '../../render/params-and-props.js';
 import { isAstroError } from '../../errors/index.js';
 import { NoMatchingStaticPathFound } from '../../errors/errors-data.js';
+import { removeBase } from '@astrojs/internal-helpers/path';
 
 /**
  * Renders endpoint routes. This class is framework-agnostic and does not
@@ -27,11 +28,14 @@ export class EndpointRenderer {
 		// 2. Detect dynamic endpoint path collisions (PrerenderDynamicEndpointPathCollide)
 		if (routeData.prerender && componentInstance.getStaticPaths) {
 			try {
+				// Strip the base from the pathname — route patterns and
+				// getStaticPaths keys don't include it.
+				const pathname = removeBase(apiContext.url.pathname, this.#pipeline.manifest.base);
 				await getProps({
 					mod: componentInstance as any,
 					routeData,
 					routeCache: this.#pipeline.routeCache,
-					pathname: apiContext.url.pathname,
+					pathname,
 					logger: this.#logger,
 					serverLike: this.#pipeline.manifest.serverLike,
 					base: this.#pipeline.manifest.base,
