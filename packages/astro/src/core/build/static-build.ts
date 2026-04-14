@@ -437,7 +437,8 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 		},
 	};
 
-	const updatedViteBuildConfig = await runHookBuildSetup({
+	// Run build setup hooks for the server target (SSR + prerender environments).
+	const serverUpdatedViteBuildConfig = await runHookBuildSetup({
 		config: settings.config,
 		pages: internals.pagesByKeys,
 		vite: viteBuildConfig,
@@ -445,7 +446,74 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 		logger: opts.logger,
 	});
 
-	const builder = await vite.createBuilder(updatedViteBuildConfig);
+	// Run build setup hooks for the client target.
+	// Pass build.ssr: false so integrations that inspect this flag
+	// (to conditionally set server-only define globals) behave correctly
+	// and don't bleed server-specific values into the browser build.
+	const clientUpdatedViteBuildConfig = await runHookBuildSetup({
+		config: settings.config,
+		pages: internals.pagesByKeys,
+		vite: { ...viteBuildConfig, build: { ...viteBuildConfig.build, ssr: false } },
+		target: 'client',
+		logger: opts.logger,
+	});
+
+	// Scope `define` values to the appropriate environments.
+	//
+	// Vite merges the top-level `define` into every environment's resolved config,
+	// so any server-only define set by an integration (e.g. `ngServerMode: "true"`)
+	// would otherwise leak into the client bundle and break hydration.
+	//
+	// Strategy:
+	// - Keep only client-aware defines at the top level.
+	// - Push server-only defines (present in the server result but absent from the
+	//   client result) down into the `ssr` and `prerender` environment configs.
+	const serverDefine = serverUpdatedViteBuildConfig.define ?? {};
+	const clientDefine = clientUpdatedViteBuildConfig.define ?? {};
+
+	const serverOnlyDefine: Record<string, string> = {};
+	for (const [key, value] of Object.entries(serverDefine)) {
+		if (!(key in clientDefine) || clientDefine[key] !== value) {
+			serverOnlyDefine[key] = value;
+		}
+	}
+
+	const finalViteBuildConfig: vite.InlineConfig = {
+		...serverUpdatedViteBuildConfig,
+		// Use client defines at the top level so server-specific globals don't bleed
+		// into the client environment via Vite's default environment inheritance.
+		define: clientDefine,
+		environments: {
+			...serverUpdatedViteBuildConfig.environments,
+			// Inject server-only defines into the server environments explicitly,
+			// since they are no longer present at the top level.
+			[ASTRO_VITE_ENVIRONMENT_NAMES.ssr]: {
+				...serverUpdatedViteBuildConfig.environments?.[ASTRO_VITE_ENVIRONMENT_NAMES.ssr],
+				define: {
+					...serverUpdatedViteBuildConfig.environments?.[ASTRO_VITE_ENVIRONMENT_NAMES.ssr]?.define,
+					...serverOnlyDefine,
+				},
+			},
+			[ASTRO_VITE_ENVIRONMENT_NAMES.prerender]: {
+				...serverUpdatedViteBuildConfig.environments?.[ASTRO_VITE_ENVIRONMENT_NAMES.prerender],
+				define: {
+					...serverUpdatedViteBuildConfig.environments?.[ASTRO_VITE_ENVIRONMENT_NAMES.prerender]?.define,
+					...serverOnlyDefine,
+				},
+			},
+			// Explicitly mark the client environment as non-SSR so integrations and
+			// Vite itself treat it as a browser build.
+			[ASTRO_VITE_ENVIRONMENT_NAMES.client]: {
+				...serverUpdatedViteBuildConfig.environments?.[ASTRO_VITE_ENVIRONMENT_NAMES.client],
+				build: {
+					...serverUpdatedViteBuildConfig.environments?.[ASTRO_VITE_ENVIRONMENT_NAMES.client]?.build,
+					ssr: false,
+				},
+			},
+		},
+	};
+
+	const builder = await vite.createBuilder(finalViteBuildConfig);
 	await builder.buildApp();
 }
 
