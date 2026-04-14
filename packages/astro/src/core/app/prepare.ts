@@ -245,11 +245,16 @@ async function renderErrorPage(
 				url,
 			);
 			if (statusURL.toString() !== request.url && prerenderedErrorPageFetch) {
-				const response = await prerenderedErrorPageFetch(statusURL.toString());
-				const override = { status, removeContentEncodingHeaders: true };
-				const newResponse = mergeResponses(response, originalResponse, override);
-				prepareResponse(newResponse);
-				return newResponse;
+				try {
+					const response = await prerenderedErrorPageFetch(statusURL.toString());
+					const override = { status, removeContentEncodingHeaders: true };
+					const newResponse = mergeResponses(response, originalResponse, override);
+					prepareResponse(newResponse);
+					return newResponse;
+				} catch {
+					// Fetch failed (e.g. during build when no server is running).
+					// Fall through to render the component directly.
+				}
 			}
 		}
 

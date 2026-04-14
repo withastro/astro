@@ -185,7 +185,7 @@ export function createRequest(
  * @param source WhatWG Response
  * @param destination NodeJS ServerResponse
  */
-export async function writeResponse(source: Response, destination: ServerResponse) {
+export async function writeResponse(source: Response, destination: ServerResponse, options?: { disableStreaming?: boolean }) {
 	const { status, headers, body, statusText } = source;
 	// HTTP/2 doesn't support statusMessage
 	if (!(destination instanceof Http2ServerResponse)) {
@@ -212,6 +212,32 @@ export async function writeResponse(source: Response, destination: ServerRespons
 	}
 	if (!body) return destination.end();
 	try {
+		// When streaming is disabled (experimentalDisableStreaming), buffer the
+		// entire body and write it as a single chunk. The Hono pipeline may split
+		// a buffered Response body into multiple ReadableStream chunks, so we
+		// reassemble them here.
+		if (options?.disableStreaming) {
+			const chunks: Uint8Array[] = [];
+			const reader = body.getReader();
+			let result = await reader.read();
+			while (!result.done) {
+				chunks.push(result.value);
+				result = await reader.read();
+			}
+			if (chunks.length === 1) {
+				destination.write(chunks[0]);
+			} else if (chunks.length > 1) {
+				const total = chunks.reduce((sum, c) => sum + c.length, 0);
+				const merged = new Uint8Array(total);
+				let offset = 0;
+				for (const chunk of chunks) {
+					merged.set(chunk, offset);
+					offset += chunk.length;
+				}
+				destination.write(merged);
+			}
+			return destination.end();
+		}
 		const reader = body.getReader();
 		destination.on('close', () => {
 			// Cancelling the reader may reject not just because of

@@ -107,15 +107,15 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 		const routeData = app.match(request, true);
 		// But we still want to skip prerendered pages.
 		if (routeData && !(routeData.type === 'page' && routeData.prerender)) {
-			const response = await als.run(request.url, () =>
-				app.render(request, {
-					addCookieHeader: true,
-					locals,
-					routeData,
-					prerenderedErrorPageFetch,
-				}),
-			);
-			await writeResponse(response, res);
+		const response = await als.run(request.url, () =>
+			app.render(request, {
+				addCookieHeader: true,
+				locals,
+				routeData,
+				prerenderedErrorPageFetch,
+			}),
+		);
+			await writeResponse(response, res, { disableStreaming: options.experimentalDisableStreaming });
 		} else if (next) {
 			// Since we're not calling `writeResponse()`, clean up the AbortController and socket listeners
 			const cleanup = getAbortControllerCleanup(req);
@@ -126,7 +126,7 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 				addCookieHeader: true,
 				prerenderedErrorPageFetch,
 			});
-			await writeResponse(response, res);
+			await writeResponse(response, res, { disableStreaming: options.experimentalDisableStreaming });
 		}
 	};
 }

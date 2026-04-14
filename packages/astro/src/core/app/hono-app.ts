@@ -893,11 +893,14 @@ function createPagesMiddleware(
 		// Respect addCookieHeader option from app.render()
 		const shouldAddCookies = renderOptionsStore.getStore()?.addCookieHeader ?? options.addCookieHeader ?? true;
 		if (shouldAddCookies) {
+			// Only add cookies from ctx.cookies that aren't already on the
+			// response. The page/endpoint renderer may have already set
+			// Set-Cookie headers; appending without checking would duplicate them.
+			const existingCookies = new Set(c.res.headers.getSetCookie?.() ?? []);
 			for (const setCookieValue of ctx.cookies.headers()) {
-				c.res.headers.append('set-cookie', setCookieValue);
-			}
-			for (const setCookieValue of getSetCookiesFromResponse(c.res)) {
-				c.res.headers.append('set-cookie', setCookieValue);
+				if (!existingCookies.has(setCookieValue)) {
+					c.res.headers.append('set-cookie', setCookieValue);
+				}
 			}
 		}
 	};
