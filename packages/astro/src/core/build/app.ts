@@ -55,7 +55,40 @@ export class BuildApp extends BaseApp<BuildPipeline> {
 			}, { isDev: false, allowPrerenderedRoutes: true }));
 			this._userAppCreated = true;
 		}
-		return super.render(request, options);
+		const response = await super.render(request, options);
+		if (response.status >= 500) {
+			// Don't treat legitimate error pages (e.g. /500) as build failures —
+			// they intentionally return 500 status.
+			const url = new URL(request.url);
+			const pathname = url.pathname.replace(/\/+$/, '');
+			if (pathname === '/500' || pathname === '/404') {
+				return response;
+			}
+			// Extract the original error message from the 500 response.
+			// Sources (in priority order): X-Astro-Error header (set by
+			// renderErrorPage), JSON body (from onError), or HTML title.
+			let message = `Build error for ${request.url}: status ${response.status}`;
+			const headerError = response.headers.get('X-Astro-Error');
+			if (headerError) {
+				message = headerError;
+			} else {
+				try {
+					const text = await response.clone().text();
+					try {
+						const body = JSON.parse(text);
+						if (body?.error) message = body.error;
+					} catch {
+						const titleMatch = text.match(/<title[^>]*>([^<]+)<\/title>/i);
+						if (titleMatch?.[1]) message = titleMatch[1];
+					}
+				} catch {}
+			}
+			const err = new Error(message);
+			const errorName = response.headers.get('X-Astro-Error-Name');
+			if (errorName) err.name = errorName;
+			throw err;
+		}
+		return response;
 	}
 	private _userAppCreated = false;
 

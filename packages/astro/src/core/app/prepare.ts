@@ -320,6 +320,16 @@ async function renderErrorPage(
 	}
 
 	const response = mergeResponses(new Response(null, { status }), originalResponse);
+	// Preserve the error details so BuildApp can extract them from the response.
+	if (error) {
+		const msg = error instanceof Error ? error.message : String(error);
+		try {
+			response.headers.set('X-Astro-Error', msg);
+			if (error instanceof Error && error.name !== 'Error') {
+				response.headers.set('X-Astro-Error-Name', error.name);
+			}
+		} catch { /* immutable headers */ }
+	}
 	prepareResponse(response);
 	return response;
 }
