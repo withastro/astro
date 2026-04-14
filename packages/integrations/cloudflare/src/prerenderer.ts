@@ -57,8 +57,9 @@ export function createCloudflarePrerenderer({
 			// from the Cloudflare vite plugin while still allowing user console.log output to pass through.
 			// We strip ANSI codes before testing because the Cloudflare vite plugin wraps messages in color codes.
 			const defaultLogger = createLogger('info');
+			// eslint-disable-next-line no-control-regex
 			const ansiRe = /\x1b\[[0-9;]*m/g;
-			const astroRequestLogRe = /^(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\s+\/__astro_/;
+			const astroRequestLogRe = /^(?:GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\s+\/__astro_/;
 			const customLogger: ReturnType<typeof createLogger> = {
 				...defaultLogger,
 				info(msg, opts) {
