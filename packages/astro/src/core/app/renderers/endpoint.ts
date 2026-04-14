@@ -28,9 +28,9 @@ export class EndpointRenderer {
 		// 2. Detect dynamic endpoint path collisions (PrerenderDynamicEndpointPathCollide)
 		if (routeData.prerender && componentInstance.getStaticPaths) {
 			try {
-				// Strip the base from the pathname — route patterns and
-				// getStaticPaths keys don't include it.
-				const pathname = removeBase(apiContext.url.pathname, this.#pipeline.manifest.base);
+				// Strip the base and decode URI — route patterns and getStaticPaths
+				// keys don't include the base, and params use decoded values.
+				const pathname = removeBase(decodeURI(apiContext.url.pathname), this.#pipeline.manifest.base);
 				await getProps({
 					mod: componentInstance as any,
 					routeData,
