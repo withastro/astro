@@ -12,7 +12,7 @@ describe('BindingImageService', () => {
 	before(async () => {
 		// Start a local HTTP server that always responds with a 302 redirect.
 		// Used to test that the image transform endpoint does not follow redirects.
-		redirectServer = createServer((req, res) => {
+		redirectServer = createServer((_req, res) => {
 			res.writeHead(302, { Location: 'http://example.com/secret' });
 			res.end();
 		});
