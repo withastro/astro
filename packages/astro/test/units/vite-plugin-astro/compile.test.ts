@@ -20,13 +20,12 @@ function makeAstroConfig(overrides: Partial<AstroConfig> = {}): AstroConfig {
 	} as AstroConfig;
 }
 
-async function compile(source: string, id: string, inlineConfig: InlineConfig = {}) {
 /**
  * @param {string} source
  * @param {string} id
  * @param {import('vite').InlineConfig} [inlineConfig]
  */
-async function compile(source, id, inlineConfig = {}) {
+async function compile(source: string, id: string, inlineConfig: InlineConfig = {}) {
 	const viteConfig = await resolveConfig({ configFile: false, ...inlineConfig }, 'serve');
 	// compileAstro's CompileAstroOption traces back to src/AstroConfig via rewriteRelativeImportExtensions,
 	// but we import from dist/. The types are structurally identical at runtime; cast to bridge the gap.
