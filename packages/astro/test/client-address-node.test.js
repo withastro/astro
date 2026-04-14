@@ -2,7 +2,7 @@ import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
-import { createRequestAndResponse } from './units/test-utils.js';
+import { createRequestAndResponse } from './integration-test-helpers.js';
 
 describe('NodeClientAddress', () => {
 	describe('single value', () => {

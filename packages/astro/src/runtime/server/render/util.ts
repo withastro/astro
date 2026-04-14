@@ -1,6 +1,6 @@
 import { clsx } from 'clsx';
 import type { SSRElement } from '../../../types/public/internal.js';
-import { HTMLString, markHTMLString } from '../escape.js';
+import { HTMLString, markHTMLString, stringifyForScript } from '../escape.js';
 import { isPromise } from '../util.js';
 import type { RenderDestination, RenderDestinationChunk, RenderFunction } from './common.js';
 
@@ -44,10 +44,7 @@ export function defineScriptVars(vars: Record<any, any>) {
 	for (const [key, value] of Object.entries(vars)) {
 		// Use const instead of let as let global unsupported with Safari
 		// https://stackoverflow.com/questions/29194024/cant-use-let-keyword-in-safari-javascript
-		output += `const ${toIdent(key)} = ${JSON.stringify(value)?.replace(
-			/<\/script>/g,
-			'\\x3C/script>',
-		)};\n`;
+		output += `const ${toIdent(key)} = ${stringifyForScript(value)};\n`;
 	}
 	return markHTMLString(output);
 }
