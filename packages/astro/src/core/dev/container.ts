@@ -53,7 +53,7 @@ export async function createContainer({
 
 	const {
 		base,
-		server: { host, headers, open: serverOpen, allowedHosts },
+		server: { host, headers, open: serverOpen, allowedHosts, port },
 	} = settings.config;
 
 	// serverOpen = true, isRestart = false
@@ -103,7 +103,7 @@ export async function createContainer({
 	);
 	const viteConfig = await createVite(
 		{
-			server: { host, headers, open, allowedHosts },
+			server: { host, headers, open, allowedHosts, port },
 			optimizeDeps: {
 				include: rendererClientEntries,
 			},
