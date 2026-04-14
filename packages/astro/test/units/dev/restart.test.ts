@@ -3,6 +3,7 @@ import { describe, it } from 'node:test';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import type { AstroInlineConfig } from 'astro';
 import {
 	createContainerWithAutomaticRestart,
 	startContainer,
@@ -10,12 +11,11 @@ import {
 
 const fixtureDir = fileURLToPath(new URL('../../fixtures/dev-container/', import.meta.url));
 
-/** @type {import('astro').AstroInlineConfig} */
-const defaultInlineConfig = {
+const defaultInlineConfig: AstroInlineConfig = {
 	logLevel: 'silent',
 };
 
-function isStarted(container) {
+function isStarted(container: any) {
 	return !!container.viteServer.httpServer?.listening;
 }
 
@@ -23,7 +23,7 @@ function isStarted(container) {
  * Safely clean up a file that a test may have created inside the fixture.
  * No-ops if the file doesn't exist.
  */
-function cleanupFile(relPath) {
+function cleanupFile(relPath: string) {
 	try {
 		fs.unlinkSync(path.join(fixtureDir, relPath));
 	} catch {}

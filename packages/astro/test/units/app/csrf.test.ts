@@ -1,4 +1,3 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
@@ -53,14 +52,17 @@ describe('CSRF - createOriginCheckMiddleware', () => {
 	const middleware = createOriginCheckMiddleware();
 	const responseFn = createResponseFunction('ok');
 
-	/**
-	 * @param {object} opts
-	 * @param {string} opts.method
-	 * @param {string} opts.url
-	 * @param {Record<string, string>} [opts.headers]
-	 * @param {boolean} [opts.isPrerendered]
-	 */
-	function callCSRF({ method, url, headers = {}, isPrerendered = false }) {
+	function callCSRF({
+		method,
+		url,
+		headers = {},
+		isPrerendered = false,
+	}: {
+		method: string;
+		url: string;
+		headers?: Record<string, string>;
+		isPrerendered?: boolean;
+	}) {
 		const request = new Request(url, { method, headers });
 		const ctx = createMockAPIContext({ request, url: new URL(url), isPrerendered });
 		return callMiddleware(middleware, ctx, responseFn);

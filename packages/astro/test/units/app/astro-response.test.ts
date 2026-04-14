@@ -1,4 +1,3 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { App } from '../../../dist/core/app/app.js';
@@ -42,7 +41,7 @@ const notFoundPage = createComponent(() => {
 	});
 });
 
-const notFoundCustomPage = createComponent((result, props, slots) => {
+const notFoundCustomPage = createComponent((result: any, props: any, slots: any) => {
 	const Astro = result.createAstro(props, slots);
 	Astro.response.status = 404;
 	return render`<div>Custom 404</div>`;

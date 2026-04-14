@@ -1,4 +1,3 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { App } from '../../../dist/core/app/app.js';
@@ -22,7 +21,7 @@ describe('App render error pages', () => {
 			origin: 'project',
 		};
 
-		const pageMap = new Map([
+		const pageMap = new Map<string, any>([
 			[
 				routeData.component,
 				async () => ({
@@ -86,11 +85,11 @@ describe('App render error pages', () => {
 			origin: 'project',
 		};
 
-		const notFoundPage = createComponent((_result) => {
+		const notFoundPage = createComponent((_result: any) => {
 			return render`<h1>Something went horribly wrong!</h1>`;
 		});
 
-		const pageMap = new Map([
+		const pageMap = new Map<string, any>([
 			[
 				apiRouteData.component,
 				async () => ({
@@ -142,7 +141,7 @@ describe('App render error pages', () => {
 			return render`<h1>Something went horribly wrong!</h1>`;
 		});
 
-		const pageMap = new Map([
+		const pageMap = new Map<string, any>([
 			[
 				notFoundRouteData.component,
 				async () => ({
@@ -181,7 +180,7 @@ describe('App render error pages', () => {
 			return render`<h1>Something went horribly wrong!</h1>`;
 		});
 
-		const pageMap = new Map([
+		const pageMap = new Map<string, any>([
 			[
 				notFoundRouteData.component,
 				async () => ({
@@ -235,11 +234,11 @@ describe('App render error pages', () => {
 			origin: 'project',
 		};
 
-		const notFoundPage = createComponent((result) => {
+		const notFoundPage = createComponent((result: any) => {
 			return render`${maybeRenderHead(result)}<h1>Something went horribly wrong!</h1>`;
 		});
 
-		const pageMap = new Map([
+		const pageMap = new Map<string, any>([
 			[
 				blogRouteData.component,
 				async () => ({
@@ -316,7 +315,7 @@ describe('App render error pages', () => {
 			return render`<h1>This is an error page</h1>`;
 		});
 
-		const pageMap = new Map([
+		const pageMap = new Map<string, any>([
 			[
 				errorRouteData.component,
 				async () => ({
@@ -384,11 +383,11 @@ describe('App render error pages', () => {
 			origin: 'project',
 		};
 
-		const notFoundPage = createComponent((result) => {
+		const notFoundPage = createComponent((result: any) => {
 			return render`${maybeRenderHead(result)}<h1>Something went horribly wrong!</h1>`;
 		});
 
-		const pageMap = new Map([
+		const pageMap = new Map<string, any>([
 			[
 				apiRouteData.component,
 				async () => ({
@@ -440,7 +439,7 @@ describe('App render error pages', () => {
 			return render`<h1>Something went horribly wrong!</h1>`;
 		});
 
-		const pageMap = new Map([
+		const pageMap = new Map<string, any>([
 			[
 				notFoundRouteData.component,
 				async () => ({
@@ -485,7 +484,7 @@ describe('App render error pages', () => {
 			return render`<h1>Something went horribly wrong!</h1>`;
 		});
 
-		const pageMap = new Map([
+		const pageMap = new Map<string, any>([
 			[
 				notFoundRouteData.component,
 				async () => ({

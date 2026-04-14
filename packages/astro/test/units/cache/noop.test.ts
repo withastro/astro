@@ -78,7 +78,7 @@ describe('DisabledAstroCache', () => {
 		const cache = new DisabledAstroCache(defaultLogger);
 		await assert.rejects(
 			() => cache.invalidate({ tags: 'x' }),
-			(err) => err.name === 'CacheNotEnabled',
+			(err: any) => err.name === 'CacheNotEnabled',
 		);
 	});
 

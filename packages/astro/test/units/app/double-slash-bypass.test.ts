@@ -1,10 +1,10 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { App } from '../../../dist/core/app/app.js';
 import { parseRoute } from '../../../dist/core/routing/parse-route.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createManifest } from './test-helpers.js';
+import type { MiddlewareHandler } from '../../../dist/types/public/common.js';
 
 /**
  * Security tests for double-slash URL prefix middleware authorization bypass.
@@ -21,12 +21,10 @@ import { createManifest } from './test-helpers.js';
  * CWE-285: Improper Authorization
  */
 
-const routeOptions = /** @type {Parameters<typeof parseRoute>[1]} */ (
-	/** @type {any} */ ({
-		config: { base: '/', trailingSlash: 'ignore' },
-		pageExtensions: [],
-	})
-);
+const routeOptions = {
+	config: { base: '/', trailingSlash: 'ignore' },
+	pageExtensions: [],
+} as Parameters<typeof parseRoute>[1];
 
 const adminRouteData = parseRoute('admin', routeOptions, {
 	component: 'src/pages/admin.astro',
@@ -82,26 +80,20 @@ const pageMap = new Map([
 /**
  * Middleware that blocks access to /admin and /dashboard routes,
  * as recommended in the official Astro authentication docs.
- * @returns {() => Promise<{onRequest: import('../../../dist/types/public/common.js').MiddlewareHandler}>}
  */
-function createAuthMiddleware() {
+function createAuthMiddleware(): () => Promise<{ onRequest: MiddlewareHandler }> {
 	return async () => ({
-		onRequest: /** @type {import('../../../dist/types/public/common.js').MiddlewareHandler} */ (
-			async (context, next) => {
-				const protectedPaths = ['/admin', '/dashboard'];
-				if (protectedPaths.some((p) => context.url.pathname.startsWith(p))) {
-					return new Response('Forbidden', { status: 403 });
-				}
-				return next();
+		onRequest: (async (context: any, next: any) => {
+			const protectedPaths = ['/admin', '/dashboard'];
+			if (protectedPaths.some((p) => context.url.pathname.startsWith(p))) {
+				return new Response('Forbidden', { status: 403 });
 			}
-		),
+			return next();
+		}) as MiddlewareHandler,
 	});
 }
 
-/**
- * @param {ReturnType<typeof createAuthMiddleware>} middleware
- */
-function createApp(middleware) {
+function createApp(middleware: ReturnType<typeof createAuthMiddleware>) {
 	return new App(
 		createManifest({
 			routes: [

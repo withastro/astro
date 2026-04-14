@@ -4,8 +4,8 @@ import { loadFixture } from '../../test-utils.js';
 
 describe('base configuration', () => {
 	describe('with trailingSlash: "never"', () => {
-		let fixture;
-		let devServer;
+		let fixture: any;
+		let devServer: any;
 
 		before(async () => {
 			fixture = await loadFixture({

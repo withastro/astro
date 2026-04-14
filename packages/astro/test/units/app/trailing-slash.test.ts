@@ -4,15 +4,15 @@ import { App } from '../../../dist/core/app/app.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createManifest } from './test-helpers.js';
 
-function escapeRoute(route) {
+function escapeRoute(route: string) {
 	return route.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-function createRouteData(route) {
+function createRouteData(route: string) {
 	const segments = route
 		.split('/')
 		.filter(Boolean)
-		.map((segment) => [{ content: segment, dynamic: false, spread: false }]);
+		.map((segment: string) => [{ content: segment, dynamic: false, spread: false }]);
 
 	return {
 		route,

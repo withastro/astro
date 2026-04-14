@@ -1,4 +1,3 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import * as devalue from 'devalue';
@@ -21,12 +20,11 @@ const actionRouteData = createRouteData({
 
 /**
  * Creates an App wired up with action handlers at `/_actions/[...path]`.
- *
- * @param {Record<string, any>} serverActions - The `server` export from an actions file
- * @param {object} [options]
- * @param {number} [options.actionBodySizeLimit]
  */
-function createActionsApp(serverActions, options = {}) {
+function createActionsApp(
+	serverActions: Record<string, any>,
+	options: { actionBodySizeLimit?: number } = {},
+) {
 	return createTestApp(
 		[
 			createPage(noopPage, { route: '/test' }),
@@ -48,7 +46,7 @@ describe('Actions via App', () => {
 	const app = createActionsApp({
 		subscribe: defineAction({
 			input: z.object({ channel: z.string() }),
-			handler: async ({ channel }) => ({
+			handler: async ({ channel }: any) => ({
 				channel,
 				subscribeButtonState: 'smashed',
 			}),
@@ -56,11 +54,11 @@ describe('Actions via App', () => {
 		comment: defineAction({
 			accept: 'form',
 			input: z.object({ channel: z.string(), comment: z.string() }),
-			handler: async ({ channel, comment }) => ({ channel, comment }),
+			handler: async ({ channel, comment }: any) => ({ channel, comment }),
 		}),
 		commentPlainFormData: defineAction({
 			accept: 'form',
-			handler: async (formData) => ({
+			handler: async (formData: any) => ({
 				success: true,
 				isFormData: formData instanceof FormData,
 			}),
@@ -78,11 +76,11 @@ describe('Actions via App', () => {
 		}),
 		'with space': defineAction({
 			input: z.object({ name: z.string() }),
-			handler: async (input) => `Hello, ${input.name}!`,
+			handler: async (input: any) => `Hello, ${input.name}!`,
 		}),
 		'with/slash': defineAction({
 			input: z.object({ name: z.string() }),
-			handler: async (input) => `Hello, ${input.name}!`,
+			handler: async (input: any) => `Hello, ${input.name}!`,
 		}),
 	});
 
@@ -230,7 +228,7 @@ describe('Actions body size limit', () => {
 			{
 				subscribe: defineAction({
 					input: z.object({ channel: z.string() }),
-					handler: async ({ channel }) => ({ channel }),
+					handler: async ({ channel }: any) => ({ channel }),
 				}),
 			},
 			{ actionBodySizeLimit: 100 },
@@ -283,7 +281,7 @@ describe('Actions body size limit', () => {
 		const app = createActionsApp({
 			subscribe: defineAction({
 				input: z.object({ channel: z.string() }),
-				handler: async ({ channel }) => ({ channel }),
+				handler: async ({ channel }: any) => ({ channel }),
 			}),
 		});
 		const req = new Request('http://example.com/_actions/subscribe', {

@@ -7,7 +7,7 @@ import { createRequestAndResponse, defaultLogger } from '../test-utils.js';
  * Helper to run a request through the secFetchMiddleware and return whether
  * it was blocked (response ended with 403) or allowed (next() was called).
  */
-function runMiddleware(headers, allowedDomains) {
+function runMiddleware(headers: Record<string, string>, allowedDomains?: any) {
 	const middleware = secFetchMiddleware(defaultLogger, allowedDomains);
 	const { req, res, done } = createRequestAndResponse({
 		method: 'GET',

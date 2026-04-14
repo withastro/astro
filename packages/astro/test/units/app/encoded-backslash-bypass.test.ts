@@ -1,10 +1,10 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { App } from '../../../dist/core/app/app.js';
 import { parseRoute } from '../../../dist/core/routing/parse-route.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createManifest } from './test-helpers.js';
+import type { MiddlewareHandler } from '../../../dist/types/public/common.js';
 
 /**
  * Tests that encoded backslash characters (%5C) in URL paths do not cause
@@ -15,12 +15,10 @@ import { createManifest } from './test-helpers.js';
  * The middleware then sees a different path than what the router matched.
  */
 
-const routeOptions = /** @type {Parameters<typeof parseRoute>[1]} */ (
-	/** @type {any} */ ({
-		config: { base: '/', trailingSlash: 'ignore' },
-		pageExtensions: [],
-	})
-);
+const routeOptions = {
+	config: { base: '/', trailingSlash: 'ignore' },
+	pageExtensions: [],
+} as Parameters<typeof parseRoute>[1];
 
 // Dynamic route: /users/[slug]
 const userSlugRouteData = parseRoute('users/[slug]', routeOptions, {
@@ -50,18 +48,15 @@ const pageMap = new Map([
  * Middleware that blocks access to /users/admin path,
  * simulating authorization checks on dynamic routes.
  */
-const middleware =
-	/** @type {() => Promise<{onRequest: import('../../../dist/types/public/common.js').MiddlewareHandler}>} */ (
-		async () => ({
-			onRequest: async (context, next) => {
-				const pathname = context.url.pathname;
-				if (pathname === '/users/admin' || pathname.startsWith('/users/admin/')) {
-					return new Response('Forbidden', { status: 403 });
-				}
-				return next();
-			},
-		})
-	);
+const middleware = (async () => ({
+	onRequest: (async (context: any, next: any) => {
+		const pathname = context.url.pathname;
+		if (pathname === '/users/admin' || pathname.startsWith('/users/admin/')) {
+			return new Response('Forbidden', { status: 403 });
+		}
+		return next();
+	}) as MiddlewareHandler,
+})) as () => Promise<{ onRequest: MiddlewareHandler }>;
 
 const app = new App(
 	createManifest({

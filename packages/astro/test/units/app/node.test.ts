@@ -888,7 +888,7 @@ describe('node', () => {
 						if (done) break;
 					}
 				},
-				(err) => {
+				(err: any) => {
 					assert.ok(err.message.includes('Body size limit exceeded'));
 					return true;
 				},
@@ -958,7 +958,7 @@ describe('node', () => {
 
 	describe('abort signal', () => {
 		it('aborts the request.signal when the underlying socket closes', () => {
-			const socket = new EventEmitter();
+			const socket = new EventEmitter() as any;
 			socket.encrypted = true;
 			socket.remoteAddress = '2.2.2.2';
 			socket.destroyed = false;
@@ -973,7 +973,7 @@ describe('node', () => {
 		});
 
 		it('cleans up socket listeners after the response finishes', async () => {
-			const socket = new EventEmitter();
+			const socket = new EventEmitter() as any;
 			socket.encrypted = true;
 			socket.remoteAddress = '2.2.2.2';
 			socket.destroyed = false;
@@ -996,21 +996,23 @@ describe('node', () => {
 });
 
 class MockServerResponse extends EventEmitter {
-	constructor(req) {
+	req: any;
+	statusCode = 200;
+	statusMessage: string | undefined = undefined;
+	headers: Record<string, any> = {};
+	body: any[] = [];
+
+	constructor(req: any) {
 		super();
 		this.req = req;
-		this.statusCode = 200;
-		this.statusMessage = undefined;
-		this.headers = {};
-		this.body = [];
 	}
 
-	writeHead(status, headers) {
+	writeHead(status: any, headers: any) {
 		this.statusCode = status;
 		this.headers = headers;
 	}
 
-	write(chunk) {
+	write(chunk: any) {
 		this.body.push(chunk);
 		return true;
 	}

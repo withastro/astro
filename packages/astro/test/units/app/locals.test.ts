@@ -79,22 +79,22 @@ const internalErrorRouteData = {
 	origin: 'project',
 };
 
-const fooPage = createComponent((result, props, slots) => {
+const fooPage = createComponent((result: any, props: any, slots: any) => {
 	const Astro = result.createAstro(props, slots);
 	return render`<h1 id="foo">${Astro.locals.foo}</h1>`;
 });
 
-const notFoundPage = createComponent((result, props, slots) => {
+const notFoundPage = createComponent((result: any, props: any, slots: any) => {
 	const Astro = result.createAstro(props, slots);
 	return render`<h1 id="foo">${Astro.locals.foo}</h1>`;
 });
 
-const internalErrorPage = createComponent((result, props, slots) => {
+const internalErrorPage = createComponent((result: any, props: any, slots: any) => {
 	const Astro = result.createAstro(props, slots);
 	return render`<h1 id="foo">${Astro.locals.foo}</h1>`;
 });
 
-const pageMap = new Map([
+const pageMap = new Map<string, any>([
 	[
 		fooRouteData.component,
 		async () => ({
@@ -107,7 +107,7 @@ const pageMap = new Map([
 		apiRouteData.component,
 		async () => ({
 			page: async () => ({
-				GET: async ({ locals }) =>
+				GET: async ({ locals }: any) =>
 					new Response(JSON.stringify({ ...locals }), {
 						headers: {
 							'Content-Type': 'application/json',

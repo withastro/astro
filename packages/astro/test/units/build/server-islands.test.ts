@@ -8,10 +8,10 @@ import { parseRoute } from '../../../dist/core/routing/parse-route.js';
 import { createBasicSettings, defaultLogger } from '../test-utils.js';
 import { virtualAstroModules } from './test-helpers.js';
 
-async function readFilesRecursive(dir) {
+async function readFilesRecursive(dir: string): Promise<string[]> {
 	const entries = await fs.readdir(dir, { withFileTypes: true });
 	const files = await Promise.all(
-		entries.map(async (entry) => {
+		entries.map(async (entry: any) => {
 			const fullPath = path.join(dir, entry.name);
 			if (entry.isDirectory()) {
 				return readFilesRecursive(fullPath);
@@ -22,11 +22,11 @@ async function readFilesRecursive(dir) {
 	return files.flat();
 }
 
-function forceDoubleQuotedServerIslandPlaceholders() {
+function forceDoubleQuotedServerIslandPlaceholders(): any {
 	return {
 		name: 'force-double-quoted-server-island-placeholders',
 		enforce: 'pre',
-		renderChunk(code) {
+		renderChunk(code: any) {
 			if (!code.includes("'$$server-islands-map$$'")) {
 				return;
 			}
@@ -86,7 +86,7 @@ describe('Build: Server islands in prerendered pages', () => {
 							'</body>',
 							'</html>',
 						].join('\n'),
-					}),
+					}) as any,
 				],
 			},
 		});
@@ -124,7 +124,7 @@ describe('Build: Server islands in prerendered pages', () => {
 
 		const serverOutputDir = fileURLToPath(settings.config.build.server);
 		const outputFiles = await readFilesRecursive(serverOutputDir);
-		const manifestFilePath = outputFiles.find((file) => file.includes('server-island-manifest'));
+		const manifestFilePath = outputFiles.find((file: string) => file.includes('server-island-manifest'));
 		const manifestContent = manifestFilePath ? await fs.readFile(manifestFilePath, 'utf-8') : null;
 
 		assert.ok(manifestContent, 'Server island manifest chunk should be emitted');
@@ -201,7 +201,7 @@ describe('Build: Server islands in prerendered pages', () => {
 							'</body>',
 							'</html>',
 						].join('\n'),
-					}),
+					}) as any,
 					forceDoubleQuotedServerIslandPlaceholders(),
 				],
 			},
@@ -239,7 +239,7 @@ describe('Build: Server islands in prerendered pages', () => {
 
 		const serverOutputDir = fileURLToPath(settings.config.build.server);
 		const outputFiles = await readFilesRecursive(serverOutputDir);
-		const manifestFilePath = outputFiles.find((file) => file.includes('server-island-manifest'));
+		const manifestFilePath = outputFiles.find((file: string) => file.includes('server-island-manifest'));
 		const manifestContent = manifestFilePath ? await fs.readFile(manifestFilePath, 'utf-8') : null;
 
 		assert.ok(manifestContent, 'Server island manifest chunk should be emitted');

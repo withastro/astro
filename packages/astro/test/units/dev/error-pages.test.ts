@@ -1,4 +1,3 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
@@ -7,8 +6,8 @@ import { loadFixture } from '../../test-utils.js';
 
 describe('Dev pipeline - error pages', () => {
 	describe('Custom 404', () => {
-		let fixture;
-		let devServer;
+		let fixture: any;
+		let devServer: any;
 
 		before(async () => {
 			fixture = await loadFixture({
@@ -45,8 +44,8 @@ describe('Dev pipeline - error pages', () => {
 	});
 
 	describe('Custom 500', () => {
-		let fixture;
-		let devServer;
+		let fixture: any;
+		let devServer: any;
 
 		before(async () => {
 			fixture = await loadFixture({
@@ -71,8 +70,7 @@ describe('Dev pipeline - error pages', () => {
 
 	describe('ensure404Route', () => {
 		it('adds the default /404 route when none exists in the manifest', () => {
-			/** @type {{ routes: any[] }} */
-			const manifest = { routes: [] };
+			const manifest: { routes: any[] } = { routes: [] };
 			ensure404Route(manifest);
 
 			const route404 = manifest.routes.find((r) => r.route === '/404');
@@ -80,8 +78,7 @@ describe('Dev pipeline - error pages', () => {
 		});
 
 		it('does not add a duplicate /404 route when one already exists', () => {
-			/** @type {{ routes: any[] }} */
-			const manifest = {
+			const manifest: { routes: any[] } = {
 				routes: [
 					{
 						route: '/404',
@@ -108,8 +105,7 @@ describe('Dev pipeline - error pages', () => {
 
 		it('preserves the user-provided 404 component rather than substituting the default', () => {
 			const userComponent = 'src/pages/404.astro';
-			/** @type {{ routes: any[] }} */
-			const manifest = {
+			const manifest: { routes: any[] } = {
 				routes: [
 					{
 						route: '/404',
@@ -138,8 +134,7 @@ describe('Dev pipeline - error pages', () => {
 		});
 
 		it('does not affect /500 routes', () => {
-			/** @type {{ routes: any[] }} */
-			const manifest = {
+			const manifest: { routes: any[] } = {
 				routes: [
 					{
 						route: '/500',

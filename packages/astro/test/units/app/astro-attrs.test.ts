@@ -1,4 +1,3 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { App } from '../../../dist/core/app/app.js';
@@ -120,7 +119,7 @@ const attributesNamespacedPage = createComponent(() => {
   `;
 });
 
-const namespacedSpanComponent = createComponent((result, props, slots) => {
+const namespacedSpanComponent = createComponent((result: any, props: any, slots: any) => {
 	const Astro = result.createAstro(props, slots);
 
 	return render`
@@ -128,10 +127,10 @@ const namespacedSpanComponent = createComponent((result, props, slots) => {
   `;
 });
 
-const attributesNamespacedComponentPage = createComponent((result) => {
+const attributesNamespacedComponentPage = createComponent((result: any) => {
 	return render`${renderComponent(result, 'NamespacedSpan', namespacedSpanComponent, {
 		// biome-ignore lint/suspicious/noConsole: allowed
-		'on:click': /** @type {(e: unknown) => void} */ (event) => console.log(event),
+		'on:click': ((event: unknown) => console.log(event)) as (e: unknown) => void,
 	})}`;
 });
 
@@ -164,7 +163,6 @@ const pageMap = new Map([
 
 const app = new App(
 	createManifest({
-		// @ts-expect-error routes prop is not yet type-defined
 		routes: [
 			createRouteInfo(attributesRouteData),
 			createRouteInfo(attributesNamespacedRouteData),
@@ -181,14 +179,12 @@ describe('Attributes', async () => {
 		const html = await response.text();
 		const $ = cheerio.load(html);
 
-		/**
-		 * @typedef {Object} TestAttribute
-		 * @property {string} attribute
-		 * @property {string | undefined} value
-		 */
+		interface TestAttribute {
+			attribute: string;
+			value: string | undefined;
+		}
 
-		/** @type {Record<string, TestAttribute>} */
-		const attrs = {
+		const attrs: Record<string, TestAttribute> = {
 			'download-true': { attribute: 'download', value: '' },
 			'download-false': { attribute: 'download', value: undefined },
 			'download-undefined': { attribute: 'download', value: undefined },

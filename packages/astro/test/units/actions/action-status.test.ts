@@ -1,4 +1,3 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
@@ -12,8 +11,8 @@ import { createTestApp, createPage } from '../mocks.js';
 
 // Minimal ActionError-compatible object — ActionError class is not exported from
 // the dist client bundle so we construct the shape it expects directly.
-function makeActionError(code, message = 'test error') {
-	const codeToStatus = {
+function makeActionError(code: string, message = 'test error') {
+	const codeToStatus: Record<string, number> = {
 		BAD_REQUEST: 400,
 		UNPROCESSABLE_CONTENT: 422,
 		NOT_FOUND: 404,
@@ -24,7 +23,7 @@ function makeActionError(code, message = 'test error') {
 	return { type: 'AstroActionError', code, message, status: codeToStatus[code] ?? 500 };
 }
 
-function makeLocalsWithError(code) {
+function makeLocalsWithError(code: string) {
 	const actionResult = serializeActionResult({ error: makeActionError(code), data: undefined });
 	return { _actionPayload: { actionName: 'testAction', actionResult } };
 }
@@ -37,13 +36,13 @@ function makeLocalsWithData(data = null) {
 describe('action result status computation', () => {
 	it('uses default status when no action payload is present', async () => {
 		let capturedStatus;
-		const page = createComponent((result, props, slots) => {
+		const page = createComponent((result: any, props: any, slots: any) => {
 			const Astro = result.createAstro(props, slots);
 			capturedStatus = Astro.response.status;
 			return render`<p>ok</p>`;
 		});
 
-		const app = createTestApp([createPage(page, { route: '/test', prerender: false })]);
+		const app = createTestApp([createPage(page, { route: '/test', prerender: false } as any)]);
 		await app.render(new Request('http://example.com/test'));
 
 		assert.equal(capturedStatus, 200);
@@ -51,13 +50,13 @@ describe('action result status computation', () => {
 
 	it('uses the error status code when an action error result is in locals', async () => {
 		let capturedStatus;
-		const page = createComponent((result, props, slots) => {
+		const page = createComponent((result: any, props: any, slots: any) => {
 			const Astro = result.createAstro(props, slots);
 			capturedStatus = Astro.response.status;
 			return render`<p>ok</p>`;
 		});
 
-		const app = createTestApp([createPage(page, { route: '/test', prerender: false })]);
+		const app = createTestApp([createPage(page, { route: '/test', prerender: false } as any)]);
 		const request = new Request('http://example.com/test');
 
 		// Simulate middleware having set the action payload on locals
@@ -68,13 +67,13 @@ describe('action result status computation', () => {
 
 	it('uses default status for a successful action data result', async () => {
 		let capturedStatus;
-		const page = createComponent((result, props, slots) => {
+		const page = createComponent((result: any, props: any, slots: any) => {
 			const Astro = result.createAstro(props, slots);
 			capturedStatus = Astro.response.status;
 			return render`<p>ok</p>`;
 		});
 
-		const app = createTestApp([createPage(page, { route: '/test', prerender: false })]);
+		const app = createTestApp([createPage(page, { route: '/test', prerender: false } as any)]);
 		const request = new Request('http://example.com/test');
 
 		await app.render(request, { locals: makeLocalsWithData() });

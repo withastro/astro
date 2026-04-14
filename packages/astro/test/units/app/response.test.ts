@@ -49,7 +49,7 @@ const notFoundRouteData = {
 	origin: 'project',
 };
 
-const statusPage = createComponent((result, props, slots) => {
+const statusPage = createComponent((result: any, props: any, slots: any) => {
 	const Astro = result.createAstro(props, slots);
 	Astro.response.status = 404;
 	Astro.response.statusText = 'Oops';
@@ -57,7 +57,7 @@ const statusPage = createComponent((result, props, slots) => {
 	return render`<h1>Testing</h1>`;
 });
 
-const someHeaderPage = createComponent((result, props, slots) => {
+const someHeaderPage = createComponent((result: any, props: any, slots: any) => {
 	const Astro = result.createAstro(props, slots);
 	Astro.response.headers.set('One-Two', 'three');
 	Astro.response.headers.set('Four-Five', 'six');

@@ -1,4 +1,3 @@
-// @ts-check
 /**
  * Unit tests for the renderPath() function in src/core/build/generate.ts.
  *
@@ -22,7 +21,7 @@ import { createMockPrerenderer, createStaticBuildOptions } from './test-helpers.
 import { createRouteData } from '../mocks.js';
 
 describe('renderPath()', () => {
-	let options;
+	let options: any;
 
 	before(async () => {
 		options = await createStaticBuildOptions();
@@ -176,8 +175,8 @@ describe('renderPath()', () => {
 			pages: { 'public/index.html': '<html>public file</html>' },
 		});
 
-		const warnings = [];
-		conflictOptions.logger.warn = (_label, msg) => warnings.push(msg);
+		const warnings: string[] = [];
+		conflictOptions.logger.warn = (_label: any, msg: any) => warnings.push(msg);
 
 		const result = await renderPath({
 			prerenderer,
@@ -202,7 +201,7 @@ describe('renderPath()', () => {
 		const route = createRouteData({ route: '/boom' });
 
 		const errors = [];
-		options.logger.error = (_label, msg) => errors.push(msg);
+		options.logger.error = (_label: any, msg: any) => errors.push(msg);
 
 		await assert.rejects(
 			() => renderPath({ prerenderer, pathname: '/boom', route, options, logger: options.logger }),
@@ -219,10 +218,10 @@ describe('renderPath()', () => {
 			inlineConfig: { trailingSlash: 'always' },
 		});
 
-		let capturedUrl;
+		let capturedUrl: URL | undefined;
 		const prerenderer = createMockPrerenderer({ '/demo': 'hello' });
 		const originalRender = prerenderer.render.bind(prerenderer);
-		prerenderer.render = async (request, opts) => {
+		prerenderer.render = async (request: any, opts: any) => {
 			capturedUrl = new URL(request.url);
 			return originalRender(request, opts);
 		};
@@ -275,14 +274,14 @@ describe('renderPath()', () => {
 // ---------------------------------------------------------------------------
 
 describe('createMockPrerenderer with ComponentInstance', () => {
-	let options;
+	let options: any;
 
 	before(async () => {
 		options = await createStaticBuildOptions();
 	});
 
 	it('renders a bare ComponentInstance to HTML via RenderContext', async () => {
-		const Page = createComponent((_result) => renderTemplate`<h1>Hello from component</h1>`);
+		const Page = createComponent((_result: any) => renderTemplate`<h1>Hello from component</h1>`);
 		const prerenderer = createMockPrerenderer({ '/': { default: Page } });
 		const route = createRouteData({ route: '/' });
 
@@ -308,7 +307,7 @@ describe('createMockPrerenderer with ComponentInstance', () => {
 
 	it('passes props to a ComponentInstance via the props key', async () => {
 		const Page = createComponent(
-			(_result, { title }) => renderTemplate`<title>${title}</title><h1>${title}</h1>`,
+			(_result: any, { title }: any) => renderTemplate`<title>${title}</title><h1>${title}</h1>`,
 		);
 		const prerenderer = createMockPrerenderer({
 			'/blog/hello': { default: Page, props: { title: 'Hello World' } },
@@ -332,10 +331,10 @@ describe('createMockPrerenderer with ComponentInstance', () => {
 
 	it('renders nested components', async () => {
 		const Inner = createComponent(
-			(_result, { label }) => renderTemplate`<span class="inner">${label}</span>`,
+			(_result: any, { label }: any) => renderTemplate`<span class="inner">${label}</span>`,
 		);
 		const Page = createComponent(
-			(result) =>
+			(result: any) =>
 				renderTemplate`<div>${renderComponent(result, 'Inner', Inner, { label: 'nested' })}</div>`,
 		);
 		const prerenderer = createMockPrerenderer({ '/nested': { default: Page } });
@@ -357,7 +356,7 @@ describe('createMockPrerenderer with ComponentInstance', () => {
 	});
 
 	it('falls back to string pages and ComponentInstance pages in the same prerenderer', async () => {
-		const Component = createComponent((_result) => renderTemplate`<p>component page</p>`);
+		const Component = createComponent((_result: any) => renderTemplate`<p>component page</p>`);
 		const prerenderer = createMockPrerenderer({
 			'/string': '<p>string page</p>',
 			'/component': { default: Component },
@@ -394,7 +393,7 @@ describe('createMockPrerenderer with ComponentInstance', () => {
 			route,
 			options,
 			logger: options.logger,
-		}).catch((e) => e);
+		}).catch((e: any) => e);
 
 		assert.ok(err instanceof Error, 'should throw an Error');
 		assert.ok(err.message.includes('/not-registered'), 'error should name the missing pathname');
