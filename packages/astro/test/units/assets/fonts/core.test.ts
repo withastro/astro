@@ -1,19 +1,19 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { collectComponentData } from '../../../../src/assets/fonts/core/collect-component-data.js';
-import { collectFontAssetsFromFaces } from '../../../../src/assets/fonts/core/collect-font-assets-from-faces.js';
-import { collectFontData } from '../../../../src/assets/fonts/core/collect-font-data.js';
-import { computeFontFamiliesAssets } from '../../../../src/assets/fonts/core/compute-font-families-assets.js';
-import { filterAndTransformFontFaces } from '../../../../src/assets/fonts/core/filter-and-transform-font-faces.js';
-import { filterPreloads } from '../../../../src/assets/fonts/core/filter-preloads.js';
-import { getOrCreateFontFamilyAssets } from '../../../../src/assets/fonts/core/get-or-create-font-family-assets.js';
-import { optimizeFallbacks } from '../../../../src/assets/fonts/core/optimize-fallbacks.js';
-import { resolveFamily } from '../../../../src/assets/fonts/core/resolve-family.js';
+import { collectComponentData } from '../../../../dist/assets/fonts/core/collect-component-data.js';
+import { collectFontAssetsFromFaces } from '../../../../dist/assets/fonts/core/collect-font-assets-from-faces.js';
+import { collectFontData } from '../../../../dist/assets/fonts/core/collect-font-data.js';
+import { computeFontFamiliesAssets } from '../../../../dist/assets/fonts/core/compute-font-families-assets.js';
+import { filterAndTransformFontFaces } from '../../../../dist/assets/fonts/core/filter-and-transform-font-faces.js';
+import { filterPreloads } from '../../../../dist/assets/fonts/core/filter-preloads.js';
+import { getOrCreateFontFamilyAssets } from '../../../../dist/assets/fonts/core/get-or-create-font-family-assets.js';
+import { optimizeFallbacks } from '../../../../dist/assets/fonts/core/optimize-fallbacks.js';
+import { resolveFamily } from '../../../../dist/assets/fonts/core/resolve-family.js';
 import type {
 	FontFamilyAssetsByUniqueKey,
 	FontType,
 	ResolvedFontFamily,
-} from '../../../../src/assets/fonts/types.js';
+} from '../../../../dist/assets/fonts/types.js';
 import { SpyLogger } from '../../test-utils.js';
 import {
 	FakeFontMetricsResolver,
