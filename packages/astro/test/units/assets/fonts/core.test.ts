@@ -21,7 +21,7 @@ import {
 	FakeStringMatcher,
 	markdownBold,
 	PassthroughFontResolver,
-} from './utils.js';
+} from './utils.ts';
 
 const inferFontType = (url: string): FontType => {
 	const ext = url.split('.').pop()?.toLowerCase();

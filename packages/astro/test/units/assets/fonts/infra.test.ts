@@ -20,7 +20,7 @@ import {
 import { NodeFontTypeExtractor } from '../../../../dist/assets/fonts/infra/node-font-type-extractor.js';
 import { UnifontFontResolver } from '../../../../dist/assets/fonts/infra/unifont-font-resolver.js';
 import type { FontProvider } from '../../../../dist/index.js';
-import { FakeHasher, SpyStorage } from './utils.js';
+import { FakeHasher, SpyStorage } from './utils.ts';
 
 describe('fonts infra', () => {
 	describe('MinifiableCssRenderer', () => {
