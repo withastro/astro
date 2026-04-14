@@ -412,11 +412,13 @@ function createRedirectsMiddleware(deps: AstroAppDeps): MiddlewareHandler<AstroH
 
 	return async (c, next) => {
 		const url = new URL(c.req.url);
-		const pathname = removeBase(decodeURI(url.pathname), manifest.base);
+		const rawPathname = removeBase(url.pathname, manifest.base);
 
 		for (const routeData of redirectRoutes) {
-			if (routeData.pattern.test(pathname)) {
-				const params = getParams(routeData, pathname);
+			if (routeData.pattern.test(decodeURI(rawPathname))) {
+				// Use the raw (encoded) pathname for params so the Location
+				// header preserves the original URL encoding.
+				const params = getParams(routeData, rawPathname);
 				const status = computeRedirectStatus(c.req.method, routeData.redirect, routeData.redirectRoute);
 				const location = resolveRedirectTarget(params, routeData.redirect, routeData.redirectRoute, manifest.trailingSlash);
 				return new Response(null, { status, headers: { location } });
