@@ -20,7 +20,7 @@ export default new Transform({
 					file: event.data.file,
 					line: event.data.line,
 					column: event.data.column,
-					isSuite: event.data.details.type !== 'test',
+					isSuite: event.data.details.type !== 'suite',
 				});
 				break;
 		}
