@@ -203,6 +203,9 @@ export class SpyLogger {
 	forkIntegrationLogger(label) {
 		return new AstroIntegrationLogger(this.options, label);
 	}
+	setDestination(destination) {
+		this.destination = destination;
+	}
 }
 
 /**

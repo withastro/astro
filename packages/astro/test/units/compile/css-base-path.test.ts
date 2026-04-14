@@ -7,7 +7,7 @@ import type { AstroConfig } from '../../../dist/types/public/config.js';
 import type { CompileProps } from '../../../dist/core/compile/compile.js';
 import { createNodeLogger } from '../../../dist/core/logger/impls/node.js';
 
-const logger = createNodeLogger({ level: 'silent' });
+const logger = createNodeLogger({ logLevel: 'silent' });
 
 /** Compile Astro source with a given base path. */
 async function compileWithBase(source: string, base = '/') {
