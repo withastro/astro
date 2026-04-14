@@ -43,7 +43,7 @@ import { NOOP_MIDDLEWARE_FN } from '../middleware/noop-middleware.js';
 import type { RouteInfo, SSRManifest } from '../../types/public/index.js';
 import type { APIContext } from '../../types/public/context.js';
 import type { RouteData } from '../../types/public/internal.js';
-import { computeRedirectStatus, resolveRedirectTarget } from '../redirects/render.js';
+import { computeRedirectStatus, redirectIsExternal, resolveRedirectTarget } from '../redirects/render.js';
 import { getParams } from '../render/params-and-props.js';
 import { getOriginPathname } from '../routing/rewrite.js';
 import { validateAndDecodePathname } from '../util/pathname.js';
@@ -424,6 +424,13 @@ function createRedirectsMiddleware(deps: AstroAppDeps): MiddlewareHandler<AstroH
 				const params = getParams(routeData, rawPathname);
 				const status = computeRedirectStatus(c.req.method, routeData.redirect, routeData.redirectRoute);
 				const location = resolveRedirectTarget(params, routeData.redirect, routeData.redirectRoute, manifest.trailingSlash);
+				// Use Response.redirect() for external URLs so the Location
+				// header is normalized per URL spec (e.g. trailing slash added).
+				if (routeData.redirect && redirectIsExternal(routeData.redirect)) {
+					const target = typeof routeData.redirect === 'string'
+						? routeData.redirect : routeData.redirect.destination;
+					return Response.redirect(target, status);
+				}
 				return new Response(null, { status, headers: { location } });
 			}
 		}
