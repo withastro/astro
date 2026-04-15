@@ -96,7 +96,7 @@ export function redirects(config?: Record<string, RedirectConfig>): MiddlewareHa
 
 /** Actions middleware — handles RPC calls and form submissions. */
 export function actions(): MiddlewareHandler<AstroHonoEnv> {
-	return createActionsMiddleware(deps, getContextFactory());
+	return createActionsMiddleware(deps);
 }
 
 /** Rewrite middleware — processes rewrite directives from i18n and user code. */

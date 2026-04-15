@@ -21,16 +21,11 @@ import {
 import { normalizeTheLocale } from '../../i18n/index.js';
 
 import { NOOP_MIDDLEWARE_HEADER, REROUTE_DIRECTIVE_HEADER, REWRITE_DIRECTIVE_HEADER_KEY, ROUTE_TYPE_HEADER } from '../constants.js';
-import { PERSIST_SYMBOL } from '../session/runtime.js';
+
 import { getRenderOptions } from './render-options-store.js';
 
 
-import {
-	getActionContext,
-	parseRequestBody,
-	serializeActionResult,
-} from '../../actions/runtime/server.js';
-import { ACTION_QUERY_PARAMS } from '../../actions/consts.js';
+
 
 import type { SSRManifest } from '../../types/public/index.js';
 import type { APIContext } from '../../types/public/context.js';
@@ -40,6 +35,7 @@ import { createRewritesHandler } from '../rewrites/handler.js';
 import { createI18nHandler } from '../../i18n/handler.js';
 import { createUserMiddlewareHandler } from '../middleware/handler.js';
 import { createPagesHandler } from '../pages/handler.js';
+import { createActionsHandler } from '../../actions/handler.js';
 
 import type { PrepareOptions } from './prepare.js';
 import { FetchState } from './fetch-state.js';
@@ -240,80 +236,14 @@ function createUserMiddleware(
 
 function createActionsMiddleware(
 	deps: AstroAppDeps,
-	contextFn: (c: HonoContext<any>) => Promise<APIContext>,
 ): MiddlewareHandler<AstroHonoEnv> {
-	const { pipeline, manifest } = deps;
+	const { pipeline } = deps;
+	const handleActions = createActionsHandler(deps);
 
 	return async (c, next) => {
-		if (c.req.method !== 'POST') {
-			return next();
-		}
-
-		const url = new URL(c.req.url);
-		const pathname = removeBase(url.pathname, manifest.base);
-		const ctx = await contextFn(c);
-
-		if (pathname.startsWith('/_actions/')) {
-			const actionName = decodeURIComponent(pathname.slice('/_actions/'.length));
-
-			let baseAction: Awaited<ReturnType<typeof pipeline.getAction>>;
-			try {
-				baseAction = await pipeline.getAction(actionName);
-			} catch {
-				return next();
-			}
-
-			let input: unknown;
-			try {
-				input = await parseRequestBody(c.req.raw, pipeline.manifest.actionBodySizeLimit);
-			} catch (e) {
-				if (e instanceof TypeError) {
-					return new Response(e.message, { status: 415 });
-				}
-				const { ActionError } = await import('../../actions/runtime/client.js');
-				if (e instanceof ActionError) {
-					const serialized = serializeActionResult({ data: undefined, error: e });
-					if (serialized.type !== 'empty') {
-						return new Response(serialized.body, {
-							status: serialized.status,
-							headers: { 'Content-Type': serialized.contentType },
-						});
-					}
-				}
-				throw e;
-			}
-
-			const handler = baseAction.bind(ctx);
-			const result = await handler(input);
-			const serialized = serializeActionResult(result);
-
-			const response =
-				serialized.type === 'empty'
-					? new Response(null, { status: serialized.status })
-					: new Response(serialized.body, {
-							status: serialized.status,
-							headers: { 'Content-Type': serialized.contentType },
-						});
-
-			if (ctx.session) {
-				await (ctx.session as any)[PERSIST_SYMBOL]?.();
-			}
-			for (const setCookieValue of ctx.cookies.headers()) {
-				response.headers.append('set-cookie', setCookieValue);
-			}
-
-			return response;
-		}
-
-		const formActionName = url.searchParams.get(ACTION_QUERY_PARAMS.actionName);
-		if (formActionName && !ctx.isPrerendered) {
-			const { action, setActionResult, serializeActionResult: serializeResult } = getActionContext(ctx);
-			if (action?.calledFrom === 'form') {
-				const actionResult = await action.handler();
-				setActionResult(action.name, serializeResult(actionResult));
-			}
-		}
-
+		const state = getFetchState(c, pipeline);
+		const response = await handleActions(state);
+		if (response) return response;
 		return next();
 	};
 }
@@ -439,7 +369,6 @@ export function createAstroMiddleware(
 	// In dev (or during build), match prerendered routes. In production, skip them
 	// (they're served as static assets by the adapter/CDN).
 	const matchRouteData = (req: Request) => rawMatchRouteData(req, { allowPrerenderedRoutes: shouldAllowPrerendered });
-	const contextFn = createContextFactory(deps);
 
 	const inner = new Hono<AstroHonoEnv>();
 	inner.onError((err) => { throw err; });
@@ -455,7 +384,7 @@ export function createAstroMiddleware(
 	});
 	inner.use(createRedirectsMiddleware(deps));
 	inner.use(createUserMiddleware(deps, options));
-	inner.use(createActionsMiddleware(deps, contextFn));
+	inner.use(createActionsMiddleware(deps));
 	inner.use(createRewriteMiddleware(deps, matchRouteData));
 	inner.use(createI18nMiddleware(deps, matchRouteData));
 	inner.use(createPagesMiddleware(deps, matchRouteData, options));
