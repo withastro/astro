@@ -704,7 +704,7 @@ describe('isParentDirectory', () => {
 
 		invalidCases.forEach(([parent, child]) => {
 			assert.equal(
-				isParentDirectory(parent as string, child as string),
+				isParentDirectory(parent!, child!),
 				false,
 				`Expected "${parent}" NOT to be parent of "${child}"`,
 			);
