@@ -1894,8 +1894,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/actions-middleware-context: {}
-
   packages/astro/test/fixtures/alias:
     dependencies:
       '@astrojs/svelte':
