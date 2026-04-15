@@ -2,14 +2,32 @@ import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { StaticPaths } from '../../../dist/runtime/prerender/static-paths.js';
 
-/**
- * Creates a minimal mock app for testing StaticPaths.
- * @param {object} options
- * @param {Array} options.routes - Array of route objects with routeData
- * @param {Map} [options.routeCache] - Optional route cache
- * @param {object} [options.i18n] - Optional i18n config
- */
-function createMockApp({ routes, routeCache = new Map(), i18n = undefined }) {
+interface MockRouteOptions {
+	pathname?: string;
+	prerender?: boolean;
+	mockGetStaticPaths?: () => Array<{ params: Record<string, string> }>;
+	route?: string;
+}
+
+interface MockApp {
+	manifest: Record<string, unknown>;
+	pipeline: {
+		routeCache: Map<unknown, unknown>;
+		getComponentByRoute(route: any): Promise<any>;
+	};
+}
+
+interface MockAppOptions {
+	routes: any[];
+	routeCache?: Map<unknown, unknown>;
+	i18n?: object;
+}
+
+function createMockApp({
+	routes,
+	routeCache = new Map(),
+	i18n = undefined,
+}: MockAppOptions): MockApp {
 	return {
 		manifest: {
 			routes,
@@ -20,7 +38,7 @@ function createMockApp({ routes, routeCache = new Map(), i18n = undefined }) {
 		},
 		pipeline: {
 			routeCache,
-			async getComponentByRoute(route) {
+			async getComponentByRoute(route: any) {
 				// Return a mock component with getStaticPaths if route is dynamic
 				if (!route.pathname) {
 					return {
@@ -33,12 +51,7 @@ function createMockApp({ routes, routeCache = new Map(), i18n = undefined }) {
 	};
 }
 
-/**
- * Creates segments array from a route pattern.
- * @param {string} route - Route pattern like '/blog/[slug]' or '/items/[id]'
- * @returns {Array} Segments array
- */
-function createSegments(route) {
+function createSegments(route: string): Array<Array<{ content: string; dynamic: boolean; spread: boolean }>> {
 	const parts = route.split('/').filter(Boolean);
 	return parts.map((part) => {
 		if (part.startsWith('[') && part.endsWith(']')) {
@@ -49,20 +62,12 @@ function createSegments(route) {
 	});
 }
 
-/**
- * Creates a mock route data object.
- * @param {object} options
- * @param {string} [options.pathname] - Static pathname (if undefined, route is dynamic)
- * @param {boolean} [options.prerender=true] - Whether route should be prerendered
- * @param {Function} [options.mockGetStaticPaths] - Mock getStaticPaths function for dynamic routes
- * @param {string} [options.route='/[slug]'] - Route pattern for dynamic routes
- */
 function createMockRoute({
 	pathname,
 	prerender = true,
 	mockGetStaticPaths,
 	route = '/[slug]',
-} = {}) {
+}: MockRouteOptions = {}) {
 	// Extract param names from route pattern
 	const paramMatches = route.matchAll(/\[([^\]]+)\]/g);
 	const params = pathname ? [] : Array.from(paramMatches, (m) => m[1]);
@@ -76,7 +81,7 @@ function createMockRoute({
 			pattern: new RegExp('^' + route.replace(/\[[^\]]+\]/g, '([^/]+)') + '$'),
 			params,
 			component: 'src/pages' + route + '.astro',
-			generate: (data) => data.route,
+			generate: (data: any) => data.route,
 			segments: pathname ? [] : createSegments(route),
 			fallbackRoutes: [],
 			isIndex: false,
@@ -94,7 +99,7 @@ describe('StaticPaths', () => {
 			];
 
 			const app = createMockApp({ routes });
-			const staticPaths = new StaticPaths(app);
+			const staticPaths = new StaticPaths(app as any);
 			const paths = await staticPaths.getAll();
 
 			assert.equal(paths.length, 2);
@@ -117,7 +122,7 @@ describe('StaticPaths', () => {
 			];
 
 			const app = createMockApp({ routes });
-			const staticPaths = new StaticPaths(app);
+			const staticPaths = new StaticPaths(app as any);
 			const paths = await staticPaths.getAll();
 
 			assert.equal(paths.length, 2);
@@ -132,7 +137,7 @@ describe('StaticPaths', () => {
 			];
 
 			const app = createMockApp({ routes });
-			const staticPaths = new StaticPaths(app);
+			const staticPaths = new StaticPaths(app as any);
 			const paths = await staticPaths.getAll();
 
 			assert.equal(paths.length, 1);
@@ -157,7 +162,7 @@ describe('StaticPaths', () => {
 			}
 
 			const app = createMockApp({ routes });
-			const staticPaths = new StaticPaths(app);
+			const staticPaths = new StaticPaths(app as any);
 
 			// This should not throw "Maximum call stack size exceeded"
 			const paths = await staticPaths.getAll();
@@ -189,7 +194,7 @@ describe('StaticPaths', () => {
 			];
 
 			const app = createMockApp({ routes });
-			const staticPaths = new StaticPaths(app);
+			const staticPaths = new StaticPaths(app as any);
 
 			// This should not throw "Maximum call stack size exceeded"
 			const paths = await staticPaths.getAll();
@@ -227,7 +232,7 @@ describe('StaticPaths', () => {
 			);
 
 			const app = createMockApp({ routes });
-			const staticPaths = new StaticPaths(app);
+			const staticPaths = new StaticPaths(app as any);
 
 			// This should not throw "Maximum call stack size exceeded"
 			const paths = await staticPaths.getAll();

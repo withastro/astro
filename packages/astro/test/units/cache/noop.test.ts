@@ -1,8 +1,14 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { NoopAstroCache, DisabledAstroCache } from '../../../dist/core/cache/runtime/noop.js';
 import { applyCacheHeaders, isCacheActive } from '../../../dist/core/cache/runtime/cache.js';
-import { defaultLogger } from '../test-utils.js';
+import { DisabledAstroCache, NoopAstroCache } from '../../../dist/core/cache/runtime/noop.js';
+import { AstroLogger } from '../../../dist/core/logger/core.js';
+import { nodeLogDestination } from '../../../dist/core/logger/node.js';
+
+const defaultLogger = new AstroLogger({
+	destination: nodeLogDestination,
+	level: 'error',
+});
 
 describe('NoopAstroCache', () => {
 	it('enabled is false', () => {
@@ -12,8 +18,8 @@ describe('NoopAstroCache', () => {
 
 	it('set() is callable and does nothing', () => {
 		const cache = new NoopAstroCache();
-		cache.set({ maxAge: 300, tags: ['a'] });
-		cache.set(false);
+		cache.set();
+		cache.set();
 		// No error thrown
 	});
 
@@ -24,7 +30,7 @@ describe('NoopAstroCache', () => {
 
 	it('invalidate() is callable and resolves', async () => {
 		const cache = new NoopAstroCache();
-		await cache.invalidate({ tags: 'x' });
+		await cache.invalidate();
 		// No error thrown
 	});
 
@@ -57,14 +63,14 @@ describe('DisabledAstroCache', () => {
 
 	it('set() does not throw', () => {
 		const cache = new DisabledAstroCache(defaultLogger);
-		cache.set({ maxAge: 300 });
-		cache.set(false);
+		cache.set();
+		cache.set();
 		// No error thrown
 	});
 
 	it('tags returns empty array', () => {
 		const cache = new DisabledAstroCache(defaultLogger);
-		cache.set({ tags: ['x'] });
+		cache.set();
 		assert.deepEqual(cache.tags, []);
 	});
 
@@ -77,8 +83,8 @@ describe('DisabledAstroCache', () => {
 	it('invalidate() throws AstroError with CacheNotEnabled', async () => {
 		const cache = new DisabledAstroCache(defaultLogger);
 		await assert.rejects(
-			() => cache.invalidate({ tags: 'x' }),
-			(err) => err.name === 'CacheNotEnabled',
+			() => cache.invalidate(),
+			(err: Error) => err.name === 'CacheNotEnabled',
 		);
 	});
 
