@@ -1,7 +1,7 @@
 import type { ModuleInfo } from 'rolldown';
 import type * as vite from 'vite';
 import type { DevEnvironment } from 'vite';
-import { hasHeadInjectComment } from '../core/head-propagation/comment.js';
+import { hasHeadPropagationCall } from '../core/head-propagation/hint.js';
 import {
 	buildImporterGraphFromModuleInfo,
 	computeInTreeAncestors,
@@ -165,9 +165,8 @@ export default function configHeadVitePlugin(): vite.Plugin {
 				propagateMetadata.call(this, id, 'containsHead', true);
 			}
 
-			// eslint-disable-next-line @typescript-eslint/prefer-includes
-			if (hasHeadInjectComment(source)) {
-				// `// astro-head-inject` and `//! astro-head-inject` opt a module into bubbling.
+			if (hasHeadPropagationCall(source)) {
+				// `$$result._astro_head_inject` opts a module into bubbling.
 				propagateMetadata.call(this, id, 'propagation', 'in-tree');
 			}
 
@@ -190,7 +189,7 @@ export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
 			const moduleIds = new Set<string>();
 			// Explicit runtime entries (`createComponent({ propagation: 'self' })`).
 			const selfPropagationSeeds = new Set<string>();
-			// Comment-driven seeds (`astro-head-inject` marker in source).
+			// Head propagation hint seeds (`$$result._astro_head_inject` marker in source).
 			const commentPropagationSeeds = new Set<string>();
 			function getOrCreateMetadata(id: string): SSRComponentMetadata {
 				if (map.has(id)) return map.get(id)!;
@@ -224,7 +223,7 @@ export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
 
 					// Head propagation (aka bubbling)
 					// eslint-disable-next-line @typescript-eslint/prefer-includes
-					if (mod.code && hasHeadInjectComment(mod.code)) {
+					if (mod.code && hasHeadPropagationCall(mod.code)) {
 						commentPropagationSeeds.add(id);
 					}
 				}

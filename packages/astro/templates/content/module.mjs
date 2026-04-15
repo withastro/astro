@@ -1,4 +1,4 @@
-globalThis.$$astro_head_inject = true;
+// $$result._astro_head_inject — marker for head propagation detection
 import {
 	createDeprecatedFunction,
 	createGetCollection,
