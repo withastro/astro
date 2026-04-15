@@ -1,7 +1,7 @@
 import type { $ZodType } from 'zod/v4/core';
 import { NOOP_ACTIONS_MOD } from '../actions/noop-actions.js';
 import type { ActionAccept, ActionClient } from '../actions/runtime/types.js';
-import type { ComponentInstance } from '../types/astro.js';
+import type { ComponentInstance, RoutesList } from '../types/astro.js';
 import type { MiddlewareHandler, RewritePayload } from '../types/public/common.js';
 import type { RuntimeMode } from '../types/public/config.js';
 import type {
@@ -80,6 +80,9 @@ export abstract class Pipeline {
 	readonly cacheConfig: SSRManifest['cacheConfig'];
 	readonly serverIslands: SSRManifest['serverIslandMappings'];
 
+	/** The unwrapped route list used for route matching. Mutable so dev can hot-swap routes. */
+	manifestData: RoutesList;
+
 	constructor(
 		logger: AstroLogger,
 		manifest: SSRManifest,
@@ -137,6 +140,7 @@ export abstract class Pipeline {
 		this.cacheProvider = cacheProvider;
 		this.cacheConfig = cacheConfig;
 		this.serverIslands = serverIslands;
+		this.manifestData = { routes: manifest.routes?.map((route) => route.routeData) ?? [] };
 
 		this.internalMiddleware = [];
 

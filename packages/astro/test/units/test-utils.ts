@@ -166,6 +166,7 @@ export function createBasicPipeline(
 		options.logger ?? defaultLogger,
 		(options.manifest ?? {
 			rootDir: import.meta.url,
+			routes: [],
 			experimentalQueuedRendering: {
 				enabled: true,
 			},

@@ -27,12 +27,12 @@ import {
 	type CreateAstroAppOptions,
 } from './hono-app.js';
 import { createConsoleLogger } from './logging.js';
-import type { RoutesList } from '../../types/astro.js';
+
 import type { RedirectConfig } from '../../types/public/index.js';
 
 export { Hono };
 export type { AstroHonoEnv, AstroAppDeps } from './hono-app.js';
-export { ASTRO_ROUTE_DATA_KEY, ASTRO_REWRITE_PATHNAME_KEY } from './hono-app.js';
+export { FetchState } from './fetch-state.js';
 
 // Use lazy getters so that `app` is not accessed at module top-level.
 // When the default `astro:user-app` is used there is a circular import:
@@ -42,12 +42,9 @@ export { ASTRO_ROUTE_DATA_KEY, ASTRO_REWRITE_PATHNAME_KEY } from './hono-app.js'
 let _pipeline: typeof app.pipeline | undefined;
 const logger = createConsoleLogger(manifest.logLevel);
 
-let _manifestDataOverride: RoutesList | undefined;
 const deps = {
 	get pipeline() { return _pipeline ??= app.pipeline; },
 	manifest,
-	get manifestData() { return _manifestDataOverride ?? app.manifestData; },
-	set manifestData(value: RoutesList) { _manifestDataOverride = value; },
 	logger,
 };
 
@@ -59,7 +56,7 @@ function getMatchRouteData() {
 	return _matchRouteData ??= createMatchRouteData(deps);
 }
 function getContextFactory() {
-	return _contextFactory ??= createContextFactory(deps, getMatchRouteData());
+	return _contextFactory ??= createContextFactory(deps);
 }
 
 // ---------------------------------------------------------------------------
@@ -104,7 +101,7 @@ export function actions(): MiddlewareHandler<AstroHonoEnv> {
 
 /** Rewrite middleware — processes rewrite directives from i18n and user code. */
 export function rewrite(_options?: CreateAstroAppOptions): MiddlewareHandler<AstroHonoEnv> {
-	return createRewriteMiddleware(deps, getContextFactory(), getMatchRouteData());
+	return createRewriteMiddleware(deps, getMatchRouteData());
 }
 
 /** i18n middleware — handles locale detection and redirects. */

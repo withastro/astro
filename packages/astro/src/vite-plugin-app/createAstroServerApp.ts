@@ -187,12 +187,11 @@ export default async function createAstroServerApp(
 
 					// Sync the live route list into the cached Hono app so that
 					// routes added after initial module evaluation are found.
-					// Sync the live route list from the DevApp into the cached Hono app.
 					const appDeps = Reflect.get(userApp, Symbol.for('astro.appDeps'));
 					if (appDeps) {
 						const { app: devApp } = await loader.import('virtual:astro:app');
 						if (devApp?.manifestData) {
-							appDeps.manifestData = devApp.manifestData;
+							appDeps.pipeline.manifestData = devApp.manifestData;
 						}
 					}
 

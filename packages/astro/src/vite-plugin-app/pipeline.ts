@@ -44,8 +44,6 @@ export class RunnablePipeline extends Pipeline {
 	// so it needs to be mutable here unlike in other environments
 	override renderers = new Array<SSRLoadedRenderer>();
 
-	routesList: RoutesList | undefined;
-
 	readonly loader: ModuleLoader;
 	readonly settings: AstroSettings;
 	readonly getDebugInfo: () => Promise<string>;
@@ -93,7 +91,7 @@ export class RunnablePipeline extends Pipeline {
 		}: Pick<RunnablePipeline, 'loader' | 'logger' | 'manifest' | 'settings' | 'getDebugInfo'>,
 	) {
 		const pipeline = new RunnablePipeline(loader, logger, manifest, settings, getDebugInfo);
-		pipeline.routesList = manifestData;
+		pipeline.manifestData = manifestData;
 		if (queueRenderingEnabled(manifest.experimentalQueuedRendering)) {
 			pipeline.nodePool = newNodePool(manifest.experimentalQueuedRendering!);
 			if (manifest.experimentalQueuedRendering!.contentCache) {
@@ -237,13 +235,10 @@ export class RunnablePipeline extends Pipeline {
 	}
 
 	async tryRewrite(payload: RewritePayload, request: Request): Promise<TryRewriteResult> {
-		if (!this.routesList) {
-			throw new Error('Missing manifest data. This is an internal error, please file an issue.');
-		}
 		const { routeData, pathname, newUrl } = findRouteToRewrite({
 			payload,
 			request,
-			routes: this.routesList?.routes,
+			routes: this.manifestData.routes,
 			trailingSlash: this.manifest.trailingSlash,
 			buildFormat: this.manifest.buildFormat,
 			base: this.manifest.base,
@@ -255,6 +250,6 @@ export class RunnablePipeline extends Pipeline {
 	}
 
 	setManifestData(manifestData: RoutesList) {
-		this.routesList = manifestData;
+		this.manifestData = manifestData;
 	}
 }

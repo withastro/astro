@@ -50,7 +50,6 @@ export class BuildApp extends BaseApp<BuildPipeline> {
 			this.setUserApp(createAstroApp({
 				pipeline: this.pipeline,
 				manifest: this.manifest,
-				manifestData: this.manifestData,
 				logger: this.logger,
 			}, { isDev: false, allowPrerenderedRoutes: true }));
 			this._userAppCreated = true;

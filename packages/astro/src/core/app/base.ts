@@ -104,7 +104,6 @@ type ErrorPagePath =
 
 export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	manifest: SSRManifest;
-	manifestData: RoutesList;
 	pipeline: P;
 	adapterLogger: AstroIntegrationLogger;
 	baseWithoutTrailingSlash: string;
@@ -113,7 +112,6 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	#userApp: { fetch: (request: Request) => Response | Promise<Response> } | undefined;
 	constructor(manifest: SSRManifest, streaming = true, ...args: any[]) {
 		this.manifest = manifest;
-		this.manifestData = { routes: manifest.routes.map((route) => route.routeData) };
 		this.baseWithoutTrailingSlash = removeTrailingForwardSlash(manifest.base);
 		this.pipeline = this.createPipeline(streaming, manifest, ...args);
 		this.logger = new AstroLogger({
@@ -125,6 +123,15 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		// to return the host 404 if the user doesn't provide a custom 404
 		ensure404Route(this.manifestData);
 		this.#router = this.createRouter(this.manifestData);
+	}
+
+	get manifestData(): RoutesList {
+		return this.pipeline.manifestData;
+	}
+
+	set manifestData(value: RoutesList) {
+		this.pipeline.manifestData = value;
+		this.#router = this.createRouter(value);
 	}
 
 	public abstract isDev(): boolean;
@@ -178,11 +185,6 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	 * @private
 	 */
 	abstract createPipeline(streaming: boolean, manifest: SSRManifest, ...args: any[]): P;
-
-	set setManifestData(newManifestData: RoutesList) {
-		this.manifestData = newManifestData;
-		this.#router = this.createRouter(this.manifestData);
-	}
 
 	public removeBase(pathname: string) {
 		// Collapse multiple leading slashes to prevent middleware authorization bypass.
@@ -336,7 +338,6 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			this.#userApp = createAstroApp({
 				pipeline: this.pipeline,
 				manifest: this.manifest,
-				manifestData: this.manifestData,
 				logger: this.logger,
 			});
 		}
