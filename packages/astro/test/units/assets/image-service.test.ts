@@ -89,14 +89,14 @@ describe('sharp encoder options', async () => {
 describe('sharp image service', async () => {
 	const sharpService = (await import('../../../dist/assets/services/sharp.js')).default;
 
-	const config = { service: { entrypoint: '', config: {} } };
+	const config = { service: { entrypoint: '', config: {} } } as any;
 
-	let inputBuffer;
+	let inputBuffer: Uint8Array;
 	before(async () => {
 		inputBuffer = new Uint8Array(await readFile(FIXTURE_IMAGE));
 	});
 
-	async function transform(opts) {
+	async function transform(opts: any) {
 		const { data } = await sharpService.transform(
 			inputBuffer,
 			{ src: 'penguin.jpg', format: 'webp', ...opts },
