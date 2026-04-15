@@ -8,28 +8,14 @@
  * Workers are single-threaded, so a module-scoped reference is safe.
  */
 
-interface CachePurgeOptions {
-	tags?: string[];
-	pathPrefixes?: string[];
-	purgeEverything?: boolean;
-}
-
-export interface WorkerCache {
-	purge(options: CachePurgeOptions): Promise<void>;
-}
-
-interface ExecutionContextWithCache extends ExecutionContext {
-	cache?: WorkerCache;
-}
-
-let currentCtx: ExecutionContextWithCache | undefined;
+let currentCtx: ExecutionContext | undefined;
 
 // TODO: remove when `import { cache } from 'cloudflare:workers'` is available
 export function setCurrentCtx(ctx: ExecutionContext): void {
-	currentCtx = ctx as ExecutionContextWithCache;
+	currentCtx = ctx;
 }
 
 // TODO: remove when `import { cache } from 'cloudflare:workers'` is available
-export function getWorkerCache(): WorkerCache | undefined {
+export function getWorkerCache(): ExecutionContext['cache'] {
 	return currentCtx?.cache;
 }

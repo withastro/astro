@@ -8,6 +8,7 @@ interface CloudflareConfigOptions {
 	sessionKVBindingName: string | undefined;
 	needsSessionKVBinding?: boolean;
 	imagesBindingName: string | false | undefined;
+	needsWorkerCache?: boolean;
 }
 
 /**
@@ -23,6 +24,8 @@ export function cloudflareConfigCustomizer(
 		options?.imagesBindingName === false
 			? undefined
 			: (options?.imagesBindingName ?? DEFAULT_IMAGES_BINDING_NAME);
+
+	const needsWorkerCache = options?.needsWorkerCache ?? false;
 
 	return (config) => {
 		const hasSessionBinding = config.kv_namespaces?.some(
@@ -52,6 +55,8 @@ export function cloudflareConfigCustomizer(
 				: {
 						binding: DEFAULT_ASSETS_BINDING_NAME,
 					},
+			// Enable the Worker caching layer when a Cloudflare cache provider is configured
+			cache: needsWorkerCache && !config.cache?.enabled ? { enabled: true } : undefined,
 		};
 	};
 }
