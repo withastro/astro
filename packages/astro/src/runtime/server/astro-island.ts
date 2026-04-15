@@ -96,6 +96,16 @@ declare const Astro: {
 			this.start();
 		}
 
+		private async importWithRetry(url: string): Promise<any> {
+			try {
+				return await import(url);
+			} catch {
+				// Retry once after a short delay for transient network failures
+				await new Promise((resolve) => setTimeout(resolve, 1000));
+				return await import(url);
+			}
+		}
+
 		async start() {
 			const opts = JSON.parse(this.getAttribute('opts')!) as Record<string, any>;
 			const directive = this.getAttribute('client') as directiveAstroKeys;
@@ -108,8 +118,8 @@ declare const Astro: {
 					async () => {
 						const rendererUrl = this.getAttribute('renderer-url');
 						const [componentModule, { default: hydrator }] = await Promise.all([
-							import(this.getAttribute('component-url')!),
-							rendererUrl ? import(rendererUrl) : () => () => {},
+							this.importWithRetry(this.getAttribute('component-url')!),
+							rendererUrl ? this.importWithRetry(rendererUrl) : () => () => {},
 						]);
 						const componentExport = this.getAttribute('component-export') || 'default';
 						if (!componentExport.includes('.')) {
@@ -127,7 +137,19 @@ declare const Astro: {
 					this,
 				);
 			} catch (e) {
-				console.error(`[astro-island] Error hydrating ${this.getAttribute('component-url')}`, e);
+				const url = this.getAttribute('component-url');
+				const event = new CustomEvent('astro:hydration-error', {
+					composed: true,
+					bubbles: true,
+					detail: {
+						error: e,
+						componentUrl: url,
+					},
+				});
+				this.dispatchEvent(event);
+				if (!event.defaultPrevented) {
+					console.error(`[astro-island] Error hydrating ${url}`, e);
+				}
 			}
 		}
 
