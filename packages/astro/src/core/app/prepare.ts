@@ -29,7 +29,7 @@ import { renderPage } from '../../runtime/server/render/page.js';
 import { getParams } from '../render/index.js';
 import { setOriginPathname } from '../routing/rewrite.js';
 import { originPathnameSymbol } from '../constants.js';
-import { renderOptionsStore } from './render-options-store.js';
+import { getRenderOptions } from './render-options-store.js';
 
 export interface PrepareOptions {
 	/** Client IP address for Astro.clientAddress. */
@@ -75,7 +75,7 @@ export async function prepareForRender(
 		skipMiddleware = false,
 		cookies: sharedCookies,
 		session: sharedSession,
-		prerenderedErrorPageFetch = renderOptionsStore.getStore()?.prerenderedErrorPageFetch ?? fetch,
+		prerenderedErrorPageFetch = getRenderOptions(request)?.prerenderedErrorPageFetch ?? fetch,
 		isDev = false,
 	} = options;
 
@@ -226,7 +226,7 @@ async function renderErrorPage(
 		error,
 		clientAddress,
 		locals,
-		prerenderedErrorPageFetch = renderOptionsStore.getStore()?.prerenderedErrorPageFetch ?? fetch,
+		prerenderedErrorPageFetch = getRenderOptions(request)?.prerenderedErrorPageFetch ?? fetch,
 		isDev = false,
 	} = options;
 

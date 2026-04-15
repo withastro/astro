@@ -1,55 +1,30 @@
 /**
  * Per-request render options passed from BaseApp.render() into the Hono
- * middleware pipeline via a simple synchronous store. This avoids smuggling
- * values on the Request object (which breaks when Requests are cloned for
- * rewrites).
+ * middleware pipeline. Attached to the Request object via a Symbol so the
+ * options are available anywhere the request is accessible — no async
+ * context tracking needed.
  *
- * The store is attached to a global Symbol so that the same instance is
- * shared even when the module is duplicated across bundles (e.g. the
- * adapter's runtime App import vs. the bundled fixture/server code).
+ * When a new Request is created (e.g. during rewrites), the caller must
+ * copy the symbol over via `copyRenderOptions(oldReq, newReq)`.
  */
-interface RenderOptions {
+export interface RenderOptions {
 	locals?: App.Locals;
 	clientAddress?: string;
 	addCookieHeader?: boolean;
 	prerenderedErrorPageFetch?: ((url: string) => Promise<Response>) | undefined;
 }
 
-interface RenderOptionsStore {
-	run<R>(store: RenderOptions, callback: () => R): R;
-	getStore(): RenderOptions | undefined;
+const RENDER_OPTIONS = Symbol.for('astro.renderOptions');
+
+export function setRenderOptions(request: Request, options: RenderOptions): void {
+	Reflect.set(request, RENDER_OPTIONS, options);
 }
 
-function createSyncStore(): RenderOptionsStore {
-	let current: RenderOptions | undefined;
-	return {
-		run<R>(store: RenderOptions, callback: () => R): R {
-			const prev = current;
-			current = store;
-			try {
-				const result = callback();
-				// Handle async callbacks: keep the store active until the
-				// promise settles, then restore the previous value.
-				if (result && typeof (result as any).then === 'function') {
-					return (result as any).then(
-						(v: any) => { current = prev; return v; },
-						(e: any) => { current = prev; throw e; },
-					);
-				}
-				current = prev;
-				return result;
-			} catch (e) {
-				current = prev;
-				throw e;
-			}
-		},
-		getStore() {
-			return current;
-		},
-	};
+export function getRenderOptions(request: Request): RenderOptions | undefined {
+	return Reflect.get(request, RENDER_OPTIONS) as RenderOptions | undefined;
 }
 
-const key = Symbol.for('astro.renderOptionsStore');
-const g = globalThis as Record<symbol, unknown>;
-export const renderOptionsStore: RenderOptionsStore =
-	(g[key] as RenderOptionsStore) ?? (g[key] = createSyncStore());
+export function copyRenderOptions(source: Request, target: Request): void {
+	const options = Reflect.get(source, RENDER_OPTIONS);
+	if (options) Reflect.set(target, RENDER_OPTIONS, options);
+}

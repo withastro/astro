@@ -10,6 +10,7 @@ import { getProps } from '../../render/index.js';
 import { ROUTE_TYPE_HEADER, REROUTE_DIRECTIVE_HEADER, originPathnameSymbol } from '../../constants.js';
 import { ForbiddenRewrite } from '../../errors/errors-data.js';
 import { AstroError, AstroErrorData } from '../../errors/index.js';
+import { copyRenderOptions } from '../render-options-store.js';
 
 /**
  * Renders page routes. This class is framework-agnostic and does not
@@ -99,6 +100,8 @@ export class PageRenderer {
 					const newRequest = rewritePayload instanceof Request
 						? rewritePayload
 						: new Request(newUrl, renderContext.request);
+						// Copy render options from the original request to the new one
+						copyRenderOptions(renderContext.request, newRequest);
 						// Preserve the original request's origin pathname across the rewrite
 						const origin = Reflect.get(renderContext.request, originPathnameSymbol);
 						if (origin) {

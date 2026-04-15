@@ -17,7 +17,7 @@ import { type CreateRenderContext, RenderContext } from '../render-context.js';
 import { ensure404Route } from '../routing/astro-designed-error-pages.js';
 import { Router } from '../routing/router.js';
 import type { AppPipeline } from './pipeline.js';
-import { renderOptionsStore } from './render-options-store.js';
+import { setRenderOptions } from './render-options-store.js';
 import type { SSRManifest } from './types.js';
 
 export interface DevMatch {
@@ -340,19 +340,16 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				logger: this.logger,
 			});
 		}
-		// Pass per-request render options into the Hono pipeline via the render options store.
-		// This avoids smuggling values on the Request object (which breaks when
-		// Requests are cloned for rewrites).
+		// Attach per-request render options to the Request so they're accessible
+		// anywhere in the Hono pipeline without async context tracking.
+		setRenderOptions(request, {
+			locals: options.locals,
+			clientAddress: options.clientAddress,
+			addCookieHeader: options.addCookieHeader,
+			prerenderedErrorPageFetch: options.prerenderedErrorPageFetch as ((url: string) => Promise<Response>) | undefined,
+		});
 		const userApp = this.#userApp;
-		return renderOptionsStore.run(
-			{
-				locals: options.locals,
-				clientAddress: options.clientAddress,
-				addCookieHeader: options.addCookieHeader,
-				prerenderedErrorPageFetch: options.prerenderedErrorPageFetch as ((url: string) => Promise<Response>) | undefined,
-			},
-			() => userApp.fetch(request),
-		);
+		return userApp.fetch(request);
 	}
 
 
