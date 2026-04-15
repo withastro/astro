@@ -2,7 +2,7 @@
 '@astrojs/netlify': minor
 ---
 
-Adds a CDN cache provider for Astro route caching on Netlify
+Adds a CDN cache provider for Astro [experimental route caching](https://docs.astro.build/en/reference/experimental-flags/route-caching/) on Netlify
 
 #### Setup
 

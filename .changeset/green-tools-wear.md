@@ -2,7 +2,7 @@
 '@astrojs/vercel': minor
 ---
 
-Adds a CDN cache provider for Astro route caching on Vercel
+Adds a CDN cache provider for Astro [experimental route caching](https://docs.astro.build/en/reference/experimental-flags/route-caching/) on Vercel
 
 #### Setup
 
