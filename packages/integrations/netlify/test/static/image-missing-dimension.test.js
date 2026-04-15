@@ -5,10 +5,10 @@ import { loadFixture } from '../../../../astro/test/test-utils.js';
 describe('Image validation when is not size specification in netlify.', () => {
 	it('throw on missing dimension in static build', async () => {
 		const fixture = await loadFixture({
-			root: new URL('./fixtures/image-missing-dimension/', import.meta.url)
+			root: new URL('./fixtures/image-missing-dimension/', import.meta.url),
 		});
 
-		try{
+		try {
 			await fixture.build();
 			assert.fail();
 		} catch (e) {
@@ -16,8 +16,8 @@ describe('Image validation when is not size specification in netlify.', () => {
 			assert.match(
 				e.name,
 				/MissingImageDimension/,
-				`Build failed but not with the expected "MissingImageDimension"`
-			)
+				`Build failed but not with the expected "MissingImageDimension"`,
+			);
 		}
-	})
-})
+	});
+});
