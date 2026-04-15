@@ -7,7 +7,8 @@
     "test/test-plugins.js",
     "test/test-prerenderer.js",
     "test/test-remote-image-service.js",
-    "test/test-utils.js"
+    "test/test-utils.js",
+    "package.json"
   ],
   "exclude": ["test/units/_temp-fixtures/**", "test/fixtures/**"],
   "compilerOptions": {
