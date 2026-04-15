@@ -149,6 +149,13 @@ function resolveDomainLocale(request: Request, manifest: SSRManifest): string | 
 
 function createMatchRouteData(deps: AstroAppDeps) {
 	return function matchRouteData(request: Request, { allowPrerenderedRoutes = false } = {}): RouteData | undefined {
+		// If the adapter already matched a route (e.g. via devMatch), use it
+		// directly instead of re-matching. This is needed because some adapters
+		// (like Cloudflare) run route matching in their own handler before
+		// calling app.render().
+		const preMatched = getRenderOptions(request)?.routeData;
+		if (preMatched) return preMatched;
+
 		const manifest = deps.manifest;
 		const manifestData = deps.manifestData;
 		const url = new URL(request.url);

@@ -347,6 +347,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			clientAddress: options.clientAddress,
 			addCookieHeader: options.addCookieHeader,
 			prerenderedErrorPageFetch: options.prerenderedErrorPageFetch as ((url: string) => Promise<Response>) | undefined,
+			routeData: options.routeData,
 		});
 		const userApp = this.#userApp;
 		return userApp.fetch(request);

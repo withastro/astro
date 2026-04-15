@@ -12,6 +12,8 @@ export interface RenderOptions {
 	clientAddress?: string;
 	addCookieHeader?: boolean;
 	prerenderedErrorPageFetch?: ((url: string) => Promise<Response>) | undefined;
+	/** Pre-matched route data from the adapter (e.g. cloudflare's devMatch). */
+	routeData?: any;
 }
 
 const RENDER_OPTIONS = Symbol.for('astro.renderOptions');
