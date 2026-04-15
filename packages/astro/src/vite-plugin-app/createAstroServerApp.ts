@@ -16,7 +16,7 @@ import type { ModuleLoader } from '../core/module-loader/index.js';
 import type { AstroSettings, RoutesList } from '../types/astro.js';
 import type { DevServerController } from '../vite-plugin-astro-server/controller.js';
 import { AstroServerApp } from './app.js';
-import { loadOrCreateNodeLogger } from '../core/logger/load.js';
+import { createNodeLoggerFromFlags } from '../core/logger/impls/node.js';
 
 export default async function createAstroServerApp(
 	controller: DevServerController,
@@ -24,7 +24,7 @@ export default async function createAstroServerApp(
 	loader: ModuleLoader,
 	logger?: AstroLogger,
 ) {
-	const actualLogger = logger ?? (await loadOrCreateNodeLogger(settings.config, {}));
+	const actualLogger = logger ?? createNodeLoggerFromFlags({});
 
 	const routesList: RoutesList = { routes: routes.map((r: RouteInfo) => r.routeData) };
 
