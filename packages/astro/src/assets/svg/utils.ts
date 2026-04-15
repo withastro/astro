@@ -1,31 +1,28 @@
-import { optimize } from 'svgo';
 import { ELEMENT_NODE, TEXT_NODE, parse, renderSync } from 'ultrahtml';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
-import type { AstroConfig } from '../../types/public/config.js';
 import type { SvgComponentProps } from '../runtime.js';
 import { dropAttributes } from '../runtime.js';
 import type { ImageMetadata } from '../types.js';
+import type { SvgOptimizer } from './types.js';
 
-function parseSvg({
+async function parseSvg({
 	path,
 	contents,
-	svgoConfig,
+	svgOptimizer,
 }: {
 	path: string;
 	contents: string;
-	svgoConfig: AstroConfig['experimental']['svgo'];
+	svgOptimizer: SvgOptimizer | undefined;
 }) {
 	let processedContents = contents;
-	if (svgoConfig) {
+	if (svgOptimizer) {
 		try {
-			const config = typeof svgoConfig === 'boolean' ? undefined : svgoConfig;
-			const result = optimize(contents, config);
-			processedContents = result.data;
+			processedContents = await svgOptimizer.optimize(contents);
 		} catch (cause) {
 			throw new AstroError(
 				{
 					...AstroErrorData.CannotOptimizeSvg,
-					message: AstroErrorData.CannotOptimizeSvg.message(path),
+					message: AstroErrorData.CannotOptimizeSvg.message(path, svgOptimizer.name),
 				},
 				{ cause },
 			);
@@ -58,20 +55,20 @@ function parseSvg({
 	return { attributes, body, styles };
 }
 
-export function makeSvgComponent(
+export async function makeSvgComponent(
 	meta: ImageMetadata,
 	contents: Buffer | string,
-	svgoConfig: AstroConfig['experimental']['svgo'],
-): string {
+	svgOptimizer: SvgOptimizer | undefined,
+): Promise<string> {
 	const file = typeof contents === 'string' ? contents : contents.toString('utf-8');
 	const {
 		attributes,
 		body: children,
 		styles,
-	} = parseSvg({
+	} = await parseSvg({
 		path: meta.fsPath,
 		contents: file,
-		svgoConfig,
+		svgOptimizer,
 	});
 	const props: SvgComponentProps = {
 		meta,
@@ -89,20 +86,20 @@ export default createSvgComponent(${JSON.stringify(props)})`;
  * (attributes + inner HTML body) without generating any module code.
  * @internal Used by the asset pipeline for content-collection SVG images.
  */
-export function parseSvgComponentData(
+export async function parseSvgComponentData(
 	meta: ImageMetadata,
 	contents: Buffer | string,
-	svgoConfig: AstroConfig['experimental']['svgo'],
-): { attributes: Record<string, string>; children: string; styles: string[] } {
+	svgOptimizer: SvgOptimizer | undefined,
+): Promise<{ attributes: Record<string, string>; children: string; styles: string[] }> {
 	const file = typeof contents === 'string' ? contents : contents.toString('utf-8');
 	const {
 		attributes,
 		body: children,
 		styles,
-	} = parseSvg({
+	} = await parseSvg({
 		path: meta.fsPath,
 		contents: file,
-		svgoConfig,
+		svgOptimizer,
 	});
 	return { attributes: dropAttributes(attributes), children, styles };
 }
