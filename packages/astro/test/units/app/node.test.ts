@@ -3,7 +3,7 @@ import { EventEmitter } from 'node:events';
 import { describe, it } from 'node:test';
 import { createRequest, writeResponse } from '../../../dist/core/app/node.js';
 
-const mockNodeRequest = {
+const mockNodeRequest: any = {
 	url: '/',
 	method: 'GET',
 	headers: {
@@ -29,7 +29,7 @@ describe('node', () => {
 					},
 					{ allowedDomains: [{ hostname: 'example.com' }] },
 				);
-				assert.equal(result[Symbol.for('astro.clientAddress')], '1.1.1.1');
+				assert.equal((result as any)[Symbol.for('astro.clientAddress')], '1.1.1.1');
 			});
 
 			it('parses client IP from multi-value x-forwarded-for header', () => {
@@ -43,7 +43,7 @@ describe('node', () => {
 					},
 					{ allowedDomains: [{ hostname: 'example.com' }] },
 				);
-				assert.equal(result[Symbol.for('astro.clientAddress')], '1.1.1.1');
+				assert.equal((result as any)[Symbol.for('astro.clientAddress')], '1.1.1.1');
 			});
 
 			it('parses client IP from multi-value x-forwarded-for header with spaces', () => {
@@ -57,7 +57,7 @@ describe('node', () => {
 					},
 					{ allowedDomains: [{ hostname: 'example.com' }] },
 				);
-				assert.equal(result[Symbol.for('astro.clientAddress')], '1.1.1.1');
+				assert.equal((result as any)[Symbol.for('astro.clientAddress')], '1.1.1.1');
 			});
 
 			it('fallbacks to remoteAddress when no x-forwarded-for header is present', () => {
@@ -70,7 +70,7 @@ describe('node', () => {
 					},
 					{ allowedDomains: [{ hostname: 'example.com' }] },
 				);
-				assert.equal(result[Symbol.for('astro.clientAddress')], '2.2.2.2');
+				assert.equal((result as any)[Symbol.for('astro.clientAddress')], '2.2.2.2');
 			});
 
 			it('ignores x-forwarded-for when no allowedDomains is configured (default)', () => {
@@ -83,7 +83,7 @@ describe('node', () => {
 				});
 				// Without allowedDomains, x-forwarded-for should NOT be trusted
 				// Falls back to socket remoteAddress
-				assert.equal(result[Symbol.for('astro.clientAddress')], '2.2.2.2');
+				assert.equal((result as any)[Symbol.for('astro.clientAddress')], '2.2.2.2');
 			});
 
 			it('ignores x-forwarded-for when allowedDomains is empty', () => {
@@ -98,7 +98,7 @@ describe('node', () => {
 					{ allowedDomains: [] },
 				);
 				// Empty allowedDomains means no proxy trust, use socket address
-				assert.equal(result[Symbol.for('astro.clientAddress')], '2.2.2.2');
+				assert.equal((result as any)[Symbol.for('astro.clientAddress')], '2.2.2.2');
 			});
 
 			it('trusts x-forwarded-for when host matches allowedDomains', () => {
@@ -113,7 +113,7 @@ describe('node', () => {
 					{ allowedDomains: [{ hostname: 'example.com' }] },
 				);
 				// Host matches allowedDomains, so x-forwarded-for is trusted
-				assert.equal(result[Symbol.for('astro.clientAddress')], '1.1.1.1');
+				assert.equal((result as any)[Symbol.for('astro.clientAddress')], '1.1.1.1');
 			});
 
 			it('ignores x-forwarded-for when host does not match allowedDomains', () => {
@@ -128,7 +128,7 @@ describe('node', () => {
 					{ allowedDomains: [{ hostname: 'example.com' }] },
 				);
 				// Host does not match allowedDomains, so x-forwarded-for is NOT trusted
-				assert.equal(result[Symbol.for('astro.clientAddress')], '2.2.2.2');
+				assert.equal((result as any)[Symbol.for('astro.clientAddress')], '2.2.2.2');
 			});
 
 			it('trusts x-forwarded-for when x-forwarded-host matches allowedDomains', () => {
@@ -143,7 +143,7 @@ describe('node', () => {
 					{ allowedDomains: [{ hostname: 'example.com' }] },
 				);
 				// X-Forwarded-Host validated against allowedDomains, so XFF is trusted
-				assert.equal(result[Symbol.for('astro.clientAddress')], '1.1.1.1');
+				assert.equal((result as any)[Symbol.for('astro.clientAddress')], '1.1.1.1');
 			});
 
 			it('trusts multi-value x-forwarded-for when host matches allowedDomains', () => {
@@ -157,7 +157,7 @@ describe('node', () => {
 					},
 					{ allowedDomains: [{ hostname: 'example.com' }] },
 				);
-				assert.equal(result[Symbol.for('astro.clientAddress')], '1.1.1.1');
+				assert.equal((result as any)[Symbol.for('astro.clientAddress')], '1.1.1.1');
 			});
 
 			it('falls back to remoteAddress when host matches allowedDomains but no x-forwarded-for', () => {
@@ -170,7 +170,7 @@ describe('node', () => {
 					},
 					{ allowedDomains: [{ hostname: 'example.com' }] },
 				);
-				assert.equal(result[Symbol.for('astro.clientAddress')], '2.2.2.2');
+				assert.equal((result as any)[Symbol.for('astro.clientAddress')], '2.2.2.2');
 			});
 
 			it('prevents IP spoofing: attacker cannot override clientAddress without allowedDomains', () => {
@@ -183,7 +183,7 @@ describe('node', () => {
 					},
 				});
 				// Without allowedDomains, the spoofed IP must be ignored
-				assert.equal(result[Symbol.for('astro.clientAddress')], '2.2.2.2');
+				assert.equal((result as any)[Symbol.for('astro.clientAddress')], '2.2.2.2');
 			});
 
 			it('prevents IP spoofing: attacker cannot override clientAddress when host does not match', () => {
@@ -199,7 +199,7 @@ describe('node', () => {
 					{ allowedDomains: [{ hostname: 'example.com' }] },
 				);
 				// Host doesn't match allowedDomains, so XFF is not trusted
-				assert.equal(result[Symbol.for('astro.clientAddress')], '2.2.2.2');
+				assert.equal((result as any)[Symbol.for('astro.clientAddress')], '2.2.2.2');
 			});
 		});
 
@@ -882,13 +882,13 @@ describe('node', () => {
 			// The request should be created, but reading the body should fail
 			await assert.rejects(
 				async () => {
-					const reader = request.body.getReader();
+					const reader = request.body!.getReader();
 					while (true) {
 						const { done } = await reader.read();
 						if (done) break;
 					}
 				},
-				(err) => {
+				(err: any) => {
 					assert.ok(err.message.includes('Body size limit exceeded'));
 					return true;
 				},
@@ -914,7 +914,7 @@ describe('node', () => {
 			const request = createRequest(req, { bodySizeLimit: limit });
 
 			// Reading the body should succeed
-			const reader = request.body.getReader();
+			const reader = request.body!.getReader();
 			const chunks = [];
 			while (true) {
 				const { done, value } = await reader.read();
@@ -944,7 +944,7 @@ describe('node', () => {
 			const request = createRequest(req);
 
 			// Reading the body should succeed without limit
-			const reader = request.body.getReader();
+			const reader = request.body!.getReader();
 			const chunks = [];
 			while (true) {
 				const { done, value } = await reader.read();
@@ -958,7 +958,7 @@ describe('node', () => {
 
 	describe('abort signal', () => {
 		it('aborts the request.signal when the underlying socket closes', () => {
-			const socket = new EventEmitter();
+			const socket: any = new EventEmitter();
 			socket.encrypted = true;
 			socket.remoteAddress = '2.2.2.2';
 			socket.destroyed = false;
@@ -973,7 +973,7 @@ describe('node', () => {
 		});
 
 		it('cleans up socket listeners after the response finishes', async () => {
-			const socket = new EventEmitter();
+			const socket: any = new EventEmitter();
 			socket.encrypted = true;
 			socket.remoteAddress = '2.2.2.2';
 			socket.destroyed = false;
@@ -987,7 +987,7 @@ describe('node', () => {
 
 			const response = new Response('ok');
 			const destination = new MockServerResponse(nodeRequest);
-			await writeResponse(response, destination);
+			await writeResponse(response, destination as any);
 
 			assert.equal(result.signal.aborted, false);
 			assert.equal(socket.listenerCount('close'), 0);
@@ -996,7 +996,13 @@ describe('node', () => {
 });
 
 class MockServerResponse extends EventEmitter {
-	constructor(req) {
+	req: any;
+	statusCode: number;
+	statusMessage: string | undefined;
+	headers: Record<string, any>;
+	body: any[];
+
+	constructor(req: any) {
 		super();
 		this.req = req;
 		this.statusCode = 200;
@@ -1005,12 +1011,12 @@ class MockServerResponse extends EventEmitter {
 		this.body = [];
 	}
 
-	writeHead(status, headers) {
+	writeHead(status: number, headers: Record<string, any>) {
 		this.statusCode = status;
 		this.headers = headers;
 	}
 
-	write(chunk) {
+	write(chunk: any) {
 		this.body.push(chunk);
 		return true;
 	}
