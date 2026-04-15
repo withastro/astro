@@ -19,13 +19,12 @@ import {
 	removeTrailingForwardSlash,
 } from '@astrojs/internal-helpers/path';
 import { normalizeTheLocale } from '../../i18n/index.js';
-import { computeCurrentLocale } from '../../i18n/utils.js';
+
 import { clientAddressSymbol, NOOP_MIDDLEWARE_HEADER, REROUTABLE_STATUS_CODES, REROUTE_DIRECTIVE_HEADER, REWRITE_DIRECTIVE_HEADER_KEY, ROUTE_TYPE_HEADER } from '../constants.js';
 import { PERSIST_SYMBOL } from '../session/runtime.js';
 import { getRenderOptions, copyRenderOptions } from './render-options-store.js';
-import { computeFallbackRoute } from '../../i18n/fallback.js';
+
 import { ForbiddenRewrite } from '../errors/errors-data.js';
-import { I18nRouter, type I18nRouterContext } from '../../i18n/router.js';
 import {
 	getActionContext,
 	parseRequestBody,
@@ -39,6 +38,7 @@ import type { APIContext } from '../../types/public/context.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { createRedirectsHandler } from '../redirects/handler.js';
 import { createRewritesHandler } from '../rewrites/handler.js';
+import { createI18nHandler } from '../../i18n/handler.js';
 import { attachCookiesToResponse, getSetCookiesFromResponse } from '../cookies/response.js';
 import { AstroError } from '../errors/index.js';
 import { applyCacheHeaders } from '../cache/runtime/cache.js';
@@ -442,103 +442,19 @@ function createI18nMiddleware(
 	matchRouteData: (req: Request) => RouteData | undefined,
 ): MiddlewareHandler<AstroHonoEnv> {
 	const { pipeline, manifest } = deps;
-	const i18nConfig = manifest.i18n;
-	if (!i18nConfig || i18nConfig.strategy === 'manual') {
+	const handleI18n = createI18nHandler(manifest, matchRouteData);
+
+	if (!handleI18n) {
 		return async (_c, next) => next();
 	}
 
-	const i18nRouter = new I18nRouter({
-		strategy: i18nConfig.strategy,
-		defaultLocale: i18nConfig.defaultLocale,
-		locales: i18nConfig.locales,
-		base: manifest.base,
-		domains: i18nConfig.domainLookupTable
-			? Object.keys(i18nConfig.domainLookupTable).reduce(
-					(acc, domain) => {
-						const locale = i18nConfig.domainLookupTable[domain];
-						if (!acc[domain]) acc[domain] = [];
-						acc[domain].push(locale);
-						return acc;
-					},
-					{} as Record<string, string[]>,
-				)
-			: undefined,
-	});
-
-	function getRouteData(c: HonoContext<AstroHonoEnv>) {
-		const state = getFetchState(c, pipeline);
-		if (state.routeData !== undefined) return state.routeData;
-		const routeData = matchRouteData(c.req.raw);
-		state.routeData = routeData;
-		return routeData;
-	}
-
 	return async (c, next) => {
-		const routeData = getRouteData(c);
-		const routeType = routeData?.type;
-
-		if (routeType !== 'page' && routeType !== 'fallback') {
-			return next();
-		}
-
-		const requestUrl = new URL(c.req.url);
-		const currentLocale = computeCurrentLocale(
-			removeBase(requestUrl.pathname, manifest.base),
-			i18nConfig.locales,
-			i18nConfig.defaultLocale,
-		);
-
 		await next();
-		let response = c.res;
 
-		const routerContext: I18nRouterContext = {
-			currentLocale,
-			currentDomain: requestUrl.hostname,
-			routeType,
-			isReroute: false,
-		};
-
-		const routeDecision = i18nRouter.match(requestUrl.pathname, routerContext);
-		switch (routeDecision.type) {
-			case 'redirect':
-				c.res = c.redirect(routeDecision.location, routeDecision.status);
-				return;
-			case 'notFound': {
-				if (!response) return;
-				const notFoundRes = new Response(response.body, { status: 404, headers: response.headers });
-				if (routeDecision.location) notFoundRes.headers.set('Location', routeDecision.location);
-				c.res = notFoundRes;
-				return;
-			}
-			case 'continue':
-				break;
-		}
-
-		if (!response) return;
-
-		if (i18nConfig.fallback && i18nConfig.fallbackType) {
-			const fallbackDecision = computeFallbackRoute({
-				pathname: requestUrl.pathname,
-				responseStatus: response.status,
-				currentLocale,
-				fallback: i18nConfig.fallback,
-				fallbackType: i18nConfig.fallbackType,
-				locales: i18nConfig.locales,
-				defaultLocale: i18nConfig.defaultLocale,
-				strategy: i18nConfig.strategy,
-				base: manifest.base,
-			});
-
-			switch (fallbackDecision.type) {
-				case 'redirect':
-					c.res = c.redirect(fallbackDecision.pathname + requestUrl.search);
-					return;
-				case 'rewrite':
-					getFetchState(c, pipeline).rewritePathname = fallbackDecision.pathname + requestUrl.search;
-					return;
-				case 'none':
-					break;
-			}
+		const state = getFetchState(c, pipeline);
+		const result = handleI18n(state, c.res);
+		if (result) {
+			c.res = result;
 		}
 	};
 }

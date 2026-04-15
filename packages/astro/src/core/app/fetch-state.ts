@@ -73,7 +73,7 @@ export class FetchState {
 	rewritePathname: string | undefined;
 
 	/** Tracks how many rewrites have occurred to detect loops. */
-	rewriteCount: number = 0;
+	rewriteCount = 0;
 
 	/** Cached APIContext instance. */
 	#apiContext: APIContext | undefined;
@@ -154,7 +154,6 @@ export class FetchState {
 		let _routePatternOverride: string | undefined;
 
 		// Capture `this` (the FetchState) for use in APIContext getters.
-		// biome-ignore lint/correctness/noUnusedVariables: used in ctx closures below
 		const state = this;
 
 		const ctx: APIContext = {
