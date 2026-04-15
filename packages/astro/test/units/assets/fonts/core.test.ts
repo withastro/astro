@@ -1864,12 +1864,9 @@ describe('fonts core', () => {
 
 		it('works', async () => {
 			const logger = new SpyLogger();
-			/** @type {Buffer | undefined} */
-			let buffer = undefined;
-			/** @type {Record<string, string>} */
-			const headers = {};
-			/** @type {number | null} */
-			let statusCode = null;
+			let buffer: Buffer | undefined = undefined;
+			const headers: Record<string, string> = {};
+			let statusCode: number | null = null;
 
 			await fontFileMiddleware({
 				fontFetcher: {
@@ -1918,12 +1915,9 @@ describe('fonts core', () => {
 
 		it('works with URLs with search params', async () => {
 			const logger = new SpyLogger();
-			/** @type {Buffer | undefined} */
-			let buffer = undefined;
-			/** @type {Record<string, string>} */
-			const headers = {};
-			/** @type {number | null} */
-			let statusCode = null;
+			let buffer: Buffer | undefined = undefined;
+			const headers: Record<string, string> = {};
+			let statusCode: number | null = null;
 
 			await fontFileMiddleware({
 				fontFetcher: {
@@ -1972,12 +1966,9 @@ describe('fonts core', () => {
 
 		it('handles errors', async () => {
 			const logger = new SpyLogger();
-			/** @type {Buffer | undefined} */
-			let buffer = undefined;
-			/** @type {Record<string, string>} */
-			const headers = {};
-			/** @type {number | null} */
-			let statusCode = null;
+			let buffer: Buffer | undefined = undefined;
+			const headers: Record<string, string> = {};
+			let statusCode: number | null = null;
 
 			await fontFileMiddleware({
 				fontFetcher: {

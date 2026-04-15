@@ -764,8 +764,7 @@ describe('fonts infra', () => {
 
 	describe('DevRuntimeFontFetcher', () => {
 		it('returns null if id is not found', async () => {
-			/** @type {Array<RequestInfo | URL>} */
-			let inputs = [];
+			let inputs: Array<RequestInfo | URL> = [];
 			const fontFetcher = new DevRuntimeFontFetcher({
 				ids: new Set(['foo.woff2']),
 				base: '/',
@@ -783,8 +782,7 @@ describe('fonts infra', () => {
 		});
 
 		it('works', async () => {
-			/** @type {Array<RequestInfo | URL>} */
-			let inputs = [];
+			let inputs: Array<RequestInfo | URL> = [];
 			const fontFetcher = new DevRuntimeFontFetcher({
 				ids: new Set(['foo.woff2']),
 				base: '/test/',
@@ -804,8 +802,7 @@ describe('fonts infra', () => {
 
 	describe('BuildRuntimeFontFetcher', () => {
 		it('returns null if id is not found', async () => {
-			/** @type {Array<RequestInfo | URL>} */
-			let inputs = [];
+			let inputs: Array<RequestInfo | URL> = [];
 			const fontFetcher = new BuildRuntimeFontFetcher({
 				ids: new Set(['foo.woff2']),
 				port: 3000,
@@ -822,8 +819,7 @@ describe('fonts infra', () => {
 		});
 
 		it('works', async () => {
-			/** @type {Array<RequestInfo | URL>} */
-			let inputs = [];
+			let inputs: Array<RequestInfo | URL> = [];
 			const fontFetcher = new BuildRuntimeFontFetcher({
 				ids: new Set(['foo.woff2']),
 				port: 3000,
@@ -842,8 +838,7 @@ describe('fonts infra', () => {
 
 	describe('SsrRuntimeFontFetcher', () => {
 		it('returns null if id is not found', async () => {
-			/** @type {Array<RequestInfo | URL>} */
-			let inputs = [];
+			let inputs: Array<RequestInfo | URL> = [];
 			const fontFetcher = new SsrRuntimeFontFetcher({
 				ids: new Set(['foo.woff2']),
 				fetch: async (input) => {
@@ -859,8 +854,7 @@ describe('fonts infra', () => {
 		});
 
 		it('throws if requestUrl is not provided', async () => {
-			/** @type {Array<RequestInfo | URL>} */
-			let inputs = [];
+			let inputs: Array<RequestInfo | URL> = [];
 			const fontFetcher = new SsrRuntimeFontFetcher({
 				ids: new Set(['foo.woff2']),
 				fetch: async (input) => {
@@ -873,8 +867,7 @@ describe('fonts infra', () => {
 		});
 
 		it('works', async () => {
-			/** @type {Array<RequestInfo | URL>} */
-			let inputs = [];
+			let inputs: Array<RequestInfo | URL> = [];
 			const fontFetcher = new SsrRuntimeFontFetcher({
 				ids: new Set(['foo.woff2']),
 				fetch: async (input) => {
@@ -893,8 +886,7 @@ describe('fonts infra', () => {
 		});
 
 		it('works with an http url (assetsPrefix)', async () => {
-			/** @type {Array<RequestInfo | URL>} */
-			let inputs = [];
+			let inputs: Array<RequestInfo | URL> = [];
 			const fontFetcher = new SsrRuntimeFontFetcher({
 				ids: new Set(['foo.woff2']),
 				fetch: async (input) => {
