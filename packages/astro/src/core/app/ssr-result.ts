@@ -15,7 +15,7 @@ import { generateCspDigest } from '../encryption.js';
 import { pushDirective } from '../csp/runtime.js';
 import type { Pipeline } from '../base-pipeline.js';
 import type { AstroCookies } from '../cookies/index.js';
-import { ASTRO_GENERATOR, responseSentSymbol } from '../constants.js';
+import { ASTRO_GENERATOR, pipelineSymbol, responseSentSymbol } from '../constants.js';
 import { getOriginPathname } from '../routing/rewrite.js';
 import { Slots } from '../render/index.js';
 import type { AstroSession } from '../session/runtime.js';
@@ -203,14 +203,16 @@ function createAstroGlobal(
 		return new Response(null, { status, headers: { Location: path } });
 	};
 
-	const callAction = createCallAction({
+	const actionContext = {
 		locals,
 		cookies,
 		request,
 		url,
 		redirect,
 		rewrite,
-	} as any);
+	} as any;
+	Reflect.set(actionContext, pipelineSymbol, pipeline);
+	const callAction = createCallAction(actionContext);
 
 	const pagePartial: Omit<AstroGlobal, 'props' | 'self' | 'slots'> = {
 		generator: ASTRO_GENERATOR,
