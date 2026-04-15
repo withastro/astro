@@ -8,13 +8,13 @@ import { resolveConfig } from '../../dist/core/config/index.js';
 import { createBaseSettings } from '../../dist/core/config/settings.js';
 import { createContainer } from '../../dist/core/dev/container.js';
 import { AstroIntegrationLogger, AstroLogger } from '../../dist/core/logger/core.js';
-import { createNodeLogger } from '../../dist/core/logger/impls/node.js';
+import { createNodeLoggerFromFlags } from '../../dist/core/logger/impls/node.js';
 import { NOOP_MIDDLEWARE_FN } from '../../dist/core/middleware/noop-middleware.js';
 import { Pipeline } from '../../dist/core/render/index.js';
 import { RouteCache } from '../../dist/core/render/route-cache.js';
 
 /** @type {import('../../src/core/logger/core').AstroLogger} */
-export const defaultLogger = createNodeLogger({ level: 'error' });
+export const defaultLogger = createNodeLoggerFromFlags({ logLevel: 'error' });
 
 const tempFixturesDir = fileURLToPath(new URL('./_temp-fixtures/', import.meta.url));
 

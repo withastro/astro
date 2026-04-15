@@ -24,7 +24,7 @@ import type {
 	SSRResult,
 } from '../types/public/internal.js';
 import { ContainerPipeline } from './pipeline.js';
-import { createNodeLogger } from '../core/logger/impls/node.js';
+import { createConsoleLogger } from '../core/logger/impls/console.js';
 
 /**
  * Public type, used for integrations to define a renderer for the container API
@@ -300,7 +300,7 @@ export class experimental_AstroContainer {
 		astroConfig,
 	}: AstroContainerConstructor) {
 		this.#pipeline = ContainerPipeline.create({
-			logger: createNodeLogger({ logLevel: 'info' }),
+			logger: createConsoleLogger({ level: 'error' }),
 			manifest: createManifest(manifest, renderers),
 			streaming,
 			renderers: renderers ?? manifest?.renderers ?? [],

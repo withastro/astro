@@ -14,12 +14,11 @@ import { createVite } from '../create-vite.js';
 import { collectErrorMetadata } from '../errors/dev/utils.js';
 import { isAstroConfigZodError } from '../errors/errors.js';
 import { createSafeError } from '../errors/index.js';
-import { createNodeLogger } from '../logger/impls/node.js';
+import { loadOrCreateNodeLogger } from '../logger/load.js';
 import { formatErrorMessage, warnIfCspWithShiki } from '../messages/runtime.js';
 import { createRoutesList } from '../routing/create-manifest.js';
 import type { Container } from './container.js';
 import { createContainer } from './container.js';
-import { loadLogger } from '../logger/load.js';
 
 const configRE = /.*astro.config.(?:mjs|mts|cjs|cts|js|ts)$/;
 
@@ -145,13 +144,9 @@ export async function createContainerWithAutomaticRestart({
 	inlineConfig,
 	fs,
 }: CreateContainerWithAutomaticRestart): Promise<Restart> {
-	const logger = createNodeLogger(inlineConfig ?? {});
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'dev', fs);
 	// For now, we override only when no inline config has been provided. This won't break tests
-	if (!inlineConfig && astroConfig.experimental.logger) {
-		const destination = await loadLogger(astroConfig.experimental.logger, fs, astroConfig.root);
-		logger.setDestination(destination);
-	}
+	const logger = await loadOrCreateNodeLogger(astroConfig, inlineConfig ?? {});
 
 	warnIfCspWithShiki(astroConfig, logger);
 	telemetry.record(eventCliSession('dev', userConfig));

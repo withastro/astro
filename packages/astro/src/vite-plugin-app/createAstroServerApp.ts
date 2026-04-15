@@ -12,11 +12,11 @@ import { ProcessOperatingSystemProvider } from '../cli/infra/process-operating-s
 import { TinyexecCommandExecutor } from '../cli/infra/tinyexec-command-executor.js';
 import type { RouteInfo } from '../core/app/types.js';
 import type { AstroLogger } from '../core/logger/core.js';
-import { createNodeLogger } from '../core/logger/impls/node.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import type { AstroSettings, RoutesList } from '../types/astro.js';
 import type { DevServerController } from '../vite-plugin-astro-server/controller.js';
 import { AstroServerApp } from './app.js';
+import { loadOrCreateNodeLogger } from '../core/logger/load.js';
 
 export default async function createAstroServerApp(
 	controller: DevServerController,
@@ -24,7 +24,7 @@ export default async function createAstroServerApp(
 	loader: ModuleLoader,
 	logger?: AstroLogger,
 ) {
-	const actualLogger = logger ?? createNodeLogger({ logLevel: settings.logLevel });
+	const actualLogger = logger ?? (await loadOrCreateNodeLogger(settings.config, {}));
 
 	const routesList: RoutesList = { routes: routes.map((r: RouteInfo) => r.routeData) };
 
