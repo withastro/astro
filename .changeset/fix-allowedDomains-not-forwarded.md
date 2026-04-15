@@ -1,4 +1,4 @@
 ---
 'astro': patch
 ---
-Fixes `config.security?.allowedDomains` not being forwarded in the serialized manifest.
+Fixes  a bug where `allowedDomains` weren't correctly propagated when using the development server. 
