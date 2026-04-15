@@ -5,6 +5,6 @@ import { App } from '../../app.js';
 
 export const createApp: CreateApp = ({ streaming } = {}) => {
 	const app = new App(manifest, streaming);
-	app.setUserApp(userApp);
+	app.setFetchHandler(userApp);
 	return app;
 };

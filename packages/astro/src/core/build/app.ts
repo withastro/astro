@@ -46,8 +46,8 @@ export class BuildApp extends BaseApp<BuildPipeline> {
 		// build pipeline needs to render them. Keep isDev: false so onError
 		// returns JSON 500s and prepareForRender renders error pages normally.
 		if (!this._userAppCreated) {
-			const { createAstroApp } = await import('../app/hono-app.js');
-			this.setUserApp(createAstroApp({
+			const { createDefaultFetchHandler } = await import('../fetch/default-handler.js');
+			this.setFetchHandler(createDefaultFetchHandler({
 				pipeline: this.pipeline,
 				manifest: this.manifest,
 				logger: this.logger,

@@ -1,8 +1,9 @@
 import type http from 'node:http';
 import type { ServerResponse } from 'node:http';
 import { Http2ServerResponse } from 'node:http2';
-import type { Hono } from 'hono';
+
 import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
+import type { FetchHandler } from '../core/fetch/types.js';
 import { routes } from 'virtual:astro:routes';
 import { createRequest } from '../core/request.js';
 import { clientAddressSymbol, clientLocalsSymbol } from '../core/constants.js';
@@ -89,12 +90,12 @@ export default async function createAstroServerApp(
 	// entire chain on every loader.import(), recreating the Pages instance and
 	// losing the route cache. Caching here avoids that. The handler is recreated
 	// from scratch when src/app.ts changes (via reloadUserAppHandler in plugin.ts).
-	let cachedUserApp: Hono | undefined;
+	let cachedFetchHandler: FetchHandler | undefined;
 
 	return {
-		/** Clear the cached user app so the next request re-imports it. */
+		/** Clear the cached fetch handler so the next request re-imports it. */
 		invalidate() {
-			cachedUserApp = undefined;
+			cachedFetchHandler = undefined;
 		},
 		handler(incomingRequest: http.IncomingMessage, incomingResponse: http.ServerResponse) {
 			// Set user-specified server headers on every response
@@ -104,7 +105,7 @@ export default async function createAstroServerApp(
 
 			Promise.resolve()
 				.then(async () => {
-					if (!cachedUserApp) {
+					if (!cachedFetchHandler) {
 						const mod = await loader.import(ASTRO_DEV_USER_APP_ID);
 
 						// On first request, sync the initial routes captured at createHandler
@@ -120,14 +121,14 @@ export default async function createAstroServerApp(
 							}
 						}
 
-						const defaultExport = mod.default as Hono | undefined;
+						const defaultExport = mod.default as FetchHandler | undefined;
 						if (!defaultExport || typeof defaultExport.fetch !== 'function') {
-							throw new Error('src/app.ts must default export a Hono app instance.');
+							throw new Error('src/app.ts must default export an object with a fetch() method.');
 						}
-						cachedUserApp = defaultExport;
+						cachedFetchHandler = defaultExport;
 					}
 
-					const userApp = cachedUserApp;
+					const fetchHandler = cachedFetchHandler;
 
 					// Construct URL using Host header (includes port in dev)
 					const isHttps = 'encrypted' in incomingRequest.socket && incomingRequest.socket.encrypted;
@@ -185,17 +186,14 @@ export default async function createAstroServerApp(
 						Reflect.set(request, clientLocalsSymbol, locals);
 					}
 
-					// Sync the live route list into the cached Hono app so that
+					// Sync the live route list into the pipeline so that
 					// routes added after initial module evaluation are found.
-					const appDeps = Reflect.get(userApp, Symbol.for('astro.appDeps'));
-					if (appDeps) {
-						const { app: devApp } = await loader.import('virtual:astro:app');
-						if (devApp?.manifestData) {
-							appDeps.pipeline.manifestData = devApp.manifestData;
-						}
+					const { app: devApp } = await loader.import('virtual:astro:app');
+					if (devApp?.manifestData) {
+						devApp.pipeline.manifestData = devApp.manifestData;
 					}
 
-					const response = await userApp.fetch(request);
+					const response = await fetchHandler.fetch(request);
 					await writeDevResponse(response, incomingResponse, loader);
 				})
 				.catch(async (error) => {

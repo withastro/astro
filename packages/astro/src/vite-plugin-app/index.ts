@@ -68,17 +68,24 @@ export const app = createApp();
 				},
 				handler(id) {
 					if (id === DEFAULT_ASTRO_DEV_USER_APP_ID) {
-						// Wrap createAstroApp() in a lazy proxy so it isn't called
-						// during module initialisation. This avoids a TDZ in production
-						// bundles caused by the circular import:
-						//   virtual:astro:app → prod.ts → astro:user-app → astro/hono → virtual:astro:app
+						// The default fetch handler uses the plain Astro request
+						// pipeline without a Hono dependency. Wrap it lazily to avoid
+						// a TDZ caused by the circular import chain:
+						//   virtual:astro:app → prod.ts → astro:user-app → virtual:astro:app
 						return {
 							code: `
-import { createAstroApp } from 'astro/hono';
+import { createDefaultFetchHandler } from 'astro/app/default-handler';
+import { app } from 'virtual:astro:app';
 
-let _app;
-function getApp() { return _app ??= createAstroApp(); }
-export default { fetch: (req) => getApp().fetch(req) };
+let _handler;
+function getHandler() {
+  return _handler ??= createDefaultFetchHandler({
+    pipeline: app.pipeline,
+    manifest: app.manifest,
+    logger: app.logger,
+  });
+}
+export default { fetch: (req) => getHandler().fetch(req) };
 `.trim(),
 						};
 					}

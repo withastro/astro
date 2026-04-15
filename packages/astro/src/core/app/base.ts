@@ -10,6 +10,7 @@ import { normalizeTheLocale } from '../../i18n/index.js';
 import type { RoutesList } from '../../types/astro.js';
 import type { RemotePattern, RouteData } from '../../types/public/index.js';
 import type { Pipeline } from '../base-pipeline.js';
+import type { FetchHandler } from '../fetch/types.js';
 import { getSetCookiesFromResponse } from '../cookies/response.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { AstroIntegrationLogger, AstroLogger } from '../logger/core.js';
@@ -109,7 +110,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	baseWithoutTrailingSlash: string;
 	logger: AstroLogger;
 	#router: Router;
-	#userApp: { fetch: (request: Request) => Response | Promise<Response> } | undefined;
+	#fetchHandler: FetchHandler | undefined;
 	constructor(manifest: SSRManifest, streaming = true, ...args: any[]) {
 		this.manifest = manifest;
 		this.baseWithoutTrailingSlash = removeTrailingForwardSlash(manifest.base);
@@ -136,8 +137,8 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 
 	public abstract isDev(): boolean;
 
-	setUserApp(userApp: { fetch: (request: Request) => Response | Promise<Response> }): void {
-		this.#userApp = userApp;
+	setFetchHandler(fetchHandler: FetchHandler): void {
+		this.#fetchHandler = fetchHandler;
 	}
 
 	async createRenderContext(payload: CreateRenderContext): Promise<RenderContext> {
@@ -332,17 +333,17 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	}
 
 	public async render(request: Request, options: RenderOptions = {}): Promise<Response> {
-		if (!this.#userApp) {
-			// Auto-create a default Hono app using the shared factory.
-			const { createAstroApp } = await import('./hono-app.js');
-			this.#userApp = createAstroApp({
+		if (!this.#fetchHandler) {
+			// Auto-create a default fetch handler (no Hono dependency).
+			const { createDefaultFetchHandler } = await import('../fetch/default-handler.js');
+			this.#fetchHandler = createDefaultFetchHandler({
 				pipeline: this.pipeline,
 				manifest: this.manifest,
 				logger: this.logger,
 			});
 		}
 		// Attach per-request render options to the Request so they're accessible
-		// anywhere in the Hono pipeline without async context tracking.
+		// anywhere in the pipeline without async context tracking.
 		setRenderOptions(request, {
 			locals: options.locals,
 			clientAddress: options.clientAddress,
@@ -350,8 +351,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			prerenderedErrorPageFetch: options.prerenderedErrorPageFetch as ((url: string) => Promise<Response>) | undefined,
 			routeData: options.routeData,
 		});
-		const userApp = this.#userApp;
-		return userApp.fetch(request);
+		return this.#fetchHandler.fetch(request);
 	}
 
 

@@ -84,6 +84,7 @@
     "./zod": "./dist/zod.js",
     "./errors": "./dist/core/errors/userError.js",
     "./middleware": "./dist/core/middleware/index.js",
+    "./app/default-handler": "./dist/core/fetch/default-handler.js",
     "./hono": "./dist/core/app/hono.js",
     "./virtual-modules/*": "./dist/virtual-modules/*"
   },
