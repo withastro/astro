@@ -1,16 +1,26 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { toRoutingStrategy } from '../../../dist/core/app/common.js';
-import { validateConfig } from '../../../dist/core/config/validate.js';
+import { toRoutingStrategy as _toRoutingStrategy } from '../../../dist/core/app/common.js';
+import { validateConfig as _validateConfig } from '../../../dist/core/config/validate.js';
 import { MissingLocale } from '../../../dist/core/errors/errors-data.js';
 import { AstroError } from '../../../dist/core/errors/index.js';
 import {
-	getLocaleAbsoluteUrl,
-	getLocaleAbsoluteUrlList,
-	getLocaleRelativeUrl,
-	getLocaleRelativeUrlList,
+	getLocaleAbsoluteUrl as _getLocaleAbsoluteUrl,
+	getLocaleAbsoluteUrlList as _getLocaleAbsoluteUrlList,
+	getLocaleRelativeUrl as _getLocaleRelativeUrl,
+	getLocaleRelativeUrlList as _getLocaleRelativeUrlList,
 } from '../../../dist/i18n/index.js';
 import { parseLocale } from '../../../dist/i18n/utils.js';
+
+// The dist types for these helpers are very narrow and reject the partial mock
+// configs used throughout this test file. Cast to `any` once at the top so
+// each call site doesn't need its own cast.
+const toRoutingStrategy = _toRoutingStrategy as any;
+const validateConfig = _validateConfig as any;
+const getLocaleAbsoluteUrl = _getLocaleAbsoluteUrl as any;
+const getLocaleAbsoluteUrlList = _getLocaleAbsoluteUrlList as any;
+const getLocaleRelativeUrl = _getLocaleRelativeUrl as any;
+const getLocaleRelativeUrlList = _getLocaleRelativeUrlList as any;
 
 describe('getLocaleRelativeUrl', () => {
 	it('should correctly return the URL with the base', () => {
@@ -278,7 +288,7 @@ describe('getLocaleRelativeUrl', () => {
 				...config.i18n,
 				trailingSlash: 'always',
 				format: 'directory',
-				strategy: toRoutingStrategy(config.i18n.routing, {}),
+				strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 			}),
 			'/blog/en-us/',
 		);
@@ -291,7 +301,7 @@ describe('getLocaleRelativeUrl', () => {
 				trailingSlash: 'always',
 				format: 'directory',
 				normalizeLocale: false,
-				strategy: toRoutingStrategy(config.i18n.routing, {}),
+				strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 			}),
 			'/blog/en_US/',
 		);
@@ -303,7 +313,7 @@ describe('getLocaleRelativeUrl', () => {
 				...config.i18n,
 				trailingSlash: 'always',
 				format: 'directory',
-				strategy: toRoutingStrategy(config.i18n.routing, {}),
+				strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 			}),
 			'/blog/en-au/',
 		);
@@ -333,7 +343,7 @@ describe('getLocaleRelativeUrl', () => {
 				trailingSlash: 'always',
 				format: 'directory',
 				...config.i18n,
-				strategy: toRoutingStrategy(config.i18n.routing, {}),
+				strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 			}),
 			'/blog/en/',
 		);
@@ -344,7 +354,7 @@ describe('getLocaleRelativeUrl', () => {
 				...config.i18n,
 				trailingSlash: 'always',
 				format: 'directory',
-				strategy: toRoutingStrategy(config.i18n.routing, {}),
+				strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 			}),
 			'/blog/es/',
 		);
@@ -357,7 +367,7 @@ describe('getLocaleRelativeUrl', () => {
 				...config.i18n,
 				trailingSlash: 'always',
 				format: 'file',
-				strategy: toRoutingStrategy(config.i18n.routing, {}),
+				strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 			}),
 			'/blog/en/',
 		);
@@ -368,7 +378,7 @@ describe('getLocaleRelativeUrl', () => {
 				...config.i18n,
 				trailingSlash: 'always',
 				format: 'file',
-				strategy: toRoutingStrategy(config.i18n.routing, {}),
+				strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 			}),
 			'/blog/es/',
 		);
@@ -399,7 +409,7 @@ describe('getLocaleRelativeUrl', () => {
 				trailingSlash: 'always',
 				format: 'directory',
 				...config.i18n,
-				strategy: toRoutingStrategy(config.i18n.routing, {}),
+				strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 			}),
 			'/blog/en/',
 		);
@@ -410,7 +420,7 @@ describe('getLocaleRelativeUrl', () => {
 				...config.i18n,
 				trailingSlash: 'always',
 				format: 'directory',
-				strategy: toRoutingStrategy(config.i18n.routing, {}),
+				strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 			}),
 			'/blog/es/',
 		);
@@ -423,7 +433,7 @@ describe('getLocaleRelativeUrl', () => {
 				...config.i18n,
 				trailingSlash: 'always',
 				format: 'file',
-				strategy: toRoutingStrategy(config.i18n.routing, {}),
+				strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 			}),
 			'/blog/en/',
 		);
@@ -434,7 +444,7 @@ describe('getLocaleRelativeUrl', () => {
 				...config.i18n,
 				trailingSlash: 'always',
 				format: 'file',
-				strategy: toRoutingStrategy(config.i18n.routing, {}),
+				strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 			}),
 			'/blog/es/',
 		);
@@ -636,7 +646,7 @@ describe('getLocaleRelativeUrlList', () => {
 				...config.i18n,
 				trailingSlash: 'never',
 				format: 'directory',
-				strategy: toRoutingStrategy(config.i18n.routing, {}),
+				strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 			}),
 			['/blog/en', '/blog/en-us', '/blog/es'],
 		);
@@ -665,7 +675,7 @@ describe('getLocaleRelativeUrlList', () => {
 				...config.i18n,
 				trailingSlash: 'never',
 				format: 'directory',
-				strategy: toRoutingStrategy(config.i18n.routing, {}),
+				strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 			}),
 			['/blog/en', '/blog/en-us', '/blog/es'],
 		);
@@ -863,7 +873,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					format: 'directory',
 					site: 'https://example.com',
 					...config.i18n,
-					strategy: toRoutingStrategy(config.i18n.routing, {}),
+					strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 				}),
 				'https://example.com/blog/en/',
 			);
@@ -876,7 +886,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					trailingSlash: 'always',
 					format: 'directory',
 					site: 'https://example.com',
-					strategy: toRoutingStrategy(config.i18n.routing, {}),
+					strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 				}),
 				'https://example.com/blog/es/',
 			);
@@ -890,7 +900,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					trailingSlash: 'always',
 					format: 'file',
 					site: 'https://example.com',
-					strategy: toRoutingStrategy(config.i18n.routing, {}),
+					strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 				}),
 				'https://example.com/blog/en/',
 			);
@@ -902,7 +912,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					trailingSlash: 'always',
 					format: 'file',
 					site: 'https://example.com',
-					strategy: toRoutingStrategy(config.i18n.routing, {}),
+					strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 				}),
 				'https://example.com/blog/es/',
 			);
@@ -916,7 +926,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					format: 'file',
 					site: 'https://example.com',
 					isBuild: true,
-					strategy: toRoutingStrategy(config.i18n.routing, {}),
+					strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 				}),
 				'https://es.example.com/blog/',
 			);
@@ -932,7 +942,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					site: 'https://example.com',
 					path: 'first-post',
 					isBuild: true,
-					strategy: toRoutingStrategy(config.i18n.routing, {}),
+					strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 				}),
 				'https://es.example.com/blog/some-name/first-post/',
 			);
@@ -960,7 +970,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					trailingSlash: 'always',
 					format: 'directory',
 					site: 'https://example.com',
-					strategy: toRoutingStrategy(config.i18n.routing, {}),
+					strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 				}),
 				'https://example.com/en/',
 			);
@@ -972,7 +982,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					trailingSlash: 'always',
 					format: 'directory',
 					site: 'https://example.com',
-					strategy: toRoutingStrategy(config.i18n.routing, {}),
+					strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 				}),
 				'https://example.com/es/',
 			);
@@ -1001,7 +1011,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					trailingSlash: 'never',
 					format: 'directory',
 					site: 'https://example.com',
-					strategy: toRoutingStrategy(config.i18n.routing, {}),
+					strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 				}),
 				'https://example.com/blog/en',
 			);
@@ -1013,7 +1023,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					trailingSlash: 'always',
 					format: 'directory',
 					site: 'https://example.com',
-					strategy: toRoutingStrategy(config.i18n.routing, {}),
+					strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 				}),
 				'https://example.com/blog/es/',
 			);
@@ -1026,7 +1036,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					trailingSlash: 'ignore',
 					format: 'directory',
 					site: 'https://example.com',
-					strategy: toRoutingStrategy(config.i18n.routing, {}),
+					strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 				}),
 				'https://example.com/blog/en/',
 			);
@@ -1040,7 +1050,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					trailingSlash: 'never',
 					format: 'file',
 					site: 'https://example.com',
-					strategy: toRoutingStrategy(config.i18n.routing, {}),
+					strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 				}),
 				'https://example.com/blog/en',
 			);
@@ -1052,7 +1062,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					trailingSlash: 'always',
 					format: 'file',
 					site: 'https://example.com',
-					strategy: toRoutingStrategy(config.i18n.routing, {}),
+					strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 				}),
 				'https://example.com/blog/es/',
 			);
@@ -1066,7 +1076,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					trailingSlash: 'ignore',
 					format: 'file',
 					site: 'https://example.com',
-					strategy: toRoutingStrategy(config.i18n.routing, {}),
+					strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 				}),
 				'https://example.com/blog/en',
 			);
@@ -1148,7 +1158,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					site: 'https://example.com',
 					format: 'directory',
 					...config.i18n,
-					strategy: toRoutingStrategy(config.i18n.routing, {}),
+					strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 				}),
 				'https://example.com/blog/en/',
 			);
@@ -1160,7 +1170,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					site: 'https://example.com',
 					trailingSlash: 'always',
 					format: 'directory',
-					strategy: toRoutingStrategy(config.i18n.routing, {}),
+					strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 				}),
 				'https://example.com/blog/es/',
 			);
@@ -1174,7 +1184,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					site: 'https://example.com',
 					trailingSlash: 'always',
 					format: 'file',
-					strategy: toRoutingStrategy(config.i18n.routing, {}),
+					strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 				}),
 				'https://example.com/blog/en/',
 			);
@@ -1186,7 +1196,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					site: 'https://example.com',
 					trailingSlash: 'always',
 					format: 'file',
-					strategy: toRoutingStrategy(config.i18n.routing, {}),
+					strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 				}),
 				'https://example.com/blog/es/',
 			);
@@ -1218,7 +1228,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					site: 'https://example.com',
 					format: 'directory',
 					...config.i18n,
-					strategy: toRoutingStrategy(config.i18n.routing, {}),
+					strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 				}),
 				'https://example.com/blog/en/',
 			);
@@ -1230,7 +1240,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					site: 'https://example.com',
 					trailingSlash: 'always',
 					format: 'directory',
-					strategy: toRoutingStrategy(config.i18n.routing, {}),
+					strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 				}),
 				'https://example.com/blog/es/',
 			);
@@ -1244,7 +1254,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					site: 'https://example.com',
 					trailingSlash: 'always',
 					format: 'file',
-					strategy: toRoutingStrategy(config.i18n.routing, {}),
+					strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 				}),
 				'https://example.com/blog/en/',
 			);
@@ -1256,7 +1266,7 @@ describe('getLocaleAbsoluteUrl', () => {
 					site: 'https://example.com',
 					trailingSlash: 'always',
 					format: 'file',
-					strategy: toRoutingStrategy(config.i18n.routing, {}),
+					strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 				}),
 				'https://example.com/blog/es/',
 			);
@@ -1598,7 +1608,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 				path: 'download',
 				...config,
 				...config.i18n,
-				strategy: toRoutingStrategy(config.i18n.routing, {}),
+				strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 			}),
 			[
 				'https://example.com/en/download/',
@@ -1639,7 +1649,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 				path: 'download',
 				...config,
 				...config.i18n,
-				strategy: toRoutingStrategy(config.i18n.routing, {}),
+				strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 				isBuild: true,
 			}),
 			[
@@ -1793,7 +1803,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 				locale: 'en',
 				base: '/blog/',
 				...config.i18n,
-				strategy: toRoutingStrategy(config.i18n.routing, {}),
+				strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 				trailingSlash: 'ignore',
 				format: 'directory',
 				site: 'https://example.com',
@@ -1827,7 +1837,7 @@ describe('getLocaleAbsoluteUrlList', () => {
 				locale: 'en',
 				base: '/blog/',
 				...config.i18n,
-				strategy: toRoutingStrategy(config.i18n.routing, {}),
+				strategy: toRoutingStrategy((config.i18n as any).routing, {}),
 				trailingSlash: 'ignore',
 				format: 'directory',
 				site: 'https://example.com',
