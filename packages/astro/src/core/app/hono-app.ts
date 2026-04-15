@@ -40,10 +40,10 @@ import {
 import { ACTION_QUERY_PARAMS } from '../../actions/consts.js';
 import { callMiddleware } from '../middleware/callMiddleware.js';
 import { NOOP_MIDDLEWARE_FN } from '../middleware/noop-middleware.js';
-import type { RouteInfo, SSRManifest } from '../../types/public/index.js';
+import type { SSRManifest } from '../../types/public/index.js';
 import type { APIContext } from '../../types/public/context.js';
 import type { RouteData } from '../../types/public/internal.js';
-import { computeRedirectStatus, redirectIsExternal, resolveRedirectTarget } from '../redirects/render.js';
+import { createRedirectsHandler } from '../redirects/handler.js';
 import { getParams } from '../render/params-and-props.js';
 import { getOriginPathname } from '../routing/rewrite.js';
 import { validateAndDecodePathname } from '../util/pathname.js';
@@ -412,37 +412,11 @@ function createContextFactory(deps: AstroAppDeps, _matchRouteData: (req: Request
 // ---------------------------------------------------------------------------
 
 function createRedirectsMiddleware(deps: AstroAppDeps): MiddlewareHandler<AstroHonoEnv> {
-	const { manifest } = deps;
-	const redirectRoutes: RouteData[] = manifest.routes
-		.map((r: RouteInfo) => r.routeData)
-		.filter((r: RouteData) => r.type === 'redirect');
-
-	if (redirectRoutes.length === 0) {
-		return async (_c, next) => next();
-	}
+	const handleRedirect = createRedirectsHandler(deps.manifest);
 
 	return async (c, next) => {
-		const url = new URL(c.req.url);
-		const rawPathname = removeBase(url.pathname, manifest.base);
-
-		for (const routeData of redirectRoutes) {
-			if (routeData.pattern.test(decodeURI(rawPathname))) {
-				// Use the raw (encoded) pathname for params so the Location
-				// header preserves the original URL encoding.
-				const params = getParams(routeData, rawPathname);
-				const status = computeRedirectStatus(c.req.method, routeData.redirect, routeData.redirectRoute);
-				const location = resolveRedirectTarget(params, routeData.redirect, routeData.redirectRoute, manifest.trailingSlash);
-				// Use Response.redirect() for external URLs so the Location
-				// header is normalized per URL spec (e.g. trailing slash added).
-				if (routeData.redirect && redirectIsExternal(routeData.redirect)) {
-					const target = typeof routeData.redirect === 'string'
-						? routeData.redirect : routeData.redirect.destination;
-					return Response.redirect(target, status);
-				}
-				return new Response(null, { status, headers: { location } });
-			}
-		}
-
+		const response = handleRedirect(c.req.raw);
+		if (response) return response;
 		return next();
 	};
 }
