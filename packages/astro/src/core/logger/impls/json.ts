@@ -1,5 +1,11 @@
-import { type AstroLoggerDestination, type AstroLoggerMessage, levels } from '../core.js';
+import {
+	AstroLogger,
+	type AstroLoggerDestination,
+	type AstroLoggerMessage,
+	levels,
+} from '../core.js';
 import type { Writable } from 'node:stream';
+import type { AstroInlineConfig } from '../../../types/public/index.js';
 
 export type JonsHandlerConfig = {
 	pretty: boolean;
@@ -11,7 +17,9 @@ type ConsoleStream = Writable & {
 
 export const SGR_REGEX = new RegExp(`${String.fromCharCode(0x1b)}\\[[0-9;]*m`, 'g');
 
-export default function (config: JonsHandlerConfig): AstroLoggerDestination<AstroLoggerMessage> {
+export default function jsonLoggerDestination(
+	config: JonsHandlerConfig,
+): AstroLoggerDestination<AstroLoggerMessage> {
 	return {
 		write(event) {
 			let dest: ConsoleStream = process.stderr;
@@ -28,4 +36,11 @@ export default function (config: JonsHandlerConfig): AstroLoggerDestination<Astr
 			}
 		},
 	};
+}
+
+export function createJsonLoggerFromFlags(config: AstroInlineConfig) {
+	return new AstroLogger({
+		destination: jsonLoggerDestination({ pretty: false }),
+		level: config.logLevel ?? 'info',
+	});
 }

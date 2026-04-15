@@ -27,14 +27,14 @@ import { UnstorageFsStorage } from '../../../../dist/assets/fonts/infra/unstorag
 import { XxhashHasher } from '../../../../dist/assets/fonts/infra/xxhash-hasher.js';
 import { fontProviders } from '../../../../dist/assets/fonts/providers/index.js';
 import type { FontFamily } from '../../../../dist/assets/fonts/types.js';
-import { createNodeLogger } from '../../../../dist/core/logger/impls/node.js';
+import { createNodeLoggerFromFlags } from '../../../../dist/core/logger/impls/node.js';
 
 async function run({ fonts: _fonts }: { fonts: Array<FontFamily> }) {
 	const hasher = await XxhashHasher.create();
 	const resolvedFamilies = _fonts.map((family) => resolveFamily({ family, hasher }));
 	const defaults = DEFAULTS;
 	const { bold } = colors;
-	const logger = createNodeLogger({ level: 'silent' });
+	const logger = createNodeLoggerFromFlags({ logLevel: 'silent' });
 	const stringMatcher = new LevenshteinStringMatcher();
 	const base = new URL('./data/cache/', import.meta.url);
 	// Clear cache

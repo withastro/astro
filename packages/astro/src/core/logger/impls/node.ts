@@ -32,7 +32,7 @@ export default function (): AstroLoggerDestination<AstroLoggerMessage> {
 	return nodeLogDestination;
 }
 
-export function createNodeLogger(inlineConfig: AstroInlineConfig): AstroLogger {
+export function createNodeLoggerFromFlags(inlineConfig: AstroInlineConfig): AstroLogger {
 	if (inlineConfig.logger) return inlineConfig.logger;
 
 	return new AstroLogger({

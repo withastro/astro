@@ -1,6 +1,7 @@
 import type { Arguments } from 'yargs-parser';
 import type { AstroLogger } from '../core/logger/core.js';
-import { createNodeLogger } from '../core/logger/impls/node.js';
+import { createNodeLoggerFromFlags } from '../core/logger/impls/node.js';
+import { createJsonLoggerFromFlags } from '../core/logger/impls/json.js';
 import type { AstroInlineConfig } from '../types/public/config.js';
 
 // Alias for now, but allows easier migration to node's `parseArgs` in the future.
@@ -8,7 +9,7 @@ export type Flags = Arguments;
 
 /** @deprecated Use AstroConfigResolver instead */
 export function flagsToAstroInlineConfig(flags: Flags): AstroInlineConfig {
-	return {
+	const inlineConfig: AstroInlineConfig = {
 		// Inline-only configs
 		configFile: typeof flags.config === 'string' ? flags.config : undefined,
 		mode: typeof flags.mode === 'string' ? flags.mode : undefined,
@@ -34,6 +35,16 @@ export function flagsToAstroInlineConfig(flags: Flags): AstroInlineConfig {
 						: [],
 		},
 	};
+
+	if (flags.experimentalJson) {
+		inlineConfig.experimental = {
+			logger: {
+				entrypoint: 'astro/logger/json',
+			},
+		};
+	}
+
+	return inlineConfig;
 }
 
 /**
@@ -48,6 +59,9 @@ export function createLoggerFromFlags(flags: Flags): AstroLogger {
 	} else if (flags.silent) {
 		logLevel = 'silent';
 	}
-
-	return createNodeLogger({ logLevel });
+	if (flags.experimentalJson) {
+		return createJsonLoggerFromFlags({ logLevel });
+	} else {
+		return createNodeLoggerFromFlags({ logLevel });
+	}
 }
