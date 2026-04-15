@@ -34,7 +34,10 @@ describe('Directives', async () => {
 				assert.equal($(script).toString().includes('const dashCase = "bar"'), true);
 			} else if (i < 4) {
 				// Closing script tags in strings are escaped
-				assert.equal($(script).toString().includes('const bar = "<script>bar\\x3C/script>"'), true);
+				assert.equal(
+					$(script).toString().includes('const bar = "\\u003cscript>bar\\u003c/script>"'),
+					true,
+				);
 			} else {
 				// Vars with undefined values are handled
 				assert.equal($(script).toString().includes('const undef = undefined'), true);
