@@ -11,12 +11,12 @@ import {
 
 const DEFAULT_RESULT = {
 	clientDirectives: new Map(),
-};
+} as any;
 
 describe('rendering', () => {
-	const evaluated = [];
+	const evaluated: string[] = [];
 
-	const Scalar = createComponent((_result, props) => {
+	const Scalar = createComponent((_result: any, props: any) => {
 		evaluated.push(props.id);
 		return renderTemplate`<scalar id="${props.id}"></scalar>`;
 	});
@@ -26,7 +26,7 @@ describe('rendering', () => {
 	});
 
 	it('components are evaluated and rendered depth-first', async () => {
-		const Root = createComponent((result, props) => {
+		const Root = createComponent((result: any, props: any) => {
 			evaluated.push(props.id);
 			return renderTemplate`<root id="${props.id}">
 				${renderComponent(result, '', Scalar, { id: `${props.id}/scalar_1` })}
@@ -35,7 +35,7 @@ describe('rendering', () => {
 			</root>`;
 		});
 
-		const Nested = createComponent((result, props) => {
+		const Nested = createComponent((result: any, props: any) => {
 			evaluated.push(props.id);
 			return renderTemplate`<nested id="${props.id}">
 				${renderComponent(result, '', Scalar, { id: `${props.id}/scalar` })}
@@ -63,7 +63,7 @@ describe('rendering', () => {
 	});
 
 	it('synchronous component trees are rendered without promises', () => {
-		const Root = createComponent((result, props) => {
+		const Root = createComponent((result: any, props: any) => {
 			evaluated.push(props.id);
 			return renderTemplate`<root id="${props.id}">
 				${() => renderComponent(result, '', Scalar, { id: `${props.id}/scalar_1` })}
@@ -98,7 +98,7 @@ describe('rendering', () => {
 	});
 
 	it('async component children are deferred', async () => {
-		const Root = createComponent((result, props) => {
+		const Root = createComponent((result: any, props: any) => {
 			evaluated.push(props.id);
 			return renderTemplate`<root id="${props.id}">
 				${renderComponent(result, '', AsyncNested, { id: `${props.id}/asyncnested` })}
@@ -106,7 +106,7 @@ describe('rendering', () => {
 			</root>`;
 		});
 
-		const AsyncNested = createComponent(async (result, props) => {
+		const AsyncNested = createComponent(async (result: any, props: any) => {
 			evaluated.push(props.id);
 			await new Promise((resolve) => setTimeout(resolve, 0));
 			return renderTemplate`<asyncnested id="${props.id}">
@@ -136,7 +136,7 @@ describe('rendering', () => {
 	it('adjacent async components are evaluated eagerly', async () => {
 		const resetEvent = new ManualResetEvent();
 
-		const Root = createComponent((result, props) => {
+		const Root = createComponent((result: any, props: any) => {
 			evaluated.push(props.id);
 			return renderTemplate`<root id="${props.id}">
 				${renderComponent(result, '', AsyncNested, { id: `${props.id}/asyncnested_1` })}
@@ -144,7 +144,7 @@ describe('rendering', () => {
 			</root>`;
 		});
 
-		const AsyncNested = createComponent(async (result, props) => {
+		const AsyncNested = createComponent(async (result: any, props: any) => {
 			evaluated.push(props.id);
 			await resetEvent.wait();
 			return renderTemplate`<asyncnested id="${props.id}">
@@ -189,20 +189,20 @@ describe('rendering', () => {
 
 		const renderInstance = await renderComponent(DEFAULT_RESULT, '', Root, {});
 
-		const chunks = [];
+		const chunks: any[] = [];
 		const destination = {
-			write: (chunk) => {
+			write: (chunk: any) => {
 				chunks.push(chunk);
 			},
 		};
 
-		await renderInstance.render(destination);
+		await renderInstance.render(destination as any);
 
 		assert.deepEqual(chunks, [new HTMLString('hello world')]);
 	});
 
 	it('all primitives are rendered in order', async () => {
-		const Root = createComponent((result, props) => {
+		const Root = createComponent((result: any, props: any) => {
 			evaluated.push(props.id);
 			return renderTemplate`<root id="${props.id}">
 				${renderComponent(result, '', Scalar, { id: `${props.id}/first` })}
@@ -248,7 +248,7 @@ describe('rendering', () => {
 	});
 });
 
-function renderToString(item) {
+function renderToString(item: any): any {
 	if (isPromise(item)) {
 		return item.then(renderToString);
 	}
@@ -256,7 +256,7 @@ function renderToString(item) {
 	let result = '';
 
 	const destination = {
-		write: (chunk) => {
+		write: (chunk: any) => {
 			result += chunk.toString();
 		},
 	};
@@ -270,20 +270,20 @@ function renderToString(item) {
 	return result;
 }
 
-function getRenderedIds(html) {
+function getRenderedIds(html: string): string[] {
 	return cheerio
 		.load(
 			html,
 			null,
 			false,
 		)('*')
-		.map((_, node) => node.attribs['id'])
+		.map((_, node) => (node as any).attribs['id'])
 		.toArray();
 }
 
 class ManualResetEvent {
-	#resolve;
-	#promise;
+	#resolve: (() => void) | undefined;
+	#promise: Promise<void> | undefined;
 	#done = false;
 
 	release() {
