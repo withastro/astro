@@ -11,8 +11,9 @@ describe('AstroDevPlatform', () => {
 			root: './fixtures/astro-dev-platform/',
 		});
 		devServer = await fixture.startDevServer();
-		// Do an initial request to prime preloading
+		// Do initial requests to prime preloading (including Shiki for Code component)
 		await fixture.fetch('/');
+		await fixture.fetch('/code-test');
 	});
 
 	after(async () => {
