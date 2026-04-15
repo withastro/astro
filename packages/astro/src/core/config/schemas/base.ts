@@ -558,8 +558,7 @@ export const AstroConfigSchema = z.object({
 					entrypoint: z.string(),
 					config: z.record(z.string(), z.any()).optional(),
 				})
-				.optional()
-				.prefault(ASTRO_CONFIG_DEFAULTS.experimental.logger),
+				.optional(),
 		})
 		.prefault({}),
 	legacy: z
