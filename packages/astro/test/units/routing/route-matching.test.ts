@@ -116,11 +116,11 @@ const fileSystem = {
  * Sorts matched routes following the same logic as getSortedPreloadedMatches,
  * but without requiring a full pipeline/container.
  */
-function sortMatches(matches) {
+function sortMatches(matches: any[]) {
 	return matches
 		.slice()
-		.sort((a, b) => routeComparator(a, b))
-		.sort((a, b) => {
+		.sort((a: any, b: any) => routeComparator(a, b))
+		.sort((a: any, b: any) => {
 			// Prioritize prerendered routes over server routes when patterns are equal
 			if (a.pattern.source === b.pattern.source) {
 				if (a.prerender !== b.prerender) {
@@ -133,8 +133,8 @@ function sortMatches(matches) {
 }
 
 describe('Route matching', () => {
-	let fixture;
-	let manifestData;
+	let fixture: any;
+	let manifestData: any;
 
 	before(async () => {
 		fixture = await createFixture(fileSystem);
@@ -160,7 +160,7 @@ describe('Route matching', () => {
 		it('should be sorted correctly', async () => {
 			const matches = matchAllRoutes('/try-matching-a-route', manifestData);
 			const sortedMatches = sortMatches(matches);
-			const sortedRouteNames = sortedMatches.map((match) => match.route);
+			const sortedRouteNames = sortedMatches.map((match: any) => match.route);
 
 			assert.deepEqual(sortedRouteNames, [
 				'/[astaticdynamic]',
