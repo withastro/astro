@@ -1894,6 +1894,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/actions-middleware-context: {}
+
   packages/astro/test/fixtures/alias:
     dependencies:
       '@astrojs/svelte':
@@ -5887,6 +5889,15 @@ importers:
       astro:
         specifier: workspace:*
         version: link:../../../../../astro
+
+  packages/integrations/netlify/test/static/fixtures/image-missing-dimension:
+    dependencies:
+      '@astrojs/netlify':
+        specifier: workspace:*
+        version: link:../../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../../astro
 
   packages/integrations/netlify/test/static/fixtures/redirects:
     dependencies:
