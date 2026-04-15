@@ -62,4 +62,4 @@ export async function POST({ request, cache }) {
 await cache.invalidate({ path: '/products/123' });
 ```
 
-Tag-based invalidation uses `purgeCache()` from `@netlify/functions`. Path-based invalidation works by auto-tagging each response with its request path.
+Both tag-based and path-based invalidation are supported.

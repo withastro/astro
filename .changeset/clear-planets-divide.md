@@ -64,4 +64,4 @@ export async function POST({ request, cache }) {
 await cache.invalidate({ path: '/products/123' });
 ```
 
-Tag-based invalidation uses the Worker cache purge API. Path-based invalidation uses Cloudflare's native path prefix purge, so no auto-tagging is needed.
+Both tag-based and path-based invalidation are supported.

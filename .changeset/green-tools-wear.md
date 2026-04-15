@@ -62,4 +62,4 @@ export async function POST({ request, cache }) {
 await cache.invalidate({ path: '/products/123' });
 ```
 
-Tag-based invalidation uses `invalidateByTag()` from `@vercel/functions`, which performs a soft invalidation (marks cached responses as stale so they can be revalidated in the background via stale-while-revalidate). Path-based invalidation works by auto-tagging each response with its request path.
+Both tag-based and path-based invalidation are supported. Tag invalidation is a soft invalidation, marking cached responses as stale so they can be revalidated in the background via stale-while-revalidate.
