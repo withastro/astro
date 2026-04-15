@@ -509,7 +509,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 						async () => {
 							const res = await renderContext.render(componentInstance);
 							// Apply cache headers before the provider reads them
-							applyCacheHeaders(cache!, res);
+							applyCacheHeaders(cache!, res, request);
 							return res;
 						},
 					);
@@ -519,7 +519,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				} else {
 					response = await renderContext.render(componentInstance);
 					// Apply cache headers for CDN-based providers (no onRequest)
-					applyCacheHeaders(cache!, response);
+					applyCacheHeaders(cache!, response, request);
 				}
 			} else {
 				response = await renderContext.render(componentInstance);
