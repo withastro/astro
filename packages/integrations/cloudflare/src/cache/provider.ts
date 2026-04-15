@@ -14,11 +14,10 @@ const factory: CacheProviderFactory = () => {
 		setHeaders(options, _request) {
 			const headers = new Headers();
 
+			// Override Cloudflare's default caching behavior (which is to cache all GET requests for 2 hours) by setting no-store.
+			const directives = buildCacheControlDirectives(options, ['public']) ?? 'no-store';
 			// Cloudflare-CDN-Cache-Control (Cloudflare-specific, highest priority)
-			const directives = buildCacheControlDirectives(options, ['public']);
-			if (directives) {
-				headers.set('Cloudflare-CDN-Cache-Control', directives);
-			}
+			headers.set('Cloudflare-CDN-Cache-Control', directives);
 
 			// Cache-Tag for tag-based purging
 			const tags = [...(options.tags ?? [])];
