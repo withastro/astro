@@ -119,7 +119,7 @@ export function astro(options?: CreateAstroAppOptions): MiddlewareHandler<AstroH
 
 /** Pages middleware — matches and renders pages/endpoints/redirects. */
 export function pages(options?: CreateAstroAppOptions): MiddlewareHandler<AstroHonoEnv> {
-	return createPagesMiddleware(deps, getContextFactory(), getMatchRouteData(), options);
+	return createPagesMiddleware(deps, getMatchRouteData(), options);
 }
 
 /**

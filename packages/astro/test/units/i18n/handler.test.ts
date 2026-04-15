@@ -63,6 +63,9 @@ describe('createI18nHandler', () => {
 			defaultLocale: 'en',
 			locales: ['en', 'es', 'fr'],
 			domainLookupTable: {},
+			fallback: undefined,
+			fallbackType: 'redirect' as const,
+			domains: undefined,
 		};
 
 		it('returns undefined for non-page routes', () => {
@@ -117,6 +120,7 @@ describe('createI18nHandler', () => {
 				domainLookupTable: {},
 				fallback: { es: 'en' },
 				fallbackType: 'redirect' as const,
+				domains: undefined,
 			};
 			const manifest = makeManifest(i18nConfig);
 			const handler = createI18nHandler(manifest, () => undefined)!;
@@ -138,6 +142,7 @@ describe('createI18nHandler', () => {
 				domainLookupTable: {},
 				fallback: { es: 'en' },
 				fallbackType: 'rewrite' as const,
+				domains: undefined,
 			};
 			const manifest = makeManifest(i18nConfig);
 			const handler = createI18nHandler(manifest, () => undefined)!;
@@ -160,6 +165,7 @@ describe('createI18nHandler', () => {
 				domainLookupTable: {},
 				fallback: { es: 'en' },
 				fallbackType: 'redirect' as const,
+				domains: undefined,
 			};
 			const manifest = makeManifest(i18nConfig);
 			const handler = createI18nHandler(manifest, () => undefined)!;
@@ -177,6 +183,9 @@ describe('createI18nHandler', () => {
 				defaultLocale: 'en',
 				locales: ['en', 'es'],
 				domainLookupTable: {},
+				fallback: undefined,
+				fallbackType: 'redirect' as const,
+				domains: undefined,
 			};
 			const manifest = makeManifest(i18nConfig);
 			const handler = createI18nHandler(manifest, () => undefined)!;

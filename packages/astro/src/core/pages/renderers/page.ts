@@ -3,14 +3,14 @@ import type { SSRManifest } from '../../../types/public/index.js';
 import type { Pipeline } from '../../base-pipeline.js';
 import type { AstroLogger } from '../../logger/core.js';
 import type { RoutesList } from '../../../types/astro.js';
-import { prepareForRender, type PrepareOptions } from '../prepare.js';
-import { createSSRResult } from '../ssr-result.js';
+import { prepareForRender, type PrepareOptions } from '../../app/prepare.js';
+import { createSSRResult } from '../../app/ssr-result.js';
 import { renderPage } from '../../../runtime/server/render/page.js';
 import { getProps } from '../../render/index.js';
 import { ROUTE_TYPE_HEADER, REROUTE_DIRECTIVE_HEADER, originPathnameSymbol } from '../../constants.js';
 import { ForbiddenRewrite } from '../../errors/errors-data.js';
 import { AstroError, AstroErrorData } from '../../errors/index.js';
-import { copyRenderOptions } from '../render-options-store.js';
+import { copyRenderOptions } from '../../app/render-options-store.js';
 
 /**
  * Renders page routes. This class is framework-agnostic and does not

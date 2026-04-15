@@ -20,7 +20,7 @@ import {
 } from '@astrojs/internal-helpers/path';
 import { normalizeTheLocale } from '../../i18n/index.js';
 
-import { clientAddressSymbol, NOOP_MIDDLEWARE_HEADER, REROUTABLE_STATUS_CODES, REROUTE_DIRECTIVE_HEADER, REWRITE_DIRECTIVE_HEADER_KEY, ROUTE_TYPE_HEADER } from '../constants.js';
+import { NOOP_MIDDLEWARE_HEADER, REROUTE_DIRECTIVE_HEADER, REWRITE_DIRECTIVE_HEADER_KEY, ROUTE_TYPE_HEADER } from '../constants.js';
 import { PERSIST_SYMBOL } from '../session/runtime.js';
 import { getRenderOptions } from './render-options-store.js';
 
@@ -39,13 +39,9 @@ import { createRedirectsHandler } from '../redirects/handler.js';
 import { createRewritesHandler } from '../rewrites/handler.js';
 import { createI18nHandler } from '../../i18n/handler.js';
 import { createUserMiddlewareHandler } from '../middleware/handler.js';
+import { createPagesHandler } from '../pages/handler.js';
 
-
-import { applyCacheHeaders } from '../cache/runtime/cache.js';
-import { PageRenderer } from './renderers/page.js';
-import { EndpointRenderer } from './renderers/endpoint.js';
-import { RedirectRenderer } from './renderers/redirect.js';
-import { renderErrorPage, type PrepareOptions } from './prepare.js';
+import type { PrepareOptions } from './prepare.js';
 import { FetchState } from './fetch-state.js';
 import type { Pipeline } from '../base-pipeline.js';
 import type { AstroLogger } from '../logger/core.js';
@@ -368,122 +364,15 @@ function createI18nMiddleware(
 
 function createPagesMiddleware(
 	deps: AstroAppDeps,
-	contextFn: (c: HonoContext<any>) => Promise<APIContext>,
 	matchRouteData: (req: Request) => RouteData | undefined,
 	options: CreateAstroAppOptions = {},
 ): MiddlewareHandler<AstroHonoEnv> {
-	const { pipeline, manifest, logger } = deps;
-	const isDev = options.isDev ?? (pipeline.runtimeMode === 'development');
-
-	const pageRenderer = new PageRenderer(pipeline, manifest, () => deps.pipeline.manifestData, logger);
-	const endpointRenderer = new EndpointRenderer(pipeline, logger);
-	const redirectRenderer = new RedirectRenderer(manifest);
+	const { pipeline } = deps;
+	const handlePages = createPagesHandler(deps, matchRouteData, options);
 
 	return async (c, _next) => {
 		const state = getFetchState(c, pipeline);
-		const routeData = state.routeData ?? matchRouteData(c.req.raw);
-		if (!routeData) {
-			const ctx = await contextFn(c);
-			c.res = await renderErrorPage(pipeline, manifest, deps.pipeline.manifestData, logger, c.req.raw, {
-				locals: ctx.locals,
-				clientAddress: getRenderOptions(c.req.raw)?.clientAddress ?? Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
-				status: 404,
-				isDev,
-			});
-			// Ensure ROUTE_TYPE_HEADER is set so i18n middleware can detect page responses
-			if (!c.res.headers.has(ROUTE_TYPE_HEADER)) {
-				c.res.headers.set(ROUTE_TYPE_HEADER, 'page');
-			}
-			return;
-		}
-
-		state.routeData = routeData;
-
-		if (routeData.type === 'redirect') {
-			c.res = redirectRenderer.render(c.req.raw, routeData);
-			c.res.headers.set(ROUTE_TYPE_HEADER, 'redirect');
-			return;
-		}
-
-		const ctx = await contextFn(c);
-
-		if (routeData.type === 'endpoint') {
-			// Wrap endpoint rendering in the cache provider if configured,
-			// so that cache MISS/HIT headers and CDN headers are applied.
-			if (pipeline.cacheProvider) {
-				const cacheProvider = await pipeline.getCacheProvider();
-				if (cacheProvider?.onRequest) {
-					c.res = await cacheProvider.onRequest(
-						{ request: c.req.raw, url: new URL(c.req.url) },
-						async () => {
-							const res = await endpointRenderer.render(routeData, ctx);
-							applyCacheHeaders(ctx.cache, res);
-							return res;
-						},
-					);
-					c.res.headers.delete('CDN-Cache-Control');
-					c.res.headers.delete('Cache-Tag');
-				} else {
-					c.res = await endpointRenderer.render(routeData, ctx);
-					applyCacheHeaders(ctx.cache, c.res);
-				}
-			} else {
-				c.res = await endpointRenderer.render(routeData, ctx);
-			}
-			try { c.res.headers.set(ROUTE_TYPE_HEADER, 'endpoint'); } catch { /* immutable headers */ }
-			if (
-				REROUTABLE_STATUS_CODES.includes(c.res.status) &&
-				c.res.body === null &&
-				c.res.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
-			) {
-				c.res = await renderErrorPage(pipeline, manifest, deps.pipeline.manifestData, logger, c.req.raw, {
-					locals: ctx.locals,
-					clientAddress: getRenderOptions(c.req.raw)?.clientAddress ?? Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
-					status: c.res.status as 404 | 500,
-					isDev,
-				});
-			}
-		} else {
-			c.res = await pageRenderer.render(c.req.raw, routeData, {
-				...options,
-				locals: ctx.locals,
-				clientAddress: getRenderOptions(c.req.raw)?.clientAddress ?? Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
-				cookies: ctx.cookies, session: ctx.session as any,
-				isDev,
-				skipMiddleware: true,
-			});
-			// PageRenderer already sets ROUTE_TYPE_HEADER via renderPage, but ensure
-			// it's set for fallback/error paths too
-			if (!c.res.headers.has(ROUTE_TYPE_HEADER)) {
-				c.res.headers.set(ROUTE_TYPE_HEADER, routeData.type);
-			}
-		}
-
-		// Persist session data to storage (e.g. fs, redis) after the request
-		// completes. For pages this happens inside prepareForRender's finally
-		// block, but endpoints bypass that path.
-		if (ctx.session) {
-			await (ctx.session as any)[PERSIST_SYMBOL]?.();
-		}
-
-		// Collect all cookies and append to the response.
-		// This is the single place where cookies are added to responses.
-		// Cookies come from two sources:
-		// 1. ctx.cookies — set by middleware or endpoint handlers
-		// 2. Response-attached AstroCookies — set by page components via Astro.cookies
-		// Respect addCookieHeader option from app.render()
-		const shouldAddCookies = getRenderOptions(c.req.raw)?.addCookieHeader ?? options.addCookieHeader ?? true;
-		if (shouldAddCookies) {
-			// Only add cookies from ctx.cookies that aren't already on the
-			// response. The page/endpoint renderer may have already set
-			// Set-Cookie headers; appending without checking would duplicate them.
-			const existingCookies = new Set(c.res.headers.getSetCookie?.() ?? []);
-			for (const setCookieValue of ctx.cookies.headers()) {
-				if (!existingCookies.has(setCookieValue)) {
-					c.res.headers.append('set-cookie', setCookieValue);
-				}
-			}
-		}
+		c.res = await handlePages(state);
 	};
 }
 
@@ -569,7 +458,7 @@ export function createAstroMiddleware(
 	inner.use(createActionsMiddleware(deps, contextFn));
 	inner.use(createRewriteMiddleware(deps, matchRouteData));
 	inner.use(createI18nMiddleware(deps, matchRouteData));
-	inner.use(createPagesMiddleware(deps, contextFn, matchRouteData, options));
+	inner.use(createPagesMiddleware(deps, matchRouteData, options));
 
 	return async (c, _next) => {
 		c.res = await inner.fetch(c.req.raw);
