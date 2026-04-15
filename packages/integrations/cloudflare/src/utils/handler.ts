@@ -17,6 +17,8 @@ import {
 	handleStaticImagesRequest,
 } from './prerender.js';
 import { getValidatedIpFromHeader } from '@astrojs/internal-helpers/request';
+// TODO: remove when `import { cache } from 'cloudflare:workers'` is available
+import { setCurrentCtx } from '../cache/context.js';
 
 setGetEnv(createGetEnv(globalEnv));
 
@@ -118,6 +120,9 @@ export async function handle(
 			},
 		},
 	});
+
+	// TODO: remove when `import { cache } from 'cloudflare:workers'` is available
+	setCurrentCtx(context);
 
 	const response = await app.render(request, {
 		routeData,
