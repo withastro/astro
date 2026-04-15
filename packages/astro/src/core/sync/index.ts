@@ -234,6 +234,12 @@ async function createTempViteServer(
 		{ dev: true },
 	);
 
+	// Disable dependency optimization for all environments. The temp server only needs
+	// to resolve virtual modules for type generation, not pre-bundle dependencies.
+	// Setting this per-environment ensures adapter plugins (e.g. Cloudflare) see the
+	// flag and skip injecting their own optimizeDeps.include lists.
+	const noOptimize = { optimizeDeps: { noDiscovery: true, include: [] } };
+
 	const tempViteServer = await createServer(
 		await createVite(
 			{
@@ -241,6 +247,32 @@ async function createTempViteServer(
 				optimizeDeps: { noDiscovery: true },
 				ssr: { external: [] },
 				logLevel: 'silent',
+				environments: {
+					client: noOptimize,
+					ssr: noOptimize,
+					astro: noOptimize,
+					prerender: noOptimize,
+				},
+				plugins: [
+					// Strip `configureServer` hooks from non-Astro plugins. The temp
+					// server is only used to resolve modules for type generation — it
+					// never serves HTTP requests. Removing these hooks prevents adapter
+					// plugins from starting heavy runtimes (e.g. miniflare/workerd for
+					// Cloudflare). Astro's own plugins (prefixed with `astro:`) are
+					// preserved because some rely on configureServer to set up state
+					// needed by their other hooks.
+					{
+						name: 'astro:sync:strip-server-hooks',
+						enforce: 'pre',
+						configResolved(config) {
+							for (const plugin of config.plugins) {
+								if (plugin.configureServer && !plugin.name.startsWith('astro:')) {
+									delete plugin.configureServer;
+								}
+							}
+						},
+					},
+				],
 			},
 			{
 				routesList,
