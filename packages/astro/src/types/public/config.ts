@@ -34,6 +34,8 @@ export type { CspAlgorithm, CspHash };
 
 export type { RemotePattern };
 
+export type { SvgOptimizer };
+
 export type CspStyleDirective = { hashes?: CspHash[]; resources?: string[] };
 export type CspScriptDirective = {
 	hashes?: CspHash[];
