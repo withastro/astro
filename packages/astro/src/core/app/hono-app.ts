@@ -23,6 +23,7 @@ import { normalizeTheLocale } from '../../i18n/index.js';
 import { NOOP_MIDDLEWARE_HEADER, REROUTE_DIRECTIVE_HEADER, REWRITE_DIRECTIVE_HEADER_KEY, ROUTE_TYPE_HEADER } from '../constants.js';
 
 import { getRenderOptions } from './render-options-store.js';
+import { attachCookiesToResponse } from '../cookies/response.js';
 
 
 
@@ -230,6 +231,10 @@ function createUserMiddleware(
 			await next();
 			return c.res;
 		});
+		// Re-attach cookies to c.res because Hono clones the response on
+		// assignment, losing any symbols set on the original object.
+		const ctx = await state.getAPIContext();
+		attachCookiesToResponse(c.res, ctx.cookies);
 		return c.res;
 	};
 }
@@ -303,6 +308,10 @@ function createPagesMiddleware(
 	return async (c, _next) => {
 		const state = getFetchState(c, pipeline);
 		c.res = await handlePages(state);
+		// Re-attach cookies to c.res because Hono clones the response on
+		// assignment, losing any symbols set on the original object.
+		const ctx = await state.getAPIContext();
+		attachCookiesToResponse(c.res, ctx.cookies);
 	};
 }
 

@@ -7,6 +7,7 @@ import { clientAddressSymbol, REROUTABLE_STATUS_CODES, REROUTE_DIRECTIVE_HEADER,
 import { PERSIST_SYMBOL } from '../session/runtime.js';
 import { getRenderOptions } from '../app/render-options-store.js';
 import { renderErrorPage, type PrepareOptions } from '../app/prepare.js';
+import { attachCookiesToResponse } from '../cookies/response.js';
 import { applyCacheHeaders } from '../cache/runtime/cache.js';
 import { PageRenderer } from './renderers/page.js';
 import { EndpointRenderer } from './renderers/endpoint.js';
@@ -130,17 +131,13 @@ export function createPagesHandler(
 			await (ctx.session as any)[PERSIST_SYMBOL]?.();
 		}
 
+		// Attach the AstroCookies instance to the response so that
+		// app.setCookieHeaders(response) can read them via the symbol.
+		attachCookiesToResponse(response, ctx.cookies);
+
 		// Collect all cookies and append to the response.
-		// This is the single place where cookies are added to responses.
-		// Cookies come from two sources:
-		// 1. ctx.cookies — set by middleware or endpoint handlers
-		// 2. Response-attached AstroCookies — set by page components via Astro.cookies
-		// Respect addCookieHeader option from app.render()
 		const shouldAddCookies = getRenderOptions(request)?.addCookieHeader ?? options.addCookieHeader ?? true;
 		if (shouldAddCookies) {
-			// Only add cookies from ctx.cookies that aren't already on the
-			// response. The page/endpoint renderer may have already set
-			// Set-Cookie headers; appending without checking would duplicate them.
 			const existingCookies = new Set(response.headers.getSetCookie?.() ?? []);
 			for (const setCookieValue of ctx.cookies.headers()) {
 				if (!existingCookies.has(setCookieValue)) {
