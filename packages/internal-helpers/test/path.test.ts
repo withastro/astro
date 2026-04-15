@@ -1,9 +1,9 @@
-import assert from 'node:assert/strict';
+import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { isParentDirectory, isRemotePath, normalizePathname } from '../dist/path.js';
 
 describe('isRemotePath', () => {
-	const remotePaths = [
+	const remotePaths: string[] = [
 		// Standard remote protocols
 		'https://example.com/foo/bar.js',
 		'http://example.com/foo/bar.js',
@@ -156,14 +156,14 @@ describe('isRemotePath', () => {
 		'//root:22@server.com', // SSH port as password
 
 		// Unicode in credentials
-		'http://üser:pāss@example.com', // Unicode username/password
-		'http://用户:密码@example.com', // Chinese characters
-		'http://админ:пароль@example.com', // Cyrillic
+		'http://\u00FCser:p\u0101ss@example.com', // Unicode username/password
+		'http://\u7528\u6237:\u5BC6\u7801@example.com', // Chinese characters
+		'http://\u0430\u0434\u043C\u0438\u043D:\u043F\u0430\u0440\u043E\u043B\u044C@example.com', // Cyrillic
 		'http://\u0075ser:\u0070ass@example.com', // Unicode escapes
 
 		// Homograph attacks in credentials
-		'http://аdmin:pаssword@example.com', // Cyrillic 'а' looks like Latin 'a'
-		'http://adⅿin:password@example.com', // Unicode small m lookalike
+		'http://\u0430dmin:p\u0430ssword@example.com', // Cyrillic 'a' looks like Latin 'a'
+		'http://ad\u217Fin:password@example.com', // Unicode small m lookalike
 
 		// Large credentials trying to overflow
 		'http://' + 'a'.repeat(1000) + ':' + 'b'.repeat(1000) + '@example.com',
@@ -253,8 +253,8 @@ describe('isRemotePath', () => {
 		// Punycode and Unicode domains
 		'http://xn--e1afmkfd.xn--p1ai/test',
 		'\\\\xn--e1afmkfd.xn--p1ai/test',
-		'http://例え.jp/test',
-		'\\\\例え.jp/test',
+		'http://\u4F8B\u3048.jp/test',
+		'\\\\\u4F8B\u3048.jp/test',
 
 		// Case variations
 		'HtTp://example.com/test',
@@ -369,7 +369,7 @@ describe('isRemotePath', () => {
 		'http:/\\example.com', // Mixed slash backslash (this is actually http:/\example.com)
 	];
 
-	const localPaths = [
+	const localPaths: string[] = [
 		// Standard Unix/Linux absolute paths
 		'/local/path/file.js',
 		'/usr/local/bin/node',
@@ -513,12 +513,12 @@ describe('isRemotePath', () => {
 		'C:\\Users\\user!\\file%.txt',
 
 		// Paths with Unicode characters
-		'/用户/文档/文件.js',
-		'/путь/к/файлу.js',
-		'/مسار/إلى/ملف.js',
-		'/パス/ファイル.js',
-		'/경로/파일.js',
-		'C:\\文档\\项目\\app.js',
+		'/\u7528\u6237/\u6587\u6863/\u6587\u4EF6.js',
+		'/\u043F\u0443\u0442\u044C/\u043A/\u0444\u0430\u0439\u043B\u0443.js',
+		'/\u0645\u0633\u0627\u0631/\u0625\u0644\u0649/\u0645\u0644\u0641.js',
+		'/\u30D1\u30B9/\u30D5\u30A1\u30A4\u30EB.js',
+		'/\uACBD\uB85C/\uD30C\uC77C.js',
+		'C:\\\u6587\u6863\\\u9879\u76EE\\app.js',
 
 		// Query parameters on local paths (common in dev servers)
 		'/src/main.js?v=12345',
@@ -599,7 +599,7 @@ describe('isRemotePath', () => {
 
 describe('isParentDirectory', () => {
 	it('should correctly identify parent-child relationships', () => {
-		const validCases = [
+		const validCases: [string, string][] = [
 			// Unix absolute paths
 			['/home', '/home/user'],
 			['/home', '/home/user/documents'],
@@ -652,7 +652,7 @@ describe('isParentDirectory', () => {
 	});
 
 	it('should correctly reject non-parent relationships', () => {
-		const invalidCases = [
+		const invalidCases: [string | null | undefined, string | null | undefined][] = [
 			// Different directories
 			['/home', '/usr'],
 			['/home/user', '/home/otheruser'],
@@ -704,7 +704,7 @@ describe('isParentDirectory', () => {
 
 		invalidCases.forEach(([parent, child]) => {
 			assert.equal(
-				isParentDirectory(parent, child),
+				isParentDirectory(parent as string, child as string),
 				false,
 				`Expected "${parent}" NOT to be parent of "${child}"`,
 			);
@@ -712,7 +712,7 @@ describe('isParentDirectory', () => {
 	});
 
 	it('should handle adversarial inputs safely', () => {
-		const adversarialCases = [
+		const adversarialCases: [string, string][] = [
 			// Path traversal attacks
 			['/safe', '/safe/../../../etc/passwd'],
 			['/app', '/app/../../../../root/.ssh'],

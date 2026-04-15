@@ -1,4 +1,4 @@
-import assert from 'node:assert/strict';
+import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
 	getClientIpAddress,
@@ -43,7 +43,7 @@ describe('getFirstForwardedValue', () => {
 });
 
 describe('isValidIpAddress', () => {
-	const validAddresses = [
+	const validAddresses: string[] = [
 		// IPv4
 		'127.0.0.1',
 		'0.0.0.0',
@@ -62,7 +62,7 @@ describe('isValidIpAddress', () => {
 		'fd12:3456:789a::1',
 	];
 
-	const invalidAddresses = [
+	const invalidAddresses: string[] = [
 		// Injection payloads
 		'<script>alert(1)</script>',
 		"'; DROP TABLE users; --",
@@ -137,7 +137,7 @@ describe('getClientIpAddress', () => {
 	/**
 	 * Helper to create a minimal Request with given headers.
 	 */
-	function makeRequest(headers = {}) {
+	function makeRequest(headers: Record<string, string> = {}): Request {
 		return new Request('https://example.com', { headers });
 	}
 

@@ -46,7 +46,8 @@
     "build": "astro-scripts build \"src/**/*.ts\" && tsc -p tsconfig.json",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "astro-scripts test \"test/**/*.test.js\""
+    "test": "astro-scripts test \"test/**/*.test.ts\" --strip-types",
+    "typecheck:tests": "tsc --project tsconfig.test.json"
   },
   "dependencies": {
     "picomatch": "^4.0.3"

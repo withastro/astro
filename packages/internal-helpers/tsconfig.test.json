@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["test/**/*.ts"],
+  "compilerOptions": {
+    "noEmit": true,
+    "allowJs": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "rewriteRelativeImportExtensions": true
+  }
+}
