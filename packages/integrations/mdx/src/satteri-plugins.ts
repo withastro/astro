@@ -77,11 +77,9 @@ function makeFragmentNode(html: string): HastNode {
 	return {
 		type: 'mdxJsxFlowElement',
 		name: 'Fragment',
-		attributes: [
-			{ type: 'mdxJsxAttribute', name: 'set:html', value: html },
-		],
+		attributes: [{ type: 'mdxJsxAttribute', name: 'set:html', value: html }],
 		children: [],
-	} as unknown as HastNode;
+	};
 }
 
 interface AstroComponentMetadata {
@@ -114,47 +112,83 @@ function isComponent(tagName: string): boolean {
 	);
 }
 
-function parseImportStatement(source: string): { specifiers: ImportSpecifier[]; path: string } | undefined {
-	const pathMatch = /['"]([^'"]+)['"]/.exec(source);
-	if (!pathMatch || !source.startsWith('import')) return undefined;
+// ESTree shapes we care about from the parseExpression() output on mdxjsEsm nodes.
+interface EstreeIdentifier {
+	type: 'Identifier';
+	name: string;
+}
 
-	const importPath = pathMatch[1];
-	const fromIdx = source.lastIndexOf(' from ');
-	const specPart = fromIdx > 6 ? source.slice(7, fromIdx).trim() : undefined;
-	if (!specPart) return { specifiers: [], path: importPath };
+interface EstreeStringLiteral {
+	type: 'Literal';
+	value: string;
+}
 
-	const specifiers: ImportSpecifier[] = [];
+type EstreeModuleExportName = EstreeIdentifier | EstreeStringLiteral;
 
-	const nsMatch = /^\*\s+as\s+(\w+)$/.exec(specPart);
-	if (nsMatch) {
-		specifiers.push({ local: nsMatch[1], imported: '*' });
-		return { specifiers, path: importPath };
-	}
+interface EstreeImportDeclaration {
+	type: 'ImportDeclaration';
+	source: EstreeStringLiteral;
+	specifiers: Array<
+		EstreeImportSpecifier | EstreeImportDefaultSpecifier | EstreeImportNamespaceSpecifier
+	>;
+}
 
-	const braceMatch = /^([^{]*)(?:\{([^}]*)\})?$/.exec(specPart);
-	if (!braceMatch) return { specifiers: [], path: importPath };
+interface EstreeImportSpecifier {
+	type: 'ImportSpecifier';
+	local: EstreeIdentifier;
+	imported: EstreeModuleExportName;
+}
 
-	const defaultPart = braceMatch[1].replace(/,\s*$/, '').trim();
-	const namedPart = braceMatch[2];
+interface EstreeImportDefaultSpecifier {
+	type: 'ImportDefaultSpecifier';
+	local: EstreeIdentifier;
+}
 
-	if (defaultPart) {
-		specifiers.push({ local: defaultPart, imported: 'default' });
-	}
+interface EstreeImportNamespaceSpecifier {
+	type: 'ImportNamespaceSpecifier';
+	local: EstreeIdentifier;
+}
 
-	if (namedPart) {
-		for (const spec of namedPart.split(',')) {
-			const trimmed = spec.trim();
-			if (!trimmed) continue;
-			const aliasMatch = /^(\w+)\s+as\s+(\w+)$/.exec(trimmed);
-			if (aliasMatch) {
-				specifiers.push({ local: aliasMatch[2], imported: aliasMatch[1] });
-			} else {
-				specifiers.push({ local: trimmed, imported: trimmed });
+interface EstreeProgram {
+	body: Array<{ type: string } & Record<string, any>>;
+}
+
+function exportNameToString(name: EstreeModuleExportName): string {
+	return name.type === 'Identifier' ? name.name : name.value;
+}
+
+function collectImportsFromEsm(
+	program: EstreeProgram,
+	imports: Map<string, Set<ImportSpecifier>>,
+): void {
+	for (const stmt of program.body) {
+		if (stmt.type !== 'ImportDeclaration') continue;
+		const decl = stmt as EstreeImportDeclaration;
+		const source = decl.source.value;
+
+		let specSet = imports.get(source);
+		if (!specSet) {
+			specSet = new Set();
+			imports.set(source, specSet);
+		}
+
+		for (const spec of decl.specifiers) {
+			switch (spec.type) {
+				case 'ImportDefaultSpecifier':
+					specSet.add({ local: spec.local.name, imported: 'default' });
+					break;
+				case 'ImportNamespaceSpecifier':
+					specSet.add({ local: spec.local.name, imported: '*' });
+					break;
+				case 'ImportSpecifier':
+					specSet.add({
+						local: spec.local.name,
+						imported: exportNameToString(spec.imported),
+					});
+					break;
 			}
 		}
 	}
-
-	return { specifiers, path: importPath };
 }
 
 function findMatchingImport(
@@ -236,20 +270,21 @@ function processJsxNode(
 	}
 
 	if (matchedImport.path.endsWith('.astro') && hasClient) {
-		const clientAttr = findAttrValue(node, 'client:load') !== null ? 'client:load'
-			: findAttrValue(node, 'client:idle') !== null ? 'client:idle'
-			: findAttrValue(node, 'client:visible') !== null ? 'client:visible'
-			: findAttrValue(node, 'client:only') !== null ? 'client:only'
-			: 'client:*';
+		let clientAttr = 'client:*';
+		for (const a of node.attributes) {
+			if (a.type === 'mdxJsxAttribute' && a.name.startsWith('client:')) {
+				clientAttr = a.name;
+				break;
+			}
+		}
 		console.warn(
 			`You are attempting to render <${tagName} ${clientAttr} />, but ${tagName} is an Astro component. Astro components do not render in the client and should not have a hydration directive. Please use a framework component for client rendering.`,
 		);
 	}
 
 	const resolvedPath = resolveImportPath(matchedImport.path, filePath);
-	const exportName = matchedImport.name === '*'
-		? tagName.split('.').slice(1).join('.')
-		: matchedImport.name;
+	const exportName =
+		matchedImport.name === '*' ? tagName.split('.').slice(1).join('.') : matchedImport.name;
 
 	if (hasClient && findAttrValue(node, 'client:only') !== null) {
 		metadata.clientOnlyComponents.push({
@@ -330,9 +365,13 @@ function createHeadingIdsPlugin(
 		element: {
 			filter: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
 			visit(node, ctx) {
-				const text = collectHastText(node, frontmatter);
+				const rawText = ctx.textContent(node);
+				const text =
+					frontmatter && rawText.includes('frontmatter')
+						? collectHastText(node, frontmatter)
+						: rawText;
 				const slug = slugger.slug(text);
-				const depth = parseInt(node.tagName[1], 10);
+				const depth = Number.parseInt(node.tagName[1], 10);
 				headings.push({ depth, slug, text });
 				ctx.setProperty(node, 'id', slug);
 			},
@@ -380,17 +419,9 @@ function createAstroMetadataPlugin(
 	return defineHastPlugin({
 		name: 'astro-metadata',
 		mdxjsEsm(node) {
-			if (!node.value) return;
-			const parsed = parseImportStatement(node.value);
-			if (!parsed) return;
-
-			let specSet = imports.get(parsed.path);
-			if (!specSet) {
-				specSet = new Set();
-				imports.set(parsed.path, specSet);
-			}
-			for (const spec of parsed.specifiers) {
-				specSet.add(spec);
+			const program = node.parseExpression() as EstreeProgram | null;
+			if (program) {
+				collectImportsFromEsm(program, imports);
 			}
 		},
 
@@ -495,9 +526,10 @@ export function createMdxProcessor(mdxOptions: MdxOptions) {
 
 			let optimizeStatic: import('satteri').MdxCompileOptions['optimizeStatic'];
 			if (mdxOptions.optimize) {
-				const userIgnore = typeof mdxOptions.optimize === 'object'
-					? mdxOptions.optimize.ignoreElementNames ?? []
-					: [];
+				const userIgnore =
+					typeof mdxOptions.optimize === 'object'
+						? (mdxOptions.optimize.ignoreElementNames ?? [])
+						: [];
 				const componentOverrides = extractComponentOverrides(content);
 
 				optimizeStatic = {
@@ -512,26 +544,19 @@ export function createMdxProcessor(mdxOptions: MdxOptions) {
 				hastPlugins,
 				optimizeStatic,
 				filename: filePath,
+				jsxImportSource: 'astro',
 			});
 
-			compiled = compiled.replace(
-				/from\s+["']react\/jsx-runtime["']/g,
-				`from "astro/jsx-runtime"`,
-			);
 			compiled = compiled.replace(/^export default MDXContent;\s*$/m, '');
 
 			compiled += `\nexport const frontmatter = ${JSON.stringify(frontmatter)};`;
 			compiled += `\nexport function getHeadings() { return ${JSON.stringify(headings)}; }`;
 
 			if (frontmatter.layout) {
+				compiled = compiled.replace(/^function MDXContent\(/m, 'function __OriginalMDXContent__(');
 				compiled += `
 import { jsx as __astro_layout_jsx__ } from 'astro/jsx-runtime';
-import __astro_layout_component__ from ${JSON.stringify(frontmatter.layout)};`;
-				compiled = compiled.replace(
-					/^function MDXContent\(/m,
-					'function __OriginalMDXContent__(',
-				);
-				compiled += `
+import __astro_layout_component__ from ${JSON.stringify(frontmatter.layout)};
 export default function MDXContent(props) {
 	const content = __OriginalMDXContent__(props);
 	const { layout, ...frontmatterContent } = frontmatter;
@@ -547,11 +572,6 @@ export default function MDXContent(props) {
 		children: content,
 	});
 }`;
-			} else {
-				compiled = compiled.replace(
-					/^function MDXContent\(/m,
-					'export default function MDXContent(',
-				);
 			}
 
 			return {
