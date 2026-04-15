@@ -1,8 +1,8 @@
-import { defineConfig } from 'astro/config';
+import { defineConfig, svgoOptimizer } from 'astro/config';
 
 export default defineConfig({
 	experimental: {
-		svgo: {
+		svgOptimizer: svgoOptimizer({
 			plugins: [
 				'preset-default',
 				{
@@ -10,6 +10,6 @@ export default defineConfig({
 					active: false,
 				},
 			],
-		},
+		}),
 	},
 });
