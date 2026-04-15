@@ -102,4 +102,4 @@ declare module 'virtual:astro:shiki-optimize' {
 	} from 'shiki';
 	export const bundledThemes: Record<BundledTheme, DynamicImportThemeRegistration>;
 	export const bundledLanguages: Record<BundledLanguage, DynamicImportLanguageRegistration>;
-
+}
