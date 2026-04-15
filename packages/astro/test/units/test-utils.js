@@ -13,7 +13,7 @@ import { NOOP_MIDDLEWARE_FN } from '../../dist/core/middleware/noop-middleware.j
 import { Pipeline } from '../../dist/core/render/index.js';
 import { RouteCache } from '../../dist/core/render/route-cache.js';
 
-/** @type {import('../../src/core/logger/core').AstroLogger} */
+/** @type {import('../../dist/core/logger/core.js').AstroLogger} */
 export const defaultLogger = new AstroLogger({
 	destination: nodeLogDestination,
 	level: 'error',
@@ -132,8 +132,8 @@ export function createBasicPipeline(options = {}) {
 }
 
 /**
- * @param {import('../../src/types/public/config.js').AstroInlineConfig} inlineConfig
- * @returns {Promise<import('../../src/types/astro.js').AstroSettings>}
+ * @param {import('../../dist/types/public/config.js').AstroInlineConfig} inlineConfig
+ * @returns {Promise<import('../../dist/types/astro.js').AstroSettings>}
  */
 export async function createBasicSettings(inlineConfig = {}) {
 	if (!inlineConfig.root) {
@@ -146,14 +146,14 @@ export async function createBasicSettings(inlineConfig = {}) {
 /**
  * @typedef {{
  * 	fs?: typeof realFS,
- * 	inlineConfig?: import('../../src/types/public/config.js').AstroInlineConfig,
- *  logging?: import('../../src/core/logger/core').AstroLogOptions,
+ * 	inlineConfig?: import('../../dist/types/public/config.js').AstroInlineConfig,
+ *  logging?: import('../../dist/core/logger/core.js').AstroLogOptions,
  * }} RunInContainerOptions
  */
 
 /**
  * @param {RunInContainerOptions} options
- * @param {(container: import('../../src/core/dev/container.js').Container) => Promise<void> | void} callback
+ * @param {(container: import('../../dist/core/dev/container.js').Container) => Promise<void> | void} callback
  */
 export async function runInContainer(options = {}, callback) {
 	const settings = await createBasicSettings(options.inlineConfig ?? {});
