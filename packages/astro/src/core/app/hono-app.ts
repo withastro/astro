@@ -22,30 +22,30 @@ import { normalizeTheLocale } from '../../i18n/index.js';
 
 import { clientAddressSymbol, NOOP_MIDDLEWARE_HEADER, REROUTABLE_STATUS_CODES, REROUTE_DIRECTIVE_HEADER, REWRITE_DIRECTIVE_HEADER_KEY, ROUTE_TYPE_HEADER } from '../constants.js';
 import { PERSIST_SYMBOL } from '../session/runtime.js';
-import { getRenderOptions, copyRenderOptions } from './render-options-store.js';
+import { getRenderOptions } from './render-options-store.js';
 
-import { ForbiddenRewrite } from '../errors/errors-data.js';
+
 import {
 	getActionContext,
 	parseRequestBody,
 	serializeActionResult,
 } from '../../actions/runtime/server.js';
 import { ACTION_QUERY_PARAMS } from '../../actions/consts.js';
-import { callMiddleware } from '../middleware/callMiddleware.js';
-import { NOOP_MIDDLEWARE_FN } from '../middleware/noop-middleware.js';
+
 import type { SSRManifest } from '../../types/public/index.js';
 import type { APIContext } from '../../types/public/context.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { createRedirectsHandler } from '../redirects/handler.js';
 import { createRewritesHandler } from '../rewrites/handler.js';
 import { createI18nHandler } from '../../i18n/handler.js';
-import { attachCookiesToResponse, getSetCookiesFromResponse } from '../cookies/response.js';
-import { AstroError } from '../errors/index.js';
+import { createUserMiddlewareHandler } from '../middleware/handler.js';
+
+
 import { applyCacheHeaders } from '../cache/runtime/cache.js';
 import { PageRenderer } from './renderers/page.js';
 import { EndpointRenderer } from './renderers/endpoint.js';
 import { RedirectRenderer } from './renderers/redirect.js';
-import { prepareForRender, renderErrorPage, type PrepareOptions } from './prepare.js';
+import { renderErrorPage, type PrepareOptions } from './prepare.js';
 import { FetchState } from './fetch-state.js';
 import type { Pipeline } from '../base-pipeline.js';
 import type { AstroLogger } from '../logger/core.js';
@@ -227,114 +227,17 @@ function createRedirectsMiddleware(deps: AstroAppDeps): MiddlewareHandler<AstroH
 
 function createUserMiddleware(
 	deps: AstroAppDeps,
-	contextFn: (c: HonoContext<any>) => Promise<APIContext>,
 	options: CreateAstroAppOptions = {},
 ): MiddlewareHandler<AstroHonoEnv> {
-	const { pipeline, manifest, logger } = deps;
-	const isDev = options.isDev ?? (pipeline.runtimeMode === 'development');
-	let resolvedMiddleware: Awaited<ReturnType<typeof pipeline.getMiddleware>> | undefined;
+	const { pipeline } = deps;
+	const handleUserMiddleware = createUserMiddlewareHandler(deps, options);
 
 	return async (c, next) => {
-		if (!resolvedMiddleware) {
-			resolvedMiddleware = await pipeline.getMiddleware();
-		}
-		if (resolvedMiddleware === NOOP_MIDDLEWARE_FN) {
-			return next();
-		}
-
-		const ctx = await contextFn(c);
-		let response: Response;
-		try {
-		response = await callMiddleware(resolvedMiddleware, ctx, async (_apiContext, rewritePayload) => {
-			if (rewritePayload) {
-				// Middleware called next(rewritePayload) — resolve the rewrite target.
-				const { routeData, pathname: rewritePathname, newUrl } = await pipeline.tryRewrite(rewritePayload, c.req.raw);
-				// Forbid SSR → prerendered rewrites in server mode
-				if (
-					pipeline.manifest.serverLike === true &&
-					!ctx.isPrerendered &&
-					routeData.prerender === true
-				) {
-					throw new AstroError({
-						...ForbiddenRewrite,
-						message: ForbiddenRewrite.message(
-							new URL(c.req.url).pathname,
-							rewritePathname,
-							routeData.component,
-						),
-						hint: ForbiddenRewrite.hint(routeData.component),
-					});
-				}
-				const newRequest = rewritePayload instanceof Request
-					? rewritePayload
-					: new Request(newUrl, c.req.raw);
-				copyRenderOptions(c.req.raw, newRequest);
-				for (const setCookieValue of ctx.cookies.headers()) {
-					newRequest.headers.append('cookie', setCookieValue.split(';')[0]);
-				}
-				return prepareForRender(pipeline, manifest, deps.pipeline.manifestData, logger, newRequest, routeData, {
-					locals: ctx.locals,
-					clientAddress: getRenderOptions(c.req.raw)?.clientAddress ?? Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
-					cookies: ctx.cookies, session: ctx.session as any,
-					skipMiddleware: true,
-					isDev,
-				}, (renderCtx, comp) => renderCtx.render(comp));
-			}
+		const state = getFetchState(c, pipeline);
+		c.res = await handleUserMiddleware(state, async () => {
 			await next();
 			return c.res;
 		});
-		} catch (err) {
-			// In dev, re-throw if there's no custom 500 page so the Vite error overlay shows.
-			if (isDev) {
-				const { matchRoute } = await import('../routing/match.js');
-				const errorRoutePath = `/500${manifest.trailingSlash === 'always' ? '/' : ''}`;
-				const custom500 = matchRoute(errorRoutePath, deps.pipeline.manifestData);
-				if (!custom500) throw err;
-			}
-			logger.error(null, (err as any)?.stack || String(err));
-			c.res = await renderErrorPage(pipeline, manifest, deps.pipeline.manifestData, logger, c.req.raw, {
-				locals: ctx.locals,
-				clientAddress: getRenderOptions(c.req.raw)?.clientAddress ?? Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
-				status: 500,
-				error: err,
-				isDev,
-			});
-			return c.res;
-		}
-		c.res = response;
-
-		// Ensure cookies are attached and appended for responses that bypassed
-		// createPagesMiddleware (e.g. rewrite responses from ctx.rewrite()).
-		attachCookiesToResponse(c.res, ctx.cookies);
-		const shouldAddCookies = getRenderOptions(c.req.raw)?.addCookieHeader ?? options.addCookieHeader ?? true;
-		if (shouldAddCookies && !c.res.headers.has('set-cookie')) {
-			for (const setCookieValue of getSetCookiesFromResponse(c.res)) {
-				c.res.headers.append('set-cookie', setCookieValue);
-			}
-		}
-
-		// If user middleware returned a reroutable status (404/500) with no body
-		// (e.g. i18n middleware rejecting an invalid locale), render the error page.
-		if (
-			REROUTABLE_STATUS_CODES.includes(c.res.status) &&
-			c.res.body === null &&
-			c.res.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
-		) {
-			c.res = await renderErrorPage(pipeline, manifest, deps.pipeline.manifestData, logger, c.req.raw, {
-				locals: ctx.locals,
-				clientAddress: getRenderOptions(c.req.raw)?.clientAddress ?? Reflect.get(c.req.raw, clientAddressSymbol) as string | undefined,
-				status: c.res.status as 404 | 500,
-				response: c.res,
-				isDev,
-			});
-			// Re-apply cookies to the error page response since the original response was replaced.
-			if (shouldAddCookies) {
-				for (const setCookieValue of ctx.cookies.headers()) {
-					c.res.headers.append('set-cookie', setCookieValue);
-				}
-			}
-		}
-
 		return c.res;
 	};
 }
@@ -662,7 +565,7 @@ export function createAstroMiddleware(
 		return next();
 	});
 	inner.use(createRedirectsMiddleware(deps));
-	inner.use(createUserMiddleware(deps, contextFn, options));
+	inner.use(createUserMiddleware(deps, options));
 	inner.use(createActionsMiddleware(deps, contextFn));
 	inner.use(createRewriteMiddleware(deps, matchRouteData));
 	inner.use(createI18nMiddleware(deps, matchRouteData));
