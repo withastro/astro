@@ -78,8 +78,19 @@ declare module 'virtual:astro:dev-css-all' {
 	export const devCSSMap: Map<string, () => Promise<{ css: Set<ImportedDevStyles> }>>;
 }
 
+declare module 'virtual:astro:component-metadata' {
+	import type { SSRComponentMetadata } from './src/types/public/internal.js';
+	export const componentMetadataEntries: [string, SSRComponentMetadata][];
+}
+
 declare module 'virtual:astro:app' {
 	export const createApp: import('./src/core/app/types.js').CreateApp;
+}
+
+declare module 'virtual:astro:get-image' {
+	export const getImage: (
+		options: import('./src/types/public/index.js').UnresolvedImageTransform,
+	) => Promise<import('./src/types/public/index.js').GetImageResult>;
 }
 
 declare module 'virtual:astro:shiki-optimize' {
@@ -91,4 +102,4 @@ declare module 'virtual:astro:shiki-optimize' {
 	} from 'shiki';
 	export const bundledThemes: Record<BundledTheme, DynamicImportThemeRegistration>;
 	export const bundledLanguages: Record<BundledLanguage, DynamicImportLanguageRegistration>;
-}
+

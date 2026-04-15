@@ -1,5 +1,11 @@
 # @astrojs/db
 
+## 0.20.1
+
+### Patch Changes
+
+- [#15364](https://github.com/withastro/astro/pull/15364) [`948b693`](https://github.com/withastro/astro/commit/948b693e6f083df3823a0907b4afe938f059bfdb) Thanks [@VagnoDev](https://github.com/VagnoDev)! - Replace deprecated deep-diff with microdiff and resolve subdependency warnings.
+
 ## 0.20.0
 
 ### Minor Changes

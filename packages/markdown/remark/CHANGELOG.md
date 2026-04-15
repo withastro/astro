@@ -1,5 +1,37 @@
 # @astrojs/markdown-remark
 
+## 7.1.0
+
+### Minor Changes
+
+- [#15340](https://github.com/withastro/astro/pull/15340) [`10a1a5a`](https://github.com/withastro/astro/commit/10a1a5a5232fa401ca814b396cf79aeccdfdf8a9) Thanks [@trueberryless](https://github.com/trueberryless)! - Updates `createMarkdownProcessor` to support advanced SmartyPants options.
+
+  The `smartypants` property in `AstroMarkdownOptions` now accepts `Smartypants` options, allowing fine-grained control over typography transformations (backticks, dashes, ellipses, and quotes).
+
+  ```ts
+  import { createMarkdownProcessor } from '@astrojs/markdown-remark';
+
+  const processor = await createMarkdownProcessor({
+    smartypants: {
+      backticks: 'all',
+      dashes: 'oldschool',
+      ellipses: 'unspaced',
+      openingQuotes: { double: '«', single: '‹' },
+      closingQuotes: { double: '»', single: '›' },
+      quotes: false,
+    },
+  });
+  ```
+
+  For the up-to-date supported properties, check out [the `retext-smartypants` options](https://github.com/retextjs/retext-smartypants?tab=readme-ov-file#fields).
+
+## 7.0.1
+
+### Patch Changes
+
+- Updated dependencies [[`d3c7de9`](https://github.com/withastro/astro/commit/d3c7de9253e9cb31fa5c4bf9f4bdf59dd1ada7b0)]:
+  - @astrojs/prism@4.0.1
+
 ## 7.0.0
 
 ### Major Changes

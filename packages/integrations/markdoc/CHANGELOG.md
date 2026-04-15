@@ -1,5 +1,28 @@
 # @astrojs/markdoc
 
+## 1.0.3
+
+### Patch Changes
+
+- Updated dependencies [[`10a1a5a`](https://github.com/withastro/astro/commit/10a1a5a5232fa401ca814b396cf79aeccdfdf8a9)]:
+  - @astrojs/markdown-remark@7.1.0
+
+## 1.0.2
+
+### Patch Changes
+
+- [#15864](https://github.com/withastro/astro/pull/15864) [`d3c7de9`](https://github.com/withastro/astro/commit/d3c7de9253e9cb31fa5c4bf9f4bdf59dd1ada7b0) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes temporary support for Node >=20.19.1 because Stackblitz now uses Node 22 by default
+
+- Updated dependencies [[`d3c7de9`](https://github.com/withastro/astro/commit/d3c7de9253e9cb31fa5c4bf9f4bdf59dd1ada7b0)]:
+  - @astrojs/prism@4.0.1
+  - @astrojs/markdown-remark@7.0.1
+
+## 1.0.1
+
+### Patch Changes
+
+- [#15934](https://github.com/withastro/astro/pull/15934) [`6f8f0bc`](https://github.com/withastro/astro/commit/6f8f0bc4e22e958ccc2164acb1aa8cce21c43148) Thanks [@ematipico](https://github.com/ematipico)! - Updates the Astro `peerDependencies#astro` to be `6.0.0`.
+
 ## 1.0.0
 
 ### Minor Changes

@@ -6,7 +6,7 @@ import { normalizePath, type Plugin, type ViteDevServer } from 'vite';
 import { serializeRouteData } from '../core/app/entrypoints/index.js';
 import type { SerializedRouteInfo } from '../core/app/types.js';
 import { warnMissingAdapter } from '../core/dev/adapter-validation.js';
-import type { Logger } from '../core/logger/core.js';
+import type { AstroLogger } from '../core/logger/core.js';
 import { createRoutesList } from '../core/routing/create-manifest.js';
 import { getRoutePrerenderOption } from '../core/routing/prerender.js';
 import { isEndpoint, isPage } from '../core/util.js';
@@ -16,11 +16,12 @@ import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { isAstroServerEnvironment } from '../environments.js';
+import { RESOLVED_MODULE_DEV_CSS_ALL } from '../vite-plugin-css/const.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 
 type Payload = {
 	settings: AstroSettings;
-	logger: Logger;
+	logger: AstroLogger;
 	fsMod?: typeof fsMod;
 	routesList: RoutesList;
 	command: 'dev' | 'build';
@@ -78,11 +79,13 @@ export default async function astroPluginRoutes({
 		},
 	);
 
+	const normalizedSrcDir = normalizePath(fileURLToPath(settings.config.srcDir));
+
 	async function rebuildRoutes(path: string | null = null, server: ViteDevServer) {
-		if (path != null && path.startsWith(settings.config.srcDir.pathname)) {
+		if (path != null && normalizePath(path).startsWith(normalizedSrcDir)) {
 			logger.debug(
 				'update',
-				`Re-calculating routes for ${path.slice(settings.config.srcDir.pathname.length)}`,
+				`Re-calculating routes for ${normalizePath(path).slice(normalizedSrcDir.length)}`,
 			);
 			const file = pathToFileURL(normalizePath(path));
 			const newRoutesList = await createRoutesList(
@@ -125,6 +128,12 @@ export default async function astroPluginRoutes({
 				if (!virtualMod) continue;
 
 				environment.moduleGraph.invalidateModule(virtualMod);
+
+				const cssMod = environment.moduleGraph.getModuleById(RESOLVED_MODULE_DEV_CSS_ALL);
+				if (cssMod) {
+					environment.moduleGraph.invalidateModule(cssMod);
+				}
+
 				// Signal that routes have changed so running apps can update
 				// NOTE: Consider adding debouncing here if rapid file changes cause performance issues
 				environment.hot.send('astro:routes-updated', {});

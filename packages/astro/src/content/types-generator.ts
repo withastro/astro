@@ -12,7 +12,7 @@ import {
 import * as z from 'zod/v4';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
-import type { Logger } from '../core/logger/core.js';
+import type { AstroLogger } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { ContentEntryType } from '../types/public/content.js';
@@ -69,7 +69,7 @@ type CollectionEntryMap = {
 
 type CreateContentGeneratorParams = {
 	contentConfigObserver: ContentObservable;
-	logger: Logger;
+	logger: AstroLogger;
 	settings: AstroSettings;
 	/** This is required for loading the content config */
 	viteServer: ViteDevServer;
@@ -444,7 +444,7 @@ async function writeContentFiles({
 	contentEntryTypes: Pick<ContentEntryType, 'contentModuleTypes'>[];
 	contentConfig?: ContentConfig;
 	viteServer: ViteDevServer;
-	logger: Logger;
+	logger: AstroLogger;
 	settings: AstroSettings;
 }) {
 	let dataTypesStr = '';
@@ -608,7 +608,7 @@ async function generateJSONSchema(
 	collectionConfig: CollectionConfig,
 	collectionKey: string,
 	collectionSchemasDir: URL,
-	logger: Logger,
+	logger: AstroLogger,
 ) {
 	let zodSchemaForJson =
 		typeof collectionConfig.schema === 'function'
@@ -633,9 +633,13 @@ async function generateJSONSchema(
 	}
 
 	if (zodSchemaForJson instanceof z.ZodObject) {
+		const existingMeta = z.globalRegistry.get(zodSchemaForJson);
 		zodSchemaForJson = zodSchemaForJson.extend({
 			$schema: z.string().optional(),
 		});
+		if (existingMeta) {
+			z.globalRegistry.add(zodSchemaForJson, existingMeta);
+		}
 	}
 
 	try {
@@ -648,6 +652,9 @@ async function generateJSONSchema(
 					ctx.jsonSchema.format = 'date-time';
 				}
 			},
+			// Collection schemas are used for parsing collection input, so we need to tell Zod to use the
+			// input shape when generating a JSON schema.
+			io: 'input',
 		});
 		const schemaStr = JSON.stringify(schema, null, 2);
 		const schemaJsonPath = new URL(

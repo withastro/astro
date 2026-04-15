@@ -19,7 +19,7 @@ import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
 import { createKey, getEnvironmentKey, hasEnvironmentKey } from '../encryption.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import type { Logger } from '../logger/core.js';
+import type { AstroLogger } from '../logger/core.js';
 import { levels, timerMessage } from '../logger/core.js';
 import { createRoutesList } from '../routing/create-manifest.js';
 import { getPrerenderDefault } from '../../prerender/utils.js';
@@ -89,20 +89,31 @@ export default async function build(
 }
 
 interface AstroBuilderOptions extends BuildOptions {
-	logger: Logger;
+	logger: AstroLogger;
 	mode: string;
 	runtimeMode: RuntimeMode;
+	/**
+	 * Provide a pre-built routes list to skip filesystem route scanning.
+	 * Useful for testing builds with in-memory virtual modules.
+	 */
+	routesList?: RoutesList;
+	/**
+	 * Whether to run `syncInternal` during setup. Defaults to true.
+	 * Set to false for in-memory builds that don't need type generation.
+	 */
+	sync?: boolean;
 }
 
-class AstroBuilder {
+export class AstroBuilder {
 	private settings: AstroSettings;
-	private logger: Logger;
+	private logger: AstroLogger;
 	private mode: string;
 	private runtimeMode: RuntimeMode;
 	private origin: string;
 	private routesList: RoutesList;
 	private timer: Record<string, number>;
 	private teardownCompiler: boolean;
+	private sync: boolean;
 
 	constructor(settings: AstroSettings, options: AstroBuilderOptions) {
 		this.mode = options.mode;
@@ -110,10 +121,11 @@ class AstroBuilder {
 		this.settings = settings;
 		this.logger = options.logger;
 		this.teardownCompiler = options.teardownCompiler ?? true;
+		this.sync = options.sync ?? true;
 		this.origin = settings.config.site
 			? new URL(settings.config.site).origin
 			: `http://localhost:${settings.config.server.port}`;
-		this.routesList = { routes: [] };
+		this.routesList = options.routesList ?? { routes: [] };
 		this.timer = {};
 	}
 
@@ -128,7 +140,11 @@ class AstroBuilder {
 			logger: logger,
 		});
 		this.settings.buildOutput = getPrerenderDefault(this.settings.config) ? 'static' : 'server';
-		this.routesList = await createRoutesList({ settings: this.settings }, this.logger);
+
+		// Skip filesystem route scanning if routesList was pre-populated (e.g. in-memory builds)
+		if (this.routesList.routes.length === 0) {
+			this.routesList = await createRoutesList({ settings: this.settings }, this.logger);
+		}
 
 		await runHookConfigDone({ settings: this.settings, logger: logger, command: 'build' });
 
@@ -155,14 +171,16 @@ class AstroBuilder {
 			},
 		);
 
-		const { syncInternal } = await import('../sync/index.js');
-		await syncInternal({
-			mode: this.mode,
-			settings: this.settings,
-			logger,
-			fs,
-			command: 'build',
-		});
+		if (this.sync) {
+			const { syncInternal } = await import('../sync/index.js');
+			await syncInternal({
+				mode: this.mode,
+				settings: this.settings,
+				logger,
+				fs,
+				command: 'build',
+			});
+		}
 
 		return { viteConfig };
 	}
@@ -285,7 +303,7 @@ class AstroBuilder {
 		pageCount,
 		buildMode,
 	}: {
-		logger: Logger;
+		logger: AstroLogger;
 		timeStart: number;
 		pageCount: number;
 		buildMode: AstroSettings['buildOutput'];

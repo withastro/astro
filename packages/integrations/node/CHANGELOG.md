@@ -1,5 +1,33 @@
 # @astrojs/node
 
+## 10.0.4
+
+### Patch Changes
+
+- [#16002](https://github.com/withastro/astro/pull/16002) [`846f27f`](https://github.com/withastro/astro/commit/846f27f4be8508f728d237e93fcac7c6ec8227b2) Thanks [@buley](https://github.com/buley)! - Fixes file descriptor leaks from read streams that were not destroyed on client disconnect or read errors
+
+- [#15941](https://github.com/withastro/astro/pull/15941) [`f41584a`](https://github.com/withastro/astro/commit/f41584ad8af1d9edfa22153fb65005b2e9529d73) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an infinite loop in `resolveClientDir()` when the server entry point is bundled with esbuild or similar tools. The function now throws a descriptive error instead of hanging indefinitely when the expected server directory segment is not found in the file path.
+
+## 10.0.3
+
+### Patch Changes
+
+- [#15735](https://github.com/withastro/astro/pull/15735) [`9685e2d`](https://github.com/withastro/astro/commit/9685e2d5ef132ca113144c1714163511a93fd29e) Thanks [@fa-sharp](https://github.com/fa-sharp)! - Fixes an EventEmitter memory leak when serving static pages from Node.js middleware.
+
+  When using the middleware handler, requests that were being passed on to Express / Fastify (e.g. static files / pre-rendered pages / etc.) weren't cleaning up socket listeners before calling `next()`, causing a memory leak warning. This fix makes sure to run the cleanup before calling `next()`.
+
+## 10.0.2
+
+### Patch Changes
+
+- [#15934](https://github.com/withastro/astro/pull/15934) [`6f8f0bc`](https://github.com/withastro/astro/commit/6f8f0bc4e22e958ccc2164acb1aa8cce21c43148) Thanks [@ematipico](https://github.com/ematipico)! - Updates the Astro `peerDependencies#astro` to be `6.0.0`.
+
+## 10.0.1
+
+### Patch Changes
+
+- [#15868](https://github.com/withastro/astro/pull/15868) [`bb2b8f5`](https://github.com/withastro/astro/commit/bb2b8f5cd3c9f3140b4bb0fb5a1d4c62b41883b8) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the adapter would cause a series of warnings during the build.
+
 ## 10.0.0
 
 ### Major Changes

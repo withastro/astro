@@ -181,11 +181,15 @@ export default function createIntegration({
 						experimental: {
 							prerenderWorker: {
 								config(_, { entryWorkerConfig }) {
+									const { queues, ...restWorkerConfig } = entryWorkerConfig;
 									return {
-										...entryWorkerConfig,
+										...restWorkerConfig,
 										name: 'prerender',
+										...(queues?.producers?.length && {
+											queues: { producers: queues.producers },
+										}),
 										...(needsImagesBinding &&
-											!entryWorkerConfig.images && {
+											!restWorkerConfig.images && {
 												images: { binding: imagesBindingName },
 											}),
 									};
@@ -271,8 +275,14 @@ export default function createIntegration({
 													'virtual:astro:*',
 													'virtual:astro-cloudflare:*',
 													'virtual:@astrojs/*',
+													'@astrojs/starlight',
 												],
 												esbuildOptions: {
+													// Suppress Vite's `createRequire(import.meta.url)` banner to work around
+													// https://github.com/vitejs/vite/issues/22004 — Vite's SSR transform
+													// incorrectly rewrites identifiers inside `import.meta` when an imported
+													// binding shares the same name (e.g. zod v4 exports `meta`).
+													banner: { js: '' },
 													plugins: [astroFrontmatterScanPlugin()],
 												},
 											},
@@ -294,12 +304,12 @@ export default function createIntegration({
 							{
 								enforce: 'post',
 								name: '@astrojs/cloudflare:cf-externals',
-								applyToEnvironment: (environment) => environment.name === 'ssr',
+								applyToEnvironment: (environment) =>
+									environment.name === 'ssr' || environment.name === 'prerender',
 								config(conf) {
 									if (conf.ssr) {
-										// Cloudflare does not support externalizing modules in the ssr environment
+										// Cloudflare does not support externalizing modules in server environments
 										conf.ssr.external = undefined;
-										conf.ssr.noExternal = true;
 									}
 								},
 							},

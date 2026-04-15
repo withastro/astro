@@ -3,6 +3,7 @@ import type { PropNameToSignalMap, RendererContext, SignalLike } from './types.j
 export type Context = {
 	id: string;
 	c: number;
+	islandCount: number;
 	signals: Map<SignalLike, string>;
 	propsToSignals: Map<Record<string, any>, PropNameToSignalMap>;
 };
@@ -15,6 +16,7 @@ export function getContext(result: RendererContext['result']): Context {
 	}
 	let ctx = {
 		c: 0,
+		islandCount: 0,
 		get id() {
 			return 'p' + this.c.toString();
 		},
@@ -29,4 +31,10 @@ export function incrementId(ctx: Context): string {
 	let id = ctx.id;
 	ctx.c++;
 	return id;
+}
+
+export function incrementIslandId(ctx: Context): number {
+	const islandId = ctx.islandCount;
+	ctx.islandCount++;
+	return islandId;
 }

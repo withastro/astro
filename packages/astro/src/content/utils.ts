@@ -10,7 +10,7 @@ import xxhash from 'xxhash-wasm';
 import * as z from 'zod/v4';
 import { AstroError, AstroErrorData, errorMap, MarkdownError } from '../core/errors/index.js';
 import { isYAMLException } from '../core/errors/utils.js';
-import type { Logger } from '../core/logger/core.js';
+import type { AstroLogger } from '../core/logger/core.js';
 import { appendForwardSlash } from '../core/path.js';
 import { normalizePath } from '../core/viteUtils.js';
 import type { AstroSettings } from '../types/astro.js';
@@ -23,7 +23,6 @@ import {
 	DEFERRED_MODULE,
 	IMAGE_IMPORT_PREFIX,
 	LIVE_CONTENT_TYPE,
-	PROPAGATED_ASSET_FLAG,
 } from './consts.js';
 import { glob, secretLegacyFlag } from './loaders/glob.js';
 import type { LoaderContext } from './loaders/types.js';
@@ -270,7 +269,7 @@ export async function getSymlinkedContentCollections({
 	fs,
 }: {
 	contentDir: URL;
-	logger: Logger;
+	logger: AstroLogger;
 	fs: typeof fsMod;
 }): Promise<Map<string, string>> {
 	const contentPaths = new Map<string, string>();
@@ -852,14 +851,6 @@ function globWithUnderscoresIgnored(relContentDir: string, exts: string[]): stri
 		`!${contentDir}**/_*/**/*${extGlob}`,
 		`!${contentDir}**/_*${extGlob}`,
 	];
-}
-
-export function hasAssetPropagationFlag(id: string): boolean {
-	try {
-		return new URL(id, 'file://').searchParams.has(PROPAGATED_ASSET_FLAG);
-	} catch {
-		return false;
-	}
 }
 
 /**

@@ -41,10 +41,11 @@ import astroPluginRoutes from '../vite-plugin-routes/index.js';
 import vitePluginStaticPaths from '../vite-plugin-static-paths/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
-import type { Logger } from './logger/core.js';
+import type { AstroLogger } from './logger/core.js';
 import { createViteLogger } from './logger/vite.js';
 import { vitePluginMiddleware } from './middleware/vite-plugin.js';
 import { joinPaths } from './path.js';
+import { ServerIslandsState } from './server-islands/shared-state.js';
 import { vitePluginServerIslands } from './server-islands/vite-plugin-server-islands.js';
 import { vitePluginCacheProvider } from './cache/vite-plugin.js';
 import { vitePluginSessionDriver } from './session/vite-plugin.js';
@@ -57,7 +58,7 @@ import shikiOptimizePlugin from '../vite-plugin-shiki-optimize/index.js';
 
 type CreateViteOptions = {
 	settings: AstroSettings;
-	logger: Logger;
+	logger: AstroLogger;
 	mode: string;
 	fs?: typeof nodeFs;
 	routesList: RoutesList;
@@ -112,6 +113,7 @@ export async function createVite(
 		mode,
 		config: settings.config,
 	});
+	const serverIslandsState = new ServerIslandsState();
 
 	// Validate that envPrefix doesn't conflict with secret env schema variables
 	validateEnvPrefixAgainstSchema(settings.config);
@@ -130,11 +132,12 @@ export async function createVite(
 			vitePluginRenderers({
 				settings,
 				routesList,
+				serverIslandsState,
 				command: command === 'dev' ? 'serve' : 'build',
 			}),
 			vitePluginStaticPaths(),
 			await astroPluginRoutes({ routesList, settings, logger, fsMod: fs, command }),
-			astroVirtualManifestPlugin(),
+			astroVirtualManifestPlugin({ settings }),
 			vitePluginEnvironment({ settings, astroPkgsConfig, command }),
 			pluginPage({ routesList }),
 			pluginPages({ routesList }),
@@ -167,7 +170,7 @@ export async function createVite(
 			vitePluginFileURL(),
 			astroInternationalization({ settings }),
 			vitePluginActions({ fs, settings }),
-			vitePluginServerIslands({ settings, logger }),
+			vitePluginServerIslands({ settings, logger, serverIslandsState }),
 			vitePluginSessionDriver({ settings }),
 			vitePluginCacheProvider({ settings }),
 			astroContainer(),
