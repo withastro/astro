@@ -8,33 +8,16 @@
  */
 import { Hono } from 'hono';
 import type { Context as HonoContext, MiddlewareHandler } from 'hono';
-import {
-	appendForwardSlash,
-	collapseDuplicateTrailingSlashes,
-	hasFileExtension,
-	isInternalPath,
-	joinPaths,
-	prependForwardSlash,
-	removeBase,
-	removeTrailingForwardSlash,
-} from '@astrojs/internal-helpers/path';
-import { normalizeTheLocale } from '../../i18n/index.js';
-
-import { NOOP_MIDDLEWARE_HEADER, REROUTE_DIRECTIVE_HEADER, REWRITE_DIRECTIVE_HEADER_KEY, ROUTE_TYPE_HEADER } from '../constants.js';
-
-import { getRenderOptions } from './render-options-store.js';
 import { attachCookiesToResponse } from '../cookies/response.js';
-
-
-
-
 import type { SSRManifest } from '../../types/public/index.js';
 import type { APIContext } from '../../types/public/context.js';
 import type { RouteData } from '../../types/public/internal.js';
+import { createAstroHandler } from '../routing/handler.js';
+import { createMatchRouteData } from '../routing/match-route-data.js';
 import { createRedirectsHandler } from '../redirects/handler.js';
 import { createRewritesHandler } from '../rewrites/handler.js';
 import { createI18nHandler } from '../../i18n/handler.js';
-import { createUserMiddlewareHandler } from '../middleware/handler.js';
+
 import { createPagesHandler } from '../pages/handler.js';
 import { createActionsHandler } from '../../actions/handler.js';
 
@@ -84,109 +67,6 @@ function getFetchState(c: HonoContext<AstroHonoEnv>, pipeline: Pipeline): FetchS
 }
 
 // ---------------------------------------------------------------------------
-// Domain locale resolution
-// ---------------------------------------------------------------------------
-
-function resolveDomainLocale(request: Request, manifest: SSRManifest): string | undefined {
-	const i18n = manifest.i18n;
-	if (
-		!i18n ||
-		(i18n.strategy !== 'domains-prefix-always' &&
-			i18n.strategy !== 'domains-prefix-other-locales' &&
-			i18n.strategy !== 'domains-prefix-always-no-redirect')
-	) {
-		return undefined;
-	}
-
-	const url = new URL(request.url);
-	let host = request.headers.get('X-Forwarded-Host');
-	let protocol = request.headers.get('X-Forwarded-Proto');
-	if (protocol) {
-		protocol = protocol + ':';
-	} else {
-		protocol = url.protocol;
-	}
-	if (!host) {
-		host = request.headers.get('Host');
-	}
-	if (!host || !protocol) return undefined;
-
-	host = host.split(':')[0];
-	try {
-		const hostAsUrl = new URL(`${protocol}//${host}`);
-		for (const [domainKey, localeValue] of Object.entries(i18n.domainLookupTable)) {
-			const domainKeyAsUrl = new URL(domainKey);
-			if (
-				hostAsUrl.host === domainKeyAsUrl.host &&
-				hostAsUrl.protocol === domainKeyAsUrl.protocol
-			) {
-				return localeValue;
-			}
-		}
-	} catch {
-		// Invalid URL
-	}
-	return undefined;
-}
-
-// ---------------------------------------------------------------------------
-// Route matching
-// ---------------------------------------------------------------------------
-
-function createMatchRouteData(deps: AstroAppDeps) {
-	return function matchRouteData(request: Request, { allowPrerenderedRoutes = false } = {}): RouteData | undefined {
-		// If the adapter already matched a route (e.g. via devMatch), use it
-		// directly instead of re-matching. This is needed because some adapters
-		// (like Cloudflare) run route matching in their own handler before
-		// calling app.render().
-		const preMatched = getRenderOptions(request)?.routeData;
-		if (preMatched) return preMatched;
-
-		const manifest = deps.manifest;
-		const manifestData = deps.pipeline.manifestData;
-		const url = new URL(request.url);
-		if (manifest.assets.has(url.pathname)) return undefined;
-		let strippedPathname = removeBase(decodeURI(url.pathname), manifest.base) || '/';
-
-		// When build.format is 'file', request URLs may contain .html or
-		// /index.html suffixes (e.g. from getUrlForPath during SSG).
-		// Normalize them away so the route patterns can match.
-		if (manifest.buildFormat === 'file') {
-			if (strippedPathname.endsWith('/index.html')) {
-				const trimmed = strippedPathname.slice(0, -'/index.html'.length);
-				strippedPathname = trimmed === '' ? '/' : trimmed;
-			} else if (strippedPathname.endsWith('.html')) {
-				const trimmed = strippedPathname.slice(0, -'.html'.length);
-				strippedPathname = trimmed === '' ? '/' : trimmed;
-			}
-		}
-
-		// For domain-based i18n, prepend the resolved locale to the pathname
-		const domainLocale = resolveDomainLocale(request, manifest);
-		if (domainLocale) {
-			strippedPathname = prependForwardSlash(
-				joinPaths(normalizeTheLocale(domainLocale), strippedPathname),
-			);
-			if (url.pathname.endsWith('/')) {
-				strippedPathname = appendForwardSlash(strippedPathname);
-			}
-		}
-
-		for (const route of manifestData.routes) {
-			if (route.pattern.test(strippedPathname) || (manifest.trailingSlash === 'never' && strippedPathname === '/' && route.pattern.test(''))) {
-				// If the matching route is prerendered and we're not allowing
-				// prerendered routes, return undefined immediately. This prevents
-				// catch-all routes from handling paths that belong to prerendered
-				// routes (which are served as static assets by the adapter).
-				if (!allowPrerenderedRoutes && route.prerender) return undefined;
-				return route;
-			}
-		}
-		return undefined;
-	};
-}
-
-// ---------------------------------------------------------------------------
 // Context factory
 // ---------------------------------------------------------------------------
 
@@ -215,27 +95,6 @@ function createRedirectsMiddleware(deps: AstroAppDeps): MiddlewareHandler<AstroH
 		const response = handleRedirect(c.req.raw);
 		if (response) return response;
 		return next();
-	};
-}
-
-function createUserMiddleware(
-	deps: AstroAppDeps,
-	options: CreateAstroAppOptions = {},
-): MiddlewareHandler<AstroHonoEnv> {
-	const { pipeline } = deps;
-	const handleUserMiddleware = createUserMiddlewareHandler(deps, options);
-
-	return async (c, next) => {
-		const state = getFetchState(c, pipeline);
-		c.res = await handleUserMiddleware(state, async () => {
-			await next();
-			return c.res;
-		});
-		// Re-attach cookies to c.res because Hono clones the response on
-		// assignment, losing any symbols set on the original object.
-		const ctx = await state.getAPIContext();
-		attachCookiesToResponse(c.res, ctx.cookies);
-		return c.res;
 	};
 }
 
@@ -316,104 +175,29 @@ function createPagesMiddleware(
 }
 
 // ---------------------------------------------------------------------------
-// Trailing slash middleware
-// ---------------------------------------------------------------------------
-
-function createTrailingSlashMiddleware(deps: AstroAppDeps): MiddlewareHandler<AstroHonoEnv> {
-	const { manifest } = deps;
-	const { trailingSlash } = manifest;
-
-	return async (c, next) => {
-		const url = new URL(c.req.url);
-		const { pathname } = url;
-
-		if (pathname === '/' || isInternalPath(pathname)) {
-			return next();
-		}
-
-		// Always collapse duplicate trailing slashes, regardless of trailingSlash setting.
-		const collapsed = collapseDuplicateTrailingSlashes(pathname, trailingSlash !== 'never');
-		if (collapsed !== pathname) {
-			const status = c.req.method === 'GET' ? 301 : 308;
-			return c.redirect(collapsed + url.search, status);
-		}
-
-		if (trailingSlash === 'always' && !hasFileExtension(pathname)) {
-			const withSlash = appendForwardSlash(pathname);
-			if (withSlash !== pathname) {
-				const status = c.req.method === 'GET' ? 301 : 308;
-				return c.redirect(withSlash + url.search, status);
-			}
-		}
-
-		if (trailingSlash === 'never') {
-			const withoutSlash = removeTrailingForwardSlash(pathname);
-			if (withoutSlash !== pathname) {
-				const status = c.req.method === 'GET' ? 301 : 308;
-				return c.redirect(withoutSlash + url.search, status);
-			}
-		}
-
-		return next();
-	};
-}
-
 // ---------------------------------------------------------------------------
 // Composed astro() middleware
 // ---------------------------------------------------------------------------
 
 /**
  * Creates the fully composed Astro middleware that handles the complete
- * request lifecycle:
- * trailing slash → route resolution → redirects → user middleware → actions → rewrite → i18n → pages
+ * request lifecycle. Delegates to `createAstroHandler` (framework-agnostic)
+ * and wraps it in Hono middleware for cookie symbol re-attachment.
  */
 export function createAstroMiddleware(
 	deps: AstroAppDeps,
 	options: CreateAstroAppOptions = {},
 ): MiddlewareHandler<AstroHonoEnv> {
 	const { pipeline } = deps;
-	const isDev = options.isDev ?? (pipeline.runtimeMode === 'development');
-	const shouldAllowPrerendered = options.allowPrerenderedRoutes ?? isDev;
-	const rawMatchRouteData = createMatchRouteData(deps);
-	// In dev (or during build), match prerendered routes. In production, skip them
-	// (they're served as static assets by the adapter/CDN).
-	const matchRouteData = (req: Request) => rawMatchRouteData(req, { allowPrerenderedRoutes: shouldAllowPrerendered });
-
-	const inner = new Hono<AstroHonoEnv>();
-	inner.onError((err) => { throw err; });
-	inner.use(createTrailingSlashMiddleware(deps));
-	// Resolve route data early so user middleware can access routePattern/isPrerendered.
-	inner.use(async (c, next) => {
-		const state = getFetchState(c, pipeline);
-		if (!state.routeData) {
-			const routeData = matchRouteData(c.req.raw);
-			if (routeData) state.routeData = routeData;
-		}
-		return next();
-	});
-	inner.use(createRedirectsMiddleware(deps));
-	inner.use(createUserMiddleware(deps, options));
-	inner.use(createActionsMiddleware(deps));
-	inner.use(createRewriteMiddleware(deps, matchRouteData));
-	inner.use(createI18nMiddleware(deps, matchRouteData));
-	inner.use(createPagesMiddleware(deps, matchRouteData, options));
+	const handle = createAstroHandler(deps, options);
 
 	return async (c, _next) => {
-		c.res = await inner.fetch(c.req.raw);
-		// Strip internally-used headers before the response reaches the client.
-		// Use try/catch because some Responses (e.g. Response.redirect()) have immutable headers.
-		try {
-			for (const header of [REROUTE_DIRECTIVE_HEADER, ROUTE_TYPE_HEADER, NOOP_MIDDLEWARE_HEADER, REWRITE_DIRECTIVE_HEADER_KEY]) {
-				c.res.headers.delete(header);
-			}
-		} catch {
-			// Headers are immutable — create a new Response with cleaned headers
-			const headers = new Headers(c.res.headers);
-			for (const header of [REROUTE_DIRECTIVE_HEADER, ROUTE_TYPE_HEADER, NOOP_MIDDLEWARE_HEADER, REWRITE_DIRECTIVE_HEADER_KEY]) {
-				headers.delete(header);
-			}
-			c.res = new Response(c.res.body, { status: c.res.status, statusText: c.res.statusText, headers });
-		}
+		const state = getFetchState(c, pipeline);
+		c.res = await handle(state);
+		// Re-attach cookies to c.res because Hono clones the response on
+		// assignment, losing any symbols set on the original object.
+		const ctx = await state.getAPIContext();
+		attachCookiesToResponse(c.res, ctx.cookies);
 	};
 }
 
