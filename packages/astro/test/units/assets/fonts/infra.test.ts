@@ -61,17 +61,11 @@ describe('fonts infra', () => {
 	});
 
 	describe('CachedFontFetcher', () => {
-		/**
-		 *
-		 * @param {{ ok: boolean }} param0
-		 */
-		function createReadFileMock({ ok }) {
-			/** @type {Array<string>} */
-			const filesUrls = [];
+		function createReadFileMock({ ok }: { ok: boolean }) {
+			const filesUrls: string[] = [];
 			return {
 				filesUrls,
-				/** @type {(url: string) => Promise<Buffer>} */
-				readFile: async (url) => {
+				readFile: async (url: string): Promise<Buffer> => {
 					filesUrls.push(url);
 					if (!ok) {
 						throw 'fs error';
@@ -81,25 +75,18 @@ describe('fonts infra', () => {
 			};
 		}
 
-		/**
-		 *
-		 * @param {{ ok: boolean }} param0
-		 */
-		function createFetchMock({ ok }) {
-			/** @type {Array<string>} */
-			const fetchUrls = [];
+		function createFetchMock({ ok }: { ok: boolean }) {
+			const fetchUrls: string[] = [];
 			return {
 				fetchUrls,
-				/** @type {(url: string) => Promise<Response>} */
-				fetch: async (url) => {
+				fetch: (async (url: string) => {
 					fetchUrls.push(url);
-					// @ts-expect-error
 					return {
 						ok,
 						status: ok ? 200 : 500,
-						arrayBuffer: async () => new ArrayBuffer(),
+						arrayBuffer: async () => new ArrayBuffer(0),
 					};
-				},
+				}) as unknown as typeof fetch,
 			};
 		}
 
@@ -236,7 +223,7 @@ describe('fonts infra', () => {
 
 		for (const [input, check] of data) {
 			try {
-				const res = fontTypeExtractor.extract(input);
+				const res = fontTypeExtractor.extract(input as string);
 				if (check) {
 					assert.equal(res, check);
 				} else {
@@ -421,12 +408,7 @@ describe('fonts infra', () => {
 	});
 
 	describe('UnifontFontResolver', () => {
-		/**
-		 * @param {string} name
-		 * @param {any} [config]
-		 * @returns {import('../../../../dist/index.js').FontProvider}
-		 * */
-		const createProvider = (name, config) => ({
+		const createProvider = (name: string, config?: any): any => ({
 			name,
 			config,
 			resolveFont: () => undefined,
@@ -597,17 +579,15 @@ describe('fonts infra', () => {
 						listFonts: () => ['a', 'b', 'c'],
 					};
 				});
-				/** @returns {import('../../../../dist/index.js').FontProvider} */
-				const astroProvider = () => {
+				const astroProvider = (): any => {
 					const provider = unifontProvider();
-					/** @type {import('unifont').InitializedProvider | undefined} */
-					let initializedProvider;
+					let initializedProvider: any;
 					return {
 						name: provider._name,
-						async init(context) {
+						async init(context: any) {
 							initializedProvider = await provider(context);
 						},
-						async resolveFont({ familyName, ...rest }) {
+						async resolveFont({ familyName, ...rest }: any) {
 							return await initializedProvider?.resolveFont(familyName, rest);
 						},
 						async listFonts() {

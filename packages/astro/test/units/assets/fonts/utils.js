@@ -1,7 +1,7 @@
 // @ts-check
 
 /**
- * @import { Hasher, FontMetricsResolver, Storage, FontResolver, StringMatcher } from '../../../../dist/assets/fonts/definitions'
+ * @import { Hasher, FontMetricsResolver, Storage, FontResolver, StringMatcher } from '../../../../dist/assets/fonts/definitions.js'
  */
 
 /** @implements {Storage} */
@@ -88,7 +88,7 @@ export class FakeFontMetricsResolver {
 	}
 
 	/**
-	 * @param {Parameters<import('../../../../dist/assets/fonts/definitions').FontMetricsResolver['generateFontFace']>[0]} input
+	 * @param {Parameters<import('../../../../dist/assets/fonts/definitions.js').FontMetricsResolver['generateFontFace']>[0]} input
 	 */
 	generateFontFace(input) {
 		return JSON.stringify(input, null, 2) + `,`;
@@ -116,7 +116,7 @@ export class PassthroughFontResolver {
 	}
 
 	/**
-	 * @param {{ families: Array<import('../../../../dist/assets/fonts/types').ResolvedFontFamily>; hasher: Hasher }} param0
+	 * @param {{ families: Array<import('../../../../dist/assets/fonts/types.js').ResolvedFontFamily>; hasher: Hasher }} param0
 	 */
 	static async create({ families, hasher }) {
 		/** @type {Map<string, import('../../../../dist/index.js').FontProvider<Record<string, any>>>} */

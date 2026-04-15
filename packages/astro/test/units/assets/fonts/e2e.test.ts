@@ -30,12 +30,9 @@ import { fontProviders } from '../../../../dist/assets/fonts/providers/index.js'
 import { AstroLogger } from '../../../../dist/core/logger/core.js';
 import { nodeLogDestination } from '../../../../dist/core/logger/node.js';
 
-/**
- * @param {{ fonts: Array<import('../../../../dist/assets/fonts/types.js').FontFamily> }} param0
- */
-async function run({ fonts: _fonts }) {
+async function run({ fonts: _fonts }: { fonts: any[] }) {
 	const hasher = await XxhashHasher.create();
-	const resolvedFamilies = _fonts.map((family) => resolveFamily({ family, hasher }));
+	const resolvedFamilies = _fonts.map((family: any) => resolveFamily({ family, hasher }));
 	const defaults = DEFAULTS;
 	const { bold } = colors;
 	const logger = new AstroLogger({
