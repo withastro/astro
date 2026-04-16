@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
 	createMarkdownProcessor,
+	createSatteriMarkdownProcessor,
 	isFrontmatterValid,
 	type MarkdownProcessor,
 } from '@astrojs/markdown-remark';
@@ -81,10 +82,22 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 
 				// Lazily initialize the Markdown processor
 				if (!processor) {
-					processor = createMarkdownProcessor({
-						image: settings.config.image,
-						...settings.config.markdown,
-					});
+					const nativeMd = settings.config.experimental.nativeMarkdown;
+					if (nativeMd) {
+						const nativeOpts = typeof nativeMd === 'object' ? nativeMd : undefined;
+						processor = createSatteriMarkdownProcessor({
+							image: settings.config.image,
+							...settings.config.markdown,
+							mdastPlugins: nativeOpts?.mdastPlugins ?? [],
+							hastPlugins: nativeOpts?.hastPlugins ?? [],
+							features: nativeOpts?.features,
+						});
+					} else {
+						processor = createMarkdownProcessor({
+							image: settings.config.image,
+							...settings.config.markdown,
+						});
+					}
 				}
 
 				const renderResult = await (await processor).render(raw.content, {

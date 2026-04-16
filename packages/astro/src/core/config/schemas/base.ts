@@ -111,6 +111,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		chromeDevtoolsWorkspace: false,
 		svgo: false,
 		rustCompiler: false,
+		nativeMarkdown: false,
 		queuedRendering: {
 			enabled: false,
 		},
@@ -540,6 +541,23 @@ export const AstroConfigSchema = z.object({
 			cache: CacheSchema.optional(),
 			routeRules: RouteRulesSchema.optional(),
 			rustCompiler: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.rustCompiler),
+			nativeMarkdown: z
+				.union([
+					z.boolean(),
+					z.object({
+						mdastPlugins: z
+							.array(z.custom<import('satteri').MdastPluginDefinition>())
+							.optional()
+							.default([]),
+						hastPlugins: z
+							.array(z.custom<import('satteri').HastPluginDefinition>())
+							.optional()
+							.default([]),
+						features: z.custom<import('satteri').Features>().optional(),
+					}),
+				])
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.nativeMarkdown),
 			queuedRendering: z
 				.object({
 					enabled: z.boolean().optional().prefault(false),

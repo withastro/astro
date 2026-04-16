@@ -99,10 +99,26 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 					),
 				});
 
+				const nativeMd = config.experimental.nativeMarkdown;
+
+				// When nativeMarkdown is enabled, merge mdastPlugins/hastPlugins from the experimental config
+				if (nativeMd && extendMarkdownConfig) {
+					const nativeOpts = typeof nativeMd === 'object' ? nativeMd : undefined;
+					resolvedMdxOptions.mdastPlugins = [
+						...(nativeOpts?.mdastPlugins ?? []),
+						...resolvedMdxOptions.mdastPlugins,
+					];
+					resolvedMdxOptions.hastPlugins = [
+						...(nativeOpts?.hastPlugins ?? []),
+						...resolvedMdxOptions.hastPlugins,
+					];
+				}
+
 				// Mutate `mdxOptions` so that `vitePluginMdx` can reference the actual options
 				Object.assign(vitePluginMdxOptions, {
 					mdxOptions: resolvedMdxOptions,
 					srcDir: config.srcDir,
+					nativeMarkdown: nativeMd,
 				});
 				// @ts-expect-error After we assign, we don't need to reference `mdxOptions` in this context anymore.
 				// Re-assign it so that the garbage can be collected later.
