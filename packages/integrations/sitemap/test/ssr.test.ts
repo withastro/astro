@@ -1,16 +1,16 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { loadFixture, readXML } from './test-utils.js';
+import type { Fixture } from '../../../astro/test/test-utils.js';
 
 describe('SSR support', () => {
-	/** @type {import('./test-utils.js').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/ssr/',
 		});
-		await fixture.build();
+		await fixture.build({});
 	});
 
 	it('SSR pages require zero config', async () => {
