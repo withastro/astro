@@ -2,8 +2,6 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { AstroTelemetry } from '../dist/index.js';
 
-
-
 function setup() {
 	const config = new Map<string, unknown>();
 	const telemetry = new AstroTelemetry({
