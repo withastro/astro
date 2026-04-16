@@ -8,7 +8,6 @@ export default (element: HTMLElement) =>
 	(Component: any, props: any, slotted: any, { client }: { client: string }) => {
 		if (!element.hasAttribute('ssr')) return;
 		const isHydrate = client !== 'only';
-		const bootstrap = isHydrate ? hydrate : render;
 
 		let slot: HTMLElement | null;
 		let _slots: Record<string, any> = {};
@@ -53,25 +52,22 @@ export default (element: HTMLElement) =>
 			// store the function to update the current mounted component
 			alreadyInitializedElements.set(element, setStore);
 
-			const dispose = bootstrap(
-				() => {
-					const inner = () => createComponent(Component, store);
+			const createApp = () => {
+				const inner = () => createComponent(Component, store);
 
-					if (isHydrate) {
-						return createComponent(Suspense, {
-							get children() {
-								return inner();
-							},
-						});
-					} else {
-						return inner();
-					}
-				},
-				element,
-				{
-					renderId,
-				},
-			);
+				if (isHydrate) {
+					return createComponent(Suspense, {
+						get children() {
+							return inner();
+						},
+					});
+				} else {
+					return inner();
+				}
+			};
+			const dispose = isHydrate
+				? hydrate(createApp, element, { renderId })
+				: render(createApp, element);
 			element.addEventListener('astro:unmount', () => dispose(), { once: true });
 		}
 	};
