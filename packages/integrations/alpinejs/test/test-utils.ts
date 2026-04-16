@@ -2,7 +2,12 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { test as testBase } from '@playwright/test';
-import { loadFixture as baseLoadFixture } from '../../../astro/test/test-utils.js';
+import {
+	loadFixture as baseLoadFixture,
+	type Fixture,
+	type AstroInlineConfig,
+	type DevServer,
+} from '../../../astro/test/test-utils.js';
 
 // Get all test files in directory, assign unique port for each of them so they don't conflict
 const testFiles = await fs.readdir(new URL('.', import.meta.url));
@@ -14,7 +19,7 @@ for (let i = 0; i < testFiles.length; i++) {
 	}
 }
 
-function loadFixture(inlineConfig) {
+function loadFixture(inlineConfig: AstroInlineConfig) {
 	if (!inlineConfig?.root) throw new Error("Must provide { root: './fixtures/...' }");
 
 	// resolve the relative root (i.e. "./fixtures/tailwindcss") to a full filepath
@@ -23,15 +28,15 @@ function loadFixture(inlineConfig) {
 		...inlineConfig,
 		root: fileURLToPath(new URL(inlineConfig.root, import.meta.url)),
 		server: {
-			port: testFileToPort.get(path.basename(inlineConfig.root)),
+			port: testFileToPort.get(path.basename(String(inlineConfig.root))),
 		},
 	});
 }
 
-function testFactory(inlineConfig) {
-	let fixture;
+function testFactory(inlineConfig: AstroInlineConfig) {
+	let fixture: Fixture;
 
-	const test = testBase.extend({
+	const test = testBase.extend<{ astro: Fixture }>({
 		// biome-ignore lint/correctness/noEmptyPattern: playwright needs this
 		astro: async ({}, use) => {
 			fixture = fixture || (await loadFixture(inlineConfig));
@@ -46,10 +51,10 @@ function testFactory(inlineConfig) {
 	return test;
 }
 
-export function prepareTestFactory(opts) {
+export function prepareTestFactory(opts: AstroInlineConfig) {
 	const test = testFactory(opts);
 
-	let devServer;
+	let devServer: DevServer;
 
 	test.beforeAll(async ({ astro }) => {
 		devServer = await astro.startDevServer();
