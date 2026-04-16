@@ -3,7 +3,6 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { test as testBase } from '@playwright/test';
 import { loadFixture as baseLoadFixture, type Fixture, type AstroInlineConfig, type DevServer } from '../../../astro/test/test-utils.js';
-import assert from 'node:assert';  
 
 // Get all test files in directory, assign unique port for each of them so they don't conflict
 const testFiles = await fs.readdir(new URL('.', import.meta.url));
