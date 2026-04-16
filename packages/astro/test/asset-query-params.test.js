@@ -173,29 +173,46 @@ describe('Asset Query Parameters in Inter-Chunk JS Imports', () => {
 		const scripts = $('script[src]');
 		assert.ok(scripts.length > 0, 'Should have at least one external script');
 
-		let foundRelativeImport = false;
+		let foundStaticImport = false;
+		let foundDynamicImport = false;
 		// Read all client JS files and check inter-chunk imports have query params
 		const jsFiles = await fixture.glob('client/**/*.js');
 		for (const file of jsFiles) {
 			const code = await fixture.readFile(`/${file}`);
-			// Match relative imports: from"./chunk.js", from "./chunk.js", import("./chunk.js")
-			const allImports = [
+			// Match static imports: from "./chunk.js", from "./chunk.js"
+			const staticImports = [
 				...code.matchAll(/(from\s*["'])(\.\.?\/[^"']+\.(?:js|mjs)(?:\?[^"']*)?)(["'])/g),
+			];
+			// Match dynamic imports: import("./chunk.js")
+			const dynamicImports = [
 				...code.matchAll(/(import\s*\(\s*["'])(\.\.?\/[^"']+\.(?:js|mjs)(?:\?[^"']*)?)(["'])/g),
 			];
-			for (const match of allImports) {
-				foundRelativeImport = true;
+			for (const match of staticImports) {
+				foundStaticImport = true;
 				const importPath = match[2];
 				assert.match(
 					importPath,
 					/\?dpl=test-deploy-id/,
-					`Inter-chunk import should include assetQueryParams: ${match[0]}`,
+					`Static inter-chunk import should include assetQueryParams: ${match[0]}`,
+				);
+			}
+			for (const match of dynamicImports) {
+				foundDynamicImport = true;
+				const importPath = match[2];
+				assert.match(
+					importPath,
+					/\?dpl=test-deploy-id/,
+					`Dynamic inter-chunk import should include assetQueryParams: ${match[0]}`,
 				);
 			}
 		}
 		assert.ok(
-			foundRelativeImport,
-			'Expected at least one relative inter-chunk import in client JS files',
+			foundStaticImport,
+			'Expected at least one static relative inter-chunk import in client JS files',
+		);
+		assert.ok(
+			foundDynamicImport,
+			'Expected at least one dynamic relative inter-chunk import in client JS files',
 		);
 	});
 });

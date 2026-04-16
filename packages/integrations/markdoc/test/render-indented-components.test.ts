@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture, type Fixture, type DevServer } from '../../../astro/test/test-utils.js';
 
 const root = new URL('./fixtures/render-with-indented-components/', import.meta.url);
 
 describe('Markdoc - render indented components', () => {
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -15,7 +15,7 @@ describe('Markdoc - render indented components', () => {
 	});
 
 	describe('dev', () => {
-		let devServer;
+		let devServer: DevServer;
 
 		before(async () => {
 			devServer = await fixture.startDevServer();
@@ -35,7 +35,7 @@ describe('Markdoc - render indented components', () => {
 
 	describe('build', () => {
 		before(async () => {
-			await fixture.build();
+			await fixture.build({});
 		});
 
 		it('renders content - with indented components', async () => {
@@ -46,11 +46,10 @@ describe('Markdoc - render indented components', () => {
 	});
 });
 
-/** @param {string} html */
-function renderIndentedComponentsChecks(html) {
+function renderIndentedComponentsChecks(html: string) {
 	const { document } = parseHTML(html);
 	const h2 = document.querySelector('h2');
-	assert.equal(h2.textContent, 'Post with indented components');
+	assert.equal(h2!.textContent, 'Post with indented components');
 
 	// Renders custom shortcode components
 	const marquees = document.querySelectorAll('marquee');
@@ -58,10 +57,10 @@ function renderIndentedComponentsChecks(html) {
 
 	// Renders h3
 	const h3 = document.querySelector('h3');
-	assert.equal(h3.textContent, 'I am an h3!');
+	assert.equal(h3!.textContent, 'I am an h3!');
 
 	// Renders Astro Code component
 	const pre = document.querySelector('pre');
 	assert.notEqual(pre, null);
-	assert.equal(pre.className, 'astro-code github-dark');
+	assert.equal(pre!.className, 'astro-code github-dark');
 }

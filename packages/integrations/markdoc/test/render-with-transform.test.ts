@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture, type Fixture, type DevServer } from '../../../astro/test/test-utils.js';
 
 const root = new URL('./fixtures/render-with-transform/', import.meta.url);
 
@@ -12,14 +12,14 @@ const root = new URL('./fixtures/render-with-transform/', import.meta.url);
  * a custom `render` component, the `render` should win over the built-in `transform()`.
  */
 describe('Markdoc - render with transform override', () => {
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({ root });
 	});
 
 	describe('dev', () => {
-		let devServer;
+		let devServer: DevServer;
 
 		before(async () => {
 			devServer = await fixture.startDevServer();
@@ -38,7 +38,7 @@ describe('Markdoc - render with transform override', () => {
 
 	describe('build', () => {
 		before(async () => {
-			await fixture.build();
+			await fixture.build({});
 		});
 
 		it('uses custom render component instead of built-in transform', async () => {
@@ -48,7 +48,7 @@ describe('Markdoc - render with transform override', () => {
 	});
 });
 
-function assertCustomFenceRendered(html) {
+function assertCustomFenceRendered(html: string) {
 	const { document } = parseHTML(html);
 
 	// The custom component should render a div with data-custom-fence
@@ -60,10 +60,10 @@ function assertCustomFenceRendered(html) {
 	);
 
 	// Verify it has the language attribute
-	assert.equal(customFence.getAttribute('data-language'), 'js', 'Expected data-language="js"');
+	assert.equal(customFence!.getAttribute('data-language'), 'js', 'Expected data-language="js"');
 
 	// The content should be inside a pre > code
-	const code = customFence.querySelector('pre code');
+	const code = customFence!.querySelector('pre code');
 	assert.notEqual(code, null, 'Expected pre > code inside custom fence');
-	assert.ok(code.textContent.includes('hello'), 'Expected code content to include "hello"');
+	assert.ok(code!.textContent.includes('hello'), 'Expected code content to include "hello"');
 }
