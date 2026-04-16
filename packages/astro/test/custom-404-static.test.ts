@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { loadFixture, type Fixture, type DevServer } from './test-utils.js';
 
 describe('Custom 404 with Static', () => {
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -14,7 +14,7 @@ describe('Custom 404 with Static', () => {
 	});
 
 	describe('dev', () => {
-		let devServer;
+		let devServer: DevServer;
 		let $;
 
 		before(async () => {
@@ -47,7 +47,7 @@ describe('Custom 404 with Static', () => {
 
 	describe('build', () => {
 		before(async () => {
-			await fixture.build();
+			await fixture.build({});
 		});
 
 		it('builds to 404.html', async () => {
