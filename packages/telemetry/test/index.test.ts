@@ -63,8 +63,8 @@ describe('AstroTelemetry', () => {
 		const [key] = Array.from(config.keys());
 		assert.notEqual(key, undefined);
 		assert.equal(config.get(key), false);
-		assert.equal(telemetry.enabled, false);
-		assert.equal(telemetry.isDisabled, true);
+		assert.equal(telemetry['enabled'], false);
+		assert.equal(telemetry['isDisabled'], true);
 		const result = await telemetry.record([{ eventName: 'TEST', payload: {} }]);
 		assert.equal(result, undefined);
 		const [log] = logs;
@@ -78,8 +78,8 @@ describe('AstroTelemetry', () => {
 		const [key] = Array.from(config.keys());
 		assert.notEqual(key, undefined);
 		assert.equal(config.get(key), true);
-		assert.equal(telemetry.enabled, true);
-		assert.equal(telemetry.isDisabled, false);
+		assert.equal(telemetry['enabled'], true);
+		assert.equal(telemetry['isDisabled'], false);
 		await telemetry.record([{ eventName: 'TEST', payload: {} }]);
 		assert.equal(logs.length, 2);
 		cleanup();
@@ -90,8 +90,8 @@ describe('AstroTelemetry', () => {
 		const [key] = Array.from(config.keys());
 		assert.notEqual(key, undefined);
 		assert.equal(config.get(key), false);
-		assert.equal(telemetry.enabled, false);
-		assert.equal(telemetry.isDisabled, true);
+		assert.equal(telemetry['enabled'], false);
+		assert.equal(telemetry['isDisabled'], true);
 		const [log] = logs;
 		assert.notEqual(log, undefined);
 		assert.match(logs.join(''), /disabled/);
@@ -103,8 +103,8 @@ describe('AstroTelemetry', () => {
 		const [key] = Array.from(config.keys());
 		assert.notEqual(key, undefined);
 		assert.equal(config.get(key), true);
-		assert.equal(telemetry.enabled, true);
-		assert.equal(telemetry.isDisabled, false);
+		assert.equal(telemetry['enabled'], true);
+		assert.equal(telemetry['isDisabled'], false);
 		const [log] = logs;
 		assert.notEqual(log, undefined);
 		assert.match(logs.join(''), /enabled/);
