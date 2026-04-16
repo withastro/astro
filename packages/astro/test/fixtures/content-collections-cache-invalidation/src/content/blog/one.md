@@ -1,5 +1,0 @@
----
-title: One
----
-
-Hello world

@@ -1,5 +1,15 @@
 # astro
 
+## 6.1.7
+
+### Patch Changes
+
+- [#16027](https://github.com/withastro/astro/pull/16027) [`c62516b`](https://github.com/withastro/astro/commit/c62516bbbf8fdf95d38293440d28221c048c41f0) Thanks [@fkatsuhiro](https://github.com/fkatsuhiro)! - Fixes a bug where remote image dimensions were not validated during static builds on Netlify.
+
+- [#16311](https://github.com/withastro/astro/pull/16311) [`94048f2`](https://github.com/withastro/astro/commit/94048f27c30f47ae0e01f90231e0496ed80595f7) Thanks [@Arecsu](https://github.com/Arecsu)! - Fixes `--port` flag being ignored after a Vite-triggered server restart (e.g. when a `.env` file changes)
+
+- [#16316](https://github.com/withastro/astro/pull/16316) [`0fcd04c`](https://github.com/withastro/astro/commit/0fcd04cc985002b56c9e2d36bcb68da0d3f08d5f) Thanks [@ematipico](https://github.com/ematipico)! - Fixes the `/_image` endpoint accepting an arbitrary `f=svg` query parameter and serving non-SVG content as `image/svg+xml`. The endpoint now validates that the source is actually SVG before honoring `f=svg`, matching the same guard already enforced on the `<Image>` component path.
+
 ## 6.1.6
 
 ### Patch Changes
