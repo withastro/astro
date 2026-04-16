@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { AstroTelemetry, type TelemetryEvent } from '../dist/index.js';
+import { AstroTelemetry } from '../dist/index.js';
 
 declare global {
 	var _astroGlobalDebug: ((type: string, ...args: unknown[]) => void) | undefined;
@@ -11,7 +11,7 @@ function setup() {
 	const telemetry = new AstroTelemetry({
 		astroVersion: '0.0.0-test.1',
 		viteVersion: '0.0.0',
-	})  ;
+	});
 	const logs: unknown[][] = [];
 	// Stub isCI to false so we can test user-facing behavior
 	telemetry['isCI'] = false;
