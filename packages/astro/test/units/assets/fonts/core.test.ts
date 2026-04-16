@@ -603,6 +603,7 @@ describe('fonts core', () => {
 					urlResolver: {
 						resolve: () => '',
 						cspResources: [],
+						urls: [],
 					},
 				}).length,
 				0,
@@ -645,6 +646,7 @@ describe('fonts core', () => {
 					urlResolver: {
 						resolve: () => '',
 						cspResources: [],
+						urls: [],
 					},
 				}).length,
 				5,
@@ -676,6 +678,7 @@ describe('fonts core', () => {
 					urlResolver: {
 						resolve: (url) => 'resolved:' + url,
 						cspResources: [],
+						urls: [],
 					},
 				}),
 				[
@@ -745,6 +748,7 @@ describe('fonts core', () => {
 					urlResolver: {
 						resolve: (url) => 'resolved:' + url,
 						cspResources: [],
+						urls: [],
 					},
 				}),
 				[
