@@ -31,7 +31,8 @@ import { ensure404Route } from '../routing/astro-designed-error-pages.js';
 import { matchRoute } from '../routing/match.js';
 import { Router } from '../routing/router.js';
 import { type AstroSession, PERSIST_SYMBOL } from '../session/runtime.js';
-import { AstroHandler } from '../routing/handler.js';
+import { DefaultFetchHandler } from '../fetch/default-handler.js';
+import { setRenderOptions } from './render-options.js';
 import type { AppPipeline } from './pipeline.js';
 import type { SSRManifest } from './types.js';
 
@@ -125,7 +126,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	baseWithoutTrailingSlash: string;
 	logger: AstroLogger;
 	#router: Router;
-	#handler: AstroHandler;
+	#fetchHandler: DefaultFetchHandler;
 	constructor(manifest: SSRManifest, streaming = true, ...args: any[]) {
 		this.manifest = manifest;
 		this.manifestData = { routes: manifest.routes.map((route) => route.routeData) };
@@ -140,7 +141,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		// to return the host 404 if the user doesn't provide a custom 404
 		ensure404Route(this.manifestData);
 		this.#router = this.createRouter(this.manifestData);
-		this.#handler = new AstroHandler(this);
+		this.#fetchHandler = new DefaultFetchHandler(this);
 	}
 
 	public abstract isDev(): boolean;
@@ -351,13 +352,14 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			routeData,
 		}: RenderOptions = {},
 	): Promise<Response> {
-		return this.#handler.handle(request, {
+		setRenderOptions(request, {
 			addCookieHeader,
 			clientAddress,
 			prerenderedErrorPageFetch,
 			locals,
 			routeData,
 		});
+		return this.#fetchHandler.fetch(request);
 	}
 
 	prepareResponse(response: Response, { addCookieHeader }: { addCookieHeader: boolean }): void {

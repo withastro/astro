@@ -16,6 +16,7 @@ import { redirectTemplate } from './3xx.js';
 import { routeHasHtmlExtension } from './helpers.js';
 import { type CacheLike, applyCacheHeaders } from '../cache/runtime/cache.js';
 import { type AstroSession, PERSIST_SYMBOL } from '../session/runtime.js';
+import { getRenderOptions } from '../app/render-options.js';
 import type { BaseApp, ResolvedRenderOptions } from '../app/base.js';
 
 export class AstroHandler {
@@ -53,16 +54,14 @@ export class AstroHandler {
 		return pathname;
 	}
 
-	async handle(
-		request: Request,
-		{
-			addCookieHeader,
-			clientAddress,
-			locals,
-			prerenderedErrorPageFetch,
-			routeData,
-		}: ResolvedRenderOptions,
-	): Promise<Response> {
+	async handle(request: Request): Promise<Response> {
+		const options = getRenderOptions(request);
+		const addCookieHeader = options?.addCookieHeader ?? false;
+		const clientAddress = options?.clientAddress;
+		const locals = options?.locals;
+		const prerenderedErrorPageFetch = options?.prerenderedErrorPageFetch ?? fetch;
+		let routeData = options?.routeData;
+
 		const timeStart = performance.now();
 		const url = new URL(request.url);
 		const redirect = this.redirectTrailingSlash(url.pathname);
