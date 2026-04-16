@@ -1,20 +1,20 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { loadFixture, type Fixture, type DevServer } from './test-utils.js';
 
-describe('Custom 404 with injectRoute', () => {
-	let fixture;
+describe('Custom 404 locals', () => {
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/custom-404-injected/',
+			root: './fixtures/custom-404-locals/',
 			site: 'http://example.com',
 		});
 	});
 
 	describe('dev', () => {
-		let devServer;
+		let devServer: DevServer;
 		let $;
 
 		before(async () => {
@@ -40,7 +40,20 @@ describe('Custom 404 with injectRoute', () => {
 			$ = cheerio.load(html);
 
 			assert.equal($('h1').text(), 'Page not found');
-			assert.equal($('p').text(), '/a');
+			assert.equal($('p.message').text(), 'This 404 is a dynamic HTML file.');
+			assert.equal($('p.runtime').text(), 'locals');
+		});
+
+		it('renders 404 for /404-return', async () => {
+			const res = await fixture.fetch('/404-return');
+			assert.equal(res.status, 404);
+
+			const html = await res.text();
+			$ = cheerio.load(html);
+
+			assert.equal($('h1').text(), 'Page not found');
+			assert.equal($('p.message').text(), 'This 404 is a dynamic HTML file.');
+			assert.equal($('p.runtime').text(), 'locals');
 		});
 	});
 });

@@ -1,20 +1,20 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { loadFixture, type Fixture, type DevServer } from './test-utils.js';
 
-describe('Custom 404 with Static', () => {
-	let fixture;
+describe('Custom 404.html', () => {
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/custom-404-static/',
+			root: './fixtures/custom-404-html/',
 			site: 'http://example.com',
 		});
 	});
 
 	describe('dev', () => {
-		let devServer;
+		let devServer: DevServer;
 		let $;
 
 		before(async () => {
@@ -35,24 +35,12 @@ describe('Custom 404 with Static', () => {
 		it('renders 404 for /a', async () => {
 			const res = await fixture.fetch('/a');
 			assert.equal(res.status, 404);
-			assert.equal(res.statusText, 'Not Found');
 
 			const html = await res.text();
 			$ = cheerio.load(html);
 
 			assert.equal($('h1').text(), 'Page not found');
-			assert.equal($('p').text(), '/a');
-		});
-	});
-
-	describe('build', () => {
-		before(async () => {
-			await fixture.build();
-		});
-
-		it('builds to 404.html', async () => {
-			const html = await fixture.readFile('/404.html');
-			assert.ok(html);
+			assert.equal($('p').text(), 'This 404 is a static HTML file.');
 		});
 	});
 });
