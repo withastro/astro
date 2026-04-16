@@ -1,5 +1,11 @@
 # create-astro
 
+## 5.0.5
+
+### Patch Changes
+
+- [#16122](https://github.com/withastro/astro/pull/16122) [`9a2113b`](https://github.com/withastro/astro/commit/9a2113bc8a7b9677831a968cec6ccda6b76eea7d) Thanks [@matthewp](https://github.com/matthewp)! - Fixes dependency installation failing on Windows when using Bun as the package manager
+
 ## 5.0.4
 
 ### Patch Changes

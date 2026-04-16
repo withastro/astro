@@ -3,7 +3,7 @@ import type { AstroConfig, AstroIntegrationLogger, SSRError } from 'astro';
 import colors from 'piccolore';
 import type { PluggableList } from 'unified';
 
-function appendForwardSlash(path: string) {
+export function appendForwardSlash(path: string) {
 	return path.endsWith('/') ? path : path + '/';
 }
 

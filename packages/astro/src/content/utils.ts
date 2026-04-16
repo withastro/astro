@@ -10,7 +10,7 @@ import xxhash from 'xxhash-wasm';
 import * as z from 'zod/v4';
 import { AstroError, AstroErrorData, errorMap, MarkdownError } from '../core/errors/index.js';
 import { isYAMLException } from '../core/errors/utils.js';
-import type { Logger } from '../core/logger/core.js';
+import type { AstroLogger } from '../core/logger/core.js';
 import { appendForwardSlash } from '../core/path.js';
 import { normalizePath } from '../core/viteUtils.js';
 import type { AstroSettings } from '../types/astro.js';
@@ -269,7 +269,7 @@ export async function getSymlinkedContentCollections({
 	fs,
 }: {
 	contentDir: URL;
-	logger: Logger;
+	logger: AstroLogger;
 	fs: typeof fsMod;
 }): Promise<Map<string, string>> {
 	const contentPaths = new Map<string, string>();

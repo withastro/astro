@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 10.0.4
+
+### Patch Changes
+
+- [#16170](https://github.com/withastro/astro/pull/16170) [`d0fe1ec`](https://github.com/withastro/astro/commit/d0fe1ec216f8f322392e34ce40378d022e495cef) Thanks [@bittoby](https://github.com/bittoby)! - Fixes edge middleware `next()` dropping the HTTP method and body when forwarding requests to the serverless function, which caused non-GET API routes (POST, PUT, PATCH, DELETE) to return 404
+
 ## 10.0.3
 
 ### Patch Changes
