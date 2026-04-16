@@ -320,21 +320,6 @@ function processJsxNode(
 	}
 }
 
-const exportConstComponentsRe = /export\s+const\s+components\s*=\s*\{([^}]*)\}/;
-
-function extractComponentOverrides(content: string): string[] {
-	const match = exportConstComponentsRe.exec(content);
-	if (!match) return [];
-	const body = match[1];
-	const keys: string[] = [];
-	for (const part of body.split(',')) {
-		const keyMatch = /^(\w+)\s*:/.exec(part.trim());
-		if (keyMatch) {
-			keys.push(keyMatch[1]);
-		}
-	}
-	return keys;
-}
 
 function createCollectImagesPlugin(
 	localImagePaths: Set<string>,
@@ -526,16 +511,15 @@ export function createMdxProcessor(mdxOptions: MdxOptions) {
 
 			let optimizeStatic: import('satteri').MdxCompileOptions['optimizeStatic'];
 			if (mdxOptions.optimize) {
-				const userIgnore =
+				const ignoreElements =
 					typeof mdxOptions.optimize === 'object'
-						? (mdxOptions.optimize.ignoreElementNames ?? [])
-						: [];
-				const componentOverrides = extractComponentOverrides(content);
+						? mdxOptions.optimize.ignoreElementNames
+						: undefined;
 
 				optimizeStatic = {
 					component: 'Fragment',
 					prop: 'set:html',
-					ignoreElements: [...userIgnore, ...componentOverrides],
+					...(ignoreElements && { ignoreElements }),
 				};
 			}
 
