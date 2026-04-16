@@ -8,6 +8,7 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 import { routeHasHtmlExtension } from './helpers.js';
 import { TrailingSlashHandler } from './trailing-slash-handler.js';
 import { type CacheLike, applyCacheHeaders } from '../cache/runtime/cache.js';
+import { AstroMiddleware } from '../middleware/astro-middleware.js';
 import { type AstroSession, PERSIST_SYMBOL } from '../session/runtime.js';
 import { getRenderOptions } from '../app/render-options.js';
 import { prepareResponse } from '../app/prepare-response.js';
@@ -16,10 +17,12 @@ import type { BaseApp, ResolvedRenderOptions } from '../app/base.js';
 export class AstroHandler {
 	#app: BaseApp<any>;
 	#trailingSlashHandler: TrailingSlashHandler;
+	#astroMiddleware: AstroMiddleware;
 
 	constructor(app: BaseApp<any>) {
 		this.#app = app;
 		this.#trailingSlashHandler = new TrailingSlashHandler(app);
+		this.#astroMiddleware = new AstroMiddleware(app.pipeline);
 	}
 
 	async handle(request: Request): Promise<Response> {
@@ -135,7 +138,7 @@ export class AstroHandler {
 							url: new URL(request.url),
 						},
 						async () => {
-							const res = await renderContext.render(componentInstance);
+							const res = await this.#astroMiddleware.handle(renderContext, componentInstance);
 							// Apply cache headers before the provider reads them
 							applyCacheHeaders(cache!, res);
 							return res;
@@ -145,12 +148,12 @@ export class AstroHandler {
 					response.headers.delete('CDN-Cache-Control');
 					response.headers.delete('Cache-Tag');
 				} else {
-					response = await renderContext.render(componentInstance);
+					response = await this.#astroMiddleware.handle(renderContext, componentInstance);
 					// Apply cache headers for CDN-based providers (no onRequest)
 					applyCacheHeaders(cache!, response);
 				}
 			} else {
-				response = await renderContext.render(componentInstance);
+				response = await this.#astroMiddleware.handle(renderContext, componentInstance);
 			}
 
 			const isRewrite = response.headers.has(REWRITE_DIRECTIVE_HEADER_KEY);
