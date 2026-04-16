@@ -68,6 +68,7 @@
     }
   },
   "devDependencies": {
+    "@napi-rs/wasm-runtime": "^1.1.2",
     "@types/estree": "^1.0.8",
     "@types/hast": "^3.0.4",
     "@types/js-yaml": "^4.0.9",

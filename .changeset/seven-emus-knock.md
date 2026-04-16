@@ -1,4 +1,6 @@
 ---
+'astro': patch
+'@astrojs/markdown-remark': patch
 '@astrojs/mdx': patch
 ---
 

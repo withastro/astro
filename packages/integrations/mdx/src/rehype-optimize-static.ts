@@ -12,7 +12,7 @@ type ParentNode = Element | MdxJsxFlowElementHast | MdxJsxTextElementHast;
 // Nodes that can have its children optimized as a single HTML string
 type OptimizableNode = Element | MdxJsxFlowElementHast | MdxJsxTextElementHast;
 
-export interface OptimizeOptions {
+interface OptimizeOptions {
 	ignoreElementNames?: string[];
 }
 

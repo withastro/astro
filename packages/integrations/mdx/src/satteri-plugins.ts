@@ -12,6 +12,7 @@ import {
 } from 'satteri';
 import Slugger from 'github-slugger';
 import type { MdxOptions } from './index.js';
+import { ASTRO_IMAGE_IMPORT, USES_ASTRO_IMAGE_FLAG } from './rehype-images-to-component.js';
 
 export type { MdastPluginDefinition, HastPluginDefinition };
 
@@ -71,9 +72,6 @@ function collectHastText(node: HastNode, frontmatter: Record<string, any> | unde
 	}
 	return text;
 }
-
-const ASTRO_IMAGE_IMPORT = '__AstroImage__';
-const USES_ASTRO_IMAGE_FLAG = '__usesAstroImage';
 
 const defaultExcludeLanguages = ['math'];
 

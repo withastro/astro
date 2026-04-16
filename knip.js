@@ -87,6 +87,12 @@ export default {
 			entry: [testEntry],
 			// package.json#imports are not resolved at the moment
 			ignore: ['src/import-plugin-browser.ts', 'src/shiki-engine-workerd.ts'],
+			ignoreDependencies: [
+				// Optional peer dep loaded dynamically by createSatteriMarkdownProcessor
+				'satteri',
+				// Pulled in indirectly through satteri's browser WASM shim during bundler tests
+				'@napi-rs/wasm-runtime',
+			],
 		},
 		'packages/upgrade': {
 			entry: ['src/index.ts', testEntry],
