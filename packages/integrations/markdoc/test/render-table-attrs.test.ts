@@ -13,7 +13,7 @@ describe('Markdoc - table attributes', () => {
 	describe('build', () => {
 		it('renders table with custom attributes without validation errors', async () => {
 			const fixture = await getFixture();
-			await fixture.build();
+			await fixture.build({});
 
 			const html = await fixture.readFile('/index.html');
 			const { document } = parseHTML(html);
@@ -23,7 +23,7 @@ describe('Markdoc - table attributes', () => {
 			assert.equal(th.textContent, 'Feature');
 
 			const td = document.querySelector('td');
-			assert.equal(td.textContent, 'Custom attributes');
+			assert.equal(td!.textContent, 'Custom attributes');
 		});
 	});
 
@@ -41,7 +41,7 @@ describe('Markdoc - table attributes', () => {
 			assert.equal(th.textContent, 'Feature');
 
 			const td = document.querySelector('td');
-			assert.equal(td.textContent, 'Custom attributes');
+			assert.equal(td!.textContent, 'Custom attributes');
 
 			await server.stop();
 		});
