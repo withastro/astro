@@ -1,23 +1,22 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Basics', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/basics/',
 		});
-		await fixture.build();
+		await fixture.build({});
 	});
 
 	it('Slots are added without the slot attribute', async () => {
 		const data = await fixture.readFile('/index.html');
 		const { document } = parseHTML(data);
-		const bar = document.querySelector('#foo');
+		const bar = document.querySelector('#foo')!;
 
 		assert.notEqual(bar, undefined);
 		assert.equal(bar.getAttribute('slot'), null);
@@ -26,7 +25,7 @@ describe('Basics', () => {
 	it('Can show images from public', async () => {
 		const data = await fixture.readFile('/public/index.html');
 		const { document } = parseHTML(data);
-		const img = document.querySelector('img');
+		const img = document.querySelector('img')!;
 
 		assert.notEqual(img, undefined);
 		assert.equal(img.getAttribute('src'), '/light_walrus.avif');

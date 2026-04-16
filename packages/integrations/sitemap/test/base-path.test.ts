@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { loadFixture, readXML } from './test-utils.js';
+import type { Fixture } from '../../../astro/test/test-utils.js';
 
 describe('URLs with base path', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	describe('using node adapter', () => {
 		before(async () => {
@@ -12,7 +12,7 @@ describe('URLs with base path', () => {
 				root: './fixtures/ssr/',
 				base: '/base',
 			});
-			await fixture.build();
+			await fixture.build({});
 		});
 
 		it('Base path is concatenated correctly', async () => {
@@ -34,7 +34,7 @@ describe('URLs with base path', () => {
 				root: './fixtures/static/',
 				base: '/base',
 			});
-			await fixture.build();
+			await fixture.build({});
 		});
 
 		it('Base path is concatenated correctly', async () => {

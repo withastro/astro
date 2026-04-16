@@ -34,7 +34,7 @@
     "@volar/language-server": "~2.4.28",
     "@volar/language-service": "~2.4.28",
     "muggle-string": "^0.4.1",
-    "tinyglobby": "^0.2.15",
+    "tinyglobby": "^0.2.16",
     "volar-service-css": "0.0.70",
     "volar-service-emmet": "0.0.70",
     "volar-service-html": "0.0.70",
