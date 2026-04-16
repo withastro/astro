@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 
-async function getFixture(name) {
+async function getFixture(name: string) {
 	return await loadFixture({
 		root: new URL(`./fixtures/${name}/`, import.meta.url),
 	});
@@ -75,7 +75,7 @@ describe('Markdoc - render', () => {
 	describe('build', () => {
 		it('renders content - simple', async () => {
 			const fixture = await getFixture('render-simple');
-			await fixture.build();
+			await fixture.build({});
 
 			const html = await fixture.readFile('/index.html');
 
@@ -84,7 +84,7 @@ describe('Markdoc - render', () => {
 
 		it('renders content - with partials', async () => {
 			const fixture = await getFixture('render-partials');
-			await fixture.build();
+			await fixture.build({});
 
 			const html = await fixture.readFile('/index.html');
 
@@ -93,7 +93,7 @@ describe('Markdoc - render', () => {
 
 		it('renders content - with config', async () => {
 			const fixture = await getFixture('render-with-config');
-			await fixture.build();
+			await fixture.build({});
 
 			const html = await fixture.readFile('/index.html');
 
@@ -102,7 +102,7 @@ describe('Markdoc - render', () => {
 
 		it('renders content - with `render: null` in document', async () => {
 			const fixture = await getFixture('render-null');
-			await fixture.build();
+			await fixture.build({});
 
 			const html = await fixture.readFile('/index.html');
 
@@ -111,7 +111,7 @@ describe('Markdoc - render', () => {
 
 		it('renders content - with root folder containing space', async () => {
 			const fixture = await getFixture('render with-space');
-			await fixture.build();
+			await fixture.build({});
 
 			const html = await fixture.readFile('/index.html');
 
@@ -120,7 +120,7 @@ describe('Markdoc - render', () => {
 
 		it('renders content - with typographer option', async () => {
 			const fixture = await getFixture('render-typographer');
-			await fixture.build();
+			await fixture.build({});
 
 			const html = await fixture.readFile('/index.html');
 
@@ -129,20 +129,16 @@ describe('Markdoc - render', () => {
 	});
 });
 
-/**
- * @param {string} html
- */
-function renderNullChecks(html) {
+function renderNullChecks(html: string) {
 	const { document } = parseHTML(html);
 	const h2 = document.querySelector('h2');
-	assert.equal(h2.textContent, 'Post with render null');
-	assert.equal(h2.parentElement?.tagName, 'BODY');
+	assert.equal(h2!.textContent, 'Post with render null');
+	assert.equal(h2!.parentElement?.tagName, 'BODY');
 	const divWrapper = document.querySelector('.div-wrapper');
-	assert.equal(divWrapper.textContent, "I'm inside a div wrapper");
+	assert.equal(divWrapper!.textContent, "I'm inside a div wrapper");
 }
 
-/** @param {string} html */
-function renderPartialsChecks(html) {
+function renderPartialsChecks(html: string) {
 	const { document } = parseHTML(html);
 	const top = document.querySelector('#top');
 	assert.ok(top);
@@ -152,11 +148,10 @@ function renderPartialsChecks(html) {
 	assert.ok(configured);
 }
 
-/** @param {string} html */
-function renderConfigChecks(html) {
+function renderConfigChecks(html: string) {
 	const { document } = parseHTML(html);
 	const h2 = document.querySelector('h2');
-	assert.equal(h2.textContent, 'Post with config');
+	assert.equal(h2!.textContent, 'Post with config');
 	const textContent = html;
 
 	assert.notEqual(textContent.includes('Hello'), true);
@@ -167,33 +162,29 @@ function renderConfigChecks(html) {
 	assert.equal(runtimeVariable?.textContent?.trim(), 'working!');
 }
 
-/** @param {string} html */
-function renderSimpleChecks(html) {
+function renderSimpleChecks(html: string) {
 	const { document } = parseHTML(html);
 	const h2 = document.querySelector('h2');
-	assert.equal(h2.textContent, 'Simple post');
+	assert.equal(h2!.textContent, 'Simple post');
 	const p = document.querySelector('p');
-	assert.equal(p.textContent, 'This is a simple Markdoc post.');
+	assert.equal(p!.textContent, 'This is a simple Markdoc post.');
 }
 
-/** @param {string} html */
-function renderWithRootFolderContainingSpace(html) {
+function renderWithRootFolderContainingSpace(html: string) {
 	const { document } = parseHTML(html);
 	const h2 = document.querySelector('h2');
-	assert.equal(h2.textContent, 'Simple post with root folder containing a space');
+	assert.equal(h2!.textContent, 'Simple post with root folder containing a space');
 	const p = document.querySelector('p');
-	assert.equal(p.textContent, 'This is a simple Markdoc post with root folder containing a space.');
+	assert.equal(p!.textContent, 'This is a simple Markdoc post with root folder containing a space.');
 }
 
-/**
- * @param {string} html
- */
-function renderTypographerChecks(html) {
+function renderTypographerChecks(html: string) {
 	const { document } = parseHTML(html);
 
 	const h2 = document.querySelector('h2');
-	assert.equal(h2.textContent, 'Typographer’s post');
+	assert.equal(h2!.textContent, 'Typographer’s post');
 
 	const p = document.querySelector('p');
-	assert.equal(p.textContent, 'This is a post to test the “typographer” option.');
+	assert.equal(p!.textContent, 'This is a post to test the “typographer” option.');
+
 }

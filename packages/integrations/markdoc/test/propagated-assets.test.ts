@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture, type Fixture, type DevServer } from '../../../astro/test/test-utils.js';
 
 describe('Markdoc - propagated assets', () => {
-	let fixture;
-	let devServer;
+	let fixture: Fixture;
+	let devServer: DevServer;
 	before(async () => {
 		fixture = await loadFixture({
 			root: new URL('./fixtures/propagated-assets/', import.meta.url),
@@ -18,14 +18,12 @@ describe('Markdoc - propagated assets', () => {
 
 	for (const mode of modes) {
 		describe(mode, () => {
-			/** @type {Document} */
-			let stylesDocument;
-			/** @type {Document} */
-			let scriptsDocument;
+			let stylesDocument: Document;
+			let scriptsDocument: Document;
 
 			before(async () => {
 				if (mode === 'prod') {
-					await fixture.build();
+					await fixture.build({});
 					stylesDocument = parseHTML(await fixture.readFile('/styles/index.html')).document;
 					scriptsDocument = parseHTML(await fixture.readFile('/scripts/index.html')).document;
 				} else if (mode === 'dev') {
@@ -50,7 +48,7 @@ describe('Markdoc - propagated assets', () => {
 				} else {
 					const links = stylesDocument.querySelectorAll('link[rel="stylesheet"]');
 					assert.equal(links.length, 1);
-					styleContents = await fixture.readFile(links[0].href);
+					styleContents = await fixture.readFile((links[0] as HTMLLinkElement).href);
 				}
 				assert.equal(styleContents.includes('--color-base-purple: 269, 79%;'), true);
 			});
