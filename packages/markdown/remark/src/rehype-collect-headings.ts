@@ -38,9 +38,9 @@ export function rehypeHeadingIds(): ReturnType<RehypePlugin> {
 						return;
 					}
 				}
-				if (rawNodeTypes.has(child.type)) {
-					if (isMDX || codeTagNames.has(parent.tagName)) {
-						let value = child.value;
+				if (rawNodeTypes.has(child.type) && 'value' in child) {
+					if (isMDX || ('tagName' in parent && codeTagNames.has(parent.tagName))) {
+						let value = child.value as string;
 						if (isMdxTextExpression(child) && frontmatter) {
 							const frontmatterPath = getMdxFrontmatterVariablePath(child);
 							if (Array.isArray(frontmatterPath) && frontmatterPath.length > 0) {
@@ -55,7 +55,7 @@ export function rehypeHeadingIds(): ReturnType<RehypePlugin> {
 						}
 						text += value;
 					} else {
-						text += child.value.replace(/\{/g, '${');
+						text += (child.value as string).replace(/\{/g, '${');
 					}
 				}
 			});

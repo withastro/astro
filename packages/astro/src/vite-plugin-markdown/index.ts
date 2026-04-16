@@ -88,8 +88,8 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 						processor = createSatteriMarkdownProcessor({
 							image: settings.config.image,
 							...settings.config.markdown,
-							mdastPlugins: nativeOpts?.mdastPlugins ?? [],
-							hastPlugins: nativeOpts?.hastPlugins ?? [],
+							mdastPlugins: nativeOpts?.mdastPlugins,
+							hastPlugins: nativeOpts?.hastPlugins,
 							features: nativeOpts?.features,
 						});
 					} else {

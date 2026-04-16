@@ -25,8 +25,8 @@ export const markdownContentEntryType: ContentEntryType = {
 			processor = await createSatteriMarkdownProcessor({
 				image: config.image,
 				...config.markdown,
-				mdastPlugins: nativeOpts?.mdastPlugins ?? [],
-				hastPlugins: nativeOpts?.hastPlugins ?? [],
+				mdastPlugins: nativeOpts?.mdastPlugins,
+				hastPlugins: nativeOpts?.hastPlugins,
 				features: nativeOpts?.features,
 			});
 		} else {

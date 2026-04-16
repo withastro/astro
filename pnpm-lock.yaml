@@ -678,7 +678,7 @@ importers:
         version: link:../language-tools/astro-check
       '@astrojs/compiler-rs':
         specifier: ^0.1.6
-        version: 0.1.6
+        version: 0.1.6(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)
       '@playwright/test':
         specifier: 1.58.2
         version: 1.58.2
@@ -751,6 +751,9 @@ importers:
       sass:
         specifier: ^1.98.0
         version: 1.98.0
+      satteri:
+        specifier: 0.2.5
+        version: 0.2.5
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -8174,9 +8177,6 @@ packages:
   '@emmetio/stream-reader@2.2.0':
     resolution: {integrity: sha512-fXVXEyFA5Yv3M3n8sUGT7+fvecGrZP4k6FnWWMSZVQf69kAq0LLpaBQLGcPR30m3zMmKYhECP4k/ZkzvhEW5kw==}
 
-  '@emnapi/core@1.8.1':
-    resolution: {integrity: sha512-AvT9QFpxK0Zd8J0jopedNm+w/2fIzvtPKPjqyw9jwvBaReTTqPBk9Hixaz7KbjimP+QNz605/XnjFcDAL2pqBg==}
-
   '@emnapi/core@1.9.1':
     resolution: {integrity: sha512-mukuNALVsoix/w1BJwFzwXBN/dHeejQtuVzcDsfOEsdpCumXb/E9j8w11h5S54tT1xhifGfbbSm/ICrObRb3KA==}
 
@@ -8185,9 +8185,6 @@ packages:
 
   '@emnapi/runtime@1.9.1':
     resolution: {integrity: sha512-VYi5+ZVLhpgK4hQ0TAjiQiZ6ol0oe4mBx7mVv7IflsiEp0OWoVsp/+f9Vc1hOhE0TtkORVrI1GvzyreqpgWtkA==}
-
-  '@emnapi/wasi-threads@1.1.0':
-    resolution: {integrity: sha512-WI0DdZ8xFSbgMjR1sFsKABJ/C5OnRrjT06JXbZKexJGrDuPTzZdDYfFlsgcCXCyf+suG5QU2e/y1Wo2V/OapLQ==}
 
   '@emnapi/wasi-threads@1.2.0':
     resolution: {integrity: sha512-N10dEJNSsUx41Z6pZsXU8FjPjpBEplgH24sfkmITrBED1/U2Esum9F3lfLrMjKHHjmi557zQn7kR9R+XWXu5Rg==}
@@ -16260,9 +16257,12 @@ snapshots:
   '@astrojs/compiler-binding-linux-x64-musl@0.1.6':
     optional: true
 
-  '@astrojs/compiler-binding-wasm32-wasi@0.1.6':
+  '@astrojs/compiler-binding-wasm32-wasi@0.1.6(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)':
     dependencies:
-      '@napi-rs/wasm-runtime': 1.1.1
+      '@napi-rs/wasm-runtime': 1.1.4(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)
+    transitivePeerDependencies:
+      - '@emnapi/core'
+      - '@emnapi/runtime'
     optional: true
 
   '@astrojs/compiler-binding-win32-arm64-msvc@0.1.6':
@@ -16271,7 +16271,7 @@ snapshots:
   '@astrojs/compiler-binding-win32-x64-msvc@0.1.6':
     optional: true
 
-  '@astrojs/compiler-binding@0.1.6':
+  '@astrojs/compiler-binding@0.1.6(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)':
     optionalDependencies:
       '@astrojs/compiler-binding-darwin-arm64': 0.1.6
       '@astrojs/compiler-binding-darwin-x64': 0.1.6
@@ -16279,13 +16279,19 @@ snapshots:
       '@astrojs/compiler-binding-linux-arm64-musl': 0.1.6
       '@astrojs/compiler-binding-linux-x64-gnu': 0.1.6
       '@astrojs/compiler-binding-linux-x64-musl': 0.1.6
-      '@astrojs/compiler-binding-wasm32-wasi': 0.1.6
+      '@astrojs/compiler-binding-wasm32-wasi': 0.1.6(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)
       '@astrojs/compiler-binding-win32-arm64-msvc': 0.1.6
       '@astrojs/compiler-binding-win32-x64-msvc': 0.1.6
+    transitivePeerDependencies:
+      - '@emnapi/core'
+      - '@emnapi/runtime'
 
-  '@astrojs/compiler-rs@0.1.6':
+  '@astrojs/compiler-rs@0.1.6(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)':
     dependencies:
-      '@astrojs/compiler-binding': 0.1.6
+      '@astrojs/compiler-binding': 0.1.6(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)
+    transitivePeerDependencies:
+      - '@emnapi/core'
+      - '@emnapi/runtime'
 
   '@astrojs/compiler@2.13.1': {}
 
@@ -17313,12 +17319,6 @@ snapshots:
 
   '@emmetio/stream-reader@2.2.0': {}
 
-  '@emnapi/core@1.8.1':
-    dependencies:
-      '@emnapi/wasi-threads': 1.1.0
-      tslib: 2.8.1
-    optional: true
-
   '@emnapi/core@1.9.1':
     dependencies:
       '@emnapi/wasi-threads': 1.2.0
@@ -17331,11 +17331,6 @@ snapshots:
     optional: true
 
   '@emnapi/runtime@1.9.1':
-    dependencies:
-      tslib: 2.8.1
-    optional: true
-
-  '@emnapi/wasi-threads@1.1.0':
     dependencies:
       tslib: 2.8.1
     optional: true
@@ -18082,8 +18077,8 @@ snapshots:
 
   '@napi-rs/wasm-runtime@1.1.1':
     dependencies:
-      '@emnapi/core': 1.8.1
-      '@emnapi/runtime': 1.8.1
+      '@emnapi/core': 1.9.1
+      '@emnapi/runtime': 1.9.1
       '@tybys/wasm-util': 0.10.1
     optional: true
 
