@@ -1,9 +1,6 @@
 import {
 	appendForwardSlash,
 	collapseDuplicateLeadingSlashes,
-	collapseDuplicateTrailingSlashes,
-	hasFileExtension,
-	isInternalPath,
 	joinPaths,
 	prependForwardSlash,
 	removeTrailingForwardSlash,
@@ -15,9 +12,7 @@ import type { RemotePattern, RouteData } from '../../types/public/index.js';
 import type { Pipeline } from '../base-pipeline.js';
 import {
 	clientAddressSymbol,
-	DEFAULT_404_COMPONENT,
 	NOOP_MIDDLEWARE_HEADER,
-	REROUTABLE_STATUS_CODES,
 	REROUTE_DIRECTIVE_HEADER,
 	responseSentSymbol,
 	REWRITE_DIRECTIVE_HEADER_KEY,
@@ -29,17 +24,14 @@ import {
 	getSetCookiesFromResponse,
 } from '../cookies/index.js';
 import { getCookiesFromResponse } from '../cookies/response.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { AstroIntegrationLogger, AstroLogger } from '../logger/core.js';
 import { type CreateRenderContext, RenderContext } from '../render-context.js';
-import { redirectTemplate } from '../routing/3xx.js';
 import { ensure404Route } from '../routing/astro-designed-error-pages.js';
-import { routeHasHtmlExtension } from '../routing/helpers.js';
 import { matchRoute } from '../routing/match.js';
-import { type CacheLike, applyCacheHeaders } from '../cache/runtime/cache.js';
 import { Router } from '../routing/router.js';
 import { type AstroSession, PERSIST_SYMBOL } from '../session/runtime.js';
+import { AstroHandler } from '../routing/handler.js';
 import type { AppPipeline } from './pipeline.js';
 import type { SSRManifest } from './types.js';
 
@@ -96,7 +88,7 @@ export interface RenderOptions {
 
 type RequiredRenderOptions = Required<RenderOptions>;
 
-interface ResolvedRenderOptions {
+export interface ResolvedRenderOptions {
 	addCookieHeader: RequiredRenderOptions['addCookieHeader'];
 	clientAddress: RequiredRenderOptions['clientAddress'] | undefined;
 	prerenderedErrorPageFetch: RequiredRenderOptions['prerenderedErrorPageFetch'] | undefined;
@@ -133,6 +125,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	baseWithoutTrailingSlash: string;
 	logger: AstroLogger;
 	#router: Router;
+	#handler: AstroHandler;
 	constructor(manifest: SSRManifest, streaming = true, ...args: any[]) {
 		this.manifest = manifest;
 		this.manifestData = { routes: manifest.routes.map((route) => route.routeData) };
@@ -147,6 +140,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		// to return the host 404 if the user doesn't provide a custom 404
 		ensure404Route(this.manifestData);
 		this.#router = this.createRouter(this.manifestData);
+		this.#handler = new AstroHandler(this);
 	}
 
 	public abstract isDev(): boolean;
@@ -347,34 +341,6 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		return pathname;
 	}
 
-	private redirectTrailingSlash(pathname: string): string {
-		const { trailingSlash } = this.manifest;
-
-		// Ignore root and internal paths
-		if (pathname === '/' || isInternalPath(pathname)) {
-			return pathname;
-		}
-
-		// Redirect multiple trailing slashes to collapsed path
-		const path = collapseDuplicateTrailingSlashes(pathname, trailingSlash !== 'never');
-		if (path !== pathname) {
-			return path;
-		}
-
-		if (trailingSlash === 'ignore') {
-			return pathname;
-		}
-
-		if (trailingSlash === 'always' && !hasFileExtension(pathname)) {
-			return appendForwardSlash(pathname);
-		}
-		if (trailingSlash === 'never') {
-			return removeTrailingForwardSlash(pathname);
-		}
-
-		return pathname;
-	}
-
 	public async render(
 		request: Request,
 		{
@@ -385,188 +351,16 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			routeData,
 		}: RenderOptions = {},
 	): Promise<Response> {
-		const timeStart = performance.now();
-		const url = new URL(request.url);
-		const redirect = this.redirectTrailingSlash(url.pathname);
-
-		if (redirect !== url.pathname) {
-			const status = request.method === 'GET' ? 301 : 308;
-			const response = new Response(
-				redirectTemplate({
-					status,
-					relativeLocation: url.pathname,
-					absoluteLocation: redirect,
-					from: request.url,
-				}),
-				{
-					status,
-					headers: {
-						location: redirect + url.search,
-					},
-				},
-			);
-			this.#prepareResponse(response, { addCookieHeader });
-			return response;
-		}
-
-		if (routeData) {
-			this.logger.debug(
-				'router',
-				'The adapter ' + this.manifest.adapterName + ' provided a custom RouteData for ',
-				request.url,
-			);
-			this.logger.debug('router', 'RouteData');
-			this.logger.debug('router', routeData);
-		}
-
-		const resolvedRenderOptions: ResolvedRenderOptions = {
+		return this.#handler.handle(request, {
 			addCookieHeader,
 			clientAddress,
 			prerenderedErrorPageFetch,
 			locals,
 			routeData,
-		};
-
-		if (locals) {
-			if (typeof locals !== 'object') {
-				const error = new AstroError(AstroErrorData.LocalsNotAnObject);
-				this.logger.error(null, error.stack!);
-				return this.renderError(request, {
-					...resolvedRenderOptions,
-					// If locals are invalid, we don't want to include them when
-					// rendering the error page
-					locals: undefined,
-					status: 500,
-					error,
-				});
-			}
-		}
-		if (!routeData) {
-			if (this.isDev()) {
-				const result = await this.devMatch(this.getPathnameFromRequest(request));
-				if (result) {
-					routeData = result.routeData;
-				}
-			} else {
-				routeData = this.match(request);
-			}
-
-			this.logger.debug('router', 'Astro matched the following route for ' + request.url);
-			this.logger.debug('router', 'RouteData:\n' + routeData);
-		}
-		// At this point we haven't found a route that matches the request, so we create
-		// a "fake" 404 route, so we can call the RenderContext.render
-		// and hit the middleware, which might be able to return a correct Response.
-		if (!routeData) {
-			routeData = this.manifestData.routes.find(
-				(route) => route.component === '404.astro' || route.component === DEFAULT_404_COMPONENT,
-			);
-		}
-		if (!routeData) {
-			this.logger.debug('router', "Astro hasn't found routes that match " + request.url);
-			this.logger.debug('router', "Here's the available routes:\n", this.manifestData);
-			return this.renderError(request, {
-				...resolvedRenderOptions,
-				status: 404,
-			});
-		}
-		let pathname = this.getPathnameFromRequest(request);
-		// In dev, the route may have matched a normalized pathname (after .html stripping).
-		// Skip normalization if the route already has an .html extension in its definition.
-		if (this.isDev() && !routeHasHtmlExtension(routeData)) {
-			pathname = pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
-		}
-		const defaultStatus = this.getDefaultStatusCode(routeData, pathname);
-
-		let response;
-		let session: AstroSession | undefined;
-		let cache: CacheLike | undefined;
-		try {
-			// Load route module. We also catch its error here if it fails on initialization
-			const componentInstance = await this.pipeline.getComponentByRoute(routeData);
-			const renderContext = await this.createRenderContext({
-				pipeline: this.pipeline,
-				locals,
-				pathname,
-				request,
-				routeData,
-				status: defaultStatus,
-				clientAddress,
-			});
-			session = renderContext.session;
-			cache = renderContext.cache;
-
-			if (this.pipeline.cacheProvider) {
-				// If the cache provider has an onRequest handler (runtime caching),
-				// wrap the render call so the provider can serve from cache
-				const cacheProvider = await this.pipeline.getCacheProvider();
-				if (cacheProvider?.onRequest) {
-					response = await cacheProvider.onRequest(
-						{
-							request,
-							url: new URL(request.url),
-						},
-						async () => {
-							const res = await renderContext.render(componentInstance);
-							// Apply cache headers before the provider reads them
-							applyCacheHeaders(cache!, res);
-							return res;
-						},
-					);
-					// Strip CDN headers after the runtime provider has read them
-					response.headers.delete('CDN-Cache-Control');
-					response.headers.delete('Cache-Tag');
-				} else {
-					response = await renderContext.render(componentInstance);
-					// Apply cache headers for CDN-based providers (no onRequest)
-					applyCacheHeaders(cache!, response);
-				}
-			} else {
-				response = await renderContext.render(componentInstance);
-			}
-
-			const isRewrite = response.headers.has(REWRITE_DIRECTIVE_HEADER_KEY);
-
-			this.logThisRequest({
-				pathname,
-				method: request.method,
-				statusCode: response.status,
-				isRewrite,
-				timeStart,
-			});
-		} catch (err: any) {
-			this.logger.error(null, err.stack || err.message || String(err));
-			return this.renderError(request, {
-				...resolvedRenderOptions,
-				status: 500,
-				error: err,
-			});
-		} finally {
-			await session?.[PERSIST_SYMBOL]();
-		}
-
-		if (
-			REROUTABLE_STATUS_CODES.includes(response.status) &&
-			// If the body isn't null, that means the user sets the 404 status
-			// but uses the current route to handle the 404
-			response.body === null &&
-			response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
-		) {
-			return this.renderError(request, {
-				...resolvedRenderOptions,
-				response,
-				status: response.status as 404 | 500,
-				// We don't have an error to report here. Passing null means we pass nothing intentionally
-				// while undefined means there's no error
-				error: response.status === 500 ? null : undefined,
-			});
-		}
-
-		this.#prepareResponse(response, { addCookieHeader });
-		return response;
+		});
 	}
 
-	#prepareResponse(response: Response, { addCookieHeader }: { addCookieHeader: boolean }): void {
+	prepareResponse(response: Response, { addCookieHeader }: { addCookieHeader: boolean }): void {
 		// We remove internally-used header before we send the response to the user agent.
 		for (const headerName of [
 			REROUTE_DIRECTIVE_HEADER,
@@ -647,7 +441,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 					const override = { status, removeContentEncodingHeaders: true };
 
 					const newResponse = this.mergeResponses(response, originalResponse, override);
-					this.#prepareResponse(newResponse, resolvedRenderOptions);
+					this.prepareResponse(newResponse, resolvedRenderOptions);
 					return newResponse;
 				}
 			}
@@ -668,7 +462,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				session = renderContext.session;
 				const response = await renderContext.render(mod);
 				const newResponse = this.mergeResponses(response, originalResponse);
-				this.#prepareResponse(newResponse, resolvedRenderOptions);
+				this.prepareResponse(newResponse, resolvedRenderOptions);
 				return newResponse;
 			} catch {
 				// Middleware may be the cause of the error, so we try rendering 404/500.astro without it.
@@ -686,7 +480,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		}
 
 		const response = this.mergeResponses(new Response(null, { status }), originalResponse);
-		this.#prepareResponse(response, resolvedRenderOptions);
+		this.prepareResponse(response, resolvedRenderOptions);
 		return response;
 	}
 
@@ -774,7 +568,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		});
 
 		// Transfer AstroCookies from the original or new response so that
-		// #prepareResponse can read them when addCookieHeader is true.
+		// prepareResponse can read them when addCookieHeader is true.
 		const originalCookies = getCookiesFromResponse(originalResponse);
 		const newCookies = getCookiesFromResponse(newResponse);
 		if (originalCookies) {
