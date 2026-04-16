@@ -1,5 +1,25 @@
 # astro
 
+## 6.1.7
+
+### Patch Changes
+
+- [#16027](https://github.com/withastro/astro/pull/16027) [`c62516b`](https://github.com/withastro/astro/commit/c62516bbbf8fdf95d38293440d28221c048c41f0) Thanks [@fkatsuhiro](https://github.com/fkatsuhiro)! - Fixes a bug where remote image dimensions were not validated during static builds on Netlify.
+
+- [#16311](https://github.com/withastro/astro/pull/16311) [`94048f2`](https://github.com/withastro/astro/commit/94048f27c30f47ae0e01f90231e0496ed80595f7) Thanks [@Arecsu](https://github.com/Arecsu)! - Fixes `--port` flag being ignored after a Vite-triggered server restart (e.g. when a `.env` file changes)
+
+- [#16316](https://github.com/withastro/astro/pull/16316) [`0fcd04c`](https://github.com/withastro/astro/commit/0fcd04cc985002b56c9e2d36bcb68da0d3f08d5f) Thanks [@ematipico](https://github.com/ematipico)! - Fixes the `/_image` endpoint accepting an arbitrary `f=svg` query parameter and serving non-SVG content as `image/svg+xml`. The endpoint now validates that the source is actually SVG before honoring `f=svg`, matching the same guard already enforced on the `<Image>` component path.
+
+## 6.1.6
+
+### Patch Changes
+
+- [#16202](https://github.com/withastro/astro/pull/16202) [`b5c2fba`](https://github.com/withastro/astro/commit/b5c2fba8bf2bc315db94e525f12f7661dd357822) Thanks [@matthewp](https://github.com/matthewp)! - Fixes Actions failing with `ActionsWithoutServerOutputError` when using `output: 'static'` with an adapter
+
+- [#16303](https://github.com/withastro/astro/pull/16303) [`b06eabf`](https://github.com/withastro/astro/commit/b06eabf01afda713066feb803bbc4c89af634aaf) Thanks [@matthewp](https://github.com/matthewp)! - Improves handling of special characters in inline `<script>` content
+
+- [#14924](https://github.com/withastro/astro/pull/14924) [`bb4586a`](https://github.com/withastro/astro/commit/bb4586a73e32659e6cd4f610799799b634cfc658) Thanks [@aralroca](https://github.com/aralroca)! - Fixes SCSS and CSS module file changes triggering a full page reload instead of hot-updating styles in place during development
+
 ## 6.1.5
 
 ### Patch Changes
