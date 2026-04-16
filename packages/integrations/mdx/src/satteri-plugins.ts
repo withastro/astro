@@ -8,6 +8,7 @@ import {
 	type HastVisitorContext,
 	type MdastPluginDefinition,
 	type HastPluginDefinition,
+	type MdxJsxAttributeNode,
 } from 'satteri';
 import Slugger from 'github-slugger';
 import type { MdxOptions } from './index.js';
@@ -70,6 +71,9 @@ function collectHastText(node: HastNode, frontmatter: Record<string, any> | unde
 	}
 	return text;
 }
+
+const ASTRO_IMAGE_IMPORT = '__AstroImage__';
+const USES_ASTRO_IMAGE_FLAG = '__usesAstroImage';
 
 const defaultExcludeLanguages = ['math'];
 
@@ -340,6 +344,93 @@ function createCollectImagesPlugin(
 	});
 }
 
+interface ImageImportInfo {
+	importedImages: Map<string, string>;
+	hasImages: boolean;
+}
+
+function makeJsxAttr(name: string, value: string): MdxJsxAttributeNode {
+	return { type: 'mdxJsxAttribute', name, value };
+}
+
+function makeJsxExprAttr(name: string, expression: string): MdxJsxAttributeNode {
+	return {
+		type: 'mdxJsxAttribute',
+		name,
+		value: { type: 'mdxJsxAttributeValueExpression', value: expression },
+	};
+}
+
+function createImageToComponentPlugin(
+	localImagePaths: Set<string>,
+	remoteImagePaths: Set<string>,
+	imageImportInfo: ImageImportInfo,
+): HastPluginDefinition {
+	return defineHastPlugin({
+		name: 'image-to-component',
+		element: {
+			filter: ['img'],
+			visit(node) {
+				const src = node.properties?.src;
+				if (typeof src !== 'string') return;
+
+				const decodedSrc = decodeURI(src);
+				const isLocal = localImagePaths.has(decodedSrc);
+				const isRemote = remoteImagePaths.has(decodedSrc);
+				if (!isLocal && !isRemote) return;
+
+				const attrs: MdxJsxAttributeNode[] = [];
+
+				if (node.properties) {
+					for (const [key, value] of Object.entries(node.properties)) {
+						if (key === 'src') continue;
+						if (value == null || value === false) continue;
+
+						if (key === 'widths' || key === 'densities') {
+							attrs.push(
+								makeJsxExprAttr(key, JSON.stringify(String(value).split(' '))),
+							);
+						} else {
+							const attrName =
+								key === 'className' ? 'class' : key === 'htmlFor' ? 'for' : key;
+							attrs.push(makeJsxAttr(attrName, String(value)));
+						}
+					}
+				}
+
+				if (isLocal) {
+					let importName = imageImportInfo.importedImages.get(decodedSrc);
+					if (!importName) {
+						importName = `__${imageImportInfo.importedImages.size}_${decodedSrc.replace(/\W/g, '_')}__`;
+						imageImportInfo.importedImages.set(decodedSrc, importName);
+					}
+					attrs.push(makeJsxExprAttr('src', importName));
+				} else {
+					const hasWidth = node.properties && 'width' in node.properties;
+					const hasHeight = node.properties && 'height' in node.properties;
+					if (!hasWidth || !hasHeight) {
+						attrs.push(makeJsxExprAttr('inferSize', 'true'));
+					}
+					attrs.push(makeJsxAttr('src', decodedSrc));
+				}
+
+				imageImportInfo.hasImages = true;
+
+				// Use __AstroImage__ as the component name. Satteri will compile this to
+				// _jsx(__AstroImage__, ...) which resolves to the module-scope import we
+				// inject after compilation. We clean up the _components destructuring and
+				// _missingMdxReference check in post-processing.
+				return {
+					type: 'mdxJsxTextElement',
+					name: ASTRO_IMAGE_IMPORT,
+					attributes: attrs,
+					children: [],
+				} as unknown as HastNode;
+			},
+		},
+	});
+}
+
 function createHeadingIdsPlugin(
 	headings: MarkdownHeading[],
 	frontmatter: Record<string, any> | undefined,
@@ -491,6 +582,15 @@ export function createMdxProcessor(mdxOptions: MdxOptions) {
 			const collectImages = createCollectImagesPlugin(localImagePaths, remoteImagePaths);
 			const headingIds = createHeadingIdsPlugin(headings, frontmatter);
 			const astroMeta = createAstroMetadataPlugin(astroMetadata, filePath);
+			const imageImportInfo: ImageImportInfo = {
+				importedImages: new Map(),
+				hasImages: false,
+			};
+			const imageToComponent = createImageToComponentPlugin(
+				localImagePaths,
+				remoteImagePaths,
+				imageImportInfo,
+			);
 
 			const syntaxHighlight = mdxOptions.syntaxHighlight;
 			const excludeLangs =
@@ -504,7 +604,7 @@ export function createMdxProcessor(mdxOptions: MdxOptions) {
 			if (highlightFn) {
 				hastPlugins.push(createShikiPlugin(highlightFn, excludeLangs));
 			}
-			hastPlugins.push(headingIds, astroMeta);
+			hastPlugins.push(headingIds, imageToComponent, astroMeta);
 			if (mdxOptions.hastPlugins?.length) {
 				hastPlugins.push(...mdxOptions.hastPlugins);
 			}
@@ -532,6 +632,29 @@ export function createMdxProcessor(mdxOptions: MdxOptions) {
 			});
 
 			compiled = compiled.replace(/^export default MDXContent;\s*$/m, '');
+
+			if (imageImportInfo.hasImages) {
+				// Remove satteri's _components destructuring and missing reference check
+				// for __AstroImage__ — we provide it via a module-level import instead.
+				compiled = compiled.replace(
+					new RegExp(
+						`\\s*const\\s*\\{\\s*${ASTRO_IMAGE_IMPORT}\\s*\\}\\s*=\\s*_components;`,
+					),
+					'',
+				);
+				compiled = compiled.replace(
+					new RegExp(
+						`\\s*if\\s*\\(!${ASTRO_IMAGE_IMPORT}\\)\\s*_missingMdxReference\\([^)]*\\);`,
+					),
+					'',
+				);
+
+				compiled += `\nimport { Image as ${ASTRO_IMAGE_IMPORT} } from "astro:assets";`;
+				for (const [src, importName] of imageImportInfo.importedImages) {
+					compiled += `\nimport ${importName} from ${JSON.stringify(src)};`;
+				}
+				compiled += `\nexport const ${USES_ASTRO_IMAGE_FLAG} = true;`;
+			}
 
 			compiled += `\nexport const frontmatter = ${JSON.stringify(frontmatter)};`;
 			compiled += `\nexport function getHeadings() { return ${JSON.stringify(headings)}; }`;
