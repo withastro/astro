@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture, type Fixture, type DevServer } from '../../../astro/test/test-utils.js';
 
 /**
  * @see https://github.com/withastro/astro/issues/14252
@@ -11,7 +11,7 @@ import { loadFixture } from '../../../astro/test/test-utils.js';
  * the condition is initially false during SSR.
  */
 
-let fixture;
+let fixture: Fixture;
 
 describe('Conditional rendering styles', () => {
 	before(async () => {
@@ -22,7 +22,7 @@ describe('Conditional rendering styles', () => {
 
 	describe('build', () => {
 		before(async () => {
-			await fixture.build();
+			await fixture.build({});
 		});
 
 		it('includes styles for conditionally rendered Svelte components', async () => {
@@ -60,7 +60,7 @@ describe('Conditional rendering styles', () => {
 	});
 
 	describe('dev', () => {
-		let devServer;
+		let devServer: DevServer;
 
 		before(async () => {
 			devServer = await fixture.startDevServer();
