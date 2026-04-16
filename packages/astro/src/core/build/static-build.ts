@@ -400,9 +400,6 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 							: { input: 'astro/entrypoints/prerender' }),
 						output: {
 							entryFileNames: `${PRERENDER_ENTRY_FILENAME_PREFIX}.[hash].mjs`,
-							chunkFileNames(chunkInfo) {
-								return `${cleanChunkName(chunkInfo.name)}-[hash].js`;
-							},
 							format: 'esm',
 							...viteConfig.environments?.prerender?.build?.rollupOptions?.output,
 						},
@@ -438,9 +435,6 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					outDir: fileURLToPath(getServerOutputDirectory(settings)),
 					rollupOptions: {
 						output: {
-							chunkFileNames(chunkInfo) {
-								return `${cleanChunkName(chunkInfo.name)}-[hash].js`;
-							},
 							...viteConfig.environments?.ssr?.build?.rollupOptions?.output,
 						},
 					},
