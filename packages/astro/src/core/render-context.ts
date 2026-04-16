@@ -1,6 +1,5 @@
 import colors from 'piccolore';
 import { deserializeActionResult } from '../actions/runtime/client.js';
-import { getActionContext } from '../actions/runtime/server.js';
 import type { ActionAPIContext } from '../actions/runtime/types.js';
 import { createCallAction, createGetActionResult, hasActionPayload } from '../actions/utils.js';
 import {
@@ -344,18 +343,6 @@ export class RenderContext {
 			);
 		}
 		let response: Response;
-
-		// Only auto-execute form actions when middleware is part of the pipeline.
-		// When middleware is skipped (e.g. during error page recovery), form actions
-		// should not run since the full request handling pipeline is not active.
-		if (!ctx.isPrerendered && !this.skipMiddleware) {
-			const { action, setActionResult, serializeActionResult } = getActionContext(ctx);
-
-			if (action?.calledFrom === 'form') {
-				const actionResult = await action.handler();
-				setActionResult(action.name, serializeActionResult(actionResult));
-			}
-		}
 
 		const componentInstance = componentRef.current;
 		switch (this.routeData.type) {
