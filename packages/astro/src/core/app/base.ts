@@ -12,6 +12,7 @@ import type { RemotePattern, RouteData } from '../../types/public/index.js';
 import type { Pipeline } from '../base-pipeline.js';
 import { clientAddressSymbol } from '../constants.js';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
+import { AstroError, AstroErrorData } from '../errors/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { AstroIntegrationLogger, AstroLogger } from '../logger/core.js';
 import { type CreateRenderContext, RenderContext } from '../render-context.js';
@@ -96,6 +97,11 @@ export interface RenderErrorOptions extends ResolvedRenderOptions {
 	 * Allows passing an error to 500.astro. It will be available through `Astro.props.error`.
 	 */
 	error?: unknown;
+	/**
+	 * The pathname to use for the error page render context. If omitted, the
+	 * error handler computes it from `request` via a short-lived `FetchState`.
+	 */
+	pathname?: string;
 }
 
 type ErrorPagePath =
@@ -204,23 +210,6 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			return pathname.slice(this.baseWithoutTrailingSlash.length + 1);
 		}
 		return pathname;
-	}
-
-	/**
-	 * It removes the base from the request URL, prepends it with a forward slash and attempts to decoded it.
-	 *
-	 * If the decoding fails, it logs the error and return the pathname as is.
-	 * @param request
-	 */
-	public getPathnameFromRequest(request: Request): string {
-		const url = new URL(request.url);
-		const pathname = prependForwardSlash(this.removeBase(url.pathname));
-		try {
-			return decodeURI(pathname);
-		} catch (e: any) {
-			this.getAdapterLogger().error(e.toString());
-			return pathname;
-		}
 	}
 
 	/**
@@ -350,6 +339,32 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			routeData,
 		}: RenderOptions = {},
 	): Promise<Response> {
+		if (routeData) {
+			this.logger.debug(
+				'router',
+				'The adapter ' + this.manifest.adapterName + ' provided a custom RouteData for ',
+				request.url,
+			);
+			this.logger.debug('router', 'RouteData');
+			this.logger.debug('router', routeData);
+		}
+		if (locals) {
+			if (typeof locals !== 'object') {
+				const error = new AstroError(AstroErrorData.LocalsNotAnObject);
+				this.logger.error(null, error.stack!);
+				return this.renderError(request, {
+					addCookieHeader,
+					clientAddress,
+					prerenderedErrorPageFetch,
+					// If locals are invalid, we don't want to include them when
+					// rendering the error page
+					locals: undefined,
+					routeData,
+					status: 500,
+					error,
+				});
+			}
+		}
 		setRenderOptions(request, {
 			addCookieHeader,
 			clientAddress,

@@ -1,4 +1,5 @@
 import type { BaseApp, RenderErrorOptions } from '../app/base.js';
+import { FetchState } from '../app/fetch-state.js';
 import { prepareResponse } from '../app/prepare-response.js';
 import {
 	AstroCookies,
@@ -37,10 +38,12 @@ export class DefaultErrorHandler implements ErrorHandler {
 			response: originalResponse,
 			skipMiddleware = false,
 			error,
+			pathname,
 			...resolvedRenderOptions
 		}: RenderErrorOptions,
 	): Promise<Response> {
 		const app = this.#app;
+		const resolvedPathname = pathname ?? new FetchState(app, request).pathname;
 		const errorRoutePath = `/${status}${app.manifest.trailingSlash === 'always' ? '/' : ''}`;
 		const errorRouteData = matchRoute(errorRoutePath, app.manifestData);
 		const url = new URL(request.url);
@@ -83,7 +86,7 @@ export class DefaultErrorHandler implements ErrorHandler {
 					locals: resolvedRenderOptions.locals,
 					pipeline: app.pipeline,
 					skipMiddleware,
-					pathname: app.getPathnameFromRequest(request),
+					pathname: resolvedPathname,
 					request,
 					routeData: errorRouteData,
 					status,
@@ -103,6 +106,7 @@ export class DefaultErrorHandler implements ErrorHandler {
 						status,
 						response: originalResponse,
 						skipMiddleware: true,
+						pathname: resolvedPathname,
 					});
 				}
 			} finally {

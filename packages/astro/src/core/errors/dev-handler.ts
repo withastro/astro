@@ -1,4 +1,5 @@
 import type { BaseApp, RenderErrorOptions } from '../app/base.js';
+import { FetchState } from '../app/fetch-state.js';
 import type { RouteData } from '../../types/public/index.js';
 import { getCustom404Route, getCustom500Route } from '../routing/helpers.js';
 import { type AstroError, isAstroError } from './index.js';
@@ -35,6 +36,7 @@ export class DevErrorHandler implements ErrorHandler {
 			error,
 			status,
 			response: _response,
+			pathname,
 			...resolvedRenderOptions
 		}: RenderErrorOptions,
 	): Promise<Response> {
@@ -50,6 +52,7 @@ export class DevErrorHandler implements ErrorHandler {
 
 		const app = this.#app;
 		const shouldInjectCspMetaTags = this.#shouldInjectCspMetaTags;
+		const resolvedPathname = pathname ?? new FetchState(app, request).pathname;
 
 		const renderRoute = async (routeData: RouteData): Promise<Response> => {
 			try {
@@ -57,7 +60,7 @@ export class DevErrorHandler implements ErrorHandler {
 				const renderContext = await app.createRenderContext({
 					locals: resolvedRenderOptions.locals,
 					pipeline: app.pipeline,
-					pathname: app.getPathnameFromRequest(request),
+					pathname: resolvedPathname,
 					skipMiddleware,
 					request,
 					routeData,
@@ -84,6 +87,7 @@ export class DevErrorHandler implements ErrorHandler {
 						status: 500,
 						skipMiddleware: true,
 						error: _err,
+						pathname: resolvedPathname,
 					});
 				}
 				// If even skipping the middleware isn't enough to prevent the error, show the dev overlay

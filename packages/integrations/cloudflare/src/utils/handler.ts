@@ -4,6 +4,7 @@ import {
 	compileImageConfig,
 	isPrerender,
 } from 'virtual:astro-cloudflare:config';
+import { prependForwardSlash } from '@astrojs/internal-helpers/path';
 import { createApp } from 'astro/app/entrypoint';
 import { setGetEnv } from 'astro/env/setup';
 import { createGetEnv } from '../utils/env.js';
@@ -72,7 +73,14 @@ export async function handle(
 
 	let routeData: RouteData | undefined = undefined;
 	if (app.isDev()) {
-		const result = await app.devMatch(app.getPathnameFromRequest(request));
+		const url = new URL(request.url);
+		let pathname = prependForwardSlash(app.removeBase(url.pathname));
+		try {
+			pathname = decodeURI(pathname);
+		} catch (e: any) {
+			app.getAdapterLogger().error(e.toString());
+		}
+		const result = await app.devMatch(pathname);
 		if (result) {
 			routeData = result.routeData;
 		}

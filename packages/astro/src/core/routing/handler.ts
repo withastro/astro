@@ -1,15 +1,13 @@
 import {
-	DEFAULT_404_COMPONENT,
 	REROUTABLE_STATUS_CODES,
 	REROUTE_DIRECTIVE_HEADER,
 	REWRITE_DIRECTIVE_HEADER_KEY,
 } from '../constants.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
-import { routeHasHtmlExtension } from './helpers.js';
 import { TrailingSlashHandler } from './trailing-slash-handler.js';
 import { type CacheLike, applyCacheHeaders } from '../cache/runtime/cache.js';
 import { AstroMiddleware } from '../middleware/astro-middleware.js';
 import { type AstroSession, PERSIST_SYMBOL } from '../session/runtime.js';
+import { FetchState } from '../app/fetch-state.js';
 import { getRenderOptions } from '../app/render-options.js';
 import { prepareResponse } from '../app/prepare-response.js';
 import type { BaseApp, ResolvedRenderOptions } from '../app/base.js';
@@ -36,77 +34,28 @@ export class AstroHandler {
 		const clientAddress = options?.clientAddress;
 		const locals = options?.locals;
 		const prerenderedErrorPageFetch = options?.prerenderedErrorPageFetch ?? fetch;
-		let routeData = options?.routeData;
 
 		const timeStart = performance.now();
 
-		if (routeData) {
-			this.#app.logger.debug(
-				'router',
-				'The adapter ' + this.#app.manifest.adapterName + ' provided a custom RouteData for ',
-				request.url,
-			);
-			this.#app.logger.debug('router', 'RouteData');
-			this.#app.logger.debug('router', routeData);
-		}
+		const state = new FetchState(this.#app, request);
 
 		const resolvedRenderOptions: ResolvedRenderOptions = {
 			addCookieHeader,
 			clientAddress,
 			prerenderedErrorPageFetch,
 			locals,
-			routeData,
+			routeData: state.routeData,
 		};
 
-		if (locals) {
-			if (typeof locals !== 'object') {
-				const error = new AstroError(AstroErrorData.LocalsNotAnObject);
-				this.#app.logger.error(null, error.stack!);
-				return this.#app.renderError(request, {
-					...resolvedRenderOptions,
-					// If locals are invalid, we don't want to include them when
-					// rendering the error page
-					locals: undefined,
-					status: 500,
-					error,
-				});
-			}
-		}
-		if (!routeData) {
-			if (this.#app.isDev()) {
-				const result = await this.#app.devMatch(this.#app.getPathnameFromRequest(request));
-				if (result) {
-					routeData = result.routeData;
-				}
-			} else {
-				routeData = this.#app.match(request);
-			}
-
-			this.#app.logger.debug('router', 'Astro matched the following route for ' + request.url);
-			this.#app.logger.debug('router', 'RouteData:\n' + routeData);
-		}
-		// At this point we haven't found a route that matches the request, so we create
-		// a "fake" 404 route, so we can call the RenderContext.render
-		// and hit the middleware, which might be able to return a correct Response.
-		if (!routeData) {
-			routeData = this.#app.manifestData.routes.find(
-				(route) => route.component === '404.astro' || route.component === DEFAULT_404_COMPONENT,
-			);
-		}
-		if (!routeData) {
-			this.#app.logger.debug('router', "Astro hasn't found routes that match " + request.url);
-			this.#app.logger.debug('router', "Here's the available routes:\n", this.#app.manifestData);
+		if (!(await state.validateRouteData())) {
 			return this.#app.renderError(request, {
 				...resolvedRenderOptions,
 				status: 404,
+				pathname: state.pathname,
 			});
 		}
-		let pathname = this.#app.getPathnameFromRequest(request);
-		// In dev, the route may have matched a normalized pathname (after .html stripping).
-		// Skip normalization if the route already has an .html extension in its definition.
-		if (this.#app.isDev() && !routeHasHtmlExtension(routeData)) {
-			pathname = pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
-		}
+		const routeData = state.routeData!;
+		const pathname = state.pathname;
 		const defaultStatus = this.#app.getDefaultStatusCode(routeData, pathname);
 
 		let response;
@@ -171,6 +120,7 @@ export class AstroHandler {
 				...resolvedRenderOptions,
 				status: 500,
 				error: err,
+				pathname: state.pathname,
 			});
 		} finally {
 			await session?.[PERSIST_SYMBOL]();
@@ -190,6 +140,7 @@ export class AstroHandler {
 				// We don't have an error to report here. Passing null means we pass nothing intentionally
 				// while undefined means there's no error
 				error: response.status === 500 ? null : undefined,
+				pathname: state.pathname,
 			});
 		}
 
