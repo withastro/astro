@@ -32,7 +32,7 @@ const modes: PersistenceMode[] = [
 	},
 	{
 		label: 'chunking enabled',
-		async save(store, dir) {
+		async save(store, _dir) {
 			// fromDir sets up the internal state for chunked writes;
 			// writeToDisk dispatches to writeToDir when chunking is active.
 			await store.writeToDisk();
