@@ -206,6 +206,9 @@ function renderHTMLWithinPartialChecks(html: string) {
 	assert.equal(li.textContent, 'List item');
 }
 
+/**
+ * Asserts that the rendered HTML tags with interleaved Markdoc tags (both block and inline) rendered in the expected nested graph of elements
+ */
 function renderComponentsHTMLChecks(html: string) {
 	const { document } = parseHTML(html);
 
