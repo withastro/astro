@@ -1,4 +1,5 @@
 import type { MiddlewareNext } from '../../types/public/common.js';
+import type { WaitUntilHook } from '../wait-until.js';
 
 export interface CacheOptions {
 	maxAge?: number;
@@ -31,7 +32,7 @@ export interface CacheProvider {
 		context: {
 			request: Request;
 			url: URL;
-			waitUntil?: (promise: Promise<unknown>) => void;
+			waitUntil?: WaitUntilHook;
 		},
 		next: MiddlewareNext,
 	): Promise<Response>;

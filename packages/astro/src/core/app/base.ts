@@ -40,6 +40,7 @@ import { matchRoute } from '../routing/match.js';
 import { type CacheLike, applyCacheHeaders } from '../cache/runtime/cache.js';
 import { Router } from '../routing/router.js';
 import { type AstroSession, PERSIST_SYMBOL } from '../session/runtime.js';
+import type { WaitUntilHook } from '../wait-until.js';
 import type { AppPipeline } from './pipeline.js';
 import type { SSRManifest } from './types.js';
 
@@ -92,7 +93,7 @@ export interface RenderOptions {
 	 * Adapters can pass this through so runtime cache providers can schedule cache writes
 	 * without blocking the response path.
 	 */
-	waitUntil?: (promise: Promise<unknown>) => void;
+	waitUntil?: WaitUntilHook;
 
 	/**
 	 * **Advanced API**: you probably do not need to use this.
