@@ -15,7 +15,7 @@ import {
 	web1FeedItem,
 	web1FeedItemWithAllData,
 	web1FeedItemWithContent,
-} from './test-utils.js';
+} from './test-utils.ts';
 
 // note: I spent 30 minutes looking for a nice node-based snapshot tool
 // ...and I gave up. Enjoy big strings!
@@ -37,7 +37,7 @@ const validXmlWithXSLStylesheet = `<?xml version="1.0" encoding="UTF-8"?><?xml-s
 // biome-ignore format: keep in one line
 const validXmlWithXSLTStylesheet = `<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet href="/feedstylesheet.xslt" type="text/xsl"?><rss version="2.0"><channel><title><![CDATA[${title}]]></title><description><![CDATA[${description}]]></description><link>${site}/</link></channel></rss>`;
 
-function assertXmlDeepEqual(a, b) {
+function assertXmlDeepEqual(a: string, b: string) {
 	const parsedA = parseXmlString(a);
 	const parsedB = parseXmlString(b);
 
@@ -266,7 +266,7 @@ describe('getRssString', () => {
 				category: z.string().optional(),
 			});
 		} catch (e) {
-			error = e.message;
+			error = (e as Error).message;
 		}
 		assert.equal(error, null);
 	});
@@ -280,7 +280,7 @@ describe('getRssString', () => {
 				items: [
 					{
 						title: 'Title',
-						pubDate: new Date().toISOString(),
+						pubDate: new Date(),
 						description: 'Description',
 						link: '/link',
 						enclosure: {
@@ -293,7 +293,7 @@ describe('getRssString', () => {
 				site,
 			});
 		} catch (e) {
-			error = e.message;
+			error = (e as Error).message;
 		}
 
 		assert.equal(error, null);

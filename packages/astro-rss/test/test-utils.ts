@@ -12,7 +12,7 @@ export const phpFeedItemWithoutDate = {
 };
 export const phpFeedItem = {
 	...phpFeedItemWithoutDate,
-	pubDate: '1994-05-03',
+	pubDate: new Date('1994-05-03'),
 };
 export const phpFeedItemWithContent = {
 	...phpFeedItem,
@@ -27,7 +27,7 @@ export const web1FeedItem = {
 	// Should support empty string as a URL (possible for homepage route)
 	link: '',
 	title: 'Web 1.0',
-	pubDate: '1997-05-03',
+	pubDate: new Date('1997-05-03'),
 	description:
 		'Web 1.0 is the term used for the earliest version of the Internet as it emerged from its origins with Defense Advanced Research Projects Agency (DARPA) and became, for the first time, a global network representing the future of digital communications.',
 };
@@ -53,16 +53,9 @@ export const web1FeedItemWithAllData = {
 
 const parser = new xml2js.Parser({ trim: true });
 
-/**
- *
- * Utility function to parse an XML string into an object using `xml2js`.
- *
- * @param {string} xmlString - Stringified XML to parse.
- * @return {{ err: Error, result: any }} Represents an option containing the parsed XML string or an Error.
- */
-export function parseXmlString(xmlString) {
-	let res;
-	parser.parseString(xmlString, (err, result) => {
+export function parseXmlString(xmlString: string): { err: Error | null; result: unknown } {
+	let res!: { err: Error | null; result: unknown };
+	parser.parseString(xmlString, (err: Error | null, result: unknown) => {
 		res = { err, result };
 	});
 	return res;
