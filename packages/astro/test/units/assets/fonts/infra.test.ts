@@ -10,8 +10,7 @@ import { CapsizeFontMetricsResolver } from '../../../../dist/assets/fonts/infra/
 import { DevFontFileIdGenerator } from '../../../../dist/assets/fonts/infra/dev-font-file-id-generator.js';
 import { DevUrlResolver } from '../../../../dist/assets/fonts/infra/dev-url-resolver.js';
 import { FsFontFileContentResolver } from '../../../../dist/assets/fonts/infra/fs-font-file-content-resolver.js';
-import { DevRuntimeFontFetcher } from '../../../../dist/assets/fonts/infra/dev-runtime-font-fetcher.js';
-import { BuildRuntimeFontFetcher } from '../../../../dist/assets/fonts/infra/build-runtime-font-fetcher.js';
+import { RemoteRuntimeFontFetcher } from '../../../../dist/assets/fonts/infra/remote-runtime-font-fetcher.js';
 import { SsrRuntimeFontFetcher } from '../../../../dist/assets/fonts/infra/ssr-runtime-font-fetcher.js';
 import {
 	handleValueWithSpaces,
@@ -762,10 +761,10 @@ describe('fonts infra', () => {
 		});
 	});
 
-	describe('DevRuntimeFontFetcher', () => {
+	describe('RemoteRuntimeFontFetcher', () => {
 		it('returns null if id is not found', async () => {
-			let inputs: Array<RequestInfo | URL> = [];
-			const fontFetcher = new DevRuntimeFontFetcher({
+			const inputs: Array<RequestInfo | URL> = [];
+			const fontFetcher = new RemoteRuntimeFontFetcher({
 				ids: new Set(['foo.woff2']),
 				base: '/',
 				address: { address: '127.0.0.1', family: 'IPv4', port: 3000 },
@@ -781,9 +780,9 @@ describe('fonts infra', () => {
 			assert.equal(inputs.length, 0);
 		});
 
-		it('works', async () => {
-			let inputs: Array<RequestInfo | URL> = [];
-			const fontFetcher = new DevRuntimeFontFetcher({
+		it('works with ipv4', async () => {
+			const inputs: Array<RequestInfo | URL> = [];
+			const fontFetcher = new RemoteRuntimeFontFetcher({
 				ids: new Set(['foo.woff2']),
 				base: '/test/',
 				address: { address: '127.0.0.1', family: 'IPv4', port: 3000 },
@@ -798,30 +797,12 @@ describe('fonts infra', () => {
 			assert.equal(buffer?.byteLength, 4);
 			assert.deepStrictEqual(inputs, ['http://127.0.0.1:3000/test/foo.woff2']);
 		});
-	});
 
-	describe('BuildRuntimeFontFetcher', () => {
-		it('returns null if id is not found', async () => {
-			let inputs: Array<RequestInfo | URL> = [];
-			const fontFetcher = new BuildRuntimeFontFetcher({
+		it('works with ipv6', async () => {
+			const inputs: Array<RequestInfo | URL> = [];
+			const fontFetcher = new RemoteRuntimeFontFetcher({
 				ids: new Set(['foo.woff2']),
-				address: { address: '::', family: 'IPv6', port: 3000 },
-				fetch: async (input) => {
-					inputs.push(input);
-					return new Response();
-				},
-			});
-
-			const buffer = await fontFetcher.fetch('/_astro/fonts/bar.woff2');
-
-			assert.equal(buffer, null);
-			assert.equal(inputs.length, 0);
-		});
-
-		it('works', async () => {
-			let inputs: Array<RequestInfo | URL> = [];
-			const fontFetcher = new BuildRuntimeFontFetcher({
-				ids: new Set(['foo.woff2']),
+				base: '/',
 				address: { address: '::', family: 'IPv6', port: 3000 },
 				fetch: async (input) => {
 					inputs.push(input);
@@ -829,7 +810,7 @@ describe('fonts infra', () => {
 				},
 			});
 
-			const buffer = await fontFetcher.fetch('/test/_astro/fonts/foo.woff2');
+			const buffer = await fontFetcher.fetch('/_astro/fonts/foo.woff2');
 
 			assert.equal(buffer?.byteLength, 4);
 			assert.deepStrictEqual(inputs, ['http://[::]:3000/foo.woff2']);
@@ -838,7 +819,7 @@ describe('fonts infra', () => {
 
 	describe('SsrRuntimeFontFetcher', () => {
 		it('returns null if id is not found', async () => {
-			let inputs: Array<RequestInfo | URL> = [];
+			const inputs: Array<RequestInfo | URL> = [];
 			const fontFetcher = new SsrRuntimeFontFetcher({
 				ids: new Set(['foo.woff2']),
 				fetch: async (input) => {
@@ -854,7 +835,7 @@ describe('fonts infra', () => {
 		});
 
 		it('throws if requestUrl is not provided', async () => {
-			let inputs: Array<RequestInfo | URL> = [];
+			const inputs: Array<RequestInfo | URL> = [];
 			const fontFetcher = new SsrRuntimeFontFetcher({
 				ids: new Set(['foo.woff2']),
 				fetch: async (input) => {
@@ -867,7 +848,7 @@ describe('fonts infra', () => {
 		});
 
 		it('works', async () => {
-			let inputs: Array<RequestInfo | URL> = [];
+			const inputs: Array<RequestInfo | URL> = [];
 			const fontFetcher = new SsrRuntimeFontFetcher({
 				ids: new Set(['foo.woff2']),
 				fetch: async (input) => {
@@ -886,7 +867,7 @@ describe('fonts infra', () => {
 		});
 
 		it('works with an http url (assetsPrefix)', async () => {
-			let inputs: Array<RequestInfo | URL> = [];
+			const inputs: Array<RequestInfo | URL> = [];
 			const fontFetcher = new SsrRuntimeFontFetcher({
 				ids: new Set(['foo.woff2']),
 				fetch: async (input) => {

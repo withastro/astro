@@ -318,21 +318,8 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 
 				if (id === RESOLVED_RUNTIME_FONT_FETCHER_VIRTUAL_MODULE_ID) {
 					const ids = [...(fontFileById?.keys() ?? [])];
-
-					if (this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender) {
-						return {
-							code: `
-								import { BuildRuntimeFontFetcher } from ${JSON.stringify(new URL('./infra/build-runtime-font-fetcher.js', import.meta.url))};
-								export const runtimeFontFetcher = new BuildRuntimeFontFetcher({
-									ids: new Set(${JSON.stringify(ids)}),
-									address: ${JSON.stringify(serverAddress)},
-									fetch: globalThis.fetch,
-								});
-							`,
-						};
-					}
-
-					if (this.environment.config.command === 'build') {
+					const isPrerender = this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender;
+					if (this.environment.config.command === 'build' && !isPrerender) {
 						return {
 							code: `
 								import { SsrRuntimeFontFetcher } from ${JSON.stringify(new URL('./infra/ssr-runtime-font-fetcher.js', import.meta.url))};
@@ -346,11 +333,11 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 
 					return {
 						code: `
-							import { DevRuntimeFontFetcher } from ${JSON.stringify(new URL('./infra/dev-runtime-font-fetcher.js', import.meta.url))};
-							export const runtimeFontFetcher = new DevRuntimeFontFetcher({
+							import { RemoteRuntimeFontFetcher } from ${JSON.stringify(new URL('./infra/remote-runtime-font-fetcher.js', import.meta.url))};
+							export const runtimeFontFetcher = new RemoteRuntimeFontFetcher({
 								ids: new Set(${JSON.stringify(ids)}),
 								address: ${JSON.stringify(serverAddress)},
-								base: ${JSON.stringify(assetsDir)},
+								base: ${JSON.stringify(isPrerender ? '/' : assetsDir)},
 								fetch: globalThis.fetch,
 							});
 						`,
