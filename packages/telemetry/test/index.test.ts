@@ -3,7 +3,6 @@ import { after, before, describe, it } from 'node:test';
 import { AstroTelemetry, type TelemetryEvent } from '../dist/index.js';
 
 declare global {
-	// eslint-disable-next-line no-var
 	var _astroGlobalDebug: ((type: string, ...args: unknown[]) => void) | undefined;
 }
 
@@ -20,7 +19,10 @@ interface TelemetryTestAccess {
 
 function setup() {
 	const config = new Map<string, unknown>();
-	const telemetry = new AstroTelemetry({ astroVersion: '0.0.0-test.1', viteVersion: '0.0.0' }) as unknown as TelemetryTestAccess;
+	const telemetry = new AstroTelemetry({
+		astroVersion: '0.0.0-test.1',
+		viteVersion: '0.0.0',
+	}) as unknown as TelemetryTestAccess;
 	const logs: unknown[][] = [];
 	// Stub isCI to false so we can test user-facing behavior
 	telemetry.isCI = false;
