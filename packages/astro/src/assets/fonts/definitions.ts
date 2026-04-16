@@ -89,5 +89,14 @@ export interface FontResolver {
 }
 
 export interface RuntimeFontFetcher {
+	/**
+	 * @param url
+	 * URL obtained from `fontData` and provided by the user. Can look like
+	 * `/_astro/fonts/<hash>.<ext>` or be a full URL when using assetsPrefix.
+	 * 
+	 * @param requestUrl
+	 * The current request URL. It can be used to construct a full URL to the
+	 * font file, for example in SSR.
+	 */
 	fetch: (url: string, requestUrl: URL | undefined) => Promise<ArrayBuffer | null>;
 }

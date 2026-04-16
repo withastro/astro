@@ -1,5 +1,11 @@
 import type { RuntimeFontFetcher } from '../definitions.js';
 
+/**
+ * In development, font files are served through a Vite middleware.
+ * We can safely send requests to the current dev server. `requestUrl`
+ * on `fetch` is not implemented because we have the information from
+ * within the Vite plugin already.
+ */
 export class DevRuntimeFontFetcher implements RuntimeFontFetcher {
 	#ids: Set<string>;
 	#port: number;
