@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Sort client build entry points for consistent Rollup chunk ordering. This prevents unnecessary output filename changes between builds.
+Fixes a bug where emitted assets during a client build would contain always fresh, new hashes in their name. Now the build should be more stable.
