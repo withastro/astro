@@ -250,7 +250,15 @@ export class AstroBuilder {
 		this.logger.debug('build', timerMessage('Additional assets copied', this.timer.assetsStart));
 
 		if (this.settings.fontsHttpServer) {
-			await new Promise((r) => this.settings.fontsHttpServer!.close(r));
+			await new Promise<void>((resolve, reject) => {
+				this.settings.fontsHttpServer!.close((err) => {
+					if (err) reject(err);
+					else resolve();
+				});
+			}).catch((err) => {
+				// Server was already closed or failed to close, do not halt the build
+				this.logger.debug('assets', 'Failed to close fonts HTTP server:', err);
+			});
 			this.settings.fontsHttpServer = null;
 		}
 
