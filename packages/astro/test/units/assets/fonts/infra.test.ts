@@ -251,8 +251,10 @@ describe('fonts infra', () => {
 				searchParams: new URLSearchParams(),
 			});
 			assert.deepStrictEqual(resolver.cspResources, []);
+			assert.deepStrictEqual(resolver.urls, []);
 			assert.equal(resolver.resolve('xxx.woff2'), '/base/_astro/fonts/xxx.woff2');
 			assert.deepStrictEqual(resolver.cspResources, ["'self'"]);
+			assert.deepStrictEqual(resolver.urls, ['/base/_astro/fonts/xxx.woff2']);
 		});
 
 		it('works with searchParams', () => {
@@ -274,8 +276,10 @@ describe('fonts infra', () => {
 				searchParams: new URLSearchParams(),
 			});
 			assert.deepStrictEqual(resolver.cspResources, []);
+			assert.deepStrictEqual(resolver.urls, []);
 			assert.equal(resolver.resolve('abc.ttf'), '/foo/_custom/fonts/abc.ttf');
 			assert.deepStrictEqual(resolver.cspResources, ["'self'"]);
+			assert.deepStrictEqual(resolver.urls, ['/foo/_custom/fonts/abc.ttf']);
 		});
 
 		it('works with assetsPrefix as string', () => {
@@ -285,11 +289,13 @@ describe('fonts infra', () => {
 				searchParams: new URLSearchParams(),
 			});
 			assert.deepStrictEqual(resolver.cspResources, []);
+			assert.deepStrictEqual(resolver.urls, []);
 			assert.equal(
 				resolver.resolve('foo.woff'),
 				'https://cdn.example.com/foo/_custom/fonts/foo.woff',
 			);
 			assert.deepStrictEqual(resolver.cspResources, ['https://cdn.example.com']);
+			assert.deepStrictEqual(resolver.urls, ['https://cdn.example.com/foo/_custom/fonts/foo.woff']);
 		});
 
 		it('works with assetsPrefix object', () => {
@@ -302,6 +308,7 @@ describe('fonts infra', () => {
 				searchParams: new URLSearchParams(),
 			});
 			assert.deepStrictEqual(resolver.cspResources, []);
+			assert.deepStrictEqual(resolver.urls, []);
 			assert.equal(
 				resolver.resolve('bar.woff2'),
 				'https://fonts.cdn.example.com/foo/_custom/fonts/bar.woff2',
@@ -314,6 +321,10 @@ describe('fonts infra', () => {
 				'https://fonts.cdn.example.com',
 				'https://cdn.example.com',
 			]);
+			assert.deepStrictEqual(resolver.urls, [
+				'https://fonts.cdn.example.com/foo/_custom/fonts/bar.woff2',
+				'https://cdn.example.com/foo/_custom/fonts/xyz.ttf',
+			]);
 		});
 
 		it('works with searchParams', () => {
@@ -322,7 +333,11 @@ describe('fonts infra', () => {
 				assetsPrefix: undefined,
 				searchParams: new URLSearchParams([['v', '2.0']]),
 			});
+			assert.deepStrictEqual(resolver.cspResources, []);
+			assert.deepStrictEqual(resolver.urls, []);
 			assert.equal(resolver.resolve('test.woff2'), '/foo/_custom/fonts/test.woff2?v=2.0');
+			assert.deepStrictEqual(resolver.cspResources, ["'self'"]);
+			assert.deepStrictEqual(resolver.urls, ['/foo/_custom/fonts/test.woff2?v=2.0']);
 		});
 	});
 
@@ -762,11 +777,10 @@ describe('fonts infra', () => {
 	});
 
 	describe('RemoteRuntimeFontFetcher', () => {
-		it('returns null if id is not found', async () => {
+		it('returns null if url is not found', async () => {
 			const inputs: Array<RequestInfo | URL> = [];
 			const fontFetcher = new RemoteRuntimeFontFetcher({
-				ids: new Set(['foo.woff2']),
-				base: '/',
+				urls: new Set(['/_astro/fonts/foo.woff2']),
 				address: { address: '127.0.0.1', family: 'IPv4', port: 3000 },
 				fetch: async (input) => {
 					inputs.push(input);
@@ -783,8 +797,7 @@ describe('fonts infra', () => {
 		it('works with ipv4', async () => {
 			const inputs: Array<RequestInfo | URL> = [];
 			const fontFetcher = new RemoteRuntimeFontFetcher({
-				ids: new Set(['foo.woff2']),
-				base: '/test/',
+				urls: new Set(['/test/_astro/fonts/foo.woff2']),
 				address: { address: '127.0.0.1', family: 'IPv4', port: 3000 },
 				fetch: async (input) => {
 					inputs.push(input);
@@ -795,14 +808,13 @@ describe('fonts infra', () => {
 			const buffer = await fontFetcher.fetch('/test/_astro/fonts/foo.woff2');
 
 			assert.equal(buffer?.byteLength, 4);
-			assert.deepStrictEqual(inputs, ['http://127.0.0.1:3000/test/foo.woff2']);
+			assert.deepStrictEqual(inputs, ['http://127.0.0.1:3000/test/_astro/fonts/foo.woff2']);
 		});
 
 		it('works with ipv6', async () => {
 			const inputs: Array<RequestInfo | URL> = [];
 			const fontFetcher = new RemoteRuntimeFontFetcher({
-				ids: new Set(['foo.woff2']),
-				base: '/',
+				urls: new Set(['/_astro/fonts/foo.woff2']),
 				address: { address: '::', family: 'IPv6', port: 3000 },
 				fetch: async (input) => {
 					inputs.push(input);
@@ -813,15 +825,32 @@ describe('fonts infra', () => {
 			const buffer = await fontFetcher.fetch('/_astro/fonts/foo.woff2');
 
 			assert.equal(buffer?.byteLength, 4);
-			assert.deepStrictEqual(inputs, ['http://[::]:3000/foo.woff2']);
+			assert.deepStrictEqual(inputs, ['http://[::]:3000/_astro/fonts/foo.woff2']);
+		});
+
+		it('works with a full url (assetsPrefix)', async () => {
+			const inputs: Array<RequestInfo | URL> = [];
+			const fontFetcher = new RemoteRuntimeFontFetcher({
+				urls: new Set(['http://cdn.example.com/_astro/fonts/foo.woff2']),
+				address: { address: '127.0.0.1', family: 'IPv4', port: 3000 },
+				fetch: async (input) => {
+					inputs.push(input);
+					return new Response(new ArrayBuffer(4));
+				},
+			});
+
+			const buffer = await fontFetcher.fetch('http://cdn.example.com/_astro/fonts/foo.woff2');
+
+			assert.equal(buffer?.byteLength, 4);
+			assert.deepStrictEqual(inputs, ['http://127.0.0.1:3000/_astro/fonts/foo.woff2']);
 		});
 	});
 
 	describe('SsrRuntimeFontFetcher', () => {
-		it('returns null if id is not found', async () => {
+		it('returns null if urls is not found', async () => {
 			const inputs: Array<RequestInfo | URL> = [];
 			const fontFetcher = new SsrRuntimeFontFetcher({
-				ids: new Set(['foo.woff2']),
+				urls: new Set(['/_astro/fonts/foo.woff2']),
 				fetch: async (input) => {
 					inputs.push(input);
 					return new Response();
@@ -837,7 +866,7 @@ describe('fonts infra', () => {
 		it('throws if requestUrl is not provided', async () => {
 			const inputs: Array<RequestInfo | URL> = [];
 			const fontFetcher = new SsrRuntimeFontFetcher({
-				ids: new Set(['foo.woff2']),
+				urls: new Set(['/test/_astro/fonts/foo.woff2']),
 				fetch: async (input) => {
 					inputs.push(input);
 					return new Response(new ArrayBuffer(4));
@@ -850,7 +879,7 @@ describe('fonts infra', () => {
 		it('works', async () => {
 			const inputs: Array<RequestInfo | URL> = [];
 			const fontFetcher = new SsrRuntimeFontFetcher({
-				ids: new Set(['foo.woff2']),
+				urls: new Set(['/_astro/fonts/foo.woff2']),
 				fetch: async (input) => {
 					inputs.push(input);
 					return new Response(new ArrayBuffer(4));
@@ -866,10 +895,10 @@ describe('fonts infra', () => {
 			assert.deepStrictEqual(inputs, ['http://example.com/_astro/fonts/foo.woff2']);
 		});
 
-		it('works with an http url (assetsPrefix)', async () => {
+		it('works with a full url (assetsPrefix)', async () => {
 			const inputs: Array<RequestInfo | URL> = [];
 			const fontFetcher = new SsrRuntimeFontFetcher({
-				ids: new Set(['foo.woff2']),
+				urls: new Set(['http://cdn.example.com/_astro/fonts/foo.woff2']),
 				fetch: async (input) => {
 					inputs.push(input);
 					return new Response(new ArrayBuffer(4));

@@ -253,6 +253,16 @@ describe('astro fonts', () => {
 				const files = await readdir(new URL('./dist/_custom/fonts/', fixture.config.root));
 				assert.equal(files.length > 0, true);
 			});
+
+			it('Exposes buffer from experimental_getFontBuffer()', async () => {
+				const html = await fixture.readFile('/get-font-buffer/index.html');
+				const $ = cheerio.load(html);
+				const length = $('#length').html();
+				if (!length) {
+					assert.fail();
+				}
+				assert.equal(length === '0', false);
+			});
 		});
 	});
 

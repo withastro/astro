@@ -7,28 +7,29 @@ import { AstroError } from '../../../core/errors/errors.js';
  * We rely on `requestUrl` (provided by the user) to construct the URL.
  */
 export class SsrRuntimeFontFetcher implements RuntimeFontFetcher {
-	#ids: Set<string>;
+	#urls: Set<string>;
 	#fetch: typeof globalThis.fetch;
 
 	constructor({
-		ids,
+		urls,
 		fetch,
 	}: {
-		ids: Set<string>;
+		urls: Set<string>;
 		fetch: typeof globalThis.fetch;
 	}) {
-		this.#ids = ids;
+		this.#urls = urls;
 		this.#fetch = fetch;
 	}
 
 	async fetch(url: string, requestUrl: URL | undefined): Promise<ArrayBuffer | null> {
-		const id = url.split('/').pop() ?? '';
-		if (!this.#ids.has(id)) {
+		if (!this.#urls.has(url)) {
 			return null;
 		}
-		if (url.startsWith('http')) {
+		// assetsPrefix
+		if (!url.startsWith('/')) {
 			return this.#fetch(url).then((res) => res.arrayBuffer());
 		}
+		// We need the request URL to call the current server
 		if (!requestUrl) {
 			throw new AstroError(MissingGetFontBufferRequestUrl);
 		}

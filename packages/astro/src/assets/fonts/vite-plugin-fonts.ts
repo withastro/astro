@@ -79,6 +79,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 	let fontTypeExtractor: FontTypeExtractor | null = null;
 	let built = false;
 	let serverAddress: AddressInfo | null = null;
+	let urls: Array<string> | null = null;
 
 	function cleanup() {
 		componentDataByCssVariable = null;
@@ -86,6 +87,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		fontFileById = null;
 		fontFetcher = null;
 		serverAddress = null;
+		urls = null;
 	}
 
 	return {
@@ -204,27 +206,33 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				}
 			}
 
+			urls = urlResolver.urls;
+
 			if (
 				this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender &&
 				fontFileById.size > 0
 			) {
 				settings.fontsHttpServer = await new Promise<Server>((r) => {
-					const server = createServer((req, res) =>
-						fontFileMiddleware({
-							url: req.url,
-							response: resToMinimalResponse(res),
-							next: () => {
-								if (!res.writableEnded) {
-									res.writeHead(404);
-									res.end();
-								}
-							},
-							fontFetcher,
-							fontFileById,
-							fontTypeExtractor,
-							logger,
-						}),
-					).listen(() => {
+					const server = createServer((req, res) => {
+						const next = () => {
+							if (!res.writableEnded) {
+								res.writeHead(404);
+								res.end();
+							}
+						};
+						if (req.url?.startsWith(baseUrl)) {
+							return fontFileMiddleware({
+								url: req.url.slice(baseUrl.length - 1),
+								response: resToMinimalResponse(res),
+								next,
+								fontFetcher,
+								fontFileById,
+								fontTypeExtractor,
+								logger,
+							});
+						}
+						return next();
+					}).listen(() => {
 						r(server);
 					});
 				});
@@ -317,14 +325,14 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				}
 
 				if (id === RESOLVED_RUNTIME_FONT_FETCHER_VIRTUAL_MODULE_ID) {
-					const ids = [...(fontFileById?.keys() ?? [])];
 					const isPrerender = this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender;
+
 					if (this.environment.config.command === 'build' && !isPrerender) {
 						return {
 							code: `
 								import { SsrRuntimeFontFetcher } from ${JSON.stringify(new URL('./infra/ssr-runtime-font-fetcher.js', import.meta.url))};
 								export const runtimeFontFetcher = new SsrRuntimeFontFetcher({
-									ids: new Set(${JSON.stringify(ids)}),
+									urls: new Set(${JSON.stringify(urls)}),
 									fetch: globalThis.fetch,
 								});
 							`,
@@ -335,9 +343,8 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 						code: `
 							import { RemoteRuntimeFontFetcher } from ${JSON.stringify(new URL('./infra/remote-runtime-font-fetcher.js', import.meta.url))};
 							export const runtimeFontFetcher = new RemoteRuntimeFontFetcher({
-								ids: new Set(${JSON.stringify(ids)}),
+								urls: new Set(${JSON.stringify(urls)}),
 								address: ${JSON.stringify(serverAddress)},
-								base: ${JSON.stringify(isPrerender ? '/' : assetsDir)},
 								fetch: globalThis.fetch,
 							});
 						`,

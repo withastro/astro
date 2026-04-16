@@ -19,6 +19,7 @@ export interface Hasher {
 export interface UrlResolver {
 	resolve: (id: string) => string;
 	readonly cspResources: Array<string>;
+	readonly urls: Array<string>;
 }
 
 export interface FontFileContentResolver {

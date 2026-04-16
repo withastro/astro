@@ -11,39 +11,38 @@ import type { RuntimeFontFetcher } from '../definitions.js';
  * within the Vite plugin already.
  */
 export class RemoteRuntimeFontFetcher implements RuntimeFontFetcher {
-	#ids: Set<string>;
+	#urls: Set<string>;
 	#address: AddressInfo | null;
-	#base: string;
 	#fetch: typeof globalThis.fetch;
 
 	constructor({
-		ids,
+		urls,
 		address,
-		base,
 		fetch,
 	}: {
-		ids: Set<string>;
+		urls: Set<string>;
 		address: AddressInfo | null;
-		base: string;
 		fetch: typeof globalThis.fetch;
 	}) {
-		this.#ids = ids;
+		this.#urls = urls;
 		this.#address = address;
-		this.#base = base;
 		this.#fetch = fetch;
 	}
 
 	async fetch(url: string): Promise<ArrayBuffer | null> {
-		const id = url.split('/').pop() ?? '';
-		if (!this.#ids.has(id)) {
+		if (!this.#urls.has(url)) {
 			return null;
 		}
 		if (!this.#address) {
 			throw new Error('Server address unavailable, this should not happen. Open an issue.');
 		}
+		// assetsPrefix
+		if (!url.startsWith('/')) {
+			url = new URL(url).pathname;
+		}
 		const host =
 			this.#address.family === 'IPv6' ? `[${this.#address.address}]` : this.#address.address;
-		return this.#fetch(`http://${host}:${this.#address.port}${this.#base}${id}`).then((res) =>
+		return this.#fetch(`http://${host}:${this.#address.port}${url}`).then((res) =>
 			res.arrayBuffer(),
 		);
 	}
