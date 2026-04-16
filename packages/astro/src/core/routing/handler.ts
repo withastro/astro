@@ -17,6 +17,7 @@ import { routeHasHtmlExtension } from './helpers.js';
 import { type CacheLike, applyCacheHeaders } from '../cache/runtime/cache.js';
 import { type AstroSession, PERSIST_SYMBOL } from '../session/runtime.js';
 import { getRenderOptions } from '../app/render-options.js';
+import { prepareResponse } from '../app/prepare-response.js';
 import type { BaseApp, ResolvedRenderOptions } from '../app/base.js';
 
 export class AstroHandler {
@@ -82,7 +83,7 @@ export class AstroHandler {
 					},
 				},
 			);
-			this.#app.prepareResponse(response, { addCookieHeader });
+			prepareResponse(response, { addCookieHeader });
 			return response;
 		}
 
@@ -239,7 +240,7 @@ export class AstroHandler {
 			});
 		}
 
-		this.#app.prepareResponse(response, { addCookieHeader });
+		prepareResponse(response, { addCookieHeader });
 		return response;
 	}
 }

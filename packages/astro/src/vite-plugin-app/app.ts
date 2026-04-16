@@ -1,14 +1,12 @@
 import type http from 'node:http';
 import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
-import { BaseApp, type RenderErrorOptions } from '../core/app/entrypoints/index.js';
+import { BaseApp } from '../core/app/entrypoints/index.js';
 import { getFirstForwardedValue, validateForwardedHeaders } from '../core/app/validate-headers.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { clientLocalsSymbol } from '../core/constants.js';
-import {
-	MiddlewareNoDataOrNextCalled,
-	MiddlewareNotAResponse,
-} from '../core/errors/errors-data.js';
-import { type AstroError, createSafeError, isAstroError } from '../core/errors/index.js';
+import { createSafeError } from '../core/errors/index.js';
+import { DevErrorHandler } from '../core/errors/dev-handler.js';
+import type { ErrorHandler } from '../core/errors/handler.js';
 import type { AstroLogger } from '../core/logger/core.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import type { CreateRenderContext, RenderContext } from '../core/render-context.js';
@@ -20,7 +18,6 @@ import { recordServerError } from '../vite-plugin-astro-server/error.js';
 import { runWithErrorHandling } from '../vite-plugin-astro-server/index.js';
 import { handle500Response, writeSSRResult } from '../vite-plugin-astro-server/response.js';
 import { RunnablePipeline } from './pipeline.js';
-import { getCustom404Route, getCustom500Route } from '../core/routing/helpers.js';
 import { ensure404Route } from '../core/routing/astro-designed-error-pages.js';
 import { matchRoute } from '../core/routing/dev.js';
 import type { DevMatch, LogRequestPayload } from '../core/app/base.js';
@@ -253,76 +250,8 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 		return super.match(request, true);
 	}
 
-	async renderError(
-		request: Request,
-		{
-			skipMiddleware = false,
-			error,
-			status,
-			response: _response,
-			...resolvedRenderOptions
-		}: RenderErrorOptions,
-	): Promise<Response> {
-		// we always throw when we have Astro errors around the middleware
-		if (
-			isAstroError(error) &&
-			[MiddlewareNoDataOrNextCalled.name, MiddlewareNotAResponse.name].includes(error.name)
-		) {
-			throw error;
-		}
-
-		const renderRoute = async (routeData: RouteData) => {
-			try {
-				const preloadedComponent = await this.pipeline.getComponentByRoute(routeData);
-				const renderContext = await this.createRenderContext({
-					locals: resolvedRenderOptions.locals,
-					pipeline: this.pipeline,
-					pathname: this.getPathnameFromRequest(request),
-					skipMiddleware,
-					request,
-					routeData,
-					clientAddress: resolvedRenderOptions.clientAddress,
-					status,
-					shouldInjectCspMetaTags: !!this.manifest.csp,
-				});
-				renderContext.props.error = error;
-				const response = await renderContext.render(preloadedComponent);
-
-				if (error) {
-					// Log useful information that the custom 500 page may not display unlike the default error overlay
-					this.logger.error('router', (error as AstroError).stack || (error as AstroError).message);
-				}
-
-				return response;
-			} catch (_err) {
-				if (skipMiddleware === false) {
-					return this.renderError(request, {
-						...resolvedRenderOptions,
-						status: 500,
-						skipMiddleware: true,
-						error: _err,
-					});
-				}
-				// If even skipping the middleware isn't enough to prevent the error, show the dev overlay
-				throw _err;
-			}
-		};
-
-		if (status === 404) {
-			const custom404 = getCustom404Route(this.manifestData);
-			if (custom404) {
-				return renderRoute(custom404);
-			}
-		}
-
-		const custom500 = getCustom500Route(this.manifestData);
-
-		// Show dev overlay
-		if (!custom500) {
-			throw error;
-		} else {
-			return renderRoute(custom500);
-		}
+	protected createErrorHandler(): ErrorHandler {
+		return new DevErrorHandler(this, { shouldInjectCspMetaTags: true });
 	}
 
 	logRequest({ pathname, method, statusCode, isRewrite, reqTime }: LogRequestPayload) {
