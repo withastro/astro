@@ -371,9 +371,12 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					// So using the noop plugin here which will give us an input that just gets thrown away.
 					internals.clientInput.add(NOOP_MODULE_ID);
 				}
-				builder.environments.client.config.build.rollupOptions.input = Array.from(
-					internals.clientInput,
-				);
+				// Sort the client input to ensure deterministic Rollup entry point ordering.
+				// `internals.clientInput` is a Set whose iteration order depends on async module resolution
+				// timing during prerendering. Without sorting, consecutive builds of the same
+				// source code can produce different output filenames, breaking CDN caching.
+				const sortedClientInput = Array.from(internals.clientInput).sort();
+				builder.environments.client.config.build.rollupOptions.input = sortedClientInput;
 				settings.timer.start('Client build');
 				await builder.build(builder.environments.client);
 				settings.timer.end('Client build');
