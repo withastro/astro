@@ -326,7 +326,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 								export const runtimeFontFetcher = new BuildRuntimeFontFetcher({
 									ids: new Set(${JSON.stringify(ids)}),
 									port: ${serverAddress?.port},
-									fetch,
+									fetch: globalThis.fetch,
 								});
 							`,
 						};
@@ -338,7 +338,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 								import { SsrRuntimeFontFetcher } from ${JSON.stringify(new URL('./infra/ssr-runtime-font-fetcher.js', import.meta.url))};
 								export const runtimeFontFetcher = new SsrRuntimeFontFetcher({
 									ids: new Set(${JSON.stringify(ids)}),
-									fetch,
+									fetch: globalThis.fetch,
 								});
 							`,
 						};
@@ -351,7 +351,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 								ids: new Set(${JSON.stringify(ids)}),
 								port: ${serverAddress?.port},
 								base: ${JSON.stringify(assetsDir)},
-								fetch,
+								fetch: globalThis.fetch,
 							});
 						`,
 					};
