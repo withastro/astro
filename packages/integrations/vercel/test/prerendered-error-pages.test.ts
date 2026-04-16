@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { type Fixture, loadFixture } from './test-utils.ts';
+import { type Fixture, loadFixture, getVercelConfig } from './test-utils.ts';
 
 describe('prerendered error pages routing', () => {
 	let fixture: Fixture;
@@ -13,9 +13,9 @@ describe('prerendered error pages routing', () => {
 	});
 
 	it('falls back to 404.html', async () => {
-		const deploymentConfig = JSON.parse(await fixture.readFile('../.vercel/output/config.json'));
+		const deploymentConfig = await getVercelConfig(fixture);
 		assert.deepEqual(
-			deploymentConfig.routes.find((r: any) => r.status === 404),
+			deploymentConfig.routes.find((r) => r.status === 404),
 			{
 				src: '^/.*$',
 				dest: '/404.html',

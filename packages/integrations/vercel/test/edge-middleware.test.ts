@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { type Fixture, loadFixture } from './test-utils.ts';
+import { type Fixture, loadFixture, getVercelConfig } from './test-utils.ts';
 
 describe('Vercel edge middleware', () => {
 	let build: Fixture;
@@ -21,10 +21,9 @@ describe('Vercel edge middleware', () => {
 	});
 
 	it('deployment config points to the middleware edge function', async () => {
-		const contents = await build.readFile('../.vercel/output/config.json');
-		const { routes } = JSON.parse(contents);
+		const { routes } = await getVercelConfig(build);
 		assert.equal(
-			routes.some((route: any) => route.dest === '_middleware'),
+			routes.some((route) => route.dest === '_middleware'),
 			true,
 		);
 	});

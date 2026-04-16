@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { type Fixture, loadFixture } from './test-utils.ts';
+import { type Fixture, loadFixture, getVercelConfig } from './test-utils.ts';
 
 describe('Server Islands', () => {
 	let fixture: Fixture;
@@ -13,7 +13,7 @@ describe('Server Islands', () => {
 	});
 
 	it('server islands route is in the config', async () => {
-		const config = JSON.parse(await fixture.readFile('../.vercel/output/config.json'));
+		const config = await getVercelConfig(fixture);
 		let found = null;
 		for (const route of config.routes) {
 			if (route.src?.includes('_server-islands')) {

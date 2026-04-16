@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { type Fixture, type AstroInlineConfig, loadFixture } from './test-utils.ts';
+import { type Fixture, type AstroInlineConfig, loadFixture, getVercelConfig } from './test-utils.ts';
 
 describe('Static Assets', () => {
 	let fixture: Fixture;
@@ -27,24 +27,17 @@ describe('Static Assets', () => {
 		await fixture.build({});
 	}
 
-	async function getConfig() {
-		const json = await fixture.readFile('../.vercel/output/config.json');
-		const config = JSON.parse(json);
-
-		return config;
-	}
-
 	async function getAssets() {
 		return fixture.config.build.assets;
 	}
 
 	async function checkValidCacheControl(assets?: string) {
-		const config = await getConfig();
+		const config = await getVercelConfig(fixture);
 		const theAssets = assets ?? (await getAssets());
 
-		const route = config.routes.find((r: any) => r.src === `^/${theAssets}/(.*)$`);
-		assert.equal(route.headers['cache-control'], VALID_CACHE_CONTROL);
-		assert.equal(route.continue, true);
+		const route = config.routes.find((r) => r.src === `^/${theAssets}/(.*)$`);
+		assert.equal(route!.headers['cache-control'], VALID_CACHE_CONTROL);
+		assert.equal(route!.continue, true);
 	}
 
 	describe('static adapter', () => {
