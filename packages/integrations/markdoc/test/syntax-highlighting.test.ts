@@ -116,7 +116,7 @@ async function getConfigExtendingShiki(config?: Parameters<typeof shiki>[0]) {
 	}, undefined);
 }
 
-function parsePreTag(html: string) {
+function parsePreTag(html: string): HTMLPreElement {
 	const { document } = parseHTML(html);
 	const pre = document.querySelector('pre');
 	assert.ok(pre);
