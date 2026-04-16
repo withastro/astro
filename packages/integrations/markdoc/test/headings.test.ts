@@ -1,23 +1,23 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture, type Fixture, type DevServer } from '../../../astro/test/test-utils.js';
 
-async function getFixture(name) {
+async function getFixture(name: string) {
 	return await loadFixture({
 		root: new URL(`./fixtures/${name}/`, import.meta.url),
 	});
 }
 
 describe('Markdoc - Headings', () => {
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await getFixture('headings');
 	});
 
 	describe('dev', () => {
-		let devServer;
+		let devServer: DevServer;
 
 		before(async () => {
 			devServer = await fixture.startDevServer();
@@ -63,7 +63,7 @@ describe('Markdoc - Headings', () => {
 
 	describe('build', () => {
 		before(async () => {
-			await fixture.build();
+			await fixture.build({});
 		});
 
 		it('applies IDs to headings', async () => {
@@ -90,14 +90,14 @@ describe('Markdoc - Headings', () => {
 });
 
 describe('Markdoc - Headings with custom Astro renderer', () => {
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await getFixture('headings-custom');
 	});
 
 	describe('dev', () => {
-		let devServer;
+		let devServer: DevServer;
 
 		before(async () => {
 			devServer = await fixture.startDevServer();
@@ -142,7 +142,7 @@ describe('Markdoc - Headings with custom Astro renderer', () => {
 
 	describe('build', () => {
 		before(async () => {
-			await fixture.build();
+			await fixture.build({});
 		});
 
 		it('applies IDs to headings', async () => {
@@ -202,28 +202,25 @@ const depthToHeadingMap = {
 	},
 };
 
-/** @param {Document} document */
-function idTest(document) {
+function idTest(document: Document) {
 	for (const [depth, info] of Object.entries(depthToHeadingMap)) {
 		assert.equal(document.querySelector(`h${depth}`)?.getAttribute('id'), info.slug);
 	}
 }
 
-/** @param {Document} document */
-function tocTest(document) {
+function tocTest(document: Document) {
 	const toc = document.querySelector('[data-toc] > ul');
-	assert.equal(toc.children.length, Object.keys(depthToHeadingMap).length);
+	assert.equal(toc!.children.length, Object.keys(depthToHeadingMap).length);
 
 	for (const [depth, info] of Object.entries(depthToHeadingMap)) {
-		const linkEl = toc.querySelector(`a[href="#${info.slug}"]`);
+		const linkEl = toc!.querySelector(`a[href="#${info.slug}"]`);
 		assert.ok(linkEl);
 		assert.equal(linkEl.getAttribute('data-depth'), depth);
 		assert.equal(linkEl.textContent.trim(), info.text);
 	}
 }
 
-/** @param {Document} document */
-function astroComponentTest(document) {
+function astroComponentTest(document: Document) {
 	const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
 
 	for (const heading of headings) {

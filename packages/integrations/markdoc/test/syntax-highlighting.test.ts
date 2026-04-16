@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import Markdoc from '@markdoc/markdoc';
+import Markdoc, { type Tag } from '@markdoc/markdoc';
 import { isHTMLString } from 'astro/runtime/server/index.js';
 import { parseHTML } from 'linkedom';
 import prism from '../dist/extensions/prism.js';
@@ -23,49 +23,45 @@ describe('Markdoc - syntax highlighting', () => {
 	describe('shiki', () => {
 		it('transforms with defaults', async () => {
 			const ast = Markdoc.parse(entry);
-			const content = await Markdoc.transform(ast, await getConfigExtendingShiki());
+			// @ts-expect-error AstroMarkdocConfig is incompatible with Markdoc.Config
+			const config: Markdoc.Config = await getConfigExtendingShiki();
+			const content = (await Markdoc.transform(ast, config)) as Tag;
 
 			assert.equal(content.children.length, 2);
 			for (const codeBlock of content.children) {
 				assert.equal(isHTMLString(codeBlock), true);
 
-				const pre = parsePreTag(codeBlock);
+				const pre = parsePreTag(codeBlock as string);
 				assert.equal(pre.classList.contains('astro-code'), true);
 				assert.equal(pre.classList.contains('github-dark'), true);
 			}
 		});
 		it('transforms with `theme` property', async () => {
 			const ast = Markdoc.parse(entry);
-			const content = await Markdoc.transform(
-				ast,
-				await getConfigExtendingShiki({
-					theme: 'dracula',
-				}),
-			);
+			// @ts-expect-error AstroMarkdocConfig is incompatible with Markdoc.Config
+			const config: Markdoc.Config = await getConfigExtendingShiki({ theme: 'dracula' });
+			const content = (await Markdoc.transform(ast, config)) as Tag;
 			assert.equal(content.children.length, 2);
 			for (const codeBlock of content.children) {
 				assert.equal(isHTMLString(codeBlock), true);
 
-				const pre = parsePreTag(codeBlock);
+				const pre = parsePreTag(codeBlock as string);
 				assert.equal(pre.classList.contains('astro-code'), true);
 				assert.equal(pre.classList.contains('dracula'), true);
 			}
 		});
 		it('transforms with `wrap` property', async () => {
 			const ast = Markdoc.parse(entry);
-			const content = await Markdoc.transform(
-				ast,
-				await getConfigExtendingShiki({
-					wrap: true,
-				}),
-			);
+			// @ts-expect-error AstroMarkdocConfig is incompatible with Markdoc.Config
+			const config: Markdoc.Config = await getConfigExtendingShiki({ wrap: true });
+			const content = (await Markdoc.transform(ast, config)) as Tag;
 			assert.equal(content.children.length, 2);
 			for (const codeBlock of content.children) {
 				assert.equal(isHTMLString(codeBlock), true);
 
-				const pre = parsePreTag(codeBlock);
-				assert.equal(pre.getAttribute('style').includes('white-space: pre-wrap'), true);
-				assert.equal(pre.getAttribute('style').includes('word-wrap: break-word'), true);
+				const pre = parsePreTag(codeBlock as string);
+				assert.equal(pre.getAttribute('style')!.includes('white-space: pre-wrap'), true);
+				assert.equal(pre.getAttribute('style')!.includes('word-wrap: break-word'), true);
 			}
 		});
 		it('transform within if tags', async () => {
@@ -78,14 +74,17 @@ const hello = "yes";
 \`\`\`
 
 {% /if %}`);
-			const content = await Markdoc.transform(ast, await getConfigExtendingShiki());
+			// @ts-expect-error AstroMarkdocConfig is incompatible with Markdoc.Config
+			const config: Markdoc.Config = await getConfigExtendingShiki();
+			const content = (await Markdoc.transform(ast, config)) as Tag;
 			assert.equal(content.children.length, 1);
-			assert.equal(content.children[0].length, 2);
-			const pTag = content.children[0][0];
+			const innerChildren = content.children[0] as unknown as Tag[];
+			assert.equal(innerChildren.length, 2);
+			const pTag = innerChildren[0] as Tag;
 			assert.equal(pTag.name, 'p');
-			const codeBlock = content.children[0][1];
+			const codeBlock = innerChildren[1];
 			assert.equal(isHTMLString(codeBlock), true);
-			const pre = parsePreTag(codeBlock);
+			const pre = parsePreTag(codeBlock as unknown as string);
 			assert.equal(pre.classList.contains('astro-code'), true);
 			assert.equal(pre.classList.contains('github-dark'), true);
 		});
@@ -94,10 +93,14 @@ const hello = "yes";
 	describe('prism', () => {
 		it('transforms', async () => {
 			const ast = Markdoc.parse(entry);
-			const config = await setupConfig({
-				extends: [prism()],
-			});
-			const content = await Markdoc.transform(ast, config);
+			// @ts-expect-error AstroMarkdocConfig is incompatible with Markdoc.Config
+			const config: Markdoc.Config = await setupConfig(
+				{
+					extends: [prism()],
+				},
+				undefined,
+			);
+			const content = (await Markdoc.transform(ast, config)) as Tag;
 
 			assert.equal(content.children.length, 2);
 			const [tsBlock, cssBlock] = content.children;
@@ -105,30 +108,25 @@ const hello = "yes";
 			assert.equal(isHTMLString(tsBlock), true);
 			assert.equal(isHTMLString(cssBlock), true);
 
-			const preTs = parsePreTag(tsBlock);
+			const preTs = parsePreTag(tsBlock as string);
 			assert.equal(preTs.classList.contains('language-ts'), true);
 
-			const preCss = parsePreTag(cssBlock);
+			const preCss = parsePreTag(cssBlock as string);
 			assert.equal(preCss.classList.contains('language-css'), true);
 		});
 	});
 });
 
-/**
- * @param {import('astro').ShikiConfig} config
- * @returns {import('../src/config.js').AstroMarkdocConfig}
- */
-async function getConfigExtendingShiki(config) {
-	return await setupConfig({
-		extends: [shiki(config)],
-	});
+async function getConfigExtendingShiki(config?: Parameters<typeof shiki>[0]) {
+	return await setupConfig(
+		{
+			extends: [shiki(config)],
+		},
+		undefined,
+	);
 }
 
-/**
- * @param {string} html
- * @returns {HTMLPreElement}
- */
-function parsePreTag(html) {
+function parsePreTag(html: string): HTMLPreElement {
 	const { document } = parseHTML(html);
 	const pre = document.querySelector('pre');
 	assert.ok(pre);

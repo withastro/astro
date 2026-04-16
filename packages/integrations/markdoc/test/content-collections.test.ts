@@ -1,10 +1,15 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { parse as parseDevalue } from 'devalue';
-import { fixLineEndings, loadFixture } from '../../../astro/test/test-utils.js';
+import {
+	fixLineEndings,
+	loadFixture,
+	type Fixture,
+	type DevServer,
+} from '../../../astro/test/test-utils.js';
 import markdoc from '../dist/index.js';
 
-function formatPost(post) {
+function formatPost<T extends { body: string }>(post: T): T {
 	return {
 		...post,
 		body: fixLineEndings(post.body),
@@ -13,10 +18,10 @@ function formatPost(post) {
 
 const root = new URL('./fixtures/content-collections/', import.meta.url);
 
-const sortById = (a, b) => a.id.localeCompare(b.id);
+const sortById = (a: { id: string }, b: { id: string }) => a.id.localeCompare(b.id);
 
 describe('Markdoc - Content Collections', () => {
-	let baseFixture;
+	let baseFixture: Fixture;
 
 	before(async () => {
 		baseFixture = await loadFixture({
@@ -26,7 +31,7 @@ describe('Markdoc - Content Collections', () => {
 	});
 
 	describe('dev', () => {
-		let devServer;
+		let devServer: DevServer;
 
 		before(async () => {
 			devServer = await baseFixture.startDevServer();
@@ -48,7 +53,7 @@ describe('Markdoc - Content Collections', () => {
 			assert.notEqual(posts, null);
 
 			assert.deepEqual(
-				posts.sort(sortById).map((post) => formatPost(post)),
+				posts.sort(sortById).map((post: { id: string; body: string }) => formatPost(post)),
 				[post1Entry, post2Entry, post3Entry],
 			);
 		});
@@ -56,7 +61,7 @@ describe('Markdoc - Content Collections', () => {
 
 	describe('build', () => {
 		before(async () => {
-			await baseFixture.build();
+			await baseFixture.build({});
 		});
 
 		it('loads entry', async () => {
@@ -70,7 +75,7 @@ describe('Markdoc - Content Collections', () => {
 			const posts = parseDevalue(res);
 			assert.notEqual(posts, null);
 			assert.deepEqual(
-				posts.sort(sortById).map((post) => formatPost(post)),
+				posts.sort(sortById).map((post: { id: string; body: string }) => formatPost(post)),
 				[post1Entry, post2Entry, post3Entry],
 			);
 		});
