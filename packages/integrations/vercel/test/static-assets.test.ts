@@ -1,6 +1,11 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { type Fixture, type AstroInlineConfig, loadFixture, getVercelConfig } from './test-utils.ts';
+import {
+	type Fixture,
+	type AstroInlineConfig,
+	loadFixture,
+	getVercelConfig,
+} from './test-utils.ts';
 
 describe('Static Assets', () => {
 	let fixture: Fixture;
