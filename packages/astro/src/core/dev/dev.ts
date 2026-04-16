@@ -11,8 +11,6 @@ import {
 	getDataStoreFile,
 	globalContentLayer,
 } from '../../content/content-layer.js';
-import { getDataStoreFile } from '../../content/content-layer.js';
-import { globalContentLayer } from '../../content/instance.js';
 import { attachContentServerListeners } from '../../content/index.js';
 import { MutableDataStore } from '../../content/mutable-data-store.js';
 import { globalContentConfigObserver } from '../../content/utils.js';

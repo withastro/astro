@@ -11,8 +11,6 @@ import {
 	getDataStoreFile,
 	globalContentLayer,
 } from '../../content/content-layer.js';
-import { getDataStoreFile } from '../../content/content-layer.js';
-import { globalContentLayer } from '../../content/instance.js';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { MutableDataStore } from '../../content/mutable-data-store.js';
 import { getContentPaths, globalContentConfigObserver } from '../../content/utils.js';
@@ -152,17 +150,17 @@ export async function syncInternal({
 			await syncContentCollections(settings, { fs, logger, viteServer: tempViteServer });
 			settings.timer.start('Sync content layer');
 
-		let store: MutableDataStore | undefined;
+			let store: MutableDataStore | undefined;
 
-		try {
-			const chunkingEnabled = settings.config.experimental.dataStoreChunking;
-			if (chunkingEnabled) {
-				const dataStoreDir = getDataStoreDir(settings, isDev);
-				store = await MutableDataStore.fromDir(dataStoreDir);
-			} else {
-				const dataStoreFile = getDataStoreFile(settings, isDev);
-				store = await MutableDataStore.fromFile(dataStoreFile);
-			}
+			try {
+				const chunkingEnabled = settings.config.experimental.dataStoreChunking;
+				if (chunkingEnabled) {
+					const dataStoreDir = getDataStoreDir(settings, isDev);
+					store = await MutableDataStore.fromDir(dataStoreDir);
+				} else {
+					const dataStoreFile = getDataStoreFile(settings, isDev);
+					store = await MutableDataStore.fromFile(dataStoreFile);
+				}
 			} catch (err: any) {
 				logger.error('content', err.message);
 			}
