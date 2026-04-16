@@ -1,19 +1,12 @@
 import {
-	appendForwardSlash,
-	collapseDuplicateTrailingSlashes,
-	hasFileExtension,
-	isInternalPath,
-	removeTrailingForwardSlash,
-} from '@astrojs/internal-helpers/path';
-import {
 	DEFAULT_404_COMPONENT,
 	REROUTABLE_STATUS_CODES,
 	REROUTE_DIRECTIVE_HEADER,
 	REWRITE_DIRECTIVE_HEADER_KEY,
 } from '../constants.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { redirectTemplate } from './3xx.js';
 import { routeHasHtmlExtension } from './helpers.js';
+import { TrailingSlashHandler } from './trailing-slash-handler.js';
 import { type CacheLike, applyCacheHeaders } from '../cache/runtime/cache.js';
 import { type AstroSession, PERSIST_SYMBOL } from '../session/runtime.js';
 import { getRenderOptions } from '../app/render-options.js';
@@ -22,40 +15,19 @@ import type { BaseApp, ResolvedRenderOptions } from '../app/base.js';
 
 export class AstroHandler {
 	#app: BaseApp<any>;
+	#trailingSlashHandler: TrailingSlashHandler;
 
 	constructor(app: BaseApp<any>) {
 		this.#app = app;
-	}
-
-	private redirectTrailingSlash(pathname: string): string {
-		const { trailingSlash } = this.#app.manifest;
-
-		// Ignore root and internal paths
-		if (pathname === '/' || isInternalPath(pathname)) {
-			return pathname;
-		}
-
-		// Redirect multiple trailing slashes to collapsed path
-		const path = collapseDuplicateTrailingSlashes(pathname, trailingSlash !== 'never');
-		if (path !== pathname) {
-			return path;
-		}
-
-		if (trailingSlash === 'ignore') {
-			return pathname;
-		}
-
-		if (trailingSlash === 'always' && !hasFileExtension(pathname)) {
-			return appendForwardSlash(pathname);
-		}
-		if (trailingSlash === 'never') {
-			return removeTrailingForwardSlash(pathname);
-		}
-
-		return pathname;
+		this.#trailingSlashHandler = new TrailingSlashHandler(app);
 	}
 
 	async handle(request: Request): Promise<Response> {
+		const trailingSlashRedirect = this.#trailingSlashHandler.handle(request);
+		if (trailingSlashRedirect) {
+			return trailingSlashRedirect;
+		}
+
 		const options = getRenderOptions(request);
 		const addCookieHeader = options?.addCookieHeader ?? false;
 		const clientAddress = options?.clientAddress;
@@ -64,28 +36,6 @@ export class AstroHandler {
 		let routeData = options?.routeData;
 
 		const timeStart = performance.now();
-		const url = new URL(request.url);
-		const redirect = this.redirectTrailingSlash(url.pathname);
-
-		if (redirect !== url.pathname) {
-			const status = request.method === 'GET' ? 301 : 308;
-			const response = new Response(
-				redirectTemplate({
-					status,
-					relativeLocation: url.pathname,
-					absoluteLocation: redirect,
-					from: request.url,
-				}),
-				{
-					status,
-					headers: {
-						location: redirect + url.search,
-					},
-				},
-			);
-			prepareResponse(response, { addCookieHeader });
-			return response;
-		}
 
 		if (routeData) {
 			this.#app.logger.debug(
