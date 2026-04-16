@@ -2,6 +2,4 @@
 'astro': patch
 ---
 
-Fixes Vercel build errors for skew protection query parameters appended to inter-chunk Javascript using dynamic imports in client bundles.
-
-NOTE: Fix was written by https://github.com/leifmarcus in issue comment https://github.com/withastro/astro/issues/16258#issuecomment-4222396413
+Fixes build errors on platforms with skew protection enabled (e.g. Vercel, Netlify) for inter-chunk Javascript using dynamic imports
