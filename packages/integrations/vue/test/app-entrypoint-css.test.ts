@@ -1,11 +1,10 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, type DevServer, loadFixture } from './test-utils.js';
 
 describe('App Entrypoint CSS', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -15,7 +14,7 @@ describe('App Entrypoint CSS', () => {
 
 	describe('build', () => {
 		before(async () => {
-			await fixture.build();
+			await fixture.build({});
 		});
 
 		it('injects styles referenced in appEntrypoint', async () => {
@@ -38,7 +37,7 @@ describe('App Entrypoint CSS', () => {
 	});
 
 	describe('dev', () => {
-		let devServer;
+		let devServer: DevServer;
 		before(async () => {
 			devServer = await fixture.startDevServer();
 		});

@@ -2,17 +2,16 @@ import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
 import { parseHTML } from 'linkedom';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, type DevServer, loadFixture } from './test-utils.js';
 
 describe('App Entrypoint', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/app-entrypoint/',
 		});
-		await fixture.build();
+		await fixture.build({});
 	});
 
 	it('loads during SSR', async () => {
@@ -43,9 +42,8 @@ describe('App Entrypoint', () => {
 });
 
 describe('App Entrypoint no export default (dev)', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-	let devServer;
+	let fixture: Fixture;
+	let devServer: DevServer;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -61,7 +59,7 @@ describe('App Entrypoint no export default (dev)', () => {
 	it('loads during SSR', async () => {
 		const html = await fixture.fetch('/').then((res) => res.text());
 		const { document } = parseHTML(html);
-		const bar = document.querySelector('#foo > #bar');
+		const bar = document.querySelector('#foo > #bar')!;
 		assert.notEqual(bar, undefined);
 		assert.equal(bar.textContent, 'works');
 	});
@@ -76,20 +74,19 @@ describe('App Entrypoint no export default (dev)', () => {
 });
 
 describe('App Entrypoint no export default', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/app-entrypoint-no-export-default/',
 		});
-		await fixture.build();
+		await fixture.build({});
 	});
 
 	it('loads during SSR', async () => {
 		const data = await fixture.readFile('/index.html');
 		const { document } = parseHTML(data);
-		const bar = document.querySelector('#foo > #bar');
+		const bar = document.querySelector('#foo > #bar')!;
 		assert.notEqual(bar, undefined);
 		assert.equal(bar.textContent, 'works');
 	});
@@ -97,8 +94,8 @@ describe('App Entrypoint no export default', () => {
 	it('component not included in renderer bundle', async () => {
 		const data = await fixture.readFile('/index.html');
 		const { document } = parseHTML(data);
-		const island = document.querySelector('astro-island');
-		const client = island.getAttribute('renderer-url');
+		const island = document.querySelector('astro-island')!;
+		const client = island.getAttribute('renderer-url')!;
 		assert.notEqual(client, undefined);
 		const js = await fixture.readFile(client);
 		assert.doesNotMatch(js, /\w+\.component\("Bar"/g);
@@ -114,20 +111,19 @@ describe('App Entrypoint no export default', () => {
 });
 
 describe('App Entrypoint relative', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/app-entrypoint-relative/',
 		});
-		await fixture.build();
+		await fixture.build({});
 	});
 
 	it('loads during SSR', async () => {
 		const data = await fixture.readFile('/index.html');
 		const { document } = parseHTML(data);
-		const bar = document.querySelector('#foo > #bar');
+		const bar = document.querySelector('#foo > #bar')!;
 		assert.notEqual(bar, undefined);
 		assert.equal(bar.textContent, 'works');
 	});
@@ -135,8 +131,8 @@ describe('App Entrypoint relative', () => {
 	it('component not included in renderer bundle', async () => {
 		const data = await fixture.readFile('/index.html');
 		const { document } = parseHTML(data);
-		const island = document.querySelector('astro-island');
-		const client = island.getAttribute('renderer-url');
+		const island = document.querySelector('astro-island')!;
+		const client = island.getAttribute('renderer-url')!;
 		assert.notEqual(client, undefined);
 
 		const js = await fixture.readFile(client);
@@ -145,20 +141,19 @@ describe('App Entrypoint relative', () => {
 });
 
 describe('App Entrypoint /src/absolute', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/app-entrypoint-src-absolute/',
 		});
-		await fixture.build();
+		await fixture.build({});
 	});
 
 	it('loads during SSR', async () => {
 		const data = await fixture.readFile('/index.html');
 		const { document } = parseHTML(data);
-		const bar = document.querySelector('#foo > #bar');
+		const bar = document.querySelector('#foo > #bar')!;
 		assert.notEqual(bar, undefined);
 		assert.equal(bar.textContent, 'works');
 	});
@@ -166,8 +161,8 @@ describe('App Entrypoint /src/absolute', () => {
 	it('component not included in renderer bundle', async () => {
 		const data = await fixture.readFile('/index.html');
 		const { document } = parseHTML(data);
-		const island = document.querySelector('astro-island');
-		const client = island.getAttribute('renderer-url');
+		const island = document.querySelector('astro-island')!;
+		const client = island.getAttribute('renderer-url')!;
 		assert.notEqual(client, undefined);
 
 		const js = await fixture.readFile(client);
@@ -176,14 +171,13 @@ describe('App Entrypoint /src/absolute', () => {
 });
 
 describe('App Entrypoint async', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/app-entrypoint-async/',
 		});
-		await fixture.build();
+		await fixture.build({});
 	});
 
 	it('loads during SSR', async () => {
