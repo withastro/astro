@@ -1,18 +1,18 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { createBasicSettings } from '../test-utils.js';
 import {
 	serializedManifestPlugin,
 	SERIALIZED_MANIFEST_RESOLVED_ID,
 } from '../../../dist/manifest/serialized.js';
+import { createBasicSettings } from '../test-utils.js';
 
 /**
  * Invoke the plugin's load handler (as it runs in dev mode) and return the
  * parsed SerializedSSRManifest that is embedded in the generated module code.
  */
-async function getManifest(settings: any) {
+async function getManifest(settings) {
 	const plugin = serializedManifestPlugin({ settings, command: 'dev', sync: false });
-	const load = plugin.load as { handler: (id: string) => Promise<{ code: string }> };
+	const load = plugin.load;
 	const result = await load.handler.call({}, SERIALIZED_MANIFEST_RESOLVED_ID);
 	// The generated code contains: _deserializeManifest((<json>))
 	const match = /_deserializeManifest\(\((.+)\)\)/s.exec(result.code);
@@ -140,7 +140,7 @@ describe('serializedManifestPlugin - dev mode', () => {
 	});
 
 	describe('trailingSlash', () => {
-		for (const value of ['always', 'never', 'ignore'] as const) {
+		for (const value of ['always', 'never', 'ignore']) {
 			it(`preserves trailingSlash="${value}"`, async () => {
 				const settings = await createBasicSettings({ trailingSlash: value });
 				const manifest = await getManifest(settings);
