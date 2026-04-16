@@ -373,7 +373,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				}
 				builder.environments.client.config.build.rollupOptions.input = Array.from(
 					internals.clientInput,
-				);
+				).sort();
 				settings.timer.start('Client build');
 				await builder.build(builder.environments.client);
 				settings.timer.end('Client build');
