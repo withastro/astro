@@ -5,7 +5,7 @@ import type { RuntimeFontFetcher } from '../definitions.js';
  * In development, font files are served through a Vite middleware.
  * During prerendering, a temporary Node HTTP server is started to
  * serve font files.
- * 
+ *
  * We send request to the provided server address. `requestUrl` on
  * `fetch` is not implemented because we have the information from
  * within the Vite plugin already.
