@@ -1,5 +1,5 @@
-import { readFileSync } from 'node:fs';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import { createServer, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { isAbsolute } from 'node:path';
@@ -372,7 +372,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				const dir = getClientOutputDirectory(settings);
 				const fontsDir = new URL(`.${assetsDir}`, dir);
 				try {
-					await mkdir(fontsDir, { recursive: true });
+					mkdirSync(fontsDir, { recursive: true });
 				} catch (cause) {
 					throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause });
 				}
@@ -385,7 +385,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 						Array.from(fontFileById.entries()).map(async ([id, associatedData]) => {
 							const data = await fontFetcher!.fetch({ id, ...associatedData });
 							try {
-								await writeFile(new URL(id, fontsDir), data);
+								writeFileSync(new URL(id, fontsDir), data);
 							} catch (cause) {
 								throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause });
 							}
