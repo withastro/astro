@@ -1,15 +1,15 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
+import { EnumChangefreq } from 'sitemap';
 import { sitemap } from './fixtures/static/deps.mjs';
 import { loadFixture, readXML } from './test-utils.js';
+import type { Fixture } from '../../../astro/test/test-utils.js';
 
 describe('Sitemap with chunked files', () => {
-	/** @type {import('./test-utils.js').Fixture} */
-	let fixture;
-	/** @type {string[]} */
-	let blogUrls;
-	let glossaryUrls;
-	let pagesUrls;
+	let fixture: Fixture;
+	let blogUrls: string[];
+	let glossaryUrls: string[];
+	let pagesUrls: string[];
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -22,16 +22,16 @@ describe('Sitemap with chunked files', () => {
 					chunks: {
 						blog: (item) => {
 							if (item.url.includes('blog')) {
-								item.changefreq = 'weekly';
-								item.lastmod = new Date();
+								item.changefreq = EnumChangefreq.WEEKLY;
+								item.lastmod = new Date().toISOString();
 								item.priority = 0.9;
 								return item;
 							}
 						},
 						glossary: (item) => {
 							if (item.url.includes('glossary')) {
-								item.changefreq = 'weekly';
-								item.lastmod = new Date();
+								item.changefreq = EnumChangefreq.WEEKLY;
+								item.lastmod = new Date().toISOString();
 								item.priority = 0.9;
 								return item;
 							}
@@ -40,10 +40,10 @@ describe('Sitemap with chunked files', () => {
 				}),
 			],
 		});
-		await fixture.build();
-		const flatMapUrls = async (file) => {
+		await fixture.build({});
+		const flatMapUrls = async (file: string) => {
 			const data = await readXML(fixture.readFile(file));
-			return data.urlset.url.map((url) => url.loc[0]);
+			return data.urlset.url.map((url: { loc: string[] }) => url.loc[0]);
 		};
 		blogUrls = await flatMapUrls('sitemap-blog-0.xml');
 		glossaryUrls = await flatMapUrls('sitemap-glossary-0.xml');

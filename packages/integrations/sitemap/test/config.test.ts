@@ -2,10 +2,10 @@ import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { sitemap } from './fixtures/static/deps.mjs';
 import { loadFixture, readXML } from './test-utils.js';
+import type { Fixture } from '../../../astro/test/test-utils.js';
 
 describe('Config', () => {
-	/** @type {import('./test-utils.js').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	describe('Static', () => {
 		before(async () => {
@@ -18,7 +18,7 @@ describe('Config', () => {
 					}),
 				],
 			});
-			await fixture.build();
+			await fixture.build({});
 		});
 
 		it('filter: Just one page is added', async () => {
@@ -55,7 +55,7 @@ describe('Config', () => {
 					}),
 				],
 			});
-			await fixture.build();
+			await fixture.build({});
 		});
 
 		it('filter: Just one page is added', async () => {
@@ -92,7 +92,7 @@ describe('Config', () => {
 					}),
 				],
 			});
-			await fixture.build();
+			await fixture.build({});
 		});
 
 		it('filenameBase: Sets the generated sitemap filename', async () => {
@@ -119,7 +119,7 @@ describe('Config', () => {
 					}),
 				],
 			});
-			await assert.rejects(fixture.build(), /^Error: filter error$/);
+			await assert.rejects(fixture.build({}), /^Error: filter error$/);
 		});
 	});
 });

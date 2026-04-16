@@ -2,12 +2,11 @@ import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { sitemap } from './fixtures/static/deps.mjs';
 import { loadFixture, readXML } from './test-utils.js';
+import type { Fixture } from '../../../astro/test/test-utils.js';
 
 describe('Custom sitemaps', () => {
-	/** @type {import('./test-utils.js').Fixture} */
-	let fixture;
-	/** @type {{ [key: string]: string }} */
-	let sitemaps;
+	let fixture: Fixture;
+	let sitemaps: { loc: string; lastmod: string }[];
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -19,9 +18,9 @@ describe('Custom sitemaps', () => {
 				}),
 			],
 		});
-		await fixture.build();
+		await fixture.build({});
 		const data = await readXML(fixture.readFile('/sitemap-index.xml'));
-		sitemaps = data.sitemapindex.sitemap.map((s) => ({ loc: s.loc[0], lastmod: s.lastmod[0] }));
+		sitemaps = data.sitemapindex.sitemap.map((s: { loc: string[]; lastmod: string[] }) => ({ loc: s.loc[0], lastmod: s.lastmod[0] }));
 	});
 
 	it('includes defined custom sitemaps', async () => {

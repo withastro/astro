@@ -2,9 +2,10 @@ import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { sitemap } from './fixtures/static/deps.mjs';
 import { loadFixture } from './test-utils.js';
+import type { Fixture } from '../../../astro/test/test-utils.js';
 
 describe('Namespaces Configuration', () => {
-	let fixture;
+	let fixture: Fixture;
 
 	describe('Default namespaces', () => {
 		before(async () => {
@@ -12,7 +13,7 @@ describe('Namespaces Configuration', () => {
 				root: './fixtures/static/',
 				integrations: [sitemap()],
 			});
-			await fixture.build();
+			await fixture.build({});
 		});
 
 		it('includes all default namespaces', async () => {
@@ -36,7 +37,7 @@ describe('Namespaces Configuration', () => {
 					}),
 				],
 			});
-			await fixture.build();
+			await fixture.build({});
 		});
 
 		it('excludes news namespace but includes others', async () => {
@@ -63,7 +64,7 @@ describe('Namespaces Configuration', () => {
 					}),
 				],
 			});
-			await fixture.build();
+			await fixture.build({});
 		});
 
 		it('excludes all optional namespaces', async () => {
