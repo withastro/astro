@@ -1,13 +1,13 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { loadFixture } from '../../../../astro/test/test-utils.js';
+import { type Fixture, loadFixture } from '../../../../astro/test/test-utils.js';
 
 describe('SSG - headers', () => {
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({ root: new URL('./fixtures/redirects/', import.meta.url) });
-		await fixture.build();
+		await fixture.build({});
 	});
 
 	it('Generates headers for static assets', async () => {

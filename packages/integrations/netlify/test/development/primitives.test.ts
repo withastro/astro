@@ -2,14 +2,13 @@ import assert from 'node:assert/strict';
 import { after, afterEach, before, describe, it } from 'node:test';
 
 import * as cheerio from 'cheerio';
-import { loadFixture } from '../../../../astro/test/test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from '../../../../astro/test/test-utils.js';
 import netlifyAdapter from '../../dist/index.js';
 
 describe('Netlify primitives', () => {
 	describe('Development', () => {
-		/** @type {import('../../../../astro/test/test-utils').Fixture} */
-		let fixture;
-		let devServer;
+		let fixture: Fixture;
+		let devServer: DevServer;
 		before(async () => {
 			fixture = await loadFixture({
 				root: new URL('./fixtures/primitives/', import.meta.url),
@@ -65,9 +64,11 @@ describe('Netlify primitives', () => {
 		it('loads images in development', async () => {
 			const imgResponse = await fixture.fetch('/astronaut');
 			const $img = cheerio.load(await imgResponse.text());
-			const images = $img('img').map((_i, el) => {
-				return $img(el).attr('src');
-			});
+			const images = $img('img')
+				.map((_i, el) => {
+					return $img(el).attr('src');
+				})
+				.toArray();
 
 			for (const imgSrc of images) {
 				assert(imgSrc.startsWith('/.netlify/images'));
@@ -89,9 +90,11 @@ describe('Netlify primitives', () => {
 			try {
 				const imgResponse = await cdnDisabledFixture.fetch('/astronaut');
 				const $img = cheerio.load(await imgResponse.text());
-				const images = $img('img').map((_i, el) => {
-					return $img(el).attr('src');
-				});
+				const images = $img('img')
+					.map((_i, el) => {
+						return $img(el).attr('src');
+					})
+					.toArray();
 
 				for (const imgSrc of images) {
 					assert(
@@ -101,7 +104,7 @@ describe('Netlify primitives', () => {
 				}
 			} finally {
 				await cdnDisabledServer.stop();
-				process.env.DISABLE_IMAGE_CDN = undefined;
+				delete process.env.DISABLE_IMAGE_CDN;
 			}
 		});
 	});

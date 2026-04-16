@@ -9,12 +9,12 @@ describe('Image validation when is not size specification in netlify.', () => {
 		});
 
 		try {
-			await fixture.build();
+			await fixture.build({});
 			assert.fail();
 		} catch (e) {
 			// check the error image about missing image dimension
 			assert.match(
-				e.name,
+				(e as Error).name,
 				/MissingImageDimension/,
 				`Build failed but not with the expected "MissingImageDimension"`,
 			);

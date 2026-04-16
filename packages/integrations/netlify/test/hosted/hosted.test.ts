@@ -24,6 +24,6 @@ describe('Hosted Netlify Tests', () => {
 
 		const responseTwo = await fetch(`${NETLIFY_TEST_URL}/time`).then((res) => res.text());
 
-		assert.notEqual(responseOne.body, responseTwo.body);
+		assert.notEqual(responseOne, responseTwo);
 	});
 });

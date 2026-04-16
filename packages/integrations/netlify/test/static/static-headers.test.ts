@@ -1,14 +1,14 @@
 import * as assert from 'node:assert/strict';
 import { existsSync, readdirSync } from 'node:fs';
 import { before, describe, it } from 'node:test';
-import { loadFixture } from '../../../../astro/test/test-utils.js';
+import { type Fixture, loadFixture } from '../../../../astro/test/test-utils.js';
 
 describe('Static headers', () => {
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({ root: new URL('./fixtures/static-headers/', import.meta.url) });
-		await fixture.build();
+		await fixture.build({});
 	});
 
 	it('SSR function is generated when server islands are used with output: static', async () => {
@@ -23,7 +23,7 @@ describe('Static headers', () => {
 	it('CSP headers are added when CSP is enabled', async () => {
 		const config = await fixture.readFile('../.netlify/v1/config.json');
 		const headers = JSON.parse(config).headers;
-		const index = headers.find((x) => x.for === '/');
+		const index = headers.find((x: { for: string }) => x.for === '/');
 
 		assert.notEqual(index, undefined, 'the index must have CSP headers');
 		assert.notEqual(

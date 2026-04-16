@@ -1,10 +1,9 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { mkdir, rm } from 'node:fs/promises';
 import { after, before, describe, it } from 'node:test';
 import { BlobsServer } from '@netlify/blobs/server';
 import * as devalue from 'devalue';
-import { loadFixture } from '../../../../astro/test/test-utils.js';
+import { type Fixture, loadFixture } from '../../../../astro/test/test-utils.js';
 import netlify from '../../dist/index.js';
 import { sessionDrivers } from 'astro/config';
 
@@ -14,11 +13,9 @@ const dataDir = '.netlify/sessions';
 
 describe('Astro.session', () => {
 	describe('Production', () => {
-		/** @type {import('../../../../astro/test/test-utils.js').Fixture} */
-		let fixture;
+		let fixture: Fixture;
 
-		/** @type {BlobsServer} */
-		let blobServer;
+		let blobServer: BlobsServer;
 		before(async () => {
 			process.env.NETLIFY = '1';
 			await rm(dataDir, { recursive: true, force: true }).catch(() => {});
@@ -35,6 +32,7 @@ describe('Astro.session', () => {
 				output: 'server',
 				adapter: netlify(),
 				session: {
+					// @ts-ignore - session driver types are complex generics
 					driver: sessionDrivers.netlifyBlobs({
 						name: 'test',
 						uncachedEdgeURL: `http://localhost:8971`,
@@ -52,17 +50,12 @@ describe('Astro.session', () => {
 			const mod = await import(entryURL.href);
 			handler = mod.default;
 		});
-		/** @type {(request: Request, options: {}) => Promise<Response>} */
-		let handler;
+		let handler: (request: Request, options: Record<string, unknown>) => Promise<Response>;
 		after(async () => {
 			await blobServer.stop();
 			delete process.env.NETLIFY;
 		});
-		/**
-		 * @param {string} path
-		 * @param {RequestInit} requestInit
-		 */
-		function fetchResponse(path, requestInit) {
+		function fetchResponse(path: string, requestInit: RequestInit) {
 			return handler(new Request(new URL(path, 'http://example.com'), requestInit), {});
 		}
 
