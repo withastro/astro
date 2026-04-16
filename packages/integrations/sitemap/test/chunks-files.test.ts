@@ -24,7 +24,7 @@ describe('Sitemap with chunked files', () => {
 							if (item.url.includes('blog')) {
 								item.changefreq = EnumChangefreq.WEEKLY;
 								// @ts-expect-error - a string is expected but the original JS code assigns a Date object here
-								item.lastmod = new Date()
+								item.lastmod = new Date();
 								item.priority = 0.9;
 								return item;
 							}
@@ -33,7 +33,7 @@ describe('Sitemap with chunked files', () => {
 							if (item.url.includes('glossary')) {
 								item.changefreq = EnumChangefreq.WEEKLY;
 								// @ts-expect-error - a string is expected but the original JS code assigns a Date object here
-								item.lastmod = new Date()
+								item.lastmod = new Date();
 								item.priority = 0.9;
 								return item;
 							}
