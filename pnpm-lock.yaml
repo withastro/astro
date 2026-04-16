@@ -2120,12 +2120,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/astro-components:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/astro-cookies:
     dependencies:
       astro:
@@ -2133,12 +2127,6 @@ importers:
         version: link:../../..
 
   packages/astro/test/fixtures/astro-css-bundling:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/astro-css-bundling-nested-layouts:
     dependencies:
       astro:
         specifier: workspace:*
@@ -2649,12 +2637,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/config-host:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/config-path:
     dependencies:
       astro:
@@ -3077,18 +3059,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/css-inline-stylesheets-2:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/css-inline-stylesheets-3:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/css-no-code-split:
     dependencies:
       astro:
@@ -3416,12 +3386,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/hmr-css:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/hmr-markdown:
     dependencies:
       astro:
@@ -3483,57 +3447,6 @@ importers:
         version: 10.29.0
 
   packages/astro/test/fixtures/i18n-css-leak-basic:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/i18n-routing-base:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/i18n-routing-dynamic:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/i18n-routing-fallback-rewrite-hybrid:
-    dependencies:
-      '@astrojs/node':
-        specifier: workspace:*
-        version: link:../../../../integrations/node
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/i18n-routing-manual:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/i18n-routing-manual-with-default-middleware:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/i18n-routing-redirect-preferred-language:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/i18n-routing-subdomain:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/i18n-server-island:
     dependencies:
       astro:
         specifier: workspace:*
