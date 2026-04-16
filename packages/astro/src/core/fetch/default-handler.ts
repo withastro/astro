@@ -1,5 +1,6 @@
 import type { BaseApp } from '../app/base.js';
 import { AstroHandler } from '../routing/handler.js';
+import type { FetchHandler } from './types.js';
 
 /**
  * The default request handler used by `BaseApp`. It owns an `AstroHandler`
@@ -8,8 +9,8 @@ import { AstroHandler } from '../routing/handler.js';
  * apps, middleware composition, etc.) without changing `BaseApp` itself.
  *
  * Resolved render options are passed from `BaseApp#render()` through the
- * request via `renderOptionsSymbol`; this handler does not need to know
- * about them.
+ * request via the render-options symbol; this handler does not need to
+ * know about them.
  */
 export class DefaultFetchHandler {
 	#astroHandler: AstroHandler;
@@ -18,7 +19,7 @@ export class DefaultFetchHandler {
 		this.#astroHandler = new AstroHandler(app);
 	}
 
-	async fetch(request: Request): Promise<Response> {
+	fetch: FetchHandler = (request) => {
 		return this.#astroHandler.handle(request);
-	}
+	};
 }

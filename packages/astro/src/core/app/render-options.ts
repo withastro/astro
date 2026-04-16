@@ -6,7 +6,7 @@ import type { ResolvedRenderOptions } from './base.js';
  * a request) into the `AstroHandler`. This is an internal implementation
  * detail between `BaseApp` and the default handler pipeline.
  */
-export const renderOptionsSymbol = Symbol.for('astro.renderOptions');
+const renderOptionsSymbol = Symbol.for('astro.renderOptions');
 
 /**
  * Reads `ResolvedRenderOptions` that were attached to a request via
