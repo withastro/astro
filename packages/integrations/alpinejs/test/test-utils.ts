@@ -2,7 +2,12 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { test as testBase } from '@playwright/test';
-import { loadFixture as baseLoadFixture, type Fixture, type AstroInlineConfig, type DevServer } from '../../../astro/test/test-utils.js';
+import {
+	loadFixture as baseLoadFixture,
+	type Fixture,
+	type AstroInlineConfig,
+	type DevServer,
+} from '../../../astro/test/test-utils.js';
 
 // Get all test files in directory, assign unique port for each of them so they don't conflict
 const testFiles = await fs.readdir(new URL('.', import.meta.url));
@@ -31,7 +36,7 @@ function loadFixture(inlineConfig: AstroInlineConfig) {
 function testFactory(inlineConfig: AstroInlineConfig) {
 	let fixture: Fixture;
 
-	const test = testBase.extend<{astro: Fixture}>({
+	const test = testBase.extend<{ astro: Fixture }>({
 		// biome-ignore lint/correctness/noEmptyPattern: playwright needs this
 		astro: async ({}, use) => {
 			fixture = fixture || (await loadFixture(inlineConfig));
