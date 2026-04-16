@@ -768,7 +768,7 @@ describe('fonts infra', () => {
 			const fontFetcher = new DevRuntimeFontFetcher({
 				ids: new Set(['foo.woff2']),
 				base: '/',
-				port: 3000,
+				address: { address: '127.0.0.1', family: 'IPv4', port: 3000 },
 				fetch: async (input) => {
 					inputs.push(input);
 					return new Response();
@@ -786,7 +786,7 @@ describe('fonts infra', () => {
 			const fontFetcher = new DevRuntimeFontFetcher({
 				ids: new Set(['foo.woff2']),
 				base: '/test/',
-				port: 3000,
+				address: { address: '127.0.0.1', family: 'IPv4', port: 3000 },
 				fetch: async (input) => {
 					inputs.push(input);
 					return new Response(new ArrayBuffer(4));
@@ -796,7 +796,7 @@ describe('fonts infra', () => {
 			const buffer = await fontFetcher.fetch('/test/_astro/fonts/foo.woff2');
 
 			assert.equal(buffer?.byteLength, 4);
-			assert.deepStrictEqual(inputs, ['http://localhost:3000/test/foo.woff2']);
+			assert.deepStrictEqual(inputs, ['http://127.0.0.1:3000/test/foo.woff2']);
 		});
 	});
 
@@ -805,7 +805,7 @@ describe('fonts infra', () => {
 			let inputs: Array<RequestInfo | URL> = [];
 			const fontFetcher = new BuildRuntimeFontFetcher({
 				ids: new Set(['foo.woff2']),
-				port: 3000,
+				address: { address: '::', family: 'IPv6', port: 3000 },
 				fetch: async (input) => {
 					inputs.push(input);
 					return new Response();
@@ -822,7 +822,7 @@ describe('fonts infra', () => {
 			let inputs: Array<RequestInfo | URL> = [];
 			const fontFetcher = new BuildRuntimeFontFetcher({
 				ids: new Set(['foo.woff2']),
-				port: 3000,
+				address: { address: '::', family: 'IPv6', port: 3000 },
 				fetch: async (input) => {
 					inputs.push(input);
 					return new Response(new ArrayBuffer(4));
@@ -832,7 +832,7 @@ describe('fonts infra', () => {
 			const buffer = await fontFetcher.fetch('/test/_astro/fonts/foo.woff2');
 
 			assert.equal(buffer?.byteLength, 4);
-			assert.deepStrictEqual(inputs, ['http://localhost:3000/foo.woff2']);
+			assert.deepStrictEqual(inputs, ['http://[::]:3000/foo.woff2']);
 		});
 	});
 

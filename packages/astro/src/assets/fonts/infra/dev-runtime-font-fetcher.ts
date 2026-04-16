@@ -1,3 +1,4 @@
+import type { AddressInfo } from 'node:net';
 import type { RuntimeFontFetcher } from '../definitions.js';
 
 /**
@@ -8,23 +9,23 @@ import type { RuntimeFontFetcher } from '../definitions.js';
  */
 export class DevRuntimeFontFetcher implements RuntimeFontFetcher {
 	#ids: Set<string>;
-	#port: number;
+	#address: AddressInfo | null;
 	#base: string;
 	#fetch: typeof globalThis.fetch;
 
 	constructor({
 		ids,
-		port,
+		address,
 		base,
 		fetch,
 	}: {
 		ids: Set<string>;
-		port: number;
+		address: AddressInfo | null;
 		base: string;
 		fetch: typeof globalThis.fetch;
 	}) {
 		this.#ids = ids;
-		this.#port = port;
+		this.#address = address;
 		this.#base = base;
 		this.#fetch = fetch;
 	}
@@ -34,7 +35,12 @@ export class DevRuntimeFontFetcher implements RuntimeFontFetcher {
 		if (!this.#ids.has(id)) {
 			return null;
 		}
-		return this.#fetch(`http://localhost:${this.#port}${this.#base}${id}`).then((res) =>
+		if (!this.#address) {
+			throw new Error('Server address unavailable, this should not happen. Open an issue.');
+		}
+		const host =
+			this.#address.family === 'IPv6' ? `[${this.#address.address}]` : this.#address.address;
+		return this.#fetch(`http://${host}:${this.#address.port}${this.#base}${id}`).then((res) =>
 			res.arrayBuffer(),
 		);
 	}

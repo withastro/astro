@@ -325,7 +325,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 								import { BuildRuntimeFontFetcher } from ${JSON.stringify(new URL('./infra/build-runtime-font-fetcher.js', import.meta.url))};
 								export const runtimeFontFetcher = new BuildRuntimeFontFetcher({
 									ids: new Set(${JSON.stringify(ids)}),
-									port: ${serverAddress?.port},
+									address: ${JSON.stringify(serverAddress)},
 									fetch: globalThis.fetch,
 								});
 							`,
@@ -349,7 +349,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 							import { DevRuntimeFontFetcher } from ${JSON.stringify(new URL('./infra/dev-runtime-font-fetcher.js', import.meta.url))};
 							export const runtimeFontFetcher = new DevRuntimeFontFetcher({
 								ids: new Set(${JSON.stringify(ids)}),
-								port: ${serverAddress?.port},
+								address: ${JSON.stringify(serverAddress)},
 								base: ${JSON.stringify(assetsDir)},
 								fetch: globalThis.fetch,
 							});
