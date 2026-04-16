@@ -3,19 +3,22 @@ import { after, before, describe, it } from 'node:test';
 import { AstroTelemetry } from '../dist/index.js';
 
 function setup() {
-	const config = new Map();
-	const telemetry = new AstroTelemetry({ astroVersion: '0.0.0-test.1', viteVersion: '0.0.0' });
-	const logs = [];
+	const config = new Map<string, unknown>();
+	const telemetry = new AstroTelemetry({
+		astroVersion: '0.0.0-test.1',
+		viteVersion: '0.0.0',
+	});
+	const logs: unknown[][] = [];
 	// Stub isCI to false so we can test user-facing behavior
-	telemetry.isCI = false;
+	telemetry['isCI'] = false;
 	// Stub process.env to properly test in Astro's own CI
-	telemetry.env = {};
+	telemetry['env'] = {};
 	// Override config so we can inspect it
-	telemetry.config = config;
+	telemetry['config'] = config;
 
 	// Mock the global debug function to capture logs
-	const originalDebug = globalThis._astroGlobalDebug;
-	globalThis._astroGlobalDebug = (type, ...args) => {
+	const originalDebug = (globalThis as any)._astroGlobalDebug;
+	(globalThis as any)._astroGlobalDebug = (type: string, ...args: unknown[]) => {
 		if (type === 'telemetry') {
 			logs.push(args);
 		}
@@ -34,13 +37,13 @@ function setup() {
 		config,
 		logs,
 		cleanup: () => {
-			globalThis._astroGlobalDebug = originalDebug;
+			(globalThis as any)._astroGlobalDebug = originalDebug;
 			process.env.DEBUG = oldDebug;
 		},
 	};
 }
 describe('AstroTelemetry', () => {
-	let oldCI;
+	let oldCI: string | undefined;
 	before(() => {
 		oldCI = process.env.CI;
 		// Stub process.env.CI to `false`
@@ -60,9 +63,9 @@ describe('AstroTelemetry', () => {
 		const [key] = Array.from(config.keys());
 		assert.notEqual(key, undefined);
 		assert.equal(config.get(key), false);
-		assert.equal(telemetry.enabled, false);
-		assert.equal(telemetry.isDisabled, true);
-		const result = await telemetry.record(['TEST']);
+		assert.equal(telemetry['enabled'], false);
+		assert.equal(telemetry['isDisabled'], true);
+		const result = await telemetry.record([{ eventName: 'TEST', payload: {} }]);
 		assert.equal(result, undefined);
 		const [log] = logs;
 		assert.notEqual(log, undefined);
@@ -75,9 +78,9 @@ describe('AstroTelemetry', () => {
 		const [key] = Array.from(config.keys());
 		assert.notEqual(key, undefined);
 		assert.equal(config.get(key), true);
-		assert.equal(telemetry.enabled, true);
-		assert.equal(telemetry.isDisabled, false);
-		await telemetry.record(['TEST']);
+		assert.equal(telemetry['enabled'], true);
+		assert.equal(telemetry['isDisabled'], false);
+		await telemetry.record([{ eventName: 'TEST', payload: {} }]);
 		assert.equal(logs.length, 2);
 		cleanup();
 	});
@@ -87,8 +90,8 @@ describe('AstroTelemetry', () => {
 		const [key] = Array.from(config.keys());
 		assert.notEqual(key, undefined);
 		assert.equal(config.get(key), false);
-		assert.equal(telemetry.enabled, false);
-		assert.equal(telemetry.isDisabled, true);
+		assert.equal(telemetry['enabled'], false);
+		assert.equal(telemetry['isDisabled'], true);
 		const [log] = logs;
 		assert.notEqual(log, undefined);
 		assert.match(logs.join(''), /disabled/);
@@ -100,8 +103,8 @@ describe('AstroTelemetry', () => {
 		const [key] = Array.from(config.keys());
 		assert.notEqual(key, undefined);
 		assert.equal(config.get(key), true);
-		assert.equal(telemetry.enabled, true);
-		assert.equal(telemetry.isDisabled, false);
+		assert.equal(telemetry['enabled'], true);
+		assert.equal(telemetry['isDisabled'], false);
 		const [log] = logs;
 		assert.notEqual(log, undefined);
 		assert.match(logs.join(''), /enabled/);
