@@ -1,8 +1,6 @@
 <div id="counter-b">Counter B</div>
 <script>
-	// Dynamic import here instead of static to test both kinds of import
-	const { farewell, MESSAGES } = (await import('./shared.js'));
-
+	import { farewell, MESSAGES } from './shared.js';
 	const el = document.getElementById('counter-b');
 	if (el) el.textContent = farewell('B') + ' ' + MESSAGES.success;
 </script>
