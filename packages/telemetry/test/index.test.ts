@@ -6,30 +6,19 @@ declare global {
 	var _astroGlobalDebug: ((type: string, ...args: unknown[]) => void) | undefined;
 }
 
-interface TelemetryTestAccess {
-	isCI: boolean;
-	env: NodeJS.ProcessEnv;
-	config: Map<string, unknown>;
-	readonly enabled: boolean;
-	readonly isDisabled: boolean;
-	setEnabled(value: boolean): void;
-	record(event?: TelemetryEvent | TelemetryEvent[]): Promise<unknown>;
-	notify(callback: () => boolean | Promise<boolean>): Promise<void>;
-}
-
 function setup() {
 	const config = new Map<string, unknown>();
 	const telemetry = new AstroTelemetry({
 		astroVersion: '0.0.0-test.1',
 		viteVersion: '0.0.0',
-	}) as unknown as TelemetryTestAccess;
+	})  ;
 	const logs: unknown[][] = [];
 	// Stub isCI to false so we can test user-facing behavior
-	telemetry.isCI = false;
+	telemetry['isCI'] = false;
 	// Stub process.env to properly test in Astro's own CI
-	telemetry.env = {};
+	telemetry['env'] = {};
 	// Override config so we can inspect it
-	telemetry.config = config;
+	telemetry['config'] = config;
 
 	// Mock the global debug function to capture logs
 	const originalDebug = globalThis._astroGlobalDebug;
