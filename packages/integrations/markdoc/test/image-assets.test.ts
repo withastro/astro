@@ -37,7 +37,10 @@ describe('Markdoc - Image assets', () => {
 					const res = await baseFixture.fetch('/');
 					const html = await res.text();
 					const { document } = parseHTML(html);
-					assert.equal(document.querySelector<HTMLImageElement>('#public > img')?.src, '/favicon.svg');
+					assert.equal(
+						document.querySelector<HTMLImageElement>('#public > img')?.src,
+						'/favicon.svg',
+					);
 				});
 
 				it('transforms relative image paths to optimized path', async () => {
@@ -64,7 +67,10 @@ describe('Markdoc - Image assets', () => {
 					const res = await baseFixture.fetch('/');
 					const html = await res.text();
 					const { document } = parseHTML(html);
-					assert.equal(document.querySelector<HTMLImageElement>('#component > img')?.className, 'custom-styles');
+					assert.equal(
+						document.querySelector<HTMLImageElement>('#component > img')?.className,
+						'custom-styles',
+					);
 				});
 			});
 
@@ -76,13 +82,19 @@ describe('Markdoc - Image assets', () => {
 				it('uses public/ image paths unchanged', async () => {
 					const html = await baseFixture.readFile('/index.html');
 					const { document } = parseHTML(html);
-					assert.equal(document.querySelector<HTMLImageElement>('#public > img')?.src, '/favicon.svg');
+					assert.equal(
+						document.querySelector<HTMLImageElement>('#public > img')?.src,
+						'/favicon.svg',
+					);
 				});
 
 				it('transforms relative image paths to optimized path', async () => {
 					const html = await baseFixture.readFile('/index.html');
 					const { document } = parseHTML(html);
-					assert.match(document.querySelector<HTMLImageElement>('#relative > img')!.src, /^\/_astro\/oar.*\.webp$/);
+					assert.match(
+						document.querySelector<HTMLImageElement>('#relative > img')!.src,
+						/^\/_astro\/oar.*\.webp$/,
+					);
 				});
 
 				it('transforms aliased image paths to optimized path', async () => {
@@ -97,8 +109,14 @@ describe('Markdoc - Image assets', () => {
 				it('passes images inside image tags to configured image component', async () => {
 					const html = await baseFixture.readFile('/index.html');
 					const { document } = parseHTML(html);
-					assert.equal(document.querySelector<HTMLImageElement>('#component > img')?.className, 'custom-styles');
-					assert.match(document.querySelector<HTMLImageElement>('#component > img')!.src, /^\/_astro\/oar.*\.webp$/);
+					assert.equal(
+						document.querySelector<HTMLImageElement>('#component > img')?.className,
+						'custom-styles',
+					);
+					assert.match(
+						document.querySelector<HTMLImageElement>('#component > img')!.src,
+						/^\/_astro\/oar.*\.webp$/,
+					);
 				});
 			});
 		});

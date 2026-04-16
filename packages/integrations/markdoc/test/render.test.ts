@@ -174,8 +174,8 @@ function renderWithRootFolderContainingSpace(html: string) {
 	const { document } = parseHTML(html);
 	const h2 = document.querySelector('h2');
 	assert.equal(h2!.textContent, 'Simple post with root folder containing a space');
-	const p = document.querySelector('p');
-	assert.equal(p!.textContent, 'This is a simple Markdoc post with root folder containing a space.');
+	const p = document.querySelector('p')!;
+	assert.equal(p.textContent, 'This is a simple Markdoc post with root folder containing a space.');
 }
 
 function renderTypographerChecks(html: string) {
@@ -184,7 +184,6 @@ function renderTypographerChecks(html: string) {
 	const h2 = document.querySelector('h2');
 	assert.equal(h2!.textContent, 'Typographer’s post');
 
-	const p = document.querySelector('p');
-	assert.equal(p!.textContent, 'This is a post to test the “typographer” option.');
-
+	const p = document.querySelector('p')!;
+	assert.equal(p.textContent, 'This is a post to test the “typographer” option.');
 }

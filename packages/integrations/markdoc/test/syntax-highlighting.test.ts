@@ -23,8 +23,9 @@ describe('Markdoc - syntax highlighting', () => {
 	describe('shiki', () => {
 		it('transforms with defaults', async () => {
 			const ast = Markdoc.parse(entry);
-			// @ts-expect-error AstroMarkdocConfig uses Render type incompatible with markdoc's string type
-			const content = (await Markdoc.transform(ast, await getConfigExtendingShiki())) as Tag;
+			// @ts-expect-error AstroMarkdocConfig is incompatible with Markdoc.Config
+			const config: Markdoc.Config = await getConfigExtendingShiki();
+			const content = (await Markdoc.transform(ast, config)) as Tag;
 
 			assert.equal(content.children.length, 2);
 			for (const codeBlock of content.children) {
@@ -37,8 +38,9 @@ describe('Markdoc - syntax highlighting', () => {
 		});
 		it('transforms with `theme` property', async () => {
 			const ast = Markdoc.parse(entry);
-			// @ts-expect-error AstroMarkdocConfig uses Render type incompatible with markdoc's string type
-			const content = (await Markdoc.transform(ast, await getConfigExtendingShiki({ theme: 'dracula' }))) as Tag;
+			// @ts-expect-error AstroMarkdocConfig is incompatible with Markdoc.Config
+			const config: Markdoc.Config = await getConfigExtendingShiki({ theme: 'dracula' });
+			const content = (await Markdoc.transform(ast, config)) as Tag;
 			assert.equal(content.children.length, 2);
 			for (const codeBlock of content.children) {
 				assert.equal(isHTMLString(codeBlock), true);
@@ -50,8 +52,9 @@ describe('Markdoc - syntax highlighting', () => {
 		});
 		it('transforms with `wrap` property', async () => {
 			const ast = Markdoc.parse(entry);
-			// @ts-expect-error AstroMarkdocConfig uses Render type incompatible with markdoc's string type
-			const content = (await Markdoc.transform(ast, await getConfigExtendingShiki({ wrap: true }))) as Tag;
+			// @ts-expect-error AstroMarkdocConfig is incompatible with Markdoc.Config
+			const config: Markdoc.Config = await getConfigExtendingShiki({ wrap: true });
+			const content = (await Markdoc.transform(ast, config)) as Tag;
 			assert.equal(content.children.length, 2);
 			for (const codeBlock of content.children) {
 				assert.equal(isHTMLString(codeBlock), true);
@@ -71,8 +74,9 @@ const hello = "yes";
 \`\`\`
 
 {% /if %}`);
-			// @ts-expect-error AstroMarkdocConfig uses Render type incompatible with markdoc's string type
-			const content = (await Markdoc.transform(ast, await getConfigExtendingShiki())) as Tag;
+			// @ts-expect-error AstroMarkdocConfig is incompatible with Markdoc.Config
+			const config: Markdoc.Config = await getConfigExtendingShiki();
+			const content = (await Markdoc.transform(ast, config)) as Tag;
 			assert.equal(content.children.length, 1);
 			const innerChildren = content.children[0] as unknown as Tag[];
 			assert.equal(innerChildren.length, 2);
@@ -89,10 +93,13 @@ const hello = "yes";
 	describe('prism', () => {
 		it('transforms', async () => {
 			const ast = Markdoc.parse(entry);
-			const config = await setupConfig({
-				extends: [prism()],
-			}, undefined);
-			// @ts-expect-error AstroMarkdocConfig uses Render type incompatible with markdoc's string type
+			// @ts-expect-error AstroMarkdocConfig is incompatible with Markdoc.Config
+			const config: Markdoc.Config = await setupConfig(
+				{
+					extends: [prism()],
+				},
+				undefined,
+			);
 			const content = (await Markdoc.transform(ast, config)) as Tag;
 
 			assert.equal(content.children.length, 2);
@@ -111,9 +118,12 @@ const hello = "yes";
 });
 
 async function getConfigExtendingShiki(config?: Parameters<typeof shiki>[0]) {
-	return await setupConfig({
-		extends: [shiki(config)],
-	}, undefined);
+	return await setupConfig(
+		{
+			extends: [shiki(config)],
+		},
+		undefined,
+	);
 }
 
 function parsePreTag(html: string): HTMLPreElement {

@@ -48,7 +48,7 @@ describe('Markdoc - propagated assets', () => {
 				} else {
 					const links = stylesDocument.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]');
 					assert.equal(links.length, 1);
-					styleContents = await fixture.readFile((links[0]).href);
+					styleContents = await fixture.readFile(links[0].href);
 				}
 				assert.equal(styleContents.includes('--color-base-purple: 269, 79%;'), true);
 			});
