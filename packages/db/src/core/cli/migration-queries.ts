@@ -1,13 +1,13 @@
 import { stripVTControlCharacters } from 'node:util';
-import deepDiff from 'deep-diff';
+import diff from 'microdiff';
 import { sql } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
-import * as color from 'kleur/colors';
 import { customAlphabet } from 'nanoid';
-import { createRemoteDatabaseClient, hasPrimaryKey } from '../../runtime/index.js';
+import color from 'piccolore';
 import { isSerializedSQL } from '../../runtime/types.js';
-import { isDbError } from '../../runtime/utils.js';
+import { hasPrimaryKey, isDbError } from '../../runtime/utils.js';
 import { MIGRATION_VERSION } from '../consts.js';
+import { createClient } from '../db-client/libsql-node.js';
 import { RENAME_COLUMN_ERROR, RENAME_TABLE_ERROR } from '../errors.js';
 import {
 	getCreateIndexQueries,
@@ -122,7 +122,8 @@ export async function getTableChangeQueries({
 	const added = getAdded(oldTable.columns, newTable.columns);
 	const dropped = getDropped(oldTable.columns, newTable.columns);
 	/** Any foreign key changes require a full table recreate */
-	const hasForeignKeyChanges = Boolean(deepDiff(oldTable.foreignKeys, newTable.foreignKeys));
+	const hasForeignKeyChanges =
+		diff(oldTable.foreignKeys ?? [], newTable.foreignKeys ?? []).length > 0;
 
 	if (!hasForeignKeyChanges && isEmpty(updated) && isEmpty(added) && isEmpty(dropped)) {
 		return {
@@ -357,12 +358,15 @@ function getDropped<T>(oldObj: Record<string, T>, newObj: Record<string, T>) {
 	return dropped;
 }
 
-function getUpdated<T>(oldObj: Record<string, T>, newObj: Record<string, T>) {
+function getUpdated<T extends Record<string, unknown>>(
+	oldObj: Record<string, T>,
+	newObj: Record<string, T>,
+) {
 	const updated: Record<string, T> = {};
 	for (const [key, value] of Object.entries(newObj)) {
 		const oldValue = oldObj[key];
 		if (!oldValue) continue;
-		if (deepDiff(oldValue, value)) updated[key] = value;
+		if (diff(oldValue, value).length > 0) updated[key] = value;
 	}
 	return updated;
 }
@@ -389,9 +393,9 @@ function getUpdatedColumns(oldColumns: DBColumns, newColumns: DBColumns): Update
 			// If parsing fails, move on to the standard diff.
 		}
 
-		const diff = deepDiff(oldColumn, newColumn);
+		const diffResult = diff(oldColumn, newColumn);
 
-		if (diff) {
+		if (diffResult.length > 0) {
 			updated[key] = { old: oldColumn, new: newColumn };
 		}
 	}
@@ -434,7 +438,7 @@ async function getDbCurrentSnapshot(
 	appToken: string,
 	remoteUrl: string,
 ): Promise<DBSnapshot | undefined> {
-	const client = createRemoteDatabaseClient({
+	const client = createClient({
 		token: appToken,
 		url: remoteUrl,
 	});

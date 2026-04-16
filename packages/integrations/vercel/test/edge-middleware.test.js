@@ -42,6 +42,33 @@ describe('Vercel edge middleware', () => {
 		assert.ok((await response.text()).length, 'Body is included');
 	});
 
+	it('edge middleware forwards HTTP method and body', async () => {
+		const entry = new URL(
+			'../.vercel/output/functions/_middleware.func/middleware.mjs',
+			build.config.outDir,
+		);
+		const module = await import(entry);
+
+		const originalFetch = globalThis.fetch;
+		let captured;
+		globalThis.fetch = async (_url, opts) => {
+			captured = opts;
+			return new Response('ok', { status: 200 });
+		};
+		try {
+			const request = new Request('http://example.com/api/test', {
+				method: 'POST',
+				body: '{"data":"test"}',
+				headers: { 'Content-Type': 'application/json' },
+			});
+			await module.default(request, {});
+			assert.equal(captured.method, 'POST', 'forwards the HTTP method');
+			assert.ok(captured.body, 'forwards the request body');
+		} finally {
+			globalThis.fetch = originalFetch;
+		}
+	});
+
 	// TODO: The path here seems to be inconsistent?
 	it.skip('with edge handle file, should successfully build the middleware', async () => {
 		const fixture = await loadFixture({

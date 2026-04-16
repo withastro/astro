@@ -1,24 +1,43 @@
 import type { AstroComponentMetadata, NamedSSRLoadedRendererValue } from 'astro';
+import opts from 'astro:preact:opts';
 import { Component as BaseComponent, h, type VNode } from 'preact';
 import { renderToStringAsync } from 'preact-render-to-string';
-import { getContext } from './context.js';
+import { getContext, incrementIslandId } from './context.js';
 import { restoreSignalsOnProps, serializeSignals } from './signals.js';
 import StaticHtml from './static-html.js';
 import type { AstroPreactAttrs, RendererContext } from './types.js';
+import { createFilter } from '@astrojs/internal-helpers/create-filter';
 
 const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
 
 let originalConsoleError: typeof console.error;
 let consoleFilterRefs = 0;
 
+const filter = opts?.include || opts?.exclude ? createFilter(opts.include, opts.exclude) : null;
+
+function setVNodeMask(vNode: VNode<any>, mask: [number, number]) {
+	// Preact's useId derives IDs from an internal root vnode mask (`_mask`/`__m`).
+	// Astro renders each island as a separate root, so without seeding a unique
+	// mask per island, multiple islands can generate colliding IDs.
+	// Tracked upstream: https://github.com/preactjs/preact/issues/3781
+	(vNode as VNode<any> & { _mask?: [number, number]; __m?: [number, number] })._mask = mask;
+	(vNode as VNode<any> & { _mask?: [number, number]; __m?: [number, number] }).__m = mask;
+}
+
 async function check(
 	this: RendererContext,
 	Component: any,
 	props: Record<string, any>,
 	children: any,
+	metadata?: AstroComponentMetadata,
 ) {
 	if (typeof Component !== 'function') return false;
 	if (Component.name === 'QwikComponent') return false;
+
+	const componentUrl = metadata?.componentUrl;
+	if (filter && componentUrl && !filter(componentUrl)) {
+		return false;
+	}
 
 	if (Component.prototype != null && typeof Component.prototype.render === 'function') {
 		return BaseComponent.isPrototypeOf(Component);
@@ -34,8 +53,8 @@ async function check(
 
 		// There are edge cases (SolidJS) where Preact *might* render a string,
 		// but components would be <undefined></undefined>
-		// It also might render an empty sting.
-		return html == '' ? false : !html.includes('<undefined>');
+		// It also might render an empty string.
+		return html === '' ? false : !html.includes('<undefined>');
 	} catch {
 		return false;
 	} finally {
@@ -74,6 +93,8 @@ async function renderToStaticMarkup(
 
 	const attrs: AstroPreactAttrs = {};
 	serializeSignals(ctx, props, attrs, propsMap);
+	const islandId = incrementIslandId(ctx);
+	attrs['data-preact-island-id'] = islandId.toString();
 
 	const vNode: VNode<any> = h(
 		Component,
@@ -85,6 +106,7 @@ async function renderToStaticMarkup(
 				})
 			: children,
 	);
+	setVNodeMask(vNode, [islandId, 0]);
 
 	const html = await renderToStringAsync(vNode);
 	return { attrs, html };
@@ -131,13 +153,20 @@ function finishUsingConsoleFilter() {
  * Otherwise, simply forwards all arguments to the original function.
  */
 function filteredConsoleError(msg: string, ...rest: any[]) {
-	if (consoleFilterRefs > 0 && typeof msg === 'string') {
+	if (
+		consoleFilterRefs > 0 &&
+		!process.env.ASTRO_INTERNAL_TEST_DISABLE_CONSOLE_FILTER &&
+		typeof msg === 'string'
+	) {
 		// In `check`, we attempt to render JSX components through Preact.
 		// When attempting this on a React component, React may output
 		// the following error, which we can safely filter out:
 		const isKnownReactHookError =
-			msg.includes('Warning: Invalid hook call.') &&
-			msg.includes('https://reactjs.org/link/invalid-hook-call');
+			msg.includes('Invalid hook call.') &&
+			// for React v18 and earlier
+			(msg.includes('https://reactjs.org/link/invalid-hook-call') ||
+				// for React v19 and later
+				msg.includes('https://react.dev/link/invalid-hook-call'));
 		if (isKnownReactHookError) return;
 	}
 	originalConsoleError(msg, ...rest);

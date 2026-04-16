@@ -41,43 +41,53 @@ export async function generateEdgeMiddleware(
 	// https://vercel.com/docs/concepts/functions/edge-middleware#create-edge-middleware
 	const bundledFilePath = fileURLToPath(outPath);
 	const esbuild = await import('esbuild');
-	await esbuild.build({
-		stdin: {
-			contents: code,
-			resolveDir: fileURLToPath(root),
-		},
-		// Vercel Edge runtime targets ESNext, because Cloudflare Workers update v8 weekly
-		// https://github.com/vercel/vercel/blob/1006f2ae9d67ea4b3cbb1073e79d14d063d42436/packages/next/scripts/build-edge-function-template.js
-		target: 'esnext',
-		platform: 'browser',
-		// esbuild automatically adds the browser, import and default conditions
-		// https://esbuild.github.io/api/#conditions
-		// https://runtime-keys.proposal.wintercg.org/#edge-light
-		conditions: ['edge-light', 'workerd', 'worker'],
-		outfile: bundledFilePath,
-		allowOverwrite: true,
-		format: 'esm',
-		bundle: true,
-		minify: false,
-		// ensure node built-in modules are namespaced with `node:`
-		plugins: [
-			{
-				name: 'esbuild-namespace-node-built-in-modules',
-				setup(build) {
-					const filter = new RegExp(builtinModules.map((mod) => `(^${mod}$)`).join('|'));
-					build.onResolve(
-						{
-							filter,
-						},
-						(args) => ({
-							path: 'node:' + args.path,
-							external: true,
-						}),
-					);
-				},
+	try {
+		await esbuild.build({
+			stdin: {
+				contents: code,
+				resolveDir: fileURLToPath(root),
 			},
-		],
-	});
+			// Vercel Edge runtime targets ESNext, because Cloudflare Workers update v8 weekly
+			// https://github.com/vercel/vercel/blob/1006f2ae9d67ea4b3cbb1073e79d14d063d42436/packages/next/scripts/build-edge-function-template.js
+			target: 'esnext',
+			platform: 'browser',
+			// esbuild automatically adds the browser, import and default conditions
+			// https://esbuild.github.io/api/#conditions
+			// https://runtime-keys.proposal.wintercg.org/#edge-light
+			conditions: ['edge-light', 'workerd', 'worker'],
+			outfile: bundledFilePath,
+			allowOverwrite: true,
+			format: 'esm',
+			bundle: true,
+			minify: false,
+			// ensure node built-in modules are namespaced with `node:`
+			plugins: [
+				{
+					name: 'esbuild-namespace-node-built-in-modules',
+					setup(build) {
+						const filter = new RegExp(builtinModules.map((mod) => `(^${mod}$)`).join('|'));
+						build.onResolve(
+							{
+								filter,
+							},
+							(args) => ({
+								path: 'node:' + args.path,
+								external: true,
+							}),
+						);
+					},
+				},
+			],
+		});
+	} catch (err) {
+		if ((err as Error).message.includes('Could not resolve "node:')) {
+			logger.error(
+				`Vercel does not allow the use of Node.js built-ins in edge functions. Please ensure your middleware code and 3rd-party packages don’t use Node built-ins.`,
+			);
+		}
+
+		throw err;
+	}
 	return pathToFileURL(bundledFilePath);
 }
 
@@ -109,19 +119,22 @@ import { createContext, trySerializeLocals } from 'astro/middleware';
 export default async function middleware(request, context) {
 	const ctx = createContext({
 		request,
-		params: {}
+		params: {},
+		clientAddress: request.headers.get('x-real-ip') || undefined,
 	});
 	Object.assign(ctx.locals, { vercel: { edge: context }, ...${handlerTemplateCall} });
 	const { origin } = new URL(request.url);
 	const next = async () => {
 		const { vercel, ...locals } = ctx.locals;
 		const response = await fetch(new URL('/${NODE_PATH}', request.url), {
+			method: request.method,
 			headers: {
 				...Object.fromEntries(request.headers.entries()),
 				'${ASTRO_MIDDLEWARE_SECRET_HEADER}': '${middlewareSecret}',
 				'${ASTRO_PATH_HEADER}': request.url.replace(origin, ''),
 				'${ASTRO_LOCALS_HEADER}': trySerializeLocals(locals)
-			}
+			},
+			...(request.body ? { body: request.body, duplex: 'half' } : {}),
 		});
 		return new Response(response.body, {
 			status: response.status,

@@ -1,5 +1,6 @@
 import { AstroError } from '../core/errors/errors.js';
 import { ActionsWithoutServerOutputError } from '../core/errors/errors-data.js';
+import { hasNonPrerenderedRoute } from '../core/routing/helpers.js';
 import { viteID } from '../core/util.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroIntegration } from '../types/public/integrations.js';
@@ -9,6 +10,7 @@ import { ACTION_RPC_ROUTE_PATTERN, ACTIONS_TYPES_FILE, VIRTUAL_MODULE_ID } from 
  * This integration is applied when the user is using Actions in their project.
  * It will inject the necessary routes and middlewares to handle actions.
  */
+// TODO: do not use an integration for this
 export default function astroIntegrationActionsRouteHandler({
 	settings,
 	filename,
@@ -22,29 +24,28 @@ export default function astroIntegrationActionsRouteHandler({
 			async 'astro:config:setup'() {
 				settings.injectedRoutes.push({
 					pattern: ACTION_RPC_ROUTE_PATTERN,
-					entrypoint: 'astro/actions/runtime/route.js',
+					entrypoint: 'astro/actions/runtime/entrypoints/route.js',
 					prerender: false,
 					origin: 'internal',
 				});
 			},
 			'astro:config:done': async (params) => {
-				if (params.buildOutput === 'static') {
-					const error = new AstroError(ActionsWithoutServerOutputError);
-					error.stack = undefined;
-					throw error;
-				}
-
 				const stringifiedActionsImport = JSON.stringify(
 					viteID(new URL(`./${filename}`, params.config.srcDir)),
 				);
 				settings.injectedTypes.push({
 					filename: ACTIONS_TYPES_FILE,
 					content: `declare module "astro:actions" {
-	type Actions = typeof import(${stringifiedActionsImport})["server"];
-
-	export const actions: Actions;
+		export const actions: typeof import(${stringifiedActionsImport})["server"];
 }`,
 				});
+			},
+			'astro:routes:resolved': ({ routes }) => {
+				if (!settings.config.adapter && !hasNonPrerenderedRoute(routes)) {
+					const error = new AstroError(ActionsWithoutServerOutputError);
+					error.stack = undefined;
+					throw error;
+				}
 			},
 		},
 	};

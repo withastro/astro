@@ -1,0 +1,13 @@
+{
+	"name": "@test/server-entry-fake-adapter",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"dependencies": {
+		"astro": "workspace:*"
+	},
+    "exports": {
+        ".": "./index.js",
+        "./server.js": "./entrypoint.js"
+    }
+}

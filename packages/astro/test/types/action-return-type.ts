@@ -1,11 +1,8 @@
 import { describe, it } from 'node:test';
 import { expectTypeOf } from 'expect-type';
-import {
-	type ActionReturnType,
-	defineAction,
-	type SafeResult,
-} from '../../dist/actions/runtime/virtual/server.js';
-import { z } from '../../zod.mjs';
+import { defineAction } from '../../dist/actions/runtime/server.js';
+import type { ActionReturnType, SafeResult } from '../../dist/actions/runtime/types.js';
+import { z } from '../../dist/zod.js';
 
 describe('ActionReturnType', () => {
 	it('Infers action return type', async () => {

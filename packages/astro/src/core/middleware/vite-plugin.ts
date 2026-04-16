@@ -1,15 +1,23 @@
-import type { Plugin as VitePlugin } from 'vite';
+import { fileURLToPath } from 'node:url';
+import {
+	normalizePath as viteNormalizePath,
+	type ViteDevServer,
+	type Plugin as VitePlugin,
+} from 'vite';
 import { getServerOutputDirectory } from '../../prerender/utils.js';
 import type { AstroSettings } from '../../types/astro.js';
 import { addRollupInput } from '../build/add-rollup-input.js';
 import type { BuildInternals } from '../build/internal.js';
 import type { StaticBuildOptions } from '../build/types.js';
-import { MIDDLEWARE_PATH_SEGMENT_NAME } from '../constants.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES, MIDDLEWARE_PATH_SEGMENT_NAME } from '../constants.js';
 import { MissingMiddlewareForInternationalization } from '../errors/errors-data.js';
 import { AstroError } from '../errors/index.js';
 import { normalizePath } from '../viteUtils.js';
 
-export const MIDDLEWARE_MODULE_ID = '\0astro-internal:middleware';
+// This module name is used in Cloudflare's optimizedDeps configuration,
+// if th name changes that needs to be updated as well.
+export const MIDDLEWARE_MODULE_ID = 'virtual:astro:middleware';
+const MIDDLEWARE_RESOLVED_MODULE_ID = '\0' + MIDDLEWARE_MODULE_ID;
 const NOOP_MIDDLEWARE = '\0noop-middleware';
 
 export function vitePluginMiddleware({ settings }: { settings: AstroSettings }): VitePlugin {
@@ -18,42 +26,81 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 		settings.middlewares.pre.length > 0 || settings.middlewares.post.length > 0;
 	let userMiddlewareIsPresent = false;
 
+	const normalizedSrcDir = viteNormalizePath(fileURLToPath(settings.config.srcDir));
+
 	return {
 		name: '@astro/plugin-middleware',
-		async resolveId(id) {
-			if (id === MIDDLEWARE_MODULE_ID) {
+		applyToEnvironment(environment) {
+			return (
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.astro ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
+			);
+		},
+		configureServer(server: ViteDevServer) {
+			server.watcher.on('change', (path) => {
+				const normalizedPath = viteNormalizePath(path);
+				// Check if the changed file is a middleware file under srcDir
+				if (!normalizedPath.startsWith(normalizedSrcDir)) return;
+				const relativePath = normalizedPath.slice(normalizedSrcDir.length);
+				// Dot ensures we match "middleware.ts" but not e.g. "middleware-utils.ts"
+				if (!relativePath.startsWith(`${MIDDLEWARE_PATH_SEGMENT_NAME}.`)) return;
+
+				for (const name of [
+					ASTRO_VITE_ENVIRONMENT_NAMES.ssr,
+					ASTRO_VITE_ENVIRONMENT_NAMES.astro,
+				] as const) {
+					const environment = server.environments[name];
+					if (!environment) continue;
+
+					const virtualMod = environment.moduleGraph.getModuleById(MIDDLEWARE_RESOLVED_MODULE_ID);
+					if (virtualMod) {
+						environment.moduleGraph.invalidateModule(virtualMod);
+					}
+
+					environment.hot.send('astro:middleware-updated', {});
+				}
+			});
+		},
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${MIDDLEWARE_MODULE_ID}$`),
+			},
+			async handler() {
 				const middlewareId = await this.resolve(
 					`${decodeURI(settings.config.srcDir.pathname)}${MIDDLEWARE_PATH_SEGMENT_NAME}`,
 				);
 				userMiddlewareIsPresent = !!middlewareId;
 				if (middlewareId) {
 					resolvedMiddlewareId = middlewareId.id;
-					return MIDDLEWARE_MODULE_ID;
+					return MIDDLEWARE_RESOLVED_MODULE_ID;
 				} else if (hasIntegrationMiddleware) {
-					return MIDDLEWARE_MODULE_ID;
+					return MIDDLEWARE_RESOLVED_MODULE_ID;
 				} else {
 					return NOOP_MIDDLEWARE;
 				}
-			}
-			if (id === NOOP_MIDDLEWARE) {
-				return NOOP_MIDDLEWARE;
-			}
+			},
 		},
-		async load(id) {
-			if (id === NOOP_MIDDLEWARE) {
-				if (!userMiddlewareIsPresent && settings.config.i18n?.routing === 'manual') {
-					throw new AstroError(MissingMiddlewareForInternationalization);
+		load: {
+			filter: {
+				id: new RegExp(`^(${NOOP_MIDDLEWARE}|${MIDDLEWARE_RESOLVED_MODULE_ID})$`),
+			},
+			async handler(id) {
+				if (id === NOOP_MIDDLEWARE) {
+					if (!userMiddlewareIsPresent && settings.config.i18n?.routing === 'manual') {
+						throw new AstroError(MissingMiddlewareForInternationalization);
+					}
+					return { code: 'export const onRequest = (_, next) => next()' };
 				}
-				return { code: 'export const onRequest = (_, next) => next()' };
-			} else if (id === MIDDLEWARE_MODULE_ID) {
-				if (!userMiddlewareIsPresent && settings.config.i18n?.routing === 'manual') {
-					throw new AstroError(MissingMiddlewareForInternationalization);
-				}
+				if (id === MIDDLEWARE_RESOLVED_MODULE_ID) {
+					if (!userMiddlewareIsPresent && settings.config.i18n?.routing === 'manual') {
+						throw new AstroError(MissingMiddlewareForInternationalization);
+					}
 
-				const preMiddleware = createMiddlewareImports(settings.middlewares.pre, 'pre');
-				const postMiddleware = createMiddlewareImports(settings.middlewares.post, 'post');
+					const preMiddleware = createMiddlewareImports(settings.middlewares.pre, 'pre');
+					const postMiddleware = createMiddlewareImports(settings.middlewares.post, 'post');
 
-				const code = `
+					const code = `
 				${
 					userMiddlewareIsPresent
 						? `import { onRequest as userOnRequest } from '${resolvedMiddlewareId}';`
@@ -69,8 +116,9 @@ export const onRequest = sequence(
 );
 `.trim();
 
-				return { code };
-			}
+					return { code };
+				}
+			},
 		},
 	};
 }
@@ -102,16 +150,29 @@ export function vitePluginMiddlewareBuild(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
 ): VitePlugin {
+	let canSplitMiddleware = true;
 	return {
 		name: '@astro/plugin-middleware-build',
 
+		configResolved(config) {
+			// Cloudflare Workers (webworker target) can't have multiple entrypoints,
+			// so we only add middleware as a separate bundle for other targets (Node, Deno, etc).
+			canSplitMiddleware = config.ssr.target !== 'webworker';
+		},
+
 		options(options) {
-			return addRollupInput(options, [MIDDLEWARE_MODULE_ID]);
+			if (canSplitMiddleware) {
+				// Add middleware as a separate rollup input for environments that support multiple entrypoints.
+				// This allows the middleware to be bundled independently.
+				return addRollupInput(options, [MIDDLEWARE_MODULE_ID]);
+			} else {
+				// TODO warn if edge middleware is enabled
+			}
 		},
 
 		writeBundle(_, bundle) {
 			for (const [chunkName, chunk] of Object.entries(bundle)) {
-				if (chunk.type !== 'asset' && chunk.facadeModuleId === MIDDLEWARE_MODULE_ID) {
+				if (chunk.type !== 'asset' && chunk.facadeModuleId === MIDDLEWARE_RESOLVED_MODULE_ID) {
 					const outputDirectory = getServerOutputDirectory(opts.settings);
 					internals.middlewareEntryPoint = new URL(chunkName, outputDirectory);
 				}

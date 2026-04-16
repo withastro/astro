@@ -68,7 +68,7 @@ function extractOrientation(exifBlock: Uint8Array, isBigEndian: boolean) {
         return
       }
 
-      // unsigned int has 2 bytes per component
+      // unsinged int has 2 bytes per component
       // if there would more than 4 bytes in total it's a pointer
       const numberOfComponents = readUInt(block, 32, 4, isBigEndian)
       if (numberOfComponents !== 1) {
@@ -110,9 +110,9 @@ function validateInput(input: Uint8Array, index: number): void {
 export const JPG: IImage = {
   validate: (input) => toHexString(input, 0, 2) === 'ffd8',
 
-  calculate(input) {
+  calculate(_input) {
     // Skip 4 chars, they are for signature
-    input = input.slice(4)
+    let input = _input.slice(4)
 
     let orientation: number | undefined
     let next: number
@@ -120,19 +120,18 @@ export const JPG: IImage = {
       // read length of the next block
       const i = readUInt16BE(input, 0)
 
+      // ensure correct format
+      validateInput(input, i)
+
       // Every JPEG block must begin with a 0xFF
       if (input[i] !== 0xff) {
-        // Change from upstream: fix non-0xFF blocks skipping
-        input = input.slice(i)
+        input = input.slice(1)
         continue
       }
 
       if (isEXIF(input)) {
         orientation = validateExifBlock(input, i)
       }
-
-      // ensure correct format
-      validateInput(input, i)
 
       // 0xFFC0 is baseline standard(SOF)
       // 0xFFC1 is baseline optimized(SOF)

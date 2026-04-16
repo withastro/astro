@@ -1,13 +1,13 @@
 import { clsx } from 'clsx';
 import type { SSRElement } from '../../../types/public/internal.js';
-import { HTMLString, markHTMLString } from '../escape.js';
+import { HTMLString, markHTMLString, stringifyForScript } from '../escape.js';
 import { isPromise } from '../util.js';
 import type { RenderDestination, RenderDestinationChunk, RenderFunction } from './common.js';
 
 export const voidElementNames =
 	/^(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/i;
 const htmlBooleanAttributes =
-	/^(?:allowfullscreen|async|autofocus|autoplay|checked|controls|default|defer|disabled|disablepictureinpicture|disableremoteplayback|formnovalidate|hidden|inert|loop|nomodule|novalidate|open|playsinline|readonly|required|reversed|scoped|seamless|selected|itemscope)$/i;
+	/^(?:allowfullscreen|async|autofocus|autoplay|checked|controls|default|defer|disabled|disablepictureinpicture|disableremoteplayback|formnovalidate|inert|loop|muted|nomodule|novalidate|open|playsinline|readonly|required|reversed|scoped|seamless|selected|itemscope)$/i;
 
 const AMPERSAND_REGEX = /&/g;
 const DOUBLE_QUOTE_REGEX = /"/g;
@@ -44,10 +44,7 @@ export function defineScriptVars(vars: Record<any, any>) {
 	for (const [key, value] of Object.entries(vars)) {
 		// Use const instead of let as let global unsupported with Safari
 		// https://stackoverflow.com/questions/29194024/cant-use-let-keyword-in-safari-javascript
-		output += `const ${toIdent(key)} = ${JSON.stringify(value)?.replace(
-			/<\/script>/g,
-			'\\x3C/script>',
-		)};\n`;
+		output += `const ${toIdent(key)} = ${stringifyForScript(value)};\n`;
 	}
 	return markHTMLString(output);
 }
@@ -120,11 +117,6 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 		return markHTMLString(` class="${toAttributeString(value, shouldEscape)}"`);
 	}
 
-	// Prevents URLs in attributes from being escaped in static builds
-	if (typeof value === 'string' && value.includes('&') && isHttpUrl(value)) {
-		return markHTMLString(` ${key}="${toAttributeString(value, false)}"`);
-	}
-
 	// Boolean values only need the key
 	if (htmlBooleanAttributes.test(key)) {
 		return handleBooleanAttribute(key, value, shouldEscape, tagName);
@@ -140,6 +132,9 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 		return handleBooleanAttribute(key, value, shouldEscape, tagName);
 	}
 	if (key === 'download' && typeof value === 'boolean') {
+		return handleBooleanAttribute(key, value, shouldEscape, tagName);
+	}
+	if (key === 'hidden' && typeof value === 'boolean') {
 		return handleBooleanAttribute(key, value, shouldEscape, tagName);
 	}
 
@@ -176,7 +171,7 @@ export function renderElement(
 			children = defineScriptVars(defineVars) + '\n' + children;
 		}
 	}
-	if ((children == null || children == '') && voidElementNames.test(name)) {
+	if ((children == null || children === '') && voidElementNames.test(name)) {
 		return `<${name}${internalSpreadAttributes(props, shouldEscape, name)}>`;
 	}
 	return `<${name}${internalSpreadAttributes(props, shouldEscape, name)}>${children}</${name}>`;
@@ -304,14 +299,4 @@ export function promiseWithResolvers<T = any>(): PromiseWithResolvers<T> {
 		resolve,
 		reject,
 	};
-}
-
-const VALID_PROTOCOLS = ['http:', 'https:'];
-function isHttpUrl(url: string) {
-	try {
-		const parsedUrl = new URL(url);
-		return VALID_PROTOCOLS.includes(parsedUrl.protocol);
-	} catch {
-		return false;
-	}
 }

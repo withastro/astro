@@ -30,6 +30,29 @@ env:
   NODE_OPTIONS: --max-old-space-size=6144
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      language-tools: ${{ steps.filter.outputs.language-tools }}
+      astro-types: ${{ steps.filter.outputs.astro-types }}
+      ci: ${{ steps.filter.outputs.ci }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: dorny/paths-filter@d1c1ffe0248fe513906c8e24db8ea791d46f8590 # v3.0.3
+        id: filter
+        with:
+          # When updating filters here, make sure to also add or remove them from the outputs block above.
+          filters: |
+            language-tools:
+              - 'packages/language-tools/**'
+            astro-types:
+              - 'packages/astro/types/**'
+              - 'packages/astro/astro-jsx.d.ts'
+            ci:
+              - '.github/workflows/ci.yml'
+
   # Build primes out Turbo build cache and pnpm cache
   build:
     name: "Build: ${{ matrix.os }}"
@@ -48,13 +71,13 @@ jobs:
         run: git config --global core.autocrlf false
 
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Setup PNPM
-        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
 
       - name: Setup node@${{ matrix.NODE_VERSION }}
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: ${{ matrix.NODE_VERSION }}
           cache: "pnpm"
@@ -67,26 +90,41 @@ jobs:
       - name: Build Packages
         if: ${{ matrix.os == 'ubuntu-latest' && github.repository_owner == 'withastro' }}
         run: pnpm run build
-
+        
+  biome-lint:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: Setup Biome
+        uses: biomejs/setup-biome@4c91541eaada48f67d7dbd7833600ce162b68f51 # v2.7.1
+      - name: Run Biome
+        run: biome ci --formatter-enabled=false --enforce-assist=false --reporter=default --reporter=github
+  
   lint:
     name: Lint
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    needs: build
+    needs: 
+      - biome-lint
     steps:
       - name: Disable git crlf
         run: git config --global core.autocrlf false
 
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Setup PNPM
-        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
 
       - name: Setup Node
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
-          node-version: 22
+          node-version: 24.14.1
           cache: "pnpm"
 
       - name: Install dependencies
@@ -102,6 +140,9 @@ jobs:
       - name: Lint publish code
         run: pnpm run publint
 
+      - name: Type-check test files
+        run: pnpm run typecheck:tests
+
   test:
     name: 'Test (${{ matrix.TEST_SUITE.name }}): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})'
     runs-on: ${{ matrix.os }}
@@ -110,7 +151,7 @@ jobs:
     strategy:
       matrix:
         OS: [ubuntu-latest, macos-14, windows-2025]
-        NODE_VERSION: [18, 20, 22]
+        NODE_VERSION: [22, 24]
         TEST_SUITE:
           - { name: astro, script: 'pnpm run test:astro' }
           - { name: integrations, script: 'pnpm run test:integrations' }
@@ -119,13 +160,9 @@ jobs:
         # Windows and use one of the older Node versions.
         exclude:
           - os: macos-14
-            NODE_VERSION: 18
-          - os: macos-14
-            NODE_VERSION: 20
+            NODE_VERSION: 22
           - os: windows-2025
-            NODE_VERSION: 18
-          - os: windows-2025
-            NODE_VERSION: 20
+            NODE_VERSION: 22
       fail-fast: false
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
@@ -134,13 +171,15 @@ jobs:
         run: git config --global core.autocrlf false
 
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
 
       - name: Setup PNPM
-        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
 
       - name: Setup node@${{ matrix.NODE_VERSION }}
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: ${{ matrix.NODE_VERSION }}
           cache: "pnpm"
@@ -153,6 +192,72 @@ jobs:
 
       - name: Test ${{ matrix.TEST_SUITE.name }}
         run: ${{ matrix.TEST_SUITE.script }}
+        env:
+          # By default, Turborepo groups the logs in CI environments to prevent
+          # the logs from being interleaved. We don't have log interleaving
+          # issues here because we already passed the `--concurrency=auto` flag
+          # to `turbo`.
+          #
+          # We want to force Turborepo to print the logs ASAP since it will help us
+          # debug tests that time out, where we can know which step is stuck.
+          #
+          # https://github.com/vercel/turborepo/blob/v2.7.6/docs/site/content/docs/reference/run.mdx?plain=1#L361-L378
+          # https://github.com/vercel/turborepo/blob/v2.7.6/docs/site/content/docs/reference/options-overview.mdx?plain=1#L63
+          TURBO_LOG_ORDER: stream
+
+  test-language-tools:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    needs:
+      - changes
+      - build
+    if: needs.changes.outputs.language-tools == 'true' || needs.changes.outputs.astro-types == 'true' || needs.changes.outputs.ci == 'true'
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        # VS Code 1.92 (minimum supported version) ships with Node 20.14.0
+        node_version: [20.14.0, 22]
+        include:
+          - os: windows-latest
+            node_version: 20.14.0
+          - os: macos-latest
+            node_version: 20.14.0
+      fail-fast: false
+
+    name: 'Test (language-tools): node-${{ matrix.node_version }}, ${{ matrix.os }}'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+
+      - name: Setup node@${{ matrix.node_version }}
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: ${{ matrix.node_version }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build the packages
+        run: pnpm build
+
+      - name: Test (Linux)
+        if: runner.os == 'Linux'
+        # On Linux, VS Code tests require a GUI environment, so we need to run tests using Xvfb
+        run: |
+          pnpm run test:language-tools:no-vs
+          cd packages/language-tools/vscode
+          xvfb-run -a pnpm test
+          # TODO: Figure out why the vscode tests are fine, but the ts-plugin ones are super flaky
+          # cd ../ts-plugin
+          # xvfb-run -a pnpm test
+
+      - name: Test
+        if: runner.os != 'Linux'
+        run: pnpm test:language-tools
 
   e2e:
     name: "Test (E2E): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"
@@ -171,13 +276,13 @@ jobs:
         run: git config --global core.autocrlf false
 
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Setup PNPM
-        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
 
       - name: Setup node@${{ matrix.NODE_VERSION }}
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: ${{ matrix.NODE_VERSION }}
           cache: "pnpm"
@@ -207,27 +312,27 @@ jobs:
         run: git config --global core.autocrlf false
 
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Setup PNPM
-        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
 
       - name: Setup node@${{ matrix.NODE_VERSION }}
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: ${{ matrix.NODE_VERSION }}
           cache: "pnpm"
 
       - name: Checkout docs
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           repository: withastro/docs
           path: smoke/docs
-          # For a commit event on the `next` branch (`ref_name`), use the `5.0.0-beta` branch.
-          # For a pull_request event merging into the `next` branch (`base_ref`), use the `5.0.0-beta` branch.
+          # For a commit event on the `next` branch (`ref_name`), use the `v6` branch.
+          # For a pull_request event merging into the `next` branch (`base_ref`), use the `v6` branch.
           # NOTE: For a pull_request event, the `ref_name` is something like `<pr-number>/merge` than the branch name.
           # NOTE: Perhaps docs repo should use a consistent `next` branch in the future.
-          ref: ${{ (github.ref_name == 'next' || github.base_ref == 'next') && '5.0.0-beta' || 'main' }}
+          ref: ${{ (github.ref_name == 'next' || github.base_ref == 'next') && 'v6' || 'main' }}
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
@@ -244,7 +349,7 @@ jobs:
 
       - name: Check if docs changed
         id: changes
-        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        uses: dorny/paths-filter@d1c1ffe0248fe513906c8e24db8ea791d46f8590 # v3.0.3
         with:
           filters: |
             docs:

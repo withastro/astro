@@ -1,11 +1,11 @@
 import { encryptString, generateCspDigest } from '../../../core/encryption.js';
 import type { SSRResult } from '../../../types/public/internal.js';
-import { markHTMLString } from '../escape.js';
+import { markHTMLString, stringifyForScript } from '../escape.js';
 import { renderChild } from './any.js';
 import { createThinHead, type ThinHead } from './astro/head-and-content.js';
 import type { RenderDestination } from './common.js';
 import { createRenderInstruction } from './instruction.js';
-import { type ComponentSlots, renderSlotToString } from './slot.js';
+import { type ComponentSlots, type SlotString, renderSlotToString } from './slot.js';
 
 const internalProps = new Set([
 	'server:component-path',
@@ -18,24 +18,13 @@ export function containsServerDirective(props: Record<string | number, any>) {
 	return 'server:component-directive' in props;
 }
 
-const SCRIPT_RE = /<\/script/giu;
-const COMMENT_RE = /<!--/gu;
-const SCRIPT_REPLACER = '<\\/script';
-const COMMENT_REPLACER = '\\u003C!--';
-
-/**
- * Encodes the script end-tag open (ETAGO) delimiter and opening HTML comment syntax for JSON inside a `<script>` tag.
- * @see https://mathiasbynens.be/notes/etago
- */
-function safeJsonStringify(obj: any) {
-	return JSON.stringify(obj)
-		.replace(SCRIPT_RE, SCRIPT_REPLACER)
-		.replace(COMMENT_RE, COMMENT_REPLACER);
-}
-
-function createSearchParams(componentExport: string, encryptedProps: string, slots: string) {
+function createSearchParams(
+	encryptedComponentExport: string,
+	encryptedProps: string,
+	slots: string,
+) {
 	const params = new URLSearchParams();
-	params.set('e', componentExport);
+	params.set('e', encryptedComponentExport);
 	params.set('p', encryptedProps);
 	params.set('s', slots);
 	return params;
@@ -137,10 +126,9 @@ export class ServerIslandComponent {
 
 		const componentPath = this.getComponentPath();
 		const componentExport = this.getComponentExport();
-		const componentId = this.result.serverIslandNameMap.get(componentPath);
-
+		let componentId = this.result.serverIslandNameMap.get(componentPath);
 		if (!componentId) {
-			throw new Error(`Could not find server component name`);
+			throw new Error(`Could not find server component name ${componentPath}`);
 		}
 
 		// Remove internal props
@@ -155,15 +143,38 @@ export class ServerIslandComponent {
 		for (const name in this.slots) {
 			if (name !== 'fallback') {
 				const content = await renderSlotToString(this.result, this.slots[name]);
-				renderedSlots[name] = content.toString();
+				let slotHtml = content.toString();
+				// Append script instructions so that components passed as slots
+				// to server:defer components retain their scripts in the island response.
+				// renderSlotToString returns a SlotString (typed as string) that carries
+				// render instructions stripped from the HTML content.
+				const slotContent = content as unknown as SlotString;
+				if (Array.isArray(slotContent.instructions)) {
+					for (const instruction of slotContent.instructions) {
+						if (instruction.type === 'script') {
+							slotHtml += instruction.content;
+						}
+					}
+				}
+				renderedSlots[name] = slotHtml;
 			}
 		}
 
 		const key = await this.result.key;
+
+		// Encrypt componentExport
+		const componentExportEncrypted = await encryptString(key, componentExport);
+
 		const propsEncrypted =
 			Object.keys(this.props).length === 0
 				? ''
 				: await encryptString(key, JSON.stringify(this.props));
+
+		// Encrypt slots
+		const slotsEncrypted =
+			Object.keys(renderedSlots).length === 0
+				? ''
+				: await encryptString(key, JSON.stringify(renderedSlots));
 
 		const hostId = await this.getHostId();
 		const slash = this.result.base.endsWith('/') ? '' : '/';
@@ -171,9 +182,9 @@ export class ServerIslandComponent {
 
 		// Determine if its safe to use a GET request
 		const potentialSearchParams = createSearchParams(
-			componentExport,
+			componentExportEncrypted,
 			propsEncrypted,
-			safeJsonStringify(renderedSlots),
+			slotsEncrypted,
 		);
 		const useGETRequest = isWithinURLLimit(serverIslandUrl, potentialSearchParams);
 
@@ -186,18 +197,25 @@ export class ServerIslandComponent {
 			);
 		}
 
+		// Get adapter headers for inline script
+		const adapterHeaders = this.result.internalFetchHeaders || {};
+		const headersJson = stringifyForScript(adapterHeaders);
+
 		const method = useGETRequest
 			? // GET request
-				`let response = await fetch('${serverIslandUrl}');`
+				`const headers = new Headers(${headersJson});
+let response = await fetch('${serverIslandUrl}', { headers });`
 			: // POST request
 				`let data = {
-	componentExport: ${safeJsonStringify(componentExport)},
-	encryptedProps: ${safeJsonStringify(propsEncrypted)},
-	slots: ${safeJsonStringify(renderedSlots)},
+	encryptedComponentExport: ${stringifyForScript(componentExportEncrypted)},
+	encryptedProps: ${stringifyForScript(propsEncrypted)},
+	encryptedSlots: ${stringifyForScript(slotsEncrypted)},
 };
+const headers = new Headers({ 'Content-Type': 'application/json', ...${headersJson} });
 let response = await fetch('${serverIslandUrl}', {
 	method: 'POST',
 	body: JSON.stringify(data),
+	headers,
 });`;
 
 		this.islandContent = `${method}replaceServerIsland('${hostId}', response);`;

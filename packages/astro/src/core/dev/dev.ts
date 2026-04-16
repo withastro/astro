@@ -1,8 +1,9 @@
 import fs from 'node:fs';
 import type http from 'node:http';
+import { createRequire } from 'node:module';
 import type { AddressInfo } from 'node:net';
 import { performance } from 'node:perf_hooks';
-import { green } from 'kleur/colors';
+import colors from 'piccolore';
 import { gt, major, minor, patch } from 'semver';
 import type * as vite from 'vite';
 import {
@@ -10,12 +11,15 @@ import {
 	getDataStoreFile,
 	globalContentLayer,
 } from '../../content/content-layer.js';
+import { getDataStoreFile } from '../../content/content-layer.js';
+import { globalContentLayer } from '../../content/instance.js';
 import { attachContentServerListeners } from '../../content/index.js';
 import { MutableDataStore } from '../../content/mutable-data-store.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
 import { telemetry } from '../../events/index.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
-import * as msg from '../messages.js';
+import * as msg from '../messages/runtime.js';
+import { newVersionAvailable } from '../messages/node.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { startContainer } from './container.js';
 import { createContainerWithAutomaticRestart } from './restart.js';
@@ -24,6 +28,21 @@ import {
 	MAX_PATCH_DISTANCE,
 	shouldCheckForUpdates,
 } from './update-check.js';
+import { BuildTimeAstroVersionProvider } from '../../cli/infra/build-time-astro-version-provider.js';
+import { piccoloreTextStyler } from '../../cli/infra/piccolore-text-styler.js';
+import type { AstroLogger } from '../logger/core.js';
+
+function warnIfVite8({ root, logger }: { root: URL | string; logger: AstroLogger }) {
+	try {
+		const require = createRequire(root);
+		const { version } = require('vite/package.json') as { version: string };
+		if (major(version) >= 8) {
+			logger.warn('SKIP_FORMAT', msg.vite8Warning({ viteVersion: version }));
+		}
+	} catch {
+		// If vite can't be resolved from the project root, skip the warning
+	}
+}
 
 export interface DevServer {
 	address: AddressInfo;
@@ -75,7 +94,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 
 							logger.warn(
 								'SKIP_FORMAT',
-								await msg.newVersionAvailable({
+								await newVersionAvailable({
 									latestVersion: version,
 								}),
 							);
@@ -105,7 +124,6 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 	if (!store) {
 		logger.error('content', 'Failed to create data store');
 	}
-
 	await attachContentServerListeners(restart.container);
 
 	const config = globalContentConfigObserver.get();
@@ -127,6 +145,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 
 	// Start listening to the port
 	const devServerAddressInfo = await startContainer(restart.container);
+	restart.bindCLIShortcuts();
 	logger.info(
 		'SKIP_FORMAT',
 		msg.serverStart({
@@ -134,6 +153,8 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 			resolvedUrls: restart.container.viteServer.resolvedUrls || { local: [], network: [] },
 			host: restart.container.settings.config.server.host,
 			base: restart.container.settings.config.base,
+			astroVersionProvider: new BuildTimeAstroVersionProvider(),
+			textStyler: piccoloreTextStyler,
 		}),
 	);
 
@@ -144,7 +165,9 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 		logger.warn('SKIP_FORMAT', msg.fsStrictWarning());
 	}
 
-	logger.info(null, green('watching for file changes...'));
+	setImmediate(() => warnIfVite8({ root: restart.container.settings.config.root, logger }));
+
+	logger.info(null, colors.green('watching for file changes...'));
 
 	return {
 		address: devServerAddressInfo,

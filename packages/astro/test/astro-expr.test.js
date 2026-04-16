@@ -100,25 +100,6 @@ describe('Expressions', () => {
 		assert.equal($('#frag-undefined').length, 0);
 	});
 
-	it('Escapes HTML by default', async () => {
-		const html = await fixture.readFile('/escape/index.html');
-		const $ = cheerio.load(html);
-
-		assert.equal($('body').children().length, 2);
-		assert.equal(
-			$('body').html().includes('&lt;script&gt;console.log("pwnd")&lt;/script&gt;'),
-			true,
-		);
-		assert.equal($('#trusted').length, 1);
-	});
-
-	it('Does not double-escape HTML', async () => {
-		const html = await fixture.readFile('/escape/index.html');
-		const $ = cheerio.load(html);
-
-		assert.equal($('#single-escape').html(), 'Astro &amp; Vite');
-	});
-
 	it('Handles switch statements', async () => {
 		const html = await fixture.readFile('/switch/index.html');
 		const $ = cheerio.load(html);

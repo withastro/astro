@@ -6,11 +6,12 @@ import type { RendererContext } from './types.js';
 
 function check(Component: any) {
 	if (typeof Component !== 'function') return false;
-	// Svelte 5 generated components always accept a `$$payload` prop.
+	// Svelte 5 generated components always accept a `$$renderer` prop (previously called `$$payload`).
 	// This assumes that the SSR build does not minify it (which Astro enforces by default).
 	// This isn't the best check, but the only other option otherwise is to try to render the
 	// component, which is taxing. We'll leave it as a last resort for the future for now.
-	return Component.toString().includes('$$payload');
+	const componentString = Component.toString();
+	return componentString.includes('$$payload') || componentString.includes('$$renderer');
 }
 
 function needsHydration(metadata?: AstroComponentMetadata) {
@@ -54,7 +55,7 @@ async function renderToStaticMarkup(
 		}));
 	}
 
-	const result = render(Component, {
+	const result = await render(Component, {
 		props: {
 			...props,
 			children,
@@ -63,7 +64,14 @@ async function renderToStaticMarkup(
 		},
 		idPrefix,
 	});
-	return { html: result.body };
+
+	// Temporary workaround for a Svelte bug: empty class="" attributes in Svelte 5 SSR output.
+	// Svelte renders null class values as class="" instead of omitting the attribute.
+	// Tracking Svelte bug: https://github.com/withastro/astro/issues/15576
+	let html = result.body;
+	html = html.replace(/\s+class=""/g, '');
+
+	return { html };
 }
 
 const renderer: NamedSSRLoadedRendererValue = {

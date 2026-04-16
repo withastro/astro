@@ -1,6 +1,6 @@
 import type { GetModuleInfo, ModuleInfo } from 'rollup';
 
-import { ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
+import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../vite-plugin-pages/const.js';
 
 interface ExtendedModuleInfo {
 	info: ModuleInfo;
@@ -79,8 +79,8 @@ export function getParentModuleInfos(
 // it is imported by the top-level virtual module.
 export function moduleIsTopLevelPage(info: ModuleInfo): boolean {
 	return (
-		info.importers[0]?.includes(ASTRO_PAGE_RESOLVED_MODULE_ID) ||
-		info.dynamicImporters[0]?.includes(ASTRO_PAGE_RESOLVED_MODULE_ID)
+		info.importers[0]?.includes(VIRTUAL_PAGE_RESOLVED_MODULE_ID) ||
+		info.dynamicImporters[0]?.includes(VIRTUAL_PAGE_RESOLVED_MODULE_ID)
 	);
 }
 

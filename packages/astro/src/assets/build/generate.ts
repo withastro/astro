@@ -1,12 +1,12 @@
 import fs, { readFileSync } from 'node:fs';
 import { basename } from 'node:path/posix';
-import { dim, green } from 'kleur/colors';
+import colors from 'piccolore';
 import { getOutDirWithinCwd } from '../../core/build/common.js';
-import type { BuildPipeline } from '../../core/build/pipeline.js';
+import type { StaticBuildOptions } from '../../core/build/types.js';
 import { getTimeStat } from '../../core/build/util.js';
 import { AstroError } from '../../core/errors/errors.js';
 import { AstroErrorData } from '../../core/errors/index.js';
-import type { Logger } from '../../core/logger/core.js';
+import type { AstroLogger } from '../../core/logger/core.js';
 import { isRemotePath, removeLeadingForwardSlash } from '../../core/path.js';
 import type { MapValue } from '../../type-utils.js';
 import type { AstroConfig } from '../../types/public/config.js';
@@ -31,7 +31,7 @@ interface GenerationDataCached {
 type GenerationData = GenerationDataUncached | GenerationDataCached;
 
 type AssetEnv = {
-	logger: Logger;
+	logger: AstroLogger;
 	isSSR: boolean;
 	count: { total: number; current: number };
 	useCache: boolean;
@@ -50,12 +50,12 @@ type ImageData = {
 };
 
 export async function prepareAssetsGenerationEnv(
-	pipeline: BuildPipeline,
+	options: StaticBuildOptions,
 	totalCount: number,
 ): Promise<AssetEnv> {
-	const { config, logger, settings } = pipeline;
+	const { settings, logger } = options;
 	let useCache = true;
-	const assetsCacheDir = new URL('assets/', config.cacheDir);
+	const assetsCacheDir = new URL('assets/', settings.config.cacheDir);
 	const count = { total: totalCount, current: 1 };
 
 	// Ensure that the cache directory exists
@@ -72,11 +72,12 @@ export async function prepareAssetsGenerationEnv(
 	const isServerOutput = settings.buildOutput === 'server';
 	let serverRoot: URL, clientRoot: URL;
 	if (isServerOutput) {
-		serverRoot = config.build.server;
-		clientRoot = config.build.client;
+		// Images are collected during prerender, which outputs to .prerender/ subdirectory
+		serverRoot = new URL('.prerender/', settings.config.build.server);
+		clientRoot = settings.config.build.client;
 	} else {
-		serverRoot = getOutDirWithinCwd(config.outDir);
-		clientRoot = config.outDir;
+		serverRoot = getOutDirWithinCwd(settings.config.outDir);
+		clientRoot = settings.config.outDir;
 	}
 
 	return {
@@ -87,8 +88,8 @@ export async function prepareAssetsGenerationEnv(
 		assetsCacheDir,
 		serverRoot,
 		clientRoot,
-		imageConfig: config.image,
-		assetsFolder: config.build.assets,
+		imageConfig: settings.config.image,
+		assetsFolder: settings.config.build.assets,
 	};
 }
 
@@ -107,10 +108,9 @@ export async function generateImagesForPath(
 		await generateImage(transform.finalPath, transform.transform);
 	}
 
-	// In SSR, we cannot know if an image is referenced in a server-rendered page, so we can't delete anything
-	// For instance, the same image could be referenced in both a server-rendered page and build-time-rendered page
+	// Delete original images that are only used for optimization
+	// The referencedImages set tracks images that were used via raw `src` access (e.g., <img src={img.src}>).
 	if (
-		!env.isSSR &&
 		transformsAndPath.originalSrcPath &&
 		!globalThis.astroAsset.referencedImages?.has(transformsAndPath.originalSrcPath)
 	) {
@@ -143,7 +143,7 @@ export async function generateImagesForPath(
 		const count = `(${env.count.current}/${env.count.total})`;
 		env.logger.info(
 			null,
-			`  ${green('▶')} ${filepath} ${dim(statsText)} ${dim(timeIncrease)} ${dim(count)}`,
+			`  ${colors.green('▶')} ${filepath} ${colors.dim(statsText)} ${colors.dim(timeIncrease)} ${colors.dim(count)}`,
 		);
 		env.count.current++;
 	}
@@ -176,13 +176,11 @@ export async function generateImagesForPath(
 			} else {
 				const JSONData = JSON.parse(readFileSync(cachedMetaFileURL, 'utf-8')) as RemoteCacheEntry;
 
-				if (!JSONData.expires) {
-					try {
-						await fs.promises.unlink(cachedFileURL);
-					} catch {
-						/* Old caches may not have a separate image binary, no-op */
-					}
-					await fs.promises.unlink(cachedMetaFileURL);
+				if (typeof JSONData.expires !== 'number') {
+					await Promise.allSettled([
+						fs.promises.unlink(cachedFileURL),
+						fs.promises.unlink(cachedMetaFileURL),
+					]);
 
 					throw new Error(
 						`Malformed cache entry for ${filepath}, cache will be regenerated for this file.`,
@@ -203,9 +201,7 @@ export async function generateImagesForPath(
 				if (JSONData.expires > Date.now()) {
 					await fs.promises.copyFile(cachedFileURL, finalFileURL, fs.constants.COPYFILE_FICLONE);
 
-					return {
-						cached: 'hit',
-					};
+					return { cached: 'hit' };
 				}
 
 				// Try to revalidate the cache
@@ -216,18 +212,16 @@ export async function generateImagesForPath(
 							lastModified: JSONData.lastModified,
 						});
 
-						if (revalidatedData.data.length) {
+						if (revalidatedData.data !== null) {
 							// Image cache was stale, update original image to avoid redownload
-							originalImage = revalidatedData;
+							originalImage = revalidatedData as ImageData;
 						} else {
-							// Freshen cache on disk
-							await writeCacheMetaFile(cachedMetaFileURL, revalidatedData, env);
+							// Freshen cache on disk and output cached image
+							await Promise.all([
+								writeCacheMetaFile(cachedMetaFileURL, revalidatedData, env),
+								fs.promises.copyFile(cachedFileURL, finalFileURL, fs.constants.COPYFILE_FICLONE),
+							]);
 
-							await fs.promises.copyFile(
-								cachedFileURL,
-								finalFileURL,
-								fs.constants.COPYFILE_FICLONE,
-							);
 							return { cached: 'revalidated' };
 						}
 					} catch (e) {
@@ -242,8 +236,10 @@ export async function generateImagesForPath(
 					}
 				}
 
-				await fs.promises.unlink(cachedFileURL);
-				await fs.promises.unlink(cachedMetaFileURL);
+				await Promise.allSettled([
+					fs.promises.unlink(cachedFileURL),
+					fs.promises.unlink(cachedMetaFileURL),
+				]);
 			}
 		} catch (e: any) {
 			if (e.code !== 'ENOENT') {
@@ -339,6 +335,7 @@ async function writeCacheMetaFile(
 				etag: resultData.etag,
 				lastModified: resultData.lastModified,
 			}),
+			'utf-8',
 		);
 	} catch (e) {
 		env.logger.warn(

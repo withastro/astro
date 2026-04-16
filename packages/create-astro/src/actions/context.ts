@@ -39,7 +39,7 @@ function getPackageTag(packageSpecifier: string | undefined): string | undefined
 		case 'beta':
 		case 'rc':
 			return packageSpecifier;
-		// Will fallback to latest
+		// Will fall back to latest
 		case undefined:
 		default:
 			return undefined;
@@ -91,12 +91,20 @@ export async function getContext(argv: string[]): Promise<Context> {
 		'--ref': ref,
 		'--add': add,
 	} = flags;
+
+	if (add?.length && noInstall) {
+		console.error(
+			'The --add flag requires dependencies to be installed. Remove --no-install or run `astro add` manually after installation.',
+		);
+		process.exit(1);
+	}
+
 	let projectName = cwd;
 
 	if (no) {
 		yes = false;
-		if (install == undefined) install = false;
-		if (git == undefined) git = false;
+		if (install === undefined) install = false;
+		if (git === undefined) git = false;
 	}
 
 	skipHouston =

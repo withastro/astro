@@ -1,10 +1,5 @@
-import type {
-	AstroIntegration,
-	AstroIntegrationLogger,
-	AstroRenderer,
-	ContainerRenderer,
-} from 'astro';
-import type { PluginOption, UserConfig } from 'vite';
+import type { AstroIntegration, AstroIntegrationLogger, AstroRenderer } from 'astro';
+import type { PluginOption, UserConfig, Plugin } from 'vite';
 import solid, { type Options as ViteSolidPluginOptions } from 'vite-plugin-solid';
 
 // TODO: keep in sync with https://github.com/thetarnav/solid-devtools/blob/main/packages/main/src/vite/index.ts#L7
@@ -50,11 +45,7 @@ function getViteConfiguration(
 	devtoolsPlugin: DevtoolsPlugin | null,
 ) {
 	const config: UserConfig = {
-		optimizeDeps: {
-			include: ['@astrojs/solid-js/client.js'],
-			exclude: ['@astrojs/solid-js/server.js'],
-		},
-		plugins: [solid({ include, exclude, ssr: true })],
+		plugins: [solid({ include, exclude, ssr: true }), configEnvironmentPlugin()],
 	};
 
 	if (devtoolsPlugin) {
@@ -72,12 +63,7 @@ function getRenderer(): AstroRenderer {
 	};
 }
 
-export function getContainerRenderer(): ContainerRenderer {
-	return {
-		name: '@astrojs/solid',
-		serverEntrypoint: '@astrojs/solid-js/server.js',
-	};
-}
+export { getRenderer as getContainerRenderer };
 
 export interface Options extends Pick<ViteSolidPluginOptions, 'include' | 'exclude'> {
 	devtools?: boolean;
@@ -120,6 +106,20 @@ export default function (options: Options = {}): AstroIntegration {
 					);
 				}
 			},
+		},
+	};
+}
+
+function configEnvironmentPlugin(): Plugin {
+	return {
+		name: '@astrojs/solid:config-environment',
+		configEnvironment(environmentName) {
+			return {
+				optimizeDeps: {
+					include: environmentName === 'client' ? ['@astrojs/solid-js/client.js'] : [],
+					exclude: ['@astrojs/solid-js/server.js'],
+				},
+			};
 		},
 	};
 }

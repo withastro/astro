@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 // plugins
 import regexpEslint from 'eslint-plugin-regexp';
 import tseslint from 'typescript-eslint';
+import { globalIgnores } from 'eslint/config';
 
 const typescriptEslint = tseslint.plugin;
 
@@ -15,22 +16,22 @@ const __dirname = path.dirname(__filename);
 export default [
 	// If ignores is used without any other keys in the configuration object, then the patterns act as global ignores.
 	// ref: https://eslint.org/docs/latest/use/configure/configuration-files#globally-ignoring-files-with-ignores
-	{
-		ignores: [
-			'**/.*',
-			'**/*.d.ts',
-			'packages/**/*.min.js',
-			'packages/**/dist/',
-			'packages/**/fixtures/',
-			'packages/**/_temp-fixtures/',
-			'packages/astro/vendor/vite/',
-			'benchmark/**/dist/',
-			'examples/',
-			'scripts/',
-			'.github/',
-			'.changeset/',
-		],
-	},
+	globalIgnores([
+		'**/.*',
+		'**/*.d.ts',
+		'packages/**/*.min.js',
+		'packages/**/dist/',
+		'packages/**/fixtures/',
+		'packages/**/_temp-fixtures/',
+		'packages/astro/vendor/vite/',
+		'benchmark/**/dist/',
+		'benchmark/static-projects/**',
+		'examples/',
+		'scripts/',
+		'triage/',
+		'.github/',
+		'.changeset/',
+	]),
 
 	...tseslint.configs.recommendedTypeChecked,
 	...tseslint.configs.stylisticTypeChecked,
@@ -48,30 +49,23 @@ export default [
 			regexp: regexpEslint,
 		},
 		rules: {
-			// These off/configured-differently-by-default rules fit well for us
+			// Type-aware rules that Biome cannot replace
 			'@typescript-eslint/switch-exhaustiveness-check': 'error',
 			'@typescript-eslint/no-shadow': 'error',
-			'no-console': 'off',
 
-			// Todo: do we want these?
-			'@typescript-eslint/no-unused-vars': [
-				'error',
-				{
-					args: 'all',
-					argsIgnorePattern: '^_',
-					caughtErrors: 'all',
-					caughtErrorsIgnorePattern: '^_',
-					destructuredArrayIgnorePattern: '^_',
-					varsIgnorePattern: '^_',
-					ignoreRestSiblings: true,
-				},
-			],
+			// Disabled - now handled by Biome
+			'no-console': 'off', // Biome: suspicious.noConsole
+			'@typescript-eslint/no-unused-vars': 'off', // Biome: correctness.noUnusedVariables
+			'prefer-const': 'off', // Biome: style.useConst
+			'@typescript-eslint/consistent-type-imports': 'off', // Biome: style.useImportType
+			'@typescript-eslint/await-thenable': 'off',
 			'@typescript-eslint/array-type': 'off',
 			'@typescript-eslint/ban-ts-comment': 'off',
 			'@typescript-eslint/class-literal-property-style': 'off',
 			'@typescript-eslint/consistent-indexed-object-style': 'off',
 			'@typescript-eslint/consistent-type-definitions': 'off',
 			'@typescript-eslint/dot-notation': 'off',
+			'@typescript-eslint/no-inferrable-types': 'off',
 			'@typescript-eslint/no-base-to-string': 'off',
 			'@typescript-eslint/no-empty-function': 'off',
 			'@typescript-eslint/no-floating-promises': 'off',
@@ -97,13 +91,7 @@ export default [
 			'@typescript-eslint/unbound-method': 'off',
 			'@typescript-eslint/no-explicit-any': 'off',
 
-			// Used by Biome
-			'@typescript-eslint/consistent-type-imports': 'off',
-			// These rules enabled by the preset configs don't work well for us
-			'@typescript-eslint/await-thenable': 'off',
-			'prefer-const': 'off',
-
-			// In some cases, using explicit letter-casing is more performant than the `i` flag
+			// Regex-specific rules (no Biome equivalent)
 			'regexp/use-ignore-case': 'off',
 			'regexp/prefer-regexp-exec': 'warn',
 			'regexp/prefer-regexp-test': 'warn',
@@ -141,6 +129,19 @@ export default [
 					],
 				},
 			],
+		},
+	},
+
+	{
+		files: [
+			'packages/language-tools/ts-plugin/**/*',
+			'packages/language-tools/vscode/**/*',
+			// The language server is distributed as CJS in the VS Code extension, despite being written as ESM.
+			// As such, sometimes require are required.
+			'packages/language-tools/language-server/**/*',
+		],
+		rules: {
+			'@typescript-eslint/no-require-imports': 'off',
 		},
 	},
 ];

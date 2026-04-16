@@ -61,9 +61,16 @@ export const getVersion = (
 		let registry = await getRegistry(packageManager);
 		const { version } = await fetch(`${registry}/${packageName}/${packageTag}`, {
 			redirect: 'follow',
+			signal: AbortSignal.timeout(10_000),
 		})
 			.then((res) => res.json())
-			.catch(() => ({ version: fallback }));
+			.catch(() => {
+				const fallbackName = fallback || `'latest'`;
+				console.warn(
+					`Unable to fetch latest ${packageName} version from the npm registry. Using ${fallbackName} instead.`,
+				);
+				return { version: fallback };
+			});
 		return resolve(version);
 	});
 
@@ -116,7 +123,7 @@ export const nextSteps = async ({ projectDir, devCmd }: { projectDir: string; de
 		log(enter.join(len > max ? '\n' + prefix : ' '));
 	}
 	log(
-		`${prefix}Run ${color.cyan(devCmd)} to start the dev server. ${color.cyan('CTRL+C')} to stop.`,
+		`${prefix}Run ${color.cyan(devCmd)} to start the dev server. ${color.cyan('q')} + ${color.cyan('ENTER')} to stop.`,
 	);
 	await sleep(100);
 	log(

@@ -4,7 +4,7 @@ import { markdownConfigDefaults } from '@astrojs/markdown-remark';
 import type {
 	AstroIntegration,
 	AstroIntegrationLogger,
-	ContainerRenderer,
+	AstroRenderer,
 	ContentEntryType,
 	HookParameters,
 } from 'astro';
@@ -33,7 +33,7 @@ type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	addContentEntryType: (contentEntryType: ContentEntryType) => void;
 };
 
-export function getContainerRenderer(): ContainerRenderer {
+export function getContainerRenderer(): AstroRenderer {
 	return {
 		name: 'astro:jsx',
 		serverEntrypoint: '@astrojs/mdx/server.js',
@@ -101,7 +101,6 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 				Object.assign(vitePluginMdxOptions, {
 					mdxOptions: resolvedMdxOptions,
 					srcDir: config.srcDir,
-					experimentalHeadingIdCompat: config.experimental.headingIdCompat,
 				});
 				// @ts-expect-error After we assign, we don't need to reference `mdxOptions` in this context anymore.
 				// Re-assign it so that the garbage can be collected later.

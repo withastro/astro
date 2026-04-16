@@ -1,5 +1,119 @@
 # @astrojs/db
 
+## 0.20.1
+
+### Patch Changes
+
+- [#15364](https://github.com/withastro/astro/pull/15364) [`948b693`](https://github.com/withastro/astro/commit/948b693e6f083df3823a0907b4afe938f059bfdb) Thanks [@VagnoDev](https://github.com/VagnoDev)! - Replace deprecated deep-diff with microdiff and resolve subdependency warnings.
+
+## 0.20.0
+
+### Minor Changes
+
+- [#14445](https://github.com/withastro/astro/pull/14445) [`ecb0b98`](https://github.com/withastro/astro/commit/ecb0b98396f639d830a99ddb5895ab9223e4dc87) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Astro v6.0 upgrades to Vite v7.0 as the development server and production bundler - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#vite-70))
+
+### Patch Changes
+
+- [#15187](https://github.com/withastro/astro/pull/15187) [`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795) Thanks [@matthewp](https://github.com/matthewp)! - Update to Astro 6 beta
+
+- [#14956](https://github.com/withastro/astro/pull/14956) [`0ff51df`](https://github.com/withastro/astro/commit/0ff51dfa3c6c615af54228e159f324034472b1a2) Thanks [@matthewp](https://github.com/matthewp)! - Updates usage of zod to own dependency rather than relying on `astro/zod`
+
+- [#15373](https://github.com/withastro/astro/pull/15373) [`14252b2`](https://github.com/withastro/astro/commit/14252b22f9129f51fae9b224386ab6c4ea1b76c5) Thanks [@renovate](https://github.com/apps/renovate)! - Updates zod to v4
+
+- [#14589](https://github.com/withastro/astro/pull/14589) [`7038f07`](https://github.com/withastro/astro/commit/7038f0700898a17cb87b5a2e408480c1226a47f4) Thanks [@43081j](https://github.com/43081j)! - Improves CLI styling
+
+## 0.19.0-beta.4
+
+### Patch Changes
+
+- [#14589](https://github.com/withastro/astro/pull/14589) [`7038f07`](https://github.com/withastro/astro/commit/7038f0700898a17cb87b5a2e408480c1226a47f4) Thanks [@43081j](https://github.com/43081j)! - Improves CLI styling
+
+## 0.19.0-beta.3
+
+### Patch Changes
+
+- [#15373](https://github.com/withastro/astro/pull/15373) [`14252b2`](https://github.com/withastro/astro/commit/14252b22f9129f51fae9b224386ab6c4ea1b76c5) Thanks [@renovate](https://github.com/apps/renovate)! - Updates zod to v4
+
+## 0.19.0-beta.2
+
+### Patch Changes
+
+- [#15187](https://github.com/withastro/astro/pull/15187) [`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795) Thanks [@matthewp](https://github.com/matthewp)! - Update to Astro 6 beta
+
+## 0.19.0-alpha.1
+
+### Patch Changes
+
+- [#14956](https://github.com/withastro/astro/pull/14956) [`0ff51df`](https://github.com/withastro/astro/commit/0ff51dfa3c6c615af54228e159f324034472b1a2) Thanks [@matthewp](https://github.com/matthewp)! - Updates usage of zod to own dependency rather than relying on `astro/zod`
+
+## 0.19.0-alpha.0
+
+### Minor Changes
+
+- [#14445](https://github.com/withastro/astro/pull/14445) [`ecb0b98`](https://github.com/withastro/astro/commit/ecb0b98396f639d830a99ddb5895ab9223e4dc87) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Astro v6.0 upgrades to Vite v7.0 as the development server and production bundler - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#vite-70))
+
+## 0.19.0
+
+### Minor Changes
+
+- [#15069](https://github.com/withastro/astro/pull/15069) [`d14dfc2`](https://github.com/withastro/astro/commit/d14dfc2d4da71ec6958dc4b34ab04666b367352e) Thanks [@webstackdev](https://github.com/webstackdev)! - Adds a `--db-app-token` CLI flag to `astro db` commands `execute`, `push`, `query`, and `verify`
+
+  The new Astro DB CLI flags allow you to provide a remote database app token directly instead of `ASTRO_DB_APP_TOKEN`. This ensures that no untrusted code (e.g. CI / CD workflows) has access to the secret that is only needed by the `astro db` commands.
+
+  The following command can be used to safely push database configuration changes to your project database:
+
+  ```
+  astro db push --db-app-token <token>
+  ```
+
+  See the [Astro DB integration documentation](https://docs.astro.build/en/guides/integrations-guide/db/#astro-db-cli-reference) for more information.
+
+## 0.18.3
+
+### Patch Changes
+
+- [#14813](https://github.com/withastro/astro/pull/14813) [`e1dd377`](https://github.com/withastro/astro/commit/e1dd377398a3dcf6ba0697dc8d4bde6d77a45700) Thanks [@ematipico](https://github.com/ematipico)! - Removes `picocolors` as dependency in favor of the fork `piccolore`.
+
+## 0.18.2
+
+### Patch Changes
+
+- [#14621](https://github.com/withastro/astro/pull/14621) [`e3175d9`](https://github.com/withastro/astro/commit/e3175d9ccbf070150ab2229b2564ca0b12a86c30) Thanks [@GameRoMan](https://github.com/GameRoMan)! - Updates `vite` version to fix CVE
+
+## 0.18.1
+
+### Patch Changes
+
+- [#14598](https://github.com/withastro/astro/pull/14598) [`7b45c65`](https://github.com/withastro/astro/commit/7b45c65c62e37d4225fb14ea378e2301de31cbea) Thanks [@delucis](https://github.com/delucis)! - Reduces terminal text styling dependency size by switching from `kleur` to `picocolors`
+
+## 0.18.0
+
+### Minor Changes
+
+- [#14204](https://github.com/withastro/astro/pull/14204) [`d71448e`](https://github.com/withastro/astro/commit/d71448efd8b6693ef5d2b071ef4dea20a289699c) Thanks [@Adammatthiesen](https://github.com/Adammatthiesen)! - Adds a new libSQL web driver to support environments that require a non-Node.js libSQL client such as Cloudflare or Deno. Also adds a new `mode` configuration option to allow you to set your client connection type: `node` (default) or `web`.
+
+  The default db `node` driver mode is identical to the previous AstroDB functionality. No changes have been made to how AstroDB works in Node.js environments, and this is still the integration's default behavior. If you are currently using AstroDB, no changes to your project code are required and setting a `mode` is not required.
+
+  However, if you have previously been unable to use AstroDB because you required a non-Node.js libSQL client, you can now install and configure the libSQL web driver by setting `mode: 'web'` in your `db` configuration:
+
+  ```ts
+  import db from '@astrojs/db';
+  import { defineConfig } from 'astro/config';
+
+  // https://astro.build/config
+  export default defineConfig({
+    integrations: [db({ mode: 'web' })],
+  });
+  ```
+
+  For more information, see the [`@astrojs/db` documentation](https://docs.astro.build/en/guides/integrations-guide/db/#mode).
+
+## 0.17.2
+
+### Patch Changes
+
+- [#14326](https://github.com/withastro/astro/pull/14326) [`c24a8f4`](https://github.com/withastro/astro/commit/c24a8f42a17410ea78fc2d68ff0105b931a381eb) Thanks [@jsparkdev](https://github.com/jsparkdev)! - Updates `vite` version to fix CVE
+
 ## 0.17.1
 
 ### Patch Changes
@@ -310,7 +424,7 @@
 
 - [#11304](https://github.com/withastro/astro/pull/11304) [`2e70741`](https://github.com/withastro/astro/commit/2e70741362afc1e7d03c8b2a9d8edb8466dfe9c3) Thanks [@Fryuni](https://github.com/Fryuni)! - Removes the `AstroDbIntegration` type
 
-  Astro integration hooks can now be extended and as such `@astrojs/db` no longer needs to declare it's own integration type. Using `AstroIntegration` will have the same type.
+  Astro integration hooks can now be extended and as such `@astrojs/db` no longer needs to declare its own integration type. Using `AstroIntegration` will have the same type.
 
   If you were using the `AstroDbIntegration` type, apply this change to your integration code:
 

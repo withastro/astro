@@ -1,23 +1,41 @@
 import { fileURLToPath } from 'node:url';
 import { loadEnv } from 'vite';
 import type { AstroConfig } from '../types/public/index.js';
+import type { EnvSchema } from './schema.js';
 
 // Match valid JS variable names (identifiers), which accepts most alphanumeric characters,
 // except that the first character cannot be a number.
 const isValidIdentifierRe = /^[_$a-zA-Z][\w$]*$/;
 
 /**
+ * Collects the set of env variable names declared with `access: "secret"` in the env schema.
+ */
+function getSecretKeys(envSchema: EnvSchema): Set<string> {
+	const secrets = new Set<string>();
+	for (const [key, options] of Object.entries(envSchema)) {
+		if (options.access === 'secret') {
+			secrets.add(key);
+		}
+	}
+	return secrets;
+}
+
+/**
  * From public env, returns private env. Each value may be stringified, transformed as `process.env`
  * or coerced depending on options.
+ *
+ * Variables declared with `access: "secret"` in the env schema are always treated as private,
+ * even if their name matches a configured `envPrefix`. This prevents envPrefix misconfiguration
+ * from leaking secrets to client bundles.
  */
 function getPrivateEnv({
 	fullEnv,
 	viteConfig,
-	useStatic,
+	envSchema,
 }: {
 	fullEnv: Record<string, string>;
 	viteConfig: AstroConfig['vite'];
-	useStatic: boolean;
+	envSchema: EnvSchema;
 }): Record<string, string> {
 	let envPrefixes: string[] = ['PUBLIC_'];
 	if (viteConfig.envPrefix) {
@@ -26,30 +44,26 @@ function getPrivateEnv({
 			: [viteConfig.envPrefix];
 	}
 
+	const secretKeys = getSecretKeys(envSchema);
 	const privateEnv: Record<string, string> = {};
 	for (const key in fullEnv) {
-		// Ignore public env var
-		if (!isValidIdentifierRe.test(key) || envPrefixes.some((prefix) => key.startsWith(prefix))) {
+		if (!isValidIdentifierRe.test(key)) {
 			continue;
 		}
-		// Only replace with process.env if not static
-		// TODO: make static the default and only way to do this in Astro 6
-		if (!useStatic && typeof process.env[key] !== 'undefined') {
-			let value = process.env[key];
-			// Replacements are always strings, so try to convert to strings here first
-			if (typeof value !== 'string') {
-				value = `${value}`;
-			}
-			// Boolean values should be inlined to support `export const prerender`
-			// We already know that these are NOT sensitive values, so inlining is safe
-			if (value === '0' || value === '1' || value === 'true' || value === 'false') {
-				privateEnv[key] = value;
-			} else {
-				privateEnv[key] = `process.env.${key}`;
-			}
-		} else {
+
+		// Variables declared as secret in the env schema are always private,
+		// regardless of whether they match an envPrefix.
+		if (secretKeys.has(key)) {
 			privateEnv[key] = JSON.stringify(fullEnv[key]);
+			continue;
 		}
+
+		// Skip variables matching envPrefix — these are public (handled by Vite)
+		if (envPrefixes.some((prefix) => key.startsWith(prefix))) {
+			continue;
+		}
+
+		privateEnv[key] = JSON.stringify(fullEnv[key]);
 	}
 	return privateEnv;
 }
@@ -57,12 +71,15 @@ function getPrivateEnv({
 interface EnvLoaderOptions {
 	mode: string;
 	config: AstroConfig;
-	useStatic: boolean;
 }
 
-function getEnv({ mode, config, useStatic }: EnvLoaderOptions) {
+function getEnv({ mode, config }: EnvLoaderOptions) {
 	const loaded = loadEnv(mode, config.vite.envDir ?? fileURLToPath(config.root), '');
-	const privateEnv = getPrivateEnv({ fullEnv: loaded, viteConfig: config.vite, useStatic });
+	const privateEnv = getPrivateEnv({
+		fullEnv: loaded,
+		viteConfig: config.vite,
+		envSchema: config.env.schema,
+	});
 
 	return { loaded, privateEnv };
 }

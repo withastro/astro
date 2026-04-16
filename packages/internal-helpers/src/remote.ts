@@ -61,11 +61,14 @@ export function matchHostname(url: URL, hostname?: string, allowWildcard = false
 		return slicedHostname !== url.hostname && url.hostname.endsWith(slicedHostname);
 	} else if (hostname.startsWith('*.')) {
 		const slicedHostname = hostname.slice(1); // * length
-		const additionalSubdomains = url.hostname
-			.replace(slicedHostname, '')
-			.split('.')
-			.filter(Boolean);
-		return additionalSubdomains.length === 1;
+		// Check if url hostname ends with the base domain
+		if (!url.hostname.endsWith(slicedHostname)) {
+			return false;
+		}
+		// Extract the subdomain part (before the base domain, excluding the dot)
+		const subdomainWithDot = url.hostname.slice(0, -(slicedHostname.length - 1));
+		// Should be exactly one subdomain part followed by a dot
+		return subdomainWithDot.endsWith('.') && !subdomainWithDot.slice(0, -1).includes('.');
 	}
 
 	return false;
@@ -89,8 +92,11 @@ export function matchPathname(url: URL, pathname?: string, allowWildcard = false
 		return slicedPathname !== url.pathname && url.pathname.startsWith(slicedPathname);
 	} else if (pathname.endsWith('/*')) {
 		const slicedPathname = pathname.slice(0, -1); // * length
+		if (!url.pathname.startsWith(slicedPathname)) {
+			return false;
+		}
 		const additionalPathChunks = url.pathname
-			.replace(slicedPathname, '')
+			.slice(slicedPathname.length)
 			.split('/')
 			.filter(Boolean);
 		return additionalPathChunks.length === 1;
@@ -124,6 +130,12 @@ export function isRemoteAllowed(
 	}
 
 	const url = new URL(src);
+
+	// Non-http(s) protocols are never allowed
+	if (!['http:', 'https:', 'data:'].includes(url.protocol)) {
+		return false;
+	}
+
 	return (
 		domains.some((domain) => matchHostname(url, domain)) ||
 		remotePatterns.some((remotePattern) => matchPattern(url, remotePattern))

@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
+import { createServer } from 'node:http';
 import { basename } from 'node:path';
 import { Writable } from 'node:stream';
 import { after, afterEach, before, describe, it } from 'node:test';
 import { removeDir } from '@astrojs/internal-helpers/fs';
 import * as cheerio from 'cheerio';
 import parseSrcset from 'parse-srcset';
-import { Logger } from '../dist/core/logger/core.js';
+import { AstroLogger } from '../dist/core/logger/core.js';
 import testAdapter from './test-adapter.js';
 import { testImageService } from './test-image-service.js';
 import { loadFixture } from './test-utils.js';
@@ -19,20 +20,56 @@ describe('astro:image', () => {
 		let devServer;
 		/** @type {Array<{ type: any, level: 'error', message: string; }>} */
 		let logs = [];
+		/** @type {import('node:http').Server | undefined} */
+		let redirectServer;
+		/** @type {string | undefined} */
+		let redirectUrl;
 
 		before(async () => {
+			redirectServer = createServer((req, res) => {
+				if (req.url === '/redirect') {
+					res.statusCode = 302;
+					res.setHeader('Location', 'https://example.com/image.png');
+					res.end();
+					return;
+				}
+
+				res.statusCode = 404;
+				res.end();
+			});
+
+			await new Promise((resolve) => redirectServer.listen(0, '127.0.0.1', resolve));
+			const address = redirectServer.address();
+			if (address && typeof address === 'object') {
+				redirectUrl = `http://127.0.0.1:${address.port}/redirect`;
+			}
+
 			fixture = await loadFixture({
 				root: './fixtures/core-image/',
 				image: {
 					service: testImageService({ foo: 'bar' }),
 					domains: ['avatars.githubusercontent.com'],
+					remotePatterns: [
+						{
+							protocol: 'data',
+						},
+						...(redirectUrl
+							? [
+									{
+										protocol: 'http',
+										hostname: '127.0.0.1',
+										port: new URL(redirectUrl).port,
+									},
+								]
+							: []),
+					],
 				},
 			});
 
 			devServer = await fixture.startDevServer({
-				logger: new Logger({
+				logger: new AstroLogger({
 					level: 'error',
-					dest: new Writable({
+					destination: new Writable({
 						objectMode: true,
 						write(event, _, callback) {
 							logs.push(event);
@@ -45,6 +82,9 @@ describe('astro:image', () => {
 
 		after(async () => {
 			await devServer.stop();
+			if (redirectServer) {
+				await new Promise((resolve) => redirectServer.close(resolve));
+			}
 		});
 
 		describe('basics', () => {
@@ -159,6 +199,12 @@ describe('astro:image', () => {
 					}),
 					true,
 				);
+
+				// Verify that the images can be fetched successfully
+				for (const img of $img.toArray()) {
+					const imgRes = await fixture.fetch(img.attribs['src']);
+					assert.equal(imgRes.status, 200);
+				}
 			});
 
 			it('supports inlined imports', async () => {
@@ -453,31 +499,53 @@ describe('astro:image', () => {
 
 				it('includes loading and decoding attributes', () => {
 					let $img = $('#remote img');
-					assert.equal(!!$img.attr('loading'), true);
-					assert.equal(!!$img.attr('decoding'), true);
+					assert.ok($img.attr('loading'));
+					assert.ok($img.attr('decoding'));
 				});
 
 				it('includes width and height attributes', () => {
 					let $img = $('#remote img');
-					assert.equal(!!$img.attr('width'), true);
-					assert.equal(!!$img.attr('height'), true);
+					assert.ok($img.attr('width'));
+					assert.ok($img.attr('height'));
 				});
 
 				it('support data: URI', () => {
 					let $img = $('#data-uri img');
-					assert.equal(
-						$img.attr('src'),
-						'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAAAAXNSR0IArs4c6QAAAIRlWElmTU0AKgAAAAgABQESAAMAAAABAAEAAAEaAAUAAAABAAAASgEbAAUAAAABAAAAUgEoAAMAAAABAAIAAIdpAAQAAAABAAAAWgAAAAAAAABIAAAAAQAAAEgAAAABAAOgAQADAAAAAQABAACgAgAEAAAAAQAAAA2gAwAEAAAAAQAAAA0AAAAAWvB1rQAAAAlwSFlzAAALEwAACxMBAJqcGAAAAVlpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IlhNUCBDb3JlIDYuMC4wIj4KICAgPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICAgICAgPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIKICAgICAgICAgICAgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iPgogICAgICAgICA8dGlmZjpPcmllbnRhdGlvbj4xPC90aWZmOk9yaWVudGF0aW9uPgogICAgICA8L3JkZjpEZXNjcmlwdGlvbj4KICAgPC9yZGY6UkRGPgo8L3g6eG1wbWV0YT4KGV7hBwAAAWJJREFUKBVtUDEsQ1EUve+1/SItKYMIkYpF06GJdGAwNFFGkxBEYupssRm6EpvJbpVoYhRd6FBikDSxYECsBpG25D/nvP/+p+Ik551z73v33feuyA/izq5CL8ET8ALcBolYIP+vd0ibX/yAT7uj2qkVzwWzUBa0nbacbkKJHi5dlYhXmARYeAS+MwCWA5FPqKIP/9IH/wiygMru5y5mcRYkPHYKP7gAPw4SDbCjRXMgRBJctM4t4ROriM2QSpmkeOtub6YfMYrZvelykbD1sxJVg+6AfKqURRKQLfA4JvoVWgIjDMNlGLVKZxNRFsZsoHGAgREZHKPlJEi2t7if3r2KKS9nVOo0rtNZ3yR7M/VGTqTy5Y4o/scWHBbKfIq0/eZ+x3850OZpaTTxlu/4D3ssuA72uxrYS2rFYjh+aRbmb24LpTVu1IqVKG8P/lmUEaNMxeh6fmquOhkMBE8JJ2yPfwPjdVhiDbiX6AAAAABJRU5ErkJggg==',
-					);
-					assert.equal(!!$img.attr('width'), true);
-					assert.equal(!!$img.attr('height'), true);
+					assert.ok($img.attr('src').startsWith('/_image?href=data'));
+					assert.ok($img.attr('width'));
+					assert.ok($img.attr('height'));
 				});
 
 				it('support images from public', () => {
 					let $img = $('#public img');
 					assert.equal($img.attr('src'), '/penguin3.jpg');
-					assert.equal(!!$img.attr('width'), true);
-					assert.equal(!!$img.attr('height'), true);
+					assert.ok($img.attr('width'));
+					assert.ok($img.attr('height'));
+				});
+
+				it('rejects remote redirects', async () => {
+					assert.ok(redirectUrl, 'Expected redirect URL to be set');
+					const src = `/_image?href=${encodeURIComponent(redirectUrl)}&w=1&h=1&f=png`;
+					const imageRequest = await fixture.fetch(src);
+					assert.ok(imageRequest.status >= 400);
+				});
+
+				it('rejects f=svg for a non-SVG data: URI', async () => {
+					// A PNG data: URI with f=svg should be rejected — the endpoint must not
+					// serve non-SVG content with an image/svg+xml content type
+					const pngDataUri =
+						'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+					const src = `/_image?href=${encodeURIComponent(pngDataUri)}&f=svg`;
+					const response = await fixture.fetch(src);
+					assert.equal(response.status, 403, 'should reject f=svg for a data:image/png source');
+				});
+
+				it('allows f=svg for an actual SVG data: URI', async () => {
+					const svgDataUri =
+						'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiLz48L3N2Zz4=';
+					const src = `/_image?href=${encodeURIComponent(svgDataUri)}&f=svg`;
+					const response = await fixture.fetch(src);
+					assert.equal(response.status, 200, 'should allow f=svg for a data:image/svg+xml source');
 				});
 			});
 
@@ -600,23 +668,18 @@ describe('astro:image', () => {
 
 			it('Adds the <img> tags', () => {
 				let $img = $('img');
-				assert.equal($img.length, 8);
+				assert.equal($img.length, 7);
 			});
 
 			it('image in cc folder is processed', () => {
 				let $imgs = $('img');
-				let $blogfolderimg = $($imgs[7]);
+				let $blogfolderimg = $($imgs[6]);
 				assert.equal($blogfolderimg.attr('src').includes('blogfolder.jpg'), true);
 				assert.equal($blogfolderimg.attr('src').endsWith('f=webp'), true);
 			});
 
 			it('has proper source for directly used image', () => {
 				let $img = $('#direct-image img');
-				assert.equal($img.attr('src').startsWith('/'), true);
-			});
-
-			it('has proper source for refined image', () => {
-				let $img = $('#refined-image img');
 				assert.equal($img.attr('src').startsWith('/'), true);
 			});
 
@@ -729,7 +792,7 @@ describe('astro:image', () => {
 				assert.equal(res.status, 200);
 				assert.equal(
 					await res.text(),
-					"You fool! I'm not a image endpoint at all, I just return this!",
+					"You fool! I'm not an image endpoint at all, I just return this!",
 				);
 			});
 
@@ -754,9 +817,9 @@ describe('astro:image', () => {
 			});
 
 			devServer = await fixture.startDevServer({
-				logger: new Logger({
+				logger: new AstroLogger({
 					level: 'error',
-					dest: new Writable({
+					destination: new Writable({
 						objectMode: true,
 						write(event, _, callback) {
 							logs.push(event);
@@ -806,7 +869,11 @@ describe('astro:image', () => {
 			await res.text();
 
 			assert.equal(logs.length, 1);
-			assert.equal(logs[0].message.includes('does not exist. Is the path correct?'), true);
+			assert.ok(
+				logs[0].message.includes(
+					'Could not find requested image `./does-not-exist.jpg`. Does it exist\?',
+				),
+			);
 		});
 
 		it('properly error image in Markdown content is not found', async () => {
@@ -897,7 +964,7 @@ describe('astro:image', () => {
 			assert.equal(img.status, 200);
 		});
 
-		it('returns 403 when loading a relative pattern iamge', async () => {
+		it('returns 403 when loading a relative pattern image', async () => {
 			const fixtureWithBase = await loadFixture({
 				root: './fixtures/core-image-ssr/',
 				output: 'server',
@@ -1106,21 +1173,27 @@ describe('astro:image', () => {
 
 		it('uses cache entries', async () => {
 			const logs = [];
-			const logging = {
-				dest: {
-					write(chunk) {
-						logs.push(chunk);
-					},
-				},
-			};
 
-			await fixture.build({ logging });
+			await fixture.build({
+				logger: new AstroLogger({
+					destination: {
+						write(chunk) {
+							logs.push(chunk);
+							return true;
+						},
+					},
+					level: 'info',
+				}),
+			});
 			const generatingImageIndex = logs.findIndex((logLine) =>
-				logLine.message.includes('generating optimized images'),
+				logLine.message?.includes('generating optimized images'),
 			);
-			const relevantLogs = logs.slice(generatingImageIndex + 1, -1);
-			const isReusingCache = relevantLogs.every((logLine) =>
-				logLine.message.includes('(reused cache entry)'),
+			const imageLogs = logs
+				.slice(generatingImageIndex + 1)
+				.filter((logLine) => logLine.message?.includes('/_astro/'));
+			assert.ok(imageLogs.length > 0, 'Expected at least one image log entry');
+			const isReusingCache = imageLogs.every((logLine) =>
+				logLine.message?.includes('cache entry)'),
 			);
 
 			assert.equal(isReusingCache, true);
@@ -1245,6 +1318,14 @@ describe('astro:image', () => {
 			const html = await res.text();
 			assert.equal(html, 'An image: "image.png"');
 		});
+
+		it('rejects f=svg when source is not SVG in dev mode', async () => {
+			const params = new URLSearchParams();
+			params.set('href', '/src/assets/penguin1.jpg?origWidth=207&origHeight=243&origFormat=jpg');
+			params.set('f', 'svg');
+			const response = await fixture.fetch('/some-base/_image?' + String(params));
+			assert.equal(response.status, 403, 'should reject f=svg for a .jpg source in dev');
+		});
 	});
 
 	describe('prod ssr', () => {
@@ -1355,8 +1436,23 @@ describe('astro:image', () => {
 				let response = await app.render(request);
 				const body = await response.text();
 
-				assert.equal(response.status, 500);
-				assert.equal(body.includes('Internal Server Error'), true);
+				// Most paths are malformed local paths (500), but some backslash patterns
+				// are now correctly detected as remote and get 403
+				const { isRemotePath } = await import('@astrojs/internal-helpers/path');
+				const isDetectedAsRemote = isRemotePath(path);
+				const expectedStatus = isDetectedAsRemote ? 403 : 500;
+				const expectedBodyText = isDetectedAsRemote ? 'Forbidden' : 'Internal Server Error';
+
+				assert.equal(
+					response.status,
+					expectedStatus,
+					`Path "${path}" should return ${expectedStatus}`,
+				);
+				assert.equal(
+					body.includes(expectedBodyText),
+					true,
+					`Path "${path}" body should include "${expectedBodyText}"`,
+				);
 			}
 
 			// Server should still be running
@@ -1371,6 +1467,81 @@ describe('astro:image', () => {
 			const src = $('img').attr('src');
 			const imgData = await fixture.readFile('/client' + src, null);
 			assert.equal(imgData instanceof Buffer, true);
+		});
+
+		it('can load images from public dir', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			let request = new Request('http://example.com/_image?href=/penguin3.jpg&f=webp');
+			let response = await app.render(request);
+			assert.equal(response.status, 200);
+			assert.equal(response.headers.get('content-type'), 'image/webp');
+		});
+
+		it('rejects f=svg when source is not SVG', async () => {
+			const app = await fixture.loadTestAdapterApp();
+
+			// Attempt to request a non-SVG source with f=svg — this should be rejected
+			let request = new Request('http://example.com/_image?href=/penguin3.jpg&f=svg');
+			let response = await app.render(request);
+			assert.equal(response.status, 403, 'should reject f=svg for a .jpg source');
+			const body = await response.text();
+			assert.ok(
+				body.includes('Cannot convert non-SVG source to SVG format'),
+				'should include descriptive error message',
+			);
+		});
+	});
+
+	describe('prod ssr - SVG format validation', () => {
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/core-image-ssr/',
+				output: 'server',
+				outDir: './dist/server-prod-svg-validation',
+				adapter: testAdapter(),
+				image: {
+					endpoint: { entrypoint: 'astro/assets/endpoint/node' },
+					service: testImageService(),
+					remotePatterns: [{ protocol: 'data' }],
+				},
+			});
+			await fixture.build();
+		});
+
+		it('rejects f=svg for a non-SVG data: URI in production build', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const pngDataUri =
+				'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+			const request = new Request(
+				'http://example.com/_image?href=' + encodeURIComponent(pngDataUri) + '&f=svg',
+			);
+			const response = await app.render(request);
+			assert.equal(response.status, 403, 'should reject f=svg for a data:image/png source');
+			const body = await response.text();
+			assert.ok(
+				body.includes('Cannot convert non-SVG source to SVG format'),
+				'should include descriptive error message',
+			);
+		});
+
+		it('allows f=svg for an actual SVG data: URI in production build', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const svgDataUri =
+				'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiLz48L3N2Zz4=';
+			const request = new Request(
+				'http://example.com/_image?href=' + encodeURIComponent(svgDataUri) + '&f=svg',
+			);
+			const response = await app.render(request);
+			assert.equal(response.status, 200, 'should allow f=svg for a data:image/svg+xml source');
+			assert.equal(response.headers.get('content-type'), 'image/svg+xml');
+		});
+
+		it('rejects f=svg for a remote-style non-SVG URL in production build', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			// Local path with .jpg extension — should be rejected when f=svg
+			const request = new Request('http://example.com/_image?href=/penguin3.jpg&f=svg');
+			const response = await app.render(request);
+			assert.equal(response.status, 403, 'should reject f=svg for a .jpg source');
 		});
 	});
 

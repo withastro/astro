@@ -1,14 +1,14 @@
 import type { SQL } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
-import { bold } from 'kleur/colors';
+import colors from 'piccolore';
 import {
 	FOREIGN_KEY_DNE_ERROR,
 	FOREIGN_KEY_REFERENCES_EMPTY_ERROR,
 	FOREIGN_KEY_REFERENCES_LENGTH_ERROR,
 	REFERENCE_DNE_ERROR,
 } from '../runtime/errors.js';
-import { hasPrimaryKey } from '../runtime/index.js';
 import { isSerializedSQL } from '../runtime/types.js';
+import { hasPrimaryKey } from '../runtime/utils.js';
 import type {
 	BooleanColumn,
 	ColumnType,
@@ -193,7 +193,7 @@ function getDefaultValueSql(columnName: string, column: DBColumnWithDefault): st
 			} catch {
 				// biome-ignore lint/suspicious/noConsole: allowed
 				console.log(
-					`Invalid default value for column ${bold(
+					`Invalid default value for column ${colors.bold(
 						columnName,
 					)}. Defaults must be valid JSON when using the \`json()\` type.`,
 				);

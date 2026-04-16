@@ -1,21 +1,22 @@
 import fsMod from 'node:fs';
 import type { AddressInfo } from 'node:net';
 import { fileURLToPath } from 'node:url';
-import { bold } from 'kleur/colors';
+import colors from 'piccolore';
 import type { InlineConfig, ViteDevServer } from 'vite';
 import { mergeConfig as mergeViteConfig } from 'vite';
 import astroIntegrationActionsRouteHandler from '../actions/integration.js';
 import { isActionsFilePresent } from '../actions/utils.js';
 import { CONTENT_LAYER_TYPE } from '../content/consts.js';
-import { globalContentLayer } from '../content/content-layer.js';
+import { globalContentLayer } from '../content/instance.js';
 import { globalContentConfigObserver } from '../content/utils.js';
 import type { SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
 import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
-import { mergeConfig } from '../core/config/index.js';
+import { mergeConfig } from '../core/config/merge.js';
 import { validateConfigRefined } from '../core/config/validate.js';
 import { validateSetAdapter } from '../core/dev/adapter-validation.js';
-import type { AstroIntegrationLogger, Logger } from '../core/logger/core.js';
+import type { AstroIntegrationLogger, AstroLogger } from '../core/logger/core.js';
+import { getRouteGenerator } from '../core/routing/generator.js';
 import { getClientOutputDirectory } from '../prerender/utils.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
@@ -30,7 +31,6 @@ import type {
 	BaseIntegrationHooks,
 	HookParameters,
 	IntegrationResolvedRoute,
-	IntegrationRouteData,
 	RouteOptions,
 	RouteToHeaders,
 } from '../types/public/integrations.js';
@@ -47,13 +47,13 @@ async function withTakingALongTimeMsg<T>({
 	name: string;
 	hookName: keyof BaseIntegrationHooks;
 	hookFn: () => T | Promise<T>;
-	logger: Logger;
+	logger: AstroLogger;
 	integrationLogger: AstroIntegrationLogger;
 }): Promise<T> {
 	const timeout = setTimeout(() => {
 		logger.info(
 			'build',
-			`Waiting for integration ${bold(JSON.stringify(name))}, hook ${bold(
+			`Waiting for integration ${colors.bold(JSON.stringify(name))}, hook ${colors.bold(
 				JSON.stringify(hookName),
 			)}...`,
 		);
@@ -62,7 +62,7 @@ async function withTakingALongTimeMsg<T>({
 		return await hookFn();
 	} catch (err) {
 		integrationLogger.error(
-			`An unhandled error occurred while running the ${bold(JSON.stringify(hookName))} hook`,
+			`An unhandled error occurred while running the ${colors.bold(JSON.stringify(hookName))} hook`,
 		);
 		throw err;
 	} finally {
@@ -79,7 +79,7 @@ async function runHookInternal<THook extends keyof BaseIntegrationHooks>({
 }: {
 	integration: AstroIntegration;
 	hookName: THook;
-	logger: Logger;
+	logger: AstroLogger;
 	params: () => Omit<HookParameters<NoInfer<THook>>, 'logger'>;
 }) {
 	const hook = integration?.hooks?.[hookName];
@@ -99,7 +99,7 @@ async function runHookInternal<THook extends keyof BaseIntegrationHooks>({
 // Used internally to store instances of loggers.
 const Loggers = new WeakMap<AstroIntegration, AstroIntegrationLogger>();
 
-function getLogger(integration: AstroIntegration, logger: Logger) {
+function getLogger(integration: AstroIntegration, logger: AstroLogger) {
 	if (Loggers.has(integration)) {
 		// SAFETY: we check the existence in the if block
 		return Loggers.get(integration)!;
@@ -119,7 +119,7 @@ export function getToolbarServerCommunicationHelpers(server: ViteDevServer) {
 		 * @param payload - The payload to send
 		 */
 		send: <T>(event: string, payload: T) => {
-			server.hot.send(event, payload);
+			server.environments.client.hot.send(event, payload);
 		},
 		/**
 		 * Receive a message from a dev toolbar app.
@@ -158,7 +158,7 @@ export function normalizeCodegenDir(integrationName: string): string {
 export function normalizeInjectedTypeFilename(filename: string, integrationName: string): string {
 	if (!filename.endsWith('.d.ts')) {
 		throw new Error(
-			`Integration ${bold(integrationName)} is injecting a type that does not end with "${bold('.d.ts')}"`,
+			`Integration ${colors.bold(integrationName)} is injecting a type that does not end with "${colors.bold('.d.ts')}"`,
 		);
 	}
 	return `${normalizeCodegenDir(integrationName)}${filename.replace(SAFE_CHARS_RE, '_')}`;
@@ -167,7 +167,7 @@ export function normalizeInjectedTypeFilename(filename: string, integrationName:
 interface RunHookConfigSetup {
 	settings: AstroSettings;
 	command: 'dev' | 'build' | 'preview' | 'sync';
-	logger: Logger;
+	logger: AstroLogger;
 	isRestart?: boolean;
 	fs?: typeof fsMod;
 }
@@ -223,12 +223,14 @@ export async function runHookConfigSetup({
 					isRestart,
 					addRenderer(renderer: AstroRenderer) {
 						if (!renderer.name) {
-							throw new Error(`Integration ${bold(integration.name)} has an unnamed renderer.`);
+							throw new Error(
+								`Integration ${colors.bold(integration.name)} has an unnamed renderer.`,
+							);
 						}
 
 						if (!renderer.serverEntrypoint) {
 							throw new Error(
-								`Renderer ${bold(renderer.name)} does not provide a serverEntrypoint.`,
+								`Renderer ${colors.bold(renderer.name)} does not provide a serverEntrypoint.`,
 							);
 						}
 
@@ -301,7 +303,7 @@ export async function runHookConfigSetup({
 				// though accessible to integration authors if discovered.
 
 				function addPageExtension(...input: (string | string[])[]) {
-					const exts = (input.flat(Infinity) as string[]).map(
+					const exts = (input.flat(Number.POSITIVE_INFINITY) as string[]).map(
 						(ext) => `.${ext.replace(/^\./, '')}`,
 					);
 					updatedSettings.pageExtensions.push(...exts);
@@ -353,13 +355,6 @@ export async function runHookConfigSetup({
 		updatedSettings.renderers.push(astroJSXRenderer);
 	}
 
-	// TODO: Astro 6.0
-	// Remove this hack to avoid breaking changes, and change the default value of redirectToDefaultLocale
-	if (updatedConfig.i18n && typeof updatedConfig.i18n.routing !== 'string') {
-		updatedConfig.i18n.routing.redirectToDefaultLocale ??=
-			updatedConfig.i18n.routing.prefixDefaultLocale || false;
-	}
-
 	updatedSettings.config = updatedConfig;
 	return updatedSettings;
 }
@@ -370,7 +365,7 @@ export async function runHookConfigDone({
 	command,
 }: {
 	settings: AstroSettings;
-	logger: Logger;
+	logger: AstroLogger;
 	command?: 'dev' | 'build' | 'preview' | 'sync';
 }) {
 	for (const integration of settings.config.integrations) {
@@ -431,7 +426,7 @@ export async function runHookServerSetup({
 }: {
 	config: AstroConfig;
 	server: ViteDevServer;
-	logger: Logger;
+	logger: AstroLogger;
 }) {
 	let refreshContent: undefined | ((options: RefreshContentOptions) => Promise<void>);
 	refreshContent = async (options: RefreshContentOptions) => {
@@ -470,7 +465,7 @@ export async function runHookServerStart({
 }: {
 	config: AstroConfig;
 	address: AddressInfo;
-	logger: Logger;
+	logger: AstroLogger;
 }) {
 	for (const integration of config.integrations) {
 		await runHookInternal({
@@ -487,7 +482,7 @@ export async function runHookServerDone({
 	logger,
 }: {
 	config: AstroConfig;
-	logger: Logger;
+	logger: AstroLogger;
 }) {
 	for (const integration of config.integrations) {
 		await runHookInternal({
@@ -500,18 +495,22 @@ export async function runHookServerDone({
 }
 
 export async function runHookBuildStart({
-	config,
+	settings,
 	logger,
 }: {
-	config: AstroConfig;
-	logger: Logger;
+	settings: AstroSettings;
+	logger: AstroLogger;
 }) {
-	for (const integration of config.integrations) {
+	for (const integration of settings.config.integrations) {
 		await runHookInternal({
 			integration,
 			hookName: 'astro:build:start',
 			logger,
-			params: () => ({}),
+			params: () => ({
+				setPrerenderer(prerenderer) {
+					settings.prerenderer = prerenderer;
+				},
+			}),
 		});
 	}
 }
@@ -527,7 +526,7 @@ export async function runHookBuildSetup({
 	vite: InlineConfig;
 	pages: Map<string, PageBuildData>;
 	target: 'server' | 'client';
-	logger: Logger;
+	logger: AstroLogger;
 }): Promise<InlineConfig> {
 	let updatedConfig = vite;
 
@@ -554,8 +553,7 @@ export async function runHookBuildSetup({
 type RunHookBuildSsr = {
 	config: AstroConfig;
 	manifest: SerializedSSRManifest;
-	logger: Logger;
-	entryPoints: Map<RouteData, URL>;
+	logger: AstroLogger;
 	middlewareEntryPoint: URL | undefined;
 };
 
@@ -563,13 +561,8 @@ export async function runHookBuildSsr({
 	config,
 	manifest,
 	logger,
-	entryPoints,
 	middlewareEntryPoint,
 }: RunHookBuildSsr) {
-	const entryPointsMap = new Map();
-	for (const [key, value] of entryPoints) {
-		entryPointsMap.set(toIntegrationRouteData(key), value);
-	}
 	for (const integration of config.integrations) {
 		await runHookInternal({
 			integration,
@@ -577,7 +570,6 @@ export async function runHookBuildSsr({
 			logger,
 			params: () => ({
 				manifest,
-				entryPoints: entryPointsMap,
 				middlewareEntryPoint,
 			}),
 		});
@@ -587,21 +579,24 @@ export async function runHookBuildSsr({
 export async function runHookBuildGenerated({
 	settings,
 	logger,
-	experimentalRouteToHeaders,
+	routeToHeaders,
 }: {
 	settings: AstroSettings;
-	logger: Logger;
-	experimentalRouteToHeaders: RouteToHeaders;
+	logger: AstroLogger;
+	routeToHeaders: RouteToHeaders;
 }) {
+	const preserveStructure = settings.adapter?.adapterFeatures?.preserveBuildClientDir;
 	const dir =
-		settings.buildOutput === 'server' ? settings.config.build.client : settings.config.outDir;
+		settings.buildOutput === 'server' || preserveStructure
+			? settings.config.build.client
+			: settings.config.outDir;
 
 	for (const integration of settings.config.integrations) {
 		await runHookInternal({
 			integration,
 			hookName: 'astro:build:generated',
 			logger,
-			params: () => ({ dir, experimentalRouteToHeaders }),
+			params: () => ({ dir, routeToHeaders }),
 		});
 	}
 }
@@ -610,13 +605,12 @@ type RunHookBuildDone = {
 	settings: AstroSettings;
 	pages: string[];
 	routes: RouteData[];
-	logger: Logger;
+	logger: AstroLogger;
 };
 
 export async function runHookBuildDone({ settings, pages, routes, logger }: RunHookBuildDone) {
 	const dir = getClientOutputDirectory(settings);
 	await fsMod.promises.mkdir(dir, { recursive: true });
-	const integrationRoutes = routes.map(toIntegrationRouteData);
 
 	for (const integration of settings.config.integrations) {
 		await runHookInternal({
@@ -626,7 +620,6 @@ export async function runHookBuildDone({ settings, pages, routes, logger }: RunH
 			params: () => ({
 				pages: pages.map((p) => ({ pathname: p })),
 				dir,
-				routes: integrationRoutes,
 				assets: new Map(
 					routes.filter((r) => r.distURL !== undefined).map((r) => [r.route, r.distURL!]),
 				),
@@ -642,7 +635,7 @@ export async function runHookRouteSetup({
 }: {
 	route: RouteOptions;
 	settings: AstroSettings;
-	logger: Logger;
+	logger: AstroLogger;
 }) {
 	const prerenderChangeLogs: { integrationName: string; value: boolean | undefined }[] = [];
 
@@ -675,7 +668,7 @@ export async function runHookRoutesResolved({
 }: {
 	routes: Array<RouteData>;
 	settings: AstroSettings;
-	logger: Logger;
+	logger: AstroLogger;
 }) {
 	for (const integration of settings.config.integrations) {
 		await runHookInternal({
@@ -683,44 +676,35 @@ export async function runHookRoutesResolved({
 			hookName: 'astro:routes:resolved',
 			logger,
 			params: () => ({
-				routes: routes.map((route) => toIntegrationResolvedRoute(route)),
+				routes: routes.map((route) =>
+					toIntegrationResolvedRoute(route, settings.config.trailingSlash),
+				),
 			}),
 		});
 	}
 }
 
-export function toIntegrationResolvedRoute(route: RouteData): IntegrationResolvedRoute {
+export function toIntegrationResolvedRoute(
+	route: RouteData,
+	trailingSlash: AstroConfig['trailingSlash'],
+): IntegrationResolvedRoute {
 	return {
 		isPrerendered: route.prerender,
 		entrypoint: route.component,
 		pattern: route.route,
 		params: route.params,
 		origin: route.origin,
-		generate: route.generate,
+		generate: getRouteGenerator(route.segments, trailingSlash),
 		patternRegex: route.pattern,
 		segments: route.segments,
 		type: route.type,
 		pathname: route.pathname,
 		redirect: route.redirect,
 		redirectRoute: route.redirectRoute
-			? toIntegrationResolvedRoute(route.redirectRoute)
+			? toIntegrationResolvedRoute(route.redirectRoute, trailingSlash)
 			: undefined,
-	};
-}
-
-function toIntegrationRouteData(route: RouteData): IntegrationRouteData {
-	return {
-		route: route.route,
-		component: route.component,
-		generate: route.generate,
-		params: route.params,
-		pathname: route.pathname,
-		segments: route.segments,
-		prerender: route.prerender,
-		redirect: route.redirect,
-		redirectRoute: route.redirectRoute ? toIntegrationRouteData(route.redirectRoute) : undefined,
-		type: route.type,
-		pattern: route.pattern,
-		distURL: route.distURL,
+		fallbackRoutes: route.fallbackRoutes.map((fallbackRoute) =>
+			toIntegrationResolvedRoute(fallbackRoute, trailingSlash),
+		),
 	};
 }

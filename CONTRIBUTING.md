@@ -11,8 +11,8 @@ We welcome contributions of any size and skill level. As an open source project,
 ### Prerequisites
 
 ```shell
-node: "^>=18.20.8"
-pnpm: "^9.12.1"
+node: "^>=22.12.0"
+pnpm: "^10.28.0"
 # otherwise, your build will fail
 ```
 
@@ -77,6 +77,26 @@ During the development process, you may want to test your changes to ensure they
 
 Overall, it's up to personal preference which method to use. For smaller changes, using the examples folder may be sufficient. For larger changes, using a separate project may be more appropriate.
 
+#### Contributing to language tooling
+
+For information on contributing to the language tooling (VS Code extension, language server, etc.), see [packages/language-tools/CONTRIBUTING.md](./packages/language-tools/CONTRIBUTING.md).
+
+#### Naming convention and APIs usage
+
+> [!NOTE]
+> This is a requirement that is applied only to the `packages/astro` source code.
+
+> [!IMPORTANT]
+> This convention is recent, the source code might not follow this convention yet.
+
+The use of `Node.js` APIs e.g. `node:` is limited and should be done only in specific parts of the code. The reason why
+the project can't use `Node.js` APIs at will is because Astro code might run in environments that support runtimes other than
+Node.js. An example is Cloudflare Workers.
+
+Code that is runtime-agnostic (i.e. code that shouldn't use Node.js APIs) should be placed inside folders or files called `runtime` (`runtime/` or `runtime.ts`).
+
+You can use `Node.js` APIs inside the implementation of the vite plugins, but if the vite plugin returns a virtual module, that virtual module can't use Node.js APIs.
+
 #### Debugging Vite
 
 You can debug vite by prefixing any command with `DEBUG` like so:
@@ -96,7 +116,7 @@ pnpm run test
 pnpm run test:match "$STRING_MATCH"
 # run tests on another package
 # (example - `pnpm --filter @astrojs/rss run test` runs `packages/astro-rss/test/rss.test.js`)
-pnpm --filter $STRING_MATCH run test
+pnpm --filter "$STRING_MATCH" run test
 ```
 
 Most tests use [`mocha`](https://mochajs.org) as the test runner. We're slowly migrating to use [`node:test`](https://nodejs.org/api/test.html) instead through the custom [`astro-scripts test`](./scripts/cmd/test.js) command. For packages that use `node:test`, you can run these commands in their directories:
@@ -145,7 +165,7 @@ node --test --test-only test/astro-basic.test.js
 
 #### Debugging tests in CI
 
-There might be occasions where some tests fail in certain CI runs due to some timeout issue. If this happens, it will be very difficult to understand which file cause the timeout. That's caused by come quirks of the Node.js test runner combined with our architecture.
+There might be occasions where some tests fail in certain CI runs due to some timeout issue. If this happens, it will be very difficult to understand which file cause the timeout. That's caused by some quirks of the Node.js test runner combined with our architecture.
 
 To understand which file causes the issue, you can modify the `test` script inside the `package.json` by adding the `--parallel` option:
 
@@ -156,7 +176,7 @@ To understand which file causes the issue, you can modify the `test` script insi
 }
 ```
 
-Save the change and **push it** to your PR. This change will make the test CI slower, but it will allow to see which files causes the timeout. Once you fixed the issue **revert the change and push it**.
+Save the change and **push it** to your PR. This change will make the test CI slower, but it will allow you to see which files cause the timeout. Once you fixed the issue **revert the change and push it**.
 
 #### E2E tests
 
@@ -174,13 +194,24 @@ pnpm run test:e2e:match "$STRING_MATCH"
 
 Any tests for `astro build` output should use the main `mocha` tests rather than E2E - these tests will run faster than having Playwright start the `astro preview` server.
 
-If a test needs to validate what happens on the page after it's loading in the browser, that's a perfect use for E2E dev server tests, i.e. to verify that hot-module reloading works in `astro dev` or that components were client hydrated and are interactive.
+If a test needs to validate what happens on the page after it's loaded in the browser, that's a perfect use for E2E dev server tests, i.e. to verify that hot-module reloading works in `astro dev` or that components were client hydrated and are interactive.
 
 #### Creating tests
 
 When creating new tests, it's best to reference other existing test files and replicate the same setup. Some other tips include:
 
 - When re-using a fixture multiple times with different configurations, you should also configure unique `outDir`, `build.client`, and `build.server` values so the build output runtime isn't cached and shared by ESM between test runs.
+
+> [!IMPORTANT]
+> If tests start to fail for no apparent reason, the first thing to look at the `outDir` configuration. As build caches artifacts between runs, different tests might end up sharing some of the emitted modules.
+> To avoid this possible overlap, **make sure to add a custom `outDir` to your test case**.
+>
+> ```js
+> await loadFixture({
+>   root: './fixtures/some-fixture',
+>   outDir: './dist/some-folder',
+> });
+> ```
 
 ### Other useful commands
 
@@ -228,7 +259,7 @@ To run only a specific benchmark on CI, add its name after the command in your c
 
 ## For maintainers
 
-This paragraph provides some guidance to the maintainers of the monorepo. The guidelines explained here aren't necessarily followed by other repositories of the same GitHub organisation.
+This paragraph provides some guidance to the maintainers of the monorepo. The guidelines explained here aren't necessarily followed by other repositories of the GitHub organisation.
 
 ### Issue triaging workflow
 
@@ -270,7 +301,7 @@ The Astro project has five levels of priority to issues, where `p5` is the highe
 - `p4`: the bug impacts _many_ Astro projects, it doesn't have a workaround but Astro is still stable/usable.
 - `p3`: any bug that doesn't fall in the `p4` or `p5` category. If the documentation doesn't cover
   the case reported by the user, it's useful to initiate a discussion via the `"needs discussion"` label. Seek opinions from OP and other maintainers.
-- `p2`: all the bugs that have workarounds.
+- `p2`: all bugs that have workarounds.
 - `p1`: very minor bug, that impacts a small amount of users. Sometimes it's an edge case and it's easy to fix. Very useful if you want to assign the fix to a first-time contributor.
 
 > [!IMPORTANT]
@@ -281,7 +312,7 @@ Assigning labels isn't always easy and many times the distinction between the di
 - When assigning a `p2`, **always** add a comment that explains the workaround. If a workaround isn't provided, ping the person that assigned the label and ask them to provide one.
 - Astro has **many** features, but there are some that have a larger impact than others: development server, build command, HMR (TBD, we don't have a page that explains expectations of HMR in Astro), **evident** regressions in performance.
 - In case the number of reactions of an issue grows, the number of users affected grows, or a discussion uncovers some insights that weren't clear before, it's OK to change the priority of the issue. The maintainer **should** provide an explanation when assigning a different label.
-  As with any other contribution, triaging is voluntary and best-efforts. We welcome and appreciate all the help you're happy to give (including reading this!) and nothing more. If you are not confident about an issue, you are welcome to leave an issue untriaged for someone who would have more context, or to bring it to their attention.
+  As with any other contribution, triaging is voluntary and best-effort. We welcome and appreciate all the help you're happy to give (including reading this!) and nothing more. If you are not confident about an issue, you are welcome to leave an issue untriaged for someone who would have more context, or to bring it to their attention.
 
 ### Preview releases
 
@@ -312,6 +343,191 @@ There are 3 contexts in which code executes:
 - **In the browser**: this code lives in `src/runtime/client/`.
 
 Understanding in which environment code runs, and at which stage in the process, can help clarify thinking about what Astro is doing. It also helps with debugging, for instance, if you’re working within `src/core/`, you know that your code isn’t executing within Vite, so you don’t have to debug Vite’s setup. But you will have to debug vite inside `runtime/server/`.
+
+### Making code testable
+
+To make it easier to test code, try decoupling **business logic** from **infrastructure**:
+
+- **Infrastructure** is code that depends on external systems and/or requires a special environment to run. For example: DB calls, file system, randomness etc...
+- **Business logic** (or _core logic_ or _domain_) is the rest. It's pure logic that's easy to run from anywhere.
+
+That means avoiding side-effects by making external dependencies explicit. This often means passing more things as arguments.
+
+In practice, that can take several shapes. Let's have a look at an example:
+
+```ts
+// create-key.ts
+import { logger, generateKey } from '../utils.js';
+import { encodeBase64 } from '@oslojs/encoding';
+
+export async function createKey() {
+  const encoded = encodeBase64(
+    new Uint8Array(await crypto.subtle.exportKey('raw', await generateKey())),
+  );
+  logger.info(`Key created: ${key}`);
+}
+
+// main.ts
+import { createKey } from './create-key.js';
+
+async function main() {
+  await createKey();
+}
+```
+
+This function is very hard to test because it depends on:
+
+- A global logger
+- The `crypto` global
+- The `@oslojs/encoding` package
+- A `generateKey` utility function
+
+One way to refactor this function is to move many of these things to arguments:
+
+```ts
+// create-key.ts
+import type { Logger } from '../types.js';
+
+interface Options {
+  generateKey: () => Promise<void>;
+  logger: Logger;
+}
+
+export async function createKey({ generateKey, logger }: Options) {
+  const key = await generateKey();
+  logger.info(`Key created: ${key}`);
+}
+
+// main.ts
+import { createKey } from './create-key.js';
+import { logger, generateKey } from '../utils.js';
+import { encodeBase64 } from '@oslojs/encoding';
+
+async function main() {
+  await createKey({
+    logger,
+    async generateKey() {
+      return encodeBase64(
+        new Uint8Array(await crypto.subtle.exportKey('raw', await generateKey())),
+      );
+    },
+  });
+}
+```
+
+We could take this further by writing some custom abstractions, which can be useful when some of this logic needs to shared:
+
+```ts
+// types.ts
+export interface KeyGenerator {
+  generate: () => Promise<string>;
+}
+
+// create-key.ts
+import type { KeyGenerator, Logger } from './types.js';
+
+interface Options {
+  keyGenerator: KeyGenerator;
+  logger: Logger;
+}
+
+export async function createKey({ keyGenerator, logger }: Options) {
+  const key = await keyGenerator.generate();
+  logger.info(`Key created: ${key}`);
+}
+
+// crypto-key-generator.ts
+import type { KeyGenerator } from './types.js';
+import { encodeBase64 } from '@oslojs/encoding';
+
+export class CryptoKeyGenerator implements KeyGenerator {
+  readonly #algorithm = 'AES-GCM';
+
+  async generate(): Promise<string> {
+    const key = await crypto.subtle.generateKey(
+      {
+        name: this.#algorithm,
+        length: 256,
+      },
+      true,
+      ['encrypt', 'decrypt'],
+    );
+    const encoded = encodeBase64(new Uint8Array(await crypto.subtle.exportKey('raw', key)));
+    return encoded;
+  }
+}
+
+// main.ts
+import { logger } from './utils.js';
+import { createKey } from './create-key.js';
+import { CryptoKeyGenerator } from '../crypto-key-generator.js';
+
+const keyGenerator = new CryptoKeyGenerator();
+
+async function main() {
+  await createKey({ logger, keyGenerator });
+}
+```
+
+The power of this structure is that it makes it easy to unit test. Because abstractions hold very specific responsibilities, we can easily mock them:
+
+```js
+// @ts-check
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
+import { createKey } from '../../../dist/cli/create-key/core/create-key.js';
+import { SpyLogger } from '../test-utils.js';
+import { FakeKeyGenerator } from './utils.js';
+
+describe('CLI create-key', () => {
+  describe('core', () => {
+    describe('createKey()', () => {
+      it('logs the generated key', async () => {
+        const logger = new SpyLogger();
+        const keyGenerator = new FakeKeyGenerator('FOO');
+
+        await createKey({ logger, keyGenerator });
+
+        assert.equal(logger.logs[0].type, 'info');
+        assert.equal(logger.logs[0].label, 'crypto');
+        assert.match(logger.logs[0].message, /ASTRO_KEY=FOO/);
+      });
+    });
+  });
+});
+```
+
+It can be useful to create test specific abstractions:
+
+```js
+// @ts-check
+
+/**
+ * @import { KeyGenerator } from "../../../dist/cli/create-key/definitions.js"
+ */
+
+/** @implements {KeyGenerator} */
+export class FakeKeyGenerator {
+  /** @type {string} */
+  #key;
+
+  /**
+   * @param {string} key
+   */
+  constructor(key) {
+    this.#key = key;
+  }
+
+  async generate() {
+    return this.#key;
+  }
+}
+```
+
+Remember:
+
+- Try test all implementations. If an infrastructure implementation is just a wrapper around a NPM package, you may not need to test it and instead trust the package own tests
+- Always test business logic
 
 ## Branches
 

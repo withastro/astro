@@ -1,6 +1,8 @@
+import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import type { AstroConfig } from '../types/public/index.js';
 import type { EnumSchema, EnvFieldType, NumberSchema, StringSchema } from './schema.js';
 
-export type ValidationResultValue = EnvFieldType['default'];
+type ValidationResultValue = EnvFieldType['default'];
 export type ValidationResultErrors = ['missing'] | ['type'] | Array<string>;
 interface ValidationResultValid {
 	ok: true;
@@ -75,7 +77,7 @@ const stringValidator =
 const numberValidator =
 	({ gt, min, lt, max, int }: NumberSchema): ValueValidator =>
 	(input) => {
-		const num = parseFloat(input ?? '');
+		const num = Number.parseFloat(input ?? '');
 		if (isNaN(num)) {
 			return {
 				ok: false,
@@ -176,4 +178,38 @@ export function validateEnvVariable(
 	}
 
 	return selectValidator(options)(value);
+}
+
+/**
+ * Validates that `vite.envPrefix` doesn't match any environment variables declared
+ * with `access: "secret"` in `env.schema`. If it does, those secrets would be exposed
+ * by Vite in client-side bundles via `import.meta.env`, completely bypassing the
+ * `access: "secret"` protection.
+ *
+ * Throws an `AstroError` if conflicts are found.
+ */
+export function validateEnvPrefixAgainstSchema(config: AstroConfig): void {
+	const schema = config.env.schema;
+	const envPrefix = config.vite?.envPrefix;
+
+	// No schema or using default prefix — nothing to validate
+	if (Object.keys(schema).length === 0 || !envPrefix) {
+		return;
+	}
+
+	const prefixes = Array.isArray(envPrefix) ? envPrefix : [envPrefix];
+	const conflicts: string[] = [];
+
+	for (const [key, options] of Object.entries(schema)) {
+		if (options.access === 'secret' && prefixes.some((prefix) => key.startsWith(prefix))) {
+			conflicts.push(key);
+		}
+	}
+
+	if (conflicts.length > 0) {
+		throw new AstroError({
+			...AstroErrorData.EnvPrefixConflictsWithSecret,
+			message: AstroErrorData.EnvPrefixConflictsWithSecret.message(conflicts),
+		});
+	}
 }

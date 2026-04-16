@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { Logger } from '../dist/core/logger/core.js';
+import { AstroLogger } from '../dist/core/logger/core.js';
 import { loadFixture } from './test-utils.js';
 
 function addLeadingSlash(path) {
@@ -14,19 +14,19 @@ function removeBasePath(path) {
 }
 
 /**
- * @typedef {import('../src/core/logger/core').LogMessage} LogMessage
+ * @typedef {import('../src/core/logger/core').AstroLogMessage} AstroLogMessage
  */
 
 describe('Static build', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
-	/** @type {LogMessage[]} */
+	/** @type {AstroLogMessage[]} */
 	let logs = [];
 
 	before(async () => {
-		/** @type {import('../src/core/logger/core').Logger} */
-		const logger = new Logger({
-			dest: {
+		/** @type {import('../src/core/logger/core').AstroLogger} */
+		const logger = new AstroLogger({
+			destination: {
 				write(chunk) {
 					logs.push(chunk);
 				},
@@ -55,7 +55,7 @@ describe('Static build', () => {
 		assert.equal(typeof html, 'string');
 	});
 
-	it('can build pages using Astro.glob()', async () => {
+	it('can build pages using import.meta.glob()', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerioLoad(html);
 		const link = $('.posts a');

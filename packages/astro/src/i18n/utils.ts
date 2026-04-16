@@ -1,5 +1,4 @@
-import type { SSRManifest } from '../core/app/types.js';
-import type { AstroConfig, Locales } from '../types/public/config.js';
+import type { Locales } from '../types/public/config.js';
 import { getAllCodes, normalizeTheLocale, normalizeThePath } from './index.js';
 
 type BrowserLocale = {
@@ -189,83 +188,37 @@ export function computeCurrentLocale(
 	}
 }
 
-export type RoutingStrategies =
-	| 'manual'
-	| 'pathname-prefix-always'
-	| 'pathname-prefix-other-locales'
-	| 'pathname-prefix-always-no-redirect'
-	| 'domains-prefix-always'
-	| 'domains-prefix-other-locales'
-	| 'domains-prefix-always-no-redirect';
-export function toRoutingStrategy(
-	routing: NonNullable<AstroConfig['i18n']>['routing'],
-	domains: NonNullable<AstroConfig['i18n']>['domains'],
-) {
-	let strategy: RoutingStrategies;
-	const hasDomains = domains ? Object.keys(domains).length > 0 : false;
-	if (routing === 'manual') {
-		strategy = 'manual';
-	} else {
-		if (!hasDomains) {
-			if (routing?.prefixDefaultLocale === true) {
-				if (routing.redirectToDefaultLocale) {
-					strategy = 'pathname-prefix-always';
-				} else {
-					strategy = 'pathname-prefix-always-no-redirect';
-				}
-			} else {
-				strategy = 'pathname-prefix-other-locales';
-			}
+/**
+ * Check if any of the route's resolved param values match a configured locale.
+ * This handles dynamic routes like `[locale]` or `[...path]` where the locale
+ * isn't in a static segment of the route pathname.
+ */
+export function computeCurrentLocaleFromParams(
+	params: Record<string, string | undefined>,
+	locales: Locales,
+): string | undefined {
+	// Precompute lookup maps for O(1) matching instead of nested loops.
+	// normalizedCode -> original locale string or first code for object locales
+	const byNormalizedCode = new Map<string, string>();
+	// path -> first code (for object locales)
+	const byPath = new Map<string, string>();
+
+	for (const locale of locales) {
+		if (typeof locale === 'string') {
+			byNormalizedCode.set(normalizeTheLocale(locale), locale);
 		} else {
-			if (routing?.prefixDefaultLocale === true) {
-				if (routing.redirectToDefaultLocale) {
-					strategy = 'domains-prefix-always';
-				} else {
-					strategy = 'domains-prefix-always-no-redirect';
-				}
-			} else {
-				strategy = 'domains-prefix-other-locales';
+			byPath.set(locale.path, locale.codes[0]);
+			for (const code of locale.codes) {
+				byNormalizedCode.set(normalizeTheLocale(code), code);
 			}
 		}
 	}
 
-	return strategy;
-}
-
-const PREFIX_DEFAULT_LOCALE = new Set([
-	'pathname-prefix-always',
-	'domains-prefix-always',
-	'pathname-prefix-always-no-redirect',
-	'domains-prefix-always-no-redirect',
-]);
-
-const REDIRECT_TO_DEFAULT_LOCALE = new Set([
-	'pathname-prefix-always-no-redirect',
-	'domains-prefix-always-no-redirect',
-]);
-
-export function fromRoutingStrategy(
-	strategy: RoutingStrategies,
-	fallbackType: NonNullable<SSRManifest['i18n']>['fallbackType'],
-): NonNullable<AstroConfig['i18n']>['routing'] {
-	let routing: NonNullable<AstroConfig['i18n']>['routing'];
-	if (strategy === 'manual') {
-		routing = 'manual';
-	} else {
-		routing = {
-			prefixDefaultLocale: PREFIX_DEFAULT_LOCALE.has(strategy),
-			redirectToDefaultLocale: !REDIRECT_TO_DEFAULT_LOCALE.has(strategy),
-			fallbackType,
-		};
+	for (const value of Object.values(params)) {
+		if (!value) continue;
+		const pathMatch = byPath.get(value);
+		if (pathMatch) return pathMatch;
+		const codeMatch = byNormalizedCode.get(normalizeTheLocale(value));
+		if (codeMatch) return codeMatch;
 	}
-	return routing;
-}
-
-export function toFallbackType(
-	routing: NonNullable<AstroConfig['i18n']>['routing'],
-): 'redirect' | 'rewrite' {
-	if (routing === 'manual') {
-		return 'rewrite';
-	}
-	return routing.fallbackType;
 }

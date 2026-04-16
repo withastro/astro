@@ -81,7 +81,7 @@ test.describe('Astro Actions - Blog', () => {
 		const submitButton = form.getByRole('button');
 		await submitButton.click();
 
-		const expectedText = 'Expected string, received null';
+		const expectedText = 'Invalid input: expected string, received null';
 
 		const fields = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
 

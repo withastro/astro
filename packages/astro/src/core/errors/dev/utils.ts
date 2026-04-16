@@ -3,13 +3,12 @@ import { isAbsolute, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { stripVTControlCharacters } from 'node:util';
 import { escape } from 'html-escaper';
-import { bold, underline } from 'kleur/colors';
+import colors from 'piccolore';
 import type { ESBuildTransformResult } from 'vite';
 import type { SSRError } from '../../../types/public/internal.js';
 import { removeLeadingForwardSlashWindows } from '../../path.js';
 import { normalizePath } from '../../viteUtils.js';
 import { AggregateError, type ErrorWithMetadata } from '../errors.js';
-import { AstroErrorData } from '../index.js';
 import { codeFrame } from '../printer.js';
 import { normalizeLF } from '../utils.js';
 
@@ -141,7 +140,7 @@ function generateHint(err: ErrorWithMetadata): string | undefined {
 	const commonBrowserAPIs = ['document', 'window'];
 
 	if (/Unknown file extension "\.(?:jsx|vue|svelte|astro|css)" for /.test(err.message)) {
-		return 'You likely need to add this package to `vite.ssr.noExternal` in your astro config file.';
+		return 'You likely need to add this package to `vite.resolve.noExternal` in your astro config file.';
 	} else if (commonBrowserAPIs.some((api) => err.toString().includes(api))) {
 		const hint = `Browser APIs are not available on the server.
 
@@ -179,9 +178,7 @@ function collectInfoFromStacktrace(error: SSRError & { stack: string }): StackIn
 			error.pluginCode ||
 			error.id ||
 			// TODO: this could be better, `src` might be something else
-			stackText
-				.split('\n')
-				.find((ln) => ln.includes('src') || ln.includes('node_modules'));
+			stackText.split('\n').find((ln) => ln.includes('src') || ln.includes('node_modules'));
 		// Disable eslint as we're not sure how to improve this regex yet
 		// eslint-disable-next-line regexp/no-super-linear-backtracking
 		const source = possibleFilePath?.replace?.(/^[^(]+\(([^)]+).*$/, '$1').replace(/^\s+at\s+/, '');
@@ -225,26 +222,22 @@ function cleanErrorStack(stack: string) {
 		.join('\n');
 }
 
-export function getDocsForError(err: ErrorWithMetadata): string | undefined {
-	if (err.name !== 'UnknownError' && err.name in AstroErrorData) {
-		return `https://docs.astro.build/en/reference/errors/${getKebabErrorName(err.name)}/`;
-	}
-
-	return undefined;
-
-	/**
-	 * The docs has kebab-case urls for errors, so we need to convert the error name
-	 * @param errorName
-	 */
-	function getKebabErrorName(errorName: string): string {
-		return errorName.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
-	}
-}
-
-const linkRegex = /\[([^[]+)\]\((.*)\)/g;
+const linkRegex = /\[([^[]+)\]\(([^)]*)\)/g;
 const boldRegex = /\*\*(.+)\*\*/g;
 const urlRegex = / ((?:https?|ftp):\/\/[-\w+&@#\\/%?=~|!:,.;]*[-\w+&@#\\/%=~|])/gi;
 const codeRegex = /`([^`]+)`/g;
+
+function isAllowedUrl(url: string): boolean {
+	const trimmedUrl = url.trim();
+	if (!trimmedUrl) return false;
+
+	try {
+		const parsedUrl = new URL(trimmedUrl);
+		return ['http:', 'https:'].includes(parsedUrl.protocol);
+	} catch {
+		return false;
+	}
+}
 
 /**
  * Render a subset of Markdown to HTML or a CLI output
@@ -252,14 +245,26 @@ const codeRegex = /`([^`]+)`/g;
 export function renderErrorMarkdown(markdown: string, target: 'html' | 'cli') {
 	if (target === 'html') {
 		return escape(markdown)
-			.replace(linkRegex, `<a href="$2" target="_blank">$1</a>`)
+			.replace(linkRegex, (_match, text, url) => {
+				if (!isAllowedUrl(url)) {
+					return text;
+				}
+
+				return `<a href="${url}" target="_blank">${text}</a>`;
+			})
 			.replace(boldRegex, '<b>$1</b>')
 			.replace(urlRegex, ' <a href="$1" target="_blank">$1</a>')
 			.replace(codeRegex, '<code>$1</code>');
 	} else {
 		return markdown
-			.replace(linkRegex, (_, m1, m2) => `${bold(m1)} ${underline(m2)}`)
-			.replace(urlRegex, (fullMatch) => ` ${underline(fullMatch.trim())}`)
-			.replace(boldRegex, (_, m1) => `${bold(m1)}`);
+			.replace(linkRegex, (_, m1, m2) => {
+				if (!isAllowedUrl(m2)) {
+					return `${colors.bold(m1)} ${m2}`;
+				}
+
+				return `${colors.bold(m1)} ${colors.underline(m2)}`;
+			})
+			.replace(urlRegex, (fullMatch) => ` ${colors.underline(fullMatch.trim())}`)
+			.replace(boldRegex, (_, m1) => `${colors.bold(m1)}`);
 	}
 }

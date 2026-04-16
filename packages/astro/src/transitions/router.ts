@@ -1,5 +1,7 @@
+import { internalFetchHeaders } from 'virtual:astro:adapter-config/client';
 import type { TransitionBeforePreparationEvent } from './events.js';
-import { doPreparation, doSwap, TRANSITION_AFTER_SWAP } from './events.js';
+
+import { doPreparation, doSwap, onPageLoad, triggerEvent, updateScrollPosition } from './events.js';
 import { detectScriptExecuted } from './swap-functions.js';
 import type { Direction, Fallback, Options } from './types.js';
 
@@ -8,7 +10,6 @@ type State = {
 	scrollX: number;
 	scrollY: number;
 };
-type Events = 'astro:page-load' | 'astro:after-swap';
 type Navigation = { controller: AbortController };
 type Transition = {
 	// The view transitions object (API and simulation)
@@ -20,15 +21,6 @@ type Transition = {
 };
 
 const inBrowser = import.meta.env.SSR === false;
-
-// only update history entries that are managed by us
-// leave other entries alone and do not accidently add state.
-export const updateScrollPosition = (positions: { scrollX: number; scrollY: number }) => {
-	if (history.state) {
-		history.scrollRestoration = 'manual';
-		history.replaceState({ ...history.state, ...positions }, '');
-	}
-};
 
 export const supportsViewTransitions = inBrowser && !!document.startViewTransition;
 
@@ -46,8 +38,6 @@ let mostRecentTransition: Transition | undefined;
 // This variable tells us where we came from
 let originalLocation: URL;
 
-const triggerEvent = (name: Events) => document.dispatchEvent(new Event(name));
-const onPageLoad = () => triggerEvent('astro:page-load');
 const announce = () => {
 	let div = document.createElement('div');
 	div.setAttribute('aria-live', 'assertive');
@@ -99,7 +89,12 @@ async function fetchHTML(
 	init?: RequestInit,
 ): Promise<null | { html: string; redirected?: string; mediaType: DOMParserSupportedType }> {
 	try {
-		const res = await fetch(href, init);
+		// Apply adapter-specific headers for internal fetches
+		const headers = new Headers(init?.headers);
+		for (const [key, value] of Object.entries(internalFetchHeaders) as [string, string][]) {
+			headers.set(key, value);
+		}
+		const res = await fetch(href, { ...init, headers });
 		const contentType = res.headers.get('content-type') ?? '';
 		// drop potential charset (+ other name/value pairs) as parser needs the mediaType
 		const mediaType = contentType.split(';', 1)[0].trim();
@@ -133,7 +128,7 @@ function runScripts() {
 	let needsWaitForInlineModuleScript = false;
 	// The original code made the assumption that all inline scripts are directly executed when inserted into the DOM.
 	// This is not true for inline module scripts, which are deferred but still executed in order.
-	// inline module scripts can not be awaited for with onload.
+	// inline module scripts cannot be awaited for with onload.
 	// Thus to be able to wait for the execution of all scripts, we make sure that the last inline module script
 	// is always followed by an external module script
 	for (const script of document.getElementsByTagName('script')) {
@@ -220,7 +215,7 @@ const moveToLocation = (
 	} else {
 		if (to.hash) {
 			// because we are already on the target page ...
-			// ... what comes next is a intra-page navigation
+			// ... what comes next is an intra-page navigation
 			// that won't reload the page but instead scroll to the fragment
 			history.scrollRestoration = 'auto';
 			const savedState = history.state;
@@ -318,14 +313,15 @@ async function updateDOM(
 		animateFallbackOld,
 	);
 	moveToLocation(swapEvent.to, swapEvent.from, options, pageTitleForBrowserHistory, historyState);
-	triggerEvent(TRANSITION_AFTER_SWAP);
+	triggerEvent('astro:after-swap');
 
-	if (fallback === 'animate') {
-		if (!currentTransition.transitionSkipped && !swapEvent.signal.aborted) {
-			animate('new').finally(() => currentTransition.viewTransitionFinished!());
-		} else {
-			currentTransition.viewTransitionFinished!();
-		}
+	// Resolve the finished promise of the simulation's ViewTransition.
+	// For 'animate', wait for the new-page animation to complete first.
+	// For other fallback modes (e.g. 'swap'), resolve immediately — no animation needed.
+	if (fallback === 'animate' && !currentTransition.transitionSkipped && !swapEvent.signal.aborted) {
+		animate('new').finally(() => currentTransition.viewTransitionFinished!());
+	} else {
+		currentTransition.viewTransitionFinished?.();
 	}
 }
 
@@ -342,11 +338,12 @@ async function transition(
 	to: URL,
 	options: Options,
 	historyState?: State,
+	hasUAVisualTransition = false,
 ) {
 	// The most recent navigation always has precedence
 	// Yes, there can be several navigation instances as the user can click links
 	// while we fetch content or simulate view transitions. Even synchronous creations are possible
-	// e.g. by calling navigate() from an transition event.
+	// e.g. by calling navigate() from a transition event.
 	// Invariant: all but the most recent navigation are already aborted.
 
 	const currentNavigation = abortAndRecreateMostRecentNavigation();
@@ -437,7 +434,10 @@ async function transition(
 				preparationEvent.preventDefault();
 				return;
 			}
+			// preserve fragment
+			const fragment = preparationEvent.to.hash;
 			preparationEvent.to = redirectedTo;
+			preparationEvent.to.hash = fragment;
 		}
 
 		parser ??= new DOMParser();
@@ -499,18 +499,27 @@ async function transition(
 	}
 
 	document.documentElement.setAttribute(DIRECTION_ATTR, prepEvent.direction);
-	if (supportsViewTransitions) {
+	if (supportsViewTransitions && !hasUAVisualTransition) {
 		// This automatically cancels any previous transition
 		// We also already took care that the earlier update callback got through
 		currentTransition.viewTransition = document.startViewTransition(
 			async () => await updateDOM(prepEvent, options, currentTransition, historyState),
 		);
 	} else {
-		// Simulation mode requires a bit more manual work
+		// Simulation mode requires a bit more manual work.
+		// Also used when PopStateEvent.hasUAVisualTransition indicates the browser already
+		// provided a visual transition (e.g. Safari swipe gesture) — in that case, fallback
+		// is "swap" to skip animations.
 		const updateDone = (async () => {
-			// Immediately paused to setup the ViewTransition object for Fallback mode
+			// Immediately paused to set up the ViewTransition object for Fallback mode
 			await Promise.resolve(); // hop through the micro task queue
-			await updateDOM(prepEvent, options, currentTransition, historyState, getFallback());
+			await updateDOM(
+				prepEvent,
+				options,
+				currentTransition,
+				historyState,
+				hasUAVisualTransition ? 'swap' : getFallback(),
+			);
 			return undefined;
 		})();
 
@@ -608,7 +617,14 @@ function onPopState(ev: PopStateEvent) {
 	const nextIndex = state.index;
 	const direction: Direction = nextIndex > currentHistoryIndex ? 'forward' : 'back';
 	currentHistoryIndex = nextIndex;
-	transition(direction, originalLocation, new URL(location.href), {}, state);
+	transition(
+		direction,
+		originalLocation,
+		new URL(location.href),
+		{},
+		state,
+		ev.hasUAVisualTransition,
+	);
 }
 
 const onScrollEnd = () => {

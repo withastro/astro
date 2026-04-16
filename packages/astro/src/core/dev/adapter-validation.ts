@@ -2,11 +2,11 @@ import { getAdapterStaticRecommendation } from '../../integrations/features-vali
 import type { AstroSettings } from '../../types/astro.js';
 import type { AstroAdapter } from '../../types/public/integrations.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import type { Logger } from '../logger/core.js';
+import type { AstroLogger } from '../logger/core.js';
 
 let hasWarnedMissingAdapter = false;
 
-export function warnMissingAdapter(logger: Logger, settings: AstroSettings) {
+export function warnMissingAdapter(logger: AstroLogger, settings: AstroSettings) {
 	if (hasWarnedMissingAdapter) return;
 	if (settings.buildOutput === 'server' && !settings.config.adapter) {
 		logger.warn(
@@ -18,7 +18,7 @@ export function warnMissingAdapter(logger: Logger, settings: AstroSettings) {
 }
 
 export function validateSetAdapter(
-	logger: Logger,
+	logger: AstroLogger,
 	settings: AstroSettings,
 	adapter: AstroAdapter,
 	maybeConflictingIntegration: string,
@@ -46,5 +46,16 @@ export function validateSetAdapter(
 				`The adapter ${adapter.name} does not support emitting a server output, but the project contain server-rendered pages. Your project will not build correctly.`,
 			);
 		}
+	}
+
+	if (adapter.entrypointResolution === undefined) {
+		logger.warn(
+			null,
+			`The adapter ${adapter.name} uses \`entrypointResolution: "explicit"\` by default, which is deprecated and will be removed in a future major version.`,
+		);
+		logger.warn(
+			null,
+			'Update your adapter to use \`entrypointResolution: "auto"\` or contact the maintainers to update.',
+		);
 	}
 }

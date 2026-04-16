@@ -78,7 +78,6 @@ export async function createMarkdownProcessor(
 		remarkRehype: remarkRehypeOptions = markdownConfigDefaults.remarkRehype,
 		gfm = markdownConfigDefaults.gfm,
 		smartypants = markdownConfigDefaults.smartypants,
-		experimentalHeadingIdCompat = false,
 	} = opts ?? {};
 
 	const loadedRemarkPlugins = await Promise.all(loadPlugins(remarkPlugins));
@@ -91,8 +90,9 @@ export async function createMarkdownProcessor(
 		if (gfm) {
 			parser.use(remarkGfm);
 		}
-		if (smartypants) {
-			parser.use(remarkSmartypants);
+		if (smartypants !== false) {
+			const smartypantsConfig = typeof smartypants === 'object' ? smartypants : {};
+			parser.use(remarkSmartypants, smartypantsConfig);
 		}
 	}
 
@@ -136,7 +136,7 @@ export async function createMarkdownProcessor(
 
 	// Headings
 	if (!isPerformanceBenchmark) {
-		parser.use(rehypeHeadingIds, { experimentalHeadingIdCompat });
+		parser.use(rehypeHeadingIds);
 	}
 
 	// Stringify to HTML

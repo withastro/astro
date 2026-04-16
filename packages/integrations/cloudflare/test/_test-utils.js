@@ -1,67 +1,38 @@
-import { fileURLToPath } from 'node:url';
-import { execa } from 'execa';
 import { loadFixture as baseLoadFixture } from '../../../astro/test/test-utils.js';
-
-/**
- * @typedef {{ stop: Promise<void>, port: number }} WranglerCLI
- */
-
-const astroPath = fileURLToPath(new URL('../node_modules/astro/astro.js', import.meta.url));
-/** Returns a process running the Astro CLI. */
-export function astroCli(cwd, /** @type {string[]} */ ...args) {
-	const spawned = execa(astroPath, [...args], {
-		env: { ASTRO_TELEMETRY_DISABLED: true },
-		cwd: cwd,
-	});
-
-	spawned.stdout.setEncoding('utf8');
-
-	return spawned;
-}
-
-const wranglerPath = fileURLToPath(
-	new URL('../node_modules/wrangler/bin/wrangler.js', import.meta.url),
-);
-
-/** Returns a process running the Wrangler CLI. */
-export function wranglerCli(cwd) {
-	const spawned = execa(
-		wranglerPath,
-		[
-			'pages',
-			'dev',
-			'dist',
-			'--ip',
-			'127.0.0.1',
-			'--port',
-			'8788',
-			'--compatibility-date',
-			new Date().toISOString().slice(0, 10),
-			'--log-level',
-			'info',
-		],
-		{
-			env: { CI: 1, CF_PAGES: 1 },
-			cwd: cwd,
-		},
-	);
-
-	spawned.stdout.setEncoding('utf8');
-	spawned.stderr.setEncoding('utf8');
-
-	return spawned;
-}
 
 /**
  * @typedef {import('../../../astro/test/test-utils').Fixture} Fixture
  */
-export function loadFixture(inlineConfig) {
+export async function loadFixture(inlineConfig) {
 	if (!inlineConfig?.root) throw new Error("Must provide { root: './fixtures/...' }");
 
 	// resolve the relative root (i.e. "./fixtures/tailwindcss") to a full filepath
 	// without this, the main `loadFixture` helper will resolve relative to `packages/astro/test`
-	return baseLoadFixture({
+	const fixture = await baseLoadFixture({
 		...inlineConfig,
 		root: new URL(inlineConfig.root, import.meta.url).toString(),
 	});
+
+	// For unknown reasons, the error below could raise during testing. We add a retry mechanism to handle it.
+	// Some further investigation is needed to understand the root cause.
+	//
+	// Unable to build fixture for the attempt 1: Error: There is a new version of the pre-bundle for "/astro/packages/integrations/cloudflare/test/fixtures/with-svelte/node_modules/.vite/deps_ssr/svelte_server.js?v=9924cddf", a page reload is going to ask for it.
+	const buildWithRetry = async function (...args) {
+		let err;
+		for (let attempt = 1; attempt <= 3; attempt++) {
+			try {
+				const result = await fixture.build(...args);
+				return result;
+			} catch (error) {
+				console.error(`Unable to build fixture for the attempt ${attempt}:`, error);
+				err = error;
+			}
+		}
+
+		if (err) {
+			throw err;
+		}
+	};
+
+	return { ...fixture, build: buildWithRetry };
 }

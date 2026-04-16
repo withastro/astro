@@ -20,7 +20,7 @@ export async function resolveDbConfig({
 	integrations,
 }: Pick<AstroConfig, 'root' | 'integrations'>) {
 	const { mod, dependencies } = await loadUserConfigFile(root);
-	const userDbConfig = dbConfigSchema.parse(mod?.default ?? {}, { errorMap });
+	const userDbConfig = dbConfigSchema.parse(mod?.default ?? {}, { error: errorMap });
 	/** Resolved `astro:db` config including tables provided by integrations. */
 	const dbConfig = { tables: userDbConfig.tables ?? {} };
 
@@ -46,7 +46,7 @@ export async function resolveDbConfig({
 		// TODO: config file dependencies are not tracked for integrations for now.
 		const loadedConfig = await loadIntegrationConfigFile(root, configEntrypoint);
 		const integrationDbConfig = dbConfigSchema.parse(loadedConfig.mod?.default ?? {}, {
-			errorMap,
+			error: errorMap,
 		});
 		for (const key in integrationDbConfig.tables) {
 			if (key in dbConfig.tables) {

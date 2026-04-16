@@ -1,5 +1,79 @@
 # @astrojs/rss
 
+## 4.0.18
+
+### Patch Changes
+
+- [#16037](https://github.com/withastro/astro/pull/16037) [`fdd2c5a`](https://github.com/withastro/astro/commit/fdd2c5a2f0eb63332b018df01b2c1eb0d5c8a102) Thanks [@blimmer](https://github.com/blimmer)! - Unpin `fast-xml-parser` to `^5.5.7` to resolve entity expansion CVEs
+
+## 4.0.17
+
+### Patch Changes
+
+- [#15830](https://github.com/withastro/astro/pull/15830) [`8d3f3aa`](https://github.com/withastro/astro/commit/8d3f3aa1fdefebc22bb45de26591d3ec3d6da580) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Pin `fast-xml-parser` to 5.4.1 in order to fix an upstream bug
+
+## 4.0.16
+
+### Patch Changes
+
+- [#15187](https://github.com/withastro/astro/pull/15187) [`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795) Thanks [@matthewp](https://github.com/matthewp)! - Update to Astro 6 beta
+
+- [#14956](https://github.com/withastro/astro/pull/14956) [`0ff51df`](https://github.com/withastro/astro/commit/0ff51dfa3c6c615af54228e159f324034472b1a2) Thanks [@matthewp](https://github.com/matthewp)! - Updates usage of zod to own dependency rather than relying on `astro/zod`
+
+- [#15561](https://github.com/withastro/astro/pull/15561) [`413b0f7`](https://github.com/withastro/astro/commit/413b0f746a28503c936b3875ffaee6b7f04c67b9) Thanks [@renovate](https://github.com/apps/renovate)! - Updates `fast-xml-parser` to v5.3.6
+
+- [#15283](https://github.com/withastro/astro/pull/15283) [`daf41c6`](https://github.com/withastro/astro/commit/daf41c6652e061fbc7550daf4f0a0ec2f74c4d0b) Thanks [@eldair](https://github.com/eldair)! - Updates validation to use Zod v4
+
+- [#15373](https://github.com/withastro/astro/pull/15373) [`14252b2`](https://github.com/withastro/astro/commit/14252b22f9129f51fae9b224386ab6c4ea1b76c5) Thanks [@renovate](https://github.com/apps/renovate)! - Updates zod to v4
+
+## 4.0.15-beta.4
+
+### Patch Changes
+
+- [#15561](https://github.com/withastro/astro/pull/15561) [`413b0f7`](https://github.com/withastro/astro/commit/413b0f746a28503c936b3875ffaee6b7f04c67b9) Thanks [@renovate](https://github.com/apps/renovate)! - Updates `fast-xml-parser` to v5.3.6
+
+## 4.0.15-beta.3
+
+### Patch Changes
+
+- [#15373](https://github.com/withastro/astro/pull/15373) [`14252b2`](https://github.com/withastro/astro/commit/14252b22f9129f51fae9b224386ab6c4ea1b76c5) Thanks [@renovate](https://github.com/apps/renovate)! - Updates zod to v4
+
+## 4.0.15-beta.2
+
+### Patch Changes
+
+- [#15283](https://github.com/withastro/astro/pull/15283) [`daf41c6`](https://github.com/withastro/astro/commit/daf41c6652e061fbc7550daf4f0a0ec2f74c4d0b) Thanks [@eldair](https://github.com/eldair)! - Updates validation to use Zod v4
+
+## 4.0.15-beta.1
+
+### Patch Changes
+
+- [#15187](https://github.com/withastro/astro/pull/15187) [`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795) Thanks [@matthewp](https://github.com/matthewp)! - Update to Astro 6 beta
+
+## 4.0.15-alpha.0
+
+### Patch Changes
+
+- [#14956](https://github.com/withastro/astro/pull/14956) [`0ff51df`](https://github.com/withastro/astro/commit/0ff51dfa3c6c615af54228e159f324034472b1a2) Thanks [@matthewp](https://github.com/matthewp)! - Updates usage of zod to own dependency rather than relying on `astro/zod`
+
+## 4.0.15
+
+### Patch Changes
+
+- [#15199](https://github.com/withastro/astro/pull/15199) [`d8e64ef`](https://github.com/withastro/astro/commit/d8e64ef77ef364b1541a5d192bcff299135d3bc8) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Fixes the links to Astro Docs so that they match the current docs structure.
+
+## 4.0.14
+
+### Patch Changes
+
+- [#14813](https://github.com/withastro/astro/pull/14813) [`e1dd377`](https://github.com/withastro/astro/commit/e1dd377398a3dcf6ba0697dc8d4bde6d77a45700) Thanks [@ematipico](https://github.com/ematipico)! - Removes `picocolors` as dependency in favor of the fork `piccolore`.
+
+## 4.0.13
+
+### Patch Changes
+
+- [#14598](https://github.com/withastro/astro/pull/14598) [`7b45c65`](https://github.com/withastro/astro/commit/7b45c65c62e37d4225fb14ea378e2301de31cbea) Thanks [@delucis](https://github.com/delucis)! - Reduces terminal text styling dependency size by switching from `kleur` to `picocolors`
+
 ## 4.0.12
 
 ### Patch Changes
@@ -202,7 +276,7 @@
 
 ### Patch Changes
 
-- [#6614](https://github.com/withastro/astro/pull/6614) [`b1b9b1390`](https://github.com/withastro/astro/commit/b1b9b1390f95c6ae91389eba55f7563b911bccc7) Thanks [@aivarsliepa](https://github.com/aivarsliepa)! - Fixes `RSSOptions` type error when using `strictest` Typescript tsconfig
+- [#6614](https://github.com/withastro/astro/pull/6614) [`b1b9b1390`](https://github.com/withastro/astro/commit/b1b9b1390f95c6ae91389eba55f7563b911bccc7) Thanks [@aivarsliepa](https://github.com/aivarsliepa)! - Fixes `RSSOptions` type error when using `strictest` TypeScript tsconfig
 
 ## 2.3.1
 

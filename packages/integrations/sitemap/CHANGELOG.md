@@ -1,5 +1,132 @@
 # @astrojs/sitemap
 
+## 3.7.2
+
+### Patch Changes
+
+- [#15455](https://github.com/withastro/astro/pull/15455) [`babf57f`](https://github.com/withastro/astro/commit/babf57f83f47d4cd1fa73a55863718b71c8eebf0) Thanks [@AhmadYasser1](https://github.com/AhmadYasser1)! - Fixes i18n fallback pages missing from the generated sitemap when using `fallbackType: 'rewrite'`.
+
+## 3.7.1
+
+### Patch Changes
+
+- [#15187](https://github.com/withastro/astro/pull/15187) [`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795) Thanks [@matthewp](https://github.com/matthewp)! - Update to Astro 6 beta
+
+- [#14956](https://github.com/withastro/astro/pull/14956) [`0ff51df`](https://github.com/withastro/astro/commit/0ff51dfa3c6c615af54228e159f324034472b1a2) Thanks [@matthewp](https://github.com/matthewp)! - Updates usage of zod to own dependency rather than relying on `astro/zod`
+
+- [#15036](https://github.com/withastro/astro/pull/15036) [`f125a73`](https://github.com/withastro/astro/commit/f125a73ebf395d81bf44ccfce4af63a518f6f724) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates how routes are retrieved to avoid relying on a deprecated API
+
+- [#15373](https://github.com/withastro/astro/pull/15373) [`14252b2`](https://github.com/withastro/astro/commit/14252b22f9129f51fae9b224386ab6c4ea1b76c5) Thanks [@renovate](https://github.com/apps/renovate)! - Updates zod to v4
+
+## 3.6.1-beta.3
+
+### Patch Changes
+
+- [#15373](https://github.com/withastro/astro/pull/15373) [`14252b2`](https://github.com/withastro/astro/commit/14252b22f9129f51fae9b224386ab6c4ea1b76c5) Thanks [@renovate](https://github.com/apps/renovate)! - Updates zod to v4
+
+## 3.6.1-beta.2
+
+### Patch Changes
+
+- [#15187](https://github.com/withastro/astro/pull/15187) [`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795) Thanks [@matthewp](https://github.com/matthewp)! - Update to Astro 6 beta
+
+## 3.6.1-alpha.1
+
+### Patch Changes
+
+- [#15036](https://github.com/withastro/astro/pull/15036) [`f125a73`](https://github.com/withastro/astro/commit/f125a73ebf395d81bf44ccfce4af63a518f6f724) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates how routes are retrieved to avoid relying on a deprecated API
+
+## 3.6.1-alpha.0
+
+### Patch Changes
+
+- [#14956](https://github.com/withastro/astro/pull/14956) [`0ff51df`](https://github.com/withastro/astro/commit/0ff51dfa3c6c615af54228e159f324034472b1a2) Thanks [@matthewp](https://github.com/matthewp)! - Updates usage of zod to own dependency rather than relying on `astro/zod`
+
+## 3.7.0
+
+### Minor Changes
+
+- [#14471](https://github.com/withastro/astro/pull/14471) [`4296373`](https://github.com/withastro/astro/commit/42963732165959795067e11486f10fa2ac5a48cd) Thanks [@Slackluky](https://github.com/Slackluky)! - Adds the ability to split sitemap generation into chunks based on customizable logic. This allows for better management of large sitemaps and improved performance. The new `chunks` option in the sitemap configuration allows users to define functions that categorize sitemap items into different chunks. Each chunk is then written to a separate sitemap file.
+
+  ```
+  integrations: [
+    sitemap({
+      serialize(item) { th
+        return item
+      },
+      chunks: { // this property will be treated last on the configuration
+        'blog': (item) => {  // will produce a sitemap file with `blog` name (sitemap-blog-0.xml)
+          if (/blog/.test(item.url)) { // filter path that will be included in this specific sitemap file
+            item.changefreq = 'weekly';
+            item.lastmod = new Date();
+            item.priority = 0.9; // define specific properties for this filtered path
+            return item;
+          }
+        },
+        'glossary': (item) => {
+          if (/glossary/.test(item.url)) {
+            item.changefreq = 'weekly';
+            item.lastmod = new Date();
+            item.priority = 0.7;
+            return item;
+          }
+        }
+
+        // the rest of the path will be stored in `sitemap-pages.0.xml`
+      },
+    }),
+  ],
+
+  ```
+
+## 3.6.1
+
+### Patch Changes
+
+- [#15033](https://github.com/withastro/astro/pull/15033) [`dd06779`](https://github.com/withastro/astro/commit/dd067798c02bff4968b23ce92670685a4e99ccdc) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates how routes are retrieved to avoid relying on a deprecated API
+
+## 3.6.0
+
+### Minor Changes
+
+- [#14285](https://github.com/withastro/astro/pull/14285) [`bedc31b`](https://github.com/withastro/astro/commit/bedc31ba7318dd89545503eaeeac4e0615843834) Thanks [@jdcolombo](https://github.com/jdcolombo)! - Adds a new configuration option `namespaces` for more control over XML namespaces used in sitemap generation
+
+  Excluding unused namespaces can help create cleaner, more focused sitemaps that are faster for search engines to parse and use less bandwidth. If your site doesn't have news content, videos, or multiple languages, you can exclude those namespaces to reduce XML bloat.
+
+  The `namespaces` option allows you to configure `news`, `xhtml`, `image`, and `video` namespaces independently. All namespaces are enabled by default for backward compatibility and no change to existing projects is necessary. But now, you can choose to streamline your XML and avoid unnecessary code.
+
+  For example, to exclude the video namespace from your sitemap, set `video: false` in your configuration:
+
+  ```
+  // astro.config.mjs
+  import { sitemap } from '@astrojs/sitemap';
+
+  export default {
+    integrations: [
+      sitemap({
+        namespaces: {
+          video: false,
+          // other namespaces remain enabled by default
+        }
+      })
+    ]
+  };
+  ```
+
+  The generated XML will not include the `xmlns:video` namespace:
+
+  ```
+  <?xml version="1.0" encoding="UTF-8"?>
+  <urlset
+    xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+    xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
+    xmlns:xhtml="http://www.w3.org/1999/xhtml"
+    xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+  >
+    <!-- ... -->
+  </urlset>
+  ```
+
 ## 3.5.1
 
 ### Patch Changes
@@ -133,7 +260,7 @@
 
 - [#10179](https://github.com/withastro/astro/pull/10179) [`6343f6a438d790fa16a0dd268f4a51def4fa0f33`](https://github.com/withastro/astro/commit/6343f6a438d790fa16a0dd268f4a51def4fa0f33) Thanks [@ematipico](https://github.com/ematipico)! - Revert https://github.com/withastro/astro/pull/9846
 
-  The feature to customize the file name of the sitemap was reverted due to some internal issues with one of the dependencies. With an non-deterministic behaviour, the sitemap file was sometime emitted with incorrect syntax.
+  The feature to customize the file name of the sitemap was reverted due to some internal issues with one of the dependencies. With a non-deterministic behaviour, the sitemap file was sometime emitted with incorrect syntax.
 
 - [#9975](https://github.com/withastro/astro/pull/9975) [`ec7d2ebbd96b8c2dfdadaf076bbf7953007536ed`](https://github.com/withastro/astro/commit/ec7d2ebbd96b8c2dfdadaf076bbf7953007536ed) Thanks [@moose96](https://github.com/moose96)! - Fixes URL generation for routes that rest parameters and start with `/`
 
@@ -316,7 +443,7 @@
 
   When using the `"server"` output target, you must also include a runtime adapter via the `adapter` configuration. An adapter will _adapt_ your final build to run on the deployed platform of your choice (Netlify, Vercel, Node.js, Deno, etc).
 
-  To migrate: No action is required for most users. If you currently define an `adapter`, you will need to also add `output: 'server'` to your config file to make it explicit that you are building a server. Here is an example of what that change would look like for someone deploying to Netlify:
+  To migrate: No action is required for most users. If you currently define an `adapter`, you will also need to add `output: 'server'` to your config file to make it explicit that you are building a server. Here is an example of what that change would look like for someone deploying to Netlify:
 
   ```diff
   import { defineConfig } from 'astro/config';

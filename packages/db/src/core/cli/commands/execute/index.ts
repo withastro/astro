@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs';
 import type { AstroConfig } from 'astro';
-import { green } from 'kleur/colors';
+import colors from 'piccolore';
 import type { Arguments } from 'yargs-parser';
 import { isDbError } from '../../../../runtime/utils.js';
 import {
@@ -15,7 +15,7 @@ import {
 } from '../../../integration/vite-plugin-db.js';
 import { bundleFile, importBundledFile } from '../../../load-file.js';
 import type { DBConfig } from '../../../types.js';
-import { getRemoteDatabaseInfo } from '../../../utils.js';
+import { getRemoteDatabaseInfo, resolveDbAppToken } from '../../../utils.js';
 
 export async function cmd({
 	astroConfig,
@@ -41,16 +41,19 @@ export async function cmd({
 	let virtualModContents: string;
 	if (flags.remote) {
 		const dbInfo = getRemoteDatabaseInfo();
+		const appToken = resolveDbAppToken(flags, dbInfo.token);
 		virtualModContents = getRemoteVirtualModContents({
 			tables: dbConfig.tables ?? {},
-			appToken: flags.token ?? dbInfo.token,
+			appToken,
 			isBuild: false,
 			output: 'server',
+			localExecution: true,
 		});
 	} else {
 		virtualModContents = getLocalVirtualModContents({
 			tables: dbConfig.tables ?? {},
 			root: astroConfig.root,
+			localExecution: true,
 		});
 	}
 	const { code } = await bundleFile({ virtualModContents, root: astroConfig.root, fileUrl });
@@ -62,7 +65,7 @@ export async function cmd({
 	}
 	try {
 		await mod.default();
-		console.info(`${green('✔')} File run successfully.`);
+		console.info(`${colors.green('✔')} File run successfully.`);
 	} catch (e) {
 		if (isDbError(e)) throw new Error(EXEC_ERROR(e.message));
 		else throw e;

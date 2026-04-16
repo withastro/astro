@@ -26,7 +26,7 @@ import { componentIsHTMLElement, renderHTMLElement } from './dom.js';
 import { maybeRenderHead } from './head.js';
 import { createRenderInstruction } from './instruction.js';
 import { containsServerDirective, ServerIslandComponent } from './server-islands.js';
-import { type ComponentSlots, renderSlots, renderSlotToString } from './slot.js';
+import { type ComponentSlots, renderSlot, renderSlots, renderSlotToString } from './slot.js';
 import { formatList, internalSpreadAttributes, renderElement, voidElementNames } from './util.js';
 
 const needsHeadRenderingSymbol = Symbol.for('astro.needsHeadRendering');
@@ -130,7 +130,7 @@ async function renderFrameworkComponent(
 			let error;
 			for (const r of renderers) {
 				try {
-					if (await r.ssr.check.call({ result }, Component, props, children)) {
+					if (await r.ssr.check.call({ result }, Component, props, children, metadata)) {
 						renderer = r;
 						break;
 					}
@@ -160,7 +160,7 @@ async function renderFrameworkComponent(
 			};
 		}
 	} else {
-		// Attempt: use explicitly passed renderer name
+		// Attempt: use explicitly passed renderer name for official renderers
 		if (metadata.hydrateArgs) {
 			const rendererName = rendererAliases.has(metadata.hydrateArgs)
 				? rendererAliases.get(metadata.hydrateArgs)
@@ -175,10 +175,18 @@ async function renderFrameworkComponent(
 		if (!renderer && validRenderers.length === 1) {
 			renderer = validRenderers[0];
 		}
-		// Attempt: can we guess the renderer from the export extension?
+		// Attempt: can we guess the official renderer from the export extension?
 		if (!renderer) {
 			const extname = metadata.componentUrl?.split('.').pop();
 			renderer = renderers.find(({ name }) => name === `@astrojs/${extname}` || name === extname);
+		}
+		// Attempt: use explicitly passed renderer name for custom renderers. This is put
+		// last to avoid potential conflicts with the previous implementations.
+		if (!renderer && metadata.hydrateArgs) {
+			const rendererName = metadata.hydrateArgs;
+			if (typeof rendererName === 'string') {
+				renderer = renderers.find(({ name }) => name === rendererName);
+			}
 		}
 	}
 
@@ -253,6 +261,7 @@ Please ensure that ${metadata.displayName}:
 1. Does not unconditionally access browser-specific globals like \`window\` or \`document\`.
    If this is unavoidable, use the \`client:only\` hydration directive.
 2. Does not conditionally return \`null\` or \`undefined\` when rendered on the server.
+3. If using multiple JSX frameworks at the same time (e.g. React + Preact), pass the correct \`include\`/\`exclude\` options to integrations.
 
 If you're still stuck, please open an issue on GitHub or join us at https://astro.build/chat.`);
 			}
@@ -404,15 +413,12 @@ function sanitizeElementName(tag: string) {
 	return tag.trim().split(unsafe)[0].trim();
 }
 
-async function renderFragmentComponent(
-	result: SSRResult,
-	slots: ComponentSlots = {},
-): Promise<RenderInstance> {
-	const children = await renderSlotToString(result, slots?.default);
+function renderFragmentComponent(result: SSRResult, slots: ComponentSlots = {}): RenderInstance {
+	const slot = slots?.default;
 	return {
 		render(destination) {
-			if (children == null) return;
-			destination.write(children);
+			if (slot == null) return;
+			return renderSlot(result, slot).render(destination);
 		},
 	};
 }
@@ -474,7 +480,7 @@ export function renderComponent(
 	}
 
 	if (isFragmentComponent(Component)) {
-		return renderFragmentComponent(result, slots).catch(handleCancellation);
+		return renderFragmentComponent(result, slots);
 	}
 
 	// Ensure directives (`class:list`) are processed

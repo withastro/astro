@@ -26,8 +26,8 @@ describe('Partial HTML', async () => {
 		assert.match(html, /^<!DOCTYPE html/);
 
 		// test 2: correct CSS present
-		const allInjectedStyles = $('style').text();
-		assert.match(allInjectedStyles, /\[data-astro-cid-[^{]+\{color:red\}/);
+		const allInjectedStyles = $('style').text().replace(/\s*/g, '');
+		assert.match(allInjectedStyles, /\[data-astro-cid-[^{]+\{color:red;?\}/);
 	});
 
 	it('injects framework styles', async () => {

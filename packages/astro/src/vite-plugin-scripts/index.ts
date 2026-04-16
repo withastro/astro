@@ -1,6 +1,7 @@
-import type { ConfigEnv, Plugin as VitePlugin } from 'vite';
+import type { Plugin as VitePlugin, ConfigEnv } from 'vite';
 import type { AstroSettings } from '../types/astro.js';
 import type { InjectedScriptStage } from '../types/public/integrations.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
 // NOTE: We can't use the virtual "\0" ID convention because we need to
 // inject these as ESM imports into actual code, where they would not
@@ -13,52 +14,62 @@ export const PAGE_SCRIPT_ID = `${SCRIPT_ID_PREFIX}${'page' as InjectedScriptStag
 export const PAGE_SSR_SCRIPT_ID = `${SCRIPT_ID_PREFIX}${'page-ssr' as InjectedScriptStage}.js`;
 
 export default function astroScriptsPlugin({ settings }: { settings: AstroSettings }): VitePlugin {
-	let env: ConfigEnv | undefined = undefined;
+	let command: 'build' | 'serve';
 	return {
 		name: 'astro:scripts',
-
-		config(_config, _env) {
-			env = _env;
+		config(_: any, env: ConfigEnv) {
+			command = env.command;
 		},
 
-		async resolveId(id) {
-			if (id.startsWith(SCRIPT_ID_PREFIX)) {
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${SCRIPT_ID_PREFIX}`),
+			},
+			handler(id) {
 				return id;
-			}
-			return undefined;
+			},
 		},
 
-		async load(id) {
-			if (id === BEFORE_HYDRATION_SCRIPT_ID) {
-				return {
-					code: settings.scripts
-						.filter((s) => s.stage === 'before-hydration')
-						.map((s) => s.content)
-						.join('\n'),
-				};
-			}
-			if (id === PAGE_SCRIPT_ID) {
-				return {
-					code: settings.scripts
-						.filter((s) => s.stage === 'page')
-						.map((s) => s.content)
-						.join('\n'),
-				};
-			}
-			if (id === PAGE_SSR_SCRIPT_ID) {
-				return {
-					code: settings.scripts
-						.filter((s) => s.stage === 'page-ssr')
-						.map((s) => s.content)
-						.join('\n'),
-				};
-			}
-			return null;
+		load: {
+			filter: {
+				id: new RegExp(`^(${BEFORE_HYDRATION_SCRIPT_ID}|${PAGE_SCRIPT_ID}|${PAGE_SSR_SCRIPT_ID})$`),
+			},
+			handler(id) {
+				if (id === BEFORE_HYDRATION_SCRIPT_ID) {
+					return {
+						code: settings.scripts
+							.filter((s) => s.stage === 'before-hydration')
+							.map((s) => s.content)
+							.join('\n'),
+					};
+				}
+				if (id === PAGE_SCRIPT_ID) {
+					return {
+						code: settings.scripts
+							.filter((s) => s.stage === 'page')
+							.map((s) => s.content)
+							.join('\n'),
+					};
+				}
+				if (id === PAGE_SSR_SCRIPT_ID) {
+					return {
+						code: settings.scripts
+							.filter((s) => s.stage === 'page-ssr')
+							.map((s) => s.content)
+							.join('\n'),
+					};
+				}
+			},
 		},
 		buildStart() {
+			if (command === 'serve') return;
 			const hasHydrationScripts = settings.scripts.some((s) => s.stage === 'before-hydration');
-			const isSsrBuild = env?.isSsrBuild;
-			if (hasHydrationScripts && env?.command === 'build' && !isSsrBuild) {
+			if (
+				hasHydrationScripts &&
+				(this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client ||
+					this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender ||
+					this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr)
+			) {
 				this.emitFile({
 					type: 'chunk',
 					id: BEFORE_HYDRATION_SCRIPT_ID,

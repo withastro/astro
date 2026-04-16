@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import esbuild from 'esbuild';
-import { red } from 'kleur/colors';
+import colors from 'piccolore';
 import { glob } from 'tinyglobby';
 
 function escapeTemplateLiterals(str) {
@@ -40,6 +40,7 @@ export default async function prebuild(...args) {
 		return outURL;
 	}
 
+	const EXPORT_DIR_REGEX = /export default (.*?)Directive/;
 	async function prebuildFile(filepath) {
 		let tscode = await fs.promises.readFile(filepath, 'utf-8');
 		// If we're bundling a client directive, modify the code to match `packages/astro/src/core/client-directive/build.ts`.
@@ -48,13 +49,13 @@ export default async function prebuild(...args) {
 			// `export default xxxDirective` is a convention used in the current client directives that we use
 			// to make sure we bundle this right. We'll error below if this convention isn't followed.
 			const newTscode = tscode.replace(
-				/export default (.*?)Directive/,
+				EXPORT_DIR_REGEX,
 				(_, name) =>
 					`(self.Astro || (self.Astro = {})).${name} = ${name}Directive;window.dispatchEvent(new Event('astro:${name}'))`,
 			);
 			if (newTscode === tscode) {
 				console.error(
-					red(
+					colors.red(
 						`${filepath} doesn't follow the \`export default xxxDirective\` convention. The prebuilt output may be wrong. ` +
 							`For more information, check out ${fileURLToPath(import.meta.url)}`,
 					),

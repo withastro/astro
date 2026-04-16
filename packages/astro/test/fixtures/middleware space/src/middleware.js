@@ -1,6 +1,16 @@
 import { defineMiddleware, sequence } from 'astro:middleware';
 
 const first = defineMiddleware(async (context, next) => {
+	// Auth check: protect /admin route
+	if (context.url.pathname === '/admin') {
+		const authToken = context.request.headers.get('Authorization');
+		if (!authToken) {
+			return context.redirect('/');
+		}
+		// Auth token present, allow access
+		return await next();
+	}
+
 	if (context.request.url.includes('/lorem')) {
 		context.locals.name = 'ipsum';
 	} else if (context.request.url.includes('/rewrite')) {

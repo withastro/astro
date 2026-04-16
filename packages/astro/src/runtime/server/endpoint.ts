@@ -1,8 +1,8 @@
-import { bold } from 'kleur/colors';
+import colors from 'piccolore';
 import { REROUTABLE_STATUS_CODES, REROUTE_DIRECTIVE_HEADER } from '../../core/constants.js';
 import { AstroError } from '../../core/errors/errors.js';
 import { EndpointDidNotReturnAResponse } from '../../core/errors/errors-data.js';
-import type { Logger } from '../../core/logger/core.js';
+import type { AstroLogger } from '../../core/logger/core.js';
 import type { APIRoute } from '../../types/public/common.js';
 import type { APIContext } from '../../types/public/context.js';
 
@@ -13,12 +13,12 @@ export async function renderEndpoint(
 	},
 	context: APIContext,
 	isPrerendered: boolean,
-	logger: Logger,
+	logger: AstroLogger,
 ) {
 	const { request, url } = context;
 
 	const method = request.method.toUpperCase();
-	// use the exact match on `method`, fallback to ALL
+	// use the exact match on `method`, fall back to ALL
 	let handler = mod[method] ?? mod['ALL'];
 	// use GET handler for HEAD requests
 	if (!handler && method === 'HEAD' && mod['GET']) {
@@ -27,7 +27,7 @@ export async function renderEndpoint(
 	if (isPrerendered && !['GET', 'HEAD'].includes(method)) {
 		logger.warn(
 			'router',
-			`${url.pathname} ${bold(
+			`${url.pathname} ${colors.bold(
 				method,
 			)} requests are not available in static endpoints. Mark this page as server-rendered (\`export const prerender = false;\`) or update your config to \`output: 'server'\` to make all your pages server-rendered by default.`,
 		);

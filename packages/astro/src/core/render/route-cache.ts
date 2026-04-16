@@ -8,7 +8,7 @@ import type {
 } from '../../types/public/common.js';
 import type { AstroConfig, RuntimeMode } from '../../types/public/config.js';
 import type { RouteData } from '../../types/public/internal.js';
-import type { Logger } from '../logger/core.js';
+import type { AstroLogger } from '../logger/core.js';
 
 import { stringifyParams } from '../routing/params.js';
 import { validateDynamicRouteModule, validateGetStaticPathsResult } from '../routing/validation.js';
@@ -18,18 +18,18 @@ interface CallGetStaticPathsOptions {
 	mod: ComponentInstance | undefined;
 	route: RouteData;
 	routeCache: RouteCache;
-	logger: Logger;
 	ssr: boolean;
 	base: AstroConfig['base'];
+	trailingSlash: AstroConfig['trailingSlash'];
 }
 
 export async function callGetStaticPaths({
 	mod,
 	route,
 	routeCache,
-	logger,
 	ssr,
 	base,
+	trailingSlash,
 }: CallGetStaticPathsOptions): Promise<GetStaticPathsResultKeyed> {
 	const cached = routeCache.get(route);
 	if (!mod) {
@@ -59,16 +59,17 @@ export async function callGetStaticPaths({
 	staticPaths = await mod.getStaticPaths({
 		// Q: Why the cast?
 		// A: So users downstream can have nicer typings, we have to make some sacrifice in our internal typings, which necessitate a cast here
-		paginate: generatePaginateFunction(route, base) as PaginateFunction,
+		paginate: generatePaginateFunction(route, base, trailingSlash) as PaginateFunction,
+		routePattern: route.route,
 	});
 
-	validateGetStaticPathsResult(staticPaths, logger, route);
+	validateGetStaticPathsResult(staticPaths, route);
 
 	const keyedStaticPaths = staticPaths as GetStaticPathsResultKeyed;
 	keyedStaticPaths.keyed = new Map<string, GetStaticPathsItem>();
 
 	for (const sp of keyedStaticPaths) {
-		const paramsKey = stringifyParams(sp.params, route);
+		const paramsKey = stringifyParams(sp.params, route, trailingSlash);
 		keyedStaticPaths.keyed.set(paramsKey, sp);
 	}
 
@@ -86,11 +87,11 @@ interface RouteCacheEntry {
  * responses during dev and only ever called once during build.
  */
 export class RouteCache {
-	private logger: Logger;
+	private logger: AstroLogger;
 	private cache: Record<string, RouteCacheEntry> = {};
 	private runtimeMode: RuntimeMode;
 
-	constructor(logger: Logger, runtimeMode: RuntimeMode = 'production') {
+	constructor(logger: AstroLogger, runtimeMode: RuntimeMode = 'production') {
 		this.logger = logger;
 		this.runtimeMode = runtimeMode;
 	}
@@ -124,9 +125,10 @@ export function findPathItemByKey(
 	staticPaths: GetStaticPathsResultKeyed,
 	params: Params,
 	route: RouteData,
-	logger: Logger,
+	logger: AstroLogger,
+	trailingSlash: AstroConfig['trailingSlash'],
 ) {
-	const paramsKey = stringifyParams(params, route);
+	const paramsKey = stringifyParams(params, route, trailingSlash);
 	const matchedStaticPath = staticPaths.keyed.get(paramsKey);
 	if (matchedStaticPath) {
 		return matchedStaticPath;

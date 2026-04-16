@@ -12,7 +12,12 @@ async function loadRemoteImage(src: URL, headers: Headers) {
 		const res = await fetch(src, {
 			// Forward all headers from the original request
 			headers,
+			redirect: 'manual',
 		});
+
+		if (res.status >= 300 && res.status < 400) {
+			return undefined;
+		}
 
 		if (!res.ok) {
 			return undefined;
@@ -51,6 +56,12 @@ export const GET: APIRoute = async ({ request }) => {
 		}
 
 		const sourceUrl = new URL(transform.src, url.origin);
+
+		// Have we been tricked into thinking this is local?
+		if (!isRemoteImage && sourceUrl.origin !== url.origin) {
+			return new Response('Forbidden', { status: 403 });
+		}
+
 		inputBuffer = await loadRemoteImage(sourceUrl, isRemoteImage ? new Headers() : request.headers);
 
 		if (!inputBuffer) {
@@ -63,7 +74,7 @@ export const GET: APIRoute = async ({ request }) => {
 			imageConfig,
 		);
 
-		return new Response(Buffer.from(data), {
+		return new Response(data as Uint8Array<ArrayBuffer>, {
 			status: 200,
 			headers: {
 				'Content-Type': mime.lookup(format) ?? `image/${format}`,

@@ -1,7 +1,8 @@
+/** biome-ignore-all lint/correctness/noUnusedImports: not correctly detected because type isn't exported */
+
 import type { Tokenizer } from '@markdoc/markdoc';
 import { Parser } from 'htmlparser2';
 // @ts-expect-error This type isn't exported
-// biome-ignore lint/correctness/noUnusedImports: not correctly detected because type isn't exported
 import type * as Token from 'markdown-it/lib/token';
 
 export function htmlTokenTransform(tokenizer: Tokenizer, tokens: Token[]): Token[] {
@@ -40,7 +41,7 @@ export function htmlTokenTransform(tokenizer: Tokenizer, tokens: Token[]): Token
 						// if the given token is a 'text' token and its trimmed content is the same as the pre-tokenized text buffer, use the original
 						// text buffer instead to preserve leading/trailing whitespace that is lost during tokenization of pure text content
 						if (tok.type === 'text') {
-							if (tok.content.trim() == textBuffer.trim()) {
+							if (tok.content.trim() === textBuffer.trim()) {
 								tok.content = textBuffer;
 							}
 						}

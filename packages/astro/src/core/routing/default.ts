@@ -6,19 +6,19 @@ import {
 	SERVER_ISLAND_COMPONENT,
 	SERVER_ISLAND_ROUTE,
 } from '../server-islands/endpoint.js';
-import { DEFAULT_404_ROUTE, default404Instance } from './astro-designed-error-pages.js';
+import { DEFAULT_404_ROUTE, default404Instance } from './internal/astro-designed-error-pages.js';
 
-type DefaultRouteParams = {
+export interface DefaultRouteParams {
 	instance: ComponentInstance;
 	matchesComponent(filePath: URL): boolean;
 	route: string;
 	component: string;
-};
+}
 
 export const DEFAULT_COMPONENTS = [DEFAULT_404_COMPONENT, SERVER_ISLAND_COMPONENT];
 
 export function createDefaultRoutes(manifest: SSRManifest): DefaultRouteParams[] {
-	const root = new URL(manifest.hrefRoot);
+	const root = new URL(manifest.rootDir);
 	return [
 		{
 			instance: default404Instance,

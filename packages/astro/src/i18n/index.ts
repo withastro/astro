@@ -1,4 +1,5 @@
 import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
+import type { RoutingStrategies } from '../core/app/common.js';
 import type { SSRManifest } from '../core/app/types.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { REROUTE_DIRECTIVE_HEADER } from '../core/constants.js';
@@ -7,7 +8,6 @@ import { AstroError } from '../core/errors/index.js';
 import type { AstroConfig, Locales, ValidRedirectStatus } from '../types/public/config.js';
 import type { APIContext } from '../types/public/context.js';
 import { createI18nMiddleware } from './middleware.js';
-import type { RoutingStrategies } from './utils.js';
 
 export function requestHasLocale(locales: Locales) {
 	return function (context: APIContext): boolean {
@@ -42,7 +42,7 @@ type GetLocaleRelativeUrl = GetLocaleOptions & {
 	base: string;
 	locales: Locales;
 	trailingSlash: AstroConfig['trailingSlash'];
-	format: AstroConfig['build']['format'];
+	format: NonNullable<AstroConfig['build']['format']>;
 	strategy?: RoutingStrategies;
 	defaultLocale: string;
 	domains: Record<string, string> | undefined;
@@ -51,7 +51,7 @@ type GetLocaleRelativeUrl = GetLocaleOptions & {
 
 export type GetLocaleOptions = {
 	/**
-	 * Makes the locale URL-friendly by replacing underscores with dashes, and converting the locale to lower case.
+	 * Makes the locale URL-friendly by replacing underscores with dashes, and converting the locale to lowercase.
 	 * @default true
 	 */
 	normalizeLocale?: boolean;
@@ -223,7 +223,7 @@ export function getLocaleByPath(path: string, locales: Locales): string {
  *
  * Given a locale, this function:
  * - replaces the `_` with a `-`;
- * - transforms all letters to be lower case;
+ * - transforms all letters to be lowercase;
  */
 export function normalizeTheLocale(locale: string): string {
 	return locale.replaceAll('_', '-').toLowerCase();
@@ -372,7 +372,7 @@ export function redirectToFallback({
 	fallbackType,
 }: MiddlewarePayload) {
 	return async function (context: APIContext, response: Response): Promise<Response> {
-		if (response.status >= 300 && fallback) {
+		if (response.status === 404 && fallback) {
 			const fallbackKeys = fallback ? Object.keys(fallback) : [];
 			// we split the URL using the `/`, and then check in the returned array we have the locale
 			const segments = context.url.pathname.split('/');

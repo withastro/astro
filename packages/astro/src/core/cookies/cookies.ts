@@ -4,14 +4,22 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 
 export type AstroCookieSetOptions = Pick<
 	SerializeOptions,
-	'domain' | 'path' | 'expires' | 'maxAge' | 'httpOnly' | 'sameSite' | 'secure' | 'encode'
+	| 'domain'
+	| 'path'
+	| 'expires'
+	| 'maxAge'
+	| 'httpOnly'
+	| 'sameSite'
+	| 'secure'
+	| 'encode'
+	| 'partitioned'
 >;
 
 export interface AstroCookieGetOptions {
 	decode?: (value: string) => string;
 }
 
-type AstroCookieDeleteOptions = Omit<AstroCookieSetOptions, 'expires' | 'maxAge' | 'encode'>;
+export type AstroCookieDeleteOptions = Omit<AstroCookieSetOptions, 'expires' | 'maxAge' | 'encode'>;
 
 interface AstroCookieInterface {
 	value: string;
@@ -38,7 +46,10 @@ const responseSentSymbol = Symbol.for('astro.responseSent');
 const identity = (value: string) => value;
 
 class AstroCookie implements AstroCookieInterface {
-	constructor(public value: string) {}
+	public value: string;
+	constructor(value: string) {
+		this.value = value;
+	}
 	json() {
 		if (this.value === undefined) {
 			throw new Error(`Cannot convert undefined to an object.`);
@@ -125,7 +136,15 @@ class AstroCookies implements AstroCookiesInterface {
 		if (key in values) {
 			const value = values[key];
 			if (value) {
-				return new AstroCookie(decode(value));
+				let decodedValue: string;
+				try {
+					decodedValue = decode(value);
+				} catch (_error) {
+					// If decoding fails (e.g., invalid URI sequences), use the original value
+					// This aligns with the behavior of the `cookie` package
+					decodedValue = value;
+				}
+				return new AstroCookie(decodedValue);
 			}
 		}
 	}
@@ -237,7 +256,7 @@ class AstroCookies implements AstroCookiesInterface {
 			this.#parse();
 		}
 		if (!this.#requestValues) {
-			this.#requestValues = {};
+			this.#requestValues = Object.create(null) as Record<string, string | undefined>;
 		}
 		return this.#requestValues;
 	}

@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import esbuild from 'esbuild';
-import { dim, green, red, yellow } from 'kleur/colors';
+import colors from 'piccolore';
 import { glob } from 'tinyglobby';
 import prebuild from './prebuild.js';
 
@@ -9,7 +9,8 @@ const defaultConfig = {
 	minify: false,
 	format: 'esm',
 	platform: 'node',
-	target: 'node18',
+	// TODO: update once Stackblitz supports Node 22
+	target: 'node20',
 	sourcemap: false,
 	sourcesContent: false,
 };
@@ -49,6 +50,7 @@ export default async function build(...args) {
 	);
 
 	const noClean = args.includes('--no-clean-dist');
+	const cleanDts = args.includes('--clean-dts');
 	const bundle = args.includes('--bundle');
 	const forceCJS = args.includes('--force-cjs');
 
@@ -63,7 +65,7 @@ export default async function build(...args) {
 	const outdir = 'dist';
 
 	if (!noClean) {
-		await clean(outdir);
+		await clean(outdir, cleanDts);
 	}
 
 	if (!isDev) {
@@ -88,14 +90,15 @@ export default async function build(...args) {
 				}
 				const date = dt.format(new Date());
 				if (result && result.errors.length) {
-					console.error(dim(`[${date}] `) + red(error || result.errors.join('\n')));
+					console.error(colors.dim(`[${date}] `) + colors.red(error || result.errors.join('\n')));
 				} else {
 					if (result.warnings.length) {
 						console.info(
-							dim(`[${date}] `) + yellow('! updated with warnings:\n' + result.warnings.join('\n')),
+							colors.dim(`[${date}] `) +
+								colors.yellow('! updated with warnings:\n' + result.warnings.join('\n')),
 						);
 					}
-					console.info(dim(`[${date}] `) + green('√ updated'));
+					console.info(colors.dim(`[${date}] `) + colors.green('√ updated'));
 				}
 			});
 		},
@@ -117,11 +120,11 @@ export default async function build(...args) {
 	});
 }
 
-async function clean(outdir) {
+async function clean(outdir, cleanDts) {
 	const files = await glob('**', {
 		cwd: outdir,
 		filesOnly: true,
-		ignore: ['**/*.d.ts'],
+		ignore: cleanDts ? undefined : ['**/*.d.ts'],
 		absolute: true,
 	});
 	await Promise.all(files.map((file) => fs.rm(file, { force: true })));
@@ -132,17 +135,22 @@ async function clean(outdir) {
  * Available to all packages, but mostly useful for CLIs like `create-astro`.
  */
 async function getDefinedEntries() {
+	const [PACKAGE_VERSION, ASTRO_VERSION, ASTRO_CHECK_VERSION, TYPESCRIPT_VERSION] =
+		await Promise.all([
+			getInternalPackageVersion('./package.json'),
+			getInternalPackageVersion(new URL('../../packages/astro/package.json', import.meta.url)),
+			getWorkspacePackageVersion('@astrojs/check'),
+			getWorkspacePackageVersion('typescript'),
+		]);
 	const define = {
 		/** The current version (at the time of building) for the current package, such as `astro` or `@astrojs/sitemap` */
-		PACKAGE_VERSION: await getInternalPackageVersion('./package.json'),
+		PACKAGE_VERSION,
 		/** The current version (at the time of building) for `astro` */
-		ASTRO_VERSION: await getInternalPackageVersion(
-			new URL('../../packages/astro/package.json', import.meta.url),
-		),
+		ASTRO_VERSION,
 		/** The current version (at the time of building) for `@astrojs/check` */
-		ASTRO_CHECK_VERSION: await getWorkspacePackageVersion('@astrojs/check'),
+		ASTRO_CHECK_VERSION,
 		/** The current version (at the time of building) for `typescript` */
-		TYPESCRIPT_VERSION: await getWorkspacePackageVersion('typescript'),
+		TYPESCRIPT_VERSION,
 	};
 	for (const [key, value] of Object.entries(define)) {
 		if (value === undefined) {

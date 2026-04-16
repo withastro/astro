@@ -20,6 +20,7 @@ declare global {
 	namespace Astro {
 		export interface IntegrationHooks extends BaseIntegrationHooks {}
 		export interface ClientDirectives extends AstroClientDirectives {}
+		export interface CustomImageProps {}
 	}
 }
 

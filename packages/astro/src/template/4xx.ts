@@ -134,10 +134,11 @@ export function trailingSlashMismatchTemplate(
 	pathname: string,
 	trailingSlash: 'always' | 'never' | 'ignore',
 ) {
-	const corrected =
+	const corrected = escape(
 		trailingSlash === 'always'
 			? appendForwardSlash(pathname)
-			: removeTrailingForwardSlash(pathname);
+			: removeTrailingForwardSlash(pathname),
+	);
 	return template({
 		pathname,
 		statusCode: 404,

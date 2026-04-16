@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
-import { bold, cyan, dim } from 'kleur/colors';
+import colors from 'picocolors';
 import { loadFixture } from '../test/test-utils.js';
 import { generatePosts } from './scripts/generate-posts.mjs';
 
@@ -31,7 +31,9 @@ async function benchmark({ fixtures, templates, numPosts }) {
 		const now = performance.now();
 		console.info(`[${fixture}] Building...`);
 		await build();
-		console.info(cyan(`[${fixture}] Built in ${bold(getTimeStat(now, performance.now()))}.`));
+		console.info(
+			colors.cyan(`[${fixture}] Built in ${colors.bold(getTimeStat(now, performance.now()))}.`),
+		);
 	}
 }
 
@@ -56,7 +58,7 @@ async function benchmark({ fixtures, templates, numPosts }) {
 		if (test.includes('simple')) {
 			const fixtures = formats;
 			console.info(
-				`\n${bold('Simple')} ${dim(`${numPosts} posts (${formatsToString(fixtures)})`)}`,
+				`\n${colors.bold('Simple')} ${colors.dim(`${numPosts} posts (${formatsToString(fixtures)})`)}`,
 			);
 			process.env.ASTRO_PERFORMANCE_TEST_NAME = 'simple';
 			await benchmark({
@@ -73,7 +75,7 @@ async function benchmark({ fixtures, templates, numPosts }) {
 		if (test.includes('with-astro-components')) {
 			const fixtures = formats.filter((format) => format !== 'md');
 			console.info(
-				`\n${bold('With Astro components')} ${dim(
+				`\n${colors.bold('With Astro components')} ${colors.dim(
 					`${numPosts} posts (${formatsToString(fixtures)})`,
 				)}`,
 			);
@@ -91,7 +93,7 @@ async function benchmark({ fixtures, templates, numPosts }) {
 		if (test.includes('with-react-components')) {
 			const fixtures = formats.filter((format) => format !== 'md');
 			console.info(
-				`\n${bold('With React components')} ${dim(
+				`\n${colors.bold('With React components')} ${colors.dim(
 					`${numPosts} posts (${formatsToString(fixtures)})`,
 				)}`,
 			);

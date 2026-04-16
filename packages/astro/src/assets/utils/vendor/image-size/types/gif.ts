@@ -1,5 +1,5 @@
 import type { IImage } from './interface.ts'
-import { toUTF8String, readUInt16LE } from './utils.js'
+import { readUInt16LE, toUTF8String } from './utils.js'
 
 const gifRegexp = /^GIF8[79]a/
 export const GIF: IImage = {

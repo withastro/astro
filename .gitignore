@@ -1,5 +1,8 @@
 node_modules/
+/triage/
+/.compiler/
 dist/
+temp/
 *.tsbuildinfo
 .DS_Store
 .vercel
@@ -16,6 +19,8 @@ package-lock.json
 .turbo/
 .eslintcache
 .pnpm-store
+.vscode-test/
+.claude
 
 # do not commit .env files or any files that end with `.env`
 *.env
@@ -41,3 +46,4 @@ examples/**/env.d.ts
 # want to share with others (see
 # https://github.com/withastro/astro/pull/11759#discussion_r1721444711)
 *.code-workspace
+packages/astro/e2e/fixtures/cloudflare/.wrangler/deploy/config.json

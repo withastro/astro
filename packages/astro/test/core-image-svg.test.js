@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { Writable } from 'node:stream';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { Logger } from '../dist/core/logger/core.js';
+import { AstroLogger } from '../dist/core/logger/core.js';
 import { loadFixture } from './test-utils.js';
 
 describe('astro:assets - SVG Components', () => {
@@ -21,9 +21,9 @@ describe('astro:assets - SVG Components', () => {
 			});
 
 			devServer = await fixture.startDevServer({
-				logger: new Logger({
+				logger: new AstroLogger({
 					level: 'error',
-					dest: new Writable({
+					destination: new Writable({
 						objectMode: true,
 						write(event, _, callback) {
 							logs.push(event);
@@ -147,6 +147,52 @@ describe('astro:assets - SVG Components', () => {
 				assert.equal(json.image.width, 85);
 				assert.equal(json.image.height, 107);
 				assert.ok(json.image.src.startsWith('/'));
+			});
+		});
+	});
+
+	describe('SVGO optimization', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let optimizedFixture;
+		/** @type {import('./test-utils').DevServer} */
+		let optimizedDevServer;
+
+		before(async () => {
+			optimizedFixture = await loadFixture({
+				root: './fixtures/core-image-svg-optimized/',
+			});
+
+			optimizedDevServer = await optimizedFixture.startDevServer();
+		});
+
+		after(async () => {
+			await optimizedDevServer.stop();
+		});
+
+		describe('with optimization enabled', () => {
+			let $;
+			let html;
+
+			before(async () => {
+				let res = await optimizedFixture.fetch('/optimized');
+				html = await res.text();
+				$ = cheerio.load(html, { xml: true });
+			});
+
+			it('optimizes SVG with SVGO', () => {
+				const $svg = $('#optimized svg');
+				assert.equal($svg.length, 1);
+				assert.equal(html.includes('This is a comment'), false);
+				assert.equal(!!$svg.attr('xmlns:xlink'), false);
+				assert.equal(!!$svg.attr('version'), false);
+			});
+
+			it('preserves functional SVG structure', () => {
+				const $svg = $('#optimized svg');
+				const $paths = $svg.find('path');
+				assert.equal($paths.length >= 1, true);
+				assert.equal($svg.attr('width'), '24');
+				assert.equal($svg.attr('height'), '24');
 			});
 		});
 	});

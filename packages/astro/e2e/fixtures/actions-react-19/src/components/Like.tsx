@@ -1,7 +1,7 @@
 import { actions } from 'astro:actions';
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { experimental_withState } from '@astrojs/react/actions';
+import { withState } from '@astrojs/react/actions';
 
 export function Like({ postId, label, likes }: { postId: string; label: string; likes: number }) {
 	return (
@@ -15,7 +15,7 @@ export function Like({ postId, label, likes }: { postId: string; label: string; 
 
 export function LikeWithActionState({ postId, label, likes: initial }: { postId: string; label: string; likes: number }) {
 	const [likes, action] = useActionState(
-		experimental_withState(actions.blog.likeWithActionState),
+		withState(actions.blog.likeWithActionState),
 		{ data: initial },
 	);
 

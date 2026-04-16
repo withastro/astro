@@ -5,11 +5,13 @@ import type { AstroConfig } from '../../types/public/config.js';
 import { DEFAULT_HASH_PROPS, DEFAULT_OUTPUT_FORMAT, VALID_SUPPORTED_FORMATS } from '../consts.js';
 import type {
 	ImageFit,
+	ImageMetadata,
 	ImageOutputFormat,
 	ImageTransform,
 	UnresolvedSrcSetValue,
 } from '../types.js';
 import { isESMImportedImage, isRemoteImage } from '../utils/imageKind.js';
+import { inferRemoteSize } from '../utils/remoteProbe.js';
 
 export type ImageService = LocalImageService | ExternalImageService;
 
@@ -22,7 +24,7 @@ export function isLocalService(service: ImageService | undefined): service is Lo
 }
 
 export function parseQuality(quality: string): string | number {
-	let result = parseInt(quality);
+	let result = Number.parseInt(quality);
 	if (Number.isNaN(result)) {
 		return quality;
 	}
@@ -32,6 +34,7 @@ export function parseQuality(quality: string): string | number {
 
 type ImageConfig<T> = Omit<AstroConfig['image'], 'service'> & {
 	service: { entrypoint: string; config: T };
+	assetQueryParams?: URLSearchParams;
 };
 
 interface SharedServiceProps<T extends Record<string, any> = Record<string, any>> {
@@ -76,6 +79,16 @@ interface SharedServiceProps<T extends Record<string, any> = Record<string, any>
 		options: ImageTransform,
 		imageConfig: ImageConfig<T>,
 	) => ImageTransform | Promise<ImageTransform>;
+	/**
+	 * Return the dimensions of a remote image.
+	 *
+	 * This is used to infer the width and height of an image from its URL,
+	 * allowing the service to provide necessary metadata when it's not available locally.
+	 */
+	getRemoteSize?: (
+		url: string,
+		imageConfig: ImageConfig<T>,
+	) => Omit<ImageMetadata, 'src' | 'fsPath'> | Promise<Omit<ImageMetadata, 'src' | 'fsPath'>>;
 }
 
 export type ExternalImageService<T extends Record<string, any> = Record<string, any>> =
@@ -110,7 +123,7 @@ export interface LocalImageService<T extends Record<string, any> = Record<string
 	/**
 	 * A list of properties that should be used to generate the hash for the image.
 	 *
-	 * Generally, this should be all the properties that can change the result of the image. By default, this is `src`, `width`, `height`, `quality`, and `format`.
+	 * Generally, this should be all the properties that can change the result of the image. By default, this is `src`, `width`, `height`, `format`, `quality`, `fit`, `position`, and `background`.
 	 */
 	propertiesToHash?: string[];
 }
@@ -123,9 +136,73 @@ export type BaseServiceTransform = {
 	quality?: string | null;
 	fit?: ImageFit;
 	position?: string;
+	background?: string;
 };
 
 const sortNumeric = (a: number, b: number) => a - b;
+
+export function verifyOptions(options: ImageTransform): void {
+	// `src` is missing or is `undefined`.
+	if (!options.src || (!isRemoteImage(options.src) && !isESMImportedImage(options.src))) {
+		throw new AstroError({
+			...AstroErrorData.ExpectedImage,
+			message: AstroErrorData.ExpectedImage.message(
+				JSON.stringify(options.src),
+				typeof options.src,
+				JSON.stringify(options, (_, v) => (v === undefined ? null : v)),
+			),
+		});
+	}
+
+	if (!isESMImportedImage(options.src)) {
+		// User passed an `/@fs/` path or a filesystem path instead of the full image.
+		if (
+			options.src.startsWith('/@fs/') ||
+			(!isRemotePath(options.src) && !options.src.startsWith('/'))
+		) {
+			throw new AstroError({
+				...AstroErrorData.LocalImageUsedWrongly,
+				message: AstroErrorData.LocalImageUsedWrongly.message(options.src),
+			});
+		}
+
+		// For remote images, width and height are explicitly required as we can't infer them from the file
+		let missingDimension: 'width' | 'height' | 'both' | undefined;
+		if (!options.width && !options.height) {
+			missingDimension = 'both';
+		} else if (!options.width && options.height) {
+			missingDimension = 'width';
+		} else if (options.width && !options.height) {
+			missingDimension = 'height';
+		}
+
+		if (missingDimension) {
+			throw new AstroError({
+				...AstroErrorData.MissingImageDimension,
+				message: AstroErrorData.MissingImageDimension.message(missingDimension, options.src),
+			});
+		}
+	} else {
+		if (!VALID_SUPPORTED_FORMATS.includes(options.src.format as any)) {
+			throw new AstroError({
+				...AstroErrorData.UnsupportedImageFormat,
+				message: AstroErrorData.UnsupportedImageFormat.message(
+					options.src.format,
+					options.src.src,
+					VALID_SUPPORTED_FORMATS,
+				),
+			});
+		}
+
+		if (options.widths && options.densities) {
+			throw new AstroError(AstroErrorData.IncompatibleDescriptorOptions);
+		}
+
+		if (options.src.format !== 'svg' && options.format === 'svg') {
+			throw new AstroError(AstroErrorData.UnsupportedImageConversion);
+		}
+	}
+}
 
 /**
  * Basic local service using the included `_image` endpoint.
@@ -142,7 +219,6 @@ const sortNumeric = (a: number, b: number) => a - b;
  * ```
  *
  * This service adhere to the included services limitations:
- * - Remote images are passed as is.
  * - Only a limited amount of formats are supported.
  * - For remote images, `width` and `height` are always required.
  *
@@ -150,86 +226,20 @@ const sortNumeric = (a: number, b: number) => a - b;
 export const baseService: Omit<LocalImageService, 'transform'> = {
 	propertiesToHash: DEFAULT_HASH_PROPS,
 	validateOptions(options) {
-		// `src` is missing or is `undefined`.
-		if (!options.src || (!isRemoteImage(options.src) && !isESMImportedImage(options.src))) {
-			throw new AstroError({
-				...AstroErrorData.ExpectedImage,
-				message: AstroErrorData.ExpectedImage.message(
-					JSON.stringify(options.src),
-					typeof options.src,
-					JSON.stringify(options, (_, v) => (v === undefined ? null : v)),
-				),
-			});
-		}
+		// Run verification-only checks
+		verifyOptions(options);
 
-		if (!isESMImportedImage(options.src)) {
-			// User passed an `/@fs/` path or a filesystem path instead of the full image.
-			if (
-				options.src.startsWith('/@fs/') ||
-				(!isRemotePath(options.src) && !options.src.startsWith('/'))
-			) {
-				throw new AstroError({
-					...AstroErrorData.LocalImageUsedWrongly,
-					message: AstroErrorData.LocalImageUsedWrongly.message(options.src),
-				});
-			}
-
-			// For remote images, width and height are explicitly required as we can't infer them from the file
-			let missingDimension: 'width' | 'height' | 'both' | undefined;
-			if (!options.width && !options.height) {
-				missingDimension = 'both';
-			} else if (!options.width && options.height) {
-				missingDimension = 'width';
-			} else if (options.width && !options.height) {
-				missingDimension = 'height';
-			}
-
-			if (missingDimension) {
-				throw new AstroError({
-					...AstroErrorData.MissingImageDimension,
-					message: AstroErrorData.MissingImageDimension.message(missingDimension, options.src),
-				});
-			}
-		} else {
-			if (!VALID_SUPPORTED_FORMATS.includes(options.src.format as any)) {
-				throw new AstroError({
-					...AstroErrorData.UnsupportedImageFormat,
-					message: AstroErrorData.UnsupportedImageFormat.message(
-						options.src.format,
-						options.src.src,
-						VALID_SUPPORTED_FORMATS,
-					),
-				});
-			}
-
-			if (options.widths && options.densities) {
-				throw new AstroError(AstroErrorData.IncompatibleDescriptorOptions);
-			}
-
-			// We currently do not support processing SVGs, so whenever the input format is a SVG, force the output to also be one
-			if (options.src.format === 'svg') {
-				options.format = 'svg';
-			}
-
-			if (
-				(options.src.format === 'svg' && options.format !== 'svg') ||
-				(options.src.format !== 'svg' && options.format === 'svg')
-			) {
-				throw new AstroError(AstroErrorData.UnsupportedImageConversion);
-			}
-		}
-
-		// If the user didn't specify a format, we'll default to `webp`. It offers the best ratio of compatibility / quality
-		// In the future, hopefully we can replace this with `avif`, alas, Edge. See https://caniuse.com/avif
+		// Apply defaults and normalization separate from verification
 		if (!options.format) {
-			options.format = DEFAULT_OUTPUT_FORMAT;
+			if (isESMImportedImage(options.src) && options.src.format === 'svg') {
+				options.format = 'svg';
+			} else {
+				options.format = DEFAULT_OUTPUT_FORMAT;
+			}
 		}
-
-		// Sometimes users will pass number generated from division, which can result in floating point numbers
 		if (options.width) options.width = Math.round(options.width);
 		if (options.height) options.height = Math.round(options.height);
-		if (options.layout && options.width && options.height) {
-			options.fit ??= 'cover';
+		if (options.layout) {
 			delete options.layout;
 		}
 		if (options.fit === 'none') {
@@ -252,6 +262,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			priority,
 			fit,
 			position,
+			background,
 			...attributes
 		} = options;
 		return {
@@ -273,7 +284,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		// For remote images, we don't know the original image's dimensions, so we cannot know the maximum width
 		// It is ultimately the user's responsibility to make sure they don't request images larger than the original
 		let imageWidth = options.width;
-		let maxWidth = Infinity;
+		let maxWidth = Number.POSITIVE_INFINITY;
 
 		// However, if it's an imported image, we can use the original image's width as a maximum width
 		if (isESMImportedImage(options.src)) {
@@ -292,7 +303,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		transformedWidths = Array.from(new Set(transformedWidths));
 
 		// Since `widths` and `densities` ultimately control the width and height of the image,
-		// we don't want the dimensions the user specified, we'll create those ourselves.
+		// we don't want the dimensions to be user specified, we'll create those ourselves.
 		const {
 			width: transformWidth,
 			height: transformHeight,
@@ -310,7 +321,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 				if (typeof density === 'number') {
 					return density;
 				} else {
-					return parseFloat(density);
+					return Number.parseFloat(density);
 				}
 			});
 
@@ -361,6 +372,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			f: 'format',
 			fit: 'fit',
 			position: 'position',
+			background: 'background',
 		};
 
 		Object.entries(params).forEach(([param, key]) => {
@@ -368,7 +380,17 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		});
 
 		const imageEndpoint = joinPaths(import.meta.env.BASE_URL, imageConfig.endpoint.route);
-		return `${imageEndpoint}?${searchParams}`;
+		let url = `${imageEndpoint}?${searchParams}`;
+
+		// Append assetQueryParams if available (for adapter-level tracking like skew protection)
+		if (imageConfig.assetQueryParams) {
+			const assetQueryString = imageConfig.assetQueryParams.toString();
+			if (assetQueryString) {
+				url += '&' + assetQueryString;
+			}
+		}
+
+		return url;
 	},
 	parseURL(url) {
 		const params = url.searchParams;
@@ -379,15 +401,19 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 
 		const transform: BaseServiceTransform = {
 			src: params.get('href')!,
-			width: params.has('w') ? parseInt(params.get('w')!) : undefined,
-			height: params.has('h') ? parseInt(params.get('h')!) : undefined,
+			width: params.has('w') ? Number.parseInt(params.get('w')!) : undefined,
+			height: params.has('h') ? Number.parseInt(params.get('h')!) : undefined,
 			format: params.get('f') as ImageOutputFormat,
 			quality: params.get('q'),
 			fit: params.get('fit') as ImageFit,
 			position: params.get('position') ?? undefined,
+			background: params.get('background') ?? undefined,
 		};
 
 		return transform;
+	},
+	getRemoteSize(url, imageConfig) {
+		return inferRemoteSize(url, imageConfig);
 	},
 };
 

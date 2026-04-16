@@ -3,16 +3,18 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { AstroIntegration, HookParameters } from 'astro';
-import { blue, yellow } from 'kleur/colors';
+import colors from 'piccolore';
 import {
 	createServer,
-	type HMRPayload,
+	type HotPayload,
 	loadEnv,
 	mergeConfig,
+	type RunnableDevEnvironment,
 	type UserConfig,
 	type ViteDevServer,
 } from 'vite';
 import parseArgs from 'yargs-parser';
+import * as z from 'zod/v4';
 import { AstroDbError, isDbError } from '../../runtime/utils.js';
 import { CONFIG_FILE_NAMES, DB_PATH, VIRTUAL_MODULE_ID } from '../consts.js';
 import { EXEC_DEFAULT_EXPORT_ERROR, EXEC_ERROR } from '../errors.js';
@@ -27,8 +29,29 @@ import {
 	type SeedHandler,
 	vitePluginDb,
 } from './vite-plugin-db.js';
+import { vitePluginDbClient } from './vite-plugin-db-client.js';
 
-function astroDBIntegration(): AstroIntegration {
+const astroDBConfigSchema = z
+	.object({
+		/**
+		 * Sets the mode of the underlying `@libsql/client` connection.
+		 *
+		 * In most cases, the default 'node' mode is sufficient. On platforms like Cloudflare, or Deno, you may need to set this to 'web'.
+		 *
+		 * @default 'node'
+		 */
+		mode: z
+			.union([z.literal('node'), z.literal('web')])
+			.optional()
+			.default('node'),
+	})
+	.optional()
+	.prefault({});
+
+export type AstroDBConfig = z.infer<typeof astroDBConfigSchema>;
+
+function astroDBIntegration(options?: AstroDBConfig): AstroIntegration {
+	const resolvedConfig = astroDBConfigSchema.parse(options);
 	let connectToRemote = false;
 	let configFileDependencies: string[] = [];
 	let root: URL;
@@ -69,6 +92,11 @@ function astroDBIntegration(): AstroIntegration {
 				const args = parseArgs(process.argv.slice(3));
 				connectToRemote = process.env.ASTRO_INTERNAL_TEST_REMOTE || args['remote'];
 
+				const dbClientPlugin = vitePluginDbClient({
+					connectToRemote,
+					mode: resolvedConfig.mode,
+				});
+
 				if (connectToRemote) {
 					dbPlugin = vitePluginDb({
 						connectToRemote,
@@ -95,7 +123,7 @@ function astroDBIntegration(): AstroIntegration {
 				updateConfig({
 					vite: {
 						assetsInclude: [DB_PATH],
-						plugins: [dbPlugin],
+						plugins: [dbClientPlugin, dbPlugin],
 					},
 				});
 			},
@@ -123,8 +151,9 @@ function astroDBIntegration(): AstroIntegration {
 				});
 			},
 			'astro:server:setup': async ({ server, logger }) => {
+				const environment = server.environments.ssr as RunnableDevEnvironment;
 				seedHandler.execute = async (fileUrl) => {
-					await executeSeedFile({ fileUrl, viteServer: server });
+					await executeSeedFile({ fileUrl, environment });
 				};
 				const filesToWatch = [
 					...CONFIG_FILE_NAMES.map((c) => new URL(c, getDbDirectoryUrl(root))),
@@ -137,22 +166,20 @@ function astroDBIntegration(): AstroIntegration {
 					}
 				});
 				// Wait for dev server log before showing "connected".
-				setTimeout(() => {
-					logger.info(
-						connectToRemote ? 'Connected to remote database.' : 'New local database created.',
-					);
-					if (connectToRemote) return;
+				logger.info(
+					connectToRemote ? 'Connected to remote database.' : 'New local database created.',
+				);
+				if (connectToRemote) return;
 
-					const localSeedPaths = SEED_DEV_FILE_NAME.map(
-						(name) => new URL(name, getDbDirectoryUrl(root)),
-					);
-					// Eager load astro:db module on startup
-					if (seedFiles.get().length || localSeedPaths.find((path) => existsSync(path))) {
-						server.ssrLoadModule(VIRTUAL_MODULE_ID).catch((e) => {
-							logger.error(e instanceof Error ? e.message : String(e));
-						});
-					}
-				}, 100);
+				const localSeedPaths = SEED_DEV_FILE_NAME.map(
+					(name) => new URL(name, getDbDirectoryUrl(root)),
+				);
+				// Eager load astro:db module on startup
+				if (seedFiles.get().length || localSeedPaths.find((path) => existsSync(path))) {
+					await environment.runner.import(VIRTUAL_MODULE_ID).catch((e) => {
+						logger.error(e instanceof Error ? e.message : String(e));
+					});
+				}
 			},
 			'astro:build:start': async ({ logger }) => {
 				if (!connectToRemote && !databaseFileEnvDefined() && finalBuildOutput === 'server') {
@@ -162,15 +189,19 @@ function astroDBIntegration(): AstroIntegration {
 					throw new AstroDbError(message, hint);
 				}
 
-				logger.info('database: ' + (connectToRemote ? yellow('remote') : blue('local database.')));
+				logger.info(
+					'database: ' +
+						(connectToRemote ? colors.yellow('remote') : colors.blue('local database.')),
+				);
 			},
 			'astro:build:setup': async ({ vite }) => {
 				tempViteServer = await getTempViteServer({ viteConfig: vite });
+				const environment = tempViteServer.environments.ssr as RunnableDevEnvironment;
 				seedHandler.execute = async (fileUrl) => {
-					await executeSeedFile({ fileUrl, viteServer: tempViteServer! });
+					await executeSeedFile({ fileUrl, environment });
 				};
 			},
-			'astro:build:done': async ({}) => {
+			'astro:build:done': async () => {
 				await tempViteServer?.close();
 			},
 		},
@@ -182,21 +213,21 @@ function databaseFileEnvDefined() {
 	return env.ASTRO_DATABASE_FILE != null || process.env.ASTRO_DATABASE_FILE != null;
 }
 
-export function integration(): AstroIntegration[] {
-	return [astroDBIntegration(), fileURLIntegration()];
+export function integration(options?: AstroDBConfig): AstroIntegration[] {
+	return [astroDBIntegration(options), fileURLIntegration()];
 }
 
 async function executeSeedFile({
 	fileUrl,
-	viteServer,
+	environment,
 }: {
 	fileUrl: URL;
-	viteServer: ViteDevServer;
+	environment: RunnableDevEnvironment;
 }) {
 	// Use decodeURIComponent to handle paths with spaces correctly
 	// This ensures that %20 in the pathname is properly handled
 	const pathname = decodeURIComponent(fileUrl.pathname);
-	const mod = await viteServer.ssrLoadModule(pathname);
+	const mod = await environment.runner.import(pathname);
 	if (typeof mod.default !== 'function') {
 		throw new AstroDbError(EXEC_DEFAULT_EXPORT_ERROR(fileURLToPath(fileUrl)));
 	}
@@ -223,8 +254,8 @@ async function getTempViteServer({ viteConfig }: { viteConfig: UserConfig }) {
 		}),
 	);
 
-	const hotSend = tempViteServer.hot.send;
-	tempViteServer.hot.send = (payload: HMRPayload) => {
+	const hotSend = tempViteServer.environments.client.hot.send;
+	tempViteServer.environments.client.hot.send = (payload: HotPayload) => {
 		if (payload.type === 'error') {
 			throw payload.err;
 		}

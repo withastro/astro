@@ -1,7 +1,18 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.1.2/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.4.10/schema.json",
   "files": {
-    "includes": ["**", "!**/smoke/**", "!**/fixtures/**", "!**/_temp-fixtures/**", "!**/vendor/**"]
+    "includes": [
+      "**",
+      "!**/vendor",
+      "!!**/smoke",
+      "!!**/fixtures",
+      "!!**/fixture",
+      "!!**/_temp-fixtures",
+      "!!**/dist",
+      "packages/language-tools/vscode/syntaxes/*.json",
+      "!!**/.vscode-test",
+      "!!benchmark/static-projects"
+    ]
   },
   "vcs": {
     "enabled": true,
@@ -18,18 +29,25 @@
   "assist": {
     "actions": {
       "source": {
-        "organizeImports": "on"
+        "organizeImports": "off"
       }
     }
   },
   "linter": {
     "enabled": true,
+
+    "domains": {
+      "test": "recommended"
+    },
     "rules": {
       "recommended": false,
       "style": {
         "useNodejsImportProtocol": "error",
         // Enforce separate type imports for type-only imports to avoid bundling unneeded code
-        "useImportType": "error"
+        "useImportType": "error",
+        "useExportType": "error",
+        "useNumberNamespace": "warn",
+        "noInferrableTypes": "error"
       },
       "suspicious": {
         // This one is specific to catch `console.log`. The rest of logs are permitted
@@ -38,7 +56,15 @@
           "options": {
             "allow": ["error", "warn", "info", "debug"]
           }
-        }
+        },
+        "noVar": "error",
+        "noDoubleEquals": "error",
+        "noDebugger": "error",
+        "noDuplicateCase": "error",
+        "noExplicitAny": "off",
+        // To enable later
+        "noImplicitAnyLet": "off",
+        "noSparseArray": "error"
       },
       "correctness": {
         "noUnusedVariables": {
@@ -48,7 +74,22 @@
           }
         },
         "noUnusedFunctionParameters": "error",
-        "noUnusedImports": "error"
+        "noUnusedImports": "error",
+        "noUnreachable": "error",
+        "noConstantCondition": "warn",
+        "noConstructorReturn": "error",
+        "noEmptyPattern": "error"
+      },
+      "complexity": {
+        // There are many violations which require manual check
+        "noForEach": "off",
+        "noUselessFragments": "warn",
+        "useFlatMap": "warn",
+        // To enable later, as there are many warnings
+        "useOptionalChain": "off"
+      },
+      "performance": {
+        "noAccumulatingSpread": "warn"
       }
     }
   },
@@ -94,23 +135,15 @@
       }
     },
     {
-      // We don"t want to have node modules in code that should be runtime agnostic
-      "includes": ["**/packages/astro/src/runtime/**/*.ts"],
+      // We don't want to have node modules in code that should be runtime agnostic
+      "includes": [
+        "**/packages/astro/src/**/runtime/**/*.ts",
+        "**/packages/astro/src/**/*runtime*.ts"
+      ],
       "linter": {
         "rules": {
           "correctness": {
             "noNodejsModules": "error"
-          }
-        }
-      }
-    },
-    {
-      "includes": ["**/*.test.js"],
-      "linter": {
-        "rules": {
-          "suspicious": {
-            "noFocusedTests": "error",
-            "noConsole": "off"
           }
         }
       }
@@ -146,12 +179,32 @@
         "**/packages/db/**/cli/**/*.ts",
         "**/benchmark/**/*.js",
         "**/packages/astro/src/cli/**/*.ts",
-        "**/packages/astro/astro.js"
+        "**/packages/astro/bin/**/*.mjs"
       ],
       "linter": {
         "rules": {
           "suspicious": {
             "noConsole": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/astro/test/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["**/src/**"],
+                    "message": "The test should not import the source code. Import the code from the dist/ folder instead."
+                  }
+                ]
+              }
+            }
           }
         }
       }

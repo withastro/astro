@@ -2,8 +2,8 @@ import fsMod from 'node:fs';
 import { dirname, relative } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
-import { dim } from 'kleur/colors';
-import { createServer, type FSWatcher, type HMRPayload } from 'vite';
+import colors from 'piccolore';
+import { createServer, type FSWatcher, type HotPayload, type ViteDevServer } from 'vite';
 import { syncFonts } from '../../assets/fonts/sync.js';
 import { CONTENT_TYPES_FILE } from '../../content/consts.js';
 import {
@@ -11,6 +11,8 @@ import {
 	getDataStoreFile,
 	globalContentLayer,
 } from '../../content/content-layer.js';
+import { getDataStoreFile } from '../../content/content-layer.js';
+import { globalContentLayer } from '../../content/instance.js';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { MutableDataStore } from '../../content/mutable-data-store.js';
 import { getContentPaths, globalContentConfigObserver } from '../../content/utils.js';
@@ -18,13 +20,11 @@ import { syncAstroEnv } from '../../env/sync.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
 import { runHookConfigDone, runHookConfigSetup } from '../../integrations/hooks.js';
-import type { AstroSettings, RoutesList } from '../../types/astro.js';
+import type { AstroSettings } from '../../types/astro.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
-import { createDevelopmentManifest } from '../../vite-plugin-astro-server/plugin.js';
-import type { SSRManifest } from '../app/types.js';
 import { getTimeStat } from '../build/util.js';
 import { resolveConfig } from '../config/config.js';
-import { createNodeLogger } from '../config/logging.js';
+import { createNodeLogger } from '../logger/node.js';
 import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
 import {
@@ -35,8 +35,8 @@ import {
 	type ErrorWithMetadata,
 	isAstroError,
 } from '../errors/index.js';
-import type { Logger } from '../logger/core.js';
-import { createRoutesList } from '../routing/index.js';
+import type { AstroLogger } from '../logger/core.js';
+import { createRoutesList } from '../routing/create-manifest.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { normalizePath } from '../viteUtils.js';
 
@@ -46,7 +46,7 @@ type SyncOptions = {
 	 * @internal only used for testing
 	 */
 	fs?: typeof fsMod;
-	logger: Logger;
+	logger: AstroLogger;
 	settings: AstroSettings;
 	force?: boolean;
 	skip?: {
@@ -55,8 +55,6 @@ type SyncOptions = {
 		// Cleanup can be skipped in dev as some state can be reused on updates
 		cleanup?: boolean;
 	};
-	routesList: RoutesList;
-	manifest: SSRManifest;
 	command: 'build' | 'dev' | 'sync';
 	watcher?: FSWatcher;
 };
@@ -71,14 +69,12 @@ export default async function sync(
 	if (_telemetry) {
 		telemetry.record(eventCliSession('sync', userConfig));
 	}
-	let settings = await createSettings(astroConfig, inlineConfig.root);
+	let settings = await createSettings(astroConfig, inlineConfig.logLevel, inlineConfig.root);
 	settings = await runHookConfigSetup({
 		command: 'sync',
 		settings,
 		logger,
 	});
-	const routesList = await createRoutesList({ settings, fsMod: fs }, logger);
-	const manifest = createDevelopmentManifest(settings);
 	await runHookConfigDone({ settings, logger });
 
 	return await syncInternal({
@@ -87,9 +83,7 @@ export default async function sync(
 		mode: 'production',
 		fs,
 		force: inlineConfig.force,
-		routesList,
 		command: 'sync',
-		manifest,
 	});
 }
 
@@ -103,7 +97,7 @@ export async function clearContentLayerCache({
 	isDev,
 }: {
 	settings: AstroSettings;
-	logger: Logger;
+	logger: AstroLogger;
 	fs?: typeof fsMod;
 	isDev: boolean;
 }) {
@@ -138,10 +132,8 @@ export async function syncInternal({
 	settings,
 	skip,
 	force,
-	routesList,
 	command,
 	watcher,
-	manifest,
 }: SyncOptions): Promise<void> {
 	const isDev = command === 'dev';
 	if (force) {
@@ -151,8 +143,14 @@ export async function syncInternal({
 	const timerStart = performance.now();
 
 	if (!skip?.content) {
-		await syncContentCollections(settings, { mode, fs, logger, routesList, manifest });
-		settings.timer.start('Sync content layer');
+		// Create the Vite server once and keep it alive for both content config loading
+		// and content layer sync. This is needed because loaders may use dynamic imports
+		// which require the Vite server to be running. See https://github.com/withastro/astro/issues/12689
+		const tempViteServer = await createTempViteServer(settings, { mode, fs, logger });
+
+		try {
+			await syncContentCollections(settings, { fs, logger, viteServer: tempViteServer });
+			settings.timer.start('Sync content layer');
 
 		let store: MutableDataStore | undefined;
 
@@ -165,37 +163,39 @@ export async function syncInternal({
 				const dataStoreFile = getDataStoreFile(settings, isDev);
 				store = await MutableDataStore.fromFile(dataStoreFile);
 			}
-		} catch (err: any) {
-			logger.error('content', err.message);
-		}
-		if (!store) {
-			logger.error('content', 'Failed to load content store');
-			return;
-		}
+			} catch (err: any) {
+				logger.error('content', err.message);
+			}
+			if (!store) {
+				logger.error('content', 'Failed to load content store');
+				return;
+			}
 
-		const contentLayer = globalContentLayer.init({
-			settings,
-			logger,
-			store,
-			watcher,
-		});
-		if (watcher) {
-			contentLayer.watchContentConfig();
+			const contentLayer = globalContentLayer.init({
+				settings,
+				logger,
+				store,
+				watcher,
+			});
+			if (watcher) {
+				contentLayer.watchContentConfig();
+			}
+			await contentLayer.sync();
+			if (!skip?.cleanup) {
+				// Free up memory (usually in builds since we only need to use this once)
+				contentLayer.dispose();
+			}
+			settings.timer.end('Sync content layer');
+		} finally {
+			await tempViteServer.close();
 		}
-		await contentLayer.sync();
-		if (!skip?.cleanup) {
-			// Free up memory (usually in builds since we only need to use this once)
-			contentLayer.dispose();
-		}
-		settings.timer.end('Sync content layer');
 	} else {
-		const paths = getContentPaths(settings.config, fs);
-		if (
-			paths.config.exists ||
-			paths.liveConfig.exists ||
-			// Legacy collections don't require a config file
-			(settings.config.legacy?.collections && fs.existsSync(paths.contentDir))
-		) {
+		const paths = getContentPaths(
+			settings.config,
+			fs,
+			settings.config.legacy?.collectionsBackwardsCompat,
+		);
+		if (paths.config.exists || paths.liveConfig.exists) {
 			// We only create the reference, without a stub to avoid overriding the
 			// already generated types
 			settings.injectedTypes.push({
@@ -207,7 +207,7 @@ export async function syncInternal({
 	syncFonts(settings);
 
 	writeInjectedTypes(settings, fs);
-	logger.info('types', `Generated ${dim(getTimeStat(timerStart, performance.now()))}`);
+	logger.info('types', `Generated ${colors.dim(getTimeStat(timerStart, performance.now()))}`);
 }
 
 function getTsReference(type: 'path' | 'types', value: string) {
@@ -240,11 +240,70 @@ function writeInjectedTypes(settings: AstroSettings, fs: typeof fsMod) {
 }
 
 /**
+ * Creates a temporary Vite server for use during content sync operations.
+ * This server is needed to load the content config and for loaders that use dynamic imports.
+ */
+async function createTempViteServer(
+	settings: AstroSettings,
+	{ mode, logger, fs }: Required<Pick<SyncOptions, 'mode' | 'logger' | 'fs'>>,
+): Promise<ViteDevServer> {
+	const routesList = await createRoutesList(
+		{
+			settings,
+			fsMod: fs,
+		},
+		logger,
+		{ dev: true },
+	);
+
+	const tempViteServer = await createServer(
+		await createVite(
+			{
+				server: { middlewareMode: true, hmr: false, watch: null, ws: false },
+				optimizeDeps: { noDiscovery: true },
+				ssr: { external: [] },
+				logLevel: 'silent',
+			},
+			{
+				routesList,
+				settings: {
+					...settings,
+					// Prevent mutation by vite plugins during sync
+					buildOutput: undefined,
+					// Sync causes font resources and style hashes to be duplicated
+					injectedCsp: {
+						fontResources: new Set(),
+						styleHashes: [],
+					},
+				},
+				logger,
+				mode,
+				command: 'build',
+				fs,
+				sync: true,
+			},
+		),
+	);
+
+	// Patch `hot.send` to bubble up error events
+	// `hot.on('error')` does not fire for some reason
+	const hotSend = tempViteServer.environments.client.hot.send;
+	tempViteServer.environments.client.hot.send = (payload: HotPayload) => {
+		if (payload.type === 'error') {
+			throw payload.err;
+		}
+		return hotSend(payload);
+	};
+
+	return tempViteServer;
+}
+
+/**
  * Generate content collection types, and then returns the process exit signal.
  *
  * A non-zero process signal is emitted in case there's an error while generating content collection types.
  *
- * This should only be used when the callee already has an `AstroSetting`, otherwise use `sync()` instead.
+ * This should only be used when the callee already has an `AstroSetting`; otherwise, use `sync()` instead.
  * @internal
  *
  * @param {SyncOptions} options
@@ -255,58 +314,21 @@ function writeInjectedTypes(settings: AstroSettings, fs: typeof fsMod) {
  */
 async function syncContentCollections(
 	settings: AstroSettings,
-	{
-		mode,
-		logger,
-		fs,
-		routesList,
-		manifest,
-	}: Required<Pick<SyncOptions, 'mode' | 'logger' | 'fs' | 'routesList' | 'manifest'>>,
+	{ logger, fs, viteServer }: { logger: AstroLogger; fs: typeof fsMod; viteServer: ViteDevServer },
 ): Promise<void> {
-	// Needed to load content config
-	const tempViteServer = await createServer(
-		await createVite(
-			{
-				server: { middlewareMode: true, hmr: false, watch: null, ws: false },
-				optimizeDeps: { noDiscovery: true },
-				ssr: { external: [] },
-				logLevel: 'silent',
-			},
-			{ settings, logger, mode, command: 'build', fs, sync: true, routesList, manifest },
-		),
-	);
-
-	// Patch `hot.send` to bubble up error events
-	// `hot.on('error')` does not fire for some reason
-	const hotSend = tempViteServer.hot.send;
-	tempViteServer.hot.send = (payload: HMRPayload) => {
-		if (payload.type === 'error') {
-			throw payload.err;
-		}
-		return hotSend(payload);
-	};
-
 	try {
 		const contentTypesGenerator = await createContentTypesGenerator({
 			contentConfigObserver: globalContentConfigObserver,
 			logger: logger,
 			fs,
 			settings,
-			viteServer: tempViteServer,
+			viteServer,
 		});
-		const typesResult = await contentTypesGenerator.init();
+		await contentTypesGenerator.init();
 
 		const contentConfig = globalContentConfigObserver.get();
 		if (contentConfig.status === 'error') {
 			throw contentConfig.error;
-		}
-
-		if (typesResult.typesGenerated === false) {
-			switch (typesResult.reason) {
-				case 'no-content-dir':
-				default:
-					logger.debug('types', 'No content directory found. Skipping type generation.');
-			}
 		}
 	} catch (e) {
 		const safeError = createSafeError(e) as ErrorWithMetadata;
@@ -315,7 +337,11 @@ async function syncContentCollections(
 		}
 		let configFile;
 		try {
-			const contentPaths = getContentPaths(settings.config, fs);
+			const contentPaths = getContentPaths(
+				settings.config,
+				fs,
+				settings.config.legacy?.collectionsBackwardsCompat,
+			);
 			if (contentPaths.config.exists) {
 				const matches = /\/(src\/.+)/.exec(contentPaths.config.url.href);
 				if (matches) {
@@ -338,7 +364,5 @@ async function syncContentCollections(
 			},
 			{ cause: e },
 		);
-	} finally {
-		await tempViteServer.close();
 	}
 }

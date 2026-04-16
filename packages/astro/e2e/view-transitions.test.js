@@ -127,6 +127,10 @@ test.describe('View Transitions', () => {
 
 		// Go to page 3 which does *not* have ClientRouter enabled
 		await page.click('#click-three');
+		// Mainly for Firefox on Windows. Wait for navigation to complete.
+		// Other tests like wait for URL or networkidle did not work effectively.
+		await page.waitForTimeout(500);
+
 		p = page.locator('#three');
 		await expect(p, 'should have content').toHaveText('Page 3');
 
@@ -181,12 +185,32 @@ test.describe('View Transitions', () => {
 
 		// Back to page 1
 		await page.goBack();
+		// Mainly for Firefox on Windows. Wait for navigation to complete.
+		// Other tests like wait for URL or networkidle did not work effectively.
+		await page.waitForTimeout(1000);
 		p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
 		expect(
 			loads.length,
 			'There should be 3 page loads (for page one & three), and an additional loads for the back navigation',
 		).toEqual(3);
+	});
+
+	test('Declarative Shadow DOM elements are attached after transitions', async ({
+		page,
+		astro,
+	}) => {
+		const loads = collectLoads(page);
+
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/one'));
+
+		// transition to DSD page
+		await page.click('#click-declarative-shadow-dom');
+		const host = page.locator('#dsd-host');
+		await expect(host, 'should have content').toHaveText('Welcome to the Shadow Realm!');
+
+		expect(loads.length, 'There should only be 1 page load').toEqual(1);
 	});
 
 	test('Stylesheets in the head are waited on', async ({ page, astro }) => {
@@ -514,7 +538,7 @@ test.describe('View Transitions', () => {
 		await page.goto(astro.resolveUrl('/video-one'));
 		const vid = page.locator('video');
 		await expect(vid).toBeVisible();
-		// Mute the video before playing, otherwise there's actually sounds when testing
+		// Mute the video before playing; otherwise, there's actually sounds when testing
 		await vid.evaluate((el) => (el.muted = true));
 		// Browser blocks autoplay, so we manually play it here. For some reason,
 		// you need to click and play it manually for it to actually work.
@@ -699,7 +723,7 @@ test.describe('View Transitions', () => {
 	}) => {
 		const loads = collectLoads(page);
 
-		// Go to the half bakeed page
+		// Go to the half baked page
 		await page.goto(astro.resolveUrl('/half-baked'));
 		let p = page.locator('#half-baked');
 		await expect(p, 'should have content').toHaveText('Half Baked');
@@ -867,6 +891,24 @@ test.describe('View Transitions', () => {
 		).toEqual(1);
 	});
 
+	test('Hash part of the target URL is preserved during server redirect', async ({
+		page,
+		astro,
+	}) => {
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/one'));
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// go to page 2
+		await page.click('#click-redirect-two-hash');
+		p = page.locator('#two');
+		await expect(p, 'should have content').toHaveText('Page 2');
+
+		const Y = await page.evaluate(() => window.scrollY);
+		expect(Y, 'The target is further down the page').toBeGreaterThan(0);
+	});
+
 	test('Redirect to external site causes page load', async ({ page, astro }) => {
 		const loads = collectLoads(page);
 
@@ -879,7 +921,7 @@ test.describe('View Transitions', () => {
 		await page.click('#click-redirect-external');
 		// doesn't work for playwright when we are too fast
 		await page.waitForLoadState('commit', { timeout: 5000 });
-		await page.waitForURL('http://example.com/', { waitUntil: 'commit', timeout: 5000 });
+		await page.waitForURL('https://example.com/', { waitUntil: 'commit', timeout: 5000 });
 		await expect(page.locator('h1'), 'should have content').toHaveText('Example Domain');
 		expect(loads.length, 'There should be 2 page loads').toEqual(2);
 	});
@@ -1129,7 +1171,11 @@ test.describe('View Transitions', () => {
 
 	test('form POST that action for cross-origin is opt-out', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/form-five'));
-		page.on('request', (request) => expect(request.method()).toBe('POST'));
+		page.on('request', (request) => {
+			if (request.isNavigationRequest()) {
+				expect(request.method()).toBe('POST');
+			}
+		});
 		// Submit the form
 		await page.click('#submit');
 	});
@@ -1194,6 +1240,8 @@ test.describe('View Transitions', () => {
 
 		// Submit the form
 		await page.click('#submit');
+		const span = page.locator('#contact-name');
+		await expect(span, 'should have content').toHaveText('Testing');
 
 		expect(
 			loads.length,
@@ -1229,6 +1277,8 @@ test.describe('View Transitions', () => {
 
 		// Submit the form
 		await page.click('#submit');
+		const span = page.locator('#contact-name');
+		await expect(span, 'should have content').toHaveText('Testing');
 
 		expect(
 			loads.length,
@@ -1247,7 +1297,9 @@ test.describe('View Transitions', () => {
 	}) => {
 		await page.goto(astro.resolveUrl('/form-six'));
 		page.on('request', (request) => {
-			expect(request.url()).toContain('/bar');
+			if (request.isNavigationRequest()) {
+				expect(request.url()).toContain('/bar');
+			}
 		});
 		// Submit the form
 		await page.click('#submit');
@@ -1259,7 +1311,9 @@ test.describe('View Transitions', () => {
 	}) => {
 		await page.goto(astro.resolveUrl('/form-seven'));
 		page.on('request', (request) => {
-			expect(request.method()).toBe('GET');
+			if (request.isNavigationRequest()) {
+				expect(request.method()).toBe('GET');
+			}
 		});
 		// Submit the form
 		await page.click('#submit');
@@ -1269,8 +1323,11 @@ test.describe('View Transitions', () => {
 		let navigated;
 		await page.goto(astro.resolveUrl('/form-with-hash#test'));
 		page.on('request', (request) => {
-			expect(request.method()).toBe('POST');
-			navigated = true;
+			// Vite HMR request
+			if (request.resourceType() !== 'websocket') {
+				expect(request.method()).toBe('POST');
+				navigated = true;
+			}
 		});
 		// Submit the form
 		await page.click('#submit');
@@ -1294,15 +1351,16 @@ test.describe('View Transitions', () => {
 	test('should prefetch on hover by default', async ({ page, astro }) => {
 		/** @type {string[]} */
 		const reqUrls = [];
-		page.on('request', (req) => {
-			reqUrls.push(new URL(req.url()).pathname);
+		page.on('request', (request) => {
+			// Vite HMR request
+			if (request.resourceType() !== 'websocket') {
+				reqUrls.push(new URL(request.url()).pathname);
+			}
 		});
 		await page.goto(astro.resolveUrl('/prefetch'));
 		expect(reqUrls).not.toContainEqual('/one');
-		await Promise.all([
-			page.waitForEvent('request'), // wait prefetch request
-			page.locator('#prefetch-one').hover(),
-		]);
+		await page.locator('#prefetch-one').hover();
+		await page.waitForEvent('request'); // wait prefetch request
 		expect(reqUrls).toContainEqual('/one');
 	});
 
@@ -1392,7 +1450,11 @@ test.describe('View Transitions', () => {
 		await page.goto(astro.resolveUrl('/dialog'));
 
 		let requests = [];
-		page.on('request', (request) => requests.push(`${request.method()} ${request.url()}`));
+		page.on('request', (request) => {
+			if (request.isNavigationRequest()) {
+				requests.push(`${request.method()} ${request.url()}`);
+			}
+		});
 
 		await page.click('#open');
 		await expect(page.locator('dialog')).toHaveAttribute('open');
@@ -1516,6 +1578,52 @@ test.describe('View Transitions', () => {
 		expect(text).toBe('true true');
 	});
 
+	test('transition:persist preserves canvas pixel data across navigation', async ({
+		page,
+		astro,
+	}) => {
+		// Page 1 draws a red rectangle on a persisted canvas
+		await page.goto(astro.resolveUrl('/canvas-persist-one'));
+		await expect(page.locator('#canvas-one')).toHaveText('Canvas Page 1');
+
+		// Verify the red rectangle was drawn (pixel at 20,20 should be red)
+		const beforePixel = await page.$eval('#my-canvas', (c) => {
+			const ctx = c.getContext('2d');
+			const pixel = ctx.getImageData(20, 20, 1, 1).data;
+			return [pixel[0], pixel[1], pixel[2], pixel[3]];
+		});
+		expect(beforePixel).toEqual([255, 0, 0, 255]);
+
+		// Navigate via client-side link (View Transitions swap runs)
+		await page.click('#click-two');
+		await expect(page.locator('#canvas-two')).toHaveText('Canvas Page 2');
+
+		// The persisted canvas should retain its pixel data
+		const afterPixel = await page.$eval('#my-canvas', (c) => {
+			const ctx = c.getContext('2d');
+			const pixel = ctx.getImageData(20, 20, 1, 1).data;
+			return [pixel[0], pixel[1], pixel[2], pixel[3]];
+		});
+		expect(afterPixel).toEqual([255, 0, 0, 255]);
+	});
+
+	test('transition:persist drops elements without matching target in new page', async ({
+		page,
+		astro,
+	}) => {
+		// Canvas page has a canvas with transition:persist="my-canvas"
+		await page.goto(astro.resolveUrl('/canvas-persist-one'));
+		await expect(page.locator('#canvas-one')).toHaveText('Canvas Page 1');
+		expect(await page.locator('#my-canvas').count()).toBe(1);
+
+		// Navigate via client-side link to a page WITHOUT a matching persist target
+		await page.click('#click-no-canvas');
+		await expect(page.locator('#one')).toHaveText('Page 1');
+
+		// The persisted canvas should NOT appear on the new page
+		expect(await page.locator('#my-canvas').count()).toBe(0);
+	});
+
 	test('it should be easy to define a data-theme preserving swap function', async ({
 		page,
 		astro,
@@ -1602,19 +1710,19 @@ test.describe('View Transitions', () => {
 		await page.goto(astro.resolveUrl('/abort2'));
 		// implemented in /abort2:
 		// Navigate to self with a 10 second animation
-		// shortly after starting that, change your mind an navigate to /one
+		// shortly after starting that, change your mind and navigate to /one
 		// check that animations got canceled
 		let p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
 		// This test would be more important for a browser without native view transitions
-		// as those do not have automatic cancelation of transitions.
+		// as those do not have automatic cancellation of transitions.
 		// For simulated view transitions, the last line would be missing
 		// as enter and exit animations don't run in parallel.
 
-		let expected = '[test] navigate to "."\n[test] navigate to /one\n[test] cancel astroFadeOut';
+		let expected = '[test] navigate to "."\n[test] navigate to /one\n[test] cancel astroFade';
 		const native = await nativeViewTransition(page);
 		if (native) {
-			expected += '\n[test] cancel astroFadeIn';
+			expected += '\n[test] cancel astroFade';
 		}
 		await page.click('#click-two');
 		expect(lines.join('\n')).toBe(expected);
@@ -1670,8 +1778,8 @@ test.describe('View Transitions', () => {
 		);
 	});
 
-	test('fallback triggers animation if not skipped', async ({ page, astro, browserName }) => {
-		test.skip(browserName !== 'firefox', 'Only makes sense for browser that uses fallback');
+	// This test only works for browsers that do not have native support for view transitions.
+	test.skip('fallback triggers animation if not skipped', async ({ page, astro }) => {
 		let lines = [];
 		page.on('console', (msg) => {
 			msg.text().startsWith('[test]') && lines.push(msg.text().slice('[test]'.length + 1));
@@ -1696,5 +1804,38 @@ test.describe('View Transitions', () => {
 		await page.click('#a1');
 		await new Promise((resolve) => setTimeout(resolve, 1000));
 		expect(lines.join('')).toBe('');
+	});
+
+	test('Inline styles and font preloads persist through head swap', async ({ page, astro }) => {
+		// Go to font page 1
+		await page.goto(astro.resolveUrl('/font-page-one'));
+		let p = page.locator('#font-page-one');
+		await expect(p, 'should have content').toHaveText('Font Page 1');
+
+		// Navigate to font page 2 (same inline styles and font preloads)
+		await page.click('#click-font-two');
+		p = page.locator('#font-page-two');
+		await expect(p, 'should have content').toHaveText('Font Page 2');
+
+		// Verify original inline styles and font preloads are still present after navigation
+		await expect(page.locator('#style')).toHaveCount(1);
+		await expect(page.locator('#preload')).toHaveCount(1);
+	});
+
+	test('Styles with data-vite-dev-id persist through head swap', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/island-vue-one'));
+		let cnt = page.locator('.counter pre');
+		await expect(cnt).toHaveText('AA0');
+		await page
+			.locator('[data-vite-dev-id*="VueCounter.vue?vue&type=style"]')
+			.evaluate((el) => (el.dataset.marker = 'this'), undefined);
+		await page.click('#click-two');
+		const p = page.locator('#island-two');
+		await expect(p).toBeVisible();
+		cnt = page.locator('.counter pre');
+		await expect(cnt).toHaveText('BB0');
+		await expect(
+			page.locator('[data-vite-dev-id*="VueCounter.vue?vue&type=style"][data-marker="this"]'),
+		).toHaveCount(1);
 	});
 });

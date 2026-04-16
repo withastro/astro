@@ -2,7 +2,6 @@ import { fileURLToPath } from 'node:url';
 import type { TransformResult } from '@astrojs/compiler';
 import { transform } from '@astrojs/compiler';
 import type { ResolvedConfig } from 'vite';
-import type { AstroPreferences } from '../../preferences/index.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import type { AstroError } from '../errors/errors.js';
 import { AggregateError, CompilerError } from '../errors/errors.js';
@@ -14,7 +13,7 @@ import type { CompileCssResult } from './types.js';
 export interface CompileProps {
 	astroConfig: AstroConfig;
 	viteConfig: ResolvedConfig;
-	preferences: AstroPreferences;
+	toolbarEnabled: boolean;
 	filename: string;
 	source: string;
 }
@@ -26,7 +25,7 @@ export interface CompileResult extends Omit<TransformResult, 'css'> {
 export async function compile({
 	astroConfig,
 	viteConfig,
-	preferences,
+	toolbarEnabled,
 	filename,
 	source,
 }: CompileProps): Promise<CompileResult> {
@@ -47,8 +46,7 @@ export async function compile({
 			normalizedFilename: normalizeFilename(filename, astroConfig.root),
 			sourcemap: 'both',
 			internalURL: 'astro/compiler-runtime',
-			// TODO: this is no longer necessary for `Astro.site`
-			// but it somehow allows working around caching issues in content collections for some tests
+			// TODO: remove in Astro v7
 			astroGlobalArgs: JSON.stringify(astroConfig.site),
 			scopedStyleStrategy: astroConfig.scopedStyleStrategy,
 			resultScopedSlot: true,
@@ -57,15 +55,14 @@ export async function compile({
 				viteConfig.command === 'serve' &&
 				astroConfig.devToolbar &&
 				astroConfig.devToolbar.enabled &&
-				(await preferences.get('devToolbar.enabled')),
-			renderScript: true,
+				toolbarEnabled,
 			preprocessStyle: createStylePreprocessor({
 				filename,
 				viteConfig,
+				astroConfig,
 				cssPartialCompileResults,
 				cssTransformErrors,
 			}),
-			experimentalScriptOrder: astroConfig.experimental.preserveScriptOrder ?? false,
 			async resolvePath(specifier) {
 				return resolvePath(specifier, filename);
 			},

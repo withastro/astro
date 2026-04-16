@@ -20,7 +20,7 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
  * - call `next`;
  *
  * Failing doing so will result an error. A middleware can call `next` and do not return a
- * response. A middleware can not call `next` and return a new `Response` from scratch (maybe with a redirect).
+ * response. A middleware cannot call `next` and return a new `Response` from scratch (maybe with a redirect).
  *
  * ```js
  * const onRequest = async (context, next) => {
@@ -57,7 +57,7 @@ export async function callMiddleware(
 		return responseFunctionPromise;
 	};
 
-	let middlewarePromise = onRequest(apiContext, next);
+	const middlewarePromise = onRequest(apiContext, next);
 
 	return await Promise.resolve(middlewarePromise).then(async (value) => {
 		// first we check if `next` was called

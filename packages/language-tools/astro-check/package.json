@@ -1,0 +1,49 @@
+{
+  "name": "@astrojs/check",
+  "description": "Type checking and diagnostics for Astro projects",
+  "version": "0.9.8",
+  "author": "withastro",
+  "license": "MIT",
+  "homepage": "https://github.com/withastro/astro/tree/main/packages/language-tools/astro-check",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/withastro/astro.git",
+    "directory": "packages/language-tools/astro-check"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "astro-check": "./bin/astro-check.js"
+  },
+  "files": [
+    "bin",
+    "dist/**/*.js",
+    "dist/**/*.d.ts"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "astro-scripts test \"**/*.test.ts\"  --tsx true"
+  },
+  "dependencies": {
+    "@astrojs/language-server": "^2.16.5",
+    "chokidar": "^4.0.3",
+    "kleur": "^4.1.5",
+    "yargs": "^17.7.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.9.0",
+    "@types/yargs": "^17.0.35",
+    "astro-scripts": "workspace:*",
+    "tinyglobby": "^0.2.15",
+    "tsx": "^4.21.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

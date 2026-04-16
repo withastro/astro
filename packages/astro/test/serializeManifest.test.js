@@ -89,6 +89,26 @@ describe('astro:config/client', () => {
 	});
 });
 
+describe('astro:config/client in a client script', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+
+	describe('when build', () => {
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/astro-manifest-client-script/',
+				adapter: testAdapter(),
+				output: 'server',
+			});
+		});
+
+		it('should build without errors when astro:config/client is used in a client script', async () => {
+			const error = await fixture.build().catch((err) => err);
+			assert.equal(error, undefined, `Build failed with: ${error?.message}`);
+		});
+	});
+});
+
 describe('astro:config/server', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
@@ -132,6 +152,8 @@ describe('astro:config/server', () => {
 			assert.ok($('#root').text().endsWith('/'));
 			assert.ok($('#build-client').text().endsWith('/dist/client/'));
 			assert.ok($('#build-server').text().endsWith('/dist/server/'));
+			// URL
+			assert.equal($('#root-url').text(), 'true');
 		});
 	});
 
@@ -152,6 +174,8 @@ describe('astro:config/server', () => {
 			assert.ok($('#root').text().endsWith('/'));
 			assert.ok($('#build-client').text().endsWith('/dist/client/'));
 			assert.ok($('#build-server').text().endsWith('/dist/server/'));
+			// URL
+			assert.equal($('#root-url').text(), 'true');
 		});
 	});
 
@@ -179,6 +203,8 @@ describe('astro:config/server', () => {
 			assert.ok($('#root').text().endsWith('/'));
 			assert.ok($('#build-client').text().endsWith('/dist/client/'));
 			assert.ok($('#build-server').text().endsWith('/dist/server/'));
+			// URL
+			assert.equal($('#root-url').text(), 'true');
 		});
 	});
 });

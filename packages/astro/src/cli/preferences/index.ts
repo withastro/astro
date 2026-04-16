@@ -1,17 +1,18 @@
 import { fileURLToPath } from 'node:url';
 import { formatWithOptions } from 'node:util';
-import dlv from 'dlv';
 import { flattie } from 'flattie';
-import { bgGreen, black, bold, dim, yellow } from 'kleur/colors';
+import colors from 'piccolore';
 import { resolveConfig } from '../../core/config/config.js';
 import { createSettings } from '../../core/config/settings.js';
 import { collectErrorMetadata } from '../../core/errors/dev/utils.js';
-import * as msg from '../../core/messages.js';
-import { apply as applyPolyfill } from '../../core/polyfill.js';
+import * as msg from '../../core/messages/runtime.js';
 import { DEFAULT_PREFERENCES } from '../../preferences/defaults.js';
+import dlv from '../../preferences/dlv.js';
 import { coerce, isValidKey, type PreferenceKey } from '../../preferences/index.js';
 import type { AstroSettings } from '../../types/astro.js';
 import { createLoggerFromFlags, type Flags, flagsToAstroInlineConfig } from '../flags.js';
+
+const { bgGreen, black, bold, dim, yellow } = colors;
 
 interface PreferencesOptions {
 	flags: Flags;
@@ -41,7 +42,6 @@ export async function preferences(
 	value: string | undefined,
 	{ flags }: PreferencesOptions,
 ): Promise<number> {
-	applyPolyfill();
 	if (!isValidSubcommand(subcommand) || flags?.help || flags?.h) {
 		msg.printHelp({
 			commandName: 'astro preferences',
@@ -70,7 +70,11 @@ export async function preferences(
 	const inlineConfig = flagsToAstroInlineConfig(flags);
 	const logger = createLoggerFromFlags(flags);
 	const { astroConfig } = await resolveConfig(inlineConfig ?? {}, 'dev');
-	const settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
+	const settings = await createSettings(
+		astroConfig,
+		inlineConfig.logLevel,
+		fileURLToPath(astroConfig.root),
+	);
 	const opts: SubcommandOptions = {
 		location: flags.global ? 'global' : undefined,
 		json: !!flags.json,
@@ -323,9 +327,11 @@ function annotatedFormat(mv: AnnotatedValue) {
 // this is the real formatting for annotated values
 function formatAnnotated(
 	mv: AnnotatedValue,
-	style: (value: string | number | boolean) => string = (v) => v.toString(),
+	style: (value: string) => string = (v) => v.toString(),
 ) {
-	return mv.annotation ? `${style(mv.value)} ${dim(mv.annotation)}` : style(mv.value);
+	return mv.annotation
+		? `${style(String(mv.value))} ${dim(mv.annotation)}`
+		: style(String(mv.value));
 }
 function formatTable(object: Record<string, AnnotatedValue>, columnLabels: [string, string]) {
 	const [colA, colB] = columnLabels;
@@ -335,7 +341,7 @@ function formatTable(object: Record<string, AnnotatedValue>, columnLabels: [stri
 		_i: number,
 		a: string,
 		b: AnnotatedValue,
-		style: (value: string | number | boolean) => string = (v) => v.toString(),
+		style: (value: string) => string = (v) => v.toString(),
 	): string {
 		return `${dim(chars.v)} ${style(a)} ${space(colALength - a.length - 2)} ${dim(
 			chars.v,

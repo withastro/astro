@@ -4,6 +4,17 @@ import { streamAsyncIterator } from './util.js';
 // Leverage the battle-tested `html-escaper` npm package.
 export const escapeHTML = escape;
 
+/**
+ * Serializes a value to a JSON string that is safe to embed inside a `<script>` tag.
+ * All `<` characters are escaped to `\u003c` so the browser's HTML parser cannot be
+ * tricked into closing the script block early via `</script>` variants (case-insensitive,
+ * whitespace, or self-closing forms) or `<!--` comment injection.
+ * @see https://mathiasbynens.be/notes/etago
+ */
+export function stringifyForScript(value: any): string {
+	return JSON.stringify(value)?.replace(/</g, '\\u003c');
+}
+
 export class HTMLBytes extends Uint8Array {}
 
 // TypeScript won't let us define this in the class body so have to do it
@@ -14,14 +25,14 @@ Object.defineProperty(HTMLBytes.prototype, Symbol.toStringTag, {
 	},
 });
 
+const htmlStringSymbol = Symbol.for('astro:html-string');
+
 /**
  * A "blessed" extension of String that tells Astro that the string
  * has already been escaped. This helps prevent double-escaping of HTML.
  */
 export class HTMLString extends String {
-	get [Symbol.toStringTag]() {
-		return 'HTMLString';
-	}
+	[htmlStringSymbol] = true;
 }
 
 type BlessedType = string | HTMLBytes;
@@ -33,7 +44,7 @@ type BlessedType = string | HTMLBytes;
  */
 export const markHTMLString = (value: any) => {
 	// If value is already marked as an HTML string, there is nothing to do.
-	if (value instanceof HTMLString) {
+	if (isHTMLString(value)) {
 		return value;
 	}
 	// Cast to `HTMLString` to mark the string as valid HTML. Any HTML escaping
@@ -48,7 +59,7 @@ export const markHTMLString = (value: any) => {
 };
 
 export function isHTMLString(value: any): value is HTMLString {
-	return Object.prototype.toString.call(value) === '[object HTMLString]';
+	return !!value?.[htmlStringSymbol];
 }
 
 function markHTMLBytes(bytes: Uint8Array) {

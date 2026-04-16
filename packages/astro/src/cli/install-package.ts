@@ -1,14 +1,13 @@
 import { createRequire } from 'node:module';
-import boxen from 'boxen';
+import * as clack from '@clack/prompts';
 import ci from 'ci-info';
-import { bold, cyan, dim, magenta } from 'kleur/colors';
 import { detect, resolveCommand } from 'package-manager-detector';
-import prompts from 'prompts';
-import yoctoSpinner from 'yocto-spinner';
-import type { Logger } from '../core/logger/core.js';
+import colors from 'piccolore';
+import type { AstroLogger } from '../core/logger/core.js';
 import { exec } from './exec.js';
 
 const require = createRequire(import.meta.url);
+const { bold, cyan, dim, magenta } = colors;
 
 type GetPackageOptions = {
 	skipAsk?: boolean;
@@ -18,7 +17,7 @@ type GetPackageOptions = {
 
 export async function getPackage<T>(
 	packageName: string,
-	logger: Logger,
+	logger: AstroLogger,
 	options: GetPackageOptions,
 	otherDeps: string[] = [],
 ): Promise<T | undefined> {
@@ -58,7 +57,7 @@ export async function getPackage<T>(
 async function installPackage(
 	packageNames: string[],
 	options: GetPackageOptions,
-	logger: Logger,
+	logger: AstroLogger,
 ): Promise<boolean> {
 	const cwd = options.cwd ?? process.cwd();
 	const packageManager = await detect({
@@ -75,34 +74,33 @@ async function installPackage(
 		packageNames = packageNames.map((name) => `npm:${name}`);
 	}
 	const coloredOutput = `${bold(installCommand.command)} ${installCommand.args.join(' ')} ${cyan(packageNames.join(' '))}`;
-	const message = `\n${boxen(coloredOutput, {
-		margin: 0.5,
-		padding: 0.5,
-		borderStyle: 'round',
-	})}\n`;
 	logger.info(
 		'SKIP_FORMAT',
 		`\n  ${magenta('Astro will run the following command:')}\n  ${dim(
 			'If you skip this step, you can always run it yourself later',
-		)}\n${message}`,
+		)}`,
 	);
+	clack.box(coloredOutput, undefined, {
+		rounded: true,
+		withGuide: false,
+		width: 'auto',
+	});
 
 	let response;
 	if (options.skipAsk) {
 		response = true;
 	} else {
-		response = (
-			await prompts({
-				type: 'confirm',
-				name: 'askToContinue',
-				message: 'Continue?',
-				initial: true,
-			})
-		).askToContinue;
+		response =
+			(await clack.confirm({
+				message: colors.bold('Continue?'),
+				initialValue: true,
+				withGuide: false,
+			})) === true;
 	}
 
 	if (Boolean(response)) {
-		const spinner = yoctoSpinner({ text: 'Installing dependencies...' }).start();
+		const spinner = clack.spinner({ withGuide: false });
+		spinner.start('Installing dependencies...');
 		try {
 			await exec(installCommand.command, [...installCommand.args, ...packageNames], {
 				nodeOptions: {
@@ -111,12 +109,12 @@ async function installPackage(
 					env: { NODE_ENV: undefined },
 				},
 			});
-			spinner.success();
+			spinner.stop('Dependencies installed.');
 
 			return true;
 		} catch (err) {
 			logger.debug('add', 'Error installing dependencies', err);
-			spinner.error();
+			spinner.error('Failed to install dependencies.');
 
 			return false;
 		}

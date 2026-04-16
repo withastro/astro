@@ -1,4 +1,4 @@
-import type { Logger } from '../core/logger/core.js';
+import type { AstroLogger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
 import type {
 	AdapterSupport,
@@ -29,7 +29,7 @@ export function validateSupportedFeatures(
 	adapterName: string,
 	featureMap: AstroAdapterFeatureMap,
 	settings: AstroSettings,
-	logger: Logger,
+	logger: AstroLogger,
 ): ValidationResult {
 	const {
 		serverOutput = AdapterFeatureStability.UNSUPPORTED,
@@ -54,7 +54,7 @@ export function validateSupportedFeatures(
 		adapterName,
 		logger,
 		'hybridOutput',
-		() => settings.config.output == 'static' && settings.buildOutput === 'server',
+		() => settings.config.output === 'static' && settings.buildOutput === 'server',
 	);
 
 	validationResult.serverOutput = validateSupportKind(
@@ -96,7 +96,7 @@ export function validateSupportedFeatures(
 	return validationResult;
 }
 
-function unwrapSupportKind(supportKind?: AdapterSupport): AdapterSupportsKind | undefined {
+export function unwrapSupportKind(supportKind?: AdapterSupport): AdapterSupportsKind | undefined {
 	if (!supportKind) {
 		return undefined;
 	}
@@ -104,7 +104,7 @@ function unwrapSupportKind(supportKind?: AdapterSupport): AdapterSupportsKind | 
 	return typeof supportKind === 'object' ? supportKind.support : supportKind;
 }
 
-function getSupportMessage(supportKind: AdapterSupport): string | undefined {
+export function getSupportMessage(supportKind: AdapterSupport): string | undefined {
 	return typeof supportKind === 'object' ? supportKind.message : undefined;
 }
 
@@ -115,7 +115,7 @@ function getSupportMessageSuppression(supportKind: AdapterSupport): 'all' | 'def
 function validateSupportKind(
 	supportKind: AdapterSupport,
 	adapterName: string,
-	logger: Logger,
+	logger: AstroLogger,
 	featureName: string,
 	hasCorrectConfig: () => boolean,
 ): boolean {
@@ -139,7 +139,7 @@ function validateSupportKind(
 
 function logFeatureSupport(
 	adapterName: string,
-	logger: Logger,
+	logger: AstroLogger,
 	featureName: string,
 	supportKind: AdapterSupport,
 	adapterMessage?: string,
