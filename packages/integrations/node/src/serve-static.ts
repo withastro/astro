@@ -130,25 +130,32 @@ export function createStaticHandler(
 
 			stream.on('error', (err) => {
 				if (forwardError) {
-					console.error(err.toString());
-					res.writeHead(500);
-					res.end('Internal server error');
+					// The `send` library emits errors with a `statusCode` property
+					// (e.g. 412 for precondition failures from If-Match / If-Unmodified-Since).
+					// Use the real status when available instead of always returning 500.
+					const status = 'statusCode' in err ? (err as any).statusCode : 500;
+					if (status >= 500) {
+						console.error(err.toString());
+					}
+					res.writeHead(status);
+					res.end(status >= 500 ? 'Internal server error' : '');
 					return;
 				}
 				// File not found, forward to the SSR handler
 				ssr();
 			});
-			stream.on('headers', (_res: ServerResponse) => {
-				// assets in dist/_astro are hashed and should get the immutable header
-				if (normalizedPathname.startsWith(`/${app.manifest.assetsDir}/`)) {
-					// This is the "far future" cache header, used for static files whose name includes their digest hash.
-					// 1 year (31,536,000 seconds) is convention.
-					// Taken from https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#immutable
-					_res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-				}
-			});
 			stream.on('file', () => {
 				forwardError = true;
+			});
+			// The `stream` event fires only when `send` is actually going to stream
+			// the file content (i.e. after all precondition checks like If-Match and
+			// If-Unmodified-Since have passed). Setting cache headers here instead of
+			// in the `headers` event ensures error responses (e.g. 412) are never
+			// sent with immutable cache headers, which would poison CDN caches.
+			stream.on('stream', () => {
+				if (normalizedPathname.startsWith(`/${app.manifest.assetsDir}/`)) {
+					res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+				}
 			});
 			stream.pipe(res);
 		} else {
