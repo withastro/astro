@@ -53,6 +53,13 @@ export const web1FeedItemWithAllData = {
 
 const parser = new xml2js.Parser({ trim: true });
 
+/**
+ *
+ * Utility function to parse an XML string into an object using `xml2js`.
+ *
+ * @param xmlString - Stringified XML to parse.
+ * @return Represents an option containing the parsed XML string or an Error.
+ */
 export function parseXmlString(xmlString: string): { err: Error | null; result: unknown } {
 	let res!: { err: Error | null; result: unknown };
 	parser.parseString(xmlString, (err: Error | null, result: unknown) => {
