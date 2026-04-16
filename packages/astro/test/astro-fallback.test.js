@@ -8,13 +8,13 @@ describe('Dynamic component fallback', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-fallback',
+			root: './fixtures/astro-expr/',
 		});
 		await fixture.build();
 	});
 
 	it('Shows static content', async () => {
-		const html = await fixture.readFile('/index.html');
+		const html = await fixture.readFile('/fallback/index.html');
 		const $ = cheerio.load(html);
 		assert.equal($('#fallback').text(), 'static');
 	});

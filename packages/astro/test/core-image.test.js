@@ -888,9 +888,14 @@ describe('astro:image', () => {
 	describe('support base option correctly', () => {
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/core-image-base/',
+				root: './fixtures/core-image-ssg/',
 				image: {
 					service: testImageService(),
+					domains: [
+						'astro.build',
+						'avatars.githubusercontent.com',
+						'kaleidoscopic-biscotti-6fe98c.netlify.app',
+					],
 				},
 				base: '/blog',
 			});
