@@ -141,7 +141,7 @@ jobs:
         run: pnpm run publint
 
       - name: Type-check test files
-        run: pnpm -C packages/astro run typecheck:tests
+        run: pnpm run typecheck:tests
 
   test:
     name: 'Test (${{ matrix.TEST_SUITE.name }}): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})'
