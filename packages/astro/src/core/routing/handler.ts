@@ -6,10 +6,11 @@ import type { PrepareOptions } from '../app/prepare.js';
 import { NOOP_MIDDLEWARE_HEADER, REROUTE_DIRECTIVE_HEADER, REWRITE_DIRECTIVE_HEADER_KEY, ROUTE_TYPE_HEADER } from '../constants.js';
 import { createMatchRouteData } from './match-route-data.js';
 import { handleTrailingSlash } from './trailing-slash.js';
+import { UserMiddlewareHandler } from '../middleware/handler.js';
 import { createRedirectsHandler } from '../redirects/handler.js';
 import { createRewritesHandler } from '../rewrites/handler.js';
 import { createI18nHandler } from '../../i18n/handler.js';
-import { createUserMiddlewareHandler } from '../middleware/handler.js';
+
 import { createPagesHandler } from '../pages/handler.js';
 import { createActionsHandler } from '../../actions/handler.js';
 
@@ -75,11 +76,21 @@ export function createAstroHandler(
 	const matchRouteData = (req: Request) => rawMatchRouteData(req, { allowPrerenderedRoutes: shouldAllowPrerendered });
 
 	const handleRedirects = createRedirectsHandler(manifest);
-	const handleUserMiddleware = createUserMiddlewareHandler(deps, options);
+	const userMiddleware = new UserMiddlewareHandler(deps, options);
 	const handleActions = createActionsHandler(deps);
 	const handleRewrites = createRewritesHandler(deps, matchRouteData);
 	const handleI18n = createI18nHandler(manifest, matchRouteData);
 	const handlePages = createPagesHandler(deps, matchRouteData, options);
+
+	async function nextStep(state: FetchState): Promise<Response> {
+		// Actions (skip for non-POST)
+		if (state.request.method === 'POST') {
+			const actionResponse = await handleActions(state);
+			if (actionResponse) return actionResponse;
+		}
+		// Pages (terminal)
+		return handlePages(state);
+	}
 
 	return async (state: FetchState): Promise<Response> => {
 		const request = state.request;
@@ -88,7 +99,7 @@ export function createAstroHandler(
 		const trailingSlashResponse = handleTrailingSlash(request, manifest);
 		if (trailingSlashResponse) return trailingSlashResponse;
 
-		// 2. Route resolution — set early so user middleware can access routePattern/isPrerendered
+		// 2. Route resolution
 		if (!state.routeData) {
 			const routeData = matchRouteData(request);
 			if (routeData) state.routeData = routeData;
@@ -98,27 +109,30 @@ export function createAstroHandler(
 		const redirectResponse = handleRedirects(request);
 		if (redirectResponse) return redirectResponse;
 
-		// 4. User middleware wraps actions + pages
-		let response = await handleUserMiddleware(state, async () => {
-			// 5. Actions
-			const actionResponse = await handleActions(state);
-			if (actionResponse) return actionResponse;
+		// 4. Resolve middleware once on first request
+		await userMiddleware.resolve();
 
-			// 6. Pages (terminal)
-			return handlePages(state);
-		});
+		// 5. User middleware wraps actions + pages (skip if no middleware)
+		let response: Response;
+		if (userMiddleware.hasMiddleware()) {
+			response = await userMiddleware.handle(state, () => nextStep(state));
+		} else {
+			response = await nextStep(state);
+		}
 
-		// 7. Rewrite (post-processor)
-		const rewriteResponse = await handleRewrites(state);
-		if (rewriteResponse) response = rewriteResponse;
+		// 6. Rewrite (post-processor, skip if no rewrite pending)
+		if (state.rewritePathname) {
+			const rewriteResponse = await handleRewrites(state);
+			if (rewriteResponse) response = rewriteResponse;
+		}
 
-		// 8. i18n (post-processor)
+		// 7. i18n (post-processor)
 		if (handleI18n) {
 			const i18nResponse = handleI18n(state, response);
 			if (i18nResponse) response = i18nResponse;
 		}
 
-		// 9. Strip internal headers
+		// 8. Strip internal headers
 		return stripInternalHeaders(response);
 	};
 }

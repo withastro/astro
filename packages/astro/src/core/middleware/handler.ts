@@ -23,27 +23,59 @@ export interface UserMiddlewareHandlerDeps {
 }
 
 /**
- * Creates a handler that runs the user's Astro middleware around a `next`
- * callback. The `next` callback is responsible for rendering the page (or
- * doing whatever the downstream pipeline does).
+ * Handles user middleware execution around a `next` callback.
  *
- * Returns `(state, next) => Promise<Response>`.
+ * Use `hasMiddleware()` to check whether there is actual user middleware.
+ * When there is none, callers can skip `handle()` entirely and call
+ * the next step directly, avoiding unnecessary async boundaries.
  */
-export function createUserMiddlewareHandler(
-	deps: UserMiddlewareHandlerDeps,
-	options: UserMiddlewareHandlerOptions = {},
-): (state: FetchState, next: () => Promise<Response>) => Promise<Response> {
-	const { pipeline, manifest, logger } = deps;
-	const isDev = options.isDev ?? (pipeline.runtimeMode === 'development');
-	let resolvedMiddleware: Awaited<ReturnType<typeof pipeline.getMiddleware>> | undefined;
+export class UserMiddlewareHandler {
+	#pipeline: Pipeline;
+	#manifest: SSRManifest;
+	#logger: AstroLogger;
+	#isDev: boolean;
+	#options: UserMiddlewareHandlerOptions;
+	#resolvedMiddleware: Awaited<ReturnType<Pipeline['getMiddleware']>> | undefined;
+	#resolved = false;
 
-	return async (state: FetchState, next: () => Promise<Response>): Promise<Response> => {
-		if (!resolvedMiddleware) {
-			resolvedMiddleware = await pipeline.getMiddleware();
+	constructor(deps: UserMiddlewareHandlerDeps, options: UserMiddlewareHandlerOptions = {}) {
+		this.#pipeline = deps.pipeline;
+		this.#manifest = deps.manifest;
+		this.#logger = deps.logger;
+		this.#isDev = options.isDev ?? (deps.pipeline.runtimeMode === 'development');
+		this.#options = options;
+	}
+
+	/**
+	 * Resolves the middleware once (lazy, cached). Must be called before
+	 * `hasMiddleware()` returns a meaningful result.
+	 */
+	async resolve(): Promise<void> {
+		if (!this.#resolved) {
+			this.#resolvedMiddleware = await this.#pipeline.getMiddleware();
+			this.#resolved = true;
 		}
-		if (resolvedMiddleware === NOOP_MIDDLEWARE_FN) {
-			return next();
-		}
+	}
+
+	/**
+	 * Returns true if there is actual user middleware to run.
+	 * Call `resolve()` first.
+	 */
+	hasMiddleware(): boolean {
+		return this.#resolved && this.#resolvedMiddleware !== NOOP_MIDDLEWARE_FN;
+	}
+
+	/**
+	 * Runs the user middleware around the `next` callback.
+	 * Only call this when `hasMiddleware()` returns true.
+	 */
+	async handle(state: FetchState, next: () => Promise<Response>): Promise<Response> {
+		const pipeline = this.#pipeline;
+		const manifest = this.#manifest;
+		const logger = this.#logger;
+		const isDev = this.#isDev;
+		const options = this.#options;
+		const resolvedMiddleware = this.#resolvedMiddleware!;
 
 		const request = state.request;
 		const ctx = await state.getAPIContext();
@@ -137,5 +169,14 @@ export function createUserMiddlewareHandler(
 		}
 
 		return response;
-	};
+	}
+}
+
+// Keep the factory function for backward compatibility (hono-app.ts uses it)
+export function createUserMiddlewareHandler(
+	deps: UserMiddlewareHandlerDeps,
+	options: UserMiddlewareHandlerOptions = {},
+): (state: FetchState, next: () => Promise<Response>) => Promise<Response> {
+	const handler = new UserMiddlewareHandler(deps, options);
+	return (state, next) => handler.handle(state, next);
 }

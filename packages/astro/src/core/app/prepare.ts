@@ -203,6 +203,119 @@ export async function prepareForRender(
 }
 
 // ---------------------------------------------------------------------------
+// Prepare context (no callback)
+// ---------------------------------------------------------------------------
+
+export interface PreparedRender {
+	renderContext: RenderContext;
+	componentInstance: ComponentInstance;
+	session: AstroSession | undefined;
+	cache: CacheLike | undefined;
+}
+
+/**
+ * Prepares the RenderContext and loads the component without calling renderPage.
+ * Avoids the callback indirection of `prepareForRender`.
+ */
+export async function prepareRenderContext(
+	pipeline: Pipeline,
+	manifest: SSRManifest,
+	_logger: AstroLogger,
+	request: Request,
+	routeData: RouteData,
+	options: PrepareOptions,
+): Promise<PreparedRender> {
+	const {
+		clientAddress,
+		locals,
+		skipMiddleware = false,
+		cookies: sharedCookies,
+		session: sharedSession,
+	} = options;
+
+	const url = new URL(request.url);
+	if (routeData.prerender && url.search) {
+		url.search = '';
+		request = new Request(url, request);
+	}
+
+	let pathname = getPathnameFromRequest(request, manifest.base);
+	if (!routeHasHtmlExtension(routeData)) {
+		pathname = pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
+	}
+
+	if (!Reflect.get(request, originPathnameSymbol)) {
+		setOriginPathname(request, pathname, manifest.trailingSlash, manifest.buildFormat);
+	}
+
+	const defaultStatus = getDefaultStatusCode(routeData, pathname);
+	const componentInstance = await pipeline.getComponentByRoute(routeData);
+	const renderContext = await RenderContext.create({
+		pipeline,
+		locals,
+		pathname,
+		request,
+		routeData,
+		status: defaultStatus,
+		clientAddress,
+		skipMiddleware,
+		cookies: sharedCookies,
+		session: sharedSession,
+	} as CreateRenderContext);
+
+	return {
+		renderContext,
+		componentInstance,
+		session: renderContext.session,
+		cache: renderContext.cache,
+	};
+}
+
+/**
+ * Post-processing after rendering: session persist, reroutable status check,
+ * cookie attachment, response cleanup.
+ */
+export async function finalizeRender(
+	pipeline: Pipeline,
+	manifest: SSRManifest,
+	_logger: AstroLogger,
+	request: Request,
+	response: Response,
+	prepared: PreparedRender,
+	options: PrepareOptions,
+): Promise<Response> {
+	const { renderContext, session } = prepared;
+	const {
+		clientAddress,
+		locals,
+		prerenderedErrorPageFetch = getRenderOptions(request)?.prerenderedErrorPageFetch ?? fetch,
+		isDev = false,
+	} = options;
+
+	await session?.[PERSIST_SYMBOL]();
+
+	if (
+		REROUTABLE_STATUS_CODES.includes(response.status) &&
+		response.body === null &&
+		response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
+	) {
+		return renderErrorPage(pipeline, manifest, pipeline.manifestData, _logger, request, {
+			clientAddress,
+			locals,
+			prerenderedErrorPageFetch,
+			isDev,
+			status: response.status as 404 | 500,
+			response,
+			error: response.status === 500 ? null : undefined,
+		});
+	}
+
+	attachCookiesToResponse(response, renderContext.cookies);
+	prepareResponse(response);
+	return response;
+}
+
+// ---------------------------------------------------------------------------
 // Error page rendering
 // ---------------------------------------------------------------------------
 

@@ -334,7 +334,6 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 
 	public async render(request: Request, options: RenderOptions = {}): Promise<Response> {
 		if (!this.#fetchHandler) {
-			// Auto-create a default fetch handler (no Hono dependency).
 			const { createDefaultFetchHandler } = await import('../fetch/default-handler.js');
 			this.#fetchHandler = createDefaultFetchHandler({
 				pipeline: this.pipeline,
@@ -342,8 +341,6 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				logger: this.logger,
 			});
 		}
-		// Attach per-request render options to the Request so they're accessible
-		// anywhere in the pipeline without async context tracking.
 		setRenderOptions(request, {
 			locals: options.locals,
 			clientAddress: options.clientAddress,

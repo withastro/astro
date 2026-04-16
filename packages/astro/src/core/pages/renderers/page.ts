@@ -3,14 +3,12 @@ import type { SSRManifest } from '../../../types/public/index.js';
 import type { Pipeline } from '../../base-pipeline.js';
 import type { AstroLogger } from '../../logger/core.js';
 import type { RoutesList } from '../../../types/astro.js';
-import { prepareForRender, type PrepareOptions } from '../../app/prepare.js';
-import { createSSRResult } from '../../app/ssr-result.js';
-import { renderPage } from '../../../runtime/server/render/page.js';
-import { getProps } from '../../render/index.js';
-import { ROUTE_TYPE_HEADER, REROUTE_DIRECTIVE_HEADER, originPathnameSymbol } from '../../constants.js';
-import { ForbiddenRewrite } from '../../errors/errors-data.js';
-import { AstroError, AstroErrorData } from '../../errors/index.js';
-import { copyRenderOptions } from '../../app/render-options-store.js';
+import { prepareRenderContext, finalizeRender, renderErrorPage, type PrepareOptions } from '../../app/prepare.js';
+import { isAstroError } from '../../errors/index.js';
+import { NoMatchingStaticPathFound } from '../../errors/errors-data.js';
+import { getRenderOptions } from '../../app/render-options-store.js';
+import { matchRoute } from '../../routing/match.js';
+import { PERSIST_SYMBOL } from '../../session/runtime.js';
 
 /**
  * Renders page routes. This class is framework-agnostic and does not
@@ -19,128 +17,65 @@ import { copyRenderOptions } from '../../app/render-options-store.js';
 export class PageRenderer {
 	#pipeline: Pipeline;
 	#manifest: SSRManifest;
-	#getManifestData: () => RoutesList;
 	#logger: AstroLogger;
 
-	constructor(pipeline: Pipeline, manifest: SSRManifest, getManifestData: () => RoutesList, logger: AstroLogger) {
+	constructor(pipeline: Pipeline, manifest: SSRManifest, _getManifestData: () => RoutesList, logger: AstroLogger) {
 		this.#pipeline = pipeline;
 		this.#manifest = manifest;
-		this.#getManifestData = getManifestData;
 		this.#logger = logger;
 	}
 
-	render(request: Request, routeData: RouteData, options: PrepareOptions = {}): Promise<Response> {
-		return prepareForRender(
-			this.#pipeline,
-			this.#manifest,
-			this.#getManifestData(),
-			this.#logger,
-			request,
-			routeData,
-			options,
-			async (renderContext, componentInstance) => {
-				const { pipeline } = renderContext;
-				const props =
-					Object.keys(renderContext.props).length > 0
-						? renderContext.props
-						: await getProps({
-								mod: componentInstance,
-								routeData: renderContext.routeData,
-								routeCache: pipeline.routeCache,
-								pathname: renderContext.pathname,
-								logger: pipeline.logger,
-								serverLike: pipeline.manifest.serverLike,
-								base: pipeline.manifest.base,
-								trailingSlash: pipeline.manifest.trailingSlash,
-							});
+	async render(request: Request, routeData: RouteData, options: PrepareOptions = {}): Promise<Response> {
+		const pipeline = this.#pipeline;
+		const manifest = this.#manifest;
+		const logger = this.#logger;
+		const isDev = options.isDev ?? (pipeline.runtimeMode === 'development');
+		const {
+			clientAddress,
+			locals,
+			prerenderedErrorPageFetch = getRenderOptions(request)?.prerenderedErrorPageFetch ?? fetch,
+		} = options;
 
-				const manifest = this.#manifest;
-				const getManifestData = this.#getManifestData;
-				const logger = this.#logger;
+		const prepared = await prepareRenderContext(pipeline, manifest, logger, request, routeData, options);
+		const { renderContext, componentInstance, session } = prepared;
 
-				const result = await createSSRResult({
-					pipeline,
-					routeData: renderContext.routeData,
-					mod: componentInstance,
-					request: renderContext.request,
-					pathname: renderContext.pathname,
-					params: renderContext.params,
-					status: renderContext.status,
-					locals: renderContext.locals,
-					cookies: renderContext.cookies,
-					url: renderContext.url,
-					clientAddress: renderContext.clientAddress,
-					session: renderContext.session,
-					cache: renderContext.cache,
-					shouldInjectCspMetaTags: renderContext.shouldInjectCspMetaTags,
-					serverIslandNameMap: renderContext.serverIslands.serverIslandNameMap ?? new Map(),
-					partial: renderContext.partial,
-					async rewrite(rewritePayload) {
-						const { routeData: rewriteRouteData, pathname: rewritePathname, newUrl } =
-							await pipeline.tryRewrite(rewritePayload, renderContext.request);
-						// Forbid SSR → prerendered rewrites in server mode
-						if (
-							pipeline.manifest.serverLike === true &&
-							!renderContext.routeData.prerender &&
-							rewriteRouteData.prerender === true
-						) {
-							throw new AstroError({
-								...ForbiddenRewrite,
-								message: ForbiddenRewrite.message(
-									renderContext.pathname,
-									rewritePathname,
-									rewriteRouteData.component,
-								),
-								hint: ForbiddenRewrite.hint(rewriteRouteData.component),
-							});
-						}
-					if (renderContext.request.bodyUsed) {
-						throw new AstroError(AstroErrorData.RewriteWithBodyUsed);
-					}
-					const newRequest = rewritePayload instanceof Request
-						? rewritePayload
-						: new Request(newUrl, renderContext.request);
-						// Copy render options from the original request to the new one
-						copyRenderOptions(renderContext.request, newRequest);
-						// Preserve the original request's origin pathname across the rewrite
-						const origin = Reflect.get(renderContext.request, originPathnameSymbol);
-						if (origin) {
-							Reflect.set(newRequest, originPathnameSymbol, origin);
-						}
-						// Merge cookies set during this render into the rewrite request.
-						for (const setCookieValue of renderContext.cookies.headers()) {
-							newRequest.headers.append('cookie', setCookieValue.split(';')[0]);
-						}
-						return prepareForRender(
-							pipeline, manifest, getManifestData(), logger,
-							newRequest, rewriteRouteData,
-							{ locals: renderContext.locals, cookies: renderContext.cookies, isDev: pipeline.runtimeMode === 'development' },
-							(ctx, comp) => ctx.render(comp),
-						);
-					},
+		let response: Response;
+		try {
+			response = await renderContext.render(componentInstance);
+		} catch (err: any) {
+			// A getStaticPaths route matched the pattern but the specific params
+			// aren't in the static paths list. Treat this as a 404, not a 500.
+			if (isAstroError(err) && err.title === NoMatchingStaticPathFound.title) {
+				logger.warn('router', err.message);
+				return renderErrorPage(pipeline, manifest, pipeline.manifestData, logger, request, {
+					clientAddress,
+					locals,
+					prerenderedErrorPageFetch,
+					isDev,
+					status: 404,
+					error: err,
 				});
+			}
+			logger.error(null, err.stack || err.message || String(err));
+			// In dev, re-throw so the error reaches the Vite error overlay
+			// unless there's a custom 500 page.
+			if (isDev) {
+				const errorRoutePath = `/500${manifest.trailingSlash === 'always' ? '/' : ''}`;
+				const custom500 = matchRoute(errorRoutePath, pipeline.manifestData);
+				if (!custom500) throw err;
+			}
+			return renderErrorPage(pipeline, manifest, pipeline.manifestData, logger, request, {
+				clientAddress,
+				locals,
+				prerenderedErrorPageFetch,
+				isDev,
+				status: 500,
+				error: err,
+			});
+		} finally {
+			await session?.[PERSIST_SYMBOL]();
+		}
 
-				try {
-					const response = await renderPage(
-						result,
-						componentInstance?.default as any,
-						props,
-						{},
-						pipeline.streaming,
-						renderContext.routeData,
-					);
-
-					response.headers.set(ROUTE_TYPE_HEADER, 'page');
-					if (renderContext.routeData.route === '/404' || renderContext.routeData.route === '/500') {
-						response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
-					}
-
-					return response;
-				} catch (e) {
-					result.cancelled = true;
-					throw e;
-				}
-			},
-		);
+		return finalizeRender(pipeline, manifest, logger, request, response, prepared, options);
 	}
 }

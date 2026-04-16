@@ -125,17 +125,12 @@ export function createPagesHandler(
 		}
 
 		// Persist session data to storage (e.g. fs, redis) after the request
-		// completes. For pages this happens inside prepareForRender's finally
-		// block, but endpoints bypass that path.
 		if (ctx.session) {
 			await (ctx.session as any)[PERSIST_SYMBOL]?.();
 		}
 
-		// Attach the AstroCookies instance to the response so that
-		// app.setCookieHeaders(response) can read them via the symbol.
 		attachCookiesToResponse(response, ctx.cookies);
 
-		// Collect all cookies and append to the response.
 		const shouldAddCookies = getRenderOptions(request)?.addCookieHeader ?? options.addCookieHeader ?? true;
 		if (shouldAddCookies) {
 			const existingCookies = new Set(response.headers.getSetCookie?.() ?? []);

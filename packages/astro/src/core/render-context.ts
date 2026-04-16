@@ -496,6 +496,9 @@ export class RenderContext {
 		this.isRewriting = true;
 		// we found a route and a component, we can change the status code to 200
 		this.status = 200;
+		// Rewrites must run middleware so that middleware can see the new pathname
+		// and update locals accordingly. Reset skipMiddleware for the recursive render.
+		this.skipMiddleware = false;
 		setOriginPathname(
 			this.request,
 			oldPathname,
