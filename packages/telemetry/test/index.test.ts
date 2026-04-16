@@ -2,9 +2,7 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { AstroTelemetry } from '../dist/index.js';
 
-declare global {
-	var _astroGlobalDebug: ((type: string, ...args: unknown[]) => void) | undefined;
-}
+
 
 function setup() {
 	const config = new Map<string, unknown>();
@@ -21,8 +19,8 @@ function setup() {
 	telemetry['config'] = config;
 
 	// Mock the global debug function to capture logs
-	const originalDebug = globalThis._astroGlobalDebug;
-	globalThis._astroGlobalDebug = (type: string, ...args: unknown[]) => {
+	const originalDebug = (globalThis as any)._astroGlobalDebug;
+	(globalThis as any)._astroGlobalDebug = (type: string, ...args: unknown[]) => {
 		if (type === 'telemetry') {
 			logs.push(args);
 		}
@@ -41,7 +39,7 @@ function setup() {
 		config,
 		logs,
 		cleanup: () => {
-			globalThis._astroGlobalDebug = originalDebug;
+			(globalThis as any)._astroGlobalDebug = originalDebug;
 			process.env.DEBUG = oldDebug;
 		},
 	};
