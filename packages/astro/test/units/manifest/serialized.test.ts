@@ -12,7 +12,8 @@ import {
  */
 async function getManifest(settings: any) {
 	const plugin = serializedManifestPlugin({ settings, command: 'dev', sync: false });
-	const result = await plugin.load.handler.call({}, SERIALIZED_MANIFEST_RESOLVED_ID);
+	const load = plugin.load as { handler: (id: string) => Promise<{ code: string }> };
+	const result = await load.handler.call({}, SERIALIZED_MANIFEST_RESOLVED_ID);
 	// The generated code contains: _deserializeManifest((<json>))
 	const match = result.code.match(/_deserializeManifest\(\((.+)\)\)/s);
 	assert.ok(match, 'Could not find manifest JSON in plugin output');
@@ -139,7 +140,7 @@ describe('serializedManifestPlugin - dev mode', () => {
 	});
 
 	describe('trailingSlash', () => {
-		for (const value of ['always', 'never', 'ignore']) {
+		for (const value of ['always', 'never', 'ignore'] as const) {
 			it(`preserves trailingSlash="${value}"`, async () => {
 				const settings = await createBasicSettings({ trailingSlash: value });
 				const manifest = await getManifest(settings);
