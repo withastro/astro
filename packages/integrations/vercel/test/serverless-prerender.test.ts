@@ -1,17 +1,16 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Serverless prerender', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
-		process.env.PRERENDER = true;
+		process.env.PRERENDER = 'true';
 		fixture = await loadFixture({
 			root: './fixtures/serverless-prerender/',
 		});
-		await fixture.build();
+		await fixture.build({});
 	});
 
 	it('build successful', async () => {
@@ -41,16 +40,15 @@ describe('Serverless prerender', () => {
 });
 
 describe('Serverless hybrid rendering', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
-		process.env.PRERENDER = true;
+		process.env.PRERENDER = 'true';
 		fixture = await loadFixture({
 			root: './fixtures/serverless-prerender/',
 			output: 'static',
 		});
-		await fixture.build();
+		await fixture.build({});
 	});
 
 	it('build successful', async () => {

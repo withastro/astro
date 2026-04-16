@@ -1,17 +1,16 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, type DevServer, loadFixture } from './test-utils.ts';
 
 describe('Image', () => {
-	/** @type {import('./test-utils.js').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/image/',
 		});
-		await fixture.build();
+		await fixture.build({});
 	});
 
 	it('build successful', async () => {
@@ -23,7 +22,7 @@ describe('Image', () => {
 		const $ = cheerio.load(html);
 		const img = $('#basic-image img');
 
-		assert.equal(img.attr('src').startsWith('/_vercel/image?url=_astr'), true);
+		assert.equal(img.attr('src')!.startsWith('/_vercel/image?url=_astr'), true);
 		assert.equal(img.attr('loading'), 'lazy');
 		assert.equal(img.attr('width'), '225');
 	});
@@ -33,12 +32,12 @@ describe('Image', () => {
 		const $ = cheerio.load(html);
 		const img = $('#small-source img');
 		const widths = img
-			.attr('srcset')
+			.attr('srcset')!
 			.split(', ')
 			.map((entry) => entry.split(' ')[1]);
 		assert.deepEqual(widths, ['640w'], 'uses valid widths in srcset');
 
-		const url = new URL(img.attr('src'), 'http://localhost');
+		const url = new URL(img.attr('src')!, 'http://localhost');
 		assert.equal(url.searchParams.get('w'), '640', 'uses valid width in src');
 
 		assert.equal(img.attr('width'), '225', 'uses requested width in img attribute');
@@ -48,7 +47,7 @@ describe('Image', () => {
 		const html = await fixture.readFile('../.vercel/output/static/index.html');
 		const $ = cheerio.load(html);
 		const img = $('#densities-test img');
-		const srcset = img.attr('srcset');
+		const srcset = img.attr('srcset')!;
 
 		// Extract widths from srcset (format: "url 1x", "url 1.5x", etc)
 		const descriptors = srcset.split(', ').map((entry) => entry.split(' ')[1]);
@@ -57,7 +56,7 @@ describe('Image', () => {
 		const urls = srcset.split(', ').map((entry) => entry.split(' ')[0]);
 		const widthsFromUrls = urls.map((url) => {
 			const urlObj = new URL(url, 'http://localhost');
-			return Number.parseInt(urlObj.searchParams.get('w'), 10);
+			return Number.parseInt(urlObj.searchParams.get('w')!, 10);
 		});
 
 		// The configured sizes are [640, 750, 828, 1080, 1200, 1920, 2048, 3840]
@@ -101,7 +100,7 @@ describe('Image', () => {
 	});
 
 	describe('dev', () => {
-		let devServer;
+		let devServer: DevServer;
 
 		before(async () => {
 			devServer = await fixture.startDevServer();
@@ -116,7 +115,7 @@ describe('Image', () => {
 			const $ = cheerio.load(html);
 			const img = $('#basic-image img');
 
-			assert.equal(img.attr('src').startsWith('/_image?href='), true);
+			assert.equal(img.attr('src')!.startsWith('/_image?href='), true);
 			assert.equal(img.attr('loading'), 'lazy');
 			assert.equal(img.attr('width'), '225');
 		});
@@ -125,7 +124,7 @@ describe('Image', () => {
 			const html = await fixture.fetch('/').then((res) => res.text());
 			const $ = cheerio.load(html);
 			const img = $('#svg img');
-			const src = img.attr('src');
+			const src = img.attr('src')!;
 
 			const res = await fixture.fetch(src);
 			assert.equal(res.status, 200);
@@ -137,7 +136,7 @@ describe('Image', () => {
 			const $ = cheerio.load(html);
 			const img = $('#responsive img');
 			const widths = img
-				.attr('srcset')
+				.attr('srcset')!
 				.split(', ')
 				.map((entry) => entry.split(' ')[1]);
 			assert.deepEqual(widths, ['640w', '750w', '828w', '1080w', '1200w', '1920w']);

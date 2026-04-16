@@ -1,14 +1,21 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, type AstroInlineConfig, loadFixture } from './test-utils.ts';
 
 describe('Static Assets', () => {
-	/** @type {import('./test-utils.js').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	const VALID_CACHE_CONTROL = 'public, max-age=31536000, immutable';
 
-	async function build({ adapter, assets, output }) {
+	async function build({
+		adapter,
+		assets,
+		output,
+	}: {
+		adapter?: AstroInlineConfig['adapter'];
+		assets?: string;
+		output?: AstroInlineConfig['output'];
+	}) {
 		fixture = await loadFixture({
 			root: './fixtures/static-assets/',
 			output,
@@ -17,7 +24,7 @@ describe('Static Assets', () => {
 				assets,
 			},
 		});
-		await fixture.build();
+		await fixture.build({});
 	}
 
 	async function getConfig() {
@@ -31,11 +38,11 @@ describe('Static Assets', () => {
 		return fixture.config.build.assets;
 	}
 
-	async function checkValidCacheControl(assets) {
+	async function checkValidCacheControl(assets?: string) {
 		const config = await getConfig();
 		const theAssets = assets ?? (await getAssets());
 
-		const route = config.routes.find((r) => r.src === `^/${theAssets}/(.*)$`);
+		const route = config.routes.find((r: any) => r.src === `^/${theAssets}/(.*)$`);
 		assert.equal(route.headers['cache-control'], VALID_CACHE_CONTROL);
 		assert.equal(route.continue, true);
 	}

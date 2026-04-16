@@ -1,16 +1,15 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Server Islands', () => {
-	/** @type {import('./test-utils.js').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/server-islands/',
 		});
-		await fixture.build();
+		await fixture.build({});
 	});
 
 	it('server islands route is in the config', async () => {

@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
-async function loadFunctionModule(fixture, functionName) {
+async function loadFunctionModule(fixture: Fixture, functionName: string) {
 	const functionConfig = JSON.parse(
 		await fixture.readFile(`../.vercel/output/functions/${functionName}.func/.vc-config.json`),
 	);
@@ -11,20 +11,19 @@ async function loadFunctionModule(fixture, functionName) {
 		fixture.config.outDir,
 	);
 
-	return import(functionEntry);
+	return import(functionEntry.href);
 }
 
 describe('Vercel serverless path override security', () => {
-	/** @type {import('./test-utils.js').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
-		process.env.PRERENDER = true;
+		process.env.PRERENDER = 'true';
 		fixture = await loadFixture({
 			root: './fixtures/serverless-with-dynamic-routes/',
 			output: 'server',
 		});
-		await fixture.build();
+		await fixture.build({});
 	});
 
 	it('ignores untrusted x_astro_path query param on _render', async () => {

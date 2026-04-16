@@ -1,15 +1,14 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Vercel edge middleware', () => {
-	/** @type {import('./test-utils.js').Fixture} */
-	let build;
+	let build: Fixture;
 	before(async () => {
 		build = await loadFixture({
 			root: './fixtures/middleware-with-edge-file/',
 		});
-		await build.build();
+		await build.build({});
 	});
 
 	it('an edge function is created', async () => {
@@ -25,7 +24,7 @@ describe('Vercel edge middleware', () => {
 		const contents = await build.readFile('../.vercel/output/config.json');
 		const { routes } = JSON.parse(contents);
 		assert.equal(
-			routes.some((route) => route.dest === '_middleware'),
+			routes.some((route: any) => route.dest === '_middleware'),
 			true,
 		);
 	});
@@ -35,7 +34,7 @@ describe('Vercel edge middleware', () => {
 			'../.vercel/output/functions/_middleware.func/middleware.mjs',
 			build.config.outDir,
 		);
-		const module = await import(entry);
+		const module = await import(entry.href);
 		const request = new Request('http://example.com/foo');
 		const response = await module.default(request, {});
 		assert.equal(response.headers.get('set-cookie'), 'foo=bar');
@@ -47,10 +46,10 @@ describe('Vercel edge middleware', () => {
 			'../.vercel/output/functions/_middleware.func/middleware.mjs',
 			build.config.outDir,
 		);
-		const module = await import(entry);
+		const module = await import(entry.href);
 
 		const originalFetch = globalThis.fetch;
-		let captured;
+		let captured: RequestInit | undefined;
 		globalThis.fetch = async (_url, opts) => {
 			captured = opts;
 			return new Response('ok', { status: 200 });
@@ -62,6 +61,7 @@ describe('Vercel edge middleware', () => {
 				headers: { 'Content-Type': 'application/json' },
 			});
 			await module.default(request, {});
+			assert.ok(captured, 'fetch was called');
 			assert.equal(captured.method, 'POST', 'forwards the HTTP method');
 			assert.ok(captured.body, 'forwards the request body');
 		} finally {
@@ -74,7 +74,7 @@ describe('Vercel edge middleware', () => {
 		const fixture = await loadFixture({
 			root: './fixtures/middleware-with-edge-file/',
 		});
-		await fixture.build();
+		await fixture.build({});
 		const _contents = await fixture.readFile(
 			// this is abysmal...
 			'../.vercel/output/functions/render.func/www/withastro/astro/packages/vercel/test/fixtures/middleware-with-edge-file/dist/middleware.mjs',
@@ -89,7 +89,7 @@ describe('Vercel edge middleware', () => {
 		const fixture = await loadFixture({
 			root: './fixtures/middleware-without-edge-file/',
 		});
-		await fixture.build();
+		await fixture.build({});
 		const _contents = await fixture.readFile(
 			// this is abysmal...
 			'../.vercel/output/functions/render.func/www/withastro/astro/packages/vercel/test/fixtures/middleware-without-edge-file/dist/middleware.mjs',

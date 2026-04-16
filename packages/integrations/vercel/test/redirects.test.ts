@@ -1,10 +1,9 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Redirects', () => {
-	/** @type {import('./test-utils.js').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -25,7 +24,7 @@ describe('Redirects', () => {
 			},
 			trailingSlash: 'always',
 		});
-		await fixture.build();
+		await fixture.build({});
 	});
 
 	async function getConfig() {
@@ -36,19 +35,19 @@ describe('Redirects', () => {
 
 	it('define static routes', async () => {
 		const config = await getConfig();
-		const oneRoute = config.routes.find((r) => r.src === '^/one$');
+		const oneRoute = config.routes.find((r: any) => r.src === '^/one$');
 		assert.equal(oneRoute.headers.Location, '/');
 		assert.equal(oneRoute.status, 301);
 
-		const twoRoute = config.routes.find((r) => r.src === '^/two$');
+		const twoRoute = config.routes.find((r: any) => r.src === '^/two$');
 		assert.equal(twoRoute.headers.Location, '/');
 		assert.equal(twoRoute.status, 301);
 
-		const threeRoute = config.routes.find((r) => r.src === '^/three$');
+		const threeRoute = config.routes.find((r: any) => r.src === '^/three$');
 		assert.equal(threeRoute.headers.Location, '/');
 		assert.equal(threeRoute.status, 302);
 
-		const fourRoute = config.routes.find((r) => r.src === '^/four$');
+		const fourRoute = config.routes.find((r: any) => r.src === '^/four$');
 		assert.equal(fourRoute.headers.Location, 'http://example.com');
 		assert.equal(fourRoute.status, 302);
 	});
@@ -56,7 +55,7 @@ describe('Redirects', () => {
 	it('define redirects for static files', async () => {
 		const config = await getConfig();
 
-		const staticRoute = config.routes.find((r) => r.src === '^/Basic/http-2-0\\.html$');
+		const staticRoute = config.routes.find((r: any) => r.src === '^/Basic/http-2-0\\.html$');
 		assert.notEqual(staticRoute, undefined);
 		assert.equal(staticRoute.headers.Location, '/posts/http2');
 		assert.equal(staticRoute.status, 301);
@@ -65,7 +64,7 @@ describe('Redirects', () => {
 	it('defines dynamic routes', async () => {
 		const config = await getConfig();
 
-		const blogRoute = config.routes.find((r) => r.src.startsWith('^/blog'));
+		const blogRoute = config.routes.find((r: any) => r.src.startsWith('^/blog'));
 		assert.notEqual(blogRoute, undefined);
 		assert.equal(blogRoute.headers.Location.startsWith('/team/articles'), true);
 		assert.equal(blogRoute.status, 301);
@@ -79,7 +78,7 @@ describe('Redirects', () => {
 				'/blog/(![...slug]': '/team/articles/[...slug]',
 			},
 		});
-		await assert.rejects(() => fails.build(), {
+		await assert.rejects(() => fails.build({}), {
 			name: 'AstroUserError',
 			message:
 				'Error generating redirects: Redirect at index 0 has invalid `source` regular expression "/blog/(!:slug*".',
