@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture, type Fixture, type DevServer } from '../../../astro/test/test-utils.js';
 
-let fixture;
+let fixture: Fixture;
 
 // Svelte made breaking changes to async rendering in a patch.
 // TODO figure out if we need to change our code or not, might just be an upstream bug.
@@ -16,7 +16,7 @@ describe.skip('Async rendering', () => {
 
 	describe('build', () => {
 		before(async () => {
-			await fixture.build();
+			await fixture.build({});
 		});
 
 		it('Can render async components', async () => {
@@ -28,8 +28,7 @@ describe.skip('Async rendering', () => {
 	});
 
 	describe('dev', () => {
-		/** @type {import('../../../astro/test/test-utils.js').Fixture} */
-		let devServer;
+		let devServer: DevServer;
 
 		before(async () => {
 			devServer = await fixture.startDevServer();
