@@ -4,6 +4,7 @@ import { prepareTestFactory } from './test-utils.js';
 const { test } = prepareTestFactory({ root: './fixtures/basics/' });
 
 test.describe('Basics', () => {
+	// @ts-expect-error astro fixture is defined in untyped test-utils.js
 	test('Alpine is working', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
