@@ -32,7 +32,7 @@ import {
 } from './plugins/plugin-ssr.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { StaticBuildOptions } from './types.js';
-import { encodeName, getTimeStat, viteBuildReturnToRollupOutputs } from './util.js';
+import { cleanChunkName, getTimeStat, viteBuildReturnToRollupOutputs } from './util.js';
 import { NOOP_MODULE_ID } from './plugins/plugin-noop.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 import type { InputOption } from 'rollup';
@@ -280,15 +280,14 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 						// TODO: refactor our build logic to avoid this
 						if (name.includes(ASTRO_PAGE_EXTENSION_POST_PATTERN)) {
 							const [sanitizedName] = name.split(ASTRO_PAGE_EXTENSION_POST_PATTERN);
-							return [prefix, sanitizedName, suffix].join('');
+							return [prefix, cleanChunkName(sanitizedName), suffix].join('');
 						}
 						// Injected routes include "pages/[name].[ext]" already. Clean those up!
 						if (name.startsWith('pages/')) {
 							const sanitizedName = name.split('.')[0];
-							return [prefix, sanitizedName, suffix].join('');
+							return [prefix, cleanChunkName(sanitizedName), suffix].join('');
 						}
-						const encoded = encodeName(name);
-						return [prefix, encoded, suffix].join('');
+						return [prefix, cleanChunkName(name), suffix].join('');
 					},
 					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
 					...viteConfig.build?.rollupOptions?.output,
@@ -401,6 +400,9 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 							: { input: 'astro/entrypoints/prerender' }),
 						output: {
 							entryFileNames: `${PRERENDER_ENTRY_FILENAME_PREFIX}.[hash].mjs`,
+							chunkFileNames(chunkInfo) {
+								return `${cleanChunkName(chunkInfo.name)}-[hash].js`;
+							},
 							format: 'esm',
 							...viteConfig.environments?.prerender?.build?.rollupOptions?.output,
 						},
@@ -419,8 +421,12 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					rollupOptions: {
 						preserveEntrySignatures: 'exports-only',
 						output: {
-							entryFileNames: `${settings.config.build.assets}/[name].[hash].js`,
-							chunkFileNames: `${settings.config.build.assets}/[name].[hash].js`,
+							entryFileNames(chunkInfo) {
+								return `${settings.config.build.assets}/${cleanChunkName(chunkInfo.name)}.[hash].js`;
+							},
+							chunkFileNames(chunkInfo) {
+								return `${settings.config.build.assets}/${cleanChunkName(chunkInfo.name)}.[hash].js`;
+							},
 							assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
 							...viteConfig.environments?.client?.build?.rollupOptions?.output,
 						},
@@ -432,6 +438,9 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					outDir: fileURLToPath(getServerOutputDirectory(settings)),
 					rollupOptions: {
 						output: {
+							chunkFileNames(chunkInfo) {
+								return `${cleanChunkName(chunkInfo.name)}-[hash].js`;
+							},
 							...viteConfig.environments?.ssr?.build?.rollupOptions?.output,
 						},
 					},

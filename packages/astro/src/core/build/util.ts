@@ -31,6 +31,22 @@ export function shouldAppendForwardSlash(
 	}
 }
 
+/**
+ * Matches any character that is NOT alphanumeric, underscore, dot, hyphen, or forward slash.
+ * Rollup's built-in `sanitizeFileName` misses characters like `!` and `~` that can leak
+ * from Vite module IDs into chunk names (e.g. `page.!{005}.js`).
+ */
+const UNSAFE_CHUNK_CHAR_RE = /[^\w.\-/]/g;
+
+/**
+ * Replaces characters in a chunk name that are not safe for filesystem paths or URLs.
+ * Characters like `!` and `~` can leak from Vite module IDs into Rollup chunk names
+ * and break deploys on platforms like Netlify.
+ */
+export function cleanChunkName(name: string): string {
+	return encodeName(name.replace(UNSAFE_CHUNK_CHAR_RE, '_'));
+}
+
 export function encodeName(name: string): string {
 	// Detect if the chunk name has as % sign that is not encoded.
 	// This is borrowed from Node core: https://github.com/nodejs/node/blob/3838b579e44bf0c2db43171c3ce0da51eb6b05d5/lib/internal/url.js#L1382-L1391
