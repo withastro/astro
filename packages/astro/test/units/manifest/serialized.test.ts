@@ -15,7 +15,7 @@ async function getManifest(settings: any) {
 	const load = plugin.load as { handler: (id: string) => Promise<{ code: string }> };
 	const result = await load.handler.call({}, SERIALIZED_MANIFEST_RESOLVED_ID);
 	// The generated code contains: _deserializeManifest((<json>))
-	const match = result.code.match(/_deserializeManifest\(\((.+)\)\)/s);
+	const match = /_deserializeManifest\(\((.+)\)\)/s.exec(result.code);
 	assert.ok(match, 'Could not find manifest JSON in plugin output');
 	return JSON.parse(match[1]);
 }
