@@ -35,7 +35,18 @@ Read `report.md` from the `triageDir` directory to understand:
 - The suggested approach
 - Any edge cases to consider
 
-**Skip if prerequisites unmet:** Check `report.md`: If bug not reproduced/skipped OR diagnosis confidence is `low`/`null` OR no root cause found → append "FIX SKIPPED: [reason]" to `report.md` and return `fixed: false`.
+**Skip if prerequisites unmet:** Check `report.md`: If bug was not reproduced or was skipped → append "FIX SKIPPED: Not reproduced" to `report.md` and return `fixed: false`. Do NOT attempt a fix based on guesswork when you cannot reproduce or diagnose the issue.
+
+**Low-confidence path:** If diagnosis confidence is `low` or `null`, or no clear root cause was found → do NOT attempt a code fix. Instead:
+1. Identify the most likely area(s) of the codebase related to the issue (files, functions, code paths).
+2. If possible, write a failing test that demonstrates the expected behavior described in the issue. Place it alongside existing tests for that area.
+3. If you identified specific code paths, add brief inline comments (prefixed `// TRIAGE:`) near the most relevant lines in `packages/` to help the implementor orient quickly. Keep to 2-3 comments max — these are signposts, not a diagnosis.
+4. Append to `report.md`: the areas you identified, why they seem relevant, and any failing test or comments you added.
+5. Return `fixed: false`.
+
+This "breadcrumb" approach is more useful to maintainers than a wrong fix.
+
+**High-confidence path:** If diagnosis confidence is `medium` or `high` and a clear root cause was identified → proceed with implementing a fix as described in the steps below.
 
 **Note:** The repo may be messy from previous steps. Check `git status` and either work from the current state or `git reset --hard` to start clean.
 
@@ -55,6 +66,7 @@ Make changes in `packages/` source files. Follow these principles:
 - Only change what's necessary to fix the bug
 - Don't refactor unrelated code
 - Don't add new features
+- **Never "fix" an issue by removing a user's dependency.** Removing an adapter (Cloudflare, Netlify, Vercel, etc.), framework integration (Svelte, React, Vue, etc.), or feature (MDX, DB, etc.) is not a fix, these are things the user needs. The fix must work within the user's existing stack or expected feature set.
 
 **Consider edge cases:**
 
@@ -124,7 +136,6 @@ The report must include all information needed for a final GitHub comment to be 
 - Verification results (did the fix resolve the original error?)
 - Any alternative approaches considered and their tradeoffs
 - If the fix failed: what was tried and why it didn't work
-
 ## Step 9: Clean Up the Working Directory
 
 1. Run `git status` and review all changed files
