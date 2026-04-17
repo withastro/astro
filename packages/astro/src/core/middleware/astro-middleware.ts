@@ -7,8 +7,6 @@ import { ROUTE_TYPE_HEADER } from '../constants.js';
 import { attachCookiesToResponse } from '../cookies/index.js';
 import type { RenderContext } from '../render-context.js';
 import { getProps } from '../render/index.js';
-import { isRouteExternalRedirect } from '../routing/match.js';
-import { renderRedirect } from '../redirects/render.js';
 import { callMiddleware } from './callMiddleware.js';
 import { sequence } from './index.js';
 
@@ -87,13 +85,6 @@ export class AstroMiddleware {
 				statusText:
 					'Astro detected a loop where you tried to call the rewriting logic more than four times.',
 			});
-		}
-
-		// If we are rendering an external redirect, we don't need go through the middleware,
-		// otherwise Astro will attempt to render the external website
-		if (isRouteExternalRedirect(renderContext.routeData)) {
-			const response = await renderRedirect(renderContext);
-			return this.#finalize(renderContext, response);
 		}
 
 		// Track componentInstance across rewrites. Rewrites inside `next()`
