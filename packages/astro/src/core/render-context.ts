@@ -113,7 +113,9 @@ export class RenderContext {
 		session: AstroSession | undefined = undefined,
 		cache: CacheLike,
 		skipMiddleware = false,
-		getStaticAsset: ((route: RouteData, pathname: string) => Promise<Response | undefined>) | undefined = undefined,
+		getStaticAsset:
+			| ((route: RouteData, pathname: string) => Promise<Response | undefined>)
+			| undefined = undefined,
 	) {
 		this.pipeline = pipeline;
 		this.locals = locals;
