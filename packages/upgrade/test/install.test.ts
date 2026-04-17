@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { describe, it, mock } from 'node:test';
 import { pathToFileURL } from 'node:url';
 import { install } from '../dist/index.js';
-import { setup } from './utils.js';
+import { setup } from './utils.ts';
 
 const tmpUrl = pathToFileURL(tmpdir());
 
@@ -70,7 +70,7 @@ describe('install', () => {
 				prompted = true;
 				return { proceed: false };
 			},
-			exit: (code) => {
+			exit: (code: number) => {
 				exitCode = code;
 			},
 			packages: [
@@ -100,7 +100,7 @@ describe('install', () => {
 				prompted = true;
 				return { proceed: true };
 			},
-			exit: (code) => {
+			exit: (code: number) => {
 				exitCode = code;
 			},
 			packages: [
@@ -130,7 +130,7 @@ describe('install', () => {
 				prompted = true;
 				return { proceed: true };
 			},
-			exit: (code) => {
+			exit: (code: number) => {
 				exitCode = code;
 			},
 			packages: [
@@ -172,7 +172,7 @@ describe('install', () => {
 				prompted = true;
 				return { proceed: true };
 			},
-			exit: (code) => {
+			exit: (code: number) => {
 				exitCode = code;
 			},
 			packages: [
@@ -215,7 +215,7 @@ describe('install', () => {
 	});
 
 	it('npm peer dependency error retry with legacy-peer-deps', async () => {
-		const mockShell = mock.fn(async () => {
+		const mockShell = mock.fn(async (_command: string, _flags: string[]) => {
 			if (mockShell.mock.callCount() === 0) {
 				// First call fails with peer dependency error
 				throw new Error('npm ERR! peer dependencies conflict');
@@ -230,7 +230,7 @@ describe('install', () => {
 			dryRun: false,
 			cwd: tmpUrl,
 			packageManager: { name: 'npm', agent: 'npm' },
-			exit: (code) => {
+			exit: (code: number) => {
 				exitCode = code;
 			},
 			packages: [
@@ -259,7 +259,7 @@ describe('install', () => {
 	});
 
 	it('npm non-peer dependency error does not retry', async () => {
-		const mockShell = mock.fn(async () => {
+		const mockShell = mock.fn(async (_command: string, _flags: string[]) => {
 			throw new Error('npm ERR! some other error');
 		});
 
@@ -269,7 +269,7 @@ describe('install', () => {
 			dryRun: false,
 			cwd: tmpUrl,
 			packageManager: { name: 'npm', agent: 'npm' },
-			exit: (code) => {
+			exit: (code: number) => {
 				exitCode = code;
 			},
 			packages: [
@@ -290,7 +290,7 @@ describe('install', () => {
 	});
 
 	it('npm peer dependency error retry fails on second attempt', async () => {
-		const mockShell = mock.fn(async () => {
+		const mockShell = mock.fn(async (_command: string, _flags: string[]) => {
 			// Both calls fail with peer dependency errors
 			throw new Error('npm ERR! peer dependencies conflict');
 		});
@@ -301,7 +301,7 @@ describe('install', () => {
 			dryRun: false,
 			cwd: tmpUrl,
 			packageManager: { name: 'npm', agent: 'npm' },
-			exit: (code) => {
+			exit: (code: number) => {
 				exitCode = code;
 			},
 			packages: [
@@ -331,7 +331,7 @@ describe('install', () => {
 	});
 
 	it('pnpm peer dependency error does not retry', async () => {
-		const mockShell = mock.fn(async () => {
+		const mockShell = mock.fn(async (_command: string, _flags: string[]) => {
 			throw new Error('pnpm ERR! peer dependencies conflict');
 		});
 
@@ -341,7 +341,7 @@ describe('install', () => {
 			dryRun: false,
 			cwd: tmpUrl,
 			packageManager: { name: 'pnpm', agent: 'pnpm' },
-			exit: (code) => {
+			exit: (code: number) => {
 				exitCode = code;
 			},
 			packages: [
