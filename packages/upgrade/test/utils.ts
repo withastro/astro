@@ -2,12 +2,21 @@ import { before, beforeEach } from 'node:test';
 import { stripVTControlCharacters } from 'node:util';
 import { setStdout } from '../dist/index.js';
 
+export type ShellFunction = (
+	command: string,
+	flags: string[],
+) => Promise<{
+	stdout: string;
+	stderr: string;
+	exitCode: number;
+}>;
+
 export function setup() {
-	const ctx = { messages: [] };
+	const ctx: { messages: string[] } = { messages: [] };
 	before(() => {
 		setStdout(
 			Object.assign({}, process.stdout, {
-				write(buf) {
+				write(buf: string | Uint8Array) {
 					ctx.messages.push(stripVTControlCharacters(String(buf)).trim());
 					return true;
 				},
@@ -25,7 +34,7 @@ export function setup() {
 		length() {
 			return ctx.messages.length;
 		},
-		hasMessage(content) {
+		hasMessage(content: string) {
 			return !!ctx.messages.find((msg) => msg.includes(content));
 		},
 	};
