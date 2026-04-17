@@ -1,4 +1,4 @@
-import type { RenderContext } from '../core/render-context.js';
+import type { APIContext } from '../types/public/context.js';
 import { getActionContext, serializeActionResult } from './runtime/server.js';
 
 /**
@@ -6,28 +6,36 @@ import { getActionContext, serializeActionResult } from './runtime/server.js';
  *
  * - **RPC**: POST requests to `/_actions/<name>` (originating from the
  *   generated JS client). Runs the action and returns the serialized result
- *   as the response.
+ *   as the response, so the caller can short-circuit rendering.
  * - **Form**: POST requests with `?_action=<name>` targeting a page route
  *   (originating from an HTML `<form action={actions.foo}>`). Runs the
  *   action, stashes the result into `locals._actionPayload`, and returns
- *   `undefined` so the pipeline continues to render the page.
+ *   `undefined` so the caller continues to render the page.
  *
  * Non-action requests are a no-op (`undefined`).
+ *
+ * This handler is invoked from inside `RenderContext.renderRoute`, which
+ * is the `next` callback of the middleware chain. That placement preserves
+ * the existing behavior where user middleware sees action requests and
+ * response finalization (cookies, sessions, etc.) runs around the action
+ * response.
  */
 export class ActionHandler {
 	/**
-	 * Run action handling for the given render context.
+	 * Run action handling for the current request. Expects the APIContext
+	 * that is already being used by the render pipeline.
 	 *
 	 * Returns a `Response` when the action fully handles the request (RPC),
 	 * or `undefined` when the caller should continue processing the
 	 * request (form actions or non-action requests).
 	 */
-	async handle(renderContext: RenderContext): Promise<Response | undefined> {
-		const actionApiContext = renderContext.createActionAPIContext();
-		const apiContext = renderContext.createAPIContext({}, actionApiContext);
+	async handle(apiContext: APIContext): Promise<Response | undefined> {
+		if (apiContext.isPrerendered) {
+			return undefined;
+		}
 
 		const { action, setActionResult } = getActionContext(apiContext);
-		if (!action || apiContext.isPrerendered) {
+		if (!action) {
 			return undefined;
 		}
 
@@ -48,7 +56,7 @@ export class ActionHandler {
 			});
 		}
 
-		// Form action: stash the result in locals and let the pipeline continue
+		// Form action: stash the result in locals and let the caller continue
 		// to render the page. A subsequent call to `getActionContext` during
 		// page rendering will see the stored payload and skip re-running.
 		setActionResult(action.name, serialized);

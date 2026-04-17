@@ -77,9 +77,7 @@ describe('RenderContext', () => {
 			);
 		});
 
-		// TODO: form action auto-execution was moved out of RenderContext.render into ActionHandler.
-		// Revisit this test when we decide where to cover that behavior (likely a new ActionHandler test).
-		it.skip('auto-executes form actions when skipMiddleware is false', async () => {
+		it('auto-executes form actions when skipMiddleware is false', async () => {
 			let actionWasCalled = false;
 
 			const pipeline = createBasicPipeline({

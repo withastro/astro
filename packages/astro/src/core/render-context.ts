@@ -1,4 +1,5 @@
 import colors from 'piccolore';
+import { ActionHandler } from '../actions/handler.js';
 import { deserializeActionResult } from '../actions/runtime/client.js';
 import type { ActionAPIContext } from '../actions/runtime/types.js';
 import { createCallAction, createGetActionResult, hasActionPayload } from '../actions/utils.js';
@@ -343,6 +344,19 @@ export class RenderContext {
 			);
 		}
 		let response: Response;
+
+		// Handle Astro Action requests (RPC + form).
+		// - RPC: returns a serialized action result and short-circuits rendering.
+		// - Form: runs the action, stashes the result in `locals._actionPayload`,
+		//   and falls through to render the page normally.
+		// Skipped during error-page recovery (skipMiddleware=true) to match
+		// the prior form-action behavior and avoid re-running the action.
+		if (!this.skipMiddleware) {
+			const actionResponse = await new ActionHandler().handle(ctx);
+			if (actionResponse) {
+				return actionResponse;
+			}
+		}
 
 		const componentInstance = componentRef.current;
 		switch (this.routeData.type) {

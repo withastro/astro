@@ -3,7 +3,6 @@ import {
 	REROUTE_DIRECTIVE_HEADER,
 	REWRITE_DIRECTIVE_HEADER_KEY,
 } from '../constants.js';
-import { ActionHandler } from '../../actions/handler.js';
 import { TrailingSlashHandler } from './trailing-slash-handler.js';
 import { type CacheLike, applyCacheHeaders } from '../cache/runtime/cache.js';
 import { AstroMiddleware } from '../middleware/astro-middleware.js';
@@ -17,13 +16,11 @@ export class AstroHandler {
 	#app: BaseApp<any>;
 	#trailingSlashHandler: TrailingSlashHandler;
 	#astroMiddleware: AstroMiddleware;
-	#actionHandler: ActionHandler;
 
 	constructor(app: BaseApp<any>) {
 		this.#app = app;
 		this.#trailingSlashHandler = new TrailingSlashHandler(app);
 		this.#astroMiddleware = new AstroMiddleware(app.pipeline);
-		this.#actionHandler = new ActionHandler();
 	}
 
 	async handle(request: Request): Promise<Response> {
@@ -78,23 +75,6 @@ export class AstroHandler {
 			});
 			session = renderContext.session;
 			cache = renderContext.cache;
-
-			// Handle Astro Action requests (RPC + form).
-			// - RPC: returns a serialized action result and short-circuits rendering.
-			// - Form: runs the action, stashes the result in `locals._actionPayload`,
-			//   and falls through to render the page normally.
-			const actionResponse = await this.#actionHandler.handle(renderContext);
-			if (actionResponse) {
-				this.#app.logThisRequest({
-					pathname,
-					method: request.method,
-					statusCode: actionResponse.status,
-					isRewrite: false,
-					timeStart,
-				});
-				prepareResponse(actionResponse, { addCookieHeader });
-				return actionResponse;
-			}
 
 			if (this.#app.pipeline.cacheProvider) {
 				// If the cache provider has an onRequest handler (runtime caching),
