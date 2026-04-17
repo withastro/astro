@@ -197,7 +197,7 @@ export const vueScopedStyleId = (el: HTMLStyleElement): string => {
 		url.searchParams.get('vue') !== null &&
 		url.searchParams.get('type') === 'style' &&
 		url.searchParams.has('scoped');
-	const isAstroStyle = /\?astro&type=style&.*lang\.css$/.test(viteDevId);
+	const isAstroStyle = /\?astro&type=style&.*lang\.[a-z0-9]+$/.test(viteDevId);
 	return isVueScoped || isAstroStyle ? viteDevId : '';
 };
 
