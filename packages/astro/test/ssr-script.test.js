@@ -37,6 +37,45 @@ describe('Inline scripts in SSR', () => {
 			const $ = cheerioLoad(html);
 			assert.equal($('script').length, 1);
 		});
+
+		it('server output filenames do not contain unsafe characters', async () => {
+			const files = await fixture.glob('server/**/*.{js,mjs}');
+			for (const file of files) {
+				assert.equal(
+					/[!~#{}<>]/.test(file),
+					false,
+					`File "${file}" contains characters that break hosting platforms like Netlify`,
+				);
+			}
+		});
+	});
+
+	describe('with assetQueryParams', () => {
+		before(async () => {
+			fixture = await loadFixture({
+				...defaultFixtureOptions,
+				outDir: './dist/inline-scripts-with-asset-query-params',
+				adapter: testAdapter({
+					extendAdapter: {
+						client: {
+							assetQueryParams: new URLSearchParams({ dpl: 'test123' }),
+						},
+					},
+				}),
+			});
+			await fixture.build();
+		});
+
+		it('client output filenames do not contain hash placeholders or unsafe characters', async () => {
+			const files = await fixture.glob('client/**/*.{js,mjs}');
+			for (const file of files) {
+				assert.equal(
+					/[!~{}]/.test(file),
+					false,
+					`File "${file}" contains unsafe characters (likely unresolved hash placeholders)`,
+				);
+			}
+		});
 	});
 
 	describe('with base path', () => {
