@@ -30,7 +30,8 @@ export const GET: APIRoute = async (context) => {
 -  const data = import.meta.env.DEV
 -    ? await fetch(new URL(fontPath, context.url.origin)).then(async (res) => res.arrayBuffer())
 -    : await readFile(new URL(`.${fontPath}`, outDir));
-+  const data = await fetch(experimental_getFontFileURL(fontPath, context.url)).then(async (res) => res.arrayBuffer());
++  const url = experimental_getFontFileURL(fontPath, context.url);
++  const data = await fetch(url).then((res) => res.arrayBuffer());
 
   const svg = await satori(
     html`<div style="color: black;">hello, world</div>`,
