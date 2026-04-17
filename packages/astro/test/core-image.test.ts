@@ -59,6 +59,7 @@ describe('astro:image', () => {
 							: []),
 					],
 				},
+				outDir: './dist-core-image-dev/',
 			});
 
 			const logger = new AstroLogger({
@@ -767,6 +768,7 @@ describe('astro:image', () => {
 						service: testImageService({ foo: 'bar' }),
 						domains: ['avatars.githubusercontent.com'],
 					},
+					outDir: './dist-core-image-custom-endpoint/',
 				});
 
 				customEndpointDevServer = await customEndpointFixture.startDevServer({
@@ -805,6 +807,7 @@ describe('astro:image', () => {
 				image: {
 					service: testImageService(),
 				},
+				outDir: './dist-core-image-proper-errors/',
 			});
 
 			const logger = new AstroLogger({
@@ -891,6 +894,7 @@ describe('astro:image', () => {
 					],
 				},
 				base: '/blog',
+				outDir: './dist-core-image-support-base-option-correctly/',
 			});
 			await fixture.build();
 		});
@@ -996,6 +1000,7 @@ describe('astro:image', () => {
 						'kaleidoscopic-biscotti-6fe98c.netlify.app',
 					],
 				},
+				outDir: './dist-core-image-build-ssg/',
 			});
 			// Remove cache directory
 			removeDir(new URL('./fixtures/core-image-ssg/node_modules/.astro', import.meta.url));
@@ -1565,6 +1570,7 @@ describe('astro:image', () => {
 					service: testImageService(),
 				},
 				trailingSlash: 'always',
+				outDir: './dist-core-image-trailing-slash-on-the-endpoint/',
 			});
 			devServer = await fixture.startDevServer();
 
@@ -1584,6 +1590,7 @@ describe('astro:image', () => {
 					service: testImageService(),
 				},
 				trailingSlash: 'never',
+				outDir: './dist-core-image-trailing-slash-on-the-endpoint/',
 			});
 			devServer = await fixture.startDevServer();
 
@@ -1599,6 +1606,7 @@ describe('astro:image', () => {
 		it("returns 403 for /_image when requesting a relative pattern image and the parameters aren't encoded", async () => {
 			fixture = await loadFixture({
 				root: './fixtures/core-image/',
+				outDir: './dist-core-image-trailing-slash-on-the-endpoint/',
 			});
 			devServer = await fixture.startDevServer();
 			// we don't use `URLSearchParams` because the initial // will get encoded
@@ -1623,6 +1631,7 @@ describe('astro:image', () => {
 						},
 					],
 				},
+				outDir: './dist-core-image-build-data-url/',
 			});
 
 			await fixture.build();

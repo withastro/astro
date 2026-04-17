@@ -6,7 +6,8 @@ import { type Fixture, loadFixture } from './test-utils.ts';
 describe('Content Collections - data collections', () => {
 	let fixture: Fixture;
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/data-collections-schema/' });
+		fixture = await loadFixture({ root: './fixtures/data-collections-schema/',
+			outDir: './dist-data-collections-schema/', });
 		removeDir(new URL('./fixtures/data-collections-schema/.astro', import.meta.url));
 		await fixture.build({});
 	});

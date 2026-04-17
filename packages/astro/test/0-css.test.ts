@@ -13,7 +13,8 @@ let fixture: Fixture;
 
 describe('CSS', function () {
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/0-css/' });
+		fixture = await loadFixture({ root: './fixtures/0-css/',
+			outDir: './dist-0-css/', });
 	});
 
 	// test HTML and CSS contents for accuracy

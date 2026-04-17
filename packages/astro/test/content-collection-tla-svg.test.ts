@@ -10,7 +10,8 @@ describe('Content collection with SVG image and TLA', () => {
 	let fixture: Fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/content-collection-tla-svg/' });
+		fixture = await loadFixture({ root: './fixtures/content-collection-tla-svg/',
+			outDir: './dist-content-collection-tla-svg/', });
 	});
 
 	describe('Build', () => {

@@ -24,7 +24,8 @@ type TranslationEntry = {
 describe('Content Collections - data collections', () => {
 	let fixture: Fixture;
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/data-collections/' });
+		fixture = await loadFixture({ root: './fixtures/data-collections/',
+			outDir: './dist-data-collections/', });
 		await fixture.build({ force: true });
 	});
 
