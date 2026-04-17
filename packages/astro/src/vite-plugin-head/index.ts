@@ -33,24 +33,46 @@ const VIRTUAL_COMPONENT_METADATA = 'virtual:astro:component-metadata';
 const RESOLVED_VIRTUAL_COMPONENT_METADATA = `\0${VIRTUAL_COMPONENT_METADATA}`;
 
 export default function configHeadVitePlugin(): vite.Plugin {
-	let environment: DevEnvironment;
+	// Track all server-side dev environments so we can walk their module graphs.
+	// Adapters like Cloudflare create a separate `prerender` environment whose modules
+	// would otherwise be invisible to the virtual component-metadata module.
+	let environments: DevEnvironment[] = [];
+
+	// Shared metadata map populated by resolveId/transform in all environments.
+	// The load() handler for the virtual module runs in a single environment (ssr)
+	// and cannot see ModuleInfo from other environments via this.getModuleInfo().
+	// This map bridges that gap so metadata propagated in the prerender environment
+	// is visible when building the virtual module.
+	const sharedMetadata = new Map<string, SSRComponentMetadata>();
 
 	function invalidateComponentMetadataModule() {
-		const virtualMod = environment.moduleGraph.getModuleById(RESOLVED_VIRTUAL_COMPONENT_METADATA);
-		if (virtualMod) {
-			environment.moduleGraph.invalidateModule(virtualMod);
+		for (const env of environments) {
+			const virtualMod = env.moduleGraph.getModuleById(RESOLVED_VIRTUAL_COMPONENT_METADATA);
+			if (virtualMod) {
+				env.moduleGraph.invalidateModule(virtualMod);
+			}
 		}
+	}
+
+	function getModuleFromAnyEnvironment(id: string) {
+		for (const env of environments) {
+			const mod = env.moduleGraph.getModuleById(id);
+			if (mod) return mod;
+		}
+		return undefined;
 	}
 
 	function buildImporterGraphFromEnvironment(seed: string) {
 		// Start from one changed/imported module and walk upward to collect ancestors.
+		// Walk importers across all tracked environments so modules loaded in the
+		// `prerender` environment are reachable too.
 		const queue: string[] = [seed];
 		const collected = new Set<string>();
 		while (queue.length > 0) {
 			const current = queue.pop()!;
 			if (collected.has(current)) continue;
 			collected.add(current);
-			const mod = environment.moduleGraph.getModuleById(current);
+			const mod = getModuleFromAnyEnvironment(current);
 			for (const importer of mod?.importers ?? []) {
 				if (importer.id) {
 					queue.push(importer.id);
@@ -60,7 +82,7 @@ export default function configHeadVitePlugin(): vite.Plugin {
 
 		// Convert Vite's module graph shape into our plain importer adjacency map.
 		return buildImporterGraphFromModuleInfo(collected, (id) => {
-			const mod = environment.moduleGraph.getModuleById(id);
+			const mod = getModuleFromAnyEnvironment(id);
 			if (!mod) return null;
 			return {
 				importers: Array.from(mod.importers)
@@ -69,6 +91,23 @@ export default function configHeadVitePlugin(): vite.Plugin {
 				dynamicImporters: [],
 			};
 		});
+	}
+
+	function updateSharedMetadata(id: string, prop: string, value: unknown) {
+		let entry = sharedMetadata.get(id);
+		if (!entry) {
+			entry = { containsHead: false, propagation: 'none' };
+			sharedMetadata.set(id, entry);
+		}
+		if (prop === 'containsHead' && value) {
+			entry.containsHead = true;
+		}
+		if (prop === 'propagation') {
+			// Prefer more specific propagation values: self > in-tree > none
+			if (value === 'self' || (value === 'in-tree' && entry.propagation !== 'self')) {
+				entry.propagation = value as 'self' | 'in-tree';
+			}
+		}
 	}
 
 	function propagateMetadata<
@@ -90,6 +129,9 @@ export default function configHeadVitePlugin(): vite.Plugin {
 					Reflect.set(astroMetadata, prop, value);
 				}
 			}
+			// Also update the shared map so the virtual module can see metadata
+			// propagated in any environment (not just the one that loads it).
+			updateSharedMetadata(id, prop, value);
 		}
 
 		invalidateComponentMetadataModule();
@@ -100,7 +142,9 @@ export default function configHeadVitePlugin(): vite.Plugin {
 		enforce: 'pre',
 		apply: 'serve',
 		configureServer(devServer) {
-			environment = devServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
+			const ssrEnv = devServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
+			const prerenderEnv = devServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.prerender];
+			environments = [ssrEnv, prerenderEnv].filter((env): env is DevEnvironment => env != null);
 			devServer.watcher.on('add', invalidateComponentMetadataModule);
 			devServer.watcher.on('unlink', invalidateComponentMetadataModule);
 			devServer.watcher.on('change', invalidateComponentMetadataModule);
@@ -110,22 +154,39 @@ export default function configHeadVitePlugin(): vite.Plugin {
 				return;
 			}
 
-			const componentMetadataEntries: [string, SSRComponentMetadata][] = [];
-			for (const [moduleId, mod] of environment.moduleGraph.idToModuleMap) {
-				const info = this.getModuleInfo(moduleId) ?? (mod.id ? this.getModuleInfo(mod.id) : null);
-				if (!info) continue;
+			// Collect metadata from the current environment's module graph (via
+			// this.getModuleInfo) and merge with the shared map which includes
+			// metadata propagated in other environments (e.g. prerender).
+			const merged = new Map<string, SSRComponentMetadata>(sharedMetadata);
 
-				const astro = getAstroMetadata(info);
-				if (!astro) continue;
+			for (const env of environments) {
+				for (const [moduleId, mod] of env.moduleGraph.idToModuleMap) {
+					const info = this.getModuleInfo(moduleId) ?? (mod.id ? this.getModuleInfo(mod.id) : null);
+					if (!info) continue;
 
-				componentMetadataEntries.push([
-					moduleId,
-					{
-						containsHead: astro.containsHead,
-						propagation: astro.propagation,
-					},
-				]);
+					const astro = getAstroMetadata(info);
+					if (!astro) continue;
+
+					const existing = merged.get(moduleId);
+					if (existing) {
+						// Merge: prefer truthy containsHead and more specific propagation
+						if (astro.containsHead) existing.containsHead = true;
+						if (
+							astro.propagation === 'self' ||
+							(astro.propagation === 'in-tree' && existing.propagation !== 'self')
+						) {
+							existing.propagation = astro.propagation;
+						}
+					} else {
+						merged.set(moduleId, {
+							containsHead: astro.containsHead,
+							propagation: astro.propagation,
+						});
+					}
+				}
 			}
+
+			const componentMetadataEntries = Array.from(merged.entries());
 
 			return {
 				code: `export const componentMetadataEntries = ${JSON.stringify(componentMetadataEntries)};`,
