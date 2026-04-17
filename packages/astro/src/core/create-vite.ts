@@ -330,7 +330,10 @@ export async function createVite(
 	// Add the CSS cache plugin AFTER integration plugins have been merged.
 	// This ensures the CSS caching transform runs after integration transforms
 	// (e.g. UnoCSS's @apply directive processing) so we cache fully-processed CSS.
-	(result.plugins as vite.PluginOption[]).push(devCss.cssCachePlugin);
+	// Only push in dev mode — the cache plugin becomes a no-op during build.
+	if (command === 'dev') {
+		(result.plugins as vite.PluginOption[]).push(devCss.cssCachePlugin);
+	}
 
 	return result;
 }
