@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { describe, it, mock } from 'node:test';
 import { pathToFileURL } from 'node:url';
 import { install } from '../dist/index.js';
-import { setup } from './utils.ts';
+import { setup, type ShellFunction } from './utils.ts';
 
 const tmpUrl = pathToFileURL(tmpdir());
 
@@ -215,7 +215,7 @@ describe('install', () => {
 	});
 
 	it('npm peer dependency error retry with legacy-peer-deps', async () => {
-		const mockShell = mock.fn(async (_command: string, _flags: string[]) => {
+		const mockShell = mock.fn<ShellFunction>(async () => {
 			if (mockShell.mock.callCount() === 0) {
 				// First call fails with peer dependency error
 				throw new Error('npm ERR! peer dependencies conflict');
@@ -259,7 +259,7 @@ describe('install', () => {
 	});
 
 	it('npm non-peer dependency error does not retry', async () => {
-		const mockShell = mock.fn(async (_command: string, _flags: string[]) => {
+		const mockShell = mock.fn<ShellFunction>(async () => {
 			throw new Error('npm ERR! some other error');
 		});
 
@@ -290,7 +290,7 @@ describe('install', () => {
 	});
 
 	it('npm peer dependency error retry fails on second attempt', async () => {
-		const mockShell = mock.fn(async (_command: string, _flags: string[]) => {
+		const mockShell = mock.fn<ShellFunction>(async () => {
 			// Both calls fail with peer dependency errors
 			throw new Error('npm ERR! peer dependencies conflict');
 		});
@@ -331,7 +331,7 @@ describe('install', () => {
 	});
 
 	it('pnpm peer dependency error does not retry', async () => {
-		const mockShell = mock.fn(async (_command: string, _flags: string[]) => {
+		const mockShell = mock.fn<ShellFunction>(async () => {
 			throw new Error('pnpm ERR! peer dependencies conflict');
 		});
 

@@ -2,6 +2,15 @@ import { before, beforeEach } from 'node:test';
 import { stripVTControlCharacters } from 'node:util';
 import { setStdout } from '../dist/index.js';
 
+export type ShellFunction = (
+	command: string,
+	flags: string[],
+) => Promise<{
+	stdout: string;
+	stderr: string;
+	exitCode: number;
+}>;
+
 export function setup() {
 	const ctx: { messages: string[] } = { messages: [] };
 	before(() => {
