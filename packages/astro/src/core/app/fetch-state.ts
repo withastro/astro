@@ -2,19 +2,28 @@ import { prependForwardSlash } from '@astrojs/internal-helpers/path';
 import type { RouteData } from '../../types/public/internal.js';
 import { DEFAULT_404_COMPONENT } from '../constants.js';
 import { routeHasHtmlExtension } from '../routing/helpers.js';
-import type { BaseApp } from './base.js';
+import type { BaseApp, ResolvedRenderOptions } from './base.js';
 import { getRenderOptions } from './render-options.js';
 
 /**
  * Holds per-request state as it flows through the handler pipeline.
  *
  * `FetchState` centralizes things that used to be ad-hoc locals in
- * `AstroHandler.handle()`: the matched route, the resolved pathname, etc.
- * Handler steps can read and mutate it as the request progresses.
+ * `AstroHandler.handle()`: the matched route, the resolved pathname, the
+ * resolved render options, etc. Handler steps can read and mutate it as
+ * the request progresses.
+ *
+ * A `FetchState` can be mutated mid-request (for rewrites) and re-run
+ * through `AstroHandler.render(state)` to produce a new response without
+ * losing cross-route state like `locals`, `addCookieHeader`, etc.
  */
 export class FetchState {
 	#app: BaseApp<any>;
-	readonly request: Request;
+	/**
+	 * The request to render. Mutated during rewrites so subsequent renders
+	 * see the rewritten URL.
+	 */
+	request: Request;
 	routeData: RouteData | undefined;
 	/**
 	 * The pathname to use for routing and rendering. Starts out as the raw,
@@ -24,12 +33,25 @@ export class FetchState {
 	 * suffixes are stripped).
 	 */
 	pathname: string;
+	/** Resolved render options (addCookieHeader, clientAddress, locals, etc.). */
+	readonly renderOptions: ResolvedRenderOptions;
+	/** When the request started, used to log duration. */
+	readonly timeStart: number;
 
 	constructor(app: BaseApp<any>, request: Request) {
 		this.#app = app;
 		this.request = request;
-		this.routeData = getRenderOptions(request)?.routeData;
+		const options = getRenderOptions(request);
+		this.routeData = options?.routeData;
+		this.renderOptions = {
+			addCookieHeader: options?.addCookieHeader ?? false,
+			clientAddress: options?.clientAddress,
+			locals: options?.locals,
+			prerenderedErrorPageFetch: options?.prerenderedErrorPageFetch ?? fetch,
+			routeData: options?.routeData,
+		};
 		this.pathname = this.#computePathname();
+		this.timeStart = performance.now();
 	}
 
 	/**
@@ -45,6 +67,18 @@ export class FetchState {
 		} catch (e: any) {
 			this.#app.getAdapterLogger().error(e.toString());
 			return pathname;
+		}
+	}
+
+	/**
+	 * Recomputes `this.pathname` from `this.request` and re-normalizes it
+	 * against `this.routeData`. Used after a rewrite mutates `request` /
+	 * `routeData` so the next render sees the right pathname.
+	 */
+	refreshPathname(): void {
+		this.pathname = this.#computePathname();
+		if (this.routeData && this.#app.isDev() && !routeHasHtmlExtension(this.routeData)) {
+			this.pathname = this.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
 		}
 	}
 

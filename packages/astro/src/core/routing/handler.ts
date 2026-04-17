@@ -4,14 +4,17 @@ import {
 	REWRITE_DIRECTIVE_HEADER_KEY,
 } from '../constants.js';
 import { TrailingSlashHandler } from './trailing-slash-handler.js';
+import { copyRequest, setOriginPathname } from './rewrite.js';
 import { type CacheLike, applyCacheHeaders } from '../cache/runtime/cache.js';
+import { AstroError } from '../errors/errors.js';
+import { ForbiddenRewrite } from '../errors/errors-data.js';
 import { AstroMiddleware } from '../middleware/astro-middleware.js';
 import { PagesHandler } from '../pages/handler.js';
 import { type AstroSession, PERSIST_SYMBOL } from '../session/runtime.js';
 import { FetchState } from '../app/fetch-state.js';
-import { getRenderOptions } from '../app/render-options.js';
 import { prepareResponse } from '../app/prepare-response.js';
-import type { BaseApp, ResolvedRenderOptions } from '../app/base.js';
+import type { BaseApp } from '../app/base.js';
+import type { RewritePayload } from '../../types/public/common.js';
 
 export class AstroHandler {
 	#app: BaseApp<any>;
@@ -32,33 +35,34 @@ export class AstroHandler {
 			return trailingSlashRedirect;
 		}
 
-		const options = getRenderOptions(request);
-		const addCookieHeader = options?.addCookieHeader ?? false;
-		const clientAddress = options?.clientAddress;
-		const locals = options?.locals;
-		const prerenderedErrorPageFetch = options?.prerenderedErrorPageFetch ?? fetch;
-
-		const timeStart = performance.now();
-
 		const state = new FetchState(this.#app, request);
-
-		const resolvedRenderOptions: ResolvedRenderOptions = {
-			addCookieHeader,
-			clientAddress,
-			prerenderedErrorPageFetch,
-			locals,
-			routeData: state.routeData,
-		};
 
 		if (!(await state.validateRouteData())) {
 			return this.#app.renderError(request, {
-				...resolvedRenderOptions,
+				...state.renderOptions,
 				status: 404,
 				pathname: state.pathname,
 			});
 		}
+
+		return this.render(state);
+	}
+
+	/**
+	 * Renders a response for the given `FetchState`. Assumes trailing-slash
+	 * redirects and routeData resolution have already run.
+	 *
+	 * This is the recursive entry point for rewrites: `Astro.rewrite(...)`
+	 * mutates the `state` (routeData, request, pathname) and calls
+	 * `render(state)` again to produce the new response. The mutable
+	 * `FetchState` preserves per-request concerns (locals, cookies via the
+	 * RenderContext, session) across rewrites.
+	 */
+	async render(state: FetchState): Promise<Response> {
 		const routeData = state.routeData!;
 		const pathname = state.pathname;
+		const request = state.request;
+		const { addCookieHeader, clientAddress, locals } = state.renderOptions;
 		const defaultStatus = this.#app.getDefaultStatusCode(routeData, pathname);
 
 		let response;
@@ -76,6 +80,10 @@ export class AstroHandler {
 				status: defaultStatus,
 				clientAddress,
 			});
+			// Route user-triggered rewrites (Astro.rewrite / ctx.rewrite) back
+			// through this handler so they get a fresh render context while
+			// preserving FetchState (locals, renderOptions).
+			renderContext.rewriteOverride = (payload) => this.#rewriteAndRender(state, payload);
 			session = renderContext.session;
 			cache = renderContext.cache;
 
@@ -131,12 +139,12 @@ export class AstroHandler {
 				method: request.method,
 				statusCode: response.status,
 				isRewrite,
-				timeStart,
+				timeStart: state.timeStart,
 			});
 		} catch (err: any) {
 			this.#app.logger.error(null, err.stack || err.message || String(err));
 			return this.#app.renderError(request, {
-				...resolvedRenderOptions,
+				...state.renderOptions,
 				status: 500,
 				error: err,
 				pathname: state.pathname,
@@ -153,7 +161,7 @@ export class AstroHandler {
 			response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
 		) {
 			return this.#app.renderError(request, {
-				...resolvedRenderOptions,
+				...state.renderOptions,
 				response,
 				status: response.status as 404 | 500,
 				// We don't have an error to report here. Passing null means we pass nothing intentionally
@@ -165,5 +173,62 @@ export class AstroHandler {
 
 		prepareResponse(response, { addCookieHeader });
 		return response;
+	}
+
+	/**
+	 * Resolves the rewrite target, mutates `state` to point at the new
+	 * route, and recursively invokes `render(state)` to produce the new
+	 * response.
+	 *
+	 * Called as the `rewriteOverride` on the current request's
+	 * `RenderContext` — see `AstroHandler.render`.
+	 */
+	async #rewriteAndRender(state: FetchState, payload: RewritePayload): Promise<Response> {
+		const pipeline = this.#app.pipeline;
+		pipeline.logger.debug('router', 'Calling rewrite: ', payload);
+		const oldPathname = state.pathname;
+		const previousRouteData = state.routeData;
+		const { routeData, newUrl, pathname } = await pipeline.tryRewrite(payload, state.request);
+
+		// This is a case where the user tries to rewrite from a SSR route to a prerendered route (SSG).
+		// This case isn't valid because when building for SSR, the prerendered route disappears from the server output because it becomes an HTML file,
+		// so Astro can't retrieve it from the emitted manifest.
+		// Allow i18n fallback rewrites - if the target route has fallback routes, this is likely an i18n scenario
+		const isI18nFallback = routeData.fallbackRoutes && routeData.fallbackRoutes.length > 0;
+		if (
+			pipeline.manifest.serverLike &&
+			previousRouteData &&
+			!previousRouteData.prerender &&
+			routeData.prerender &&
+			!isI18nFallback
+		) {
+			throw new AstroError({
+				...ForbiddenRewrite,
+				message: ForbiddenRewrite.message(state.pathname, pathname, routeData.component),
+				hint: ForbiddenRewrite.hint(routeData.component),
+			});
+		}
+
+		state.routeData = routeData;
+		if (payload instanceof Request) {
+			state.request = payload;
+		} else {
+			state.request = copyRequest(
+				newUrl,
+				state.request,
+				// need to send the flag of the previous routeData
+				routeData.prerender,
+				pipeline.logger,
+				routeData.route,
+			);
+		}
+		state.pathname = pathname;
+		setOriginPathname(
+			state.request,
+			oldPathname,
+			pipeline.manifest.trailingSlash,
+			pipeline.manifest.buildFormat,
+		);
+		return this.render(state);
 	}
 }

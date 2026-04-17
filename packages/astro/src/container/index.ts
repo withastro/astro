@@ -5,7 +5,9 @@ import { validateConfig } from '../core/config/validate.js';
 import { createKey } from '../core/encryption.js';
 import { AstroLogger } from '../core/logger/core.js';
 import { nodeLogDestination } from '../core/logger/node.js';
+import { AstroMiddleware } from '../core/middleware/astro-middleware.js';
 import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
+import { PagesHandler } from '../core/pages/handler.js';
 import { removeLeadingForwardSlash } from '../core/path.js';
 import { RenderContext } from '../core/render-context.js';
 import { getParts } from '../core/routing/parts.js';
@@ -286,6 +288,8 @@ type AstroContainerConstructor = {
 
 export class experimental_AstroContainer {
 	#pipeline: ContainerPipeline;
+	#astroMiddleware!: AstroMiddleware;
+	#pagesHandler!: PagesHandler;
 
 	/**
 	 * Internally used to check if the container was created with a manifest.
@@ -317,6 +321,8 @@ export class experimental_AstroContainer {
 				return specifier;
 			},
 		});
+		this.#astroMiddleware = new AstroMiddleware(this.#pipeline);
+		this.#pagesHandler = new PagesHandler(this.#pipeline);
 	}
 
 	async #containerResolve(specifier: string, astroConfig?: AstroConfig): Promise<string> {
@@ -557,7 +563,12 @@ export class experimental_AstroContainer {
 			renderContext.props = options.props;
 		}
 
-		return renderContext.render(componentInstance, slots);
+		return this.#astroMiddleware.handle(
+			renderContext,
+			componentInstance,
+			slots,
+			this.#pagesHandler.handle.bind(this.#pagesHandler),
+		);
 	}
 
 	/**

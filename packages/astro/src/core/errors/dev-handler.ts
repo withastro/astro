@@ -1,6 +1,8 @@
 import type { BaseApp, RenderErrorOptions } from '../app/base.js';
 import { FetchState } from '../app/fetch-state.js';
 import type { RouteData } from '../../types/public/index.js';
+import { AstroMiddleware } from '../middleware/astro-middleware.js';
+import { PagesHandler } from '../pages/handler.js';
 import { getCustom404Route, getCustom500Route } from '../routing/helpers.js';
 import { type AstroError, isAstroError } from './index.js';
 import { MiddlewareNoDataOrNextCalled, MiddlewareNotAResponse } from './errors-data.js';
@@ -23,10 +25,14 @@ export interface DevErrorHandlerOptions {
 export class DevErrorHandler implements ErrorHandler {
 	#app: BaseApp<any>;
 	#shouldInjectCspMetaTags: boolean;
+	#astroMiddleware: AstroMiddleware;
+	#pagesHandler: PagesHandler;
 
 	constructor(app: BaseApp<any>, options: DevErrorHandlerOptions) {
 		this.#app = app;
 		this.#shouldInjectCspMetaTags = options.shouldInjectCspMetaTags;
+		this.#astroMiddleware = new AstroMiddleware(app.pipeline);
+		this.#pagesHandler = new PagesHandler(app.pipeline);
 	}
 
 	async renderError(
@@ -69,7 +75,12 @@ export class DevErrorHandler implements ErrorHandler {
 					shouldInjectCspMetaTags: shouldInjectCspMetaTags ? !!app.manifest.csp : false,
 				});
 				renderContext.props.error = error;
-				const response = await renderContext.render(preloadedComponent);
+				const response = await this.#astroMiddleware.handle(
+					renderContext,
+					preloadedComponent,
+					{},
+					this.#pagesHandler.handle.bind(this.#pagesHandler),
+				);
 
 				if (error) {
 					// Log useful information that the custom 500 page may not display unlike the default error overlay

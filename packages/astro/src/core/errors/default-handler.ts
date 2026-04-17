@@ -6,6 +6,8 @@ import {
 	attachCookiesToResponse,
 } from '../cookies/index.js';
 import { getCookiesFromResponse } from '../cookies/response.js';
+import { AstroMiddleware } from '../middleware/astro-middleware.js';
+import { PagesHandler } from '../pages/handler.js';
 import { matchRoute } from '../routing/match.js';
 import { type AstroSession, PERSIST_SYMBOL } from '../session/runtime.js';
 import type { ErrorHandler } from './handler.js';
@@ -26,9 +28,13 @@ type ErrorPagePath =
  */
 export class DefaultErrorHandler implements ErrorHandler {
 	#app: BaseApp<any>;
+	#astroMiddleware: AstroMiddleware;
+	#pagesHandler: PagesHandler;
 
 	constructor(app: BaseApp<any>) {
 		this.#app = app;
+		this.#astroMiddleware = new AstroMiddleware(app.pipeline);
+		this.#pagesHandler = new PagesHandler(app.pipeline);
 	}
 
 	async renderError(
@@ -94,7 +100,12 @@ export class DefaultErrorHandler implements ErrorHandler {
 					clientAddress: resolvedRenderOptions.clientAddress,
 				});
 				session = renderContext.session;
-				const response = await renderContext.render(mod);
+				const response = await this.#astroMiddleware.handle(
+					renderContext,
+					mod,
+					{},
+					this.#pagesHandler.handle.bind(this.#pagesHandler),
+				);
 				const newResponse = mergeResponses(response, originalResponse);
 				prepareResponse(newResponse, resolvedRenderOptions);
 				return newResponse;

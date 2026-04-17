@@ -15,7 +15,12 @@ import type { Params, Props, RewritePayload } from '../types/public/common.js';
 import type { APIContext, AstroGlobal } from '../types/public/context.js';
 import type { RouteData, SSRResult } from '../types/public/internal.js';
 import type { ServerIslandMappings, SSRActions } from './app/types.js';
-import { ASTRO_GENERATOR, pipelineSymbol, responseSentSymbol } from './constants.js';
+import {
+	ASTRO_GENERATOR,
+	originPathnameSymbol,
+	pipelineSymbol,
+	responseSentSymbol,
+} from './constants.js';
 import { AstroCookies } from './cookies/index.js';
 import { pushDirective } from './csp/runtime.js';
 import { generateCspDigest } from './encryption.js';
@@ -80,6 +85,15 @@ export class RenderContext {
 	public session: AstroSession | undefined;
 	public cache: CacheLike;
 	public skipMiddleware: boolean;
+	/**
+	 * Optional override for the `rewrite` function exposed to user code
+	 * (`Astro.rewrite(...)` / `ctx.rewrite(...)`). When set (by
+	 * `AstroHandler`), user-triggered rewrites go through the handler
+	 * pipeline (AstroHandler.render with a mutated FetchState) instead of
+	 * the legacy `#executeRewrite` path. Error handlers and the container
+	 * leave this unset.
+	 */
+	public rewriteOverride: ((payload: RewritePayload) => Promise<Response>) | undefined;
 	#pagesHandler: PagesHandler;
 
 	private constructor(
@@ -173,12 +187,17 @@ export class RenderContext {
 		const pipelineActions = await pipeline.getActions();
 		const pipelineSessionDriver = await pipeline.getSessionDriver();
 		const serverIslands = await pipeline.getServerIslands();
-		setOriginPathname(
-			request,
-			pathname,
-			pipeline.manifest.trailingSlash,
-			pipeline.manifest.buildFormat,
-		);
+		// Only set the origin pathname if the caller hasn't already recorded
+		// one on this request (e.g. a rewrite that wants to preserve the
+		// pre-rewrite pathname as the origin).
+		if (!Reflect.get(request, originPathnameSymbol)) {
+			setOriginPathname(
+				request,
+				pathname,
+				pipeline.manifest.trailingSlash,
+				pipeline.manifest.buildFormat,
+			);
+		}
 		const cookies = new AstroCookies(request);
 		const session =
 			pipeline.manifest.sessionConfig && pipelineSessionDriver
@@ -300,6 +319,9 @@ export class RenderContext {
 			new Response(null, { status, headers: { Location: path } });
 
 		const rewrite = async (reroutePayload: RewritePayload) => {
+			if (this.rewriteOverride) {
+				return await this.rewriteOverride(reroutePayload);
+			}
 			return await this.#executeRewrite(reroutePayload);
 		};
 
@@ -639,6 +661,9 @@ export class RenderContext {
 		};
 
 		const rewrite = async (reroutePayload: RewritePayload) => {
+			if (this.rewriteOverride) {
+				return await this.rewriteOverride(reroutePayload);
+			}
 			return await this.#executeRewrite(reroutePayload);
 		};
 
