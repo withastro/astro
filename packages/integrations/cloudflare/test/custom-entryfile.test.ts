@@ -2,11 +2,11 @@ import * as assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
 import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { loadFixture } from './_test-utils.js';
+import { type Fixture, loadFixture, type PreviewServer } from './test-utils.ts';
 
 describe('Custom entry file', () => {
-	let fixture;
-	let previewServer;
+	let fixture: Fixture;
+	let previewServer: PreviewServer;
 	const root = new URL('./fixtures/custom-entryfile/', import.meta.url);
 
 	before(async () => {

@@ -3,14 +3,15 @@ import { rmSync } from 'node:fs';
 import { Writable } from 'node:stream';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './_test-utils.js';
+import { type Fixture, loadFixture, type PreviewServer } from './test-utils.ts';
 import { AstroLogger } from '../../../astro/dist/core/logger/core.js';
 import { fileURLToPath } from 'node:url';
+import type { AstroInlineConfig } from 'astro';
 
 describe('React', () => {
-	let fixture;
-	let previewServer;
-	const logs = [];
+	let fixture: Fixture;
+	let previewServer: PreviewServer;
+	const logs: Array<{ message?: string }> = [];
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -22,19 +23,22 @@ describe('React', () => {
 
 		rmSync(fileURLToPath(viteCacheDir), { recursive: true, force: true });
 
-		await fixture.build({
-			vite: { logLevel: 'debug' },
-			logger: new AstroLogger({
-				level: 'debug',
-				destination: new Writable({
-					objectMode: true,
-					write(event, _, callback) {
-						logs.push(event);
-						callback();
-					},
-				}),
+		const logger = new AstroLogger({
+			level: 'debug',
+			destination: new Writable({
+				objectMode: true,
+				write(event, _, callback) {
+					logs.push(event);
+					callback();
+				},
 			}),
 		});
+		const config: AstroInlineConfig = {
+			vite: { logLevel: 'info' },
+			// @ts-expect-error: logger is internal API
+			logger,
+		};
+		await fixture.build(config);
 		previewServer = await fixture.preview();
 	});
 

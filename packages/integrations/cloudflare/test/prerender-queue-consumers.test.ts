@@ -1,11 +1,10 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { loadFixture } from './_test-utils.js';
+import { type Fixture, loadFixture, type PreviewServer } from './test-utils.ts';
 
 describe('Prerender with queue consumers', () => {
-	let fixture;
-	let previewServer;
-
+	let fixture: Fixture;
+	let previewServer: PreviewServer;
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/prerender-queue-consumers/',

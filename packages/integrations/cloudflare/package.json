@@ -38,7 +38,8 @@
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "build": "astro-scripts build \"src/**/*.ts\" --clean-dts && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
-    "test": "astro-scripts test --force-exit \"test/**/*.test.js\""
+    "test": "astro-scripts test --force-exit \"test/**/*.test.ts\"",
+    "typecheck:tests": "tsc --build tsconfig.test.json"
   },
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",

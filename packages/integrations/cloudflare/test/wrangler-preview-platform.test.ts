@@ -1,11 +1,11 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './_test-utils.js';
+import { type Fixture, loadFixture, type PreviewServer } from './test-utils.ts';
 
 describe('WranglerPreviewPlatform', () => {
-	let fixture;
-	let previewServer;
+	let fixture: Fixture;
+	let previewServer: PreviewServer;
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/wrangler-preview-platform/',

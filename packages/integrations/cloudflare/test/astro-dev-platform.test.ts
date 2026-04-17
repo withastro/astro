@@ -1,11 +1,11 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './_test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('AstroDevPlatform', () => {
-	let fixture;
-	let devServer;
+	let fixture: Fixture;
+	let devServer: DevServer;
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-dev-platform/',

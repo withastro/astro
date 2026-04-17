@@ -4,12 +4,12 @@ import { Writable } from 'node:stream';
 import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { AstroLogger } from '../../../astro/dist/core/logger/core.js';
-import { loadFixture } from './_test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('SSR dependencies', () => {
-	let fixture;
-	let devServer;
-	const logs = [];
+	let fixture: Fixture;
+	let devServer: DevServer;
+	const logs: Array<{ message?: string }> = [];
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -31,7 +31,7 @@ describe('SSR dependencies', () => {
 					},
 				}),
 			}),
-		});
+		} as Parameters<Fixture['startDevServer']>[0]);
 	});
 
 	after(async () => {

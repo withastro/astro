@@ -1,13 +1,11 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import cloudflare from '../dist/index.js';
-import { loadFixture } from './_test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('prerenderEnvironment: node', () => {
-	/** @type {import('../../../astro/test/test-utils').Fixture} */
-	let fixture;
-	let devServer;
-
+	let fixture: Fixture;
+	let devServer: DevServer;
 	before(async () => {
 		fixture = await loadFixture({
 			root: new URL('./fixtures/prerender-node-env/', import.meta.url).toString(),
@@ -71,7 +69,7 @@ describe('prerenderEnvironment: node', () => {
 			'Expected fallback content in prerendered HTML',
 		);
 
-		const islandUrlMatch = html.match(/fetch\('(\/_server-islands\/[^']+)'/);
+		const islandUrlMatch = /fetch\('(\/_server-islands\/[^']+)'/.exec(html);
 		assert.ok(islandUrlMatch, 'Expected prerendered HTML to include a server island fetch URL');
 
 		const islandRes = await fixture.fetch(islandUrlMatch[1]);

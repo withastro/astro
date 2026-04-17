@@ -1,11 +1,10 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './_test-utils.js';
+import { type DevServer, type Fixture, loadFixture, type PreviewServer } from './test-utils.ts';
 
 describe('CompileImageService', () => {
-	let fixture;
-
+	let fixture: Fixture;
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/compile-image-service/',
@@ -13,8 +12,7 @@ describe('CompileImageService', () => {
 	});
 
 	describe('dev', () => {
-		let devServer;
-
+		let devServer: DevServer;
 		before(async () => {
 			devServer = await fixture.startDevServer();
 		});
@@ -28,7 +26,7 @@ describe('CompileImageService', () => {
 		it('returns 200 for local images via /_image endpoint', async () => {
 			const html = await fixture.fetch('/blog/post').then((res) => res.text());
 			const $ = cheerio.load(html);
-			const src = $('img').attr('src');
+			const src = $('img').attr('src')!;
 			assert.ok(
 				src.startsWith('/_image'),
 				`Expected image src to route through /_image, got: ${src}`,
@@ -39,8 +37,7 @@ describe('CompileImageService', () => {
 	});
 
 	describe('preview', () => {
-		let previewServer;
-
+		let previewServer: PreviewServer;
 		before(async () => {
 			await fixture.build();
 			previewServer = await fixture.preview();

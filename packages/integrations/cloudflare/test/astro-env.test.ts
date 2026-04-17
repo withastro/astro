@@ -1,13 +1,12 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './_test-utils.js';
+import { type DevServer, type Fixture, loadFixture, type PreviewServer } from './test-utils.ts';
 
 describe('astro:env', () => {
 	describe('ssr', () => {
-		let fixture;
-		let previewServer;
-
+		let fixture: Fixture;
+		let previewServer: PreviewServer;
 		before(async () => {
 			process.env.API_URL = 'https://google.de';
 			process.env.PORT = '4322';
@@ -64,9 +63,8 @@ describe('astro:env', () => {
 	});
 
 	describe('dev', () => {
-		let devServer;
-		let fixture;
-
+		let devServer: DevServer;
+		let fixture: Fixture;
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/astro-env/',

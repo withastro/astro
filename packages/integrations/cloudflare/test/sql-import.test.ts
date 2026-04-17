@@ -1,11 +1,10 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './_test-utils.js';
+import { type DevServer, type Fixture, loadFixture, type PreviewServer } from './test-utils.ts';
 
 describe('SQL Import', () => {
-	let fixture;
-
+	let fixture: Fixture;
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/sql-import/',
@@ -13,8 +12,7 @@ describe('SQL Import', () => {
 	});
 
 	describe('dev', () => {
-		let devServer;
-
+		let devServer: DevServer;
 		before(async () => {
 			devServer = await fixture.startDevServer();
 		});
@@ -33,8 +31,7 @@ describe('SQL Import', () => {
 	});
 
 	describe('build', () => {
-		let previewServer;
-
+		let previewServer: PreviewServer;
 		before(async () => {
 			await fixture.build();
 			previewServer = await fixture.preview();

@@ -1,13 +1,14 @@
 import * as assert from 'node:assert/strict';
-import { createServer } from 'node:http';
+import type { AddressInfo } from 'node:net';
+import { createServer, type Server } from 'node:http';
 import { after, before, describe, it } from 'node:test';
-import { loadFixture } from './_test-utils.js';
+import { type Fixture, loadFixture, type PreviewServer } from './test-utils.ts';
 
 describe('BindingImageService', () => {
-	let fixture;
-	let previewServer;
-	let redirectServer;
-	let redirectServerPort;
+	let fixture: Fixture;
+	let previewServer: PreviewServer;
+	let redirectServer: Server;
+	let redirectServerPort: number;
 
 	before(async () => {
 		// Start a local HTTP server that always responds with a 302 redirect.
@@ -16,9 +17,9 @@ describe('BindingImageService', () => {
 			res.writeHead(302, { Location: 'http://example.com/secret' });
 			res.end();
 		});
-		await new Promise((resolve) => {
+		await new Promise<void>((resolve) => {
 			redirectServer.listen(0, () => {
-				redirectServerPort = redirectServer.address().port;
+				redirectServerPort = (redirectServer.address() as AddressInfo).port;
 				resolve();
 			});
 		});
