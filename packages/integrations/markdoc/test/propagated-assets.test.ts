@@ -23,7 +23,7 @@ describe('Markdoc - propagated assets', () => {
 
 			before(async () => {
 				if (mode === 'prod') {
-					await fixture.build({});
+					await fixture.build();
 					stylesDocument = parseHTML(await fixture.readFile('/styles/index.html')).document;
 					scriptsDocument = parseHTML(await fixture.readFile('/scripts/index.html')).document;
 				} else if (mode === 'dev') {

@@ -14,7 +14,7 @@ describe('App Entrypoint CSS', () => {
 
 	describe('build', () => {
 		before(async () => {
-			await fixture.build({});
+			await fixture.build();
 		});
 
 		it('injects styles referenced in appEntrypoint', async () => {

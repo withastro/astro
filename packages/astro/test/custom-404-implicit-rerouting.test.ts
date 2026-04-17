@@ -20,7 +20,7 @@ for (const caseNumber of [1, 2, 3, 4, 5]) {
 			let devServer: DevServer;
 
 			before(async () => {
-				await fixture.build({});
+				await fixture.build();
 				devServer = await fixture.startDevServer();
 			});
 

@@ -13,7 +13,7 @@ describe('Namespaces Configuration', () => {
 				root: './fixtures/static/',
 				integrations: [sitemap()],
 			});
-			await fixture.build({});
+			await fixture.build();
 		});
 
 		it('includes all default namespaces', async () => {
@@ -37,7 +37,7 @@ describe('Namespaces Configuration', () => {
 					}),
 				],
 			});
-			await fixture.build({});
+			await fixture.build();
 		});
 
 		it('excludes news namespace but includes others', async () => {
@@ -64,7 +64,7 @@ describe('Namespaces Configuration', () => {
 					}),
 				],
 			});
-			await fixture.build({});
+			await fixture.build();
 		});
 
 		it('excludes all optional namespaces', async () => {

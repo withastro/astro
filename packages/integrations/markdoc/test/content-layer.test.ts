@@ -42,7 +42,7 @@ describe('Markdoc - Content Layer', () => {
 
 	describe('build', () => {
 		before(async () => {
-			await fixture.build({});
+			await fixture.build();
 		});
 
 		it('renders content - with components', async () => {
