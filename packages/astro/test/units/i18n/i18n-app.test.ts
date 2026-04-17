@@ -296,7 +296,7 @@ describe('i18n via App - domains-prefix-always with trailingSlash: never', () =>
 	const middleware = createI18nMiddleware(i18n, '/', 'never', 'directory');
 
 	/** Like localeCatchAll but with spread param and trailingSlash: never */
-	function localeSpreadCatchAll(locale) {
+	function localeSpreadCatchAll(locale: string) {
 		return createPage(localePage, {
 			route: `/${locale}/[...slug]`,
 			segments: [[staticPart(locale)], [spreadPart('slug')]],
