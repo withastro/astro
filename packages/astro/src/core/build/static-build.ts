@@ -32,7 +32,7 @@ import {
 } from './plugins/plugin-ssr.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { StaticBuildOptions } from './types.js';
-import { encodeName, getTimeStat, viteBuildReturnToRollupOutputs } from './util.js';
+import { cleanChunkName, getTimeStat, viteBuildReturnToRollupOutputs } from './util.js';
 import { NOOP_MODULE_ID } from './plugins/plugin-noop.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 import type { InputOption } from 'rollup';
@@ -276,15 +276,14 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 						// TODO: refactor our build logic to avoid this
 						if (name.includes(ASTRO_PAGE_EXTENSION_POST_PATTERN)) {
 							const [sanitizedName] = name.split(ASTRO_PAGE_EXTENSION_POST_PATTERN);
-							return [prefix, sanitizedName, suffix].join('');
+							return [prefix, cleanChunkName(sanitizedName), suffix].join('');
 						}
 						// Injected routes include "pages/[name].[ext]" already. Clean those up!
 						if (name.startsWith('pages/')) {
 							const sanitizedName = name.split('.')[0];
-							return [prefix, sanitizedName, suffix].join('');
+							return [prefix, cleanChunkName(sanitizedName), suffix].join('');
 						}
-						const encoded = encodeName(name);
-						return [prefix, encoded, suffix].join('');
+						return [prefix, cleanChunkName(name), suffix].join('');
 					},
 					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
 					...viteConfig.build?.rollupOptions?.output,
@@ -367,9 +366,12 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					// So using the noop plugin here which will give us an input that just gets thrown away.
 					internals.clientInput.add(NOOP_MODULE_ID);
 				}
-				builder.environments.client.config.build.rollupOptions.input = Array.from(
-					internals.clientInput,
-				);
+				// Sort the client input to ensure deterministic Rollup entry point ordering.
+				// `internals.clientInput` is a Set whose iteration order depends on async module resolution
+				// timing during prerendering. Without sorting, consecutive builds of the same
+				// source code can produce different output filenames, breaking CDN caching.
+				const sortedClientInput = Array.from(internals.clientInput).sort();
+				builder.environments.client.config.build.rollupOptions.input = sortedClientInput;
 				settings.timer.start('Client build');
 				await builder.build(builder.environments.client);
 				settings.timer.end('Client build');
@@ -412,8 +414,12 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					rollupOptions: {
 						preserveEntrySignatures: 'exports-only',
 						output: {
-							entryFileNames: `${settings.config.build.assets}/[name].[hash].js`,
-							chunkFileNames: `${settings.config.build.assets}/[name].[hash].js`,
+							entryFileNames(chunkInfo) {
+								return `${settings.config.build.assets}/${cleanChunkName(chunkInfo.name)}.[hash].js`;
+							},
+							chunkFileNames(chunkInfo) {
+								return `${settings.config.build.assets}/${cleanChunkName(chunkInfo.name)}.[hash].js`;
+							},
 							assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
 							...viteConfig.environments?.client?.build?.rollupOptions?.output,
 						},

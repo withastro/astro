@@ -1,5 +1,5 @@
 // @ts-check
-const testEntry = 'test/**/*.test.js';
+const testEntry = 'test/**/*.test.{js,ts}';
 
 /** @type {import('knip').KnipConfig} */
 export default {
@@ -33,7 +33,7 @@ export default {
 				testEntry,
 				'test/types/**/*',
 				'e2e/**/*.test.js',
-				'test/units/teardown.js',
+				'test/units/teardown.ts',
 				// Can't detect this file when using inside a vite plugin
 				'src/vite-plugin-app/createAstroServerApp.ts',
 			],

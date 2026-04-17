@@ -4,7 +4,7 @@ import { Writable } from 'node:stream';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './_test-utils.js';
-import { Logger } from '../../../astro/dist/core/logger/core.js';
+import { AstroLogger } from '../../../astro/dist/core/logger/core.js';
 import { fileURLToPath } from 'node:url';
 
 describe('React', () => {
@@ -24,9 +24,9 @@ describe('React', () => {
 
 		await fixture.build({
 			vite: { logLevel: 'debug' },
-			logger: new Logger({
+			logger: new AstroLogger({
 				level: 'debug',
-				dest: new Writable({
+				destination: new Writable({
 					objectMode: true,
 					write(event, _, callback) {
 						logs.push(event);

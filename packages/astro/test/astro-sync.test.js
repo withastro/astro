@@ -4,7 +4,7 @@ import * as fs from 'node:fs';
 import { beforeEach, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
-import { Logger } from '../dist/core/logger/core.js';
+import { AstroLogger } from '../dist/core/logger/core.js';
 import { loadFixture } from './test-utils.js';
 
 const createFixture = () => {
@@ -270,12 +270,12 @@ describe('astro sync', () => {
 	describe('No content config', () => {
 		it('Syncs silently without error when content config does not exist', async () => {
 			/**
-			 * @type {import("../dist/core/logger/core.js").LogMessage[]}
+			 * @type {import("../dist/core/logger/core.js").AstroLogMessage[]}
 			 */
 			const logs = [];
-			const logger = new Logger({
+			const logger = new AstroLogger({
 				level: 'debug',
-				dest: {
+				destination: {
 					write(chunk) {
 						logs.push(chunk);
 						return true;

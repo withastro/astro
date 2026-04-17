@@ -25,7 +25,14 @@ export async function transform(
 	}
 
 	const imageSrc = new URL(href, url.origin);
-	const content = await (isRemotePath(href) ? fetch(imageSrc) : assets.fetch(imageSrc));
+	const content = await (isRemotePath(href)
+		? fetch(imageSrc, { redirect: 'manual' })
+		: assets.fetch(imageSrc));
+
+	if (content.status >= 300 && content.status < 400) {
+		return new Response('Not Found', { status: 404 });
+	}
+
 	if (!content.body) {
 		return new Response(null, { status: 404 });
 	}

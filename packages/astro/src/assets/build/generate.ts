@@ -6,7 +6,7 @@ import type { StaticBuildOptions } from '../../core/build/types.js';
 import { getTimeStat } from '../../core/build/util.js';
 import { AstroError } from '../../core/errors/errors.js';
 import { AstroErrorData } from '../../core/errors/index.js';
-import type { Logger } from '../../core/logger/core.js';
+import type { AstroLogger } from '../../core/logger/core.js';
 import { isRemotePath, removeLeadingForwardSlash } from '../../core/path.js';
 import type { MapValue } from '../../type-utils.js';
 import type { AstroConfig } from '../../types/public/config.js';
@@ -31,7 +31,7 @@ interface GenerationDataCached {
 type GenerationData = GenerationDataUncached | GenerationDataCached;
 
 type AssetEnv = {
-	logger: Logger;
+	logger: AstroLogger;
 	isSSR: boolean;
 	count: { total: number; current: number };
 	useCache: boolean;
