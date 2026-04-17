@@ -8,7 +8,6 @@ interface CloudflareConfigOptions {
 	sessionKVBindingName: string | undefined;
 	needsSessionKVBinding?: boolean;
 	imagesBindingName: string | false | undefined;
-	serveTimeMiddlewareRoutes?: () => string[];
 }
 
 /**
@@ -31,14 +30,6 @@ export function cloudflareConfigCustomizer(
 		);
 		const hasImagesBinding = config.images?.binding !== undefined;
 		const hasAssetsBinding = config.assets?.binding !== undefined;
-		const serveTimeMiddlewareRoutes = options?.serveTimeMiddlewareRoutes?.() ?? [];
-		const existingRunWorkerFirst = Array.isArray(config.assets?.run_worker_first)
-			? config.assets.run_worker_first
-			: [];
-		const runWorkerFirst = Array.from(
-			new Set([...existingRunWorkerFirst, ...serveTimeMiddlewareRoutes]),
-		);
-		const shouldSetAssets = !hasAssetsBinding || runWorkerFirst.length > 0;
 
 		return {
 			main: config.main ?? '@astrojs/cloudflare/entrypoints/server',
@@ -56,12 +47,11 @@ export function cloudflareConfigCustomizer(
 					: {
 							binding: imagesBindingName,
 						},
-			assets: shouldSetAssets
-				? {
-						...(hasAssetsBinding ? {} : { binding: DEFAULT_ASSETS_BINDING_NAME }),
-						...(runWorkerFirst.length > 0 ? { run_worker_first: runWorkerFirst } : {}),
-					}
-				: undefined,
+			assets: hasAssetsBinding
+				? undefined
+				: {
+						binding: DEFAULT_ASSETS_BINDING_NAME,
+					},
 		};
 	};
 }

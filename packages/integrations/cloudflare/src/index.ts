@@ -1,15 +1,10 @@
 import { createReadStream, existsSync, readFileSync } from 'node:fs';
-import { appendFile, readFile, stat, writeFile } from 'node:fs/promises';
+import { appendFile, stat } from 'node:fs/promises';
 import { createInterface } from 'node:readline/promises';
 import { removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
 import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
 import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
-import type {
-	AstroConfig,
-	AstroIntegration,
-	IntegrationResolvedRoute,
-	MiddlewareMode,
-} from 'astro';
+import type { AstroConfig, AstroIntegration, IntegrationResolvedRoute } from 'astro';
 import { astroFrontmatterScanPlugin } from './esbuild-plugin-astro-frontmatter.js';
 import { getParts } from './utils/generate-routes-json.js';
 import {
@@ -48,40 +43,6 @@ function usesCloudflareKVSessionDriver(session: AstroConfig['session']): boolean
 		entrypoint === CLOUDFLARE_KV_SESSION_DRIVER_ENTRYPOINT ||
 		entrypoint.endsWith('cloudflare-kv-binding')
 	);
-}
-
-function prependBase(pathname: string, base: string): string {
-	const normalizedBase = base === '/' ? '/' : base.replace(/\/+$/, '');
-	if (normalizedBase === '/' || normalizedBase === '') {
-		return pathname;
-	}
-	if (pathname === normalizedBase || pathname.startsWith(`${normalizedBase}/`)) {
-		return pathname;
-	}
-	if (pathname === '/') {
-		return `${normalizedBase}/`;
-	}
-	return normalizedBase + (pathname.startsWith('/') ? pathname : `/${pathname}`);
-}
-
-function routeToServeTimeMiddlewarePath(
-	route: IntegrationResolvedRoute,
-	base: string,
-): string | undefined {
-	if (route.type !== 'page') {
-		return undefined;
-	}
-
-	if (typeof route.pathname === 'string') {
-		return prependBase(route.pathname, base);
-	}
-
-	const wildcardPath = route.segments
-		.map((segment) => segment.map((part) => (part.dynamic ? '*' : part.content)).join(''))
-		.filter((segment) => segment.length > 0)
-		.join('/');
-
-	return prependBase(wildcardPath ? `/${wildcardPath}` : '/', base);
 }
 
 export type { Runtime } from './utils/handler.js';
@@ -147,28 +108,18 @@ export interface Options
 		NonNullable<PluginConfig['experimental']>,
 		'headersAndRedirectsDevModeSupport'
 	>;
-
-	/**
-	 * The middleware mode determines when and how middleware executes.
-	 * - `'classic'` (default): Middleware runs for prerendered pages at build time, and for SSR pages at request time. Does not run for prerendered pages at request time.
-	 * - `'always'`: Middleware runs for prerendered pages at build time, and for both prerendered and SSR pages at request time.
-	 * - `'on-request'`: Middleware runs for both prerendered and SSR pages at request time. Middleware does not run at build time.
-	 */
-	middlewareMode?: Exclude<MiddlewareMode, 'edge'>;
 }
 
 export default function createIntegration({
 	imageService,
 	sessionKVBindingName = DEFAULT_SESSION_KV_BINDING_NAME,
 	imagesBindingName = DEFAULT_IMAGES_BINDING_NAME,
-	middlewareMode = 'classic',
 	prerenderEnvironment = 'workerd',
 	...cloudflareOptions
 }: Options = {}): AstroIntegration {
 	let _config: AstroConfig;
 
 	let _routes: IntegrationResolvedRoute[];
-	let _serveTimeMiddlewareRoutes: string[] = [];
 	let _isFullyStatic = false;
 	let cfPluginConfig: PluginConfig;
 
@@ -225,7 +176,6 @@ export default function createIntegration({
 						sessionKVBindingName,
 						imagesBindingName:
 							needsImagesBinding || needsImagesBindingForDev ? imagesBindingName : false,
-						serveTimeMiddlewareRoutes: () => _serveTimeMiddlewareRoutes,
 					}),
 					...(prerenderEnvironment === 'workerd' && {
 						experimental: {
@@ -365,7 +315,6 @@ export default function createIntegration({
 							},
 							createConfigPlugin({
 								sessionKVBindingName,
-								middlewareMode,
 								compileImageConfig:
 									isCompile && command !== 'dev'
 										? {
@@ -394,16 +343,6 @@ export default function createIntegration({
 			},
 			'astro:routes:resolved': ({ routes }) => {
 				_routes = routes;
-				if (middlewareMode === 'always' || middlewareMode === 'on-request') {
-					_serveTimeMiddlewareRoutes = Array.from(
-						new Set(
-							routes
-								.filter((route) => route.origin !== 'internal' && route.isPrerendered)
-								.map((route) => routeToServeTimeMiddlewarePath(route, _config?.base ?? '/'))
-								.filter((pathname): pathname is string => typeof pathname === 'string'),
-						),
-					);
-				}
 				// Check if all non-internal routes are prerendered (fully static site)
 				const nonInternalRoutes = routes.filter((route) => route.origin !== 'internal');
 				_isFullyStatic =
@@ -421,7 +360,7 @@ export default function createIntegration({
 					name: '@astrojs/cloudflare',
 					adapterFeatures: {
 						buildOutput: 'server',
-						middlewareMode,
+						middlewareMode: 'classic',
 						preserveBuildClientDir: true,
 					},
 					entrypointResolution: 'auto',
@@ -498,33 +437,6 @@ export default function createIntegration({
 				}
 			},
 			'astro:build:done': async ({ dir, logger, assets }) => {
-				if (
-					(middlewareMode === 'always' || middlewareMode === 'on-request') &&
-					_serveTimeMiddlewareRoutes.length > 0
-				) {
-					const routesJsonPath = new URL('./_routes.json', _config.build.client);
-					try {
-						const rawRoutesJson = await readFile(routesJsonPath, 'utf-8');
-						const routesJson = JSON.parse(rawRoutesJson);
-						if (Array.isArray(routesJson?.include)) {
-							const mergedIncludes = Array.from(
-								new Set([...routesJson.include, ..._serveTimeMiddlewareRoutes]),
-							);
-							if (mergedIncludes.length > 100) {
-								logger.warn(
-									`Cloudflare _routes.json include contains ${mergedIncludes.length} entries after adding prerendered page routes. Cloudflare supports up to 100 include rules.`,
-								);
-							}
-							if (mergedIncludes.length !== routesJson.include.length) {
-								routesJson.include = mergedIncludes;
-								await writeFile(routesJsonPath, `${JSON.stringify(routesJson, null, 2)}\n`);
-							}
-						}
-					} catch {
-						// Ignore when _routes.json is not present or unreadable.
-					}
-				}
-
 				let redirectsExists = false;
 				try {
 					const redirectsStat = await stat(new URL('./_redirects', _config.build.client));

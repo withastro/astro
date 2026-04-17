@@ -13,7 +13,6 @@ export interface CompileImageConfig {
 export interface Config {
 	sessionKVBindingName: string;
 	compileImageConfig: CompileImageConfig | null;
-	middlewareMode: 'classic' | 'always' | 'on-request';
 	isPrerender: boolean;
 }
 
