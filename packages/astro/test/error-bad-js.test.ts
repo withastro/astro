@@ -1,11 +1,10 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { loadFixture, type Fixture, type DevServer } from './test-utils.js';
 
 describe('Errors in JavaScript', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -19,8 +18,7 @@ describe('Errors in JavaScript', () => {
 	});
 
 	describe('dev', () => {
-		/** @type {import('./test-utils').DevServer} */
-		let devServer;
+		let devServer: DevServer;
 
 		before(async () => {
 			devServer = await fixture.startDevServer();
@@ -45,7 +43,7 @@ describe('Errors in JavaScript', () => {
 
 	describe('build', () => {
 		before(async () => {
-			await fixture.build();
+			await fixture.build({});
 		});
 
 		it('in nested components, does not crash server', async () => {
