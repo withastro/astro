@@ -8,14 +8,14 @@ describe('Astro generator', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-generator/',
+			root: './fixtures/astro-basic/',
 		});
 		await fixture.build();
 	});
 
 	describe('build', () => {
 		it('Defines Astro.generator', async () => {
-			const html = await fixture.readFile(`/index.html`);
+			const html = await fixture.readFile(`/generator/index.html`);
 			const $ = cheerio.load(html);
 
 			assert.match($('meta[name="generator"]').attr('content'), /^Astro v/);

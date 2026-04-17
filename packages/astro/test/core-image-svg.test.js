@@ -159,7 +159,18 @@ describe('astro:assets - SVG Components', () => {
 
 		before(async () => {
 			optimizedFixture = await loadFixture({
-				root: './fixtures/core-image-svg-optimized/',
+				root: './fixtures/core-image-svg/',
+				experimental: {
+					svgo: {
+						plugins: [
+							'preset-default',
+							{
+								name: 'removeViewBox',
+								active: false,
+							},
+						],
+					},
+				},
 			});
 
 			optimizedDevServer = await optimizedFixture.startDevServer();
