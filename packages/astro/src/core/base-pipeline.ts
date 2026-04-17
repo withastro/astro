@@ -1,7 +1,6 @@
 import type { $ZodType } from 'zod/v4/core';
 import { NOOP_ACTIONS_MOD } from '../actions/noop-actions.js';
 import type { ActionAccept, ActionClient } from '../actions/runtime/types.js';
-import { createI18nMiddleware } from '../i18n/middleware.js';
 import type { ComponentInstance } from '../types/astro.js';
 import type { MiddlewareHandler, RewritePayload } from '../types/public/common.js';
 import type { RuntimeMode } from '../types/public/config.js';
@@ -139,13 +138,12 @@ export abstract class Pipeline {
 		this.cacheConfig = cacheConfig;
 		this.serverIslands = serverIslands;
 
+		// i18n (non-manual strategies) used to be pushed here as internal
+		// middleware, but it is now run explicitly as a post-processing step
+		// in `AstroHandler.render` via the `I18n` handler class. Users on
+		// the manual strategy still register their own middleware via
+		// `astro:i18n.middleware(...)`.
 		this.internalMiddleware = [];
-		// We do use our middleware only if the user isn't using the manual setup
-		if (i18n?.strategy !== 'manual') {
-			this.internalMiddleware.push(
-				createI18nMiddleware(i18n, manifest.base, manifest.trailingSlash, manifest.buildFormat),
-			);
-		}
 
 		if (manifest.experimentalQueuedRendering.enabled) {
 			this.nodePool = this.createNodePool(

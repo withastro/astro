@@ -8,6 +8,7 @@ import { copyRequest, setOriginPathname } from './rewrite.js';
 import { type CacheLike, applyCacheHeaders } from '../cache/runtime/cache.js';
 import { AstroError } from '../errors/errors.js';
 import { ForbiddenRewrite } from '../errors/errors-data.js';
+import { I18n } from '../i18n/handler.js';
 import { AstroMiddleware } from '../middleware/astro-middleware.js';
 import { PagesHandler } from '../pages/handler.js';
 import { type AstroSession, PERSIST_SYMBOL } from '../session/runtime.js';
@@ -23,12 +24,27 @@ export class AstroHandler {
 	#trailingSlashHandler: TrailingSlashHandler;
 	#astroMiddleware: AstroMiddleware;
 	#pagesHandler: PagesHandler;
+	/**
+	 * i18n post-processor. Only set when the app has i18n configured and
+	 * the strategy is not `manual` — for the manual strategy users wire
+	 * `astro:i18n.middleware(...)` into their own `onRequest`.
+	 */
+	#i18n: I18n | undefined;
 
 	constructor(app: BaseApp<any>) {
 		this.#app = app;
 		this.#trailingSlashHandler = new TrailingSlashHandler(app);
 		this.#astroMiddleware = new AstroMiddleware(app.pipeline);
 		this.#pagesHandler = new PagesHandler(app.pipeline);
+		const i18n = app.manifest.i18n;
+		if (i18n && i18n.strategy !== 'manual') {
+			this.#i18n = new I18n(
+				i18n,
+				app.manifest.base,
+				app.manifest.trailingSlash,
+				app.manifest.buildFormat,
+			);
+		}
 	}
 
 	async handle(request: Request): Promise<Response> {
@@ -98,6 +114,27 @@ export class AstroHandler {
 			cache = renderContext.cache;
 
 			const renderRouteCallback = this.#pagesHandler.handle.bind(this.#pagesHandler);
+			// Run middleware + (optional) i18n post-processing together so
+			// that any cache wrapping sees the final response.
+			const runPipeline = async (): Promise<Response> => {
+				let res = await this.#astroMiddleware.handle(
+					renderContext,
+					componentInstance,
+					{},
+					renderRouteCallback,
+				);
+				if (this.#i18n) {
+					res = await this.#i18n.finalize(state.request, res, {
+						redirect: (location, status) =>
+							new Response(null, { status, headers: { Location: location } }),
+						rewrite: (path) => this.#rewriteAndRender(state, renderContext, path),
+						currentLocale: renderContext.computeCurrentLocale(),
+						isPrerendered: renderContext.routeData.prerender,
+					});
+				}
+				return res;
+			};
+
 			if (this.#app.pipeline.cacheProvider) {
 				// If the cache provider has an onRequest handler (runtime caching),
 				// wrap the render call so the provider can serve from cache
@@ -109,12 +146,7 @@ export class AstroHandler {
 							url: new URL(request.url),
 						},
 						async () => {
-							const res = await this.#astroMiddleware.handle(
-								renderContext,
-								componentInstance,
-								{},
-								renderRouteCallback,
-							);
+							const res = await runPipeline();
 							// Apply cache headers before the provider reads them
 							applyCacheHeaders(cache!, res);
 							return res;
@@ -124,22 +156,12 @@ export class AstroHandler {
 					response.headers.delete('CDN-Cache-Control');
 					response.headers.delete('Cache-Tag');
 				} else {
-					response = await this.#astroMiddleware.handle(
-						renderContext,
-						componentInstance,
-						{},
-						renderRouteCallback,
-					);
+					response = await runPipeline();
 					// Apply cache headers for CDN-based providers (no onRequest)
 					applyCacheHeaders(cache!, response);
 				}
 			} else {
-				response = await this.#astroMiddleware.handle(
-					renderContext,
-					componentInstance,
-					{},
-					renderRouteCallback,
-				);
+				response = await runPipeline();
 			}
 
 			const isRewrite = response.headers.has(REWRITE_DIRECTIVE_HEADER_KEY);
