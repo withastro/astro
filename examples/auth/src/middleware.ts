@@ -3,8 +3,15 @@ import { auth } from '../auth';
 
 const originalRequestCookieName = 'original-request';
 
+function normalizePathname(pathname: string): string {
+	if (pathname === '/') {
+		return pathname;
+	}
+	return pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
+}
+
 function isPublicPath(pathname: string): boolean {
-	const publicPaths = ['/', '/login', '/api/login', 'api/finish-login'];
+	const publicPaths = ['/', '/login', '/api/login'];
 	if (publicPaths.includes(pathname)) {
 		return true;
 	}
@@ -16,24 +23,32 @@ function isPublicPath(pathname: string): boolean {
 }
 
 export const onRequest = defineMiddleware(async (context, next) => {
-	if (isPublicPath(context.originPathname)) {
+	const pathname = normalizePathname(context.originPathname);
+
+	if (pathname === '/api/finish-login') {
+		const isAuthed = await auth.api.getSession(context);
+		if (!isAuthed) {
+			return context.redirect('/login', 302);
+		}
+		const originalRequest = context.cookies.get(originalRequestCookieName)?.value;
+		const redirectTo = originalRequest ? decodeURIComponent(originalRequest) : '/';
+		context.cookies.delete(originalRequestCookieName, { path: '/' });
+		return context.redirect(redirectTo, 302);
+	}
+
+	if (isPublicPath(pathname)) {
 		return next();
 	}
+
 	const isAuthed = await auth.api.getSession(context);
 	if (!isAuthed) {
-		context.cookies.set(originalRequestCookieName, encodeURIComponent(context.originPathname), {
+		context.cookies.set(originalRequestCookieName, encodeURIComponent(pathname), {
 			path: '/',
 			httpOnly: true,
 			sameSite: 'lax',
 			secure: true,
 		});
-		return context.rewrite(new Request('/login'));
-	}
-	if (context.originPathname === '/api/finish-login') {
-		const originalRequest = context.cookies.get(originalRequestCookieName)?.value;
-		const redirectTo = originalRequest ? decodeURIComponent(originalRequest) : '/';
-		context.cookies.delete(originalRequestCookieName, { path: '/' });
-		return context.redirect(redirectTo, 302);
+		return context.redirect('/login', 302);
 	}
 
 	return next();

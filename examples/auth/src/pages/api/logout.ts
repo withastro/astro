@@ -4,5 +4,6 @@ import { auth } from '../../../auth';
 export const prerender = false;
 
 export const POST: APIRoute = async (context) => {
-	return auth.api.logout(context);
+	await auth.api.logout(context);
+	return context.redirect('/', 302);
 };

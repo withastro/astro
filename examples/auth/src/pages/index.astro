@@ -1,11 +1,9 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
 ---
 
 <Layout>
-	<Welcome />
+	<p>This is a technical demo for authentication using Astro.</p>
+	<p>This page is public, but there is a secret page that requires authentication. If you visit the secret page without being logged in, you will be redirected to the login page.</p>
+	<a href="/secret">Go to secret page</a>
 </Layout>
