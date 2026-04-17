@@ -14,6 +14,8 @@ interface I18nConfigOverrides {
 	strategy?: RoutingStrategies;
 	fallbackType?: 'redirect' | 'rewrite';
 	fallback?: Record<string, string>;
+	domains?: Record<string, string>;
+	domainLookupTable?: Record<string, string>;
 }
 
 function makeI18nConfig(overrides: I18nConfigOverrides = {}) {
@@ -23,8 +25,8 @@ function makeI18nConfig(overrides: I18nConfigOverrides = {}) {
 		strategy: overrides.strategy ?? ('pathname-prefix-always' as RoutingStrategies),
 		fallbackType: overrides.fallbackType ?? ('rewrite' as const),
 		fallback: 'fallback' in overrides ? overrides.fallback : ({} as Record<string, string>),
-		domains: {} as Record<string, string>,
-		domainLookupTable: {} as Record<string, string>,
+		domains: overrides.domains ?? ({} as Record<string, string>),
+		domainLookupTable: overrides.domainLookupTable ?? ({} as Record<string, string>),
 	};
 }
 
@@ -285,13 +287,15 @@ describe('i18n via App - domains-prefix-always with trailingSlash: never', () =>
 		strategy: 'domains-prefix-always',
 		locales: ['fi', 'en'],
 		defaultLocale: 'fi',
+		domainLookupTable: {
+			'https://example.com': 'en',
+			'https://example.fi': 'fi',
+		},
+		domains: {
+			en: 'https://example.com',
+			fi: 'https://example.fi',
+		},
 	});
-	i18n.domainLookupTable = {
-		'https://example.com': 'en',
-	};
-	i18n.domains = {
-		en: 'https://example.com',
-	};
 
 	const middleware = createI18nMiddleware(i18n, '/', 'never', 'directory');
 
@@ -313,7 +317,7 @@ describe('i18n via App - domains-prefix-always with trailingSlash: never', () =>
 		});
 	}
 
-	it('root path of domain-mapped locale returns 200 (not 404)', async () => {
+	it('root path of en domain-mapped locale returns 200 (not 404)', async () => {
 		const app = createDomainApp();
 		const res = await app.render(
 			new Request('https://example.com/', {
@@ -325,7 +329,7 @@ describe('i18n via App - domains-prefix-always with trailingSlash: never', () =>
 		assert.equal($('#locale').text(), 'en');
 	});
 
-	it('non-root path of domain-mapped locale returns 200', async () => {
+	it('non-root path of en domain-mapped locale returns 200', async () => {
 		const app = createDomainApp();
 		const res = await app.render(
 			new Request('https://example.com/about', {
@@ -335,6 +339,30 @@ describe('i18n via App - domains-prefix-always with trailingSlash: never', () =>
 		assert.equal(res.status, 200);
 		const $ = cheerio.load(await res.text());
 		assert.equal($('#locale').text(), 'en');
+	});
+
+	it('root path of fi domain-mapped locale returns 200 (not 404)', async () => {
+		const app = createDomainApp();
+		const res = await app.render(
+			new Request('https://example.fi/', {
+				headers: { 'X-Forwarded-Host': 'example.fi', 'X-Forwarded-Proto': 'https' },
+			}),
+		);
+		assert.equal(res.status, 200);
+		const $ = cheerio.load(await res.text());
+		assert.equal($('#locale').text(), 'fi');
+	});
+
+	it('non-root path of fi domain-mapped locale returns 200', async () => {
+		const app = createDomainApp();
+		const res = await app.render(
+			new Request('https://example.fi/about', {
+				headers: { 'X-Forwarded-Host': 'example.fi', 'X-Forwarded-Proto': 'https' },
+			}),
+		);
+		assert.equal(res.status, 200);
+		const $ = cheerio.load(await res.text());
+		assert.equal($('#locale').text(), 'fi');
 	});
 });
 
