@@ -48,9 +48,10 @@ Select exactly ONE priority label from the `priorityLabels` arg. Use the label d
 
 **Priority calibration — err on the side of lower priority:**
 
-- **Experimental/unstable features** should almost never be higher than P3. Users of experimental features accept instability.
-- **Niche adapter/integration combos** (e.g. MDX + Svelte + Cloudflare) are typically P3 or lower unless they affect a core workflow.
-- **P5 (urgent) and P4 (important)** are reserved for issues that affect a large number of users in standard, documented workflows. Ask yourself: "Would a typical Astro user hit this?" If the answer is no, it's probably not P4+.
+- **Experimental/unstable features** should almost never be higher than P3. Users of experimental features accept instability. Example: a broken option inside `experimental.fonts` → P3 at most.
+- **Niche adapter/integration combos** (e.g. MDX + Svelte + Cloudflare) are typically P3 or lower unless they affect a core workflow. Example: a rendering glitch only when using MDX + Svelte + Cloudflare → P3.
+- **P4 (important)** is for issues that violate documented behavior or significantly impact performance for a meaningful subset of users — but a workaround may still exist. Example: `astro build` producing wrong output for a common routing pattern → P4.
+- **P5 (urgent)** is reserved for build-breaking or site-down issues affecting a large portion of users with no workaround. Example: `astro build` or `astro dev` crashes for the majority of projects after a release → P5.
 - **When in doubt, go lower.** A P3 that gets bumped up by a maintainer is much better than a P5 that causes false alarm.
 
 ### Template
@@ -62,7 +63,7 @@ The comment must start with an at-a-glance summary, followed by short explanatio
 - **Exploration:** [Yes / No / Partial / Already fixed on main] [If `branchName` is non-null: — [View branch](https://github.com/withastro/astro/compare/{branchName}?expand=1)]
 - **Priority:** [See "Priority" Instructions above. Keep to one line explaining why this priority was chosen, who is likely to be affected, and under what conditions (this section should answer the question: "how bad is it?")]
 
-[2-3 sentences describing the root cause or key observations, , where/when it was already fixed. Be specific about what's happening and where in the codebase.]
+[2-3 sentences describing the root cause or key observations, or where/when it was already fixed. Be specific about what's happening and where in the codebase.]
 
 **[See "Fix" Instructions above.]** [1-2 sentences describing the fix in more detail: what was changed, guidance on where a fix might be, or relevant code areas.]
 
