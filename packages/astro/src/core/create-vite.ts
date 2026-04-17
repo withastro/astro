@@ -332,7 +332,7 @@ export async function createVite(
 	// (e.g. UnoCSS's @apply directive processing) so we cache fully-processed CSS.
 	// Only push in dev mode — the cache plugin becomes a no-op during build.
 	if (command === 'dev') {
-		(result.plugins as vite.PluginOption[]).push(devCss.cssCachePlugin);
+		(result.plugins!).push(devCss.cssCachePlugin);
 	}
 
 	return result;
