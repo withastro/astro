@@ -1,5 +1,5 @@
-const assert = require('node:assert');
-const vscode = require('vscode');
+import assert from 'node:assert';
+import * as vscode from 'vscode';
 
 suite('Extension Test Suite', () => {
 	vscode.window.showInformationMessage('Start all tests.');

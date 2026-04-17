@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["test/**/*.ts"],
+  "exclude": ["test/fixtures/**"],
+  "compilerOptions": {
+    "rootDir": ".",
+    "emitDeclarationOnly": false,
+    "noEmit": true,
+    "types": ["node", "mocha", "vscode"]
+  }
+}

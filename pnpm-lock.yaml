@@ -1921,18 +1921,6 @@ importers:
         specifier: ^5.54.0
         version: 5.55.3
 
-  packages/astro/test/fixtures/alias-tsconfig-baseurl-only:
-    dependencies:
-      '@astrojs/svelte':
-        specifier: workspace:*
-        version: link:../../../../integrations/svelte
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-      svelte:
-        specifier: ^5.54.0
-        version: 5.55.3
-
   packages/astro/test/fixtures/alias-tsconfig-no-baseurl:
     dependencies:
       astro:
@@ -2447,12 +2435,6 @@ importers:
         specifier: ^4.2.2
         version: 4.2.2
 
-  packages/astro/test/fixtures/astro-sitemap-rss:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/astro-slot-with-client:
     dependencies:
       '@astrojs/preact':
@@ -2637,12 +2619,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/config-path:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/config-vite:
     dependencies:
       astro:
@@ -2730,12 +2706,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/content-collections-cache-invalidation:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/content-collections-empty-dir:
     dependencies:
       astro:
@@ -2765,12 +2735,6 @@ importers:
       zod:
         specifier: ^4.3.6
         version: 4.3.6
-
-  packages/astro/test/fixtures/content-collections-same-contents:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
 
   packages/astro/test/fixtures/content-collections-type-inference:
     dependencies:
@@ -3191,12 +3155,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/custom-500-middleware:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/custom-assets-name:
     dependencies:
       '@astrojs/node':
@@ -3320,12 +3278,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/feature-support-message-suppresion:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/fetch:
     dependencies:
       '@astrojs/preact':
@@ -3375,12 +3327,6 @@ importers:
         version: link:../../..
 
   packages/astro/test/fixtures/glob-pages-css:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/head-injection:
     dependencies:
       astro:
         specifier: workspace:*
@@ -3597,19 +3543,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/middleware-sequence-request-clone:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/middleware-sequence-rewrite:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/middleware-ssg:
     dependencies:
       astro:
         specifier: workspace:*
@@ -3626,12 +3560,6 @@ importers:
       tailwindcss:
         specifier: ^4.2.2
         version: 4.2.2
-
-  packages/astro/test/fixtures/middleware-virtual:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
 
   packages/astro/test/fixtures/minification-html:
     dependencies:
@@ -4230,21 +4158,6 @@ importers:
         specifier: ^10.29.0
         version: 10.29.0
 
-  packages/astro/test/fixtures/ssr-split-manifest:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/ssr-trailing-slash:
-    dependencies:
-      '@astrojs/node':
-        specifier: workspace:*
-        version: link:../../../../integrations/node
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/static-build:
     dependencies:
       '@astrojs/preact':
@@ -4447,24 +4360,6 @@ importers:
       vue:
         specifier: ^3.5.30
         version: 3.5.30(typescript@5.9.3)
-
-  packages/astro/test/fixtures/with-endpoint-routes:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/with-subpath-no-trailing-slash:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/without-site-config:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
 
   packages/create-astro:
     dependencies:
@@ -6873,6 +6768,9 @@ importers:
       '@types/semver':
         specifier: ^7.7.1
         version: 7.7.1
+      '@types/vscode':
+        specifier: ^1.92.0
+        version: 1.109.0
       '@vscode/test-cli':
         specifier: ^0.0.12
         version: 0.0.12
@@ -6882,6 +6780,9 @@ importers:
       mocha:
         specifier: ^11.7.5
         version: 11.7.5
+      tsx:
+        specifier: ^4.21.0
+        version: 4.21.0
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -6949,6 +6850,9 @@ importers:
       ovsx:
         specifier: ^0.10.10
         version: 0.10.10
+      tsx:
+        specifier: ^4.21.0
+        version: 4.21.0
       vscode-languageclient:
         specifier: ^9.0.1
         version: 9.0.1

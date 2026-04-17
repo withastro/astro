@@ -1,14 +1,18 @@
-const assert = require('node:assert');
-const path = require('node:path');
-const vscode = require('vscode');
+import assert from 'node:assert';
+import path from 'node:path';
+import * as vscode from 'vscode';
 
 suite('Extension Test Suite', () => {
 	vscode.window.showInformationMessage('Start all tests.');
 
 	// TypeScript takes a while to wake up and there's unfortunately no good way to wait for it
-	async function waitForTS(command, commandArgs, condition) {
+	async function waitForTS<T>(
+		command: string,
+		commandArgs: unknown[],
+		condition: (result: T) => boolean,
+	): Promise<T> {
 		for (let i = 0; i < 2000; i++) {
-			const commandResult = await vscode.commands.executeCommand(command, ...commandArgs);
+			const commandResult = await vscode.commands.executeCommand<T>(command, ...commandArgs);
 			if (condition(commandResult)) {
 				return commandResult;
 			}
@@ -24,7 +28,7 @@ suite('Extension Test Suite', () => {
 			vscode.Uri.file(path.join(__dirname, '../fixtures/script.ts')),
 		);
 
-		const references = await waitForTS(
+		const references = await waitForTS<vscode.Location[]>(
 			'vscode.executeReferenceProvider',
 			[doc.uri, new vscode.Position(0, 18)],
 			(result) => result.length > 1,
@@ -39,7 +43,7 @@ suite('Extension Test Suite', () => {
 			vscode.Uri.file(path.join(__dirname, '../fixtures/script.ts')),
 		);
 
-		const completions = await waitForTS(
+		const completions = await waitForTS<vscode.CompletionList>(
 			'vscode.executeCompletionItemProvider',
 			[doc.uri, new vscode.Position(4, 12)],
 			(result) => result.items.length > 0,
@@ -56,7 +60,7 @@ suite('Extension Test Suite', () => {
 			vscode.Uri.file(path.join(__dirname, '../fixtures/script.ts')),
 		);
 
-		const implementations = await waitForTS(
+		const implementations = await waitForTS<vscode.Location[]>(
 			'vscode.executeImplementationProvider',
 			[doc.uri, new vscode.Position(6, 15)],
 			(result) => result.length > 1,
