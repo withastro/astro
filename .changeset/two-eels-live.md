@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fixes i18n domain routing returning 404 for root path when trailingSlash: "never"
+Fixes an issue where i18n domains would return 404 when `trailingSlash` is set to `never`.
