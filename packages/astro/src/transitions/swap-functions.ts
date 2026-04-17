@@ -191,11 +191,14 @@ export const vueScopedStyleId = (el: HTMLStyleElement): string => {
 	const viteDevId = el.dataset.viteDevId || '';
 
 	const url = new URL(viteDevId, location.href);
-	return url.searchParams.get('vue') !== null &&
+	// Match Vue scoped styles: ?vue&type=style&scoped
+	// Match Astro component styles: ?astro&type=style&...lang.css
+	const isVueScoped =
+		url.searchParams.get('vue') !== null &&
 		url.searchParams.get('type') === 'style' &&
-		url.searchParams.has('scoped')
-		? viteDevId
-		: '';
+		url.searchParams.has('scoped');
+	const isAstroStyle = /\?astro&type=style&.*lang\.css$/.test(viteDevId);
+	return isVueScoped || isAstroStyle ? viteDevId : '';
 };
 
 // Check for a head element that should persist and returns it,
@@ -211,13 +214,15 @@ const persistedHeadElement = (el: HTMLElement, newDoc: Document): Element | null
 		return newDoc.head.querySelector(`link[rel=stylesheet][href="${href}"]`);
 	}
 	// In dev mode, Vite injects <style data-vite-dev-id="..."> elements whose
-	// textContent may later be transformed (especially Vue's `:deep()` → `[data-v-xxx]`).
+	// textContent may later be transformed (especially Vue's `:deep()` → `[data-v-xxx]`
+	// or Astro component styles with integration transforms applied).
 	// Match these by their stable dev ID so the already-transformed style is preserved
 	// across ClientRouter soft navigations instead of being replaced by the raw version.
 	// There are other ids that can't be preserved and need a refresh, like Uno's /__uno.css,
 	// which keeps the same id, but with different contents.
-	// To avoid enumerating all exceptions, we only apply the auto-persist logic to elements
-	// that look like Vue's dev styles.
+	// We apply the auto-persist logic to styles that look like Vue or Astro component styles,
+	// whose content is stable for a given component but may differ between the raw HTML
+	// (pre-integration-transform) and the HMR-applied version (post-transform).
 	if (import.meta.env.DEV && el instanceof HTMLStyleElement) {
 		const viteDevId = vueScopedStyleId(el);
 		if (viteDevId) {
