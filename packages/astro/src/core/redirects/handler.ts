@@ -11,18 +11,14 @@ import { renderRedirect } from './render.js';
  * the render pipeline. Neither the middleware chain nor the page dispatch
  * run for these routes; they are handled directly by `AstroHandler.render`
  * via this class, before middleware. Callers can invoke `handle()`
- * unconditionally; non-redirect routes return `undefined` so the caller
- * continues to the normal pipeline.
+ * unconditionally; non-redirect routes return `undefined` synchronously so
+ * the caller continues to the normal pipeline without an extra microtask.
  */
 export class Redirects {
-	async handle(renderContext: RenderContext): Promise<Response | undefined> {
+	handle(renderContext: RenderContext): Promise<Response> | undefined {
 		if (!routeIsRedirect(renderContext.routeData)) {
 			return undefined;
 		}
-		return this.#render(renderContext);
-	}
-
-	#render(renderContext: RenderContext): Promise<Response> {
 		return renderRedirect(renderContext);
 	}
 }

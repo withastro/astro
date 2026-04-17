@@ -98,10 +98,11 @@ export class AstroHandler {
 
 			// Redirect routes short-circuit the pipeline: no middleware, no
 			// page dispatch, no i18n post-processing. `Redirects.handle`
-			// returns `undefined` for non-redirect routes so we can call it
-			// unconditionally and fall through to the normal pipeline.
-			const redirectResponse = await this.#redirects.handle(renderContext);
-			if (redirectResponse) {
+			// returns `undefined` synchronously for non-redirect routes, so
+			// we only `await` when we actually need to.
+			const redirectPromise = this.#redirects.handle(renderContext);
+			if (redirectPromise) {
+				const redirectResponse = await redirectPromise;
 				this.#app.logThisRequest({
 					pathname,
 					method: request.method,
