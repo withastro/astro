@@ -941,6 +941,7 @@ test.describe('View Transitions', () => {
 		await page.click('#click-redirect');
 		p = page.locator('#two');
 		await expect(p, 'should have content').toHaveText('Page 2');
+		
 		expect(consoleErrors.length, 'There should be no errors').toEqual(0);
 	});
 

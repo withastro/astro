@@ -82,13 +82,13 @@ export function swapHeadElements(doc: Document) {
 	}
 
 	// Everything left in the new head is new, append it all.
-	if (!import.meta.env.DEV) {
-		document.head.append(...doc.head.children);
-	} else {
+	if (import.meta.env.DEV) {
 		// In DEV mode, replace known Vue scoped styles with the versions we remembered
 		[...doc.head.children].forEach((child) => {
 			document.head.append(knownVueScopedStyles.get((child as any).dataset?.viteDevId) || child);
 		});
+	} else {
+		document.head.append(...doc.head.children);
 	}
 }
 
