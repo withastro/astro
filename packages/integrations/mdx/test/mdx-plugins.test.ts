@@ -3,7 +3,12 @@ import { before, describe, it } from 'node:test';
 import mdx from '@astrojs/mdx';
 import { parseHTML } from 'linkedom';
 import remarkToc from 'remark-toc';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import {
+	loadFixture,
+	type AstroInlineConfig,
+	type Fixture,
+} from '../../../astro/test/test-utils.js';
+import type { RehypePlugin, RemarkPlugin } from './test-utils.js';
 
 const FIXTURE_ROOT = new URL('./fixtures/mdx-plugins/', import.meta.url);
 const FILE = '/with-plugins/index.html';
@@ -51,7 +56,7 @@ describe('MDX plugins - Astro config integration', () => {
 
 	for (const extendMarkdownConfig of [true, false]) {
 		describe(`extendMarkdownConfig = ${extendMarkdownConfig}`, () => {
-			let fixture;
+			let fixture: Fixture;
 			before(async () => {
 				fixture = await buildFixture({
 					// Use unique outDir to avoid cache pollution between builds with different configs
@@ -75,8 +80,8 @@ describe('MDX plugins - Astro config integration', () => {
 				const html = await fixture.readFile(FILE);
 				const { document } = parseHTML(html);
 
-				assert.notEqual(selectRemarkExample(document, 'MDX remark plugins not applied.'), null);
-				assert.notEqual(selectRehypeExample(document, 'MDX rehype plugins not applied.'), null);
+				assert.notEqual(selectRemarkExample(document), null, 'MDX remark plugins not applied.');
+				assert.notEqual(selectRehypeExample(document), null, 'MDX rehype plugins not applied.');
 			});
 
 			it('Handles Markdown plugins', async () => {
@@ -84,11 +89,9 @@ describe('MDX plugins - Astro config integration', () => {
 				const { document } = parseHTML(html);
 
 				assert.equal(
-					selectTocLink(
-						document,
-						'`remarkToc` plugin applied unexpectedly. Should override Markdown config.',
-					),
+					selectTocLink(document),
 					null,
+					'`remarkToc` plugin applied unexpectedly. Should override Markdown config.',
 				);
 			});
 
@@ -107,7 +110,7 @@ describe('MDX plugins - Astro config integration', () => {
 				const html = await fixture.readFile(FILE);
 				const { document } = parseHTML(html);
 
-				const quote = selectSmartypantsQuote(document);
+				const quote = selectSmartypantsQuote(document)!;
 
 				if (extendMarkdownConfig === true) {
 					// smartypants: false inherited from markdown config — straight quotes and dashes preserved
@@ -129,7 +132,7 @@ describe('MDX plugins - Astro config integration', () => {
 	}
 });
 
-async function buildFixture(config) {
+async function buildFixture(config: AstroInlineConfig = {}): Promise<Fixture> {
 	const fixture = await loadFixture({
 		root: FIXTURE_ROOT,
 		...config,
@@ -138,41 +141,42 @@ async function buildFixture(config) {
 	return fixture;
 }
 
-function remarkExamplePlugin() {
+const remarkExamplePlugin: RemarkPlugin = () => {
 	return (tree) => {
 		tree.children.push({
 			type: 'html',
 			value: '<div data-remark-plugin-works="true"></div>',
 		});
 	};
-}
+};
 
-function rehypeExamplePlugin() {
+const rehypeExamplePlugin: RehypePlugin = () => {
 	return (tree) => {
 		tree.children.push({
 			type: 'element',
 			tagName: 'div',
 			properties: { 'data-rehype-plugin-works': 'true' },
+			children: [],
 		});
 	};
-}
+};
 
-function selectTocLink(document) {
+function selectTocLink(document: Document) {
 	return document.querySelector('ul a[href="#section-1"]');
 }
 
-function selectGfmLink(document) {
+function selectGfmLink(document: Document) {
 	return document.querySelector('a[href="https://handle-me-gfm.com"]');
 }
 
-function selectSmartypantsQuote(document) {
+function selectSmartypantsQuote(document: Document) {
 	return document.querySelector('blockquote');
 }
 
-function selectRemarkExample(document) {
+function selectRemarkExample(document: Document) {
 	return document.querySelector('div[data-remark-plugin-works]');
 }
 
-function selectRehypeExample(document) {
+function selectRehypeExample(document: Document) {
 	return document.querySelector('div[data-rehype-plugin-works]');
 }

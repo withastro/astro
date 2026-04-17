@@ -4,30 +4,29 @@ import { loadFixture } from '../../../astro/test/test-utils.js';
 
 function hookError() {
 	const error = console.error;
-	const errors = [];
-	console.error = function (...args) {
+	const errors: unknown[][] = [];
+	console.error = function (...args: unknown[]) {
 		errors.push(args);
 	};
-	return () => {
+	return (): unknown[][] => {
 		console.error = error;
 		return errors;
 	};
 }
 
 describe('MDX and React with build errors', () => {
-	let fixture;
-	let unhook;
+	let unhook: (() => unknown[][]) | undefined;
 
 	it('shows correct error messages on build error', async () => {
 		try {
-			fixture = await loadFixture({
+			const fixture = await loadFixture({
 				root: new URL('./fixtures/mdx-plus-react-errors/', import.meta.url),
 			});
 			unhook = hookError();
 			await fixture.build();
 		} catch (err) {
-			assert.equal(err.message, 'a is not defined');
+			assert.equal((err as Error).message, 'a is not defined');
 		}
-		unhook();
+		unhook?.();
 	});
 });

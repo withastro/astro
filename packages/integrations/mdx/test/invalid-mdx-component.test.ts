@@ -1,12 +1,12 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture, type Fixture } from '../../../astro/test/test-utils.js';
 import mdx from '../dist/index.js';
 
 const FIXTURE_ROOT = new URL('./fixtures/invalid-mdx-component/', import.meta.url);
 
 describe('MDX component with runtime error', () => {
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -16,22 +16,21 @@ describe('MDX component with runtime error', () => {
 	});
 
 	describe('build', () => {
-		/** @type {Error | null} */
-		let error;
+		let error: Error | null = null;
 
 		before(async () => {
 			error = null;
 			try {
 				await fixture.build();
 			} catch (e) {
-				error = e;
+				error = e as Error;
 			}
 		});
 
 		it('Throws the right error', async () => {
 			assert.ok(error);
 			assert.match(
-				error?.hint,
+				(error as Error & { hint?: string })?.hint ?? '',
 				/This issue often occurs when your MDX component encounters runtime errors/,
 			);
 		});

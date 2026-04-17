@@ -1,13 +1,9 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { compile as _compile } from '@mdx-js/mdx';
+import { compile as _compile, type CompileOptions } from '@mdx-js/mdx';
 import { rehypeOptimizeStatic } from '../../dist/rehype-optimize-static.js';
 
-/**
- * @param {string} mdxCode
- * @param {Readonly<import('@mdx-js/mdx').CompileOptions>} options
- */
-async function compile(mdxCode, options) {
+async function compile(mdxCode: string, options?: Readonly<CompileOptions>) {
 	const result = await _compile(mdxCode, {
 		jsx: true,
 		rehypePlugins: [rehypeOptimizeStatic],
@@ -20,12 +16,14 @@ async function compile(mdxCode, options) {
 	return dedent(jsx);
 }
 
-function dedent(str) {
+function dedent(str: string) {
 	const lines = str.split('\n');
 	if (lines.length <= 1) return str;
 	// Get last line indent, and dedent this amount for the other lines
-	const lastLineIndent = lines[lines.length - 1].match(/^\s*/)[0].length;
-	return lines.map((line, i) => (i === 0 ? line : line.slice(lastLineIndent))).join('\n');
+	const lastLineIndent = /^\s*/.exec(lines[lines.length - 1])![0].length;
+	return lines
+		.map((line: string, i: number) => (i === 0 ? line : line.slice(lastLineIndent)))
+		.join('\n');
 }
 
 describe('rehype-optimize-static', () => {

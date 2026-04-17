@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import type { AstroConfig, AstroIntegrationLogger } from 'astro';
 import {
 	appendForwardSlash,
 	getFileInfo,
@@ -27,15 +28,14 @@ describe('utils', () => {
 	});
 
 	describe('getFileInfo', () => {
-		/** @param {Partial<import('astro').AstroConfig>} overrides */
-		function mockConfig(overrides = {}) {
+		function mockConfig(overrides: Partial<AstroConfig> = {}): AstroConfig {
 			return {
 				root: new URL('file:///project/'),
 				base: '/',
 				site: undefined,
 				trailingSlash: 'ignore',
 				...overrides,
-			};
+			} as AstroConfig;
 		}
 
 		it('computes fileUrl for pages', () => {
@@ -96,22 +96,23 @@ describe('utils', () => {
 	describe('jsToTreeNode', () => {
 		it('parses a simple export statement', () => {
 			const node = jsToTreeNode('export const x = 1;');
+			const estree = node.data!.estree!;
 			assert.equal(node.type, 'mdxjsEsm');
-			assert.equal(node.data.estree.type, 'Program');
-			assert.equal(node.data.estree.sourceType, 'module');
-			assert.ok(node.data.estree.body.length > 0);
+			assert.equal(estree.type, 'Program');
+			assert.equal(estree.sourceType, 'module');
+			assert.ok(estree.body.length > 0);
 		});
 
 		it('parses an import statement', () => {
 			const node = jsToTreeNode("import foo from 'bar';");
 			assert.equal(node.type, 'mdxjsEsm');
-			assert.equal(node.data.estree.body[0].type, 'ImportDeclaration');
+			assert.equal(node.data!.estree!.body[0].type, 'ImportDeclaration');
 		});
 
 		it('parses a function export', () => {
 			const node = jsToTreeNode('export function getHeadings() { return []; }');
 			assert.equal(node.type, 'mdxjsEsm');
-			const decl = node.data.estree.body[0];
+			const decl = node.data!.estree!.body[0];
 			assert.equal(decl.type, 'ExportNamedDeclaration');
 		});
 
@@ -123,14 +124,14 @@ describe('utils', () => {
 	});
 
 	describe('ignoreStringPlugins', () => {
-		function mockLogger() {
-			const warnings = [];
+		function mockLogger(): AstroIntegrationLogger & { warnings: string[] } {
+			const warnings: string[] = [];
 			return {
-				warn(msg) {
+				warn: (msg: string) => {
 					warnings.push(msg);
 				},
 				warnings,
-			};
+			} as AstroIntegrationLogger & { warnings: string[] };
 		}
 
 		it('returns function plugins unchanged', () => {

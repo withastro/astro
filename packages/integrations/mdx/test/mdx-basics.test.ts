@@ -3,7 +3,7 @@ import { after, before, describe, it } from 'node:test';
 import mdx from '@astrojs/mdx';
 import * as cheerio from 'cheerio';
 import { parseHTML } from 'linkedom';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture, type Fixture, type DevServer } from '../../../astro/test/test-utils.js';
 
 // Merged fixture: combines mdx-component, mdx-slots, mdx-frontmatter,
 // mdx-url-export, mdx-get-static-paths, and mdx-script-style-raw.
@@ -11,7 +11,7 @@ import { loadFixture } from '../../../astro/test/test-utils.js';
 const FIXTURE_ROOT = new URL('./fixtures/mdx-basics/', import.meta.url);
 
 describe('MDX basics (merged fixture)', () => {
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -32,8 +32,8 @@ describe('MDX basics (merged fixture)', () => {
 				const html = await fixture.readFile('/component/index.html');
 				const { document } = parseHTML(html);
 
-				const h1 = document.querySelector('h1');
-				const foo = document.querySelector('#foo');
+				const h1 = document.querySelector('h1')!;
+				const foo = document.querySelector('#foo')!;
 
 				assert.equal(h1.textContent, 'Hello component!');
 				assert.equal(foo.textContent, 'bar');
@@ -43,8 +43,8 @@ describe('MDX basics (merged fixture)', () => {
 				const html = await fixture.readFile('/component/glob/index.html');
 				const { document } = parseHTML(html);
 
-				const h1 = document.querySelector('[data-default-export] h1');
-				const foo = document.querySelector('[data-default-export] #foo');
+				const h1 = document.querySelector('[data-default-export] h1')!;
+				const foo = document.querySelector('[data-default-export] #foo')!;
 
 				assert.equal(h1.textContent, 'Hello component!');
 				assert.equal(foo.textContent, 'bar');
@@ -54,8 +54,8 @@ describe('MDX basics (merged fixture)', () => {
 				const html = await fixture.readFile('/component/glob/index.html');
 				const { document } = parseHTML(html);
 
-				const h1 = document.querySelector('[data-content-export] h1');
-				const foo = document.querySelector('[data-content-export] #foo');
+				const h1 = document.querySelector('[data-content-export] h1')!;
+				const foo = document.querySelector('[data-content-export] #foo')!;
 
 				assert.equal(h1.textContent, 'Hello component!');
 				assert.equal(foo.textContent, 'bar');
@@ -66,8 +66,8 @@ describe('MDX basics (merged fixture)', () => {
 					const html = await fixture.readFile('/component/w-fragment/index.html');
 					const { document } = parseHTML(html);
 
-					const h1 = document.querySelector('h1');
-					const p = document.querySelector('p');
+					const h1 = document.querySelector('h1')!;
+					const p = document.querySelector('p')!;
 
 					assert.equal(h1.textContent, 'MDX containing <Fragment />');
 					assert.equal(p.textContent, 'bar');
@@ -79,10 +79,10 @@ describe('MDX basics (merged fixture)', () => {
 
 					const h = document.querySelector(
 						'[data-default-export] [data-file="WithFragment.mdx"] h1',
-					);
+					)!;
 					const p = document.querySelector(
 						'[data-default-export] [data-file="WithFragment.mdx"] p',
-					);
+					)!;
 
 					assert.equal(h.textContent, 'MDX containing <Fragment />');
 					assert.equal(p.textContent, 'bar');
@@ -94,10 +94,10 @@ describe('MDX basics (merged fixture)', () => {
 
 					const h = document.querySelector(
 						'[data-content-export] [data-file="WithFragment.mdx"] h1',
-					);
+					)!;
 					const p = document.querySelector(
 						'[data-content-export] [data-file="WithFragment.mdx"] p',
-					);
+					)!;
 
 					assert.equal(h.textContent, 'MDX containing <Fragment />');
 					assert.equal(p.textContent, 'bar');
@@ -112,9 +112,9 @@ describe('MDX basics (merged fixture)', () => {
 				const html = await fixture.readFile('/slots/index.html');
 				const { document } = parseHTML(html);
 
-				const h1 = document.querySelector('h1');
-				const defaultSlot = document.querySelector('[data-default-slot]');
-				const namedSlot = document.querySelector('[data-named-slot]');
+				const h1 = document.querySelector('h1')!;
+				const defaultSlot = document.querySelector('[data-default-slot]')!;
+				const namedSlot = document.querySelector('[data-named-slot]')!;
 
 				assert.equal(h1.textContent, 'Hello slotted component!');
 				assert.equal(defaultSlot.textContent, 'Default content.');
@@ -125,9 +125,9 @@ describe('MDX basics (merged fixture)', () => {
 				const html = await fixture.readFile('/slots/glob/index.html');
 				const { document } = parseHTML(html);
 
-				const h1 = document.querySelector('[data-default-export] h1');
-				const defaultSlot = document.querySelector('[data-default-export] [data-default-slot]');
-				const namedSlot = document.querySelector('[data-default-export] [data-named-slot]');
+				const h1 = document.querySelector('[data-default-export] h1')!;
+				const defaultSlot = document.querySelector('[data-default-export] [data-default-slot]')!;
+				const namedSlot = document.querySelector('[data-default-export] [data-named-slot]')!;
 
 				assert.equal(h1.textContent, 'Hello slotted component!');
 				assert.equal(defaultSlot.textContent, 'Default content.');
@@ -138,9 +138,9 @@ describe('MDX basics (merged fixture)', () => {
 				const html = await fixture.readFile('/slots/glob/index.html');
 				const { document } = parseHTML(html);
 
-				const h1 = document.querySelector('[data-content-export] h1');
-				const defaultSlot = document.querySelector('[data-content-export] [data-default-slot]');
-				const namedSlot = document.querySelector('[data-content-export] [data-named-slot]');
+				const h1 = document.querySelector('[data-content-export] h1')!;
+				const defaultSlot = document.querySelector('[data-content-export] [data-default-slot]')!;
+				const namedSlot = document.querySelector('[data-content-export] [data-named-slot]')!;
 
 				assert.equal(h1.textContent, 'Hello slotted component!');
 				assert.equal(defaultSlot.textContent, 'Default content.');
@@ -173,8 +173,8 @@ describe('MDX basics (merged fixture)', () => {
 				const html = await fixture.readFile('/frontmatter/index.html');
 				const { document } = parseHTML(html);
 
-				const contentTitle = document.querySelector('[data-content-title]');
-				const frontmatterTitle = document.querySelector('[data-frontmatter-title]');
+				const contentTitle = document.querySelector('[data-content-title]')!;
+				const frontmatterTitle = document.querySelector('[data-frontmatter-title]')!;
 
 				assert.equal(contentTitle.textContent, 'Using YAML frontmatter');
 				assert.equal(frontmatterTitle.textContent, 'Using YAML frontmatter');
@@ -253,14 +253,14 @@ describe('MDX basics (merged fixture)', () => {
 				const html = await fixture.readFile('/script-style-raw/index.html');
 				const { document } = parseHTML(html);
 
-				const scriptContent = document.getElementById('test-script').innerHTML;
+				const scriptContent = document.getElementById('test-script')!.innerHTML;
 				assert.equal(
 					scriptContent.includes("console.log('raw script')"),
 					true,
 					'script should not be html-escaped',
 				);
 
-				const styleContent = document.getElementById('test-style').innerHTML;
+				const styleContent = document.getElementById('test-style')!.innerHTML;
 				assert.equal(
 					styleContent.includes('h1[id="script-style-raw"]'),
 					true,
@@ -271,7 +271,7 @@ describe('MDX basics (merged fixture)', () => {
 	});
 
 	describe('dev', () => {
-		let devServer;
+		let devServer: DevServer;
 
 		before(async () => {
 			devServer = await fixture.startDevServer();
@@ -291,8 +291,8 @@ describe('MDX basics (merged fixture)', () => {
 				const html = await res.text();
 				const { document } = parseHTML(html);
 
-				const h1 = document.querySelector('h1');
-				const foo = document.querySelector('#foo');
+				const h1 = document.querySelector('h1')!;
+				const foo = document.querySelector('#foo')!;
 
 				assert.equal(h1.textContent, 'Hello component!');
 				assert.equal(foo.textContent, 'bar');
@@ -305,8 +305,8 @@ describe('MDX basics (merged fixture)', () => {
 				const html = await res.text();
 				const { document } = parseHTML(html);
 
-				const h1 = document.querySelector('[data-default-export] h1');
-				const foo = document.querySelector('[data-default-export] #foo');
+				const h1 = document.querySelector('[data-default-export] h1')!;
+				const foo = document.querySelector('[data-default-export] #foo')!;
 
 				assert.equal(h1.textContent, 'Hello component!');
 				assert.equal(foo.textContent, 'bar');
@@ -319,8 +319,8 @@ describe('MDX basics (merged fixture)', () => {
 				const html = await res.text();
 				const { document } = parseHTML(html);
 
-				const h1 = document.querySelector('[data-content-export] h1');
-				const foo = document.querySelector('[data-content-export] #foo');
+				const h1 = document.querySelector('[data-content-export] h1')!;
+				const foo = document.querySelector('[data-content-export] #foo')!;
 
 				assert.equal(h1.textContent, 'Hello component!');
 				assert.equal(foo.textContent, 'bar');
@@ -334,8 +334,8 @@ describe('MDX basics (merged fixture)', () => {
 					const html = await res.text();
 					const { document } = parseHTML(html);
 
-					const h1 = document.querySelector('h1');
-					const p = document.querySelector('p');
+					const h1 = document.querySelector('h1')!;
+					const p = document.querySelector('p')!;
 
 					assert.equal(h1.textContent, 'MDX containing <Fragment />');
 					assert.equal(p.textContent, 'bar');
@@ -350,10 +350,10 @@ describe('MDX basics (merged fixture)', () => {
 
 					const h = document.querySelector(
 						'[data-default-export] [data-file="WithFragment.mdx"] h1',
-					);
+					)!;
 					const p = document.querySelector(
 						'[data-default-export] [data-file="WithFragment.mdx"] p',
-					);
+					)!;
 
 					assert.equal(h.textContent, 'MDX containing <Fragment />');
 					assert.equal(p.textContent, 'bar');
@@ -368,10 +368,10 @@ describe('MDX basics (merged fixture)', () => {
 
 					const h = document.querySelector(
 						'[data-content-export] [data-file="WithFragment.mdx"] h1',
-					);
+					)!;
 					const p = document.querySelector(
 						'[data-content-export] [data-file="WithFragment.mdx"] p',
-					);
+					)!;
 
 					assert.equal(h.textContent, 'MDX containing <Fragment />');
 					assert.equal(p.textContent, 'bar');
@@ -389,9 +389,9 @@ describe('MDX basics (merged fixture)', () => {
 				const html = await res.text();
 				const { document } = parseHTML(html);
 
-				const h1 = document.querySelector('h1');
-				const defaultSlot = document.querySelector('[data-default-slot]');
-				const namedSlot = document.querySelector('[data-named-slot]');
+				const h1 = document.querySelector('h1')!;
+				const defaultSlot = document.querySelector('[data-default-slot]')!;
+				const namedSlot = document.querySelector('[data-named-slot]')!;
 
 				assert.equal(h1.textContent, 'Hello slotted component!');
 				assert.equal(defaultSlot.textContent, 'Default content.');
@@ -405,9 +405,9 @@ describe('MDX basics (merged fixture)', () => {
 				const html = await res.text();
 				const { document } = parseHTML(html);
 
-				const h1 = document.querySelector('[data-default-export] h1');
-				const defaultSlot = document.querySelector('[data-default-export] [data-default-slot]');
-				const namedSlot = document.querySelector('[data-default-export] [data-named-slot]');
+				const h1 = document.querySelector('[data-default-export] h1')!;
+				const defaultSlot = document.querySelector('[data-default-export] [data-default-slot]')!;
+				const namedSlot = document.querySelector('[data-default-export] [data-named-slot]')!;
 
 				assert.equal(h1.textContent, 'Hello slotted component!');
 				assert.equal(defaultSlot.textContent, 'Default content.');
@@ -421,9 +421,9 @@ describe('MDX basics (merged fixture)', () => {
 				const html = await res.text();
 				const { document } = parseHTML(html);
 
-				const h1 = document.querySelector('[data-content-export] h1');
-				const defaultSlot = document.querySelector('[data-content-export] [data-default-slot]');
-				const namedSlot = document.querySelector('[data-content-export] [data-named-slot]');
+				const h1 = document.querySelector('[data-content-export] h1')!;
+				const defaultSlot = document.querySelector('[data-content-export] [data-default-slot]')!;
+				const namedSlot = document.querySelector('[data-content-export] [data-named-slot]')!;
 
 				assert.equal(h1.textContent, 'Hello slotted component!');
 				assert.equal(defaultSlot.textContent, 'Default content.');
@@ -441,14 +441,14 @@ describe('MDX basics (merged fixture)', () => {
 				const html = await res.text();
 				const { document } = parseHTML(html);
 
-				const scriptContent = document.getElementById('test-script').innerHTML;
+				const scriptContent = document.getElementById('test-script')!.innerHTML;
 				assert.equal(
 					scriptContent.includes("console.log('raw script')"),
 					true,
 					'script should not be html-escaped',
 				);
 
-				const styleContent = document.getElementById('test-style').innerHTML;
+				const styleContent = document.getElementById('test-style')!.innerHTML;
 				assert.equal(
 					styleContent.includes('h1[id="script-style-raw"]'),
 					true,

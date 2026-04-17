@@ -1,17 +1,15 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture, type Fixture, type DevServer } from '../../../astro/test/test-utils.js';
 
 const FIXTURE_ROOT = new URL('./fixtures/image-remark-imgattr/', import.meta.url);
 
 describe('Testing remark plugins for image processing', () => {
-	/** @type {import('../../../astro/test/test-utils.js').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	describe('start dev server', () => {
-		/** @type {import('../../../astro/test/test-utils.js').DevServer} */
-		let devServer;
+		let devServer: DevServer;
 
 		before(async () => {
 			fixture = await loadFixture({
@@ -26,7 +24,7 @@ describe('Testing remark plugins for image processing', () => {
 		});
 
 		describe('Test image attributes can be added by remark plugins', () => {
-			let $;
+			let $: ReturnType<typeof cheerio.load>;
 			before(async () => {
 				let res = await fixture.fetch('/');
 				let html = await res.text();
@@ -42,7 +40,10 @@ describe('Testing remark plugins for image processing', () => {
 
 			it('<img> was processed properly', async () => {
 				let $img = $('img');
-				assert.equal(new URL($img.attr('src'), 'http://example.com').searchParams.get('w'), '300');
+				assert.equal(
+					new URL($img.attr('src') ?? '', 'http://example.com').searchParams.get('w'),
+					'300',
+				);
 			});
 		});
 	});

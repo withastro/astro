@@ -1,10 +1,10 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture, type Fixture, type DevServer } from '../../../astro/test/test-utils.js';
 
 describe('MDX Namespace', () => {
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -22,7 +22,7 @@ describe('MDX Namespace', () => {
 			const { document } = parseHTML(html);
 
 			const island = document.querySelector('astro-island');
-			const component = document.querySelector('#component');
+			const component = document.querySelector('#component')!;
 
 			assert.notEqual(island, undefined);
 			assert.equal(component.textContent, 'Hello world');
@@ -33,7 +33,7 @@ describe('MDX Namespace', () => {
 			const { document } = parseHTML(html);
 
 			const island = document.querySelector('astro-island');
-			const component = document.querySelector('#component');
+			const component = document.querySelector('#component')!;
 
 			assert.notEqual(island, undefined);
 			assert.equal(component.textContent, 'Hello world');
@@ -41,7 +41,7 @@ describe('MDX Namespace', () => {
 	});
 
 	describe('dev', () => {
-		let devServer;
+		let devServer: DevServer;
 
 		before(async () => {
 			devServer = await fixture.startDevServer();
@@ -60,7 +60,7 @@ describe('MDX Namespace', () => {
 			const { document } = parseHTML(html);
 
 			const island = document.querySelector('astro-island');
-			const component = document.querySelector('#component');
+			const component = document.querySelector('#component')!;
 
 			assert.notEqual(island, undefined);
 			assert.equal(component.textContent, 'Hello world');
@@ -75,7 +75,7 @@ describe('MDX Namespace', () => {
 			const { document } = parseHTML(html);
 
 			const island = document.querySelector('astro-island');
-			const component = document.querySelector('#component');
+			const component = document.querySelector('#component')!;
 
 			assert.notEqual(island, undefined);
 			assert.equal(component.textContent, 'Hello world');

@@ -1,10 +1,10 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import mdx from '@astrojs/mdx';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture, type Fixture } from '../../../astro/test/test-utils.js';
 
 describe('MDX Infinite Loop', () => {
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -14,7 +14,7 @@ describe('MDX Infinite Loop', () => {
 	});
 
 	describe('build', () => {
-		let err;
+		let err: unknown;
 		before(async () => {
 			try {
 				await fixture.build();

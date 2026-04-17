@@ -1,17 +1,20 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { compile as _compile } from '@mdx-js/mdx';
 import { rehypeHeadingIds } from '@astrojs/markdown-remark';
+import { compile as _compile, type CompileOptions, nodeTypes } from '@mdx-js/mdx';
+import type { AstroIntegrationLogger } from 'astro';
+import { visit as estreeVisit } from 'estree-util-visit';
+import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import remarkSmartypants from 'remark-smartypants';
 import { visit } from 'unist-util-visit';
+import { ignoreStringPlugins } from '../../dist/utils.js';
+import type { RecmaPlugin, RehypePlugin, RemarkPlugin } from '../test-utils.js';
 
 /**
  * Compile MDX to JSX string output for inspection.
- * @param {string} mdxCode
- * @param {Readonly<import('@mdx-js/mdx').CompileOptions>} options
  */
-async function compile(mdxCode, options = {}) {
+async function compile(mdxCode: string, options: Readonly<CompileOptions> = {}) {
 	const result = await _compile(mdxCode, {
 		jsx: true,
 		...options,
@@ -22,9 +25,10 @@ async function compile(mdxCode, options = {}) {
 /**
  * Compile MDX with rehype-raw (like Astro does) and return the JSX output.
  */
-async function compileWithRaw(mdxCode, options = {}) {
-	const { nodeTypes } = await import('@mdx-js/mdx');
-	const rehypeRaw = (await import('rehype-raw')).default;
+async function compileWithRaw(
+	mdxCode: string,
+	options: Readonly<CompileOptions> = {},
+): Promise<string> {
 	return compile(mdxCode, {
 		rehypePlugins: [[rehypeRaw, { passThrough: nodeTypes }], ...(options.rehypePlugins || [])],
 		remarkPlugins: options.remarkPlugins || [],
@@ -96,14 +100,14 @@ describe('MDX SmartyPants plugin', () => {
 describe('MDX remark plugins', () => {
 	it('supports custom remark plugins that modify the tree', async () => {
 		/** Remark plugin that appends a div */
-		function remarkAddDiv() {
+		const remarkAddDiv: RemarkPlugin = () => {
 			return (tree) => {
 				tree.children.push({
 					type: 'html',
 					value: '<div data-remark-works="true"></div>',
 				});
 			};
-		}
+		};
 
 		const code = await compileWithRaw('# Hello', {
 			remarkPlugins: [remarkAddDiv],
@@ -118,7 +122,7 @@ describe('MDX remark plugins', () => {
 describe('MDX rehype plugins', () => {
 	it('supports custom rehype plugins that modify the tree', async () => {
 		/** Rehype plugin that appends a div */
-		function rehypeAddDiv() {
+		const rehypeAddDiv: RehypePlugin = () => {
 			return (tree) => {
 				tree.children.push({
 					type: 'element',
@@ -127,7 +131,7 @@ describe('MDX rehype plugins', () => {
 					children: [],
 				});
 			};
-		}
+		};
 
 		const code = await compileWithRaw('# Hello', {
 			rehypePlugins: [rehypeAddDiv],
@@ -139,7 +143,7 @@ describe('MDX rehype plugins', () => {
 	});
 
 	it('supports rehype plugins with namespaced SVG attributes', async () => {
-		function rehypeSvg() {
+		const rehypeSvg: RehypePlugin = () => {
 			return (tree) => {
 				tree.children.push({
 					type: 'element',
@@ -155,7 +159,7 @@ describe('MDX rehype plugins', () => {
 					],
 				});
 			};
-		}
+		};
 
 		const code = await compileWithRaw('# Hello', {
 			rehypePlugins: [rehypeSvg],
@@ -166,13 +170,12 @@ describe('MDX rehype plugins', () => {
 
 describe('MDX recma plugins', () => {
 	it('supports custom recma plugins that transform the estree', async () => {
-		const { visit: estreeVisit } = await import('estree-util-visit');
-
-		function recmaExample() {
+		const recmaExample: RecmaPlugin = () => {
 			return (tree) => {
 				estreeVisit(tree, (node) => {
 					if (
 						node.type === 'VariableDeclarator' &&
+						node.id.type === 'Identifier' &&
 						node.id.name === 'recmaPluginWorking' &&
 						node.init?.type === 'Literal'
 					) {
@@ -184,7 +187,7 @@ describe('MDX recma plugins', () => {
 					}
 				});
 			};
-		}
+		};
 
 		const mdxCode = `export const recmaPluginWorking = false;
 
@@ -226,7 +229,7 @@ describe('MDX heading IDs', () => {
 	});
 
 	it('allows user plugins to override heading IDs', async () => {
-		function customIdPlugin() {
+		const customIdPlugin: RehypePlugin = () => {
 			return (tree) => {
 				let count = 0;
 				visit(tree, 'element', (node) => {
@@ -236,7 +239,7 @@ describe('MDX heading IDs', () => {
 					}
 				});
 			};
-		}
+		};
 
 		const mdxCode = `# Hello
 
@@ -256,10 +259,9 @@ describe('MDX string-based plugin filtering', () => {
 		// When a string-based plugin is provided, the ignoreStringPlugins
 		// function filters it out. We test the filter function directly in utils.test.js.
 		// Here we verify that only function plugins affect output.
-		const { ignoreStringPlugins } = await import('../../dist/utils.js');
-		const logger = { warn() {} };
+		const logger = { warn() {} } as unknown as AstroIntegrationLogger;
 
-		const plugins = ['remark-toc', () => (tree) => tree];
+		const plugins = ['remark-toc', () => (tree: unknown) => tree];
 		const filtered = ignoreStringPlugins(plugins, logger);
 
 		assert.equal(filtered.length, 1, 'Should filter out string plugin');

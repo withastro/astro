@@ -1,12 +1,11 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture, type Fixture, type DevServer } from '../../../astro/test/test-utils.js';
 
 describe('Content Layer MDX rendering dev', () => {
-	/** @type {import("../../../astro/test/test-utils.js").Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
-	let devServer;
+	let devServer: DevServer;
 	before(async () => {
 		fixture = await loadFixture({
 			root: new URL('./fixtures/content-layer/', import.meta.url),
@@ -19,7 +18,7 @@ describe('Content Layer MDX rendering dev', () => {
 	});
 
 	it('Render an MDX file', async () => {
-		const html = await fixture.fetch('/reptiles/iguana').then((r) => r.text());
+		const html = await fixture.fetch('/reptiles/iguana').then((r: Response) => r.text());
 
 		assert.match(html, /Iguana/);
 		assert.match(html, /This is a rendered entry/);
@@ -27,8 +26,7 @@ describe('Content Layer MDX rendering dev', () => {
 });
 
 describe('Content Layer MDX rendering build', () => {
-	/** @type {import("../../../astro/test/test-utils.js").Fixture} */
-	let fixture;
+	let fixture: Fixture;
 	before(async () => {
 		fixture = await loadFixture({
 			root: new URL('./fixtures/content-layer/', import.meta.url),

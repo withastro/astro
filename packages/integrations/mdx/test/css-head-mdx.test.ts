@@ -3,10 +3,10 @@ import { before, describe, it } from 'node:test';
 import mdx from '@astrojs/mdx';
 import * as cheerio from 'cheerio';
 import { parseHTML } from 'linkedom';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture, type Fixture } from '../../../astro/test/test-utils.js';
 
 describe('Head injection w/ MDX', () => {
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
