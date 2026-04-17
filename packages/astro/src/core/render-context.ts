@@ -81,15 +81,6 @@ export class RenderContext {
 	public session: AstroSession | undefined;
 	public cache: CacheLike;
 	public skipMiddleware: boolean;
-	/**
-	 * Optional override for the `rewrite` function exposed to user code
-	 * (`Astro.rewrite(...)` / `ctx.rewrite(...)`). When set (by
-	 * `AstroHandler`), user-triggered rewrites go through the handler
-	 * pipeline (AstroHandler.render with a mutated FetchState) instead of
-	 * the legacy `Rewrites.execute` path. Error handlers and the container
-	 * leave this unset.
-	 */
-	public rewriteOverride: ((payload: RewritePayload) => Promise<Response>) | undefined;
 	#rewrites: Rewrites;
 
 	private constructor(
@@ -262,14 +253,21 @@ export class RenderContext {
 		return this.cookies;
 	}
 
+	/**
+	 * Triggers a rewrite against this render context. Equivalent to calling
+	 * `Astro.rewrite(...)` / `ctx.rewrite(...)` from user code — mutates
+	 * the context to point at the rewrite target and re-runs middleware
+	 * and page dispatch.
+	 */
+	rewrite(payload: RewritePayload): Promise<Response> {
+		return this.#rewrites.execute(this, payload);
+	}
+
 	createAPIContext(props: APIContext['props'], context: ActionAPIContext): APIContext {
 		const redirect = (path: string, status = 302) =>
 			new Response(null, { status, headers: { Location: path } });
 
 		const rewrite = async (reroutePayload: RewritePayload) => {
-			if (this.rewriteOverride) {
-				return await this.rewriteOverride(reroutePayload);
-			}
 			return await this.#rewrites.execute(this, reroutePayload);
 		};
 
@@ -551,9 +549,6 @@ export class RenderContext {
 		};
 
 		const rewrite = async (reroutePayload: RewritePayload) => {
-			if (this.rewriteOverride) {
-				return await this.rewriteOverride(reroutePayload);
-			}
 			return await this.#rewrites.execute(this, reroutePayload);
 		};
 

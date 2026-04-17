@@ -4,10 +4,7 @@ import {
 	REWRITE_DIRECTIVE_HEADER_KEY,
 } from '../constants.js';
 import { TrailingSlashHandler } from './trailing-slash-handler.js';
-import { copyRequest, setOriginPathname } from './rewrite.js';
 import { type CacheLike, applyCacheHeaders } from '../cache/runtime/cache.js';
-import { AstroError } from '../errors/errors.js';
-import { ForbiddenRewrite } from '../errors/errors-data.js';
 import { I18n } from '../i18n/handler.js';
 import { AstroMiddleware } from '../middleware/astro-middleware.js';
 import { PagesHandler } from '../pages/handler.js';
@@ -15,10 +12,7 @@ import { Redirects } from '../redirects/handler.js';
 import { type AstroSession, PERSIST_SYMBOL } from '../session/runtime.js';
 import { FetchState } from '../app/fetch-state.js';
 import { prepareResponse } from '../app/prepare-response.js';
-import { getCookiesFromResponse } from '../cookies/response.js';
-import type { RenderContext } from '../render-context.js';
 import type { BaseApp } from '../app/base.js';
-import type { RewritePayload } from '../../types/public/common.js';
 
 export class AstroHandler {
 	#app: BaseApp<any>;
@@ -73,11 +67,9 @@ export class AstroHandler {
 	 * Renders a response for the given `FetchState`. Assumes trailing-slash
 	 * redirects and routeData resolution have already run.
 	 *
-	 * This is the recursive entry point for rewrites: `Astro.rewrite(...)`
-	 * mutates the `state` (routeData, request, pathname) and calls
-	 * `render(state)` again to produce the new response. The mutable
-	 * `FetchState` preserves per-request concerns (locals, cookies via the
-	 * RenderContext, session) across rewrites.
+	 * User-triggered rewrites (`Astro.rewrite` / `ctx.rewrite`) go through
+	 * `Rewrites.execute` on the current `RenderContext` — they mutate the
+	 * existing context in place and re-run middleware + page dispatch.
 	 */
 	async render(state: FetchState): Promise<Response> {
 		const routeData = state.routeData!;
@@ -101,18 +93,6 @@ export class AstroHandler {
 				status: defaultStatus,
 				clientAddress,
 			});
-			// Route user-triggered rewrites (Astro.rewrite / ctx.rewrite) back
-			// through this handler so they get a fresh render context while
-			// preserving FetchState (locals, renderOptions).
-			renderContext.rewriteOverride = (payload) =>
-				this.#rewriteAndRender(state, renderContext, payload);
-			// Merge cookies from a prior render (e.g. cookies set by middleware
-			// before a rewrite) into this fresh RenderContext so they survive
-			// across the rewrite boundary.
-			if (state.pendingCookies) {
-				renderContext.getCookies().merge(state.pendingCookies);
-				state.pendingCookies = undefined;
-			}
 			session = renderContext.session;
 			cache = renderContext.cache;
 
@@ -147,7 +127,7 @@ export class AstroHandler {
 					res = await this.#i18n.finalize(state.request, res, {
 						redirect: (location, status) =>
 							new Response(null, { status, headers: { Location: location } }),
-						rewrite: (path) => this.#rewriteAndRender(state, renderContext, path),
+						rewrite: (path) => renderContext.rewrite(path),
 						currentLocale: renderContext.computeCurrentLocale(),
 						isPrerendered: renderContext.routeData.prerender,
 					});
@@ -224,79 +204,6 @@ export class AstroHandler {
 		}
 
 		prepareResponse(response, { addCookieHeader });
-		return response;
-	}
-
-	/**
-	 * Resolves the rewrite target, mutates `state` to point at the new
-	 * route, and recursively invokes `render(state)` to produce the new
-	 * response.
-	 *
-	 * Called as the `rewriteOverride` on the current request's
-	 * `RenderContext` — see `AstroHandler.render`.
-	 */
-	async #rewriteAndRender(
-		state: FetchState,
-		previousRenderContext: RenderContext,
-		payload: RewritePayload,
-	): Promise<Response> {
-		const pipeline = this.#app.pipeline;
-		pipeline.logger.debug('router', 'Calling rewrite: ', payload);
-		const oldPathname = state.pathname;
-		const previousRouteData = state.routeData;
-		// Carry the current render's cookies forward so middleware-set
-		// cookies (before the rewrite) are preserved in the next render.
-		state.pendingCookies = previousRenderContext.getCookies();
-		const { routeData, newUrl, pathname } = await pipeline.tryRewrite(payload, state.request);
-
-		// This is a case where the user tries to rewrite from a SSR route to a prerendered route (SSG).
-		// This case isn't valid because when building for SSR, the prerendered route disappears from the server output because it becomes an HTML file,
-		// so Astro can't retrieve it from the emitted manifest.
-		// Allow i18n fallback rewrites - if the target route has fallback routes, this is likely an i18n scenario
-		const isI18nFallback = routeData.fallbackRoutes && routeData.fallbackRoutes.length > 0;
-		if (
-			pipeline.manifest.serverLike &&
-			previousRouteData &&
-			!previousRouteData.prerender &&
-			routeData.prerender &&
-			!isI18nFallback
-		) {
-			throw new AstroError({
-				...ForbiddenRewrite,
-				message: ForbiddenRewrite.message(state.pathname, pathname, routeData.component),
-				hint: ForbiddenRewrite.hint(routeData.component),
-			});
-		}
-
-		state.routeData = routeData;
-		if (payload instanceof Request) {
-			state.request = payload;
-		} else {
-			state.request = copyRequest(
-				newUrl,
-				state.request,
-				// need to send the flag of the previous routeData
-				routeData.prerender,
-				pipeline.logger,
-				routeData.route,
-			);
-		}
-		state.pathname = pathname;
-		setOriginPathname(
-			state.request,
-			oldPathname,
-			pipeline.manifest.trailingSlash,
-			pipeline.manifest.buildFormat,
-		);
-		const response = await this.render(state);
-		// Merge cookies from the rewrite response back into the calling
-		// render context so that when its outer `#finalize` re-attaches
-		// cookies to the response, nothing set during the recursive render
-		// is lost.
-		const responseCookies = getCookiesFromResponse(response);
-		if (responseCookies) {
-			previousRenderContext.getCookies().merge(responseCookies);
-		}
 		return response;
 	}
 }
