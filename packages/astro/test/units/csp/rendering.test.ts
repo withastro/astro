@@ -10,7 +10,7 @@ import {
 } from '../../../dist/runtime/server/index.js';
 import type { SSRManifestCSP } from '../../../dist/types/public/internal.js';
 import type { Pipeline } from '../../../dist/core/render/index.js';
-import { createBasicPipeline } from '../test-utils.ts';
+import { createBasicPipeline, renderThroughMiddleware } from '../test-utils.ts';
 
 // #region Test Utilities
 
@@ -67,7 +67,7 @@ async function renderPage(
 		pathname: '/index',
 		clientAddress: '127.0.0.1',
 	});
-	const response = await renderContext.render(PageModule);
+	const response = await renderThroughMiddleware(renderContext, PageModule);
 	const html = await response.text();
 
 	return { html, response };

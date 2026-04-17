@@ -7,9 +7,12 @@ import { resolveConfig } from '../../dist/core/config/index.js';
 import { createBaseSettings } from '../../dist/core/config/settings.js';
 import { AstroIntegrationLogger, AstroLogger } from '../../dist/core/logger/core.js';
 import { nodeLogDestination } from '../../dist/core/logger/node.js';
+import { AstroMiddleware } from '../../dist/core/middleware/astro-middleware.js';
 import { NOOP_MIDDLEWARE_FN } from '../../dist/core/middleware/noop-middleware.js';
+import { PagesHandler } from '../../dist/core/pages/handler.js';
 import { Pipeline } from '../../dist/core/render/index.js';
 import { RouteCache } from '../../dist/core/render/route-cache.js';
+import type { RenderContext } from '../../dist/core/render-context.js';
 import type { AstroLoggerLevel } from '../../dist/core/logger/core.js';
 import type { AstroInlineConfig, RuntimeMode } from '../../dist/types/public/config.js';
 import type { AstroSettings } from '../../dist/types/astro.js';
@@ -231,6 +234,28 @@ export class SpyLogger {
 	forkIntegrationLogger(label: string) {
 		return new AstroIntegrationLogger(this.options, label);
 	}
+}
+
+/**
+ * Renders a component through a RenderContext's full pipeline
+ * (AstroMiddleware + PagesHandler). Use from tests instead of calling
+ * a `render()` method on RenderContext — rendering logic now lives in
+ * the middleware/pages handler layer, and this helper wires them up.
+ */
+export async function renderThroughMiddleware(
+	renderContext: RenderContext,
+	componentInstance: ComponentInstance | undefined,
+	slots: Record<string, any> = {},
+): Promise<Response> {
+	const pipeline = renderContext.pipeline;
+	const middleware = new AstroMiddleware(pipeline);
+	const pagesHandler = new PagesHandler(pipeline);
+	return middleware.handle(
+		renderContext,
+		componentInstance,
+		slots,
+		pagesHandler.handle.bind(pagesHandler),
+	);
 }
 
 /**

@@ -7,7 +7,7 @@ import {
 	render,
 } from '../../../dist/runtime/server/index.js';
 import type { AstroComponentFactory } from '../../../dist/runtime/server/render/index.js';
-import { createBasicPipeline } from '../test-utils.ts';
+import { createBasicPipeline, renderThroughMiddleware } from '../test-utils.ts';
 
 // The public types for maybeRenderHead declare zero params,
 // but the runtime implementation accepts a result argument.
@@ -67,7 +67,7 @@ describe('RenderContext', () => {
 				skipMiddleware: true,
 			} as any);
 
-			const response = await renderContext.render(PageModule);
+			const response = await renderThroughMiddleware(renderContext, PageModule);
 
 			assert.equal(response.status, 404);
 			assert.equal(
@@ -126,7 +126,7 @@ describe('RenderContext', () => {
 				skipMiddleware: false,
 			} as any);
 
-			const response = await renderContext.render(PageModule);
+			const response = await renderThroughMiddleware(renderContext, PageModule);
 
 			assert.equal(response.status, 200);
 			assert.equal(

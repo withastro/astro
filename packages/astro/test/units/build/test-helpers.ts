@@ -10,7 +10,12 @@ import type { Pipeline } from '../../../dist/core/base-pipeline.js';
 import type { RouteData } from '../../../dist/types/public/internal.js';
 import type { AstroInlineConfig } from '../../../dist/types/public/config.js';
 import type { ComponentInstance } from '../../../dist/types/astro.js';
-import { createBasicPipeline, createBasicSettings, defaultLogger } from '../test-utils.ts';
+import {
+	createBasicPipeline,
+	createBasicSettings,
+	defaultLogger,
+	renderThroughMiddleware,
+} from '../test-utils.ts';
 
 export function createSettings({
 	buildOutput,
@@ -267,7 +272,7 @@ export function createMockPrerenderer(
 				props,
 				clientAddress: undefined,
 			});
-			return ctx.render(componentInstance);
+			return renderThroughMiddleware(ctx, componentInstance);
 		},
 	};
 }

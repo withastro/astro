@@ -16,7 +16,7 @@ import {
 } from '../../../dist/runtime/server/index.js';
 import type { AstroComponentFactory } from '../../../dist/runtime/server/render/index.js';
 import type { Pipeline } from '../../../dist/core/render/index.js';
-import { createBasicPipeline } from '../test-utils.ts';
+import { createBasicPipeline, renderThroughMiddleware } from '../test-utils.ts';
 
 // The public types for renderHead/maybeRenderHead declare zero params,
 // but the runtime implementation accepts a result argument.
@@ -46,7 +46,7 @@ describe('head injection app-level rendering', () => {
 			params: {},
 		};
 		const renderContext = await RenderContext.create({ pipeline, request, routeData } as any);
-		const response = await renderContext.render(createAstroModule(Component));
+		const response = await renderThroughMiddleware(renderContext, createAstroModule(Component));
 		return cheerio.load(await response.text());
 	}
 

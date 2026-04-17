@@ -24,18 +24,14 @@ import {
 import { AstroCookies } from './cookies/index.js';
 import { pushDirective } from './csp/runtime.js';
 import { generateCspDigest } from './encryption.js';
-import { ForbiddenRewrite } from './errors/errors-data.js';
 import { AstroError, AstroErrorData } from './errors/index.js';
-import {
-	AstroMiddleware,
-	type ComponentRef,
-	type RenderRouteCallback,
-} from './middleware/astro-middleware.js';
-import { PagesHandler } from './pages/handler.js';
+
+
+import { Rewrites } from './rewrites/handler.js';
 
 import { getParams, type Pipeline, Slots } from './render/index.js';
 import { isRoute404or500, isRouteServerIsland } from './routing/match.js';
-import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
+import { getOriginPathname, setOriginPathname } from './routing/rewrite.js';
 import { AstroCache, type CacheLike } from './cache/runtime/cache.js';
 import { NoopAstroCache, DisabledAstroCache } from './cache/runtime/noop.js';
 import { compileCacheRoutes, matchCacheRoute } from './cache/runtime/route-matching.js';
@@ -76,7 +72,7 @@ export class RenderContext {
 	public routeData: RouteData;
 	public status: number;
 	public clientAddress: string | undefined;
-	protected cookies: AstroCookies;
+	public cookies: AstroCookies;
 	public params: Params;
 	public url: URL;
 	public props: Props;
@@ -90,11 +86,11 @@ export class RenderContext {
 	 * (`Astro.rewrite(...)` / `ctx.rewrite(...)`). When set (by
 	 * `AstroHandler`), user-triggered rewrites go through the handler
 	 * pipeline (AstroHandler.render with a mutated FetchState) instead of
-	 * the legacy `#executeRewrite` path. Error handlers and the container
+	 * the legacy `Rewrites.execute` path. Error handlers and the container
 	 * leave this unset.
 	 */
 	public rewriteOverride: ((payload: RewritePayload) => Promise<Response>) | undefined;
-	#pagesHandler: PagesHandler;
+	#rewrites: Rewrites;
 
 	private constructor(
 		pipeline: Pipeline,
@@ -135,7 +131,7 @@ export class RenderContext {
 		this.session = session;
 		this.cache = cache;
 		this.skipMiddleware = skipMiddleware;
-		this.#pagesHandler = new PagesHandler(pipeline);
+		this.#rewrites = new Rewrites();
 	}
 
 	static createNormalizedUrl(requestUrl: string): URL {
@@ -259,59 +255,11 @@ export class RenderContext {
 		);
 	}
 	/**
-	 * The main function of the RenderContext.
-	 *
-	 * Use this function to render any route known to Astro.
-	 * It attempts to render a route. A route can be a:
-	 *
-	 * - page
-	 * - redirect
-	 * - endpoint
-	 * - fallback
-	 */
-	async render(
-		componentInstance: ComponentInstance | undefined,
-		slots: Record<string, any> = {},
-		renderRouteCallback?: RenderRouteCallback,
-	): Promise<Response> {
-		const middleware = new AstroMiddleware(this.pipeline);
-		return middleware.handle(this, componentInstance, slots, renderRouteCallback);
-	}
-
-	/**
 	 * Returns the cookies for this render context. Used by `AstroMiddleware`
 	 * during response finalization.
 	 */
 	getCookies(): AstroCookies {
 		return this.cookies;
-	}
-
-	/**
-	 * Renders the currently-matched route (endpoint / redirect / page / fallback)
-	 * and returns the resulting `Response`. This is the `next` callback that
-	 * `AstroMiddleware` invokes at the bottom of the middleware chain when
-	 * the caller did not provide its own `renderRouteCallback` (e.g. error
-	 * handlers and the container API).
-	 *
-	 * Delegates to `PagesHandler` for the actual dispatch logic.
-	 */
-	async renderRoute(
-		componentRef: ComponentRef,
-		slots: Record<string, any>,
-		props: APIContext['props'],
-		actionApiContext: ActionAPIContext,
-		ctx: APIContext,
-		payload?: RewritePayload,
-	): Promise<Response> {
-		return this.#pagesHandler.handle(
-			this,
-			componentRef,
-			slots,
-			props,
-			actionApiContext,
-			ctx,
-			payload,
-		);
 	}
 
 	createAPIContext(props: APIContext['props'], context: ActionAPIContext): APIContext {
@@ -322,7 +270,7 @@ export class RenderContext {
 			if (this.rewriteOverride) {
 				return await this.rewriteOverride(reroutePayload);
 			}
-			return await this.#executeRewrite(reroutePayload);
+			return await this.#rewrites.execute(this, reroutePayload);
 		};
 
 		Reflect.set(context, pipelineSymbol, this.pipeline);
@@ -334,64 +282,6 @@ export class RenderContext {
 			getActionResult: createGetActionResult(context.locals),
 			callAction: createCallAction(context),
 		});
-	}
-
-	async #executeRewrite(reroutePayload: RewritePayload) {
-		this.pipeline.logger.debug('router', 'Calling rewrite: ', reroutePayload);
-		const oldPathname = this.pathname;
-		const { routeData, componentInstance, newUrl, pathname } = await this.pipeline.tryRewrite(
-			reroutePayload,
-			this.request,
-		);
-		// This is a case where the user tries to rewrite from a SSR route to a prerendered route (SSG).
-		// This case isn't valid because when building for SSR, the prerendered route disappears from the server output because it becomes an HTML file,
-		// so Astro can't retrieve it from the emitted manifest.
-		// Allow i18n fallback rewrites - if the target route has fallback routes, this is likely an i18n scenario
-		const isI18nFallback = routeData.fallbackRoutes && routeData.fallbackRoutes.length > 0;
-		if (
-			this.pipeline.manifest.serverLike &&
-			!this.routeData.prerender &&
-			routeData.prerender &&
-			!isI18nFallback
-		) {
-			throw new AstroError({
-				...ForbiddenRewrite,
-				message: ForbiddenRewrite.message(this.pathname, pathname, routeData.component),
-				hint: ForbiddenRewrite.hint(routeData.component),
-			});
-		}
-
-		this.routeData = routeData;
-		if (reroutePayload instanceof Request) {
-			this.request = reroutePayload;
-		} else {
-			this.request = copyRequest(
-				newUrl,
-				this.request,
-				// need to send the flag of the previous routeData
-				routeData.prerender,
-				this.pipeline.logger,
-				this.routeData.route,
-			);
-		}
-		this.url = RenderContext.createNormalizedUrl(this.request.url);
-		const newCookies = new AstroCookies(this.request);
-		if (this.cookies) {
-			newCookies.merge(this.cookies);
-		}
-		this.cookies = newCookies;
-		this.params = getParams(routeData, pathname);
-		this.pathname = pathname;
-		this.isRewriting = true;
-		// we found a route and a component, we can change the status code to 200
-		this.status = 200;
-		setOriginPathname(
-			this.request,
-			oldPathname,
-			this.pipeline.manifest.trailingSlash,
-			this.pipeline.manifest.buildFormat,
-		);
-		return await this.render(componentInstance);
 	}
 
 	createActionAPIContext(): ActionAPIContext {
@@ -664,7 +554,7 @@ export class RenderContext {
 			if (this.rewriteOverride) {
 				return await this.rewriteOverride(reroutePayload);
 			}
-			return await this.#executeRewrite(reroutePayload);
+			return await this.#rewrites.execute(this, reroutePayload);
 		};
 
 		const callAction = createCallAction(apiContext);

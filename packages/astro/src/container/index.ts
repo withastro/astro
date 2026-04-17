@@ -566,7 +566,7 @@ export class experimental_AstroContainer {
 		return this.#astroMiddleware.handle(
 			renderContext,
 			componentInstance,
-			slots,
+			slots ?? {},
 			this.#pagesHandler.handle.bind(this.#pagesHandler),
 		);
 	}

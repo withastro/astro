@@ -25,11 +25,9 @@ export interface ComponentRef {
  * Callback invoked at the bottom of the middleware chain to dispatch the
  * request to the matched route (endpoint / redirect / page / fallback).
  *
- * `AstroHandler` passes its own `renderRoute` method as this callback so
- * route dispatch logic lives alongside other request-handling concerns.
- * When not provided, `AstroMiddleware` falls back to
- * `RenderContext.renderRoute` for compatibility with error handlers and
- * container renders that go through `RenderContext.render()` directly.
+ * Callers of `AstroMiddleware.handle` pass their owned `PagesHandler`'s
+ * `handle` method (bound) so route dispatch logic stays out of the
+ * middleware layer.
  */
 export type RenderRouteCallback = (
 	renderContext: RenderContext,
@@ -46,9 +44,9 @@ export type RenderRouteCallback = (
  * single render. Holds a reference to the `Pipeline` and composes the
  * internal and user middleware at render time.
  *
- * The actual route dispatch (endpoint / redirect / page / fallback) lives on
- * `RenderContext.renderRoute(...)` so it can mutate per-request state (e.g.
- * when a middleware invokes a rewrite).
+ * The actual route dispatch (endpoint / redirect / page / fallback) is
+ * supplied by the caller as `renderRouteCallback` — typically bound to a
+ * `PagesHandler.handle`.
  */
 export class AstroMiddleware {
 	#pipeline: Pipeline;
@@ -60,8 +58,8 @@ export class AstroMiddleware {
 	async handle(
 		renderContext: RenderContext,
 		componentInstance: ComponentInstance | undefined,
-		slots: Record<string, any> = {},
-		renderRouteCallback?: RenderRouteCallback,
+		slots: Record<string, any>,
+		renderRouteCallback: RenderRouteCallback,
 	): Promise<Response> {
 		const pipeline = this.#pipeline;
 		const { logger, manifest } = pipeline;
@@ -99,22 +97,19 @@ export class AstroMiddleware {
 		}
 
 		// Track componentInstance across rewrites. Rewrites inside `next()`
-		// (see RenderContext.renderRoute) may replace the component, and the
-		// middleware may call next() multiple times.
+		// may replace the component, and middleware may call next() multiple times.
 		const componentRef: ComponentRef = { current: componentInstance };
 
 		const next = (ctx: APIContext, payload?: RewritePayload) =>
-			renderRouteCallback
-				? renderRouteCallback(
-						renderContext,
-						componentRef,
-						slots,
-						props,
-						actionApiContext,
-						ctx,
-						payload,
-					)
-				: renderContext.renderRoute(componentRef, slots, props, actionApiContext, ctx, payload);
+			renderRouteCallback(
+				renderContext,
+				componentRef,
+				slots,
+				props,
+				actionApiContext,
+				ctx,
+				payload,
+			);
 
 		let response: Response;
 		if (renderContext.skipMiddleware) {
