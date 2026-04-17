@@ -96,10 +96,12 @@ export async function loadFixture(inlineConfig) {
 	inlineConfig.vite ??= {};
 	inlineConfig.vite.logLevel = 'silent';
 
-	// Use port 0 (OS-assigned) so tests don't collide when running in parallel.
-	// Each dev/preview server gets an available port from the OS.
-	inlineConfig.server ??= {};
-	inlineConfig.server.port ??= 0;
+	// When running in parallel mode (each test file in its own child process),
+	// use port 0 (OS-assigned) so dev/preview servers don't collide.
+	if (process.env.NODE_TEST_CONTEXT === 'child-v8') {
+		inlineConfig.server ??= {};
+		inlineConfig.server.port ??= 0;
+	}
 
 	let root = inlineConfig.root;
 	// Handle URL, should already be absolute so just convert to path
