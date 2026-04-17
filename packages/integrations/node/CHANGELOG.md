@@ -1,5 +1,19 @@
 # @astrojs/node
 
+## 10.0.5
+
+### Patch Changes
+
+- [#16319](https://github.com/withastro/astro/pull/16319) [`940afd5`](https://github.com/withastro/astro/commit/940afd53040a14e924606b3218a8619c1e2674ee) Thanks [@matthewp](https://github.com/matthewp)! - Fixes static asset error responses incorrectly including immutable cache headers. Conditional request failures (e.g. `If-Match` mismatch) now return the correct status code without far-future cache directives.
+
+## 10.0.4
+
+### Patch Changes
+
+- [#16002](https://github.com/withastro/astro/pull/16002) [`846f27f`](https://github.com/withastro/astro/commit/846f27f4be8508f728d237e93fcac7c6ec8227b2) Thanks [@buley](https://github.com/buley)! - Fixes file descriptor leaks from read streams that were not destroyed on client disconnect or read errors
+
+- [#15941](https://github.com/withastro/astro/pull/15941) [`f41584a`](https://github.com/withastro/astro/commit/f41584ad8af1d9edfa22153fb65005b2e9529d73) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an infinite loop in `resolveClientDir()` when the server entry point is bundled with esbuild or similar tools. The function now throws a descriptive error instead of hanging indefinitely when the expected server directory segment is not found in the file path.
+
 ## 10.0.3
 
 ### Patch Changes

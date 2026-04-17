@@ -1,5 +1,19 @@
 # @astrojs/svelte
 
+## 8.0.5
+
+### Patch Changes
+
+- [#16210](https://github.com/withastro/astro/pull/16210) [`e030bd0`](https://github.com/withastro/astro/commit/e030bd058457505b605ef573cfc71239baa963f0) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `.svelte` files in `node_modules` failing with `Unknown file extension ".svelte"` when using the Cloudflare adapter with `prerenderEnvironment: 'node'`
+
+## 8.0.4
+
+### Patch Changes
+
+- [#15604](https://github.com/withastro/astro/pull/15604) [`3e1ac66`](https://github.com/withastro/astro/commit/3e1ac6675d80776dc72c8a8e5f7de35aa57f56e3) Thanks [@pierreeurope](https://github.com/pierreeurope)! - Adds a temporary workaround for a Svelte bug causing empty class attributes in SSR output.
+
+- [#16050](https://github.com/withastro/astro/pull/16050) [`89a7250`](https://github.com/withastro/astro/commit/89a7250e803ad86f2ad035f61909ea4c5942626c) Thanks [@seroperson](https://github.com/seroperson)! - Using a Svelte component with generic type parameters now correctly infer props in .astro files
+
 ## 8.0.3
 
 ### Patch Changes

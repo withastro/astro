@@ -1,0 +1,31 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    "test/units/**/*.ts",
+    "test/*.ts",
+    "test/test-adapter.js",
+    "test/test-image-service.js",
+    "test/test-plugins.js",
+    "test/test-prerenderer.js",
+    "test/test-remote-image-service.js",
+    "test/test-utils.js",
+    "package.json"
+  ],
+  "exclude": ["test/units/_temp-fixtures/**", "test/fixtures/**"],
+  "compilerOptions": {
+    "types": ["vite/client", "node"],
+    "composite": true,
+    "allowJs": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "rewriteRelativeImportExtensions": true
+  },
+  "references": [
+    {
+      "path": "./tsconfig.json"
+    },
+    {
+      "path": "../../scripts/tsconfig.json"
+    }
+  ]
+}

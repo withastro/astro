@@ -3,7 +3,7 @@ import { Writable } from 'node:stream';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import parseSrcset from 'parse-srcset';
-import { Logger } from '../dist/core/logger/core.js';
+import { AstroLogger } from '../dist/core/logger/core.js';
 import { testImageService } from './test-image-service.js';
 import { testRemoteImageService } from './test-remote-image-service.js';
 import { loadFixture } from './test-utils.js';
@@ -354,9 +354,9 @@ describe('astro:image:layout', () => {
 			});
 
 			devServer = await fixture.startDevServer({
-				logger: new Logger({
+				logger: new AstroLogger({
 					level: 'error',
-					dest: new Writable({
+					destination: new Writable({
 						objectMode: true,
 						write(event, _, callback) {
 							logs.push(event);

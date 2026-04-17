@@ -38,10 +38,10 @@
   },
   "devDependencies": {
     "@types/node": "^20.9.0",
-    "tinyglobby": "^0.2.15",
     "@types/yargs": "^17.0.35",
-    "tsx": "^4.21.0",
-    "astro-scripts": "workspace:*"
+    "astro-scripts": "workspace:*",
+    "tinyglobby": "^0.2.16",
+    "tsx": "^4.21.0"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
