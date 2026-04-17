@@ -8,6 +8,8 @@ const PERSIST_ATTR = 'data-astro-transition-persist';
 
 const NON_OVERRIDABLE_ASTRO_ATTRS = ['data-astro-transition', 'data-astro-transition-fallback'];
 
+const knownVueScopedStyles = new Map<string, HTMLStyleElement>();
+
 const scriptsAlreadyRan = new Set<string>();
 export function detectScriptExecuted(script: HTMLScriptElement) {
 	const key = script.src ? new URL(script.src, location.href).href : script.textContent!;
@@ -61,13 +63,33 @@ export function swapHeadElements(doc: Document) {
 		if (newEl) {
 			newEl.remove();
 		} else {
-			// Otherwise, remove the element in the head. It doesn't exist in the new page.
+			if (import.meta.env.DEV && el instanceof HTMLStyleElement) {
+				// In DEV mode, keep updated Vue scoped styles for later reuse
+				const viteDevId = el.dataset.viteDevId;
+				if (viteDevId) {
+					const url = new URL(viteDevId, location.href);
+					if (
+						url.searchParams.get('vue') !== null &&
+						url.searchParams.get('type') === 'style' &&
+						url.searchParams.has('scoped')
+					)
+						knownVueScopedStyles.set(viteDevId, el);
+				}
+			}
+			// If the element does not exist in the new document, remove the element from current the head.
 			el.remove();
 		}
 	}
 
 	// Everything left in the new head is new, append it all.
-	document.head.append(...doc.head.children);
+	if (!import.meta.env.DEV) {
+		document.head.append(...doc.head.children);
+	} else {
+		// In DEV mode, replace known Vue scoped styles with the versions we remembered
+		[...doc.head.children].forEach((child) => {
+			document.head.append(knownVueScopedStyles.get((child as any).dataset?.viteDevId) || child);
+		});
+	}
 }
 
 export function swapBodyElement(newElement: Element, oldElement: Element) {
