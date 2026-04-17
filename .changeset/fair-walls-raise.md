@@ -1,3 +1,4 @@
+---
 astro: minor
 '@astrojs/cloudflare': patch
 ---
