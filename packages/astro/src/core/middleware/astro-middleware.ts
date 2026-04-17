@@ -1,3 +1,4 @@
+import type { ActionAPIContext } from '../../actions/runtime/types.js';
 import type { ComponentInstance } from '../../types/astro.js';
 import type { RewritePayload } from '../../types/public/common.js';
 import type { APIContext } from '../../types/public/context.js';
@@ -21,6 +22,26 @@ export interface ComponentRef {
 }
 
 /**
+ * Callback invoked at the bottom of the middleware chain to dispatch the
+ * request to the matched route (endpoint / redirect / page / fallback).
+ *
+ * `AstroHandler` passes its own `renderRoute` method as this callback so
+ * route dispatch logic lives alongside other request-handling concerns.
+ * When not provided, `AstroMiddleware` falls back to
+ * `RenderContext.renderRoute` for compatibility with error handlers and
+ * container renders that go through `RenderContext.render()` directly.
+ */
+export type RenderRouteCallback = (
+	renderContext: RenderContext,
+	componentRef: ComponentRef,
+	slots: Record<string, any>,
+	props: APIContext['props'],
+	actionApiContext: ActionAPIContext,
+	ctx: APIContext,
+	payload?: RewritePayload,
+) => Promise<Response>;
+
+/**
  * Handles the execution of Astro's middleware chain (internal + user) for a
  * single render. Holds a reference to the `Pipeline` and composes the
  * internal and user middleware at render time.
@@ -40,6 +61,7 @@ export class AstroMiddleware {
 		renderContext: RenderContext,
 		componentInstance: ComponentInstance | undefined,
 		slots: Record<string, any> = {},
+		renderRouteCallback?: RenderRouteCallback,
 	): Promise<Response> {
 		const pipeline = this.#pipeline;
 		const { logger, manifest } = pipeline;
@@ -82,7 +104,17 @@ export class AstroMiddleware {
 		const componentRef: ComponentRef = { current: componentInstance };
 
 		const next = (ctx: APIContext, payload?: RewritePayload) =>
-			renderContext.renderRoute(componentRef, slots, props, actionApiContext, ctx, payload);
+			renderRouteCallback
+				? renderRouteCallback(
+						renderContext,
+						componentRef,
+						slots,
+						props,
+						actionApiContext,
+						ctx,
+						payload,
+					)
+				: renderContext.renderRoute(componentRef, slots, props, actionApiContext, ctx, payload);
 
 		let response: Response;
 		if (renderContext.skipMiddleware) {

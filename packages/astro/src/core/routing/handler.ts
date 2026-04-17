@@ -6,6 +6,7 @@ import {
 import { TrailingSlashHandler } from './trailing-slash-handler.js';
 import { type CacheLike, applyCacheHeaders } from '../cache/runtime/cache.js';
 import { AstroMiddleware } from '../middleware/astro-middleware.js';
+import { PagesHandler } from '../pages/handler.js';
 import { type AstroSession, PERSIST_SYMBOL } from '../session/runtime.js';
 import { FetchState } from '../app/fetch-state.js';
 import { getRenderOptions } from '../app/render-options.js';
@@ -16,11 +17,13 @@ export class AstroHandler {
 	#app: BaseApp<any>;
 	#trailingSlashHandler: TrailingSlashHandler;
 	#astroMiddleware: AstroMiddleware;
+	#pagesHandler: PagesHandler;
 
 	constructor(app: BaseApp<any>) {
 		this.#app = app;
 		this.#trailingSlashHandler = new TrailingSlashHandler(app);
 		this.#astroMiddleware = new AstroMiddleware(app.pipeline);
+		this.#pagesHandler = new PagesHandler(app.pipeline);
 	}
 
 	async handle(request: Request): Promise<Response> {
@@ -76,6 +79,7 @@ export class AstroHandler {
 			session = renderContext.session;
 			cache = renderContext.cache;
 
+			const renderRouteCallback = this.#pagesHandler.handle.bind(this.#pagesHandler);
 			if (this.#app.pipeline.cacheProvider) {
 				// If the cache provider has an onRequest handler (runtime caching),
 				// wrap the render call so the provider can serve from cache
@@ -87,7 +91,12 @@ export class AstroHandler {
 							url: new URL(request.url),
 						},
 						async () => {
-							const res = await this.#astroMiddleware.handle(renderContext, componentInstance);
+							const res = await this.#astroMiddleware.handle(
+								renderContext,
+								componentInstance,
+								{},
+								renderRouteCallback,
+							);
 							// Apply cache headers before the provider reads them
 							applyCacheHeaders(cache!, res);
 							return res;
@@ -97,12 +106,22 @@ export class AstroHandler {
 					response.headers.delete('CDN-Cache-Control');
 					response.headers.delete('Cache-Tag');
 				} else {
-					response = await this.#astroMiddleware.handle(renderContext, componentInstance);
+					response = await this.#astroMiddleware.handle(
+						renderContext,
+						componentInstance,
+						{},
+						renderRouteCallback,
+					);
 					// Apply cache headers for CDN-based providers (no onRequest)
 					applyCacheHeaders(cache!, response);
 				}
 			} else {
-				response = await this.#astroMiddleware.handle(renderContext, componentInstance);
+				response = await this.#astroMiddleware.handle(
+					renderContext,
+					componentInstance,
+					{},
+					renderRouteCallback,
+				);
 			}
 
 			const isRewrite = response.headers.has(REWRITE_DIRECTIVE_HEADER_KEY);

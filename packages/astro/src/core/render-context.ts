@@ -1,5 +1,4 @@
 import colors from 'piccolore';
-import { ActionHandler } from '../actions/handler.js';
 import { deserializeActionResult } from '../actions/runtime/client.js';
 import type { ActionAPIContext } from '../actions/runtime/types.js';
 import { createCallAction, createGetActionResult, hasActionPayload } from '../actions/utils.js';
@@ -9,30 +8,26 @@ import {
 	computePreferredLocale,
 	computePreferredLocaleList,
 } from '../i18n/utils.js';
-import { renderEndpoint } from '../runtime/server/endpoint.js';
-import { renderPage } from '../runtime/server/index.js';
+
+
 import type { ComponentInstance } from '../types/astro.js';
 import type { Params, Props, RewritePayload } from '../types/public/common.js';
 import type { APIContext, AstroGlobal } from '../types/public/context.js';
 import type { RouteData, SSRResult } from '../types/public/internal.js';
 import type { ServerIslandMappings, SSRActions } from './app/types.js';
-import {
-	ASTRO_GENERATOR,
-	pipelineSymbol,
-	REROUTE_DIRECTIVE_HEADER,
-	REWRITE_DIRECTIVE_HEADER_KEY,
-	REWRITE_DIRECTIVE_HEADER_VALUE,
-	ROUTE_TYPE_HEADER,
-	responseSentSymbol,
-} from './constants.js';
+import { ASTRO_GENERATOR, pipelineSymbol, responseSentSymbol } from './constants.js';
 import { AstroCookies } from './cookies/index.js';
-import { getCookiesFromResponse } from './cookies/response.js';
 import { pushDirective } from './csp/runtime.js';
 import { generateCspDigest } from './encryption.js';
 import { ForbiddenRewrite } from './errors/errors-data.js';
 import { AstroError, AstroErrorData } from './errors/index.js';
-import { AstroMiddleware, type ComponentRef } from './middleware/astro-middleware.js';
-import { renderRedirect } from './redirects/render.js';
+import {
+	AstroMiddleware,
+	type ComponentRef,
+	type RenderRouteCallback,
+} from './middleware/astro-middleware.js';
+import { PagesHandler } from './pages/handler.js';
+
 import { getParams, type Pipeline, Slots } from './render/index.js';
 import { isRoute404or500, isRouteServerIsland } from './routing/match.js';
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
@@ -78,13 +73,14 @@ export class RenderContext {
 	public clientAddress: string | undefined;
 	protected cookies: AstroCookies;
 	public params: Params;
-	protected url: URL;
+	public url: URL;
 	public props: Props;
 	public partial: undefined | boolean;
 	public shouldInjectCspMetaTags: boolean;
 	public session: AstroSession | undefined;
 	public cache: CacheLike;
 	public skipMiddleware: boolean;
+	#pagesHandler: PagesHandler;
 
 	private constructor(
 		pipeline: Pipeline,
@@ -99,7 +95,7 @@ export class RenderContext {
 		clientAddress: string | undefined,
 		cookies = new AstroCookies(request),
 		params = getParams(routeData, pathname),
-		url = RenderContext.#createNormalizedUrl(request.url),
+		url = RenderContext.createNormalizedUrl(request.url),
 		props: Props = {},
 		partial: undefined | boolean = undefined,
 		shouldInjectCspMetaTags = pipeline.manifest.shouldInjectCspMetaTags,
@@ -125,9 +121,10 @@ export class RenderContext {
 		this.session = session;
 		this.cache = cache;
 		this.skipMiddleware = skipMiddleware;
+		this.#pagesHandler = new PagesHandler(pipeline);
 	}
 
-	static #createNormalizedUrl(requestUrl: string): URL {
+	static createNormalizedUrl(requestUrl: string): URL {
 		const url = new URL(requestUrl);
 		try {
 			// Decode and validate pathname to prevent multi-level encoding bypass attacks
@@ -256,9 +253,10 @@ export class RenderContext {
 	async render(
 		componentInstance: ComponentInstance | undefined,
 		slots: Record<string, any> = {},
+		renderRouteCallback?: RenderRouteCallback,
 	): Promise<Response> {
 		const middleware = new AstroMiddleware(this.pipeline);
-		return middleware.handle(this, componentInstance, slots);
+		return middleware.handle(this, componentInstance, slots, renderRouteCallback);
 	}
 
 	/**
@@ -272,13 +270,11 @@ export class RenderContext {
 	/**
 	 * Renders the currently-matched route (endpoint / redirect / page / fallback)
 	 * and returns the resulting `Response`. This is the `next` callback that
-	 * `AstroMiddleware` invokes at the bottom of the middleware chain.
+	 * `AstroMiddleware` invokes at the bottom of the middleware chain when
+	 * the caller did not provide its own `renderRouteCallback` (e.g. error
+	 * handlers and the container API).
 	 *
-	 * If a `RewritePayload` is supplied, it first resolves the rewrite and
-	 * mutates this context's route state (`routeData`, `request`, `url`,
-	 * `params`, `pathname`, `status`, `isRewriting`) before dispatching.
-	 * `componentRef.current` is updated to the rewritten component so that
-	 * further rewrites see the new component.
+	 * Delegates to `PagesHandler` for the actual dispatch logic.
 	 */
 	async renderRoute(
 		componentRef: ComponentRef,
@@ -288,129 +284,15 @@ export class RenderContext {
 		ctx: APIContext,
 		payload?: RewritePayload,
 	): Promise<Response> {
-		const { pipeline } = this;
-		const { logger, streaming } = pipeline;
-
-		if (payload) {
-			const oldPathname = this.pathname;
-			pipeline.logger.debug('router', 'Called rewriting to:', payload);
-			// we intentionally let the error bubble up
-			const {
-				routeData,
-				componentInstance: newComponent,
-				pathname,
-				newUrl,
-			} = await pipeline.tryRewrite(payload, this.request);
-
-			// This is a case where the user tries to rewrite from a SSR route to a prerendered route (SSG).
-			// This case isn't valid because when building for SSR, the prerendered route disappears from the server output because it becomes an HTML file,
-			// so Astro can't retrieve it from the emitted manifest.
-			if (
-				this.pipeline.manifest.serverLike === true &&
-				this.routeData.prerender === false &&
-				routeData.prerender === true
-			) {
-				throw new AstroError({
-					...ForbiddenRewrite,
-					message: ForbiddenRewrite.message(this.pathname, pathname, routeData.component),
-					hint: ForbiddenRewrite.hint(routeData.component),
-				});
-			}
-
-			this.routeData = routeData;
-			componentRef.current = newComponent;
-			if (payload instanceof Request) {
-				this.request = payload;
-			} else {
-				this.request = copyRequest(
-					newUrl,
-					this.request,
-					// need to send the flag of the previous routeData
-					routeData.prerender,
-					this.pipeline.logger,
-					this.routeData.route,
-				);
-			}
-			this.isRewriting = true;
-			this.url = RenderContext.#createNormalizedUrl(this.request.url);
-			this.params = getParams(routeData, pathname);
-			this.pathname = pathname;
-			this.status = 200;
-			setOriginPathname(
-				this.request,
-				oldPathname,
-				this.pipeline.manifest.trailingSlash,
-				this.pipeline.manifest.buildFormat,
-			);
-		}
-		let response: Response;
-
-		// Handle Astro Action requests (RPC + form).
-		// - RPC: returns a serialized action result and short-circuits rendering.
-		// - Form: runs the action, stashes the result in `locals._actionPayload`,
-		//   and falls through to render the page normally.
-		// Skipped during error-page recovery (skipMiddleware=true) to match
-		// the prior form-action behavior and avoid re-running the action.
-		if (!this.skipMiddleware) {
-			const actionResponse = await new ActionHandler().handle(ctx);
-			if (actionResponse) {
-				return actionResponse;
-			}
-		}
-
-		const componentInstance = componentRef.current;
-		switch (this.routeData.type) {
-			case 'endpoint': {
-				response = await renderEndpoint(
-					componentInstance as any,
-					ctx,
-					this.routeData.prerender,
-					logger,
-				);
-				break;
-			}
-			case 'redirect':
-				return renderRedirect(this);
-			case 'page': {
-				this.result = await this.createResult(componentInstance!, actionApiContext);
-				try {
-					response = await renderPage(
-						this.result,
-						componentInstance?.default as any,
-						props,
-						slots,
-						streaming,
-						this.routeData,
-					);
-				} catch (e) {
-					// If there is an error in the page's frontmatter or instantiation of the RenderTemplate fails midway,
-					// we signal to the rest of the internals that we can ignore the results of existing renders and avoid kicking off more of them.
-					this.result.cancelled = true;
-					throw e;
-				}
-
-				// Signal to the i18n middleware to maybe act on this response
-				response.headers.set(ROUTE_TYPE_HEADER, 'page');
-				// Signal to the error-page-rerouting infra to let this response pass through to avoid loops
-				if (this.routeData.route === '/404' || this.routeData.route === '/500') {
-					response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
-				}
-				if (this.isRewriting) {
-					response.headers.set(REWRITE_DIRECTIVE_HEADER_KEY, REWRITE_DIRECTIVE_HEADER_VALUE);
-				}
-				break;
-			}
-			case 'fallback': {
-				return new Response(null, { status: 500, headers: { [ROUTE_TYPE_HEADER]: 'fallback' } });
-			}
-		}
-		// We need to merge the cookies from the response back into this.cookies
-		// because they may need to be passed along from a rewrite.
-		const responseCookies = getCookiesFromResponse(response);
-		if (responseCookies) {
-			this.cookies.merge(responseCookies);
-		}
-		return response;
+		return this.#pagesHandler.handle(
+			this,
+			componentRef,
+			slots,
+			props,
+			actionApiContext,
+			ctx,
+			payload,
+		);
 	}
 
 	createAPIContext(props: APIContext['props'], context: ActionAPIContext): APIContext {
@@ -470,7 +352,7 @@ export class RenderContext {
 				this.routeData.route,
 			);
 		}
-		this.url = RenderContext.#createNormalizedUrl(this.request.url);
+		this.url = RenderContext.createNormalizedUrl(this.request.url);
 		const newCookies = new AstroCookies(this.request);
 		if (this.cookies) {
 			newCookies.merge(this.cookies);
