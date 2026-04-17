@@ -1,5 +1,5 @@
 import type { RuntimeFontFileUrlResolver } from '../definitions.js';
-import { MissingGetFontBufferRequestUrl } from '../../../core/errors/errors-data.js';
+import { MissingGetFontFileRequestUrl } from '../../../core/errors/errors-data.js';
 import { AstroError } from '../../../core/errors/errors.js';
 
 /**
@@ -27,7 +27,7 @@ export class SsrRuntimeFontFileUrlResolver implements RuntimeFontFileUrlResolver
 		}
 		// We need the request URL to call the current server
 		if (!requestUrl) {
-			throw new AstroError(MissingGetFontBufferRequestUrl);
+			throw new AstroError(MissingGetFontFileRequestUrl);
 		}
 		return `${requestUrl.origin}${url}`;
 	}

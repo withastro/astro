@@ -4,7 +4,7 @@ import { collectComponentData } from '../../../../dist/assets/fonts/core/collect
 import { collectFontAssetsFromFaces } from '../../../../dist/assets/fonts/core/collect-font-assets-from-faces.js';
 import { collectFontData } from '../../../../dist/assets/fonts/core/collect-font-data.js';
 import { computeFontFamiliesAssets } from '../../../../dist/assets/fonts/core/compute-font-families-assets.js';
-import { createGetFontBufferURL } from '../../../../dist/assets/fonts/core/create-get-font-buffer-url.js';
+import { createGetFontFileURL } from '../../../../dist/assets/fonts/core/create-get-font-file-url.js';
 import { filterAndTransformFontFaces } from '../../../../dist/assets/fonts/core/filter-and-transform-font-faces.js';
 import { filterPreloads } from '../../../../dist/assets/fonts/core/filter-preloads.js';
 import { getOrCreateFontFamilyAssets } from '../../../../dist/assets/fonts/core/get-or-create-font-family-assets.js';
@@ -1744,10 +1744,10 @@ describe('fonts core', () => {
 		});
 	});
 
-	describe('createGetFontBufferURL()', () => {
+	describe('createGetFontFileURL()', () => {
 		it('throws if runtimeFontFetcher throws', async () => {
 			assert.throws(() =>
-				createGetFontBufferURL({
+				createGetFontFileURL({
 					resolve: () => {
 						throw new Error('test');
 					},
@@ -1757,7 +1757,7 @@ describe('fonts core', () => {
 
 		it('throws if there is no buffer', async () => {
 			assert.throws(() =>
-				createGetFontBufferURL({
+				createGetFontFileURL({
 					resolve: () => null,
 				})('foo'),
 			);
@@ -1765,7 +1765,7 @@ describe('fonts core', () => {
 
 		it('works', async () => {
 			assert.equal(
-				createGetFontBufferURL({
+				createGetFontFileURL({
 					resolve: () => 'bar',
 				})('foo'),
 				'bar',

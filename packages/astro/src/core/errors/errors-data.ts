@@ -1480,24 +1480,24 @@ export const FontFamilyNotFound = {
  * @description
  * Font buffer URL not found
  * @message
- * The URL passed to the `experimental_getFontBufferURL()` function is invalid.
+ * The URL passed to the `experimental_getFontFileURL()` function is invalid.
  */
-export const FontBufferUrlNotFound = {
-	name: 'FontBufferUrlNotFound',
+export const FontFileUrlNotFound = {
+	name: 'FontFileUrlNotFound',
 	title: 'Font buffer URL not found',
 	message: (url: string) =>
-		`The \`"${url}"\` URL passed to the \`experimental_getFontBufferURL()\` function is invalid.`,
+		`The \`"${url}"\` URL passed to the \`experimental_getFontFileURL()\` function is invalid.`,
 	hint: 'Make sure you pass a valid URL, obtained via the \`fontData\` object.',
 } satisfies ErrorData;
 
 /**
  * @docs
  * @description
- * `experimental_getFontBufferURL()` requires the request URL with on-demand rendering.
+ * `experimental_getFontFileURL()` requires the request URL with on-demand rendering.
  */
-export const MissingGetFontBufferRequestUrl = {
-	name: 'MissingGetFontBufferRequestUrl',
-	title: '`experimental_getFontBufferURL()` requires the request URL with on-demand rendering.',
+export const MissingGetFontFileRequestUrl = {
+	name: 'MissingGetFontFileRequestUrl',
+	title: '`experimental_getFontFileURL()` requires the request URL with on-demand rendering.',
 	hint: 'Pass the request URL as the 2nd argument, for example `Astro.url`.',
 } satisfies ErrorData;
 
