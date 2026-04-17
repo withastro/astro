@@ -33,6 +33,18 @@ describe('Special chars in component import paths', () => {
 			assert.equal(html.includes('<html>'), true);
 		});
 
+		it('Output JS filenames do not contain unsafe characters', async () => {
+			const files = await fixture.readdir('/_astro');
+			const jsFiles = files.filter((f) => f.endsWith('.js'));
+			for (const file of jsFiles) {
+				assert.equal(
+					/[!~#{}<>]/.test(file),
+					false,
+					`File "${file}" contains unsafe characters that break some hosting platforms`,
+				);
+			}
+		});
+
 		it('Special chars in imports work from .astro files', async () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerioLoad(html);

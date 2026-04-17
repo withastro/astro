@@ -96,6 +96,15 @@ describe('SSR: prerender', () => {
 			assert.equal($('p').text().includes('not give 404'), true);
 		});
 	});
+
+	it('Renders markdown pages correctly', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/post');
+		const response = await app.render(request);
+		const html = await response.text();
+		const $ = cheerio.load(html);
+		assert.equal($('#subheading').text(), 'Subheading');
+	});
 });
 
 // NOTE: This test doesn't make sense as it relies on the fact that on the client build,
