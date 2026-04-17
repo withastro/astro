@@ -76,7 +76,7 @@ describe('Markdoc - Image assets', () => {
 
 			describe('build', () => {
 				before(async () => {
-					await baseFixture.build({});
+					await baseFixture.build();
 				});
 
 				it('uses public/ image paths unchanged', async () => {

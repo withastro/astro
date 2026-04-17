@@ -42,7 +42,7 @@ describe('Sitemap with chunked files', () => {
 				}),
 			],
 		});
-		await fixture.build({});
+		await fixture.build();
 		const flatMapUrls = async (file: string) => {
 			const data = await readXML(fixture.readFile(file));
 			return data.urlset.url.map((url: { loc: string[] }) => url.loc[0]);

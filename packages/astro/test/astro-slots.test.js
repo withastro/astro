@@ -181,4 +181,11 @@ describe('Slots', () => {
 		const [afterChildren] = afterDiv.children('div');
 		assert.deepEqual(afterChildren.firstChild.data, 'Test Content AFTER');
 	});
+
+	it('Unused slot builds without error', async () => {
+		const html = await fixture.readFile('/unused-slot/index.html');
+		const $ = cheerio.load(html);
+		// No children, slot rendered as empty
+		assert.equal($('body p').children().length, 0);
+	});
 });

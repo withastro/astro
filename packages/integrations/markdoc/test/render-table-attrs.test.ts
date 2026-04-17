@@ -13,7 +13,7 @@ describe('Markdoc - table attributes', () => {
 	describe('build', () => {
 		it('renders table with custom attributes without validation errors', async () => {
 			const fixture = await getFixture();
-			await fixture.build({});
+			await fixture.build();
 
 			const html = await fixture.readFile('/index.html');
 			const { document } = parseHTML(html);

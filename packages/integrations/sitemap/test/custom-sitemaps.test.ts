@@ -18,7 +18,7 @@ describe('Custom sitemaps', () => {
 				}),
 			],
 		});
-		await fixture.build({});
+		await fixture.build();
 		const data = await readXML(fixture.readFile('/sitemap-index.xml'));
 		sitemaps = data.sitemapindex.sitemap.map((s: { loc: string[]; lastmod: string[] }) => ({
 			loc: s.loc[0],
