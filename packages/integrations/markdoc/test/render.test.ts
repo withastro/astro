@@ -75,7 +75,7 @@ describe('Markdoc - render', () => {
 	describe('build', () => {
 		it('renders content - simple', async () => {
 			const fixture = await getFixture('render-simple');
-			await fixture.build({});
+			await fixture.build();
 
 			const html = await fixture.readFile('/index.html');
 
@@ -84,7 +84,7 @@ describe('Markdoc - render', () => {
 
 		it('renders content - with partials', async () => {
 			const fixture = await getFixture('render-partials');
-			await fixture.build({});
+			await fixture.build();
 
 			const html = await fixture.readFile('/index.html');
 
@@ -93,7 +93,7 @@ describe('Markdoc - render', () => {
 
 		it('renders content - with config', async () => {
 			const fixture = await getFixture('render-with-config');
-			await fixture.build({});
+			await fixture.build();
 
 			const html = await fixture.readFile('/index.html');
 
@@ -102,7 +102,7 @@ describe('Markdoc - render', () => {
 
 		it('renders content - with `render: null` in document', async () => {
 			const fixture = await getFixture('render-null');
-			await fixture.build({});
+			await fixture.build();
 
 			const html = await fixture.readFile('/index.html');
 
@@ -111,7 +111,7 @@ describe('Markdoc - render', () => {
 
 		it('renders content - with root folder containing space', async () => {
 			const fixture = await getFixture('render with-space');
-			await fixture.build({});
+			await fixture.build();
 
 			const html = await fixture.readFile('/index.html');
 
@@ -120,7 +120,7 @@ describe('Markdoc - render', () => {
 
 		it('renders content - with typographer option', async () => {
 			const fixture = await getFixture('render-typographer');
-			await fixture.build({});
+			await fixture.build();
 
 			const html = await fixture.readFile('/index.html');
 

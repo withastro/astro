@@ -65,7 +65,7 @@ describe('Markdoc - render html', () => {
 
 	describe('build', () => {
 		before(async () => {
-			await fixture.build({});
+			await fixture.build();
 		});
 
 		it('renders content - simple', async () => {
