@@ -65,16 +65,8 @@ export function swapHeadElements(doc: Document) {
 		} else {
 			if (import.meta.env.DEV && el instanceof HTMLStyleElement) {
 				// In DEV mode, keep updated Vue scoped styles for later reuse
-				const viteDevId = el.dataset.viteDevId;
-				if (viteDevId) {
-					const url = new URL(viteDevId, location.href);
-					if (
-						url.searchParams.get('vue') !== null &&
-						url.searchParams.get('type') === 'style' &&
-						url.searchParams.has('scoped')
-					)
-						knownVueScopedStyles.set(viteDevId, el);
-				}
+				const viteDevId = vueScopedStyleId(el);
+				viteDevId && knownVueScopedStyles.set(viteDevId, el);
 			}
 			// If the element does not exist in the new document, remove the element from current the head.
 			el.remove();
@@ -195,6 +187,17 @@ export const restoreFocus = ({ activeElement, start, end }: SavedFocus) => {
 	}
 };
 
+export const vueScopedStyleId = (el: HTMLStyleElement): string => {
+	const viteDevId = el.dataset.viteDevId || '';
+
+	const url = new URL(viteDevId, location.href);
+	return url.searchParams.get('vue') !== null &&
+		url.searchParams.get('type') === 'style' &&
+		url.searchParams.has('scoped')
+		? viteDevId
+		: '';
+};
+
 // Check for a head element that should persist and returns it,
 // either because it has the data attribute or because replacing it would cause avoidable FOUC.
 const persistedHeadElement = (el: HTMLElement, newDoc: Document): Element | null => {
@@ -212,12 +215,12 @@ const persistedHeadElement = (el: HTMLElement, newDoc: Document): Element | null
 	// Match these by their stable dev ID so the already-transformed style is preserved
 	// across ClientRouter soft navigations instead of being replaced by the raw version.
 	// There are other ids that can't be preserved and need a refresh, like Uno's /__uno.css,
-	// which keeps the id with different contents.
+	// which keeps the same id, but with different contents.
 	// To avoid enumerating all exceptions, we only apply the auto-persist logic to elements
 	// that look like Vue's dev styles.
-	if (import.meta.env.DEV && el.tagName === 'STYLE') {
-		const viteDevId = el.getAttribute('data-vite-dev-id');
-		if (/\?vue&type=style&.*lang.css$/.test(viteDevId || '')) {
+	if (import.meta.env.DEV && el instanceof HTMLStyleElement) {
+		const viteDevId = vueScopedStyleId(el);
+		if (viteDevId) {
 			return newDoc.head.querySelector(`style[data-vite-dev-id="${viteDevId}"]`);
 		}
 	}

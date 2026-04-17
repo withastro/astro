@@ -1839,7 +1839,7 @@ test.describe('View Transitions', () => {
 		).toHaveCount(1);
 	});
 
-	test('Vue scoped styles persist through head swap even if been removed in between', async ({
+	test('Vue scoped styles persist through head swap even if they had been removed by navigation', async ({
 		page,
 		astro,
 	}) => {
