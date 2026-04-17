@@ -14,7 +14,7 @@ await init;
 /**
  * Helper: parse code with es-module-lexer and return [imports, exports]
  */
-function parseCode(code) {
+function parseCode(code: string) {
 	return parse(code);
 }
 

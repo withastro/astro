@@ -1,10 +1,10 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture, type Fixture } from '../../../astro/test/test-utils.js';
 
 describe('MDX - Vite env vars', () => {
-	let fixture;
+	let fixture: Fixture;
 	before(async () => {
 		fixture = await loadFixture({
 			root: new URL('./fixtures/mdx-vite-env-vars/', import.meta.url),
@@ -54,7 +54,7 @@ describe('MDX - Vite env vars', () => {
 		const html = await fixture.readFile('/vite-env-vars/index.html');
 		const { document } = parseHTML(html);
 
-		const dataAttrDump = document.querySelector('[data-env-dump]');
+		const dataAttrDump = document.querySelector('[data-env-dump]')!;
 		assert.notEqual(dataAttrDump, null);
 
 		assert.equal(dataAttrDump.getAttribute('data-env-prod'), 'true');

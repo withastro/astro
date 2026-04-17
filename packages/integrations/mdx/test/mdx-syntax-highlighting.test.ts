@@ -24,9 +24,12 @@ describe('MDX syntax highlighting', () => {
 			const html = await fixture.readFile('/index.html');
 			const { document } = parseHTML(html);
 
-			const shikiCodeBlock = document.querySelector('pre.astro-code');
+			const shikiCodeBlock = document.querySelector('pre.astro-code')!;
 			assert.notEqual(shikiCodeBlock, null);
-			assert.equal(shikiCodeBlock.getAttribute('style').includes('background-color:#24292e'), true);
+			assert.equal(
+				shikiCodeBlock.getAttribute('style')!.includes('background-color:#24292e'),
+				true,
+			);
 		});
 
 		it('respects markdown.shikiConfig.theme', async () => {
@@ -45,9 +48,12 @@ describe('MDX syntax highlighting', () => {
 			const html = await fixture.readFile('/index.html');
 			const { document } = parseHTML(html);
 
-			const shikiCodeBlock = document.querySelector('pre.astro-code');
+			const shikiCodeBlock = document.querySelector('pre.astro-code')!;
 			assert.notEqual(shikiCodeBlock, null);
-			assert.equal(shikiCodeBlock.getAttribute('style').includes('background-color:#282A36'), true);
+			assert.equal(
+				shikiCodeBlock.getAttribute('style')!.includes('background-color:#282A36'),
+				true,
+			);
 		});
 	});
 
@@ -140,7 +146,7 @@ describe('MDX syntax highlighting', () => {
 						[
 							rehypePrettyCode,
 							{
-								onVisitHighlightedLine(node) {
+								onVisitHighlightedLine(node: { properties: Record<string, string> }) {
 									node.properties.style = 'background-color:#000000';
 								},
 							},

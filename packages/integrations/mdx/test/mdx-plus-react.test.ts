@@ -1,23 +1,23 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture, type Fixture } from '../../../astro/test/test-utils.js';
 
 function hookError() {
 	const error = console.error;
-	const errors = [];
-	console.error = function (...args) {
+	const errors: unknown[][] = [];
+	console.error = function (...args: unknown[]) {
 		errors.push(args);
 	};
-	return () => {
+	return (): unknown[][] => {
 		console.error = error;
 		return errors;
 	};
 }
 
 describe('MDX and React', () => {
-	let fixture;
-	let unhook;
+	let fixture: Fixture;
+	let unhook: () => unknown[][];
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -31,7 +31,7 @@ describe('MDX and React', () => {
 		const html = await fixture.readFile('/index.html');
 		const { document } = parseHTML(html);
 
-		const p = document.querySelector('p');
+		const p = document.querySelector('p')!;
 
 		assert.equal(p.textContent, 'Hello world');
 	});
@@ -39,7 +39,7 @@ describe('MDX and React', () => {
 	it('mdx renders fine', async () => {
 		const html = await fixture.readFile('/post/index.html');
 		const { document } = parseHTML(html);
-		const h = document.querySelector('#testing');
+		const h = document.querySelector('#testing')!;
 		assert.equal(h.textContent, 'Testing');
 	});
 

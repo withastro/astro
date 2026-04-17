@@ -4,10 +4,10 @@ import { rehypeHeadingIds } from '@astrojs/markdown-remark';
 import mdx from '@astrojs/mdx';
 import { parseHTML } from 'linkedom';
 import { visit } from 'unist-util-visit';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture, type Fixture } from '../../../astro/test/test-utils.js';
 
 describe('MDX getHeadings', () => {
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -22,9 +22,9 @@ describe('MDX getHeadings', () => {
 		const html = await fixture.readFile('/test/index.html');
 		const { document } = parseHTML(html);
 
-		const h2Ids = document.querySelectorAll('h2').map((el) => el?.id);
-		const h3Ids = document.querySelectorAll('h3').map((el) => el?.id);
-		assert.equal(document.querySelector('h1').id, 'heading-test');
+		const h2Ids = Array.from(document.querySelectorAll('h2')).map((el) => el?.id);
+		const h3Ids = Array.from(document.querySelectorAll('h3')).map((el) => el?.id);
+		assert.equal(document.querySelector('h1')!.id, 'heading-test');
 		assert.equal(h2Ids.includes('section-1'), true);
 		assert.equal(h2Ids.includes('section-2'), true);
 		assert.equal(h3Ids.includes('subsection-1'), true);
@@ -70,15 +70,15 @@ describe('MDX getHeadings', () => {
 			const html = await fixture.readFile('/test-with-frontmatter/index.html');
 			const { document } = parseHTML(html);
 
-			const h3Ids = document.querySelectorAll('h3').map((el) => el?.id);
+			const h3Ids = Array.from(document.querySelectorAll('h3')).map((el) => el?.id);
 
-			assert.equal(document.querySelector('h1').id, 'the-frontmatter-title');
-			assert.equal(document.querySelector('h2').id, 'frontmattertitle');
+			assert.equal(document.querySelector('h1')!.id, 'the-frontmatter-title');
+			assert.equal(document.querySelector('h2')!.id, 'frontmattertitle');
 			assert.equal(h3Ids.includes('keyword-2'), true);
 			assert.equal(h3Ids.includes('tag-1'), true);
-			assert.equal(document.querySelector('h4').id, 'item-2');
-			assert.equal(document.querySelector('h5').id, 'nested-item-3');
-			assert.equal(document.querySelector('h6').id, 'frontmatterunknown');
+			assert.equal(document.querySelector('h4')!.id, 'item-2');
+			assert.equal(document.querySelector('h5')!.id, 'nested-item-3');
+			assert.equal(document.querySelector('h6')!.id, 'frontmatterunknown');
 		});
 
 		it('generates correct getHeadings() export', async () => {
@@ -100,7 +100,7 @@ describe('MDX getHeadings', () => {
 });
 
 describe('MDX heading IDs can be customized by user plugins', () => {
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -132,7 +132,7 @@ describe('MDX heading IDs can be customized by user plugins', () => {
 		assert.equal(h1?.textContent, 'Heading test');
 		assert.equal(h1?.getAttribute('id'), '0');
 
-		const headingIDs = document.querySelectorAll('h1,h2,h3').map((el) => el.id);
+		const headingIDs = Array.from(document.querySelectorAll('h1,h2,h3')).map((el) => el.id);
 		assert.equal(
 			JSON.stringify(headingIDs),
 			JSON.stringify(Array.from({ length: headingIDs.length }, (_, idx) => String(idx))),
@@ -157,7 +157,7 @@ describe('MDX heading IDs can be customized by user plugins', () => {
 });
 
 describe('MDX heading IDs can be injected before user plugins', () => {
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({

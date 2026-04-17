@@ -1,13 +1,13 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture, type Fixture, type DevServer } from '../../../astro/test/test-utils.js';
 
 const imageTestRoutes = ['with-components', 'esm-import', 'content-collection'];
 
 describe('MDX Page', () => {
-	let devServer;
-	let fixture;
+	let devServer: DevServer;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -31,17 +31,17 @@ describe('MDX Page', () => {
 			const imgs = document.getElementsByTagName('img');
 			assert.equal(imgs.length, 6);
 			// Image using a relative path
-			assert.equal(imgs.item(0).src.startsWith('/_image'), true);
+			assert.equal(imgs.item(0)!.src.startsWith('/_image'), true);
 			// Image using an aliased path
-			assert.equal(imgs.item(1).src.startsWith('/_image'), true);
+			assert.equal(imgs.item(1)!.src.startsWith('/_image'), true);
 			// Image with title
-			assert.equal(imgs.item(2).title, 'Houston title');
+			assert.equal(imgs.item(2)!.title, 'Houston title');
 			// Image with spaces in the path
-			assert.equal(imgs.item(3).src.startsWith('/_image'), true);
+			assert.equal(imgs.item(3)!.src.startsWith('/_image'), true);
 			// Image using a relative path with no slashes
-			assert.equal(imgs.item(4).src.startsWith('/_image'), true);
+			assert.equal(imgs.item(4)!.src.startsWith('/_image'), true);
 			// Image using a relative path with nested directory
-			assert.equal(imgs.item(5).src.startsWith('/_image'), true);
+			assert.equal(imgs.item(5)!.src.startsWith('/_image'), true);
 		});
 
 		for (const route of imageTestRoutes) {
@@ -55,11 +55,11 @@ describe('MDX Page', () => {
 				const imgs = document.getElementsByTagName('img');
 				assert.equal(imgs.length, 2);
 
-				const assetsImg = imgs.item(0);
+				const assetsImg = imgs.item(0)!;
 				assert.equal(assetsImg.src.startsWith('/_image'), true);
 				assert.equal(assetsImg.hasAttribute('data-my-image'), true);
 
-				const publicImg = imgs.item(1);
+				const publicImg = imgs.item(1)!;
 				assert.equal(publicImg.src, '/favicon.svg');
 				assert.equal(publicImg.hasAttribute('data-my-image'), true);
 			});

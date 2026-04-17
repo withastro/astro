@@ -2,10 +2,10 @@ import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { parseHTML } from 'linkedom';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture, type Fixture, type DevServer } from '../../../astro/test/test-utils.js';
 
 describe('MDX Page', () => {
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -24,7 +24,7 @@ describe('MDX Page', () => {
 			const html = await fixture.readFile('/index.html');
 			const { document } = parseHTML(html);
 
-			const h1 = document.querySelector('h1');
+			const h1 = document.querySelector('h1')!;
 
 			assert.equal(h1.textContent, 'Hello page!');
 		});
@@ -59,13 +59,13 @@ describe('MDX Page', () => {
 			const html = await fixture.readFile('/index.html');
 			const { document } = parseHTML(html);
 
-			const keyTest = document.querySelector('#key-test');
+			const keyTest = document.querySelector('#key-test')!;
 			assert.equal(keyTest.textContent, 'oranges');
 		});
 	});
 
 	describe('dev', () => {
-		let devServer;
+		let devServer: DevServer;
 
 		before(async () => {
 			devServer = await fixture.startDevServer();
@@ -83,7 +83,7 @@ describe('MDX Page', () => {
 			const html = await res.text();
 			const { document } = parseHTML(html);
 
-			const h1 = document.querySelector('h1');
+			const h1 = document.querySelector('h1')!;
 
 			assert.equal(h1.textContent, 'Hello page!');
 		});
@@ -94,7 +94,7 @@ describe('MDX Page', () => {
 			const html = await res.text();
 			const $ = cheerio.load(html);
 			assert.equal($('h1').text(), '我的第一篇博客文章');
-			assert.doesNotMatch(res.headers.get('content-type'), /charset=utf-8/);
+			assert.doesNotMatch(res.headers.get('content-type') ?? '', /charset=utf-8/);
 			assert.match(html, /<meta charset="utf-8"/);
 		});
 
@@ -102,7 +102,7 @@ describe('MDX Page', () => {
 			const res = await fixture.fetch('/chinese-encoding-layout-frontmatter/');
 			assert.equal(res.status, 200);
 			const html = await res.text();
-			assert.doesNotMatch(res.headers.get('content-type'), /charset=utf-8/);
+			assert.doesNotMatch(res.headers.get('content-type') ?? '', /charset=utf-8/);
 			assert.doesNotMatch(html, /<meta charset="utf-8"/);
 		});
 
@@ -110,7 +110,7 @@ describe('MDX Page', () => {
 			const res = await fixture.fetch('/chinese-encoding-layout-manual/');
 			assert.equal(res.status, 200);
 			const html = await res.text();
-			assert.doesNotMatch(res.headers.get('content-type'), /charset=utf-8/);
+			assert.doesNotMatch(res.headers.get('content-type') ?? '', /charset=utf-8/);
 			assert.doesNotMatch(html, /<meta charset="utf-8"/);
 		});
 	});

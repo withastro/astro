@@ -21,9 +21,9 @@ describe('MDX with Astro Markdown remark-rehype config', () => {
 		const html = await fixture.readFile('/index.html');
 		const { document } = parseHTML(html);
 
-		assert.equal(document.querySelector('#footnote-label').textContent, 'Catatan kaki');
+		assert.equal(document.querySelector('#footnote-label')!.textContent, 'Catatan kaki');
 		assert.equal(
-			document.querySelector('.data-footnote-backref').getAttribute('aria-label'),
+			document.querySelector('.data-footnote-backref')!.getAttribute('aria-label'),
 			'Kembali ke konten',
 		);
 	});
@@ -50,9 +50,9 @@ describe('MDX with Astro Markdown remark-rehype config', () => {
 		const html = await fixture.readFile('/index.html');
 		const { document } = parseHTML(html);
 
-		assert.equal(document.querySelector('#footnote-label').textContent, 'Catatan kaki');
+		assert.equal(document.querySelector('#footnote-label')!.textContent, 'Catatan kaki');
 		assert.equal(
-			document.querySelector('.data-footnote-backref').getAttribute('aria-label'),
+			document.querySelector('.data-footnote-backref')!.getAttribute('aria-label'),
 			'Kembali ke konten',
 		);
 	});
@@ -62,7 +62,6 @@ describe('MDX with Astro Markdown remark-rehype config', () => {
 			root: new URL('./fixtures/mdx-astro-markdown-remarkRehype/', import.meta.url),
 			integrations: [
 				mdx({
-					extendPlugins: 'astroDefaults',
 					remarkRehype: {
 						footnoteLabel: 'Catatan kaki',
 					},
@@ -79,9 +78,9 @@ describe('MDX with Astro Markdown remark-rehype config', () => {
 		const html = await fixture.readFile('/index.html');
 		const { document } = parseHTML(html);
 
-		assert.equal(document.querySelector('#footnote-label').textContent, 'Catatan kaki');
+		assert.equal(document.querySelector('#footnote-label')!.textContent, 'Catatan kaki');
 		assert.equal(
-			document.querySelector('.data-footnote-backref').getAttribute('aria-label'),
+			document.querySelector('.data-footnote-backref')!.getAttribute('aria-label'),
 			'Back to reference 1',
 		);
 	});
