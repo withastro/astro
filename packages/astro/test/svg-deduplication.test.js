@@ -19,8 +19,7 @@ describe('SVG Deduplication', () => {
 
 		it('deduplicates identical SVG files in build output', async () => {
 			// Get all SVG files in the build output
-			const distDir = new URL('./fixtures/svg-deduplication/dist/', import.meta.url);
-			const assetsDir = new URL('./_astro/', distDir);
+			const assetsDir = new URL('./_astro/', fixture.config.outDir);
 
 			let svgFiles = [];
 			try {

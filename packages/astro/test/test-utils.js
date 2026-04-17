@@ -96,9 +96,10 @@ export async function loadFixture(inlineConfig) {
 	inlineConfig.vite ??= {};
 	inlineConfig.vite.logLevel = 'silent';
 
-	// When running in parallel mode (each test file in its own child process),
-	// use port 0 (OS-assigned) so dev/preview servers don't collide.
-	if (process.env.NODE_TEST_CONTEXT === 'child-v8') {
+	// When running in parallel mode, use port 0 (OS-assigned) so dev/preview
+	// servers don't collide across processes. The env var is set by the test
+	// runner script (scripts/cmd/test.js) when --parallel is passed.
+	if (process.env.ASTRO_TEST_PARALLEL) {
 		inlineConfig.server ??= {};
 		inlineConfig.server.port ??= 0;
 	}
