@@ -38,6 +38,7 @@ Read `report.md` from the `triageDir` directory to understand:
 **Skip if prerequisites unmet:** Check `report.md`: If bug was not reproduced or was skipped → append "FIX SKIPPED: Not reproduced" to `report.md` and return `fixed: false`. Do NOT attempt a fix based on guesswork when you cannot reproduce or diagnose the issue.
 
 **Low-confidence path:** If diagnosis confidence is `low` or `null`, or no clear root cause was found → do NOT attempt a code fix. Instead:
+
 1. Identify the most likely area(s) of the codebase related to the issue (files, functions, code paths).
 2. If possible, write a failing test that demonstrates the expected behavior described in the issue. Place it alongside existing tests for that area.
 3. If you identified specific code paths, add brief inline comments (prefixed `// TRIAGE:`) near the most relevant lines in `packages/` to help the implementor orient quickly. Keep to 2-3 comments max — these are signposts, not a diagnosis.
@@ -136,6 +137,7 @@ The report must include all information needed for a final GitHub comment to be 
 - Verification results (did the fix resolve the original error?)
 - Any alternative approaches considered and their tradeoffs
 - If the fix failed: what was tried and why it didn't work
+
 ## Step 9: Clean Up the Working Directory
 
 1. Run `git status` and review all changed files
