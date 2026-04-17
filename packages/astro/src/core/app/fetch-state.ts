@@ -1,6 +1,7 @@
 import { prependForwardSlash } from '@astrojs/internal-helpers/path';
 import type { RouteData } from '../../types/public/internal.js';
 import { DEFAULT_404_COMPONENT } from '../constants.js';
+import type { AstroCookies } from '../cookies/index.js';
 import { routeHasHtmlExtension } from '../routing/helpers.js';
 import type { BaseApp, ResolvedRenderOptions } from './base.js';
 import { getRenderOptions } from './render-options.js';
@@ -37,6 +38,12 @@ export class FetchState {
 	readonly renderOptions: ResolvedRenderOptions;
 	/** When the request started, used to log duration. */
 	readonly timeStart: number;
+	/**
+	 * Cookies carried forward across a rewrite. Set by `#rewriteAndRender`
+	 * from the previous render's cookies so middleware-set cookies are not
+	 * lost when the rewrite produces a fresh `RenderContext`.
+	 */
+	pendingCookies: AstroCookies | undefined;
 
 	constructor(app: BaseApp<any>, request: Request) {
 		this.#app = app;
