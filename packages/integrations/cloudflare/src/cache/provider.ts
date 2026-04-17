@@ -1,29 +1,64 @@
+import { env } from 'cloudflare:workers';
 import type { CacheProviderFactory } from 'astro';
 import {
 	buildCacheControlDirectives,
-	normalizeTags,
+	collectInvalidationTags,
+	pathTag,
 	setConditionalHeaders,
 } from 'astro/cache/provider-utils';
 // TODO: replace with `import { cache } from 'cloudflare:workers'` when available
 import { getWorkerCache } from './context.js';
 
+/**
+ * Read the current Worker version id from the standard `CF_VERSION_METADATA`
+ * binding, if the user has configured one. Returns `undefined` otherwise.
+ *
+ * Responses are tagged with the version that produced them so a deploy or
+ * rollback can invalidate only the entries written by a specific version.
+ * https://developers.cloudflare.com/workers/cache/purge/#version-specific-purging
+ */
+function getVersionId(): string | undefined {
+	const metadata = (env as Record<string, unknown>).CF_VERSION_METADATA;
+	if (metadata && typeof metadata === 'object' && 'id' in metadata) {
+		const id = (metadata as { id: unknown }).id;
+		if (typeof id === 'string' && id.length > 0) {
+			return id;
+		}
+	}
+	return undefined;
+}
+
+const VERSION_TAG_PREFIX = 'astro-version:';
+
 const factory: CacheProviderFactory = () => {
 	return {
 		name: 'cloudflare',
 
-		setHeaders(options, _request) {
+		setHeaders(options, request) {
 			const headers = new Headers();
 
-			// Override Cloudflare's default caching behavior (which is to cache all GET requests for 2 hours) by setting no-store.
-			const directives = buildCacheControlDirectives(options, ['public']) ?? 'no-store';
-			// Cloudflare-CDN-Cache-Control (Cloudflare-specific, highest priority)
-			headers.set('Cloudflare-CDN-Cache-Control', directives);
-
-			// Cache-Tag for tag-based purging
-			const tags = [...(options.tags ?? [])];
-			if (tags.length > 0) {
-				headers.set('Cache-Tag', tags.join(','));
+			// Cloudflare-CDN-Cache-Control (Cloudflare-specific, highest priority).
+			// The adapter's request handler sets `no-store` on responses with no
+			// cache intent, so we only emit this header when there is something
+			// cacheable to announce.
+			const directives = buildCacheControlDirectives(options, ['public']);
+			if (directives) {
+				headers.set('Cloudflare-CDN-Cache-Control', directives);
 			}
+
+			// Auto-tag with the request path for path-based invalidation via tag purge.
+			const tags = [...(options.tags ?? [])];
+			const { pathname } = new URL(request.url);
+			tags.push(pathTag(pathname));
+
+			// If the user has configured the `CF_VERSION_METADATA` binding, tag
+			// responses with the Worker version that produced them.
+			const versionId = getVersionId();
+			if (versionId) {
+				tags.push(`${VERSION_TAG_PREFIX}${versionId}`);
+			}
+
+			headers.set('Cache-Tag', tags.join(','));
 
 			setConditionalHeaders(headers, options);
 
@@ -39,12 +74,7 @@ const factory: CacheProviderFactory = () => {
 				);
 			}
 
-			// Cloudflare supports native path prefix purge
-			if (options.path) {
-				await cache.purge({ pathPrefixes: [options.path] });
-			}
-
-			const tags = normalizeTags(options.tags);
+			const tags = collectInvalidationTags(options);
 			if (tags.length > 0) {
 				await cache.purge({ tags });
 			}

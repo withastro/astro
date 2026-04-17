@@ -5,6 +5,7 @@ declare module 'virtual:astro-cloudflare:config' {
 	export const sessionKVBindingName: string;
 	export const compileImageConfig: import('./src/vite-plugin-config.js').CompileImageConfig | null;
 	export const isPrerender: boolean;
+	export const cacheProviderEnabled: boolean;
 }
 
 declare namespace Cloudflare {

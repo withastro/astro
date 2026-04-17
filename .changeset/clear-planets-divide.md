@@ -60,7 +60,7 @@ export async function POST({ request, cache }) {
   return new Response('Purged');
 }
 
-// Path-based invalidation (uses native prefix purge)
+// Path-based invalidation (implemented via an auto-generated path tag)
 await cache.invalidate({ path: '/products/123' });
 ```
 

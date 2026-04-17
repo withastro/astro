@@ -330,6 +330,7 @@ export default function createIntegration({
 												buildAssets: config.build.assets ?? '_astro',
 											}
 										: null,
+								cacheProviderEnabled: needsWorkerCache,
 							}),
 						],
 					},
