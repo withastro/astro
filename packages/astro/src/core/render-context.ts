@@ -337,14 +337,16 @@ export class RenderContext {
 				if (payload instanceof Request) {
 					this.request = payload;
 				} else {
-					this.request = copyRequest(
+					this.request = copyRequest({
 						newUrl,
-						this.request,
-						// need to send the flag of the previous routeData
-						routeData.prerender,
-						this.pipeline.logger,
-						this.routeData.route,
-					);
+						oldRequest: this.request,
+						isPrerendered: routeData.prerender,
+						logger: this.pipeline.logger,
+						routePattern: this.routeData.route,
+						includeHeaders:
+							['always', 'on-request'].includes(pipeline.manifest.middlewareMode) ||
+							!routeData.prerender,
+					});
 				}
 				this.isRewriting = true;
 				this.url = RenderContext.#createNormalizedUrl(this.request.url);
@@ -537,14 +539,16 @@ export class RenderContext {
 		if (reroutePayload instanceof Request) {
 			this.request = reroutePayload;
 		} else {
-			this.request = copyRequest(
+			this.request = copyRequest({
 				newUrl,
-				this.request,
-				// need to send the flag of the previous routeData
-				routeData.prerender,
-				this.pipeline.logger,
-				this.routeData.route,
-			);
+				oldRequest: this.request,
+				isPrerendered: routeData.prerender,
+				logger: this.pipeline.logger,
+				routePattern: this.routeData.route,
+				includeHeaders:
+					['always', 'on-request'].includes(this.pipeline.manifest.middlewareMode) ||
+					!routeData.prerender,
+			});
 		}
 		this.url = RenderContext.#createNormalizedUrl(this.request.url);
 		const newCookies = new AstroCookies(this.request);
