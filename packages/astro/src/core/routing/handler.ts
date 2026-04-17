@@ -8,7 +8,7 @@ import { type CacheLike, applyCacheHeaders } from '../cache/runtime/cache.js';
 import { I18n } from '../i18n/handler.js';
 import { AstroMiddleware } from '../middleware/astro-middleware.js';
 import { PagesHandler } from '../pages/handler.js';
-import { Redirects } from '../redirects/handler.js';
+import { renderRedirect } from '../redirects/render.js';
 import { type AstroSession, PERSIST_SYMBOL } from '../session/runtime.js';
 import { FetchState } from '../app/fetch-state.js';
 import { prepareResponse } from '../app/prepare-response.js';
@@ -19,7 +19,6 @@ export class AstroHandler {
 	#trailingSlashHandler: TrailingSlashHandler;
 	#astroMiddleware: AstroMiddleware;
 	#pagesHandler: PagesHandler;
-	#redirects: Redirects;
 	/**
 	 * i18n post-processor. Only set when the app has i18n configured and
 	 * the strategy is not `manual` — for the manual strategy users wire
@@ -32,7 +31,6 @@ export class AstroHandler {
 		this.#trailingSlashHandler = new TrailingSlashHandler(app);
 		this.#astroMiddleware = new AstroMiddleware(app.pipeline);
 		this.#pagesHandler = new PagesHandler(app.pipeline);
-		this.#redirects = new Redirects();
 		const i18n = app.manifest.i18n;
 		if (i18n && i18n.strategy !== 'manual') {
 			this.#i18n = new I18n(
@@ -97,12 +95,10 @@ export class AstroHandler {
 			cache = renderContext.cache;
 
 			// Redirect routes short-circuit the pipeline: no middleware, no
-			// page dispatch, no i18n post-processing. `Redirects.handle`
-			// returns `undefined` synchronously for non-redirect routes, so
-			// we only `await` when we actually need to.
-			const redirectPromise = this.#redirects.handle(renderContext);
-			if (redirectPromise) {
-				const redirectResponse = await redirectPromise;
+			// page dispatch, no i18n post-processing. Inline routeData.type
+			// check to avoid a per-request function call + object overhead.
+			if (routeData.type === 'redirect') {
+				const redirectResponse = await renderRedirect(renderContext);
 				this.#app.logThisRequest({
 					pathname,
 					method: request.method,
