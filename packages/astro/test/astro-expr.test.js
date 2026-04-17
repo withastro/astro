@@ -108,4 +108,22 @@ describe('Expressions', () => {
 		assert.equal($('#yellow').length, 1);
 		assert.equal($('#blue').length, 0);
 	});
+
+	it('Shows static content for dynamic component fallback', async () => {
+		const html = await fixture.readFile('/fallback/index.html');
+		const $ = cheerio.load(html);
+		assert.equal($('#fallback').text(), 'static');
+	});
+
+	it('Slots with client: directives - tags of dynamic tags works', async () => {
+		const html = await fixture.readFile('/slot-with-client/index.html');
+		const $ = cheerio.load(html);
+		assert.equal($('script').length, 2);
+	});
+
+	it('Slots with client: directives - astro slot tags are kept', async () => {
+		const html = await fixture.readFile('/slot-with-client/index.html');
+		const $ = cheerio.load(html);
+		assert.equal($('astro-slot').length, 1);
+	});
 });

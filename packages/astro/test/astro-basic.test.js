@@ -83,6 +83,12 @@ describe('Astro basic build', () => {
 		assert.equal(hasSourcemaps, false, 'no sourcemap files in output');
 	});
 
+	it('Defines Astro.generator', async () => {
+		const html = await fixture.readFile('/generator/index.html');
+		const $ = cheerio.load(html);
+		assert.match($('meta[name="generator"]').attr('content'), /^Astro v/);
+	});
+
 	describe('preview', () => {
 		it('returns 200 for valid URLs', async () => {
 			const result = await fixture.fetch('/');

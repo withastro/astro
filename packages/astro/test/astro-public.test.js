@@ -55,6 +55,11 @@ describe('Public', () => {
 		assert.match(robotsTxt, /Disallow: \/admin\//, 'Should contain public file content');
 		assert.doesNotMatch(robotsTxt, /Disallow: \/\n/, 'Should not contain API route content');
 	});
+
+	it('Build with external reference', async () => {
+		const html = await fixture.readFile('/external-files/index.html');
+		assert.equal(html.includes('<script src="/external-file.js"'), true);
+	});
 });
 
 describe('Public (dev)', () => {

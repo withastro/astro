@@ -1,9 +1,33 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { makeAstroPageEntryPointFileName } from '../../../dist/core/build/static-build.js';
+import { cleanChunkName } from '../../../dist/core/build/util.js';
 import type { RouteData } from '../../../dist/types/public/internal.js';
 
 describe('astro/src/core/build', () => {
+	describe('cleanChunkName', () => {
+		it('passes through safe names unchanged', () => {
+			assert.equal(cleanChunkName('page'), 'page');
+			assert.equal(cleanChunkName('my-component'), 'my-component');
+			assert.equal(cleanChunkName('pages/index'), 'pages/index');
+			assert.equal(cleanChunkName('chunk_abc123'), 'chunk_abc123');
+		});
+
+		it('replaces ! and ~ characters', () => {
+			assert.equal(cleanChunkName('page.!{005}'), 'page.__005_');
+			assert.equal(cleanChunkName('~something'), '_something');
+		});
+
+		it('replaces other unsafe characters', () => {
+			assert.equal(cleanChunkName('name@scope'), 'name_scope');
+			assert.equal(cleanChunkName('file#hash'), 'file_hash');
+		});
+
+		it('replaces % character', () => {
+			assert.equal(cleanChunkName('chunk%name'), 'chunk_name');
+		});
+	});
+
 	describe('makeAstroPageEntryPointFileName', () => {
 		const routes: RouteData[] = [
 			{
