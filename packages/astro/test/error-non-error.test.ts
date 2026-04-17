@@ -1,13 +1,11 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
+import { loadFixture, type Fixture, type DevServer } from './test-utils.js';
 
 describe('Can handle errors that are not instanceof Error', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
-	/** @type {import('./test-utils').DevServer} */
-	let devServer;
+	let devServer: DevServer;
 
 	before(async () => {
 		fixture = await loadFixture({

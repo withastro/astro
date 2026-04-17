@@ -73,15 +73,11 @@ describe('Content Collections - error map', () => {
 	});
 });
 
-/**
- * @param {z.ZodError} error
- * @returns string[]
- */
-function messages(error) {
+function messages(error: z.ZodError): string[] {
 	return error.issues.map((e) => e.message);
 }
 
-function getParseError(schema, entry, parseOpts = { error: errorMap }) {
+function getParseError(schema: z.Schema, entry: unknown, parseOpts = { error: errorMap }) {
 	const res = schema.safeParse(entry, parseOpts);
 	assert.equal(res.success, false, 'Schema should raise error');
 	return res.error;
