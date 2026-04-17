@@ -8,7 +8,7 @@ const PERSIST_ATTR = 'data-astro-transition-persist';
 
 const NON_OVERRIDABLE_ASTRO_ATTRS = ['data-astro-transition', 'data-astro-transition-fallback'];
 
-const knownVueScopedStyles = new Map<string, HTMLStyleElement>();
+const knownDevStyles = new Map<string, HTMLStyleElement>();
 
 const scriptsAlreadyRan = new Set<string>();
 export function detectScriptExecuted(script: HTMLScriptElement) {
@@ -64,9 +64,9 @@ export function swapHeadElements(doc: Document) {
 			newEl.remove();
 		} else {
 			if (import.meta.env.DEV && el instanceof HTMLStyleElement) {
-				// In DEV mode, keep updated Vue scoped styles for later reuse
-				const viteDevId = vueScopedStyleId(el);
-				viteDevId && knownVueScopedStyles.set(viteDevId, el);
+				// In DEV mode, keep updated dev styles for later reuse
+				const viteDevId = devStyleId(el);
+				viteDevId && knownDevStyles.set(viteDevId, el);
 			}
 			// If the element does not exist in the new document, remove the element from current the head.
 			el.remove();
@@ -75,9 +75,9 @@ export function swapHeadElements(doc: Document) {
 
 	// Everything left in the new head is new, append it all.
 	if (import.meta.env.DEV) {
-		// In DEV mode, replace known Vue scoped styles with the versions we remembered
+		// In DEV mode, replace known dev styles with the versions we remembered
 		[...doc.head.children].forEach((child) => {
-			document.head.append(knownVueScopedStyles.get((child as any).dataset?.viteDevId) || child);
+			document.head.append(knownDevStyles.get((child as any).dataset?.viteDevId) || child);
 		});
 	} else {
 		document.head.append(...doc.head.children);
@@ -187,12 +187,13 @@ export const restoreFocus = ({ activeElement, start, end }: SavedFocus) => {
 	}
 };
 
-export const vueScopedStyleId = (el: HTMLStyleElement): string => {
+export const devStyleId = (el: HTMLStyleElement): string => {
 	const viteDevId = el.dataset.viteDevId || '';
 
 	const url = new URL(viteDevId, location.href);
-	// Match Vue scoped styles: ?vue&type=style&scoped
-	// Match Astro component styles: ?astro&type=style&...lang.css
+	// Match dev-mode styles that need auto-persistence across soft navigations.
+	// Vue scoped styles: ?vue&type=style&scoped
+	// Astro component styles: ?astro&type=style&...lang.<ext>
 	const isVueScoped =
 		url.searchParams.get('vue') !== null &&
 		url.searchParams.get('type') === 'style' &&
@@ -224,7 +225,7 @@ const persistedHeadElement = (el: HTMLElement, newDoc: Document): Element | null
 	// whose content is stable for a given component but may differ between the raw HTML
 	// (pre-integration-transform) and the HMR-applied version (post-transform).
 	if (import.meta.env.DEV && el instanceof HTMLStyleElement) {
-		const viteDevId = vueScopedStyleId(el);
+		const viteDevId = devStyleId(el);
 		if (viteDevId) {
 			return newDoc.head.querySelector(`style[data-vite-dev-id="${viteDevId}"]`);
 		}
