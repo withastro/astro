@@ -2,18 +2,18 @@
 'astro': minor
 ---
 
-Adds a new `experimental_getFontBuffer()` method to retrieve font file buffers when using the Fonts API
+Adds a new `experimental_getFontBufferURL()` method to resolve font file buffer URLs when using the Fonts API
 
-The `fontData` object exported from `astro:assets` was introduced to provide low-level access to font family data for advanced usage. One of the goals of this API was to be able to retrieve buffers using URLs. However, it turned out to be impractical, especially during prerendering.
+The `fontData` object exported from `astro:assets` was introduced to provide low-level access to font family data for advanced usage. One of the goals of this API was to be able to resolve buffers using URLs. However, it turned out to be impractical, especially during prerendering.
 
-Astro now exports a new `experimental_getFontBuffer()` helper function from `astro:assets` to retrieve font file buffers from URL obtained via `fontData`. For example, when using [satori](https://github.com/vercel/satori) to generate Open Graph images:
+Astro now exports a new `experimental_getFontBufferURL()` helper function from `astro:assets` to resolve font file buffe URLs from `fontData`. For example, when using [satori](https://github.com/vercel/satori) to generate Open Graph images:
 
 ```diff
 // src/pages/og.png.ts
 
 import type { APIRoute } from "astro";
 -import { fontData } from "astro:assets";
-+import { fontData, experimental_getFontBuffer } from "astro:assets";
++import { fontData, experimental_getFontBufferURL } from "astro:assets";
 -import { outDir } from "astro:config/server";
 -import { readFile } from "node:fs/promises";
 import satori from "satori";
@@ -30,7 +30,7 @@ export const GET: APIRoute = async (context) => {
 -  const data = import.meta.env.DEV
 -    ? await fetch(new URL(fontPath, context.url.origin)).then(async (res) => res.arrayBuffer())
 -    : await readFile(new URL(`.${fontPath}`, outDir));
-+  const data = await experimental_getFontBuffer(fontPath, context.url)
++  const data = await fetch(experimental_getFontBufferURL(fontPath, context.url)).then(async (res) => res.arrayBuffer());
 
   const svg = await satori(
     html`<div style="color: black;">hello, world</div>`,

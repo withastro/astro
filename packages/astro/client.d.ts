@@ -60,7 +60,7 @@ declare module 'astro:assets' {
 		import('astro:assets').CssVariable,
 		Array<import('astro:assets').FontData>
 	>;
-	export const experimental_getFontBuffer: typeof import('./dist/assets/fonts/runtime.js').experimental_getFontBuffer;
+	export const experimental_getFontBufferURL: typeof import('./dist/assets/fonts/runtime.js').experimental_getFontBufferURL;
 
 	type ImgAttributes = import('./dist/type-utils.js').WithRequired<
 		Omit<import('./types').HTMLAttributes<'img'>, 'src' | 'width' | 'height'>,

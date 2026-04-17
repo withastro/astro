@@ -1,6 +1,6 @@
 import { fontDataByCssVariable } from 'virtual:astro:assets/fonts/internal';
-import { runtimeFontFetcher } from 'virtual:astro:assets/fonts/runtime/font-fetcher';
-import { createGetFontBuffer } from './core/create-get-font-buffer.js';
+import { runtimeFontFileUrlResolver } from 'virtual:astro:assets/fonts/runtime/font-file-url-resolver';
+import { createGetFontBufferURL } from './core/create-get-font-buffer-url.js';
 
 export const fontData = fontDataByCssVariable;
-export const experimental_getFontBuffer = createGetFontBuffer(runtimeFontFetcher);
+export const experimental_getFontBufferURL = createGetFontBufferURL(runtimeFontFileUrlResolver);

@@ -17,10 +17,10 @@ import {
 	ASSETS_DIR,
 	CACHE_DIR,
 	DEFAULTS,
-	RESOLVED_RUNTIME_FONT_FETCHER_VIRTUAL_MODULE_ID,
+	RESOLVED_RUNTIME_FONT_FILE_URL_RESOLVER_VIRTUAL_MODULE_ID,
 	RESOLVED_RUNTIME_VIRTUAL_MODULE_ID,
 	RESOLVED_VIRTUAL_MODULE_ID,
-	RUNTIME_FONT_FETCHER_VIRTUAL_MODULE_ID,
+	RUNTIME_FONT_FILE_URL_RESOLVER_VIRTUAL_MODULE_ID,
 	RUNTIME_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './constants.js';
@@ -287,7 +287,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		resolveId: {
 			filter: {
 				id: new RegExp(
-					`^(${VIRTUAL_MODULE_ID}|${RUNTIME_VIRTUAL_MODULE_ID}|${RUNTIME_FONT_FETCHER_VIRTUAL_MODULE_ID})$`,
+					`^(${VIRTUAL_MODULE_ID}|${RUNTIME_VIRTUAL_MODULE_ID}|${RUNTIME_FONT_FILE_URL_RESOLVER_VIRTUAL_MODULE_ID})$`,
 				),
 			},
 			handler(id) {
@@ -297,15 +297,15 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				if (id === RUNTIME_VIRTUAL_MODULE_ID) {
 					return RESOLVED_RUNTIME_VIRTUAL_MODULE_ID;
 				}
-				if (id === RUNTIME_FONT_FETCHER_VIRTUAL_MODULE_ID) {
-					return RESOLVED_RUNTIME_FONT_FETCHER_VIRTUAL_MODULE_ID;
+				if (id === RUNTIME_FONT_FILE_URL_RESOLVER_VIRTUAL_MODULE_ID) {
+					return RESOLVED_RUNTIME_FONT_FILE_URL_RESOLVER_VIRTUAL_MODULE_ID;
 				}
 			},
 		},
 		load: {
 			filter: {
 				id: new RegExp(
-					`^(${RESOLVED_VIRTUAL_MODULE_ID}|${RESOLVED_RUNTIME_VIRTUAL_MODULE_ID}|${RESOLVED_RUNTIME_FONT_FETCHER_VIRTUAL_MODULE_ID})$`,
+					`^(${RESOLVED_VIRTUAL_MODULE_ID}|${RESOLVED_RUNTIME_VIRTUAL_MODULE_ID}|${RESOLVED_RUNTIME_FONT_FILE_URL_RESOLVER_VIRTUAL_MODULE_ID})$`,
 				),
 			},
 			async handler(id) {
@@ -324,16 +324,15 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					};
 				}
 
-				if (id === RESOLVED_RUNTIME_FONT_FETCHER_VIRTUAL_MODULE_ID) {
+				if (id === RESOLVED_RUNTIME_FONT_FILE_URL_RESOLVER_VIRTUAL_MODULE_ID) {
 					const isPrerender = this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender;
 
 					if (this.environment.config.command === 'build' && !isPrerender) {
 						return {
 							code: `
-								import { SsrRuntimeFontFetcher } from ${JSON.stringify(new URL('./infra/ssr-runtime-font-fetcher.js', import.meta.url))};
-								export const runtimeFontFetcher = new SsrRuntimeFontFetcher({
+								import { SsrRuntimeFontFileUrlResolver } from ${JSON.stringify(new URL('./infra/ssr-runtime-font-file-url-resolver.js', import.meta.url))};
+								export const runtimeFontFileUrlResolver = new SsrRuntimeFontFileUrlResolver({
 									urls: new Set(${JSON.stringify(urls)}),
-									fetch: globalThis.fetch,
 								});
 							`,
 						};
@@ -341,11 +340,10 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 
 					return {
 						code: `
-							import { RemoteRuntimeFontFetcher } from ${JSON.stringify(new URL('./infra/remote-runtime-font-fetcher.js', import.meta.url))};
-							export const runtimeFontFetcher = new RemoteRuntimeFontFetcher({
+							import { RemoteRuntimeFontFileUrlResolver } from ${JSON.stringify(new URL('./infra/remote-runtime-font-file-url-resolver.js', import.meta.url))};
+							export const runtimeFontFileUrlResolver = new RemoteRuntimeFontFileUrlResolver({
 								urls: new Set(${JSON.stringify(urls)}),
 								address: ${JSON.stringify(serverAddress)},
-								fetch: globalThis.fetch,
 							});
 						`,
 					};

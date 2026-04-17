@@ -108,7 +108,7 @@ describe('astro fonts', () => {
 				assert.equal(existsSync(fixture.config.outDir), false);
 			});
 
-			it('Exposes buffer from experimental_getFontBuffer()', async () => {
+			it('Exposes buffer from experimental_getFontBufferURL()', async () => {
 				const res = await fixture.fetch('/get-font-buffer');
 				const html = await res.text();
 				const $ = cheerio.load(html);
@@ -213,7 +213,7 @@ describe('astro fonts', () => {
 				assert.equal(parsed['--font-test'][0].src[0].url.startsWith('/_astro/fonts/'), true);
 			});
 
-			it('Exposes buffer from experimental_getFontBuffer()', async () => {
+			it('Exposes buffer from experimental_getFontBufferURL()', async () => {
 				const html = await fixture.readFile('/get-font-buffer/index.html');
 				const $ = cheerio.load(html);
 				const length = $('#length').html();
@@ -254,7 +254,7 @@ describe('astro fonts', () => {
 				assert.equal(files.length > 0, true);
 			});
 
-			it('Exposes buffer from experimental_getFontBuffer()', async () => {
+			it('Exposes buffer from experimental_getFontBufferURL()', async () => {
 				const html = await fixture.readFile('/get-font-buffer/index.html');
 				const $ = cheerio.load(html);
 				const length = $('#length').html();
@@ -334,7 +334,7 @@ describe('astro fonts', () => {
 			assert.equal(parsed['--font-test'][0].src[0].url.startsWith('/_astro/fonts/'), true);
 		});
 
-		it('Exposes buffer from experimental_getFontBuffer()', async () => {
+		it('Exposes buffer from experimental_getFontBufferURL()', async () => {
 			const html = await fixtureFetch('/get-font-buffer');
 			const $ = cheerio.load(html);
 			const length = $('#length').html();

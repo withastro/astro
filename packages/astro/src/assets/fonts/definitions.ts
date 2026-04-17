@@ -89,7 +89,7 @@ export interface FontResolver {
 	listFonts: (options: { provider: FontProvider }) => Promise<string[] | undefined>;
 }
 
-export interface RuntimeFontFetcher {
+export interface RuntimeFontFileUrlResolver {
 	/**
 	 * @param url
 	 * URL obtained from `fontData` and provided by the user. Can look like
@@ -99,5 +99,5 @@ export interface RuntimeFontFetcher {
 	 * The current request URL. It can be used to construct a full URL to the
 	 * font file, for example in SSR.
 	 */
-	fetch: (url: string, requestUrl: URL | undefined) => Promise<ArrayBuffer | null>;
+	resolve: (url: string, requestUrl: URL | undefined) => string | null;
 }

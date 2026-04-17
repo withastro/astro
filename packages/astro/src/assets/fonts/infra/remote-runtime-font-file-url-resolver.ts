@@ -1,5 +1,5 @@
 import type { AddressInfo } from 'node:net';
-import type { RuntimeFontFetcher } from '../definitions.js';
+import type { RuntimeFontFileUrlResolver } from '../definitions.js';
 
 /**
  * In development, font files are served through a Vite middleware.
@@ -10,26 +10,22 @@ import type { RuntimeFontFetcher } from '../definitions.js';
  * `fetch` is not implemented because we have the information from
  * within the Vite plugin already.
  */
-export class RemoteRuntimeFontFetcher implements RuntimeFontFetcher {
+export class RemoteRuntimeFontFileUrlResolver implements RuntimeFontFileUrlResolver {
 	#urls: Set<string>;
 	#address: AddressInfo | null;
-	#fetch: typeof globalThis.fetch;
 
 	constructor({
 		urls,
 		address,
-		fetch,
 	}: {
 		urls: Set<string>;
 		address: AddressInfo | null;
-		fetch: typeof globalThis.fetch;
 	}) {
 		this.#urls = urls;
 		this.#address = address;
-		this.#fetch = fetch;
 	}
 
-	async fetch(url: string): Promise<ArrayBuffer | null> {
+	resolve(url: string): string | null {
 		if (!this.#urls.has(url)) {
 			return null;
 		}
@@ -42,8 +38,6 @@ export class RemoteRuntimeFontFetcher implements RuntimeFontFetcher {
 		}
 		const host =
 			this.#address.family === 'IPv6' ? `[${this.#address.address}]` : this.#address.address;
-		return this.#fetch(`http://${host}:${this.#address.port}${url}`).then((res) =>
-			res.arrayBuffer(),
-		);
+		return `http://${host}:${this.#address.port}${url}`;
 	}
 }
