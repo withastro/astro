@@ -1,10 +1,9 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Redirects Serverless', () => {
-	/** @type {import('astro/test/test-utils.js').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -14,7 +13,7 @@ describe('Redirects Serverless', () => {
 				'/other': '/subpage',
 			},
 		});
-		await fixture.build();
+		await fixture.build({});
 	});
 
 	it('does not create .html files', async () => {

@@ -1,22 +1,21 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
-describe('maxDuration', () => {
-	/** @type {import('./test-utils.js').Fixture} */
-	let fixture;
+describe('streaming', () => {
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/max-duration/',
+			root: './fixtures/streaming/',
 		});
-		await fixture.build();
+		await fixture.build({});
 	});
 
 	it('makes it to vercel function configuration', async () => {
 		const vcConfig = JSON.parse(
 			await fixture.readFile('../.vercel/output/functions/_render.func/.vc-config.json'),
 		);
-		assert.equal(vcConfig.maxDuration, 60);
+		assert.equal(vcConfig.supportsResponseStreaming, true);
 	});
 });

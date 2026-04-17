@@ -1,22 +1,22 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture, getVercelConfig } from './test-utils.ts';
 
 describe('Static headers', () => {
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/static-headers',
 		});
-		await fixture.build();
+		await fixture.build({});
 	});
 
 	it('CSP headers are added when CSP is enabled', async () => {
-		const config = JSON.parse(await fixture.readFile('../.vercel/output/config.json'));
+		const config = await getVercelConfig(fixture);
 		const routes = config.routes;
 
-		const headers = routes.find((x) => x.src === '/').headers;
+		const headers = routes.find((x) => x.src === '/')!.headers;
 
 		assert.ok(headers['content-security-policy'], 'the index must have CSP headers');
 		assert.ok(
