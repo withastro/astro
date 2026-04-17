@@ -15,6 +15,7 @@ describe('Streaming', () => {
 			root: './fixtures/streaming/',
 			adapter: testAdapter(),
 			output: 'server',
+			outDir: './dist-streaming-streaming/',
 		});
 	});
 
@@ -122,6 +123,7 @@ describe('Streaming disabled', () => {
 			server: {
 				streaming: false,
 			},
+			outDir: './dist-streaming-streaming-disabled/',
 		});
 	});
 

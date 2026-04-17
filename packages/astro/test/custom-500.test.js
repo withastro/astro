@@ -17,6 +17,7 @@ describe('Custom 500', () => {
 				root: './fixtures/custom-500/',
 				output: 'server',
 				adapter: testAdapter(),
+				outDir: './dist-custom-500-ssr/',
 			});
 			await fixture.build();
 			app = await fixture.loadTestAdapterApp();
@@ -38,6 +39,7 @@ describe('Custom 500', () => {
 				root: './fixtures/custom-500-failing/',
 				output: 'server',
 				adapter: testAdapter(),
+				outDir: './dist-custom-500-ssr/',
 			});
 			await fixture.build();
 			app = await fixture.loadTestAdapterApp();
@@ -55,6 +57,7 @@ describe('Custom 500', () => {
 				root: './fixtures/custom-500/',
 				output: 'server',
 				adapter: testAdapter(),
+				outDir: './dist-custom-500-ssr/',
 			});
 			await fixture.build();
 			app = await fixture.loadTestAdapterApp();

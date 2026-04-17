@@ -7,7 +7,8 @@ describe('Hydration script ordering', async () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/hydration-race' });
+		fixture = await loadFixture({ root: './fixtures/hydration-race',
+			outDir: './dist-hydration-race/', });
 		await fixture.build();
 	});
 

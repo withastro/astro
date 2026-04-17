@@ -14,6 +14,7 @@ describe('SSR Assets', () => {
 			adapter: testAdapter(),
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist-ssr-assets/',
 		});
 		await fixture.build();
 	});

@@ -46,6 +46,7 @@ describe('astro preview - allowedHosts via vite config', () => {
 					allowedHosts: ['example.com'],
 				},
 			},
+			outDir: './dist-astro-preview-allowed-hosts-astro-preview-allowedhosts-via-vite-conf/',
 		});
 		await fixture.build();
 		previewServer = await fixture.preview();

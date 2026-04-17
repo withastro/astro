@@ -27,6 +27,7 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 			build: {
 				assetsPrefix: 'https://cdn.example.com/',
 			},
+			outDir: './dist-core-image-unconventional-settings-astro-assets-support-unconventional-buil/',
 		});
 		await fixture.build();
 
@@ -45,6 +46,7 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 			build: {
 				base: '/subdir/',
 			},
+			outDir: './dist-core-image-unconventional-settings-astro-assets-support-unconventional-buil/',
 		});
 		await fixture.build();
 
@@ -63,6 +65,7 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 				assetsPrefix: 'https://cdn.example.com/',
 				base: '/subdir/',
 			},
+			outDir: './dist-core-image-unconventional-settings-astro-assets-support-unconventional-buil/',
 		});
 		await fixture.build();
 
@@ -81,6 +84,7 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 			build: {
 				assets: 'assets',
 			},
+			outDir: './dist-core-image-unconventional-settings-astro-assets-support-unconventional-buil/',
 		});
 		await fixture.build();
 
@@ -115,6 +119,7 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 					},
 				},
 			},
+			outDir: './dist-core-image-unconventional-settings-astro-assets-support-unconventional-buil/',
 		});
 		await fixture.build();
 
@@ -148,6 +153,7 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 					},
 				},
 			},
+			outDir: './dist-core-image-unconventional-settings-astro-assets-support-unconventional-buil/',
 		});
 		await fixture.build();
 
@@ -183,6 +189,7 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 				assets: 'images',
 				assetsPrefix: 'https://cdn.example.com/',
 			},
+			outDir: './dist-core-image-unconventional-settings-astro-assets-support-unconventional-buil/',
 		});
 		await fixture.build();
 

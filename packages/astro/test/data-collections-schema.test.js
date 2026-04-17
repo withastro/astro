@@ -7,7 +7,8 @@ import { loadFixture } from './test-utils.js';
 describe('Content Collections - data collections', () => {
 	let fixture;
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/data-collections-schema/' });
+		fixture = await loadFixture({ root: './fixtures/data-collections-schema/',
+			outDir: './dist-data-collections-schema/', });
 		removeDir(new URL('./fixtures/data-collections-schema/.astro', import.meta.url));
 		await fixture.build({});
 	});

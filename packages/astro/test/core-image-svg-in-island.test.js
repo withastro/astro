@@ -10,6 +10,7 @@ describe('astro:assets - SVG Components in Astro Islands', async () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/core-image-svg-in-island/',
+			outDir: './dist-core-image-svg-in-island/',
 		});
 	});
 

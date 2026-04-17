@@ -37,6 +37,7 @@ describe('react-jsx-export', () => {
 		});
 		fixture = await loadFixture({
 			root: './fixtures/react-jsx-export/',
+			outDir: './dist-react-jsx-export/',
 		});
 		await fixture.build({ logger });
 	});

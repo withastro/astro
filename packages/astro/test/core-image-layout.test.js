@@ -29,6 +29,7 @@ describe('astro:image:layout', () => {
 					}),
 					domains: ['avatars.githubusercontent.com', 'images.unsplash.com'],
 				},
+				outDir: './dist-core-image-layout-local-image-service/',
 			});
 
 			devServer = await fixture.startDevServer({});
@@ -351,6 +352,7 @@ describe('astro:image:layout', () => {
 					service: testRemoteImageService({ foo: 'bar' }),
 					domains: ['images.unsplash.com'],
 				},
+				outDir: './dist-core-image-layout-remote-image-service/',
 			});
 
 			devServer = await fixture.startDevServer({
@@ -380,6 +382,7 @@ describe('astro:image:layout', () => {
 					service: testImageService({ foo: 'bar' }),
 					domains: ['avatars.githubusercontent.com', 'images.unsplash.com'],
 				},
+				outDir: './dist-core-image-layout-build/',
 			});
 
 			await fixture.build();
@@ -492,6 +495,7 @@ describe('astro:image:layout', () => {
 						domains: ['avatars.githubusercontent.com', 'images.unsplash.com'],
 						responsiveStyles: false,
 					},
+					outDir: './dist-core-image-layout-disabling-global-styles/',
 				});
 				await fixtureWithoutStyles.build();
 				const html = await fixtureWithoutStyles.readFile('/index.html');

@@ -14,6 +14,7 @@ describe('Custom Fetch for Error Pages', () => {
 			output: 'server',
 			adapter: testAdapter(),
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist-custom-fetch-error-pages/',
 		});
 	});
 

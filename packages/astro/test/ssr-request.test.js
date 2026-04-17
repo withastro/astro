@@ -29,6 +29,7 @@ describe('Using Astro.request in SSR', () => {
 					assetsInlineLimit: 0,
 				},
 			},
+			outDir: './dist-ssr-request/',
 		});
 		await fixture.build();
 	});

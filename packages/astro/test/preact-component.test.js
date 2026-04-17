@@ -10,6 +10,7 @@ describe('Preact component', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/preact-component/',
+			outDir: './dist-preact-component/',
 		});
 		await fixture.build();
 	});

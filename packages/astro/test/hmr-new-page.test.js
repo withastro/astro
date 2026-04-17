@@ -22,7 +22,8 @@ describe('HMR: New page detection', () => {
 	let newPagePath;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/hmr-new-page/' });
+		fixture = await loadFixture({ root: './fixtures/hmr-new-page/',
+			outDir: './dist-hmr-new-page/', });
 		devServer = await fixture.startDevServer();
 
 		// Compute path for the new page we'll create during tests
