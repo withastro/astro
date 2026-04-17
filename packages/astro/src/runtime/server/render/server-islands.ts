@@ -1,6 +1,6 @@
 import { encryptString, generateCspDigest } from '../../../core/encryption.js';
 import type { SSRResult } from '../../../types/public/internal.js';
-import { markHTMLString } from '../escape.js';
+import { markHTMLString, stringifyForScript } from '../escape.js';
 import { renderChild } from './any.js';
 import { createThinHead, type ThinHead } from './astro/head-and-content.js';
 import type { RenderDestination } from './common.js';
@@ -16,21 +16,6 @@ const internalProps = new Set([
 
 export function containsServerDirective(props: Record<string | number, any>) {
 	return 'server:component-directive' in props;
-}
-
-const SCRIPT_RE = /<\/script/giu;
-const COMMENT_RE = /<!--/gu;
-const SCRIPT_REPLACER = '<\\/script';
-const COMMENT_REPLACER = '\\u003C!--';
-
-/**
- * Encodes the script end-tag open (ETAGO) delimiter and opening HTML comment syntax for JSON inside a `<script>` tag.
- * @see https://mathiasbynens.be/notes/etago
- */
-function safeJsonStringify(obj: any) {
-	return JSON.stringify(obj)
-		.replace(SCRIPT_RE, SCRIPT_REPLACER)
-		.replace(COMMENT_RE, COMMENT_REPLACER);
 }
 
 function createSearchParams(
@@ -214,7 +199,7 @@ export class ServerIslandComponent {
 
 		// Get adapter headers for inline script
 		const adapterHeaders = this.result.internalFetchHeaders || {};
-		const headersJson = safeJsonStringify(adapterHeaders);
+		const headersJson = stringifyForScript(adapterHeaders);
 
 		const method = useGETRequest
 			? // GET request
@@ -222,9 +207,9 @@ export class ServerIslandComponent {
 let response = await fetch('${serverIslandUrl}', { headers });`
 			: // POST request
 				`let data = {
-	encryptedComponentExport: ${safeJsonStringify(componentExportEncrypted)},
-	encryptedProps: ${safeJsonStringify(propsEncrypted)},
-	encryptedSlots: ${safeJsonStringify(slotsEncrypted)},
+	encryptedComponentExport: ${stringifyForScript(componentExportEncrypted)},
+	encryptedProps: ${stringifyForScript(propsEncrypted)},
+	encryptedSlots: ${stringifyForScript(slotsEncrypted)},
 };
 const headers = new Headers({ 'Content-Type': 'application/json', ...${headersJson} });
 let response = await fetch('${serverIslandUrl}', {

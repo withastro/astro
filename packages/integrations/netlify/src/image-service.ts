@@ -1,5 +1,6 @@
 import type { ExternalImageService } from 'astro';
 import { baseService } from 'astro/assets';
+import { verifyOptions } from '../../../astro/dist/assets/internal.js';
 import { isESMImportedImage } from 'astro/assets/utils';
 import { AstroError } from 'astro/errors';
 
@@ -51,6 +52,8 @@ const service: ExternalImageService = {
 	getHTMLAttributes: baseService.getHTMLAttributes,
 	getSrcSet: baseService.getSrcSet,
 	validateOptions(options) {
+		verifyOptions(options);
+
 		if (options.format && !SUPPORTED_FORMATS.includes(options.format)) {
 			throw new AstroError(
 				`Unsupported image format "${options.format}"`,

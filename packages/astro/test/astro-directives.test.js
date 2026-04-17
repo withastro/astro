@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { before, describe, it } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -34,7 +34,10 @@ describe('Directives', async () => {
 				assert.equal($(script).toString().includes('const dashCase = "bar"'), true);
 			} else if (i < 4) {
 				// Closing script tags in strings are escaped
-				assert.equal($(script).toString().includes('const bar = "<script>bar\\x3C/script>"'), true);
+				assert.equal(
+					$(script).toString().includes('const bar = "\\u003cscript>bar\\u003c/script>"'),
+					true,
+				);
 			} else {
 				// Vars with undefined values are handled
 				assert.equal($(script).toString().includes('const undef = undefined'), true);
@@ -113,5 +116,53 @@ describe('Directives', async () => {
 
 		// Should not create Astro islands
 		assert.equal($('astro-island').length, 0);
+	});
+
+	it('set:html Fragment as slot (children)', async () => {
+		let res = await fixture.readFile('/set-html-children/index.html');
+		assert.equal(res.includes('Test'), true);
+	});
+});
+
+describe('set:html dev', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/astro-directives/',
+		});
+	});
+
+	describe('Development', () => {
+		/** @type {import('./test-utils').DevServer} */
+		let devServer;
+
+		before(async () => {
+			devServer = await fixture.startDevServer();
+			globalThis.TEST_FETCH = (fetch, url, init) => {
+				return fetch(fixture.resolveUrl(url), init);
+			};
+		});
+
+		after(async () => {
+			await devServer.stop();
+		});
+
+		it('set:html can take a fetch()', async () => {
+			let res = await fixture.fetch('/set-html-fetch');
+			assert.equal(res.status, 200);
+			let html = await res.text();
+			const $ = cheerio.load(html);
+			assert.equal($('#fetched-html').length, 1);
+			assert.equal($('#fetched-html').text(), 'works');
+		});
+
+		it('set:html Fragment as slot (children) in dev', async () => {
+			let res = await fixture.fetch('/set-html-children');
+			assert.equal(res.status, 200);
+			let html = await res.text();
+			assert.equal(html.includes('Test'), true);
+		});
 	});
 });
