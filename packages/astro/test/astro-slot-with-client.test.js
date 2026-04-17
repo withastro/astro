@@ -8,18 +8,18 @@ describe('Slots with client: directives', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/astro-slot-with-client/' });
+		fixture = await loadFixture({ root: './fixtures/astro-expr/' });
 		await fixture.build();
 	});
 
 	it('Tags of dynamic tags works', async () => {
-		const html = await fixture.readFile('/index.html');
+		const html = await fixture.readFile('/slot-with-client/index.html');
 		const $ = cheerio.load(html);
 		assert.equal($('script').length, 2);
 	});
 
 	it('Astro slot tags are kept', async () => {
-		const html = await fixture.readFile('/index.html');
+		const html = await fixture.readFile('/slot-with-client/index.html');
 		const $ = cheerio.load(html);
 		assert.equal($('astro-slot').length, 1);
 	});

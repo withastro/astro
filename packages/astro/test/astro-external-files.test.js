@@ -6,12 +6,12 @@ describe('External file references', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/astro-external-files/' });
+		fixture = await loadFixture({ root: './fixtures/astro-public/' });
 		await fixture.build();
 	});
 
 	it('Build with external reference', async () => {
-		const html = await fixture.readFile('/index.html');
+		const html = await fixture.readFile('/external-files/index.html');
 		assert.equal(html.includes('<script src="/external-file.js"'), true);
 	});
 });
