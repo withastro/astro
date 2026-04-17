@@ -2,11 +2,11 @@
 'astro': minor
 ---
 
-Adds a new `experimental_getFontFileURL()` method to resolve font file buffer URLs when using the Fonts API
+Adds a new `experimental_getFontFileURL()` method to resolve font file URLs when using the Fonts API
 
 The `fontData` object exported from `astro:assets` was introduced to provide low-level access to font family data for advanced usage. One of the goals of this API was to be able to resolve buffers using URLs. However, it turned out to be impractical, especially during prerendering.
 
-Astro now exports a new `experimental_getFontFileURL()` helper function from `astro:assets` to resolve font file buffe URLs from `fontData`. For example, when using [satori](https://github.com/vercel/satori) to generate Open Graph images:
+Astro now exports a new `experimental_getFontFileURL()` helper function from `astro:assets` to resolve font file URLs from `fontData`. For example, when using [satori](https://github.com/vercel/satori) to generate Open Graph images:
 
 ```diff
 // src/pages/og.png.ts
