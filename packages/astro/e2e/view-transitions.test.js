@@ -941,7 +941,7 @@ test.describe('View Transitions', () => {
 		await page.click('#click-redirect');
 		p = page.locator('#two');
 		await expect(p, 'should have content').toHaveText('Page 2');
-		
+
 		expect(consoleErrors.length, 'There should be no errors').toEqual(0);
 	});
 
@@ -1851,7 +1851,8 @@ test.describe('View Transitions', () => {
 		let cnt = page.locator('.counter pre');
 		await expect(cnt).toHaveText('AA0');
 		await page
-			.locator('[data-vite-dev-id*="VueCounter.vue?vue&type=style"]').last()
+			.locator('[data-vite-dev-id*="VueCounter.vue?vue&type=style"]')
+			.last()
 			.evaluate((el) => (el.dataset.marker = 'this'), undefined);
 		await page.goBack();
 		p = page.locator('#one');
@@ -1860,12 +1861,11 @@ test.describe('View Transitions', () => {
 			page.locator('[data-vite-dev-id*="VueCounter.vue?vue&type=style"][data-marker="this"]'),
 		).toHaveCount(0);
 
-		
 		await page.click('#click-vue-scoped-styles');
 
 		cnt = page.locator('.counter pre');
 		await expect(cnt).toHaveText('AA0');
-		
+
 		await expect(
 			page.locator('[data-vite-dev-id*="VueCounter.vue?vue&type=style"][data-marker="this"]'),
 		).toHaveCount(1);
