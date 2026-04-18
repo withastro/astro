@@ -1,29 +1,41 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { createRedirectsFromAstroRoutes, getTrailingSlashPaths } from '../dist/index.js';
+import type { AstroConfig, IntegrationResolvedRoute } from 'astro';
 
 describe('Astro', () => {
 	it('Creates a Redirects object from routes', () => {
-		const routeToDynamicTargetMap = new Map(
+		const resolvedRoute1: Partial<IntegrationResolvedRoute> = {
+			pattern: '/',
+			pathname: '/',
+			segments: [],
+		};
+		const resolvedRoute2: Partial<IntegrationResolvedRoute> = {
+			pattern: '/one',
+			pathname: '/one',
+			segments: [],
+		};
+		const routeToDynamicTargetMap = new Map<IntegrationResolvedRoute, string>(
 			Array.from([
-				[{ pattern: '/', pathname: '/', segments: [] }, './.adapter/dist/entry.mjs'],
-				[{ pattern: '/one', pathname: '/one', segments: [] }, './.adapter/dist/entry.mjs'],
+				[resolvedRoute1 as IntegrationResolvedRoute, './.adapter/dist/entry.mjs'],
+				[resolvedRoute2 as IntegrationResolvedRoute, './.adapter/dist/entry.mjs'],
 			]),
 		);
-		const _redirects = createRedirectsFromAstroRoutes({
+
+		const redirects = createRedirectsFromAstroRoutes({
 			config: {
 				build: { format: 'directory' },
-			},
+			} as AstroConfig,
 			routeToDynamicTargetMap,
 			dir: new URL(import.meta.url),
 			buildOutput: 'server',
 			assets: new Map([
-				['/', new URL('./index.html', import.meta.url)],
-				['/one', new URL('./one/index.html', import.meta.url)],
+				['/', [new URL('./index.html', import.meta.url)]],
+				['/one', [new URL('./one/index.html', import.meta.url)]],
 			]),
 		});
 
-		assert.equal(_redirects.definitions.length, 2);
+		assert.equal(redirects.definitions.length, 2);
 	});
 
 	it('Generates correct paths for root', () => {
