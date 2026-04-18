@@ -18,7 +18,7 @@ describe('Config', () => {
 					}),
 				],
 			});
-			await fixture.build({});
+			await fixture.build();
 		});
 
 		it('filter: Just one page is added', async () => {
@@ -55,7 +55,7 @@ describe('Config', () => {
 					}),
 				],
 			});
-			await fixture.build({});
+			await fixture.build();
 		});
 
 		it('filter: Just one page is added', async () => {
@@ -92,7 +92,7 @@ describe('Config', () => {
 					}),
 				],
 			});
-			await fixture.build({});
+			await fixture.build();
 		});
 
 		it('filenameBase: Sets the generated sitemap filename', async () => {
@@ -119,7 +119,7 @@ describe('Config', () => {
 					}),
 				],
 			});
-			await assert.rejects(fixture.build({}), /^Error: filter error$/);
+			await assert.rejects(fixture.build(), /^Error: filter error$/);
 		});
 	});
 });

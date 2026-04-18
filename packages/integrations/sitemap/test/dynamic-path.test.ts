@@ -10,7 +10,7 @@ describe('Dynamic with rest parameter', () => {
 		fixture = await loadFixture({
 			root: './fixtures/dynamic',
 		});
-		await fixture.build({});
+		await fixture.build();
 	});
 
 	it('Should generate correct urls', async () => {

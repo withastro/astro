@@ -11,7 +11,7 @@ describe('Custom 404 with injectRoute from dependency', () => {
 				root: './fixtures/custom-404-injected-from-dep/',
 				site: 'http://example.com',
 			});
-			await fixture.build({});
+			await fixture.build();
 		});
 
 		it('Build succeeds', async () => {

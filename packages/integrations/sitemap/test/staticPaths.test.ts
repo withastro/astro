@@ -12,7 +12,7 @@ describe('getStaticPaths support', () => {
 			root: './fixtures/static/',
 			trailingSlash: 'always',
 		});
-		await fixture.build({});
+		await fixture.build();
 
 		const data = await readXML(fixture.readFile('/sitemap-0.xml'));
 		urls = data.urlset.url.map((url: { loc: string[] }) => url.loc[0]);

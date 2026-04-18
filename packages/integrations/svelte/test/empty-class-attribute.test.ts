@@ -19,7 +19,7 @@ describe('Empty class attribute', () => {
 			fixture = await loadFixture({
 				root: new URL('./fixtures/empty-class/', import.meta.url),
 			});
-			await fixture.build({});
+			await fixture.build();
 		});
 
 		it('should not render empty class attribute when class prop is not provided', async () => {

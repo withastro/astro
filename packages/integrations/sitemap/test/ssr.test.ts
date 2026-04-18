@@ -10,7 +10,7 @@ describe('SSR support', () => {
 		fixture = await loadFixture({
 			root: './fixtures/ssr/',
 		});
-		await fixture.build({});
+		await fixture.build();
 	});
 
 	it('SSR pages require zero config', async () => {

@@ -35,7 +35,7 @@ describe('Markdoc - render components defined in `extends`', () => {
 
 	describe('build', () => {
 		before(async () => {
-			await fixture.build({});
+			await fixture.build();
 		});
 
 		it('renders content - with components', async () => {

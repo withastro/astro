@@ -19,7 +19,7 @@ describe('React Components', () => {
 
 	describe('build', () => {
 		before(async () => {
-			await fixture.build({});
+			await fixture.build();
 		});
 
 		it('Can load React', async () => {
