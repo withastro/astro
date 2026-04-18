@@ -5,20 +5,10 @@ import type { AstroConfig, IntegrationResolvedRoute } from 'astro';
 
 describe('Astro', () => {
 	it('Creates a Redirects object from routes', () => {
-		const resolvedRoute1: Partial<IntegrationResolvedRoute> = {
-			pattern: '/',
-			pathname: '/',
-			segments: [],
-		};
-		const resolvedRoute2: Partial<IntegrationResolvedRoute> = {
-			pattern: '/one',
-			pathname: '/one',
-			segments: [],
-		};
 		const routeToDynamicTargetMap = new Map<IntegrationResolvedRoute, string>(
 			Array.from([
-				[resolvedRoute1 as IntegrationResolvedRoute, './.adapter/dist/entry.mjs'],
-				[resolvedRoute2 as IntegrationResolvedRoute, './.adapter/dist/entry.mjs'],
+				[createIntegrationRoute('/'), './.adapter/dist/entry.mjs'],
+				[createIntegrationRoute('/one'), './.adapter/dist/entry.mjs'],
 			]),
 		);
 
@@ -59,3 +49,12 @@ describe('Astro', () => {
 		assert.deepEqual(getTrailingSlashPaths('/path/', 'never'), ['/path']);
 	});
 });
+
+function createIntegrationRoute(pattern: string, pathname = pattern): IntegrationResolvedRoute {
+	const route: Partial<IntegrationResolvedRoute> = {
+		pattern,
+		pathname,
+		segments: [],
+	};
+	return route as IntegrationResolvedRoute;
+}
