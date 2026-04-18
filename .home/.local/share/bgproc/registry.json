@@ -1,0 +1,38 @@
+{
+  "devserver": {
+    "pid": 2571,
+    "command": [
+      "env",
+      "HOME=/home/runner/work/astro/astro/.home",
+      "ASTRO_TELEMETRY_DISABLED=1",
+      "pnpm",
+      "-C",
+      "triage/gh-16387",
+      "exec",
+      "astro",
+      "dev",
+      "--port",
+      "4321"
+    ],
+    "cwd": "/home/runner/work/astro/astro",
+    "startedAt": "2026-04-18T19:18:08.462Z"
+  },
+  "repro-server": {
+    "pid": 3704,
+    "command": [
+      "env",
+      "HOME=/home/runner/work/astro/astro/.home",
+      "ASTRO_TELEMETRY_DISABLED=1",
+      "pnpm",
+      "-C",
+      "triage/gh-16387",
+      "exec",
+      "astro",
+      "dev",
+      "--port",
+      "4360"
+    ],
+    "cwd": "/home/runner/work/astro/astro",
+    "startedAt": "2026-04-18T19:19:39.196Z"
+  }
+}
