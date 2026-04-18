@@ -5,7 +5,6 @@ import { after, before, describe, it } from 'node:test';
 import { type Fixture, loadFixture } from './test-utils.ts';
 import { AstroLogger } from '../../../astro/dist/core/logger/core.js';
 import { fileURLToPath } from 'node:url';
-import type { AstroInlineConfig } from 'astro';
 
 describe('base', () => {
 	let fixture: Fixture;
@@ -31,13 +30,11 @@ describe('base', () => {
 				},
 			}),
 		});
-		const config: AstroInlineConfig = {
+		await fixture.build({
 			vite: { logLevel: 'info' },
 			// @ts-expect-error: logger is internal API
 			logger,
-		};
-
-		await fixture.build(config);
+		});
 	});
 
 	after(async () => {
