@@ -20,18 +20,20 @@ describe('SSR dependencies', () => {
 		const viteCacheDir = new URL('./node_modules/.vite/', fixture.config.root);
 		rmSync(fileURLToPath(viteCacheDir), { recursive: true, force: true });
 
-		devServer = await fixture.startDevServer({
-			logger: new AstroLogger({
-				level: 'info',
-				destination: new Writable({
-					objectMode: true,
-					write(event, _, callback) {
-						logs.push(event);
-						callback();
-					},
-				}),
+		const logger = new AstroLogger({
+			level: 'info',
+			destination: new Writable({
+				objectMode: true,
+				write(event, _, callback) {
+					logs.push(event);
+					callback();
+				},
 			}),
-		} as Parameters<Fixture['startDevServer']>[0]);
+		});
+		devServer = await fixture.startDevServer({
+			// @ts-expect-error: logger is internal API
+			logger,
+		});
 	});
 
 	after(async () => {
