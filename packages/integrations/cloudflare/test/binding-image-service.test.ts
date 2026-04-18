@@ -1,5 +1,4 @@
 import * as assert from 'node:assert/strict';
-import type { AddressInfo } from 'node:net';
 import { createServer, type Server } from 'node:http';
 import { after, before, describe, it } from 'node:test';
 import { type Fixture, loadFixture, type PreviewServer } from './test-utils.ts';
@@ -19,7 +18,11 @@ describe('BindingImageService', () => {
 		});
 		await new Promise<void>((resolve) => {
 			redirectServer.listen(0, () => {
-				redirectServerPort = (redirectServer.address() as AddressInfo).port;
+				const address = redirectServer.address();
+				if (typeof address === 'string' || !address) {
+					throw new TypeError('Unexpected address for testing');
+				}
+				redirectServerPort = address.port;
 				resolve();
 			});
 		});
