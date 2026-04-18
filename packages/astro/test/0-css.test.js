@@ -444,7 +444,10 @@ describe('CSS', function () {
 			assert.equal(allInjectedStyles.includes('.vue-css{'), true);
 			assert.equal(allInjectedStyles.includes('.vue-sass{'), true);
 			assert.equal(allInjectedStyles.includes('.vue-scss{'), true);
-			assert.equal(allInjectedStyles.includes('.vue-scoped{'), true);
+			// Vue scoped styles now include the data-v scope attribute in the cached CSS
+			// because the CSS cache runs after integration transforms (including Vue's scoped rewrite).
+			// Check for the class name presence rather than `.vue-scoped{` exactly.
+			assert.equal(allInjectedStyles.includes('.vue-scoped[data-v-'), true);
 			assert.equal(allInjectedStyles.includes('._vueModules_'), true);
 		});
 

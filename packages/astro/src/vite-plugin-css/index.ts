@@ -139,7 +139,20 @@ function* collectCSSWithOrder(
  *
  * @param routesList
  */
-export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOptions): Plugin[] {
+interface AstroDevCssPluginResult {
+	/** Core plugins for resolving/loading dev CSS virtual modules */
+	plugins: Plugin[];
+	/**
+	 * Separate cache plugin that must be registered AFTER integration plugins
+	 * so that integration transforms (e.g. UnoCSS `@apply`) run before CSS is cached.
+	 */
+	cssCachePlugin: Plugin;
+}
+
+export function astroDevCssPlugin({
+	routesList,
+	command,
+}: AstroVitePluginOptions): AstroDevCssPluginResult {
 	let server: vite.ViteDevServer | undefined;
 	// Cache CSS content by module ID to avoid re-reading
 	const cssContentCache = new Map<string, string>();
@@ -151,7 +164,7 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 		);
 	}
 
-	return [
+	const plugins: Plugin[] = [
 		{
 			name: MODULE_DEV_CSS,
 
@@ -252,27 +265,6 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 					}
 				},
 			},
-
-			transform: {
-				filter: {
-					id: {
-						include: [CSS_LANGS_RE],
-						exclude: [rawRE, inlineRE],
-					},
-				},
-				handler(code, id) {
-					if (command === 'build') {
-						return;
-					}
-
-					// Cache CSS content as we see it
-					const env = getCurrentEnvironment(this.environment as DevEnvironment);
-					const mod = env?.moduleGraph.getModuleById(id);
-					if (mod) {
-						cssContentCache.set(id, code);
-					}
-				},
-			},
 		},
 		{
 			name: MODULE_DEV_CSS_ALL,
@@ -309,4 +301,40 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 			},
 		},
 	];
+
+	// This plugin caches CSS content after all transforms (including integration transforms
+	// like UnoCSS's @apply resolution) have run. It must be registered AFTER integration
+	// plugins in the Vite plugin chain to ensure the cache stores fully-processed CSS.
+	const cssCachePlugin: Plugin = {
+		name: 'astro:dev-css-cache',
+		applyToEnvironment(env) {
+			return (
+				env.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
+				env.name === ASTRO_VITE_ENVIRONMENT_NAMES.client ||
+				env.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
+			);
+		},
+		transform: {
+			filter: {
+				id: {
+					include: [CSS_LANGS_RE],
+					exclude: [rawRE, inlineRE],
+				},
+			},
+			handler(code, id) {
+				if (command === 'build') {
+					return;
+				}
+
+				// Cache CSS content after all integration transforms have run
+				const env = getCurrentEnvironment(this.environment as DevEnvironment);
+				const mod = env?.moduleGraph.getModuleById(id);
+				if (mod) {
+					cssContentCache.set(id, code);
+				}
+			},
+		},
+	};
+
+	return { plugins, cssCachePlugin };
 }

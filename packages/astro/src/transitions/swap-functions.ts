@@ -9,6 +9,7 @@ const PERSIST_ATTR = 'data-astro-transition-persist';
 const NON_OVERRIDABLE_ASTRO_ATTRS = ['data-astro-transition', 'data-astro-transition-fallback'];
 
 const knownVueScopedStyles = new Map<string, HTMLStyleElement>();
+const knownAstroComponentStyles = new Map<string, HTMLStyleElement>();
 
 const scriptsAlreadyRan = new Set<string>();
 export function detectScriptExecuted(script: HTMLScriptElement) {
@@ -67,6 +68,10 @@ export function swapHeadElements(doc: Document) {
 				// In DEV mode, keep updated Vue scoped styles for later reuse
 				const viteDevId = vueScopedStyleId(el);
 				viteDevId && knownVueScopedStyles.set(viteDevId, el);
+				// Also keep Astro component styles that may have been transformed by
+				// integration plugins (e.g. UnoCSS @apply directives)
+				const astroDevId = astroComponentStyleId(el);
+				astroDevId && knownAstroComponentStyles.set(astroDevId, el);
 			}
 			// If the element does not exist in the new document, remove the element from current the head.
 			el.remove();
@@ -75,9 +80,14 @@ export function swapHeadElements(doc: Document) {
 
 	// Everything left in the new head is new, append it all.
 	if (import.meta.env.DEV) {
-		// In DEV mode, replace known Vue scoped styles with the versions we remembered
+		// In DEV mode, replace known Vue scoped styles and Astro component styles
+		// with the versions we remembered (which have been fully transformed by
+		// integration plugins like UnoCSS)
 		[...doc.head.children].forEach((child) => {
-			document.head.append(knownVueScopedStyles.get((child as any).dataset?.viteDevId) || child);
+			const viteDevId = (child as any).dataset?.viteDevId;
+			document.head.append(
+				knownVueScopedStyles.get(viteDevId) || knownAstroComponentStyles.get(viteDevId) || child,
+			);
 		});
 	} else {
 		document.head.append(...doc.head.children);
@@ -198,6 +208,18 @@ export const vueScopedStyleId = (el: HTMLStyleElement): string => {
 		: '';
 };
 
+// Matches Astro component styles: ?astro&type=style&...lang.css
+// These are distinct from UnoCSS's /__uno.css and have stable content
+// when the same component appears on multiple pages.
+const astroComponentStyleId = (el: HTMLStyleElement): string => {
+	const viteDevId = el.dataset.viteDevId || '';
+
+	const url = new URL(viteDevId, location.href);
+	return url.searchParams.get('astro') !== null && url.searchParams.get('type') === 'style'
+		? viteDevId
+		: '';
+};
+
 // Check for a head element that should persist and returns it,
 // either because it has the data attribute or because replacing it would cause avoidable FOUC.
 const persistedHeadElement = (el: HTMLElement, newDoc: Document): Element | null => {
@@ -222,6 +244,13 @@ const persistedHeadElement = (el: HTMLElement, newDoc: Document): Element | null
 		const viteDevId = vueScopedStyleId(el);
 		if (viteDevId) {
 			return newDoc.head.querySelector(`style[data-vite-dev-id="${viteDevId}"]`);
+		}
+		// Also persist Astro component styles that may have been transformed by
+		// integration plugins (e.g. UnoCSS @apply). These have stable IDs per component
+		// and are distinct from UnoCSS's /__uno.css which varies per page.
+		const astroDevId = astroComponentStyleId(el);
+		if (astroDevId) {
+			return newDoc.head.querySelector(`style[data-vite-dev-id="${astroDevId}"]`);
 		}
 	}
 	// Preserve inline <style> elements with identical content across navigations.
