@@ -61,7 +61,7 @@ describe('Markdoc - Content Collections', () => {
 
 	describe('build', () => {
 		before(async () => {
-			await baseFixture.build({});
+			await baseFixture.build();
 		});
 
 		it('loads entry', async () => {

@@ -16,7 +16,7 @@ describe('Trailing slash', () => {
 						format: 'directory',
 					},
 				});
-				await fixture.build({});
+				await fixture.build();
 			});
 
 			it('URLs end with trailing slash', async () => {
@@ -38,7 +38,7 @@ describe('Trailing slash', () => {
 						format: 'file',
 					},
 				});
-				await fixture.build({});
+				await fixture.build();
 			});
 
 			it('URLs do not end with trailing slash', async () => {
@@ -58,7 +58,7 @@ describe('Trailing slash', () => {
 				root: './fixtures/trailing-slash/',
 				trailingSlash: 'never',
 			});
-			await fixture.build({});
+			await fixture.build();
 		});
 
 		it('URLs do not end with trailing slash', async () => {
@@ -76,7 +76,7 @@ describe('Trailing slash', () => {
 					trailingSlash: 'never',
 					base: '/base',
 				});
-				await fixture.build({});
+				await fixture.build();
 			});
 
 			it('URLs do not end with trailing slash', async () => {
@@ -95,7 +95,7 @@ describe('Trailing slash', () => {
 				root: './fixtures/trailing-slash/',
 				trailingSlash: 'always',
 			});
-			await fixture.build({});
+			await fixture.build();
 		});
 
 		it('URLs end with trailing slash', async () => {
@@ -112,7 +112,7 @@ describe('Trailing slash', () => {
 					trailingSlash: 'always',
 					base: '/base',
 				});
-				await fixture.build({});
+				await fixture.build();
 			});
 
 			it('URLs end with trailing slash', async () => {

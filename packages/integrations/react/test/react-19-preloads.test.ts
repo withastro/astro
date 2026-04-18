@@ -7,7 +7,7 @@ test.describe('React 19 SSR integration', () => {
 		const fixture = await loadFixture({
 			root: new URL('./fixtures/react-19-preloads/', import.meta.url),
 		});
-		await fixture.build({});
+		await fixture.build();
 
 		const html = await fixture.readFile('/index.html');
 		const islandPattern = /<astro-island[^>]*>([\s\S]*?)<\/astro-island>/;

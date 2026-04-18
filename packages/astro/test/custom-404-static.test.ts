@@ -47,7 +47,7 @@ describe('Custom 404 with Static', () => {
 
 	describe('build', () => {
 		before(async () => {
-			await fixture.build({});
+			await fixture.build();
 		});
 
 		it('builds to 404.html', async () => {

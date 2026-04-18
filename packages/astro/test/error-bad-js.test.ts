@@ -43,7 +43,7 @@ describe('Errors in JavaScript', () => {
 
 	describe('build', () => {
 		before(async () => {
-			await fixture.build({});
+			await fixture.build();
 		});
 
 		it('in nested components, does not crash server', async () => {
