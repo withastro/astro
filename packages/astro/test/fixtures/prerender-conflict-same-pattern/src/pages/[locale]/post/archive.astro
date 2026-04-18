@@ -1,0 +1,10 @@
+---
+export async function getStaticPaths() {
+  return [
+    { params: { locale: 'en' } },
+    { params: { locale: 'de' } },
+  ];
+}
+const { locale } = Astro.params;
+---
+Archive (file): {locale}

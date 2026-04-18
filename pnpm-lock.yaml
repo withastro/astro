@@ -3656,6 +3656,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/prerender-conflict-same-pattern:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/prerender-conflict-static-dynamic:
     dependencies:
       astro:
@@ -6956,6 +6962,12 @@ importers:
       tsconfck:
         specifier: ^3.1.6
         version: 3.1.6(typescript@5.9.3)
+
+  triage/gh-16386:
+    dependencies:
+      astro:
+        specifier: ^6.1.7
+        version: link:../../packages/astro
 
 packages:
 

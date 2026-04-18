@@ -139,6 +139,8 @@ export async function generatePages(
 						matchedRoute.route,
 						route.route,
 						normalized,
+						matchedRoute.component,
+						route.component,
 					),
 					hint: AstroErrorData.PrerenderRouteConflict.hint(matchedRoute.route, route.route),
 				});
@@ -147,6 +149,8 @@ export async function generatePages(
 					matchedRoute.route,
 					route.route,
 					normalized,
+					matchedRoute.component,
+					route.component,
 				);
 				logger.warn('build', msg);
 			}

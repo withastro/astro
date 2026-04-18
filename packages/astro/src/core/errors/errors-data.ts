@@ -650,8 +650,20 @@ export const PrerenderDynamicEndpointPathCollide = {
 export const PrerenderRouteConflict = {
 	name: 'PrerenderRouteConflict',
 	title: 'Prerendered route generates the same path as another route.',
-	message: (winningRoute: string, thisRoute: string, pathname: string) =>
-		`Could not render \`${pathname}\` from route \`${thisRoute}\` as it conflicts with higher priority route \`${winningRoute}\`.`,
+	message(
+		winningRoute: string,
+		thisRoute: string,
+		pathname: string,
+		winningComponent?: string,
+		thisComponent?: string,
+	) {
+		let msg = `Could not render \`${pathname}\` from route \`${thisRoute}\``;
+		if (thisComponent) msg += ` (${thisComponent})`;
+		msg += ` as it conflicts with higher priority route \`${winningRoute}\``;
+		if (winningComponent) msg += ` (${winningComponent})`;
+		msg += '.';
+		return msg;
+	},
 	hint: (winningRoute: string, thisRoute: string) =>
 		`Ensure \`${thisRoute}\` and \`${winningRoute}\` don't generate the same static paths.`,
 } satisfies ErrorData;

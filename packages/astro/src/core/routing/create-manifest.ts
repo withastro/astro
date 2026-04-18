@@ -634,8 +634,21 @@ function detectRouteCollision(
 	}
 
 	if (a.prerender || b.prerender) {
-		// If either route is prerendered, it is impossible to know if they collide
-		// at this stage because it depends on the parameters returned by `getStaticPaths`.
+		// If both routes have the exact same route pattern, they are guaranteed to collide
+		// regardless of getStaticPaths params (e.g. archive.astro vs archive/index.astro).
+		if (a.route === b.route) {
+			logger.warn(
+				'router',
+				`The route "${a.route}" is defined in both "${a.component}" and "${b.component}". A prerendered route cannot be defined more than once.`,
+			);
+			logger.warn(
+				'router',
+				'A collision will result in a hard error in following versions of Astro.',
+			);
+			return;
+		}
+		// Otherwise it is impossible to know if they collide at this stage
+		// because it depends on the parameters returned by `getStaticPaths`.
 		return;
 	}
 
