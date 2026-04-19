@@ -123,9 +123,12 @@ export default function createIntegration({
 	let _isFullyStatic = false;
 	let cfPluginConfig: PluginConfig;
 
-	const { buildService, runtimeService } = normalizeImageServiceConfig(imageService);
+	const { buildService, runtimeService, transformAtBuild } =
+		normalizeImageServiceConfig(imageService);
 	const needsImagesBinding = runtimeService === 'cloudflare-binding';
-	const isBindingBuild = buildService === 'cloudflare-binding';
+	// Opt-in: user explicitly requested build-time image transformation via the compound config.
+	// The string shorthand `'cloudflare-binding'` keeps the historical runtime-only behavior.
+	const isBindingBuild = transformAtBuild && buildService === 'cloudflare-binding';
 
 	return {
 		name: '@astrojs/cloudflare',
