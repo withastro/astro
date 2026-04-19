@@ -1,5 +1,36 @@
 # @astrojs/cloudflare
 
+## 13.1.10
+
+### Patch Changes
+
+- [#16320](https://github.com/withastro/astro/pull/16320) [`a43eb4b`](https://github.com/withastro/astro/commit/a43eb4b40b4f81530e3c9b5e2959495900320433) Thanks [@matthewp](https://github.com/matthewp)! - Uses `redirect: 'manual'` for remote image fetches in the Cloudflare binding image transform, consistent with all other image fetch paths
+
+- [#16307](https://github.com/withastro/astro/pull/16307) [`a81dd3e`](https://github.com/withastro/astro/commit/a81dd3e7932f18b4c10c04378416324f0fea00f2) Thanks [@matthewp](https://github.com/matthewp)! - Surfaces `console.log` and `console.warn` output from workerd during prerendering
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 13.1.9
+
+### Patch Changes
+
+- [#16210](https://github.com/withastro/astro/pull/16210) [`e030bd0`](https://github.com/withastro/astro/commit/e030bd058457505b605ef573cfc71239baa963f0) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `.svelte` files in `node_modules` failing with `Unknown file extension ".svelte"` when using the Cloudflare adapter with `prerenderEnvironment: 'node'`
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 13.1.8
+
+### Patch Changes
+
+- [#16225](https://github.com/withastro/astro/pull/16225) [`756e7be`](https://github.com/withastro/astro/commit/756e7be510a315516f6aa1647c93d11e8b43f5a9) Thanks [@travisbreaks](https://github.com/travisbreaks)! - Fixes `ERR_MULTIPLE_CONSUMERS` error when using Cloudflare Queues with prerendered pages. The prerender worker config callback now excludes `queues.consumers` from the entry worker config, since the prerender worker only renders static HTML and should not register as a queue consumer. Queue producers (bindings) are preserved.
+
+- [#16192](https://github.com/withastro/astro/pull/16192) [`79d86b8`](https://github.com/withastro/astro/commit/79d86b88ef199d6a2195584ec53b225c6a9df5f9) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Removes an unused function re-export from the `/info` package path
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
 ## 13.1.7
 
 ### Patch Changes

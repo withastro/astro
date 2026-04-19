@@ -87,6 +87,26 @@ describe('Streaming', () => {
 			const text = await response.text();
 			assert.equal(text, '');
 		});
+
+		it('sync sibling inside Fragment streams before async child resolves', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/fragment-streaming');
+			const response = await app.render(request);
+
+			const chunks = [];
+			for await (const bytes of streamAsyncIterator(response.body)) {
+				chunks.push(decoder.decode(bytes));
+			}
+
+			const syncChunkIndex = chunks.findIndex((c) => c.includes('sync-in-fragment'));
+			const asyncChunkIndex = chunks.findIndex((c) => c.includes('async-in-fragment'));
+			assert.ok(syncChunkIndex !== -1, 'sync-in-fragment present in output');
+			assert.ok(asyncChunkIndex !== -1, 'async-in-fragment present in output');
+			assert.ok(
+				syncChunkIndex < asyncChunkIndex,
+				`sync content (chunk ${syncChunkIndex}) should stream before async content (chunk ${asyncChunkIndex})`,
+			);
+		});
 	});
 });
 

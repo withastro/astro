@@ -1,17 +1,35 @@
 import colors from 'piccolore';
 
-export interface LogWritable<T> {
+export interface AstroLoggerDestination<T> {
 	write: (chunk: T) => boolean;
 }
 
-export type LoggerLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent'; // same as Pino
+// NOTE: this is a public type
+/**
+ * How the log should be formatted
+ * - 'default': how Astro usually format the logs
+ * - 'json': logs are formatted in JSON format
+ */
+export type AstroLoggerFormat = 'default' | 'json';
+
+// NOTE: this is a public type
+
+/**
+ * The level of logging. Priority is the following:
+ * 1. debug
+ * 2. error
+ * 3. warn
+ * 4. info
+ * 5. silent
+ */
+export type AstroLoggerLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent'; // same as Pino
 
 /**
  * Defined logger labels. Add more as needed, but keep them high-level & reusable,
  * rather than specific to a single command, function, use, etc. The label will be
  * shown in the log message to the user, so it should be relevant.
  */
-type LoggerLabel =
+type AstroLoggerLabel =
 	| 'add'
 	| 'build'
 	| 'check'
@@ -41,9 +59,12 @@ type LoggerLabel =
 	// Useful for messages that are already formatted, like the server start message.
 	| 'SKIP_FORMAT';
 
-export interface LogOptions {
-	dest: LogWritable<LogMessage>;
-	level: LoggerLevel;
+export interface AstroLogOptions {
+	destination: AstroLoggerDestination<AstroLogMessage>;
+	level: AstroLoggerLevel;
+	// Intentionally optional so we don't leak to public code. It will be public and non-optional
+	// once we expose to users
+	_format?: AstroLoggerFormat;
 }
 
 // Hey, locales are pretty complicated! Be careful modifying this logic...
@@ -63,14 +84,33 @@ export const dateTimeFormat = new Intl.DateTimeFormat([], {
 	hour12: false,
 });
 
-export interface LogMessage {
+// NOTE: this is a public type now
+export interface AstroLogMessage {
+	/**
+	 * Label associated to the message. Used by Astro for pretty logging
+	 */
 	label: string | null;
-	level: LoggerLevel;
+	/**
+	 * The level of the log
+	 */
+	level: AstroLoggerLevel;
+	/**
+	 * The message of the log
+	 */
 	message: string;
+	/**
+	 * Whether a newline should be appended to the end of the message i.e. message + '\n'
+	 */
 	newLine: boolean;
+
+	/**
+	 * @internal
+	 * How the log should be formatted when printed inside the destination
+	 */
+	_format?: AstroLoggerFormat;
 }
 
-export const levels: Record<LoggerLevel, number> = {
+export const levels: Record<AstroLoggerLevel, number> = {
 	debug: 20,
 	info: 30,
 	warn: 40,
@@ -80,19 +120,20 @@ export const levels: Record<LoggerLevel, number> = {
 
 /** Full logging API */
 function log(
-	opts: LogOptions,
-	level: LoggerLevel,
+	opts: AstroLogOptions,
+	level: AstroLoggerLevel,
 	label: string | null,
 	message: string,
 	newLine = true,
 ) {
 	const logLevel = opts.level;
-	const dest = opts.dest;
-	const event: LogMessage = {
+	const dest = opts.destination;
+	const event: AstroLogMessage = {
 		label,
 		level,
 		message,
 		newLine,
+		_format: opts._format,
 	};
 
 	// test if this level is enabled or not
@@ -103,22 +144,22 @@ function log(
 	dest.write(event);
 }
 
-export function isLogLevelEnabled(configuredLogLevel: LoggerLevel, level: LoggerLevel) {
+export function isLogLevelEnabled(configuredLogLevel: AstroLoggerLevel, level: AstroLoggerLevel) {
 	return levels[configuredLogLevel] <= levels[level];
 }
 
 /** Emit a user-facing message. Useful for UI and other console messages. */
-function info(opts: LogOptions, label: string | null, message: string, newLine = true) {
+function info(opts: AstroLogOptions, label: string | null, message: string, newLine = true) {
 	return log(opts, 'info', label, message, newLine);
 }
 
 /** Emit a warning message. Useful for high-priority messages that aren't necessarily errors. */
-function warn(opts: LogOptions, label: string | null, message: string, newLine = true) {
+function warn(opts: AstroLogOptions, label: string | null, message: string, newLine = true) {
 	return log(opts, 'warn', label, message, newLine);
 }
 
 /** Emit an error message, Useful when Astro can't recover from some error. */
-function error(opts: LogOptions, label: string | null, message: string, newLine = true) {
+function error(opts: AstroLogOptions, label: string | null, message: string, newLine = true) {
 	return log(opts, 'error', label, message, newLine);
 }
 
@@ -133,7 +174,7 @@ export function debug(...args: any[]) {
  * This includes the timestamp, log level, and label all properly formatted
  * with colors. This is shared across different loggers, so it's defined here.
  */
-export function getEventPrefix({ level, label }: LogMessage) {
+export function getEventPrefix({ level, label }: AstroLogMessage) {
 	const timestamp = `${dateTimeFormat.format(new Date())}`;
 	const prefix = [];
 	if (level === 'error' || level === 'warn') {
@@ -165,22 +206,25 @@ export function timerMessage(message: string, startTime: number = Date.now()) {
 	return `${message}   ${colors.dim(timeDisplay)}`;
 }
 
-export class Logger {
-	options: LogOptions;
-	constructor(options: LogOptions) {
+export class AstroLogger {
+	options: AstroLogOptions;
+	constructor(options: AstroLogOptions) {
+		if (!options._format) {
+			options._format = 'default';
+		}
 		this.options = options;
 	}
 
-	info(label: LoggerLabel | null, message: string, newLine = true) {
+	info(label: AstroLoggerLabel | null, message: string, newLine = true) {
 		info(this.options, label, message, newLine);
 	}
-	warn(label: LoggerLabel | null, message: string, newLine = true) {
+	warn(label: AstroLoggerLabel | null, message: string, newLine = true) {
 		warn(this.options, label, message, newLine);
 	}
-	error(label: LoggerLabel | null, message: string, newLine = true) {
+	error(label: AstroLoggerLabel | null, message: string, newLine = true) {
 		error(this.options, label, message, newLine);
 	}
-	debug(label: LoggerLabel, ...messages: any[]) {
+	debug(label: AstroLoggerLabel, ...messages: any[]) {
 		debug(label, ...messages);
 	}
 
@@ -194,10 +238,10 @@ export class Logger {
 }
 
 export class AstroIntegrationLogger {
-	options: LogOptions;
+	options: AstroLogOptions;
 	label: string;
 
-	constructor(logging: LogOptions, label: string) {
+	constructor(logging: AstroLogOptions, label: string) {
 		this.options = logging;
 		this.label = label;
 	}

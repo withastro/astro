@@ -7,7 +7,7 @@ import { getAlgorithm, shouldTrackCspHashes } from '../../core/csp/common.js';
 import { generateCspDigest } from '../../core/encryption.js';
 import { collectErrorMetadata } from '../../core/errors/dev/utils.js';
 import { AstroError, AstroErrorData, isAstroError } from '../../core/errors/index.js';
-import type { Logger } from '../../core/logger/core.js';
+import type { AstroLogger } from '../../core/logger/core.js';
 import { formatErrorMessage } from '../../core/messages/runtime.js';
 import { appendForwardSlash, joinPaths, prependForwardSlash } from '../../core/path.js';
 import { getClientOutputDirectory } from '../../prerender/utils.js';
@@ -54,7 +54,7 @@ import type {
 interface Options {
 	settings: AstroSettings;
 	sync: boolean;
-	logger: Logger;
+	logger: AstroLogger;
 }
 
 export function fontsPlugin({ settings, sync, logger }: Options): Plugin {

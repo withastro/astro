@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.4.2/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.4.10/schema.json",
   "files": {
     "includes": [
       "**",
@@ -185,6 +185,26 @@
         "rules": {
           "suspicious": {
             "noConsole": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/astro/test/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["**/src/**"],
+                    "message": "The test should not import the source code. Import the code from the dist/ folder instead."
+                  }
+                ]
+              }
+            }
           }
         }
       }
