@@ -1,0 +1,14 @@
+---
+import { Code } from 'astro:components';
+
+export const prerender = true
+---
+
+<html>
+	<head>
+		<title>Testing</title>
+	</head>
+	<body>
+		<Code lang="rust" code={`let foo = "bar";`} />
+	</body>
+</html>

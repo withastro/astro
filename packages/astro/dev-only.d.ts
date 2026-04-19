@@ -92,3 +92,14 @@ declare module 'virtual:astro:get-image' {
 		options: import('./src/types/public/index.js').UnresolvedImageTransform,
 	) => Promise<import('./src/types/public/index.js').GetImageResult>;
 }
+
+declare module 'virtual:astro:shiki-optimize' {
+	import type {
+		BundledTheme,
+		DynamicImportThemeRegistration,
+		BundledLanguage,
+		DynamicImportLanguageRegistration,
+	} from 'shiki';
+	export const bundledThemes: Record<BundledTheme, DynamicImportThemeRegistration>;
+	export const bundledLanguages: Record<BundledLanguage, DynamicImportLanguageRegistration>;
+}

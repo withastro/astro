@@ -2,17 +2,22 @@ import type { Properties, Root } from 'hast';
 import {
 	type BuiltinLanguage,
 	type BundledLanguage,
+	type BundledTheme,
 	createCssVariablesTheme,
 	createHighlighter,
+	createBundledHighlighter,
 	type HighlighterCoreOptions,
+	type HighlighterGeneric,
 	isSpecialLang,
 	type LanguageInput,
 	type LanguageRegistration,
-	type RegexEngine,
 	type ShikiTransformer,
 	type SpecialLanguage,
 	type ThemeRegistration,
 	type ThemeRegistrationRaw,
+	type DynamicImportLanguageRegistration,
+	type DynamicImportThemeRegistration,
+	type BundledHighlighterOptions,
 } from 'shiki';
 import type { ThemePresets } from './types.js';
 import { loadShikiEngine } from '#shiki-engine';
@@ -37,12 +42,27 @@ interface ShikiHighlighterInternal extends ShikiHighlighter {
 	getLoadedLanguages(): string[];
 }
 
-export interface CreateShikiHighlighterOptions {
+interface CreateShikiHighlighterInternalOptions {
 	langs?: LanguageRegistration[];
 	theme?: ThemePresets | ThemeRegistration | ThemeRegistrationRaw;
 	themes?: Record<string, ThemePresets | ThemeRegistration | ThemeRegistrationRaw>;
 	langAlias?: HighlighterCoreOptions['langAlias'];
+	highlighterFactory: (
+		highlighterOptions: BundledHighlighterOptions<BundledLanguage, BundledTheme>,
+	) => Promise<HighlighterGeneric<BundledLanguage, BundledTheme>>;
 }
+
+export type CreateShikiHighlighterOptions = Omit<
+	CreateShikiHighlighterInternalOptions,
+	'highlighterFactory'
+>;
+export type CreateBundledShikiHighlighterOptions = Omit<
+	CreateShikiHighlighterInternalOptions,
+	'highlighterFactory'
+> & {
+	bundledThemes: Record<BundledTheme, DynamicImportThemeRegistration>;
+	bundledLanguages: Record<BundledLanguage, DynamicImportLanguageRegistration>;
+};
 
 export interface ShikiHighlighterHighlightOptions {
 	/**
@@ -104,7 +124,38 @@ export function createShikiHighlighter(
 	const key: string = getCacheKey(options);
 	let highlighterPromise = cachedHighlighters.get(key);
 	if (!highlighterPromise) {
-		highlighterPromise = createShikiHighlighterInternal(options);
+		highlighterPromise = createShikiHighlighterInternal({
+			...options,
+			highlighterFactory: createHighlighter,
+		});
+		cachedHighlighters.set(key, highlighterPromise);
+	}
+	return ensureLanguagesLoaded(highlighterPromise, options?.langs);
+}
+
+export async function createBundledShikiHighlighter({
+	bundledThemes,
+	bundledLanguages,
+	...options
+}: CreateBundledShikiHighlighterOptions) {
+	// While an empty `bundledLanguages` safely falls back to 'plaintext',
+	// an empty `bundledThemes` will cause an error when executing `createShikiHighlighterInternal`.
+	if (Object.keys(bundledThemes).length === 0) {
+		throw new Error(
+			'At least one theme must be included in `bundledThemes` when using `createBundledShikiHighlighter`.',
+		);
+	}
+
+	const key: string = getCacheKey(options, bundledThemes, bundledLanguages);
+	let highlighterPromise = cachedHighlighters.get(key);
+	if (!highlighterPromise) {
+		const highlighterFactory = createBundledHighlighter({
+			themes: bundledThemes,
+			langs: bundledLanguages,
+			engine: () => loadShikiEngine(),
+		});
+
+		highlighterPromise = createShikiHighlighterInternal({ ...options, highlighterFactory });
 		cachedHighlighters.set(key, highlighterPromise);
 	}
 	return ensureLanguagesLoaded(highlighterPromise, options?.langs);
@@ -117,7 +168,11 @@ export function createShikiHighlighter(
  * load languages. This allows us to reuse the same highlighter instance for
  * different languages.
  */
-function getCacheKey(options?: CreateShikiHighlighterOptions): string {
+function getCacheKey(
+	options?: CreateShikiHighlighterOptions,
+	bundledThemes?: Record<BundledTheme, DynamicImportThemeRegistration>,
+	bundledLanguages?: Record<BundledLanguage, DynamicImportLanguageRegistration>,
+): string {
 	const keyCache: unknown[] = [];
 	const { theme, themes, langAlias } = options ?? {};
 	if (theme) {
@@ -128,6 +183,12 @@ function getCacheKey(options?: CreateShikiHighlighterOptions): string {
 	}
 	if (langAlias) {
 		keyCache.push(Object.entries(langAlias).sort());
+	}
+	if (bundledThemes) {
+		keyCache.push(Object.keys(bundledThemes).sort());
+	}
+	if (bundledLanguages) {
+		keyCache.push(Object.keys(bundledLanguages).sort());
 	}
 	return keyCache.length > 0 ? JSON.stringify(keyCache) : '';
 }
@@ -155,25 +216,20 @@ async function ensureLanguagesLoaded(
 	return highlighter;
 }
 
-let shikiEngine: RegexEngine | undefined = undefined;
-
 async function createShikiHighlighterInternal({
 	langs = [],
 	theme = 'github-dark',
 	themes = {},
 	langAlias = {},
-}: CreateShikiHighlighterOptions = {}): Promise<ShikiHighlighterInternal> {
+	highlighterFactory,
+}: CreateShikiHighlighterInternalOptions): Promise<ShikiHighlighterInternal> {
 	theme = theme === 'css-variables' ? cssVariablesTheme() : theme;
 
-	if (shikiEngine === undefined) {
-		shikiEngine = await loadShikiEngine();
-	}
-
-	const highlighter = await createHighlighter({
+	const highlighter = await highlighterFactory({
 		langs: ['plaintext', ...langs],
 		langAlias,
 		themes: Object.values(themes).length ? Object.values(themes) : [theme],
-		engine: shikiEngine,
+		engine: loadShikiEngine(),
 	});
 
 	async function highlight(

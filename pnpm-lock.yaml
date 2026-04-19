@@ -5811,6 +5811,23 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/node/test/fixtures/shiki-bundle-size/ssr-and-prerender:
+    dependencies:
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../../astro
+
+  packages/integrations/node/test/fixtures/shiki-bundle-size/ssr-only:
+    dependencies:
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../../astro
   packages/integrations/node/test/fixtures/ssr-assets-middleware:
     dependencies:
       '@astrojs/node':

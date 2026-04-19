@@ -1,7 +1,23 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { createMarkdownProcessor, createShikiHighlighter } from '../dist/index.js';
-import { clearShikiHighlighterCache } from '../dist/shiki.js';
+import { createBundledShikiHighlighter, clearShikiHighlighterCache } from '../dist/shiki.js';
+import {
+	bundledLanguages as shikiBundledLanguages,
+	bundledThemes as shikiBundledThemes,
+} from 'shiki';
+
+function hookWarning() {
+	const warn = console.warn;
+	const warns = [];
+	console.warn = function (...args) {
+		warns.push(args);
+	};
+	return () => {
+		console.warn = warn;
+		return warns;
+	};
+}
 
 describe('shiki syntax highlighting', () => {
 	it('does not add is:raw to the output', async () => {
@@ -328,4 +344,127 @@ describe('shiki syntax highlighting', () => {
 		assert.doesNotMatch(html, /white-space: pre-wrap/);
 		assert.doesNotMatch(html, /word-wrap: break-word/);
 	});
+
+  describe('createBundledShikiHighlighter', () => {
+		it('createBundledShikiHighlighter works', async () => {
+			const highlighter = await createBundledShikiHighlighter({
+				bundledLanguages: { js: shikiBundledLanguages['js'] },
+				bundledThemes: { 'github-dark': shikiBundledThemes['github-dark'] },
+			});
+
+			const html = await highlighter.codeToHtml('const foo = "bar";', 'js');
+
+			assert.match(html, /astro-code github-dark/);
+			assert.match(html, /background-color:#24292e;color:#e1e4e8;/);
+		});
+
+		it('createBundledShikiHighlighter works with codeToHast', async () => {
+			const highlighter = await createBundledShikiHighlighter({
+				bundledLanguages: { js: shikiBundledLanguages['js'] },
+				bundledThemes: { 'github-dark': shikiBundledThemes['github-dark'] },
+			});
+
+			const hast = await highlighter.codeToHast('const foo = "bar";', 'js');
+
+			assert.match(hast.children[0].properties.class, /astro-code github-dark/);
+			assert.match(hast.children[0].properties.style, /background-color:#24292e;color:#e1e4e8;/);
+		});
+
+		it('createBundledShikiHighlighter falls back to plaintext for unbundled languages', async () => {
+			const unhook = hookWarning();
+			const highlighter = await createBundledShikiHighlighter({
+				bundledThemes: { 'github-dark': shikiBundledThemes['github-dark'] },
+			});
+
+			await highlighter.codeToHtml('const foo = "bar";', 'js');
+
+			const warns = unhook();
+			const hasPlainTextFallbackLog = warns
+				.flat()
+				.some((log) => log.includes('falling back to "plaintext"'));
+
+			assert.equal(hasPlainTextFallbackLog, true);
+		});
+
+		it('createBundledShikiHighlighter throws an error if no themes are bundled', async () => {
+			const highlighterPromise = createBundledShikiHighlighter({
+				bundledLanguages: { js: shikiBundledLanguages['js'] },
+			});
+
+			await assert.rejects(highlighterPromise, 'At least one theme must be included');
+		});
+
+		it('createBundledShikiHighlighter throws an error if the requested theme is not bundled', async () => {
+			const highlighterPromise = createBundledShikiHighlighter({
+				theme: 'github-light',
+				bundledThemes: { 'github-dark': shikiBundledThemes['github-dark'] },
+			});
+
+			await assert.rejects(
+				highlighterPromise,
+				'Theme `github-light` is not included in this bundle',
+			);
+		});
+
+		it('createBundledShikiHighlighter uses a separate cache instance from the createShikiHighlighter', async () => {
+			const highlighter = await createShikiHighlighter({ langs: ['js'] });
+			const bundledHighlighter = await createBundledShikiHighlighter({
+				langs: ['js'],
+				bundledLanguages: shikiBundledLanguages,
+				bundledThemes: shikiBundledThemes,
+			});
+
+			assert.notEqual(highlighter, bundledHighlighter);
+		});
+
+		it('createBundledShikiHighlighter can reuse the same instance for different languages', async () => {
+			const langs = [
+				'abap',
+				'ada',
+				'adoc',
+				'angular-html',
+				'angular-ts',
+				'apache',
+				'apex',
+				'apl',
+				'applescript',
+				'ara',
+				'asciidoc',
+				'asm',
+				'astro',
+				'awk',
+				'ballerina',
+				'bash',
+				'bat',
+				'batch',
+				'be',
+				'beancount',
+				'berry',
+				'bibtex',
+				'bicep',
+				'blade',
+				'bsl',
+			];
+
+			const highlighters = new Set();
+			for (const lang of langs) {
+				const bundledHighlighter = await createBundledShikiHighlighter({
+					langs: [lang],
+					bundledLanguages: shikiBundledLanguages,
+					bundledThemes: shikiBundledThemes,
+				});
+				highlighters.add(bundledHighlighter);
+			}
+
+			// Ensure that we only have one highlighter instance.
+			assert.strictEqual(highlighters.size, 1);
+
+			// Ensure that this highlighter instance can highlight different languages.
+			const highlighter = Array.from(highlighters)[0];
+			const html1 = await highlighter.codeToHtml('const foo = "bar";', 'js');
+			const html2 = await highlighter.codeToHtml('const foo = "bar";', 'ts');
+			assert.match(html1, /color:#F97583/);
+			assert.match(html2, /color:#F97583/);
+		});
+  });
 });

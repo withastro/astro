@@ -55,6 +55,7 @@ import { vitePluginEnvironment } from '../vite-plugin-environment/index.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from './constants.js';
 import { vitePluginChromedevtools } from '../vite-plugin-chromedevtools/index.js';
 import { vitePluginAstroServerClient } from '../vite-plugin-overlay/index.js';
+import shikiOptimizePlugin from '../vite-plugin-shiki-optimize/index.js';
 
 type CreateViteOptions = {
 	settings: AstroSettings;
@@ -213,6 +214,7 @@ export async function createVite(
 			astroContainer(),
 			astroHmrReloadPlugin(),
 			vitePluginChromedevtools({ settings }),
+			shikiOptimizePlugin({ settings }),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),
