@@ -1,33 +1,36 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { visit } from 'unist-util-visit';
-import { createMarkdownProcessor } from '../dist/index.js';
+import {
+	createMarkdownProcessor,
+	type MarkdownProcessor,
+	type RehypePlugin,
+} from '../dist/index.js';
 
 describe('collect images', async () => {
-	let processor;
-	let processorWithHastProperties;
+	let processor: MarkdownProcessor;
+	let processorWithHastProperties: MarkdownProcessor;
 
 	before(async () => {
 		processor = await createMarkdownProcessor({ image: { domains: ['example.com'] } });
+
+		const addImageProps: RehypePlugin = () => (tree) => {
+			visit(tree, 'element', (node) => {
+				if (node.tagName === 'img') {
+					node.properties.className = ['image-class'];
+					node.properties.htmlFor = 'some-id';
+				}
+			});
+		};
+
 		processorWithHastProperties = await createMarkdownProcessor({
-			rehypePlugins: [
-				() => {
-					return (tree) => {
-						visit(tree, 'element', (node) => {
-							if (node.tagName === 'img') {
-								node.properties.className = ['image-class'];
-								node.properties.htmlFor = 'some-id';
-							}
-						});
-					};
-				},
-			],
+			rehypePlugins: [addImageProps],
 		});
 	});
 
 	it('should collect inline image paths', async () => {
 		const markdown = `Hello ![inline image url](./img.png)`;
-		const fileURL = 'file.md';
+		const fileURL = new URL('file.md', import.meta.url);
 
 		const {
 			code,
@@ -45,7 +48,7 @@ describe('collect images', async () => {
 
 	it('should collect allowed remote image paths', async () => {
 		const markdown = `Hello ![inline remote image url](https://example.com/example.png)`;
-		const fileURL = 'file.md';
+		const fileURL = new URL('file.md', import.meta.url);
 
 		const {
 			code,
@@ -62,7 +65,7 @@ describe('collect images', async () => {
 
 	it('should not collect other remote image paths', async () => {
 		const markdown = `Hello ![inline remote image url](https://google.com/google.png)`;
-		const fileURL = 'file.md';
+		const fileURL = new URL('file.md', import.meta.url);
 
 		const {
 			code,
@@ -79,7 +82,7 @@ describe('collect images', async () => {
 
 	it('should add image paths from definition', async () => {
 		const markdown = `Hello ![image ref][img-ref] ![remote image ref][remote-img-ref]\n\n[img-ref]: ./img.webp\n[remote-img-ref]: https://example.com/example.jpg`;
-		const fileURL = 'file.md';
+		const fileURL = new URL('file.md', import.meta.url);
 
 		const { code, metadata } = await processor.render(markdown, { fileURL });
 
@@ -94,7 +97,7 @@ describe('collect images', async () => {
 
 	it('should preserve className as HTML class attribute', async () => {
 		const markdown = `Hello ![image with class](./img.png)`;
-		const fileURL = 'file.md';
+		const fileURL = new URL('file.md', import.meta.url);
 
 		const { code } = await processorWithHastProperties.render(markdown, { fileURL });
 

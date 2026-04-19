@@ -1,6 +1,12 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { extractFrontmatter, parseFrontmatter } from '../dist/index.js';
+import {
+	extractFrontmatter,
+	parseFrontmatter,
+	type ParseFrontmatterOptions,
+} from '../dist/index.js';
+
+type FrontmatterStyle = ParseFrontmatterOptions['frontmatter'];
 
 const bom = '\uFEFF';
 
@@ -157,13 +163,14 @@ describe('parseFrontmatter', () => {
 
 	it('frontmatter style for YAML', () => {
 		const yaml = `\nfoo: bar\n`;
-		const parse1 = (style) => parseFrontmatter(`---${yaml}---`, { frontmatter: style }).content;
+		const parse1 = (style: FrontmatterStyle) =>
+			parseFrontmatter(`---${yaml}---`, { frontmatter: style }).content;
 		assert.deepEqual(parse1('preserve'), `---${yaml}---`);
 		assert.deepEqual(parse1('remove'), '');
 		assert.deepEqual(parse1('empty-with-spaces'), `   \n        \n   `);
 		assert.deepEqual(parse1('empty-with-lines'), `\n\n`);
 
-		const parse2 = (style) =>
+		const parse2 = (style: FrontmatterStyle) =>
 			parseFrontmatter(`\n  \n---${yaml}---\n\ncontent`, { frontmatter: style }).content;
 		assert.deepEqual(parse2('preserve'), `\n  \n---${yaml}---\n\ncontent`);
 		assert.deepEqual(parse2('remove'), '\n  \n\n\ncontent');
@@ -173,13 +180,14 @@ describe('parseFrontmatter', () => {
 
 	it('frontmatter style for TOML', () => {
 		const toml = `\nfoo = "bar"\n`;
-		const parse1 = (style) => parseFrontmatter(`+++${toml}+++`, { frontmatter: style }).content;
+		const parse1 = (style: FrontmatterStyle) =>
+			parseFrontmatter(`+++${toml}+++`, { frontmatter: style }).content;
 		assert.deepEqual(parse1('preserve'), `+++${toml}+++`);
 		assert.deepEqual(parse1('remove'), '');
 		assert.deepEqual(parse1('empty-with-spaces'), `   \n           \n   `);
 		assert.deepEqual(parse1('empty-with-lines'), `\n\n`);
 
-		const parse2 = (style) =>
+		const parse2 = (style: FrontmatterStyle) =>
 			parseFrontmatter(`\n  \n+++${toml}+++\n\ncontent`, { frontmatter: style }).content;
 		assert.deepEqual(parse2('preserve'), `\n  \n+++${toml}+++\n\ncontent`);
 		assert.deepEqual(parse2('remove'), '\n  \n\n\ncontent');

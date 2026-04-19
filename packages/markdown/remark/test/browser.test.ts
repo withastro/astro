@@ -14,7 +14,7 @@ describe('Bundle for browsers', async () => {
 			assert.ok(result.outputFiles.length > 0);
 		} catch (error) {
 			// Capture any esbuild errors and fail the test
-			assert.fail(error.message);
+			assert.fail((error as Error).message);
 		}
 	});
 });

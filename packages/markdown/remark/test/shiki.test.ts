@@ -1,6 +1,13 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { createMarkdownProcessor, createShikiHighlighter } from '../dist/index.js';
+import type { Element } from 'hast';
+import type { LanguageRegistration, ThemeRegistration } from 'shiki';
+import {
+	createMarkdownProcessor,
+	createShikiHighlighter,
+	type ShikiHighlighter,
+} from '../dist/index.js';
+// @ts-expect-error: `clearShikiHighlighterCache` is marked `@internal` and stripped from the `.d.ts`, but still exists at runtime.
 import { clearShikiHighlighterCache } from '../dist/shiki.js';
 
 describe('shiki syntax highlighting', () => {
@@ -44,9 +51,10 @@ describe('shiki syntax highlighting', () => {
 		const highlighter = await createShikiHighlighter();
 
 		const hast = await highlighter.codeToHast('const foo = "bar";', 'js');
+		const root = hast.children[0] as Element;
 
-		assert.match(hast.children[0].properties.class, /astro-code github-dark/);
-		assert.match(hast.children[0].properties.style, /background-color:#24292e;color:#e1e4e8;/);
+		assert.match(root.properties.class as string, /astro-code github-dark/);
+		assert.match(root.properties.style as string, /background-color:#24292e;color:#e1e4e8;/);
 	});
 
 	it('createShikiHighlighter can reuse the same instance for different languages', async () => {
@@ -76,11 +84,16 @@ describe('shiki syntax highlighting', () => {
 			'bicep',
 			'blade',
 			'bsl',
-		];
+		] as const;
 
-		const highlighters = new Set();
+		const highlighters = new Set<ShikiHighlighter>();
 		for (const lang of langs) {
-			highlighters.add(await createShikiHighlighter({ langs: [lang] }));
+			highlighters.add(
+				await createShikiHighlighter({
+					// @ts-expect-error: `langs` is typed as `LanguageRegistration[]`, but Shiki's `createHighlighter` accepts both strings and objects in the array.
+					langs: [lang],
+				}),
+			);
 		}
 
 		// Ensure that we only have one highlighter instance.
@@ -113,7 +126,11 @@ describe('shiki syntax highlighting', () => {
 		const highlighter = await createShikiHighlighter();
 
 		const html = await highlighter.codeToHtml(`foo`, 'js', {
-			attributes: { 'data-foo': 'bar', autofocus: true },
+			attributes: {
+				'data-foo': 'bar',
+				// @ts-expect-error: Shiki's `codeToHtml` accepts boolean attributes as `string | boolean`, but the types are currently incorrect.
+				autofocus: true,
+			},
 		});
 
 		assert.match(html, /data-foo="bar"/);
@@ -164,7 +181,7 @@ describe('shiki syntax highlighting', () => {
 		});
 
 		const html = await highlighter.codeToHtml(`let test = "some string"`, 'cjs', {
-			attributes: { 'data-foo': 'bar', autofocus: true },
+			attributes: { 'data-foo': 'bar' },
 		});
 
 		assert.match(html, /data-language="cjs"/);
@@ -188,12 +205,15 @@ describe('shiki syntax highlighting', () => {
 		clearShikiHighlighterCache();
 
 		const theme = 'github-light';
-		const highlighter = await createShikiHighlighter({ theme });
+		interface ShikiHighlighterInternal extends ShikiHighlighter {
+			loadLanguage(...langs: unknown[]): Promise<void>;
+			getLoadedLanguages(): string[];
+		}
+		const highlighter = (await createShikiHighlighter({ theme })) as ShikiHighlighterInternal;
 
-		// loadLanguage is an internal method
-		const loadLanguageArgs = [];
-		const originalLoadLanguage = highlighter['loadLanguage'];
-		highlighter['loadLanguage'] = async (...args) => {
+		const loadLanguageArgs: unknown[] = [];
+		const originalLoadLanguage = highlighter.loadLanguage;
+		highlighter.loadLanguage = async (...args: unknown[]) => {
 			loadLanguageArgs.push(...args);
 			return await originalLoadLanguage(...args);
 		};
@@ -202,19 +222,35 @@ describe('shiki syntax highlighting', () => {
 		assert.equal(loadLanguageArgs.length, 0);
 
 		// Load a new language
-		const h1 = await createShikiHighlighter({ theme, langs: ['js'] });
+		const h1 = await createShikiHighlighter({
+			theme,
+			// @ts-expect-error: `langs` is typed as `LanguageRegistration[]`, but Shiki's `createHighlighter` accepts both strings and objects in the array.
+			langs: ['js'],
+		});
 		assert.equal(loadLanguageArgs.length, 1);
 
 		// Load the same language again
-		const h2 = await createShikiHighlighter({ theme, langs: ['js'] });
+		const h2 = await createShikiHighlighter({
+			theme,
+			// @ts-expect-error: `langs` is typed as `LanguageRegistration[]`, but Shiki's `createHighlighter` accepts both strings and objects in the array.
+			langs: ['js'],
+		});
 		assert.equal(loadLanguageArgs.length, 1);
 
 		// Load another language
-		const h3 = await createShikiHighlighter({ theme, langs: ['ts'] });
+		const h3 = await createShikiHighlighter({
+			theme,
+			// @ts-expect-error: `langs` is typed as `LanguageRegistration[]`, but Shiki's `createHighlighter` accepts both strings and objects in the array.
+			langs: ['ts'],
+		});
 		assert.equal(loadLanguageArgs.length, 2);
 
 		// Load the same language again
-		const h4 = await createShikiHighlighter({ theme, langs: ['ts'] });
+		const h4 = await createShikiHighlighter({
+			theme,
+			// @ts-expect-error: `langs` is typed as `LanguageRegistration[]`, but Shiki's `createHighlighter` accepts both strings and objects in the array.
+			langs: ['ts'],
+		});
 		assert.equal(loadLanguageArgs.length, 2);
 
 		// All highlighters should be the same instance
@@ -251,7 +287,7 @@ describe('shiki syntax highlighting', () => {
 	it('uses a custom (ThemeRegistrationRaw) theme', async () => {
 		// Minimal subset of a custom theme — only the fields Shiki needs to
 		// derive the pre element's background-color and color.
-		const serendipityMorning = {
+		const serendipityMorning: ThemeRegistration = {
 			name: 'Serendipity Morning',
 			type: 'light',
 			colors: {
@@ -279,7 +315,7 @@ describe('shiki syntax highlighting', () => {
 		// Minimal rinfo grammar — same language used in the langs fixture.
 		// Must be passed as a LanguageRegistration (name + scopeName at top level),
 		// not the { id, grammar } wrapper used by Astro's config layer.
-		const riLang = {
+		const riLang: LanguageRegistration = {
 			name: 'rinfo',
 			scopeName: 'source.rinfo',
 			patterns: [{ include: '#lf-rinfo' }],
