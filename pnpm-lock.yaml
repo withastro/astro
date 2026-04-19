@@ -4575,6 +4575,9 @@ importers:
       '@types/node':
         specifier: ^25.2.2
         version: 25.2.3
+      '@types/prismjs':
+        specifier: 1.26.6
+        version: 1.26.6
       astro:
         specifier: workspace:*
         version: link:../../astro
@@ -4587,12 +4590,18 @@ importers:
       devalue:
         specifier: ^5.6.3
         version: 5.6.4
+      prismjs:
+        specifier: ^1.30.0
+        version: 1.30.0
 
   packages/integrations/cloudflare/test/fixtures/astro-dev-platform:
     dependencies:
       '@astrojs/cloudflare':
         specifier: workspace:*
         version: link:../../..
+      '@astrojs/prism':
+        specifier: workspace:*
+        version: link:../../../../../astro-prism
       astro:
         specifier: workspace:*
         version: link:../../../../../astro
