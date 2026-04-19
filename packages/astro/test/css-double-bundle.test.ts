@@ -1,11 +1,10 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { loadFixture, type Fixture } from './test-utils.js';
 
 describe('CSS Double Bundling Prevention', function () {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -29,7 +28,7 @@ describe('CSS Double Bundling Prevention', function () {
 		// Check linked stylesheets
 		const cssLinks = $('link[rel="stylesheet"][href^="/_astro/"]');
 		for (let i = 0; i < cssLinks.length; i++) {
-			const href = cssLinks.eq(i).attr('href');
+			const href = cssLinks.eq(i).attr('href')!;
 			const cssContent = await fixture.readFile(href.replace(/^\//, '/'));
 			allCss += cssContent;
 		}

@@ -1,11 +1,10 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { loadFixture, type Fixture } from './test-utils.js';
 
 describe('CSS ordering - import order with layouts', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/css-order-layout/',
@@ -14,26 +13,16 @@ describe('CSS ordering - import order with layouts', () => {
 		});
 	});
 
-	/**
-	 *
-	 * @param {string} html
-	 * @returns {string[]}
-	 */
-	function getLinks(html) {
+	function getLinks(html: string): string[] {
 		let $ = cheerio.load(html);
-		let out = [];
+		let out: string[] = [];
 		$('link[rel=stylesheet]').each((_i, el) => {
-			out.push($(el).attr('href'));
+			out.push($(el).attr('href')!);
 		});
 		return out;
 	}
 
-	/**
-	 *
-	 * @param {string} href
-	 * @returns {Promise<{ href: string; css: string; }>}
-	 */
-	async function getLinkContent(href) {
+	async function getLinkContent(href: string): Promise<{ href: string; css: string }> {
 		const css = await fixture.readFile(href);
 		return { href, css };
 	}

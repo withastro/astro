@@ -2,32 +2,29 @@ import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { loadFixture, type Fixture } from './test-utils.js';
 
 describe('CSS production ordering', () => {
-	function getLinks(html) {
+	function getLinks(html: string): string[] {
 		let $ = cheerio.load(html);
-		let out = [];
+		let out: string[] = [];
 		$('link[rel=stylesheet]').each((_i, el) => {
-			out.push($(el).attr('href'));
+			out.push($(el).attr('href')!);
 		});
 		return out;
 	}
 
-	/**
-	 *
-	 * @param {import('./test-utils').Fixture} fixture
-	 * @param {string} href
-	 * @returns {Promise<{ href: string; css: string; }>}
-	 */
-	async function getLinkContent(fixture, href) {
+	async function getLinkContent(
+		fixture: Fixture,
+		href: string,
+	): Promise<{ href: string; css: string }> {
 		const css = await fixture.readFile(href);
 		return { href, css };
 	}
 
 	describe('SSG and SSR parity', () => {
-		let staticHTML, serverHTML;
-		let staticCSS, serverCSS;
+		let staticHTML: string, serverHTML: string;
+		let staticCSS: { href: string; css: string }[], serverCSS: { href: string; css: string }[];
 
 		const commonConfig = Object.freeze({
 			root: './fixtures/css-order/',
@@ -69,8 +66,7 @@ describe('CSS production ordering', () => {
 	});
 
 	describe('Page vs. Shared CSS', () => {
-		/** @type {import('./test-utils').Fixture} */
-		let fixture;
+		let fixture: Fixture;
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/css-order/',
@@ -87,7 +83,7 @@ describe('CSS production ordering', () => {
 				getLinks(html).map((href) => getLinkContent(fixture, href)),
 			);
 
-			assert.ok(content.length, 3, 'there are 3 stylesheets');
+			assert.equal(content.length, 3, 'there are 3 stylesheets');
 			const [, sharedStyles, pageStyles] = content;
 
 			assert.ok(/red/.exec(sharedStyles.css));
@@ -111,8 +107,7 @@ describe('CSS production ordering', () => {
 	});
 
 	describe('Changes order when transparentScriptOrder is enabled', () => {
-		/** @type {import('./test-utils').Fixture} */
-		let fixture;
+		let fixture: Fixture;
 
 		before(async () => {
 			fixture = await loadFixture({

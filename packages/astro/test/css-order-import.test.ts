@@ -1,11 +1,10 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { loadFixture, type DevServer, type Fixture } from './test-utils.js';
 
 describe('CSS ordering - import order', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/css-order-import/',
@@ -14,42 +13,34 @@ describe('CSS ordering - import order', () => {
 		});
 	});
 
-	/**
-	 *
-	 * @param {string} html
-	 * @returns {string[]}
-	 */
-	function getLinks(html) {
+	function getLinks(html: string): string[] {
 		let $ = cheerio.load(html);
-		let out = [];
+		let out: string[] = [];
 		$('link[rel=stylesheet]').each((_i, el) => {
-			out.push($(el).attr('href'));
+			out.push($(el).attr('href')!);
 		});
 		return out;
 	}
 
-	function getStyles(html) {
+	function getStyles(html: string): string[] {
 		let $ = cheerio.load(html);
-		let out = [];
+		let out: string[] = [];
 		$('style').each((_i, el) => {
 			out.push($(el).text());
 		});
 		return out;
 	}
 
-	/**
-	 *
-	 * @param {string} href
-	 * @returns {Promise<{ href: string; css: string; }>}
-	 */
-	async function getLinkContent(href, f = fixture) {
+	async function getLinkContent(
+		href: string,
+		f: Fixture = fixture,
+	): Promise<{ href: string; css: string }> {
 		const css = await f.readFile(href);
 		return { href, css };
 	}
 
 	describe('Development', () => {
-		/** @type {import('./test-utils').DevServer} */
-		let devServer;
+		let devServer: DevServer;
 
 		before(async () => {
 			devServer = await fixture.startDevServer();
@@ -127,13 +118,13 @@ describe('CSS ordering - import order', () => {
 
 			const content = await Promise.all(getLinks(html).map((href) => getLinkContent(href)));
 			const css = content.map((c) => c.css).join('');
-			assert.equal(/\.astro-jsx/.exec(css).length, 1, '.astro-jsx class is duplicated');
+			assert.equal(/\.astro-jsx/.exec(css)!.length, 1, '.astro-jsx class is duplicated');
 		});
 	});
 
 	describe('Dynamic import', () => {
 		// eslint-disable-next-line @typescript-eslint/no-shadow
-		let fixture;
+		let fixture: Fixture;
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/css-order-dynamic-import/',

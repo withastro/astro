@@ -2,10 +2,10 @@ import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { loadFixture, type App, type Fixture } from './test-utils.js';
 
 describe('Setting inlineStylesheets to never in static output', () => {
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -32,7 +32,7 @@ describe('Setting inlineStylesheets to never in static output', () => {
 
 	describe('Inspect linked stylesheets', () => {
 		// object, so it can be passed by reference
-		const allStyles = {};
+		const allStyles = { value: '' };
 
 		before(async () => {
 			allStyles.value = await stylesFromStaticOutput(fixture);
@@ -43,7 +43,7 @@ describe('Setting inlineStylesheets to never in static output', () => {
 });
 
 describe('Setting inlineStylesheets to never in server output', () => {
-	let app;
+	let app: App;
 
 	before(async () => {
 		const fixture = await loadFixture({
@@ -73,7 +73,7 @@ describe('Setting inlineStylesheets to never in server output', () => {
 	});
 
 	describe('Inspect linked stylesheets', () => {
-		const allStyles = {};
+		const allStyles = { value: '' };
 
 		before(async () => {
 			allStyles.value = await stylesFromServer(app);
@@ -84,7 +84,7 @@ describe('Setting inlineStylesheets to never in server output', () => {
 });
 
 describe('Setting inlineStylesheets to auto in static output', () => {
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -117,7 +117,7 @@ describe('Setting inlineStylesheets to auto in static output', () => {
 	});
 
 	describe('Inspect linked and inlined stylesheets', () => {
-		const allStyles = {};
+		const allStyles = { value: '' };
 
 		before(async () => {
 			allStyles.value = await stylesFromStaticOutput(fixture);
@@ -128,7 +128,7 @@ describe('Setting inlineStylesheets to auto in static output', () => {
 });
 
 describe('Setting inlineStylesheets to auto in server output', () => {
-	let app;
+	let app: App;
 
 	before(async () => {
 		const fixture = await loadFixture({
@@ -166,7 +166,7 @@ describe('Setting inlineStylesheets to auto in server output', () => {
 	});
 
 	describe('Inspect linked and inlined stylesheets', () => {
-		const allStyles = {};
+		const allStyles = { value: '' };
 
 		before(async () => {
 			allStyles.value = await stylesFromServer(app);
@@ -177,7 +177,7 @@ describe('Setting inlineStylesheets to auto in server output', () => {
 });
 
 describe('Setting inlineStylesheets to always in static output', () => {
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -203,7 +203,7 @@ describe('Setting inlineStylesheets to always in static output', () => {
 	});
 
 	describe('Inspect inlined stylesheets', () => {
-		const allStyles = {};
+		const allStyles = { value: '' };
 
 		before(async () => {
 			allStyles.value = await stylesFromStaticOutput(fixture);
@@ -214,7 +214,7 @@ describe('Setting inlineStylesheets to always in static output', () => {
 });
 
 describe('Setting inlineStylesheets to always in server output', () => {
-	let app;
+	let app: App;
 
 	before(async () => {
 		const fixture = await loadFixture({
@@ -244,7 +244,7 @@ describe('Setting inlineStylesheets to always in server output', () => {
 	});
 
 	describe('Inspect inlined stylesheets', () => {
-		const allStyles = {};
+		const allStyles = { value: '' };
 
 		before(async () => {
 			allStyles.value = await stylesFromServer(app);
@@ -254,7 +254,7 @@ describe('Setting inlineStylesheets to always in server output', () => {
 	});
 });
 
-async function stylesFromStaticOutput(fixture) {
+async function stylesFromStaticOutput(fixture: Fixture): Promise<string> {
 	const html = await fixture.readFile('/index.html');
 	const $ = cheerio.load(html);
 
@@ -264,13 +264,15 @@ async function stylesFromStaticOutput(fixture) {
 	const allLinkedStyles = allLinkedStylesheets.join('');
 
 	const styles = $('style');
-	const allInlinedStylesheets = styles.map((_, styleEl) => styleEl.children[0].data).toArray();
+	const allInlinedStylesheets = styles
+		.map((_, styleEl) => (styleEl.children[0] as { data?: string }).data ?? '')
+		.toArray();
 	const allInlinedStyles = allInlinedStylesheets.join('');
 
 	return allLinkedStyles + allInlinedStyles;
 }
 
-async function stylesFromServer(app) {
+async function stylesFromServer(app: App): Promise<string> {
 	const request = new Request('http://example.com/');
 	const response = await app.render(request);
 	const html = await response.text();
@@ -288,12 +290,14 @@ async function stylesFromServer(app) {
 	const allLinkedStyles = allLinkedStylesheets.join('');
 
 	const styles = $('style');
-	const allInlinedStylesheets = styles.map((_, styleEl) => styleEl.children[0].data).toArray();
+	const allInlinedStylesheets = styles
+		.map((_, styleEl) => (styleEl.children[0] as { data?: string }).data ?? '')
+		.toArray();
 	const allInlinedStyles = allInlinedStylesheets.join('');
 	return allLinkedStyles + allInlinedStyles;
 }
 
-function commonExpectations(allStyles) {
+function commonExpectations(allStyles: { value: string }) {
 	it('Includes all authored css', () => {
 		// authored in imported.css
 		assert.ok(allStyles.value.includes('.bg-lightcoral'));
@@ -310,6 +314,6 @@ function commonExpectations(allStyles) {
 
 	it('Styles used both in content layout and directly in page are included only once', () => {
 		// authored in components/Button.astro
-		assert.equal(allStyles.value.match(/cubic-bezier/g).length, 1);
+		assert.equal(allStyles.value.match(/cubic-bezier/g)!.length, 1);
 	});
 }

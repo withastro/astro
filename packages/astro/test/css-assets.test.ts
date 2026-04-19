@@ -1,10 +1,10 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { loadFixture, type Fixture } from './test-utils.js';
 
 describe('Assets in CSS', () => {
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -18,18 +18,18 @@ describe('Assets in CSS', () => {
 		await fixture.build();
 	});
 
-	function getAllMatches(re, text) {
+	function getAllMatches(re: RegExp, text: string): number {
 		let count = 0;
-		while (re.exec(text) !== null) {
+		while (re.test(text)) {
 			++count;
 		}
 		return count;
 	}
 
-	async function getCSSForPage(pathname) {
+	async function getCSSForPage(pathname: string): Promise<string> {
 		const html = await fixture.readFile(pathname);
 		const $ = cheerio.load(html);
-		const cssPath = $('link').attr('href');
+		const cssPath = $('link').attr('href')!;
 		const css = await fixture.readFile(cssPath);
 		return css;
 	}

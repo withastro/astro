@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { loadFixture, type DevServer, type Fixture } from './test-utils.js';
 
 describe('CSS - dynamic import in dev', () => {
-	let fixture;
-	let devServer;
-	let $;
+	let fixture: Fixture;
+	let devServer: DevServer;
+	let $: cheerio.CheerioAPI;
 
 	before(
 		async () => {
