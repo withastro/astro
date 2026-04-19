@@ -3,16 +3,17 @@ import { describe, it } from 'node:test';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import type { AstroInlineConfig } from 'astro';
+import type { Container } from '../dist/core/dev/container.js';
 import { createContainerWithAutomaticRestart, startContainer } from '../dist/core/dev/index.js';
 
 const fixtureDir = fileURLToPath(new URL('./fixtures/dev-container/', import.meta.url));
 
-/** @type {import('astro').AstroInlineConfig} */
-const defaultInlineConfig = {
+const defaultInlineConfig: AstroInlineConfig = {
 	logLevel: 'silent',
 };
 
-function isStarted(container) {
+function isStarted(container: Container) {
 	return !!container.viteServer.httpServer?.listening;
 }
 
@@ -20,7 +21,7 @@ function isStarted(container) {
  * Safely clean up a file that a test may have created inside the fixture.
  * No-ops if the file doesn't exist.
  */
-function cleanupFile(relPath) {
+function cleanupFile(relPath: string) {
 	try {
 		fs.unlinkSync(path.join(fixtureDir, relPath));
 	} catch {}
@@ -36,6 +37,7 @@ describe('dev container restarts', { timeout: 20000, skip: 'Currently flaky' }, 
 		fs.writeFileSync(path.join(fixtureDir, 'astro.config.mjs'), '');
 
 		const restart = await createContainerWithAutomaticRestart({
+			fs,
 			inlineConfig: {
 				...defaultInlineConfig,
 				root: fixtureDir,
@@ -76,6 +78,7 @@ describe('dev container restarts', { timeout: 20000, skip: 'Currently flaky' }, 
 		fs.writeFileSync(path.join(fixtureDir, 'astro.config.mjs'), '');
 
 		const restart = await createContainerWithAutomaticRestart({
+			fs,
 			inlineConfig: {
 				...defaultInlineConfig,
 				root: fixtureDir,
@@ -106,6 +109,7 @@ describe('dev container restarts', { timeout: 20000, skip: 'Currently flaky' }, 
 		fs.writeFileSync(path.join(fixtureDir, 'astro.config.ts'), '');
 
 		const restart = await createContainerWithAutomaticRestart({
+			fs,
 			inlineConfig: {
 				...defaultInlineConfig,
 				root: fixtureDir,
@@ -137,6 +141,7 @@ describe('dev container restarts', { timeout: 20000, skip: 'Currently flaky' }, 
 		const originalPkg = fs.readFileSync(pkgPath, 'utf-8');
 
 		const restart = await createContainerWithAutomaticRestart({
+			fs,
 			inlineConfig: {
 				...defaultInlineConfig,
 				root: fixtureDir,
@@ -160,6 +165,7 @@ describe('dev container restarts', { timeout: 20000, skip: 'Currently flaky' }, 
 
 	it('Is able to restart on viteServer.restart API call', async () => {
 		const restart = await createContainerWithAutomaticRestart({
+			fs,
 			inlineConfig: {
 				...defaultInlineConfig,
 				root: fixtureDir,
@@ -184,6 +190,7 @@ describe('dev container restarts', { timeout: 20000, skip: 'Currently flaky' }, 
 		fs.writeFileSync(settingsPath, '{}');
 
 		const restart = await createContainerWithAutomaticRestart({
+			fs,
 			inlineConfig: {
 				...defaultInlineConfig,
 				root: fixtureDir,
@@ -207,6 +214,7 @@ describe('dev container restarts', { timeout: 20000, skip: 'Currently flaky' }, 
 		fs.writeFileSync(path.join(fixtureDir, 'astro.config.mjs'), '');
 
 		const restart = await createContainerWithAutomaticRestart({
+			fs,
 			inlineConfig: { ...defaultInlineConfig, root: fixtureDir },
 		});
 		await startContainer(restart.container);
@@ -235,6 +243,7 @@ describe('dev container restarts', { timeout: 20000, skip: 'Currently flaky' }, 
 		fs.writeFileSync(path.join(fixtureDir, 'astro.config.mjs'), '');
 
 		const restart = await createContainerWithAutomaticRestart({
+			fs,
 			inlineConfig: { ...defaultInlineConfig, root: fixtureDir },
 		});
 		await startContainer(restart.container);

@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { ZodError } from 'zod';
+import type { AstroUserConfig } from 'astro';
+import type { ErrorWithMetadata } from '../dist/core/errors/errors.js';
 import { AstroError } from '../dist/core/errors/errors.js';
 import { ClientAddressNotAvailable } from '../dist/core/errors/errors-data.js';
 import * as events from '../dist/events/index.js';
@@ -8,18 +11,12 @@ describe('Events', () => {
 	describe('eventCliSession()', () => {
 		it('string literal "build.format" is included', () => {
 			const config = {
-				srcDir: 1,
 				build: {
 					format: 'file',
 				},
 			};
-			const [{ payload }] = events.eventCliSession(
-				{
-					cliCommand: 'dev',
-				},
-				config,
-			);
-			assert.equal(payload.config.build.format, 'file');
+			const [{ payload }] = events.eventCliSession('dev', config as AstroUserConfig);
+			assert.equal((payload.config!.build as Record<string, unknown>).format, 'file');
 		});
 
 		it('string literal "markdown.syntaxHighlight" is included', () => {
@@ -28,13 +25,8 @@ describe('Events', () => {
 					syntaxHighlight: 'shiki',
 				},
 			};
-			const [{ payload }] = events.eventCliSession(
-				{
-					cliCommand: 'dev',
-				},
-				config,
-			);
-			assert.equal(payload.config.markdown.syntaxHighlight, 'shiki');
+			const [{ payload }] = events.eventCliSession('dev', config as AstroUserConfig);
+			assert.equal((payload.config!.markdown as Record<string, unknown>).syntaxHighlight, 'shiki');
 		});
 
 		it('top-level vite keys are captured', async () => {
@@ -51,13 +43,8 @@ describe('Events', () => {
 				},
 			};
 
-			const [{ payload }] = events.eventCliSession(
-				{
-					cliCommand: 'dev',
-				},
-				config,
-			);
-			assert.deepEqual(Object.keys(payload.config.vite), [
+			const [{ payload }] = events.eventCliSession('dev', config as AstroUserConfig);
+			assert.deepEqual(Object.keys(payload.config!.vite!), [
 				'css',
 				'base',
 				'mode',
@@ -68,32 +55,26 @@ describe('Events', () => {
 
 		it('falsy integrations are handled', () => {
 			const config = {
-				srcDir: 1,
 				integrations: [null, undefined, false],
 			};
-			const [{ payload }] = events.eventCliSession(
-				{
-					cliCommand: 'dev',
-				},
-				config,
-			);
-			assert.equal(payload.config.integrations.length, 0);
+			const [{ payload }] = events.eventCliSession('dev', config as AstroUserConfig);
+			assert.equal((payload.config!.integrations as string[]).length, 0);
 		});
 
 		it('only integration names are included', () => {
 			const config = {
 				integrations: [{ name: 'foo' }, [{ name: 'bar' }, { name: 'baz' }]],
 			};
-			const [{ payload }] = events.eventCliSession({ cliCommand: 'dev' }, config);
-			assert.deepEqual(payload.config.integrations, ['foo', 'bar', 'baz']);
+			const [{ payload }] = events.eventCliSession('dev', config as AstroUserConfig);
+			assert.deepEqual(payload.config!.integrations, ['foo', 'bar', 'baz']);
 		});
 
 		it('only adapter name is included', () => {
 			const config = {
 				adapter: { name: 'ADAPTER_NAME' },
 			};
-			const [{ payload }] = events.eventCliSession({ cliCommand: 'dev' }, config);
-			assert.equal(payload.config.adapter, 'ADAPTER_NAME');
+			const [{ payload }] = events.eventCliSession('dev', config as AstroUserConfig);
+			assert.equal(payload.config!.adapter, 'ADAPTER_NAME');
 		});
 
 		it('includes cli flags in payload', () => {
@@ -107,13 +88,7 @@ describe('Events', () => {
 				experimentalSsr: true,
 				experimentalIntegrations: true,
 			};
-			const [{ payload }] = events.eventCliSession(
-				{
-					cliCommand: 'dev',
-				},
-				config,
-				flags,
-			);
+			const [{ payload }] = events.eventCliSession('dev', config as AstroUserConfig, flags);
 			assert.deepEqual(payload.flags, [
 				'root',
 				'site',
@@ -129,7 +104,10 @@ describe('Events', () => {
 	describe('eventConfigError()', () => {
 		it('returns the expected event and payload', () => {
 			const [event] = events.eventConfigError({
-				err: { issues: [{ path: ['a', 'b', 'c'] }, { path: ['d', 'e', 'f'] }] },
+				err: new ZodError([
+					{ code: 'custom', message: '', path: ['a', 'b', 'c'] },
+					{ code: 'custom', message: '', path: ['d', 'e', 'f'] },
+				]),
 				cmd: 'COMMAND_NAME',
 				isFatal: true,
 			});
@@ -148,9 +126,13 @@ describe('Events', () => {
 
 	describe('eventError()', () => {
 		it('returns the expected event payload with a detailed error object', () => {
-			const errorWithFullMetadata = new Error('TEST ERROR MESSAGE');
-			errorWithFullMetadata.code = 1234;
-			errorWithFullMetadata.plugin = 'TEST PLUGIN';
+			const errorWithFullMetadata: ErrorWithMetadata = {
+				name: 'Error',
+				message: 'TEST ERROR MESSAGE',
+				stack: '',
+				code: 1234,
+				plugin: 'TEST PLUGIN',
+			};
 			const [event] = events.eventError({
 				err: errorWithFullMetadata,
 				cmd: 'COMMAND_NAME',
@@ -173,7 +155,7 @@ describe('Events', () => {
 				err: new AstroError({
 					...ClientAddressNotAvailable,
 					message: ClientAddressNotAvailable.message('mysuperadapter'),
-				}),
+				}) as ErrorWithMetadata,
 				cmd: 'COMMAND_NAME',
 				isFatal: false,
 			});
@@ -193,7 +175,7 @@ describe('Events', () => {
 
 		it('returns the expected event payload with a generic error', () => {
 			const [event] = events.eventError({
-				err: new Error('TEST ERROR MESSAGE'),
+				err: new Error('TEST ERROR MESSAGE') as ErrorWithMetadata,
 				cmd: 'COMMAND_NAME',
 				isFatal: false,
 			});
@@ -211,9 +193,8 @@ describe('Events', () => {
 
 		it('properly creates anonymousMessageHint from a basic error message', () => {
 			const [event] = events.eventError({
-				err: new Error('TEST ERROR MESSAGE: Sensitive data is "/Users/MYNAME/foo.astro"'),
+				err: new Error('TEST ERROR MESSAGE: Sensitive data is "/Users/MYNAME/foo.astro"') as ErrorWithMetadata,
 				cmd: 'COMMAND_NAME',
-				name: 'Error',
 				isFatal: true,
 			});
 			assert.equal(event.payload.anonymousMessageHint, 'TEST ERROR MESSAGE');
@@ -227,9 +208,8 @@ describe('Events', () => {
     at Parser.checkMissedSemicolon (file:///home/projects/github-ssfd5p/node_modules/postcss/lib/parser.js:596:22)
     at Parser.decl (file:///home/projects/github-ssfd5p/node_modules/postcss/lib/parser.js:279:12)
     at Parser.other (file:///home/projects/github-ssfd5p/node_modules/postcss/lib/parser.js:128:18)
-    at Parser.parse (file:///home/projects/github-ssfd5p/node_modules/postcss/lib/parser.js:72:16)`),
+    at Parser.parse (file:///home/projects/github-ssfd5p/node_modules/postcss/lib/parser.js:72:16)`) as ErrorWithMetadata,
 				cmd: 'COMMAND_NAME',
-				name: 'Error',
 				isFatal: true,
 			});
 			assert.equal(event.payload.anonymousMessageHint, undefined);

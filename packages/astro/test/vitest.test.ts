@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { createVitest } from 'vitest/node';
 
 describe('vitest', () => {
-	let originalCwd;
+	let originalCwd: string;
 	before(() => {
 		originalCwd = process.cwd();
 		// We chdir rather than setting the root in vitest, because otherwise it sets the wrong root in the site config
