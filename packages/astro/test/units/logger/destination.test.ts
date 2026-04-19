@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { beforeEach, describe, it } from 'node:test';
-import type { AstroLogMessage, AstroLoggerDestination } from '../../../src/core/logger/core.js';
+import type { AstroLogMessage, AstroLoggerDestination } from '../../../dist/core/logger/core.js';
 import { AstroLogger } from '../../../dist/core/logger/core.js';
 
 let logs: AstroLogMessage[] = [];
@@ -15,7 +15,7 @@ const testDestination: AstroLoggerDestination<AstroLogMessage> = {
 
 const jsonDestination: AstroLoggerDestination<AstroLogMessage> = {
 	write(event: AstroLogMessage) {
-		if (event._format === 'json') {
+		if ((event as any)._format === 'json') {
 			jsonLogs.push(JSON.stringify({ message: event.message, label: event.label }));
 		}
 		return true;
@@ -78,7 +78,7 @@ describe('log destination', () => {
 				_format: 'default',
 			});
 			logger.info('build', 'test');
-			assert.equal(logs[0]._format, 'default');
+			assert.equal((logs[0] as any)._format, 'default');
 		});
 
 		it('propagates json format to events', () => {
@@ -88,7 +88,7 @@ describe('log destination', () => {
 				_format: 'json',
 			});
 			logger.info('build', 'test');
-			assert.equal(logs[0]._format, 'json');
+			assert.equal((logs[0] as any)._format, 'json');
 		});
 	});
 
