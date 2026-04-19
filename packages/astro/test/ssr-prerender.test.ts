@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
+import type { AstroIntegration } from 'astro';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.js';
 
 describe('SSR: prerender', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -30,7 +30,6 @@ describe('SSR: prerender', () => {
 
 		it('includes prerendered pages in the asset manifest', async () => {
 			const app = await fixture.loadTestAdapterApp();
-			/** @type {Set<string>} */
 			const assets = app.manifest.assets;
 			assert.equal(assets.has('/static/index.html'), true);
 		});
@@ -112,19 +111,18 @@ describe('SSR: prerender', () => {
 // is not always guaranteed to run. If we want to support this feature, we may want to only allow
 // editing `route.prerender` on the `astro:build:done` hook.
 describe.skip('Integrations can hook into the prerendering decision', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
-	const testIntegration = {
+	const testIntegration: AstroIntegration = {
 		name: 'test prerendering integration',
 		hooks: {
 			['astro:build:setup']({ pages, target }) {
 				if (target !== 'client') return;
 				// this page has `export const prerender = true`
-				pages.get('src/pages/static.astro').route.prerender = false;
+				pages.get('src/pages/static.astro')!.route.prerender = false;
 
 				// this page does not
-				pages.get('src/pages/not-prerendered.astro').route.prerender = true;
+				pages.get('src/pages/not-prerendered.astro')!.route.prerender = true;
 			},
 		},
 	};
