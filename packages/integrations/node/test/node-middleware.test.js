@@ -19,7 +19,6 @@ describe('behavior from middleware, standalone', () => {
 	let server;
 
 	before(async () => {
-		process.env.PRERENDER = false;
 		fixture = await loadFixture({
 			root: './fixtures/node-middleware/',
 			output: 'server',
@@ -35,8 +34,6 @@ describe('behavior from middleware, standalone', () => {
 	after(async () => {
 		await server.stop();
 		await fixture.clean();
-
-		delete process.env.PRERENDER;
 	});
 
 	describe('404', async () => {
@@ -60,7 +57,6 @@ describe('behavior from middleware, middleware with express', () => {
 	let server;
 
 	before(async () => {
-		process.env.PRERENDER = false;
 		fixture = await loadFixture({
 			root: './fixtures/node-middleware/',
 			output: 'server',
@@ -76,8 +72,6 @@ describe('behavior from middleware, middleware with express', () => {
 	after(async () => {
 		server.close();
 		await fixture.clean();
-
-		delete process.env.PRERENDER;
 	});
 
 	it('should render the endpoint', async () => {
@@ -145,7 +139,6 @@ describe('behavior from middleware, middleware with fastify', () => {
 	let server;
 
 	before(async () => {
-		process.env.PRERENDER = false;
 		fixture = await loadFixture({
 			root: './fixtures/node-middleware/',
 			output: 'server',
@@ -169,8 +162,6 @@ describe('behavior from middleware, middleware with fastify', () => {
 	after(async () => {
 		server.close();
 		await fixture.clean();
-
-		delete process.env.PRERENDER;
 	});
 
 	it('should render the endpoint', async () => {

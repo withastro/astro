@@ -15,8 +15,6 @@ describe('Prerender 404', () => {
 
 	describe('With base', async () => {
 		before(async () => {
-			process.env.PRERENDER = true;
-
 			fixture = await loadFixture({
 				// inconsequential config that differs between tests
 				// to bust cache and prevent modules and their state
@@ -38,7 +36,6 @@ describe('Prerender 404', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
-			process.env.PRERENDER = undefined;
 		});
 
 		it('Can render SSR route', async () => {
@@ -102,8 +99,6 @@ describe('Prerender 404', () => {
 
 	describe('Without base', async () => {
 		before(async () => {
-			process.env.PRERENDER = true;
-
 			fixture = await loadFixture({
 				// inconsequential config that differs between tests
 				// to bust cache and prevent modules and their state
@@ -124,7 +119,6 @@ describe('Prerender 404', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
-			process.env.PRERENDER = undefined;
 		});
 
 		it('Can render SSR route', async () => {
@@ -167,7 +161,6 @@ describe('Hybrid 404', () => {
 
 	describe('With base', async () => {
 		before(async () => {
-			process.env.PRERENDER = false;
 			fixture = await loadFixture({
 				// inconsequential config that differs between tests
 				// to bust cache and prevent modules and their state
@@ -189,7 +182,6 @@ describe('Hybrid 404', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
-			process.env.PRERENDER = undefined;
 		});
 
 		it('Can render SSR route', async () => {
@@ -226,7 +218,6 @@ describe('Hybrid 404', () => {
 
 	describe('Without base', async () => {
 		before(async () => {
-			process.env.PRERENDER = false;
 			fixture = await loadFixture({
 				// inconsequential config that differs between tests
 				// to bust cache and prevent modules and their state
@@ -247,7 +238,6 @@ describe('Hybrid 404', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
-			process.env.PRERENDER = undefined;
 		});
 
 		it('Can render SSR route', async () => {
