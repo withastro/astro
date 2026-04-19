@@ -2,12 +2,12 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { describe, it, before, after } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import { resolveStaticPath } from '../../dist/serve-static.js';
 
 describe('resolveStaticPath', () => {
-	let tmpRoot;
-	let clientDir;
+	let tmpRoot: string;
+	let clientDir: string;
 
 	before(() => {
 		tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'astro-test-'));
