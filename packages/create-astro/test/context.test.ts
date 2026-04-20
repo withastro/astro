@@ -73,14 +73,20 @@ describe('context', () => {
 	});
 
 	it('--add with --no-install conflicts', async () => {
-		const exitCode = await new Promise((resolve) => {
-			const originalExit = process.exit;
-			process.exit = (code) => {
-				process.exit = originalExit;
-				resolve(code);
-			};
-			getContext(['--add', 'cloudflare', '--no-install']);
-		});
+		const originalExit = process.exit;
+		let exitCode: number | string | null | undefined;
+		const patchedExit: typeof originalExit = (code) => {
+			exitCode = code;
+			throw code;
+		};
+		process.exit = patchedExit;
+		try {
+			await getContext(['--add', 'cloudflare', '--no-install']);
+		} catch {
+			// expected: patchedExit throws to unwind getContext
+		} finally {
+			process.exit = originalExit;
+		}
 		assert.equal(exitCode, 1);
 	});
 });

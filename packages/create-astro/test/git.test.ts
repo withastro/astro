@@ -4,26 +4,41 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { after, before, describe, it } from 'node:test';
 
 import { git } from '../dist/index.js';
-import { setup } from './utils.js';
+import { type GitContext, mockPrompt, setup } from './utils.ts';
 
 describe('git', () => {
 	const fixture = setup();
 
 	it('none', async () => {
-		const context = { cwd: '', dryRun: true, prompt: () => ({ git: false }) };
+		const context: GitContext = {
+			cwd: '',
+			dryRun: true,
+			prompt: mockPrompt({ git: false }),
+			tasks: [],
+		};
 		await git(context);
 
 		assert.ok(fixture.hasMessage('Skipping Git initialization'));
 	});
 
 	it('yes (--dry-run)', async () => {
-		const context = { cwd: '', dryRun: true, prompt: () => ({ git: true }) };
+		const context: GitContext = {
+			cwd: '',
+			dryRun: true,
+			prompt: mockPrompt({ git: true }),
+			tasks: [],
+		};
 		await git(context);
 		assert.ok(fixture.hasMessage('Skipping Git initialization'));
 	});
 
 	it('no (--dry-run)', async () => {
-		const context = { cwd: '', dryRun: true, prompt: () => ({ git: false }) };
+		const context: GitContext = {
+			cwd: '',
+			dryRun: true,
+			prompt: mockPrompt({ git: false }),
+			tasks: [],
+		};
 		await git(context);
 
 		assert.ok(fixture.hasMessage('Skipping Git initialization'));
@@ -40,11 +55,12 @@ describe('git initialized', () => {
 	});
 
 	it('already initialized', async () => {
-		const context = {
+		const context: GitContext = {
 			git: true,
 			cwd: './test/fixtures/not-empty',
 			dryRun: false,
-			prompt: () => ({ git: false }),
+			prompt: mockPrompt({ git: false }),
+			tasks: [],
 		};
 		await git(context);
 

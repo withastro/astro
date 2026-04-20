@@ -8,5 +8,9 @@
     "noUnusedParameters": false,
     "rewriteRelativeImportExtensions": true
   },
-  "references": [{ "path": "../astro/tsconfig.test.json" }]
+  "references": [
+    {
+      "path": "../astro/tsconfig.test.json"
+    }
+  ]
 }
