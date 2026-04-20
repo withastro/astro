@@ -18,7 +18,7 @@ import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
  * pass the resolved handler to `app.setFetchHandler(...)` after the `App`
  * is instantiated.
  */
-export const FETCHABLE_MODULE_ID = 'virtual:astro:fetchable';
+const FETCHABLE_MODULE_ID = 'virtual:astro:fetchable';
 const FETCHABLE_RESOLVED_MODULE_ID = '\0' + FETCHABLE_MODULE_ID;
 // Segment under `srcDir` to probe for the user's handler module.
 // Matches how `vitePluginMiddleware` resolves `src/middleware`.
