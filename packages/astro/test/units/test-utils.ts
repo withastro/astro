@@ -270,8 +270,8 @@ export class SpyLogger {
 		return this.#closeCount;
 	}
 
-	setDestination(destination: AstroLoggerDestination) {
-		this.options.destination = destination;
+	setDestination(dest: AstroLoggerDestination) {
+		this.options.destination = dest;
 	}
 }
 
