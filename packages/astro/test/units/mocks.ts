@@ -38,12 +38,11 @@ interface MockRenderContextOverrides {
 }
 
 /**
- * Creates a minimal RenderContext mock for unit testing redirect functions.
- *
- * This is a lightweight mock that provides only what renderRedirect() needs,
- * without the overhead of creating a full RenderContext instance.
+ * Creates a minimal RenderContext mock for unit testing functions that
+ * used to take a `RenderContext` directly. Internal helper used by
+ * `createMockFetchState`.
  */
-export function createMockRenderContext(overrides: MockRenderContextOverrides = {}) {
+function createMockRenderContext(overrides: MockRenderContextOverrides = {}) {
 	const pipeline =
 		overrides.pipeline ||
 		createBasicPipeline({

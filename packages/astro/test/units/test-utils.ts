@@ -144,7 +144,7 @@ class TestPipeline extends Pipeline {
 
 /**
  * Creates a basic Pipeline instance for testing.
- * For mock utilities like createMockRenderContext, see mocks.ts
+ * For mock utilities like createMockFetchState, see mocks.ts
  */
 export function createBasicPipeline(
 	options: {
