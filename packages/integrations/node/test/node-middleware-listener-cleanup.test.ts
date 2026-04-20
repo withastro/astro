@@ -3,14 +3,13 @@ import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import fastifyMiddie from '@fastify/middie';
 import fastifyStatic from '@fastify/static';
-import Fastify from 'fastify';
+import Fastify, { type FastifyInstance } from 'fastify';
 import nodejs from '../dist/index.js';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Node middleware socket listener cleanup', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-	let server;
+	let fixture: Fixture;
+	let server: FastifyInstance;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -43,7 +42,7 @@ describe('Node middleware socket listener cleanup', () => {
 		});
 
 		let listenerWarningEmitted = false;
-		const warningListener = (warning) => {
+		const warningListener = (warning: Error) => {
 			if (warning.name === 'MaxListenersExceededWarning') {
 				listenerWarningEmitted = true;
 			}
@@ -54,6 +53,7 @@ describe('Node middleware socket listener cleanup', () => {
 			// Make multiple back-to-back requests to a static page
 			for (let i = 0; i < 30; i++) {
 				const response = await fetch('http://localhost:8890', {
+					// @ts-expect-error: it seems that Node.js `fetch` doesn't accept `agent` here. Should we use dispatcher instead? https://stackoverflow.com/a/76069981
 					agent,
 					headers: {
 						Connection: 'keep-alive',

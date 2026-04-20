@@ -2,16 +2,11 @@ import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import nodejs from '../dist/index.js';
-import { loadFixture, waitServerListen } from './test-utils.js';
-
-/**
- * @typedef {import('../../../astro/test/test-utils').Fixture} Fixture
- */
+import { type Fixture, loadFixture, waitServerListen, type AdapterServer } from './test-utils.ts';
 
 describe('Trailing slash', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-	let server;
+	let fixture: Fixture;
+	let server: AdapterServer;
 	describe('Always', async () => {
 		describe('With base', async () => {
 			before(async () => {

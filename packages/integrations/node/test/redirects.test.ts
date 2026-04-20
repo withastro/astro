@@ -1,12 +1,11 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import nodejs from '../dist/index.js';
-import { loadFixture, waitServerListen } from './test-utils.js';
+import { type Fixture, loadFixture, waitServerListen, type AdapterServer } from './test-utils.ts';
 
 describe('Redirects', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-	let server;
+	let fixture: Fixture;
+	let server: AdapterServer;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -25,7 +24,7 @@ describe('Redirects', () => {
 		await fixture.clean();
 	});
 
-	function fetchEndpoint(url, options = {}) {
+	function fetchEndpoint(url: string, options: RequestInit = {}) {
 		return fetch(`http://${server.host}:${server.port}/${url}`, { ...options, redirect: 'manual' });
 	}
 

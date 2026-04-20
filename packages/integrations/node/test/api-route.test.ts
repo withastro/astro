@@ -1,16 +1,14 @@
 import * as assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import { after, before, describe, it } from 'node:test';
+import type { PreviewServer } from '../../../astro/src/types/public/preview.js';
 import nodejs from '../dist/index.js';
-import { createRequestAndResponse, loadFixture } from './test-utils.js';
+import { createRequestAndResponse, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('API routes', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-	/** @type {import('../../../astro/src/types/public/preview.js').PreviewServer} */
-	let previewServer;
-	/** @type {URL} */
-	let baseUri;
+	let fixture: Fixture;
+	let previewServer: PreviewServer;
+	let baseUri: URL;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -26,7 +24,7 @@ describe('API routes', () => {
 	after(() => previewServer.stop());
 
 	it('Can get the request body', async () => {
-		const { handler } = await import('./fixtures/api-route/dist/server/entry.mjs');
+		const handler = await fixture.loadNodeAdapterHandler();
 		const { req, res, done } = createRequestAndResponse({
 			method: 'POST',
 			url: '/recipes',
@@ -48,7 +46,7 @@ describe('API routes', () => {
 	});
 
 	it('Can get binary data', async () => {
-		const { handler } = await import('./fixtures/api-route/dist/server/entry.mjs');
+		const handler = await fixture.loadNodeAdapterHandler();
 
 		const { req, res, done } = createRequestAndResponse({
 			method: 'POST',
@@ -67,7 +65,7 @@ describe('API routes', () => {
 	});
 
 	it('Can post large binary data', async () => {
-		const { handler } = await import('./fixtures/api-route/dist/server/entry.mjs');
+		const handler = await fixture.loadNodeAdapterHandler();
 
 		const { req, res, done } = createRequestAndResponse({
 			method: 'POST',
@@ -76,7 +74,7 @@ describe('API routes', () => {
 
 		handler(req, res);
 
-		let expectedDigest = null;
+		let expectedDigest: Buffer | null = null;
 		req.once('async_iterator', () => {
 			// Send 256MB of garbage data in 256KB chunks. This should be fast (< 1sec).
 			let remainingBytes = 256 * 1024 * 1024;
@@ -96,11 +94,11 @@ describe('API routes', () => {
 		});
 
 		const [out] = await done;
-		assert.deepEqual(new Uint8Array(out.buffer), new Uint8Array(expectedDigest));
+		assert.deepEqual(new Uint8Array(out.buffer), new Uint8Array(expectedDigest!));
 	});
 
 	it('Can bail on streaming', async () => {
-		const { handler } = await import('./fixtures/api-route/dist/server/entry.mjs');
+		const handler = await fixture.loadNodeAdapterHandler();
 		const { req, res, done } = createRequestAndResponse({
 			url: '/streaming',
 		});

@@ -1,3 +1,4 @@
+import type { Server } from 'node:http';
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -5,18 +6,13 @@ import fastifyMiddie from '@fastify/middie';
 import fastifyStatic from '@fastify/static';
 import * as cheerio from 'cheerio';
 import express from 'express';
-import Fastify from 'fastify';
+import Fastify, { type FastifyInstance } from 'fastify';
 import nodejs from '../dist/index.js';
-import { loadFixture, waitServerListen } from './test-utils.js';
-
-/**
- * @typedef {import('../../../astro/test/test-utils').Fixture} Fixture
- */
+import { type Fixture, loadFixture, waitServerListen, type AdapterServer } from './test-utils.ts';
 
 describe('behavior from middleware, standalone', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-	let server;
+	let fixture: Fixture;
+	let server: AdapterServer;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -52,9 +48,8 @@ describe('behavior from middleware, standalone', () => {
 });
 
 describe('behavior from middleware, middleware with express', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-	let server;
+	let fixture: Fixture;
+	let server: Server;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -134,9 +129,8 @@ describe('behavior from middleware, middleware with express', () => {
 });
 
 describe('behavior from middleware, middleware with fastify', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-	let server;
+	let fixture: Fixture;
+	let server: FastifyInstance;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -216,9 +210,8 @@ describe('behavior from middleware, middleware with fastify', () => {
 // the Node adapter in middleware mode can identify them as static files and NOT
 // match them against catch-all routes.
 describe('middleware with fastify and catch-all route: SSR assets in manifest', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-	let server;
+	let fixture: Fixture;
+	let server: FastifyInstance;
 
 	before(async () => {
 		fixture = await loadFixture({

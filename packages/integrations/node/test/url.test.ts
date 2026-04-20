@@ -1,13 +1,13 @@
 import * as assert from 'node:assert/strict';
+import { Socket } from 'node:net';
 import { before, describe, it } from 'node:test';
 import { TLSSocket } from 'node:tls';
 import * as cheerio from 'cheerio';
 import nodejs from '../dist/index.js';
-import { createRequestAndResponse, loadFixture } from './test-utils.js';
+import { createRequestAndResponse, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('URL', () => {
-	/** @type {import('./test-utils.js').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -19,7 +19,7 @@ describe('URL', () => {
 	});
 
 	it('return http when non-secure', async () => {
-		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
+		const handler = await fixture.loadNodeAdapterHandler();
 		const { req, res, text } = createRequestAndResponse({
 			url: '/',
 		});
@@ -27,26 +27,28 @@ describe('URL', () => {
 		handler(req, res);
 		req.send();
 
-		const html = await text();
+		const html: string = await text();
 		assert.equal(html.includes('http:'), true);
+		assert.equal(html.includes('https:'), false);
 	});
 
 	it('return https when secure', async () => {
-		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
+		const handler = await fixture.loadNodeAdapterHandler();
 		const { req, res, text } = createRequestAndResponse({
-			socket: new TLSSocket(),
+			socket: new TLSSocket(new Socket()),
 			url: '/',
 		});
 
 		handler(req, res);
 		req.send();
 
-		const html = await text();
+		const html: string = await text();
+		assert.equal(html.includes('http:'), false);
 		assert.equal(html.includes('https:'), true);
 	});
 
 	it('return http when the X-Forwarded-Proto header is set to http', async () => {
-		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
+		const handler = await fixture.loadNodeAdapterHandler();
 		const { req, res, text } = createRequestAndResponse({
 			headers: { 'X-Forwarded-Proto': 'http' },
 			url: '/',
@@ -60,7 +62,7 @@ describe('URL', () => {
 	});
 
 	it('return https when the X-Forwarded-Proto header is set to https', async () => {
-		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
+		const handler = await fixture.loadNodeAdapterHandler();
 		const { req, res, text } = createRequestAndResponse({
 			headers: { 'X-Forwarded-Proto': 'https' },
 			url: '/',
@@ -74,7 +76,7 @@ describe('URL', () => {
 	});
 
 	it('includes forwarded host and port in the url', async () => {
-		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
+		const handler = await fixture.loadNodeAdapterHandler();
 		const { req, res, text } = createRequestAndResponse({
 			headers: {
 				'X-Forwarded-Proto': 'https',
@@ -95,7 +97,7 @@ describe('URL', () => {
 	});
 
 	it('accepts port in forwarded host and forwarded port', async () => {
-		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
+		const handler = await fixture.loadNodeAdapterHandler();
 		const { req, res, text } = createRequestAndResponse({
 			headers: {
 				'X-Forwarded-Proto': 'https',
@@ -115,7 +117,7 @@ describe('URL', () => {
 	});
 
 	it('ignores X-Forwarded-Host when no allowedDomains configured', async () => {
-		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
+		const handler = await fixture.loadNodeAdapterHandler();
 		const { req, res, text } = createRequestAndResponse({
 			headers: {
 				'X-Forwarded-Proto': 'https',
@@ -136,7 +138,7 @@ describe('URL', () => {
 	});
 
 	it('rejects port in forwarded host when port not in allowedDomains', async () => {
-		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
+		const handler = await fixture.loadNodeAdapterHandler();
 		const { req, res, text } = createRequestAndResponse({
 			headers: {
 				'X-Forwarded-Proto': 'https',
@@ -157,7 +159,7 @@ describe('URL', () => {
 	});
 
 	it('rejects empty X-Forwarded-Host with allowedDomains configured', async () => {
-		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
+		const handler = await fixture.loadNodeAdapterHandler();
 		const { req, res, text } = createRequestAndResponse({
 			headers: {
 				'X-Forwarded-Proto': 'https',
@@ -178,7 +180,7 @@ describe('URL', () => {
 	});
 
 	it('rejects X-Forwarded-Host with path injection attempt', async () => {
-		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
+		const handler = await fixture.loadNodeAdapterHandler();
 		const { req, res, text } = createRequestAndResponse({
 			headers: {
 				'X-Forwarded-Proto': 'https',

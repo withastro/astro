@@ -1,12 +1,12 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
+import type { PreviewServer } from '../../../astro/src/types/public/preview.js';
 import nodejs from '../dist/index.js';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Astro preview headers', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-	let devPreview;
+	let fixture: Fixture;
+	let devPreview: PreviewServer;
 	const headers = {
 		astro: 'test',
 	};

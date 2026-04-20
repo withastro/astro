@@ -1,14 +1,14 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
+import type { PreviewServer } from '../../../astro/src/types/public/preview.js';
 import * as cheerio from 'cheerio';
 import nodejs from '../dist/index.js';
-import { loadFixture } from './test-utils.js';
-import { fileURLToPath } from 'node:url';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Assets', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-	let devPreview;
+	let fixture: Fixture;
+	let devPreview: PreviewServer;
 
 	before(async () => {
 		const root = new URL('./fixtures/image/', import.meta.url);
@@ -39,7 +39,7 @@ describe('Assets', () => {
 		const $ = cheerio.load(html);
 
 		// Fetch the asset
-		const fileURL = $('a').attr('href');
+		const fileURL = $('a').attr('href')!;
 		response = await fixture.fetch(fileURL);
 		cacheControl = response.headers.get('cache-control');
 		assert.equal(cacheControl, 'public, max-age=31536000, immutable');
@@ -50,7 +50,7 @@ describe('Assets', () => {
 		let response = await fixture.fetch('/text-file');
 		const html = await response.text();
 		const $ = cheerio.load(html);
-		const fileURL = $('a').attr('href');
+		const fileURL = $('a').attr('href')!;
 
 		// Send a request with a malformed If-Match header that won't match the ETag
 		response = await fixture.fetch(fileURL, {

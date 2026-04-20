@@ -1,12 +1,11 @@
 import assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import nodejs from '../dist/index.js';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Errors', () => {
-	/** @type {import('./test-utils.js').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -15,15 +14,6 @@ describe('Errors', () => {
 			adapter: nodejs({ mode: 'standalone' }),
 		});
 		await fixture.build();
-	});
-	let devPreview;
-
-	// The two tests that need the server to run are skipped
-	// before(async () => {
-	//    devPreview = await fixture.preview();
-	// });
-	after(async () => {
-		await devPreview?.stop();
 	});
 
 	it('rejected promise in template', {
@@ -43,9 +33,8 @@ describe('Errors', () => {
 	}, async () => {
 		const result = ['<!DOCTYPE html><h1>Astro</h1> 1', 'Internal server error'];
 
-		/** @type {Response} */
-		const res = await fixture.fetch('/generator');
-		const reader = res.body.getReader();
+		const res: Response = await fixture.fetch('/generator');
+		const reader = res.body!.getReader();
 		const decoder = new TextDecoder();
 		const chunk1 = await reader.read();
 		const chunk2 = await reader.read();
