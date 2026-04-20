@@ -1,12 +1,11 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { mkdir, rm } from 'node:fs/promises';
 import { after, before, describe, it } from 'node:test';
 import { BlobsServer } from '@netlify/blobs/server';
-import * as devalue from 'devalue';
-import { loadFixture } from '../../../../astro/test/test-utils.js';
-import netlify from '../../dist/index.js';
 import { sessionDrivers } from 'astro/config';
+import * as devalue from 'devalue';
+import netlify from '../../dist/index.js';
+import { type Fixture, loadFixture } from '../test-utils.ts';
 
 const token = 'mock';
 const siteID = '1';
@@ -14,11 +13,9 @@ const dataDir = '.netlify/sessions';
 
 describe('Astro.session', () => {
 	describe('Production', () => {
-		/** @type {import('../../../../astro/test/test-utils.js').Fixture} */
-		let fixture;
+		let fixture: Fixture;
 
-		/** @type {BlobsServer} */
-		let blobServer;
+		let blobServer: BlobsServer;
 		before(async () => {
 			process.env.NETLIFY = '1';
 			await rm(dataDir, { recursive: true, force: true }).catch(() => {});
@@ -30,11 +27,11 @@ describe('Astro.session', () => {
 			});
 			await blobServer.start();
 			fixture = await loadFixture({
-				// @ts-ignore
 				root: new URL('./fixtures/sessions/', import.meta.url),
 				output: 'server',
 				adapter: netlify(),
 				session: {
+					// @ts-expect-error: the default type of the TDriver in AstroUserConfig must be changed so that this can pass
 					driver: sessionDrivers.netlifyBlobs({
 						name: 'test',
 						uncachedEdgeURL: `http://localhost:8971`,
@@ -52,24 +49,19 @@ describe('Astro.session', () => {
 			const mod = await import(entryURL.href);
 			handler = mod.default;
 		});
-		/** @type {(request: Request, options: {}) => Promise<Response>} */
-		let handler;
+		let handler: (request: Request, options: object) => Promise<Response>;
 		after(async () => {
 			await blobServer.stop();
 			delete process.env.NETLIFY;
 		});
-		/**
-		 * @param {string} path
-		 * @param {RequestInit} requestInit
-		 */
-		function fetchResponse(path, requestInit) {
+		function fetchResponse(path: string, requestInit: RequestInit) {
 			return handler(new Request(new URL(path, 'http://example.com'), requestInit), {});
 		}
 
 		it('can regenerate session cookies upon request', async () => {
 			const firstResponse = await fetchResponse('/regenerate', { method: 'GET' });
 			const firstHeaders = firstResponse.headers.get('set-cookie')?.split(',') ?? '';
-			const firstSessionId = firstHeaders[0].split(';')[0].split('=')[1];
+			const firstSessionId = firstHeaders[0]!.split(';')[0]!.split('=')[1];
 
 			const secondResponse = await fetchResponse('/regenerate', {
 				method: 'GET',
@@ -78,7 +70,7 @@ describe('Astro.session', () => {
 				},
 			});
 			const secondHeaders = secondResponse.headers.get('set-cookie')?.split(',') ?? '';
-			const secondSessionId = secondHeaders[0].split(';')[0].split('=')[1];
+			const secondSessionId = secondHeaders[0]!.split(';')[0]!.split('=')[1];
 			assert.notEqual(firstSessionId, secondSessionId);
 		});
 
@@ -88,7 +80,7 @@ describe('Astro.session', () => {
 			assert.equal(firstValue.previousValue, 'none');
 
 			const firstHeaders = firstResponse.headers.get('set-cookie')?.split(',') ?? '';
-			const firstSessionId = firstHeaders[0].split(';')[0].split('=')[1];
+			const firstSessionId = firstHeaders[0]!.split(';')[0]!.split('=')[1];
 			const secondResponse = await fetchResponse('/update', {
 				method: 'GET',
 				headers: {
@@ -110,7 +102,7 @@ describe('Astro.session', () => {
 
 			assert.equal(firstResponse.ok, true);
 			const firstHeaders = firstResponse.headers.get('set-cookie')?.split(',') ?? '';
-			const firstSessionId = firstHeaders[0].split(';')[0].split('=')[1];
+			const firstSessionId = firstHeaders[0]!.split(';')[0]!.split('=')[1];
 
 			const data = devalue.parse(await firstResponse.text());
 			assert.equal(data.message, 'Favorite URL set to https://domain.invalid/ from nothing');

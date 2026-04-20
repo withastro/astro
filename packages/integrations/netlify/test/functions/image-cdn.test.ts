@@ -1,15 +1,26 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { remotePatternToRegex } from '@astrojs/netlify';
-import { loadFixture } from '../../../../astro/test/test-utils.js';
 import imageService from '../../dist/image-service.js';
+import { loadFixture, SpyIntegrationLogger } from '../test-utils.ts';
+import type { ImageTransform } from 'astro';
+
+async function getURL(options: ImageTransform) {
+	return await imageService.getURL(
+		options,
+		// @ts-expect-error The second argument is not used in the current
+		// implementation of `imageService.getURL`, but we need to pass it
+		// to satisfy the type signature.
+		{},
+	);
+}
 
 describe('Image CDN', { timeout: 120000 }, () => {
 	const root = new URL('./fixtures/middleware/', import.meta.url);
 
 	describe('configuration', () => {
 		after(() => {
-			process.env.DISABLE_IMAGE_CDN = undefined;
+			delete process.env.DISABLE_IMAGE_CDN;
 		});
 
 		it('enables Netlify Image CDN', async () => {
@@ -31,7 +42,7 @@ describe('Image CDN', { timeout: 120000 }, () => {
 	});
 
 	describe('remote image config', () => {
-		let regexes;
+		let regexes: RegExp[];
 
 		before(async () => {
 			const fixture = await loadFixture({ root });
@@ -39,7 +50,9 @@ describe('Image CDN', { timeout: 120000 }, () => {
 
 			const config = await fixture.readFile('../.netlify/v1/config.json');
 			if (config) {
-				regexes = JSON.parse(config).images.remote_images.map((pattern) => new RegExp(pattern));
+				regexes = JSON.parse(config).images.remote_images.map(
+					(pattern: string) => new RegExp(pattern),
+				);
 			}
 		});
 
@@ -48,7 +61,7 @@ describe('Image CDN', { timeout: 120000 }, () => {
 		});
 
 		it('generates correct config for domains', async () => {
-			const domain = regexes[0];
+			const domain = regexes[0]!;
 			assert.equal(domain.test('https://example.net/image.jpg'), true);
 			assert.equal(
 				domain.test('https://www.example.net/image.jpg'),
@@ -61,7 +74,7 @@ describe('Image CDN', { timeout: 120000 }, () => {
 				true,
 				'subpath should match',
 			);
-			const subdomain = regexes[1];
+			const subdomain = regexes[1]!;
 			assert.equal(
 				subdomain.test('https://secret.example.edu/image.jpg'),
 				true,
@@ -75,7 +88,7 @@ describe('Image CDN', { timeout: 120000 }, () => {
 		});
 
 		it('generates correct config for remotePatterns', async () => {
-			const patterns = regexes[2];
+			const patterns = regexes[2]!;
 			assert.equal(patterns.test('https://example.org/images/1.jpg'), true, 'should match domain');
 			assert.equal(
 				patterns.test('https://www.example.org/images/2.jpg'),
@@ -94,10 +107,8 @@ describe('Image CDN', { timeout: 120000 }, () => {
 			);
 		});
 
-		it('warns when remotepatterns generates an invalid regex', async (t) => {
-			const logger = {
-				warn: t.mock.fn(),
-			};
+		it('warns when remotepatterns generates an invalid regex', async () => {
+			const logger = new SpyIntegrationLogger();
 			const regex = remotePatternToRegex(
 				{
 					hostname: '*.examp[le.org',
@@ -106,18 +117,19 @@ describe('Image CDN', { timeout: 120000 }, () => {
 				logger,
 			);
 			assert.strictEqual(regex, undefined);
-			const calls = logger.warn.mock.calls;
-			assert.strictEqual(calls.length, 1);
+			assert.strictEqual(logger.messages.length, 1);
+			const message = logger.messages[0];
+			assert.equal(message.level, 'warn');
 			assert.equal(
-				calls[0].arguments[0],
+				message.message,
 				'Could not generate a valid regex from the remotePattern "{"hostname":"*.examp[le.org","pathname":"/images/*"}". Please check the syntax.',
 			);
 		});
 	});
 
 	describe('fit parameter', () => {
-		it('includes fit parameter in image URL', () => {
-			const url = imageService.getURL({
+		it('includes fit parameter in image URL', async () => {
+			const url = await getURL({
 				src: 'images/astronaut.jpg',
 				width: 300,
 				height: 400,
@@ -127,7 +139,7 @@ describe('Image CDN', { timeout: 120000 }, () => {
 			assert.ok(url.includes('fit=cover'), `Expected fit=cover in URL, got: ${url}`);
 		});
 
-		it('maps Astro fit values to Netlify equivalents', () => {
+		it('maps Astro fit values to Netlify equivalents', async () => {
 			const cases = [
 				['contain', 'contain'],
 				['cover', 'cover'],
@@ -137,7 +149,7 @@ describe('Image CDN', { timeout: 120000 }, () => {
 				['scale-down', 'contain'],
 			];
 			for (const [astroFit, netlifyFit] of cases) {
-				const url = imageService.getURL({
+				const url = await getURL({
 					src: 'img.jpg',
 					width: 100,
 					height: 100,
@@ -150,8 +162,8 @@ describe('Image CDN', { timeout: 120000 }, () => {
 			}
 		});
 
-		it('omits fit parameter when fit is none or unset', () => {
-			const withNone = imageService.getURL({
+		it('omits fit parameter when fit is none or unset', async () => {
+			const withNone = await getURL({
 				src: 'img.jpg',
 				width: 100,
 				height: 100,
@@ -162,7 +174,7 @@ describe('Image CDN', { timeout: 120000 }, () => {
 				`Expected no fit param for fit="none", got: ${withNone}`,
 			);
 
-			const withoutFit = imageService.getURL({ src: 'img.jpg', width: 100, height: 100 });
+			const withoutFit = await getURL({ src: 'img.jpg', width: 100, height: 100 });
 			assert.ok(
 				!withoutFit.includes('fit='),
 				`Expected no fit param when unset, got: ${withoutFit}`,

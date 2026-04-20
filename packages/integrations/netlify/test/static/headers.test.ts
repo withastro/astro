@@ -1,9 +1,9 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { loadFixture } from '../../../../astro/test/test-utils.js';
+import { type Fixture, loadFixture } from '../test-utils.ts';
 
 describe('SSG - headers', () => {
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({ root: new URL('./fixtures/redirects/', import.meta.url) });
