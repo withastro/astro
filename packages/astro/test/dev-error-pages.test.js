@@ -12,6 +12,7 @@ describe('Dev pipeline - error pages', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/dev-error-pages/',
+				outDir: './dist-dev-error-pages-custom-404/',
 			});
 			devServer = await fixture.startDevServer();
 		});
@@ -51,6 +52,7 @@ describe('Dev pipeline - error pages', () => {
 			fixture = await loadFixture({
 				root: './fixtures/dev-error-pages/',
 				output: 'server',
+				outDir: './dist-dev-error-pages-custom-500/',
 			});
 			devServer = await fixture.startDevServer();
 		});

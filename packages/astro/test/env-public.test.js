@@ -12,6 +12,7 @@ describe('astro:env public variables', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/astro-env/',
+				outDir: './dist-env-public-client-variables/',
 			});
 			await fixture.build();
 		});
@@ -38,6 +39,7 @@ describe('astro:env public variables', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/astro-env-server-fail/',
+				outDir: './dist-env-public-server-variables/',
 			});
 		});
 

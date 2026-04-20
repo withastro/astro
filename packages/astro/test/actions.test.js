@@ -13,6 +13,7 @@ describe('Astro Actions', () => {
 		fixture = await loadFixture({
 			root: './fixtures/actions/',
 			adapter: testAdapter(),
+			outDir: './dist-actions-astro-actions/',
 		});
 	});
 
@@ -449,6 +450,7 @@ describe('Astro Actions in static mode with prerender = false routes', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/actions-static-prerender-false/',
+			outDir: './dist-actions-astro-actions-in-static-mode-with-preren/',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -481,6 +483,7 @@ it('Works with adapter and all pages prerendered', async () => {
 		root: './fixtures/actions/',
 		output: 'static',
 		adapter: testAdapter(),
+		outDir: './dist-actions-astro-actions-in-static-mode-with-preren/',
 	});
 	const devServer = await fixture.startDevServer();
 	const res = await fixture.fetch('/_actions/subscribe', {
@@ -500,6 +503,7 @@ it('Base path should be used', async () => {
 		root: './fixtures/actions/',
 		adapter: testAdapter(),
 		base: '/base',
+		outDir: './dist-actions-astro-actions-in-static-mode-with-preren/',
 	});
 	const devServer = await fixture.startDevServer();
 	const formData = new FormData();
@@ -524,6 +528,7 @@ it('Should support trailing slash', async () => {
 		root: './fixtures/actions/',
 		adapter: testAdapter(),
 		trailingSlash: 'always',
+		outDir: './dist-actions-astro-actions-in-static-mode-with-preren/',
 	});
 	const devServer = await fixture.startDevServer();
 	const formData = new FormData();

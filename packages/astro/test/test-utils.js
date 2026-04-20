@@ -96,6 +96,14 @@ export async function loadFixture(inlineConfig) {
 	inlineConfig.vite ??= {};
 	inlineConfig.vite.logLevel = 'silent';
 
+	// When running in parallel mode, use port 0 (OS-assigned) so dev/preview
+	// servers don't collide across processes. The env var is set by the test
+	// runner script (scripts/cmd/test.js) when --parallel is passed.
+	if (process.env.ASTRO_TEST_PARALLEL) {
+		inlineConfig.server ??= {};
+		inlineConfig.server.port ??= 0;
+	}
+
 	let root = inlineConfig.root;
 	// Handle URL, should already be absolute so just convert to path
 	if (typeof root !== 'string') {

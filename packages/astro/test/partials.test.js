@@ -10,6 +10,7 @@ describe('Partials', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/partials/',
+			outDir: './dist-partials/',
 		});
 	});
 

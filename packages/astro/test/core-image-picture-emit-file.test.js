@@ -16,6 +16,7 @@ describe('astro:image', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/core-image-picture-emit-file/',
+				outDir: './dist-core-image-picture-emit-file/',
 			});
 
 			await fixture.build();

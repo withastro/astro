@@ -116,8 +116,8 @@
     "typecheck:tests": "tsc --build tsconfig.test.json",
     "test:unit": "astro-scripts test \"test/units/**/*.test.ts\" --strip-types --teardown ./test/units/teardown.ts",
     "test:integration": "pnpm run test:integration:js && pnpm run test:integration:ts",
-    "test:integration:js": "astro-scripts test \"test/*.test.js\"",
-    "test:integration:ts": "astro-scripts test \"test/*.test.ts\" --strip-types"
+    "test:integration:js": "astro-scripts test \"test/*.test.js\" --parallel",
+    "test:integration:ts": "astro-scripts test \"test/*.test.ts\" --strip-types --parallel"
   },
   "dependencies": {
     "@astrojs/compiler": "^3.0.1",

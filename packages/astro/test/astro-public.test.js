@@ -9,7 +9,8 @@ describe('Public', () => {
 	let buildLogs = [];
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/astro-public/' });
+		fixture = await loadFixture({ root: './fixtures/astro-public/',
+			outDir: './dist-astro-public-public/', });
 		await fixture.build({
 			vite: {
 				logLevel: 'info',
@@ -67,7 +68,8 @@ describe('Public (dev)', () => {
 	let devServer;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/astro-public/' });
+		fixture = await loadFixture({ root: './fixtures/astro-public/',
+			outDir: './dist-astro-public-public-dev/', });
 		devServer = await fixture.startDevServer();
 	});
 

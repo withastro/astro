@@ -12,7 +12,8 @@ describe('Content collection with Picture component and render()', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/content-collection-picture-render/' });
+		fixture = await loadFixture({ root: './fixtures/content-collection-picture-render/',
+			outDir: './dist-content-collection-picture-render/', });
 	});
 
 	describe('Build', () => {

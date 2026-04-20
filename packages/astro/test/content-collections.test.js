@@ -10,7 +10,8 @@ describe('Content Collections', () => {
 	describe('Query', () => {
 		let fixture;
 		before(async () => {
-			fixture = await loadFixture({ root: './fixtures/content-collections/' });
+			fixture = await loadFixture({ root: './fixtures/content-collections/',
+				outDir: './dist-content-collections-query/', });
 			await fixture.build({ force: true });
 		});
 
@@ -172,7 +173,8 @@ describe('Content Collections', () => {
 		let fixture;
 
 		before(async () => {
-			fixture = await loadFixture({ root: './fixtures/content-static-paths-integration/' });
+			fixture = await loadFixture({ root: './fixtures/content-static-paths-integration/',
+				outDir: './dist-content-collections-static-paths-integration/', });
 			await fixture.build({ force: true });
 		});
 
@@ -204,7 +206,8 @@ describe('Content Collections', () => {
 
 	describe('With spaces in path', () => {
 		it('Does not throw', async () => {
-			const fixture = await loadFixture({ root: './fixtures/content with spaces in folder name/' });
+			const fixture = await loadFixture({ root: './fixtures/content with spaces in folder name/',
+				outDir: './dist-content-collections-with-spaces-in-path/', });
 			let error = null;
 			try {
 				await fixture.build({ force: true });
@@ -218,6 +221,7 @@ describe('Content Collections', () => {
 		it('Throws if legacy config file is found', async () => {
 			const fixture = await loadFixture({
 				root: './fixtures/content-collections-with-config-mjs/',
+				outDir: './dist-content-collections-with-legacy-config/',
 			});
 			let error;
 			try {
@@ -233,6 +237,7 @@ describe('Content Collections', () => {
 		it('Throws the right error', async () => {
 			const fixture = await loadFixture({
 				root: './fixtures/content-collections-empty-md-file/',
+				outDir: './dist-content-collections-with-empty-markdown-file/',
 			});
 			let error;
 			try {
@@ -248,6 +253,7 @@ describe('Content Collections', () => {
 		it('Throws the right error', async () => {
 			const fixture = await loadFixture({
 				root: './fixtures/content-collections-number-id/',
+				outDir: './dist-content-collections-with-numbers-for-ids/',
 			});
 			let error;
 			try {
@@ -263,6 +269,7 @@ describe('Content Collections', () => {
 		it('Handles the empty directory correctly', async () => {
 			const fixture = await loadFixture({
 				root: './fixtures/content-collections-empty-dir/',
+				outDir: './dist-content-collections-with-empty-collections-directory/',
 			});
 			let error;
 			try {
@@ -291,6 +298,7 @@ describe('Content Collections', () => {
 				vite: {
 					plugins: [preventNodeBuiltinDependencyPlugin()],
 				},
+				outDir: './dist-content-collections-ssr-integration/',
 			});
 			await fixture.build({ force: true });
 			app = await fixture.loadTestAdapterApp();
@@ -342,6 +350,7 @@ describe('Content Collections', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/content-collections-base/',
+				outDir: './dist-content-collections-base-configuration/',
 			});
 			await fixture.build({ force: true });
 		});
@@ -365,6 +374,7 @@ describe('Content Collections', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/content-collections-mutation/',
+				outDir: './dist-content-collections-mutation/',
 			});
 			await fixture.build({ force: true });
 		});

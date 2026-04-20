@@ -13,6 +13,7 @@ describe('build format', () => {
 				build: {
 					format: 'file',
 				},
+				outDir: './dist-astro-pageDirectoryUrl-build-format-file/',
 			});
 			await fixture.build();
 		});
@@ -34,6 +35,7 @@ describe('build format', () => {
 				build: {
 					format: 'preserve',
 				},
+				outDir: './dist-astro-pageDirectoryUrl-build-format-preserve/',
 			});
 			await fixture.build();
 		});

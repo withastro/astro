@@ -10,6 +10,7 @@ describe('custom the assets name function', () => {
 		fixture = await loadFixture({
 			root: './fixtures/custom-assets-name/',
 			output: 'server',
+			outDir: './dist-custom-assets-name/',
 		});
 		await fixture.build();
 	});

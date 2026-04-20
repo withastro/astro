@@ -8,7 +8,8 @@ describe('Code component', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/code-component/' });
+		fixture = await loadFixture({ root: './fixtures/code-component/',
+			outDir: './dist-code-component/', });
 		await fixture.build();
 	});
 

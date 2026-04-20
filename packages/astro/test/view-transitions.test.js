@@ -8,7 +8,8 @@ describe('View Transitions styles', () => {
 	let devServer;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/view-transitions/' });
+		fixture = await loadFixture({ root: './fixtures/view-transitions/',
+			outDir: './dist-view-transitions/', });
 		devServer = await fixture.startDevServer();
 	});
 

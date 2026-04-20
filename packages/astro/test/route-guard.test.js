@@ -9,7 +9,8 @@ describe('Route Guard - Dev Server', () => {
 	let devServer;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/route-guard/' });
+		fixture = await loadFixture({ root: './fixtures/route-guard/',
+			outDir: './dist-route-guard/', });
 		devServer = await fixture.startDevServer();
 	});
 

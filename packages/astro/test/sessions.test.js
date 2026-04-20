@@ -20,6 +20,7 @@ describe('Astro.session', () => {
 					driver: 'fs',
 					ttl: 20,
 				},
+				outDir: './dist-sessions-production/',
 			});
 			await fixture.build({});
 			app = await fixture.loadTestAdapterApp();
@@ -224,6 +225,7 @@ describe('Astro.session', () => {
 					driver: 'fs',
 					ttl: 20,
 				},
+				outDir: './dist-sessions-development/',
 			});
 			devServer = await fixture.startDevServer();
 		});

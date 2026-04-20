@@ -11,6 +11,7 @@ describe('endpoint responses', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/endpoint-routing/',
+			outDir: './dist-endpoint-response/',
 		});
 		devServer = await fixture.startDevServer();
 	});

@@ -10,7 +10,8 @@ describe('HMR: slots.render with callback args after style change', () => {
 	let devServer;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/hmr-slots-render/' });
+		fixture = await loadFixture({ root: './fixtures/hmr-slots-render/',
+			outDir: './dist-hmr-slots-render/', });
 		devServer = await fixture.startDevServer();
 	});
 

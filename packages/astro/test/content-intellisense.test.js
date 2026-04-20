@@ -16,7 +16,8 @@ describe('Content Intellisense', () => {
 	let collections;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/content-intellisense/' });
+		fixture = await loadFixture({ root: './fixtures/content-intellisense/',
+			outDir: './dist-content-intellisense/', });
 		await fixture.build();
 
 		collectionsDir = await fixture.readdir('../.astro/collections');

@@ -14,7 +14,8 @@ describe('Prerender conflicts', () => {
 		let fixture;
 
 		before(async () => {
-			fixture = await loadFixture({ root: './fixtures/prerender-conflict-dynamic-dynamic/' });
+			fixture = await loadFixture({ root: './fixtures/prerender-conflict-dynamic-dynamic/',
+				outDir: './dist-prerender-conflict-dynamic-vs-dynamic/', });
 		});
 
 		it('warns by default and succeeds', async () => {
@@ -62,7 +63,8 @@ describe('Prerender conflicts', () => {
 		let fixture;
 
 		before(async () => {
-			fixture = await loadFixture({ root: './fixtures/prerender-conflict-static-dynamic/' });
+			fixture = await loadFixture({ root: './fixtures/prerender-conflict-static-dynamic/',
+				outDir: './dist-prerender-conflict-static-vs-dynamic/', });
 		});
 
 		it('warns by default and succeeds', async () => {
