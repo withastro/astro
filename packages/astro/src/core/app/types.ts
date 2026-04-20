@@ -15,7 +15,11 @@ import type {
 } from '../../types/public/internal.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 import type { CspDirective } from '../csp/config.js';
-import type { AstroLoggerDestination, AstroLoggerLevel, AstroLoggerMessage } from '../logger/core.js';
+import type {
+	AstroLoggerDestination,
+	AstroLoggerLevel,
+	AstroLoggerMessage,
+} from '../logger/core.js';
 import type { RoutingStrategies } from './common.js';
 import type { CacheProviderFactory, SSRManifestCache } from '../cache/types.js';
 import type { BaseSessionConfig, SessionDriverFactory } from '../session/types.js';
@@ -111,7 +115,9 @@ export type SSRManifest = {
 	key: Promise<CryptoKey>;
 	i18n: SSRManifestI18n | undefined;
 	middleware?: () => Promise<AstroMiddlewareInstance> | AstroMiddlewareInstance;
-	logger?: () => Promise<{ default: AstroLoggerDestination<AstroLoggerMessage> }> | { default: AstroLoggerDestination<AstroLoggerMessage> };
+	logger?: () =>
+		| Promise<{ default: AstroLoggerDestination<AstroLoggerMessage> }>
+		| { default: AstroLoggerDestination<AstroLoggerMessage> };
 	actions?: () => Promise<SSRActions> | SSRActions;
 	sessionDriver?: () => Promise<{ default: SessionDriverFactory | null }>;
 	cacheProvider?: () => Promise<{ default: CacheProviderFactory | null }>;

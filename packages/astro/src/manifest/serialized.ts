@@ -111,9 +111,7 @@ export function serializedManifestPlugin({
 					? `cacheProvider: () => import('${VIRTUAL_CACHE_PROVIDER_ID}'),`
 					: '';
 				const hasLoggerConfig = !!settings.config.experimental?.logger;
-				const loggerLine = hasLoggerConfig
-					? `logger: () => import('${LOGGER_MODULE_ID}'),`
-					: '';
+				const loggerLine = hasLoggerConfig ? `logger: () => import('${LOGGER_MODULE_ID}'),` : '';
 				const code = `
 					import { deserializeManifest as _deserializeManifest } from 'astro/app';
 					import { renderers } from '${ASTRO_RENDERERS_MODULE_ID}';
