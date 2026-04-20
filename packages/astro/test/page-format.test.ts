@@ -1,12 +1,11 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.js';
 
 describe('build.format', () => {
 	describe('directory', () => {
-		/** @type {import('./test-utils').Fixture} */
-		let fixture;
+		let fixture: Fixture;
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/page-format/',
@@ -27,8 +26,7 @@ describe('build.format', () => {
 	});
 
 	describe('file', () => {
-		/** @type {import('./test-utils').Fixture} */
-		let fixture;
+		let fixture: Fixture;
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/page-format/',
@@ -64,8 +62,7 @@ describe('build.format', () => {
 	});
 
 	describe('preserve - i18n', () => {
-		/** @type {import('./test-utils').Fixture} */
-		let fixture;
+		let fixture: Fixture;
 		before(async () => {
 			fixture = await loadFixture({
 				base: '/test',
@@ -91,8 +88,7 @@ describe('build.format', () => {
 	});
 
 	describe('preserve - i18n', () => {
-		/** @type {import('./test-utils').Fixture} */
-		let fixture;
+		let fixture: Fixture;
 		before(async () => {
 			fixture = await loadFixture({
 				base: '/test',

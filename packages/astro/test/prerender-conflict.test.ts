@@ -1,7 +1,7 @@
 import { strict as assert } from 'node:assert';
 import { before, describe, it } from 'node:test';
-import { AstroLogger } from '../dist/core/logger/core.js';
-import { loadFixture } from './test-utils.js';
+import { type AstroLogMessage, AstroLogger } from '../dist/core/logger/core.js';
+import { type Fixture, loadFixture } from './test-utils.js';
 
 /**
  * Dynamic vs dynamic duplication should warn by default and succeed.
@@ -11,23 +11,26 @@ import { loadFixture } from './test-utils.js';
 
 describe('Prerender conflicts', () => {
 	describe('dynamic vs dynamic', () => {
-		let fixture;
+		let fixture: Fixture;
 
 		before(async () => {
 			fixture = await loadFixture({ root: './fixtures/prerender-conflict-dynamic-dynamic/' });
 		});
 
 		it('warns by default and succeeds', async () => {
-			const logs = [];
-			await fixture.build({
-				logger: new AstroLogger({
-					level: 'warn',
-					destination: {
-						write(chunk) {
-							logs.push(chunk);
-						},
+			const logs: AstroLogMessage[] = [];
+			const logger = new AstroLogger({
+				level: 'warn',
+				destination: {
+					write(chunk: AstroLogMessage) {
+						logs.push(chunk);
+						return true;
 					},
-				}),
+				},
+			});
+			await fixture.build({
+				// @ts-expect-error: logger is an internal API
+				logger,
 			});
 
 			const relevantLogs = logs
@@ -44,7 +47,7 @@ describe('Prerender conflicts', () => {
 		});
 
 		it('fails when prerenderConflictBehavior is set to error', async () => {
-			let err;
+			let err: unknown;
 			try {
 				await fixture.build({ prerenderConflictBehavior: 'error' });
 			} catch (e) {
@@ -59,23 +62,26 @@ describe('Prerender conflicts', () => {
 	});
 
 	describe('static vs dynamic', () => {
-		let fixture;
+		let fixture: Fixture;
 
 		before(async () => {
 			fixture = await loadFixture({ root: './fixtures/prerender-conflict-static-dynamic/' });
 		});
 
 		it('warns by default and succeeds', async () => {
-			const logs = [];
-			await fixture.build({
-				logger: new AstroLogger({
-					level: 'warn',
-					destination: {
-						write(chunk) {
-							logs.push(chunk);
-						},
+			const logs: AstroLogMessage[] = [];
+			const logger = new AstroLogger({
+				level: 'warn',
+				destination: {
+					write(chunk: AstroLogMessage) {
+						logs.push(chunk);
+						return true;
 					},
-				}),
+				},
+			});
+			await fixture.build({
+				// @ts-expect-error: logger is an internal API
+				logger,
 			});
 
 			const relevantLogs = logs
@@ -92,7 +98,7 @@ describe('Prerender conflicts', () => {
 		});
 
 		it('fails when prerenderConflictBehavior is set to error', async () => {
-			let err;
+			let err: unknown;
 			try {
 				await fixture.build({ prerenderConflictBehavior: 'error' });
 			} catch (e) {

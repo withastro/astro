@@ -1,11 +1,10 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.js';
 
 describe('Preact component', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -90,14 +89,17 @@ describe('Preact component', () => {
 
 		// Grab the imports
 		const exp = /import\("(.+?)"\)/g;
-		let match, componentUrl;
+		let match: RegExpExecArray | null;
+		let componentUrl: string | undefined;
 		while ((match = exp.exec(html))) {
 			if (match[1].includes('PragmaComment.js')) {
 				componentUrl = match[1];
 				break;
 			}
 		}
+		// @ts-expect-error: this test is currently skipped and its type isn't worth fixing right now
 		const component = await fixture.fetch(componentUrl).then((res) => res.text());
+		// @ts-expect-error: this test is currently skipped and its type isn't worth fixing right now
 		const jsxRuntime = component.imports.filter((i) => i.specifier.includes('jsx-runtime'));
 
 		// test 1: preact/jsx-runtime is used for the component
@@ -109,8 +111,8 @@ describe('Preact component', () => {
 		const $ = cheerio.load(html);
 		assert.equal($('.preact-signal').length, 2);
 
-		const sigs1Raw = $($('astro-island')[0]).attr('data-preact-signals');
-		const sigs2Raw = $($('astro-island')[1]).attr('data-preact-signals');
+		const sigs1Raw = $($('astro-island')[0]).attr('data-preact-signals')!;
+		const sigs2Raw = $($('astro-island')[1]).attr('data-preact-signals')!;
 
 		assert.notEqual(sigs1Raw, undefined);
 		assert.notEqual(sigs2Raw, undefined);
@@ -128,7 +130,7 @@ describe('Preact component', () => {
 		const element = $('.preact-signal-array');
 		assert.equal(element.length, 1);
 
-		const sigs1Raw = $($('astro-island')[2]).attr('data-preact-signals');
+		const sigs1Raw = $($('astro-island')[2]).attr('data-preact-signals')!;
 
 		const sigs1 = JSON.parse(sigs1Raw);
 
@@ -150,7 +152,7 @@ describe('Preact component', () => {
 		const element = $('.preact-signal-object');
 		assert.equal(element.length, 1);
 
-		const sigs1Raw = $($('astro-island')[3]).attr('data-preact-signals');
+		const sigs1Raw = $($('astro-island')[3]).attr('data-preact-signals')!;
 
 		const sigs1 = JSON.parse(sigs1Raw);
 

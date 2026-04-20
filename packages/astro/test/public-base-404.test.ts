@@ -1,13 +1,12 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
 
 describe('Public dev with base', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-	let $;
-	let devServer;
+	let fixture: Fixture;
+	let $: cheerio.CheerioAPI;
+	let devServer: DevServer;
 
 	before(async () => {
 		fixture = await loadFixture({

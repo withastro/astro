@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.js';
 
 describe('Component parallelization', () => {
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -17,10 +17,8 @@ describe('Component parallelization', () => {
 		let html = await fixture.readFile('/index.html');
 		let $ = cheerio.load(html);
 
-		const startTimes = Array.from($('.start')).map((element) => Number(element.children[0].data));
-		const finishTimes = Array.from($('.finished')).map((element) =>
-			Number(element.children[0].data),
-		);
+		const startTimes = Array.from($('.start')).map((element) => Number($(element).text()));
+		const finishTimes = Array.from($('.finished')).map((element) => Number($(element).text()));
 
 		const renderStartWithin = Math.max(...startTimes) - Math.min(...startTimes);
 		assert.equal(
