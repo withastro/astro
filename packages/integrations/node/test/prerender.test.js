@@ -15,8 +15,6 @@ describe('Prerendering', () => {
 
 	describe('With base', async () => {
 		before(async () => {
-			process.env.PRERENDER = true;
-
 			fixture = await loadFixture({
 				base: '/some-base',
 				root: './fixtures/prerender/',
@@ -34,8 +32,6 @@ describe('Prerendering', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
-
-			delete process.env.PRERENDER;
 		});
 
 		it('Can render SSR route', async () => {
@@ -103,8 +99,6 @@ describe('Prerendering', () => {
 
 	describe('Without base', async () => {
 		before(async () => {
-			process.env.PRERENDER = true;
-
 			fixture = await loadFixture({
 				root: './fixtures/prerender/',
 				output: 'server',
@@ -121,8 +115,6 @@ describe('Prerendering', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
-
-			delete process.env.PRERENDER;
 		});
 
 		it('Can render SSR route', async () => {
@@ -180,7 +172,6 @@ describe('Prerendering', () => {
 
 	describe('Via integration', () => {
 		before(async () => {
-			process.env.PRERENDER = false;
 			fixture = await loadFixture({
 				root: './fixtures/prerender/',
 				output: 'server',
@@ -209,8 +200,6 @@ describe('Prerendering', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
-
-			delete process.env.PRERENDER;
 		});
 
 		it('Can render SSR route', async () => {
@@ -237,8 +226,6 @@ describe('Prerendering', () => {
 		let devServer;
 
 		before(async () => {
-			process.env.PRERENDER = true;
-
 			fixture = await loadFixture({
 				root: './fixtures/prerender/',
 				output: 'server',
@@ -250,8 +237,6 @@ describe('Prerendering', () => {
 
 		after(async () => {
 			await devServer.stop();
-
-			delete process.env.PRERENDER;
 		});
 
 		it('Can render SSR route', async () => {
@@ -281,7 +266,6 @@ describe('Hybrid rendering', () => {
 
 	describe('With base', () => {
 		before(async () => {
-			process.env.PRERENDER = false;
 			fixture = await loadFixture({
 				base: '/some-base',
 				root: './fixtures/prerender/',
@@ -299,8 +283,6 @@ describe('Hybrid rendering', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
-
-			delete process.env.PRERENDER;
 		});
 
 		it('Can render SSR route', async () => {
@@ -367,7 +349,6 @@ describe('Hybrid rendering', () => {
 
 	describe('Without base', () => {
 		before(async () => {
-			process.env.PRERENDER = false;
 			fixture = await loadFixture({
 				root: './fixtures/prerender/',
 				output: 'static',
@@ -384,8 +365,6 @@ describe('Hybrid rendering', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
-
-			delete process.env.PRERENDER;
 		});
 
 		it('Can render SSR route', async () => {
@@ -443,8 +422,6 @@ describe('Hybrid rendering', () => {
 
 	describe('Shared modules', () => {
 		before(async () => {
-			process.env.PRERENDER = false;
-
 			fixture = await loadFixture({
 				root: './fixtures/prerender/',
 				output: 'static',
@@ -461,8 +438,6 @@ describe('Hybrid rendering', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
-
-			delete process.env.PRERENDER;
 		});
 
 		it('Can render SSR route', async () => {

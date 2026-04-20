@@ -13,7 +13,6 @@ describe('Node middleware socket listener cleanup', () => {
 	let server;
 
 	before(async () => {
-		process.env.PRERENDER = true;
 		fixture = await loadFixture({
 			root: './fixtures/node-middleware/',
 			output: 'static',
@@ -36,7 +35,6 @@ describe('Node middleware socket listener cleanup', () => {
 	after(async () => {
 		server.close();
 		await fixture.clean();
-		delete process.env.PRERENDER;
 	});
 
 	it('should not leak socket listeners when serving static files', async () => {

@@ -16,7 +16,6 @@ describe('Trailing slash', () => {
 		describe('With base', async () => {
 			before(async () => {
 				process.env.ASTRO_NODE_AUTOSTART = 'disabled';
-				process.env.PRERENDER = true;
 
 				fixture = await loadFixture({
 					root: './fixtures/trailing-slash/',
@@ -36,8 +35,6 @@ describe('Trailing slash', () => {
 			after(async () => {
 				await server.stop();
 				await fixture.clean();
-
-				delete process.env.PRERENDER;
 			});
 
 			it('Can render prerendered base route', async () => {
@@ -96,7 +93,6 @@ describe('Trailing slash', () => {
 		describe('Without base', async () => {
 			before(async () => {
 				process.env.ASTRO_NODE_AUTOSTART = 'disabled';
-				process.env.PRERENDER = true;
 
 				fixture = await loadFixture({
 					root: './fixtures/trailing-slash/',
@@ -115,8 +111,6 @@ describe('Trailing slash', () => {
 			after(async () => {
 				await server.stop();
 				await fixture.clean();
-
-				delete process.env.PRERENDER;
 			});
 
 			it('Can render prerendered base route', async () => {
@@ -214,7 +208,6 @@ describe('Trailing slash', () => {
 		describe('With base', async () => {
 			before(async () => {
 				process.env.ASTRO_NODE_AUTOSTART = 'disabled';
-				process.env.PRERENDER = true;
 
 				fixture = await loadFixture({
 					root: './fixtures/trailing-slash/',
@@ -234,8 +227,6 @@ describe('Trailing slash', () => {
 			after(async () => {
 				await server.stop();
 				await fixture.clean();
-
-				delete process.env.PRERENDER;
 			});
 
 			it('Can render prerendered base route', async () => {
@@ -276,7 +267,6 @@ describe('Trailing slash', () => {
 		describe('Without base', async () => {
 			before(async () => {
 				process.env.ASTRO_NODE_AUTOSTART = 'disabled';
-				process.env.PRERENDER = true;
 
 				fixture = await loadFixture({
 					root: './fixtures/trailing-slash/',
@@ -295,8 +285,6 @@ describe('Trailing slash', () => {
 			after(async () => {
 				await server.stop();
 				await fixture.clean();
-
-				delete process.env.PRERENDER;
 			});
 
 			it('Can render prerendered base route', async () => {
@@ -339,7 +327,6 @@ describe('Trailing slash', () => {
 		describe('With base', async () => {
 			before(async () => {
 				process.env.ASTRO_NODE_AUTOSTART = 'disabled';
-				process.env.PRERENDER = true;
 
 				fixture = await loadFixture({
 					root: './fixtures/trailing-slash/',
@@ -359,8 +346,6 @@ describe('Trailing slash', () => {
 			after(async () => {
 				await server.stop();
 				await fixture.clean();
-
-				delete process.env.PRERENDER;
 			});
 
 			it('Can render prerendered base route', async () => {
@@ -419,7 +404,6 @@ describe('Trailing slash', () => {
 		describe('Without base', async () => {
 			before(async () => {
 				process.env.ASTRO_NODE_AUTOSTART = 'disabled';
-				process.env.PRERENDER = true;
 
 				fixture = await loadFixture({
 					root: './fixtures/trailing-slash/',
@@ -438,8 +422,6 @@ describe('Trailing slash', () => {
 			after(async () => {
 				await server.stop();
 				await fixture.clean();
-
-				delete process.env.PRERENDER;
 			});
 
 			it('Can render prerendered base route', async () => {

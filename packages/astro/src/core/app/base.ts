@@ -313,7 +313,12 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 						pathname = prependForwardSlash(
 							joinPaths(normalizeTheLocale(locale), this.removeBase(url.pathname)),
 						);
-						if (url.pathname.endsWith('/')) {
+						if (this.manifest.trailingSlash === 'always') {
+							pathname = appendForwardSlash(pathname);
+						} else if (this.manifest.trailingSlash === 'never') {
+							pathname = removeTrailingForwardSlash(pathname);
+						} else if (url.pathname.endsWith('/')) {
+							// trailingSlash === 'ignore': preserve the original trailing slash
 							pathname = appendForwardSlash(pathname);
 						}
 					}
