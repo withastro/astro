@@ -35,6 +35,14 @@ export default function hmrReload(): Plugin {
 				const invalidatedModules = new Set<EnvironmentModuleNode>();
 				for (const mod of modules) {
 					if (mod.id == null) continue;
+					// Style modules must be checked first: CSS/SCSS files imported by client
+					// components exist in both the client and SSR module graphs. If we checked
+					// the client module graph first, we'd skip them and never set
+					// hasSkippedStyleModules, causing Vite to trigger a full page reload.
+					if (isStyleModule(mod)) {
+						hasSkippedStyleModules = true;
+						continue;
+					}
 					// .astro files always have a client stub injected by the astro:build plugin
 					// to prevent them from being bundled for the browser. That stub is not a
 					// real client module, so we must not skip main .astro module entries even
@@ -46,13 +54,6 @@ export default function hmrReload(): Plugin {
 						const clientModule = server.environments.client.moduleGraph.getModuleById(mod.id);
 						if (clientModule != null) continue;
 					}
-					if (isStyleModule(mod)) {
-						hasSkippedStyleModules = true;
-						continue;
-					}
-
-					const clientModule = server.environments.client.moduleGraph.getModuleById(mod.id);
-					if (clientModule != null) continue;
 
 					this.environment.moduleGraph.invalidateModule(mod, invalidatedModules, timestamp, true);
 					hasSsrOnlyModules = true;
