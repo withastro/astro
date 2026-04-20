@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { testFactory } from './test-utils.js';
+import { testFactory, waitForHydrate } from './test-utils.js';
 
 const test = testFactory(import.meta.url, {
 	root: './fixtures/astro-island-hydration-error/',
@@ -33,7 +33,9 @@ test.describe('astro-island hydration error handling', () => {
 
 		await page.goto(pageUrl);
 		const incrementButton = page.locator('#counter .increment');
-		const count = page.locator('#counter pre');
+		const counter = page.locator('#counter');
+		const count = counter.locator('pre');
+		await waitForHydrate(page, counter);
 		await incrementButton.click();
 		await expect(count).toHaveText('1');
 		expect(attempts).toBe(2);
