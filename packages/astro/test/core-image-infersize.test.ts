@@ -3,37 +3,36 @@ import { Writable } from 'node:stream';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 
-import { AstroLogger } from '../dist/core/logger/core.js';
+import { AstroLogger, type AstroLogMessage } from '../dist/core/logger/core.js';
 import { testImageService } from './test-image-service.js';
-import { loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
 
 describe('astro:image:infersize', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 	const remoteAvatarUrl = 'https://avatars.githubusercontent.com/u/622227?s=64&v=4';
 
 	describe('dev', () => {
-		/** @type {import('./test-utils').DevServer} */
-		let devServer;
-		/** @type {Array<{ type: any, level: 'error', message: string; }>} */
-		let logs = [];
+		let devServer: DevServer;
+		const logs: Array<AstroLogMessage> = [];
 
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/core-image-infersize/',
 			});
 
-			devServer = await fixture.startDevServer({
-				logger: new AstroLogger({
-					level: 'error',
-					destination: new Writable({
-						objectMode: true,
-						write(event, _, callback) {
-							logs.push(event);
-							callback();
-						},
-					}),
+			const logger = new AstroLogger({
+				level: 'error',
+				destination: new Writable({
+					objectMode: true,
+					write(event, _, callback) {
+						logs.push(event);
+						callback();
+					},
 				}),
+			});
+			devServer = await fixture.startDevServer({
+				// @ts-expect-error: `logger` is an internal API
+				logger,
 			});
 		});
 
@@ -42,39 +41,39 @@ describe('astro:image:infersize', () => {
 		});
 
 		describe('inferSize works', () => {
-			let $;
+			let $: cheerio.CheerioAPI;
 			before(async () => {
-				let res = await fixture.fetch('/');
-				let html = await res.text();
+				const res = await fixture.fetch('/');
+				const html = await res.text();
 				$ = cheerio.load(html);
 			});
 
 			it('Image component works', async () => {
-				let $img = $('img');
+				const $img = $('img');
 				assert.equal(
-					$img.attr('src').startsWith('/_image') && $img.attr('src').endsWith('f=webp'),
+					$img.attr('src')!.startsWith('/_image') && $img.attr('src')!.endsWith('f=webp'),
 					true,
 				);
 			});
 
 			it('Picture component works', async () => {
-				let $img = $('picture img');
+				const $img = $('picture img');
 				assert.equal(
-					$img.attr('src').startsWith('/_image') && $img.attr('src').endsWith('f=png'),
+					$img.attr('src')!.startsWith('/_image') && $img.attr('src')!.endsWith('f=png'),
 					true,
 				);
 			});
 
 			it('getImage works', async () => {
-				let $img = $('#getImage');
+				const $img = $('#getImage');
 				assert.equal(
-					$img.attr('src').startsWith('/_image') && $img.attr('src').endsWith('f=webp'),
+					$img.attr('src')!.startsWith('/_image') && $img.attr('src')!.endsWith('f=webp'),
 					true,
 				);
 			});
 
 			it('direct function call work', async () => {
-				let $dimensions = $('#direct');
+				const $dimensions = $('#direct');
 				assert.equal($dimensions.text().trim(), '64x64');
 			});
 		});
@@ -92,10 +91,8 @@ describe('astro:image:infersize', () => {
 	});
 
 	describe('dev with custom image service', () => {
-		/** @type {import('./test-utils').Fixture} */
-		let customFixture;
-		/** @type {import('./test-utils').DevServer} */
-		let customDevServer;
+		let customFixture: Fixture;
+		let customDevServer: DevServer;
 
 		before(async () => {
 			customFixture = await loadFixture({

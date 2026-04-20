@@ -2,15 +2,14 @@ import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import parseSrcset from 'parse-srcset';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.js';
 
-function removeLeadingForwardSlash(path) {
+function removeLeadingForwardSlash(path: string) {
 	return path.startsWith('/') ? path.substring(1) : path;
 }
 
 describe('astro:image', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	describe('build', () => {
 		before(async () => {
@@ -22,7 +21,7 @@ describe('astro:image', () => {
 		});
 
 		describe('generated images', () => {
-			let $;
+			let $: cheerio.CheerioAPI;
 			before(async () => {
 				const html = await fixture.readFile('index.html');
 				$ = cheerio.load(html);
@@ -32,7 +31,7 @@ describe('astro:image', () => {
 				describe('normal', () => {
 					it('default format', async () => {
 						const $source = $('#picture source');
-						const srcset = parseSrcset($source.attr('srcset'));
+						const srcset = parseSrcset($source.attr('srcset')!);
 						const generatedImages = await fixture.glob('_astro/**/penguin.*.webp');
 
 						assert.deepEqual(generatedImages.length, 1);
@@ -44,7 +43,7 @@ describe('astro:image', () => {
 
 					it('fallback format', async () => {
 						const $img = $('#picture img');
-						const src = $img.attr('src');
+						const src = $img.attr('src')!;
 						const generatedFallbackImages = await fixture.glob('_astro/**/penguin.*.jpg');
 
 						assert.deepEqual(generatedFallbackImages.length, 1);
@@ -55,7 +54,7 @@ describe('astro:image', () => {
 				describe('with widths', () => {
 					it('default format', async () => {
 						const $source = $('#picture-widths source');
-						const srcset = parseSrcset($source.attr('srcset'));
+						const srcset = parseSrcset($source.attr('srcset')!);
 						const generatedImages = await fixture.glob('_astro/**/walrus.*.webp');
 
 						assert.deepEqual(generatedImages.length, 2);
@@ -67,8 +66,8 @@ describe('astro:image', () => {
 
 					it('fallback format', async () => {
 						const $img = $('#picture-widths img');
-						const src = $img.attr('src');
-						const srcset = parseSrcset($img.attr('srcset'));
+						const src = $img.attr('src')!;
+						const srcset = parseSrcset($img.attr('srcset')!);
 						const generatedFallbackImages = await fixture.glob('_astro/**/walrus.*.jpg');
 
 						assert.deepEqual(generatedFallbackImages.length, 3);
@@ -82,7 +81,7 @@ describe('astro:image', () => {
 				describe('with densities', () => {
 					it('default format', async () => {
 						const $source = $('#picture-densities source');
-						const srcset = parseSrcset($source.attr('srcset'));
+						const srcset = parseSrcset($source.attr('srcset')!);
 						const generatedImages = await fixture.glob('_astro/**/polarBear.*.webp');
 
 						assert.deepEqual(generatedImages.length, 3);
@@ -94,8 +93,8 @@ describe('astro:image', () => {
 
 					it('fallback format', async () => {
 						const $img = $('#picture-densities img');
-						const src = $img.attr('src');
-						const srcset = parseSrcset($img.attr('srcset'));
+						const src = $img.attr('src')!;
+						const srcset = parseSrcset($img.attr('srcset')!);
 						const generatedFallbackImages = await fixture.glob('_astro/**/polarBear.*.jpg');
 
 						assert.deepEqual(generatedFallbackImages.length, 3);

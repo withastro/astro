@@ -6,24 +6,19 @@ import { after, afterEach, before, describe, it } from 'node:test';
 import { removeDir } from '@astrojs/internal-helpers/fs';
 import * as cheerio from 'cheerio';
 import parseSrcset from 'parse-srcset';
-import { AstroLogger } from '../dist/core/logger/core.js';
+import { AstroLogger, type AstroLogMessage } from '../dist/core/logger/core.js';
 import testAdapter from './test-adapter.js';
 import { testImageService } from './test-image-service.js';
-import { loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
 
 describe('astro:image', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	describe('dev', () => {
-		/** @type {import('./test-utils').DevServer} */
-		let devServer;
-		/** @type {Array<{ type: any, level: 'error', message: string; }>} */
-		let logs = [];
-		/** @type {import('node:http').Server | undefined} */
-		let redirectServer;
-		/** @type {string | undefined} */
-		let redirectUrl;
+		let devServer: DevServer;
+		const logs: Array<AstroLogMessage> = [];
+		let redirectServer: import('node:http').Server | undefined;
+		let redirectUrl: string | undefined;
 
 		before(async () => {
 			redirectServer = createServer((req, res) => {
@@ -38,7 +33,7 @@ describe('astro:image', () => {
 				res.end();
 			});
 
-			await new Promise((resolve) => redirectServer.listen(0, '127.0.0.1', resolve));
+			await new Promise<void>((resolve) => redirectServer!.listen(0, '127.0.0.1', () => resolve()));
 			const address = redirectServer.address();
 			if (address && typeof address === 'object') {
 				redirectUrl = `http://127.0.0.1:${address.port}/redirect`;
@@ -66,30 +61,32 @@ describe('astro:image', () => {
 				},
 			});
 
-			devServer = await fixture.startDevServer({
-				logger: new AstroLogger({
-					level: 'error',
-					destination: new Writable({
-						objectMode: true,
-						write(event, _, callback) {
-							logs.push(event);
-							callback();
-						},
-					}),
+			const logger = new AstroLogger({
+				level: 'error',
+				destination: new Writable({
+					objectMode: true,
+					write(event, _, callback) {
+						logs.push(event);
+						callback();
+					},
 				}),
+			});
+			devServer = await fixture.startDevServer({
+				// @ts-expect-error: `logger` is an internal API
+				logger,
 			});
 		});
 
 		after(async () => {
 			await devServer.stop();
 			if (redirectServer) {
-				await new Promise((resolve) => redirectServer.close(resolve));
+				await new Promise<void>((resolve) => redirectServer!.close(() => resolve()));
 			}
 		});
 
 		describe('basics', () => {
-			let $;
-			let body;
+			let $: cheerio.CheerioAPI;
+			let body: string;
 			before(async () => {
 				let res = await fixture.fetch('/');
 				body = await res.text();
@@ -99,7 +96,7 @@ describe('astro:image', () => {
 			it('Adds the <img> tag', () => {
 				let $img = $('#local img');
 				assert.equal($img.length, 1);
-				assert.equal($img.attr('src').startsWith('/_image'), true);
+				assert.equal($img.attr('src')!.startsWith('/_image'), true);
 			});
 
 			it('does not inject responsive image styles when not enabled', () => {
@@ -142,14 +139,14 @@ describe('astro:image', () => {
 
 			it('middleware loads the file', async () => {
 				let $img = $('#local img');
-				let src = $img.attr('src');
+				let src = $img.attr('src')!;
 				let res = await fixture.fetch(src);
 				assert.equal(res.status, 200);
 			});
 
 			it('returns proper content-type', async () => {
 				let $img = $('#local img');
-				let src = $img.attr('src');
+				let src = $img.attr('src')!;
 				let res = await fixture.fetch(src);
 				assert.equal(res.headers.get('content-type'), 'image/webp');
 			});
@@ -169,7 +166,7 @@ describe('astro:image', () => {
 				let $img = $('img');
 				assert.equal($img.length, 1);
 
-				let src = $img.attr('src');
+				let src = $img.attr('src')!;
 				res = await fixture.fetch(src);
 				assert.equal(res.status, 200);
 			});
@@ -215,7 +212,7 @@ describe('astro:image', () => {
 				let $img = $('img');
 				assert.equal($img.length, 1);
 
-				let src = $img.attr('src');
+				let src = $img.attr('src')!;
 				res = await fixture.fetch(src);
 				assert.equal(res.status, 200);
 			});
@@ -228,7 +225,7 @@ describe('astro:image', () => {
 				let $img = $('img');
 				assert.equal($img.length, 1);
 
-				let src = $img.attr('src');
+				let src = $img.attr('src')!;
 				let loading = $img.attr('loading');
 				res = await fixture.fetch(src);
 				assert.equal(res.status, 200);
@@ -243,7 +240,7 @@ describe('astro:image', () => {
 				let $img = $('img');
 				assert.equal($img.length, 1);
 
-				let src = $img.attr('src');
+				let src = $img.attr('src')!;
 				res = await fixture.fetch(src);
 				assert.equal(res.status, 200);
 				assert.equal(res.headers.get('content-type'), 'image/avif');
@@ -258,7 +255,7 @@ describe('astro:image', () => {
 				let $img = $('#picture-fallback img');
 				assert.equal($img.length, 1);
 
-				const imageURL = new URL($img.attr('src'), 'http://localhost');
+				const imageURL = new URL($img.attr('src')!, 'http://localhost');
 				assert.equal(imageURL.searchParams.get('f'), 'jpeg');
 				assert.equal($img.attr('fallbackformat'), undefined);
 
@@ -270,7 +267,7 @@ describe('astro:image', () => {
 				assert.equal($picture.length, 1);
 				assert.equal($source.length, 2);
 
-				const srcset = parseSrcset($source.attr('srcset'));
+				const srcset = parseSrcset($source.attr('srcset')!);
 				assert.equal(
 					srcset.every((src) => src.url.startsWith('/_image')),
 					true,
@@ -292,7 +289,7 @@ describe('astro:image', () => {
 					'(max-width: 448px) 400px, (max-width: 810px) 750px, 1050px',
 				);
 
-				const srcset2 = parseSrcset($source.attr('srcset'));
+				const srcset2 = parseSrcset($source.attr('srcset')!);
 				assert.equal(
 					srcset2.every((src) => src.url.startsWith('/_image')),
 					true,
@@ -313,8 +310,8 @@ describe('astro:image', () => {
 				];
 
 				const $sources = $('#picture-mime-types picture source');
-				for ($source of $sources) {
-					const type = $source.attribs.type;
+				for (const sourceEl of $sources) {
+					const type = sourceEl.attribs.type;
 					assert.equal(
 						validMimeTypes.includes(type),
 						true,
@@ -330,10 +327,10 @@ describe('astro:image', () => {
 
 				// Should have scoped attribute
 				let $picture = $('#picture-attributes picture');
-				assert.ok(Object.keys($picture.attr()).find((a) => a.startsWith('data-astro-cid-')));
+				assert.ok(Object.keys($picture.attr()!).find((a) => a.startsWith('data-astro-cid-')));
 
 				let $img = $('#picture-attributes img');
-				assert.ok(Object.keys($img.attr()).find((a) => a.startsWith('data-astro-cid-')));
+				assert.ok(Object.keys($img.attr()!).find((a) => a.startsWith('data-astro-cid-')));
 			});
 
 			it('properly deduplicate srcset images', async () => {
@@ -344,7 +341,7 @@ describe('astro:image', () => {
 				let localImage = $('#local-3-images img');
 				assert.equal(
 					new Set([
-						...parseSrcset(localImage.attr('srcset')).map((src) => src.url),
+						...parseSrcset(localImage.attr('srcset')!).map((src) => src.url),
 						localImage.attr('src'),
 					]).size,
 					3,
@@ -353,7 +350,7 @@ describe('astro:image', () => {
 				let remoteImage = $('#remote-3-images img');
 				assert.equal(
 					new Set([
-						...parseSrcset(remoteImage.attr('srcset')).map((src) => src.url),
+						...parseSrcset(remoteImage.attr('srcset')!).map((src) => src.url),
 						remoteImage.attr('src'),
 					]).size,
 					3,
@@ -362,7 +359,7 @@ describe('astro:image', () => {
 				let local1x = $('#local-1x img');
 				assert.equal(
 					new Set([
-						...parseSrcset(local1x.attr('srcset')).map((src) => src.url),
+						...parseSrcset(local1x.attr('srcset')!).map((src) => src.url),
 						local1x.attr('src'),
 					]).size,
 					1,
@@ -371,7 +368,7 @@ describe('astro:image', () => {
 				let remote1x = $('#remote-1x img');
 				assert.equal(
 					new Set([
-						...parseSrcset(remote1x.attr('srcset')).map((src) => src.url),
+						...parseSrcset(remote1x.attr('srcset')!).map((src) => src.url),
 						remote1x.attr('src'),
 					]).size,
 					1,
@@ -380,7 +377,7 @@ describe('astro:image', () => {
 				let local2Widths = $('#local-2-widths img');
 				assert.equal(
 					new Set([
-						...parseSrcset(local2Widths.attr('srcset')).map((src) => src.url),
+						...parseSrcset(local2Widths.attr('srcset')!).map((src) => src.url),
 						local2Widths.attr('src'),
 					]).size,
 					2,
@@ -389,7 +386,7 @@ describe('astro:image', () => {
 				let remote2Widths = $('#remote-2-widths img');
 				assert.equal(
 					new Set([
-						...parseSrcset(remote2Widths.attr('srcset')).map((src) => src.url),
+						...parseSrcset(remote2Widths.attr('srcset')!).map((src) => src.url),
 						remote2Widths.attr('src'),
 					]).size,
 					2,
@@ -405,13 +402,13 @@ describe('astro:image', () => {
 				const originalHeight = 400;
 				const local2xOriginalWH = $('#local-2x-original-wh img');
 
-				const srcURL = new URL(local2xOriginalWH.attr('src'), 'http://localhost');
+				const srcURL = new URL(local2xOriginalWH.attr('src')!, 'http://localhost');
 				const srcParams = srcURL.searchParams;
 				assert.equal(srcParams.get('w'), (originalWidth / 2).toString());
 				assert.equal(srcParams.get('h'), (originalHeight / 2).toString());
 				assert.equal(srcParams.get('f'), 'webp');
 
-				const parsedSrcsets = parseSrcset(local2xOriginalWH.attr('srcset'));
+				const parsedSrcsets = parseSrcset(local2xOriginalWH.attr('srcset')!);
 				const srcset2x = parsedSrcsets.find((a) => a.d === 2);
 				assert(srcset2x);
 				const srcset2xURL = new URL(srcset2x.url, 'http://localhost');
@@ -430,13 +427,13 @@ describe('astro:image', () => {
 				const originalHeight = 400;
 				const local2xOriginalWHF = $('#local-2x-original-whf img');
 
-				const srcURL = new URL(local2xOriginalWHF.attr('src'), 'http://localhost');
+				const srcURL = new URL(local2xOriginalWHF.attr('src')!, 'http://localhost');
 				const srcParams = srcURL.searchParams;
 				assert.equal(srcParams.get('w'), (originalWidth / 2).toString());
 				assert.equal(srcParams.get('h'), (originalHeight / 2).toString());
 				assert.equal(srcParams.get('f'), 'jpg');
 
-				const parsedSrcsets = parseSrcset(local2xOriginalWHF.attr('srcset'));
+				const parsedSrcsets = parseSrcset(local2xOriginalWHF.attr('srcset')!);
 				const srcset2x = parsedSrcsets.find((a) => a.d === 2);
 				assert(srcset2x);
 				const srcset2xURL = new URL(srcset2x.url, 'http://localhost');
@@ -448,10 +445,7 @@ describe('astro:image', () => {
 		});
 
 		describe('vite-isms', () => {
-			/**
-			 * @type {cheerio.CheerioAPI}
-			 */
-			let $;
+			let $: cheerio.CheerioAPI;
 			before(async () => {
 				let res = await fixture.fetch('/vite');
 				let html = await res.text();
@@ -476,7 +470,7 @@ describe('astro:image', () => {
 
 		describe('remote', () => {
 			describe('working', () => {
-				let $;
+				let $: cheerio.CheerioAPI;
 				before(async () => {
 					let res = await fixture.fetch('/');
 					let html = await res.text();
@@ -486,7 +480,7 @@ describe('astro:image', () => {
 				it('has proper link and works', async () => {
 					let $img = $('#remote img');
 
-					let src = $img.attr('src');
+					let src = $img.attr('src')!;
 					assert.ok(src.startsWith('/_image?'));
 					const imageRequest = await fixture.fetch(src);
 					assert.equal(imageRequest.status, 200);
@@ -511,7 +505,7 @@ describe('astro:image', () => {
 
 				it('support data: URI', () => {
 					let $img = $('#data-uri img');
-					assert.ok($img.attr('src').startsWith('/_image?href=data'));
+					assert.ok($img.attr('src')!.startsWith('/_image?href=data'));
 					assert.ok($img.attr('width'));
 					assert.ok($img.attr('height'));
 				});
@@ -574,12 +568,12 @@ describe('astro:image', () => {
 
 				let $img = $('img');
 				assert.equal($img.length, 1);
-				assert.equal($img.attr('src').includes('penguin1.jpg'), true);
+				assert.equal($img.attr('src')!.includes('penguin1.jpg'), true);
 			});
 		});
 
 		describe('markdown', () => {
-			let $;
+			let $: cheerio.CheerioAPI;
 			before(async () => {
 				let res = await fixture.fetch('/post');
 				let html = await res.text();
@@ -592,7 +586,7 @@ describe('astro:image', () => {
 
 				// Verbose test for the full URL to make sure the image went through the full pipeline
 				assert.equal(
-					$img.attr('src').startsWith('/_image') && $img.attr('src').endsWith('f=webp'),
+					$img.attr('src')!.startsWith('/_image') && $img.attr('src')!.endsWith('f=webp'),
 					true,
 				);
 			});
@@ -609,7 +603,7 @@ describe('astro:image', () => {
 				$ = cheerio.load(html);
 
 				let $img = $('img');
-				assert.equal($img.attr('src').startsWith('/_image'), true);
+				assert.equal($img.attr('src')!.startsWith('/_image'), true);
 			});
 
 			it('Supports special characters in file name', async () => {
@@ -639,7 +633,7 @@ describe('astro:image', () => {
 		});
 
 		describe('getImage', () => {
-			let $;
+			let $: cheerio.CheerioAPI;
 			before(async () => {
 				let res = await fixture.fetch('/get-image');
 				let html = await res.text();
@@ -649,7 +643,7 @@ describe('astro:image', () => {
 			it('Adds the <img> tag', () => {
 				let $img = $('img');
 				assert.equal($img.length, 1);
-				assert.equal($img.attr('src').startsWith('/_image'), true);
+				assert.equal($img.attr('src')!.startsWith('/_image'), true);
 			});
 
 			it('includes the provided alt', () => {
@@ -659,7 +653,7 @@ describe('astro:image', () => {
 		});
 
 		describe('content collections', () => {
-			let $;
+			let $: cheerio.CheerioAPI;
 			before(async () => {
 				let res = await fixture.fetch('/blog/one');
 				let html = await res.text();
@@ -674,19 +668,21 @@ describe('astro:image', () => {
 			it('image in cc folder is processed', () => {
 				let $imgs = $('img');
 				let $blogfolderimg = $($imgs[6]);
-				assert.equal($blogfolderimg.attr('src').includes('blogfolder.jpg'), true);
-				assert.equal($blogfolderimg.attr('src').endsWith('f=webp'), true);
+				assert.equal($blogfolderimg.attr('src')!.includes('blogfolder.jpg'), true);
+				assert.equal($blogfolderimg.attr('src')!.endsWith('f=webp'), true);
 			});
 
 			it('has proper source for directly used image', () => {
 				let $img = $('#direct-image img');
-				assert.equal($img.attr('src').startsWith('/'), true);
+				assert.equal($img.attr('src')!.startsWith('/'), true);
 			});
 
 			it('has proper sources for array of images', () => {
-				let $img = $('#array-of-images img');
-				const imgsSrcs = [];
-				$img.each((_i, img) => imgsSrcs.push(img.attribs['src']));
+				const $img = $('#array-of-images img');
+				const imgsSrcs: string[] = [];
+				$img.each((_i, img) => {
+					imgsSrcs.push(img.attribs['src']);
+				});
 				assert.equal($img.length, 2);
 				assert.equal(
 					imgsSrcs.every((img) => img.startsWith('/')),
@@ -696,14 +692,14 @@ describe('astro:image', () => {
 
 			it('has proper attributes for optimized image through getImage', () => {
 				let $img = $('#optimized-image-get-image img');
-				assert.equal($img.attr('src').startsWith('/_image'), true);
+				assert.equal($img.attr('src')!.startsWith('/_image'), true);
 				assert.equal($img.attr('width'), '207');
 				assert.equal($img.attr('height'), '243');
 			});
 
 			it('has proper attributes for optimized image through Image component', () => {
 				let $img = $('#optimized-image-component img');
-				assert.equal($img.attr('src').startsWith('/_image'), true);
+				assert.equal($img.attr('src')!.startsWith('/_image'), true);
 				assert.equal($img.attr('width'), '207');
 				assert.equal($img.attr('height'), '243');
 				assert.equal($img.attr('alt'), 'A penguin!');
@@ -711,13 +707,12 @@ describe('astro:image', () => {
 
 			it('properly handles nested images', () => {
 				let $img = $('#nested-image img');
-				assert.equal($img.attr('src').startsWith('/'), true);
+				assert.equal($img.attr('src')!.startsWith('/'), true);
 			});
 		});
 
 		describe('regular img tag', () => {
-			/** @type {ReturnType<import('cheerio')['load']>} */
-			let $;
+			let $: cheerio.CheerioAPI;
 			before(async () => {
 				let res = await fixture.fetch('/regular-img');
 				let html = await res.text();
@@ -725,11 +720,11 @@ describe('astro:image', () => {
 			});
 
 			it('does not have a file url', async () => {
-				assert.equal($('img').attr('src').startsWith('file://'), false);
+				assert.equal($('img').attr('src')!.startsWith('file://'), false);
 			});
 
 			it('includes /src in the path', async () => {
-				assert.equal($('img').attr('src').includes('/src'), true);
+				assert.equal($('img').attr('src')!.includes('/src'), true);
 			});
 		});
 
@@ -760,17 +755,15 @@ describe('astro:image', () => {
 		});
 
 		describe('custom endpoint', async () => {
-			/** @type {import('./test-utils').DevServer} */
-			let customEndpointDevServer;
+			let customEndpointDevServer: DevServer;
 
-			/** @type {import('./test-utils.js').Fixture} */
-			let customEndpointFixture;
+			let customEndpointFixture: Fixture;
 
 			before(async () => {
 				customEndpointFixture = await loadFixture({
 					root: './fixtures/core-image/',
 					image: {
-						endpoint: { entrypoint: './src/custom-endpoint.ts' },
+						endpoint: { route: '/_image', entrypoint: './src/custom-endpoint.ts' },
 						service: testImageService({ foo: 'bar' }),
 						domains: ['avatars.githubusercontent.com'],
 					},
@@ -786,7 +779,7 @@ describe('astro:image', () => {
 				const html = await response.text();
 
 				const $ = cheerio.load(html);
-				const src = $('#local img').attr('src');
+				const src = $('#local img').attr('src')!;
 
 				let res = await customEndpointFixture.fetch(src);
 				assert.equal(res.status, 200);
@@ -803,10 +796,8 @@ describe('astro:image', () => {
 	});
 
 	describe('proper errors', () => {
-		/** @type {import('./test-utils').DevServer} */
-		let devServer;
-		/** @type {Array<{ type: any, level: 'error', message: string; }>} */
-		let logs = [];
+		let devServer: DevServer;
+		const logs: Array<AstroLogMessage> = [];
 
 		before(async () => {
 			fixture = await loadFixture({
@@ -816,17 +807,19 @@ describe('astro:image', () => {
 				},
 			});
 
-			devServer = await fixture.startDevServer({
-				logger: new AstroLogger({
-					level: 'error',
-					destination: new Writable({
-						objectMode: true,
-						write(event, _, callback) {
-							logs.push(event);
-							callback();
-						},
-					}),
+			const logger = new AstroLogger({
+				level: 'error',
+				destination: new Writable({
+					objectMode: true,
+					write(event, _, callback) {
+						logs.push(event);
+						callback();
+					},
 				}),
+			});
+			devServer = await fixture.startDevServer({
+				// @ts-expect-error: `logger` is an internal API
+				logger,
 			});
 		});
 
@@ -905,7 +898,7 @@ describe('astro:image', () => {
 		it('has base path prefix when using the Image component', async () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
-			const src = $('#local img').attr('src');
+			const src = $('#local img').attr('src')!;
 			assert.equal(src.length > 0, true);
 			assert.equal(src.startsWith('/blog'), true);
 		});
@@ -913,7 +906,7 @@ describe('astro:image', () => {
 		it('has base path prefix when using getImage', async () => {
 			const html = await fixture.readFile('/get-image/index.html');
 			const $ = cheerio.load(html);
-			const src = $('img').attr('src');
+			const src = $('img').attr('src')!;
 			assert.equal(src.length > 0, true);
 			assert.equal(src.startsWith('/blog'), true);
 		});
@@ -921,7 +914,7 @@ describe('astro:image', () => {
 		it('has base path prefix when using image directly', async () => {
 			const html = await fixture.readFile('/direct/index.html');
 			const $ = cheerio.load(html);
-			const src = $('img').attr('src');
+			const src = $('img').attr('src')!;
 			assert.equal(src.length > 0, true);
 			assert.equal(src.startsWith('/blog'), true);
 		});
@@ -929,7 +922,7 @@ describe('astro:image', () => {
 		it('has base path prefix in Markdown', async () => {
 			const html = await fixture.readFile('/post/index.html');
 			const $ = cheerio.load(html);
-			const src = $('img').attr('src');
+			const src = $('img').attr('src')!;
 			assert.equal(src.length > 0, true);
 			assert.equal(src.startsWith('/blog'), true);
 		});
@@ -937,7 +930,7 @@ describe('astro:image', () => {
 		it('has base path prefix in Content Collection frontmatter', async () => {
 			const html = await fixture.readFile('/blog/one/index.html');
 			const $ = cheerio.load(html);
-			const src = $('img').attr('src');
+			const src = $('img').attr('src')!;
 			assert.equal(src.length > 0, true);
 			assert.equal(src.startsWith('/blog'), true);
 		});
@@ -950,6 +943,7 @@ describe('astro:image', () => {
 				adapter: testAdapter(),
 				image: {
 					endpoint: {
+						route: '/_image',
 						entrypoint: 'astro/assets/endpoint/node',
 					},
 					service: testImageService(),
@@ -963,7 +957,7 @@ describe('astro:image', () => {
 			assert.equal(response.status, 200);
 			const html = await response.text();
 			const $ = cheerio.load(html);
-			const src = $('#local img').attr('src');
+			const src = $('#local img').attr('src')!;
 			assert.equal(src.startsWith('/blog'), true);
 			const img = await app.render(new Request(`https://example.com${src}`));
 			assert.equal(img.status, 200);
@@ -1012,25 +1006,25 @@ describe('astro:image', () => {
 		it('writes out images to dist folder', async () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
-			const src = $('#local img').attr('src');
+			const src = $('#local img').attr('src')!;
 			assert.equal(src.length > 0, true);
-			const data = await fixture.readFile(src, null);
+			const data = await fixture.readBuffer(src);
 			assert.equal(data instanceof Buffer, true);
 		});
 
 		it('writes out allowed remote images', async () => {
 			const html = await fixture.readFile('/remote/index.html');
 			const $ = cheerio.load(html);
-			const src = $('#remote img').attr('src');
+			const src = $('#remote img').attr('src')!;
 			assert.equal(src.length > 0, true);
-			const data = await fixture.readFile(src, null);
+			const data = await fixture.readBuffer(src);
 			assert.equal(data instanceof Buffer, true);
 		});
 
 		it('writes out images to dist folder with proper extension if no format was passed', async () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
-			const src = $('#local img').attr('src');
+			const src = $('#local img').attr('src')!;
 			assert.equal(src.endsWith('.webp'), true);
 		});
 
@@ -1044,8 +1038,8 @@ describe('astro:image', () => {
 			assert.equal($img.attr('alt'), 'a penguin');
 
 			// image itself
-			const src = $img.attr('src');
-			const data = await fixture.readFile(src, null);
+			const src = $img.attr('src')!;
+			const data = await fixture.readBuffer(src);
 			assert.equal(data instanceof Buffer, true);
 		});
 
@@ -1054,10 +1048,10 @@ describe('astro:image', () => {
 			const $ = cheerio.load(html);
 			const $img = $('img');
 			assert.equal($img.length, 1);
-			const src = $img.attr('src');
+			const src = $img.attr('src')!;
 			// The filename should be encoded and sanitized
 			assert.ok(src.startsWith('/_astro/c_23'));
-			const data = await fixture.readFile(src, null);
+			const data = await fixture.readBuffer(src);
 			assert.ok(data instanceof Buffer);
 		});
 
@@ -1070,10 +1064,10 @@ describe('astro:image', () => {
 			assert.equal($img.length, 1);
 			assert.equal($source.length, 2);
 
-			const srcset = parseSrcset($source.attr('srcset'));
+			const srcset = parseSrcset($source.attr('srcset')!);
 			let hasExistingSrc = await Promise.all(
 				srcset.map(async (src) => {
-					const data = await fixture.readFile(src.url, null);
+					const data = await fixture.readBuffer(src.url);
 					return data instanceof Buffer;
 				}),
 			);
@@ -1094,8 +1088,8 @@ describe('astro:image', () => {
 			assert.equal($img.attr('alt'), 'My article cover');
 
 			// image itself
-			const src = $img.attr('src');
-			const data = await fixture.readFile(src, null);
+			const src = $img.attr('src')!;
+			const data = await fixture.readBuffer(src);
 			assert.equal(data instanceof Buffer, true);
 		});
 
@@ -1110,8 +1104,8 @@ describe('astro:image', () => {
 			assert.equal($img.attr('alt'), 'A penguin!');
 
 			// image itself
-			const src = $img.attr('src');
-			const data = await fixture.readFile(src, null);
+			const src = $img.attr('src')!;
+			const data = await fixture.readBuffer(src);
 			assert.equal(data instanceof Buffer, true);
 		});
 
@@ -1126,8 +1120,8 @@ describe('astro:image', () => {
 			assert.equal($img.attr('alt'), 'A penguin');
 
 			// image itself
-			const src = $img.attr('src');
-			const data = await fixture.readFile(src, null);
+			const src = $img.attr('src')!;
+			const data = await fixture.readBuffer(src);
 			assert.equal(data instanceof Buffer, true);
 		});
 
@@ -1138,12 +1132,12 @@ describe('astro:image', () => {
 			let $img = $('img');
 			assert.equal($img.length, 2);
 
-			const srcdirect = $('#direct-image img').attr('src');
-			const datadirect = await fixture.readFile(srcdirect, null);
+			const srcdirect = $('#direct-image img').attr('src')!;
+			const datadirect = await fixture.readBuffer(srcdirect);
 			assert.equal(datadirect instanceof Buffer, true);
 
-			const srcnested = $('#nested-image img').attr('src');
-			const datanested = await fixture.readFile(srcnested, null);
+			const srcnested = $('#nested-image img').attr('src')!;
+			const datanested = await fixture.readBuffer(srcnested);
 			assert.equal(datanested instanceof Buffer, true);
 		});
 
@@ -1177,18 +1171,20 @@ describe('astro:image', () => {
 		});
 
 		it('uses cache entries', async () => {
-			const logs = [];
+			const logs: Array<AstroLogMessage> = [];
 
-			await fixture.build({
-				logger: new AstroLogger({
-					destination: {
-						write(chunk) {
-							logs.push(chunk);
-							return true;
-						},
+			const logger = new AstroLogger({
+				destination: {
+					write(chunk) {
+						logs.push(chunk);
+						return true;
 					},
-					level: 'info',
-				}),
+				},
+				level: 'info',
+			});
+			await fixture.build({
+				// @ts-expect-error: `logger` is an internal API
+				logger,
 			});
 			const generatingImageIndex = logs.findIndex((logLine) =>
 				logLine.message?.includes('generating optimized images'),
@@ -1208,8 +1204,8 @@ describe('astro:image', () => {
 			const html = await fixture.readFile('/remote/index.html');
 			const $ = cheerio.load(html);
 			const metaSrc =
-				'../node_modules/.astro/assets/' + basename($('#remote img').attr('src')) + '.json';
-			const data = await fixture.readFile(metaSrc, null);
+				'../node_modules/.astro/assets/' + basename($('#remote img').attr('src')!) + '.json';
+			const data = await fixture.readBuffer(metaSrc);
 			assert.equal(data instanceof Buffer, true);
 			const metadata = JSON.parse(data.toString());
 			assert.equal(typeof metadata.expires, 'number');
@@ -1222,19 +1218,19 @@ describe('astro:image', () => {
 
 			// Find image
 			const regex = /src:"([^"]*)/;
-			const imageSrc = regex.exec($script.html())[1];
-			const data = await fixture.readFile(imageSrc, null);
+			const imageSrc = regex.exec($script.html()!)![1];
+			const data = await fixture.readBuffer(imageSrc);
 			assert.equal(data instanceof Buffer, true);
 		});
 
 		it('client images srcset parsed correctly', async () => {
 			const html = await fixture.readFile('/srcset/index.html');
 			const $ = cheerio.load(html);
-			const srcset = $('#local-2-widths-with-spaces img').attr('srcset');
+			const srcset = $('#local-2-widths-with-spaces img').attr('srcset')!;
 
 			// Find image
 			const regex = /^(.+?) \d+[wx]$/m;
-			const imageSrcset = regex.exec(srcset)[1];
+			const imageSrcset = regex.exec(srcset)![1];
 			assert.notEqual(imageSrcset.includes(' '), true);
 		});
 
@@ -1242,7 +1238,7 @@ describe('astro:image', () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
 			const img = $('#encoded-chars img');
-			const src = img.attr('src');
+			const src = img.attr('src')!;
 			const data = await fixture.readFile(src);
 			assert.notEqual(data, undefined);
 		});
@@ -1277,8 +1273,7 @@ describe('astro:image', () => {
 	});
 
 	describe('dev ssr', () => {
-		/** @type {import('./test-utils').DevServer} */
-		let devServer;
+		let devServer: DevServer;
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/core-image-ssr/',
@@ -1341,7 +1336,7 @@ describe('astro:image', () => {
 				outDir: './dist/server-prod',
 				adapter: testAdapter(),
 				image: {
-					endpoint: { entrypoint: 'astro/assets/endpoint/node' },
+					endpoint: { route: '/_image', entrypoint: 'astro/assets/endpoint/node' },
 					service: testImageService(),
 				},
 			});
@@ -1355,7 +1350,7 @@ describe('astro:image', () => {
 			assert.equal(response.status, 200);
 			const html = await response.text();
 			const $ = cheerio.load(html);
-			const src = $('#local img').attr('src');
+			const src = $('#local img').attr('src')!;
 			request = new Request('http://example.com' + src);
 			response = await app.render(request);
 			assert.equal(response.status, 200);
@@ -1469,8 +1464,8 @@ describe('astro:image', () => {
 		it('prerendered routes images are built', async () => {
 			const html = await fixture.readFile('/client/prerender/index.html');
 			const $ = cheerio.load(html);
-			const src = $('img').attr('src');
-			const imgData = await fixture.readFile('/client' + src, null);
+			const src = $('img').attr('src')!;
+			const imgData = await fixture.readBuffer('/client' + src);
 			assert.equal(imgData instanceof Buffer, true);
 		});
 
@@ -1505,7 +1500,7 @@ describe('astro:image', () => {
 				outDir: './dist/server-prod-svg-validation',
 				adapter: testAdapter(),
 				image: {
-					endpoint: { entrypoint: 'astro/assets/endpoint/node' },
+					endpoint: { route: '/_image', entrypoint: 'astro/assets/endpoint/node' },
 					service: testImageService(),
 					remotePatterns: [{ protocol: 'data' }],
 				},
@@ -1551,8 +1546,7 @@ describe('astro:image', () => {
 	});
 
 	describe('trailing slash on the endpoint', () => {
-		/** @type {import('./test-utils').DevServer} */
-		let devServer;
+		let devServer: DevServer;
 
 		it('includes a trailing slash if trailing slash is set to always', async () => {
 			fixture = await loadFixture({
@@ -1568,7 +1562,7 @@ describe('astro:image', () => {
 			let html = await res.text();
 
 			const $ = cheerio.load(html);
-			const src = $('#local img').attr('src');
+			const src = $('#local img').attr('src')!;
 
 			assert.equal(src.startsWith('/_image/?'), true);
 		});
@@ -1587,7 +1581,7 @@ describe('astro:image', () => {
 			let html = await res.text();
 
 			const $ = cheerio.load(html);
-			const src = $('#local img').attr('src');
+			const src = $('#local img').attr('src')!;
 
 			assert.equal(src.startsWith('/_image?'), true);
 		});
@@ -1627,9 +1621,9 @@ describe('astro:image', () => {
 		it('uses short hash for data url filename', async () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
-			const src1 = $('#data-url img').attr('src');
+			const src1 = $('#data-url img').attr('src')!;
 			assert.equal(basename(src1).length < 32, true);
-			const src2 = $('#data-url-no-size img').attr('src');
+			const src2 = $('#data-url-no-size img').attr('src')!;
 			assert.equal(basename(src2).length < 32, true);
 			assert.equal(src1.split('_')[0], src2.split('_')[0]);
 		});
@@ -1637,16 +1631,16 @@ describe('astro:image', () => {
 		it('adds file extension for data url images', async () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
-			const src = $('#data-url img').attr('src');
+			const src = $('#data-url img').attr('src')!;
 			assert.equal(src.endsWith('.webp'), true);
 		});
 
 		it('writes data url images to dist', async () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
-			const src = $('#data-url img').attr('src');
+			const src = $('#data-url img').attr('src')!;
 			assert.equal(src.length > 0, true);
-			const data = await fixture.readFile(src, null);
+			const data = await fixture.readBuffer(src);
 			assert.equal(data instanceof Buffer, true);
 		});
 

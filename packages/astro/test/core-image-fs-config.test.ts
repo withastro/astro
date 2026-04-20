@@ -2,12 +2,12 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
 
 describe('Image optimization with Vite fs config', () => {
 	describe('fs.allow and fs.deny', () => {
-		let fixture;
-		let devServer;
+		let fixture: Fixture;
+		let devServer: DevServer;
 
 		before(async () => {
 			fixture = await loadFixture({
@@ -86,8 +86,8 @@ describe('Image optimization with Vite fs config', () => {
 	});
 
 	describe('safeModulePaths', () => {
-		let fixture;
-		let devServer;
+		let fixture: Fixture;
+		let devServer: DevServer;
 
 		before(async () => {
 			fixture = await loadFixture({
@@ -111,7 +111,7 @@ describe('Image optimization with Vite fs config', () => {
 			const img = $('#sibling-image');
 			assert.ok(img.length > 0, 'Image element should be present');
 
-			const imgSrc = img.attr('src');
+			const imgSrc = img.attr('src')!;
 			assert.ok(imgSrc, 'Should have image src');
 			assert.ok(imgSrc.includes('/_image'), 'Should use image optimization endpoint');
 
