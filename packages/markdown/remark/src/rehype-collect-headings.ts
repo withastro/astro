@@ -8,6 +8,7 @@ import type { MarkdownHeading, RehypePlugin } from './types.js';
 
 const rawNodeTypes = new Set(['text', 'raw', 'mdxTextExpression']);
 const codeTagNames = new Set(['code', 'pre']);
+const FORBIDDEN_FRONTMATTER_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
 
 /**
  * Rehype plugin that adds `id` attributes to headings based on their text content.
@@ -117,7 +118,14 @@ function getMdxFrontmatterVariableValue(frontmatter: Record<string, any>, path: 
 	let value = frontmatter;
 
 	for (const key of path) {
-		if (!value[key]) return undefined;
+		if (
+			FORBIDDEN_FRONTMATTER_KEYS.has(key) ||
+			!value ||
+			typeof value !== 'object' ||
+			!Object.hasOwn(value, key)
+		) {
+			return undefined;
+		}
 
 		value = value[key];
 	}

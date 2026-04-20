@@ -29,6 +29,8 @@ import type { SessionDriverFactory } from './session/types.js';
 import { NodePool } from '../runtime/server/render/queue/pool.js';
 import { HTMLStringCache } from '../runtime/server/html-string-cache.js';
 
+const FORBIDDEN_ACTION_PATH_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+
 /**
  * The `Pipeline` represents the static parts of rendering that do not change between requests.
  * These are mostly known when the server first starts up and do not change.
@@ -287,6 +289,12 @@ export abstract class Pipeline {
 		}
 
 		for (const key of pathKeys) {
+			if (FORBIDDEN_ACTION_PATH_KEYS.has(key)) {
+				throw new AstroError({
+					...ActionNotFoundError,
+					message: ActionNotFoundError.message(pathKeys.join('.')),
+				});
+			}
 			if (!Object.hasOwn(server, key)) {
 				throw new AstroError({
 					...ActionNotFoundError,
