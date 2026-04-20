@@ -7,8 +7,8 @@ import { DevDebugInfoProvider } from '../../../dist/cli/info/infra/dev-debug-inf
 import { ProcessNodeVersionProvider } from '../../../dist/cli/info/infra/process-node-version-provider.js';
 import { ProcessPackageManagerUserAgentProvider } from '../../../dist/cli/info/infra/process-package-manager-user-agent-provider.js';
 import { TinyclipClipboard } from '../../../dist/cli/info/infra/tinyclip-clipboard.js';
+import { SpyLogger } from '../test-utils.ts';
 import {
-	SpyLogger,
 	FakeAstroVersionProvider,
 	FakeDebugInfoProvider,
 	FakeNodeVersionProvider,

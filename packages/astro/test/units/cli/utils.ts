@@ -1,5 +1,3 @@
-import { AstroIntegrationLogger } from '../../../dist/core/logger/core.js';
-import type { AstroLogOptions } from '../../../dist/core/logger/core.js';
 import type { CloudIde } from '../../../dist/cli/docs/domain/cloud-ide.js';
 import type { CloudIdeProvider } from '../../../dist/cli/docs/definitions.js';
 import type { AnyCommand } from '../../../dist/cli/domain/command.js';
@@ -20,7 +18,6 @@ import type {
 } from '../../../dist/cli/definitions.js';
 import type { KeyGenerator } from '../../../dist/cli/create-key/definitions.js';
 import type { DebugInfoProvider } from '../../../dist/cli/info/definitions.js';
-import type { AstroLoggerDestination } from '../../../dist/core/logger/core.js';
 
 export class PassthroughCommandRunner implements CommandRunner {
 	run<T extends AnyCommand>(
@@ -182,47 +179,6 @@ export class FakePrompt implements Prompt {
 
 	async confirm(): Promise<boolean> {
 		return this.#confirmed;
-	}
-}
-
-export class SpyLogger {
-	readonly #logs: Array<{ type: string; label: string | null; message: string }> = [];
-
-	get logs(): Array<{ type: string; label: string | null; message: string }> {
-		return this.#logs;
-	}
-
-	debug(label: string, ...messages: string[]): void {
-		this.#logs.push(...messages.map((message) => ({ type: 'debug', label, message })));
-	}
-
-	error(label: string | null, message: string): void {
-		this.#logs.push({ type: 'error', label, message });
-	}
-
-	info(label: string | null, message: string): void {
-		this.#logs.push({ type: 'info', label, message });
-	}
-
-	warn(label: string | null, message: string): void {
-		this.#logs.push({ type: 'warn', label, message });
-	}
-
-	options: AstroLogOptions = {
-		destination: { write: () => true },
-		level: 'silent',
-	};
-
-	level(): 'silent' {
-		return this.options.level as 'silent';
-	}
-
-	forkIntegrationLogger(label: string): AstroIntegrationLogger {
-		return new AstroIntegrationLogger(this.options, label);
-	}
-
-	setDestination(destination: AstroLoggerDestination): void {
-		this.options.destination = destination;
 	}
 }
 

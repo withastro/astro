@@ -3,9 +3,9 @@ import { describe, it, before } from 'node:test';
 import { App } from '../../../dist/core/app/app.js';
 import type { AstroLoggerDestination, AstroLoggerMessage } from '../../../dist/core/logger/core.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
-import { createManifest, createRouteInfo } from './test-helpers.js';
-import { makeRoute, staticPart } from '../routing/test-helpers.js';
-import { loadFixture } from '../../test-utils.js';
+import { createManifest, createRouteInfo } from './test-helpers.ts';
+import { makeRoute, staticPart } from '../routing/test-helpers.ts';
+import { loadFixture, type Fixture } from '../../test-utils.js';
 import testAdapter from '../../test-adapter.js';
 
 const okPage = createComponent(() => {

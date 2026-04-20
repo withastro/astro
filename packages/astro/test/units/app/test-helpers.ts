@@ -24,6 +24,7 @@ export function createManifest({
 	base?: string;
 	trailingSlash?: 'always' | 'never' | 'ignore';
 	middleware?: SSRManifest['middleware'];
+	logger?: SSRManifest['logger'];
 	actions?: SSRManifest['actions'];
 	actionBodySizeLimit?: number;
 	i18n?: SSRManifestI18n;
