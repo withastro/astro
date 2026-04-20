@@ -15,10 +15,16 @@ const slotString = Symbol.for('astro:slot-string');
 
 export class SlotString extends HTMLString {
 	public instructions: null | RenderInstruction[];
+	public scriptInstructions: null | Map<string, RenderInstruction>;
 	public [slotString]: boolean;
-	constructor(content: string, instructions: null | RenderInstruction[]) {
+	constructor(
+		content: string,
+		instructions: null | RenderInstruction[],
+		scriptInstructions?: null | Map<string, RenderInstruction>,
+	) {
 		super(content);
 		this.instructions = instructions;
+		this.scriptInstructions = scriptInstructions ?? null;
 		this[slotString] = true;
 	}
 }
@@ -38,6 +44,23 @@ export function mergeSlotInstructions(
 	if (source.instructions?.length) {
 		target ??= [];
 		target.push(...source.instructions);
+	}
+	return target;
+}
+
+/**
+ * Collects script instructions from a SlotString into the target map.
+ * Returns the (possibly newly created) script instructions map.
+ */
+export function mergeSlotScriptInstructions(
+	target: Map<string, RenderInstruction> | null,
+	source: SlotString,
+): Map<string, RenderInstruction> | null {
+	if (source.scriptInstructions?.size) {
+		target ??= new Map();
+		for (const [key, value] of source.scriptInstructions) {
+			target.set(key, value);
+		}
 	}
 	return target;
 }
@@ -64,18 +87,29 @@ export async function renderSlotToString(
 ): Promise<string> {
 	let content = '';
 	let instructions: null | RenderInstruction[] = null;
+	let scriptInstructions: null | Map<string, RenderInstruction> = null;
+	let scriptIndex = 0;
 	const temporaryDestination: RenderDestination = {
 		write(chunk) {
 			// if the chunk is already a SlotString, we concatenate
 			if (chunk instanceof SlotString) {
 				content += chunk;
 				instructions = mergeSlotInstructions(instructions, chunk);
+				scriptInstructions = mergeSlotScriptInstructions(scriptInstructions, chunk);
 			} else if (chunk instanceof Response) return;
 			else if (typeof chunk === 'object' && 'type' in chunk && typeof chunk.type === 'string') {
-				if (instructions === null) {
-					instructions = [];
+				// Script instructions need positional handling — embed a placeholder
+				// in the content stream so they render at their original position
+				// instead of being hoisted to the top of the slot output.
+				if (chunk.type === 'script') {
+					const placeholder = `<!--astro:script:${scriptIndex++}-->`;
+					scriptInstructions ??= new Map();
+					scriptInstructions.set(placeholder, chunk);
+					content += placeholder;
+				} else {
+					instructions ??= [];
+					instructions.push(chunk);
 				}
-				instructions.push(chunk);
 			} else {
 				content += chunkToString(result, chunk);
 			}
@@ -83,7 +117,7 @@ export async function renderSlotToString(
 	};
 	const renderInstance = renderSlot(result, slotted, fallback);
 	await renderInstance.render(temporaryDestination);
-	return markHTMLString(new SlotString(content, instructions));
+	return markHTMLString(new SlotString(content, instructions, scriptInstructions));
 }
 
 interface RenderSlotsResult {

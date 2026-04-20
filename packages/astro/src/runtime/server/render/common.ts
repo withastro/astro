@@ -126,7 +126,15 @@ function stringifyChunk(
 				out += stringifyChunk(result, instr);
 			}
 		}
-		out += chunk.toString();
+		let content = chunk.toString();
+		// Replace script placeholders with their actual stringified content
+		// at their original position, preserving script deduplication
+		if (c.scriptInstructions?.size) {
+			for (const [placeholder, instr] of c.scriptInstructions) {
+				content = content.replace(placeholder, stringifyChunk(result, instr));
+			}
+		}
+		out += content;
 		return out;
 	}
 

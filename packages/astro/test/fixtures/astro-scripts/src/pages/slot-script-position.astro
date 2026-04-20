@@ -1,0 +1,18 @@
+---
+import RenderSlotWrapper from '../components/RenderSlotWrapper.astro'
+import ScriptComponent from '../components/ScriptComponent.astro'
+---
+<html lang="en">
+    <head>
+        <title>Slot Script Position Test</title>
+    </head>
+    <body>
+        <RenderSlotWrapper>
+            <ol>
+                <li>Item before</li>
+                <li><ScriptComponent /></li>
+                <li>Item after</li>
+            </ol>
+        </RenderSlotWrapper>
+    </body>
+</html>

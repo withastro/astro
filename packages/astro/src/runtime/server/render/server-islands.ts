@@ -156,6 +156,20 @@ export class ServerIslandComponent {
 						}
 					}
 				}
+				// Script instructions use positional placeholders in the content string.
+				// Replace them with the actual script content for the island response.
+				if (slotContent.scriptInstructions?.size) {
+					for (const [placeholder, instruction] of slotContent.scriptInstructions) {
+						if (instruction.type === 'script') {
+							if (!this.result._metadata.renderedScripts.has(instruction.id)) {
+								this.result._metadata.renderedScripts.add(instruction.id);
+								slotHtml = slotHtml.replace(placeholder, instruction.content);
+							} else {
+								slotHtml = slotHtml.replace(placeholder, '');
+							}
+						}
+					}
+				}
 				renderedSlots[name] = slotHtml;
 			}
 		}
