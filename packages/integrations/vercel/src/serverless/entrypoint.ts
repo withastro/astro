@@ -7,6 +7,7 @@ import {
 } from '../index.js';
 import { middlewareSecret, skewProtection } from 'virtual:astro-vercel:config';
 import { createApp } from 'astro/app/entrypoint';
+import { getClientIpAddress } from '@astrojs/internal-helpers/request';
 
 setGetEnv((key) => process.env[key]);
 
@@ -15,8 +16,14 @@ const app = createApp();
 export default {
 	async fetch(request: Request): Promise<Response> {
 		const url = new URL(request.url);
-		const realPath =
-			request.headers.get(ASTRO_PATH_HEADER) ?? url.searchParams.get(ASTRO_PATH_PARAM);
+		const middlewareSecretHeader = request.headers.get(ASTRO_MIDDLEWARE_SECRET_HEADER);
+		const hasValidMiddlewareSecret = middlewareSecretHeader === middlewareSecret;
+		let realPath = undefined;
+		if (hasValidMiddlewareSecret) {
+			realPath = request.headers.get(ASTRO_PATH_HEADER);
+		} else if (request.headers.get('x-vercel-isr') === '1') {
+			realPath = url.searchParams.get(ASTRO_PATH_PARAM);
+		}
 		if (typeof realPath === 'string') {
 			url.pathname = realPath;
 			request = new Request(url.toString(), {
@@ -31,14 +38,16 @@ export default {
 		let locals: Record<string, unknown> = {};
 
 		const astroLocalsHeader = request.headers.get(ASTRO_LOCALS_HEADER);
-		const middlewareSecretHeader = request.headers.get(ASTRO_MIDDLEWARE_SECRET_HEADER);
 		if (astroLocalsHeader) {
-			if (middlewareSecretHeader !== middlewareSecret) {
+			if (!hasValidMiddlewareSecret) {
 				return new Response('Forbidden', { status: 403 });
 			}
-			// hide the secret from the rest of user code
-			request.headers.delete(ASTRO_MIDDLEWARE_SECRET_HEADER);
 			locals = JSON.parse(astroLocalsHeader);
+		}
+
+		// hide the secret from the rest of user code
+		if (hasValidMiddlewareSecret) {
+			request.headers.delete(ASTRO_MIDDLEWARE_SECRET_HEADER);
 		}
 
 		// https://vercel.com/docs/deployments/skew-protection#supported-frameworks
@@ -48,7 +57,7 @@ export default {
 
 		const response = await app.render(request, {
 			routeData,
-			clientAddress: request.headers.get('x-forwarded-for') ?? undefined,
+			clientAddress: getClientIpAddress(request),
 			locals,
 		});
 

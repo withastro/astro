@@ -3,7 +3,7 @@ import { getDefaultClientDirectives } from '../core/client-directive/index.js';
 import { ASTRO_CONFIG_DEFAULTS } from '../core/config/schemas/index.js';
 import { validateConfig } from '../core/config/validate.js';
 import { createKey } from '../core/encryption.js';
-import { Logger } from '../core/logger/core.js';
+import { AstroLogger } from '../core/logger/core.js';
 import { nodeLogDestination } from '../core/logger/node.js';
 import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
 import { removeLeadingForwardSlash } from '../core/path.js';
@@ -79,7 +79,7 @@ export type ContainerRenderOptions = {
 	 */
 	params?: Record<string, string | undefined>;
 	/**
-	 * Useful if your component needs to access some locals without the use a middleware.
+	 * Useful if your component needs to access some locals without the use of middleware.
 	 * ```js
 	 * container.renderToString(Component, { locals: { getSomeValue() {} } });
 	 * ```
@@ -166,6 +166,7 @@ function createManifest(
 		checkOrigin: false,
 		allowedDomains: manifest?.allowedDomains ?? [],
 		actionBodySizeLimit: 1024 * 1024,
+		serverIslandBodySizeLimit: 1024 * 1024,
 		middleware: manifest?.middleware ?? middlewareInstance,
 		key: createKey(),
 		csp: manifest?.csp,
@@ -300,9 +301,9 @@ export class experimental_AstroContainer {
 		astroConfig,
 	}: AstroContainerConstructor) {
 		this.#pipeline = ContainerPipeline.create({
-			logger: new Logger({
+			logger: new AstroLogger({
 				level: 'info',
-				dest: nodeLogDestination,
+				destination: nodeLogDestination,
 			}),
 			manifest: createManifest(manifest, renderers),
 			streaming,

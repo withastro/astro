@@ -19,7 +19,7 @@ export interface AstroCookieGetOptions {
 	decode?: (value: string) => string;
 }
 
-type AstroCookieDeleteOptions = Omit<AstroCookieSetOptions, 'expires' | 'maxAge' | 'encode'>;
+export type AstroCookieDeleteOptions = Omit<AstroCookieSetOptions, 'expires' | 'maxAge' | 'encode'>;
 
 interface AstroCookieInterface {
 	value: string;
@@ -46,7 +46,10 @@ const responseSentSymbol = Symbol.for('astro.responseSent');
 const identity = (value: string) => value;
 
 class AstroCookie implements AstroCookieInterface {
-	constructor(public value: string) {}
+	public value: string;
+	constructor(value: string) {
+		this.value = value;
+	}
 	json() {
 		if (this.value === undefined) {
 			throw new Error(`Cannot convert undefined to an object.`);
@@ -253,7 +256,7 @@ class AstroCookies implements AstroCookiesInterface {
 			this.#parse();
 		}
 		if (!this.#requestValues) {
-			this.#requestValues = {};
+			this.#requestValues = Object.create(null) as Record<string, string | undefined>;
 		}
 		return this.#requestValues;
 	}

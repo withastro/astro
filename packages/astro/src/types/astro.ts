@@ -1,6 +1,6 @@
 import type { AstroTimer } from '../core/config/timer.js';
 import type { TSConfig } from '../core/config/tsconfig.js';
-import type { Logger, LoggerLevel } from '../core/logger/core.js';
+import type { AstroLogger, AstroLoggerLevel } from '../core/logger/core.js';
 import type { AstroPreferences } from '../preferences/index.js';
 import type { AstroComponentFactory } from '../runtime/server/index.js';
 import type { GetStaticPaths } from './public/common.js';
@@ -70,7 +70,7 @@ export interface AstroSettings {
 	// This makes content optional. Internal only so it's not optional on InjectedType
 	injectedTypes: Array<Omit<InjectedType, 'content'> & Partial<Pick<InjectedType, 'content'>>>;
 	/**
-	 * Determine if the build output should be a static, dist folder or a adapter-based server output
+	 * Determine if the build output should be a static, dist folder or an adapter-based server output
 	 * undefined when unknown
 	 */
 	buildOutput: undefined | 'static' | 'server';
@@ -78,7 +78,7 @@ export interface AstroSettings {
 		fontResources: Set<string>;
 		styleHashes: Required<CspObject['styleDirective']>['hashes'];
 	};
-	logLevel: LoggerLevel;
+	logLevel: AstroLoggerLevel;
 }
 
 /** Generic interface for a component (Astro, Svelte, React, etc.) */
@@ -96,7 +96,7 @@ export interface RoutesList {
 
 export interface AstroPluginOptions {
 	settings: AstroSettings;
-	logger: Logger;
+	logger: AstroLogger;
 }
 
 export interface ImportedDevStyle {

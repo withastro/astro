@@ -538,7 +538,7 @@ test.describe('View Transitions', () => {
 		await page.goto(astro.resolveUrl('/video-one'));
 		const vid = page.locator('video');
 		await expect(vid).toBeVisible();
-		// Mute the video before playing, otherwise there's actually sounds when testing
+		// Mute the video before playing; otherwise, there's actually sounds when testing
 		await vid.evaluate((el) => (el.muted = true));
 		// Browser blocks autoplay, so we manually play it here. For some reason,
 		// you need to click and play it manually for it to actually work.
@@ -723,7 +723,7 @@ test.describe('View Transitions', () => {
 	}) => {
 		const loads = collectLoads(page);
 
-		// Go to the half bakeed page
+		// Go to the half baked page
 		await page.goto(astro.resolveUrl('/half-baked'));
 		let p = page.locator('#half-baked');
 		await expect(p, 'should have content').toHaveText('Half Baked');
@@ -1578,6 +1578,52 @@ test.describe('View Transitions', () => {
 		expect(text).toBe('true true');
 	});
 
+	test('transition:persist preserves canvas pixel data across navigation', async ({
+		page,
+		astro,
+	}) => {
+		// Page 1 draws a red rectangle on a persisted canvas
+		await page.goto(astro.resolveUrl('/canvas-persist-one'));
+		await expect(page.locator('#canvas-one')).toHaveText('Canvas Page 1');
+
+		// Verify the red rectangle was drawn (pixel at 20,20 should be red)
+		const beforePixel = await page.$eval('#my-canvas', (c) => {
+			const ctx = c.getContext('2d');
+			const pixel = ctx.getImageData(20, 20, 1, 1).data;
+			return [pixel[0], pixel[1], pixel[2], pixel[3]];
+		});
+		expect(beforePixel).toEqual([255, 0, 0, 255]);
+
+		// Navigate via client-side link (View Transitions swap runs)
+		await page.click('#click-two');
+		await expect(page.locator('#canvas-two')).toHaveText('Canvas Page 2');
+
+		// The persisted canvas should retain its pixel data
+		const afterPixel = await page.$eval('#my-canvas', (c) => {
+			const ctx = c.getContext('2d');
+			const pixel = ctx.getImageData(20, 20, 1, 1).data;
+			return [pixel[0], pixel[1], pixel[2], pixel[3]];
+		});
+		expect(afterPixel).toEqual([255, 0, 0, 255]);
+	});
+
+	test('transition:persist drops elements without matching target in new page', async ({
+		page,
+		astro,
+	}) => {
+		// Canvas page has a canvas with transition:persist="my-canvas"
+		await page.goto(astro.resolveUrl('/canvas-persist-one'));
+		await expect(page.locator('#canvas-one')).toHaveText('Canvas Page 1');
+		expect(await page.locator('#my-canvas').count()).toBe(1);
+
+		// Navigate via client-side link to a page WITHOUT a matching persist target
+		await page.click('#click-no-canvas');
+		await expect(page.locator('#one')).toHaveText('Page 1');
+
+		// The persisted canvas should NOT appear on the new page
+		expect(await page.locator('#my-canvas').count()).toBe(0);
+	});
+
 	test('it should be easy to define a data-theme preserving swap function', async ({
 		page,
 		astro,
@@ -1664,7 +1710,7 @@ test.describe('View Transitions', () => {
 		await page.goto(astro.resolveUrl('/abort2'));
 		// implemented in /abort2:
 		// Navigate to self with a 10 second animation
-		// shortly after starting that, change your mind an navigate to /one
+		// shortly after starting that, change your mind and navigate to /one
 		// check that animations got canceled
 		let p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
@@ -1774,5 +1820,54 @@ test.describe('View Transitions', () => {
 		// Verify original inline styles and font preloads are still present after navigation
 		await expect(page.locator('#style')).toHaveCount(1);
 		await expect(page.locator('#preload')).toHaveCount(1);
+	});
+
+	test('Vue scoped styles persist through head swap', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/island-vue-one'));
+		let cnt = page.locator('.counter pre');
+		await expect(cnt).toHaveText('AA0');
+		await page
+			.locator('[data-vite-dev-id*="VueCounter.vue?vue&type=style"]')
+			.evaluate((el) => (el.dataset.marker = 'this'), undefined);
+		await page.click('#click-two');
+		const p = page.locator('#island-two');
+		await expect(p).toBeVisible();
+		cnt = page.locator('.counter pre');
+		await expect(cnt).toHaveText('BB0');
+		await expect(
+			page.locator('[data-vite-dev-id*="VueCounter.vue?vue&type=style"][data-marker="this"]'),
+		).toHaveCount(1);
+	});
+
+	test('Vue scoped styles persist through head swap even if they had been removed by navigation', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/one'));
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+		await page.click('#click-vue-scoped-styles');
+
+		let cnt = page.locator('.counter pre');
+		await expect(cnt).toHaveText('AA0');
+		await page
+			.locator('[data-vite-dev-id*="VueCounter.vue?vue&type=style"]')
+			.last()
+			.evaluate((el) => (el.dataset.marker = 'this'), undefined);
+		await page.goBack();
+		p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+		await expect(
+			page.locator('[data-vite-dev-id*="VueCounter.vue?vue&type=style"][data-marker="this"]'),
+		).toHaveCount(0);
+
+		await page.click('#click-vue-scoped-styles');
+
+		cnt = page.locator('.counter pre');
+		await expect(cnt).toHaveText('AA0');
+
+		await expect(
+			page.locator('[data-vite-dev-id*="VueCounter.vue?vue&type=style"][data-marker="this"]'),
+		).toHaveCount(1);
 	});
 });

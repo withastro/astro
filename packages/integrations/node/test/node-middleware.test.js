@@ -19,7 +19,6 @@ describe('behavior from middleware, standalone', () => {
 	let server;
 
 	before(async () => {
-		process.env.PRERENDER = false;
 		fixture = await loadFixture({
 			root: './fixtures/node-middleware/',
 			output: 'server',
@@ -35,8 +34,6 @@ describe('behavior from middleware, standalone', () => {
 	after(async () => {
 		await server.stop();
 		await fixture.clean();
-
-		delete process.env.PRERENDER;
 	});
 
 	describe('404', async () => {
@@ -60,7 +57,6 @@ describe('behavior from middleware, middleware with express', () => {
 	let server;
 
 	before(async () => {
-		process.env.PRERENDER = false;
 		fixture = await loadFixture({
 			root: './fixtures/node-middleware/',
 			output: 'server',
@@ -76,8 +72,6 @@ describe('behavior from middleware, middleware with express', () => {
 	after(async () => {
 		server.close();
 		await fixture.clean();
-
-		delete process.env.PRERENDER;
 	});
 
 	it('should render the endpoint', async () => {
@@ -145,7 +139,6 @@ describe('behavior from middleware, middleware with fastify', () => {
 	let server;
 
 	before(async () => {
-		process.env.PRERENDER = false;
 		fixture = await loadFixture({
 			root: './fixtures/node-middleware/',
 			output: 'server',
@@ -169,8 +162,6 @@ describe('behavior from middleware, middleware with fastify', () => {
 	after(async () => {
 		server.close();
 		await fixture.clean();
-
-		delete process.env.PRERENDER;
 	});
 
 	it('should render the endpoint', async () => {
@@ -217,5 +208,69 @@ describe('behavior from middleware, middleware with fastify', () => {
 
 		body = $('body');
 		assert.equal(body.text().includes('bar'), true);
+	});
+});
+
+// Regression test for https://github.com/withastro/astro/issues/16039
+// SSR-emitted assets (CSS, fonts, images) must appear in manifest.assets so that
+// the Node adapter in middleware mode can identify them as static files and NOT
+// match them against catch-all routes.
+describe('middleware with fastify and catch-all route: SSR assets in manifest', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let server;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/ssr-assets-middleware/',
+			output: 'server',
+			adapter: nodejs({ mode: 'middleware' }),
+			vite: {
+				build: {
+					// Prevent CSS/SVG from being inlined so they appear as separate
+					// files in dist/client/_astro/ and are tracked in ssrAssetsPerEnvironment.
+					assetsInlineLimit: 0,
+				},
+			},
+		});
+		await fixture.build();
+		const { handler } = await fixture.loadAdapterEntryModule();
+		const app = Fastify({ logger: false });
+		await app
+			.register(fastifyStatic, {
+				root: fileURLToPath(
+					new URL('./fixtures/ssr-assets-middleware/dist/client', import.meta.url),
+				),
+			})
+			.register(fastifyMiddie);
+		app.use(handler);
+
+		await app.listen({ port: 8890 });
+
+		server = app;
+	});
+
+	after(async () => {
+		server.close();
+		await fixture.clean();
+	});
+
+	it('should serve SSR-emitted CSS assets directly, not the catch-all page', async () => {
+		// First get the index page to find the CSS asset URL
+		const indexRes = await fetch('http://localhost:8890/');
+		assert.equal(indexRes.status, 200);
+		const html = await indexRes.text();
+		const $ = cheerio.load(html);
+
+		// Find the CSS link tag injected by Astro
+		const cssHref = $('link[rel="stylesheet"]').attr('href');
+		assert.ok(cssHref, 'Expected a CSS <link> tag in the page');
+		assert.match(cssHref, /\/_astro\/.*\.css$/);
+
+		// Request the CSS asset — it must be served as CSS, not as the catch-all HTML page
+		const cssRes = await fetch(`http://localhost:8890${cssHref}`);
+		assert.equal(cssRes.status, 200);
+		const contentType = cssRes.headers.get('content-type');
+		assert.ok(contentType?.includes('text/css'), `Expected text/css, got: ${contentType}`);
 	});
 });

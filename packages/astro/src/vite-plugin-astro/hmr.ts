@@ -1,17 +1,19 @@
 import type { HmrContext } from 'vite';
-import type { Logger } from '../core/logger/core.js';
+import type { AstroLogger } from '../core/logger/core.js';
+import type { CompileAstroResult } from './compile.js';
 import { parseAstroRequest } from './query.js';
 import type { CompileMetadata } from './types.js';
 import { frontmatterRE } from './utils.js';
 
 interface HandleHotUpdateOptions {
-	logger: Logger;
+	logger: AstroLogger;
+	compile: (code: string, filename: string) => Promise<CompileAstroResult>;
 	astroFileToCompileMetadata: Map<string, CompileMetadata>;
 }
 
 export async function handleHotUpdate(
 	ctx: HmrContext,
-	{ logger, astroFileToCompileMetadata }: HandleHotUpdateOptions,
+	{ logger, compile, astroFileToCompileMetadata }: HandleHotUpdateOptions,
 ) {
 	// HANDLING 1: Invalidate compile metadata if CSS dependency updated
 	//
@@ -35,9 +37,17 @@ export async function handleHotUpdate(
 
 	if (isStyleOnlyChanged(oldCode, newCode)) {
 		logger.debug('watch', 'style-only change');
-		// Invalidate its `astroFileToCompileMetadata` so that the next transform of Astro style virtual module
-		// will re-generate it
-		astroFileToCompileMetadata.delete(ctx.file);
+		// Eagerly re-compile to update the metadata with the new CSS. This ensures
+		// the compile metadata stays consistent so that subsequent SSR requests
+		// (e.g. page refresh) can load the style virtual modules without needing
+		// to re-compile from disk, avoiding potential stale state.
+		try {
+			await compile(newCode, ctx.file);
+		} catch {
+			// If re-compilation fails, fall back to deleting the metadata so the
+			// load hook will re-compile lazily on the next request.
+			astroFileToCompileMetadata.delete(ctx.file);
+		}
 		return ctx.modules.filter((mod) => {
 			if (!mod.id) {
 				return false;

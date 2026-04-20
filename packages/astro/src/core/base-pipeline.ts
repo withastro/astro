@@ -17,12 +17,14 @@ import type { ServerIslandMappings } from './app/types.js';
 import type { SinglePageBuiltModule } from './build/types.js';
 import { ActionNotFoundError } from './errors/errors-data.js';
 import { AstroError } from './errors/index.js';
-import type { Logger } from './logger/core.js';
+import type { AstroLogger } from './logger/core.js';
 import { NOOP_MIDDLEWARE_FN } from './middleware/noop-middleware.js';
 import { sequence } from './middleware/sequence.js';
 import { RedirectSinglePageBuiltModule } from './redirects/index.js';
 import { RouteCache } from './render/route-cache.js';
-import { createDefaultRoutes } from './routing/default.js';
+import { createDefaultRoutes, type DefaultRouteParams } from './routing/default.js';
+import type { CacheProvider, CacheProviderFactory } from './cache/types.js';
+import type { CompiledCacheRoute } from './cache/runtime/route-matching.js';
 import type { SessionDriverFactory } from './session/types.js';
 import { NodePool } from '../runtime/server/render/queue/pool.js';
 import { HTMLStringCache } from '../runtime/server/html-string-cache.js';
@@ -38,44 +40,105 @@ export abstract class Pipeline {
 	resolvedMiddleware: MiddlewareHandler | undefined = undefined;
 	resolvedActions: SSRActions | undefined = undefined;
 	resolvedSessionDriver: SessionDriverFactory | null | undefined = undefined;
+	resolvedCacheProvider: CacheProvider | null | undefined = undefined;
+	compiledCacheRoutes: CompiledCacheRoute[] | undefined = undefined;
 	nodePool: NodePool | undefined;
 	htmlStringCache: HTMLStringCache | undefined;
 
+	readonly logger: AstroLogger;
+	readonly manifest: SSRManifest;
+	/**
+	 * "development" or "production" only
+	 */
+	readonly runtimeMode: RuntimeMode;
+	readonly renderers: SSRLoadedRenderer[];
+	readonly resolve: (s: string) => Promise<string>;
+
+	readonly streaming: boolean;
+	/**
+	 * Used to provide better error messages for `Astro.clientAddress`
+	 */
+	readonly adapterName: SSRManifest['adapterName'];
+	readonly clientDirectives: SSRManifest['clientDirectives'];
+	readonly inlinedScripts: SSRManifest['inlinedScripts'];
+	readonly compressHTML: SSRManifest['compressHTML'];
+	readonly i18n: SSRManifest['i18n'];
+	readonly middleware: SSRManifest['middleware'];
+	readonly routeCache: RouteCache;
+	/**
+	 * Used for `Astro.site`.
+	 */
+	readonly site: URL | undefined;
+	/**
+	 * Array of built-in, internal, routes.
+	 * Used to find the route module
+	 */
+	readonly defaultRoutes: Array<DefaultRouteParams>;
+
+	readonly actions: SSRManifest['actions'];
+	readonly sessionDriver: SSRManifest['sessionDriver'];
+	readonly cacheProvider: SSRManifest['cacheProvider'];
+	readonly cacheConfig: SSRManifest['cacheConfig'];
+	readonly serverIslands: SSRManifest['serverIslandMappings'];
+
 	constructor(
-		readonly logger: Logger,
-		readonly manifest: SSRManifest,
+		logger: AstroLogger,
+		manifest: SSRManifest,
 		/**
 		 * "development" or "production" only
 		 */
-		readonly runtimeMode: RuntimeMode,
-		readonly renderers: SSRLoadedRenderer[],
-		readonly resolve: (s: string) => Promise<string>,
+		runtimeMode: RuntimeMode,
+		renderers: SSRLoadedRenderer[],
+		resolve: (s: string) => Promise<string>,
 
-		readonly streaming: boolean,
+		streaming: boolean,
 		/**
 		 * Used to provide better error messages for `Astro.clientAddress`
 		 */
-		readonly adapterName = manifest.adapterName,
-		readonly clientDirectives = manifest.clientDirectives,
-		readonly inlinedScripts = manifest.inlinedScripts,
-		readonly compressHTML = manifest.compressHTML,
-		readonly i18n = manifest.i18n,
-		readonly middleware = manifest.middleware,
-		readonly routeCache = new RouteCache(logger, runtimeMode),
+		adapterName = manifest.adapterName,
+		clientDirectives = manifest.clientDirectives,
+		inlinedScripts = manifest.inlinedScripts,
+		compressHTML = manifest.compressHTML,
+		i18n = manifest.i18n,
+		middleware = manifest.middleware,
+		routeCache = new RouteCache(logger, runtimeMode),
 		/**
 		 * Used for `Astro.site`.
 		 */
-		readonly site = manifest.site ? new URL(manifest.site) : undefined,
+		site = manifest.site ? new URL(manifest.site) : undefined,
 		/**
 		 * Array of built-in, internal, routes.
 		 * Used to find the route module
 		 */
-		readonly defaultRoutes = createDefaultRoutes(manifest),
+		defaultRoutes = createDefaultRoutes(manifest),
 
-		readonly actions = manifest.actions,
-		readonly sessionDriver = manifest.sessionDriver,
-		readonly serverIslands = manifest.serverIslandMappings,
+		actions = manifest.actions,
+		sessionDriver = manifest.sessionDriver,
+		cacheProvider = manifest.cacheProvider,
+		cacheConfig = manifest.cacheConfig,
+		serverIslands = manifest.serverIslandMappings,
 	) {
+		this.logger = logger;
+		this.manifest = manifest;
+		this.runtimeMode = runtimeMode;
+		this.renderers = renderers;
+		this.resolve = resolve;
+		this.streaming = streaming;
+		this.adapterName = adapterName;
+		this.clientDirectives = clientDirectives;
+		this.inlinedScripts = inlinedScripts;
+		this.compressHTML = compressHTML;
+		this.i18n = i18n;
+		this.middleware = middleware;
+		this.routeCache = routeCache;
+		this.site = site;
+		this.defaultRoutes = defaultRoutes;
+		this.actions = actions;
+		this.sessionDriver = sessionDriver;
+		this.cacheProvider = cacheProvider;
+		this.cacheConfig = cacheConfig;
+		this.serverIslands = serverIslands;
+
 		this.internalMiddleware = [];
 		// We do use our middleware only if the user isn't using the manual setup
 		if (i18n?.strategy !== 'manual') {
@@ -87,7 +150,6 @@ export abstract class Pipeline {
 		if (manifest.experimentalQueuedRendering.enabled) {
 			this.nodePool = this.createNodePool(
 				manifest.experimentalQueuedRendering.poolSize ?? 1000,
-				manifest.experimentalQueuedRendering.contentCache ?? false,
 				false,
 			);
 			if (manifest.experimentalQueuedRendering.contentCache) {
@@ -149,6 +211,14 @@ export abstract class Pipeline {
 		}
 	}
 
+	/**
+	 * Clears the cached middleware so it is re-resolved on the next request.
+	 * Called via HMR when middleware files change during development.
+	 */
+	clearMiddleware() {
+		this.resolvedMiddleware = undefined;
+	}
+
 	async getActions(): Promise<SSRActions> {
 		if (this.resolvedActions) {
 			return this.resolvedActions;
@@ -173,6 +243,25 @@ export abstract class Pipeline {
 
 		// No driver configured
 		this.resolvedSessionDriver = null;
+		return null;
+	}
+
+	async getCacheProvider(): Promise<CacheProvider | null> {
+		// Return cached value if already resolved (including null)
+		if (this.resolvedCacheProvider !== undefined) {
+			return this.resolvedCacheProvider;
+		}
+
+		// Try to load the provider from the manifest
+		if (this.cacheProvider) {
+			const mod = await this.cacheProvider();
+			const factory: CacheProviderFactory | null = mod?.default || null;
+			this.resolvedCacheProvider = factory ? factory(this.cacheConfig?.options) : null;
+			return this.resolvedCacheProvider;
+		}
+
+		// No provider configured
+		this.resolvedCacheProvider = null;
 		return null;
 	}
 
@@ -244,8 +333,8 @@ export abstract class Pipeline {
 		}
 	}
 
-	public createNodePool(poolSize: number, contentCache: boolean, stats: boolean): NodePool {
-		return new NodePool(poolSize, contentCache, stats);
+	public createNodePool(poolSize: number, stats: boolean): NodePool {
+		return new NodePool(poolSize, stats);
 	}
 
 	public createStringCache(): HTMLStringCache {

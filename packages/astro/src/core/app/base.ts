@@ -8,7 +8,7 @@ import {
 	prependForwardSlash,
 	removeTrailingForwardSlash,
 } from '@astrojs/internal-helpers/path';
-import { matchPattern } from '../../assets/utils/index.js';
+import { matchPattern } from '@astrojs/internal-helpers/remote';
 import { normalizeTheLocale } from '../../i18n/index.js';
 import type { RoutesList } from '../../types/astro.js';
 import type { RemotePattern, RouteData } from '../../types/public/index.js';
@@ -23,14 +23,21 @@ import {
 	REWRITE_DIRECTIVE_HEADER_KEY,
 	ROUTE_TYPE_HEADER,
 } from '../constants.js';
-import { getSetCookiesFromResponse } from '../cookies/index.js';
+import {
+	AstroCookies,
+	attachCookiesToResponse,
+	getSetCookiesFromResponse,
+} from '../cookies/index.js';
+import { getCookiesFromResponse } from '../cookies/response.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { consoleLogDestination } from '../logger/console.js';
-import { AstroIntegrationLogger, Logger } from '../logger/core.js';
+import { AstroIntegrationLogger, AstroLogger } from '../logger/core.js';
 import { type CreateRenderContext, RenderContext } from '../render-context.js';
 import { redirectTemplate } from '../routing/3xx.js';
 import { ensure404Route } from '../routing/astro-designed-error-pages.js';
+import { routeHasHtmlExtension } from '../routing/helpers.js';
 import { matchRoute } from '../routing/match.js';
+import { type CacheLike, applyCacheHeaders } from '../cache/runtime/cache.js';
 import { Router } from '../routing/router.js';
 import { type AstroSession, PERSIST_SYMBOL } from '../session/runtime.js';
 import type { AppPipeline } from './pipeline.js';
@@ -68,7 +75,7 @@ export interface RenderOptions {
 	/**
 	 * A custom fetch function for retrieving prerendered pages - 404 or 500.
 	 *
-	 * If not provided, Astro will fallback to its default behavior for fetching error pages.
+	 * If not provided, Astro will fall back to its default behavior for fetching error pages.
 	 *
 	 * When a dynamic route is matched but ultimately results in a 404, this function will be used
 	 * to fetch the prerendered 404 page if available. Similarly, it may be used to fetch a
@@ -124,15 +131,15 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	pipeline: P;
 	adapterLogger: AstroIntegrationLogger;
 	baseWithoutTrailingSlash: string;
-	logger: Logger;
+	logger: AstroLogger;
 	#router: Router;
 	constructor(manifest: SSRManifest, streaming = true, ...args: any[]) {
 		this.manifest = manifest;
 		this.manifestData = { routes: manifest.routes.map((route) => route.routeData) };
 		this.baseWithoutTrailingSlash = removeTrailingForwardSlash(manifest.base);
 		this.pipeline = this.createPipeline(streaming, manifest, ...args);
-		this.logger = new Logger({
-			dest: consoleLogDestination,
+		this.logger = new AstroLogger({
+			destination: consoleLogDestination,
 			level: manifest.logLevel,
 		});
 		this.adapterLogger = new AstroIntegrationLogger(this.logger.options, manifest.adapterName);
@@ -324,7 +331,12 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 						pathname = prependForwardSlash(
 							joinPaths(normalizeTheLocale(locale), this.removeBase(url.pathname)),
 						);
-						if (url.pathname.endsWith('/')) {
+						if (this.manifest.trailingSlash === 'always') {
+							pathname = appendForwardSlash(pathname);
+						} else if (this.manifest.trailingSlash === 'never') {
+							pathname = removeTrailingForwardSlash(pathname);
+						} else if (url.pathname.endsWith('/')) {
+							// trailingSlash === 'ignore': preserve the original trailing slash
 							pathname = appendForwardSlash(pathname);
 						}
 					}
@@ -463,11 +475,17 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				status: 404,
 			});
 		}
-		const pathname = this.getPathnameFromRequest(request);
+		let pathname = this.getPathnameFromRequest(request);
+		// In dev, the route may have matched a normalized pathname (after .html stripping).
+		// Skip normalization if the route already has an .html extension in its definition.
+		if (this.isDev() && !routeHasHtmlExtension(routeData)) {
+			pathname = pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
+		}
 		const defaultStatus = this.getDefaultStatusCode(routeData, pathname);
 
 		let response;
 		let session: AstroSession | undefined;
+		let cache: CacheLike | undefined;
 		try {
 			// Load route module. We also catch its error here if it fails on initialization
 			const componentInstance = await this.pipeline.getComponentByRoute(routeData);
@@ -481,7 +499,36 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				clientAddress,
 			});
 			session = renderContext.session;
-			response = await renderContext.render(componentInstance);
+			cache = renderContext.cache;
+
+			if (this.pipeline.cacheProvider) {
+				// If the cache provider has an onRequest handler (runtime caching),
+				// wrap the render call so the provider can serve from cache
+				const cacheProvider = await this.pipeline.getCacheProvider();
+				if (cacheProvider?.onRequest) {
+					response = await cacheProvider.onRequest(
+						{
+							request,
+							url: new URL(request.url),
+						},
+						async () => {
+							const res = await renderContext.render(componentInstance);
+							// Apply cache headers before the provider reads them
+							applyCacheHeaders(cache!, res);
+							return res;
+						},
+					);
+					// Strip CDN headers after the runtime provider has read them
+					response.headers.delete('CDN-Cache-Control');
+					response.headers.delete('Cache-Tag');
+				} else {
+					response = await renderContext.render(componentInstance);
+					// Apply cache headers for CDN-based providers (no onRequest)
+					applyCacheHeaders(cache!, response);
+				}
+			} else {
+				response = await renderContext.render(componentInstance);
+			}
 
 			const isRewrite = response.headers.has(REWRITE_DIRECTIVE_HEADER_KEY);
 
@@ -692,19 +739,35 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				: originalResponse.status;
 
 		try {
-			// this function could throw an error...
+			// this function could throw an error if the headers are immutable...
 			originalResponse.headers.delete('Content-type');
-		} catch {}
-		// we use a map to remove duplicates
-		const mergedHeaders = new Map([
-			...Array.from(newResponseHeaders),
-			...Array.from(originalResponse.headers),
-		]);
-		const newHeaders = new Headers();
-		for (const [name, value] of mergedHeaders) {
-			newHeaders.set(name, value);
+			// Framing headers describe the original response's body encoding/size and must
+			// not carry over to the error page response which has a different body.
+			originalResponse.headers.delete('Content-Length');
+			originalResponse.headers.delete('Transfer-Encoding');
+		} catch {
+			// Headers may be immutable (e.g. when the Response was constructed by a fetch).
+			// In that case, the loop below still copies from originalResponse.headers,
+			// so we need to filter out framing headers there instead.
 		}
-		return new Response(newResponse.body, {
+		// Build merged headers using append() to preserve multi-value headers (e.g. Set-Cookie).
+		// Headers from the original response take priority over new response headers for
+		// single-value headers, but we use append to avoid collapsing multi-value entries.
+		const newHeaders = new Headers();
+		const seen = new Set<string>();
+		// Add original response headers first (they take priority)
+		for (const [name, value] of originalResponse.headers) {
+			newHeaders.append(name, value);
+			seen.add(name.toLowerCase());
+		}
+		// Add new response headers that weren't already set by the original response,
+		// but skip content-type since the error page must return text/html
+		for (const [name, value] of newResponseHeaders) {
+			if (!seen.has(name.toLowerCase())) {
+				newHeaders.append(name, value);
+			}
+		}
+		const mergedResponse = new Response(newResponse.body, {
 			status,
 			statusText: status === 200 ? newResponse.statusText : originalResponse.statusText,
 			// If you're looking at here for possible bugs, it means that it's not a bug.
@@ -714,6 +777,24 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			// Although, we don't want it to replace the content-type, because the error page must return `text/html`
 			headers: newHeaders,
 		});
+
+		// Transfer AstroCookies from the original or new response so that
+		// #prepareResponse can read them when addCookieHeader is true.
+		const originalCookies = getCookiesFromResponse(originalResponse);
+		const newCookies = getCookiesFromResponse(newResponse);
+		if (originalCookies) {
+			// If both responses have cookies, merge new response cookies into original
+			if (newCookies) {
+				for (const cookieValue of AstroCookies.consume(newCookies)) {
+					originalResponse.headers.append('set-cookie', cookieValue);
+				}
+			}
+			attachCookiesToResponse(mergedResponse, originalCookies);
+		} else if (newCookies) {
+			attachCookiesToResponse(mergedResponse, newCookies);
+		}
+
+		return mergedResponse;
 	}
 
 	getDefaultStatusCode(routeData: RouteData, pathname: string): number {

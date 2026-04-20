@@ -107,4 +107,16 @@ describe('Content Intellisense', () => {
 			true,
 		);
 	});
+
+	it('uses the Zod input shape to generate the JSON schema', async () => {
+		const schema = JSON.parse(
+			await fixture.readFile('../.astro/collections/io-differences.schema.json'),
+		);
+		assert.deepEqual(schema.properties.optionalWithDefault, {
+			type: 'string',
+			default: 'default value',
+		});
+		// The optional field with a default should bot be required.
+		assert.ok(!schema.required.includes('optionalWithDefault'));
+	});
 });

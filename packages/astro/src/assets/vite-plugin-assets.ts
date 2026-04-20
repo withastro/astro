@@ -4,7 +4,7 @@ import MagicString from 'magic-string';
 import picomatch from 'picomatch';
 import type * as vite from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import type { Logger } from '../core/logger/core.js';
+import type { AstroLogger } from '../core/logger/core.js';
 import {
 	appendForwardSlash,
 	joinPaths,
@@ -17,9 +17,11 @@ import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { isAstroServerEnvironment } from '../environments.js';
 import type { AstroSettings } from '../types/astro.js';
 import {
+	RESOLVED_VIRTUAL_GET_IMAGE_ID,
 	RESOLVED_VIRTUAL_IMAGE_STYLES_ID,
 	RESOLVED_VIRTUAL_MODULE_ID,
 	VALID_INPUT_FORMATS,
+	VIRTUAL_GET_IMAGE_ID,
 	VIRTUAL_IMAGE_STYLES_ID,
 	VIRTUAL_MODULE_ID,
 	VIRTUAL_SERVICE_ID,
@@ -117,7 +119,7 @@ const addStaticImageFactory = (
 interface Options {
 	settings: AstroSettings;
 	sync: boolean;
-	logger: Logger;
+	logger: AstroLogger;
 	fs: typeof fsMod;
 }
 
@@ -140,7 +142,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 			},
 			resolveId: {
 				filter: {
-					id: new RegExp(`^(${VIRTUAL_SERVICE_ID}|${VIRTUAL_MODULE_ID})$`),
+					id: new RegExp(`^(${VIRTUAL_SERVICE_ID}|${VIRTUAL_MODULE_ID}|${VIRTUAL_GET_IMAGE_ID})$`),
 				},
 				async handler(id) {
 					if (id === VIRTUAL_SERVICE_ID) {
@@ -152,72 +154,121 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 					if (id === VIRTUAL_MODULE_ID) {
 						return RESOLVED_VIRTUAL_MODULE_ID;
 					}
+					if (id === VIRTUAL_GET_IMAGE_ID) {
+						return RESOLVED_VIRTUAL_GET_IMAGE_ID;
+					}
 				},
 			},
 			load: {
 				filter: {
-					id: new RegExp(`^(${RESOLVED_VIRTUAL_MODULE_ID})$`),
+					id: new RegExp(`^(${RESOLVED_VIRTUAL_MODULE_ID}|${RESOLVED_VIRTUAL_GET_IMAGE_ID})$`),
 				},
-				handler() {
+				handler(id) {
+					if (id === RESOLVED_VIRTUAL_GET_IMAGE_ID) {
+						// Lightweight module exporting only getImage + imageConfig.
+						// No component references (Image, Picture, Font) to avoid TDZ
+						// errors when the content runtime and component pages are
+						// bundled into the same prerender chunk (see #16036).
+						const isServerEnvironment = isAstroServerEnvironment(this.environment);
+						const getImageExport = isServerEnvironment
+							? `import { getImage as getImageInternal } from "astro/assets";
+								export const getImage = async (options) => await getImageInternal(options, imageConfig);`
+							: `import { AstroError, AstroErrorData } from "astro/errors";
+								export const getImage = async () => {
+									throw new AstroError(
+										AstroErrorData.GetImageNotUsedOnServer.message,
+										AstroErrorData.GetImageNotUsedOnServer.hint,
+									);
+								};`;
+
+						const assetQueryParams = settings.adapter?.client?.assetQueryParams
+							? `new URLSearchParams(${JSON.stringify(
+									Array.from(settings.adapter.client.assetQueryParams.entries()),
+								)})`
+							: 'undefined';
+
+						return {
+							code: `
+								export const imageConfig = ${JSON.stringify(settings.config.image)};
+								Object.defineProperty(imageConfig, 'assetQueryParams', {
+									value: ${assetQueryParams},
+									enumerable: false,
+									configurable: true,
+								});
+								${getImageExport}
+							`,
+						};
+					}
+					const isServerEnvironment = isAstroServerEnvironment(this.environment);
+					const getImageExport = isServerEnvironment
+						? `import { getImage as getImageInternal } from "astro/assets";
+							export const getImage = async (options) => await getImageInternal(options, imageConfig);`
+						: `import { AstroError, AstroErrorData } from "astro/errors";
+							export const getImage = async () => {
+								throw new AstroError(
+									AstroErrorData.GetImageNotUsedOnServer.message,
+									AstroErrorData.GetImageNotUsedOnServer.hint,
+								);
+							};`;
+
 					return {
 						code: `
-						import { getConfiguredImageService as _getConfiguredImageService } from "astro/assets";
-						export { isLocalService } from "astro/assets";
-						import { getImage as getImageInternal } from "astro/assets";
-						${settings.config.image.responsiveStyles ? `import "${VIRTUAL_IMAGE_STYLES_ID}";` : ''}
-						export { default as Image } from "astro/components/${imageComponentPrefix}Image.astro";
-						export { default as Picture } from "astro/components/${imageComponentPrefix}Picture.astro";
-						import { inferRemoteSize as inferRemoteSizeInternal } from "astro/assets/utils/inferRemoteSize.js";
+				import { getConfiguredImageService as _getConfiguredImageService } from "astro/assets";
+				export { isLocalService } from "astro/assets";
+				${settings.config.image.responsiveStyles ? `import "${VIRTUAL_IMAGE_STYLES_ID}";` : ''}
+					export { default as Image } from "astro/components/${imageComponentPrefix}Image.astro";
+					export { default as Picture } from "astro/components/${imageComponentPrefix}Picture.astro";
+					import { inferRemoteSize as inferRemoteSizeInternal } from "astro/assets/utils/inferRemoteSize.js";
 
-							export { default as Font } from "astro/components/Font.astro";
-							export * from "${RUNTIME_VIRTUAL_MODULE_ID}";
-														
-							export const getConfiguredImageService = _getConfiguredImageService;
+					export { default as Font } from "astro/components/Font.astro";
+					export * from "${RUNTIME_VIRTUAL_MODULE_ID}";
 
-						export const viteFSConfig = ${JSON.stringify(resolvedConfig.server.fs ?? {})};
+					export const getConfiguredImageService = _getConfiguredImageService;
 
-						export const safeModulePaths = new Set(${JSON.stringify(
-							// @ts-expect-error safeModulePaths is internal to Vite
-							Array.from(resolvedConfig.safeModulePaths ?? []),
-						)});
+					export const viteFSConfig = ${JSON.stringify(resolvedConfig.server.fs ?? {})};
 
-						export const fsDenyGlob = ${serializeFsDenyGlob(resolvedConfig.server.fs?.deny ?? [])};
+					export const safeModulePaths = new Set(${JSON.stringify(
+						// @ts-expect-error safeModulePaths is internal to Vite
+						Array.from(resolvedConfig.safeModulePaths ?? []),
+					)});
 
-						const assetQueryParams = ${
-							settings.adapter?.client?.assetQueryParams
-								? `new URLSearchParams(${JSON.stringify(
-										Array.from(settings.adapter.client.assetQueryParams.entries()),
-									)})`
-								: 'undefined'
-						};
-						export const imageConfig = ${JSON.stringify(settings.config.image)};
-						Object.defineProperty(imageConfig, 'assetQueryParams', {
-							value: assetQueryParams,
-							enumerable: false,
-							configurable: true,
-						});
-						export const inferRemoteSize = async (url) => {
-							const service = await _getConfiguredImageService();
-							return service.getRemoteSize?.(url, imageConfig) ?? inferRemoteSizeInternal(url, imageConfig);
-						}
-						// This is used by the @astrojs/node integration to locate images.
-						// It's unused on other platforms, but on some platforms like Netlify (and presumably also Vercel)
-						// new URL("dist/...") is interpreted by the bundler as a signal to include that directory
-						// in the Lambda bundle, which would bloat the bundle with images.
-						// To prevent this, we mark the URL construction as pure,
-						// so that it's tree-shaken away for all platforms that don't need it.
-						export const outDir = /* #__PURE__ */ new URL(${JSON.stringify(
-							new URL(
-								settings.buildOutput === 'server'
-									? settings.config.build.client
-									: settings.config.outDir,
-							),
-						)});
-						export const serverDir = /* #__PURE__ */ new URL(${JSON.stringify(
-							new URL(settings.config.build.server),
-						)});
-						export const getImage = async (options) => await getImageInternal(options, imageConfig);
-					`,
+					export const fsDenyGlob = ${serializeFsDenyGlob(resolvedConfig.server.fs?.deny ?? [])};
+
+					const assetQueryParams = ${
+						settings.adapter?.client?.assetQueryParams
+							? `new URLSearchParams(${JSON.stringify(
+									Array.from(settings.adapter.client.assetQueryParams.entries()),
+								)})`
+							: 'undefined'
+					};
+					export const imageConfig = ${JSON.stringify(settings.config.image)};
+					Object.defineProperty(imageConfig, 'assetQueryParams', {
+						value: assetQueryParams,
+						enumerable: false,
+						configurable: true,
+					});
+					export const inferRemoteSize = async (url) => {
+						const service = await _getConfiguredImageService();
+						return service.getRemoteSize?.(url, imageConfig) ?? inferRemoteSizeInternal(url, imageConfig);
+					}
+					// This is used by the @astrojs/node integration to locate images.
+					// It's unused on other platforms, but on some platforms like Netlify (and presumably also Vercel)
+					// new URL("dist/...") is interpreted by the bundler as a signal to include that directory
+					// in the Lambda bundle, which would bloat the bundle with images.
+					// To prevent this, we mark the URL construction as pure,
+					// so that it's tree-shaken away for all platforms that don't need it.
+					export const outDir = /* #__PURE__ */ new URL(${JSON.stringify(
+						new URL(
+							settings.buildOutput === 'server'
+								? settings.config.build.client
+								: settings.config.outDir,
+						),
+					)});
+					export const serverDir = /* #__PURE__ */ new URL(${JSON.stringify(
+						new URL(settings.config.build.server),
+					)});
+					${getImageExport}
+				`,
 					};
 				},
 			},
@@ -324,7 +375,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 							};
 						}
 						// In SSR builds, any image loaded by the SSR environment could be reachable at
-						// request time without us knowning, so we'll always consider them as referenced.
+						// request time without us knowing, so we'll always consider them as referenced.
 						const isSSROnlyEnvironment =
 							settings.buildOutput === 'server' &&
 							this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;

@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/ts-plugin",
-  "version": "1.10.6",
+  "version": "1.10.7",
   "description": "A TypeScript Plugin providing Astro intellisense",
   "main": "dist/index.js",
   "type": "commonjs",
@@ -28,7 +28,7 @@
   "license": "MIT",
   "dependencies": {
     "@astrojs/compiler": "^2.13.1",
-    "@astrojs/yaml2ts": "^0.2.2",
+    "@astrojs/yaml2ts": "^0.2.3",
     "@jridgewell/sourcemap-codec": "^1.5.5",
     "@volar/language-core": "~2.4.28",
     "@volar/typescript": "~2.4.28",
@@ -39,8 +39,8 @@
     "@types/mocha": "^10.0.10",
     "@types/node": "^20.9.0",
     "@types/semver": "^7.7.1",
-    "@vscode/test-electron": "^2.5.2",
     "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2",
     "mocha": "^11.7.5",
     "typescript": "^5.9.3",
     "vscode-uri": "^3.1.0"

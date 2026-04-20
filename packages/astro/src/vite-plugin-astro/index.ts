@@ -3,7 +3,7 @@ import type { SourceDescription } from 'rollup';
 import type * as vite from 'vite';
 import { defaultClientConditions, defaultServerConditions, normalizePath } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
-import type { Logger } from '../core/logger/core.js';
+import type { AstroLogger } from '../core/logger/core.js';
 import { isAstroServerEnvironment } from '../environments.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
@@ -20,7 +20,7 @@ export type { AstroPluginMetadata };
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
-	logger: Logger;
+	logger: AstroLogger;
 }
 
 const astroFileToCompileMetadataWeakMap = new WeakMap<AstroConfig, Map<string, CompileMetadata>>();
@@ -59,7 +59,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 				},
 				async handler(_source, id) {
 					const parsedId = parseAstroRequest(id);
-					// Special edge case handling for Vite 6 beta, the style dependencies need to be registered here take affect
+					// Special edge case handling for Vite 6 beta, the style dependencies need to be registered here to take effect
 					// TODO: Remove this when Vite fixes it (https://github.com/vitejs/vite/pull/18103)
 					const astroFilename = normalizePath(normalizeFilename(parsedId.filename, config.root));
 					const compileMetadata = astroFileToCompileMetadata.get(astroFilename);
@@ -310,7 +310,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 				},
 			},
 			async handleHotUpdate(ctx) {
-				return handleHotUpdate(ctx, { logger, astroFileToCompileMetadata });
+				return handleHotUpdate(ctx, { logger, compile, astroFileToCompileMetadata });
 			},
 		},
 		{

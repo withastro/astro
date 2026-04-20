@@ -67,9 +67,6 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 					},
 					session,
 					vite: {
-						ssr: {
-							noExternal: ['@astrojs/node'],
-						},
 						plugins: [
 							createConfigPlugin({
 								...userOptions,
@@ -78,6 +75,8 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 								host: _config.server.host,
 								port: _config.server.port,
 								staticHeaders: userOptions.staticHeaders ?? false,
+								bodySizeLimit: userOptions.bodySizeLimit ?? 1024 * 1024 * 1024,
+								experimentalDisableStreaming: userOptions.experimentalDisableStreaming ?? false,
 							}),
 						],
 					},

@@ -1,8 +1,7 @@
 import type { RouteData } from '../../../types/public/index.js';
 import { MiddlewareNoDataOrNextCalled, MiddlewareNotAResponse } from '../../errors/errors-data.js';
 import { type AstroError, isAstroError } from '../../errors/index.js';
-import type { Logger } from '../../logger/core.js';
-import type { CreateRenderContext, RenderContext } from '../../render-context.js';
+import type { AstroLogger } from '../../logger/core.js';
 import {
 	BaseApp,
 	type DevMatch,
@@ -19,14 +18,17 @@ import type { RoutesList } from '../../../types/astro.js';
 import { req } from '../../messages/runtime.js';
 
 export class DevApp extends BaseApp<NonRunnablePipeline> {
-	logger: Logger;
-	resolvedPathname: string | undefined = undefined;
-	constructor(manifest: SSRManifest, streaming = true, logger: Logger) {
+	logger: AstroLogger;
+	constructor(manifest: SSRManifest, streaming = true, logger: AstroLogger) {
 		super(manifest, streaming, logger);
 		this.logger = logger;
 	}
 
-	createPipeline(streaming: boolean, manifest: SSRManifest, logger: Logger): NonRunnablePipeline {
+	createPipeline(
+		streaming: boolean,
+		manifest: SSRManifest,
+		logger: AstroLogger,
+	): NonRunnablePipeline {
 		return NonRunnablePipeline.create({
 			logger,
 			manifest,
@@ -36,6 +38,14 @@ export class DevApp extends BaseApp<NonRunnablePipeline> {
 
 	isDev(): boolean {
 		return true;
+	}
+
+	/**
+	 * Clears the cached middleware so it is re-resolved on the next request.
+	 * Called via HMR when middleware files change.
+	 */
+	clearMiddleware(): void {
+		this.pipeline.clearMiddleware();
 	}
 
 	/**
@@ -60,18 +70,10 @@ export class DevApp extends BaseApp<NonRunnablePipeline> {
 		);
 		if (!matchedRoute) return undefined;
 
-		this.resolvedPathname = matchedRoute.resolvedPathname;
 		return {
 			routeData: matchedRoute.route,
 			resolvedPathname: matchedRoute.resolvedPathname,
 		};
-	}
-
-	async createRenderContext(payload: CreateRenderContext): Promise<RenderContext> {
-		return super.createRenderContext({
-			...payload,
-			pathname: this.resolvedPathname ?? payload.pathname,
-		});
 	}
 
 	async renderError(

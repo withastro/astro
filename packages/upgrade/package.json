@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/upgrade",
-  "version": "0.7.0-beta.2",
+  "version": "0.7.1",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -20,7 +20,8 @@
     "build": "astro-scripts build \"src/index.ts\" --bundle && tsc",
     "build:ci": "astro-scripts build \"src/index.ts\" --bundle",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "astro-scripts test \"test/**/*.test.js\""
+    "test": "astro-scripts test \"test/**/*.test.ts\"",
+    "typecheck:tests": "tsc -p tsconfig.test.json"
   },
   "files": [
     "dist",
@@ -40,6 +41,6 @@
     "astro-scripts": "workspace:*"
   },
   "engines": {
-    "node": "^20.19.1 || >=22.12.0"
+    "node": ">=22.12.0"
   }
 }

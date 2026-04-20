@@ -15,8 +15,9 @@ import type {
 } from '../../types/public/internal.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 import type { CspDirective } from '../csp/config.js';
-import type { LoggerLevel } from '../logger/core.js';
+import type { AstroLoggerLevel } from '../logger/core.js';
 import type { RoutingStrategies } from './common.js';
+import type { CacheProviderFactory, SSRManifestCache } from '../cache/types.js';
 import type { BaseSessionConfig, SessionDriverFactory } from '../session/types.js';
 import type { DevToolbarPlacement } from '../../types/public/toolbar.js';
 import type { MiddlewareMode } from '../../types/public/integrations.js';
@@ -78,7 +79,7 @@ export type SSRManifest = {
 		enabled: boolean;
 		/** Node pool size for memory reuse (default: 1000, set to 0 to disable pooling) */
 		poolSize?: number;
-		/** Whether to enable HTMLString caching (default: true) */
+		/** Whether to enable HTMLString caching for deduplicating repeated HTML fragments (default: true) */
 		contentCache?: boolean;
 	};
 	assetsPrefix?: AssetsPrefix;
@@ -112,10 +113,13 @@ export type SSRManifest = {
 	middleware?: () => Promise<AstroMiddlewareInstance> | AstroMiddlewareInstance;
 	actions?: () => Promise<SSRActions> | SSRActions;
 	sessionDriver?: () => Promise<{ default: SessionDriverFactory | null }>;
+	cacheProvider?: () => Promise<{ default: CacheProviderFactory | null }>;
 	checkOrigin: boolean;
 	allowedDomains?: Partial<RemotePattern>[];
 	actionBodySizeLimit: number;
+	serverIslandBodySizeLimit: number;
 	sessionConfig?: SSRManifestSession;
+	cacheConfig?: SSRManifestCache;
 	cacheDir: URL;
 	srcDir: URL;
 	outDir: URL;
@@ -146,7 +150,7 @@ export type SSRManifest = {
 		placement: DevToolbarPlacement | undefined;
 	};
 	internalFetchHeaders?: Record<string, string>;
-	logLevel: LoggerLevel;
+	logLevel: AstroLoggerLevel;
 };
 
 export type SSRActions = {

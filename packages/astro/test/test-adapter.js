@@ -11,9 +11,9 @@ import { viteID } from '../dist/core/util.js';
  *
  * @param {{
  * 	provideAddress?: boolean;
- * 	extendAdapter?: AstroAdapter;
+ * 	extendAdapter?: Partial<AstroAdapter>;
  * 	setMiddlewareEntryPoint?: (middlewareEntryPoint: MiddlewareEntryPoint) => void;
- * 	env: Record<string, string | undefined>;
+ * 	env?: Record<string, string | undefined>;
  * }} param0
  * @returns {AstroIntegration}
  */

@@ -30,7 +30,7 @@ import {
 	type ErrorWithMetadata,
 	isAstroError,
 } from '../errors/index.js';
-import type { Logger } from '../logger/core.js';
+import type { AstroLogger } from '../logger/core.js';
 import { createRoutesList } from '../routing/create-manifest.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { normalizePath } from '../viteUtils.js';
@@ -41,7 +41,7 @@ type SyncOptions = {
 	 * @internal only used for testing
 	 */
 	fs?: typeof fsMod;
-	logger: Logger;
+	logger: AstroLogger;
 	settings: AstroSettings;
 	force?: boolean;
 	skip?: {
@@ -92,7 +92,7 @@ export async function clearContentLayerCache({
 	isDev,
 }: {
 	settings: AstroSettings;
-	logger: Logger;
+	logger: AstroLogger;
 	fs?: typeof fsMod;
 	isDev: boolean;
 }) {
@@ -281,7 +281,7 @@ async function createTempViteServer(
  *
  * A non-zero process signal is emitted in case there's an error while generating content collection types.
  *
- * This should only be used when the callee already has an `AstroSetting`, otherwise use `sync()` instead.
+ * This should only be used when the callee already has an `AstroSetting`; otherwise, use `sync()` instead.
  * @internal
  *
  * @param {SyncOptions} options
@@ -292,7 +292,7 @@ async function createTempViteServer(
  */
 async function syncContentCollections(
 	settings: AstroSettings,
-	{ logger, fs, viteServer }: { logger: Logger; fs: typeof fsMod; viteServer: ViteDevServer },
+	{ logger, fs, viteServer }: { logger: AstroLogger; fs: typeof fsMod; viteServer: ViteDevServer },
 ): Promise<void> {
 	try {
 		const contentTypesGenerator = await createContentTypesGenerator({

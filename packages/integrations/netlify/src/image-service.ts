@@ -1,10 +1,22 @@
 import type { ExternalImageService } from 'astro';
 import { baseService } from 'astro/assets';
+import { verifyOptions } from '../../../astro/dist/assets/internal.js';
 import { isESMImportedImage } from 'astro/assets/utils';
 import { AstroError } from 'astro/errors';
 
 const SUPPORTED_FORMATS = ['avif', 'jpg', 'png', 'webp'];
 const QUALITY_NAMES: Record<string, number> = { low: 25, mid: 50, high: 90, max: 100 };
+
+// Netlify only supports contain (default), cover, and fill
+// Astro values not directly supported are mapped to their nearest equivalent
+const FIT_MAP: Record<string, string> = {
+	contain: 'contain',
+	cover: 'cover',
+	fill: 'fill',
+	inside: 'contain',
+	outside: 'cover',
+	'scale-down': 'contain',
+};
 
 function removeLeadingForwardSlash(path: string) {
 	return path.startsWith('/') ? path.substring(1) : path;
@@ -30,12 +42,18 @@ const service: ExternalImageService = {
 		if (options.width) query.set('w', `${options.width}`);
 		if (options.height) query.set('h', `${options.height}`);
 		if (options.quality) query.set('q', `${options.quality}`);
+		if (options.fit) {
+			const netlifyFit = FIT_MAP[options.fit];
+			if (netlifyFit) query.set('fit', netlifyFit);
+		}
 
 		return `/.netlify/images?${query}`;
 	},
 	getHTMLAttributes: baseService.getHTMLAttributes,
 	getSrcSet: baseService.getSrcSet,
 	validateOptions(options) {
+		verifyOptions(options);
+
 		if (options.format && !SUPPORTED_FORMATS.includes(options.format)) {
 			throw new AstroError(
 				`Unsupported image format "${options.format}"`,

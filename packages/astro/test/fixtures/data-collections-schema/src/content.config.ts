@@ -16,7 +16,7 @@ const i18n = defineCollection({
 			greeting: z.string(),
 			preamble: z.string(),
 		})
-	}),
+	}).meta({ title: 'Translations', description: 'Translation strings for the site' }),
 });
 
 const func = defineCollection({

@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/cloudflare",
   "description": "Deploy your site to Cloudflare Workers",
-  "version": "13.0.0-beta.11",
+  "version": "13.1.10",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -19,12 +19,12 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/cloudflare/",
   "exports": {
     ".": "./dist/index.js",
-    "./info": "./dist/info.js",
     "./entrypoints/server": "./dist/entrypoints/server.js",
     "./entrypoints/preview": "./dist/entrypoints/preview.js",
     "./entrypoints/server.js": "./dist/entrypoints/server.js",
     "./image-service": "./dist/entrypoints/image-service-external.js",
     "./image-transform-endpoint": "./dist/entrypoints/image-transform-endpoint.js",
+    "./image-passthrough-endpoint": "./dist/entrypoints/image-passthrough-endpoint.js",
     "./image-service-workerd": "./dist/entrypoints/image-service-workerd.js",
     "./handler": "./dist/utils/handler.js",
     "./types.d.ts": "./types.d.ts",
@@ -38,7 +38,8 @@
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "build": "astro-scripts build \"src/**/*.ts\" --clean-dts && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
-    "test": "astro-scripts test --force-exit \"test/**/*.test.js\""
+    "test": "astro-scripts test --force-exit \"test/**/*.test.ts\"",
+    "typecheck:tests": "tsc --build tsconfig.test.json"
   },
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
@@ -49,7 +50,7 @@
     "vite": "^7.3.1"
   },
   "peerDependencies": {
-    "astro": "^6.0.0-alpha.0",
+    "astro": "^6.0.0",
     "wrangler": "^4.61.1"
   },
   "devDependencies": {

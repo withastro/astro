@@ -10,7 +10,7 @@ import type { TryRewriteResult } from '../base-pipeline.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/component.js';
 import { Pipeline } from '../base-pipeline.js';
 import { createAssetLink, createStylesheetElementSet } from '../render/ssr-element.js';
-import { createDefaultRoutes } from '../routing/default.js';
+import { createDefaultRoutes, type DefaultRouteParams } from '../routing/default.js';
 import { getFallbackRoute, routeIsFallback, routeIsRedirect } from '../routing/helpers.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
 import type { BuildInternals } from './internal.js';
@@ -26,6 +26,8 @@ import { queueRenderingEnabled } from '../app/manifest.js';
 export class BuildPipeline extends Pipeline {
 	internals: BuildInternals | undefined;
 	options: StaticBuildOptions | undefined;
+	readonly manifest: SSRManifest;
+	readonly defaultRoutes: Array<DefaultRouteParams>;
 
 	getName(): string {
 		return 'BuildPipeline';
@@ -58,10 +60,7 @@ export class BuildPipeline extends Pipeline {
 		return this.internals;
 	}
 
-	private constructor(
-		readonly manifest: SSRManifest,
-		readonly defaultRoutes = createDefaultRoutes(manifest),
-	) {
+	private constructor(manifest: SSRManifest, defaultRoutes = createDefaultRoutes(manifest)) {
 		const resolveCache = new Map<string, string>();
 
 		async function resolve(specifier: string) {
@@ -85,9 +84,13 @@ export class BuildPipeline extends Pipeline {
 		const logger = createConsoleLogger(manifest.logLevel);
 		// We can skip streaming in SSG for performance as writing as strings are faster
 		super(logger, manifest, 'production', manifest.renderers, resolve, manifest.serverLike);
+		this.manifest = manifest;
+		this.defaultRoutes = defaultRoutes;
 		if (queueRenderingEnabled(this.manifest.experimentalQueuedRendering)) {
 			this.nodePool = newNodePool(this.manifest.experimentalQueuedRendering!);
-			this.htmlStringCache = new HTMLStringCache(1000); // Use default size
+			if (this.manifest.experimentalQueuedRendering!.contentCache) {
+				this.htmlStringCache = new HTMLStringCache(1000);
+			}
 		}
 	}
 
@@ -224,7 +227,7 @@ export class BuildPipeline extends Pipeline {
 				return RedirectSinglePageBuiltModule;
 			}
 		} else if (routeIsFallback(route)) {
-			// This is a i18n fallback route
+			// This is an i18n fallback route
 			routeToProcess = getFallbackRoute(route, this.manifest.routes);
 		}
 

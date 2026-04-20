@@ -9,7 +9,7 @@ import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
 import type * as z from 'zod/v4';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import type { Logger } from '../core/logger/core.js';
+import type { AstroLogger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { ContentEntryType, RefreshContentOptions } from '../types/public/content.js';
 import {
@@ -35,7 +35,7 @@ import { createWatcherWrapper, type WrappedWatcher } from './watcher.js';
 export interface ContentLayerOptions {
 	store: MutableDataStore;
 	settings: AstroSettings;
-	logger: Logger;
+	logger: AstroLogger;
 	watcher?: FSWatcher;
 	contentConfigObserver?: ContentObservable;
 }
@@ -47,7 +47,7 @@ type CollectionLoader<TData> = () =>
 	| Promise<Record<string, Record<string, unknown>>>;
 
 export class ContentLayer {
-	#logger: Logger;
+	#logger: AstroLogger;
 	#store: MutableDataStore;
 	#settings: AstroSettings;
 	#watcher?: WrappedWatcher;
@@ -165,7 +165,10 @@ export class ContentLayer {
 		});
 		return {
 			html: code,
-			metadata,
+			metadata: {
+				...metadata,
+				imagePaths: (metadata.localImagePaths ?? []).concat(metadata.remoteImagePaths ?? []),
+			},
 		};
 	}
 

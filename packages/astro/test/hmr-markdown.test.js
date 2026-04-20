@@ -23,32 +23,31 @@ describe('HMR: Markdown updates', () => {
 		await devServer.stop();
 	});
 
-	it(
-		'should update HTML when markdown changes',
-		{ skip: isWindows, todo: 'HMR tests hang on Windows' },
-		async () => {
-			let response = await fixture.fetch('/');
-			assert.equal(response.status, 200);
-			let html = await response.text();
-			assert.ok(html.includes('Original content'));
+	it('should update HTML when markdown changes', {
+		skip: isWindows,
+		todo: 'HMR tests hang on Windows',
+	}, async () => {
+		let response = await fixture.fetch('/');
+		assert.equal(response.status, 200);
+		let html = await response.text();
+		assert.ok(html.includes('Original content'));
 
-			response = await fixture.fetch('/blog/post');
-			assert.equal(response.status, 200);
-			html = await response.text();
-			assert.ok(html.includes('Original content'));
+		response = await fixture.fetch('/blog/post');
+		assert.equal(response.status, 200);
+		html = await response.text();
+		assert.ok(html.includes('Original content'));
 
-			await fixture.editFile(markdownPath, UPDATED_CONTENT);
-			await fixture.onNextDataStoreChange();
+		await fixture.editFile(markdownPath, UPDATED_CONTENT);
+		await fixture.onNextDataStoreChange();
 
-			response = await fixture.fetch('/');
-			assert.equal(response.status, 200);
-			html = await response.text();
-			assert.ok(html.includes('Updated content'));
+		response = await fixture.fetch('/');
+		assert.equal(response.status, 200);
+		html = await response.text();
+		assert.ok(html.includes('Updated content'));
 
-			response = await fixture.fetch('/blog/post');
-			assert.equal(response.status, 200);
-			html = await response.text();
-			assert.ok(html.includes('Updated content'));
-		},
-	);
+		response = await fixture.fetch('/blog/post');
+		assert.equal(response.status, 200);
+		html = await response.text();
+		assert.ok(html.includes('Updated content'));
+	});
 });

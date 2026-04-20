@@ -4,7 +4,7 @@ import type {
 	AssetsGlobalStaticImagesList,
 	PathWithRoute,
 } from 'astro';
-import { preview, type PreviewServer as VitePreviewServer } from 'vite';
+import { preview, createLogger, type PreviewServer as VitePreviewServer } from 'vite';
 import { fileURLToPath } from 'node:url';
 import { mkdir } from 'node:fs/promises';
 import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
@@ -53,6 +53,21 @@ export function createCloudflarePrerenderer({
 			// Ensure client dir exists (CF plugin expects it for assets)
 			await mkdir(clientDir, { recursive: true });
 
+			// Create a custom logger that filters out internal HTTP request logs (e.g. "POST /__astro_prerender 200 OK")
+			// from the Cloudflare vite plugin while still allowing user console.log output to pass through.
+			// We strip ANSI codes before testing because the Cloudflare vite plugin wraps messages in color codes.
+			const defaultLogger = createLogger('info');
+			// eslint-disable-next-line no-control-regex
+			const ansiRe = /\x1b\[[0-9;]*m/g;
+			const astroRequestLogRe = /^(?:GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\s+\/__astro_/;
+			const customLogger: ReturnType<typeof createLogger> = {
+				...defaultLogger,
+				info(msg, opts) {
+					if (astroRequestLogRe.test(msg.replace(ansiRe, ''))) return;
+					defaultLogger.info(msg, opts);
+				},
+			};
+
 			previewServer = await preview({
 				configFile: false,
 				base,
@@ -61,7 +76,7 @@ export function createCloudflarePrerenderer({
 					outDir: fileURLToPath(serverDir),
 				},
 				root: fileURLToPath(root),
-				logLevel: 'error',
+				customLogger,
 				preview: {
 					host: 'localhost',
 					port: 0, // Let the OS pick a free port
@@ -89,9 +104,10 @@ export function createCloudflarePrerenderer({
 			});
 
 			if (!response.ok) {
+				const body = await response.text();
+				const details = body ? `\n${body}` : '';
 				throw new Error(
-					`Failed to get static paths from the Cloudflare prerender server (${response.status}: ${response.statusText}). ` +
-						'This is likely a bug in @astrojs/cloudflare. Please file an issue at https://github.com/withastro/astro/issues',
+					`Failed to get static paths from the Cloudflare prerender server (${response.status}: ${response.statusText}).${details}`,
 				);
 			}
 
@@ -115,6 +131,7 @@ export function createCloudflarePrerenderer({
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(body),
+				redirect: 'manual',
 			});
 
 			return response;
@@ -128,8 +145,10 @@ export function createCloudflarePrerenderer({
 					});
 
 					if (!response.ok) {
+						const body = await response.text();
+						const details = body ? `\n${body}` : '';
 						throw new Error(
-							`Failed to get static images from the Cloudflare prerender server (${response.status}: ${response.statusText}).`,
+							`Failed to get static images from the Cloudflare prerender server (${response.status}: ${response.statusText}).${details}`,
 						);
 					}
 

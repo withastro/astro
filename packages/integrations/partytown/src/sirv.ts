@@ -126,7 +126,9 @@ function send(req, res, file, stats, headers) {
 	}
 
 	res.writeHead(code, headers);
-	fs.createReadStream(file, opts).pipe(res);
+	const stream = fs.createReadStream(file, opts);
+	stream.pipe(res);
+	res.on('close', () => stream.destroy());
 }
 
 const ENCODING = {
@@ -221,7 +223,7 @@ export default function (dir, opts = {}) {
 			try {
 				pathname = decodeURIComponent(pathname);
 			} catch {
-				/* malform uri */
+				/* malformed uri */
 			}
 		}
 

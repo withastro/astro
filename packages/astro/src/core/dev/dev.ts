@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import type http from 'node:http';
+import { createRequire } from 'node:module';
 import type { AddressInfo } from 'node:net';
 import { performance } from 'node:perf_hooks';
 import colors from 'piccolore';
@@ -24,6 +25,19 @@ import {
 } from './update-check.js';
 import { BuildTimeAstroVersionProvider } from '../../cli/infra/build-time-astro-version-provider.js';
 import { piccoloreTextStyler } from '../../cli/infra/piccolore-text-styler.js';
+import type { AstroLogger } from '../logger/core.js';
+
+function warnIfVite8({ root, logger }: { root: URL | string; logger: AstroLogger }) {
+	try {
+		const require = createRequire(root);
+		const { version } = require('vite/package.json') as { version: string };
+		if (major(version) >= 8) {
+			logger.warn('SKIP_FORMAT', msg.vite8Warning({ viteVersion: version }));
+		}
+	} catch {
+		// If vite can't be resolved from the project root, skip the warning
+	}
+}
 
 export interface DevServer {
 	address: AddressInfo;
@@ -139,6 +153,8 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 	if (restart.container.viteServer.config.server?.fs?.strict === false) {
 		logger.warn('SKIP_FORMAT', msg.fsStrictWarning());
 	}
+
+	setImmediate(() => warnIfVite8({ root: restart.container.settings.config.root, logger }));
 
 	logger.info(null, colors.green('watching for file changes...'));
 

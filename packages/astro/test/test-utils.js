@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { glob } from 'tinyglobby';
 import { Agent } from 'undici';
+import { CILogger } from '../../../scripts/testing/github-utils.js';
 import { check } from '../dist/cli/check/index.js';
 import { globalContentLayer } from '../dist/content/instance.js';
 import { globalContentConfigObserver } from '../dist/content/utils.js';
@@ -29,7 +30,7 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
  *
  *
  * @typedef {Object} Fixture
- * @property {typeof build} build
+ * @property {(extraInlineConfig?: Parameters<typeof build>[0], options?: Parameters<typeof build>[1]) => Promise<void>} build
  * @property {(url: string) => string} resolveUrl
  * @property {(path: string) => Promise<boolean>} pathExists
  * @property {(url: string, opts?: Parameters<typeof fetch>[1]) => Promise<Response>} fetch
@@ -38,7 +39,7 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
  * @property {(path: string) => Promise<string[]>} readdir
  * @property {(pattern: string) => Promise<string[]>} glob
  * @property {(inlineConfig?: Parameters<typeof dev>[0]) => ReturnType<typeof dev>} startDevServer
- * @property {typeof preview} preview
+ * @property {(extraInlineConfig?: Parameters<typeof preview>[0]) => Promise<PreviewServer>} preview
  * @property {() => Promise<void>} clean
  * @property {(streaming?: boolean) => Promise<App>} loadTestAdapterApp
  * @property {(streaming?: boolean) => Promise<App>} loadSelfAdapterApp
@@ -151,10 +152,12 @@ export async function loadFixture(inlineConfig) {
 			globalContentConfigObserver.set({ status: 'init' });
 			// Reset NODE_ENV so it can be re-set by `build()`
 			delete process.env.NODE_ENV;
-			return build(mergeConfig(inlineConfig, extraInlineConfig), {
+			const t0 = performance.now();
+			await build(mergeConfig(inlineConfig, extraInlineConfig), {
 				teardownCompiler: false,
 				...options,
 			});
+			CILogger.logBuild({ fixture: root, duration: performance.now() - t0 });
 		},
 		sync,
 		check: async (opts) => {
