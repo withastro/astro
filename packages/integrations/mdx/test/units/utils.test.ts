@@ -1,12 +1,13 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import type { AstroConfig, AstroIntegrationLogger } from 'astro';
+import type { AstroConfig } from 'astro';
 import {
 	appendForwardSlash,
 	getFileInfo,
 	ignoreStringPlugins,
 	jsToTreeNode,
 } from '../../dist/utils.js';
+import { SpyIntegrationLogger } from '../test-utils.ts';
 
 describe('utils', () => {
 	describe('appendForwardSlash', () => {
@@ -124,30 +125,20 @@ describe('utils', () => {
 	});
 
 	describe('ignoreStringPlugins', () => {
-		function mockLogger(): AstroIntegrationLogger & { warnings: string[] } {
-			const warnings: string[] = [];
-			return {
-				warn: (msg: string) => {
-					warnings.push(msg);
-				},
-				warnings,
-			} as AstroIntegrationLogger & { warnings: string[] };
-		}
-
 		it('returns function plugins unchanged', () => {
 			const plugin1 = () => {};
 			const plugin2 = () => {};
-			const logger = mockLogger();
+			const logger = new SpyIntegrationLogger();
 			const result = ignoreStringPlugins([plugin1, plugin2], logger);
 			assert.equal(result.length, 2);
 			assert.equal(result[0], plugin1);
 			assert.equal(result[1], plugin2);
-			assert.equal(logger.warnings.length, 0);
+			assert.equal(logger.messages.filter((m) => m.level === 'warn').length, 0);
 		});
 
 		it('filters out string-based plugins', () => {
 			const fnPlugin = () => {};
-			const logger = mockLogger();
+			const logger = new SpyIntegrationLogger();
 			const result = ignoreStringPlugins(['remark-toc', fnPlugin], logger);
 			assert.equal(result.length, 1);
 			assert.equal(result[0], fnPlugin);
@@ -155,31 +146,31 @@ describe('utils', () => {
 
 		it('filters out array-based string plugins [string, options]', () => {
 			const fnPlugin = () => {};
-			const logger = mockLogger();
+			const logger = new SpyIntegrationLogger();
 			const result = ignoreStringPlugins([['remark-toc', {}], fnPlugin], logger);
 			assert.equal(result.length, 1);
 			assert.equal(result[0], fnPlugin);
 		});
 
 		it('logs warnings for string plugins', () => {
-			const logger = mockLogger();
+			const logger = new SpyIntegrationLogger();
 			ignoreStringPlugins(['remark-toc', ['rehype-highlight', {}]], logger);
 			// One warning per string plugin + one summary warning
-			assert.equal(logger.warnings.length, 3);
+			assert.equal(logger.messages.filter((m) => m.level === 'warn').length, 3);
 		});
 
 		it('returns empty array for all string plugins', () => {
-			const logger = mockLogger();
+			const logger = new SpyIntegrationLogger();
 			const result = ignoreStringPlugins(['remark-toc'], logger);
 			assert.equal(result.length, 0);
 		});
 
 		it('handles array-based function plugins [function, options]', () => {
 			const fnPlugin = () => {};
-			const logger = mockLogger();
+			const logger = new SpyIntegrationLogger();
 			const result = ignoreStringPlugins([[fnPlugin, { option: true }]], logger);
 			assert.equal(result.length, 1);
-			assert.equal(logger.warnings.length, 0);
+			assert.equal(logger.messages.filter((m) => m.level === 'warn').length, 0);
 		});
 	});
 });
