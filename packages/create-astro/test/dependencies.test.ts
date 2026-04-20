@@ -1,18 +1,19 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { dependencies } from '../dist/index.js';
-import { setup } from './utils.js';
+import { type DependenciesContext, mockPrompt, setup } from './utils.ts';
 
 describe('dependencies', () => {
 	const fixture = setup();
 
 	it('--yes', async () => {
-		const context = {
+		const context: DependenciesContext = {
 			cwd: '',
 			yes: true,
 			packageManager: 'npm',
 			dryRun: true,
-			prompt: () => ({ deps: true }),
+			prompt: mockPrompt({ deps: true }),
+			tasks: [],
 		};
 
 		await dependencies(context);
@@ -21,13 +22,14 @@ describe('dependencies', () => {
 	});
 
 	it('--yes with third-party template warns', async () => {
-		const context = {
+		const context: DependenciesContext = {
 			cwd: '',
 			yes: true,
 			template: 'github:someone/starter',
 			packageManager: 'npm',
 			dryRun: true,
-			prompt: () => ({ deps: true }),
+			prompt: mockPrompt({ deps: true }),
+			tasks: [],
 		};
 
 		await dependencies(context);
@@ -36,13 +38,14 @@ describe('dependencies', () => {
 	});
 
 	it('starlight templates do not warn', async () => {
-		const context = {
+		const context: DependenciesContext = {
 			cwd: '',
 			yes: true,
 			template: 'starlight/tailwind',
 			packageManager: 'npm',
 			dryRun: true,
-			prompt: () => ({ deps: true }),
+			prompt: mockPrompt({ deps: true }),
+			tasks: [],
 		};
 
 		await dependencies(context);
@@ -51,13 +54,14 @@ describe('dependencies', () => {
 	});
 
 	it('starlight-prefixed third-party templates warn', async () => {
-		const context = {
+		const context: DependenciesContext = {
 			cwd: '',
 			yes: true,
 			template: 'starlightevil/foo',
 			packageManager: 'npm',
 			dryRun: true,
-			prompt: () => ({ deps: true }),
+			prompt: mockPrompt({ deps: true }),
+			tasks: [],
 		};
 
 		await dependencies(context);
@@ -66,13 +70,14 @@ describe('dependencies', () => {
 	});
 
 	it('warns without --yes when install is enabled', async () => {
-		const context = {
+		const context: DependenciesContext = {
 			cwd: '',
 			install: true,
 			template: 'github:someone/starter',
 			packageManager: 'npm',
 			dryRun: true,
-			prompt: () => ({ deps: true }),
+			prompt: mockPrompt({ deps: true }),
+			tasks: [],
 		};
 
 		await dependencies(context);
@@ -81,12 +86,13 @@ describe('dependencies', () => {
 	});
 
 	it('prompt yes', async () => {
-		const context = {
+		const context: DependenciesContext = {
 			cwd: '',
 			packageManager: 'npm',
 			dryRun: true,
-			prompt: () => ({ deps: true }),
+			prompt: mockPrompt({ deps: true }),
 			install: undefined,
+			tasks: [],
 		};
 
 		await dependencies(context);
@@ -96,12 +102,13 @@ describe('dependencies', () => {
 	});
 
 	it('prompt no', async () => {
-		const context = {
+		const context: DependenciesContext = {
 			cwd: '',
 			packageManager: 'npm',
 			dryRun: true,
-			prompt: () => ({ deps: false }),
+			prompt: mockPrompt({ deps: false }),
 			install: undefined,
+			tasks: [],
 		};
 
 		await dependencies(context);
@@ -111,12 +118,13 @@ describe('dependencies', () => {
 	});
 
 	it('--install', async () => {
-		const context = {
+		const context: DependenciesContext = {
 			cwd: '',
 			install: true,
 			packageManager: 'npm',
 			dryRun: true,
-			prompt: () => ({ deps: false }),
+			prompt: mockPrompt({ deps: false }),
+			tasks: [],
 		};
 		await dependencies(context);
 		assert.ok(fixture.hasMessage('Skipping dependency installation'));
@@ -124,12 +132,13 @@ describe('dependencies', () => {
 	});
 
 	it('--no-install ', async () => {
-		const context = {
+		const context: DependenciesContext = {
 			cwd: '',
 			install: false,
 			packageManager: 'npm',
 			dryRun: true,
-			prompt: () => ({ deps: false }),
+			prompt: mockPrompt({ deps: false }),
+			tasks: [],
 		};
 
 		await dependencies(context);
@@ -140,17 +149,20 @@ describe('dependencies', () => {
 
 	describe('--add', async () => {
 		it('fails for non-supported integration', async () => {
-			let context = {
+			let context: DependenciesContext = {
 				cwd: '',
 				add: ['foo '],
 				dryRun: true,
-				prompt: () => ({ deps: false }),
+				prompt: mockPrompt({ deps: false }),
+				packageManager: 'npm',
+				tasks: [],
 			};
 
 			try {
 				await dependencies(context);
 				assert.fail('The function should throw an error');
 			} catch (error) {
+				assert.ok(error instanceof Error);
 				assert.ok(
 					error.message.includes('Invalid package name "foo "'),
 					`Expected error about invalid package name, got: ${error.message}`,
@@ -160,13 +172,16 @@ describe('dependencies', () => {
 				cwd: '',
 				add: ['react', 'bar lorem'],
 				dryRun: true,
-				prompt: () => ({ deps: false }),
+				prompt: mockPrompt({ deps: false }),
+				packageManager: 'npm',
+				tasks: [],
 			};
 
 			try {
 				await dependencies(context);
 				assert.fail('The function should throw an error');
 			} catch (error) {
+				assert.ok(error instanceof Error);
 				assert.ok(
 					error.message.includes('Invalid package name "bar lorem"'),
 					`Expected error about invalid package name, got: ${error.message}`,

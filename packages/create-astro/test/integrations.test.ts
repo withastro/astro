@@ -1,18 +1,20 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { dependencies } from '../dist/index.js';
-import { setup } from './utils.js';
+import { type DependenciesContext, mockPrompt, setup } from './utils.ts';
 
 describe('integrations', () => {
 	const fixture = setup();
 
 	it('--add node', async () => {
-		const context = {
+		const context: DependenciesContext = {
 			cwd: '',
 			yes: true,
 			packageManager: 'npm',
 			dryRun: true,
 			add: ['node'],
+			prompt: mockPrompt({}),
+			tasks: [],
 		};
 
 		await dependencies(context);
@@ -21,12 +23,14 @@ describe('integrations', () => {
 	});
 
 	it('--add node --add react', async () => {
-		const context = {
+		const context: DependenciesContext = {
 			cwd: '',
 			yes: true,
 			packageManager: 'npm',
 			dryRun: true,
 			add: ['node', 'react'],
+			prompt: mockPrompt({}),
+			tasks: [],
 		};
 
 		await dependencies(context);
@@ -37,12 +41,14 @@ describe('integrations', () => {
 	});
 
 	it('--add node,react', async () => {
-		const context = {
+		const context: DependenciesContext = {
 			cwd: '',
 			yes: true,
 			packageManager: 'npm',
 			dryRun: true,
 			add: ['node,react'],
+			prompt: mockPrompt({}),
+			tasks: [],
 		};
 
 		await dependencies(context);
@@ -53,11 +59,13 @@ describe('integrations', () => {
 	});
 
 	it('-y', async () => {
-		const context = {
+		const context: DependenciesContext = {
 			cwd: '',
 			yes: true,
 			packageManager: 'npm',
 			dryRun: true,
+			prompt: mockPrompt({}),
+			tasks: [],
 		};
 		await dependencies(context);
 		assert.ok(fixture.hasMessage('--dry-run Skipping dependency installation'));
@@ -65,12 +73,14 @@ describe('integrations', () => {
 
 	describe('Security: Command injection protection', () => {
 		it('blocks semicolon command injection', async () => {
-			const context = {
+			const context: DependenciesContext = {
 				cwd: '',
 				yes: true,
 				packageManager: 'npm',
 				dryRun: true,
 				add: ['react;whoami'],
+				prompt: mockPrompt({}),
+				tasks: [],
 			};
 
 			await assert.rejects(
@@ -81,12 +91,14 @@ describe('integrations', () => {
 		});
 
 		it('blocks command substitution with $()', async () => {
-			const context = {
+			const context: DependenciesContext = {
 				cwd: '',
 				yes: true,
 				packageManager: 'npm',
 				dryRun: true,
 				add: ['react$(whoami)'],
+				prompt: mockPrompt({}),
+				tasks: [],
 			};
 
 			await assert.rejects(
@@ -97,12 +109,14 @@ describe('integrations', () => {
 		});
 
 		it('blocks command substitution with backticks', async () => {
-			const context = {
+			const context: DependenciesContext = {
 				cwd: '',
 				yes: true,
 				packageManager: 'npm',
 				dryRun: true,
 				add: ['react`whoami`'],
+				prompt: mockPrompt({}),
+				tasks: [],
 			};
 
 			await assert.rejects(
@@ -113,12 +127,14 @@ describe('integrations', () => {
 		});
 
 		it('blocks pipe operators', async () => {
-			const context = {
+			const context: DependenciesContext = {
 				cwd: '',
 				yes: true,
 				packageManager: 'npm',
 				dryRun: true,
 				add: ['react|whoami'],
+				prompt: mockPrompt({}),
+				tasks: [],
 			};
 
 			await assert.rejects(
@@ -129,12 +145,14 @@ describe('integrations', () => {
 		});
 
 		it('blocks ampersand operators', async () => {
-			const context = {
+			const context: DependenciesContext = {
 				cwd: '',
 				yes: true,
 				packageManager: 'npm',
 				dryRun: true,
 				add: ['react&&whoami'],
+				prompt: mockPrompt({}),
+				tasks: [],
 			};
 
 			await assert.rejects(
@@ -145,12 +163,14 @@ describe('integrations', () => {
 		});
 
 		it('blocks redirect operators', async () => {
-			const context = {
+			const context: DependenciesContext = {
 				cwd: '',
 				yes: true,
 				packageManager: 'npm',
 				dryRun: true,
 				add: ['react>file'],
+				prompt: mockPrompt({}),
+				tasks: [],
 			};
 
 			await assert.rejects(
@@ -161,12 +181,14 @@ describe('integrations', () => {
 		});
 
 		it('allows scoped packages', async () => {
-			const context = {
+			const context: DependenciesContext = {
 				cwd: '',
 				yes: true,
 				packageManager: 'npm',
 				dryRun: true,
 				add: ['@astrojs/tailwind'],
+				prompt: mockPrompt({}),
+				tasks: [],
 			};
 
 			await dependencies(context);
@@ -178,12 +200,14 @@ describe('integrations', () => {
 		});
 
 		it('allows valid package names', async () => {
-			const context = {
+			const context: DependenciesContext = {
 				cwd: '',
 				yes: true,
 				packageManager: 'npm',
 				dryRun: true,
 				add: ['my-package', 'package_2.0'],
+				prompt: mockPrompt({}),
+				tasks: [],
 			};
 
 			await dependencies(context);
