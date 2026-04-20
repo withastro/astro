@@ -84,11 +84,15 @@ export class RenderContext {
 	public skipMiddleware: boolean;
 	/**
 	 * Back-reference to the `FetchState` that owns this render context.
-	 * Set by `AstroHandler` (and the container) immediately after creation
-	 * so that `rewrite()` can re-enter middleware with the same per-request
-	 * state. `undefined` only in legacy paths that haven't been updated yet.
+	 * Assigned in the constructor (initially `null`) so the instance's
+	 * hidden class is fully defined up front; `AstroHandler` /
+	 * `FetchState.getRenderContext` /  error handlers / container
+	 * populate it immediately after creation.
+	 *
+	 * `null` rather than `undefined` so V8 sees a concrete value from the
+	 * start and doesn't treat the slot as "missing" in type feedback.
 	 */
-	public fetchState: import('./app/fetch-state.js').FetchState | undefined;
+	public fetchState: import('./app/fetch-state.js').FetchState | null;
 	#rewrites: Rewrites;
 
 	private constructor(
@@ -130,6 +134,7 @@ export class RenderContext {
 		this.session = session;
 		this.cache = cache;
 		this.skipMiddleware = skipMiddleware;
+		this.fetchState = null;
 		this.#rewrites = new Rewrites();
 	}
 
@@ -280,9 +285,10 @@ export class RenderContext {
 		};
 
 		Reflect.set(context, pipelineSymbol, this.pipeline);
-		if (this.fetchState) {
-			Reflect.set(context, fetchStateSymbol, this.fetchState);
-		}
+		// Direct symbol assignment (no Reflect.set, no guard) on the hot
+		// path. `fetchState` is always populated on `RenderContext` before
+		// `createAPIContext` runs — see constructor default.
+		(context as any)[fetchStateSymbol] = this.fetchState;
 
 		return Object.assign(context, {
 			props,
