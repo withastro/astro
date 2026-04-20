@@ -28,7 +28,6 @@ import { req } from '../core/messages/runtime.js';
 
 export class AstroServerApp extends BaseApp<RunnablePipeline> {
 	settings: AstroSettings;
-	logger: AstroLogger;
 	loader: ModuleLoader;
 	manifestData: RoutesList;
 	currentRenderContext: RenderContext | undefined = undefined;
@@ -43,7 +42,6 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 	) {
 		super(manifest, streaming, settings, logger, loader, manifestData, getDebugInfo);
 		this.settings = settings;
-		this.logger = logger;
 		this.loader = loader;
 		this.manifestData = manifestData;
 	}

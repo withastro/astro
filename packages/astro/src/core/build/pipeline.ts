@@ -81,6 +81,8 @@ export class BuildPipeline extends Pipeline {
 			resolveCache.set(specifier, assetLink);
 			return assetLink;
 		}
+		// Start with console logger synchronously; the custom logger destination
+		// (if configured) is lazily resolved via pipeline.getLogger() on first use.
 		const logger = createConsoleLogger({ level: manifest.logLevel });
 		// We can skip streaming in SSG for performance as writing as strings are faster
 		super(logger, manifest, 'production', manifest.renderers, resolve, manifest.serverLike);

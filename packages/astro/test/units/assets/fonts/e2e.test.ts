@@ -26,8 +26,8 @@ import { UnifontFontResolver } from '../../../../dist/assets/fonts/infra/unifont
 import { UnstorageFsStorage } from '../../../../dist/assets/fonts/infra/unstorage-fs-storage.js';
 import { XxhashHasher } from '../../../../dist/assets/fonts/infra/xxhash-hasher.js';
 import { fontProviders } from '../../../../dist/assets/fonts/providers/index.js';
-import type { FontFamily } from '../../../../dist/assets/fonts/types.js';
 import { createNodeLoggerFromFlags } from '../../../../dist/core/logger/impls/node.js';
+import type { FontFamily } from '../../../../dist/assets/fonts/types.js';
 
 async function run({ fonts: _fonts }: { fonts: Array<FontFamily> }) {
 	const hasher = await XxhashHasher.create();

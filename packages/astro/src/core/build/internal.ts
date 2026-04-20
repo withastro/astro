@@ -95,6 +95,7 @@ export interface BuildInternals {
 	prerenderEntryFileName?: string;
 	componentMetadata: SSRResult['componentMetadata'];
 	middlewareEntryPoint: URL | undefined;
+	loggerEntryPoint: URL | undefined;
 	astroActionsEntryPoint: URL | undefined;
 
 	/**
@@ -139,6 +140,7 @@ export function createBuildInternals(): BuildInternals {
 		componentMetadata: new Map(),
 		astroActionsEntryPoint: undefined,
 		middlewareEntryPoint: undefined,
+		loggerEntryPoint: undefined,
 		clientChunksAndAssets: new Set(),
 		ssrAssetsPerEnvironment: new Map(),
 	};

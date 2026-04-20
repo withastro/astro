@@ -6,7 +6,7 @@ import { getDefaultClientDirectives } from '../../dist/core/client-directive/ind
 import { resolveConfig } from '../../dist/core/config/index.js';
 import { createBaseSettings } from '../../dist/core/config/settings.js';
 import { AstroIntegrationLogger, AstroLogger } from '../../dist/core/logger/core.js';
-import { nodeLogDestination } from '../../dist/core/logger/node.js';
+import nodeLoggerFactory from '../../dist/core/logger/impls/node.js';
 import { NOOP_MIDDLEWARE_FN } from '../../dist/core/middleware/noop-middleware.js';
 import { Pipeline } from '../../dist/core/render/index.js';
 import { RouteCache } from '../../dist/core/render/route-cache.js';
@@ -18,9 +18,10 @@ import type { RouteData, SSRLoadedRenderer, SSRResult } from '../../dist/types/p
 import type { HeadElements, TryRewriteResult } from '../../dist/core/base-pipeline.js';
 import type { ComponentInstance } from '../../dist/types/astro.js';
 import type { RewritePayload, MiddlewareHandler } from '../../dist/types/public/common.js';
+import type { AstroLoggerDestination } from '../../dist/core/logger/core.js';
 
 export const defaultLogger: AstroLogger = new AstroLogger({
-	destination: nodeLogDestination,
+	destination: nodeLoggerFactory(),
 	level: 'error',
 });
 
@@ -201,28 +202,40 @@ interface LogEntry {
 	message: string;
 }
 
+const destination: AstroLoggerDestination = {
+	write: () => true as const,
+	flush: () => {},
+	close: () => {},
+};
+
 export class SpyLogger {
 	#logs: LogEntry[] = [];
+	#writeCount = 0;
+	#flushCount = 0;
+	#closeCount = 0;
+
 	get logs() {
 		return this.#logs;
 	}
 
 	debug(label: string | null, ...messages: string[]) {
 		this.#logs.push(...messages.map((message) => ({ type: 'debug', label, message })));
+		this.#writeCount += messages.length;
 	}
 	error(label: string | null, message: string) {
 		this.#logs.push({ type: 'error', label, message });
+		this.#writeCount++;
 	}
 	info(label: string | null, message: string) {
 		this.#logs.push({ type: 'info', label, message });
+		this.#writeCount++;
 	}
 	warn(label: string | null, message: string) {
 		this.#logs.push({ type: 'warn', label, message });
+		this.#writeCount++;
 	}
 	options = {
-		destination: {
-			write: () => true as const,
-		},
+		destination,
 		level: 'silent' as AstroLoggerLevel,
 	};
 	level() {
@@ -230,6 +243,35 @@ export class SpyLogger {
 	}
 	forkIntegrationLogger(label: string) {
 		return new AstroIntegrationLogger(this.options, label);
+	}
+	flush() {
+		this.#flushCount++;
+		if (this.options.destination.flush) {
+			this.options.destination.flush();
+		}
+	}
+
+	close() {
+		this.#closeCount++;
+		if (this.options.destination.close) {
+			this.options.destination.close();
+		}
+	}
+
+	writeCount() {
+		return this.#writeCount;
+	}
+
+	flushCount() {
+		return this.#flushCount;
+	}
+
+	closeCount() {
+		return this.#closeCount;
+	}
+
+	setDestination(dest: AstroLoggerDestination) {
+		this.options.destination = dest;
 	}
 }
 

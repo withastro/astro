@@ -38,6 +38,7 @@ import { HTMLStringCache } from '../runtime/server/html-string-cache.js';
 export abstract class Pipeline {
 	readonly internalMiddleware: MiddlewareHandler[];
 	resolvedMiddleware: MiddlewareHandler | undefined = undefined;
+	resolvedLogger = false;
 	resolvedActions: SSRActions | undefined = undefined;
 	resolvedSessionDriver: SessionDriverFactory | null | undefined = undefined;
 	resolvedCacheProvider: CacheProvider | null | undefined = undefined;
@@ -217,6 +218,25 @@ export abstract class Pipeline {
 	 */
 	clearMiddleware() {
 		this.resolvedMiddleware = undefined;
+	}
+
+	/**
+	 * Resolves the logger destination from the manifest and updates the pipeline logger.
+	 * If the user configured `experimental.logger`, the bundled logger factory is loaded
+	 * and replaces the default console destination. This is lazy and only resolves once.
+	 */
+	async getLogger(): Promise<AstroLogger> {
+		if (this.resolvedLogger) {
+			return this.logger;
+		}
+		this.resolvedLogger = true;
+		if (this.manifest.logger) {
+			const mod = await this.manifest.logger();
+			if (mod?.default) {
+				this.logger.setDestination(mod.default);
+			}
+		}
+		return this.logger;
 	}
 
 	async getActions(): Promise<SSRActions> {

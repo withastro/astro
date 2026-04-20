@@ -8,7 +8,7 @@ import { AstroError } from '../errors/index.js';
 import { UnableToLoadLogger } from '../errors/errors-data.js';
 import type { LoggerHandlerConfig } from './config.js';
 import type { AstroConfig, AstroInlineConfig } from '../../types/public/index.js';
-import { astroLoggerVitePlugin } from './vite.js';
+import { pluginLogger } from '../build/plugins/plugin-logger.js';
 import { createNodeLoggerFromFlags } from './impls/node.js';
 
 async function loadLogger(
@@ -21,7 +21,7 @@ async function loadLogger(
 	let cause: Error | undefined = undefined;
 
 	try {
-		const plugins = [...loadFallbackPlugin({ fs, root }), astroLoggerVitePlugin({ config })];
+		const plugins = [...loadFallbackPlugin({ fs, root }), pluginLogger(config)];
 		server = await createMinimalViteDevServer(plugins);
 
 		if (isRunnableDevEnvironment(server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr])) {
