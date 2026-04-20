@@ -2,9 +2,11 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { getDevRouteScripts } from '../dist/vite-plugin-routes/index.js';
 
+type RouteScripts = Parameters<typeof getDevRouteScripts>[1];
+
 describe('getDevRouteScripts', () => {
 	it('returns empty array when command is build', () => {
-		const scripts = [{ stage: 'page', content: 'console.log("page")' }];
+		const scripts: RouteScripts = [{ stage: 'page', content: 'console.log("page")' }];
 		const result = getDevRouteScripts('build', scripts);
 		assert.deepEqual(result, []);
 	});
@@ -15,7 +17,7 @@ describe('getDevRouteScripts', () => {
 	});
 
 	it('includes external page script entry when page-stage scripts exist', () => {
-		const scripts = [{ stage: 'page', content: 'import "alpinejs"' }];
+		const scripts: RouteScripts = [{ stage: 'page', content: 'import "alpinejs"' }];
 		const result = getDevRouteScripts('dev', scripts);
 
 		assert.equal(result.length, 1);
@@ -26,7 +28,7 @@ describe('getDevRouteScripts', () => {
 	});
 
 	it('collapses multiple page scripts into a single external entry', () => {
-		const scripts = [
+		const scripts: RouteScripts = [
 			{ stage: 'page', content: 'import "alpinejs"' },
 			{ stage: 'page', content: 'import "other"' },
 		];
@@ -37,7 +39,7 @@ describe('getDevRouteScripts', () => {
 	});
 
 	it('includes head-inline scripts with their content', () => {
-		const scripts = [{ stage: 'head-inline', content: 'console.log("inline")' }];
+		const scripts: RouteScripts = [{ stage: 'head-inline', content: 'console.log("inline")' }];
 		const result = getDevRouteScripts('dev', scripts);
 
 		assert.equal(result.length, 1);
@@ -48,7 +50,7 @@ describe('getDevRouteScripts', () => {
 	});
 
 	it('includes both page and head-inline scripts together', () => {
-		const scripts = [
+		const scripts: RouteScripts = [
 			{ stage: 'page', content: 'import "alpinejs"' },
 			{ stage: 'head-inline', content: 'console.log("inline1")' },
 			{ stage: 'head-inline', content: 'console.log("inline2")' },
@@ -71,7 +73,7 @@ describe('getDevRouteScripts', () => {
 	});
 
 	it('ignores before-hydration and page-ssr stage scripts', () => {
-		const scripts = [
+		const scripts: RouteScripts = [
 			{ stage: 'before-hydration', content: 'console.log("hydration")' },
 			{ stage: 'page-ssr', content: 'console.log("ssr")' },
 		];
@@ -81,7 +83,7 @@ describe('getDevRouteScripts', () => {
 	});
 
 	it('ignores non-relevant stages while still collecting page and head-inline', () => {
-		const scripts = [
+		const scripts: RouteScripts = [
 			{ stage: 'before-hydration', content: 'console.log("hydration")' },
 			{ stage: 'page', content: 'import "alpinejs"' },
 			{ stage: 'page-ssr', content: 'console.log("ssr")' },
