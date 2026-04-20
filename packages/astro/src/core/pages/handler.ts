@@ -1,9 +1,9 @@
 import { ActionHandler } from '../../actions/handler.js';
-import type { ActionAPIContext } from '../../actions/runtime/types.js';
 import { renderEndpoint } from '../../runtime/server/endpoint.js';
 import { renderPage } from '../../runtime/server/index.js';
 import type { RewritePayload } from '../../types/public/common.js';
 import type { APIContext } from '../../types/public/context.js';
+import type { FetchState } from '../app/fetch-state.js';
 import type { Pipeline } from '../base-pipeline.js';
 import {
 	REROUTE_DIRECTIVE_HEADER,
@@ -14,7 +14,6 @@ import {
 import { getCookiesFromResponse } from '../cookies/response.js';
 import { ForbiddenRewrite } from '../errors/errors-data.js';
 import { AstroError } from '../errors/errors.js';
-import type { ComponentRef } from '../middleware/astro-middleware.js';
 import { renderRedirect } from '../redirects/render.js';
 import { getParams } from '../render/index.js';
 import { RenderContext } from '../render-context.js';
@@ -43,17 +42,10 @@ export class PagesHandler {
 		this.#actionHandler = new ActionHandler();
 	}
 
-	async handle(
-		renderContext: RenderContext,
-		componentRef: ComponentRef,
-		slots: Record<string, any>,
-		props: APIContext['props'],
-		actionApiContext: ActionAPIContext,
-		ctx: APIContext,
-		payload?: RewritePayload,
-	): Promise<Response> {
+	async handle(state: FetchState, ctx: APIContext, payload?: RewritePayload): Promise<Response> {
 		const pipeline = this.#pipeline;
 		const { logger, streaming } = pipeline;
+		const renderContext = state.getRenderContext();
 
 		if (payload) {
 			const oldPathname = renderContext.pathname;
@@ -82,7 +74,7 @@ export class PagesHandler {
 			}
 
 			renderContext.routeData = routeData;
-			componentRef.current = newComponent;
+			state.componentInstance = newComponent;
 			if (payload instanceof Request) {
 				renderContext.request = payload;
 			} else {
@@ -106,6 +98,9 @@ export class PagesHandler {
 				pipeline.manifest.trailingSlash,
 				pipeline.manifest.buildFormat,
 			);
+			// Route changed underneath us — drop memoized props/contexts so
+			// the dispatcher below sees values derived from the new route.
+			state.invalidateContexts();
 		}
 		let response: Response;
 
@@ -122,7 +117,7 @@ export class PagesHandler {
 			}
 		}
 
-		const componentInstance = componentRef.current;
+		const componentInstance = state.componentInstance;
 		switch (renderContext.routeData.type) {
 			case 'endpoint': {
 				response = await renderEndpoint(
@@ -136,6 +131,8 @@ export class PagesHandler {
 			case 'redirect':
 				return renderRedirect(renderContext);
 			case 'page': {
+				const props = await state.getProps();
+				const actionApiContext = state.getActionAPIContext();
 				renderContext.result = await renderContext.createResult(
 					componentInstance!,
 					actionApiContext,
@@ -145,7 +142,7 @@ export class PagesHandler {
 						renderContext.result,
 						componentInstance?.default as any,
 						props,
-						slots,
+						state.slots,
 						streaming,
 						renderContext.routeData,
 					);

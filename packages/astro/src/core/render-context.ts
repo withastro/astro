@@ -81,6 +81,13 @@ export class RenderContext {
 	public session: AstroSession | undefined;
 	public cache: CacheLike;
 	public skipMiddleware: boolean;
+	/**
+	 * Back-reference to the `FetchState` that owns this render context.
+	 * Set by `AstroHandler` (and the container) immediately after creation
+	 * so that `rewrite()` can re-enter middleware with the same per-request
+	 * state. `undefined` only in legacy paths that haven't been updated yet.
+	 */
+	public fetchState: import('./app/fetch-state.js').FetchState | undefined;
 	#rewrites: Rewrites;
 
 	private constructor(

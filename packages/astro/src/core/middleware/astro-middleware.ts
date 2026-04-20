@@ -1,23 +1,12 @@
-import type { ActionAPIContext } from '../../actions/runtime/types.js';
-import type { ComponentInstance } from '../../types/astro.js';
+import type { FetchState } from '../app/fetch-state.js';
 import type { RewritePayload } from '../../types/public/common.js';
 import type { APIContext } from '../../types/public/context.js';
 import type { Pipeline } from '../base-pipeline.js';
 import { ROUTE_TYPE_HEADER } from '../constants.js';
 import { attachCookiesToResponse } from '../cookies/index.js';
 import type { RenderContext } from '../render-context.js';
-import { getProps } from '../render/index.js';
 import { callMiddleware } from './callMiddleware.js';
 import { sequence } from './index.js';
-
-/**
- * A mutable reference to the current component instance. Rewrites inside
- * the middleware chain may swap the component, so we thread a reference
- * through rather than a plain value.
- */
-export interface ComponentRef {
-	current: ComponentInstance | undefined;
-}
 
 /**
  * Callback invoked at the bottom of the middleware chain to dispatch the
@@ -28,11 +17,7 @@ export interface ComponentRef {
  * middleware layer.
  */
 export type RenderRouteCallback = (
-	renderContext: RenderContext,
-	componentRef: ComponentRef,
-	slots: Record<string, any>,
-	props: APIContext['props'],
-	actionApiContext: ActionAPIContext,
+	state: FetchState,
 	ctx: APIContext,
 	payload?: RewritePayload,
 ) => Promise<Response>;
@@ -42,9 +27,10 @@ export type RenderRouteCallback = (
  * single render. Holds a reference to the `Pipeline` and composes the
  * internal and user middleware at render time.
  *
- * The actual route dispatch (endpoint / redirect / page / fallback) is
- * supplied by the caller as `renderRouteCallback` — typically bound to a
- * `PagesHandler.handle`.
+ * Reads per-request data (RenderContext, componentInstance, slots, props,
+ * API contexts) off the supplied `FetchState`. The actual route dispatch
+ * (endpoint / redirect / page / fallback) is supplied by the caller as
+ * `renderRouteCallback` — typically bound to a `PagesHandler.handle`.
  */
 export class AstroMiddleware {
 	#pipeline: Pipeline;
@@ -53,29 +39,14 @@ export class AstroMiddleware {
 		this.#pipeline = pipeline;
 	}
 
-	async handle(
-		renderContext: RenderContext,
-		componentInstance: ComponentInstance | undefined,
-		slots: Record<string, any>,
-		renderRouteCallback: RenderRouteCallback,
-	): Promise<Response> {
+	async handle(state: FetchState, renderRouteCallback: RenderRouteCallback): Promise<Response> {
 		const pipeline = this.#pipeline;
-		const { logger, manifest } = pipeline;
-		const props =
-			Object.keys(renderContext.props).length > 0
-				? renderContext.props
-				: await getProps({
-						mod: componentInstance,
-						routeData: renderContext.routeData,
-						routeCache: pipeline.routeCache,
-						pathname: renderContext.pathname,
-						logger,
-						serverLike: manifest.serverLike,
-						base: manifest.base,
-						trailingSlash: manifest.trailingSlash,
-					});
-		const actionApiContext = renderContext.createActionAPIContext();
-		const apiContext = renderContext.createAPIContext(props, actionApiContext);
+		const renderContext = state.getRenderContext();
+
+		// Resolve props first (the async bit) so downstream consumers can
+		// call `state.getAPIContext()` synchronously on the hot path.
+		await state.getProps();
+		const apiContext = state.getAPIContext();
 
 		renderContext.counter++;
 		if (renderContext.counter === 4) {
@@ -87,20 +58,8 @@ export class AstroMiddleware {
 			});
 		}
 
-		// Track componentInstance across rewrites. Rewrites inside `next()`
-		// may replace the component, and middleware may call next() multiple times.
-		const componentRef: ComponentRef = { current: componentInstance };
-
 		const next = (ctx: APIContext, payload?: RewritePayload) =>
-			renderRouteCallback(
-				renderContext,
-				componentRef,
-				slots,
-				props,
-				actionApiContext,
-				ctx,
-				payload,
-			);
+			renderRouteCallback(state, ctx, payload);
 
 		let response: Response;
 		if (renderContext.skipMiddleware) {

@@ -58,7 +58,7 @@ export class DevErrorHandler implements ErrorHandler {
 
 		const app = this.#app;
 		const shouldInjectCspMetaTags = this.#shouldInjectCspMetaTags;
-		const resolvedPathname = pathname ?? new FetchState(app, request).pathname;
+		const resolvedPathname = pathname ?? new FetchState(app.pipeline, request).pathname;
 
 		const renderRoute = async (routeData: RouteData): Promise<Response> => {
 			try {
@@ -75,10 +75,14 @@ export class DevErrorHandler implements ErrorHandler {
 					shouldInjectCspMetaTags: shouldInjectCspMetaTags ? !!app.manifest.csp : false,
 				});
 				renderContext.props.error = error;
+				const errorState = new FetchState(app.pipeline, request);
+				errorState.routeData = routeData;
+				errorState.pathname = resolvedPathname;
+				errorState.renderContext = renderContext;
+				errorState.componentInstance = preloadedComponent;
+				renderContext.fetchState = errorState;
 				const response = await this.#astroMiddleware.handle(
-					renderContext,
-					preloadedComponent,
-					{},
+					errorState,
 					this.#pagesHandler.handle.bind(this.#pagesHandler),
 				);
 

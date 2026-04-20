@@ -49,7 +49,7 @@ export class DefaultErrorHandler implements ErrorHandler {
 		}: RenderErrorOptions,
 	): Promise<Response> {
 		const app = this.#app;
-		const resolvedPathname = pathname ?? new FetchState(app, request).pathname;
+		const resolvedPathname = pathname ?? new FetchState(app.pipeline, request).pathname;
 		const errorRoutePath = `/${status}${app.manifest.trailingSlash === 'always' ? '/' : ''}`;
 		const errorRouteData = matchRoute(errorRoutePath, app.manifestData);
 		const url = new URL(request.url);
@@ -100,10 +100,14 @@ export class DefaultErrorHandler implements ErrorHandler {
 					clientAddress: resolvedRenderOptions.clientAddress,
 				});
 				session = renderContext.session;
+				const errorState = new FetchState(app.pipeline, request);
+				errorState.routeData = errorRouteData;
+				errorState.pathname = resolvedPathname;
+				errorState.renderContext = renderContext;
+				errorState.componentInstance = mod;
+				renderContext.fetchState = errorState;
 				const response = await this.#astroMiddleware.handle(
-					renderContext,
-					mod,
-					{},
+					errorState,
 					this.#pagesHandler.handle.bind(this.#pagesHandler),
 				);
 				const newResponse = mergeResponses(response, originalResponse);

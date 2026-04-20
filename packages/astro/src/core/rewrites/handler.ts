@@ -1,3 +1,4 @@
+import type { FetchState } from '../app/fetch-state.js';
 import type { RewritePayload } from '../../types/public/common.js';
 import { AstroCookies } from '../cookies/index.js';
 import { ForbiddenRewrite } from '../errors/errors-data.js';
@@ -13,18 +14,19 @@ import { copyRequest, setOriginPathname } from '../routing/rewrite.js';
  * `ctx.rewrite(...)`) against a `RenderContext`. Resolves the rewrite
  * target via `pipeline.tryRewrite`, validates it (disallowing
  * SSR→prerender jumps except for i18n fallbacks), mutates the
- * `RenderContext` to reflect the new route, and re-runs the middleware
- * and page dispatch to produce the new response.
+ * `RenderContext` (and the owning `FetchState`) to reflect the new route,
+ * and re-runs the middleware and page dispatch to produce the new response.
  *
- * This is the "legacy" rewrite path that mutates an existing
- * `RenderContext` and re-enters middleware. It is used when no
- * `rewriteOverride` is set on the context — i.e. by error handlers and
- * the container API. `AstroHandler` installs its own override that
- * recurses through the handler pipeline with a fresh `RenderContext`
- * instead (see `AstroHandler.#rewriteAndRender`).
+ * This is the "legacy" rewrite path that mutates the existing
+ * `RenderContext` and re-enters middleware. It is used by error handlers
+ * and the container API.
  */
 export class Rewrites {
-	async execute(renderContext: RenderContext, payload: RewritePayload): Promise<Response> {
+	async execute(
+		renderContext: RenderContext,
+		payload: RewritePayload,
+		state?: FetchState,
+	): Promise<Response> {
 		const pipeline = renderContext.pipeline;
 		pipeline.logger.debug('router', 'Calling rewrite: ', payload);
 		const oldPathname = renderContext.pathname;
@@ -81,13 +83,35 @@ export class Rewrites {
 			pipeline.manifest.trailingSlash,
 			pipeline.manifest.buildFormat,
 		);
+
+		// Use the FetchState threaded through the render context when the
+		// caller didn't explicitly pass one (Astro.rewrite / ctx.rewrite).
+		const activeState = state ?? renderContext.fetchState;
 		const middleware = new AstroMiddleware(pipeline);
 		const pagesHandler = new PagesHandler(pipeline);
-		return await middleware.handle(
-			renderContext,
-			componentInstance,
-			{},
-			pagesHandler.handle.bind(pagesHandler),
-		);
+
+		if (activeState) {
+			activeState.componentInstance = componentInstance;
+			activeState.request = renderContext.request;
+			activeState.routeData = routeData;
+			activeState.pathname = pathname;
+			// Props / API contexts are derived from the (now-changed) route and
+			// render context; drop the cached ones so they're re-built.
+			activeState.invalidateContexts();
+			return middleware.handle(activeState, pagesHandler.handle.bind(pagesHandler));
+		}
+
+		// Legacy fallback: no state available (shouldn't happen in the
+		// current code paths, but keep a path in case a caller passes a
+		// bare RenderContext). Build a throwaway FetchState just to run
+		// the middleware.
+		const { FetchState } = await import('../app/fetch-state.js');
+		const fallbackState = new FetchState(pipeline, renderContext.request);
+		fallbackState.renderContext = renderContext;
+		fallbackState.componentInstance = componentInstance;
+		fallbackState.routeData = routeData;
+		fallbackState.pathname = pathname;
+		renderContext.fetchState = fallbackState;
+		return middleware.handle(fallbackState, pagesHandler.handle.bind(pagesHandler));
 	}
 }

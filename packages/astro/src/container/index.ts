@@ -5,6 +5,7 @@ import { validateConfig } from '../core/config/validate.js';
 import { createKey } from '../core/encryption.js';
 import { AstroLogger } from '../core/logger/core.js';
 import { nodeLogDestination } from '../core/logger/node.js';
+import { FetchState } from '../core/app/fetch-state.js';
 import { AstroMiddleware } from '../core/middleware/astro-middleware.js';
 import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
 import { PagesHandler } from '../core/pages/handler.js';
@@ -563,10 +564,16 @@ export class experimental_AstroContainer {
 			renderContext.props = options.props;
 		}
 
+		const state = new FetchState(this.#pipeline, request);
+		state.routeData = routeData;
+		state.pathname = url.pathname;
+		state.renderContext = renderContext;
+		state.componentInstance = componentInstance;
+		state.slots = slots ?? {};
+		renderContext.fetchState = state;
+
 		return this.#astroMiddleware.handle(
-			renderContext,
-			componentInstance,
-			slots ?? {},
+			state,
 			this.#pagesHandler.handle.bind(this.#pagesHandler),
 		);
 	}
