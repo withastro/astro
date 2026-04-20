@@ -34,10 +34,10 @@ export async function shell(
 		process.once('exit', () => controller.abort());
 		signal = controller.signal;
 	}
+	const executable = process.platform === 'win32' ? `${command}.cmd` : command;
 	try {
-		child = spawn(`${command} ${flags.join(' ')}`, {
+		child = spawn(executable, flags, {
 			cwd: opts.cwd,
-			shell: true,
 			stdio: opts.stdio,
 			timeout: opts.timeout,
 			signal,
