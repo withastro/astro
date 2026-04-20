@@ -1478,13 +1478,13 @@ export const FontFamilyNotFound = {
 /**
  * @docs
  * @description
- * Font buffer URL not found
+ * Font file URL not found
  * @message
  * The URL passed to the `experimental_getFontFileURL()` function is invalid.
  */
 export const FontFileUrlNotFound = {
 	name: 'FontFileUrlNotFound',
-	title: 'Font buffer URL not found',
+	title: 'Font file URL not found',
 	message: (url: string) =>
 		`The \`"${url}"\` URL passed to the \`experimental_getFontFileURL()\` function is invalid.`,
 	hint: 'Make sure you pass a valid URL, obtained via the \`fontData\` object.',
