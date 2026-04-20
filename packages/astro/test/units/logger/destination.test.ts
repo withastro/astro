@@ -176,22 +176,22 @@ describe('json handler', () => {
 		it('writes JSON with message and label', () => {
 			logger.info('build', 'compiled successfully');
 			assert.equal(stdoutWrites.length, 1);
-			assert.equal(stdoutWrites[0], '{"message":"compiled successfully","label":"build"}\n');
+			assert.equal(stdoutWrites[0], '{"message":"compiled successfully","label":"build","level":"info"}\n');
 		});
 
 		it('writes JSON with null label', () => {
 			logger.info(null, 'no label message');
-			assert.equal(stdoutWrites[0], '{"message":"no label message","label":null}\n');
+			assert.equal(stdoutWrites[0], '{"message":"no label message","label":null,"level":"info"}\n');
 		});
 
-		it('only includes message and label in output', () => {
+		it('includes message, label and level in output', () => {
 			logger.warn('build', 'a warning');
-			assert.equal(stdoutWrites[0], '{"message":"a warning","label":"build"}\n');
+			assert.equal(stdoutWrites[0], '{"message":"a warning","label":"build","level":"warn"}\n');
 		});
 
 		it('strips ANSI codes from messages', () => {
 			logger.info('build', '\x1b[32mgreen text\x1b[39m');
-			assert.equal(stdoutWrites[0], '{"message":"green text","label":"build"}\n');
+			assert.equal(stdoutWrites[0], '{"message":"green text","label":"build","level":"info"}\n');
 		});
 	});
 
