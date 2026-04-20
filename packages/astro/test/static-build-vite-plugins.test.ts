@@ -3,10 +3,8 @@ import { before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe('Static build: vite plugins included when required', () => {
-	/** @type {Map<string, boolean>} */
-	const pluginsCalled = new Map();
-	/** @type {Map<string, boolean>} */
-	const expectedPluginResult = new Map([
+	const pluginsCalled = new Map<string, boolean>();
+	const expectedPluginResult = new Map<string, boolean>([
 		['prepare-no-apply-plugin', true],
 		['prepare-serve-plugin', false],
 		['prepare-apply-fn-plugin', true],
@@ -14,7 +12,6 @@ describe('Static build: vite plugins included when required', () => {
 		['prepare-build-plugin', true],
 	]);
 	before(async () => {
-		/** @type {import('./test-utils').Fixture} */
 		const fixture = await loadFixture({
 			root: './fixtures/astro pages/',
 			integrations: [

@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.js';
 
-describe('Slots: Vue', () => {
-	let fixture;
+describe('Slots: Svelte', () => {
+	let fixture: Fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/slots-vue/' });
+		fixture = await loadFixture({ root: './fixtures/slots-svelte/' });
 		await fixture.build();
 	});
 
@@ -48,8 +48,8 @@ describe('Slots: Vue', () => {
 			assert.equal($('#named').text().trim(), 'Fallback / Named');
 		});
 
-		it('Converts dash-case slot to camelCase', async () => {
-			const html = await fixture.readFile('/mdx/index.html');
+		it('Preserves dash-case slot', async () => {
+			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
 			assert.equal($('#dash-case').text().trim(), 'Fallback / Dash Case');
 		});

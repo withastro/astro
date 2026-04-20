@@ -5,10 +5,10 @@ import * as cheerio from 'cheerio';
 
 import { encryptString } from '../dist/core/encryption.js';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
 
 // Helper to create encryption key from test key string
-async function createKeyFromString(keyString) {
+async function createKeyFromString(keyString: string) {
 	const binaryString = atob(keyString);
 	const bytes = new Uint8Array(binaryString.length);
 	for (let i = 0; i < binaryString.length; i++) {
@@ -30,8 +30,7 @@ async function getEncryptedComponentExport(
 
 describe('Server islands', () => {
 	describe('SSR', () => {
-		/** @type {import('./test-utils').Fixture} */
-		let fixture;
+		let fixture: Fixture;
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/server-islands/ssr',
@@ -43,7 +42,7 @@ describe('Server islands', () => {
 		});
 
 		describe('dev', () => {
-			let devServer;
+			let devServer: DevServer;
 
 			before(async () => {
 				process.env.ASTRO_KEY = 'eKBaVEuI7YjfanEXHuJe/pwZKKt3LkAHeMxvTU7aR0M=';
@@ -167,7 +166,7 @@ describe('Server islands', () => {
 				const res = await fixture.fetch('/test');
 				assert.equal(res.status, 200);
 				const html = await res.text();
-				const fetchMatch = html.match(/fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/);
+				const fetchMatch = html.match(/fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/)!;
 				assert.equal(fetchMatch.length, 2, 'should include props in the query string');
 				assert.equal(fetchMatch[1], '', 'should not include encrypted empty props');
 			});
@@ -176,7 +175,7 @@ describe('Server islands', () => {
 				const res = await fixture.fetch('/fragment');
 				assert.equal(res.status, 200);
 				const html = await res.text();
-				const fetchMatch = html.match(/fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/);
+				const fetchMatch = html.match(/fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/)!;
 				assert.equal(fetchMatch.length, 2, 'should include props in the query string');
 				assert.equal(fetchMatch[1], '', 'should not include encrypted empty props');
 			});
@@ -185,7 +184,7 @@ describe('Server islands', () => {
 				const res = await fixture.fetch('/fragment');
 				assert.equal(res.status, 200);
 				const html = await res.text();
-				const fetchMatch = html.match(/fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/);
+				const fetchMatch = html.match(/fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/)!;
 				assert.equal(fetchMatch.length, 2, 'should include props in the query string');
 				assert.equal(fetchMatch[1], '', 'should not include encrypted empty props');
 			});
@@ -195,7 +194,7 @@ describe('Server islands', () => {
 				assert.equal(res.status, 200);
 				const html = await res.text();
 				// Extract the island fetch URL from the page
-				const urlMatch = html.match(/fetch\('(\/_server-islands\/Wrapper\?[^']+)'/);
+				const urlMatch = html.match(/fetch\('(\/_server-islands\/Wrapper\?[^']+)'/)!;
 				assert.ok(urlMatch, 'should have a server island fetch URL');
 				const islandRes = await fixture.fetch(urlMatch[1]);
 				assert.equal(islandRes.status, 200);
@@ -345,7 +344,7 @@ describe('Server islands', () => {
 				const res = await app.render(request);
 				assert.equal(res.status, 200);
 				const html = await res.text();
-				const fetchMatch = html.match(/fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/);
+				const fetchMatch = html.match(/fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/)!;
 				assert.equal(fetchMatch.length, 2, 'should include props in the query string');
 				assert.equal(fetchMatch[1], '', 'should not include encrypted empty props');
 			});
@@ -353,8 +352,7 @@ describe('Server islands', () => {
 	});
 
 	describe('Hybrid mode', () => {
-		/** @type {import('./test-utils').Fixture} */
-		let fixture;
+		let fixture: Fixture;
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/server-islands/hybrid',
@@ -384,7 +382,7 @@ describe('Server islands', () => {
 
 				const $ = cheerio.load(html);
 				const serverIslandScript = $('script').filter((_, el) =>
-					$(el).html().trim().startsWith('async function replaceServerIsland'),
+					($(el).html() ?? '').trim().startsWith('async function replaceServerIsland'),
 				);
 				assert.equal(
 					serverIslandScript.length,
@@ -411,7 +409,7 @@ describe('Server islands', () => {
 				const res = await devFixture.fetch('/');
 				assert.equal(res.status, 200);
 				const html = await res.text();
-				const fetchMatch = /fetch\('(\/_server-islands\/Island[^']*)/.exec(html);
+				const fetchMatch = /fetch\('(\/_server-islands\/Island[^']*)/.exec(html)!;
 				assert.ok(fetchMatch, 'should have a server island fetch URL');
 				const islandRes = await devFixture.fetch(fetchMatch[1]);
 				assert.equal(
@@ -425,7 +423,7 @@ describe('Server islands', () => {
 		});
 
 		describe('with no adapter', () => {
-			let devServer;
+			let devServer: DevServer;
 
 			it('Errors during the build', async () => {
 				try {
@@ -434,7 +432,10 @@ describe('Server islands', () => {
 					});
 					assert.equal(true, false, 'should not have succeeded');
 				} catch (err) {
-					assert.equal(err.title, 'Cannot use Server Islands without an adapter.');
+					assert.equal(
+						(err as { title: string }).title,
+						'Cannot use Server Islands without an adapter.',
+					);
 				}
 			});
 

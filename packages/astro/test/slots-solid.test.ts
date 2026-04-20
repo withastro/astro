@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.js';
 
-describe('Slots: Svelte', () => {
-	let fixture;
+describe('Slots: Solid', () => {
+	let fixture: Fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/slots-svelte/' });
+		fixture = await loadFixture({ root: './fixtures/slots-solid/' });
 		await fixture.build();
 	});
 
@@ -29,7 +29,7 @@ describe('Slots: Svelte', () => {
 		assert.equal($('#named').text().trim(), 'Fallback / Named');
 	});
 
-	it('Preserves dash-case slot', async () => {
+	it('Converts dash-case slot to camelCase', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 		assert.equal($('#dash-case').text().trim(), 'Fallback / Dash Case');
@@ -48,8 +48,8 @@ describe('Slots: Svelte', () => {
 			assert.equal($('#named').text().trim(), 'Fallback / Named');
 		});
 
-		it('Preserves dash-case slot', async () => {
-			const html = await fixture.readFile('/index.html');
+		it('Converts dash-case slot to camelCase', async () => {
+			const html = await fixture.readFile('/mdx/index.html');
 			const $ = cheerio.load(html);
 			assert.equal($('#dash-case').text().trim(), 'Fallback / Dash Case');
 		});
