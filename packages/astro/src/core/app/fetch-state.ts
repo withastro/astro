@@ -8,7 +8,7 @@ import type { ComponentInstance } from '../../types/astro.js';
 import type { APIContext } from '../../types/public/context.js';
 import type { RouteData } from '../../types/public/internal.js';
 import type { Pipeline } from '../base-pipeline.js';
-import { RenderContext } from '../render-context.js';
+import type { RenderContext } from '../render-context.js';
 import { getProps } from '../render/index.js';
 import type { ResolvedRenderOptions } from './base.js';
 import { getRenderOptions } from './render-options.js';
@@ -22,16 +22,21 @@ import { getRenderOptions } from './render-options.js';
  * module, and the lazily-built `APIContext` / `ActionAPIContext`.
  *
  * Handler steps populate and read `FetchState` as the request progresses.
- * For example, `AstroHandler` resolves `routeData` and creates the
- * `RenderContext`; `AstroMiddleware` reads the cached contexts via
- * `getAPIContext()` / `getActionAPIContext()`.
+ * `AstroHandler` resolves `routeData` and creates the `RenderContext`;
+ * `AstroMiddleware` reads the cached contexts via `getAPIContext()` /
+ * `getActionAPIContext()`.
  *
  * A `FetchState` can be mutated mid-request (for rewrites) and re-run
  * through `AstroHandler.render(state)` to produce a new response without
  * losing cross-route state like `locals`, `addCookieHeader`, etc.
+ *
+ * Internal note: fields on this class are plain public properties —
+ * this class is entirely internal, and private fields (`#foo`) have a
+ * non-zero per-access cost in V8 which is measurable on the hot render
+ * path.
  */
 export class FetchState {
-	#pipeline: Pipeline;
+	pipeline: Pipeline;
 	/**
 	 * The request to render. Mutated during rewrites so subsequent renders
 	 * see the rewritten URL.
@@ -52,9 +57,8 @@ export class FetchState {
 	readonly timeStart: number;
 
 	/**
-	 * The active `RenderContext`. Assignable by callers that build their
-	 * own (error handlers, container); otherwise created lazily by
-	 * `getRenderContext()`.
+	 * The active `RenderContext`. Assigned by `AstroHandler.render`
+	 * (and error handlers / container) before middleware runs.
 	 */
 	renderContext: RenderContext | undefined;
 	/**
@@ -62,8 +66,12 @@ export class FetchState {
 	 * be swapped during in-flight rewrites from inside the middleware chain.
 	 */
 	componentInstance: ComponentInstance | undefined;
-	/** Slot overrides supplied by the container. Empty for HTTP requests. */
-	slots: Record<string, any> = {};
+	/**
+	 * Slot overrides supplied by the container API. `undefined` for HTTP
+	 * requests — `PagesHandler` coalesces to `{}` on read so we don't
+	 * allocate an empty object per request.
+	 */
+	slots: Record<string, any> | undefined;
 	/**
 	 * Default HTTP status for the rendered response. Callers override
 	 * before `getRenderContext()` runs (e.g. `AstroHandler` sets this from
@@ -71,12 +79,19 @@ export class FetchState {
 	 */
 	status = 200;
 
-	#props: APIContext['props'] | undefined;
-	#actionApiContext: ActionAPIContext | undefined;
-	#apiContext: APIContext | undefined;
+	/**
+	 * Memoized `props` (see `getProps`). `null` means "not yet computed"
+	 * — using `null` (rather than `undefined`) keeps the hidden class
+	 * stable and distinct from a valid-but-empty result.
+	 */
+	props: APIContext['props'] | null = null;
+	/** Memoized `ActionAPIContext` (see `getActionAPIContext`). */
+	actionApiContext: ActionAPIContext | null = null;
+	/** Memoized `APIContext` (see `getAPIContext`). */
+	apiContext: APIContext | null = null;
 
 	constructor(pipeline: Pipeline, request: Request) {
-		this.#pipeline = pipeline;
+		this.pipeline = pipeline;
 		this.request = request;
 		const options = getRenderOptions(request);
 		this.routeData = options?.routeData;
@@ -87,6 +102,9 @@ export class FetchState {
 			prerenderedErrorPageFetch: options?.prerenderedErrorPageFetch ?? fetch,
 			routeData: options?.routeData,
 		};
+		this.renderContext = undefined;
+		this.componentInstance = undefined;
+		this.slots = undefined;
 		this.pathname = this.#computePathname();
 		this.timeStart = performance.now();
 	}
@@ -103,7 +121,7 @@ export class FetchState {
 	#computePathname(): string {
 		const url = new URL(this.request.url);
 		let pathname = collapseDuplicateLeadingSlashes(url.pathname);
-		const base = this.#pipeline.manifest.base;
+		const base = this.pipeline.manifest.base;
 		if (pathname.startsWith(base)) {
 			const baseWithoutTrailingSlash = removeTrailingForwardSlash(base);
 			pathname = pathname.slice(baseWithoutTrailingSlash.length + 1);
@@ -112,7 +130,7 @@ export class FetchState {
 		try {
 			return decodeURI(pathname);
 		} catch (e: any) {
-			this.#pipeline.logger.error(null, e.toString());
+			this.pipeline.logger.error(null, e.toString());
 			return pathname;
 		}
 	}
@@ -127,67 +145,22 @@ export class FetchState {
 	}
 
 	/**
-	 * Returns the active `RenderContext`, building one from the current
-	 * state (`request`, `pathname`, `routeData`, `renderOptions.locals`,
-	 * `renderOptions.clientAddress`, `status`) on first call and caching
-	 * it thereafter.
-	 *
-	 * Callers that need a custom `RenderContext` (error handlers,
-	 * container) assign `state.renderContext` directly before this runs
-	 * — this method just returns the assigned value in that case.
-	 *
-	 * `routeData` must be set (by `AstroHandler` or caller) before the
-	 * first call.
-	 */
-	async getRenderContext(): Promise<RenderContext> {
-		if (this.renderContext) return this.renderContext;
-		if (!this.routeData) {
-			throw new Error('FetchState.getRenderContext() called before routeData was set');
-		}
-		this.renderContext = await RenderContext.create({
-			pipeline: this.#pipeline,
-			locals: this.renderOptions.locals,
-			pathname: this.pathname,
-			request: this.request,
-			routeData: this.routeData,
-			status: this.status,
-			clientAddress: this.renderOptions.clientAddress,
-		});
-		this.renderContext.fetchState = this;
-		return this.renderContext;
-	}
-
-	/**
-	 * Asserts that a `RenderContext` has been set (either by
-	 * `getRenderContext()` or directly by a caller like an error handler)
-	 * and returns it. Used by the sync context getters below, which are
-	 * only ever called after middleware is underway.
-	 */
-	#requireRenderContext(): RenderContext {
-		if (!this.renderContext) {
-			throw new Error(
-				'FetchState.renderContext was accessed before it was built. ' +
-					'Await getRenderContext() or assign state.renderContext first.',
-			);
-		}
-		return this.renderContext;
-	}
-
-	/**
 	 * Returns the resolved `props` for this render, computing them lazily
 	 * from the route + component module on first access. If the
 	 * `RenderContext` already carries user-supplied props (e.g. the
 	 * container API) those are used verbatim.
+	 *
+	 * `state.renderContext` must be set before this is called.
 	 */
 	async getProps(): Promise<APIContext['props']> {
-		if (this.#props !== undefined) return this.#props;
-		const renderContext = this.#requireRenderContext();
+		if (this.props !== null) return this.props;
+		const renderContext = this.renderContext!;
 		if (Object.keys(renderContext.props).length > 0) {
-			this.#props = renderContext.props;
-			return this.#props;
+			this.props = renderContext.props;
+			return this.props;
 		}
-		const pipeline = this.#pipeline;
-		this.#props = await getProps({
+		const pipeline = this.pipeline;
+		this.props = await getProps({
 			mod: this.componentInstance,
 			routeData: renderContext.routeData,
 			routeCache: pipeline.routeCache,
@@ -197,17 +170,19 @@ export class FetchState {
 			base: pipeline.manifest.base,
 			trailingSlash: pipeline.manifest.trailingSlash,
 		});
-		return this.#props;
+		return this.props;
 	}
 
 	/**
 	 * Returns the `ActionAPIContext` for this render, creating it lazily.
 	 * Used by middleware, actions, and page dispatch.
+	 *
+	 * `state.renderContext` must be set before this is called.
 	 */
 	getActionAPIContext(): ActionAPIContext {
-		if (this.#actionApiContext) return this.#actionApiContext;
-		this.#actionApiContext = this.#requireRenderContext().createActionAPIContext();
-		return this.#actionApiContext;
+		if (this.actionApiContext !== null) return this.actionApiContext;
+		this.actionApiContext = this.renderContext!.createActionAPIContext();
+		return this.actionApiContext;
 	}
 
 	/**
@@ -221,17 +196,12 @@ export class FetchState {
 	 * so downstream middleware / page dispatch can call this sync.
 	 */
 	getAPIContext(): APIContext {
-		if (this.#apiContext) return this.#apiContext;
-		if (this.#props === undefined) {
-			throw new Error(
-				'FetchState.getAPIContext() called before getProps() resolved. ' +
-					'Await getProps() first so the API context can be built synchronously.',
-			);
-		}
-		const renderContext = this.#requireRenderContext();
-		const actionApiContext = this.getActionAPIContext();
-		this.#apiContext = renderContext.createAPIContext(this.#props, actionApiContext);
-		return this.#apiContext;
+		if (this.apiContext !== null) return this.apiContext;
+		this.apiContext = this.renderContext!.createAPIContext(
+			this.props!,
+			this.getActionAPIContext(),
+		);
+		return this.apiContext;
 	}
 
 	/**
@@ -241,8 +211,8 @@ export class FetchState {
 	 * request / params.
 	 */
 	invalidateContexts(): void {
-		this.#props = undefined;
-		this.#actionApiContext = undefined;
-		this.#apiContext = undefined;
+		this.props = null;
+		this.actionApiContext = null;
+		this.apiContext = null;
 	}
 }

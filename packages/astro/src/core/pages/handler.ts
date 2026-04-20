@@ -19,6 +19,11 @@ import { getParams } from '../render/index.js';
 import { RenderContext } from '../render-context.js';
 import { copyRequest, setOriginPathname } from '../routing/rewrite.js';
 
+// Shared empty-slots object so we don't allocate `{}` on every render for
+// requests that don't come from the container API. Safe to share because
+// the slots object is read-only from the runtime's perspective.
+const EMPTY_SLOTS: Record<string, never> = Object.freeze({});
+
 /**
  * Handles dispatch of a matched route (endpoint / redirect / page / fallback)
  * at the bottom of the middleware chain. Also handles in-flight route
@@ -142,7 +147,7 @@ export class PagesHandler {
 						renderContext.result,
 						componentInstance?.default as any,
 						props,
-						state.slots,
+						state.slots ?? EMPTY_SLOTS,
 						streaming,
 						renderContext.routeData,
 					);
