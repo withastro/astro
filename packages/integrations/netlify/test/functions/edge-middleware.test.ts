@@ -1,12 +1,12 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { loadFixture } from '../../../../astro/test/test-utils.js';
+import { type Fixture, loadFixture } from '../test-utils.ts';
 
 describe('Middleware', { timeout: 120000 }, () => {
 	const root = new URL('./fixtures/middleware/', import.meta.url);
 
 	describe('middlewareMode: classic', () => {
-		let fixture;
+		let fixture: Fixture;
 		before(async () => {
 			process.env.EDGE_MIDDLEWARE = 'false';
 			fixture = await loadFixture({ root });
@@ -27,13 +27,13 @@ describe('Middleware', { timeout: 120000 }, () => {
 		});
 
 		after(async () => {
-			process.env.EDGE_MIDDLEWARE = undefined;
+			delete process.env.EDGE_MIDDLEWARE;
 			await fixture.clean();
 		});
 	});
 
 	describe('middlewareMode: edge', () => {
-		let fixture;
+		let fixture: Fixture;
 		before(async () => {
 			process.env.EDGE_MIDDLEWARE = 'true';
 			fixture = await loadFixture({ root });
@@ -53,7 +53,7 @@ describe('Middleware', { timeout: 120000 }, () => {
 		});
 
 		after(async () => {
-			process.env.EDGE_MIDDLEWARE = undefined;
+			delete process.env.EDGE_MIDDLEWARE;
 			await fixture.clean();
 		});
 	});

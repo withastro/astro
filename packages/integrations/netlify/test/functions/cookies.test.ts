@@ -1,9 +1,9 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { loadFixture } from '../../../../astro/test/test-utils.js';
+import { type Fixture, loadFixture } from '../test-utils.ts';
 
 describe('Cookies', { timeout: 120000 }, () => {
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({ root: new URL('./fixtures/cookies/', import.meta.url) });
@@ -15,7 +15,7 @@ describe('Cookies', { timeout: 120000 }, () => {
 			'./fixtures/cookies/.netlify/v1/functions/ssr/ssr.mjs',
 			import.meta.url,
 		);
-		const { default: handler } = await import(entryURL);
+		const { default: handler } = await import(entryURL.href);
 		const resp = await handler(
 			new Request('http://example.com/login', { method: 'POST', body: '{}' }),
 			{},
@@ -30,10 +30,10 @@ describe('Cookies', { timeout: 120000 }, () => {
 			'./fixtures/cookies/.netlify/v1/functions/ssr/ssr.mjs',
 			import.meta.url,
 		);
-		const { default: handler } = await import(entryURL);
+		const { default: handler } = await import(entryURL.href);
 		const resp = await handler(new Request('http://example.com/partitioned'), {});
 		assert.equal(resp.status, 200);
-		const cookie = resp.headers.getSetCookie()[0];
+		const cookie = resp.headers.getSetCookie()[0]!;
 		assert.ok(cookie.includes('Partitioned'), 'Cookie should include Partitioned attribute');
 	});
 
@@ -42,7 +42,7 @@ describe('Cookies', { timeout: 120000 }, () => {
 			'./fixtures/cookies/.netlify/v1/functions/ssr/ssr.mjs',
 			import.meta.url,
 		);
-		const { default: handler } = await import(entryURL);
+		const { default: handler } = await import(entryURL.href);
 		const resp = await handler(
 			new Request('http://example.com/nonexistant-page', {
 				headers: {

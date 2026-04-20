@@ -20,10 +20,10 @@ describe('Hosted Netlify Tests', () => {
 	});
 
 	it('Server returns fresh content', async () => {
-		const responseOne = await fetch(`${NETLIFY_TEST_URL}/time`).then((res) => res.text());
+		const responseOne: string = await fetch(`${NETLIFY_TEST_URL}/time`).then((res) => res.text());
 
-		const responseTwo = await fetch(`${NETLIFY_TEST_URL}/time`).then((res) => res.text());
+		const responseTwo: string = await fetch(`${NETLIFY_TEST_URL}/time`).then((res) => res.text());
 
-		assert.notEqual(responseOne.body, responseTwo.body);
+		assert.notEqual(responseOne, responseTwo);
 	});
 });

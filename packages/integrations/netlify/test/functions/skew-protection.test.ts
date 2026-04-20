@@ -1,10 +1,10 @@
 import * as assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { before, describe, it } from 'node:test';
-import { loadFixture } from '../../../../astro/test/test-utils.js';
+import { type Fixture, loadFixture } from '../test-utils.ts';
 
 describe('Skew Protection', { timeout: 120000 }, () => {
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		// Set DEPLOY_ID env var for the test
@@ -25,7 +25,7 @@ describe('Skew Protection', { timeout: 120000 }, () => {
 			'./fixtures/skew-protection/.netlify/v1/functions/ssr/ssr.mjs',
 			import.meta.url,
 		);
-		const { default: handler } = await import(entryURL);
+		const { default: handler } = await import(entryURL.href);
 		const resp = await handler(new Request('http://example.com/server-island'), {});
 		const html = await resp.text();
 

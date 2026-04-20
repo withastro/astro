@@ -4,10 +4,10 @@ import { after, before, describe, it } from 'node:test';
 import netlify from '@astrojs/netlify';
 import * as cheerio from 'cheerio';
 import { globSync } from 'tinyglobby';
-import { loadFixture } from '../../../../astro/test/test-utils.js';
+import { type Fixture, loadFixture } from '../test-utils.ts';
 
 describe('Included vite assets files', { timeout: 120000 }, () => {
-	let fixture;
+	let fixture: Fixture;
 
 	const root = new URL('./fixtures/includes/', import.meta.url);
 	const expectedCwd = new URL('.netlify/v1/functions/ssr/packages/integrations/netlify/', root);
@@ -55,7 +55,7 @@ describe('Included vite assets files', { timeout: 120000 }, () => {
 });
 
 describe('Included files', { timeout: 120000 }, () => {
-	let fixture;
+	let fixture: Fixture;
 
 	const root = new URL('./fixtures/includes/', import.meta.url);
 	const expectedCwd = new URL(
@@ -90,7 +90,7 @@ describe('Included files', { timeout: 120000 }, () => {
 			'./fixtures/includes/.netlify/v1/functions/ssr/ssr.mjs',
 			import.meta.url,
 		);
-		const { default: handler } = await import(entryURL);
+		const { default: handler } = await import(entryURL.href);
 		const resp = await handler(new Request('http://example.com/?file=include-this.txt'), {});
 		const html = await resp.text();
 		const $ = cheerio.load(html);
@@ -102,7 +102,7 @@ describe('Included files', { timeout: 120000 }, () => {
 			'.netlify/v1/functions/ssr/node_modules/.pnpm/cowsay@1.6.0/node_modules/cowsay/cows/happy-whale.cow',
 			root,
 		);
-		assert.ok(existsSync(expected, 'Expected excluded file to exist in default build'));
+		assert.ok(existsSync(expected), 'Expected excluded file to exist in default build');
 	});
 
 	after(async () => {
@@ -111,7 +111,7 @@ describe('Included files', { timeout: 120000 }, () => {
 });
 
 describe('Excluded files', { timeout: 120000 }, () => {
-	let fixture;
+	let fixture: Fixture;
 
 	const root = new URL('./fixtures/includes/', import.meta.url);
 	const expectedCwd = new URL(

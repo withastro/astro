@@ -2,14 +2,13 @@ import assert from 'node:assert/strict';
 import { after, afterEach, before, describe, it } from 'node:test';
 
 import * as cheerio from 'cheerio';
-import { loadFixture } from '../../../../astro/test/test-utils.js';
 import netlifyAdapter from '../../dist/index.js';
+import { type DevServer, type Fixture, loadFixture } from '../test-utils.ts';
 
 describe('Netlify primitives', () => {
 	describe('Development', () => {
-		/** @type {import('../../../../astro/test/test-utils').Fixture} */
-		let fixture;
-		let devServer;
+		let fixture: Fixture;
+		let devServer: DevServer;
 		before(async () => {
 			fixture = await loadFixture({
 				root: new URL('./fixtures/primitives/', import.meta.url),
@@ -101,7 +100,7 @@ describe('Netlify primitives', () => {
 				}
 			} finally {
 				await cdnDisabledServer.stop();
-				process.env.DISABLE_IMAGE_CDN = undefined;
+				delete process.env.DISABLE_IMAGE_CDN;
 			}
 		});
 	});

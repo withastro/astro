@@ -1,10 +1,10 @@
 import * as assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { before, describe, it } from 'node:test';
-import { loadFixture } from '../../../../astro/test/test-utils.js';
+import { type Fixture, loadFixture } from '../test-utils.ts';
 
 describe('SSR - Redirects', { timeout: 120000 }, () => {
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({ root: new URL('./fixtures/redirects/', import.meta.url) });
@@ -33,7 +33,7 @@ describe('SSR - Redirects', { timeout: 120000 }, () => {
 			'./fixtures/redirects/.netlify/v1/functions/ssr/ssr.mjs',
 			import.meta.url,
 		);
-		const { default: handler } = await import(entryURL);
+		const { default: handler } = await import(entryURL.href);
 		const resp = await handler(new Request('http://example.com/nonexistant-page'), {});
 		assert.equal(resp.status, 404);
 		assert.equal(resp.headers.get('content-type'), 'text/html; charset=utf-8');
@@ -53,7 +53,7 @@ describe('SSR - Redirects', { timeout: 120000 }, () => {
 			'./fixtures/redirects/.netlify/v1/functions/ssr/ssr.mjs',
 			import.meta.url,
 		);
-		const { default: handler } = await import(entryURL);
+		const { default: handler } = await import(entryURL.href);
 		const resp = await handler(new Request('http://localhost:5678/nonexistant-page'), {});
 		assert.equal(resp.status, 404);
 		assert.equal(testServerCalls, 0);
