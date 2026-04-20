@@ -18,7 +18,6 @@ describe('Vercel serverless path override security', () => {
 	let fixture: Fixture;
 
 	before(async () => {
-		process.env.PRERENDER = 'true';
 		fixture = await loadFixture({
 			root: './fixtures/serverless-with-dynamic-routes/',
 			output: 'server',
