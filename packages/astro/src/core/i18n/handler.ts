@@ -1,32 +1,10 @@
 import { appendForwardSlash } from '@astrojs/internal-helpers/path';
 import { computeFallbackRoute } from '../../i18n/fallback.js';
 import { I18nRouter, type I18nRouterContext } from '../../i18n/router.js';
+import type { FetchState } from '../app/fetch-state.js';
 import type { SSRManifest } from '../app/types.js';
 import { shouldAppendForwardSlash } from '../build/util.js';
 import { REROUTE_DIRECTIVE_HEADER, ROUTE_TYPE_HEADER } from '../constants.js';
-
-/**
- * Minimal context `I18n.finalize` needs from its caller. Packs the pieces
- * of `APIContext` that the i18n post-processing uses so the class doesn't
- * depend on a full `APIContext` (which belongs to the middleware layer).
- */
-export interface I18nFinalizeContext {
-	/**
-	 * Called for redirect decisions. Must return a redirect `Response`.
-	 * Typically builds a 302/301/307/308 with a `Location` header.
-	 */
-	redirect(location: string, status: number): Response;
-	/**
-	 * Called for fallback rewrite decisions. Must re-enter the render
-	 * pipeline targeting the new pathname and resolve with the new
-	 * `Response`. Mirrors the semantics of `Astro.rewrite(...)`.
-	 */
-	rewrite(pathname: string): Promise<Response>;
-	/** The locale computed for this request, if any. */
-	currentLocale: string | undefined;
-	/** Whether the matched route is prerendered. */
-	isPrerendered: boolean;
-}
 
 /**
  * Post-processes a rendered `Response` against the app's i18n
@@ -77,11 +55,7 @@ export class I18n {
 		});
 	}
 
-	async finalize(
-		request: Request,
-		response: Response,
-		ctx: I18nFinalizeContext,
-	): Promise<Response> {
+	async finalize(state: FetchState, response: Response): Promise<Response> {
 		const i18n = this.#i18n;
 		const typeHeader = response.headers.get(ROUTE_TYPE_HEADER);
 
@@ -97,11 +71,14 @@ export class I18n {
 			return response;
 		}
 
-		const url = new URL(request.url);
+		const renderContext = state.renderContext!;
+		const url = new URL(state.request.url);
+		const currentLocale = renderContext.computeCurrentLocale();
+		const isPrerendered = renderContext.routeData.prerender;
 
 		// Build context for router (typeHeader is guaranteed to be 'page' | 'fallback' here)
 		const routerContext: I18nRouterContext = {
-			currentLocale: ctx.currentLocale,
+			currentLocale,
 			currentDomain: url.hostname,
 			routeType: typeHeader as 'page' | 'fallback',
 			isReroute: isReroute === 'yes',
@@ -117,10 +94,13 @@ export class I18n {
 				if (shouldAppendForwardSlash(this.#trailingSlash, this.#format)) {
 					location = appendForwardSlash(location);
 				}
-				return ctx.redirect(location, routeDecision.status ?? 302);
+				return new Response(null, {
+					status: routeDecision.status ?? 302,
+					headers: { Location: location },
+				});
 			}
 			case 'notFound': {
-				if (ctx.isPrerendered) {
+				if (isPrerendered) {
 					// Prerendered pages are authored content — preserve the body so the
 					// build pipeline can write the file. The REROUTE_DIRECTIVE prevents
 					// the App from rerouting to the error page.
@@ -152,7 +132,7 @@ export class I18n {
 			const fallbackDecision = computeFallbackRoute({
 				pathname: url.pathname,
 				responseStatus: response.status,
-				currentLocale: ctx.currentLocale,
+				currentLocale,
 				fallback: i18n.fallback,
 				fallbackType: i18n.fallbackType,
 				locales: i18n.locales,
@@ -163,9 +143,12 @@ export class I18n {
 
 			switch (fallbackDecision.type) {
 				case 'redirect':
-					return ctx.redirect(fallbackDecision.pathname + url.search, 302);
+					return new Response(null, {
+						status: 302,
+						headers: { Location: fallbackDecision.pathname + url.search },
+					});
 				case 'rewrite':
-					return await ctx.rewrite(fallbackDecision.pathname + url.search);
+					return await renderContext.rewrite(fallbackDecision.pathname + url.search);
 				case 'none':
 					break;
 			}

@@ -1,7 +1,7 @@
 import type { Params } from '../../types/public/common.js';
 import type { RedirectConfig } from '../../types/public/index.js';
 import type { RouteData } from '../../types/public/internal.js';
-import type { RenderContext } from '../render-context.js';
+import type { FetchState } from '../app/fetch-state.js';
 import { getRouteGenerator } from '../routing/generator.js';
 
 function isExternalURL(url: string): boolean {
@@ -67,7 +67,8 @@ export function resolveRedirectTarget(
 	return redirect.destination;
 }
 
-export async function renderRedirect(renderContext: RenderContext) {
+export async function renderRedirect(state: FetchState) {
+	const renderContext = state.renderContext!;
 	const {
 		request: { method },
 		routeData,

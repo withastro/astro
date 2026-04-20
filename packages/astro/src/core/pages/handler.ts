@@ -45,7 +45,7 @@ export class PagesHandler {
 	async handle(state: FetchState, ctx: APIContext, payload?: RewritePayload): Promise<Response> {
 		const pipeline = this.#pipeline;
 		const { logger, streaming } = pipeline;
-		const renderContext = state.getRenderContext();
+		const renderContext = state.renderContext!;
 
 		if (payload) {
 			const oldPathname = renderContext.pathname;
@@ -129,7 +129,7 @@ export class PagesHandler {
 				break;
 			}
 			case 'redirect':
-				return renderRedirect(renderContext);
+				return renderRedirect(state);
 			case 'page': {
 				const props = await state.getProps();
 				const actionApiContext = state.getActionAPIContext();

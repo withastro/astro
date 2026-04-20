@@ -17,6 +17,7 @@ import type { RouteData, SSRResult } from '../types/public/internal.js';
 import type { ServerIslandMappings, SSRActions } from './app/types.js';
 import {
 	ASTRO_GENERATOR,
+	fetchStateSymbol,
 	originPathnameSymbol,
 	pipelineSymbol,
 	responseSentSymbol,
@@ -279,6 +280,9 @@ export class RenderContext {
 		};
 
 		Reflect.set(context, pipelineSymbol, this.pipeline);
+		if (this.fetchState) {
+			Reflect.set(context, fetchStateSymbol, this.fetchState);
+		}
 
 		return Object.assign(context, {
 			props,

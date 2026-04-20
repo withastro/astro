@@ -7,6 +7,7 @@ import { resolveConfig } from '../../dist/core/config/index.js';
 import { createBaseSettings } from '../../dist/core/config/settings.js';
 import { AstroIntegrationLogger, AstroLogger } from '../../dist/core/logger/core.js';
 import { nodeLogDestination } from '../../dist/core/logger/node.js';
+import { FetchState } from '../../dist/core/app/fetch-state.js';
 import { AstroMiddleware } from '../../dist/core/middleware/astro-middleware.js';
 import { NOOP_MIDDLEWARE_FN } from '../../dist/core/middleware/noop-middleware.js';
 import { PagesHandler } from '../../dist/core/pages/handler.js';
@@ -241,6 +242,10 @@ export class SpyLogger {
  * (AstroMiddleware + PagesHandler). Use from tests instead of calling
  * a `render()` method on RenderContext — rendering logic now lives in
  * the middleware/pages handler layer, and this helper wires them up.
+ *
+ * Builds a minimal `FetchState` around the given `RenderContext` so
+ * `AstroMiddleware.handle(state)` can read `componentInstance` / `slots`
+ * off it the same way production callers do.
  */
 export async function renderThroughMiddleware(
 	renderContext: RenderContext,
@@ -248,14 +253,16 @@ export async function renderThroughMiddleware(
 	slots: Record<string, any> = {},
 ): Promise<Response> {
 	const pipeline = renderContext.pipeline;
+	const state = new FetchState(pipeline, renderContext.request);
+	state.routeData = renderContext.routeData;
+	state.pathname = renderContext.pathname;
+	state.renderContext = renderContext;
+	state.componentInstance = componentInstance;
+	state.slots = slots;
+	renderContext.fetchState = state;
 	const middleware = new AstroMiddleware(pipeline);
 	const pagesHandler = new PagesHandler(pipeline);
-	return middleware.handle(
-		renderContext,
-		componentInstance,
-		slots,
-		pagesHandler.handle.bind(pagesHandler),
-	);
+	return middleware.handle(state, pagesHandler.handle.bind(pagesHandler));
 }
 
 /**

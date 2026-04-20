@@ -8,7 +8,7 @@ import type { ComponentInstance } from '../../types/astro.js';
 import type { APIContext } from '../../types/public/context.js';
 import type { RouteData } from '../../types/public/internal.js';
 import type { Pipeline } from '../base-pipeline.js';
-import type { RenderContext } from '../render-context.js';
+import { RenderContext } from '../render-context.js';
 import { getProps } from '../render/index.js';
 import type { ResolvedRenderOptions } from './base.js';
 import { getRenderOptions } from './render-options.js';
@@ -52,9 +52,9 @@ export class FetchState {
 	readonly timeStart: number;
 
 	/**
-	 * The active `RenderContext`. Set by `AstroHandler` (or the container)
-	 * before middleware runs. Access via `getRenderContext()` when a
-	 * non-null value is required.
+	 * The active `RenderContext`. Assignable by callers that build their
+	 * own (error handlers, container); otherwise created lazily by
+	 * `getRenderContext()`.
 	 */
 	renderContext: RenderContext | undefined;
 	/**
@@ -64,6 +64,12 @@ export class FetchState {
 	componentInstance: ComponentInstance | undefined;
 	/** Slot overrides supplied by the container. Empty for HTTP requests. */
 	slots: Record<string, any> = {};
+	/**
+	 * Default HTTP status for the rendered response. Callers override
+	 * before `getRenderContext()` runs (e.g. `AstroHandler` sets this from
+	 * `BaseApp.getDefaultStatusCode`; error handlers set `404` / `500`).
+	 */
+	status = 200;
 
 	#props: APIContext['props'] | undefined;
 	#actionApiContext: ActionAPIContext | undefined;
@@ -121,13 +127,48 @@ export class FetchState {
 	}
 
 	/**
-	 * Returns the active `RenderContext`, throwing if one has not been
-	 * set. Steps that reach `getRenderContext()` (middleware, page
-	 * dispatch, i18n finalize) always run after it's been assigned.
+	 * Returns the active `RenderContext`, building one from the current
+	 * state (`request`, `pathname`, `routeData`, `renderOptions.locals`,
+	 * `renderOptions.clientAddress`, `status`) on first call and caching
+	 * it thereafter.
+	 *
+	 * Callers that need a custom `RenderContext` (error handlers,
+	 * container) assign `state.renderContext` directly before this runs
+	 * — this method just returns the assigned value in that case.
+	 *
+	 * `routeData` must be set (by `AstroHandler` or caller) before the
+	 * first call.
 	 */
-	getRenderContext(): RenderContext {
+	async getRenderContext(): Promise<RenderContext> {
+		if (this.renderContext) return this.renderContext;
+		if (!this.routeData) {
+			throw new Error('FetchState.getRenderContext() called before routeData was set');
+		}
+		this.renderContext = await RenderContext.create({
+			pipeline: this.#pipeline,
+			locals: this.renderOptions.locals,
+			pathname: this.pathname,
+			request: this.request,
+			routeData: this.routeData,
+			status: this.status,
+			clientAddress: this.renderOptions.clientAddress,
+		});
+		this.renderContext.fetchState = this;
+		return this.renderContext;
+	}
+
+	/**
+	 * Asserts that a `RenderContext` has been set (either by
+	 * `getRenderContext()` or directly by a caller like an error handler)
+	 * and returns it. Used by the sync context getters below, which are
+	 * only ever called after middleware is underway.
+	 */
+	#requireRenderContext(): RenderContext {
 		if (!this.renderContext) {
-			throw new Error('FetchState.getRenderContext() called before a RenderContext was set');
+			throw new Error(
+				'FetchState.renderContext was accessed before it was built. ' +
+					'Await getRenderContext() or assign state.renderContext first.',
+			);
 		}
 		return this.renderContext;
 	}
@@ -140,7 +181,7 @@ export class FetchState {
 	 */
 	async getProps(): Promise<APIContext['props']> {
 		if (this.#props !== undefined) return this.#props;
-		const renderContext = this.getRenderContext();
+		const renderContext = this.#requireRenderContext();
 		if (Object.keys(renderContext.props).length > 0) {
 			this.#props = renderContext.props;
 			return this.#props;
@@ -165,7 +206,7 @@ export class FetchState {
 	 */
 	getActionAPIContext(): ActionAPIContext {
 		if (this.#actionApiContext) return this.#actionApiContext;
-		this.#actionApiContext = this.getRenderContext().createActionAPIContext();
+		this.#actionApiContext = this.#requireRenderContext().createActionAPIContext();
 		return this.#actionApiContext;
 	}
 
@@ -187,7 +228,7 @@ export class FetchState {
 					'Await getProps() first so the API context can be built synchronously.',
 			);
 		}
-		const renderContext = this.getRenderContext();
+		const renderContext = this.#requireRenderContext();
 		const actionApiContext = this.getActionAPIContext();
 		this.#apiContext = renderContext.createAPIContext(this.#props, actionApiContext);
 		return this.#apiContext;

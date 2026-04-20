@@ -1,7 +1,8 @@
+import type { FetchState } from '../core/app/fetch-state.js';
 import type { SSRManifest } from '../core/app/types.js';
+import { fetchStateSymbol } from '../core/constants.js';
 import { I18n } from '../core/i18n/handler.js';
 import type { MiddlewareHandler } from '../types/public/common.js';
-import type { ValidRedirectStatus } from '../types/public/config.js';
 
 /**
  * Builds a `MiddlewareHandler` that post-processes the rendered response
@@ -25,11 +26,10 @@ export function createI18nMiddleware(
 
 	return async (context, next) => {
 		const response = await next();
-		return handler.finalize(context.request, response, {
-			redirect: (location, status) => context.redirect(location, status as ValidRedirectStatus),
-			rewrite: (path) => context.rewrite(path),
-			currentLocale: context.currentLocale,
-			isPrerendered: context.isPrerendered,
-		});
+		// The FetchState for this request is stashed on the APIContext by
+		// `RenderContext.createAPIContext` — see `fetchStateSymbol`.
+		const state = Reflect.get(context, fetchStateSymbol) as FetchState | undefined;
+		if (!state) return response;
+		return handler.finalize(state, response);
 	};
 }

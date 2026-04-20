@@ -125,27 +125,16 @@ export class AstroHandler {
 		const routeData = state.routeData!;
 		const pathname = state.pathname;
 		const request = state.request;
-		const { addCookieHeader, clientAddress, locals } = state.renderOptions;
-		const defaultStatus = this.#app.getDefaultStatusCode(routeData, pathname);
+		const { addCookieHeader } = state.renderOptions;
+		state.status = this.#app.getDefaultStatusCode(routeData, pathname);
 
 		let response;
 		let session: AstroSession | undefined;
 		let cache: CacheLike | undefined;
 		try {
 			// Load route module. We also catch its error here if it fails on initialization
-			const componentInstance = await this.#app.pipeline.getComponentByRoute(routeData);
-			const renderContext = await this.#app.createRenderContext({
-				pipeline: this.#app.pipeline,
-				locals,
-				pathname,
-				request,
-				routeData,
-				status: defaultStatus,
-				clientAddress,
-			});
-			state.renderContext = renderContext;
-			state.componentInstance = componentInstance;
-			renderContext.fetchState = state;
+			state.componentInstance = await this.#app.pipeline.getComponentByRoute(routeData);
+			const renderContext = await state.getRenderContext();
 			session = renderContext.session;
 			cache = renderContext.cache;
 
@@ -153,7 +142,7 @@ export class AstroHandler {
 			// page dispatch, no i18n post-processing. Inline routeData.type
 			// check to avoid a per-request function call + object overhead.
 			if (routeData.type === 'redirect') {
-				const redirectResponse = await renderRedirect(renderContext);
+				const redirectResponse = await renderRedirect(state);
 				this.#app.logThisRequest({
 					pathname,
 					method: request.method,
@@ -171,13 +160,7 @@ export class AstroHandler {
 			const runPipeline = async (): Promise<Response> => {
 				let res = await this.#astroMiddleware.handle(state, renderRouteCallback);
 				if (this.#i18n) {
-					res = await this.#i18n.finalize(state.request, res, {
-						redirect: (location, status) =>
-							new Response(null, { status, headers: { Location: location } }),
-						rewrite: (path) => renderContext.rewrite(path),
-						currentLocale: renderContext.computeCurrentLocale(),
-						isPrerendered: renderContext.routeData.prerender,
-					});
+					res = await this.#i18n.finalize(state, res);
 				}
 				return res;
 			};

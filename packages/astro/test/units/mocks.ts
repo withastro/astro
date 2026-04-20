@@ -2,6 +2,8 @@ import { createBasicPipeline } from './test-utils.ts';
 import { makeRoute, staticPart } from './routing/test-helpers.ts';
 import { AstroCookies } from '../../dist/core/cookies/index.js';
 import { App } from '../../dist/core/app/app.js';
+import { FetchState } from '../../dist/core/app/fetch-state.js';
+import { fetchStateSymbol } from '../../dist/core/constants.js';
 import { baseService } from '../../dist/assets/services/service.js';
 import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import {
@@ -61,6 +63,20 @@ export function createMockRenderContext(overrides: MockRenderContextOverrides = 
 	};
 }
 
+/**
+ * Wraps a `createMockRenderContext(...)` result in a minimal `FetchState`
+ * so it can be passed to functions that now take state (e.g.
+ * `renderRedirect(state)`). The `renderContext` field on the returned
+ * state is the duck-typed mock from `createMockRenderContext`.
+ */
+export function createMockFetchState(overrides: MockRenderContextOverrides = {}) {
+	const renderContext = createMockRenderContext(overrides);
+	const state = new FetchState(renderContext.pipeline, renderContext.request);
+	state.renderContext = renderContext as any;
+	state.request = renderContext.request;
+	return state;
+}
+
 interface MockAPIContextOverrides extends Partial<Omit<APIContext, 'url'>> {
 	url?: string | URL;
 }
@@ -70,6 +86,15 @@ interface MockAPIContextOverrides extends Partial<Omit<APIContext, 'url'>> {
  *
  * All fields can be overridden. The `cookies` field uses the real `AstroCookies` class
  * by default to avoid mock drift.
+ *
+ * Also stashes a minimal `FetchState` on the context via `fetchStateSymbol`
+ * so internal shims that expect it (e.g. the manual-strategy i18n
+ * wrapper in `src/i18n/middleware.ts`) can resolve per-request state.
+ * The stashed `FetchState.renderContext` is a duck-typed stub with just
+ * the fields those shims read (`computeCurrentLocale`,
+ * `routeData.prerender`, `rewrite`). Tests that need different behavior
+ * can override `rewrite` / `isPrerendered` here and the stub will use
+ * those values.
  */
 export function createMockAPIContext(overrides: MockAPIContextOverrides = {}): APIContext {
 	const url =
@@ -77,7 +102,14 @@ export function createMockAPIContext(overrides: MockAPIContextOverrides = {}): A
 	const request = overrides.request ?? new Request(url);
 	const cookies = overrides.cookies ?? new AstroCookies(request);
 
-	return {
+	const rewrite =
+		overrides.rewrite ??
+		(() => {
+			throw new Error('rewrite() is not mocked -- provide a mock if your middleware uses rewrite');
+		});
+	const isPrerendered = overrides.isPrerendered ?? false;
+
+	const ctx = {
 		url,
 		request,
 		locals: overrides.locals ?? {},
@@ -86,21 +118,31 @@ export function createMockAPIContext(overrides: MockAPIContextOverrides = {}): A
 		redirect:
 			overrides.redirect ??
 			((path, status = 302) => new Response(null, { status, headers: { Location: String(path) } })),
-		rewrite:
-			overrides.rewrite ??
-			(() => {
-				throw new Error(
-					'rewrite() is not mocked -- provide a mock if your middleware uses rewrite',
-				);
-			}),
+		rewrite,
 		props: overrides.props ?? {},
 		routePattern: overrides.routePattern ?? '',
-		isPrerendered: overrides.isPrerendered ?? false,
+		isPrerendered,
 		site: overrides.site,
 		generator: overrides.generator ?? 'astro-test',
 		clientAddress: overrides.clientAddress ?? '127.0.0.1',
 		originPathname: overrides.originPathname ?? url.pathname,
 	} as APIContext;
+
+	// Build a minimal FetchState and stash it on the context so internal
+	// shims (e.g. `createI18nMiddleware`) can find per-request state.
+	const pipeline = createBasicPipeline();
+	const state = new FetchState(pipeline, request);
+	// Duck-typed RenderContext stub — only the fields that internal
+	// shims read off `state.renderContext` are populated.
+	state.renderContext = {
+		request,
+		routeData: { prerender: isPrerendered },
+		computeCurrentLocale: () => undefined,
+		rewrite,
+	} as any;
+	Reflect.set(ctx, fetchStateSymbol, state);
+
+	return ctx;
 }
 
 /**

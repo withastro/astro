@@ -41,7 +41,7 @@ export class AstroMiddleware {
 
 	async handle(state: FetchState, renderRouteCallback: RenderRouteCallback): Promise<Response> {
 		const pipeline = this.#pipeline;
-		const renderContext = state.getRenderContext();
+		const renderContext = state.renderContext!;
 
 		// Resolve props first (the async bit) so downstream consumers can
 		// call `state.getAPIContext()` synchronously on the hot path.
