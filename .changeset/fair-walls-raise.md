@@ -1,6 +1,6 @@
 ---
 astro: minor
-'@astrojs/cloudflare': patch
+'@astrojs/cloudflare': minor
 ---
 
 Adds a `waitUntil` option to `app.render()` / `RenderOptions` so adapters can forward
