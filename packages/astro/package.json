@@ -187,6 +187,7 @@
     "@types/html-escaper": "3.0.4",
     "@types/http-cache-semantics": "^4.2.0",
     "@types/js-yaml": "^4.0.9",
+    "@types/parse-srcset": "^1.0.0",
     "@types/picomatch": "^4.0.2",
     "@types/semver": "^7.7.1",
     "@types/yargs-parser": "^21.0.3",
