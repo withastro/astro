@@ -1,11 +1,14 @@
 import { strict as assert } from 'node:assert';
+import { promises as fs } from 'node:fs';
 import { describe, it } from 'node:test';
+import { z } from 'zod';
 import { glob } from '../../../dist/content/loaders/glob.js';
 import { defineCollection } from '../../../dist/content/config.js';
 import { ContentLayer } from '../../../dist/content/content-layer.js';
 import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
 import { AstroLogger } from '../../../dist/core/logger/core.js';
 import {
+	createTempDir,
 	createTestConfigObserver,
 	createMinimalSettings,
 	createMarkdownEntryType,
@@ -347,5 +350,144 @@ describe('Glob Loader', () => {
 		await contentLayer.sync();
 
 		assert.ok(warnings.some((w) => w.includes('No files found matching')));
+	});
+
+	it('uses schema-transformed slug as entry id for default generateId', async () => {
+		const root = createTempDir('astro-glob-loader-slugify-');
+		await fs.mkdir(new URL('./src/content/posts/', root), { recursive: true });
+		await fs.writeFile(
+			new URL('./src/content/posts/post.md', root),
+			`---
+slug: Fancy One!!!
+---
+
+# Hello`,
+		);
+
+		const store = new MutableDataStore();
+		const settings = createMinimalSettings(root, {
+			contentEntryTypes: [createMarkdownEntryType()],
+		});
+		const logger = new AstroLogger({
+			destination: { write: () => true },
+			level: 'silent',
+		});
+
+		const collections = {
+			posts: defineCollection({
+				loader: glob({ pattern: '*.md', base: 'src/content/posts' }),
+				schema: z.object({
+					slug: z.string().slugify().optional(),
+				}),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await contentLayer.sync();
+
+		const entries = store.values('posts');
+		assert.equal(entries.length, 1);
+		assert.equal(entries[0].id, 'fancy-one');
+		assert.equal(entries[0].data.slug, 'fancy-one');
+	});
+
+	it('does not override id when slug is empty', async () => {
+		const root = createTempDir('astro-glob-loader-empty-slug-');
+		await fs.mkdir(new URL('./src/content/posts/', root), { recursive: true });
+		await fs.writeFile(
+			new URL('./src/content/posts/post.md', root),
+			`---
+slug: ""
+---
+
+# Hello`,
+		);
+
+		const store = new MutableDataStore();
+		const settings = createMinimalSettings(root, {
+			contentEntryTypes: [createMarkdownEntryType()],
+		});
+		const logger = new AstroLogger({
+			destination: { write: () => true },
+			level: 'silent',
+		});
+
+		const collections = {
+			posts: defineCollection({
+				loader: glob({ pattern: '*.md', base: 'src/content/posts' }),
+				schema: z.object({
+					slug: z.string().slugify().optional(),
+				}),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await contentLayer.sync();
+
+		const entries = store.values('posts');
+		assert.equal(entries.length, 1);
+		assert.equal(entries[0].id, 'post');
+		assert.equal(entries[0].data.slug, '');
+	});
+
+	it('keeps custom generateId output unchanged', async () => {
+		const root = createTempDir('astro-glob-loader-custom-generate-id-');
+		await fs.mkdir(new URL('./src/content/posts/', root), { recursive: true });
+		await fs.writeFile(
+			new URL('./src/content/posts/post.md', root),
+			`---
+slug: Fancy One!!!
+---
+
+# Hello`,
+		);
+
+		const store = new MutableDataStore();
+		const settings = createMinimalSettings(root, {
+			contentEntryTypes: [createMarkdownEntryType()],
+		});
+		const logger = new AstroLogger({
+			destination: { write: () => true },
+			level: 'silent',
+		});
+
+		const collections = {
+			posts: defineCollection({
+				loader: glob({
+					pattern: '*.md',
+					base: 'src/content/posts',
+					generateId: ({ entry }) => `custom-${entry.replace(/\.md$/, '')}`,
+				}),
+				schema: z.object({
+					slug: z.string().slugify().optional(),
+				}),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await contentLayer.sync();
+
+		const entries = store.values('posts');
+		assert.equal(entries.length, 1);
+		assert.equal(entries[0].id, 'custom-post');
+		assert.equal(entries[0].data.slug, 'fancy-one');
 	});
 });

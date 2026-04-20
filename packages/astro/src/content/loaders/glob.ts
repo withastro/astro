@@ -87,6 +87,7 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 	}
 
 	const isLegacy = !!globOptions[secretLegacyFlag];
+	const hasCustomGenerateId = typeof globOptions?.generateId === 'function';
 	const generateId =
 		globOptions?.generateId ?? ((opts: GenerateIdOptions) => generateIdDefault(opts, isLegacy));
 
@@ -136,7 +137,32 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 					fileUrl,
 				});
 
-				const id = generateId({ entry, base, data });
+				const generatedId = generateId({ entry, base, data });
+
+				const digest = generateDigest(contents);
+				const filePath = fileURLToPath(fileUrl);
+				const relativePath = posixRelative(fileURLToPath(config.root), filePath);
+
+				let parsedData: Record<string, unknown> | undefined;
+				let id = generatedId;
+
+				// When using the default ID generation (based on frontmatter slug), allow schema transforms
+				// such as `z.string().slugify()` to update the final entry ID.
+				if (!hasCustomGenerateId && typeof data.slug === 'string' && data.slug.length > 0) {
+					parsedData = await parseData({
+						id,
+						data,
+						filePath,
+					});
+
+					if (
+						typeof parsedData.slug === 'string' &&
+						parsedData.slug.length > 0 &&
+						parsedData.slug !== id
+					) {
+						id = parsedData.slug;
+					}
+				}
 
 				if (oldId && oldId !== id) {
 					store.delete(oldId);
@@ -145,9 +171,6 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 				untouchedEntries.delete(id);
 
 				const existingEntry = store.get(id);
-
-				const digest = generateDigest(contents);
-				const filePath = fileURLToPath(fileUrl);
 
 				if (existingEntry && existingEntry.digest === digest && existingEntry.filePath) {
 					if (existingEntry.deferredRender) {
@@ -162,10 +185,7 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 					fileToIdMap.set(filePath, id);
 					return;
 				}
-
-				const relativePath = posixRelative(fileURLToPath(config.root), filePath);
-
-				const parsedData = await parseData({
+				parsedData ??= await parseData({
 					id,
 					data,
 					filePath,
