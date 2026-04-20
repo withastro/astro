@@ -2,12 +2,12 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as devalue from 'devalue';
 import cloudflare from '../dist/index.js';
-import { loadFixture } from './_test-utils.js';
+import { type Fixture, loadFixture, type PreviewServer } from './test-utils.ts';
+import type { AstroInlineConfig } from 'astro';
 
 describe('sessions', () => {
-	let fixture;
-	let previewServer;
-
+	let fixture: Fixture;
+	let previewServer: PreviewServer;
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/sessions/',
@@ -22,7 +22,7 @@ describe('sessions', () => {
 
 	it('can regenerate session cookies upon request', async () => {
 		const firstResponse = await fixture.fetch('/regenerate', { method: 'GET' });
-		const firstHeaders = firstResponse.headers.get('set-cookie').split(',');
+		const firstHeaders = firstResponse.headers.get('set-cookie')!.split(',');
 		const firstSessionId = firstHeaders[0].split(';')[0].split('=')[1];
 
 		const secondResponse = await fixture.fetch('/regenerate', {
@@ -31,7 +31,7 @@ describe('sessions', () => {
 				cookie: `astro-session=${firstSessionId}`,
 			},
 		});
-		const secondHeaders = secondResponse.headers.get('set-cookie').split(',');
+		const secondHeaders = secondResponse.headers.get('set-cookie')!.split(',');
 		const secondSessionId = secondHeaders[0].split(';')[0].split('=')[1];
 		assert.notEqual(firstSessionId, secondSessionId);
 	});
@@ -41,7 +41,7 @@ describe('sessions', () => {
 		const firstValue = await firstResponse.json();
 		assert.equal(firstValue.previousValue, 'none');
 
-		const firstHeaders = firstResponse.headers.get('set-cookie').split(',');
+		const firstHeaders = firstResponse.headers.get('set-cookie')!.split(',');
 		const firstSessionId = firstHeaders[0].split(';')[0].split('=')[1];
 		const secondResponse = await fixture.fetch('/update', {
 			method: 'GET',
@@ -63,7 +63,7 @@ describe('sessions', () => {
 		});
 
 		assert.equal(firstResponse.ok, true);
-		const firstHeaders = firstResponse.headers.get('set-cookie').split(',');
+		const firstHeaders = firstResponse.headers.get('set-cookie')!.split(',');
 		const firstSessionId = firstHeaders[0].split(';')[0].split('=')[1];
 
 		const data = devalue.parse(await firstResponse.text());
@@ -85,8 +85,7 @@ describe('sessions', () => {
 });
 
 describe('sessions with custom binding name', () => {
-	let fixture;
-
+	let fixture: Fixture;
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/sessions/',
@@ -97,13 +96,9 @@ describe('sessions with custom binding name', () => {
 	});
 
 	it('can build with custom session binding name', async () => {
-		await assert.doesNotReject(
-			async () => {
-				await fixture.build();
-			},
-			undefined,
-			'Building with custom session binding name should not throw an error',
-		);
+		await assert.doesNotReject(async () => {
+			await fixture.build();
+		}, 'Building with custom session binding name should not throw an error');
 	});
 });
 
@@ -113,15 +108,19 @@ describe('session wrangler config', () => {
 			root: './fixtures/static/',
 		});
 
-		await fixture.build({
+		const config: AstroInlineConfig = {
 			session: {
+				// @ts-expect-error: the default type of the TDriver in AstroUserConfig must be changed so that this can pass
 				driver: {
 					entrypoint: 'unstorage/drivers/null',
 				},
 			},
-		});
+		};
+		await fixture.build(config);
 
-		const wrangler = JSON.parse(await fixture.readFile('/server/wrangler.json'));
+		const wrangler = JSON.parse(await fixture.readFile('/server/wrangler.json')) as {
+			kv_namespaces?: Array<{ binding: string }>;
+		};
 		assert.equal(
 			wrangler.kv_namespaces?.some(({ binding }) => binding === 'SESSION'),
 			false,
@@ -133,15 +132,19 @@ describe('session wrangler config', () => {
 			root: './fixtures/static/',
 		});
 
-		await fixture.build({
+		const config: AstroInlineConfig = {
 			session: {
+				// @ts-expect-error: the default type of the TDriver in AstroUserConfig must be changed so that this can pass
 				driver: {
 					entrypoint: 'unstorage/drivers/cloudflare-kv-binding',
 				},
 			},
-		});
+		};
+		await fixture.build(config);
 
-		const wrangler = JSON.parse(await fixture.readFile('/server/wrangler.json'));
+		const wrangler = JSON.parse(await fixture.readFile('/server/wrangler.json')) as {
+			kv_namespaces?: Array<{ binding: string }>;
+		};
 		assert.deepEqual(wrangler.kv_namespaces, [{ binding: 'SESSION' }]);
 	});
 });

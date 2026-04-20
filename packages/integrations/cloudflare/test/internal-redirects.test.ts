@@ -1,19 +1,16 @@
 import { describe, it } from 'node:test';
-import { loadFixture } from './_test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-describe('External Redirects', () => {
-	let fixture;
-
-	it('should not attempt to prerender external redirect destinations', async () => {
+describe('Internal Redirects', () => {
+	let fixture: Fixture;
+	it('should not create a prerendered file for internal redirects', async () => {
 		fixture = await loadFixture({
-			root: './fixtures/external-redirects',
+			root: './fixtures/internal-redirects',
 		});
 
-		// Building should not result in a fetch to the external destination URL.
-		// If it does, the fetch will throw and the test will fail.
 		await fixture.build();
 
 		// Check that the redirect file was created and contains the redirect
@@ -21,7 +18,7 @@ describe('External Redirects', () => {
 		const redirectsContent = readFileSync(redirectsPath, 'utf-8');
 		assert.match(
 			redirectsContent,
-			/\/redirect\s+http:\/\/test.invalid\/destination\s+301/,
+			/\/redirect\s+\/page2\s+301/,
 			'_redirects file should contain the redirect rule',
 		);
 
@@ -31,7 +28,7 @@ describe('External Redirects', () => {
 		);
 		assert.ok(
 			!existsSync(prerenderedPath),
-			'Should not create prerendered file for external redirect destination',
+			'Should not create prerendered file for internal redirect destination',
 		);
 	});
 });

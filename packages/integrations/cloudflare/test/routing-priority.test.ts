@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { loadFixture } from './_test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 const routes = [
 	{
@@ -129,14 +129,13 @@ const routes = [
 	},
 ];
 
-function appendForwardSlash(path) {
+function appendForwardSlash(path: string) {
 	return path.endsWith('/') ? path : path + '/';
 }
 
 describe('Routing priority', () => {
 	describe('build', () => {
-		let fixture;
-
+		let fixture: Fixture;
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/routing-priority/',
@@ -174,9 +173,8 @@ describe('Routing priority', () => {
 	});
 
 	describe('dev', () => {
-		let fixture;
-		let devServer;
-
+		let fixture: Fixture;
+		let devServer: DevServer;
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/routing-priority/',

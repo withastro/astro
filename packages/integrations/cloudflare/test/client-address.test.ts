@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './_test-utils.js';
+import { type Fixture, loadFixture, type PreviewServer } from './test-utils.ts';
 
 /**
  * Tests that the Cloudflare adapter correctly extracts and validates
@@ -13,9 +13,8 @@ import { loadFixture } from './_test-utils.js';
  * Regression test for: https://github.com/withastro/astro-security/issues/69
  */
 describe('Cloudflare clientAddress', () => {
-	let fixture;
-	let previewServer;
-
+	let fixture: Fixture;
+	let previewServer: PreviewServer;
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/client-address/',

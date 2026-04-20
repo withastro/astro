@@ -1,11 +1,10 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { type Fixture, loadFixture } from '../../../astro/test/test-utils.js';
 import cloudflare from '../dist/index.js';
 
 describe('Cloudflare prerenderer errors', () => {
-	let fixture;
-
+	let fixture: Fixture;
 	before(async () => {
 		fixture = await loadFixture({
 			root: new URL('./fixtures/prerenderer-errors/', import.meta.url).toString(),

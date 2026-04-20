@@ -3,13 +3,12 @@ import { readFileSync } from 'node:fs';
 import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { glob } from 'tinyglobby';
-import { loadFixture } from './_test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 const root = new URL('./fixtures/external-image-service/', import.meta.url);
 
 describe('ExternalImageService', () => {
-	let fixture;
-
+	let fixture: Fixture;
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/external-image-service/',
@@ -24,9 +23,7 @@ describe('ExternalImageService', () => {
 	it('has correct image service', async () => {
 		const files = await glob('**/image-service*', {
 			cwd: fileURLToPath(new URL('dist/server', root)),
-			filesOnly: true,
 			absolute: true,
-			flush: true,
 		});
 		// the image service seems to be bundled inside the entry point
 		const outFileToCheck = readFileSync(files[0], 'utf-8');
@@ -35,9 +32,8 @@ describe('ExternalImageService', () => {
 });
 
 describe('ExternalImageService dev mode', () => {
-	let fixture;
-	let devServer;
-
+	let fixture: Fixture;
+	let devServer: DevServer;
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/external-image-service/',

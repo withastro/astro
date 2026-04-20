@@ -1,13 +1,11 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import cloudflare from '../dist/index.js';
-import { loadFixture } from './_test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Prerendered page styles', () => {
-	/** @type {import('../../../astro/test/test-utils').Fixture} */
-	let fixture;
-	let devServer;
-
+	let fixture: Fixture;
+	let devServer: DevServer | undefined;
 	before(async () => {
 		fixture = await loadFixture({
 			root: new URL('./fixtures/prerender-styles/', import.meta.url).toString(),
@@ -62,10 +60,8 @@ describe('Prerendered page styles', () => {
 });
 
 describe('Styles from Astro components imported in MDX content collections', () => {
-	/** @type {import('../../../astro/test/test-utils').Fixture} */
-	let fixture;
-	let devServer;
-
+	let fixture: Fixture;
+	let devServer: DevServer | undefined;
 	before(async () => {
 		fixture = await loadFixture({
 			root: new URL('./fixtures/prerender-styles/', import.meta.url).toString(),

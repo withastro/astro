@@ -1,11 +1,11 @@
 import { describe, it } from 'node:test';
-import { loadFixture } from './_test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 describe('Server entry', () => {
-	let fixture;
+	let fixture: Fixture;
 	it('should load the custom entry when using legacy entrypoint', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/server-entry',

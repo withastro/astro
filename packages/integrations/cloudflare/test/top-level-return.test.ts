@@ -1,15 +1,14 @@
 import { rmSync } from 'node:fs';
 import { describe, before, it } from 'node:test';
 import { Writable } from 'node:stream';
-import { loadFixture } from './_test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { AstroLogger } from '../../../astro/dist/core/logger/core.js';
 
 describe('Top-level Return', () => {
-	/** @type {import('../../../astro/test/test-utils').Fixture} */
-	let fixture;
-	const logs = [];
+	let fixture: Fixture;
+	const logs: Array<{ message?: string }> = [];
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -21,18 +20,21 @@ describe('Top-level Return', () => {
 
 		rmSync(fileURLToPath(viteCacheDir), { recursive: true, force: true });
 
+		const logger = new AstroLogger({
+			level: 'error',
+			destination: new Writable({
+				objectMode: true,
+				write(event, _, callback) {
+					logs.push(event);
+					callback();
+				},
+			}),
+		});
+
 		await fixture.build({
 			vite: { logLevel: 'error' },
-			logger: new AstroLogger({
-				level: 'error',
-				destination: new Writable({
-					objectMode: true,
-					write(event, _, callback) {
-						logs.push(event);
-						callback();
-					},
-				}),
-			}),
+			// @ts-expect-error: logger is internal API
+			logger,
 		});
 	});
 

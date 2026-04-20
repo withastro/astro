@@ -3,11 +3,11 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { loadFixture } from './_test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
-async function readFilesRecursive(dir) {
+async function readFilesRecursive(dir: string): Promise<string[]> {
 	const entries = await fs.readdir(dir, { withFileTypes: true });
-	const files = await Promise.all(
+	const files: string[][] = await Promise.all(
 		entries.map(async (entry) => {
 			const fullPath = path.join(dir, entry.name);
 			if (entry.isDirectory()) {
