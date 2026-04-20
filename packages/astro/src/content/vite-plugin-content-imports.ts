@@ -214,9 +214,7 @@ export const _internal = {
 			transform: {
 				filter: {
 					id: {
-						include: settings.contentEntryTypes
-							.filter((t) => t.getRenderModule)
-							.map((t) => new RegExp(`\\.(${t.extensions.map((e) => e.slice(1)).join('|')})$`)),
+						include: [/\.[^/?]+$/],
 					},
 				},
 				async handler(contents, viteId) {

@@ -15,5 +15,5 @@ export function stripBase(path: string, base: string): string {
 		return '/';
 	}
 	const baseWithSlash = base.endsWith('/') ? base : base + '/';
-	return path.replace(RegExp('^' + baseWithSlash), '/');
+	return path.startsWith(baseWithSlash) ? '/' + path.slice(baseWithSlash.length) : path;
 }

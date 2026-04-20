@@ -37,6 +37,11 @@ const entryTypeSchema = z
 	})
 	.passthrough();
 
+function removeExtension(filePath: string) {
+	const ext = path.extname(filePath);
+	return ext ? filePath.slice(0, -ext.length) : filePath;
+}
+
 export const loaderReturnSchema = z.union([
 	z.array(entryTypeSchema),
 	z.record(
@@ -347,10 +352,7 @@ export function getDataEntryId({
 	collection,
 }: Pick<ContentPaths, 'contentDir'> & { entry: URL; collection: string }): string {
 	const relativePath = getRelativeEntryPath(entry, collection, contentDir);
-	const withoutFileExt = normalizePath(relativePath).replace(
-		new RegExp(path.extname(relativePath) + '$'),
-		'',
-	);
+	const withoutFileExt = removeExtension(normalizePath(relativePath));
 
 	return withoutFileExt;
 }
@@ -364,7 +366,7 @@ export function getContentEntryIdAndSlug({
 	slug: string;
 } {
 	const relativePath = getRelativeEntryPath(entry, collection, contentDir);
-	const withoutFileExt = relativePath.replace(new RegExp(path.extname(relativePath) + '$'), '');
+	const withoutFileExt = removeExtension(relativePath);
 	const rawSlugSegments = withoutFileExt.split(path.sep);
 
 	const slug = rawSlugSegments
@@ -431,16 +433,13 @@ function hasUnderscoreBelowContentDirectoryPath(
 
 function getYAMLErrorLine(rawData: string | undefined, objectKey: string) {
 	if (!rawData) return 0;
-	const indexOfObjectKey = rawData.search(
-		// Match key either at the top of the file or after a newline
-		// Ensures matching on top-level object keys only
-		new RegExp(`(\n|^)${objectKey}`),
-	);
-	if (indexOfObjectKey === -1) return 0;
-
-	const dataBeforeKey = rawData.substring(0, indexOfObjectKey + 1);
-	const numNewlinesBeforeKey = dataBeforeKey.split('\n').length;
-	return numNewlinesBeforeKey;
+	const lines = rawData.split('\n');
+	const quotedKeyPatterns = [`${objectKey}:`, `'${objectKey}':`, `"${objectKey}":`];
+	const lineNumber = lines.findIndex((line) => {
+		if (line.startsWith(' ') || line.startsWith('\t')) return false;
+		return quotedKeyPatterns.some((pattern) => line.startsWith(pattern));
+	});
+	return lineNumber === -1 ? 0 : lineNumber + 1;
 }
 
 export function safeParseFrontmatter(source: string, id?: string) {
