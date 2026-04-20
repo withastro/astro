@@ -1,5 +1,5 @@
 import { createReadStream, existsSync, readFileSync } from 'node:fs';
-import { appendFile, stat } from 'node:fs/promises';
+import { appendFile, rename, stat } from 'node:fs/promises';
 import { createInterface } from 'node:readline/promises';
 import { removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
 import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
@@ -118,6 +118,7 @@ export default function createIntegration({
 	...cloudflareOptions
 }: Options = {}): AstroIntegration {
 	let _config: AstroConfig;
+	let _originalClientDir: URL;
 
 	let _routes: IntegrationResolvedRoute[];
 	let _isFullyStatic = false;
@@ -350,6 +351,15 @@ export default function createIntegration({
 			},
 			'astro:config:done': ({ setAdapter, config, injectTypes, logger }) => {
 				_config = config;
+				_originalClientDir = new URL(config.build.client.href);
+
+				// When a base path is configured, nest the client output directory under
+				// the base so that on-disk paths match the URLs Astro writes into HTML.
+				// Cloudflare Workers' static-asset binding resolves request URLs literally
+				// against the client directory, so the files must live under the base prefix.
+				if (config.base !== '/') {
+					config.build.client = new URL('.' + config.base + '/', config.build.client);
+				}
 
 				injectTypes({
 					filename: 'cloudflare.d.ts',
@@ -437,9 +447,24 @@ export default function createIntegration({
 				}
 			},
 			'astro:build:done': async ({ dir, logger, assets }) => {
+				// Move platform files from the base-prefixed client dir to the
+				// original client root, since Cloudflare reads them from there.
+				if (_config.base !== '/') {
+					for (const file of ['.assetsignore', '_headers']) {
+						try {
+							await rename(
+								new URL(`./${file}`, _config.build.client),
+								new URL(`./${file}`, _originalClientDir),
+							);
+						} catch {
+							// File may not exist — that's fine
+						}
+					}
+				}
+
 				let redirectsExists = false;
 				try {
-					const redirectsStat = await stat(new URL('./_redirects', _config.build.client));
+					const redirectsStat = await stat(new URL('./_redirects', _originalClientDir));
 					if (redirectsStat.isFile()) {
 						redirectsExists = true;
 					}
@@ -450,7 +475,7 @@ export default function createIntegration({
 				const redirects: IntegrationResolvedRoute['segments'][] = [];
 				if (redirectsExists) {
 					const rl = createInterface({
-						input: createReadStream(new URL('./_redirects', _config.build.client)),
+						input: createReadStream(new URL('./_redirects', _originalClientDir)),
 						crlfDelay: Number.POSITIVE_INFINITY,
 					});
 
@@ -489,7 +514,7 @@ export default function createIntegration({
 				if (!trueRedirects.empty()) {
 					try {
 						await appendFile(
-							new URL('./_redirects', _config.build.client),
+							new URL('./_redirects', _originalClientDir),
 							printAsRedirects(trueRedirects),
 						);
 					} catch (_error) {
