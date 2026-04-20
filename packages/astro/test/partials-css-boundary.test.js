@@ -32,7 +32,7 @@ describe('Partials CSS propagation', () => {
 			styles += `\n${await fixture.readFile(href)}`;
 		}
 
-		assert.match(styles, /rebeccapurple/);
+		assert.match(styles, /\.results-table\[data-astro-cid-/);
 		assert.match(html, /results-table/);
 	});
 });
