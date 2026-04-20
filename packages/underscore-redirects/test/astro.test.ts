@@ -1,29 +1,31 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { createRedirectsFromAstroRoutes, getTrailingSlashPaths } from '../dist/index.js';
+import type { AstroConfig, IntegrationResolvedRoute } from 'astro';
 
 describe('Astro', () => {
 	it('Creates a Redirects object from routes', () => {
-		const routeToDynamicTargetMap = new Map(
+		const routeToDynamicTargetMap = new Map<IntegrationResolvedRoute, string>(
 			Array.from([
-				[{ pattern: '/', pathname: '/', segments: [] }, './.adapter/dist/entry.mjs'],
-				[{ pattern: '/one', pathname: '/one', segments: [] }, './.adapter/dist/entry.mjs'],
+				[createIntegrationRoute('/'), './.adapter/dist/entry.mjs'],
+				[createIntegrationRoute('/one'), './.adapter/dist/entry.mjs'],
 			]),
 		);
-		const _redirects = createRedirectsFromAstroRoutes({
+
+		const redirects = createRedirectsFromAstroRoutes({
 			config: {
 				build: { format: 'directory' },
-			},
+			} as AstroConfig,
 			routeToDynamicTargetMap,
 			dir: new URL(import.meta.url),
 			buildOutput: 'server',
 			assets: new Map([
-				['/', new URL('./index.html', import.meta.url)],
-				['/one', new URL('./one/index.html', import.meta.url)],
+				['/', [new URL('./index.html', import.meta.url)]],
+				['/one', [new URL('./one/index.html', import.meta.url)]],
 			]),
 		});
 
-		assert.equal(_redirects.definitions.length, 2);
+		assert.equal(redirects.definitions.length, 2);
 	});
 
 	it('Generates correct paths for root', () => {
@@ -47,3 +49,12 @@ describe('Astro', () => {
 		assert.deepEqual(getTrailingSlashPaths('/path/', 'never'), ['/path']);
 	});
 });
+
+function createIntegrationRoute(pattern: string, pathname = pattern): IntegrationResolvedRoute {
+	const route: Partial<IntegrationResolvedRoute> = {
+		pattern,
+		pathname,
+		segments: [],
+	};
+	return route as IntegrationResolvedRoute;
+}
