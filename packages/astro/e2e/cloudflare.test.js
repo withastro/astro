@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { testFactory, createLoggerSpy } from './test-utils.js';
+import { testFactory, createLoggerSpy, warmupDevServer } from './test-utils.js';
 
 const test = testFactory(import.meta.url, {
 	root: './fixtures/cloudflare/',
@@ -71,7 +71,7 @@ function sharedTests(testRunner, infoLogs = null) {
 	});
 
 	testRunner('server island with props', async ({ page, astro }) => {
-		await page.goto(astro.resolveUrl('/'));
+		await page.goto(astro.resolveUrl('/?with-island-props=1'));
 		const islandProps = page.locator('#island-props');
 		await expect(islandProps).toContainText('Aria');
 	});
@@ -137,9 +137,10 @@ test.describe('Cloudflare', () => {
 		let devServer;
 		let infoLogs = [];
 
-		test.beforeAll(async ({ astro }) => {
+		test.beforeAll(async ({ astro, browser }) => {
 			const logger = createLoggerSpy({ info: infoLogs });
 			devServer = await astro.startDevServer({ logger });
+			await warmupDevServer(browser, astro.resolveUrl('/'));
 		});
 
 		test.afterAll(async () => {
