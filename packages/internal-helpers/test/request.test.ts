@@ -137,7 +137,7 @@ describe('getClientIpAddress', () => {
 	/**
 	 * Helper to create a minimal Request with given headers.
 	 */
-	function makeRequest(headers = {}) {
+	function makeRequest(headers: HeadersInit = {}) {
 		return new Request('https://example.com', { headers });
 	}
 
