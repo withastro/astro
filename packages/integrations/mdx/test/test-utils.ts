@@ -4,7 +4,7 @@ import type * as mdast from 'mdast';
 import type * as unified from 'unified';
 import {
 	AstroIntegrationLogger,
-	type AstroLogMessage,
+	type AstroLoggerMessage,
 } from '../../../astro/dist/core/logger/core.js';
 
 export {
@@ -30,10 +30,10 @@ export type RecmaPlugin<PluginParameters extends any[] = any[]> = unified.Plugin
 >;
 
 export class SpyIntegrationLogger extends AstroIntegrationLogger {
-	readonly messages: AstroLogMessage[];
+	readonly messages: AstroLoggerMessage[];
 
 	constructor() {
-		const messages: AstroLogMessage[] = [];
+		const messages: AstroLoggerMessage[] = [];
 		super(
 			{
 				destination: {

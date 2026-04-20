@@ -12,6 +12,7 @@ export function createManifest({
 	base = '/',
 	trailingSlash = 'ignore',
 	middleware = undefined,
+	logger = undefined,
 	actions = undefined,
 	actionBodySizeLimit = 0,
 	i18n = undefined,
@@ -23,6 +24,7 @@ export function createManifest({
 	base?: string;
 	trailingSlash?: 'always' | 'never' | 'ignore';
 	middleware?: SSRManifest['middleware'];
+	logger?: SSRManifest['logger'];
 	actions?: SSRManifest['actions'];
 	actionBodySizeLimit?: number;
 	i18n?: SSRManifestI18n;
@@ -56,6 +58,7 @@ export function createManifest({
 		key: Promise.resolve({} as CryptoKey),
 		i18n,
 		middleware,
+		logger,
 		actions,
 		sessionDriver: undefined,
 		checkOrigin: false,
