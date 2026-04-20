@@ -652,7 +652,7 @@ describe('isParentDirectory', () => {
 	});
 
 	it('should correctly reject non-parent relationships', () => {
-		const invalidCases = [
+		const invalidCases: Array<[string, string]> = [
 			// Different directories
 			['/home', '/usr'],
 			['/home/user', '/home/otheruser'],
@@ -681,8 +681,11 @@ describe('isParentDirectory', () => {
 			['', '/home'],
 			['/home', ''],
 			['', ''],
+			// @ts-expect-error: expected to handle null/undefined gracefully
 			[null, '/home'],
+			// @ts-expect-error: expected to handle null/undefined gracefully
 			['/home', null],
+			// @ts-expect-error: expected to handle null/undefined gracefully
 			[undefined, '/home'],
 
 			// Same path (not parent-child)
