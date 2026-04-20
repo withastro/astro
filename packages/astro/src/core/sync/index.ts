@@ -6,8 +6,11 @@ import colors from 'piccolore';
 import { createServer, type FSWatcher, type HotPayload, type ViteDevServer } from 'vite';
 import { syncFonts } from '../../assets/fonts/sync.js';
 import { CONTENT_TYPES_FILE } from '../../content/consts.js';
-import { getDataStoreFile } from '../../content/content-layer.js';
-import { globalContentLayer } from '../../content/instance.js';
+import {
+	getDataStoreDir,
+	getDataStoreFile,
+	globalContentLayer,
+} from '../../content/content-layer.js';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { MutableDataStore } from '../../content/mutable-data-store.js';
 import { getContentPaths, globalContentConfigObserver } from '../../content/utils.js';
@@ -96,11 +99,21 @@ export async function clearContentLayerCache({
 	fs?: typeof fsMod;
 	isDev: boolean;
 }) {
-	const dataStore = getDataStoreFile(settings, isDev);
-	if (fs.existsSync(dataStore)) {
-		logger.debug('content', 'clearing data store');
-		await fs.promises.rm(dataStore, { force: true });
-		logger.warn('content', 'data store cleared (force)');
+	if (settings.config.experimental.dataStoreChunking) {
+		const dataStore = getDataStoreDir(settings, isDev);
+		if (fs.existsSync(dataStore)) {
+			logger.debug('content', 'clearing data store');
+			await fs.promises.rm(dataStore, { force: true, recursive: true });
+			await fs.promises.mkdir(dataStore, { recursive: true });
+			logger.warn('content', 'data store cleared (force)');
+		}
+	} else {
+		const dataStore = getDataStoreFile(settings, isDev);
+		if (fs.existsSync(dataStore)) {
+			logger.debug('content', 'clearing data store');
+			await fs.promises.rm(dataStore, { force: true });
+			logger.warn('content', 'data store cleared (force)');
+		}
 	}
 }
 
@@ -138,9 +151,16 @@ export async function syncInternal({
 			settings.timer.start('Sync content layer');
 
 			let store: MutableDataStore | undefined;
+
 			try {
-				const dataStoreFile = getDataStoreFile(settings, isDev);
-				store = await MutableDataStore.fromFile(dataStoreFile);
+				const chunkingEnabled = settings.config.experimental.dataStoreChunking;
+				if (chunkingEnabled) {
+					const dataStoreDir = getDataStoreDir(settings, isDev);
+					store = await MutableDataStore.fromDir(dataStoreDir);
+				} else {
+					const dataStoreFile = getDataStoreFile(settings, isDev);
+					store = await MutableDataStore.fromFile(dataStoreFile);
+				}
 			} catch (err: any) {
 				logger.error('content', err.message);
 			}

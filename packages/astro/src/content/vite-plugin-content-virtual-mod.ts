@@ -15,6 +15,7 @@ import {
 	ASSET_IMPORTS_VIRTUAL_ID,
 	CONTENT_MODULE_FLAG,
 	CONTENT_RENDER_FLAG,
+	DATA_STORE_MANIFEST_FILE,
 	DATA_STORE_VIRTUAL_ID,
 	MODULES_IMPORTS_FILE,
 	MODULES_MJS_ID,
@@ -23,7 +24,7 @@ import {
 	RESOLVED_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
-import { getDataStoreFile } from './content-layer.js';
+import { getDataStoreDir, getDataStoreFile } from './content-layer.js';
 import { getContentPaths, isDeferredModule } from './utils.js';
 
 interface AstroContentVirtualModPluginParams {
@@ -52,6 +53,7 @@ export function astroContentVirtualModPlugin({
 	settings,
 	fs,
 }: AstroContentVirtualModPluginParams): Plugin {
+	let dataStoreDir: URL;
 	let dataStoreFile: URL;
 	let devServer: ViteDevServer;
 	let liveConfig: string;
@@ -59,7 +61,13 @@ export function astroContentVirtualModPlugin({
 		name: 'astro-content-virtual-mod-plugin',
 		enforce: 'pre',
 		config(_, env) {
-			dataStoreFile = getDataStoreFile(settings, env.command === 'serve');
+			if (settings.config.experimental.dataStoreChunking) {
+				dataStoreDir = getDataStoreDir(settings, env.command === 'serve');
+				dataStoreFile = new URL(DATA_STORE_MANIFEST_FILE, dataStoreDir);
+			} else {
+				dataStoreFile = getDataStoreFile(settings, env.command === 'serve');
+			}
+
 			const contentPaths = getContentPaths(
 				settings.config,
 				undefined,
@@ -159,6 +167,36 @@ export function astroContentVirtualModPlugin({
 					}
 					const jsonData = await fs.promises.readFile(dataStoreFile, 'utf-8');
 
+					if (settings.config.experimental.dataStoreChunking) {
+					try {
+						const manifest: Record<string, string[][]> = JSON.parse(jsonData);
+						const parsed: Record<string, string[][]> = {};
+
+						/**
+						 * Convert manifest paths to imports to keep content files separated.
+						 */
+						for (const collection in manifest) {
+							parsed[collection] = manifest[collection].map((files) =>
+								files.map(
+									(file) =>
+										`@@IMPORT@@${rootRelativePath(settings.config.root, new URL('./' + file, dataStoreDir))}@@/IMPORT@@`,
+								),
+							);
+						}
+
+						const code = dataToEsm(parsed, {
+							compact: true,
+						}).replace(/"@@IMPORT@@(.+?)@@\/IMPORT@@"/g, '(await import("$1?raw"))');
+
+						return {
+							code,
+							map: { mappings: '' },
+						};
+					} catch (err) {
+						const message = 'Could not parse data store manifest JSON file';
+						this.error({ message, id, cause: err });
+					}
+				} else {
 					try {
 						const parsed = JSON.parse(jsonData);
 						return {
@@ -172,6 +210,7 @@ export function astroContentVirtualModPlugin({
 						this.error({ message, id, cause: err });
 					}
 				}
+			}
 
 				if (id === ASSET_IMPORTS_RESOLVED_STUB_ID) {
 					const assetImportsFile = new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir);

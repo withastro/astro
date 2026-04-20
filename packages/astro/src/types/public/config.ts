@@ -3059,6 +3059,28 @@ export interface AstroUserConfig<
 			 */
 			contentCache?: boolean;
 		};
+		/**
+		 * @name experimental.dataStoreChunking
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 5.14
+		 * @description
+		 *
+		 * When enabled, ...
+		 *
+		 * ```js
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   experimental: {
+		 *     dataStoreChunking: true,
+		 *   },
+		 * });
+		 * ```
+		 *
+		 * See the [experimental data store chunking feature documentation](https://docs.astro.build/en/reference/experimental-flags/data-store-chunking/) for more information.
+		 */
+		dataStoreChunking?: boolean;
 	};
 }
 

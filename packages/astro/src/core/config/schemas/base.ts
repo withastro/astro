@@ -114,6 +114,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		queuedRendering: {
 			enabled: false,
 		},
+		dataStoreChunking: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -548,6 +549,10 @@ export const AstroConfigSchema = z.object({
 				})
 				.optional()
 				.prefault(ASTRO_CONFIG_DEFAULTS.experimental.queuedRendering),
+			dataStoreChunking: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.dataStoreChunking),
 		})
 		.prefault({}),
 	legacy: z
