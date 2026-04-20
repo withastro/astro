@@ -1,4 +1,4 @@
-// $$result._astro_head_inject — marker for head propagation detection
+"use astro:head-inject";
 import {
 	createDeprecatedFunction,
 	createGetCollection,

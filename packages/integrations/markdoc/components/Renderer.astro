@@ -1,6 +1,5 @@
 ---
-// @ts-expect-error Only way to use head inject now
-$$result._astro_head_inject;
+"use astro:head-inject";
 import type { Config, RenderableTreeNodes } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import { ComponentNode, createTreeNode } from './TreeNode.js';

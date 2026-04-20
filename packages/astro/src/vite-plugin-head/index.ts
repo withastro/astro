@@ -166,7 +166,7 @@ export default function configHeadVitePlugin(): vite.Plugin {
 			}
 
 			if (hasHeadPropagationCall(source)) {
-				// `$$result._astro_head_inject` opts a module into bubbling.
+				// `"use astro:head-inject"` directive opts a module into bubbling.
 				propagateMetadata.call(this, id, 'propagation', 'in-tree');
 			}
 
@@ -176,6 +176,11 @@ export default function configHeadVitePlugin(): vite.Plugin {
 }
 
 export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
+	// Collect module IDs that contain a head propagation marker in their raw source
+	// (before bundling). This is necessary because Rolldown may strip comments and
+	// directives when concatenating modules into chunks, so scanning `mod.code` in
+	// `generateBundle` alone is not reliable.
+	const headPropagationModuleIds = new Set<string>();
 	return {
 		name: 'astro:head-metadata-build',
 		applyToEnvironment(environment) {
@@ -184,12 +189,17 @@ export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
 			);
 		},
+		transform(source, id) {
+			if (hasHeadPropagationCall(source)) {
+				headPropagationModuleIds.add(id);
+			}
+		},
 		generateBundle(_opts, bundle) {
 			const map: SSRResult['componentMetadata'] = internals.componentMetadata;
 			const moduleIds = new Set<string>();
 			// Explicit runtime entries (`createComponent({ propagation: 'self' })`).
 			const selfPropagationSeeds = new Set<string>();
-			// Head propagation hint seeds (`$$result._astro_head_inject` marker in source).
+			// Head propagation hint seeds (`"use astro:head-inject"` directive in source).
 			const commentPropagationSeeds = new Set<string>();
 			function getOrCreateMetadata(id: string): SSRComponentMetadata {
 				if (map.has(id)) return map.get(id)!;
@@ -222,8 +232,9 @@ export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
 					}
 
 					// Head propagation (aka bubbling)
-					// eslint-disable-next-line @typescript-eslint/prefer-includes
-					if (mod.code && hasHeadPropagationCall(mod.code)) {
+					// Check both post-bundle code and pre-bundle transform results,
+					// since Rolldown may strip markers (comments, directives) during bundling.
+					if ((mod.code && hasHeadPropagationCall(mod.code)) || headPropagationModuleIds.has(id)) {
 						commentPropagationSeeds.add(id);
 					}
 				}

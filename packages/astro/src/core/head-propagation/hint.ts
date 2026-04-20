@@ -1,13 +1,10 @@
-// Detect `$$result._astro_head_inject` in source, both in .astro components and in js/ts files.
-// Keep behavior aligned with the existing plugin usage.
-const HEAD_PROPAGATION_CALL_EXP = /\$\$result._astro_head_inject/;
+// Detect the `"use astro:head-inject"` directive in source code.
+// This directive marks a module as needing head propagation (CSS/script injection into <head>).
+const HEAD_PROPAGATION_EXP = /"use astro:head-inject"/;
 
 /**
- * Returns true when source contains the `$$result._astro_head_inject` marker.
- *
- * @example
- * `$$result._astro_head_inject` in a component marks parent importers as `in-tree`.
+ * Returns true when source contains the `"use astro:head-inject"` directive.
  */
 export function hasHeadPropagationCall(source: string): boolean {
-	return HEAD_PROPAGATION_CALL_EXP.test(source);
+	return HEAD_PROPAGATION_EXP.test(source);
 }
