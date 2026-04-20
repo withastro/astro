@@ -5,11 +5,10 @@ import { before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { load as cheerioLoad } from 'cheerio';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.js';
 
 describe('Dynamic pages in SSR', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		const root = './fixtures/ssr-dynamic/';
@@ -47,13 +46,13 @@ describe('Dynamic pages in SSR', () => {
 		await fixture.build();
 	});
 
-	async function matchRoute(path) {
+	async function matchRoute(path: string) {
 		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('https://example.com' + path);
 		return app.match(request);
 	}
 
-	async function fetchHTML(path) {
+	async function fetchHTML(path: string) {
 		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com' + path);
 		const response = await app.render(request);
@@ -61,7 +60,7 @@ describe('Dynamic pages in SSR', () => {
 		return html;
 	}
 
-	async function fetchJSON(path) {
+	async function fetchJSON(path: string) {
 		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com' + path);
 		const response = await app.render(request);

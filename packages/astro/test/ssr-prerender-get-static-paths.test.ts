@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import { after, afterEach, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
+import type { Plugin } from 'vite';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
 
 describe('Prerender', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 	describe('output: "server"', () => {
 		describe('getStaticPaths - build calls', () => {
 			before(async () => {
@@ -26,7 +26,7 @@ describe('Prerender', () => {
 
 			afterEach(() => {
 				// reset the flag used by [...calledTwiceTest].astro between each test
-				globalThis.isCalledOnce = false;
+				(globalThis as any).isCalledOnce = false;
 			});
 
 			it('is only called once during build', () => {
@@ -44,16 +44,16 @@ describe('Prerender', () => {
 		});
 
 		describe('getStaticPaths - dev calls', () => {
-			let devServer;
+			let devServer: DevServer;
 
 			before(async () => {
-				globalThis.isCalledOnce = false;
+				(globalThis as any).isCalledOnce = false;
 				devServer = await fixture.startDevServer();
 			});
 
 			afterEach(() => {
 				// reset the flag used by [...calledTwiceTest].astro between each test
-				globalThis.isCalledOnce = false;
+				(globalThis as any).isCalledOnce = false;
 			});
 
 			after(async () => {
@@ -145,7 +145,7 @@ describe('Prerender', () => {
 
 			afterEach(() => {
 				// reset the flag used by [...calledTwiceTest].astro between each test
-				globalThis.isCalledOnce = false;
+				(globalThis as any).isCalledOnce = false;
 			});
 
 			it('is only called once during build', () => {
@@ -163,16 +163,16 @@ describe('Prerender', () => {
 		});
 
 		describe('getStaticPaths - dev calls', () => {
-			let devServer;
+			let devServer: DevServer;
 
 			before(async () => {
-				globalThis.isCalledOnce = false;
+				(globalThis as any).isCalledOnce = false;
 				devServer = await fixture.startDevServer();
 			});
 
 			afterEach(() => {
 				// reset the flag used by [...calledTwiceTest].astro between each test
-				globalThis.isCalledOnce = false;
+				(globalThis as any).isCalledOnce = false;
 			});
 
 			after(async () => {
@@ -238,11 +238,9 @@ describe('Prerender', () => {
 	});
 });
 
-/** @returns {import('vite').Plugin} */
-function vitePluginRemovePrerenderExport() {
+function vitePluginRemovePrerenderExport(): Plugin {
 	const EXTENSIONS = ['.astro', '.ts'];
-	/** @type {import('vite').Plugin} */
-	const plugin = {
+	const plugin: Plugin = {
 		name: 'remove-prerender-export',
 		transform(code, id) {
 			if (!EXTENSIONS.some((ext) => id.endsWith(ext))) return;
@@ -252,6 +250,7 @@ function vitePluginRemovePrerenderExport() {
 	return {
 		name: 'remove-prerender-export-injector',
 		configResolved(resolved) {
+			// @ts-expect-error: `resolved.plugins` is typed as `ReadonlyArray<Plugin>`
 			resolved.plugins.unshift(plugin);
 		},
 	};

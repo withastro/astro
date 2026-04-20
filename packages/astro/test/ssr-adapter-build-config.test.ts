@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
+import type { Plugin } from 'vite';
 import { viteID } from '../dist/core/util.js';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.js';
 
 describe('Integration buildConfig hook', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -23,6 +23,7 @@ describe('Integration buildConfig hook', () => {
 							vite: {
 								plugins: [
 									{
+										name: 'my-ssr-plugin',
 										resolveId: {
 											filter: {
 												id: /^(astro\/app|@my-ssr)$/,
@@ -42,7 +43,7 @@ describe('Integration buildConfig hook', () => {
 												return `import { App } from 'astro/app';export function createExports(manifest) { return { manifest, createApp: () => new App(manifest) }; }`;
 											},
 										},
-									},
+									} satisfies Plugin,
 								],
 							},
 						});

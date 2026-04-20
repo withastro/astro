@@ -2,9 +2,9 @@ import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { type AstroInlineConfig, type Fixture, loadFixture } from './test-utils.js';
 
-async function fetchHTML(fixture, path) {
+async function fetchHTML(fixture: Fixture, path: string) {
 	const app = await fixture.loadTestAdapterApp();
 	const request = new Request('http://example.com' + path);
 	const response = await app.render(request);
@@ -12,16 +12,14 @@ async function fetchHTML(fixture, path) {
 	return html;
 }
 
-/** @type {import('./test-utils.js').AstroInlineConfig} */
-const defaultFixtureOptions = {
+const defaultFixtureOptions: AstroInlineConfig = {
 	root: './fixtures/ssr-script/',
 	output: 'server',
 	adapter: testAdapter(),
 };
 
 describe('Inline scripts in SSR', () => {
-	/** @type {import('./test-utils.js').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	describe('without base path', () => {
 		before(async () => {
@@ -99,8 +97,7 @@ describe('Inline scripts in SSR', () => {
 });
 
 describe('External scripts in SSR', () => {
-	/** @type {import('./test-utils.js').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	describe('without base path', () => {
 		before(async () => {
@@ -119,7 +116,7 @@ describe('External scripts in SSR', () => {
 		it('script has correct path', async () => {
 			const html = await fetchHTML(fixture, '/');
 			const $ = cheerioLoad(html);
-			assert.match($('script').attr('src'), /^\/_astro\/.*\.js$/);
+			assert.match($('script').attr('src')!, /^\/_astro\/.*\.js$/);
 		});
 	});
 
@@ -141,7 +138,7 @@ describe('External scripts in SSR', () => {
 		it('script has correct path', async () => {
 			const html = await fetchHTML(fixture, '/hello/');
 			const $ = cheerioLoad(html);
-			assert.match($('script').attr('src'), /^\/hello\/_astro\/.*\.js$/);
+			assert.match($('script').attr('src')!, /^\/hello\/_astro\/.*\.js$/);
 		});
 	});
 
@@ -165,7 +162,7 @@ describe('External scripts in SSR', () => {
 		it('script has correct path', async () => {
 			const html = await fetchHTML(fixture, '/');
 			const $ = cheerioLoad(html);
-			assert.match($('script').attr('src'), /^https:\/\/cdn\.example\.com\/_astro\/.*\.js$/);
+			assert.match($('script').attr('src')!, /^https:\/\/cdn\.example\.com\/_astro\/.*\.js$/);
 		});
 	});
 
@@ -199,7 +196,7 @@ describe('External scripts in SSR', () => {
 		it('script has correct path', async () => {
 			const html = await fetchHTML(fixture, '/');
 			const $ = cheerioLoad(html);
-			assert.match($('script').attr('src'), /^\/assets\/entry\..{8}\.mjs$/);
+			assert.match($('script').attr('src')!, /^\/assets\/entry\..{8}\.mjs$/);
 		});
 	});
 
@@ -234,7 +231,7 @@ describe('External scripts in SSR', () => {
 		it('script has correct path', async () => {
 			const html = await fetchHTML(fixture, '/hello/');
 			const $ = cheerioLoad(html);
-			assert.match($('script').attr('src'), /^\/hello\/assets\/entry\..{8}\.mjs$/);
+			assert.match($('script').attr('src')!, /^\/hello\/assets\/entry\..{8}\.mjs$/);
 		});
 	});
 
@@ -272,7 +269,7 @@ describe('External scripts in SSR', () => {
 			const html = await fetchHTML(fixture, '/');
 			const $ = cheerioLoad(html);
 			assert.match(
-				$('script').attr('src'),
+				$('script').attr('src')!,
 				/^https:\/\/cdn\.example\.com\/assets\/entry\..{8}\.mjs$/,
 			);
 		});
