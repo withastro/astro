@@ -353,10 +353,10 @@ describe('Glob Loader', () => {
 	});
 
 	it('uses schema-transformed slug as entry id for default generateId', async () => {
-		const root = createTempDir('astro-glob-loader-slugify-');
-		await fs.mkdir(new URL('./src/content/posts/', root), { recursive: true });
+		const tempRoot = createTempDir('astro-glob-loader-slugify-');
+		await fs.mkdir(new URL('./src/content/posts/', tempRoot), { recursive: true });
 		await fs.writeFile(
-			new URL('./src/content/posts/post.md', root),
+			new URL('./src/content/posts/post.md', tempRoot),
 			`---
 slug: Fancy One!!!
 ---
@@ -365,7 +365,7 @@ slug: Fancy One!!!
 		);
 
 		const store = new MutableDataStore();
-		const settings = createMinimalSettings(root, {
+		const settings = createMinimalSettings(tempRoot, {
 			contentEntryTypes: [createMarkdownEntryType()],
 		});
 		const logger = new AstroLogger({
@@ -398,10 +398,10 @@ slug: Fancy One!!!
 	});
 
 	it('does not override id when slug is empty', async () => {
-		const root = createTempDir('astro-glob-loader-empty-slug-');
-		await fs.mkdir(new URL('./src/content/posts/', root), { recursive: true });
+		const tempRoot = createTempDir('astro-glob-loader-empty-slug-');
+		await fs.mkdir(new URL('./src/content/posts/', tempRoot), { recursive: true });
 		await fs.writeFile(
-			new URL('./src/content/posts/post.md', root),
+			new URL('./src/content/posts/post.md', tempRoot),
 			`---
 slug: ""
 ---
@@ -410,7 +410,7 @@ slug: ""
 		);
 
 		const store = new MutableDataStore();
-		const settings = createMinimalSettings(root, {
+		const settings = createMinimalSettings(tempRoot, {
 			contentEntryTypes: [createMarkdownEntryType()],
 		});
 		const logger = new AstroLogger({
@@ -443,10 +443,10 @@ slug: ""
 	});
 
 	it('keeps custom generateId output unchanged', async () => {
-		const root = createTempDir('astro-glob-loader-custom-generate-id-');
-		await fs.mkdir(new URL('./src/content/posts/', root), { recursive: true });
+		const tempRoot = createTempDir('astro-glob-loader-custom-generate-id-');
+		await fs.mkdir(new URL('./src/content/posts/', tempRoot), { recursive: true });
 		await fs.writeFile(
-			new URL('./src/content/posts/post.md', root),
+			new URL('./src/content/posts/post.md', tempRoot),
 			`---
 slug: Fancy One!!!
 ---
@@ -455,7 +455,7 @@ slug: Fancy One!!!
 		);
 
 		const store = new MutableDataStore();
-		const settings = createMinimalSettings(root, {
+		const settings = createMinimalSettings(tempRoot, {
 			contentEntryTypes: [createMarkdownEntryType()],
 		});
 		const logger = new AstroLogger({
