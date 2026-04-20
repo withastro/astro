@@ -15,10 +15,6 @@ function isStyleModule(mod: EnvironmentModuleNode): boolean {
 	return false;
 }
 
-function isStyleFile(file: string): boolean {
-	return STYLE_EXT_REGEX.test(file);
-}
-
 /**
  * The very last Vite plugin to reload the browser if any SSR-only module are updated
  * which will require a full page reload. This mimics the behaviour of Vite 5 where
@@ -30,7 +26,7 @@ export default function hmrReload(): Plugin {
 		enforce: 'post',
 		hotUpdate: {
 			order: 'post',
-			handler({ modules, server, timestamp, file }) {
+			handler({ modules, server, timestamp }) {
 				if (!isAstroServerEnvironment(this.environment)) return;
 
 				let hasSsrOnlyModules = false;
@@ -90,30 +86,6 @@ export default function hmrReload(): Plugin {
 				// Vite's built-in style update mechanism, which works for all pages
 				// (with or without framework components).
 				if (hasSkippedStyleModules) {
-					// In Vite 8's per-environment module graphs, a style file imported by a
-					// client component (e.g. CSS modules in a Preact/React component) may exist
-					// in the client module graph but the client environment's hotUpdate hook
-					// receives an empty modules list because the file watcher only maps the
-					// change to the SSR environment. We bridge this by manually triggering
-					// an HMR update on the client environment for any style file that has a
-					// corresponding client module.
-					if (isStyleFile(file)) {
-						const clientModules = server.environments.client.moduleGraph.getModulesByFile(file);
-						if (clientModules && clientModules.size > 0) {
-							for (const clientMod of clientModules) {
-								server.environments.client.moduleGraph.invalidateModule(clientMod);
-							}
-							server.environments.client.hot.send({
-								type: 'update',
-								updates: [...clientModules].filter(m => m.id).map((m) => ({
-									type: 'js-update',
-									path: m.url,
-									acceptedPath: m.url,
-									timestamp,
-								})),
-							});
-						}
-					}
 					return [];
 				}
 			},
