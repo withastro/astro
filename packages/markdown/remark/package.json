@@ -34,7 +34,8 @@
     "build": "astro-scripts build \"src/**/*.ts\" && tsc -p tsconfig.json",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "astro-scripts test \"test/**/*.test.js\""
+    "test": "astro-scripts test \"test/**/*.test.ts\"",
+    "typecheck:tests": "tsc -p tsconfig.test.json --noEmit"
   },
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",

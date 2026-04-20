@@ -1,28 +1,26 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { createMarkdownProcessor } from '../dist/index.js';
+import type { VFile } from 'vfile';
+import { createMarkdownProcessor, type RemarkPlugin } from '../dist/index.js';
 
 describe('plugins', () => {
 	it('should be able to get file path when passing fileURL', async () => {
-		let context;
+		let context: VFile | undefined;
+
+		const collectFile: RemarkPlugin = () => (_tree, file) => {
+			context = file;
+		};
 
 		const processor = await createMarkdownProcessor({
-			remarkPlugins: [
-				() => {
-					const transformer = (_tree, file) => {
-						context = file;
-					};
-					return transformer;
-				},
-			],
+			remarkPlugins: [collectFile],
 		});
 
 		await processor.render(`test`, {
 			fileURL: new URL('virtual.md', import.meta.url),
 		});
 
-		assert.ok(typeof context === 'object');
+		assert.ok(context);
 		assert.equal(context.path, fileURLToPath(new URL('virtual.md', import.meta.url)));
 	});
 });
