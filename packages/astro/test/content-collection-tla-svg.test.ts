@@ -1,14 +1,13 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.js';
 
 // Regression test for https://github.com/withastro/astro/issues/15575
 // SVG images in content collection image() fields combined with top-level await
 // caused a circular module dependency deadlock during build.
 describe('Content collection with SVG image and TLA', () => {
-	/** @type {import("./test-utils.js").Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/content-collection-tla-svg/' });
@@ -43,7 +42,7 @@ describe('Content collection with SVG image and TLA', () => {
 
 			const $svg = $('.inline-svg').first();
 			assert.ok($svg.length, 'Expected inline SVG element to be rendered');
-			assert.equal($svg.prop('tagName').toLowerCase(), 'svg');
+			assert.equal($svg.prop('tagName')!.toLowerCase(), 'svg');
 		});
 	});
 });

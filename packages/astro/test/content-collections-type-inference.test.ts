@@ -1,16 +1,13 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { execSync } from 'node:child_process';
 import * as fs from 'node:fs';
 import { before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.js';
 
 describe('Content collection type inference', () => {
-	/** @type {Awaited<ReturnType<typeof loadFixture>>} */
-	let fixture;
-	/** @type {string} */
-	let fixtureRoot;
+	let fixture: Fixture;
+	let fixtureRoot: string;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -71,8 +68,8 @@ describe('Content collection type inference', () => {
 				encoding: 'utf-8',
 			});
 		} catch (err) {
-			const stdout = /** @type {{ stdout?: string }} */ (err).stdout ?? '';
-			const stderr = /** @type {{ stderr?: string }} */ (err).stderr ?? '';
+			const stdout = (err as { stdout?: string }).stdout ?? '';
+			const stderr = (err as { stderr?: string }).stderr ?? '';
 			assert.fail(
 				`TypeScript type-checking failed on fixture.\n` +
 					`This means the content collection type inference is broken.\n\n` +

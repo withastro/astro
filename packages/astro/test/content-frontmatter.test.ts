@@ -3,13 +3,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
 
 describe('frontmatter (loadFixture)', () => {
-	let fixture;
-	let devServer;
-	let blogPath;
-	let originalContent;
+	let fixture: Fixture;
+	let devServer: DevServer;
+	let blogPath: string;
+	let originalContent: string;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -41,7 +41,7 @@ describe('frontmatter (loadFixture)', () => {
 			const res2 = await fixture.fetch('/');
 			assert.equal(res2.status, 200, 'Server should still respond after a content error');
 		} catch (err) {
-			assert.fail(err);
+			assert.fail(err as Error);
 		}
 	});
 });
