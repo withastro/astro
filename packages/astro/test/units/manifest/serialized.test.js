@@ -4,7 +4,7 @@ import {
 	serializedManifestPlugin,
 	SERIALIZED_MANIFEST_RESOLVED_ID,
 } from '../../../dist/manifest/serialized.js';
-import { createBasicSettings } from '../test-utils.js';
+import { createBasicSettings } from '../test-utils.ts';
 
 /**
  * Invoke the plugin's load handler (as it runs in dev mode) and return the
