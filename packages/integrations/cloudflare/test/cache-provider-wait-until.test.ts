@@ -1,11 +1,11 @@
-import * as assert from 'node:assert/strict';
+import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './_test-utils.js';
+import { type Fixture, loadFixture, type PreviewServer } from './test-utils.ts';
 
 describe('Cache provider waitUntil', () => {
-	let fixture;
-	let previewServer;
+	let fixture: Fixture;
+	let previewServer: PreviewServer;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -16,7 +16,7 @@ describe('Cache provider waitUntil', () => {
 	});
 
 	after(async () => {
-		previewServer.stop();
+		await previewServer.stop();
 	});
 
 	it('passes Cloudflare waitUntil through to CacheProvider.onRequest', async () => {
