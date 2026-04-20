@@ -206,6 +206,18 @@ const ariaRoles = new Set(
 	),
 );
 
+function hasAccessibleTextContent(element: Element | null): boolean {
+	if (!element) return false;
+
+	// Prefer visible text, but fall back to textContent for cases like closed <details>
+	// where content can still be an accessible name source.
+	const innerText = (element as HTMLElement).innerText?.trim();
+	if (innerText) return true;
+
+	const textContent = element.textContent?.trim();
+	return !!textContent;
+}
+
 function isInteractive(element: Element): boolean {
 	const attribute = MAYBE_INTERACTIVE.get(element.localName);
 	if (attribute) {
@@ -367,9 +379,7 @@ export const a11y: AuditRuleWithSelector[] = [
 			'Headings and anchors must have an accessible name, which can come from: inner text, aria-label, aria-labelledby, an img with alt property, or an svg with a tag <title></title>.',
 		selector: a11y_required_content.join(','),
 		match(element: HTMLElement) {
-			// innerText is used to ignore hidden text
-			const innerText = element.innerText?.trim();
-			if (innerText && innerText !== '') return false;
+			if (hasAccessibleTextContent(element)) return false;
 
 			// Check for aria-label
 			const ariaLabel = element.getAttribute('aria-label')?.trim();
@@ -381,7 +391,7 @@ export const a11y: AuditRuleWithSelector[] = [
 				const ids = ariaLabelledby.split(' ');
 				for (const id of ids) {
 					const referencedElement = document.getElementById(id);
-					if (referencedElement && referencedElement.innerText.trim() !== '') return false;
+					if (hasAccessibleTextContent(referencedElement)) return false;
 				}
 			}
 
@@ -417,7 +427,7 @@ export const a11y: AuditRuleWithSelector[] = [
 					const ids = inputAriaLabelledby.split(' ');
 					for (const id of ids) {
 						const referencedElement = document.getElementById(id);
-						if (referencedElement && referencedElement.innerText.trim() !== '') return false;
+						if (hasAccessibleTextContent(referencedElement)) return false;
 					}
 				}
 
