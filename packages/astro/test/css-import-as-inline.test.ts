@@ -1,10 +1,10 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { loadFixture, type DevServer, type Fixture } from './test-utils.js';
 
 describe('Importing raw/inlined CSS', () => {
-	let fixture;
+	let fixture: Fixture;
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/css-import-as-inline/',
@@ -36,8 +36,7 @@ describe('Importing raw/inlined CSS', () => {
 	});
 
 	describe('Dev', () => {
-		/** @type {import('./test-utils').DevServer} */
-		let devServer;
+		let devServer: DevServer;
 
 		before(async () => {
 			devServer = await fixture.startDevServer();

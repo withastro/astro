@@ -7,10 +7,9 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { loadFixture, type DevServer, type Fixture } from './test-utils.js';
 
-/** @type {import('./test-utils').Fixture} */
-let fixture;
+let fixture: Fixture;
 
 describe('CSS', function () {
 	before(async () => {
@@ -19,9 +18,9 @@ describe('CSS', function () {
 
 	// test HTML and CSS contents for accuracy
 	describe('build', () => {
-		let $;
-		let html;
-		let bundledCSS;
+		let $: cheerio.CheerioAPI;
+		let html: string;
+		let bundledCSS: string;
 
 		before(
 			async () => {
@@ -30,7 +29,7 @@ describe('CSS', function () {
 				// get bundled CSS (will be hashed, hence DOM query)
 				html = await fixture.readFile('/index.html');
 				$ = cheerio.load(html);
-				const bundledCSSHREF = $('link[rel=stylesheet][href^=/_astro/]').attr('href');
+				const bundledCSSHREF = $('link[rel=stylesheet][href^=/_astro/]').attr('href')!;
 				const bundledCSSFilePath = bundledCSSHREF.replace(/^\/?/, '/');
 				bundledCSS = (await fixture.readFile(bundledCSSFilePath))
 					.replace(/\s/g, '')
@@ -85,7 +84,7 @@ describe('CSS', function () {
 			});
 
 			it('Using hydrated components adds astro-island styles', async () => {
-				const inline = $('style').html();
+				const inline = $('style').html()!;
 				assert.equal(inline.includes('display:contents'), true);
 			});
 
@@ -100,7 +99,7 @@ describe('CSS', function () {
 			it('Styles through barrel files should only include used Astro scoped styles', async () => {
 				const barrelHtml = await fixture.readFile('/barrel-styles/index.html');
 				const barrel$ = cheerio.load(barrelHtml);
-				const barrelBundledCssHref = barrel$('link[rel=stylesheet][href^=/_astro/]').attr('href');
+				const barrelBundledCssHref = barrel$('link[rel=stylesheet][href^=/_astro/]').attr('href')!;
 				const style = await fixture.readFile(barrelBundledCssHref.replace(/^\/?/, '/'));
 				assert.match(style, /\.comp-a\[data-astro-cid/);
 				assert.match(style, /\.comp-c\{/);
@@ -110,7 +109,7 @@ describe('CSS', function () {
 			it('CSS modules imported in both frontmatter and script should not duplicate', async () => {
 				const duplicateHtml = await fixture.readFile('/css-module-duplicate/index.html');
 				const $duplicate = cheerio.load(duplicateHtml);
-				const cssHref = $duplicate('link[rel=stylesheet][href^=/_astro/]').attr('href');
+				const cssHref = $duplicate('link[rel=stylesheet][href^=/_astro/]').attr('href')!;
 				const css = await fixture.readFile(cssHref.replace(/^\/?/, '/'));
 
 				const normalizedCSS = css.replace(/\s+/g, '');
@@ -145,11 +144,12 @@ describe('CSS', function () {
 
 			it('.module.css', async () => {
 				const el = $('#react-module-css');
-				const classes = el.attr('class').split(' ');
-				const moduleClass = classes.find((name) => /^_title_[\w-]+/.test(name));
+				const classAttr = el.attr('class')!;
+				const classes = classAttr.split(' ');
+				const moduleClass = classes.find((name) => /^_title_[\w-]+/.test(name))!;
 
 				// 1. check HTML
-				assert.equal(el.attr('class').includes(moduleClass), true);
+				assert.equal(classAttr.includes(moduleClass), true);
 
 				// 2. check CSS
 				assert.match(bundledCSS, new RegExp(`.${moduleClass}[^{]*{font-family:fantasy`));
@@ -159,7 +159,7 @@ describe('CSS', function () {
 				const el = $('#react-sass');
 
 				// 1. check HTML
-				assert.equal(el.attr('class').includes('react-sass-title'), true);
+				assert.equal(el.attr('class')!.includes('react-sass-title'), true);
 
 				// 2. check CSS
 				assert.match(bundledCSS, /.react-sass-title[^{]*\{font-family:fantasy/);
@@ -169,7 +169,7 @@ describe('CSS', function () {
 				const el = $('#react-scss');
 
 				// 1. check HTML
-				assert.equal(el.attr('class').includes('react-scss-title'), true);
+				assert.equal(el.attr('class')!.includes('react-scss-title'), true);
 
 				// 2. check CSS
 				assert.match(bundledCSS, /.react-scss-title[^{]*\{font-family:fantasy/);
@@ -177,11 +177,12 @@ describe('CSS', function () {
 
 			it('.module.sass', async () => {
 				const el = $('#react-module-sass');
-				const classes = el.attr('class').split(' ');
-				const moduleClass = classes.find((name) => /^_title_[\w-]+/.test(name));
+				const classAttr = el.attr('class')!;
+				const classes = classAttr.split(' ');
+				const moduleClass = classes.find((name) => /^_title_[\w-]+/.test(name))!;
 
 				// 1. check HTML
-				assert.equal(el.attr('class').includes(moduleClass), true);
+				assert.equal(classAttr.includes(moduleClass), true);
 
 				// 2. check CSS
 				assert.match(bundledCSS, new RegExp(`.${moduleClass}[^{]*{font-family:fantasy`));
@@ -189,11 +190,12 @@ describe('CSS', function () {
 
 			it('.module.scss', async () => {
 				const el = $('#react-module-scss');
-				const classes = el.attr('class').split(' ');
-				const moduleClass = classes.find((name) => /^_title_[\w-]+/.test(name));
+				const classAttr = el.attr('class')!;
+				const classes = classAttr.split(' ');
+				const moduleClass = classes.find((name) => /^_title_[\w-]+/.test(name))!;
 
 				// 1. check HTML
-				assert.equal(el.attr('class').includes(moduleClass), true);
+				assert.equal(classAttr.includes(moduleClass), true);
 
 				// 2. check CSS
 				assert.match(bundledCSS, new RegExp(`.${moduleClass}[^{]*{font-family:fantasy`));
@@ -214,7 +216,7 @@ describe('CSS', function () {
 				const el = $('#vue-css');
 
 				// 1. check HTML
-				assert.equal(el.attr('class').includes('vue-css'), true);
+				assert.equal(el.attr('class')!.includes('vue-css'), true);
 
 				// 2. check CSS
 				assert.match(bundledCSS, /.vue-css[^{]*\{font-family:cursive/);
@@ -224,12 +226,12 @@ describe('CSS', function () {
 				const el = $('#vue-scoped');
 
 				// find data-v-* attribute (how Vue CSS scoping works)
-				const { attribs } = el.get(0);
+				const { attribs } = el.get(0)!;
 				const scopeId = Object.keys(attribs).find((k) => k.startsWith('data-v-'));
 				assert.ok(scopeId);
 
 				// 1. check HTML
-				assert.equal(el.attr('class').includes('vue-scoped'), true);
+				assert.equal(el.attr('class')!.includes('vue-scoped'), true);
 
 				// 2. check CSS
 				assert.equal(bundledCSS.includes(`.vue-scoped[${scopeId}]`), true);
@@ -237,11 +239,12 @@ describe('CSS', function () {
 
 			it('<style module>', async () => {
 				const el = $('#vue-modules');
-				const classes = el.attr('class').split(' ');
-				const moduleClass = classes.find((name) => /^_vueModules_[\w-]+/.test(name));
+				const classAttr = el.attr('class')!;
+				const classes = classAttr.split(' ');
+				const moduleClass = classes.find((name) => /^_vueModules_[\w-]+/.test(name))!;
 
 				// 1. check HTML
-				assert.equal(el.attr('class').includes(moduleClass), true);
+				assert.equal(classAttr.includes(moduleClass), true);
 
 				// 2. check CSS
 				assert.match(bundledCSS, new RegExp(`.${moduleClass}[^{]*{font-family:cursive`));
@@ -251,7 +254,7 @@ describe('CSS', function () {
 				const el = $('#vue-sass');
 
 				// 1. check HTML
-				assert.equal(el.attr('class').includes('vue-sass'), true);
+				assert.equal(el.attr('class')!.includes('vue-sass'), true);
 
 				// 2. check CSS
 				assert.match(bundledCSS, /.vue-sass[^{]*\{font-family:cursive/);
@@ -261,7 +264,7 @@ describe('CSS', function () {
 				const el = $('#vue-scss');
 
 				// 1. check HTML
-				assert.equal(el.attr('class').includes('vue-scss'), true);
+				assert.equal(el.attr('class')!.includes('vue-scss'), true);
 
 				// 2. check CSS
 				assert.match(bundledCSS, /.vue-scss[^{]*\{font-family:cursive/);
@@ -271,13 +274,14 @@ describe('CSS', function () {
 		describe('Svelte', () => {
 			it('<style>', async () => {
 				const el = $('#svelte-css');
-				const classes = el.attr('class').split(' ');
+				const classAttr = el.attr('class')!;
+				const classes = classAttr.split(' ');
 				const scopedClass = classes.find(
 					(name) => name !== 'svelte-css' && /^svelte-[A-Za-z\d-]+/.test(name),
 				);
 
 				// 1. check HTML
-				assert.equal(el.attr('class').includes('svelte-css'), true);
+				assert.equal(classAttr.includes('svelte-css'), true);
 
 				// 2. check CSS
 				assert.match(
@@ -288,13 +292,14 @@ describe('CSS', function () {
 
 			it('<style lang="sass">', async () => {
 				const el = $('#svelte-sass');
-				const classes = el.attr('class').split(' ');
+				const classAttr = el.attr('class')!;
+				const classes = classAttr.split(' ');
 				const scopedClass = classes.find(
 					(name) => name !== 'svelte-sass' && /^svelte-[A-Za-z\d-]+/.test(name),
 				);
 
 				// 1. check HTML
-				assert.equal(el.attr('class').includes('svelte-sass'), true);
+				assert.equal(classAttr.includes('svelte-sass'), true);
 
 				// 2. check CSS
 				assert.match(
@@ -305,13 +310,14 @@ describe('CSS', function () {
 
 			it('<style lang="scss">', async () => {
 				const el = $('#svelte-scss');
-				const classes = el.attr('class').split(' ');
+				const classAttr = el.attr('class')!;
+				const classes = classAttr.split(' ');
 				const scopedClass = classes.find(
 					(name) => name !== 'svelte-scss' && /^svelte-[A-Za-z\d-]+/.test(name),
 				);
 
 				// 1. check HTML
-				assert.equal(el.attr('class').includes('svelte-scss'), true);
+				assert.equal(classAttr.includes('svelte-scss'), true);
 
 				// 2. check CSS
 				assert.match(
@@ -323,12 +329,12 @@ describe('CSS', function () {
 			it('client:only and SSR in two pages, both should have styles', async () => {
 				const onlyHtml = await fixture.readFile('/client-only-and-ssr/only/index.html');
 				const $onlyHtml = cheerio.load(onlyHtml);
-				const onlyHtmlCssHref = $onlyHtml('link[rel=stylesheet][href^=/_astro/]').attr('href');
+				const onlyHtmlCssHref = $onlyHtml('link[rel=stylesheet][href^=/_astro/]').attr('href')!;
 				const onlyHtmlCss = await fixture.readFile(onlyHtmlCssHref.replace(/^\/?/, '/'));
 
 				const ssrHtml = await fixture.readFile('/client-only-and-ssr/ssr/index.html');
 				const $ssrHtml = cheerio.load(ssrHtml);
-				const ssrHtmlCssHref = $ssrHtml('link[rel=stylesheet][href^=/_astro/]').attr('href');
+				const ssrHtmlCssHref = $ssrHtml('link[rel=stylesheet][href^=/_astro/]').attr('href')!;
 				const ssrHtmlCss = await fixture.readFile(ssrHtmlCssHref.replace(/^\/?/, '/'));
 
 				assert.equal(onlyHtmlCss.includes('.svelte-only-and-ssr'), true);
@@ -349,11 +355,11 @@ describe('CSS', function () {
 			const unusedCssAsset = bundledAssets.find((asset) => /SvelteDynamic\..*\.css/.test(asset));
 			assert.equal(unusedCssAsset, undefined, 'Found unused style ' + unusedCssAsset);
 
-			let foundVitePreloadCSS = false;
+			let foundVitePreloadCSS: string | false = false;
 			const bundledJS = await fixture.glob('**/*.?(m)js');
 			for (const filename of bundledJS) {
 				const content = await fixture.readFile(filename);
-				if (content.match(/ReactDynamic\..*\.css/)) {
+				if (/ReactDynamic\..*\.css/.test(content)) {
 					foundVitePreloadCSS = filename;
 				}
 			}
@@ -367,8 +373,8 @@ describe('CSS', function () {
 
 	// with "build" handling CSS checking, the dev tests are mostly testing the paths resolve in dev
 	describe('dev', () => {
-		let devServer;
-		let $;
+		let devServer: DevServer;
+		let $: cheerio.CheerioAPI;
 
 		before(async () => {
 			devServer = await fixture.startDevServer();
@@ -381,7 +387,7 @@ describe('CSS', function () {
 		});
 
 		it('resolves CSS in public/', async () => {
-			const href = $('link[href="/global.css"]').attr('href');
+			const href = $('link[href="/global.css"]').attr('href')!;
 			assert.equal((await fixture.fetch(href)).status, 200);
 		});
 
@@ -419,7 +425,7 @@ describe('CSS', function () {
 				'ReactModules.module.sass',
 			];
 			for (const style of styles) {
-				const href = $(`style[data-vite-dev-id$="${style}"]`).attr('data-vite-dev-id');
+				const href = $(`style[data-vite-dev-id$="${style}"]`).attr('data-vite-dev-id')!;
 				assert.equal((await fixture.fetch(href)).status, 200);
 			}
 

@@ -1,11 +1,11 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { loadFixture, type Fixture } from './test-utils.js';
 
 describe('CSS deduplication for hydrated components', () => {
 	describe('inlineStylesheets: never', () => {
-		let fixture;
+		let fixture: Fixture;
 		before(async () => {
 			fixture = await loadFixture({
 				site: 'https://test.dev/',
@@ -41,7 +41,7 @@ describe('CSS deduplication for hydrated components', () => {
 	});
 
 	describe('inlineStylesheets: always', () => {
-		let fixture;
+		let fixture: Fixture;
 		before(async () => {
 			fixture = await loadFixture({
 				site: 'https://test.dev/',
@@ -62,13 +62,13 @@ describe('CSS deduplication for hydrated components', () => {
 			const $ = cheerio.load(html);
 
 			// Get all <style> tag contents
-			const styles = [];
+			const styles: string[] = [];
 			$('style').each((_i, el) => {
 				styles.push($(el).text().replace(/\s+/g, ''));
 			});
 
 			// Ensure no <style> tag content is duplicated
-			const seen = new Set();
+			const seen = new Set<string>();
 			for (const style of styles) {
 				if (seen.has(style)) {
 					assert.fail('Duplicate <style> tag content found in index.html');
