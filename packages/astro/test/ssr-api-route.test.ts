@@ -1,11 +1,18 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import net from 'node:net';
 import { after, before, describe, it } from 'node:test';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import {
+	type App,
+	type AstroInlineConfig,
+	type DevServer,
+	type Fixture,
+	loadFixture,
+} from './test-utils.js';
 
 describe('API routes in SSR', () => {
-	const config = {
+	const config: AstroInlineConfig = {
 		root: './fixtures/ssr-api-route/',
 		output: 'server',
 		site: 'https://mysite.dev/subsite/',
@@ -20,8 +27,7 @@ describe('API routes in SSR', () => {
 	};
 
 	describe('Build', () => {
-		/** @type {import('./test-utils.js').App} */
-		let app;
+		let app: App;
 		before(async () => {
 			const fixture = await loadFixture(config);
 			await fixture.build();
@@ -94,10 +100,8 @@ describe('API routes in SSR', () => {
 	});
 
 	describe('Dev', () => {
-		/** @type {import('./test-utils.js').DevServer} */
-		let devServer;
-		/** @type {import('./test-utils.js').Fixture} */
-		let fixture;
+		let devServer: DevServer;
+		let fixture: Fixture;
 		before(async () => {
 			fixture = await loadFixture(config);
 			devServer = await fixture.startDevServer();
@@ -145,7 +149,7 @@ describe('API routes in SSR', () => {
 		});
 
 		it('Can set multiple headers of the same type', async () => {
-			const response = await new Promise((resolve) => {
+			const response = await new Promise<string>((resolve) => {
 				let { port } = devServer.address;
 				let host = 'localhost';
 				let socket = new net.Socket();

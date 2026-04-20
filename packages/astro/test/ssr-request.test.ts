@@ -2,11 +2,10 @@ import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.js';
 
 describe('Using Astro.request in SSR', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -56,7 +55,7 @@ describe('Using Astro.request in SSR', () => {
 		const html = await response.text();
 		const $ = cheerioLoad(html);
 
-		const linkHref = $('link').attr('href');
+		const linkHref = $('link').attr('href')!;
 		assert.equal(linkHref.startsWith('/subpath/'), true);
 
 		request = new Request('http://example.com' + linkHref);
@@ -76,7 +75,7 @@ describe('Using Astro.request in SSR', () => {
 		const $ = cheerioLoad(html);
 
 		for (const el of $('script')) {
-			const scriptSrc = $(el).attr('src');
+			const scriptSrc = $(el).attr('src')!;
 			assert.equal(scriptSrc.startsWith('/subpath/'), true);
 			request = new Request('http://example.com' + scriptSrc);
 			response = await app.render(request);
