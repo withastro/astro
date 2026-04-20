@@ -1,16 +1,14 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
+import type { PreviewServer } from '../../../astro/src/types/public/preview.js';
 import * as devalue from 'devalue';
 import nodejs from '../dist/index.js';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture, type DevServer } from './test-utils.ts';
 
 describe('Astro.session', () => {
 	describe('Production', () => {
-		/** @type {import('./test-utils').Fixture} */
-		let fixture;
-		/** @type {import('../../../astro/src/types/public/preview.js').PreviewServer} */
-		let app;
+		let fixture: Fixture;
+		let app: PreviewServer;
 
 		before(async () => {
 			fixture = await loadFixture({
@@ -18,8 +16,8 @@ describe('Astro.session', () => {
 				output: 'server',
 				adapter: nodejs({ mode: 'middleware' }),
 			});
-			await fixture.build({});
-			app = await fixture.preview({});
+			await fixture.build();
+			app = await fixture.preview();
 		});
 
 		after(async () => {
@@ -95,9 +93,8 @@ describe('Astro.session', () => {
 	});
 
 	describe('Development', () => {
-		/** @type {import('./test-utils').Fixture} */
-		let fixture;
-		let devServer;
+		let fixture: Fixture;
+		let devServer: DevServer;
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/sessions/',

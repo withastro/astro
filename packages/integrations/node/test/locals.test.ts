@@ -1,11 +1,10 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import nodejs from '../dist/index.js';
-import { createRequestAndResponse, loadFixture } from './test-utils.js';
+import { createRequestAndResponse, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('API routes', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -17,7 +16,7 @@ describe('API routes', () => {
 	});
 
 	it('Can use locals added by node middleware', async () => {
-		const { handler } = await import('./fixtures/locals/dist/server/entry.mjs');
+		const handler = await fixture.loadNodeAdapterHandler();
 		const { req, res, text } = createRequestAndResponse({
 			url: '/from-node-middleware',
 		});
@@ -33,11 +32,12 @@ describe('API routes', () => {
 	});
 
 	it('Throws an error when provided non-objects as locals', async () => {
-		const { handler } = await import('./fixtures/locals/dist/server/entry.mjs');
+		const handler = await fixture.loadNodeAdapterHandler();
 		const { req, res, done } = createRequestAndResponse({
 			url: '/from-node-middleware',
 		});
 
+		// @ts-expect-error - intentionally passing a non-object to test error handling
 		handler(req, res, undefined, 'locals');
 		req.send();
 
@@ -46,7 +46,7 @@ describe('API routes', () => {
 	});
 
 	it('Can use locals added by astro middleware', async () => {
-		const { handler } = await import('./fixtures/locals/dist/server/entry.mjs');
+		const handler = await fixture.loadNodeAdapterHandler();
 
 		const { req, res, text } = createRequestAndResponse({
 			url: '/from-astro-middleware',
@@ -61,7 +61,7 @@ describe('API routes', () => {
 	});
 
 	it('Can access locals in API', async () => {
-		const { handler } = await import('./fixtures/locals/dist/server/entry.mjs');
+		const handler = await fixture.loadNodeAdapterHandler();
 		const { req, res, done } = createRequestAndResponse({
 			method: 'POST',
 			url: '/api',

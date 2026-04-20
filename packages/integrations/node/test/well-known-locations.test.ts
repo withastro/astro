@@ -1,11 +1,11 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
+import type { PreviewServer } from '../../../astro/src/types/public/preview.js';
 import nodejs from '../dist/index.js';
-import { createRequestAndResponse, loadFixture } from './test-utils.js';
+import { createRequestAndResponse, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('test URIs beginning with a dot', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -17,7 +17,7 @@ describe('test URIs beginning with a dot', () => {
 	});
 
 	describe('can load well-known URIs', async () => {
-		let devPreview;
+		let devPreview: PreviewServer;
 
 		before(async () => {
 			devPreview = await fixture.preview();
@@ -46,7 +46,7 @@ describe('test URIs beginning with a dot', () => {
 
 	describe('dotfile access via unnormalized paths', async () => {
 		it('denies dotfile access when path contains .well-known/../ traversal', async () => {
-			const { handler } = await import('./fixtures/well-known-locations/dist/server/entry.mjs');
+			const handler = await fixture.loadNodeAdapterHandler();
 			const { req, res, done } = createRequestAndResponse({
 				method: 'GET',
 				url: '/.well-known/../.hidden-file',
@@ -64,7 +64,7 @@ describe('test URIs beginning with a dot', () => {
 		});
 
 		it('denies dotfolder file access when path contains .well-known/../ traversal', async () => {
-			const { handler } = await import('./fixtures/well-known-locations/dist/server/entry.mjs');
+			const handler = await fixture.loadNodeAdapterHandler();
 			const { req, res, done } = createRequestAndResponse({
 				method: 'GET',
 				url: '/.well-known/../.hidden/file.json',

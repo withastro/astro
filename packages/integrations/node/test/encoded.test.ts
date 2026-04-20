@@ -1,11 +1,10 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import nodejs from '../dist/index.js';
-import { createRequestAndResponse, loadFixture } from './test-utils.js';
+import { createRequestAndResponse, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Encoded Pathname', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -17,7 +16,7 @@ describe('Encoded Pathname', () => {
 	});
 
 	it('Can get an Astro file', async () => {
-		const { handler } = await import('./fixtures/encoded/dist/server/entry.mjs');
+		const handler = await fixture.loadNodeAdapterHandler();
 		const { req, res, text } = createRequestAndResponse({
 			url: '/什么',
 		});
@@ -30,7 +29,7 @@ describe('Encoded Pathname', () => {
 	});
 
 	it('Can get a Markdown file', async () => {
-		const { handler } = await import('./fixtures/encoded/dist/server/entry.mjs');
+		const handler = await fixture.loadNodeAdapterHandler();
 
 		const { req, res, text } = createRequestAndResponse({
 			url: '/blog/什么',

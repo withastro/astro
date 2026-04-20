@@ -2,16 +2,17 @@ import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import nodejs from '../dist/index.js';
-import { loadFixture, waitServerListen } from './test-utils.js';
-
-/**
- * @typedef {import('../../../astro/test/test-utils').Fixture} Fixture
- */
+import {
+	type Fixture,
+	loadFixture,
+	waitServerListen,
+	type AdapterServer,
+	type DevServer,
+} from './test-utils.ts';
 
 describe('Prerendering', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-	let server;
+	let fixture: Fixture;
+	let server: AdapterServer;
 
 	describe('With base', async () => {
 		before(async () => {
@@ -223,7 +224,7 @@ describe('Prerendering', () => {
 	});
 
 	describe('Dev', () => {
-		let devServer;
+		let devServer: DevServer;
 
 		before(async () => {
 			fixture = await loadFixture({
@@ -260,9 +261,8 @@ describe('Prerendering', () => {
 });
 
 describe('Hybrid rendering', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-	let server;
+	let fixture: Fixture;
+	let server: AdapterServer;
 
 	describe('With base', () => {
 		before(async () => {

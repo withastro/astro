@@ -1,18 +1,14 @@
-// @ts-check
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
+import type { PreviewServer } from '../../../astro/src/types/public/preview.js';
 import node from '../dist/index.js';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('prerenderedErrorPageFetch', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-	/** @type {import('astro').PreviewServer} */
-	let devPreview;
-	/** @type {typeof globalThis.fetch} */
-	let originalFetch;
-	/** @type {Array<string>} */
-	let urls;
+	let fixture: Fixture;
+	let devPreview: PreviewServer;
+	let originalFetch: typeof globalThis.fetch;
+	let urls: Array<string> = [];
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -20,11 +16,10 @@ describe('prerenderedErrorPageFetch', () => {
 			adapter: node({ mode: 'standalone' }),
 		});
 		await fixture.clean();
-		await fixture.build({});
-		devPreview = await fixture.preview({});
+		await fixture.build();
+		devPreview = await fixture.preview();
 		originalFetch = globalThis.fetch;
 		globalThis.fetch = (...args) => {
-			urls ??= [];
 			if (typeof args[0] === 'string') {
 				urls.push(args[0]);
 			}

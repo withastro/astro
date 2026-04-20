@@ -1,12 +1,11 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import nodejs from '../dist/index.js';
-import { createRequestAndResponse, loadFixture } from './test-utils.js';
+import { createRequestAndResponse, type Fixture, loadFixture } from './test-utils.ts';
+
+let fixture: Fixture;
 
 describe('Node Adapter Headers', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-
 	describe('streaming', () => {
 		before(async () => {
 			fixture = await loadFixture({
@@ -131,7 +130,7 @@ describe('Node Adapter Headers', () => {
 
 		// TODO: needs e2e tests to check real headers
 		it('sends several chunks', async () => {
-			const { handler } = await import('./fixtures/headers/dist/server/entry.mjs');
+			const handler = await fixture.loadNodeAdapterHandler();
 
 			const { req, res, done } = createRequestAndResponse({
 				method: 'GET',
@@ -159,7 +158,7 @@ describe('Node Adapter Headers', () => {
 
 		// TODO: needs e2e tests to check real headers
 		it('sends a single chunk', async () => {
-			const { handler } = await import('./fixtures/headers/dist/server/entry.mjs?cachebust=0');
+			const handler = await fixture.loadNodeAdapterHandler();
 
 			const { req, res, done } = createRequestAndResponse({
 				method: 'GET',
@@ -176,8 +175,8 @@ describe('Node Adapter Headers', () => {
 	});
 });
 
-async function runTest(url, expectedHeaders) {
-	const { handler } = await import('./fixtures/headers/dist/server/entry.mjs');
+async function runTest(url: string, expectedHeaders: Record<string, string | string[]>) {
+	const handler = await fixture.loadNodeAdapterHandler();
 
 	const { req, res, done } = createRequestAndResponse({
 		method: 'GET',

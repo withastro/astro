@@ -1,10 +1,12 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import nodejs from '../dist/index.js';
-import { loadFixture, waitServerListen } from './test-utils.js';
+import { type Fixture, loadFixture, waitServerListen, type AdapterServer } from './test-utils.ts';
+
+type StaticHeaderEntry = { pathname: string; headers: Array<{ key: string; value: string }> };
 
 describe('Static headers', () => {
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/static-headers' });
@@ -12,11 +14,13 @@ describe('Static headers', () => {
 	});
 
 	it('CSP headers are added when CSP is enabled', async () => {
-		const headers = JSON.parse(await fixture.readFile('../dist/_headers.json'));
+		const headers: StaticHeaderEntry[] = JSON.parse(
+			await fixture.readFile('../dist/_headers.json'),
+		);
 
 		const csp = headers
-			.find((x) => x.pathname === '/')
-			.headers.find((x) => x.key === 'Content-Security-Policy');
+			.find((x) => x.pathname === '/')!
+			.headers.find((x) => x.key === 'Content-Security-Policy')!;
 
 		assert.notEqual(csp, undefined, 'the index must have CSP headers');
 		assert.ok(
@@ -29,9 +33,8 @@ describe('Static headers', () => {
 });
 
 describe('Static headers', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-	let server;
+	let fixture: Fixture;
+	let server: AdapterServer;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -55,7 +58,7 @@ describe('Static headers', () => {
 
 	it('CSP headers are added to the request', async () => {
 		const res = await fetch(`http://${server.host}:${server.port}/`);
-		const cps = res.headers.get('Content-Security-Policy');
+		const cps = res.headers.get('Content-Security-Policy')!;
 		assert.ok(
 			cps.includes('script-src'),
 			'should contain script-src directive due to server island',
@@ -64,7 +67,7 @@ describe('Static headers', () => {
 
 	it('CSP headers are added to dynamic orute', async () => {
 		const res = await fetch(`http://${server.host}:${server.port}/one`);
-		const cps = res.headers.get('Content-Security-Policy');
+		const cps = res.headers.get('Content-Security-Policy')!;
 		assert.ok(
 			cps.includes('script-src'),
 			'should contain script-src directive due to server island',
@@ -73,9 +76,8 @@ describe('Static headers', () => {
 });
 
 describe('Static headers with non-root base', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-	let server;
+	let fixture: Fixture;
+	let server: AdapterServer;
 
 	before(async () => {
 		fixture = await loadFixture({

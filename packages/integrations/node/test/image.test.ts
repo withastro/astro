@@ -1,16 +1,16 @@
 import * as assert from 'node:assert/strict';
 import { cp, rm } from 'node:fs/promises';
 import { after, before, describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
+import type { PreviewServer } from '../../../astro/src/types/public/preview.js';
 import { inferRemoteSize } from 'astro/assets/utils/inferRemoteSize.js';
 import * as cheerio from 'cheerio';
 import nodejs from '../dist/index.js';
-import { loadFixture } from './test-utils.js';
-import { fileURLToPath } from 'node:url';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Image endpoint', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-	let devPreview;
+	let fixture: Fixture;
+	let devPreview: PreviewServer;
 
 	before(async () => {
 		const root = new URL('./fixtures/image/', import.meta.url);
