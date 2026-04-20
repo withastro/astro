@@ -19,6 +19,8 @@ import { type CreateRenderContext, RenderContext } from '../render-context.js';
 import { ensure404Route } from '../routing/astro-designed-error-pages.js';
 import { Router } from '../routing/router.js';
 import { DefaultFetchHandler } from '../fetch/default-handler.js';
+import type { FetchHandler } from '../fetch/types.js';
+import { appSymbol } from '../constants.js';
 import { DefaultErrorHandler } from '../errors/default-handler.js';
 import type { ErrorHandler } from '../errors/handler.js';
 import { setRenderOptions } from './render-options.js';
@@ -120,7 +122,13 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	baseWithoutTrailingSlash: string;
 	logger: AstroLogger;
 	#router: Router;
-	#fetchHandler: DefaultFetchHandler;
+	/**
+	 * The handler that turns incoming `Request` objects into `Response`s.
+	 * Defaults to a `DefaultFetchHandler` pinned to this app and can be
+	 * overridden via `setFetchHandler` — typically by the bundled
+	 * entrypoint after importing `virtual:astro:fetchable`.
+	 */
+	#fetchHandler: { fetch: FetchHandler };
 	#errorHandler: ErrorHandler;
 	constructor(manifest: SSRManifest, streaming = true, ...args: any[]) {
 		this.manifest = manifest;
@@ -138,6 +146,15 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		this.#router = this.createRouter(this.manifestData);
 		this.#fetchHandler = new DefaultFetchHandler(this);
 		this.#errorHandler = this.createErrorHandler();
+	}
+
+	/**
+	 * Override the fetch handler used to dispatch requests. Entrypoints
+	 * call this with the default export of `virtual:astro:fetchable` to
+	 * plug in a user-authored handler from `src/app.ts`.
+	 */
+	setFetchHandler(handler: { fetch: FetchHandler }): void {
+		this.#fetchHandler = handler;
 	}
 
 	/**
@@ -377,6 +394,10 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			locals,
 			routeData,
 		});
+		// Stamp this app onto the request so fetch handlers loaded from
+		// virtual:astro:fetchable (which don't hold an app reference at
+		// construction time) can resolve the active app per-request.
+		Reflect.set(request, appSymbol, this);
 		return this.#fetchHandler.fetch(request);
 	}
 

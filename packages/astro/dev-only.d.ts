@@ -87,6 +87,11 @@ declare module 'virtual:astro:app' {
 	export const createApp: import('./src/core/app/types.js').CreateApp;
 }
 
+declare module 'virtual:astro:fetchable' {
+	const fetchable: { fetch: import('./src/core/fetch/types.js').FetchHandler };
+	export default fetchable;
+}
+
 declare module 'virtual:astro:get-image' {
 	export const getImage: (
 		options: import('./src/types/public/index.js').UnresolvedImageTransform,

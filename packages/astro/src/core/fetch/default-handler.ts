@@ -1,29 +1,35 @@
 import type { BaseApp } from '../app/base.js';
 import { FetchState } from '../app/fetch-state.js';
+import { appSymbol } from '../constants.js';
 import { AstroHandler } from '../routing/handler.js';
 import type { FetchHandler } from './types.js';
 
 /**
- * The default request handler used by `BaseApp`. It builds the per-request
- * `FetchState` and delegates to an `AstroHandler`. This is an intermediate
- * layer that exists so future work can add additional handlers
- * (user-provided Hono apps, middleware composition, etc.) without changing
- * `BaseApp` itself.
- *
- * Resolved render options are passed from `BaseApp#render()` through the
- * request via the render-options symbol and read by `FetchState`.
+ * The default request handler for `BaseApp`. Builds the per-request
+ * `FetchState` and delegates to an `AstroHandler`.
  */
 export class DefaultFetchHandler {
-	#app: BaseApp<any>;
-	#astroHandler: AstroHandler;
+	#app: BaseApp<any> | null;
+	#handler: AstroHandler | null;
 
-	constructor(app: BaseApp<any>) {
-		this.#app = app;
-		this.#astroHandler = new AstroHandler(app);
+	constructor(app?: BaseApp<any>) {
+		this.#app = app ?? null;
+		this.#handler = app ? new AstroHandler(app) : null;
 	}
 
 	fetch: FetchHandler = (request) => {
+		if(!this.#app) {
+			const app = (Reflect.get(request, appSymbol) as BaseApp<any> | undefined);
+			if (!app) {
+				throw new Error(
+					'DefaultFetchHandler.fetch() called on a request without an attached app. ' +
+						'Ensure BaseApp.render stamped the request with appSymbol, or pass an app to the constructor.',
+				);
+			}
+			this.#app = app;
+			this.#handler = new AstroHandler(app);
+		}
 		const state = new FetchState(this.#app.pipeline, request);
-		return this.#astroHandler.handle(state);
+		return this.#handler!.handle(state);
 	};
 }

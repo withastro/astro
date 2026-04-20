@@ -55,6 +55,7 @@
     "./app/entrypoint/dev": "./dist/core/app/entrypoints/virtual/dev.js",
     "./app/entrypoint/prod": "./dist/core/app/entrypoints/virtual/prod.js",
     "./app/manifest": "./dist/core/app/entrypoints/manifest.js",
+    "./app/fetch/default-handler": "./dist/core/fetch/default-handler.js",
     "./entrypoints/prerender": "./dist/entrypoints/prerender.js",
     "./entrypoints/legacy": "./dist/entrypoints/legacy.js",
     "./client/*": "./dist/runtime/client/*",

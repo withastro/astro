@@ -91,6 +91,14 @@ export const pipelineSymbol = Symbol.for('astro.pipeline');
 export const fetchStateSymbol = Symbol.for('astro.fetchState');
 
 /**
+ * Use this symbol to stash the `BaseApp` on an incoming `Request` at the
+ * top of the pipeline. Fetch handlers loaded from `virtual:astro:fetchable`
+ * (including `DefaultFetchHandler`) read it to find the app associated
+ * with the current request without needing App passed to their constructor.
+ */
+export const appSymbol = Symbol.for('astro.app');
+
+/**
  * Use this symbol to opt into handling prerender routes in Astro core dev middleware.
  */
 export const devPrerenderMiddlewareSymbol = Symbol.for('astro.devPrerenderMiddleware');
