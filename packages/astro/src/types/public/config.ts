@@ -2767,6 +2767,24 @@ export interface AstroUserConfig<
 	 */
 	experimental?: {
 		/**
+		 * @name experimental.advancedRouting
+		 * @type {boolean}
+		 * @default `false`
+		 * @description
+		 * Enables `src/app.ts` as an advanced routing entrypoint, allowing you to
+		 * compose Astro's request pipeline with your own Hono middleware.
+		 *
+		 * ```js
+		 * export default defineConfig({
+		 *   experimental: {
+		 *     advancedRouting: true,
+		 *   },
+		 * });
+		 * ```
+		 */
+		advancedRouting?: boolean;
+
+		/**
 		 *
 		 * @name experimental.clientPrerender
 		 * @type {boolean}

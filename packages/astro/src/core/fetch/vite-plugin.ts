@@ -27,6 +27,7 @@ const APP_PATH_SEGMENT_NAME = 'app';
 export function vitePluginFetchable({ settings }: { settings: AstroSettings }): VitePlugin {
 	let resolvedUserAppId: string | undefined;
 	let userAppPresent = false;
+	const advancedRoutingEnabled = settings.config.experimental.advancedRouting;
 
 	const normalizedSrcDir = viteNormalizePath(fileURLToPath(settings.config.srcDir));
 
@@ -71,7 +72,7 @@ export function vitePluginFetchable({ settings }: { settings: AstroSettings }): 
 				const resolved = await this.resolve(
 					`${decodeURI(settings.config.srcDir.pathname)}${APP_PATH_SEGMENT_NAME}`,
 				);
-				userAppPresent = !!resolved;
+				userAppPresent = advancedRoutingEnabled && !!resolved;
 				resolvedUserAppId = resolved?.id;
 				return FETCHABLE_RESOLVED_MODULE_ID;
 			},

@@ -106,6 +106,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	},
 	prerenderConflictBehavior: 'warn',
 	experimental: {
+		advancedRouting: false,
 		clientPrerender: false,
 		contentIntellisense: false,
 		chromeDevtoolsWorkspace: false,
@@ -519,11 +520,15 @@ export const AstroConfigSchema = z.object({
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.prerenderConflictBehavior),
 	fonts: z.array(FontFamilySchema).optional(),
-	experimental: z
-		.strictObject({
-			clientPrerender: z
-				.boolean()
-				.optional()
+		experimental: z
+			.strictObject({
+				advancedRouting: z
+					.boolean()
+					.optional()
+					.default(ASTRO_CONFIG_DEFAULTS.experimental.advancedRouting),
+				clientPrerender: z
+					.boolean()
+					.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.clientPrerender),
 			contentIntellisense: z
 				.boolean()
