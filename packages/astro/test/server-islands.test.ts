@@ -166,7 +166,7 @@ describe('Server islands', () => {
 				const res = await fixture.fetch('/test');
 				assert.equal(res.status, 200);
 				const html = await res.text();
-				const fetchMatch = html.match(/fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/)!;
+				const fetchMatch = /fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/.exec(html)!;
 				assert.equal(fetchMatch.length, 2, 'should include props in the query string');
 				assert.equal(fetchMatch[1], '', 'should not include encrypted empty props');
 			});
@@ -175,7 +175,7 @@ describe('Server islands', () => {
 				const res = await fixture.fetch('/fragment');
 				assert.equal(res.status, 200);
 				const html = await res.text();
-				const fetchMatch = html.match(/fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/)!;
+				const fetchMatch = /fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/.exec(html)!;
 				assert.equal(fetchMatch.length, 2, 'should include props in the query string');
 				assert.equal(fetchMatch[1], '', 'should not include encrypted empty props');
 			});
@@ -184,7 +184,7 @@ describe('Server islands', () => {
 				const res = await fixture.fetch('/fragment');
 				assert.equal(res.status, 200);
 				const html = await res.text();
-				const fetchMatch = html.match(/fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/)!;
+				const fetchMatch = /fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/.exec(html)!;
 				assert.equal(fetchMatch.length, 2, 'should include props in the query string');
 				assert.equal(fetchMatch[1], '', 'should not include encrypted empty props');
 			});
@@ -194,7 +194,7 @@ describe('Server islands', () => {
 				assert.equal(res.status, 200);
 				const html = await res.text();
 				// Extract the island fetch URL from the page
-				const urlMatch = html.match(/fetch\('(\/_server-islands\/Wrapper\?[^']+)'/)!;
+				const urlMatch = /fetch\('(\/_server-islands\/Wrapper\?[^']+)'/.exec(html)!;
 				assert.ok(urlMatch, 'should have a server island fetch URL');
 				const islandRes = await fixture.fetch(urlMatch[1]);
 				assert.equal(islandRes.status, 200);
@@ -344,7 +344,7 @@ describe('Server islands', () => {
 				const res = await app.render(request);
 				assert.equal(res.status, 200);
 				const html = await res.text();
-				const fetchMatch = html.match(/fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/)!;
+				const fetchMatch = /fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/.exec(html)!;
 				assert.equal(fetchMatch.length, 2, 'should include props in the query string');
 				assert.equal(fetchMatch[1], '', 'should not include encrypted empty props');
 			});
