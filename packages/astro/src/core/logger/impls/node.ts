@@ -1,6 +1,7 @@
 import {
 	AstroLogger,
 	type AstroLoggerDestination,
+	type AstroLoggerLevel,
 	type AstroLoggerMessage,
 	getEventPrefix,
 	levels,
@@ -12,31 +13,42 @@ type ConsoleStream = Writable & {
 	fd: 1 | 2;
 };
 
-const nodeLogDestination: AstroLoggerDestination<AstroLoggerMessage> = {
-	write(event: AstroLoggerMessage) {
-		let dest: ConsoleStream = process.stderr;
-		if (levels[event.level] < levels['error']) {
-			dest = process.stdout;
-		}
+function nodeLogDestination(
+	level: AstroLoggerLevel = 'info',
+): AstroLoggerDestination<AstroLoggerMessage> {
+	return {
+		write(event: AstroLoggerMessage) {
+			let dest: ConsoleStream = process.stderr;
+			if (levels[event.level] < levels['error']) {
+				dest = process.stdout;
+			}
 
-		let trailingLine = event.newLine ? '\n' : '';
-		if (event.label === 'SKIP_FORMAT') {
-			dest.write(event.message + trailingLine);
-		} else {
-			dest.write(getEventPrefix(event) + ' ' + event.message + trailingLine);
-		}
-	},
+			if (levels[event.level] < levels[level]) {
+				return;
+			}
+
+			let trailingLine = event.newLine ? '\n' : '';
+			if (event.label === 'SKIP_FORMAT') {
+				dest.write(event.message + trailingLine);
+			} else {
+				dest.write(getEventPrefix(event) + ' ' + event.message + trailingLine);
+			}
+		},
+	};
+}
+
+type Options = {
+	level?: AstroLoggerLevel;
 };
-
-export default function (): AstroLoggerDestination<AstroLoggerMessage> {
-	return nodeLogDestination;
+export default function (options?: Options): AstroLoggerDestination<AstroLoggerMessage> {
+	return nodeLogDestination(options?.level ?? 'info');
 }
 
 export function createNodeLoggerFromFlags(inlineConfig: AstroInlineConfig): AstroLogger {
 	if (inlineConfig.logger) return inlineConfig.logger;
 
 	return new AstroLogger({
-		destination: nodeLogDestination,
+		destination: nodeLogDestination(),
 		level: inlineConfig.logLevel ?? 'info',
 	});
 }

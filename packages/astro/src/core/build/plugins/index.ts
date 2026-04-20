@@ -24,7 +24,9 @@ export function getAllBuildPlugins(
 		pluginComponentEntry(internals),
 		pluginAnalyzer(internals),
 		pluginInternals(options, internals),
-		pluginLogger(options, internals),
+		options.settings.config.experimental.logger
+			? pluginLogger(options.settings.config.experimental.logger, options, internals)
+			: undefined,
 		pluginMiddleware(options, internals),
 		vitePluginActionsBuild(options, internals),
 		...pluginCSS(options, internals),

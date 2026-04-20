@@ -9,23 +9,30 @@ import {
 	LOGGER_MODULE_ID,
 	RESOLVED_LOGGER_MODULE_ID,
 } from '../../logger/shared.js';
+import type { LoggerHandlerConfig } from '../../logger/config.js';
 
+/**
+ * Vite plugin that resolves `virtual:astro:logger` and optionally bundles it
+ * as a separate chunk for SSR builds.
+ *
+ * When called with only a `LoggerHandlerConfig`, it acts as a pure resolution plugin
+ * (used by `loadLogger` to load the logger in a throwaway Vite server).
+ *
+ * When called with `StaticBuildOptions` and `BuildInternals`, it additionally
+ * registers the virtual module as a Rollup input and records the output chunk path
+ * (used during the SSR build).
+ */
 export function pluginLogger(
-	options: StaticBuildOptions,
-	internals: BuildInternals,
-): VitePlugin | undefined {
-	const loggerConfig = options.settings.config.experimental.logger;
-	if (!loggerConfig) {
-		return undefined;
-	}
-
+	config: LoggerHandlerConfig,
+	buildOptions?: StaticBuildOptions,
+	internals?: BuildInternals,
+): VitePlugin {
 	return {
-		name: '@astro/plugin-logger-build',
-		enforce: 'post',
-
+		name: LOGGER_MODULE_ID,
 		applyToEnvironment(environment) {
 			return (
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.astro ||
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
 			);
 		},
@@ -45,20 +52,24 @@ export function pluginLogger(
 			},
 			handler() {
 				return {
-					code: generateLoggerCode(loggerConfig),
+					code: generateLoggerCode(config),
 				};
 			},
 		},
 
 		options(opts) {
-			return addRollupInput(opts, [LOGGER_MODULE_ID]);
+			if (buildOptions) {
+				return addRollupInput(opts, [LOGGER_MODULE_ID]);
+			}
 		},
 
 		writeBundle(_, bundle) {
-			for (const [chunkName, chunk] of Object.entries(bundle)) {
-				if (chunk.type !== 'asset' && chunk.facadeModuleId === RESOLVED_LOGGER_MODULE_ID) {
-					const outputDirectory = getServerOutputDirectory(options.settings);
-					internals.loggerEntryPoint = new URL(chunkName, outputDirectory);
+			if (buildOptions && internals) {
+				for (const [chunkName, chunk] of Object.entries(bundle)) {
+					if (chunk.type !== 'asset' && chunk.facadeModuleId === RESOLVED_LOGGER_MODULE_ID) {
+						const outputDirectory = getServerOutputDirectory(buildOptions.settings);
+						internals.loggerEntryPoint = new URL(chunkName, outputDirectory);
+					}
 				}
 			}
 		},

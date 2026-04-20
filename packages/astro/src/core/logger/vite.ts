@@ -1,12 +1,9 @@
 import { fileURLToPath } from 'node:url';
 import { stripVTControlCharacters } from 'node:util';
-import type { LogLevel, Rollup, Logger as ViteLogger, Plugin } from 'vite';
+import type { LogLevel, Rollup, Logger as ViteLogger } from 'vite';
 import { isAstroError } from '../errors/errors.js';
 import { serverShortcuts as formatServerShortcuts } from '../messages/runtime.js';
 import { type AstroLogger as AstroLogger, isLogLevelEnabled } from './core.js';
-import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
-import type { LoggerHandlerConfig } from './config.js';
-import { generateLoggerCode, LOGGER_MODULE_ID, RESOLVED_LOGGER_MODULE_ID } from './shared.js';
 
 const PKG_PREFIX = fileURLToPath(new URL('../../../', import.meta.url));
 const E2E_PREFIX = fileURLToPath(new URL('../../../e2e', import.meta.url));
@@ -112,37 +109,3 @@ export function createViteLogger(
 	return logger;
 }
 
-type Options = {
-	config: LoggerHandlerConfig;
-};
-
-export function astroLoggerVitePlugin({ config }: Options): Plugin {
-	return {
-		name: LOGGER_MODULE_ID,
-		applyToEnvironment(environment) {
-			return (
-				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
-				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.astro ||
-				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
-			);
-		},
-		resolveId: {
-			filter: {
-				id: new RegExp(`^${LOGGER_MODULE_ID}$`),
-			},
-			handler() {
-				return RESOLVED_LOGGER_MODULE_ID;
-			},
-		},
-		load: {
-			filter: {
-				id: new RegExp(`^${RESOLVED_LOGGER_MODULE_ID}$`),
-			},
-			handler() {
-				return {
-					code: generateLoggerCode(config),
-				};
-			},
-		},
-	};
-}
