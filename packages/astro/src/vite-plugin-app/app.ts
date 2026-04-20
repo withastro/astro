@@ -206,13 +206,16 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 					throw new Error('No route matched, and default 404 route was not found.');
 				}
 
+				// In 'on-request' and 'always' middleware modes, middleware runs at request time
+				// even for prerendered pages and needs access to headers, body, and search params.
+				const middlewareHandlesPrerendered = ['always', 'on-request'].includes(self.manifest.middlewareMode);
 				const request = createRequest({
 					url,
 					headers: incomingRequest.headers,
 					method: incomingRequest.method,
 					body,
 					logger: self.logger,
-					isPrerendered: matchedRoute.routeData.prerender,
+					isPrerendered: matchedRoute.routeData.prerender && !middlewareHandlesPrerendered,
 					routePattern: matchedRoute.routeData.component,
 				});
 

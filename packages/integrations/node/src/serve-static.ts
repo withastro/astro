@@ -63,16 +63,23 @@ export function createStaticHandler(
 			const hasSlash = urlPath.endsWith('/');
 			let pathname = urlPath;
 
-			if (headersMap && headersMap.length > 0) {
-				const request = createRequest(req, {
-					allowedDomains: app.getAllowedDomains?.() ?? [],
-					port: options.port,
-				});
-				const routeData = app.match(request, true);
-				if (routeData && routeData.prerender) {
-					// Headers are stored keyed by base-less route paths (e.g. "/one"), so we
-					// must strip config.base from the incoming URL before matching, just as
-					// we do for filesystem access above.
+			// Match the route once, reused for both prerender detection and headers.
+			const request = createRequest(req, {
+				allowedDomains: app.getAllowedDomains?.() ?? [],
+				port: options.port,
+			});
+			const routeData = app.match(request, true);
+			const servePrerenderedViaSSR =
+				routeData?.prerender &&
+				routeData.type === 'page' &&
+				(app.manifest.middlewareMode === 'always' || app.manifest.middlewareMode === 'on-request');
+
+			// Prerendered page routes must go through the app handler so that user
+			// middleware can run before the page HTML is served from disk.
+			// Apply any custom static headers (e.g. CSP) onto the response before handing
+			// off — writeResponse merges pre-set headers with those from writeHead.
+			if (servePrerenderedViaSSR) {
+				if (headersMap && headersMap.length > 0) {
 					const baselessPathname = prependForwardSlash(app.removeBase(urlPath));
 					const matchedRoute = headersMap.find((header) =>
 						header.pathname.includes(baselessPathname),
@@ -81,6 +88,22 @@ export function createStaticHandler(
 						for (const header of matchedRoute.headers) {
 							res.setHeader(header.key, header.value);
 						}
+					}
+				}
+				return ssr();
+			}
+
+			if (headersMap && headersMap.length > 0 && routeData?.prerender) {
+				// Headers are stored keyed by base-less route paths (e.g. "/one"), so we
+				// must strip config.base from the incoming URL before matching, just as
+				// we do for filesystem access above.
+				const baselessPathname = prependForwardSlash(app.removeBase(urlPath));
+				const matchedRoute = headersMap.find((header) =>
+					header.pathname.includes(baselessPathname),
+				);
+				if (matchedRoute) {
+					for (const header of matchedRoute.headers) {
+						res.setHeader(header.key, header.value);
 					}
 				}
 			}

@@ -63,6 +63,7 @@ export type CreateRenderContext = Pick<
 			| 'actions'
 			| 'shouldInjectCspMetaTags'
 			| 'skipMiddleware'
+			| 'getStaticAsset'
 		>
 	>;
 
@@ -87,6 +88,9 @@ export class RenderContext {
 	public session: AstroSession | undefined;
 	public cache: CacheLike;
 	public skipMiddleware: boolean;
+	public getStaticAsset:
+		| ((route: RouteData, pathname: string) => Promise<Response | undefined>)
+		| undefined;
 
 	private constructor(
 		pipeline: Pipeline,
@@ -109,6 +113,9 @@ export class RenderContext {
 		session: AstroSession | undefined = undefined,
 		cache: CacheLike,
 		skipMiddleware = false,
+		getStaticAsset:
+			| ((route: RouteData, pathname: string) => Promise<Response | undefined>)
+			| undefined = undefined,
 	) {
 		this.pipeline = pipeline;
 		this.locals = locals;
@@ -129,6 +136,7 @@ export class RenderContext {
 		this.session = session;
 		this.cache = cache;
 		this.skipMiddleware = skipMiddleware;
+		this.getStaticAsset = getStaticAsset;
 	}
 
 	static #createNormalizedUrl(requestUrl: string): URL {
@@ -176,6 +184,7 @@ export class RenderContext {
 		partial = undefined,
 		shouldInjectCspMetaTags,
 		skipMiddleware = false,
+		getStaticAsset,
 	}: CreateRenderContext): Promise<RenderContext> {
 		const pipelineMiddleware = await pipeline.getMiddleware();
 		const pipelineActions = await pipeline.getActions();
@@ -246,6 +255,7 @@ export class RenderContext {
 			session,
 			cache,
 			skipMiddleware,
+			getStaticAsset,
 		);
 	}
 	/**
@@ -266,18 +276,22 @@ export class RenderContext {
 		const { middleware, pipeline } = this;
 		const { logger, streaming, manifest } = pipeline;
 		const props =
-			Object.keys(this.props).length > 0
+			// For prerendered pages served via getStaticAsset, skip props resolution
+			// since the component module is not available in the server bundle.
+			this.routeData.prerender && this.getStaticAsset
 				? this.props
-				: await getProps({
-						mod: componentInstance,
-						routeData: this.routeData,
-						routeCache: this.pipeline.routeCache,
-						pathname: this.pathname,
-						logger,
-						serverLike: manifest.serverLike,
-						base: manifest.base,
-						trailingSlash: manifest.trailingSlash,
-					});
+				: Object.keys(this.props).length > 0
+					? this.props
+					: await getProps({
+							mod: componentInstance,
+							routeData: this.routeData,
+							routeCache: this.pipeline.routeCache,
+							pathname: this.pathname,
+							logger,
+							serverLike: manifest.serverLike,
+							base: manifest.base,
+							trailingSlash: manifest.trailingSlash,
+						});
 		const actionApiContext = this.createActionAPIContext();
 		const apiContext = this.createAPIContext(props, actionApiContext);
 
@@ -308,7 +322,8 @@ export class RenderContext {
 				if (
 					this.pipeline.manifest.serverLike === true &&
 					this.routeData.prerender === false &&
-					routeData.prerender === true
+					routeData.prerender === true &&
+					!this.getStaticAsset
 				) {
 					throw new AstroError({
 						...ForbiddenRewrite,
@@ -322,14 +337,16 @@ export class RenderContext {
 				if (payload instanceof Request) {
 					this.request = payload;
 				} else {
-					this.request = copyRequest(
+					this.request = copyRequest({
 						newUrl,
-						this.request,
-						// need to send the flag of the previous routeData
-						routeData.prerender,
-						this.pipeline.logger,
-						this.routeData.route,
-					);
+						oldRequest: this.request,
+						isPrerendered: routeData.prerender,
+						logger: this.pipeline.logger,
+						routePattern: this.routeData.route,
+						includeHeaders:
+							['always', 'on-request'].includes(pipeline.manifest.middlewareMode) ||
+							!routeData.prerender,
+					});
 				}
 				this.isRewriting = true;
 				this.url = RenderContext.#createNormalizedUrl(this.request.url);
@@ -370,21 +387,43 @@ export class RenderContext {
 				case 'redirect':
 					return renderRedirect(this);
 				case 'page': {
-					this.result = await this.createResult(componentInstance!, actionApiContext);
-					try {
-						response = await renderPage(
-							this.result,
-							componentInstance?.default as any,
-							props,
-							slots,
-							streaming,
-							this.routeData,
-						);
-					} catch (e) {
-						// If there is an error in the page's frontmatter or instantiation of the RenderTemplate fails midway,
-						// we signal to the rest of the internals that we can ignore the results of existing renders and avoid kicking off more of them.
-						this.result.cancelled = true;
-						throw e;
+					if (this.routeData.prerender && this.getStaticAsset) {
+						// The component module is not available in the server bundle for prerendered pages.
+						// Use the adapter-provided function to read the pre-built HTML.
+						const staticAssetResponse = await this.getStaticAsset(this.routeData, this.pathname);
+						if (!staticAssetResponse) {
+							response = new Response(null, { status: 404 });
+						} else {
+							const status = this.status === 200 ? staticAssetResponse.status : this.status;
+							// Reuse the static response object whenever possible so middleware can keep
+							// working with a single response instance and merge headers onto it.
+							if (status === staticAssetResponse.status) {
+								response = staticAssetResponse;
+							} else {
+								response = new Response(staticAssetResponse.body, {
+									status,
+									statusText: staticAssetResponse.statusText,
+									headers: staticAssetResponse.headers,
+								});
+							}
+						}
+					} else {
+						this.result = await this.createResult(componentInstance!, actionApiContext);
+						try {
+							response = await renderPage(
+								this.result,
+								componentInstance?.default as any,
+								props,
+								slots,
+								streaming,
+								this.routeData,
+							);
+						} catch (e) {
+							// If there is an error in the page's frontmatter or instantiation of the RenderTemplate fails midway,
+							// we signal to the rest of the internals that we can ignore the results of existing renders and avoid kicking off more of them.
+							this.result.cancelled = true;
+							throw e;
+						}
 					}
 
 					// Signal to the i18n middleware to maybe act on this response
@@ -399,6 +438,23 @@ export class RenderContext {
 					break;
 				}
 				case 'fallback': {
+					if (this.routeData.prerender && this.getStaticAsset) {
+						const staticAssetResponse = await this.getStaticAsset(this.routeData, this.pathname);
+						if (!staticAssetResponse) {
+							return new Response(null, {
+								status: 404,
+								headers: { [ROUTE_TYPE_HEADER]: 'fallback' },
+							});
+						}
+						return new Response(staticAssetResponse.body, {
+							status: 404,
+							statusText: staticAssetResponse.statusText,
+							headers: new Headers([
+								...staticAssetResponse.headers,
+								[ROUTE_TYPE_HEADER, 'fallback'],
+							]),
+						});
+					}
 					return new Response(null, { status: 500, headers: { [ROUTE_TYPE_HEADER]: 'fallback' } });
 				}
 			}
@@ -417,9 +473,13 @@ export class RenderContext {
 			return renderRedirect(this);
 		}
 
-		const response = this.skipMiddleware
-			? await lastNext(apiContext)
-			: await callMiddleware(middleware, apiContext, lastNext);
+		const useMiddleware =
+			!this.skipMiddleware &&
+			['classic', 'always', 'on-request'].includes(pipeline.manifest.middlewareMode);
+
+		const response = useMiddleware
+			? await callMiddleware(middleware, apiContext, lastNext)
+			: await lastNext(apiContext);
 		if (response.headers.get(ROUTE_TYPE_HEADER)) {
 			response.headers.delete(ROUTE_TYPE_HEADER);
 		}
@@ -465,7 +525,8 @@ export class RenderContext {
 			this.pipeline.manifest.serverLike &&
 			!this.routeData.prerender &&
 			routeData.prerender &&
-			!isI18nFallback
+			!isI18nFallback &&
+			!this.getStaticAsset
 		) {
 			throw new AstroError({
 				...ForbiddenRewrite,
@@ -478,14 +539,16 @@ export class RenderContext {
 		if (reroutePayload instanceof Request) {
 			this.request = reroutePayload;
 		} else {
-			this.request = copyRequest(
+			this.request = copyRequest({
 				newUrl,
-				this.request,
-				// need to send the flag of the previous routeData
-				routeData.prerender,
-				this.pipeline.logger,
-				this.routeData.route,
-			);
+				oldRequest: this.request,
+				isPrerendered: routeData.prerender,
+				logger: this.pipeline.logger,
+				routePattern: this.routeData.route,
+				includeHeaders:
+					['always', 'on-request'].includes(this.pipeline.manifest.middlewareMode) ||
+					!routeData.prerender,
+			});
 		}
 		this.url = RenderContext.#createNormalizedUrl(this.request.url);
 		const newCookies = new AstroCookies(this.request);

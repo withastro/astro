@@ -186,6 +186,15 @@ importers:
         specifier: workspace:^
         version: link:../../../packages/astro
 
+  examples/auth:
+    dependencies:
+      '@astrojs/node':
+        specifier: ^10.0.0-beta.8
+        version: link:../../packages/integrations/node
+      astro:
+        specifier: ^6.0.0-beta.19
+        version: link:../../packages/astro
+
   examples/basics:
     dependencies:
       astro:

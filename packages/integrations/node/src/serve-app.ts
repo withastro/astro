@@ -2,46 +2,40 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 import { createReadStream } from 'node:fs';
 import path from 'node:path';
 import { Readable } from 'node:stream';
-import { createRequest, writeResponse, getAbortControllerCleanup } from 'astro/app/node';
+import {
+	createRequest,
+	writeResponse,
+	getAbortControllerCleanup,
+	getStaticAssetPath,
+} from 'astro/app/node';
 import type { BaseApp } from 'astro/app';
+import type { RouteData } from 'astro';
 import { resolveClientDir } from './shared.js';
 import type { Options, RequestHandler } from './types.js';
 
 /**
- * Read a prerendered error page from disk and return it as a Response.
+ * Read a prerendered page from disk by output path and return it as a Response.
  * Returns undefined if the file doesn't exist or can't be read.
  */
-async function readErrorPageFromDisk(
+async function readPageFromDisk(
 	client: string,
-	status: number,
+	staticAssetPath: string,
 ): Promise<Response | undefined> {
-	// Try both /404.html and /404/index.html patterns
-	const filePaths = [`${status}.html`, `${status}/index.html`];
-
-	for (const filePath of filePaths) {
-		const fullPath = path.join(client, filePath);
-		// Declare stream outside try so it's accessible in catch for cleanup.
-		let stream: ReturnType<typeof createReadStream> | undefined;
-		try {
-			stream = createReadStream(fullPath);
-			// Wait for the stream to open successfully or error
-			await new Promise<void>((resolve, reject) => {
-				stream!.once('open', () => resolve());
-				stream!.once('error', reject);
-			});
-			const webStream = Readable.toWeb(stream) as ReadableStream;
-			return new Response(webStream, {
-				headers: { 'Content-Type': 'text/html; charset=utf-8' },
-			});
-		} catch {
-			// File doesn't exist or can't be read, try next pattern.
-			// Destroy the stream to release the file descriptor if it was
-			// partially opened before the error fired.
-			stream?.destroy();
-		}
+	let stream: ReturnType<typeof createReadStream> | undefined;
+	try {
+		stream = createReadStream(path.join(client, staticAssetPath));
+		await new Promise<void>((resolve, reject) => {
+			stream!.once('open', () => resolve());
+			stream!.once('error', reject);
+		});
+		const webStream = Readable.toWeb(stream) as ReadableStream;
+		return new Response(webStream, {
+			headers: { 'Content-Type': 'text/html; charset=utf-8' },
+		});
+	} catch {
+		stream?.destroy();
+		return undefined;
 	}
-
-	return undefined;
 }
 
 /**
@@ -69,16 +63,42 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 	const prerenderedErrorPageFetch = async (url: string): Promise<Response> => {
 		const { pathname } = new URL(url);
 		if (pathname.endsWith('/404.html') || pathname.endsWith('/404/index.html')) {
-			const response = await readErrorPageFromDisk(client, 404);
+			const response = await readPageFromDisk(
+				client,
+				getStaticAssetPath('/404', {
+					base: app.manifest.base,
+					buildFormat: app.manifest.buildFormat,
+				}),
+			);
 			if (response) return response;
 		}
 		if (pathname.endsWith('/500.html') || pathname.endsWith('/500/index.html')) {
-			const response = await readErrorPageFromDisk(client, 500);
+			const response = await readPageFromDisk(
+				client,
+				getStaticAssetPath('/500', {
+					base: app.manifest.base,
+					buildFormat: app.manifest.buildFormat,
+				}),
+			);
 			if (response) return response;
 		}
 		// No file found and no fallback configured - return empty response
 		return new Response(null, { status: 404 });
 	};
+
+	const getStaticAsset = async (
+		_routeData: RouteData,
+		pathname: string,
+	): Promise<Response | undefined> => {
+		const staticAssetPath = getStaticAssetPath(pathname, {
+			base: app.manifest.base,
+			buildFormat: app.manifest.buildFormat,
+		});
+		return readPageFromDisk(client, staticAssetPath);
+	};
+
+	const shouldServePrerenderedThroughMiddleware =
+		app.manifest.middlewareMode === 'always' || app.manifest.middlewareMode === 'on-request';
 
 	// Use the configured body size limit. A value of 0 or Infinity disables the limit.
 	const effectiveBodySizeLimit =
@@ -105,14 +125,17 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 		// Redirects are considered prerendered routes in static mode, but we want to
 		// handle them dynamically, so prerendered routes are included here.
 		const routeData = app.match(request, true);
-		// But we still want to skip prerendered pages.
-		if (routeData && !(routeData.type === 'page' && routeData.prerender)) {
+		if (routeData) {
 			const response = await als.run(request.url, () =>
 				app.render(request, {
 					addCookieHeader: true,
 					locals,
 					routeData,
 					prerenderedErrorPageFetch,
+					getStaticAsset:
+						routeData.prerender && shouldServePrerenderedThroughMiddleware
+							? getStaticAsset
+							: undefined,
 				}),
 			);
 			await writeResponse(response, res);
