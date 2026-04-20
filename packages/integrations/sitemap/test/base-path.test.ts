@@ -12,7 +12,7 @@ describe('URLs with base path', () => {
 				root: './fixtures/ssr/',
 				base: '/base',
 			});
-			await fixture.build({});
+			await fixture.build();
 		});
 
 		it('Base path is concatenated correctly', async () => {
@@ -34,7 +34,7 @@ describe('URLs with base path', () => {
 				root: './fixtures/static/',
 				base: '/base',
 			});
-			await fixture.build({});
+			await fixture.build();
 		});
 
 		it('Base path is concatenated correctly', async () => {

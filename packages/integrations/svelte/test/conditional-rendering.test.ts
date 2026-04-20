@@ -22,7 +22,7 @@ describe('Conditional rendering styles', () => {
 
 	describe('build', () => {
 		before(async () => {
-			await fixture.build({});
+			await fixture.build();
 		});
 
 		it('includes styles for conditionally rendered Svelte components', async () => {

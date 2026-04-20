@@ -16,7 +16,7 @@ describe.skip('Async rendering', () => {
 
 	describe('build', () => {
 		before(async () => {
-			await fixture.build({});
+			await fixture.build();
 		});
 
 		it('Can render async components', async () => {

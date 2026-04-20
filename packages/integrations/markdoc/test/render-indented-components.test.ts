@@ -35,7 +35,7 @@ describe('Markdoc - render indented components', () => {
 
 	describe('build', () => {
 		before(async () => {
-			await fixture.build({});
+			await fixture.build();
 		});
 
 		it('renders content - with indented components', async () => {

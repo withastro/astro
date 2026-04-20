@@ -68,7 +68,7 @@
     "@changesets/cli": "^2.29.8",
     "@flue/cli": "^0.0.47",
     "@flue/client": "^0.0.29",
-    "@types/node": "^18.19.115",
+    "@types/node": "^22.10.6",
     "bgproc": "^0.2.0",
     "esbuild": "0.25.5",
     "eslint": "^9.39.3",

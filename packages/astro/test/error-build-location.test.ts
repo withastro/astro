@@ -12,7 +12,7 @@ describe('Errors information in build', () => {
 
 		let errorContent: any;
 		try {
-			await fixture.build({});
+			await fixture.build();
 		} catch (e) {
 			errorContent = e;
 		}

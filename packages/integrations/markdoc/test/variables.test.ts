@@ -39,7 +39,7 @@ describe('Markdoc - Variables', () => {
 
 	describe('build', () => {
 		before(async () => {
-			await baseFixture.build({});
+			await baseFixture.build();
 		});
 
 		it('has expected entry properties', async () => {

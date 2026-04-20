@@ -63,7 +63,7 @@ describe('Markdoc - Headings', () => {
 
 	describe('build', () => {
 		before(async () => {
-			await fixture.build({});
+			await fixture.build();
 		});
 
 		it('applies IDs to headings', async () => {
@@ -142,7 +142,7 @@ describe('Markdoc - Headings with custom Astro renderer', () => {
 
 	describe('build', () => {
 		before(async () => {
-			await fixture.build({});
+			await fixture.build();
 		});
 
 		it('applies IDs to headings', async () => {

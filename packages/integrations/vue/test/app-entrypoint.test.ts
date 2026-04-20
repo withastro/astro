@@ -11,7 +11,7 @@ describe('App Entrypoint', () => {
 		fixture = await loadFixture({
 			root: './fixtures/app-entrypoint/',
 		});
-		await fixture.build({});
+		await fixture.build();
 	});
 
 	it('loads during SSR', async () => {
@@ -80,7 +80,7 @@ describe('App Entrypoint no export default', () => {
 		fixture = await loadFixture({
 			root: './fixtures/app-entrypoint-no-export-default/',
 		});
-		await fixture.build({});
+		await fixture.build();
 	});
 
 	it('loads during SSR', async () => {
@@ -117,7 +117,7 @@ describe('App Entrypoint relative', () => {
 		fixture = await loadFixture({
 			root: './fixtures/app-entrypoint-relative/',
 		});
-		await fixture.build({});
+		await fixture.build();
 	});
 
 	it('loads during SSR', async () => {
@@ -147,7 +147,7 @@ describe('App Entrypoint /src/absolute', () => {
 		fixture = await loadFixture({
 			root: './fixtures/app-entrypoint-src-absolute/',
 		});
-		await fixture.build({});
+		await fixture.build();
 	});
 
 	it('loads during SSR', async () => {
@@ -177,7 +177,7 @@ describe('App Entrypoint async', () => {
 		fixture = await loadFixture({
 			root: './fixtures/app-entrypoint-async/',
 		});
-		await fixture.build({});
+		await fixture.build();
 	});
 
 	it('loads during SSR', async () => {

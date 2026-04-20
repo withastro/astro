@@ -1822,7 +1822,7 @@ test.describe('View Transitions', () => {
 		await expect(page.locator('#preload')).toHaveCount(1);
 	});
 
-	test('Styles with data-vite-dev-id persist through head swap', async ({ page, astro }) => {
+	test('Vue scoped styles persist through head swap', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/island-vue-one'));
 		let cnt = page.locator('.counter pre');
 		await expect(cnt).toHaveText('AA0');
@@ -1834,6 +1834,38 @@ test.describe('View Transitions', () => {
 		await expect(p).toBeVisible();
 		cnt = page.locator('.counter pre');
 		await expect(cnt).toHaveText('BB0');
+		await expect(
+			page.locator('[data-vite-dev-id*="VueCounter.vue?vue&type=style"][data-marker="this"]'),
+		).toHaveCount(1);
+	});
+
+	test('Vue scoped styles persist through head swap even if they had been removed by navigation', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/one'));
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+		await page.click('#click-vue-scoped-styles');
+
+		let cnt = page.locator('.counter pre');
+		await expect(cnt).toHaveText('AA0');
+		await page
+			.locator('[data-vite-dev-id*="VueCounter.vue?vue&type=style"]')
+			.last()
+			.evaluate((el) => (el.dataset.marker = 'this'), undefined);
+		await page.goBack();
+		p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+		await expect(
+			page.locator('[data-vite-dev-id*="VueCounter.vue?vue&type=style"][data-marker="this"]'),
+		).toHaveCount(0);
+
+		await page.click('#click-vue-scoped-styles');
+
+		cnt = page.locator('.counter pre');
+		await expect(cnt).toHaveText('AA0');
+
 		await expect(
 			page.locator('[data-vite-dev-id*="VueCounter.vue?vue&type=style"][data-marker="this"]'),
 		).toHaveCount(1);

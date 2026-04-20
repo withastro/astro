@@ -38,7 +38,7 @@ describe('Markdoc - render with transform override', () => {
 
 	describe('build', () => {
 		before(async () => {
-			await fixture.build({});
+			await fixture.build();
 		});
 
 		it('uses custom render component instead of built-in transform', async () => {
