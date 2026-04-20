@@ -1,12 +1,12 @@
 import { fileURLToPath } from 'node:url';
 import { stripVTControlCharacters } from 'node:util';
 import type { LogLevel, Rollup, Logger as ViteLogger, Plugin } from 'vite';
-import { AstroError, isAstroError } from '../errors/errors.js';
+import { isAstroError } from '../errors/errors.js';
 import { serverShortcuts as formatServerShortcuts } from '../messages/runtime.js';
 import { type AstroLogger as AstroLogger, isLogLevelEnabled } from './core.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 import type { LoggerHandlerConfig } from './config.js';
-import { LoggerConfigurationNotSerializable } from '../errors/errors-data.js';
+import { generateLoggerCode, LOGGER_MODULE_ID, RESOLVED_LOGGER_MODULE_ID } from './shared.js';
 
 const PKG_PREFIX = fileURLToPath(new URL('../../../', import.meta.url));
 const E2E_PREFIX = fileURLToPath(new URL('../../../e2e', import.meta.url));
@@ -112,9 +112,6 @@ export function createViteLogger(
 	return logger;
 }
 
-const LOGGER_MODULE_ID = 'virtual:astro:logger';
-const RESOLVED_LOGGER_MODULE_ID = '\0' + LOGGER_MODULE_ID;
-
 type Options = {
 	config: LoggerHandlerConfig;
 };
@@ -141,59 +138,11 @@ export function astroLoggerVitePlugin({ config }: Options): Plugin {
 			filter: {
 				id: new RegExp(`^${RESOLVED_LOGGER_MODULE_ID}$`),
 			},
-			async handler() {
-				switch (config.entrypoint) {
-					case 'astro/logger/node':
-					case 'astro/logger/console':
-					case 'astro/logger/json': {
-						return {
-							code: createLoggerCode(config.entrypoint, config.config),
-						};
-					}
-					case 'astro/logger/compose': {
-						return {
-							code: createComposeCode(config.config?.loggers),
-						};
-					}
-					default: {
-						return {
-							code: createLoggerCode('astro/logger/node', config.config),
-						};
-					}
-				}
+			handler() {
+				return {
+					code: generateLoggerCode(config),
+				};
 			},
 		},
 	};
-}
-
-function createLoggerCode(factory: string, config: Record<string, unknown> = {}) {
-	try {
-		const serializedConfig = JSON.stringify(config, null, 2);
-		return `import { default as factory } from '${factory}';
-	export default factory(${serializedConfig});
-	`;
-	} catch {
-		throw new AstroError(LoggerConfigurationNotSerializable);
-	}
-}
-
-function createComposeCode(loggers: LoggerHandlerConfig[]): string {
-	try {
-		const imports = loggers
-			.map((logger, i) => `import factory${i} from '${logger.entrypoint}';`)
-			.join('\n');
-		const args = loggers
-			.map((logger, i) => {
-				const serializedConfig = JSON.stringify(logger.config ?? {});
-				return `factory${i}(${serializedConfig})`;
-			})
-			.join(', ');
-		return [
-			imports,
-			`import { compose } from 'astro/logger/compose';`,
-			`export default compose(${args});`,
-		].join('\n');
-	} catch {
-		throw new AstroError(LoggerConfigurationNotSerializable);
-	}
 }

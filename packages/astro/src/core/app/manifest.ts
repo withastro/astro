@@ -2,6 +2,7 @@ import type { SerializedRouteData } from '../../types/astro.js';
 import type { AstroConfig, RouteData } from '../../types/public/index.js';
 import type { RoutesList } from '../../types/astro.js';
 import { decodeKey } from '../encryption.js';
+import consoleLoggerFactory from '../logger/impls/console.js';
 import { NOOP_MIDDLEWARE_FN } from '../middleware/noop-middleware.js';
 import type {
 	RouteInfo,
@@ -49,6 +50,11 @@ export function deserializeManifest(
 		// in case user middleware exists, this no-op middleware will be reassigned (see plugin-ssr.ts)
 		middleware() {
 			return { onRequest: NOOP_MIDDLEWARE_FN };
+		},
+		// Default to console logger. If the user configured experimental.logger,
+		// this will be overwritten by the Object.assign in virtual:astro:manifest
+		logger() {
+			return { default: consoleLoggerFactory() };
 		},
 		...serializedManifest,
 		rootDir: new URL(serializedManifest.rootDir),

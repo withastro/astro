@@ -34,6 +34,9 @@ export default function standalone(
 	if (process.env.ASTRO_NODE_LOGGING !== 'disabled') {
 		logListeningOn(app.getAdapterLogger(), server.server, host);
 	}
+	server.server.on('close', () => {
+		app.logger.close();
+	});
 	return {
 		server,
 		done: server.closed(),

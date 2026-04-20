@@ -27,6 +27,7 @@ import { ASTRO_ROUTES_MODULE_ID } from '../vite-plugin-routes/index.js';
 import { cacheConfigToManifest } from '../core/cache/utils.js';
 import { sessionConfigToManifest } from '../core/session/utils.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
+import { LOGGER_MODULE_ID } from '../core/logger/shared.js';
 import { resolveMiddlewareMode } from '../integrations/adapter-utils.js';
 
 // This is used by Cloudflare optimizeDeps config
@@ -109,6 +110,10 @@ export function serializedManifestPlugin({
 				const cacheProviderLine = hasCacheConfig
 					? `cacheProvider: () => import('${VIRTUAL_CACHE_PROVIDER_ID}'),`
 					: '';
+				const hasLoggerConfig = !!settings.config.experimental?.logger;
+				const loggerLine = hasLoggerConfig
+					? `logger: () => import('${LOGGER_MODULE_ID}'),`
+					: '';
 				const code = `
 					import { deserializeManifest as _deserializeManifest } from 'astro/app';
 					import { renderers } from '${ASTRO_RENDERERS_MODULE_ID}';
@@ -129,6 +134,7 @@ export function serializedManifestPlugin({
 					  middleware: () => import('${MIDDLEWARE_MODULE_ID}'),
 					  sessionDriver: () => import('${VIRTUAL_SESSION_DRIVER_ID}'),
 					  ${cacheProviderLine}
+					  ${loggerLine}
 					  serverIslandMappings: () => import('${SERVER_ISLAND_MANIFEST}'),
 					  routes: manifestRoutes,
 					  pageMap,

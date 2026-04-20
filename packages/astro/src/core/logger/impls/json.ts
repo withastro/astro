@@ -1,6 +1,7 @@
 import {
 	AstroLogger,
 	type AstroLoggerDestination,
+	type AstroLoggerLevel,
 	type AstroLoggerMessage,
 	levels,
 } from '../core.js';
@@ -8,7 +9,8 @@ import type { Writable } from 'node:stream';
 import type { AstroInlineConfig } from '../../../types/public/index.js';
 
 export type JonsHandlerConfig = {
-	pretty: boolean;
+	pretty?: boolean;
+	level?: AstroLoggerLevel;
 };
 
 type ConsoleStream = Writable & {
@@ -18,8 +20,9 @@ type ConsoleStream = Writable & {
 export const SGR_REGEX = new RegExp(`${String.fromCharCode(0x1b)}\\[[0-9;]*m`, 'g');
 
 export default function jsonLoggerDestination(
-	config: JonsHandlerConfig,
+	config: JonsHandlerConfig = {},
 ): AstroLoggerDestination<AstroLoggerMessage> {
+	const { pretty = false, level = 'info' } = config;
 	return {
 		write(event) {
 			let dest: ConsoleStream = process.stderr;
@@ -27,12 +30,21 @@ export default function jsonLoggerDestination(
 				dest = process.stdout;
 			}
 
+			if (levels[event.level] < levels[level]) {
+				return;
+			}
+
 			let trailingLine = event.newLine ? '\n' : '';
 			const message = event.message.replace(SGR_REGEX, '');
-			if (config.pretty) {
-				dest.write(JSON.stringify({ message, label: event.label }, null, 2) + trailingLine);
+			if (pretty) {
+				dest.write(
+					JSON.stringify({ message, label: event.label, level: event.level }, null, 2) +
+						trailingLine,
+				);
 			} else {
-				dest.write(JSON.stringify({ message, label: event.label }) + trailingLine);
+				dest.write(
+					JSON.stringify({ message, label: event.label, level: event.level }) + trailingLine,
+				);
 			}
 		},
 	};

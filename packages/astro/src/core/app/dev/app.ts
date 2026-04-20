@@ -18,10 +18,8 @@ import type { RoutesList } from '../../../types/astro.js';
 import { req } from '../../messages/runtime.js';
 
 export class DevApp extends BaseApp<NonRunnablePipeline> {
-	logger: AstroLogger;
 	constructor(manifest: SSRManifest, streaming = true, logger: AstroLogger) {
 		super(manifest, streaming, logger);
-		this.logger = logger;
 	}
 
 	createPipeline(

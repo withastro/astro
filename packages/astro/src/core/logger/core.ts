@@ -229,8 +229,26 @@ export class AstroLogger {
 		return new AstroIntegrationLogger(this.options, label);
 	}
 
-	setDestination(destination: AstroLoggerDestination) {
+	setDestination(destination: AstroLoggerDestination<AstroLoggerMessage>) {
 		this.options.destination = destination;
+	}
+
+	/**
+	 * It calls the `close` function of the provided destination, if it exists.
+	 */
+	close() {
+		if (this.options.destination.close) {
+			this.options.destination.close();
+		}
+	}
+
+	/**
+	 * It calls the `flush` function of the provided destinatin, if it exists.
+	 */
+	flush() {
+		if (this.options.destination.flush) {
+			this.options.destination.flush();
+		}
 	}
 }
 

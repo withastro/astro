@@ -29,6 +29,8 @@ export class AppPipeline extends Pipeline {
 				return createAssetLink(bundlePath, manifest.base, manifest.assetsPrefix);
 			}
 		};
+		// Start with console logger synchronously; the custom logger destination
+		// (if configured) is lazily resolved via pipeline.getLogger() on first request.
 		const logger = createConsoleLogger({ level: manifest.logLevel });
 		const pipeline = new AppPipeline(
 			logger,

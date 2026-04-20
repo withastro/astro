@@ -7,6 +7,7 @@ import { pluginAnalyzer } from './plugin-analyzer.js';
 import { pluginComponentEntry } from './plugin-component-entry.js';
 import { pluginCSS } from './plugin-css.js';
 import { pluginInternals } from './plugin-internals.js';
+import { pluginLogger } from './plugin-logger.js';
 import { pluginMiddleware } from './plugin-middleware.js';
 import { pluginPrerender } from './plugin-prerender.js';
 import { pluginScripts } from './plugin-scripts.js';
@@ -23,6 +24,7 @@ export function getAllBuildPlugins(
 		pluginComponentEntry(internals),
 		pluginAnalyzer(internals),
 		pluginInternals(options, internals),
+		pluginLogger(options, internals),
 		pluginMiddleware(options, internals),
 		vitePluginActionsBuild(options, internals),
 		...pluginCSS(options, internals),
