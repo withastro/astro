@@ -2,10 +2,10 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
 import testAdapter from '../../astro/test/test-adapter.js';
-import { loadFixture } from '../../astro/test/test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from '../../astro/test/test-utils.js';
 
 describe('astro:db', () => {
-	let fixture;
+	let fixture: Fixture;
 	before(async () => {
 		fixture = await loadFixture({
 			root: new URL('./fixtures/db-in-src/', import.meta.url),
@@ -16,7 +16,7 @@ describe('astro:db', () => {
 	});
 
 	describe('development: db/ folder inside srcDir', () => {
-		let devServer;
+		let devServer: DevServer;
 
 		before(async () => {
 			devServer = await fixture.startDevServer();

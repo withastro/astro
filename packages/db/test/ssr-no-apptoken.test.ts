@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import testAdapter from '../../astro/test/test-adapter.js';
-import { loadFixture } from '../../astro/test/test-utils.js';
-import { setupRemoteDb } from './test-utils.js';
+import { type Fixture, loadFixture } from '../../astro/test/test-utils.js';
+import { type RemoteDbServer, setupRemoteDb } from './test-utils.ts';
 
 describe('missing app token', () => {
-	let fixture;
-	let remoteDbServer;
+	let fixture: Fixture;
+	let remoteDbServer: RemoteDbServer;
 	before(async () => {
 		fixture = await loadFixture({
 			root: new URL('./fixtures/no-apptoken/', import.meta.url),

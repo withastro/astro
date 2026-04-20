@@ -2,7 +2,9 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { getTableChangeQueries } from '../../dist/core/cli/migration-queries.js';
 import { tablesSchema } from '../../dist/core/schemas.js';
+import type { DBTable } from '../../dist/core/types.js';
 import { column, defineTable } from '../../dist/runtime/virtual.js';
+import { asResolved } from '../test-utils.ts';
 
 const BaseUser = defineTable({
 	columns: {
@@ -23,13 +25,8 @@ const BaseSentBox = defineTable({
 	},
 });
 
-/**
- * @typedef {import('../../dist/core/types.js').DBTable} DBTable
- * @param {{ User: DBTable, SentBox: DBTable }} params
- * @returns
- */
 function resolveReferences(
-	{ User = BaseUser, SentBox = BaseSentBox } = {
+	{ User = BaseUser, SentBox = BaseSentBox }: { User?: DBTable; SentBox?: DBTable } = {
 		User: BaseUser,
 		SentBox: BaseSentBox,
 	},
@@ -37,11 +34,11 @@ function resolveReferences(
 	return tablesSchema.parse({ User, SentBox });
 }
 
-function userChangeQueries(oldTable, newTable) {
+function userChangeQueries(oldTable: DBTable, newTable: DBTable) {
 	return getTableChangeQueries({
 		tableName: 'User',
-		oldTable,
-		newTable,
+		oldTable: asResolved(oldTable),
+		newTable: asResolved(newTable),
 	});
 }
 
@@ -139,7 +136,7 @@ describe('reference queries', () => {
 			}),
 		});
 
-		const expected = (tempTableName) => [
+		const expected = (tempTableName: string | undefined) => [
 			`CREATE TABLE \"${tempTableName}\" (_id INTEGER PRIMARY KEY, \"to\" integer NOT NULL, \"toName\" text NOT NULL, \"subject\" text NOT NULL, \"body\" text NOT NULL, FOREIGN KEY (\"to\", \"toName\") REFERENCES \"User\"(\"id\", \"name\"))`,
 			`INSERT INTO \"${tempTableName}\" (\"_id\", \"to\", \"toName\", \"subject\", \"body\") SELECT \"_id\", \"to\", \"toName\", \"subject\", \"body\" FROM \"User\"`,
 			'DROP TABLE "User"',
@@ -163,7 +160,6 @@ describe('reference queries', () => {
 	});
 });
 
-/** @param {string} query */
-function getTempTableName(query) {
+function getTempTableName(query: string) {
 	return /User_[a-z\d]+/.exec(query)?.[0];
 }

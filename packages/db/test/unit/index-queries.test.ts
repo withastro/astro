@@ -2,7 +2,9 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { getTableChangeQueries } from '../../dist/core/cli/migration-queries.js';
 import { dbConfigSchema, tableSchema } from '../../dist/core/schemas.js';
+import type { DBTable } from '../../dist/core/types.js';
 import { column } from '../../dist/runtime/virtual.js';
+import { asResolved } from '../test-utils.ts';
 
 const userInitial = tableSchema.parse({
 	columns: {
@@ -201,8 +203,7 @@ describe('index queries', () => {
 
 	describe('legacy object config', () => {
 		it('adds indexes', async () => {
-			/** @type {import('../../dist/core/types.js').DBTable} */
-			const userFinal = {
+			const userFinal: DBTable = {
 				...userInitial,
 				indexes: {
 					nameIdx: { on: ['name'], unique: false },
@@ -212,8 +213,8 @@ describe('index queries', () => {
 
 			const { queries } = await getTableChangeQueries({
 				tableName: 'user',
-				oldTable: userInitial,
-				newTable: userFinal,
+				oldTable: asResolved(userInitial),
+				newTable: asResolved(userFinal),
 			});
 
 			assert.deepEqual(queries, [
@@ -223,8 +224,7 @@ describe('index queries', () => {
 		});
 
 		it('drops indexes', async () => {
-			/** @type {import('../../dist/core/types.js').DBTable} */
-			const initial = {
+			const initial: DBTable = {
 				...userInitial,
 				indexes: {
 					nameIdx: { on: ['name'], unique: false },
@@ -232,24 +232,22 @@ describe('index queries', () => {
 				},
 			};
 
-			/** @type {import('../../dist/core/types.js').DBTable} */
-			const final = {
+			const final: DBTable = {
 				...userInitial,
 				indexes: {},
 			};
 
 			const { queries } = await getTableChangeQueries({
 				tableName: 'user',
-				oldTable: initial,
-				newTable: final,
+				oldTable: asResolved(initial),
+				newTable: asResolved(final),
 			});
 
 			assert.deepEqual(queries, ['DROP INDEX "nameIdx"', 'DROP INDEX "emailIdx"']);
 		});
 
 		it('drops and recreates modified indexes', async () => {
-			/** @type {import('../../dist/core/types.js').DBTable} */
-			const initial = {
+			const initial: DBTable = {
 				...userInitial,
 				indexes: {
 					nameIdx: { on: ['name'], unique: false },
@@ -257,8 +255,7 @@ describe('index queries', () => {
 				},
 			};
 
-			/** @type {import('../../dist/core/types.js').DBTable} */
-			const final = {
+			const final: DBTable = {
 				...userInitial,
 				indexes: {
 					nameIdx: { on: ['name'], unique: true },
@@ -268,8 +265,8 @@ describe('index queries', () => {
 
 			const { queries } = await getTableChangeQueries({
 				tableName: 'user',
-				oldTable: initial,
-				newTable: final,
+				oldTable: asResolved(initial),
+				newTable: asResolved(final),
 			});
 
 			assert.deepEqual(queries, [

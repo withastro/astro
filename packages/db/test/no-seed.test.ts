@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { loadFixture } from '../../astro/test/test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from '../../astro/test/test-utils.js';
 
 describe('astro:db with no seed file', () => {
-	let fixture;
+	let fixture: Fixture;
 	before(async () => {
 		fixture = await loadFixture({
 			root: new URL('./fixtures/no-seed/', import.meta.url),
@@ -12,7 +12,7 @@ describe('astro:db with no seed file', () => {
 	});
 
 	describe('development', () => {
-		let devServer;
+		let devServer: DevServer;
 		before(async () => {
 			devServer = await fixture.startDevServer();
 		});

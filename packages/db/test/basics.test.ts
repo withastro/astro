@@ -2,12 +2,12 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
 import testAdapter from '../../astro/test/test-adapter.js';
-import { loadFixture } from '../../astro/test/test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from '../../astro/test/test-utils.js';
 import { resolveDbAppToken } from '../dist/core/utils.js';
-import { clearEnvironment, setupRemoteDb } from './test-utils.js';
+import { clearEnvironment, type RemoteDbServer, setupRemoteDb } from './test-utils.ts';
 
 describe('astro:db', () => {
-	let fixture;
+	let fixture: Fixture;
 	before(async () => {
 		fixture = await loadFixture({
 			root: new URL('./fixtures/basics/', import.meta.url),
@@ -17,7 +17,7 @@ describe('astro:db', () => {
 	});
 
 	describe('development', () => {
-		let devServer;
+		let devServer: DevServer;
 
 		before(async () => {
 			clearEnvironment();
@@ -96,8 +96,8 @@ describe('astro:db', () => {
 	});
 
 	describe('development --remote', () => {
-		let devServer;
-		let remoteDbServer;
+		let devServer: DevServer;
+		let remoteDbServer: RemoteDbServer;
 
 		before(async () => {
 			clearEnvironment();
@@ -178,7 +178,7 @@ describe('astro:db', () => {
 	});
 
 	describe('build --remote', () => {
-		let remoteDbServer;
+		let remoteDbServer: RemoteDbServer;
 
 		before(async () => {
 			clearEnvironment();
@@ -219,13 +219,11 @@ describe('astro:db', () => {
 
 	describe('Precedence for --db-app-token and ASTRO_DB_APP_TOKEN handled correctly', () => {
 		it('prefers --db-app-token over `ASTRO_DB_APP_TOKEN`', () => {
-			const flags = /** @type {any} */ ({ _: [], dbAppToken: 'from-flag' });
-			assert.equal(resolveDbAppToken(flags, 'from-env'), 'from-flag');
+			assert.equal(resolveDbAppToken({ _: [], dbAppToken: 'from-flag' }, 'from-env'), 'from-flag');
 		});
 
 		it('falls back to ASTRO_DB_APP_TOKEN if no flags set', () => {
-			const flags = /** @type {any} */ ({ _: [] });
-			assert.equal(resolveDbAppToken(flags, 'from-env'), 'from-env');
+			assert.equal(resolveDbAppToken({ _: [] }, 'from-env'), 'from-env');
 		});
 	});
 });

@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 import test, { beforeEach, describe } from 'node:test';
 import { getRemoteDatabaseInfo } from '../../dist/core/utils.js';
-import { clearEnvironment } from '../test-utils.js';
+import { clearEnvironment } from '../test-utils.ts';
 
 describe('RemoteDatabaseInfo', () => {
 	beforeEach(() => {

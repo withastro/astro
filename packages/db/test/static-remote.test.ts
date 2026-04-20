@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { loadFixture } from '../../astro/test/test-utils.js';
-import { clearEnvironment, setupRemoteDb } from './test-utils.js';
+import { type Fixture, loadFixture } from '../../astro/test/test-utils.js';
+import { clearEnvironment, type RemoteDbServer, setupRemoteDb } from './test-utils.ts';
 
 describe('astro:db', () => {
-	let fixture;
+	let fixture: Fixture;
 	before(async () => {
 		fixture = await loadFixture({
 			root: new URL('./fixtures/static-remote/', import.meta.url),
@@ -14,7 +14,7 @@ describe('astro:db', () => {
 	});
 
 	describe('static build --remote', () => {
-		let remoteDbServer;
+		let remoteDbServer: RemoteDbServer;
 
 		before(async () => {
 			remoteDbServer = await setupRemoteDb(fixture.config);
@@ -41,7 +41,7 @@ describe('astro:db', () => {
 	});
 
 	describe('static build --remote with custom LibSQL', () => {
-		let remoteDbServer;
+		let remoteDbServer: RemoteDbServer | undefined;
 
 		before(async () => {
 			clearEnvironment();

@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { loadFixture } from '../../astro/test/test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from '../../astro/test/test-utils.js';
 import { cli } from '../dist/core/cli/index.js';
-import { setupRemoteDb } from './test-utils.js';
+import { type RemoteDbServer, setupRemoteDb } from './test-utils.ts';
 
 const foreignKeyConstraintError = 'LibsqlError: SQLITE_CONSTRAINT: FOREIGN KEY constraint failed';
 
 describe('astro:db - error handling', () => {
-	let fixture;
+	let fixture: Fixture;
 	before(async () => {
 		fixture = await loadFixture({
 			root: new URL('./fixtures/error-handling/', import.meta.url),
@@ -17,20 +17,19 @@ describe('astro:db - error handling', () => {
 	it('Errors on invalid --db-app-token input', async () => {
 		const originalExit = process.exit;
 		const originalError = console.error;
-		/** @type {string[]} */
-		const errorMessages = [];
-		console.error = (...args) => {
+		const errorMessages: string[] = [];
+		console.error = (...args: unknown[]) => {
 			errorMessages.push(args.map(String).join(' '));
 		};
-		process.exit = (code) => {
+		process.exit = ((code?: number) => {
 			throw new Error(`EXIT_${code}`);
-		};
+		}) as typeof process.exit;
 
 		try {
 			await cli({
 				config: fixture.config,
 				flags: {
-					_: [undefined, 'astro', 'db', 'verify'],
+					_: ['', 'astro', 'db', 'verify'],
 					dbAppToken: true,
 				},
 			});
@@ -48,7 +47,7 @@ describe('astro:db - error handling', () => {
 	});
 
 	describe('development', () => {
-		let devServer;
+		let devServer: DevServer;
 
 		before(async () => {
 			devServer = await fixture.startDevServer();
@@ -68,7 +67,7 @@ describe('astro:db - error handling', () => {
 	});
 
 	describe('build --remote', () => {
-		let remoteDbServer;
+		let remoteDbServer: RemoteDbServer;
 
 		before(async () => {
 			remoteDbServer = await setupRemoteDb(fixture.config);

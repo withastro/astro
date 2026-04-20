@@ -3,7 +3,9 @@ import { describe, it } from 'node:test';
 import { getMigrationQueries } from '../../dist/core/cli/migration-queries.js';
 import { MIGRATION_VERSION } from '../../dist/core/consts.js';
 import { tableSchema } from '../../dist/core/schemas.js';
+import type { ResolvedDBTable } from '../../dist/core/types.js';
 import { column, defineTable } from '../../dist/runtime/virtual.js';
+import { asResolved } from '../test-utils.ts';
 
 const TABLE_NAME = 'Users';
 
@@ -23,8 +25,8 @@ const userInitial = tableSchema.parse(
 describe('force reset', () => {
 	describe('getMigrationQueries', () => {
 		it('should drop table and create new version', async () => {
-			const oldTables = { [TABLE_NAME]: userInitial };
-			const newTables = { [TABLE_NAME]: userInitial };
+			const oldTables = { [TABLE_NAME]: asResolved(userInitial) };
+			const newTables = { [TABLE_NAME]: asResolved(userInitial) };
 			const { queries } = await getMigrationQueries({
 				oldSnapshot: { schema: oldTables, version: MIGRATION_VERSION },
 				newSnapshot: { schema: newTables, version: MIGRATION_VERSION },
@@ -38,8 +40,8 @@ describe('force reset', () => {
 		});
 
 		it('should not drop table when previous snapshot did not have it', async () => {
-			const oldTables = {};
-			const newTables = { [TABLE_NAME]: userInitial };
+			const oldTables: Record<string, ResolvedDBTable> = {};
+			const newTables = { [TABLE_NAME]: asResolved(userInitial) };
 			const { queries } = await getMigrationQueries({
 				oldSnapshot: { schema: oldTables, version: MIGRATION_VERSION },
 				newSnapshot: { schema: newTables, version: MIGRATION_VERSION },
