@@ -6,7 +6,9 @@ import {
 } from '../../dist/core/cli/migration-queries.js';
 import { MIGRATION_VERSION } from '../../dist/core/consts.js';
 import { tableSchema } from '../../dist/core/schemas.js';
+import type { DBTable, ResolvedDBTable } from '../../dist/core/types.js';
 import { column, defineTable, NOW } from '../../dist/runtime/virtual.js';
+import { asResolved } from '../test-utils.ts';
 
 const TABLE_NAME = 'Users';
 
@@ -23,33 +25,42 @@ const userInitial = tableSchema.parse(
 	}),
 );
 
-function userChangeQueries(oldTable, newTable) {
+function userChangeQueries(oldTable: DBTable, newTable: DBTable) {
 	return getTableChangeQueries({
 		tableName: TABLE_NAME,
-		oldTable,
-		newTable,
+		oldTable: asResolved(oldTable),
+		newTable: asResolved(newTable),
 	});
 }
 
-function configChangeQueries(oldTables, newTables) {
+function configChangeQueries(
+	oldTables: Record<string, ResolvedDBTable>,
+	newTables: Record<string, ResolvedDBTable>,
+) {
 	return getMigrationQueries({
-		oldSnapshot: { schema: oldTables, version: MIGRATION_VERSION },
-		newSnapshot: { schema: newTables, version: MIGRATION_VERSION },
+		oldSnapshot: {
+			schema: oldTables,
+			version: MIGRATION_VERSION,
+		},
+		newSnapshot: {
+			schema: newTables,
+			version: MIGRATION_VERSION,
+		},
 	});
 }
 
 describe('column queries', () => {
 	describe('getMigrationQueries', () => {
 		it('should be empty when tables are the same', async () => {
-			const oldTables = { [TABLE_NAME]: userInitial };
-			const newTables = { [TABLE_NAME]: userInitial };
+			const oldTables = { [TABLE_NAME]: asResolved(userInitial) };
+			const newTables = { [TABLE_NAME]: asResolved(userInitial) };
 			const { queries } = await configChangeQueries(oldTables, newTables);
 			assert.deepEqual(queries, []);
 		});
 
 		it('should create table for new tables', async () => {
 			const oldTables = {};
-			const newTables = { [TABLE_NAME]: userInitial };
+			const newTables = { [TABLE_NAME]: asResolved(userInitial) };
 			const { queries } = await configChangeQueries(oldTables, newTables);
 			assert.deepEqual(queries, [
 				`CREATE TABLE "${TABLE_NAME}" (_id INTEGER PRIMARY KEY, "name" text NOT NULL, "age" integer NOT NULL, "email" text NOT NULL UNIQUE, "mi" text)`,
@@ -57,7 +68,7 @@ describe('column queries', () => {
 		});
 
 		it('should drop table for removed tables', async () => {
-			const oldTables = { [TABLE_NAME]: userInitial };
+			const oldTables = { [TABLE_NAME]: asResolved(userInitial) };
 			const newTables = {};
 			const { queries } = await configChangeQueries(oldTables, newTables);
 			assert.deepEqual(queries, [`DROP TABLE "${TABLE_NAME}"`]);
@@ -65,15 +76,15 @@ describe('column queries', () => {
 
 		it('should error if possible table rename is detected', async () => {
 			const rename = 'Peeps';
-			const oldTables = { [TABLE_NAME]: userInitial };
-			const newTables = { [rename]: userInitial };
-			let error = null;
+			const oldTables = { [TABLE_NAME]: asResolved(userInitial) };
+			const newTables = { [rename]: asResolved(userInitial) };
+			let error: string | null = null;
 			try {
 				await configChangeQueries(oldTables, newTables);
 			} catch (e) {
-				error = e.message;
+				error = (e as Error).message;
 			}
-			assert.match(error, /Potential table rename detected/);
+			assert.match(error!, /Potential table rename detected/);
 		});
 
 		it('should error if possible column rename is detected', async () => {
@@ -87,13 +98,16 @@ describe('column queries', () => {
 					title2: column.text(),
 				},
 			});
-			let error = null;
+			let error: string | null = null;
 			try {
-				await configChangeQueries({ [TABLE_NAME]: blogInitial }, { [TABLE_NAME]: blogFinal });
+				await configChangeQueries(
+					{ [TABLE_NAME]: asResolved(blogInitial) },
+					{ [TABLE_NAME]: asResolved(blogFinal) },
+				);
 			} catch (e) {
-				error = e.message;
+				error = (e as Error).message;
 			}
-			assert.match(error, /Potential column rename detected/);
+			assert.match(error!, /Potential column rename detected/);
 		});
 	});
 
@@ -264,7 +278,7 @@ describe('column queries', () => {
 					`CREATE TABLE \"${tempTableName}\" (\"name\" text NOT NULL, \"age\" integer NOT NULL, \"email\" text NOT NULL UNIQUE, \"mi\" text, \"id\" integer PRIMARY KEY)`,
 					`INSERT INTO \"${tempTableName}\" (\"name\", \"age\", \"email\", \"mi\") SELECT \"name\", \"age\", \"email\", \"mi\" FROM \"Users\"`,
 					'DROP TABLE "Users"',
-					`ALTER TABLE "${tempTableName}" RENAME TO "Users"`,
+					`ALTER TABLE \"${tempTableName}\" RENAME TO \"Users\"`,
 				]);
 			});
 
@@ -285,7 +299,7 @@ describe('column queries', () => {
 					`CREATE TABLE \"${tempTableName}\" (_id INTEGER PRIMARY KEY, \"name\" text NOT NULL, \"age\" integer NOT NULL, \"email\" text NOT NULL UNIQUE, \"mi\" text)`,
 					`INSERT INTO \"${tempTableName}\" (\"name\", \"age\", \"email\", \"mi\") SELECT \"name\", \"age\", \"email\", \"mi\" FROM \"Users\"`,
 					'DROP TABLE "Users"',
-					`ALTER TABLE "${tempTableName}" RENAME TO "Users"`,
+					`ALTER TABLE \"${tempTableName}\" RENAME TO \"Users\"`,
 				]);
 			});
 
@@ -490,7 +504,6 @@ describe('column queries', () => {
 	});
 });
 
-/** @param {string} query */
-function getTempTableName(query) {
+function getTempTableName(query: string) {
 	return /Users_[a-z\d]+/.exec(query)?.[0];
 }

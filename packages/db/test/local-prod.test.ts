@@ -3,11 +3,11 @@ import { relative } from 'node:path';
 import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import testAdapter from '../../astro/test/test-adapter.js';
-import { loadFixture } from '../../astro/test/test-utils.js';
+import { type Fixture, loadFixture } from '../../astro/test/test-utils.js';
 
 describe('astro:db local database', () => {
 	describe('build (not remote) with DATABASE_FILE env (file URL)', () => {
-		let fixture;
+		let fixture: Fixture;
 		const prodDbPath = new URL('./fixtures/basics/dist/astro.db', import.meta.url).toString();
 		before(async () => {
 			process.env.ASTRO_DATABASE_FILE = prodDbPath;
@@ -34,7 +34,7 @@ describe('astro:db local database', () => {
 	});
 
 	describe('build (not remote) with DATABASE_FILE env (relative file path)', () => {
-		let fixture;
+		let fixture: Fixture;
 		const absoluteFileUrl = new URL('./fixtures/basics/dist/astro.db', import.meta.url);
 		const prodDbPath = relative(process.cwd(), fileURLToPath(absoluteFileUrl));
 
@@ -72,7 +72,7 @@ describe('astro:db local database', () => {
 				output: 'server',
 				adapter: testAdapter(),
 			});
-			let buildError = null;
+			let buildError: unknown = null;
 			try {
 				await fixture.build();
 			} catch (err) {
@@ -92,7 +92,7 @@ describe('astro:db local database', () => {
 			});
 
 			delete process.env.ASTRO_DATABASE_FILE;
-			let buildError = null;
+			let buildError: unknown = null;
 			try {
 				await fixture2.build();
 			} catch (err) {

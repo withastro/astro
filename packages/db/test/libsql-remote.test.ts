@@ -4,12 +4,12 @@ import { relative } from 'node:path';
 import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import testAdapter from '../../astro/test/test-adapter.js';
-import { loadFixture } from '../../astro/test/test-utils.js';
-import { clearEnvironment, initializeRemoteDb } from './test-utils.js';
+import { type Fixture, loadFixture } from '../../astro/test/test-utils.js';
+import { clearEnvironment, initializeRemoteDb } from './test-utils.ts';
 
 describe('astro:db local database', () => {
 	describe('build --remote with local libSQL file (absolute path)', () => {
-		let fixture;
+		let fixture: Fixture;
 		before(async () => {
 			clearEnvironment();
 
@@ -17,7 +17,7 @@ describe('astro:db local database', () => {
 			// Remove the file if it exists to avoid conflict between test runs
 			await rm(absoluteFileUrl, { force: true });
 
-			process.env.ASTRO_INTERNAL_TEST_REMOTE = true;
+			process.env.ASTRO_INTERNAL_TEST_REMOTE = 'true';
 			process.env.ASTRO_DB_REMOTE_URL = absoluteFileUrl.toString();
 
 			const root = new URL('./fixtures/libsql-remote/', import.meta.url);
@@ -46,7 +46,7 @@ describe('astro:db local database', () => {
 	});
 
 	describe('build --remote with local libSQL file (relative path)', () => {
-		let fixture;
+		let fixture: Fixture;
 		before(async () => {
 			clearEnvironment();
 
@@ -56,7 +56,7 @@ describe('astro:db local database', () => {
 			// Remove the file if it exists to avoid conflict between test runs
 			await rm(prodDbPath, { force: true });
 
-			process.env.ASTRO_INTERNAL_TEST_REMOTE = true;
+			process.env.ASTRO_INTERNAL_TEST_REMOTE = 'true';
 			process.env.ASTRO_DB_REMOTE_URL = `file:${prodDbPath}`;
 
 			const root = new URL('./fixtures/libsql-remote/', import.meta.url);

@@ -1,15 +1,19 @@
 import { mkdir, unlink } from 'node:fs/promises';
+import type { AstroConfig } from 'astro';
 import { createClient } from '@libsql/client';
 import { cli } from '../dist/core/cli/index.js';
 import { resolveDbConfig } from '../dist/core/load-file.js';
 import { getCreateIndexQueries, getCreateTableQuery } from '../dist/core/queries.js';
+import type { DBTable, ResolvedDBTable } from '../dist/core/types.js';
 
 const isWindows = process.platform === 'win32';
 
-/**
- * @param {import('astro').AstroConfig} astroConfig
- */
-export async function setupRemoteDb(astroConfig, options = {}) {
+export type RemoteDbServer = { stop: () => Promise<void> };
+
+export async function setupRemoteDb(
+	astroConfig: AstroConfig,
+	options: { useDbAppTokenFlag?: boolean } = {},
+): Promise<RemoteDbServer> {
 	const url = isWindows
 		? new URL(`./.astro/${Date.now()}.db`, astroConfig.root)
 		: new URL(`./${Date.now()}.db`, astroConfig.root);
@@ -18,19 +22,19 @@ export async function setupRemoteDb(astroConfig, options = {}) {
 	if (!options.useDbAppTokenFlag) {
 		process.env.ASTRO_DB_APP_TOKEN = token;
 	}
-	process.env.ASTRO_INTERNAL_TEST_REMOTE = true;
+	process.env.ASTRO_INTERNAL_TEST_REMOTE = 'true';
 
 	if (isWindows) {
 		await mkdir(new URL('.', url), { recursive: true });
 	}
 
 	const dbClient = createClient({
-		url,
+		url: url.toString(),
 		authToken: token,
 	});
 
 	const { dbConfig } = await resolveDbConfig(astroConfig);
-	const setupQueries = [];
+	const setupQueries: string[] = [];
 	for (const [name, table] of Object.entries(dbConfig?.tables ?? {})) {
 		const createQuery = getCreateTableQuery(name, table);
 		const indexQueries = getCreateIndexQueries(name, table);
@@ -47,7 +51,7 @@ export async function setupRemoteDb(astroConfig, options = {}) {
 	await cli({
 		config: astroConfig,
 		flags: {
-			_: [undefined, 'astro', 'db', 'execute', 'db/seed.ts'],
+			_: ['', 'astro', 'db', 'execute', 'db/seed.ts'],
 			remote: true,
 			...(options.useDbAppTokenFlag ? { dbAppToken: token } : {}),
 		},
@@ -66,18 +70,18 @@ export async function setupRemoteDb(astroConfig, options = {}) {
 	};
 }
 
-export async function initializeRemoteDb(astroConfig) {
+export async function initializeRemoteDb(astroConfig: AstroConfig) {
 	await cli({
 		config: astroConfig,
 		flags: {
-			_: [undefined, 'astro', 'db', 'push'],
+			_: ['', 'astro', 'db', 'push'],
 			remote: true,
 		},
 	});
 	await cli({
 		config: astroConfig,
 		flags: {
-			_: [undefined, 'astro', 'db', 'execute', 'db/seed.ts'],
+			_: ['', 'astro', 'db', 'execute', 'db/seed.ts'],
 			remote: true,
 		},
 	});
@@ -93,4 +97,8 @@ export function clearEnvironment() {
 			delete process.env[key];
 		}
 	}
+}
+
+export function asResolved(table: DBTable): ResolvedDBTable {
+	return table as ResolvedDBTable;
 }
