@@ -1,11 +1,10 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.js';
 
 describe('SSR Assets', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -20,7 +19,6 @@ describe('SSR Assets', () => {
 
 	it('Do not have to implement getStaticPaths', async () => {
 		const app = await fixture.loadTestAdapterApp();
-		/** @type {Set<string>} */
 		const assets = app.manifest.assets;
 		assert.equal(assets.size, 1);
 		assert.equal(Array.from(assets)[0].endsWith('.css'), true);
