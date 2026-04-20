@@ -6,7 +6,6 @@ describe('Serverless prerender', () => {
 	let fixture: Fixture;
 
 	before(async () => {
-		process.env.PRERENDER = 'true';
 		fixture = await loadFixture({
 			root: './fixtures/serverless-prerender/',
 		});
@@ -43,7 +42,6 @@ describe('Serverless hybrid rendering', () => {
 	let fixture: Fixture;
 
 	before(async () => {
-		process.env.PRERENDER = 'true';
 		fixture = await loadFixture({
 			root: './fixtures/serverless-prerender/',
 			output: 'static',
