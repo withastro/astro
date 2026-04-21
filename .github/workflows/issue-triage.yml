@@ -7,7 +7,6 @@ on:
     types: [created]
 
 env:
-  IMAGE: ghcr.io/${{ github.repository }}/flue-sandbox
   PNPM_STORE_DIR: .pnpm-store
 
 concurrency:
@@ -50,12 +49,8 @@ jobs:
     timeout-minutes: 60
     permissions:
       contents: write
-      issues: write
-      packages: read
+      issues: read
     steps:
-      - name: Lowercase image name
-        run: echo "IMAGE=${IMAGE,,}" >> "$GITHUB_ENV"
-
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -75,6 +70,11 @@ jobs:
           node-version: 24.14.1
           cache: pnpm
 
+      - name: Install agent CLIs (bgproc, agent-browser)
+        run: |
+          npm install -g bgproc agent-browser
+          agent-browser install
+
       - name: Clone Astro Compiler (for debugging)
         run: git clone --depth 1 https://github.com/withastro/compiler.git .compiler
 
@@ -84,56 +84,17 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Log in to GHCR
-        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Pull sandbox image
-        run: docker pull $IMAGE:latest
-
-      - name: Verify sandbox image
-        run: |
-          docker run --rm $IMAGE:latest sh -c '
-            echo "node=$(node -v) pnpm=$(pnpm -v) gh=$(gh --version | head -1)"
-            echo "opencode=$(which opencode) version=$(opencode --version 2>/dev/null || echo missing)"
-            echo "chromium=$(ls /opt/pw-browsers 2>/dev/null && echo found || echo MISSING)"
-            echo "git-safe-dir=$(git config --system --get-all safe.directory 2>/dev/null || echo MISSING)"
-          '
-
-      - name: Start Cloudflare Tunnel
-        run: |
-          curl -fsSL https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o /usr/local/bin/cloudflared
-          chmod +x /usr/local/bin/cloudflared
-          cloudflared tunnel --url http://localhost:48765 --no-autoupdate 2>&1 | tee /tmp/cloudflared.log &
-          # Wait for tunnel URL to appear
-          for i in $(seq 1 30); do
-            if grep -qo 'https://[^ ]*\.trycloudflare\.com' /tmp/cloudflared.log; then
-              break
-            fi
-            sleep 1
-          done
-          echo "=========================================="
-          echo "TUNNEL URL:"
-          grep -o 'https://[^ ]*\.trycloudflare\.com' /tmp/cloudflared.log || echo "WARNING: tunnel URL not found"
-          echo "=========================================="
-          echo ""
-          echo "To attach from your machine:"
-          echo "  OPENCODE_API_URL=\$(grep -o 'https://[^ ]*\\.trycloudflare\\.com' /tmp/cloudflared.log) opencode attach"
-
       - name: Checkout fix branch
         run: git checkout -B "flue/fix-${{ github.event.issue.number }}"
 
-      - name: Run workflow
+      - name: Run triage agent
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          FREDKBOT_GITHUB_TOKEN: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ANTHROPIC_API_KEY: ${{ secrets.CI_ANTHROPIC_API_KEY }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
-          pnpm flue run .flue/workflows/issue-triage/WORKFLOW.ts \
-            --sandbox $IMAGE:latest \
-            --args "{\"issueNumber\": $ISSUE_NUMBER}" \
-            --model anthropic/claude-opus-4-6
+          pnpm exec flue run issue-triage \
+            --target node \
+            --session-id "issue-triage-$ISSUE_NUMBER" \
+            --payload "{\"issueNumber\": $ISSUE_NUMBER}"

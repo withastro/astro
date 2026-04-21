@@ -1,10 +1,16 @@
 import * as v from 'valibot';
 
-const REPO = 'withastro/astro';
+export const REPO = process.env.GITHUB_REPOSITORY || 'withastro/astro';
+export const GITHUB_TOKEN_BASE = process.env.GITHUB_TOKEN;
 
-function headers(): Record<string, string> {
-	const token = process.env.FREDKBOT_GITHUB_TOKEN || process.env.GITHUB_TOKEN;
-	if (!token) throw new Error('token is not set');
+// Intentionally not exported, GITHUB_TOKEN_BASE should be enough anywhere else.
+const GITHUB_TOKEN_PRIVILEGED = process.env.FREDKBOT_GITHUB_TOKEN;
+
+function assert(condition: unknown, message: string): asserts condition {
+	if (!condition) throw new Error(message);
+}
+
+function headers(token: string): Record<string, string> {
 	return {
 		Authorization: `token ${token}`,
 		'Content-Type': 'application/json',
@@ -40,10 +46,13 @@ export const repoLabelSchema = v.object({
 export type RepoLabel = v.InferOutput<typeof repoLabelSchema>;
 
 export async function fetchIssueDetails(issueNumber: number): Promise<IssueDetails> {
+	assert(GITHUB_TOKEN_BASE, `GITHUB_TOKEN env token is required.`);
 	const [issueRes, commentsRes] = await Promise.all([
-		fetch(`https://api.github.com/repos/${REPO}/issues/${issueNumber}`, { headers: headers() }),
+		fetch(`https://api.github.com/repos/${REPO}/issues/${issueNumber}`, {
+			headers: headers(GITHUB_TOKEN_BASE),
+		}),
 		fetch(`https://api.github.com/repos/${REPO}/issues/${issueNumber}/comments?per_page=100`, {
-			headers: headers(),
+			headers: headers(GITHUB_TOKEN_BASE),
 		}),
 	]);
 
@@ -84,6 +93,7 @@ export async function fetchRepoLabels(): Promise<{
 	priorityLabels: RepoLabel[];
 	packageLabels: RepoLabel[];
 }> {
+	assert(GITHUB_TOKEN_BASE, `GITHUB_TOKEN env token is required.`);
 	const allLabels: RepoLabel[] = [];
 	let page = 1;
 
@@ -91,7 +101,7 @@ export async function fetchRepoLabels(): Promise<{
 	while (true) {
 		const res = await fetch(
 			`https://api.github.com/repos/${REPO}/labels?per_page=100&page=${page}`,
-			{ headers: headers() },
+			{ headers: headers(GITHUB_TOKEN_BASE) },
 		);
 		if (!res.ok) {
 			throw new Error(`Failed to fetch labels (HTTP ${res.status}): ${await res.text()}`);
@@ -109,9 +119,10 @@ export async function fetchRepoLabels(): Promise<{
 }
 
 export async function postGitHubComment(issueNumber: number, body: string): Promise<void> {
+	assert(GITHUB_TOKEN_PRIVILEGED, `FREDKBOT_GITHUB_TOKEN  token is required.`);
 	const res = await fetch(`https://api.github.com/repos/${REPO}/issues/${issueNumber}/comments`, {
 		method: 'POST',
-		headers: headers(),
+		headers: headers(GITHUB_TOKEN_PRIVILEGED),
 		body: JSON.stringify({ body }),
 	});
 	if (!res.ok) {
@@ -120,9 +131,10 @@ export async function postGitHubComment(issueNumber: number, body: string): Prom
 }
 
 export async function addGitHubLabels(issueNumber: number, labels: string[]): Promise<void> {
+	assert(GITHUB_TOKEN_PRIVILEGED, `FREDKBOT_GITHUB_TOKEN  token is required.`);
 	const res = await fetch(`https://api.github.com/repos/${REPO}/issues/${issueNumber}/labels`, {
 		method: 'POST',
-		headers: headers(),
+		headers: headers(GITHUB_TOKEN_PRIVILEGED),
 		body: JSON.stringify({ labels }),
 	});
 	if (!res.ok) {
@@ -131,11 +143,12 @@ export async function addGitHubLabels(issueNumber: number, labels: string[]): Pr
 }
 
 export async function removeGitHubLabel(issueNumber: number, label: string): Promise<void> {
+	assert(GITHUB_TOKEN_PRIVILEGED, `FREDKBOT_GITHUB_TOKEN  token is required.`);
 	const res = await fetch(
 		`https://api.github.com/repos/${REPO}/issues/${issueNumber}/labels/${encodeURIComponent(label)}`,
 		{
 			method: 'DELETE',
-			headers: headers(),
+			headers: headers(GITHUB_TOKEN_PRIVILEGED),
 		},
 	);
 	if (!res.ok && res.status !== 404) {
