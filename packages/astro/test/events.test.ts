@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { $ZodError } from 'zod/v4/core';
-import { AstroError } from '../dist/core/errors/errors.js';
+import { AstroError, type ErrorWithMetadata } from '../dist/core/errors/errors.js';
 import { ClientAddressNotAvailable } from '../dist/core/errors/errors-data.js';
 import * as events from '../dist/events/index.js';
 import type { AstroUserConfig } from '../dist/types/public/config.js';
@@ -128,10 +128,7 @@ describe('Events', () => {
 
 	describe('eventError()', () => {
 		it('returns the expected event payload with a detailed error object', () => {
-			const errorWithFullMetadata = new Error('TEST ERROR MESSAGE') as Error & {
-				code: number;
-				plugin: string;
-			};
+			const errorWithFullMetadata: ErrorWithMetadata = new Error('TEST ERROR MESSAGE');
 			errorWithFullMetadata.code = 1234;
 			errorWithFullMetadata.plugin = 'TEST PLUGIN';
 			const [event] = events.eventError({
