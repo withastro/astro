@@ -1,12 +1,12 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
 
 describe('dev container', () => {
 	describe('basic rendering', () => {
-		let fixture;
-		let devServer;
+		let fixture: Fixture;
+		let devServer: DevServer;
 
 		before(async () => {
 			fixture = await loadFixture({
@@ -29,8 +29,8 @@ describe('dev container', () => {
 	});
 
 	describe('injected dynamic routes', () => {
-		let fixture;
-		let devServer;
+		let fixture: Fixture;
+		let devServer: DevServer;
 
 		before(async () => {
 			fixture = await loadFixture({
@@ -68,8 +68,8 @@ describe('dev container', () => {
 	});
 
 	describe('injected 404 route', () => {
-		let fixture;
-		let devServer;
+		let fixture: Fixture;
+		let devServer: DevServer;
 
 		before(async () => {
 			fixture = await loadFixture({
@@ -118,8 +118,8 @@ describe('dev container', () => {
 	});
 
 	describe('public/ with base', () => {
-		let fixture;
-		let devServer;
+		let fixture: Fixture;
+		let devServer: DevServer;
 
 		before(async () => {
 			fixture = await loadFixture({
@@ -145,8 +145,8 @@ describe('dev container', () => {
 	});
 
 	describe('public/ without base', () => {
-		let fixture;
-		let devServer;
+		let fixture: Fixture;
+		let devServer: DevServer;
 
 		before(async () => {
 			fixture = await loadFixture({

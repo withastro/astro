@@ -1,11 +1,11 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
 
 describe('core/render components', () => {
-	let fixture;
-	let devServer;
+	let fixture: Fixture;
+	let devServer: DevServer;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -36,7 +36,7 @@ describe('core/render components', () => {
 		const html = await res.text();
 		const $ = cheerio.load(html);
 
-		const check = (name) => JSON.parse($(name).text() || '{}');
+		const check = (name: string) => JSON.parse($(name).text() || '{}');
 
 		const Class = check('#class');
 		const ClassList = check('#class-list');

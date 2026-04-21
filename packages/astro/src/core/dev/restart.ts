@@ -133,7 +133,7 @@ async function restartContainerInPlace(container: Container): Promise<AstroSetti
 
 interface CreateContainerWithAutomaticRestart {
 	inlineConfig?: AstroInlineConfig;
-	fs: typeof nodeFs;
+	fs?: typeof nodeFs;
 }
 
 interface Restart {

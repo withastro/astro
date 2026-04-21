@@ -1,13 +1,12 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
 
 describe('Dev pipeline - error pages', () => {
 	describe('Custom 404', () => {
-		let fixture;
-		let devServer;
+		let fixture: Fixture;
+		let devServer: DevServer;
 
 		before(async () => {
 			fixture = await loadFixture({
@@ -44,8 +43,8 @@ describe('Dev pipeline - error pages', () => {
 	});
 
 	describe('Custom 500', () => {
-		let fixture;
-		let devServer;
+		let fixture: Fixture;
+		let devServer: DevServer;
 
 		before(async () => {
 			fixture = await loadFixture({
