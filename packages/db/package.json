@@ -68,8 +68,9 @@
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "test": "pnpm run test:integration && pnpm run test:types",
-    "test:integration": "astro-scripts test \"test/**/*.test.js\"",
-    "test:types": "tsc --project test/types/tsconfig.json"
+    "test:integration": "astro-scripts test \"test/**/*.test.ts\"",
+    "test:types": "tsc --project test/types/tsconfig.json",
+    "typecheck:tests": "tsc --build tsconfig.test.json"
   },
   "dependencies": {
     "@clack/prompts": "^1.0.1",
