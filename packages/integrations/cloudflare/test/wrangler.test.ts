@@ -124,6 +124,84 @@ describe('cloudflareConfigCustomizer', () => {
 		});
 	});
 
+	describe('previews', () => {
+		it('adds default bindings to previews when none exist', () => {
+			const customizer = cloudflareConfigCustomizer();
+			const result = customizer({});
+
+			assert.deepEqual(result.previews?.kv_namespaces, [
+				{ binding: DEFAULT_SESSION_KV_BINDING_NAME },
+			]);
+			assert.deepEqual(result.previews?.images, { binding: DEFAULT_IMAGES_BINDING_NAME });
+		});
+
+		it('does not add SESSION binding to previews when one exists in previews config', () => {
+			const customizer = cloudflareConfigCustomizer();
+			const result = customizer({
+				previews: {
+					kv_namespaces: [{ binding: DEFAULT_SESSION_KV_BINDING_NAME, id: 'preview-id' }],
+				},
+			});
+
+			assert.equal(result.previews?.kv_namespaces, undefined);
+		});
+
+		it('does not add IMAGES binding to previews when one exists in previews config', () => {
+			const customizer = cloudflareConfigCustomizer();
+			const result = customizer({
+				previews: {
+					images: { binding: 'PREVIEW_IMAGES' },
+				},
+			});
+
+			assert.equal(result.previews?.images, undefined);
+		});
+
+		it('adds SESSION binding to previews even when top-level has it', () => {
+			const customizer = cloudflareConfigCustomizer();
+			const result = customizer({
+				kv_namespaces: [{ binding: DEFAULT_SESSION_KV_BINDING_NAME, id: 'top-level-id' }],
+			});
+
+			// Top-level should not add (already exists)
+			assert.equal(result.kv_namespaces, undefined);
+			// Previews should add (not defined in previews config)
+			assert.deepEqual(result.previews?.kv_namespaces, [
+				{ binding: DEFAULT_SESSION_KV_BINDING_NAME },
+			]);
+		});
+
+		it('adds IMAGES binding to previews even when top-level has it', () => {
+			const customizer = cloudflareConfigCustomizer();
+			const result = customizer({
+				images: { binding: 'TOP_LEVEL_IMAGES' },
+			});
+
+			// Top-level should not add (already exists)
+			assert.equal(result.images, undefined);
+			// Previews should add (not defined in previews config)
+			assert.deepEqual(result.previews?.images, { binding: DEFAULT_IMAGES_BINDING_NAME });
+		});
+
+		it('checks previews config independently from top-level config', () => {
+			const customizer = cloudflareConfigCustomizer();
+			const result = customizer({
+				kv_namespaces: [{ binding: DEFAULT_SESSION_KV_BINDING_NAME, id: 'top-level-id' }],
+				images: { binding: 'TOP_LEVEL_IMAGES' },
+				previews: {
+					kv_namespaces: [{ binding: DEFAULT_SESSION_KV_BINDING_NAME, id: 'preview-id' }],
+					images: { binding: 'PREVIEW_IMAGES' },
+				},
+			});
+
+			// Neither top-level nor previews should add bindings
+			assert.equal(result.kv_namespaces, undefined);
+			assert.equal(result.images, undefined);
+			assert.equal(result.previews?.kv_namespaces, undefined);
+			assert.equal(result.previews?.images, undefined);
+		});
+	});
+
 	describe('default binding names', () => {
 		it('exports DEFAULT_SESSION_KV_BINDING_NAME as SESSION', () => {
 			assert.equal(DEFAULT_SESSION_KV_BINDING_NAME, 'SESSION');
