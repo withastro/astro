@@ -7,7 +7,11 @@ export function syncAstroEnv(settings: AstroSettings): void {
 	let server = '';
 
 	for (const [key, options] of Object.entries(settings.config.env.schema)) {
-		const str = `	export const ${key}: ${getEnvFieldType(options)};	\n`;
+		let str = '';
+		if(options.description) {
+			str += `	/** ${options.description} */`;
+		}
+		str += `	export const ${key}: ${getEnvFieldType(options)};\n`;
 		if (options.context === 'client') {
 			client += str;
 		} else {
@@ -21,6 +25,9 @@ export function syncAstroEnv(settings: AstroSettings): void {
 ${client}}`;
 	}
 	if (server !== '') {
+		if(content !== '') {
+			content += '\n';
+		}
 		content += `declare module 'astro:env/server' {
 ${server}}`;
 	}
