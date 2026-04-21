@@ -1,15 +1,14 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.js';
 
 // Regression test for https://github.com/withastro/astro/issues/16036
 // Using the <Picture> component on a prerendered page combined with render()
 // on content collection entries caused a TDZ error during build:
 // "ReferenceError: Cannot access '$$Picture' before initialization"
 describe('Content collection with Picture component and render()', () => {
-	/** @type {import("./test-utils.js").Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/content-collection-picture-render/' });

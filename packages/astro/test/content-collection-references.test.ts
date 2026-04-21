@@ -1,11 +1,54 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
+import type { CheerioAPI } from 'cheerio';
 import * as cheerio from 'cheerio';
-import { fixLineEndings, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, fixLineEndings, loadFixture } from './test-utils.js';
+
+type EntryRef = { id: string; collection: string };
+
+type BlogEntry = {
+	id: string;
+	collection: string;
+	body: string;
+	filePath: string;
+	digest: string;
+	data: {
+		title: string;
+		banner: EntryRef;
+		author: EntryRef;
+		relatedPosts?: EntryRef[];
+	};
+};
+
+type BannerEntry = {
+	id: string;
+	collection: string;
+	filePath: string;
+	digest: string;
+	data: {
+		alt: string;
+		src: { src: string; width: number; height: number; format: string };
+	};
+};
+
+type AuthorEntry = {
+	id: string;
+	collection: string;
+	filePath: string;
+	digest: string;
+	data: { name: string; twitter: string };
+};
+
+type WelcomeData = {
+	welcomePost: BlogEntry;
+	banner: BannerEntry;
+	author: AuthorEntry;
+	relatedPosts: BlogEntry[];
+};
 
 describe('Content Collections - references', () => {
-	let fixture;
-	let devServer;
+	let fixture: Fixture;
+	let devServer: DevServer;
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/content-collection-references/' });
 	});
@@ -30,7 +73,7 @@ describe('Content Collections - references', () => {
 			});
 
 			describe(`JSON result`, () => {
-				let json;
+				let json: WelcomeData;
 				before(async () => {
 					if (mode === 'prod') {
 						const rawJson = await fixture.readFile('/welcome-data.json');
@@ -113,7 +156,7 @@ describe('Content Collections - references', () => {
 			});
 
 			describe(`Render result`, () => {
-				let $;
+				let $: CheerioAPI;
 				before(async () => {
 					if (mode === 'prod') {
 						const html = await fixture.readFile('/welcome/index.html');
@@ -128,7 +171,7 @@ describe('Content Collections - references', () => {
 				it('Renders `banner` data', () => {
 					const banner = $('img[data-banner]');
 					assert.equal(banner.length, 1);
-					assert.ok(banner.attr('src').includes('the-future'));
+					assert.ok(banner.attr('src')!.includes('the-future'));
 					assert.equal(
 						banner.attr('alt'),
 						'Futuristic landscape with chrome buildings and blue skies',

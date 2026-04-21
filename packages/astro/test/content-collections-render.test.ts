@@ -2,12 +2,11 @@ import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
 
 describe('Content Collections - render()', () => {
 	describe('Build - SSG', () => {
-		/** @type {import('./test-utils').Fixture} */
-		let fixture;
+		let fixture: Fixture;
 
 		before(async () => {
 			fixture = await loadFixture({
@@ -66,8 +65,7 @@ describe('Content Collections - render()', () => {
 	});
 
 	describe('Build - SSR', () => {
-		/** @type {import('./test-utils').Fixture} */
-		let fixture;
+		let fixture: Fixture;
 
 		before(async () => {
 			fixture = await loadFixture({
@@ -112,7 +110,7 @@ describe('Content Collections - render()', () => {
 			const html = await response.text();
 			const $ = cheerio.load(html);
 
-			const set = new Set();
+			const set = new Set<string>();
 
 			$('link[rel=stylesheet]').each((_, linkEl) => {
 				const href = linkEl.attribs.href;
@@ -121,7 +119,7 @@ describe('Content Collections - render()', () => {
 			});
 
 			$('style').each((_, styleEl) => {
-				const textContent = styleEl.children[0].data;
+				const textContent = (styleEl.children[0] as { data: string }).data;
 				assert.equal(set.has(textContent), false);
 				set.add(textContent);
 			});
@@ -151,9 +149,8 @@ describe('Content Collections - render()', () => {
 	});
 
 	describe('Dev - SSG', () => {
-		let devServer;
-		/** @type {import('./test-utils').Fixture} */
-		let fixture;
+		let devServer: DevServer;
+		let fixture: Fixture;
 
 		before(async () => {
 			fixture = await loadFixture({

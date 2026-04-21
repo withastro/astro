@@ -1,19 +1,25 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.js';
+
+type IntellisenseManifest = {
+	collections: { hasSchema: boolean; name: string }[];
+	entries: Record<string, string>;
+};
+
+type IntellisenseCollections = Record<
+	string,
+	Array<{ id: string; data: unknown; filePath: string; collection: string }>
+>;
 
 describe('Content Intellisense', () => {
-	/** @type {import("./test-utils.js").Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
-	/** @type {string[]} */
-	let collectionsDir = [];
+	let collectionsDir: string[] = [];
 
-	/** @type {{collections: {hasSchema: boolean, name: string}[], entries: Record<string, string>}} */
-	let manifest = undefined;
+	let manifest: IntellisenseManifest;
 
-	/** @type {Record<string, Array<{ id: string; data: any; filePath: string; collection: string }>>} */
-	let collections;
+	let collections: IntellisenseCollections;
 
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/content-intellisense/' });

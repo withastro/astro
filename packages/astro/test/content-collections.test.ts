@@ -4,18 +4,50 @@ import * as cheerio from 'cheerio';
 import * as devalue from 'devalue';
 import testAdapter from './test-adapter.js';
 import { preventNodeBuiltinDependencyPlugin } from './test-plugins.js';
-import { loadFixture } from './test-utils.js';
+import { type App, type Fixture, loadFixture } from './test-utils.js';
+
+type WithSchemaConfigEntry = {
+	id: string;
+	data: { title: string; isDraft: boolean; lang: string; publishedAt: Date };
+};
+
+type WithCustomSlugsEntry = { id: string; data: { slug: string } };
+
+type WithUnionSchemaEntry =
+	| { id: string; data: { type: 'post'; title: string; description: string } }
+	| { id: string; data: { type: 'newsletter'; subject: string } };
+
+type WithSymlinkedContentEntry = { id: string; data: { title: string } };
+
+type WithSymlinkedDataEntry = {
+	id: string;
+	data: { alt: string; src: { src: string; width: number; height: number; format: string } };
+};
+
+type CollectionsJson = {
+	withSchemaConfig: WithSchemaConfigEntry[];
+	withCustomSlugs: WithCustomSlugsEntry[];
+	withUnionSchema: WithUnionSchemaEntry[];
+	withSymlinkedContent: WithSymlinkedContentEntry[];
+	withSymlinkedData: WithSymlinkedDataEntry[];
+};
+
+type EntriesJson = {
+	oneWithSchemaConfig: WithSchemaConfigEntry;
+	twoWithCustomSlugs: WithCustomSlugsEntry;
+	postWithUnionSchema: Extract<WithUnionSchemaEntry, { data: { type: 'post' } }>;
+};
 
 describe('Content Collections', () => {
 	describe('Query', () => {
-		let fixture;
+		let fixture: Fixture;
 		before(async () => {
 			fixture = await loadFixture({ root: './fixtures/content-collections/' });
 			await fixture.build({ force: true });
 		});
 
 		describe('Collection', () => {
-			let json;
+			let json: CollectionsJson;
 			before(async () => {
 				const rawJson = await fixture.readFile('/collections.json');
 				json = devalue.parse(rawJson);
@@ -58,14 +90,14 @@ describe('Content Collections', () => {
 
 				const post = json.withUnionSchema.find((item) => item.id === 'post');
 				assert.notEqual(post, undefined);
-				assert.deepEqual(post.data, {
+				assert.deepEqual(post!.data, {
 					type: 'post',
 					title: 'My Post',
 					description: 'This is my post',
 				});
 				const newsletter = json.withUnionSchema.find((item) => item.id === 'newsletter');
 				assert.notEqual(newsletter, undefined);
-				assert.deepEqual(newsletter.data, {
+				assert.deepEqual(newsletter!.data, {
 					type: 'newsletter',
 					subject: 'My Newsletter',
 				});
@@ -77,7 +109,7 @@ describe('Content Collections', () => {
 				const ids = json.withSymlinkedContent.map((item) => item.id);
 				assert.deepEqual(ids.sort(), ['first', 'second', 'third'].sort());
 				assert.equal(
-					json.withSymlinkedContent.find(({ id }) => id === 'first').data.title,
+					json.withSymlinkedContent.find(({ id }) => id === 'first')!.data.title,
 					'First Blog',
 				);
 			});
@@ -97,7 +129,7 @@ describe('Content Collections', () => {
 		});
 
 		describe('Entry', () => {
-			let json;
+			let json: EntriesJson;
 			before(async () => {
 				const rawJson = await fixture.readFile('/entries.json');
 				json = devalue.parse(rawJson);
@@ -145,7 +177,7 @@ describe('Content Collections', () => {
 		});
 	});
 
-	const blogSlugToContents = {
+	const blogSlugToContents: Record<string, { title: string; element: string; content: string }> = {
 		'first-post': {
 			title: 'First post',
 			element: 'blockquote',
@@ -169,7 +201,7 @@ describe('Content Collections', () => {
 	};
 
 	describe('Static paths integration', () => {
-		let fixture;
+		let fixture: Fixture;
 
 		before(async () => {
 			fixture = await loadFixture({ root: './fixtures/content-static-paths-integration/' });
@@ -183,7 +215,7 @@ describe('Content Collections', () => {
 		});
 
 		it('Renders titles', async () => {
-			for (const slug in blogSlugToContents) {
+			for (const slug of Object.keys(blogSlugToContents)) {
 				const post = await fixture.readFile(`/posts/${slug}/index.html`);
 				const $ = cheerio.load(post);
 				assert.equal($('h1').text(), blogSlugToContents[slug].title);
@@ -191,7 +223,7 @@ describe('Content Collections', () => {
 		});
 
 		it('Renders content', async () => {
-			for (const slug in blogSlugToContents) {
+			for (const slug of Object.keys(blogSlugToContents)) {
 				const post = await fixture.readFile(`/posts/${slug}/index.html`);
 				const $ = cheerio.load(post);
 				assert.equal(
@@ -205,11 +237,11 @@ describe('Content Collections', () => {
 	describe('With spaces in path', () => {
 		it('Does not throw', async () => {
 			const fixture = await loadFixture({ root: './fixtures/content with spaces in folder name/' });
-			let error = null;
+			let error: string | null = null;
 			try {
 				await fixture.build({ force: true });
 			} catch (e) {
-				error = e.message;
+				error = (e as Error).message;
 			}
 			assert.equal(error, null);
 		});
@@ -219,13 +251,13 @@ describe('Content Collections', () => {
 			const fixture = await loadFixture({
 				root: './fixtures/content-collections-with-config-mjs/',
 			});
-			let error;
+			let error: string | undefined;
 			try {
 				await fixture.build({ force: true });
 			} catch (e) {
-				error = e.message;
+				error = (e as Error).message;
 			}
-			assert.ok(error.startsWith('Found legacy content config file in'));
+			assert.ok(error!.startsWith('Found legacy content config file in'));
 		});
 	});
 
@@ -234,13 +266,13 @@ describe('Content Collections', () => {
 			const fixture = await loadFixture({
 				root: './fixtures/content-collections-empty-md-file/',
 			});
-			let error;
+			let error: string | undefined;
 			try {
 				await fixture.build({ force: true });
 			} catch (e) {
-				error = e.message;
+				error = (e as Error).message;
 			}
-			assert.match(error, /\*\*title\*\*: Required/);
+			assert.match(error!, /\*\*title\*\*: Required/);
 		});
 	});
 
@@ -249,13 +281,13 @@ describe('Content Collections', () => {
 			const fixture = await loadFixture({
 				root: './fixtures/content-collections-number-id/',
 			});
-			let error;
+			let error: string | undefined;
 			try {
 				await fixture.build({ force: true });
 			} catch (e) {
-				error = e.message;
+				error = (e as Error).message;
 			}
-			assert.match(error, /returned an entry with an invalid `id`/);
+			assert.match(error!, /returned an entry with an invalid `id`/);
 		});
 	});
 
@@ -264,11 +296,11 @@ describe('Content Collections', () => {
 			const fixture = await loadFixture({
 				root: './fixtures/content-collections-empty-dir/',
 			});
-			let error;
+			let error: string | undefined;
 			try {
 				await fixture.build({ force: true });
 			} catch (e) {
-				error = e.message;
+				error = (e as Error).message;
 			}
 			assert.equal(error, undefined);
 
@@ -281,7 +313,7 @@ describe('Content Collections', () => {
 	});
 
 	describe('SSR integration', () => {
-		let app;
+		let app: App;
 
 		before(async () => {
 			const fixture = await loadFixture({
@@ -305,7 +337,7 @@ describe('Content Collections', () => {
 		});
 
 		it('Renders titles', async () => {
-			for (const slug in blogSlugToContents) {
+			for (const slug of Object.keys(blogSlugToContents)) {
 				const request = new Request('http://example.com/posts/' + slug);
 				const response = await app.render(request);
 				const body = await response.text();
@@ -315,7 +347,7 @@ describe('Content Collections', () => {
 		});
 
 		it('Renders content', async () => {
-			for (const slug in blogSlugToContents) {
+			for (const slug of Object.keys(blogSlugToContents)) {
 				const request = new Request('http://example.com/posts/' + slug);
 				const response = await app.render(request);
 				const body = await response.text();
@@ -337,7 +369,7 @@ describe('Content Collections', () => {
 	});
 
 	describe('Base configuration', () => {
-		let fixture;
+		let fixture: Fixture;
 
 		before(async () => {
 			fixture = await loadFixture({
@@ -349,18 +381,18 @@ describe('Content Collections', () => {
 		it('Includes base in links', async () => {
 			const html = await fixture.readFile('/docs/index.html');
 			const $ = cheerio.load(html);
-			assert.equal($('link').attr('href').startsWith('/docs'), true);
+			assert.equal($('link').attr('href')!.startsWith('/docs'), true);
 		});
 
 		it('Includes base in scripts', async () => {
 			const html = await fixture.readFile('/docs/index.html');
 			const $ = cheerio.load(html);
-			assert.equal($('script').attr('src').startsWith('/docs'), true);
+			assert.equal($('script').attr('src')!.startsWith('/docs'), true);
 		});
 	});
 
 	describe('Mutation', () => {
-		let fixture;
+		let fixture: Fixture;
 
 		before(async () => {
 			fixture = await loadFixture({
