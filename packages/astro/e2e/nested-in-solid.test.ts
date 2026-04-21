@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { type DevServer, testFactory, waitForHydrate, warmupDevServer } from './test-utils.ts';
+import { type DevServer, testFactory, waitForHydrate } from './test-utils.ts';
 
 const test = testFactory(import.meta.url, { root: './fixtures/nested-in-solid/' });
 
