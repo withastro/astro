@@ -12,6 +12,7 @@
     "test/test-utils.js",
     "package.json"
   ],
+  "files": ["test/fixtures/before-hydration/deps.mjs"],
   "exclude": ["test/units/_temp-fixtures/**", "test/fixtures/**", "e2e/fixtures/**"],
   "compilerOptions": {
     "types": ["vite/client", "node"],

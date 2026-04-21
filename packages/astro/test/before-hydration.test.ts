@@ -3,13 +3,12 @@ import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { preact } from './fixtures/before-hydration/deps.mjs';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
 
 describe('Astro Scripts before-hydration', () => {
 	describe('SSG', () => {
 		describe('Is used by an integration', () => {
-			/** @type {import('./test-utils').Fixture} */
-			let fixture;
+			let fixture: Fixture;
 
 			before(async () => {
 				fixture = await loadFixture({
@@ -30,8 +29,7 @@ describe('Astro Scripts before-hydration', () => {
 			});
 
 			describe('Development', () => {
-				/** @type {import('./test-utils').DevServer} */
-				let devServer;
+				let devServer: DevServer;
 
 				before(async () => {
 					devServer = await fixture.startDevServer();
@@ -63,7 +61,7 @@ describe('Astro Scripts before-hydration', () => {
 				it('Emits the before-hydration chunk to the client output', async () => {
 					let html = await fixture.readFile('/index.html');
 					let $ = cheerio.load(html);
-					let url = $('astro-island').attr('before-hydration-url');
+					let url = $('astro-island').attr('before-hydration-url')!;
 					assert.ok(url, 'before-hydration-url attribute should have a value');
 					// The URL should point to a file that exists in the build output
 					let content = await fixture.readFile(url);
@@ -73,8 +71,7 @@ describe('Astro Scripts before-hydration', () => {
 		});
 
 		describe('Is not used by an integration', () => {
-			/** @type {import('./test-utils').Fixture} */
-			let fixture;
+			let fixture: Fixture;
 
 			before(async () => {
 				fixture = await loadFixture({
@@ -84,8 +81,7 @@ describe('Astro Scripts before-hydration', () => {
 			});
 
 			describe('Development', () => {
-				/** @type {import('./test-utils').DevServer} */
-				let devServer;
+				let devServer: DevServer;
 
 				before(async () => {
 					devServer = await fixture.startDevServer();
@@ -119,8 +115,7 @@ describe('Astro Scripts before-hydration', () => {
 
 	describe('SSR', () => {
 		describe('Is used by an integration', () => {
-			/** @type {import('./test-utils').Fixture} */
-			let fixture;
+			let fixture: Fixture;
 
 			before(async () => {
 				fixture = await loadFixture({
@@ -159,8 +154,7 @@ describe('Astro Scripts before-hydration', () => {
 		});
 
 		describe('Is not used by an integration', () => {
-			/** @type {import('./test-utils').Fixture} */
-			let fixture;
+			let fixture: Fixture;
 
 			before(async () => {
 				fixture = await loadFixture({

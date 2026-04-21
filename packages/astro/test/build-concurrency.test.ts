@@ -1,10 +1,9 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.js';
 
 describe('Building with concurrency > 1', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -21,7 +20,7 @@ describe('Building with concurrency > 1', () => {
 			await fixture.build();
 			built = true;
 		} catch (err) {
-			assert.match(err.message, /This is a test/);
+			assert.match((err as Error).message, /This is a test/);
 		}
 
 		assert.equal(built, false, 'Build should not complete');

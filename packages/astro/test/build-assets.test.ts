@@ -3,12 +3,11 @@ import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { preact } from './fixtures/before-hydration/deps.mjs';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.js';
 
 describe('build assets (static)', () => {
 	describe('with default configuration', () => {
-		/** @type {import('./test-utils').Fixture} */
-		let fixture;
+		let fixture: Fixture;
 
 		before(async () => {
 			fixture = await loadFixture({
@@ -36,7 +35,7 @@ describe('build assets (static)', () => {
 			let html = await fixture.readFile('/index.html');
 			let $ = cheerio.load(html);
 
-			assert.match($('link[href$=".css"]').attr('href'), /^\/_astro\//);
+			assert.match($('link[href$=".css"]').attr('href')!, /^\/_astro\//);
 		});
 
 		it('emits JS assets to /_astro', async () => {
@@ -45,14 +44,13 @@ describe('build assets (static)', () => {
 
 			const island = $('astro-island');
 			assert.equal(island.length, 1);
-			assert.match(island.attr('component-url'), /^\/_astro\//);
-			assert.match(island.attr('renderer-url'), /^\/_astro\//);
+			assert.match(island.attr('component-url')!, /^\/_astro\//);
+			assert.match(island.attr('renderer-url')!, /^\/_astro\//);
 		});
 	});
 
 	describe('with custom configuration', () => {
-		/** @type {import('./test-utils').Fixture} */
-		let fixture;
+		let fixture: Fixture;
 
 		before(async () => {
 			fixture = await loadFixture({
@@ -75,7 +73,7 @@ describe('build assets (static)', () => {
 			let html = await fixture.readFile('/index.html');
 			let $ = cheerio.load(html);
 
-			assert.match($('link[href$=".css"]').attr('href'), /^\/custom-assets\//);
+			assert.match($('link[href$=".css"]').attr('href')!, /^\/custom-assets\//);
 		});
 
 		it('emits JS assets to /custom-assets', async () => {
@@ -84,16 +82,15 @@ describe('build assets (static)', () => {
 
 			const island = $('astro-island');
 			assert.equal(island.length, 1);
-			assert.match(island.attr('component-url'), /^\/custom-assets\//);
-			assert.match(island.attr('renderer-url'), /^\/custom-assets\//);
+			assert.match(island.attr('component-url')!, /^\/custom-assets\//);
+			assert.match(island.attr('renderer-url')!, /^\/custom-assets\//);
 		});
 	});
 });
 
 describe('build assets (server)', () => {
 	describe('with default configuration', () => {
-		/** @type {import('./test-utils').Fixture} */
-		let fixture;
+		let fixture: Fixture;
 
 		before(async () => {
 			fixture = await loadFixture({
@@ -122,7 +119,7 @@ describe('build assets (server)', () => {
 			let html = await fixture.readFile('/index.html');
 			let $ = cheerio.load(html);
 
-			assert.match($('link[href$=".css"]').attr('href'), /^\/_astro\//);
+			assert.match($('link[href$=".css"]').attr('href')!, /^\/_astro\//);
 		});
 
 		it('emits JS assets to /_astro', async () => {
@@ -131,14 +128,13 @@ describe('build assets (server)', () => {
 
 			const island = $('astro-island');
 			assert.equal(island.length, 1);
-			assert.match(island.attr('component-url'), /^\/_astro\//);
-			assert.match(island.attr('renderer-url'), /^\/_astro\//);
+			assert.match(island.attr('component-url')!, /^\/_astro\//);
+			assert.match(island.attr('renderer-url')!, /^\/_astro\//);
 		});
 	});
 
 	describe('with custom configuration', () => {
-		/** @type {import('./test-utils').Fixture} */
-		let fixture;
+		let fixture: Fixture;
 
 		before(async () => {
 			fixture = await loadFixture({
@@ -168,7 +164,7 @@ describe('build assets (server)', () => {
 			let html = await fixture.readFile('/index.html');
 			let $ = cheerio.load(html);
 
-			assert.match($('link[href$=".css"]').attr('href'), /^\/custom-assets\//);
+			assert.match($('link[href$=".css"]').attr('href')!, /^\/custom-assets\//);
 		});
 
 		it('emits JS assets to /custom-assets', async () => {
@@ -177,8 +173,8 @@ describe('build assets (server)', () => {
 
 			const island = $('astro-island');
 			assert.equal(island.length, 1);
-			assert.match(island.attr('component-url'), /^\/custom-assets\//);
-			assert.match(island.attr('renderer-url'), /^\/custom-assets\//);
+			assert.match(island.attr('component-url')!, /^\/custom-assets\//);
+			assert.match(island.attr('renderer-url')!, /^\/custom-assets\//);
 		});
 	});
 });
