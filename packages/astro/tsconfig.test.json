@@ -1,5 +1,10 @@
 {
   "extends": "../../tsconfig.base.json",
+  "files": [
+    // Extra files that aren't included in the "include" glob patterns, but are still needed for tests.
+    "./test/fixtures/multiple-jsx-renderers/renderers/woof/index.mjs",
+    "./test/fixtures/multiple-jsx-renderers/renderers/meow/index.mjs"
+  ],
   "include": [
     "test/units/**/*.ts",
     "test/*.ts",

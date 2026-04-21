@@ -1,11 +1,10 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.js';
 
 describe('Asset URL resolution in build', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	describe('With site and base', async () => {
 		describe('with site', () => {
@@ -43,14 +42,14 @@ describe('Asset URL resolution in build', () => {
 			it("does not include the site's subpath", async () => {
 				const html = await fixture.readFile('/index.html');
 				const $ = cheerio.load(html);
-				const href = $('link[rel=stylesheet]').attr('href');
+				const href = $('link[rel=stylesheet]').attr('href')!;
 				assert.equal(href.startsWith('/sub/path/'), false);
 			});
 
 			it('does include the base subpath', async () => {
 				const html = await fixture.readFile('/index.html');
 				const $ = cheerio.load(html);
-				const href = $('link[rel=stylesheet]').attr('href');
+				const href = $('link[rel=stylesheet]').attr('href')!;
 				assert.equal(href.startsWith('/another/base/'), true);
 			});
 		});

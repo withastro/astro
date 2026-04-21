@@ -4,7 +4,7 @@ import * as cheerio from 'cheerio';
 import woof from './fixtures/multiple-jsx-renderers/renderers/woof/index.mjs';
 import meow from './fixtures/multiple-jsx-renderers/renderers/meow/index.mjs';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.js';
 
 const multiCdnAssetsPrefix = {
 	js: 'https://js.example.com',
@@ -13,8 +13,7 @@ const multiCdnAssetsPrefix = {
 };
 
 describe('Asset Query Parameters (Adapter Client Config)', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -41,7 +40,7 @@ describe('Asset Query Parameters (Adapter Client Config)', () => {
 		const stylesheets = $('link[rel="stylesheet"]');
 		assert.ok(stylesheets.length > 0, 'Should have at least one stylesheet');
 		stylesheets.each((_i, el) => {
-			const href = $(el).attr('href');
+			const href = $(el).attr('href')!;
 			assert.match(
 				href,
 				/\?dpl=test-deploy-id/,
@@ -59,14 +58,13 @@ describe('Asset Query Parameters (Adapter Client Config)', () => {
 		const $ = cheerio.load(html);
 		const image = $('img#test-image');
 		assert.ok(image.length > 0, 'Should have image with id="test-image"');
-		const src = image.attr('src');
+		const src = image.attr('src')!;
 		assert.match(src, /dpl=test-deploy-id/, `Image src should include assetQueryParams: ${src}`);
 	});
 });
 
 describe('Asset Query Parameters with Fonts', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -93,7 +91,7 @@ describe('Asset Query Parameters with Fonts', () => {
 		const fontLinks = $('link[rel="preload"][as="font"]');
 		assert.ok(fontLinks.length > 0, 'Should have at least one font preload link');
 		fontLinks.each((_i, el) => {
-			const href = $(el).attr('href');
+			const href = $(el).attr('href')!;
 			assert.match(
 				href,
 				/dpl=test-deploy-id/,
@@ -104,8 +102,7 @@ describe('Asset Query Parameters with Fonts', () => {
 });
 
 describe('Asset Query Parameters with Islands', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -132,22 +129,23 @@ describe('Asset Query Parameters with Islands', () => {
 		const island = $('astro-island').first();
 
 		assert.ok(island.length > 0, 'Should have at least one astro-island');
+		const componentUrl = island.attr('component-url')!;
+		const rendererUrl = island.attr('renderer-url')!;
 		assert.match(
-			island.attr('component-url'),
+			componentUrl,
 			/\?dpl=test-deploy-id/,
-			`astro-island component-url should include assetQueryParams: ${island.attr('component-url')}`,
+			`astro-island component-url should include assetQueryParams: ${componentUrl}`,
 		);
 		assert.match(
-			island.attr('renderer-url'),
+			rendererUrl,
 			/\?dpl=test-deploy-id/,
-			`astro-island renderer-url should include assetQueryParams: ${island.attr('renderer-url')}`,
+			`astro-island renderer-url should include assetQueryParams: ${rendererUrl}`,
 		);
 	});
 });
 
 describe('Asset Query Parameters in Inter-Chunk JS Imports', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -181,15 +179,15 @@ describe('Asset Query Parameters in Inter-Chunk JS Imports', () => {
 			const code = await fixture.readFile(`/${file}`);
 			// Match static imports: from "./chunk.js", from "./chunk.js"
 			const staticImports = [
-				...code.matchAll(/(from\s*["'])(\.\.?\/[^"']+\.(?:js|mjs)(?:\?[^"']*)?)(["'])/g),
+				...code.matchAll(/from\s*["'](\.\.?\/[^"']+\.(?:js|mjs)(?:\?[^"']*)?)["']/g),
 			];
 			// Match dynamic imports: import("./chunk.js")
 			const dynamicImports = [
-				...code.matchAll(/(import\s*\(\s*["'])(\.\.?\/[^"']+\.(?:js|mjs)(?:\?[^"']*)?)(["'])/g),
+				...code.matchAll(/import\s*\(\s*["'](\.\.?\/[^"']+\.(?:js|mjs)(?:\?[^"']*)?)["']/g),
 			];
 			for (const match of staticImports) {
 				foundStaticImport = true;
-				const importPath = match[2];
+				const importPath = match[1];
 				assert.match(
 					importPath,
 					/\?dpl=test-deploy-id/,
@@ -198,7 +196,7 @@ describe('Asset Query Parameters in Inter-Chunk JS Imports', () => {
 			}
 			for (const match of dynamicImports) {
 				foundDynamicImport = true;
-				const importPath = match[2];
+				const importPath = match[1];
 				assert.match(
 					importPath,
 					/\?dpl=test-deploy-id/,
@@ -218,8 +216,7 @@ describe('Asset Query Parameters in Inter-Chunk JS Imports', () => {
 });
 
 describe('Asset Query Parameters with Islands and assetsPrefix map', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -248,15 +245,17 @@ describe('Asset Query Parameters with Islands and assetsPrefix map', () => {
 		const island = $('astro-island').first();
 
 		assert.ok(island.length > 0, 'Should have at least one astro-island');
+		const componentUrl = island.attr('component-url')!;
+		const rendererUrl = island.attr('renderer-url')!;
 		assert.match(
-			island.attr('component-url'),
+			componentUrl,
 			/^https:\/\/js\.example\.com\/_astro\/.*\?dpl=test-deploy-id$/,
-			`astro-island component-url should use js assetsPrefix and include assetQueryParams: ${island.attr('component-url')}`,
+			`astro-island component-url should use js assetsPrefix and include assetQueryParams: ${componentUrl}`,
 		);
 		assert.match(
-			island.attr('renderer-url'),
+			rendererUrl,
 			/^https:\/\/js\.example\.com\/_astro\/.*\?dpl=test-deploy-id$/,
-			`astro-island renderer-url should use js assetsPrefix and include assetQueryParams: ${island.attr('renderer-url')}`,
+			`astro-island renderer-url should use js assetsPrefix and include assetQueryParams: ${rendererUrl}`,
 		);
 	});
 });

@@ -5,10 +5,10 @@ import * as devalue from 'devalue';
 import { serializeActionResult } from '../dist/actions/runtime/server.js';
 import { REDIRECT_STATUS_CODES } from '../dist/core/constants.js';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { type App, type DevServer, type Fixture, loadFixture } from './test-utils.js';
 
 describe('Astro Actions', () => {
-	let fixture;
+	let fixture: Fixture;
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/actions/',
@@ -17,7 +17,7 @@ describe('Astro Actions', () => {
 	});
 
 	describe('dev', () => {
-		let devServer;
+		let devServer: DevServer;
 
 		before(async () => {
 			devServer = await fixture.startDevServer();
@@ -58,7 +58,7 @@ describe('Astro Actions', () => {
 	});
 
 	describe('build', () => {
-		let app;
+		let app: App;
 
 		before(async () => {
 			await fixture.build();
@@ -175,7 +175,7 @@ describe('Astro Actions', () => {
 			const data = await res.json();
 			assert.equal(data.type, 'AstroActionInputError');
 			assert.ok(
-				data.issues.some((issue) => issue.path.includes('c')),
+				data.issues.some((issue: { path: string[] }) => issue.path.includes('c')),
 				'Should have a validation issue for field c',
 			);
 		});
@@ -442,9 +442,8 @@ describe('Astro Actions', () => {
 });
 
 describe('Astro Actions in static mode with prerender = false routes', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-	let devServer;
+	let fixture: Fixture;
+	let devServer: DevServer;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -544,22 +543,18 @@ it('Should support trailing slash', async () => {
 
 /**
  * Follow an expected redirect response.
- *
- * @param {Request} req
- * @param {*} app
- * @returns {Promise<Response>}
  */
-async function followExpectedRedirect(req, app) {
+async function followExpectedRedirect(req: Request, app: App): Promise<Response> {
 	const redirect = await app.render(req, { addCookieHeader: true });
 	assert.ok(
-		REDIRECT_STATUS_CODES.includes(redirect.status),
+		(REDIRECT_STATUS_CODES as readonly number[]).includes(redirect.status),
 		`Expected redirect status, got ${redirect.status}`,
 	);
 
-	const redirectUrl = new URL(redirect.headers.get('Location'), req.url);
+	const redirectUrl = new URL(redirect.headers.get('Location')!, req.url);
 	const redirectReq = new Request(redirectUrl, {
 		headers: {
-			Cookie: redirect.headers.get('Set-Cookie'),
+			Cookie: redirect.headers.get('Set-Cookie')!,
 		},
 	});
 	return app.render(redirectReq);

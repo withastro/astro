@@ -1,29 +1,21 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
 
 describe('Aliases with tsconfig.json', () => {
-	let fixture;
+	let fixture: Fixture;
 
-	/**
-	 * @param {string} html
-	 * @returns {string[]}
-	 */
-	function getLinks(html) {
+	function getLinks(html: string): string[] {
 		let $ = cheerio.load(html);
-		let out = [];
+		let out: string[] = [];
 		$('link[rel=stylesheet]').each((_i, el) => {
-			out.push($(el).attr('href'));
+			out.push($(el).attr('href')!);
 		});
 		return out;
 	}
 
-	/**
-	 * @param {string} href
-	 * @returns {Promise<{ href: string; css: string; }>}
-	 */
-	async function getLinkContent(href, f = fixture) {
+	async function getLinkContent(href: string, f = fixture): Promise<{ href: string; css: string }> {
 		const css = await f.readFile(href);
 		return { href, css };
 	}
@@ -37,7 +29,7 @@ describe('Aliases with tsconfig.json', () => {
 	});
 
 	describe('dev', () => {
-		let devServer;
+		let devServer: DevServer;
 
 		before(async () => {
 			devServer = await fixture.startDevServer();
