@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.js';
 
 describe('@fontsource/* packages', () => {
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/fontsource-package/' });
@@ -14,7 +14,7 @@ describe('@fontsource/* packages', () => {
 	it('can be imported in frontmatter', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
-		const assetPath = $('link').attr('href');
+		const assetPath = $('link').attr('href')!;
 		const css = await fixture.readFile(assetPath);
 		assert.equal(css.includes('Montserrat'), true);
 	});

@@ -1,4 +1,3 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
 import { readdir } from 'node:fs/promises';
@@ -6,15 +5,13 @@ import { after, before, describe, it } from 'node:test';
 import { fontProviders } from 'astro/config';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
 
 describe('astro fonts', () => {
-	/** @type {import('./test-utils.js').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	describe('dev', () => {
-		/** @type {import('./test-utils.js').DevServer} */
-		let devServer;
+		let devServer: DevServer;
 
 		describe('shared', () => {
 			before(async () => {
@@ -159,7 +156,7 @@ describe('astro fonts', () => {
 						},
 					],
 				});
-				await fixture.build({});
+				await fixture.build();
 			});
 
 			it('Includes styles', async () => {
@@ -221,7 +218,7 @@ describe('astro fonts', () => {
 						},
 					],
 				});
-				await fixture.build({});
+				await fixture.build();
 			});
 
 			it('works', async () => {
@@ -236,8 +233,7 @@ describe('astro fonts', () => {
 	});
 
 	describe('ssr', () => {
-		/** @type {(url: string) => Promise<string>} */
-		let fixtureFetch;
+		let fixtureFetch: (url: string) => Promise<string>;
 
 		before(async () => {
 			fixture = await loadFixture({
@@ -253,7 +249,7 @@ describe('astro fonts', () => {
 					},
 				],
 			});
-			await fixture.build({});
+			await fixture.build();
 			const app = await fixture.loadTestAdapterApp();
 			fixtureFetch = async (url) => {
 				const request = new Request(`http://example.com${url}`);
