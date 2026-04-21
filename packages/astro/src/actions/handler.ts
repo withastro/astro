@@ -29,7 +29,7 @@ export class ActionHandler {
 	 * or `undefined` when the caller should continue processing the
 	 * request (form actions or non-action requests).
 	 */
-	async handle(apiContext: APIContext): Promise<Response | undefined> {
+	handle(apiContext: APIContext): Promise<Response | undefined> | undefined {
 		if (apiContext.isPrerendered) {
 			return undefined;
 		}
@@ -39,10 +39,17 @@ export class ActionHandler {
 			return undefined;
 		}
 
-		const actionResult = await action.handler();
+		return this.#executeAction(action, setActionResult);
+	}
+
+	async #executeAction(
+		action: ReturnType<typeof getActionContext>['action'],
+		setActionResult: ReturnType<typeof getActionContext>['setActionResult'],
+	): Promise<Response | undefined> {
+		const actionResult = await action!.handler();
 		const serialized = serializeActionResult(actionResult);
 
-		if (action.calledFrom === 'rpc') {
+		if (action!.calledFrom === 'rpc') {
 			if (serialized.type === 'empty') {
 				return new Response(null, {
 					status: serialized.status,
@@ -59,7 +66,7 @@ export class ActionHandler {
 		// Form action: stash the result in locals and let the caller continue
 		// to render the page. A subsequent call to `getActionContext` during
 		// page rendering will see the stored payload and skip re-running.
-		setActionResult(action.name, serialized);
+		setActionResult(action!.name, serialized);
 		return undefined;
 	}
 }

@@ -264,10 +264,12 @@ export async function renderThroughMiddleware(
 	const middleware = new AstroMiddleware(pipeline);
 	const actionHandler = new ActionHandler();
 	const pagesHandler = new PagesHandler(pipeline);
-	return middleware.handle(state, async (s, ctx, payload) => {
+	return middleware.handle(state, (s, ctx, payload) => {
 		if (!s.skipMiddleware) {
-			const actionResponse = await actionHandler.handle(ctx);
-			if (actionResponse) return actionResponse;
+			const actionResult = actionHandler.handle(ctx);
+			if (actionResult) {
+				return actionResult.then((response) => response ?? pagesHandler.handle(s, ctx, payload));
+			}
 		}
 		return pagesHandler.handle(s, ctx, payload);
 	});

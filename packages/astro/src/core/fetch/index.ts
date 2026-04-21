@@ -126,7 +126,7 @@ const actionHandlers = new WeakMap<BaseApp<any>, ActionHandler>();
  * RPC actions, or `undefined` for form actions / non-action requests
  * (the caller should continue to page rendering).
  */
-export function actions(state: FetchState): Promise<Response | undefined> {
+export function actions(state: FetchState): Promise<Response | undefined> | undefined {
 	const app = getApp(state.request);
 	let handler = actionHandlers.get(app);
 	if (!handler) {

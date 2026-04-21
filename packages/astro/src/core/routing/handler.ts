@@ -55,10 +55,12 @@ export class AstroHandler {
 	 * middleware chain. Bound once in the constructor to avoid
 	 * per-request closure allocation.
 	 */
-	async #actionsAndPages(state: FetchState, ctx: APIContext, payload?: RewritePayload): Promise<Response> {
+	#actionsAndPages(state: FetchState, ctx: APIContext, payload?: RewritePayload): Promise<Response> {
 		if (!state.skipMiddleware) {
-			const actionResponse = await this.#actionHandler.handle(ctx);
-			if (actionResponse) return actionResponse;
+			const actionResult = this.#actionHandler.handle(ctx);
+			if (actionResult) {
+				return actionResult.then((response) => response ?? this.#pagesHandler.handle(state, ctx, payload));
+			}
 		}
 		return this.#pagesHandler.handle(state, ctx, payload);
 	}

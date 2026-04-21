@@ -71,8 +71,11 @@ export function redirects(): HonoMiddlewareHandler {
 
 export function actions(): HonoMiddlewareHandler {
 	return async (context, honoNext) => {
-		const response = await fetchActions(getFetchState(context));
-		if (response) return response;
+		const result = fetchActions(getFetchState(context));
+		if (result) {
+			const response = await result;
+			if (response) return response;
+		}
 		await honoNext();
 	};
 }
