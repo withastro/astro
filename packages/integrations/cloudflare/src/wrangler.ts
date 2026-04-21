@@ -31,8 +31,7 @@ export function cloudflareConfigCustomizer(
 		const hasImagesBinding = config.images?.binding !== undefined;
 		const hasAssetsBinding = config.assets?.binding !== undefined;
 
-		return {
-			main: config.main ?? '@astrojs/cloudflare/entrypoints/server',
+		const nonInheritableBindings = {
 			kv_namespaces:
 				!needsSessionKVBinding || hasSessionBinding
 					? undefined
@@ -47,11 +46,17 @@ export function cloudflareConfigCustomizer(
 					: {
 							binding: imagesBindingName,
 						},
+		} satisfies WorkerConfig['previews'];
+
+		return {
+			...nonInheritableBindings,
+			main: config.main ?? '@astrojs/cloudflare/entrypoints/server',
 			assets: hasAssetsBinding
 				? undefined
 				: {
 						binding: DEFAULT_ASSETS_BINDING_NAME,
 					},
+			previews: nonInheritableBindings,
 		};
 	};
 
