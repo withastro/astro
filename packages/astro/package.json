@@ -75,6 +75,7 @@
     "./assets/services/sharp": "./dist/assets/services/sharp.js",
     "./assets/services/noop": "./dist/assets/services/noop.js",
     "./cache/memory": "./dist/core/cache/memory-provider.js",
+    "./fetch": "./dist/core/fetch/index.js",
     "./hono": "./dist/core/hono/index.js",
     "./assets/fonts/runtime.js": "./dist/assets/fonts/runtime.js",
     "./loaders": "./dist/content/loaders/index.js",
