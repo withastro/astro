@@ -18,7 +18,7 @@ import {
 	UnsupportedExternalRedirect,
 } from '../errors/errors-data.js';
 import { AstroError } from '../errors/index.js';
-import type { Logger } from '../logger/core.js';
+import type { AstroLogger } from '../logger/core.js';
 import { hasFileExtension, removeLeadingForwardSlash, slash } from '../path.js';
 import { injectServerIslandRoute } from '../server-islands/endpoint.js';
 import { resolvePages } from '../util.js';
@@ -120,7 +120,7 @@ interface CreateRouteManifestParams {
 
 function createFileBasedRoutes(
 	{ settings, cwd, fsMod }: CreateRouteManifestParams,
-	logger: Logger,
+	logger: AstroLogger,
 ): RouteData[] {
 	const { config } = settings;
 	const pages = resolvePages(config);
@@ -241,7 +241,11 @@ function createFileBasedRoutes(
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 					? `/${segments.map((segment) => segment[0].content).join('/')}`
 					: null;
-				const trailingSlash = trailingSlashForPath(pathname, settings.config);
+				const trailingSlash = trailingSlashForPath(
+					pathname,
+					settings.config,
+					item.isPage ? 'page' : 'endpoint',
+				);
 				const pattern = getPattern(segments, settings.config.base, trailingSlash);
 				const route = joinSegments(segments);
 				routes.push({
@@ -269,7 +273,7 @@ function createFileBasedRoutes(
 export function createRoutesFromEntries(
 	entries: RouteEntry[],
 	settings: RoutingSettings,
-	logger: Logger,
+	logger: AstroLogger,
 	pagesDirRelative = 'src/pages',
 ): RouteData[] {
 	const entriesByDir = groupEntriesByDir(entries);
@@ -279,7 +283,7 @@ export function createRoutesFromEntries(
 function createRoutesFromEntriesByDir(
 	entriesByDir: Map<string, RouteEntry[]>,
 	settings: RoutingSettings,
-	logger: Logger,
+	logger: AstroLogger,
 	pagesDirRelative: string,
 ): RouteData[] {
 	const routes: RouteData[] = [];
@@ -382,7 +386,11 @@ function createRoutesFromEntriesByDir(
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 					? `/${segments.map((segment) => segment[0].content).join('/')}`
 					: null;
-				const trailingSlash = trailingSlashForPath(pathname, settings.config);
+				const trailingSlash = trailingSlashForPath(
+					pathname,
+					settings.config,
+					item.isPage ? 'page' : 'endpoint',
+				);
 				const pattern = getPattern(segments, settings.config.base, trailingSlash);
 				const route = joinSegments(segments);
 				routes.push({
@@ -428,11 +436,14 @@ function groupEntriesByDir(entries: RouteEntry[]): Map<string, RouteEntry[]> {
 }
 
 // Get trailing slash rule for a path, based on the config and whether the path has an extension.
+// Only endpoints with file extensions (like /feed.xml) should force 'never' for trailing slashes.
+// Pages with dots in their names (like /hello.world) should respect the user's trailingSlash config.
 const trailingSlashForPath = (
 	pathname: string | null,
 	config: AstroConfig,
+	type: 'page' | 'endpoint',
 ): AstroConfig['trailingSlash'] =>
-	pathname && hasFileExtension(pathname) ? 'never' : config.trailingSlash;
+	type === 'endpoint' && pathname && hasFileExtension(pathname) ? 'never' : config.trailingSlash;
 
 function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): RouteData[] {
 	const { config } = settings;
@@ -457,7 +468,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Rou
 			? `/${segments.map((segment) => segment[0].content).join('/')}`
 			: null;
 
-		const trailingSlash = trailingSlashForPath(pathname, config);
+		const trailingSlash = trailingSlashForPath(pathname, config, type);
 		const pattern = getPattern(segments, settings.config.base, trailingSlash);
 		const params = segments
 			.flat()
@@ -592,7 +603,12 @@ function isStaticSegment(segment: RoutePart[]) {
  *   For example, `/foo/[bar]` and `/foo/[baz]` or `/foo/[...bar]` and `/foo/[...baz]`
  *     but not `/foo/[bar]` and `/foo/[...baz]`.
  */
-function detectRouteCollision(a: RouteData, b: RouteData, _config: AstroConfig, logger: Logger) {
+function detectRouteCollision(
+	a: RouteData,
+	b: RouteData,
+	_config: AstroConfig,
+	logger: AstroLogger,
+) {
 	if (a.type === 'fallback' || b.type === 'fallback') {
 		// If either route is a fallback route, they don't collide.
 		// Fallbacks are always added below other routes exactly to avoid collisions.
@@ -656,7 +672,7 @@ function detectRouteCollision(a: RouteData, b: RouteData, _config: AstroConfig, 
  */
 export async function createRoutesList(
 	params: CreateRouteManifestParams,
-	logger: Logger,
+	logger: AstroLogger,
 	{
 		dev = false,
 	}: {

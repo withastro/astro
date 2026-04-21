@@ -95,13 +95,21 @@ export class FrontmatterHolder implements VirtualCode {
 	mappings: CodeMapping[];
 	embeddedCodes: VirtualCode[];
 	public hasFrontmatter = false;
+	public fileName: string;
+	public languageId: string;
+	public snapshot: ts.IScriptSnapshot;
+	public collection: string | undefined;
 
 	constructor(
-		public fileName: string,
-		public languageId: string,
-		public snapshot: ts.IScriptSnapshot,
-		public collection: string | undefined,
+		fileName: string,
+		languageId: string,
+		snapshot: ts.IScriptSnapshot,
+		collection: string | undefined,
 	) {
+		this.fileName = fileName;
+		this.languageId = languageId;
+		this.snapshot = snapshot;
+		this.collection = collection;
 		this.mappings = [
 			{
 				sourceOffsets: [0],
@@ -121,8 +129,8 @@ export class FrontmatterHolder implements VirtualCode {
 		this.embeddedCodes = [];
 		this.snapshot = snapshot;
 
-		// If the file is not part of a collection, we don't need to do anything
 		if (!this.collection) {
+			// If the file is not part of a collection, we don't need to do anything
 			return;
 		}
 

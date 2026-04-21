@@ -1,5 +1,5 @@
 import { AstroIntegrationLogger } from '../../../dist/core/logger/core.js';
-import type { LogOptions } from '../../../dist/core/logger/core.js';
+import type { AstroLogOptions } from '../../../dist/core/logger/core.js';
 import type { CloudIde } from '../../../dist/cli/docs/domain/cloud-ide.js';
 import type { CloudIdeProvider } from '../../../dist/cli/docs/definitions.js';
 import type { AnyCommand } from '../../../dist/cli/domain/command.js';
@@ -207,8 +207,8 @@ export class SpyLogger {
 		this.#logs.push({ type: 'warn', label, message });
 	}
 
-	options: LogOptions = {
-		dest: { write: () => true },
+	options: AstroLogOptions = {
+		destination: { write: () => true },
 		level: 'silent',
 	};
 

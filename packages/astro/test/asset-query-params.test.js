@@ -145,6 +145,78 @@ describe('Asset Query Parameters with Islands', () => {
 	});
 });
 
+describe('Asset Query Parameters in Inter-Chunk JS Imports', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/asset-query-params-chunks/',
+			output: 'server',
+			adapter: testAdapter({
+				extendAdapter: {
+					client: {
+						assetQueryParams: new URLSearchParams({ dpl: 'test-deploy-id' }),
+					},
+				},
+			}),
+		});
+		await fixture.build();
+	});
+
+	it('appends assetQueryParams to relative imports inside client JS chunks', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const response = await app.render(new Request('http://example.com/'));
+		assert.equal(response.status, 200);
+		const html = await response.text();
+		const $ = cheerio.load(html);
+		const scripts = $('script[src]');
+		assert.ok(scripts.length > 0, 'Should have at least one external script');
+
+		let foundStaticImport = false;
+		let foundDynamicImport = false;
+		// Read all client JS files and check inter-chunk imports have query params
+		const jsFiles = await fixture.glob('client/**/*.js');
+		for (const file of jsFiles) {
+			const code = await fixture.readFile(`/${file}`);
+			// Match static imports: from "./chunk.js", from "./chunk.js"
+			const staticImports = [
+				...code.matchAll(/(from\s*["'])(\.\.?\/[^"']+\.(?:js|mjs)(?:\?[^"']*)?)(["'])/g),
+			];
+			// Match dynamic imports: import("./chunk.js")
+			const dynamicImports = [
+				...code.matchAll(/(import\s*\(\s*["'])(\.\.?\/[^"']+\.(?:js|mjs)(?:\?[^"']*)?)(["'])/g),
+			];
+			for (const match of staticImports) {
+				foundStaticImport = true;
+				const importPath = match[2];
+				assert.match(
+					importPath,
+					/\?dpl=test-deploy-id/,
+					`Static inter-chunk import should include assetQueryParams: ${match[0]}`,
+				);
+			}
+			for (const match of dynamicImports) {
+				foundDynamicImport = true;
+				const importPath = match[2];
+				assert.match(
+					importPath,
+					/\?dpl=test-deploy-id/,
+					`Dynamic inter-chunk import should include assetQueryParams: ${match[0]}`,
+				);
+			}
+		}
+		assert.ok(
+			foundStaticImport,
+			'Expected at least one static relative inter-chunk import in client JS files',
+		);
+		assert.ok(
+			foundDynamicImport,
+			'Expected at least one dynamic relative inter-chunk import in client JS files',
+		);
+	});
+});
+
 describe('Asset Query Parameters with Islands and assetsPrefix map', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;

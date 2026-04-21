@@ -37,35 +37,33 @@ describe('HMR: slots.render with callback args after style change', () => {
 		);
 	}
 
-	it(
-		'should render after style change in the slot-render component',
-		{ skip: isWindows },
-		async () => {
-			// Initial fetch - verify correct rendering
-			let res = await fixture.fetch('/');
-			assert.equal(res.status, 200);
-			verifyRendering(cheerio.load(await res.text()), 'initial');
+	it('should render after style change in the slot-render component', {
+		skip: isWindows,
+	}, async () => {
+		// Initial fetch - verify correct rendering
+		let res = await fixture.fetch('/');
+		assert.equal(res.status, 200);
+		verifyRendering(cheerio.load(await res.text()), 'initial');
 
-			// Style-only edit (triggers HMR style-only path)
-			await fixture.editFile('/src/components/Each.astro', (c) =>
-				c.replace('font-size: 0.5rem;', 'font-size: 1rem;'),
-			);
-			await new Promise((r) => setTimeout(r, 500));
+		// Style-only edit (triggers HMR style-only path)
+		await fixture.editFile('/src/components/Each.astro', (c) =>
+			c.replace('font-size: 0.5rem;', 'font-size: 1rem;'),
+		);
+		await new Promise((r) => setTimeout(r, 500));
 
-			// Page refresh after HMR - must still render correctly
-			res = await fixture.fetch('/');
-			assert.equal(res.status, 200);
-			verifyRendering(cheerio.load(await res.text()), 'after style change');
+		// Page refresh after HMR - must still render correctly
+		res = await fixture.fetch('/');
+		assert.equal(res.status, 200);
+		verifyRendering(cheerio.load(await res.text()), 'after style change');
 
-			// Second style edit + refresh
-			await fixture.editFile('/src/components/Each.astro', (c) =>
-				c.replace('font-size: 1rem;', 'font-size: 2rem;'),
-			);
-			await new Promise((r) => setTimeout(r, 500));
+		// Second style edit + refresh
+		await fixture.editFile('/src/components/Each.astro', (c) =>
+			c.replace('font-size: 1rem;', 'font-size: 2rem;'),
+		);
+		await new Promise((r) => setTimeout(r, 500));
 
-			res = await fixture.fetch('/');
-			assert.equal(res.status, 200);
-			verifyRendering(cheerio.load(await res.text()), 'after 2nd style change');
-		},
-	);
+		res = await fixture.fetch('/');
+		assert.equal(res.status, 200);
+		verifyRendering(cheerio.load(await res.text()), 'after 2nd style change');
+	});
 });

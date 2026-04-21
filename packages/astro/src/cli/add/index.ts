@@ -1,5 +1,4 @@
 import fsMod, { existsSync, promises as fs } from 'node:fs';
-import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import * as clack from '@clack/prompts';
@@ -23,7 +22,7 @@ import {
 	presets,
 	updateTSConfigForFramework,
 } from '../../core/config/tsconfig.js';
-import type { Logger } from '../../core/logger/core.js';
+import type { AstroLogger } from '../../core/logger/core.js';
 import * as msg from '../../core/messages/runtime.js';
 import { printHelp } from '../../core/messages/runtime.js';
 import { appendForwardSlash } from '../../core/path.js';
@@ -206,7 +205,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 	}
 
 	switch (installResult) {
-		case UpdateResult.updated: {
+		case 'updated': {
 			if (hasCloudflareIntegration) {
 				const wranglerConfigURL = new URL('./wrangler.jsonc', configURL);
 				if (!existsSync(wranglerConfigURL)) {
@@ -217,18 +216,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 
 					if (await askToContinue({ flags, logger })) {
 						const data = await getPackageJson();
-						let compatibilityDate: string;
-						try {
-							const require = createRequire(root);
-							const { getLocalWorkerdCompatibilityDate } = await import(
-								require.resolve('@astrojs/cloudflare/info')
-							);
-							({ date: compatibilityDate } = getLocalWorkerdCompatibilityDate({
-								projectPath: rootPath,
-							}));
-						} catch {
-							compatibilityDate = new Date().toISOString().slice(0, 10);
-						}
+						let compatibilityDate = new Date().toISOString().slice(0, 10);
 
 						await fs.writeFile(
 							wranglerConfigURL,
@@ -371,7 +359,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 			}
 			break;
 		}
-		case UpdateResult.cancelled: {
+		case 'cancelled': {
 			logger.info(
 				'SKIP_FORMAT',
 				msg.cancelled(
@@ -381,10 +369,10 @@ export async function add(names: string[], { flags }: AddOptions) {
 			);
 			break;
 		}
-		case UpdateResult.failure: {
+		case 'failure': {
 			throw createPrettyError(new Error(`Unable to install dependencies`));
 		}
-		case UpdateResult.none:
+		case 'none':
 			break;
 	}
 
@@ -448,14 +436,14 @@ export async function add(names: string[], { flags }: AddOptions) {
 	}
 
 	switch (configResult) {
-		case UpdateResult.cancelled: {
+		case 'cancelled': {
 			logger.info(
 				'SKIP_FORMAT',
 				msg.cancelled(`Your configuration has ${bold('NOT')} been updated.`),
 			);
 			break;
 		}
-		case UpdateResult.none: {
+		case 'none': {
 			const data = await getPackageJson();
 			if (data) {
 				const { dependencies = {}, devDependencies = {} } = data;
@@ -473,9 +461,9 @@ export async function add(names: string[], { flags }: AddOptions) {
 			break;
 		}
 		// NOTE: failure shouldn't happen in practice because `updateAstroConfig` doesn't return that.
-		// Pipe this to the same handling as `UpdateResult.updated` for now.
-		case UpdateResult.failure:
-		case UpdateResult.updated:
+		// Pipe this to the same handling as `'updated'` for now.
+		case 'failure':
+		case 'updated':
 		case undefined: {
 			const list = integrations
 				.map((integration) => `  - ${integration.integrationName}`)
@@ -513,22 +501,22 @@ export async function add(names: string[], { flags }: AddOptions) {
 	});
 
 	switch (updateTSConfigResult) {
-		case UpdateResult.none: {
+		case 'none': {
 			break;
 		}
-		case UpdateResult.cancelled: {
+		case 'cancelled': {
 			logger.info(
 				'SKIP_FORMAT',
 				msg.cancelled(`Your TypeScript configuration has ${bold('NOT')} been updated.`),
 			);
 			break;
 		}
-		case UpdateResult.failure: {
+		case 'failure': {
 			throw new Error(
 				`Unknown error parsing tsconfig.json or jsconfig.json. Could not update TypeScript settings.`,
 			);
 		}
-		case UpdateResult.updated:
+		case 'updated':
 			logger.info('SKIP_FORMAT', msg.success(`Successfully updated tsconfig`));
 	}
 }
@@ -652,12 +640,7 @@ function setAdapter(mod: ProxifiedModule<any>, adapter: IntegrationInfo, exportN
 	}
 }
 
-const enum UpdateResult {
-	none,
-	updated,
-	cancelled,
-	failure,
-}
+type UpdateResult = 'none' | 'updated' | 'cancelled' | 'failure';
 
 async function updateAstroConfig({
 	configURL,
@@ -669,7 +652,7 @@ async function updateAstroConfig({
 	configURL: URL;
 	mod: ProxifiedModule<any>;
 	flags: Flags;
-	logger: Logger;
+	logger: AstroLogger;
 	logAdapterInstructions: boolean;
 }): Promise<UpdateResult> {
 	const input = await fs.readFile(fileURLToPath(configURL), { encoding: 'utf-8' });
@@ -682,13 +665,13 @@ async function updateAstroConfig({
 	}).code;
 
 	if (input === output) {
-		return UpdateResult.none;
+		return 'none';
 	}
 
 	const diff = getDiffContent(input, output);
 
 	if (!diff) {
-		return UpdateResult.none;
+		return 'none';
 	}
 
 	logger.info(
@@ -716,9 +699,9 @@ async function updateAstroConfig({
 	if (await askToContinue({ flags, logger })) {
 		await fs.writeFile(fileURLToPath(configURL), output, { encoding: 'utf-8' });
 		logger.debug('add', `Updated astro config`);
-		return UpdateResult.updated;
+		return 'updated';
 	} else {
-		return UpdateResult.cancelled;
+		return 'cancelled';
 	}
 }
 
@@ -730,13 +713,13 @@ async function updatePackageJsonOverrides({
 }: {
 	configURL: URL;
 	flags: Flags;
-	logger: Logger;
+	logger: AstroLogger;
 	overrides: Record<string, string>;
 }): Promise<UpdateResult> {
 	const pkgURL = new URL('./package.json', configURL);
 	if (!existsSync(pkgURL)) {
 		logger.debug('add', 'No package.json found, skipping overrides update');
-		return UpdateResult.none;
+		return 'none';
 	}
 
 	const pkgPath = fileURLToPath(pkgURL);
@@ -753,14 +736,14 @@ async function updatePackageJsonOverrides({
 	}
 
 	if (!hasChanges) {
-		return UpdateResult.none;
+		return 'none';
 	}
 
 	const output = JSON.stringify(pkgJson, null, 2);
 	const diff = getDiffContent(input, output);
 
 	if (!diff) {
-		return UpdateResult.none;
+		return 'none';
 	}
 
 	logger.info(
@@ -777,9 +760,9 @@ async function updatePackageJsonOverrides({
 	if (await askToContinue({ flags, logger })) {
 		await fs.writeFile(pkgPath, output, { encoding: 'utf-8' });
 		logger.debug('add', 'Updated package.json overrides');
-		return UpdateResult.updated;
+		return 'updated';
 	} else {
-		return UpdateResult.cancelled;
+		return 'cancelled';
 	}
 }
 
@@ -791,13 +774,13 @@ async function updatePackageJsonScripts({
 }: {
 	configURL: URL;
 	flags: Flags;
-	logger: Logger;
+	logger: AstroLogger;
 	scripts: Record<string, string>;
 }): Promise<UpdateResult> {
 	const pkgURL = new URL('./package.json', configURL);
 	if (!existsSync(pkgURL)) {
 		logger.debug('add', 'No package.json found, skipping scripts update');
-		return UpdateResult.none;
+		return 'none';
 	}
 
 	const pkgPath = fileURLToPath(pkgURL);
@@ -814,14 +797,14 @@ async function updatePackageJsonScripts({
 	}
 
 	if (!hasChanges) {
-		return UpdateResult.none;
+		return 'none';
 	}
 
 	const output = JSON.stringify(pkgJson, null, 2);
 	const diff = getDiffContent(input, output);
 
 	if (!diff) {
-		return UpdateResult.none;
+		return 'none';
 	}
 
 	logger.info(
@@ -838,9 +821,9 @@ async function updatePackageJsonScripts({
 	if (await askToContinue({ flags, logger })) {
 		await fs.writeFile(pkgPath, output, { encoding: 'utf-8' });
 		logger.debug('add', 'Updated package.json scripts');
-		return UpdateResult.updated;
+		return 'updated';
 	} else {
-		return UpdateResult.cancelled;
+		return 'cancelled';
 	}
 }
 
@@ -894,7 +877,7 @@ async function tryToInstallIntegrations({
 	integrations: IntegrationInfo[];
 	cwd?: string;
 	flags: Flags;
-	logger: Logger;
+	logger: AstroLogger;
 }): Promise<UpdateResult> {
 	const packageManager = await detect({
 		cwd,
@@ -903,7 +886,7 @@ async function tryToInstallIntegrations({
 		strategies: ['install-metadata', 'lockfile', 'packageManager-field'],
 	});
 	logger.debug('add', `package manager: "${packageManager?.name}"`);
-	if (!packageManager) return UpdateResult.none;
+	if (!packageManager) return 'none';
 
 	const inheritedFlags = Object.entries(flags)
 		.map(([flag]) => {
@@ -917,7 +900,7 @@ async function tryToInstallIntegrations({
 		.flat() as string[];
 
 	const installCommand = resolveCommand(packageManager?.agent ?? 'npm', 'add', inheritedFlags);
-	if (!installCommand) return UpdateResult.none;
+	if (!installCommand) return 'none';
 
 	const installSpecifiers = await convertIntegrationsToInstallSpecifiers(integrations).then(
 		(specifiers) =>
@@ -951,23 +934,23 @@ async function tryToInstallIntegrations({
 				},
 			});
 			spinner.stop('Dependencies installed.');
-			return UpdateResult.updated;
+			return 'updated';
 		} catch (err: any) {
 			spinner.error('Error installing dependencies.');
 			logger.debug('add', 'Error installing dependencies', err);
 			// NOTE: `err.stdout` can be an empty string, so log the full error instead for a more helpful log
 			console.error('\n', err.stdout || err.message, '\n');
-			return UpdateResult.failure;
+			return 'failure';
 		}
 	} else {
-		return UpdateResult.cancelled;
+		return 'cancelled';
 	}
 }
 
 async function validateIntegrations(
 	integrations: string[],
 	flags: yargsParser.Arguments,
-	logger: Logger,
+	logger: AstroLogger,
 ): Promise<IntegrationInfo[]> {
 	// First, validate all package names to prevent command injection
 	for (const integration of integrations) {
@@ -1086,7 +1069,7 @@ async function validateIntegrations(
 
 async function updateTSConfig(
 	cwd = process.cwd(),
-	logger: Logger,
+	logger: AstroLogger,
 	integrationsInfo: IntegrationInfo[],
 	flags: Flags,
 	options?: { addIncludes?: string[] },
@@ -1100,14 +1083,14 @@ async function updateTSConfig(
 	);
 
 	if (!firstIntegrationWithTSSettings && includesToAppend.length === 0) {
-		return UpdateResult.none;
+		return 'none';
 	}
 
 	let inputConfig = await loadTSConfig(cwd);
 	let inputConfigText = '';
 
 	if (inputConfig === 'invalid-config' || inputConfig === 'unknown-error') {
-		return UpdateResult.failure;
+		return 'failure';
 	} else if (inputConfig === 'missing-config') {
 		logger.debug('add', "Couldn't find tsconfig.json or jsconfig.json, generating one");
 		inputConfig = {
@@ -1136,7 +1119,7 @@ async function updateTSConfig(
 	const diff = getDiffContent(inputConfigText, output);
 
 	if (!diff) {
-		return UpdateResult.none;
+		return 'none';
 	}
 
 	logger.info(
@@ -1181,9 +1164,9 @@ async function updateTSConfig(
 			encoding: 'utf-8',
 		});
 		logger.debug('add', `Updated ${configFileName} file`);
-		return UpdateResult.updated;
+		return 'updated';
 	} else {
-		return UpdateResult.cancelled;
+		return 'cancelled';
 	}
 }
 
@@ -1210,7 +1193,7 @@ async function askToContinue({
 	logger,
 }: {
 	flags: Flags;
-	logger: Logger;
+	logger: AstroLogger;
 }): Promise<boolean> {
 	if (flags.yes || flags.y) return true;
 	if (!hasHintedAboutYesFlag) {
@@ -1254,7 +1237,7 @@ function getDiffContent(input: string, output: string): string | null {
 
 async function setupIntegrationConfig(opts: {
 	root: URL;
-	logger: Logger;
+	logger: AstroLogger;
 	flags: Flags;
 	integrationName: string;
 	possibleConfigFiles: string[];

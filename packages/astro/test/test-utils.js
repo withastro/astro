@@ -27,23 +27,32 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
  * @typedef {import('../src/cli/check/index').CheckPayload} CheckPayload
  * @typedef {import('http').IncomingMessage} NodeRequest
  * @typedef {import('http').ServerResponse} NodeResponse
+ * `RequestHandler` is defined in `@astrojs/node` so we cannot import it directly.
+ * See https://github.com/withastro/astro/blob/astro@6.0.0/packages/integrations/node/src/types.ts#L44-L50
+ * @typedef {(req: NodeRequest, res: NodeResponse, next?: (err?: unknown) => void, locals?: object) => void | Promise<void>} RequestHandler
  *
+ * `startServer` is defined in `@astrojs/node` so we cannot import it directly.
+ * See https://github.com/withastro/astro/blob/astro@6.0.0/packages/integrations/node/src/server.ts#L21
+ * @typedef {PreviewServer & { server: import('http').Server }} AdapterServer
+ * @typedef {() => ({server: AdapterServer, stop: Promise<void>})} AdapterStartServer
  *
  * @typedef {Object} Fixture
- * @property {typeof build} build
+ * @property {(extraInlineConfig?: Parameters<typeof build>[0], options?: Parameters<typeof build>[1]) => Promise<void>} build
  * @property {(url: string) => string} resolveUrl
  * @property {(path: string) => Promise<boolean>} pathExists
  * @property {(url: string, opts?: Parameters<typeof fetch>[1]) => Promise<Response>} fetch
  * @property {(path: string) => Promise<string>} readFile
+ * @property {(path: string) => Promise<Buffer>} readBuffer
  * @property {(path: string, updater: (content: string) => string, waitForNextWrite = true) => Promise<() => void>} editFile
  * @property {(path: string) => Promise<string[]>} readdir
  * @property {(pattern: string) => Promise<string[]>} glob
  * @property {(inlineConfig?: Parameters<typeof dev>[0]) => ReturnType<typeof dev>} startDevServer
- * @property {typeof preview} preview
+ * @property {(extraInlineConfig?: Parameters<typeof preview>[0]) => Promise<PreviewServer>} preview
  * @property {() => Promise<void>} clean
  * @property {(streaming?: boolean) => Promise<App>} loadTestAdapterApp
  * @property {(streaming?: boolean) => Promise<App>} loadSelfAdapterApp
- * @property {() => Promise<(req: NodeRequest, res: NodeResponse) => void>} loadNodeAdapterHandler
+ * @property {() => Promise<{ handler: RequestHandler; startServer: AdapterStartServer }>} loadAdapterEntryModule
+ * @property {() => Promise<RequestHandler>} loadNodeAdapterHandler
  * @property {(timeout?: number) => Promise<void>} onNextDataStoreChange
  * @property {typeof check} check
  * @property {typeof sync} sync
@@ -244,6 +253,9 @@ export async function loadFixture(inlineConfig) {
 				new URL(filePath.replace(/^\//, ''), config.outDir),
 				encoding === undefined ? 'utf8' : encoding,
 			),
+		readBuffer: (filePath) => {
+			return fs.promises.readFile(new URL(filePath.replace(/^\//, ''), config.outDir));
+		},
 		readdir: (fp) => fs.promises.readdir(new URL(fp.replace(/^\//, ''), config.outDir)),
 		glob: (p) =>
 			glob(p, {
