@@ -1,47 +1,39 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import type { $ZodError } from 'zod/v4/core';
 import { AstroError } from '../dist/core/errors/errors.js';
 import { ClientAddressNotAvailable } from '../dist/core/errors/errors-data.js';
 import * as events from '../dist/events/index.js';
+import type { AstroUserConfig } from '../dist/types/public/config.js';
 
 describe('Events', () => {
 	describe('eventCliSession()', () => {
 		it('string literal "build.format" is included', () => {
-			const config = {
-				srcDir: 1,
+			const config: AstroUserConfig = {
+				srcDir: '1',
 				build: {
 					format: 'file',
 				},
 			};
-			const [{ payload }] = events.eventCliSession(
-				{
-					cliCommand: 'dev',
-				},
-				config,
-			);
-			assert.equal(payload.config.build.format, 'file');
+			const [{ payload }] = events.eventCliSession('dev', config);
+			assert.equal(payload.config!.build.format, 'file');
 		});
 
 		it('string literal "markdown.syntaxHighlight" is included', () => {
-			const config = {
+			const config: AstroUserConfig = {
 				markdown: {
 					syntaxHighlight: 'shiki',
 				},
 			};
-			const [{ payload }] = events.eventCliSession(
-				{
-					cliCommand: 'dev',
-				},
-				config,
-			);
-			assert.equal(payload.config.markdown.syntaxHighlight, 'shiki');
+			const [{ payload }] = events.eventCliSession('dev', config);
+			assert.equal(payload.config!.markdown.syntaxHighlight, 'shiki');
 		});
 
 		it('top-level vite keys are captured', async () => {
-			const config = {
+			const config: AstroUserConfig = {
 				root: 'some/thing',
 				vite: {
-					css: { modules: [] },
+					css: { modules: {} },
 					base: 'a',
 					mode: 'b',
 					define: {
@@ -51,13 +43,8 @@ describe('Events', () => {
 				},
 			};
 
-			const [{ payload }] = events.eventCliSession(
-				{
-					cliCommand: 'dev',
-				},
-				config,
-			);
-			assert.deepEqual(Object.keys(payload.config.vite), [
+			const [{ payload }] = events.eventCliSession('dev', config);
+			assert.deepEqual(Object.keys(payload.config!.vite!), [
 				'css',
 				'base',
 				'mode',
@@ -67,37 +54,34 @@ describe('Events', () => {
 		});
 
 		it('falsy integrations are handled', () => {
-			const config = {
-				srcDir: 1,
+			const config: AstroUserConfig = {
+				srcDir: '1',
 				integrations: [null, undefined, false],
 			};
-			const [{ payload }] = events.eventCliSession(
-				{
-					cliCommand: 'dev',
-				},
-				config,
-			);
-			assert.equal(payload.config.integrations.length, 0);
+			const [{ payload }] = events.eventCliSession('dev', config);
+			assert.deepEqual(payload.config!.integrations, []);
 		});
 
 		it('only integration names are included', () => {
-			const config = {
+			const config: AstroUserConfig = {
+				// @ts-expect-error: fake integrations
 				integrations: [{ name: 'foo' }, [{ name: 'bar' }, { name: 'baz' }]],
 			};
-			const [{ payload }] = events.eventCliSession({ cliCommand: 'dev' }, config);
-			assert.deepEqual(payload.config.integrations, ['foo', 'bar', 'baz']);
+			const [{ payload }] = events.eventCliSession('dev', config);
+			assert.deepEqual(payload.config!.integrations, ['foo', 'bar', 'baz']);
 		});
 
 		it('only adapter name is included', () => {
-			const config = {
+			const config: AstroUserConfig = {
+				// @ts-expect-error: fake adapter
 				adapter: { name: 'ADAPTER_NAME' },
 			};
-			const [{ payload }] = events.eventCliSession({ cliCommand: 'dev' }, config);
-			assert.equal(payload.config.adapter, 'ADAPTER_NAME');
+			const [{ payload }] = events.eventCliSession('dev', config);
+			assert.equal(payload.config!.adapter, 'ADAPTER_NAME');
 		});
 
 		it('includes cli flags in payload', () => {
-			const config = {};
+			const config: AstroUserConfig = {};
 			const flags = {
 				root: 'root',
 				site: 'http://example.com',
@@ -107,13 +91,7 @@ describe('Events', () => {
 				experimentalSsr: true,
 				experimentalIntegrations: true,
 			};
-			const [{ payload }] = events.eventCliSession(
-				{
-					cliCommand: 'dev',
-				},
-				config,
-				flags,
-			);
+			const [{ payload }] = events.eventCliSession('dev', config, flags);
 			assert.deepEqual(payload.flags, [
 				'root',
 				'site',
@@ -129,7 +107,9 @@ describe('Events', () => {
 	describe('eventConfigError()', () => {
 		it('returns the expected event and payload', () => {
 			const [event] = events.eventConfigError({
-				err: { issues: [{ path: ['a', 'b', 'c'] }, { path: ['d', 'e', 'f'] }] },
+				err: {
+					issues: [{ path: ['a', 'b', 'c'] }, { path: ['d', 'e', 'f'] }],
+				} as unknown as $ZodError,
 				cmd: 'COMMAND_NAME',
 				isFatal: true,
 			});
@@ -148,7 +128,10 @@ describe('Events', () => {
 
 	describe('eventError()', () => {
 		it('returns the expected event payload with a detailed error object', () => {
-			const errorWithFullMetadata = new Error('TEST ERROR MESSAGE');
+			const errorWithFullMetadata = new Error('TEST ERROR MESSAGE') as Error & {
+				code: number;
+				plugin: string;
+			};
 			errorWithFullMetadata.code = 1234;
 			errorWithFullMetadata.plugin = 'TEST PLUGIN';
 			const [event] = events.eventError({
@@ -213,7 +196,6 @@ describe('Events', () => {
 			const [event] = events.eventError({
 				err: new Error('TEST ERROR MESSAGE: Sensitive data is "/Users/MYNAME/foo.astro"'),
 				cmd: 'COMMAND_NAME',
-				name: 'Error',
 				isFatal: true,
 			});
 			assert.equal(event.payload.anonymousMessageHint, 'TEST ERROR MESSAGE');
@@ -229,7 +211,6 @@ describe('Events', () => {
     at Parser.other (file:///home/projects/github-ssfd5p/node_modules/postcss/lib/parser.js:128:18)
     at Parser.parse (file:///home/projects/github-ssfd5p/node_modules/postcss/lib/parser.js:72:16)`),
 				cmd: 'COMMAND_NAME',
-				name: 'Error',
 				isFatal: true,
 			});
 			assert.equal(event.payload.anonymousMessageHint, undefined);

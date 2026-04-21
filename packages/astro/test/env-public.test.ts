@@ -2,11 +2,10 @@ import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { AstroError } from '../dist/core/errors/errors.js';
 import { ServerOnlyModule } from '../dist/core/errors/errors-data.js';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.js';
 
 describe('astro:env public variables', () => {
-	/** @type {Awaited<ReturnType<typeof loadFixture>>} */
-	let fixture;
+	let fixture: Fixture;
 
 	describe('Client variables', () => {
 		before(async () => {

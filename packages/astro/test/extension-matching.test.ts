@@ -1,12 +1,11 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.js';
 
 describe('Matching .astro modules', () => {
-	let fixture;
-	/** @type {string} */
-	let output;
+	let fixture: Fixture;
+	let output: string;
 
 	before(async () => {
 		fixture = await loadFixture({

@@ -1,12 +1,10 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
 
 describe('endpoint responses', () => {
-	/** @type {import('./test-utils.js').Fixture} */
-	let fixture;
-	/** @type {import('./test-utils.js').DevServer} */
-	let devServer;
+	let fixture: Fixture;
+	let devServer: DevServer;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -44,7 +42,7 @@ describe('endpoint responses', () => {
 			await resPromise;
 		} catch (err) {
 			// AbortError is expected
-			assert.ok(err.name === 'AbortError', 'Expected an AbortError');
+			assert.ok((err as Error).name === 'AbortError', 'Expected an AbortError');
 		}
 	});
 
