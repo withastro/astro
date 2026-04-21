@@ -7,9 +7,12 @@ import type { ActionAPIContext } from '../../actions/runtime/types.js';
 import type { ComponentInstance } from '../../types/astro.js';
 import type { APIContext } from '../../types/public/context.js';
 import type { RouteData } from '../../types/public/internal.js';
+import type { BaseApp } from './base.js';
 import type { Pipeline } from '../base-pipeline.js';
+import { DEFAULT_404_COMPONENT, appSymbol } from '../constants.js';
 import type { RenderContext } from '../render-context.js';
 import { getProps } from '../render/index.js';
+import { routeHasHtmlExtension } from '../routing/helpers.js';
 import type { ResolvedRenderOptions } from './base.js';
 import { getRenderOptions } from './render-options.js';
 
@@ -107,6 +110,73 @@ export class FetchState {
 		this.slots = undefined;
 		this.pathname = this.#computePathname();
 		this.timeStart = performance.now();
+	}
+
+	/**
+	 * Returns the `BaseApp` instance stamped on the request by
+	 * `BaseApp.render()`. Throws if the request has no attached app.
+	 */
+	get app(): BaseApp<any> {
+		const app = Reflect.get(this.request, appSymbol) as BaseApp<any> | undefined;
+		if (!app) {
+			throw new Error(
+				'FetchState.app accessed on a request without an attached app. ' +
+					'Ensure it runs inside Astro\'s request pipeline.',
+			);
+		}
+		return app;
+	}
+
+	/**
+	 * Resolves the route to use for this request and stores it on
+	 * `this.routeData`. If the adapter provided a `routeData` via render
+	 * options it's used as-is. Otherwise we try the app's route matcher
+	 * (dev or prod) and fall back to a `404.astro` route so middleware can
+	 * still run.
+	 *
+	 * Once routeData is known, finalizes `this.pathname`: in dev, if the
+	 * matched route has no `.html` extension, strip `.html` / `/index.html`
+	 * suffixes so the render context sees the canonical pathname.
+	 *
+	 * Returns `true` when `this.routeData` is populated, or `false` when
+	 * no route could be found (the caller should render a 404 error page).
+	 */
+	async resolveRouteData(): Promise<boolean> {
+		const app = this.app;
+		const request = this.request;
+
+		if (!this.routeData) {
+			if (app.isDev()) {
+				const result = await app.devMatch(this.pathname);
+				if (result) {
+					this.routeData = result.routeData;
+				}
+			} else {
+				this.routeData = app.match(request);
+			}
+
+			app.logger.debug('router', 'Astro matched the following route for ' + request.url);
+			app.logger.debug('router', 'RouteData:\n' + this.routeData);
+		}
+		// At this point we haven't found a route that matches the request, so we create
+		// a "fake" 404 route, so we can call the RenderContext.render
+		// and hit the middleware, which might be able to return a correct Response.
+		if (!this.routeData) {
+			this.routeData = app.manifestData.routes.find(
+				(route) => route.component === '404.astro' || route.component === DEFAULT_404_COMPONENT,
+			);
+		}
+		if (!this.routeData) {
+			app.logger.debug('router', "Astro hasn't found routes that match " + request.url);
+			app.logger.debug('router', "Here's the available routes:\n", app.manifestData);
+			return false;
+		}
+		// In dev, the route may have matched a normalized pathname (after .html stripping).
+		// Skip normalization if the route already has an .html extension in its definition.
+		if (app.isDev() && !routeHasHtmlExtension(this.routeData)) {
+			this.pathname = this.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
+		}
+		return true;
 	}
 
 	/**

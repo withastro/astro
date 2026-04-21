@@ -2,6 +2,7 @@ import type { BaseApp } from '../app/base.js';
 import { FetchState as BaseFetchState } from '../app/fetch-state.js';
 import { appSymbol } from '../constants.js';
 import { AstroHandler } from '../routing/handler.js';
+import { TrailingSlashHandler } from '../routing/trailing-slash-handler.js';
 
 function getApp(request: Request): BaseApp<any> {
 	const app = Reflect.get(request, appSymbol) as BaseApp<any> | undefined;
@@ -20,14 +21,31 @@ export class FetchState extends BaseFetchState {
 	}
 }
 
-const handlers = new WeakMap<BaseApp<any>, AstroHandler>();
+const astroHandlers = new WeakMap<BaseApp<any>, AstroHandler>();
 
 export function astro(state: FetchState): Promise<Response> {
 	const app = getApp(state.request);
-	let handler = handlers.get(app);
+	let handler = astroHandlers.get(app);
 	if (!handler) {
 		handler = new AstroHandler(app);
-		handlers.set(app, handler);
+		astroHandlers.set(app, handler);
 	}
 	return handler.handle(state);
+}
+
+const trailingSlashHandlers = new WeakMap<BaseApp<any>, TrailingSlashHandler>();
+
+/**
+ * Checks if the request pathname needs trailing-slash normalization and
+ * returns a redirect `Response` if so. Returns `undefined` when no
+ * redirect is needed and the caller should continue processing.
+ */
+export function trailingSlash(state: FetchState): Response | undefined {
+	const app = getApp(state.request);
+	let handler = trailingSlashHandlers.get(app);
+	if (!handler) {
+		handler = new TrailingSlashHandler(app);
+		trailingSlashHandlers.set(app, handler);
+	}
+	return handler.handle(state.request);
 }
