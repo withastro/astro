@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { isWindows, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, isWindows, loadFixture } from './test-utils.js';
 
 describe.skip('Vue component build', { todo: 'This test currently times out, investigate' }, () => {
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -44,8 +44,8 @@ describe.skip('Vue component build', { todo: 'This test currently times out, inv
 
 if (!isWindows) {
 	describe.skip('Vue component dev', { todo: 'This test currently times out, investigate' }, () => {
-		let devServer;
-		let fixture;
+		let devServer: DevServer;
+		let fixture: Fixture;
 
 		before(async () => {
 			fixture = await loadFixture({
