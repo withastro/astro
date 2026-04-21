@@ -1,4 +1,6 @@
 import { ActionHandler } from '../../actions/handler.js';
+import type { RewritePayload } from '../../types/public/common.js';
+import type { APIContext } from '../../types/public/context.js';
 import {
 	REROUTABLE_STATUS_CODES,
 	REROUTE_DIRECTIVE_HEADER,
@@ -21,6 +23,8 @@ export class AstroHandler {
 	#actionHandler: ActionHandler;
 	#astroMiddleware: AstroMiddleware;
 	#pagesHandler: PagesHandler;
+	/** Bound callback for the middleware chain — created once, reused per request. */
+	#renderRouteCallback: (state: FetchState, ctx: APIContext, payload?: RewritePayload) => Promise<Response>;
 	/**
 	 * i18n post-processor. Only set when the app has i18n configured and
 	 * the strategy is not `manual` — for the manual strategy users wire
@@ -34,6 +38,7 @@ export class AstroHandler {
 		this.#actionHandler = new ActionHandler();
 		this.#astroMiddleware = new AstroMiddleware(app.pipeline);
 		this.#pagesHandler = new PagesHandler(app.pipeline);
+		this.#renderRouteCallback = this.#actionsAndPages.bind(this);
 		const i18n = app.manifest.i18n;
 		if (i18n && i18n.strategy !== 'manual') {
 			this.#i18n = new I18n(
@@ -43,6 +48,19 @@ export class AstroHandler {
 				app.manifest.buildFormat,
 			);
 		}
+	}
+
+	/**
+	 * Runs actions then pages — the callback at the bottom of the
+	 * middleware chain. Bound once in the constructor to avoid
+	 * per-request closure allocation.
+	 */
+	async #actionsAndPages(state: FetchState, ctx: APIContext, payload?: RewritePayload): Promise<Response> {
+		if (!state.skipMiddleware) {
+			const actionResponse = await this.#actionHandler.handle(ctx);
+			if (actionResponse) return actionResponse;
+		}
+		return this.#pagesHandler.handle(state, ctx, payload);
 	}
 
 	async handle(state: FetchState): Promise<Response> {
@@ -117,23 +135,10 @@ export class AstroHandler {
 				return redirectResponse;
 			}
 
-			// Run actions then pages at the bottom of the middleware chain.
-			// Actions may short-circuit (RPC) or fall through (form actions).
-			// Skipped during error-page recovery (skipMiddleware=true) to
-			// avoid re-running the action.
-			const actionHandler = this.#actionHandler;
-			const pagesHandler = this.#pagesHandler;
-			const renderRouteCallback = async (...args: Parameters<typeof pagesHandler.handle>) => {
-				if (!state.skipMiddleware) {
-					const actionResponse = await actionHandler.handle(args[1]);
-					if (actionResponse) return actionResponse;
-				}
-				return pagesHandler.handle(...args);
-			};
 			// Run middleware + (optional) i18n post-processing together so
 			// that any cache wrapping sees the final response.
 			const runPipeline = async (): Promise<Response> => {
-				let res = await this.#astroMiddleware.handle(state, renderRouteCallback);
+				let res = await this.#astroMiddleware.handle(state, this.#renderRouteCallback);
 				if (this.#i18n) {
 					res = await this.#i18n.finalize(state, res);
 				}
