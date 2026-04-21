@@ -388,5 +388,6 @@ async function buildManifest(
 		internalFetchHeaders,
 		logLevel: settings.logLevel,
 		shouldInjectCspMetaTags: shouldTrackCspHashes(settings.config.security.csp),
+		experimentalLogger: !!settings.config.experimental?.logger,
 	};
 }

@@ -7,7 +7,8 @@ import {
 	render,
 } from '../../../dist/runtime/server/index.js';
 import type { AstroComponentFactory } from '../../../dist/runtime/server/render/index.js';
-import { createBasicPipeline } from '../test-utils.ts';
+import { createBasicPipeline, SpyLogger } from '../test-utils.ts';
+import { createMockRenderContext } from '../mocks.ts';
 
 // The public types for maybeRenderHead declare zero params,
 // but the runtime implementation accepts a result argument.
@@ -134,6 +135,101 @@ describe('RenderContext', () => {
 				true,
 				'Form action should be auto-executed when skipMiddleware is false',
 			);
+		});
+	});
+
+	describe('context.logger (APIContext)', () => {
+		it('warns when context.logger is accessed without experimentalLogger enabled', async () => {
+			const spyLogger = new SpyLogger();
+			const renderContext = await createMockRenderContext({ logger: spyLogger });
+
+			renderContext.createActionAPIContext().logger;
+
+			assert.equal(spyLogger.writeCount(), 1);
+			assert.equal(spyLogger.logs[0].type, 'warn');
+			assert.match(spyLogger.logs[0].message, /experimental\.logger/i);
+		});
+
+		it('provides info/warn/error methods when experimentalLogger is enabled', async () => {
+			const spyLogger = new SpyLogger();
+			const renderContext = await createMockRenderContext({
+				logger: spyLogger,
+				manifest: { experimentalLogger: true },
+			});
+
+			const { logger } = renderContext.createActionAPIContext();
+			assert.ok(logger);
+			assert.equal(typeof logger.info, 'function');
+			assert.equal(typeof logger.warn, 'function');
+			assert.equal(typeof logger.error, 'function');
+		});
+
+		it('context.logger delegates to the pipeline logger', async () => {
+			const spyLogger = new SpyLogger();
+			const renderContext = await createMockRenderContext({
+				logger: spyLogger,
+				manifest: { experimentalLogger: true },
+			});
+
+			const ctx = renderContext.createActionAPIContext();
+			ctx.logger!.info('info message');
+			ctx.logger!.warn('warn message');
+			ctx.logger!.error('error message');
+
+			assert.equal(spyLogger.writeCount(), 3);
+			assert.deepStrictEqual(spyLogger.logs, [
+				{ type: 'info', label: null, message: 'info message' },
+				{ type: 'warn', label: null, message: 'warn message' },
+				{ type: 'error', label: null, message: 'error message' },
+			]);
+		});
+	});
+
+	describe('Astro.logger (page rendering)', () => {
+		it('Astro.logger is always available on the page global', async () => {
+			const spyLogger = new SpyLogger();
+			const renderContext = await createMockRenderContext({ logger: spyLogger });
+
+			const LoggingPage = createComponent((result: any, _props: any, _slots: any) => {
+				const Astro = result.createAstro({}, null);
+				Astro.logger.info('page info');
+				Astro.logger.warn('page warn');
+				Astro.logger.error('page error');
+				return render`<html><head>${maybeRenderHead(result)}</head><body><p>Logged</p></body></html>`;
+			});
+
+			const response = await renderContext.render(createAstroModule(LoggingPage));
+			assert.equal(response.status, 200);
+
+			const userLogs = spyLogger.logs.filter((l) => l.label === null);
+			assert.equal(userLogs.length, 3);
+			assert.deepStrictEqual(userLogs, [
+				{ type: 'info', label: null, message: 'page info' },
+				{ type: 'warn', label: null, message: 'page warn' },
+				{ type: 'error', label: null, message: 'page error' },
+			]);
+		});
+
+		it('Astro.logger delegates to the pipeline logger', async () => {
+			const spyLogger = new SpyLogger();
+			const renderContext = await createMockRenderContext({
+				logger: spyLogger,
+				manifest: { experimentalLogger: true },
+			});
+
+			const LoggingPage = createComponent((result: any, _props: any, _slots: any) => {
+				const Astro = result.createAstro({}, null);
+				Astro.logger.info('hello from page');
+				return render`<html><head>${maybeRenderHead(result)}</head><body><p>OK</p></body></html>`;
+			});
+
+			const response = await renderContext.render(createAstroModule(LoggingPage));
+			assert.equal(response.status, 200);
+
+			const userLogs = spyLogger.logs.filter((l) => l.label === null);
+			assert.equal(userLogs.length, 1);
+			assert.equal(userLogs[0].type, 'info');
+			assert.equal(userLogs[0].message, 'hello from page');
 		});
 	});
 });

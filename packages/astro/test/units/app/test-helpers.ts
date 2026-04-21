@@ -14,10 +14,11 @@ export function createManifest({
 	middleware = undefined,
 	logger = undefined,
 	actions = undefined,
-	actionBodySizeLimit = 0,
+	actionBodySizeLimit = 1024 * 1024,
 	i18n = undefined,
 	csp = undefined,
 	serverLike = true,
+	...overrides
 }: {
 	routes?: RouteInfo[];
 	pageMap?: SSRManifest['pageMap'];
@@ -30,7 +31,7 @@ export function createManifest({
 	i18n?: SSRManifestI18n;
 	csp?: SSRManifestCSP;
 	serverLike?: boolean;
-} = {}): SSRManifest {
+} & Partial<SSRManifest> = {}): SSRManifest {
 	const rootDir = new URL('file:///astro-test/');
 	const buildDir = new URL('file:///astro-test/dist/');
 
@@ -88,6 +89,7 @@ export function createManifest({
 		experimentalQueuedRendering: {
 			enabled: false,
 		},
+		...overrides,
 	} as SSRManifest;
 }
 

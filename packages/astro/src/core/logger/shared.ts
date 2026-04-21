@@ -8,7 +8,7 @@ export const RESOLVED_LOGGER_MODULE_ID = '\0' + LOGGER_MODULE_ID;
 /**
  * Generates virtual module code for a logger factory given a `LoggerHandlerConfig`.
  * Handles built-in loggers (node, console, json), the compose meta-logger,
- * and arbitrary user-provided entrypoints.
+ * and arbitrary user-provided entrypoint.
  */
 export function generateLoggerCode(config: LoggerHandlerConfig): string {
 	switch (config.entrypoint) {

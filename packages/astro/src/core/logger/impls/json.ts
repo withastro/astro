@@ -9,7 +9,13 @@ import type { Writable } from 'node:stream';
 import type { AstroInlineConfig } from '../../../types/public/index.js';
 
 export type JonsHandlerConfig = {
+	/**
+	 * Whether the JSON line should format on multiple lines
+	 */
 	pretty?: boolean;
+	/**
+	 * The level of logs that should be printed by the logger.
+	 */
 	level?: AstroLoggerLevel;
 };
 

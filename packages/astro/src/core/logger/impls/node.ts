@@ -13,9 +13,14 @@ type ConsoleStream = Writable & {
 	fd: 1 | 2;
 };
 
+export type NodeHandlerConfig = {
+	level?: AstroLoggerLevel;
+};
+
 function nodeLogDestination(
-	level: AstroLoggerLevel = 'info',
+	config: NodeHandlerConfig = {},
 ): AstroLoggerDestination<AstroLoggerMessage> {
+	const { level = 'info' } = config;
 	return {
 		write(event: AstroLoggerMessage) {
 			let dest: ConsoleStream = process.stderr;
@@ -37,11 +42,8 @@ function nodeLogDestination(
 	};
 }
 
-type Options = {
-	level?: AstroLoggerLevel;
-};
-export default function (options?: Options): AstroLoggerDestination<AstroLoggerMessage> {
-	return nodeLogDestination(options?.level ?? 'info');
+export default function (options?: NodeHandlerConfig): AstroLoggerDestination<AstroLoggerMessage> {
+	return nodeLogDestination(options);
 }
 
 export function createNodeLoggerFromFlags(inlineConfig: AstroInlineConfig): AstroLogger {

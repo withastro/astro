@@ -158,6 +158,8 @@ export type SSRManifest = {
 	};
 	internalFetchHeaders?: Record<string, string>;
 	logLevel: AstroLoggerLevel;
+	// This is temporary, and only used while the logger is experimental
+	experimentalLogger: boolean;
 };
 
 export type SSRActions = {
