@@ -1,17 +1,26 @@
-// @ts-check
-
 import { describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
+import { type App, type Fixture, loadFixture } from './test-utils.js';
 import testAdapter, { selfTestAdapter } from './test-adapter.js';
 import assert from 'node:assert/strict';
-import fakeAdapter from './fixtures/server-entry/fake-adapter/index.js';
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import type { AstroIntegration } from 'astro';
+
+type FakeAdapter = (
+	options:
+		| { type: 'rollupInput'; shape: 'string' | 'object' | 'array' }
+		| { type: 'serverEntrypoint' },
+) => AstroIntegration;
+
+const fakeAdapter: FakeAdapter = await (async () => {
+	const importPath: string = './fixtures/server-entry/fake-adapter/index.js';
+	const mod = await import(importPath);
+	return mod.default;
+})();
 
 describe('Server entry', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-	let app;
+	let fixture: Fixture;
+	let app: App;
 
 	it('should load the custom entry when using legacy entrypoint', async () => {
 		fixture = await loadFixture({
@@ -23,7 +32,7 @@ describe('Server entry', () => {
 			},
 		});
 
-		await fixture.build({});
+		await fixture.build();
 		app = await fixture.loadTestAdapterApp(false);
 
 		const request = new Request('http://example.com/');
@@ -41,7 +50,7 @@ describe('Server entry', () => {
 			},
 		});
 
-		await fixture.build({});
+		await fixture.build();
 		app = await fixture.loadSelfAdapterApp(false);
 
 		const request = new Request('http://example.com/');
@@ -59,7 +68,7 @@ describe('Server entry', () => {
 			},
 		});
 
-		await fixture.build({});
+		await fixture.build();
 
 		assert.ok(existsSync(fileURLToPath(new URL('server/custom.mjs', fixture.config.outDir))));
 	});
@@ -74,7 +83,7 @@ describe('Server entry', () => {
 			},
 		});
 
-		await fixture.build({});
+		await fixture.build();
 
 		assert.ok(existsSync(fileURLToPath(new URL('server/custom.mjs', fixture.config.outDir))));
 	});
@@ -89,7 +98,7 @@ describe('Server entry', () => {
 			},
 		});
 
-		await fixture.build({});
+		await fixture.build();
 
 		assert.ok(existsSync(fileURLToPath(new URL('server/custom.mjs', fixture.config.outDir))));
 	});
@@ -104,7 +113,7 @@ describe('Server entry', () => {
 			},
 		});
 
-		await fixture.build({});
+		await fixture.build();
 
 		assert.ok(existsSync(fileURLToPath(new URL('server/custom.mjs', fixture.config.outDir))));
 	});

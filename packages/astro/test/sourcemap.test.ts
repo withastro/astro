@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.js';
 
 describe('Sourcemap', async () => {
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/sourcemap/' });
@@ -12,7 +12,7 @@ describe('Sourcemap', async () => {
 
 	it('Builds sourcemap', async () => {
 		const dir = await fixture.readdir('./_astro');
-		const counterMap = dir.find((file) => file.match(/^Counter\.[\w-]+\.js\.map$/));
+		const counterMap = dir.find((file) => /^Counter\.[\w-]+\.js\.map$/.exec(file));
 		assert.ok(counterMap);
 	});
 

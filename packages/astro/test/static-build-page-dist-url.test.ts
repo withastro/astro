@@ -3,10 +3,8 @@ import { before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe('Static build: pages routes have distURL', () => {
-	/** @type {Map<string, URL[]>} */
-	let assets;
+	let assets: Map<string, URL[]>;
 	before(async () => {
-		/** @type {import('./test-utils').Fixture} */
 		const fixture = await loadFixture({
 			root: './fixtures/astro pages/',
 			integrations: [

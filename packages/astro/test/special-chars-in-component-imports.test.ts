@@ -1,11 +1,10 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { isWindows, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, isWindows, loadFixture } from './test-utils.js';
 
 describe('Special chars in component import paths', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	const componentIds = [
 		'caret',
@@ -91,7 +90,7 @@ describe('Special chars in component import paths', () => {
 	if (isWindows) return;
 
 	describe('dev', () => {
-		let devServer;
+		let devServer: DevServer;
 
 		before(async () => {
 			devServer = await fixture.startDevServer();

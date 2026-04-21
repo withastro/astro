@@ -3,10 +3,8 @@ import { before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe('Static build: dir takes the URL path to the output directory', () => {
-	/** @type {URL} */
-	let checkDir;
-	/** @type {URL} */
-	let checkGeneratedDir;
+	let checkDir: URL;
+	let checkGeneratedDir: URL;
 	before(async () => {
 		const fixture = await loadFixture({
 			root: './fixtures/static-build-dir/',
@@ -27,7 +25,7 @@ describe('Static build: dir takes the URL path to the output directory', () => {
 		await fixture.build();
 	});
 	it('dir takes the URL path to the output directory', async () => {
-		const removeTrailingSlash = (str) => str.replace(/\/$/, '');
+		const removeTrailingSlash = (str: string) => str.replace(/\/$/, '');
 		assert.equal(
 			removeTrailingSlash(checkDir.toString()),
 			removeTrailingSlash(new URL('./fixtures/static-build-dir/dist', import.meta.url).toString()),

@@ -1,14 +1,14 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { isWindows, loadFixture } from './test-utils.js';
+import { type Fixture, isWindows, loadFixture } from './test-utils.js';
 
 describe('Static build - frameworks', () => {
 	if (isWindows) {
 		return;
 	}
 
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({

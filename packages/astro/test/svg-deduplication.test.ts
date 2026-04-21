@@ -2,11 +2,10 @@ import assert from 'node:assert/strict';
 import { readdir } from 'node:fs/promises';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
 
 describe('SVG Deduplication', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	describe('build', () => {
 		before(async () => {
@@ -21,7 +20,7 @@ describe('SVG Deduplication', () => {
 			const distDir = new URL('./fixtures/svg-deduplication/dist/', import.meta.url);
 			const assetsDir = new URL('./_astro/', distDir);
 
-			let svgFiles = [];
+			let svgFiles: string[] = [];
 			try {
 				const files = await readdir(assetsDir);
 				svgFiles = files.filter((file) => file.endsWith('.svg'));
@@ -73,8 +72,7 @@ describe('SVG Deduplication', () => {
 	});
 
 	describe('dev', () => {
-		/** @type {import('./test-utils').DevServer} */
-		let devServer;
+		let devServer: DevServer;
 
 		before(async () => {
 			fixture = await loadFixture({

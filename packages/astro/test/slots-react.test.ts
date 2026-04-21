@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.js';
 
-describe('Slots: Solid', () => {
-	let fixture;
+describe('Slots: React', () => {
+	let fixture: Fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/slots-solid/' });
+		fixture = await loadFixture({ root: './fixtures/slots-react/' });
 		await fixture.build();
 	});
 
@@ -52,6 +52,33 @@ describe('Slots: Solid', () => {
 			const html = await fixture.readFile('/mdx/index.html');
 			const $ = cheerio.load(html);
 			assert.equal($('#dash-case').text().trim(), 'Fallback / Dash Case');
+		});
+	});
+
+	describe('Slots.render() API', async () => {
+		it('Simple imperative slot render', async () => {
+			const html = await fixture.readFile('/slottedapi-render/index.html');
+			const $ = cheerio.load(html);
+
+			assert.equal($('#render').length, 1);
+			assert.equal($('#render').text(), 'render');
+		});
+
+		it('Child function render without args', async () => {
+			const html = await fixture.readFile('/slottedapi-render/index.html');
+			const $ = cheerio.load(html);
+
+			assert.equal($('#render-fn').length, 1);
+			assert.equal($('#render-fn').text(), 'render-fn');
+		});
+
+		it('Child function render with args', async () => {
+			const html = await fixture.readFile('/slottedapi-render/index.html');
+			const $ = cheerio.load(html);
+
+			assert.equal($('#render-args').length, 1);
+			assert.equal($('#render-args span').length, 1);
+			assert.equal($('#render-args').text(), 'render-args');
 		});
 	});
 });

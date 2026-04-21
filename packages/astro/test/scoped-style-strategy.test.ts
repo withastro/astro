@@ -1,13 +1,12 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.js';
 
 describe('scopedStyleStrategy', () => {
 	describe('scopedStyleStrategy: "where"', () => {
-		/** @type {import('./test-utils').Fixture} */
-		let fixture;
-		let stylesheet;
+		let fixture: Fixture;
+		let stylesheet: string;
 
 		before(async () => {
 			fixture = await loadFixture({
@@ -21,7 +20,7 @@ describe('scopedStyleStrategy', () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
 			const $link = $('link[rel=stylesheet]');
-			const href = $link.attr('href');
+			const href = $link.attr('href')!;
 			stylesheet = await fixture.readFile(href);
 		});
 
@@ -35,9 +34,8 @@ describe('scopedStyleStrategy', () => {
 	});
 
 	describe('scopedStyleStrategy: "class"', () => {
-		/** @type {import('./test-utils').Fixture} */
-		let fixture;
-		let stylesheet;
+		let fixture: Fixture;
+		let stylesheet: string;
 
 		before(async () => {
 			fixture = await loadFixture({
@@ -51,7 +49,7 @@ describe('scopedStyleStrategy', () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
 			const $link = $('link[rel=stylesheet]');
-			const href = $link.attr('href');
+			const href = $link.attr('href')!;
 			stylesheet = await fixture.readFile(href);
 		});
 
@@ -65,9 +63,8 @@ describe('scopedStyleStrategy', () => {
 	});
 
 	describe('default', () => {
-		/** @type {import('./test-utils').Fixture} */
-		let fixture;
-		let stylesheet;
+		let fixture: Fixture;
+		let stylesheet: string;
 
 		before(async () => {
 			fixture = await loadFixture({
@@ -80,7 +77,7 @@ describe('scopedStyleStrategy', () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
 			const $link = $('link[rel=stylesheet]');
-			const href = $link.attr('href');
+			const href = $link.attr('href')!;
 			stylesheet = await fixture.readFile(href);
 		});
 
