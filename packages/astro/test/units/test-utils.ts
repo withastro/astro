@@ -7,6 +7,7 @@ import { resolveConfig } from '../../dist/core/config/index.js';
 import { createBaseSettings } from '../../dist/core/config/settings.js';
 import { AstroIntegrationLogger, AstroLogger } from '../../dist/core/logger/core.js';
 import { nodeLogDestination } from '../../dist/core/logger/node.js';
+import { ActionHandler } from '../../dist/actions/handler.js';
 import { FetchState } from '../../dist/core/app/fetch-state.js';
 import { AstroMiddleware } from '../../dist/core/middleware/astro-middleware.js';
 import { NOOP_MIDDLEWARE_FN } from '../../dist/core/middleware/noop-middleware.js';
@@ -261,8 +262,15 @@ export async function renderThroughMiddleware(
 	state.slots = slots;
 	renderContext.fetchState = state;
 	const middleware = new AstroMiddleware(pipeline);
+	const actionHandler = new ActionHandler();
 	const pagesHandler = new PagesHandler(pipeline);
-	return middleware.handle(state, pagesHandler.handle.bind(pagesHandler));
+	return middleware.handle(state, async (s, ctx, payload) => {
+		if (!s.skipMiddleware) {
+			const actionResponse = await actionHandler.handle(ctx);
+			if (actionResponse) return actionResponse;
+		}
+		return pagesHandler.handle(s, ctx, payload);
+	});
 }
 
 /**
