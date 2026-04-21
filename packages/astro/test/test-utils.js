@@ -42,6 +42,7 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
  * @property {(path: string) => Promise<boolean>} pathExists
  * @property {(url: string, opts?: Parameters<typeof fetch>[1]) => Promise<Response>} fetch
  * @property {(path: string) => Promise<string>} readFile
+ * @property {(path: string) => Promise<Buffer>} readBuffer
  * @property {(path: string, updater: (content: string) => string, waitForNextWrite = true) => Promise<() => void>} editFile
  * @property {(path: string) => Promise<string[]>} readdir
  * @property {(pattern: string) => Promise<string[]>} glob
@@ -252,6 +253,9 @@ export async function loadFixture(inlineConfig) {
 				new URL(filePath.replace(/^\//, ''), config.outDir),
 				encoding === undefined ? 'utf8' : encoding,
 			),
+		readBuffer: (filePath) => {
+			return fs.promises.readFile(new URL(filePath.replace(/^\//, ''), config.outDir));
+		},
 		readdir: (fp) => fs.promises.readdir(new URL(fp.replace(/^\//, ''), config.outDir)),
 		glob: (p) =>
 			glob(p, {
