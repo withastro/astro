@@ -184,3 +184,9 @@ export type Params = Record<string, string | undefined>;
 export type Props = Record<string, unknown>;
 
 export type CodeLanguage = BundledLanguage | LanguageRegistration | SpecialLanguage;
+
+export type {
+	AstroLoggerDestination,
+	AstroLoggerLevel,
+	AstroLoggerMessage,
+} from '../../core/logger/core.js';
