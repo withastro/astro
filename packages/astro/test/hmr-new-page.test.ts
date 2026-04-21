@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { after, before, describe, it } from 'node:test';
-import { isWindows, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, isWindows, loadFixture } from './test-utils.js';
 
 const NEW_PAGE_CONTENT = `---
 ---
@@ -14,12 +14,9 @@ const NEW_PAGE_CONTENT = `---
 `;
 
 describe('HMR: New page detection', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-	/** @type {import('./test-utils').DevServer} */
-	let devServer;
-	/** @type {string} */
-	let newPagePath;
+	let fixture: Fixture;
+	let devServer: DevServer;
+	let newPagePath: string;
 
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/hmr-new-page/' });

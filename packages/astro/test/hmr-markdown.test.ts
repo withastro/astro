@@ -1,16 +1,13 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { isWindows, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, isWindows, loadFixture } from './test-utils.js';
 
 const UPDATED_CONTENT = '---\ntitle: HMR Markdown\n---\n\nUpdated content\n';
 
 describe('HMR: Markdown updates', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-	/** @type {import('./test-utils').DevServer} */
-	let devServer;
-	/** @type {string} */
-	let markdownPath;
+	let fixture: Fixture;
+	let devServer: DevServer;
+	let markdownPath: string;
 
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/hmr-markdown/' });
@@ -37,7 +34,7 @@ describe('HMR: Markdown updates', () => {
 		html = await response.text();
 		assert.ok(html.includes('Original content'));
 
-		await fixture.editFile(markdownPath, UPDATED_CONTENT);
+		await fixture.editFile(markdownPath, () => UPDATED_CONTENT);
 		await fixture.onNextDataStoreChange();
 
 		response = await fixture.fetch('/');

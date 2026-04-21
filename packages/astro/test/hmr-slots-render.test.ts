@@ -1,13 +1,11 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { isWindows, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, isWindows, loadFixture } from './test-utils.js';
 
 describe('HMR: slots.render with callback args after style change', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-	/** @type {import('./test-utils').DevServer} */
-	let devServer;
+	let fixture: Fixture;
+	let devServer: DevServer;
 
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/hmr-slots-render/' });
@@ -19,7 +17,7 @@ describe('HMR: slots.render with callback args after style change', () => {
 		fixture.resetAllFiles();
 	});
 
-	function verifyRendering($, label) {
+	function verifyRendering($: cheerio.CheerioAPI, label: string) {
 		const items = $('#result .item-wrapper');
 		assert.ok(
 			items.length >= 3,

@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.js';
 
 describe('Hoisted Imports', () => {
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -12,7 +12,7 @@ describe('Hoisted Imports', () => {
 		});
 	});
 
-	async function getAllScriptText(page) {
+	async function getAllScriptText(page: string) {
 		const html = await fixture.readFile(page);
 		const $ = cheerio.load(html);
 		return $('script')
@@ -26,11 +26,11 @@ describe('Hoisted Imports', () => {
 			await fixture.build();
 		});
 
-		function expectScript(scripts, letter) {
+		function expectScript(scripts: string, letter: string) {
 			const regex = new RegExp(`console.log\\(['"]${letter}['"]\\)`);
 			assert.match(scripts, regex, 'missing component ' + letter);
 		}
-		function expectNotScript(scripts, letter) {
+		function expectNotScript(scripts: string, letter: string) {
 			const regex = new RegExp(`console.log\\(['"]${letter}['"]\\)`);
 			assert.doesNotMatch(scripts, regex, "shouldn't include component " + letter);
 		}
