@@ -12,7 +12,7 @@ import { I18n } from '../i18n/handler.js';
 import { AstroMiddleware } from '../middleware/astro-middleware.js';
 import { PagesHandler } from '../pages/handler.js';
 import { renderRedirect } from '../redirects/render.js';
-import { type AstroSession, PERSIST_SYMBOL } from '../session/runtime.js';
+import { finalizeSessions } from '../session/handler.js';
 import type { FetchState } from '../app/fetch-state.js';
 import { prepareResponse } from '../app/prepare-response.js';
 import type { BaseApp } from '../app/base.js';
@@ -97,7 +97,6 @@ export class AstroHandler {
 		state.status = defaultStatus;
 
 		let response;
-		let session: AstroSession | undefined;
 		let cache: CacheLike | undefined;
 		try {
 			// Load route module. We also catch its error here if it fails on initialization
@@ -116,7 +115,6 @@ export class AstroHandler {
 			});
 			state.renderContext = renderContext;
 			renderContext.fetchState = state;
-			session = renderContext.session;
 			cache = renderContext.cache;
 
 			// Redirect routes short-circuit the pipeline: no middleware, no
@@ -192,7 +190,7 @@ export class AstroHandler {
 				pathname: state.pathname,
 			});
 		} finally {
-			await session?.[PERSIST_SYMBOL]();
+			await finalizeSessions(state);
 		}
 
 		if (

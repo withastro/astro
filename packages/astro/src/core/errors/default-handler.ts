@@ -9,7 +9,7 @@ import { getCookiesFromResponse } from '../cookies/response.js';
 import { AstroMiddleware } from '../middleware/astro-middleware.js';
 import { PagesHandler } from '../pages/handler.js';
 import { matchRoute } from '../routing/match.js';
-import { type AstroSession, PERSIST_SYMBOL } from '../session/runtime.js';
+import { finalizeSessions } from '../session/handler.js';
 import type { ErrorHandler } from './handler.js';
 
 type ErrorPagePath =
@@ -86,7 +86,7 @@ export class DefaultErrorHandler implements ErrorHandler {
 				}
 			}
 			const mod = await app.pipeline.getComponentByRoute(errorRouteData);
-			let session: AstroSession | undefined;
+			const errorState = new FetchState(app.pipeline, request);
 			try {
 				const renderContext = await app.createRenderContext({
 					locals: resolvedRenderOptions.locals,
@@ -99,8 +99,6 @@ export class DefaultErrorHandler implements ErrorHandler {
 					props: { error },
 					clientAddress: resolvedRenderOptions.clientAddress,
 				});
-				session = renderContext.session;
-				const errorState = new FetchState(app.pipeline, request);
 				errorState.routeData = errorRouteData;
 				errorState.pathname = resolvedPathname;
 				errorState.renderContext = renderContext;
@@ -125,7 +123,7 @@ export class DefaultErrorHandler implements ErrorHandler {
 					});
 				}
 			} finally {
-				await session?.[PERSIST_SYMBOL]();
+				await finalizeSessions(errorState);
 			}
 		}
 

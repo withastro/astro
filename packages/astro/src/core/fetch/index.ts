@@ -7,6 +7,7 @@ import { AstroMiddleware } from '../middleware/astro-middleware.js';
 import { PagesHandler } from '../pages/handler.js';
 import { renderRedirect } from '../redirects/render.js';
 import { AstroHandler } from '../routing/handler.js';
+import { finalizeSessions } from '../session/handler.js';
 import { TrailingSlashHandler } from '../routing/trailing-slash-handler.js';
 
 function getApp(request: Request): BaseApp<any> {
@@ -90,6 +91,15 @@ export function pages(state: FetchState): Promise<Response> {
 		pagesHandlers.set(app, handler);
 	}
 	return handler.handle(state, state.getAPIContext(), undefined);
+}
+
+/**
+ * Persists any session mutations made during the request. No-op if
+ * sessions are not configured or no mutations occurred. Should be
+ * called after the response is produced, typically in a `finally` block.
+ */
+export function sessions(state: FetchState): Promise<void> {
+	return finalizeSessions(state);
 }
 
 /**
