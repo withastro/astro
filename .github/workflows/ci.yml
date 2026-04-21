@@ -141,7 +141,7 @@ jobs:
         run: pnpm run publint
 
       - name: Type-check test files
-        run: pnpm -C packages/astro run typecheck:tests
+        run: pnpm run typecheck:tests
 
   test:
     name: 'Test (${{ matrix.TEST_SUITE.name }}): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})'
@@ -251,9 +251,13 @@ jobs:
           pnpm run test:language-tools:no-vs
           cd packages/language-tools/vscode
           xvfb-run -a pnpm test
-          # TODO: Figure out why the vscode tests are fine, but the ts-plugin ones are super flaky
-          # cd ../ts-plugin
-          # xvfb-run -a pnpm test
+
+      - name: Test ts-plugin (Linux, flaky)
+        if: runner.os == 'Linux'
+        timeout-minutes: 10
+        working-directory: packages/language-tools/ts-plugin
+        # TODO: Figure out why the vscode tests are fine, but the ts-plugin ones are super flaky
+        run: xvfb-run -a pnpm test || echo "::warning title=ts-plugin tests failed::Known flaky; not failing CI."
 
       - name: Test
         if: runner.os != 'Linux'
