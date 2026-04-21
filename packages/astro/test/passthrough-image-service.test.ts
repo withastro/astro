@@ -1,11 +1,10 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
 
 describe('passthroughImageService', () => {
-	/** @type {import('./test-utils.js').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -14,8 +13,8 @@ describe('passthroughImageService', () => {
 	});
 
 	describe('dev', () => {
-		let $;
-		let devServer;
+		let $: cheerio.CheerioAPI;
+		let devServer: DevServer;
 
 		before(async () => {
 			devServer = await fixture.startDevServer();
@@ -35,20 +34,20 @@ describe('passthroughImageService', () => {
 
 		it('serves SVG logo with correct content type', async () => {
 			const $img = $('#logo img');
-			const src = $img.attr('src');
+			const src = $img.attr('src')!;
 
 			const response = await fixture.fetch(src);
 			const contentType = response.headers.get('content-type');
 
 			assert.ok(
-				contentType.includes('image/svg+xml'),
+				contentType!.includes('image/svg+xml'),
 				`Expected SVG content type, got: ${contentType}`,
 			);
 		});
 	});
 
 	describe('build', () => {
-		let $;
+		let $: cheerio.CheerioAPI;
 
 		before(async () => {
 			await fixture.build();
@@ -77,7 +76,7 @@ describe('passthroughImageService', () => {
 
 			it('preserves original format', () => {
 				const $img = $('#image img');
-				const src = $img.attr('src');
+				const src = $img.attr('src')!;
 				assert.ok(src.endsWith('.jpg'), `Should preserve jpg format, got: ${src}`);
 			});
 		});
@@ -95,7 +94,7 @@ describe('passthroughImageService', () => {
 
 			it('preserves original format', () => {
 				const $img = $('#picture img');
-				const src = $img.attr('src');
+				const src = $img.attr('src')!;
 				assert.ok(src.endsWith('.jpg'), `Should preserve jpg format, got: ${src}`);
 			});
 		});
@@ -108,7 +107,7 @@ describe('passthroughImageService', () => {
 
 			it('preserves SVG format', () => {
 				const $img = $('#logo img');
-				const src = $img.attr('src');
+				const src = $img.attr('src')!;
 				assert.ok(src.endsWith('.svg'), `Should preserve svg format, got: ${src}`);
 			});
 		});

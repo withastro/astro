@@ -2,11 +2,11 @@ import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import eol from 'eol';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.js';
 
 describe('PostCSS', () => {
-	let fixture;
-	let bundledCSS;
+	let fixture: Fixture;
+	let bundledCSS: string;
 	before(
 		async () => {
 			fixture = await loadFixture({
@@ -19,7 +19,7 @@ describe('PostCSS', () => {
 			// get bundled CSS (will be hashed, hence DOM query)
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
-			const bundledCSSHREF = $('link[rel=stylesheet][href^=/_astro/]').attr('href');
+			const bundledCSSHREF = $('link[rel=stylesheet][href^=/_astro/]').attr('href')!;
 			bundledCSS = (await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/')))
 				.replace(/\s/g, '')
 				.replace('/n', '');
