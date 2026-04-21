@@ -25,38 +25,43 @@ export function cloudflareConfigCustomizer(
 			: (options?.imagesBindingName ?? DEFAULT_IMAGES_BINDING_NAME);
 
 	const customizer = (config: Partial<WorkerConfig>): Partial<WorkerConfig> => {
-		const hasSessionBinding = config.kv_namespaces?.some(
-			(kv) => kv.binding === sessionKVBindingName,
-		);
-		const hasImagesBinding = config.images?.binding !== undefined;
+		const getNonInheritableBindings = (
+			nonInheritableConfig: WorkerConfig['previews'],
+		): WorkerConfig['previews'] => {
+			const hasSessionBinding = nonInheritableConfig?.kv_namespaces?.some(
+				(kv) => kv.binding === sessionKVBindingName,
+			);
+			const hasImagesBinding = nonInheritableConfig?.images?.binding !== undefined;
+
+			return {
+				kv_namespaces:
+					!needsSessionKVBinding || hasSessionBinding
+						? undefined
+						: [
+								{
+									binding: sessionKVBindingName,
+								},
+							],
+				images:
+					hasImagesBinding || !imagesBindingName
+						? undefined
+						: {
+								binding: imagesBindingName,
+							},
+			};
+		};
+
 		const hasAssetsBinding = config.assets?.binding !== undefined;
 
-		const nonInheritableBindings = {
-			kv_namespaces:
-				!needsSessionKVBinding || hasSessionBinding
-					? undefined
-					: [
-							{
-								binding: sessionKVBindingName,
-							},
-						],
-			images:
-				hasImagesBinding || !imagesBindingName
-					? undefined
-					: {
-							binding: imagesBindingName,
-						},
-		} satisfies WorkerConfig['previews'];
-
 		return {
-			...nonInheritableBindings,
+			...getNonInheritableBindings(config),
 			main: config.main ?? '@astrojs/cloudflare/entrypoints/server',
 			assets: hasAssetsBinding
 				? undefined
 				: {
 						binding: DEFAULT_ASSETS_BINDING_NAME,
 					},
-			previews: nonInheritableBindings,
+			previews: getNonInheritableBindings(config.previews),
 		};
 	};
 
