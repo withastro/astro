@@ -1,6 +1,8 @@
 import type { BaseApp } from '../app/base.js';
 import { FetchState as BaseFetchState } from '../app/fetch-state.js';
 import { appSymbol } from '../constants.js';
+import { AstroMiddleware } from '../middleware/astro-middleware.js';
+import { PagesHandler } from '../pages/handler.js';
 import { AstroHandler } from '../routing/handler.js';
 import { TrailingSlashHandler } from '../routing/trailing-slash-handler.js';
 
@@ -48,4 +50,41 @@ export function trailingSlash(state: FetchState): Response | undefined {
 		trailingSlashHandlers.set(app, handler);
 	}
 	return handler.handle(state.request);
+}
+
+const middlewareInstances = new WeakMap<BaseApp<any>, AstroMiddleware>();
+
+/**
+ * Runs Astro's middleware chain for the given state, calling `next` at
+ * the bottom of the chain to produce the response. The state must have
+ * `renderContext` and `componentInstance` set before calling this.
+ */
+export function middleware(
+	state: FetchState,
+	next: (state: FetchState) => Promise<Response>,
+): Promise<Response> {
+	const app = getApp(state.request);
+	let mw = middlewareInstances.get(app);
+	if (!mw) {
+		mw = new AstroMiddleware(app.pipeline);
+		middlewareInstances.set(app, mw);
+	}
+	return mw.handle(state, (s, _ctx, _payload) => next(s));
+}
+
+const pagesHandlers = new WeakMap<BaseApp<any>, PagesHandler>();
+
+/**
+ * Dispatches the request to the matched route (endpoint, page, redirect,
+ * or fallback). The state must have `renderContext` and
+ * `componentInstance` set before calling this.
+ */
+export function pages(state: FetchState): Promise<Response> {
+	const app = getApp(state.request);
+	let handler = pagesHandlers.get(app);
+	if (!handler) {
+		handler = new PagesHandler(app.pipeline);
+		pagesHandlers.set(app, handler);
+	}
+	return handler.handle(state, state.getAPIContext(), undefined);
 }
