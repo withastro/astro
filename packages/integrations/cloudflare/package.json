@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/cloudflare",
   "description": "Deploy your site to Cloudflare Workers",
-  "version": "13.1.5",
+  "version": "13.1.10",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -19,7 +19,6 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/cloudflare/",
   "exports": {
     ".": "./dist/index.js",
-    "./info": "./dist/info.js",
     "./entrypoints/server": "./dist/entrypoints/server.js",
     "./entrypoints/preview": "./dist/entrypoints/preview.js",
     "./entrypoints/server.js": "./dist/entrypoints/server.js",
@@ -39,7 +38,8 @@
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "build": "astro-scripts build \"src/**/*.ts\" --clean-dts && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
-    "test": "astro-scripts test --force-exit \"test/**/*.test.js\""
+    "test": "astro-scripts test --force-exit \"test/**/*.test.ts\"",
+    "typecheck:tests": "tsc --build tsconfig.test.json"
   },
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",

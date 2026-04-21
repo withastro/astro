@@ -201,6 +201,7 @@ async function createSerializedManifest(
 		i18n: i18nManifest,
 		checkOrigin:
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
+		allowedDomains: settings.config.security?.allowedDomains,
 		actionBodySizeLimit: settings.config.security?.actionBodySizeLimit
 			? settings.config.security.actionBodySizeLimit
 			: 1024 * 1024, // 1mb default

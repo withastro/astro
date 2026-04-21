@@ -1,0 +1,28 @@
+---
+import { wait } from '../wait';
+
+export const prerender = false;
+
+// This promise resolves after a delay — the sync sibling should stream before it
+const promise = wait(50).then(() => 'resolved');
+---
+<html>
+<head><title>Fragment Streaming</title></head>
+<body>
+	<!--
+		Issue #13283: sync sibling inside Fragment should stream immediately,
+		before the async child resolves. With the old code it was blocked.
+	-->
+	<Fragment>
+		<p id="sync-in-fragment">I should appear before the promise resolves</p>
+		{promise.then(() => <p id="async-in-fragment">I appear after the promise resolves</p>)}
+	</Fragment>
+
+	<!--
+		Control: same content outside Fragment (bare template expressions).
+		This always worked correctly — used to verify the fix matches this behavior.
+	-->
+	<p id="sync-bare">Bare sync sibling (always worked)</p>
+	{promise.then(() => <p id="async-bare">Bare async sibling</p>)}
+</body>
+</html>

@@ -1,5 +1,11 @@
 # @astrojs/preact
 
+## 5.1.1
+
+### Patch Changes
+
+- [#16180](https://github.com/withastro/astro/pull/16180) [`1d1448c`](https://github.com/withastro/astro/commit/1d1448c2c0e1a149709ada5d00a74f1cd7c1142b) Thanks [@matthewp](https://github.com/matthewp)! - Pre-optimizes `@preact/signals` and `preact/hooks` in the Vite dep optimizer to prevent late discovery triggering full page reloads during dev
+
 ## 5.1.0
 
 ### Minor Changes
