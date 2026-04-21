@@ -40,7 +40,7 @@
     "@types/node": "^20.9.0",
     "@types/yargs": "^17.0.35",
     "astro-scripts": "workspace:*",
-    "tinyglobby": "^0.2.15",
+    "tinyglobby": "^0.2.16",
     "tsx": "^4.21.0"
   },
   "peerDependencies": {

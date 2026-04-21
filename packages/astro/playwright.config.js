@@ -6,7 +6,7 @@ import { defineConfig } from '@playwright/test';
 process.stdout.isTTY = false;
 
 export default defineConfig({
-	testMatch: 'e2e/*.test.js',
+	testMatch: 'e2e/*.test.ts',
 	reporter: 'list',
 	timeout: 40_000,
 	expect: {

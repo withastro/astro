@@ -1,6 +1,7 @@
 import nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import * as vite from 'vite';
+import type { CrawlFrameworkPkgsResult } from 'vitefu';
 import { crawlFrameworkPkgs } from 'vitefu';
 import { vitePluginActions } from '../actions/vite-plugin-actions.js';
 import { getAssetsPrefix } from '../assets/utils/getAssetsPrefix.js';
@@ -71,42 +72,79 @@ type CreateViteOptions = {
 	  }
 );
 
+// In-process cache for crawlFrameworkPkgs results. The crawl walks the entire
+// node_modules tree reading package.json files, which is expensive and produces
+// the same result for a given (root, isBuild) pair within a single process lifetime.
+const _crawlCache = new Map<string, CrawlFrameworkPkgsResult>();
+
+function cloneCrawlResult(result: CrawlFrameworkPkgsResult): CrawlFrameworkPkgsResult {
+	return {
+		optimizeDeps: {
+			include: [...result.optimizeDeps.include],
+			exclude: [...result.optimizeDeps.exclude],
+		},
+		ssr: {
+			noExternal: [...result.ssr.noExternal],
+			external: [...result.ssr.external],
+		},
+	};
+}
+
+/**
+ * Clear the crawlFrameworkPkgs cache. Call this when node_modules may have
+ * changed (e.g. after a dev server restart triggered by config/lockfile change).
+ */
+export function clearCrawlCache(): void {
+	_crawlCache.clear();
+}
+
 /** Return a base vite config as a common starting point for all Vite commands. */
 export async function createVite(
 	commandConfig: vite.InlineConfig,
 	{ settings, logger, mode, command, fs = nodeFs, sync, routesList }: CreateViteOptions,
 ): Promise<vite.InlineConfig> {
-	const astroPkgsConfig = await crawlFrameworkPkgs({
-		root: fileURLToPath(settings.config.root),
-		isBuild: command === 'build',
-		viteUserConfig: settings.config.vite,
-		isFrameworkPkgByJson(pkgJson) {
-			// Certain packages will trigger the checks below, but need to be external. A common example are SSR adapters
-			// for node-based platforms, as we need to control the order of the import paths to make sure polyfills are applied in time.
-			if (pkgJson?.astro?.external === true) {
-				return false;
-			}
+	const root = fileURLToPath(settings.config.root);
+	const isBuild = command === 'build';
+	const crawlCacheKey = `${root}:${isBuild}`;
 
-			return (
-				// Attempt: package relies on `astro`. ✅ Definitely an Astro package
-				pkgJson.peerDependencies?.astro ||
-				pkgJson.dependencies?.astro ||
-				// Attempt: package is tagged with `astro` or `astro-component`. ✅ Likely a community package
-				pkgJson.keywords?.includes('astro') ||
-				pkgJson.keywords?.includes('astro-component') ||
-				// Attempt: package is named `astro-something` or `@scope/astro-something`. ✅ Likely a community package
-				/^(?:@[^/]+\/)?astro-/.test(pkgJson.name)
-			);
-		},
-		isFrameworkPkgByName(pkgName) {
-			const isNotAstroPkg = isCommonNotAstro(pkgName);
-			if (isNotAstroPkg) {
-				return false;
-			} else {
-				return undefined;
-			}
-		},
-	});
+	let astroPkgsConfig = _crawlCache.get(crawlCacheKey);
+	if (!astroPkgsConfig) {
+		astroPkgsConfig = await crawlFrameworkPkgs({
+			root,
+			isBuild,
+			viteUserConfig: settings.config.vite,
+			isFrameworkPkgByJson(pkgJson) {
+				// Certain packages will trigger the checks below, but need to be external. A common example are SSR adapters
+				// for node-based platforms, as we need to control the order of the import paths to make sure polyfills are applied in time.
+				if (pkgJson?.astro?.external === true) {
+					return false;
+				}
+
+				return (
+					// Attempt: package relies on `astro`. ✅ Definitely an Astro package
+					pkgJson.peerDependencies?.astro ||
+					pkgJson.dependencies?.astro ||
+					// Attempt: package is tagged with `astro` or `astro-component`. ✅ Likely a community package
+					pkgJson.keywords?.includes('astro') ||
+					pkgJson.keywords?.includes('astro-component') ||
+					// Attempt: package is named `astro-something` or `@scope/astro-something`. ✅ Likely a community package
+					/^(?:@[^/]+\/)?astro-/.test(pkgJson.name)
+				);
+			},
+			isFrameworkPkgByName(pkgName) {
+				const isNotAstroPkg = isCommonNotAstro(pkgName);
+				if (isNotAstroPkg) {
+					return false;
+				} else {
+					return undefined;
+				}
+			},
+		});
+		_crawlCache.set(crawlCacheKey, astroPkgsConfig);
+	}
+
+	// Return a clone so consumers can't mutate the cached result
+	astroPkgsConfig = cloneCrawlResult(astroPkgsConfig);
 
 	const envLoader = createEnvLoader({
 		mode,

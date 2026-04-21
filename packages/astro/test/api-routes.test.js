@@ -13,7 +13,7 @@ describe('API routes', () => {
 
 	describe('Binary data', () => {
 		it('can be returned from a response', async () => {
-			const dat = await fixture.readFile('/binary.dat', null);
+			const dat = await fixture.readBuffer('/binary.dat');
 			assert.equal(dat.length, 1);
 			assert.equal(dat[0], 0xff);
 		});
