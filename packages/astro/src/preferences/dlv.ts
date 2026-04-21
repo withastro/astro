@@ -1,4 +1,4 @@
-const FORBIDDEN_PATH_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+import { FORBIDDEN_PATH_KEYS } from '@astrojs/internal-helpers/object';
 
 export default function dlv(obj: Record<string, unknown>, key: string): any {
 	for (const k of key.split('.')) {

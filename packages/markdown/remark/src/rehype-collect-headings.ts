@@ -6,9 +6,10 @@ import { visit } from 'unist-util-visit';
 import type { VFile } from 'vfile';
 import type { MarkdownHeading, RehypePlugin } from './types.js';
 
+import { FORBIDDEN_PATH_KEYS } from '@astrojs/internal-helpers/object';
+
 const rawNodeTypes = new Set(['text', 'raw', 'mdxTextExpression']);
 const codeTagNames = new Set(['code', 'pre']);
-const FORBIDDEN_FRONTMATTER_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
 
 /**
  * Rehype plugin that adds `id` attributes to headings based on their text content.
@@ -119,7 +120,7 @@ function getMdxFrontmatterVariableValue(frontmatter: Record<string, any>, path: 
 
 	for (const key of path) {
 		if (
-			FORBIDDEN_FRONTMATTER_KEYS.has(key) ||
+			FORBIDDEN_PATH_KEYS.has(key) ||
 			!value ||
 			typeof value !== 'object' ||
 			!Object.hasOwn(value, key)
