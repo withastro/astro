@@ -181,11 +181,12 @@ describe('Asset Query Parameters in Inter-Chunk JS Imports', () => {
 			const code = await fixture.readFile(`/${file}`);
 			// Match static imports: from "./chunk.js", from "./chunk.js"
 			const staticImports = [
-				...code.matchAll(/(from\s*["'])(\.\.?\/[^"']+\.(?:js|mjs)(?:\?[^"']*)?)(["'])/g),
+				...code.matchAll(/(from\s*["'`])(\.\.?\/[^"'`]+\.(?:js|mjs)(?:\?[^"'`]*)?)(["'`])/g),
 			];
-			// Match dynamic imports: import("./chunk.js")
+			// Match dynamic imports: import("./chunk.js") or import(`./chunk.js`)
+			// Note: Rolldown (Vite 8) emits backtick template literals instead of quotes
 			const dynamicImports = [
-				...code.matchAll(/(import\s*\(\s*["'])(\.\.?\/[^"']+\.(?:js|mjs)(?:\?[^"']*)?)(["'])/g),
+				...code.matchAll(/(import\s*\(\s*["'`])(\.\.?\/[^"'`]+\.(?:js|mjs)(?:\?[^"'`]*)?)(["'`])/g),
 			];
 			for (const match of staticImports) {
 				foundStaticImport = true;
