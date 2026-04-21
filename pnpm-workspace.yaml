@@ -52,6 +52,8 @@ minimumReleaseAgeExclude:
   - astro-og-canvas@0.11.0
   # @types/node@24.12.2 published <3 days ago
   - '@types/node@24.12.2'
+  # Renovate security update: vite@7.3.2
+  - vite@7.3.2
 peerDependencyRules:
   allowAny:
     - 'astro'
