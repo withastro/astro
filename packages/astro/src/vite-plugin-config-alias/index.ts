@@ -91,7 +91,7 @@ const getViteResolveAlias = (settings: AstroSettings) => {
 				for (const resolvedValue of resolvedValues) {
 					const resolved = resolvedValue.replace('*', id);
 					const stats = fs.statSync(resolved, { throwIfNoEntry: false });
-					if (stats && stats.isFile()) {
+					if (stats?.isFile()) {
 						return normalizePath(resolved);
 					}
 				}
@@ -108,6 +108,25 @@ const getViteResolveAlias = (settings: AstroSettings) => {
 				customResolver,
 			});
 		}
+	}
+
+	// Add baseUrl alias for CSS/Sass bare specifiers (e.g. `@use "colors.scss"`).
+	// This mirrors the baseUrl handling in getConfigAlias() but is scoped to
+	// style file extensions to avoid intercepting JS/npm package imports,
+	// which are handled by the resolveId hook instead.
+	if (baseUrl) {
+		aliases.push({
+			find: /^(?!\.*\/|\.*$|\w:)(.+\.(?:css|scss|sass|less|styl|stylus))$/,
+			replacement: '$1',
+			customResolver(id: string) {
+				const resolved = path.resolve(resolvedBaseUrl, id);
+				const stats = fs.statSync(resolved, { throwIfNoEntry: false });
+				if (stats?.isFile()) {
+					return normalizePath(resolved);
+				}
+				return null;
+			},
+		});
 	}
 
 	return aliases;
