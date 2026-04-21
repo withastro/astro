@@ -62,7 +62,7 @@ export class AstroMiddleware {
 			renderRouteCallback(state, ctx, payload);
 
 		let response: Response;
-		if (renderContext.skipMiddleware) {
+		if (state.skipMiddleware) {
 			response = await next(apiContext);
 		} else {
 			const pipelineMiddleware = await pipeline.getMiddleware();

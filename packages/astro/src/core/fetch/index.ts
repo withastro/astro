@@ -1,6 +1,8 @@
+import { ActionHandler } from '../../actions/handler.js';
 import type { BaseApp } from '../app/base.js';
 import { FetchState as BaseFetchState } from '../app/fetch-state.js';
 import { appSymbol } from '../constants.js';
+import { I18n } from '../i18n/handler.js';
 import { AstroMiddleware } from '../middleware/astro-middleware.js';
 import { PagesHandler } from '../pages/handler.js';
 import { AstroHandler } from '../routing/handler.js';
@@ -87,4 +89,48 @@ export function pages(state: FetchState): Promise<Response> {
 		pagesHandlers.set(app, handler);
 	}
 	return handler.handle(state, state.getAPIContext(), undefined);
+}
+
+const actionHandlers = new WeakMap<BaseApp<any>, ActionHandler>();
+
+/**
+ * Handles Astro Action requests (RPC + form). Returns a `Response` for
+ * RPC actions, or `undefined` for form actions / non-action requests
+ * (the caller should continue to page rendering).
+ */
+export function actions(state: FetchState): Promise<Response | undefined> {
+	const app = getApp(state.request);
+	let handler = actionHandlers.get(app);
+	if (!handler) {
+		handler = new ActionHandler();
+		actionHandlers.set(app, handler);
+	}
+	return handler.handle(state.getAPIContext());
+}
+
+// `null` sentinel means "i18n not configured" — avoids re-checking manifest each request.
+const i18nHandlers = new WeakMap<BaseApp<any>, I18n | null>();
+
+function getI18n(app: BaseApp<any>): I18n | null {
+	let handler = i18nHandlers.get(app);
+	if (handler === undefined) {
+		const config = app.manifest.i18n;
+		handler =
+			config && config.strategy !== 'manual'
+				? new I18n(config, app.manifest.base, app.manifest.trailingSlash, app.manifest.buildFormat)
+				: null;
+		i18nHandlers.set(app, handler);
+	}
+	return handler;
+}
+
+/**
+ * Post-processes a response against the app's i18n configuration.
+ * Handles locale redirects, 404s for invalid locales, and fallback
+ * routing. Returns the response unmodified if i18n is not configured.
+ */
+export function i18n(state: FetchState, response: Response): Promise<Response> {
+	const handler = getI18n(getApp(state.request));
+	if (!handler) return Promise.resolve(response);
+	return handler.finalize(state, response);
 }

@@ -1,3 +1,4 @@
+import { ActionHandler } from '../../actions/handler.js';
 import {
 	REROUTABLE_STATUS_CODES,
 	REROUTE_DIRECTIVE_HEADER,
@@ -17,6 +18,7 @@ import type { BaseApp } from '../app/base.js';
 export class AstroHandler {
 	#app: BaseApp<any>;
 	#trailingSlashHandler: TrailingSlashHandler;
+	#actionHandler: ActionHandler;
 	#astroMiddleware: AstroMiddleware;
 	#pagesHandler: PagesHandler;
 	/**
@@ -29,6 +31,7 @@ export class AstroHandler {
 	constructor(app: BaseApp<any>) {
 		this.#app = app;
 		this.#trailingSlashHandler = new TrailingSlashHandler(app);
+		this.#actionHandler = new ActionHandler();
 		this.#astroMiddleware = new AstroMiddleware(app.pipeline);
 		this.#pagesHandler = new PagesHandler(app.pipeline);
 		const i18n = app.manifest.i18n;
@@ -114,7 +117,19 @@ export class AstroHandler {
 				return redirectResponse;
 			}
 
-			const renderRouteCallback = this.#pagesHandler.handle.bind(this.#pagesHandler);
+			// Run actions then pages at the bottom of the middleware chain.
+			// Actions may short-circuit (RPC) or fall through (form actions).
+			// Skipped during error-page recovery (skipMiddleware=true) to
+			// avoid re-running the action.
+			const actionHandler = this.#actionHandler;
+			const pagesHandler = this.#pagesHandler;
+			const renderRouteCallback = async (...args: Parameters<typeof pagesHandler.handle>) => {
+				if (!state.skipMiddleware) {
+					const actionResponse = await actionHandler.handle(args[1]);
+					if (actionResponse) return actionResponse;
+				}
+				return pagesHandler.handle(...args);
+			};
 			// Run middleware + (optional) i18n post-processing together so
 			// that any cache wrapping sees the final response.
 			const runPipeline = async (): Promise<Response> => {

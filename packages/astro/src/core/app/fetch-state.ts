@@ -113,6 +113,15 @@ export class FetchState {
 	}
 
 	/**
+	 * Whether user middleware should be skipped for this request.
+	 * Delegates to `renderContext.skipMiddleware`; returns `false` if
+	 * no render context has been set yet.
+	 */
+	get skipMiddleware(): boolean {
+		return this.renderContext?.skipMiddleware ?? false;
+	}
+
+	/**
 	 * Returns the `BaseApp` instance stamped on the request by
 	 * `BaseApp.render()`. Throws if the request has no attached app.
 	 */

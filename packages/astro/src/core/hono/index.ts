@@ -1,6 +1,8 @@
 import {
 	FetchState,
+	actions as fetchActions,
 	astro as fetchAstro,
+	i18n as fetchI18n,
 	middleware as fetchMiddleware,
 	pages as fetchPages,
 	trailingSlash as fetchTrailingSlash,
@@ -14,6 +16,7 @@ type HonoContextLike = {
 	req: {
 		raw: Request;
 	};
+	res: Response;
 	get?: (key: string) => unknown;
 	set?: (key: string, value: unknown) => void;
 };
@@ -56,8 +59,23 @@ export function middleware(
 	};
 }
 
+export function actions(): HonoMiddlewareHandler {
+	return async (context, honoNext) => {
+		const response = await fetchActions(getFetchState(context));
+		if (response) return response;
+		await honoNext();
+	};
+}
+
 export function pages(): HonoMiddlewareHandler {
 	return async (context, _honoNext) => {
 		return fetchPages(getFetchState(context));
+	};
+}
+
+export function i18n(): HonoMiddlewareHandler {
+	return async (context, honoNext) => {
+		await honoNext();
+		context.res = await fetchI18n(getFetchState(context), context.res);
 	};
 }

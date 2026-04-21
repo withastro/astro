@@ -1,4 +1,3 @@
-import { ActionHandler } from '../../actions/handler.js';
 import { renderEndpoint } from '../../runtime/server/endpoint.js';
 import { renderPage } from '../../runtime/server/index.js';
 import type { RewritePayload } from '../../types/public/common.js';
@@ -40,11 +39,9 @@ const EMPTY_SLOTS: Record<string, never> = Object.freeze({});
  */
 export class PagesHandler {
 	#pipeline: Pipeline;
-	#actionHandler: ActionHandler;
 
 	constructor(pipeline: Pipeline) {
 		this.#pipeline = pipeline;
-		this.#actionHandler = new ActionHandler();
 	}
 
 	async handle(state: FetchState, ctx: APIContext, payload?: RewritePayload): Promise<Response> {
@@ -108,19 +105,6 @@ export class PagesHandler {
 			state.invalidateContexts();
 		}
 		let response: Response;
-
-		// Handle Astro Action requests (RPC + form).
-		// - RPC: returns a serialized action result and short-circuits rendering.
-		// - Form: runs the action, stashes the result in `locals._actionPayload`,
-		//   and falls through to render the page normally.
-		// Skipped during error-page recovery (skipMiddleware=true) to match
-		// the prior form-action behavior and avoid re-running the action.
-		if (!renderContext.skipMiddleware) {
-			const actionResponse = await this.#actionHandler.handle(ctx);
-			if (actionResponse) {
-				return actionResponse;
-			}
-		}
 
 		const componentInstance = state.componentInstance;
 		switch (renderContext.routeData.type) {
