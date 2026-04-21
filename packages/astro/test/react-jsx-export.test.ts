@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { AstroLogger } from '../dist/core/logger/core.js';
-import { loadFixture } from './test-utils.js';
+import { type AstroLogMessage, AstroLogger } from '../dist/core/logger/core.js';
+import { type Fixture, loadFixture } from './test-utils.js';
 
 describe('react-jsx-export', () => {
-	let fixture;
-	let logs = [];
+	let fixture: Fixture;
+	const logs: AstroLogMessage[] = [];
 
 	const ids = [
 		'anonymous_arrow_default_export',
@@ -38,7 +38,10 @@ describe('react-jsx-export', () => {
 		fixture = await loadFixture({
 			root: './fixtures/react-jsx-export/',
 		});
-		await fixture.build({ logger });
+		await fixture.build({
+			// @ts-expect-error: `logger` is @internal in AstroInlineConfig so it's stripped from dist types
+			logger
+		});
 	});
 
 	it('Can load all JSX components', async () => {
@@ -52,7 +55,7 @@ describe('react-jsx-export', () => {
 
 	it('Cannot output React Invalid Hook warning', async () => {
 		assert.equal(
-			logs.every((log) => log.message.indexOf(reactInvalidHookWarning) === -1),
+			logs.every((log) => !log.message.includes(reactInvalidHookWarning)),
 			true,
 		);
 	});

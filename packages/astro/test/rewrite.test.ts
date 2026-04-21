@@ -1,12 +1,11 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
 
 describe('Dev rewrite, trailing slash -> never', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-	let devServer;
+	let fixture: Fixture;
+	let devServer: DevServer;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -28,9 +27,8 @@ describe('Dev rewrite, trailing slash -> never', () => {
 });
 
 describe('Dev rewrite, trailing slash -> never, with base', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-	let devServer;
+	let fixture: Fixture;
+	let devServer: DevServer;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -63,9 +61,8 @@ describe('Dev rewrite, trailing slash -> never, with base', () => {
 });
 
 describe('Dev rewrite, hybrid/server', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-	let devServer;
+	let fixture: Fixture;
+	let devServer: DevServer;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -110,9 +107,8 @@ describe('Dev rewrite, hybrid/server', () => {
 });
 
 describe('Dev rewrite URL contains base and has no trailing slash', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-	let devServer;
+	let fixture: Fixture;
+	let devServer: DevServer;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -176,9 +172,8 @@ describe('SSR route', () => {
 });
 
 describe('Runtime error, default 500', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-	let devServer;
+	let fixture: Fixture;
+	let devServer: DevServer;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -200,9 +195,8 @@ describe('Runtime error, default 500', () => {
 });
 
 describe('Runtime error in dev, custom 500', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-	let devServer;
+	let fixture: Fixture;
+	let devServer: DevServer;
 
 	before(async () => {
 		fixture = await loadFixture({

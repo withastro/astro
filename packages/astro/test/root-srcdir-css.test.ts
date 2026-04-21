@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.js';
 
 describe('srcDir', () => {
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -19,7 +19,7 @@ describe('srcDir', () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 
-		const relPath = $('link').attr('href');
+		const relPath = $('link').attr('href')!;
 		const css = await fixture.readFile(relPath);
 		assert.match(css, /body\{color:green\}/);
 	});

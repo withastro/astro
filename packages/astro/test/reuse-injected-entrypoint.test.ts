@@ -1,9 +1,19 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
 
-const routes = [
+type Route = {
+	description: string;
+	url: string;
+	h1?: string;
+	p?: string;
+	scriptContent?: string;
+	htmlMatch?: string;
+	fourOhFour?: boolean;
+};
+
+const routes: Route[] = [
 	{
 		description: 'matches / to index.astro',
 		url: '/',
@@ -53,13 +63,13 @@ const routes = [
 	},
 ];
 
-function appendForwardSlash(path) {
+function appendForwardSlash(path: string) {
 	return path.endsWith('/') ? path : path + '/';
 }
 
 describe('Reuse injected entrypoint', () => {
 	describe('build', () => {
-		let fixture;
+		let fixture: Fixture;
 
 		before(async () => {
 			fixture = await loadFixture({
@@ -107,8 +117,8 @@ describe('Reuse injected entrypoint', () => {
 	});
 
 	describe('dev', () => {
-		let fixture;
-		let devServer;
+		let fixture: Fixture;
+		let devServer: DevServer;
 
 		before(async () => {
 			fixture = await loadFixture({

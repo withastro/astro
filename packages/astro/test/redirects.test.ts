@@ -1,16 +1,14 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
 
 describe('Astro.redirect output: "static"', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	describe('dev', () => {
-		/** @type {import('./test-utils.js').DevServer} */
-		let devServer;
+		let devServer: DevServer;
 		before(async () => {
-			process.env.STATIC_MODE = true;
+			process.env.STATIC_MODE = 'true';
 			fixture = await loadFixture({
 				root: './fixtures/redirects/',
 				output: 'static',
