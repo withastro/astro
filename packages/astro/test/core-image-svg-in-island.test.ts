@@ -1,11 +1,10 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
 
 describe('astro:assets - SVG Components in Astro Islands', async () => {
-	/** @type {import('./test-utils.js').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -14,8 +13,7 @@ describe('astro:assets - SVG Components in Astro Islands', async () => {
 	});
 
 	describe('dev', () => {
-		/** @type {import('./test-utils.js').DevServer} */
-		let devServer;
+		let devServer: DevServer;
 
 		before(async () => {
 			devServer = await fixture.startDevServer();
@@ -27,14 +25,14 @@ describe('astro:assets - SVG Components in Astro Islands', async () => {
 			const html = await fixture.fetch('/').then((res) => res.text());
 			const $ = cheerio.load(html, { xml: true });
 			const island = $('astro-island');
-			const componentUrl = island.attr('component-url');
+			const componentUrl = island.attr('component-url')!;
 			assert.ok(componentUrl, 'Expected component-url attribute to be present on astro-island.');
 			const componentModule = await fixture.fetch(componentUrl).then((res) => res.text());
 			const imports = componentModule
 				.split('\n')
 				.map((line) => line.trim())
 				.filter((line) => line.startsWith('import '));
-			const svgImportStatement = imports.find((imp) => imp.includes('src/components/astro.svg'));
+			const svgImportStatement = imports.find((imp) => imp.includes('src/components/astro.svg'))!;
 			assert.ok(svgImportStatement, 'Expected SVG to be imported in the component.');
 			const importPath = svgImportStatement.split('from')[1].trim().replace(/['";]/g, '');
 			const mod = await fixture.fetch(importPath).then((res) => res.text());
@@ -50,7 +48,7 @@ describe('astro:assets - SVG Components in Astro Islands', async () => {
 	});
 
 	describe('build', () => {
-		before(() => fixture.build({}));
+		before(() => fixture.build());
 
 		after(() => fixture.clean());
 

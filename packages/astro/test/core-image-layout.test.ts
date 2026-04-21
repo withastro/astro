@@ -6,15 +6,13 @@ import parseSrcset from 'parse-srcset';
 import { AstroLogger } from '../dist/core/logger/core.js';
 import { testImageService } from './test-image-service.js';
 import { testRemoteImageService } from './test-remote-image-service.js';
-import { loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
 
 describe('astro:image:layout', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	describe('local image service', () => {
-		/** @type {import('./test-utils').DevServer} */
-		let devServer;
+		let devServer: DevServer;
 		const walrusImagePath =
 			'https://images.unsplash.com/photo-1690941380217-24dfa9a1d21f?q=80&w=1476&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
 		const imageScale = 2;
@@ -39,111 +37,111 @@ describe('astro:image:layout', () => {
 		});
 
 		describe('basics', () => {
-			let $;
+			let $: cheerio.CheerioAPI;
 			before(async () => {
-				let res = await fixture.fetch('/');
-				let html = await res.text();
+				const res = await fixture.fetch('/');
+				const html = await res.text();
 				$ = cheerio.load(html);
 			});
 
 			it('Adds the <img> tag', () => {
-				let $img = $('#local img');
+				const $img = $('#local img');
 				assert.equal($img.length, 1);
-				assert.equal($img.attr('src').startsWith('/_image'), true);
+				assert.equal($img.attr('src')!.startsWith('/_image'), true);
 			});
 
 			it('includes lazy loading attributes', () => {
-				let $img = $('#local img');
+				const $img = $('#local img');
 				assert.equal($img.attr('loading'), 'lazy');
 				assert.equal($img.attr('decoding'), 'async');
 				assert.equal($img.attr('fetchpriority'), undefined);
 			});
 
 			it('includes priority loading attributes', () => {
-				let $img = $('#local-priority img');
+				const $img = $('#local-priority img');
 				assert.equal($img.attr('loading'), 'eager');
 				assert.equal($img.attr('decoding'), 'sync');
 				assert.equal($img.attr('fetchpriority'), 'high');
 			});
 
 			it('has width and height - no dimensions set', () => {
-				let $img = $('#local img');
+				const $img = $('#local img');
 				assert.equal($img.attr('width'), '2316');
 				assert.equal($img.attr('height'), '1544');
 			});
 
 			it('has proper width and height - only width', () => {
-				let $img = $('#local-width img');
+				const $img = $('#local-width img');
 				assert.equal($img.attr('width'), '350');
 				assert.equal($img.attr('height'), '233');
 			});
 
 			it('has proper width and height - only height', () => {
-				let $img = $('#local-height img');
+				const $img = $('#local-height img');
 				assert.equal($img.attr('width'), '300');
 				assert.equal($img.attr('height'), '200');
 			});
 
 			it('has proper width and height - has both width and height', () => {
-				let $img = $('#local-both img');
+				const $img = $('#local-both img');
 				assert.equal($img.attr('width'), '300');
 				assert.equal($img.attr('height'), '400');
 			});
 
 			it('sets the style', () => {
-				let $img = $('#local-both img');
+				const $img = $('#local-both img');
 				assert.equal($img.data('astro-image'), 'constrained');
 			});
 
 			it('sets the style when no dimensions set', () => {
-				let $img = $('#local img');
+				const $img = $('#local img');
 				assert.equal($img.data('astro-image'), 'constrained');
 			});
 
 			it('sets style for fixed image', () => {
-				let $img = $('#local-fixed img');
+				const $img = $('#local-fixed img');
 				assert.equal($img.data('astro-image'), 'fixed');
 			});
 
 			it('sets style for full-width image', () => {
-				let $img = $('#local-full-width img');
+				const $img = $('#local-full-width img');
 				assert.equal($img.data('astro-image'), 'full-width');
 			});
 
 			it('passes in a parent class', () => {
-				let $img = $('#local-class img');
+				const $img = $('#local-class img');
 
-				assert.match($img.attr('class'), /green/);
+				assert.match($img.attr('class')!, /green/);
 			});
 
 			it('passes in a parent style', () => {
-				let $img = $('#local-style img');
-				assert.match($img.attr('style'), /border: 2px red solid/);
+				const $img = $('#local-style img');
+				assert.match($img.attr('style')!, /border: 2px red solid/);
 			});
 
 			it('passes in a parent style as an object', () => {
-				let $img = $('#local-style-object img');
-				assert.match($img.attr('style'), /border:2px red solid/);
+				const $img = $('#local-style-object img');
+				assert.match($img.attr('style')!, /border:2px red solid/);
 			});
 		});
 
 		describe('remote images', () => {
-			let $;
+			let $: cheerio.CheerioAPI;
 			before(async () => {
-				let res = await fixture.fetch('/remote');
-				let html = await res.text();
+				const res = await fixture.fetch('/remote');
+				const html = await res.text();
 				$ = cheerio.load(html);
 			});
 
 			describe('inferSize', () => {
 				it('default inferSize works', () => {
-					let $img = $('#infer-size img');
+					const $img = $('#infer-size img');
 					assert.equal($img.attr('width'), '2670');
 					assert.equal($img.attr('height'), '1780');
 				});
 
 				it('custom inferSize works', () => {
-					let $img = $('#infer-size-custom img');
+					const $img = $('#infer-size-custom img');
 					assert.equal($img.attr('width'), (1476 * imageScale).toString());
 					assert.equal($img.attr('height'), (978 * imageScale).toString());
 				});
@@ -151,28 +149,27 @@ describe('astro:image:layout', () => {
 		});
 
 		describe('picture component', () => {
-			/** Original image dimensions */
+			// Original image dimensions
 			const originalWidth = 2316;
 			const originalHeight = 1544;
 
-			/** @type {import("cheerio").CheerioAPI} */
-			let $;
+			let $: cheerio.CheerioAPI;
 			before(async () => {
-				let res = await fixture.fetch('/picture');
-				let html = await res.text();
+				const res = await fixture.fetch('/picture');
+				const html = await res.text();
 				$ = cheerio.load(html);
 			});
 
 			describe('basics', () => {
 				it('creates picture and img elements', () => {
-					let $picture = $('#picture-density-2-format picture');
-					let $img = $('#picture-density-2-format img');
+					const $picture = $('#picture-density-2-format picture');
+					const $img = $('#picture-density-2-format img');
 					assert.equal($picture.length, 1);
 					assert.equal($img.length, 1);
 				});
 
 				it('includes source elements for each format', () => {
-					let $sources = $('#picture-density-2-format source');
+					const $sources = $('#picture-density-2-format source');
 					assert.equal($sources.length, 2); // avif and webp formats
 
 					const types = $sources.map((_, el) => $(el).attr('type')).get();
@@ -180,15 +177,15 @@ describe('astro:image:layout', () => {
 				});
 
 				it('generates responsive srcset matching layout breakpoints', () => {
-					let $source = $('#picture-density-2-format source').first();
-					const srcset = parseSrcset($source.attr('srcset'));
+					const $source = $('#picture-density-2-format source').first();
+					const srcset = parseSrcset($source.attr('srcset')!);
 
 					const widths = srcset.map((s) => s.w);
 					assert.deepEqual(widths, [640, 750, 828, 1080, 1158, 1280, 1668, 2048, 2316]);
 				});
 
 				it('has proper width and height attributes', () => {
-					let $img = $('#picture-density-2-format img');
+					const $img = $('#picture-density-2-format img');
 					// Width is set to half of original in the component
 					const expectedWidth = Math.round(originalWidth / 2);
 					const expectedHeight = Math.round(originalHeight / 2);
@@ -200,59 +197,59 @@ describe('astro:image:layout', () => {
 
 			describe('responsive variants', () => {
 				it('constrained - has max of 2x requested size', () => {
-					let $source = $('#picture-constrained source').first();
-					const widths = parseSrcset($source.attr('srcset')).map((s) => s.w);
+					const $source = $('#picture-constrained source').first();
+					const widths = parseSrcset($source.attr('srcset')!).map((s) => s.w);
 					assert.equal(widths.at(-1), 1600); // Max should be 2x the 800px width
 
-					let $img = $('#picture-constrained img');
+					const $img = $('#picture-constrained img');
 					const aspectRatio = originalWidth / originalHeight;
 					assert.equal($img.attr('width'), '800');
 					assert.equal($img.attr('height'), Math.round(800 / aspectRatio).toString());
 				});
 
 				it('constrained - just has 1x and 2x when smaller than min breakpoint', () => {
-					let $source = $('#picture-both source').first();
-					const widths = parseSrcset($source.attr('srcset')).map((s) => s.w);
+					const $source = $('#picture-both source').first();
+					const widths = parseSrcset($source.attr('srcset')!).map((s) => s.w);
 					assert.deepEqual(widths, [300, 600]); // Just 1x and 2x for small images
 
-					let $img = $('#picture-both img');
+					const $img = $('#picture-both img');
 					assert.equal($img.attr('width'), '300');
 					assert.equal($img.attr('height'), '400');
 				});
 
 				it('fixed - has just 1x and 2x', () => {
-					let $source = $('#picture-fixed source').first();
-					const widths = parseSrcset($source.attr('srcset')).map((s) => s.w);
+					const $source = $('#picture-fixed source').first();
+					const widths = parseSrcset($source.attr('srcset')!).map((s) => s.w);
 					assert.deepEqual(widths, [400, 800]); // Fixed layout only needs 1x and 2x
 
-					let $img = $('#picture-fixed img');
+					const $img = $('#picture-fixed img');
 					assert.equal($img.attr('width'), '400');
 					assert.equal($img.attr('height'), '300');
 				});
 
 				it('full-width: has all breakpoints below image size', () => {
-					let $source = $('#picture-full-width source').first();
-					const widths = parseSrcset($source.attr('srcset')).map((s) => s.w);
+					const $source = $('#picture-full-width source').first();
+					const widths = parseSrcset($source.attr('srcset')!).map((s) => s.w);
 					assert.deepEqual(widths, [640, 750, 828, 1080, 1280, 1668, 2048]);
 				});
 			});
 
 			describe('fallback format', () => {
 				it('uses specified fallback format', () => {
-					let $img = $('#picture-fallback img');
-					const imageURL = new URL($img.attr('src'), 'http://localhost');
+					const $img = $('#picture-fallback img');
+					const imageURL = new URL($img.attr('src')!, 'http://localhost');
 					assert.equal(imageURL.searchParams.get('f'), 'jpeg');
 				});
 
 				it('does not add fallbackFormat as an attribute', () => {
-					let $img = $('#picture-fallback img');
+					const $img = $('#picture-fallback img');
 					assert.equal($img.attr('fallbackformat'), undefined);
 				});
 
 				it('maintains original aspect ratio', () => {
-					let $img = $('#picture-fallback img');
-					const width = Number.parseInt($img.attr('width'));
-					const height = Number.parseInt($img.attr('height'));
+					const $img = $('#picture-fallback img');
+					const width = Number.parseInt($img.attr('width')!);
+					const height = Number.parseInt($img.attr('height')!);
 					const imageAspectRatio = width / height;
 					const originalAspectRatio = originalWidth / originalHeight;
 
@@ -263,17 +260,17 @@ describe('astro:image:layout', () => {
 
 			describe('attributes', () => {
 				it('applies class to img element', () => {
-					let $img = $('#picture-attributes img');
-					assert.ok($img.attr('class').includes('img-comp'));
+					const $img = $('#picture-attributes img');
+					assert.ok($img.attr('class')!.includes('img-comp'));
 				});
 
 				it('applies pictureAttributes to picture element', () => {
-					let $picture = $('#picture-attributes picture');
-					assert.ok($picture.attr('class').includes('picture-comp'));
+					const $picture = $('#picture-attributes picture');
+					assert.ok($picture.attr('class')!.includes('picture-comp'));
 				});
 
 				it('adds data attributes instead of inline styles', () => {
-					let $img = $('#picture-attributes img');
+					const $img = $('#picture-attributes img');
 					// Should have data attributes for CSP compliance
 					assert.ok($img.attr('data-astro-image'));
 					// Should NOT have inline style CSS variables
@@ -285,14 +282,14 @@ describe('astro:image:layout', () => {
 				});
 
 				it('passing in style as an object', () => {
-					let $img = $('#picture-style-object img');
-					const style = $img.attr('style');
+					const $img = $('#picture-style-object img');
+					const style = $img.attr('style')!;
 					assert.match(style, /border:2px red solid/);
 				});
 
 				it('passing in style as a string', () => {
-					let $img = $('#picture-style img');
-					const style = $img.attr('style');
+					const $img = $('#picture-style img');
+					const style = $img.attr('style')!;
 					assert.match(style, /border: 2px red solid/);
 				});
 			});
@@ -327,7 +324,7 @@ describe('astro:image:layout', () => {
 					];
 
 					$sources.each((_, source) => {
-						const type = $(source).attr('type');
+						const type = $(source).attr('type')!;
 						assert.ok(
 							validMimeTypes.includes(type),
 							`Expected type attribute value to be a valid MIME type: ${type}`,
@@ -339,10 +336,8 @@ describe('astro:image:layout', () => {
 	});
 
 	describe('remote image service', () => {
-		/** @type {import('./test-utils').DevServer} */
-		let devServer;
-		/** @type {Array<{ type: any, level: 'error', message: string; }>} */
-		let logs = [];
+		let devServer: DevServer;
+		const logs: Array<{ type: any; level: 'error'; message: string }> = [];
 
 		before(async () => {
 			fixture = await loadFixture({
@@ -353,17 +348,20 @@ describe('astro:image:layout', () => {
 				},
 			});
 
-			devServer = await fixture.startDevServer({
-				logger: new AstroLogger({
-					level: 'error',
-					destination: new Writable({
-						objectMode: true,
-						write(event, _, callback) {
-							logs.push(event);
-							callback();
-						},
-					}),
+			const logger = new AstroLogger({
+				level: 'error',
+				destination: new Writable({
+					objectMode: true,
+					write(event, _, callback) {
+						logs.push(event);
+						callback();
+					},
 				}),
+			});
+			devServer = await fixture.startDevServer({
+				// `logger` is @internal in AstroInlineConfig so it's stripped from dist types
+				// @ts-expect-error
+				logger,
 			});
 		});
 
@@ -385,97 +383,97 @@ describe('astro:image:layout', () => {
 			await fixture.build();
 		});
 		describe('basics', () => {
-			let $;
-			let html;
+			let $: cheerio.CheerioAPI;
+			let html: string;
 			before(async () => {
 				html = await fixture.readFile('/index.html');
 				$ = cheerio.load(html);
 			});
 
 			it('Adds the <img> tag', () => {
-				let $img = $('#local img');
+				const $img = $('#local img');
 				assert.equal($img.length, 1);
-				assert.ok($img.attr('src').startsWith('/_astro'));
+				assert.ok($img.attr('src')!.startsWith('/_astro'));
 			});
 
 			it('includes lazy loading attributes', () => {
-				let $img = $('#local img');
+				const $img = $('#local img');
 				assert.equal($img.attr('loading'), 'lazy');
 				assert.equal($img.attr('decoding'), 'async');
 				assert.equal($img.attr('fetchpriority'), undefined);
 			});
 
 			it('includes priority loading attributes', () => {
-				let $img = $('#local-priority img');
+				const $img = $('#local-priority img');
 				assert.equal($img.attr('loading'), 'eager');
 				assert.equal($img.attr('decoding'), 'sync');
 				assert.equal($img.attr('fetchpriority'), 'high');
 			});
 
 			it('has width and height - no dimensions set', () => {
-				let $img = $('#local img');
+				const $img = $('#local img');
 				assert.equal($img.attr('width'), '2316');
 				assert.equal($img.attr('height'), '1544');
 			});
 
 			it('has proper width and height - only width', () => {
-				let $img = $('#local-width img');
+				const $img = $('#local-width img');
 				assert.equal($img.attr('width'), '350');
 				assert.equal($img.attr('height'), '233');
 			});
 
 			it('has proper width and height - only height', () => {
-				let $img = $('#local-height img');
+				const $img = $('#local-height img');
 				assert.equal($img.attr('width'), '300');
 				assert.equal($img.attr('height'), '200');
 			});
 
 			it('has proper width and height - has both width and height', () => {
-				let $img = $('#local-both img');
+				const $img = $('#local-both img');
 				assert.equal($img.attr('width'), '300');
 				assert.equal($img.attr('height'), '400');
 			});
 
 			it('sets the style', () => {
-				let $img = $('#local-both img');
+				const $img = $('#local-both img');
 				assert.equal($img.data('astro-image'), 'constrained');
 			});
 
 			it('sets the style when no dimensions set', () => {
-				let $img = $('#local img');
+				const $img = $('#local img');
 				assert.equal($img.data('astro-image'), 'constrained');
 			});
 
 			it('sets style for fixed image', () => {
-				let $img = $('#local-fixed img');
+				const $img = $('#local-fixed img');
 				assert.equal($img.data('astro-image'), 'fixed');
 			});
 
 			it('sets style for full-width image', () => {
-				let $img = $('#local-full-width img');
+				const $img = $('#local-full-width img');
 				assert.equal($img.data('astro-image'), 'full-width');
 			});
 
 			it('passes in a parent class', () => {
-				let $img = $('#local-class img');
+				const $img = $('#local-class img');
 				assert.equal($img.prop('class'), 'green');
 			});
 
 			it('only passes the class in once', () => {
 				// Check that class="green" only appears once
 				// We can't use cheerio because it normalises the DOM, so we have to use a regex
-				const matches = html.match(/class="green"/g);
+				const matches = html.match(/class="green"/g)!;
 				assert.equal(matches.length, 1);
 			});
 
 			it('passes in a parent style', () => {
-				let $img = $('#local-style img');
-				assert.match($img.attr('style'), /border: 2px red solid/);
+				const $img = $('#local-style img');
+				assert.match($img.attr('style')!, /border: 2px red solid/);
 			});
 
 			it('passes in a parent style as an object', () => {
-				let $img = $('#local-style-object img');
-				assert.match($img.attr('style'), /border:2px red solid/);
+				const $img = $('#local-style-object img');
+				assert.match($img.attr('style')!, /border:2px red solid/);
 			});
 
 			it('injects a style tag', () => {

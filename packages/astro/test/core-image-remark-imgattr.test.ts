@@ -4,34 +4,34 @@ import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 
 import { AstroLogger } from '../dist/core/logger/core.js';
-import { loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
 
 describe('astro:image', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	describe('dev', () => {
-		/** @type {import('./test-utils').DevServer} */
-		let devServer;
-		/** @type {Array<{ type: any, level: 'error', message: string; }>} */
-		let logs = [];
+		let devServer: DevServer;
+		const logs: Array<{ type: any; level: 'error'; message: string }> = [];
 
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/core-image-remark-imgattr/',
 			});
 
-			devServer = await fixture.startDevServer({
-				logger: new AstroLogger({
-					level: 'error',
-					destination: new Writable({
-						objectMode: true,
-						write(event, _, callback) {
-							logs.push(event);
-							callback();
-						},
-					}),
+			const logger = new AstroLogger({
+				level: 'error',
+				destination: new Writable({
+					objectMode: true,
+					write(event, _, callback) {
+						logs.push(event);
+						callback();
+					},
 				}),
+			});
+			devServer = await fixture.startDevServer({
+				// `logger` is @internal in AstroInlineConfig so it's stripped from dist types
+				// @ts-expect-error
+				logger,
 			});
 		});
 
@@ -40,21 +40,21 @@ describe('astro:image', () => {
 		});
 
 		describe('Test image attributes can be added by remark plugins', () => {
-			let $;
+			let $: cheerio.CheerioAPI;
 			before(async () => {
-				let res = await fixture.fetch('/');
-				let html = await res.text();
+				const res = await fixture.fetch('/');
+				const html = await res.text();
 				$ = cheerio.load(html);
 			});
 
 			it('Image has eager loading meaning getImage passed props it doesnt use through it', async () => {
-				let $img = $('img');
+				const $img = $('img');
 				assert.equal($img.attr('loading'), 'eager');
 			});
 
 			it('Image src contains w=50 meaning getImage correctly used props added through the remark plugin', async () => {
-				let $img = $('img');
-				assert.equal(new URL($img.attr('src'), 'http://example.com').searchParams.get('w'), '50');
+				const $img = $('img');
+				assert.equal(new URL($img.attr('src')!, 'http://example.com').searchParams.get('w'), '50');
 			});
 		});
 	});

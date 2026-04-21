@@ -3,34 +3,33 @@ import { Writable } from 'node:stream';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { AstroLogger } from '../dist/core/logger/core.js';
-import { loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
 
 describe('astro:assets - SVG Components', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	describe('dev', () => {
-		/** @type {import('./test-utils').DevServer} */
-		let devServer;
-		/** @type {Array<{ type: any, level: 'error', message: string; }>} */
-		let logs = [];
+		let devServer: DevServer;
+		const logs: Array<{ type: any; level: 'error'; message: string }> = [];
 
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/core-image-svg/',
 			});
 
-			devServer = await fixture.startDevServer({
-				logger: new AstroLogger({
-					level: 'error',
-					destination: new Writable({
-						objectMode: true,
-						write(event, _, callback) {
-							logs.push(event);
-							callback();
-						},
-					}),
+			const logger = new AstroLogger({
+				level: 'error',
+				destination: new Writable({
+					objectMode: true,
+					write(event, _, callback) {
+						logs.push(event);
+						callback();
+					},
 				}),
+			});
+			devServer = await fixture.startDevServer({
+				// @ts-expect-error: `logger` is @internal in AstroInlineConfig so it's stripped from dist types
+				logger,
 			});
 		});
 
@@ -39,10 +38,10 @@ describe('astro:assets - SVG Components', () => {
 		});
 
 		describe('basics', () => {
-			let $;
+			let $: cheerio.CheerioAPI;
 			before(async () => {
-				let res = await fixture.fetch('/');
-				let html = await res.text();
+				const res = await fixture.fetch('/');
+				const html = await res.text();
 				$ = cheerio.load(html, { xml: true });
 			});
 			it('Inlines the SVG by default', () => {
@@ -53,17 +52,17 @@ describe('astro:assets - SVG Components', () => {
 
 		describe('props', () => {
 			describe('strip', () => {
-				let $;
-				let html;
+				let $: cheerio.CheerioAPI;
+				let html: string;
 
 				before(async () => {
-					let res = await fixture.fetch('/strip');
+					const res = await fixture.fetch('/strip');
 					html = await res.text();
 					$ = cheerio.load(html, { xml: true });
 				});
 
 				it('removes unnecessary attributes', () => {
-					let $svg = $('#base svg');
+					const $svg = $('#base svg');
 					assert.equal($svg.length, 1);
 					assert.equal(!!$svg.attr('xmlns'), false);
 					assert.equal(!!$svg.attr('xmlns:xlink'), false);
@@ -73,7 +72,7 @@ describe('astro:assets - SVG Components', () => {
 					let $svg = $('#additionalNodes');
 					// Ensure we only have the svg node
 					assert.equal($svg.children().length, 1);
-					assert.equal($svg.children()[0].name, 'svg');
+					assert.equal(($svg.children()[0] as { name: string }).name, 'svg');
 					$svg = $svg.children('svg');
 					assert.equal($svg.length, 1);
 					assert.equal(!!$svg.attr('xmlns'), false);
@@ -85,15 +84,15 @@ describe('astro:assets - SVG Components', () => {
 				});
 			});
 			describe('additional props', () => {
-				let $;
+				let $: cheerio.CheerioAPI;
 				before(async () => {
-					let res = await fixture.fetch('/props');
-					let html = await res.text();
+					const res = await fixture.fetch('/props');
+					const html = await res.text();
 					$ = cheerio.load(html, { xml: true });
 				});
 
 				it('adds the props to the svg', () => {
-					let $svg = $('#base svg');
+					const $svg = $('#base svg');
 					assert.equal($svg.length, 1);
 					assert.equal($svg.attr('aria-hidden'), 'true');
 					assert.equal($svg.attr('id'), 'plus');
@@ -105,7 +104,7 @@ describe('astro:assets - SVG Components', () => {
 					assert.equal($path.length, 1);
 				});
 				it('allows specifying the role attribute', () => {
-					let $svg = $('#role svg');
+					const $svg = $('#role svg');
 					assert.equal($svg.length, 1);
 					assert.equal($svg.attr('role'), 'presentation');
 				});
@@ -114,8 +113,8 @@ describe('astro:assets - SVG Components', () => {
 
 		describe('markdown', () => {
 			it('Adds the <svg> tag with the definition', async () => {
-				let res = await fixture.fetch('/blog/basic');
-				let html = await res.text();
+				const res = await fixture.fetch('/blog/basic');
+				const html = await res.text();
 				const $ = cheerio.load(html, { xml: true });
 
 				const $svg = $('svg');
@@ -125,8 +124,8 @@ describe('astro:assets - SVG Components', () => {
 				assert.equal($path.length > 0, true);
 			});
 			it('Adds the <svg> tag that applies props', async () => {
-				let res = await fixture.fetch('/blog/props');
-				let html = await res.text();
+				const res = await fixture.fetch('/blog/props');
+				const html = await res.text();
 				const $ = cheerio.load(html, { xml: true });
 
 				const $svg = $('svg');
@@ -141,8 +140,8 @@ describe('astro:assets - SVG Components', () => {
 
 		describe('metadata', () => {
 			it('returns a serializable metadata object', async () => {
-				let res = await fixture.fetch('/serialize.json');
-				let json = await res.json();
+				const res = await fixture.fetch('/serialize.json');
+				const json = await res.json();
 				assert.equal(json.image.format, 'svg');
 				assert.equal(json.image.width, 85);
 				assert.equal(json.image.height, 107);
@@ -152,10 +151,8 @@ describe('astro:assets - SVG Components', () => {
 	});
 
 	describe('SVGO optimization', () => {
-		/** @type {import('./test-utils').Fixture} */
-		let optimizedFixture;
-		/** @type {import('./test-utils').DevServer} */
-		let optimizedDevServer;
+		let optimizedFixture: Fixture;
+		let optimizedDevServer: DevServer;
 
 		before(async () => {
 			optimizedFixture = await loadFixture({
@@ -166,7 +163,6 @@ describe('astro:assets - SVG Components', () => {
 							'preset-default',
 							{
 								name: 'removeViewBox',
-								active: false,
 							},
 						],
 					},
@@ -181,11 +177,11 @@ describe('astro:assets - SVG Components', () => {
 		});
 
 		describe('with optimization enabled', () => {
-			let $;
-			let html;
+			let $: cheerio.CheerioAPI;
+			let html: string;
 
 			before(async () => {
-				let res = await optimizedFixture.fetch('/optimized');
+				const res = await optimizedFixture.fetch('/optimized');
 				html = await res.text();
 				$ = cheerio.load(html, { xml: true });
 			});

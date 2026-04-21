@@ -3,14 +3,9 @@ import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 
 import { testImageService } from './test-image-service.js';
-import { loadFixture } from './test-utils.js';
+import { type AstroInlineConfig, type Fixture, loadFixture } from './test-utils.js';
 
-/**
- ** @typedef {import('../src/types/public/config.js').AstroInlineConfig & { root?: string | URL }} AstroInlineConfig
- */
-
-/** @type {AstroInlineConfig} */
-const defaultSettings = {
+const defaultSettings: AstroInlineConfig = {
 	root: './fixtures/core-image-unconventional-settings/',
 	image: {
 		service: testImageService(),
@@ -18,8 +13,7 @@ const defaultSettings = {
 };
 
 describe('astro:assets - Support unconventional build settings properly', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	it('supports assetsPrefix', async () => {
 		fixture = await loadFixture({
@@ -32,26 +26,24 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
-		const src = $('#walrus-img').attr('src');
+		const src = $('#walrus-img').attr('src')!;
 		assert.equal(src.startsWith('https://cdn.example.com/'), true);
 
-		const data = await fixture.readFile(src.replace('https://cdn.example.com/', ''), null);
+		const data = await fixture.readBuffer(src.replace('https://cdn.example.com/', ''));
 		assert.equal(data instanceof Buffer, true);
 	});
 
 	it('supports base', async () => {
 		fixture = await loadFixture({
 			...defaultSettings,
-			build: {
-				base: '/subdir/',
-			},
+			base: '/subdir/',
 		});
 		await fixture.build();
 
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
-		const src = $('#walrus-img').attr('src');
-		const data = await fixture.readFile(src.replace('/subdir/', ''), null);
+		const src = $('#walrus-img').attr('src')!;
+		const data = await fixture.readBuffer(src.replace('/subdir/', ''));
 		assert.equal(data instanceof Buffer, true);
 	});
 
@@ -59,19 +51,19 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 	it('supports assetsPrefix + base', async () => {
 		fixture = await loadFixture({
 			...defaultSettings,
+			base: '/subdir/',
 			build: {
 				assetsPrefix: 'https://cdn.example.com/',
-				base: '/subdir/',
 			},
 		});
 		await fixture.build();
 
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
-		const src = $('#walrus-img').attr('src');
+		const src = $('#walrus-img').attr('src')!;
 		assert.equal(src.startsWith('https://cdn.example.com/'), true);
 
-		const data = await fixture.readFile(src.replace('https://cdn.example.com/', ''), null);
+		const data = await fixture.readBuffer(src.replace('https://cdn.example.com/', ''));
 		assert.equal(data instanceof Buffer, true);
 	});
 
@@ -87,11 +79,11 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 
-		const unoptimizedSrc = $('#walrus-img-unoptimized').attr('src');
+		const unoptimizedSrc = $('#walrus-img-unoptimized').attr('src')!;
 		assert.equal(unoptimizedSrc.startsWith('/assets/'), true);
 
-		const src = $('#walrus-img').attr('src');
-		const data = await fixture.readFile(src, null);
+		const src = $('#walrus-img').attr('src')!;
+		const data = await fixture.readBuffer(src);
 
 		assert.equal(data instanceof Buffer, true);
 	});
@@ -123,8 +115,8 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 		const unoptimizedSrc = $('#walrus-img-unoptimized').attr('src');
 		assert.equal(unoptimizedSrc, '/images/hello_light_walrus.avif');
 
-		const src = $('#walrus-img').attr('src');
-		const data = await fixture.readFile(src, null);
+		const src = $('#walrus-img').attr('src')!;
+		const data = await fixture.readBuffer(src);
 
 		assert.equal(data instanceof Buffer, true);
 	});
@@ -153,12 +145,12 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
-		const unoptimizedSrc = $('#walrus-img-unoptimized').attr('src');
-		const originalData = await fixture.readFile(unoptimizedSrc, null);
+		const unoptimizedSrc = $('#walrus-img-unoptimized').attr('src')!;
+		const originalData = await fixture.readBuffer(unoptimizedSrc);
 		assert.equal(originalData instanceof Buffer, true);
 
-		const src = $('#walrus-img').attr('src');
-		const data = await fixture.readFile(src, null);
+		const src = $('#walrus-img').attr('src')!;
+		const data = await fixture.readBuffer(src);
 
 		assert.equal(data instanceof Buffer, true);
 	});
@@ -188,19 +180,18 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
-		const unoptimizedSrc = $('#walrus-img-unoptimized').attr('src');
+		const unoptimizedSrc = $('#walrus-img-unoptimized').attr('src')!;
 		assert.equal(unoptimizedSrc, 'https://cdn.example.com/images/hello_light_walrus.avif');
 
-		const unoptimizedData = await fixture.readFile(
+		const unoptimizedData = await fixture.readBuffer(
 			unoptimizedSrc.replace('https://cdn.example.com/', ''),
-			null,
 		);
 		assert.equal(unoptimizedData instanceof Buffer, true);
 
-		const src = $('#walrus-img').attr('src');
+		const src = $('#walrus-img').attr('src')!;
 		assert.equal(src.startsWith('https://cdn.example.com/'), true);
 
-		const data = await fixture.readFile(src.replace('https://cdn.example.com/', ''), null);
+		const data = await fixture.readBuffer(src.replace('https://cdn.example.com/', ''));
 		assert.equal(data instanceof Buffer, true);
 	});
 });
