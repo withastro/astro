@@ -573,6 +573,9 @@ importers:
       fontace:
         specifier: ~0.4.1
         version: 0.4.1
+      get-tsconfig:
+        specifier: 5.0.0-beta.4
+        version: 5.0.0-beta.4
       github-slugger:
         specifier: ^2.0.0
         version: 2.0.0
@@ -585,6 +588,9 @@ importers:
       js-yaml:
         specifier: ^4.1.1
         version: 4.1.1
+      jsonc-parser:
+        specifier: ^3.3.1
+        version: 3.3.1
       magic-string:
         specifier: ^0.30.21
         version: 0.30.21
@@ -639,9 +645,6 @@ importers:
       tinyglobby:
         specifier: ^0.2.15
         version: 0.2.16
-      tsconfck:
-        specifier: ^3.1.6
-        version: 3.1.6(typescript@5.9.3)
       ultrahtml:
         specifier: ^1.6.0
         version: 1.6.0
@@ -6950,6 +6953,9 @@ importers:
       esbuild:
         specifier: ^0.27.3
         version: 0.27.3
+      jsonc-parser:
+        specifier: ^3.3.1
+        version: 3.3.1
       p-limit:
         specifier: ^7.3.0
         version: 7.3.0
@@ -6959,9 +6965,6 @@ importers:
       tinyglobby:
         specifier: ^0.2.15
         version: 0.2.16
-      tsconfck:
-        specifier: ^3.1.6
-        version: 3.1.6(typescript@5.9.3)
 
 packages:
 
@@ -12116,8 +12119,12 @@ packages:
     resolution: {integrity: sha512-kVCxPF3vQM/N0B1PmoqVUqgHP+EeVjmZSQn+1oCRPxd2P21P2F19lIgbR3HBosbB1PUhOAoctJnfEn2GbN2eZA==}
     engines: {node: '>=18'}
 
-  get-tsconfig@4.13.6:
-    resolution: {integrity: sha512-shZT/QMiSHc/YBLxxOkMtgSid5HFoauqCE3/exfsEcwg1WkeqjG+V40yBbBrsD+jW2HDXcs28xOfcbm2jI8Ddw==}
+  get-tsconfig@4.14.0:
+    resolution: {integrity: sha512-yTb+8DXzDREzgvYmh6s9vHsSVCHeC0G3PI5bEXNBHtmshPnO+S5O7qgLEOn0I5QvMy6kpZN8K1NKGyilLb93wA==}
+
+  get-tsconfig@5.0.0-beta.4:
+    resolution: {integrity: sha512-7nF7C9fIPFEMHgEMEfgIlO9wDdZ8CyHw27rWciFZfHvHDReIiPhsYuzPRXsfvBCqFy1l8RRyyWV7QLM+ZhUJsQ==}
+    engines: {node: '>=20.20.0'}
 
   github-from-package@0.0.0:
     resolution: {integrity: sha512-SyHy3T1v2NUXn29OsWdxmK6RwHD+vkj3v8en8AOBZ1wBQ/hCAQ5bAQTD02kW4W9tUp/3Qh6J8r9EvntiyCmOOw==}
@@ -14960,16 +14967,6 @@ packages:
     engines: {node: '>=18.12'}
     peerDependencies:
       typescript: '>=4.8.4'
-
-  tsconfck@3.1.6:
-    resolution: {integrity: sha512-ks6Vjr/jEw0P1gmOVwutM3B7fWxoWBL2KRDb1JfqGVawBmO5UsvmWOQFGHBPl5yxYz4eERr19E6L7NMv+Fej4w==}
-    engines: {node: ^18 || >=20}
-    hasBin: true
-    peerDependencies:
-      typescript: ^5.0.0
-    peerDependenciesMeta:
-      typescript:
-        optional: true
 
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
@@ -21327,7 +21324,11 @@ snapshots:
       '@sec-ant/readable-stream': 0.4.1
       is-stream: 4.0.1
 
-  get-tsconfig@4.13.6:
+  get-tsconfig@4.14.0:
+    dependencies:
+      resolve-pkg-maps: 1.0.0
+
+  get-tsconfig@5.0.0-beta.4:
     dependencies:
       resolve-pkg-maps: 1.0.0
 
@@ -24868,16 +24869,12 @@ snapshots:
     dependencies:
       typescript: 5.9.3
 
-  tsconfck@3.1.6(typescript@5.9.3):
-    optionalDependencies:
-      typescript: 5.9.3
-
   tslib@2.8.1: {}
 
   tsx@4.21.0:
     dependencies:
       esbuild: 0.27.3
-      get-tsconfig: 4.13.6
+      get-tsconfig: 4.14.0
     optionalDependencies:
       fsevents: 2.3.3
 
