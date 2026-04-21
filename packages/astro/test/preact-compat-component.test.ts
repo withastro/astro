@@ -1,11 +1,10 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
 
 describe('Preact compat component', () => {
-	/** @type {import('./test-utils.js').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -14,8 +13,7 @@ describe('Preact compat component', () => {
 	});
 
 	describe('Development', () => {
-		/** @type {import('./test-utils.js').DevServer} */
-		let devServer;
+		let devServer: DevServer;
 
 		before(async () => {
 			devServer = await fixture.startDevServer();
