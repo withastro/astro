@@ -17,7 +17,7 @@ import { viteID } from '../dist/core/util.js';
  * }} param0
  * @returns {AstroIntegration}
  */
-export default function ({
+export default function testAdapter({
 	provideAddress = true,
 	staticHeaders = false,
 	extendAdapter,

@@ -3,6 +3,7 @@
   "include": [
     "test/units/**/*.ts",
     "test/*.ts",
+    "e2e/*.ts",
     "test/test-adapter.js",
     "test/test-image-service.js",
     "test/test-plugins.js",
@@ -11,7 +12,7 @@
     "test/test-utils.js",
     "package.json"
   ],
-  "exclude": ["test/units/_temp-fixtures/**", "test/fixtures/**"],
+  "exclude": ["test/units/_temp-fixtures/**", "test/fixtures/**", "e2e/fixtures/**"],
   "compilerOptions": {
     "types": ["vite/client", "node"],
     "composite": true,
