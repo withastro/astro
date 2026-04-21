@@ -17,6 +17,18 @@ import type { ResolvedRenderOptions } from './base.js';
 import { getRenderOptions } from './render-options.js';
 
 /**
+ * Describes a lazily-created value that handlers can contribute to the
+ * request context. `create` is called at most once (on first `resolve`);
+ * `finalize` runs during `finalizeAll` to clean up / persist.
+ */
+export interface ContextProvider<T> {
+	/** Factory called lazily on the first `resolve(key)`. */
+	create: () => T;
+	/** Optional cleanup / persist callback. Receives the created value. */
+	finalize?: (value: T) => Promise<void> | void;
+}
+
+/**
  * Holds per-request state as it flows through the handler pipeline.
  *
  * `FetchState` centralizes things that used to be ad-hoc locals in
@@ -93,6 +105,11 @@ export class FetchState {
 	/** Memoized `APIContext` (see `getAPIContext`). */
 	apiContext: APIContext | null = null;
 
+	/** Registered context providers keyed by name. */
+	#providers = new Map<string, ContextProvider<unknown>>();
+	/** Cached values from resolved providers. */
+	#resolved = new Map<string, unknown>();
+
 	constructor(pipeline: Pipeline, request: Request) {
 		this.pipeline = pipeline;
 		this.request = request;
@@ -119,6 +136,54 @@ export class FetchState {
 	 */
 	get skipMiddleware(): boolean {
 		return this.renderContext?.skipMiddleware ?? false;
+	}
+
+	/**
+	 * Registers a context provider under the given key. Handlers call
+	 * this to contribute values to the request context (e.g. sessions).
+	 * The `create` factory is called lazily on the first `resolve(key)`.
+	 */
+	provide<T>(key: string, provider: ContextProvider<T>): void {
+		this.#providers.set(key, provider as ContextProvider<unknown>);
+	}
+
+	/**
+	 * Lazily resolves a provider registered under `key`. Calls
+	 * `provider.create()` on first access and caches the result.
+	 * Returns `undefined` if no provider was registered for the key.
+	 */
+	resolve<T>(key: string): T | undefined {
+		if (this.#resolved.has(key)) {
+			return this.#resolved.get(key) as T;
+		}
+		const provider = this.#providers.get(key);
+		if (!provider) return undefined;
+		const value = provider.create();
+		this.#resolved.set(key, value);
+		return value as T;
+	}
+
+	/**
+	 * Runs all registered `finalize` callbacks. Should be called after
+	 * the response is produced, typically in a `finally` block.
+	 *
+	 * Returns synchronously (no promise allocation) when nothing needs
+	 * finalizing — important for the hot path where sessions are not used.
+	 */
+	finalizeAll(): Promise<void> | void {
+		// Fast path: nothing to finalize.
+		if (this.#resolved.size === 0) return;
+
+		let chain: Promise<void> | undefined;
+		for (const [key, provider] of this.#providers) {
+			if (provider.finalize && this.#resolved.has(key)) {
+				const result = provider.finalize(this.#resolved.get(key));
+				if (result) {
+					chain = chain ? chain.then(() => result) : result;
+				}
+			}
+		}
+		return chain;
 	}
 
 	/**

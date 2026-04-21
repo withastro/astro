@@ -7,7 +7,7 @@ import { AstroMiddleware } from '../middleware/astro-middleware.js';
 import { PagesHandler } from '../pages/handler.js';
 import { renderRedirect } from '../redirects/render.js';
 import { AstroHandler } from '../routing/handler.js';
-import { finalizeSessions } from '../session/handler.js';
+import { provideSession } from '../session/handler.js';
 import { TrailingSlashHandler } from '../routing/trailing-slash-handler.js';
 
 function getApp(request: Request): BaseApp<any> {
@@ -94,12 +94,16 @@ export function pages(state: FetchState): Promise<Response> {
 }
 
 /**
- * Persists any session mutations made during the request. No-op if
- * sessions are not configured or no mutations occurred. Should be
- * called after the response is produced, typically in a `finally` block.
+ * Registers the session provider on the state. The session is created
+ * lazily when user code accesses `ctx.session`, and persisted when
+ * `state.finalizeAll()` is called. No-op if sessions are not configured.
+ *
+ * Call this early (before middleware runs). Call `state.finalizeAll()`
+ * in a `finally` block after the response is produced to persist
+ * any session mutations.
  */
-export function sessions(state: FetchState): Promise<void> {
-	return finalizeSessions(state);
+export function sessions(state: FetchState): Promise<void> | void {
+	return provideSession(state);
 }
 
 /**

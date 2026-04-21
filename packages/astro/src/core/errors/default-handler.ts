@@ -9,7 +9,7 @@ import { getCookiesFromResponse } from '../cookies/response.js';
 import { AstroMiddleware } from '../middleware/astro-middleware.js';
 import { PagesHandler } from '../pages/handler.js';
 import { matchRoute } from '../routing/match.js';
-import { finalizeSessions } from '../session/handler.js';
+import { provideSession } from '../session/handler.js';
 import type { ErrorHandler } from './handler.js';
 
 type ErrorPagePath =
@@ -104,6 +104,7 @@ export class DefaultErrorHandler implements ErrorHandler {
 				errorState.renderContext = renderContext;
 				errorState.componentInstance = mod;
 				renderContext.fetchState = errorState;
+				await provideSession(errorState);
 				const response = await this.#astroMiddleware.handle(
 					errorState,
 					this.#pagesHandler.handle.bind(this.#pagesHandler),
@@ -123,7 +124,7 @@ export class DefaultErrorHandler implements ErrorHandler {
 					});
 				}
 			} finally {
-				await finalizeSessions(errorState);
+				await errorState.finalizeAll();
 			}
 		}
 

@@ -1,5 +1,50 @@
 import type { FetchState } from '../app/fetch-state.js';
-import { PERSIST_SYMBOL } from './runtime.js';
+import { AstroSession, PERSIST_SYMBOL } from './runtime.js';
+
+export const SESSION_KEY = 'session';
+
+/**
+ * Registers a session provider on the given `FetchState`. When
+ * `state.resolve('session')` is first called, the `AstroSession` is
+ * created lazily. When `state.finalizeAll()` runs, any mutations are
+ * persisted.
+ *
+ * No-op (returns synchronously) if sessions are not configured on the
+ * pipeline, avoiding promise allocation on the hot path.
+ */
+export function provideSession(state: FetchState): Promise<void> | void {
+	const pipeline = state.pipeline;
+	const config = pipeline.manifest.sessionConfig;
+	if (!config) return;
+
+	return provideSessionAsync(state, config);
+}
+
+async function provideSessionAsync(
+	state: FetchState,
+	config: NonNullable<typeof state.pipeline.manifest.sessionConfig>,
+): Promise<void> {
+	const pipeline = state.pipeline;
+	const driverFactory = await pipeline.getSessionDriver();
+	if (!driverFactory) return;
+
+	state.provide<AstroSession>(SESSION_KEY, {
+		create() {
+			const renderContext = state.renderContext!;
+			const cookies = renderContext.getCookies();
+			return new AstroSession({
+				cookies,
+				config,
+				runtimeMode: pipeline.runtimeMode,
+				driverFactory,
+				mockStorage: null,
+			});
+		},
+		finalize(session) {
+			return session[PERSIST_SYMBOL]();
+		},
+	});
+}
 
 /**
  * Persists any session mutations made during the request. No-op if
@@ -8,6 +53,6 @@ import { PERSIST_SYMBOL } from './runtime.js';
  * Should be called after the response is produced, typically in a
  * `finally` block to guarantee persistence even when errors occur.
  */
-export async function finalizeSessions(state: FetchState): Promise<void> {
-	await state.renderContext?.session?.[PERSIST_SYMBOL]();
+export function finalizeSessions(state: FetchState): Promise<void> | void {
+	return state.renderContext?.session?.[PERSIST_SYMBOL]();
 }

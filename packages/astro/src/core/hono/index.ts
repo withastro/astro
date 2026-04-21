@@ -85,10 +85,12 @@ export function pages(): HonoMiddlewareHandler {
 
 export function sessions(): HonoMiddlewareHandler {
 	return async (context, honoNext) => {
+		const state = getFetchState(context);
+		await fetchSessions(state);
 		try {
 			await honoNext();
 		} finally {
-			await fetchSessions(getFetchState(context));
+			await state.finalizeAll();
 		}
 	};
 }

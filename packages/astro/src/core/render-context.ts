@@ -79,9 +79,16 @@ export class RenderContext {
 	public props: Props;
 	public partial: undefined | boolean;
 	public shouldInjectCspMetaTags: boolean;
-	public session: AstroSession | undefined;
 	public cache: CacheLike;
 	public skipMiddleware: boolean;
+	/**
+	 * Resolves the `AstroSession` from the owning `FetchState`'s provider
+	 * registry. Returns `undefined` if sessions are not configured or
+	 * no `FetchState` is attached yet.
+	 */
+	get session(): AstroSession | undefined {
+		return this.fetchState?.resolve<AstroSession>('session');
+	}
 	/**
 	 * Back-reference to the `FetchState` that owns this render context.
 	 * Assigned in the constructor (initially `null`) so the instance's
@@ -112,7 +119,6 @@ export class RenderContext {
 		props: Props = {},
 		partial: undefined | boolean = undefined,
 		shouldInjectCspMetaTags = pipeline.manifest.shouldInjectCspMetaTags,
-		session: AstroSession | undefined = undefined,
 		cache: CacheLike,
 		skipMiddleware = false,
 	) {
@@ -131,7 +137,6 @@ export class RenderContext {
 		this.props = props;
 		this.partial = partial;
 		this.shouldInjectCspMetaTags = shouldInjectCspMetaTags;
-		this.session = session;
 		this.cache = cache;
 		this.skipMiddleware = skipMiddleware;
 		this.fetchState = null;
@@ -185,7 +190,6 @@ export class RenderContext {
 		skipMiddleware = false,
 	}: CreateRenderContext): Promise<RenderContext> {
 		const pipelineActions = await pipeline.getActions();
-		const pipelineSessionDriver = await pipeline.getSessionDriver();
 		const serverIslands = await pipeline.getServerIslands();
 		// Only set the origin pathname if the caller hasn't already recorded
 		// one on this request (e.g. a rewrite that wants to preserve the
@@ -199,16 +203,6 @@ export class RenderContext {
 			);
 		}
 		const cookies = new AstroCookies(request);
-		const session =
-			pipeline.manifest.sessionConfig && pipelineSessionDriver
-				? new AstroSession({
-						cookies,
-						config: pipeline.manifest.sessionConfig,
-						runtimeMode: pipeline.runtimeMode,
-						driverFactory: pipelineSessionDriver,
-						mockStorage: null,
-					})
-				: undefined;
 
 		// Create cache instance
 		let cache: CacheLike;
@@ -253,7 +247,6 @@ export class RenderContext {
 			props,
 			partial,
 			shouldInjectCspMetaTags ?? pipeline.manifest.shouldInjectCspMetaTags,
-			session,
 			cache,
 			skipMiddleware,
 		);
