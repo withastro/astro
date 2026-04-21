@@ -5,6 +5,7 @@ import {
 	i18n as fetchI18n,
 	middleware as fetchMiddleware,
 	pages as fetchPages,
+	redirects as fetchRedirects,
 	trailingSlash as fetchTrailingSlash,
 } from '../fetch/index.js';
 
@@ -56,6 +57,14 @@ export function middleware(
 ): HonoMiddlewareHandler {
 	return async (context, _honoNext) => {
 		return fetchMiddleware(getFetchState(context), next);
+	};
+}
+
+export function redirects(): HonoMiddlewareHandler {
+	return async (context, honoNext) => {
+		const response = fetchRedirects(getFetchState(context));
+		if (response) return response;
+		await honoNext();
 	};
 }
 

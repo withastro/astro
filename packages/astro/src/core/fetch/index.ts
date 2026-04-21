@@ -5,6 +5,7 @@ import { appSymbol } from '../constants.js';
 import { I18n } from '../i18n/handler.js';
 import { AstroMiddleware } from '../middleware/astro-middleware.js';
 import { PagesHandler } from '../pages/handler.js';
+import { renderRedirect } from '../redirects/render.js';
 import { AstroHandler } from '../routing/handler.js';
 import { TrailingSlashHandler } from '../routing/trailing-slash-handler.js';
 
@@ -89,6 +90,19 @@ export function pages(state: FetchState): Promise<Response> {
 		pagesHandlers.set(app, handler);
 	}
 	return handler.handle(state, state.getAPIContext(), undefined);
+}
+
+/**
+ * Checks if the matched route is a redirect and returns the redirect
+ * `Response` if so. Returns `undefined` when the route is not a
+ * redirect and the caller should continue processing.
+ * `state.routeData` must be set before calling this.
+ */
+export function redirects(state: FetchState): Promise<Response> | undefined {
+	if (state.routeData?.type === 'redirect') {
+		return renderRedirect(state);
+	}
+	return undefined;
 }
 
 const actionHandlers = new WeakMap<BaseApp<any>, ActionHandler>();
