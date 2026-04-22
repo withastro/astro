@@ -36,7 +36,7 @@ import { getOriginPathname, setOriginPathname } from './routing/rewrite.js';
 import { AstroCache, type CacheLike } from './cache/runtime/cache.js';
 import { NoopAstroCache, DisabledAstroCache } from './cache/runtime/noop.js';
 import { compileCacheRoutes, matchCacheRoute } from './cache/runtime/route-matching.js';
-import { AstroSession } from './session/runtime.js';
+import type { AstroSession } from './session/runtime.js';
 import { collapseDuplicateSlashes } from '@astrojs/internal-helpers/path';
 import { validateAndDecodePathname } from './util/pathname.js';
 
