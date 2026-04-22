@@ -1,11 +1,11 @@
-import { expect } from '@playwright/test';
+import { type Page, expect } from '@playwright/test';
 import { type DevServer, testFactory } from './test-utils.ts';
 
 const test = testFactory(import.meta.url, { root: './fixtures/astro-component/' });
 
 let devServer: DevServer;
 
-async function waitForViteToSettle(page) {
+async function waitForViteToSettle(page: Page) {
 	// Headless Chrome can trigger one immediate follow-up load after the initial Vite connection.
 	// Wait for that to clear before asserting whether an edit caused a reload.
 	await page.waitForTimeout(500);

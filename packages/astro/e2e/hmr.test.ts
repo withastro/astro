@@ -1,5 +1,5 @@
-import { expect } from '@playwright/test';
-import { testFactory } from './test-utils.js';
+import { type Page, expect } from '@playwright/test';
+import { type DevServer, testFactory } from './test-utils.ts';
 
 const test = testFactory(import.meta.url, {
 	root: './fixtures/hmr/',
@@ -8,13 +8,13 @@ const test = testFactory(import.meta.url, {
 	},
 });
 
-let devServer;
+let devServer: DevServer;
 
 function throwPageShouldNotReload() {
 	throw new Error('Page should not reload in HMR');
 }
 
-async function waitForViteToSettle(page) {
+async function waitForViteToSettle(page: Page) {
 	// Headless Chrome can trigger one immediate follow-up load after the initial Vite connection.
 	// Wait for that to clear before asserting whether an edit caused a reload.
 	await page.waitForTimeout(500);

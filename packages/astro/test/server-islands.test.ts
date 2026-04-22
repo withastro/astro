@@ -445,7 +445,7 @@ describe('Server islands', () => {
 						);
 					} else {
 						assert.match(
-							(error as Error).message,
+							(error as unknown as Error).message,
 							/Cannot use [Ss]erver [Ii]slands without an adapter/,
 						);
 					}
