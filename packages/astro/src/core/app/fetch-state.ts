@@ -13,7 +13,7 @@ import type { BaseApp } from './base.js';
 import type { Pipeline } from '../base-pipeline.js';
 import { ASTRO_GENERATOR, DEFAULT_404_COMPONENT, appSymbol, fetchStateSymbol, pipelineSymbol } from '../constants.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { RenderContext } from '../render-context.js';
+import type { RenderContext } from '../render-context.js';
 import { getProps } from '../render/index.js';
 import { getOriginPathname } from '../routing/rewrite.js';
 import { routeHasHtmlExtension } from '../routing/helpers.js';
@@ -113,8 +113,8 @@ export class FetchState {
 	#providers = new Map<string, ContextProvider<unknown>>();
 	/** Cached values from resolved providers. */
 	#resolved = new Map<string, unknown>();
-	/** Cached promise for lazy render context creation. */
-	#renderContextPromise: Promise<RenderContext> | undefined;
+	/** Cached promise for lazy component instance loading. */
+	#componentInstancePromise: Promise<ComponentInstance> | undefined;
 
 	constructor(pipeline: Pipeline, request: Request) {
 		this.pipeline = pipeline;
@@ -145,37 +145,22 @@ export class FetchState {
 	}
 
 	/**
-	 * Ensures the `RenderContext` exists, creating it lazily if needed.
-	 * Also loads the route's component module and registers providers
-	 * (session, cache). Returns the render context.
+	 * Ensures the `RenderContext` exists, creating it synchronously if
+	 * needed. Returns the render context.
 	 *
 	 * When `AstroHandler.render` sets `renderContext` explicitly before
 	 * this is called, the existing context is returned as-is.
 	 */
-	async ensureRenderContext(): Promise<RenderContext> {
+	ensureRenderContext(): RenderContext {
 		if (this.renderContext) return this.renderContext;
-		if (this.#renderContextPromise) return this.#renderContextPromise;
 
-		this.#renderContextPromise = this.#createRenderContext();
-		return this.#renderContextPromise;
-	}
-
-	async #createRenderContext(): Promise<RenderContext> {
-		const pipeline = this.pipeline;
-		const routeData = this.routeData!;
 		const { clientAddress, locals } = this.renderOptions;
-
-		// Load the route module if not already set
-		if (!this.componentInstance) {
-			this.componentInstance = await pipeline.getComponentByRoute(routeData);
-		}
-
-		const renderContext = await RenderContext.create({
-			pipeline,
+		const renderContext = this.app.createRenderContext({
+			pipeline: this.pipeline,
 			locals,
 			pathname: this.pathname,
 			request: this.request,
-			routeData,
+			routeData: this.routeData!,
 			status: this.status,
 			clientAddress,
 		});
@@ -184,6 +169,24 @@ export class FetchState {
 		renderContext.fetchState = this;
 
 		return renderContext;
+	}
+
+	/**
+	 * Lazily loads the route's component module. Returns the cached
+	 * instance if already loaded. The promise is cached so concurrent
+	 * callers share the same load.
+	 */
+	async loadComponentInstance(): Promise<ComponentInstance> {
+		if (this.componentInstance) return this.componentInstance;
+		if (this.#componentInstancePromise) return this.#componentInstancePromise;
+
+		this.#componentInstancePromise = this.pipeline
+			.getComponentByRoute(this.routeData!)
+			.then((mod) => {
+				this.componentInstance = mod;
+				return mod;
+			});
+		return this.#componentInstancePromise;
 	}
 
 	/**
@@ -369,8 +372,9 @@ export class FetchState {
 			return this.props;
 		}
 		const pipeline = this.pipeline;
+		const mod = await this.loadComponentInstance();
 		this.props = await getProps({
-			mod: this.componentInstance,
+			mod,
 			routeData: renderContext.routeData,
 			routeCache: pipeline.routeCache,
 			pathname: renderContext.pathname,

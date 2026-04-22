@@ -141,8 +141,8 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 		return pipeline;
 	}
 
-	async createRenderContext(payload: CreateRenderContext): Promise<RenderContext> {
-		this.currentRenderContext = await super.createRenderContext(payload);
+	createRenderContext(payload: CreateRenderContext): RenderContext {
+		this.currentRenderContext = super.createRenderContext(payload);
 		return this.currentRenderContext;
 	}
 

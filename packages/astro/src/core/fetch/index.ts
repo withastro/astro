@@ -64,11 +64,11 @@ const middlewareInstances = new WeakMap<BaseApp<any>, AstroMiddleware>();
  * the bottom of the chain to produce the response. Lazily creates
  * the render context if needed.
  */
-export async function middleware(
+export function middleware(
 	state: FetchState,
 	next: (state: FetchState) => Promise<Response>,
 ): Promise<Response> {
-	await state.ensureRenderContext();
+	state.ensureRenderContext();
 	const app = getApp(state.request);
 	let mw = middlewareInstances.get(app);
 	if (!mw) {
@@ -84,8 +84,8 @@ const pagesHandlers = new WeakMap<BaseApp<any>, PagesHandler>();
  * Dispatches the request to the matched route (endpoint, page, redirect,
  * or fallback). Lazily creates the render context if needed.
  */
-export async function pages(state: FetchState): Promise<Response> {
-	await state.ensureRenderContext();
+export function pages(state: FetchState): Promise<Response> {
+	state.ensureRenderContext();
 	const app = getApp(state.request);
 	let handler = pagesHandlers.get(app);
 	if (!handler) {
@@ -129,8 +129,8 @@ const actionHandlers = new WeakMap<BaseApp<any>, ActionHandler>();
  * (the caller should continue to page rendering). Lazily creates
  * the render context if needed.
  */
-export async function actions(state: FetchState): Promise<Response | undefined> {
-	await state.ensureRenderContext();
+export function actions(state: FetchState): Promise<Response | undefined> | undefined {
+	state.ensureRenderContext();
 	const app = getApp(state.request);
 	let handler = actionHandlers.get(app);
 	if (!handler) {

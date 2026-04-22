@@ -16,8 +16,8 @@ export class BuildApp extends BaseApp<BuildPipeline> {
 		});
 	}
 
-	async createRenderContext(payload: CreateRenderContext): Promise<RenderContext> {
-		return await super.createRenderContext({
+	createRenderContext(payload: CreateRenderContext): RenderContext {
+		return super.createRenderContext({
 			...payload,
 		});
 	}

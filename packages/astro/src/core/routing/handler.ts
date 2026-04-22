@@ -102,7 +102,7 @@ export class AstroHandler {
 
 		let response;
 		try {
-			await state.ensureRenderContext();
+			state.ensureRenderContext();
 			const sessionP = provideSession(state);
 			const cacheP = provideCache(state);
 			if (sessionP || cacheP) await Promise.all([sessionP, cacheP]);

@@ -547,7 +547,7 @@ export class experimental_AstroContainer {
 			params: options.params,
 			type: routeType,
 		});
-		const renderContext = await RenderContext.create({
+		const renderContext = RenderContext.create({
 			pipeline: this.#pipeline,
 			routeData,
 			status: 200,

@@ -63,7 +63,7 @@ export class DevErrorHandler implements ErrorHandler {
 		const renderRoute = async (routeData: RouteData): Promise<Response> => {
 			try {
 				const preloadedComponent = await app.pipeline.getComponentByRoute(routeData);
-				const renderContext = await app.createRenderContext({
+				const renderContext = app.createRenderContext({
 					locals: resolvedRenderOptions.locals,
 					pipeline: app.pipeline,
 					pathname: resolvedPathname,

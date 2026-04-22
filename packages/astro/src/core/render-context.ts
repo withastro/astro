@@ -14,7 +14,7 @@ import type { ComponentInstance } from '../types/astro.js';
 import type { Params, Props, RewritePayload } from '../types/public/common.js';
 import type { APIContext, AstroGlobal } from '../types/public/context.js';
 import type { RouteData, SSRResult } from '../types/public/internal.js';
-import type { ServerIslandMappings, SSRActions } from './app/types.js';
+
 import {
 	ASTRO_GENERATOR,
 	originPathnameSymbol,
@@ -51,7 +51,6 @@ export type CreateRenderContext = Pick<
 			| 'status'
 			| 'props'
 			| 'partial'
-			| 'actions'
 			| 'shouldInjectCspMetaTags'
 			| 'skipMiddleware'
 		>
@@ -60,8 +59,6 @@ export type CreateRenderContext = Pick<
 export class RenderContext {
 	readonly pipeline: Pipeline;
 	public locals: App.Locals;
-	readonly actions: SSRActions;
-	readonly serverIslands: ServerIslandMappings;
 	// It must be a DECODED pathname
 	public pathname: string;
 	public request: Request;
@@ -91,8 +88,6 @@ export class RenderContext {
 	private constructor(
 		pipeline: Pipeline,
 		locals: App.Locals,
-		actions: SSRActions,
-		serverIslands: ServerIslandMappings,
 		// It must be a DECODED pathname
 		pathname: string,
 		request: Request,
@@ -109,8 +104,6 @@ export class RenderContext {
 	) {
 		this.pipeline = pipeline;
 		this.locals = locals;
-		this.actions = actions;
-		this.serverIslands = serverIslands;
 		this.pathname = pathname;
 		this.request = request;
 		this.routeData = routeData;
@@ -160,7 +153,7 @@ export class RenderContext {
 
 	result: SSRResult | undefined = undefined;
 
-	static async create({
+	static create({
 		locals = {},
 		pathname,
 		pipeline,
@@ -172,9 +165,7 @@ export class RenderContext {
 		partial = undefined,
 		shouldInjectCspMetaTags,
 		skipMiddleware = false,
-	}: CreateRenderContext): Promise<RenderContext> {
-		const pipelineActions = await pipeline.getActions();
-		const serverIslands = await pipeline.getServerIslands();
+	}: CreateRenderContext): RenderContext {
 		// Only set the origin pathname if the caller hasn't already recorded
 		// one on this request (e.g. a rewrite that wants to preserve the
 		// pre-rewrite pathname as the origin).
@@ -191,8 +182,6 @@ export class RenderContext {
 		return new RenderContext(
 			pipeline,
 			locals,
-			pipelineActions,
-			serverIslands,
 			pathname,
 			request,
 			routeData,
@@ -289,7 +278,10 @@ export class RenderContext {
 			scripts,
 			styles,
 			actionResult,
-			serverIslandNameMap: this.serverIslands.serverIslandNameMap ?? new Map(),
+			async getServerIslandNameMap() {
+				const serverIslands = await pipeline.getServerIslands();
+				return serverIslands.serverIslandNameMap ?? new Map();
+			},
 			key: manifest.key,
 			trailingSlash: manifest.trailingSlash,
 			_experimentalQueuedRendering: {

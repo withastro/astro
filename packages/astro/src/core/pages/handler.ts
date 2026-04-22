@@ -106,7 +106,7 @@ export class PagesHandler {
 		}
 		let response: Response;
 
-		const componentInstance = state.componentInstance;
+		const componentInstance = await state.loadComponentInstance();
 		switch (renderContext.routeData.type) {
 			case 'endpoint': {
 				response = await renderEndpoint(

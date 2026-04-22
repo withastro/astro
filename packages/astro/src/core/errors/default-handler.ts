@@ -88,7 +88,7 @@ export class DefaultErrorHandler implements ErrorHandler {
 			const mod = await app.pipeline.getComponentByRoute(errorRouteData);
 			const errorState = new FetchState(app.pipeline, request);
 			try {
-				const renderContext = await app.createRenderContext({
+				const renderContext = app.createRenderContext({
 					locals: resolvedRenderOptions.locals,
 					pipeline: app.pipeline,
 					skipMiddleware,

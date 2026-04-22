@@ -167,7 +167,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 
 	public abstract isDev(): boolean;
 
-	async createRenderContext(payload: CreateRenderContext): Promise<RenderContext> {
+	createRenderContext(payload: CreateRenderContext): RenderContext {
 		return RenderContext.create(payload);
 	}
 
