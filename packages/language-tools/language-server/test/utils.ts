@@ -5,14 +5,14 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 interface Point {
-    line: number;
-    column: number;
-    offset: number;
+	line: number;
+	column: number;
+	offset: number;
 }
 
 interface Position {
-    start: Point;
-    end?: Point;
+	start: Point;
+	end?: Point;
 }
 
 export const fixtureDir = path.join(__dirname, './fixture');
