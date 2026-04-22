@@ -6775,6 +6775,9 @@ importers:
       ovsx:
         specifier: ^0.10.10
         version: 0.10.10
+      tsx:
+        specifier: ^4.21.0
+        version: 4.21.0
       vscode-languageclient:
         specifier: ^9.0.1
         version: 9.0.1
