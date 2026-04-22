@@ -1,6 +1,5 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-// @ts-expect-error
 import { cli } from '../../../astro/test/test-utils.js';
 
 // Copied from utils.ts so we don't have to import TS code for Node 20
