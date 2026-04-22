@@ -6,8 +6,8 @@ import Layout from '../layouts/Layout.astro';
 	<h1>Advanced Routing</h1>
 	<p>
 		This example uses <code>src/app.ts</code> to control the request pipeline with Hono.
-		The <code>astro()</code> middleware handles Astro's routing lifecycle while your own Hono
-		middleware can still run before it.
+		Individual feature middleware from <code>astro/hono</code> and <code>astro/fetch</code>
+		are composed together, with your own Hono middleware running between them.
 	</p>
 
 	<div class="cards">

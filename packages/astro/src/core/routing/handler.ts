@@ -96,28 +96,12 @@ export class AstroHandler {
 		const routeData = state.routeData!;
 		const pathname = state.pathname;
 		const request = state.request;
-		const { addCookieHeader, clientAddress, locals } = state.renderOptions;
+		const { addCookieHeader } = state.renderOptions;
 		const defaultStatus = this.#app.getDefaultStatusCode(routeData, pathname);
 		state.status = defaultStatus;
 
 		let response;
 		try {
-			// Load route module. We also catch its error here if it fails on initialization
-			state.componentInstance = await this.#app.pipeline.getComponentByRoute(routeData);
-			// Create the render context inline (instead of via a FetchState
-			// async wrapper) so the hot path doesn't pay for an extra
-			// async-function microtask and private-field accesses.
-			const renderContext = await this.#app.createRenderContext({
-				pipeline: this.#app.pipeline,
-				locals,
-				pathname,
-				request,
-				routeData,
-				status: defaultStatus,
-				clientAddress,
-			});
-			state.renderContext = renderContext;
-			renderContext.fetchState = state;
 			const sessionP = provideSession(state);
 			const cacheP = provideCache(state);
 			if (sessionP || cacheP) await Promise.all([sessionP, cacheP]);

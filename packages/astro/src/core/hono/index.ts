@@ -54,11 +54,12 @@ export function trailingSlash(): HonoMiddlewareHandler {
 	};
 }
 
-export function middleware(
-	next: (state: FetchState) => Promise<Response>,
-): HonoMiddlewareHandler {
-	return async (context, _honoNext) => {
-		return fetchMiddleware(getFetchState(context), next);
+export function middleware(): HonoMiddlewareHandler {
+	return async (context, honoNext) => {
+		return fetchMiddleware(getFetchState(context), async () => {
+			await honoNext();
+			return context.res;
+		});
 	};
 }
 

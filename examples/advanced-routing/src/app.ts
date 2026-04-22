@@ -1,7 +1,7 @@
 import { getCookie } from 'hono/cookie';
 import { Hono } from 'hono';
 import { logger } from 'hono/logger';
-import { astro } from 'astro/hono';
+import { actions, middleware, pages, i18n } from 'astro/hono';
 
 const app = new Hono();
 
@@ -20,6 +20,16 @@ app.use(async (c, next) => {
 	return next();
 });
 
-app.use(astro());
+// Astro Actions (RPC + form).
+app.use(actions());
+
+// User middleware from src/middleware.ts (calls next Hono handler internally).
+app.use(middleware());
+
+// Page rendering (endpoints, pages, fallbacks).
+app.use(pages());
+
+// i18n post-processing (locale redirects, fallback routing).
+app.use(i18n());
 
 export default app;

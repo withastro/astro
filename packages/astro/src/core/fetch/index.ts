@@ -61,13 +61,14 @@ const middlewareInstances = new WeakMap<BaseApp<any>, AstroMiddleware>();
 
 /**
  * Runs Astro's middleware chain for the given state, calling `next` at
- * the bottom of the chain to produce the response. The state must have
- * `renderContext` and `componentInstance` set before calling this.
+ * the bottom of the chain to produce the response. Lazily creates
+ * the render context if needed.
  */
-export function middleware(
+export async function middleware(
 	state: FetchState,
 	next: (state: FetchState) => Promise<Response>,
 ): Promise<Response> {
+	await state.ensureRenderContext();
 	const app = getApp(state.request);
 	let mw = middlewareInstances.get(app);
 	if (!mw) {
@@ -81,10 +82,10 @@ const pagesHandlers = new WeakMap<BaseApp<any>, PagesHandler>();
 
 /**
  * Dispatches the request to the matched route (endpoint, page, redirect,
- * or fallback). The state must have `renderContext` and
- * `componentInstance` set before calling this.
+ * or fallback). Lazily creates the render context if needed.
  */
-export function pages(state: FetchState): Promise<Response> {
+export async function pages(state: FetchState): Promise<Response> {
+	await state.ensureRenderContext();
 	const app = getApp(state.request);
 	let handler = pagesHandlers.get(app);
 	if (!handler) {
@@ -125,9 +126,11 @@ const actionHandlers = new WeakMap<BaseApp<any>, ActionHandler>();
 /**
  * Handles Astro Action requests (RPC + form). Returns a `Response` for
  * RPC actions, or `undefined` for form actions / non-action requests
- * (the caller should continue to page rendering).
+ * (the caller should continue to page rendering). Lazily creates
+ * the render context if needed.
  */
-export function actions(state: FetchState): Promise<Response | undefined> | undefined {
+export async function actions(state: FetchState): Promise<Response | undefined> {
+	await state.ensureRenderContext();
 	const app = getApp(state.request);
 	let handler = actionHandlers.get(app);
 	if (!handler) {

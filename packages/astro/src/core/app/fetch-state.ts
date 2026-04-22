@@ -13,7 +13,7 @@ import type { BaseApp } from './base.js';
 import type { Pipeline } from '../base-pipeline.js';
 import { ASTRO_GENERATOR, DEFAULT_404_COMPONENT, appSymbol, fetchStateSymbol, pipelineSymbol } from '../constants.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import type { RenderContext } from '../render-context.js';
+import { RenderContext } from '../render-context.js';
 import { getProps } from '../render/index.js';
 import { getOriginPathname } from '../routing/rewrite.js';
 import { routeHasHtmlExtension } from '../routing/helpers.js';
@@ -113,6 +113,8 @@ export class FetchState {
 	#providers = new Map<string, ContextProvider<unknown>>();
 	/** Cached values from resolved providers. */
 	#resolved = new Map<string, unknown>();
+	/** Cached promise for lazy render context creation. */
+	#renderContextPromise: Promise<RenderContext> | undefined;
 
 	constructor(pipeline: Pipeline, request: Request) {
 		this.pipeline = pipeline;
@@ -140,6 +142,48 @@ export class FetchState {
 	 */
 	get skipMiddleware(): boolean {
 		return this.renderContext?.skipMiddleware ?? false;
+	}
+
+	/**
+	 * Ensures the `RenderContext` exists, creating it lazily if needed.
+	 * Also loads the route's component module and registers providers
+	 * (session, cache). Returns the render context.
+	 *
+	 * When `AstroHandler.render` sets `renderContext` explicitly before
+	 * this is called, the existing context is returned as-is.
+	 */
+	async ensureRenderContext(): Promise<RenderContext> {
+		if (this.renderContext) return this.renderContext;
+		if (this.#renderContextPromise) return this.#renderContextPromise;
+
+		this.#renderContextPromise = this.#createRenderContext();
+		return this.#renderContextPromise;
+	}
+
+	async #createRenderContext(): Promise<RenderContext> {
+		const app = this.app;
+		const routeData = this.routeData!;
+		const { clientAddress, locals } = this.renderOptions;
+
+		// Load the route module if not already set
+		if (!this.componentInstance) {
+			this.componentInstance = await app.pipeline.getComponentByRoute(routeData);
+		}
+
+		const renderContext = await RenderContext.create({
+			pipeline: app.pipeline,
+			locals,
+			pathname: this.pathname,
+			request: this.request,
+			routeData,
+			status: this.status,
+			clientAddress,
+		});
+
+		this.renderContext = renderContext;
+		renderContext.fetchState = this;
+
+		return renderContext;
 	}
 
 	/**
