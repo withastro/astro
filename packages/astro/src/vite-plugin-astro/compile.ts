@@ -1,11 +1,11 @@
-import { type ESBuildTransformResult, transformWithEsbuild } from 'vite';
+import { transformWithOxc } from 'vite';
 import { type CompileProps, type CompileResult, compile } from '../core/compile/index.js';
 import type { AstroLogger } from '../core/logger/core.js';
 import type { AstroConfig } from '../types/public/config.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 import type { CompileMetadata } from './types.js';
 import { frontmatterRE } from './utils.js';
-import type { SourceMapInput } from 'rollup';
+import type { Rolldown } from 'vite';
 
 interface CompileAstroOption {
 	compileProps: CompileProps;
@@ -14,7 +14,7 @@ interface CompileAstroOption {
 }
 
 export interface CompileAstroResult extends Omit<CompileResult, 'map'> {
-	map: SourceMapInput;
+	map: Rolldown.SourceMapInput;
 }
 
 interface EnhanceCompilerErrorOptions {
@@ -31,21 +31,20 @@ export async function compileAstro({
 	logger,
 }: CompileAstroOption): Promise<CompileAstroResult> {
 	let transformResult: CompileResult;
-	let esbuildResult: ESBuildTransformResult;
+	let oxcResult: Awaited<ReturnType<typeof transformWithOxc>>;
 
 	try {
 		transformResult = await compile(compileProps);
 		// Compile all TypeScript to JavaScript.
 		// Also, catches invalid JS/TS in the compiled output before returning.
-		esbuildResult = await transformWithEsbuild(transformResult.code, compileProps.filename, {
-			...compileProps.viteConfig.esbuild,
-			loader: 'ts',
-			sourcemap: 'external',
-			tsconfigRaw: {
+		oxcResult = await transformWithOxc(transformResult.code, compileProps.filename, {
+			...compileProps.viteConfig.oxc,
+			lang: 'ts',
+			sourcemap: true,
+			tsconfig: {
 				compilerOptions: {
 					// Ensure client:only imports are treeshaken
 					verbatimModuleSyntax: false,
-					importsNotUsedAsValues: 'remove',
 				},
 			},
 		});
@@ -88,8 +87,8 @@ export async function compileAstro({
 
 	return {
 		...transformResult,
-		code: esbuildResult.code + SUFFIX,
-		map: esbuildResult.map,
+		code: oxcResult.code + SUFFIX,
+		map: oxcResult.map!,
 	};
 }
 
@@ -118,8 +117,7 @@ async function enhanceCompileError({
 		if (lineText && !frontmatter.includes(lineText)) throw err;
 
 		try {
-			await transformWithEsbuild(frontmatter, id, {
-				loader: 'ts',
+			await transformWithOxc(frontmatter, id, {
 				target: 'esnext',
 				sourcemap: false,
 			});

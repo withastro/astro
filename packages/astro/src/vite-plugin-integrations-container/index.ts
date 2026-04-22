@@ -1,5 +1,4 @@
-import type { PluginContext } from 'rollup';
-import type { Plugin as VitePlugin } from 'vite';
+import type { Plugin as VitePlugin, Rolldown } from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroLogger } from '../core/logger/core.js';
 import { runHookServerSetup } from '../integrations/hooks.js';
@@ -22,7 +21,7 @@ export default function astroIntegrationsContainerPlugin({
 		},
 		async buildStart() {
 			if (settings.injectedRoutes.length === settings.resolvedInjectedRoutes.length) return;
-			// Ensure the injectedRoutes are all resolved to their final paths through Rollup
+			// Ensure the injectedRoutes are all resolved to their final paths through Rolldown
 			settings.resolvedInjectedRoutes = await Promise.all(
 				settings.injectedRoutes.map((route) => resolveEntryPoint.call(this, route)),
 			);
@@ -31,7 +30,7 @@ export default function astroIntegrationsContainerPlugin({
 }
 
 async function resolveEntryPoint(
-	this: PluginContext,
+	this: Rolldown.PluginContext,
 	route: InternalInjectedRoute,
 ): Promise<ResolvedInjectedRoute> {
 	const resolvedId = await this.resolve(route.entrypoint.toString())

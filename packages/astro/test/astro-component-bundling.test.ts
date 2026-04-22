@@ -62,7 +62,7 @@ describe('Component bundling', () => {
 			assert(match, 'Expected a <script> tag to be present');
 			assert.match(
 				match[0],
-				/^<script type="module">const \w=\{\};console.log\(\w\);<\/script>$/,
+				/^<script type="module">console.log\(\{\}\);<\/script>$/,
 				'Astro component on the client should be an empty object in prod',
 			);
 		});

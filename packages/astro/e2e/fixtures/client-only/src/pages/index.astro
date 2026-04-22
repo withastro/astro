@@ -2,7 +2,8 @@
 import { PreactCounter } from '../components/preact/PreactCounter.jsx';
 import * as react from '../components/react/ReactCounter.jsx';
 import SolidCounter from '../components/solid/SolidCounter.jsx';
-import SvelteCounter from '../components/svelte/SvelteCounter.svelte';
+// TODO: Re-enable once Svelte is compatible with Vite v8
+// import SvelteCounter from '../components/svelte/SvelteCounter.svelte';
 import VueCounter from '../components/vue/VueCounter.vue';
 
 // Full Astro Component Syntax:
@@ -37,10 +38,10 @@ import VueCounter from '../components/vue/VueCounter.vue';
 				<p slot="fallback" data-fallback="vue">Loading Vue...</p>
 			</VueCounter>
 
-			<SvelteCounter id="svelte-counter" client:only="svelte">
+			<!-- <SvelteCounter id="svelte-counter" client:only="svelte">
 				<h1>svelte</h1>
 				<p slot="fallback" data-fallback="svelte">Loading Svelte...</p>
-			</SvelteCounter>
+			</SvelteCounter> -->
 		</main>
 	</body>
 </html>

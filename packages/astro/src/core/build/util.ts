@@ -1,4 +1,4 @@
-import type { Rollup } from 'vite';
+import type { Rolldown } from 'vite';
 import type { AstroConfig } from '../../types/public/config.js';
 import type { ViteBuildReturn } from './types.js';
 
@@ -33,14 +33,14 @@ export function shouldAppendForwardSlash(
 
 /**
  * Matches any character that is NOT alphanumeric, underscore, dot, hyphen, or forward slash.
- * Rollup's built-in `sanitizeFileName` misses characters like `!` and `~` that can leak
+ * Rolldown's built-in `sanitizeFileName` misses characters like `!` and `~` that can leak
  * from Vite module IDs into chunk names (e.g. `page.!{005}.js`).
  */
 const UNSAFE_CHUNK_CHAR_RE = /[^\w.\-/]/g;
 
 /**
  * Replaces characters in a chunk name that are not safe for filesystem paths or URLs.
- * Characters like `!` and `~` can leak from Vite module IDs into Rollup chunk names
+ * Characters like `!` and `~` can leak from Vite module IDs into Rolldown chunk names
  * and break deploys on platforms like Netlify.
  */
 export function cleanChunkName(name: string): string {
@@ -63,10 +63,10 @@ function encodeName(name: string): string {
 	return name;
 }
 
-export function viteBuildReturnToRollupOutputs(
+export function viteBuildReturnToRolldownOutputs(
 	viteBuildReturn: ViteBuildReturn,
-): Rollup.RollupOutput[] {
-	const result: Rollup.RollupOutput[] = [];
+): Rolldown.RolldownOutput[] {
+	const result: Rolldown.RolldownOutput[] = [];
 	if (Array.isArray(viteBuildReturn)) {
 		result.push(...viteBuildReturn);
 	} else if ('output' in viteBuildReturn) {

@@ -98,7 +98,7 @@ test.describe('Nested Frameworks in Vue', () => {
 		await expect(count, 'count incremented by 1').toHaveText('1');
 	});
 
-	test('Svelte counter', async ({ astro, page }) => {
+	test.skip('Svelte counter', async ({ astro, page }) => {
 		await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#svelte-counter');

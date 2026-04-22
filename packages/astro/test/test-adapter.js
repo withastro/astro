@@ -106,6 +106,8 @@ export default function testAdapter({
 													createApp: (streaming) => new MyApp(manifest, streaming)
 												};
 											}
+											
+											export default createExports;
 										`,
 										};
 									},

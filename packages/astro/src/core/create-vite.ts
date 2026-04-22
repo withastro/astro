@@ -353,6 +353,7 @@ const COMMON_PREFIXES_NOT_ASTRO = [
 	'@webcomponents/',
 	'@fontsource/',
 	'@postcss-plugins/',
+	'@rolldown/',
 	'@rollup/',
 	'@astrojs/renderer-',
 	'@types/',
@@ -363,6 +364,7 @@ const COMMON_PREFIXES_NOT_ASTRO = [
 	'prettier-plugin-',
 	'remark-',
 	'rehype-',
+	'rolldown-plugin-',
 	'rollup-plugin-',
 	'vite-plugin-',
 ];

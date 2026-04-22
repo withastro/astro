@@ -1,11 +1,12 @@
 ---
 import Island from '../components/Island';
 import Layout from '../components/Layout.astro';
-import SvelteCounter from '../components/SvelteCounter.svelte';
+// TODO: Re-enable once Svelte is compatible with Vite v8
+// import SvelteCounter from '../components/SvelteCounter.svelte';
 import VueCounter from '../components/VueCounter.vue';
 ---
 <Layout>
 	<p id="page-four">Page 4</p>
 		<VueCounter client:only="vue">Vue</VueCounter>
-		<SvelteCounter client:only="svelte">Svelte</SvelteCounter>
+		<!-- <SvelteCounter client:only="svelte">Svelte</SvelteCounter> -->
 </Layout>

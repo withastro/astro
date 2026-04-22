@@ -10,12 +10,12 @@ export default defineConfig({
     build: {
       cssCodeSplit: false,
       assetsInlineLimit: 0,
-      rollupOptions: {
+      rolldownOptions: {
         output: {
           
           entryFileNames: 'assets/script/a.[hash].js',
           assetFileNames: (option) => {
-            const { ext, dir, base } = path.parse(option.name);
+            const { ext, dir } = path.parse(option.names[0]);
 
             if (ext == ".css") return path.join(dir, "assets/css", 'a.css');
             return "assets/img/[name].[ext]";

@@ -1,5 +1,4 @@
 import type { HydratedComponent } from '@astrojs/compiler/types';
-import type { SourceDescription } from 'rollup';
 import type * as vite from 'vite';
 import { defaultClientConditions, defaultServerConditions, normalizePath } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
@@ -198,6 +197,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 							if (isAstroServerEnvironment(this.environment)) {
 								return {
 									code: `/* client script, empty in SSR: ${id} */`,
+									moduleType: 'ts',
 								};
 							}
 
@@ -217,8 +217,9 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 								}
 							}
 
-							const result: SourceDescription = {
+							const result: vite.Rolldown.SourceDescription = {
 								code: '',
+								moduleType: 'ts',
 								meta: {
 									vite: {
 										lang: 'ts',
@@ -277,6 +278,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 											);
 										}
 									: {};`,
+							moduleType: 'ts',
 							meta: { vite: { lang: 'ts' } },
 						};
 					}
@@ -298,6 +300,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 					return {
 						code: transformResult.code,
 						map: transformResult.map,
+						moduleType: 'ts',
 						meta: {
 							astro: astroMetadata,
 							vite: {

@@ -20,7 +20,7 @@ describe('Non-HTML Pages', () => {
 
 	describe('png', () => {
 		it('should not have had its encoding mangled', async () => {
-			const buffer = await fixture.readFile('/placeholder.png', 'base64');
+			const buffer = (await fixture.readBuffer('/placeholder.png')).toString('base64');
 
 			// Sanity check the first byte
 			const hex = Buffer.from(buffer, 'base64').toString('hex');

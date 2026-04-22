@@ -35,13 +35,25 @@ export default function hmrReload(): Plugin {
 				const invalidatedModules = new Set<EnvironmentModuleNode>();
 				for (const mod of modules) {
 					if (mod.id == null) continue;
+					// Style modules must be checked first: CSS/SCSS files imported by client
+					// components exist in both the client and SSR module graphs. If we checked
+					// the client module graph first, we'd skip them and never set
+					// hasSkippedStyleModules, causing Vite to trigger a full page reload.
 					if (isStyleModule(mod)) {
 						hasSkippedStyleModules = true;
 						continue;
 					}
-
-					const clientModule = server.environments.client.moduleGraph.getModuleById(mod.id);
-					if (clientModule != null) continue;
+					// .astro files always have a client stub injected by the astro:build plugin
+					// to prevent them from being bundled for the browser. That stub is not a
+					// real client module, so we must not skip main .astro module entries even
+					// if a client module entry exists for them. Virtual sub-modules (e.g.
+					// CSS virtual modules with query params) do have real client counterparts
+					// and should still be checked.
+					const isMainAstroModule = mod.id.endsWith('.astro');
+					if (!isMainAstroModule) {
+						const clientModule = server.environments.client.moduleGraph.getModuleById(mod.id);
+						if (clientModule != null) continue;
+					}
 
 					this.environment.moduleGraph.invalidateModule(mod, invalidatedModules, timestamp, true);
 					hasSsrOnlyModules = true;
@@ -60,10 +72,19 @@ export default function hmrReload(): Plugin {
 				}
 
 				if (hasSsrOnlyModules) {
-					server.ws.send({ type: 'full-reload' });
+					server.environments.client.hot.send({
+						type: 'full-reload',
+						path: '*',
+					});
 					return [];
 				}
 
+				// When style modules were skipped, return an empty array to prevent Vite's
+				// default SSR HMR propagation. Without this, Vite would propagate through the
+				// module graph to .astro importers, find no HMR acceptor, and trigger a
+				// full page reload. The client environment handles CSS HMR natively via
+				// Vite's built-in style update mechanism, which works for all pages
+				// (with or without framework components).
 				// When style modules were skipped, return an empty array to prevent Vite's
 				// default SSR HMR propagation. Without this, Vite would propagate through the
 				// module graph to .astro importers, find no HMR acceptor, and trigger a

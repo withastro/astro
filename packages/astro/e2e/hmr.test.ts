@@ -1,4 +1,4 @@
-import { expect } from '@playwright/test';
+import { type Page, expect } from '@playwright/test';
 import { type DevServer, testFactory } from './test-utils.ts';
 
 const test = testFactory(import.meta.url, {
@@ -12,6 +12,12 @@ let devServer: DevServer;
 
 function throwPageShouldNotReload() {
 	throw new Error('Page should not reload in HMR');
+}
+
+async function waitForViteToSettle(page: Page) {
+	// Headless Chrome can trigger one immediate follow-up load after the initial Vite connection.
+	// Wait for that to clear before asserting whether an edit caused a reload.
+	await page.waitForTimeout(500);
 }
 
 test.beforeAll(async ({ astro }) => {
@@ -29,6 +35,7 @@ test.afterAll(async () => {
 test.describe('Scripts with dependencies', () => {
 	test('refresh with HMR', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/script-dep'));
+		await waitForViteToSettle(page);
 
 		const h = page.locator('h1');
 		await expect(h, 'original text set').toHaveText('before');
@@ -44,6 +51,7 @@ test.describe('Scripts with dependencies', () => {
 test.describe('Styles', () => {
 	test('dependencies cause refresh with HMR', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/css-dep'));
+		await waitForViteToSettle(page);
 
 		page.once('load', throwPageShouldNotReload);
 
@@ -57,6 +65,7 @@ test.describe('Styles', () => {
 
 	test('external CSS refresh with HMR', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/css-external'));
+		await waitForViteToSettle(page);
 
 		page.once('load', throwPageShouldNotReload);
 
@@ -72,6 +81,7 @@ test.describe('Styles', () => {
 
 	test('inline styles refresh with HMR', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/css-inline'));
+		await waitForViteToSettle(page);
 
 		page.once('load', throwPageShouldNotReload);
 
@@ -101,6 +111,7 @@ test.describe('Styles', () => {
 
 	test('SCSS modules refresh with HMR', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/scss-module'));
+		await waitForViteToSettle(page);
 
 		page.once('load', throwPageShouldNotReload);
 
@@ -116,6 +127,7 @@ test.describe('Styles', () => {
 
 	test('added style tag refresh with full-reload', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/css-inline-component'));
+		await waitForViteToSettle(page);
 
 		const h = page.locator('h1.title-with-no-color');
 		await expect(h).toHaveCSS('color', 'rgb(0, 0, 0)');
@@ -129,6 +141,7 @@ test.describe('Styles', () => {
 
 	test('multiple added style tags refresh with full-reload', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/css-inline-component'));
+		await waitForViteToSettle(page);
 
 		const h = page.locator('h1.title-with-color');
 		await expect(h).toHaveCSS('color', 'rgb(0, 0, 255)');
@@ -143,6 +156,7 @@ test.describe('Styles', () => {
 
 	test('removed style tag refresh with full-reload', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/css-inline-component'));
+		await waitForViteToSettle(page);
 
 		const h = page.locator('h1.title-with-color');
 		await expect(h).toHaveCSS('color', 'rgb(0, 0, 255)');

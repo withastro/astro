@@ -166,8 +166,8 @@ describe('Queue-based rendering - Static', () => {
 			const html = await fixture.readFile('/head-content/index.html');
 
 			// Component styles should be in head
-			assert.ok(html.includes('.with-head'));
-			assert.ok(html.includes('border: 1px solid blue') || html.includes('border:1px solid blue'));
+			assert.match(html, /\.with-head/);
+			assert.match(html, /border:1px solid #00f/);
 		});
 
 		it('should include component scripts', async () => {

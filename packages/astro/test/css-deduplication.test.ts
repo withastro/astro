@@ -20,7 +20,7 @@ describe('CSS deduplication for hydrated components', () => {
 			const assets = await fixture.readdir('/_astro');
 
 			// Generated file for Counter.css (filename format changed in main-next)
-			const COUNTER_CSS_PATH = '/_astro/index@_@astro.DbgLc3FE.css';
+			const COUNTER_CSS_PATH = '/_astro/index@_@astro.BmwMjdxs.css';
 			let file = await fixture.readFile(COUNTER_CSS_PATH);
 			file = file.replace(/\s+/g, '');
 

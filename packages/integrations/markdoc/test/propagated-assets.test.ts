@@ -50,7 +50,7 @@ describe('Markdoc - propagated assets', () => {
 					assert.equal(links.length, 1);
 					styleContents = await fixture.readFile(links[0].href);
 				}
-				assert.equal(styleContents.includes('--color-base-purple: 269, 79%;'), true);
+				assert.match(styleContents, /--color-base-purple:\s*269,\s*79%;/);
 			});
 
 			it('[fails] Does not bleed styles to other page', async () => {

@@ -180,9 +180,8 @@ describe('Content Collections - render()', () => {
 
 		it('Includes component scripts for rendered entry', async () => {
 			const response = await fixture.fetch('/launch-week-component-scripts', { method: 'GET' });
-			assert.equal(response.status, 200);
-
 			const html = await response.text();
+			assert.equal(response.status, 200);
 			const $ = cheerio.load(html);
 
 			// Includes script

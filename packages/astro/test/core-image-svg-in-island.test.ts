@@ -30,6 +30,7 @@ describe('astro:assets - SVG Components in Astro Islands', async () => {
 			const componentModule = await fixture.fetch(componentUrl).then((res) => res.text());
 			const imports = componentModule
 				.split('\n')
+				.flatMap((line) => line.split(';'))
 				.map((line) => line.trim())
 				.filter((line) => line.startsWith('import '));
 			const svgImportStatement = imports.find((imp) => imp.includes('src/components/astro.svg'))!;

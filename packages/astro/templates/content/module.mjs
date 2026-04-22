@@ -1,4 +1,4 @@
-// astro-head-inject
+"use astro:head-inject";
 import {
 	createDeprecatedFunction,
 	createGetCollection,

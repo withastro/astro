@@ -91,7 +91,7 @@ describe('Inline scripts in SSR', () => {
 		it('Inlined scripts get included without base path in the script', async () => {
 			const html = await fetchHTML(fixture, '/hello/');
 			const $ = cheerioLoad(html);
-			assert.equal($('script').html(), 'console.log("hello world");');
+			assert.equal($('script').html(), 'console.log(`hello world`);');
 		});
 	});
 });
@@ -166,11 +166,11 @@ describe('External scripts in SSR', () => {
 		});
 	});
 
-	describe('with custom rollup output file names', () => {
+	describe('with custom rolldown output file names', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				...defaultFixtureOptions,
-				outDir: './dist/with-rollup-output-file-names',
+				outDir: './dist/with-rolldown-output-file-names',
 				vite: {
 					build: {
 						assetsInlineLimit: 0,
@@ -178,7 +178,7 @@ describe('External scripts in SSR', () => {
 					environments: {
 						client: {
 							build: {
-								rollupOptions: {
+								rolldownOptions: {
 									output: {
 										entryFileNames: 'assets/entry.[hash].mjs',
 										chunkFileNames: 'assets/chunks/chunk.[hash].mjs',
@@ -200,11 +200,11 @@ describe('External scripts in SSR', () => {
 		});
 	});
 
-	describe('with custom rollup output file names and base', () => {
+	describe('with custom rolldown output file names and base', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				...defaultFixtureOptions,
-				outDir: './dist/with-rollup-output-file-names-and-base',
+				outDir: './dist/with-rolldown-output-file-names-and-base',
 				vite: {
 					build: {
 						assetsInlineLimit: 0,
@@ -212,7 +212,7 @@ describe('External scripts in SSR', () => {
 					environments: {
 						client: {
 							build: {
-								rollupOptions: {
+								rolldownOptions: {
 									output: {
 										entryFileNames: 'assets/entry.[hash].mjs',
 										chunkFileNames: 'assets/chunks/chunk.[hash].mjs',
@@ -235,11 +235,11 @@ describe('External scripts in SSR', () => {
 		});
 	});
 
-	describe('with custom rollup output file names and assetsPrefix', () => {
+	describe('with custom rolldown output file names and assetsPrefix', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				...defaultFixtureOptions,
-				outDir: './dist/with-rollup-output-file-names-and-assets-prefix',
+				outDir: './dist/with-rolldown-output-file-names-and-assets-prefix',
 				build: {
 					assetsPrefix: 'https://cdn.example.com',
 				},
@@ -250,7 +250,7 @@ describe('External scripts in SSR', () => {
 					environments: {
 						client: {
 							build: {
-								rollupOptions: {
+								rolldownOptions: {
 									output: {
 										entryFileNames: 'assets/entry.[hash].mjs',
 										chunkFileNames: 'assets/chunks/chunk.[hash].mjs',
