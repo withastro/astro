@@ -161,17 +161,17 @@ export class FetchState {
 	}
 
 	async #createRenderContext(): Promise<RenderContext> {
-		const app = this.app;
+		const pipeline = this.pipeline;
 		const routeData = this.routeData!;
 		const { clientAddress, locals } = this.renderOptions;
 
 		// Load the route module if not already set
 		if (!this.componentInstance) {
-			this.componentInstance = await app.pipeline.getComponentByRoute(routeData);
+			this.componentInstance = await pipeline.getComponentByRoute(routeData);
 		}
 
 		const renderContext = await RenderContext.create({
-			pipeline: app.pipeline,
+			pipeline,
 			locals,
 			pathname: this.pathname,
 			request: this.request,
