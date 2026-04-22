@@ -1,13 +1,11 @@
 import * as xml2js from 'xml2js';
 import {
 	type AstroInlineConfig,
-	type DevServer,
 	type Fixture,
 	loadFixture as baseLoadFixture,
-	type PreviewServer,
 } from '../../../astro/test/test-utils.js';
 
-export type { AstroInlineConfig, DevServer, Fixture, PreviewServer };
+export type { AstroInlineConfig, Fixture };
 
 export function loadFixture(inlineConfig: AstroInlineConfig): Promise<Fixture> {
 	if (!inlineConfig?.root) throw new Error("Must provide { root: './fixtures/...' }");

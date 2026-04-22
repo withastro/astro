@@ -64,6 +64,8 @@ export default async function test() {
 	if (args.values.tsx) {
 		process.env.NODE_OPTIONS ??= '';
 		process.env.NODE_OPTIONS += ' --import tsx';
+		const { register } = await import('tsx/esm/api');
+		register();
 	}
 
 	if (args.values['strip-types']) {
