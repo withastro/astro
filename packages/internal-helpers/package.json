@@ -17,7 +17,8 @@
     "./fs": "./dist/fs.js",
     "./cli": "./dist/cli.js",
     "./create-filter": "./dist/create-filter.js",
-    "./request": "./dist/request.js"
+    "./request": "./dist/request.js",
+    "./object": "./dist/object.js"
   },
   "typesVersions": {
     "*": {
@@ -35,6 +36,9 @@
       ],
       "create-filter": [
         "./dist/create-filter.d.ts"
+      ],
+      "object": [
+        "./dist/object.d.ts"
       ]
     }
   },
