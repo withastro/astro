@@ -4,7 +4,6 @@ import type { APIContext } from '../../types/public/context.js';
 import type { Pipeline } from '../base-pipeline.js';
 import { ROUTE_TYPE_HEADER } from '../constants.js';
 import { attachCookiesToResponse } from '../cookies/index.js';
-import type { RenderContext } from '../render-context.js';
 import { callMiddleware } from './callMiddleware.js';
 import { sequence } from './index.js';
 
@@ -41,15 +40,14 @@ export class AstroMiddleware {
 
 	async handle(state: FetchState, renderRouteCallback: RenderRouteCallback): Promise<Response> {
 		const pipeline = this.#pipeline;
-		const renderContext = state.renderContext!;
 
 		// Resolve props first (the async bit) so downstream consumers can
 		// call `state.getAPIContext()` synchronously on the hot path.
 		await state.getProps();
 		const apiContext = state.getAPIContext();
 
-		renderContext.counter++;
-		if (renderContext.counter === 4) {
+		state.counter++;
+		if (state.counter === 4) {
 			return new Response('Loop Detected', {
 				// https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/508
 				status: 508,
@@ -69,17 +67,17 @@ export class AstroMiddleware {
 			const composed = sequence(...pipeline.internalMiddleware, pipelineMiddleware);
 			response = await callMiddleware(composed, apiContext, next);
 		}
-		return this.#finalize(renderContext, response);
+		return this.#finalize(state, response);
 	}
 
-	#finalize(renderContext: RenderContext, response: Response): Response {
+	#finalize(state: FetchState, response: Response): Response {
 		if (response.headers.get(ROUTE_TYPE_HEADER)) {
 			response.headers.delete(ROUTE_TYPE_HEADER);
 		}
 		// LEGACY: we put cookies on the response object,
 		// where the adapter might be expecting to read it.
 		// New code should be using `app.render({ addCookieHeader: true })` instead.
-		attachCookiesToResponse(response, renderContext.getCookies());
+		attachCookiesToResponse(response, state.cookies!);
 		return response;
 	}
 }

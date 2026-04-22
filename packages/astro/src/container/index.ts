@@ -10,7 +10,7 @@ import { AstroMiddleware } from '../core/middleware/astro-middleware.js';
 import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
 import { PagesHandler } from '../core/pages/handler.js';
 import { removeLeadingForwardSlash } from '../core/path.js';
-import { RenderContext } from '../core/render-context.js';
+
 import { getParts } from '../core/routing/parts.js';
 import { getPattern } from '../core/routing/pattern.js';
 import { validateSegment } from '../core/routing/segment.js';
@@ -547,31 +547,20 @@ export class experimental_AstroContainer {
 			params: options.params,
 			type: routeType,
 		});
-		const renderContext = RenderContext.create({
-			pipeline: this.#pipeline,
-			routeData,
-			status: 200,
-			request,
-			pathname: url.pathname,
-			locals: options?.locals ?? {},
-			partial: options?.partial ?? true,
-			clientAddress: '',
-		});
-		if (options.params) {
-			renderContext.params = options.params;
-		}
-		if (options.props) {
-			renderContext.props = options.props;
-		}
-
 		const state = new FetchState(this.#pipeline, request);
 		state.routeData = routeData;
 		state.pathname = url.pathname;
-		state.renderContext = renderContext;
+		state.clientAddress = '';
+		state.partial = options?.partial ?? true;
 		state.componentInstance = componentInstance;
 		state.slots = slots ?? {};
-		renderContext.fetchState = state;
-
+		if (options.params) {
+			state.params = options.params;
+		}
+		state.locals = (options?.locals ?? {}) as App.Locals;
+		if (options.props) {
+			state.initialProps = options.props;
+		}
 		return this.#astroMiddleware.handle(
 			state,
 			this.#pagesHandler.handle.bind(this.#pagesHandler),

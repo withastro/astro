@@ -12,10 +12,11 @@ import type { RemotePattern, RouteData } from '../../types/public/index.js';
 import type { Pipeline } from '../base-pipeline.js';
 import { clientAddressSymbol } from '../constants.js';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
+
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { AstroIntegrationLogger, AstroLogger } from '../logger/core.js';
-import { type CreateRenderContext, RenderContext } from '../render-context.js';
+
 import { ensure404Route } from '../routing/astro-designed-error-pages.js';
 import { Router } from '../routing/router.js';
 import { DefaultFetchHandler } from '../fetch/default-handler.js';
@@ -167,9 +168,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 
 	public abstract isDev(): boolean;
 
-	createRenderContext(payload: CreateRenderContext): RenderContext {
-		return RenderContext.create(payload);
-	}
+
 
 	getAdapterLogger(): AstroIntegrationLogger {
 		return this.adapterLogger;

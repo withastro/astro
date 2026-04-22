@@ -3,7 +3,6 @@ import type { SSRManifest } from '../app/types.js';
 import type { BuildInternals } from './internal.js';
 import { BuildPipeline } from './pipeline.js';
 import type { StaticBuildOptions } from './types.js';
-import type { CreateRenderContext, RenderContext } from '../render-context.js';
 import type { LogRequestPayload } from '../app/base.js';
 import { BuildErrorHandler } from '../errors/build-handler.js';
 import type { ErrorHandler } from '../errors/handler.js';
@@ -13,12 +12,6 @@ export class BuildApp extends BaseApp<BuildPipeline> {
 	createPipeline(_streaming: boolean, manifest: SSRManifest, ..._args: any[]): BuildPipeline {
 		return BuildPipeline.create({
 			manifest,
-		});
-	}
-
-	createRenderContext(payload: CreateRenderContext): RenderContext {
-		return super.createRenderContext({
-			...payload,
 		});
 	}
 

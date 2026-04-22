@@ -68,7 +68,6 @@ export function middleware(
 	state: FetchState,
 	next: (state: FetchState) => Promise<Response>,
 ): Promise<Response> {
-	state.ensureRenderContext();
 	const app = getApp(state.request);
 	let mw = middlewareInstances.get(app);
 	if (!mw) {
@@ -85,7 +84,6 @@ const pagesHandlers = new WeakMap<BaseApp<any>, PagesHandler>();
  * or fallback). Lazily creates the render context if needed.
  */
 export function pages(state: FetchState): Promise<Response> {
-	state.ensureRenderContext();
 	const app = getApp(state.request);
 	let handler = pagesHandlers.get(app);
 	if (!handler) {
@@ -130,7 +128,6 @@ const actionHandlers = new WeakMap<BaseApp<any>, ActionHandler>();
  * the render context if needed.
  */
 export function actions(state: FetchState): Promise<Response | undefined> | undefined {
-	state.ensureRenderContext();
 	const app = getApp(state.request);
 	let handler = actionHandlers.get(app);
 	if (!handler) {

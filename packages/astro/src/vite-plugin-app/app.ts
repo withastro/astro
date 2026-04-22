@@ -9,7 +9,7 @@ import { DevErrorHandler } from '../core/errors/dev-handler.js';
 import type { ErrorHandler } from '../core/errors/handler.js';
 import type { AstroLogger } from '../core/logger/core.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
-import type { CreateRenderContext, RenderContext } from '../core/render-context.js';
+
 import { createRequest } from '../core/request.js';
 import type { AstroSettings, RoutesList } from '../types/astro.js';
 import type { RouteData, SSRManifest } from '../types/public/index.js';
@@ -28,7 +28,7 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 	logger: AstroLogger;
 	loader: ModuleLoader;
 	manifestData: RoutesList;
-	currentRenderContext: RenderContext | undefined = undefined;
+
 	constructor(
 		manifest: SSRManifest,
 		streaming = true,
@@ -139,11 +139,6 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 		});
 
 		return pipeline;
-	}
-
-	createRenderContext(payload: CreateRenderContext): RenderContext {
-		this.currentRenderContext = super.createRenderContext(payload);
-		return this.currentRenderContext;
 	}
 
 	public async handleRequest({

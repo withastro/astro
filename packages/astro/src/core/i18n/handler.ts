@@ -71,10 +71,9 @@ export class I18n {
 			return response;
 		}
 
-		const renderContext = state.renderContext!;
 		const url = new URL(state.request.url);
-		const currentLocale = renderContext.computeCurrentLocale();
-		const isPrerendered = renderContext.routeData.prerender;
+		const currentLocale = state.computeCurrentLocale();
+		const isPrerendered = state.routeData!.prerender;
 
 		// Build context for router (typeHeader is guaranteed to be 'page' | 'fallback' here)
 		const routerContext: I18nRouterContext = {
@@ -148,7 +147,7 @@ export class I18n {
 						headers: { Location: fallbackDecision.pathname + url.search },
 					});
 				case 'rewrite':
-					return await renderContext.rewrite(fallbackDecision.pathname + url.search);
+					return await state.rewrite(fallbackDecision.pathname + url.search);
 				case 'none':
 					break;
 			}

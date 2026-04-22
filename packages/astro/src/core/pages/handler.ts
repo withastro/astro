@@ -15,8 +15,8 @@ import { ForbiddenRewrite } from '../errors/errors-data.js';
 import { AstroError } from '../errors/errors.js';
 import { renderRedirect } from '../redirects/render.js';
 import { getParams } from '../render/index.js';
-import { RenderContext } from '../render-context.js';
 import { copyRequest, setOriginPathname } from '../routing/rewrite.js';
+import { createNormalizedUrl } from '../util/normalized-url.js';
 
 // Shared empty-slots object so we don't allocate `{}` on every render for
 // requests that don't come from the container API. Safe to share because
@@ -47,10 +47,9 @@ export class PagesHandler {
 	async handle(state: FetchState, ctx: APIContext, payload?: RewritePayload): Promise<Response> {
 		const pipeline = this.#pipeline;
 		const { logger, streaming } = pipeline;
-		const renderContext = state.renderContext!;
 
 		if (payload) {
-			const oldPathname = renderContext.pathname;
+			const oldPathname = state.pathname;
 			pipeline.logger.debug('router', 'Called rewriting to:', payload);
 			// we intentionally let the error bubble up
 			const {
@@ -58,44 +57,44 @@ export class PagesHandler {
 				componentInstance: newComponent,
 				pathname,
 				newUrl,
-			} = await pipeline.tryRewrite(payload, renderContext.request);
+			} = await pipeline.tryRewrite(payload, state.request);
 
 			// This is a case where the user tries to rewrite from a SSR route to a prerendered route (SSG).
 			// This case isn't valid because when building for SSR, the prerendered route disappears from the server output because it becomes an HTML file,
 			// so Astro can't retrieve it from the emitted manifest.
 			if (
 				pipeline.manifest.serverLike === true &&
-				renderContext.routeData.prerender === false &&
+				state.routeData!.prerender === false &&
 				routeData.prerender === true
 			) {
 				throw new AstroError({
 					...ForbiddenRewrite,
-					message: ForbiddenRewrite.message(renderContext.pathname, pathname, routeData.component),
+					message: ForbiddenRewrite.message(state.pathname, pathname, routeData.component),
 					hint: ForbiddenRewrite.hint(routeData.component),
 				});
 			}
 
-			renderContext.routeData = routeData;
+			state.routeData = routeData;
 			state.componentInstance = newComponent;
 			if (payload instanceof Request) {
-				renderContext.request = payload;
+				state.request = payload;
 			} else {
-				renderContext.request = copyRequest(
+				state.request = copyRequest(
 					newUrl,
-					renderContext.request,
+					state.request,
 					// need to send the flag of the previous routeData
 					routeData.prerender,
 					pipeline.logger,
-					renderContext.routeData.route,
+					state.routeData!.route,
 				);
 			}
-			renderContext.isRewriting = true;
-			renderContext.url = RenderContext.createNormalizedUrl(renderContext.request.url);
-			renderContext.params = getParams(routeData, pathname);
-			renderContext.pathname = pathname;
-			renderContext.status = 200;
+			state.isRewriting = true;
+			state.url = createNormalizedUrl(state.request.url);
+			state.params = getParams(routeData, pathname);
+			state.pathname = pathname;
+			state.status = 200;
 			setOriginPathname(
-				renderContext.request,
+				state.request,
 				oldPathname,
 				pipeline.manifest.trailingSlash,
 				pipeline.manifest.buildFormat,
@@ -107,12 +106,12 @@ export class PagesHandler {
 		let response: Response;
 
 		const componentInstance = await state.loadComponentInstance();
-		switch (renderContext.routeData.type) {
+		switch (state.routeData!.type) {
 			case 'endpoint': {
 				response = await renderEndpoint(
 					componentInstance as any,
 					ctx,
-					renderContext.routeData.prerender,
+					state.routeData!.prerender,
 					logger,
 				);
 				break;
@@ -122,23 +121,23 @@ export class PagesHandler {
 			case 'page': {
 				const props = await state.getProps();
 				const actionApiContext = state.getActionAPIContext();
-				renderContext.result = await renderContext.createResult(
+				const result = await state.createResult(
 					componentInstance!,
 					actionApiContext,
 				);
 				try {
 					response = await renderPage(
-						renderContext.result,
+						result,
 						componentInstance?.default as any,
 						props,
 						state.slots ?? EMPTY_SLOTS,
 						streaming,
-						renderContext.routeData,
+						state.routeData!,
 					);
 				} catch (e) {
 					// If there is an error in the page's frontmatter or instantiation of the RenderTemplate fails midway,
 					// we signal to the rest of the internals that we can ignore the results of existing renders and avoid kicking off more of them.
-					renderContext.result.cancelled = true;
+					result.cancelled = true;
 					throw e;
 				}
 
@@ -146,12 +145,12 @@ export class PagesHandler {
 				response.headers.set(ROUTE_TYPE_HEADER, 'page');
 				// Signal to the error-page-rerouting infra to let this response pass through to avoid loops
 				if (
-					renderContext.routeData.route === '/404' ||
-					renderContext.routeData.route === '/500'
+					state.routeData!.route === '/404' ||
+					state.routeData!.route === '/500'
 				) {
 					response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
 				}
-				if (renderContext.isRewriting) {
+				if (state.isRewriting) {
 					response.headers.set(REWRITE_DIRECTIVE_HEADER_KEY, REWRITE_DIRECTIVE_HEADER_VALUE);
 				}
 				break;
@@ -160,11 +159,11 @@ export class PagesHandler {
 				return new Response(null, { status: 500, headers: { [ROUTE_TYPE_HEADER]: 'fallback' } });
 			}
 		}
-		// We need to merge the cookies from the response back into renderContext.cookies
+		// We need to merge the cookies from the response back into the cookies
 		// because they may need to be passed along from a rewrite.
 		const responseCookies = getCookiesFromResponse(response);
 		if (responseCookies) {
-			renderContext.getCookies().merge(responseCookies);
+			state.cookies!.merge(responseCookies);
 		}
 		return response;
 	}

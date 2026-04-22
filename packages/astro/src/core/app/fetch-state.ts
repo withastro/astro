@@ -1,21 +1,35 @@
+import colors from 'piccolore';
 import {
 	collapseDuplicateLeadingSlashes,
 	prependForwardSlash,
 	removeTrailingForwardSlash,
 } from '@astrojs/internal-helpers/path';
-import { createCallAction, createGetActionResult } from '../../actions/utils.js';
+import { deserializeActionResult } from '../../actions/runtime/client.js';
+import { createCallAction, createGetActionResult, hasActionPayload } from '../../actions/utils.js';
 import type { ActionAPIContext } from '../../actions/runtime/types.js';
 import type { ComponentInstance } from '../../types/astro.js';
-import type { RewritePayload } from '../../types/public/common.js';
-import type { APIContext } from '../../types/public/context.js';
-import type { RouteData } from '../../types/public/internal.js';
+import type { Params, Props, RewritePayload } from '../../types/public/common.js';
+import type { APIContext, AstroGlobal } from '../../types/public/context.js';
+import type { RouteData, SSRResult } from '../../types/public/internal.js';
+import { AstroCookies } from '../cookies/index.js';
 import type { BaseApp } from './base.js';
-import type { Pipeline } from '../base-pipeline.js';
-import { ASTRO_GENERATOR, DEFAULT_404_COMPONENT, appSymbol, fetchStateSymbol, pipelineSymbol } from '../constants.js';
+import { type Pipeline, Slots } from '../render/index.js';
+import { ASTRO_GENERATOR, DEFAULT_404_COMPONENT, appSymbol, fetchStateSymbol, originPathnameSymbol, pipelineSymbol, responseSentSymbol } from '../constants.js';
+import { pushDirective } from '../csp/runtime.js';
+import { generateCspDigest } from '../encryption.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import type { RenderContext } from '../render-context.js';
-import { getProps } from '../render/index.js';
-import { getOriginPathname } from '../routing/rewrite.js';
+import {
+	computeCurrentLocale as computeCurrentLocaleUtil,
+	computeCurrentLocaleFromParams,
+	computePreferredLocale as computePreferredLocaleUtil,
+	computePreferredLocaleList as computePreferredLocaleListUtil,
+} from '../../i18n/utils.js';
+
+import { getParams, getProps } from '../render/index.js';
+import { Rewrites } from '../rewrites/handler.js';
+import { isRoute404or500, isRouteServerIsland } from '../routing/match.js';
+import { createNormalizedUrl } from '../util/normalized-url.js';
+import { getOriginPathname, setOriginPathname } from '../routing/rewrite.js';
 import { routeHasHtmlExtension } from '../routing/helpers.js';
 import type { ResolvedRenderOptions } from './base.js';
 import { getRenderOptions } from './render-options.js';
@@ -37,11 +51,11 @@ export interface ContextProvider<T> {
  *
  * `FetchState` centralizes things that used to be ad-hoc locals in
  * `AstroHandler.handle()`: the matched route, the resolved pathname, the
- * resolved render options, the active `RenderContext`, the component
+ * resolved render options, the component
  * module, and the lazily-built `APIContext` / `ActionAPIContext`.
  *
  * Handler steps populate and read `FetchState` as the request progresses.
- * `AstroHandler` resolves `routeData` and creates the `RenderContext`;
+ * `AstroHandler` resolves `routeData`;
  * `AstroMiddleware` reads the cached contexts via `getAPIContext()` /
  * `getActionAPIContext()`.
  *
@@ -75,11 +89,7 @@ export class FetchState {
 	/** When the request started, used to log duration. */
 	readonly timeStart: number;
 
-	/**
-	 * The active `RenderContext`. Assigned by `AstroHandler.render`
-	 * (and error handlers / container) before middleware runs.
-	 */
-	renderContext: RenderContext | undefined;
+
 	/**
 	 * The route's loaded component module. Set before middleware runs; may
 	 * be swapped during in-flight rewrites from inside the middleware chain.
@@ -93,10 +103,39 @@ export class FetchState {
 	slots: Record<string, any> | undefined;
 	/**
 	 * Default HTTP status for the rendered response. Callers override
-	 * before `getRenderContext()` runs (e.g. `AstroHandler` sets this from
+	 * before rendering runs (e.g. `AstroHandler` sets this from
 	 * `BaseApp.getDefaultStatusCode`; error handlers set `404` / `500`).
 	 */
 	status = 200;
+	/** Whether user middleware should be skipped for this request. */
+	skipMiddleware = false;
+	/** A flag that tells the render content if the rewriting was triggered. */
+	isRewriting = false;
+	/** A safety net in case of loops (rewrite counter). */
+	counter = 0;
+	/** Cookies for this request. Created lazily on first access. */
+	cookies: AstroCookies | undefined;
+	/** Route params derived from routeData + pathname. Computed lazily. */
+	#params: Params | undefined;
+	get params(): Params | undefined {
+		if (!this.#params && this.routeData) {
+			this.#params = getParams(this.routeData, this.pathname);
+		}
+		return this.#params;
+	}
+	set params(value: Params | undefined) {
+		this.#params = value;
+	}
+	/** Normalized URL for this request. */
+	url: URL | undefined;
+	/** Client address for this request. */
+	clientAddress: string | undefined;
+	/** Whether this is a partial render (container API). */
+	partial: boolean | undefined;
+	/** Whether to inject CSP meta tags. */
+	shouldInjectCspMetaTags: boolean | undefined;
+	/** Request-scoped locals object, shared with user middleware. */
+	locals: App.Locals = {} as App.Locals;
 
 	/**
 	 * Memoized `props` (see `getProps`). `null` means "not yet computed"
@@ -115,6 +154,20 @@ export class FetchState {
 	#resolved = new Map<string, unknown>();
 	/** Cached promise for lazy component instance loading. */
 	#componentInstancePromise: Promise<ComponentInstance> | undefined;
+	/** SSR result for the current page render. */
+	result: SSRResult | undefined;
+	/** Initial props (from container/error handler). */
+	initialProps: Props = {};
+	/** Rewrites handler instance. */
+	#rewrites = new Rewrites();
+	/** Memoized Astro page partial. */
+	#astroPagePartial?: Omit<AstroGlobal, 'props' | 'self' | 'slots'>;
+	/** Memoized current locale. */
+	#currentLocale: APIContext['currentLocale'];
+	/** Memoized preferred locale. */
+	#preferredLocale: APIContext['preferredLocale'];
+	/** Memoized preferred locale list. */
+	#preferredLocaleList: APIContext['preferredLocaleList'];
 
 	constructor(pipeline: Pipeline, request: Request) {
 		this.pipeline = pipeline;
@@ -128,47 +181,380 @@ export class FetchState {
 			prerenderedErrorPageFetch: options?.prerenderedErrorPageFetch ?? fetch,
 			routeData: options?.routeData,
 		};
-		this.renderContext = undefined;
+
 		this.componentInstance = undefined;
 		this.slots = undefined;
 		this.pathname = this.#computePathname();
 		this.timeStart = performance.now();
+		this.clientAddress = options?.clientAddress;
+		this.locals = (options?.locals ?? {}) as App.Locals;
+		this.url = createNormalizedUrl(request.url);
+		this.cookies = new AstroCookies(request);
+
+		// Set origin pathname for rewrite tracking.
+		if (!Reflect.get(request, originPathnameSymbol)) {
+			setOriginPathname(
+				request,
+				this.pathname,
+				pipeline.manifest.trailingSlash,
+				pipeline.manifest.buildFormat,
+			);
+		}
 	}
 
 	/**
-	 * Whether user middleware should be skipped for this request.
-	 * Delegates to `renderContext.skipMiddleware`; returns `false` if
-	 * no render context has been set yet.
+	 * Triggers a rewrite. Delegates to the Rewrites handler.
 	 */
-	get skipMiddleware(): boolean {
-		return this.renderContext?.skipMiddleware ?? false;
+	rewrite(payload: RewritePayload): Promise<Response> {
+		return this.#rewrites.execute(this, payload);
 	}
 
 	/**
-	 * Ensures the `RenderContext` exists, creating it synchronously if
-	 * needed. Returns the render context.
-	 *
-	 * When `AstroHandler.render` sets `renderContext` explicitly before
-	 * this is called, the existing context is returned as-is.
+	 * Creates the SSR result for the current page render.
 	 */
-	ensureRenderContext(): RenderContext {
-		if (this.renderContext) return this.renderContext;
+	async createResult(mod: ComponentInstance, ctx: ActionAPIContext): Promise<SSRResult> {
+		const pipeline = this.pipeline;
+		const { clientDirectives, inlinedScripts, compressHTML, manifest, renderers, resolve } =
+			pipeline;
+		const routeData = this.routeData!;
+		const { links, scripts, styles } = await pipeline.headElements(routeData);
 
-		const { clientAddress, locals } = this.renderOptions;
-		const renderContext = this.app.createRenderContext({
-			pipeline: this.pipeline,
-			locals,
+		const extraStyleHashes: string[] = [];
+		const extraScriptHashes: string[] = [];
+		const shouldInjectCspMetaTags = this.shouldInjectCspMetaTags ?? manifest.shouldInjectCspMetaTags;
+		const cspAlgorithm = manifest.csp?.algorithm ?? 'SHA-256';
+		if (shouldInjectCspMetaTags) {
+			for (const style of styles) {
+				extraStyleHashes.push(await generateCspDigest(style.children, cspAlgorithm));
+			}
+			for (const script of scripts) {
+				extraScriptHashes.push(await generateCspDigest(script.children, cspAlgorithm));
+			}
+		}
+
+		const componentMetadata =
+			(await pipeline.componentMetadata(routeData)) ?? manifest.componentMetadata;
+		const headers = new Headers({ 'Content-Type': 'text/html' });
+		const partial = typeof this.partial === 'boolean' ? this.partial : Boolean(mod.partial);
+		const actionResult = hasActionPayload(this.locals)
+			? deserializeActionResult(this.locals._actionPayload.actionResult)
+			: undefined;
+		const status = this.status;
+		const response = {
+			status: actionResult?.error ? actionResult?.error.status : status,
+			statusText: actionResult?.error ? actionResult?.error.type : 'OK',
+			get headers() {
+				return headers;
+			},
+			set headers(_) {
+				throw new AstroError(AstroErrorData.AstroResponseHeadersReassigned);
+			},
+		} satisfies AstroGlobal['response'];
+
+		const state = this;
+		const result: SSRResult = {
+			base: manifest.base,
+			userAssetsBase: manifest.userAssetsBase,
+			cancelled: false,
+			clientDirectives,
+			inlinedScripts,
+			componentMetadata,
+			compressHTML,
+			cookies: this.cookies!,
+			createAstro: (props, slots) => state.createAstro(result, props, slots, ctx),
+			links,
+			params: this.params!,
+			partial,
 			pathname: this.pathname,
+			renderers,
+			resolve,
+			response,
 			request: this.request,
-			routeData: this.routeData!,
-			status: this.status,
-			clientAddress,
+			scripts,
+			styles,
+			actionResult,
+			async getServerIslandNameMap() {
+				const serverIslands = await pipeline.getServerIslands();
+				return serverIslands.serverIslandNameMap ?? new Map();
+			},
+			key: manifest.key,
+			trailingSlash: manifest.trailingSlash,
+			_experimentalQueuedRendering: {
+				pool: pipeline.nodePool,
+				htmlStringCache: pipeline.htmlStringCache,
+				enabled: manifest.experimentalQueuedRendering?.enabled,
+				poolSize: manifest.experimentalQueuedRendering?.poolSize,
+				contentCache: manifest.experimentalQueuedRendering?.contentCache,
+			},
+			_metadata: {
+				hasHydrationScript: false,
+				rendererSpecificHydrationScripts: new Set(),
+				hasRenderedHead: false,
+				renderedScripts: new Set(),
+				hasDirectives: new Set(),
+				hasRenderedServerIslandRuntime: false,
+				headInTree: false,
+				extraHead: [],
+				extraStyleHashes,
+				extraScriptHashes,
+				propagators: new Set(),
+			},
+			cspDestination: manifest.csp?.cspDestination ?? (routeData.prerender ? 'meta' : 'header'),
+			shouldInjectCspMetaTags,
+			cspAlgorithm,
+			scriptHashes: manifest.csp?.scriptHashes ? [...manifest.csp.scriptHashes] : [],
+			scriptResources: manifest.csp?.scriptResources ? [...manifest.csp.scriptResources] : [],
+			styleHashes: manifest.csp?.styleHashes ? [...manifest.csp.styleHashes] : [],
+			styleResources: manifest.csp?.styleResources ? [...manifest.csp.styleResources] : [],
+			directives: manifest.csp?.directives ? [...manifest.csp.directives] : [],
+			isStrictDynamic: manifest.csp?.isStrictDynamic ?? false,
+			internalFetchHeaders: manifest.internalFetchHeaders,
+		};
+
+		this.result = result;
+		return result;
+	}
+
+	/**
+	 * Creates the Astro global object for a component render.
+	 */
+	createAstro(
+		result: SSRResult,
+		props: Record<string, any>,
+		slotValues: Record<string, any> | null,
+		apiContext: ActionAPIContext,
+	): AstroGlobal {
+		let astroPagePartial;
+		if (this.isRewriting) {
+			astroPagePartial = this.#astroPagePartial = this.createAstroPagePartial(result, apiContext);
+		} else {
+			astroPagePartial = this.#astroPagePartial ??= this.createAstroPagePartial(result, apiContext);
+		}
+		const astroComponentPartial = { props, self: null };
+		const Astro: Omit<AstroGlobal, 'self' | 'slots'> = Object.assign(
+			Object.create(astroPagePartial),
+			astroComponentPartial,
+		);
+
+		let _slots: AstroGlobal['slots'];
+		Object.defineProperty(Astro, 'slots', {
+			get: () => {
+				if (!_slots) {
+					_slots = new Slots(
+						result,
+						slotValues,
+						this.pipeline.logger,
+					) as unknown as AstroGlobal['slots'];
+				}
+				return _slots;
+			},
 		});
 
-		this.renderContext = renderContext;
-		renderContext.fetchState = this;
+		return Astro as AstroGlobal;
+	}
 
-		return renderContext;
+	/**
+	 * Creates the Astro page-level partial (prototype for Astro global).
+	 */
+	createAstroPagePartial(
+		result: SSRResult,
+		apiContext: ActionAPIContext,
+	): Omit<AstroGlobal, 'props' | 'self' | 'slots'> {
+		const state = this;
+		const { cookies, locals, params, pipeline, url } = this;
+		const { response } = result;
+		const redirect = (path: string, status = 302) => {
+			if ((state.request as any)[responseSentSymbol]) {
+				throw new AstroError({
+					...AstroErrorData.ResponseSentError,
+				});
+			}
+			return new Response(null, { status, headers: { Location: path } });
+		};
+
+		const rewrite = async (reroutePayload: RewritePayload) => {
+			return await state.#rewrites.execute(state, reroutePayload);
+		};
+
+		const callAction = createCallAction(apiContext);
+
+		const partial: Record<string, any> = {
+			generator: ASTRO_GENERATOR,
+			routePattern: this.routeData!.route,
+			isPrerendered: this.routeData!.prerender,
+			cookies,
+			get clientAddress() {
+				return state.getClientAddress();
+			},
+			get currentLocale() {
+				return state.computeCurrentLocale();
+			},
+			params,
+			get preferredLocale() {
+				return state.computePreferredLocale();
+			},
+			get preferredLocaleList() {
+				return state.computePreferredLocaleList();
+			},
+			locals,
+			redirect,
+			rewrite,
+			request: this.request,
+			response,
+			site: pipeline.site,
+			getActionResult: createGetActionResult(locals),
+			get callAction() {
+				return callAction;
+			},
+			url,
+			get originPathname() {
+				return getOriginPathname(state.request);
+			},
+			get csp() {
+				return state.getCsp();
+			},
+		};
+
+		this.defineProviderGetters(partial);
+
+		return partial as Omit<AstroGlobal, 'props' | 'self' | 'slots'>;
+	}
+
+	getClientAddress(): string {
+		const { pipeline, clientAddress } = this;
+		const routeData = this.routeData!;
+
+		if (routeData.prerender) {
+			throw new AstroError({
+				...AstroErrorData.PrerenderClientAddressNotAvailable,
+				message: AstroErrorData.PrerenderClientAddressNotAvailable.message(routeData.component),
+			});
+		}
+
+		if (clientAddress) {
+			return clientAddress;
+		}
+
+		if (pipeline.adapterName) {
+			throw new AstroError({
+				...AstroErrorData.ClientAddressNotAvailable,
+				message: AstroErrorData.ClientAddressNotAvailable.message(pipeline.adapterName),
+			});
+		}
+
+		throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);
+	}
+
+	getCookies(): AstroCookies {
+		return this.cookies!;
+	}
+
+	getCsp(): APIContext['csp'] {
+		const state = this;
+		const { pipeline } = this;
+		if (!pipeline.manifest.csp) {
+			if (pipeline.runtimeMode === 'production') {
+				pipeline.logger.warn(
+					'csp',
+					`context.csp was used when rendering the route ${colors.green(state.routeData!.route)}, but CSP was not configured. For more information, see https://docs.astro.build/en/reference/experimental-flags/csp/`,
+				);
+			}
+			return undefined;
+		}
+		return {
+			insertDirective(payload) {
+				if (state?.result?.directives) {
+					state.result.directives = pushDirective(
+						state.result.directives,
+						payload,
+					);
+				} else {
+					state?.result?.directives.push(payload);
+				}
+			},
+			insertScriptResource(resource) {
+				state.result?.scriptResources.push(resource);
+			},
+			insertStyleResource(resource) {
+				state.result?.styleResources.push(resource);
+			},
+			insertStyleHash(hash) {
+				state.result?.styleHashes.push(hash);
+			},
+			insertScriptHash(hash) {
+				state.result?.scriptHashes.push(hash);
+			},
+		};
+	}
+
+	computeCurrentLocale() {
+		const {
+			url,
+			pipeline: { i18n },
+			routeData,
+		} = this;
+		if (!i18n || !routeData) return;
+
+		const { defaultLocale, locales, strategy } = i18n;
+
+		const fallbackTo =
+			strategy === 'pathname-prefix-other-locales' || strategy === 'domains-prefix-other-locales'
+				? defaultLocale
+				: undefined;
+
+		if (this.#currentLocale) {
+			return this.#currentLocale;
+		}
+
+		let computedLocale;
+		if (isRouteServerIsland(routeData)) {
+			let referer = this.request.headers.get('referer');
+			if (referer) {
+				if (URL.canParse(referer)) {
+					referer = new URL(referer).pathname;
+				}
+				computedLocale = computeCurrentLocaleUtil(referer, locales, defaultLocale);
+			}
+		} else {
+			let pathname = routeData.pathname;
+			if (url && !routeData.pattern.test(url.pathname)) {
+				for (const fallbackRoute of routeData.fallbackRoutes) {
+					if (fallbackRoute.pattern.test(url.pathname)) {
+						pathname = fallbackRoute.pathname;
+						break;
+					}
+				}
+			}
+			pathname = pathname && !isRoute404or500(routeData) ? pathname : url?.pathname ?? this.pathname;
+			computedLocale = computeCurrentLocaleUtil(pathname, locales, defaultLocale);
+			if (routeData.params.length > 0) {
+				const localeFromParams = computeCurrentLocaleFromParams(this.params!, locales);
+				if (localeFromParams) {
+					computedLocale = localeFromParams;
+				}
+			}
+		}
+
+		this.#currentLocale = computedLocale ?? fallbackTo;
+		return this.#currentLocale;
+	}
+
+	computePreferredLocale() {
+		const {
+			pipeline: { i18n },
+			request,
+		} = this;
+		if (!i18n) return;
+		return (this.#preferredLocale ??= computePreferredLocaleUtil(request, i18n.locales));
+	}
+
+	computePreferredLocaleList() {
+		const {
+			pipeline: { i18n },
+			request,
+		} = this;
+		if (!i18n) return;
+		return (this.#preferredLocaleList ??= computePreferredLocaleListUtil(request, i18n.locales));
 	}
 
 	/**
@@ -278,7 +664,7 @@ export class FetchState {
 	 *
 	 * Once routeData is known, finalizes `this.pathname`: in dev, if the
 	 * matched route has no `.html` extension, strip `.html` / `/index.html`
-	 * suffixes so the render context sees the canonical pathname.
+	 * suffixes so the rendering pipeline sees the canonical pathname.
 	 *
 	 * Returns `true` when `this.routeData` is populated, or `false` when
 	 * no route could be found (the caller should render a 404 error page).
@@ -301,7 +687,7 @@ export class FetchState {
 			app.logger.debug('router', 'RouteData:\n' + this.routeData);
 		}
 		// At this point we haven't found a route that matches the request, so we create
-		// a "fake" 404 route, so we can call the RenderContext.render
+		// a "fake" 404 route, so we can run middleware
 		// and hit the middleware, which might be able to return a correct Response.
 		if (!this.routeData) {
 			this.routeData = app.manifestData.routes.find(
@@ -359,25 +745,23 @@ export class FetchState {
 	/**
 	 * Returns the resolved `props` for this render, computing them lazily
 	 * from the route + component module on first access. If the
-	 * `RenderContext` already carries user-supplied props (e.g. the
+	 * `initialProps` already carries user-supplied props (e.g. the
 	 * container API) those are used verbatim.
 	 *
-	 * `state.renderContext` must be set before this is called.
 	 */
 	async getProps(): Promise<APIContext['props']> {
 		if (this.props !== null) return this.props;
-		const renderContext = this.renderContext!;
-		if (Object.keys(renderContext.props).length > 0) {
-			this.props = renderContext.props;
+		if (Object.keys(this.initialProps).length > 0) {
+			this.props = this.initialProps;
 			return this.props;
 		}
 		const pipeline = this.pipeline;
 		const mod = await this.loadComponentInstance();
 		this.props = await getProps({
 			mod,
-			routeData: renderContext.routeData,
+			routeData: this.routeData!,
 			routeCache: pipeline.routeCache,
-			pathname: renderContext.pathname,
+			pathname: this.pathname,
 			logger: pipeline.logger,
 			serverLike: pipeline.manifest.serverLike,
 			base: pipeline.manifest.base,
@@ -394,57 +778,52 @@ export class FetchState {
 	 * to add lazy getters for each registered provider, so `ctx.session`,
 	 * `ctx.cache`, etc. are dynamic rather than hard-coded.
 	 *
-	 * `state.renderContext` must be set before this is called.
 	 */
 	getActionAPIContext(): ActionAPIContext {
 		if (this.actionApiContext !== null) return this.actionApiContext;
 
-		const renderContext = this.renderContext!;
-		const { params, pipeline, url } = renderContext;
+		const state = this;
 
-		// Cast to ActionAPIContext after adding dynamic provider getters.
-		// Properties like session, cache, csp are defined via
-		// defineProviderGetters below rather than statically.
 		const ctx = {
 			get cookies() {
-				return renderContext.cookies;
+				return state.cookies!;
 			},
-			routePattern: renderContext.routeData.route,
-			isPrerendered: renderContext.routeData.prerender,
+			routePattern: this.routeData!.route,
+			isPrerendered: this.routeData!.prerender,
 			get clientAddress() {
-				return renderContext.getClientAddress();
+				return state.getClientAddress();
 			},
 			get currentLocale() {
-				return renderContext.computeCurrentLocale();
+				return state.computeCurrentLocale();
 			},
 			generator: ASTRO_GENERATOR,
 			get locals() {
-				return renderContext.locals;
+				return state.locals;
 			},
 			set locals(_) {
 				throw new AstroError(AstroErrorData.LocalsReassigned);
 			},
-			params,
+			params: this.params!,
 			get preferredLocale() {
-				return renderContext.computePreferredLocale();
+				return state.computePreferredLocale();
 			},
 			get preferredLocaleList() {
-				return renderContext.computePreferredLocaleList();
+				return state.computePreferredLocaleList();
 			},
-			request: renderContext.request,
-			site: pipeline.site,
-			url,
+			request: this.request,
+			site: this.pipeline.site,
+			url: this.url!,
 			get originPathname() {
-				return getOriginPathname(renderContext.request);
+				return getOriginPathname(state.request);
 			},
 			get csp() {
-				return renderContext.getCsp();
+				return state.getCsp();
 			},
 		};
 
 		// Dynamically add lazy getters for each registered provider.
 		// This is how ctx.session, ctx.cache, etc. are populated without
-		// FetchState or RenderContext hard-coding the provider keys.
+		// FetchState hard-coding the provider keys.
 		this.defineProviderGetters(ctx);
 
 		this.actionApiContext = ctx as ActionAPIContext;
@@ -464,17 +843,17 @@ export class FetchState {
 	getAPIContext(): APIContext {
 		if (this.apiContext !== null) return this.apiContext;
 
-		const renderContext = this.renderContext!;
 		const actionApiContext = this.getActionAPIContext();
+		const state = this;
 
 		const redirect = (path: string, status = 302) =>
 			new Response(null, { status, headers: { Location: path } });
 
 		const rewrite = async (reroutePayload: RewritePayload) => {
-			return await renderContext.rewrite(reroutePayload);
+			return await state.rewrite(reroutePayload);
 		};
 
-		Reflect.set(actionApiContext, pipelineSymbol, renderContext.pipeline);
+		Reflect.set(actionApiContext, pipelineSymbol, this.pipeline);
 		(actionApiContext as any)[fetchStateSymbol] = this;
 
 		this.apiContext = Object.assign(actionApiContext, {
@@ -489,8 +868,8 @@ export class FetchState {
 
 	/**
 	 * Invalidates the cached `APIContext` so the next `getAPIContext()`
-	 * call re-derives it from the (possibly mutated) `RenderContext`. Used
-	 * after an in-flight rewrite swaps the `RenderContext`'s route /
+	 * call re-derives it from the (possibly mutated) state. Used
+	 * after an in-flight rewrite swaps the route /
 	 * request / params.
 	 */
 	invalidateContexts(): void {

@@ -30,8 +30,7 @@ async function provideSessionAsync(
 
 	state.provide<AstroSession>(SESSION_KEY, {
 		create() {
-			const renderContext = state.renderContext!;
-			const cookies = renderContext.getCookies();
+			const cookies = state.cookies!;
 			return new AstroSession({
 				cookies,
 				config,

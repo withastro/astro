@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { RenderContext } from '../../../dist/core/render-context.js';
+import { FetchState } from '../../../dist/core/app/fetch-state.js';
 import {
 	createComponent,
 	Fragment,
@@ -110,8 +110,10 @@ describe('core/render', () => {
 				component: 'src/pages/index.astro',
 				params: {},
 			};
-			const renderContext = await RenderContext.create({ pipeline, request, routeData } as any);
-			const response = await renderThroughMiddleware(renderContext, PageModule);
+			const state = new FetchState(pipeline, request);
+			state.routeData = routeData as any;
+			state.pathname = '/index';
+			const response = await renderThroughMiddleware(state, PageModule);
 
 			const html = await response.text();
 			const $ = cheerio.load(html);
@@ -191,8 +193,10 @@ describe('core/render', () => {
 				component: 'src/pages/index.astro',
 				params: {},
 			};
-			const renderContext = await RenderContext.create({ pipeline, request, routeData } as any);
-			const response = await renderThroughMiddleware(renderContext, PageModule);
+			const state = new FetchState(pipeline, request);
+			state.routeData = routeData as any;
+			state.pathname = '/index';
+			const response = await renderThroughMiddleware(state, PageModule);
 
 			const html = await response.text();
 			const $ = cheerio.load(html);
@@ -239,8 +243,10 @@ describe('core/render', () => {
 				component: 'src/pages/index.astro',
 				params: {},
 			};
-			const renderContext = await RenderContext.create({ pipeline, request, routeData } as any);
-			const response = await renderThroughMiddleware(renderContext, PageModule);
+			const state = new FetchState(pipeline, request);
+			state.routeData = routeData as any;
+			state.pathname = '/index';
+			const response = await renderThroughMiddleware(state, PageModule);
 
 			const html = await response.text();
 			const $ = cheerio.load(html);

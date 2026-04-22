@@ -63,24 +63,16 @@ export class DevErrorHandler implements ErrorHandler {
 		const renderRoute = async (routeData: RouteData): Promise<Response> => {
 			try {
 				const preloadedComponent = await app.pipeline.getComponentByRoute(routeData);
-				const renderContext = app.createRenderContext({
-					locals: resolvedRenderOptions.locals,
-					pipeline: app.pipeline,
-					pathname: resolvedPathname,
-					skipMiddleware,
-					request,
-					routeData,
-					clientAddress: resolvedRenderOptions.clientAddress,
-					status,
-					shouldInjectCspMetaTags: shouldInjectCspMetaTags ? !!app.manifest.csp : false,
-				});
-				renderContext.props.error = error;
 				const errorState = new FetchState(app.pipeline, request);
+				errorState.skipMiddleware = skipMiddleware;
+				errorState.clientAddress = resolvedRenderOptions.clientAddress;
+				errorState.shouldInjectCspMetaTags = shouldInjectCspMetaTags ? !!app.manifest.csp : false;
 				errorState.routeData = routeData;
 				errorState.pathname = resolvedPathname;
-				errorState.renderContext = renderContext;
+				errorState.status = status;
 				errorState.componentInstance = preloadedComponent;
-				renderContext.fetchState = errorState;
+				errorState.locals = resolvedRenderOptions.locals ?? ({} as App.Locals);
+				errorState.initialProps = { error };
 				const response = await this.#astroMiddleware.handle(
 					errorState,
 					this.#pagesHandler.handle.bind(this.#pagesHandler),

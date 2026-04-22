@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { RenderContext } from '../../../dist/core/render-context.js';
+import { FetchState } from '../../../dist/core/app/fetch-state.js';
 import {
 	createComponent,
 	maybeRenderHead,
@@ -60,14 +60,11 @@ async function renderPage(
 		origin: 'project' as const,
 	};
 
-	const renderContext = await RenderContext.create({
-		pipeline,
-		request,
-		routeData,
-		pathname: '/index',
-		clientAddress: '127.0.0.1',
-	});
-	const response = await renderThroughMiddleware(renderContext, PageModule);
+	const state = new FetchState(pipeline, request);
+	state.routeData = routeData as any;
+	state.pathname = '/index';
+	state.clientAddress = '127.0.0.1';
+	const response = await renderThroughMiddleware(state, PageModule);
 	const html = await response.text();
 
 	return { html, response };

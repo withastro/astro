@@ -68,20 +68,16 @@ export function resolveRedirectTarget(
 }
 
 export async function renderRedirect(state: FetchState) {
-	const renderContext = state.renderContext!;
-	const {
-		request: { method },
-		routeData,
-	} = renderContext;
+	const routeData = state.routeData!;
 	const { redirect, redirectRoute } = routeData;
-	const status = computeRedirectStatus(method, redirect, redirectRoute);
+	const status = computeRedirectStatus(state.request.method, redirect, redirectRoute);
 	const headers = {
 		location: encodeURI(
 			resolveRedirectTarget(
-				renderContext.params,
+				state.params!,
 				redirect,
 				redirectRoute,
-				renderContext.pipeline.manifest.trailingSlash,
+				state.pipeline.manifest.trailingSlash,
 			),
 		),
 	};

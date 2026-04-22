@@ -2,7 +2,6 @@ import type { BaseApp, RenderErrorOptions } from '../app/base.js';
 import { FetchState } from '../app/fetch-state.js';
 import { prepareResponse } from '../app/prepare-response.js';
 import {
-	AstroCookies,
 	attachCookiesToResponse,
 } from '../cookies/index.js';
 import { getCookiesFromResponse } from '../cookies/response.js';
@@ -87,23 +86,15 @@ export class DefaultErrorHandler implements ErrorHandler {
 			}
 			const mod = await app.pipeline.getComponentByRoute(errorRouteData);
 			const errorState = new FetchState(app.pipeline, request);
+			errorState.skipMiddleware = skipMiddleware;
+			errorState.clientAddress = resolvedRenderOptions.clientAddress;
+			errorState.routeData = errorRouteData;
+			errorState.pathname = resolvedPathname;
+			errorState.status = status;
+			errorState.componentInstance = mod;
+			errorState.locals = resolvedRenderOptions.locals ?? ({} as App.Locals);
+			errorState.initialProps = { error };
 			try {
-				const renderContext = app.createRenderContext({
-					locals: resolvedRenderOptions.locals,
-					pipeline: app.pipeline,
-					skipMiddleware,
-					pathname: resolvedPathname,
-					request,
-					routeData: errorRouteData,
-					status,
-					props: { error },
-					clientAddress: resolvedRenderOptions.clientAddress,
-				});
-				errorState.routeData = errorRouteData;
-				errorState.pathname = resolvedPathname;
-				errorState.renderContext = renderContext;
-				errorState.componentInstance = mod;
-				renderContext.fetchState = errorState;
 				await provideSession(errorState);
 				const response = await this.#astroMiddleware.handle(
 					errorState,
@@ -224,7 +215,7 @@ function mergeResponses(
 	if (originalCookies) {
 		// If both responses have cookies, merge new response cookies into original
 		if (newCookies) {
-			for (const cookieValue of AstroCookies.consume(newCookies)) {
+			for (const cookieValue of newCookies.consume()) {
 				originalResponse.headers.append('set-cookie', cookieValue);
 			}
 		}

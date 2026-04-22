@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { RenderContext } from '../../../dist/core/render-context.js';
+import { FetchState } from '../../../dist/core/app/fetch-state.js';
 import {
 	createComponent,
 	createHeadAndContent,
@@ -45,8 +45,10 @@ describe('head injection app-level rendering', () => {
 			component: 'src/pages/index.astro',
 			params: {},
 		};
-		const renderContext = await RenderContext.create({ pipeline, request, routeData } as any);
-		const response = await renderThroughMiddleware(renderContext, createAstroModule(Component));
+		const state = new FetchState(pipeline, request);
+		state.routeData = routeData as any;
+		state.pathname = '/index';
+		const response = await renderThroughMiddleware(state, createAstroModule(Component));
 		return cheerio.load(await response.text());
 	}
 

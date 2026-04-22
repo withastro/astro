@@ -8,13 +8,13 @@ import { createBaseSettings } from '../../dist/core/config/settings.js';
 import { AstroIntegrationLogger, AstroLogger } from '../../dist/core/logger/core.js';
 import { nodeLogDestination } from '../../dist/core/logger/node.js';
 import { ActionHandler } from '../../dist/actions/handler.js';
-import { FetchState } from '../../dist/core/app/fetch-state.js';
+import type { FetchState } from '../../dist/core/app/fetch-state.js';
 import { AstroMiddleware } from '../../dist/core/middleware/astro-middleware.js';
 import { NOOP_MIDDLEWARE_FN } from '../../dist/core/middleware/noop-middleware.js';
 import { PagesHandler } from '../../dist/core/pages/handler.js';
 import { Pipeline } from '../../dist/core/render/index.js';
 import { RouteCache } from '../../dist/core/render/route-cache.js';
-import type { RenderContext } from '../../dist/core/render-context.js';
+
 import type { AstroLoggerLevel } from '../../dist/core/logger/core.js';
 import type { AstroInlineConfig, RuntimeMode } from '../../dist/types/public/config.js';
 import type { AstroSettings } from '../../dist/types/astro.js';
@@ -239,28 +239,18 @@ export class SpyLogger {
 }
 
 /**
- * Renders a component through a RenderContext's full pipeline
- * (AstroMiddleware + PagesHandler). Use from tests instead of calling
- * a `render()` method on RenderContext — rendering logic now lives in
- * the middleware/pages handler layer, and this helper wires them up.
- *
- * Builds a minimal `FetchState` around the given `RenderContext` so
- * `AstroMiddleware.handle(state)` can read `componentInstance` / `slots`
- * off it the same way production callers do.
+ * Renders a component through the full pipeline
+ * (AstroMiddleware + PagesHandler). Wires up the given `FetchState`
+ * with middleware and page handlers.
  */
 export async function renderThroughMiddleware(
-	renderContext: RenderContext,
+	state: FetchState,
 	componentInstance: ComponentInstance | undefined,
 	slots: Record<string, any> = {},
 ): Promise<Response> {
-	const pipeline = renderContext.pipeline;
-	const state = new FetchState(pipeline, renderContext.request);
-	state.routeData = renderContext.routeData;
-	state.pathname = renderContext.pathname;
-	state.renderContext = renderContext;
+	const pipeline = state.pipeline;
 	state.componentInstance = componentInstance;
 	state.slots = slots;
-	renderContext.fetchState = state;
 	const middleware = new AstroMiddleware(pipeline);
 	const actionHandler = new ActionHandler();
 	const pagesHandler = new PagesHandler(pipeline);
