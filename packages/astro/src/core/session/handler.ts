@@ -1,7 +1,7 @@
 import type { FetchState } from '../app/fetch-state.js';
 import { AstroSession, PERSIST_SYMBOL } from './runtime.js';
 
-export const SESSION_KEY = 'session';
+const SESSION_KEY = 'session';
 
 /**
  * Registers a session provider on the given `FetchState`. When
@@ -44,15 +44,4 @@ async function provideSessionAsync(
 			return session[PERSIST_SYMBOL]();
 		},
 	});
-}
-
-/**
- * Persists any session mutations made during the request. No-op if
- * sessions are not configured or no mutations occurred.
- *
- * Should be called after the response is produced, typically in a
- * `finally` block to guarantee persistence even when errors occur.
- */
-export function finalizeSessions(state: FetchState): Promise<void> | void {
-	return state.renderContext?.session?.[PERSIST_SYMBOL]();
 }
