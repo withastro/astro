@@ -6696,6 +6696,9 @@ importers:
       '@types/semver':
         specifier: ^7.7.1
         version: 7.7.1
+      '@types/vscode':
+        specifier: ^1.92.0
+        version: 1.109.0
       '@vscode/test-cli':
         specifier: ^0.0.12
         version: 0.0.12
@@ -6705,6 +6708,9 @@ importers:
       mocha:
         specifier: ^11.7.5
         version: 11.7.5
+      tsx:
+        specifier: ^4.21.0
+        version: 4.21.0
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -6772,6 +6778,9 @@ importers:
       ovsx:
         specifier: ^0.10.10
         version: 0.10.10
+      tsx:
+        specifier: ^4.21.0
+        version: 4.21.0
       vscode-languageclient:
         specifier: ^9.0.1
         version: 9.0.1
