@@ -29,8 +29,8 @@ describe('astro cli', () => {
 		});
 		const logs: LogEntry[] = [];
 
-		// fixture.check wraps the internal AstroChecker entrypoint whose options type differs from the CLI `Flags` shape declared in dist.
-		const checkServer = (await fixture.check({
+		const checkServer = await fixture.check({
+			_: [],
 			flags: { watch: true },
 			logging: {
 				level: 'info',
@@ -45,16 +45,15 @@ describe('astro cli', () => {
 					},
 				}),
 			},
-		} as unknown as Parameters<typeof fixture.check>[0])) as unknown as {
-			watch(): Promise<void>;
-			stop(): Promise<void>;
-		};
+		});
+		// @ts-expect-error: `fixture.check()`'s return type is incorrectly typed
 		await checkServer.watch();
 		const pagePath = join(fileURLToPath(fixture.config.root), 'src/pages/index.astro');
 		const pageContent = readFileSync(pagePath, 'utf-8');
 		await fs.writeFile(pagePath, oneErrorContent);
 		const messages = await messagePromise;
 		await fs.writeFile(pagePath, pageContent);
+		// @ts-expect-error: `fixture.check()`'s return type is incorrectly typed
 		await checkServer.stop();
 		const diagnostics = messages.filter(
 			(m) => m.type === 'diagnostics' && m.message.includes('Result'),

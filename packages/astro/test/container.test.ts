@@ -9,30 +9,20 @@ import {
 	renderComponent,
 	renderSlot,
 	renderTemplate,
+	renderHead,
+	maybeRenderHead,
+	createAstro,
 } from '../dist/runtime/server/index.js';
-import * as server from '../dist/runtime/server/index.js';
 import testAdapter from './test-adapter.js';
 import { type App, type Fixture, loadFixture } from './test-utils.js';
-
-// The public type signatures of `renderHead`/`maybeRenderHead`/`createAstro` hide
-// the extra args that the runtime internally tolerates. Re-type them here so
-// the test body can exercise the internal surface without scattering
-// `@ts-expect-error` comments.
-type RenderHead = (result: unknown) => ReturnType<typeof server.renderHead>;
-type MaybeRenderHead = (result: unknown) => ReturnType<typeof server.maybeRenderHead>;
-type CreateAstro = (...args: unknown[]) => ReturnType<typeof server.createAstro>;
-
-const renderHead: RenderHead = server.renderHead;
-const maybeRenderHead: MaybeRenderHead = server.maybeRenderHead;
-const createAstro = server.createAstro as unknown as CreateAstro;
 
 const BaseLayout = createComponent((result, _props, slots) => {
 	return render`<html>
 	<head>
 	${renderSlot(result, slots['head'])}
-	${renderHead(result)}
+	${renderHead()}
 	</head>
-	${maybeRenderHead(result)}
+	${maybeRenderHead()}
 	<body>
 		${renderSlot(result, slots['default'])}
 	</body>
@@ -48,7 +38,7 @@ describe('Container', () => {
 				BaseLayout,
 				{},
 				{
-					default: () => render`${maybeRenderHead(result)}<div>hello world</div>`,
+					default: () => render`${maybeRenderHead()}<div>hello world</div>`,
 					head: () => render`
 						${renderComponent(
 							result,
@@ -71,7 +61,7 @@ describe('Container', () => {
 	});
 
 	it('Renders a div with hello world text', async () => {
-		const $$Astro = createAstro();
+		const $$Astro = createAstro('');
 		const Page = createComponent((result, props, slots) => {
 			// Test passes `$$Astro` alongside props/slots — the public type only
 			// accepts `(props, slots)` but the runtime tolerates the extra arg.
@@ -93,7 +83,7 @@ describe('Container', () => {
 				BaseLayout,
 				{},
 				{
-					default: () => render`${maybeRenderHead(result)}<div>hello world</div>`,
+					default: () => render`${maybeRenderHead()}<div>hello world</div>`,
 					head: () => render`
 						${renderComponent(
 							result,
@@ -126,7 +116,7 @@ describe('Container', () => {
 					{},
 					{
 						default: () => render`
-							${maybeRenderHead(result)}
+							${maybeRenderHead()}
 							${renderSlot(result, slots['default'])}
 							`,
 						head: () => render`
@@ -167,7 +157,7 @@ describe('Container', () => {
 					{},
 					{
 						default: () => render`
-							${maybeRenderHead(result)}
+							${maybeRenderHead()}
 							${renderSlot(result, slots['custom-name'])}
 							${renderSlot(result, slots['foo-name'])}
 							`,
@@ -213,7 +203,7 @@ describe('Container', () => {
 						{},
 						{
 							default: () => render`
-							${maybeRenderHead(result)}
+							${maybeRenderHead()}
 							${renderSlot(result, slots['custom-name'])}
 							${renderSlot(result, slots['foo-name'])}
 							`,
@@ -258,7 +248,7 @@ describe('Container', () => {
 					{},
 					{
 						default: () => render`
-							${maybeRenderHead(result)}
+							${maybeRenderHead()}
 							${props.isOpen ? 'Is open' : 'Is closed'}
 							`,
 						head: () => render`
