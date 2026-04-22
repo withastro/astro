@@ -2,17 +2,15 @@
 'astro': minor
 ---
 
-Adds a new experimental logger, which allows to provide better controls over Astro's logging infrastructure.
+Adds experimental support for configurable log handlers.
 
+This experimental feature provides better control over Astro's logging infrastructure by allowing users to replace the default console output with custom logging implementations (e.g., structured JSON). This is particularly useful for users using on-demand rendering and wishing to connect their log aggregation services such as Kibana, Logstash, CloudWatch, Grafana, or Loki.
+
+By default, Astro provides three built-in log handlers (`json`, `node` and `console`), but you can also create your own.
 #### JSON logging
 
-JSON logging can be enabled via CLI or via configuration:
+JSON logging can be enabled via the CLI for the `build`, `dev`, and `sync` commands using the `experimentalJson` flag:
 
-```shell
-astro dev --experimentalJson
-astro build --experimentalJson
-astro sync --experimentalJson
-```
 
 ```js
 // astro.config.mjs
@@ -55,4 +53,3 @@ const customLogger: AstroLoggerDestination = {
   }
 } 
 export default customLogger
-```
