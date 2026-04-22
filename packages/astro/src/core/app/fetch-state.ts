@@ -3,15 +3,19 @@ import {
 	prependForwardSlash,
 	removeTrailingForwardSlash,
 } from '@astrojs/internal-helpers/path';
+import { createCallAction, createGetActionResult } from '../../actions/utils.js';
 import type { ActionAPIContext } from '../../actions/runtime/types.js';
 import type { ComponentInstance } from '../../types/astro.js';
+import type { RewritePayload } from '../../types/public/common.js';
 import type { APIContext } from '../../types/public/context.js';
 import type { RouteData } from '../../types/public/internal.js';
 import type { BaseApp } from './base.js';
 import type { Pipeline } from '../base-pipeline.js';
-import { DEFAULT_404_COMPONENT, appSymbol } from '../constants.js';
+import { ASTRO_GENERATOR, DEFAULT_404_COMPONENT, appSymbol, fetchStateSymbol, pipelineSymbol } from '../constants.js';
+import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { RenderContext } from '../render-context.js';
 import { getProps } from '../render/index.js';
+import { getOriginPathname } from '../routing/rewrite.js';
 import { routeHasHtmlExtension } from '../routing/helpers.js';
 import type { ResolvedRenderOptions } from './base.js';
 import { getRenderOptions } from './render-options.js';
@@ -187,6 +191,23 @@ export class FetchState {
 	}
 
 	/**
+	 * Adds lazy getters to `target` for each registered provider key.
+	 * Used by context creation (APIContext, Astro global) so that
+	 * provider values like `session` and `cache` appear as properties
+	 * without hard-coding the keys.
+	 */
+	defineProviderGetters(target: Record<string, any>): void {
+		const state = this;
+		for (const key of this.#providers.keys()) {
+			Object.defineProperty(target, key, {
+				get: () => state.resolve(key),
+				enumerable: true,
+				configurable: true,
+			});
+		}
+	}
+
+	/**
 	 * Returns the `BaseApp` instance stamped on the request by
 	 * `BaseApp.render()`. Throws if the request has no attached app.
 	 */
@@ -321,11 +342,64 @@ export class FetchState {
 	 * Returns the `ActionAPIContext` for this render, creating it lazily.
 	 * Used by middleware, actions, and page dispatch.
 	 *
+	 * Builds the context object directly and uses `Object.defineProperty`
+	 * to add lazy getters for each registered provider, so `ctx.session`,
+	 * `ctx.cache`, etc. are dynamic rather than hard-coded.
+	 *
 	 * `state.renderContext` must be set before this is called.
 	 */
 	getActionAPIContext(): ActionAPIContext {
 		if (this.actionApiContext !== null) return this.actionApiContext;
-		this.actionApiContext = this.renderContext!.createActionAPIContext();
+
+		const renderContext = this.renderContext!;
+		const { params, pipeline, url } = renderContext;
+
+		// Cast to ActionAPIContext after adding dynamic provider getters.
+		// Properties like session, cache, csp are defined via
+		// defineProviderGetters below rather than statically.
+		const ctx = {
+			get cookies() {
+				return renderContext.cookies;
+			},
+			routePattern: renderContext.routeData.route,
+			isPrerendered: renderContext.routeData.prerender,
+			get clientAddress() {
+				return renderContext.getClientAddress();
+			},
+			get currentLocale() {
+				return renderContext.computeCurrentLocale();
+			},
+			generator: ASTRO_GENERATOR,
+			get locals() {
+				return renderContext.locals;
+			},
+			set locals(_) {
+				throw new AstroError(AstroErrorData.LocalsReassigned);
+			},
+			params,
+			get preferredLocale() {
+				return renderContext.computePreferredLocale();
+			},
+			get preferredLocaleList() {
+				return renderContext.computePreferredLocaleList();
+			},
+			request: renderContext.request,
+			site: pipeline.site,
+			url,
+			get originPathname() {
+				return getOriginPathname(renderContext.request);
+			},
+			get csp() {
+				return renderContext.getCsp();
+			},
+		};
+
+		// Dynamically add lazy getters for each registered provider.
+		// This is how ctx.session, ctx.cache, etc. are populated without
+		// FetchState or RenderContext hard-coding the provider keys.
+		this.defineProviderGetters(ctx);
+
+		this.actionApiContext = ctx as ActionAPIContext;
 		return this.actionApiContext;
 	}
 
@@ -341,10 +415,27 @@ export class FetchState {
 	 */
 	getAPIContext(): APIContext {
 		if (this.apiContext !== null) return this.apiContext;
-		this.apiContext = this.renderContext!.createAPIContext(
-			this.props!,
-			this.getActionAPIContext(),
-		);
+
+		const renderContext = this.renderContext!;
+		const actionApiContext = this.getActionAPIContext();
+
+		const redirect = (path: string, status = 302) =>
+			new Response(null, { status, headers: { Location: path } });
+
+		const rewrite = async (reroutePayload: RewritePayload) => {
+			return await renderContext.rewrite(reroutePayload);
+		};
+
+		Reflect.set(actionApiContext, pipelineSymbol, renderContext.pipeline);
+		(actionApiContext as any)[fetchStateSymbol] = this;
+
+		this.apiContext = Object.assign(actionApiContext, {
+			props: this.props!,
+			redirect,
+			rewrite,
+			getActionResult: createGetActionResult(actionApiContext.locals),
+			callAction: createCallAction(actionApiContext),
+		});
 		return this.apiContext;
 	}
 

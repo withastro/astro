@@ -17,9 +17,7 @@ import type { RouteData, SSRResult } from '../types/public/internal.js';
 import type { ServerIslandMappings, SSRActions } from './app/types.js';
 import {
 	ASTRO_GENERATOR,
-	fetchStateSymbol,
 	originPathnameSymbol,
-	pipelineSymbol,
 	responseSentSymbol,
 } from './constants.js';
 import { AstroCookies } from './cookies/index.js';
@@ -33,8 +31,7 @@ import { Rewrites } from './rewrites/handler.js';
 import { getParams, type Pipeline, Slots } from './render/index.js';
 import { isRoute404or500, isRouteServerIsland } from './routing/match.js';
 import { getOriginPathname, setOriginPathname } from './routing/rewrite.js';
-import type { CacheLike } from './cache/runtime/cache.js';
-import type { AstroSession } from './session/runtime.js';
+
 import { collapseDuplicateSlashes } from '@astrojs/internal-helpers/path';
 import { validateAndDecodePathname } from './util/pathname.js';
 
@@ -78,21 +75,6 @@ export class RenderContext {
 	public partial: undefined | boolean;
 	public shouldInjectCspMetaTags: boolean;
 	public skipMiddleware: boolean;
-	/**
-	 * Resolves the `AstroSession` from the owning `FetchState`'s provider
-	 * registry. Returns `undefined` if sessions are not configured or
-	 * no `FetchState` is attached yet.
-	 */
-	get session(): AstroSession | undefined {
-		return this.fetchState?.resolve<AstroSession>('session');
-	}
-	/**
-	 * Resolves the cache instance from the owning `FetchState`'s provider
-	 * registry. Returns `undefined` if no `FetchState` is attached yet.
-	 */
-	get cache(): CacheLike | undefined {
-		return this.fetchState?.resolve<CacheLike>('cache');
-	}
 	/**
 	 * Back-reference to the `FetchState` that owns this render context.
 	 * Assigned in the constructor (initially `null`) so the instance's
@@ -241,124 +223,6 @@ export class RenderContext {
 	 */
 	rewrite(payload: RewritePayload): Promise<Response> {
 		return this.#rewrites.execute(this, payload);
-	}
-
-	createAPIContext(props: APIContext['props'], context: ActionAPIContext): APIContext {
-		const redirect = (path: string, status = 302) =>
-			new Response(null, { status, headers: { Location: path } });
-
-		const rewrite = async (reroutePayload: RewritePayload) => {
-			return await this.#rewrites.execute(this, reroutePayload);
-		};
-
-		Reflect.set(context, pipelineSymbol, this.pipeline);
-		// Direct symbol assignment (no Reflect.set, no guard) on the hot
-		// path. `fetchState` is always populated on `RenderContext` before
-		// `createAPIContext` runs — see constructor default.
-		(context as any)[fetchStateSymbol] = this.fetchState;
-
-		return Object.assign(context, {
-			props,
-			redirect,
-			rewrite,
-			getActionResult: createGetActionResult(context.locals),
-			callAction: createCallAction(context),
-		});
-	}
-
-	createActionAPIContext(): ActionAPIContext {
-		const renderContext = this;
-		const { params, pipeline, url } = this;
-
-		return {
-			// Don't allow reassignment of cookies because it doesn't work
-			get cookies() {
-				return renderContext.cookies;
-			},
-			routePattern: this.routeData.route,
-			isPrerendered: this.routeData.prerender,
-			get clientAddress() {
-				return renderContext.getClientAddress();
-			},
-			get currentLocale() {
-				return renderContext.computeCurrentLocale();
-			},
-			generator: ASTRO_GENERATOR,
-			get locals() {
-				return renderContext.locals;
-			},
-			set locals(_) {
-				throw new AstroError(AstroErrorData.LocalsReassigned);
-			},
-			params,
-			get preferredLocale() {
-				return renderContext.computePreferredLocale();
-			},
-			get preferredLocaleList() {
-				return renderContext.computePreferredLocaleList();
-			},
-			request: this.request,
-			site: pipeline.site,
-			url,
-			get originPathname() {
-				return getOriginPathname(renderContext.request);
-			},
-			get session() {
-				if (this.isPrerendered) {
-					pipeline.logger.warn(
-						'session',
-						`context.session was used when rendering the route ${colors.green(this.routePattern)}, but it is not available on prerendered routes. If you need access to sessions, make sure that the route is server-rendered using \`export const prerender = false;\` or by setting \`output\` to \`"server"\` in your Astro config to make all your routes server-rendered by default. For more information, see https://docs.astro.build/en/guides/sessions/`,
-					);
-					return undefined;
-				}
-				if (!renderContext.session) {
-					pipeline.logger.warn(
-						'session',
-						`context.session was used when rendering the route ${colors.green(this.routePattern)}, but no storage configuration was provided. Either configure the storage manually or use an adapter that provides session storage. For more information, see https://docs.astro.build/en/guides/sessions/`,
-					);
-					return undefined;
-				}
-				return renderContext.session;
-			},
-			get cache() {
-				return renderContext.cache!;
-			},
-			get csp(): APIContext['csp'] {
-				if (!pipeline.manifest.csp) {
-					if (pipeline.runtimeMode === 'production') {
-						pipeline.logger.warn(
-							'csp',
-							`context.csp was used when rendering the route ${colors.green(this.routePattern)}, but CSP was not configured. For more information, see https://docs.astro.build/en/reference/experimental-flags/csp/`,
-						);
-					}
-					return undefined;
-				}
-				return {
-					insertDirective(payload) {
-						if (renderContext?.result?.directives) {
-							renderContext.result.directives = pushDirective(
-								renderContext.result.directives,
-								payload,
-							);
-						} else {
-							renderContext?.result?.directives.push(payload);
-						}
-					},
-					insertScriptResource(resource) {
-						renderContext.result?.scriptResources.push(resource);
-					},
-					insertStyleResource(resource) {
-						renderContext.result?.styleResources.push(resource);
-					},
-					insertStyleHash(hash) {
-						renderContext.result?.styleHashes.push(hash);
-					},
-					insertScriptHash(hash) {
-						renderContext.result?.scriptHashes.push(hash);
-					},
-				};
-			},
-		};
 	}
 
 	async createResult(mod: ComponentInstance, ctx: ActionAPIContext): Promise<SSRResult> {
@@ -538,31 +402,11 @@ export class RenderContext {
 
 		const callAction = createCallAction(apiContext);
 
-		return {
+		const partial: Record<string, any> = {
 			generator: ASTRO_GENERATOR,
 			routePattern: this.routeData.route,
 			isPrerendered: this.routeData.prerender,
 			cookies,
-			get session() {
-				if (this.isPrerendered) {
-					pipeline.logger.warn(
-						'session',
-						`Astro.session was used when rendering the route ${colors.green(this.routePattern)}, but it is not available on prerendered pages. If you need access to sessions, make sure that the page is server-rendered using \`export const prerender = false;\` or by setting \`output\` to \`"server"\` in your Astro config to make all your pages server-rendered by default. For more information, see https://docs.astro.build/en/guides/sessions/`,
-					);
-					return undefined;
-				}
-				if (!renderContext.session) {
-					pipeline.logger.warn(
-						'session',
-						`Astro.session was used when rendering the route ${colors.green(this.routePattern)}, but no storage configuration was provided. Either configure the storage manually or use an adapter that provides session storage. For more information, see https://docs.astro.build/en/guides/sessions/`,
-					);
-					return undefined;
-				}
-				return renderContext.session;
-			},
-			get cache() {
-				return renderContext.cache!;
-			},
 			get clientAddress() {
 				return renderContext.getClientAddress();
 			},
@@ -590,42 +434,19 @@ export class RenderContext {
 			get originPathname() {
 				return getOriginPathname(renderContext.request);
 			},
-			get csp(): APIContext['csp'] {
-				if (!pipeline.manifest.csp) {
-					if (pipeline.runtimeMode === 'production') {
-						pipeline.logger.warn(
-							'csp',
-							`Astro.csp was used when rendering the route ${colors.green(this.routePattern)}, but CSP was not configured. For more information, see https://docs.astro.build/en/reference/experimental-flags/csp/`,
-						);
-					}
-					return undefined;
-				}
-				return {
-					insertDirective(payload) {
-						if (renderContext?.result?.directives) {
-							renderContext.result.directives = pushDirective(
-								renderContext.result.directives,
-								payload,
-							);
-						} else {
-							renderContext?.result?.directives.push(payload);
-						}
-					},
-					insertScriptResource(resource) {
-						renderContext.result?.scriptResources.push(resource);
-					},
-					insertStyleResource(resource) {
-						renderContext.result?.styleResources.push(resource);
-					},
-					insertStyleHash(hash) {
-						renderContext.result?.styleHashes.push(hash);
-					},
-					insertScriptHash(hash) {
-						renderContext.result?.scriptHashes.push(hash);
-					},
-				};
+			get csp() {
+				return renderContext.getCsp();
 			},
 		};
+
+		// Dynamically add lazy getters for each registered provider
+		// (session, cache, etc.) so they appear on the Astro global.
+		const fetchState = this.fetchState;
+		if (fetchState) {
+			fetchState.defineProviderGetters(partial);
+		}
+
+		return partial as Omit<AstroGlobal, 'props' | 'self' | 'slots'>;
 	}
 
 	getClientAddress() {
@@ -650,6 +471,44 @@ export class RenderContext {
 		}
 
 		throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);
+	}
+
+	getCsp(): APIContext['csp'] {
+		const renderContext = this;
+		const { pipeline } = this;
+		if (!pipeline.manifest.csp) {
+			if (pipeline.runtimeMode === 'production') {
+				pipeline.logger.warn(
+					'csp',
+					`context.csp was used when rendering the route ${colors.green(renderContext.routeData.route)}, but CSP was not configured. For more information, see https://docs.astro.build/en/reference/experimental-flags/csp/`,
+				);
+			}
+			return undefined;
+		}
+		return {
+			insertDirective(payload) {
+				if (renderContext?.result?.directives) {
+					renderContext.result.directives = pushDirective(
+						renderContext.result.directives,
+						payload,
+					);
+				} else {
+					renderContext?.result?.directives.push(payload);
+				}
+			},
+			insertScriptResource(resource) {
+				renderContext.result?.scriptResources.push(resource);
+			},
+			insertStyleResource(resource) {
+				renderContext.result?.styleResources.push(resource);
+			},
+			insertStyleHash(hash) {
+				renderContext.result?.styleHashes.push(hash);
+			},
+			insertScriptHash(hash) {
+				renderContext.result?.scriptHashes.push(hash);
+			},
+		};
 	}
 
 	/**
