@@ -50,7 +50,7 @@
     "typecheck:tests": "tsc --build tsconfig.test.json"
   },
   "dependencies": {
-    "picomatch": "^4.0.3"
+    "picomatch": "^4.0.4"
   },
   "devDependencies": {
     "@types/picomatch": "^4.0.2",

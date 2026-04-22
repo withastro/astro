@@ -61,6 +61,12 @@
   "dependencies": {
     "astro-benchmark": "workspace:*"
   },
+  "pnpm": {
+    "overrides": {
+      "picomatch@<4": "^2.3.2",
+      "vite@^7": "^7.3.2"
+    }
+  },
   "devDependencies": {
     "@astrojs/check": "^0.9.5",
     "@biomejs/biome": "2.4.10",
