@@ -1,22 +1,26 @@
 import * as xml2js from 'xml2js';
-import { loadFixture as baseLoadFixture } from '../../../astro/test/test-utils.js';
+import {
+	type AstroInlineConfig,
+	type DevServer,
+	type Fixture,
+	loadFixture as baseLoadFixture,
+	type PreviewServer,
+} from '../../../astro/test/test-utils.js';
 
-/**
- * @typedef {import('../../../astro/test/test-utils').Fixture} Fixture
- */
+export type { AstroInlineConfig, DevServer, Fixture, PreviewServer };
 
-export function loadFixture(inlineConfig) {
+export function loadFixture(inlineConfig: AstroInlineConfig): Promise<Fixture> {
 	if (!inlineConfig?.root) throw new Error("Must provide { root: './fixtures/...' }");
 
 	// resolve the relative root (i.e. "./fixtures/tailwindcss") to a full filepath
 	// without this, the main `loadFixture` helper will resolve relative to `packages/astro/test`
 	return baseLoadFixture({
 		...inlineConfig,
-		root: new URL(inlineConfig.root, import.meta.url).toString(),
+		root: new URL(inlineConfig.root as string, import.meta.url).toString(),
 	});
 }
 
-export function readXML(fileOrPromise) {
+export function readXML(fileOrPromise: string | Promise<string>): Promise<any> {
 	const parseString = xml2js.parseString;
 	return Promise.resolve(fileOrPromise).then((xml) => {
 		return new Promise((resolve, reject) => {
