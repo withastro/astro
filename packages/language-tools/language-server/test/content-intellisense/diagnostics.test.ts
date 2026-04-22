@@ -4,7 +4,7 @@ import { before, describe, it } from 'node:test';
 import type { FullDocumentDiagnosticReport } from '@volar/language-server';
 import { DiagnosticSeverity, Position } from '@volar/language-server';
 import { getLanguageServer, type LanguageServer } from '../server.ts';
-import { fixtureDir } from '../utils.ts';
+import { fixtureDir } from '../test-utils.ts';
 
 // TODO: We can't sync the fixture with these mistakes at all, as such we can't run these tests.
 describe.skip('Content Intellisense - Diagnostics', {
