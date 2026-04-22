@@ -64,8 +64,16 @@ export default async function test() {
 	if (args.values.tsx) {
 		process.env.NODE_OPTIONS ??= '';
 		process.env.NODE_OPTIONS += ' --import tsx';
-		const { register } = await import('tsx/esm/api');
-		register();
+		// On Node.js < 22, `--experimental-strip-types` isn't available, so a TS
+		// setup file (e.g. `astro-scripts test --setup foo.ts`) needs tsx to load.
+		// The setup module is imported in the current process, and `NODE_OPTIONS`
+		// only applies to child processes, so we must also register tsx here.
+		// Remove once we drop Node.js 20 support.
+		const nodeMajor = Number(process.versions.node.split('.')[0]);
+		if (nodeMajor < 22) {
+			const { register } = await import('tsx/esm/api');
+			register();
+		}
 	}
 
 	if (args.values['strip-types']) {
