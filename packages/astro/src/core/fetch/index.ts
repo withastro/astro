@@ -1,6 +1,7 @@
 import { ActionHandler } from '../../actions/handler.js';
 import type { BaseApp } from '../app/base.js';
 import { FetchState as BaseFetchState } from '../app/fetch-state.js';
+import { CacheHandler } from '../cache/handler.js';
 import { appSymbol } from '../constants.js';
 import { I18n } from '../i18n/handler.js';
 import { AstroMiddleware } from '../middleware/astro-middleware.js';
@@ -161,4 +162,25 @@ export function i18n(state: FetchState, response: Response): Promise<Response> {
 	const handler = getI18n(getApp(state.request));
 	if (!handler) return Promise.resolve(response);
 	return handler.finalize(state, response);
+}
+
+const cacheHandlers = new WeakMap<BaseApp<any>, CacheHandler>();
+
+/**
+ * Wraps a render callback with cache provider logic. Handles runtime
+ * caching (onRequest), CDN-based providers (headers only), and the
+ * no-cache case transparently. Cache headers are applied and stripped
+ * internally.
+ */
+export function cache(
+	state: FetchState,
+	next: () => Promise<Response>,
+): Promise<Response> {
+	const app = getApp(state.request);
+	let handler = cacheHandlers.get(app);
+	if (!handler) {
+		handler = new CacheHandler(app);
+		cacheHandlers.set(app, handler);
+	}
+	return handler.handle(state, next);
 }

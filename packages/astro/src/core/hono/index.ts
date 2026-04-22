@@ -2,6 +2,7 @@ import {
 	FetchState,
 	actions as fetchActions,
 	astro as fetchAstro,
+	cache as fetchCache,
 	i18n as fetchI18n,
 	middleware as fetchMiddleware,
 	pages as fetchPages,
@@ -95,6 +96,14 @@ export function sessions(): HonoMiddlewareHandler {
 		} finally {
 			await state.finalizeAll();
 		}
+	};
+}
+
+export function cache(
+	next: () => Promise<Response>,
+): HonoMiddlewareHandler {
+	return async (context, _honoNext) => {
+		return fetchCache(getFetchState(context), next);
 	};
 }
 

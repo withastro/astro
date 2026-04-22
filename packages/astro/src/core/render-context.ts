@@ -33,9 +33,7 @@ import { Rewrites } from './rewrites/handler.js';
 import { getParams, type Pipeline, Slots } from './render/index.js';
 import { isRoute404or500, isRouteServerIsland } from './routing/match.js';
 import { getOriginPathname, setOriginPathname } from './routing/rewrite.js';
-import { AstroCache, type CacheLike } from './cache/runtime/cache.js';
-import { NoopAstroCache, DisabledAstroCache } from './cache/runtime/noop.js';
-import { compileCacheRoutes, matchCacheRoute } from './cache/runtime/route-matching.js';
+import type { CacheLike } from './cache/runtime/cache.js';
 import type { AstroSession } from './session/runtime.js';
 import { collapseDuplicateSlashes } from '@astrojs/internal-helpers/path';
 import { validateAndDecodePathname } from './util/pathname.js';
@@ -79,7 +77,6 @@ export class RenderContext {
 	public props: Props;
 	public partial: undefined | boolean;
 	public shouldInjectCspMetaTags: boolean;
-	public cache: CacheLike;
 	public skipMiddleware: boolean;
 	/**
 	 * Resolves the `AstroSession` from the owning `FetchState`'s provider
@@ -88,6 +85,13 @@ export class RenderContext {
 	 */
 	get session(): AstroSession | undefined {
 		return this.fetchState?.resolve<AstroSession>('session');
+	}
+	/**
+	 * Resolves the cache instance from the owning `FetchState`'s provider
+	 * registry. Returns `undefined` if no `FetchState` is attached yet.
+	 */
+	get cache(): CacheLike | undefined {
+		return this.fetchState?.resolve<CacheLike>('cache');
 	}
 	/**
 	 * Back-reference to the `FetchState` that owns this render context.
@@ -119,7 +123,6 @@ export class RenderContext {
 		props: Props = {},
 		partial: undefined | boolean = undefined,
 		shouldInjectCspMetaTags = pipeline.manifest.shouldInjectCspMetaTags,
-		cache: CacheLike,
 		skipMiddleware = false,
 	) {
 		this.pipeline = pipeline;
@@ -137,7 +140,6 @@ export class RenderContext {
 		this.props = props;
 		this.partial = partial;
 		this.shouldInjectCspMetaTags = shouldInjectCspMetaTags;
-		this.cache = cache;
 		this.skipMiddleware = skipMiddleware;
 		this.fetchState = null;
 		this.#rewrites = new Rewrites();
@@ -204,33 +206,6 @@ export class RenderContext {
 		}
 		const cookies = new AstroCookies(request);
 
-		// Create cache instance
-		let cache: CacheLike;
-		if (!pipeline.cacheConfig) {
-			// Cache not configured — no-ops with a one-time warning
-			cache = new DisabledAstroCache(pipeline.logger);
-		} else if (pipeline.runtimeMode === 'development') {
-			cache = new NoopAstroCache();
-		} else {
-			const cacheProvider = await pipeline.getCacheProvider();
-			cache = new AstroCache(cacheProvider);
-
-			// Apply config-level cache route matching as initial state
-			if (pipeline.cacheConfig?.routes) {
-				if (!pipeline.compiledCacheRoutes) {
-					pipeline.compiledCacheRoutes = compileCacheRoutes(
-						pipeline.cacheConfig.routes,
-						pipeline.manifest.base,
-						pipeline.manifest.trailingSlash,
-					);
-				}
-				const matched = matchCacheRoute(pathname, pipeline.compiledCacheRoutes);
-				if (matched) {
-					cache.set(matched);
-				}
-			}
-		}
-
 		return new RenderContext(
 			pipeline,
 			locals,
@@ -247,7 +222,6 @@ export class RenderContext {
 			props,
 			partial,
 			shouldInjectCspMetaTags ?? pipeline.manifest.shouldInjectCspMetaTags,
-			cache,
 			skipMiddleware,
 		);
 	}
@@ -347,7 +321,7 @@ export class RenderContext {
 				return renderContext.session;
 			},
 			get cache() {
-				return renderContext.cache;
+				return renderContext.cache!;
 			},
 			get csp(): APIContext['csp'] {
 				if (!pipeline.manifest.csp) {
@@ -587,7 +561,7 @@ export class RenderContext {
 				return renderContext.session;
 			},
 			get cache() {
-				return renderContext.cache;
+				return renderContext.cache!;
 			},
 			get clientAddress() {
 				return renderContext.getClientAddress();
