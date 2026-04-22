@@ -243,7 +243,8 @@
     "test": "pnpm test:vscode && pnpm test:grammar",
     "test:vscode": "vscode-test",
     "test:grammar": "pnpm build:grammar && node ./test/grammar/test.mjs",
-    "update-grammar-snapshots": "node ./test/grammar/test.mjs --updateSnapshot"
+    "update-grammar-snapshots": "node ./test/grammar/test.mjs --updateSnapshot",
+    "typecheck:tests": "tsc --build tsconfig.test.json"
   },
   "devDependencies": {
     "@astrojs/language-server": "^2.16.6",
@@ -262,6 +263,7 @@
     "kleur": "^4.1.5",
     "mocha": "^11.7.5",
     "ovsx": "^0.10.10",
+    "tsx": "^4.21.0",
     "vscode-languageclient": "^9.0.1",
     "vscode-tmgrammar-test": "^0.1.3"
   },

@@ -1,5 +1,6 @@
-const assert = require('node:assert');
-const vscode = require('vscode');
+import 'mocha';
+import assert from 'node:assert';
+import vscode from 'vscode';
 
 suite('Extension Test Suite', () => {
 	vscode.window.showInformationMessage('Start all tests.');
