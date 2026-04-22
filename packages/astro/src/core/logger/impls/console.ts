@@ -7,6 +7,7 @@ import {
 	AstroLogger,
 } from '../core.js';
 import type { NodeHandlerConfig } from './node.js';
+import { matchesLevel } from '../public.js';
 
 export type ConsoleHandlerConfig = {
 	level?: AstroLoggerLevel;
@@ -23,7 +24,7 @@ function consoleLogDestination(
 				dest = console.info;
 			}
 
-			if (levels[event.level] < levels[level]) {
+			if (!matchesLevel(event.level, level)) {
 				return;
 			}
 

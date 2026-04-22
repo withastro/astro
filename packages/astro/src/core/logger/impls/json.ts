@@ -7,6 +7,7 @@ import {
 } from '../core.js';
 import type { Writable } from 'node:stream';
 import type { AstroInlineConfig } from '../../../types/public/index.js';
+import { matchesLevel } from '../public.js';
 
 export type JonsHandlerConfig = {
 	/**
@@ -36,7 +37,7 @@ export default function jsonLoggerDestination(
 				dest = process.stdout;
 			}
 
-			if (levels[event.level] < levels[level]) {
+			if (!matchesLevel(event.level, level)) {
 				return;
 			}
 

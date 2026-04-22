@@ -8,6 +8,7 @@ import {
 } from '../core.js';
 import type { Writable } from 'node:stream';
 import type { AstroInlineConfig } from '../../../types/public/index.js';
+import { matchesLevel } from '../public.js';
 
 type ConsoleStream = Writable & {
 	fd: 1 | 2;
@@ -28,7 +29,7 @@ function nodeLogDestination(
 				dest = process.stdout;
 			}
 
-			if (levels[event.level] < levels[level]) {
+			if (!matchesLevel(event.level, level)) {
 				return;
 			}
 
