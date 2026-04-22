@@ -1,6 +1,6 @@
 ---
 'astro': patch
-'@astrojs/internal-helpers': patch
+'@astrojs/internal-helpers': minor
 '@astrojs/markdown-remark': patch
 'create-astro': patch
 ---
