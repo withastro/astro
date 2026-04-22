@@ -35,7 +35,7 @@ import type { StaticBuildOptions } from './types.js';
 import { cleanChunkName, getTimeStat, viteBuildReturnToRolldownOutputs } from './util.js';
 import { NOOP_MODULE_ID } from './plugins/plugin-noop.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
-import type { InputOption } from 'rolldown';
+import type { Rolldown } from 'vite';
 import { getSSRAssets } from './internal.js';
 import { SERVER_ISLAND_MAP_MARKER } from '../server-islands/vite-plugin-server-islands.js';
 
@@ -169,7 +169,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 	const buildPlugins = getAllBuildPlugins(internals, opts);
 	const flatPlugins = buildPlugins.flat().filter(Boolean);
 	const plugins = [...flatPlugins, ...(viteConfig.plugins || [])];
-	let currentRolldownInput: InputOption | undefined = undefined;
+	let currentRolldownInput: Rolldown.InputOption | undefined = undefined;
 	let buildPostHooks: BuildPostHook[] = [];
 	plugins.push({
 		name: 'astro:resolve-input',

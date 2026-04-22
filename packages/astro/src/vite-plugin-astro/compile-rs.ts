@@ -1,4 +1,4 @@
-import type { SourceMapInput } from 'rolldown';
+import type { Rolldown } from 'vite';
 import { type CompileProps, type CompileResult, compile } from '../core/compile/compile-rs.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 import type { CompileMetadata } from './types.js';
@@ -9,7 +9,7 @@ interface CompileAstroOption {
 }
 
 export interface CompileAstroResult extends Omit<CompileResult, 'map'> {
-	map: SourceMapInput;
+	map: Rolldown.SourceMapInput;
 }
 
 export async function compileAstro({

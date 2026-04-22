@@ -1,4 +1,3 @@
-import type { ModuleInfo } from 'rolldown';
 import type * as vite from 'vite';
 import type { DevEnvironment } from 'vite';
 import { hasHeadPropagationCall } from '../core/head-propagation/hint.js';
@@ -74,7 +73,12 @@ export default function configHeadVitePlugin(): vite.Plugin {
 	function propagateMetadata<
 		P extends keyof PluginMetadata['astro'],
 		V extends PluginMetadata['astro'][P],
-	>(this: { getModuleInfo(id: string): ModuleInfo | null }, seed: string, prop: P, value: V) {
+	>(
+		this: { getModuleInfo(id: string): vite.Rolldown.ModuleInfo | null },
+		seed: string,
+		prop: P,
+		value: V,
+	) {
 		// Example: `HeadEntry -> Layout -> /src/pages/blog.astro` marks both ancestors.
 		const importerGraph = buildImporterGraphFromEnvironment(seed);
 		const allAncestors = computeInTreeAncestors({

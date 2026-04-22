@@ -1,9 +1,9 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
-import type * as rolldown from 'rolldown';
 import type { DataEntry, RenderedContent } from '../../content/data-store.js';
 import type { LiveCollectionError } from '../../content/loaders/errors.js';
 import type { AstroComponentFactory } from '../../runtime/server/index.js';
 import type { AstroConfig } from './config.js';
+import type { Rolldown } from 'vite';
 
 export interface AstroInstance {
 	file: string;
@@ -110,13 +110,13 @@ export interface ContentEntryType {
 		contents: string;
 	}): GetContentEntryInfoReturnType | Promise<GetContentEntryInfoReturnType>;
 	getRenderModule?(
-		this: rolldown.PluginContext,
+		this: Rolldown.PluginContext,
 		params: {
 			contents: string;
 			fileUrl: URL;
 			viteId: string;
 		},
-	): rolldown.LoadResult | Promise<rolldown.LoadResult>;
+	): Rolldown.LoadResult | Promise<Rolldown.LoadResult>;
 	contentModuleTypes?: string;
 	getRenderFunction?(config: AstroConfig): Promise<ContentEntryRenderFunction>;
 

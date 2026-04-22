@@ -1,5 +1,4 @@
-import type { GetModuleInfo } from 'rolldown';
-import type { BuildOptions, ResolvedConfig, Plugin as VitePlugin } from 'vite';
+import type { BuildOptions, ResolvedConfig, Plugin as VitePlugin, Rolldown } from 'vite';
 import { isCSSRequest } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 import { isPropagatedAssetBoundary } from '../../head-propagation/boundary.js';
@@ -30,7 +29,7 @@ interface PluginOptions {
 	buildOptions: StaticBuildOptions;
 }
 
-function isBuildCssBoundary(id: string, ctx: { getModuleInfo: GetModuleInfo }): boolean {
+function isBuildCssBoundary(id: string, ctx: { getModuleInfo: Rolldown.GetModuleInfo }): boolean {
 	if (isPropagatedAssetBoundary(id)) return true;
 	const info = ctx.getModuleInfo(id);
 	return info ? moduleIsTopLevelPage(info) : false;
@@ -449,7 +448,7 @@ function shouldDeleteCSSChunk(allModules: string[], internals: BuildInternals): 
 
 function* getParentClientOnlys(
 	id: string,
-	ctx: { getModuleInfo: GetModuleInfo },
+	ctx: { getModuleInfo: Rolldown.GetModuleInfo },
 	internals: BuildInternals,
 ): Generator<PageBuildData, void, unknown> {
 	for (const info of getParentModuleInfos(id, ctx)) {
