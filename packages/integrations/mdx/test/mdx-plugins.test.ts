@@ -7,8 +7,9 @@ import {
 	loadFixture,
 	type AstroInlineConfig,
 	type Fixture,
-} from '../../../astro/test/test-utils.js';
-import type { RehypePlugin, RemarkPlugin } from './test-utils.js';
+	type RehypePlugin,
+	type RemarkPlugin,
+} from './test-utils.js';
 
 const FIXTURE_ROOT = new URL('./fixtures/mdx-plugins/', import.meta.url);
 const FILE = '/with-plugins/index.html';

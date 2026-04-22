@@ -5,6 +5,7 @@ import {
 	type AstroInlineConfig,
 } from '../../../astro/test/test-utils.js';
 
+export { cli } from '../../../astro/test/test-utils.js';
 export type { Fixture, DevServer };
 
 export function loadFixture(inlineConfig: AstroInlineConfig) {

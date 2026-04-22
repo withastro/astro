@@ -3,7 +3,7 @@ import { after, before, describe, it } from 'node:test';
 import mdx from '@astrojs/mdx';
 import * as cheerio from 'cheerio';
 import { parseHTML } from 'linkedom';
-import { loadFixture, type Fixture, type DevServer } from '../../../astro/test/test-utils.js';
+import { loadFixture, type Fixture, type DevServer } from './test-utils.js';
 
 // Merged fixture: combines mdx-component, mdx-slots, mdx-frontmatter,
 // mdx-url-export, mdx-get-static-paths, and mdx-script-style-raw.

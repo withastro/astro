@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
-import { loadFixture, type Fixture } from '../../../astro/test/test-utils.js';
+import { loadFixture, type Fixture } from './test-utils.js';
 
 const FIXTURE_ROOT = new URL('./fixtures/mdx-optimize/', import.meta.url);
 
