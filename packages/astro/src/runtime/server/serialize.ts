@@ -109,7 +109,7 @@ function convertToSerializedForm(
 	}
 }
 
-export function serializeProps(props: any, metadata: AstroComponentMetadata) {
+export function serializeProps(props: any, metadata?: AstroComponentMetadata) {
 	const serialized = JSON.stringify(serializeObject(props, metadata));
 	return serialized;
 }

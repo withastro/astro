@@ -7,6 +7,16 @@
 import { EventEmitter } from 'node:events';
 import httpMocks from 'node-mocks-http';
 
+/**
+ * @param {Parameters<typeof httpMocks.createRequest>[0]} [reqOptions]
+ * @returns {{
+ *   req: import('node:http').IncomingMessage & { headers: Record<string, string | undefined> };
+ *   res: import('node:http').ServerResponse & { _getChunks(): Buffer[]; on(event: 'end', listener: () => void): any };
+ *   done: Promise<Buffer[]>;
+ *   json: () => Promise<any>;
+ *   text: () => Promise<string>;
+ * }}
+ */
 export function createRequestAndResponse(reqOptions = {}) {
 	const req = httpMocks.createRequest(reqOptions);
 	req.headers.host ||= 'localhost';
