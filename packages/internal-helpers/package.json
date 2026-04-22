@@ -50,7 +50,7 @@
     "typecheck:tests": "tsc -p tsconfig.test.json --noEmit"
   },
   "dependencies": {
-    "picomatch": "^4.0.3"
+    "picomatch": "^4.0.4"
   },
   "devDependencies": {
     "@types/picomatch": "^4.0.2",
