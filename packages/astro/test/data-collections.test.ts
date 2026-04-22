@@ -1,0 +1,181 @@
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
+import { type Fixture, loadFixture } from './test-utils.js';
+
+const authorIds = ['Ben Holmes', 'Fred K Schott', 'Nate Moore'];
+const translationIds = ['en', 'es', 'fr'];
+
+type AuthorEntry = {
+	id: string;
+	data: { name: string; twitter: string };
+	filePath: string;
+	digest: string;
+	collection: string;
+};
+
+type TranslationEntry = {
+	id: string;
+	data: { homepage: { greeting: string; preamble: string } };
+	filePath: string;
+	digest: string;
+	collection: string;
+};
+
+describe('Content Collections - data collections', () => {
+	let fixture: Fixture;
+	before(async () => {
+		fixture = await loadFixture({ root: './fixtures/data-collections/' });
+		await fixture.build({ force: true });
+	});
+
+	describe('Authors Collection', () => {
+		let json: AuthorEntry[];
+		before(async () => {
+			const rawJson = await fixture.readFile('/authors/all.json');
+			json = JSON.parse(rawJson);
+		});
+
+		it('Returns', async () => {
+			assert.equal(Array.isArray(json), true);
+			assert.equal(json.length, 3);
+		});
+
+		it('Generates correct ids', async () => {
+			const ids = json.map((item) => item.id).sort();
+			assert.deepEqual(ids.sort(), ['Ben Holmes', 'Fred K Schott', 'Nate Moore'].sort());
+		});
+
+		it('Generates correct data', async () => {
+			const names = json.map((item) => item.data.name);
+			assert.deepEqual(
+				names.sort(),
+				['Ben J Holmes', 'Fred K Schott', 'Nate Something Moore'].sort(),
+			);
+
+			const twitterUrls = json.map((item) => item.data.twitter);
+			assert.deepEqual(
+				twitterUrls.sort(),
+				[
+					'https://twitter.com/bholmesdev',
+					'https://twitter.com/FredKSchott',
+					'https://twitter.com/n_moore',
+				].sort(),
+			);
+		});
+	});
+
+	describe('getDataEntryById', () => {
+		let json: TranslationEntry;
+		before(async () => {
+			const rawJson = await fixture.readFile('/translations/by-id.json');
+			json = JSON.parse(rawJson);
+		});
+		it('Grabs the item by the base file name', () => {
+			assert.equal(json.id, 'en');
+		});
+	});
+
+	describe('Authors Entry', () => {
+		for (const authorId of authorIds) {
+			let json: AuthorEntry;
+			before(async () => {
+				const rawJson = await fixture.readFile(`/authors/${authorId}.json`);
+				json = JSON.parse(rawJson);
+			});
+
+			it(`Returns ${authorId}`, async () => {
+				assert.equal(Object.hasOwn(json, 'id'), true);
+				assert.equal(json.id, authorId);
+			});
+
+			it(`Generates correct data for ${authorId}`, async () => {
+				assert.equal(Object.hasOwn(json, 'data'), true);
+				assert.equal(Object.hasOwn(json.data, 'name'), true);
+				assert.equal(Object.hasOwn(json.data, 'twitter'), true);
+
+				switch (authorId) {
+					case 'Ben Holmes':
+						assert.equal(json.data.name, 'Ben J Holmes');
+						assert.equal(json.data.twitter, 'https://twitter.com/bholmesdev');
+						break;
+					case 'Fred K Schott':
+						assert.equal(json.data.name, 'Fred K Schott');
+						assert.equal(json.data.twitter, 'https://twitter.com/FredKSchott');
+						break;
+					case 'Nate Moore':
+						assert.equal(json.data.name, 'Nate Something Moore');
+						assert.equal(json.data.twitter, 'https://twitter.com/n_moore');
+						break;
+				}
+			});
+		}
+	});
+
+	describe('Translations Collection', () => {
+		let json: TranslationEntry[];
+		before(async () => {
+			const rawJson = await fixture.readFile('/translations/all.json');
+			json = JSON.parse(rawJson);
+		});
+
+		it('Returns', async () => {
+			assert.equal(Array.isArray(json), true);
+			assert.equal(json.length, 3);
+		});
+
+		it('Generates correct ids', async () => {
+			const ids = json.map((item) => item.id).sort();
+			assert.deepEqual(ids, translationIds);
+		});
+
+		it('Generates correct data', async () => {
+			const sorted = json.sort((a, b) => a.id.localeCompare(b.id));
+			const homepageGreetings = sorted.map((item) => item.data.homepage?.greeting);
+			assert.deepEqual(homepageGreetings, ['Hello World!', '¡Hola Mundo!', 'Bonjour le monde!']);
+
+			const homepagePreambles = sorted.map((item) => item.data.homepage?.preamble);
+			assert.deepEqual(homepagePreambles, [
+				'Welcome to the future of content.',
+				'Bienvenido al futuro del contenido.',
+				'Bienvenue dans le futur du contenu.',
+			]);
+		});
+	});
+
+	describe('Translations Entry', () => {
+		for (const translationId of translationIds) {
+			let json: TranslationEntry;
+			before(async () => {
+				const rawJson = await fixture.readFile(`/translations/${translationId}.json`);
+				json = JSON.parse(rawJson);
+			});
+
+			it(`Returns ${translationId}`, async () => {
+				assert.equal(Object.hasOwn(json, 'id'), true);
+				assert.equal(json.id, translationId);
+			});
+
+			it(`Generates correct data for ${translationId}`, async () => {
+				assert.equal(Object.hasOwn(json, 'data'), true);
+				assert.equal(Object.hasOwn(json.data, 'homepage'), true);
+				assert.equal(Object.hasOwn(json.data.homepage, 'greeting'), true);
+				assert.equal(Object.hasOwn(json.data.homepage, 'preamble'), true);
+
+				switch (translationId) {
+					case 'en':
+						assert.equal(json.data.homepage.greeting, 'Hello World!');
+						assert.equal(json.data.homepage.preamble, 'Welcome to the future of content.');
+						break;
+					case 'es':
+						assert.equal(json.data.homepage.greeting, '¡Hola Mundo!');
+						assert.equal(json.data.homepage.preamble, 'Bienvenido al futuro del contenido.');
+						break;
+					case 'fr':
+						assert.equal(json.data.homepage.greeting, 'Bonjour le monde!');
+						assert.equal(json.data.homepage.preamble, 'Bienvenue dans le futur du contenu.');
+						break;
+				}
+			});
+		}
+	});
+});
