@@ -5,7 +5,7 @@ import { parseHTML } from 'linkedom';
 import rehypeMathjaxSvg from 'rehype-mathjax';
 import rehypeMathjaxChtml from 'rehype-mathjax/chtml';
 import remarkMath from 'remark-math';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 const FIXTURE_ROOT = new URL('./fixtures/mdx-math/', import.meta.url);
 

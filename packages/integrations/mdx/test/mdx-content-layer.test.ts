@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { loadFixture, type Fixture, type DevServer } from './test-utils.js';
+import { loadFixture, type Fixture, type DevServer } from './test-utils.ts';
 
 describe('Content Layer MDX rendering dev', () => {
 	let fixture: Fixture;

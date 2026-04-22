@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
-import { loadFixture, type Fixture, type DevServer } from './test-utils.js';
+import { loadFixture, type Fixture, type DevServer } from './test-utils.ts';
 
 const imageTestRoutes = ['with-components', 'esm-import', 'content-collection'];
 

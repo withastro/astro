@@ -9,7 +9,7 @@ import {
 	type Fixture,
 	type RehypePlugin,
 	type RemarkPlugin,
-} from './test-utils.js';
+} from './test-utils.ts';
 
 const FIXTURE_ROOT = new URL('./fixtures/mdx-plugins/', import.meta.url);
 const FILE = '/with-plugins/index.html';
