@@ -139,7 +139,13 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 				// over to their page. For this chunk, determine if it's a child of a
 				// client:only component and if so, add its CSS to the page it belongs to.
 				if (this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
+					// Only walk from modules that actually import CSS, not all modules in the
+					// chunk. When Rollup merges unrelated modules into the same chunk (via
+					// chunking heuristics or manualChunks), walking from every module would
+					// incorrectly attribute the chunk's CSS to pages reached through modules
+					// that have no CSS dependency.
 					for (const id of Object.keys(chunk.modules)) {
+						if (!moduleImportsCss(id, this)) continue;
 						for (const pageData of getParentClientOnlys(id, this, internals)) {
 							for (const importedCssImport of meta.importedCss) {
 								const cssToInfoRecord = (pagesToCss[pageData.moduleSpecifier] ??= {});
@@ -445,6 +451,32 @@ function shouldDeleteCSSChunk(allModules: string[], internals: BuildInternals): 
 	}
 
 	return true;
+}
+
+/**
+ * Check if a module directly imports CSS (has a CSS request in its importedIds).
+ * This is used to filter which modules in a chunk should be walked to find
+ * client:only CSS associations, preventing CSS from leaking to unrelated pages
+ * when Rollup merges unrelated modules into the same chunk.
+ */
+function moduleImportsCss(
+	id: string,
+	ctx: { getModuleInfo: GetModuleInfo },
+): boolean {
+	// CSS modules themselves should be walked
+	if (isCSSRequest(id)) return true;
+
+	const info = ctx.getModuleInfo(id);
+	if (!info) return false;
+
+	// Check if any direct import is a CSS request
+	for (const importedId of info.importedIds) {
+		if (isCSSRequest(importedId)) return true;
+	}
+	for (const importedId of info.dynamicallyImportedIds) {
+		if (isCSSRequest(importedId)) return true;
+	}
+	return false;
 }
 
 function* getParentClientOnlys(
