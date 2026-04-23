@@ -3,9 +3,11 @@ import { it } from 'node:test';
 
 it('"exports" and "publishConfig.exports" should be the same except for internal API', async () => {
 	const { default: pkgJson } = await import('../package.json', { with: { type: 'json' } });
-	const internal = Object.keys(pkgJson.exports).filter((key) => key.startsWith('./_internal/'));
+	const exports: Record<string, unknown> = pkgJson.exports;
+	const publishConfigExports: Record<string, unknown> = pkgJson.publishConfig.exports;
+	const internal = Object.keys(exports).filter((key) => key.startsWith('./_internal/'));
 	for (const key of internal) {
-		delete pkgJson.exports[key];
+		delete exports[key];
 	}
-	assert.deepEqual(pkgJson.exports, pkgJson.publishConfig.exports);
+	assert.deepEqual(exports, publishConfigExports);
 });

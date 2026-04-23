@@ -30,7 +30,8 @@ function fetchWithHost(port: number, hostHeader: string): Promise<http.IncomingM
 }
 
 function getBoundPort(previewServer: PreviewServer): number {
-	const port = previewServer?.server?.address()?.port;
+	// @ts-expect-error: `previewServer.server` is an internal API
+	const port = previewServer.server?.address()?.port;
 	if (typeof port !== 'number') {
 		throw new Error('Expect port to be a number');
 	}
