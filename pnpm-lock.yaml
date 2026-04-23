@@ -3285,6 +3285,13 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/head-propagation-prerender-env:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+
   packages/astro/test/fixtures/hmr-markdown:
     dependencies:
       astro:
