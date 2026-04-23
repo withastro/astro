@@ -4,7 +4,7 @@ import { before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
 import type { AstroLogMessage } from '../dist/core/logger/core.js';
 import { AstroLogger } from '../dist/core/logger/core.js';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 function addLeadingSlash(path: string) {
 	return path.startsWith('/') ? path : '/' + path;
