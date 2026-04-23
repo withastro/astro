@@ -94,6 +94,16 @@ export default function hmrReload(): Plugin {
 				if (hasSkippedStyleModules) {
 					return [];
 				}
+
+				// When style modules were skipped, return an empty array to prevent Vite's
+				// default SSR HMR propagation. Without this, Vite would propagate through the
+				// module graph to .astro importers, find no HMR acceptor, and trigger a
+				// full page reload. The client environment handles CSS HMR natively via
+				// Vite's built-in style update mechanism, which works for all pages
+				// (with or without framework components).
+				if (hasSkippedStyleModules) {
+					return [];
+				}
 			},
 		},
 	};

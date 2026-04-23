@@ -40,7 +40,7 @@ const UNSAFE_CHUNK_CHAR_RE = /[^\w.\-/]/g;
 
 /**
  * Replaces characters in a chunk name that are not safe for filesystem paths or URLs.
- * Characters like `!` and `~` can leak from Vite module IDs into Rolldown chunk names
+ * Characters like `!` and `~` can leak from Vite module IDs into Rollup chunk names
  * and break deploys on platforms like Netlify.
  */
 export function cleanChunkName(name: string): string {

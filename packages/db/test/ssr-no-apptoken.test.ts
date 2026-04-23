@@ -1,8 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import testAdapter from '../../astro/test/test-adapter.js';
-import { type Fixture, loadFixture } from '../../astro/test/test-utils.js';
-import { type RemoteDbServer, setupRemoteDb } from './test-utils.ts';
+import { type Fixture, loadFixture, type RemoteDbServer, setupRemoteDb } from './test-utils.ts';
 
 describe('missing app token', () => {
 	let fixture: Fixture;

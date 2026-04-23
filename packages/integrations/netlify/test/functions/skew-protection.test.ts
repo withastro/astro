@@ -1,5 +1,5 @@
 import * as assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import { before, describe, it } from 'node:test';
 import { type Fixture, loadFixture } from '../test-utils.ts';
 
@@ -42,7 +42,6 @@ describe('Skew Protection', { timeout: 120000 }, () => {
 		// into entry.mjs instead of placing it in a separate chunk, so scan both locations.
 		const buildDir = new URL('./fixtures/skew-protection/.netlify/build/', import.meta.url);
 
-		const { readdir } = await import('node:fs/promises');
 		const needle = '"internalFetchHeaders":{"X-Netlify-Deploy-ID":"test-deploy-123"}';
 		let found = false;
 

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
-import { loadFixture, type Fixture, type DevServer } from '../../../astro/test/test-utils.js';
+import { loadFixture, type Fixture, type DevServer } from './test-utils.ts';
 
 describe('Markdoc - propagated assets', () => {
 	let fixture: Fixture;
@@ -50,7 +50,7 @@ describe('Markdoc - propagated assets', () => {
 					assert.equal(links.length, 1);
 					styleContents = await fixture.readFile(links[0].href);
 				}
-				assert.match(styleContents, /--color-base-purple:\s*269,\s*79%;/);
+				assert.equal(styleContents.includes('--color-base-purple: 269, 79%;'), true);
 			});
 
 			it('[fails] Does not bleed styles to other page', async () => {

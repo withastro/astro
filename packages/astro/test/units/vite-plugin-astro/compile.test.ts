@@ -20,11 +20,6 @@ function makeAstroConfig(overrides: Partial<AstroConfig> = {}): AstroConfig {
 	} as AstroConfig;
 }
 
-/**
- * @param {string} source
- * @param {string} id
- * @param {import('vite').InlineConfig} [inlineConfig]
- */
 async function compile(source: string, id: string, inlineConfig: InlineConfig = {}) {
 	const viteConfig = await resolveConfig({ configFile: false, ...inlineConfig }, 'serve');
 	// compileAstro's CompileAstroOption traces back to src/AstroConfig via rewriteRelativeImportExtensions,
@@ -98,7 +93,7 @@ const name = 'world
 		assert.equal(names.includes('url'), true);
 	});
 
-	describe('when the code contains syntax that is transformed by oxc', () => {
+	describe('when the code contains syntax that is transformed by esbuild', () => {
 		const code = `\
 ---
 using x = {}
@@ -113,7 +108,7 @@ using x = {}
 			const result = await compile(code, '/src/components/index.astro', {
 				oxc: { target: 'es2018' },
 			});
-			assert.equal(result.code.includes('using x = {}'), false);
+			assert.equal(result.code.includes('using x = {}'), false, 'Code contains\n' + result.code);
 		});
 	});
 });

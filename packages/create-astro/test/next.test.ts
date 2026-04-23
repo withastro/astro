@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { next } from '../dist/index.js';
-import { type NextContext, setup } from './utils.ts';
+import { type NextContext, setup } from './test-utils.ts';
 
 describe('next steps', () => {
 	const fixture = setup();

@@ -3,7 +3,7 @@ import { relative } from 'node:path';
 import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import testAdapter from '../../astro/test/test-adapter.js';
-import { type Fixture, loadFixture } from '../../astro/test/test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('astro:db local database', () => {
 	describe('build (not remote) with DATABASE_FILE env (file URL)', () => {

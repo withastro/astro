@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture, type Fixture } from '../../../astro/test/test-utils.js';
+import { loadFixture, type Fixture } from './test-utils.ts';
 
 describe('MDX Component & Astro Container escape issue', () => {
 	let fixture: Fixture;

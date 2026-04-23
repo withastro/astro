@@ -11,10 +11,13 @@ import { viteID } from '../dist/core/util.js';
  *
  * @param {{
  * 	provideAddress?: boolean;
+ * 	staticHeaders?: boolean;
  * 	extendAdapter?: Partial<AstroAdapter>;
  * 	setMiddlewareEntryPoint?: (middlewareEntryPoint: MiddlewareEntryPoint) => void;
+ * 	setManifest?: (manifest: unknown) => void;
+ * 	setRouteToHeaders?: (routeToHeaders: Map<string, { headers: Headers }>) => void;
  * 	env?: Record<string, string | undefined>;
- * }} param0
+ * }} [param0]
  * @returns {AstroIntegration}
  */
 export default function testAdapter({
@@ -106,8 +109,6 @@ export default function testAdapter({
 													createApp: (streaming) => new MyApp(manifest, streaming)
 												};
 											}
-											
-											export default createExports;
 										`,
 										};
 									},
