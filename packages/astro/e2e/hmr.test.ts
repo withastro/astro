@@ -94,21 +94,6 @@ test.describe('Styles', () => {
 		await expect(h).toHaveCSS('color', 'rgb(255, 0, 0)');
 	});
 
-	test('external SCSS refresh with HMR', async ({ page, astro }) => {
-		await page.goto(astro.resolveUrl('/scss-external'));
-
-		page.once('load', throwPageShouldNotReload);
-
-		const h = page.locator('h1');
-		await expect(h).toHaveCSS('color', 'rgb(0, 0, 255)');
-
-		await astro.editFile('./src/styles/scss-external.scss', (original) =>
-			original.replace('blue', 'red'),
-		);
-
-		await expect(h).toHaveCSS('color', 'rgb(255, 0, 0)');
-	});
-
 	test('SCSS modules refresh with HMR', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/scss-module'));
 
@@ -133,22 +118,6 @@ test.describe('Styles', () => {
 		await expect(h).toHaveCSS('color', 'rgb(0, 0, 255)');
 
 		await astro.editFile('./src/styles/scss-external.scss', (original) =>
-			original.replace('blue', 'red'),
-		);
-
-		await expect(h).toHaveCSS('color', 'rgb(255, 0, 0)');
-	});
-
-	test('SCSS modules refresh with HMR', async ({ page, astro }) => {
-		await page.goto(astro.resolveUrl('/scss-module'));
-		await waitForViteToSettle(page);
-
-		page.once('load', throwPageShouldNotReload);
-
-		const h = page.locator('h1');
-		await expect(h).toHaveCSS('color', 'rgb(0, 0, 255)');
-
-		await astro.editFile('./src/styles/scss-module.module.scss', (original) =>
 			original.replace('blue', 'red'),
 		);
 
