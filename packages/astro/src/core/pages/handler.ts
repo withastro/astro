@@ -153,11 +153,11 @@ export class PagesHandler {
 				}
 				break;
 			}
+			case 'redirect': {
+				return new Response(null, { status: 404, headers: { [ASTRO_ERROR_HEADER]: 'true' } });
+			}
 			case 'fallback': {
 				return new Response(null, { status: 500, headers: { [ROUTE_TYPE_HEADER]: 'fallback' } });
-			}
-			default: {
-				return new Response(null, { status: 404, headers: { [ASTRO_ERROR_HEADER]: 'true' } });
 			}
 		}
 		// We need to merge the cookies from the response back into the cookies
