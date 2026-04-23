@@ -28,6 +28,7 @@ import type { CompiledCacheRoute } from './cache/runtime/route-matching.js';
 import type { SessionDriverFactory } from './session/types.js';
 import { NodePool } from '../runtime/server/render/queue/pool.js';
 import { HTMLStringCache } from '../runtime/server/html-string-cache.js';
+import { FORBIDDEN_PATH_KEYS } from '@astrojs/internal-helpers/object';
 
 /**
  * The `Pipeline` represents the static parts of rendering that do not change between requests.
@@ -287,6 +288,12 @@ export abstract class Pipeline {
 		}
 
 		for (const key of pathKeys) {
+			if (FORBIDDEN_PATH_KEYS.has(key)) {
+				throw new AstroError({
+					...ActionNotFoundError,
+					message: ActionNotFoundError.message(pathKeys.join('.')),
+				});
+			}
 			if (!Object.hasOwn(server, key)) {
 				throw new AstroError({
 					...ActionNotFoundError,

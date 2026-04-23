@@ -7,7 +7,7 @@ process.stdout.isTTY = false;
 
 export default defineConfig({
 	// TODO: add more tests like view transitions and audits, and fix them. Some of them are failing.
-	testMatch: ['e2e/css.test.js', 'e2e/prefetch.test.js', 'e2e/view-transitions.test.js'],
+	testMatch: ['e2e/css.test.ts', 'e2e/prefetch.test.ts', 'e2e/view-transitions.test.ts'],
 	timeout: 40_000,
 	expect: {
 		timeout: 6_000,

@@ -98,15 +98,10 @@ const FILES_TO_UPDATE = {
 		fs.promises.readFile(file, 'utf-8').then((value) => {
 			// Match first indent in the file or fall back to `\t`
 			const indent = /(^\s+)/m.exec(value)?.[1] ?? '\t';
-			return fs.promises.writeFile(
-				file,
-				JSON.stringify(
-					Object.assign(JSON.parse(value), Object.assign(overrides, { private: undefined })),
-					null,
-					indent,
-				),
-				'utf-8',
-			);
+			const packageJson = JSON.parse(value);
+			packageJson.name = overrides.name;
+			delete packageJson.private;
+			return fs.promises.writeFile(file, JSON.stringify(packageJson, null, indent), 'utf-8');
 		}),
 };
 

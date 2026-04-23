@@ -5,10 +5,10 @@ import { RenderContext } from '../../../dist/core/render-context.js';
 import {
 	createComponent,
 	createHeadAndContent,
-	maybeRenderHead as _maybeRenderHead,
+	maybeRenderHead,
 	render,
 	renderComponent,
-	renderHead as _renderHead,
+	renderHead,
 	renderSlot,
 	renderSlotToString,
 	renderUniqueStylesheet,
@@ -17,11 +17,6 @@ import {
 import type { AstroComponentFactory } from '../../../dist/runtime/server/render/index.js';
 import type { Pipeline } from '../../../dist/core/render/index.js';
 import { createBasicPipeline } from '../test-utils.ts';
-
-// The public types for renderHead/maybeRenderHead declare zero params,
-// but the runtime implementation accepts a result argument.
-const renderHead = _renderHead as (result: any) => any;
-const maybeRenderHead = _maybeRenderHead as (result: any) => any;
 
 const createAstroModule = (AstroComponent: AstroComponentFactory) => ({ default: AstroComponent });
 
@@ -68,7 +63,7 @@ describe('head injection app-level rendering', () => {
 
 		const Wrapper = createComponent(
 			(result: any) =>
-				render`<html><head>${renderHead(result)}</head><body>${renderComponent(result, 'HeadEntry', HeadEntry, {}, {})}</body></html>`,
+				render`<html><head>${renderHead()}</head><body>${renderComponent(result, 'HeadEntry', HeadEntry, {}, {})}</body></html>`,
 		);
 
 		const $ = await renderPage(Wrapper);
@@ -104,7 +99,7 @@ describe('head injection app-level rendering', () => {
 		const Layout = createComponent({
 			async factory(result: any, _props: any, slots: any) {
 				const slotted = await renderSlotToString(result, slots.default);
-				return render`<html><head><title>Normal head stuff</title>${renderHead(result)}</head><body>${unescapeHTML(slotted)}</body></html>`;
+				return render`<html><head><title>Normal head stuff</title>${renderHead()}</head><body>${unescapeHTML(slotted)}</body></html>`;
 			},
 		});
 		const Page = createComponent(
@@ -150,7 +145,7 @@ describe('head injection app-level rendering', () => {
 
 		const Layout = createComponent(
 			(result: any, _props: any, slots: any) =>
-				render`<html><head></head>${maybeRenderHead(result)}<body>${renderSlot(result, slots.default)}</body></html>`,
+				render`<html><head></head>${maybeRenderHead()}<body>${renderSlot(result, slots.default)}</body></html>`,
 		);
 		const Page = createComponent(
 			(result: any) =>

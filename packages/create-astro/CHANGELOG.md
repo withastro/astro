@@ -1,5 +1,11 @@
 # create-astro
 
+## 5.0.6
+
+### Patch Changes
+
+- [#16419](https://github.com/withastro/astro/pull/16419) [`f3485c3`](https://github.com/withastro/astro/commit/f3485c3458bc8bf70c152126e418c24f489ded9d) Thanks [@matthewp](https://github.com/matthewp)! - Hardens nested object and package metadata lookups to ignore prototype keys in content handling and project scaffolding
+
 ## 5.0.5
 
 ### Patch Changes
