@@ -20,6 +20,8 @@ import type { HeadElements, TryRewriteResult } from '../../dist/core/base-pipeli
 import type { ComponentInstance } from '../../dist/types/astro.js';
 import type { RewritePayload, MiddlewareHandler } from '../../dist/types/public/common.js';
 
+export type { AstroSettings };
+
 export const defaultLogger: AstroLogger = new AstroLogger({
 	destination: nodeLogDestination,
 	level: 'error',

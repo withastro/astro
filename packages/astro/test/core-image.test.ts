@@ -1216,8 +1216,8 @@ describe('astro:image', () => {
 			const $ = cheerio.load(html);
 			let $script = $('script');
 
-			// Find image - Rolldown (Vite 8) may use backticks instead of double quotes
-			const regex = /src:["'`]([^"'`]*)/;
+			// Find image
+			const regex = /src:"([^"]*)/;
 			const imageSrc = regex.exec($script.html()!)![1];
 			const data = await fixture.readBuffer(imageSrc);
 			assert.equal(data instanceof Buffer, true);

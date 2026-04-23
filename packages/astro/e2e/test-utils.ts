@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { type Browser, type Locator, type Page, expect, test as testBase } from '@playwright/test';
+import { type Locator, type Page, expect, test as testBase } from '@playwright/test';
 import type { AstroLogger } from '../dist/core/logger/core.js';
 import {
 	type AstroInlineConfig,
@@ -107,32 +107,6 @@ export async function waitForHydrate(page: Page, el: Locator) {
 /**
  * Scroll to element manually without making sure the `el` is stable
  */
-/**
- * Warm up the dev server by loading a page and waiting for islands to hydrate.
- * This ensures Vite's dep optimizer has finished and avoids reload flakiness.
- */
-export async function warmupDevServer(browser: Browser, url: string) {
-	const page = await browser.newPage();
-	await page.goto(url, { waitUntil: 'load' });
-	await page.waitForLoadState('networkidle').catch(() => {});
-	const islands = page.locator('astro-island');
-	const count = await islands.count();
-	for (let i = 0; i < count; i++) {
-		const island = islands.nth(i);
-		const uid = await island.getAttribute('uid').catch(() => null);
-		if (uid) {
-			await page
-				.waitForFunction(
-					(selector) => document.querySelector(selector)?.hasAttribute('ssr') === false,
-					`astro-island[uid="${uid}"]`,
-					{ timeout: 5_000 },
-				)
-				.catch(() => {});
-		}
-	}
-	await page.close();
-}
-
 export async function scrollToElement(el: Locator) {
 	await el.evaluate((node) => {
 		node.scrollIntoView({ behavior: 'auto' });

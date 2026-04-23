@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { dependencies } from '../dist/index.js';
-import { type DependenciesContext, mockPrompt, setup } from './utils.ts';
+import { type DependenciesContext, mockPrompt, setup } from './test-utils.ts';
 
 describe('integrations', () => {
 	const fixture = setup();

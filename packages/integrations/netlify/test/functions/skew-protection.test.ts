@@ -38,33 +38,24 @@ describe('Skew Protection', { timeout: 120000 }, () => {
 	});
 
 	it('Manifest contains internalFetchHeaders', async () => {
-		// The manifest is embedded in the build output. Rolldown (Vite 8) may inline it
-		// into entry.mjs instead of placing it in a separate chunk, so scan both locations.
-		const buildDir = new URL('./fixtures/skew-protection/.netlify/build/', import.meta.url);
+		// The manifest is embedded in the build output
+		// Check the manifest file which contains the serialized manifest
+		const manifestURL = new URL(
+			'./fixtures/skew-protection/.netlify/build/chunks/',
+			import.meta.url,
+		);
 
+		// Find the manifest file (it has a hash in the name)
 		const { readdir } = await import('node:fs/promises');
-		const needle = '"internalFetchHeaders":{"X-Netlify-Deploy-ID":"test-deploy-123"}';
+		const files = await readdir(manifestURL);
 		let found = false;
-
-		// Check entry.mjs first
-		const entryContents = await readFile(new URL('entry.mjs', buildDir), 'utf-8');
-		if (entryContents.includes(needle)) {
-			found = true;
-		}
-
-		// Also check chunks/ directory
-		if (!found) {
-			const chunksURL = new URL('chunks/', buildDir);
-			const files = await readdir(chunksURL);
-			for (const file of files) {
-				const contents = await readFile(new URL(file, chunksURL), 'utf-8');
-				if (contents.includes(needle)) {
-					found = true;
-					break;
-				}
+		for (const file of files) {
+			const contents = await readFile(new URL(file, manifestURL), 'utf-8');
+			if (contents.includes('"internalFetchHeaders":{"X-Netlify-Deploy-ID":"test-deploy-123"}')) {
+				found = true;
+				break;
 			}
 		}
-
 		assert.ok(
 			found,
 			'Manifest should include internalFetchHeaders field with the correct deploy ID value',

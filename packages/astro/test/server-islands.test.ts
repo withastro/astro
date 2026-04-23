@@ -432,23 +432,10 @@ describe('Server islands', () => {
 					});
 					assert.equal(true, false, 'should not have succeeded');
 				} catch (err) {
-					const error = err as Record<string, unknown>;
-					if ('errors' in error && Array.isArray(error.errors)) {
-						assert.match(
-							(error.errors[0] as { message: string }).message,
-							/Cannot use [Ss]erver [Ii]slands without an adapter/,
-						);
-					} else if ('title' in error) {
-						assert.match(
-							error.title as string,
-							/Cannot use [Ss]erver [Ii]slands without an adapter/,
-						);
-					} else {
-						assert.match(
-							(error as unknown as Error).message,
-							/Cannot use [Ss]erver [Ii]slands without an adapter/,
-						);
-					}
+					assert.equal(
+						(err as { title: string }).title,
+						'Cannot use Server Islands without an adapter.',
+					);
 				}
 			});
 

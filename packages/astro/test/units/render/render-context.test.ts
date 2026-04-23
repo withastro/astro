@@ -7,6 +7,7 @@ import {
 	render,
 } from '../../../dist/runtime/server/index.js';
 import type { AstroComponentFactory } from '../../../dist/runtime/server/render/index.js';
+import type { AstroComponentFactory } from '../../../dist/runtime/server/render/index.js';
 import { createBasicPipeline } from '../test-utils.ts';
 
 // The public types for maybeRenderHead declare zero params,
@@ -38,8 +39,8 @@ describe('RenderContext', () => {
 				},
 			};
 
-			const SimplePage = createComponent((result: any) => {
-				return render`<html><head>${maybeRenderHead(result)}</head><body><p>Error page</p></body></html>`;
+			const SimplePage = createComponent(() => {
+				return render`<html><head>${maybeRenderHead()}</head><body><p>Error page</p></body></html>`;
 			});
 			const PageModule = createAstroModule(SimplePage);
 
@@ -98,8 +99,8 @@ describe('RenderContext', () => {
 				},
 			};
 
-			const SimplePage = createComponent((result: any) => {
-				return render`<html><head>${maybeRenderHead(result)}</head><body><p>Page</p></body></html>`;
+			const SimplePage = createComponent(() => {
+				return render`<html><head>${maybeRenderHead()}</head><body><p>Page</p></body></html>`;
 			});
 			const PageModule = createAstroModule(SimplePage);
 

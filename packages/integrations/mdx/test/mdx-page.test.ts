@@ -2,7 +2,7 @@ import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { parseHTML } from 'linkedom';
-import { loadFixture, type Fixture, type DevServer } from '../../../astro/test/test-utils.js';
+import { loadFixture, type Fixture, type DevServer } from './test-utils.ts';
 
 describe('MDX Page', () => {
 	let fixture: Fixture;
