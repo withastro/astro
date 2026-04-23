@@ -27,11 +27,11 @@ describe('Hoisted Imports', () => {
 		});
 
 		function expectScript(scripts: string, letter: string) {
-			const regex = new RegExp(`console.log\\(['"]${letter}['"]\\)`);
+			const regex = new RegExp(`console.log\\(['"\`]${letter}['"\`]\\)`);
 			assert.match(scripts, regex, 'missing component ' + letter);
 		}
 		function expectNotScript(scripts: string, letter: string) {
-			const regex = new RegExp(`console.log\\(['"]${letter}['"]\\)`);
+			const regex = new RegExp(`console.log\\(['"\`]${letter}['"\`]\\)`);
 			assert.doesNotMatch(scripts, regex, "shouldn't include component " + letter);
 		}
 
