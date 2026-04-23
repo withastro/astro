@@ -15,7 +15,7 @@ import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createPage, createTestApp } from '../mocks.ts';
 
 /** A simple page component that renders `<h1>Hello</h1>`. */
-const simplePage = createComponent((result: any, props: any, slots: any) => {
+const simplePage = createComponent((_result: any, _props: any, _slots: any) => {
 	return render`<h1>Hello</h1>`;
 });
 
@@ -162,7 +162,7 @@ describe('middleware()', () => {
 	it('invokes user middleware when configured on the manifest', async () => {
 		const app = createTestApp([createPage(simplePage, { route: '/' })], {
 			middleware: async () => ({
-				onRequest: async (ctx: any, next: any) => {
+				onRequest: async (_ctx: any, next: any) => {
 					const response = await next();
 					response.headers.set('x-user-middleware', 'true');
 					return response;
