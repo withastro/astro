@@ -78,7 +78,7 @@ const name = 'world
 				'/src/components/index.astro',
 			);
 		} catch (e: unknown) {
-			assert.equal((e as Error).message.includes('Unterminated string literal'), true);
+			assert.equal((e as Error).message.includes('Unterminated string'), true);
 		}
 		assert.equal(result, undefined);
 	});
@@ -104,11 +104,11 @@ using x = {}
 			assert.equal(result.code.includes('using x = {}'), true);
 		});
 
-		it('should transform the syntax by esbuild.target', async () => {
+		it('should transform the syntax by oxc.target', async () => {
 			const result = await compile(code, '/src/components/index.astro', {
-				esbuild: { target: 'es2018' },
+				oxc: { target: 'es2018' },
 			});
-			assert.equal(result.code.includes('using x = {}'), false);
+			assert.equal(result.code.includes('using x = {}'), false, 'Code contains\n' + result.code);
 		});
 	});
 });
