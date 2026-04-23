@@ -43,7 +43,7 @@ describe('astro() Hono middleware', () => {
 		const hono = createHonoApp(astroApp);
 		hono.use(async (context, next) => {
 			const state = new FetchState(astroApp.pipeline, context.req.raw);
-			state.renderOptions.locals = { message: 'from stashed FetchState' };
+			state.locals = { message: 'from stashed FetchState' } as any;
 			context.set('fetchState', state);
 			await next();
 		});

@@ -69,10 +69,10 @@ function createMockRenderContext(overrides: MockRenderContextOverrides = {}) {
  * state is the duck-typed mock from `createMockRenderContext`.
  */
 export function createMockFetchState(overrides: MockRenderContextOverrides = {}) {
-	const renderContext = createMockRenderContext(overrides);
-	const state = new FetchState(renderContext.pipeline, renderContext.request);
-	state.renderContext = renderContext as any;
-	state.request = renderContext.request;
+	const ctx = createMockRenderContext(overrides);
+	const state = new FetchState(ctx.pipeline, ctx.request);
+	state.routeData = ctx.routeData as any;
+	state.params = ctx.params as any;
 	return state;
 }
 
@@ -131,14 +131,7 @@ export function createMockAPIContext(overrides: MockAPIContextOverrides = {}): A
 	// shims (e.g. `createI18nMiddleware`) can find per-request state.
 	const pipeline = createBasicPipeline();
 	const state = new FetchState(pipeline, request);
-	// Duck-typed RenderContext stub — only the fields that internal
-	// shims read off `state.renderContext` are populated.
-	state.renderContext = {
-		request,
-		routeData: { prerender: isPrerendered },
-		computeCurrentLocale: () => undefined,
-		rewrite,
-	} as any;
+	state.routeData = { prerender: isPrerendered } as any;
 	Reflect.set(ctx, fetchStateSymbol, state);
 
 	return ctx;
