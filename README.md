@@ -102,3 +102,4 @@ Astro is free, open source software made possible by these wonderful sponsors.
     <img src="https://astro.build/sponsors.png" alt="Sponsor logos including the current Astro Sponsors, Gold Sponsors, and Exclusive Partner Sponsors: Netlify, Sentry, and Project IDX." />
   </a>
 </p>
+
