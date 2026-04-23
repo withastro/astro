@@ -4,6 +4,13 @@ export const DEFAULT_SESSION_KV_BINDING_NAME = 'SESSION';
 export const DEFAULT_IMAGES_BINDING_NAME = 'IMAGES';
 export const DEFAULT_ASSETS_BINDING_NAME = 'ASSETS';
 
+// Default compatibility date used when the user doesn't set one in their wrangler config.
+// The @cloudflare/vite-plugin falls back to today's date, but that can exceed the maximum
+// date supported by the bundled workerd binary (which has a ~7 day buffer from its build date),
+// causing ERR_RUNTIME_FAILURE. A hard-coded date avoids this issue.
+// This should be updated when upgrading wrangler/workerd dependencies.
+export const DEFAULT_COMPATIBILITY_DATE = '2026-04-15';
+
 interface CloudflareConfigOptions {
 	sessionKVBindingName?: string | undefined;
 	needsSessionKVBinding?: boolean;
@@ -55,6 +62,7 @@ export function cloudflareConfigCustomizer(
 
 		return {
 			...getNonInheritableBindings(config),
+			compatibility_date: config.compatibility_date ?? DEFAULT_COMPATIBILITY_DATE,
 			main: config.main ?? '@astrojs/cloudflare/entrypoints/server',
 			assets: hasAssetsBinding
 				? undefined
