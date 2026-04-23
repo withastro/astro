@@ -120,7 +120,7 @@
     "test:integration:ts": "astro-scripts test \"test/*.test.ts\" --strip-types"
   },
   "dependencies": {
-    "@astrojs/compiler": "^3.0.1",
+    "@astrojs/compiler-rs": "^0.1.9",
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
@@ -180,7 +180,6 @@
   },
   "devDependencies": {
     "@astrojs/check": "workspace:*",
-    "@astrojs/compiler-rs": "^0.1.6",
     "@playwright/test": "1.58.2",
     "@types/aria-query": "^5.0.4",
     "@types/hast": "^3.0.4",
