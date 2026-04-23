@@ -117,10 +117,28 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 							internals.cssModuleToChunkIdMap.has(moduleId),
 						);
 
-						if (allCssInSSR && shouldDeleteCSSChunk(allModules, internals)) {
-							// Delete the CSS assets that were imported by this chunk
-							for (const cssId of meta.importedCss) {
-								delete bundle[cssId];
+						if (allCssInSSR) {
+							// Determine whether this is a pure CSS chunk (no JS component modules).
+							// Vite creates these when multiple client islands share the same CSS
+							// import — the shared CSS ends up in its own chunk whose `modules`
+							// record contains only CSS module IDs.  shouldDeleteCSSChunk() returns
+							// false for such chunks because it looks for JS component module IDs,
+							// so those shared-CSS chunks were previously left in the client bundle
+							// and linked as a redundant <link> tag even when the prerender build
+							// had already emitted the same CSS.
+							//
+							// For mixed chunks (JS + CSS) we keep the shouldDeleteCSSChunk() guard
+							// so we don't accidentally remove CSS that a client:only component
+							// needs when the same CSS happens to appear in cssModuleToChunkIdMap
+							// only because an unrelated SSR-only component on a different page
+							// imported it.
+							const nonCssModules = allModules.filter((m) => !isCSSRequest(m));
+							const isPureCssChunk = nonCssModules.length === 0;
+
+							if (isPureCssChunk || shouldDeleteCSSChunk(allModules, internals)) {
+								for (const cssId of meta.importedCss) {
+									delete bundle[cssId];
+								}
 							}
 						}
 					}
