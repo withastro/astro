@@ -21,9 +21,20 @@ async function createKeyFromString(keyString: string) {
 // Helper to get encrypted componentExport for 'default'
 async function getEncryptedComponentExport(
 	keyString = 'eKBaVEuI7YjfanEXHuJe/pwZKKt3LkAHeMxvTU7aR0M=',
+	componentId = 'Island',
 ) {
 	const key = await createKeyFromString(keyString);
-	return encryptString(key, 'default');
+	return encryptString(key, 'default', `export:${componentId}`);
+}
+
+// Helper to get encrypted props
+async function getEncryptedProps(
+	props: Record<string, unknown> = {},
+	keyString = 'eKBaVEuI7YjfanEXHuJe/pwZKKt3LkAHeMxvTU7aR0M=',
+	componentId = 'Island',
+) {
+	const key = await createKeyFromString(keyString);
+	return encryptString(key, JSON.stringify(props), `props:${componentId}`);
 }
 
 describe('Server islands', () => {
@@ -62,11 +73,12 @@ describe('Server islands', () => {
 		it('island is not indexed', async () => {
 			const app = await fixture.loadTestAdapterApp();
 			const encryptedComponentExport = await getEncryptedComponentExport();
+			const encryptedProps = await getEncryptedProps();
 			const request = new Request('http://example.com/_server-islands/Island', {
 				method: 'POST',
 				body: JSON.stringify({
 					encryptedComponentExport,
-					encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
+					encryptedProps,
 					encryptedSlots: '',
 				}),
 				headers: {
