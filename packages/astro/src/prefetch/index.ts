@@ -332,6 +332,8 @@ function onPageLoad(cb: () => void) {
 function appendSpeculationRules(url: string, eagerness: PrefetchOptions['eagerness']) {
 	const script = document.createElement('script');
 	script.type = 'speculationrules';
+	// nosemgrep: javascript.lang.security.audit.unknown-value-with-script-tag.unknown-value-with-script-tag
+	// This writes JSON via textContent, not executable JavaScript source.
 	script.textContent = JSON.stringify({
 		prerender: [
 			{

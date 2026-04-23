@@ -4,7 +4,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { after, before, describe, it } from 'node:test';
 
 import { git } from '../dist/index.js';
-import { type GitContext, mockPrompt, setup } from './utils.ts';
+import { type GitContext, mockPrompt, setup } from './test-utils.ts';
 
 describe('git', () => {
 	const fixture = setup();

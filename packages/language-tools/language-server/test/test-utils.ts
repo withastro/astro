@@ -1,9 +1,19 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { Point, Position } from '@astrojs/compiler';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+interface Point {
+	line: number;
+	column: number;
+	offset: number;
+}
+
+interface Position {
+	start: Point;
+	end?: Point;
+}
 
 export const fixtureDir = path.join(__dirname, './fixture');
 

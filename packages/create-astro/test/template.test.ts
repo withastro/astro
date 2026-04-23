@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { template } from '../dist/index.js';
-import { mockExit, mockPrompt, setup, type TemplateContext } from './utils.ts';
+import { mockExit, mockPrompt, setup, type TemplateContext } from './test-utils.ts';
 
 describe('template', async () => {
 	const fixture = setup();
