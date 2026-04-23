@@ -9,7 +9,7 @@ export const DEFAULT_ASSETS_BINDING_NAME = 'ASSETS';
 // date supported by the bundled workerd binary (which has a ~7 day buffer from its build date),
 // causing ERR_RUNTIME_FAILURE. A hard-coded date avoids this issue.
 // This should be updated when upgrading wrangler/workerd dependencies.
-export const DEFAULT_COMPATIBILITY_DATE = '2026-04-15';
+const DEFAULT_COMPATIBILITY_DATE = '2026-04-15';
 
 interface CloudflareConfigOptions {
 	sessionKVBindingName?: string | undefined;
