@@ -12,7 +12,7 @@ export {
 	type AstroInlineConfig,
 	type DevServer,
 	type Fixture,
-} from '../../../astro/test/test-utils.js';
+} from 'astro/_internal/test/test-utils';
 
 export type RemarkPlugin<PluginParameters extends any[] = any[]> = unified.Plugin<
 	PluginParameters,
