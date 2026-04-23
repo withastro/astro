@@ -509,6 +509,58 @@ it('Works with adapter and all pages prerendered', async () => {
 	await devServer.stop();
 });
 
+describe('Astro Actions with adapter and all project pages prerendered', () => {
+	it('exposes action RPC routes in dev', async () => {
+		const fixture = await loadFixture({
+			root: './fixtures/actions-all-prerendered/',
+			adapter: testAdapter(),
+		});
+		const devServer = await fixture.startDevServer();
+		assert.ok(devServer, 'Expected dev server to start');
+
+		try {
+			const res = await fixture.fetch('/_actions/ping', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ message: 'hello' }),
+			});
+
+			assert.equal(res.ok, true);
+			assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
+
+			const data = devalue.parse(await res.text());
+			assert.equal(data.message, 'hello');
+		} finally {
+			await devServer.stop();
+		}
+	});
+
+	it('builds server output and exposes action RPC routes', async () => {
+		const fixture = await loadFixture({
+			root: './fixtures/actions-all-prerendered/',
+			adapter: testAdapter(),
+		});
+		await fixture.build();
+		const app = await fixture.loadTestAdapterApp();
+		const req = new Request('http://example.com/_actions/ping', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({ message: 'hello' }),
+		});
+		const res = await app.render(req);
+
+		assert.equal(res.ok, true);
+		assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
+
+		const data = devalue.parse(await res.text());
+		assert.equal(data.message, 'hello');
+	});
+});
+
 it('Base path should be used', async () => {
 	const fixture = await loadFixture({
 		root: './fixtures/actions/',
