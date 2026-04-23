@@ -102,6 +102,13 @@ export function vitePluginServerIslands({
 							throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
 						}
 
+						// Server islands require the SSR build. If the build was initially
+						// determined to be static (e.g. all user routes are prerendered),
+						// upgrade it so the SSR environment is built after prerendering.
+						if (command === 'build' && settings.buildOutput === 'static') {
+							settings.buildOutput = 'server';
+						}
+
 						const island = serverIslandsState.discover({
 							resolvedPath: comp.resolvedPath,
 							localName: comp.localName,
@@ -134,7 +141,13 @@ export function vitePluginServerIslands({
 					if (command === 'build' && settings.buildOutput) {
 						const hasServerIslands = serverIslandsState.hasIslands();
 						if (hasServerIslands && settings.buildOutput !== 'server') {
-							throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
+							if (settings.adapter) {
+								// Server islands require the SSR build. Upgrade buildOutput so the
+								// SSR environment is built after the prerender environment.
+								settings.buildOutput = 'server';
+							} else {
+								throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
+							}
 						}
 					}
 
