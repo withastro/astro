@@ -132,6 +132,11 @@ export function createMockAPIContext(overrides: MockAPIContextOverrides = {}): A
 	const pipeline = createBasicPipeline();
 	const state = new FetchState(pipeline, request);
 	state.routeData = { prerender: isPrerendered } as any;
+	// If the test provides a mock rewrite, override the FetchState's
+	// rewrite method so it doesn't go through the real Rewrites handler.
+	if (overrides.rewrite) {
+		state.rewrite = overrides.rewrite;
+	}
 	Reflect.set(ctx, fetchStateSymbol, state);
 
 	return ctx;
