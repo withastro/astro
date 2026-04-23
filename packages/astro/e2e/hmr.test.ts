@@ -96,6 +96,7 @@ test.describe('Styles', () => {
 
 	test('SCSS modules refresh with HMR', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/scss-module'));
+		await waitForViteToSettle(page);
 
 		page.once('load', throwPageShouldNotReload);
 
