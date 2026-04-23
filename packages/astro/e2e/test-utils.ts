@@ -166,9 +166,9 @@ export function createLoggerSpy(options: LoggerSpyOptions = {}): AstroLogger {
 	return logger as AstroLogger;
 }
 
-/**
- * Scroll to element manually without making sure the `el` is stable
- */
+**
+* Scroll to element manually without making sure the `el` is stable
+*/
 /**
  * Warm up the dev server by loading a page and waiting for islands to hydrate.
  * This ensures Vite's dep optimizer has finished and avoids reload flakiness.

@@ -29,6 +29,12 @@ interface PluginOptions {
 	buildOptions: StaticBuildOptions;
 }
 
+function isBuildCssBoundary(id: string, ctx: { getModuleInfo: GetModuleInfo }): boolean {
+	if (isPropagatedAssetBoundary(id)) return true;
+	const info = ctx.getModuleInfo(id);
+	return info ? moduleIsTopLevelPage(info) : false;
+}
+
 function isBuildCssBoundary(id: string, ctx: { getModuleInfo: Rolldown.GetModuleInfo }): boolean {
 	if (isPropagatedAssetBoundary(id)) return true;
 	const info = ctx.getModuleInfo(id);
