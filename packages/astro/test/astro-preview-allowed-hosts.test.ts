@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import http from 'node:http';
 import { after, before, describe, it } from 'node:test';
-import { type Fixture, loadFixture, type PreviewServer } from './test-utils.js';
+import { type Fixture, loadFixture, type PreviewServer } from './test-utils.ts';
 
 /**
  * Make a raw HTTP request with a custom Host header.
@@ -30,7 +30,11 @@ function fetchWithHost(port: number, hostHeader: string): Promise<http.IncomingM
 }
 
 function getBoundPort(previewServer: PreviewServer): number {
-	return previewServer.server.address().port;
+	const port = previewServer?.server?.address()?.port;
+	if (typeof port !== 'number') {
+		throw new Error('Expect port to be a number');
+	}
+	return port;
 }
 
 describe('astro preview - allowedHosts via vite config', () => {
