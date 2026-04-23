@@ -5,6 +5,7 @@ import type { APIContext } from '../../types/public/context.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 import type { Pipeline } from '../base-pipeline.js';
 import {
+	ASTRO_ERROR_HEADER,
 	REROUTE_DIRECTIVE_HEADER,
 	REWRITE_DIRECTIVE_HEADER_KEY,
 	REWRITE_DIRECTIVE_HEADER_VALUE,
@@ -13,7 +14,6 @@ import {
 import { getCookiesFromResponse } from '../cookies/response.js';
 import { ForbiddenRewrite } from '../errors/errors-data.js';
 import { AstroError } from '../errors/errors.js';
-import { renderRedirect } from '../redirects/render.js';
 import { getParams } from '../render/index.js';
 import { copyRequest, setOriginPathname } from '../routing/rewrite.js';
 import { createNormalizedUrl } from '../util/normalized-url.js';
@@ -116,8 +116,6 @@ export class PagesHandler {
 				);
 				break;
 			}
-			case 'redirect':
-				return renderRedirect(state);
 			case 'page': {
 				const props = await state.getProps();
 				const actionApiContext = state.getActionAPIContext();
@@ -157,6 +155,9 @@ export class PagesHandler {
 			}
 			case 'fallback': {
 				return new Response(null, { status: 500, headers: { [ROUTE_TYPE_HEADER]: 'fallback' } });
+			}
+			default: {
+				return new Response(null, { status: 404, headers: { [ASTRO_ERROR_HEADER]: 'true' } });
 			}
 		}
 		// We need to merge the cookies from the response back into the cookies

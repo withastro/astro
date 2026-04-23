@@ -10,7 +10,7 @@ import { normalizeTheLocale } from '../../i18n/index.js';
 import type { RoutesList } from '../../types/astro.js';
 import type { RemotePattern, RouteData } from '../../types/public/index.js';
 import type { Pipeline } from '../base-pipeline.js';
-import { clientAddressSymbol } from '../constants.js';
+import { ASTRO_ERROR_HEADER, clientAddressSymbol } from '../constants.js';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
 
 import { AstroError, AstroErrorData } from '../errors/index.js';
@@ -397,7 +397,21 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		// virtual:astro:fetchable (which don't hold an app reference at
 		// construction time) can resolve the active app per-request.
 		Reflect.set(request, appSymbol, this);
-		return this.#fetchHandler.fetch(request);
+		const response = await this.#fetchHandler.fetch(request);
+		if (response.headers.get(ASTRO_ERROR_HEADER)) {
+			response.headers.delete(ASTRO_ERROR_HEADER);
+			return this.renderError(request, {
+				addCookieHeader,
+				clientAddress,
+				prerenderedErrorPageFetch,
+				locals,
+				routeData,
+				response,
+				status: response.status as 404 | 500,
+				error: response.status === 500 ? null : undefined,
+			});
+		}
+		return response;
 	}
 
 	setCookieHeaders(response: Response) {

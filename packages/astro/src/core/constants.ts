@@ -44,6 +44,12 @@ export const NOOP_MIDDLEWARE_HEADER = 'X-Astro-Noop';
 export const ROUTE_TYPE_HEADER = 'X-Astro-Route-Type';
 
 /**
+ * Set by internal handlers (e.g. PagesHandler) to signal that a
+ * response should be replaced with the corresponding error page.
+ */
+export const ASTRO_ERROR_HEADER = 'X-Astro-Error';
+
+/**
  * The value of the `component` field of the default 404 page, which is used when there is no user-provided 404.astro page.
  */
 export const DEFAULT_404_COMPONENT = 'astro-default-404.astro';
