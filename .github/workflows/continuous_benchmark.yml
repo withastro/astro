@@ -41,7 +41,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
-          node-version: 24.14.0
+          node-version: 24.14.1
           cache: "pnpm"
 
       - name: Install dependencies
@@ -56,7 +56,7 @@ jobs:
         timeout-minutes: 15
         
       - name: Run the benchmarks
-        uses: CodSpeedHQ/action@1c8ae4843586d3ba879736b7f6b7b0c990757fab # v4.12.1
+        uses: CodSpeedHQ/action@db35df748deb45fdef0960669f57d627c1956c30 # v4.13.1
         timeout-minutes: 30
         with:
           working-directory: ./benchmark

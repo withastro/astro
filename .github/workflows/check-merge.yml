@@ -39,38 +39,44 @@ jobs:
         with:
           files: |
             .changeset/**/*.md
-      # Intentionally ran after the changed-files step so the github API is used to identify
-      # changed files rather than a local git diff, this is more reliable for pull requests
-      # originating from a forked repository.
-      - name: Checkout files
-        id: checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        if: steps.changed-files.outputs.any_changed == 'true'
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          fetch-depth: 1
-          persist-credentials: false
-          sparse-checkout: |
-            .changeset
       - name: Check if any changesets contain minor or major changes
         id: check
         if: steps.changed-files.outputs.any_changed == 'true'
         env:
           ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
-        run: |
-          echo "Checking for changesets marked as minor or major"
-          echo "found=false" >> $GITHUB_OUTPUT
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          script: |
+            core.setOutput('found', 'false');
 
-          regex="[\"']astro[\"']: (minor|major)"
-          for file in ${ALL_CHANGED_FILES}; do
-              if [[ $(cat $file) =~ $regex ]]; then
-                  version="${BASH_REMATCH[1]}"
-                  echo "version=$version" >> $GITHUB_OUTPUT
-                  echo "found=true" >> $GITHUB_OUTPUT
-                  echo "$file has a $version release tag"
-              fi
-          done
+            const regex = /["']astro["']: (minor|major)/;
+            const changedFiles = process.env.ALL_CHANGED_FILES.split(/\s+/).filter(Boolean);
+            const { owner, name: repo } = context.payload.pull_request.head.repo;
+            const ref = context.payload.pull_request.head.sha;
+
+            for (const file of changedFiles) {
+              const { data } = await github.rest.repos.getContent({
+                owner: owner.login,
+                repo,
+                path: file,
+                ref,
+              });
+
+              if (Array.isArray(data) || !('content' in data)) {
+                continue;
+              }
+
+              const contents = Buffer.from(data.content, 'base64').toString('utf8');
+              const match = contents.match(regex);
+
+              if (match) {
+                const version = match[1];
+                core.setOutput('version', version);
+                core.setOutput('found', 'true');
+                console.log(`${file} has a ${version} release tag`);
+                break;
+              }
+            }
 
       - name: Add label
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0

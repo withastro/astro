@@ -1,5 +1,22 @@
 # @astrojs/netlify
 
+## 7.0.8
+
+### Patch Changes
+
+- Updated dependencies [[`99464ed`](https://github.com/withastro/astro/commit/99464edb5fc0968f6497328e106f26ab393668bd), [`f3485c3`](https://github.com/withastro/astro/commit/f3485c3458bc8bf70c152126e418c24f489ded9d)]:
+  - @astrojs/internal-helpers@0.9.0
+  - @astrojs/underscore-redirects@1.0.3
+
+## 7.0.7
+
+### Patch Changes
+
+- [#16027](https://github.com/withastro/astro/pull/16027) [`c62516b`](https://github.com/withastro/astro/commit/c62516bbbf8fdf95d38293440d28221c048c41f0) Thanks [@fkatsuhiro](https://github.com/fkatsuhiro)! - Fixes a bug where remote image dimensions were not validated during static builds on Netlify.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
 ## 7.0.6
 
 ### Patch Changes

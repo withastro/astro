@@ -10,7 +10,7 @@ import { getPrerenderDefault } from '../../prerender/utils.js';
 import type { AstroSettings } from '../../types/astro.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
 import { createSettings, resolveConfig } from '../config/index.js';
-import { createVite } from '../create-vite.js';
+import { clearCrawlCache, createVite } from '../create-vite.js';
 import { collectErrorMetadata } from '../errors/dev/utils.js';
 import { isAstroConfigZodError } from '../errors/errors.js';
 import { createSafeError } from '../errors/index.js';
@@ -68,6 +68,8 @@ function shouldRestartContainer(
 async function restartContainerInPlace(container: Container): Promise<AstroSettings | Error> {
 	const { logger, settings: existingSettings, inlineConfig, fs } = container;
 	container.restartInFlight = true;
+	// Clear the crawlFrameworkPkgs cache since node_modules may have changed
+	clearCrawlCache();
 
 	try {
 		const { astroConfig } = await resolveConfig(inlineConfig, 'dev', fs);
@@ -131,7 +133,7 @@ async function restartContainerInPlace(container: Container): Promise<AstroSetti
 
 interface CreateContainerWithAutomaticRestart {
 	inlineConfig?: AstroInlineConfig;
-	fs: typeof nodeFs;
+	fs?: typeof nodeFs;
 }
 
 interface Restart {
