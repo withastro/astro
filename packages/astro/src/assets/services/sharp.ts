@@ -158,7 +158,14 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 		result.rotate();
 
 		// get some information about the input
-		const { format } = await result.metadata();
+		let format: string | undefined;
+		try {
+			({ format } = await result.metadata());
+		} catch {
+			// Sharp cannot decode this image (e.g. animated AVIF sequences).
+			// Pass it through unmodified rather than crashing the build.
+			return { data: inputBuffer, format: transform.format };
+		}
 
 		if (transform.width && transform.height) {
 			const fit: keyof FitEnum | undefined = transform.fit
