@@ -9,7 +9,7 @@ import { createBaseSettings } from '../../dist/core/config/settings.js';
 import { AstroIntegrationLogger, AstroLogger } from '../../dist/core/logger/core.js';
 import { nodeLogDestination } from '../../dist/core/logger/node.js';
 import { ActionHandler } from '../../dist/actions/handler.js';
-import type { FetchState } from '../../dist/core/app/fetch-state.js';
+import type { FetchState } from '../../dist/core/fetch/fetch-state.js';
 import { AstroMiddleware } from '../../dist/core/middleware/astro-middleware.js';
 import { NOOP_MIDDLEWARE_FN } from '../../dist/core/middleware/noop-middleware.js';
 import { PagesHandler } from '../../dist/core/pages/handler.js';

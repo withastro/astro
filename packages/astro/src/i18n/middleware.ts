@@ -1,4 +1,4 @@
-import type { FetchState } from '../core/app/fetch-state.js';
+import type { FetchState } from '../core/fetch/fetch-state.js';
 import type { SSRManifest } from '../core/app/types.js';
 import { fetchStateSymbol } from '../core/constants.js';
 import { I18n } from '../core/i18n/handler.js';

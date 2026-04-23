@@ -2,7 +2,7 @@ import { createBasicPipeline } from './test-utils.ts';
 import { makeRoute, staticPart } from './routing/test-helpers.ts';
 import { AstroCookies } from '../../dist/core/cookies/index.js';
 import { App } from '../../dist/core/app/app.js';
-import { FetchState } from '../../dist/core/app/fetch-state.js';
+import { FetchState } from '../../dist/core/fetch/fetch-state.js';
 import { fetchStateSymbol } from '../../dist/core/constants.js';
 import { baseService } from '../../dist/assets/services/service.js';
 import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';

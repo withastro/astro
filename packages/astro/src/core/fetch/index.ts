@@ -1,6 +1,6 @@
 import { ActionHandler } from '../../actions/handler.js';
 import type { BaseApp } from '../app/base.js';
-import { FetchState as BaseFetchState } from '../app/fetch-state.js';
+import { FetchState as BaseFetchState } from './fetch-state.js';
 import { CacheHandler } from '../cache/handler.js';
 import { appSymbol } from '../constants.js';
 import { I18n } from '../i18n/handler.js';

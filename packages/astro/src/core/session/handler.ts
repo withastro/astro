@@ -1,4 +1,4 @@
-import type { FetchState } from '../app/fetch-state.js';
+import type { FetchState } from '../fetch/fetch-state.js';
 import { AstroSession, PERSIST_SYMBOL } from './runtime.js';
 
 const SESSION_KEY = 'session';

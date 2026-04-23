@@ -1,5 +1,5 @@
 import type { BaseApp } from '../app/base.js';
-import { FetchState } from '../app/fetch-state.js';
+import { FetchState } from './fetch-state.js';
 import { appSymbol } from '../constants.js';
 import { AstroHandler } from '../routing/handler.js';
 import type { FetchHandler } from './types.js';

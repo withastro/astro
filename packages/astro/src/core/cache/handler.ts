@@ -1,5 +1,5 @@
 import type { BaseApp } from '../app/base.js';
-import type { FetchState } from '../app/fetch-state.js';
+import type { FetchState } from '../fetch/fetch-state.js';
 import type { Pipeline } from '../base-pipeline.js';
 import { AstroCache, applyCacheHeaders, type CacheLike } from './runtime/cache.js';
 import { NoopAstroCache, DisabledAstroCache } from './runtime/noop.js';

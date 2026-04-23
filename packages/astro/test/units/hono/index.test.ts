@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { Hono } from 'hono';
-import { FetchState } from '../../../dist/core/app/fetch-state.js';
+import { FetchState } from '../../../dist/core/fetch/fetch-state.js';
 import { appSymbol } from '../../../dist/core/constants.js';
 import { astro } from '../../../dist/core/hono/index.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';

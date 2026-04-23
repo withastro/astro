@@ -5,7 +5,7 @@ import { validateConfig } from '../core/config/validate.js';
 import { createKey } from '../core/encryption.js';
 import { AstroLogger } from '../core/logger/core.js';
 import { nodeLogDestination } from '../core/logger/node.js';
-import { FetchState } from '../core/app/fetch-state.js';
+import { FetchState } from '../core/fetch/fetch-state.js';
 import { AstroMiddleware } from '../core/middleware/astro-middleware.js';
 import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
 import { PagesHandler } from '../core/pages/handler.js';

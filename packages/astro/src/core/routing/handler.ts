@@ -13,7 +13,7 @@ import { AstroMiddleware } from '../middleware/astro-middleware.js';
 import { PagesHandler } from '../pages/handler.js';
 import { renderRedirect } from '../redirects/render.js';
 import { provideSession } from '../session/handler.js';
-import type { FetchState } from '../app/fetch-state.js';
+import type { FetchState } from '../fetch/fetch-state.js';
 import { prepareResponse } from '../app/prepare-response.js';
 import type { BaseApp } from '../app/base.js';
 
@@ -73,7 +73,7 @@ export class AstroHandler {
 			return trailingSlashRedirect;
 		}
 
-		if (!(await state.resolveRouteData())) {
+		if (!state.routeData) {
 			return this.#app.renderError(state.request, {
 				...state.renderOptions,
 				status: 404,

@@ -1,4 +1,4 @@
-import type { FetchState } from '../app/fetch-state.js';
+import type { FetchState } from '../fetch/fetch-state.js';
 import type { RewritePayload } from '../../types/public/common.js';
 import { AstroCookies } from '../cookies/index.js';
 import { ForbiddenRewrite } from '../errors/errors-data.js';

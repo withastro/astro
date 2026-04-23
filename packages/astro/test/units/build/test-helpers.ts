@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Plugin } from 'vite';
-import { FetchState } from '../../../dist/core/app/fetch-state.js';
+import { FetchState } from '../../../dist/core/fetch/fetch-state.js';
 import { createRoutesList as _createRoutesList } from '../../../dist/core/routing/create-manifest.js';
 import type { StaticBuildOptions } from '../../../dist/core/build/types.js';
 import type { Pipeline } from '../../../dist/core/base-pipeline.js';

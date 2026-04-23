@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { FetchState } from '../../../dist/core/app/fetch-state.js';
+import { FetchState } from '../../../dist/core/fetch/fetch-state.js';
 import {
 	createComponent,
 	createHeadAndContent,

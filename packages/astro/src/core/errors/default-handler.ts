@@ -1,5 +1,5 @@
 import type { BaseApp, RenderErrorOptions } from '../app/base.js';
-import { FetchState } from '../app/fetch-state.js';
+import { FetchState } from '../fetch/fetch-state.js';
 import { prepareResponse } from '../app/prepare-response.js';
 import {
 	attachCookiesToResponse,

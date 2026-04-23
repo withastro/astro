@@ -1,5 +1,5 @@
 import type { BaseApp, RenderErrorOptions } from '../app/base.js';
-import { FetchState } from '../app/fetch-state.js';
+import { FetchState } from '../fetch/fetch-state.js';
 import type { RouteData } from '../../types/public/index.js';
 import { AstroMiddleware } from '../middleware/astro-middleware.js';
 import { PagesHandler } from '../pages/handler.js';

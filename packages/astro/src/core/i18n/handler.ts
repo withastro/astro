@@ -1,7 +1,7 @@
 import { appendForwardSlash } from '@astrojs/internal-helpers/path';
 import { computeFallbackRoute } from '../../i18n/fallback.js';
 import { I18nRouter, type I18nRouterContext } from '../../i18n/router.js';
-import type { FetchState } from '../app/fetch-state.js';
+import type { FetchState } from '../fetch/fetch-state.js';
 import type { SSRManifest } from '../app/types.js';
 import { shouldAppendForwardSlash } from '../build/util.js';
 import { REROUTE_DIRECTIVE_HEADER, ROUTE_TYPE_HEADER } from '../constants.js';
