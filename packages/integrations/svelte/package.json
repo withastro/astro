@@ -53,7 +53,7 @@
   "peerDependencies": {
     "astro": "^6.0.0",
     "svelte": "^5.43.6",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3 || ^6.0.0"
   },
   "engines": {
     "node": ">=22.12.0"
