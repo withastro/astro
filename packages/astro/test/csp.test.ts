@@ -27,6 +27,7 @@ describe('CSP', () => {
 				.toString()
 				.includes("'sha256-fP5hIETY85LoQH4mfn28a0KQgRZ3ZBI/WJOYJRKChes='"),
 		);
+		assert.match(meta.attr('content')!, new RegExp(`'${styleDigest}'`));
 	});
 
 	it('should generate hashes and directives for fonts', async () => {
