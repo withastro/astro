@@ -4,7 +4,7 @@ import {
 	type AstroInlineConfig,
 	type Fixture,
 	loadFixture as baseLoadFixture,
-} from '../../../astro/test/test-utils.js';
+} from 'astro/_internal/test/test-utils';
 
 export type { AstroInlineConfig, DevServer, Fixture, PreviewServer };
 
