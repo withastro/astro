@@ -1,0 +1,9 @@
+{
+  "name": "@test/ssr-custom-elements-in-jsx",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/mdx": "workspace:*",
+    "astro": "workspace:*"
+  }
+}
