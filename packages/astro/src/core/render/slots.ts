@@ -1,15 +1,22 @@
 import { type ComponentSlots, renderSlotToString } from '../../runtime/server/index.js';
 import { renderJSX } from '../../runtime/server/jsx.js';
+import { isRenderTemplateResult } from '../../runtime/server/render/astro/render-template.js';
 import { chunkToString } from '../../runtime/server/render/index.js';
 import { isRenderInstruction } from '../../runtime/server/render/instruction.js';
 import type { SSRResult } from '../../types/public/internal.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { AstroLogger } from '../logger/core.js';
 
-function getFunctionExpression(slot: any) {
+function getFunctionExpression(slot: any): ((...args: any[]) => any) | undefined {
 	if (!slot) return;
-	const expressions = slot?.expressions?.filter((e: unknown) => isRenderInstruction(e) === false);
+	const expressions = slot?.expressions?.filter((e: unknown) => !isRenderInstruction(e));
 	if (expressions?.length !== 1) return;
+	// If the single expression is itself a RenderTemplateResult (e.g. from a conditional
+	// like `{true && (<fragment slot="x">...</fragment>)}`), unwrap it recursively to
+	// find the callback function inside.
+	if (isRenderTemplateResult(expressions[0])) {
+		return getFunctionExpression(expressions[0]);
+	}
 	return expressions[0] as (...args: any[]) => any;
 }
 
