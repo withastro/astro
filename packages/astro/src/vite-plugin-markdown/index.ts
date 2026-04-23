@@ -173,7 +173,7 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 							}, {
 								'default': () => render\`\${unescapeHTML(html())}\`
 							})}\`;`
-							: `render\`${charset}\${maybeRenderHead(result)}\${unescapeHTML(html())}\`;`
+							: `render\`${charset}\${maybeRenderHead()}\${unescapeHTML(html())}\`;`
 					}
 				});
 				export default Content;

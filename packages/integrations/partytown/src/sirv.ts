@@ -183,6 +183,8 @@ export default function (dir, opts = {}) {
 		if (opts.dotfiles) ignores.push(/\/\.\w/);
 		else ignores.push(/\/\.well-known/);
 		[].concat(opts.ignores || []).forEach((x) => {
+			// nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
+			// This mirrors sirv's developer-supplied ignore patterns.
 			ignores.push(new RegExp(x, 'i'));
 		});
 	}

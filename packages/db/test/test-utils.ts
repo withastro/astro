@@ -6,6 +6,12 @@ import { resolveDbConfig } from '../dist/core/load-file.js';
 import { getCreateIndexQueries, getCreateTableQuery } from '../dist/core/queries.js';
 import type { DBTable, ResolvedDBTable } from '../dist/core/types.js';
 
+export {
+	loadFixture,
+	type DevServer,
+	type Fixture,
+} from '../../astro/test/test-utils.js';
+
 const isWindows = process.platform === 'win32';
 
 export type RemoteDbServer = { stop: () => Promise<void> };
