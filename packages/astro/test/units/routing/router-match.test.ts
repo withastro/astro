@@ -278,6 +278,7 @@ describe('Router.match', () => {
 				trailingSlash,
 				route: '/[path]',
 				pathname: undefined,
+				type: 'endpoint'
 			}),
 		];
 		const router = new Router(routes, {

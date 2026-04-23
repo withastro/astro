@@ -141,7 +141,7 @@ describe('getParams', () => {
 	});
 
 	describe('.html suffix', () => {
-		it('preserves .html suffix in params (delegating stripping to getProps)', () => {
+		it('strips .html before matching params', () => {
 			const route = makeRoute({
 				route: '/[category]',
 				segments: [[dynamicPart('category')]],
@@ -149,7 +149,7 @@ describe('getParams', () => {
 				pathname: undefined,
 			});
 			const params = getParams(route, '/food.html');
-			assert.equal(params.category, 'food.html');
+			assert.equal(params.category, 'food');
 		});
 	});
 
