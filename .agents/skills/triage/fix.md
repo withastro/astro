@@ -68,6 +68,7 @@ Make changes in `packages/` source files. Follow these principles:
 - Don't refactor unrelated code
 - Don't add new features
 - **Never "fix" an issue by removing a user's dependency.** Removing an adapter (Cloudflare, Netlify, Vercel, etc.), framework integration (Svelte, React, Vue, etc.), or feature (MDX, DB, etc.) is not a fix, these are things the user needs. The fix must work within the user's existing stack or expected feature set.
+- **Never "fix" an issue by telling the user to change their configuration.** If the user explicitly set a config option (e.g. `prerenderEnvironment: 'node'`, a specific adapter option, an opt-in flag), they chose that value deliberately. "Use the default", "omit this option", "switch to X instead" is NOT a fix — it abandons their use case. The fix must make their chosen configuration work. If you cannot, prefer the low-confidence / breadcrumb path over suggesting a workflow-breaking workaround.
 
 **Consider edge cases:**
 

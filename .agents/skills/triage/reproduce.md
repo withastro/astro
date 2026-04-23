@@ -168,3 +168,13 @@ The report must include all information needed for a final GitHub comment to be 
 - Expected vs actual result
 - Error messages and stack traces
 - Whether the issue was reproduced, not reproduced, or skipped (and why)
+
+### Structured return value
+
+In addition to writing `report.md`, your return value MUST include the skip reason when applicable:
+
+- `reproducible: boolean` — true only if you successfully triggered the bug
+- `skipped: boolean` — true if you hit any early-exit condition from Step 2
+- `skipReason: string | null` — when `skipped` is true, return the exact reason code from Step 2 (`not-actionable`, `missing-details`, `unsupported-version`, `host-specific`, `unsupported-runtime`, `maintainer-override`). Otherwise null.
+
+The orchestrator branches on `skipReason`, so returning the correct code matters — don't collapse `missing-details` into a generic skip.
