@@ -216,8 +216,7 @@ describe('Asset Query Parameters in Inter-Chunk JS Imports', () => {
 });
 
 describe('Asset Query Parameters in Inter-Chunk JS Imports', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
