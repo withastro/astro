@@ -120,7 +120,7 @@
     "test:integration:ts": "astro-scripts test \"test/*.test.ts\" --strip-types"
   },
   "dependencies": {
-    "@astrojs/compiler-rs": "^0.1.9",
+    "@astrojs/compiler-rs": "^0.1.10",
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
