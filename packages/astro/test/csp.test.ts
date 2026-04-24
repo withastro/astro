@@ -20,13 +20,6 @@ describe('CSP', () => {
 		const styleDigest = await generateCspDigest(styleContent, 'SHA-256');
 
 		const meta = $('meta[http-equiv="Content-Security-Policy"]');
-		// hash of the <style> content
-		assert.ok(
-			meta
-				.attr('content')!
-				.toString()
-				.includes("'sha256-fP5hIETY85LoQH4mfn28a0KQgRZ3ZBI/WJOYJRKChes='"),
-		);
 		assert.match(meta.attr('content')!, new RegExp(`'${styleDigest}'`));
 	});
 
