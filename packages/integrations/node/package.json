@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/node",
   "description": "Deploy your site to a Node.js server",
-  "version": "10.0.5",
+  "version": "10.0.6",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -30,7 +30,7 @@
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
-    "test": "astro-scripts test \"test/**/*.test.js\" \"test/**/*.test.ts\"",
+    "test": "astro-scripts test \"test/**/*.test.ts\"",
     "typecheck:tests": "tsc --build tsconfig.test.json"
   },
   "dependencies": {
@@ -44,6 +44,7 @@
   "devDependencies": {
     "@fastify/middie": "^9.1.0",
     "@fastify/static": "^9.0.0",
+    "@types/express": "^5.0.6",
     "@types/node": "^22.10.6",
     "@types/send": "^1.2.1",
     "@types/server-destroy": "^1.0.4",

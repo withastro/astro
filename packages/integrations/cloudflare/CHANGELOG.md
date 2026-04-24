@@ -1,5 +1,25 @@
 # @astrojs/cloudflare
 
+## 13.2.1
+
+### Patch Changes
+
+- [#16458](https://github.com/withastro/astro/pull/16458) [`8cb1f42`](https://github.com/withastro/astro/commit/8cb1f42e378bfe6d2989f7c4edb3ccd45eca1f4f) Thanks [@matthewp](https://github.com/matthewp)! - Fixes Cloudflare dev and build failures caused by `@cloudflare/vite-plugin` defaulting `compatibility_date` to today's date, which can exceed the maximum date supported by the bundled `workerd` binary
+
+## 13.2.0
+
+### Minor Changes
+
+- [#16435](https://github.com/withastro/astro/pull/16435) [`c4d321b`](https://github.com/withastro/astro/commit/c4d321bb1171bcd5ebcea4e5dcdf569543faebc0) Thanks [@jamesopstad](https://github.com/jamesopstad)! - Add support for Preview deployments (currently in private beta)
+
+  Non-inheritable bindings set internally by the Cloudflare adapter are now also set in the `previews` section of the config so that they are inherited by Preview deployments.
+
+### Patch Changes
+
+- Updated dependencies [[`99464ed`](https://github.com/withastro/astro/commit/99464edb5fc0968f6497328e106f26ab393668bd), [`f3485c3`](https://github.com/withastro/astro/commit/f3485c3458bc8bf70c152126e418c24f489ded9d)]:
+  - @astrojs/internal-helpers@0.9.0
+  - @astrojs/underscore-redirects@1.0.3
+
 ## 13.1.10
 
 ### Patch Changes

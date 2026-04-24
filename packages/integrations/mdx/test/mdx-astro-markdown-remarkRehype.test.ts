@@ -2,7 +2,7 @@ import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import mdx from '@astrojs/mdx';
 import { parseHTML } from 'linkedom';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('MDX with Astro Markdown remark-rehype config', () => {
 	it('Renders footnotes with values from the default configuration', async () => {
