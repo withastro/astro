@@ -86,12 +86,19 @@ async function ensureModulesLoaded(
  * Walk down the dependency tree to collect CSS with depth/order.
  * Performs depth-first traversal to ensure correct CSS ordering based on import order.
  */
+// Normalize module IDs for case-insensitive comparison on Windows.
+// On case-insensitive file systems, the same file can appear with different
+// casing (e.g., '/Src/styles.css' vs '/src/styles.css'), causing CSS to be
+// missed or duplicated during the graph walk.
+const normalizeIdForComparison = (id: string) =>
+	process.platform === 'win32' ? id.toLowerCase() : id;
+
 function* collectCSSWithOrder(
 	id: string,
 	mod: vite.EnvironmentModuleNode,
 	seen = new Set<string>(),
 ): Generator<ImportedDevStyle & { id: string; idKey: string }, void, unknown> {
-	seen.add(id);
+	seen.add(normalizeIdForComparison(id));
 
 	// Stop traversing if we reach an asset propagation stopping point to ensure we only collect CSS
 	// relevant to a content collection entry, if any. Not doing so could cause CSS from other
@@ -123,7 +130,7 @@ function* collectCSSWithOrder(
 
 	// Recursively walk imported modules (depth-first)
 	for (const imp of imported) {
-		if (imp.id && !seen.has(imp?.id)) {
+		if (imp.id && !seen.has(normalizeIdForComparison(imp.id))) {
 			yield* collectCSSWithOrder(imp.id, imp, seen);
 		}
 	}
@@ -231,11 +238,12 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 
 						// Walk through the graph depth-first
 						for (const collected of collectCSSWithOrder(componentPageId, mod)) {
-							// Use the CSS file ID as the key to deduplicate while keeping best ordering
-							if (!cssWithOrder.has(collected.idKey)) {
+							// Use a normalized key for deduplication to handle case-insensitive file systems
+							const normalizedKey = normalizeIdForComparison(collected.idKey);
+							if (!cssWithOrder.has(normalizedKey)) {
 								// Look up actual content from cache if available
 								const content = cssContentCache.get(collected.id) || collected.content;
-								cssWithOrder.set(collected.idKey, { ...collected, content });
+								cssWithOrder.set(normalizedKey, { ...collected, content });
 							}
 						}
 
