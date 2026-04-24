@@ -28,6 +28,7 @@ import type { CompiledCacheRoute } from './cache/runtime/route-matching.js';
 import type { SessionDriverFactory } from './session/types.js';
 import { NodePool } from '../runtime/server/render/queue/pool.js';
 import { HTMLStringCache } from '../runtime/server/html-string-cache.js';
+import { loadLogger } from './logger/load.js';
 
 /**
  * The `Pipeline` represents the static parts of rendering that do not change between requests.
@@ -46,7 +47,7 @@ export abstract class Pipeline {
 	nodePool: NodePool | undefined;
 	htmlStringCache: HTMLStringCache | undefined;
 
-	readonly logger: AstroLogger;
+	logger: AstroLogger;
 	readonly manifest: SSRManifest;
 	/**
 	 * "development" or "production" only
@@ -230,11 +231,8 @@ export abstract class Pipeline {
 			return this.logger;
 		}
 		this.resolvedLogger = true;
-		if (this.manifest.logger) {
-			const mod = await this.manifest.logger();
-			if (mod?.default) {
-				this.logger.setDestination(mod.default);
-			}
+		if (this.manifest.experimentalLogger) {
+			this.logger = await loadLogger(this.manifest.experimentalLogger);
 		}
 		return this.logger;
 	}

@@ -1,10 +1,8 @@
 import type { AstroLoggerDestination } from '../core.js';
 
-export function compose(
-	...destinations: AstroLoggerDestination<unknown>[]
-): AstroLoggerDestination<unknown> {
+export default function compose(destinations: AstroLoggerDestination[]): AstroLoggerDestination {
 	return {
-		write(chunk: unknown) {
+		write(chunk) {
 			for (const logger of destinations) {
 				logger.write(chunk);
 			}

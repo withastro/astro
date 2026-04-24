@@ -26,6 +26,7 @@ import type { BaseSessionConfig, SessionDriverFactory } from '../session/types.j
 import type { DevToolbarPlacement } from '../../types/public/toolbar.js';
 import type { MiddlewareMode } from '../../types/public/integrations.js';
 import type { BaseApp } from './base.js';
+import type { LoggerHandlerConfig } from '../logger/config.js';
 
 type ComponentPath = string;
 
@@ -158,8 +159,8 @@ export type SSRManifest = {
 	};
 	internalFetchHeaders?: Record<string, string>;
 	logLevel: AstroLoggerLevel;
-	// This is temporary, and only used while the logger is experimental
-	experimentalLogger: boolean;
+	// Configure that tells us how to load the logger
+	experimentalLogger: LoggerHandlerConfig | undefined;
 };
 
 export type SSRActions = {

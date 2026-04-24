@@ -1,46 +1,67 @@
 import { AstroLogger, type AstroLoggerDestination, type AstroLoggerLevel } from './core.js';
-import loadFallbackPlugin from '../../vite-plugin-load-fallback/index.js';
-import { createMinimalViteDevServer } from '../createMinimalViteDevServer.js';
-import { isRunnableDevEnvironment, type RunnableDevEnvironment, type ViteDevServer } from 'vite';
-import fsMod from 'node:fs';
-import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 import { AstroError } from '../errors/index.js';
 import { UnableToLoadLogger } from '../errors/errors-data.js';
 import type { LoggerHandlerConfig } from './config.js';
 import type { AstroConfig, AstroInlineConfig } from '../../types/public/index.js';
-import { pluginLogger } from '../build/plugins/plugin-logger.js';
-import { createNodeLoggerFromFlags } from './impls/node.js';
+import { default as nodeLoggerCreator, createNodeLoggerFromFlags } from './impls/node.js';
+import { default as consoleLoggerCreator } from './impls/console.js';
+import { default as jsonLoggerCreator } from './impls/json.js';
+import { default as composeLoggerCreator } from './impls/compose.js';
 
-async function loadLogger(
+export async function loadLogger(
 	config: LoggerHandlerConfig,
-	root: AstroConfig['root'],
 	level: AstroLoggerLevel = 'info',
-	fs: typeof fsMod = fsMod,
 ): Promise<AstroLogger> {
-	let server: ViteDevServer | undefined = undefined;
 	let cause: Error | undefined = undefined;
 
 	try {
-		const plugins = [...loadFallbackPlugin({ fs, root }), pluginLogger(config)];
-		server = await createMinimalViteDevServer(plugins);
+		switch (config.entrypoint) {
+			case 'astro/logger/node': {
+				return new AstroLogger({
+					destination: nodeLoggerCreator(config.config),
+					level,
+				});
+			}
+			case 'astro/logger/console': {
+				return new AstroLogger({
+					destination: consoleLoggerCreator(config.config),
+					level,
+				});
+			}
+			case 'astro/logger/json': {
+				return new AstroLogger({
+					destination: jsonLoggerCreator(config.config),
+					level,
+				});
+			}
+			case 'astro/logger/compose': {
+				let destinations: AstroLoggerDestination[] = [];
+				if (config.config?.loggers) {
+					const loggers: LoggerHandlerConfig[] = config.config?.loggers;
+					destinations = await Promise.all(
+						loggers.map(async (loggerConfig) => {
+							const logger = await import(/* @vite-ignore */ loggerConfig.entrypoint);
+							return logger.default(loggerConfig.config) as AstroLoggerDestination;
+						}),
+					);
+				}
 
-		if (isRunnableDevEnvironment(server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr])) {
-			const environment = server.environments[
-				ASTRO_VITE_ENVIRONMENT_NAMES.ssr
-			] as RunnableDevEnvironment;
-			const mod = await environment.runner.import('virtual:astro:logger');
-			return new AstroLogger({
-				destination: mod.default as AstroLoggerDestination,
-				level,
-			});
+				return new AstroLogger({
+					destination: composeLoggerCreator(destinations),
+					level,
+				});
+			}
+			default: {
+				const nodeLogger = await import(/* @vite-ignore */ config.entrypoint);
+				return new AstroLogger({
+					destination: nodeLogger.default(config.config),
+					level,
+				});
+			}
 		}
 	} catch (e: unknown) {
 		if (e instanceof Error) {
 			cause = e;
-		}
-	} finally {
-		if (server) {
-			await server.close();
 		}
 	}
 
@@ -66,11 +87,7 @@ export async function loadOrCreateNodeLogger(
 ) {
 	try {
 		if (astroConfig.experimental.logger) {
-			return await loadLogger(
-				astroConfig.experimental.logger,
-				astroConfig.root,
-				inlineAstroConfig.logLevel,
-			);
+			return await loadLogger(astroConfig.experimental.logger, inlineAstroConfig.logLevel);
 		} else {
 			return createNodeLoggerFromFlags(inlineAstroConfig);
 		}
