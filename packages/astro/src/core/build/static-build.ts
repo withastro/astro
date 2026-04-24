@@ -19,7 +19,7 @@ import type { RouteData } from '../../types/public/internal.js';
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../vite-plugin-pages/const.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { routeIsRedirect } from '../routing/helpers.js';
-import { getOutDirWithinCwd } from './common.js';
+
 import { CHUNKS_PATH } from './consts.js';
 import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
@@ -171,6 +171,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 	const plugins = [...flatPlugins, ...(viteConfig.plugins || [])];
 	let currentRollupInput: InputOption | undefined = undefined;
 	let buildPostHooks: BuildPostHook[] = [];
+	let prerenderOutputDir: URL;
 	plugins.push({
 		name: 'astro:resolve-input',
 		// When the rollup input is safe to update, we normalize it to always be an object
@@ -206,8 +207,8 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					buildPostHooks,
 				);
 
-				// Generation and cleanup
-				const prerenderOutputDir = getPrerenderOutputDirectory(settings);
+				// Generation and cleanup (prerenderOutputDir captured in buildApp
+				// before any buildOutput mutation)
 
 				// TODO: The `static` and `server` branches below are nearly identical now.
 				// Consider refactoring to remove the else-if and unify the logic.
@@ -324,6 +325,10 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 		// This takes precedence over platform plugin fallbacks (e.g., Cloudflare)
 		builder: {
 			async buildApp(builder) {
+				// Capture the prerender output directory before any buildOutput
+				// mutation so the post-build hook uses the correct path.
+				prerenderOutputDir = getPrerenderOutputDirectory(settings);
+
 				// Build prerender environment for static generation
 				settings.timer.start('Prerender build');
 				let prerenderOutput = await builder.build(builder.environments.prerender);
@@ -337,14 +342,18 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				const prerenderChunks = extractRelevantChunks(prerenderOutputs, true);
 				prerenderOutput = undefined as any;
 
-				// Server islands require the SSR build. If the build was initially
-				// determined to be static but server islands were discovered during
-				// prerendering, upgrade buildOutput so the SSR environment is built.
-				// This must happen after the prerender build completes (not during it)
-				// to avoid directory path mismatches in manifest injection.
+				// Server islands require the SSR build even when the site was
+				// initially determined to be fully static. Upgrade buildOutput
+				// after the prerender build completes so the SSR build, manifest
+				// injection, and runtime all use the server paths.
+				const prerenderPlugins = builder.environments.prerender?.config.plugins ?? [];
+				const serverIslandsPlugin = prerenderPlugins.find(
+					(p) => p.name === 'astro:server-islands',
+				);
 				if (
 					settings.buildOutput === 'static' &&
-					prerenderChunks.some((chunk) => chunk.code.includes(SERVER_ISLAND_MAP_MARKER))
+					typeof serverIslandsPlugin?.api?.hasServerIslands === 'function' &&
+					serverIslandsPlugin.api.hasServerIslands()
 				) {
 					settings.buildOutput = 'server';
 				}
@@ -546,7 +555,6 @@ async function writeMutatedChunks(
 	mutations: Map<string, { code: string; prerender: boolean }>,
 ) {
 	const { settings } = opts;
-	const config = settings.config;
 
 	for (const [fileName, mutation] of mutations) {
 		let root: URL;
@@ -554,10 +562,8 @@ async function writeMutatedChunks(
 		if (mutation.prerender) {
 			// Write to prerender directory
 			root = getPrerenderOutputDirectory(settings);
-		} else if (settings.buildOutput === 'server') {
-			root = config.build.server;
 		} else {
-			root = getOutDirWithinCwd(config.outDir);
+			root = getServerOutputDirectory(settings);
 		}
 
 		const fullPath = path.join(fileURLToPath(root), fileName);

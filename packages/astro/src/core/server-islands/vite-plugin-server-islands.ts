@@ -39,6 +39,11 @@ export function vitePluginServerIslands({
 	return {
 		name: 'astro:server-islands',
 		enforce: 'post',
+		api: {
+			hasServerIslands(): boolean {
+				return serverIslandsState.hasIslands();
+			},
+		},
 		config(_config, { command: _command }) {
 			command = _command;
 		},
