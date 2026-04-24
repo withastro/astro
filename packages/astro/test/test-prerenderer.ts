@@ -1,37 +1,43 @@
-/**
- * @typedef {import('../src/types/public/integrations.js').AstroIntegration} AstroIntegration
- * @typedef {import('../src/types/public/integrations.js').AstroPrerenderer} AstroPrerenderer
- * @typedef {import('../src/types/public/integrations.js').PathWithRoute} PathWithRoute
- * @typedef {import('../src/types/public/internal.js').RouteData} RouteData
- */
+import type { AstroIntegration } from '../src/types/public/integrations.js';
+import type { RouteData } from '../src/types/public/internal.js';
+
+interface TestPrerendererCallbacks {
+	onSetup?: () => void;
+	onGetStaticPaths?: () => void;
+	onRender?: (request: Request, routeData: RouteData) => void;
+	onTeardown?: () => void;
+}
+
+interface TestPrerendererCalls {
+	setup: number;
+	getStaticPaths: number;
+	render: number;
+	teardown: number;
+}
+
+interface TestPrerendererResult {
+	integration: AstroIntegration;
+	calls: TestPrerendererCalls;
+	renderedPaths: string[];
+}
 
 /**
  * Creates a test integration that sets a custom prerenderer.
  * The prerenderer tracks calls made to it for testing purposes.
- *
- * @param {{
- *   onSetup?: () => void;
- *   onGetStaticPaths?: () => void;
- *   onRender?: (request: Request, routeData: RouteData) => void;
- *   onTeardown?: () => void;
- * }} [callbacks]
- * @returns {{
- *   integration: AstroIntegration;
- *   calls: { setup: number; getStaticPaths: number; render: number; teardown: number };
- *   renderedPaths: string[];
- * }}
  */
-export default function createTestPrerenderer(callbacks = {}) {
-	const calls = {
+export default function createTestPrerenderer(
+	callbacks: TestPrerendererCallbacks = {},
+): TestPrerendererResult {
+	const calls: TestPrerendererCalls = {
 		setup: 0,
 		getStaticPaths: 0,
 		render: 0,
 		teardown: 0,
 	};
 
-	const renderedPaths = [];
+	const renderedPaths: string[] = [];
 
-	const integration = {
+	const integration: AstroIntegration = {
 		name: 'test-prerenderer-integration',
 		hooks: {
 			'astro:build:start': ({ setPrerenderer }) => {

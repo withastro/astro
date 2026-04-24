@@ -5,7 +5,7 @@ import * as cheerio from 'cheerio';
 import parseSrcset from 'parse-srcset';
 import { AstroLogger } from '../dist/core/logger/core.js';
 import { testImageService } from './test-image-service.js';
-import { testRemoteImageService } from './test-remote-image-service.js';
+import { testRemoteImageService } from './test-remote-image-service.ts';
 import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
 
 describe('astro:image:layout', () => {
