@@ -5,14 +5,19 @@ export interface AstroLoggerDestination<T = unknown> {
 	 * It receives a message and writes it into a destination
 	 */
 	write: (chunk: T) => void;
-	// NOTE: will document once we actually use it
+	/**
+	 * It dumps logs without closing the connection to the destination.
+	 * Method that can be used by specialized loggers.
+	 */
 	flush?: () => Promise<void> | void;
-	// NOTE: will document once we actually use it
+	/**
+	 * It dumps logs and closes the connection to the destination.
+	 * Method that can be used by specialized loggers.
+	 */
 	close?: () => Promise<void> | void;
 }
 
 // NOTE: this is a public type
-
 /**
  * The level of logging. Priority is the following:
  * 1. debug

@@ -8,14 +8,20 @@ import {
 } from '../core.js';
 import type { Writable } from 'node:stream';
 import type { AstroInlineConfig } from '../../../types/public/index.js';
+import { matchesLevel } from '../public.js';
 
 type ConsoleStream = Writable & {
 	fd: 1 | 2;
 };
 
+export type NodeHandlerConfig = {
+	level?: AstroLoggerLevel;
+};
+
 function nodeLogDestination(
-	level: AstroLoggerLevel = 'info',
+	config: NodeHandlerConfig = {},
 ): AstroLoggerDestination<AstroLoggerMessage> {
+	const { level = 'info' } = config;
 	return {
 		write(event: AstroLoggerMessage) {
 			let dest: ConsoleStream = process.stderr;
@@ -23,7 +29,7 @@ function nodeLogDestination(
 				dest = process.stdout;
 			}
 
-			if (levels[event.level] < levels[level]) {
+			if (!matchesLevel(event.level, level)) {
 				return;
 			}
 
@@ -37,11 +43,8 @@ function nodeLogDestination(
 	};
 }
 
-type Options = {
-	level?: AstroLoggerLevel;
-};
-export default function (options?: Options): AstroLoggerDestination<AstroLoggerMessage> {
-	return nodeLogDestination(options?.level ?? 'info');
+export default function (options?: NodeHandlerConfig): AstroLoggerDestination<AstroLoggerMessage> {
+	return nodeLogDestination(options);
 }
 
 export function createNodeLoggerFromFlags(inlineConfig: AstroInlineConfig): AstroLogger {

@@ -134,7 +134,6 @@ function createManifest(
 			onRequest: middleware ?? NOOP_MIDDLEWARE_FN,
 		};
 	}
-
 	const root = new URL(import.meta.url);
 	return {
 		rootDir: root,
@@ -181,6 +180,7 @@ function createManifest(
 		experimentalQueuedRendering: manifest?.experimentalQueuedRendering ?? {
 			enabled: false,
 		},
+		experimentalLogger: manifest?.experimentalLogger ?? undefined,
 	};
 }
 
@@ -273,6 +273,7 @@ type AstroContainerManifest = Pick<
 	| 'assetsDir'
 	| 'image'
 	| 'experimentalQueuedRendering'
+	| 'experimentalLogger'
 >;
 
 type AstroContainerConstructor = {

@@ -7,9 +7,16 @@ import {
 } from '../core.js';
 import type { Writable } from 'node:stream';
 import type { AstroInlineConfig } from '../../../types/public/index.js';
+import { matchesLevel } from '../public.js';
 
-export type JonsHandlerConfig = {
+export type JsonHandlerConfig = {
+	/**
+	 * Whether the JSON line should format on multiple lines
+	 */
 	pretty?: boolean;
+	/**
+	 * The level of logs that should be printed by the logger.
+	 */
 	level?: AstroLoggerLevel;
 };
 
@@ -20,7 +27,7 @@ type ConsoleStream = Writable & {
 export const SGR_REGEX = new RegExp(`${String.fromCharCode(0x1b)}\\[[0-9;]*m`, 'g');
 
 export default function jsonLoggerDestination(
-	config: JonsHandlerConfig = {},
+	config: JsonHandlerConfig = {},
 ): AstroLoggerDestination<AstroLoggerMessage> {
 	const { pretty = false, level = 'info' } = config;
 	return {
@@ -30,7 +37,7 @@ export default function jsonLoggerDestination(
 				dest = process.stdout;
 			}
 
-			if (levels[event.level] < levels[level]) {
+			if (!matchesLevel(event.level, level)) {
 				return;
 			}
 

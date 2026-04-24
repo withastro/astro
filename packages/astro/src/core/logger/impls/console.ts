@@ -6,10 +6,17 @@ import {
 	type AstroLoggerLevel,
 	AstroLogger,
 } from '../core.js';
+import type { NodeHandlerConfig } from './node.js';
+import { matchesLevel } from '../public.js';
+
+export type ConsoleHandlerConfig = {
+	level?: AstroLoggerLevel;
+};
 
 function consoleLogDestination(
-	level: AstroLoggerLevel = 'info',
+	config: ConsoleHandlerConfig = {},
 ): AstroLoggerDestination<AstroLoggerMessage> {
+	const { level = 'info' } = config;
 	return {
 		write(event: AstroLoggerMessage) {
 			let dest = console.error;
@@ -17,7 +24,7 @@ function consoleLogDestination(
 				dest = console.info;
 			}
 
-			if (levels[event.level] < levels[level]) {
+			if (!matchesLevel(event.level, level)) {
 				return;
 			}
 
@@ -37,9 +44,6 @@ export function createConsoleLogger({ level }: { level: AstroLoggerLevel }): Ast
 	});
 }
 
-type Options = {
-	level?: AstroLoggerLevel;
-};
-export default function (options?: Options): AstroLoggerDestination<AstroLoggerMessage> {
-	return consoleLogDestination(options?.level ?? 'info');
+export default function (options?: NodeHandlerConfig): AstroLoggerDestination<AstroLoggerMessage> {
+	return consoleLogDestination(options);
 }

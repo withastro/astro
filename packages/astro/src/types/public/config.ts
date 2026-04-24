@@ -3064,9 +3064,26 @@ export interface AstroUserConfig<
 		 * @name experimental.logger
 		 * @type {{ entrypoint: string; config?: Record<string, unknown> }}
 		 * @default `undefined`
-		 * @version 6.0.0
+		 * @version 6.2.0
 		 * @description
-		 * Allows to customise how Astro logger behaves
+		 *
+		 * Configure a custom logger by defining its entrypoint and, optionally, providing a serializable configuration:
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   experimental: {
+		 *     logger: {
+		 *       entrypoint: "@org/astro-logger",
+		 *       config: {
+		 *        level: "error"
+		 *       }
+		 *     }
+		 *   }
+		 * });
+		 * ```
 		 */
 		logger?: LoggerHandlerConfig;
 	};

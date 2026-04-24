@@ -20,6 +20,7 @@ import type { HeadElements, TryRewriteResult } from '../../dist/core/base-pipeli
 import type { ComponentInstance } from '../../dist/types/astro.js';
 import type { RewritePayload, MiddlewareHandler } from '../../dist/types/public/common.js';
 import type { AstroLoggerDestination } from '../../dist/core/logger/core.js';
+import { createManifest } from './app/test-helpers.ts';
 
 export type { AstroSettings };
 
@@ -148,8 +149,8 @@ class TestPipeline extends Pipeline {
  */
 export function createBasicPipeline(
 	options: {
-		logger?: AstroLogger;
-		manifest?: SSRManifest;
+		logger?: AstroLogger | SpyLogger;
+		manifest?: Partial<SSRManifest>;
 		mode?: RuntimeMode;
 		renderers?: SSRLoadedRenderer[];
 		resolve?: (s: string) => Promise<string>;
@@ -167,13 +168,8 @@ export function createBasicPipeline(
 ): Pipeline {
 	const mode = options.mode ?? 'development';
 	return new TestPipeline(
-		options.logger ?? defaultLogger,
-		(options.manifest ?? {
-			rootDir: import.meta.url,
-			experimentalQueuedRendering: {
-				enabled: true,
-			},
-		}) as SSRManifest,
+		(options.logger ?? defaultLogger) as AstroLogger,
+		createManifest(options.manifest ?? {}),
 		options.mode ?? 'development',
 		options.renderers ?? [],
 		options.resolve ?? ((s: string) => Promise.resolve(s)),

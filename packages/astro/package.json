@@ -82,6 +82,7 @@
     "./errors": "./dist/core/errors/userError.js",
     "./middleware": "./dist/core/middleware/index.js",
     "./virtual-modules/*": "./dist/virtual-modules/*",
+    "./logger": "./dist/core/logger/public.js",
     "./logger/json": "./dist/core/logger/impls/json.js",
     "./logger/node": "./dist/core/logger/impls/node.js",
     "./logger/compose": "./dist/core/logger/impls/compose.js",
