@@ -14,7 +14,15 @@ import type { RouteData, SSRResult } from '../../types/public/internal.js';
 import { AstroCookies } from '../cookies/index.js';
 import type { BaseApp } from '../app/base.js';
 import { type Pipeline, Slots } from '../render/index.js';
-import { ASTRO_GENERATOR, DEFAULT_404_COMPONENT, appSymbol, fetchStateSymbol, originPathnameSymbol, pipelineSymbol, responseSentSymbol } from '../constants.js';
+import {
+	ASTRO_GENERATOR,
+	DEFAULT_404_COMPONENT,
+	appSymbol,
+	fetchStateSymbol,
+	originPathnameSymbol,
+	pipelineSymbol,
+	responseSentSymbol,
+} from '../constants.js';
 import { pushDirective } from '../csp/runtime.js';
 import { generateCspDigest } from '../encryption.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
@@ -88,7 +96,6 @@ export class FetchState {
 	readonly renderOptions: ResolvedRenderOptions;
 	/** When the request started, used to log duration. */
 	readonly timeStart: number;
-
 
 	/**
 	 * The route's loaded component module. Set before middleware runs; may
@@ -227,7 +234,8 @@ export class FetchState {
 
 		const extraStyleHashes: string[] = [];
 		const extraScriptHashes: string[] = [];
-		const shouldInjectCspMetaTags = this.shouldInjectCspMetaTags ?? manifest.shouldInjectCspMetaTags;
+		const shouldInjectCspMetaTags =
+			this.shouldInjectCspMetaTags ?? manifest.shouldInjectCspMetaTags;
 		const cspAlgorithm = manifest.csp?.algorithm ?? 'SHA-256';
 		if (shouldInjectCspMetaTags) {
 			for (const style of styles) {
@@ -470,10 +478,7 @@ export class FetchState {
 		return {
 			insertDirective(payload) {
 				if (state?.result?.directives) {
-					state.result.directives = pushDirective(
-						state.result.directives,
-						payload,
-					);
+					state.result.directives = pushDirective(state.result.directives, payload);
 				} else {
 					state?.result?.directives.push(payload);
 				}
@@ -531,7 +536,8 @@ export class FetchState {
 					}
 				}
 			}
-			pathname = pathname && !isRoute404or500(routeData) ? pathname : url.pathname ?? this.pathname;
+			pathname =
+				pathname && !isRoute404or500(routeData) ? pathname : (url.pathname ?? this.pathname);
 			computedLocale = computeCurrentLocaleUtil(pathname, locales, defaultLocale);
 			if (routeData.params.length > 0) {
 				const localeFromParams = computeCurrentLocaleFromParams(this.params!, locales);
@@ -655,10 +661,20 @@ export class FetchState {
 		if (!app) {
 			throw new Error(
 				'FetchState.app accessed on a request without an attached app. ' +
-					'Ensure it runs inside Astro\'s request pipeline.',
+					"Ensure it runs inside Astro's request pipeline.",
 			);
 		}
 		return app;
+	}
+
+	/**
+	 * Marks a pipeline feature as used on the attached app. No-op when
+	 * the request has no attached app (e.g. unit tests that create a
+	 * `FetchState` directly without going through `BaseApp.render()`).
+	 */
+	markFeatureUsed(flag: number): void {
+		const app = Reflect.get(this.request, appSymbol) as BaseApp<any> | undefined;
+		if (app) app.usedFeatures |= flag;
 	}
 
 	/**

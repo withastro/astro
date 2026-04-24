@@ -40,7 +40,7 @@ export class AstroMiddleware {
 	}
 
 	async handle(state: FetchState, renderRouteCallback: RenderRouteCallback): Promise<Response> {
-		state.app.usedFeatures |= PipelineFeatures.middleware;
+		state.markFeatureUsed(PipelineFeatures.middleware);
 		const pipeline = this.#pipeline;
 
 		// Resolve props first (the async bit) so downstream consumers can

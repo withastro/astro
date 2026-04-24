@@ -57,7 +57,7 @@ export class I18n {
 	}
 
 	async finalize(state: FetchState, response: Response): Promise<Response> {
-		state.app.usedFeatures |= PipelineFeatures.i18n;
+		state.markFeatureUsed(PipelineFeatures.i18n);
 		const i18n = this.#i18n;
 		const typeHeader = response.headers.get(ROUTE_TYPE_HEADER);
 

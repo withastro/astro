@@ -69,7 +69,7 @@ export function resolveRedirectTarget(
 }
 
 export async function renderRedirect(state: FetchState) {
-	state.app.usedFeatures |= PipelineFeatures.redirects;
+	state.markFeatureUsed(PipelineFeatures.redirects);
 	const routeData = state.routeData!;
 	const { redirect, redirectRoute } = routeData;
 	const status = computeRedirectStatus(state.request.method, redirect, redirectRoute);

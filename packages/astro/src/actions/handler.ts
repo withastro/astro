@@ -32,7 +32,7 @@ export class ActionHandler {
 	 * request (form actions or non-action requests).
 	 */
 	handle(apiContext: APIContext, state?: FetchState): Promise<Response | undefined> | undefined {
-		if (state) state.app.usedFeatures |= PipelineFeatures.actions;
+		if (state) state.markFeatureUsed(PipelineFeatures.actions);
 		if (apiContext.isPrerendered) {
 			return undefined;
 		}

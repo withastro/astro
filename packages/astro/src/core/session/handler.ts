@@ -14,7 +14,7 @@ const SESSION_KEY = 'session';
  * pipeline, avoiding promise allocation on the hot path.
  */
 export function provideSession(state: FetchState): Promise<void> | void {
-	state.app.usedFeatures |= PipelineFeatures.sessions;
+	state.markFeatureUsed(PipelineFeatures.sessions);
 	const pipeline = state.pipeline;
 	const config = pipeline.manifest.sessionConfig;
 	if (!config) return;
