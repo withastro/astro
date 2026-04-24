@@ -114,7 +114,7 @@ export class FetchState {
 	/** A safety net in case of loops (rewrite counter). */
 	counter = 0;
 	/** Cookies for this request. Created lazily on first access. */
-	cookies: AstroCookies | undefined;
+	cookies: AstroCookies;
 	/** Route params derived from routeData + pathname. Computed lazily. */
 	#params: Params | undefined;
 	get params(): Params | undefined {
@@ -127,7 +127,7 @@ export class FetchState {
 		this.#params = value;
 	}
 	/** Normalized URL for this request. */
-	url: URL | undefined;
+	url: URL;
 	/** Client address for this request. */
 	clientAddress: string | undefined;
 	/** Whether this is a partial render (container API). */
@@ -266,7 +266,7 @@ export class FetchState {
 			inlinedScripts,
 			componentMetadata,
 			compressHTML,
-			cookies: this.cookies!,
+			cookies: this.cookies,
 			createAstro: (props, slots) => state.createAstro(result, props, slots, ctx),
 			links,
 			params: this.params!,
@@ -452,7 +452,7 @@ export class FetchState {
 	}
 
 	getCookies(): AstroCookies {
-		return this.cookies!;
+		return this.cookies;
 	}
 
 	getCsp(): APIContext['csp'] {
@@ -531,7 +531,7 @@ export class FetchState {
 					}
 				}
 			}
-			pathname = pathname && !isRoute404or500(routeData) ? pathname : url?.pathname ?? this.pathname;
+			pathname = pathname && !isRoute404or500(routeData) ? pathname : url.pathname ?? this.pathname;
 			computedLocale = computeCurrentLocaleUtil(pathname, locales, defaultLocale);
 			if (routeData.params.length > 0) {
 				const localeFromParams = computeCurrentLocaleFromParams(this.params!, locales);
@@ -785,7 +785,7 @@ export class FetchState {
 
 		const ctx = {
 			get cookies() {
-				return state.cookies!;
+				return state.cookies;
 			},
 			routePattern: this.routeData!.route,
 			isPrerendered: this.routeData!.prerender,
@@ -811,7 +811,7 @@ export class FetchState {
 			},
 			request: this.request,
 			site: this.pipeline.site,
-			url: this.url!,
+			url: this.url,
 			get originPathname() {
 				return getOriginPathname(state.request);
 			},
