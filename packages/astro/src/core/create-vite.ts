@@ -166,6 +166,19 @@ export async function createVite(
 		customLogger: createViteLogger(logger, settings.config.vite.logLevel),
 		appType: 'custom',
 		plugins: [
+			// Raise the watcher's maxListeners limit before any other plugin's
+			// configureServer hook can add listeners. Astro registers 12+ change
+			// listeners across its built-in Vite plugins, easily exceeding
+			// Node's default limit of 10.
+			{
+				name: 'astro:watcher-max-listeners',
+				configureServer(server) {
+					const current = server.watcher.getMaxListeners();
+					if (current !== 0 && current < 50) {
+						server.watcher.setMaxListeners(50);
+					}
+				},
+			},
 			serializedManifestPlugin({ settings, command, sync }),
 			vitePluginRenderers({
 				settings,
