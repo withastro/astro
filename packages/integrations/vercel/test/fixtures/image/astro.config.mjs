@@ -1,6 +1,6 @@
 import vercel from '@astrojs/vercel';
 import { defineConfig } from 'astro/config';
-import { testImageService } from '../../../../../astro/test/test-image-service.js';
+import { testImageService } from '../../../../../astro/test/test-image-service.ts';
 
 export default defineConfig({
 	adapter: vercel({
