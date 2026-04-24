@@ -65,10 +65,10 @@ export const logHandlers = {
 	 * ```js
 	 * export default defineConfig({
 	 *   experimental: {
-	 *     logger: logHandlers.compose([
+	 *     logger: logHandlers.compose(
 	 *       logHandlers.console(),
 	 *       logHandlers.json(),
-	 *     ])
+	 *     )
 	 *   }
 	 * })
 	 * ```
