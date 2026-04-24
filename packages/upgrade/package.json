@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/upgrade",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -21,7 +21,7 @@
     "build:ci": "astro-scripts build \"src/index.ts\" --bundle",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "test": "astro-scripts test \"test/**/*.test.ts\"",
-    "typecheck:tests": "tsc -p tsconfig.test.json"
+    "typecheck:tests": "tsc --build tsconfig.test.json"
   },
   "files": [
     "dist",

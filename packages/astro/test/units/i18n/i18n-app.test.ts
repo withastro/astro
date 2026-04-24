@@ -6,7 +6,7 @@ import { createI18nMiddleware } from '../../../dist/i18n/middleware.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import type { Locales } from '../../../dist/types/public/config.js';
 import { createPage, createTestApp } from '../mocks.ts';
-import { dynamicPart, staticPart } from '../routing/test-helpers.ts';
+import { dynamicPart, spreadPart, staticPart } from '../routing/test-helpers.ts';
 
 interface I18nConfigOverrides {
 	defaultLocale?: string;
@@ -14,6 +14,8 @@ interface I18nConfigOverrides {
 	strategy?: RoutingStrategies;
 	fallbackType?: 'redirect' | 'rewrite';
 	fallback?: Record<string, string>;
+	domains?: Record<string, string>;
+	domainLookupTable?: Record<string, string>;
 }
 
 function makeI18nConfig(overrides: I18nConfigOverrides = {}) {
@@ -23,8 +25,8 @@ function makeI18nConfig(overrides: I18nConfigOverrides = {}) {
 		strategy: overrides.strategy ?? ('pathname-prefix-always' as RoutingStrategies),
 		fallbackType: overrides.fallbackType ?? ('rewrite' as const),
 		fallback: 'fallback' in overrides ? overrides.fallback : ({} as Record<string, string>),
-		domains: {} as Record<string, string>,
-		domainLookupTable: {} as Record<string, string>,
+		domains: overrides.domains ?? ({} as Record<string, string>),
+		domainLookupTable: overrides.domainLookupTable ?? ({} as Record<string, string>),
 	};
 }
 
@@ -277,6 +279,90 @@ describe('i18n via App - domains-prefix-always', () => {
 		const $ = cheerio.load(await res.text());
 		assert.equal($('#locale').text(), 'pt');
 		assert.ok($('#path').text().endsWith('/'));
+	});
+});
+
+describe('i18n via App - domains-prefix-always with trailingSlash: never', () => {
+	const i18n = makeI18nConfig({
+		strategy: 'domains-prefix-always',
+		locales: ['fi', 'en'],
+		defaultLocale: 'fi',
+		domainLookupTable: {
+			'https://example.com': 'en',
+			'https://example.fi': 'fi',
+		},
+		domains: {
+			en: 'https://example.com',
+			fi: 'https://example.fi',
+		},
+	});
+
+	const middleware = createI18nMiddleware(i18n, '/', 'never', 'directory');
+
+	/** Like localeCatchAll but with spread param and trailingSlash: never */
+	function localeSpreadCatchAll(locale: string) {
+		return createPage(localePage, {
+			route: `/${locale}/[...slug]`,
+			segments: [[staticPart(locale)], [spreadPart('slug')]],
+			pathname: undefined,
+			trailingSlash: 'never',
+		});
+	}
+
+	function createDomainApp() {
+		return createTestApp([localeSpreadCatchAll('fi'), localeSpreadCatchAll('en')], {
+			i18n,
+			trailingSlash: 'never',
+			middleware: () => ({ onRequest: middleware }),
+		});
+	}
+
+	it('root path of en domain-mapped locale returns 200 (not 404)', async () => {
+		const app = createDomainApp();
+		const res = await app.render(
+			new Request('https://example.com/', {
+				headers: { 'X-Forwarded-Host': 'example.com', 'X-Forwarded-Proto': 'https' },
+			}),
+		);
+		assert.equal(res.status, 200);
+		const $ = cheerio.load(await res.text());
+		assert.equal($('#locale').text(), 'en');
+	});
+
+	it('non-root path of en domain-mapped locale returns 200', async () => {
+		const app = createDomainApp();
+		const res = await app.render(
+			new Request('https://example.com/about', {
+				headers: { 'X-Forwarded-Host': 'example.com', 'X-Forwarded-Proto': 'https' },
+			}),
+		);
+		assert.equal(res.status, 200);
+		const $ = cheerio.load(await res.text());
+		assert.equal($('#locale').text(), 'en');
+	});
+
+	it('root path of fi domain-mapped locale returns 200 (not 404)', async () => {
+		const app = createDomainApp();
+		const res = await app.render(
+			new Request('https://example.fi/', {
+				headers: { 'X-Forwarded-Host': 'example.fi', 'X-Forwarded-Proto': 'https' },
+			}),
+		);
+		assert.equal(res.status, 200);
+		const $ = cheerio.load(await res.text());
+		assert.equal($('#locale').text(), 'fi');
+	});
+
+	it('non-root path of fi domain-mapped locale returns 200', async () => {
+		const app = createDomainApp();
+		const res = await app.render(
+			new Request('https://example.fi/about', {
+				headers: { 'X-Forwarded-Host': 'example.fi', 'X-Forwarded-Proto': 'https' },
+			}),
+		);
+		assert.equal(res.status, 200);
+		const $ = cheerio.load(await res.text());
+		assert.equal($('#locale').text(), 'fi');
 	});
 });
 

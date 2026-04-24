@@ -69,5 +69,8 @@ COPY .flue/sandbox/AGENTS.md /tmp/.config/opencode/AGENTS.md
 
 EXPOSE 48765
 
+# Default to the non-root user provided by the base image.
+USER node
+
 # Default: start OpenCode server listening on all interfaces
 CMD ["opencode", "serve", "--port", "48765", "--hostname", "0.0.0.0"]

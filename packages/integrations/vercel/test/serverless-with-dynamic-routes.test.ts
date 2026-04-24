@@ -6,7 +6,6 @@ describe('Serverless with dynamic routes', () => {
 	let fixture: Fixture;
 
 	before(async () => {
-		process.env.PRERENDER = 'true';
 		fixture = await loadFixture({
 			root: './fixtures/serverless-with-dynamic-routes/',
 			output: 'server',

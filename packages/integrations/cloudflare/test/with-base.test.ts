@@ -1,0 +1,49 @@
+import * as assert from 'node:assert/strict';
+import { rmSync } from 'node:fs';
+import { Writable } from 'node:stream';
+import { after, before, describe, it } from 'node:test';
+import { type Fixture, loadFixture } from './test-utils.ts';
+import { AstroLogger } from '../../../astro/dist/core/logger/core.js';
+import { fileURLToPath } from 'node:url';
+
+describe('base', () => {
+	let fixture: Fixture;
+	const logs: Array<{ message?: string }> = [];
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/with-base/',
+		});
+
+		// Clear the Vite cache before testing
+		const viteCacheDir = new URL('./node_modules/.vite/', fixture.config.root);
+
+		rmSync(fileURLToPath(viteCacheDir), { recursive: true, force: true });
+
+		const logger = new AstroLogger({
+			level: 'debug',
+			destination: new Writable({
+				objectMode: true,
+				write(event, _, callback) {
+					logs.push(event);
+					callback();
+				},
+			}),
+		});
+		await fixture.build({
+			vite: { logLevel: 'info' },
+			// @ts-expect-error: logger is internal API
+			logger,
+		});
+	});
+
+	after(async () => {
+		await fixture.clean();
+	});
+
+	it('correctly prints redirects', async () => {
+		const fileContent = await fixture.readFile('client/_redirects');
+		assert.match(fileContent, /\/a\/redirect\s+\/\s+301/);
+		assert.match(fileContent, /\/a\/redirect\/\s+\/\s+301/);
+	});
+});

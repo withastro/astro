@@ -1,5 +1,6 @@
 import { EventEmitter } from 'node:events';
 import { fileURLToPath } from 'node:url';
+import type { IncomingMessage, ServerResponse } from 'node:http';
 import { createFixture as _createFixture, type FileTree } from 'fs-fixture';
 import httpMocks from 'node-mocks-http';
 import { getDefaultClientDirectives } from '../../dist/core/client-directive/index.js';
@@ -18,6 +19,8 @@ import type { RouteData, SSRLoadedRenderer, SSRResult } from '../../dist/types/p
 import type { HeadElements, TryRewriteResult } from '../../dist/core/base-pipeline.js';
 import type { ComponentInstance } from '../../dist/types/astro.js';
 import type { RewritePayload, MiddlewareHandler } from '../../dist/types/public/common.js';
+
+export type { AstroSettings };
 
 export const defaultLogger: AstroLogger = new AstroLogger({
 	destination: nodeLogDestination,
@@ -39,10 +42,10 @@ export async function createFixture(tree: FileTree) {
 }
 
 export function createRequestAndResponse(reqOptions: httpMocks.RequestOptions = {}) {
-	const req = httpMocks.createRequest(reqOptions);
+	const req: IncomingMessage = httpMocks.createRequest(reqOptions);
 	req.headers.host ||= 'localhost';
 
-	const res = httpMocks.createResponse({
+	const res: ServerResponse<IncomingMessage> = httpMocks.createResponse({
 		eventEmitter: EventEmitter,
 		req,
 	});
