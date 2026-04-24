@@ -337,6 +337,18 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				const prerenderChunks = extractRelevantChunks(prerenderOutputs, true);
 				prerenderOutput = undefined as any;
 
+				// Server islands require the SSR build. If the build was initially
+				// determined to be static but server islands were discovered during
+				// prerendering, upgrade buildOutput so the SSR environment is built.
+				// This must happen after the prerender build completes (not during it)
+				// to avoid directory path mismatches in manifest injection.
+				if (
+					settings.buildOutput === 'static' &&
+					prerenderChunks.some((chunk) => chunk.code.includes(SERVER_ISLAND_MAP_MARKER))
+				) {
+					settings.buildOutput = 'server';
+				}
+
 				// Build ssr environment for server output (only for non-static builds)
 				let ssrChunks: BuildInternals['extractedChunks'] = [];
 				if (settings.buildOutput !== 'static') {
