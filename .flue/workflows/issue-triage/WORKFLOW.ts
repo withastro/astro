@@ -161,6 +161,14 @@ async function runTriagePipeline(
 		}),
 	});
 
+	// Reproduce runs `pnpm install --no-frozen-lockfile` at the monorepo root,
+	// which rewrites `pnpm-lock.yaml` as a side effect of wiring up the triage
+	// project. That churn is not triage output and must not end up on the fix
+	// branch. Revert it here so the post-pipeline working tree only contains
+	// intentional changes made by diagnose/verify/fix. `node_modules` is already
+	// installed, so downstream skills still work.
+	await flue.shell('git checkout -- pnpm-lock.yaml');
+
 	if (reproduceResult.skipped || !reproduceResult.reproducible) {
 		return {
 			completedStage: 'reproduce',
