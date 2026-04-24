@@ -58,9 +58,11 @@ describe('Skew Protection', { timeout: 120000 }, () => {
 			for (const file of files) {
 				const contents = await readFile(new URL(file, chunksURL), 'utf-8');
 				if (contents.includes(needle)) {
-					const contents = await readFile(new URL(file, manifestURL), 'utf-8');
+					const thisContents = await readFile(new URL(file, manifestURL), 'utf-8');
 					if (
-						contents.includes('"internalFetchHeaders":{"X-Netlify-Deploy-ID":"test-deploy-123"}')
+						thisContents.includes(
+							'"internalFetchHeaders":{"X-Netlify-Deploy-ID":"test-deploy-123"}',
+						)
 					) {
 						found = true;
 						break;
