@@ -143,9 +143,10 @@ function patchTSX(code: string, fileName: string) {
 	return code.replace(/\b(\S*)__AstroComponent_/g, (fullMatch, m1: string) => {
 		// If we don't have a match here, it usually means the file has a weird name that couldn't be expressed with valid identifier characters
 		if (!m1) {
-			if (basename === '404') return 'FourOhFour';
+			if (basename === '404') return '__AstroComponent_FourOhFour';
 			return fullMatch;
 		}
-		return isDynamic ? `_${m1}_` : m1[0].toUpperCase() + m1.slice(1);
+		const componentName = isDynamic ? `_${m1}_` : m1[0].toUpperCase() + m1.slice(1);
+		return `__AstroComponent_${componentName}`;
 	});
 }

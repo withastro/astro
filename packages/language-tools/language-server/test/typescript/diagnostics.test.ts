@@ -75,6 +75,18 @@ describe('TypeScript - Diagnostics', async () => {
 		]);
 	});
 
+	it('does not report conflicts between astro:assets imports and the current file component name', async () => {
+		const document = await languageServer.handle.openTextDocument(
+			path.join(fixtureDir, 'image.astro'),
+			'astro',
+		);
+		const diagnostics = (await languageServer.handle.sendDocumentDiagnosticRequest(
+			document.uri,
+		)) as FullDocumentDiagnosticReport;
+
+		assert.strictEqual(diagnostics.items.length, 0);
+	});
+
 	it('can get diagnostics in script tags', async () => {
 		const document = await languageServer.openFakeDocument(
 			`<script>const something: string = "Hello";something;</script><div><script>console.log(doesnotexist);</script></div>`,
