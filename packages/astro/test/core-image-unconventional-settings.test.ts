@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 
-import { testImageService } from './test-image-service.js';
+import { testImageService } from './test-image-service.ts';
 import { type AstroInlineConfig, type Fixture, loadFixture } from './test-utils.js';
 
 const defaultSettings: AstroInlineConfig = {
