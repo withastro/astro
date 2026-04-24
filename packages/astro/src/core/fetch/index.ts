@@ -134,7 +134,7 @@ export function actions(state: FetchState): Promise<Response | undefined> | unde
 		handler = new ActionHandler();
 		actionHandlers.set(app, handler);
 	}
-	return handler.handle(state.getAPIContext(), state);
+	return handler.handle(state);
 }
 
 // `null` sentinel means "i18n not configured" — avoids re-checking manifest each request.

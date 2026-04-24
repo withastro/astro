@@ -1,4 +1,5 @@
-import { type BaseApp, PipelineFeatures } from '../app/base.js';
+import type { BaseApp } from '../app/base.js';
+import { PipelineFeatures } from '../base-pipeline.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 import type { Pipeline } from '../base-pipeline.js';
 import { AstroCache, applyCacheHeaders, type CacheLike } from './runtime/cache.js';
@@ -83,7 +84,7 @@ export class CacheHandler {
 	}
 
 	async handle(state: FetchState, next: () => Promise<Response>): Promise<Response> {
-		this.#app.usedFeatures |= PipelineFeatures.cache;
+		this.#app.pipeline.usedFeatures |= PipelineFeatures.cache;
 		if (!this.#app.pipeline.cacheProvider) {
 			return next();
 		}

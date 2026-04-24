@@ -668,16 +668,6 @@ export class FetchState {
 	}
 
 	/**
-	 * Marks a pipeline feature as used on the attached app. No-op when
-	 * the request has no attached app (e.g. unit tests that create a
-	 * `FetchState` directly without going through `BaseApp.render()`).
-	 */
-	markFeatureUsed(flag: number): void {
-		const app = Reflect.get(this.request, appSymbol) as BaseApp<any> | undefined;
-		if (app) app.usedFeatures |= flag;
-	}
-
-	/**
 	 * Resolves the route to use for this request and stores it on
 	 * `this.routeData`. If the adapter (or the dev server) provided a
 	 * `routeData` via render options it's already set and this is a

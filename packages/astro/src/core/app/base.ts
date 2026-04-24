@@ -9,7 +9,7 @@ import { matchPattern } from '@astrojs/internal-helpers/remote';
 import { normalizeTheLocale } from '../../i18n/index.js';
 import type { RoutesList } from '../../types/astro.js';
 import type { RemotePattern, RouteData } from '../../types/public/index.js';
-import type { Pipeline } from '../base-pipeline.js';
+import { type Pipeline, PipelineFeatures } from '../base-pipeline.js';
 import { ASTRO_ERROR_HEADER, clientAddressSymbol } from '../constants.js';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
 
@@ -115,21 +115,6 @@ type ErrorPagePath =
 	| `${string}404.html`
 	| `${string}500.html`;
 
-/**
- * Bit flags for pipeline features that composable functions register as
- * "used" when a custom `src/app.ts` fetch handler is in play. After the
- * first request (dev) or at build end, we compare against the manifest
- * to warn about features the user configured but forgot to include.
- */
-export const PipelineFeatures = {
-	redirects: 1 << 0,
-	sessions: 1 << 1,
-	actions: 1 << 2,
-	middleware: 1 << 3,
-	i18n: 1 << 4,
-	cache: 1 << 5,
-} as const;
-
 export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	manifest: SSRManifest;
 	manifestData: RoutesList;
@@ -146,13 +131,6 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	 */
 	#fetchHandler: { fetch: FetchHandler };
 	#errorHandler: ErrorHandler;
-
-	/**
-	 * Bit mask of pipeline features activated by the fetch handler.
-	 * Composable functions set their bit via `|=`. Only meaningful
-	 * when a custom `src/app.ts` is in use.
-	 */
-	usedFeatures = 0;
 
 	/**
 	 * Whether a custom fetch handler (from `src/app.ts`) has been set
@@ -490,29 +468,31 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		const manifest = this.manifest;
 		const missing: string[] = [];
 
+		const used = this.pipeline.usedFeatures;
+
 		if (
 			manifest.routes.some((r) => r.routeData.type === 'redirect') &&
-			!(this.usedFeatures & PipelineFeatures.redirects)
+			!(used & PipelineFeatures.redirects)
 		) {
 			missing.push('redirects');
 		}
-		if (manifest.sessionConfig && !(this.usedFeatures & PipelineFeatures.sessions)) {
+		if (manifest.sessionConfig && !(used & PipelineFeatures.sessions)) {
 			missing.push('sessions');
 		}
-		if (manifest.actions && !(this.usedFeatures & PipelineFeatures.actions)) {
+		if (manifest.actions && !(used & PipelineFeatures.actions)) {
 			missing.push('actions');
 		}
-		if (manifest.middleware && !(this.usedFeatures & PipelineFeatures.middleware)) {
+		if (manifest.middleware && !(used & PipelineFeatures.middleware)) {
 			missing.push('middleware');
 		}
 		if (
 			manifest.i18n &&
 			manifest.i18n.strategy !== 'manual' &&
-			!(this.usedFeatures & PipelineFeatures.i18n)
+			!(used & PipelineFeatures.i18n)
 		) {
 			missing.push('i18n');
 		}
-		if (manifest.cacheConfig && !(this.usedFeatures & PipelineFeatures.cache)) {
+		if (manifest.cacheConfig && !(used & PipelineFeatures.cache)) {
 			missing.push('cache');
 		}
 

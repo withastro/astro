@@ -259,7 +259,7 @@ export async function renderThroughMiddleware(
 	const pagesHandler = new PagesHandler(pipeline);
 	return middleware.handle(state, (s, ctx, payload) => {
 		if (!s.skipMiddleware) {
-			const actionResult = actionHandler.handle(ctx);
+			const actionResult = actionHandler.handle(s);
 			if (actionResult) {
 				return actionResult.then((response) => response ?? pagesHandler.handle(s, ctx, payload));
 			}

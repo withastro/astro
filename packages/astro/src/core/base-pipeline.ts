@@ -30,6 +30,22 @@ import { HTMLStringCache } from '../runtime/server/html-string-cache.js';
 import { FORBIDDEN_PATH_KEYS } from '@astrojs/internal-helpers/object';
 
 /**
+ * Bit flags for pipeline features that handler classes register as
+ * "used" when a custom `src/app.ts` fetch handler is in play. After the
+ * first request (dev) or at runtime (prod SSR), we compare against the
+ * manifest to warn about features the user configured but forgot to
+ * include in their custom pipeline.
+ */
+export const PipelineFeatures = {
+	redirects: 1 << 0,
+	sessions: 1 << 1,
+	actions: 1 << 2,
+	middleware: 1 << 3,
+	i18n: 1 << 4,
+	cache: 1 << 5,
+} as const;
+
+/**
  * The `Pipeline` represents the static parts of rendering that do not change between requests.
  * These are mostly known when the server first starts up and do not change.
  *
@@ -44,6 +60,13 @@ export abstract class Pipeline {
 	compiledCacheRoutes: CompiledCacheRoute[] | undefined = undefined;
 	nodePool: NodePool | undefined;
 	htmlStringCache: HTMLStringCache | undefined;
+
+	/**
+	 * Bit mask of pipeline features activated by handler classes.
+	 * Each handler sets its bit via `|=`. Only meaningful when a
+	 * custom `src/app.ts` fetch handler is in use.
+	 */
+	usedFeatures = 0;
 
 	readonly logger: AstroLogger;
 	readonly manifest: SSRManifest;
