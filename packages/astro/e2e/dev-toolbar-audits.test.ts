@@ -18,8 +18,6 @@ test.afterAll(async () => {
 test.describe('Dev Toolbar - Audits', () => {
 	test('can warn about perf issues', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/audits-perf'));
-		// Reload so images are served from cache and are complete when the audit runs
-		await page.reload({ waitUntil: 'load' });
 
 		const toolbar = page.locator('astro-dev-toolbar');
 		const appButton = toolbar.locator('button[data-app-id="astro:audit"]');
@@ -51,8 +49,6 @@ test.describe('Dev Toolbar - Audits', () => {
 		astro,
 	}) => {
 		await page.goto(astro.resolveUrl('/audits-perf-body-unscrollable'));
-		// Reload so images are served from cache and are complete when the audit runs
-		await page.reload({ waitUntil: 'load' });
 
 		const toolbar = page.locator('astro-dev-toolbar');
 		const appButton = toolbar.locator('button[data-app-id="astro:audit"]');
@@ -95,8 +91,6 @@ test.describe('Dev Toolbar - Audits', () => {
 		astro,
 	}) => {
 		await page.goto(astro.resolveUrl('/audits-perf-absolute'));
-		// Reload so images are served from cache and are complete when the audit runs
-		await page.reload({ waitUntil: 'load' });
 
 		const toolbar = page.locator('astro-dev-toolbar');
 		const appButton = toolbar.locator('button[data-app-id="astro:audit"]');
