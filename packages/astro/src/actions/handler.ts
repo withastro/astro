@@ -1,4 +1,6 @@
 import type { APIContext } from '../types/public/context.js';
+import { PipelineFeatures } from '../core/app/base.js';
+import type { FetchState } from '../core/fetch/fetch-state.js';
 import { getActionContext, serializeActionResult } from './runtime/server.js';
 
 /**
@@ -29,7 +31,8 @@ export class ActionHandler {
 	 * or `undefined` when the caller should continue processing the
 	 * request (form actions or non-action requests).
 	 */
-	handle(apiContext: APIContext): Promise<Response | undefined> | undefined {
+	handle(apiContext: APIContext, state?: FetchState): Promise<Response | undefined> | undefined {
+		if (state) state.app.usedFeatures |= PipelineFeatures.actions;
 		if (apiContext.isPrerendered) {
 			return undefined;
 		}

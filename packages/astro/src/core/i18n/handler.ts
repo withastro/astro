@@ -1,10 +1,11 @@
 import { appendForwardSlash } from '@astrojs/internal-helpers/path';
 import { computeFallbackRoute } from '../../i18n/fallback.js';
 import { I18nRouter, type I18nRouterContext } from '../../i18n/router.js';
-import type { FetchState } from '../fetch/fetch-state.js';
+import { PipelineFeatures } from '../app/base.js';
 import type { SSRManifest } from '../app/types.js';
 import { shouldAppendForwardSlash } from '../build/util.js';
 import { REROUTE_DIRECTIVE_HEADER, ROUTE_TYPE_HEADER } from '../constants.js';
+import type { FetchState } from '../fetch/fetch-state.js';
 
 /**
  * Post-processes a rendered `Response` against the app's i18n
@@ -56,6 +57,7 @@ export class I18n {
 	}
 
 	async finalize(state: FetchState, response: Response): Promise<Response> {
+		state.app.usedFeatures |= PipelineFeatures.i18n;
 		const i18n = this.#i18n;
 		const typeHeader = response.headers.get(ROUTE_TYPE_HEADER);
 

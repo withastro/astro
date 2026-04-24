@@ -1,6 +1,7 @@
 import type { FetchState } from '../fetch/fetch-state.js';
 import type { RewritePayload } from '../../types/public/common.js';
 import type { APIContext } from '../../types/public/context.js';
+import { PipelineFeatures } from '../app/base.js';
 import type { Pipeline } from '../base-pipeline.js';
 import { ROUTE_TYPE_HEADER } from '../constants.js';
 import { attachCookiesToResponse } from '../cookies/index.js';
@@ -39,6 +40,7 @@ export class AstroMiddleware {
 	}
 
 	async handle(state: FetchState, renderRouteCallback: RenderRouteCallback): Promise<Response> {
+		state.app.usedFeatures |= PipelineFeatures.middleware;
 		const pipeline = this.#pipeline;
 
 		// Resolve props first (the async bit) so downstream consumers can

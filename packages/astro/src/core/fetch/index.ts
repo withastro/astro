@@ -16,7 +16,7 @@ function getApp(request: Request): BaseApp<any> {
 	if (!app) {
 		throw new Error(
 			'FetchState(request) called on a request without an attached app. ' +
-				'Ensure it runs inside Astro\'s request pipeline.',
+				"Ensure it runs inside Astro's request pipeline.",
 		);
 	}
 	return app;
@@ -134,7 +134,7 @@ export function actions(state: FetchState): Promise<Response | undefined> | unde
 		handler = new ActionHandler();
 		actionHandlers.set(app, handler);
 	}
-	return handler.handle(state.getAPIContext());
+	return handler.handle(state.getAPIContext(), state);
 }
 
 // `null` sentinel means "i18n not configured" — avoids re-checking manifest each request.

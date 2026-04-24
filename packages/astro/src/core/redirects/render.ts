@@ -1,6 +1,7 @@
 import type { Params } from '../../types/public/common.js';
 import type { RedirectConfig } from '../../types/public/index.js';
 import type { RouteData } from '../../types/public/internal.js';
+import { PipelineFeatures } from '../app/base.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 import { getRouteGenerator } from '../routing/generator.js';
 
@@ -68,6 +69,7 @@ export function resolveRedirectTarget(
 }
 
 export async function renderRedirect(state: FetchState) {
+	state.app.usedFeatures |= PipelineFeatures.redirects;
 	const routeData = state.routeData!;
 	const { redirect, redirectRoute } = routeData;
 	const status = computeRedirectStatus(state.request.method, redirect, redirectRoute);

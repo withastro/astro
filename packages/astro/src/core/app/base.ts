@@ -115,6 +115,21 @@ type ErrorPagePath =
 	| `${string}404.html`
 	| `${string}500.html`;
 
+/**
+ * Bit flags for pipeline features that composable functions register as
+ * "used" when a custom `src/app.ts` fetch handler is in play. After the
+ * first request (dev) or at build end, we compare against the manifest
+ * to warn about features the user configured but forgot to include.
+ */
+export const PipelineFeatures = {
+	redirects: 1 << 0,
+	sessions: 1 << 1,
+	actions: 1 << 2,
+	middleware: 1 << 3,
+	i18n: 1 << 4,
+	cache: 1 << 5,
+} as const;
+
 export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	manifest: SSRManifest;
 	manifestData: RoutesList;
@@ -131,6 +146,26 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	 */
 	#fetchHandler: { fetch: FetchHandler };
 	#errorHandler: ErrorHandler;
+
+	/**
+	 * Bit mask of pipeline features activated by the fetch handler.
+	 * Composable functions set their bit via `|=`. Only meaningful
+	 * when a custom `src/app.ts` is in use.
+	 */
+	usedFeatures = 0;
+
+	/**
+	 * Whether a custom fetch handler (from `src/app.ts`) has been set
+	 * via `setFetchHandler`. When false, the `DefaultFetchHandler` is
+	 * in use and all features are implicitly active.
+	 */
+	#hasCustomFetchHandler = false;
+
+	/**
+	 * Whether the missing-feature check has already run. We only want
+	 * to warn once — after the first request in dev, or at build end.
+	 */
+	#featureCheckDone = false;
 	constructor(manifest: SSRManifest, streaming = true, ...args: any[]) {
 		this.manifest = manifest;
 		this.manifestData = { routes: manifest.routes.map((route) => route.routeData) };
@@ -156,6 +191,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	 */
 	setFetchHandler(handler: { fetch: FetchHandler }): void {
 		this.#fetchHandler = handler;
+		this.#hasCustomFetchHandler = !(handler instanceof DefaultFetchHandler);
 	}
 
 	/**
@@ -167,8 +203,6 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	}
 
 	public abstract isDev(): boolean;
-
-
 
 	getAdapterLogger(): AstroIntegrationLogger {
 		return this.adapterLogger;
@@ -398,6 +432,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		// construction time) can resolve the active app per-request.
 		Reflect.set(request, appSymbol, this);
 		const response = await this.#fetchHandler.fetch(request);
+		this.#warnMissingFeatures();
 		if (response.headers.get(ASTRO_ERROR_HEADER)) {
 			response.headers.delete(ASTRO_ERROR_HEADER);
 			return this.renderError(request, {
@@ -439,11 +474,55 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	 * for a specific environment, override `createErrorHandler()` rather than
 	 * this method.
 	 */
-	public async renderError(
-		request: Request,
-		options: RenderErrorOptions,
-	): Promise<Response> {
+	public async renderError(request: Request, options: RenderErrorOptions): Promise<Response> {
 		return this.#errorHandler.renderError(request, options);
+	}
+
+	/**
+	 * One-shot check: after the first request with a custom `src/app.ts`,
+	 * compare `usedFeatures` against the manifest and warn about any
+	 * configured features the user's pipeline doesn't call.
+	 */
+	#warnMissingFeatures(): void {
+		if (this.#featureCheckDone || !this.#hasCustomFetchHandler) return;
+		this.#featureCheckDone = true;
+
+		const manifest = this.manifest;
+		const missing: string[] = [];
+
+		if (
+			manifest.routes.some((r) => r.routeData.type === 'redirect') &&
+			!(this.usedFeatures & PipelineFeatures.redirects)
+		) {
+			missing.push('redirects');
+		}
+		if (manifest.sessionConfig && !(this.usedFeatures & PipelineFeatures.sessions)) {
+			missing.push('sessions');
+		}
+		if (manifest.actions && !(this.usedFeatures & PipelineFeatures.actions)) {
+			missing.push('actions');
+		}
+		if (manifest.middleware && !(this.usedFeatures & PipelineFeatures.middleware)) {
+			missing.push('middleware');
+		}
+		if (
+			manifest.i18n &&
+			manifest.i18n.strategy !== 'manual' &&
+			!(this.usedFeatures & PipelineFeatures.i18n)
+		) {
+			missing.push('i18n');
+		}
+		if (manifest.cacheConfig && !(this.usedFeatures & PipelineFeatures.cache)) {
+			missing.push('cache');
+		}
+
+		for (const feature of missing) {
+			this.logger.warn(
+				'router',
+				`Your project uses ${feature}, but your custom src/app.ts does not call the ${feature}() handler. ` +
+					`This feature will not work unless you add it to your app.ts pipeline.`,
+			);
+		}
 	}
 
 	getDefaultStatusCode(routeData: RouteData, pathname: string): number {

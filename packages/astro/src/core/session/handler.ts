@@ -1,3 +1,4 @@
+import { PipelineFeatures } from '../app/base.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 import { AstroSession, PERSIST_SYMBOL } from './runtime.js';
 
@@ -13,6 +14,7 @@ const SESSION_KEY = 'session';
  * pipeline, avoiding promise allocation on the hot path.
  */
 export function provideSession(state: FetchState): Promise<void> | void {
+	state.app.usedFeatures |= PipelineFeatures.sessions;
 	const pipeline = state.pipeline;
 	const config = pipeline.manifest.sessionConfig;
 	if (!config) return;
