@@ -59,3 +59,7 @@ function customLogger(level = 'info'): AstroLoggerDestination {
 } 
 export default customLogger
 ```
+
+For more information on enabling and using this feature in your project, see the [Experimental Logger docs](https://docs.astro.build/en/reference/experimental-flags/logger/).
+
+For a complete overview, and to give feedback on this experimental API, see the [Custom logger RFC](https://github.com/withastro/roadmap/blob/logger/proposals/0059-custom-logger.md).
