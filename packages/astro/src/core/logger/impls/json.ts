@@ -9,7 +9,7 @@ import type { Writable } from 'node:stream';
 import type { AstroInlineConfig } from '../../../types/public/index.js';
 import { matchesLevel } from '../public.js';
 
-export type JonsHandlerConfig = {
+export type JsonHandlerConfig = {
 	/**
 	 * Whether the JSON line should format on multiple lines
 	 */
@@ -27,7 +27,7 @@ type ConsoleStream = Writable & {
 export const SGR_REGEX = new RegExp(`${String.fromCharCode(0x1b)}\\[[0-9;]*m`, 'g');
 
 export default function jsonLoggerDestination(
-	config: JonsHandlerConfig = {},
+	config: JsonHandlerConfig = {},
 ): AstroLoggerDestination<AstroLoggerMessage> {
 	const { pretty = false, level = 'info' } = config;
 	return {

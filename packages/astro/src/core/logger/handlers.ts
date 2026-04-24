@@ -1,5 +1,5 @@
 import type { LoggerHandlerConfig } from './config.js';
-import type { JonsHandlerConfig } from './impls/json.js';
+import type { JsonHandlerConfig } from './impls/json.js';
 import type { NodeHandlerConfig } from './impls/node.js';
 import type { ConsoleHandlerConfig } from './impls/console.js';
 
@@ -15,7 +15,7 @@ export const logHandlers = {
 	 * })
 	 * ```
 	 */
-	json(config?: JonsHandlerConfig): LoggerHandlerConfig {
+	json(config?: JsonHandlerConfig): LoggerHandlerConfig {
 		return {
 			entrypoint: 'astro/logger/json',
 			config,

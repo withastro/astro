@@ -45,11 +45,17 @@ export default defineConfig({
 
 ```ts
 // @org/custom-logger.js
-import type { AstroLoggerDestination, AstroLoggerMessage } from "astro"
+import type { AstroLoggerDestination, AstroLoggerMessage } from "astro";
+import { matchesLevel } from "astor/logger";
 
-const customLogger: AstroLoggerDestination = {
-  write(message: AstroLoggerMessage) {
-    // write message somewhere
+function customLogger(level = 'info'): AstroLoggerDestination {
+  return {
+    write(message: AstroLoggerMessage) {
+      if (matchesLevel(message.level, level)) {
+        // write message somewhere
+      }
+    }
   }
 } 
 export default customLogger
+```
