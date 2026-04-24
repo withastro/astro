@@ -154,7 +154,11 @@ describe('RenderContext', () => {
 			const spyLogger = new SpyLogger();
 			const renderContext = await createMockRenderContext({
 				logger: spyLogger,
-				manifest: { experimentalLogger: true },
+				manifest: {
+					experimentalLogger: {
+						entrypoint: 'astro/logger/node',
+					},
+				},
 			});
 
 			const { logger } = renderContext.createActionAPIContext();
@@ -168,7 +172,11 @@ describe('RenderContext', () => {
 			const spyLogger = new SpyLogger();
 			const renderContext = await createMockRenderContext({
 				logger: spyLogger,
-				manifest: { experimentalLogger: true },
+				manifest: {
+					experimentalLogger: {
+						entrypoint: 'astro/logger/node',
+					},
+				},
 			});
 
 			const ctx = renderContext.createActionAPIContext();
@@ -214,7 +222,11 @@ describe('RenderContext', () => {
 			const spyLogger = new SpyLogger();
 			const renderContext = await createMockRenderContext({
 				logger: spyLogger,
-				manifest: { experimentalLogger: true },
+				manifest: {
+					experimentalLogger: {
+						entrypoint: 'astro/logger/node',
+					},
+				},
 			});
 
 			const LoggingPage = createComponent((result: any, _props: any, _slots: any) => {
