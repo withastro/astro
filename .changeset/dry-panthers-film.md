@@ -2,4 +2,4 @@
 "@astrojs/telemetry": patch
 ---
 
-Removed `dlv` dependency
+Refactors internal config logic to remove the `dlv` dependency in favor of native logic
