@@ -112,12 +112,13 @@ export class AstroCache implements CacheLike {
 	}
 
 	/** @internal */
-	[APPLY_HEADERS](response: Response): void {
+	[APPLY_HEADERS](response: Response, request: Request): void {
 		if (this.#disabled) return;
 		const finalOptions: CacheOptions = { ...this.#options, tags: this.tags };
 		if (finalOptions.maxAge === undefined && !finalOptions.tags?.length) return;
 
-		const headers = this.#provider?.setHeaders?.(finalOptions) ?? defaultSetHeaders(finalOptions);
+		const headers =
+			this.#provider?.setHeaders?.(finalOptions, request) ?? defaultSetHeaders(finalOptions);
 		for (const [key, value] of headers) {
 			response.headers.set(key, value);
 		}
@@ -134,9 +135,9 @@ export class AstroCache implements CacheLike {
 /**
  * Apply cache headers to a response.
  */
-export function applyCacheHeaders(cache: CacheLike, response: Response): void {
+export function applyCacheHeaders(cache: CacheLike, response: Response, request: Request): void {
 	if (APPLY_HEADERS in cache) {
-		(cache as AstroCache)[APPLY_HEADERS](response);
+		(cache as AstroCache)[APPLY_HEADERS](response, request);
 	}
 }
 

@@ -22,6 +22,8 @@
     "./serverless/entrypoint": "./dist/serverless/entrypoint.js",
     "./build-image-service": "./dist/image/build-service.js",
     "./dev-image-service": "./dist/image/dev-service.js",
+    "./cache": "./dist/cache/index.js",
+    "./cache/provider": "./dist/cache/provider.js",
     "./package.json": "./package.json"
   },
   "typesVersions": {

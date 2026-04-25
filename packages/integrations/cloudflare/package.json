@@ -26,6 +26,8 @@
     "./image-transform-endpoint": "./dist/entrypoints/image-transform-endpoint.js",
     "./image-passthrough-endpoint": "./dist/entrypoints/image-passthrough-endpoint.js",
     "./image-service-workerd": "./dist/entrypoints/image-service-workerd.js",
+    "./cache": "./dist/cache/index.js",
+    "./cache/provider": "./dist/cache/provider.js",
     "./handler": "./dist/utils/handler.js",
     "./types.d.ts": "./types.d.ts",
     "./package.json": "./package.json"
@@ -54,7 +56,7 @@
     "wrangler": "^4.83.0"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260228.0",
+    "@cloudflare/workers-types": "^4.20260412.1",
     "@types/node": "^25.2.2",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
