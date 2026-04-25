@@ -1,3 +1,4 @@
+import type { APIContext } from '../types/public/context.js';
 import { PipelineFeatures } from '../core/base-pipeline.js';
 import type { FetchState } from '../core/fetch/fetch-state.js';
 import { getActionContext, serializeActionResult } from './runtime/server.js';
@@ -23,15 +24,15 @@ import { getActionContext, serializeActionResult } from './runtime/server.js';
  */
 export class ActionHandler {
 	/**
-	 * Run action handling for the current request.
+	 * Run action handling for the current request. Expects the APIContext
+	 * that is already being used by the render pipeline.
 	 *
 	 * Returns a `Response` when the action fully handles the request (RPC),
 	 * or `undefined` when the caller should continue processing the
 	 * request (form actions or non-action requests).
 	 */
-	handle(state: FetchState): Promise<Response | undefined> | undefined {
+	handle(apiContext: APIContext, state: FetchState): Promise<Response | undefined> | undefined {
 		state.pipeline.usedFeatures |= PipelineFeatures.actions;
-		const apiContext = state.getAPIContext();
 		if (apiContext.isPrerendered) {
 			return undefined;
 		}

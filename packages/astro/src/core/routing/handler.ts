@@ -67,7 +67,7 @@ export class AstroHandler {
 		payload?: RewritePayload,
 	): Promise<Response> {
 		if (!state.skipMiddleware) {
-			const actionResult = this.#actionHandler.handle(state);
+			const actionResult = this.#actionHandler.handle(ctx, state);
 			if (actionResult) {
 				return actionResult.then(
 					(response) => response ?? this.#pagesHandler.handle(state, ctx, payload),
