@@ -1,5 +1,44 @@
 # astro
 
+## 6.1.9
+
+### Patch Changes
+
+- [#16448](https://github.com/withastro/astro/pull/16448) [`99464ed`](https://github.com/withastro/astro/commit/99464edb5fc0968f6497328e106f26ab393668bd) Thanks [@matthewp](https://github.com/matthewp)! - Updates vite, picomatch, and unstorage to latest patch versions
+
+- [#16422](https://github.com/withastro/astro/pull/16422) [`a3951d7`](https://github.com/withastro/astro/commit/a3951d7873c7c210fedbaa77702bc33db6410715) Thanks [@matthewp](https://github.com/matthewp)! - Hardens `astro-island` export resolution and hydration error handling for malformed component metadata
+
+- [#16420](https://github.com/withastro/astro/pull/16420) [`e21de1d`](https://github.com/withastro/astro/commit/e21de1d03b318d5045dba718291c04fe05c01490) Thanks [@matthewp](https://github.com/matthewp)! - Hardens Astro's error overlay and server logging paths to avoid unsafe HTML insertion and format-string interpolation
+
+- [#16419](https://github.com/withastro/astro/pull/16419) [`f3485c3`](https://github.com/withastro/astro/commit/f3485c3458bc8bf70c152126e418c24f489ded9d) Thanks [@matthewp](https://github.com/matthewp)! - Hardens nested object and package metadata lookups to ignore prototype keys in content handling and project scaffolding
+
+- [#16022](https://github.com/withastro/astro/pull/16022) [`a002540`](https://github.com/withastro/astro/commit/a002540d60d4a840db9971e73c820a8015658ffe) Thanks [@mathieumaf](https://github.com/mathieumaf)! - Fixes an issue where i18n domains would return 404 when `trailingSlash` is set to `never`.
+
+- Updated dependencies [[`99464ed`](https://github.com/withastro/astro/commit/99464edb5fc0968f6497328e106f26ab393668bd), [`f3485c3`](https://github.com/withastro/astro/commit/f3485c3458bc8bf70c152126e418c24f489ded9d)]:
+  - @astrojs/internal-helpers@0.9.0
+  - @astrojs/markdown-remark@7.1.1
+
+## 6.1.8
+
+### Patch Changes
+
+- [#16367](https://github.com/withastro/astro/pull/16367) [`a6866a7`](https://github.com/withastro/astro/commit/a6866a7ef086627f8f8237274361d8acc2f85121) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where build output files could contain special characters (`!`, `~`, `{`, `}`) in their names, causing deploy failures on platforms like Netlify.
+
+- [#16381](https://github.com/withastro/astro/pull/16381) [`217c5b3`](https://github.com/withastro/astro/commit/217c5b3b937f0aee7e59280e8a10cf2bd4237605) Thanks [@ematipico](https://github.com/ematipico)! - Slightly improved the performance of the dev server by caching the internal crawling of the dependencies of a project.
+
+- [#16348](https://github.com/withastro/astro/pull/16348) [`7d26cd7`](https://github.com/withastro/astro/commit/7d26cd77bc1b33cee81f0e7b408dc2d170be1bdd) Thanks [@ocavue](https://github.com/ocavue)! - Fixes a bug where emitted assets during a client build would contain always fresh, new hashes in their name. Now the build should be more stable.
+
+- [#16317](https://github.com/withastro/astro/pull/16317) [`d012bfe`](https://github.com/withastro/astro/commit/d012bfeadb5b33f9ab1175191d59357d629c327e) Thanks [@das-peter](https://github.com/das-peter)! - Fixes a bug where `allowedDomains` weren't correctly propagated when using the development server.
+
+- [#16379](https://github.com/withastro/astro/pull/16379) [`5a84551`](https://github.com/withastro/astro/commit/5a845514114ae21ca9820e98b56cce33c0cf579b) Thanks [@martrapp](https://github.com/martrapp)! - Improves Vue scoped style handling in DEV mode during client router navigation.
+
+- [#16317](https://github.com/withastro/astro/pull/16317) [`d012bfe`](https://github.com/withastro/astro/commit/d012bfeadb5b33f9ab1175191d59357d629c327e) Thanks [@das-peter](https://github.com/das-peter)! - Adds tests to verify settings are properly propagated when using the development server.
+
+- [#16282](https://github.com/withastro/astro/pull/16282) [`5b0fdaa`](https://github.com/withastro/astro/commit/5b0fdaa8ba3dc17f4b93d9847c3255150b0aeab2) Thanks [@jmurty](https://github.com/jmurty)! - Fixes build errors on platforms with skew protection enabled (e.g. Vercel, Netlify) for inter-chunk Javascript using dynamic imports
+
+- Updated dependencies [[`e0b240e`](https://github.com/withastro/astro/commit/e0b240edea4db632138def3a9003b4b12e12f765)]:
+  - @astrojs/telemetry@3.3.1
+
 ## 6.1.7
 
 ### Patch Changes

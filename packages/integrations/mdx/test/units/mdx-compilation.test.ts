@@ -2,14 +2,18 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { rehypeHeadingIds } from '@astrojs/markdown-remark';
 import { compile as _compile, type CompileOptions, nodeTypes } from '@mdx-js/mdx';
-import type { AstroIntegrationLogger } from 'astro';
 import { visit as estreeVisit } from 'estree-util-visit';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import remarkSmartypants from 'remark-smartypants';
 import { visit } from 'unist-util-visit';
 import { ignoreStringPlugins } from '../../dist/utils.js';
-import type { RecmaPlugin, RehypePlugin, RemarkPlugin } from '../test-utils.js';
+import {
+	SpyIntegrationLogger,
+	type RecmaPlugin,
+	type RehypePlugin,
+	type RemarkPlugin,
+} from '../test-utils.ts';
 
 /**
  * Compile MDX to JSX string output for inspection.
@@ -259,7 +263,7 @@ describe('MDX string-based plugin filtering', () => {
 		// When a string-based plugin is provided, the ignoreStringPlugins
 		// function filters it out. We test the filter function directly in utils.test.js.
 		// Here we verify that only function plugins affect output.
-		const logger = { warn() {} } as unknown as AstroIntegrationLogger;
+		const logger = new SpyIntegrationLogger();
 
 		const plugins = ['remark-toc', () => (tree: unknown) => tree];
 		const filtered = ignoreStringPlugins(plugins, logger);

@@ -219,7 +219,8 @@ export async function writeResponse(source: Response, destination: ServerRespons
 			// also because of an error anywhere in the stream.
 			reader.cancel().catch((err) => {
 				console.error(
-					`There was an uncaught error in the middle of the stream while rendering ${destination.req.url}.`,
+					'There was an uncaught error in the middle of the stream while rendering %s.',
+					destination.req.url,
 					err,
 				);
 			});
