@@ -1,4 +1,5 @@
 import { fileURLToPath } from 'node:url';
+import { processEnvAtLaunch } from '../core/env/process-env-snapshot.js';
 import { loadEnv } from 'vite';
 import type { AstroConfig } from '../types/public/index.js';
 import type { EnvSchema } from './schema.js';
@@ -68,6 +69,18 @@ function getPrivateEnv({
 	return privateEnv;
 }
 
+function applyProcessEnvAtLaunch(loaded: Record<string, string>): void {
+	// Vite and other code may have merged `.env` into `process.env` after the real
+	// environment was set; re-apply the launch-time values for keys that existed then.
+	for (const key of Object.keys(processEnvAtLaunch)) {
+		const value = processEnvAtLaunch[key];
+		if (value === undefined) continue;
+		if (key in loaded) {
+			loaded[key] = value;
+		}
+	}
+}
+
 interface EnvLoaderOptions {
 	mode: string;
 	config: AstroConfig;
@@ -75,6 +88,7 @@ interface EnvLoaderOptions {
 
 function getEnv({ mode, config }: EnvLoaderOptions) {
 	const loaded = loadEnv(mode, config.vite.envDir ?? fileURLToPath(config.root), '');
+	applyProcessEnvAtLaunch(loaded);
 	const privateEnv = getPrivateEnv({
 		fullEnv: loaded,
 		viteConfig: config.vite,
