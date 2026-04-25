@@ -22,8 +22,9 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "test": "astro-scripts test \"**/*.test.ts\" --teardown-test ./test/misc/teardown.ts --tsx true --setup ./test/setup.js",
-    "test:match": "pnpm run test --match"
+    "test": "astro-scripts test \"**/*.test.ts\" --teardown-test ./test/misc/teardown.ts --tsx true --setup ./test/setup.ts",
+    "test:match": "pnpm run test --match",
+    "typecheck:tests": "tsc --build test/tsconfig.json"
   },
   "dependencies": {
     "@astrojs/compiler": "^2.13.1",

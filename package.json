@@ -40,7 +40,7 @@
     "test:e2e:alpinejs": "cd packages/integrations/alpinejs && pnpm run test:e2e",
     "test:e2e:match": "cd packages/astro && pnpm playwright install firefox && pnpm run test:e2e:match",
     "test:e2e:hosts": "turbo run test:hosted",
-    "typecheck:tests": "pnpm -r typecheck:tests",
+    "typecheck:tests": "pnpm -r run --sequential typecheck:tests",
     "benchmark": "astro-benchmark",
     "lint": "biome lint && knip && eslint . --report-unused-disable-directives-severity=warn --concurrency=auto",
     "lint:ci": "knip && pnpm run eslint:ci",
@@ -62,6 +62,12 @@
   "packageManager": "pnpm@10.30.3",
   "dependencies": {
     "astro-benchmark": "workspace:*"
+  },
+  "pnpm": {
+    "overrides": {
+      "picomatch@<4": "^2.3.2",
+      "vite@^7": "^7.3.2"
+    }
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.5",
