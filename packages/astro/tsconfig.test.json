@@ -5,12 +5,7 @@
     "test/*.ts",
     "e2e/*.ts",
     "test/test-adapter.js",
-    "test/test-image-service.js",
-    "test/test-plugins.js",
-    "test/test-prerenderer.js",
-    "test/test-remote-image-service.js",
     "test/test-utils.js",
-    "test/integration-test-helpers.js",
     "package.json"
   ],
   "exclude": ["test/units/_temp-fixtures/**", "test/fixtures/**", "e2e/fixtures/**"],
