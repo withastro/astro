@@ -1068,8 +1068,13 @@ export const UnsupportedExternalRedirect = {
 export const InvalidRedirectDestination = {
 	name: 'InvalidRedirectDestination',
 	title: 'Invalid redirect destination.',
-	message: (from: string, to: string) =>
-		`The redirect from "${from}" to "${to}" is invalid. The destination "${to}" does not match any existing route in your project.`,
+	message: (from: string, to: string, missingParams?: string[]) => {
+		if (missingParams && missingParams.length > 0) {
+			const paramList = missingParams.map((p) => `[${p}]`).join(', ');
+			return `The redirect from "${from}" to "${to}" is invalid. The destination "${to}" is missing the dynamic parameter${missingParams.length > 1 ? 's' : ''} ${paramList} required by the source route "${from}".`;
+		}
+		return `The redirect from "${from}" to "${to}" is invalid. The destination "${to}" does not match any existing route in your project.`;
+	},
 	hint: 'If you are redirecting to a specific page of a dynamic route (e.g., "/posts/[slug]/1"), this is not supported. The destination must be either a static path or a route pattern that matches an existing page (e.g., "/posts/[slug]/[page]").',
 } satisfies ErrorData;
 

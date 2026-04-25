@@ -309,6 +309,61 @@ describe('static redirects — invalid redirect destination throws', () => {
 	});
 });
 
+describe('static redirects — dynamic origin to static destination throws', () => {
+	it('throws InvalidRedirectDestination when dynamic origin redirects to static destination', async () => {
+		// Regression test for https://github.com/withastro/astro/issues/16482
+		// where a redirect like /project/[slug] -> / produced a misleading
+		// "getStaticPaths required" error pointing at the static index page,
+		// instead of a clear error about the param mismatch in the redirect config.
+		await assert.rejects(
+			() =>
+				createStaticBuildOptions({
+					pages: {
+						'src/pages/index.astro': '---\n---\n<p>Home</p>',
+					},
+					inlineConfig: {
+						redirects: {
+							'/project/[slug]': '/',
+						},
+					},
+				}),
+			(err: Error & { name: string }) => {
+				// Should NOT be the misleading getStaticPaths error
+				assert.ok(!err.message.includes('getStaticPaths()'));
+				// Should mention the missing param
+				assert.ok(err.message.includes('[slug]'));
+				assert.equal(err.name, 'InvalidRedirectDestination');
+				return true;
+			},
+		);
+	});
+
+	it('throws InvalidRedirectDestination when origin has more params than destination', async () => {
+		// Test that a dynamic origin with multiple params redirecting to a destination
+		// with fewer params is also caught.
+		await assert.rejects(
+			() =>
+				createStaticBuildOptions({
+					pages: {
+						'src/pages/posts/[id].astro':
+							'---\nexport function getStaticPaths() { return [{ params: { id: "1" } }]; }\n---\n<p>Post</p>',
+					},
+					inlineConfig: {
+						redirects: {
+							'/old/[id]/[page]': '/posts/[id]',
+						},
+					},
+				}),
+			(err: Error & { name: string }) => {
+				assert.ok(!err.message.includes('getStaticPaths()'));
+				assert.ok(err.message.includes('[page]'));
+				assert.equal(err.name, 'InvalidRedirectDestination');
+				return true;
+			},
+		);
+	});
+});
+
 describe('Astro.redirect() in a page component — build.redirects = false', () => {
 	it('renders redirect HTML for a page that calls Astro.redirect() even when build.redirects is false', async () => {
 		// /secret calls Astro.redirect('/login') in frontmatter.
