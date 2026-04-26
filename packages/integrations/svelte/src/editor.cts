@@ -19,9 +19,12 @@ export function toTSX(code: string, className: string): string {
 			const innerType = generics
 				? `ReturnType<__sveltets_Render<${generics.names}>['props']>`
 				: `import('svelte').ComponentProps<typeof $$$$Component>`;
+			// Generic components use a simpler type wrapper that preserves generic
+			// inference. Non-generic components use the full snippet handling.
+			const propsType = generics ? 'GenericPropsWithClientDirectives' : 'PropsWithClientDirectives';
 			result = tsx.replace(
 				'export default $$Component;',
-				`export default function ${className}__AstroComponent_${genericSuffix}(_props: import('@astrojs/svelte/svelte-shims.d.ts').PropsWithClientDirectives<${innerType}>): any {}`,
+				`export default function ${className}__AstroComponent_${genericSuffix}(_props: import('@astrojs/svelte/svelte-shims.d.ts').${propsType}<${innerType}>): any {}`,
 			);
 		} else {
 			// Old svelte2tsx output

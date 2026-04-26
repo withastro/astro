@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 function hookError() {
 	const error = console.error;

@@ -7,6 +7,13 @@ import {
 	type AstroLogMessage,
 } from '../../../astro/dist/core/logger/core.js';
 
+export {
+	loadFixture,
+	type AstroInlineConfig,
+	type DevServer,
+	type Fixture,
+} from '../../../astro/test/test-utils.js';
+
 export type RemarkPlugin<PluginParameters extends any[] = any[]> = unified.Plugin<
 	PluginParameters,
 	mdast.Root
