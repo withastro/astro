@@ -195,7 +195,7 @@ describe('RenderContext', () => {
 				Astro.logger.info('page info');
 				Astro.logger.warn('page warn');
 				Astro.logger.error('page error');
-				return render`<html><head>${maybeRenderHead(result)}</head><body><p>Logged</p></body></html>`;
+				return render`<html><head>${maybeRenderHead()}</head><body><p>Logged</p></body></html>`;
 			});
 
 			const response = await renderContext.render(createAstroModule(LoggingPage));
@@ -224,7 +224,7 @@ describe('RenderContext', () => {
 			const LoggingPage = createComponent((result: any, _props: any, _slots: any) => {
 				const Astro = result.createAstro({}, null);
 				Astro.logger.info('hello from page');
-				return render`<html><head>${maybeRenderHead(result)}</head><body><p>OK</p></body></html>`;
+				return render`<html><head>${maybeRenderHead()}</head><body><p>OK</p></body></html>`;
 			});
 
 			const response = await renderContext.render(createAstroModule(LoggingPage));

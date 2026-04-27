@@ -6,7 +6,7 @@ import {
 } from '../../../astro/test/test-utils.js';
 import {
 	AstroIntegrationLogger,
-	type AstroLogMessage,
+	type AstroLoggerMessage,
 } from '../../../astro/dist/core/logger/core.js';
 
 export type { AstroInlineConfig, DevServer, Fixture };
@@ -16,10 +16,10 @@ export function loadFixture(config: AstroInlineConfig) {
 }
 
 export class SpyIntegrationLogger extends AstroIntegrationLogger {
-	readonly messages: AstroLogMessage[];
+	readonly messages: AstroLoggerMessage[];
 
 	constructor() {
-		const messages: AstroLogMessage[] = [];
+		const messages: AstroLoggerMessage[] = [];
 		super(
 			{
 				destination: {
