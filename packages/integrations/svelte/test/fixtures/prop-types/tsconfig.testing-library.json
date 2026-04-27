@@ -1,0 +1,14 @@
+{
+  "extends": "../../../tsconfig.json",
+  "compilerOptions": {
+    "moduleResolution": "Bundler",
+    "skipLibCheck": true,
+    "rootDir": "../../../../",
+    "types": ["@testing-library/svelte"]
+  },
+  "include": [
+    "./types/testing-library/Component.ts",
+    "./types/testing-library/Component.svelte",
+    "../../../../packages/integrations/svelte/svelte-shims.d.ts"
+  ]
+}
