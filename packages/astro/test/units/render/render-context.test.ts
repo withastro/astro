@@ -1,10 +1,9 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { RenderContext } from '../../../dist/core/render-context.js';
-import { createComponent, render } from '../../../dist/runtime/server/index.js';
+import { createComponent, maybeRenderHead, render } from '../../../dist/runtime/server/index.js';
 import type { AstroComponentFactory } from '../../../dist/runtime/server/render/index.js';
 import { createBasicPipeline } from '../test-utils.ts';
-import { maybeRenderHead } from '../../../dist/runtime/server/render/head.js';
 
 const createAstroModule = (AstroComponent: AstroComponentFactory) => ({ default: AstroComponent });
 

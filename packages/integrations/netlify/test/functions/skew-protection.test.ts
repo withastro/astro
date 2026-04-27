@@ -58,12 +58,18 @@ describe('Skew Protection', { timeout: 120000 }, () => {
 			for (const file of files) {
 				const contents = await readFile(new URL(file, chunksURL), 'utf-8');
 				if (contents.includes(needle)) {
-					found = true;
-					break;
+					const thisContents = await readFile(new URL(file, manifestURL), 'utf-8');
+					if (
+						thisContents.includes(
+							'"internalFetchHeaders":{"X-Netlify-Deploy-ID":"test-deploy-123"}',
+						)
+					) {
+						found = true;
+						break;
+					}
 				}
 			}
 		}
-
 		assert.ok(
 			found,
 			'Manifest should include internalFetchHeaders field with the correct deploy ID value',
