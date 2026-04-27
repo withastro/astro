@@ -3,4 +3,4 @@ export {
 	loadFixture,
 	type DevServer,
 	type Fixture,
-} from '../../../astro/test/test-utils.js';
+} from 'astro/_internal/test/test-utils';
