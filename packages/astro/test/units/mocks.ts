@@ -1,4 +1,4 @@
-import { createBasicPipeline, type SpyLogger } from './test-utils.ts';
+import { createBasicPipeline } from './test-utils.ts';
 import { makeRoute, staticPart } from './routing/test-helpers.ts';
 import { AstroCookies } from '../../dist/core/cookies/index.js';
 import { App } from '../../dist/core/app/app.js';
@@ -45,8 +45,7 @@ interface LightMockRenderContextOverrides {
  */
 export function createLightRenderContext(overrides: LightMockRenderContextOverrides = {}) {
 	const pipeline =
-		overrides.pipeline ||
-		createBasicPipeline({ manifest: { trailingSlash: 'never' } });
+		overrides.pipeline || createBasicPipeline({ manifest: { trailingSlash: 'never' } });
 
 	return {
 		request: overrides.request || new Request('http://localhost/'),
@@ -62,7 +61,7 @@ interface MockRenderContextOverrides {
 	route?: string;
 	routeData?: Partial<RouteData>;
 	pipeline?: Pipeline;
-	logger?: AstroLogger | SpyLogger;
+	logger?: AstroLogger;
 	manifest?: Partial<SSRManifest>;
 	status?: number;
 	skipMiddleware?: boolean;

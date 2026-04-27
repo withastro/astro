@@ -141,7 +141,7 @@ describe('CLI shared', () => {
 
 					assert.deepStrictEqual(logger.logs, [
 						{
-							type: 'info',
+							level: 'info',
 							label: 'SKIP_FORMAT',
 							message: `
   astro preview [...flags]

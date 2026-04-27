@@ -28,7 +28,7 @@ describe('CLI docs', () => {
 					cloudIdeProvider,
 				});
 
-				assert.equal(logger.logs[0].type, 'error');
+				assert.equal(logger.logs[0].level, 'error');
 				assert.match(logger.logs[0].message, /It looks like your platform/);
 				assert.deepStrictEqual(commandExecutor.inputs, []);
 			});

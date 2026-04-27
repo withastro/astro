@@ -176,7 +176,10 @@ describe('json handler', () => {
 		it('writes JSON with message and label', () => {
 			logger.info('build', 'compiled successfully');
 			assert.equal(stdoutWrites.length, 1);
-			assert.equal(stdoutWrites[0], '{"message":"compiled successfully","label":"build","level":"info"}\n');
+			assert.equal(
+				stdoutWrites[0],
+				'{"message":"compiled successfully","label":"build","level":"info"}\n',
+			);
 		});
 
 		it('writes JSON with null label', () => {

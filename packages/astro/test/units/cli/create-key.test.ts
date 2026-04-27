@@ -14,7 +14,7 @@ describe('CLI create-key', () => {
 
 				await runner.run(createKeyCommand, { logger, keyGenerator });
 
-				assert.equal(logger.logs[0].type, 'info');
+				assert.equal(logger.logs[0].level, 'info');
 				assert.equal(logger.logs[0].label, 'crypto');
 				assert.match(logger.logs[0].message, /ASTRO_KEY=FOO/);
 			});

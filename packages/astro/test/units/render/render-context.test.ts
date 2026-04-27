@@ -138,7 +138,7 @@ describe('RenderContext', () => {
 			renderContext.createActionAPIContext().logger;
 
 			assert.equal(spyLogger.writeCount(), 1);
-			assert.equal(spyLogger.logs[0].type, 'warn');
+			assert.equal(spyLogger.logs[0].level, 'warn');
 			assert.match(spyLogger.logs[0].message, /experimental\.logger/i);
 		});
 
@@ -178,9 +178,9 @@ describe('RenderContext', () => {
 
 			assert.equal(spyLogger.writeCount(), 3);
 			assert.deepStrictEqual(spyLogger.logs, [
-				{ type: 'info', label: null, message: 'info message' },
-				{ type: 'warn', label: null, message: 'warn message' },
-				{ type: 'error', label: null, message: 'error message' },
+				{ level: 'info', label: null, message: 'info message' },
+				{ level: 'warn', label: null, message: 'warn message' },
+				{ level: 'error', label: null, message: 'error message' },
 			]);
 		});
 	});
@@ -204,9 +204,9 @@ describe('RenderContext', () => {
 			const userLogs = spyLogger.logs.filter((l) => l.label === null);
 			assert.equal(userLogs.length, 3);
 			assert.deepStrictEqual(userLogs, [
-				{ type: 'info', label: null, message: 'page info' },
-				{ type: 'warn', label: null, message: 'page warn' },
-				{ type: 'error', label: null, message: 'page error' },
+				{ level: 'info', label: null, message: 'page info' },
+				{ level: 'warn', label: null, message: 'page warn' },
+				{ level: 'error', label: null, message: 'page error' },
 			]);
 		});
 
@@ -232,7 +232,7 @@ describe('RenderContext', () => {
 
 			const userLogs = spyLogger.logs.filter((l) => l.label === null);
 			assert.equal(userLogs.length, 1);
-			assert.equal(userLogs[0].type, 'info');
+			assert.equal(userLogs[0].level, 'info');
 			assert.equal(userLogs[0].message, 'hello from page');
 		});
 	});

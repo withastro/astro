@@ -6,7 +6,7 @@ import httpMocks from 'node-mocks-http';
 import { getDefaultClientDirectives } from '../../dist/core/client-directive/index.js';
 import { resolveConfig } from '../../dist/core/config/index.js';
 import { createBaseSettings } from '../../dist/core/config/settings.js';
-import { AstroIntegrationLogger, AstroLogger } from '../../dist/core/logger/core.js';
+import { AstroLogger } from '../../dist/core/logger/core.js';
 import nodeLoggerFactory from '../../dist/core/logger/impls/node.js';
 import { NOOP_MIDDLEWARE_FN } from '../../dist/core/middleware/noop-middleware.js';
 import { Pipeline } from '../../dist/core/render/index.js';
@@ -19,7 +19,6 @@ import type { RouteData, SSRLoadedRenderer, SSRResult } from '../../dist/types/p
 import type { HeadElements, TryRewriteResult } from '../../dist/core/base-pipeline.js';
 import type { ComponentInstance } from '../../dist/types/astro.js';
 import type { RewritePayload, MiddlewareHandler } from '../../dist/types/public/common.js';
-import type { AstroLoggerDestination } from '../../dist/core/logger/core.js';
 import { createManifest } from './app/test-helpers.ts';
 
 export type { AstroSettings };
@@ -149,7 +148,7 @@ class TestPipeline extends Pipeline {
  */
 export function createBasicPipeline(
 	options: {
-		logger?: AstroLogger | SpyLogger;
+		logger?: AstroLogger;
 		manifest?: Partial<SSRManifest>;
 		mode?: RuntimeMode;
 		renderers?: SSRLoadedRenderer[];
@@ -168,7 +167,7 @@ export function createBasicPipeline(
 ): Pipeline {
 	const mode = options.mode ?? 'development';
 	return new TestPipeline(
-		(options.logger ?? defaultLogger) as AstroLogger,
+		options.logger ?? defaultLogger,
 		createManifest(options.manifest ?? {}),
 		options.mode ?? 'development',
 		options.renderers ?? [],
@@ -195,70 +194,97 @@ export async function createBasicSettings(
 	return createBaseSettings(astroConfig, inlineConfig.logLevel);
 }
 
-interface LogEntry {
-	type: string;
+export interface LogEntry {
+	level: string;
 	label: string | null;
 	message: string;
 }
 
-const destination: AstroLoggerDestination = {
-	write: () => true as const,
-	flush: () => {},
-	close: () => {},
-};
-
-export class SpyLogger {
+/**
+ * A test spy logger that extends AstroLogger and captures all log writes
+ * into a `.logs` array for assertions.
+ *
+ * All writes — including those from integration loggers obtained via
+ * `forkIntegrationLogger()` and further `.fork()` calls — flow through
+ * a shared capturing destination. This means:
+ *
+ * - **`.logs`** contains entries from both direct calls and forked loggers,
+ *   in the order they occurred.
+ * - **`.writeCount()`** includes writes from forked integration loggers.
+ * - **Level filtering** (configurable via the constructor) applies uniformly
+ *   to both direct and forked writes. Defaults to `'debug'` (capture everything).
+ *
+ * @example Direct usage
+ * ```ts
+ * const spy = new SpyLogger();
+ * spy.info('config', 'loaded');
+ * assert.equal(spy.logs[0].level, 'info');
+ * ```
+ *
+ * @example Integration logger writes are captured
+ * ```ts
+ * const spy = new SpyLogger();
+ * const intLogger = spy.forkIntegrationLogger('my-integration');
+ * intLogger.warn('something bad');
+ * assert.equal(spy.logs[0].level, 'warn');
+ * assert.equal(spy.logs[0].label, 'my-integration');
+ * assert.equal(spy.writeCount(), 1);
+ * ```
+ *
+ * @example Custom log level
+ * ```ts
+ * const spy = new SpyLogger({ level: 'warn' });
+ * spy.info(null, 'filtered out');
+ * spy.warn(null, 'captured');
+ * assert.equal(spy.logs.length, 1);
+ * ```
+ */
+export class SpyLogger extends AstroLogger {
 	#logs: LogEntry[] = [];
 	#writeCount = 0;
 	#flushCount = 0;
 	#closeCount = 0;
 
+	constructor(options?: { level?: AstroLoggerLevel }) {
+		const logs: LogEntry[] = [];
+		const writeCountRef = { value: 0 };
+		super({
+			destination: {
+				write(event) {
+					logs.push({ level: event.level, label: event.label, message: event.message });
+					writeCountRef.value++;
+				},
+				flush() {},
+				close() {},
+			},
+			level: options?.level ?? 'debug',
+		});
+		// Share the same array/counter references so the getters work
+		this.#logs = logs;
+		this.#writeCount_ref = writeCountRef;
+	}
+
+	// We need a mutable ref object because the destination closure and
+	// the getter both need to see the same counter. Private fields can't
+	// be accessed from inside the destination closure.
+	#writeCount_ref: { value: number } = { value: 0 };
+
 	get logs() {
 		return this.#logs;
 	}
 
-	debug(label: string | null, ...messages: string[]) {
-		this.#logs.push(...messages.map((message) => ({ type: 'debug', label, message })));
-		this.#writeCount += messages.length;
-	}
-	error(label: string | null, message: string) {
-		this.#logs.push({ type: 'error', label, message });
-		this.#writeCount++;
-	}
-	info(label: string | null, message: string) {
-		this.#logs.push({ type: 'info', label, message });
-		this.#writeCount++;
-	}
-	warn(label: string | null, message: string) {
-		this.#logs.push({ type: 'warn', label, message });
-		this.#writeCount++;
-	}
-	options = {
-		destination,
-		level: 'silent' as AstroLoggerLevel,
-	};
-	level() {
-		return this.options.level;
-	}
-	forkIntegrationLogger(label: string) {
-		return new AstroIntegrationLogger(this.options, label);
-	}
-	flush() {
+	override flush() {
 		this.#flushCount++;
-		if (this.options.destination.flush) {
-			this.options.destination.flush();
-		}
+		super.flush();
 	}
 
-	close() {
+	override close() {
 		this.#closeCount++;
-		if (this.options.destination.close) {
-			this.options.destination.close();
-		}
+		super.close();
 	}
 
 	writeCount() {
-		return this.#writeCount;
+		return this.#writeCount_ref.value;
 	}
 
 	flushCount() {
@@ -267,10 +293,6 @@ export class SpyLogger {
 
 	closeCount() {
 		return this.#closeCount;
-	}
-
-	setDestination(dest: AstroLoggerDestination) {
-		this.options.destination = dest;
 	}
 }
 

@@ -39,7 +39,7 @@ describe('CLI info', () => {
 					logger,
 				});
 
-				assert.equal(logger.logs[0].type, 'info');
+				assert.equal(logger.logs[0].level, 'info');
 				assert.equal(logger.logs[0].message, 'true-[["foo","bar"]]');
 			});
 
