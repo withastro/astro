@@ -55,7 +55,7 @@ describe('prerenderEnvironment: node', () => {
 		const res = await fixture.fetch('/');
 		const html = await res.text();
 		assert.ok(
-			html.includes('rebeccapurple'),
+			html.includes('#639'),
 			'Expected scoped styles to be included in the prerendered page',
 		);
 	});
