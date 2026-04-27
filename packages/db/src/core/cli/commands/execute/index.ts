@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs';
 import type { AstroConfig } from 'astro';
 import colors from 'piccolore';
 import type { Arguments } from 'yargs-parser';
-import { isDbError } from '../../../../runtime/utils.js';
+import { getDbError } from '../../../../runtime/utils.js';
 import {
 	EXEC_DEFAULT_EXPORT_ERROR,
 	EXEC_ERROR,
@@ -67,7 +67,8 @@ export async function cmd({
 		await mod.default();
 		console.info(`${colors.green('✔')} File run successfully.`);
 	} catch (e) {
-		if (isDbError(e)) throw new Error(EXEC_ERROR(e.message));
+		const dbError = getDbError(e);
+		if (dbError) throw new Error(EXEC_ERROR(dbError.message));
 		else throw e;
 	}
 }

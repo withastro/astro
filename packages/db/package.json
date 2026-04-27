@@ -75,7 +75,7 @@
   "dependencies": {
     "@clack/prompts": "^1.0.1",
     "@libsql/client": "^0.17.0",
-    "drizzle-orm": "^0.42.0",
+    "drizzle-orm": "^0.45.2",
     "microdiff": "^1.5.0",
     "nanoid": "^5.1.6",
     "piccolore": "^0.1.3",
