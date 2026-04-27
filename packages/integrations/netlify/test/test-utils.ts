@@ -5,7 +5,7 @@ import {
 	loadFixture as baseLoadFixture,
 } from '../../../astro/test/test-utils.js';
 
-export { SpyLogger, type LogEntry } from '../../../astro/test/units/test-utils.ts';
+export { SpyLogger } from '../../../astro/test/units/test-utils.ts';
 export type { AstroInlineConfig, DevServer, Fixture };
 
 export function loadFixture(config: AstroInlineConfig) {
