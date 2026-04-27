@@ -249,10 +249,7 @@ export async function loadFixture(inlineConfig) {
 		},
 		pathExists: (p) => fs.existsSync(new URL(p.replace(/^\//, ''), config.outDir)),
 		readFile: (filePath) =>
-			fs.promises.readFile(
-				new URL(filePath.replace(/^\//, ''), config.outDir),
-				'utf8',
-			),
+			fs.promises.readFile(new URL(filePath.replace(/^\//, ''), config.outDir), 'utf8'),
 		readBuffer: (filePath) => {
 			return fs.promises.readFile(new URL(filePath.replace(/^\//, ''), config.outDir));
 		},

@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/node",
   "description": "Deploy your site to a Node.js server",
-  "version": "10.0.6",
+  "version": "11.0.0-alpha.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -39,7 +39,7 @@
     "server-destroy": "^1.0.1"
   },
   "peerDependencies": {
-    "astro": "^6.0.0"
+    "astro": "^7.0.0-alpha.0"
   },
   "devDependencies": {
     "@fastify/middie": "^9.1.0",
