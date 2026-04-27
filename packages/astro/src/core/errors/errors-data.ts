@@ -610,13 +610,13 @@ export const UnsupportedImageConversion = {
 
 /**
  * @docs
- * @message An error occurred while optimizing the SVG file with SVGO.
+ * @message An error occurred while optimizing the SVG file with the optimizer.
  */
 export const CannotOptimizeSvg = {
 	name: 'CannotOptimizeSvg',
 	title: 'Cannot optimize SVG',
-	message: (path: string) => `An error occurred while optimizing SVG file "${path}" with SVGO.`,
-	hint: 'Review the included SVGO error message provided for guidance.',
+	message: (path: string, name: string) => `An error occurred while optimizing SVG file "${path}" with the "${name}" optimizer.`,
+	hint: 'Review the included error message provided for guidance.',
 } satisfies ErrorData;
 
 /**

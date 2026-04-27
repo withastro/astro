@@ -8,7 +8,6 @@ import type {
 	Smartypants,
 	SyntaxHighlightConfigType,
 } from '@astrojs/markdown-remark';
-import type { Config as SvgoConfig } from 'svgo';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
 import type { FontFamily, FontProvider } from '../../assets/fonts/types.js';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
@@ -25,6 +24,7 @@ import type {
 } from '../../core/session/types.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
+import type { SvgOptimizer } from '../../assets/svg/types.js';
 
 export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
 
@@ -33,6 +33,8 @@ export type { FontProvider };
 export type { CspAlgorithm, CspHash };
 
 export type { RemotePattern };
+
+export type { SvgOptimizer };
 
 export type CspStyleDirective = { hashes?: CspHash[]; resources?: string[] };
 export type CspScriptDirective = {
@@ -2853,14 +2855,12 @@ export interface AstroUserConfig<
 		chromeDevtoolsWorkspace?: boolean;
 
 		/**
-		 * @name experimental.svgo
-		 * @type {boolean | SvgoConfig}
-		 * @default `false`
+		 * @name experimental.svgOptimizer
+		 * @type {SvgOptimizer}
+		 * @default `undefined`
+		 * @version 6.2.0
 		 * @description
-		 * Enable SVG optimization using SVGO during build time.
-		 *
-		 * Set to `true` to enable optimization with default settings, or pass a configuration
-		 * object to customize SVGO behavior.
+		 * Enable SVG optimization at build time.
 		 *
 		 * When enabled, all imported SVG files will be optimized for smaller file sizes
 		 * and better performance while maintaining visual quality.
@@ -2869,32 +2869,14 @@ export interface AstroUserConfig<
 		 * {
 		 *   experimental: {
 		 *     // Enable with defaults
-		 *     svgo: true
+		 *     svgOptimizer: svgoOptimizer()
 		 *   }
 		 * }
 		 * ```
 		 *
-		 * To customize optimization, pass a [SVGO configuration object](https://svgo.dev/):
-		 *
-		 * ```js
-		 * {
-		 *   experimental: {
-		 *     svgo: {
-		 *       plugins: [
-		 *         'preset-default',
-		 *         {
-		 *           name: 'removeViewBox',
-		 *           active: false
-		 *         }
-		 *       ]
-		 *     }
-		 *   }
-		 * }
-		 * ```
-		 *
-		 * See the [experimental SVGO optimization docs](https://docs.astro.build/en/reference/experimental-flags/svg-optimization/) for more information.
+		 * See the [experimental SVG optimization docs](https://docs.astro.build/en/reference/experimental-flags/svg-optimization/) for more information.
 		 */
-		svgo?: boolean | SvgoConfig;
+		svgOptimizer?: SvgOptimizer;
 
 		/**
 		 * @name experimental.cache
