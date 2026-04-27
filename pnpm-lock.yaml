@@ -6982,6 +6982,27 @@ importers:
         specifier: ^4.21.0
         version: 4.21.0
 
+  triage/gh-16491:
+    dependencies:
+      '@needle-tools/usd':
+        specifier: '*'
+        version: 0.0.1-61ded11
+      astro:
+        specifier: workspace:*
+        version: link:../../packages/astro
+
+  triage/issue-16491:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../packages/integrations/cloudflare
+      '@needle-tools/usd':
+        specifier: 0.0.1-61ded11
+        version: 0.0.1-61ded11
+      astro:
+        specifier: workspace:*
+        version: link:../../packages/astro
+
 packages:
 
   '@antfu/utils@0.7.10':
@@ -8914,6 +8935,12 @@ packages:
 
   '@napi-rs/wasm-runtime@1.1.1':
     resolution: {integrity: sha512-p64ah1M1ld8xjWv3qbvFwHiFVWrq1yFvV4f7w+mzaqiR4IlSgkqhcRdHwsGgomwzBH51sRY4NEowLxnaBjcW/A==}
+
+  '@needle-tools/usd@0.0.1-61ded11':
+    resolution: {integrity: sha512-1yuQ33AELTOv+rEDLTaR/8EJVkEeRgTfBlH0iDwhiypoI+qLBpBGm+zO+uhgtZ2R3DADR3p18xa7+Jzk3Lo/oQ==}
+    peerDependencies:
+      '@needle-tools/engine': '>= 4.5.0-alpha.4'
+      three: ^0.164.1
 
   '@neon-rs/load@0.0.4':
     resolution: {integrity: sha512-kTPhdZyTQxB+2wpiRcFWrDcejc4JI6tkPuS7UZCG4l6Zvc5kU/gGQ/ozvHTh1XR5tS+UlfAfGuPajjzQjCiHCw==}
@@ -17778,6 +17805,8 @@ snapshots:
       '@emnapi/runtime': 1.8.1
       '@tybys/wasm-util': 0.10.1
     optional: true
+
+  '@needle-tools/usd@0.0.1-61ded11': {}
 
   '@neon-rs/load@0.0.4': {}
 
