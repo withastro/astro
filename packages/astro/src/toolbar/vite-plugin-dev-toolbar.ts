@@ -34,12 +34,10 @@ export default function astroDevToolbar({ settings, logger }: AstroPluginOptions
 									build.onEnd((result) => {
 										if (!result.metafile) return;
 										for (const outputPath of Object.keys(result.metafile.outputs)) {
-											if (!outputPath.includes('entrypoint') || !outputPath.endsWith('.js')) continue;
+											if (!outputPath.includes('entrypoint') || !outputPath.endsWith('.js'))
+												continue;
 											const code = readFileSync(outputPath, 'utf-8');
-											const stripped = code.replace(
-												/\/\/# sourceMappingURL=.*$/m,
-												'',
-											);
+											const stripped = code.replace(/\/\/# sourceMappingURL=.*$/m, '');
 											if (stripped !== code) {
 												writeFileSync(outputPath, stripped);
 											}
