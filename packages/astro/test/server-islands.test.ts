@@ -23,9 +23,20 @@ async function createKeyFromString(keyString: string) {
 // Helper to get encrypted componentExport for 'default'
 async function getEncryptedComponentExport(
 	keyString = 'eKBaVEuI7YjfanEXHuJe/pwZKKt3LkAHeMxvTU7aR0M=',
+	componentId = 'Island',
 ) {
 	const key = await createKeyFromString(keyString);
-	return encryptString(key, 'default');
+	return encryptString(key, 'default', `export:${componentId}`);
+}
+
+// Helper to get encrypted props
+async function getEncryptedProps(
+	props: Record<string, unknown> = {},
+	keyString = 'eKBaVEuI7YjfanEXHuJe/pwZKKt3LkAHeMxvTU7aR0M=',
+	componentId = 'Island',
+) {
+	const key = await createKeyFromString(keyString);
+	return encryptString(key, JSON.stringify(props), `props:${componentId}`);
 }
 
 describe('Server islands', () => {
@@ -72,11 +83,12 @@ describe('Server islands', () => {
 
 			it('island is not indexed', async () => {
 				const encryptedComponentExport = await getEncryptedComponentExport();
+				const encryptedProps = await getEncryptedProps();
 				const res = await fixture.fetch('/_server-islands/Island', {
 					method: 'POST',
 					body: JSON.stringify({
 						encryptedComponentExport,
-						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
+						encryptedProps,
 						encryptedSlots: '',
 					}),
 				});
@@ -85,11 +97,12 @@ describe('Server islands', () => {
 
 			it('island can set headers', async () => {
 				const encryptedComponentExport = await getEncryptedComponentExport();
+				const encryptedProps = await getEncryptedProps();
 				const res = await fixture.fetch('/_server-islands/Island', {
 					method: 'POST',
 					body: JSON.stringify({
 						encryptedComponentExport,
-						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
+						encryptedProps,
 						encryptedSlots: '',
 					}),
 				});
@@ -112,15 +125,16 @@ describe('Server islands', () => {
 
 			it('accepts encrypted slots via POST', async () => {
 				const key = await createKeyFromString('eKBaVEuI7YjfanEXHuJe/pwZKKt3LkAHeMxvTU7aR0M=');
-				const encryptedComponentExport = await encryptString(key, 'default');
+				const encryptedComponentExport = await encryptString(key, 'default', 'export:Island');
+				const encryptedProps = await getEncryptedProps();
 				const slotsToEncrypt = { content: '<p>Safe slot content</p>' };
-				const encryptedSlots = await encryptString(key, JSON.stringify(slotsToEncrypt));
+				const encryptedSlots = await encryptString(key, JSON.stringify(slotsToEncrypt), 'slots:Island');
 
 				const res = await fixture.fetch('/_server-islands/Island', {
 					method: 'POST',
 					body: JSON.stringify({
 						encryptedComponentExport,
-						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
+						encryptedProps,
 						encryptedSlots: encryptedSlots,
 					}),
 				});
@@ -129,11 +143,12 @@ describe('Server islands', () => {
 
 			it('rejects invalid encrypted slots via POST', async () => {
 				const encryptedComponentExport = await getEncryptedComponentExport();
+				const encryptedProps = await getEncryptedProps();
 				const res = await fixture.fetch('/_server-islands/Island', {
 					method: 'POST',
 					body: JSON.stringify({
 						encryptedComponentExport,
-						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
+						encryptedProps,
 						// hard-coded invalid encrypted slot value:
 						encryptedSlots: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLE',
 					}),
@@ -143,15 +158,16 @@ describe('Server islands', () => {
 
 			it('accepts encrypted slots with XSS payload via POST', async () => {
 				const key = await createKeyFromString('eKBaVEuI7YjfanEXHuJe/pwZKKt3LkAHeMxvTU7aR0M=');
-				const encryptedComponentExport = await encryptString(key, 'default');
+				const encryptedComponentExport = await encryptString(key, 'default', 'export:Island');
+				const encryptedProps = await getEncryptedProps();
 				const slotsToEncrypt = { xss: '<img src=x onerror=alert(0)>' };
-				const encryptedSlots = await encryptString(key, JSON.stringify(slotsToEncrypt));
+				const encryptedSlots = await encryptString(key, JSON.stringify(slotsToEncrypt), 'slots:Island');
 
 				const res = await fixture.fetch('/_server-islands/Island', {
 					method: 'POST',
 					body: JSON.stringify({
 						encryptedComponentExport,
-						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
+						encryptedProps,
 						encryptedSlots: encryptedSlots,
 					}),
 				});
@@ -237,11 +253,12 @@ describe('Server islands', () => {
 			it('island is not indexed', async () => {
 				const app = await fixture.loadTestAdapterApp();
 				const encryptedComponentExport = await getEncryptedComponentExport();
+				const encryptedProps = await getEncryptedProps();
 				const request = new Request('http://example.com/_server-islands/Island', {
 					method: 'POST',
 					body: JSON.stringify({
 						encryptedComponentExport,
-						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
+						encryptedProps,
 						encryptedSlots: '',
 					}),
 					headers: {
@@ -273,15 +290,16 @@ describe('Server islands', () => {
 			it('accepts encrypted slots via POST', async () => {
 				const app = await fixture.loadTestAdapterApp();
 				const key = await createKeyFromString('eKBaVEuI7YjfanEXHuJe/pwZKKt3LkAHeMxvTU7aR0M=');
-				const encryptedComponentExport = await encryptString(key, 'default');
+				const encryptedComponentExport = await encryptString(key, 'default', 'export:Island');
+				const encryptedProps = await getEncryptedProps();
 				const slotsToEncrypt = { content: '<p>Safe slot content</p>' };
-				const encryptedSlots = await encryptString(key, JSON.stringify(slotsToEncrypt));
+				const encryptedSlots = await encryptString(key, JSON.stringify(slotsToEncrypt), 'slots:Island');
 
 				const request = new Request('http://example.com/_server-islands/Island', {
 					method: 'POST',
 					body: JSON.stringify({
 						encryptedComponentExport,
-						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
+						encryptedProps,
 						encryptedSlots: encryptedSlots,
 					}),
 					headers: {
@@ -295,12 +313,13 @@ describe('Server islands', () => {
 			it('rejects invalid encrypted slots via POST', async () => {
 				const app = await fixture.loadTestAdapterApp();
 				const encryptedComponentExport = await getEncryptedComponentExport();
+				const encryptedProps = await getEncryptedProps();
 
 				const request = new Request('http://example.com/_server-islands/Island', {
 					method: 'POST',
 					body: JSON.stringify({
 						encryptedComponentExport,
-						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
+						encryptedProps,
 						// hard-coded invalid encrypted slot value:
 						encryptedSlots: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLE',
 					}),
@@ -315,15 +334,16 @@ describe('Server islands', () => {
 			it('accepts encrypted slots with XSS payload via POST', async () => {
 				const app = await fixture.loadTestAdapterApp();
 				const key = await createKeyFromString('eKBaVEuI7YjfanEXHuJe/pwZKKt3LkAHeMxvTU7aR0M=');
-				const encryptedComponentExport = await encryptString(key, 'default');
+				const encryptedComponentExport = await encryptString(key, 'default', 'export:Island');
+				const encryptedProps = await getEncryptedProps();
 				const slotsToEncrypt = { xss: '<img src=x onerror=alert(0)>' };
-				const encryptedSlots = await encryptString(key, JSON.stringify(slotsToEncrypt));
+				const encryptedSlots = await encryptString(key, JSON.stringify(slotsToEncrypt), 'slots:Island');
 
 				const request = new Request('http://example.com/_server-islands/Island', {
 					method: 'POST',
 					body: JSON.stringify({
 						encryptedComponentExport,
-						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
+						encryptedProps,
 						encryptedSlots: encryptedSlots,
 					}),
 					headers: {
