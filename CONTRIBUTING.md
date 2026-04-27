@@ -346,11 +346,33 @@ Other workspace packages should import internals via the subpath, not a deep rel
 ```ts
 // Do this
 import { loadFixture } from 'astro/_internal/test/test-utils';
-// Not tihs
+// Not this
 import { loadFixture } from '../../../astro/test/test-utils.js';
 ```
 
-To add a new internal entry, add the `./_internal/*` key to `"exports"` only — not to `"publishConfig.exports"`.
+**Example — public export `./foo`** (add to *both* maps):
+
+```diff
+ "exports": {
++    "./foo": "./dist/foo.js",
+ },
+ "publishConfig": {
+   "exports": {
++    "./foo": "./dist/foo.js",
+   }
+ }
+```
+
+**Example — internal export `./_internal/foo`** (add to `"exports"` only):
+
+```diff
+ "exports": {
++    "./_internal/foo": "./dist/foo.js",
+ }
+ // publishConfig.exports unchanged
+```
+
+`packages/astro/test/exports.test.ts` will fail if the two maps drift out of sync (after stripping `./_internal/*` keys).
 
 ### Thinking about SSR
 
