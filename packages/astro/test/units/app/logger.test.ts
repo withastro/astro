@@ -4,8 +4,8 @@ import { App } from '../../../dist/core/app/app.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createManifest, createRouteInfo } from './test-helpers.ts';
 import { makeRoute, staticPart } from '../routing/test-helpers.ts';
-import { loadFixture, type Fixture } from '../../test-utils.js';
-import testAdapter from '../../test-adapter.js';
+import { loadFixture, type Fixture } from '../../test-utils.ts';
+import testAdapter from '../../test-adapter.ts';
 import type { LoggerHandlerConfig } from '../../../dist/core/logger/config.js';
 
 const okPage = createComponent(() => {
