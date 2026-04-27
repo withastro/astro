@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { type AstroLoggerMessage, AstroLogger } from '../dist/core/logger/core.js';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('react-jsx-export', () => {
 	let fixture: Fixture;

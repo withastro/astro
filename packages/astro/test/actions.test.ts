@@ -4,8 +4,8 @@ import * as cheerio from 'cheerio';
 import * as devalue from 'devalue';
 import { serializeActionResult } from '../dist/actions/runtime/server.js';
 import { REDIRECT_STATUS_CODES } from '../dist/core/constants.js';
-import testAdapter from './test-adapter.js';
-import { type App, type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { type App, type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 // Error response shapes emitted by `serializeActionResult` in
 // src/actions/runtime/server.ts.

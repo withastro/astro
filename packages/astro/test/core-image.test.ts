@@ -7,9 +7,9 @@ import { removeDir } from '@astrojs/internal-helpers/fs';
 import * as cheerio from 'cheerio';
 import parseSrcset from 'parse-srcset';
 import { AstroLogger, type AstroLoggerMessage } from '../dist/core/logger/core.js';
-import testAdapter from './test-adapter.js';
+import testAdapter from './test-adapter.ts';
 import { testImageService } from './test-image-service.ts';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('astro:image', () => {
 	let fixture: Fixture;
