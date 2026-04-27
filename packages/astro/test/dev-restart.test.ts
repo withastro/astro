@@ -8,7 +8,7 @@ import type { Container } from '../dist/core/dev/container.js';
 import { createContainerWithAutomaticRestart, startContainer } from '../dist/core/dev/index.js';
 
 const fixtureDir = fileURLToPath(new URL('./fixtures/dev-container/', import.meta.url));
-const restartSuiteTimeout = process.platform === 'win32' ? 45000 : 20000;
+const restartSuiteTimeout = process.env.CI ? 45000 : 20000;
 
 const defaultInlineConfig: AstroInlineConfig = {
 	logLevel: 'silent',
@@ -28,7 +28,7 @@ function cleanupFile(relPath: string) {
 	} catch {}
 }
 
-// Restart checks can hang if no restart occurs, and Windows runners are slower here.
+// Restart checks can hang if no restart occurs, and slower CI runners need more headroom.
 describe('dev container restarts', { timeout: restartSuiteTimeout, skip: 'Currently flaky' }, () => {
 	it('Surfaces config errors on restarts', async () => {
 		// Ensure clean state
