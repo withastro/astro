@@ -5,6 +5,7 @@ import {
 	type PreviewServer,
 	createLoggerSpy,
 	testFactory,
+	warmupDevServer,
 } from './test-utils.ts';
 
 type LogEntry = { label: string; message: unknown };
@@ -79,7 +80,7 @@ function sharedTests(testRunner: AstroTest, infoLogs: LogEntry[] | null = null) 
 	});
 
 	testRunner('server island with props', async ({ page, astro }) => {
-		await page.goto(astro.resolveUrl('/'));
+		await page.goto(astro.resolveUrl('/?with-island-props=1'));
 		const islandProps = page.locator('#island-props');
 		await expect(islandProps).toContainText('Aria');
 	});
@@ -148,10 +149,11 @@ test.describe('Cloudflare', () => {
 		let devServer: DevServer;
 		const infoLogs: LogEntry[] = [];
 
-		test.beforeAll(async ({ astro }) => {
+		test.beforeAll(async ({ astro, browser }) => {
 			const logger = createLoggerSpy({ info: infoLogs });
 			// @ts-expect-error `logger` is an @internal option stripped from the public type
 			devServer = await astro.startDevServer({ logger });
+			await warmupDevServer(browser, astro.resolveUrl('/'));
 		});
 
 		test.afterAll(async () => {

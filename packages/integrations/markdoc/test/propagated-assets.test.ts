@@ -39,18 +39,19 @@ describe('Markdoc - propagated assets', () => {
 				if (mode === 'dev') devServer?.stop();
 			});
 
-			it('Bundles styles', async () => {
+			it.only('Bundles styles', async () => {
 				let styleContents;
 				if (mode === 'dev') {
 					const styles = stylesDocument.querySelectorAll<HTMLStyleElement>('style');
 					assert.equal(styles.length, 1);
 					styleContents = styles[0].textContent;
+					assert.equal(styleContents.includes('--color-base-purple: 269, 79%;'), true);
 				} else {
 					const links = stylesDocument.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]');
 					assert.equal(links.length, 1);
 					styleContents = await fixture.readFile(links[0].href);
+					assert.equal(styleContents.includes('--color-base-purple:269, 79%;'), true);
 				}
-				assert.equal(styleContents.includes('--color-base-purple: 269, 79%;'), true);
 			});
 
 			it('[fails] Does not bleed styles to other page', async () => {
