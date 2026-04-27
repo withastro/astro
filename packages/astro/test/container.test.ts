@@ -13,8 +13,8 @@ import {
 	maybeRenderHead,
 	createAstro,
 } from '../dist/runtime/server/index.js';
-import testAdapter from './test-adapter.js';
-import { type App, type Fixture, loadFixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { type App, type Fixture, loadFixture } from './test-utils.ts';
 
 const BaseLayout = createComponent((result, _props, slots) => {
 	return render`<html>

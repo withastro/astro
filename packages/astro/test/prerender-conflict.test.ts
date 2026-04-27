@@ -1,7 +1,7 @@
 import { strict as assert } from 'node:assert';
 import { before, describe, it } from 'node:test';
 import { type AstroLogMessage, AstroLogger } from '../dist/core/logger/core.js';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 /**
  * Dynamic vs dynamic duplication should warn by default and succeed.
