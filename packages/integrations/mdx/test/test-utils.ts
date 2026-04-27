@@ -3,7 +3,7 @@ import type * as hast from 'hast';
 import type * as mdast from 'mdast';
 import type * as unified from 'unified';
 
-export { SpyLogger } from '../../../astro/test/units/test-utils.ts';
+export { SpyLogger } from '../../../astro/test/units/test-utils.js';
 export {
 	loadFixture,
 	type AstroInlineConfig,
