@@ -104,8 +104,7 @@ describe('TypeScript - Completions', async () => {
 
 		const imageCompletion = completions?.items.find(
 			(item) =>
-				item.label === 'Image' &&
-				item.labelDetails?.description === '../components/Image.astro',
+				item.label === 'Image' && item.labelDetails?.description === '../components/Image.astro',
 		);
 		assert.notStrictEqual(imageCompletion, undefined);
 		assert.ok(!imageCompletion?.filterText?.includes('AstroComponent'));
@@ -140,8 +139,7 @@ describe('TypeScript - Completions', async () => {
 		assert.ok(
 			!completions?.items.some(
 				(item) =>
-					item.label === 'Image' &&
-					item.labelDetails?.description === '../components/Image.astro',
+					item.label === 'Image' && item.labelDetails?.description === '../components/Image.astro',
 			),
 		);
 	});

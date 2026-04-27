@@ -8,8 +8,7 @@ const ASTRO_COMPONENT_SUFFIX = 'AstroComponent';
 const ASTRO_IMPORT_FROM_PATTERN = /\bfrom\s+['"][^'"]+\.astro['"]/;
 const ASTRO_DEFAULT_IMPORT_PATTERN =
 	/^(\s*import(?:\s+type)?\s+)([A-Za-z_$][\w$]*)AstroComponent(?=\s*,|\s+from\b)/;
-const ASTRO_DEFAULT_ALIAS_PATTERN =
-	/(default\s+as\s+)([A-Za-z_$][\w$]*)AstroComponent(?=\s*\})/;
+const ASTRO_DEFAULT_ALIAS_PATTERN = /(default\s+as\s+)([A-Za-z_$][\w$]*)AstroComponent(?=\s*\})/;
 
 export function isAstroComponentImportSource(source: string | undefined): source is string {
 	return !!source && source.endsWith('.astro');
@@ -87,7 +86,9 @@ function getImportParseText(documentText: string) {
 		return documentText;
 	}
 
-	const closingFrontmatterLine = lines.findIndex((line, index) => index > 0 && line.trim() === '---');
+	const closingFrontmatterLine = lines.findIndex(
+		(line, index) => index > 0 && line.trim() === '---',
+	);
 	return lines
 		.slice(1, closingFrontmatterLine === -1 ? undefined : closingFrontmatterLine)
 		.join('\n');

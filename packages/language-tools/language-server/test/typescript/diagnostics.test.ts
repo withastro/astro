@@ -99,7 +99,9 @@ describe('TypeScript - Diagnostics', async () => {
 			diagnostics.items.filter(
 				(diagnostic) =>
 					diagnostic.code === 2440 &&
-					diagnostic.message.includes("Import declaration conflicts with local declaration of 'Image'"),
+					diagnostic.message.includes(
+						"Import declaration conflicts with local declaration of 'Image'",
+					),
 			),
 			[],
 		);
