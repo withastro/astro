@@ -3,7 +3,7 @@ import {
 	type AstroInlineConfig,
 	type Fixture,
 	loadFixture as baseLoadFixture,
-} from '../../../astro/test/test-utils.js';
+} from '../../../astro/test/test-utils.ts';
 
 export { SpyLogger } from 'astro/_internal/test/units/test-utils';
 
