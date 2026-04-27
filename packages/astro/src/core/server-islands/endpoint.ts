@@ -149,7 +149,11 @@ export function createEndpoint(manifest: SSRManifest) {
 		// Decrypt componentExport
 		let componentExport: string;
 		try {
-			componentExport = await decryptString(key, data.encryptedComponentExport, `export:${componentId}`);
+			componentExport = await decryptString(
+				key,
+				data.encryptedComponentExport,
+				`export:${componentId}`,
+			);
 		} catch (_e) {
 			return badRequest('Encrypted componentExport value is invalid.');
 		}

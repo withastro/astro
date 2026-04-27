@@ -163,7 +163,11 @@ export class ServerIslandComponent {
 		const key = await this.result.key;
 
 		// Encrypt componentExport
-		const componentExportEncrypted = await encryptString(key, componentExport, `export:${componentId}`);
+		const componentExportEncrypted = await encryptString(
+			key,
+			componentExport,
+			`export:${componentId}`,
+		);
 
 		const propsEncrypted =
 			Object.keys(this.props).length === 0

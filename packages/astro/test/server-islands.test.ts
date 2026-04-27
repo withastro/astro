@@ -128,7 +128,11 @@ describe('Server islands', () => {
 				const encryptedComponentExport = await encryptString(key, 'default', 'export:Island');
 				const encryptedProps = await getEncryptedProps();
 				const slotsToEncrypt = { content: '<p>Safe slot content</p>' };
-				const encryptedSlots = await encryptString(key, JSON.stringify(slotsToEncrypt), 'slots:Island');
+				const encryptedSlots = await encryptString(
+					key,
+					JSON.stringify(slotsToEncrypt),
+					'slots:Island',
+				);
 
 				const res = await fixture.fetch('/_server-islands/Island', {
 					method: 'POST',
@@ -161,7 +165,11 @@ describe('Server islands', () => {
 				const encryptedComponentExport = await encryptString(key, 'default', 'export:Island');
 				const encryptedProps = await getEncryptedProps();
 				const slotsToEncrypt = { xss: '<img src=x onerror=alert(0)>' };
-				const encryptedSlots = await encryptString(key, JSON.stringify(slotsToEncrypt), 'slots:Island');
+				const encryptedSlots = await encryptString(
+					key,
+					JSON.stringify(slotsToEncrypt),
+					'slots:Island',
+				);
 
 				const res = await fixture.fetch('/_server-islands/Island', {
 					method: 'POST',
@@ -293,7 +301,11 @@ describe('Server islands', () => {
 				const encryptedComponentExport = await encryptString(key, 'default', 'export:Island');
 				const encryptedProps = await getEncryptedProps();
 				const slotsToEncrypt = { content: '<p>Safe slot content</p>' };
-				const encryptedSlots = await encryptString(key, JSON.stringify(slotsToEncrypt), 'slots:Island');
+				const encryptedSlots = await encryptString(
+					key,
+					JSON.stringify(slotsToEncrypt),
+					'slots:Island',
+				);
 
 				const request = new Request('http://example.com/_server-islands/Island', {
 					method: 'POST',
@@ -337,7 +349,11 @@ describe('Server islands', () => {
 				const encryptedComponentExport = await encryptString(key, 'default', 'export:Island');
 				const encryptedProps = await getEncryptedProps();
 				const slotsToEncrypt = { xss: '<img src=x onerror=alert(0)>' };
-				const encryptedSlots = await encryptString(key, JSON.stringify(slotsToEncrypt), 'slots:Island');
+				const encryptedSlots = await encryptString(
+					key,
+					JSON.stringify(slotsToEncrypt),
+					'slots:Island',
+				);
 
 				const request = new Request('http://example.com/_server-islands/Island', {
 					method: 'POST',
