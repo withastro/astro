@@ -84,8 +84,8 @@
     "./virtual-modules/*": "./dist/virtual-modules/*",
     "./_internal/assets": "./dist/assets/internal.js",
     "./_internal/logger": "./dist/core/logger/core.js",
-    "./_internal/test/test-adapter": "./test/test-adapter.js",
-    "./_internal/test/test-utils": "./test/test-utils.js"
+    "./_internal/test/test-adapter": "./test/test-adapter.ts",
+    "./_internal/test/test-utils": "./test/test-utils.ts"
   },
   "bin": {
     "astro": "./bin/astro.mjs"

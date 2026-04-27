@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
-import { type App, type Fixture, loadFixture } from './test-utils.js';
-import testAdapter, { selfTestAdapter } from './test-adapter.js';
+import { type App, type Fixture, loadFixture } from './test-utils.ts';
+import testAdapter, { selfTestAdapter } from './test-adapter.ts';
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
