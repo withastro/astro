@@ -6,7 +6,7 @@ import { normalizePath, type Plugin, type ViteDevServer } from 'vite';
 import { serializeRouteData } from '../core/app/entrypoints/index.js';
 import type { SerializedRouteInfo } from '../core/app/types.js';
 import { warnMissingAdapter } from '../core/dev/adapter-validation.js';
-import type { Logger } from '../core/logger/core.js';
+import type { AstroLogger } from '../core/logger/core.js';
 import { createRoutesList } from '../core/routing/create-manifest.js';
 import { getRoutePrerenderOption } from '../core/routing/prerender.js';
 import { isEndpoint, isPage } from '../core/util.js';
@@ -21,7 +21,7 @@ import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 
 type Payload = {
 	settings: AstroSettings;
-	logger: Logger;
+	logger: AstroLogger;
 	fsMod?: typeof fsMod;
 	routesList: RoutesList;
 	command: 'dev' | 'build';
@@ -79,11 +79,13 @@ export default async function astroPluginRoutes({
 		},
 	);
 
+	const normalizedSrcDir = normalizePath(fileURLToPath(settings.config.srcDir));
+
 	async function rebuildRoutes(path: string | null = null, server: ViteDevServer) {
-		if (path != null && path.startsWith(settings.config.srcDir.pathname)) {
+		if (path != null && normalizePath(path).startsWith(normalizedSrcDir)) {
 			logger.debug(
 				'update',
-				`Re-calculating routes for ${path.slice(settings.config.srcDir.pathname.length)}`,
+				`Re-calculating routes for ${normalizePath(path).slice(normalizedSrcDir.length)}`,
 			);
 			const file = pathToFileURL(normalizePath(path));
 			const newRoutesList = await createRoutesList(

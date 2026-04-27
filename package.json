@@ -21,8 +21,8 @@
     "format:imports": "biome check --formatter-enabled=false --write",
     "format:imports:ci": "biome ci --formatter-enabled=false",
     "test": "pnpm run test:astro && pnpm run test:integrations && pnpm run test:language-tools",
-    "test:astro": "turbo run test --concurrency=1 --filter=astro --only",
-    "test:integrations": "turbo run test --concurrency=1 --filter=create-astro --filter=\"@astrojs/*\" --filter=\"!./packages/language-tools/**/*\" --only",
+    "test:astro": "node ./scripts/turbo-run-affected.js test --concurrency=1 --filter=astro --only",
+    "test:integrations": "node ./scripts/turbo-run-affected.js test --concurrency=1 --filter=create-astro --filter=\"@astrojs/*\" --filter=\"!./packages/language-tools/**/*\" --only",
     "test:language-tools": "turbo run test --concurrency=1 --filter=\"./packages/language-tools/**/*\" --filter=\"!./packages/language-tools/ts-plugin\" --only",
     "test:language-tools:no-vs": "turbo run test --filter=\"@astrojs/language-server\" --filter=\"@astrojs/check\" --only",
     "test:citgm": "pnpm -r --filter=astro test",
@@ -38,9 +38,11 @@
     "test:e2e": "cd packages/astro && pnpm playwright install firefox && pnpm run test:e2e",
     "test:e2e:match": "cd packages/astro && pnpm playwright install firefox && pnpm run test:e2e:match",
     "test:e2e:hosts": "turbo run test:hosted",
+    "typecheck:tests": "pnpm -r run --sequential typecheck:tests",
     "benchmark": "astro-benchmark",
     "lint": "biome lint && knip && eslint . --report-unused-disable-directives-severity=warn --concurrency=auto",
-    "lint:ci": "knip && eslint . --concurrency=auto --report-unused-disable-directives-severity=warn",
+    "lint:ci": "knip && pnpm run eslint:ci",
+    "eslint:ci": "NODE_OPTIONS=\"--max-old-space-size=8192\" eslint . --concurrency=auto --report-unused-disable-directives-severity=warn",
     "lint:fix": "biome lint --write --unsafe",
     "publint": "pnpm -r --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --no-bail exec publint",
     "version": "changeset version && node ./scripts/deps/update-example-versions.js && pnpm install --no-frozen-lockfile && pnpm run format",
@@ -59,14 +61,20 @@
   "dependencies": {
     "astro-benchmark": "workspace:*"
   },
+  "pnpm": {
+    "overrides": {
+      "picomatch@<4": "^2.3.2",
+      "vite@^7": "^7.3.2"
+    }
+  },
   "devDependencies": {
     "@astrojs/check": "^0.9.5",
-    "@biomejs/biome": "2.4.2",
+    "@biomejs/biome": "2.4.10",
     "@changesets/changelog-github": "^0.5.2",
     "@changesets/cli": "^2.29.8",
     "@flue/cli": "^0.0.47",
     "@flue/client": "^0.0.29",
-    "@types/node": "^18.19.115",
+    "@types/node": "^22.10.6",
     "bgproc": "^0.2.0",
     "esbuild": "0.25.5",
     "eslint": "^9.39.3",

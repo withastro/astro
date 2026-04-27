@@ -11,7 +11,7 @@ import { PassthroughTextStyler } from '../cli/infra/passthrough-text-styler.js';
 import { ProcessOperatingSystemProvider } from '../cli/infra/process-operating-system-provider.js';
 import { TinyexecCommandExecutor } from '../cli/infra/tinyexec-command-executor.js';
 import type { RouteInfo } from '../core/app/types.js';
-import { Logger } from '../core/logger/core.js';
+import { AstroLogger } from '../core/logger/core.js';
 import { nodeLogDestination } from '../core/logger/node.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import type { AstroSettings, RoutesList } from '../types/astro.js';
@@ -22,12 +22,12 @@ export default async function createAstroServerApp(
 	controller: DevServerController,
 	settings: AstroSettings,
 	loader: ModuleLoader,
-	logger?: Logger,
+	logger?: AstroLogger,
 ) {
 	const actualLogger =
 		logger ??
-		new Logger({
-			dest: nodeLogDestination,
+		new AstroLogger({
+			destination: nodeLogDestination,
 			level: settings.logLevel,
 		});
 	const routesList: RoutesList = { routes: routes.map((r: RouteInfo) => r.routeData) };
@@ -77,6 +77,13 @@ export default async function createAstroServerApp(
 		import.meta.hot.on('astro:content-changed', () => {
 			app.clearRouteCache();
 			actualLogger.debug('router', 'Route cache cleared due to content change');
+		});
+
+		// Listen for middleware file changes via HMR.
+		// Clear the cached middleware so it is re-resolved on the next request.
+		import.meta.hot.on('astro:middleware-updated', () => {
+			app.clearMiddleware();
+			actualLogger.debug('router', 'Middleware cache cleared due to file change');
 		});
 	}
 

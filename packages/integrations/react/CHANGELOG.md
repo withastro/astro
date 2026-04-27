@@ -1,5 +1,34 @@
 # @astrojs/react
 
+## 5.0.4
+
+### Patch Changes
+
+- Updated dependencies [[`99464ed`](https://github.com/withastro/astro/commit/99464edb5fc0968f6497328e106f26ab393668bd), [`f3485c3`](https://github.com/withastro/astro/commit/f3485c3458bc8bf70c152126e418c24f489ded9d)]:
+  - @astrojs/internal-helpers@0.9.0
+
+## 5.0.3
+
+### Patch Changes
+
+- [#16224](https://github.com/withastro/astro/pull/16224) [`a2b9eeb`](https://github.com/withastro/astro/commit/a2b9eeb14e300c9b6ce1d6ea423d20f4ef9d92f5) Thanks [@fkatsuhiro](https://github.com/fkatsuhiro)! - Fix React 19 "Float" mechanism injecting <link rel="preload"> into Astro islands instead of the <head>. This PR adds a filter to @astrojs/react to strip these auto-generated resource from the island's HTML output, ensuring valid HTML structure.
+
+## 5.0.2
+
+### Patch Changes
+
+- [#15378](https://github.com/withastro/astro/pull/15378) [`a8a926e`](https://github.com/withastro/astro/commit/a8a926eecc2fb9a2e48a63afcf444d3ca2921a9c) Thanks [@dmgawel](https://github.com/dmgawel)! - Fix React hydration errors when using conditional slot rendering
+
+- [#15146](https://github.com/withastro/astro/pull/15146) [`f771f75`](https://github.com/withastro/astro/commit/f771f75db3873fb0f945e4fa0dbf5fc2c9c2d62c) Thanks [@kedarvartak](https://github.com/kedarvartak)! - Fixes hydration mismatch when using `experimentalReactChildren`
+
+- [#14917](https://github.com/withastro/astro/pull/14917) [`769265b`](https://github.com/withastro/astro/commit/769265b4c6ce0ef09e883382a4dab83f6d25ae26) Thanks [@sanjaiyan-dev](https://github.com/sanjaiyan-dev)! - Refactors to improve the performance of rendering static HTML content in React
+
+## 5.0.1
+
+### Patch Changes
+
+- [#15864](https://github.com/withastro/astro/pull/15864) [`d3c7de9`](https://github.com/withastro/astro/commit/d3c7de9253e9cb31fa5c4bf9f4bdf59dd1ada7b0) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes temporary support for Node >=20.19.1 because Stackblitz now uses Node 22 by default
+
 ## 5.0.0
 
 ### Major Changes

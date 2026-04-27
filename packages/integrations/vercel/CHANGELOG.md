@@ -1,5 +1,30 @@
 # @astrojs/vercel
 
+## 10.0.5
+
+### Patch Changes
+
+- Updated dependencies [[`99464ed`](https://github.com/withastro/astro/commit/99464edb5fc0968f6497328e106f26ab393668bd), [`f3485c3`](https://github.com/withastro/astro/commit/f3485c3458bc8bf70c152126e418c24f489ded9d)]:
+  - @astrojs/internal-helpers@0.9.0
+
+## 10.0.4
+
+### Patch Changes
+
+- [#16170](https://github.com/withastro/astro/pull/16170) [`d0fe1ec`](https://github.com/withastro/astro/commit/d0fe1ec216f8f322392e34ce40378d022e495cef) Thanks [@bittoby](https://github.com/bittoby)! - Fixes edge middleware `next()` dropping the HTTP method and body when forwarding requests to the serverless function, which caused non-GET API routes (POST, PUT, PATCH, DELETE) to return 404
+
+## 10.0.3
+
+### Patch Changes
+
+- [#16079](https://github.com/withastro/astro/pull/16079) [`aa26636`](https://github.com/withastro/astro/commit/aa266364fe9e105317b66e218fe04567307fb57f) Thanks [@empoulter-uclan](https://github.com/empoulter-uclan)! - Fix vercel ISR path rewrite
+
+## 10.0.2
+
+### Patch Changes
+
+- [#15959](https://github.com/withastro/astro/pull/15959) [`335a204`](https://github.com/withastro/astro/commit/335a204161f5a7293c128db570901d4f8639c6ed) Thanks [@matthewp](https://github.com/matthewp)! - Fix Vercel serverless path override handling so override values are only applied when the trusted middleware secret is present.
+
 ## 10.0.1
 
 ### Patch Changes

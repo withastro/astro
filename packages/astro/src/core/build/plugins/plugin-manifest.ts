@@ -124,6 +124,17 @@ async function createManifest(
 		internals.staticFiles.add(file);
 	}
 
+	// Also include SSR-emitted assets (CSS, fonts, images) tracked in ssrAssetsPerEnvironment.
+	// These assets are moved to the client directory by ssrMoveAssets() later in the pipeline,
+	// so they haven't landed on disk yet when we glob above. Without this, adapters in middleware
+	// mode won't recognize them as static files and will match them against catch-all routes instead.
+	// See: https://github.com/withastro/astro/issues/16039
+	for (const [, ssrAssets] of internals.ssrAssetsPerEnvironment) {
+		for (const asset of ssrAssets) {
+			internals.staticFiles.add(asset);
+		}
+	}
+
 	const staticFiles = internals.staticFiles;
 	const encodedKey = await encodeKey(await buildOpts.key);
 	const manifest = await buildManifest(buildOpts, internals, Array.from(staticFiles), encodedKey);
@@ -149,15 +160,21 @@ async function buildManifest(
 
 	const routes: SerializedRouteInfo[] = [];
 	const domainLookupTable: Record<string, string> = {};
-	const entryModules = Object.fromEntries(internals.entrySpecifierToBundleMap.entries());
-	if (settings.scripts.some((script) => script.stage === 'page')) {
-		staticFiles.push(entryModules[PAGE_SCRIPT_ID]);
-	}
+	const rawEntryModules = Object.fromEntries(internals.entrySpecifierToBundleMap.entries());
 
 	const assetQueryParams = settings.adapter?.client?.assetQueryParams;
 	const assetQueryString = assetQueryParams ? assetQueryParams.toString() : undefined;
 
 	const appendAssetQuery = (pth: string) => (assetQueryString ? `${pth}?${assetQueryString}` : pth);
+	const entryModules = Object.fromEntries(
+		Object.entries(rawEntryModules).map(([key, value]) => [
+			key,
+			value ? appendAssetQuery(value) : value,
+		]),
+	);
+	if (settings.scripts.some((script) => script.stage === 'page')) {
+		staticFiles.push(rawEntryModules[PAGE_SCRIPT_ID]);
+	}
 
 	const prefixAssetPath = (pth: string) => {
 		let result = '';
@@ -195,7 +212,7 @@ async function buildManifest(
 
 		const scripts: SerializedRouteInfo['scripts'] = [];
 		if (settings.scripts.some((script) => script.stage === 'page')) {
-			const src = entryModules[PAGE_SCRIPT_ID];
+			const src = rawEntryModules[PAGE_SCRIPT_ID];
 
 			scripts.push({
 				type: 'external',
