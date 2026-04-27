@@ -15,22 +15,26 @@ export function toTSX(code: string, className: string): string {
 		// New svelte2tsx output (Svelte 5)
 		if (tsx.includes('export default $$Component;')) {
 			const generics = extractGenerics(tsx);
-			const genericSuffix = generics ? `<${generics.params}>` : '';
 			const innerType = generics
 				? `ReturnType<__sveltets_Render<${generics.names}>['props']>`
 				: `import('svelte').ComponentProps<typeof $$$$Component>`;
-			// Generic components use a simpler type wrapper that preserves generic
-			// inference. Non-generic components use the full snippet handling.
-			const propsType = generics ? 'GenericPropsWithClientDirectives' : 'PropsWithClientDirectives';
+			const propsOnlySignature = generics
+				? `<${generics.params}>(props: import('@astrojs/svelte/svelte-shims.d.ts').GenericPropsWithClientDirectives<${innerType}>): any;`
+				: `(props: import('@astrojs/svelte/svelte-shims.d.ts').PropsWithClientDirectives<${innerType}>): any;`;
+			const internalsSignature = generics
+				? `<${generics.params}>(this: void, _internals: import('svelte').ComponentInternals, _props: ${innerType}): Record<string, any>;`
+				: `(this: void, _internals: import('svelte').ComponentInternals, _props: ${innerType}): Record<string, any>;`;
 			result = tsx.replace(
 				'export default $$Component;',
-				`export default function ${className}__AstroComponent_${genericSuffix}(_props: import('@astrojs/svelte/svelte-shims.d.ts').${propsType}<${innerType}>): any {}`,
+				`const ${className}__AstroComponent_ = $$Component as unknown as { ${propsOnlySignature} ${internalsSignature} };\nexport default ${className}__AstroComponent_;`,
 			);
 		} else {
 			// Old svelte2tsx output
 			result = tsx.replace(
 				'export default class extends __sveltets_2_createSvelte2TsxComponent(',
-				`export default function ${className}__AstroComponent_(_props: import('@astrojs/svelte/svelte-shims.d.ts').PropsWithClientDirectives<typeof Component.props>): any {}\nlet Component = `,
+				`function ${className}__AstroComponent_Inner(_props: import('@astrojs/svelte/svelte-shims.d.ts').PropsWithClientDirectives<typeof Component.props>): any { return {}; }\n` +
+				`const ${className}__AstroComponent_ = ${className}__AstroComponent_Inner as unknown as typeof ${className}__AstroComponent_Inner & { (this: void, _internals: import('svelte').ComponentInternals, _props: typeof Component.props): Record<string, any>; };\n` +
+				`export default ${className}__AstroComponent_;\nlet Component = `,
 			);
 		}
 	} catch {
