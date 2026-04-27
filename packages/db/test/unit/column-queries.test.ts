@@ -11,7 +11,7 @@ import type {
 	DBTable,
 	NumberColumn,
 	ResolvedDBTable,
-	TextColumn,
+  TextColumn,
 } from '../../dist/core/types.js';
 import { column, defineTable, NOW } from './virtual.ts';
 import { asResolved } from '../test-utils.ts';
@@ -293,7 +293,7 @@ describe('column queries', () => {
 					...userInitial,
 					columns: {
 						...userInitial.columns,
-						id: column.number({ primaryKey: true }) as NumberSchema,
+						id: column.number({ primaryKey: true }) as NumberColumn,
 					},
 				};
 
