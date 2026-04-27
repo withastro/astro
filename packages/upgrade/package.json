@@ -24,8 +24,9 @@
     "typecheck:tests": "tsc --build tsconfig.test.json"
   },
   "files": [
-    "dist",
-    "upgrade.js"
+    "dist/**/*.js",
+    "dist/**/*.mjs",
+    "upgrade.mjs"
   ],
   "//a": "MOST PACKAGES SHOULD GO IN DEV_DEPENDENCIES! THEY WILL BE BUNDLED.",
   "//b": "DEPENDENCIES IS FOR UNBUNDLED PACKAGES",
