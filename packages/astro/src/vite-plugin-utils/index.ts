@@ -33,12 +33,19 @@ export function getFileInfo(id: string, config: AstroConfig) {
  *
  * - /@fs/home/user/project/src/pages/index.astro
  * - /src/pages/index.astro
+ * - ./src/pages/index.astro
  *
  * as absolute file paths with forward slashes.
  */
 export function normalizeFilename(filename: string, root: URL) {
 	if (filename.startsWith('/@fs')) {
 		filename = filename.slice('/@fs'.length);
+	} else if (filename.startsWith('.')) {
+		// Handle relative paths (e.g. ./src/components/Foo.astro) by resolving against root.
+		// This can occur on certain environments (e.g. Windows + newer Node.js) when a component
+		// is imported via a TypeScript path alias and Vite produces a relative virtual module ID.
+		const url = new URL(filename, root);
+		filename = viteID(url);
 	} else if (filename.startsWith('/') && !commonAncestorPath(filename, fileURLToPath(root))) {
 		const url = new URL('.' + filename, root);
 		filename = viteID(url);

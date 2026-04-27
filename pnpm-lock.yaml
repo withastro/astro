@@ -1913,6 +1913,12 @@ importers:
         specifier: ^5.54.0
         version: 5.55.3
 
+  packages/astro/test/fixtures/alias-path-alias-style:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/alias-tsconfig:
     dependencies:
       '@astrojs/svelte':
