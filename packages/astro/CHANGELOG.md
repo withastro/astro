@@ -1,5 +1,17 @@
 # astro
 
+## 7.0.0-alpha.0
+
+### Major Changes
+
+- [#15819](https://github.com/withastro/astro/pull/15819) [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27) Thanks [@delucis](https://github.com/delucis)! - Upgrade to Vite v8
+
+### Patch Changes
+
+- [#15819](https://github.com/withastro/astro/pull/15819) [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27) Thanks [@delucis](https://github.com/delucis)! - Fixes `--port` flag being ignored after a Vite-triggered server restart (e.g. when a `.env` file changes)
+
+- [#16434](https://github.com/withastro/astro/pull/16434) [`ee079d4`](https://github.com/withastro/astro/commit/ee079d4c7f143076b84d663c832911009a077c7f) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where i18n domains would return 404 when `trailingSlash` is set to `never`.
+
 ## 6.1.9
 
 ### Patch Changes

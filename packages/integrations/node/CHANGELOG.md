@@ -1,5 +1,12 @@
 # @astrojs/node
 
+## 11.0.0-alpha.0
+
+### Patch Changes
+
+- Updated dependencies [[`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`ee079d4`](https://github.com/withastro/astro/commit/ee079d4c7f143076b84d663c832911009a077c7f)]:
+  - astro@7.0.0-alpha.0
+
 ## 10.0.6
 
 ### Patch Changes
