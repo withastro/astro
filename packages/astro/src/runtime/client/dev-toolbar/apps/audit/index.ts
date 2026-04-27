@@ -194,10 +194,13 @@ export default {
 				return;
 			}
 
-			// If the element is an image but not yet loaded, ignore it
-			// TODO: We shouldn't ignore this, because it is valid for an image to not be loaded at start (e.g. lazy loading)
+			// If the element is an image that hasn't loaded yet, wait for it so that
+			// position-based checks (e.g. above/below the fold) have accurate layout data.
 			if (originalElement.nodeName === 'IMG' && !(originalElement as HTMLImageElement).complete) {
-				return;
+				await new Promise<void>((resolve) => {
+					originalElement.addEventListener('load', () => resolve(), { once: true });
+					originalElement.addEventListener('error', () => resolve(), { once: true });
+				});
 			}
 
 			audits.push({
