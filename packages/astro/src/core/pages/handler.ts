@@ -27,15 +27,13 @@ const EMPTY_SLOTS: Record<string, never> = Object.freeze({});
  * Handles dispatch of a matched route (endpoint / redirect / page / fallback)
  * at the bottom of the middleware chain. Also handles in-flight route
  * rewrites (when a middleware or action calls `Astro.rewrite(...)`) by
- * mutating the `RenderContext` to reflect the rewritten target before
+ * mutating the `FetchState` to reflect the rewritten target before
  * dispatching.
  *
  * `PagesHandler` is the `next` callback that `AstroMiddleware` invokes at
  * the end of the middleware chain. `AstroHandler` owns a single instance
- * and passes its `handle` method as the callback. `RenderContext` also
- * owns one so error handlers and the container — which call
- * `RenderContext.render()` without a callback — get the same dispatch
- * behavior.
+ * and passes its `handle` method as the callback. Error handlers and the
+ * container also use `PagesHandler` directly for the same dispatch behavior.
  */
 export class PagesHandler {
 	#pipeline: Pipeline;
@@ -119,10 +117,7 @@ export class PagesHandler {
 			case 'page': {
 				const props = await state.getProps();
 				const actionApiContext = state.getActionAPIContext();
-				const result = await state.createResult(
-					componentInstance!,
-					actionApiContext,
-				);
+				const result = await state.createResult(componentInstance!, actionApiContext);
 				try {
 					response = await renderPage(
 						result,
@@ -142,10 +137,7 @@ export class PagesHandler {
 				// Signal to the i18n middleware to maybe act on this response
 				response.headers.set(ROUTE_TYPE_HEADER, 'page');
 				// Signal to the error-page-rerouting infra to let this response pass through to avoid loops
-				if (
-					state.routeData!.route === '/404' ||
-					state.routeData!.route === '/500'
-				) {
+				if (state.routeData!.route === '/404' || state.routeData!.route === '/500') {
 					response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
 				}
 				if (state.isRewriting) {

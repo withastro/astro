@@ -49,7 +49,7 @@ export const PipelineFeatures = {
  * The `Pipeline` represents the static parts of rendering that do not change between requests.
  * These are mostly known when the server first starts up and do not change.
  *
- * Thus, a `Pipeline` is created once at process start and then used by every `RenderContext`.
+ * Thus, a `Pipeline` is created once at process start and then used by every `FetchState`.
  */
 export abstract class Pipeline {
 	readonly internalMiddleware: MiddlewareHandler[];

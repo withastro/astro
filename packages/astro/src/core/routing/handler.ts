@@ -99,8 +99,8 @@ export class AstroHandler {
 	 * redirects and routeData resolution have already run.
 	 *
 	 * User-triggered rewrites (`Astro.rewrite` / `ctx.rewrite`) go through
-	 * `Rewrites.execute` on the current `RenderContext` — they mutate the
-	 * existing context in place and re-run middleware + page dispatch.
+	 * `Rewrites.execute` on the current `FetchState` — they mutate the
+	 * existing state in place and re-run middleware + page dispatch.
 	 */
 	async render(state: FetchState): Promise<Response> {
 		const routeData = state.routeData!;

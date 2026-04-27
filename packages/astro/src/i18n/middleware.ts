@@ -27,7 +27,7 @@ export function createI18nMiddleware(
 	return async (context, next) => {
 		const response = await next();
 		// The FetchState for this request is stashed on the APIContext by
-		// `RenderContext.createAPIContext` — see `fetchStateSymbol`.
+		// `FetchState.getAPIContext()` — see `fetchStateSymbol`.
 		const state = Reflect.get(context, fetchStateSymbol) as FetchState | undefined;
 		if (!state) return response;
 		return handler.finalize(state, response);

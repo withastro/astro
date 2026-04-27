@@ -16,11 +16,10 @@ import { getActionContext, serializeActionResult } from './runtime/server.js';
  *
  * Non-action requests are a no-op (`undefined`).
  *
- * This handler is invoked from inside `RenderContext.renderRoute`, which
- * is the `next` callback of the middleware chain. That placement preserves
- * the existing behavior where user middleware sees action requests and
- * response finalization (cookies, sessions, etc.) runs around the action
- * response.
+ * This handler is invoked at the bottom of the middleware chain, before
+ * page dispatch. That placement preserves the existing behavior where
+ * user middleware sees action requests and response finalization (cookies,
+ * sessions, etc.) runs around the action response.
  */
 export class ActionHandler {
 	/**

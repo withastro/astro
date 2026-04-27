@@ -26,9 +26,9 @@ export type RenderRouteCallback = (
  * single render. Holds a reference to the `Pipeline` and composes the
  * internal and user middleware at render time.
  *
- * Reads per-request data (RenderContext, componentInstance, slots, props,
- * API contexts) off the supplied `FetchState`. The actual route dispatch
- * (endpoint / redirect / page / fallback) is supplied by the caller as
+ * Reads per-request data (componentInstance, slots, props, API contexts)
+ * off the supplied `FetchState`. The actual route dispatch (endpoint /
+ * redirect / page / fallback) is supplied by the caller as
  * `renderRouteCallback` — typically bound to a `PagesHandler.handle`.
  */
 export class AstroMiddleware {
