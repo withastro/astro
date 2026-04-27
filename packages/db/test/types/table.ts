@@ -4,7 +4,7 @@ import type {
 	column as TColumn,
 	defineTable as TDefineTable,
 } from '../../dist/_internal/runtime/virtual.d.ts';
-import { column as _column, defineTable as _defineTable } from '../../dist/runtime/virtual.js';
+import { column as _column, defineTable as _defineTable } from './virtual.ts';
 import { asDrizzleTable } from '../../dist/utils.js';
 
 // Ensure the correct types are being used for tests...
