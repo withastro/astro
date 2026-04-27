@@ -350,7 +350,7 @@ import { loadFixture } from 'astro/_internal/test/test-utils';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 ```
 
-**Example — public export `./foo`** (add to *both* maps):
+**Example — public export `./foo`** (add to _both_ maps):
 
 ```diff
  "exports": {
