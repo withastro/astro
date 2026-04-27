@@ -93,7 +93,7 @@ describe('URL', () => {
 		const html = await text();
 		const $ = cheerio.load(html);
 
-		assert.equal($('body').text(), 'https://abc.xyz:444/');
+		assert.equal($('body').text().trim(), 'https://abc.xyz:444/');
 	});
 
 	it('accepts port in forwarded host and forwarded port', async () => {
@@ -113,7 +113,7 @@ describe('URL', () => {
 		const html = await text();
 		const $ = cheerio.load(html);
 
-		assert.equal($('body').text(), 'https://abc.xyz:444/');
+		assert.equal($('body').text().trim(), 'https://abc.xyz:444/');
 	});
 
 	it('ignores X-Forwarded-Host when no allowedDomains configured', async () => {
@@ -134,7 +134,7 @@ describe('URL', () => {
 		const $ = cheerio.load(html);
 
 		// Should use the Host header, not X-Forwarded-Host when allowedDomains is not configured
-		assert.equal($('body').text(), 'https://legitimate.example.com/');
+		assert.equal($('body').text().trim(), 'https://legitimate.example.com/');
 	});
 
 	it('rejects port in forwarded host when port not in allowedDomains', async () => {
@@ -155,7 +155,7 @@ describe('URL', () => {
 		const $ = cheerio.load(html);
 
 		// Port 8080 not in allowedDomains (only 444), so should fall back to Host header
-		assert.equal($('body').text(), 'https://localhost:3000/');
+		assert.equal($('body').text().trim(), 'https://localhost:3000/');
 	});
 
 	it('rejects empty X-Forwarded-Host with allowedDomains configured', async () => {
@@ -176,7 +176,7 @@ describe('URL', () => {
 		const $ = cheerio.load(html);
 
 		// Empty X-Forwarded-Host should be rejected and fall back to Host header
-		assert.equal($('body').text(), 'https://legitimate.example.com/');
+		assert.equal($('body').text().trim(), 'https://legitimate.example.com/');
 	});
 
 	it('rejects X-Forwarded-Host with path injection attempt', async () => {
@@ -197,6 +197,6 @@ describe('URL', () => {
 		const $ = cheerio.load(html);
 
 		// Path injection attempt should be rejected and fall back to Host header
-		assert.equal($('body').text(), 'https://localhost:3000/');
+		assert.equal($('body').text().trim(), 'https://localhost:3000/');
 	});
 });

@@ -20,7 +20,7 @@ describe('CSP', () => {
 		const styleDigest = await generateCspDigest(styleContent, 'SHA-256');
 
 		const meta = $('meta[http-equiv="Content-Security-Policy"]');
-		assert.match(meta.attr('content')!, new RegExp(`'${styleDigest}'`));
+		assert.ok(meta.attr('content')!.includes(`'${styleDigest}'`));
 	});
 
 	it('should generate hashes and directives for fonts', async () => {
