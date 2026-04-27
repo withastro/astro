@@ -9,6 +9,6 @@
     "module": "ES2022",
     "moduleResolution": "Bundler",
     "outDir": "./dist",
-    "declarationDir": "./dist",
+    "declarationDir": "./dist"
   }
 }
