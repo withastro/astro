@@ -1,0 +1,13 @@
+{
+  "name": "test-local-wrangler-config-vars",
+  "compatibility_date": "2026-01-28",
+  "main": "@astrojs/cloudflare/entrypoints/server",
+  "vars": {
+			"TEST_VAR": "FOO"
+  },
+	"env": {
+		"testenv": {
+			"TEST_VAR": "BAR"
+		}
+	}
+}

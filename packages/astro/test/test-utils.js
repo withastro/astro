@@ -172,11 +172,16 @@ export async function loadFixture(inlineConfig) {
 		check: async (opts) => {
 			return await check(opts);
 		},
+		// startDevServer: async (extraInlineConfig = {}, extraEnvVars = {}) => {
 		startDevServer: async (extraInlineConfig = {}) => {
 			globalContentLayer.dispose();
 			globalContentConfigObserver.set({ status: 'init' });
 			// Reset NODE_ENV so it can be re-set by `dev()`
 			delete process.env.NODE_ENV;
+			// Assign supported extra environment variables
+			// if (extraEnvVars.CLOUDFLARE_ENV) {
+			// 	process.env.CLOUDFLARE_ENV = extraEnvVars.CLOUDFLARE_ENV;
+			// }
 			try {
 				devServer = await dev(mergeConfig(inlineConfig, extraInlineConfig));
 			} catch (e) {
