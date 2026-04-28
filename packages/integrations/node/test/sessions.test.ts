@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import type { PreviewServer } from '../../../astro/src/types/public/preview.js';
+import type { PreviewServer } from 'astro';
 import * as devalue from 'devalue';
 import nodejs from '../dist/index.js';
 import { type Fixture, loadFixture, type DevServer } from './test-utils.ts';

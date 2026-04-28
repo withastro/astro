@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import parseSrcset from 'parse-srcset';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 function removeLeadingForwardSlash(path: string) {
 	return path.startsWith('/') ? path.substring(1) : path;

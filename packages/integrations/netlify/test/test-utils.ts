@@ -3,11 +3,8 @@ import {
 	type AstroInlineConfig,
 	type Fixture,
 	loadFixture as baseLoadFixture,
-} from '../../../astro/test/test-utils.js';
-import {
-	AstroIntegrationLogger,
-	type AstroLogMessage,
-} from '../../../astro/dist/core/logger/core.js';
+} from 'astro/_internal/test/test-utils';
+import { AstroIntegrationLogger, type AstroLogMessage } from 'astro/_internal/logger';
 
 export type { AstroInlineConfig, DevServer, Fixture };
 

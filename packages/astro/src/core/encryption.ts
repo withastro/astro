@@ -81,36 +81,34 @@ const IV_LENGTH = 24;
 
 /**
  * Using a CryptoKey, encrypt a string into a base64 string.
+ * @param additionalData Optional authenticated context (e.g. "props:ComponentName") that is
+ *   verified during decryption but not included in the ciphertext. Both sides must agree on
+ *   the same value or decryption will fail.
  */
-export async function encryptString(key: CryptoKey, raw: string) {
+export async function encryptString(key: CryptoKey, raw: string, additionalData?: string) {
 	const iv = crypto.getRandomValues(new Uint8Array(IV_LENGTH / 2));
 	const data = encoder.encode(raw);
-	const buffer = await crypto.subtle.encrypt(
-		{
-			name: ALGORITHM,
-			iv,
-		},
-		key,
-		data,
-	);
+	const params: AesGcmParams = { name: ALGORITHM, iv };
+	if (additionalData) {
+		params.additionalData = encoder.encode(additionalData);
+	}
+	const buffer = await crypto.subtle.encrypt(params, key, data);
 	// iv is 12, hex brings it to 24
 	return encodeHexUpperCase(iv) + encodeBase64(new Uint8Array(buffer));
 }
 
 /**
  * Takes a base64 encoded string, decodes it and returns the decrypted text.
+ * @param additionalData Must match the value used during encryption, or decryption will fail.
  */
-export async function decryptString(key: CryptoKey, encoded: string) {
+export async function decryptString(key: CryptoKey, encoded: string, additionalData?: string) {
 	const iv = decodeHex(encoded.slice(0, IV_LENGTH)) as Uint8Array<ArrayBuffer>;
 	const dataArray = decodeBase64(encoded.slice(IV_LENGTH)) as Uint8Array<ArrayBuffer>;
-	const decryptedBuffer = await crypto.subtle.decrypt(
-		{
-			name: ALGORITHM,
-			iv,
-		},
-		key,
-		dataArray,
-	);
+	const params: AesGcmParams = { name: ALGORITHM, iv };
+	if (additionalData) {
+		params.additionalData = encoder.encode(additionalData);
+	}
+	const decryptedBuffer = await crypto.subtle.decrypt(params, key, dataArray);
 	const decryptedString = decoder.decode(decryptedBuffer);
 	return decryptedString;
 }
