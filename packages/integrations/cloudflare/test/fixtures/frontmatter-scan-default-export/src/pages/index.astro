@@ -1,0 +1,9 @@
+---
+import { hasComponentDefaultExport } from '../lib/index.js';
+
+if (!hasComponentDefaultExport()) {
+	throw new Error('Expected default export to be available');
+}
+---
+
+<h1>Frontmatter scan default export test</h1>
