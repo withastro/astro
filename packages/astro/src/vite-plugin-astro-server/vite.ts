@@ -13,6 +13,29 @@ const fileExtensionsToSSR = new Set(['.astro', '.mdoc', ...SUPPORTED_MARKDOWN_FI
 
 const STRIP_QUERY_PARAMS_REGEX = /\?.*$/;
 
+/**
+ * Case-insensitive fallback for `moduleGraph.getModulesByFile()`.
+ * On case-insensitive file systems (macOS, Windows), the working directory
+ * casing may differ from the actual filesystem casing (e.g. `d:\` vs `D:\`),
+ * causing exact-match lookups to fail. When the exact match returns nothing,
+ * we fall back to a case-insensitive comparison against the known file keys.
+ */
+function getModulesByFileCaseInsensitive(
+	environment: RunnableDevEnvironment,
+	file: string,
+): Set<EnvironmentModuleNode> | undefined {
+	const exact = environment.moduleGraph.getModulesByFile(file);
+	if (exact) return exact;
+
+	const fileLower = file.toLowerCase();
+	for (const mod of environment.moduleGraph.idToModuleMap.values()) {
+		if (mod.file && mod.file.toLowerCase() === fileLower) {
+			return environment.moduleGraph.getModulesByFile(mod.file);
+		}
+	}
+	return undefined;
+}
+
 /** recursively crawl the module graph to get all style files imported by parent id */
 export async function* crawlGraph(
 	environment: RunnableDevEnvironment,
@@ -27,7 +50,9 @@ export async function* crawlGraph(
 		? // "getModulesByFile" pulls from a delayed module cache (fun implementation detail),
 			// So we can get up-to-date info on initial server load.
 			// Needed for slower CSS preprocessing like Tailwind
-			(environment.moduleGraph.getModulesByFile(id) ?? new Set())
+			// Uses case-insensitive fallback for systems where CWD casing may differ from
+			// the filesystem (e.g. Windows drive letter or macOS case-insensitive volumes).
+			(getModulesByFileCaseInsensitive(environment, id) ?? new Set())
 		: // For non-root files, we're safe to pull from "getModuleById" based on testing.
 			// TODO: Find better invalidation strategy to use "getModuleById" in all cases!
 			new Set([environment.moduleGraph.getModuleById(id)]);
@@ -39,7 +64,7 @@ export async function* crawlGraph(
 		if (!entry) {
 			continue;
 		}
-		if (id === entry.id) {
+		if (id === entry.id || id.toLowerCase() === entry.id?.toLowerCase()) {
 			scanned.add(id);
 
 			// NOTE: It may be worth revisiting if we can crawl direct imports of the module since
@@ -119,7 +144,7 @@ export async function* crawlGraph(
 // a real import.
 function isImportedBy(parent: string, entry: EnvironmentModuleNode) {
 	for (const importer of entry.importers) {
-		if (importer.id === parent) {
+		if (importer.id === parent || importer.id?.toLowerCase() === parent.toLowerCase()) {
 			return true;
 		}
 	}
