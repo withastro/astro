@@ -469,20 +469,23 @@ export interface AstroUserConfig<
 	/**
 	 * @docs
 	 * @name compressHTML
-	 * @type {boolean}
+	 * @type {boolean | "jsx"}
 	 * @default `true`
 	 * @description
 	 *
-	 * This is an option to minify your HTML output and reduce the size of your HTML files.
+	 * Controls how Astro handles whitespace in your HTML. This affects both development mode and the final build.
 	 *
-	 * By default, Astro removes whitespace from your HTML, including line breaks, from `.astro` components in a lossless manner.
-	 * Some whitespace may be kept as needed to preserve the visual rendering of your HTML. This occurs both in development mode and in the final build.
+	 * When this option is set to `true` (the default), Astro removes most non-essential whitespace from your HTML. Some non-essential whitespace may be kept to match the expectations of whitespace usage in plain HTML; most notably, preserving initial and trailing whitespace inside elements. If you're most comfortable working with plain HTML, this setting will match your expectations.
 	 *
-	 * To disable HTML compression, set `compressHTML` to false.
+	 * When this option is set to `"jsx"`, the whitespace compression mode matches that of JSX-based frameworks like React. In JSX frameworks, leading and trailing whitespace is only preserved if explicitly included in the source code. If you're using Astro with frameworks like React, Vue, Solid, etc., this is the setting for you.
+	 *
+	 * To disable HTML compression and preserve all whitespace, set `compressHTML` to `false`.
 	 *
 	 * ```js
 	 * {
 	 *   compressHTML: false
+	 *   // or:
+	 *   // compressHTML: 'jsx'
 	 * }
 	 * ```
 	 */
