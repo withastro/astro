@@ -68,6 +68,7 @@ Make changes in `packages/` source files. Follow these principles:
 - Don't refactor unrelated code
 - Don't add new features
 - **Never "fix" an issue by removing a user's dependency.** Removing an adapter (Cloudflare, Netlify, Vercel, etc.), framework integration (Svelte, React, Vue, etc.), or feature (MDX, DB, etc.) is not a fix, these are things the user needs. The fix must work within the user's existing stack or expected feature set.
+- **Never "fix" an issue by telling the user to change their configuration.** If the user explicitly set a config option (e.g. `prerenderEnvironment: 'node'`, a specific adapter option, an opt-in flag), they chose that value deliberately. "Use the default", "omit this option", "switch to X instead" is NOT a fix — it abandons their use case. The fix must make their chosen configuration work. If you cannot, prefer the low-confidence / breadcrumb path over suggesting a workflow-breaking workaround.
 
 **Consider edge cases:**
 
@@ -145,6 +146,7 @@ The report must include all information needed for a final GitHub comment to be 
    - Debug code, `console.log`s, or temporary test files
    - Changes outside `packages/` that were only needed for diagnosis/reproduction
    - Build artifacts that shouldn't be committed
+   - **Lockfile churn: if `pnpm-lock.yaml` appears in `git status` and you did NOT intentionally modify it as part of the fix (a dependency pin, bump, or resolution change), revert it with `git checkout -- pnpm-lock.yaml`.** The install step in the reproduce skill can rewrite the lockfile as a side effect; that churn must not end up on the fix branch. Only keep the lockfile diff if the fix itself includes a lockfile change.
 3. Use `git checkout -- <file>` to discard unwanted changes
 4. Confirm with a final `git status` that only the intended fix files remain
 5. DO NOT commit or push anything yet! The user will handle that at a later step.

@@ -78,6 +78,7 @@ Consider:
 - Does this affect other similar use cases?
 - Are there edge cases to consider?
 - Never suggest removing a user's dependency (adapters, framework integrations, features like MDX or DB) as a fix, those are things the user needs. The fix must work within the user's existing stack and expected feature-set.
+- Never suggest that the user change a configuration value they explicitly set (e.g. "use the default", "omit this option", "switch to X instead"). For example, if they opted into `prerenderEnvironment: 'node'` or a specific adapter option, they want that value. The fix must make their chosen configuration work, not route around it.
 
 **Tone calibration:** Describe the root cause factually, not dramatically. Avoid language that overstates impact ("critical flaw", "fundamentally broken", "severe vulnerability") unless the evidence genuinely supports it. A missing null check is a missing null check, not a "critical oversight in the rendering pipeline." The diagnosis should help a maintainer understand what's wrong, guiding them towards a fix, not alarm them.
 
