@@ -14,7 +14,7 @@ export function validateDynamicRouteModule(
 		route: RouteData;
 	},
 ) {
-	if ((!ssr || route.prerender) && !mod.getStaticPaths) {
+	if ((!ssr || route.prerender) && route.origin !== 'internal' && !mod.getStaticPaths) {
 		throw new AstroError({
 			...AstroErrorData.GetStaticPathsRequired,
 			location: { file: route.component },
