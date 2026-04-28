@@ -9,7 +9,7 @@ import {
 	type Fixture,
 	type PreviewServer,
 	loadFixture as baseLoadFixture,
-} from '../test/test-utils.js';
+} from '../test/test-utils.ts';
 
 export type { AstroInlineConfig, DevServer, Fixture, PreviewServer };
 
