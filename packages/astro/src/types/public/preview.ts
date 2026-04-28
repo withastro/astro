@@ -18,6 +18,11 @@ export interface PreviewServerParams {
 	base: string;
 	logger: AstroIntegrationLogger;
 	headers?: OutgoingHttpHeaders;
+	/**
+	 * Configures allowed hosts that the preview server can respond to.
+	 * If the `Host` header doesn't match one of the allowed hosts, the server will return a 403 response.
+	 */
+	allowedHosts?: string[] | true;
 	root: URL;
 }
 
