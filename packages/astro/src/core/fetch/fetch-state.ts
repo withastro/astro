@@ -206,7 +206,7 @@ export class FetchState implements AstroFetchState {
 	/** Registered context providers keyed by name. */
 	#providers = new Map<string, ContextProvider<unknown>>();
 	/** Cached values from resolved providers. */
-	#resolved = new Map<string, unknown>();
+	#providersResolvedValues = new Map<string, unknown>();
 	/** Cached promise for lazy component instance loading. */
 	#componentInstancePromise: Promise<ComponentInstance> | undefined;
 	/** @internal SSR result for the current page render. */
@@ -656,13 +656,13 @@ export class FetchState implements AstroFetchState {
 	 * Returns `undefined` if no provider was registered for the key.
 	 */
 	resolve<T>(key: string): T | undefined {
-		if (this.#resolved.has(key)) {
-			return this.#resolved.get(key) as T;
+		if (this.#providersResolvedValues.has(key)) {
+			return this.#providersResolvedValues.get(key) as T;
 		}
 		const provider = this.#providers.get(key);
 		if (!provider) return undefined;
 		const value = provider.create();
-		this.#resolved.set(key, value);
+		this.#providersResolvedValues.set(key, value);
 		return value as T;
 	}
 
@@ -675,12 +675,12 @@ export class FetchState implements AstroFetchState {
 	 */
 	finalizeAll(): Promise<void> | void {
 		// Fast path: nothing to finalize.
-		if (this.#resolved.size === 0) return;
+		if (this.#providersResolvedValues.size === 0) return;
 
 		let chain: Promise<void> | undefined;
 		for (const [key, provider] of this.#providers) {
-			if (provider.finalize && this.#resolved.has(key)) {
-				const result = provider.finalize(this.#resolved.get(key));
+			if (provider.finalize && this.#providersResolvedValues.has(key)) {
+				const result = provider.finalize(this.#providersResolvedValues.get(key));
 				if (result) {
 					chain = chain ? chain.then(() => result) : result;
 				}
