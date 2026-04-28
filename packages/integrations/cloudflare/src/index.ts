@@ -359,6 +359,7 @@ export default function createIntegration({
 						buildOutput,
 						middlewareMode: 'classic',
 						preserveBuildClientDir: true,
+						preserveBuildServerDir: true,
 					},
 					entrypointResolution: 'auto',
 					previewEntrypoint: '@astrojs/cloudflare/entrypoints/preview',

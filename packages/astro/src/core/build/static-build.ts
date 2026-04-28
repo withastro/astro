@@ -37,7 +37,10 @@ import { NOOP_MODULE_ID } from './plugins/plugin-noop.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 import type { InputOption } from 'rollup';
 import { getSSRAssets } from './internal.js';
-import { SERVER_ISLAND_MAP_MARKER } from '../server-islands/vite-plugin-server-islands.js';
+import {
+	SERVER_ISLAND_MAP_MARKER,
+	hasServerIslands,
+} from '../server-islands/vite-plugin-server-islands.js';
 
 const PRERENDER_ENTRY_FILENAME_PREFIX = 'prerender-entry';
 
@@ -207,8 +210,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					buildPostHooks,
 				);
 
-				// Generation and cleanup (prerenderOutputDir captured in buildApp
-				// before any buildOutput mutation)
+				// Generation and cleanup
 
 				// TODO: The `static` and `server` branches below are nearly identical now.
 				// Consider refactoring to remove the else-if and unify the logic.
@@ -325,8 +327,6 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 		// This takes precedence over platform plugin fallbacks (e.g., Cloudflare)
 		builder: {
 			async buildApp(builder) {
-				// Capture the prerender output directory before any buildOutput
-				// mutation so the post-build hook uses the correct path.
 				prerenderOutputDir = getPrerenderOutputDirectory(settings);
 
 				// Build prerender environment for static generation
@@ -342,25 +342,9 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				const prerenderChunks = extractRelevantChunks(prerenderOutputs, true);
 				prerenderOutput = undefined as any;
 
-				// Server islands require the SSR build even when the site was
-				// initially determined to be fully static. Upgrade buildOutput
-				// after the prerender build completes so the SSR build, manifest
-				// injection, and runtime all use the server paths.
-				const prerenderPlugins = builder.environments.prerender?.config.plugins ?? [];
-				const serverIslandsPlugin = prerenderPlugins.find(
-					(p) => p.name === 'astro:server-islands',
-				);
-				if (
-					settings.buildOutput === 'static' &&
-					typeof serverIslandsPlugin?.api?.hasServerIslands === 'function' &&
-					serverIslandsPlugin.api.hasServerIslands()
-				) {
-					settings.buildOutput = 'server';
-				}
-
-				// Build ssr environment for server output (only for non-static builds)
+				// Build ssr environment for server output
 				let ssrChunks: BuildInternals['extractedChunks'] = [];
-				if (settings.buildOutput !== 'static') {
+				if (needsServerBuild(settings, builder)) {
 					settings.timer.start('SSR build');
 					let ssrOutput = await builder.build(
 						builder.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr],
@@ -651,6 +635,18 @@ function getClientInput(
 	}
 
 	return clientInput;
+}
+
+/**
+ * Determines whether the SSR build environment needs to be built.
+ * This is true when the build output is 'server', or when server islands
+ * were discovered during the prerender build (even for static sites).
+ */
+function needsServerBuild(settings: StaticBuildOptions['settings'], builder: vite.ViteBuilder): boolean {
+	if (settings.buildOutput === 'server') {
+		return true;
+	}
+	return hasServerIslands(builder.environments.prerender as vite.BuildEnvironment);
 }
 
 /**

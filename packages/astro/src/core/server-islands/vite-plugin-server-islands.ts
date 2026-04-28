@@ -1,4 +1,4 @@
-import type { ConfigEnv, DevEnvironment, Plugin as VitePlugin } from 'vite';
+import type { BuildEnvironment, ConfigEnv, DevEnvironment, Plugin as VitePlugin } from 'vite';
 import type { AstroPluginOptions } from '../../types/astro.js';
 import type { AstroPluginMetadata } from '../../vite-plugin-astro/index.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
@@ -200,4 +200,17 @@ export function vitePluginServerIslands({
 			};
 		},
 	};
+}
+
+/**
+ * Checks if the prerender environment discovered any server islands during the build.
+ * This encapsulates the logic of finding the server islands plugin and querying its state.
+ */
+export function hasServerIslands(environment: BuildEnvironment): boolean {
+	const plugins = environment.config.plugins ?? [];
+	const serverIslandsPlugin = plugins.find((p) => p.name === 'astro:server-islands');
+	return (
+		typeof serverIslandsPlugin?.api?.hasServerIslands === 'function' &&
+		serverIslandsPlugin.api.hasServerIslands()
+	);
 }
