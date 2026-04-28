@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
-function countSubstring(str, sub) {
+function countSubstring(str: string, sub: string) {
 	let count = 0;
 	let pos = 0;
 	while ((pos = str.indexOf(sub, pos)) !== -1) {
@@ -14,8 +14,7 @@ function countSubstring(str, sub) {
 }
 
 describe('Scripts inside template elements', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
