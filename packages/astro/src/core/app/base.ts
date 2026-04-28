@@ -241,6 +241,21 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	}
 
 	/**
+	 * Extracts the base-stripped, decoded pathname from a request.
+	 * Used by adapters to compute the pathname for dev-mode route matching.
+	 */
+	public getPathnameFromRequest(request: Request): string {
+		const url = new URL(request.url);
+		const pathname = prependForwardSlash(this.removeBase(url.pathname));
+		try {
+			return decodeURI(pathname);
+		} catch (e: any) {
+			this.getAdapterLogger().error(e.toString());
+			return pathname;
+		}
+	}
+
+	/**
 	 * Given a `Request`, it returns the `RouteData` that matches its `pathname`. By default, prerendered
 	 * routes aren't returned, even if they are matched.
 	 *
