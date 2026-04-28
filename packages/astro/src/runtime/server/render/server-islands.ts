@@ -164,18 +164,22 @@ export class ServerIslandComponent {
 		const key = await this.result.key;
 
 		// Encrypt componentExport
-		const componentExportEncrypted = await encryptString(key, componentExport);
+		const componentExportEncrypted = await encryptString(
+			key,
+			componentExport,
+			`export:${componentId}`,
+		);
 
 		const propsEncrypted =
 			Object.keys(this.props).length === 0
 				? ''
-				: await encryptString(key, JSON.stringify(this.props));
+				: await encryptString(key, JSON.stringify(this.props), `props:${componentId}`);
 
 		// Encrypt slots
 		const slotsEncrypted =
 			Object.keys(renderedSlots).length === 0
 				? ''
-				: await encryptString(key, JSON.stringify(renderedSlots));
+				: await encryptString(key, JSON.stringify(renderedSlots), `slots:${componentId}`);
 
 		const hostId = await this.getHostId();
 		const slash = this.result.base.endsWith('/') ? '' : '/';

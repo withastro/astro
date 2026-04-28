@@ -1,5 +1,22 @@
 # @astrojs/cloudflare
 
+## 13.2.2
+
+### Patch Changes
+
+- [#16498](https://github.com/withastro/astro/pull/16498) [`4efe020`](https://github.com/withastro/astro/commit/4efe02066d236590d948db4d5474253b8217ffdb) Thanks [@matthewp](https://github.com/matthewp)! - Fixes the dependency scan failing with "No matching export for import 'default'" when a `.ts` file default-imports an `.astro` component
+
+  The esbuild scan plugin now includes `export default {}` in its output for `.astro` files, preventing the scan from failing and ensuring all dependencies are discovered ahead of time.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 13.2.1
+
+### Patch Changes
+
+- [#16458](https://github.com/withastro/astro/pull/16458) [`8cb1f42`](https://github.com/withastro/astro/commit/8cb1f42e378bfe6d2989f7c4edb3ccd45eca1f4f) Thanks [@matthewp](https://github.com/matthewp)! - Fixes Cloudflare dev and build failures caused by `@cloudflare/vite-plugin` defaulting `compatibility_date` to today's date, which can exceed the maximum date supported by the bundled `workerd` binary
+
 ## 13.2.0
 
 ### Minor Changes

@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
 import type { AstroLogMessage } from '../dist/core/logger/core.js';
 import { AstroLogger } from '../dist/core/logger/core.js';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 const createFixture = () => {
 	let astroFixture: Fixture;

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { type DevServer, type Fixture, isWindows, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, isWindows, loadFixture } from './test-utils.ts';
 
 describe('Special chars in component import paths', () => {
 	let fixture: Fixture;

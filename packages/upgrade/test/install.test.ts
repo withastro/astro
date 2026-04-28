@@ -7,17 +7,25 @@ import { setup, type ShellFunction } from './test-utils.ts';
 
 const tmpUrl = pathToFileURL(tmpdir());
 
+type Context = Parameters<typeof install>[0];
+
 describe('install', () => {
 	const fixture = setup();
-	const ctx = {
-		cwd: '',
+	const ctx: Context = {
+		cwd: tmpUrl,
 		version: 'latest',
-		packageManager: 'npm',
+		packageManager: { name: 'npm', agent: 'npm' },
 		dryRun: true,
+		// @ts-expect-error: fake `prompt` callback for testing
+		prompt: async () => ({ proceed: true }),
+		exit: (): never => {
+			return undefined as never;
+		},
+		packages: [],
 	};
 
 	it('up to date', async () => {
-		const context = {
+		const context: Context = {
 			...ctx,
 			packages: [
 				{
@@ -32,7 +40,7 @@ describe('install', () => {
 	});
 
 	it('patch', async () => {
-		const context = {
+		const context: Context = {
 			...ctx,
 			packages: [
 				{
@@ -47,7 +55,7 @@ describe('install', () => {
 	});
 
 	it('minor', async () => {
-		const context = {
+		const context: Context = {
 			...ctx,
 			packages: [
 				{
@@ -63,15 +71,17 @@ describe('install', () => {
 
 	it('major (reject)', async () => {
 		let prompted = false;
-		let exitCode;
-		const context = {
+		let exitCode: number | undefined;
+		const context: Context = {
 			...ctx,
-			prompt: () => {
+			// @ts-expect-error: fake `prompt` callback for testing
+			prompt: async () => {
 				prompted = true;
 				return { proceed: false };
 			},
-			exit: (code: number) => {
+			exit: (code: number): never => {
 				exitCode = code;
+				return undefined as never;
 			},
 			packages: [
 				{
@@ -93,15 +103,17 @@ describe('install', () => {
 
 	it('major (accept)', async () => {
 		let prompted = false;
-		let exitCode;
-		const context = {
+		let exitCode: number | undefined;
+		const context: Context = {
 			...ctx,
-			prompt: () => {
+			// @ts-expect-error: fake `prompt` callback for testing
+			prompt: async () => {
 				prompted = true;
 				return { proceed: true };
 			},
-			exit: (code: number) => {
+			exit: (code: number): never => {
 				exitCode = code;
+				return undefined as never;
 			},
 			packages: [
 				{
@@ -123,15 +135,17 @@ describe('install', () => {
 
 	it('multiple major', async () => {
 		let prompted = false;
-		let exitCode;
-		const context = {
+		let exitCode: number | undefined;
+		const context: Context = {
 			...ctx,
-			prompt: () => {
+			// @ts-expect-error: fake `prompt` callback for testing
+			prompt: async () => {
 				prompted = true;
 				return { proceed: true };
 			},
-			exit: (code: number) => {
+			exit: (code: number): never => {
 				exitCode = code;
+				return undefined as never;
 			},
 			packages: [
 				{
@@ -165,15 +179,17 @@ describe('install', () => {
 
 	it('current patch minor major', async () => {
 		let prompted = false;
-		let exitCode;
-		const context = {
+		let exitCode: number | undefined;
+		const context: Context = {
 			...ctx,
-			prompt: () => {
+			// @ts-expect-error: fake `prompt` callback for testing
+			prompt: async () => {
 				prompted = true;
 				return { proceed: true };
 			},
-			exit: (code: number) => {
+			exit: (code: number): never => {
 				exitCode = code;
+				return undefined as never;
 			},
 			packages: [
 				{
@@ -224,14 +240,15 @@ describe('install', () => {
 			return { stdout: '', stderr: '', exitCode: 0 };
 		});
 
-		let exitCode;
-		const context = {
+		let exitCode: number | undefined;
+		const context: Context = {
 			...ctx,
 			dryRun: false,
 			cwd: tmpUrl,
 			packageManager: { name: 'npm', agent: 'npm' },
-			exit: (code: number) => {
+			exit: (code: number): never => {
 				exitCode = code;
+				return undefined as never;
 			},
 			packages: [
 				{
@@ -263,14 +280,15 @@ describe('install', () => {
 			throw new Error('npm ERR! some other error');
 		});
 
-		let exitCode;
-		const context = {
+		let exitCode: number | undefined;
+		const context: Context = {
 			...ctx,
 			dryRun: false,
 			cwd: tmpUrl,
 			packageManager: { name: 'npm', agent: 'npm' },
-			exit: (code: number) => {
+			exit: (code: number): never => {
 				exitCode = code;
+				return undefined as never;
 			},
 			packages: [
 				{
@@ -295,14 +313,15 @@ describe('install', () => {
 			throw new Error('npm ERR! peer dependencies conflict');
 		});
 
-		let exitCode;
-		const context = {
+		let exitCode: number | undefined;
+		const context: Context = {
 			...ctx,
 			dryRun: false,
 			cwd: tmpUrl,
 			packageManager: { name: 'npm', agent: 'npm' },
-			exit: (code: number) => {
+			exit: (code: number): never => {
 				exitCode = code;
+				return undefined as never;
 			},
 			packages: [
 				{
@@ -335,14 +354,15 @@ describe('install', () => {
 			throw new Error('pnpm ERR! peer dependencies conflict');
 		});
 
-		let exitCode;
-		const context = {
+		let exitCode: number | undefined;
+		const context: Context = {
 			...ctx,
 			dryRun: false,
 			cwd: tmpUrl,
 			packageManager: { name: 'pnpm', agent: 'pnpm' },
-			exit: (code: number) => {
+			exit: (code: number): never => {
 				exitCode = code;
+				return undefined as never;
 			},
 			packages: [
 				{

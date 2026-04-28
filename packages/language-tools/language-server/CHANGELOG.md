@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 2.16.7
+
+### Patch Changes
+
+- [#15908](https://github.com/withastro/astro/pull/15908) [`8c62159`](https://github.com/withastro/astro/commit/8c62159eac6a77c32ac533e81d9c561409993db9) Thanks [@felmonon](https://github.com/felmonon)! - Keep generated `AstroComponent` suffixes in language-server output while rewriting `.astro` auto-import suggestions and edits back to the expected component name.
+
 ## 2.16.6
 
 ### Patch Changes
