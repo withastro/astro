@@ -707,21 +707,6 @@ export class FetchState implements AstroFetchState {
 	}
 
 	/**
-	 * @internal Returns the `BaseApp` instance stamped on the request by
-	 * `BaseApp.render()`. Throws if the request has no attached app.
-	 */
-	get app(): BaseApp<Pipeline> {
-		const app = Reflect.get(this.request, appSymbol) as BaseApp<Pipeline> | undefined;
-		if (!app) {
-			throw new Error(
-				'FetchState.app accessed on a request without an attached app. ' +
-					"Ensure it runs inside Astro's request pipeline.",
-			);
-		}
-		return app;
-	}
-
-	/**
 	 * Resolves the route to use for this request and stores it on
 	 * `this.routeData`. If the adapter (or the dev server) provided a
 	 * `routeData` via render options it's already set and this is a
