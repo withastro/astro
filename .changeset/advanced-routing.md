@@ -84,3 +84,5 @@ export default app;
 ```
 
 Both approaches give you the same power — pick whichever fits your project. If you don't need a framework, `astro/fetch` keeps things minimal. If you want a rich middleware ecosystem, `astro/hono` gets you there with one import.
+
+For more information on enabling and using this feature in your project, see the [experimental advanced routing docs](https://docs.astro.build/en/reference/experimental-flags/advanced-routing/). To give feedback, or to keep up with its development, see the [advanced routing RFC](https://github.com/withastro/roadmap/blob/advanced-routing-stage-3/proposals/0056-advanced-routing.md) for more information and discussion.
