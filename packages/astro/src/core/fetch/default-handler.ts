@@ -31,6 +31,9 @@ export class DefaultFetchHandler {
 			this.#handler = new AstroHandler(app);
 		}
 		const state = new FetchState(this.#app.pipeline, request);
-		return this.#handler!.handle(state);
+		if (!this.#handler) {
+			throw new Error('No fetch handler provided.');
+		}
+		return this.#handler.handle(state);
 	};
 }
