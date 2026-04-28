@@ -89,6 +89,7 @@ export function vitePluginEnvironment({
 					include: [
 						// For the dev toolbar
 						'astro > html-escaper',
+						'astro/runtime/client/dev-toolbar/entrypoint.js',
 					],
 					exclude: ['astro:*', 'virtual:astro:*', 'astro/virtual-modules/prefetch.js'],
 					// Astro files can't be rendered on the client

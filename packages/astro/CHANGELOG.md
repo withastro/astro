@@ -1,5 +1,35 @@
 # astro
 
+## 6.1.10
+
+### Patch Changes
+
+- [#16479](https://github.com/withastro/astro/pull/16479) [`1058428`](https://github.com/withastro/astro/commit/1058428df2d13878c6130787636dd1778273a934) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a spurious `[WARN] [content] Content config not loaded` warning during `astro dev` for projects that don't use content collections
+
+- [#16457](https://github.com/withastro/astro/pull/16457) [`3d82220`](https://github.com/withastro/astro/commit/3d82220a1549e699e34ed433f3846a919f4c02bd) Thanks [@matthewp](https://github.com/matthewp)! - Hardens server island encryption to prevent encrypted data from one island component being replayed against a different one
+
+- [#16481](https://github.com/withastro/astro/pull/16481) [`152700e`](https://github.com/withastro/astro/commit/152700e08178285b240d8ef947cccd47b870ee5f) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a spurious 404 request for a dev toolbar sourcemap during `astro dev` caused by the browser mis-resolving a relative `sourceMappingURL` from the `/@id/` URL prefix
+
+- [#16480](https://github.com/withastro/astro/pull/16480) [`1bcb43b`](https://github.com/withastro/astro/commit/1bcb43bf04f3fa8f4623897ae2a937250f35216a) Thanks [@matthewp](https://github.com/matthewp)! - Fixes an unnecessary full page reload on first navigation during dev
+
+## 6.1.9
+
+### Patch Changes
+
+- [#16448](https://github.com/withastro/astro/pull/16448) [`99464ed`](https://github.com/withastro/astro/commit/99464edb5fc0968f6497328e106f26ab393668bd) Thanks [@matthewp](https://github.com/matthewp)! - Updates vite, picomatch, and unstorage to latest patch versions
+
+- [#16422](https://github.com/withastro/astro/pull/16422) [`a3951d7`](https://github.com/withastro/astro/commit/a3951d7873c7c210fedbaa77702bc33db6410715) Thanks [@matthewp](https://github.com/matthewp)! - Hardens `astro-island` export resolution and hydration error handling for malformed component metadata
+
+- [#16420](https://github.com/withastro/astro/pull/16420) [`e21de1d`](https://github.com/withastro/astro/commit/e21de1d03b318d5045dba718291c04fe05c01490) Thanks [@matthewp](https://github.com/matthewp)! - Hardens Astro's error overlay and server logging paths to avoid unsafe HTML insertion and format-string interpolation
+
+- [#16419](https://github.com/withastro/astro/pull/16419) [`f3485c3`](https://github.com/withastro/astro/commit/f3485c3458bc8bf70c152126e418c24f489ded9d) Thanks [@matthewp](https://github.com/matthewp)! - Hardens nested object and package metadata lookups to ignore prototype keys in content handling and project scaffolding
+
+- [#16022](https://github.com/withastro/astro/pull/16022) [`a002540`](https://github.com/withastro/astro/commit/a002540d60d4a840db9971e73c820a8015658ffe) Thanks [@mathieumaf](https://github.com/mathieumaf)! - Fixes an issue where i18n domains would return 404 when `trailingSlash` is set to `never`.
+
+- Updated dependencies [[`99464ed`](https://github.com/withastro/astro/commit/99464edb5fc0968f6497328e106f26ab393668bd), [`f3485c3`](https://github.com/withastro/astro/commit/f3485c3458bc8bf70c152126e418c24f489ded9d)]:
+  - @astrojs/internal-helpers@0.9.0
+  - @astrojs/markdown-remark@7.1.1
+
 ## 6.1.8
 
 ### Patch Changes

@@ -38,7 +38,7 @@
     "test:e2e": "cd packages/astro && pnpm playwright install firefox && pnpm run test:e2e",
     "test:e2e:match": "cd packages/astro && pnpm playwright install firefox && pnpm run test:e2e:match",
     "test:e2e:hosts": "turbo run test:hosted",
-    "typecheck:tests": "pnpm -r typecheck:tests",
+    "typecheck:tests": "pnpm -r run --sequential typecheck:tests",
     "benchmark": "astro-benchmark",
     "lint": "biome lint && knip && eslint . --report-unused-disable-directives-severity=warn --concurrency=auto",
     "lint:ci": "knip && pnpm run eslint:ci",
@@ -61,6 +61,12 @@
   "dependencies": {
     "astro-benchmark": "workspace:*"
   },
+  "pnpm": {
+    "overrides": {
+      "picomatch@<4": "^2.3.2",
+      "vite@^7": "^7.3.2"
+    }
+  },
   "devDependencies": {
     "@astrojs/check": "^0.9.5",
     "@biomejs/biome": "2.4.10",
@@ -78,7 +84,7 @@
     "prettier": "^3.8.1",
     "prettier-plugin-astro": "^0.14.1",
     "publint": "^0.3.17",
-    "tinyglobby": "^0.2.15",
+    "tinyglobby": "^0.2.16",
     "turbo": "^2.8.15",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.56.1",

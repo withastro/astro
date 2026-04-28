@@ -15,31 +15,31 @@ describe('encryption', () => {
 		it('round-trips correctly', async () => {
 			const key = await createKey();
 			const original = 'hello world';
-			const encrypted = await encryptString(key, original);
-			const decrypted = await decryptString(key, encrypted);
+			const encrypted = await encryptString(key, original, 'props:TestComponent');
+			const decrypted = await decryptString(key, encrypted, 'props:TestComponent');
 			assert.equal(decrypted, original);
 		});
 
 		it('round-trips an empty string', async () => {
 			const key = await createKey();
-			const encrypted = await encryptString(key, '');
-			const decrypted = await decryptString(key, encrypted);
+			const encrypted = await encryptString(key, '', 'props:TestComponent');
+			const decrypted = await decryptString(key, encrypted, 'props:TestComponent');
 			assert.equal(decrypted, '');
 		});
 
 		it('round-trips a JSON payload', async () => {
 			const key = await createKey();
 			const original = JSON.stringify({ foo: 'bar', num: 42, nested: { a: [1, 2] } });
-			const encrypted = await encryptString(key, original);
-			const decrypted = await decryptString(key, encrypted);
+			const encrypted = await encryptString(key, original, 'props:TestComponent');
+			const decrypted = await decryptString(key, encrypted, 'props:TestComponent');
 			assert.equal(decrypted, original);
 		});
 
 		it('produces a different ciphertext on each call (IV randomness)', async () => {
 			const key = await createKey();
 			const plain = 'same input';
-			const first = await encryptString(key, plain);
-			const second = await encryptString(key, plain);
+			const first = await encryptString(key, plain, 'props:TestComponent');
+			const second = await encryptString(key, plain, 'props:TestComponent');
 			// Same plaintext — different ciphertext because each call uses a fresh IV
 			assert.notEqual(first, second);
 		});
@@ -47,25 +47,35 @@ describe('encryption', () => {
 		it('both distinct ciphertexts decrypt to the same plaintext', async () => {
 			const key = await createKey();
 			const plain = 'same input';
-			const first = await encryptString(key, plain);
-			const second = await encryptString(key, plain);
-			assert.equal(await decryptString(key, first), plain);
-			assert.equal(await decryptString(key, second), plain);
+			const first = await encryptString(key, plain, 'props:TestComponent');
+			const second = await encryptString(key, plain, 'props:TestComponent');
+			assert.equal(await decryptString(key, first, 'props:TestComponent'), plain);
+			assert.equal(await decryptString(key, second, 'props:TestComponent'), plain);
 		});
 
 		it('throws when decrypting a tampered ciphertext', async () => {
 			const key = await createKey();
-			const encrypted = await encryptString(key, 'secret');
+			const encrypted = await encryptString(key, 'secret', 'props:TestComponent');
 			// Flip the last character to corrupt the ciphertext
 			const tampered = encrypted.slice(0, -1) + (encrypted.endsWith('A') ? 'B' : 'A');
-			await assert.rejects(() => decryptString(key, tampered));
+			await assert.rejects(() => decryptString(key, tampered, 'props:TestComponent'));
 		});
 
 		it('throws when decrypting with the wrong key', async () => {
 			const keyA = await createKey();
 			const keyB = await createKey();
-			const encrypted = await encryptString(keyA, 'secret');
-			await assert.rejects(() => decryptString(keyB, encrypted));
+			const encrypted = await encryptString(keyA, 'secret', 'props:TestComponent');
+			await assert.rejects(() => decryptString(keyB, encrypted, 'props:TestComponent'));
+		});
+
+		it('throws when decrypting with mismatched additionalData', async () => {
+			const key = await createKey();
+			// Encrypt props for ComponentA, try to decrypt as slots for ComponentB
+			const encrypted = await encryptString(key, '{"post":"hello"}', 'props:ComponentA');
+			await assert.rejects(
+				() => decryptString(key, encrypted, 'slots:ComponentB'),
+				'ciphertext bound to one component/purpose must not decrypt with a different one',
+			);
 		});
 	});
 	// #endregion
@@ -78,8 +88,9 @@ describe('encryption', () => {
 			const decoded = await decodeKey(encoded);
 			// Verify the decoded key works for encrypt/decrypt
 			const plain = 'verify key works';
-			const encrypted = await encryptString(decoded, plain);
-			const decrypted = await decryptString(decoded, encrypted);
+			const aad = 'props:TestComponent';
+			const encrypted = await encryptString(decoded, plain, aad);
+			const decrypted = await decryptString(decoded, encrypted, aad);
 			assert.equal(decrypted, plain);
 		});
 
@@ -93,10 +104,11 @@ describe('encryption', () => {
 		it('a key encoded then decoded can decrypt ciphertexts made with the original key', async () => {
 			const key = await createKey();
 			const plain = 'cross-key decrypt';
-			const encrypted = await encryptString(key, plain);
+			const aad = 'props:TestComponent';
+			const encrypted = await encryptString(key, plain, aad);
 			const encoded = await encodeKey(key);
 			const decoded = await decodeKey(encoded);
-			const decrypted = await decryptString(decoded, encrypted);
+			const decrypted = await decryptString(decoded, encrypted, aad);
 			assert.equal(decrypted, plain);
 		});
 	});

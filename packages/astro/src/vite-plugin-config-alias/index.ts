@@ -89,6 +89,8 @@ const getViteResolveAlias = (settings: AstroSettings) => {
 				// id is already the wildcard part (e.g., 'extra.css' for '@styles/*')
 				// resolvedValues still have the * in them, so replace * with id
 				for (const resolvedValue of resolvedValues) {
+					// nosemgrep: javascript.lang.security.audit.incomplete-sanitization.incomplete-sanitization
+					// `id` is the wildcard capture from the alias match and only substitutes the tsconfig `*`.
 					const resolved = resolvedValue.replace('*', id);
 					const stats = fs.statSync(resolved, { throwIfNoEntry: false });
 					if (stats && stats.isFile()) {

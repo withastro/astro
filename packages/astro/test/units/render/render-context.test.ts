@@ -1,17 +1,9 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { RenderContext } from '../../../dist/core/render-context.js';
-import {
-	createComponent,
-	maybeRenderHead as _maybeRenderHead,
-	render,
-} from '../../../dist/runtime/server/index.js';
+import { createComponent, maybeRenderHead, render } from '../../../dist/runtime/server/index.js';
 import type { AstroComponentFactory } from '../../../dist/runtime/server/render/index.js';
 import { createBasicPipeline } from '../test-utils.ts';
-
-// The public types for maybeRenderHead declare zero params,
-// but the runtime implementation accepts a result argument.
-const maybeRenderHead = _maybeRenderHead as (result: any) => any;
 
 const createAstroModule = (AstroComponent: AstroComponentFactory) => ({ default: AstroComponent });
 
@@ -38,8 +30,8 @@ describe('RenderContext', () => {
 				},
 			};
 
-			const SimplePage = createComponent((result: any) => {
-				return render`<html><head>${maybeRenderHead(result)}</head><body><p>Error page</p></body></html>`;
+			const SimplePage = createComponent(() => {
+				return render`<html><head>${maybeRenderHead()}</head><body><p>Error page</p></body></html>`;
 			});
 			const PageModule = createAstroModule(SimplePage);
 
@@ -98,8 +90,8 @@ describe('RenderContext', () => {
 				},
 			};
 
-			const SimplePage = createComponent((result: any) => {
-				return render`<html><head>${maybeRenderHead(result)}</head><body><p>Page</p></body></html>`;
+			const SimplePage = createComponent(() => {
+				return render`<html><head>${maybeRenderHead()}</head><body><p>Page</p></body></html>`;
 			});
 			const PageModule = createAstroModule(SimplePage);
 

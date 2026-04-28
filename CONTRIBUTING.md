@@ -350,6 +350,46 @@ Server-side rendering (SSR) can be complicated. The Astro package (`packages/ast
     - `server/`: Code that executes **inside Vite’s SSR.** Though this is a Node environment inside, this will be executed independently of `core/` and may have to be structured differently.
   - `vite-plugin-*/`: Any Vite plugins that Astro needs to run. For the most part, these also execute within Vite similar to `src/runtime/server/`, but it’s also helpful to think about them as independent modules. _Note: at the moment these are internal while they’re in development_
 
+### Public vs. internal API
+
+`packages/astro/package.json` declares two export maps:
+
+- `"exports"` — the monorepo view. Includes public entries plus `./_internal/*` subpaths for use by other workspace packages.
+- `"publishConfig.exports"` — the npm view. [pnpm replaces `"exports"` with this at publish time](https://pnpm.io/package_json#publishconfig), so `_internal/*` entries never ship.
+
+Other workspace packages should import internals via the subpath, not a deep relative path:
+
+```ts
+// Do this
+import { loadFixture } from 'astro/_internal/test/test-utils';
+// Not this
+import { loadFixture } from '../../../astro/test/test-utils.js';
+```
+
+**Example — public export `./foo`** (add to _both_ maps):
+
+```diff
+ "exports": {
++    "./foo": "./dist/foo.js",
+ },
+ "publishConfig": {
+   "exports": {
++    "./foo": "./dist/foo.js",
+   }
+ }
+```
+
+**Example — internal export `./_internal/foo`** (add to `"exports"` only):
+
+```diff
+ "exports": {
++    "./_internal/foo": "./dist/foo.js",
+ }
+ // publishConfig.exports unchanged
+```
+
+`packages/astro/test/exports.test.ts` will fail if the two maps drift out of sync (after stripping `./_internal/*` keys).
+
 ### Thinking about SSR
 
 There are 3 contexts in which code executes:
