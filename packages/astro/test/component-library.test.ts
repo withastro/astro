@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { loadFixture, type DevServer, type Fixture } from './test-utils.js';
+import { loadFixture, type DevServer, type Fixture } from './test-utils.ts';
 
 function addLeadingSlash(path: string) {
 	return path.startsWith('/') ? path : '/' + path;

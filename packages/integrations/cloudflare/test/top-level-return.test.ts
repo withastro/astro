@@ -4,7 +4,7 @@ import { Writable } from 'node:stream';
 import { type Fixture, loadFixture } from './test-utils.ts';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
-import { AstroLogger } from '../../../astro/dist/core/logger/core.js';
+import { AstroLogger } from 'astro/_internal/logger';
 
 describe('Top-level Return', () => {
 	let fixture: Fixture;

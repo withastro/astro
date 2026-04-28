@@ -6,28 +6,52 @@ import type {
 import { CompletionItemKind } from '@volar/language-server';
 import { URI } from 'vscode-uri';
 import { AstroVirtualCode } from '../../core/index.js';
-import { mapEdit } from './utils.js';
+import {
+	getAlreadyImportedAstroComponentSources,
+	isAstroComponentImportSource,
+	mapEdit,
+	rewriteAstroImportText,
+	stripAstroComponentSuffix,
+} from './utils.js';
 
-export function enhancedProvideCompletionItems(completions: CompletionList): CompletionList {
-	completions.items = completions.items.filter(isValidCompletion).map((completion) => {
-		const source = completion?.data?.originalItem?.source;
-		if (source) {
-			// Sort completions starting with `astro:` higher than other imports
-			if (source.startsWith('astro:')) {
-				completion.sortText = '\u0000' + (completion.sortText ?? completion.label);
+export function enhancedProvideCompletionItems(
+	completions: CompletionList,
+	documentText: string,
+): CompletionList {
+	const importedAstroSources = getAlreadyImportedAstroComponentSources(documentText);
+
+	completions.items = completions.items
+		.filter((completion) => {
+			if (!isValidCompletion(completion)) {
+				return false;
 			}
 
-			// For components import, use the file kind and sort them first, as they're often what the user want over something else
-			if (['.astro', '.svelte', '.vue'].some((ext) => source.endsWith(ext))) {
-				completion.kind = CompletionItemKind.File;
-				completion.detail = completion.detail + '\n\n' + source;
-				completion.sortText = '\u0001' + (completion.sortText ?? completion.label);
-				completion.data.isComponent = true;
-			}
-		}
+			const source = completion?.data?.originalItem?.source;
+			return !(source && importedAstroSources.has(source));
+		})
+		.map((completion) => {
+			const source = completion?.data?.originalItem?.source;
+			if (source) {
+				// Sort completions starting with `astro:` higher than other imports
+				if (source.startsWith('astro:')) {
+					completion.sortText = '\u0000' + (completion.sortText ?? completion.label);
+				}
 
-		return completion;
-	});
+				// For components import, use the file kind and sort them first, as they're often what the user want over something else
+				if (['.astro', '.svelte', '.vue'].some((ext) => source.endsWith(ext))) {
+					completion.kind = CompletionItemKind.File;
+					completion.detail = completion.detail + '\n\n' + source;
+					completion.sortText = '\u0001' + (completion.sortText ?? completion.label);
+					completion.data.isComponent = true;
+
+					if (isAstroComponentImportSource(source)) {
+						rewriteAstroComponentCompletion(completion);
+					}
+				}
+			}
+
+			return completion;
+		});
 
 	return completions;
 }
@@ -44,6 +68,10 @@ export function enhancedResolveCompletionItem(
 		);
 	}
 
+	if (isAstroComponentImportSource(resolvedCompletion.data.originalItem.source)) {
+		rewriteAstroComponentCompletion(resolvedCompletion);
+	}
+
 	if (resolvedCompletion.additionalTextEdits) {
 		const decoded = context.decodeEmbeddedDocumentUri(URI.parse(resolvedCompletion.data.uri));
 		const sourceScript = decoded && context.language.scripts.get(decoded[0]);
@@ -57,6 +85,27 @@ export function enhancedResolveCompletionItem(
 	}
 
 	return resolvedCompletion;
+}
+
+function rewriteAstroComponentCompletion(completion: CompletionItem) {
+	completion.label = stripAstroComponentSuffix(String(completion.label));
+	completion.filterText = completion.filterText
+		? stripAstroComponentSuffix(completion.filterText)
+		: completion.filterText;
+	completion.insertText = completion.insertText
+		? stripAstroComponentSuffix(completion.insertText)
+		: completion.insertText;
+
+	if (completion.textEdit && 'newText' in completion.textEdit) {
+		completion.textEdit.newText = stripAstroComponentSuffix(completion.textEdit.newText);
+	}
+
+	if (completion.additionalTextEdits) {
+		completion.additionalTextEdits = completion.additionalTextEdits.map((edit) => ({
+			...edit,
+			newText: rewriteAstroImportText(edit.newText),
+		}));
+	}
 }
 
 function getDetailForFileCompletion(detail: string, source: string): string {

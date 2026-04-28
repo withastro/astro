@@ -3,8 +3,8 @@ import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import woof from './fixtures/multiple-jsx-renderers/renderers/woof/index.mjs';
 import meow from './fixtures/multiple-jsx-renderers/renderers/meow/index.mjs';
-import testAdapter from './test-adapter.js';
-import { type Fixture, loadFixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 const multiCdnAssetsPrefix = {
 	js: 'https://js.example.com',

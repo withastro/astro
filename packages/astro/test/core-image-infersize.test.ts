@@ -5,7 +5,7 @@ import * as cheerio from 'cheerio';
 
 import { AstroLogger, type AstroLogMessage } from '../dist/core/logger/core.js';
 import { testImageService } from './test-image-service.ts';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('astro:image:infersize', () => {
 	let fixture: Fixture;
