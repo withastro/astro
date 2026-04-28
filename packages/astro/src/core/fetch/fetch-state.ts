@@ -115,7 +115,7 @@ export interface AstroFetchState {
  *
  * **This class is user-facing** via `astro/fetch` and `astro/hono`.
  * The {@link AstroFetchState} interface defines the stable public
- * surface. Members not on that interface are marked `@internal` and
+ * surface. Members not on that interface are internal and
  * may change without notice.
  *
  * Performance note: fields on this class are plain properties — ES
@@ -124,8 +124,7 @@ export interface AstroFetchState {
  * for rarely-accessed memoized caches and Maps.
  */
 export class FetchState implements AstroFetchState {
-	/** @internal */
-	pipeline: Pipeline;
+		pipeline: Pipeline;
 	/**
 	 * The request to render. Mutated during rewrites so subsequent renders
 	 * see the rewritten URL.
@@ -140,18 +139,18 @@ export class FetchState implements AstroFetchState {
 	 * suffixes are stripped).
 	 */
 	pathname: string;
-	/** @internal Resolved render options (addCookieHeader, clientAddress, locals, etc.). */
+	/** Resolved render options (addCookieHeader, clientAddress, locals, etc.). */
 	readonly renderOptions: ResolvedRenderOptions;
-	/** @internal When the request started, used to log duration. */
+	/** When the request started, used to log duration. */
 	readonly timeStart: number;
 
 	/**
-	 * @internal The route's loaded component module. Set before middleware runs; may
+	 * The route's loaded component module. Set before middleware runs; may
 	 * be swapped during in-flight rewrites from inside the middleware chain.
 	 */
 	componentInstance: ComponentInstance | undefined;
 	/**
-	 * @internal Slot overrides supplied by the container API. `undefined` for HTTP
+	 * Slot overrides supplied by the container API. `undefined` for HTTP
 	 * requests — `PagesHandler` coalesces to `{}` on read so we don't
 	 * allocate an empty object per request.
 	 */
@@ -162,11 +161,11 @@ export class FetchState implements AstroFetchState {
 	 * `BaseApp.getDefaultStatusCode`; error handlers set `404` / `500`).
 	 */
 	status = 200;
-	/** @internal Whether user middleware should be skipped for this request. */
+	/** Whether user middleware should be skipped for this request. */
 	skipMiddleware = false;
-	/** @internal A flag that tells the render content if the rewriting was triggered. */
+	/** A flag that tells the render content if the rewriting was triggered. */
 	isRewriting = false;
-	/** @internal A safety net in case of loops (rewrite counter). */
+	/** A safety net in case of loops (rewrite counter). */
 	counter = 0;
 	/** Cookies for this request. Created lazily on first access. */
 	cookies: AstroCookies;
@@ -183,24 +182,24 @@ export class FetchState implements AstroFetchState {
 	}
 	/** Normalized URL for this request. */
 	url: URL;
-	/** @internal Client address for this request. */
+	/** Client address for this request. */
 	clientAddress: string | undefined;
-	/** @internal Whether this is a partial render (container API). */
+	/** Whether this is a partial render (container API). */
 	partial: boolean | undefined;
-	/** @internal Whether to inject CSP meta tags. */
+	/** Whether to inject CSP meta tags. */
 	shouldInjectCspMetaTags: boolean | undefined;
 	/** Request-scoped locals object, shared with user middleware. */
 	locals: App.Locals = {} as App.Locals;
 
 	/**
-	 * @internal Memoized `props` (see `getProps`). `null` means "not yet computed"
+	 * Memoized `props` (see `getProps`). `null` means "not yet computed"
 	 * — using `null` (rather than `undefined`) keeps the hidden class
 	 * stable and distinct from a valid-but-empty result.
 	 */
 	props: APIContext['props'] | null = null;
-	/** @internal Memoized `ActionAPIContext` (see `getActionAPIContext`). */
+	/** Memoized `ActionAPIContext` (see `getActionAPIContext`). */
 	actionApiContext: ActionAPIContext | null = null;
-	/** @internal Memoized `APIContext` (see `getAPIContext`). */
+	/** Memoized `APIContext` (see `getAPIContext`). */
 	apiContext: APIContext | null = null;
 
 	/** Registered context providers keyed by name. */
@@ -209,9 +208,9 @@ export class FetchState implements AstroFetchState {
 	#providersResolvedValues = new Map<string, unknown>();
 	/** Cached promise for lazy component instance loading. */
 	#componentInstancePromise: Promise<ComponentInstance> | undefined;
-	/** @internal SSR result for the current page render. */
+	/** SSR result for the current page render. */
 	result: SSRResult | undefined;
-	/** @internal Initial props (from container/error handler). */
+	/** Initial props (from container/error handler). */
 	initialProps: Props = {};
 	/** Rewrites handler instance. */
 	#rewrites = new Rewrites();
@@ -271,7 +270,7 @@ export class FetchState implements AstroFetchState {
 	}
 
 	/**
-	 * @internal Creates the SSR result for the current page render.
+	 * Creates the SSR result for the current page render.
 	 */
 	async createResult(mod: ComponentInstance, ctx: ActionAPIContext): Promise<SSRResult> {
 		const pipeline = this.pipeline;
@@ -378,7 +377,7 @@ export class FetchState implements AstroFetchState {
 	}
 
 	/**
-	 * @internal Creates the Astro global object for a component render.
+	 * Creates the Astro global object for a component render.
 	 */
 	createAstro(
 		result: SSRResult,
@@ -416,7 +415,7 @@ export class FetchState implements AstroFetchState {
 	}
 
 	/**
-	 * @internal Creates the Astro page-level partial (prototype for Astro global).
+	 * Creates the Astro page-level partial (prototype for Astro global).
 	 */
 	createAstroPagePartial(
 		result: SSRResult,
@@ -482,7 +481,6 @@ export class FetchState implements AstroFetchState {
 		return partial as Omit<AstroGlobal, 'props' | 'self' | 'slots'>;
 	}
 
-	/** @internal */
 	getClientAddress(): string {
 		const { pipeline, clientAddress } = this;
 		const routeData = this.routeData!;
@@ -508,12 +506,10 @@ export class FetchState implements AstroFetchState {
 		throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);
 	}
 
-	/** @internal */
 	getCookies(): AstroCookies {
 		return this.cookies;
 	}
 
-	/** @internal */
 	getCsp(): APIContext['csp'] {
 		const state = this;
 		const { pipeline } = this;
@@ -549,7 +545,6 @@ export class FetchState implements AstroFetchState {
 		};
 	}
 
-	/** @internal */
 	computeCurrentLocale() {
 		const {
 			url,
@@ -603,7 +598,6 @@ export class FetchState implements AstroFetchState {
 		return this.#currentLocale;
 	}
 
-	/** @internal */
 	computePreferredLocale() {
 		const {
 			pipeline: { i18n },
@@ -613,7 +607,6 @@ export class FetchState implements AstroFetchState {
 		return (this.#preferredLocale ??= computePreferredLocaleUtil(request, i18n.locales));
 	}
 
-	/** @internal */
 	computePreferredLocaleList() {
 		const {
 			pipeline: { i18n },
@@ -624,7 +617,7 @@ export class FetchState implements AstroFetchState {
 	}
 
 	/**
-	 * @internal Lazily loads the route's component module. Returns the cached
+	 * Lazily loads the route's component module. Returns the cached
 	 * instance if already loaded. The promise is cached so concurrent
 	 * callers share the same load.
 	 */
@@ -690,7 +683,7 @@ export class FetchState implements AstroFetchState {
 	}
 
 	/**
-	 * @internal Adds lazy getters to `target` for each registered provider key.
+	 * Adds lazy getters to `target` for each registered provider key.
 	 * Used by context creation (APIContext, Astro global) so that
 	 * provider values like `session` and `cache` appear as properties
 	 * without hard-coding the keys.
@@ -778,7 +771,7 @@ export class FetchState implements AstroFetchState {
 	}
 
 	/**
-	 * @internal Recomputes `this.pathname` from `this.request`. Callers that need the
+	 * Recomputes `this.pathname` from `this.request`. Callers that need the
 	 * `.html` / `/index.html` stripping applied after a rewrite should
 	 * re-run that logic themselves (see `AstroHandler`).
 	 */
@@ -787,7 +780,7 @@ export class FetchState implements AstroFetchState {
 	}
 
 	/**
-	 * @internal Returns the resolved `props` for this render, computing them lazily
+	 * Returns the resolved `props` for this render, computing them lazily
 	 * from the route + component module on first access. If the
 	 * `initialProps` already carries user-supplied props (e.g. the
 	 * container API) those are used verbatim.
@@ -814,7 +807,7 @@ export class FetchState implements AstroFetchState {
 	}
 
 	/**
-	 * @internal Returns the `ActionAPIContext` for this render, creating it lazily.
+	 * Returns the `ActionAPIContext` for this render, creating it lazily.
 	 * Used by middleware, actions, and page dispatch.
 	 */
 	getActionAPIContext(): ActionAPIContext {
@@ -869,7 +862,7 @@ export class FetchState implements AstroFetchState {
 	}
 
 	/**
-	 * @internal Returns the `APIContext` for this render, creating it lazily from
+	 * Returns the `APIContext` for this render, creating it lazily from
 	 * the memoized props + action context.
 	 *
 	 * Callers must ensure `getProps()` has resolved at least once before
@@ -902,7 +895,7 @@ export class FetchState implements AstroFetchState {
 	}
 
 	/**
-	 * @internal Invalidates the cached `APIContext` so the next `getAPIContext()`
+	 * Invalidates the cached `APIContext` so the next `getAPIContext()`
 	 * call re-derives it from the (possibly mutated) state. Used
 	 * after an in-flight rewrite swaps the route / request / params.
 	 */
