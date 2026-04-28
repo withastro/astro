@@ -1,13 +1,7 @@
-import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
-import {
-	find,
-	parse,
-	TSConfckParseError,
-	type TSConfckParseOptions,
-	type TSConfckParseResult,
-	toJson,
-} from 'tsconfck';
+import { readFileSync, existsSync } from 'node:fs';
+import { join, normalize } from 'node:path';
+import { readTsconfig, type TsconfigResult } from 'get-tsconfig';
+import { parse as parseJsonc, type ParseError } from 'jsonc-parser';
 import type { CompilerOptions, TypeAcquisition } from 'typescript';
 
 export const defaultTSConfig: TSConfig = { extends: 'astro/tsconfigs/base' };
@@ -53,81 +47,94 @@ export const presets = new Map<frameworkWithTSSettings, TSConfig>([
 	],
 ]);
 
-type TSConfigResult<T = object> = Promise<
-	(TSConfckParseResult & T) | 'invalid-config' | 'missing-config' | 'unknown-error'
->;
-
-/**
- * Load a tsconfig.json or jsconfig.json is the former is not found
- * @param root The root directory to search in, defaults to `process.cwd()`.
- * @param findUp Whether to search for the config file in parent directories, by default only the root directory is searched.
- */
-export async function loadTSConfig(
-	root: string | undefined,
-	findUp = false,
-): Promise<TSConfigResult<{ rawConfig: TSConfig }>> {
-	const safeCwd = root ?? process.cwd();
-
-	const [jsconfig, tsconfig] = await Promise.all(
-		['jsconfig.json', 'tsconfig.json'].map((configName) =>
-			// `tsconfck` expects its first argument to be a file path, not a directory path, so we'll fake one
-			find(join(safeCwd, './dummy.txt'), {
-				root: findUp ? undefined : root,
-				configName: configName,
-			}),
-		),
-	);
-
-	// If we have both files, prefer tsconfig.json
-	if (tsconfig) {
-		const parsedConfig = await safeParse(tsconfig, { root: root });
-
-		if (typeof parsedConfig === 'string') {
-			return parsedConfig;
-		}
-
-		// tsconfck does not return the original config, so we need to parse it ourselves
-		// https://github.com/dominikg/tsconfck/issues/138
-		const rawConfig = await readFile(tsconfig, 'utf-8')
-			.then(toJson)
-			.then((content) => JSON.parse(content) as TSConfig);
-
-		return { ...parsedConfig, rawConfig };
-	}
-
-	if (jsconfig) {
-		const parsedConfig = await safeParse(jsconfig, { root: root });
-
-		if (typeof parsedConfig === 'string') {
-			return parsedConfig;
-		}
-
-		const rawConfig = await readFile(jsconfig, 'utf-8')
-			.then(toJson)
-			.then((content) => JSON.parse(content) as TSConfig);
-
-		return { ...parsedConfig, rawConfig: rawConfig };
-	}
-
-	return 'missing-config';
+export interface TSConfigLoadedResult {
+	error?: undefined;
+	/** Absolute path of the root tsconfig/jsconfig file that was loaded. */
+	tsconfigFile: string;
+	/** The merged/resolved config (after `extends` are walked). */
+	tsconfig: TSConfig;
+	/** The user-written, un-merged config. Used by `astro add` to round-trip. */
+	rawConfig: TSConfig;
+	/**
+	 * Every tsconfig file that contributed via `extends`, root-first.
+	 * Includes `tsconfigFile`. Used to populate the dev-server watch list.
+	 */
+	sources: string[];
 }
 
-async function safeParse(tsconfigPath: string, options: TSConfckParseOptions = {}): TSConfigResult {
-	try {
-		const parseResult = await parse(tsconfigPath, options);
+export type TSConfigResult =
+	| TSConfigLoadedResult
+	| { error: 'invalid-config'; message: string }
+	| { error: 'missing-config' };
 
-		if (parseResult.tsconfig == null) {
-			return 'missing-config';
-		}
+/**
+ * Load a tsconfig.json or jsconfig.json if the former is not found.
+ * @param root The directory to search in, defaults to `process.cwd()`.
+ */
+export async function loadTSConfig(root: string | undefined): Promise<TSConfigResult> {
+	const safeCwd = root || process.cwd();
+	let tsconfigPath: string | undefined;
 
-		return parseResult;
-	} catch (e) {
-		if (e instanceof TSConfckParseError) {
-			return 'invalid-config';
-		}
-
-		return 'unknown-error';
+	// Find the json file path. Prefer tsconfig.json over jsconfig.json.
+  for (const configName of ['tsconfig.json', 'jsconfig.json']) {
+    const possiblePath = join(safeCwd, configName);
+    if (existsSync(possiblePath)) {
+			tsconfigPath = possiblePath;
+			break;
+    }
 	}
+	if (!tsconfigPath) {
+		return {
+			error: 'missing-config',
+		};
+	}
+
+	// Read the raw json file
+	let rawConfig: TSConfig | undefined;
+	try {
+		const text = readFileSync(tsconfigPath, 'utf-8');
+		const errors: ParseError[] = [];
+		const parsed = parseJsonc(text, errors, { allowTrailingComma: true }) as TSConfig;
+		if (errors.length > 0) {
+			const first = errors[0];
+			return {
+				error: 'invalid-config',
+				message: `Failed to parse ${tsconfigPath}: Malformed JSONC (error code ${first.error}) at offset ${first.offset}`,
+			};
+		}
+		rawConfig = parsed;
+	} catch (e) {
+		const message = e instanceof Error ? e.message : String(e);
+		return {
+			error: 'invalid-config',
+			message: `Failed to parse ${tsconfigPath}: ${message}`,
+		};
+	}
+	if (!rawConfig) {
+		return {
+			error: 'invalid-config',
+			message: `Failed to parse ${tsconfigPath}: Unknown error`,
+		};
+	}
+
+	// Resolve the tsconfig via `extends`
+	let resolved: TsconfigResult | undefined;
+	try {
+		resolved = readTsconfig(tsconfigPath);
+	} catch (e) {
+		const message = e instanceof Error ? e.message : String(e);
+		return {
+			error: 'invalid-config',
+			message: `Failed to resolve ${tsconfigPath}: ${message}`,
+		};
+	}
+
+	return {
+		tsconfigFile: normalize(resolved.path),
+		tsconfig: resolved.config satisfies TSConfig,
+		rawConfig,
+		sources: (resolved.sources || [resolved.path]).map(normalize),
+	};
 }
 
 export function updateTSConfigForFramework(
@@ -186,7 +193,7 @@ type StripEnums<T extends Record<string, any>> = {
 export interface TSConfig {
 	compilerOptions?: StripEnums<CompilerOptions>;
 	compileOnSave?: boolean;
-	extends?: string;
+	extends?: string | string[];
 	files?: string[];
 	include?: string[];
 	exclude?: string[];
