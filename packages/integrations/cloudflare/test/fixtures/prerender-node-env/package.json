@@ -6,7 +6,7 @@
     "@astrojs/cloudflare": "workspace:*",
     "@astrojs/svelte": "workspace:*",
     "astro": "workspace:*",
-    "svelte": "^5.0.0",
+    "svelte": "^5.55.5",
     "fake-svelte-pkg": "file:./fake-svelte-pkg"
   }
 }
