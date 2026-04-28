@@ -60,6 +60,7 @@ declare module 'astro:assets' {
 		import('astro:assets').CssVariable,
 		Array<import('astro:assets').FontData>
 	>;
+	export const experimental_getFontFileURL: typeof import('./dist/assets/fonts/runtime.js').experimental_getFontFileURL;
 
 	type ImgAttributes = import('./dist/type-utils.js').WithRequired<
 		Omit<import('./types').HTMLAttributes<'img'>, 'src' | 'width' | 'height'>,

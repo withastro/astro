@@ -161,6 +161,7 @@ export function createBaseSettings(
 			styleHashes: [],
 		},
 		logLevel: logLevel ?? 'info',
+		fontsHttpServer: null,
 	};
 }
 

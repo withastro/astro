@@ -4,11 +4,13 @@ import { collectComponentData } from '../../../../dist/assets/fonts/core/collect
 import { collectFontAssetsFromFaces } from '../../../../dist/assets/fonts/core/collect-font-assets-from-faces.js';
 import { collectFontData } from '../../../../dist/assets/fonts/core/collect-font-data.js';
 import { computeFontFamiliesAssets } from '../../../../dist/assets/fonts/core/compute-font-families-assets.js';
+import { createGetFontFileURL } from '../../../../dist/assets/fonts/core/create-get-font-file-url.js';
 import { filterAndTransformFontFaces } from '../../../../dist/assets/fonts/core/filter-and-transform-font-faces.js';
 import { filterPreloads } from '../../../../dist/assets/fonts/core/filter-preloads.js';
 import { getOrCreateFontFamilyAssets } from '../../../../dist/assets/fonts/core/get-or-create-font-family-assets.js';
 import { optimizeFallbacks } from '../../../../dist/assets/fonts/core/optimize-fallbacks.js';
 import { resolveFamily } from '../../../../dist/assets/fonts/core/resolve-family.js';
+import { fontFileMiddleware } from '../../../../dist/assets/fonts/core/font-file-middleware.js';
 import type { SystemFallbacksProvider } from '../../../../dist/assets/fonts/definitions.js';
 import type {
 	FontFamilyAssetsByUniqueKey,
@@ -601,6 +603,7 @@ describe('fonts core', () => {
 					urlResolver: {
 						resolve: () => '',
 						cspResources: [],
+						urls: [],
 					},
 				}).length,
 				0,
@@ -643,6 +646,7 @@ describe('fonts core', () => {
 					urlResolver: {
 						resolve: () => '',
 						cspResources: [],
+						urls: [],
 					},
 				}).length,
 				5,
@@ -674,6 +678,7 @@ describe('fonts core', () => {
 					urlResolver: {
 						resolve: (url) => 'resolved:' + url,
 						cspResources: [],
+						urls: [],
 					},
 				}),
 				[
@@ -743,6 +748,7 @@ describe('fonts core', () => {
 					urlResolver: {
 						resolve: (url) => 'resolved:' + url,
 						cspResources: [],
+						urls: [],
 					},
 				}),
 				[
@@ -1735,6 +1741,291 @@ describe('fonts core', () => {
 					},
 				],
 			);
+		});
+	});
+
+	describe('createGetFontFileURL()', () => {
+		it('throws if runtimeFontFetcher throws', async () => {
+			assert.throws(() =>
+				createGetFontFileURL({
+					resolve: () => {
+						throw new Error('test');
+					},
+				})('foo'),
+			);
+		});
+
+		it('throws if there is no buffer', async () => {
+			assert.throws(() =>
+				createGetFontFileURL({
+					resolve: () => null,
+				})('foo'),
+			);
+		});
+
+		it('works', async () => {
+			assert.equal(
+				createGetFontFileURL({
+					resolve: () => 'bar',
+				})('foo'),
+				'bar',
+			);
+		});
+	});
+
+	describe('fontFileMiddleware()', () => {
+		it('skips if deps are missing', async () => {
+			const logger = new SpyLogger();
+			let called = false;
+
+			await fontFileMiddleware({
+				fontFetcher: null,
+				fontTypeExtractor: null,
+				fontFileById: null,
+				logger,
+				next: () => {
+					called = true;
+				},
+				response: {
+					end: () => {},
+					setHeader: () => {},
+					setStatusCode: () => {},
+				},
+				url: undefined,
+			});
+
+			assert.ok(called);
+			assert.deepStrictEqual(logger.logs, [
+				{
+					type: 'debug',
+					label: 'assets',
+					message: 'Fonts dependencies should be initialized by now, skipping middleware.',
+				},
+			]);
+		});
+
+		it('skips if url is missing', async () => {
+			const logger = new SpyLogger();
+			let called = false;
+
+			await fontFileMiddleware({
+				fontFetcher: {
+					fetch: () => {
+						throw new Error('Not implemented');
+					},
+				},
+				fontTypeExtractor: {
+					extract: () => {
+						throw new Error('Not implemented');
+					},
+				},
+				fontFileById: new Map(),
+				logger,
+				next: () => {
+					called = true;
+				},
+				response: {
+					end: () => {},
+					setHeader: () => {},
+					setStatusCode: () => {},
+				},
+				url: undefined,
+			});
+
+			assert.ok(called);
+			assert.deepStrictEqual(logger.logs, []);
+		});
+
+		it('skips if id cannot be found', async () => {
+			const logger = new SpyLogger();
+			let called = false;
+
+			await fontFileMiddleware({
+				fontFetcher: {
+					fetch: () => {
+						throw new Error('Not implemented');
+					},
+				},
+				fontTypeExtractor: {
+					extract: () => {
+						throw new Error('Not implemented');
+					},
+				},
+				fontFileById: new Map(),
+				logger,
+				next: () => {
+					called = true;
+				},
+				response: {
+					end: () => {},
+					setHeader: () => {},
+					setStatusCode: () => {},
+				},
+				url: '/foo.woff2',
+			});
+
+			assert.ok(called);
+			assert.deepStrictEqual(logger.logs, []);
+		});
+
+		it('works', async () => {
+			const logger = new SpyLogger();
+			let buffer: Buffer | undefined = undefined;
+			const headers: Record<string, string> = {};
+			let statusCode: number | null = null;
+
+			await fontFileMiddleware({
+				fontFetcher: {
+					fetch: async () => Buffer.alloc(4),
+				},
+				fontTypeExtractor: {
+					extract: () => 'woff2',
+				},
+				fontFileById: new Map([
+					[
+						'foo.woff2',
+						{
+							url: 'test',
+							init: undefined,
+						},
+					],
+				]),
+				logger,
+				next: () => {},
+				response: {
+					end: (_buffer) => {
+						buffer = _buffer;
+					},
+					setHeader: (name, value) => {
+						headers[name] = value;
+					},
+					setStatusCode: (_statusCode) => {
+						statusCode = _statusCode;
+					},
+				},
+				url: '/foo.woff2',
+			});
+
+			assert.deepStrictEqual(logger.logs, []);
+			// @ts-expect-error not sure what's going on here
+			assert.equal(buffer?.byteLength, 4);
+			assert.equal(statusCode, 200);
+			assert.deepStrictEqual(headers, {
+				'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+				Pragma: 'no-cache',
+				Expires: '0',
+				'Content-Length': '4',
+				'Content-Type': 'font/woff2',
+			});
+		});
+
+		it('works with URLs with search params', async () => {
+			const logger = new SpyLogger();
+			let buffer: Buffer | undefined = undefined;
+			const headers: Record<string, string> = {};
+			let statusCode: number | null = null;
+
+			await fontFileMiddleware({
+				fontFetcher: {
+					fetch: async () => Buffer.alloc(4),
+				},
+				fontTypeExtractor: {
+					extract: () => 'woff2',
+				},
+				fontFileById: new Map([
+					[
+						'foo.woff2',
+						{
+							url: 'test',
+							init: undefined,
+						},
+					],
+				]),
+				logger,
+				next: () => {},
+				response: {
+					end: (_buffer) => {
+						buffer = _buffer;
+					},
+					setHeader: (name, value) => {
+						headers[name] = value;
+					},
+					setStatusCode: (_statusCode) => {
+						statusCode = _statusCode;
+					},
+				},
+				url: '/foo.woff2?x=y#z',
+			});
+
+			assert.deepStrictEqual(logger.logs, []);
+			// @ts-expect-error not sure what's going on here
+			assert.equal(buffer?.byteLength, 4);
+			assert.equal(statusCode, 200);
+			assert.deepStrictEqual(headers, {
+				'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+				Pragma: 'no-cache',
+				Expires: '0',
+				'Content-Length': '4',
+				'Content-Type': 'font/woff2',
+			});
+		});
+
+		it('handles errors', async () => {
+			const logger = new SpyLogger();
+			let buffer: Buffer | undefined = undefined;
+			const headers: Record<string, string> = {};
+			let statusCode: number | null = null;
+
+			await fontFileMiddleware({
+				fontFetcher: {
+					fetch: () => {
+						throw new Error('Not implemented');
+					},
+				},
+				fontTypeExtractor: {
+					extract: () => {
+						throw new Error('Not implemented');
+					},
+				},
+				fontFileById: new Map([
+					[
+						'foo.woff2',
+						{
+							url: 'test',
+							init: undefined,
+						},
+					],
+				]),
+				logger,
+				next: () => {},
+				response: {
+					end: (_buffer) => {
+						buffer = _buffer;
+					},
+					setHeader: (name, value) => {
+						headers[name] = value;
+					},
+					setStatusCode: (_statusCode) => {
+						statusCode = _statusCode;
+					},
+				},
+				url: '/foo.woff2',
+			});
+
+			assert.deepStrictEqual(logger.logs, [
+				{
+					label: 'assets',
+					message: 'Cannot download font file',
+					type: 'error',
+				},
+			]);
+			assert.equal(buffer, undefined);
+			assert.equal(statusCode, 500);
+			assert.deepStrictEqual(headers, {
+				'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+				Pragma: 'no-cache',
+				Expires: '0',
+			});
 		});
 	});
 });
