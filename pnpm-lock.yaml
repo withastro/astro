@@ -190,6 +190,18 @@ importers:
         specifier: workspace:^
         version: link:../../../packages/astro
 
+  examples/advanced-routing:
+    dependencies:
+      '@astrojs/node':
+        specifier: ^10.0.5
+        version: link:../../packages/integrations/node
+      astro:
+        specifier: ^6.1.8
+        version: link:../../packages/astro
+      hono:
+        specifier: ^4.12.14
+        version: 4.12.14
+
   examples/basics:
     dependencies:
       astro:
@@ -728,6 +740,9 @@ importers:
       fs-fixture:
         specifier: ^2.13.0
         version: 2.13.0
+      hono:
+        specifier: ^4.12.14
+        version: 4.12.14
       mdast-util-mdx:
         specifier: ^3.0.0
         version: 3.0.0
@@ -12294,6 +12309,10 @@ packages:
     resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
     hasBin: true
 
+  hono@4.12.14:
+    resolution: {integrity: sha512-am5zfg3yu6sqn5yjKBNqhnTX7Cv+m00ox+7jbaKkrLMRJ4rAdldd1xPd/JzbBWspqaQv6RSTrgFN95EsfhC+7w==}
+    engines: {node: '>=16.9.0'}
+
   hookable@5.5.3:
     resolution: {integrity: sha512-Yc+BQe8SvoXH1643Qez1zqLRmbA5rCL+sSmk6TVos0LWVfNIB7PGncdlId77WzLGSIB5KaWgTaNTs2lNVEI6VQ==}
 
@@ -21629,6 +21648,8 @@ snapshots:
   hdr-histogram-percentiles-obj@3.0.0: {}
 
   he@1.2.0: {}
+
+  hono@4.12.14: {}
 
   hookable@5.5.3: {}
 

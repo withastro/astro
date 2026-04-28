@@ -1,7 +1,6 @@
 import type { $ZodType } from 'zod/v4/core';
 import { NOOP_ACTIONS_MOD } from '../actions/noop-actions.js';
 import type { ActionAccept, ActionClient } from '../actions/runtime/types.js';
-import { createI18nMiddleware } from '../i18n/middleware.js';
 import type { ComponentInstance } from '../types/astro.js';
 import type { MiddlewareHandler, RewritePayload } from '../types/public/common.js';
 import type { RuntimeMode } from '../types/public/config.js';
@@ -31,10 +30,26 @@ import { HTMLStringCache } from '../runtime/server/html-string-cache.js';
 import { FORBIDDEN_PATH_KEYS } from '@astrojs/internal-helpers/object';
 
 /**
+ * Bit flags for pipeline features that handler classes register as
+ * "used" when a custom `src/app.ts` fetch handler is in play. After the
+ * first request (dev) or at runtime (prod SSR), we compare against the
+ * manifest to warn about features the user configured but forgot to
+ * include in their custom pipeline.
+ */
+export const PipelineFeatures = {
+	redirects: 1 << 0,
+	sessions: 1 << 1,
+	actions: 1 << 2,
+	middleware: 1 << 3,
+	i18n: 1 << 4,
+	cache: 1 << 5,
+} as const;
+
+/**
  * The `Pipeline` represents the static parts of rendering that do not change between requests.
  * These are mostly known when the server first starts up and do not change.
  *
- * Thus, a `Pipeline` is created once at process start and then used by every `RenderContext`.
+ * Thus, a `Pipeline` is created once at process start and then used by every `FetchState`.
  */
 export abstract class Pipeline {
 	readonly internalMiddleware: MiddlewareHandler[];
@@ -45,6 +60,13 @@ export abstract class Pipeline {
 	compiledCacheRoutes: CompiledCacheRoute[] | undefined = undefined;
 	nodePool: NodePool | undefined;
 	htmlStringCache: HTMLStringCache | undefined;
+
+	/**
+	 * Bit mask of pipeline features activated by handler classes.
+	 * Each handler sets its bit via `|=`. Only meaningful when a
+	 * custom `src/app.ts` fetch handler is in use.
+	 */
+	usedFeatures = 0;
 
 	readonly logger: AstroLogger;
 	readonly manifest: SSRManifest;
@@ -140,13 +162,12 @@ export abstract class Pipeline {
 		this.cacheConfig = cacheConfig;
 		this.serverIslands = serverIslands;
 
+		// i18n (non-manual strategies) used to be pushed here as internal
+		// middleware, but it is now run explicitly as a post-processing step
+		// in `AstroHandler.render` via the `I18n` handler class. Users on
+		// the manual strategy still register their own middleware via
+		// `astro:i18n.middleware(...)`.
 		this.internalMiddleware = [];
-		// We do use our middleware only if the user isn't using the manual setup
-		if (i18n?.strategy !== 'manual') {
-			this.internalMiddleware.push(
-				createI18nMiddleware(i18n, manifest.base, manifest.trailingSlash, manifest.buildFormat),
-			);
-		}
 
 		if (manifest.experimentalQueuedRendering.enabled) {
 			this.nodePool = this.createNodePool(

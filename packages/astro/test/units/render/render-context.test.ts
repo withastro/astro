@@ -1,13 +1,13 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { RenderContext } from '../../../dist/core/render-context.js';
+import { FetchState } from '../../../dist/core/fetch/fetch-state.js';
 import { createComponent, maybeRenderHead, render } from '../../../dist/runtime/server/index.js';
 import type { AstroComponentFactory } from '../../../dist/runtime/server/render/index.js';
-import { createBasicPipeline } from '../test-utils.ts';
+import { createBasicPipeline, renderThroughMiddleware } from '../test-utils.ts';
 
 const createAstroModule = (AstroComponent: AstroComponentFactory) => ({ default: AstroComponent });
 
-describe('RenderContext', () => {
+describe('FetchState', () => {
 	describe('skipMiddleware and form action handling', () => {
 		it('does not auto-execute form actions when skipMiddleware is true', async () => {
 			let actionWasCalled = false;
@@ -50,16 +50,14 @@ describe('RenderContext', () => {
 				prerender: false,
 			};
 
-			// Create context with skipMiddleware=true (as happens during error recovery)
-			const renderContext = await RenderContext.create({
-				pipeline,
-				request,
-				routeData,
-				status: 404,
-				skipMiddleware: true,
-			} as any);
+			// Create state with skipMiddleware=true (as happens during error recovery)
+			const state = new FetchState(pipeline, request);
+			state.routeData = routeData as any;
+			state.pathname = '/404';
+			state.status = 404;
+			state.skipMiddleware = true;
 
-			const response = await renderContext.render(PageModule);
+			const response = await renderThroughMiddleware(state, PageModule);
 
 			assert.equal(response.status, 404);
 			assert.equal(
@@ -110,15 +108,13 @@ describe('RenderContext', () => {
 				prerender: false,
 			};
 
-			// Create context with skipMiddleware=false (normal flow)
-			const renderContext = await RenderContext.create({
-				pipeline,
-				request,
-				routeData,
-				skipMiddleware: false,
-			} as any);
+			// Create state with skipMiddleware=false (normal flow)
+			const state = new FetchState(pipeline, request);
+			state.routeData = routeData as any;
+			state.pathname = '/page';
+			state.skipMiddleware = false;
 
-			const response = await renderContext.render(PageModule);
+			const response = await renderThroughMiddleware(state, PageModule);
 
 			assert.equal(response.status, 200);
 			assert.equal(

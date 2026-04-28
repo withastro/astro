@@ -44,6 +44,12 @@ export const NOOP_MIDDLEWARE_HEADER = 'X-Astro-Noop';
 export const ROUTE_TYPE_HEADER = 'X-Astro-Route-Type';
 
 /**
+ * Set by internal handlers (e.g. PagesHandler) to signal that a
+ * response should be replaced with the corresponding error page.
+ */
+export const ASTRO_ERROR_HEADER = 'X-Astro-Error';
+
+/**
  * The value of the `component` field of the default 404 page, which is used when there is no user-provided 404.astro page.
  */
 export const DEFAULT_404_COMPONENT = 'astro-default-404.astro';
@@ -67,7 +73,7 @@ export const clientAddressSymbol = Symbol.for('astro.clientAddress');
 
 /**
  * The symbol used as a field on the request object to store the object to be made available to Astro APIs as `locals`.
- * Use judiciously, as locals are now stored within `RenderContext` by default. Tacking it onto request is no longer necessary.
+ * Use judiciously, as locals are now stored within `FetchState` by default. Tacking it onto request is no longer necessary.
  */
 export const clientLocalsSymbol = Symbol.for('astro.locals');
 
@@ -80,6 +86,23 @@ export const originPathnameSymbol = Symbol.for('astro.originPathname');
  * Use this symbol to set and retrieve the pipeline.
  */
 export const pipelineSymbol = Symbol.for('astro.pipeline');
+
+/**
+ * Use this symbol to stash the active `FetchState` on an `APIContext`
+ * (or `ActionAPIContext`). Consumed by internal shims that need access
+ * to per-request state without appearing in the public context shape
+ * — e.g. the manual-strategy i18n middleware wrapper in
+ * `src/i18n/middleware.ts`.
+ */
+export const fetchStateSymbol = Symbol.for('astro.fetchState');
+
+/**
+ * Use this symbol to stash the `BaseApp` on an incoming `Request` at the
+ * top of the pipeline. Fetch handlers loaded from `virtual:astro:fetchable`
+ * (including `DefaultFetchHandler`) read it to find the app associated
+ * with the current request without needing App passed to their constructor.
+ */
+export const appSymbol = Symbol.for('astro.app');
 
 /**
  * Use this symbol to opt into handling prerender routes in Astro core dev middleware.

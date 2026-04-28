@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { RenderContext } from '../../../dist/core/render-context.js';
+import { FetchState } from '../../../dist/core/fetch/fetch-state.js';
 import {
 	createComponent,
 	Fragment,
@@ -13,7 +13,7 @@ import {
 } from '../../../dist/runtime/server/index.js';
 import type { AstroComponentFactory } from '../../../dist/runtime/server/render/index.js';
 import type { Pipeline } from '../../../dist/core/render/index.js';
-import { createBasicPipeline } from '../test-utils.ts';
+import { createBasicPipeline, renderThroughMiddleware } from '../test-utils.ts';
 
 const createAstroModule = (AstroComponent: AstroComponentFactory) => ({ default: AstroComponent });
 
@@ -105,8 +105,10 @@ describe('core/render', () => {
 				component: 'src/pages/index.astro',
 				params: {},
 			};
-			const renderContext = await RenderContext.create({ pipeline, request, routeData } as any);
-			const response = await renderContext.render(PageModule);
+			const state = new FetchState(pipeline, request);
+			state.routeData = routeData as any;
+			state.pathname = '/index';
+			const response = await renderThroughMiddleware(state, PageModule);
 
 			const html = await response.text();
 			const $ = cheerio.load(html);
@@ -186,8 +188,10 @@ describe('core/render', () => {
 				component: 'src/pages/index.astro',
 				params: {},
 			};
-			const renderContext = await RenderContext.create({ pipeline, request, routeData } as any);
-			const response = await renderContext.render(PageModule);
+			const state = new FetchState(pipeline, request);
+			state.routeData = routeData as any;
+			state.pathname = '/index';
+			const response = await renderThroughMiddleware(state, PageModule);
 
 			const html = await response.text();
 			const $ = cheerio.load(html);
@@ -234,8 +238,10 @@ describe('core/render', () => {
 				component: 'src/pages/index.astro',
 				params: {},
 			};
-			const renderContext = await RenderContext.create({ pipeline, request, routeData } as any);
-			const response = await renderContext.render(PageModule);
+			const state = new FetchState(pipeline, request);
+			state.routeData = routeData as any;
+			state.pathname = '/index';
+			const response = await renderThroughMiddleware(state, PageModule);
 
 			const html = await response.text();
 			const $ = cheerio.load(html);

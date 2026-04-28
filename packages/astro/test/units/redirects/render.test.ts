@@ -6,9 +6,8 @@ import {
 	renderRedirect,
 	resolveRedirectTarget,
 } from '../../../dist/core/redirects/render.js';
-import { createMockRenderContext } from '../mocks.ts';
+import { createMockFetchState } from '../mocks.ts';
 
-import type { RenderContext } from '../../../dist/core/render-context.js';
 import type { RouteData } from '../../../dist/types/public/internal.js';
 
 describe('redirects/render', () => {
@@ -43,7 +42,7 @@ describe('redirects/render', () => {
 
 	describe('renderRedirect', () => {
 		it('returns 301 for GET requests', async () => {
-			const renderContext = createMockRenderContext({
+			const state = createMockFetchState({
 				request: new Request('http://localhost/source'),
 				routeData: {
 					type: 'redirect',
@@ -51,14 +50,14 @@ describe('redirects/render', () => {
 				},
 			});
 
-			const response = await renderRedirect(renderContext as unknown as RenderContext);
+			const response = await renderRedirect(state);
 
 			assert.equal(response.status, 301);
 			assert.equal(response.headers.get('location'), '/target');
 		});
 
 		it('returns 308 for non-GET requests', async () => {
-			const renderContext = createMockRenderContext({
+			const state = createMockFetchState({
 				request: new Request('http://localhost/source', { method: 'POST' }),
 				routeData: {
 					type: 'redirect',
@@ -66,14 +65,14 @@ describe('redirects/render', () => {
 				},
 			});
 
-			const response = await renderRedirect(renderContext as unknown as RenderContext);
+			const response = await renderRedirect(state);
 
 			assert.equal(response.status, 308);
 			assert.equal(response.headers.get('location'), '/target');
 		});
 
 		it('handles redirect object with custom status', async () => {
-			const renderContext = createMockRenderContext({
+			const state = createMockFetchState({
 				routeData: {
 					type: 'redirect',
 					redirect: { destination: '/target', status: 302 },
@@ -83,33 +82,33 @@ describe('redirects/render', () => {
 				},
 			});
 
-			const response = await renderRedirect(renderContext as unknown as RenderContext);
+			const response = await renderRedirect(state);
 
 			assert.equal(response.status, 302);
 		});
 
 		it('encodes URIs properly', async () => {
-			const renderContext = createMockRenderContext({
+			const state = createMockFetchState({
 				routeData: {
 					type: 'redirect',
 					redirect: '/target with spaces',
 				},
 			});
 
-			const response = await renderRedirect(renderContext as unknown as RenderContext);
+			const response = await renderRedirect(state);
 
 			assert.equal(response.headers.get('location'), '/target%20with%20spaces');
 		});
 
 		it('handles external redirects', async () => {
-			const renderContext = createMockRenderContext({
+			const state = createMockFetchState({
 				routeData: {
 					type: 'redirect',
 					redirect: 'https://example.com',
 				},
 			});
 
-			const response = await renderRedirect(renderContext as unknown as RenderContext);
+			const response = await renderRedirect(state);
 
 			assert.equal(response.status, 301);
 			// External redirects use Response.redirect which sets the Location header differently
@@ -117,7 +116,7 @@ describe('redirects/render', () => {
 		});
 
 		it('substitutes single dynamic parameter', async () => {
-			const renderContext = createMockRenderContext({
+			const state = createMockFetchState({
 				routeData: {
 					type: 'redirect',
 					redirect: '/articles/[slug]',
@@ -125,13 +124,13 @@ describe('redirects/render', () => {
 				params: { slug: 'my-post' },
 			});
 
-			const response = await renderRedirect(renderContext as unknown as RenderContext);
+			const response = await renderRedirect(state);
 
 			assert.equal(response.headers.get('location'), '/articles/my-post');
 		});
 
 		it('substitutes multiple dynamic parameters', async () => {
-			const renderContext = createMockRenderContext({
+			const state = createMockFetchState({
 				routeData: {
 					type: 'redirect',
 					redirect: '/new/[param1]/[param2]',
@@ -139,13 +138,13 @@ describe('redirects/render', () => {
 				params: { param1: 'foo', param2: 'bar' },
 			});
 
-			const response = await renderRedirect(renderContext as unknown as RenderContext);
+			const response = await renderRedirect(state);
 
 			assert.equal(response.headers.get('location'), '/new/foo/bar');
 		});
 
 		it('substitutes spread parameters', async () => {
-			const renderContext = createMockRenderContext({
+			const state = createMockFetchState({
 				routeData: {
 					type: 'redirect',
 					redirect: '/new/[...rest]',
@@ -153,13 +152,13 @@ describe('redirects/render', () => {
 				params: { rest: 'a/b/c' },
 			});
 
-			const response = await renderRedirect(renderContext as unknown as RenderContext);
+			const response = await renderRedirect(state);
 
 			assert.equal(response.headers.get('location'), '/new/a/b/c');
 		});
 
 		it('encodes special characters in parameters', async () => {
-			const renderContext = createMockRenderContext({
+			const state = createMockFetchState({
 				routeData: {
 					type: 'redirect',
 					redirect: '/new/[city]',
@@ -167,13 +166,13 @@ describe('redirects/render', () => {
 				params: { city: 'Las Vegas\u2019' },
 			});
 
-			const response = await renderRedirect(renderContext as unknown as RenderContext);
+			const response = await renderRedirect(state);
 
 			assert.equal(response.headers.get('location'), '/new/Las%20Vegas%E2%80%99');
 		});
 
 		it('uses redirectRoute when available', async () => {
-			const renderContext = createMockRenderContext({
+			const state = createMockFetchState({
 				routeData: {
 					type: 'redirect',
 					redirect: '/not-used',
@@ -184,20 +183,20 @@ describe('redirects/render', () => {
 				},
 			});
 
-			const response = await renderRedirect(renderContext as unknown as RenderContext);
+			const response = await renderRedirect(state);
 
 			assert.equal(response.headers.get('location'), '/target');
 		});
 
 		it('falls back to "/" when no redirect is defined', async () => {
-			const renderContext = createMockRenderContext({
+			const state = createMockFetchState({
 				routeData: {
 					type: 'redirect',
 					redirect: undefined,
 				},
 			});
 
-			const response = await renderRedirect(renderContext as unknown as RenderContext);
+			const response = await renderRedirect(state);
 
 			assert.equal(response.headers.get('location'), '/');
 		});

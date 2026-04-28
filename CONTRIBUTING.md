@@ -384,6 +384,13 @@ There are 3 contexts in which code executes:
 
 Understanding in which environment code runs, and at which stage in the process, can help clarify thinking about what Astro is doing. It also helps with debugging, for instance, if you’re working within `src/core/`, you know that your code isn’t executing within Vite, so you don’t have to debug Vite’s setup. But you will have to debug vite inside `runtime/server/`.
 
+### Deep Dives
+
+The `reference/` directory contains detailed reference docs on specific subsystems:
+
+- [`reference/optimize-deps.md`](./reference/optimize-deps.md) — Vite dep optimizer debugging playbook
+- [`reference/handlers.md`](./reference/handlers.md) — Handler pipeline, `PipelineFeatures`, and how to add feature checks for `src/app.ts`
+
 ### Making code testable
 
 To make it easier to test code, try decoupling **business logic** from **infrastructure**:

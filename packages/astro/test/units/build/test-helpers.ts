@@ -3,14 +3,19 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Plugin } from 'vite';
-import { RenderContext } from '../../../dist/core/render-context.js';
+import { FetchState } from '../../../dist/core/fetch/fetch-state.js';
 import { createRoutesList as _createRoutesList } from '../../../dist/core/routing/create-manifest.js';
 import type { StaticBuildOptions } from '../../../dist/core/build/types.js';
 import type { Pipeline } from '../../../dist/core/base-pipeline.js';
 import type { RouteData } from '../../../dist/types/public/internal.js';
 import type { AstroInlineConfig } from '../../../dist/types/public/config.js';
 import type { ComponentInstance } from '../../../dist/types/astro.js';
-import { createBasicPipeline, createBasicSettings, defaultLogger } from '../test-utils.ts';
+import {
+	createBasicPipeline,
+	createBasicSettings,
+	defaultLogger,
+	renderThroughMiddleware,
+} from '../test-utils.ts';
 
 export function createSettings({
 	buildOutput,
@@ -259,15 +264,11 @@ export function createMockPrerenderer(
 			const { props = {}, ...componentInstance } = page as ComponentInstance & {
 				props?: Record<string, unknown>;
 			};
-			const ctx = await RenderContext.create({
-				pipeline: getPipeline(),
-				request,
-				routeData,
-				pathname,
-				props,
-				clientAddress: undefined,
-			});
-			return ctx.render(componentInstance);
+			const state = new FetchState(getPipeline(), request);
+			state.routeData = routeData as any;
+			state.pathname = pathname;
+			state.initialProps = props;
+			return renderThroughMiddleware(state, componentInstance);
 		},
 	};
 }
