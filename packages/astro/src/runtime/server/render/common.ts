@@ -106,11 +106,33 @@ function stringifyChunk(
 			}
 			case 'script': {
 				const { id, content } = instruction;
+				// If we're inside a <template> element, still render the script but
+				// don't mark it as deduplicated. Template content is inert, scripts
+				// inside don't execute, so the script must also appear outside the
+				// template for non-template instances to work
+				if (result._metadata.templateDepth > 0) {
+					return content;
+				}
 				if (result._metadata.renderedScripts.has(id)) {
 					return '';
 				}
 				result._metadata.renderedScripts.add(id);
 				return content;
+			}
+			case 'template-enter': {
+				result._metadata.templateDepth++;
+				return '';
+			}
+			case 'template-exit': {
+				if (result._metadata.templateDepth <= 0) {
+					throw new Error(
+						'Unexpected template-exit instruction without a matching template-enter. ' +
+							'This may indicate that the compiler emitted unbalanced template boundaries, ' +
+							'or that a component manually injected a template-exit render instruction.',
+					);
+				}
+				result._metadata.templateDepth--;
+				return '';
 			}
 			default: {
 				throw new Error(`Unknown chunk type: ${(chunk as any).type}`);

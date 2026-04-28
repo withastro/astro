@@ -688,6 +688,7 @@ export class RenderContext {
 				extraStyleHashes,
 				extraScriptHashes,
 				propagators: new Set(),
+				templateDepth: 0,
 			},
 			cspDestination: manifest.csp?.cspDestination ?? (routeData.prerender ? 'meta' : 'header'),
 			shouldInjectCspMetaTags,
