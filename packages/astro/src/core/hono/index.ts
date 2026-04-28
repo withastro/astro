@@ -12,6 +12,7 @@ import {
 } from '../fetch/index.js';
 
 export { FetchState };
+export type { AstroFetchState } from '../fetch/index.js';
 
 const FETCH_STATE_KEY = 'fetchState';
 
