@@ -36,6 +36,11 @@ export interface BuildInternals {
 	pagesByViteID: Map<ViteID, PageBuildData>;
 
 	/**
+	 * A map for page-specific information by any module that participates in the SSR/prerender graph.
+	 */
+	pagesByModuleId: Map<string, Set<PageBuildData>>;
+
+	/**
 	 * A map for page-specific information by a client:only component
 	 */
 	pagesByClientOnly: Map<string, Set<PageBuildData>>;
@@ -49,6 +54,11 @@ export interface BuildInternals {
 	 * A map for page-specific information by a hydrated component
 	 */
 	pagesByHydratedComponent: Map<string, Set<PageBuildData>>;
+
+	/**
+	 * Per-page dependency metadata captured during the build.
+	 */
+	pageDependencies: Map<string, PageBuildDependencies>;
 
 	/**
 	 * A map of hydrated components to export names that are discovered during the SSR build.
@@ -116,6 +126,14 @@ export interface BuildInternals {
 	}>;
 }
 
+export interface PageBuildDependencies {
+	modules: Set<string>;
+	hydratedComponents: Set<string>;
+	clientOnlyComponents: Set<string>;
+	scripts: Set<string>;
+	generatedPaths: Map<string, string | null>;
+}
+
 /**
  * Creates internal maps used to coordinate the CSS and HTML plugins.
  * @returns {BuildInternals}
@@ -128,9 +146,11 @@ export function createBuildInternals(): BuildInternals {
 		entrySpecifierToBundleMap: new Map<string, string>(),
 		pagesByKeys: new Map(),
 		pagesByViteID: new Map(),
+		pagesByModuleId: new Map(),
 		pagesByClientOnly: new Map(),
 		pagesByScriptId: new Map(),
 		pagesByHydratedComponent: new Map(),
+		pageDependencies: new Map(),
 		propagatedStylesMap: new Map(),
 		discoveredHydratedComponents: new Map(),
 		discoveredClientOnlyComponents: new Map(),
@@ -175,6 +195,26 @@ export function trackPageData(
 	pageData.moduleSpecifier = componentModuleId;
 	internals.pagesByKeys.set(pageData.key, pageData);
 	internals.pagesByViteID.set(viteID(componentURL), pageData);
+	getOrCreatePageBuildDependencies(internals, pageData);
+}
+
+export function trackModulePageDatas(
+	internals: BuildInternals,
+	pageData: PageBuildData,
+	moduleIds: string[],
+) {
+	const pageDependencies = getOrCreatePageBuildDependencies(internals, pageData);
+	for (const moduleId of moduleIds) {
+		let pageDataSet: Set<PageBuildData>;
+		if (internals.pagesByModuleId.has(moduleId)) {
+			pageDataSet = internals.pagesByModuleId.get(moduleId)!;
+		} else {
+			pageDataSet = new Set<PageBuildData>();
+			internals.pagesByModuleId.set(moduleId, pageDataSet);
+		}
+		pageDataSet.add(pageData);
+		pageDependencies.modules.add(moduleId);
+	}
 }
 
 /**
@@ -185,6 +225,7 @@ export function trackClientOnlyPageDatas(
 	pageData: PageBuildData,
 	clientOnlys: string[],
 ) {
+	const pageDependencies = getOrCreatePageBuildDependencies(internals, pageData);
 	for (const clientOnlyComponent of clientOnlys) {
 		let pageDataSet: Set<PageBuildData>;
 		// clientOnlyComponent will be similar to `/@fs{moduleID}`
@@ -195,6 +236,7 @@ export function trackClientOnlyPageDatas(
 			internals.pagesByClientOnly.set(clientOnlyComponent, pageDataSet);
 		}
 		pageDataSet.add(pageData);
+		pageDependencies.clientOnlyComponents.add(clientOnlyComponent);
 	}
 }
 
@@ -206,6 +248,7 @@ export function trackScriptPageDatas(
 	pageData: PageBuildData,
 	scriptIds: string[],
 ) {
+	const pageDependencies = getOrCreatePageBuildDependencies(internals, pageData);
 	for (const scriptId of scriptIds) {
 		let pageDataSet: Set<PageBuildData>;
 		if (internals.pagesByScriptId.has(scriptId)) {
@@ -215,6 +258,7 @@ export function trackScriptPageDatas(
 			internals.pagesByScriptId.set(scriptId, pageDataSet);
 		}
 		pageDataSet.add(pageData);
+		pageDependencies.scripts.add(scriptId);
 	}
 }
 
@@ -226,6 +270,7 @@ export function trackHydratedComponentPageDatas(
 	pageData: PageBuildData,
 	hydratedComponents: string[],
 ) {
+	const pageDependencies = getOrCreatePageBuildDependencies(internals, pageData);
 	for (const hydratedComponent of hydratedComponents) {
 		let pageDataSet: Set<PageBuildData>;
 		if (internals.pagesByHydratedComponent.has(hydratedComponent)) {
@@ -235,7 +280,21 @@ export function trackHydratedComponentPageDatas(
 			internals.pagesByHydratedComponent.set(hydratedComponent, pageDataSet);
 		}
 		pageDataSet.add(pageData);
+		pageDependencies.hydratedComponents.add(hydratedComponent);
 	}
+}
+
+export function recordGeneratedPagePath(
+	internals: BuildInternals,
+	pageKey: string,
+	pathname: string,
+	output: string | null,
+) {
+	const pageDependencies = internals.pageDependencies.get(pageKey);
+	if (!pageDependencies) {
+		return;
+	}
+	pageDependencies.generatedPaths.set(pathname, output);
 }
 
 export function* getPageDatasByClientOnlyID(
@@ -286,4 +345,22 @@ export function hasPrerenderedPages(internals: BuildInternals) {
 		}
 	}
 	return false;
+}
+
+function getOrCreatePageBuildDependencies(
+	internals: BuildInternals,
+	pageData: PageBuildData,
+): PageBuildDependencies {
+	let pageDependencies = internals.pageDependencies.get(pageData.key);
+	if (!pageDependencies) {
+		pageDependencies = {
+			modules: new Set<string>(),
+			hydratedComponents: new Set<string>(),
+			clientOnlyComponents: new Set<string>(),
+			scripts: new Set<string>(),
+			generatedPaths: new Map<string, string | null>(),
+		};
+		internals.pageDependencies.set(pageData.key, pageDependencies);
+	}
+	return pageDependencies;
 }

@@ -8,6 +8,7 @@ declare global {
 			url: string,
 			options?: { history?: 'auto' | 'replace' | 'push' },
 		) => void;
+		__astroViewTransitionsTestMarker?: string;
 	}
 }
 
@@ -188,6 +189,9 @@ test.describe('View Transitions', () => {
 		await page.goto(astro.resolveUrl('/one'));
 		let p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
+		await page.evaluate(() => {
+			window.__astroViewTransitionsTestMarker = 'page-one';
+		});
 
 		// Go to page 3 which does *not* have ClientRouter enabled
 		await page.click('#click-three');
@@ -201,10 +205,15 @@ test.describe('View Transitions', () => {
 		await page.waitForTimeout(1000);
 		p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
+		const restoredFromBFCache = await page.evaluate(
+			() => window.__astroViewTransitionsTestMarker === 'page-one',
+		);
 		expect(
 			loads.length,
-			'There should be 3 page loads (for page one & three), and an additional loads for the back navigation',
-		).toEqual(3);
+			restoredFromBFCache
+				? 'Back navigation can restore the previous document from BFCache without firing an additional load event'
+				: 'There should be 3 page loads when the browser performs a full reload on back navigation',
+		).toEqual(restoredFromBFCache ? 2 : 3);
 	});
 
 	test('Declarative Shadow DOM elements are attached after transitions', async ({

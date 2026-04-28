@@ -31,11 +31,21 @@ import { routeIsRedirect } from '../routing/helpers.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
 import { getOutFile, getOutFolder } from './common.js';
+import { createIncrementalBuildSnapshot, planIncrementalPageGeneration } from './build-state.js';
 import { createDefaultPrerenderer, type DefaultPrerenderer } from './default-prerenderer.js';
-import { type BuildInternals, hasPrerenderedPages } from './internal.js';
+import { type BuildInternals, hasPrerenderedPages, recordGeneratedPagePath } from './internal.js';
+import {
+	addPageName,
+	createPlannedGeneratedPaths,
+	deleteIncrementalOutputs,
+	hasPublicConflict,
+	recordIncrementalReusedPath,
+	shouldSkipIncrementalPath,
+} from './incremental/generate.js';
+import { makePageDataKey } from './plugins/util.js';
 import type { StaticBuildOptions } from './types.js';
 import type { AstroSettings } from '../../types/astro.js';
-import { getTimeStat, shouldAppendForwardSlash } from './util.js';
+import { getTimeStat } from './util.js';
 
 export async function generatePages(
 	options: StaticBuildOptions,
@@ -154,6 +164,26 @@ export async function generatePages(
 			return false;
 		});
 
+		const incrementalRenderPlan =
+			options.incremental.enabled && options.incremental.previousState
+				? planIncrementalPageGeneration({
+						previousState: options.incremental.previousState,
+						currentSnapshot: createIncrementalBuildSnapshot({
+							settings: options.settings,
+							allPages: options.allPages,
+							internals,
+							generatedPathsByPage: createPlannedGeneratedPaths(filteredPaths, options),
+						}),
+					})
+				: undefined;
+
+		if (incrementalRenderPlan) {
+			await deleteIncrementalOutputs(incrementalRenderPlan.staleOutputsToDelete);
+			for (const pagePlan of incrementalRenderPlan.pagePlans.values()) {
+				await deleteIncrementalOutputs(pagePlan.outputsToDelete);
+			}
+		}
+
 		// Generate each path
 		if (config.build.concurrency > 1) {
 			const limit = PLimit(config.build.concurrency);
@@ -165,6 +195,10 @@ export async function generatePages(
 				const batch = filteredPaths.slice(i, i + BATCH_SIZE);
 				const promises: Promise<void>[] = [];
 				for (const { pathname, route } of batch) {
+					if (shouldSkipIncrementalPath(pathname, route, incrementalRenderPlan, options)) {
+						recordIncrementalReusedPath(pathname, route, options, internals);
+						continue;
+					}
 					promises.push(
 						limit(() =>
 							generatePathWithPrerenderer(
@@ -172,6 +206,7 @@ export async function generatePages(
 								pathname,
 								route,
 								options,
+								internals,
 								routeToHeaders,
 								logger,
 							),
@@ -182,15 +217,27 @@ export async function generatePages(
 			}
 		} else {
 			for (const { pathname, route } of filteredPaths) {
+				if (shouldSkipIncrementalPath(pathname, route, incrementalRenderPlan, options)) {
+					recordIncrementalReusedPath(pathname, route, options, internals);
+					continue;
+				}
 				await generatePathWithPrerenderer(
 					prerenderer,
 					pathname,
 					route,
 					options,
+					internals,
 					routeToHeaders,
 					logger,
 				);
 			}
+		}
+
+		if (incrementalRenderPlan && incrementalRenderPlan.reusedPathCount > 0) {
+			logger.info(
+				'build',
+				`Incremental build reused ${incrementalRenderPlan.reusedPathCount} static path${incrementalRenderPlan.reusedPathCount === 1 ? '' : 's'} and rendered ${incrementalRenderPlan.renderedPathCount}.`,
+			);
 		}
 
 		// After generation, propagate distURL from the deserialized routes (used during generation)
@@ -531,6 +578,7 @@ async function generatePathWithPrerenderer(
 	pathname: string,
 	route: RouteData,
 	options: StaticBuildOptions,
+	internals: BuildInternals,
 	routeToHeaders: RouteToHeaders,
 	logger: AstroLogger,
 ): Promise<void> {
@@ -554,13 +602,16 @@ async function generatePathWithPrerenderer(
 		logger,
 	});
 
+	const pageKey = makePageDataKey(route.route, route.component);
 	if (!result) {
+		recordGeneratedPagePath(internals, pageKey, pathname, null);
 		logRenderTime(logger, timeStart, true);
 		return;
 	}
 
 	await nodeFs.promises.mkdir(result.outFolder, { recursive: true });
 	await nodeFs.promises.writeFile(result.outFile, result.body);
+	recordGeneratedPagePath(internals, pageKey, pathname, result.outFile.toString());
 
 	logRenderTime(logger, timeStart, false);
 }
@@ -573,15 +624,6 @@ function logRenderTime(logger: AstroLogger, timeStart: number, notCreated: boole
 		? colors.yellow('(file not created, response body was empty)')
 		: '';
 	logger.info('SKIP_FORMAT', ` ${timeIncrease} ${notCreatedMsg}`);
-}
-
-function addPageName(pathname: string, opts: StaticBuildOptions): void {
-	const trailingSlash = opts.settings.config.trailingSlash;
-	const buildFormat = opts.settings.config.build.format;
-	const pageName = shouldAppendForwardSlash(trailingSlash, buildFormat)
-		? pathname.replace(/\/?$/, '/').replace(/^\//, '')
-		: pathname.replace(/^\//, '');
-	opts.pageNames.push(pageName);
 }
 
 function getUrlForPath(
@@ -645,6 +687,10 @@ function checkPublicConflict(
 	settings: AstroSettings,
 	logger: AstroLogger,
 ): boolean {
+	if (!hasPublicConflict(outFile, settings)) {
+		return false;
+	}
+
 	const outRoot =
 		settings.buildOutput === 'static' && !settings.adapter?.adapterFeatures?.preserveBuildClientDir
 			? settings.config.outDir
@@ -653,13 +699,9 @@ function checkPublicConflict(
 	// Compute the relative path by comparing URL hrefs directly to avoid
 	// fileURLToPath issues with encoded characters like %2F.
 	const relativePath = outFile.href.slice(outRoot.href.length);
-	const publicFileUrl = new URL(relativePath, settings.config.publicDir);
-	if (nodeFs.existsSync(publicFileUrl)) {
-		logger.warn(
-			'build',
-			`Skipping ${route.component} because a file with the same name exists in the public folder: ${relativePath}`,
-		);
-		return true;
-	}
-	return false;
+	logger.warn(
+		'build',
+		`Skipping ${route.component} because a file with the same name exists in the public folder: ${relativePath}`,
+	);
+	return true;
 }
