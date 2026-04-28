@@ -96,8 +96,8 @@ export class AstroHandler {
 	}
 
 	/**
-	 * Renders a response for the given `FetchState`. Assumes trailing-slash
-	 * redirects and routeData resolution have already run.
+	 * @internal Renders a response for the given `FetchState`. Assumes
+	 * trailing-slash redirects and routeData resolution have already run.
 	 *
 	 * User-triggered rewrites (`Astro.rewrite` / `ctx.rewrite`) go through
 	 * `Rewrites.execute` on the current `FetchState` — they mutate the
