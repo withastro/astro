@@ -1,9 +1,4 @@
 {
-  "extends": "../../../../tsconfig.base.json",
-  "compilerOptions": {
-    "allowJs": true,
-    "emitDeclarationOnly": false,
-    "noEmit": true
-  },
+  "extends": "../../../../tsconfig.test.json",
   "references": [{ "path": "../../tsconfig.build.json" }, { "path": "../../tsconfig.virtual.json" }]
 }
