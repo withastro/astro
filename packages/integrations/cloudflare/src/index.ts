@@ -311,6 +311,12 @@ export default function createIntegration({
 										// Cloudflare does not support externalizing modules in server environments
 										conf.ssr.external = undefined;
 									}
+									// Workaround for https://github.com/vitejs/vite/issues/21969
+									conf.resolve ||= {};
+									conf.resolve.alias = {
+										'module': '@astrojs/cloudflare/node-module-polyfill',
+										...conf.resolve.alias,
+									};
 								},
 							},
 							createConfigPlugin({
