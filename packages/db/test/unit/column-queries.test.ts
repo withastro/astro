@@ -6,8 +6,14 @@ import {
 } from '../../dist/core/cli/migration-queries.js';
 import { MIGRATION_VERSION } from '../../dist/core/consts.js';
 import { tableSchema } from '../../dist/core/schemas.js';
-import type { DBTable, ResolvedDBTable } from '../../dist/core/types.js';
-import { column, defineTable, NOW } from '../../dist/runtime/virtual.js';
+import type {
+	DateColumn,
+	DBTable,
+	NumberColumn,
+	ResolvedDBTable,
+	TextColumn,
+} from '../../dist/core/types.js';
+import { column, defineTable, NOW } from './virtual.ts';
 import { asResolved } from '../test-utils.ts';
 
 const TABLE_NAME = 'Users';
@@ -230,7 +236,7 @@ describe('column queries', () => {
 					...userInitial,
 					columns: {
 						...userInitial.columns,
-						age: column.text(),
+						age: column.text() as TextColumn,
 					},
 				};
 
@@ -247,7 +253,7 @@ describe('column queries', () => {
 					...userInitial,
 					columns: {
 						...userInitial.columns,
-						phoneNumber: column.text(),
+						phoneNumber: column.text() as TextColumn,
 					},
 				};
 
@@ -266,7 +272,7 @@ describe('column queries', () => {
 					...userInitial,
 					columns: {
 						...userInitial.columns,
-						id: column.number({ primaryKey: true }),
+						id: column.number({ primaryKey: true }) as NumberColumn,
 					},
 				};
 
@@ -287,7 +293,7 @@ describe('column queries', () => {
 					...userInitial,
 					columns: {
 						...userInitial.columns,
-						id: column.number({ primaryKey: true }),
+						id: column.number({ primaryKey: true }) as NumberColumn,
 					},
 				};
 
@@ -308,7 +314,7 @@ describe('column queries', () => {
 					...userInitial,
 					columns: {
 						...userInitial.columns,
-						phoneNumber: column.text({ unique: true, optional: true }),
+						phoneNumber: column.text({ unique: true, optional: true }) as TextColumn,
 					},
 				};
 
@@ -412,7 +418,7 @@ describe('column queries', () => {
 					...userInitial,
 					columns: {
 						...userInitial.columns,
-						mi: column.text(),
+						mi: column.text() as TextColumn,
 					},
 				};
 
@@ -435,7 +441,7 @@ describe('column queries', () => {
 					...userInitial,
 					columns: {
 						...userInitial.columns,
-						age: column.number({ unique: true }),
+						age: column.number({ unique: true }) as NumberColumn,
 					},
 				};
 
@@ -459,7 +465,7 @@ describe('column queries', () => {
 					...userInitial,
 					columns: {
 						...userInitial.columns,
-						birthday: column.date({ optional: true }),
+						birthday: column.date({ optional: true }) as DateColumn,
 					},
 				};
 
