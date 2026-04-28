@@ -118,7 +118,7 @@ describe('session wrangler config', () => {
 		};
 		await fixture.build(config);
 
-		const wrangler = JSON.parse(await fixture.readFile('/server/wrangler.json')) as {
+		const wrangler = JSON.parse(await fixture.readFile('/client/wrangler.json')) as {
 			kv_namespaces?: Array<{ binding: string }>;
 		};
 		assert.equal(
@@ -142,7 +142,7 @@ describe('session wrangler config', () => {
 		};
 		await fixture.build(config);
 
-		const wrangler = JSON.parse(await fixture.readFile('/server/wrangler.json')) as {
+		const wrangler = JSON.parse(await fixture.readFile('/client/wrangler.json')) as {
 			kv_namespaces?: Array<{ binding: string }>;
 		};
 		assert.deepEqual(wrangler.kv_namespaces, [{ binding: 'SESSION' }]);

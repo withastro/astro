@@ -19,7 +19,7 @@ import type { RouteData } from '../../types/public/internal.js';
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../vite-plugin-pages/const.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { routeIsRedirect } from '../routing/helpers.js';
-import { getOutDirWithinCwd } from './common.js';
+
 import { CHUNKS_PATH } from './consts.js';
 import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
@@ -37,7 +37,10 @@ import { NOOP_MODULE_ID } from './plugins/plugin-noop.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 import type { InputOption } from 'rollup';
 import { getSSRAssets } from './internal.js';
-import { SERVER_ISLAND_MAP_MARKER } from '../server-islands/vite-plugin-server-islands.js';
+import {
+	SERVER_ISLAND_MAP_MARKER,
+	hasServerIslands,
+} from '../server-islands/vite-plugin-server-islands.js';
 
 const PRERENDER_ENTRY_FILENAME_PREFIX = 'prerender-entry';
 
@@ -171,6 +174,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 	const plugins = [...flatPlugins, ...(viteConfig.plugins || [])];
 	let currentRollupInput: InputOption | undefined = undefined;
 	let buildPostHooks: BuildPostHook[] = [];
+	let prerenderOutputDir: URL;
 	plugins.push({
 		name: 'astro:resolve-input',
 		// When the rollup input is safe to update, we normalize it to always be an object
@@ -207,7 +211,6 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				);
 
 				// Generation and cleanup
-				const prerenderOutputDir = getPrerenderOutputDirectory(settings);
 
 				// TODO: The `static` and `server` branches below are nearly identical now.
 				// Consider refactoring to remove the else-if and unify the logic.
@@ -324,6 +327,8 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 		// This takes precedence over platform plugin fallbacks (e.g., Cloudflare)
 		builder: {
 			async buildApp(builder) {
+				prerenderOutputDir = getPrerenderOutputDirectory(settings);
+
 				// Build prerender environment for static generation
 				settings.timer.start('Prerender build');
 				let prerenderOutput = await builder.build(builder.environments.prerender);
@@ -337,9 +342,9 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				const prerenderChunks = extractRelevantChunks(prerenderOutputs, true);
 				prerenderOutput = undefined as any;
 
-				// Build ssr environment for server output (only for non-static builds)
+				// Build ssr environment for server output
 				let ssrChunks: BuildInternals['extractedChunks'] = [];
-				if (settings.buildOutput !== 'static') {
+				if (needsServerBuild(settings, builder)) {
 					settings.timer.start('SSR build');
 					let ssrOutput = await builder.build(
 						builder.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr],
@@ -534,7 +539,6 @@ async function writeMutatedChunks(
 	mutations: Map<string, { code: string; prerender: boolean }>,
 ) {
 	const { settings } = opts;
-	const config = settings.config;
 
 	for (const [fileName, mutation] of mutations) {
 		let root: URL;
@@ -542,10 +546,8 @@ async function writeMutatedChunks(
 		if (mutation.prerender) {
 			// Write to prerender directory
 			root = getPrerenderOutputDirectory(settings);
-		} else if (settings.buildOutput === 'server') {
-			root = config.build.server;
 		} else {
-			root = getOutDirWithinCwd(config.outDir);
+			root = getServerOutputDirectory(settings);
 		}
 
 		const fullPath = path.join(fileURLToPath(root), fileName);
@@ -633,6 +635,18 @@ function getClientInput(
 	}
 
 	return clientInput;
+}
+
+/**
+ * Determines whether the SSR build environment needs to be built.
+ * This is true when the build output is 'server', or when server islands
+ * were discovered during the prerender build (even for static sites).
+ */
+function needsServerBuild(settings: StaticBuildOptions['settings'], builder: vite.ViteBuilder): boolean {
+	if (settings.buildOutput === 'server') {
+		return true;
+	}
+	return hasServerIslands(builder.environments.prerender as vite.BuildEnvironment);
 }
 
 /**
