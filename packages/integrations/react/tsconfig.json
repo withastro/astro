@@ -1,8 +1,5 @@
 {
   "extends": "../../../tsconfig.base.json",
-  "include": ["src", "env.d.ts"],
-  "compilerOptions": {
-    "rootDir": "./src",
-    "outDir": "./dist"
-  }
+  "files": [],
+  "references": [{ "path": "./tsconfig.build.json" }, { "path": "./tsconfig.test.json" }]
 }

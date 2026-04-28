@@ -1,17 +1,7 @@
 import { describe, it } from 'node:test';
 import { expectTypeOf } from 'expect-type';
-import type {
-	column as TColumn,
-	defineTable as TDefineTable,
-} from '../../dist/_internal/runtime/virtual.d.ts';
-import { column as _column, defineTable as _defineTable } from '../../dist/runtime/virtual.js';
 import { asDrizzleTable } from '../../dist/utils.js';
-
-// Ensure the correct types are being used for tests...
-// This is a workaround due to the types being exported under /_internal/ path
-// and not under /runtime/ path.
-const column: typeof TColumn = _column;
-const defineTable: typeof TDefineTable = _defineTable;
+import { column, defineTable } from './virtual.js';
 
 describe('Table Type Tests', () => {
 	it('basic table', async () => {

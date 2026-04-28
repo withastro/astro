@@ -63,14 +63,12 @@
     "astro-integration"
   ],
   "scripts": {
-    "types:virtual": "tsc -p ./tsconfig.virtual.json",
-    "build": "astro-scripts build \"src/**/*.ts\" && tsc && pnpm types:virtual",
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc -b",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "test": "pnpm run test:integration && pnpm run test:types",
     "test:integration": "astro-scripts test \"test/**/*.test.ts\"",
-    "test:types": "tsc --project test/types/tsconfig.json",
-    "typecheck:tests": "tsc --build tsconfig.test.json"
+    "test:types": "tsc --build test/types/tsconfig.json"
   },
   "dependencies": {
     "@clack/prompts": "^1.0.1",

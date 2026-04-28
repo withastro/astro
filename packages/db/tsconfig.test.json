@@ -1,12 +1,8 @@
 {
-  "extends": "../../tsconfig.base.json",
-  "include": ["test/**/*.ts"],
-  "exclude": ["test/fixtures/**"],
+  "extends": "../../tsconfig.test.json",
   "compilerOptions": {
-    "allowJs": true,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "rewriteRelativeImportExtensions": true
+    "composite": false
   },
-  "references": [{ "path": "../astro/tsconfig.test.json" }]
+  "exclude": ["${configDir}/test/fixtures/**", "${configDir}/test/types/**"],
+  "references": [{ "path": "./tsconfig.build.json" }, { "path": "./tsconfig.virtual.json" }]
 }

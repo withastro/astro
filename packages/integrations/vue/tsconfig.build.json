@@ -1,0 +1,8 @@
+{
+  "extends": "../../../tsconfig.build.json",
+  "compilerOptions": {
+    "verbatimModuleSyntax": false
+  },
+  "include": ["${configDir}/src", "${configDir}/env.d.ts"],
+  "references": [{ "path": "../../astro/tsconfig.json" }]
+}

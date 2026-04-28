@@ -1,27 +1,25 @@
 {
-  "extends": "../../tsconfig.base.json",
-  "include": ["test/units/**/*.ts", "test/*.ts", "e2e/*.ts", "package.json"],
-  "exclude": ["test/units/_temp-fixtures/**", "test/fixtures/**", "e2e/fixtures/**"],
-  "files": [
-    // Extra files that aren't included in the "include" glob patterns, but are still needed for tests.
-    "./test/fixtures/multiple-jsx-renderers/renderers/woof/index.mjs",
-    "./test/fixtures/multiple-jsx-renderers/renderers/meow/index.mjs",
-    "./test/fixtures/before-hydration/deps.mjs"
-  ],
+  "extends": "../../tsconfig.test.json",
   "compilerOptions": {
-    "types": ["vite/client", "node"],
-    "composite": true,
-    "allowJs": true,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "rewriteRelativeImportExtensions": true
+    "types": ["vite/client", "node"]
   },
-  "references": [
-    {
-      "path": "./tsconfig.json"
-    },
-    {
-      "path": "../../scripts/tsconfig.json"
-    }
-  ]
+  "include": [
+    "${configDir}/test/units/**/*.ts",
+    "${configDir}/test/*.ts",
+    "${configDir}/e2e/*.ts",
+    "${configDir}/test/test-adapter.js",
+    "${configDir}/test/test-utils.js",
+    "${configDir}/package.json"
+  ],
+  "exclude": [
+    "${configDir}/test/units/_temp-fixtures/**",
+    "${configDir}/test/fixtures/**",
+    "${configDir}/e2e/fixtures/**"
+  ],
+  "files": [
+    "${configDir}/test/fixtures/multiple-jsx-renderers/renderers/woof/index.mjs",
+    "${configDir}/test/fixtures/multiple-jsx-renderers/renderers/meow/index.mjs",
+    "${configDir}/test/fixtures/before-hydration/deps.mjs"
+  ],
+  "references": [{ "path": "./tsconfig.build.json" }, { "path": "../../scripts/tsconfig.json" }]
 }

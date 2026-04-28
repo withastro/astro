@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "rootDir": "${configDir}",
+    "allowJs": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "allowImportingTsExtensions": true,
+    "outDir": "${configDir}/node_modules/.cache/tsconfig_test/out"
+  },
+  "include": ["${configDir}/test/**/*.ts"],
+  "exclude": ["${configDir}/test/fixtures/**"]
+}

@@ -5,9 +5,12 @@
   // and generate to a separate _internal/ directory
   // for our virtual module (virtual.d.ts) to reference.
   "extends": "../../tsconfig.base.json",
-  "files": ["./src/runtime/virtual.ts"],
+  "files": ["${configDir}/src/runtime/virtual.ts"],
   "compilerOptions": {
-    "rootDir": "./src",
-    "outDir": "./dist/_internal"
-  }
+    "composite": true,
+    "rootDir": "${configDir}/src",
+    "outDir": "${configDir}/dist/_internal",
+    "tsBuildInfoFile": "${configDir}/dist/_internal/._cache/tsconfig/virtual.tsbuildinfo"
+  },
+  "references": [{ "path": "./tsconfig.build.json" }]
 }
