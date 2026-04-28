@@ -1,5 +1,14 @@
 # @astrojs/check
 
+## 0.9.9
+
+### Patch Changes
+
+- [#16471](https://github.com/withastro/astro/pull/16471) [`f56bb3f`](https://github.com/withastro/astro/commit/f56bb3fb8fdee7839805a6514016001fff0787d7) Thanks [@delucis](https://github.com/delucis)! - Adds support for TypeScript v6 to peer dependencies range
+
+- Updated dependencies [[`8c62159`](https://github.com/withastro/astro/commit/8c62159eac6a77c32ac533e81d9c561409993db9)]:
+  - @astrojs/language-server@2.16.7
+
 ## 0.9.8
 
 ### Patch Changes
