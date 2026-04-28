@@ -1,6 +1,6 @@
 # Contributor Manual
 
-We welcome contributions of any size and skill level. As an open source project, we believe in giving back to our contributors and are happy to help with guidance on PRs, technical writing, and turning any feature idea into a reality.
+We welcome contributions of any size and skill level. As an open source project, we believe in giving back to our contributors and are happy to help with guidance on PRs, technical writing, and turning any feature idea into reality.
 
 > [!Tip]
 >
@@ -165,7 +165,7 @@ node --test --test-only test/astro-basic.test.js
 
 #### Debugging tests in CI
 
-There might be occasions where some tests fail in certain CI runs due to some timeout issue. If this happens, it will be very difficult to understand which file cause the timeout. That's caused by some quirks of the Node.js test runner combined with our architecture.
+There might be occasions where some tests fail in certain CI runs due to some timeout issue. If this happens, it will be very difficult to understand which file causes the timeout. That's caused by some quirks of the Node.js test runner combined with our architecture.
 
 To understand which file causes the issue, you can modify the `test` script inside the `package.json` by adding the `--parallel` option:
 
@@ -203,7 +203,7 @@ When creating new tests, it's best to reference other existing test files and re
 - When re-using a fixture multiple times with different configurations, you should also configure unique `outDir`, `build.client`, and `build.server` values so the build output runtime isn't cached and shared by ESM between test runs.
 
 > [!IMPORTANT]
-> If tests start to fail for no apparent reason, the first thing to look at the `outDir` configuration. As build caches artifacts between runs, different tests might end up sharing some of the emitted modules.
+> If tests start to fail for no apparent reason, the first thing to look at is the `outDir` configuration. As build caches artifacts between runs, different tests might end up sharing some of the emitted modules.
 > To avoid this possible overlap, **make sure to add a custom `outDir` to your test case**.
 >
 > ```js
@@ -285,7 +285,7 @@ graph TD;
 
 ### Assign priority to bugs
 
-The Astro project has five levels of priority to issues, where `p5` is the highest in priority, and `p1` is the lowest in priority.
+The Astro project has five levels of priority for issues, where `p5` is the highest in priority, and `p1` is the lowest in priority.
 
 - `p5`: the bug impacts the majority of Astro projects, it doesn't have a workaround and makes Astro unusable/unstable.
 
@@ -305,13 +305,13 @@ The Astro project has five levels of priority to issues, where `p5` is the highe
 - `p1`: very minor bug, that impacts a small amount of users. Sometimes it's an edge case and it's easy to fix. Very useful if you want to assign the fix to a first-time contributor.
 
 > [!IMPORTANT]
-> The priority of a bug isn't set on stone. It can change based on different factors.
+> The priority of a bug isn't set in stone. It can change based on different factors.
 
 Assigning labels isn't always easy and many times the distinction between the different levels of priority is blurry, hence try to follow these guidelines:
 
 - When assigning a `p2`, **always** add a comment that explains the workaround. If a workaround isn't provided, ping the person that assigned the label and ask them to provide one.
 - Astro has **many** features, but there are some that have a larger impact than others: development server, build command, HMR (TBD, we don't have a page that explains expectations of HMR in Astro), **evident** regressions in performance.
-- In case the number of reactions of an issue grows, the number of users affected grows, or a discussion uncovers some insights that weren't clear before, it's OK to change the priority of the issue. The maintainer **should** provide an explanation when assigning a different label.
+- In case the number of reactions to an issue grows, the number of users affected grows, or a discussion uncovers some insights that weren't clear before, it's OK to change the priority of the issue. The maintainer **should** provide an explanation when assigning a different label.
   As with any other contribution, triaging is voluntary and best-effort. We welcome and appreciate all the help you're happy to give (including reading this!) and nothing more. If you are not confident about an issue, you are welcome to leave an issue untriaged for someone who would have more context, or to bring it to their attention.
 
 ### Preview releases
@@ -455,7 +455,7 @@ async function main() {
 }
 ```
 
-We could take this further by writing some custom abstractions, which can be useful when some of this logic needs to shared:
+We could take this further by writing some custom abstractions, which can be useful when some of this logic needs to be shared:
 
 ```ts
 // types.ts
@@ -566,7 +566,7 @@ export class FakeKeyGenerator {
 
 Remember:
 
-- Try test all implementations. If an infrastructure implementation is just a wrapper around a NPM package, you may not need to test it and instead trust the package own tests
+- Try to test all implementations. If an infrastructure implementation is just a wrapper around a NPM package, you may not need to test it and instead trust the package own tests
 - Always test business logic
 
 ## Branches
@@ -646,7 +646,7 @@ Exiting prerelease mode should happen once an experimental release is ready to g
 - Run: `pnpm exec changeset pre exit` in the project root
 - Update `.changeset/config.json` with `"baseBranch": "main"`
 - Create a new PR from the changes created by this command.
-- Review, approve, and merge the PR to enter prerelease mode.
+- Review, approve, and merge the PR to exit prerelease mode.
 - If successful, The "[ci] release (next)" PR (if one exists) will now say "[ci] release".
 
 ### Releasing `astro@latest` while in prerelease mode
