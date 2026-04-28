@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { loadFixture, type Fixture, type DevServer } from '../../../astro/test/test-utils.js';
+import { loadFixture, type Fixture, type DevServer } from './test-utils.ts';
 
 /**
  * @see https://github.com/withastro/astro/issues/14252
@@ -22,7 +22,7 @@ describe('Conditional rendering styles', () => {
 
 	describe('build', () => {
 		before(async () => {
-			await fixture.build({});
+			await fixture.build();
 		});
 
 		it('includes styles for conditionally rendered Svelte components', async () => {

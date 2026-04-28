@@ -5,6 +5,11 @@ import type { Node } from 'vscode-html-languageservice';
 import * as html from 'vscode-html-languageservice';
 import { getTSXRangesAsLSPRanges, safeConvertToTSX } from '../../dist/core/astro2tsx.js';
 import { getAstroMetadata } from '../../dist/core/parseAstro.js';
+import { patchTSX } from '../../dist/core/utils.js';
+import {
+	getAlreadyImportedAstroComponentSources,
+	rewriteAstroImportText,
+} from '../../dist/plugins/typescript/utils.js';
 import * as utils from '../../dist/plugins/utils.js';
 
 describe('Utilities', async () => {
@@ -118,5 +123,112 @@ describe('Utilities', async () => {
 			range: Range.create(2, 0, 2, 0),
 			newText: '\nfoo---',
 		});
+	});
+
+	it('rewriteAstroImportText - strips AstroComponent suffixes from default Astro imports', () => {
+		assert.strictEqual(
+			rewriteAstroImportText(`import ImageAstroComponent from "../components/Image.astro";\n`),
+			`import Image from "../components/Image.astro";\n`,
+		);
+	});
+
+	it('rewriteAstroImportText - only rewrites Astro imports', () => {
+		assert.strictEqual(
+			rewriteAstroImportText(`import ImageAstroComponent from "astro:assets";\n`),
+			`import ImageAstroComponent from "astro:assets";\n`,
+		);
+	});
+
+	it('rewriteAstroImportText - preserves named imports on Astro component imports', () => {
+		assert.strictEqual(
+			rewriteAstroImportText(
+				`import ImageAstroComponent, { type Props } from "../components/Image.astro";\n`,
+			),
+			`import Image, { type Props } from "../components/Image.astro";\n`,
+		);
+	});
+
+	it('rewriteAstroImportText - strips AstroComponent suffixes from default aliases', () => {
+		assert.strictEqual(
+			rewriteAstroImportText(
+				`import { default as ImageAstroComponent } from "../components/Image.astro";\n`,
+			),
+			`import { default as Image } from "../components/Image.astro";\n`,
+		);
+	});
+
+	it('getAlreadyImportedAstroComponentSources - detects runtime Astro component imports', () => {
+		assert.deepStrictEqual(
+			Array.from(
+				getAlreadyImportedAstroComponentSources(
+					`import Image from "../components/Image.astro";\nimport { default as Card } from "../components/Card.astro";\n`,
+				),
+			),
+			['../components/Image.astro', '../components/Card.astro'],
+		);
+	});
+
+	it('getAlreadyImportedAstroComponentSources - ignores type-only Astro imports', () => {
+		assert.deepStrictEqual(
+			Array.from(
+				getAlreadyImportedAstroComponentSources(
+					`import type { Props } from "../components/Image.astro";\n`,
+				),
+			),
+			[],
+		);
+	});
+
+	it('getAlreadyImportedAstroComponentSources - parses Astro frontmatter imports', () => {
+		assert.deepStrictEqual(
+			Array.from(
+				getAlreadyImportedAstroComponentSources(
+					`---
+import Image from "../components/Image.astro";
+---
+<Image />
+`,
+				),
+			),
+			['../components/Image.astro'],
+		);
+	});
+
+	it('patchTSX - keeps AstroComponent suffixes when import names conflict', () => {
+		const input = `/* @jsxImportSource astro */
+
+import { Image } from 'astro:assets';
+
+export default function Image__AstroComponent_(_props: Record<string, any>): any {}
+`;
+
+		assert.match(
+			patchTSX(input, 'file:///src/pages/image.astro'),
+			/export default function ImageAstroComponent\(/,
+		);
+	});
+
+	it('patchTSX - keeps filename-based component names for plain references', () => {
+		const input = `/* @jsxImportSource astro */
+
+<Fragment>
+<div>{Image}</div>
+</Fragment>
+export default function Image__AstroComponent_(_props: Record<string, any>): any {}
+`;
+
+		assert.match(
+			patchTSX(input, 'file:///src/pages/image.astro'),
+			/export default function ImageAstroComponent\(/,
+		);
+	});
+
+	it('patchTSX - preserves dynamic route component names', () => {
+		const input = `export default function slug__AstroComponent_(_props: Record<string, any>): any {}`;
+
+		assert.match(
+			patchTSX(input, 'file:///src/pages/[slug].astro'),
+			/export default function _slug_AstroComponent\(/,
+		);
 	});
 });

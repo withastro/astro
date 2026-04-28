@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/internal-helpers",
   "description": "Internal helpers used by core Astro packages.",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -17,7 +17,8 @@
     "./fs": "./dist/fs.js",
     "./cli": "./dist/cli.js",
     "./create-filter": "./dist/create-filter.js",
-    "./request": "./dist/request.js"
+    "./request": "./dist/request.js",
+    "./object": "./dist/object.js"
   },
   "typesVersions": {
     "*": {
@@ -35,6 +36,9 @@
       ],
       "create-filter": [
         "./dist/create-filter.d.ts"
+      ],
+      "object": [
+        "./dist/object.d.ts"
       ]
     }
   },
@@ -46,10 +50,11 @@
     "build": "astro-scripts build \"src/**/*.ts\" && tsc -p tsconfig.json",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "astro-scripts test \"test/**/*.test.js\""
+    "test": "astro-scripts test \"test/**/*.test.ts\"",
+    "typecheck:tests": "tsc --build tsconfig.test.json"
   },
   "dependencies": {
-    "picomatch": "^4.0.3"
+    "picomatch": "^4.0.4"
   },
   "devDependencies": {
     "@types/picomatch": "^4.0.2",

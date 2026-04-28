@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { loadFixture, readXML } from './test-utils.js';
-import type { Fixture } from '../../../astro/test/test-utils.js';
+import { type Fixture, loadFixture, readXML } from './test-utils.ts';
 
 describe('Dynamic with rest parameter', () => {
 	let fixture: Fixture;
@@ -10,7 +9,7 @@ describe('Dynamic with rest parameter', () => {
 		fixture = await loadFixture({
 			root: './fixtures/dynamic',
 		});
-		await fixture.build({});
+		await fixture.build();
 	});
 
 	it('Should generate correct urls', async () => {

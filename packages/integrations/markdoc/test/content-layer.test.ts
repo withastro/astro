@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
-import { loadFixture, type Fixture, type DevServer } from '../../../astro/test/test-utils.js';
+import { loadFixture, type Fixture, type DevServer } from './test-utils.ts';
 
 const root = new URL('./fixtures/content-layer/', import.meta.url);
 
@@ -42,7 +42,7 @@ describe('Markdoc - Content Layer', () => {
 
 	describe('build', () => {
 		before(async () => {
-			await fixture.build({});
+			await fixture.build();
 		});
 
 		it('renders content - with components', async () => {

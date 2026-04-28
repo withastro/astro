@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
-import { loadFixture, type Fixture, type DevServer } from '../../../astro/test/test-utils.js';
+import { loadFixture, type Fixture, type DevServer } from './test-utils.ts';
 
 describe('Markdoc - propagated assets', () => {
 	let fixture: Fixture;
@@ -23,7 +23,7 @@ describe('Markdoc - propagated assets', () => {
 
 			before(async () => {
 				if (mode === 'prod') {
-					await fixture.build({});
+					await fixture.build();
 					stylesDocument = parseHTML(await fixture.readFile('/styles/index.html')).document;
 					scriptsDocument = parseHTML(await fixture.readFile('/scripts/index.html')).document;
 				} else if (mode === 'dev') {

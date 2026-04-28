@@ -1,8 +1,7 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { sitemap } from './fixtures/static/deps.mjs';
-import { loadFixture, readXML } from './test-utils.js';
-import type { Fixture } from '../../../astro/test/test-utils.js';
+import { type Fixture, loadFixture, readXML } from './test-utils.ts';
 
 describe('Config', () => {
 	let fixture: Fixture;
@@ -18,7 +17,7 @@ describe('Config', () => {
 					}),
 				],
 			});
-			await fixture.build({});
+			await fixture.build();
 		});
 
 		it('filter: Just one page is added', async () => {
@@ -55,7 +54,7 @@ describe('Config', () => {
 					}),
 				],
 			});
-			await fixture.build({});
+			await fixture.build();
 		});
 
 		it('filter: Just one page is added', async () => {
@@ -92,7 +91,7 @@ describe('Config', () => {
 					}),
 				],
 			});
-			await fixture.build({});
+			await fixture.build();
 		});
 
 		it('filenameBase: Sets the generated sitemap filename', async () => {
@@ -119,7 +118,7 @@ describe('Config', () => {
 					}),
 				],
 			});
-			await assert.rejects(fixture.build({}), /^Error: filter error$/);
+			await assert.rejects(fixture.build(), /^Error: filter error$/);
 		});
 	});
 });

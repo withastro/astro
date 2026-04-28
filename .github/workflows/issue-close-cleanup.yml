@@ -1,0 +1,20 @@
+name: "Issue: Close Cleanup"
+
+on:
+  issues:
+    types: [closed]
+
+jobs:
+  cleanup-branch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Delete triage fix branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="flue/fix-${{ github.event.issue.number }}"
+          # Delete the branch if it exists; ignore errors if it doesn't
+          gh api "repos/${{ github.repository }}/git/refs/heads/${BRANCH}" \
+            -X DELETE 2>/dev/null && echo "Deleted branch ${BRANCH}" || echo "No branch ${BRANCH} to clean up"

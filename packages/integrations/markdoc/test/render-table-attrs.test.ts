@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 async function getFixture() {
 	return await loadFixture({
@@ -13,7 +13,7 @@ describe('Markdoc - table attributes', () => {
 	describe('build', () => {
 		it('renders table with custom attributes without validation errors', async () => {
 			const fixture = await getFixture();
-			await fixture.build({});
+			await fixture.build();
 
 			const html = await fixture.readFile('/index.html');
 			const { document } = parseHTML(html);
