@@ -2772,7 +2772,7 @@ export interface AstroUserConfig<
 		 * @default `false`
 		 * @description
 		 * Enables `src/app.ts` as an advanced routing entrypoint, allowing you to
-		 * compose Astro's request pipeline with your own Hono middleware.
+		 * compose Astro's request pipeline with the Web Fetch standard or your own Hono middleware.
 		 *
 		 * ```js
 		 * export default defineConfig({
