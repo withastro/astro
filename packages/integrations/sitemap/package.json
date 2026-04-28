@@ -34,7 +34,7 @@
     "typecheck:tests": "tsc --build tsconfig.test.json"
   },
   "dependencies": {
-    "sitemap": "^9.0.0",
+    "sitemap": "^9.0.1",
     "stream-replace-string": "^2.0.0",
     "zod": "^4.3.6"
   },

@@ -14,10 +14,10 @@
   },
   "dependencies": {
     "@astrojs/mdx": "^5.0.4",
-    "@tailwindcss/vite": "^4.2.1",
+    "@tailwindcss/vite": "^4.2.4",
     "@types/canvas-confetti": "^1.9.0",
     "astro": "^6.1.9",
     "canvas-confetti": "^1.9.4",
-    "tailwindcss": "^4.2.1"
+    "tailwindcss": "^4.2.4"
   }
 }
