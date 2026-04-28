@@ -5,6 +5,7 @@ import { spec } from 'node:test/reporters';
 import { pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
 import { glob } from 'tinyglobby';
+import githubTestReporter from '../testing/github-test-reporter.js';
 
 const isCI = !!process.env.CI;
 // 30 minutes in CI, 10 locally
@@ -30,6 +31,8 @@ export default async function test() {
 			teardown: { type: 'string' },
 			// Use tsx to run the tests,
 			tsx: { type: 'boolean' },
+			// Use Node.js experimental strip types to run TypeScript tests
+			'strip-types': { type: 'boolean' },
 			// Configures the test runner to exit the process once all known tests have finished executing even if the event loop would otherwise remain active
 			'force-exit': { type: 'boolean' },
 			// Test teardown file to include in the test files list
@@ -61,6 +64,21 @@ export default async function test() {
 	if (args.values.tsx) {
 		process.env.NODE_OPTIONS ??= '';
 		process.env.NODE_OPTIONS += ' --import tsx';
+		// On Node.js < 22, `--experimental-strip-types` isn't available, so a TS
+		// setup file (e.g. `astro-scripts test --setup foo.ts`) needs tsx to load.
+		// The setup module is imported in the current process, and `NODE_OPTIONS`
+		// only applies to child processes, so we must also register tsx here.
+		// Remove once we drop Node.js 20 support.
+		const nodeMajor = Number(process.versions.node.split('.')[0]);
+		if (nodeMajor < 22) {
+			const { register } = await import('tsx/esm/api');
+			register();
+		}
+	}
+
+	if (args.values['strip-types']) {
+		process.env.NODE_OPTIONS ??= '';
+		process.env.NODE_OPTIONS += ' --experimental-strip-types';
 	}
 
 	if (!args.values.parallel) {
@@ -86,7 +104,7 @@ export default async function test() {
 		: undefined;
 
 	// https://nodejs.org/api/test.html#runoptions
-	run({
+	const testRun = run({
 		files,
 		testNamePatterns: args.values.match
 			? args.values['teardown-test']
@@ -108,7 +126,9 @@ export default async function test() {
 		.on('end', () => {
 			const testPassed = process.exitCode === 0 || process.exitCode === undefined;
 			teardownModule?.default(testPassed);
-		})
-		.pipe(new spec())
-		.pipe(process.stdout);
+		});
+
+	// Pipe to our custom GitHub reporter, and also the default spec reporter for terminal output
+	if (process.env.CI) testRun.pipe(githubTestReporter);
+	testRun.pipe(new spec()).pipe(process.stdout);
 }

@@ -8,7 +8,7 @@ import {
 	prependForwardSlash,
 	removeTrailingForwardSlash,
 } from '@astrojs/internal-helpers/path';
-import { matchPattern } from '../../assets/utils/index.js';
+import { matchPattern } from '@astrojs/internal-helpers/remote';
 import { normalizeTheLocale } from '../../i18n/index.js';
 import type { RoutesList } from '../../types/astro.js';
 import type { RemotePattern, RouteData } from '../../types/public/index.js';
@@ -31,7 +31,7 @@ import {
 import { getCookiesFromResponse } from '../cookies/response.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { consoleLogDestination } from '../logger/console.js';
-import { AstroIntegrationLogger, Logger } from '../logger/core.js';
+import { AstroIntegrationLogger, AstroLogger } from '../logger/core.js';
 import { type CreateRenderContext, RenderContext } from '../render-context.js';
 import { redirectTemplate } from '../routing/3xx.js';
 import { ensure404Route } from '../routing/astro-designed-error-pages.js';
@@ -131,15 +131,15 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	pipeline: P;
 	adapterLogger: AstroIntegrationLogger;
 	baseWithoutTrailingSlash: string;
-	logger: Logger;
+	logger: AstroLogger;
 	#router: Router;
 	constructor(manifest: SSRManifest, streaming = true, ...args: any[]) {
 		this.manifest = manifest;
 		this.manifestData = { routes: manifest.routes.map((route) => route.routeData) };
 		this.baseWithoutTrailingSlash = removeTrailingForwardSlash(manifest.base);
 		this.pipeline = this.createPipeline(streaming, manifest, ...args);
-		this.logger = new Logger({
-			dest: consoleLogDestination,
+		this.logger = new AstroLogger({
+			destination: consoleLogDestination,
 			level: manifest.logLevel,
 		});
 		this.adapterLogger = new AstroIntegrationLogger(this.logger.options, manifest.adapterName);
@@ -331,7 +331,12 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 						pathname = prependForwardSlash(
 							joinPaths(normalizeTheLocale(locale), this.removeBase(url.pathname)),
 						);
-						if (url.pathname.endsWith('/')) {
+						if (this.manifest.trailingSlash === 'always') {
+							pathname = appendForwardSlash(pathname);
+						} else if (this.manifest.trailingSlash === 'never') {
+							pathname = removeTrailingForwardSlash(pathname);
+						} else if (url.pathname.endsWith('/')) {
+							// trailingSlash === 'ignore': preserve the original trailing slash
 							pathname = appendForwardSlash(pathname);
 						}
 					}

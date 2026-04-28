@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/upgrade",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -20,11 +20,13 @@
     "build": "astro-scripts build \"src/index.ts\" --bundle && tsc",
     "build:ci": "astro-scripts build \"src/index.ts\" --bundle",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "astro-scripts test \"test/**/*.test.js\""
+    "test": "astro-scripts test \"test/**/*.test.ts\"",
+    "typecheck:tests": "tsc --build tsconfig.test.json"
   },
   "files": [
-    "dist",
-    "upgrade.js"
+    "dist/**/*.js",
+    "dist/**/*.mjs",
+    "upgrade.mjs"
   ],
   "//a": "MOST PACKAGES SHOULD GO IN DEV_DEPENDENCIES! THEY WILL BE BUNDLED.",
   "//b": "DEPENDENCIES IS FOR UNBUNDLED PACKAGES",

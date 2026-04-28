@@ -3,7 +3,7 @@ import path from 'node:path';
 import { before, describe, it } from 'node:test';
 import { Position } from '@volar/language-server';
 import { getLanguageServer, type LanguageServer } from '../server.ts';
-import { fixtureDir } from '../utils.ts';
+import { fixtureDir } from '../test-utils.ts';
 
 describe('TypeScript - Completions', async () => {
 	let languageServer: LanguageServer;
@@ -90,6 +90,58 @@ describe('TypeScript - Completions', async () => {
 			`\nimport type { Image } from "astro:assets";\n`,
 		);
 		assert.strictEqual(edits?.additionalTextEdits?.[0].range.start.line, 0);
+	});
+
+	it('strips AstroComponent suffixes from Astro component auto-import completions', async () => {
+		const document = await languageServer.handle.openTextDocument(
+			path.join(fixtureDir, 'src/pages/componentAutoImport.astro'),
+			'astro',
+		);
+		const completions = await languageServer.handle.sendCompletionRequest(
+			document.uri,
+			Position.create(3, 4),
+		);
+
+		const imageCompletion = completions?.items.find(
+			(item) =>
+				item.label === 'Image' && item.labelDetails?.description === '../components/Image.astro',
+		);
+		assert.notStrictEqual(imageCompletion, undefined);
+		assert.ok(!imageCompletion?.filterText?.includes('AstroComponent'));
+		assert.ok(!imageCompletion?.insertText?.includes('AstroComponent'));
+
+		const edits = await languageServer.handle.sendCompletionResolveRequest(imageCompletion!);
+		assert.ok(edits);
+		assert.strictEqual(
+			edits?.additionalTextEdits?.[0].newText.includes(
+				`import Image from "../components/Image.astro";`,
+			),
+			true,
+		);
+		assert.strictEqual(edits?.additionalTextEdits?.[0].newText.includes('AstroComponent'), false);
+	});
+
+	it('does not keep offering the same Astro component as an auto-import after it is already imported', async () => {
+		const document = await languageServer.handle.openTextDocument(
+			path.join(fixtureDir, 'src/pages/componentAlreadyImported.astro'),
+			'astro',
+		);
+		const completions = await languageServer.handle.sendCompletionRequest(
+			document.uri,
+			Position.create(4, 4),
+		);
+
+		assert.ok(
+			completions?.items.some(
+				(item) => item.label === 'Image' && item.labelDetails?.description === undefined,
+			),
+		);
+		assert.ok(
+			!completions?.items.some(
+				(item) =>
+					item.label === 'Image' && item.labelDetails?.description === '../components/Image.astro',
+			),
+		);
 	});
 
 	it('Can get completions inside HTML events', async () => {

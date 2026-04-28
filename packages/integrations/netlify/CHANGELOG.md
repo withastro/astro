@@ -1,5 +1,45 @@
 # @astrojs/netlify
 
+## 7.0.8
+
+### Patch Changes
+
+- Updated dependencies [[`99464ed`](https://github.com/withastro/astro/commit/99464edb5fc0968f6497328e106f26ab393668bd), [`f3485c3`](https://github.com/withastro/astro/commit/f3485c3458bc8bf70c152126e418c24f489ded9d)]:
+  - @astrojs/internal-helpers@0.9.0
+  - @astrojs/underscore-redirects@1.0.3
+
+## 7.0.7
+
+### Patch Changes
+
+- [#16027](https://github.com/withastro/astro/pull/16027) [`c62516b`](https://github.com/withastro/astro/commit/c62516bbbf8fdf95d38293440d28221c048c41f0) Thanks [@fkatsuhiro](https://github.com/fkatsuhiro)! - Fixes a bug where remote image dimensions were not validated during static builds on Netlify.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 7.0.6
+
+### Patch Changes
+
+- Updated dependencies [[`814406d`](https://github.com/withastro/astro/commit/814406de7dc3ea014b47d2d886d55c45e4e1c034)]:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 7.0.5
+
+### Patch Changes
+
+- [#16063](https://github.com/withastro/astro/pull/16063) [`ccb6a9c`](https://github.com/withastro/astro/commit/ccb6a9c918c1747ffab905af1492c45e5ca65f4b) Thanks [@matthewp](https://github.com/matthewp)! - Fixes server islands returning 404 in production when using `output: 'static'` (the default)
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.2
+
+## 7.0.4
+
+### Patch Changes
+
+- Updated dependencies [[`3b8d473`](https://github.com/withastro/astro/commit/3b8d473768bf7d356a21a0a432e6a33f90928a9e)]:
+  - @astrojs/underscore-redirects@1.0.2
+
 ## 7.0.3
 
 ### Patch Changes

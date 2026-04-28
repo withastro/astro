@@ -24,12 +24,12 @@
     "color": "#17191E",
     "theme": "dark"
   },
-  "version": "2.16.13",
+  "version": "2.16.14",
   "author": "withastro",
   "license": "MIT",
   "publisher": "astro-build",
   "engines": {
-    "vscode": "^1.90.0"
+    "vscode": "^1.92.0"
   },
   "activationEvents": [
     "workspaceContains:astro.config.*"
@@ -243,31 +243,33 @@
     "test": "pnpm test:vscode && pnpm test:grammar",
     "test:vscode": "vscode-test",
     "test:grammar": "pnpm build:grammar && node ./test/grammar/test.mjs",
-    "update-grammar-snapshots": "node ./test/grammar/test.mjs --updateSnapshot"
+    "update-grammar-snapshots": "node ./test/grammar/test.mjs --updateSnapshot",
+    "typecheck:tests": "tsc --build tsconfig.test.json"
   },
   "devDependencies": {
     "@astrojs/language-server": "^2.16.6",
     "@astrojs/ts-plugin": "^1.10.7",
     "@types/mocha": "^10.0.10",
     "@types/node": "^20.9.0",
-    "@types/vscode": "^1.90.0",
+    "@types/vscode": "^1.92.0",
     "@volar/language-server": "~2.4.28",
     "@volar/vscode": "~2.4.28",
-    "@vscode/test-electron": "^2.5.2",
     "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2",
     "@vscode/vsce": "2.32.0",
     "esbuild": "^0.17.19",
     "esbuild-plugin-copy": "^2.1.1",
     "js-yaml": "^4.1.1",
     "kleur": "^4.1.5",
     "mocha": "^11.7.5",
-    "ovsx": "^0.10.9",
+    "ovsx": "^0.10.10",
+    "tsx": "^4.21.0",
     "vscode-languageclient": "^9.0.1",
     "vscode-tmgrammar-test": "^0.1.3"
   },
   "dependencies": {
     "@astrojs/compiler": "^2.13.1",
-    "prettier": "^3.8.1",
+    "prettier": "^3.8.2",
     "prettier-plugin-astro": "^0.14.1"
   }
 }

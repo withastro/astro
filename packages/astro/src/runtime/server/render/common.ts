@@ -6,6 +6,7 @@ import {
 	determinesIfNeedsDirectiveScript,
 	getPrescripts,
 } from '../scripts.js';
+import { getInstructionRenderState, shouldRenderInstruction } from './head-propagation/runtime.js';
 import { renderAllHeadContent } from './head.js';
 import type { RenderInstruction } from './instruction.js';
 import { isRenderInstruction } from './instruction.js';
@@ -75,13 +76,13 @@ function stringifyChunk(
 				}
 			}
 			case 'head': {
-				if (result._metadata.hasRenderedHead || result.partial) {
+				if (!shouldRenderInstruction('head', getInstructionRenderState(result))) {
 					return '';
 				}
 				return renderAllHeadContent(result);
 			}
 			case 'maybe-head': {
-				if (result._metadata.hasRenderedHead || result._metadata.headInTree || result.partial) {
+				if (!shouldRenderInstruction('maybe-head', getInstructionRenderState(result))) {
 					return '';
 				}
 				return renderAllHeadContent(result);

@@ -1,0 +1,153 @@
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
+import * as cheerio from 'cheerio';
+import { encryptString } from '../dist/core/encryption.js';
+import testAdapter from './test-adapter.ts';
+import { type Fixture, loadFixture } from './test-utils.ts';
+
+// Helper to create encryption key from test key string
+async function createKeyFromString(keyString: string) {
+	const binaryString = atob(keyString);
+	const bytes = new Uint8Array(binaryString.length);
+	for (let i = 0; i < binaryString.length; i++) {
+		bytes[i] = binaryString.charCodeAt(i);
+	}
+	return await crypto.subtle.importKey('raw', bytes, { name: 'AES-GCM' }, false, [
+		'encrypt',
+		'decrypt',
+	]);
+}
+
+// Helper to get encrypted componentExport for 'default'
+async function getEncryptedComponentExport(
+	keyString = 'eKBaVEuI7YjfanEXHuJe/pwZKKt3LkAHeMxvTU7aR0M=',
+	componentId = 'Island',
+) {
+	const key = await createKeyFromString(keyString);
+	return encryptString(key, 'default', `export:${componentId}`);
+}
+
+// Helper to get encrypted props
+async function getEncryptedProps(
+	props: Record<string, unknown> = {},
+	keyString = 'eKBaVEuI7YjfanEXHuJe/pwZKKt3LkAHeMxvTU7aR0M=',
+	componentId = 'Island',
+) {
+	const key = await createKeyFromString(keyString);
+	return encryptString(key, JSON.stringify(props), `props:${componentId}`);
+}
+
+describe('Server islands', () => {
+	describe('SSR', () => {
+		let fixture: Fixture;
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/server-islands/ssr',
+				adapter: testAdapter(),
+				security: {
+					csp: true,
+				},
+			});
+			process.env.ASTRO_KEY = 'eKBaVEuI7YjfanEXHuJe/pwZKKt3LkAHeMxvTU7aR0M=';
+			await fixture.build();
+		});
+
+		after(async () => {
+			delete process.env.ASTRO_KEY;
+		});
+
+		it('omits the islands HTML', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/');
+			const response = await app.render(request);
+			const html = await response.text();
+
+			const $ = cheerio.load(html);
+			const serverIslandEl = $('h2#island');
+			assert.equal(serverIslandEl.length, 0);
+
+			const serverIslandScript = $('script[data-island-id]');
+			assert.equal(serverIslandScript.length, 1, 'has the island script');
+		});
+
+		it('island is not indexed', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const encryptedComponentExport = await getEncryptedComponentExport();
+			const encryptedProps = await getEncryptedProps();
+			const request = new Request('http://example.com/_server-islands/Island', {
+				method: 'POST',
+				body: JSON.stringify({
+					encryptedComponentExport,
+					encryptedProps,
+					encryptedSlots: '',
+				}),
+				headers: {
+					origin: 'http://example.com',
+				},
+			});
+			const response = await app.render(request);
+			assert.equal(response.headers.get('x-robots-tag'), 'noindex');
+		});
+	});
+
+	describe('Hybrid', () => {
+		let fixture: Fixture;
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/server-islands/hybrid',
+				security: {
+					csp: true,
+				},
+			});
+		});
+
+		describe('build', () => {
+			before(async () => {
+				await fixture.build({
+					adapter: testAdapter(),
+				});
+			});
+
+			it('Omits the island HTML from the static HTML', async () => {
+				let html = await fixture.readFile('/client/index.html');
+
+				const $ = cheerio.load(html);
+				const serverIslandEl = $('h2#island');
+				assert.equal(serverIslandEl.length, 0);
+
+				const serverIslandScript = $('script[data-island-id]');
+				assert.equal(serverIslandScript.length, 2, 'has the island script');
+			});
+
+			it('includes the server island runtime script once', async () => {
+				let html = await fixture.readFile('/client/index.html');
+
+				const $ = cheerio.load(html);
+				const serverIslandScript = $('script').filter((_, el) =>
+					$(el).html()!.trim().startsWith('async function replaceServerIsland'),
+				);
+				assert.equal(
+					serverIslandScript.length,
+					1,
+					'should include the server island runtime script once',
+				);
+			});
+		});
+
+		describe('build (no adapter)', () => {
+			it('Errors during the build', async () => {
+				try {
+					await fixture.build({
+						adapter: undefined,
+					});
+					assert.equal(true, false, 'should not have succeeded');
+				} catch (err) {
+					assert.equal(
+						(err as { title: string }).title,
+						'Cannot use Server Islands without an adapter.',
+					);
+				}
+			});
+		});
+	});
+});

@@ -30,36 +30,36 @@ interface ImportMeta {
 }
 
 declare module 'astro:assets' {
-	// Exporting things one by one is a bit cumbersome, not sure if there's a better way - erika, 2023-02-03
-	type AstroAssets = {
-		// getImage's type here is different from the internal function since the Vite module implicitly pass the service config
-		/**
-		 * Get an optimized image and the necessary attributes to render it.
-		 *
-		 * **Example**
-		 * ```astro
-		 * ---
-		 * import { getImage } from 'astro:assets';
-		 * import originalImage from '../assets/image.png';
-		 *
-		 * const optimizedImage = await getImage({src: originalImage, width: 1280 });
-		 * ---
-		 * <img src={optimizedImage.src} {...optimizedImage.attributes} />
-		 * ```
-		 *
-		 * This is functionally equivalent to using the `<Image />` component, as the component calls this function internally.
-		 */
-		getImage: (
-			options: import('./dist/assets/types.js').UnresolvedImageTransform,
-		) => Promise<import('./dist/assets/types.js').GetImageResult>;
-		imageConfig: import('./dist/types/public/config.js').AstroConfig['image'];
-		getConfiguredImageService: typeof import('./dist/assets/index.js').getConfiguredImageService;
-		inferRemoteSize: typeof import('./dist/assets/utils/index.js').inferRemoteSize;
-		Image: typeof import('./components/Image.astro').default;
-		Picture: typeof import('./components/Picture.astro').default;
-		Font: typeof import('./components/Font.astro').default;
-		fontData: Record<import('astro:assets').CssVariable, Array<import('astro:assets').FontData>>;
-	};
+	// getImage's type here is different from the internal function since the Vite module implicitly pass the service config
+	/**
+	 * Get an optimized image and the necessary attributes to render it.
+	 *
+	 * **Example**
+	 * ```astro
+	 * ---
+	 * import { getImage } from 'astro:assets';
+	 * import originalImage from '../assets/image.png';
+	 *
+	 * const optimizedImage = await getImage({src: originalImage, width: 1280 });
+	 * ---
+	 * <img src={optimizedImage.src} {...optimizedImage.attributes} />
+	 * ```
+	 *
+	 * This is functionally equivalent to using the `<Image />` component, as the component calls this function internally.
+	 */
+	export const getImage: (
+		options: import('./dist/assets/types.js').UnresolvedImageTransform,
+	) => Promise<import('./dist/assets/types.js').GetImageResult>;
+	export const imageConfig: import('./dist/types/public/config.js').AstroConfig['image'];
+	export const getConfiguredImageService: typeof import('./dist/assets/index.js').getConfiguredImageService;
+	export const inferRemoteSize: typeof import('./dist/assets/utils/index.js').inferRemoteSize;
+	export const Image: typeof import('./components/Image.astro').default;
+	export const Picture: typeof import('./components/Picture.astro').default;
+	export const Font: typeof import('./components/Font.astro').default;
+	export const fontData: Record<
+		import('astro:assets').CssVariable,
+		Array<import('astro:assets').FontData>
+	>;
 
 	type ImgAttributes = import('./dist/type-utils.js').WithRequired<
 		Omit<import('./types').HTMLAttributes<'img'>, 'src' | 'width' | 'height'>,
@@ -72,16 +72,6 @@ declare module 'astro:assets' {
 	export type RemoteImageProps = import('./dist/type-utils.js').Simplify<
 		import('./dist/assets/types.js').RemoteImageProps<ImgAttributes>
 	>;
-	export const {
-		getImage,
-		getConfiguredImageService,
-		imageConfig,
-		Image,
-		Picture,
-		Font,
-		inferRemoteSize,
-		fontData,
-	}: AstroAssets;
 }
 
 declare module 'virtual:astro:image-styles.css' {

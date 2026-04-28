@@ -1,5 +1,109 @@
 # @astrojs/cloudflare
 
+## 13.2.2
+
+### Patch Changes
+
+- [#16498](https://github.com/withastro/astro/pull/16498) [`4efe020`](https://github.com/withastro/astro/commit/4efe02066d236590d948db4d5474253b8217ffdb) Thanks [@matthewp](https://github.com/matthewp)! - Fixes the dependency scan failing with "No matching export for import 'default'" when a `.ts` file default-imports an `.astro` component
+
+  The esbuild scan plugin now includes `export default {}` in its output for `.astro` files, preventing the scan from failing and ensuring all dependencies are discovered ahead of time.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 13.2.1
+
+### Patch Changes
+
+- [#16458](https://github.com/withastro/astro/pull/16458) [`8cb1f42`](https://github.com/withastro/astro/commit/8cb1f42e378bfe6d2989f7c4edb3ccd45eca1f4f) Thanks [@matthewp](https://github.com/matthewp)! - Fixes Cloudflare dev and build failures caused by `@cloudflare/vite-plugin` defaulting `compatibility_date` to today's date, which can exceed the maximum date supported by the bundled `workerd` binary
+
+## 13.2.0
+
+### Minor Changes
+
+- [#16435](https://github.com/withastro/astro/pull/16435) [`c4d321b`](https://github.com/withastro/astro/commit/c4d321bb1171bcd5ebcea4e5dcdf569543faebc0) Thanks [@jamesopstad](https://github.com/jamesopstad)! - Add support for Preview deployments (currently in private beta)
+
+  Non-inheritable bindings set internally by the Cloudflare adapter are now also set in the `previews` section of the config so that they are inherited by Preview deployments.
+
+### Patch Changes
+
+- Updated dependencies [[`99464ed`](https://github.com/withastro/astro/commit/99464edb5fc0968f6497328e106f26ab393668bd), [`f3485c3`](https://github.com/withastro/astro/commit/f3485c3458bc8bf70c152126e418c24f489ded9d)]:
+  - @astrojs/internal-helpers@0.9.0
+  - @astrojs/underscore-redirects@1.0.3
+
+## 13.1.10
+
+### Patch Changes
+
+- [#16320](https://github.com/withastro/astro/pull/16320) [`a43eb4b`](https://github.com/withastro/astro/commit/a43eb4b40b4f81530e3c9b5e2959495900320433) Thanks [@matthewp](https://github.com/matthewp)! - Uses `redirect: 'manual'` for remote image fetches in the Cloudflare binding image transform, consistent with all other image fetch paths
+
+- [#16307](https://github.com/withastro/astro/pull/16307) [`a81dd3e`](https://github.com/withastro/astro/commit/a81dd3e7932f18b4c10c04378416324f0fea00f2) Thanks [@matthewp](https://github.com/matthewp)! - Surfaces `console.log` and `console.warn` output from workerd during prerendering
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 13.1.9
+
+### Patch Changes
+
+- [#16210](https://github.com/withastro/astro/pull/16210) [`e030bd0`](https://github.com/withastro/astro/commit/e030bd058457505b605ef573cfc71239baa963f0) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `.svelte` files in `node_modules` failing with `Unknown file extension ".svelte"` when using the Cloudflare adapter with `prerenderEnvironment: 'node'`
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 13.1.8
+
+### Patch Changes
+
+- [#16225](https://github.com/withastro/astro/pull/16225) [`756e7be`](https://github.com/withastro/astro/commit/756e7be510a315516f6aa1647c93d11e8b43f5a9) Thanks [@travisbreaks](https://github.com/travisbreaks)! - Fixes `ERR_MULTIPLE_CONSUMERS` error when using Cloudflare Queues with prerendered pages. The prerender worker config callback now excludes `queues.consumers` from the entry worker config, since the prerender worker only renders static HTML and should not register as a queue consumer. Queue producers (bindings) are preserved.
+
+- [#16192](https://github.com/withastro/astro/pull/16192) [`79d86b8`](https://github.com/withastro/astro/commit/79d86b88ef199d6a2195584ec53b225c6a9df5f9) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Removes an unused function re-export from the `/info` package path
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 13.1.7
+
+### Patch Changes
+
+- Updated dependencies [[`814406d`](https://github.com/withastro/astro/commit/814406de7dc3ea014b47d2d886d55c45e4e1c034)]:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 13.1.6
+
+### Patch Changes
+
+- [#16151](https://github.com/withastro/astro/pull/16151) [`4978165`](https://github.com/withastro/astro/commit/4978165af4ca4c672edad904d7b6c85fc3647dd9) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a dev-mode crash loop in the Cloudflare adapter when using Starlight by excluding `@astrojs/starlight` from SSR dependency optimization
+
+## 13.1.5
+
+### Patch Changes
+
+- [#16109](https://github.com/withastro/astro/pull/16109) [`c887b4a`](https://github.com/withastro/astro/commit/c887b4a60329b704f18e9aad6106034aac7e7ab6) Thanks [@matthewp](https://github.com/matthewp)! - Fix HMR crash when editing content collection files caused by Vite's SSR transform colliding with zod v4's `meta` export
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.2
+
+## 13.1.4
+
+### Patch Changes
+
+- [#16041](https://github.com/withastro/astro/pull/16041) [`56d2bde`](https://github.com/withastro/astro/commit/56d2bde0895267df11fed5bc1c6e2a79652bfdae) Thanks [@kylemclean](https://github.com/kylemclean)! - Fixes unnecessary prerendering of redirect destinations
+
+  Unnecessary files are no longer generated by static builds for redirected routes.
+
+  Requests are no longer made at build time to external redirect destination URLs, which could cause builds to fail.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.2
+
+## 13.1.3
+
+### Patch Changes
+
+- Updated dependencies [[`3b8d473`](https://github.com/withastro/astro/commit/3b8d473768bf7d356a21a0a432e6a33f90928a9e)]:
+  - @astrojs/underscore-redirects@1.0.2
+
 ## 13.1.2
 
 ### Patch Changes

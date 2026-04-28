@@ -8,7 +8,7 @@ import {
 import type { Plugin } from 'vite';
 import { safeParseFrontmatter } from '../content/utils.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import type { Logger } from '../core/logger/core.js';
+import type { AstroLogger } from '../core/logger/core.js';
 import { isMarkdownFile, isPage } from '../core/util.js';
 import { normalizePath } from '../core/viteUtils.js';
 import { shorthash } from '../runtime/server/shorthash.js';
@@ -20,7 +20,7 @@ import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../core/constants.js';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
-	logger: Logger;
+	logger: AstroLogger;
 }
 
 const astroServerRuntimeModulePath = normalizePath(
@@ -173,7 +173,7 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 							}, {
 								'default': () => render\`\${unescapeHTML(html())}\`
 							})}\`;`
-							: `render\`${charset}\${maybeRenderHead(result)}\${unescapeHTML(html())}\`;`
+							: `render\`${charset}\${maybeRenderHead()}\${unescapeHTML(html())}\`;`
 					}
 				});
 				export default Content;

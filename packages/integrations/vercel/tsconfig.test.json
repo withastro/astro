@@ -1,0 +1,13 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "include": ["test/**/*.ts"],
+  "exclude": ["test/fixtures/**"],
+  "compilerOptions": {
+    "allowJs": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "rewriteRelativeImportExtensions": true,
+    "rootDir": "."
+  },
+  "references": [{ "path": "../../astro/tsconfig.test.json" }]
+}
