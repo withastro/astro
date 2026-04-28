@@ -413,18 +413,25 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				});
 			}
 		}
-		setRenderOptions(request, {
+		const resolvedOptions: ResolvedRenderOptions = {
 			addCookieHeader,
 			clientAddress,
 			prerenderedErrorPageFetch,
 			locals,
 			routeData,
-		});
-		// Stamp this app onto the request so fetch handlers loaded from
-		// virtual:astro:fetchable (which don't hold an app reference at
-		// construction time) can resolve the active app per-request.
-		Reflect.set(request, appSymbol, this);
-		const response = await this.#fetchHandler.fetch(request);
+		};
+
+		let response: Response;
+		if (this.#fetchHandler instanceof DefaultFetchHandler) {
+			// Fast path: pass options directly, skip Reflect.set/get round-trip
+			Reflect.set(request, appSymbol, this);
+			response = await this.#fetchHandler.renderWithOptions(request, resolvedOptions);
+		} else {
+			// User-provided fetch handler: stamp options + app on the request
+			setRenderOptions(request, resolvedOptions);
+			Reflect.set(request, appSymbol, this);
+			response = await this.#fetchHandler.fetch(request);
+		}
 		this.#warnMissingFeatures();
 		if (response.headers.get(ASTRO_ERROR_HEADER)) {
 			response.headers.delete(ASTRO_ERROR_HEADER);

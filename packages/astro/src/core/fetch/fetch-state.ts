@@ -223,17 +223,19 @@ export class FetchState implements AstroFetchState {
 	/** Memoized preferred locale list. */
 	#preferredLocaleList: APIContext['preferredLocaleList'];
 
-	constructor(pipeline: Pipeline, request: Request) {
+	constructor(pipeline: Pipeline, request: Request, options?: ResolvedRenderOptions) {
 		this.pipeline = pipeline;
 		this.request = request;
-		const options = getRenderOptions(request);
+		// Accept options directly (fast path from BaseApp.render) or fall
+		// back to reading them from the request symbol (user fetch handlers).
+		options ??= getRenderOptions(request);
 		this.routeData = options?.routeData;
-		this.renderOptions = {
-			addCookieHeader: options?.addCookieHeader ?? false,
-			clientAddress: options?.clientAddress,
-			locals: options?.locals,
-			prerenderedErrorPageFetch: options?.prerenderedErrorPageFetch ?? fetch,
-			routeData: options?.routeData,
+		this.renderOptions = options ?? {
+			addCookieHeader: false,
+			clientAddress: undefined,
+			locals: undefined,
+			prerenderedErrorPageFetch: fetch,
+			routeData: undefined,
 		};
 
 		this.componentInstance = undefined;

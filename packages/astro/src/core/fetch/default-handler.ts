@@ -1,4 +1,4 @@
-import type { BaseApp } from '../app/base.js';
+import type { BaseApp, ResolvedRenderOptions } from '../app/base.js';
 import type { Pipeline } from '../base-pipeline.js';
 import { FetchState } from './fetch-state.js';
 import { appSymbol } from '../constants.js';
@@ -18,14 +18,28 @@ export class DefaultFetchHandler {
 		this.#handler = app ? new AstroHandler(app) : null;
 	}
 
-	fetch: FetchHandler = (request) => {
-		if(!this.#app) {
-			const app = (Reflect.get(request, appSymbol) as BaseApp<Pipeline> | undefined);
+	/**
+	 * Fast path: called directly by `BaseApp.render()` with pre-resolved
+	 * options, avoiding the `Reflect.set/get` round-trip through the request.
+	 */
+	renderWithOptions(request: Request, options: ResolvedRenderOptions): Promise<Response> {
+		if (!this.#app) {
+			const app = Reflect.get(request, appSymbol) as BaseApp<Pipeline> | undefined;
 			if (!app) {
-				throw new Error(
-					'DefaultFetchHandler.fetch() called on a request without an attached app. ' +
-						'Ensure BaseApp.render stamped the request with appSymbol, or pass an app to the constructor.',
-				);
+				throw new Error('No fetch handler provided.');
+			}
+			this.#app = app;
+			this.#handler = new AstroHandler(app);
+		}
+		const state = new FetchState(this.#app.pipeline, request, options);
+		return this.#handler!.handle(state);
+	}
+
+	fetch: FetchHandler = (request) => {
+		if (!this.#app) {
+			const app = Reflect.get(request, appSymbol) as BaseApp<Pipeline> | undefined;
+			if (!app) {
+				throw new Error('No fetch handler provided.');
 			}
 			this.#app = app;
 			this.#handler = new AstroHandler(app);
