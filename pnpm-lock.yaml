@@ -909,6 +909,18 @@ importers:
         specifier: ^3.5.30
         version: 3.5.30(typescript@5.9.3)
 
+  packages/astro/e2e/fixtures/astro-server-app-error-log:
+    dependencies:
+      '@tailwindcss/vite':
+        specifier: ^4.2.2
+        version: 4.2.2(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3))
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      tailwindcss:
+        specifier: ^4.2.2
+        version: 4.2.2
+
   packages/astro/e2e/fixtures/client-idle-timeout:
     dependencies:
       react:

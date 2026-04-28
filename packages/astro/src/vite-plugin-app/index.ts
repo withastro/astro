@@ -2,7 +2,7 @@ import type * as vite from 'vite';
 
 const ASTRO_APP_ID = 'virtual:astro:app';
 const RESOLVED_ASTRO_APP_ID = '\0' + ASTRO_APP_ID;
-export const ASTRO_DEV_SERVER_APP_ID = 'astro:server-app';
+export const ASTRO_DEV_SERVER_APP_ID = 'virtual:astro:server-app';
 
 export function vitePluginApp(): vite.Plugin[] {
 	let command: vite.ResolvedConfig['command'];
