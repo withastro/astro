@@ -7,8 +7,8 @@
     "@astrojs/svelte": "workspace:*",
     "@astrojs/vue": "workspace:*",
     "astro": "workspace:*",
-    "preact": "^10.29.0",
-    "svelte": "^5.54.0",
-    "vue": "^3.5.30"
+    "preact": "^10.29.1",
+    "svelte": "^5.55.5",
+    "vue": "^3.5.33"
   }
 }

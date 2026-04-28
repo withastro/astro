@@ -4,10 +4,10 @@
   "private": true,
   "dependencies": {
     "@astrojs/preact": "workspace:*",
-    "preact": "^10.28.2"
+    "preact": "^10.29.1"
   },
   "devDependencies": {
     "astro": "workspace:*",
-    "sass": "^1.98.0"
+    "sass": "^1.99.0"
   }
 }
