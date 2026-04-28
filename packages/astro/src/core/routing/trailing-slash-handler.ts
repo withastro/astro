@@ -29,7 +29,11 @@ export class TrailingSlashHandler {
 	 * normalization, or `undefined` if no redirect is required.
 	 */
 	handle(state: FetchState): Response | undefined {
-		const url = state.url;
+		// Use a fresh URL parse from the raw request so we see the
+		// un-normalized pathname (e.g. duplicate slashes like `///`).
+		// state.url has already been normalized by the FetchState
+		// constructor, which would hide the redirect targets.
+		const url = new URL(state.request.url);
 		const redirect = this.#redirectTrailingSlash(url.pathname);
 
 		// Not a redirect.

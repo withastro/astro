@@ -33,8 +33,6 @@ export type RenderRouteCallback = (
  */
 export class AstroMiddleware {
 	#pipeline: Pipeline;
-	/** Cached composed middleware chain — computed once on first request. */
-	#composed: ReturnType<typeof sequence> | undefined;
 
 	constructor(pipeline: Pipeline) {
 		this.#pipeline = pipeline;
@@ -66,11 +64,9 @@ export class AstroMiddleware {
 		if (state.skipMiddleware) {
 			response = await next(apiContext);
 		} else {
-			if (!this.#composed) {
-				const pipelineMiddleware = await pipeline.getMiddleware();
-				this.#composed = sequence(...pipeline.internalMiddleware, pipelineMiddleware);
-			}
-			response = await callMiddleware(this.#composed, apiContext, next);
+			const pipelineMiddleware = await pipeline.getMiddleware();
+			const composed = sequence(...pipeline.internalMiddleware, pipelineMiddleware);
+			response = await callMiddleware(composed, apiContext, next);
 		}
 		return this.#finalize(state, response);
 	}
