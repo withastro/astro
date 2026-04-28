@@ -70,7 +70,7 @@ export function vitePluginFetchable({ settings }: { settings: AstroSettings }): 
 			},
 			async handler() {
 				const resolved = await this.resolve(
-					`${decodeURI(settings.config.srcDir.pathname)}${APP_PATH_SEGMENT_NAME}`,
+					`${normalizedSrcDir}${APP_PATH_SEGMENT_NAME}`,
 				);
 				userAppPresent = advancedRoutingEnabled && !!resolved;
 				resolvedUserAppId = resolved?.id;
