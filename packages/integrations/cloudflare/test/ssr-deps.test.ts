@@ -15,9 +15,18 @@ describe('SSR dependencies', () => {
 		const origInfo = logger.info.bind(logger);
 		const origWarn = logger.warn.bind(logger);
 		const origError = logger.error.bind(logger);
-		logger.info = (msg, opts) => { viteMessages.push(msg); origInfo(msg, opts); };
-		logger.warn = (msg, opts) => { viteMessages.push(msg); origWarn(msg, opts); };
-		logger.error = (msg, opts) => { viteMessages.push(msg); origError(msg, opts); };
+		logger.info = (msg, opts) => {
+			viteMessages.push(msg);
+			origInfo(msg, opts);
+		};
+		logger.warn = (msg, opts) => {
+			viteMessages.push(msg);
+			origWarn(msg, opts);
+		};
+		logger.error = (msg, opts) => {
+			viteMessages.push(msg);
+			origError(msg, opts);
+		};
 
 		fixture = await loadFixture({
 			root: './fixtures/ssr-deps/',
@@ -46,10 +55,7 @@ describe('SSR dependencies', () => {
 			msg.includes('Failed to scan for dependencies'),
 		);
 
-		assert.ok(
-			!scanFailedLog,
-			`Dependency scan should not have failed, but got: ${scanFailedLog}`,
-		);
+		assert.ok(!scanFailedLog, `Dependency scan should not have failed, but got: ${scanFailedLog}`);
 	});
 
 	it('should discover dependencies in nested .astro component imports ahead of time', async () => {
