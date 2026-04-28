@@ -82,6 +82,11 @@ export default {
 			// It's an optional peer dep (triggers a warning) but it's fine in this case
 			ignoreDependencies: ['solid-devtools'],
 		},
+		'packages/integrations/svelte': {
+			entry: [testEntry],
+			// Used in testing-library compatibility tests but not directly imported
+			ignoreDependencies: ['@testing-library/svelte'],
+		},
 		'packages/markdown/remark': {
 			entry: [testEntry],
 			// package.json#imports are not resolved at the moment
