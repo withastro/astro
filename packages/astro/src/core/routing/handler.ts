@@ -16,9 +16,10 @@ import { provideSession } from '../session/handler.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 import { prepareResponse } from '../app/prepare-response.js';
 import type { BaseApp } from '../app/base.js';
+import type { Pipeline } from '../base-pipeline.js';
 
 export class AstroHandler {
-	#app: BaseApp<any>;
+	#app: BaseApp<Pipeline>;
 	#trailingSlashHandler: TrailingSlashHandler;
 	#actionHandler: ActionHandler;
 	#astroMiddleware: AstroMiddleware;
@@ -37,7 +38,7 @@ export class AstroHandler {
 	 */
 	#i18n: I18n | undefined;
 
-	constructor(app: BaseApp<any>) {
+	constructor(app: BaseApp<Pipeline>) {
 		this.#app = app;
 		this.#trailingSlashHandler = new TrailingSlashHandler(app);
 		this.#actionHandler = new ActionHandler();

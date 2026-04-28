@@ -710,8 +710,8 @@ export class FetchState implements AstroFetchState {
 	 * @internal Returns the `BaseApp` instance stamped on the request by
 	 * `BaseApp.render()`. Throws if the request has no attached app.
 	 */
-	get app(): BaseApp<any> {
-		const app = Reflect.get(this.request, appSymbol) as BaseApp<any> | undefined;
+	get app(): BaseApp<Pipeline> {
+		const app = Reflect.get(this.request, appSymbol) as BaseApp<Pipeline> | undefined;
 		if (!app) {
 			throw new Error(
 				'FetchState.app accessed on a request without an attached app. ' +
@@ -740,7 +740,7 @@ export class FetchState implements AstroFetchState {
 		// Skip when there's no app on the request — this happens in test
 		// mocks and the container API where FetchState is created directly
 		// with just a pipeline.
-		const app = Reflect.get(this.request, appSymbol) as BaseApp<any> | undefined;
+		const app = Reflect.get(this.request, appSymbol) as BaseApp<Pipeline> | undefined;
 		if (!app) return;
 
 		if (!this.routeData) {

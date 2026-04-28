@@ -1,4 +1,5 @@
 import type { BaseApp, RenderErrorOptions } from '../app/base.js';
+import type { Pipeline } from '../base-pipeline.js';
 import { FetchState } from '../fetch/fetch-state.js';
 import type { RouteData } from '../../types/public/index.js';
 import { AstroMiddleware } from '../middleware/astro-middleware.js';
@@ -23,12 +24,12 @@ export interface DevErrorHandlerOptions {
  * (`DevApp`); only `shouldInjectCspMetaTags` differs between them.
  */
 export class DevErrorHandler implements ErrorHandler {
-	#app: BaseApp<any>;
+	#app: BaseApp<Pipeline>;
 	#shouldInjectCspMetaTags: boolean;
 	#astroMiddleware: AstroMiddleware;
 	#pagesHandler: PagesHandler;
 
-	constructor(app: BaseApp<any>, options: DevErrorHandlerOptions) {
+	constructor(app: BaseApp<Pipeline>, options: DevErrorHandlerOptions) {
 		this.#app = app;
 		this.#shouldInjectCspMetaTags = options.shouldInjectCspMetaTags;
 		this.#astroMiddleware = new AstroMiddleware(app.pipeline);

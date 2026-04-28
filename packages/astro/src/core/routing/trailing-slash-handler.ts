@@ -6,6 +6,7 @@ import {
 	removeTrailingForwardSlash,
 } from '@astrojs/internal-helpers/path';
 import type { BaseApp } from '../app/base.js';
+import type { Pipeline } from '../base-pipeline.js';
 import { prepareResponse } from '../app/prepare-response.js';
 import { getRenderOptions } from '../app/render-options.js';
 import { redirectTemplate } from './3xx.js';
@@ -17,9 +18,9 @@ import { redirectTemplate } from './3xx.js';
  * so the caller can continue processing the request.
  */
 export class TrailingSlashHandler {
-	#app: BaseApp<any>;
+	#app: BaseApp<Pipeline>;
 
-	constructor(app: BaseApp<any>) {
+	constructor(app: BaseApp<Pipeline>) {
 		this.#app = app;
 	}
 

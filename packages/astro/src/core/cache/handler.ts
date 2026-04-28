@@ -77,9 +77,9 @@ async function provideCacheAsync(state: FetchState, pipeline: Pipeline): Promise
  * the final response after the runtime provider has read them.
  */
 export class CacheHandler {
-	#app: BaseApp<any>;
+	#app: BaseApp<Pipeline>;
 
-	constructor(app: BaseApp<any>) {
+	constructor(app: BaseApp<Pipeline>) {
 		this.#app = app;
 	}
 

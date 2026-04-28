@@ -1,4 +1,5 @@
 import type { BaseApp, RenderErrorOptions } from '../app/base.js';
+import type { Pipeline } from '../base-pipeline.js';
 import { FetchState } from '../fetch/fetch-state.js';
 import { prepareResponse } from '../app/prepare-response.js';
 import {
@@ -26,11 +27,11 @@ type ErrorPagePath =
  * `prerenderedErrorPageFetch`.
  */
 export class DefaultErrorHandler implements ErrorHandler {
-	#app: BaseApp<any>;
+	#app: BaseApp<Pipeline>;
 	#astroMiddleware: AstroMiddleware;
 	#pagesHandler: PagesHandler;
 
-	constructor(app: BaseApp<any>) {
+	constructor(app: BaseApp<Pipeline>) {
 		this.#app = app;
 		this.#astroMiddleware = new AstroMiddleware(app.pipeline);
 		this.#pagesHandler = new PagesHandler(app.pipeline);

@@ -1,5 +1,6 @@
 import { ActionHandler } from '../../actions/handler.js';
 import type { BaseApp } from '../app/base.js';
+import type { Pipeline } from '../base-pipeline.js';
 import { FetchState as BaseFetchState } from './fetch-state.js';
 import type { AstroFetchState } from './fetch-state.js';
 export type { AstroFetchState };
@@ -13,8 +14,8 @@ import { AstroHandler } from '../routing/handler.js';
 import { provideSession } from '../session/handler.js';
 import { TrailingSlashHandler } from '../routing/trailing-slash-handler.js';
 
-function getApp(request: Request): BaseApp<any> {
-	const app = Reflect.get(request, appSymbol) as BaseApp<any> | undefined;
+function getApp(request: Request): BaseApp<Pipeline> {
+	const app = Reflect.get(request, appSymbol) as BaseApp<Pipeline> | undefined;
 	if (!app) {
 		throw new Error(
 			'FetchState(request) called on a request without an attached app. ' +
@@ -30,7 +31,7 @@ export class FetchState extends BaseFetchState {
 	}
 }
 
-const astroHandlers = new WeakMap<BaseApp<any>, AstroHandler>();
+const astroHandlers = new WeakMap<BaseApp<Pipeline>, AstroHandler>();
 
 export function astro(state: FetchState): Promise<Response> {
 	const app = getApp(state.request);
@@ -42,7 +43,7 @@ export function astro(state: FetchState): Promise<Response> {
 	return handler.handle(state);
 }
 
-const trailingSlashHandlers = new WeakMap<BaseApp<any>, TrailingSlashHandler>();
+const trailingSlashHandlers = new WeakMap<BaseApp<Pipeline>, TrailingSlashHandler>();
 
 /**
  * Checks if the request pathname needs trailing-slash normalization and
@@ -59,7 +60,7 @@ export function trailingSlash(state: FetchState): Response | undefined {
 	return handler.handle(state.request);
 }
 
-const middlewareInstances = new WeakMap<BaseApp<any>, AstroMiddleware>();
+const middlewareInstances = new WeakMap<BaseApp<Pipeline>, AstroMiddleware>();
 
 /**
  * Runs Astro's middleware chain for the given state, calling `next` at
@@ -79,7 +80,7 @@ export function middleware(
 	return mw.handle(state, (s, _ctx, _payload) => next(s));
 }
 
-const pagesHandlers = new WeakMap<BaseApp<any>, PagesHandler>();
+const pagesHandlers = new WeakMap<BaseApp<Pipeline>, PagesHandler>();
 
 /**
  * Dispatches the request to the matched route (endpoint, page, redirect,
@@ -121,7 +122,7 @@ export function redirects(state: FetchState): Promise<Response> | undefined {
 	return undefined;
 }
 
-const actionHandlers = new WeakMap<BaseApp<any>, ActionHandler>();
+const actionHandlers = new WeakMap<BaseApp<Pipeline>, ActionHandler>();
 
 /**
  * Handles Astro Action requests (RPC + form). Returns a `Response` for
@@ -140,9 +141,9 @@ export function actions(state: FetchState): Promise<Response | undefined> | unde
 }
 
 // `null` sentinel means "i18n not configured" — avoids re-checking manifest each request.
-const i18nHandlers = new WeakMap<BaseApp<any>, I18n | null>();
+const i18nHandlers = new WeakMap<BaseApp<Pipeline>, I18n | null>();
 
-function getI18n(app: BaseApp<any>): I18n | null {
+function getI18n(app: BaseApp<Pipeline>): I18n | null {
 	let handler = i18nHandlers.get(app);
 	if (handler === undefined) {
 		const config = app.manifest.i18n;
@@ -166,7 +167,7 @@ export function i18n(state: FetchState, response: Response): Promise<Response> {
 	return handler.finalize(state, response);
 }
 
-const cacheHandlers = new WeakMap<BaseApp<any>, CacheHandler>();
+const cacheHandlers = new WeakMap<BaseApp<Pipeline>, CacheHandler>();
 
 /**
  * Wraps a render callback with cache provider logic. Handles runtime
