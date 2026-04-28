@@ -136,9 +136,9 @@ export function vitePluginServerIslands({
 				}
 
 				if (id === RESOLVED_SERVER_ISLAND_MANIFEST) {
-					if (command === 'build' && settings.buildOutput) {
+					if (command === 'build') {
 						const hasServerIslands = serverIslandsState.hasIslands();
-						if (hasServerIslands && settings.buildOutput !== 'server') {
+						if (hasServerIslands && !settings.adapter) {
 							throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
 						}
 					}
