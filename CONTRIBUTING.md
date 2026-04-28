@@ -77,6 +77,22 @@ During the development process, you may want to test your changes to ensure they
 
 Overall, it's up to personal preference which method to use. For smaller changes, using the examples folder may be sufficient. For larger changes, using a separate project may be more appropriate.
 
+**How can I test changes to `@astrojs/compiler` (or other dependencies) locally?**
+
+If you're working on a dependency like `@astrojs/compiler` and want to test your changes against the Astro repo, you can use [`pnpm.overrides`](https://pnpm.io/package_json#pnpmoverrides) in the root `package.json` to point to your local build:
+
+```json
+{
+  "pnpm": {
+    "overrides": {
+      "@astrojs/compiler": "file:../astro-compiler/packages/compiler"
+    }
+  }
+}
+```
+
+After adding the override, run `pnpm install` to link the local package. Make sure to build the dependency first so the `dist/` folder is up to date. Remove the override before committing.
+
 #### Contributing to language tooling
 
 For information on contributing to the language tooling (VS Code extension, language server, etc.), see [packages/language-tools/CONTRIBUTING.md](./packages/language-tools/CONTRIBUTING.md).
