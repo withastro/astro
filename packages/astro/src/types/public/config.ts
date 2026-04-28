@@ -2999,6 +2999,56 @@ export interface AstroUserConfig<
 		rustCompiler?: boolean;
 
 		/**
+		 * @name experimental.nativeMarkdown
+		 * @type {boolean | { mdastPlugins?: import('satteri').MdastPluginDefinition[]; hastPlugins?: import('satteri').HastPluginDefinition[]; features?: import('satteri').Features }}
+		 * @default `false`
+		 * @version 6.0.0
+		 * @description
+		 *
+		 * Enables the experimental native Markdown compiler (satteri) as a replacement for the default remark/rehype pipeline.
+		 * When enabled, both Markdown and MDX files are processed using satteri, a Rust-based compiler that offers improved performance.
+		 *
+		 * This option requires installing the `satteri` package manually in your project.
+		 * When enabled, `remarkPlugins` and `rehypePlugins` from the markdown config are ignored.
+		 * Use `mdastPlugins` and `hastPlugins` (satteri plugin types) instead.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   experimental: {
+		 *     nativeMarkdown: true,
+		 *   },
+		 * });
+		 * ```
+		 *
+		 * You can also pass satteri plugins and enable additional parser features:
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   experimental: {
+		 *     nativeMarkdown: {
+		 *       hastPlugins: [myPlugin],
+		 *       features: {
+		 *         directive: true,
+		 *         definitionList: true,
+		 *       },
+		 *     },
+		 *   },
+		 * });
+		 * ```
+		 */
+		nativeMarkdown?: boolean | {
+			mdastPlugins?: import('satteri').MdastPluginDefinition[];
+			hastPlugins?: import('satteri').HastPluginDefinition[];
+			features?: import('satteri').Features;
+		};
+
+		/**
 		 * @name experimental.queuedRendering
 		 * @type {boolean | { poolSize?: number; cache?: boolean }}
 		 * @default `false`

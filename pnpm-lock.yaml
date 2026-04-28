@@ -56,7 +56,7 @@ importers:
         version: 3.0.0(eslint@9.39.3(jiti@2.6.1))
       knip:
         specifier: 5.82.1
-        version: 5.82.1(@types/node@22.19.11)(typescript@5.9.3)
+        version: 5.82.1(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@22.19.11)(typescript@5.9.3)
       only-allow:
         specifier: ^1.2.2
         version: 1.2.2
@@ -682,7 +682,7 @@ importers:
         version: link:../language-tools/astro-check
       '@astrojs/compiler-rs':
         specifier: ^0.1.6
-        version: 0.1.6
+        version: 0.1.6(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)
       '@playwright/test':
         specifier: 1.58.2
         version: 1.58.2
@@ -758,6 +758,9 @@ importers:
       sass:
         specifier: ^1.98.0
         version: 1.98.0
+      satteri:
+        specifier: ^0.2.7
+        version: 0.2.7
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -5243,6 +5246,9 @@ importers:
       estree-util-visit:
         specifier: ^2.0.0
         version: 2.0.0
+      github-slugger:
+        specifier: ^2.0.0
+        version: 2.0.0
       hast-util-to-html:
         specifier: ^9.0.5
         version: 9.0.5
@@ -5258,6 +5264,9 @@ importers:
       remark-smartypants:
         specifier: ^3.0.2
         version: 3.0.2
+      satteri:
+        specifier: ^0.2.7
+        version: 0.2.7
       source-map:
         specifier: ^0.7.6
         version: 0.7.6
@@ -5269,10 +5278,10 @@ importers:
         version: 6.0.3
     devDependencies:
       '@shikijs/rehype':
-        specifier: ^4.0.2
+        specifier: ^4.0.0
         version: 4.0.2
       '@shikijs/twoslash':
-        specifier: ^4.0.2
+        specifier: ^4.0.0
         version: 4.0.2(typescript@5.9.3)
       '@types/estree':
         specifier: ^1.0.8
@@ -6868,6 +6877,9 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
     devDependencies:
+      '@napi-rs/wasm-runtime':
+        specifier: ^1.1.2
+        version: 1.1.4(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)
       '@types/estree':
         specifier: ^1.0.8
         version: 1.0.8
@@ -6892,6 +6904,9 @@ importers:
       mdast-util-mdx-expression:
         specifier: ^2.0.1
         version: 2.0.1
+      satteri:
+        specifier: ^0.2.7
+        version: 0.2.7
 
   packages/telemetry:
     dependencies:
@@ -7396,6 +7411,32 @@ packages:
     resolution: {integrity: sha512-5BwSIzqhpzXKUnSSheB0M+Qb4iGskepb35FiPA1/7AciPArTqt9H5yc53NmV21gNkDFrgbDBuzSWwrlo2aAKxg==}
     engines: {node: '>=18'}
 
+  '@bruits/satteri-darwin-arm64@0.2.7':
+    resolution: {integrity: sha512-PEJ+f9zcDpyrsaDmaeMbmn5Owwc4p0pWWBxcNl+6r5Lq2Pnjb5dEnFR3lLEDxQE9JPj7mlhGs0FnbBj6A4nGyQ==}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@bruits/satteri-darwin-x64@0.2.7':
+    resolution: {integrity: sha512-q5ctaORfU0PFNa/4jLfvTWP+Qzo7/z2v6i1NAPArcA8sbmpSMA0U1ObKN1K8DLIEksSvnVN7FWA3BbrCfpgWaA==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@bruits/satteri-linux-x64-gnu@0.2.7':
+    resolution: {integrity: sha512-3hTYe0YIToNXEcjcOtUvlQlNYBJEtcXEb7bL3AzDf+/X9/ZlZnEl3ixuCFJ0c67SH85GzJjXh/PWlvudvEGxNA==}
+    cpu: [x64]
+    os: [linux]
+    libc: [glibc]
+
+  '@bruits/satteri-wasm32-wasi@0.2.7':
+    resolution: {integrity: sha512-1JmCD8ZBvPRYK7cEIur8kbNr8rv3RwqJTaz8gbm8N+J6quYu+R3G2grXp/gOFDj6F8chd+i+UOLsUgVQqiZgEg==}
+    engines: {node: '>=14.0.0'}
+    cpu: [wasm32]
+
+  '@bruits/satteri-win32-x64-msvc@0.2.7':
+    resolution: {integrity: sha512-/VHGAHxyB8jF1NPGmy1QX0+AkFDDBq4HniYchMYaJW5YpNWA1YZrXCxkAUPiNpKTovzQTSnZv8UsqulLqMMt4Q==}
+    cpu: [x64]
+    os: [win32]
+
   '@capsizecss/unpack@4.0.0':
     resolution: {integrity: sha512-VERIM64vtTP1C4mxQ5thVT9fK0apjPFobqybMtA1UdUujWka24ERHbRHFGmpbbhp73MhV+KSsHQH9C6uOTdEQA==}
     engines: {node: '>=18'}
@@ -7891,11 +7932,20 @@ packages:
   '@emnapi/core@1.8.1':
     resolution: {integrity: sha512-AvT9QFpxK0Zd8J0jopedNm+w/2fIzvtPKPjqyw9jwvBaReTTqPBk9Hixaz7KbjimP+QNz605/XnjFcDAL2pqBg==}
 
+  '@emnapi/core@1.9.1':
+    resolution: {integrity: sha512-mukuNALVsoix/w1BJwFzwXBN/dHeejQtuVzcDsfOEsdpCumXb/E9j8w11h5S54tT1xhifGfbbSm/ICrObRb3KA==}
+
   '@emnapi/runtime@1.8.1':
     resolution: {integrity: sha512-mehfKSMWjjNol8659Z8KxEMrdSJDDot5SXMq00dM8BN4o+CLNXQ0xH2V7EchNHV4RmbZLmmPdEaXZc5H2FXmDg==}
 
+  '@emnapi/runtime@1.9.1':
+    resolution: {integrity: sha512-VYi5+ZVLhpgK4hQ0TAjiQiZ6ol0oe4mBx7mVv7IflsiEp0OWoVsp/+f9Vc1hOhE0TtkORVrI1GvzyreqpgWtkA==}
+
   '@emnapi/wasi-threads@1.1.0':
     resolution: {integrity: sha512-WI0DdZ8xFSbgMjR1sFsKABJ/C5OnRrjT06JXbZKexJGrDuPTzZdDYfFlsgcCXCyf+suG5QU2e/y1Wo2V/OapLQ==}
+
+  '@emnapi/wasi-threads@1.2.0':
+    resolution: {integrity: sha512-N10dEJNSsUx41Z6pZsXU8FjPjpBEplgH24sfkmITrBED1/U2Esum9F3lfLrMjKHHjmi557zQn7kR9R+XWXu5Rg==}
 
   '@envelop/instrumentation@1.0.0':
     resolution: {integrity: sha512-cxgkB66RQB95H3X27jlnxCRNTmPuSTgmBAq6/4n2Dtv4hsk4yz8FadA1ggmd0uZzvKqWD6CR+WFgTjhDqg7eyw==}
@@ -8912,8 +8962,11 @@ packages:
   '@napi-rs/wasm-runtime@0.2.12':
     resolution: {integrity: sha512-ZVWUcfwY4E/yPitQJl481FjFo3K22D6qF0DuFH6Y/nbnE11GY5uguDxZMGXPQ8WQ0128MXQD7TnfHyK4oWoIJQ==}
 
-  '@napi-rs/wasm-runtime@1.1.1':
-    resolution: {integrity: sha512-p64ah1M1ld8xjWv3qbvFwHiFVWrq1yFvV4f7w+mzaqiR4IlSgkqhcRdHwsGgomwzBH51sRY4NEowLxnaBjcW/A==}
+  '@napi-rs/wasm-runtime@1.1.4':
+    resolution: {integrity: sha512-3NQNNgA1YSlJb/kMH1ildASP9HW7/7kYnRI2szWJaofaS1hWmbGI4H+d3+22aGzXXN9IJ+n+GiFVcGipJP18ow==}
+    peerDependencies:
+      '@emnapi/core': ^1.7.1
+      '@emnapi/runtime': ^1.7.1
 
   '@neon-rs/load@0.0.4':
     resolution: {integrity: sha512-kTPhdZyTQxB+2wpiRcFWrDcejc4JI6tkPuS7UZCG4l6Zvc5kU/gGQ/ozvHTh1XR5tS+UlfAfGuPajjzQjCiHCw==}
@@ -14450,6 +14503,9 @@ packages:
     engines: {node: '>=14.0.0'}
     hasBin: true
 
+  satteri@0.2.7:
+    resolution: {integrity: sha512-OQIA9d2AYQFYrh9mlWn26t8imDgZ2nYDQ7jvsgw8V7mYBZywk7Jd6s1AvSHWCVvXGgbxnmcGQ1o+zcqLwbKv+A==}
+
   sax@1.6.0:
     resolution: {integrity: sha512-6R3J5M4AcbtLUdZmRv2SygeVaM7IhrLXu9BmnOGmmACak8fiUtOsYNWUS4uK7upbmHIBbLBeFeI//477BKLBzA==}
     engines: {node: '>=11.0.0'}
@@ -15973,9 +16029,12 @@ snapshots:
   '@astrojs/compiler-binding-linux-x64-musl@0.1.6':
     optional: true
 
-  '@astrojs/compiler-binding-wasm32-wasi@0.1.6':
+  '@astrojs/compiler-binding-wasm32-wasi@0.1.6(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)':
     dependencies:
-      '@napi-rs/wasm-runtime': 1.1.1
+      '@napi-rs/wasm-runtime': 1.1.4(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)
+    transitivePeerDependencies:
+      - '@emnapi/core'
+      - '@emnapi/runtime'
     optional: true
 
   '@astrojs/compiler-binding-win32-arm64-msvc@0.1.6':
@@ -15984,7 +16043,7 @@ snapshots:
   '@astrojs/compiler-binding-win32-x64-msvc@0.1.6':
     optional: true
 
-  '@astrojs/compiler-binding@0.1.6':
+  '@astrojs/compiler-binding@0.1.6(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)':
     optionalDependencies:
       '@astrojs/compiler-binding-darwin-arm64': 0.1.6
       '@astrojs/compiler-binding-darwin-x64': 0.1.6
@@ -15992,13 +16051,19 @@ snapshots:
       '@astrojs/compiler-binding-linux-arm64-musl': 0.1.6
       '@astrojs/compiler-binding-linux-x64-gnu': 0.1.6
       '@astrojs/compiler-binding-linux-x64-musl': 0.1.6
-      '@astrojs/compiler-binding-wasm32-wasi': 0.1.6
+      '@astrojs/compiler-binding-wasm32-wasi': 0.1.6(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)
       '@astrojs/compiler-binding-win32-arm64-msvc': 0.1.6
       '@astrojs/compiler-binding-win32-x64-msvc': 0.1.6
+    transitivePeerDependencies:
+      - '@emnapi/core'
+      - '@emnapi/runtime'
 
-  '@astrojs/compiler-rs@0.1.6':
+  '@astrojs/compiler-rs@0.1.6(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)':
     dependencies:
-      '@astrojs/compiler-binding': 0.1.6
+      '@astrojs/compiler-binding': 0.1.6(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)
+    transitivePeerDependencies:
+      - '@emnapi/core'
+      - '@emnapi/runtime'
 
   '@astrojs/compiler@2.13.1': {}
 
@@ -16403,6 +16468,25 @@ snapshots:
   '@bluwy/giget-core@0.1.6':
     dependencies:
       modern-tar: 0.3.5
+
+  '@bruits/satteri-darwin-arm64@0.2.7':
+    optional: true
+
+  '@bruits/satteri-darwin-x64@0.2.7':
+    optional: true
+
+  '@bruits/satteri-linux-x64-gnu@0.2.7':
+    optional: true
+
+  '@bruits/satteri-wasm32-wasi@0.2.7':
+    dependencies:
+      '@emnapi/core': 1.9.1
+      '@emnapi/runtime': 1.9.1
+      '@napi-rs/wasm-runtime': 1.1.4(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)
+    optional: true
+
+  '@bruits/satteri-win32-x64-msvc@0.2.7':
+    optional: true
 
   '@capsizecss/unpack@4.0.0':
     dependencies:
@@ -17013,15 +17097,28 @@ snapshots:
       tslib: 2.8.1
     optional: true
 
+  '@emnapi/core@1.9.1':
+    dependencies:
+      '@emnapi/wasi-threads': 1.2.0
+      tslib: 2.8.1
+
   '@emnapi/runtime@1.8.1':
     dependencies:
       tslib: 2.8.1
     optional: true
 
+  '@emnapi/runtime@1.9.1':
+    dependencies:
+      tslib: 2.8.1
+
   '@emnapi/wasi-threads@1.1.0':
     dependencies:
       tslib: 2.8.1
     optional: true
+
+  '@emnapi/wasi-threads@1.2.0':
+    dependencies:
+      tslib: 2.8.1
 
   '@envelop/instrumentation@1.0.0':
     dependencies:
@@ -17758,12 +17855,11 @@ snapshots:
       '@tybys/wasm-util': 0.10.1
     optional: true
 
-  '@napi-rs/wasm-runtime@1.1.1':
+  '@napi-rs/wasm-runtime@1.1.4(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)':
     dependencies:
-      '@emnapi/core': 1.8.1
-      '@emnapi/runtime': 1.8.1
+      '@emnapi/core': 1.9.1
+      '@emnapi/runtime': 1.9.1
       '@tybys/wasm-util': 0.10.1
-    optional: true
 
   '@neon-rs/load@0.0.4': {}
 
@@ -18282,9 +18378,12 @@ snapshots:
   '@oxc-resolver/binding-openharmony-arm64@11.17.1':
     optional: true
 
-  '@oxc-resolver/binding-wasm32-wasi@11.17.1':
+  '@oxc-resolver/binding-wasm32-wasi@11.17.1(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)':
     dependencies:
-      '@napi-rs/wasm-runtime': 1.1.1
+      '@napi-rs/wasm-runtime': 1.1.4(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)
+    transitivePeerDependencies:
+      - '@emnapi/core'
+      - '@emnapi/runtime'
     optional: true
 
   '@oxc-resolver/binding-win32-arm64-msvc@11.17.1':
@@ -18808,7 +18907,6 @@ snapshots:
   '@tybys/wasm-util@0.10.1':
     dependencies:
       tslib: 2.8.1
-    optional: true
 
   '@types/alpinejs@3.13.11': {}
 
@@ -22034,7 +22132,7 @@ snapshots:
 
   kleur@4.1.5: {}
 
-  knip@5.82.1(@types/node@22.19.11)(typescript@5.9.3):
+  knip@5.82.1(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@22.19.11)(typescript@5.9.3):
     dependencies:
       '@nodelib/fs.walk': 1.2.8
       '@types/node': 22.19.11
@@ -22043,13 +22141,16 @@ snapshots:
       jiti: 2.6.1
       js-yaml: 4.1.1
       minimist: 1.2.8
-      oxc-resolver: 11.17.1
+      oxc-resolver: 11.17.1(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)
       picocolors: 1.1.1
       picomatch: 4.0.4
       smol-toml: 1.6.1
       strip-json-comments: 5.0.3
       typescript: 5.9.3
       zod: 4.3.6
+    transitivePeerDependencies:
+      - '@emnapi/core'
+      - '@emnapi/runtime'
 
   kolorist@1.8.0: {}
 
@@ -23207,7 +23308,7 @@ snapshots:
       - debug
       - supports-color
 
-  oxc-resolver@11.17.1:
+  oxc-resolver@11.17.1(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1):
     optionalDependencies:
       '@oxc-resolver/binding-android-arm-eabi': 11.17.1
       '@oxc-resolver/binding-android-arm64': 11.17.1
@@ -23225,10 +23326,13 @@ snapshots:
       '@oxc-resolver/binding-linux-x64-gnu': 11.17.1
       '@oxc-resolver/binding-linux-x64-musl': 11.17.1
       '@oxc-resolver/binding-openharmony-arm64': 11.17.1
-      '@oxc-resolver/binding-wasm32-wasi': 11.17.1
+      '@oxc-resolver/binding-wasm32-wasi': 11.17.1(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)
       '@oxc-resolver/binding-win32-arm64-msvc': 11.17.1
       '@oxc-resolver/binding-win32-ia32-msvc': 11.17.1
       '@oxc-resolver/binding-win32-x64-msvc': 11.17.1
+    transitivePeerDependencies:
+      - '@emnapi/core'
+      - '@emnapi/runtime'
 
   p-event@6.0.1:
     dependencies:
@@ -24283,6 +24387,18 @@ snapshots:
       source-map-js: 1.2.1
     optionalDependencies:
       '@parcel/watcher': 2.5.6
+
+  satteri@0.2.7:
+    dependencies:
+      '@types/hast': 3.0.4
+      '@types/mdast': 4.0.4
+      '@types/unist': 3.0.3
+    optionalDependencies:
+      '@bruits/satteri-darwin-arm64': 0.2.7
+      '@bruits/satteri-darwin-x64': 0.2.7
+      '@bruits/satteri-linux-x64-gnu': 0.2.7
+      '@bruits/satteri-wasm32-wasi': 0.2.7
+      '@bruits/satteri-win32-x64-msvc': 0.2.7
 
   sax@1.6.0: {}
 

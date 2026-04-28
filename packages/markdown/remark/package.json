@@ -60,13 +60,23 @@
     "unist-util-visit-parents": "^6.0.2",
     "vfile": "^6.0.3"
   },
+  "peerDependencies": {
+    "satteri": ">=0.2.7"
+  },
+  "peerDependenciesMeta": {
+    "satteri": {
+      "optional": true
+    }
+  },
   "devDependencies": {
+    "@napi-rs/wasm-runtime": "^1.1.2",
     "@types/estree": "^1.0.8",
     "@types/hast": "^3.0.4",
     "@types/js-yaml": "^4.0.9",
     "@types/mdast": "^4.0.4",
     "@types/unist": "^3.0.3",
     "astro-scripts": "workspace:*",
+    "satteri": "^0.2.7",
     "esbuild": "^0.27.3",
     "mdast-util-mdx-expression": "^2.0.1"
   },
