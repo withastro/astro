@@ -139,7 +139,21 @@ function* collectCSSWithOrder(
  *
  * @param routesList
  */
-export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOptions): Plugin[] {
+interface AstroDevCssPluginResult {
+	plugins: Plugin[];
+	/**
+	 * A separate plugin that caches CSS content during `transform`.
+	 * This must be added to the Vite config AFTER integration plugins so that
+	 * CSS transforms from integrations (e.g. UnoCSS's `@apply` directives)
+	 * have already been applied before content is cached.
+	 */
+	cssCachePlugin: Plugin;
+}
+
+export function astroDevCssPlugin({
+	routesList,
+	command,
+}: AstroVitePluginOptions): AstroDevCssPluginResult {
 	let server: vite.ViteDevServer | undefined;
 	// Cache CSS content by module ID to avoid re-reading
 	const cssContentCache = new Map<string, string>();
@@ -151,7 +165,39 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 		);
 	}
 
-	return [
+	const cssCachePlugin: Plugin = {
+		name: 'astro:dev-css-cache',
+		applyToEnvironment(env) {
+			return (
+				env.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
+				env.name === ASTRO_VITE_ENVIRONMENT_NAMES.client ||
+				env.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
+			);
+		},
+		transform: {
+			filter: {
+				id: {
+					include: [CSS_LANGS_RE],
+					exclude: [rawRE, inlineRE],
+				},
+			},
+			handler(code, id) {
+				if (command === 'build') {
+					return;
+				}
+				// Cache CSS content after all plugins (including integration plugins like
+				// UnoCSS's transformerDirectives) have transformed it. This plugin is
+				// registered after integration plugins to ensure we cache fully-processed CSS.
+				const env = getCurrentEnvironment(this.environment as DevEnvironment);
+				const mod = env?.moduleGraph.getModuleById(id);
+				if (mod) {
+					cssContentCache.set(id, code);
+				}
+			},
+		},
+	};
+
+	const plugins: Plugin[] = [
 		{
 			name: MODULE_DEV_CSS,
 
@@ -252,27 +298,6 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 					}
 				},
 			},
-
-			transform: {
-				filter: {
-					id: {
-						include: [CSS_LANGS_RE],
-						exclude: [rawRE, inlineRE],
-					},
-				},
-				handler(code, id) {
-					if (command === 'build') {
-						return;
-					}
-
-					// Cache CSS content as we see it
-					const env = getCurrentEnvironment(this.environment as DevEnvironment);
-					const mod = env?.moduleGraph.getModuleById(id);
-					if (mod) {
-						cssContentCache.set(id, code);
-					}
-				},
-			},
 		},
 		{
 			name: MODULE_DEV_CSS_ALL,
@@ -309,4 +334,6 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 			},
 		},
 	];
+
+	return { plugins, cssCachePlugin };
 }

@@ -155,6 +155,10 @@ export async function createVite(
 	// Validate that envPrefix doesn't conflict with secret env schema variables
 	validateEnvPrefixAgainstSchema(settings.config);
 
+	// Create the dev CSS plugin, which returns the main plugins and a separate
+	// CSS cache plugin that must be registered after integration plugins.
+	const devCss = astroDevCssPlugin({ routesList, command });
+
 	// Start with the Vite configuration that Astro core needs
 	const commonConfig: vite.InlineConfig = {
 		// Tell Vite not to combine config from vite.config.js with our provided inline config
@@ -187,7 +191,7 @@ export async function createVite(
 			vitePluginApp(),
 			command === 'dev' && vitePluginAstroServer({ settings, logger }),
 			command === 'dev' && vitePluginAstroServerClient(),
-			astroDevCssPlugin({ routesList, command }),
+			...devCss.plugins,
 			importMetaEnv({ envLoader }),
 			astroEnv({ settings, sync, envLoader }),
 			vitePluginAdapterConfig(settings),
@@ -322,6 +326,14 @@ export async function createVite(
 		result = vite.mergeConfig(result, settings.config.vite || {});
 	}
 	result = vite.mergeConfig(result, commandConfig);
+
+	// Add the CSS cache plugin AFTER integration plugins have been merged.
+	// This ensures the CSS caching transform runs after integration transforms
+	// (e.g. UnoCSS's @apply directive processing) so we cache fully-processed CSS.
+	// Only push in dev mode — the cache plugin becomes a no-op during build.
+	if (command === 'dev') {
+		(result.plugins!).push(devCss.cssCachePlugin);
+	}
 
 	return result;
 }
