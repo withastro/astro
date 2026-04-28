@@ -163,7 +163,8 @@ export class AstroHandler {
 				pathname: state.pathname,
 			});
 		} finally {
-			await state.finalizeAll();
+			const finalize = state.finalizeAll();
+			if (finalize) await finalize;
 		}
 
 		if (

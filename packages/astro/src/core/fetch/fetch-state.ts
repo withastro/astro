@@ -36,7 +36,7 @@ import {
 import { getParams, getProps } from '../render/index.js';
 import { Rewrites } from '../rewrites/handler.js';
 import { isRoute404or500, isRouteServerIsland } from '../routing/match.js';
-import { createNormalizedUrl } from '../util/normalized-url.js';
+import { normalizeUrl } from '../util/normalized-url.js';
 import { getOriginPathname, setOriginPathname } from '../routing/rewrite.js';
 import { routeHasHtmlExtension } from '../routing/helpers.js';
 import type { ResolvedRenderOptions } from '../app/base.js';
@@ -202,18 +202,18 @@ export class FetchState implements AstroFetchState {
 	/** Memoized `APIContext` (see `getAPIContext`). */
 	apiContext: APIContext | null = null;
 
-	/** Registered context providers keyed by name. */
-	#providers = new Map<string, ContextProvider<unknown>>();
-	/** Cached values from resolved providers. */
-	#providersResolvedValues = new Map<string, unknown>();
+	/** Registered context providers keyed by name. Lazy-initialized on first provide(). */
+	#providers: Map<string, ContextProvider<unknown>> | undefined;
+	/** Cached values from resolved providers. Lazy-initialized on first resolve(). */
+	#providersResolvedValues: Map<string, unknown> | undefined;
 	/** Cached promise for lazy component instance loading. */
 	#componentInstancePromise: Promise<ComponentInstance> | undefined;
 	/** SSR result for the current page render. */
 	result: SSRResult | undefined;
 	/** Initial props (from container/error handler). */
 	initialProps: Props = {};
-	/** Rewrites handler instance. */
-	#rewrites = new Rewrites();
+	/** Rewrites handler instance. Lazy-initialized on first rewrite(). */
+	#rewrites: Rewrites | undefined;
 	/** Memoized Astro page partial. */
 	#astroPagePartial?: Omit<AstroGlobal, 'props' | 'self' | 'slots'>;
 	/** Memoized current locale. */
@@ -238,11 +238,13 @@ export class FetchState implements AstroFetchState {
 
 		this.componentInstance = undefined;
 		this.slots = undefined;
-		this.pathname = this.#computePathname();
+		// Parse the URL once and derive both pathname and url from it.
+		const url = new URL(request.url);
+		this.pathname = this.#computePathname(url);
 		this.timeStart = performance.now();
 		this.clientAddress = options?.clientAddress;
 		this.locals = (options?.locals ?? {}) as App.Locals;
-		this.url = createNormalizedUrl(request.url);
+		this.url = normalizeUrl(url);
 		this.cookies = new AstroCookies(request);
 
 		// Set origin pathname for rewrite tracking.
@@ -266,7 +268,7 @@ export class FetchState implements AstroFetchState {
 	 * Triggers a rewrite. Delegates to the Rewrites handler.
 	 */
 	rewrite(payload: RewritePayload): Promise<Response> {
-		return this.#rewrites.execute(this, payload);
+		return (this.#rewrites ??= new Rewrites()).execute(this, payload);
 	}
 
 	/**
@@ -434,7 +436,7 @@ export class FetchState implements AstroFetchState {
 		};
 
 		const rewrite = async (reroutePayload: RewritePayload) => {
-			return await state.#rewrites.execute(state, reroutePayload);
+			return await state.rewrite(reroutePayload);
 		};
 
 		const callAction = createCallAction(apiContext);
@@ -640,7 +642,7 @@ export class FetchState implements AstroFetchState {
 	 * The `create` factory is called lazily on the first `resolve(key)`.
 	 */
 	provide<T>(key: string, provider: ContextProvider<T>): void {
-		this.#providers.set(key, provider as ContextProvider<unknown>);
+		(this.#providers ??= new Map()).set(key, provider as ContextProvider<unknown>);
 	}
 
 	/**
@@ -649,13 +651,13 @@ export class FetchState implements AstroFetchState {
 	 * Returns `undefined` if no provider was registered for the key.
 	 */
 	resolve<T>(key: string): T | undefined {
-		if (this.#providersResolvedValues.has(key)) {
+		if (this.#providersResolvedValues?.has(key)) {
 			return this.#providersResolvedValues.get(key) as T;
 		}
-		const provider = this.#providers.get(key);
+		const provider = this.#providers?.get(key);
 		if (!provider) return undefined;
 		const value = provider.create();
-		this.#providersResolvedValues.set(key, value);
+		(this.#providersResolvedValues ??= new Map()).set(key, value);
 		return value as T;
 	}
 
@@ -668,10 +670,10 @@ export class FetchState implements AstroFetchState {
 	 */
 	finalizeAll(): Promise<void> | void {
 		// Fast path: nothing to finalize.
-		if (this.#providersResolvedValues.size === 0) return;
+		if (!this.#providersResolvedValues || this.#providersResolvedValues.size === 0) return;
 
 		let chain: Promise<void> | undefined;
-		for (const [key, provider] of this.#providers) {
+		for (const [key, provider] of this.#providers!) {
 			if (provider.finalize && this.#providersResolvedValues.has(key)) {
 				const result = provider.finalize(this.#providersResolvedValues.get(key));
 				if (result) {
@@ -689,6 +691,7 @@ export class FetchState implements AstroFetchState {
 	 * without hard-coding the keys.
 	 */
 	defineProviderGetters(target: Record<string, any>): void {
+		if (!this.#providers) return;
 		const state = this;
 		for (const key of this.#providers.keys()) {
 			Object.defineProperty(target, key, {
@@ -715,17 +718,27 @@ export class FetchState implements AstroFetchState {
 	 * suffixes so the rendering pipeline sees the canonical pathname.
 	 */
 	#resolveRouteData(): void {
+		// Fast path: routeData was provided via render options (build, dev
+		// with adapter). Only need the app reference for dev pathname
+		// normalization and fallback matching.
+		if (this.routeData) {
+			const app = Reflect.get(this.request, appSymbol) as BaseApp<Pipeline> | undefined;
+			if (app?.isDev() && !routeHasHtmlExtension(this.routeData)) {
+				this.pathname = this.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
+			}
+			return;
+		}
+
 		// Skip when there's no app on the request — this happens in test
 		// mocks and the container API where FetchState is created directly
 		// with just a pipeline.
 		const app = Reflect.get(this.request, appSymbol) as BaseApp<Pipeline> | undefined;
 		if (!app) return;
 
-		if (!this.routeData) {
-			this.routeData = app.match(this.request);
-			app.logger.debug('router', 'Astro matched the following route for ' + this.request.url);
-			app.logger.debug('router', 'RouteData:\n' + this.routeData);
-		}
+		this.routeData = app.match(this.request);
+		app.logger.debug('router', 'Astro matched the following route for ' + this.request.url);
+		app.logger.debug('router', 'RouteData:\n' + this.routeData);
+
 		// Fall back to a 404 route so middleware can still run.
 		if (!this.routeData) {
 			this.routeData = app.manifestData.routes.find(
@@ -737,8 +750,6 @@ export class FetchState implements AstroFetchState {
 			app.logger.debug('router', "Here's the available routes:\n", app.manifestData);
 			return;
 		}
-		// In dev, the route may have matched a normalized pathname (after .html stripping).
-		// Skip normalization if the route already has an .html extension in its definition.
 		if (app.isDev() && !routeHasHtmlExtension(this.routeData)) {
 			this.pathname = this.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
 		}
@@ -753,8 +764,8 @@ export class FetchState implements AstroFetchState {
 	 * `collapseDuplicateLeadingSlashes` fix that prevents middleware
 	 * authorization bypass when the URL starts with `//`.
 	 */
-	#computePathname(): string {
-		const url = new URL(this.request.url);
+	#computePathname(url?: URL): string {
+		url ??= new URL(this.request.url);
 		let pathname = collapseDuplicateLeadingSlashes(url.pathname);
 		const base = this.pipeline.manifest.base;
 		if (pathname.startsWith(base)) {
