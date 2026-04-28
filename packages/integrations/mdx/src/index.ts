@@ -26,6 +26,7 @@ export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | '
 	optimize: boolean | { ignoreElementNames?: string[] };
 	mdastPlugins: MdastPluginDefinition[];
 	hastPlugins: HastPluginDefinition[];
+	features?: import('satteri').Features;
 };
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
@@ -101,7 +102,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 
 				const nativeMd = config.experimental.nativeMarkdown;
 
-				// When nativeMarkdown is enabled, merge mdastPlugins/hastPlugins from the experimental config
+				// When nativeMarkdown is enabled, merge mdastPlugins/hastPlugins/features from the experimental config
 				if (nativeMd && extendMarkdownConfig) {
 					const nativeOpts = typeof nativeMd === 'object' ? nativeMd : undefined;
 					resolvedMdxOptions.mdastPlugins = [
@@ -112,6 +113,12 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 						...(nativeOpts?.hastPlugins ?? []),
 						...resolvedMdxOptions.hastPlugins,
 					];
+					if (nativeOpts?.features || resolvedMdxOptions.features) {
+						resolvedMdxOptions.features = {
+							...nativeOpts?.features,
+							...resolvedMdxOptions.features,
+						};
+					}
 				}
 
 				// Mutate `mdxOptions` so that `vitePluginMdx` can reference the actual options
@@ -169,5 +176,6 @@ function applyDefaultOptions({
 		optimize: options.optimize ?? defaults.optimize,
 		mdastPlugins: options.mdastPlugins ?? defaults.mdastPlugins,
 		hastPlugins: options.hastPlugins ?? defaults.hastPlugins,
+		features: options.features ?? defaults.features,
 	};
 }

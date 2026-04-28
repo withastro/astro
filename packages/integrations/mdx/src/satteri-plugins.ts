@@ -625,6 +625,7 @@ export function createMdxProcessor(mdxOptions: MdxOptions) {
 				mdastPlugins: allMdastPlugins,
 				hastPlugins,
 				optimizeStatic,
+				features: mdxOptions.features,
 				filename: filePath,
 				jsxImportSource: 'astro',
 			});

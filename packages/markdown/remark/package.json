@@ -60,7 +60,7 @@
     "vfile": "^6.0.3"
   },
   "peerDependencies": {
-    "satteri": ">=0.2.5"
+    "satteri": ">=0.2.7"
   },
   "peerDependenciesMeta": {
     "satteri": {
@@ -75,7 +75,7 @@
     "@types/mdast": "^4.0.4",
     "@types/unist": "^3.0.3",
     "astro-scripts": "workspace:*",
-    "satteri": "0.2.5",
+    "satteri": "^0.2.7",
     "esbuild": "^0.27.3",
     "mdast-util-mdx-expression": "^2.0.1"
   },
