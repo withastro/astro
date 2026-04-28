@@ -89,13 +89,16 @@ export function getLanguageServicePlugins(
 						return {};
 					}
 
-					let configOptions = null;
+					let configOptions = {};
 					try {
-						configOptions = await prettierInstance.resolveConfig(filePath, {
+						const resolvedConfig = await prettierInstance.resolveConfig(filePath, {
 							// This seems to be broken since Prettier 3, and it'll always use its cumbersome cache. Hopefully it works one day.
 							useCache: false,
 							editorconfig: true,
 						});
+						if (resolvedConfig) {
+							configOptions = resolvedConfig;
+						}
 					} catch (e) {
 						connection.sendNotification(ShowMessageNotification.type, {
 							message: `Failed to load Prettier config.\n\nError:\n${e}`,
@@ -119,7 +122,7 @@ export function getLanguageServicePlugins(
 						useTabs: !formatOptions.insertSpaces,
 						...editorOptions,
 						...configOptions,
-					};
+					} as any;
 
 					return {
 						...resolvedConfig,
