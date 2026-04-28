@@ -52,7 +52,11 @@ export async function handle(
 			return handlePrerenderRequest(app, request) as unknown as CfResponse;
 		}
 		if (isStaticImagesRequest(request)) {
-			return handleStaticImagesRequest() as unknown as CfResponse;
+			const imagesBindingName = globalThis.__ASTRO_IMAGES_BINDING_NAME;
+			return handleStaticImagesRequest({
+				images: imagesBindingName ? (env as Record<string, any>)[imagesBindingName] : undefined,
+				assets: env.ASSETS,
+			}) as unknown as CfResponse;
 		}
 	}
 
