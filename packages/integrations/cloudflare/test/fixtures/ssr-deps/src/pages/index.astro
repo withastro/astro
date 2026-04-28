@@ -1,0 +1,14 @@
+---
+import { getRenderers } from '../utils/get-renderers';
+
+const { Duration } = getRenderers();
+---
+<html>
+<head>
+	<title>SSR Deps Test</title>
+</head>
+<body>
+	<h1>SSR Dependencies</h1>
+	<p>One hour in milliseconds: <Duration /></p>
+</body>
+</html>

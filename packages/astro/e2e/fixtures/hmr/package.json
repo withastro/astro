@@ -1,0 +1,13 @@
+{
+  "name": "@e2e/hmr",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/preact": "workspace:*",
+    "preact": "^10.28.2"
+  },
+  "devDependencies": {
+    "astro": "workspace:*",
+    "sass": "^1.98.0"
+  }
+}

@@ -1,0 +1,52 @@
+name: Examples astro check
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  merge_group:
+  pull_request:
+    paths:
+      - "examples/**"
+      - ".github/workflows/check.yml"
+      - "scripts/smoke/check.js"
+      - "packages/astro/src/types/public/**"
+      - "pnpm-lock.yaml"
+      - "packages/astro/types.d.ts"
+
+env:
+  ASTRO_TELEMETRY_DISABLED: true
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+  FORCE_COLOR: true
+
+jobs:
+  check:
+    name: astro check
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+
+      - name: Setup Node
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24.15.0
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Status
+        run: git status
+
+      - name: astro check
+        run: pnpm run test:check-examples

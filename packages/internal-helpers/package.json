@@ -1,0 +1,70 @@
+{
+  "name": "@astrojs/internal-helpers",
+  "description": "Internal helpers used by core Astro packages.",
+  "version": "0.9.0",
+  "type": "module",
+  "author": "withastro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/withastro/astro.git",
+    "directory": "packages/internal-helpers"
+  },
+  "bugs": "https://github.com/withastro/astro/issues",
+  "exports": {
+    "./path": "./dist/path.js",
+    "./remote": "./dist/remote.js",
+    "./fs": "./dist/fs.js",
+    "./cli": "./dist/cli.js",
+    "./create-filter": "./dist/create-filter.js",
+    "./request": "./dist/request.js",
+    "./object": "./dist/object.js"
+  },
+  "typesVersions": {
+    "*": {
+      "path": [
+        "./dist/path.d.ts"
+      ],
+      "remote": [
+        "./dist/remote.d.ts"
+      ],
+      "fs": [
+        "./dist/fs.d.ts"
+      ],
+      "cli": [
+        "./dist/cli.d.ts"
+      ],
+      "create-filter": [
+        "./dist/create-filter.d.ts"
+      ],
+      "object": [
+        "./dist/object.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "prepublish": "pnpm build",
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc -p tsconfig.json",
+    "build:ci": "astro-scripts build \"src/**/*.ts\"",
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "test": "astro-scripts test \"test/**/*.test.ts\"",
+    "typecheck:tests": "tsc --build tsconfig.test.json"
+  },
+  "dependencies": {
+    "picomatch": "^4.0.4"
+  },
+  "devDependencies": {
+    "@types/picomatch": "^4.0.2",
+    "astro-scripts": "workspace:*"
+  },
+  "keywords": [
+    "astro",
+    "astro-component"
+  ],
+  "publishConfig": {
+    "provenance": true
+  }
+}
