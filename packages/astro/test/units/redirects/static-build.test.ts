@@ -307,6 +307,54 @@ describe('static redirects — invalid redirect destination throws', () => {
 			},
 		);
 	});
+
+	it('throws InvalidRedirectDestination when a dynamic redirect points to a static route', async () => {
+		// Regression test for https://github.com/withastro/astro/issues/16482
+		// where /project/[slug] -> / matched index.astro, then failed later with
+		// GetStaticPathsRequired against the static destination page.
+		await assert.rejects(
+			() =>
+				createStaticBuildOptions({
+					pages: {
+						'src/pages/index.astro': TARGET_PAGE,
+					},
+					inlineConfig: {
+						redirects: {
+							'/project/[slug]': '/',
+						},
+					},
+				}),
+			(err: Error & { name: string }) => {
+				assert.ok(!err.message.includes('getStaticPaths()'));
+				assert.ok(err.message.includes('missing the dynamic parameter [slug]'));
+				assert.equal(err.name, 'InvalidRedirectDestination');
+				return true;
+			},
+		);
+	});
+
+	it('throws InvalidRedirectDestination when destination route is missing source params', async () => {
+		await assert.rejects(
+			() =>
+				createStaticBuildOptions({
+					pages: {
+						'src/pages/posts/[id].astro':
+							'---\nexport function getStaticPaths() { return []; }\n---\n<p>post</p>',
+					},
+					inlineConfig: {
+						redirects: {
+							'/old/[id]/[page]': '/posts/[id]',
+						},
+					},
+				}),
+			(err: Error & { name: string }) => {
+				assert.ok(!err.message.includes('getStaticPaths()'));
+				assert.ok(err.message.includes('missing the dynamic parameter [page]'));
+				assert.equal(err.name, 'InvalidRedirectDestination');
+				return true;
+			},
+		);
+	});
 });
 
 describe('Astro.redirect() in a page component — build.redirects = false', () => {

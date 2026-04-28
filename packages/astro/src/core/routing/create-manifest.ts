@@ -70,6 +70,10 @@ function getParts(part: string, file: string) {
 
 	return result;
 }
+
+function getParamName(param: string) {
+	return param.startsWith('...') ? param.slice(3) : param;
+}
 /**
  * Checks whether two route segments are semantically equivalent.
  *
@@ -557,6 +561,18 @@ function createRedirectRoutes(
 				...InvalidRedirectDestination,
 				message: InvalidRedirectDestination.message(from, destination),
 			});
+		}
+
+		if (params.length > 0 && redirectRoute && getPrerenderDefault(config)) {
+			const destinationParams = new Set(redirectRoute.params.map(getParamName));
+			const missingParams = params.filter((param) => !destinationParams.has(getParamName(param)));
+
+			if (missingParams.length > 0) {
+				throw new AstroError({
+					...InvalidRedirectDestination,
+					message: InvalidRedirectDestination.message(from, destination, missingParams),
+				});
+			}
 		}
 
 		routes.push({

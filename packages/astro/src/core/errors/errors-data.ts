@@ -1058,19 +1058,32 @@ export const UnsupportedExternalRedirect = {
 
 /**
  * @docs
+ * @message
+ * **Example error messages:**<br/>
+ * InvalidRedirectDestination: The redirect from "FROM" to "TO" is invalid. The destination "TO" does not match any existing route in your project.
+ * InvalidRedirectDestination: The redirect from "FROM" to "TO" is invalid. The destination "TO" is missing the dynamic parameter [PARAM] required by the source route "FROM".
  * @see
  * - [Configured redirects](https://docs.astro.build/en/guides/routing/#configured-redirects)
  * @description
- * A dynamic redirect destination must match an existing route pattern.
+ * A dynamic redirect destination must match an existing route pattern and include
+ * the source route's dynamic parameters.
  * This error occurs when a redirect with dynamic parameters points to a destination
- * that doesn't correspond to any page in your project.
+ * that doesn't correspond to any page in your project, or omits parameters from
+ * the source route.
  */
 export const InvalidRedirectDestination = {
 	name: 'InvalidRedirectDestination',
 	title: 'Invalid redirect destination.',
-	message: (from: string, to: string) =>
-		`The redirect from "${from}" to "${to}" is invalid. The destination "${to}" does not match any existing route in your project.`,
-	hint: 'If you are redirecting to a specific page of a dynamic route (e.g., "/posts/[slug]/1"), this is not supported. The destination must be either a static path or a route pattern that matches an existing page (e.g., "/posts/[slug]/[page]").',
+	message(from: string, to: string, missingParams?: string[]) {
+		if (missingParams?.length) {
+			const params = missingParams.map((param) => `[${param}]`).join(', ');
+			const paramsLabel = missingParams.length === 1 ? 'parameter' : 'parameters';
+			return `The redirect from "${from}" to "${to}" is invalid. The destination "${to}" is missing the dynamic ${paramsLabel} ${params} required by the source route "${from}".`;
+		}
+
+		return `The redirect from "${from}" to "${to}" is invalid. The destination "${to}" does not match any existing route in your project.`;
+	},
+	hint: 'If you are redirecting to a specific page of a dynamic route (e.g., "/posts/[slug]/1"), this is not supported. The destination must be either a static path or a route pattern that matches an existing page and includes the dynamic parameters from the source route (e.g., "/posts/[slug]/[page]").',
 } satisfies ErrorData;
 
 /**
