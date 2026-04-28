@@ -16,7 +16,7 @@ import { provideSession } from '../session/handler.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 import { prepareResponse } from '../app/prepare-response.js';
 import type { BaseApp } from '../app/base.js';
-import type { Pipeline } from '../base-pipeline.js';
+import { type Pipeline, PipelineFeatures } from '../base-pipeline.js';
 
 export class AstroHandler {
 	#app: BaseApp<Pipeline>;
@@ -37,6 +37,8 @@ export class AstroHandler {
 	 * `astro:i18n.middleware(...)` into their own `onRequest`.
 	 */
 	#i18n: I18n | undefined;
+	/** Whether sessions are configured on the manifest. */
+	#hasSession: boolean;
 
 	constructor(app: BaseApp<Pipeline>) {
 		this.#app = app;
@@ -46,6 +48,7 @@ export class AstroHandler {
 		this.#pagesHandler = new PagesHandler(app.pipeline);
 		this.#cacheHandler = new CacheHandler(app);
 		this.#renderRouteCallback = this.#actionsAndPages.bind(this);
+		this.#hasSession = !!app.manifest.sessionConfig;
 		const i18n = app.manifest.i18n;
 		if (i18n && i18n.strategy !== 'manual') {
 			this.#i18n = new I18n(
@@ -79,7 +82,7 @@ export class AstroHandler {
 	}
 
 	async handle(state: FetchState): Promise<Response> {
-		const trailingSlashRedirect = this.#trailingSlashHandler.handle(state.request);
+		const trailingSlashRedirect = this.#trailingSlashHandler.handle(state);
 		if (trailingSlashRedirect) {
 			return trailingSlashRedirect;
 		}
@@ -113,9 +116,16 @@ export class AstroHandler {
 
 		let response;
 		try {
-			const sessionP = provideSession(state);
-			const cacheP = provideCache(state);
-			if (sessionP || cacheP) await Promise.all([sessionP, cacheP]);
+			// Only call provider functions when the feature is configured.
+			// Each call does property lookups + state.provide() which
+			// allocates a Map on the hot path when nothing is configured.
+			if (this.#hasSession || this.#app.pipeline.cacheConfig) {
+				const sessionP = this.#hasSession ? provideSession(state) : undefined;
+				const cacheP = this.#app.pipeline.cacheConfig ? provideCache(state) : undefined;
+				if (sessionP || cacheP) await Promise.all([sessionP, cacheP]);
+			}
+			// Track feature usage even when skipped.
+			state.pipeline.usedFeatures |= PipelineFeatures.sessions;
 
 			// Redirect routes short-circuit the pipeline: no middleware, no
 			// page dispatch, no i18n post-processing. Inline routeData.type
@@ -133,17 +143,26 @@ export class AstroHandler {
 				return redirectResponse;
 			}
 
-			// Run middleware + (optional) i18n post-processing together so
-			// that any cache wrapping sees the final response.
-			const runPipeline = async (): Promise<Response> => {
-				let res = await this.#astroMiddleware.handle(state, this.#renderRouteCallback);
+			// When no cache provider is configured (the common case), run
+			// the middleware + i18n pipeline directly without going through
+			// the cache handler. This avoids a closure allocation and an
+			// extra function call per request.
+			if (!this.#app.pipeline.cacheProvider) {
+				this.#app.pipeline.usedFeatures |= PipelineFeatures.cache;
+				response = await this.#astroMiddleware.handle(state, this.#renderRouteCallback);
 				if (this.#i18n) {
-					res = await this.#i18n.finalize(state, res);
+					response = await this.#i18n.finalize(state, response);
 				}
-				return res;
-			};
-
-			response = await this.#cacheHandler.handle(state, runPipeline);
+			} else {
+				const runPipeline = async (): Promise<Response> => {
+					let res = await this.#astroMiddleware.handle(state, this.#renderRouteCallback);
+					if (this.#i18n) {
+						res = await this.#i18n.finalize(state, res);
+					}
+					return res;
+				};
+				response = await this.#cacheHandler.handle(state, runPipeline);
+			}
 
 			const isRewrite = response.headers.has(REWRITE_DIRECTIVE_HEADER_KEY);
 

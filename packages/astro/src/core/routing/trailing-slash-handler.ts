@@ -7,8 +7,8 @@ import {
 } from '@astrojs/internal-helpers/path';
 import type { BaseApp } from '../app/base.js';
 import type { Pipeline } from '../base-pipeline.js';
+import type { FetchState } from '../fetch/fetch-state.js';
 import { prepareResponse } from '../app/prepare-response.js';
-import { getRenderOptions } from '../app/render-options.js';
 import { redirectTemplate } from './3xx.js';
 
 /**
@@ -28,8 +28,8 @@ export class TrailingSlashHandler {
 	 * Returns a redirect `Response` if the request pathname needs
 	 * normalization, or `undefined` if no redirect is required.
 	 */
-	handle(request: Request): Response | undefined {
-		const url = new URL(request.url);
+	handle(state: FetchState): Response | undefined {
+		const url = state.url;
 		const redirect = this.#redirectTrailingSlash(url.pathname);
 
 		// Not a redirect.
@@ -37,14 +37,14 @@ export class TrailingSlashHandler {
 			return undefined;
 		}
 
-		const addCookieHeader = getRenderOptions(request)?.addCookieHeader ?? false;
-		const status = request.method === 'GET' ? 301 : 308;
+		const addCookieHeader = state.renderOptions.addCookieHeader;
+		const status = state.request.method === 'GET' ? 301 : 308;
 		const response = new Response(
 			redirectTemplate({
 				status,
 				relativeLocation: url.pathname,
 				absoluteLocation: redirect,
-				from: request.url,
+				from: state.request.url,
 			}),
 			{
 				status,

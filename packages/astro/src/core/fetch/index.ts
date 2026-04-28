@@ -57,7 +57,7 @@ export function trailingSlash(state: FetchState): Response | undefined {
 		handler = new TrailingSlashHandler(app);
 		trailingSlashHandlers.set(app, handler);
 	}
-	return handler.handle(state.request);
+	return handler.handle(state);
 }
 
 const middlewareInstances = new WeakMap<BaseApp<Pipeline>, AstroMiddleware>();
