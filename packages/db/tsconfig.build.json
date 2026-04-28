@@ -1,0 +1,5 @@
+{
+  "extends": "../../tsconfig.build.json",
+  "exclude": ["${configDir}/src/runtime/virtual.ts"],
+  "references": [{ "path": "../astro/tsconfig.json" }]
+}

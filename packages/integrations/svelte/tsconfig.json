@@ -1,9 +1,5 @@
 {
   "extends": "../../../tsconfig.base.json",
-  "include": ["src"],
-  "compilerOptions": {
-    "rootDir": "./src",
-    "outDir": "./dist",
-    "verbatimModuleSyntax": false
-  }
+  "files": [],
+  "references": [{ "path": "./tsconfig.build.json" }, { "path": "./tsconfig.test.json" }]
 }

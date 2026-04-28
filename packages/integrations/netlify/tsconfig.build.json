@@ -1,0 +1,9 @@
+{
+  "extends": "../../../tsconfig.build.json",
+  "include": ["${configDir}/src", "${configDir}/virtual.d.ts"],
+  "references": [
+    { "path": "../../astro/tsconfig.json" },
+    { "path": "../../internal-helpers/tsconfig.json" },
+    { "path": "../../underscore-redirects/tsconfig.json" }
+  ]
+}

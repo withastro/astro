@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.build.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "jsx": "preserve"
+  },
+  "include": ["${configDir}/src", "${configDir}/dev-only.d.ts"],
+  "exclude": ["${configDir}/dist"],
+  "references": [
+    { "path": "../internal-helpers/tsconfig.json" },
+    { "path": "../telemetry/tsconfig.json" },
+    { "path": "../markdown/remark/tsconfig.json" }
+  ]
+}
