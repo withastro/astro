@@ -521,7 +521,7 @@ export class FetchState implements AstroFetchState {
 			if (pipeline.runtimeMode === 'production') {
 				pipeline.logger.warn(
 					'csp',
-					`context.csp was used when rendering the route ${colors.green(state.routeData!.route)}, but CSP was not configured. For more information, see https://docs.astro.build/en/reference/experimental-flags/csp/`,
+					`context.csp was used when rendering the route ${colors.green(state.routeData!.route)}, but CSP was not configured. For more information, see https://docs.astro.build/en/reference/configuration-reference/#securitycsp`,
 				);
 			}
 			return undefined;
