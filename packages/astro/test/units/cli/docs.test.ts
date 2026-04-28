@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { openDocsCommand } from '../../../dist/cli/docs/core/open-docs.js';
 import { ProcessCloudIdeProvider } from '../../../dist/cli/docs/infra/process-cloud-ide-provider.js';
+import { SpyLogger } from '../test-utils.ts';
 import {
-	SpyLogger,
 	FakeCloudIdeProvider,
 	FakeOperatingSystemProvider,
 	PassthroughCommandRunner,
@@ -28,7 +28,7 @@ describe('CLI docs', () => {
 					cloudIdeProvider,
 				});
 
-				assert.equal(logger.logs[0].type, 'error');
+				assert.equal(logger.logs[0].level, 'error');
 				assert.match(logger.logs[0].message, /It looks like your platform/);
 				assert.deepStrictEqual(commandExecutor.inputs, []);
 			});

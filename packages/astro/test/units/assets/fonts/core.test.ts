@@ -286,7 +286,7 @@ describe('fonts core', () => {
 				{
 					label: 'assets',
 					message: 'No data found for font family **Test**. Review your configuration',
-					type: 'warn',
+					level: 'warn',
 				},
 			]);
 		});
@@ -353,12 +353,12 @@ describe('fonts core', () => {
 				{
 					label: 'assets',
 					message: 'No data found for font family **Test**. Review your configuration',
-					type: 'warn',
+					level: 'warn',
 				},
 				{
 					label: 'assets',
 					message: '**Test** font family cannot be retrieved by the provider. Did you mean **a**?',
-					type: 'warn',
+					level: 'warn',
 				},
 			]);
 		});
@@ -580,7 +580,7 @@ describe('fonts core', () => {
 				bold: markdownBold,
 			});
 			assert.deepStrictEqual(
-				logger.logs.map((e) => e.type),
+				logger.logs.map((e) => e.level),
 				['warn', 'warn'],
 			);
 		});

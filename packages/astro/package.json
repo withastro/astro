@@ -82,9 +82,15 @@
     "./errors": "./dist/core/errors/userError.js",
     "./middleware": "./dist/core/middleware/index.js",
     "./virtual-modules/*": "./dist/virtual-modules/*",
+    "./logger": "./dist/core/logger/public.js",
+    "./logger/json": "./dist/core/logger/impls/json.js",
+    "./logger/node": "./dist/core/logger/impls/node.js",
+    "./logger/compose": "./dist/core/logger/impls/compose.js",
+    "./logger/console": "./dist/core/logger/impls/console.js",
     "./_internal/assets": "./dist/assets/internal.js",
     "./_internal/logger": "./dist/core/logger/core.js",
     "./_internal/test/test-adapter": "./test/test-adapter.ts",
+    "./_internal/test/units/test-utils": "./test/units/test-utils.ts",
     "./_internal/test/test-utils": "./test/test-utils.ts"
   },
   "bin": {
@@ -276,7 +282,12 @@
       "./zod": "./dist/zod.js",
       "./errors": "./dist/core/errors/userError.js",
       "./middleware": "./dist/core/middleware/index.js",
-      "./virtual-modules/*": "./dist/virtual-modules/*"
+      "./virtual-modules/*": "./dist/virtual-modules/*",
+      "./logger": "./dist/core/logger/public.js",
+      "./logger/json": "./dist/core/logger/impls/json.js",
+      "./logger/node": "./dist/core/logger/impls/node.js",
+      "./logger/compose": "./dist/core/logger/impls/compose.js",
+      "./logger/console": "./dist/core/logger/impls/console.js"
     },
     "provenance": true
   },

@@ -11,7 +11,7 @@ import {
 } from '../render/ssr-element.js';
 import { getFallbackRoute, routeIsFallback, routeIsRedirect } from '../routing/helpers.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
-import { createConsoleLogger } from './logging.js';
+import { createConsoleLogger } from '../logger/impls/console.js';
 export class AppPipeline extends Pipeline {
 	getName(): string {
 		return 'AppPipeline';
@@ -29,7 +29,9 @@ export class AppPipeline extends Pipeline {
 				return createAssetLink(bundlePath, manifest.base, manifest.assetsPrefix);
 			}
 		};
-		const logger = createConsoleLogger(manifest.logLevel);
+		// Start with console logger synchronously; the custom logger destination
+		// (if configured) is lazily resolved via pipeline.getLogger() on first request.
+		const logger = createConsoleLogger({ level: manifest.logLevel });
 		const pipeline = new AppPipeline(
 			logger,
 			manifest,

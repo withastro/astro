@@ -6,7 +6,7 @@ import {
 	renderRedirect,
 	resolveRedirectTarget,
 } from '../../../dist/core/redirects/render.js';
-import { createMockRenderContext } from '../mocks.ts';
+import { createLightRenderContext } from '../mocks.ts';
 
 import type { RenderContext } from '../../../dist/core/render-context.js';
 import type { RouteData } from '../../../dist/types/public/internal.js';
@@ -43,7 +43,7 @@ describe('redirects/render', () => {
 
 	describe('renderRedirect', () => {
 		it('returns 301 for GET requests', async () => {
-			const renderContext = createMockRenderContext({
+			const renderContext = createLightRenderContext({
 				request: new Request('http://localhost/source'),
 				routeData: {
 					type: 'redirect',
@@ -58,7 +58,7 @@ describe('redirects/render', () => {
 		});
 
 		it('returns 308 for non-GET requests', async () => {
-			const renderContext = createMockRenderContext({
+			const renderContext = createLightRenderContext({
 				request: new Request('http://localhost/source', { method: 'POST' }),
 				routeData: {
 					type: 'redirect',
@@ -73,7 +73,7 @@ describe('redirects/render', () => {
 		});
 
 		it('handles redirect object with custom status', async () => {
-			const renderContext = createMockRenderContext({
+			const renderContext = createLightRenderContext({
 				routeData: {
 					type: 'redirect',
 					redirect: { destination: '/target', status: 302 },
@@ -89,7 +89,7 @@ describe('redirects/render', () => {
 		});
 
 		it('encodes URIs properly', async () => {
-			const renderContext = createMockRenderContext({
+			const renderContext = createLightRenderContext({
 				routeData: {
 					type: 'redirect',
 					redirect: '/target with spaces',
@@ -102,7 +102,7 @@ describe('redirects/render', () => {
 		});
 
 		it('handles external redirects', async () => {
-			const renderContext = createMockRenderContext({
+			const renderContext = createLightRenderContext({
 				routeData: {
 					type: 'redirect',
 					redirect: 'https://example.com',
@@ -117,7 +117,7 @@ describe('redirects/render', () => {
 		});
 
 		it('substitutes single dynamic parameter', async () => {
-			const renderContext = createMockRenderContext({
+			const renderContext = createLightRenderContext({
 				routeData: {
 					type: 'redirect',
 					redirect: '/articles/[slug]',
@@ -131,7 +131,7 @@ describe('redirects/render', () => {
 		});
 
 		it('substitutes multiple dynamic parameters', async () => {
-			const renderContext = createMockRenderContext({
+			const renderContext = createLightRenderContext({
 				routeData: {
 					type: 'redirect',
 					redirect: '/new/[param1]/[param2]',
@@ -145,7 +145,7 @@ describe('redirects/render', () => {
 		});
 
 		it('substitutes spread parameters', async () => {
-			const renderContext = createMockRenderContext({
+			const renderContext = createLightRenderContext({
 				routeData: {
 					type: 'redirect',
 					redirect: '/new/[...rest]',
@@ -159,7 +159,7 @@ describe('redirects/render', () => {
 		});
 
 		it('encodes special characters in parameters', async () => {
-			const renderContext = createMockRenderContext({
+			const renderContext = createLightRenderContext({
 				routeData: {
 					type: 'redirect',
 					redirect: '/new/[city]',
@@ -173,7 +173,7 @@ describe('redirects/render', () => {
 		});
 
 		it('uses redirectRoute when available', async () => {
-			const renderContext = createMockRenderContext({
+			const renderContext = createLightRenderContext({
 				routeData: {
 					type: 'redirect',
 					redirect: '/not-used',
@@ -190,7 +190,7 @@ describe('redirects/render', () => {
 		});
 
 		it('falls back to "/" when no redirect is defined', async () => {
-			const renderContext = createMockRenderContext({
+			const renderContext = createLightRenderContext({
 				routeData: {
 					type: 'redirect',
 					redirect: undefined,

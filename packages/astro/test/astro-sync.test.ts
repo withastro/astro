@@ -3,7 +3,7 @@ import * as fs from 'node:fs';
 import { beforeEach, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
-import type { AstroLogMessage } from '../dist/core/logger/core.js';
+import type { AstroLoggerMessage } from '../dist/core/logger/core.js';
 import { AstroLogger } from '../dist/core/logger/core.js';
 import { type Fixture, loadFixture } from './test-utils.ts';
 
@@ -244,7 +244,7 @@ describe('astro sync', () => {
 
 	describe('No content config', () => {
 		it('Syncs silently without error when content config does not exist', async () => {
-			const logs: AstroLogMessage[] = [];
+			const logs: AstroLoggerMessage[] = [];
 			const logger = new AstroLogger({
 				level: 'debug',
 				destination: {

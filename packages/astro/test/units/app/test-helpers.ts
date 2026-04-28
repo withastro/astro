@@ -4,6 +4,7 @@ import type {
 	SSRManifestCSP,
 	RouteInfo,
 } from '../../../dist/core/app/types.js';
+import type { LoggerHandlerConfig } from '../../../dist/core/logger/config.js';
 import type { RouteData } from '../../../dist/types/public/internal.js';
 
 export function createManifest({
@@ -12,23 +13,26 @@ export function createManifest({
 	base = '/',
 	trailingSlash = 'ignore',
 	middleware = undefined,
+	experimentalLogger = undefined,
 	actions = undefined,
-	actionBodySizeLimit = 0,
+	actionBodySizeLimit = 1024 * 1024,
 	i18n = undefined,
 	csp = undefined,
 	serverLike = true,
+	...overrides
 }: {
 	routes?: RouteInfo[];
 	pageMap?: SSRManifest['pageMap'];
 	base?: string;
 	trailingSlash?: 'always' | 'never' | 'ignore';
 	middleware?: SSRManifest['middleware'];
+	experimentalLogger?: LoggerHandlerConfig;
 	actions?: SSRManifest['actions'];
 	actionBodySizeLimit?: number;
 	i18n?: SSRManifestI18n;
 	csp?: SSRManifestCSP;
 	serverLike?: boolean;
-} = {}): SSRManifest {
+} & Partial<SSRManifest> = {}): SSRManifest {
 	const rootDir = new URL('file:///astro-test/');
 	const buildDir = new URL('file:///astro-test/dist/');
 
@@ -56,6 +60,7 @@ export function createManifest({
 		key: Promise.resolve({} as CryptoKey),
 		i18n,
 		middleware,
+		experimentalLogger,
 		actions,
 		sessionDriver: undefined,
 		checkOrigin: false,
@@ -85,6 +90,7 @@ export function createManifest({
 		experimentalQueuedRendering: {
 			enabled: false,
 		},
+		...overrides,
 	} as SSRManifest;
 }
 

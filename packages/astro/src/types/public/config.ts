@@ -25,6 +25,7 @@ import type {
 } from '../../core/session/types.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
+import type { LoggerHandlerConfig } from '../../core/logger/config.js';
 
 export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
 
@@ -3059,6 +3060,32 @@ export interface AstroUserConfig<
 			 */
 			contentCache?: boolean;
 		};
+		/**
+		 * @name experimental.logger
+		 * @type {{ entrypoint: string; config?: Record<string, unknown> }}
+		 * @default `undefined`
+		 * @version 6.2.0
+		 * @description
+		 *
+		 * Configure a custom logger by defining its entrypoint and, optionally, providing a serializable configuration:
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   experimental: {
+		 *     logger: {
+		 *       entrypoint: "@org/astro-logger",
+		 *       config: {
+		 *        level: "error"
+		 *       }
+		 *     }
+		 *   }
+		 * });
+		 * ```
+		 */
+		logger?: LoggerHandlerConfig;
 	};
 }
 
