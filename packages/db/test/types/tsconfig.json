@@ -4,5 +4,6 @@
     "allowJs": true,
     "emitDeclarationOnly": false,
     "noEmit": true
-  }
+  },
+  "references": [{ "path": "../../tsconfig.build.json" }, { "path": "../../tsconfig.virtual.json" }]
 }

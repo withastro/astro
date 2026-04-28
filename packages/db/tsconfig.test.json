@@ -4,5 +4,5 @@
     "composite": false
   },
   "exclude": ["${configDir}/test/fixtures/**", "${configDir}/test/types/**"],
-  "references": [{ "path": "./tsconfig.build.json" }]
+  "references": [{ "path": "./tsconfig.build.json" }, { "path": "./tsconfig.virtual.json" }]
 }
