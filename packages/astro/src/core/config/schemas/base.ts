@@ -8,7 +8,6 @@ import type {
 } from '@astrojs/markdown-remark';
 import { markdownConfigDefaults, syntaxHighlightDefaults } from '@astrojs/markdown-remark';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
-import type { Config as SvgoConfig } from 'svgo';
 import * as z from 'zod/v4';
 import { FontFamilySchema } from '../../../assets/fonts/config.js';
 import { EnvSchema } from '../../../env/schema.js';
@@ -16,6 +15,7 @@ import type { AstroUserConfig, ViteUserConfig } from '../../../types/public/conf
 import { allowedDirectivesSchema, cspAlgorithmSchema, cspHashSchema } from '../../csp/config.js';
 import { CacheSchema, RouteRulesSchema } from '../../cache/config.js';
 import { SessionSchema } from '../../session/config.js';
+import { SvgOptimizerSchema } from '../../../assets/svg/config.js';
 
 // The below types are required boilerplate to work around a Zod issue since v3.21.2. Since that version,
 // Zod's compiled TypeScript would "simplify" certain values to their base representation, causing references
@@ -109,13 +109,17 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		clientPrerender: false,
 		contentIntellisense: false,
 		chromeDevtoolsWorkspace: false,
-		svgo: false,
 		rustCompiler: false,
 		queuedRendering: {
 			enabled: false,
 		},
+		logger: {
+			entrypoint: 'astro/logger/node',
+		},
 	},
-} satisfies AstroUserConfig & { server: { open: boolean } };
+} satisfies AstroUserConfig & {
+	server: { open: boolean };
+};
 
 const highlighterTypesSchema = z
 	.union([z.literal('shiki'), z.literal('prism')])
@@ -168,7 +172,10 @@ export const AstroConfigSchema = z.object({
 		.default(ASTRO_CONFIG_DEFAULTS.cacheDir)
 		.transform((val) => new URL(val)),
 	site: z.string().url().optional(),
-	compressHTML: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.compressHTML),
+	compressHTML: z
+		.union([z.boolean(), z.literal('jsx')])
+		.optional()
+		.default(ASTRO_CONFIG_DEFAULTS.compressHTML),
 	base: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.base),
 	trailingSlash: z
 		.union([z.literal('always'), z.literal('never'), z.literal('ignore')])
@@ -534,10 +541,7 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.chromeDevtoolsWorkspace),
-			svgo: z
-				.union([z.boolean(), z.custom<SvgoConfig>((value) => value && typeof value === 'object')])
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.svgo),
+			svgOptimizer: SvgOptimizerSchema.optional(),
 			cache: CacheSchema.optional(),
 			routeRules: RouteRulesSchema.optional(),
 			rustCompiler: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.rustCompiler),
@@ -549,6 +553,12 @@ export const AstroConfigSchema = z.object({
 				})
 				.optional()
 				.prefault(ASTRO_CONFIG_DEFAULTS.experimental.queuedRendering),
+			logger: z
+				.object({
+					entrypoint: z.string(),
+					config: z.record(z.string(), z.any()).optional(),
+				})
+				.optional(),
 		})
 		.prefault({}),
 	legacy: z
