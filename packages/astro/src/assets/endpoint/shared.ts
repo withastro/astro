@@ -6,12 +6,13 @@ import * as mime from 'mrmime';
 import { getConfiguredImageService } from '../internal.js';
 import { etag } from '../utils/etag.js';
 import { inferSourceFormat } from '../utils/inferSourceFormat.js';
+import { fetchWithRedirects } from '../utils/redirectValidation.js';
 
 export async function loadRemoteImage(src: URL): Promise<Buffer | undefined> {
 	try {
-		const res = await fetch(src, { redirect: 'manual' });
+		const res = await fetchWithRedirects({ url: src });
 
-		if (res.status >= 300 && res.status < 400) {
+		if (!isRemoteAllowed(res.url, imageConfig)) {
 			return undefined;
 		}
 
