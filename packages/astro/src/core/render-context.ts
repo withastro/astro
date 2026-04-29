@@ -581,6 +581,7 @@ export class RenderContext {
 			},
 			routePattern: this.routeData.route,
 			isPrerendered: this.routeData.prerender,
+			buildPhase: this.routeData.prerender && !this.getStaticAsset ? 'build' : 'request',
 			get clientAddress() {
 				return renderContext.getClientAddress();
 			},
@@ -846,6 +847,7 @@ export class RenderContext {
 			generator: ASTRO_GENERATOR,
 			routePattern: this.routeData.route,
 			isPrerendered: this.routeData.prerender,
+			buildPhase: this.routeData.prerender && !renderContext.getStaticAsset ? 'build' : 'request',
 			cookies,
 			get session() {
 				if (this.isPrerendered) {

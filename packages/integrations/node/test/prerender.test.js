@@ -353,6 +353,53 @@ describe('Prerendered pages and middleware mode', () => {
 			assert.equal(authRes.headers.get('x-prerender-private'), 'true');
 		});
 	});
+
+	describe('Always mode', () => {
+		before(async () => {
+			process.env.PRERENDER = true;
+			fixture = await loadFixture({
+				root: './fixtures/prerender/',
+				output: 'server',
+				outDir: './dist/prerender-always-mode',
+				adapter: nodejs({ mode: 'standalone', middlewareMode: 'always' }),
+			});
+			await fixture.build();
+			const { startServer } = await fixture.loadAdapterEntryModule();
+			const res = startServer();
+			server = res.server;
+			await waitServerListen(server.server);
+		});
+
+		after(async () => {
+			await server.stop();
+			await fixture.clean();
+
+			delete process.env.PRERENDER;
+		});
+
+		it('reports buildPhase as "request" for SSR routes at request time', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/one`);
+			assert.equal(res.status, 200);
+			assert.equal(res.headers.get('x-build-phase'), 'request');
+		});
+
+		it('reports buildPhase as "request" for prerendered routes at request time', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/two`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+			assert.equal(res.status, 200);
+			assert.equal(res.headers.get('x-build-phase'), 'request');
+			assert.equal($('#build-phase').text(), 'build');
+		});
+
+		it('reports buildPhase as "build" for prerendered routes at build time', async () => {
+			// The built HTML for /two should contain the buildPhase value recorded during
+			// static generation, which is "build".
+			const builtHtml = await fixture.readFile('/client/two/index.html');
+			const $ = cheerio.load(builtHtml);
+			assert.equal($('#build-phase').text(), 'build');
+		});
+	});
 });
 
 describe('Hybrid rendering', () => {

@@ -90,6 +90,7 @@ function createContext({
 			});
 		},
 		isPrerendered: false,
+		buildPhase: 'request',
 		get preferredLocale(): string | undefined {
 			return (preferredLocale ??= computePreferredLocale(request, userDefinedLocales));
 		},

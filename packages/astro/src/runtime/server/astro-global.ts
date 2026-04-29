@@ -50,6 +50,9 @@ export function createAstro(site: string | undefined): AstroGlobal {
 		get isPrerendered(): any {
 			throw createError('isPrerendered');
 		},
+		get buildPhase(): any {
+			throw createError('buildPhase');
+		},
 		get locals(): any {
 			throw createError('locals');
 		},
