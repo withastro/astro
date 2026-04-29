@@ -139,7 +139,7 @@ export function getFetchStateFromAPIContext(context: APIContext): FetchState {
  * for rarely-accessed memoized caches and Maps.
  */
 export class FetchState implements AstroFetchState {
-		pipeline: Pipeline;
+	pipeline: Pipeline;
 	/**
 	 * The request to render. Mutated during rewrites so subsequent renders
 	 * see the rewritten URL.
