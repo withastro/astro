@@ -1,4 +1,6 @@
 import CachePolicy from 'http-cache-semantics';
+// @ts-expect-error
+import { imageConfig } from 'astro:assets';
 
 export type RemoteCacheEntry = {
 	data?: string;
@@ -9,7 +11,7 @@ export type RemoteCacheEntry = {
 
 export async function loadRemoteImage(src: string, fetchFn: typeof fetch = globalThis.fetch) {
 	const req = new Request(src);
-	const res = await fetchFn(req, { redirect: 'manual' });
+	const res = await fetchFn(req, { redirect: imageConfig.followRedirects ? "follow" : "manual" }); // TODO: Configurable
 
 	if (res.status >= 300 && res.status < 400) {
 		throw new Error(`Failed to load remote image ${src}. The request was redirected.`);
@@ -52,7 +54,7 @@ export async function revalidateRemoteImage(
 		...(revalidationData.lastModified && { 'If-Modified-Since': revalidationData.lastModified }),
 	};
 	const req = new Request(src, { headers, cache: 'no-cache' });
-	const res = await fetchFn(req, { redirect: 'manual' });
+	const res = await fetchFn(req, { redirect: imageConfig.followRedirects ? "follow" : "manual" }); // TODO: Configurable
 
 	// Allow 304 Not Modified: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/304
 	if (!res.ok && res.status !== 304) {

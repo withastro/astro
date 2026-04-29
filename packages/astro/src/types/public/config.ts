@@ -1927,6 +1927,16 @@ export interface AstroUserConfig<
 		 * the more comprehensive list is used, because only the required sizes are generated. For local services, the list is shorter to reduce the number of images generated.
 		 */
 		breakpoints?: number[];
+		/**
+		 * @docs
+		 * @name image.followRedirects
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 6.1.0
+		 * @description
+		 * Whether redirects returned by remote image sources should be followed.
+		 */
+		followRedirects?: boolean;
 	};
 
 	/**

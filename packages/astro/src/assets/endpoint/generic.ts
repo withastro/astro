@@ -12,7 +12,7 @@ async function loadRemoteImage(src: URL, headers: Headers) {
 		const res = await fetch(src, {
 			// Forward all headers from the original request
 			headers,
-			redirect: 'manual',
+			redirect: imageConfig.followRedirects ? "follow" : "manual", // TODO: Configurable
 		});
 
 		if (res.status >= 300 && res.status < 400) {

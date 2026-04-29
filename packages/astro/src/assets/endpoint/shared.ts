@@ -9,7 +9,7 @@ import { inferSourceFormat } from '../utils/inferSourceFormat.js';
 
 export async function loadRemoteImage(src: URL): Promise<Buffer | undefined> {
 	try {
-		const res = await fetch(src, { redirect: 'manual' });
+		const res = await fetch(src, { redirect: imageConfig.followRedirects ? "follow" : "manual" }); // TODO: Configurable
 
 		if (res.status >= 300 && res.status < 400) {
 			return undefined;

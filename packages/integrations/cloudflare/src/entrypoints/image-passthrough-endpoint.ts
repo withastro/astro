@@ -20,7 +20,7 @@ export const GET: APIRoute = async ({ request }) => {
 			if (!isRemoteAllowed(href, imageConfig)) {
 				return new Response('Forbidden', { status: 403 });
 			}
-			response = await fetch(href, { redirect: 'manual' });
+			response = await fetch(href, { redirect: imageConfig.followRedirects ? "follow" : "manual" }); // TODO: Configurable
 		} else {
 			const sourceUrl = new URL(href, url.origin);
 			if (sourceUrl.origin !== url.origin) {
