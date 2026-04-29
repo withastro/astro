@@ -97,6 +97,7 @@ export class CacheHandler {
 				{
 					request: state.request,
 					url: new URL(state.request.url),
+					waitUntil: state.renderOptions.waitUntil,
 				},
 				async () => {
 					const res = await next();
