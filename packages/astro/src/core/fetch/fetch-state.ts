@@ -344,6 +344,8 @@ export class FetchState implements AstroFetchState {
 			cookies: this.cookies,
 			createAstro: (props, slots) => state.createAstro(result, props, slots, ctx),
 			links,
+			// SAFETY: createResult is only called after route resolution, so routeData
+			// is always set and the params getter always returns a value.
 			params: this.params!,
 			partial,
 			pathname: this.pathname,
@@ -877,6 +879,8 @@ export class FetchState implements AstroFetchState {
 			set locals(_) {
 				throw new AstroError(AstroErrorData.LocalsReassigned);
 			},
+			// SAFETY: getActionAPIContext is only called after route resolution,
+			// so routeData is always set and the params getter always returns a value.
 			params: this.params!,
 			get preferredLocale() {
 				return state.computePreferredLocale();
