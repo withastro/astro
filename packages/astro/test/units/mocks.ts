@@ -2,6 +2,7 @@ import { createBasicPipeline } from './test-utils.ts';
 import { makeRoute, staticPart } from './routing/test-helpers.ts';
 import { AstroCookies } from '../../dist/core/cookies/index.js';
 import { App } from '../../dist/core/app/app.js';
+import { RenderContext } from '../../dist/core/render-context.js';
 import { baseService } from '../../dist/assets/services/service.js';
 import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import {
@@ -11,7 +12,7 @@ import {
 	spreadAttributes,
 } from '../../dist/runtime/server/index.js';
 import { createManifest, createRouteInfo } from './app/test-helpers.ts';
-
+import type { AstroLogger } from '../../dist/core/logger/core.js';
 import type { Pipeline } from '../../dist/core/render/index.js';
 import type { RouteData, RoutePart, RouteType } from '../../dist/types/public/internal.js';
 import type { APIContext } from '../../dist/types/public/context.js';
@@ -27,7 +28,7 @@ import type { ImageTransform } from '../../dist/assets/types.js';
  * in their respective directories.
  */
 
-interface MockRenderContextOverrides {
+interface LightMockRenderContextOverrides {
 	request?: Request;
 	routeData?: Partial<RouteData>;
 	params?: Record<string, string>;
@@ -36,21 +37,15 @@ interface MockRenderContextOverrides {
 }
 
 /**
- * Creates a minimal RenderContext mock for unit testing redirect functions.
+ * Creates a lightweight RenderContext-shaped plain object.
  *
- * This is a lightweight mock that provides only what renderRedirect() needs,
- * without the overhead of creating a full RenderContext instance.
+ * Use this when the code under test only reads a few fields
+ * (e.g. `renderRedirect` which only needs `request`, `routeData`,
+ * `params` and `pipeline`).
  */
-export function createMockRenderContext(overrides: MockRenderContextOverrides = {}) {
+export function createLightRenderContext(overrides: LightMockRenderContextOverrides = {}) {
 	const pipeline =
-		overrides.pipeline ||
-		createBasicPipeline({
-			manifest: {
-				rootDir: new URL(import.meta.url),
-				experimentalQueuedRendering: { enabled: true },
-				trailingSlash: 'never',
-			} as unknown as SSRManifest,
-		});
+		overrides.pipeline || createBasicPipeline({ manifest: { trailingSlash: 'never' } });
 
 	return {
 		request: overrides.request || new Request('http://localhost/'),
@@ -59,6 +54,54 @@ export function createMockRenderContext(overrides: MockRenderContextOverrides = 
 		pipeline,
 		...overrides,
 	};
+}
+
+interface MockRenderContextOverrides {
+	request?: Request;
+	route?: string;
+	routeData?: Partial<RouteData>;
+	pipeline?: Pipeline;
+	logger?: AstroLogger;
+	manifest?: Partial<SSRManifest>;
+	status?: number;
+	skipMiddleware?: boolean;
+	clientAddress?: string;
+}
+
+/**
+ * Creates a real `RenderContext` instance for unit testing.
+ *
+ * Pass `logger` and/or `manifest` to customise the pipeline without
+ * having to build one manually. When a full `pipeline` override is
+ * provided, `logger` and `manifest` are ignored.
+ *
+ * Uses `createRouteData` internally so a simple `route: '/'` string
+ * is enough — no need to construct a full `RouteData` object.
+ */
+export async function createMockRenderContext(
+	overrides: MockRenderContextOverrides = {},
+): Promise<RenderContext> {
+	const pipeline =
+		overrides.pipeline ||
+		createBasicPipeline({
+			logger: overrides.logger,
+			manifest: { trailingSlash: 'never', ...overrides.manifest },
+		});
+
+	const routeData = createRouteData({
+		route: overrides.route ?? '/',
+		...overrides.routeData,
+	});
+
+	return RenderContext.create({
+		pipeline,
+		request: overrides.request || new Request('http://localhost/'),
+		routeData,
+		pathname: routeData.pathname ?? '/',
+		clientAddress: overrides.clientAddress,
+		status: overrides.status,
+		skipMiddleware: overrides.skipMiddleware,
+	});
 }
 
 interface MockAPIContextOverrides extends Partial<Omit<APIContext, 'url'>> {

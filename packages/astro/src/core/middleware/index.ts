@@ -122,6 +122,7 @@ function createContext({
 		session: undefined,
 		cache: new DisabledAstroCache(),
 		csp: undefined,
+		logger: undefined,
 	};
 	return Object.assign(context, {
 		getActionResult: createGetActionResult(context.locals),

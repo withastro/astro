@@ -1478,6 +1478,32 @@ export const FontFamilyNotFound = {
 /**
  * @docs
  * @description
+ * Font file URL not found
+ * @message
+ * The URL passed to the `experimental_getFontFileURL()` function is invalid.
+ */
+export const FontFileUrlNotFound = {
+	name: 'FontFileUrlNotFound',
+	title: 'Font file URL not found',
+	message: (url: string) =>
+		`The \`"${url}"\` URL passed to the \`experimental_getFontFileURL()\` function is invalid.`,
+	hint: 'Make sure you pass a valid URL, obtained via the \`fontData\` object.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * `experimental_getFontFileURL()` requires the request URL with on-demand rendering.
+ */
+export const MissingGetFontFileRequestUrl = {
+	name: 'MissingGetFontFileRequestUrl',
+	title: '`experimental_getFontFileURL()` requires the request URL with on-demand rendering.',
+	hint: 'Pass the request URL as the 2nd argument, for example `Astro.url`.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
  * Unavailable Astro global in getStaticPaths
  * @message
  * The Astro global is not available in getStaticPaths().
@@ -1489,6 +1515,30 @@ export const UnavailableAstroGlobal = {
 		`The Astro global is not available in this scope. Please remove "Astro.${name}" from your getStaticPaths() function.`,
 } satisfies ErrorData;
 
+/**
+ * @docs
+ * @description
+ * Unable to load the logger.
+ * @message
+ * Couldn't load the logger at the given path.
+ */
+export const UnableToLoadLogger = {
+	name: 'UnableToLoadLogger',
+	title: 'Unable to load the logger.',
+	message: (path: string) => `Couldn't load the logger at given path "${path}".`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * The configuration of the logger is not serializable.
+ * @message
+ * The configuration of the logger is not serializable.
+ */
+export const LoggerConfigurationNotSerializable = {
+	name: 'LoggerConfigurationNotSerializable',
+	title: 'The configuration of the logger is not serializable',
+} satisfies ErrorData;
 /**
  * @docs
  * @kind heading

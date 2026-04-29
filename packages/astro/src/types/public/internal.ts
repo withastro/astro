@@ -320,6 +320,12 @@ export interface SSRMetadata {
 	extraStyleHashes: string[];
 	extraScriptHashes: string[];
 	propagators: Set<AstroComponentInstance | ServerIslandComponent>;
+	/**
+	 * Tracks nesting depth of HTML `<template>` elements during rendering.
+	 * Scripts rendered inside `<template>` tags should not be deduplicated,
+	 * because template content is inert and scripts inside don't execute.
+	 */
+	templateDepth: number;
 }
 
 export type SSRError = Error & ViteErrorPayload['err'];

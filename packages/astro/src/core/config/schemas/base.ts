@@ -114,8 +114,13 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		queuedRendering: {
 			enabled: false,
 		},
+		logger: {
+			entrypoint: 'astro/logger/node',
+		},
 	},
-} satisfies AstroUserConfig & { server: { open: boolean } };
+} satisfies AstroUserConfig & {
+	server: { open: boolean };
+};
 
 const highlighterTypesSchema = z
 	.union([z.literal('shiki'), z.literal('prism')])
@@ -548,6 +553,12 @@ export const AstroConfigSchema = z.object({
 				})
 				.optional()
 				.prefault(ASTRO_CONFIG_DEFAULTS.experimental.queuedRendering),
+			logger: z
+				.object({
+					entrypoint: z.string(),
+					config: z.record(z.string(), z.any()).optional(),
+				})
+				.optional(),
 		})
 		.prefault({}),
 	legacy: z
