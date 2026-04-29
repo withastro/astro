@@ -758,15 +758,24 @@ export class FetchState implements AstroFetchState {
 	 * matched route has no `.html` extension, strip `.html` / `/index.html`
 	 * suffixes so the rendering pipeline sees the canonical pathname.
 	 */
+	/**
+	 * In dev, strip `.html` / `/index.html` suffixes from the pathname
+	 * so the rendering pipeline sees the canonical route path. Skipped
+	 * when the matched route itself has an `.html` extension.
+	 */
+	#stripHtmlExtension(): void {
+		if (this.pipeline.runtimeMode === 'development' && this.routeData && !routeHasHtmlExtension(this.routeData)) {
+			this.pathname = this.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
+		}
+	}
+
 	#resolveRouteData(): void {
 		const pipeline = this.pipeline;
 
 		// Fast path: routeData was provided via render options (build, dev
 		// with adapter).
 		if (this.routeData) {
-			if (pipeline.runtimeMode === 'development' && !routeHasHtmlExtension(this.routeData)) {
-				this.pathname = this.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
-			}
+			this.#stripHtmlExtension();
 			return;
 		}
 
@@ -785,9 +794,7 @@ export class FetchState implements AstroFetchState {
 			pipeline.logger.debug('router', "Here's the available routes:\n", pipeline.manifestData);
 			return;
 		}
-		if (pipeline.runtimeMode === 'development' && !routeHasHtmlExtension(this.routeData)) {
-			this.pathname = this.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
-		}
+		this.#stripHtmlExtension();
 	}
 
 	/**
