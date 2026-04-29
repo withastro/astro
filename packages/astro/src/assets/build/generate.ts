@@ -210,7 +210,7 @@ export async function generateImagesForPath(
 						const revalidatedData = await revalidateRemoteImage(options.src as string, {
 							etag: JSONData.etag,
 							lastModified: JSONData.lastModified,
-						});
+						}, globalThis.fetch, env.imageConfig);
 
 						if (revalidatedData.data !== null) {
 							// Image cache was stale, update original image to avoid redownload
@@ -355,7 +355,7 @@ export function getStaticImageList(): AssetsGlobalStaticImagesList {
 
 async function loadImage(path: string, env: AssetEnv): Promise<ImageData> {
 	if (isRemotePath(path)) {
-		return await loadRemoteImage(path);
+		return await loadRemoteImage(path, globalThis.fetch, env.imageConfig);
 	}
 
 	return {

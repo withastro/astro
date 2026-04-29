@@ -1,6 +1,7 @@
 import CachePolicy from 'http-cache-semantics';
-// @ts-expect-error
-import { imageConfig } from 'astro:assets';
+import type { AstroConfig } from '../../types/public/config.js';
+
+type RemoteImageConfig = Pick<AstroConfig['image'], 'followRedirects'>;
 
 export type RemoteCacheEntry = {
 	data?: string;
@@ -9,7 +10,11 @@ export type RemoteCacheEntry = {
 	lastModified?: string;
 };
 
-export async function loadRemoteImage(src: string, fetchFn: typeof fetch = globalThis.fetch) {
+export async function loadRemoteImage(
+	src: string,
+	fetchFn: typeof fetch = globalThis.fetch,
+	imageConfig: RemoteImageConfig = { followRedirects: false },
+) {
 	const req = new Request(src);
 	const res = await fetchFn(req, { redirect: imageConfig.followRedirects ? 'follow' : 'manual' });
 
@@ -48,6 +53,7 @@ export async function revalidateRemoteImage(
 	src: string,
 	revalidationData: { etag?: string; lastModified?: string },
 	fetchFn: typeof fetch = globalThis.fetch,
+	imageConfig: RemoteImageConfig = { followRedirects: false },
 ) {
 	const headers = {
 		...(revalidationData.etag && { 'If-None-Match': revalidationData.etag }),
@@ -72,7 +78,7 @@ export async function revalidateRemoteImage(
 
 	if (res.ok && !data.length) {
 		// Server did not include body but indicated cache was stale
-		return await loadRemoteImage(src, fetchFn);
+		return await loadRemoteImage(src, fetchFn, imageConfig);
 	}
 
 	// calculate an expiration date based on the response's TTL

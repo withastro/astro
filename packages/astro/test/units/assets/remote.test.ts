@@ -76,4 +76,26 @@ describe('revalidateRemoteImage', () => {
 			/500/,
 		);
 	});
+
+	it('uses redirect="follow" when followRedirects is enabled', async () => {
+		let redirectMode: RequestRedirect | undefined;
+		const fetchMock = async (_req: Request, init?: RequestInit) => {
+			redirectMode = init?.redirect;
+			return {
+				status: 304,
+				ok: false,
+				headers: new Headers({ 'Cache-Control': 'max-age=60' }),
+				arrayBuffer: async () => new ArrayBuffer(0),
+			} as unknown as Response;
+		};
+
+		await revalidateRemoteImage(
+			'https://example.com/img.jpg',
+			{ etag: '"abc123"' },
+			fetchMock,
+			{ followRedirects: true },
+		);
+
+		assert.equal(redirectMode, 'follow');
+	});
 });
