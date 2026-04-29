@@ -2,4 +2,4 @@
 'astro': minor
 ---
 
-Prevent script deduplication inside `<template>` elements
+Prevents script deduplication inside `<template>` elements
