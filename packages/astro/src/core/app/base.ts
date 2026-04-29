@@ -16,8 +16,6 @@ import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { AstroIntegrationLogger, type AstroLogger } from '../logger/core.js';
 
-import { ensure404Route } from '../routing/astro-designed-error-pages.js';
-import { Router } from '../routing/router.js';
 import { DefaultFetchHandler } from '../fetch/default-handler.js';
 import type { FetchHandler } from '../fetch/types.js';
 import { appSymbol } from '../constants.js';
@@ -126,11 +124,10 @@ type ErrorPagePath =
 
 export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	manifest: SSRManifest;
-	manifestData: RoutesList;
+	manifestData: { routes: RouteData[] };
 	pipeline: P;
 	#adapterLogger: AstroIntegrationLogger | undefined;
 	baseWithoutTrailingSlash: string;
-	#router: Router;
 	/**
 	 * The handler that turns incoming `Request` objects into `Response`s.
 	 * Defaults to a `DefaultFetchHandler` pinned to this app and can be
@@ -169,13 +166,12 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 
 	constructor(manifest: SSRManifest, streaming = true, ...args: any[]) {
 		this.manifest = manifest;
-		this.manifestData = { routes: manifest.routes.map((route) => route.routeData) };
 		this.baseWithoutTrailingSlash = removeTrailingForwardSlash(manifest.base);
 		this.pipeline = this.createPipeline(streaming, manifest, ...args);
-		// This is necessary to allow running middlewares for 404 in SSR. There's special handling
-		// to return the host 404 if the user doesn't provide a custom 404
-		ensure404Route(this.manifestData);
-		this.#router = this.createRouter(this.manifestData);
+		// Share the pipeline's manifestData so both BaseApp and the pipeline
+		// see the same routes array (the pipeline constructor already
+		// ensures a 404 fallback route is present).
+		this.manifestData = this.pipeline.manifestData;
 		this.#fetchHandler = new DefaultFetchHandler(this);
 		this.#errorHandler = this.createErrorHandler();
 	}
@@ -248,7 +244,8 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 
 	set setManifestData(newManifestData: RoutesList) {
 		this.manifestData = newManifestData;
-		this.#router = this.createRouter(this.manifestData);
+		this.pipeline.manifestData = newManifestData;
+		this.pipeline.rebuildRouter();
 	}
 
 	public removeBase(pathname: string) {
@@ -293,25 +290,16 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		if (!pathname) {
 			pathname = prependForwardSlash(this.removeBase(url.pathname));
 		}
-		const match = this.#router.match(decodeURI(pathname), { allowWithoutBase: true });
-		if (match.type !== 'match') return undefined;
-		const routeData = match.route;
+		const routeData = this.pipeline.matchRoute(decodeURI(pathname));
+		if (!routeData) return undefined;
 		if (allowPrerenderedRoutes) {
 			return routeData;
 		}
 		// missing routes fall-through, pre rendered are handled by static layer
-		else if (routeData.prerender) {
+		if (routeData.prerender) {
 			return undefined;
 		}
 		return routeData;
-	}
-
-	private createRouter(manifestData: RoutesList): Router {
-		return new Router(manifestData.routes, {
-			base: this.manifest.base,
-			trailingSlash: this.manifest.trailingSlash,
-			buildFormat: this.manifest.buildFormat,
-		});
 	}
 
 	/**

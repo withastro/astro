@@ -12,12 +12,10 @@ import type { Params, Props, RewritePayload } from '../../types/public/common.js
 import type { APIContext, AstroGlobal } from '../../types/public/context.js';
 import type { RouteData, SSRResult } from '../../types/public/internal.js';
 import { AstroCookies } from '../cookies/index.js';
-import type { BaseApp } from '../app/base.js';
 import { type Pipeline, Slots } from '../render/index.js';
 import {
 	ASTRO_GENERATOR,
 	DEFAULT_404_COMPONENT,
-	appSymbol,
 	fetchStateSymbol,
 	originPathnameSymbol,
 	pipelineSymbol,
@@ -752,39 +750,33 @@ export class FetchState implements AstroFetchState {
 	 * suffixes so the rendering pipeline sees the canonical pathname.
 	 */
 	#resolveRouteData(): void {
+		const pipeline = this.pipeline;
+
 		// Fast path: routeData was provided via render options (build, dev
-		// with adapter). Only need the app reference for dev pathname
-		// normalization and fallback matching.
+		// with adapter).
 		if (this.routeData) {
-			const app = Reflect.get(this.request, appSymbol) as BaseApp<Pipeline> | undefined;
-			if (app?.isDev() && !routeHasHtmlExtension(this.routeData)) {
+			if (pipeline.runtimeMode === 'development' && !routeHasHtmlExtension(this.routeData)) {
 				this.pathname = this.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
 			}
 			return;
 		}
 
-		// Skip when there's no app on the request — this happens in test
-		// mocks and the container API where FetchState is created directly
-		// with just a pipeline.
-		const app = Reflect.get(this.request, appSymbol) as BaseApp<Pipeline> | undefined;
-		if (!app) return;
-
-		this.routeData = app.match(this.request);
-		app.logger.debug('router', 'Astro matched the following route for ' + this.request.url);
-		app.logger.debug('router', 'RouteData:\n' + this.routeData);
+		this.routeData = pipeline.matchRoute(decodeURI(this.pathname));
+		pipeline.logger.debug('router', 'Astro matched the following route for ' + this.request.url);
+		pipeline.logger.debug('router', 'RouteData:\n' + this.routeData);
 
 		// Fall back to a 404 route so middleware can still run.
 		if (!this.routeData) {
-			this.routeData = app.manifestData.routes.find(
+			this.routeData = pipeline.manifestData.routes.find(
 				(route) => route.component === '404.astro' || route.component === DEFAULT_404_COMPONENT,
 			);
 		}
 		if (!this.routeData) {
-			app.logger.debug('router', "Astro hasn't found routes that match " + this.request.url);
-			app.logger.debug('router', "Here's the available routes:\n", app.manifestData);
+			pipeline.logger.debug('router', "Astro hasn't found routes that match " + this.request.url);
+			pipeline.logger.debug('router', "Here's the available routes:\n", pipeline.manifestData);
 			return;
 		}
-		if (app.isDev() && !routeHasHtmlExtension(this.routeData)) {
+		if (pipeline.runtimeMode === 'development' && !routeHasHtmlExtension(this.routeData)) {
 			this.pathname = this.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
 		}
 	}

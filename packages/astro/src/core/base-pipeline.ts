@@ -22,6 +22,8 @@ import { sequence } from './middleware/sequence.js';
 import { RedirectSinglePageBuiltModule } from './redirects/index.js';
 import { RouteCache } from './render/route-cache.js';
 import { createDefaultRoutes, type DefaultRouteParams } from './routing/default.js';
+import { ensure404Route } from './routing/astro-designed-error-pages.js';
+import { Router } from './routing/router.js';
 import type { CacheProvider, CacheProviderFactory } from './cache/types.js';
 import type { CompiledCacheRoute } from './cache/runtime/route-matching.js';
 import type { SessionDriverFactory } from './session/types.js';
@@ -106,6 +108,11 @@ export abstract class Pipeline {
 	readonly cacheConfig: SSRManifest['cacheConfig'];
 	readonly serverIslands: SSRManifest['serverIslandMappings'];
 
+	/** Route data derived from the manifest, used for route matching. */
+	manifestData: { routes: RouteData[] };
+	/** Pattern-matching router built from manifestData. */
+	#router: Router;
+
 	constructor(
 		logger: AstroLogger,
 		manifest: SSRManifest,
@@ -163,6 +170,13 @@ export abstract class Pipeline {
 		this.cacheProvider = cacheProvider;
 		this.cacheConfig = cacheConfig;
 		this.serverIslands = serverIslands;
+		this.manifestData = { routes: (manifest.routes ?? []).map((route) => route.routeData) };
+		ensure404Route(this.manifestData);
+		this.#router = new Router(this.manifestData.routes, {
+			base: manifest.base,
+			trailingSlash: manifest.trailingSlash,
+			buildFormat: manifest.buildFormat,
+		});
 
 		// i18n (non-manual strategies) used to be pushed here as internal
 		// middleware, but it is now run explicitly as a post-processing step
@@ -180,6 +194,29 @@ export abstract class Pipeline {
 				this.htmlStringCache = this.createStringCache();
 			}
 		}
+	}
+
+	/**
+	 * Low-level route matching against the manifest routes. Returns the
+	 * matched `RouteData` or `undefined`. Does not filter prerendered
+	 * routes or check public assets — use `BaseApp.match()` for that.
+	 */
+	matchRoute(pathname: string): RouteData | undefined {
+		const match = this.#router.match(pathname, { allowWithoutBase: true });
+		if (match.type !== 'match') return undefined;
+		return match.route;
+	}
+
+	/**
+	 * Rebuilds the internal router after routes have been added or
+	 * removed (e.g. by the dev server on HMR).
+	 */
+	rebuildRouter(): void {
+		this.#router = new Router(this.manifestData.routes, {
+			base: this.manifest.base,
+			trailingSlash: this.manifest.trailingSlash,
+			buildFormat: this.manifest.buildFormat,
+		});
 	}
 
 	abstract headElements(routeData: RouteData): Promise<HeadElements> | HeadElements;
