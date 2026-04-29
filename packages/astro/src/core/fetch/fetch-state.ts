@@ -406,12 +406,17 @@ export class FetchState implements AstroFetchState {
 		slotValues: Record<string, any> | null,
 		apiContext: ActionAPIContext,
 	): AstroGlobal {
+		// The page partial (prototype for the Astro global) is cached for the
+		// lifetime of the request since it only depends on route-level state
+		// (cookies, locals, params, etc.). On the first call it's created and
+		// cached; subsequent components reuse it. During a rewrite the route
+		// changes, so we must recreate it to pick up the new state.
 		let astroPagePartial;
 		if (this.isRewriting) {
-			astroPagePartial = this.#astroPagePartial = this.createAstroPagePartial(result, apiContext);
-		} else {
-			astroPagePartial = this.#astroPagePartial ??= this.createAstroPagePartial(result, apiContext);
+			this.#astroPagePartial = this.createAstroPagePartial(result, apiContext);
 		}
+		this.#astroPagePartial ??= this.createAstroPagePartial(result, apiContext);
+		astroPagePartial = this.#astroPagePartial;
 		const astroComponentPartial = { props, self: null };
 		const Astro: Omit<AstroGlobal, 'self' | 'slots'> = Object.assign(
 			Object.create(astroPagePartial),
