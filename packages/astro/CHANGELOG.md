@@ -1,5 +1,192 @@
 # astro
 
+## 6.2.0
+
+### Minor Changes
+
+- [#16187](https://github.com/withastro/astro/pull/16187) [`fe58071`](https://github.com/withastro/astro/commit/fe58071817f447f832d9ce4341c0b5991d3c0cda) Thanks [@gllmt](https://github.com/gllmt)! - Adds a `waitUntil` option to the `RenderOptions` so that adapters can forward runtime background-task hooks to Astro.
+
+  When provided by an adapter, runtime cache providers receive `context.waitUntil` in
+  `CacheProvider.onRequest()`, which allows background cache work such as stale-while-revalidate
+  without blocking the response. The Cloudflare adapter now forwards
+  `ExecutionContext.waitUntil` to this API.
+
+- [#16290](https://github.com/withastro/astro/pull/16290) [`a49637a`](https://github.com/withastro/astro/commit/a49637ab82a6ce8506a7272f331d1101f782b3e0) Thanks [@ViVaLaDaniel](https://github.com/ViVaLaDaniel)! - Ensures that `server.allowedHosts` (and `vite.preview.allowedHosts`) configuration is respected when using `astro preview` with the `@astrojs/cloudflare` adapter. This improves security by preventing DNS rebinding attacks when previewing Cloudflare builds locally.
+
+- [#15725](https://github.com/withastro/astro/pull/15725) [`4108ec1`](https://github.com/withastro/astro/commit/4108ec1e256c5e9d97fb29f1097a5095b73cfb8b) Thanks [@meyer](https://github.com/meyer)! - Adds support for a new `'jsx'` value for the `compressHTML` option. When set, whitespace is stripped using JSX whitespace rules instead of the default HTML compression strategy.
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    compressHTML: 'jsx',
+  });
+  ```
+
+  In JSX, whitespaces never matter, as such, no amount of indentation, or newlines will not affect the rendered output. For instance, the following code:
+
+  ```jsx
+  <div>
+    <span>foo</span>
+    <span>bar</span>
+  </div>
+  ```
+
+  will be rendered as `foobar`, whereas with HTML whitespace rules, a space would be present between the words due to the newline and indentation between the tags.
+
+- [#16477](https://github.com/withastro/astro/pull/16477) [`28fb3e1`](https://github.com/withastro/astro/commit/28fb3e16cdf181d49fbc22fbde41958fe9b9ab9e) Thanks [@ematipico](https://github.com/ematipico)! - Adds experimental support for configurable log handlers.
+
+  This experimental feature provides better control over Astro's logging infrastructure by allowing users to replace the default console output with custom logging implementations (e.g., structured JSON). This is particularly useful for users using on-demand rendering and wishing to connect their log aggregation services, such as Kibana, Logstash, CloudWatch, Grafana, or Loki.
+
+  By default, Astro provides three built-in log handlers (`json`, `node`, and `console`), but you can also create your own.
+
+  #### JSON logging
+
+  JSON logging can be enabled via the CLI for the `build`, `dev`, and `sync` commands using the `experimentalJson` flag:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig, logHandlers } from 'astro/config';
+
+  export default defineConfig({
+    experimental: {
+      logger: logHandlers.json({
+        pretty: true,
+        level: 'warn',
+      }),
+    },
+  });
+  ```
+
+  #### Custom logger
+
+  You can also create your own custom logger by implementing the correct interface:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    experimental: {
+      logger: {
+        entrypoint: '@org/custom-logger',
+      },
+    },
+  });
+  ```
+
+  ```ts
+  // @org/custom-logger.js
+  import type { AstroLoggerDestination, AstroLoggerMessage } from 'astro';
+  import { matchesLevel } from 'astor/logger';
+
+  function customLogger(level = 'info'): AstroLoggerDestination {
+    return {
+      write(message: AstroLoggerMessage) {
+        if (matchesLevel(message.level, level)) {
+          // write message somewhere
+        }
+      },
+    };
+  }
+
+  export default customLogger;
+  ```
+
+  For more information on enabling and using this feature in your project, see the [Experimental Logger docs](https://docs.astro.build/en/reference/experimental-flags/logger/).
+
+  For a complete overview and to give feedback on this experimental API, see the [Custom logger RFC](https://github.com/withastro/roadmap/blob/logger/proposals/0059-custom-logger.md).
+
+- [#16333](https://github.com/withastro/astro/pull/16333) [`0f7c3c8`](https://github.com/withastro/astro/commit/0f7c3c8e3dfe0fff58bd6e68c40f6f8fb280144e) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds an experimental flag `svgOptimizer` that enables automatic optimization of your SVG components using the provided optimizer. This supersedes the `svgo` experimental flag, which is now removed.
+
+  When enabled, your imported SVG files used as components will be optimized for smaller file sizes and better performance while maintaining visual quality. This can significantly reduce the size of your SVG assets by removing unnecessary metadata, comments, and redundant code.
+
+  Astro ships with a [SVGO](https://svgo.dev/) based optimizer, but any can be used.
+
+  To enable this feature, add the experimental flag in your Astro config and remove `svgo` if it was enabled:
+
+  ```diff
+  // astro.config.mjs
+  -import { defineConfig } from "astro/config";
+  +import { defineConfig, svgoOptimizer } from "astro/config";
+
+  export default defineConfig({
+  +  experimental: {
+  +    svgOptimizer: svgoOptimizer()
+  -    svgo: true
+  +  }
+  });
+  ```
+
+  For more information on enabling and using this feature in your project, see the [experimental SVG optimization docs](https://docs.astro.build/en/reference/experimental-flags/svg-optimization/).
+
+- [#16302](https://github.com/withastro/astro/pull/16302) [`f6f8e80`](https://github.com/withastro/astro/commit/f6f8e8097e93e29d00f419e5594f2c081bb32478) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a new `experimental_getFontFileURL()` method to resolve font file URLs when using the Fonts API
+
+  The `fontData` object exported from `astro:assets` was introduced to provide low-level access to font family data for advanced usage. One of the goals of this API was to be able to resolve buffers using URLs. However, it turned out to be impractical, especially during prerendering.
+
+  Astro now exports a new `experimental_getFontFileURL()` helper function from `astro:assets` to resolve font file URLs from `fontData`. For example, when using [satori](https://github.com/vercel/satori) to generate Open Graph images:
+
+  ```diff
+  // src/pages/og.png.ts
+
+  import type { APIRoute } from "astro";
+  -import { fontData } from "astro:assets";
+  +import { fontData, experimental_getFontFileURL } from "astro:assets";
+  -import { outDir } from "astro:config/server";
+  -import { readFile } from "node:fs/promises";
+  import satori from "satori";
+  import { html } from "satori-html";
+  import sharp from "sharp";
+
+  export const GET: APIRoute = async (context) => {
+    const fontPath = fontData["--font-roboto"][0]?.src[0]?.url;
+
+    if (fontPath === undefined) {
+      throw new Error("Cannot find the font path.");
+    }
+
+  -  const data = import.meta.env.DEV
+  -    ? await fetch(new URL(fontPath, context.url.origin)).then(async (res) => res.arrayBuffer())
+  -    : await readFile(new URL(`.${fontPath}`, outDir));
+  +  const url = experimental_getFontFileURL(fontPath, context.url);
+  +  const data = await fetch(url).then((res) => res.arrayBuffer());
+
+    const svg = await satori(
+      html`<div style="color: black;">hello, world</div>`,
+      {
+        width: 600,
+        height: 400,
+        fonts: [
+          {
+            name: "Roboto",
+            data,
+            weight: 400,
+            style: "normal",
+          },
+        ],
+      },
+    );
+
+    const pngBuffer = await sharp(Buffer.from(svg))
+      .resize(600, 400)
+      .png()
+      .toBuffer();
+
+    return new Response(new Uint8Array(pngBuffer), {
+      headers: {
+        "Content-Type": "image/png",
+      },
+    });
+  };
+  ```
+
+  See the [Fonts API documentation](https://docs.astro.build/en/guides/fonts/#accessing-font-data-programmatically) for more information.
+
+### Patch Changes
+
+- [#15980](https://github.com/withastro/astro/pull/15980) [`8812382`](https://github.com/withastro/astro/commit/88123826690dde1e0019aa801fe7d18085f27271) Thanks [@seroperson](https://github.com/seroperson)! - Prevents script deduplication inside `<template>` elements
+
 ## 6.1.10
 
 ### Patch Changes
