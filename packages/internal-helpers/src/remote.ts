@@ -151,7 +151,10 @@ export function isRemoteAllowed(
  * based on matching `remotePatterns` entries that explicitly opt in via
  * `followRedirects`.
  */
-export function isRemoteRedirectAllowed(src: string, remotePatterns: RemoteImagePatternConfig[]): boolean {
+export function isRemoteRedirectAllowed(
+	src: string,
+	remotePatterns: RemoteImagePatternConfig[],
+): boolean {
 	if (!URL.canParse(src)) {
 		return false;
 	}

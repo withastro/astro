@@ -1,4 +1,6 @@
 ---
+'@astrojs/markdown-remark': minor
+'@astrojs/vercel': minor
 '@astrojs/cloudflare': minor
 'astro': minor
 ---

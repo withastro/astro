@@ -576,18 +576,33 @@ export default function vercelAdapter({
 
 				let images: VercelImageConfig | undefined;
 				if (imagesConfig) {
+					// Vercel could throw errors if the followRedirects option is written to config, so we leave it out here.
+					const safeRemotePatterns: Omit<RemoteImagePatternConfig, 'followRedirects'>[] = (
+						imagesConfig.remotePatterns ?? []
+					).map((pattern) => ({
+						hostname: pattern.hostname,
+						pathname: pattern.pathname,
+						port: pattern.port,
+						protocol: pattern.protocol,
+					}));
+
 					images = {
 						...imagesConfig,
 						domains:
 							imagesConfig.domains || _config.image.domains
 								? [...(imagesConfig.domains ?? []), ...(_config.image.domains ?? [])]
 								: undefined,
-						remotePatterns: [...(imagesConfig.remotePatterns ?? [])],
+						remotePatterns: [...(safeRemotePatterns ?? [])],
 					};
 					const remotePatterns = _config.image.remotePatterns;
 					for (const pattern of remotePatterns) {
 						if (isAcceptedPattern(pattern)) {
-							images.remotePatterns?.push(pattern);
+							images.remotePatterns?.push({
+								hostname: pattern.hostname,
+								pathname: pattern.pathname,
+								port: pattern.port,
+								protocol: pattern.protocol,
+							});
 						}
 					}
 				} else if (imageService) {
