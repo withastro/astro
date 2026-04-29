@@ -24,7 +24,7 @@ import {
 	getAstroImageConfig,
 	getDefaultImageConfig,
 	type VercelImageConfig,
-	type RemotePattern,
+	type RemoteImagePatternConfig,
 } from './image/shared.js';
 import { copyDependenciesToFunction } from './lib/nft.js';
 import { escapeRegex, getRedirects } from './lib/redirects.js';
@@ -634,7 +634,7 @@ export default function vercelAdapter({
 	};
 }
 
-function isAcceptedPattern(pattern: any): pattern is RemotePattern {
+function isAcceptedPattern(pattern: any): pattern is RemoteImagePatternConfig {
 	if (pattern == null) {
 		return false;
 	}
