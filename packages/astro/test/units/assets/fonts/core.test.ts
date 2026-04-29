@@ -1795,13 +1795,7 @@ describe('fonts core', () => {
 			});
 
 			assert.ok(called);
-			assert.deepStrictEqual(logger.logs, [
-				{
-					type: 'debug',
-					label: 'assets',
-					message: 'Fonts dependencies should be initialized by now, skipping middleware.',
-				},
-			]);
+			assert.deepStrictEqual(logger.logs, []);
 		});
 
 		it('skips if url is missing', async () => {
@@ -2016,7 +2010,7 @@ describe('fonts core', () => {
 				{
 					label: 'assets',
 					message: 'Cannot download font file',
-					type: 'error',
+					level: 'error',
 				},
 			]);
 			assert.equal(buffer, undefined);
