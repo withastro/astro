@@ -79,7 +79,7 @@ describe('revalidateRemoteImage', () => {
 
 	it('uses redirect="follow" when followRedirects is enabled', async () => {
 		let redirectMode: RequestRedirect | undefined;
-		const fetchMock = async (_req: Request, init?: RequestInit) => {
+		const fetchMock: typeof fetch = async (_input, init) => {
 			redirectMode = init?.redirect;
 			return {
 				status: 304,
