@@ -1,5 +1,5 @@
 import type { OutgoingHttpHeaders } from 'node:http';
-import type { RemotePattern } from '@astrojs/internal-helpers/remote';
+import type { RemotePattern, RemoteImagePatternConfig } from '@astrojs/internal-helpers/remote';
 import type {
 	RehypePlugins,
 	RemarkPlugins,
@@ -1830,7 +1830,7 @@ export interface AstroUserConfig<
 		/**
 		 * @docs
 		 * @name image.remotePatterns
-		 * @type {RemotePattern[]}
+		 * @type {RemoteImagePatternConfig[]}
 		 * @default `[]`
 		 * @version 2.10.10
 		 * @description
@@ -1841,7 +1841,7 @@ export interface AstroUserConfig<
 		 * 2. hostname
 		 * 3. port
 		 * 4. pathname
-		 * 5. dangerouslyFollowRedirects
+		 * 5. followRedirects
 		 *
 		 * ```js
 		 * {
@@ -1864,11 +1864,11 @@ export interface AstroUserConfig<
 		 *   - End with '/**' to allow all sub-routes ('startsWith').
 		 *   - End with '/*' to allow only one level of sub-route.
 		 *
-		 * Set `dangerouslyFollowRedirects: true` to allow Astro to follow redirect responses
+		 * Set `followRedirects: true` to allow Astro to follow redirect responses
 		 * for URLs that match a specific pattern. Redirects are blocked by default.
 
 		 */
-		remotePatterns?: Partial<RemotePattern>[];
+		remotePatterns?: Partial<RemoteImagePatternConfig>[];
 
 		/**
 		 * @docs

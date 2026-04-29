@@ -314,7 +314,7 @@ export const AstroConfigSchema = z.object({
 						hostname: z.string().optional(),
 						port: z.string().optional(),
 						pathname: z.string().optional(),
-						dangerouslyFollowRedirects: z.boolean().optional(),
+						followRedirects: z.boolean().optional(),
 					}),
 				)
 				.default([]),

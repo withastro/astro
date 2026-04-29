@@ -3,17 +3,20 @@ export type RemotePattern = {
 	pathname?: string;
 	protocol?: string;
 	port?: string;
-	dangerouslyFollowRedirects?: boolean;
 };
+
+export type RemoteImagePatternConfig = RemotePattern & {
+	followRedirects?: boolean;
+}
 
 /**
  * Evaluates whether a given URL matches the specified remote pattern based on protocol, hostname, port, and pathname.
  *
  * @param {URL} url - The URL object to be matched against the remote pattern.
- * @param {RemotePattern} remotePattern - The remote pattern object containing the protocol, hostname, port, and pathname to match.
+ * @param {RemoteImagePatternConfig} remotePattern - The remote pattern object containing the protocol, hostname, port, and pathname to match.
  * @return {boolean} Returns `true` if the URL matches the given remote pattern; otherwise, `false`.
  */
-export function matchPattern(url: URL, remotePattern: RemotePattern): boolean {
+export function matchPattern(url: URL, remotePattern: RemoteImagePatternConfig): boolean {
 	return (
 		matchProtocol(url, remotePattern.protocol) &&
 		matchHostname(url, remotePattern.hostname, true) &&
@@ -113,7 +116,7 @@ export function matchPathname(url: URL, pathname?: string, allowWildcard = false
  * @param {string} src - The source URL of the remote resource to be validated.
  * @param {Object} options - The configuration options for domain and pattern matching.
  * @param {string[]} options.domains - A list of allowed domain names.
- * @param {RemotePattern[]} options.remotePatterns - A list of allowed remote patterns for matching.
+ * @param {RemoteImagePatternConfig[]} options.remotePatterns - A list of allowed remote patterns for matching.
  * @return {boolean} Returns `true` if the source URL matches any of the specified domains or remote patterns; otherwise, `false`.
  */
 export function isRemoteAllowed(
@@ -123,7 +126,7 @@ export function isRemoteAllowed(
 		remotePatterns,
 	}: {
 		domains: string[];
-		remotePatterns: RemotePattern[];
+		remotePatterns: RemoteImagePatternConfig[];
 	},
 ): boolean {
 	if (!URL.canParse(src)) {
@@ -146,15 +149,15 @@ export function isRemoteAllowed(
 /**
  * Determines whether redirects should be followed for a given remote URL,
  * based on matching `remotePatterns` entries that explicitly opt in via
- * `dangerouslyFollowRedirects`.
+ * `followRedirects`.
  */
-export function isRemoteRedirectAllowed(src: string, remotePatterns: RemotePattern[]): boolean {
+export function isRemoteRedirectAllowed(src: string, remotePatterns: RemoteImagePatternConfig[]): boolean {
 	if (!URL.canParse(src)) {
 		return false;
 	}
 
 	const url = new URL(src);
 	return remotePatterns.some(
-		(remotePattern) => remotePattern.dangerouslyFollowRedirects && matchPattern(url, remotePattern),
+		(remotePattern) => remotePattern.followRedirects && matchPattern(url, remotePattern),
 	);
 }

@@ -15,11 +15,12 @@ export type DevImageService = 'sharp' | (string & {});
 // https://vercel.com/docs/build-output-api/v3/configuration#images
 type ImageFormat = 'image/avif' | 'image/webp';
 
-export type RemotePattern = {
+export type RemoteImagePatternConfig = {
 	protocol?: 'http' | 'https';
 	hostname: string;
 	port?: string;
 	pathname?: string;
+	followRedirects?: boolean;
 };
 
 export type VercelImageConfig = {
@@ -34,7 +35,7 @@ export type VercelImageConfig = {
 	/**
 	 * Allowed external patterns that can use Image Optimization. Similar to `domains` but provides more control with RegExp.
 	 */
-	remotePatterns?: RemotePattern[];
+	remotePatterns?: RemoteImagePatternConfig[];
 	/**
 	 * Cache duration (in seconds) for the optimized images.
 	 */

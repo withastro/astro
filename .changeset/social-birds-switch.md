@@ -3,4 +3,4 @@
 'astro': minor
 ---
 
-Adds a new `dangerouslyFollowRedirects` option to follow redirects for optimized image URLs. Can be configured per-domain in `image.remotePatterns`.
+Adds a new `followRedirects` option to follow redirects for optimized image URLs. Can be configured per-domain in `image.remotePatterns`.

@@ -1,4 +1,4 @@
-import type { RemotePattern } from '@astrojs/internal-helpers/remote';
+import type { RemoteImagePatternConfig } from '@astrojs/internal-helpers/remote';
 import type * as hast from 'hast';
 import type * as mdast from 'mdast';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
@@ -70,7 +70,7 @@ export interface AstroMarkdownOptions {
 export interface AstroMarkdownProcessorOptions extends AstroMarkdownOptions {
 	image?: {
 		domains?: string[];
-		remotePatterns?: RemotePattern[];
+		remotePatterns?: RemoteImagePatternConfig[];
 	};
 }
 

@@ -282,7 +282,7 @@ const unitTestImageService = {
 				pathname?: string;
 				protocol?: string;
 				port?: string;
-				dangerouslyFollowRedirects?: boolean;
+				followRedirects?: boolean;
 			}[];
 		},
 	) {
@@ -309,7 +309,7 @@ interface ImageServiceOverrides {
 		pathname?: string;
 		protocol?: string;
 		port?: string;
-		dangerouslyFollowRedirects?: boolean;
+		followRedirects?: boolean;
 	}[];
 }
 
@@ -329,7 +329,7 @@ export function installImageService(overrides: ImageServiceOverrides = {}): {
 			pathname?: string;
 			protocol?: string;
 			port?: string;
-			dangerouslyFollowRedirects?: boolean;
+			followRedirects?: boolean;
 		}[];
 		endpoint: { route: string };
 	};

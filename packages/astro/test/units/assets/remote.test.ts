@@ -77,7 +77,7 @@ describe('revalidateRemoteImage', () => {
 		);
 	});
 
-	it('uses redirect="follow" when remote pattern enables dangerouslyFollowRedirects', async () => {
+	it('uses redirect="follow" when remote pattern enables followRedirects', async () => {
 		let redirectMode: RequestRedirect | undefined;
 		const fetchMock: typeof fetch = async (_input, init) => {
 			redirectMode = init?.redirect;
@@ -90,7 +90,7 @@ describe('revalidateRemoteImage', () => {
 		};
 
 		await revalidateRemoteImage('https://example.com/img.jpg', { etag: '"abc123"' }, fetchMock, {
-			remotePatterns: [{ hostname: 'example.com', dangerouslyFollowRedirects: true }],
+			remotePatterns: [{ hostname: 'example.com', followRedirects: true }],
 		});
 
 		assert.equal(redirectMode, 'follow');

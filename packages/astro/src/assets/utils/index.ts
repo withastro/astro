@@ -9,6 +9,7 @@ export {
 	isRemoteAllowed,
 	matchPattern,
 	type RemotePattern,
+	type RemoteImagePatternConfig
 } from '@astrojs/internal-helpers/remote';
 export { emitClientAsset } from './assets.js';
 export { isESMImportedImage, isRemoteImage, resolveSrc } from './imageKind.js';
