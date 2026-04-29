@@ -1932,7 +1932,7 @@ export interface AstroUserConfig<
 		 * @name image.followRedirects
 		 * @type {boolean}
 		 * @default `false`
-		 * @version 6.1.0
+		 * @version 6.2.0
 		 * @description
 		 * Whether Astro should follow HTTP redirects when fetching remote images.
 		 *
