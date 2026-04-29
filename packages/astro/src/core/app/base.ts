@@ -14,8 +14,7 @@ import { ASTRO_ERROR_HEADER, clientAddressSymbol } from '../constants.js';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
 
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { consoleLogDestination } from '../logger/console.js';
-import { AstroIntegrationLogger, AstroLogger } from '../logger/core.js';
+import { AstroIntegrationLogger, type AstroLogger } from '../logger/core.js';
 
 import { ensure404Route } from '../routing/astro-designed-error-pages.js';
 import { Router } from '../routing/router.js';
@@ -25,6 +24,7 @@ import { appSymbol } from '../constants.js';
 import { DefaultErrorHandler } from '../errors/default-handler.js';
 import type { ErrorHandler } from '../errors/handler.js';
 import { setRenderOptions } from './render-options.js';
+import type { WaitUntilHook } from '../wait-until.js';
 import type { AppPipeline } from './pipeline.js';
 import type { SSRManifest } from './types.js';
 
@@ -72,6 +72,14 @@ export interface RenderOptions {
 	prerenderedErrorPageFetch?: (url: ErrorPagePath) => Promise<Response>;
 
 	/**
+	 * Optional platform hook to keep background work alive after the response is sent.
+	 *
+	 * Adapters can pass this through so runtime cache providers can schedule cache writes
+	 * without blocking the response path.
+	 */
+	waitUntil?: WaitUntilHook;
+
+	/**
 	 * **Advanced API**: you probably do not need to use this.
 	 *
 	 * Default: `app.match(request)`
@@ -87,6 +95,7 @@ export interface ResolvedRenderOptions {
 	prerenderedErrorPageFetch: RequiredRenderOptions['prerenderedErrorPageFetch'] | undefined;
 	locals: RequiredRenderOptions['locals'] | undefined;
 	routeData: RequiredRenderOptions['routeData'] | undefined;
+	waitUntil: RequiredRenderOptions['waitUntil'] | undefined;
 }
 
 export interface RenderErrorOptions extends ResolvedRenderOptions {
@@ -119,9 +128,8 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	manifest: SSRManifest;
 	manifestData: RoutesList;
 	pipeline: P;
-	adapterLogger: AstroIntegrationLogger;
+	#adapterLogger: AstroIntegrationLogger | undefined;
 	baseWithoutTrailingSlash: string;
-	logger: AstroLogger;
 	#router: Router;
 	/**
 	 * The handler that turns incoming `Request` objects into `Response`s.
@@ -144,16 +152,26 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	 * to warn once — after the first request in dev, or at build end.
 	 */
 	#featureCheckDone = false;
+
+	get logger(): AstroLogger {
+		return this.pipeline.logger;
+	}
+
+	get adapterLogger(): AstroIntegrationLogger {
+		if (!this.#adapterLogger) {
+			this.#adapterLogger = new AstroIntegrationLogger(
+				this.logger.options,
+				this.manifest.adapterName,
+			);
+		}
+		return this.#adapterLogger;
+	}
+
 	constructor(manifest: SSRManifest, streaming = true, ...args: any[]) {
 		this.manifest = manifest;
 		this.manifestData = { routes: manifest.routes.map((route) => route.routeData) };
 		this.baseWithoutTrailingSlash = removeTrailingForwardSlash(manifest.base);
 		this.pipeline = this.createPipeline(streaming, manifest, ...args);
-		this.logger = new AstroLogger({
-			destination: consoleLogDestination,
-			level: manifest.logLevel,
-		});
-		this.adapterLogger = new AstroIntegrationLogger(this.logger.options, manifest.adapterName);
 		// This is necessary to allow running middlewares for 404 in SSR. There's special handling
 		// to return the host 404 if the user doesn't provide a custom 404
 		ensure404Route(this.manifestData);
@@ -182,8 +200,12 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 
 	public abstract isDev(): boolean;
 
-	getAdapterLogger(): AstroIntegrationLogger {
-		return this.adapterLogger;
+	/**
+	 * Resets the cached adapter logger so it picks up a new logger instance.
+	 * Used by BuildApp when the logger is replaced via setOptions().
+	 */
+	protected resetAdapterLogger(): void {
+		this.#adapterLogger = undefined;
 	}
 
 	getAllowedDomains() {
@@ -250,7 +272,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		try {
 			return decodeURI(pathname);
 		} catch (e: any) {
-			this.getAdapterLogger().error(e.toString());
+			this.adapterLogger.error(e.toString());
 			return pathname;
 		}
 	}
@@ -385,8 +407,14 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			locals,
 			prerenderedErrorPageFetch = fetch,
 			routeData,
+			waitUntil,
 		}: RenderOptions = {},
 	): Promise<Response> {
+		// Lazily resolve the logger destination from the manifest on the first request.
+		// This swaps the user-configured logger destination (if any) into the shared
+		// AstroLogger instance before any logging occurs.
+		await this.pipeline.getLogger();
+
 		if (routeData) {
 			this.logger.debug(
 				'router',
@@ -408,6 +436,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 					// rendering the error page
 					locals: undefined,
 					routeData,
+					waitUntil,
 					status: 500,
 					error,
 				});
@@ -419,6 +448,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			prerenderedErrorPageFetch,
 			locals,
 			routeData,
+			waitUntil,
 		};
 
 		let response: Response;
@@ -441,6 +471,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				prerenderedErrorPageFetch,
 				locals,
 				routeData,
+				waitUntil,
 				response,
 				status: response.status as 404 | 500,
 				error: response.status === 500 ? null : undefined,

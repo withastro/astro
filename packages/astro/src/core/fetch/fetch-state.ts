@@ -236,6 +236,7 @@ export class FetchState implements AstroFetchState {
 			locals: undefined,
 			prerenderedErrorPageFetch: fetch,
 			routeData: undefined,
+			waitUntil: undefined,
 		};
 
 		this.componentInstance = undefined;
@@ -363,6 +364,7 @@ export class FetchState implements AstroFetchState {
 				extraStyleHashes,
 				extraScriptHashes,
 				propagators: new Set(),
+				templateDepth: 0,
 			},
 			cspDestination: manifest.csp?.cspDestination ?? (routeData.prerender ? 'meta' : 'header'),
 			shouldInjectCspMetaTags,
@@ -477,6 +479,19 @@ export class FetchState implements AstroFetchState {
 			},
 			get csp() {
 				return state.getCsp();
+			},
+			get logger(): APIContext['logger'] {
+				return {
+					info(msg: string) {
+						pipeline.logger.info(null, msg);
+					},
+					warn(msg: string) {
+						pipeline.logger.warn(null, msg);
+					},
+					error(msg: string) {
+						pipeline.logger.error(null, msg);
+					},
+				};
 			},
 		};
 
@@ -862,6 +877,26 @@ export class FetchState implements AstroFetchState {
 			},
 			get csp() {
 				return state.getCsp();
+			},
+			get logger(): APIContext['logger'] {
+				if (!state.pipeline.manifest.experimentalLogger) {
+					state.pipeline.logger.warn(
+						null,
+						'The Astro.logger is available only when experimental.logger is defined.',
+					);
+					return undefined;
+				}
+				return {
+					info(msg: string) {
+						state.pipeline.logger.info(null, msg);
+					},
+					warn(msg: string) {
+						state.pipeline.logger.warn(null, msg);
+					},
+					error(msg: string) {
+						state.pipeline.logger.error(null, msg);
+					},
+				};
 			},
 		};
 

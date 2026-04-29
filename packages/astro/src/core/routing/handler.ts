@@ -140,6 +140,7 @@ export class AstroHandler {
 					timeStart: state.timeStart,
 				});
 				prepareResponse(redirectResponse, { addCookieHeader });
+				this.#app.pipeline.logger.flush();
 				return redirectResponse;
 			}
 
@@ -205,6 +206,7 @@ export class AstroHandler {
 		}
 
 		prepareResponse(response, { addCookieHeader });
+		this.#app.pipeline.logger.flush();
 		return response;
 	}
 }

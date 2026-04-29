@@ -3,8 +3,6 @@ import { getDefaultClientDirectives } from '../core/client-directive/index.js';
 import { ASTRO_CONFIG_DEFAULTS } from '../core/config/schemas/index.js';
 import { validateConfig } from '../core/config/validate.js';
 import { createKey } from '../core/encryption.js';
-import { AstroLogger } from '../core/logger/core.js';
-import { nodeLogDestination } from '../core/logger/node.js';
 import { FetchState } from '../core/fetch/fetch-state.js';
 import { AstroMiddleware } from '../core/middleware/astro-middleware.js';
 import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
@@ -29,6 +27,7 @@ import type {
 	SSRResult,
 } from '../types/public/internal.js';
 import { ContainerPipeline } from './pipeline.js';
+import { createConsoleLogger } from '../core/logger/impls/console.js';
 
 /**
  * Public type, used for integrations to define a renderer for the container API
@@ -138,7 +137,6 @@ function createManifest(
 			onRequest: middleware ?? NOOP_MIDDLEWARE_FN,
 		};
 	}
-
 	const root = new URL(import.meta.url);
 	return {
 		rootDir: root,
@@ -185,6 +183,7 @@ function createManifest(
 		experimentalQueuedRendering: manifest?.experimentalQueuedRendering ?? {
 			enabled: false,
 		},
+		experimentalLogger: manifest?.experimentalLogger ?? undefined,
 	};
 }
 
@@ -277,6 +276,7 @@ type AstroContainerManifest = Pick<
 	| 'assetsDir'
 	| 'image'
 	| 'experimentalQueuedRendering'
+	| 'experimentalLogger'
 >;
 
 type AstroContainerConstructor = {
@@ -306,10 +306,7 @@ export class experimental_AstroContainer {
 		astroConfig,
 	}: AstroContainerConstructor) {
 		this.#pipeline = ContainerPipeline.create({
-			logger: new AstroLogger({
-				level: 'info',
-				destination: nodeLogDestination,
-			}),
+			logger: createConsoleLogger({ level: 'error' }),
 			manifest: createManifest(manifest, renderers),
 			streaming,
 			renderers: renderers ?? manifest?.renderers ?? [],

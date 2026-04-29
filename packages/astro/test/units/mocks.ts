@@ -13,7 +13,7 @@ import {
 	spreadAttributes,
 } from '../../dist/runtime/server/index.js';
 import { createManifest, createRouteInfo } from './app/test-helpers.ts';
-
+import type { AstroLogger } from '../../dist/core/logger/core.js';
 import type { Pipeline } from '../../dist/core/render/index.js';
 import type { RouteData, RoutePart, RouteType } from '../../dist/types/public/internal.js';
 import type { APIContext } from '../../dist/types/public/context.js';
@@ -29,7 +29,7 @@ import type { ImageTransform } from '../../dist/assets/types.js';
  * in their respective directories.
  */
 
-interface MockRenderContextOverrides {
+interface LightMockRenderContextOverrides {
 	request?: Request;
 	routeData?: Partial<RouteData>;
 	params?: Record<string, string>;
@@ -42,16 +42,9 @@ interface MockRenderContextOverrides {
  * used to take a `RenderContext` directly. Internal helper used by
  * `createMockFetchState`.
  */
-function createMockRenderContext(overrides: MockRenderContextOverrides = {}) {
+function createMockRenderContext(overrides: LightMockRenderContextOverrides = {}) {
 	const pipeline =
-		overrides.pipeline ||
-		createBasicPipeline({
-			manifest: {
-				rootDir: new URL(import.meta.url),
-				experimentalQueuedRendering: { enabled: true },
-				trailingSlash: 'never',
-			} as unknown as SSRManifest,
-		});
+		overrides.pipeline || createBasicPipeline({ manifest: { trailingSlash: 'never' } });
 
 	return {
 		request: overrides.request || new Request('http://localhost/'),
@@ -68,7 +61,7 @@ function createMockRenderContext(overrides: MockRenderContextOverrides = {}) {
  * `renderRedirect(state)`). The `renderContext` field on the returned
  * state is the duck-typed mock from `createMockRenderContext`.
  */
-export function createMockFetchState(overrides: MockRenderContextOverrides = {}) {
+export function createMockFetchState(overrides: LightMockRenderContextOverrides = {}) {
 	const ctx = createMockRenderContext(overrides);
 	const state = new FetchState(ctx.pipeline, ctx.request);
 	state.routeData = ctx.routeData as any;

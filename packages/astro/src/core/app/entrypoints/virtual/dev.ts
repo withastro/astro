@@ -1,9 +1,9 @@
 import fetchable from 'virtual:astro:fetchable';
 import { manifest } from 'virtual:astro:manifest';
 import { DevApp } from '../../dev/app.js';
-import { createConsoleLogger } from '../../logging.js';
 import type { CreateApp, RouteInfo } from '../../types.js';
 import type { RoutesList } from '../../../../types/astro.js';
+import { createConsoleLogger } from '../../../logger/impls/console.js';
 
 let currentDevApp: DevApp | null = null;
 
