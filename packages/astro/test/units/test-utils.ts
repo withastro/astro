@@ -308,7 +308,7 @@ export class SpyLogger extends AstroLogger {
  */
 export async function renderThroughMiddleware(
 	state: FetchState,
-	componentInstance: ComponentInstance | undefined,
+	componentInstance: ComponentInstance,
 	slots: Record<string, any> = {},
 ): Promise<Response> {
 	const pipeline = state.pipeline;
