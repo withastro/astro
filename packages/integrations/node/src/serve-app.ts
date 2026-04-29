@@ -125,7 +125,14 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 		// Redirects are considered prerendered routes in static mode, but we want to
 		// handle them dynamically, so prerendered routes are included here.
 		const routeData = app.match(request, true);
-		if (routeData) {
+		// In classic middleware mode, prerendered pages are served as static files by the
+		// static handler. Skip them here so requests for unknown prerendered paths (e.g.
+		// /dogs/unknown when only /dogs/clifford was prerendered) fall through to the 404
+		// handler instead of producing a 500.
+		// In 'always' and 'on-request' modes, prerendered pages are served through the
+		// middleware at request time using getStaticAsset.
+		const isPrerenderedPage = routeData?.type === 'page' && routeData.prerender;
+		if (routeData && (!isPrerenderedPage || shouldServePrerenderedThroughMiddleware)) {
 			const response = await als.run(request.url, () =>
 				app.render(request, {
 					addCookieHeader: true,
