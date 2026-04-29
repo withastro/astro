@@ -6,7 +6,7 @@ import httpMocks from 'node-mocks-http';
 import { getDefaultClientDirectives } from '../../dist/core/client-directive/index.js';
 import { resolveConfig } from '../../dist/core/config/index.js';
 import { createBaseSettings } from '../../dist/core/config/settings.js';
-import { AstroIntegrationLogger, AstroLogger } from '../../dist/core/logger/core.js';
+import { AstroLogger } from '../../dist/core/logger/core.js';
 import nodeLoggerFactory from '../../dist/core/logger/impls/node.js';
 import { ActionHandler } from '../../dist/actions/handler.js';
 import type { FetchState } from '../../dist/core/fetch/fetch-state.js';

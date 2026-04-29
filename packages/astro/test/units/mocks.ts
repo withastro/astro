@@ -13,7 +13,6 @@ import {
 	spreadAttributes,
 } from '../../dist/runtime/server/index.js';
 import { createManifest, createRouteInfo } from './app/test-helpers.ts';
-import type { AstroLogger } from '../../dist/core/logger/core.js';
 import type { Pipeline } from '../../dist/core/render/index.js';
 import type { RouteData, RoutePart, RouteType } from '../../dist/types/public/internal.js';
 import type { APIContext } from '../../dist/types/public/context.js';
