@@ -44,6 +44,18 @@ export const NOOP_MIDDLEWARE_HEADER = 'X-Astro-Noop';
 export const ROUTE_TYPE_HEADER = 'X-Astro-Route-Type';
 
 /**
+ * Internal headers that should be stripped from the response before
+ * sending it to the user agent. Add new internal headers here so
+ * `prepareResponse` removes them automatically.
+ */
+export const INTERNAL_RESPONSE_HEADERS = [
+	REROUTE_DIRECTIVE_HEADER,
+	REWRITE_DIRECTIVE_HEADER_KEY,
+	NOOP_MIDDLEWARE_HEADER,
+	ROUTE_TYPE_HEADER,
+] as const;
+
+/**
  * Set by internal handlers (e.g. PagesHandler) to signal that a
  * response should be replaced with the corresponding error page.
  */

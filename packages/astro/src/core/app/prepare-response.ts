@@ -1,8 +1,5 @@
 import {
-	NOOP_MIDDLEWARE_HEADER,
-	REROUTE_DIRECTIVE_HEADER,
-	REWRITE_DIRECTIVE_HEADER_KEY,
-	ROUTE_TYPE_HEADER,
+	INTERNAL_RESPONSE_HEADERS,
 	responseSentSymbol,
 } from '../constants.js';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
@@ -19,13 +16,7 @@ export function prepareResponse(
 	response: Response,
 	{ addCookieHeader }: { addCookieHeader: boolean },
 ): void {
-	// We remove internally-used header before we send the response to the user agent.
-	for (const headerName of [
-		REROUTE_DIRECTIVE_HEADER,
-		REWRITE_DIRECTIVE_HEADER_KEY,
-		NOOP_MIDDLEWARE_HEADER,
-		ROUTE_TYPE_HEADER,
-	]) {
+	for (const headerName of INTERNAL_RESPONSE_HEADERS) {
 		if (response.headers.has(headerName)) {
 			response.headers.delete(headerName);
 		}
