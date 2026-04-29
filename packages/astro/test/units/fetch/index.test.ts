@@ -226,6 +226,37 @@ describe('astro() combined handler', () => {
 	});
 });
 
+// ---------- Rewrite params ----------
+
+describe('Rewrite updates params', () => {
+	it('params reflect the rewritten route after ctx.rewrite()', async () => {
+		/** Page that renders the `id` param into the body. */
+		const paramPage = createComponent((result: any, _props: any, _slots: any) => {
+			const Astro = result.createAstro({}, null);
+			return render`<p id="param">${Astro.params.id}</p>`;
+		});
+
+		const app = createTestApp([
+			createPage(simplePage, { route: '/' }),
+			createPage(paramPage, { route: '/blog/[id]' }),
+		], {
+			middleware: async () => ({
+				onRequest: async (ctx: any, next: any) => {
+					// Rewrite from / to /blog/hello
+					if (ctx.url.pathname === '/') {
+						return ctx.rewrite('/blog/hello');
+					}
+					return next();
+				},
+			}),
+		});
+
+		const response = await app.render(new Request('http://example.com/'));
+		const text = await response.text();
+		assert.match(text, /hello/, 'params.id should be "hello" after rewrite');
+	});
+});
+
 // ---------- Composed pipeline (like the changeset example) ----------
 
 describe('Composed pipeline', () => {
