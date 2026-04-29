@@ -30,8 +30,7 @@ import {
 } from '../cookies/index.js';
 import { getCookiesFromResponse } from '../cookies/response.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { consoleLogDestination } from '../logger/console.js';
-import { AstroIntegrationLogger, AstroLogger } from '../logger/core.js';
+import { AstroIntegrationLogger, type AstroLogger } from '../logger/core.js';
 import { type CreateRenderContext, RenderContext } from '../render-context.js';
 import { redirectTemplate } from '../routing/3xx.js';
 import { ensure404Route } from '../routing/astro-designed-error-pages.js';
@@ -129,20 +128,29 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	manifest: SSRManifest;
 	manifestData: RoutesList;
 	pipeline: P;
-	adapterLogger: AstroIntegrationLogger;
+	#adapterLogger: AstroIntegrationLogger | undefined;
 	baseWithoutTrailingSlash: string;
-	logger: AstroLogger;
 	#router: Router;
+
+	get logger(): AstroLogger {
+		return this.pipeline.logger;
+	}
+
+	get adapterLogger(): AstroIntegrationLogger {
+		if (!this.#adapterLogger) {
+			this.#adapterLogger = new AstroIntegrationLogger(
+				this.logger.options,
+				this.manifest.adapterName,
+			);
+		}
+		return this.#adapterLogger;
+	}
+
 	constructor(manifest: SSRManifest, streaming = true, ...args: any[]) {
 		this.manifest = manifest;
 		this.manifestData = { routes: manifest.routes.map((route) => route.routeData) };
 		this.baseWithoutTrailingSlash = removeTrailingForwardSlash(manifest.base);
 		this.pipeline = this.createPipeline(streaming, manifest, ...args);
-		this.logger = new AstroLogger({
-			destination: consoleLogDestination,
-			level: manifest.logLevel,
-		});
-		this.adapterLogger = new AstroIntegrationLogger(this.logger.options, manifest.adapterName);
 		// This is necessary to allow running middlewares for 404 in SSR. There's special handling
 		// to return the host 404 if the user doesn't provide a custom 404
 		ensure404Route(this.manifestData);
@@ -157,6 +165,14 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 
 	getAdapterLogger(): AstroIntegrationLogger {
 		return this.adapterLogger;
+	}
+
+	/**
+	 * Resets the cached adapter logger so it picks up a new logger instance.
+	 * Used by BuildApp when the logger is replaced via setOptions().
+	 */
+	protected resetAdapterLogger(): void {
+		this.#adapterLogger = undefined;
 	}
 
 	getAllowedDomains() {
@@ -390,6 +406,10 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			routeData,
 		}: RenderOptions = {},
 	): Promise<Response> {
+		// Lazily resolve the logger destination from the manifest on the first request.
+		// This swaps the user-configured logger destination (if any) into the shared
+		// AstroLogger instance before any logging occurs.
+		await this.pipeline.getLogger();
 		const timeStart = performance.now();
 		const url = new URL(request.url);
 		const redirect = this.redirectTrailingSlash(url.pathname);
@@ -590,6 +610,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			}
 		}
 
+		this.logger.flush();
 		Reflect.set(response, responseSentSymbol, true);
 	}
 

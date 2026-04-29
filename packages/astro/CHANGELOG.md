@@ -1,5 +1,17 @@
 # astro
 
+## 6.1.10
+
+### Patch Changes
+
+- [#16479](https://github.com/withastro/astro/pull/16479) [`1058428`](https://github.com/withastro/astro/commit/1058428df2d13878c6130787636dd1778273a934) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a spurious `[WARN] [content] Content config not loaded` warning during `astro dev` for projects that don't use content collections
+
+- [#16457](https://github.com/withastro/astro/pull/16457) [`3d82220`](https://github.com/withastro/astro/commit/3d82220a1549e699e34ed433f3846a919f4c02bd) Thanks [@matthewp](https://github.com/matthewp)! - Hardens server island encryption to prevent encrypted data from one island component being replayed against a different one
+
+- [#16481](https://github.com/withastro/astro/pull/16481) [`152700e`](https://github.com/withastro/astro/commit/152700e08178285b240d8ef947cccd47b870ee5f) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a spurious 404 request for a dev toolbar sourcemap during `astro dev` caused by the browser mis-resolving a relative `sourceMappingURL` from the `/@id/` URL prefix
+
+- [#16480](https://github.com/withastro/astro/pull/16480) [`1bcb43b`](https://github.com/withastro/astro/commit/1bcb43bf04f3fa8f4623897ae2a937250f35216a) Thanks [@matthewp](https://github.com/matthewp)! - Fixes an unnecessary full page reload on first navigation during dev
+
 ## 6.1.9
 
 ### Patch Changes

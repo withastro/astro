@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import testAdapter from './test-adapter.js';
-import { type DevServer, type Fixture, loadFixture, streamAsyncIterator } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { type DevServer, type Fixture, loadFixture, streamAsyncIterator } from './test-utils.ts';
 
 describe('Streaming', () => {
 	let fixture: Fixture;
@@ -140,7 +140,7 @@ describe('Streaming disabled', () => {
 			let res = await fixture.fetch('/');
 			let chunks = [];
 			for await (const bytes of streamAsyncIterator(res.body)) {
-				let chunk = bytes.toString('utf-8');
+				let chunk = Buffer.from(bytes).toString('utf-8');
 				chunks.push(chunk);
 			}
 			assert.equal(chunks.length > 1, true);

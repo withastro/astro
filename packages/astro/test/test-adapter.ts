@@ -1,25 +1,22 @@
 import { viteID } from '../dist/core/util.js';
+import type {
+	AstroAdapter,
+	AstroIntegration,
+	HookParameters,
+} from '../dist/types/public/integrations.js';
 
-/**
- * @typedef {import('../src/types/public/integrations.js').AstroAdapter} AstroAdapter
- * @typedef {import('../src/types/public/integrations.js').AstroIntegration} AstroIntegration
- * @typedef {import('../src/types/public/integrations.js').HookParameters<"astro:build:ssr">['middlewareEntryPoint']} MiddlewareEntryPoint
- * @typedef {import('../src/types/public/integrations.js').HookParameters<"astro:build:done">['routes']} Routes
- */
+type MiddlewareEntryPoint = HookParameters<'astro:build:ssr'>['middlewareEntryPoint'];
 
-/**
- *
- * @param {{
- * 	provideAddress?: boolean;
- * 	staticHeaders?: boolean;
- * 	extendAdapter?: Partial<AstroAdapter>;
- * 	setMiddlewareEntryPoint?: (middlewareEntryPoint: MiddlewareEntryPoint) => void;
- * 	setManifest?: (manifest: unknown) => void;
- * 	setRouteToHeaders?: (routeToHeaders: Map<string, { headers: Headers }>) => void;
- * 	env?: Record<string, string | undefined>;
- * }} [param0]
- * @returns {AstroIntegration}
- */
+interface TestAdapterOptions {
+	provideAddress?: boolean;
+	staticHeaders?: boolean;
+	extendAdapter?: Partial<AstroAdapter>;
+	setMiddlewareEntryPoint?: (middlewareEntryPoint: MiddlewareEntryPoint) => void;
+	setManifest?: (manifest: unknown) => void;
+	setRouteToHeaders?: (routeToHeaders: Map<string, { headers: Headers }>) => void;
+	env?: Record<string, string | undefined>;
+}
+
 export default function testAdapter({
 	provideAddress = true,
 	staticHeaders = false,
@@ -28,7 +25,7 @@ export default function testAdapter({
 	setManifest,
 	setRouteToHeaders,
 	env,
-} = {}) {
+}: TestAdapterOptions = {}): AstroIntegration {
 	return {
 		name: 'my-ssr-adapter',
 		hooks: {
@@ -37,6 +34,7 @@ export default function testAdapter({
 					vite: {
 						plugins: [
 							{
+								name: 'test-adapter',
 								resolveId: {
 									filter: {
 										id: /^(astro\/app|@my-ssr)$/,
@@ -76,11 +74,10 @@ export default function testAdapter({
 													super(manifest, streaming);
 													this.#manifest = manifest;
 												}
-												
+
 												createPipeline(streaming) {
 													return AppPipeline.create({
 														manifest: this.manifest,
-														logger: this.logger,
 														streaming
 													})
 												}
@@ -128,7 +125,6 @@ export default function testAdapter({
 						envGetSecret: 'stable',
 						staticOutput: 'stable',
 						hybridOutput: 'stable',
-						assets: 'stable',
 						i18nDomains: 'stable',
 					},
 					adapterFeatures: {
@@ -155,7 +151,6 @@ export default function testAdapter({
 	};
 }
 
-/** @returns {import('astro').AstroIntegration} */
 export function selfTestAdapter({
 	provideAddress = true,
 	staticHeaders = false,
@@ -164,7 +159,7 @@ export function selfTestAdapter({
 	setManifest,
 	setRouteToHeaders,
 	env,
-} = {}) {
+}: TestAdapterOptions = {}): AstroIntegration {
 	return {
 		name: 'my-ssr-adapter',
 		hooks: {
@@ -173,6 +168,7 @@ export function selfTestAdapter({
 					vite: {
 						plugins: [
 							{
+								name: 'self-test-adapter',
 								resolveId: {
 									filter: {
 										id: /^(astro\/app|@my-ssr)$/,
@@ -213,11 +209,10 @@ export function selfTestAdapter({
 													super(manifest, streaming);
 													this.#manifest = manifest;
 												}
-												
+
 												createPipeline(streaming) {
 													return AppPipeline.create({
 														manifest: this.manifest,
-														logger: this.logger,
 														streaming
 													})
 												}
@@ -243,7 +238,7 @@ export function selfTestAdapter({
 											function createApp(streaming) {
 												return new MyApp(manifest, streaming);
 											}
-											
+
 											export { createApp, manifest }
 										`,
 										};
@@ -264,7 +259,6 @@ export function selfTestAdapter({
 						envGetSecret: 'stable',
 						staticOutput: 'stable',
 						hybridOutput: 'stable',
-						assets: 'stable',
 						i18nDomains: 'stable',
 					},
 					adapterFeatures: {

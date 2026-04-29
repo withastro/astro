@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import type { AstroLogMessage } from '../../../dist/core/logger/core.js';
+import type { AstroLoggerMessage } from '../../../dist/core/logger/core.js';
 import { AstroLogger } from '../../../dist/core/logger/core.js';
 import { createRoutesList } from '../../../dist/core/routing/create-manifest.js';
 import type { RouteData } from '../../../dist/types/public/internal.js';
@@ -14,12 +14,12 @@ function getManifestRoutes(manifest: { routes: RouteData[] }) {
 }
 
 function getLogger() {
-	const logs: AstroLogMessage[] = [];
+	const logs: AstroLoggerMessage[] = [];
 
 	return {
 		logger: new AstroLogger({
 			destination: {
-				write(msg: AstroLogMessage) {
+				write(msg: AstroLoggerMessage) {
 					logs.push(msg);
 					return true;
 				},
@@ -396,7 +396,6 @@ describe('routing - createRoutesList', () => {
 
 		assert.deepEqual(logs, [
 			{
-				_format: 'default',
 				label: 'router',
 				level: 'warn',
 				message:
@@ -404,7 +403,6 @@ describe('routing - createRoutesList', () => {
 				newLine: true,
 			},
 			{
-				_format: 'default',
 				label: 'router',
 				level: 'warn',
 				message: 'A collision will result in a hard error in following versions of Astro.',
@@ -437,7 +435,6 @@ describe('routing - createRoutesList', () => {
 
 		assert.deepEqual(logs, [
 			{
-				_format: 'default',
 				label: 'router',
 				level: 'warn',
 				message:
@@ -445,7 +442,6 @@ describe('routing - createRoutesList', () => {
 				newLine: true,
 			},
 			{
-				_format: 'default',
 				label: 'router',
 				level: 'warn',
 				message: 'A collision will result in a hard error in following versions of Astro.',
