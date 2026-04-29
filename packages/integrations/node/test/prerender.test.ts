@@ -1,0 +1,709 @@
+import * as assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
+import * as cheerio from 'cheerio';
+import nodejs from '../dist/index.js';
+import {
+	type Fixture,
+	loadFixture,
+	waitServerListen,
+	type AdapterServer,
+	type DevServer,
+} from './test-utils.ts';
+
+describe('Prerendering', () => {
+	let fixture: Fixture;
+	let server: AdapterServer;
+
+	describe('With base', async () => {
+		before(async () => {
+			fixture = await loadFixture({
+				base: '/some-base',
+				root: './fixtures/prerender/',
+				output: 'server',
+				outDir: './dist/with-base',
+				adapter: nodejs({ mode: 'standalone' }),
+			});
+			await fixture.build();
+			const { startServer } = await fixture.loadAdapterEntryModule();
+			const res = startServer();
+			server = res.server;
+			await waitServerListen(server.server);
+		});
+
+		after(async () => {
+			await server.stop();
+			await fixture.clean();
+		});
+
+		it('Can render SSR route', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/some-base/one`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'One');
+		});
+
+		it('Can render prerendered route', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/some-base/two`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Two');
+			assert.ok(fixture.pathExists('/client/two/index.html'));
+		});
+
+		it('Can render prerendered route with redirect and query params', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/some-base/two?foo=bar`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Two');
+		});
+
+		it('Can render prerendered route with query params', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/some-base/two/?foo=bar`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Two');
+		});
+
+		it('Can render prerendered route without trailing slash', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/some-base/two`, {
+				redirect: 'manual',
+			});
+			const html = await res.text();
+			const $ = cheerio.load(html);
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Two');
+		});
+
+		it('Can render prerendered dynamic route', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/some-base/dogs/rover`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Good dog, rover!');
+		});
+
+		it('Can render 404 matching a prerendered dynamic route pattern', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/some-base/dogs/unknown`);
+
+			assert.equal(res.status, 404);
+		});
+	});
+
+	describe('Without base', async () => {
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/prerender/',
+				output: 'server',
+				outDir: './dist/without-base',
+				adapter: nodejs({ mode: 'standalone' }),
+			});
+			await fixture.build();
+			const { startServer } = await fixture.loadAdapterEntryModule();
+			const res = startServer();
+			server = res.server;
+			await waitServerListen(server.server);
+		});
+
+		after(async () => {
+			await server.stop();
+			await fixture.clean();
+		});
+
+		it('Can render SSR route', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/one`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'One');
+		});
+
+		it('Can render prerendered route', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/two`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Two');
+			assert.ok(fixture.pathExists('/client/two/index.html'));
+		});
+
+		it('Can render prerendered route with redirect and query params', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/two?foo=bar`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Two');
+		});
+
+		it('Can render prerendered route with query params', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/two/?foo=bar`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Two');
+		});
+
+		it('Can render prerendered dynamic route', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/dogs/rover`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Good dog, rover!');
+		});
+
+		it('Can render 404 matching a prerendered dynamic route pattern', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/dogs/unknown`);
+
+			assert.equal(res.status, 404);
+		});
+	});
+
+	describe('Via integration', () => {
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/prerender/',
+				output: 'server',
+				outDir: './dist/via-integration',
+				adapter: nodejs({ mode: 'standalone' }),
+				integrations: [
+					{
+						name: 'test',
+						hooks: {
+							'astro:route:setup': ({ route }) => {
+								if (route.component.endsWith('two.astro')) {
+									route.prerender = true;
+								}
+							},
+						},
+					},
+				],
+			});
+			await fixture.build();
+			const { startServer } = await fixture.loadAdapterEntryModule();
+			const res = startServer();
+			server = res.server;
+			await waitServerListen(server.server);
+		});
+
+		after(async () => {
+			await server.stop();
+			await fixture.clean();
+		});
+
+		it('Can render SSR route', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/one`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'One');
+		});
+
+		it('Can render prerendered route', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/two`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Two');
+			assert.ok(fixture.pathExists('/client/two/index.html'));
+		});
+	});
+
+	describe('Dev', () => {
+		let devServer: DevServer;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/prerender/',
+				output: 'server',
+				outDir: './dist/dev',
+				adapter: nodejs({ mode: 'standalone' }),
+			});
+			devServer = await fixture.startDevServer();
+		});
+
+		after(async () => {
+			await devServer.stop();
+		});
+
+		it('Can render SSR route', async () => {
+			const res = await fixture.fetch(`/one`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'One');
+		});
+
+		it('Can render prerendered route', async () => {
+			const res = await fixture.fetch(`/two`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Two');
+		});
+	});
+});
+
+describe('Prerendered pages and middleware mode', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let server;
+
+	describe('Classic mode', () => {
+		before(async () => {
+			process.env.PRERENDER = true;
+			fixture = await loadFixture({
+				root: './fixtures/prerender/',
+				output: 'server',
+				outDir: './dist/prerender-classic-mode',
+				adapter: nodejs({ mode: 'standalone', middlewareMode: 'classic' }),
+			});
+			await fixture.build();
+			const { startServer } = await fixture.loadAdapterEntryModule();
+			const res = startServer();
+			server = res.server;
+			await waitServerListen(server.server);
+		});
+
+		after(async () => {
+			await server.stop();
+			await fixture.clean();
+
+			delete process.env.PRERENDER;
+		});
+
+		it('does not execute middleware for prerendered pages at request time', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/private`, {
+				redirect: 'manual',
+			});
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Private');
+			assert.equal(res.headers.get('location'), null);
+			assert.equal(res.headers.get('x-prerender-private'), null);
+		});
+	});
+
+	describe('On-request mode', () => {
+		before(async () => {
+			process.env.PRERENDER = true;
+			fixture = await loadFixture({
+				root: './fixtures/prerender/',
+				output: 'server',
+				outDir: './dist/prerender-on-request-mode',
+				adapter: nodejs({ mode: 'standalone', middlewareMode: 'on-request' }),
+			});
+			await fixture.build();
+			const { startServer } = await fixture.loadAdapterEntryModule();
+			const res = startServer();
+			server = res.server;
+			await waitServerListen(server.server);
+		});
+
+		after(async () => {
+			await server.stop();
+			await fixture.clean();
+
+			delete process.env.PRERENDER;
+		});
+
+		it('executes middleware for prerendered pages at request time', async () => {
+			const redirectRes = await fetch(`http://${server.host}:${server.port}/private`, {
+				redirect: 'manual',
+			});
+			assert.equal(redirectRes.status, 302);
+			assert.equal(redirectRes.headers.get('location'), '/login');
+
+			const authRes = await fetch(`http://${server.host}:${server.port}/private`, {
+				headers: { Cookie: 'auth=1' },
+			});
+			assert.equal(authRes.status, 200);
+			assert.equal(authRes.headers.get('x-prerender-private'), 'true');
+		});
+	});
+
+	describe('Always mode', () => {
+		before(async () => {
+			process.env.PRERENDER = true;
+			fixture = await loadFixture({
+				root: './fixtures/prerender/',
+				output: 'server',
+				outDir: './dist/prerender-always-mode',
+				adapter: nodejs({ mode: 'standalone', middlewareMode: 'always' }),
+			});
+			await fixture.build();
+			const { startServer } = await fixture.loadAdapterEntryModule();
+			const res = startServer();
+			server = res.server;
+			await waitServerListen(server.server);
+		});
+
+		after(async () => {
+			await server.stop();
+			await fixture.clean();
+
+			delete process.env.PRERENDER;
+		});
+
+		it('reports buildPhase as "request" for SSR routes at request time', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/one`);
+			assert.equal(res.status, 200);
+			assert.equal(res.headers.get('x-build-phase'), 'request');
+		});
+
+		it('reports buildPhase as "request" for prerendered routes at request time', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/two`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+			assert.equal(res.status, 200);
+			assert.equal(res.headers.get('x-build-phase'), 'request');
+			assert.equal($('#build-phase').text(), 'build');
+		});
+
+		it('reports buildPhase as "build" for prerendered routes at build time', async () => {
+			// The built HTML for /two should contain the buildPhase value recorded during
+			// static generation, which is "build".
+			const builtHtml = await fixture.readFile('/client/two/index.html');
+			const $ = cheerio.load(builtHtml);
+			assert.equal($('#build-phase').text(), 'build');
+		});
+	});
+});
+
+describe('Prerendered pages and middleware mode', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let server;
+
+	describe('Classic mode', () => {
+		before(async () => {
+			process.env.PRERENDER = true;
+			fixture = await loadFixture({
+				root: './fixtures/prerender/',
+				output: 'server',
+				outDir: './dist/prerender-classic-mode',
+				adapter: nodejs({ mode: 'standalone', middlewareMode: 'classic' }),
+			});
+			await fixture.build();
+			const { startServer } = await fixture.loadAdapterEntryModule();
+			const res = startServer();
+			server = res.server;
+			await waitServerListen(server.server);
+		});
+
+		after(async () => {
+			await server.stop();
+			await fixture.clean();
+
+			delete process.env.PRERENDER;
+		});
+
+		it('does not execute middleware for prerendered pages at request time', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/private`, {
+				redirect: 'manual',
+			});
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Private');
+			assert.equal(res.headers.get('location'), null);
+			assert.equal(res.headers.get('x-prerender-private'), null);
+		});
+	});
+
+	describe('On-request mode', () => {
+		before(async () => {
+			process.env.PRERENDER = true;
+			fixture = await loadFixture({
+				root: './fixtures/prerender/',
+				output: 'server',
+				outDir: './dist/prerender-on-request-mode',
+				adapter: nodejs({ mode: 'standalone', middlewareMode: 'on-request' }),
+			});
+			await fixture.build();
+			const { startServer } = await fixture.loadAdapterEntryModule();
+			const res = startServer();
+			server = res.server;
+			await waitServerListen(server.server);
+		});
+
+		after(async () => {
+			await server.stop();
+			await fixture.clean();
+
+			delete process.env.PRERENDER;
+		});
+
+		it('executes middleware for prerendered pages at request time', async () => {
+			const redirectRes = await fetch(`http://${server.host}:${server.port}/private`, {
+				redirect: 'manual',
+			});
+			assert.equal(redirectRes.status, 302);
+			assert.equal(redirectRes.headers.get('location'), '/login');
+
+			const authRes = await fetch(`http://${server.host}:${server.port}/private`, {
+				headers: { Cookie: 'auth=1' },
+			});
+			assert.equal(authRes.status, 200);
+			assert.equal(authRes.headers.get('x-prerender-private'), 'true');
+		});
+	});
+
+	describe('Always mode', () => {
+		before(async () => {
+			process.env.PRERENDER = true;
+			fixture = await loadFixture({
+				root: './fixtures/prerender/',
+				output: 'server',
+				outDir: './dist/prerender-always-mode',
+				adapter: nodejs({ mode: 'standalone', middlewareMode: 'always' }),
+			});
+			await fixture.build();
+			const { startServer } = await fixture.loadAdapterEntryModule();
+			const res = startServer();
+			server = res.server;
+			await waitServerListen(server.server);
+		});
+
+		after(async () => {
+			await server.stop();
+			await fixture.clean();
+
+			delete process.env.PRERENDER;
+		});
+
+		it('reports buildPhase as "request" for SSR routes at request time', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/one`);
+			assert.equal(res.status, 200);
+			assert.equal(res.headers.get('x-build-phase'), 'request');
+		});
+
+		it('reports buildPhase as "request" for prerendered routes at request time', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/two`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+			assert.equal(res.status, 200);
+			assert.equal(res.headers.get('x-build-phase'), 'request');
+			assert.equal($('#build-phase').text(), 'build');
+		});
+
+		it('reports buildPhase as "build" for prerendered routes at build time', async () => {
+			// The built HTML for /two should contain the buildPhase value recorded during
+			// static generation, which is "build".
+			const builtHtml = await fixture.readFile('/client/two/index.html');
+			const $ = cheerio.load(builtHtml);
+			assert.equal($('#build-phase').text(), 'build');
+		});
+	});
+});
+
+
+describe('Hybrid rendering', () => {
+	let fixture: Fixture;
+	let server: AdapterServer;
+
+	describe('With base', () => {
+		before(async () => {
+			fixture = await loadFixture({
+				base: '/some-base',
+				root: './fixtures/prerender/',
+				output: 'static',
+				outDir: './dist/hybrid-with-base',
+				adapter: nodejs({ mode: 'standalone' }),
+			});
+			await fixture.build();
+			const { startServer } = await fixture.loadAdapterEntryModule();
+			const res = startServer();
+			server = res.server;
+			await waitServerListen(server.server);
+		});
+
+		after(async () => {
+			await server.stop();
+			await fixture.clean();
+		});
+
+		it('Can render SSR route', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/some-base/two`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Two');
+		});
+
+		it('Can render prerendered route', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/some-base/one`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'One');
+			assert.ok(fixture.pathExists('/client/one/index.html'));
+		});
+
+		it('Can render prerendered route with redirect and query params', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/some-base/one?foo=bar`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'One');
+		});
+
+		it('Can render prerendered route with query params', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/some-base/one/?foo=bar`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'One');
+		});
+
+		it('Can render prerendered route without trailing slash', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/some-base/one`, {
+				redirect: 'manual',
+			});
+			const html = await res.text();
+			const $ = cheerio.load(html);
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'One');
+		});
+
+		it('Can render prerendered dynamic route', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/some-base/dogs/rover`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Good dog, rover!');
+		});
+
+		it('Can render 404 matching a prerendered dynamic route pattern', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/some-base/dogs/unknown`);
+
+			assert.equal(res.status, 404);
+		});
+	});
+
+	describe('Without base', () => {
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/prerender/',
+				output: 'static',
+				outDir: './dist/hybrid-without-base',
+				adapter: nodejs({ mode: 'standalone' }),
+			});
+			await fixture.build();
+			const { startServer } = await fixture.loadAdapterEntryModule();
+			const res = startServer();
+			server = res.server;
+			await waitServerListen(server.server);
+		});
+
+		after(async () => {
+			await server.stop();
+			await fixture.clean();
+		});
+
+		it('Can render SSR route', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/two`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Two');
+		});
+
+		it('Can render prerendered route', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/one`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'One');
+			assert.ok(fixture.pathExists('/client/one/index.html'));
+		});
+
+		it('Can render prerendered route with redirect and query params', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/one?foo=bar`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'One');
+		});
+
+		it('Can render prerendered route with query params', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/one/?foo=bar`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'One');
+		});
+
+		it('Can render prerendered dynamic route', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/dogs/rover`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Good dog, rover!');
+		});
+
+		it('Can render 404 matching a prerendered dynamic route pattern', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/dogs/unknown`);
+
+			assert.equal(res.status, 404);
+		});
+	});
+
+	describe('Shared modules', () => {
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/prerender/',
+				output: 'static',
+				outDir: './dist/hybrid-shared-modules',
+				adapter: nodejs({ mode: 'standalone' }),
+			});
+			await fixture.build();
+			const { startServer } = await fixture.loadAdapterEntryModule();
+			const res = startServer();
+			server = res.server;
+			await waitServerListen(server.server);
+		});
+
+		after(async () => {
+			await server.stop();
+			await fixture.clean();
+		});
+
+		it('Can render SSR route', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/third`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'shared');
+		});
+	});
+});

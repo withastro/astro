@@ -29,7 +29,7 @@ export default {
 			request = new Request(url.toString(), {
 				method: request.method,
 				headers: request.headers,
-				body: request.body,
+				...(request.body ? { body: request.body, duplex: 'half' } : {}),
 			});
 		}
 

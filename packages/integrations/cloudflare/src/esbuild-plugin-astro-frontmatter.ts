@@ -34,8 +34,13 @@ export function astroFrontmatterScanPlugin(): ESBuildPlugin {
 							.replace(/\breturn\s*;/g, 'throw 0;')
 							.replace(/\breturn\b/g, 'throw ');
 
+						// Append `export default {}` so that default imports of .astro files
+						// (e.g. `import MyComponent from './MyComponent.astro'`) resolve correctly
+						// during the dep scan. Without this, .astro files loaded in the `html`
+						// namespace (when imported from .ts files) would have no default export,
+						// causing esbuild to fail with "No matching export for import 'default'".
 						return {
-							contents,
+							contents: contents + '\nexport default {}',
 							loader: 'ts',
 						};
 					}
@@ -43,9 +48,9 @@ export function astroFrontmatterScanPlugin(): ESBuildPlugin {
 					// Ignore read errors
 				}
 
-				// No frontmatter or read error, return empty
+				// No frontmatter or read error, return empty with a default export
 				return {
-					contents: '',
+					contents: 'export default {}',
 					loader: 'ts',
 				};
 			});

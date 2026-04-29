@@ -88,6 +88,8 @@ export function deserializeRouteData(rawRouteData: SerializedRouteData): RouteDa
 	return {
 		route: rawRouteData.route,
 		type: rawRouteData.type,
+		// nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
+		// This pattern is serialized from Astro's own route manifest.
 		pattern: new RegExp(rawRouteData.pattern),
 		params: rawRouteData.params,
 		component: rawRouteData.component,

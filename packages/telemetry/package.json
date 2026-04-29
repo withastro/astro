@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/telemetry",
-  "version": "3.3.0",
+  "version": "3.3.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "@types/dlv": "^1.1.5",
-    "@types/node": "^18.17.8",
+    "@types/node": "^22.10.6",
     "@types/which-pm-runs": "^1.0.2",
     "astro-scripts": "workspace:*"
   },

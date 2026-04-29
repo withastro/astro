@@ -10,7 +10,7 @@ describe('Basics', () => {
 		fixture = await loadFixture({
 			root: './fixtures/basics/',
 		});
-		await fixture.build({});
+		await fixture.build();
 	});
 
 	it('Slots are added without the slot attribute', async () => {

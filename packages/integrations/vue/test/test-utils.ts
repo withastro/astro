@@ -1,10 +1,12 @@
 import {
+	cli,
 	loadFixture as baseLoadFixture,
 	type Fixture,
 	type DevServer,
 	type AstroInlineConfig,
-} from '../../../astro/test/test-utils.js';
+} from 'astro/_internal/test/test-utils';
 
+export { cli };
 export type { Fixture, DevServer };
 
 export function loadFixture(inlineConfig: AstroInlineConfig) {

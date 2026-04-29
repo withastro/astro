@@ -296,7 +296,7 @@ export class AstroSession {
 		if (this.#toDestroy.size > 0) {
 			const cleanupPromises = [...this.#toDestroy].map((sessionId) =>
 				storage.removeItem(sessionId).catch((err) => {
-					console.error(`Failed to clean up session ${sessionId}:`, err);
+					console.error('Failed to clean up session %s:', sessionId, err);
 				}),
 			);
 			await Promise.all(cleanupPromises);

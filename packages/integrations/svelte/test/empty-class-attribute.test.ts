@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { loadFixture, type Fixture, type DevServer } from '../../../astro/test/test-utils.js';
+import { loadFixture, type Fixture, type DevServer } from './test-utils.ts';
 
 /**
  * @see https://github.com/withastro/astro/issues/15576
@@ -19,7 +19,7 @@ describe('Empty class attribute', () => {
 			fixture = await loadFixture({
 				root: new URL('./fixtures/empty-class/', import.meta.url),
 			});
-			await fixture.build({});
+			await fixture.build();
 		});
 
 		it('should not render empty class attribute when class prop is not provided', async () => {

@@ -5,20 +5,15 @@ import { RenderContext } from '../../../dist/core/render-context.js';
 import {
 	createComponent,
 	Fragment,
-	maybeRenderHead as _maybeRenderHead,
+	maybeRenderHead,
 	render,
 	renderComponent,
-	renderHead as _renderHead,
+	renderHead,
 	renderSlot,
 } from '../../../dist/runtime/server/index.js';
 import type { AstroComponentFactory } from '../../../dist/runtime/server/render/index.js';
 import type { Pipeline } from '../../../dist/core/render/index.js';
 import { createBasicPipeline } from '../test-utils.ts';
-
-// The public types for renderHead/maybeRenderHead declare zero params,
-// but the runtime implementation accepts a result argument.
-const renderHead = _renderHead as (result: any) => any;
-const maybeRenderHead = _maybeRenderHead as (result: any) => any;
 
 const createAstroModule = (AstroComponent: AstroComponentFactory) => ({ default: AstroComponent });
 
@@ -41,9 +36,9 @@ describe('core/render', () => {
 				return render`<html>
 					<head>
 					${renderSlot(result, slots['head'])}
-					${renderHead(result)}
+					${renderHead()}
 					</head>
-					${maybeRenderHead(result)}
+					${maybeRenderHead()}
 					<body>
 						${renderSlot(result, slots['default'])}
 					</body>
@@ -58,7 +53,7 @@ describe('core/render', () => {
 					{},
 					{
 						default: () => render`
-							${maybeRenderHead(result)}
+							${maybeRenderHead()}
 							<main>
 								${renderSlot(result, slots['default'])}
 							</main>
@@ -86,7 +81,7 @@ describe('core/render', () => {
 					PageLayout,
 					{},
 					{
-						default: () => render`${maybeRenderHead(result)}<div>hello world</div>`,
+						default: () => render`${maybeRenderHead()}<div>hello world</div>`,
 						head: () => render`
 						${renderComponent(
 							result,
@@ -124,7 +119,7 @@ describe('core/render', () => {
 			const BaseLayout = createComponent((result: any, _props: any, slots: any) => {
 				return render`<html>
 					${renderSlot(result, slots['head'])}
-					${maybeRenderHead(result)}
+					${maybeRenderHead()}
 					<body>
 						${renderSlot(result, slots['default'])}
 					</body>
@@ -139,7 +134,7 @@ describe('core/render', () => {
 					{},
 					{
 						default: () => render`
-							${maybeRenderHead(result)}
+							${maybeRenderHead()}
 							<main>
 								${renderSlot(result, slots['default'])}
 							</main>
@@ -167,7 +162,7 @@ describe('core/render', () => {
 					PageLayout,
 					{},
 					{
-						default: () => render`${maybeRenderHead(result)}<div>hello world</div>`,
+						default: () => render`${maybeRenderHead()}<div>hello world</div>`,
 						head: () => render`
 						${renderComponent(
 							result,
@@ -226,7 +221,7 @@ describe('core/render', () => {
 					PageLayout,
 					{},
 					{
-						default: () => render`${maybeRenderHead(result)}<div>hello world</div>`,
+						default: () => render`${maybeRenderHead()}<div>hello world</div>`,
 					},
 				)}`;
 			});

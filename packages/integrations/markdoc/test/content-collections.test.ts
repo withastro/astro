@@ -1,12 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { parse as parseDevalue } from 'devalue';
-import {
-	fixLineEndings,
-	loadFixture,
-	type Fixture,
-	type DevServer,
-} from '../../../astro/test/test-utils.js';
+import { fixLineEndings, loadFixture, type Fixture, type DevServer } from './test-utils.ts';
 import markdoc from '../dist/index.js';
 
 function formatPost<T extends { body: string }>(post: T): T {
@@ -61,7 +56,7 @@ describe('Markdoc - Content Collections', () => {
 
 	describe('build', () => {
 		before(async () => {
-			await baseFixture.build({});
+			await baseFixture.build();
 		});
 
 		it('loads entry', async () => {

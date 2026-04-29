@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { cli } from '../../../astro/test/test-utils.js';
+import { cli } from './test-utils.ts';
 
 describe('Vue Check', () => {
 	it('should pass check for client directives and HTML attributes on Vue components', async () => {

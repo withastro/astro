@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
-import { loadFixture, type Fixture, type DevServer } from '../../../astro/test/test-utils.js';
+import { loadFixture, type Fixture, type DevServer } from './test-utils.ts';
 import markdoc from '../dist/index.js';
 
 const root = new URL('./fixtures/variables/', import.meta.url);
@@ -39,7 +39,7 @@ describe('Markdoc - Variables', () => {
 
 	describe('build', () => {
 		before(async () => {
-			await baseFixture.build({});
+			await baseFixture.build();
 		});
 
 		it('has expected entry properties', async () => {

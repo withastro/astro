@@ -3,7 +3,6 @@
   "include": ["test/**/*.ts"],
   "exclude": ["test/fixtures/**"],
   "compilerOptions": {
-    "noEmit": true,
     "allowJs": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,

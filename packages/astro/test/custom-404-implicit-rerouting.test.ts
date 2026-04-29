@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import testAdapter from './test-adapter.js';
-import { loadFixture, type Fixture, type DevServer, type App } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { loadFixture, type Fixture, type DevServer, type App } from './test-utils.ts';
 
 for (const caseNumber of [1, 2, 3, 4, 5]) {
 	describe(`Custom 404 with implicit rerouting - Case #${caseNumber}`, () => {
@@ -20,7 +20,7 @@ for (const caseNumber of [1, 2, 3, 4, 5]) {
 			let devServer: DevServer;
 
 			before(async () => {
-				await fixture.build({});
+				await fixture.build();
 				devServer = await fixture.startDevServer();
 			});
 
