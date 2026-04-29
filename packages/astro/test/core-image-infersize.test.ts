@@ -4,7 +4,7 @@ import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 
 import { AstroLogger, type AstroLogMessage } from '../dist/core/logger/core.js';
-import { testImageService } from './test-image-service.js';
+import { testImageService } from './test-image-service.ts';
 import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
 
 describe('astro:image:infersize', () => {

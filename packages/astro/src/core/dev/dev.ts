@@ -128,7 +128,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 		});
 		contentLayer.watchContentConfig();
 		await contentLayer.sync();
-	} else {
+	} else if (config.status !== 'does-not-exist') {
 		logger.warn('content', 'Content config not loaded');
 	}
 

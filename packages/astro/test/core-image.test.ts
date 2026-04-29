@@ -8,7 +8,7 @@ import * as cheerio from 'cheerio';
 import parseSrcset from 'parse-srcset';
 import { AstroLogger, type AstroLogMessage } from '../dist/core/logger/core.js';
 import testAdapter from './test-adapter.js';
-import { testImageService } from './test-image-service.js';
+import { testImageService } from './test-image-service.ts';
 import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
 
 describe('astro:image', () => {
