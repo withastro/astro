@@ -1855,17 +1855,15 @@ export interface AstroUserConfig<
 		 * }
 		 * ```
 		 *
-		 * You can use wildcards to define the permitted `hostname` and `pathname` values as described below. Otherwise, only the exact values provided will be configured:
-		 * `hostname`:
-		 *   - Start with '**.' to allow all subdomains ('endsWith').
-		 *   - Start with '*.' to allow only one level of subdomain.
+		 * You can use wildcards to define the permitted `hostname` and `pathname` values as described below. Otherwise, only the exact values provided will be configured.
 		 *
-		 * `pathname`:
-		 *   - End with '/**' to allow all sub-routes ('startsWith').
-		 *   - End with '/*' to allow only one level of sub-route.
+		 * `hostname` patterns:
+		 *   - Start with `**.` to allow all subdomains (like `endsWith`).
+		 *   - Start with `*.` to allow only one level of subdomain.
 		 *
-		 * Set `followRedirects: true` to allow Astro to follow redirect responses
-		 * for URLs that match a specific pattern. Redirects are blocked by default.
+		 * `pathname` patterns:
+		 *   - End with `/**` to allow all sub-routes (like `startsWith`).
+		 *   - End with `/*` to allow only one level of sub-route.
 
 		 */
 		remotePatterns?: Partial<RemoteImagePatternConfig>[];

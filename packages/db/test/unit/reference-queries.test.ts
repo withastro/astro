@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { getTableChangeQueries } from '../../dist/core/cli/migration-queries.js';
 import { tablesSchema } from '../../dist/core/schemas.js';
-import type { DBTable } from '../../dist/core/types.js';
-import { column, defineTable } from '../../dist/runtime/virtual.js';
+import type { DBTable, TableConfig } from '../../dist/core/types.js';
+import { column, defineTable } from './virtual.ts';
 import { asResolved } from '../test-utils.ts';
 
 const BaseUser = defineTable({
@@ -26,7 +26,7 @@ const BaseSentBox = defineTable({
 });
 
 function resolveReferences(
-	{ User = BaseUser, SentBox = BaseSentBox }: { User?: DBTable; SentBox?: DBTable } = {
+	{ User = BaseUser, SentBox = BaseSentBox }: { User?: TableConfig; SentBox?: TableConfig } = {
 		User: BaseUser,
 		SentBox: BaseSentBox,
 	},
