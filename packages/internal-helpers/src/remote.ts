@@ -7,7 +7,7 @@ export type RemotePattern = {
 
 export type RemoteImagePatternConfig = RemotePattern & {
 	followRedirects?: boolean;
-}
+};
 
 /**
  * Evaluates whether a given URL matches the specified remote pattern based on protocol, hostname, port, and pathname.
