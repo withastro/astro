@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import { App } from '../../../dist/core/app/app.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createRouteData } from '../mocks.ts';
-import { createManifest } from '../app/test-helpers.ts';
+import { createManifest, createRouteInfo } from '../app/test-helpers.ts';
 
 import type { MiddlewareHandler } from 'astro';
 import type { RouteData } from '../../../dist/types/public/internal.js';
@@ -921,15 +921,15 @@ describe('Middleware via App.render()', () => {
 
 	describe("middlewareMode: 'on-request'", () => {
 		it('runs middleware at request time', async () => {
-			const onRequest = async (ctx, next) => {
-				ctx.locals.name = 'from-middleware';
+			const onRequest: MiddlewareHandler = async (ctx, next) => {
+				(ctx.locals as Record<string, unknown>).name = 'from-middleware';
 				return next();
 			};
 			const pageMap = new Map([
 				[indexRouteData.component, async () => ({ page: async () => ({ default: simplePage() }) })],
 			]);
 			const manifest = createManifest({
-				routes: [{ routeData: indexRouteData }],
+				routes: [createRouteInfo(indexRouteData)],
 				pageMap,
 			});
 			manifest.middleware = () => ({ onRequest });
@@ -944,7 +944,7 @@ describe('Middleware via App.render()', () => {
 
 		it('does not run middleware when skipMiddleware is set (build-time prerendering)', async () => {
 			let middlewareWasCalled = false;
-			const onRequest = async (_ctx, next) => {
+			const onRequest: MiddlewareHandler = async (_ctx, next) => {
 				middlewareWasCalled = true;
 				return next();
 			};
@@ -952,7 +952,7 @@ describe('Middleware via App.render()', () => {
 				[indexRouteData.component, async () => ({ page: async () => ({ default: simplePage() }) })],
 			]);
 			const manifest = createManifest({
-				routes: [{ routeData: indexRouteData }],
+				routes: [createRouteInfo(indexRouteData)],
 				pageMap,
 			});
 			manifest.middleware = () => ({ onRequest });
@@ -973,7 +973,7 @@ describe('Middleware via App.render()', () => {
 			const rewriteSsrRouteData = createRouteData({ route: '/rewrite-ssr', prerender: false });
 			const targetPrerenderRouteData = createRouteData({ route: '/target', prerender: true });
 
-			const onRequest = async (ctx, next) => {
+			const onRequest: MiddlewareHandler = async (ctx, next) => {
 				if (ctx.url.pathname === '/rewrite-ssr') {
 					return ctx.rewrite(new Request('http://localhost/target'));
 				}
@@ -992,7 +992,10 @@ describe('Middleware via App.render()', () => {
 			]);
 
 			const manifest = createManifest({
-				routes: [{ routeData: rewriteSsrRouteData }, { routeData: targetPrerenderRouteData }],
+				routes: [
+					createRouteInfo(rewriteSsrRouteData),
+					createRouteInfo(targetPrerenderRouteData),
+				],
 				pageMap,
 			});
 			manifest.middleware = () => ({ onRequest });
