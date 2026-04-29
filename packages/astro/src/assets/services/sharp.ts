@@ -156,7 +156,6 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 
 		// always call rotate to adjust for EXIF data orientation
 		result.rotate();
-		
 		// get some information about the input
 		let format: string | undefined;
 		try {
