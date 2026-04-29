@@ -430,11 +430,13 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				});
 			}
 		}
-		// Resolve routeData if not provided by the adapter. This handles
-		// domain-based i18n routing (computePathnameFromDomain) and
-		// prerender filtering that pipeline.matchRoute() doesn't do.
+		// For domain-based i18n, compute the locale-prefixed pathname from
+		// the Host header and pass it so FetchState can match correctly.
 		if (!routeData) {
-			routeData = this.match(request);
+			const domainPathname = this.computePathnameFromDomain(request);
+			if (domainPathname) {
+				routeData = this.pipeline.matchRoute(decodeURI(domainPathname));
+			}
 		}
 		const resolvedOptions: ResolvedRenderOptions = {
 			addCookieHeader,

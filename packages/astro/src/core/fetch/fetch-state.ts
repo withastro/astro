@@ -759,12 +759,12 @@ export class FetchState implements AstroFetchState {
 	 * suffixes so the rendering pipeline sees the canonical pathname.
 	 */
 	/**
-	 * In dev, strip `.html` / `/index.html` suffixes from the pathname
-	 * so the rendering pipeline sees the canonical route path. Skipped
-	 * when the matched route itself has an `.html` extension.
+	 * Strip `.html` / `/index.html` suffixes from the pathname so the
+	 * rendering pipeline sees the canonical route path. Skipped when the
+	 * matched route itself has an `.html` extension in its definition.
 	 */
 	#stripHtmlExtension(): void {
-		if (this.pipeline.runtimeMode === 'development' && this.routeData && !routeHasHtmlExtension(this.routeData)) {
+		if (this.routeData && !routeHasHtmlExtension(this.routeData)) {
 			this.pathname = this.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
 		}
 	}
@@ -779,7 +779,17 @@ export class FetchState implements AstroFetchState {
 			return;
 		}
 
-		this.routeData = pipeline.matchRoute(decodeURI(this.pathname));
+		// this.pathname is already decoded by #computePathname, so no
+		// additional decodeURI here — that would double-decode and allow
+		// double-encoded paths like /%2561dmin to bypass route checks.
+		const matched = pipeline.matchRoute(this.pathname);
+		// In production SSR, prerendered routes are served as static files
+		// by the hosting layer and should not be rendered by the app.
+		if (matched && matched.prerender && pipeline.manifest.serverLike) {
+			this.routeData = undefined;
+		} else {
+			this.routeData = matched;
+		}
 		pipeline.logger.debug('router', 'Astro matched the following route for ' + this.request.url);
 		pipeline.logger.debug('router', 'RouteData:\n' + this.routeData);
 
