@@ -1,21 +1,48 @@
 // @ts-expect-error
 import { imageConfig } from 'astro:assets';
 import { isRemotePath, removeQueryString } from '@astrojs/internal-helpers/path';
-import { isRemoteAllowed, isRemoteRedirectAllowed } from '@astrojs/internal-helpers/remote';
+import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import * as mime from 'mrmime';
 import { getConfiguredImageService } from '../internal.js';
 import { etag } from '../utils/etag.js';
 import { inferSourceFormat } from '../utils/inferSourceFormat.js';
 
+/**
+ * Recursively follows redirects, validating that the final URL matches allowed patterns.
+ */
+async function fetchWithRedirectValidation(
+	url: URL,
+	redirectLimit: number = 10,
+): Promise<Response> {
+	if (redirectLimit <= 0) {
+		throw new Error('Maximum redirect depth exceeded');
+	}
+
+	const response = await fetch(url, {
+		redirect: 'manual',
+	});
+
+	// Handle redirects (301, 302, 303, 307, 308 are actual redirects, not 304 Not Modified)
+	if ([301, 302, 303, 307, 308].includes(response.status)) {
+		const location = response.headers.get('Location');
+		if (!location) {
+			throw new Error(`Redirect response ${response.status} missing Location header`);
+		}
+
+		// Resolve the redirect URL relative to the current URL
+		const redirectUrl = new URL(location, url);
+		return fetchWithRedirectValidation(redirectUrl, redirectLimit - 1);
+	}
+
+	return response;
+}
+
 export async function loadRemoteImage(src: URL): Promise<Buffer | undefined> {
 	try {
-		const res = await fetch(src, {
-			redirect: isRemoteRedirectAllowed(src.toString(), imageConfig.remotePatterns)
-				? 'follow'
-				: 'manual',
-		});
+		const res = await fetchWithRedirectValidation(src);
 
-		if (res.status >= 300 && res.status < 400) {
+		// Validate that the final URL (after redirects) is allowed
+		if (!isRemoteAllowed(res.url, imageConfig)) {
 			return undefined;
 		}
 

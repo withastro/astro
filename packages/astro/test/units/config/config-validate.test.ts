@@ -87,32 +87,6 @@ describe('Config Validation', () => {
 		);
 	});
 
-	describe('image.remotePatterns[].followRedirects', () => {
-		it('accepts a boolean value', async () => {
-			const result = await validateConfig({
-				image: {
-					remotePatterns: [{ hostname: 'example.com', followRedirects: true }],
-				},
-			});
-			assert.equal(result.image.remotePatterns[0].followRedirects, true);
-		});
-
-		it('errors when the value is not a boolean', async () => {
-			const configError = await validateConfig({
-				image: {
-					remotePatterns: [{ hostname: 'example.com', followRedirects: 'true' }],
-				},
-			}).catch((err) => err);
-			assert.equal(configError instanceof z.ZodError, true);
-			assert.deepEqual(configError.issues[0].path, [
-				'image',
-				'remotePatterns',
-				0,
-				'followRedirects',
-			]);
-		});
-	});
-
 	it('errors with helpful message when output is "hybrid"', async () => {
 		const configError = await validateConfig({ output: 'hybrid' }).catch((err) => err);
 		assert.equal(configError instanceof z.ZodError, true);

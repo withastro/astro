@@ -1,5 +1,5 @@
 import type { OutgoingHttpHeaders } from 'node:http';
-import type { RemotePattern, RemoteImagePatternConfig } from '@astrojs/internal-helpers/remote';
+import type { RemotePattern } from '@astrojs/internal-helpers/remote';
 import type {
 	RehypePlugins,
 	RemarkPlugins,
@@ -1830,18 +1830,17 @@ export interface AstroUserConfig<
 		/**
 		 * @docs
 		 * @name image.remotePatterns
-		 * @type {RemoteImagePatternConfig[]}
+		 * @type {RemotePattern[]}
 		 * @default `[]`
 		 * @version 2.10.10
 		 * @description
 		 * Defines a list of permitted image source URL patterns for remote image optimization.
 		 *
-		 * `remotePatterns` can be configured with five properties:
+		 * `remotePatterns` can be configured with four properties:
 		 * 1. protocol
 		 * 2. hostname
 		 * 3. port
 		 * 4. pathname
-		 * 5. followRedirects
 		 *
 		 * ```js
 		 * {
@@ -1864,9 +1863,9 @@ export interface AstroUserConfig<
 		 * `pathname` patterns:
 		 *   - End with `/**` to allow all sub-routes (like `startsWith`).
 		 *   - End with `/*` to allow only one level of sub-route.
-
+		 * When an image URL matches a remote pattern, HTTP redirects are followed and the final destination URL must also match an allowed remote pattern.
 		 */
-		remotePatterns?: Partial<RemoteImagePatternConfig>[];
+		remotePatterns?: Partial<RemotePattern>[];
 
 		/**
 		 * @docs

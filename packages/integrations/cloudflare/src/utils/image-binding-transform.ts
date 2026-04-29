@@ -1,6 +1,6 @@
 import { imageConfig } from 'astro:assets';
 import { isRemotePath } from '@astrojs/internal-helpers/path';
-import { isRemoteAllowed, isRemoteRedirectAllowed } from '@astrojs/internal-helpers/remote';
+import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import type { ImageOutputOptions, ImageTransform } from '@cloudflare/workers-types';
 import type { ImageQualityPreset } from 'astro';
 
@@ -10,6 +10,42 @@ const qualityTable: Record<ImageQualityPreset, number> = {
 	high: 80,
 	max: 100,
 };
+
+/**
+ * Recursively follows redirects, validating that the final URL matches allowed patterns.
+ */
+async function fetchWithRedirectValidation(
+	url: URL,
+	redirectLimit: number = 10,
+): Promise<Response> {
+	if (redirectLimit <= 0) {
+		throw new Error('Maximum redirect depth exceeded');
+	}
+
+	const response = await fetch(url, {
+		redirect: 'manual',
+	});
+
+	// Handle redirects (301, 302, 303, 307, 308 are actual redirects, not 304 Not Modified)
+	if ([301, 302, 303, 307, 308].includes(response.status)) {
+		const location = response.headers.get('Location');
+		if (!location) {
+			throw new Error(`Redirect response ${response.status} missing Location header`);
+		}
+
+		// Resolve the redirect URL relative to the current URL
+		const redirectUrl = new URL(location, url);
+
+		// Validate that the redirect target matches allowed patterns
+		if (!isRemoteAllowed(redirectUrl.toString(), imageConfig)) {
+			throw new Error('Redirect target is not an allowed remote location');
+		}
+
+		return fetchWithRedirectValidation(redirectUrl, redirectLimit - 1);
+	}
+
+	return response;
+}
 
 export async function transform(
 	rawUrl: string,
@@ -25,14 +61,21 @@ export async function transform(
 	}
 
 	const imageSrc = new URL(href, url.origin);
-	const content = await (isRemotePath(href)
-		? fetch(imageSrc, {
-				redirect: isRemoteRedirectAllowed(href, imageConfig.remotePatterns) ? 'follow' : 'manual',
-			})
-		: assets.fetch(imageSrc));
+	let content: Response;
 
-	if (content.status >= 300 && content.status < 400) {
-		return new Response('Not Found', { status: 404 });
+	if (isRemotePath(href)) {
+		try {
+			content = await fetchWithRedirectValidation(imageSrc);
+
+			// Validate that the final URL (after redirects) is allowed
+			if (!isRemoteAllowed(content.url, imageConfig)) {
+				return new Response('Forbidden', { status: 403 });
+			}
+		} catch {
+			return new Response('Not Found', { status: 404 });
+		}
+	} else {
+		content = await assets.fetch(imageSrc);
 	}
 
 	if (!content.body) {

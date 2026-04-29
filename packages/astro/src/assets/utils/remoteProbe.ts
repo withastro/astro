@@ -1,10 +1,46 @@
-import { isRemoteAllowed, isRemoteRedirectAllowed } from '@astrojs/internal-helpers/remote';
+import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import type { ImageMetadata } from '../types.js';
 import { imageMetadata } from './metadata.js';
 
 type RemoteImageConfig = Pick<AstroConfig['image'], 'domains' | 'remotePatterns'>;
+
+/**
+ * Recursively follows redirects, validating that the final URL matches allowed patterns.
+ */
+async function fetchWithRedirectValidation(
+	url: string,
+	redirectLimit: number = 10,
+): Promise<Response> {
+	if (redirectLimit <= 0) {
+		throw new AstroError({
+			...AstroErrorData.FailedToFetchRemoteImageDimensions,
+			message: AstroErrorData.FailedToFetchRemoteImageDimensions.message(url),
+		});
+	}
+
+	const response = await fetch(url, {
+		redirect: 'manual',
+	});
+
+	// Handle redirects (301, 302, 303, 307, 308 are actual redirects, not 304 Not Modified)
+	if ([301, 302, 303, 307, 308].includes(response.status)) {
+		const location = response.headers.get('Location');
+		if (!location) {
+			throw new AstroError({
+				...AstroErrorData.FailedToFetchRemoteImageDimensions,
+				message: AstroErrorData.FailedToFetchRemoteImageDimensions.message(url),
+			});
+		}
+
+		// Resolve the redirect URL relative to the current URL
+		const redirectUrl = new URL(location, url).toString();
+		return fetchWithRedirectValidation(redirectUrl, redirectLimit - 1);
+	}
+
+	return response;
+}
 
 /**
  * Infers the dimensions of a remote image by streaming its data and analyzing it progressively until sufficient metadata is available.
@@ -49,15 +85,14 @@ export async function inferRemoteSize(
 		});
 	}
 
-	// Start fetching the image
-	const response = await fetch(url, {
-		redirect: isRemoteRedirectAllowed(url, imageConfig?.remotePatterns ?? []) ? 'follow' : 'manual',
-	});
+	// Start fetching the image with redirect validation
+	const response = await fetchWithRedirectValidation(url);
 
-	if (response.status >= 300 && response.status < 400) {
+	// Validate that the final URL (after redirects) is allowed
+	if (allowlistConfig && !isRemoteAllowed(response.url, allowlistConfig)) {
 		throw new AstroError({
-			...AstroErrorData.FailedToFetchRemoteImageDimensions,
-			message: AstroErrorData.FailedToFetchRemoteImageDimensions.message(url),
+			...AstroErrorData.RemoteImageNotAllowed,
+			message: AstroErrorData.RemoteImageNotAllowed.message(url),
 		});
 	}
 
