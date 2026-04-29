@@ -806,8 +806,7 @@ export class FetchState implements AstroFetchState {
 	 * `collapseDuplicateLeadingSlashes` fix that prevents middleware
 	 * authorization bypass when the URL starts with `//`.
 	 */
-	#computePathname(url?: URL): string {
-		url ??= new URL(this.request.url);
+	#computePathname(url: URL): string {
 		let pathname = collapseDuplicateLeadingSlashes(url.pathname);
 		const base = this.pipeline.manifest.base;
 		if (pathname.startsWith(base)) {
@@ -823,14 +822,7 @@ export class FetchState implements AstroFetchState {
 		}
 	}
 
-	/**
-	 * Recomputes `this.pathname` from `this.request`. Callers that need the
-	 * `.html` / `/index.html` stripping applied after a rewrite should
-	 * re-run that logic themselves (see `AstroHandler`).
-	 */
-	refreshPathname(): void {
-		this.pathname = this.#computePathname();
-	}
+
 
 	/**
 	 * Returns the resolved `props` for this render, computing them lazily
