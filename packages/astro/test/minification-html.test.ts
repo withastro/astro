@@ -87,8 +87,8 @@ describe('HTML minification', () => {
 
 describe('HTML minification (JSX mode)', () => {
 	describe('Build SSG', () => {
-		let fixture;
-		let html;
+		let fixture: Fixture;
+		let html: string;
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/minification-html-jsx/',

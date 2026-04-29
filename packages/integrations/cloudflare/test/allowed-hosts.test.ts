@@ -1,9 +1,9 @@
 import * as assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
 import http from 'node:http';
-import { loadFixture } from './_test-utils.js';
+import { after, before, describe, it } from 'node:test';
+import { type Fixture, loadFixture, type PreviewServer } from './test-utils.ts';
 
-function fetchWithHost(port, hostHeader) {
+function fetchWithHost(port: number, hostHeader: string): Promise<http.IncomingMessage> {
 	return new Promise((resolve, reject) => {
 		const req = http.request(
 			{
@@ -24,8 +24,8 @@ function fetchWithHost(port, hostHeader) {
 }
 
 describe('Cloudflare allowedHosts', () => {
-	let fixture;
-	let previewServer;
+	let fixture: Fixture;
+	let previewServer: PreviewServer;
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/allowed-hosts/',
