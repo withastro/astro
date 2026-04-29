@@ -12,11 +12,7 @@ import {
 	ROUTE_TYPE_HEADER,
 } from '../constants.js';
 import { getCookiesFromResponse } from '../cookies/response.js';
-import { ForbiddenRewrite } from '../errors/errors-data.js';
-import { AstroError } from '../errors/errors.js';
-import { getParams } from '../render/index.js';
-import { copyRequest, setOriginPathname } from '../routing/rewrite.js';
-import { createNormalizedUrl } from '../util/normalized-url.js';
+import { applyRewriteToState } from '../rewrites/handler.js';
 
 // Shared empty-slots object so we don't allocate `{}` on every render for
 // requests that don't come from the container API. Safe to share because
@@ -47,59 +43,9 @@ export class PagesHandler {
 		const { logger, streaming } = pipeline;
 
 		if (payload) {
-			const oldPathname = state.pathname;
 			pipeline.logger.debug('router', 'Called rewriting to:', payload);
-			// we intentionally let the error bubble up
-			const {
-				routeData,
-				componentInstance: newComponent,
-				pathname,
-				newUrl,
-			} = await pipeline.tryRewrite(payload, state.request);
-
-			// This is a case where the user tries to rewrite from a SSR route to a prerendered route (SSG).
-			// This case isn't valid because when building for SSR, the prerendered route disappears from the server output because it becomes an HTML file,
-			// so Astro can't retrieve it from the emitted manifest.
-			if (
-				pipeline.manifest.serverLike === true &&
-				state.routeData!.prerender === false &&
-				routeData.prerender === true
-			) {
-				throw new AstroError({
-					...ForbiddenRewrite,
-					message: ForbiddenRewrite.message(state.pathname, pathname, routeData.component),
-					hint: ForbiddenRewrite.hint(routeData.component),
-				});
-			}
-
-			state.routeData = routeData;
-			state.componentInstance = newComponent;
-			if (payload instanceof Request) {
-				state.request = payload;
-			} else {
-				state.request = copyRequest(
-					newUrl,
-					state.request,
-					// need to send the flag of the previous routeData
-					routeData.prerender,
-					pipeline.logger,
-					state.routeData!.route,
-				);
-			}
-			state.isRewriting = true;
-			state.url = createNormalizedUrl(state.request.url);
-			state.params = getParams(routeData, pathname);
-			state.pathname = pathname;
-			state.status = 200;
-			setOriginPathname(
-				state.request,
-				oldPathname,
-				pipeline.manifest.trailingSlash,
-				pipeline.manifest.buildFormat,
-			);
-			// Route changed underneath us — drop memoized props/contexts so
-			// the dispatcher below sees values derived from the new route.
-			state.invalidateContexts();
+			const result = await pipeline.tryRewrite(payload, state.request);
+			applyRewriteToState(state, payload, result);
 		}
 		let response: Response;
 
