@@ -289,8 +289,8 @@ type AstroContainerConstructor = {
 
 export class experimental_AstroContainer {
 	#pipeline: ContainerPipeline;
-	#astroMiddleware!: AstroMiddleware;
-	#pagesHandler!: PagesHandler;
+	#astroMiddleware: AstroMiddleware;
+	#pagesHandler: PagesHandler;
 
 	/**
 	 * Internally used to check if the container was created with a manifest.
