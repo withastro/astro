@@ -625,7 +625,11 @@ export class FetchState implements AstroFetchState {
 			pathname =
 				pathname && !isRoute404or500(routeData) ? pathname : (url.pathname ?? this.pathname);
 			computedLocale = computeCurrentLocaleUtil(pathname, locales, defaultLocale);
+			// routeData.params is the route's parameter *names* (e.g. ['lang']);
+			// this.params is the resolved *values* for this request (e.g. { lang: 'en' }).
+			// If the route has parameters, the locale may be embedded in them.
 			if (routeData.params.length > 0) {
+				// SAFETY: routeData is set (guarded above), so the params getter resolves.
 				const localeFromParams = computeCurrentLocaleFromParams(this.params!, locales);
 				if (localeFromParams) {
 					computedLocale = localeFromParams;
