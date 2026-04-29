@@ -111,6 +111,21 @@ export interface AstroFetchState {
 }
 
 /**
+ * Retrieves the `FetchState` stashed on an `APIContext` by
+ * `FetchState.getAPIContext()`. Throws if not found — this indicates
+ * the context was not created through Astro's request pipeline.
+ */
+export function getFetchStateFromAPIContext(context: APIContext): FetchState {
+	const state = (context as any)[fetchStateSymbol] as FetchState | undefined;
+	if (!state) {
+		throw new Error(
+			'FetchState not found on APIContext. This is an internal error — the context was not created through Astro\'s request pipeline.',
+		);
+	}
+	return state;
+}
+
+/**
  * Holds per-request state as it flows through the handler pipeline.
  *
  * **This class is user-facing** via `astro/fetch` and `astro/hono`.

@@ -1,6 +1,5 @@
-import type { FetchState } from '../core/fetch/fetch-state.js';
+import { getFetchStateFromAPIContext } from '../core/fetch/fetch-state.js';
 import type { SSRManifest } from '../core/app/types.js';
-import { fetchStateSymbol } from '../core/constants.js';
 import { I18n } from '../core/i18n/handler.js';
 import type { MiddlewareHandler } from '../types/public/common.js';
 
@@ -26,10 +25,6 @@ export function createI18nMiddleware(
 
 	return async (context, next) => {
 		const response = await next();
-		// The FetchState for this request is stashed on the APIContext by
-		// `FetchState.getAPIContext()` — see `fetchStateSymbol`.
-		const state = Reflect.get(context, fetchStateSymbol) as FetchState | undefined;
-		if (!state) return response;
-		return handler.finalize(state, response);
+		return handler.finalize(getFetchStateFromAPIContext(context), response);
 	};
 }
