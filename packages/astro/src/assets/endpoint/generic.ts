@@ -1,7 +1,7 @@
 // @ts-expect-error
 import { imageConfig } from 'astro:assets';
 import { isRemotePath } from '@astrojs/internal-helpers/path';
-import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
+import { isRemoteAllowed, isRemoteRedirectAllowed } from '@astrojs/internal-helpers/remote';
 import * as mime from 'mrmime';
 import type { APIRoute } from '../../types/public/common.js';
 import { getConfiguredImageService } from '../internal.js';
@@ -12,7 +12,9 @@ async function loadRemoteImage(src: URL, headers: Headers) {
 		const res = await fetch(src, {
 			// Forward all headers from the original request
 			headers,
-			redirect: imageConfig.followRedirects ? 'follow' : 'manual',
+			redirect: isRemoteRedirectAllowed(src.toString(), imageConfig.remotePatterns)
+				? 'follow'
+				: 'manual',
 		});
 
 		if (res.status >= 300 && res.status < 400) {

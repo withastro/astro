@@ -234,8 +234,13 @@ const unitTestImageService = {
 		options: ImageTransform,
 		imageConfig: {
 			domains: string[];
-			remotePatterns: { hostname?: string; pathname?: string; protocol?: string; port?: string }[];
-			followRedirects?: boolean;
+			remotePatterns: {
+				hostname?: string;
+				pathname?: string;
+				protocol?: string;
+				port?: string;
+				dangerouslyFollowRedirects?: boolean;
+			}[];
 		},
 	) {
 		const src = typeof options.src === 'string' ? options.src : options.src.src;
@@ -256,8 +261,13 @@ const unitTestImageService = {
 
 interface ImageServiceOverrides {
 	domains?: string[];
-	remotePatterns?: { hostname?: string; pathname?: string; protocol?: string; port?: string }[];
-	followRedirects?: boolean;
+	remotePatterns?: {
+		hostname?: string;
+		pathname?: string;
+		protocol?: string;
+		port?: string;
+		dangerouslyFollowRedirects?: boolean;
+	}[];
 }
 
 /**
@@ -271,8 +281,13 @@ export function installImageService(overrides: ImageServiceOverrides = {}): {
 	imageConfig: {
 		service: { entrypoint: string; config: Record<string, never> };
 		domains: string[];
-		remotePatterns: { hostname?: string; pathname?: string; protocol?: string; port?: string }[];
-		followRedirects: boolean;
+		remotePatterns: {
+			hostname?: string;
+			pathname?: string;
+			protocol?: string;
+			port?: string;
+			dangerouslyFollowRedirects?: boolean;
+		}[];
 		endpoint: { route: string };
 	};
 	cleanup: () => void;
@@ -283,7 +298,6 @@ export function installImageService(overrides: ImageServiceOverrides = {}): {
 		service: { entrypoint: 'test', config: {} as Record<string, never> },
 		domains: overrides.domains ?? [],
 		remotePatterns: overrides.remotePatterns ?? [],
-		followRedirects: overrides.followRedirects ?? false,
 		endpoint: { route: '/_image' },
 	};
 

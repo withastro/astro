@@ -75,7 +75,6 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		endpoint: { entrypoint: undefined, route: '/_image' },
 		service: { entrypoint: 'astro/assets/services/sharp', config: {} },
 		responsiveStyles: false,
-		followRedirects: false,
 	},
 	devToolbar: {
 		enabled: true,
@@ -308,6 +307,7 @@ export const AstroConfigSchema = z.object({
 						hostname: z.string().optional(),
 						port: z.string().optional(),
 						pathname: z.string().optional(),
+						dangerouslyFollowRedirects: z.boolean().optional(),
 					}),
 				)
 				.default([]),
@@ -316,7 +316,6 @@ export const AstroConfigSchema = z.object({
 			objectPosition: z.string().optional(),
 			breakpoints: z.array(z.number()).optional(),
 			responsiveStyles: z.boolean().default(ASTRO_CONFIG_DEFAULTS.image.responsiveStyles),
-			followRedirects: z.boolean().default(ASTRO_CONFIG_DEFAULTS.image.followRedirects).optional(),
 		})
 		.prefault(ASTRO_CONFIG_DEFAULTS.image),
 	devToolbar: z

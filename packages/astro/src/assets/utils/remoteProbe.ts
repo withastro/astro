@@ -1,13 +1,10 @@
-import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
+import { isRemoteAllowed, isRemoteRedirectAllowed } from '@astrojs/internal-helpers/remote';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import type { ImageMetadata } from '../types.js';
 import { imageMetadata } from './metadata.js';
 
-type RemoteImageConfig = Pick<
-	AstroConfig['image'],
-	'domains' | 'remotePatterns' | 'followRedirects'
->;
+type RemoteImageConfig = Pick<AstroConfig['image'], 'domains' | 'remotePatterns'>;
 
 /**
  * Infers the dimensions of a remote image by streaming its data and analyzing it progressively until sufficient metadata is available.
@@ -54,7 +51,7 @@ export async function inferRemoteSize(
 
 	// Start fetching the image
 	const response = await fetch(url, {
-		redirect: imageConfig?.followRedirects ? 'follow' : 'manual',
+		redirect: isRemoteRedirectAllowed(url, imageConfig?.remotePatterns ?? []) ? 'follow' : 'manual',
 	});
 
 	if (response.status >= 300 && response.status < 400) {

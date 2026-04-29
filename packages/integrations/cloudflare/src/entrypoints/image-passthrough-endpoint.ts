@@ -1,6 +1,6 @@
 import { imageConfig } from 'astro:assets';
 import { isRemotePath } from '@astrojs/internal-helpers/path';
-import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
+import { isRemoteAllowed, isRemoteRedirectAllowed } from '@astrojs/internal-helpers/remote';
 import type { APIRoute } from 'astro';
 import { env } from 'cloudflare:workers';
 
@@ -20,7 +20,9 @@ export const GET: APIRoute = async ({ request }) => {
 			if (!isRemoteAllowed(href, imageConfig)) {
 				return new Response('Forbidden', { status: 403 });
 			}
-			response = await fetch(href, { redirect: imageConfig.followRedirects ? 'follow' : 'manual' });
+			response = await fetch(href, {
+				redirect: isRemoteRedirectAllowed(href, imageConfig.remotePatterns) ? 'follow' : 'manual',
+			});
 		} else {
 			const sourceUrl = new URL(href, url.origin);
 			if (sourceUrl.origin !== url.origin) {

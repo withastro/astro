@@ -87,24 +87,29 @@ describe('Config Validation', () => {
 		);
 	});
 
-	describe('image.followRedirects', () => {
+	describe('image.remotePatterns[].dangerouslyFollowRedirects', () => {
 		it('accepts a boolean value', async () => {
 			const result = await validateConfig({
 				image: {
-					followRedirects: true,
+					remotePatterns: [{ hostname: 'example.com', dangerouslyFollowRedirects: true }],
 				},
 			});
-			assert.equal(result.image.followRedirects, true);
+			assert.equal(result.image.remotePatterns[0].dangerouslyFollowRedirects, true);
 		});
 
 		it('errors when the value is not a boolean', async () => {
 			const configError = await validateConfig({
 				image: {
-					followRedirects: 'true',
+					remotePatterns: [{ hostname: 'example.com', dangerouslyFollowRedirects: 'true' }],
 				},
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
-			assert.deepEqual(configError.issues[0].path, ['image', 'followRedirects']);
+			assert.deepEqual(configError.issues[0].path, [
+				'image',
+				'remotePatterns',
+				0,
+				'dangerouslyFollowRedirects',
+			]);
 		});
 	});
 

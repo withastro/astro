@@ -1,6 +1,6 @@
 import { imageConfig } from 'astro:assets';
 import { isRemotePath } from '@astrojs/internal-helpers/path';
-import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
+import { isRemoteAllowed, isRemoteRedirectAllowed } from '@astrojs/internal-helpers/remote';
 import type { ImageOutputOptions, ImageTransform } from '@cloudflare/workers-types';
 import type { ImageQualityPreset } from 'astro';
 
@@ -26,7 +26,9 @@ export async function transform(
 
 	const imageSrc = new URL(href, url.origin);
 	const content = await (isRemotePath(href)
-		? fetch(imageSrc, { redirect: imageConfig.followRedirects ? 'follow' : 'manual' })
+		? fetch(imageSrc, {
+				redirect: isRemoteRedirectAllowed(href, imageConfig.remotePatterns) ? 'follow' : 'manual',
+			})
 		: assets.fetch(imageSrc));
 
 	if (content.status >= 300 && content.status < 400) {

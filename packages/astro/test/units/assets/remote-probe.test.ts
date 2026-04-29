@@ -6,7 +6,7 @@ import { inferRemoteSize } from '../../../dist/assets/utils/remoteProbe.js';
 
 const FIXTURE_IMAGE = new URL('./600x400.jpg', import.meta.url);
 
-describe('inferRemoteSize followRedirects', () => {
+describe('inferRemoteSize remotePatterns.dangerouslyFollowRedirects', () => {
 	let server: Server;
 	let imageBuffer: Buffer;
 	let baseURL: URL;
@@ -48,23 +48,21 @@ describe('inferRemoteSize followRedirects', () => {
 		});
 	});
 
-	it('throws for redirect responses when followRedirects is false', async () => {
+	it('throws for redirect responses when dangerouslyFollowRedirects is not enabled', async () => {
 		await assert.rejects(
 			() =>
 				inferRemoteSize(new URL('/redirect', baseURL).toString(), {
-					domains: ['127.0.0.1'],
-					remotePatterns: [],
-					followRedirects: false,
+					domains: [],
+					remotePatterns: [{ hostname: '127.0.0.1' }],
 				}),
 			/Failed to get the dimensions/,
 		);
 	});
 
-	it('follows redirects when followRedirects is true', async () => {
+	it('follows redirects when remote pattern enables dangerouslyFollowRedirects', async () => {
 		const result = await inferRemoteSize(new URL('/redirect', baseURL).toString(), {
-			domains: ['127.0.0.1'],
-			remotePatterns: [],
-			followRedirects: true,
+			domains: [],
+			remotePatterns: [{ hostname: '127.0.0.1', dangerouslyFollowRedirects: true }],
 		});
 
 		assert.equal(result.width, 600);

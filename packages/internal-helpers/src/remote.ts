@@ -3,6 +3,7 @@ export type RemotePattern = {
 	pathname?: string;
 	protocol?: string;
 	port?: string;
+	dangerouslyFollowRedirects?: boolean;
 };
 
 /**
@@ -139,5 +140,21 @@ export function isRemoteAllowed(
 	return (
 		domains.some((domain) => matchHostname(url, domain)) ||
 		remotePatterns.some((remotePattern) => matchPattern(url, remotePattern))
+	);
+}
+
+/**
+ * Determines whether redirects should be followed for a given remote URL,
+ * based on matching `remotePatterns` entries that explicitly opt in via
+ * `dangerouslyFollowRedirects`.
+ */
+export function isRemoteRedirectAllowed(src: string, remotePatterns: RemotePattern[]): boolean {
+	if (!URL.canParse(src)) {
+		return false;
+	}
+
+	const url = new URL(src);
+	return remotePatterns.some(
+		(remotePattern) => remotePattern.dangerouslyFollowRedirects && matchPattern(url, remotePattern),
 	);
 }

@@ -1830,11 +1830,12 @@ export interface AstroUserConfig<
 		 * @description
 		 * Defines a list of permitted image source URL patterns for remote image optimization.
 		 *
-		 * `remotePatterns` can be configured with four properties:
+		 * `remotePatterns` can be configured with five properties:
 		 * 1. protocol
 		 * 2. hostname
 		 * 3. port
 		 * 4. pathname
+		 * 5. dangerouslyFollowRedirects
 		 *
 		 * ```js
 		 * {
@@ -1856,6 +1857,9 @@ export interface AstroUserConfig<
 		 * `pathname`:
 		 *   - End with '/**' to allow all sub-routes ('startsWith').
 		 *   - End with '/*' to allow only one level of sub-route.
+		 *
+		 * Set `dangerouslyFollowRedirects: true` to allow Astro to follow redirect responses
+		 * for URLs that match a specific pattern. Redirects are blocked by default.
 
 		 */
 		remotePatterns?: Partial<RemotePattern>[];
@@ -1927,31 +1931,6 @@ export interface AstroUserConfig<
 		 * the more comprehensive list is used, because only the required sizes are generated. For local services, the list is shorter to reduce the number of images generated.
 		 */
 		breakpoints?: number[];
-		/**
-		 * @docs
-		 * @name image.followRedirects
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 6.2.0
-		 * @description
-		 * Whether Astro should follow HTTP redirects when fetching remote images.
-		 *
-		 * When `false`, remote image requests that return a redirect response are treated as failures.
-		 * When `true`, Astro follows redirects before reading or transforming the image.
-		 *
-		 * This applies to remote image fetching in `Image`, `Picture`, `getImage()`, and `inferRemoteSize()`.
-		 *
-		 * ```js title="astro.config.mjs"
-		 * import { defineConfig } from 'astro/config';
-		 *
-		 * export default defineConfig({
-		 *   image: {
-		 *     followRedirects: true,
-		 *   },
-		 * });
-		 * ```
-		 */
-		followRedirects?: boolean;
 	};
 
 	/**
