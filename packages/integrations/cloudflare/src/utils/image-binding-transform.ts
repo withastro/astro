@@ -26,7 +26,7 @@ export async function transform(
 
 	const imageSrc = new URL(href, url.origin);
 	const content = await (isRemotePath(href)
-		? fetch(imageSrc, { redirect: imageConfig.followRedirects ? "follow" : "manual" }) // TODO: Configurable
+		? fetch(imageSrc, { redirect: imageConfig.followRedirects ? 'follow' : 'manual' })
 		: assets.fetch(imageSrc));
 
 	if (content.status >= 300 && content.status < 400) {

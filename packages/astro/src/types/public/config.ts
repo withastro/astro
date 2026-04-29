@@ -1934,7 +1934,22 @@ export interface AstroUserConfig<
 		 * @default `false`
 		 * @version 6.1.0
 		 * @description
-		 * Whether redirects returned by remote image sources should be followed.
+		 * Whether Astro should follow HTTP redirects when fetching remote images.
+		 *
+		 * When `false`, remote image requests that return a redirect response are treated as failures.
+		 * When `true`, Astro follows redirects before reading or transforming the image.
+		 *
+		 * This applies to remote image fetching in `Image`, `Picture`, `getImage()`, and `inferRemoteSize()`.
+		 *
+		 * ```js title="astro.config.mjs"
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   image: {
+		 *     followRedirects: true,
+		 *   },
+		 * });
+		 * ```
 		 */
 		followRedirects?: boolean;
 	};

@@ -87,6 +87,27 @@ describe('Config Validation', () => {
 		);
 	});
 
+	describe('image.followRedirects', () => {
+		it('accepts a boolean value', async () => {
+			const result = await validateConfig({
+				image: {
+					followRedirects: true,
+				},
+			});
+			assert.equal(result.image.followRedirects, true);
+		});
+
+		it('errors when the value is not a boolean', async () => {
+			const configError = await validateConfig({
+				image: {
+					followRedirects: 'true',
+				},
+			}).catch((err) => err);
+			assert.equal(configError instanceof z.ZodError, true);
+			assert.deepEqual(configError.issues[0].path, ['image', 'followRedirects']);
+		});
+	});
+
 	it('errors with helpful message when output is "hybrid"', async () => {
 		const configError = await validateConfig({ output: 'hybrid' }).catch((err) => err);
 		assert.equal(configError instanceof z.ZodError, true);

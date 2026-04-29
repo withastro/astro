@@ -4,7 +4,10 @@ import type { AstroConfig } from '../../types/public/config.js';
 import type { ImageMetadata } from '../types.js';
 import { imageMetadata } from './metadata.js';
 
-type RemoteImageConfig = Pick<AstroConfig['image'], 'domains' | 'remotePatterns' | 'followRedirects'>;
+type RemoteImageConfig = Pick<
+	AstroConfig['image'],
+	'domains' | 'remotePatterns' | 'followRedirects'
+>;
 
 /**
  * Infers the dimensions of a remote image by streaming its data and analyzing it progressively until sufficient metadata is available.
@@ -50,7 +53,9 @@ export async function inferRemoteSize(
 	}
 
 	// Start fetching the image
-	const response = await fetch(url, { redirect: imageConfig?.followRedirects ? "follow" : "manual" }); // TODO: Configurable
+	const response = await fetch(url, {
+		redirect: imageConfig?.followRedirects ? 'follow' : 'manual',
+	});
 
 	if (response.status >= 300 && response.status < 400) {
 		throw new AstroError({
