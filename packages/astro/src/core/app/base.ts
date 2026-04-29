@@ -430,6 +430,12 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				});
 			}
 		}
+		// Resolve routeData if not provided by the adapter. This handles
+		// domain-based i18n routing (computePathnameFromDomain) and
+		// prerender filtering that pipeline.matchRoute() doesn't do.
+		if (!routeData) {
+			routeData = this.match(request);
+		}
 		const resolvedOptions: ResolvedRenderOptions = {
 			addCookieHeader,
 			clientAddress,
