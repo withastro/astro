@@ -1,5 +1,15 @@
 # astro
 
+## 6.2.1
+
+### Patch Changes
+
+- [#16531](https://github.com/withastro/astro/pull/16531) [`76db01d`](https://github.com/withastro/astro/commit/76db01d332a4029f46f6df7a60fae14278321d2c) Thanks [@rodrigosdev](https://github.com/rodrigosdev)! - Fixes config validation for omitted `integrations` fields with newer Zod versions.
+
+- [#16535](https://github.com/withastro/astro/pull/16535) [`7df0fe4`](https://github.com/withastro/astro/commit/7df0fe40b1f57529ce315a74eb83d527ff2040ec) Thanks [@rururux](https://github.com/rururux)! - Fixed an issue where a warning was displayed when the `server` property was missing during config validation, even though it is not required.
+
+- [#16534](https://github.com/withastro/astro/pull/16534) [`5cf6c51`](https://github.com/withastro/astro/commit/5cf6c51188b52d22f133ea9373da0080f74701f9) Thanks [@matthewp](https://github.com/matthewp)! - Fixes compatibility with Zod 4.4.0 for the `server` config property and error formatting
+
 ## 6.2.0
 
 ### Minor Changes
