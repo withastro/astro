@@ -76,8 +76,8 @@ export async function getMigrationQueries({
 	}
 
 	for (const [tableName] of Object.entries(droppedTables)) {
-		const dropQuery = `DROP TABLE ${sqlite.escapeName(tableName)}`;
-		queries.push(dropQuery);
+		const escapedTableName = sqlite.escapeName(tableName);
+		queries.push('DROP TABLE ' + escapedTableName);
 	}
 
 	for (const [tableName, newTable] of Object.entries(newSnapshot.schema)) {
@@ -269,11 +269,11 @@ function getRecreateTableQueries({
 	migrateHiddenPrimaryKey: boolean;
 }): string[] {
 	const unescTempName = `${unescTableName}_${genTempTableName()}`;
-	const tempName = sqlite.escapeName(unescTempName);
-	const tableName = sqlite.escapeName(unescTableName);
+	const escapedTempName = sqlite.escapeName(unescTempName);
+	const escapedTableName = sqlite.escapeName(unescTableName);
 
 	if (hasDataLoss) {
-		return [`DROP TABLE ${tableName}`, getCreateTableQuery(unescTableName, newTable)];
+		return [`DROP TABLE ${escapedTableName}`, getCreateTableQuery(unescTableName, newTable)];
 	}
 	const newColumns = [...Object.keys(newTable.columns)];
 	if (migrateHiddenPrimaryKey) {
@@ -286,9 +286,9 @@ function getRecreateTableQueries({
 
 	return [
 		getCreateTableQuery(unescTempName, newTable),
-		`INSERT INTO ${tempName} (${escapedColumns}) SELECT ${escapedColumns} FROM ${tableName}`,
-		`DROP TABLE ${tableName}`,
-		`ALTER TABLE ${tempName} RENAME TO ${tableName}`,
+		`INSERT INTO ${escapedTempName} (${escapedColumns}) SELECT ${escapedColumns} FROM ${escapedTableName}`,
+		`DROP TABLE ${escapedTableName}`,
+		`ALTER TABLE ${escapedTempName} RENAME TO ${escapedTableName}`,
 	];
 }
 
