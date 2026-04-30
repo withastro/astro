@@ -61,6 +61,10 @@ export default function hmrReload(): Plugin {
 
 				if (hasSsrOnlyModules) {
 					server.ws.send({ type: 'full-reload' });
+					// Clear the route cache so getStaticPaths() is re-evaluated with fresh modules.
+					// Without this, components passed as props via getStaticPaths remain stale
+					// because the cached result holds references to the old module exports.
+					this.environment.hot.send('astro:ssr-changed', {});
 					return [];
 				}
 
