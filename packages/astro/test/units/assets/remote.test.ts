@@ -74,7 +74,7 @@ describe('loadRemoteImage', () => {
 		const result = await loadRemoteImage(
 			'https://example.com/img.jpg',
 			makeFetchMock(200, { 'Cache-Control': 'max-age=3600', Etag: '"test"' }, imageBytes),
-			{ domains: ['example.com'] },
+			{ domains: ['example.com'], remotePatterns: [] },
 		);
 
 		assert.ok(result.data !== null);
@@ -113,6 +113,7 @@ describe('loadRemoteImage', () => {
 
 		const result = await loadRemoteImage('https://example.com/img.jpg', mockFetch as any, {
 			domains: ['example.com', 'cdn.example.com'],
+			remotePatterns: [],
 		});
 
 		assert.equal(fetchCallCount, 2);
@@ -142,7 +143,7 @@ describe('loadRemoteImage', () => {
 				loadRemoteImage(
 					'https://example.com/img.jpg',
 					mockFetch as any,
-					{ domains: ['example.com'] }, // evil.com is not allowed
+					{ domains: ['example.com'], remotePatterns: [] }, // evil.com is not allowed
 				),
 			/not an allowed remote location/,
 		);
@@ -154,7 +155,7 @@ describe('loadRemoteImage', () => {
 		const imageBytes = new Uint8Array([1, 2, 3]).buffer;
 
 		let fetchCallCount = 0;
-		const mockFetch: typeof fetch = async (_req: Request | string) => {
+		const mockFetch: typeof fetch = async () => {
 			fetchCallCount++;
 
 			if (fetchCallCount === 1) {
@@ -189,6 +190,7 @@ describe('loadRemoteImage', () => {
 
 		const result = await loadRemoteImage('https://example.com/img.jpg', mockFetch, {
 			domains: ['example.com', 'cdn1.example.com', 'cdn2.example.com'],
+			remotePatterns: [],
 		});
 
 		assert.equal(fetchCallCount, 3);
@@ -210,6 +212,7 @@ describe('loadRemoteImage', () => {
 			() =>
 				loadRemoteImage('https://example.com/img.jpg', mockFetch as any, {
 					domains: ['example.com'],
+					remotePatterns: [],
 				}),
 			/missing Location header/,
 		);
@@ -232,6 +235,7 @@ describe('loadRemoteImage', () => {
 			() =>
 				loadRemoteImage('https://example.com/img.jpg', mockFetch as any, {
 					domains: ['example.com'],
+					remotePatterns: [],
 				}),
 			/Maximum redirect depth exceeded/,
 		);
