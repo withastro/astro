@@ -55,7 +55,7 @@ async function loadLocalImage(src: string, url: URL) {
 		const sourceUrl = new URL(src, url.origin);
 		// This is only allowed if this is the same origin
 		if (sourceUrl.origin !== url.origin) {
-			returnValue = undefined;
+			return undefined;
 		}
 		return loadRemoteImage(sourceUrl);
 	}
