@@ -110,14 +110,12 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 						.default(ASTRO_CONFIG_DEFAULTS.server.host),
 					port: z.number().optional().default(ASTRO_CONFIG_DEFAULTS.server.port),
 					headers: z.custom<OutgoingHttpHeaders>().optional(),
-					streaming: z.boolean().optional().default(true),
 					allowedHosts: z
 						.union([z.array(z.string()), z.literal(true)])
 						.optional()
 						.default(ASTRO_CONFIG_DEFAULTS.server.allowedHosts),
 				}),
 			)
-			.optional()
 			.prefault({}),
 	}).transform((config) => {
 		// If the user changed `outDir`, we also need to update `build.client` and `build.server`

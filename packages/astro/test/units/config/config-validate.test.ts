@@ -14,7 +14,7 @@ async function validateConfig(userConfig: Record<string, unknown>) {
 
 describe('Config Validation', () => {
 	it('empty user config is valid', async () => {
-		assert.doesNotThrow(() => validateConfig({}).catch((err) => err));
+		await assert.doesNotReject(validateConfig({}));
 	});
 
 	it('Zod errors are returned when invalid config is used', async () => {

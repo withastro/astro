@@ -258,7 +258,6 @@ export const AstroConfigSchema = z.object({
 					.default(ASTRO_CONFIG_DEFAULTS.server.allowedHosts),
 			}),
 		)
-		.optional()
 		.prefault({}),
 	redirects: z
 		.record(
