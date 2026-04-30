@@ -1,3 +1,4 @@
+import path from 'node:path';
 import type { EnvironmentModuleNode, Plugin } from 'vite';
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../vite-plugin-pages/const.js';
 import { getDevCssModuleNameFromPageVirtualModuleName } from '../vite-plugin-css/util.js';
@@ -26,7 +27,7 @@ export default function hmrReload(): Plugin {
 		enforce: 'post',
 		hotUpdate: {
 			order: 'post',
-			handler({ modules, server, timestamp }) {
+			handler({ file, modules, server, timestamp }) {
 				if (!isAstroServerEnvironment(this.environment)) return;
 
 				let hasSsrOnlyModules = false;
@@ -60,7 +61,19 @@ export default function hmrReload(): Plugin {
 				}
 
 				if (hasSsrOnlyModules) {
+					// Tell the browser to reload the page.
 					server.ws.send({ type: 'full-reload' });
+					// Tell the SSR module runner to clear its evaluated modules cache.
+					// Without this, the runner continues to serve stale module exports
+					// because it never receives notification of the invalidation.
+					this.environment.hot.send({
+						type: 'full-reload',
+						triggeredBy: path.resolve(this.environment.config.root, file),
+						path: '*',
+					});
+					// Clear the route cache so getStaticPaths() is re-evaluated with
+					// fresh modules on the next request.
+					this.environment.hot.send('astro:ssr-changed', {});
 					return [];
 				}
 
