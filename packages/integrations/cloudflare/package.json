@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/cloudflare",
   "description": "Deploy your site to Cloudflare Workers",
-  "version": "13.3.0",
+  "version": "14.0.0-alpha.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -50,7 +50,7 @@
     "vite": "^8.0.8"
   },
   "peerDependencies": {
-    "astro": "^6.0.0",
+    "astro": "^7.0.0-alpha.0",
     "wrangler": "^4.83.0"
   },
   "devDependencies": {

@@ -13,8 +13,8 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/solid-js": "^6.0.1",
-    "astro": "^6.2.0",
+    "@astrojs/solid-js": "^7.0.0-alpha.0",
+    "astro": "^7.0.0-alpha.0",
     "solid-js": "^1.9.11"
   }
 }

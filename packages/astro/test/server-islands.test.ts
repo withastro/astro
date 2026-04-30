@@ -467,8 +467,8 @@ describe('Server islands', () => {
 						adapter: undefined,
 					});
 					assert.equal(true, false, 'should not have succeeded');
-			} catch (err: any) {
-				assert.equal(err.errors[0].title, 'Cannot use Server Islands without an adapter.');
+				} catch (err: any) {
+					assert.equal(err.errors[0].title, 'Cannot use Server Islands without an adapter.');
 				}
 			});
 

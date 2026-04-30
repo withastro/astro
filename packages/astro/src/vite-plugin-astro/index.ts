@@ -322,4 +322,3 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 		},
 	];
 }
-

@@ -32,5 +32,10 @@
     "@astrojs/underscore-redirects": "1.0.2",
     "@astrojs/upgrade": "0.7.1"
   },
-  "changesets": []
+  "changesets": [
+    "common-pears-drive",
+    "fix-dev-port-vite-restart",
+    "rusty-compilers-only",
+    "two-eels-live"
+  ]
 }

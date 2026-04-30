@@ -1,9 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import {
-	preprocessStyles,
-	transform,
-	type TransformResult,
-} from '@astrojs/compiler-rs';
+import { preprocessStyles, transform, type TransformResult } from '@astrojs/compiler-rs';
 import type { ResolvedConfig } from 'vite';
 import type { AstroConfig } from '../../types/public/config.js';
 import type { AstroError } from '../errors/errors.js';
