@@ -20,7 +20,26 @@ jobs:
       contents: write
       pull-requests: write
     steps:
+      - name: Check if this was an actual release
+        id: check-release
+        env:
+          GH_TOKEN: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "released=true" >> "$GITHUB_OUTPUT"
+          else
+            # Check if the head commit on main is a release commit
+            COMMIT_MSG=$(gh api repos/${{ github.repository }}/commits/main --jq '.commit.message' 2>/dev/null || echo "")
+            if echo "$COMMIT_MSG" | grep -q "^\[ci\] release"; then
+              echo "released=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "released=false" >> "$GITHUB_OUTPUT"
+              echo "Not a release commit — nothing to do."
+            fi
+          fi
+
       - name: Check if next branch exists
+        if: steps.check-release.outputs.released == 'true'
         id: check-next
         env:
           GH_TOKEN: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
@@ -33,20 +52,20 @@ jobs:
           fi
 
       - name: Checkout repo
-        if: steps.check-next.outputs.exists == 'true'
+        if: steps.check-release.outputs.released == 'true' && steps.check-next.outputs.exists == 'true'
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
           token: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
 
       - name: Configure Git identity
-        if: steps.check-next.outputs.exists == 'true'
+        if: steps.check-release.outputs.released == 'true' && steps.check-next.outputs.exists == 'true'
         run: |
           git config user.name "astrobot-houston"
           git config user.email "fred+astrobot@astro.build"
 
       - name: Attempt merge
-        if: steps.check-next.outputs.exists == 'true'
+        if: steps.check-release.outputs.released == 'true' && steps.check-next.outputs.exists == 'true'
         id: merge
         run: |
           BRANCH="ci/merge-main-to-next"
@@ -69,7 +88,7 @@ jobs:
           echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
 
       - name: Open or update PR
-        if: steps.check-next.outputs.exists == 'true'
+        if: steps.check-release.outputs.released == 'true' && steps.check-next.outputs.exists == 'true'
         env:
           GH_TOKEN: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
           CONFLICT: ${{ steps.merge.outputs.conflict }}
