@@ -5,4 +5,4 @@
 
 Updates image handling to support redirecting URLs.
 
-If an image is configured to be optimized by having it's URL be covered by either `image.remotePatterns` or `image.domains`, Astro will now manually follow up to 10 redirects and check whether the final destination is also covered by either option. If it is, the image will be loaded, otherwise it will be ignored and an error will be thrown.
+Astro now tracks up to 10 redirects for optimized images. The image will be loaded if its final destination matches one of the patterns defined by `image.remotePatterns` or `image.domains`. Otherwise, it will be ignored and an error will be thrown.
