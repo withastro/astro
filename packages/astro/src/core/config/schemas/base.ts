@@ -234,14 +234,14 @@ export const AstroConfigSchema = z.object({
 			concurrency: z.number().min(1).optional().default(ASTRO_CONFIG_DEFAULTS.build.concurrency),
 		})
 		.prefault({}),
-	server: z.preprocess(
-		// preprocess
-		// NOTE: Uses the "error" command here because this is overwritten by the
-		// individualized schema parser with the correct command.
-		(val) => (typeof val === 'function' ? val({ command: 'error' }) : val),
-		// validate
-		z
-			.object({
+	server: z
+		.preprocess(
+			// preprocess
+			// NOTE: Uses the "error" command here because this is overwritten by the
+			// individualized schema parser with the correct command.
+			(val) => (typeof val === 'function' ? val({ command: 'error' }) : val),
+			// validate
+			z.object({
 				open: z
 					.union([z.string(), z.boolean()])
 					.optional()
@@ -256,9 +256,9 @@ export const AstroConfigSchema = z.object({
 					.union([z.array(z.string()), z.literal(true)])
 					.optional()
 					.default(ASTRO_CONFIG_DEFAULTS.server.allowedHosts),
-			})
-			.prefault({}),
-	),
+			}),
+		)
+		.prefault({}),
 	redirects: z
 		.record(
 			z.string(),

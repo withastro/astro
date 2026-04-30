@@ -89,17 +89,17 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 			})
 			.optional()
 			.prefault({}),
-		server: z.preprocess(
-			// preprocess
-			(val) => {
-				if (typeof val === 'function') {
-					return val({ command: cmd === 'dev' ? 'dev' : 'preview' });
-				}
-				return val;
-			},
-			// validate
-			z
-				.object({
+		server: z
+			.preprocess(
+				// preprocess
+				(val) => {
+					if (typeof val === 'function') {
+						return val({ command: cmd === 'dev' ? 'dev' : 'preview' });
+					}
+					return val;
+				},
+				// validate
+				z.object({
 					open: z
 						.union([z.string(), z.boolean()])
 						.optional()
@@ -110,15 +110,13 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 						.default(ASTRO_CONFIG_DEFAULTS.server.host),
 					port: z.number().optional().default(ASTRO_CONFIG_DEFAULTS.server.port),
 					headers: z.custom<OutgoingHttpHeaders>().optional(),
-					streaming: z.boolean().optional().default(true),
 					allowedHosts: z
 						.union([z.array(z.string()), z.literal(true)])
 						.optional()
 						.default(ASTRO_CONFIG_DEFAULTS.server.allowedHosts),
-				})
-				.optional()
-				.prefault({}),
-		),
+				}),
+			)
+			.prefault({}),
 	}).transform((config) => {
 		// If the user changed `outDir`, we also need to update `build.client` and `build.server`
 		// the be based on the correct `outDir`
