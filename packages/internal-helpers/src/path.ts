@@ -150,7 +150,7 @@ export function isRemotePath(src: string) {
 
 	// Check for Unix absolute path (starts with / followed by a normal path character)
 	// This needs to be before the backslash check
-	if (decoded[0] === '/' && /^\/[a-zA-Z0-9._@-]/.test(decoded)) {
+	if (decoded[0] === '/' && /^\/[\w.@-]/.test(decoded)) {
 		return false;
 	}
 
