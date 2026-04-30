@@ -16,7 +16,6 @@ on:
 
 env:
   IMAGE: ghcr.io/${{ github.repository }}/flue-sandbox
-  PNPM_STORE_DIR: .pnpm-store
 
 concurrency:
   group: merge-fix
@@ -91,6 +90,37 @@ jobs:
             echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Strip conflict markers from JSON/YAML files
+        if: steps.pr.outputs.number != '' && steps.attempts.outputs.skip != 'true'
+        # Merge conflicts in package.json files make pnpm install impossible.
+        # Strip conflict markers (keeping "ours"/next side) so pnpm can parse
+        # the workspace. The Flue verify skill will check via git diff whether
+        # anything important from main was lost and patch it back in.
+        run: |
+          node -e '
+            const fs = require("fs");
+            const path = require("path");
+            let count = 0;
+            function fix(dir) {
+              for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+                const full = path.join(dir, entry.name);
+                if (entry.isDirectory() && entry.name !== "node_modules" && entry.name !== ".git") {
+                  fix(full);
+                } else if (/\.(json|yaml|yml)$/.test(entry.name)) {
+                  let c = fs.readFileSync(full, "utf8");
+                  if (c.includes("<<<<<<<")) {
+                    c = c.replace(/^<{7}.*\n([\s\S]*?)^={7}\n[\s\S]*?^>{7}.*\n/gm, "$1");
+                    fs.writeFileSync(full, c);
+                    console.log("Stripped conflicts:", full);
+                    count++;
+                  }
+                }
+              }
+            }
+            fix(".");
+            console.log(count + " file(s) fixed");
+          '
+
       - name: Setup PNPM
         if: steps.pr.outputs.number != '' && steps.attempts.outputs.skip != 'true'
         uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
@@ -102,14 +132,13 @@ jobs:
           node-version: 24.15.0
           cache: pnpm
 
-      - name: Install root deps only
+      - name: Install deps
         if: steps.pr.outputs.number != '' && steps.attempts.outputs.skip != 'true'
-        # Only install root workspace deps (where @flue/cli lives).
-        # Cannot install the full monorepo here because merge conflicts
-        # in package.json files would break pnpm install.
-        # Full install and build happen inside the Flue sandbox after
-        # conflicts are resolved.
-        run: pnpm install --no-frozen-lockfile --filter .
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Build
+        if: steps.pr.outputs.number != '' && steps.attempts.outputs.skip != 'true'
+        run: pnpm build
 
       - name: Log in to GHCR
         if: steps.pr.outputs.number != '' && steps.attempts.outputs.skip != 'true'
