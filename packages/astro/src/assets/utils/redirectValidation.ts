@@ -21,7 +21,7 @@ export type FetchRedirectOptions = {
 	/**
 	 * Image config for validating redirect destinations (optional)
 	 */
-	imageConfig?: RemoteImageConfig;
+	imageConfig: RemoteImageConfig;
 
 	/**
 	 * Fetch function to use (default: globalThis.fetch)
@@ -95,16 +95,14 @@ export async function fetchWithRedirects(options: FetchRedirectOptions): Promise
 		// Resolve the redirect URL relative to the current URL
 		const redirectUrl = new URL(location, urlString).toString();
 
-		// Validate that the redirect target matches allowed patterns if imageConfig is provided
-		if (imageConfig) {
-			if (
-				!isRemoteAllowed(redirectUrl, {
-					domains: imageConfig.domains ?? [],
-					remotePatterns: imageConfig.remotePatterns ?? [],
-				})
-			) {
-				throw onDisallowedRedirect(urlString, redirectUrl);
-			}
+		// Validate that the redirect target matches allowed patterns
+		if (
+			!isRemoteAllowed(redirectUrl, {
+				domains: imageConfig.domains ?? [],
+				remotePatterns: imageConfig.remotePatterns ?? [],
+			})
+		) {
+			throw onDisallowedRedirect(urlString, redirectUrl);
 		}
 
 		// Recursively follow the redirect

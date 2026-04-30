@@ -65,6 +65,10 @@ export async function inferRemoteSize(
 					...AstroErrorData.FailedToFetchRemoteImageDimensions,
 					message: AstroErrorData.FailedToFetchRemoteImageDimensions.message(u),
 				}),
+			imageConfig: imageConfig ?? {
+				remotePatterns: [],
+				domains: [],
+			},
 		});
 	} catch (_err) {
 		throw new AstroError({

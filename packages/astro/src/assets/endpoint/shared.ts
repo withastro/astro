@@ -10,7 +10,7 @@ import { fetchWithRedirects } from '../utils/redirectValidation.js';
 
 export async function loadRemoteImage(src: URL): Promise<Buffer | undefined> {
 	try {
-		const res = await fetchWithRedirects({ url: src });
+		const res = await fetchWithRedirects({ url: src, imageConfig });
 
 		if (!isRemoteAllowed(res.url, imageConfig)) {
 			return undefined;
