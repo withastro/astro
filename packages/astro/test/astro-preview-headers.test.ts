@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { type Fixture, loadFixture, type PreviewServer } from './test-utils.js';
+import { type Fixture, loadFixture, type PreviewServer } from './test-utils.ts';
 
 describe('Astro preview headers', () => {
 	let fixture: Fixture;

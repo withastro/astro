@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import createTestPrerenderer from './test-prerenderer.ts';
-import { type DevServer, type Fixture, loadFixture, type PreviewServer } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture, type PreviewServer } from './test-utils.ts';
 
 describe('Astro basic build', () => {
 	let fixture: Fixture;

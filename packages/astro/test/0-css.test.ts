@@ -7,7 +7,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture, type DevServer, type Fixture } from './test-utils.js';
+import { loadFixture, type DevServer, type Fixture } from './test-utils.ts';
 
 let fixture: Fixture;
 

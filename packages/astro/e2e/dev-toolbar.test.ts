@@ -364,11 +364,8 @@ test.describe('Dev Toolbar', () => {
 		const island = page.locator('astro-island');
 		await expect(island).toHaveCount(1);
 
-		const serverRenderTime = await island.getAttribute('server-render-time');
-		const clientRenderTime = await island.getAttribute('client-render-time');
-
-		expect(serverRenderTime).not.toBe(null);
-		expect(clientRenderTime).not.toBe(null);
+		await expect(island).toHaveAttribute('server-render-time', /\d/);
+		await expect(island).toHaveAttribute('client-render-time', /\d/);
 	});
 
 	test('apps can show notifications', async ({ page, astro }) => {

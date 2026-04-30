@@ -2,9 +2,9 @@ import assert from 'node:assert/strict';
 import { Writable } from 'node:stream';
 import { before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import type { AstroLogMessage } from '../dist/core/logger/core.js';
+import type { AstroLoggerMessage } from '../dist/core/logger/core.js';
 import { AstroLogger } from '../dist/core/logger/core.js';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 function addLeadingSlash(path: string) {
 	return path.startsWith('/') ? path : '/' + path;
@@ -17,7 +17,7 @@ function removeBasePath(path: string) {
 
 describe('Static build', () => {
 	let fixture: Fixture;
-	let logs: AstroLogMessage[] = [];
+	let logs: AstroLoggerMessage[] = [];
 
 	before(async () => {
 		const logger = new AstroLogger({

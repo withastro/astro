@@ -5,11 +5,10 @@
     "rootDir": "./src",
     "allowJs": true,
     "emitDeclarationOnly": false,
-    "noEmit": true,
     "target": "ES2022",
     "module": "ES2022",
     "moduleResolution": "Bundler",
     "outDir": "./dist",
-    "declarationDir": "./dist/types"
+    "declarationDir": "./dist"
   }
 }

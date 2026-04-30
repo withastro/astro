@@ -1,5 +1,6 @@
-import { spawn } from 'node:child_process';
+import { type ChildProcess, spawn } from 'node:child_process';
 import fs from 'node:fs';
+import type { IncomingMessage, Server, ServerResponse } from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -13,75 +14,77 @@ import build from '../dist/core/build/index.js';
 import { mergeConfig, resolveConfig } from '../dist/core/config/index.js';
 import { dev, preview } from '../dist/core/index.js';
 import sync from '../dist/core/sync/index.js';
+import type { App } from '../dist/core/app/app.js';
+import type { DevServer } from '../dist/core/dev/dev.js';
+import type {
+	AstroConfig,
+	AstroInlineConfig as BaseAstroInlineConfig,
+} from '../dist/types/public/config.js';
+import type { PreviewServer } from '../dist/types/public/preview.js';
+
+export type { App, AstroConfig, DevServer, PreviewServer };
 
 // Disable telemetry when running tests
-process.env.ASTRO_TELEMETRY_DISABLED = true;
+process.env.ASTRO_TELEMETRY_DISABLED = 'true';
 
-/**
- * @typedef {import('../src/core/dev/dev').DevServer} DevServer
- * @typedef {Omit<import('../src/types/public/config.js').AstroInlineConfig, 'root'> & { root?: string | URL }} AstroInlineConfig
- * @typedef {import('../src/types/public/config.js').AstroConfig} AstroConfig
- * @typedef {import('../src/core/preview/index').PreviewServer} PreviewServer
- * @typedef {import('../src/core/app/app.js').App} App
- * @typedef {import('../src/cli/check/index').AstroChecker} AstroChecker
- * @typedef {import('../src/cli/check/index').CheckPayload} CheckPayload
- * @typedef {import('http').IncomingMessage} NodeRequest
- * @typedef {import('http').ServerResponse} NodeResponse
- * `RequestHandler` is defined in `@astrojs/node` so we cannot import it directly.
- * See https://github.com/withastro/astro/blob/astro@6.0.0/packages/integrations/node/src/types.ts#L44-L50
- * @typedef {(req: NodeRequest, res: NodeResponse, next?: (err?: unknown) => void, locals?: object) => void | Promise<void>} RequestHandler
- *
- * `startServer` is defined in `@astrojs/node` so we cannot import it directly.
- * See https://github.com/withastro/astro/blob/astro@6.0.0/packages/integrations/node/src/server.ts#L21
- * @typedef {PreviewServer & { server: import('http').Server }} AdapterServer
- * @typedef {() => ({server: AdapterServer, stop: Promise<void>})} AdapterStartServer
- *
- * @typedef {Object} Fixture
- * @property {(extraInlineConfig?: Parameters<typeof build>[0], options?: Parameters<typeof build>[1]) => Promise<void>} build
- * @property {(url: string) => string} resolveUrl
- * @property {(path: string) => Promise<boolean>} pathExists
- * @property {(url: string, opts?: Parameters<typeof fetch>[1]) => Promise<Response>} fetch
- * @property {(path: string) => Promise<string>} readFile
- * @property {(path: string) => Promise<Buffer>} readBuffer
- * @property {(path: string, updater: (content: string) => string, waitForNextWrite = true) => Promise<() => void>} editFile
- * @property {(path: string) => Promise<string[]>} readdir
- * @property {(pattern: string) => Promise<string[]>} glob
- * @property {(inlineConfig?: Parameters<typeof dev>[0]) => ReturnType<typeof dev>} startDevServer
- * @property {(extraInlineConfig?: Parameters<typeof preview>[0]) => Promise<PreviewServer>} preview
- * @property {() => Promise<void>} clean
- * @property {(streaming?: boolean) => Promise<App>} loadTestAdapterApp
- * @property {(streaming?: boolean) => Promise<App>} loadSelfAdapterApp
- * @property {() => Promise<{ handler: RequestHandler; startServer: AdapterStartServer }>} loadAdapterEntryModule
- * @property {() => Promise<RequestHandler>} loadNodeAdapterHandler
- * @property {(timeout?: number) => Promise<void>} onNextDataStoreChange
- * @property {typeof check} check
- * @property {typeof sync} sync
- * @property {AstroConfig} config
- * @property {() => void} resetAllFiles
- *
- * This function returns an instance of the Check
- *
- *
- * When used in a test suite:
- * ```js
- * let fixture = await loadFixture({
- *   root: './fixtures/astro-check-watch/',
- * });
- * ```
- * `opts` will override the options passed to the `AstroChecker`
- *
- * ```js
- * let { check, stop, watch } = fixture.check({
- *   flags: { watch: true },
- * });
- * ```
- */
+export type AstroInlineConfig = Omit<BaseAstroInlineConfig, 'root'> & {
+	root?: string | URL;
+};
+
+// `RequestHandler` is defined in `@astrojs/node` so we cannot import it directly.
+// See https://github.com/withastro/astro/blob/astro@6.0.0/packages/integrations/node/src/types.ts#L44-L50
+export type RequestHandler = (
+	req: IncomingMessage,
+	res: ServerResponse,
+	next?: (err?: unknown) => void,
+	locals?: object,
+) => void | Promise<void>;
+
+// `startServer` is defined in `@astrojs/node` so we cannot import it directly.
+// See https://github.com/withastro/astro/blob/astro@6.0.0/packages/integrations/node/src/server.ts#L21
+export type AdapterServer = PreviewServer & { server: Server };
+export type AdapterStartServer = () => { server: AdapterServer; stop: Promise<void> };
+
+export interface Fixture {
+	build: (
+		extraInlineConfig?: Parameters<typeof build>[0],
+		options?: Parameters<typeof build>[1],
+	) => Promise<void>;
+	resolveUrl: (url: string) => string;
+	pathExists: (p: string) => boolean;
+	fetch: (url: string, opts?: Parameters<typeof fetch>[1]) => Promise<Response>;
+	readFile: {
+		(filePath: string): Promise<string>;
+		(filePath: string, encoding: BufferEncoding): Promise<string>;
+		(filePath: string, encoding: null): Promise<Buffer>;
+	};
+	readBuffer: (filePath: string) => Promise<Buffer>;
+	editFile: (
+		filePath: string,
+		newContentsOrCallback: string | ((content: string) => string),
+		waitForNextWrite?: boolean,
+	) => Promise<() => void>;
+	readdir: (fp: string) => Promise<string[]>;
+	glob: (pattern: string) => Promise<string[]>;
+	startDevServer: (extraInlineConfig?: Parameters<typeof dev>[0]) => Promise<DevServer>;
+	preview: (extraInlineConfig?: Parameters<typeof preview>[0]) => Promise<PreviewServer>;
+	clean: () => Promise<void>;
+	loadTestAdapterApp: (streaming?: boolean) => Promise<App>;
+	loadSelfAdapterApp: (streaming?: boolean) => Promise<App>;
+	loadAdapterEntryModule: () => Promise<{
+		handler: RequestHandler;
+		startServer: AdapterStartServer;
+	}>;
+	loadNodeAdapterHandler: () => Promise<RequestHandler>;
+	onNextDataStoreChange: (timeout?: number) => Promise<void>;
+	check: typeof check;
+	sync: typeof sync;
+	config: AstroConfig;
+	resetAllFiles: () => void;
+}
 
 /**
  * Load Astro fixture
- * @param {AstroInlineConfig} inlineConfig Astro config partial (note: must specify `root`)
- * @returns {Promise<Fixture>} The fixture. Has the following properties:
- *   .config     - Returns the final config. Will be automatically passed to the methods below:
  *
  *   Build
  *   .build()          - Async. Builds into current folder (will erase previous build)
@@ -97,7 +100,7 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
  *   Clean-up
  *   .clean()          - Async. Removes the project’s dist folder.
  */
-export async function loadFixture(inlineConfig) {
+export async function loadFixture(inlineConfig: AstroInlineConfig): Promise<Fixture> {
 	if (!inlineConfig?.root) throw new Error("Must provide { root: './fixtures/...' }");
 
 	// Silent by default during tests to not pollute the console output
@@ -105,7 +108,7 @@ export async function loadFixture(inlineConfig) {
 	inlineConfig.vite ??= {};
 	inlineConfig.vite.logLevel = 'silent';
 
-	let root = inlineConfig.root;
+	let root: string | URL = inlineConfig.root;
 	// Handle URL, should already be absolute so just convert to path
 	if (typeof root !== 'string') {
 		root = fileURLToPath(root);
@@ -118,20 +121,20 @@ export async function loadFixture(inlineConfig) {
 	else if (!path.isAbsolute(root)) {
 		root = fileURLToPath(new URL(root, import.meta.url));
 	}
-	inlineConfig = { ...inlineConfig, root };
+	const resolvedInlineConfig: BaseAstroInlineConfig = { ...inlineConfig, root };
 	// Load the config.
-	const { astroConfig: config } = await resolveConfig(inlineConfig, 'dev');
+	const { astroConfig: config } = await resolveConfig(resolvedInlineConfig, 'dev');
 
 	const protocol = config.vite?.server?.https ? 'https' : 'http';
 
-	const resolveUrl = (url) =>
+	const resolveUrl = (url: string) =>
 		`${protocol}://${config.server.host || 'localhost'}:${config.server.port}${url.replace(
 			/^\/?/,
 			'/',
 		)}`;
 
 	// A map of files that have been edited.
-	let fileEdits = new Map();
+	const fileEdits = new Map<string, () => void>();
 
 	const resetAllFiles = () => {
 		for (const [, reset] of fileEdits) {
@@ -142,18 +145,20 @@ export async function loadFixture(inlineConfig) {
 
 	const onNextChange = () =>
 		devServer
-			? new Promise((resolve) => devServer.watcher.once('change', resolve))
+			? new Promise<void>((resolve) => devServer!.watcher.once('change', () => resolve()))
 			: Promise.reject(new Error('No dev server running'));
 
 	// After each test, reset each of the edits to their original contents.
-	if (typeof afterEach === 'function') {
-		afterEach(resetAllFiles);
+	// `afterEach` is not a `node:test` global, but older test runners expose it — guard defensively.
+	const maybeAfterEach = (globalThis as { afterEach?: (fn: () => void) => void }).afterEach;
+	if (typeof maybeAfterEach === 'function') {
+		maybeAfterEach(resetAllFiles);
 	}
 	// Also do it on process exit, just in case.
 	process.on('exit', resetAllFiles);
 
-	let fixtureId = new Date().valueOf();
-	let devServer;
+	const fixtureId = new Date().valueOf();
+	let devServer: DevServer | undefined;
 
 	return {
 		build: async (extraInlineConfig = {}, options = {}) => {
@@ -162,11 +167,11 @@ export async function loadFixture(inlineConfig) {
 			// Reset NODE_ENV so it can be re-set by `build()`
 			delete process.env.NODE_ENV;
 			const t0 = performance.now();
-			await build(mergeConfig(inlineConfig, extraInlineConfig), {
+			await build(mergeConfig(resolvedInlineConfig, extraInlineConfig), {
 				teardownCompiler: false,
 				...options,
 			});
-			CILogger.logBuild({ fixture: root, duration: performance.now() - t0 });
+			CILogger.logBuild({ fixture: root as string, duration: performance.now() - t0 });
 		},
 		sync,
 		check: async (opts) => {
@@ -178,12 +183,12 @@ export async function loadFixture(inlineConfig) {
 			// Reset NODE_ENV so it can be re-set by `dev()`
 			delete process.env.NODE_ENV;
 			try {
-				devServer = await dev(mergeConfig(inlineConfig, extraInlineConfig));
+				devServer = await dev(mergeConfig(resolvedInlineConfig, extraInlineConfig));
 			} catch (e) {
 				console.error(e);
-				return;
+				return undefined as unknown as DevServer;
 			}
-			config.server.host = parseAddressToHost(devServer.address.address); // update host
+			config.server.host = parseAddressToHost(devServer.address.address)!; // update host
 			config.server.port = devServer.address.port; // update port
 			await new Promise((resolve) => setTimeout(resolve, 100));
 			return devServer;
@@ -193,18 +198,18 @@ export async function loadFixture(inlineConfig) {
 				return Promise.reject(new Error('No dev server running'));
 			}
 
-			const dataStoreFile = path.join(root, '.astro', 'data-store.json');
+			const dataStoreFile = path.join(root as string, '.astro', 'data-store.json');
 
-			return new Promise((resolve, reject) => {
-				const changeHandler = (fileName) => {
+			return new Promise<void>((resolve, reject) => {
+				const changeHandler = (fileName: string) => {
 					if (fileName === dataStoreFile) {
-						devServer.watcher.removeListener('change', changeHandler);
+						devServer!.watcher.removeListener('change', changeHandler);
 						resolve();
 					}
 				};
-				devServer.watcher.on('change', changeHandler);
+				devServer!.watcher.on('change', changeHandler);
 				setTimeout(() => {
-					devServer.watcher.removeListener('change', changeHandler);
+					devServer!.watcher.removeListener('change', changeHandler);
 					reject(new Error('Data store did not update within timeout'));
 				}, timeout);
 			});
@@ -225,14 +230,14 @@ export async function loadFixture(inlineConfig) {
 						allowH2: true,
 					}),
 					...init,
-				};
+				} as RequestInit;
 			}
 			const resolvedUrl = resolveUrl(url);
 			try {
 				return await fetch(resolvedUrl, init);
 			} catch (err) {
 				// node fetch throws a vague error when it fails, so we log the url here to easily debug it
-				if (err.message?.includes('fetch failed')) {
+				if (err instanceof Error && err.message?.includes('fetch failed')) {
 					console.error(`[astro test] failed to fetch ${resolvedUrl}`);
 					console.error(err);
 				}
@@ -242,17 +247,17 @@ export async function loadFixture(inlineConfig) {
 		preview: async (extraInlineConfig = {}) => {
 			// Reset NODE_ENV so it can be re-set by `preview()`
 			delete process.env.NODE_ENV;
-			const previewServer = await preview(mergeConfig(inlineConfig, extraInlineConfig));
-			config.server.host = parseAddressToHost(previewServer.host); // update host
+			const previewServer = await preview(mergeConfig(resolvedInlineConfig, extraInlineConfig));
+			config.server.host = parseAddressToHost(previewServer.host)!; // update host
 			config.server.port = previewServer.port; // update port
 			return previewServer;
 		},
 		pathExists: (p) => fs.existsSync(new URL(p.replace(/^\//, ''), config.outDir)),
-		readFile: (filePath, encoding) =>
+		readFile: ((filePath: string, encoding?: BufferEncoding | null) =>
 			fs.promises.readFile(
 				new URL(filePath.replace(/^\//, ''), config.outDir),
 				encoding === undefined ? 'utf8' : encoding,
-			),
+			)) as Fixture['readFile'],
 		readBuffer: (filePath) => {
 			return fs.promises.readFile(new URL(filePath.replace(/^\//, ''), config.outDir));
 		},
@@ -279,23 +284,23 @@ export async function loadFixture(inlineConfig) {
 		},
 		loadAdapterEntryModule: async () => {
 			const url = new URL(`./server/entry.mjs?id=${fixtureId}`, config.outDir);
-			return await import(url);
+			return await import(url.toString());
 		},
 		loadNodeAdapterHandler: async () => {
 			const url = new URL(`./server/entry.mjs?id=${fixtureId}`, config.outDir);
-			const { handler } = await import(url);
+			const { handler } = await import(url.toString());
 			return handler;
 		},
 		loadTestAdapterApp: async (streaming) => {
 			const url = new URL(`./server/${config.build.serverEntry}?id=${fixtureId}`, config.outDir);
-			const { createApp, manifest } = await import(url);
-			const app = createApp(streaming);
+			const { createApp, manifest } = await import(url.toString());
+			const app: App = createApp(streaming);
 			app.manifest = manifest;
 			return app;
 		},
 		loadSelfAdapterApp: async (streaming) => {
 			const url = new URL(`./server/${config.build.serverEntry}?id=${fixtureId}`, config.outDir);
-			const { createApp } = await import(url);
+			const { createApp } = await import(url.toString());
 			return createApp(streaming);
 		},
 		editFile: async (filePath, newContentsOrCallback, waitForNextWrite = true) => {
@@ -322,10 +327,7 @@ export async function loadFixture(inlineConfig) {
 	};
 }
 
-/**
- * @param {string} [address]
- */
-function parseAddressToHost(address) {
+function parseAddressToHost(address?: string) {
 	if (address?.startsWith('::')) {
 		return `[${address}]`;
 	}
@@ -334,12 +336,23 @@ function parseAddressToHost(address) {
 
 const cliPath = fileURLToPath(new URL('../bin/astro.mjs', import.meta.url));
 
+interface CliResult {
+	exitCode: number | null;
+	stdout: string;
+	stderr: string;
+}
+
+interface CliProcess {
+	proc: ChildProcess;
+	getResult: () => Promise<CliResult>;
+}
+
 /** Returns a process running the Astro CLI. */
-export function cli(/** @type {string[]} */ ...args) {
+export function cli(...args: string[]): CliProcess {
 	const proc = spawn('node', [cliPath, ...args], {
 		env: { ...process.env, ASTRO_TELEMETRY_DISABLED: 'true' },
 	});
-	proc.stdout.setEncoding('utf-8');
+	proc.stdout?.setEncoding('utf-8');
 
 	return {
 		proc,
@@ -347,10 +360,10 @@ export function cli(/** @type {string[]} */ ...args) {
 			new Promise((resolve) => {
 				let stdout = '';
 				let stderr = '';
-				proc.stdout.on('data', (chunk) => {
+				proc.stdout?.on('data', (chunk) => {
 					stdout += chunk;
 				});
-				proc.stderr.on('data', (chunk) => {
+				proc.stderr?.on('data', (chunk) => {
 					stderr += chunk;
 				});
 				proc.on('close', (exitCode) => {
@@ -367,11 +380,12 @@ export function cli(/** @type {string[]} */ ...args) {
 export const isMacOS = os.platform() === 'darwin';
 export const isWindows = os.platform() === 'win32';
 
-export function fixLineEndings(str) {
+export function fixLineEndings(str: string) {
 	return str.replace(/\r\n/g, '\n');
 }
 
-export async function* streamAsyncIterator(stream) {
+export async function* streamAsyncIterator<T>(stream: ReadableStream<T> | null) {
+	if (!stream) throw new Error('streamAsyncIterator called with null stream');
 	const reader = stream.getReader();
 
 	try {

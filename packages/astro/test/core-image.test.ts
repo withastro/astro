@@ -6,17 +6,17 @@ import { after, afterEach, before, describe, it } from 'node:test';
 import { removeDir } from '@astrojs/internal-helpers/fs';
 import * as cheerio from 'cheerio';
 import parseSrcset from 'parse-srcset';
-import { AstroLogger, type AstroLogMessage } from '../dist/core/logger/core.js';
-import testAdapter from './test-adapter.js';
+import { AstroLogger, type AstroLoggerMessage } from '../dist/core/logger/core.js';
+import testAdapter from './test-adapter.ts';
 import { testImageService } from './test-image-service.ts';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('astro:image', () => {
 	let fixture: Fixture;
 
 	describe('dev', () => {
 		let devServer: DevServer;
-		const logs: Array<AstroLogMessage> = [];
+		const logs: Array<AstroLoggerMessage> = [];
 		let redirectServer: import('node:http').Server | undefined;
 		let redirectUrl: string | undefined;
 
@@ -797,7 +797,7 @@ describe('astro:image', () => {
 
 	describe('proper errors', () => {
 		let devServer: DevServer;
-		const logs: Array<AstroLogMessage> = [];
+		const logs: Array<AstroLoggerMessage> = [];
 
 		before(async () => {
 			fixture = await loadFixture({
@@ -1181,7 +1181,7 @@ describe('astro:image', () => {
 		});
 
 		it('uses cache entries', async () => {
-			const logs: Array<AstroLogMessage> = [];
+			const logs: Array<AstroLoggerMessage> = [];
 
 			const logger = new AstroLogger({
 				destination: {
