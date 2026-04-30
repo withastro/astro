@@ -49,7 +49,14 @@ export default async function mergeFix(flue: FlueClient, { prNumber }: v.InferOu
 		});
 	}
 
-	// Step 3: Remove stale changesets that were already released on main
+	// Step 3: Ensure dependencies are installed
+	// If conflicts were resolved, the resolve-conflicts skill already ran pnpm install.
+	// If not, we still need to install deps before proceeding.
+	if (!hasConflicts) {
+		await flue.shell('pnpm install --no-frozen-lockfile');
+	}
+
+	// Step 4: Remove stale changesets that were already released on main
 	await flue.skill('merge/clean-changesets.md', {
 		args: { prNumber },
 		result: v.object({
@@ -60,7 +67,7 @@ export default async function mergeFix(flue: FlueClient, { prNumber }: v.InferOu
 		}),
 	});
 
-	// Step 4: Run tests and fix failures
+	// Step 5: Run tests and fix failures
 	const fixResult = await flue.skill('merge/fix-tests.md', {
 		args: { prNumber },
 		result: v.object({
@@ -78,7 +85,7 @@ export default async function mergeFix(flue: FlueClient, { prNumber }: v.InferOu
 		}),
 	});
 
-	// Step 5: Commit and push all changes
+	// Step 6: Commit and push all changes
 	const status = await flue.shell('git status --porcelain');
 	if (status.stdout.trim()) {
 		await flue.shell('git add -A');
@@ -100,7 +107,7 @@ export default async function mergeFix(flue: FlueClient, { prNumber }: v.InferOu
 		}
 	}
 
-	// Step 6: Post a summary comment on the PR
+	// Step 7: Post a summary comment on the PR
 	const summaryParts = [];
 	if (hasConflicts) summaryParts.push('- Resolved merge conflicts');
 	if (fixResult.fixedFiles.length > 0) {

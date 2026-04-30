@@ -102,15 +102,14 @@ jobs:
           node-version: 24.15.0
           cache: pnpm
 
-      - name: Install deps
+      - name: Install root deps only
         if: steps.pr.outputs.number != '' && steps.attempts.outputs.skip != 'true'
-        # Use --no-frozen-lockfile because the merge may have introduced
-        # lockfile conflicts or new dependencies that need resolving
-        run: pnpm install --no-frozen-lockfile
-
-      - name: Build
-        if: steps.pr.outputs.number != '' && steps.attempts.outputs.skip != 'true'
-        run: pnpm build
+        # Only install root workspace deps (where @flue/cli lives).
+        # Cannot install the full monorepo here because merge conflicts
+        # in package.json files would break pnpm install.
+        # Full install and build happen inside the Flue sandbox after
+        # conflicts are resolved.
+        run: pnpm install --no-frozen-lockfile --filter .
 
       - name: Log in to GHCR
         if: steps.pr.outputs.number != '' && steps.attempts.outputs.skip != 'true'

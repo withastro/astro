@@ -50,7 +50,11 @@ When resolving conflicts, follow these rules based on file type:
 2. For each conflicted file, read the file and resolve the conflict following the strategy above.
 3. After resolving each file, run `git add <file>` to mark it as resolved.
 4. After all files are resolved, verify no conflict markers remain: `grep -r "<<<<<<< " --include="*.ts" --include="*.js" --include="*.json" --include="*.yaml" --include="*.yml" --include="*.md" .`
-5. Do NOT commit — the orchestrator will handle committing.
+5. After conflicts are resolved, regenerate the lockfile and install dependencies:
+   ```bash
+   pnpm install --no-frozen-lockfile
+   ```
+6. Do NOT commit — the orchestrator will handle committing.
 
 ## Output
 
