@@ -8,11 +8,17 @@ import { etag } from '../utils/etag.js';
 import { inferSourceFormat } from '../utils/inferSourceFormat.js';
 import { fetchWithRedirects } from '../utils/redirectValidation.js';
 
+const isLocal = (url: string) => {
+	const hostname = new URL(url).hostname;
+	return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]';
+};
+
 export async function loadRemoteImage(src: URL): Promise<Buffer | undefined> {
 	try {
 		const res = await fetchWithRedirects({ url: src, imageConfig });
 
-		if (!isRemoteAllowed(res.url, imageConfig)) {
+		// Local URLs are allowed by default
+		if (!isRemoteAllowed(res.url, imageConfig) && !isLocal(res.url)) {
 			return undefined;
 		}
 
