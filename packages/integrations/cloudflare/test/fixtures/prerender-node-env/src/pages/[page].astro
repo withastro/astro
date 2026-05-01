@@ -1,0 +1,23 @@
+---
+export const prerender = true;
+
+export function getStaticPaths() {
+	return [
+		{ params: { page: 'one' } },
+		{ params: { page: 'two' } },
+	];
+}
+
+const { page } = Astro.params;
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Page {page}</title>
+	</head>
+	<body>
+		<h1>Page {page}</h1>
+		<p id="page-name">{page}</p>
+	</body>
+</html>
