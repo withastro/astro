@@ -20,7 +20,7 @@ Use this skill whenever the user asks for any PR-writing task, including:
 Describe the **change**, **how it works**, and **why it matters**.
 
 - `Changes` explains what the fix/feature does.
-- `Testing` explains how behavior was validated.
+- `Testing` lists what test code was added or changed.
 - `Docs` explains whether user-facing docs changes are needed.
 
 Do not use PR sections as a task log.
@@ -50,8 +50,8 @@ Use this structure:
 
 ## Testing
 
-- <What scenarios were validated and why this proves the behavior>
-- <Key test file/test name where applicable>
+- <New or changed test and what it covers>
+- <Why an existing assertion changed>
 
 ## Docs
 
@@ -76,17 +76,18 @@ Do not include:
 
 ### Testing
 
-Explain validation quality.
+List what test code was added or changed, and why. Reviewers read this section to understand test coverage changes — not to hear that you ran a test suite.
 
 Include:
 
-- scenarios validated (happy path, failure path, regression)
-- why those checks prove correctness
-- key test references
+- new test files or test cases added, with a short description of what they cover
+- existing tests that were updated, and why the assertion changed
 
 Do not include:
 
-- command transcript lists
+- that tests pass (CI shows this; it's noise)
+- which commands you ran
+- how many tests passed
 
 ### Docs
 
@@ -97,9 +98,19 @@ Explain docs impact clearly.
 
 ## Brevity Guidance
 
-- Keep simple PRs short (1-2 bullets per section can be enough).
-- Add detail only when it helps reviewer understanding.
-- Avoid repeating the same point across sections.
+Default to short. 1-2 bullets per section is normal — add more only when the change is genuinely complex. A reviewer scanning a PR queue should be able to read the whole body in under 30 seconds for a typical patch.
+
+**Too verbose:**
+
+> - Moves `.optional().prefault({})` outside `z.preprocess()` for the `server` config property in both `base.ts` and `relative.ts`, matching the `integrations` fix from #16531. Zod 4.4.0 rejects missing properties wrapped in `z.preprocess()` before the preprocessor or inner defaults can execute — moving `.optional().prefault({})` outside the preprocess call resolves this. Fixes the `server` property issue reported there by @rururux.
+> - Adds `invalid_key`, `invalid_element`, and discriminated union `options` handlers to both Astro and DB error maps for Zod 4.4.0 compatibility. Zod 4.4.0 surfaces record key refinement failures (e.g. env schema variable names) as structured `invalid_key` issues with nested errors instead of a flat message. The handlers extract the actual refinement message for clear user-facing errors.
+> - All changes are backward-compatible with Zod 4.3.x. New error map branches only activate on issue codes that 4.4.0 starts emitting.
+
+**Better:**
+
+> - Moves `.optional().prefault({})` outside `z.preprocess()` for the `server` config, matching the `integrations` fix from #16531. Fixes the issue reported there by @rururux.
+> - Adds `invalid_key`, `invalid_element`, and discriminated union `options` handlers to both error maps for Zod 4.4.0 compat.
+> - Backward-compatible with Zod 4.3.x.
 
 ## Changesets
 
@@ -190,6 +201,6 @@ Write the changeset file manually in `.changeset/` with a descriptive kebab-case
 
 - Title is reviewer-friendly (not commit-style)
 - `Changes` bullets describe behavior/implementation/impact
-- `Testing` explains scenarios and outcomes, not shell commands
+- `Testing` lists test code added/changed, not test run results
 - `Docs` decision is explicit
 - Changeset file exists in `.changeset/` for any package-modifying PR

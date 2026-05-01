@@ -45,11 +45,12 @@ class SvelteVirtualCode implements VirtualCode {
 	mappings!: Mapping<CodeInformation>[];
 	embeddedCodes!: VirtualCode[];
 	codegenStacks = [];
+	public fileName: string;
+	public snapshot: ts.IScriptSnapshot;
 
-	constructor(
-		public fileName: string,
-		public snapshot: ts.IScriptSnapshot,
-	) {
+	constructor(fileName: string, snapshot: ts.IScriptSnapshot) {
+		this.fileName = fileName;
+		this.snapshot = snapshot;
 		this.mappings = [];
 
 		this.embeddedCodes = [];

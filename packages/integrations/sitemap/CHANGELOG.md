@@ -1,5 +1,11 @@
 # @astrojs/sitemap
 
+## 3.7.2
+
+### Patch Changes
+
+- [#15455](https://github.com/withastro/astro/pull/15455) [`babf57f`](https://github.com/withastro/astro/commit/babf57f83f47d4cd1fa73a55863718b71c8eebf0) Thanks [@AhmadYasser1](https://github.com/AhmadYasser1)! - Fixes i18n fallback pages missing from the generated sitemap when using `fallbackType: 'rewrite'`.
+
 ## 3.7.1
 
 ### Patch Changes

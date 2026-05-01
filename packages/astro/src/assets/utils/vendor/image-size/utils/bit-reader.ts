@@ -3,11 +3,16 @@ export class BitReader {
   // Skip the first 16 bits (2 bytes) of signature
   private byteOffset = 2
   private bitOffset = 0
+  private readonly input: Uint8Array
+  private readonly endianness: 'big-endian' | 'little-endian'
 
   constructor(
-    private readonly input: Uint8Array,
-    private readonly endianness: 'big-endian' | 'little-endian',
-  ) {}
+    input: Uint8Array,
+    endianness: 'big-endian' | 'little-endian',
+  ) {
+    this.input = input
+    this.endianness = endianness
+  }
 
   /** Reads a specified number of bits, and move the offset */
   getBits(length = 1): number {

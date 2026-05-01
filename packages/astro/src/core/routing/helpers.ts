@@ -75,26 +75,28 @@ export function routeHasHtmlExtension(route: RouteData): boolean {
 	);
 }
 
-export function hasNonPrerenderedProjectRoute(
+export function hasNonPrerenderedRoute(
 	routes: Array<Pick<RouteData, 'type' | 'origin' | 'prerender'>>,
-	options?: { includeEndpoints?: boolean },
+	options?: { includeEndpoints?: boolean; includeExternal?: boolean },
 ): boolean;
-export function hasNonPrerenderedProjectRoute(
+export function hasNonPrerenderedRoute(
 	routes: Array<Pick<IntegrationResolvedRoute, 'type' | 'origin' | 'isPrerendered'>>,
-	options?: { includeEndpoints?: boolean },
+	options?: { includeEndpoints?: boolean; includeExternal?: boolean },
 ): boolean;
-export function hasNonPrerenderedProjectRoute(
+export function hasNonPrerenderedRoute(
 	routes: Array<
 		| Pick<RouteData, 'type' | 'origin' | 'prerender'>
 		| Pick<IntegrationResolvedRoute, 'type' | 'origin' | 'isPrerendered'>
 	>,
-	options?: { includeEndpoints?: boolean },
+	options?: { includeEndpoints?: boolean; includeExternal?: boolean },
 ): boolean {
 	const includeEndpoints = options?.includeEndpoints ?? true;
+	const includeExternal = options?.includeExternal ?? false;
 	const routeTypes: ReadonlyArray<string> = includeEndpoints ? ['page', 'endpoint'] : ['page'];
+	const origins: ReadonlyArray<string> = includeExternal ? ['project', 'external'] : ['project'];
 
 	return routes.some((route) => {
 		const isPrerendered = 'isPrerendered' in route ? route.isPrerendered : route.prerender;
-		return routeTypes.includes(route.type) && route.origin === 'project' && !isPrerendered;
+		return routeTypes.includes(route.type) && origins.includes(route.origin) && !isPrerendered;
 	});
 }

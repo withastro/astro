@@ -14,12 +14,12 @@ import {
 import type { AstroSettings, RoutesList } from '../../types/astro.js';
 import type { AstroInlineConfig, RuntimeMode } from '../../types/public/config.js';
 import { resolveConfig } from '../config/config.js';
-import { createNodeLogger } from '../logger/node.js';
+import { loadOrCreateNodeLogger } from '../logger/load.js';
 import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
 import { createKey, getEnvironmentKey, hasEnvironmentKey } from '../encryption.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import type { Logger } from '../logger/core.js';
+import type { AstroLogger } from '../logger/core.js';
 import { levels, timerMessage } from '../logger/core.js';
 import { createRoutesList } from '../routing/create-manifest.js';
 import { getPrerenderDefault } from '../../prerender/utils.js';
@@ -62,8 +62,8 @@ export default async function build(
 	options: BuildOptions = {},
 ): Promise<void> {
 	ensureProcessNodeEnv(options.devOutput ? 'development' : 'production');
-	const logger = createNodeLogger(inlineConfig);
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig, 'build');
+	const logger = await loadOrCreateNodeLogger(astroConfig, inlineConfig ?? {});
 	telemetry.record(eventCliSession('build', userConfig));
 
 	warnIfCspWithShiki(astroConfig, logger);
@@ -89,7 +89,7 @@ export default async function build(
 }
 
 interface AstroBuilderOptions extends BuildOptions {
-	logger: Logger;
+	logger: AstroLogger;
 	mode: string;
 	runtimeMode: RuntimeMode;
 	/**
@@ -106,7 +106,7 @@ interface AstroBuilderOptions extends BuildOptions {
 
 export class AstroBuilder {
 	private settings: AstroSettings;
-	private logger: Logger;
+	private logger: AstroLogger;
 	private mode: string;
 	private runtimeMode: RuntimeMode;
 	private origin: string;
@@ -249,6 +249,19 @@ export class AstroBuilder {
 		});
 		this.logger.debug('build', timerMessage('Additional assets copied', this.timer.assetsStart));
 
+		if (this.settings.fontsHttpServer) {
+			await new Promise<void>((resolve, reject) => {
+				this.settings.fontsHttpServer!.close((err) => {
+					if (err) reject(err);
+					else resolve();
+				});
+			}).catch((err) => {
+				// Server was already closed or failed to close, do not halt the build
+				this.logger.debug('assets', 'Failed to close fonts HTTP server:', err);
+			});
+			this.settings.fontsHttpServer = null;
+		}
+
 		// You're done! Time to clean up.
 		await runHookBuildDone({
 			settings: this.settings,
@@ -303,7 +316,7 @@ export class AstroBuilder {
 		pageCount,
 		buildMode,
 	}: {
-		logger: Logger;
+		logger: AstroLogger;
 		timeStart: number;
 		pageCount: number;
 		buildMode: AstroSettings['buildOutput'];

@@ -1,6 +1,5 @@
 import { fileURLToPath } from 'node:url';
 import { formatWithOptions } from 'node:util';
-import dlv from 'dlv';
 import { flattie } from 'flattie';
 import colors from 'piccolore';
 import { resolveConfig } from '../../core/config/config.js';
@@ -8,9 +7,11 @@ import { createSettings } from '../../core/config/settings.js';
 import { collectErrorMetadata } from '../../core/errors/dev/utils.js';
 import * as msg from '../../core/messages/runtime.js';
 import { DEFAULT_PREFERENCES } from '../../preferences/defaults.js';
+import dlv from '../../preferences/dlv.js';
 import { coerce, isValidKey, type PreferenceKey } from '../../preferences/index.js';
 import type { AstroSettings } from '../../types/astro.js';
-import { createLoggerFromFlags, type Flags, flagsToAstroInlineConfig } from '../flags.js';
+import { type Flags, flagsToAstroInlineConfig } from '../flags.js';
+import { loadOrCreateNodeLogger } from '../../core/logger/load.js';
 
 const { bgGreen, black, bold, dim, yellow } = colors;
 
@@ -68,8 +69,8 @@ export async function preferences(
 	}
 
 	const inlineConfig = flagsToAstroInlineConfig(flags);
-	const logger = createLoggerFromFlags(flags);
 	const { astroConfig } = await resolveConfig(inlineConfig ?? {}, 'dev');
+	const logger = await loadOrCreateNodeLogger(astroConfig, inlineConfig ?? {});
 	const settings = await createSettings(
 		astroConfig,
 		inlineConfig.logLevel,

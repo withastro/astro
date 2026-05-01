@@ -1,0 +1,100 @@
+name: Merge main into next
+
+on:
+  repository_dispatch:
+    types: [release-published]
+  workflow_dispatch:
+
+jobs:
+  merge:
+    name: Merge main into next
+    if: github.repository_owner == 'withastro'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Check if next branch exists
+        id: check-next
+        env:
+          GH_TOKEN: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
+        run: |
+          if gh api repos/${{ github.repository }}/branches/next --silent 2>/dev/null; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "No 'next' branch found — nothing to do."
+          fi
+
+      - name: Checkout repo
+        if: steps.check-next.outputs.exists == 'true'
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
+
+      - name: Configure Git identity
+        if: steps.check-next.outputs.exists == 'true'
+        run: |
+          git config user.name "astrobot-houston"
+          git config user.email "fred+astrobot@astro.build"
+
+      - name: Attempt merge
+        if: steps.check-next.outputs.exists == 'true'
+        id: merge
+        run: |
+          BRANCH="ci/merge-main-to-next"
+
+          # Start from the next branch
+          git checkout origin/next
+          git checkout -B "$BRANCH"
+
+          # Attempt the merge
+          if git merge origin/main --no-edit; then
+            echo "conflict=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "conflict=true" >> "$GITHUB_OUTPUT"
+            # Stage the conflicted state so we can push it
+            git add -A
+            git commit --no-edit -m "chore: merge main into next (conflicts)" || true
+          fi
+
+          git push -f origin "$BRANCH"
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+
+      - name: Open or update PR
+        if: steps.check-next.outputs.exists == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
+          CONFLICT: ${{ steps.merge.outputs.conflict }}
+          BRANCH: ${{ steps.merge.outputs.branch }}
+        run: |
+          if [ "$CONFLICT" = "true" ]; then
+            BODY="## Merge main into next
+
+          This PR merges \`main\` into \`next\` after a release.
+
+          > **⚠️ This merge has conflicts that need to be resolved.**
+
+          If CI fails, the merge-fix workflow will attempt to resolve conflicts and fix test failures automatically."
+          else
+            BODY="## Merge main into next
+
+          This PR merges \`main\` into \`next\` after a release.
+
+          The merge was clean — review CI results and merge when ready."
+          fi
+
+          # Check if a PR already exists for this branch
+          EXISTING_PR=$(gh pr list --head "$BRANCH" --base next --json number --jq '.[0].number' 2>/dev/null || echo "")
+
+          if [ -n "$EXISTING_PR" ]; then
+            gh pr edit "$EXISTING_PR" --body "$BODY"
+            echo "Updated existing PR #$EXISTING_PR"
+          else
+            gh pr create \
+              --head "$BRANCH" \
+              --base next \
+              --title "chore: merge main into next" \
+              --body "$BODY"
+          fi

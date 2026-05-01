@@ -1,5 +1,42 @@
 # @astrojs/preact
 
+## 5.1.2
+
+### Patch Changes
+
+- Updated dependencies [[`99464ed`](https://github.com/withastro/astro/commit/99464edb5fc0968f6497328e106f26ab393668bd), [`f3485c3`](https://github.com/withastro/astro/commit/f3485c3458bc8bf70c152126e418c24f489ded9d)]:
+  - @astrojs/internal-helpers@0.9.0
+
+## 5.1.1
+
+### Patch Changes
+
+- [#16180](https://github.com/withastro/astro/pull/16180) [`1d1448c`](https://github.com/withastro/astro/commit/1d1448c2c0e1a149709ada5d00a74f1cd7c1142b) Thanks [@matthewp](https://github.com/matthewp)! - Pre-optimizes `@preact/signals` and `preact/hooks` in the Vite dep optimizer to prevent late discovery triggering full page reloads during dev
+
+## 5.1.0
+
+### Minor Changes
+
+- [#15862](https://github.com/withastro/astro/pull/15862) [`06fba3a`](https://github.com/withastro/astro/commit/06fba3a9636ef45a6aedd35e04b1d67b7cf00c82) Thanks [@crutchcorn](https://github.com/crutchcorn)! - Adds support for passing a Babel config to the Preact Vite Plugin:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  import preact from '@astrojs/preact';
+
+  export default defineConfig({
+    integrations: [
+      preact({
+        babel: {
+          generatorOpts: {
+            importAttributesKeyword: 'with',
+          },
+        },
+      }),
+    ],
+  });
+  ```
+
 ## 5.0.2
 
 ### Patch Changes

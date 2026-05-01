@@ -1,12 +1,12 @@
 import type { HmrContext } from 'vite';
-import type { Logger } from '../core/logger/core.js';
+import type { AstroLogger } from '../core/logger/core.js';
 import type { CompileAstroResult } from './compile.js';
 import { parseAstroRequest } from './query.js';
 import type { CompileMetadata } from './types.js';
 import { frontmatterRE } from './utils.js';
 
 interface HandleHotUpdateOptions {
-	logger: Logger;
+	logger: AstroLogger;
 	compile: (code: string, filename: string) => Promise<CompileAstroResult>;
 	astroFileToCompileMetadata: Map<string, CompileMetadata>;
 }

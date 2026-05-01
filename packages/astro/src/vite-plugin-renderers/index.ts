@@ -1,6 +1,6 @@
 import type { ConfigEnv, Plugin as VitePlugin } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
-import { hasNonPrerenderedProjectRoute } from '../core/routing/helpers.js';
+import { hasNonPrerenderedRoute } from '../core/routing/helpers.js';
 import type { ServerIslandsState } from '../core/server-islands/shared-state.js';
 import type { AstroSettings, RoutesList } from '../types/astro.js';
 
@@ -40,8 +40,9 @@ export default function vitePluginRenderers(options: PluginOptions): VitePlugin 
 					this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr &&
 					renderers.length > 0 &&
 					!options.serverIslandsState.hasIslands() &&
-					!hasNonPrerenderedProjectRoute(options.routesList.routes, {
+					!hasNonPrerenderedRoute(options.routesList.routes, {
 						includeEndpoints: false,
+						includeExternal: true,
 					})
 				) {
 					return { code: `export const renderers = [];` };

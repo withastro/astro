@@ -61,15 +61,15 @@ function stringifyChunk(
 		switch (instruction.type) {
 			case 'directive': {
 				const { hydration } = instruction;
-				let needsHydrationScript = hydration && determineIfNeedsHydrationScript(result);
-				let needsDirectiveScript =
+				const needsHydrationScript = hydration && determineIfNeedsHydrationScript(result);
+				const needsDirectiveScript =
 					hydration && determinesIfNeedsDirectiveScript(result, hydration.directive);
 
 				if (needsHydrationScript) {
-					let prescripts = getPrescripts(result, 'both', hydration.directive);
+					const prescripts = getPrescripts(result, 'both', hydration.directive);
 					return markHTMLString(prescripts);
 				} else if (needsDirectiveScript) {
-					let prescripts = getPrescripts(result, 'directive', hydration.directive);
+					const prescripts = getPrescripts(result, 'directive', hydration.directive);
 					return markHTMLString(prescripts);
 				} else {
 					return '';
@@ -90,6 +90,9 @@ function stringifyChunk(
 			case 'renderer-hydration-script': {
 				const { rendererSpecificHydrationScripts } = result._metadata;
 				const { rendererName } = instruction;
+				if (result._metadata.templateDepth > 0) {
+					return instruction.render();
+				}
 
 				if (!rendererSpecificHydrationScripts.has(rendererName)) {
 					rendererSpecificHydrationScripts.add(rendererName);
@@ -98,6 +101,9 @@ function stringifyChunk(
 				return '';
 			}
 			case 'server-island-runtime': {
+				if (result._metadata.templateDepth > 0) {
+					return renderServerIslandRuntime();
+				}
 				if (result._metadata.hasRenderedServerIslandRuntime) {
 					return '';
 				}
@@ -106,11 +112,33 @@ function stringifyChunk(
 			}
 			case 'script': {
 				const { id, content } = instruction;
+				// If we're inside a <template> element, still render the script but
+				// don't mark it as deduplicated. Template content is inert, scripts
+				// inside don't execute, so the script must also appear outside the
+				// template for non-template instances to work
+				if (result._metadata.templateDepth > 0) {
+					return content;
+				}
 				if (result._metadata.renderedScripts.has(id)) {
 					return '';
 				}
 				result._metadata.renderedScripts.add(id);
 				return content;
+			}
+			case 'template-enter': {
+				result._metadata.templateDepth++;
+				return '';
+			}
+			case 'template-exit': {
+				if (result._metadata.templateDepth <= 0) {
+					throw new Error(
+						'Unexpected template-exit instruction without a matching template-enter. ' +
+							'This may indicate that the compiler emitted unbalanced template boundaries, ' +
+							'or that a component manually injected a template-exit render instruction.',
+					);
+				}
+				result._metadata.templateDepth--;
+				return '';
 			}
 			default: {
 				throw new Error(`Unknown chunk type: ${(chunk as any).type}`);

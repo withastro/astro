@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 2.16.14
+
+### Patch Changes
+
+- [#16069](https://github.com/withastro/astro/pull/16069) [`c9a5807`](https://github.com/withastro/astro/commit/c9a58073a340959f081b66d2ff50c1f2445b6b05) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updates the minimum supported version of VS Code to 1.92.0 (July 2024)
+
 ## 2.16.13
 
 ### Patch Changes

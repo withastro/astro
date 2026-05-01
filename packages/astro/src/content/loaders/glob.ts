@@ -348,8 +348,12 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 				const entryType = configForFile(changedPath);
 				const baseUrl = pathToFileURL(basePath);
 				const oldId = fileToIdMap.get(changedPath);
-				await syncData(entry, baseUrl, entryType, oldId);
-				logger.info(`Reloaded data from ${colors.green(entry)}`);
+				try {
+					await syncData(entry, baseUrl, entryType, oldId);
+					logger.info(`Reloaded data from ${colors.green(entry)}`);
+				} catch (e: any) {
+					logger.error(`Failed to reload ${entry}: ${e.message}`);
+				}
 			}
 
 			watcher.on('change', onChange);

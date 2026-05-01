@@ -1,0 +1,6 @@
+<div id="counter-b">Counter B</div>
+<script>
+	import { farewell, MESSAGES } from './shared.js';
+	const el = document.getElementById('counter-b');
+	if (el) el.textContent = farewell('B') + ' ' + MESSAGES.success;
+</script>

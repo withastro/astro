@@ -6,7 +6,7 @@ import { normalizePath, type Plugin, type ViteDevServer } from 'vite';
 import { serializeRouteData } from '../core/app/entrypoints/index.js';
 import type { SerializedRouteInfo } from '../core/app/types.js';
 import { warnMissingAdapter } from '../core/dev/adapter-validation.js';
-import type { Logger } from '../core/logger/core.js';
+import type { AstroLogger } from '../core/logger/core.js';
 import { createRoutesList } from '../core/routing/create-manifest.js';
 import { getRoutePrerenderOption } from '../core/routing/prerender.js';
 import { isEndpoint, isPage } from '../core/util.js';
@@ -21,7 +21,7 @@ import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 
 type Payload = {
 	settings: AstroSettings;
-	logger: Logger;
+	logger: AstroLogger;
 	fsMod?: typeof fsMod;
 	routesList: RoutesList;
 	command: 'dev' | 'build';

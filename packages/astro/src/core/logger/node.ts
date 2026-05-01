@@ -1,28 +1,4 @@
-import type { Writable } from 'node:stream';
 import { createDebug, enable as obugEnable } from 'obug';
-import type { AstroInlineConfig } from '../../types/public/config.js';
-import { Logger } from './core.js';
-import { getEventPrefix, type LogMessage, type LogWritable, levels } from './core.js';
-
-type ConsoleStream = Writable & {
-	fd: 1 | 2;
-};
-
-export const nodeLogDestination: LogWritable<LogMessage> = {
-	write(event: LogMessage) {
-		let dest: ConsoleStream = process.stderr;
-		if (levels[event.level] < levels['error']) {
-			dest = process.stdout;
-		}
-		let trailingLine = event.newLine ? '\n' : '';
-		if (event.label === 'SKIP_FORMAT') {
-			dest.write(event.message + trailingLine);
-		} else {
-			dest.write(getEventPrefix(event) + ' ' + event.message + trailingLine);
-		}
-		return true;
-	},
-};
 
 const debuggers: Record<string, ReturnType<typeof createDebug>> = {};
 
@@ -50,13 +26,4 @@ export function enableVerboseLogging() {
 		'cli',
 		'Tip: Set the DEBUG env variable directly for more control. Example: "DEBUG=astro:*,vite:* astro build".',
 	);
-}
-
-export function createNodeLogger(inlineConfig: AstroInlineConfig): Logger {
-	if (inlineConfig.logger) return inlineConfig.logger;
-
-	return new Logger({
-		dest: nodeLogDestination,
-		level: inlineConfig.logLevel ?? 'info',
-	});
 }

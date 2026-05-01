@@ -4,7 +4,7 @@ import type { AstroSettings, ComponentInstance, RoutesList } from '../../types/a
 import type { MiddlewareHandler } from '../../types/public/common.js';
 import type { RuntimeMode } from '../../types/public/config.js';
 import type { RouteData } from '../../types/public/internal.js';
-import type { Logger } from '../logger/core.js';
+import type { AstroLogger } from '../logger/core.js';
 
 type ComponentPath = string;
 export type ViteID = string;
@@ -28,7 +28,7 @@ export type AllPagesData = Record<ComponentPath, PageBuildData>;
 export interface StaticBuildOptions {
 	allPages: AllPagesData;
 	settings: AstroSettings;
-	logger: Logger;
+	logger: AstroLogger;
 	routesList: RoutesList;
 	runtimeMode: RuntimeMode;
 	origin: string;

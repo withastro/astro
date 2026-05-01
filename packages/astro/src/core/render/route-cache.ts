@@ -8,7 +8,7 @@ import type {
 } from '../../types/public/common.js';
 import type { AstroConfig, RuntimeMode } from '../../types/public/config.js';
 import type { RouteData } from '../../types/public/internal.js';
-import type { Logger } from '../logger/core.js';
+import type { AstroLogger } from '../logger/core.js';
 
 import { stringifyParams } from '../routing/params.js';
 import { validateDynamicRouteModule, validateGetStaticPathsResult } from '../routing/validation.js';
@@ -87,11 +87,11 @@ interface RouteCacheEntry {
  * responses during dev and only ever called once during build.
  */
 export class RouteCache {
-	private logger: Logger;
+	private logger: AstroLogger;
 	private cache: Record<string, RouteCacheEntry> = {};
 	private runtimeMode: RuntimeMode;
 
-	constructor(logger: Logger, runtimeMode: RuntimeMode = 'production') {
+	constructor(logger: AstroLogger, runtimeMode: RuntimeMode = 'production') {
 		this.logger = logger;
 		this.runtimeMode = runtimeMode;
 	}
@@ -125,7 +125,7 @@ export function findPathItemByKey(
 	staticPaths: GetStaticPathsResultKeyed,
 	params: Params,
 	route: RouteData,
-	logger: Logger,
+	logger: AstroLogger,
 	trailingSlash: AstroConfig['trailingSlash'],
 ) {
 	const paramsKey = stringifyParams(params, route, trailingSlash);

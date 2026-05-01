@@ -1,16 +1,16 @@
-import type { Logger } from '../../../core/logger/core.js';
+import type { AstroLogger } from '../../../core/logger/core.js';
 import type { Clipboard, Prompt } from '../definitions.js';
 import { writeText } from 'tinyclip';
 
 export class TinyclipClipboard implements Clipboard {
-	readonly #logger: Logger;
+	readonly #logger: AstroLogger;
 	readonly #prompt: Prompt;
 
 	constructor({
 		logger,
 		prompt,
 	}: {
-		logger: Logger;
+		logger: AstroLogger;
 		prompt: Prompt;
 	}) {
 		this.#logger = logger;

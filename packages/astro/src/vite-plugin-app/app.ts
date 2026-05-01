@@ -9,7 +9,7 @@ import {
 	MiddlewareNotAResponse,
 } from '../core/errors/errors-data.js';
 import { type AstroError, createSafeError, isAstroError } from '../core/errors/index.js';
-import type { Logger } from '../core/logger/core.js';
+import type { AstroLogger } from '../core/logger/core.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import type { CreateRenderContext, RenderContext } from '../core/render-context.js';
 import { createRequest } from '../core/request.js';
@@ -28,14 +28,13 @@ import { req } from '../core/messages/runtime.js';
 
 export class AstroServerApp extends BaseApp<RunnablePipeline> {
 	settings: AstroSettings;
-	logger: Logger;
 	loader: ModuleLoader;
 	manifestData: RoutesList;
 	currentRenderContext: RenderContext | undefined = undefined;
 	constructor(
 		manifest: SSRManifest,
 		streaming = true,
-		logger: Logger,
+		logger: AstroLogger,
 		manifestData: RoutesList,
 		loader: ModuleLoader,
 		settings: AstroSettings,
@@ -43,7 +42,6 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 	) {
 		super(manifest, streaming, settings, logger, loader, manifestData, getDebugInfo);
 		this.settings = settings;
-		this.logger = logger;
 		this.loader = loader;
 		this.manifestData = manifestData;
 	}
@@ -70,6 +68,14 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 		this.pipeline.clearRouteCache();
 	}
 
+	/**
+	 * Clears the cached middleware so it is re-resolved on the next request.
+	 * Called via HMR when middleware files change.
+	 */
+	clearMiddleware(): void {
+		this.pipeline.clearMiddleware();
+	}
+
 	async devMatch(pathname: string): Promise<DevMatch | undefined> {
 		const matchedRoute = await matchRoute(
 			pathname,
@@ -90,7 +96,7 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 	static async create(
 		manifest: SSRManifest,
 		routesList: RoutesList,
-		logger: Logger,
+		logger: AstroLogger,
 		loader: ModuleLoader,
 		settings: AstroSettings,
 		getDebugInfo: () => Promise<string>,
@@ -102,7 +108,7 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 		_streaming: boolean,
 		manifest: SSRManifest,
 		settings: AstroSettings,
-		logger: Logger,
+		logger: AstroLogger,
 		loader: ModuleLoader,
 		manifestData: RoutesList,
 		getDebugInfo: () => Promise<string>,

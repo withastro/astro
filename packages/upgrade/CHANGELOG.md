@@ -1,5 +1,11 @@
 # @astrojs/upgrade
 
+## 0.7.2
+
+### Patch Changes
+
+- [#16424](https://github.com/withastro/astro/pull/16424) [`3fcdaf1`](https://github.com/withastro/astro/commit/3fcdaf1d0613315c3d9902b66e6a70becfec3c88) Thanks [@matthewp](https://github.com/matthewp)! - Improves how `@astrojs/upgrade` spawns package manager commands so it uses the same Windows command resolution as `create-astro`
+
 ## 0.7.1
 
 ### Patch Changes

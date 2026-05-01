@@ -454,8 +454,7 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 
 	const imageObjects = new Map<string, GetImageResult>();
 
-	// @ts-expect-error Virtual module resolved at runtime
-	const { getImage } = await import('astro:assets');
+	const { getImage } = await import('virtual:astro:get-image');
 
 	// First load all the images. This is done outside of the replaceAll
 	// function because getImage is async.

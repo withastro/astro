@@ -38,7 +38,7 @@ export const UnknownCompilerError = {
 /**
  * @docs
  * @see
- * - [Official integrations](https://docs.astro.build/en/guides/integrations-guide/#official-integrations)
+ * - [Official integrations](https://docs.astro.build/en/guides/integrations/#official-integrations)
  * - [Astro.clientAddress](https://docs.astro.build/en/reference/api-reference/#clientaddress)
  * @description
  * The adapter you're using unfortunately does not support `Astro.clientAddress`.
@@ -145,7 +145,7 @@ export const MissingMediaQueryDirective = {
  * @message Unable to render `COMPONENT_NAME`. There are `RENDERER_COUNT` renderer(s) configured in your `astro.config.mjs` file, but none were able to server-side render `COMPONENT_NAME`.
  * @see
  * - [Frameworks components](https://docs.astro.build/en/guides/framework-components/)
- * - [UI Frameworks](https://docs.astro.build/en/guides/integrations-guide/#official-integrations)
+ * - [UI Frameworks](https://docs.astro.build/en/guides/integrations/#official-integrations)
  * @description
  * None of the installed integrations were able to render the component you imported. Make sure to install the appropriate integration for the type of component you are trying to include in your page.
  *
@@ -610,13 +610,14 @@ export const UnsupportedImageConversion = {
 
 /**
  * @docs
- * @message An error occurred while optimizing the SVG file with SVGO.
+ * @message An error occurred while optimizing the SVG file with the optimizer.
  */
 export const CannotOptimizeSvg = {
 	name: 'CannotOptimizeSvg',
 	title: 'Cannot optimize SVG',
-	message: (path: string) => `An error occurred while optimizing SVG file "${path}" with SVGO.`,
-	hint: 'Review the included SVGO error message provided for guidance.',
+	message: (path: string, name: string) =>
+		`An error occurred while optimizing SVG file "${path}" with the "${name}" optimizer.`,
+	hint: 'Review the included error message provided for guidance.',
 } satisfies ErrorData;
 
 /**
@@ -1478,6 +1479,32 @@ export const FontFamilyNotFound = {
 /**
  * @docs
  * @description
+ * Font file URL not found
+ * @message
+ * The URL passed to the `experimental_getFontFileURL()` function is invalid.
+ */
+export const FontFileUrlNotFound = {
+	name: 'FontFileUrlNotFound',
+	title: 'Font file URL not found',
+	message: (url: string) =>
+		`The \`"${url}"\` URL passed to the \`experimental_getFontFileURL()\` function is invalid.`,
+	hint: 'Make sure you pass a valid URL, obtained via the \`fontData\` object.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * `experimental_getFontFileURL()` requires the request URL with on-demand rendering.
+ */
+export const MissingGetFontFileRequestUrl = {
+	name: 'MissingGetFontFileRequestUrl',
+	title: '`experimental_getFontFileURL()` requires the request URL with on-demand rendering.',
+	hint: 'Pass the request URL as the 2nd argument, for example `Astro.url`.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
  * Unavailable Astro global in getStaticPaths
  * @message
  * The Astro global is not available in getStaticPaths().
@@ -1489,6 +1516,30 @@ export const UnavailableAstroGlobal = {
 		`The Astro global is not available in this scope. Please remove "Astro.${name}" from your getStaticPaths() function.`,
 } satisfies ErrorData;
 
+/**
+ * @docs
+ * @description
+ * Unable to load the logger.
+ * @message
+ * Couldn't load the logger at the given path.
+ */
+export const UnableToLoadLogger = {
+	name: 'UnableToLoadLogger',
+	title: 'Unable to load the logger.',
+	message: (path: string) => `Couldn't load the logger at given path "${path}".`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * The configuration of the logger is not serializable.
+ * @message
+ * The configuration of the logger is not serializable.
+ */
+export const LoggerConfigurationNotSerializable = {
+	name: 'LoggerConfigurationNotSerializable',
+	title: 'The configuration of the logger is not serializable',
+} satisfies ErrorData;
 /**
  * @docs
  * @kind heading
@@ -1716,7 +1767,7 @@ export const InvalidContentEntryFrontmatterError = {
 			`**${String(collection)} → ${String(
 				entryId,
 			)}** frontmatter does not match collection schema.`,
-			error.message,
+			...error.issues.map((issue) => `  **${issue.path.join('.')}**: ${issue.message}`),
 		].join('\n');
 	},
 	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content schemas.',
@@ -1741,7 +1792,7 @@ export const InvalidContentEntryDataError = {
 	message(collection: string, entryId: string, error: $ZodError) {
 		return [
 			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.\n`,
-			`  **: ${error.message}`,
+			...error.issues.map((issue) => `  **${issue.path.join('.')}**: ${issue.message}`),
 			'',
 		].join('\n');
 	},
@@ -1847,7 +1898,7 @@ export const ContentEntryDataError = {
 	message(collection: string, entryId: string, error: $ZodError) {
 		return [
 			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.\n`,
-			`  **: ${error.message}`,
+			...error.issues.map((issue) => `  **${issue.path.join('.')}**: ${issue.message}`),
 			'',
 		].join('\n');
 	},

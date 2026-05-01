@@ -33,12 +33,18 @@ export interface CheckResult {
 export class AstroCheck {
 	private ts!: typeof import('typescript');
 	public linter!: ReturnType<(typeof kit)['createTypeScriptChecker']>;
+	private readonly workspacePath: string;
+	private readonly typescriptPath: string | undefined;
+	private readonly tsconfigPath: string | undefined;
 
 	constructor(
-		private readonly workspacePath: string,
-		private readonly typescriptPath: string | undefined,
-		private readonly tsconfigPath: string | undefined,
+		workspacePath: string,
+		typescriptPath: string | undefined,
+		tsconfigPath: string | undefined,
 	) {
+		this.workspacePath = workspacePath;
+		this.typescriptPath = typescriptPath;
+		this.tsconfigPath = tsconfigPath;
 		this.initialize();
 	}
 

@@ -25,9 +25,9 @@ import {
 } from './update-check.js';
 import { BuildTimeAstroVersionProvider } from '../../cli/infra/build-time-astro-version-provider.js';
 import { piccoloreTextStyler } from '../../cli/infra/piccolore-text-styler.js';
-import type { Logger } from '../logger/core.js';
+import type { AstroLogger } from '../logger/core.js';
 
-function warnIfVite8({ root, logger }: { root: URL | string; logger: Logger }) {
+function warnIfVite8({ root, logger }: { root: URL | string; logger: AstroLogger }) {
 	try {
 		const require = createRequire(root);
 		const { version } = require('vite/package.json') as { version: string };
@@ -128,7 +128,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 		});
 		contentLayer.watchContentConfig();
 		await contentLayer.sync();
-	} else {
+	} else if (config.status !== 'does-not-exist') {
 		logger.warn('content', 'Content config not loaded');
 	}
 

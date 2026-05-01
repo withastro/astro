@@ -11,6 +11,10 @@ declare module 'virtual:astro:assets/fonts/internal' {
 	export const fontDataByCssVariable: import('./src/assets/fonts/types.js').FontDataByCssVariable;
 }
 
+declare module 'virtual:astro:assets/fonts/runtime/font-file-url-resolver' {
+	export const runtimeFontFileUrlResolver: import('./src/assets/fonts/definitions.js').RuntimeFontFileUrlResolver;
+}
+
 declare module 'virtual:astro:adapter-config/client' {
 	export const internalFetchHeaders: Record<string, string>;
 }
@@ -78,6 +82,17 @@ declare module 'virtual:astro:dev-css-all' {
 	export const devCSSMap: Map<string, () => Promise<{ css: Set<ImportedDevStyles> }>>;
 }
 
+declare module 'virtual:astro:component-metadata' {
+	import type { SSRComponentMetadata } from './src/types/public/internal.js';
+	export const componentMetadataEntries: [string, SSRComponentMetadata][];
+}
+
 declare module 'virtual:astro:app' {
 	export const createApp: import('./src/core/app/types.js').CreateApp;
+}
+
+declare module 'virtual:astro:get-image' {
+	export const getImage: (
+		options: import('./src/types/public/index.js').UnresolvedImageTransform,
+	) => Promise<import('./src/types/public/index.js').GetImageResult>;
 }

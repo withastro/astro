@@ -33,10 +33,12 @@ function getConfigDir(name: string) {
 }
 
 export class GlobalConfig {
+	private project: ConfigOptions;
 	private dir: string;
 	private file: string;
 
-	constructor(private project: ConfigOptions) {
+	constructor(project: ConfigOptions) {
+		this.project = project;
 		this.dir = getConfigDir(this.project.name);
 		this.file = path.join(this.dir, 'config.json');
 	}

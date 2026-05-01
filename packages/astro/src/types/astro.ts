@@ -1,6 +1,7 @@
+import type { Server } from 'node:http';
 import type { AstroTimer } from '../core/config/timer.js';
 import type { TSConfig } from '../core/config/tsconfig.js';
-import type { Logger, LoggerLevel } from '../core/logger/core.js';
+import type { AstroLogger, AstroLoggerLevel } from '../core/logger/core.js';
 import type { AstroPreferences } from '../preferences/index.js';
 import type { AstroComponentFactory } from '../runtime/server/index.js';
 import type { GetStaticPaths } from './public/common.js';
@@ -78,7 +79,8 @@ export interface AstroSettings {
 		fontResources: Set<string>;
 		styleHashes: Required<CspObject['styleDirective']>['hashes'];
 	};
-	logLevel: LoggerLevel;
+	logLevel: AstroLoggerLevel;
+	fontsHttpServer: Server | null;
 }
 
 /** Generic interface for a component (Astro, Svelte, React, etc.) */
@@ -96,7 +98,7 @@ export interface RoutesList {
 
 export interface AstroPluginOptions {
 	settings: AstroSettings;
-	logger: Logger;
+	logger: AstroLogger;
 }
 
 export interface ImportedDevStyle {

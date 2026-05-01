@@ -1,12 +1,14 @@
 import { describe, it } from 'node:test';
 import { expectTypeOf } from 'expect-type';
 import type * as z from 'zod/v4';
-import { type FontProviderSchema, FontFamilySchema } from '../../src/assets/fonts/config.js';
-import type { FontProvider, FontFamily } from '../../src/assets/fonts/types.js';
-import type { CacheSchema, RouteRulesSchema } from '../../src/core/cache/config.js';
+import { type FontProviderSchema, FontFamilySchema } from '../../dist/assets/fonts/config.js';
+import type { FontProvider, FontFamily } from '../../dist/assets/fonts/types.js';
+import type { CacheSchema, RouteRulesSchema } from '../../dist/core/cache/config.js';
 import type { CacheProviderConfig, RouteRules } from '../../dist/core/cache/types.js';
 import type { SessionDriverConfigSchema } from '../../dist/core/session/config.js';
 import type { SessionDriverConfig } from '../../dist/core/session/types.js';
+import type { SvgOptimizer } from '../../dist/assets/svg/types.js';
+import type { SvgOptimizerSchema } from '../../dist/assets/svg/config.js';
 
 describe('fonts', () => {
 	it('FontFamily type matches FontFamilySchema', () => {
@@ -34,5 +36,11 @@ describe('cache', () => {
 describe('session', () => {
 	it('SessionDriverConfig type matches SessionDriverConfigSchema', () => {
 		expectTypeOf<z.input<typeof SessionDriverConfigSchema>>().toEqualTypeOf<SessionDriverConfig>();
+	});
+});
+
+describe('svgOptimizer', () => {
+	it('SvgOptimizer type matches SvgOptimizerSchema', () => {
+		expectTypeOf<z.input<typeof SvgOptimizerSchema>>().toEqualTypeOf<SvgOptimizer>();
 	});
 });

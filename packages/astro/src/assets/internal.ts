@@ -22,6 +22,7 @@ import { isESMImportedImage, isRemoteImage, resolveSrc } from './utils/imageKind
 import { inferRemoteSize } from './utils/remoteProbe.js';
 import { createPlaceholderURL, stringifyPlaceholderURL } from './utils/url.js';
 
+export { verifyOptions } from './services/service.js';
 export const cssFitValues = ['fill', 'contain', 'cover', 'scale-down'];
 
 export async function getConfiguredImageService(): Promise<ImageService> {

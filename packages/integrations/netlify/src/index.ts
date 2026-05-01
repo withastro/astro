@@ -95,6 +95,8 @@ export function remotePatternToRegex(
 		regexStr += '([?][^#]*)?';
 	}
 	try {
+		// nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
+		// This only validates the generated pattern before handing it to Netlify.
 		new RegExp(regexStr);
 	} catch {
 		logger.warn(

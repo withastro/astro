@@ -129,6 +129,13 @@ async function renderToStaticMarkup(
 	} else {
 		html = await renderToPipeableStreamAsync(vnode, renderOptions);
 	}
+	// Strip React 19 auto-injected resource hints (preloads, etc.) from island output.
+	// These should be in <head>, not inside the island.
+	// See: https://github.com/facebook/react/issues/27910
+	html = html.replace(
+		/<link\s[^>]*rel="(?:preload|modulepreload|stylesheet|preconnect|dns-prefetch)"[^>]*>/g,
+		'',
+	);
 	return { html, attrs };
 }
 

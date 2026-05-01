@@ -4,7 +4,7 @@ import { chunkToString } from '../../runtime/server/render/index.js';
 import { isRenderInstruction } from '../../runtime/server/render/instruction.js';
 import type { SSRResult } from '../../types/public/internal.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import type { Logger } from '../logger/core.js';
+import type { AstroLogger } from '../logger/core.js';
 
 function getFunctionExpression(slot: any) {
 	if (!slot) return;
@@ -16,9 +16,9 @@ function getFunctionExpression(slot: any) {
 export class Slots {
 	#result: SSRResult;
 	#slots: ComponentSlots | null;
-	#logger: Logger;
+	#logger: AstroLogger;
 
-	constructor(result: SSRResult, slots: ComponentSlots | null, logger: Logger) {
+	constructor(result: SSRResult, slots: ComponentSlots | null, logger: AstroLogger) {
 		this.#result = result;
 		this.#slots = slots;
 		this.#logger = logger;

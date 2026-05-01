@@ -19,7 +19,7 @@ import type { AstroSettings } from '../../types/astro.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
 import { getTimeStat } from '../build/util.js';
 import { resolveConfig } from '../config/config.js';
-import { createNodeLogger } from '../logger/node.js';
+import { loadOrCreateNodeLogger } from '../logger/load.js';
 import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
 import {
@@ -30,7 +30,7 @@ import {
 	type ErrorWithMetadata,
 	isAstroError,
 } from '../errors/index.js';
-import type { Logger } from '../logger/core.js';
+import type { AstroLogger } from '../logger/core.js';
 import { createRoutesList } from '../routing/create-manifest.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { normalizePath } from '../viteUtils.js';
@@ -41,7 +41,7 @@ type SyncOptions = {
 	 * @internal only used for testing
 	 */
 	fs?: typeof fsMod;
-	logger: Logger;
+	logger: AstroLogger;
 	settings: AstroSettings;
 	force?: boolean;
 	skip?: {
@@ -59,8 +59,8 @@ export default async function sync(
 	{ fs, telemetry: _telemetry = false }: { fs?: typeof fsMod; telemetry?: boolean } = {},
 ) {
 	ensureProcessNodeEnv('production');
-	const logger = createNodeLogger(inlineConfig);
 	const { astroConfig, userConfig } = await resolveConfig(inlineConfig ?? {}, 'sync');
+	const logger = await loadOrCreateNodeLogger(astroConfig, inlineConfig ?? {});
 	if (_telemetry) {
 		telemetry.record(eventCliSession('sync', userConfig));
 	}
@@ -92,7 +92,7 @@ export async function clearContentLayerCache({
 	isDev,
 }: {
 	settings: AstroSettings;
-	logger: Logger;
+	logger: AstroLogger;
 	fs?: typeof fsMod;
 	isDev: boolean;
 }) {
@@ -292,7 +292,7 @@ async function createTempViteServer(
  */
 async function syncContentCollections(
 	settings: AstroSettings,
-	{ logger, fs, viteServer }: { logger: Logger; fs: typeof fsMod; viteServer: ViteDevServer },
+	{ logger, fs, viteServer }: { logger: AstroLogger; fs: typeof fsMod; viteServer: ViteDevServer },
 ): Promise<void> {
 	try {
 		const contentTypesGenerator = await createContentTypesGenerator({

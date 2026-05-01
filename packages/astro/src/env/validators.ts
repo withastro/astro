@@ -2,7 +2,7 @@ import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { AstroConfig } from '../types/public/index.js';
 import type { EnumSchema, EnvFieldType, NumberSchema, StringSchema } from './schema.js';
 
-export type ValidationResultValue = EnvFieldType['default'];
+type ValidationResultValue = EnvFieldType['default'];
 export type ValidationResultErrors = ['missing'] | ['type'] | Array<string>;
 interface ValidationResultValid {
 	ok: true;

@@ -545,7 +545,9 @@ export const a11y: AuditRuleWithSelector[] = [
 
 			const elementRoles = role.split(WHITESPACE_REGEX) as ARIARoleDefinitionKey[];
 			for (const elementRole of elementRoles) {
-				const { requiredProps } = roles.get(elementRole)!;
+				const roleData = roles.get(normalizeAriaRole(elementRole));
+				if (!roleData) continue;
+				const { requiredProps } = roleData;
 				const required_role_props = Object.keys(requiredProps);
 				const missingProps = required_role_props.filter((prop) => !element.hasAttribute(prop));
 				if (missingProps.length > 0) {
@@ -575,7 +577,9 @@ export const a11y: AuditRuleWithSelector[] = [
 
 			const elementRoles = role.split(WHITESPACE_REGEX) as ARIARoleDefinitionKey[];
 			for (const elementRole of elementRoles) {
-				const { props } = roles.get(elementRole)!;
+				const roleData = roles.get(normalizeAriaRole(elementRole));
+				if (!roleData) continue;
+				const { props } = roleData;
 				const attributes = getAttributeObject(element);
 				const unsupportedAttributes = aria.keys().filter((attribute) => !(attribute in props));
 				const invalidAttributes: string[] = Object.keys(attributes).filter(
@@ -652,6 +656,18 @@ function menuitem_implicit_role(attributes: Record<string, string>) {
 	const { type } = attributes;
 	if (!type) return;
 	return menuitem_type_to_implicit_role.get(type);
+}
+
+// Some ARIA role names used in the spec (and by browsers) differ from the keys
+// used in aria-query's roles map. This map normalizes those mismatches so that
+// roles.get() lookups succeed. For example, WAI-ARIA 1.2 uses "image" but
+// aria-query only has "img".
+const ariaQueryRoleAliases: Partial<Record<string, ARIARoleDefinitionKey>> = {
+	image: 'img',
+};
+
+function normalizeAriaRole(role: string): ARIARoleDefinitionKey {
+	return (ariaQueryRoleAliases[role] ?? role) as ARIARoleDefinitionKey;
 }
 
 function getRole(element: Element): ARIARoleDefinitionKey | undefined {

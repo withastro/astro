@@ -4,6 +4,8 @@
 
 type directiveAstroKeys = 'load' | 'idle' | 'visible' | 'media' | 'only';
 
+const FORBIDDEN_COMPONENT_EXPORT_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+
 declare const Astro: {
 	[k in directiveAstroKeys]?: (
 		fn: () => Promise<() => void>,
@@ -20,6 +22,8 @@ declare const Astro: {
 	const propTypes: PropTypeSelector = {
 		0: (value) => reviveObject(value),
 		1: (value) => reviveArray(value),
+		// nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
+		// Regex props are serialized by Astro and revived here on the client.
 		2: (value) => new RegExp(value),
 		3: (value) => new Date(value),
 		4: (value) => new Map(reviveArray(value)),
@@ -113,10 +117,21 @@ declare const Astro: {
 						]);
 						const componentExport = this.getAttribute('component-export') || 'default';
 						if (!componentExport.includes('.')) {
+							if (FORBIDDEN_COMPONENT_EXPORT_KEYS.has(componentExport)) {
+								throw new Error(`Invalid component export path: ${componentExport}`);
+							}
 							this.Component = componentModule[componentExport];
 						} else {
 							this.Component = componentModule;
 							for (const part of componentExport.split('.')) {
+								if (
+									FORBIDDEN_COMPONENT_EXPORT_KEYS.has(part) ||
+									!this.Component ||
+									(typeof this.Component !== 'object' && typeof this.Component !== 'function') ||
+									!Object.hasOwn(this.Component, part)
+								) {
+									throw new Error(`Invalid component export path: ${componentExport}`);
+								}
 								this.Component = this.Component[part];
 							}
 						}
@@ -127,7 +142,7 @@ declare const Astro: {
 					this,
 				);
 			} catch (e) {
-				console.error(`[astro-island] Error hydrating ${this.getAttribute('component-url')}`, e);
+				console.error('[astro-island] Error hydrating %s', this.getAttribute('component-url'), e);
 			}
 		}
 

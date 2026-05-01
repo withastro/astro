@@ -13,6 +13,8 @@
     "stripInternal": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "outDir": "${configDir}/node_modules/.cache/tsconfig/out",
     "types": ["node"]
   }
 }

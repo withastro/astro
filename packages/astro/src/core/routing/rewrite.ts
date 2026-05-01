@@ -5,7 +5,7 @@ import type { RouteData } from '../../types/public/internal.js';
 import { shouldAppendForwardSlash } from '../build/util.js';
 import { originPathnameSymbol } from '../constants.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import type { Logger } from '../logger/core.js';
+import type { AstroLogger } from '../logger/core.js';
 import {
 	appendForwardSlash,
 	joinPaths,
@@ -139,7 +139,7 @@ export function copyRequest(
 	newUrl: URL,
 	oldRequest: Request,
 	isPrerendered: boolean,
-	logger: Logger,
+	logger: AstroLogger,
 	routePattern: string,
 ): Request {
 	if (oldRequest.bodyUsed) {

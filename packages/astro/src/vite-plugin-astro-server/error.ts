@@ -1,13 +1,13 @@
 import type { SSRManifest } from '../core/app/types.js';
 import { collectErrorMetadata } from '../core/errors/dev/index.js';
-import type { Logger } from '../core/logger/core.js';
+import type { AstroLogger } from '../core/logger/core.js';
 import { formatErrorMessage } from '../core/messages/runtime.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 
 export function recordServerError(
 	loader: ModuleLoader,
 	manifest: SSRManifest,
-	logger: Logger,
+	logger: AstroLogger,
 	err: Error,
 ) {
 	// This could be a runtime error from Vite's SSR module, so try to fix it here
