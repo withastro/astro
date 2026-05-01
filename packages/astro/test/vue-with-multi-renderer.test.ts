@@ -1,0 +1,21 @@
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
+import { type Fixture, loadFixture } from './test-utils.ts';
+
+describe('Vue with multi-renderer', () => {
+	let fixture: Fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/vue-with-multi-renderer/',
+		});
+	});
+
+	it('builds with another renderer present', async () => {
+		try {
+			await fixture.build();
+		} catch (e) {
+			assert.equal(e, undefined, `Should not throw`);
+		}
+	});
+});

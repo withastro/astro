@@ -28,6 +28,8 @@ import type { CompiledCacheRoute } from './cache/runtime/route-matching.js';
 import type { SessionDriverFactory } from './session/types.js';
 import { NodePool } from '../runtime/server/render/queue/pool.js';
 import { HTMLStringCache } from '../runtime/server/html-string-cache.js';
+import { FORBIDDEN_PATH_KEYS } from '@astrojs/internal-helpers/object';
+import { loadLogger } from './logger/load.js';
 
 /**
  * The `Pipeline` represents the static parts of rendering that do not change between requests.
@@ -38,6 +40,7 @@ import { HTMLStringCache } from '../runtime/server/html-string-cache.js';
 export abstract class Pipeline {
 	readonly internalMiddleware: MiddlewareHandler[];
 	resolvedMiddleware: MiddlewareHandler | undefined = undefined;
+	resolvedLogger = false;
 	resolvedActions: SSRActions | undefined = undefined;
 	resolvedSessionDriver: SessionDriverFactory | null | undefined = undefined;
 	resolvedCacheProvider: CacheProvider | null | undefined = undefined;
@@ -45,7 +48,7 @@ export abstract class Pipeline {
 	nodePool: NodePool | undefined;
 	htmlStringCache: HTMLStringCache | undefined;
 
-	readonly logger: AstroLogger;
+	logger: AstroLogger;
 	readonly manifest: SSRManifest;
 	/**
 	 * "development" or "production" only
@@ -219,6 +222,22 @@ export abstract class Pipeline {
 		this.resolvedMiddleware = undefined;
 	}
 
+	/**
+	 * Resolves the logger destination from the manifest and updates the pipeline logger.
+	 * If the user configured `experimental.logger`, the bundled logger factory is loaded
+	 * and replaces the default console destination. This is lazy and only resolves once.
+	 */
+	async getLogger(): Promise<AstroLogger> {
+		if (this.resolvedLogger) {
+			return this.logger;
+		}
+		this.resolvedLogger = true;
+		if (this.manifest.experimentalLogger) {
+			this.logger = await loadLogger(this.manifest.experimentalLogger);
+		}
+		return this.logger;
+	}
+
 	async getActions(): Promise<SSRActions> {
 		if (this.resolvedActions) {
 			return this.resolvedActions;
@@ -287,6 +306,12 @@ export abstract class Pipeline {
 		}
 
 		for (const key of pathKeys) {
+			if (FORBIDDEN_PATH_KEYS.has(key)) {
+				throw new AstroError({
+					...ActionNotFoundError,
+					message: ActionNotFoundError.message(pathKeys.join('.')),
+				});
+			}
 			if (!Object.hasOwn(server, key)) {
 				throw new AstroError({
 					...ActionNotFoundError,

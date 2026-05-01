@@ -5,10 +5,9 @@ import { resolveConfig } from 'vite';
 import { compileAstro } from '../../../dist/vite-plugin-astro/compile.js';
 import type { AstroConfig } from '../../../dist/types/public/config.js';
 import type { CompileProps } from '../../../dist/core/compile/compile.js';
-import { AstroLogger } from '../../../dist/core/logger/core.js';
-import { nodeLogDestination } from '../../../dist/core/logger/node.js';
+import { createNodeLoggerFromFlags } from '../../../dist/core/logger/impls/node.js';
 
-const logger = new AstroLogger({ destination: nodeLogDestination, level: 'silent' });
+const logger = createNodeLoggerFromFlags({ logLevel: 'silent' });
 
 /** Compile Astro source with a given base path. */
 async function compileWithBase(source: string, base = '/') {

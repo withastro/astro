@@ -241,19 +241,22 @@ export default async function triage(
 	const triageResult = await runTriagePipeline(flue, issueNumber, issueDetails);
 	let isPushed = false;
 
-	// If a successful fix was created, push the fix up to a new branch on GitHub.
+	// Push the fix branch if there are meaningful changes (fix, failing test, etc.).
 	// The comment we post below will reference that branch, then a maintainer can choose to:
 	// - checkout that branch locally, using the fix as a starting point
 	// - create a PR from that branch entirely in the GH UI
 	// - ignore it completely
-	if (triageResult.fixed) {
+	{
 		const diff = await flue.shell('git diff main --stat');
 		if (diff.stdout.trim()) {
 			const status = await flue.shell('git status --porcelain');
 			if (status.stdout.trim()) {
 				await flue.shell('git add -A');
+				const defaultMessage = triageResult.fixed
+					? 'fix(auto-triage): automated fix'
+					: 'test(auto-triage): failing test and investigation notes';
 				await flue.shell(
-					`git commit -m ${JSON.stringify(triageResult.commitMessage ?? 'fix(auto-triage): automated fix')}`,
+					`git commit -m ${JSON.stringify(triageResult.commitMessage ?? defaultMessage)}`,
 				);
 			}
 			const pushResult = await flue.shell(`git push -f origin ${branch}`);
@@ -274,7 +277,7 @@ export default async function triage(
 		result: v.pipe(
 			v.string(),
 			v.description(
-				'Return only the GitHub comment body generated from the template, following the included template directly. This returned comment must start with "**I was able to reproduce this issue.**" or "**I was unable to reproduce this issue.**"',
+				'Return only the GitHub comment body generated from the template, following the included template directly. This returned comment must start with the bullet-point summary (- **Reproduced:** ...)',
 			),
 		),
 	});

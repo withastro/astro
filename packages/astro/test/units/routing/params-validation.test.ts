@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { describe, it, before } from 'node:test';
 import type { ComponentInstance } from '../../../dist/types/astro.js';
-import type { AstroLogMessage, AstroLoggerDestination } from '../../../dist/core/logger/core.js';
+import type { AstroLoggerMessage, AstroLoggerDestination } from '../../../dist/core/logger/core.js';
 import { AstroLogger } from '../../../dist/core/logger/core.js';
 import { RouteCache, callGetStaticPaths } from '../../../dist/core/render/route-cache.js';
-import { makeRoute } from './test-helpers.js';
+import { makeRoute } from './test-helpers.ts';
 
 function mod(overrides: Partial<ComponentInstance>): ComponentInstance {
 	return overrides as ComponentInstance;
@@ -14,7 +14,7 @@ describe('getStaticPaths param validation', () => {
 	let routeCache: RouteCache;
 	let logger: AstroLogger;
 
-	const destination: AstroLoggerDestination<AstroLogMessage> = {
+	const destination: AstroLoggerDestination<AstroLoggerMessage> = {
 		write: () => true,
 	};
 
@@ -75,11 +75,12 @@ describe('getStaticPaths param validation', () => {
 				if (!shouldPass) {
 					assert.fail(`Expected validation error for param type ${type}`);
 				}
-			} catch (err: any) {
+			} catch (err: unknown) {
 				if (shouldPass) {
 					throw err;
 				}
 
+				assert.ok(err instanceof Error);
 				assert.equal(err.name, 'GetStaticPathsInvalidRouteParam');
 				// Arrays report as 'object' in typeof, so adjust the check
 				const expectedType = type === 'array' ? 'object' : type;

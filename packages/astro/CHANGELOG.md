@@ -1,5 +1,273 @@
 # astro
 
+## 6.2.1
+
+### Patch Changes
+
+- [#16531](https://github.com/withastro/astro/pull/16531) [`76db01d`](https://github.com/withastro/astro/commit/76db01d332a4029f46f6df7a60fae14278321d2c) Thanks [@rodrigosdev](https://github.com/rodrigosdev)! - Fixes config validation for omitted `integrations` fields with newer Zod versions.
+
+- [#16535](https://github.com/withastro/astro/pull/16535) [`7df0fe4`](https://github.com/withastro/astro/commit/7df0fe40b1f57529ce315a74eb83d527ff2040ec) Thanks [@rururux](https://github.com/rururux)! - Fixed an issue where a warning was displayed when the `server` property was missing during config validation, even though it is not required.
+
+- [#16534](https://github.com/withastro/astro/pull/16534) [`5cf6c51`](https://github.com/withastro/astro/commit/5cf6c51188b52d22f133ea9373da0080f74701f9) Thanks [@matthewp](https://github.com/matthewp)! - Fixes compatibility with Zod 4.4.0 for the `server` config property and error formatting
+
+## 6.2.0
+
+### Minor Changes
+
+- [#16187](https://github.com/withastro/astro/pull/16187) [`fe58071`](https://github.com/withastro/astro/commit/fe58071817f447f832d9ce4341c0b5991d3c0cda) Thanks [@gllmt](https://github.com/gllmt)! - Adds a `waitUntil` option to the `RenderOptions` so that adapters can forward runtime background-task hooks to Astro.
+
+  When provided by an adapter, runtime cache providers receive `context.waitUntil` in
+  `CacheProvider.onRequest()`, which allows background cache work such as stale-while-revalidate
+  without blocking the response. The Cloudflare adapter now forwards
+  `ExecutionContext.waitUntil` to this API.
+
+- [#16290](https://github.com/withastro/astro/pull/16290) [`a49637a`](https://github.com/withastro/astro/commit/a49637ab82a6ce8506a7272f331d1101f782b3e0) Thanks [@ViVaLaDaniel](https://github.com/ViVaLaDaniel)! - Ensures that `server.allowedHosts` (and `vite.preview.allowedHosts`) configuration is respected when using `astro preview` with the `@astrojs/cloudflare` adapter. This improves security by preventing DNS rebinding attacks when previewing Cloudflare builds locally.
+
+- [#15725](https://github.com/withastro/astro/pull/15725) [`4108ec1`](https://github.com/withastro/astro/commit/4108ec1e256c5e9d97fb29f1097a5095b73cfb8b) Thanks [@meyer](https://github.com/meyer)! - Adds support for a new `'jsx'` value for the `compressHTML` option. When set, whitespace is stripped using JSX whitespace rules instead of the default HTML compression strategy.
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    compressHTML: 'jsx',
+  });
+  ```
+
+  In JSX, whitespaces never matter, as such, no amount of indentation, or newlines will not affect the rendered output. For instance, the following code:
+
+  ```jsx
+  <div>
+    <span>foo</span>
+    <span>bar</span>
+  </div>
+  ```
+
+  will be rendered as `foobar`, whereas with HTML whitespace rules, a space would be present between the words due to the newline and indentation between the tags.
+
+- [#16477](https://github.com/withastro/astro/pull/16477) [`28fb3e1`](https://github.com/withastro/astro/commit/28fb3e16cdf181d49fbc22fbde41958fe9b9ab9e) Thanks [@ematipico](https://github.com/ematipico)! - Adds experimental support for configurable log handlers.
+
+  This experimental feature provides better control over Astro's logging infrastructure by allowing users to replace the default console output with custom logging implementations (e.g., structured JSON). This is particularly useful for users using on-demand rendering and wishing to connect their log aggregation services, such as Kibana, Logstash, CloudWatch, Grafana, or Loki.
+
+  By default, Astro provides three built-in log handlers (`json`, `node`, and `console`), but you can also create your own.
+
+  #### JSON logging
+
+  JSON logging can be enabled via the CLI for the `build`, `dev`, and `sync` commands using the `experimentalJson` flag:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig, logHandlers } from 'astro/config';
+
+  export default defineConfig({
+    experimental: {
+      logger: logHandlers.json({
+        pretty: true,
+        level: 'warn',
+      }),
+    },
+  });
+  ```
+
+  #### Custom logger
+
+  You can also create your own custom logger by implementing the correct interface:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    experimental: {
+      logger: {
+        entrypoint: '@org/custom-logger',
+      },
+    },
+  });
+  ```
+
+  ```ts
+  // @org/custom-logger.js
+  import type { AstroLoggerDestination, AstroLoggerMessage } from 'astro';
+  import { matchesLevel } from 'astor/logger';
+
+  function customLogger(level = 'info'): AstroLoggerDestination {
+    return {
+      write(message: AstroLoggerMessage) {
+        if (matchesLevel(message.level, level)) {
+          // write message somewhere
+        }
+      },
+    };
+  }
+
+  export default customLogger;
+  ```
+
+  For more information on enabling and using this feature in your project, see the [Experimental Logger docs](https://docs.astro.build/en/reference/experimental-flags/logger/).
+
+  For a complete overview and to give feedback on this experimental API, see the [Custom logger RFC](https://github.com/withastro/roadmap/blob/logger/proposals/0059-custom-logger.md).
+
+- [#16333](https://github.com/withastro/astro/pull/16333) [`0f7c3c8`](https://github.com/withastro/astro/commit/0f7c3c8e3dfe0fff58bd6e68c40f6f8fb280144e) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds an experimental flag `svgOptimizer` that enables automatic optimization of your SVG components using the provided optimizer. This supersedes the `svgo` experimental flag, which is now removed.
+
+  When enabled, your imported SVG files used as components will be optimized for smaller file sizes and better performance while maintaining visual quality. This can significantly reduce the size of your SVG assets by removing unnecessary metadata, comments, and redundant code.
+
+  Astro ships with a [SVGO](https://svgo.dev/) based optimizer, but any can be used.
+
+  To enable this feature, add the experimental flag in your Astro config and remove `svgo` if it was enabled:
+
+  ```diff
+  // astro.config.mjs
+  -import { defineConfig } from "astro/config";
+  +import { defineConfig, svgoOptimizer } from "astro/config";
+
+  export default defineConfig({
+  +  experimental: {
+  +    svgOptimizer: svgoOptimizer()
+  -    svgo: true
+  +  }
+  });
+  ```
+
+  For more information on enabling and using this feature in your project, see the [experimental SVG optimization docs](https://docs.astro.build/en/reference/experimental-flags/svg-optimization/).
+
+- [#16302](https://github.com/withastro/astro/pull/16302) [`f6f8e80`](https://github.com/withastro/astro/commit/f6f8e8097e93e29d00f419e5594f2c081bb32478) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a new `experimental_getFontFileURL()` method to resolve font file URLs when using the Fonts API
+
+  The `fontData` object exported from `astro:assets` was introduced to provide low-level access to font family data for advanced usage. One of the goals of this API was to be able to resolve buffers using URLs. However, it turned out to be impractical, especially during prerendering.
+
+  Astro now exports a new `experimental_getFontFileURL()` helper function from `astro:assets` to resolve font file URLs from `fontData`. For example, when using [satori](https://github.com/vercel/satori) to generate Open Graph images:
+
+  ```diff
+  // src/pages/og.png.ts
+
+  import type { APIRoute } from "astro";
+  -import { fontData } from "astro:assets";
+  +import { fontData, experimental_getFontFileURL } from "astro:assets";
+  -import { outDir } from "astro:config/server";
+  -import { readFile } from "node:fs/promises";
+  import satori from "satori";
+  import { html } from "satori-html";
+  import sharp from "sharp";
+
+  export const GET: APIRoute = async (context) => {
+    const fontPath = fontData["--font-roboto"][0]?.src[0]?.url;
+
+    if (fontPath === undefined) {
+      throw new Error("Cannot find the font path.");
+    }
+
+  -  const data = import.meta.env.DEV
+  -    ? await fetch(new URL(fontPath, context.url.origin)).then(async (res) => res.arrayBuffer())
+  -    : await readFile(new URL(`.${fontPath}`, outDir));
+  +  const url = experimental_getFontFileURL(fontPath, context.url);
+  +  const data = await fetch(url).then((res) => res.arrayBuffer());
+
+    const svg = await satori(
+      html`<div style="color: black;">hello, world</div>`,
+      {
+        width: 600,
+        height: 400,
+        fonts: [
+          {
+            name: "Roboto",
+            data,
+            weight: 400,
+            style: "normal",
+          },
+        ],
+      },
+    );
+
+    const pngBuffer = await sharp(Buffer.from(svg))
+      .resize(600, 400)
+      .png()
+      .toBuffer();
+
+    return new Response(new Uint8Array(pngBuffer), {
+      headers: {
+        "Content-Type": "image/png",
+      },
+    });
+  };
+  ```
+
+  See the [Fonts API documentation](https://docs.astro.build/en/guides/fonts/#accessing-font-data-programmatically) for more information.
+
+### Patch Changes
+
+- [#15980](https://github.com/withastro/astro/pull/15980) [`8812382`](https://github.com/withastro/astro/commit/88123826690dde1e0019aa801fe7d18085f27271) Thanks [@seroperson](https://github.com/seroperson)! - Prevents script deduplication inside `<template>` elements
+
+## 6.1.10
+
+### Patch Changes
+
+- [#16479](https://github.com/withastro/astro/pull/16479) [`1058428`](https://github.com/withastro/astro/commit/1058428df2d13878c6130787636dd1778273a934) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a spurious `[WARN] [content] Content config not loaded` warning during `astro dev` for projects that don't use content collections
+
+- [#16457](https://github.com/withastro/astro/pull/16457) [`3d82220`](https://github.com/withastro/astro/commit/3d82220a1549e699e34ed433f3846a919f4c02bd) Thanks [@matthewp](https://github.com/matthewp)! - Hardens server island encryption to prevent encrypted data from one island component being replayed against a different one
+
+- [#16481](https://github.com/withastro/astro/pull/16481) [`152700e`](https://github.com/withastro/astro/commit/152700e08178285b240d8ef947cccd47b870ee5f) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a spurious 404 request for a dev toolbar sourcemap during `astro dev` caused by the browser mis-resolving a relative `sourceMappingURL` from the `/@id/` URL prefix
+
+- [#16480](https://github.com/withastro/astro/pull/16480) [`1bcb43b`](https://github.com/withastro/astro/commit/1bcb43bf04f3fa8f4623897ae2a937250f35216a) Thanks [@matthewp](https://github.com/matthewp)! - Fixes an unnecessary full page reload on first navigation during dev
+
+## 6.1.9
+
+### Patch Changes
+
+- [#16448](https://github.com/withastro/astro/pull/16448) [`99464ed`](https://github.com/withastro/astro/commit/99464edb5fc0968f6497328e106f26ab393668bd) Thanks [@matthewp](https://github.com/matthewp)! - Updates vite, picomatch, and unstorage to latest patch versions
+
+- [#16422](https://github.com/withastro/astro/pull/16422) [`a3951d7`](https://github.com/withastro/astro/commit/a3951d7873c7c210fedbaa77702bc33db6410715) Thanks [@matthewp](https://github.com/matthewp)! - Hardens `astro-island` export resolution and hydration error handling for malformed component metadata
+
+- [#16420](https://github.com/withastro/astro/pull/16420) [`e21de1d`](https://github.com/withastro/astro/commit/e21de1d03b318d5045dba718291c04fe05c01490) Thanks [@matthewp](https://github.com/matthewp)! - Hardens Astro's error overlay and server logging paths to avoid unsafe HTML insertion and format-string interpolation
+
+- [#16419](https://github.com/withastro/astro/pull/16419) [`f3485c3`](https://github.com/withastro/astro/commit/f3485c3458bc8bf70c152126e418c24f489ded9d) Thanks [@matthewp](https://github.com/matthewp)! - Hardens nested object and package metadata lookups to ignore prototype keys in content handling and project scaffolding
+
+- [#16022](https://github.com/withastro/astro/pull/16022) [`a002540`](https://github.com/withastro/astro/commit/a002540d60d4a840db9971e73c820a8015658ffe) Thanks [@mathieumaf](https://github.com/mathieumaf)! - Fixes an issue where i18n domains would return 404 when `trailingSlash` is set to `never`.
+
+- Updated dependencies [[`99464ed`](https://github.com/withastro/astro/commit/99464edb5fc0968f6497328e106f26ab393668bd), [`f3485c3`](https://github.com/withastro/astro/commit/f3485c3458bc8bf70c152126e418c24f489ded9d)]:
+  - @astrojs/internal-helpers@0.9.0
+  - @astrojs/markdown-remark@7.1.1
+
+## 6.1.8
+
+### Patch Changes
+
+- [#16367](https://github.com/withastro/astro/pull/16367) [`a6866a7`](https://github.com/withastro/astro/commit/a6866a7ef086627f8f8237274361d8acc2f85121) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where build output files could contain special characters (`!`, `~`, `{`, `}`) in their names, causing deploy failures on platforms like Netlify.
+
+- [#16381](https://github.com/withastro/astro/pull/16381) [`217c5b3`](https://github.com/withastro/astro/commit/217c5b3b937f0aee7e59280e8a10cf2bd4237605) Thanks [@ematipico](https://github.com/ematipico)! - Slightly improved the performance of the dev server by caching the internal crawling of the dependencies of a project.
+
+- [#16348](https://github.com/withastro/astro/pull/16348) [`7d26cd7`](https://github.com/withastro/astro/commit/7d26cd77bc1b33cee81f0e7b408dc2d170be1bdd) Thanks [@ocavue](https://github.com/ocavue)! - Fixes a bug where emitted assets during a client build would contain always fresh, new hashes in their name. Now the build should be more stable.
+
+- [#16317](https://github.com/withastro/astro/pull/16317) [`d012bfe`](https://github.com/withastro/astro/commit/d012bfeadb5b33f9ab1175191d59357d629c327e) Thanks [@das-peter](https://github.com/das-peter)! - Fixes a bug where `allowedDomains` weren't correctly propagated when using the development server.
+
+- [#16379](https://github.com/withastro/astro/pull/16379) [`5a84551`](https://github.com/withastro/astro/commit/5a845514114ae21ca9820e98b56cce33c0cf579b) Thanks [@martrapp](https://github.com/martrapp)! - Improves Vue scoped style handling in DEV mode during client router navigation.
+
+- [#16317](https://github.com/withastro/astro/pull/16317) [`d012bfe`](https://github.com/withastro/astro/commit/d012bfeadb5b33f9ab1175191d59357d629c327e) Thanks [@das-peter](https://github.com/das-peter)! - Adds tests to verify settings are properly propagated when using the development server.
+
+- [#16282](https://github.com/withastro/astro/pull/16282) [`5b0fdaa`](https://github.com/withastro/astro/commit/5b0fdaa8ba3dc17f4b93d9847c3255150b0aeab2) Thanks [@jmurty](https://github.com/jmurty)! - Fixes build errors on platforms with skew protection enabled (e.g. Vercel, Netlify) for inter-chunk Javascript using dynamic imports
+
+- Updated dependencies [[`e0b240e`](https://github.com/withastro/astro/commit/e0b240edea4db632138def3a9003b4b12e12f765)]:
+  - @astrojs/telemetry@3.3.1
+
+## 6.1.7
+
+### Patch Changes
+
+- [#16027](https://github.com/withastro/astro/pull/16027) [`c62516b`](https://github.com/withastro/astro/commit/c62516bbbf8fdf95d38293440d28221c048c41f0) Thanks [@fkatsuhiro](https://github.com/fkatsuhiro)! - Fixes a bug where remote image dimensions were not validated during static builds on Netlify.
+
+- [#16311](https://github.com/withastro/astro/pull/16311) [`94048f2`](https://github.com/withastro/astro/commit/94048f27c30f47ae0e01f90231e0496ed80595f7) Thanks [@Arecsu](https://github.com/Arecsu)! - Fixes `--port` flag being ignored after a Vite-triggered server restart (e.g. when a `.env` file changes)
+
+- [#16316](https://github.com/withastro/astro/pull/16316) [`0fcd04c`](https://github.com/withastro/astro/commit/0fcd04cc985002b56c9e2d36bcb68da0d3f08d5f) Thanks [@ematipico](https://github.com/ematipico)! - Fixes the `/_image` endpoint accepting an arbitrary `f=svg` query parameter and serving non-SVG content as `image/svg+xml`. The endpoint now validates that the source is actually SVG before honoring `f=svg`, matching the same guard already enforced on the `<Image>` component path.
+
+## 6.1.6
+
+### Patch Changes
+
+- [#16202](https://github.com/withastro/astro/pull/16202) [`b5c2fba`](https://github.com/withastro/astro/commit/b5c2fba8bf2bc315db94e525f12f7661dd357822) Thanks [@matthewp](https://github.com/matthewp)! - Fixes Actions failing with `ActionsWithoutServerOutputError` when using `output: 'static'` with an adapter
+
+- [#16303](https://github.com/withastro/astro/pull/16303) [`b06eabf`](https://github.com/withastro/astro/commit/b06eabf01afda713066feb803bbc4c89af634aaf) Thanks [@matthewp](https://github.com/matthewp)! - Improves handling of special characters in inline `<script>` content
+
+- [#14924](https://github.com/withastro/astro/pull/14924) [`bb4586a`](https://github.com/withastro/astro/commit/bb4586a73e32659e6cd4f610799799b634cfc658) Thanks [@aralroca](https://github.com/aralroca)! - Fixes SCSS and CSS module file changes triggering a full page reload instead of hot-updating styles in place during development
+
 ## 6.1.5
 
 ### Patch Changes

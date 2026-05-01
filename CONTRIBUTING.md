@@ -77,6 +77,22 @@ During the development process, you may want to test your changes to ensure they
 
 Overall, it's up to personal preference which method to use. For smaller changes, using the examples folder may be sufficient. For larger changes, using a separate project may be more appropriate.
 
+**How can I test changes to `@astrojs/compiler` (or other dependencies) locally?**
+
+If you're working on a dependency like `@astrojs/compiler` and want to test your changes against the Astro repo, you can use [`pnpm.overrides`](https://pnpm.io/package_json#pnpmoverrides) in the root `package.json` to point to your local build:
+
+```json
+{
+  "pnpm": {
+    "overrides": {
+      "@astrojs/compiler": "file:../astro-compiler/packages/compiler"
+    }
+  }
+}
+```
+
+After adding the override, run `pnpm install` to link the local package. Make sure to build the dependency first so the `dist/` folder is up to date. Remove the override before committing.
+
 #### Contributing to language tooling
 
 For information on contributing to the language tooling (VS Code extension, language server, etc.), see [packages/language-tools/CONTRIBUTING.md](./packages/language-tools/CONTRIBUTING.md).
@@ -333,6 +349,46 @@ Server-side rendering (SSR) can be complicated. The Astro package (`packages/ast
     - `client/`: Code that executes **in the browser.** Astro’s partial hydration code lives here, and only browser-compatible code can be used.
     - `server/`: Code that executes **inside Vite’s SSR.** Though this is a Node environment inside, this will be executed independently of `core/` and may have to be structured differently.
   - `vite-plugin-*/`: Any Vite plugins that Astro needs to run. For the most part, these also execute within Vite similar to `src/runtime/server/`, but it’s also helpful to think about them as independent modules. _Note: at the moment these are internal while they’re in development_
+
+### Public vs. internal API
+
+`packages/astro/package.json` declares two export maps:
+
+- `"exports"` — the monorepo view. Includes public entries plus `./_internal/*` subpaths for use by other workspace packages.
+- `"publishConfig.exports"` — the npm view. [pnpm replaces `"exports"` with this at publish time](https://pnpm.io/package_json#publishconfig), so `_internal/*` entries never ship.
+
+Other workspace packages should import internals via the subpath, not a deep relative path:
+
+```ts
+// Do this
+import { loadFixture } from 'astro/_internal/test/test-utils';
+// Not this
+import { loadFixture } from '../../../astro/test/test-utils.js';
+```
+
+**Example — public export `./foo`** (add to _both_ maps):
+
+```diff
+ "exports": {
++    "./foo": "./dist/foo.js",
+ },
+ "publishConfig": {
+   "exports": {
++    "./foo": "./dist/foo.js",
+   }
+ }
+```
+
+**Example — internal export `./_internal/foo`** (add to `"exports"` only):
+
+```diff
+ "exports": {
++    "./_internal/foo": "./dist/foo.js",
+ }
+ // publishConfig.exports unchanged
+```
+
+`packages/astro/test/exports.test.ts` will fail if the two maps drift out of sync (after stripping `./_internal/*` keys).
 
 ### Thinking about SSR
 

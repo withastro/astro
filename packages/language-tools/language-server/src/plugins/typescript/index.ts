@@ -45,7 +45,7 @@ export const create = (
 							);
 							if (!originalCompletions) return null;
 
-							return enhancedProvideCompletionItems(originalCompletions);
+							return enhancedProvideCompletionItems(originalCompletions, document.getText());
 						},
 						async resolveCompletionItem(item, token) {
 							const resolvedCompletionItem = await typeScriptPlugin.resolveCompletionItem!(
