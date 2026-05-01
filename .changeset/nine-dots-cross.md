@@ -2,4 +2,4 @@
 '@astrojs/svelte': patch
 ---
 
-Adjusted the generated Svelte editor wrapper to avoid intersecting with the original `$$Component` type and instead use an explicit wrapper type with distinct Astro prop and Svelte internals call signatures. The change preserves generic inference by using `GenericPropsWithClientDirectives` for generic components, restores invalid prop errors in astro check, and maintains compatibility with `@testing-library/svelte`.
+Fixes a type mismatch issue where Svelte 5 components were incorrectly flagged as incompatible with testing libraries (e.g. `@testing-library/svelte`) during astro check. This fix ensures that Svelte 5 components pass validation in unit tests while preserving support for Astro's `client:* directives` in `.astro` files.
