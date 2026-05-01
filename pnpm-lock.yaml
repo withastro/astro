@@ -3466,6 +3466,15 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/lightningcss-scoped-nesting:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      lightningcss:
+        specifier: ^1.32.0
+        version: 1.32.0
+
   packages/astro/test/fixtures/live-loaders:
     dependencies:
       '@astrojs/node':
