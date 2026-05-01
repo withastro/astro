@@ -51,10 +51,10 @@ export type FetchRedirectOptions = {
 
 /**
  * Recursively follows HTTP redirects with validation according to the image configuration.
- * 
- * If any of the domains in the redirect chain are not allowed by either `image.remotePatterns` 
+ *
+ * If any of the domains in the redirect chain are not allowed by either `image.remotePatterns`
  * or `image.domains`, this function will throw an error for a disallowed redirect.
- * 
+ *
  * @param options The options for this fetch call.
  */
 export async function fetchWithRedirects(options: FetchRedirectOptions): Promise<Response> {
