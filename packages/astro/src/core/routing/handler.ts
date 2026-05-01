@@ -1,5 +1,4 @@
 import { ActionHandler } from '../../actions/handler.js';
-import type { RewritePayload } from '../../types/public/common.js';
 import type { APIContext } from '../../types/public/context.js';
 import {
 	REROUTABLE_STATUS_CODES,
@@ -29,7 +28,6 @@ export class AstroHandler {
 	#renderRouteCallback: (
 		state: FetchState,
 		ctx: APIContext,
-		payload?: RewritePayload,
 	) => Promise<Response>;
 	/**
 	 * i18n post-processor. Only set when the app has i18n configured and
@@ -68,17 +66,16 @@ export class AstroHandler {
 	#actionsAndPages(
 		state: FetchState,
 		ctx: APIContext,
-		payload?: RewritePayload,
 	): Promise<Response> {
 		if (!state.skipMiddleware) {
 			const actionResult = this.#actionHandler.handle(ctx, state);
 			if (actionResult) {
 				return actionResult.then(
-					(response) => response ?? this.#pagesHandler.handle(state, ctx, payload),
+					(response) => response ?? this.#pagesHandler.handle(state, ctx),
 				);
 			}
 		}
-		return this.#pagesHandler.handle(state, ctx, payload);
+		return this.#pagesHandler.handle(state, ctx);
 	}
 
 	async handle(state: FetchState): Promise<Response> {

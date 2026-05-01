@@ -77,7 +77,7 @@ export function middleware(
 		mw = new AstroMiddleware(app.pipeline);
 		middlewareInstances.set(app, mw);
 	}
-	return mw.handle(state, (s, _ctx, _payload) => next(s));
+	return mw.handle(state, (s, _ctx) => next(s));
 }
 
 const pagesHandlers = new WeakMap<BaseApp<Pipeline>, PagesHandler>();
@@ -93,7 +93,7 @@ export function pages(state: FetchState): Promise<Response> {
 		handler = new PagesHandler(app.pipeline);
 		pagesHandlers.set(app, handler);
 	}
-	return handler.handle(state, state.getAPIContext(), undefined);
+	return handler.handle(state, state.getAPIContext());
 }
 
 /**

@@ -1,6 +1,5 @@
 import { renderEndpoint } from '../../runtime/server/endpoint.js';
 import { renderPage } from '../../runtime/server/index.js';
-import type { RewritePayload } from '../../types/public/common.js';
 import type { APIContext } from '../../types/public/context.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 import type { Pipeline } from '../base-pipeline.js';
@@ -12,7 +11,6 @@ import {
 	ROUTE_TYPE_HEADER,
 } from '../constants.js';
 import { getCookiesFromResponse } from '../cookies/response.js';
-import { applyRewriteToState } from '../rewrites/handler.js';
 
 // Shared empty-slots object so we don't allocate `{}` on every render for
 // requests that don't come from the container API. Safe to share because
@@ -21,10 +19,10 @@ const EMPTY_SLOTS: Record<string, never> = Object.freeze({});
 
 /**
  * Handles dispatch of a matched route (endpoint / redirect / page / fallback)
- * at the bottom of the middleware chain. Also handles in-flight route
- * rewrites (when a middleware or action calls `Astro.rewrite(...)`) by
- * mutating the `FetchState` to reflect the rewritten target before
- * dispatching.
+ * at the bottom of the middleware chain. This is a pure dispatch layer — it
+ * renders whatever route the `FetchState` currently points to without any
+ * rewrite logic. Rewrites are handled upstream: `Rewrites.execute()` for
+ * `Astro.rewrite()` and `AstroMiddleware` for `next(payload)`.
  *
  * `PagesHandler` is the `next` callback that `AstroMiddleware` invokes at
  * the end of the middleware chain. `AstroHandler` owns a single instance
@@ -38,15 +36,10 @@ export class PagesHandler {
 		this.#pipeline = pipeline;
 	}
 
-	async handle(state: FetchState, ctx: APIContext, payload?: RewritePayload): Promise<Response> {
+	async handle(state: FetchState, ctx: APIContext): Promise<Response> {
 		const pipeline = this.#pipeline;
 		const { logger, streaming } = pipeline;
 
-		if (payload) {
-			pipeline.logger.debug('router', 'Called rewriting to:', payload);
-			const result = await pipeline.tryRewrite(payload, state.request);
-			applyRewriteToState(state, payload, result);
-		}
 		let response: Response;
 
 		const componentInstance = await state.loadComponentInstance();

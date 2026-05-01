@@ -4,6 +4,7 @@ import type { APIContext } from '../../types/public/context.js';
 import { type Pipeline, PipelineFeatures } from '../base-pipeline.js';
 import { ROUTE_TYPE_HEADER } from '../constants.js';
 import { attachCookiesToResponse } from '../cookies/index.js';
+import { applyRewriteToState } from '../rewrites/handler.js';
 import { callMiddleware } from './callMiddleware.js';
 import { sequence } from './index.js';
 
@@ -18,7 +19,6 @@ import { sequence } from './index.js';
 export type RenderRouteCallback = (
 	state: FetchState,
 	ctx: APIContext,
-	payload?: RewritePayload,
 ) => Promise<Response>;
 
 /**
@@ -57,8 +57,14 @@ export class AstroMiddleware {
 			});
 		}
 
-		const next = (ctx: APIContext, payload?: RewritePayload) =>
-			renderRouteCallback(state, ctx, payload);
+		const next = async (ctx: APIContext, payload?: RewritePayload) => {
+			if (payload) {
+				pipeline.logger.debug('router', 'Called rewriting to:', payload);
+				const result = await pipeline.tryRewrite(payload, state.request);
+				applyRewriteToState(state, payload, result);
+			}
+			return renderRouteCallback(state, ctx);
+		};
 
 		let response: Response;
 		if (state.skipMiddleware) {

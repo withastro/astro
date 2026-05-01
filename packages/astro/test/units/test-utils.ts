@@ -317,14 +317,14 @@ export async function renderThroughMiddleware(
 	const middleware = new AstroMiddleware(pipeline);
 	const actionHandler = new ActionHandler();
 	const pagesHandler = new PagesHandler(pipeline);
-	return middleware.handle(state, (s, ctx, payload) => {
+	return middleware.handle(state, (s, ctx) => {
 		if (!s.skipMiddleware) {
 			const actionResult = actionHandler.handle(ctx, s);
 			if (actionResult) {
-				return actionResult.then((response) => response ?? pagesHandler.handle(s, ctx, payload));
+				return actionResult.then((response) => response ?? pagesHandler.handle(s, ctx));
 			}
 		}
-		return pagesHandler.handle(s, ctx, payload);
+		return pagesHandler.handle(s, ctx);
 	});
 }
 

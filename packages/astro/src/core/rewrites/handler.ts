@@ -29,7 +29,7 @@ interface TryRewriteResult {
  *   new route.
  *
  * Called by both `Rewrites.execute()` (user-triggered `Astro.rewrite`)
- * and `PagesHandler.handle()` (middleware `next(ctx, payload)`).
+ * and `AstroMiddleware` (middleware `next(payload)`).
  */
 export function applyRewriteToState(
 	state: FetchState,
