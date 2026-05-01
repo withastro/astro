@@ -22,14 +22,14 @@ describe('Middleware in DEV mode', () => {
 	});
 
 	describe('Path encoding in middleware', () => {
-		it('should reject double-encoded paths with 404', async () => {
+		it('should reject double-encoded paths with 400', async () => {
 			const res = await fixture.fetch('/%2561dmin', { redirect: 'manual' });
-			assert.equal(res.status, 404);
+			assert.equal(res.status, 400);
 		});
 
-		it('should reject triple-encoded paths with 404', async () => {
+		it('should reject triple-encoded paths with 400', async () => {
 			const res = await fixture.fetch('/%252561dmin', { redirect: 'manual' });
-			assert.equal(res.status, 404);
+			assert.equal(res.status, 400);
 		});
 	});
 
