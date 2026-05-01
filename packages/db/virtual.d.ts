@@ -12,6 +12,7 @@ declare module 'astro:db' {
 	export const defineDb: RuntimeConfig['defineDb'];
 	export const defineTable: RuntimeConfig['defineTable'];
 	export const isDbError: RuntimeConfig['isDbError'];
+	export const getDbError: RuntimeConfig['getDbError'];
 
 	export const eq: RuntimeConfig['eq'];
 	export const gt: RuntimeConfig['gt'];

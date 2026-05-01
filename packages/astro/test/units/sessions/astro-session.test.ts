@@ -554,3 +554,76 @@ describe('AstroSession - Storage Errors', () => {
 });
 
 // #endregion Storage Errors
+
+// #region No-Cookie Short Circuit
+describe('AstroSession - No-Cookie Short Circuit', () => {
+	it('should not initialize the storage driver or read when no session cookie is present', async () => {
+		let driverInitCount = 0;
+		const countingDriverFactory: SessionDriverFactory = () => {
+			driverInitCount++;
+			return driverFactory();
+		};
+
+		const noCookieMock: MockCookies = {
+			set: () => {},
+			delete: () => {},
+			get: () => undefined,
+		};
+
+		// Use a unique driver name so the static #sharedStorage cache from
+		// earlier tests can't mask a regression.
+		const session = new AstroSession({
+			cookies: noCookieMock as any,
+			config: { ...defaultConfig, driver: 'no-cookie-test' },
+			runtimeMode: 'production',
+			driverFactory: countingDriverFactory,
+			mockStorage: null,
+		});
+
+		const value = await session.get('nonexistent');
+		assert.equal(value, undefined);
+		assert.equal(driverInitCount, 0, 'Driver factory should never have been called');
+	});
+
+	it('should read from storage when session cookie is present', async () => {
+		let storageReadCount = 0;
+		const mockStorage = {
+			get: async () => {
+				storageReadCount++;
+				return stringify(new Map([['user', { data: 'alice' }]]));
+			},
+			setItem: async () => {},
+		} as unknown as Storage;
+
+		const withCookieMock: MockCookies = {
+			set: () => {},
+			delete: () => {},
+			get: (name: string) => {
+				if (name === 'test-session') return { value: 'existing-session-id' };
+				return undefined;
+			},
+		};
+
+		const session = createSession(defaultConfig, withCookieMock, mockStorage);
+
+		const value = await session.get('user');
+		assert.equal(value, 'alice');
+		assert.equal(storageReadCount, 1, 'Storage should have been read once');
+	});
+
+	it('should allow set() then get() without a cookie (new session)', async () => {
+		const noCookieMock: MockCookies = {
+			set: () => {},
+			delete: () => {},
+			get: () => undefined,
+		};
+
+		const session = createSession(defaultConfig, noCookieMock);
+
+		session.set('key', 'expected');
+		const value = await session.get('key');
+		assert.equal(value, 'expected');
+	});
+});
+
+// #endregion No-Cookie Short Circuit

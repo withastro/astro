@@ -161,6 +161,7 @@ export function createBaseSettings(
 			styleHashes: [],
 		},
 		logLevel: logLevel ?? 'info',
+		fontsHttpServer: null,
 	};
 }
 
@@ -177,10 +178,8 @@ export async function createSettings(
 		watchFiles.push(fileURLToPath(new URL('./package.json', pathToFileURL(cwd))));
 	}
 
-	if (typeof tsconfig !== 'string') {
-		watchFiles.push(
-			...[tsconfig.tsconfigFile, ...(tsconfig.extended ?? []).map((e) => e.tsconfigFile)],
-		);
+	if (!tsconfig.error) {
+		watchFiles.push(...tsconfig.sources);
 		settings.tsConfig = tsconfig.tsconfig;
 		settings.tsConfigPath = tsconfig.tsconfigFile;
 	}

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import testAdapter from './test-adapter.js';
-import { loadFixture, type Fixture, type DevServer } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { loadFixture, type Fixture, type DevServer } from './test-utils.ts';
 
 describe('Errors in JavaScript', () => {
 	let fixture: Fixture;

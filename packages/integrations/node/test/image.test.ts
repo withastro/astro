@@ -2,7 +2,7 @@ import * as assert from 'node:assert/strict';
 import { cp, rm } from 'node:fs/promises';
 import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import type { PreviewServer } from '../../../astro/src/types/public/preview.js';
+import type { PreviewServer } from 'astro';
 import { inferRemoteSize } from 'astro/assets/utils/inferRemoteSize.js';
 import * as cheerio from 'cheerio';
 import nodejs from '../dist/index.js';

@@ -14,7 +14,7 @@ describe('Prerender with queue consumers', () => {
 	});
 
 	after(async () => {
-		previewServer.stop();
+		await previewServer.stop();
 	});
 
 	it('builds and previews without ERR_MULTIPLE_CONSUMERS', async () => {

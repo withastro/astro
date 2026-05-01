@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Slots', () => {
 	let fixture: Fixture;
@@ -180,6 +180,13 @@ describe('Slots', () => {
 		assert.deepEqual(beforeDiv.text(), 'Test Content BEFORE');
 		const afterDiv = $('div#after > div');
 		assert.deepEqual(afterDiv.text(), 'Test Content AFTER');
+	});
+
+	it('Arguments can be passed to conditional named slots with Astro.slots.render()', async () => {
+		const html = await fixture.readFile('/conditional-slotted-callback/index.html');
+		const $ = cheerio.load(html);
+
+		assert.equal($('#conditional-block').text(), 'Block: block');
 	});
 
 	it('Unused slot builds without error', async () => {

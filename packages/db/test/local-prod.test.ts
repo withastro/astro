@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { relative } from 'node:path';
 import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import testAdapter from '../../astro/test/test-adapter.js';
+import testAdapter from 'astro/_internal/test/test-adapter';
 import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('astro:db local database', () => {
