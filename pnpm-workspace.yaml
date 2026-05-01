@@ -52,6 +52,8 @@ minimumReleaseAgeExclude:
   - astro-og-canvas@0.11.0
   # @types/node@24.12.2 published <3 days ago
   - '@types/node@24.12.2'
+  # Renovate security update: postcss@8.5.10
+  - postcss@8.5.10
 peerDependencyRules:
   allowAny:
     - 'astro'
