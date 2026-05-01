@@ -34,6 +34,13 @@ export const createApp: CreateApp = ({ streaming } = {}) => {
 			currentDevApp.pipeline.routeCache.clearAll();
 		});
 
+		// Listen for SSR module changes via HMR.
+		// Clear the route cache so getStaticPaths() is re-evaluated with fresh modules.
+		import.meta.hot.on('astro:ssr-changed', () => {
+			if (!currentDevApp) return;
+			currentDevApp.pipeline.routeCache.clearAll();
+		});
+
 		// Listen for middleware file changes via HMR.
 		// Clear the cached middleware so it is re-resolved on the next request.
 		import.meta.hot.on('astro:middleware-updated', () => {

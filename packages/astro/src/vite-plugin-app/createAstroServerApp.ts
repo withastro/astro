@@ -75,6 +75,13 @@ export default async function createAstroServerApp(
 			actualLogger.debug('router', 'Route cache cleared due to content change');
 		});
 
+		// Listen for SSR module changes via HMR.
+		// Clear the route cache so getStaticPaths() is re-evaluated with fresh modules.
+		import.meta.hot.on('astro:ssr-changed', () => {
+			app.clearRouteCache();
+			actualLogger.debug('router', 'Route cache cleared due to SSR module change');
+		});
+
 		// Listen for middleware file changes via HMR.
 		// Clear the cached middleware so it is re-resolved on the next request.
 		import.meta.hot.on('astro:middleware-updated', () => {
