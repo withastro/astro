@@ -620,7 +620,7 @@ describe('AstroSession - No-Cookie Short Circuit', () => {
 
 		const session = createSession(defaultConfig, noCookieMock);
 
-		session.set('key', 'expected' );
+		session.set('key', 'expected');
 		const value = await session.get('key');
 		assert.equal(value, 'expected');
 	});

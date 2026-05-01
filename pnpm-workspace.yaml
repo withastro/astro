@@ -55,7 +55,7 @@ minimumReleaseAgeExclude:
   # Renovate security update: postcss@8.5.10
   - postcss@8.5.10
   # Renovate security update: @fastify/middie@9.3.2
-  - "@fastify/middie@9.3.2"
+  - '@fastify/middie@9.3.2'
 peerDependencyRules:
   allowAny:
     - 'astro'
