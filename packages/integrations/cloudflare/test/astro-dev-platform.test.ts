@@ -3,12 +3,12 @@ import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 import { Writable } from 'node:stream';
-import { AstroLogger } from '../../../astro/dist/core/logger/core.js';
+import { AstroLogger, type AstroLoggerMessage } from '../../../astro/dist/core/logger/core.js';
 
 describe('AstroDevPlatform', () => {
 	let fixture: Fixture;
 	let devServer: DevServer;
-	const logs = [];
+	const logs: AstroLoggerMessage[] = [];
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -16,6 +16,7 @@ describe('AstroDevPlatform', () => {
 		});
 		devServer = await fixture.startDevServer({
 			vite: { logLevel: 'info' },
+			// @ts-expect-error: `logger` is an internal API
 			logger: new AstroLogger({
 				level: 'info',
 				destination: new Writable({
