@@ -38,6 +38,7 @@ import { routeHasHtmlExtension } from '../routing/helpers.js';
 import { matchRoute } from '../routing/match.js';
 import { type CacheLike, applyCacheHeaders } from '../cache/runtime/cache.js';
 import { Router } from '../routing/router.js';
+import { MultiLevelEncodingError } from '../util/pathname.js';
 import { type AstroSession, PERSIST_SYMBOL } from '../session/runtime.js';
 import type { WaitUntilHook } from '../wait-until.js';
 import type { AppPipeline } from './pipeline.js';
@@ -573,6 +574,9 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				timeStart,
 			});
 		} catch (err: any) {
+			if (err instanceof MultiLevelEncodingError) {
+				return new Response('Bad Request', { status: 400 });
+			}
 			this.logger.error(null, err.stack || err.message || String(err));
 			return this.renderError(request, {
 				...resolvedRenderOptions,

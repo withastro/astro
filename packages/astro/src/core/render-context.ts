@@ -42,7 +42,7 @@ import { NoopAstroCache, DisabledAstroCache } from './cache/runtime/noop.js';
 import { compileCacheRoutes, matchCacheRoute } from './cache/runtime/route-matching.js';
 import { AstroSession } from './session/runtime.js';
 import { collapseDuplicateSlashes } from '@astrojs/internal-helpers/path';
-import { validateAndDecodePathname } from './util/pathname.js';
+import { MultiLevelEncodingError, validateAndDecodePathname } from './util/pathname.js';
 
 /**
  * Each request is rendered using a `RenderContext`.
@@ -136,10 +136,13 @@ export class RenderContext {
 		try {
 			// Decode and validate pathname to prevent multi-level encoding bypass attacks
 			url.pathname = validateAndDecodePathname(url.pathname);
-		} catch {
-			// If validation fails, return URL with pathname as-is
-			// This will be caught elsewhere in the request handling pipeline
-			// For now, just decode without validation to maintain compatibility
+		} catch (e) {
+			// Multi-level encoding (e.g., %2561 → %61) must be rejected, not silently decoded.
+			// Let this error propagate so the caller can return a 400 response.
+			if (e instanceof MultiLevelEncodingError) {
+				throw e;
+			}
+			// For other decoding failures (truly malformed URLs), fall back gracefully.
 			try {
 				url.pathname = decodeURI(url.pathname);
 			} catch {
