@@ -3,7 +3,7 @@ import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 import { Writable } from 'node:stream';
-import { Logger } from '../../../astro/dist/core/logger/core.js';
+import { AstroLogger } from '../../../astro/dist/core/logger/core.js';
 
 describe('AstroDevPlatform', () => {
 	let fixture: Fixture;
@@ -16,9 +16,9 @@ describe('AstroDevPlatform', () => {
 		});
 		devServer = await fixture.startDevServer({
 			vite: { logLevel: 'info' },
-			logger: new Logger({
+			logger: new AstroLogger({
 				level: 'info',
-				dest: new Writable({
+				destination: new Writable({
 					objectMode: true,
 					write(event, _, callback) {
 						logs.push(event);
