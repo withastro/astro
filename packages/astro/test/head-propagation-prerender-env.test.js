@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 // Regression test for https://github.com/withastro/astro/issues/16291
 //

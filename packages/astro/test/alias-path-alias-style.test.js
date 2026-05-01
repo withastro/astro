@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 // Regression test for https://github.com/withastro/astro/issues/15963
 // <style> tags in components imported via tsconfig path aliases should compile correctly.
