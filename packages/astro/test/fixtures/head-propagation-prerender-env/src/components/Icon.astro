@@ -1,0 +1,20 @@
+---
+// Mirrors Starlight's `<Icon>`: each instance ships its own scoped `<style>`.
+// In dev these are hoisted as `<style data-vite-dev-id>` blocks emitted at the
+// current SSR render position. The bug traps them between a `<template>`
+// element's opening tag and its first child.
+const { name } = Astro.props;
+---
+<svg class={`icon icon-${name}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+	{name === 'sun' && <circle cx="12" cy="12" r="5"></circle>}
+	{name === 'moon' && <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>}
+	{name === 'laptop' && <rect x="2" y="4" width="20" height="14" rx="2"></rect>}
+</svg>
+
+<style>
+	.icon {
+		width: 1em;
+		height: 1em;
+		display: inline-block;
+	}
+</style>

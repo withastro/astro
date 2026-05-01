@@ -156,9 +156,21 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 
 		// always call rotate to adjust for EXIF data orientation
 		result.rotate();
-
 		// get some information about the input
-		const { format } = await result.metadata();
+		let format: string | undefined;
+		try {
+			({ format } = await result.metadata());
+		} catch {
+			// Sharp cannot decode this image (e.g. animated AVIF sequences).
+			// Pass it through unmodified rather than crashing the build. When Sharp adds support for these
+			// formats, the image will be optimized automatically without code changes.
+			console.warn(
+				`⚠️  Astro could not optimize image "${transform.src}". ` +
+					`Sharp doesn't support this format. The image will be used unoptimized. ` +
+					`Consider converting to WebP or placing in the public/ folder.`,
+			);
+			return { data: inputBuffer, format: transform.format };
+		}
 
 		if (transform.width && transform.height) {
 			const fit: keyof FitEnum | undefined = transform.fit
