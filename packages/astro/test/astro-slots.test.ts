@@ -182,6 +182,13 @@ describe('Slots', () => {
 		assert.deepEqual(afterDiv.text(), 'Test Content AFTER');
 	});
 
+	it('Arguments can be passed to conditional named slots with Astro.slots.render()', async () => {
+		const html = await fixture.readFile('/conditional-slotted-callback/index.html');
+		const $ = cheerio.load(html);
+
+		assert.equal($('#conditional-block').text(), 'Block: block');
+	});
+
 	it('Unused slot builds without error', async () => {
 		const html = await fixture.readFile('/unused-slot/index.html');
 		const $ = cheerio.load(html);
