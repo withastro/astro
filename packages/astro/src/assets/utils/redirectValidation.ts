@@ -50,15 +50,12 @@ export type FetchRedirectOptions = {
 };
 
 /**
- * Recursively follows HTTP redirects with optional validation.
- *
- * This unified function handles all redirect scenarios:
- * - Simple redirect following (no validation)
- * - Redirect validation against allowed patterns
- * - Different error handling strategies (generic Error vs AstroError)
- * - Both string and URL object inputs
- * - Optional custom headers
- * - Custom fetch functions
+ * Recursively follows HTTP redirects with validation according to the image configuration.
+ * 
+ * If any of the domains in the redirect chain are not allowed by either `image.remotePatterns` 
+ * or `image.domains`, this function will throw an error for a disallowed redirect.
+ * 
+ * @param options The options for this fetch call.
  */
 export async function fetchWithRedirects(options: FetchRedirectOptions): Promise<Response> {
 	const {

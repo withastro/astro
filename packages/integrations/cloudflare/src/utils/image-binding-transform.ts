@@ -3,6 +3,7 @@ import { isRemotePath } from '@astrojs/internal-helpers/path';
 import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import type { ImageOutputOptions, ImageTransform } from '@cloudflare/workers-types';
 import type { ImageQualityPreset } from 'astro';
+import { fetchWithRedirects } from 'astro/assets';
 
 const qualityTable: Record<ImageQualityPreset, number> = {
 	low: 25,
@@ -10,39 +11,6 @@ const qualityTable: Record<ImageQualityPreset, number> = {
 	high: 80,
 	max: 100,
 };
-
-/**
- * Recursively follows HTTP redirects with optional validation against allowed patterns.
- */
-async function fetchWithRedirectValidation(url: URL, redirectLimit = 10): Promise<Response> {
-	if (redirectLimit <= 0) {
-		throw new Error('Maximum redirect depth exceeded');
-	}
-
-	const response = await fetch(url, {
-		redirect: 'manual',
-	});
-
-	// Handle redirects (301, 302, 303, 307, 308 are actual redirects, not 304 Not Modified)
-	if ([301, 302, 303, 307, 308].includes(response.status)) {
-		const location = response.headers.get('Location');
-		if (!location) {
-			throw new Error(`Redirect response ${response.status} missing Location header`);
-		}
-
-		// Resolve the redirect URL relative to the current URL
-		const redirectUrl = new URL(location, url);
-
-		// Validate that the redirect target matches allowed patterns
-		if (!isRemoteAllowed(redirectUrl.toString(), imageConfig)) {
-			throw new Error('Redirect target is not an allowed remote location');
-		}
-
-		return fetchWithRedirectValidation(redirectUrl, redirectLimit - 1);
-	}
-
-	return response;
-}
 
 export async function transform(
 	rawUrl: string,
@@ -62,7 +30,10 @@ export async function transform(
 
 	if (isRemotePath(href)) {
 		try {
-			content = await fetchWithRedirectValidation(imageSrc);
+			content = await fetchWithRedirects({
+				url: imageSrc,
+				imageConfig,
+			});
 
 			// Validate that the final URL (after redirects) is allowed
 			if (!isRemoteAllowed(content.url, imageConfig)) {
