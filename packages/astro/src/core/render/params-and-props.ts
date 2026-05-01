@@ -87,11 +87,12 @@ export function getParams(route: RouteData, pathname: string): Params {
 	if (!route.params.length) return {};
 	// The RegExp pattern expects a decoded string, but the pathname is encoded
 	// when the URL contains non-English characters.
-	// Strip `.html` from the pathname unless `.html` is a static part of the route definition
-	// itself (e.g. `[slug].html.astro`). Dynamic params like `[id]` would otherwise greedily
-	// capture the `.html` suffix (e.g. `id = '42.html'` instead of `id = '42'`).
-	// stripping specifically to 'page' routes to maintain backward compatibility,
-	// other route types (such as 'endpoint'), preserve the extension to support cases where '.html' is a valid.
+	// Strip `.html` from the pathname of page routes unless `.html` is a static part of the
+	// route definition itself (e.g. `[slug].html.astro`). Dynamic params like `[id]` would
+	// otherwise greedily capture the `.html` suffix that is either implied or injected
+	// for page routes (e.g. `id = '42.html'` instead of `id = '42'`).
+	// Other route types do not enforce HTML generation nor modify the path, so any suffix
+	// was added by user code and their pattern matching should apply on the complete pathname.
 	const path =
     pathname.endsWith('.html') && route.type === 'page' && !routeHasHtmlExtension(route)
       ? pathname.slice(0, -5)
