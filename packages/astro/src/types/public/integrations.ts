@@ -123,6 +123,15 @@ export interface AstroAdapterFeatures {
 	 * of the build output type.
 	 */
 	preserveBuildClientDir?: boolean;
+
+	/**
+	 * When true, static builds will preserve the server directory structure
+	 * instead of outputting to outDir. This ensures static builds use
+	 * build.server for server output, maintaining consistency with server builds.
+	 * Useful for adapters that require a specific directory structure regardless
+	 * of the build output type.
+	 */
+	preserveBuildServerDir?: boolean;
 }
 
 /**

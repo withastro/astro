@@ -41,8 +41,8 @@ export async function callGetStaticPaths({
 
 	validateDynamicRouteModule(mod, { ssr, route });
 
-	// No static paths in SSR mode. Return an empty RouteCacheEntry.
-	if (ssr && !route.prerender) {
+	// No static paths in SSR mode or for internal routes. Return an empty RouteCacheEntry.
+	if ((ssr && !route.prerender) || route.origin === 'internal') {
 		const entry: GetStaticPathsResultKeyed = Object.assign([], { keyed: new Map() });
 		routeCache.set(route, { ...cached, staticPaths: entry });
 		return entry;

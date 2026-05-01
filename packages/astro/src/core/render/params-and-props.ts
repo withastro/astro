@@ -62,7 +62,7 @@ export async function getProps(opts: GetParamsAndPropsOptions): Promise<Props> {
 	// the ones expected from the users
 	const params = getParams(route, pathname);
 	const matchedStaticPath = findPathItemByKey(staticPaths, params, route, logger, trailingSlash);
-	if (!matchedStaticPath && (serverLike ? route.prerender : true)) {
+	if (!matchedStaticPath && route.origin !== 'internal' && (serverLike ? route.prerender : true)) {
 		throw new AstroError({
 			...AstroErrorData.NoMatchingStaticPathFound,
 			message: AstroErrorData.NoMatchingStaticPathFound.message(pathname),
