@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { AstroConfig } from '../../../dist/types/public/config.js';
 import { Router } from '../../../dist/core/routing/router.js';
-import { makeRoute, staticPart } from './test-helpers.js';
+import { makeRoute, staticPart } from './test-helpers.ts';
 
 /**
  * Helper to build a set of routes for the trailing slash tests.

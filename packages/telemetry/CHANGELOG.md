@@ -1,5 +1,11 @@
 # @astrojs/telemetry
 
+## 3.3.1
+
+### Patch Changes
+
+- [#16257](https://github.com/withastro/astro/pull/16257) [`e0b240e`](https://github.com/withastro/astro/commit/e0b240edea4db632138def3a9003b4b12e12f765) Thanks [@gameroman](https://github.com/gameroman)! - Removed `debug` dependency
+
 ## 3.3.0
 
 ### Minor Changes

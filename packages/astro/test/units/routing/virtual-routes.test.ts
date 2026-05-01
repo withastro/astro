@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { Router } from '../../../dist/core/routing/router.js';
-import { makeRoute, staticPart } from './test-helpers.js';
+import { makeRoute, staticPart } from './test-helpers.ts';
 
 describe('virtual routes (unit)', () => {
 	const trailingSlash = 'ignore';

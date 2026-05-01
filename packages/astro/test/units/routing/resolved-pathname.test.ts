@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { Router } from '../../../dist/core/routing/router.js';
-import { dynamicPart, makeRoute, staticPart } from './test-helpers.js';
+import { dynamicPart, makeRoute, staticPart } from './test-helpers.ts';
 
 describe('Resolved pathname', () => {
 	const trailingSlash = 'never';

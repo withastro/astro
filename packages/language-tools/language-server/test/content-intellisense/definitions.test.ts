@@ -4,7 +4,7 @@ import { before, describe, it } from 'node:test';
 import type { LocationLink } from '@volar/language-server';
 import { Position } from '@volar/language-server';
 import { getLanguageServer, type LanguageServer } from '../server.ts';
-import { fixtureDir } from '../utils.ts';
+import { fixtureDir } from '../test-utils.ts';
 
 describe('Content Intellisense - Go To Everywhere', {
 	skip: Number.parseInt(process.versions.node) === 20,

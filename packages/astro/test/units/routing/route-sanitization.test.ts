@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { Router } from '../../../dist/core/routing/router.js';
-import { makeRoute, spreadPart } from './test-helpers.js';
+import { makeRoute, spreadPart } from './test-helpers.ts';
 
 describe('Route sanitization', () => {
 	it('should correctly match a route param with a trailing slash in its value', () => {

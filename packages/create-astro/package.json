@@ -1,6 +1,6 @@
 {
   "name": "create-astro",
-  "version": "5.0.5",
+  "version": "5.0.6",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -22,7 +22,8 @@
     "build": "astro-scripts build \"src/index.ts\" --bundle && tsc",
     "build:ci": "astro-scripts build \"src/index.ts\" --bundle",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "astro-scripts test \"test/**/*.test.js\""
+    "test": "astro-scripts test \"test/**/*.test.ts\"",
+    "typecheck:tests": "tsc --build tsconfig.test.json"
   },
   "files": [
     "dist",

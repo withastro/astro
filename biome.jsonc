@@ -188,6 +188,26 @@
           }
         }
       }
+    },
+    {
+      "includes": ["**/astro/test/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["**/src/**"],
+                    "message": "The test should not import the source code. Import the code from the dist/ folder instead."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }

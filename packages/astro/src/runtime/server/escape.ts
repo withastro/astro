@@ -4,6 +4,17 @@ import { streamAsyncIterator } from './util.js';
 // Leverage the battle-tested `html-escaper` npm package.
 export const escapeHTML = escape;
 
+/**
+ * Serializes a value to a JSON string that is safe to embed inside a `<script>` tag.
+ * All `<` characters are escaped to `\u003c` so the browser's HTML parser cannot be
+ * tricked into closing the script block early via `</script>` variants (case-insensitive,
+ * whitespace, or self-closing forms) or `<!--` comment injection.
+ * @see https://mathiasbynens.be/notes/etago
+ */
+export function stringifyForScript(value: any): string {
+	return JSON.stringify(value)?.replace(/</g, '\\u003c');
+}
+
 export class HTMLBytes extends Uint8Array {}
 
 // TypeScript won't let us define this in the class body so have to do it

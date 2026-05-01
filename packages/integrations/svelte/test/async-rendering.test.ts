@@ -1,0 +1,48 @@
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
+import { load as cheerioLoad } from 'cheerio';
+import { loadFixture, type Fixture, type DevServer } from './test-utils.ts';
+
+let fixture: Fixture;
+
+// Svelte made breaking changes to async rendering in a patch.
+// TODO figure out if we need to change our code or not, might just be an upstream bug.
+describe.skip('Async rendering', () => {
+	before(async () => {
+		fixture = await loadFixture({
+			root: new URL('./fixtures/async-rendering/', import.meta.url),
+		});
+	});
+
+	describe('build', () => {
+		before(async () => {
+			await fixture.build();
+		});
+
+		it('Can render async components', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerioLoad(html);
+
+			assert.ok($('.weather').text().startsWith('The current temperature at KSC is'));
+		});
+	});
+
+	describe('dev', () => {
+		let devServer: DevServer;
+
+		before(async () => {
+			devServer = await fixture.startDevServer();
+		});
+
+		after(async () => {
+			await devServer.stop();
+		});
+
+		it('Can render async components', async () => {
+			const html = await fixture.fetch('/').then((res) => res.text());
+			const $ = cheerioLoad(html);
+
+			assert.ok($('.weather').text().startsWith('The current temperature at KSC is'));
+		});
+	});
+});

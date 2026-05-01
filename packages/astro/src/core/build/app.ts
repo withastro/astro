@@ -30,7 +30,8 @@ export class BuildApp extends BaseApp<BuildPipeline> {
 
 	public setOptions(options: StaticBuildOptions) {
 		this.pipeline.setOptions(options);
-		this.logger = options.logger;
+		this.logger.setDestination(options.logger.options.destination);
+		this.resetAdapterLogger();
 	}
 
 	public getOptions() {
