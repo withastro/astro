@@ -16,6 +16,8 @@ export {
 	renderScript,
 	renderSlot,
 	renderTransition,
+	templateEnter,
+	templateExit,
 	spreadAttributes,
 	unescapeHTML,
 } from '../server/index.js';

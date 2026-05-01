@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import testAdapter from '../../astro/test/test-adapter.js';
+import testAdapter from 'astro/_internal/test/test-adapter';
 import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('astro:db', () => {

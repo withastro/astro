@@ -324,6 +324,11 @@ async function buildManifest(
 
 	const middlewareMode = resolveMiddlewareMode(opts.settings.adapter?.adapterFeatures);
 
+	let experimentalLogger = undefined;
+	if (settings.config.experimental.logger) {
+		experimentalLogger = settings.config.experimental.logger;
+	}
+
 	return {
 		rootDir: opts.settings.config.root.toString(),
 		cacheDir: opts.settings.config.cacheDir.toString(),
@@ -388,5 +393,6 @@ async function buildManifest(
 		internalFetchHeaders,
 		logLevel: settings.logLevel,
 		shouldInjectCspMetaTags: shouldTrackCspHashes(settings.config.security.csp),
+		experimentalLogger,
 	};
 }
