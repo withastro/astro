@@ -48,11 +48,7 @@ describe('headersFileHasCacheControlForPath', () => {
 	});
 
 	it('respects host-prefixed patterns', () => {
-		const content = [
-			'https://example.com/_astro/*',
-			'  Cache-Control: max-age=60',
-			'',
-		].join('\n');
+		const content = ['https://example.com/_astro/*', '  Cache-Control: max-age=60', ''].join('\n');
 		assert.equal(headersFileHasCacheControlForPath(content, '/_astro/probe'), true);
 	});
 
