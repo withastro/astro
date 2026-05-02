@@ -50,8 +50,10 @@ export function pushDirective(
 			deduplicated = true;
 		} else {
 			finalDirectives.push(directive);
-			finalDirectives.push(newDirective);
 		}
+	}
+	if (!deduplicated) {
+		finalDirectives.push(newDirective);
 	}
 	return finalDirectives;
 }
