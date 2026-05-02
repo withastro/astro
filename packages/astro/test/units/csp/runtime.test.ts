@@ -39,7 +39,16 @@ describe('deduplicateDirectiveValues', () => {
 });
 
 describe('pushDirective', () => {
-	it('adds new and dedupes the ones that are the same', () => {
+	it('adds new', () => {
+		const result = pushDirective(
+			["default-src 'self'", "connect-src https://example.com"],
+			"img-src https://example2.com",
+		);
+
+		assert.deepStrictEqual(result, ["default-src 'self'", "connect-src https://example.com", "img-src https://example2.com"]);
+	});
+
+	it('dedupes the ones that are the same', () => {
 		const result = pushDirective(
 			["img-src 'self'", "default-src 'self'"],
 			'img-src https://example.com',
