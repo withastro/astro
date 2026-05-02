@@ -359,9 +359,9 @@ export type I18nMiddlewareOptions = {
 /**
  * @param {AstroConfig['i18n']['routing']} customOptions
  *
- * A function that allows to programmatically create the Astro i18n middleware.
+ * A function that allows you to programmatically create the Astro i18n middleware.
  *
- * This is use useful when you still want to use the default i18n logic, but add only few exceptions to your website.
+ * This is useful when you still want to use the default i18n logic, but add only a few exceptions to your website.
  *
  * ## Examples
  *
