@@ -17,7 +17,7 @@ function cfHeadersPatternToRegex(pattern: string): RegExp {
 			i++;
 		} else if (ch === ':' && /[A-Za-z]/.test(pattern[i + 1] ?? '')) {
 			i++;
-			while (i < pattern.length && /[A-Za-z0-9_]/.test(pattern[i])) i++;
+			while (i < pattern.length && /\w/.test(pattern[i])) i++;
 			regexStr += '[^/]+';
 		} else {
 			regexStr += ch.replace(/[.+?^${}()|[\]\\]/g, '\\$&');
@@ -51,7 +51,7 @@ export function headersFileHasCacheControlForPath(content: string, path: string)
 		} else if (
 			matchesCurrentSection &&
 			// Either `Cache-Control: value` (set) or `! Cache-Control` (detach).
-			/^\s+(!\s+cache-control\s*$|cache-control\s*:)/i.test(rawLine)
+			/^\s+(?:!\s+cache-control\s*$|cache-control\s*:)/i.test(rawLine)
 		) {
 			return true;
 		}
