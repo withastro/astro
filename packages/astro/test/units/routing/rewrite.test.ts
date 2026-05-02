@@ -43,7 +43,7 @@ describe('normalizeRewritePathname', () => {
 
 		it('handles base path root with trailingSlash never', () => {
 			const result = normalizeRewritePathname('/docs', '/docs/', 'never', 'directory');
-			assert.equal(result.pathname, '');
+			assert.equal(result.pathname, '/');
 			assert.equal(result.resolvedUrlPathname, '/docs');
 		});
 
@@ -87,9 +87,9 @@ describe('normalizeRewritePathname', () => {
 			assert.equal(result.pathname, '/about');
 		});
 
-		it('converts root with base to empty string', () => {
+		it('converts root with base to root slash', () => {
 			const result = normalizeRewritePathname('/docs/', '/docs/', 'never', 'directory');
-			assert.equal(result.pathname, '');
+			assert.equal(result.pathname, '/');
 			assert.equal(result.resolvedUrlPathname, '/docs');
 		});
 	});
