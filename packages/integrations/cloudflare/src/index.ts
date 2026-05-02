@@ -1,5 +1,5 @@
 import { createReadStream, existsSync, readFileSync } from 'node:fs';
-import { appendFile, readFile, rename, stat } from 'node:fs/promises';
+import { appendFile, readFile, rename, stat, writeFile } from 'node:fs/promises';
 import { createInterface } from 'node:readline/promises';
 import { removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
 import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
@@ -7,6 +7,7 @@ import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-
 import type { AstroConfig, AstroIntegration, IntegrationResolvedRoute } from 'astro';
 import { astroFrontmatterScanPlugin } from './esbuild-plugin-astro-frontmatter.js';
 import { getParts } from './utils/generate-routes-json.js';
+import { headersFileHasCacheControlForPath } from './utils/headers.js';
 import {
 	type ImageServiceConfig,
 	normalizeImageServiceConfig,
@@ -478,6 +479,46 @@ export default function createIntegration({
 						} catch {
 							// File may not exist — that's fine
 						}
+					}
+				}
+
+				// Inject an immutable Cache-Control rule for hashed assets so browsers
+				// cache them across deploys. Skip when assets are served from another
+				// origin (build.assetsPrefix) or when the user's _headers already sets
+				// Cache-Control on a rule that would match the assets path — Cloudflare
+				// merges duplicate header values with a comma, which would otherwise
+				// produce a contradictory directive.
+				if (_config.build.assetsPrefix) {
+					logger.info(
+						'Skipping Cache-Control injection for assets — `build.assetsPrefix` is set, so assets are served from a different origin.',
+					);
+				} else {
+					const assetsDir = _config.build.assets ?? '_astro';
+					const basePrefix = _config.base === '/' ? '' : _config.base.replace(/\/$/, '');
+					const assetsPattern = `${basePrefix}/${assetsDir}/*`;
+					// A representative path under the assets dir, used to test whether any
+					// existing rule's URL pattern would already match these requests.
+					const probePath = `${basePrefix}/${assetsDir}/probe`;
+					const headersPath = new URL('./_headers', _originalClientDir);
+					let existingHeaders = '';
+					try {
+						existingHeaders = await readFile(headersPath, 'utf-8');
+					} catch {
+						// _headers doesn't exist yet — we'll create one
+					}
+					if (headersFileHasCacheControlForPath(existingHeaders, probePath)) {
+						logger.info(
+							`Skipping Cache-Control injection for ${assetsPattern} — _headers already sets Cache-Control on a matching rule.`,
+						);
+					} else {
+						const cacheBlock = `${assetsPattern}\n  Cache-Control: public, max-age=31536000, immutable\n`;
+						const content = existingHeaders ? `${cacheBlock}\n${existingHeaders}` : cacheBlock;
+						// Atomic write: stage to a temp file, then rename, so a crash
+						// mid-write can't leave the user's _headers truncated.
+						const tempPath = new URL('./_headers.tmp', _originalClientDir);
+						await writeFile(tempPath, content);
+						await rename(tempPath, headersPath);
+						logger.info(`Injected immutable Cache-Control for ${assetsPattern} into _headers.`);
 					}
 				}
 
