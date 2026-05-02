@@ -1,6 +1,7 @@
 import { createReadStream, existsSync, readFileSync } from 'node:fs';
 import { appendFile, rename, stat } from 'node:fs/promises';
 import { createInterface } from 'node:readline/promises';
+import { fileURLToPath } from 'node:url';
 import { removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
 import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
 import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
@@ -206,12 +207,24 @@ export default function createIntegration({
 					globalThis.astroCloudflareOptions = cfPluginConfig;
 				}
 
+				// Replace the CJS `debug` package (pulled transitively by
+				// `micromark`, `stylus`, and many other npm packages) with an
+				// ESM-compatible shim backed by `obug`. The original `debug`
+				// references `module.exports` at the top level, which fails
+				// with `ReferenceError: module is not defined` when
+				// @cloudflare/vite-plugin loads it in the workerd runner used
+				// for `astro dev`, SSR and prerendering.
+				const debugShim = fileURLToPath(new URL('./shims/debug.js', import.meta.url));
+
 				updateConfig({
 					build: {
 						redirects: false,
 					},
 					session,
 					vite: {
+						resolve: {
+							alias: { debug: debugShim },
+						},
 						plugins: [
 							...(prerenderEnvironment === 'node' && command === 'dev'
 								? [createNodePrerenderPlugin()]
