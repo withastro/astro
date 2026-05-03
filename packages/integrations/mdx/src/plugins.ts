@@ -47,8 +47,10 @@ function getRemarkPlugins(mdxOptions: MdxOptions): PluggableList {
 		if (mdxOptions.gfm) {
 			remarkPlugins.push(remarkGfm);
 		}
-		if (mdxOptions.smartypants) {
-			remarkPlugins.push(remarkSmartypants);
+		if (mdxOptions.smartypants !== false) {
+			const smartypantsConfig =
+				typeof mdxOptions.smartypants === 'object' ? mdxOptions.smartypants : {};
+			remarkPlugins.push([remarkSmartypants, smartypantsConfig]);
 		}
 	}
 
