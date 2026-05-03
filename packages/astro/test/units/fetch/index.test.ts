@@ -63,11 +63,12 @@ describe('trailingSlash()', () => {
 		const app = createTestApp([createPage(simplePage, { route: '/' })], {
 			trailingSlash: 'ignore',
 		});
-		const request = stampApp(new Request('http://example.com/about'), app);
-		const state = new FetchState(request);
 
-		const result = trailingSlash(state);
-		assert.equal(result, undefined);
+		const withoutSlash = stampApp(new Request('http://example.com/about'), app);
+		assert.equal(trailingSlash(new FetchState(withoutSlash)), undefined);
+
+		const withSlash = stampApp(new Request('http://example.com/about/'), app);
+		assert.equal(trailingSlash(new FetchState(withSlash)), undefined);
 	});
 
 	it('returns a redirect when trailing slash is required but missing', () => {
