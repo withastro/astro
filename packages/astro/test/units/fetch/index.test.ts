@@ -247,6 +247,61 @@ describe('astro() combined handler', () => {
 		const text = await response.text();
 		assert.match(text, /<h1>Hello<\/h1>/);
 	});
+
+	it('returns a redirect for redirect routes', async () => {
+		const app = createTestApp([
+			createRedirect({ route: '/old', redirect: '/new' }),
+			createPage(simplePage, { route: '/new' }),
+		]);
+		const request = stampApp(new Request('http://example.com/old'), app);
+		const state = new FetchState(request);
+
+		const response = await astro(state);
+
+		assert.equal(response.status, 301);
+		assert.equal(response.headers.get('location'), '/new');
+	});
+
+	it('applies trailing slash redirect before rendering', async () => {
+		const app = createTestApp(
+			[createPage(simplePage, { route: '/about' })],
+			{ trailingSlash: 'always' },
+		);
+		const request = stampApp(new Request('http://example.com/about'), app);
+		const state = new FetchState(request);
+
+		const response = await astro(state);
+
+		assert.equal(response.status, 301);
+		assert.equal(response.headers.get('location'), '/about/');
+	});
+
+	it('runs middleware when configured', async () => {
+		const app = createTestApp(
+			[createPage(
+				createComponent((result: any, props: any, slots: any) => {
+					const Astro = result.createAstro(props, slots);
+					return render`<p>${Astro.locals.from}</p>`;
+				}),
+				{ route: '/' },
+			)],
+			{
+				middleware: async () => ({
+					onRequest: async (ctx: any, next: any) => {
+						ctx.locals.from = 'middleware';
+						return next();
+					},
+				}),
+			},
+		);
+		const request = stampApp(new Request('http://example.com/'), app);
+		const state = new FetchState(request);
+
+		const response = await astro(state);
+
+		assert.equal(response.status, 200);
+		assert.match(await response.text(), /middleware/);
+	});
 });
 
 // #endregion
