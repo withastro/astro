@@ -28,7 +28,7 @@ function stampApp(request: Request, app: ReturnType<typeof createTestApp>): Requ
 	return request;
 }
 
-// ---------- FetchState constructor ----------
+// #region FetchState constructor
 
 describe('FetchState (astro/fetch)', () => {
 	it('throws when the request has no attached app', () => {
@@ -54,7 +54,9 @@ describe('FetchState (astro/fetch)', () => {
 	});
 });
 
-// ---------- trailingSlash() ----------
+// #endregion
+
+// #region trailingSlash()
 
 describe('trailingSlash()', () => {
 	it('returns undefined when no redirect is needed', () => {
@@ -95,7 +97,9 @@ describe('trailingSlash()', () => {
 	});
 });
 
-// ---------- redirects() ----------
+// #endregion
+
+// #region redirects()
 
 describe('redirects()', () => {
 	it('returns undefined when the route is not a redirect', () => {
@@ -128,7 +132,9 @@ describe('redirects()', () => {
 	});
 });
 
-// ---------- actions() ----------
+// #endregion
+
+// #region actions()
 
 describe('actions()', () => {
 	it('returns undefined for a non-action GET request', () => {
@@ -141,7 +147,9 @@ describe('actions()', () => {
 	});
 });
 
-// ---------- middleware() ----------
+// #endregion
+
+// #region middleware()
 
 describe('middleware()', () => {
 	it('calls the next callback and returns its response', async () => {
@@ -179,7 +187,9 @@ describe('middleware()', () => {
 	});
 });
 
-// ---------- pages() ----------
+// #endregion
+
+// #region pages()
 
 describe('pages()', () => {
 	it('renders a matched page', async () => {
@@ -195,7 +205,9 @@ describe('pages()', () => {
 	});
 });
 
-// ---------- i18n() ----------
+// #endregion
+
+// #region i18n()
 
 describe('i18n()', () => {
 	it('passes through the response when i18n is not configured', async () => {
@@ -210,7 +222,9 @@ describe('i18n()', () => {
 	});
 });
 
-// ---------- astro() combined handler ----------
+// #endregion
+
+// #region astro() combined handler
 
 describe('astro() combined handler', () => {
 	it('renders a page through the full pipeline', async () => {
@@ -226,7 +240,9 @@ describe('astro() combined handler', () => {
 	});
 });
 
-// ---------- Rewrite params ----------
+// #endregion
+
+// #region Rewrite params
 
 describe('Rewrite updates params', () => {
 	it('params reflect the rewritten route after ctx.rewrite()', async () => {
@@ -257,7 +273,9 @@ describe('Rewrite updates params', () => {
 	});
 });
 
-// ---------- Composed pipeline (like the changeset example) ----------
+// #endregion
+
+// #region Composed pipeline
 
 describe('Composed pipeline', () => {
 	it('renders a page through individually composed handlers', async () => {
@@ -282,3 +300,5 @@ describe('Composed pipeline', () => {
 		assert.match(await final.text(), /<h1>Hello<\/h1>/);
 	});
 });
+
+// #endregion
