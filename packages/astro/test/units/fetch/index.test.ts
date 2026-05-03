@@ -12,7 +12,7 @@ import {
 	i18n,
 } from '../../../dist/core/fetch/index.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
-import { createPage, createTestApp } from '../mocks.ts';
+import { createPage, createRedirect, createTestApp } from '../mocks.ts';
 
 /** A simple page component that renders `<h1>Hello</h1>`. */
 const simplePage = createComponent((_result: any, _props: any, _slots: any) => {
@@ -113,23 +113,31 @@ describe('redirects()', () => {
 	});
 
 	it('returns a redirect response when the route is a redirect', async () => {
-		const app = createTestApp([createPage(simplePage, { route: '/' })]);
-		const request = stampApp(new Request('http://example.com/'), app);
+		const app = createTestApp([
+			createRedirect({ route: '/old', redirect: '/new' }),
+		]);
+		const request = stampApp(new Request('http://example.com/old'), app);
 		const state = new FetchState(request);
-		// Override routeData to simulate a redirect route
-		state.routeData = {
-			...state.routeData,
-			type: 'redirect',
-			redirect: '/new',
-			redirectRoute: undefined,
-		} as any;
-		state.params = {};
 
 		const result = redirects(state);
 		assert.ok(result !== undefined);
 		const response = await result;
 		assert.equal(response.status, 301);
 		assert.equal(response.headers.get('location'), '/new');
+	});
+
+	it('returns a redirect response for an external URL', async () => {
+		const app = createTestApp([
+			createRedirect({ route: '/old', redirect: 'https://other-site.com/landing' }),
+		]);
+		const request = stampApp(new Request('http://example.com/old'), app);
+		const state = new FetchState(request);
+
+		const result = redirects(state);
+		assert.ok(result !== undefined);
+		const response = await result;
+		assert.equal(response.status, 301);
+		assert.equal(response.headers.get('location'), 'https://other-site.com/landing');
 	});
 });
 

@@ -14,6 +14,7 @@ import {
 } from '../../dist/runtime/server/index.js';
 import { createManifest, createRouteInfo } from './app/test-helpers.ts';
 import type { Pipeline } from '../../dist/core/render/index.js';
+import type { RedirectConfig } from '../../dist/types/public/config.js';
 import type { RouteData, RoutePart, RouteType } from '../../dist/types/public/internal.js';
 import type { APIContext } from '../../dist/types/public/context.js';
 import type { SSRManifest, RouteInfo } from '../../dist/core/app/types.js';
@@ -165,6 +166,21 @@ export function createPage(
 }
 
 /**
+ * Creates a redirect route entry for use with createTestApp.
+ */
+export function createRedirect(
+	routeConfig: CreateRouteDataOptions & { redirect: RedirectConfig },
+): PageResult {
+	const routeData = createRouteData({ ...routeConfig, type: 'redirect' });
+	return {
+		routeData,
+		// Redirect routes don't render a component, but the pageMap still
+		// needs an entry keyed by component path.
+		module: async () => ({ page: async () => ({ default: undefined as any }) }),
+	};
+}
+
+/**
  * Creates an App instance with one or more pages.
  */
 export function createTestApp(
@@ -225,6 +241,8 @@ interface CreateRouteDataOptions {
 	pathname?: string;
 	segments?: RoutePart[][];
 	trailingSlash?: 'always' | 'never' | 'ignore';
+	redirect?: RedirectConfig;
+	redirectRoute?: RouteData;
 }
 
 /**
@@ -252,6 +270,8 @@ export function createRouteData(overrides: CreateRouteDataOptions): RouteData {
 		component: overrides.component ?? `src/pages${route === '/' ? '/index' : route}.astro`,
 		isIndex: overrides.isIndex ?? route === '/',
 		prerender: overrides.prerender ?? false,
+		redirect: overrides.redirect,
+		redirectRoute: overrides.redirectRoute,
 	});
 }
 
