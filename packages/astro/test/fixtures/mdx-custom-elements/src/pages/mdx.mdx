@@ -1,0 +1,10 @@
+# MDX Custom Elements Test
+
+In MDX, tags are compiled as JSX VNodes. A hyphenated tag like `<my-element>` has
+`vnode.type === 'my-element'` (a string), so it flows through `renderJSXVNode`.
+
+Before the fix for issue #16273, the `typeof vnode.type === 'string'` case in
+`renderJSXVNode` unconditionally called `renderElement`, bypassing all renderers.
+After the fix, hyphenated string types fall through to `renderComponentToString`.
+
+<my-element id="mdx-element">hello from mdx</my-element>
