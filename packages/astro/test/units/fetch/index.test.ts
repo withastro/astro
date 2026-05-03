@@ -229,6 +229,84 @@ describe('i18n()', () => {
 
 		assert.equal(result, original);
 	});
+
+	it('redirects to the default locale when prefix-always and no locale in path', async () => {
+		const app = createTestApp(
+			[createPage(simplePage, { route: '/' })],
+			{
+				i18n: {
+					defaultLocale: 'en',
+					locales: ['en', 'fr'],
+					strategy: 'pathname-prefix-always',
+					fallbackType: 'rewrite',
+					fallback: {},
+					domains: {},
+					domainLookupTable: {},
+				},
+			},
+		);
+		const request = stampApp(new Request('http://example.com/about'), app);
+		const state = new FetchState(request);
+
+		const pageResponse = new Response('page body', {
+			headers: { 'X-Astro-Route-Type': 'page' },
+		});
+		const result = await i18n(state, pageResponse);
+
+		assert.equal(result.status, 404);
+	});
+
+	it('passes through the response for a valid locale path', async () => {
+		const app = createTestApp(
+			[createPage(simplePage, { route: '/en' })],
+			{
+				i18n: {
+					defaultLocale: 'en',
+					locales: ['en', 'fr'],
+					strategy: 'pathname-prefix-always',
+					fallbackType: 'rewrite',
+					fallback: {},
+					domains: {},
+					domainLookupTable: {},
+				},
+			},
+		);
+		const request = stampApp(new Request('http://example.com/en/about'), app);
+		const state = new FetchState(request);
+
+		const pageResponse = new Response('page body', {
+			headers: { 'X-Astro-Route-Type': 'page' },
+		});
+		const result = await i18n(state, pageResponse);
+
+		assert.equal(result.status, 200);
+		assert.equal(await result.text(), 'page body');
+	});
+
+	it('passes through non-page responses unchanged even with i18n configured', async () => {
+		const app = createTestApp(
+			[createPage(simplePage, { route: '/' })],
+			{
+				i18n: {
+					defaultLocale: 'en',
+					locales: ['en', 'fr'],
+					strategy: 'pathname-prefix-always',
+					fallbackType: 'rewrite',
+					fallback: {},
+					domains: {},
+					domainLookupTable: {},
+				},
+			},
+		);
+		const request = stampApp(new Request('http://example.com/api/data'), app);
+		const state = new FetchState(request);
+
+		// No X-Astro-Route-Type header — simulates an endpoint response
+		const apiResponse = new Response('{"ok":true}');
+		const result = await i18n(state, apiResponse);
+
+		assert.equal(result, apiResponse);
+	});
 });
 
 // #endregion
