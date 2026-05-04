@@ -125,6 +125,7 @@ async function runTriagePipeline(
 }> {
 	const reproduceResult = await session.skill('triage/reproduce.md', {
 		args: { issueNumber, issueDetails },
+		commands: [gh, bgproc, agentBrowser, git, node, pnpm],
 		result: v.object({
 			reproducible: v.pipe(
 				v.boolean(),
@@ -153,6 +154,7 @@ async function runTriagePipeline(
 
 	const diagnoseResult = await session.skill('triage/diagnose.md', {
 		args: { issueDetails },
+		commands: [gh, bgproc, agentBrowser, git, node, pnpm],
 		result: v.object({
 			confidence: v.pipe(
 				v.nullable(v.picklist(['high', 'medium', 'low'])),
@@ -162,6 +164,7 @@ async function runTriagePipeline(
 	});
 	const verifyResult = await session.skill('triage/verify.md', {
 		args: { issueDetails },
+		commands: [gh, bgproc, agentBrowser, git, node, pnpm],
 		result: v.object({
 			verdict: v.pipe(
 				v.picklist(['bug', 'intended-behavior', 'unclear']),
@@ -188,6 +191,7 @@ async function runTriagePipeline(
 
 	const fixResult = await session.skill('triage/fix.md', {
 		args: { issueDetails },
+		commands: [gh, bgproc, agentBrowser, git, node, pnpm],
 		result: v.object({
 			fixed: v.pipe(
 				v.boolean(),
@@ -216,12 +220,12 @@ export default async function ({ init, payload }: FlueContext) {
 	const issueNumber = payload.issueNumber as number;
 	const branch = `flue/fix-${issueNumber}`;
 
-	// Initialize the session.
-	const session = await init({
+	// Initialize the agent and session.
+	const agent = await init({
 		sandbox: 'local',
 		model: 'anthropic/claude-opus-4-6',
-		commands: [gh, bgproc, agentBrowser, git, node, pnpm],
 	});
+	const session = await agent.session();
 
 	const issueDetails = await fetchIssueDetails(issueNumber);
 
@@ -245,19 +249,20 @@ export default async function ({ init, payload }: FlueContext) {
 	// - create a PR from that branch entirely in the GH UI
 	// - ignore it completely
 	{
-		const diff = await session.shell('git diff main --stat');
+		const diff = await session.shell('git diff main --stat', { commands: [git] });
 		if (diff.stdout.trim()) {
-			const status = await session.shell('git status --porcelain');
+			const status = await session.shell('git status --porcelain', { commands: [git] });
 			if (status.stdout.trim()) {
-				await session.shell('git add -A');
+				await session.shell('git add -A', { commands: [git] });
 				const defaultMessage = triageResult.fixed
 					? 'fix(auto-triage): automated fix'
 					: 'test(auto-triage): failing test and investigation notes';
 				await session.shell(
 					`git commit -m ${JSON.stringify(triageResult.commitMessage ?? defaultMessage)}`,
+					{ commands: [git] },
 				);
 			}
-			const pushResult = await session.shell(`git push -f origin ${branch}`, {commands: [gitWithAuth]});
+			const pushResult = await session.shell(`git push -f origin ${branch}`, { commands: [gitWithAuth] });
 			console.info('push result:', pushResult);
 			isPushed = pushResult.exitCode === 0;
 		}
@@ -272,6 +277,7 @@ export default async function ({ init, payload }: FlueContext) {
 	const branchName = isPushed ? branch : null;
 	const comment = await session.skill('triage/comment.md', {
 		args: { branchName, priorityLabels, issueDetails },
+		commands: [gh, git, node, pnpm],
 		result: v.pipe(
 			v.string(),
 			v.description(
