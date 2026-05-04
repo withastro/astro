@@ -9,7 +9,7 @@ import { AstroErrorData } from '../../core/errors/index.js';
 import type { AstroLogger } from '../../core/logger/core.js';
 import { isRemotePath, removeLeadingForwardSlash } from '../../core/path.js';
 import type { MapValue } from '../../type-utils.js';
-import type { AstroConfig } from '../../types/public/config.js';
+import type { AstroConfig, ImageServiceConfig } from '../../types/public/config.js';
 import { getConfiguredImageService } from '../internal.js';
 import type { LocalImageService } from '../services/service.js';
 import type { AssetsGlobalStaticImagesList, ImageMetadata, ImageTransform } from '../types.js';
@@ -355,7 +355,7 @@ export function getStaticImageList(): AssetsGlobalStaticImagesList {
 
 async function loadImage(path: string, env: AssetEnv): Promise<ImageData> {
 	if (isRemotePath(path)) {
-		return await loadRemoteImage(path);
+		return await loadRemoteImage(path, undefined, env.imageConfig);
 	}
 
 	return {
