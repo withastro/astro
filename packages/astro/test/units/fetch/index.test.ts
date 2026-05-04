@@ -12,7 +12,7 @@ import {
 	i18n,
 } from '../../../dist/core/fetch/index.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
-import { createPage, createRedirect, createTestApp } from '../mocks.ts';
+import { createEndpoint, createPage, createRedirect, createTestApp } from '../mocks.ts';
 
 /** A simple page component that renders `<h1>Hello</h1>`. */
 const simplePage = createComponent((_result: any, _props: any, _slots: any) => {
@@ -211,6 +211,44 @@ describe('pages()', () => {
 		assert.equal(response.status, 200);
 		const text = await response.text();
 		assert.match(text, /<h1>Hello<\/h1>/);
+	});
+
+	it('renders an endpoint', async () => {
+		const app = createTestApp([
+			createEndpoint(
+				{ GET: () => new Response(JSON.stringify({ ok: true }), {
+					headers: { 'Content-Type': 'application/json' },
+				}) },
+				{ route: '/api/health' },
+			),
+		]);
+		const request = stampApp(new Request('http://example.com/api/health'), app);
+		const state = new FetchState(request);
+
+		const response = await pages(state);
+
+		assert.equal(response.status, 200);
+		assert.equal(response.headers.get('Content-Type'), 'application/json');
+		const body = await response.json();
+		assert.equal(body.ok, true);
+	});
+
+	it('returns 404 for an endpoint with no matching method handler', async () => {
+		const app = createTestApp([
+			createEndpoint(
+				{ GET: () => new Response('ok') },
+				{ route: '/api/health' },
+			),
+		]);
+		const request = stampApp(
+			new Request('http://example.com/api/health', { method: 'POST' }),
+			app,
+		);
+		const state = new FetchState(request);
+
+		const response = await pages(state);
+
+		assert.equal(response.status, 404);
 	});
 });
 

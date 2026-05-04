@@ -181,6 +181,22 @@ export function createRedirect(
 }
 
 /**
+ * Creates an endpoint route entry for use with createTestApp.
+ * The `handlers` object maps HTTP methods to handler functions,
+ * e.g. `{ GET: (ctx) => new Response('ok') }`.
+ */
+export function createEndpoint(
+	handlers: Record<string, (ctx: APIContext) => Response | Promise<Response>>,
+	routeConfig: CreateRouteDataOptions,
+): PageResult {
+	const routeData = createRouteData({ ...routeConfig, type: 'endpoint' });
+	return {
+		routeData,
+		module: async () => ({ page: async () => handlers as any }),
+	};
+}
+
+/**
  * Creates an App instance with one or more pages.
  */
 export function createTestApp(
