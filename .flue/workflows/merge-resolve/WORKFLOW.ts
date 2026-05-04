@@ -54,24 +54,16 @@ export default async function mergeResolve(
 		}),
 	});
 
-	// Step 3: Install deps and build to verify the merge is clean
+	// Step 3: Regenerate the lockfile
 	// This runs AFTER conflict resolution so the lockfile is generated from
 	// correct package.json files (not ones with conflict markers).
+	// We do NOT build here — the merge-fix workflow handles build/type/lint
+	// errors if CI fails after this push.
 	const installResult = await flue.shell('CI=true pnpm install --no-frozen-lockfile');
 	if (installResult.exitCode !== 0) {
 		return {
 			success: false,
 			error: 'pnpm install failed after conflict resolution',
-			resolvedFiles: resolveResult.resolvedFiles,
-			removedChangesets: changesetResult.removedChangesets,
-		};
-	}
-
-	const buildResult = await flue.shell('pnpm build');
-	if (buildResult.exitCode !== 0) {
-		return {
-			success: false,
-			error: 'pnpm build failed after conflict resolution',
 			resolvedFiles: resolveResult.resolvedFiles,
 			removedChangesets: changesetResult.removedChangesets,
 		};

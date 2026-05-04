@@ -80,7 +80,7 @@ jobs:
         id: attempts
         run: |
           # Count prior fix commits by the bot on this branch (since it diverged from next)
-          COUNT=$(git log --oneline origin/next..HEAD --author="astrobot-houston" --grep="fix test failures" | wc -l | tr -d ' ')
+          COUNT=$(git log --oneline origin/next..HEAD --author="astrobot-houston" --grep="fix .* failures for main-to-next merge" | wc -l | tr -d ' ')
           echo "count=$COUNT" >> "$GITHUB_OUTPUT"
           if [ "$COUNT" -ge 3 ]; then
             echo "::warning::Merge fix has already been attempted $COUNT times. Skipping to avoid infinite recursion."
@@ -105,9 +105,8 @@ jobs:
         if: steps.pr.outputs.number != '' && steps.attempts.outputs.skip != 'true'
         run: pnpm install --frozen-lockfile
 
-      - name: Build
-        if: steps.pr.outputs.number != '' && steps.attempts.outputs.skip != 'true'
-        run: pnpm build
+      # Build is intentionally NOT run here — the fix-ci skill handles building
+      # and fixing any build/type errors that arise from the merge.
 
       - name: Log in to GHCR
         if: steps.pr.outputs.number != '' && steps.attempts.outputs.skip != 'true'

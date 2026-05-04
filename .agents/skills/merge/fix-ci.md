@@ -1,6 +1,6 @@
-# Fix Test Failures
+# Fix CI Failures
 
-Fix test failures identified from CI logs on the merge PR. Do NOT re-run the full test suite — CI has already done that. Instead, analyze the CI failure logs and fix the specific failures.
+Fix build errors, type errors, and test failures identified from CI logs on the merge PR. The merge-resolve workflow has already resolved conflicts and regenerated the lockfile, but the code may not build or pass tests yet.
 
 **SCOPE: Do not spawn tasks/sub-agents.**
 
@@ -9,14 +9,14 @@ Fix test failures identified from CI logs on the merge PR. Do NOT re-run the ful
 - **`prNumber`** — The PR number for the merge PR.
 - **`ciLogs`** — The CI failure logs, pre-fetched by the orchestrator. Contains the failed job names and their log output.
 - The working directory is the repo root, checked out on the merge branch.
-- Merge conflicts have already been resolved and committed by the merge action.
-- Dependencies are installed and packages are built (the GitHub Action did `pnpm install --frozen-lockfile && pnpm build` before invoking this skill).
+- Merge conflicts have already been resolved and committed by the merge-resolve workflow.
+- Dependencies are installed (`pnpm install` has been run).
 
 ## Critical Rules
 
 1. **NEVER run `pnpm install`** — dependencies are already installed correctly. The lockfile was generated during the merge action with all conflicts resolved. Running install again (especially `--no-frozen-lockfile`) will re-resolve the entire dependency tree and break transitive dependencies. If a test fails due to a missing module, that's a source code issue to fix, not a dependency issue.
 
-2. **Time-box your investigation.** If you've spent more than 5 minutes analyzing a single failure without attempting a fix, stop investigating and try your best theory. Run the test, see if it helps, iterate. Don't trace the entire call chain from first principles.
+2. **Time-box your investigation.** If you've spent more than 5 minutes analyzing a single failure without attempting a fix, stop investigating and try your best theory. Run the build/test, see if it helps, iterate. Don't trace the entire call chain from first principles.
 
 3. **Diff first, not code-read.** When investigating a failure, start by looking at what changed in the merge (`git diff origin/next...HEAD -- <relevant-files>`), not by reading the full source. The diff shows you exactly what's different.
 
@@ -30,17 +30,39 @@ This skill follows a "fix and push" approach. After pushing, CI will re-run auto
 
 ### Step 1: Build all packages
 
-Before analyzing test failures, ensure all packages are built:
+Start by building. This is the first thing CI does, so build errors block everything else:
 
 ```bash
 pnpm build
 ```
 
-Fix any build errors first — these may be the cause of test failures downstream.
+If the build fails, fix the build errors before moving on to tests. Common build errors after a merge:
+
+- **Type errors** — APIs changed between `main` and `next`. One branch updated a type signature or added a required field, and the other branch's code doesn't match. Fix by adapting the code to the current branch state.
+- **Import errors** — A file was moved, renamed, or an export was removed. Fix by updating the import path or adapting to the new API.
+- **Duplicate declarations** — Both branches added similar code. Remove the duplicate, keeping the `next` version.
+
+Use the diff to understand what changed:
+
+```bash
+git diff origin/next...HEAD -- <path-to-failing-file>
+```
+
+After fixing build errors, rebuild the affected package(s) to confirm:
+
+```bash
+pnpm -C packages/<affected-package> build
+```
+
+Then do a full build to make sure nothing else broke:
+
+```bash
+pnpm build
+```
 
 ### Step 2: Analyze CI failure logs
 
-The `ciLogs` argument contains the pre-fetched CI failure logs. Parse them to identify:
+Once the build passes, look at the `ciLogs` argument to identify test failures:
 
 - Which test files failed
 - The specific test names that failed
@@ -48,7 +70,7 @@ The `ciLogs` argument contains the pre-fetched CI failure logs. Parse them to id
 
 **Note:** Do NOT use `gh` CLI commands — they don't work inside the sandbox. All CI log data is provided in the `ciLogs` argument.
 
-### Step 3: Analyze failures
+### Step 3: Analyze test failures
 
 For each failure, determine the cause by first checking the diff:
 
@@ -62,7 +84,7 @@ Common causes:
 
 2. **Import/module errors** — Code from `main` references modules or exports that changed on `next`. Fix by updating imports or adapting the code.
 
-3. **Type errors** — TypeScript compilation failures from API changes between branches. Fix by updating types.
+3. **Type errors in tests** — TypeScript compilation failures from API changes between branches. Fix by updating types.
 
 4. **Configuration mismatches** — Test fixtures using config options that changed on `next`. Fix by updating the fixture config.
 
@@ -73,7 +95,7 @@ For each failure:
 1. **Check the diff** to understand what changed
 2. **Read the failing test file** to understand what it's testing
 3. **Read the source code** it's testing if needed
-4. **Make the minimal fix** — only change what's needed to make the test pass
+4. **Make the minimal fix** — only change what's needed to make it pass
 
 **Fix principles:**
 
@@ -112,6 +134,6 @@ Then re-run the specific affected tests to confirm.
 
 Return:
 
-- Whether all identified test failures were fixed
+- Whether all identified CI failures were fixed (build + tests)
 - List of files that were modified
 - List of any remaining failures that could not be fixed automatically (e.g., require deeper architectural understanding)

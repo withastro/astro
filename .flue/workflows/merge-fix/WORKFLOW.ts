@@ -32,21 +32,25 @@ export default async function mergeFix(flue: FlueClient, { prNumber }: v.InferOu
 	// so we fetch logs here in the orchestrator and pass them to the skill.
 	const ciLogs = await fetchCIFailureLogs(branch);
 
-	// Run tests and fix failures.
-	// Conflicts have already been resolved and deps installed by the merge action.
-	// This skill only needs to analyze CI failure logs and fix the specific tests.
-	const fixResult = await flue.skill('merge/fix-tests.md', {
+	// Fix CI failures: build errors, type errors, lint errors, and test failures.
+	// Conflicts have already been resolved by the merge-resolve workflow.
+	// Dependencies are installed but packages may NOT be built yet — the skill
+	// handles building and fixing any errors that come up.
+	const fixResult = await flue.skill('merge/fix-ci.md', {
 		args: { prNumber, ciLogs },
 		result: v.object({
-			testsPass: v.pipe(v.boolean(), v.description('true if all tests pass after fixes')),
+			ciPass: v.pipe(
+				v.boolean(),
+				v.description('true if build + tests pass after fixes'),
+			),
 			fixedFiles: v.pipe(
 				v.array(v.string()),
-				v.description('List of test files or source files that were modified to fix failures'),
+				v.description('List of source or test files that were modified to fix failures'),
 			),
 			remainingFailures: v.pipe(
 				v.array(v.string()),
 				v.description(
-					'Test names or files that still fail and could not be resolved automatically',
+					'Errors or test names that still fail and could not be resolved automatically',
 				),
 			),
 		}),
@@ -56,19 +60,19 @@ export default async function mergeFix(flue: FlueClient, { prNumber }: v.InferOu
 	const status = await flue.shell('git status --porcelain');
 	if (status.stdout.trim()) {
 		await flue.shell('git add -A');
-		await flue.shell('git commit -m "chore: fix test failures for main-to-next merge"');
+		await flue.shell('git commit -m "chore: fix CI failures for main-to-next merge"');
 		const pushResult = await flue.shell(`git push origin ${branch}`);
 		console.info('push result:', pushResult);
 
 		if (pushResult.exitCode !== 0) {
-			return { pushed: false, testsPass: fixResult.testsPass };
+			return { pushed: false, ciPass: fixResult.ciPass };
 		}
 	}
 
 	// Post a summary comment on the PR
 	const summaryParts = [];
 	if (fixResult.fixedFiles.length > 0) {
-		summaryParts.push(`- Fixed test failures in: ${fixResult.fixedFiles.join(', ')}`);
+		summaryParts.push(`- Fixed failures in: ${fixResult.fixedFiles.join(', ')}`);
 	}
 	if (fixResult.remainingFailures.length > 0) {
 		summaryParts.push(
@@ -77,18 +81,18 @@ export default async function mergeFix(flue: FlueClient, { prNumber }: v.InferOu
 	}
 
 	if (summaryParts.length > 0) {
-		const commentBody = `## Automated Test Fix
+		const commentBody = `## Automated CI Fix
 
 ${summaryParts.join('\n')}
 
-${fixResult.testsPass ? 'All tests pass — this PR should be ready for review.' : 'Some tests still fail — manual intervention may be needed.'}`;
+${fixResult.ciPass ? 'All checks pass — this PR should be ready for review.' : 'Some checks still fail — manual intervention may be needed.'}`;
 
 		await postPRComment(prNumber, commentBody);
 	}
 
 	return {
 		pushed: true,
-		testsPass: fixResult.testsPass,
+		ciPass: fixResult.ciPass,
 		fixedFiles: fixResult.fixedFiles,
 		remainingFailures: fixResult.remainingFailures,
 	};
