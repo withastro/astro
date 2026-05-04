@@ -1001,7 +1001,7 @@ export const LocalImageUsedWrongly = {
 	title: 'Local images must be imported.',
 	message: (imageFilePath: string) =>
 		`\`Image\`'s and \`getImage\`'s \`src\` parameter must be an imported image or a URL, it cannot be a string filepath. Received \`${imageFilePath}\`.`,
-	hint: 'If you want to use an image from your `src` folder, you need to either import it or if the image is coming from a content collection, use the [image() schema helper](https://docs.astro.build/en/guides/images/#images-in-content-collections). See https://docs.astro.build/en/guides/images/#src-required for more information on the `src` property.',
+	hint: 'If you want to use an image from your `src` folder, you need to either import it or if the image is coming from a content collection, use the [image() schema helper](https://docs.astro.build/en/guides/images/#images-in-content-collections). See https://docs.astro.build/en/reference/modules/astro-assets/#src-required for more information on the `src` property.',
 } satisfies ErrorData;
 
 /**
@@ -1173,7 +1173,7 @@ export const FailedToFindPageMapSSR = {
 /**
  * @docs
  * @description
- * Astro can't find the requested locale. All supported locales must be configured in [`i18n.locales`](/en/reference/configuration-reference/#i18nlocales) and have corresponding directories within `src/pages/`.
+ * Astro can't find the requested locale. All supported locales must be configured in [`i18n.locales`](https://docs.astro.build/en/reference/configuration-reference/#i18nlocales) and have corresponding directories within `src/pages/`.
  */
 export const MissingLocale = {
 	name: 'MissingLocaleError',
