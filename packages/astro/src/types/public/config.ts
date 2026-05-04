@@ -1410,7 +1410,7 @@ export interface AstroUserConfig<
 	 * Some adapters may provide a default session driver, but you can override it with your own configuration:
 	 *
 	 * ```js title="astro.config.mjs"
-	 * import { defineConfig, sessionDrivers } from 'astro/config'
+	 * import { defineConfig, sessionDrivers } from 'astro/config';
 
 	 * export default defineConfig({
 	 *   session: {
@@ -1419,7 +1419,7 @@ export interface AstroUserConfig<
 	 *       url: process.env.REDIS_URL
 	 *     }),
 	 *   }
-	 * })
+	 * });
 	 * ```
 	 *
 	 * Session drivers are configured at build time. This means environment variables used in the driver configuration are inlined. You must create your own driver entrypoint to [override the configuration at runtime](https://docs.astro.build/en/guides/sessions/#overriding-the-configuration-at-runtime).
