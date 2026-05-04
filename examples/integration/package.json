@@ -18,7 +18,11 @@
   ],
   "scripts": {},
   "devDependencies": {
+<<<<<<< HEAD
     "astro": "^7.0.0-alpha.0"
+=======
+    "astro": "^6.2.2"
+>>>>>>> origin/main
   },
   "peerDependencies": {
     "astro": "^4.0.0"

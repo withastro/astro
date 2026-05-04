@@ -1,6 +1,6 @@
-# Resolve Merge Conflicts
+# Verify Merge Conflict Resolutions
 
-Resolve merge conflicts from merging `main` into the `next` branch.
+Verify that the automated conflict resolution (which kept the "ours"/next side for JSON and YAML files) was correct, and fix any issues.
 
 **SCOPE: Do not spawn tasks/sub-agents.**
 
@@ -8,50 +8,66 @@ Resolve merge conflicts from merging `main` into the `next` branch.
 
 - **`prNumber`** — The PR number for the merge PR.
 - **`branch`** — The branch name (e.g., `ci/merge-main-to-next`).
-- The working directory is the repo root, checked out on the merge branch with conflict markers present.
+- The working directory is the repo root, checked out on the merge branch.
+- Dependencies are installed and packages are built.
+- Conflict markers in JSON/YAML files have already been stripped by the GitHub Action, keeping the "ours" (next) side. Source code files (`.ts`, `.js`, `.md`, `.astro`) may still have conflict markers.
 
-## Strategy
+## Background
 
-When resolving conflicts, follow these rules based on file type:
-
-### Changeset files (`.changeset/*.md`)
-
-- If a changeset file exists on `main` but not on `next`, it was likely already released. **Delete it.** The clean-changesets skill will handle this more thoroughly, but removing obvious ones here unblocks the merge.
-- If both branches modified the same changeset, prefer the `next` version since it's the one targeting the upcoming major.
-
-### `package.json` and version files
-
-- **Prefer `next` branch versions.** The `next` branch has the pre-release versions (alpha/beta) which should not be overwritten by `main`'s stable versions.
-- For dependency version updates from `main`, accept those — they are typically patches/minors that should be forward-ported.
-
-### `pnpm-lock.yaml`
-
-- Do not try to manually resolve lockfile conflicts. Instead:
-  1. Accept the `next` version: `git checkout --theirs pnpm-lock.yaml`
-  2. The lockfile will be regenerated after `pnpm install` later.
-
-### Source code (`packages/**/*.ts`, `packages/**/*.js`)
-
-- **Prefer `main` for bug fixes.** If `main` fixed a bug, that fix should carry over to `next`.
-- **Prefer `next` for API changes.** If `next` changed an API (new major version features), keep the `next` version and adapt the `main` fix to work with it if needed.
-- When in doubt, prefer `next` — it's the forward-looking branch.
-
-### Test files
-
-- If tests conflict, prefer `next` and adapt. Tests on `next` may test new major-version behavior.
-
-### Configuration files (`.changeset/config.json`, `tsconfig.json`, etc.)
-
-- Prefer `next` unless `main` has a clear fix that should be forward-ported.
+The GitHub Action strips conflict markers from JSON/YAML files before `pnpm install` can run, always keeping the `next` branch side. This is usually correct (next has pre-release versions that must be preserved), but it may discard important changes from `main` — like new dependencies, updated dependency versions, or config changes from bug fixes.
 
 ## Steps
 
-1. Run `git diff --name-only --diff-filter=U` to list all conflicted files.
-2. For each conflicted file, read the file and resolve the conflict following the strategy above.
-3. After resolving each file, run `git add <file>` to mark it as resolved.
-4. After all files are resolved, verify no conflict markers remain: `grep -r "<<<<<<< " --include="*.ts" --include="*.js" --include="*.json" --include="*.yaml" --include="*.yml" --include="*.md" .`
-5. Do NOT commit — the orchestrator will handle committing.
+### Step 1: Resolve any remaining conflict markers
+
+Check for conflict markers in source code files:
+
+```bash
+grep -r "<<<<<<< " --include="*.ts" --include="*.js" --include="*.mjs" --include="*.cjs" --include="*.md" --include="*.astro" . 2>/dev/null | grep -v node_modules
+```
+
+If any exist, resolve them following these rules:
+
+- **Prefer `main` for bug fixes.** If `main` fixed a bug, that fix should carry over to `next`.
+- **Prefer `next` for API changes.** If `next` changed an API, keep the `next` version and adapt the `main` fix if needed.
+- When in doubt, prefer `next` — it's the forward-looking branch.
+
+After resolving, `git add` each file.
+
+### Step 2: Review what was lost from main
+
+Compare what `main` had in the conflicted files against what we kept:
+
+```bash
+# List files that were modified on both branches (potential conflict sites)
+git diff --name-only origin/next...origin/main -- '*.json' '*.yaml' '*.yml'
+```
+
+For each file, compare the `main` version to the current version:
+
+```bash
+git diff origin/main -- <file>
+```
+
+Look for:
+
+- **New dependencies** added on `main` that are missing from `next` — these should be added
+- **Dependency version bumps** on `main` that are higher than what's on `next` — these should typically be accepted (they're patches/minors)
+- **New scripts or config entries** added on `main` — these should be forward-ported
+- **Version fields** (`"version":`) — keep `next`'s pre-release versions, do NOT use `main`'s stable versions
+
+### Step 3: Apply corrections
+
+If you find changes from `main` that should have been kept:
+
+1. Apply those specific changes to the current files
+2. Run `pnpm install --no-frozen-lockfile` if you modified any `package.json` files
+3. `git add` the modified files
+
+### Step 4: Do NOT commit
+
+The orchestrator will handle committing.
 
 ## Output
 
-Return the list of files that were resolved and whether all conflicts were successfully handled.
+Return whether the conflict resolutions were correct and what files (if any) needed corrections.

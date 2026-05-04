@@ -16,7 +16,6 @@ on:
 
 env:
   IMAGE: ghcr.io/${{ github.repository }}/flue-sandbox
-  PNPM_STORE_DIR: .pnpm-store
 
 concurrency:
   group: merge-fix
@@ -91,6 +90,37 @@ jobs:
             echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Strip conflict markers from JSON/YAML files
+        if: steps.pr.outputs.number != '' && steps.attempts.outputs.skip != 'true'
+        # Merge conflicts in package.json files make pnpm install impossible.
+        # Strip conflict markers (keeping "ours"/next side) so pnpm can parse
+        # the workspace. The Flue verify skill will check via git diff whether
+        # anything important from main was lost and patch it back in.
+        run: |
+          node -e '
+            const fs = require("fs");
+            const path = require("path");
+            let count = 0;
+            function fix(dir) {
+              for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+                const full = path.join(dir, entry.name);
+                if (entry.isDirectory() && entry.name !== "node_modules" && entry.name !== ".git") {
+                  fix(full);
+                } else if (/\.(json|yaml|yml)$/.test(entry.name)) {
+                  let c = fs.readFileSync(full, "utf8");
+                  if (c.includes("<<<<<<<")) {
+                    c = c.replace(/^<{7}.*\n([\s\S]*?)^={7}\n[\s\S]*?^>{7}.*\n/gm, "$1");
+                    fs.writeFileSync(full, c);
+                    console.log("Stripped conflicts:", full);
+                    count++;
+                  }
+                }
+              }
+            }
+            fix(".");
+            console.log(count + " file(s) fixed");
+          '
+
       - name: Setup PNPM
         if: steps.pr.outputs.number != '' && steps.attempts.outputs.skip != 'true'
         uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
@@ -104,8 +134,6 @@ jobs:
 
       - name: Install deps
         if: steps.pr.outputs.number != '' && steps.attempts.outputs.skip != 'true'
-        # Use --no-frozen-lockfile because the merge may have introduced
-        # lockfile conflicts or new dependencies that need resolving
         run: pnpm install --no-frozen-lockfile
 
       - name: Build

@@ -59,8 +59,9 @@ function initTapStrategy() {
 		document.addEventListener(
 			event,
 			(e) => {
-				if (elMatchesStrategy(e.target, 'tap')) {
-					prefetch(e.target.href, { ignoreSlowConnection: true });
+				const anchor = (e.target as Element).closest('a');
+				if (elMatchesStrategy(anchor, 'tap')) {
+					prefetch(anchor.href, { ignoreSlowConnection: true });
 				}
 			},
 			{ passive: true },
@@ -78,8 +79,9 @@ function initHoverStrategy() {
 	document.body.addEventListener(
 		'focusin',
 		(e) => {
-			if (elMatchesStrategy(e.target, 'hover')) {
-				handleHoverIn(e);
+			const anchor = (e.target as Element).closest('a');
+			if (elMatchesStrategy(anchor, 'hover')) {
+				handleHoverIn(anchor.href);
 			}
 		},
 		{ passive: true },
@@ -94,15 +96,17 @@ function initHoverStrategy() {
 			// Add listeners for anchors matching the strategy
 			if (elMatchesStrategy(anchor, 'hover')) {
 				listenedAnchors.add(anchor);
-				anchor.addEventListener('mouseenter', handleHoverIn, { passive: true });
+				anchor.addEventListener(
+					'mouseenter',
+					(e) => handleHoverIn((e.currentTarget as HTMLAnchorElement).href),
+					{ passive: true },
+				);
 				anchor.addEventListener('mouseleave', handleHoverOut, { passive: true });
 			}
 		}
 	});
 
-	function handleHoverIn(e: Event) {
-		const href = (e.target as HTMLAnchorElement).href;
-
+	function handleHoverIn(href: string) {
 		// Debounce hover prefetches by 80ms
 		if (timeout) {
 			clearTimeout(timeout);

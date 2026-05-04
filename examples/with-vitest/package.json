@@ -14,7 +14,11 @@
     "test": "vitest"
   },
   "dependencies": {
+<<<<<<< HEAD
     "astro": "^7.0.0-alpha.0",
+=======
+    "astro": "^6.2.2",
+>>>>>>> origin/main
     "vitest": "^4.1.0"
   }
 }

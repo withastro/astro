@@ -61,15 +61,15 @@ function stringifyChunk(
 		switch (instruction.type) {
 			case 'directive': {
 				const { hydration } = instruction;
-				let needsHydrationScript = hydration && determineIfNeedsHydrationScript(result);
-				let needsDirectiveScript =
+				const needsHydrationScript = hydration && determineIfNeedsHydrationScript(result);
+				const needsDirectiveScript =
 					hydration && determinesIfNeedsDirectiveScript(result, hydration.directive);
 
 				if (needsHydrationScript) {
-					let prescripts = getPrescripts(result, 'both', hydration.directive);
+					const prescripts = getPrescripts(result, 'both', hydration.directive);
 					return markHTMLString(prescripts);
 				} else if (needsDirectiveScript) {
-					let prescripts = getPrescripts(result, 'directive', hydration.directive);
+					const prescripts = getPrescripts(result, 'directive', hydration.directive);
 					return markHTMLString(prescripts);
 				} else {
 					return '';
@@ -90,6 +90,9 @@ function stringifyChunk(
 			case 'renderer-hydration-script': {
 				const { rendererSpecificHydrationScripts } = result._metadata;
 				const { rendererName } = instruction;
+				if (result._metadata.templateDepth > 0) {
+					return instruction.render();
+				}
 
 				if (!rendererSpecificHydrationScripts.has(rendererName)) {
 					rendererSpecificHydrationScripts.add(rendererName);
@@ -98,6 +101,9 @@ function stringifyChunk(
 				return '';
 			}
 			case 'server-island-runtime': {
+				if (result._metadata.templateDepth > 0) {
+					return renderServerIslandRuntime();
+				}
 				if (result._metadata.hasRenderedServerIslandRuntime) {
 					return '';
 				}
