@@ -3,7 +3,6 @@ import { type CompileProps, type CompileResult, compile } from '../core/compile/
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 import type { CompileMetadata } from './types.js';
 
-
 interface CompileAstroOption {
 	compileProps: CompileProps;
 	astroFileToCompileMetadata: Map<string, CompileMetadata>;
