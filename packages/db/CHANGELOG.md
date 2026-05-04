@@ -1,5 +1,11 @@
 # @astrojs/db
 
+## 0.21.1
+
+### Patch Changes
+
+- [#16534](https://github.com/withastro/astro/pull/16534) [`5cf6c51`](https://github.com/withastro/astro/commit/5cf6c51188b52d22f133ea9373da0080f74701f9) Thanks [@matthewp](https://github.com/matthewp)! - Fixes compatibility with Zod 4.4.0 for the `server` config property and error formatting
+
 ## 0.21.0
 
 ### Minor Changes

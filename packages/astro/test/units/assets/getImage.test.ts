@@ -277,6 +277,36 @@ describe('getImage', () => {
 			assert.equal(result.attributes.fit, undefined);
 			assert.equal(result.attributes.position, undefined);
 		});
+
+		it('includes object-position in style attribute when position is provided', async () => {
+			const result = await renderImage({
+				src: 'https://example.com/photo.jpg',
+				width: 300,
+				height: 400,
+				alt: 'Position test',
+				layout: 'constrained',
+				position: 'left top',
+			});
+
+			assert.match(result.attributes.style, /object-position:\s*left top/);
+		});
+
+		it('merges position into existing style object without overwriting', async () => {
+			const result = await renderImage({
+				src: 'https://example.com/photo.jpg',
+				width: 300,
+				height: 400,
+				alt: 'Merge test',
+				layout: 'constrained',
+				position: 'top right',
+				style: { color: 'red' },
+			});
+
+			assert.deepStrictEqual(result.attributes.style, {
+				color: 'red',
+				objectPosition: 'top right',
+			});
+		});
 	});
 
 	describe('format', () => {
