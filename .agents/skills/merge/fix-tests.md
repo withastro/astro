@@ -9,8 +9,18 @@ Fix test failures identified from CI logs on the merge PR. Do NOT re-run the ful
 - **`prNumber`** — The PR number for the merge PR.
 - **`ciLogs`** — The CI failure logs, pre-fetched by the orchestrator. Contains the failed job names and their log output.
 - The working directory is the repo root, checked out on the merge branch.
-- Merge conflicts should already be resolved before this skill runs.
-- Dependencies are installed and packages are built on the host.
+- Merge conflicts have already been resolved and committed by the merge action.
+- Dependencies are installed and packages are built (the GitHub Action did `pnpm install --frozen-lockfile && pnpm build` before invoking this skill).
+
+## Critical Rules
+
+1. **NEVER run `pnpm install`** — dependencies are already installed correctly. The lockfile was generated during the merge action with all conflicts resolved. Running install again (especially `--no-frozen-lockfile`) will re-resolve the entire dependency tree and break transitive dependencies. If a test fails due to a missing module, that's a source code issue to fix, not a dependency issue.
+
+2. **Time-box your investigation.** If you've spent more than 5 minutes analyzing a single failure without attempting a fix, stop investigating and try your best theory. Run the test, see if it helps, iterate. Don't trace the entire call chain from first principles.
+
+3. **Diff first, not code-read.** When investigating a failure, start by looking at what changed in the merge (`git diff origin/next...HEAD -- <relevant-files>`), not by reading the full source. The diff shows you exactly what's different.
+
+4. **Batch your bash commands.** Combine related commands into single bash calls instead of running them one at a time. For example, combine `ls`, `grep`, and `cat` operations into one step rather than three separate steps.
 
 ## Overview
 
@@ -40,7 +50,13 @@ The `ciLogs` argument contains the pre-fetched CI failure logs. Parse them to id
 
 ### Step 3: Analyze failures
 
-For each failure, determine the cause:
+For each failure, determine the cause by first checking the diff:
+
+```bash
+git diff origin/next...HEAD -- <path-to-relevant-source-or-test>
+```
+
+Common causes:
 
 1. **Snapshot/output mismatch** — Test expects specific HTML/output but got something different. This is common when the `next` branch uses a newer compiler or has API changes. Fix by updating the expected output to match the new behavior.
 
@@ -54,9 +70,10 @@ For each failure, determine the cause:
 
 For each failure:
 
-1. **Read the failing test file** to understand what it's testing
-2. **Read the source code** it's testing if needed
-3. **Make the minimal fix** — only change what's needed to make the test pass
+1. **Check the diff** to understand what changed
+2. **Read the failing test file** to understand what it's testing
+3. **Read the source code** it's testing if needed
+4. **Make the minimal fix** — only change what's needed to make the test pass
 
 **Fix principles:**
 
@@ -79,7 +96,7 @@ Only run the specific tests you fixed, not the full suite:
 pnpm -C <package-directory> exec astro-scripts test "test/<specific-test>.test.js"
 ```
 
-This is a quick sanity check, not a replacement for CI. CI will do the full validation after you push.
+Run the test **without piping through grep** so you can see the actual pass/fail result. This is a quick sanity check, not a replacement for CI. CI will do the full validation after you push.
 
 ### Step 6: Rebuild if source files were modified
 
@@ -90,14 +107,6 @@ pnpm -C packages/<affected-package> build
 ```
 
 Then re-run the specific affected tests to confirm.
-
-### Step 7: Ensure dependencies are up to date
-
-If the merge introduced new dependencies or changed versions, run:
-
-```bash
-pnpm install --no-frozen-lockfile
-```
 
 ## Output
 
