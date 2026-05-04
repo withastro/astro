@@ -1089,14 +1089,17 @@ async function updateTSConfig(
 	let inputConfig = await loadTSConfig(cwd);
 	let inputConfigText = '';
 
-	if (inputConfig === 'invalid-config' || inputConfig === 'unknown-error') {
+	if (inputConfig.error === 'invalid-config') {
+		logger.warn(`add`, `Couldn't parse tsconfig.json or jsconfig.json: ${inputConfig.message}`);
 		return 'failure';
-	} else if (inputConfig === 'missing-config') {
+	} else if (inputConfig.error === 'missing-config') {
 		logger.debug('add', "Couldn't find tsconfig.json or jsconfig.json, generating one");
+		const tsconfigFile = path.join(cwd, 'tsconfig.json');
 		inputConfig = {
 			tsconfig: defaultTSConfig,
-			tsconfigFile: path.join(cwd, 'tsconfig.json'),
+			tsconfigFile: tsconfigFile,
 			rawConfig: defaultTSConfig,
+			sources: [tsconfigFile],
 		};
 	} else {
 		inputConfigText = JSON.stringify(inputConfig.rawConfig, null, 2);

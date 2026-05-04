@@ -4,7 +4,7 @@ import type { AstroLogger } from '../core/logger/core.js';
 import type { AstroConfig } from '../types/public/config.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 import type { CompileMetadata } from './types.js';
-import { frontmatterRE } from './utils.js';
+import { frontmatterRE, replaceTopLevelReturns } from './utils.js';
 import type { SourceMapInput } from 'rollup';
 
 interface CompileAstroOption {
@@ -109,10 +109,8 @@ async function enhanceCompileError({
 	// If frontmatter is valid or cannot be parsed, then continue.
 	const scannedFrontmatter = frontmatterRE.exec(source);
 	if (scannedFrontmatter) {
-		// Top-level return is not supported, so replace `return` with throw
-		const frontmatter = scannedFrontmatter[1]
-			.replace(/\breturn\s*;/g, 'throw 0;')
-			.replace(/\breturn\b/g, 'throw ');
+		// Top-level return is not supported, so replace `return` with `throw`.
+		const frontmatter = replaceTopLevelReturns(scannedFrontmatter[1]);
 
 		// If frontmatter does not actually include the offending line, skip
 		if (lineText && !frontmatter.includes(lineText)) throw err;
