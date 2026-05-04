@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { type Fixture, loadFixture } from '../../../astro/test/test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 import cloudflare from '../dist/index.js';
 
 describe('Cloudflare prerenderer errors', () => {

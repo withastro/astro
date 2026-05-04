@@ -1,6 +1,6 @@
 import assert from 'node:assert';
 import { test } from 'node:test';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 test.describe('React 19 SSR integration', () => {
 	test('should strip preloads to prevent invalid HTML inside astro-islands', async () => {

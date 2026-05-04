@@ -149,7 +149,11 @@ export function createEndpoint(manifest: SSRManifest) {
 		// Decrypt componentExport
 		let componentExport: string;
 		try {
-			componentExport = await decryptString(key, data.encryptedComponentExport);
+			componentExport = await decryptString(
+				key,
+				data.encryptedComponentExport,
+				`export:${componentId}`,
+			);
 		} catch (_e) {
 			return badRequest('Encrypted componentExport value is invalid.');
 		}
@@ -159,7 +163,7 @@ export function createEndpoint(manifest: SSRManifest) {
 
 		if (encryptedProps !== '') {
 			try {
-				const propString = await decryptString(key, encryptedProps);
+				const propString = await decryptString(key, encryptedProps, `props:${componentId}`);
 				props = JSON.parse(propString);
 			} catch (_e) {
 				return badRequest('Encrypted props value is invalid.');
@@ -173,7 +177,7 @@ export function createEndpoint(manifest: SSRManifest) {
 
 		if (encryptedSlots !== '') {
 			try {
-				const slotsString = await decryptString(key, encryptedSlots);
+				const slotsString = await decryptString(key, encryptedSlots, `slots:${componentId}`);
 				decryptedSlots = JSON.parse(slotsString);
 			} catch (_e) {
 				return badRequest('Encrypted slots value is invalid.');

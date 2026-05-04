@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { verify } from '../dist/index.js';
-import { mockExit, setup, type VerifyContext } from './utils.ts';
+import { mockExit, setup, type VerifyContext } from './test-utils.ts';
 
 describe('verify', async () => {
 	const fixture = setup();

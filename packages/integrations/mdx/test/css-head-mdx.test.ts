@@ -3,7 +3,7 @@ import { before, describe, it } from 'node:test';
 import mdx from '@astrojs/mdx';
 import * as cheerio from 'cheerio';
 import { parseHTML } from 'linkedom';
-import { loadFixture, type Fixture } from '../../../astro/test/test-utils.js';
+import { loadFixture, type Fixture } from './test-utils.ts';
 
 describe('Head injection w/ MDX', () => {
 	let fixture: Fixture;

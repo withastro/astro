@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { intro } from '../dist/index.js';
-import { type IntroContext, setup } from './utils.ts';
+import { type IntroContext, setup } from './test-utils.ts';
 
 describe('intro', () => {
 	const fixture = setup();

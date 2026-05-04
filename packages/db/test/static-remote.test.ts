@@ -1,8 +1,13 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { type Fixture, loadFixture } from '../../astro/test/test-utils.js';
-import { clearEnvironment, type RemoteDbServer, setupRemoteDb } from './test-utils.ts';
+import {
+	clearEnvironment,
+	type Fixture,
+	loadFixture,
+	type RemoteDbServer,
+	setupRemoteDb,
+} from './test-utils.ts';
 
 describe('astro:db', () => {
 	let fixture: Fixture;

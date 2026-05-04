@@ -7,7 +7,7 @@ import {
 	type Fixture,
 	type AstroInlineConfig,
 	type DevServer,
-} from '../../../astro/test/test-utils.js';
+} from 'astro/_internal/test/test-utils';
 
 // Get all test files in directory, assign unique port for each of them so they don't conflict
 const testFiles = await fs.readdir(new URL('.', import.meta.url));

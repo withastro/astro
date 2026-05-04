@@ -1,31 +1,32 @@
 import assert from 'node:assert/strict';
 import { Writable } from 'node:stream';
 import { after, before, describe, it } from 'node:test';
-import type { AstroLogMessage } from '../dist/core/logger/core.js';
+import type { AstroLoggerMessage } from '../dist/core/logger/core.js';
 import { AstroLogger } from '../dist/core/logger/core.js';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Public', () => {
 	let fixture: Fixture;
-	const buildLogs: AstroLogMessage[] = [];
+	const buildLogs: AstroLoggerMessage[] = [];
 
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/astro-public/' });
+		const logger = new AstroLogger({
+			level: 'info',
+			destination: new Writable({
+				objectMode: true,
+				write(event, _, callback) {
+					buildLogs.push(event);
+					callback();
+				},
+			}),
+		});
 		await fixture.build({
 			vite: {
 				logLevel: 'info',
 			},
-			// @ts-expect-error - logger is accepted by the fixture build wrapper
-			logger: new AstroLogger({
-				level: 'info',
-				destination: new Writable({
-					objectMode: true,
-					write(event, _, callback) {
-						buildLogs.push(event);
-						callback();
-					},
-				}),
-			}),
+			// @ts-expect-error - logger is @internal API
+			logger,
 		});
 	});
 
