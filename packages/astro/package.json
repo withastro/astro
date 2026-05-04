@@ -148,7 +148,6 @@
     "github-slugger": "^2.0.0",
     "html-escaper": "3.0.3",
     "http-cache-semantics": "^4.2.0",
-    "image-meta": "^0.2.2",
     "js-yaml": "^4.1.1",
     "magic-string": "^0.30.21",
     "magicast": "^0.5.2",
