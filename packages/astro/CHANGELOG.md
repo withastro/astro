@@ -1,5 +1,41 @@
 # astro
 
+## 6.2.2
+
+### Patch Changes
+
+- [#16292](https://github.com/withastro/astro/pull/16292) [`00f48ee`](https://github.com/withastro/astro/commit/00f48ee25fdc072df93210fa2d6d24ea649d4ab1) Thanks [@p-linnane](https://github.com/p-linnane)! - Fixes head metadata propagation in dev for adapters that load modules in the `prerender` Vite environment, such as `@astrojs/cloudflare`. The `astro:head-metadata` plugin previously only tracked the `ssr` environment, so `maybeRenderHead()` could fire inside an unrelated component's `<template>` element, trapping subsequent hoisted `<style>` blocks.
+
+- [#16451](https://github.com/withastro/astro/pull/16451) [`778865f`](https://github.com/withastro/astro/commit/778865f4abe29f7dfa4009624f39e350b7735acd) Thanks [@maximslo](https://github.com/maximslo)! - Fixes build crash when processing animated AVIF images. Sharp now gracefully passes through unsupported image formats instead of crashing during the build.
+
+- [#16548](https://github.com/withastro/astro/pull/16548) [`7214d3e`](https://github.com/withastro/astro/commit/7214d3e134766c7324e76a0ec4c91050cf4a2a18) Thanks [@senutpal](https://github.com/senutpal)! - Fixes scoped styles applying to the wrong element when `vite.css.transformer` is set to `'lightningcss'` and a selector uses a nested `&` inside `:where(...)`, such as Tailwind v4's `space-x-*`, `space-y-*`, and `divide-*` utilities.
+
+- [#16566](https://github.com/withastro/astro/pull/16566) [`9ac96b4`](https://github.com/withastro/astro/commit/9ac96b406653d2993d35cd83dc5fa538b7417545) Thanks [@web-dev0521](https://github.com/web-dev0521)! - Fixes `data-astro-prefetch="tap"` not triggering when clicking nested elements (e.g. `<span>`, `<img>`, `<svg>`) inside an anchor tag.
+
+- [#15994](https://github.com/withastro/astro/pull/15994) [`1e70d18`](https://github.com/withastro/astro/commit/1e70d18febca2319487c9acbd9c2e18cb961aef0) Thanks [@ossaidqadri](https://github.com/ossaidqadri)! - Fix `<style>` compilation failure when importing Astro components via tsconfig path aliases
+
+- [#16144](https://github.com/withastro/astro/pull/16144) [`1cd6650`](https://github.com/withastro/astro/commit/1cd66504a63055dcbe54b5d3ec52cc220d3a82e1) Thanks [@fkatsuhiro](https://github.com/fkatsuhiro)! - Fixed a regression where `.html` was unexpectedly stripped from dynamic route parameters on non-page routes (`.ts` endpoints and redirects). This caused endpoints like `/some/[...id].ts` returning `id: 'file.html'` on `getStaticPaths` to not serve that file because the generated route (`/some/file.html`) would get matched as `id: file` that is not part of the list returned by `getStaticPaths`.
+
+- [#16415](https://github.com/withastro/astro/pull/16415) [`559c0fd`](https://github.com/withastro/astro/commit/559c0fd63ac8c051ee3bb634e06aadf48e8d8495) Thanks [@0xbejaxer](https://github.com/0xbejaxer)! - Fix CSS traversal boundaries so pages with `export const partial = true` still contribute styles when imported as components by other pages.
+
+- [#16516](https://github.com/withastro/astro/pull/16516) [`17f1867`](https://github.com/withastro/astro/commit/17f1867c177d99bc5fff31aa12f6c9ab35ef4581) Thanks [@fkatsuhiro](https://github.com/fkatsuhiro)! - Fixes an issue where the index route would return a 404 error when using a custom `base` path combined with `trailingSlash: 'never'`. This ensures that the home page and internal rewrites are correctly matched under these configurations.
+
+- [#16515](https://github.com/withastro/astro/pull/16515) [`280ec88`](https://github.com/withastro/astro/commit/280ec88c0d9c75755b7616263ce516ff2122fb81) Thanks [@jp-knj](https://github.com/jp-knj)! - Fixes an issue where `i18n.fallback` pages with `fallbackType: 'rewrite'` were emitted with empty bodies during `astro build`.
+
+- [#16565](https://github.com/withastro/astro/pull/16565) [`7959798`](https://github.com/withastro/astro/commit/7959798c33c8c5e70183e1af3ab5d9b9d663e494) Thanks [@enjoyandlove](https://github.com/enjoyandlove)! - Fixes session persistence when `session.delete()` is the first mutation in a request (no prior `get`, `set`, `has`, or `keys`). The session was marked dirty in memory, but persistence skipped the save because `#data` stayed `undefined`, so the backing store could still return the deleted key on the next request.
+
+- [#16527](https://github.com/withastro/astro/pull/16527) [`86fd80d`](https://github.com/withastro/astro/commit/86fd80dd17cf896e5eaa185b70576d839d789978) Thanks [@enjoyandlove](https://github.com/enjoyandlove)! - Prevents script deduplication state from being consumed while rendering inert `<template>` contexts.
+
+- [#16540](https://github.com/withastro/astro/pull/16540) [`e59c637`](https://github.com/withastro/astro/commit/e59c637fb6c589fff5b56b737bab57d7513b0559) Thanks [@ascorbic](https://github.com/ascorbic)! - Skips session storage reads when no session cookie is present. Previously, calling `session.get()` on a request without a session cookie would initialize the storage driver and make a read that was guaranteed to miss. On network-backed drivers this added latency and resource usage to every anonymous request.
+
+- [#16517](https://github.com/withastro/astro/pull/16517) [`6ab0b3c`](https://github.com/withastro/astro/commit/6ab0b3c0266fe9c13638e22d40d46f2603e6031d) Thanks [@adamchal](https://github.com/adamchal)! - Removes inline CSS for prerendered routes from the SSR manifest. The static HTML on disk already inlines those styles, and the SSR worker never renders prerendered routes, so the data was dead weight. Builds with many prerendered routes and `build.inlineStylesheets: "always"` (or `"auto"` with small stylesheets) will see a smaller SSR entry chunk, which reduces cold-start parse time on platforms like Cloudflare Workers.
+
+- [#16509](https://github.com/withastro/astro/pull/16509) [`d3d3557`](https://github.com/withastro/astro/commit/d3d3557c77decc59fca6f0bfbdc36ba65e420564) Thanks [@cyphercodes](https://github.com/cyphercodes)! - Fix conditional named slot callbacks receiving arguments from `Astro.slots.render()`.
+
+- [#16236](https://github.com/withastro/astro/pull/16236) [`c6b068e`](https://github.com/withastro/astro/commit/c6b068e905a1a7b6e6a0b813c2368586b70a2214) Thanks [@fkatsuhiro](https://github.com/fkatsuhiro)! - Fixes the `position` prop on `<Image />` and `<Picture />` components to correctly apply `object-position` styles
+
+- [#16018](https://github.com/withastro/astro/pull/16018) [`d14f47c`](https://github.com/withastro/astro/commit/d14f47c46da2f50f79e9b8cfb87eaca9db8e898b) Thanks [@felmonon](https://github.com/felmonon)! - Fix `defineLiveCollection()` so `LiveLoader` data types declared as interfaces are accepted.
+
 ## 6.2.1
 
 ### Patch Changes
