@@ -289,10 +289,6 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 						}
 						return [prefix, cleanChunkName(name), suffix].join('');
 					},
-<<<<<<< HEAD
-					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
-					...viteConfig.build?.rolldownOptions?.output,
-=======
 					assetFileNames(assetInfo) {
 						// Strip the @_@ extension-masking pattern from asset names, just like chunkFileNames above.
 						// The @_@ pattern is an internal mechanism for virtual module IDs and should not leak into output filenames.
@@ -303,8 +299,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 						}
 						return `${settings.config.build.assets}/[name].[hash][extname]`;
 					},
-					...viteConfig.build?.rollupOptions?.output,
->>>>>>> origin/main
+					...viteConfig.build?.rolldownOptions?.output,
 					entryFileNames(chunkInfo) {
 						if (chunkInfo.facadeModuleId?.startsWith(VIRTUAL_PAGE_RESOLVED_MODULE_ID)) {
 							return makeAstroPageEntryPointFileName(
@@ -438,10 +433,6 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 							chunkFileNames(chunkInfo) {
 								return `${settings.config.build.assets}/${cleanChunkName(chunkInfo.name)}.[hash].js`;
 							},
-<<<<<<< HEAD
-							assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
-							...viteConfig.environments?.client?.build?.rolldownOptions?.output,
-=======
 							assetFileNames(assetInfo) {
 								// Strip the @_@ extension-masking pattern from asset names.
 								// The @_@ pattern is an internal mechanism for virtual module IDs and should not leak into output filenames.
@@ -452,8 +443,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 								}
 								return `${settings.config.build.assets}/[name].[hash][extname]`;
 							},
-							...viteConfig.environments?.client?.build?.rollupOptions?.output,
->>>>>>> origin/main
+							...viteConfig.environments?.client?.build?.rolldownOptions?.output,
 						},
 					},
 				},

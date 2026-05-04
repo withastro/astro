@@ -1,6 +1,5 @@
 # astro
 
-<<<<<<< HEAD
 ## 7.0.0-alpha.0
 
 ### Major Changes
@@ -20,7 +19,7 @@
 - [#15819](https://github.com/withastro/astro/pull/15819) [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27) Thanks [@delucis](https://github.com/delucis)! - Fixes `--port` flag being ignored after a Vite-triggered server restart (e.g. when a `.env` file changes)
 
 - [#16434](https://github.com/withastro/astro/pull/16434) [`ee079d4`](https://github.com/withastro/astro/commit/ee079d4c7f143076b84d663c832911009a077c7f) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where i18n domains would return 404 when `trailingSlash` is set to `never`.
-=======
+
 ## 6.2.2
 
 ### Patch Changes
@@ -56,7 +55,6 @@
 - [#16236](https://github.com/withastro/astro/pull/16236) [`c6b068e`](https://github.com/withastro/astro/commit/c6b068e905a1a7b6e6a0b813c2368586b70a2214) Thanks [@fkatsuhiro](https://github.com/fkatsuhiro)! - Fixes the `position` prop on `<Image />` and `<Picture />` components to correctly apply `object-position` styles
 
 - [#16018](https://github.com/withastro/astro/pull/16018) [`d14f47c`](https://github.com/withastro/astro/commit/d14f47c46da2f50f79e9b8cfb87eaca9db8e898b) Thanks [@felmonon](https://github.com/felmonon)! - Fix `defineLiveCollection()` so `LiveLoader` data types declared as interfaces are accepted.
->>>>>>> origin/main
 
 ## 6.2.1
 

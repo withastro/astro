@@ -1,10 +1,6 @@
 {
   "name": "astro",
-<<<<<<< HEAD
   "version": "7.0.0-alpha.0",
-=======
-  "version": "6.2.2",
->>>>>>> origin/main
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",

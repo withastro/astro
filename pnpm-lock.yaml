@@ -193,11 +193,7 @@ importers:
   examples/basics:
     dependencies:
       astro:
-<<<<<<< HEAD
         specifier: ^7.0.0-alpha.0
-=======
-        specifier: ^6.2.2
->>>>>>> origin/main
         version: link:../../packages/astro
 
   examples/blog:
@@ -212,11 +208,7 @@ importers:
         specifier: ^3.7.2
         version: link:../../packages/integrations/sitemap
       astro:
-<<<<<<< HEAD
         specifier: ^7.0.0-alpha.0
-=======
-        specifier: ^6.2.2
->>>>>>> origin/main
         version: link:../../packages/astro
       sharp:
         specifier: ^0.34.3
@@ -225,11 +217,7 @@ importers:
   examples/component:
     devDependencies:
       astro:
-<<<<<<< HEAD
         specifier: ^7.0.0-alpha.0
-=======
-        specifier: ^6.2.2
->>>>>>> origin/main
         version: link:../../packages/astro
 
   examples/container-with-vitest:
@@ -238,11 +226,7 @@ importers:
         specifier: ^6.0.0-alpha.0
         version: link:../../packages/integrations/react
       astro:
-<<<<<<< HEAD
         specifier: ^7.0.0-alpha.0
-=======
-        specifier: ^6.2.2
->>>>>>> origin/main
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -273,11 +257,7 @@ importers:
         specifier: ^3.15.8
         version: 3.15.8
       astro:
-<<<<<<< HEAD
         specifier: ^7.0.0-alpha.0
-=======
-        specifier: ^6.2.2
->>>>>>> origin/main
         version: link:../../packages/astro
 
   examples/framework-multiple:
@@ -304,11 +284,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.28)
       astro:
-<<<<<<< HEAD
         specifier: ^7.0.0-alpha.0
-=======
-        specifier: ^6.2.2
->>>>>>> origin/main
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -338,11 +314,7 @@ importers:
         specifier: ^2.8.1
         version: 2.8.2(preact@10.29.0)
       astro:
-<<<<<<< HEAD
         specifier: ^7.0.0-alpha.0
-=======
-        specifier: ^6.2.2
->>>>>>> origin/main
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -360,11 +332,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.28)
       astro:
-<<<<<<< HEAD
         specifier: ^7.0.0-alpha.0
-=======
-        specifier: ^6.2.2
->>>>>>> origin/main
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -379,11 +347,7 @@ importers:
         specifier: ^7.0.0-alpha.0
         version: link:../../packages/integrations/solid
       astro:
-<<<<<<< HEAD
         specifier: ^7.0.0-alpha.0
-=======
-        specifier: ^6.2.2
->>>>>>> origin/main
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.9.11
@@ -395,11 +359,7 @@ importers:
         specifier: ^9.0.0-alpha.0
         version: link:../../packages/integrations/svelte
       astro:
-<<<<<<< HEAD
         specifier: ^7.0.0-alpha.0
-=======
-        specifier: ^6.2.2
->>>>>>> origin/main
         version: link:../../packages/astro
       svelte:
         specifier: ^5.53.5
@@ -411,11 +371,7 @@ importers:
         specifier: ^7.0.0-alpha.0
         version: link:../../packages/integrations/vue
       astro:
-<<<<<<< HEAD
         specifier: ^7.0.0-alpha.0
-=======
-        specifier: ^6.2.2
->>>>>>> origin/main
         version: link:../../packages/astro
       vue:
         specifier: ^3.5.29
@@ -427,41 +383,25 @@ importers:
         specifier: ^11.0.0-alpha.0
         version: link:../../packages/integrations/node
       astro:
-<<<<<<< HEAD
         specifier: ^7.0.0-alpha.0
-=======
-        specifier: ^6.2.2
->>>>>>> origin/main
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-<<<<<<< HEAD
         specifier: ^7.0.0-alpha.0
-=======
-        specifier: ^6.2.2
->>>>>>> origin/main
         version: link:../../packages/astro
 
   examples/minimal:
     dependencies:
       astro:
-<<<<<<< HEAD
         specifier: ^7.0.0-alpha.0
-=======
-        specifier: ^6.2.2
->>>>>>> origin/main
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-<<<<<<< HEAD
         specifier: ^7.0.0-alpha.0
-=======
-        specifier: ^6.2.2
->>>>>>> origin/main
         version: link:../../packages/astro
 
   examples/ssr:
@@ -473,11 +413,7 @@ importers:
         specifier: ^9.0.0-alpha.0
         version: link:../../packages/integrations/svelte
       astro:
-<<<<<<< HEAD
         specifier: ^7.0.0-alpha.0
-=======
-        specifier: ^6.2.2
->>>>>>> origin/main
         version: link:../../packages/astro
       svelte:
         specifier: ^5.53.5
@@ -486,11 +422,7 @@ importers:
   examples/starlog:
     dependencies:
       astro:
-<<<<<<< HEAD
         specifier: ^7.0.0-alpha.0
-=======
-        specifier: ^6.2.2
->>>>>>> origin/main
         version: link:../../packages/astro
       sass:
         specifier: ^1.97.3
@@ -505,11 +437,7 @@ importers:
         specifier: ^22.10.6
         version: 22.19.11
       astro:
-<<<<<<< HEAD
         specifier: ^7.0.0-alpha.0
-=======
-        specifier: ^6.2.2
->>>>>>> origin/main
         version: link:../../packages/astro
 
   examples/with-markdoc:
@@ -518,11 +446,7 @@ importers:
         specifier: ^2.0.0-alpha.0
         version: link:../../packages/integrations/markdoc
       astro:
-<<<<<<< HEAD
         specifier: ^7.0.0-alpha.0
-=======
-        specifier: ^6.2.2
->>>>>>> origin/main
         version: link:../../packages/astro
 
   examples/with-mdx:
@@ -534,11 +458,7 @@ importers:
         specifier: ^6.0.0-alpha.0
         version: link:../../packages/integrations/preact
       astro:
-<<<<<<< HEAD
         specifier: ^7.0.0-alpha.0
-=======
-        specifier: ^6.2.2
->>>>>>> origin/main
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -553,11 +473,7 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0(nanostores@1.1.1)(preact@10.29.0)
       astro:
-<<<<<<< HEAD
         specifier: ^7.0.0-alpha.0
-=======
-        specifier: ^6.2.2
->>>>>>> origin/main
         version: link:../../packages/astro
       nanostores:
         specifier: ^1.1.1
@@ -578,11 +494,7 @@ importers:
         specifier: ^1.9.0
         version: 1.9.0
       astro:
-<<<<<<< HEAD
         specifier: ^7.0.0-alpha.0
-=======
-        specifier: ^6.2.2
->>>>>>> origin/main
         version: link:../../packages/astro
       canvas-confetti:
         specifier: ^1.9.4
@@ -594,11 +506,7 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-<<<<<<< HEAD
         specifier: ^7.0.0-alpha.0
-=======
-        specifier: ^6.2.2
->>>>>>> origin/main
         version: link:../../packages/astro
       vitest:
         specifier: ^4.1.0
@@ -7130,6 +7038,12 @@ importers:
       tsx:
         specifier: ^4.21.0
         version: 4.21.0
+
+  triage/gh-16522:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../packages/astro
 
 packages:
 
@@ -14281,13 +14195,6 @@ packages:
 
   postcss@8.5.12:
     resolution: {integrity: sha512-W62t/Se6rA0Az3DfCL0AqJwXuKwBeYg6nOaIgzP+xZ7N5BFCI7DYi1qs6ygUYT6rvfi6t9k65UMLJC+PHZpDAA==}
-<<<<<<< HEAD
-    engines: {node: ^10 || ^12 || >=14}
-
-  postcss@8.5.8:
-    resolution: {integrity: sha512-OW/rX8O/jXnm82Ey1k44pObPtdblfiuWnrd8X7GJ7emImCOstunGbXUpp7HdBrFQX6rJzn3sPT397Wp5aCwCHg==}
-=======
->>>>>>> origin/main
     engines: {node: ^10 || ^12 || >=14}
 
   preact-render-to-string@6.6.6:
@@ -24102,15 +24009,6 @@ snapshots:
       quote-unquote: 1.0.0
 
   postcss@8.5.12:
-<<<<<<< HEAD
-    dependencies:
-      nanoid: 3.3.11
-      picocolors: 1.1.1
-      source-map-js: 1.2.1
-
-  postcss@8.5.8:
-=======
->>>>>>> origin/main
     dependencies:
       nanoid: 3.3.11
       picocolors: 1.1.1
@@ -25801,26 +25699,6 @@ snapshots:
       tsx: 4.21.0
       yaml: 2.8.3
 
-<<<<<<< HEAD
-=======
-  vite@7.3.2(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3):
-    dependencies:
-      esbuild: 0.27.3
-      fdir: 6.5.0(picomatch@4.0.4)
-      picomatch: 4.0.4
-      postcss: 8.5.12
-      rollup: 4.59.1
-      tinyglobby: 0.2.16
-    optionalDependencies:
-      '@types/node': 22.19.11
-      fsevents: 2.3.3
-      jiti: 2.6.1
-      lightningcss: 1.32.0
-      sass: 1.98.0
-      tsx: 4.21.0
-      yaml: 2.8.3
-
->>>>>>> origin/main
   vite@7.3.2(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3):
     dependencies:
       esbuild: 0.27.3

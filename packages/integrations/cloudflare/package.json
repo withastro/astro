@@ -1,11 +1,7 @@
 {
   "name": "@astrojs/cloudflare",
   "description": "Deploy your site to Cloudflare Workers",
-<<<<<<< HEAD
   "version": "14.0.0-alpha.0",
-=======
-  "version": "13.3.1",
->>>>>>> origin/main
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",

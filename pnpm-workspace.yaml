@@ -34,16 +34,11 @@ minimumReleaseAgeExclude:
   # TODO: remove once more stable
   - '@flue/*'
   - '@astrojs/*'
-<<<<<<< HEAD
   - vite
   - rolldown
   - '@rolldown/*'
-  # Renovate security update: fast-xml-parser@5.3.8
-  - fast-xml-parser@5.3.8
-=======
   # Renovate security update: fast-xml-parser@5.3.8 || 5.7.0
   - fast-xml-parser@5.3.8 || 5.7.0
->>>>>>> origin/main
   # Renovate security update: svelte@5.53.5
   - svelte@5.53.5
   # Renovate security update: fastify@5.8.1 || 5.8.3 || 5.8.5
