@@ -1647,6 +1647,23 @@ export interface AstroUserConfig<
 				 * ```
 				 */
 				defaultStrategy?: 'tap' | 'hover' | 'viewport' | 'load';
+
+				/**
+				 * @docs
+				 * @name prefetch.observeDynamicLinks
+				 * @type {boolean}
+				 * @description
+				 * Enable prefetching for links that are dynamically added to the DOM after the initial page load.
+				 *
+				 * This is useful when links are rendered dynamically, for example, inside a component using `server:defer` with top-level await.
+				 *
+				 * ```js
+				 * prefetch: {
+				 * 	observeDynamicLinks: true
+				 * }
+				 * ```
+				 */
+				observeDynamicLinks?: boolean;
 		  };
 
 	/**

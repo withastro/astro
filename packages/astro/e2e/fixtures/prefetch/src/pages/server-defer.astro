@@ -1,0 +1,14 @@
+---
+import Deferred from '../components/Deferred.astro';
+---
+
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+</head>
+<body>
+<h1>Prefetch with `server:defer`</h1>
+<Deferred id="prefetch-defer" href="/prefetch-load" server:defer />
+</body>
+</html>

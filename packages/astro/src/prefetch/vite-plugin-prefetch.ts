@@ -69,6 +69,10 @@ export default function astroPrefetch({ settings }: { settings: AstroSettings })
 						`${JSON.stringify(prefetch?.defaultStrategy)}`.padEnd(29),
 					)
 					.replace(
+						'__PREFETCH_OBSERVE_DYNAMIC_LINKS__', // length: 34
+						`${JSON.stringify(prefetch?.observeDynamicLinks)}`.padEnd(34),
+					)
+					.replace(
 						'__EXPERIMENTAL_CLIENT_PRERENDER__', // length: 33
 						`${JSON.stringify(settings.config.experimental.clientPrerender)}`.padEnd(33),
 					);

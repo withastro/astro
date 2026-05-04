@@ -347,6 +347,77 @@ test.describe("Prefetch (prefetchAll: true, defaultStrategy: 'load')", () => {
 	});
 });
 
+test.describe('Prefetch (observeDynamicLinks: true)', () => {
+	let devServer: DevServer;
+
+	test.beforeAll(async ({ astro }) => {
+		devServer = await astro.startDevServer({
+			prefetch: {
+				observeDynamicLinks: true,
+			},
+		});
+	});
+
+	test.afterAll(async () => {
+		await devServer.stop();
+	});
+
+	test.describe('with server:defer', () => {
+		test('data-astro-prefetch="load" should prefetch', async ({ page, astro }) => {
+			await page.goto(astro.resolveUrl('/server-defer'));
+			await expectUrlPrefetched('/prefetch-load', page);
+		});
+	});
+
+	test.describe('with dynamically added links', () => {
+		// The tap strategy is not affected by mutation observers.
+		// This is provided to verify that the tap strategy functions correctly even when mutation observers are enabled.
+		test('data-astro-prefetch="tap" should prefetch on tap', async ({ page, astro }) => {
+			await page.goto(astro.resolveUrl('/mutation-observer'));
+			await expectUrlNotPrefetched('/prefetch-tap', page);
+			await Promise.all([
+				page.waitForEvent('request'), // wait prefetch request
+				page.locator('#prefetch-tap').click(),
+				page.locator('#toggle-button-tap').click(),
+			]);
+			await expectUrlPrefetched('/prefetch-tap', page);
+		});
+
+		test('data-astro-prefetch="hover" should prefetch on hover', async ({ page, astro }) => {
+			await page.goto(astro.resolveUrl('/mutation-observer'));
+			await expectUrlNotPrefetched('/prefetch-hover', page);
+
+			await page.locator('#toggle-button-hover').click();
+
+			await Promise.all([
+				page.waitForEvent('request'), // wait prefetch request
+				page.locator('#prefetch-hover').hover(),
+			]);
+			await expectUrlPrefetched('/prefetch-hover', page);
+		});
+
+		test('data-astro-prefetch="viewport" should prefetch on viewport', async ({ page, astro }) => {
+			await page.goto(astro.resolveUrl('/mutation-observer'));
+			await expectUrlNotPrefetched('/prefetch-viewport', page);
+			// Scroll down to show the element
+			await Promise.all([
+				page.waitForEvent('request'), // wait prefetch request
+				page.locator('#prefetch-viewport').scrollIntoViewIfNeeded(),
+				page.locator('#toggle-button-viewport').click(),
+			]);
+			await expectUrlPrefetched('/prefetch-viewport', page);
+		});
+
+		test('data-astro-prefetch="load" should prefetch', async ({ page, astro }) => {
+			await page.goto(astro.resolveUrl('/mutation-observer'));
+
+			await page.locator('#toggle-button-load').click();
+
+			await expectUrlPrefetched('/prefetch-load', page);
+		});
+	});
+});
+
 // Playwrights `request` event does not appear to fire when using the speculation rules API
 // Instead of checking for the added url, each test checks to see if `document.head`
 // contains a `script[type=speculationrules]` that has the `url` in it.

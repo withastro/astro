@@ -1,0 +1,33 @@
+---
+import ToggleButton from '../components/ToggleButton'
+---
+
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+</head>
+<body>
+<h1>Prefetch (with Mutation Observer)</h1>
+<!--The tap strategy is not affected by mutation observers.-->
+<!--This is provided to verify that the tap strategy functions correctly even when mutation observers are enabled.-->
+<ToggleButton id="tap" client:load>
+	<a id="prefetch-tap" href="/prefetch-tap" data-astro-prefetch="tap">tap</a>
+</ToggleButton>
+<br>
+<ToggleButton id="hover" client:load>
+	<a id="prefetch-hover" href="/prefetch-hover" data-astro-prefetch="hover">hover</a>
+</ToggleButton>
+<br>
+<span>Scroll down to trigger viewport prefetch</span>
+<!-- Large empty space to test viewport -->
+<div style="height: 1000px;"></div>
+<ToggleButton id="load" client:load>
+	<a id="prefetch-load" href="/prefetch-load" data-astro-prefetch="load">load</a>
+</ToggleButton>
+<br>
+<ToggleButton id="viewport" client:load>
+	<a id="prefetch-viewport" href="/prefetch-viewport" data-astro-prefetch="viewport">viewport</a>
+</ToggleButton>
+</body>
+</html>

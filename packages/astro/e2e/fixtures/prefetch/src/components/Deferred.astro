@@ -1,0 +1,11 @@
+---
+type Props = {
+	id: string,
+	href: string,
+}
+
+const { id, href } = Astro.props;
+
+await new Promise ((resolve) => setTimeout(resolve, 100));
+---
+<a id={id} href={href} data-astro-prefetch="load">load</a>
