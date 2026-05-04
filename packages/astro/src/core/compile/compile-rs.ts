@@ -102,9 +102,9 @@ export async function compile({
 
 	return {
 		...transformResult,
-		css: transformResult.css.map((code: string, i: number) => ({
+		css: transformResult.css.map((cssCode: string, i: number) => ({
 			...cssPartialCompileResults[i],
-			code,
+			code: cssCode,
 		})),
 	};
 }

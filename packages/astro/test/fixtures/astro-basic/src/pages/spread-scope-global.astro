@@ -1,0 +1,16 @@
+---
+const linkAttributes = { class: 'big', href: '#', rel: 'noopener' };
+---
+
+<html>
+	<head></head>
+	<body>
+		<a id="spread-global-link" {...linkAttributes}>Astro</a>
+		<style is:global>
+			.big {
+				font-size: 3rem;
+				font-weight: 700;
+			}
+		</style>
+	</body>
+</html>
