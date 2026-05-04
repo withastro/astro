@@ -1,6 +1,6 @@
 import * as v from 'valibot';
 
-export const REPO = process.env.GITHUB_REPOSITORY || 'withastro/astro';
+const REPO = process.env.GITHUB_REPOSITORY || 'withastro/astro';
 export const GITHUB_TOKEN_BASE = process.env.GITHUB_TOKEN;
 
 // Intentionally not exported, GITHUB_TOKEN_BASE should be enough anywhere else.
