@@ -96,7 +96,8 @@ describe('AstroDevPlatform', () => {
 		// Verify the page rendered successfully with Prism component
 		assert.equal($('h1').text(), 'Testing Prism Component');
 		// Verify the code block was rendered
-		assert.ok($('pre').length > 0, 'Code block should be rendered');
+		// 'css', 'js', 'ts', and 'rust'
+		assert.equal($('pre').length, 4, 'Code block should be rendered');
 	});
 
 	it('Prism component loads languages correctly in dev mode', async () => {

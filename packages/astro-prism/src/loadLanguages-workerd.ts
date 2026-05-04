@@ -18,14 +18,31 @@ const loadChainer: LoadChainer<Promise<void>> = {
 
 // Since Prism language files are written assuming the Prism instance is defined
 // as a global variable, we will temporarily set the Prism instance globally.
-function setPrismAsGlobal() {
-	globalThis.Prism = Prism;
+// As loadLanguages can be called asynchronously multiple times, there is a risk
+// that globalThis.Prism may be accessed again after cleanup, even when it appears
+// to be no longer needed after a Promise resolves, potentially causing a
+// `Prism is not defined` error.
+// To avoid this, we track the number of active references and only perform cleanup
+// when the count returns to zero.
+let prismRefCount = 0;
 
-	return () => {
-		// @ts-expect-error globalThis type
-		delete globalThis.Prism;
-	};
-}
+const prismRefCounter = {
+	increment: () => {
+		if (prismRefCount === 0) {
+			globalThis.Prism = Prism;
+		}
+
+		prismRefCount += 1;
+	},
+	decrement: () => {
+		prismRefCount -= 1;
+
+		if (prismRefCount === 0) {
+			// @ts-expect-error globalThis type
+			delete globalThis.Prism;
+		}
+	},
+};
 
 /**
  * The set of all languages which have been loaded using the below function.
@@ -43,7 +60,7 @@ const loadedLanguages = new Set<string>();
  * @returns {Promise<void>}
  */
 export async function loadLanguages(languages: string | string[]) {
-	const cleanUp = setPrismAsGlobal();
+	prismRefCounter.increment();
 
 	if (languages === undefined) {
 		languages = Object.keys(components.languages).filter((l) => l !== 'meta');
@@ -73,7 +90,7 @@ export async function loadLanguages(languages: string | string[]) {
 		loadedLanguages.add(lang);
 	}, loadChainer);
 
-	cleanUp();
+	prismRefCounter.decrement();
 }
 
 /**
