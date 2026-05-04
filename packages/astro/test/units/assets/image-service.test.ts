@@ -159,3 +159,44 @@ describe('sharp image service', async () => {
 		assert.equal(height, ORIGINAL_HEIGHT);
 	});
 });
+
+describe('sharp image service SVG handling', async () => {
+	const sharpService = (await import('../../../dist/assets/services/sharp.js')).default;
+	const SVG_BUFFER = new TextEncoder().encode(
+		'<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><rect width="10" height="10"/></svg>',
+	);
+
+	function makeConfig(overrides: Record<string, unknown> = {}) {
+		return { service: { entrypoint: '', config: {} }, ...overrides } as any;
+	}
+
+	it('rejects SVG sources that would be rasterized without dangerouslyAllowSVG', async () => {
+		await assert.rejects(
+			sharpService.transform(
+				SVG_BUFFER,
+				{ src: 'icon.svg', format: 'webp' } as any,
+				makeConfig(),
+			),
+			/SVG image processing is disabled/,
+		);
+	});
+
+	it('passes SVG-to-SVG output through without requiring dangerouslyAllowSVG', async () => {
+		const { data, format } = await sharpService.transform(
+			SVG_BUFFER,
+			{ src: 'icon.svg', format: 'svg' } as any,
+			makeConfig(),
+		);
+		assert.equal(format, 'svg');
+		assert.equal(data, SVG_BUFFER);
+	});
+
+	it('allows SVG sources to be processed when dangerouslyAllowSVG is enabled', async () => {
+		const { format } = await sharpService.transform(
+			SVG_BUFFER,
+			{ src: 'icon.svg', format: 'png' } as any,
+			makeConfig({ dangerouslyAllowSVG: true }),
+		);
+		assert.equal(format, 'png');
+	});
+});
