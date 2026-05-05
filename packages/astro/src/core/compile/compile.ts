@@ -7,6 +7,10 @@ import type { AstroError } from '../errors/errors.js';
 import { AggregateError, CompilerError } from '../errors/errors.js';
 import { AstroErrorData } from '../errors/index.js';
 import { normalizePath, resolvePath } from '../viteUtils.js';
+import {
+	shouldStripSpreadScopeArg,
+	stripIncorrectSpreadScopeClass,
+} from './strip-incorrect-spread-scope.js';
 import { createStylePreprocessor, type PartialCompileCssResult } from './style.js';
 import type { CompileCssResult } from './types.js';
 
@@ -82,8 +86,13 @@ export async function compile({
 
 	handleCompileResultErrors(transformResult, cssTransformErrors);
 
+	const code = shouldStripSpreadScopeArg(cssPartialCompileResults)
+		? stripIncorrectSpreadScopeClass(transformResult.code)
+		: transformResult.code;
+
 	return {
 		...transformResult,
+		code,
 		css: transformResult.css.map((cssCode, i) => ({
 			...cssPartialCompileResults[i],
 			code: cssCode,
