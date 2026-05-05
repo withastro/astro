@@ -1,5 +1,8 @@
 import { createReadStream, existsSync, readFileSync } from 'node:fs';
-import { appendFile, rename, stat } from 'node:fs/promises';
+import { appendFile, readFile, rename, stat, writeFile } from 'node:fs/promises';
+import { relative } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { normalizePath } from 'vite';
 import { createInterface } from 'node:readline/promises';
 import { removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
 import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
@@ -459,6 +462,25 @@ export default function createIntegration({
 						} catch {
 							// File may not exist — that's fine
 						}
+					}
+					// The @cloudflare/vite-plugin computes assets.directory from the
+					// modified client outDir which includes the base prefix. However,
+					// Cloudflare's asset binding resolves the full request URL path
+					// (including the base) against the directory, so it must point to
+					// the original un-prefixed client root.
+					try {
+						const wranglerJsonUrl = new URL('./wrangler.json', _config.build.server);
+						const raw = await readFile(wranglerJsonUrl, 'utf-8');
+						const wranglerConfig = JSON.parse(raw);
+						if (wranglerConfig.assets?.directory) {
+							wranglerConfig.assets.directory = normalizePath(relative(
+								fileURLToPath(_config.build.server),
+								fileURLToPath(_originalClientDir),
+							));
+							await writeFile(wranglerJsonUrl, JSON.stringify(wranglerConfig));
+						}
+					} catch {
+						// wrangler.json may not exist
 					}
 				}
 
