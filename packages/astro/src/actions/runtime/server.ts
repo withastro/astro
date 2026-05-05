@@ -408,7 +408,7 @@ function handleFormDataGetAll(key: string, formData: FormData, validator: z.$Zod
 	if (elementValidator instanceof z.$ZodNumber) {
 		return entries.map(Number);
 	} else if (elementValidator instanceof z.$ZodBoolean) {
-		return entries.map(Boolean);
+		return entries.map((v) => (v === 'true' ? true : v === 'false' ? false : Boolean(v)));
 	}
 	return entries;
 }

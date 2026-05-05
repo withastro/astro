@@ -1,6 +1,7 @@
 import type { FlueClient } from '@flue/client';
 import { anthropic, github, githubBody } from '@flue/client/proxies';
 import * as v from 'valibot';
+import { fetchCIFailureLogs, postPRComment } from './github.ts';
 
 export const proxies = {
 	anthropic: anthropic(),
@@ -26,7 +27,12 @@ export const args = v.object({
 export default async function mergeFix(flue: FlueClient, { prNumber }: v.InferOutput<typeof args>) {
 	const branch = 'ci/merge-main-to-next';
 
-	// Step 1: Verify conflict resolutions and resolve any remaining source code conflicts.
+	// Step 1: Fetch CI failure logs before entering the sandbox.
+	// The gh CLI doesn't work inside the Flue sandbox (auth goes through a proxy),
+	// so we fetch logs here in the orchestrator and pass them to the skill.
+	const ciLogs = await fetchCIFailureLogs(branch);
+
+	// Step 2: Verify conflict resolutions and resolve any remaining source code conflicts.
 	// JSON/YAML conflicts were pre-stripped by the GitHub Action (keeping next side).
 	// This skill checks that nothing important from main was lost, and resolves
 	// any remaining conflict markers in .ts/.js/.md/.astro files.
@@ -44,7 +50,7 @@ export default async function mergeFix(flue: FlueClient, { prNumber }: v.InferOu
 		}),
 	});
 
-	// Step 2: Remove stale changesets that were already released on main
+	// Step 3: Remove stale changesets that were already released on main
 	await flue.skill('merge/clean-changesets.md', {
 		args: { prNumber },
 		result: v.object({
@@ -55,9 +61,9 @@ export default async function mergeFix(flue: FlueClient, { prNumber }: v.InferOu
 		}),
 	});
 
-	// Step 3: Run tests and fix failures
+	// Step 4: Fix test failures using CI logs
 	const fixResult = await flue.skill('merge/fix-tests.md', {
-		args: { prNumber },
+		args: { prNumber, ciLogs },
 		result: v.object({
 			testsPass: v.pipe(v.boolean(), v.description('true if all tests pass after fixes')),
 			fixedFiles: v.pipe(
@@ -73,7 +79,7 @@ export default async function mergeFix(flue: FlueClient, { prNumber }: v.InferOu
 		}),
 	});
 
-	// Step 4: Commit and push all changes
+	// Step 5: Commit and push all changes
 	const status = await flue.shell('git status --porcelain');
 	if (status.stdout.trim()) {
 		await flue.shell('git add -A');
@@ -95,7 +101,7 @@ export default async function mergeFix(flue: FlueClient, { prNumber }: v.InferOu
 		}
 	}
 
-	// Step 5: Post a summary comment on the PR
+	// Step 6: Post a summary comment on the PR
 	const summaryParts = [];
 	if (verifyResult.correctedFiles.length > 0) {
 		summaryParts.push(`- Fixed conflict resolutions in: ${verifyResult.correctedFiles.join(', ')}`);
@@ -116,16 +122,7 @@ ${summaryParts.join('\n')}
 
 ${fixResult.testsPass ? 'All tests pass — this PR should be ready for review.' : 'Some tests still fail — manual intervention may be needed.'}`;
 
-		const token = process.env.FREDKBOT_GITHUB_TOKEN || process.env.GITHUB_TOKEN;
-		await fetch(`https://api.github.com/repos/withastro/astro/issues/${prNumber}/comments`, {
-			method: 'POST',
-			headers: {
-				Authorization: `token ${token}`,
-				'Content-Type': 'application/json',
-				Accept: 'application/vnd.github+json',
-			},
-			body: JSON.stringify({ body: commentBody }),
-		});
+		await postPRComment(prNumber, commentBody);
 	}
 
 	return {
