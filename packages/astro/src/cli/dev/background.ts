@@ -95,7 +95,7 @@ export async function background({ flags }: { flags: Flags }): Promise<void> {
 		detached: true,
 		stdio: ['ignore', logFd, logFd],
 		cwd: rootPath,
-		env: { ...process.env },
+		env: { ...process.env, ASTRO_DEV_BACKGROUND: '1' },
 	});
 
 	child.unref();

@@ -81,7 +81,9 @@ export async function dev({ flags }: DevOptions) {
 
 	// Handle --experimental-background: start as a background process.
 	// Also auto-enable when an AI coding agent is detected.
-	if (flags.experimentalBackground || isRunByAgent()) {
+	// Skip if ASTRO_DEV_BACKGROUND is set — this means we're the spawned child process
+	// and should run the foreground dev server, not recurse into background mode.
+	if (flags.experimentalBackground || (isRunByAgent() && !process.env.ASTRO_DEV_BACKGROUND)) {
 		const { background } = await import('./background.js');
 		await background({ flags });
 		return;
