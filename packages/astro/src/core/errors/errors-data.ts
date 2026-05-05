@@ -1296,7 +1296,7 @@ export const UnhandledRejection = {
  */
 export const i18nNotEnabled = {
 	name: 'i18nNotEnabled',
-	title: 'The internationalization routing is not enabled.',
+	title: 'Internationalization routing is not enabled.',
 	message: 'The `astro:i18n` module cannot be used without enabling `i18n` in your Astro config.',
 	hint: 'See https://docs.astro.build/en/guides/internationalization for a guide on setting up i18n.',
 } satisfies ErrorData;
