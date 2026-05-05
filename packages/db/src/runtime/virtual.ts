@@ -93,4 +93,4 @@ export {
 } from 'drizzle-orm';
 
 export { alias } from 'drizzle-orm/sqlite-core';
-export { isDbError } from './utils.js';
+export { getDbError, isDbError } from './utils.js';

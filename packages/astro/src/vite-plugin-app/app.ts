@@ -28,7 +28,6 @@ import { req } from '../core/messages/runtime.js';
 
 export class AstroServerApp extends BaseApp<RunnablePipeline> {
 	settings: AstroSettings;
-	logger: AstroLogger;
 	loader: ModuleLoader;
 	manifestData: RoutesList;
 	currentRenderContext: RenderContext | undefined = undefined;
@@ -43,7 +42,6 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 	) {
 		super(manifest, streaming, settings, logger, loader, manifestData, getDebugInfo);
 		this.settings = settings;
-		this.logger = logger;
 		this.loader = loader;
 		this.manifestData = manifestData;
 	}
@@ -166,12 +164,6 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 			// We already have a middleware that checks if there's an incoming URL that has invalid URI, so it's safe
 			// to not handle the error: packages/astro/src/vite-plugin-astro-server/base.ts
 			pathname = decodeURI(url.pathname);
-		}
-
-		// Normalize root path to empty string when trailingSlash is 'never' and there's a non-root base
-		// This ensures consistent route matching for the index route (e.g., /base?query -> '')
-		if (this.manifest.trailingSlash === 'never' && pathname === '/' && this.manifest.base !== '/') {
-			pathname = '';
 		}
 
 		// Add config.base back to url before passing it to SSR

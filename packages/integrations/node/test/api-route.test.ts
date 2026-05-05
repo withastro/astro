@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import { after, before, describe, it } from 'node:test';
-import type { PreviewServer } from '../../../astro/src/types/public/preview.js';
+import type { PreviewServer } from 'astro';
 import nodejs from '../dist/index.js';
 import { createRequestAndResponse, type Fixture, loadFixture } from './test-utils.ts';
 

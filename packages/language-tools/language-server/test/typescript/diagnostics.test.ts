@@ -85,4 +85,25 @@ describe('TypeScript - Diagnostics', async () => {
 		)) as FullDocumentDiagnosticReport;
 		assert.strictEqual(diagnostics.items.length, 1);
 	});
+
+	it('does not report a local declaration conflict when importing Image from astro:assets', async () => {
+		const document = await languageServer.handle.openTextDocument(
+			path.join(fixtureDir, 'image.astro'),
+			'astro',
+		);
+		const diagnostics = (await languageServer.handle.sendDocumentDiagnosticRequest(
+			document.uri,
+		)) as FullDocumentDiagnosticReport;
+
+		assert.deepStrictEqual(
+			diagnostics.items.filter(
+				(diagnostic) =>
+					diagnostic.code === 2440 &&
+					diagnostic.message.includes(
+						"Import declaration conflicts with local declaration of 'Image'",
+					),
+			),
+			[],
+		);
+	});
 });

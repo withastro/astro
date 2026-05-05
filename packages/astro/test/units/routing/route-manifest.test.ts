@@ -2,11 +2,11 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { AstroConfig } from '../../../dist/types/public/config.js';
 import type { RouteData } from '../../../dist/types/public/internal.js';
-import type { AstroLogMessage, AstroLoggerDestination } from '../../../dist/core/logger/core.js';
+import type { AstroLoggerMessage, AstroLoggerDestination } from '../../../dist/core/logger/core.js';
 import { AstroLogger } from '../../../dist/core/logger/core.js';
 import { createRoutesFromEntries } from '../../../dist/core/routing/create-manifest.js';
 
-const destination: AstroLoggerDestination<AstroLogMessage> = { write: () => true };
+const destination: AstroLoggerDestination<AstroLoggerMessage> = { write: () => true };
 const logger = new AstroLogger({ destination, level: 'silent' });
 
 type RoutingSettings = Parameters<typeof createRoutesFromEntries>[1];

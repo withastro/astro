@@ -599,6 +599,27 @@ export class RenderContext {
 					},
 				};
 			},
+
+			get logger(): APIContext['logger'] {
+				if (!pipeline.manifest.experimentalLogger) {
+					pipeline.logger.warn(
+						null,
+						'The Astro.logger is available only when experimental.logger is defined.',
+					);
+					return undefined;
+				}
+				return {
+					info(msg: string) {
+						pipeline.logger.info(null, msg);
+					},
+					warn(msg: string) {
+						pipeline.logger.warn(null, msg);
+					},
+					error(msg: string) {
+						pipeline.logger.error(null, msg);
+					},
+				};
+			},
 		};
 	}
 
@@ -688,6 +709,7 @@ export class RenderContext {
 				extraStyleHashes,
 				extraScriptHashes,
 				propagators: new Set(),
+				templateDepth: 0,
 			},
 			cspDestination: manifest.csp?.cspDestination ?? (routeData.prerender ? 'meta' : 'header'),
 			shouldInjectCspMetaTags,
@@ -863,6 +885,19 @@ export class RenderContext {
 					},
 					insertScriptHash(hash) {
 						renderContext.result?.scriptHashes.push(hash);
+					},
+				};
+			},
+			get logger(): APIContext['logger'] {
+				return {
+					info(msg: string) {
+						pipeline.logger.info(null, msg);
+					},
+					warn(msg: string) {
+						pipeline.logger.warn(null, msg);
+					},
+					error(msg: string) {
+						pipeline.logger.error(null, msg);
 					},
 				};
 			},

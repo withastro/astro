@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import testAdapter from './test-adapter.js';
-import { type App, type Fixture, loadFixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { type App, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('context.cache', () => {
 	it('build fails for invalid cache option values', async () => {

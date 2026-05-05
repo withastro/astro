@@ -3,7 +3,7 @@ import { before, describe, it } from 'node:test';
 
 import type { RehypePlugin, RemarkPlugin } from '@astrojs/markdown-remark';
 import * as cheerio from 'cheerio';
-import { type AstroInlineConfig, type Fixture, loadFixture } from './test-utils.js';
+import { type AstroInlineConfig, type Fixture, loadFixture } from './test-utils.ts';
 
 const remarkExamplePlugin: RemarkPlugin = () => {
 	return (tree) => {

@@ -2,7 +2,7 @@ import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import type { CheerioAPI } from 'cheerio';
 import * as cheerio from 'cheerio';
-import { type DevServer, type Fixture, fixLineEndings, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, fixLineEndings, loadFixture } from './test-utils.ts';
 
 type EntryRef = { id: string; collection: string };
 
