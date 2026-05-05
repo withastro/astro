@@ -115,7 +115,7 @@ export async function dev({ flags }: DevOptions) {
 		pid: process.pid,
 		port: server.address.port,
 		url: serverUrl,
-		background: false,
+		background: !!process.env.ASTRO_DEV_BACKGROUND,
 		startedAt: new Date().toISOString(),
 	});
 
