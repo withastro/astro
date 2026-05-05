@@ -1,6 +1,9 @@
+import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { isAgent } from 'am-i-vibing';
 import colors from 'piccolore';
 import devServer from '../../core/dev/index.js';
+import { checkExistingServer, removeLockFile, writeLockFile } from '../../core/dev/lockfile.js';
 import { printHelp } from '../../core/messages/runtime.js';
 import { type Flags, flagsToAstroInlineConfig } from '../flags.js';
 
@@ -14,6 +17,11 @@ function isRunByAgent(): boolean {
 	} catch {
 		return false;
 	}
+}
+
+function resolveRootURL(flags: Flags): URL {
+	const rootPath = typeof flags.root === 'string' ? resolve(flags.root) : process.cwd();
+	return pathToFileURL(rootPath + '/');
 }
 
 export async function dev({ flags }: DevOptions) {
@@ -79,7 +87,40 @@ export async function dev({ flags }: DevOptions) {
 		return;
 	}
 
-	const inlineConfig = flagsToAstroInlineConfig(flags);
+	// Foreground dev server: check lock file, start server, write lock file
+	const root = resolveRootURL(flags);
+	const existingServer = checkExistingServer(root);
+	if (existingServer) {
+		const message = [
+			'Another astro dev server is already running.',
+			'',
+			`  URL:  ${existingServer.url}`,
+			`  PID:  ${existingServer.pid}`,
+			'',
+			`Run \`kill ${existingServer.pid}\` to stop it, or use \`astro dev --force\` to replace it.`,
+		].join('\n');
+		throw new Error(message);
+	}
 
-	return await devServer(inlineConfig);
+	const inlineConfig = flagsToAstroInlineConfig(flags);
+	const server = await devServer(inlineConfig);
+
+	// Write the lock file now that we know the bound port
+	const serverUrl = `http://localhost:${server.address.port}`;
+	writeLockFile(root, {
+		pid: process.pid,
+		port: server.address.port,
+		url: serverUrl,
+		background: false,
+		startedAt: new Date().toISOString(),
+	});
+
+	// Wrap the original stop to also clean up the lock file
+	const originalStop = server.stop.bind(server);
+	server.stop = async () => {
+		removeLockFile(root);
+		await originalStop();
+	};
+
+	return server;
 }

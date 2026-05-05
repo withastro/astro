@@ -1,9 +1,7 @@
 import fs from 'node:fs';
 import type http from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
-import { pathToFileURL } from 'node:url';
 import colors from 'piccolore';
 import { gt, major, minor, patch } from 'semver';
 import type * as vite from 'vite';
@@ -18,7 +16,6 @@ import * as msg from '../messages/runtime.js';
 import { newVersionAvailable } from '../messages/node.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { startContainer } from './container.js';
-import { checkExistingServer, removeLockFile, writeLockFile } from './lockfile.js';
 import { createContainerWithAutomaticRestart } from './restart.js';
 import {
 	fetchLatestAstroVersion,
@@ -45,27 +42,6 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 	ensureProcessNodeEnv('development');
 	const devStart = performance.now();
 	await telemetry.record([]);
-
-	// Check if a dev server is already running for this project.
-	// Skip lock file management when running in tests — tests use the JS API and may
-	// start multiple dev servers in the same process.
-	const useLockFile = process.env.NODE_ENV !== 'test' && process.env.NODE_ENV !== 'production';
-	if (useLockFile) {
-		const rawRoot = inlineConfig.root ? resolve(inlineConfig.root) : process.cwd();
-		const rootURL = pathToFileURL(rawRoot + '/');
-		const existingServer = checkExistingServer(rootURL);
-		if (existingServer) {
-			const message = [
-				'Another astro dev server is already running.',
-				'',
-				`  URL:  ${existingServer.url}`,
-				`  PID:  ${existingServer.pid}`,
-				'',
-				`Run \`kill ${existingServer.pid}\` to stop it, or use \`astro dev --force\` to replace it.`,
-			].join('\n');
-			throw new Error(message);
-		}
-	}
 
 	// Create a container which sets up the Vite server.
 	const restart = await createContainerWithAutomaticRestart({ inlineConfig, fs });
@@ -145,20 +121,6 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 	// Start listening to the port
 	const devServerAddressInfo = await startContainer(restart.container);
 
-	// Write the lock file now that we know the actual bound port
-	const resolvedUrls = restart.container.viteServer.resolvedUrls;
-	const serverUrl = resolvedUrls?.local[0] ?? `http://localhost:${devServerAddressInfo.port}`;
-	const settingsRoot = restart.container.settings.config.root;
-	if (useLockFile) {
-		writeLockFile(settingsRoot, {
-			pid: process.pid,
-			port: devServerAddressInfo.port,
-			url: serverUrl,
-			background: false,
-			startedAt: new Date().toISOString(),
-		});
-	}
-
 	restart.bindCLIShortcuts();
 	logger.info(
 		'SKIP_FORMAT',
@@ -190,9 +152,6 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 			return restart.container.handle(req, res);
 		},
 		async stop() {
-			if (useLockFile) {
-				removeLockFile(settingsRoot);
-			}
 			await restart.container.close();
 		},
 	};
