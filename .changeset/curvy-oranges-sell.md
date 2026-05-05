@@ -2,4 +2,4 @@
 '@astrojs/mdx': patch
 ---
 
-Fix MDX smartypants option objects being ignored
+Fixes an issue where the `smartypants` option was ignored.
