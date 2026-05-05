@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import testAdapter from './test-adapter.js';
-import { type Fixture, loadFixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Adapter', () => {
 	let fixture: Fixture;

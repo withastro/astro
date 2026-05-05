@@ -7,7 +7,7 @@ import {
 	type AdapterServer,
 	type DevServer,
 	loadFixture as baseLoadFixture,
-} from '../../../astro/test/test-utils.js';
+} from 'astro/_internal/test/test-utils';
 import type * as express from 'express';
 
 process.env.ASTRO_NODE_AUTOSTART = 'disabled';

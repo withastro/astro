@@ -1,5 +1,51 @@
 # @astrojs/cloudflare
 
+## 13.3.1
+
+### Patch Changes
+
+- [#16552](https://github.com/withastro/astro/pull/16552) [`409f6ef`](https://github.com/withastro/astro/commit/409f6efb0cfef5b40c5e0058726bc4edbb24e2ab) Thanks [@web-dev0521](https://github.com/web-dev0521)! - Fixes an issue where existing KV namespace bindings were silently removed when session support was enabled.
+
+- [#16277](https://github.com/withastro/astro/pull/16277) [`7666bcd`](https://github.com/withastro/astro/commit/7666bcdf6d7f6d65cdae89b622d33dcc462590e0) Thanks [@Calvin-LL](https://github.com/Calvin-LL)! - Fix static assets and prerendered pages 404ing when `base` is configured.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 13.3.0
+
+### Minor Changes
+
+- [#16187](https://github.com/withastro/astro/pull/16187) [`fe58071`](https://github.com/withastro/astro/commit/fe58071817f447f832d9ce4341c0b5991d3c0cda) Thanks [@gllmt](https://github.com/gllmt)! - Adds a `waitUntil` option to the `RenderOptions` so that adapters can forward runtime background-task hooks to Astro.
+
+  When provided by an adapter, runtime cache providers receive `context.waitUntil` in
+  `CacheProvider.onRequest()`, which allows background cache work such as stale-while-revalidate
+  without blocking the response. The Cloudflare adapter now forwards
+  `ExecutionContext.waitUntil` to this API.
+
+- [#16290](https://github.com/withastro/astro/pull/16290) [`a49637a`](https://github.com/withastro/astro/commit/a49637ab82a6ce8506a7272f331d1101f782b3e0) Thanks [@ViVaLaDaniel](https://github.com/ViVaLaDaniel)! - Ensures that `server.allowedHosts` (and `vite.preview.allowedHosts`) configuration is respected when using `astro preview` with the `@astrojs/cloudflare` adapter. This improves security by preventing DNS rebinding attacks when previewing Cloudflare builds locally.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 13.2.2
+
+### Patch Changes
+
+- [#16498](https://github.com/withastro/astro/pull/16498) [`4efe020`](https://github.com/withastro/astro/commit/4efe02066d236590d948db4d5474253b8217ffdb) Thanks [@matthewp](https://github.com/matthewp)! - Fixes the dependency scan failing with "No matching export for import 'default'" when a `.ts` file default-imports an `.astro` component
+
+  The esbuild scan plugin now includes `export default {}` in its output for `.astro` files, preventing the scan from failing and ensuring all dependencies are discovered ahead of time.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 13.2.1
+
+### Patch Changes
+
+- [#16458](https://github.com/withastro/astro/pull/16458) [`8cb1f42`](https://github.com/withastro/astro/commit/8cb1f42e378bfe6d2989f7c4edb3ccd45eca1f4f) Thanks [@matthewp](https://github.com/matthewp)! - Fixes Cloudflare dev and build failures caused by `@cloudflare/vite-plugin` defaulting `compatibility_date` to today's date, which can exceed the maximum date supported by the bundled `workerd` binary
+
 ## 13.2.0
 
 ### Minor Changes

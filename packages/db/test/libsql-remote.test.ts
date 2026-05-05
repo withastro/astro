@@ -3,7 +3,7 @@ import { rm } from 'node:fs/promises';
 import { relative } from 'node:path';
 import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import testAdapter from '../../astro/test/test-adapter.js';
+import testAdapter from 'astro/_internal/test/test-adapter';
 import { clearEnvironment, type Fixture, initializeRemoteDb, loadFixture } from './test-utils.ts';
 
 describe('astro:db local database', () => {

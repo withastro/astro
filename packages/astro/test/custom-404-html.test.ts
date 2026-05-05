@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture, type Fixture, type DevServer } from './test-utils.js';
+import { loadFixture, type Fixture, type DevServer } from './test-utils.ts';
 
 describe('Custom 404.html', () => {
 	let fixture: Fixture;

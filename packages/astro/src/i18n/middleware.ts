@@ -102,7 +102,7 @@ export function createI18nMiddleware(
 		if (i18n.fallback && i18n.fallbackType) {
 			const fallbackDecision = computeFallbackRoute({
 				pathname: context.url.pathname,
-				responseStatus: response.status,
+				responseStatus: typeHeader === 'fallback' ? 404 : response.status,
 				currentLocale: context.currentLocale,
 				fallback: i18n.fallback,
 				fallbackType: i18n.fallbackType,

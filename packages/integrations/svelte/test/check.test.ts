@@ -146,6 +146,33 @@ describe('Svelte Check', () => {
 		assert.equal(exitCode, 1, 'Expected check to fail (exit code 1)');
 	});
 
+	it('should pass check when snippet props are omitted', async () => {
+		const root = fileURLToPath(new URL('./fixtures/prop-types/types/snippets', import.meta.url));
+		const tsConfigPath = fileURLToPath(
+			new URL('./fixtures/prop-types/tsconfig.snippets-pass.json', import.meta.url),
+		);
+		const { getResult } = cli('check', '--tsconfig', tsConfigPath, '--root', root);
+		const { exitCode, stdout, stderr } = await getResult();
+
+		if (exitCode !== 0) {
+			console.error(stdout);
+			console.error(stderr);
+		}
+		assert.equal(exitCode, 0, 'Expected check to pass (exit code 0)');
+	});
+
+	it('should fail check when non-snippet required props are missing', async () => {
+		const root = fileURLToPath(new URL('./fixtures/prop-types/types/snippets', import.meta.url));
+		const tsConfigPath = fileURLToPath(
+			new URL('./fixtures/prop-types/tsconfig.snippets-fail.json', import.meta.url),
+		);
+		const { getResult } = cli('check', '--tsconfig', tsConfigPath, '--root', root);
+		const { exitCode, stdout } = await getResult();
+
+		assert.equal(exitCode, 1, 'Expected check to fail (exit code 1)');
+		assert.ok(stdout.includes(`'title'`), 'Expected title to be reported as missing');
+	});
+
 	it('should fail check on invalid element children', { skip: true }, async () => {
 		const root = fileURLToPath(new URL('./fixtures/prop-types/types/children', import.meta.url));
 		const tsConfigPath = fileURLToPath(

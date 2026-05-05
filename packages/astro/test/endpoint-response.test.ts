@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('endpoint responses', () => {
 	let fixture: Fixture;
