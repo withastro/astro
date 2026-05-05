@@ -1,0 +1,13 @@
+---
+import { createContext } from 'astro/middleware';
+import { actions } from 'astro:actions';
+
+const context = createContext({
+	request: Astro.request,
+	defaultLocale: 'en',
+});
+
+const result = await context.callAction(actions.test, { name: 'Astro' });
+---
+
+<div id="result">{result.data}</div>

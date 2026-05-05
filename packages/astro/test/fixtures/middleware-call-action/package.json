@@ -1,0 +1,7 @@
+{
+  "name": "@fixture/middleware-call-action",
+  "type": "module",
+  "dependencies": {
+    "astro": "workspace:*"
+  }
+}
