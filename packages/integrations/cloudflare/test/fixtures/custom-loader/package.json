@@ -1,0 +1,10 @@
+{
+  "name": "@test/cf-custom-loader",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/cloudflare": "workspace:*",
+    "astro": "workspace:*",
+    "fake-data-pkg": "file:./fake-data-pkg"
+  }
+}

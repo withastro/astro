@@ -136,6 +136,13 @@ export default function createIntegration({
 
 				let session = config.session;
 				const isCompile = buildService === 'compile';
+				// Capture user's top-level optimizeDeps before updateConfig so we can forward
+				// them into server-environment dep optimization. In Vite 6, top-level
+				// optimizeDeps only auto-applies to the client environment; the Cloudflare
+				// adapter owns server-environment optimizeDeps via configEnvironment, so
+				// user-specified excludes and esbuild loaders would otherwise be silently
+				// ignored for SSR/prerender.
+				const userOptimizeDeps = config.vite?.optimizeDeps;
 
 				if (needsImagesBinding) {
 					logger.info(
@@ -276,6 +283,15 @@ export default function createIntegration({
 													'virtual:astro-cloudflare:*',
 													'virtual:@astrojs/*',
 													'@astrojs/starlight',
+													// Forward user's top-level optimizeDeps.exclude into server
+													// environments. In Vite 6 the top-level field only applies to
+													// the client environment, so without this packages excluded by
+													// the user (e.g. to avoid an unsupported file-type error) would
+													// still be pre-bundled by the adapter's dep optimizer.
+													...(userOptimizeDeps?.exclude ?? []),
+													// Also forward any environment-specific user overrides that
+													// Vite passes through _options (vite.environments.ssr.optimizeDeps).
+													...(_options.optimizeDeps?.exclude ?? []),
 												],
 												esbuildOptions: {
 													// Suppress Vite's `createRequire(import.meta.url)` banner to work around
@@ -284,6 +300,14 @@ export default function createIntegration({
 													// binding shares the same name (e.g. zod v4 exports `meta`).
 													banner: { js: '' },
 													plugins: [astroFrontmatterScanPlugin()],
+													// Merge user-specified loaders for non-standard file types (e.g.
+													// `.data`, `.wasm`) so packages that import these extensions are
+													// pre-bundled correctly instead of failing with "No loader is
+													// configured for <ext>" errors.
+													loader: {
+														...(userOptimizeDeps?.esbuildOptions?.loader ?? {}),
+														...(_options.optimizeDeps?.esbuildOptions?.loader ?? {}),
+													},
 												},
 											},
 										};
