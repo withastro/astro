@@ -25,7 +25,7 @@ export type ServerDeserializedManifest = Pick<
 > &
 	DeserializedDirs & {
 		i18n: AstroConfig['i18n'];
-		build: Pick<AstroConfig['build'], 'server' | 'client' | 'format'>;
+		build: Pick<AstroConfig['build'], 'server' | 'client' | 'format' | 'assetsPrefix'>;
 		root: URL;
 		image: Pick<AstroConfig['image'], 'objectFit' | 'objectPosition' | 'layout'>;
 	};
