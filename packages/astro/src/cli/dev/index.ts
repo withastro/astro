@@ -5,7 +5,7 @@ import colors from 'piccolore';
 import devServer from '../../core/dev/index.js';
 import { checkExistingServer, removeLockFile, writeLockFile } from '../../core/dev/lockfile.js';
 import { printHelp } from '../../core/messages/runtime.js';
-import { type Flags, flagsToAstroInlineConfig } from '../flags.js';
+import { type Flags, createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 
 interface DevOptions {
 	flags: Flags;
@@ -58,24 +58,26 @@ export async function dev({ flags }: DevOptions) {
 		return;
 	}
 
+	const logger = createLoggerFromFlags(flags);
+
 	// Handle --experimental-stop: stop a running dev server
 	if (flags.experimentalStop) {
 		const { stop } = await import('./stop.js');
-		await stop({ flags });
+		await stop({ flags, logger });
 		return;
 	}
 
 	// Handle --experimental-status: check if a dev server is running
 	if (flags.experimentalStatus) {
 		const { status } = await import('./status.js');
-		await status({ flags });
+		await status({ flags, logger });
 		return;
 	}
 
 	// Handle --experimental-logs: view logs from a background dev server
 	if (flags.experimentalLogs) {
 		const { logs } = await import('./logs.js');
-		await logs({ flags });
+		await logs({ flags, logger });
 		return;
 	}
 
@@ -85,7 +87,7 @@ export async function dev({ flags }: DevOptions) {
 	// and should run the foreground dev server, not recurse into background mode.
 	if (flags.experimentalBackground || (isRunByAgent() && !process.env.ASTRO_DEV_BACKGROUND)) {
 		const { background } = await import('./background.js');
-		await background({ flags });
+		await background({ flags, logger });
 		return;
 	}
 

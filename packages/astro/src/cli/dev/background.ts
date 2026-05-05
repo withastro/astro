@@ -2,6 +2,7 @@ import { spawn } from 'node:child_process';
 import { existsSync, mkdirSync, openSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import type { AstroLogger } from '../../core/logger/core.js';
 import type { Flags } from '../flags.js';
 import {
 	checkExistingServer,
@@ -31,19 +32,19 @@ function resolveRootURL(flags: Flags): URL {
 	return pathToFileURL(rootPath + '/');
 }
 
-export async function background({ flags }: { flags: Flags }): Promise<void> {
+export async function background({
+	flags,
+	logger,
+}: { flags: Flags; logger: AstroLogger }): Promise<void> {
 	const root = resolveRootURL(flags);
 
 	// Check for existing server
 	const existing = checkExistingServer(root);
 	if (existing && !flags.force) {
-		console.log(
-			formatBackgroundOutput({
-				pid: existing.pid,
-				url: existing.url,
-				existing: true,
-			}),
-		);
+		logger.info(null, `Dev server already running at ${existing.url} (pid ${existing.pid})\n` +
+			'  Stop:   astro dev --experimental-stop\n' +
+			'  Status: astro dev --experimental-status\n' +
+			'  Logs:   astro dev --experimental-logs');
 		return;
 	}
 
@@ -102,12 +103,7 @@ export async function background({ flags }: { flags: Flags }): Promise<void> {
 
 	const childPid = child.pid;
 	if (!childPid) {
-		console.log(
-			formatBackgroundOutput({
-				error: 'spawn_failed',
-				message: 'Failed to spawn background dev server process.',
-			}),
-		);
+		logger.error(null, 'Failed to spawn background dev server process.');
 		process.exitCode = 1;
 		return;
 	}
@@ -119,12 +115,7 @@ export async function background({ flags }: { flags: Flags }): Promise<void> {
 	while (Date.now() < deadline) {
 		// Check if child is still alive
 		if (!isProcessAlive(childPid)) {
-			console.log(
-				formatBackgroundOutput({
-					error: 'process_exited',
-					message: 'Dev server process exited before becoming ready.',
-				}),
-			);
+			logger.error(null, 'Dev server process exited before becoming ready.');
 			process.exitCode = 1;
 			return;
 		}
@@ -132,12 +123,10 @@ export async function background({ flags }: { flags: Flags }): Promise<void> {
 		// Check for the lock file (written by the child's dev server)
 		const lockData = readLockFile(root);
 		if (lockData && lockData.pid === childPid) {
-			console.log(
-				formatBackgroundOutput({
-					pid: lockData.pid,
-					url: lockData.url,
-				}),
-			);
+			logger.info(null, `Dev server running at ${lockData.url} (pid ${lockData.pid})\n` +
+				'  Stop:   astro dev --experimental-stop\n' +
+				'  Status: astro dev --experimental-status\n' +
+				'  Logs:   astro dev --experimental-logs');
 			return;
 		}
 
@@ -152,11 +141,6 @@ export async function background({ flags }: { flags: Flags }): Promise<void> {
 	}
 	removeLockFile(root);
 
-	console.log(
-		formatBackgroundOutput({
-			error: 'timeout',
-			message: `Dev server failed to start within ${timeout / 1000}s.`,
-		}),
-	);
+	logger.error(null, `Dev server failed to start within ${timeout / 1000}s.`);
 	process.exitCode = 1;
 }

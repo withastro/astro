@@ -1,5 +1,6 @@
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import type { AstroLogger } from '../../core/logger/core.js';
 import type { Flags } from '../flags.js';
 import { checkExistingServer, removeLockFile } from '../../core/dev/lockfile.js';
 
@@ -18,12 +19,12 @@ function resolveRootURL(flags: Flags): URL {
 	return pathToFileURL(rootPath + '/');
 }
 
-export async function stop({ flags }: { flags: Flags }): Promise<void> {
+export async function stop({ flags, logger }: { flags: Flags; logger: AstroLogger }): Promise<void> {
 	const root = resolveRootURL(flags);
 	const existing = checkExistingServer(root);
 
 	if (!existing) {
-		console.log(formatStopOutput({ stopped: false, reason: 'not_running' }));
+		logger.info(null, 'No dev server is running.');
 		return;
 	}
 
@@ -48,5 +49,5 @@ export async function stop({ flags }: { flags: Flags }): Promise<void> {
 	// Clean up the lock file in case the process didn't remove it
 	removeLockFile(root);
 
-	console.log(formatStopOutput({ stopped: true, pid: existing.pid }));
+	logger.info(null, `Stopped dev server (pid ${existing.pid}).`);
 }
