@@ -183,4 +183,19 @@ describe('Svelte Check', () => {
 
 		assert.equal(exitCode, 1, 'Expected check to fail (exit code 1)');
 	});
+
+	it('should pass check for @testing-library/svelte compatibility', async () => {
+    const root = fileURLToPath(new URL('./fixtures/prop-types/types/testing-library', import.meta.url));
+    const tsConfigPath = fileURLToPath(
+      new URL('./fixtures/prop-types/tsconfig.testing-library.json', import.meta.url),
+    );
+
+    const { getResult } = cli('check', '--tsconfig', tsConfigPath, '--root', root);
+    const { exitCode, stdout, stderr } = await getResult();
+
+    // Failure message including stdout for easier debugging in CI
+    const failureMessage = `Expected check to pass for testing-library compatibility.\n\nSTDOUT:\n${stdout}\n\nSTDERR:\n${stderr}`;
+    
+    assert.strictEqual(exitCode, 0, failureMessage);
+  });
 });

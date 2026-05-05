@@ -45,6 +45,7 @@
     "vitefu": "^1.1.2"
   },
   "devDependencies": {
+    "@testing-library/svelte": "^5.3.1",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.2.0",
