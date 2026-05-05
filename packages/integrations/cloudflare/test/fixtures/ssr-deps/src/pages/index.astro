@@ -1,5 +1,6 @@
 ---
 import ms from 'ms';
+import fakeData from 'fake-data-pkg';
 
 const duration = ms('2 days');
 ---
@@ -10,5 +11,6 @@ const duration = ms('2 days');
 <body>
 	<h1>SSR Dependencies</h1>
 	<p>Two days in milliseconds: {duration}</p>
+	<p id="fake-data">{fakeData.trim()}</p>
 </body>
 </html>
