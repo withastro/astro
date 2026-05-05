@@ -1078,6 +1078,16 @@ describe('astro:image', () => {
 			);
 		});
 
+		it('animated avif does not crash the build', async () => {
+			const html = await fixture.readFile('/animated-avif/index.html');
+			const $ = cheerio.load(html);
+			const src = $('#animated-avif img').attr('src')!;
+			assert.ok(src, 'expected img src to be set');
+			const data = await fixture.readBuffer(src);
+			assert.equal(data instanceof Buffer, true);
+			assert.ok(data.byteLength > 0);
+		});
+
 		it('markdown images are written', async () => {
 			const html = await fixture.readFile('/post/index.html');
 			const $ = cheerio.load(html);
