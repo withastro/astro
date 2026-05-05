@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { openSync } from 'node:fs';
+import { existsSync, mkdirSync, openSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Flags } from '../flags.js';
@@ -77,9 +77,13 @@ export async function background({ flags }: { flags: Flags }): Promise<void> {
 	if (flags.root) args.push('--root', String(flags.root));
 	if (flags.allowedHosts) args.push('--allowed-hosts', String(flags.allowedHosts));
 
-	// Open the log file for writing
+	// Open the log file for writing, ensuring the .astro directory exists
 	const logFileURL = getLogFileURL(root);
 	const logFilePath = fileURLToPath(logFileURL);
+	const dotAstroDir = fileURLToPath(new URL('.astro/', root));
+	if (!existsSync(dotAstroDir)) {
+		mkdirSync(dotAstroDir, { recursive: true });
+	}
 	const logFd = openSync(logFilePath, 'w');
 
 	// Find the astro binary
