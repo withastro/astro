@@ -1,6 +1,5 @@
 import * as assert from 'node:assert/strict';
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
-import { Writable } from 'node:stream';
 import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { createLogger } from 'vite';
@@ -57,20 +56,7 @@ describe('SSR dependencies', () => {
 			`import data from './bindings.data?raw';\nexport default data;\n`,
 		);
 
-		const logger = new AstroLogger({
-			level: 'info',
-			destination: new Writable({
-				objectMode: true,
-				write(event, _, callback) {
-					logs.push(event);
-					callback();
-				},
-			}),
-		});
-		devServer = await fixture.startDevServer({
-			// @ts-expect-error: logger is internal API
-			logger,
-		});
+		devServer = await fixture.startDevServer();
 	});
 
 	after(async () => {
