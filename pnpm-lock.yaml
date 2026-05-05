@@ -4660,6 +4660,20 @@ importers:
         specifier: ^4.83.0
         version: 4.83.0(@cloudflare/workers-types@4.20260228.0)
 
+  packages/integrations/cloudflare/test/fixtures/custom-loader:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+      fake-data-pkg:
+        specifier: file:./fake-data-pkg
+        version: link:fake-data-pkg
+
+  packages/integrations/cloudflare/test/fixtures/custom-loader/fake-data-pkg: {}
+
   packages/integrations/cloudflare/test/fixtures/dev-image-endpoint:
     dependencies:
       '@astrojs/cloudflare':
