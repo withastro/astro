@@ -3,6 +3,19 @@ import type { DepOptimizationConfig } from 'vite';
 
 const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---/;
 
+// Matches tokens to skip (strings, template literals, comments) OR a top-level `return`.
+// The first alternative is preserved as-is; only the second is rewritten.
+// Negative lookbehind `(?<!\.)` prevents matching member accesses like `gen.return()`.
+const RETURN_REPLACE_RE =
+	/(\/\/[^\n]*|\/\*[\s\S]*?\*\/|`(?:[^`\\]|\\.)*`|"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|(?<!\.)\breturn(\s*;|\b)/g;
+
+function replaceTopLevelReturns(code: string): string {
+	return code.replace(RETURN_REPLACE_RE, (_match, skip: string | undefined, tail: string) => {
+		if (skip !== undefined) return skip;
+		return tail.trim() === ';' ? 'throw 0;' : 'throw ';
+	});
+}
+
 // Not exposed as a type from Vite, so need to grab this way.
 type ESBuildPlugin = NonNullable<
 	NonNullable<DepOptimizationConfig['esbuildOptions']>['plugins']
@@ -27,12 +40,7 @@ export function astroFrontmatterScanPlugin(): ESBuildPlugin {
 						// Replace `return` with `throw` to avoid esbuild's "Top-level return" error during scanning.
 						// This aligns with Astro's core compiler logic for frontmatter error handling.
 						// See: packages/astro/src/vite-plugin-astro/compile.ts
-						//
-						// Known Limitation: Using regex /\breturn\b/ will incorrectly match
-						// identifiers like `$return` or aliases like `import { return as ret }`.
-						const contents = frontmatterMatch[1]
-							.replace(/\breturn\s*;/g, 'throw 0;')
-							.replace(/\breturn\b/g, 'throw ');
+						const contents = replaceTopLevelReturns(frontmatterMatch[1]);
 
 						// Append `export default {}` so that default imports of .astro files
 						// (e.g. `import MyComponent from './MyComponent.astro'`) resolve correctly

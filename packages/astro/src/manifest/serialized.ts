@@ -172,6 +172,11 @@ async function createSerializedManifest(
 		};
 	}
 
+	let experimentalLogger = undefined;
+	if (settings.config.experimental.logger) {
+		experimentalLogger = settings.config.experimental.logger;
+	}
+
 	return {
 		rootDir: settings.config.root.toString(),
 		srcDir: settings.config.srcDir.toString(),
@@ -233,5 +238,6 @@ async function createSerializedManifest(
 		logLevel: settings.logLevel,
 		shouldInjectCspMetaTags: false,
 		experimentalQueuedRendering: settings.config.experimental?.queuedRendering,
+		experimentalLogger,
 	};
 }

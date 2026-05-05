@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "6.1.10",
+  "version": "6.2.2",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -82,9 +82,15 @@
     "./errors": "./dist/core/errors/userError.js",
     "./middleware": "./dist/core/middleware/index.js",
     "./virtual-modules/*": "./dist/virtual-modules/*",
+    "./logger": "./dist/core/logger/public.js",
+    "./logger/json": "./dist/core/logger/impls/json.js",
+    "./logger/node": "./dist/core/logger/impls/node.js",
+    "./logger/compose": "./dist/core/logger/impls/compose.js",
+    "./logger/console": "./dist/core/logger/impls/console.js",
     "./_internal/assets": "./dist/assets/internal.js",
     "./_internal/logger": "./dist/core/logger/core.js",
     "./_internal/test/test-adapter": "./test/test-adapter.ts",
+    "./_internal/test/units/test-utils": "./test/units/test-utils.ts",
     "./_internal/test/test-utils": "./test/test-utils.ts"
   },
   "bin": {
@@ -124,7 +130,7 @@
     "test:integration:ts": "astro-scripts test \"test/*.test.ts\" --strip-types"
   },
   "dependencies": {
-    "@astrojs/compiler": "^3.0.1",
+    "@astrojs/compiler": "^4.0.0",
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
@@ -145,10 +151,12 @@
     "esbuild": "^0.27.3",
     "flattie": "^1.1.1",
     "fontace": "~0.4.1",
+    "get-tsconfig": "5.0.0-beta.4",
     "github-slugger": "^2.0.0",
     "html-escaper": "3.0.3",
     "http-cache-semantics": "^4.2.0",
     "js-yaml": "^4.1.1",
+    "jsonc-parser": "^3.3.1",
     "magic-string": "^0.30.21",
     "magicast": "^0.5.2",
     "mrmime": "^2.0.1",
@@ -167,7 +175,6 @@
     "tinyclip": "^0.1.12",
     "tinyexec": "^1.0.4",
     "tinyglobby": "^0.2.15",
-    "tsconfck": "^3.1.6",
     "ultrahtml": "^1.6.0",
     "unifont": "~0.7.4",
     "unist-util-visit": "^5.1.0",
@@ -276,7 +283,12 @@
       "./zod": "./dist/zod.js",
       "./errors": "./dist/core/errors/userError.js",
       "./middleware": "./dist/core/middleware/index.js",
-      "./virtual-modules/*": "./dist/virtual-modules/*"
+      "./virtual-modules/*": "./dist/virtual-modules/*",
+      "./logger": "./dist/core/logger/public.js",
+      "./logger/json": "./dist/core/logger/impls/json.js",
+      "./logger/node": "./dist/core/logger/impls/node.js",
+      "./logger/compose": "./dist/core/logger/impls/compose.js",
+      "./logger/console": "./dist/core/logger/impls/console.js"
     },
     "provenance": true
   },

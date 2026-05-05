@@ -3,6 +3,7 @@ import { Writable } from 'node:stream';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { AstroLogger } from '../dist/core/logger/core.js';
+import { svgoOptimizer } from '../dist/config/entrypoint.js';
 import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('astro:assets - SVG Components', () => {
@@ -158,14 +159,14 @@ describe('astro:assets - SVG Components', () => {
 			optimizedFixture = await loadFixture({
 				root: './fixtures/core-image-svg/',
 				experimental: {
-					svgo: {
+					svgOptimizer: svgoOptimizer({
 						plugins: [
 							'preset-default',
 							{
 								name: 'removeViewBox',
 							},
 						],
-					},
+					}),
 				},
 			});
 

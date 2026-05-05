@@ -1,0 +1,9 @@
+{
+  "name": "@test/lightningcss-scoped-nesting",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "astro": "workspace:*",
+    "lightningcss": "^1.32.0"
+  }
+}

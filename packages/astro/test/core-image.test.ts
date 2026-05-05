@@ -6,7 +6,7 @@ import { after, afterEach, before, describe, it } from 'node:test';
 import { removeDir } from '@astrojs/internal-helpers/fs';
 import * as cheerio from 'cheerio';
 import parseSrcset from 'parse-srcset';
-import { AstroLogger, type AstroLogMessage } from '../dist/core/logger/core.js';
+import { AstroLogger, type AstroLoggerMessage } from '../dist/core/logger/core.js';
 import testAdapter from './test-adapter.ts';
 import { testImageService } from './test-image-service.ts';
 import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
@@ -16,7 +16,7 @@ describe('astro:image', () => {
 
 	describe('dev', () => {
 		let devServer: DevServer;
-		const logs: Array<AstroLogMessage> = [];
+		const logs: Array<AstroLoggerMessage> = [];
 		let redirectServer: import('node:http').Server | undefined;
 		let redirectUrl: string | undefined;
 
@@ -797,7 +797,7 @@ describe('astro:image', () => {
 
 	describe('proper errors', () => {
 		let devServer: DevServer;
-		const logs: Array<AstroLogMessage> = [];
+		const logs: Array<AstroLoggerMessage> = [];
 
 		before(async () => {
 			fixture = await loadFixture({
@@ -1078,6 +1078,16 @@ describe('astro:image', () => {
 			);
 		});
 
+		it('animated avif does not crash the build', async () => {
+			const html = await fixture.readFile('/animated-avif/index.html');
+			const $ = cheerio.load(html);
+			const src = $('#animated-avif img').attr('src')!;
+			assert.ok(src, 'expected img src to be set');
+			const data = await fixture.readBuffer(src);
+			assert.equal(data instanceof Buffer, true);
+			assert.ok(data.byteLength > 0);
+		});
+
 		it('markdown images are written', async () => {
 			const html = await fixture.readFile('/post/index.html');
 			const $ = cheerio.load(html);
@@ -1171,7 +1181,7 @@ describe('astro:image', () => {
 		});
 
 		it('uses cache entries', async () => {
-			const logs: Array<AstroLogMessage> = [];
+			const logs: Array<AstroLoggerMessage> = [];
 
 			const logger = new AstroLogger({
 				destination: {

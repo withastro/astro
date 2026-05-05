@@ -10,6 +10,8 @@ import { CapsizeFontMetricsResolver } from '../../../../dist/assets/fonts/infra/
 import { DevFontFileIdGenerator } from '../../../../dist/assets/fonts/infra/dev-font-file-id-generator.js';
 import { DevUrlResolver } from '../../../../dist/assets/fonts/infra/dev-url-resolver.js';
 import { FsFontFileContentResolver } from '../../../../dist/assets/fonts/infra/fs-font-file-content-resolver.js';
+import { RemoteRuntimeFontFileUrlResolver } from '../../../../dist/assets/fonts/infra/remote-runtime-font-file-url-resolver.js';
+import { SsrRuntimeFontFileUrlResolver } from '../../../../dist/assets/fonts/infra/ssr-runtime-font-file-url-resolver.js';
 import {
 	handleValueWithSpaces,
 	MinifiableCssRenderer,
@@ -249,8 +251,10 @@ describe('fonts infra', () => {
 				searchParams: new URLSearchParams(),
 			});
 			assert.deepStrictEqual(resolver.cspResources, []);
+			assert.deepStrictEqual(resolver.urls, []);
 			assert.equal(resolver.resolve('xxx.woff2'), '/base/_astro/fonts/xxx.woff2');
 			assert.deepStrictEqual(resolver.cspResources, ["'self'"]);
+			assert.deepStrictEqual(resolver.urls, ['/base/_astro/fonts/xxx.woff2']);
 		});
 
 		it('works with searchParams', () => {
@@ -272,8 +276,10 @@ describe('fonts infra', () => {
 				searchParams: new URLSearchParams(),
 			});
 			assert.deepStrictEqual(resolver.cspResources, []);
+			assert.deepStrictEqual(resolver.urls, []);
 			assert.equal(resolver.resolve('abc.ttf'), '/foo/_custom/fonts/abc.ttf');
 			assert.deepStrictEqual(resolver.cspResources, ["'self'"]);
+			assert.deepStrictEqual(resolver.urls, ['/foo/_custom/fonts/abc.ttf']);
 		});
 
 		it('works with assetsPrefix as string', () => {
@@ -283,11 +289,13 @@ describe('fonts infra', () => {
 				searchParams: new URLSearchParams(),
 			});
 			assert.deepStrictEqual(resolver.cspResources, []);
+			assert.deepStrictEqual(resolver.urls, []);
 			assert.equal(
 				resolver.resolve('foo.woff'),
 				'https://cdn.example.com/foo/_custom/fonts/foo.woff',
 			);
 			assert.deepStrictEqual(resolver.cspResources, ['https://cdn.example.com']);
+			assert.deepStrictEqual(resolver.urls, ['https://cdn.example.com/foo/_custom/fonts/foo.woff']);
 		});
 
 		it('works with assetsPrefix object', () => {
@@ -300,6 +308,7 @@ describe('fonts infra', () => {
 				searchParams: new URLSearchParams(),
 			});
 			assert.deepStrictEqual(resolver.cspResources, []);
+			assert.deepStrictEqual(resolver.urls, []);
 			assert.equal(
 				resolver.resolve('bar.woff2'),
 				'https://fonts.cdn.example.com/foo/_custom/fonts/bar.woff2',
@@ -312,6 +321,10 @@ describe('fonts infra', () => {
 				'https://fonts.cdn.example.com',
 				'https://cdn.example.com',
 			]);
+			assert.deepStrictEqual(resolver.urls, [
+				'https://fonts.cdn.example.com/foo/_custom/fonts/bar.woff2',
+				'https://cdn.example.com/foo/_custom/fonts/xyz.ttf',
+			]);
 		});
 
 		it('works with searchParams', () => {
@@ -320,7 +333,11 @@ describe('fonts infra', () => {
 				assetsPrefix: undefined,
 				searchParams: new URLSearchParams([['v', '2.0']]),
 			});
+			assert.deepStrictEqual(resolver.cspResources, []);
+			assert.deepStrictEqual(resolver.urls, []);
 			assert.equal(resolver.resolve('test.woff2'), '/foo/_custom/fonts/test.woff2?v=2.0');
+			assert.deepStrictEqual(resolver.cspResources, ["'self'"]);
+			assert.deepStrictEqual(resolver.urls, ['/foo/_custom/fonts/test.woff2?v=2.0']);
 		});
 	});
 
@@ -756,6 +773,93 @@ describe('fonts infra', () => {
 				readFileSync: () => 'content',
 			});
 			assert.equal(fontFileIdContentResolver.resolve(url), url + 'content');
+		});
+	});
+
+	describe('RemoteRuntimeFontFileUrlResolver', () => {
+		it('returns null if url is not found', () => {
+			const resolver = new RemoteRuntimeFontFileUrlResolver({
+				urls: new Set(['/_astro/fonts/foo.woff2']),
+				address: { address: '127.0.0.1', family: 'IPv4', port: 3000 },
+			});
+
+			assert.equal(resolver.resolve('/_astro/fonts/bar.woff2'), null);
+		});
+
+		it('works with ipv4', () => {
+			const resolver = new RemoteRuntimeFontFileUrlResolver({
+				urls: new Set(['/test/_astro/fonts/foo.woff2']),
+				address: { address: '127.0.0.1', family: 'IPv4', port: 3000 },
+			});
+
+			assert.equal(
+				resolver.resolve('/test/_astro/fonts/foo.woff2'),
+				'http://127.0.0.1:3000/test/_astro/fonts/foo.woff2',
+			);
+		});
+
+		it('works with ipv6', () => {
+			const resolver = new RemoteRuntimeFontFileUrlResolver({
+				urls: new Set(['/_astro/fonts/foo.woff2']),
+				address: { address: '::', family: 'IPv6', port: 3000 },
+			});
+
+			assert.equal(
+				resolver.resolve('/_astro/fonts/foo.woff2'),
+				'http://[::]:3000/_astro/fonts/foo.woff2',
+			);
+		});
+
+		it('works with a full url (assetsPrefix)', () => {
+			const resolver = new RemoteRuntimeFontFileUrlResolver({
+				urls: new Set(['http://cdn.example.com/_astro/fonts/foo.woff2']),
+				address: { address: '127.0.0.1', family: 'IPv4', port: 3000 },
+			});
+
+			assert.equal(
+				resolver.resolve('http://cdn.example.com/_astro/fonts/foo.woff2'),
+				'http://127.0.0.1:3000/_astro/fonts/foo.woff2',
+			);
+		});
+	});
+
+	describe('SsrRuntimeFontFileUrlResolver', () => {
+		it('returns null if urls is not found', () => {
+			const resolver = new SsrRuntimeFontFileUrlResolver({
+				urls: new Set(['/_astro/fonts/foo.woff2']),
+			});
+
+			assert.equal(resolver.resolve('/_astro/fonts/bar.woff2', undefined), null);
+		});
+
+		it('throws if requestUrl is not provided', () => {
+			const resolver = new SsrRuntimeFontFileUrlResolver({
+				urls: new Set(['/test/_astro/fonts/foo.woff2']),
+			});
+
+			assert.throws(() => resolver.resolve('/test/_astro/fonts/foo.woff2', undefined));
+		});
+
+		it('works', () => {
+			const resolver = new SsrRuntimeFontFileUrlResolver({
+				urls: new Set(['/_astro/fonts/foo.woff2']),
+			});
+
+			assert.equal(
+				resolver.resolve('/_astro/fonts/foo.woff2', new URL('http://example.com')),
+				'http://example.com/_astro/fonts/foo.woff2',
+			);
+		});
+
+		it('works with a full url (assetsPrefix)', () => {
+			const resolver = new SsrRuntimeFontFileUrlResolver({
+				urls: new Set(['http://cdn.example.com/_astro/fonts/foo.woff2']),
+			});
+
+			assert.equal(
+				resolver.resolve('http://cdn.example.com/_astro/fonts/foo.woff2', undefined),
+				'http://cdn.example.com/_astro/fonts/foo.woff2',
+			);
 		});
 	});
 });

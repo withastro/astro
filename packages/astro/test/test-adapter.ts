@@ -78,7 +78,6 @@ export default function testAdapter({
 												createPipeline(streaming) {
 													return AppPipeline.create({
 														manifest: this.manifest,
-														logger: this.logger,
 														streaming
 													})
 												}
@@ -214,7 +213,6 @@ export function selfTestAdapter({
 												createPipeline(streaming) {
 													return AppPipeline.create({
 														manifest: this.manifest,
-														logger: this.logger,
 														streaming
 													})
 												}

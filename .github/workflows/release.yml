@@ -117,3 +117,10 @@ jobs:
         uses: Ilshidur/action-discord@d2594079a10f1d6739ee50a2471f0ca57418b554 # 0.4.0
         with:
           args: "${{ steps.message.outputs.DISCORD_MESSAGE }}"
+
+      - name: Dispatch post-release event
+        if: steps.changesets.outputs.published == 'true' && github.ref_name == 'main'
+        uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697 # v4.0.1
+        with:
+          token: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
+          event-type: release-published
