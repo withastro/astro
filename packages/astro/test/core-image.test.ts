@@ -177,7 +177,7 @@ describe('astro:image', () => {
 				await res.text();
 
 				assert.equal(logs.length, 1);
-				assert.equal(logs[0].message.includes('must be an imported image or an URL'), true);
+				assert.equal(logs[0].message.includes('must be an imported image or a URL'), true);
 			});
 
 			it('supports images from outside the project', async () => {
@@ -833,7 +833,7 @@ describe('astro:image', () => {
 			await res.text();
 
 			assert.equal(logs.length >= 1, true);
-			assert.equal(logs[0].message.includes('Expected getImage() parameter'), true);
+			assert.equal(logs[0].message.includes('Expected \`getImage()\` parameter'), true);
 		});
 
 		it('properly error when src is undefined', async () => {

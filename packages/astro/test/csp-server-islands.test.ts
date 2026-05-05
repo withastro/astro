@@ -144,7 +144,7 @@ describe('Server islands', () => {
 				} catch (err) {
 					assert.equal(
 						(err as { title: string }).title,
-						'Cannot use Server Islands without an adapter.',
+						'Cannot use server islands without an adapter.',
 					);
 				}
 			});
