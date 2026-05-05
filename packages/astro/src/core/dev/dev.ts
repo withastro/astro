@@ -47,21 +47,24 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 	await telemetry.record([]);
 
 	// Check if a dev server is already running for this project.
-	// We need a URL for the lock file check, but the resolved config isn't available yet.
-	// Construct a URL from the raw root flag, matching how resolveRoot() works.
-	const rawRoot = inlineConfig.root ? resolve(inlineConfig.root) : process.cwd();
-	const rootURL = pathToFileURL(rawRoot + '/');
-	const existingServer = checkExistingServer(rootURL);
-	if (existingServer) {
-		const message = [
-			'Another astro dev server is already running.',
-			'',
-			`  URL:  ${existingServer.url}`,
-			`  PID:  ${existingServer.pid}`,
-			'',
-			`Run \`kill ${existingServer.pid}\` to stop it, or use \`astro dev --force\` to replace it.`,
-		].join('\n');
-		throw new Error(message);
+	// Skip lock file management when running in tests — tests use the JS API and may
+	// start multiple dev servers in the same process.
+	const useLockFile = process.env.NODE_ENV !== 'test' && process.env.NODE_ENV !== 'production';
+	if (useLockFile) {
+		const rawRoot = inlineConfig.root ? resolve(inlineConfig.root) : process.cwd();
+		const rootURL = pathToFileURL(rawRoot + '/');
+		const existingServer = checkExistingServer(rootURL);
+		if (existingServer) {
+			const message = [
+				'Another astro dev server is already running.',
+				'',
+				`  URL:  ${existingServer.url}`,
+				`  PID:  ${existingServer.pid}`,
+				'',
+				`Run \`kill ${existingServer.pid}\` to stop it, or use \`astro dev --force\` to replace it.`,
+			].join('\n');
+			throw new Error(message);
+		}
 	}
 
 	// Create a container which sets up the Vite server.
@@ -146,13 +149,15 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 	const resolvedUrls = restart.container.viteServer.resolvedUrls;
 	const serverUrl = resolvedUrls?.local[0] ?? `http://localhost:${devServerAddressInfo.port}`;
 	const settingsRoot = restart.container.settings.config.root;
-	writeLockFile(settingsRoot, {
-		pid: process.pid,
-		port: devServerAddressInfo.port,
-		url: serverUrl,
-		background: false,
-		startedAt: new Date().toISOString(),
-	});
+	if (useLockFile) {
+		writeLockFile(settingsRoot, {
+			pid: process.pid,
+			port: devServerAddressInfo.port,
+			url: serverUrl,
+			background: false,
+			startedAt: new Date().toISOString(),
+		});
+	}
 
 	restart.bindCLIShortcuts();
 	logger.info(
@@ -185,7 +190,9 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 			return restart.container.handle(req, res);
 		},
 		async stop() {
-			removeLockFile(settingsRoot);
+			if (useLockFile) {
+				removeLockFile(settingsRoot);
+			}
 			await restart.container.close();
 		},
 	};
