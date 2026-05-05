@@ -130,9 +130,13 @@ export class I18n {
 
 		// Step 2: Apply fallback logic (if configured)
 		if (i18n.fallback && i18n.fallbackType) {
+			// The fallback sentinel (X-Astro-Route-Type: fallback, status 500) signals
+			// that the render pipeline couldn't find this page in the current locale.
+			// Treat it as a 404 so computeFallbackRoute will apply fallback logic.
+			const effectiveStatus = typeHeader === 'fallback' ? 404 : response.status;
 			const fallbackDecision = computeFallbackRoute({
 				pathname: url.pathname,
-				responseStatus: response.status,
+				responseStatus: effectiveStatus,
 				currentLocale,
 				fallback: i18n.fallback,
 				fallbackType: i18n.fallbackType,
