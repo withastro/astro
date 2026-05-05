@@ -1,7 +1,7 @@
 import nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dataToEsm } from '@rollup/pluginutils';
-import { normalizePath, type Plugin, type ViteDevServer } from 'vite';
+import { isRunnableDevEnvironment, normalizePath, type Plugin, type ViteDevServer } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { rootRelativePath } from '../core/viteUtils.js';
@@ -38,6 +38,19 @@ function invalidateDataStore(viteServer: ViteDevServer) {
 		const timestamp = Date.now();
 		// Pass `true` to mark this as HMR invalidation so Vite drops cached SSR results.
 		environment.moduleGraph.invalidateModule(module, undefined, timestamp, true);
+	}
+	// Also invalidate the module in the SSR module runner's evaluation cache.
+	// Server-side invalidation only clears `transformResult`, but the runner
+	// may still hold a stale evaluated result. When the runner's `fetchModule`
+	// call triggers a fresh server transform, the transform re-populates
+	// `transformResult` before the runner checks it, causing a false cache hit.
+	if (isRunnableDevEnvironment(environment)) {
+		const runnerModule = environment.runner.evaluatedModules.getModuleById(
+			RESOLVED_DATA_STORE_VIRTUAL_ID,
+		);
+		if (runnerModule) {
+			environment.runner.evaluatedModules.invalidateModule(runnerModule);
+		}
 	}
 	// Signal the SSR runner to clear its route cache so that getStaticPaths()
 	// is re-evaluated with the updated content collection data.
