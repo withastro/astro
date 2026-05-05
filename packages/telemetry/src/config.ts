@@ -2,7 +2,6 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
-import dget from 'dlv';
 import { dset } from 'dset';
 
 interface ConfigOptions {
@@ -78,7 +77,7 @@ export class GlobalConfig {
 		return true;
 	}
 	get(key: string): any {
-		return dget(this.store, key);
+		return key.split('.').reduce((obj, k) => obj?.[k], this.store);
 	}
 	has(key: string): boolean {
 		return typeof this.get(key) !== 'undefined';

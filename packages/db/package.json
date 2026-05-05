@@ -63,8 +63,7 @@
     "astro-integration"
   ],
   "scripts": {
-    "types:virtual": "tsc -p ./tsconfig.virtual.json",
-    "build": "astro-scripts build \"src/**/*.ts\" && tsc && pnpm types:virtual",
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "test": "pnpm run test:integration && pnpm run test:types",
