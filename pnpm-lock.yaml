@@ -912,6 +912,21 @@ importers:
         specifier: ^3.5.30
         version: 3.5.30(typescript@5.9.3)
 
+  packages/astro/e2e/fixtures/astro-island-hydration-error:
+    dependencies:
+      '@astrojs/react':
+        specifier: workspace:*
+        version: link:../../../../integrations/react
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
+
   packages/astro/e2e/fixtures/client-idle-timeout:
     dependencies:
       react:
@@ -1570,21 +1585,6 @@ importers:
       '@astrojs/mdx':
         specifier: workspace:*
         version: link:../../../../integrations/mdx
-      '@astrojs/react':
-        specifier: workspace:*
-        version: link:../../../../integrations/react
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-      react:
-        specifier: ^18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
-
-  packages/astro/e2e/fixtures/astro-island-hydration-error:
-    dependencies:
       '@astrojs/react':
         specifier: workspace:*
         version: link:../../../../integrations/react
@@ -3471,18 +3471,6 @@ importers:
       astro:
         specifier: workspace:*
         version: link:../../..
-
-  packages/astro/test/fixtures/large-array:
-    dependencies:
-      '@astrojs/solid-js':
-        specifier: workspace:*
-        version: link:../../../../integrations/solid
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-      solid-js:
-        specifier: ^1.9.11
-        version: 1.9.11
 
   packages/astro/test/fixtures/lazy-layout:
     dependencies:

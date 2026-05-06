@@ -428,20 +428,30 @@ describe('Server islands', () => {
 			});
 		});
 
-		it('can fetch the server island endpoint in dev with adapter that does not set buildOutput', async () => {
-			// Use an adapter that does NOT set adapterFeatures.buildOutput,
-			// like @astrojs/netlify. This triggers the bug in container.ts where
-			// buildOutput is reset to 'static' after runHookConfigDone sets it to 'server'.
-			const devFixture = await loadFixture({
-				root: './fixtures/server-islands/hybrid',
-				adapter: testAdapter({
-					extendAdapter: {
-						adapterFeatures: {},
-					},
-				}),
+		describe('dev with adapter that does not set buildOutput', () => {
+			let devFixture: Fixture;
+			let devServer: DevServer;
+
+			before(async () => {
+				// Use an adapter that does NOT set adapterFeatures.buildOutput,
+				// like @astrojs/netlify. This triggers the bug in container.ts where
+				// buildOutput is reset to 'static' after runHookConfigDone sets it to 'server'.
+				devFixture = await loadFixture({
+					root: './fixtures/server-islands/hybrid',
+					adapter: testAdapter({
+						extendAdapter: {
+							adapterFeatures: {},
+						},
+					}),
+				});
+				devServer = await devFixture.startDevServer();
 			});
-			const devServer = await devFixture.startDevServer();
-			try {
+
+			after(async () => {
+				await devServer.stop();
+			});
+
+			it('can fetch the server island endpoint', async () => {
 				const res = await devFixture.fetch('/');
 				assert.equal(res.status, 200);
 				const html = await res.text();
@@ -453,14 +463,10 @@ describe('Server islands', () => {
 					200,
 					'server island endpoint should return 200, not GetStaticPathsRequired error',
 				);
-			} finally {
-				await devServer.stop();
-			}
+			});
 		});
 
 		describe('with no adapter', () => {
-			let devServer: DevServer;
-
 			it('Errors during the build', async () => {
 				try {
 					await fixture.build({
@@ -475,16 +481,24 @@ describe('Server islands', () => {
 				}
 			});
 
-			it('Errors during dev', async () => {
-				devServer = await fixture.startDevServer();
-				const res = await fixture.fetch('/');
-				assert.equal(res.status, 500);
-				const html = await res.text();
-				const $ = cheerio.load(html);
-				assert.equal($('title').text(), 'NoAdapterInstalledServerIslands');
-			});
-			after(() => {
-				return devServer?.stop();
+			describe('in dev', () => {
+				let devServer: DevServer;
+
+				before(async () => {
+					devServer = await fixture.startDevServer();
+				});
+
+				after(async () => {
+					await devServer?.stop();
+				});
+
+				it('returns error page', async () => {
+					const res = await fixture.fetch('/');
+					assert.equal(res.status, 500);
+					const html = await res.text();
+					const $ = cheerio.load(html);
+					assert.equal($('title').text(), 'NoAdapterInstalledServerIslands');
+				});
 			});
 		});
 	});
