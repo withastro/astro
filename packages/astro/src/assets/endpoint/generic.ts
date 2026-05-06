@@ -85,6 +85,6 @@ export const GET: APIRoute = async ({ request }) => {
 		});
 	} catch (err: unknown) {
 		console.error('Could not process image request:', err);
-		return new Response(`Server Error: ${err}`, { status: 500 });
+		return new Response('Internal Server Error', { status: 500 });
 	}
 };

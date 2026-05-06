@@ -7,9 +7,10 @@ Fix test failures identified from CI logs on the merge PR. Do NOT re-run the ful
 ## Prerequisites
 
 - **`prNumber`** — The PR number for the merge PR.
+- **`ciLogs`** — The CI failure logs, pre-fetched by the orchestrator. Contains the failed job names and their log output.
 - The working directory is the repo root, checked out on the merge branch.
 - Merge conflicts should already be resolved before this skill runs.
-- CI has already run and failed — you need to look at those logs.
+- Dependencies are installed and packages are built on the host.
 
 ## Overview
 
@@ -27,23 +28,15 @@ pnpm build
 
 Fix any build errors first — these may be the cause of test failures downstream.
 
-### Step 2: Get CI failure logs
+### Step 2: Analyze CI failure logs
 
-Use the GitHub CLI to find the failed CI run and download its logs:
-
-```bash
-# List recent workflow runs on this branch
-gh run list --branch ci/merge-main-to-next --workflow ci.yml --limit 5 --json databaseId,status,conclusion
-
-# Get the most recent failed run
-gh run view <run-id> --log-failed
-```
-
-Parse the output to identify:
+The `ciLogs` argument contains the pre-fetched CI failure logs. Parse them to identify:
 
 - Which test files failed
 - The specific test names that failed
 - The error messages and assertion diffs
+
+**Note:** Do NOT use `gh` CLI commands — they don't work inside the sandbox. All CI log data is provided in the `ciLogs` argument.
 
 ### Step 3: Analyze failures
 
