@@ -37,12 +37,12 @@ minimumReleaseAgeExclude:
   - vite
   - rolldown
   - '@rolldown/*'
-  # Renovate security update: fast-xml-parser@5.3.8
-  - fast-xml-parser@5.3.8
+  # Renovate security update: fast-xml-parser@5.3.8 || 5.7.0
+  - fast-xml-parser@5.3.8 || 5.7.0
   # Renovate security update: svelte@5.53.5
   - svelte@5.53.5
-  # Renovate security update: fastify@5.8.1 || 5.8.3
-  - fastify@5.8.1 || 5.8.3
+  # Renovate security update: fastify@5.8.1 || 5.8.3 || 5.8.5
+  - fastify@5.8.1 || 5.8.3 || 5.8.5
   # Renovate security update: rollup@4.59.0
   - rollup@4.59.0
   # Renovate security update: undici@7.24.0
@@ -55,6 +55,10 @@ minimumReleaseAgeExclude:
   - astro-og-canvas@0.11.0
   # @types/node@24.12.2 published <3 days ago
   - '@types/node@24.12.2'
+  # Renovate security update: postcss@8.5.10
+  - postcss@8.5.10
+  # Renovate security update: @fastify/middie@9.3.2
+  - '@fastify/middie@9.3.2'
 peerDependencyRules:
   allowAny:
     - 'astro'

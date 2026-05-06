@@ -24,7 +24,7 @@ describe('Cloudflare clientAddress', () => {
 	});
 
 	after(async () => {
-		previewServer.stop();
+		await previewServer.stop();
 	});
 
 	it('returns the client IP from cf-connecting-ip header', async () => {

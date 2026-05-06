@@ -10,6 +10,16 @@
 
 - Updated dependencies [[`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`c30a778`](https://github.com/withastro/astro/commit/c30a7789a477e44826c54c8560587d09dc46a229), [`ee079d4`](https://github.com/withastro/astro/commit/ee079d4c7f143076b84d663c832911009a077c7f)]:
   - astro@7.0.0-alpha.0
+
+## 13.3.1
+
+### Patch Changes
+
+- [#16552](https://github.com/withastro/astro/pull/16552) [`409f6ef`](https://github.com/withastro/astro/commit/409f6efb0cfef5b40c5e0058726bc4edbb24e2ab) Thanks [@web-dev0521](https://github.com/web-dev0521)! - Fixes an issue where existing KV namespace bindings were silently removed when session support was enabled.
+
+- [#16277](https://github.com/withastro/astro/pull/16277) [`7666bcd`](https://github.com/withastro/astro/commit/7666bcdf6d7f6d65cdae89b622d33dcc462590e0) Thanks [@Calvin-LL](https://github.com/Calvin-LL)! - Fix static assets and prerendered pages 404ing when `base` is configured.
+
+- Updated dependencies []:
   - @astrojs/underscore-redirects@1.0.3
 
 ## 13.3.0

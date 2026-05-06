@@ -26,30 +26,25 @@ export const args = v.object({
 export default async function mergeFix(flue: FlueClient, { prNumber }: v.InferOutput<typeof args>) {
 	const branch = 'ci/merge-main-to-next';
 
-	// Step 1: Check for merge conflicts (unresolved conflict markers in files)
-	const conflictCheck = await flue.shell(
-		'git diff --check HEAD 2>&1 || grep -r "<<<<<<< " --include="*.ts" --include="*.js" --include="*.json" --include="*.yaml" --include="*.yml" --include="*.md" --include="*.mjs" --include="*.cjs" . 2>/dev/null | head -20',
-	);
-	const hasConflicts = conflictCheck.stdout.includes('<<<<<<<');
+	// Step 1: Verify conflict resolutions and resolve any remaining source code conflicts.
+	// JSON/YAML conflicts were pre-stripped by the GitHub Action (keeping next side).
+	// This skill checks that nothing important from main was lost, and resolves
+	// any remaining conflict markers in .ts/.js/.md/.astro files.
+	const verifyResult = await flue.skill('merge/resolve-conflicts.md', {
+		args: { prNumber, branch },
+		result: v.object({
+			correct: v.pipe(
+				v.boolean(),
+				v.description('true if all conflict resolutions were correct or have been fixed'),
+			),
+			correctedFiles: v.pipe(
+				v.array(v.string()),
+				v.description('List of files that needed corrections after verification'),
+			),
+		}),
+	});
 
-	// Step 2: Resolve conflicts if any
-	if (hasConflicts) {
-		await flue.skill('merge/resolve-conflicts.md', {
-			args: { prNumber, branch },
-			result: v.object({
-				resolved: v.pipe(
-					v.boolean(),
-					v.description('true if all merge conflicts were resolved successfully'),
-				),
-				filesResolved: v.pipe(
-					v.array(v.string()),
-					v.description('List of files where conflicts were resolved'),
-				),
-			}),
-		});
-	}
-
-	// Step 3: Remove stale changesets that were already released on main
+	// Step 2: Remove stale changesets that were already released on main
 	await flue.skill('merge/clean-changesets.md', {
 		args: { prNumber },
 		result: v.object({
@@ -60,7 +55,7 @@ export default async function mergeFix(flue: FlueClient, { prNumber }: v.InferOu
 		}),
 	});
 
-	// Step 4: Run tests and fix failures
+	// Step 3: Run tests and fix failures
 	const fixResult = await flue.skill('merge/fix-tests.md', {
 		args: { prNumber },
 		result: v.object({
@@ -78,13 +73,13 @@ export default async function mergeFix(flue: FlueClient, { prNumber }: v.InferOu
 		}),
 	});
 
-	// Step 5: Commit and push all changes
+	// Step 4: Commit and push all changes
 	const status = await flue.shell('git status --porcelain');
 	if (status.stdout.trim()) {
 		await flue.shell('git add -A');
 
 		const commitParts = [];
-		if (hasConflicts) commitParts.push('resolve merge conflicts');
+		if (verifyResult.correctedFiles.length > 0) commitParts.push('fix merge conflict resolutions');
 		if (fixResult.fixedFiles.length > 0) commitParts.push('fix test failures');
 		const commitMsg =
 			commitParts.length > 0
@@ -100,9 +95,11 @@ export default async function mergeFix(flue: FlueClient, { prNumber }: v.InferOu
 		}
 	}
 
-	// Step 6: Post a summary comment on the PR
+	// Step 5: Post a summary comment on the PR
 	const summaryParts = [];
-	if (hasConflicts) summaryParts.push('- Resolved merge conflicts');
+	if (verifyResult.correctedFiles.length > 0) {
+		summaryParts.push(`- Fixed conflict resolutions in: ${verifyResult.correctedFiles.join(', ')}`);
+	}
 	if (fixResult.fixedFiles.length > 0) {
 		summaryParts.push(`- Fixed test failures in: ${fixResult.fixedFiles.join(', ')}`);
 	}
@@ -134,7 +131,7 @@ ${fixResult.testsPass ? 'All tests pass — this PR should be ready for review.'
 	return {
 		pushed: true,
 		testsPass: fixResult.testsPass,
-		hasConflicts,
+		correctedFiles: verifyResult.correctedFiles,
 		remainingFailures: fixResult.remainingFailures,
 	};
 }

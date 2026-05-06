@@ -26,9 +26,10 @@ test.afterAll(async () => {
 
 function collectLoads(page: Page) {
 	const loads: string[] = [];
-	page.on('load', async () => {
+	// Push synchronously; an async handler awaiting `page.title()` races with assertions (often on Firefox).
+	page.on('load', () => {
 		const url = page.url();
-		if (url !== 'about:blank') loads.push(await page.title());
+		if (url !== 'about:blank') loads.push(url);
 	});
 	return loads;
 }
@@ -148,7 +149,7 @@ test.describe('View Transitions', () => {
 
 		expect(
 			loads.length,
-			'There should be 2 page loads. The original, then going from 3 to 2',
+			'There should be 2 page loads. The initial navigation, then the full navigation from page 1 to page 3',
 		).toEqual(2);
 	});
 

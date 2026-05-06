@@ -17,7 +17,17 @@ This skill follows a "fix and push" approach. After pushing, CI will re-run auto
 
 ## Steps
 
-### Step 1: Get CI failure logs
+### Step 1: Build all packages
+
+Before analyzing test failures, ensure all packages are built:
+
+```bash
+pnpm build
+```
+
+Fix any build errors first — these may be the cause of test failures downstream.
+
+### Step 2: Get CI failure logs
 
 Use the GitHub CLI to find the failed CI run and download its logs:
 
@@ -35,7 +45,7 @@ Parse the output to identify:
 - The specific test names that failed
 - The error messages and assertion diffs
 
-### Step 2: Analyze failures
+### Step 3: Analyze failures
 
 For each failure, determine the cause:
 
@@ -47,7 +57,7 @@ For each failure, determine the cause:
 
 4. **Configuration mismatches** — Test fixtures using config options that changed on `next`. Fix by updating the fixture config.
 
-### Step 3: Fix the failures
+### Step 4: Fix the failures
 
 For each failure:
 
@@ -68,7 +78,7 @@ For each failure:
 - Smoke tests — these are allowed to fail
 - `astro check` failures — these are permitted to fail
 
-### Step 4: Verify fixes locally (targeted only)
+### Step 5: Verify fixes locally (targeted only)
 
 Only run the specific tests you fixed, not the full suite:
 
@@ -78,7 +88,7 @@ pnpm -C <package-directory> exec astro-scripts test "test/<specific-test>.test.j
 
 This is a quick sanity check, not a replacement for CI. CI will do the full validation after you push.
 
-### Step 5: Rebuild if source files were modified
+### Step 6: Rebuild if source files were modified
 
 If you modified any source files in `packages/` (not just test files), rebuild the affected package:
 
@@ -88,7 +98,7 @@ pnpm -C packages/<affected-package> build
 
 Then re-run the specific affected tests to confirm.
 
-### Step 6: Ensure dependencies are up to date
+### Step 7: Ensure dependencies are up to date
 
 If the merge introduced new dependencies or changed versions, run:
 
