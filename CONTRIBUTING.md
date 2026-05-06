@@ -336,6 +336,57 @@ You can trigger a preview release **from a PR** anytime by using the label `pr p
 
 If you're in need to trigger multiple preview releases from the same PR, remove the label and add it again.
 
+## TypeScript project references
+
+The repo uses [TypeScript project references](https://www.typescriptlang.org/docs/handbook/project-references.html) so `tsc -b` only rebuilds projects that have actually changed (and their dependents). It also lets the editor "Go to Definition" jump straight to source across package boundaries, even before `pnpm build`.
+
+Run `pnpm typecheck` (which runs `tsc -b`) to incrementally typecheck. Use `pnpm typecheck --clean` to clear the build cache.
+
+### Shared configs
+
+Shared configs live under `configs/` at the repo root:
+
+- `configs/tsconfig.base.json`: base config that every other tsconfig extends from.
+- `configs/tsconfig.build.json`: builds packages. Includes `src/` and emits declarations to `dist/`.
+- `configs/tsconfig.test.json`: typechecks tests. Includes `test/`, excludes `test/fixtures/`.
+- `configs/tsconfig.language-tools.json`: variant for `packages/language-tools/` packages (targets commonjs).
+
+### Per-package layout
+
+The typical package has three tsconfig files:
+
+```jsonc
+// packages/<pkg>/tsconfig.build.json
+// Extends the shared build config. `references` declares workspace dependencies
+// and should mirror the deps in package.json (maintained manually for now).
+{
+  "extends": "../../configs/tsconfig.build.json",
+  "references": [{ "path": "../dep1/tsconfig.json" }, { "path": "../dep2/tsconfig.json" }],
+}
+```
+
+```jsonc
+// packages/<pkg>/tsconfig.test.json
+// References the package's own build so dist/ is built before tests typecheck.
+{
+  "extends": "../../configs/tsconfig.test.json",
+  "references": [{ "path": "./tsconfig.build.json" }],
+}
+```
+
+```jsonc
+// packages/<pkg>/tsconfig.json
+// Pure solution file. `"files": []` means it includes no sources of its own.
+// It only acts as the entry point that points at build + test.
+{
+  "extends": "../../configs/tsconfig.base.json",
+  "files": [],
+  "references": [{ "path": "./tsconfig.build.json" }, { "path": "./tsconfig.test.json" }],
+}
+```
+
+The repo-root `tsconfig.json` is the top-level solution file referencing every package. When adding a new package, add it to the root `references` list and wire its `tsconfig.build.json` `references` to match its workspace dependencies.
+
 ## Code Structure
 
 Server-side rendering (SSR) can be complicated. The Astro package (`packages/astro`) is structured in a way to help think about the different systems.
