@@ -1,5 +1,194 @@
 # astro
 
+## 6.3.0
+
+### Minor Changes
+
+- [#16366](https://github.com/withastro/astro/pull/16366) [`d69f858`](https://github.com/withastro/astro/commit/d69f858475bee448d0873df4579e1c635223c248) Thanks [@matthewp](https://github.com/matthewp)! - Adds a new `experimental.advancedRouting` option that lets you take full control of Astro's request handling pipeline by creating a `src/app.ts` file in your project.
+
+  Today, Astro handles every incoming request through a fixed internal pipeline: trailing slash normalization, redirects, actions, middleware, page rendering, i18n, and so on. That pipeline works great for most sites, but as projects grow you often want to run your own logic _between_ those steps — an auth check before rendering, a rate limiter before actions, custom logging around the whole stack. Advanced routing gives you that control.
+
+  When enabled, Astro looks for a `src/app.ts` file in your project. If it finds one, that file becomes the entrypoint for all server-rendered requests. You compose the pipeline yourself using the handlers Astro provides, and you can slot your own logic anywhere in the chain.
+
+  #### Enabling advanced routing
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    experimental: {
+      advancedRouting: true,
+    },
+  });
+  ```
+
+  #### Two ways to build your pipeline
+
+  Astro ships two entrypoints for advanced routing: `astro/fetch` and `astro/hono`.
+
+  **`astro/fetch`** is a low-level, framework-free API built on the Web Fetch standard. You create a `FetchState` from the incoming request, then call handler functions in sequence. Each handler takes the state, does its work, and returns a `Response` (or `undefined` to pass through). This is the core primitive that everything else is built on:
+
+  ```ts
+  // src/app.ts
+  import {
+    FetchState,
+    trailingSlash,
+    redirects,
+    actions,
+    middleware,
+    pages,
+    i18n,
+  } from 'astro/fetch';
+
+  export default {
+    async fetch(request: Request) {
+      const state = new FetchState(request);
+
+      // Early exits — these return a Response only when they apply.
+      const slash = trailingSlash(state);
+      if (slash) return slash;
+
+      const redirect = redirects(state);
+      if (redirect) return redirect;
+
+      const action = await actions(state);
+      if (action) return action;
+
+      // Middleware wraps page rendering; i18n post-processes the response.
+      const response = await middleware(state, () => pages(state));
+      return i18n(state, response);
+    },
+  };
+  ```
+
+  **`astro/hono`** wraps the same handlers as [Hono](https://hono.dev) middleware, so you can mix Astro's pipeline with Hono's ecosystem of middleware (logger, CORS, JWT, rate limiting, etc.) using the `app.use()` pattern you already know:
+
+  ```ts
+  // src/app.ts
+  import { Hono } from 'hono';
+  import { getCookie } from 'hono/cookie';
+  import { logger } from 'hono/logger';
+  import { actions, middleware, pages, i18n } from 'astro/hono';
+
+  const app = new Hono();
+
+  app.use(logger());
+
+  // Auth gate — only runs for /dashboard routes.
+  app.use('/dashboard/*', async (c, next) => {
+    const session = getCookie(c, 'session');
+    if (!session) return c.redirect('/login');
+    return next();
+  });
+
+  app.use(actions());
+  app.use(middleware());
+  app.use(pages());
+  app.use(i18n());
+
+  export default app;
+  ```
+
+  Both approaches give you the same power — pick whichever fits your project. If you don't need a framework, `astro/fetch` keeps things minimal. If you want a rich middleware ecosystem, `astro/hono` gets you there with one import.
+
+  For more information on enabling and using this feature in your project, see the [experimental advanced routing docs](https://docs.astro.build/en/reference/experimental-flags/advanced-routing/). To give feedback, or to keep up with its development, see the [advanced routing RFC](https://github.com/withastro/roadmap/blob/advanced-routing-stage-3/proposals/0056-advanced-routing.md) for more information and discussion.
+
+- [#16366](https://github.com/withastro/astro/pull/16366) [`d69f858`](https://github.com/withastro/astro/commit/d69f858475bee448d0873df4579e1c635223c248) Thanks [@matthewp](https://github.com/matthewp)! - Adds a `consume()` instance method to `AstroCookies`. This method marks the cookies as consumed and returns the `Set-Cookie` header values. After consumption, any subsequent `set()` calls will log a warning, since the headers have already been sent.
+
+  Previously this was only available as a static method `AstroCookies.consume(cookies)`. The static method is now deprecated but kept for backward compatibility with existing adapters.
+
+- [#16412](https://github.com/withastro/astro/pull/16412) [`ba2d2e3`](https://github.com/withastro/astro/commit/ba2d2e3a4647b6ca84af6f06d4136e2824254305) Thanks [@0xbejaxer](https://github.com/0xbejaxer)! - Add retry and error event handling for `astro-island` hydration import failures to reduce unrecoverable hydration errors on transient network failures.
+
+- [#16582](https://github.com/withastro/astro/pull/16582) [`885cd31`](https://github.com/withastro/astro/commit/885cd31051ef848b75a0c0228747d815b24dc7da) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds a new `image.dangerouslyProcessSVG` flag to optionally enable processing SVG inputs. For security reasons, Astro will no longer rasterizes SVG image sources by default in its default image service and endpoint.
+
+  Set `image.dangerouslyProcessSVG: true` to opt back into processing SVG inputs.
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    // ...
+    image: {
+      dangerouslyProcessSVG: true,
+    },
+  });
+  ```
+
+  Note that this is a breaking change for users who were previously relying on Astro's default image service to rasterize SVG inputs, but it is a necessary change to improve security and prevent potential vulnerabilities.
+
+- [#16519](https://github.com/withastro/astro/pull/16519) [`1b1c218`](https://github.com/withastro/astro/commit/1b1c218c2cf76806f94afbd1cdc2af27c8abc6d0) Thanks [@louisescher](https://github.com/louisescher)! - Adds support for redirecting URLs in remote image optimization.
+
+  Previously, when a remote image URL meant to be optimized by Astro led to a redirect, Astro would fail silently and ignore the redirect. Now, Astro tracks up to 10 redirects for these images. If any of the redirects are not covered by a pattern in `image.remotePatterns` or a domain in `image.domains`, Astro will fail with a helpful error message.
+
+  In the following example, the first image would be loaded successfully, while the second would lead to Astro throwing an error:
+
+  ```mjs
+  export default defineConfig({
+    image: {
+      domains: ['example.com', 'cdn.example.com'],
+    },
+  });
+  ```
+
+  ```tsx
+  {
+    /* Redirects to https://cdn.example.com/assets/image.png: */
+  }
+  <Image
+    src="https://example.com/assets/image.png"
+    width="1920"
+    height="1080"
+    alt="An example image."
+  />;
+
+  {
+    /* Redirects to https://malicious.com/image.png: */
+  }
+  <Image
+    src="https://example.com/bad-image.png"
+    width="1920"
+    height="1080"
+    alt="An example image."
+  />;
+  ```
+
+  In cases where all redirects to HTTPS hosts should be trusted, the following configuration for `image.remotePatterns` can be used:
+
+  ```mjs
+  export default defineConfig({
+    image: {
+      remotePatterns: [
+        {
+          protocol: 'https',
+        },
+      ],
+    },
+  });
+  ```
+
+### Patch Changes
+
+- [#16592](https://github.com/withastro/astro/pull/16592) [`9c6efc5`](https://github.com/withastro/astro/commit/9c6efc5eb85d76b580ab53da412ca099c32ed825) Thanks [@matthewp](https://github.com/matthewp)! - Escapes interpolated values in the dev server redirect HTML template, consistent with how the 404 template already handles them
+
+- [#16585](https://github.com/withastro/astro/pull/16585) [`78f305e`](https://github.com/withastro/astro/commit/78f305e6962b50f7cce69772471ab318b6ef4c8a) Thanks [@web-dev0521](https://github.com/web-dev0521)! - Fixes `z.array(z.boolean())` in form actions incorrectly coercing the string `"false"` to `true`. Boolean array elements now use the same `'true'`/`'false'` string comparison as single `z.boolean()` fields, so submitting `["false", "true", "false"]` correctly parses as `[false, true, false]`.
+
+- [#16567](https://github.com/withastro/astro/pull/16567) [`12a03f2`](https://github.com/withastro/astro/commit/12a03f2492c2f32f0bd39dd85b8bc8bf1fbbc138) Thanks [@matthewp](https://github.com/matthewp)! - Fixes deleted content collection entries persisting in `getCollection()` results during dev
+
+- [#16595](https://github.com/withastro/astro/pull/16595) [`ce9b25c`](https://github.com/withastro/astro/commit/ce9b25c3edb92d9de5368dcf86a6af57254f7a31) Thanks [@web-dev0521](https://github.com/web-dev0521)! - Fixes `pushDirective` in the CSP runtime duplicating the new directive once per existing non-matching directive. Calling `insertDirective()` (or otherwise pushing a directive whose name is not yet in the list) now appends it exactly once, and a directive that merges with a later existing entry no longer leaves an unmerged copy behind.
+
+- [#16600](https://github.com/withastro/astro/pull/16600) [`94e4b7c`](https://github.com/withastro/astro/commit/94e4b7cf8566625563a0fa0ea8bc26fe831b2fe1) Thanks [@web-dev0521](https://github.com/web-dev0521)! - Fixes `Astro.preferredLocale` returning the wrong value when `i18n.locales` mixes object-form entries (`{ path, codes }`) with string entries that normalize to the same locale. The first matching code in the configured `locales` order is now selected, matching the documented behavior.
+
+- [#16591](https://github.com/withastro/astro/pull/16591) [`cce20f7`](https://github.com/withastro/astro/commit/cce20f7c3597d555d490abe98ea213753842e35a) Thanks [@matthewp](https://github.com/matthewp)! - Uses a consistent generic error message in the image endpoint across all adapters
+
+- [#16629](https://github.com/withastro/astro/pull/16629) [`f54be80`](https://github.com/withastro/astro/commit/f54be80069c5b43ad76bd69393afa443e1fe08cf) Thanks [@g-taki](https://github.com/g-taki)! - Fixes a bug where SSR responses in `astro dev` could crash with `TypeError: this.logger.flush is not a function`.
+
+- [#16589](https://github.com/withastro/astro/pull/16589) [`3740b24`](https://github.com/withastro/astro/commit/3740b244431eae848b9a83e473528e583fcac2e7) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Fixes an outdated code snippet in the documentation for session storage configuration.
+
+- Updated dependencies [[`354e231`](https://github.com/withastro/astro/commit/354e23191f6a85fd466b512d378959cc12aebb01)]:
+  - @astrojs/telemetry@3.3.2
+
 ## 6.2.2
 
 ### Patch Changes
