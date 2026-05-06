@@ -154,7 +154,7 @@ jobs:
         NODE_VERSION: [22, 24]
         TEST_SUITE:
           - { name: astro, script: 'pnpm run test:astro' }
-          - { name: integrations, script: 'pnpm run test:integration' }
+          - { name: integrations, script: 'pnpm run test:integrations' }
         # We only test Node 22 on macOS and Windows to reduce CI usage.
         # This exclude config tells GitHub to skip the items in the matrix that run on macOS or
         # Windows and use one of the older Node versions.
