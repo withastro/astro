@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.ts';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 // Regression test for https://github.com/withastro/astro/issues/16291
 //
@@ -19,8 +19,8 @@ import { loadFixture } from './test-utils.ts';
 // `@astrojs/cloudflare` does in dev (registers a `prerender` Vite
 // environment and flips on the core dev-prerender middleware).
 describe('Head propagation across ssr and prerender envs in dev', () => {
-	let fixture;
-	let devServer;
+	let fixture: Fixture;
+	let devServer: DevServer;
 
 	before(async () => {
 		fixture = await loadFixture({

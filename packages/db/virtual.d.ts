@@ -1,5 +1,5 @@
 declare module 'astro:db' {
-	type RuntimeConfig = typeof import('./dist/_internal/runtime/virtual.js');
+	type RuntimeConfig = typeof import('./dist/runtime/virtual.js');
 
 	export const db: import('./dist/runtime/index.js').Database;
 	export const dbUrl: string;
