@@ -23,7 +23,14 @@
     "indentStyle": "tab",
     "indentWidth": 2,
     "lineWidth": 100,
-    "includes": ["**", "!**/.changeset", "!**/pnpm-lock.yaml", "!**/*.astro"],
+    "includes": [
+      "**",
+      "!**/.changeset",
+      "!**/pnpm-lock.yaml",
+      "!**/*.astro",
+      "!**/*.prebuilt.ts",
+      "!**/*.prebuilt-dev.ts"
+    ],
     "expand": "auto"
   },
   "assist": {
