@@ -208,26 +208,22 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 
 				// Generation and cleanup
 				const prerenderOutputDir = getPrerenderOutputDirectory(settings);
-
-				// TODO: The `static` and `server` branches below are nearly identical now.
-				// Consider refactoring to remove the else-if and unify the logic.
-				if (settings.buildOutput === 'static') {
-					settings.timer.start('Static generate');
-					// Move prerender and SSR assets to client directory before cleaning up
-					await ssrMoveAssets(opts, internals, prerenderOutputDir);
+				const buildOutput = settings.buildOutput;
+				if (buildOutput === 'static' || buildOutput === 'server') {
+					settings.timer.start(`${buildOutput} generate`);
+					if (buildOutput === 'static') {
+						// Keep static output behavior: move assets before generation.
+						await ssrMoveAssets(opts, internals, prerenderOutputDir);
+					}
 					// Generate the pages
 					await generatePages(opts, internals, prerenderOutputDir);
+					if (buildOutput !== 'static') {
+						// Server output keeps the previous behavior and moves assets after generation.
+						await ssrMoveAssets(opts, internals, prerenderOutputDir);
+					}
 					// Clean up prerender directory after generation
 					await fs.promises.rm(prerenderOutputDir, { recursive: true, force: true });
-					settings.timer.end('Static generate');
-				} else if (settings.buildOutput === 'server') {
-					settings.timer.start('Server generate');
-					await generatePages(opts, internals, prerenderOutputDir);
-					// Move prerender and SSR assets to client directory before cleaning up
-					await ssrMoveAssets(opts, internals, prerenderOutputDir);
-					// Clean up prerender directory after generation
-					await fs.promises.rm(prerenderOutputDir, { recursive: true, force: true });
-					settings.timer.end('Server generate');
+					settings.timer.end(`${buildOutput} generate`);
 				}
 			},
 		},

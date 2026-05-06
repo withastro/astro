@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import { App } from '../../../dist/core/app/app.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createRouteData } from '../mocks.ts';
-import { createManifest } from '../app/test-helpers.ts';
+import { createManifest, createRouteInfo } from '../app/test-helpers.ts';
 
 import type { MiddlewareHandler } from 'astro';
 import type { RouteData } from '../../../dist/types/public/internal.js';
@@ -916,6 +916,105 @@ describe('Middleware via App.render()', () => {
 			});
 
 			assert.equal(response.headers.get('X-Custom-Header'), 'custom-value');
+		});
+	});
+
+	describe("middlewareMode: 'on-request'", () => {
+		it('runs middleware at request time', async () => {
+			const onRequest: MiddlewareHandler = async (ctx, next) => {
+				(ctx.locals as Record<string, unknown>).name = 'from-middleware';
+				return next();
+			};
+			const pageMap = new Map([
+				[indexRouteData.component, async () => ({ page: async () => ({ default: simplePage() }) })],
+			]);
+			const manifest = createManifest({
+				routes: [createRouteInfo(indexRouteData)],
+				pageMap,
+			});
+			manifest.middleware = () => ({ onRequest });
+			manifest.middlewareMode = /** @type {'on-request'} */ ('on-request');
+			const app = new App(manifest);
+
+			const response = await app.render(new Request('http://localhost/'));
+			const html = await response.text();
+
+			assert.match(html, /<p>from-middleware<\/p>/);
+		});
+
+		it('does not run middleware when skipMiddleware is set (build-time prerendering)', async () => {
+			let middlewareWasCalled = false;
+			const onRequest: MiddlewareHandler = async (_ctx, next) => {
+				middlewareWasCalled = true;
+				return next();
+			};
+			const pageMap = new Map([
+				[indexRouteData.component, async () => ({ page: async () => ({ default: simplePage() }) })],
+			]);
+			const manifest = createManifest({
+				routes: [createRouteInfo(indexRouteData)],
+				pageMap,
+			});
+			manifest.middleware = () => ({ onRequest });
+			manifest.middlewareMode = /** @type {'on-request'} */ ('on-request');
+			const app = new App(manifest);
+
+			// Simulate what BuildApp.createRenderContext does: set skipMiddleware for on-request mode
+			const origCreateRenderContext = app.createRenderContext.bind(app);
+			app.createRenderContext = (payload) =>
+				origCreateRenderContext({ ...payload, skipMiddleware: true });
+
+			await app.render(new Request('http://localhost/'));
+
+			assert.equal(middlewareWasCalled, false);
+		});
+
+		it('allows rewriting from SSR to prerendered routes when getStaticAsset is provided', async () => {
+			const rewriteSsrRouteData = createRouteData({ route: '/rewrite-ssr', prerender: false });
+			const targetPrerenderRouteData = createRouteData({ route: '/target', prerender: true });
+
+			const onRequest: MiddlewareHandler = async (ctx, next) => {
+				if (ctx.url.pathname === '/rewrite-ssr') {
+					return ctx.rewrite(new Request('http://localhost/target'));
+				}
+				return next();
+			};
+
+			const pageMap = new Map([
+				[
+					rewriteSsrRouteData.component,
+					async () => ({ page: async () => ({ default: simplePage() }) }),
+				],
+				[
+					targetPrerenderRouteData.component,
+					async () => ({ page: async () => ({ default: simplePage() }) }),
+				],
+			]);
+
+			const manifest = createManifest({
+				routes: [
+					createRouteInfo(rewriteSsrRouteData),
+					createRouteInfo(targetPrerenderRouteData),
+				],
+				pageMap,
+			});
+			manifest.middleware = () => ({ onRequest });
+			manifest.middlewareMode = /** @type {'on-request'} */ ('on-request');
+			const app = new App(manifest);
+
+			const response = await app.render(new Request('http://localhost/rewrite-ssr'), {
+				getStaticAsset: async (_route, pathname) => {
+					if (pathname === '/target') {
+						return new Response('<p>prerendered target</p>', {
+							headers: { 'content-type': 'text/html; charset=utf-8' },
+						});
+					}
+					return undefined;
+				},
+			});
+
+			assert.equal(response.status, 200);
+			assert.match(await response.text(), /<p>prerendered target<\/p>/);
 		});
 	});
 });

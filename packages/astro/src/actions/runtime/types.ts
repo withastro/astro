@@ -91,6 +91,7 @@ export type ActionAPIContext = Pick<
 	| 'request'
 	| 'url'
 	| 'isPrerendered'
+	| 'buildPhase'
 	| 'locals'
 	| 'clientAddress'
 	| 'cookies'

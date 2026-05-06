@@ -493,6 +493,20 @@ export interface APIContext<
 	isPrerendered: boolean;
 
 	/**
+	 * Indicates which phase of the build/request lifecycle middleware is running in.
+	 *
+	 * - `"build"`: middleware is running at **build time**, during static page generation (`astro build`).
+	 *   This phase only occurs when `middlewareMode` is `"always"`.
+	 * - `"request"`: middleware is running at **request time**, handling a live incoming request.
+	 *   This is the normal phase for SSR routes, and also occurs for prerendered routes when
+	 *   `middlewareMode` is `"always"` or `"on-request"`.
+	 *
+	 * Useful when you need to differentiate behavior in `middlewareMode: "always"`, for example,
+	 * to skip logic that requires a live request environment (e.g. IP-based rate limiting).
+	 */
+	buildPhase: 'build' | 'request';
+
+	/**
 	 * It exposes utilities to control CSP headers
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/)
