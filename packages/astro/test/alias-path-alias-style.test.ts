@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.ts';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 // Regression test for https://github.com/withastro/astro/issues/15963
 // <style> tags in components imported via tsconfig path aliases should compile correctly.
 describe('Style compilation with tsconfig path aliases', () => {
-	let fixture;
+	let fixture: Fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
