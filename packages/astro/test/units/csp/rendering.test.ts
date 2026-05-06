@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { RenderContext } from '../../../dist/core/render-context.js';
+import { FetchState } from '../../../dist/core/fetch/fetch-state.js';
 import {
 	createComponent,
 	maybeRenderHead,
@@ -10,7 +10,7 @@ import {
 } from '../../../dist/runtime/server/index.js';
 import type { SSRManifestCSP } from '../../../dist/types/public/internal.js';
 import type { Pipeline } from '../../../dist/core/render/index.js';
-import { createBasicPipeline } from '../test-utils.ts';
+import { createBasicPipeline, renderThroughMiddleware } from '../test-utils.ts';
 
 // #region Test Utilities
 
@@ -60,14 +60,11 @@ async function renderPage(
 		origin: 'project' as const,
 	};
 
-	const renderContext = await RenderContext.create({
-		pipeline,
-		request,
-		routeData,
-		pathname: '/index',
-		clientAddress: '127.0.0.1',
-	});
-	const response = await renderContext.render(PageModule);
+	const state = new FetchState(pipeline, request);
+	state.routeData = routeData as any;
+	state.pathname = '/index';
+	state.clientAddress = '127.0.0.1';
+	const response = await renderThroughMiddleware(state, PageModule);
 	const html = await response.text();
 
 	return { html, response };

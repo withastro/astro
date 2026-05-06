@@ -190,6 +190,18 @@ importers:
         specifier: workspace:^
         version: link:../../../packages/astro
 
+  examples/advanced-routing:
+    dependencies:
+      '@astrojs/node':
+        specifier: ^10.0.5
+        version: link:../../packages/integrations/node
+      astro:
+        specifier: ^6.1.8
+        version: link:../../packages/astro
+      hono:
+        specifier: ^4.12.14
+        version: 4.12.16
+
   examples/basics:
     dependencies:
       astro:
@@ -731,6 +743,9 @@ importers:
       fs-fixture:
         specifier: ^2.13.0
         version: 2.13.0
+      hono:
+        specifier: ^4.12.14
+        version: 4.12.16
       mdast-util-mdx:
         specifier: ^3.0.0
         version: 3.0.0
