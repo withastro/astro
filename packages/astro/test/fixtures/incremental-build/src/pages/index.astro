@@ -1,0 +1,17 @@
+---
+import articles from '../data/articles.json';
+import '../styles/index.css';
+---
+
+<html>
+	<head>
+		<title>Incremental Build Fixture</title>
+	</head>
+	<body>
+		<h1>All articles</h1>
+		<p id="count">{articles.length}</p>
+		<ul>
+			{articles.slice(0, 5).map((article) => <li>{article.title}</li>)}
+		</ul>
+	</body>
+</html>

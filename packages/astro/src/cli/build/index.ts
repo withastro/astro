@@ -21,7 +21,7 @@ export async function build({ flags }: BuildOptions) {
 					],
 					[
 						'--force',
-						'Clear the content layer and content collection cache, forcing a full rebuild.',
+						'Clear the content layer cache and incremental build state, forcing a full rebuild.',
 					],
 					['--help (-h)', 'See all available flags.'],
 				],

@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Plugin } from 'vite';
+import { getIncrementalBuildStateFile } from '../../../dist/core/build/build-state.js';
 import { RenderContext } from '../../../dist/core/render-context.js';
 import { createRoutesList as _createRoutesList } from '../../../dist/core/routing/create-manifest.js';
 import type { StaticBuildOptions } from '../../../dist/core/build/types.js';
@@ -35,6 +36,33 @@ export function createSettings({
 			build: { client: clientDir, format: buildFormat },
 		},
 	};
+}
+
+export function createTempRoot() {
+	return pathToFileURL(mkdtempSync(join(tmpdir(), 'astro-build-state-')) + '/');
+}
+
+export async function createIncrementalBuildSettings(root: URL, inlineConfig: AstroInlineConfig = {}) {
+	const settings = await createBasicSettings({
+		root: fileURLToPath(root),
+		cacheDir: './node_modules/.astro-build-state/',
+		outDir: './dist/build-state/',
+		build: {
+			client: './dist/build-state/client/',
+			server: './dist/build-state/server/',
+		},
+		...inlineConfig,
+	});
+	settings.buildOutput = 'static';
+	return settings;
+}
+
+export function getIncrementalStateFile(
+	settings: Parameters<typeof getIncrementalBuildStateFile>[0]['settings'],
+	mode: 'production' | 'development' = 'production',
+	runtimeMode: 'production' | 'development' = 'production',
+) {
+	return getIncrementalBuildStateFile({ settings, mode, runtimeMode });
 }
 
 /**

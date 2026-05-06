@@ -6,6 +6,7 @@ import {
 	getPageDataByViteID,
 	trackClientOnlyPageDatas,
 	trackHydratedComponentPageDatas,
+	trackModulePageDatas,
 	trackScriptPageDatas,
 } from '../internal.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
@@ -21,9 +22,31 @@ export function pluginAnalyzer(internals: BuildInternals): VitePlugin {
 		},
 		async generateBundle() {
 			const ids = this.getModuleIds();
+			const pageDatasByModuleId = new Map<
+				string,
+				NonNullable<ReturnType<typeof getPageDataByViteID>>[]
+			>();
+
+			const getPageDatasForModule = (id: string) => {
+				const cached = pageDatasByModuleId.get(id);
+				if (cached) {
+					return cached;
+				}
+
+				const pageDatas = getTopLevelPageModuleInfos(id, this)
+					.map((pageInfo) => getPageDataByViteID(internals, pageInfo.id))
+					.filter((pageData): pageData is NonNullable<typeof pageData> => Boolean(pageData));
+				pageDatasByModuleId.set(id, pageDatas);
+				return pageDatas;
+			};
 
 			for (const id of ids) {
 				const info = this.getModuleInfo(id);
+				const pageDatas = info ? getPageDatasForModule(id) : [];
+				for (const pageData of pageDatas) {
+					trackModulePageDatas(internals, pageData, [id]);
+				}
+
 				if (!info?.meta?.astro) continue;
 
 				const astro = info.meta.astro as AstroPluginMetadata['astro'];
@@ -43,11 +66,8 @@ export function pluginAnalyzer(internals: BuildInternals): VitePlugin {
 					}
 
 					// Track which pages use each hydrated component
-					for (const pageInfo of getTopLevelPageModuleInfos(id, this)) {
-						const newPageData = getPageDataByViteID(internals, pageInfo.id);
-						if (!newPageData) continue;
-
-						trackHydratedComponentPageDatas(internals, newPageData, hydratedComponents);
+					for (const pageData of pageDatas) {
+						trackHydratedComponentPageDatas(internals, pageData, hydratedComponents);
 					}
 				}
 
@@ -70,11 +90,8 @@ export function pluginAnalyzer(internals: BuildInternals): VitePlugin {
 						}
 					}
 
-					for (const pageInfo of getTopLevelPageModuleInfos(id, this)) {
-						const newPageData = getPageDataByViteID(internals, pageInfo.id);
-						if (!newPageData) continue;
-
-						trackClientOnlyPageDatas(internals, newPageData, clientOnlys);
+					for (const pageData of pageDatas) {
+						trackClientOnlyPageDatas(internals, pageData, clientOnlys);
 					}
 				}
 
@@ -92,11 +109,8 @@ export function pluginAnalyzer(internals: BuildInternals): VitePlugin {
 					}
 
 					// The script may import CSS, so we also have to track the pages that use this script
-					for (const pageInfo of getTopLevelPageModuleInfos(id, this)) {
-						const newPageData = getPageDataByViteID(internals, pageInfo.id);
-						if (!newPageData) continue;
-
-						trackScriptPageDatas(internals, newPageData, scriptIds);
+					for (const pageData of pageDatas) {
+						trackScriptPageDatas(internals, pageData, scriptIds);
 					}
 				}
 			}

@@ -5,6 +5,7 @@ import type { MiddlewareHandler } from '../../types/public/common.js';
 import type { RuntimeMode } from '../../types/public/config.js';
 import type { RouteData } from '../../types/public/internal.js';
 import type { AstroLogger } from '../logger/core.js';
+import type { IncrementalBuildState } from './build-state.js';
 
 type ComponentPath = string;
 export type ViteID = string;
@@ -36,6 +37,10 @@ export interface StaticBuildOptions {
 	viteConfig: InlineConfig;
 	teardownCompiler: boolean;
 	key: Promise<CryptoKey>;
+	incremental: {
+		enabled: boolean;
+		previousState: IncrementalBuildState | undefined;
+	};
 }
 
 type ImportComponentInstance = () => Promise<ComponentInstance>;

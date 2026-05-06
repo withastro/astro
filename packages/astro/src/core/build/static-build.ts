@@ -114,7 +114,10 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	// Empty out the dist folder, if needed. Vite has a config for doing this
 	// but because we are running 2 vite builds in parallel, that would cause a race
 	// condition, so we are doing it ourselves
-	if (settings.config?.vite?.build?.emptyOutDir !== false) {
+	if (
+		settings.config?.vite?.build?.emptyOutDir !== false &&
+		!(opts.incremental.enabled && opts.incremental.previousState)
+	) {
 		emptyDir(settings.config.outDir, new Set('.git'));
 	}
 
