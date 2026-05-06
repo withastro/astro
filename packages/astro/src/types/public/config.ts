@@ -1718,7 +1718,7 @@ export interface AstroUserConfig<
 		service?: ImageServiceConfig;
 		/**
 		 * @docs
-		 * @name image.dangerouslyAllowSVG
+		 * @name image.dangerouslyProcessSVG
 		 * @type {boolean}
 		 * @default `false`
 		 * @description
@@ -1728,7 +1728,7 @@ export interface AstroUserConfig<
 		 * This is disabled by default because SVG files can contain scripts and other active content.
 		 * Enable this option only if you trust your SVG sources.
 		 */
-		dangerouslyAllowSVG?: boolean;
+		dangerouslyProcessSVG?: boolean;
 		/**
 		 * @docs
 		 * @name image.service.config.limitInputPixels

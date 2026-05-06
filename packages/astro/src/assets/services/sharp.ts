@@ -150,11 +150,11 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 		if (transform.format === 'svg') return { data: inputBuffer, format: 'svg' };
 
 		// Rasterizing an SVG runs librsvg on untrusted input; require explicit opt-in.
-		if (detector(inputBuffer) === 'svg' && !config.dangerouslyAllowSVG) {
+		if (detector(inputBuffer) === 'svg' && !config.dangerouslyProcessSVG) {
 			throw new AstroError({
 				...AstroErrorData.UnsupportedImageFormat,
 				message:
-					'SVG image processing is disabled. Set `image.dangerouslyAllowSVG: true` to allow processing of SVG sources.',
+					'SVG image processing is disabled. Set `image.dangerouslyProcessSVG: true` to allow processing of SVG sources.',
 			});
 		}
 

@@ -170,7 +170,7 @@ describe('sharp image service SVG handling', async () => {
 		return { service: { entrypoint: '', config: {} }, ...overrides } as any;
 	}
 
-	it('rejects SVG sources that would be rasterized without dangerouslyAllowSVG', async () => {
+	it('rejects SVG sources that would be rasterized without dangerouslyProcessSVG', async () => {
 		await assert.rejects(
 			sharpService.transform(
 				SVG_BUFFER,
@@ -181,7 +181,7 @@ describe('sharp image service SVG handling', async () => {
 		);
 	});
 
-	it('passes SVG-to-SVG output through without requiring dangerouslyAllowSVG', async () => {
+	it('passes SVG-to-SVG output through without requiring dangerouslyProcessSVG', async () => {
 		const { data, format } = await sharpService.transform(
 			SVG_BUFFER,
 			{ src: 'icon.svg', format: 'svg' } as any,
@@ -191,11 +191,11 @@ describe('sharp image service SVG handling', async () => {
 		assert.equal(data, SVG_BUFFER);
 	});
 
-	it('allows SVG sources to be processed when dangerouslyAllowSVG is enabled', async () => {
+	it('allows SVG sources to be processed when dangerouslyProcessSVG is enabled', async () => {
 		const { format } = await sharpService.transform(
 			SVG_BUFFER,
 			{ src: 'icon.svg', format: 'png' } as any,
-			makeConfig({ dangerouslyAllowSVG: true }),
+			makeConfig({ dangerouslyProcessSVG: true }),
 		);
 		assert.equal(format, 'png');
 	});

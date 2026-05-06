@@ -2,9 +2,9 @@
 "astro": minor
 ---
 
-Adds a new `image.dangerouslyAllowSVG` flag to optionally enable processing SVG inputs. For security reasons, Astro will no longer rasterizes SVG image sources by default in its default image service and endpoint.
+Adds a new `image.dangerouslyProcessSVG` flag to optionally enable processing SVG inputs. For security reasons, Astro will no longer rasterizes SVG image sources by default in its default image service and endpoint.
 
-Set `image.dangerouslyAllowSVG: true` to opt back into processing SVG inputs.
+Set `image.dangerouslyProcessSVG: true` to opt back into processing SVG inputs.
 
 ```js
 // astro.config.mjs
@@ -13,7 +13,7 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
   // ...
   image: {
-    dangerouslyAllowSVG: true,
+    dangerouslyProcessSVG: true,
   },
 });
 ```
