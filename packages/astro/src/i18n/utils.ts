@@ -91,7 +91,7 @@ export function computePreferredLocale(request: Request, locales: Locales): stri
 
 		const firstResult = browserLocaleList.at(0);
 		if (firstResult && firstResult.locale !== '*') {
-			for (const currentLocale of locales) {
+			outer: for (const currentLocale of locales) {
 				if (typeof currentLocale === 'string') {
 					if (normalizeTheLocale(currentLocale) === normalizeTheLocale(firstResult.locale)) {
 						result = currentLocale;
@@ -101,7 +101,7 @@ export function computePreferredLocale(request: Request, locales: Locales): stri
 					for (const currentCode of currentLocale.codes) {
 						if (normalizeTheLocale(currentCode) === normalizeTheLocale(firstResult.locale)) {
 							result = currentCode;
-							break;
+							break outer;
 						}
 					}
 				}

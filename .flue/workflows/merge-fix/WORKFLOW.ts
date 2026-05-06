@@ -1,31 +1,31 @@
-import type { FlueClient } from '@flue/client';
-import { anthropic, github, githubBody } from '@flue/client/proxies';
+import type { FlueContext } from '@flue/sdk/client';
+import { defineCommand } from '@flue/sdk/node';
 import * as v from 'valibot';
 import { fetchCIFailureLogs, postPRComment } from './github.ts';
 
-export const proxies = {
-	anthropic: anthropic(),
-	github: github({
-		policy: {
-			base: 'allow-read',
-			allow: [
-				// Allow GraphQL
-				{ method: 'POST', path: '/graphql', body: githubBody.graphql() },
-				// Allow git clone, fetch, and push over smart HTTP transport
-				{ method: 'GET', path: '/*/*/info/refs' },
-				{ method: 'POST', path: '/*/*/git-upload-pack' },
-				{ method: 'POST', path: '/*/*/git-receive-pack' },
-			],
-		},
-	}),
-};
+// CLI-only agent: no HTTP trigger. Invoked from GitHub Actions via `flue run merge-fix`.
+export const triggers = {};
+
+const GITHUB_TOKEN = process.env.FREDKBOT_GITHUB_TOKEN || process.env.GITHUB_TOKEN || '';
+const gh = defineCommand('gh', { env: { GH_TOKEN: GITHUB_TOKEN } });
+const git = defineCommand('git');
+const gitWithAuth = defineCommand('git', { env: { GH_TOKEN: GITHUB_TOKEN } });
+const pnpm = defineCommand('pnpm');
+const node = defineCommand('node');
 
 export const args = v.object({
 	prNumber: v.number(),
 });
 
-export default async function mergeFix(flue: FlueClient, { prNumber }: v.InferOutput<typeof args>) {
+export default async function mergeFix({ init, payload }: FlueContext) {
+	const prNumber = payload.prNumber as number;
 	const branch = 'ci/merge-main-to-next';
+
+	const agent = await init({
+		sandbox: 'local',
+		model: 'anthropic/claude-opus-4-6',
+	});
+	const session = await agent.session();
 
 	// Fetch CI failure logs before entering the sandbox.
 	// The gh CLI doesn't work inside the Flue sandbox (auth goes through a proxy),
@@ -36,8 +36,9 @@ export default async function mergeFix(flue: FlueClient, { prNumber }: v.InferOu
 	// Conflicts have already been resolved by the merge-resolve workflow.
 	// Dependencies are installed but packages may NOT be built yet — the skill
 	// handles building and fixing any errors that come up.
-	const fixResult = await flue.skill('merge/fix-ci.md', {
+	const fixResult = await session.skill('merge/fix-ci.md', {
 		args: { prNumber, ciLogs },
+		commands: [gh, git, pnpm, node],
 		result: v.object({
 			ciPass: v.pipe(
 				v.boolean(),
@@ -57,11 +58,15 @@ export default async function mergeFix(flue: FlueClient, { prNumber }: v.InferOu
 	});
 
 	// Commit and push if there are changes
-	const status = await flue.shell('git status --porcelain');
+	const status = await session.shell('git status --porcelain', { commands: [git] });
 	if (status.stdout.trim()) {
-		await flue.shell('git add -A');
-		await flue.shell('git commit -m "chore: fix CI failures for main-to-next merge"');
-		const pushResult = await flue.shell(`git push origin ${branch}`);
+		await session.shell('git add -A', { commands: [git] });
+		await session.shell('git commit -m "chore: fix CI failures for main-to-next merge"', {
+			commands: [git],
+		});
+		const pushResult = await session.shell(`git push origin ${branch}`, {
+			commands: [gitWithAuth],
+		});
 		console.info('push result:', pushResult);
 
 		if (pushResult.exitCode !== 0) {

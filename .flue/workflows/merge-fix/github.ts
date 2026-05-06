@@ -73,18 +73,17 @@ export async function fetchCIFailureLogs(branch: string): Promise<string> {
 	logParts.push('');
 
 	for (const job of failedJobs) {
-		const logRes = await fetch(
-			`https://api.github.com/repos/${REPO}/actions/jobs/${job.id}/logs`,
-			{ headers: headers(), redirect: 'follow' },
-		);
+		const logRes = await fetch(`https://api.github.com/repos/${REPO}/actions/jobs/${job.id}/logs`, {
+			headers: headers(),
+			redirect: 'follow',
+		});
 		if (!logRes.ok) {
 			logParts.push(`## ${job.name}\nFailed to fetch logs (HTTP ${logRes.status})`);
 			continue;
 		}
 		const logText = await logRes.text();
 		// Truncate to last 5000 chars per job — the failures are at the end
-		const truncated =
-			logText.length > 5000 ? '...(truncated)\n' + logText.slice(-5000) : logText;
+		const truncated = logText.length > 5000 ? '...(truncated)\n' + logText.slice(-5000) : logText;
 		logParts.push(`## ${job.name}\n${truncated}`);
 	}
 

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.build.json",
+  "compilerOptions": {
+    "target": "ES2021",
+    "lib": ["WebWorker", "ES2021"],
+    "module": "commonjs",
+    // TODO: when upgrading to TS 6, will need to be set to "bundler"
+    "moduleResolution": "node",
+    "verbatimModuleSyntax": false,
+    "erasableSyntaxOnly": false
+  }
+}

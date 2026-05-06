@@ -29,7 +29,7 @@ describe('astro cli', () => {
 		});
 		const logs: LogEntry[] = [];
 
-		const checkServer = await fixture.check({
+		const checkServer: boolean | void = await fixture.check({
 			_: [],
 			flags: { watch: true },
 			logging: {
