@@ -67,25 +67,29 @@ describe('Server entry', () => {
 		});
 	});
 
-	describe('rollupInput entrypoint', () => {
-		let fixture: Fixture;
+	for (const shape of ['string', 'object', 'array'] as const) {
+		describe(`rollupInput entrypoint (${shape})`, () => {
+			let fixture: Fixture;
 
-		before(async () => {
-			fixture = await loadFixture({
-				root: './fixtures/server-entry',
-				output: 'server',
-				adapter: fakeAdapter({ type: 'rollupInput', shape: 'object' }),
-				build: {
-					serverEntry: 'custom.mjs',
-				},
+			before(async () => {
+				fixture = await loadFixture({
+					root: './fixtures/server-entry',
+					output: 'server',
+					adapter: fakeAdapter({ type: 'rollupInput', shape }),
+					build: {
+						serverEntry: 'custom.mjs',
+					},
+				});
+				await fixture.build();
 			});
-			await fixture.build();
-		});
 
-		it('should produce custom.mjs via rollup input', async () => {
-			assert.ok(existsSync(fileURLToPath(new URL('server/custom.mjs', fixture.config.outDir))));
+			it('should produce custom.mjs', async () => {
+				assert.ok(
+					existsSync(fileURLToPath(new URL('server/custom.mjs', fixture.config.outDir))),
+				);
+			});
 		});
-	});
+	}
 
 	describe('serverEntrypoint', () => {
 		let fixture: Fixture;
