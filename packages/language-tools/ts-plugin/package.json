@@ -20,10 +20,9 @@
     "dist/**/*.d.ts"
   ],
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
-    "test": "vscode-test",
-    "typecheck:tests": "tsc --build tsconfig.test.json"
+    "build": "tsc -b",
+    "dev": "tsc -b --watch",
+    "test": "vscode-test"
   },
   "author": "withastro",
   "license": "MIT",
