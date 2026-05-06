@@ -16,7 +16,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.10.6",
-    "astro": "^6.2.1"
+    "astro": "^6.2.2"
   },
   "engines": {
     "node": ">=22.12.0"

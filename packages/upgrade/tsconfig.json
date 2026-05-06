@@ -1,13 +1,5 @@
 {
-  "extends": "../../tsconfig.base.json",
-  "include": ["src", "index.d.ts"],
-  "compilerOptions": {
-    "rootDir": "./src",
-    "allowJs": true,
-    "target": "ES2022",
-    "module": "ES2022",
-    "moduleResolution": "Bundler",
-    "outDir": "./dist",
-    "declarationDir": "./dist"
-  }
+  "extends": "../../configs/tsconfig.base.json",
+  "files": [],
+  "references": [{ "path": "./tsconfig.build.json" }, { "path": "./tsconfig.test.json" }]
 }

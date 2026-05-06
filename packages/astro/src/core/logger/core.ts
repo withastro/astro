@@ -285,4 +285,22 @@ export class AstroIntegrationLogger {
 	debug(message: string) {
 		debug(this.label, message);
 	}
+
+	/**
+	 * It calls the `flush` function of the provided destination, if it exists.
+	 */
+	flush() {
+		if (this.options.destination.flush) {
+			this.options.destination.flush();
+		}
+	}
+
+	/**
+	 * It calls the `close` function of the provided destination, if it exists.
+	 */
+	close() {
+		if (this.options.destination.close) {
+			this.options.destination.close();
+		}
+	}
 }
