@@ -1,4 +1,6 @@
 // @ts-check
+const srcEntry = 'src/**/*.{js,ts,cts}';
+const dtsEntry = '*.d.ts';
 const testEntry = 'test/**/*.test.{js,ts}';
 
 /** @type {import('knip').KnipConfig} */
@@ -24,12 +26,14 @@ export default {
 			entry: ['.flue/agents/*.ts', '.flue/workflows/*/WORKFLOW.ts'],
 		},
 		'packages/*': {
-			entry: [testEntry],
+			entry: [srcEntry, dtsEntry, testEntry],
 		},
 		'packages/astro': {
 			entry: [
 				// Can't be detected automatically since it's only in package.json#files
 				'templates/**/*',
+				srcEntry,
+				dtsEntry,
 				testEntry,
 				'test/types/**/*',
 				'e2e/**/*.test.{js,ts}',
@@ -53,37 +57,30 @@ export default {
 				'rehype-toc',
 				'remark-code-titles',
 				'@types/http-cache-semantics',
-				// Dynamically imported by astro add cloudflare
-				'@astrojs/cloudflare',
 			],
 		},
 		'packages/db': {
-			entry: [testEntry, 'test/types/**/*'],
+			entry: [srcEntry, dtsEntry, testEntry, 'test/types/**/*'],
 		},
 		'packages/integrations/*': {
-			entry: [testEntry],
+			entry: [srcEntry, dtsEntry, testEntry],
 		},
 		'packages/integrations/cloudflare': {
-			entry: [testEntry],
+			entry: [srcEntry, dtsEntry, testEntry],
 			// False positive because of cloudflare:workers
 			ignoreDependencies: ['cloudflare'],
 		},
-		'packages/integrations/mdx': {
-			entry: [testEntry],
-			// Required but not imported directly
-			ignoreDependencies: ['@types/*'],
-		},
 		'packages/integrations/netlify': {
-			entry: [testEntry],
+			entry: [srcEntry, dtsEntry, testEntry],
 			ignore: ['test/hosted/**'],
 		},
 		'packages/integrations/solid': {
-			entry: [testEntry],
+			entry: [srcEntry, dtsEntry, testEntry],
 			// It's an optional peer dep (triggers a warning) but it's fine in this case
 			ignoreDependencies: ['solid-devtools'],
 		},
 		'packages/markdown/remark': {
-			entry: [testEntry],
+			entry: [srcEntry, dtsEntry, testEntry],
 			// package.json#imports are not resolved at the moment
 			ignore: ['src/import-plugin-browser.ts', 'src/shiki-engine-workerd.ts'],
 		},

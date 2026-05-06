@@ -1,15 +1,9 @@
 {
-  "extends": "../../tsconfig.base.json",
-  "include": ["src", "dev-only.d.ts"],
-  "exclude": ["dist"],
-  "compilerOptions": {
-    "composite": true,
-    "rootDir": "./src",
-    "allowJs": true,
-    "declarationDir": "./dist",
-    "outDir": "./dist",
-    "jsx": "preserve",
-    "tsBuildInfoFile": "${configDir}/dist/._cache/tsconfig/tsbuildinfo.json",
-    "erasableSyntaxOnly": true
-  }
+  "extends": "../../configs/tsconfig.base.json",
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.build.json" },
+    { "path": "./tsconfig.test.json" },
+    { "path": "./components/tsconfig.json" }
+  ]
 }

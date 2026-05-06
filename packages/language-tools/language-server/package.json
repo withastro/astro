@@ -20,11 +20,10 @@
     "astro-ls": "./bin/nodeServer.js"
   },
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
+    "build": "tsc -b",
+    "dev": "tsc -b --watch",
     "test": "astro-scripts test \"**/*.test.ts\" --teardown-test ./test/misc/teardown.ts --tsx true --setup ./test/setup.ts",
-    "test:match": "pnpm run test --match",
-    "typecheck:tests": "tsc --build test/tsconfig.json"
+    "test:match": "pnpm run test --match"
   },
   "dependencies": {
     "@astrojs/compiler": "^2.13.1",

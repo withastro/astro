@@ -19,11 +19,10 @@
     "create-astro": "./create-astro.mjs"
   },
   "scripts": {
-    "build": "astro-scripts build \"src/index.ts\" --bundle && tsc",
+    "build": "astro-scripts build \"src/index.ts\" --bundle && tsc -b",
     "build:ci": "astro-scripts build \"src/index.ts\" --bundle",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "astro-scripts test \"test/**/*.test.ts\"",
-    "typecheck:tests": "tsc --build tsconfig.test.json"
+    "test": "astro-scripts test \"test/**/*.test.ts\""
   },
   "files": [
     "dist",

@@ -1411,7 +1411,7 @@ export interface AstroUserConfig<
 	 *
 	 * ```js title="astro.config.mjs"
 	 * import { defineConfig, sessionDrivers } from 'astro/config';
-
+	 *
 	 * export default defineConfig({
 	 *   session: {
 	 *     driver: sessionDrivers.redis({

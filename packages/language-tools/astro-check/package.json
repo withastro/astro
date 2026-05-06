@@ -26,8 +26,8 @@
     "dist/**/*.d.ts"
   ],
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
+    "build": "tsc -b",
+    "dev": "tsc -b --watch",
     "test": "astro-scripts test \"**/*.test.ts\"  --tsx true"
   },
   "dependencies": {
