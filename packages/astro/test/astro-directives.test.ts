@@ -11,7 +11,7 @@ describe('Directives', async () => {
 			root: './fixtures/astro-directives/',
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
-			outDir: './dist-astro-directives-directives/',
+			outDir: './dist/astro-directives-directives/',
 		});
 		await fixture.build();
 	});
@@ -131,7 +131,7 @@ describe('set:html dev', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-directives/',
-			outDir: './dist-astro-directives-set-html-dev/',
+			outDir: './dist/astro-directives-set-html-dev/',
 		});
 	});
 

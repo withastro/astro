@@ -24,7 +24,7 @@ describe('context.cache', () => {
 							'/api': { maxAge: -1 },
 						},
 					},
-					outDir: './dist-cache-route-context-cache/',
+					outDir: './dist/cache-route-context-cache/',
 				}),
 			(err: Error) => {
 				assert.ok(err.message.includes('maxAge'));
@@ -43,7 +43,7 @@ describe('context.cache', () => {
 					provider: { entrypoint: 'nonexistent-cache-provider-package' },
 				},
 			},
-			outDir: './dist-cache-route-context-cache/',
+			outDir: './dist/cache-route-context-cache/',
 		});
 		await assert.rejects(
 			() => fixture.build({}),
@@ -78,7 +78,7 @@ describe('context.cache', () => {
 						'/config-route': { maxAge: 600, tags: ['config'] },
 					},
 				},
-				outDir: './dist-cache-route-production-cdn-style-provider/',
+				outDir: './dist/cache-route-production-cdn-style-provider/',
 			});
 			await fixture.build({});
 			app = await fixture.loadTestAdapterApp();

@@ -11,7 +11,7 @@ describe('Building with concurrency > 1', () => {
 			build: {
 				concurrency: 2,
 			},
-			outDir: './dist-build-concurrency/',
+			outDir: './dist/build-concurrency/',
 		});
 	});
 

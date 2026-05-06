@@ -8,7 +8,7 @@ describe('Nested Slots', () => {
 
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/astro-slots-nested/',
-			outDir: './dist-astro-slots-nested/', });
+			outDir: './dist/astro-slots-nested/', });
 		await fixture.build();
 	});
 

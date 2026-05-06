@@ -14,7 +14,7 @@ describe('Scripts', () => {
 						assetsInlineLimit: 0,
 					},
 				},
-				outDir: './dist-astro-scripts-build/',
+				outDir: './dist/astro-scripts-build/',
 			});
 			await fixture.build();
 		});
@@ -86,7 +86,7 @@ describe('Scripts', () => {
 			before(async () => {
 				fixture = await loadFixture({
 					root: './fixtures/astro-scripts/',
-					outDir: './dist-astro-scripts-inlining/',
+					outDir: './dist/astro-scripts-inlining/',
 				});
 				await fixture.build();
 			});
@@ -128,7 +128,7 @@ describe('Scripts', () => {
 						assetsInlineLimit: 0,
 					},
 				},
-				outDir: './dist-astro-scripts-dev/',
+				outDir: './dist/astro-scripts-dev/',
 			});
 			devServer = await fixture.startDevServer();
 		});

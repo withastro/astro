@@ -26,7 +26,7 @@ describe('Asset Query Parameters (Adapter Client Config)', () => {
 					},
 				},
 			}),
-			outDir: './dist-asset-query-params-asset-query-parameters-adapter-client-co/',
+			outDir: './dist/asset-query-params-asset-query-parameters-adapter-client-co/',
 		});
 		await fixture.build();
 	});
@@ -78,7 +78,7 @@ describe('Asset Query Parameters with Fonts', () => {
 					},
 				},
 			}),
-			outDir: './dist-asset-query-params-asset-query-parameters-with-fonts/',
+			outDir: './dist/asset-query-params-asset-query-parameters-with-fonts/',
 		});
 		await fixture.build();
 	});
@@ -118,7 +118,7 @@ describe('Asset Query Parameters with Islands', () => {
 					},
 				},
 			}),
-			outDir: './dist-asset-query-params-asset-query-parameters-with-islands/',
+			outDir: './dist/asset-query-params-asset-query-parameters-with-islands/',
 		});
 		await fixture.build();
 	});
@@ -161,7 +161,7 @@ describe('Asset Query Parameters in Inter-Chunk JS Imports', () => {
 					},
 				},
 			}),
-			outDir: './dist-asset-query-params-asset-query-parameters-in-inter-chunk-js/',
+			outDir: './dist/asset-query-params-asset-query-parameters-in-inter-chunk-js/',
 		});
 		await fixture.build();
 	});
@@ -236,7 +236,7 @@ describe('Asset Query Parameters with Islands and assetsPrefix map', () => {
 			build: {
 				assetsPrefix: multiCdnAssetsPrefix,
 			},
-			outDir: './dist-asset-query-params-asset-query-parameters-with-islands-and-/',
+			outDir: './dist/asset-query-params-asset-query-parameters-with-islands-and-/',
 		});
 		await fixture.build();
 	});

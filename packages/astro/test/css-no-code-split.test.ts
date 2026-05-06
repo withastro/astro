@@ -11,7 +11,7 @@ describe('vite.build.cssCodeSplit: false', () => {
 			root: './fixtures/css-no-code-split/',
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
-			outDir: './dist-css-no-code-split/',
+			outDir: './dist/css-no-code-split/',
 		});
 		await fixture.build();
 	});

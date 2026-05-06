@@ -10,7 +10,7 @@ describe('Custom 404 locals', () => {
 		fixture = await loadFixture({
 			root: './fixtures/custom-404-locals/',
 			site: 'http://example.com',
-			outDir: './dist-custom-404-locals/',
+			outDir: './dist/custom-404-locals/',
 		});
 	});
 

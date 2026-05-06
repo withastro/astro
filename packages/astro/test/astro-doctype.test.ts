@@ -8,7 +8,7 @@ describe('Doctype', () => {
 
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/astro-doctype/',
-			outDir: './dist-astro-doctype/', });
+			outDir: './dist/astro-doctype/', });
 		await fixture.build();
 	});
 

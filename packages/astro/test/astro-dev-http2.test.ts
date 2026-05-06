@@ -10,7 +10,7 @@ describe('Astro HTTP/2 support', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-dev-http2/',
-			outDir: './dist-astro-dev-http2/',
+			outDir: './dist/astro-dev-http2/',
 		});
 		devServer = await fixture.startDevServer();
 	});

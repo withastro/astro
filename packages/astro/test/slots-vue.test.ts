@@ -8,7 +8,7 @@ describe('Slots: Vue', () => {
 
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/slots-vue/',
-			outDir: './dist-slots-vue/', });
+			outDir: './dist/slots-vue/', });
 		await fixture.build();
 	});
 

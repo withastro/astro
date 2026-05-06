@@ -8,7 +8,7 @@ describe('Component children', () => {
 
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/astro-children/',
-			outDir: './dist-astro-children/', });
+			outDir: './dist/astro-children/', });
 		await fixture.build();
 	});
 

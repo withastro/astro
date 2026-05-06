@@ -7,7 +7,7 @@ describe('API routes', () => {
 
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/api-routes/',
-			outDir: './dist-api-routes/', });
+			outDir: './dist/api-routes/', });
 		await fixture.build();
 	});
 

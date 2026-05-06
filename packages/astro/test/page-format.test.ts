@@ -9,7 +9,7 @@ describe('build.format', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/page-format/',
-				outDir: './dist-page-format-directory/',
+				outDir: './dist/page-format-directory/',
 			});
 		});
 
@@ -34,7 +34,7 @@ describe('build.format', () => {
 				build: {
 					format: 'file',
 				},
-				outDir: './dist-page-format-file/',
+				outDir: './dist/page-format-file/',
 			});
 		});
 
@@ -73,7 +73,7 @@ describe('build.format', () => {
 				build: {
 					format: 'preserve',
 				},
-				outDir: './dist-page-format-preserve-i18n/',
+				outDir: './dist/page-format-preserve-i18n/',
 			});
 		});
 
@@ -108,7 +108,7 @@ describe('build.format', () => {
 						redirectToDefaultLocale: true,
 					},
 				},
-				outDir: './dist-page-format-preserve-i18n/',
+				outDir: './dist/page-format-preserve-i18n/',
 			});
 		});
 

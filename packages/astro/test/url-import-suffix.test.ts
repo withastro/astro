@@ -9,7 +9,7 @@ describe('imports using ?url suffix', () => {
 
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/url-import-suffix/',
-			outDir: './dist-url-import-suffix-imports-using-url-suffix/', });
+			outDir: './dist/url-import-suffix-imports-using-url-suffix/', });
 		await fixture.build();
 	});
 
@@ -33,7 +33,7 @@ describe('imports using ?url&no-inline suffix', () => {
 
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/url-import-suffix/',
-			outDir: './dist-url-import-suffix-imports-using-url-no-inline-suffix/', });
+			outDir: './dist/url-import-suffix-imports-using-url-no-inline-suffix/', });
 		await fixture.build();
 	});
 

@@ -12,7 +12,7 @@ describe('Astro.cookies', () => {
 			root: './fixtures/astro-cookies/',
 			output: 'server',
 			adapter: testAdapter(),
-			outDir: './dist-astro-cookies/',
+			outDir: './dist/astro-cookies/',
 		});
 	});
 

@@ -24,6 +24,7 @@ describe('API routes in SSR', () => {
 		security: {
 			checkOrigin: false,
 		},
+		outDir: './dist/ssr-api-route/',
 	};
 
 	describe('Build', () => {

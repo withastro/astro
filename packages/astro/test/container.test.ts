@@ -288,7 +288,7 @@ describe('Container with renderers', () => {
 			root: new URL('./fixtures/container-custom-renderers/', import.meta.url),
 			output: 'server',
 			adapter: testAdapter(),
-			outDir: './dist-container/',
+			outDir: './dist/container/',
 		});
 		await fixture.build();
 		app = await fixture.loadTestAdapterApp();

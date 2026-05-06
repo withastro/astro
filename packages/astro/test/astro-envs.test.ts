@@ -14,7 +14,7 @@ describe('Environment Variables', () => {
 			process.env.BOOLEAN_VAR = 'true';
 			process.env.NUMBER_VAR = '1';
 			fixture = await loadFixture({ root,
-				outDir: './dist-astro-envs-build/', });
+				outDir: './dist/astro-envs-build/', });
 			await fixture.build({});
 		});
 
@@ -112,7 +112,7 @@ describe('Environment Variables', () => {
 
 		before(async () => {
 			fixture = await loadFixture({ root,
-				outDir: './dist-astro-envs-development/', });
+				outDir: './dist/astro-envs-development/', });
 			devServer = await fixture.startDevServer();
 		});
 		after(async () => {
@@ -153,7 +153,7 @@ describe('Environment Variables', () => {
 				root,
 				output: 'server',
 				adapter: testAdapter(),
-				outDir: './dist-astro-envs-ssr/',
+				outDir: './dist/astro-envs-ssr/',
 			});
 			process.env.SECRET_PLACE = 'SECRET_PLACE_BUILD';
 			await fixture.build({});

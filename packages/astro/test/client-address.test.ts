@@ -13,7 +13,7 @@ describe('Astro.clientAddress', () => {
 				root: './fixtures/client-address/',
 				output: 'server',
 				adapter: testAdapter(),
-				outDir: './dist-client-address-ssr/',
+				outDir: './dist/client-address-ssr/',
 			});
 		});
 
@@ -74,7 +74,7 @@ describe('Astro.clientAddress', () => {
 				root: './fixtures/client-address/',
 				output: 'server',
 				adapter: testAdapter({ provideAddress: false }),
-				outDir: './dist-client-address-ssr-adapter-not-implemented/',
+				outDir: './dist/client-address-ssr-adapter-not-implemented/',
 			});
 			await fixture.build();
 		});
@@ -94,7 +94,7 @@ describe('Astro.clientAddress', () => {
 			fixture = await loadFixture({
 				root: './fixtures/client-address/',
 				output: 'static',
-				outDir: './dist-client-address-ssg/',
+				outDir: './dist/client-address-ssg/',
 			});
 		});
 

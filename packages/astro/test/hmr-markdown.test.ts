@@ -11,7 +11,7 @@ describe('HMR: Markdown updates', () => {
 
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/hmr-markdown/',
-			outDir: './dist-hmr-markdown/', });
+			outDir: './dist/hmr-markdown/', });
 		devServer = await fixture.startDevServer();
 
 		markdownPath = '/src/content/blog/post.md';

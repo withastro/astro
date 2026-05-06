@@ -25,7 +25,7 @@ describe('astro fonts', () => {
 							weights: [400, 500],
 						},
 					],
-					outDir: './dist-fonts-shared/',
+					outDir: './dist/fonts-shared/',
 				});
 				await fixture.clean();
 				devServer = await fixture.startDevServer();
@@ -135,7 +135,7 @@ describe('astro fonts', () => {
 							weights: [400, 500],
 						},
 					],
-					outDir: './dist-fonts-respects-config-to-build-links/',
+					outDir: './dist/fonts-respects-config-to-build-links/',
 				});
 				await fixture.clean();
 				devServer = await fixture.startDevServer();
@@ -168,7 +168,7 @@ describe('astro fonts', () => {
 							weights: [400, 500],
 						},
 					],
-					outDir: './dist-fonts-shared/',
+					outDir: './dist/fonts-shared/',
 				});
 				await fixture.build();
 			});
@@ -241,7 +241,7 @@ describe('astro fonts', () => {
 							weights: [400, 500],
 						},
 					],
-					outDir: './dist-fonts-respects-config-to-build-links/',
+					outDir: './dist/fonts-respects-config-to-build-links/',
 				});
 				await fixture.build();
 			});
@@ -283,7 +283,7 @@ describe('astro fonts', () => {
 						weights: [400, 500],
 					},
 				],
-				outDir: './dist-fonts-ssr/',
+				outDir: './dist/fonts-ssr/',
 			});
 			await fixture.build();
 			const app = await fixture.loadTestAdapterApp();

@@ -9,7 +9,7 @@ describe('NodeClientAddress', () => {
 		it('clientAddress is 1.1.1.1', async () => {
 			const fixture = await loadFixture({
 				root: './fixtures/client-address-node/',
-				outDir: './dist-client-address-node-single-value/',
+				outDir: './dist/client-address-node-single-value/',
 			});
 			await fixture.build();
 			const handle = await fixture.loadNodeAdapterHandler();
@@ -32,7 +32,7 @@ describe('NodeClientAddress', () => {
 		it('clientAddress is 1.1.1.1', async () => {
 			const fixture = await loadFixture({
 				root: './fixtures/client-address-node/',
-				outDir: './dist-client-address-node-multiple-values/',
+				outDir: './dist/client-address-node-multiple-values/',
 			});
 			await fixture.build();
 			const handle = await fixture.loadNodeAdapterHandler();

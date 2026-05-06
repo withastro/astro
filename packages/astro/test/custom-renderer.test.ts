@@ -9,7 +9,7 @@ describe('Custom Renderer - SSR', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/custom-renderer/',
-			outDir: './dist-custom-renderer/',
+			outDir: './dist/custom-renderer/',
 		});
 	});
 

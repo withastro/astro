@@ -8,7 +8,7 @@ describe('@fontsource/* packages', () => {
 
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/fontsource-package/',
-			outDir: './dist-fontsource/', });
+			outDir: './dist/fontsource/', });
 		await fixture.build();
 	});
 

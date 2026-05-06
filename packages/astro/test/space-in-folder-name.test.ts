@@ -9,7 +9,7 @@ describe('Projects with a space in the folder name', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/space in folder name/app/',
-			outDir: './dist-space-in-folder-name/',
+			outDir: './dist/space-in-folder-name/',
 		});
 	});
 

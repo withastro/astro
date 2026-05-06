@@ -8,7 +8,7 @@ describe('Global Fetch', () => {
 
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/fetch/',
-			outDir: './dist-fetch/', });
+			outDir: './dist/fetch/', });
 		await fixture.build();
 	});
 

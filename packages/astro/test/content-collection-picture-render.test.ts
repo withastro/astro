@@ -12,7 +12,7 @@ describe('Content collection with Picture component and render()', () => {
 
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/content-collection-picture-render/',
-			outDir: './dist-content-collection-picture-render/', });
+			outDir: './dist/content-collection-picture-render/', });
 	});
 
 	describe('Build', () => {

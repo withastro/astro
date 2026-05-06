@@ -16,7 +16,7 @@ describe('Adapter', () => {
 						supportedAstroFeatures: {},
 					},
 				}),
-				outDir: './dist-featuresSupport-adapter/',
+				outDir: './dist/featuresSupport-adapter/',
 			});
 			await fixture.build();
 		} catch (e) {
@@ -39,7 +39,7 @@ describe('Adapter', () => {
 						supportedAstroFeatures: {},
 					},
 				}),
-				outDir: './dist-featuresSupport-adapter/',
+				outDir: './dist/featuresSupport-adapter/',
 			});
 			await fixture.build();
 		} catch (e) {

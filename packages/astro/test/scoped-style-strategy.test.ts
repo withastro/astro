@@ -14,7 +14,7 @@ describe('scopedStyleStrategy', () => {
 				scopedStyleStrategy: 'where',
 				// test suite was authored when inlineStylesheets defaulted to never
 				build: { inlineStylesheets: 'never' },
-				outDir: './dist-scoped-style-strategy-scopedstylestrategy/',
+				outDir: './dist/scoped-style-strategy-scopedstylestrategy/',
 			});
 			await fixture.build();
 
@@ -44,7 +44,7 @@ describe('scopedStyleStrategy', () => {
 				scopedStyleStrategy: 'class',
 				// test suite was authored when inlineStylesheets defaulted to never
 				build: { inlineStylesheets: 'never' },
-				outDir: './dist-scoped-style-strategy-scopedstylestrategy/',
+				outDir: './dist/scoped-style-strategy-scopedstylestrategy/',
 			});
 			await fixture.build();
 
@@ -73,7 +73,7 @@ describe('scopedStyleStrategy', () => {
 				root: './fixtures/scoped-style-strategy/',
 				// test suite was authored when inlineStylesheets defaulted to never
 				build: { inlineStylesheets: 'never' },
-				outDir: './dist-scoped-style-strategy-default/',
+				outDir: './dist/scoped-style-strategy-default/',
 			});
 			await fixture.build();
 

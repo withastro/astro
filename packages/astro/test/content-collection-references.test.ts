@@ -51,7 +51,7 @@ describe('Content Collections - references', () => {
 	let devServer: DevServer;
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/content-collection-references/',
-			outDir: './dist-content-collection-references/', });
+			outDir: './dist/content-collection-references/', });
 	});
 
 	const modes = ['dev', 'prod'];

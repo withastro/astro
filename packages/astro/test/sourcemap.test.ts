@@ -7,7 +7,7 @@ describe('Sourcemap', async () => {
 
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/sourcemap/',
-			outDir: './dist-sourcemap/', });
+			outDir: './dist/sourcemap/', });
 		await fixture.build();
 	});
 

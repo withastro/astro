@@ -8,7 +8,7 @@ describe('Integration addPageExtension', () => {
 
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/integration-add-page-extension/',
-			outDir: './dist-integration-add-page-extension/', });
+			outDir: './dist/integration-add-page-extension/', });
 		await fixture.build();
 	});
 

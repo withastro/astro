@@ -8,7 +8,7 @@ describe('Astro Markdown Shiki', () => {
 
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/astro-markdown-shiki/langs/',
-			outDir: './dist-astro-markdown-shiki/', });
+			outDir: './dist/astro-markdown-shiki/', });
 		await fixture.build();
 	});
 

@@ -21,7 +21,7 @@ describe('Static build: dir takes the URL path to the output directory', () => {
 					},
 				},
 			],
-			outDir: './dist-static-build-dir/',
+			outDir: './dist/static-build-dir/',
 		});
 		await fixture.build();
 	});
@@ -30,7 +30,7 @@ describe('Static build: dir takes the URL path to the output directory', () => {
 		assert.equal(
 			removeTrailingSlash(checkDir.toString()),
 			removeTrailingSlash(
-				new URL('./fixtures/static-build-dir/dist-static-build-dir', import.meta.url).toString(),
+				new URL('./fixtures/static-build-dir/dist/static-build-dir', import.meta.url).toString(),
 			),
 		);
 		assert.equal(checkDir.toString(), checkGeneratedDir.toString());

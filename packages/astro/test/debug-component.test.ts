@@ -10,7 +10,7 @@ if (!isMacOS) {
 
 		before(async () => {
 			fixture = await loadFixture({ root: './fixtures/debug-component/',
-				outDir: './dist-debug-component/', });
+				outDir: './dist/debug-component/', });
 			devServer = await fixture.startDevServer();
 		});
 

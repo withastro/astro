@@ -10,7 +10,7 @@ describe('Custom 404 with injectRoute', () => {
 		fixture = await loadFixture({
 			root: './fixtures/custom-404-injected/',
 			site: 'http://example.com',
-			outDir: './dist-custom-404-injected/',
+			outDir: './dist/custom-404-injected/',
 		});
 	});
 

@@ -16,7 +16,7 @@ describe('Prerender', () => {
 					adapter: testAdapter(),
 					base: '/blog',
 					output: 'server',
-					outDir: './dist-ssr-prerender-get-static-paths-getstaticpaths-build-calls/',
+					outDir: './dist/ssr-prerender-get-static-paths-getstaticpaths-build-calls/',
 				});
 				await fixture.build();
 			});
@@ -136,7 +136,7 @@ describe('Prerender', () => {
 					vite: {
 						plugins: [vitePluginRemovePrerenderExport()],
 					},
-					outDir: './dist-ssr-prerender-get-static-paths-getstaticpaths-build-calls/',
+					outDir: './dist/ssr-prerender-get-static-paths-getstaticpaths-build-calls/',
 				});
 				await fixture.build();
 			});

@@ -9,7 +9,7 @@ describe.skip('Vue component build', { todo: 'This test currently times out, inv
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/vue-component/',
-			outDir: './dist-vue-component-1/',
+			outDir: './dist/vue-component-1/',
 		});
 		await fixture.build();
 	});
@@ -51,7 +51,7 @@ if (!isWindows) {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/vue-component/',
-				outDir: './dist-vue-component-2/',
+				outDir: './dist/vue-component-2/',
 			});
 			devServer = await fixture.startDevServer();
 		});

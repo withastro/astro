@@ -8,7 +8,7 @@ describe('<Code>', () => {
 
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/astro-component-code/',
-			outDir: './dist-astro-component-code/', });
+			outDir: './dist/astro-component-code/', });
 		await fixture.build();
 	});
 

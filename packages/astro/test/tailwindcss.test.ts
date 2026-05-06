@@ -9,7 +9,7 @@ describe('Tailwind', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/tailwindcss/',
-			outDir: './dist-tailwindcss/',
+			outDir: './dist/tailwindcss/',
 		});
 	});
 

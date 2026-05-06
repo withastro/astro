@@ -11,7 +11,7 @@ describe('Content collection with SVG image and TLA', () => {
 
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/content-collection-tla-svg/',
-			outDir: './dist-content-collection-tla-svg/', });
+			outDir: './dist/content-collection-tla-svg/', });
 	});
 
 	describe('Build', () => {

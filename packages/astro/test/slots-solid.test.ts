@@ -8,7 +8,7 @@ describe('Slots: Solid', () => {
 
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/slots-solid/',
-			outDir: './dist-slots-solid/', });
+			outDir: './dist/slots-solid/', });
 		await fixture.build();
 	});
 

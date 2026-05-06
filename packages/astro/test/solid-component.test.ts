@@ -8,7 +8,7 @@ describe.skip('Solid component build', { todo: 'Check why an error is thrown.' }
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/solid-component/',
-			outDir: './dist-solid-component-1/',
+			outDir: './dist/solid-component-1/',
 		});
 		await fixture.build();
 	});
@@ -139,7 +139,7 @@ describe.skip('Solid component dev', { todo: 'Check why the test hangs.', skip: 
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/solid-component/',
-			outDir: './dist-solid-component-2/',
+			outDir: './dist/solid-component-2/',
 		});
 		devServer = await fixture.startDevServer();
 	});

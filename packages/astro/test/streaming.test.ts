@@ -14,7 +14,7 @@ describe('Streaming', () => {
 			root: './fixtures/streaming/',
 			adapter: testAdapter(),
 			output: 'server',
-			outDir: './dist-streaming-streaming/',
+			outDir: './dist/streaming-streaming/',
 		});
 	});
 
@@ -123,7 +123,7 @@ describe('Streaming disabled', () => {
 				// However it seems that the streaming option is not currently used thus the `streaming: false` here is a no-op at runtime. Further investigation is needed.œ
 				streaming: false,
 			},
-			outDir: './dist-streaming-streaming-disabled/',
+			outDir: './dist/streaming-streaming-disabled/',
 		});
 	});
 

@@ -9,7 +9,7 @@ describe('HTML Slots', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/html-slots/',
-			outDir: './dist-html-slots/',
+			outDir: './dist/html-slots/',
 		});
 	});
 

@@ -11,7 +11,7 @@ describe('core/render chunk', () => {
 		fixture = await loadFixture({
 			root: './fixtures/dev-render/',
 			logLevel: 'silent',
-			outDir: './dist-dev-render-chunk/',
+			outDir: './dist/dev-render-chunk/',
 		});
 		devServer = await fixture.startDevServer();
 	});

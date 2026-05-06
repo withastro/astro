@@ -14,7 +14,7 @@ describe('AstroConfig - config.output', () => {
 					root: './fixtures/astro-basic/',
 					adapter: testAdapter(),
 					output: 'server',
-					outDir: './dist-config-mode-deploy-config-provided/',
+					outDir: './dist/config-mode-deploy-config-provided/',
 				});
 				await fixture.build();
 			});
@@ -38,7 +38,7 @@ describe('AstroConfig - config.output', () => {
 					// This is just a random fixture to test, doesn't matter.
 					root: './fixtures/astro-basic/',
 					output: 'server',
-					outDir: './dist-config-mode-deploy-config-omitted/',
+					outDir: './dist/config-mode-deploy-config-omitted/',
 				});
 			});
 
@@ -66,7 +66,7 @@ describe('AstroConfig - config.output', () => {
 					// This is just a random fixture to test, doesn't matter.
 					root: './fixtures/astro-basic/',
 					output: 'static',
-					outDir: './dist-config-mode-output-config-omitted/',
+					outDir: './dist/config-mode-output-config-omitted/',
 				});
 				await fixture.build();
 			});
@@ -91,7 +91,7 @@ describe('AstroConfig - config.output', () => {
 					root: './fixtures/astro-basic/',
 					adapter: testAdapter(),
 					output: 'server',
-					outDir: './dist-config-mode-output-config-omitted/',
+					outDir: './dist/config-mode-output-config-omitted/',
 				});
 				await fixture.build();
 			});

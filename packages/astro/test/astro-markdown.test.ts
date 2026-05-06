@@ -21,7 +21,7 @@ describe('Astro Markdown', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: FIXTURE_ROOT,
-			outDir: './dist-astro-markdown-astro-markdown/',
+			outDir: './dist/astro-markdown-astro-markdown/',
 		});
 		await fixture.build();
 	});
@@ -67,7 +67,7 @@ describe('Astro Markdown', () => {
 				markdown: {
 					syntaxHighlight: 'prism',
 				},
-				outDir: './dist-astro-markdown-syntax-highlighting/',
+				outDir: './dist/astro-markdown-syntax-highlighting/',
 			});
 			await prismFixture.build();
 

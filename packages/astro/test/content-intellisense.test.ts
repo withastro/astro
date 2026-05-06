@@ -23,11 +23,11 @@ describe('Content Intellisense', () => {
 
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/content-intellisense/',
-			outDir: './dist-content-intellisense/', });
+			outDir: './dist/content-intellisense/', });
 		await fixture.build();
 
-		collectionsDir = await fixture.readdir('../.astro/collections');
-		manifest = JSON.parse(await fixture.readFile('../.astro/collections/collections.json'));
+		collectionsDir = await fixture.readdir('../../.astro/collections');
+		manifest = JSON.parse(await fixture.readFile('../../.astro/collections/collections.json'));
 		collections = JSON.parse(await fixture.readFile('index.json'));
 	});
 
@@ -48,7 +48,7 @@ describe('Content Intellisense', () => {
 	});
 
 	it('generates a record JSON schema for the file loader', async () => {
-		const schema = JSON.parse(await fixture.readFile('../.astro/collections/data-cl.schema.json'));
+		const schema = JSON.parse(await fixture.readFile('../../.astro/collections/data-cl.schema.json'));
 		assert.equal(schema.type, 'object');
 		assert.equal(schema.additionalProperties.type, 'object');
 		assert.deepEqual(schema.additionalProperties.properties, {
@@ -117,7 +117,7 @@ describe('Content Intellisense', () => {
 
 	it('uses the Zod input shape to generate the JSON schema', async () => {
 		const schema = JSON.parse(
-			await fixture.readFile('../.astro/collections/io-differences.schema.json'),
+			await fixture.readFile('../../.astro/collections/io-differences.schema.json'),
 		);
 		assert.deepEqual(schema.properties.optionalWithDefault, {
 			type: 'string',

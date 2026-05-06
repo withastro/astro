@@ -13,7 +13,7 @@ describe('Middleware in DEV mode', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/middleware space/',
-			outDir: './dist-middleware-middleware-in-dev-mode/',
+			outDir: './dist/middleware-middleware-in-dev-mode/',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -55,7 +55,7 @@ describe('Integration hooks with no user middleware', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/middleware-no-user-middleware/',
-			outDir: './dist-middleware-integration-hooks-with-no-user-middlewar/',
+			outDir: './dist/middleware-integration-hooks-with-no-user-middlewar/',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -91,7 +91,7 @@ describe('Middleware should not be executed or imported during', () => {
 			root: './fixtures/middleware-full-ssr/',
 			output: 'server',
 			adapter: testAdapter({}),
-			outDir: './dist-middleware-middleware-should-not-be-executed-or-imp/',
+			outDir: './dist/middleware-middleware-should-not-be-executed-or-imp/',
 		});
 		await fixture.build();
 		assert.ok('Should build');
@@ -108,7 +108,7 @@ describe('Middleware API in PROD mode, SSR', () => {
 			root: './fixtures/middleware space/',
 			output: 'server',
 			adapter: testAdapter({}),
-			outDir: './dist-middleware-middleware-api-in-prod-mode-ssr/',
+			outDir: './dist/middleware-middleware-api-in-prod-mode-ssr/',
 		});
 		await fixture.build();
 		app = await fixture.loadTestAdapterApp();
@@ -160,7 +160,7 @@ describe('Middleware API in PROD mode, SSR', () => {
 					middlewarePath = middlewareEntryPoint;
 				},
 			}),
-			outDir: './dist-middleware-path-encoding-in-middleware/',
+			outDir: './dist/middleware-path-encoding-in-middleware/',
 		});
 		await fixture.build();
 		assert.ok(middlewarePath);
@@ -181,7 +181,7 @@ describe('Middleware with tailwind', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/middleware-tailwind/',
-			outDir: './dist-middleware-middleware-with-tailwind/',
+			outDir: './dist/middleware-middleware-with-tailwind/',
 		});
 		await fixture.build();
 	});
@@ -204,7 +204,7 @@ describe('Middleware sequence rewrites', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/middleware-sequence-rewrite/',
-			outDir: './dist-middleware-middleware-sequence-rewrites/',
+			outDir: './dist/middleware-middleware-sequence-rewrites/',
 		});
 		devServer = await fixture.startDevServer();
 	});

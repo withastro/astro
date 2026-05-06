@@ -9,7 +9,7 @@ describe('View Transitions styles', () => {
 
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/view-transitions/',
-			outDir: './dist-view-transitions/', });
+			outDir: './dist/view-transitions/', });
 		devServer = await fixture.startDevServer();
 	});
 

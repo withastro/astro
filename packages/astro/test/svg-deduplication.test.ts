@@ -11,7 +11,7 @@ describe('SVG Deduplication', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/svg-deduplication/',
-				outDir: './dist-svg-deduplication-build/',
+				outDir: './dist/svg-deduplication-build/',
 			});
 			await fixture.build();
 		});
@@ -77,7 +77,7 @@ describe('SVG Deduplication', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/svg-deduplication/',
-				outDir: './dist-svg-deduplication-dev/',
+				outDir: './dist/svg-deduplication-dev/',
 			});
 			devServer = await fixture.startDevServer();
 		});

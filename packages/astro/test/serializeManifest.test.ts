@@ -14,7 +14,7 @@ describe('astro:config/client', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/astro-manifest/',
-				outDir: './dist-serializeManifest-in-dev/',
+				outDir: './dist/serializeManifest-in-dev/',
 			});
 			devServer = await fixture.startDevServer();
 		});
@@ -56,7 +56,7 @@ describe('astro:config/client', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/astro-manifest/',
-				outDir: './dist-serializeManifest-when-the-experimental-flag-is-enabled-in/',
+				outDir: './dist/serializeManifest-when-the-experimental-flag-is-enabled-in/',
 			});
 			await fixture.build();
 		});
@@ -99,7 +99,7 @@ describe('astro:config/client in a client script', () => {
 				root: './fixtures/astro-manifest-client-script/',
 				adapter: testAdapter(),
 				output: 'server',
-				outDir: './dist-serializeManifest-when-build/',
+				outDir: './dist/serializeManifest-when-build/',
 			});
 		});
 
@@ -119,7 +119,7 @@ describe('astro:config/server', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/astro-manifest-invalid/',
-				outDir: './dist-serializeManifest-when-build/',
+				outDir: './dist/serializeManifest-when-build/',
 			});
 		});
 
@@ -134,7 +134,7 @@ describe('astro:config/server', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/astro-manifest/',
-				outDir: './dist-serializeManifest-in-dev/',
+				outDir: './dist/serializeManifest-in-dev/',
 			});
 			devServer = await fixture.startDevServer();
 		});
@@ -148,12 +148,12 @@ describe('astro:config/server', () => {
 			const html = await response.text();
 			const $ = cheerio.load(html);
 
-			assert.ok($('#out-dir').text().endsWith('/dist-serializeManifest-in-dev/'));
+			assert.ok($('#out-dir').text().endsWith('/dist/serializeManifest-in-dev/'));
 			assert.ok($('#src-dir').text().endsWith('/src/'));
 			assert.ok($('#cache-dir').text().endsWith('/.astro/'));
 			assert.ok($('#root').text().endsWith('/'));
-			assert.ok($('#build-client').text().endsWith('/dist-serializeManifest-in-dev/client/'));
-			assert.ok($('#build-server').text().endsWith('/dist-serializeManifest-in-dev/server/'));
+			assert.ok($('#build-client').text().endsWith('/dist/serializeManifest-in-dev/client/'));
+			assert.ok($('#build-server').text().endsWith('/dist/serializeManifest-in-dev/server/'));
 			// URL
 			assert.equal($('#root-url').text(), 'true');
 		});
@@ -163,7 +163,7 @@ describe('astro:config/server', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/astro-manifest/',
-				outDir: './dist-serializeManifest-when-the-experimental-flag-is-enabled-in/',
+				outDir: './dist/serializeManifest-when-the-experimental-flag-is-enabled-in/',
 			});
 			await fixture.build();
 		});
@@ -174,7 +174,7 @@ describe('astro:config/server', () => {
 			assert.ok(
 				$('#out-dir')
 					.text()
-					.endsWith('/dist-serializeManifest-when-the-experimental-flag-is-enabled-in/'),
+					.endsWith('/dist/serializeManifest-when-the-experimental-flag-is-enabled-in/'),
 			);
 			assert.ok($('#src-dir').text().endsWith('/src/'));
 			assert.ok($('#cache-dir').text().endsWith('/.astro/'));
@@ -182,12 +182,12 @@ describe('astro:config/server', () => {
 			assert.ok(
 				$('#build-client')
 					.text()
-					.endsWith('/dist-serializeManifest-when-the-experimental-flag-is-enabled-in/client/'),
+					.endsWith('/dist/serializeManifest-when-the-experimental-flag-is-enabled-in/client/'),
 			);
 			assert.ok(
 				$('#build-server')
 					.text()
-					.endsWith('/dist-serializeManifest-when-the-experimental-flag-is-enabled-in/server/'),
+					.endsWith('/dist/serializeManifest-when-the-experimental-flag-is-enabled-in/server/'),
 			);
 			// URL
 			assert.equal($('#root-url').text(), 'true');
@@ -200,7 +200,7 @@ describe('astro:config/server', () => {
 				root: './fixtures/astro-manifest/',
 				adapter: testAdapter(),
 				output: 'server',
-				outDir: './dist-serializeManifest-when-the-experimental-flag-is-enabled-in-ssr/',
+				outDir: './dist/serializeManifest-when-the-experimental-flag-is-enabled-in-ssr/',
 			});
 
 			await fixture.build();
@@ -216,7 +216,7 @@ describe('astro:config/server', () => {
 			assert.ok(
 				$('#out-dir')
 					.text()
-					.endsWith('/dist-serializeManifest-when-the-experimental-flag-is-enabled-in-ssr/'),
+					.endsWith('/dist/serializeManifest-when-the-experimental-flag-is-enabled-in-ssr/'),
 			);
 			assert.ok($('#src-dir').text().endsWith('/src/'));
 			assert.ok($('#cache-dir').text().endsWith('/.astro/'));
@@ -224,12 +224,12 @@ describe('astro:config/server', () => {
 			assert.ok(
 				$('#build-client')
 					.text()
-					.endsWith('/dist-serializeManifest-when-the-experimental-flag-is-enabled-in-ssr/client/'),
+					.endsWith('/dist/serializeManifest-when-the-experimental-flag-is-enabled-in-ssr/client/'),
 			);
 			assert.ok(
 				$('#build-server')
 					.text()
-					.endsWith('/dist-serializeManifest-when-the-experimental-flag-is-enabled-in-ssr/server/'),
+					.endsWith('/dist/serializeManifest-when-the-experimental-flag-is-enabled-in-ssr/server/'),
 			);
 			// URL
 			assert.equal($('#root-url').text(), 'true');
