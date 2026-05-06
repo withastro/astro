@@ -100,6 +100,42 @@ declare const Astro: {
 			this.start();
 		}
 
+		private getRetryImportUrl(url: string) {
+			const parsed = new URL(url, document.baseURI);
+			const retryToken = `astro-retry=${Date.now()}`;
+			const currentHash = parsed.hash.replace(/^#/, '');
+			parsed.hash = currentHash ? `${currentHash}&${retryToken}` : retryToken;
+			return parsed.toString();
+		}
+
+		private async importWithRetry(url: string) {
+			try {
+				return await import(url);
+			} catch {
+				// Use a hash-based retry URL so we bypass failed module-cache state in the browser
+				// while keeping the same network request URL (hash is not sent to the server).
+				await new Promise((resolve) => setTimeout(resolve, 1000));
+				return import(this.getRetryImportUrl(url));
+			}
+		}
+
+		private handleHydrationError(error: unknown) {
+			const componentUrl = this.getAttribute('component-url');
+			const event = new CustomEvent('astro:hydration-error', {
+				cancelable: true,
+				bubbles: true,
+				composed: true,
+				detail: {
+					error,
+					componentUrl,
+				},
+			});
+			const shouldLogError = this.dispatchEvent(event);
+			if (shouldLogError) {
+				console.error(`[astro-island] Error hydrating ${componentUrl}`, error);
+			}
+		}
+
 		async start() {
 			const opts = JSON.parse(this.getAttribute('opts')!) as Record<string, any>;
 			const directive = this.getAttribute('client') as directiveAstroKeys;
@@ -111,38 +147,46 @@ declare const Astro: {
 				await Astro[directive]!(
 					async () => {
 						const rendererUrl = this.getAttribute('renderer-url');
-						const [componentModule, { default: hydrator }] = await Promise.all([
-							import(this.getAttribute('component-url')!),
-							rendererUrl ? import(rendererUrl) : () => () => {},
-						]);
-						const componentExport = this.getAttribute('component-export') || 'default';
-						if (!componentExport.includes('.')) {
-							if (FORBIDDEN_COMPONENT_EXPORT_KEYS.has(componentExport)) {
-								throw new Error(`Invalid component export path: ${componentExport}`);
-							}
-							this.Component = componentModule[componentExport];
-						} else {
-							this.Component = componentModule;
-							for (const part of componentExport.split('.')) {
-								if (
-									FORBIDDEN_COMPONENT_EXPORT_KEYS.has(part) ||
-									!this.Component ||
-									(typeof this.Component !== 'object' && typeof this.Component !== 'function') ||
-									!Object.hasOwn(this.Component, part)
-								) {
+						try {
+							const [componentModule, { default: hydrator }] = await Promise.all([
+								this.importWithRetry(this.getAttribute('component-url')!),
+								rendererUrl
+									? this.importWithRetry(rendererUrl)
+									: Promise.resolve({ default: () => () => {} }),
+							]);
+							const componentExport = this.getAttribute('component-export') || 'default';
+							if (!componentExport.includes('.')) {
+								if (FORBIDDEN_COMPONENT_EXPORT_KEYS.has(componentExport)) {
 									throw new Error(`Invalid component export path: ${componentExport}`);
 								}
-								this.Component = this.Component[part];
+								this.Component = componentModule[componentExport];
+							} else {
+								this.Component = componentModule;
+								for (const part of componentExport.split('.')) {
+									if (
+										FORBIDDEN_COMPONENT_EXPORT_KEYS.has(part) ||
+										!this.Component ||
+										(typeof this.Component !== 'object' && typeof this.Component !== 'function') ||
+										!Object.hasOwn(this.Component, part)
+									) {
+										throw new Error(`Invalid component export path: ${componentExport}`);
+									}
+									this.Component = this.Component[part];
+								}
 							}
+							this.hydrator = hydrator;
+							return this.hydrate;
+						} catch (error) {
+							// Handle import failures here so client directives don't leak rejections.
+							this.handleHydrationError(error);
+							return () => {};
 						}
-						this.hydrator = hydrator;
-						return this.hydrate;
 					},
 					opts,
 					this,
 				);
-			} catch (e) {
-				console.error('[astro-island] Error hydrating %s', this.getAttribute('component-url'), e);
+			} catch (error) {
+				this.handleHydrationError(error);
 			}
 		}
 
