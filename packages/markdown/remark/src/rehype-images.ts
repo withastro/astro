@@ -44,6 +44,12 @@ export function rehypeImages() {
 				return;
 			}
 
+			// mdast-util-to-hast omits alt when the markdown image has empty alt
+			// text (`![](url)`); restore it so the rendered <img> includes alt.
+			if (typeof imageProperties.alt !== 'string') {
+				imageProperties.alt = '';
+			}
+
 			// Separate HAST-only properties from image processing properties
 			const hastProperties: Properties = {};
 			for (const key of HAST_PRESERVED_PROPERTIES) {
