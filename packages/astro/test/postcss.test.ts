@@ -13,6 +13,7 @@ describe('PostCSS', () => {
 				root: './fixtures/postcss',
 				// test suite was authored when inlineStylesheets defaulted to never
 				build: { inlineStylesheets: 'never' },
+				outDir: './dist/postcss/',
 			});
 			await fixture.build();
 

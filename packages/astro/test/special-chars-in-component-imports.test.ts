@@ -19,6 +19,7 @@ describe('Special chars in component import paths', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/special-chars-in-component-imports/',
+			outDir: './dist/special-chars-in-component-imports/',
 		});
 	});
 

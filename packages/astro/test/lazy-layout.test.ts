@@ -11,6 +11,7 @@ describe('Lazily imported layouts', () => {
 			root: './fixtures/lazy-layout/',
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist/lazy-layout/',
 		});
 		await fixture.build();
 	});

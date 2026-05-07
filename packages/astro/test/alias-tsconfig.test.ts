@@ -25,6 +25,7 @@ describe('Aliases with tsconfig.json', () => {
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
 			root: './fixtures/alias-tsconfig/',
+			outDir: './dist/alias-tsconfig/',
 		});
 	});
 

@@ -7,7 +7,10 @@ describe('Integration server setup', () => {
 	let fixture: Fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/integration-server-setup/' });
+		fixture = await loadFixture({
+			root: './fixtures/integration-server-setup/',
+			outDir: './dist/integration-server-setup/',
+		});
 		devServer = await fixture.startDevServer();
 	});
 

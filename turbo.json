@@ -1,8 +1,22 @@
 {
   "$schema": "https://turborepo.org/schema.json",
   "tasks": {
+    "prebuild": {
+      "dependsOn": ["^prebuild"],
+      "inputs": [
+        "**/*",
+        "!test/**/*",
+        "!e2e/**/*",
+        "!performance/**/*",
+        "!.astro/**/*",
+        "!.cache/**/*",
+        "!.turbo/**/*",
+        "!mod.js",
+        "!mod.js.map"
+      ],
+      "outputs": ["src/**/*.prebuilt*"]},
     "build": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^build", "prebuild"],
       "inputs": [
         "**/*",
         "!test/**/*",
@@ -19,7 +33,7 @@
       "passThroughEnv": ["SKIP_OG", "PUBLIC_TWO_LANG"]
     },
     "build:ci": {
-      "dependsOn": ["^build:ci"],
+      "dependsOn": ["^build:ci", "prebuild"],
       "inputs": [
         "**/*",
         "!test/**/*",

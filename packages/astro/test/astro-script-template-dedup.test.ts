@@ -19,6 +19,7 @@ describe('Scripts inside template elements', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-script-template-dedup/',
+			outDir: './dist/astro-script-template-dedup/',
 		});
 		await fixture.build();
 	});

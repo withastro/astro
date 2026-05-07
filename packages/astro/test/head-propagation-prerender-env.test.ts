@@ -25,6 +25,7 @@ describe('Head propagation across ssr and prerender envs in dev', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/head-propagation-prerender-env/',
+			outDir: './dist/head-propagation-prerender-env/',
 		});
 		devServer = await fixture.startDevServer();
 	});

@@ -12,6 +12,7 @@ describe('Using the Partytown integration in SSR', () => {
 			root: './fixtures/ssr-partytown/',
 			adapter: testAdapter(),
 			output: 'server',
+			outDir: './dist/ssr-partytown/',
 		});
 		await fixture.build();
 	});
