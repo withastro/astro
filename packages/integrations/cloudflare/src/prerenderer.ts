@@ -141,62 +141,63 @@ export function createCloudflarePrerenderer({
 			return response;
 		},
 
-		collectStaticImages: hasCompileImageService || hasBindingImageService
-			? async (): Promise<AssetsGlobalStaticImagesList> => {
-					const response = await fetch(`${serverUrl}${STATIC_IMAGES_ENDPOINT}`, {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-					});
+		collectStaticImages:
+			hasCompileImageService || hasBindingImageService
+				? async (): Promise<AssetsGlobalStaticImagesList> => {
+						const response = await fetch(`${serverUrl}${STATIC_IMAGES_ENDPOINT}`, {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+						});
 
-					if (!response.ok) {
-						const body = await response.text();
-						const details = body ? `\n${body}` : '';
-						throw new Error(
-							`Failed to get static images from the Cloudflare prerender server (${response.status}: ${response.statusText}).${details}`,
-						);
-					}
+						if (!response.ok) {
+							const body = await response.text();
+							const details = body ? `\n${body}` : '';
+							throw new Error(
+								`Failed to get static images from the Cloudflare prerender server (${response.status}: ${response.statusText}).${details}`,
+							);
+						}
 
-					const entries: StaticImagesResponse = await response.json();
+						const entries: StaticImagesResponse = await response.json();
 
-					// For transforms that already have imageData (optimized by the IMAGES binding
-					// in workerd), write the bytes directly to the client output directory.
-					// Remaining transforms without imageData fall through to Sharp.
-					const staticImages: AssetsGlobalStaticImagesList = new Map();
-					let needsSharp = false;
+						// For transforms that already have imageData (optimized by the IMAGES binding
+						// in workerd), write the bytes directly to the client output directory.
+						// Remaining transforms without imageData fall through to Sharp.
+						const staticImages: AssetsGlobalStaticImagesList = new Map();
+						let needsSharp = false;
 
-					for (const entry of entries) {
-						const transforms = new Map();
-						for (const t of entry.transforms) {
-							if (t.imageData) {
-								// Image was already transformed by the Cloudflare IMAGES binding —
-								// write it directly to the output directory.
-								const outputPath = join(fileURLToPath(clientDir), t.finalPath);
-								await mkdir(dirname(outputPath), { recursive: true });
-								await writeFile(outputPath, Buffer.from(t.imageData, 'base64'));
-							} else {
-								// No pre-transformed data — collect for Sharp processing
-								transforms.set(t.hash, { finalPath: t.finalPath, transform: t.transform });
-								needsSharp = true;
+						for (const entry of entries) {
+							const transforms = new Map();
+							for (const t of entry.transforms) {
+								if (t.imageData) {
+									// Image was already transformed by the Cloudflare IMAGES binding;
+									// write it directly to the output directory.
+									const outputPath = join(fileURLToPath(clientDir), t.finalPath);
+									await mkdir(dirname(outputPath), { recursive: true });
+									await writeFile(outputPath, Buffer.from(t.imageData, 'base64'));
+								} else {
+									// No pre-transformed data; collect for Sharp processing.
+									transforms.set(t.hash, { finalPath: t.finalPath, transform: t.transform });
+									needsSharp = true;
+								}
+							}
+							if (transforms.size > 0) {
+								staticImages.set(entry.originalPath, {
+									originalSrcPath: entry.originalSrcPath,
+									transforms,
+								});
 							}
 						}
-						if (transforms.size > 0) {
-							staticImages.set(entry.originalPath, {
-								originalSrcPath: entry.originalSrcPath,
-								transforms,
-							});
+
+						// Only load Sharp if there are transforms that weren't handled by the binding
+						if (needsSharp) {
+							const { default: sharpService } = await import('astro/assets/services/sharp');
+							globalThis.astroAsset ??= {};
+							globalThis.astroAsset.imageService = sharpService;
 						}
-					}
 
-					// Only load Sharp if there are transforms that weren't handled by the binding
-					if (needsSharp) {
-						const { default: sharpService } = await import('astro/assets/services/sharp');
-						globalThis.astroAsset ??= {};
-						globalThis.astroAsset.imageService = sharpService;
+						return staticImages;
 					}
-
-					return staticImages;
-				}
-			: undefined,
+				: undefined,
 
 		async teardown() {
 			if (previewServer) {

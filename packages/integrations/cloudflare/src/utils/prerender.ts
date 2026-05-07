@@ -28,6 +28,7 @@ import {
 	PRERENDER_ENDPOINT,
 	STATIC_IMAGES_ENDPOINT,
 } from './prerender-constants.js';
+import { transform as transformWithImagesBinding } from './image-binding-transform.js';
 
 /**
  * Checks if the request is for the static paths prerender endpoint.
@@ -137,22 +138,6 @@ export async function handleStaticImagesRequest(options?: StaticImagesOptions): 
 	});
 }
 
-const qualityTable: Record<string, number> = {
-	low: 25,
-	mid: 50,
-	high: 80,
-	max: 100,
-};
-
-const formatTable: Record<string, string> = {
-	jpeg: 'image/jpeg',
-	jpg: 'image/jpeg',
-	png: 'image/png',
-	gif: 'image/gif',
-	webp: 'image/webp',
-	avif: 'image/avif',
-};
-
 /** Transforms a single image using the Cloudflare IMAGES binding and returns base64-encoded data. */
 async function transformWithBinding(
 	originalPath: string,
@@ -160,35 +145,15 @@ async function transformWithBinding(
 	images: ImagesBinding,
 	assets: Fetcher,
 ): Promise<string> {
-	// Load the original image via the ASSETS binding
-	const content = await assets.fetch(new URL(originalPath, 'https://placeholder.host'));
-	if (!content.body) {
-		throw new Error(`Failed to load image: ${originalPath}`);
+	const response = await transformWithImagesBinding(
+		createImageTransformUrl(originalPath, transform),
+		images,
+		assets,
+	);
+	if (!response.ok) {
+		throw new Error(`Failed to transform image: ${originalPath}`);
 	}
 
-	const input = images.input(content.body);
-
-	const outputFormat = formatTable[transform.format ?? ''] ?? 'image/webp';
-
-	const quality =
-		typeof transform.quality === 'string'
-			? qualityTable[transform.quality]
-			: typeof transform.quality === 'number'
-				? transform.quality
-				: undefined;
-
-	const result = await input
-		.transform({
-			width: transform.width ?? undefined,
-			height: transform.height ?? undefined,
-			fit: transform.fit ?? undefined,
-		})
-		.output({
-			quality,
-			format: outputFormat as any,
-		});
-
-	const response = result.response();
 	const buffer = await response.arrayBuffer();
 
 	// Encode as base64 for JSON transport
@@ -198,4 +163,28 @@ async function transformWithBinding(
 		binary += String.fromCharCode(byte);
 	}
 	return btoa(binary);
+}
+
+function createImageTransformUrl(originalPath: string, transform: Record<string, any>): string {
+	const url = new URL('/_image', 'https://placeholder.host');
+	url.searchParams.set('href', originalPath);
+
+	const params: Record<string, string> = {
+		w: 'width',
+		h: 'height',
+		q: 'quality',
+		f: 'format',
+		fit: 'fit',
+		position: 'position',
+		background: 'background',
+	};
+
+	for (const [param, key] of Object.entries(params)) {
+		const value = transform[key];
+		if (value) {
+			url.searchParams.set(param, value.toString());
+		}
+	}
+
+	return url.toString();
 }

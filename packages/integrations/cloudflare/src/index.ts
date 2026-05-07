@@ -331,6 +331,7 @@ export default function createIntegration({
 														: undefined,
 												imageServiceEntrypoint: '@astrojs/cloudflare/image-service-workerd',
 												buildAssets: config.build.assets ?? '_astro',
+												transformWithBinding: isBindingBuild,
 											}
 										: null,
 							}),

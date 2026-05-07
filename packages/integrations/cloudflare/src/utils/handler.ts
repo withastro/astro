@@ -55,8 +55,11 @@ export async function handle(
 		if (isStaticImagesRequest(request)) {
 			const imagesBindingName = globalThis.__ASTRO_IMAGES_BINDING_NAME;
 			return handleStaticImagesRequest({
-				images: imagesBindingName ? (env as Record<string, any>)[imagesBindingName] : undefined,
-				assets: env.ASSETS,
+				images:
+					compileImageConfig?.transformWithBinding && imagesBindingName
+						? (env as Record<string, any>)[imagesBindingName]
+						: undefined,
+				assets: compileImageConfig?.transformWithBinding ? env.ASSETS : undefined,
 			}) as unknown as CfResponse;
 		}
 	}

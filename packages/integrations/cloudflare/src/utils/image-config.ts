@@ -20,7 +20,7 @@ export type ImageServiceConfig =
 	  };
 
 /** Normalize string | compound config into separate build/runtime modes.
- *  `transformAtBuild` is true when the compound config is used — this opts the user
+ *  `transformAtBuild` is true when the compound config is used; this opts the user
  *  in to build-time image optimization. The string form preserves runtime-only behavior. */
 export function normalizeImageServiceConfig(config: ImageServiceConfig | undefined): {
 	buildService: ImageServiceMode;

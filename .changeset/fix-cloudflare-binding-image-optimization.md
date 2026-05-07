@@ -1,5 +1,5 @@
 ---
-'@astrojs/cloudflare': minor
+'@astrojs/cloudflare': major
 ---
 
 Adds opt-in build-time image optimization for the `cloudflare-binding` image service. When enabled, the Cloudflare IMAGES binding transforms static images in the workerd prerender environment, and the optimized bytes are written directly to the output directory (falling back to Sharp if the binding fails).
