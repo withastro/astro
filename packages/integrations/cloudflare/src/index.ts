@@ -123,6 +123,11 @@ export default function createIntegration({
 	let _routes: IntegrationResolvedRoute[];
 	let _isFullyStatic = false;
 	let cfPluginConfig: PluginConfig;
+	// True when the user provided a non-default `image.service`, which `setImageConfig`
+	// preserves across all `imageService` modes. In that case the workerd stub never
+	// becomes the active service, so the Node-side `collectStaticImages` path (which
+	// hard-swaps to sharp) must not run — it would clobber the user's service.
+	let _hasCustomImageService = false;
 
 	const { buildService, runtimeService } = normalizeImageServiceConfig(imageService);
 	const needsImagesBinding = runtimeService === 'cloudflare-binding';
@@ -134,6 +139,11 @@ export default function createIntegration({
 				if (!!process.versions.webcontainer) {
 					throw new Error('`workerd` does not run on Stackblitz.');
 				}
+
+				// Read this from the user's pre-`updateConfig` image config, since
+				// `setImageConfig` below may replace `service` with the workerd stub.
+				_hasCustomImageService =
+					config.image.service.entrypoint !== 'astro/assets/services/sharp';
 
 				let session = config.session;
 				const isCompile = buildService === 'compile';
@@ -417,7 +427,7 @@ export default function createIntegration({
 							base: _config.base,
 							trailingSlash: _config.trailingSlash,
 							cfPluginConfig,
-							hasCompileImageService: buildService === 'compile',
+							hasCompileImageService: buildService === 'compile' && !_hasCustomImageService,
 						}),
 					);
 				}
