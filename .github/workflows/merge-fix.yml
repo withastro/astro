@@ -29,7 +29,7 @@ jobs:
       github.repository_owner == 'withastro' &&
       (github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'failure')
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 30
     permissions:
       contents: write
       pull-requests: write
@@ -80,7 +80,7 @@ jobs:
         id: attempts
         run: |
           # Count prior fix commits by the bot on this branch (since it diverged from next)
-          COUNT=$(git log --oneline origin/next..HEAD --author="astrobot-houston" --grep="chore:.*main-to-next merge" | wc -l | tr -d ' ')
+          COUNT=$(git log --oneline origin/next..HEAD --author="astrobot-houston" --grep="fix .* failures for main-to-next merge" | wc -l | tr -d ' ')
           echo "count=$COUNT" >> "$GITHUB_OUTPUT"
           if [ "$COUNT" -ge 3 ]; then
             echo "::warning::Merge fix has already been attempted $COUNT times. Skipping to avoid infinite recursion."
@@ -89,37 +89,6 @@ jobs:
             echo "Attempt $((COUNT + 1)) of 3"
             echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
-
-      - name: Strip conflict markers from JSON/YAML files
-        if: steps.pr.outputs.number != '' && steps.attempts.outputs.skip != 'true'
-        # Merge conflicts in package.json files make pnpm install impossible.
-        # Strip conflict markers (keeping "ours"/next side) so pnpm can parse
-        # the workspace. The Flue verify skill will check via git diff whether
-        # anything important from main was lost and patch it back in.
-        run: |
-          node -e '
-            const fs = require("fs");
-            const path = require("path");
-            let count = 0;
-            function fix(dir) {
-              for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-                const full = path.join(dir, entry.name);
-                if (entry.isDirectory() && entry.name !== "node_modules" && entry.name !== ".git") {
-                  fix(full);
-                } else if (/\.(json|yaml|yml)$/.test(entry.name)) {
-                  let c = fs.readFileSync(full, "utf8");
-                  if (c.includes("<<<<<<<")) {
-                    c = c.replace(/^<{7}.*\n([\s\S]*?)^={7}\n[\s\S]*?^>{7}.*\n/gm, "$1");
-                    fs.writeFileSync(full, c);
-                    console.log("Stripped conflicts:", full);
-                    count++;
-                  }
-                }
-              }
-            }
-            fix(".");
-            console.log(count + " file(s) fixed");
-          '
 
       - name: Setup PNPM
         if: steps.pr.outputs.number != '' && steps.attempts.outputs.skip != 'true'
@@ -134,11 +103,10 @@ jobs:
 
       - name: Install deps
         if: steps.pr.outputs.number != '' && steps.attempts.outputs.skip != 'true'
-        run: pnpm install --no-frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
-      - name: Build
-        if: steps.pr.outputs.number != '' && steps.attempts.outputs.skip != 'true'
-        run: pnpm build
+      # Build is intentionally NOT run here — the fix-ci skill handles building
+      # and fixing any build/type errors that arise from the merge.
 
       - name: Log in to GHCR
         if: steps.pr.outputs.number != '' && steps.attempts.outputs.skip != 'true'
@@ -172,7 +140,7 @@ jobs:
           echo "To attach from your machine:"
           echo "  OPENCODE_API_URL=\$(grep -o 'https://[^ ]*\\.trycloudflare\\.com' /tmp/cloudflared.log) opencode attach"
 
-      - name: Run merge fix workflow
+      - name: Run test fix workflow
         if: steps.pr.outputs.number != '' && steps.attempts.outputs.skip != 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -183,4 +151,4 @@ jobs:
           pnpm flue run .flue/workflows/merge-fix/WORKFLOW.ts \
             --sandbox $IMAGE:latest \
             --args "{\"prNumber\": $PR_NUMBER}" \
-            --model anthropic/claude-opus-4-6
+            --model anthropic/claude-sonnet-4-20250514

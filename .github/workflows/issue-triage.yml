@@ -96,5 +96,5 @@ jobs:
         run: |
           pnpm exec flue run issue-triage \
             --target node \
-            --session-id "issue-triage-$ISSUE_NUMBER" \
+            --id "issue-triage-$ISSUE_NUMBER" \
             --payload "{\"issueNumber\": $ISSUE_NUMBER}"
