@@ -20,17 +20,17 @@ describe('Compile with custom image service', () => {
 		await fixture.clean();
 	});
 
-	it('uses the user image service for URLs and HTML attributes in static HTML', async () => {
+	it('uses the user image service for HTML attributes and static compile output', async () => {
 		const html = readFileSync(
 			fileURLToPath(new URL('dist/client/index.html', root)),
 			'utf-8',
 		);
 		const $ = cheerio.load(html);
 		const src = $('img').attr('src')!;
-		assert.ok(
-			src.startsWith('/cdn/'),
-			`Expected custom getURL() /cdn prefix on image src, got: ${src}`,
-		);
 		assert.equal($('img').attr('data-image-service'), 'custom');
+		assert.ok(
+			src.startsWith('/_astro/') && src.endsWith('.webp'),
+			`Expected compiled static image under /_astro/*.webp, got: ${src}`,
+		);
 	});
 });

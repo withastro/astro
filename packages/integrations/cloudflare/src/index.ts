@@ -239,6 +239,14 @@ export default function createIntegration({
 								...cloudflareOptions,
 								...cfPluginConfig,
 								viteEnvironment: { name: 'ssr' },
+								// During `astro build`, Astro creates a temporary Vite dev server (e.g. for content
+								// sync). The Cloudflare plugin's `configureServer` calls into Miniflare for the
+								// inspector port; that can throw `ERR_DISPOSED` if a prior dev session (or test)
+								// disposed the shared Miniflare instance. The Workers debugger is not used during
+								// build, so disable the inspector for this command unless the user set a port.
+								...(command === 'build' && cloudflareOptions.inspectorPort === undefined
+									? { inspectorPort: false }
+									: {}),
 							}),
 							{
 								name: '@astrojs/cloudflare:cf-imports',

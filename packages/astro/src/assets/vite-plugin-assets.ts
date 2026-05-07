@@ -1,5 +1,6 @@
 import type * as fsMod from 'node:fs';
 import { extname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import MagicString from 'magic-string';
 import picomatch from 'picomatch';
 import type * as vite from 'vite';
@@ -145,11 +146,18 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 					id: new RegExp(`^(${VIRTUAL_SERVICE_ID}|${VIRTUAL_MODULE_ID}|${VIRTUAL_GET_IMAGE_ID})$`),
 				},
 				async handler(id) {
+					// Resolve from the project root (see cache provider plugin). Without this,
+					// Rollup uses `astro/assets/internal` as the importer and relative
+					// `image.service.entrypoint` values resolve inside the astro package.
+					const importerPath = fileURLToPath(new URL('package.json', settings.config.root));
 					if (id === VIRTUAL_SERVICE_ID) {
 						if (isAstroServerEnvironment(this.environment)) {
-							return await this.resolve(settings.config.image.service.entrypoint);
+							return await this.resolve(
+								settings.config.image.service.entrypoint,
+								importerPath,
+							);
 						}
-						return await this.resolve('astro/assets/services/noop');
+						return await this.resolve('astro/assets/services/noop', importerPath);
 					}
 					if (id === VIRTUAL_MODULE_ID) {
 						return RESOLVED_VIRTUAL_MODULE_ID;
