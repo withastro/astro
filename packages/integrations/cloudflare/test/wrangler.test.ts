@@ -57,16 +57,17 @@ describe('cloudflareConfigCustomizer', () => {
 			assert.equal(result.kv_namespaces, undefined);
 		});
 
-		it('adds SESSION binding when other KV bindings exist but not the session one', () => {
+		it('adds only SESSION binding when other KV bindings exist but not the session one', () => {
+			// The customizer must return ONLY the SESSION binding to add, not the merged
+			// list. @cloudflare/vite-plugin merges this with the user's wrangler config,
+			// so returning the user's existing bindings here would duplicate them in the
+			// generated wrangler.json (regression from #16555, see #16590).
 			const customizer = cloudflareConfigCustomizer();
 			const result = customizer({
 				kv_namespaces: [{ binding: 'OTHER_KV', id: 'other-id' }],
 			});
 
-			assert.deepEqual(result.kv_namespaces, [
-				{ binding: 'OTHER_KV', id: 'other-id' },
-				{ binding: DEFAULT_SESSION_KV_BINDING_NAME },
-			]);
+			assert.deepEqual(result.kv_namespaces, [{ binding: DEFAULT_SESSION_KV_BINDING_NAME }]);
 		});
 
 		it('does not add SESSION binding when session KV binding is disabled', () => {
@@ -74,6 +75,24 @@ describe('cloudflareConfigCustomizer', () => {
 			const result = customizer({});
 
 			assert.equal(result.kv_namespaces, undefined);
+		});
+
+		it('does not include user-declared KV bindings in the output (regression #16590)', () => {
+			// The output is merged by @cloudflare/vite-plugin with the user's wrangler
+			// config, so echoing the user's bindings here causes them to appear twice in
+			// the generated wrangler.json — exactly the duplication reported in #16590.
+			const customizer = cloudflareConfigCustomizer();
+			const result = customizer({
+				kv_namespaces: [
+					{ binding: 'RATE_LIMIT', id: 'rate-limit-id' },
+					{ binding: 'CACHE', id: 'cache-id' },
+				],
+			});
+
+			const bindingNames = result.kv_namespaces?.map((kv) => kv.binding) ?? [];
+			assert.deepEqual(bindingNames, [DEFAULT_SESSION_KV_BINDING_NAME]);
+			assert.ok(!bindingNames.includes('RATE_LIMIT'));
+			assert.ok(!bindingNames.includes('CACHE'));
 		});
 	});
 
@@ -160,7 +179,7 @@ describe('cloudflareConfigCustomizer', () => {
 			assert.equal(result.previews?.images, undefined);
 		});
 
-		it('preserves existing previews KV bindings when adding SESSION binding', () => {
+		it('returns only SESSION binding for previews when other KV bindings exist', () => {
 			const customizer = cloudflareConfigCustomizer();
 			const result = customizer({
 				previews: {
@@ -169,7 +188,6 @@ describe('cloudflareConfigCustomizer', () => {
 			});
 
 			assert.deepEqual(result.previews?.kv_namespaces, [
-				{ binding: 'OTHER_KV', id: 'other-id' },
 				{ binding: DEFAULT_SESSION_KV_BINDING_NAME },
 			]);
 		});
