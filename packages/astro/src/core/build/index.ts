@@ -231,7 +231,6 @@ export class AstroBuilder {
 			runtimeMode: this.runtimeMode,
 			origin: this.origin,
 			pageNames,
-			teardownCompiler: this.teardownCompiler,
 			viteConfig,
 			key: keyPromise,
 		};
@@ -295,6 +294,15 @@ export class AstroBuilder {
 			this.settings.timer.end('Total build');
 			// Benchmark results
 			this.settings.timer.writeStats();
+
+			if (this.teardownCompiler) {
+				try {
+					const { teardown } = await import('@astrojs/compiler');
+					teardown();
+				} catch {
+					// Compiler teardown is best-effort — don't fail the build if it errors
+				}
+			}
 		}
 	}
 
