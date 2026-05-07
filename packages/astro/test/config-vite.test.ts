@@ -14,6 +14,7 @@ describe('Vite Config', async () => {
 			root: './fixtures/config-vite/',
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist/config-vite/',
 		});
 		await fixture.build();
 	});

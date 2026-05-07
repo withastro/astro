@@ -9,6 +9,7 @@ describe('Aliases', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/alias/',
+			outDir: './dist/alias/',
 		});
 	});
 

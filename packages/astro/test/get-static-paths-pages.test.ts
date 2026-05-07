@@ -10,6 +10,7 @@ describe('getStaticPaths with trailingSlash: ignore', () => {
 		fixture = await loadFixture({
 			root: './fixtures/get-static-paths-pages/',
 			site: 'https://mysite.dev/',
+			outDir: './dist/get-static-paths-pages/',
 		});
 		await fixture.build();
 	});

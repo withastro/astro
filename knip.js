@@ -59,6 +59,11 @@ export default {
 				'@types/http-cache-semantics',
 			],
 		},
+		'packages/astro-prism': {
+			entry: [srcEntry, dtsEntry, testEntry],
+			// package.json#imports are not resolved at the moment
+			ignore: ['src/loadLanguages-workerd.ts'],
+		},
 		'packages/db': {
 			entry: [srcEntry, dtsEntry, testEntry, 'test/types/**/*'],
 		},

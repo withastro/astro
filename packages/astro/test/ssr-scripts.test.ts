@@ -12,6 +12,7 @@ describe('SSR Hydrated component scripts', () => {
 			root: './fixtures/ssr-scripts/',
 			output: 'server',
 			adapter: testAdapter(),
+			outDir: './dist/ssr-scripts/',
 		});
 		await fixture.build();
 	});

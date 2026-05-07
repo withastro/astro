@@ -7,7 +7,10 @@ describe('Astro Markdown Shiki', () => {
 	let fixture: Fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/astro-markdown-shiki/langs/' });
+		fixture = await loadFixture({
+			root: './fixtures/astro-markdown-shiki/langs/',
+			outDir: './dist/astro-markdown-shiki/',
+		});
 		await fixture.build();
 	});
 

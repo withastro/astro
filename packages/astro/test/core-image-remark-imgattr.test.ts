@@ -16,6 +16,7 @@ describe('astro:image', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/core-image-remark-imgattr/',
+				outDir: './dist/core-image-remark-imgattr/',
 			});
 
 			const logger = new AstroLogger({

@@ -12,6 +12,7 @@ describe('SSR with Large Array and client rendering', () => {
 			root: './fixtures/large-array/',
 			output: 'server',
 			adapter: testAdapter(),
+			outDir: './dist/ssr-large-array/',
 		});
 		await fixture.build();
 	});

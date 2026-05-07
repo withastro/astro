@@ -6,7 +6,10 @@ describe('Component bundling', () => {
 	let fixture: Fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/astro-component-bundling/' });
+		fixture = await loadFixture({
+			root: './fixtures/astro-component-bundling/',
+			outDir: './dist/astro-component-bundling/',
+		});
 	});
 
 	describe('dev', () => {

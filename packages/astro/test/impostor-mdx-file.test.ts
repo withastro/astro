@@ -8,6 +8,7 @@ describe('Impostor MDX File', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/impostor-mdx-file/',
+			outDir: './dist/impostor-mdx-file/',
 		});
 	});
 	if (isWindows) return;

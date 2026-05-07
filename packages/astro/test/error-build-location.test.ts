@@ -8,6 +8,7 @@ describe('Errors information in build', () => {
 	it('includes the file where the error happened', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/error-build-location',
+			outDir: './dist/error-build-location/',
 		});
 
 		let errorContent: any;

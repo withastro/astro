@@ -26,6 +26,7 @@ describe('astro cli', () => {
 
 		const fixture: Fixture = await loadFixture({
 			root: './fixtures/astro-check-watch/',
+			outDir: './dist/cli/',
 		});
 		const logs: LogEntry[] = [];
 
