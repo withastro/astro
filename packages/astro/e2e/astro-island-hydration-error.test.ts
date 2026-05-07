@@ -80,7 +80,7 @@ test.describe('astro-island hydration error handling', () => {
 });
 
 function getIslandComponentUrl(html: string): string {
-	const match = html.match(/component-url="([^"]+)"/);
+	const match = /component-url="([^"]+)"/.exec(html);
 	if (!match) {
 		throw new Error('Failed to find astro-island component-url in page HTML');
 	}
