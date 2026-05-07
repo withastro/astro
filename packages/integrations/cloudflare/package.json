@@ -49,7 +49,7 @@
     "vite": "^7.3.2"
   },
   "peerDependencies": {
-    "astro": "^6.0.0",
+    "astro": "^6.3.0",
     "wrangler": "^4.83.0"
   },
   "devDependencies": {

@@ -38,7 +38,7 @@
     "server-destroy": "^1.0.1"
   },
   "peerDependencies": {
-    "astro": "^6.0.0"
+    "astro": "^6.3.0"
   },
   "devDependencies": {
     "@fastify/middie": "^9.1.0",
