@@ -60,6 +60,7 @@ export default {
 			],
 		},
 		'packages/astro-prism': {
+			entry: [srcEntry, dtsEntry, testEntry],
 			// package.json#imports are not resolved at the moment
 			ignore: ['src/loadLanguages-workerd.ts'],
 		},
