@@ -193,7 +193,7 @@ importers:
   examples/advanced-routing:
     dependencies:
       '@astrojs/node':
-        specifier: ^10.0.6
+        specifier: ^10.1.0
         version: link:../../packages/integrations/node
       astro:
         specifier: ^6.3.0
@@ -392,7 +392,7 @@ importers:
   examples/hackernews:
     dependencies:
       '@astrojs/node':
-        specifier: ^10.0.6
+        specifier: ^10.1.0
         version: link:../../packages/integrations/node
       astro:
         specifier: ^6.3.0
@@ -419,7 +419,7 @@ importers:
   examples/ssr:
     dependencies:
       '@astrojs/node':
-        specifier: ^10.0.6
+        specifier: ^10.1.0
         version: link:../../packages/integrations/node
       '@astrojs/svelte':
         specifier: ^8.1.0
