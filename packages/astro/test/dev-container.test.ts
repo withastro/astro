@@ -11,6 +11,7 @@ describe('dev container', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/dev-container/',
+				outDir: './dist/dev-container-basic-rendering/',
 			});
 			devServer = await fixture.startDevServer();
 		});
@@ -49,6 +50,7 @@ describe('dev container', () => {
 						},
 					},
 				],
+				outDir: './dist/dev-container-injected-dynamic-routes/',
 			});
 			devServer = await fixture.startDevServer();
 		});
@@ -88,6 +90,7 @@ describe('dev container', () => {
 						},
 					},
 				],
+				outDir: './dist/dev-container-injected-404-route/',
 			});
 			devServer = await fixture.startDevServer();
 		});
@@ -125,6 +128,7 @@ describe('dev container', () => {
 			fixture = await loadFixture({
 				root: './fixtures/dev-container/',
 				base: '/sub/',
+				outDir: './dist/dev-container-public-with-base/',
 			});
 			devServer = await fixture.startDevServer();
 		});
@@ -151,6 +155,7 @@ describe('dev container', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/dev-container/',
+				outDir: './dist/dev-container-public-without-base/',
 			});
 			devServer = await fixture.startDevServer();
 		});

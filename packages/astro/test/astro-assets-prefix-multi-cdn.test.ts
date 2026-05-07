@@ -23,6 +23,7 @@ describe('Assets Prefix Multiple CDN - Static', () => {
 			build: {
 				assetsPrefix,
 			},
+			outDir: './dist/astro-assets-prefix-multi-cdn-assets-prefix-multiple-cdn-static/',
 		});
 		await fixture.build();
 	});
@@ -90,6 +91,7 @@ describe('Assets Prefix Multiple CDN, server', () => {
 			build: {
 				assetsPrefix,
 			},
+			outDir: './dist/astro-assets-prefix-multi-cdn-assets-prefix-multiple-cdn-server/',
 		});
 		await fixture.build();
 		app = await fixture.loadTestAdapterApp();

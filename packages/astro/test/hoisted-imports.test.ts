@@ -9,6 +9,7 @@ describe('Hoisted Imports', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/hoisted-imports/',
+			outDir: './dist/hoisted-imports/',
 		});
 	});
 

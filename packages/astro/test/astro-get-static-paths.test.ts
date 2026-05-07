@@ -14,6 +14,7 @@ describe('getStaticPaths - build calls', () => {
 			site: 'https://mysite.dev/',
 			trailingSlash: 'never',
 			base: '/blog',
+			outDir: './dist/astro-get-static-paths-getstaticpaths-build-calls/',
 		});
 		await fixture.build({});
 	});
@@ -34,6 +35,7 @@ describe('getStaticPaths - dev calls', () => {
 		fixture = await loadFixture({
 			root,
 			site: 'https://mysite.dev/',
+			outDir: './dist/astro-get-static-paths-getstaticpaths-dev-calls/',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -145,6 +147,7 @@ describe('throws if an invalid Astro property is accessed', () => {
 		fixture = await loadFixture({
 			root,
 			site: 'https://mysite.dev/',
+			outDir: './dist/astro-get-static-paths-throws-if-an-invalid-astro-property-is-a/',
 		});
 		await fixture.editFile(
 			'/src/pages/food/[name].astro',

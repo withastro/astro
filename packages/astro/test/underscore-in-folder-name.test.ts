@@ -11,6 +11,7 @@ describe('Projects with an underscore in the folder name', () => {
 			root: './fixtures/_underscore in folder name/',
 			output: 'static',
 			adapter: testAdapter(),
+			outDir: './dist/underscore-in-folder-name/',
 		});
 		await fixture.build();
 	});

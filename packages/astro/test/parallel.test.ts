@@ -9,6 +9,7 @@ describe('Component parallelization', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/parallel/',
+			outDir: './dist/parallel/',
 		});
 		await fixture.build();
 	});

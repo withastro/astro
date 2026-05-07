@@ -10,6 +10,7 @@ describe('Not returning responses', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-not-response/',
+			outDir: './dist/astro-not-response/',
 		});
 
 		devServer = await fixture.startDevServer();

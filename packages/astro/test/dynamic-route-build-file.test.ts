@@ -12,6 +12,7 @@ describe('build.format=file with dynamic routes', () => {
 			build: {
 				format: 'file',
 			},
+			outDir: './dist/dynamic-route-build-file/',
 		});
 		await fixture.build();
 	});

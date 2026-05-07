@@ -30,6 +30,7 @@ describe('Server entry', () => {
 			build: {
 				serverEntry: 'custom.mjs',
 			},
+			outDir: './dist/server-entry-server-entry/',
 		});
 
 		await fixture.build();
@@ -48,6 +49,7 @@ describe('Server entry', () => {
 			build: {
 				serverEntry: 'custom.mjs',
 			},
+			outDir: './dist/erver-entry-server-entry/',
 		});
 
 		await fixture.build();
@@ -66,6 +68,7 @@ describe('Server entry', () => {
 			build: {
 				serverEntry: 'custom.mjs',
 			},
+			outDir: './dist/server-entry-server-entry/',
 		});
 
 		await fixture.build();
@@ -81,6 +84,7 @@ describe('Server entry', () => {
 			build: {
 				serverEntry: 'custom.mjs',
 			},
+			outDir: './dist/server-entry-server-entry/',
 		});
 
 		await fixture.build();
@@ -96,6 +100,7 @@ describe('Server entry', () => {
 			build: {
 				serverEntry: 'custom.mjs',
 			},
+			outDir: './dist/server-entry-server-entry/',
 		});
 
 		await fixture.build();
@@ -111,6 +116,7 @@ describe('Server entry', () => {
 			build: {
 				serverEntry: 'custom.mjs',
 			},
+			outDir: './dist/server-entry-server-entry/',
 		});
 
 		await fixture.build();

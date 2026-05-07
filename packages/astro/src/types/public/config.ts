@@ -1723,9 +1723,10 @@ export interface AstroUserConfig<
 		 * @name image.dangerouslyProcessSVG
 		 * @type {boolean}
 		 * @default `false`
+		 * @version 6.3.0
 		 * @description
 		 *
-		 * Allow SVG source images to be processed by the image optimization pipeline.
+		 * Allows SVG source images to be processed by the image optimization pipeline.
 		 *
 		 * This is disabled by default as specifically formed SVGs can be prohibitively expensive to process and used by malicious actors to execute denial of service attacks. Only enable this option if you trust the source of your SVG images and understand the risks of processing them.
 		 */

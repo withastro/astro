@@ -14,6 +14,7 @@ describe('Assets in CSS', () => {
 					assetsInlineLimit: 0,
 				},
 			},
+			outDir: './dist/css-assets/',
 		});
 		await fixture.build();
 	});

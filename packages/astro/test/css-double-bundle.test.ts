@@ -9,6 +9,7 @@ describe('CSS Double Bundling Prevention', function () {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/css-double-bundle/',
+			outDir: './dist/css-double-bundle/',
 		});
 		await fixture.build();
 	});

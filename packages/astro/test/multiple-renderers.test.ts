@@ -9,6 +9,7 @@ describe('Multiple renderers', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/multiple-renderers/',
+			outDir: './dist/multiple-renderers/',
 		});
 		await fixture.build();
 	});
