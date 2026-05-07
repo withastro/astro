@@ -3487,18 +3487,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/large-array:
-    dependencies:
-      '@astrojs/solid-js':
-        specifier: workspace:*
-        version: link:../../../../integrations/solid
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-      solid-js:
-        specifier: ^1.9.11
-        version: 1.9.11
-
   packages/astro/test/fixtures/lazy-layout:
     dependencies:
       astro:

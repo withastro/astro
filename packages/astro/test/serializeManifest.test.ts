@@ -50,42 +50,6 @@ describe('astro:config/client', () => {
 			);
 		});
 	});
-
-	describe('when the experimental flag is enabled in build', async () => {
-		before(async () => {
-			fixture = await loadFixture({
-				root: './fixtures/astro-manifest/',
-			});
-			await fixture.build();
-		});
-
-		it('should return the expected properties', async () => {
-			const html = await fixture.readFile('/index.html');
-			const $ = cheerio.load(html);
-
-			assert.deepEqual(
-				$('#config').text(),
-				JSON.stringify({
-					base: '/blog',
-					i18n: {
-						defaultLocale: 'en',
-						locales: ['en', 'fr'],
-						routing: {
-							prefixDefaultLocale: false,
-							redirectToDefaultLocale: true,
-							fallbackType: 'redirect',
-						},
-					},
-					build: {
-						format: 'directory',
-					},
-					trailingSlash: 'always',
-					compressHTML: true,
-					site: 'https://example.com',
-				}),
-			);
-		});
-	});
 });
 
 describe('astro:config/client in a client script', () => {
@@ -154,7 +118,7 @@ describe('astro:config/server', () => {
 		});
 	});
 
-	describe('when the experimental flag is enabled in build', async () => {
+	describe('in static build', async () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/astro-manifest/',
@@ -162,7 +126,34 @@ describe('astro:config/server', () => {
 			await fixture.build();
 		});
 
-		it('should return the expected properties', async () => {
+		it('astro:config/client should return the expected properties', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerio.load(html);
+
+			assert.deepEqual(
+				$('#config').text(),
+				JSON.stringify({
+					base: '/blog',
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['en', 'fr'],
+						routing: {
+							prefixDefaultLocale: false,
+							redirectToDefaultLocale: true,
+							fallbackType: 'redirect',
+						},
+					},
+					build: {
+						format: 'directory',
+					},
+					trailingSlash: 'always',
+					compressHTML: true,
+					site: 'https://example.com',
+				}),
+			);
+		});
+
+		it('astro:config/server should return the expected properties', async () => {
 			const html = await fixture.readFile('/server/index.html');
 			const $ = cheerio.load(html);
 			assert.ok($('#out-dir').text().endsWith('/dist/'));
@@ -176,7 +167,7 @@ describe('astro:config/server', () => {
 		});
 	});
 
-	describe('when the experimental flag is enabled in SSR', async () => {
+	describe('in SSR build', async () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/astro-manifest/',
