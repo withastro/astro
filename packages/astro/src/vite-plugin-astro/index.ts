@@ -283,11 +283,48 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 
 					const transformResult = await compile(source, filename);
 
+					let code = transformResult.code;
+
+					const clientOnlyComponents = transformResult.clientOnlyComponents.filter(notAstroComponent);
+					const hydratedComponents = transformResult.hydratedComponents.filter(notAstroComponent);
+
+					// In prerender/SSR, strip imports for client:only components whose
+					// specifier does not also appear in hydratedComponents or
+					// serverComponents. The compiler emits `import Foo from './Foo'`
+					// but passes `null` to $$renderComponent for client:only — the
+					// import is dead code. Removing it prevents Rollup from traversing
+					// the component's dependency tree (e.g. React) during prerender.
+					// Component metadata is preserved in meta.astro.clientOnlyComponents
+					// for the plugin-analyzer to feed into the client build.
+					if (
+						this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender ||
+						this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr
+					) {
+						const liveSpecifiers = new Set([
+							...hydratedComponents.map((c) => c.specifier),
+							...transformResult.serverComponents.map((c) => c.specifier),
+						]);
+
+						const { init, parse } = await import('es-module-lexer');
+						await init;
+						const [imports] = parse(code);
+						const s = new (await import('magic-string')).default(code);
+
+						for (const c of clientOnlyComponents) {
+							if (liveSpecifiers.has(c.specifier)) continue;
+							for (const imp of imports) {
+								if (imp.n === c.specifier) {
+									s.remove(imp.ss, imp.se + 1);
+								}
+							}
+						}
+
+						code = s.toString();
+					}
+
 					const astroMetadata: AstroPluginMetadata['astro'] = {
-						// Remove Astro components that have been mistakenly given client directives
-						// We'll warn the user about this later, but for now we'll prevent them from breaking the build
-						clientOnlyComponents: transformResult.clientOnlyComponents.filter(notAstroComponent),
-						hydratedComponents: transformResult.hydratedComponents.filter(notAstroComponent),
+						clientOnlyComponents,
+						hydratedComponents,
 						serverComponents: transformResult.serverComponents,
 						scripts: transformResult.scripts,
 						containsHead: transformResult.containsHead,
@@ -296,7 +333,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 					};
 
 					return {
-						code: transformResult.code,
+						code,
 						map: transformResult.map,
 						meta: {
 							astro: astroMetadata,

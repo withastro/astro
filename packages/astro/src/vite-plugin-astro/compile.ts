@@ -43,7 +43,7 @@ export async function compileAstro({
 			sourcemap: 'external',
 			tsconfigRaw: {
 				compilerOptions: {
-					// Ensure client:only imports are treeshaken
+					// Allow esbuild to remove type-only imports
 					verbatimModuleSyntax: false,
 					importsNotUsedAsValues: 'remove',
 				},
