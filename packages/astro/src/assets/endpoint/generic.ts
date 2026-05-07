@@ -6,16 +6,14 @@ import * as mime from 'mrmime';
 import type { APIRoute } from '../../types/public/common.js';
 import { getConfiguredImageService } from '../internal.js';
 import { etag } from '../utils/etag.js';
+import { fetchWithRedirects } from '../utils/redirectValidation.js';
 
 async function loadRemoteImage(src: URL, headers: Headers) {
 	try {
-		const res = await fetch(src, {
-			// Forward all headers from the original request
-			headers,
-			redirect: 'manual',
-		});
+		const res = await fetchWithRedirects({ url: src, headers, imageConfig });
 
-		if (res.status >= 300 && res.status < 400) {
+		// Validate that the final URL (after redirects) is allowed
+		if (!isRemoteAllowed(res.url, imageConfig)) {
 			return undefined;
 		}
 
@@ -85,6 +83,6 @@ export const GET: APIRoute = async ({ request }) => {
 		});
 	} catch (err: unknown) {
 		console.error('Could not process image request:', err);
-		return new Response(`Server Error: ${err}`, { status: 500 });
+		return new Response('Internal Server Error', { status: 500 });
 	}
 };

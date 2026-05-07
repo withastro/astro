@@ -3,6 +3,7 @@ import { isRemotePath } from '@astrojs/internal-helpers/path';
 import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import type { ImageOutputOptions, ImageTransform } from '@cloudflare/workers-types';
 import type { ImageQualityPreset } from 'astro';
+import { fetchWithRedirects } from 'astro/assets';
 
 const qualityTable: Record<ImageQualityPreset, number> = {
 	low: 25,
@@ -25,12 +26,24 @@ export async function transform(
 	}
 
 	const imageSrc = new URL(href, url.origin);
-	const content = await (isRemotePath(href)
-		? fetch(imageSrc, { redirect: 'manual' })
-		: assets.fetch(imageSrc));
+	let content: Response;
 
-	if (content.status >= 300 && content.status < 400) {
-		return new Response('Not Found', { status: 404 });
+	if (isRemotePath(href)) {
+		try {
+			content = await fetchWithRedirects({
+				url: imageSrc,
+				imageConfig,
+			});
+
+			// Validate that the final URL (after redirects) is allowed
+			if (!isRemoteAllowed(content.url, imageConfig)) {
+				return new Response('Forbidden', { status: 403 });
+			}
+		} catch {
+			return new Response('Not Found', { status: 404 });
+		}
+	} else {
+		content = await assets.fetch(imageSrc);
 	}
 
 	if (!content.body) {
