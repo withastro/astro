@@ -1,12 +1,18 @@
 import { expect } from '@playwright/test';
-import { testFactory, waitForHydrate } from './test-utils.js';
+import { type DevServer, testFactory, waitForHydrate } from './test-utils.ts';
+
+declare global {
+	interface Window {
+		__hydrationErrorEvents?: Array<{ componentUrl?: string; hasError?: boolean }>;
+	}
+}
 
 const test = testFactory(import.meta.url, {
 	root: './fixtures/astro-island-hydration-error/',
 });
 
 test.describe('astro-island hydration error handling', () => {
-	let devServer;
+	let devServer: DevServer;
 
 	test.beforeAll(async ({ astro }) => {
 		devServer = await astro.startDevServer();
@@ -49,8 +55,8 @@ test.describe('astro-island hydration error handling', () => {
 		const html = await (await page.request.get(pageUrl)).text();
 		const componentUrl = getIslandComponentUrl(html);
 
-		const pageErrors = [];
-		const consoleErrors = [];
+		const pageErrors: string[] = [];
+		const consoleErrors: string[] = [];
 		page.on('pageerror', (error) => pageErrors.push(error.message));
 		page.on('console', (message) => {
 			if (message.type() === 'error') consoleErrors.push(message.text());
@@ -64,8 +70,8 @@ test.describe('astro-island hydration error handling', () => {
 		await page.waitForFunction(() => window.__hydrationErrorEvents?.length === 1);
 
 		const hydrationErrors = await page.evaluate(() => window.__hydrationErrorEvents);
-		expect(hydrationErrors).toHaveLength(1);
-		expect(hydrationErrors[0].componentUrl).toContain(componentUrl.split('?')[0]);
+		expect(hydrationErrors!).toHaveLength(1);
+		expect(hydrationErrors![0].componentUrl).toContain(componentUrl.split('?')[0]);
 		expect(pageErrors).toEqual([]);
 		expect(
 			consoleErrors.some((message) => message.includes('[astro-island] Error hydrating')),
@@ -73,8 +79,8 @@ test.describe('astro-island hydration error handling', () => {
 	});
 });
 
-function getIslandComponentUrl(html) {
-	const match = html.match(/component-url="([^"]+)"/);
+function getIslandComponentUrl(html: string): string {
+	const match = /component-url="([^"]+)"/.exec(html);
 	if (!match) {
 		throw new Error('Failed to find astro-island component-url in page HTML');
 	}
