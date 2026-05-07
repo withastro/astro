@@ -222,6 +222,9 @@ export default function createIntegration({
 				] as const;
 				const isAstroPrismPackageInstalled = await getIsAstroPrismInstalled(config.root);
 
+				const resolvedImage = setImageConfig(imageService, config.image, command, logger);
+				const resolvedImageServiceEntrypoint = resolvedImage.service.entrypoint;
+
 				updateConfig({
 					build: {
 						redirects: false,
@@ -342,7 +345,7 @@ export default function createIntegration({
 													typeof config.build.assetsPrefix === 'string'
 														? config.build.assetsPrefix
 														: undefined,
-												imageServiceEntrypoint: '@astrojs/cloudflare/image-service-workerd',
+												imageServiceEntrypoint: resolvedImageServiceEntrypoint,
 												buildAssets: config.build.assets ?? '_astro',
 											}
 										: null,
@@ -350,7 +353,7 @@ export default function createIntegration({
 							cfPrismPlugin(),
 						],
 					},
-					image: setImageConfig(imageService, config.image, command, logger),
+					image: resolvedImage,
 				});
 
 				if (cloudflareOptions.configPath) {
@@ -427,6 +430,8 @@ export default function createIntegration({
 			},
 			'astro:build:start': ({ setPrerenderer }) => {
 				if (prerenderEnvironment === 'workerd') {
+					const imageServiceEntrypoint = _config.image.service.entrypoint;
+
 					setPrerenderer(
 						createCloudflarePrerenderer({
 							root: _config.root,
@@ -436,6 +441,8 @@ export default function createIntegration({
 							trailingSlash: _config.trailingSlash,
 							cfPluginConfig,
 							hasCompileImageService: buildService === 'compile',
+							compileStaticImagesUseSharp:
+								imageServiceEntrypoint === '@astrojs/cloudflare/image-service-workerd',
 						}),
 					);
 				}

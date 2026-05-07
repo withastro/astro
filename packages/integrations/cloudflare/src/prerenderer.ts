@@ -28,6 +28,11 @@ interface CloudflarePrerendererOptions {
 	trailingSlash: AstroConfig['trailingSlash'];
 	cfPluginConfig: PluginConfig;
 	hasCompileImageService: boolean;
+	/**
+	 * When the compile pipeline uses the workerd image stub, static image bytes are produced with Sharp on Node.
+	 * Custom image services use the configured service's transform instead.
+	 */
+	compileStaticImagesUseSharp: boolean;
 }
 
 /**
@@ -42,6 +47,7 @@ export function createCloudflarePrerenderer({
 	trailingSlash,
 	cfPluginConfig,
 	hasCompileImageService,
+	compileStaticImagesUseSharp,
 }: CloudflarePrerendererOptions): AstroPrerenderer {
 	let previewServer: VitePreviewServer | undefined;
 	let serverUrl: string;
@@ -154,10 +160,13 @@ export function createCloudflarePrerenderer({
 
 					const entries: StaticImagesResponse = await response.json();
 
-					// Switch from the workerd stub to Sharp for the Node-side generation pipeline
-					const { default: sharpService } = await import('astro/assets/services/sharp');
 					globalThis.astroAsset ??= {};
-					globalThis.astroAsset.imageService = sharpService;
+					if (compileStaticImagesUseSharp) {
+						const { default: sharpService } = await import('astro/assets/services/sharp');
+						globalThis.astroAsset.imageService = sharpService;
+					} else {
+						delete globalThis.astroAsset.imageService;
+					}
 
 					const staticImages: AssetsGlobalStaticImagesList = new Map();
 					for (const entry of entries) {
