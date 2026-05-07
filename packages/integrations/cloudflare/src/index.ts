@@ -439,6 +439,8 @@ export default function createIntegration({
 			'astro:build:start': ({ setPrerenderer }) => {
 				if (prerenderEnvironment === 'workerd') {
 					const imageServiceEntrypoint = _config.image.service.entrypoint;
+					const compileStaticImagesUseSharp =
+						imageServiceEntrypoint === '@astrojs/cloudflare/image-service-workerd';
 
 					setPrerenderer(
 						createCloudflarePrerenderer({
@@ -449,8 +451,10 @@ export default function createIntegration({
 							trailingSlash: _config.trailingSlash,
 							cfPluginConfig,
 							hasCompileImageService: buildService === 'compile',
-							compileStaticImagesUseSharp:
-								imageServiceEntrypoint === '@astrojs/cloudflare/image-service-workerd',
+							compileStaticImagesUseSharp,
+							compileNodeImageServiceEntrypoint: compileStaticImagesUseSharp
+								? undefined
+								: imageServiceEntrypoint,
 						}),
 					);
 				}
