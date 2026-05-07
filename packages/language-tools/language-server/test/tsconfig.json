@@ -1,12 +1,5 @@
 {
-  "extends": "../../../../tsconfig.base.json",
-  "compilerOptions": {
-    "allowJs": true,
-    "composite": true,
-    "emitDeclarationOnly": false,
-    "noEmit": true,
-    "allowImportingTsExtensions": true
-  },
+  "extends": "../../../../configs/tsconfig.test.json",
   "include": ["."],
   "exclude": ["node_modules/", "fixture/", "check/fixture/"],
   "references": [{ "path": "../../../astro/tsconfig.test.json" }]

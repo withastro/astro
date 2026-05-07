@@ -8,9 +8,14 @@ import { resolveConfig } from '../../dist/core/config/index.js';
 import { createBaseSettings } from '../../dist/core/config/settings.js';
 import { AstroLogger } from '../../dist/core/logger/core.js';
 import nodeLoggerFactory from '../../dist/core/logger/impls/node.js';
+import { ActionHandler } from '../../dist/actions/handler.js';
+import type { FetchState } from '../../dist/core/fetch/fetch-state.js';
+import { AstroMiddleware } from '../../dist/core/middleware/astro-middleware.js';
 import { NOOP_MIDDLEWARE_FN } from '../../dist/core/middleware/noop-middleware.js';
+import { PagesHandler } from '../../dist/core/pages/handler.js';
 import { Pipeline } from '../../dist/core/render/index.js';
 import { RouteCache } from '../../dist/core/render/route-cache.js';
+
 import type { AstroLoggerLevel } from '../../dist/core/logger/core.js';
 import type { AstroInlineConfig, RuntimeMode } from '../../dist/types/public/config.js';
 import type { AstroSettings } from '../../dist/types/astro.js';
@@ -144,7 +149,7 @@ class TestPipeline extends Pipeline {
 
 /**
  * Creates a basic Pipeline instance for testing.
- * For mock utilities like createMockRenderContext, see mocks.ts
+ * For mock utilities like createMockFetchState, see mocks.ts
  */
 export function createBasicPipeline(
 	options: {
@@ -294,6 +299,33 @@ export class SpyLogger extends AstroLogger {
 	closeCount() {
 		return this.#closeCount;
 	}
+}
+
+/**
+ * Renders a component through the full pipeline
+ * (AstroMiddleware + PagesHandler). Wires up the given `FetchState`
+ * with middleware and page handlers.
+ */
+export async function renderThroughMiddleware(
+	state: FetchState,
+	componentInstance: ComponentInstance,
+	slots: Record<string, any> = {},
+): Promise<Response> {
+	const pipeline = state.pipeline;
+	state.componentInstance = componentInstance;
+	state.slots = slots;
+	const middleware = new AstroMiddleware(pipeline);
+	const actionHandler = new ActionHandler();
+	const pagesHandler = new PagesHandler(pipeline);
+	return middleware.handle(state, (s, ctx) => {
+		if (!s.skipMiddleware) {
+			const actionResult = actionHandler.handle(ctx, s);
+			if (actionResult) {
+				return actionResult.then((response) => response ?? pagesHandler.handle(s, ctx));
+			}
+		}
+		return pagesHandler.handle(s, ctx);
+	});
 }
 
 /**

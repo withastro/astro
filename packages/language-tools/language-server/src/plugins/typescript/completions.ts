@@ -15,10 +15,11 @@ import {
 } from './utils.js';
 
 export function enhancedProvideCompletionItems(
+	ts: typeof import('typescript'),
 	completions: CompletionList,
 	documentText: string,
 ): CompletionList {
-	const importedAstroSources = getAlreadyImportedAstroComponentSources(documentText);
+	const importedAstroSources = getAlreadyImportedAstroComponentSources(ts, documentText);
 
 	completions.items = completions.items
 		.filter((completion) => {

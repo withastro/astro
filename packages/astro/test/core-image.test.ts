@@ -998,7 +998,7 @@ describe('astro:image', () => {
 				},
 			});
 			// Remove cache directory
-			removeDir(new URL('./fixtures/core-image-ssg/node_modules/.astro', import.meta.url));
+			await removeDir(new URL('./fixtures/core-image-ssg/node_modules/.astro', import.meta.url));
 
 			await fixture.build();
 		});

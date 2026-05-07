@@ -1,6 +1,5 @@
 import type { RoutesList } from '../../types/astro.js';
 import type { RouteData } from '../../types/public/internal.js';
-import { redirectIsExternal } from '../redirects/render.js';
 import { SERVER_ISLAND_COMPONENT } from '../server-islands/endpoint.js';
 import { isRoute404, isRoute500 } from './internal/route-errors.js';
 
@@ -48,14 +47,4 @@ export function isRoute404or500(route: RouteData): boolean {
  */
 export function isRouteServerIsland(route: RouteData): boolean {
 	return route.component === SERVER_ISLAND_COMPONENT;
-}
-
-/**
- * Determines whether a given route is an external redirect.
- *
- * @param {RouteData} route - The route object to check.
- * @return {boolean} Returns true if the route is an external redirect; otherwise, false.
- */
-export function isRouteExternalRedirect(route: RouteData): boolean {
-	return !!(route.type === 'redirect' && route.redirect && redirectIsExternal(route.redirect));
 }
