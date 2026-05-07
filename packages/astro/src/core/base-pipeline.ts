@@ -1,7 +1,6 @@
 import type { $ZodType } from 'zod/v4/core';
 import { NOOP_ACTIONS_MOD } from '../actions/noop-actions.js';
 import type { ActionAccept, ActionClient } from '../actions/runtime/types.js';
-import { createI18nMiddleware } from '../i18n/middleware.js';
 import type { ComponentInstance } from '../types/astro.js';
 import type { MiddlewareHandler, RewritePayload } from '../types/public/common.js';
 import type { RuntimeMode } from '../types/public/config.js';
@@ -23,6 +22,8 @@ import { sequence } from './middleware/sequence.js';
 import { RedirectSinglePageBuiltModule } from './redirects/index.js';
 import { RouteCache } from './render/route-cache.js';
 import { createDefaultRoutes, type DefaultRouteParams } from './routing/default.js';
+import { ensure404Route } from './routing/astro-designed-error-pages.js';
+import { Router } from './routing/router.js';
 import type { CacheProvider, CacheProviderFactory } from './cache/types.js';
 import type { CompiledCacheRoute } from './cache/runtime/route-matching.js';
 import type { SessionDriverFactory } from './session/types.js';
@@ -32,10 +33,26 @@ import { FORBIDDEN_PATH_KEYS } from '@astrojs/internal-helpers/object';
 import { loadLogger } from './logger/load.js';
 
 /**
+ * Bit flags for pipeline features that handler classes register as
+ * "used" when a custom `src/app.ts` fetch handler is in play. After the
+ * first request (dev) or at runtime (prod SSR), we compare against the
+ * manifest to warn about features the user configured but forgot to
+ * include in their custom pipeline.
+ */
+export const PipelineFeatures = {
+	redirects: 1 << 0,
+	sessions: 1 << 1,
+	actions: 1 << 2,
+	middleware: 1 << 3,
+	i18n: 1 << 4,
+	cache: 1 << 5,
+} as const;
+
+/**
  * The `Pipeline` represents the static parts of rendering that do not change between requests.
  * These are mostly known when the server first starts up and do not change.
  *
- * Thus, a `Pipeline` is created once at process start and then used by every `RenderContext`.
+ * Thus, a `Pipeline` is created once at process start and then used by every `FetchState`.
  */
 export abstract class Pipeline {
 	readonly internalMiddleware: MiddlewareHandler[];
@@ -47,6 +64,13 @@ export abstract class Pipeline {
 	compiledCacheRoutes: CompiledCacheRoute[] | undefined = undefined;
 	nodePool: NodePool | undefined;
 	htmlStringCache: HTMLStringCache | undefined;
+
+	/**
+	 * Bit mask of pipeline features activated by handler classes.
+	 * Each handler sets its bit via `|=`. Only meaningful when a
+	 * custom `src/app.ts` fetch handler is in use.
+	 */
+	usedFeatures = 0;
 
 	logger: AstroLogger;
 	readonly manifest: SSRManifest;
@@ -83,6 +107,11 @@ export abstract class Pipeline {
 	readonly cacheProvider: SSRManifest['cacheProvider'];
 	readonly cacheConfig: SSRManifest['cacheConfig'];
 	readonly serverIslands: SSRManifest['serverIslandMappings'];
+
+	/** Route data derived from the manifest, used for route matching. */
+	manifestData: { routes: RouteData[] };
+	/** Pattern-matching router built from manifestData. */
+	#router: Router;
 
 	constructor(
 		logger: AstroLogger,
@@ -141,14 +170,20 @@ export abstract class Pipeline {
 		this.cacheProvider = cacheProvider;
 		this.cacheConfig = cacheConfig;
 		this.serverIslands = serverIslands;
+		this.manifestData = { routes: (manifest.routes ?? []).map((route) => route.routeData) };
+		ensure404Route(this.manifestData);
+		this.#router = new Router(this.manifestData.routes, {
+			base: manifest.base,
+			trailingSlash: manifest.trailingSlash,
+			buildFormat: manifest.buildFormat,
+		});
 
+		// i18n (non-manual strategies) used to be pushed here as internal
+		// middleware, but it is now run explicitly as a post-processing step
+		// in `AstroHandler.render` via the `I18n` handler class. Users on
+		// the manual strategy still register their own middleware via
+		// `astro:i18n.middleware(...)`.
 		this.internalMiddleware = [];
-		// We do use our middleware only if the user isn't using the manual setup
-		if (i18n?.strategy !== 'manual') {
-			this.internalMiddleware.push(
-				createI18nMiddleware(i18n, manifest.base, manifest.trailingSlash, manifest.buildFormat),
-			);
-		}
 
 		if (manifest.experimentalQueuedRendering.enabled) {
 			this.nodePool = this.createNodePool(
@@ -159,6 +194,29 @@ export abstract class Pipeline {
 				this.htmlStringCache = this.createStringCache();
 			}
 		}
+	}
+
+	/**
+	 * Low-level route matching against the manifest routes. Returns the
+	 * matched `RouteData` or `undefined`. Does not filter prerendered
+	 * routes or check public assets — use `BaseApp.match()` for that.
+	 */
+	matchRoute(pathname: string): RouteData | undefined {
+		const match = this.#router.match(pathname, { allowWithoutBase: true });
+		if (match.type !== 'match') return undefined;
+		return match.route;
+	}
+
+	/**
+	 * Rebuilds the internal router after routes have been added or
+	 * removed (e.g. by the dev server on HMR).
+	 */
+	rebuildRouter(): void {
+		this.#router = new Router(this.manifestData.routes, {
+			base: this.manifest.base,
+			trailingSlash: this.manifest.trailingSlash,
+			buildFormat: this.manifest.buildFormat,
+		});
 	}
 
 	abstract headElements(routeData: RouteData): Promise<HeadElements> | HeadElements;

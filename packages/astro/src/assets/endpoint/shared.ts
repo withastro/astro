@@ -6,12 +6,19 @@ import * as mime from 'mrmime';
 import { getConfiguredImageService } from '../internal.js';
 import { etag } from '../utils/etag.js';
 import { inferSourceFormat } from '../utils/inferSourceFormat.js';
+import { fetchWithRedirects } from '../utils/redirectValidation.js';
+
+const isLocal = (url: string) => {
+	const hostname = new URL(url).hostname;
+	return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]';
+};
 
 export async function loadRemoteImage(src: URL): Promise<Buffer | undefined> {
 	try {
-		const res = await fetch(src, { redirect: 'manual' });
+		const res = await fetchWithRedirects({ url: src, imageConfig });
 
-		if (res.status >= 300 && res.status < 400) {
+		// Local URLs are allowed by default
+		if (!isRemoteAllowed(res.url, imageConfig) && !isLocal(res.url)) {
 			return undefined;
 		}
 

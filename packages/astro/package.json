@@ -21,6 +21,9 @@
       "app/*": [
         "./dist/core/app/*"
       ],
+      "hono": [
+        "./dist/core/hono/index"
+      ],
       "middleware": [
         "./dist/virtual-modules/middleware.d.ts"
       ]
@@ -55,6 +58,7 @@
     "./app/entrypoint/dev": "./dist/core/app/entrypoints/virtual/dev.js",
     "./app/entrypoint/prod": "./dist/core/app/entrypoints/virtual/prod.js",
     "./app/manifest": "./dist/core/app/entrypoints/manifest.js",
+    "./app/fetch/default-handler": "./dist/core/fetch/default-handler.js",
     "./entrypoints/prerender": "./dist/entrypoints/prerender.js",
     "./entrypoints/legacy": "./dist/entrypoints/legacy.js",
     "./client/*": "./dist/runtime/client/*",
@@ -71,6 +75,8 @@
     "./assets/services/sharp": "./dist/assets/services/sharp.js",
     "./assets/services/noop": "./dist/assets/services/noop.js",
     "./cache/memory": "./dist/core/cache/memory-provider.js",
+    "./fetch": "./dist/core/fetch/index.js",
+    "./hono": "./dist/core/hono/index.js",
     "./assets/fonts/runtime.js": "./dist/assets/fonts/runtime.js",
     "./loaders": "./dist/content/loaders/index.js",
     "./content/config": "./dist/content/config.js",
@@ -112,7 +118,7 @@
   ],
   "scripts": {
     "prebuild": "astro-scripts prebuild --to-string \"src/runtime/server/astro-island.ts\" \"src/runtime/client/{idle,load,media,only,visible}.ts\"",
-    "build": "pnpm run prebuild && astro-scripts build \"src/**/*.{ts,js}\" --copy-wasm && tsc && astro-check -- -- --root ./components",
+    "build": "pnpm run prebuild && astro-scripts build \"src/**/*.{ts,js}\" --copy-wasm && tsc -b && astro-check -- -- --root ./components",
     "build:ci": "pnpm run prebuild && astro-scripts build \"src/**/*.{ts,js}\" --copy-wasm",
     "dev": "astro-scripts dev --copy-wasm --prebuild \"src/runtime/server/astro-island.ts\" --prebuild \"src/runtime/client/{idle,load,media,only,visible}.ts\" \"src/**/*.{ts,js}\"",
     "test": "pnpm run test:unit && pnpm run test:integration && pnpm run test:types",
@@ -123,7 +129,6 @@
     "test:e2e:chrome": "playwright test",
     "test:e2e:firefox": "playwright test --config playwright.firefox.config.js",
     "test:types": "tsc --build test/types/tsconfig.json",
-    "typecheck:tests": "tsc --build tsconfig.test.json",
     "test:unit": "astro-scripts test \"test/units/**/*.test.ts\" --strip-types --teardown ./test/units/teardown.ts",
     "test:integration": "pnpm run test:integration:js && pnpm run test:integration:ts",
     "test:integration:js": "astro-scripts test \"test/*.test.js\"",
@@ -207,6 +212,7 @@
     "eol": "^0.10.0",
     "expect-type": "^1.3.0",
     "fs-fixture": "^2.13.0",
+    "hono": "^4.12.14",
     "mdast-util-mdx": "^3.0.0",
     "mdast-util-mdx-jsx": "^3.2.0",
     "node-mocks-http": "^1.17.2",
@@ -256,6 +262,7 @@
       "./app/entrypoint/dev": "./dist/core/app/entrypoints/virtual/dev.js",
       "./app/entrypoint/prod": "./dist/core/app/entrypoints/virtual/prod.js",
       "./app/manifest": "./dist/core/app/entrypoints/manifest.js",
+      "./app/fetch/default-handler": "./dist/core/fetch/default-handler.js",
       "./entrypoints/prerender": "./dist/entrypoints/prerender.js",
       "./entrypoints/legacy": "./dist/entrypoints/legacy.js",
       "./client/*": "./dist/runtime/client/*",
@@ -272,6 +279,8 @@
       "./assets/services/sharp": "./dist/assets/services/sharp.js",
       "./assets/services/noop": "./dist/assets/services/noop.js",
       "./cache/memory": "./dist/core/cache/memory-provider.js",
+      "./fetch": "./dist/core/fetch/index.js",
+      "./hono": "./dist/core/hono/index.js",
       "./assets/fonts/runtime.js": "./dist/assets/fonts/runtime.js",
       "./loaders": "./dist/content/loaders/index.js",
       "./content/config": "./dist/content/config.js",

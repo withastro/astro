@@ -3,6 +3,7 @@ import { isRemotePath } from '@astrojs/internal-helpers/path';
 import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import type { APIRoute } from 'astro';
 import { env } from 'cloudflare:workers';
+import { fetchWithRedirects } from 'astro/assets';
 
 export const prerender = false;
 
@@ -20,7 +21,10 @@ export const GET: APIRoute = async ({ request }) => {
 			if (!isRemoteAllowed(href, imageConfig)) {
 				return new Response('Forbidden', { status: 403 });
 			}
-			response = await fetch(href, { redirect: 'manual' });
+			response = await fetchWithRedirects({
+				url: href,
+				imageConfig,
+			});
 		} else {
 			const sourceUrl = new URL(href, url.origin);
 			if (sourceUrl.origin !== url.origin) {

@@ -40,11 +40,10 @@
   ],
   "scripts": {
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "build": "astro-scripts build \"src/**/*.ts\" && tsc",
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc -b",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "test": "astro-scripts test --timeout 60000 \"test/**/!(hosted).test.ts\"",
-    "test:hosted": "astro-scripts test --timeout 30000 \"test/hosted/*.test.ts\"",
-    "typecheck:tests": "tsc --build tsconfig.test.json"
+    "test:hosted": "astro-scripts test --timeout 30000 \"test/hosted/*.test.ts\""
   },
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",

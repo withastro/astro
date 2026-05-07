@@ -236,15 +236,14 @@
   },
   "scripts": {
     "prebuild": "cd ../ts-plugin && pnpm build",
-    "build": "tsc && pnpm prebuild && node scripts/build.mjs -- --minify",
+    "build": "tsc -b && pnpm prebuild && node scripts/build.mjs -- --minify",
     "dev": "node scripts/build.mjs -- --watch",
     "build:grammar": "node scripts/build-grammar.mjs",
     "dev:grammar": "node scripts/build-grammar.mjs -- --watch",
     "test": "pnpm test:vscode && pnpm test:grammar",
     "test:vscode": "vscode-test",
     "test:grammar": "pnpm build:grammar && node ./test/grammar/test.mjs",
-    "update-grammar-snapshots": "node ./test/grammar/test.mjs --updateSnapshot",
-    "typecheck:tests": "tsc --build tsconfig.test.json"
+    "update-grammar-snapshots": "node ./test/grammar/test.mjs --updateSnapshot"
   },
   "devDependencies": {
     "@astrojs/language-server": "^2.16.6",

@@ -1,9 +1,8 @@
 {
-  "extends": "../../../tsconfig.base.json",
+  "extends": "../../../configs/tsconfig.base.json",
   "compilerOptions": {
-    "allowJs": true,
     "emitDeclarationOnly": false,
-    "noEmit": true,
     "jsx": "preserve"
-  }
+  },
+  "references": [{ "path": "../tsconfig.build.json" }]
 }
