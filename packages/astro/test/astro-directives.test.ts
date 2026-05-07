@@ -1,23 +1,12 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
+import { fixture } from './preludes/standard-static.prelude.ts';
 import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
-describe('Directives', async () => {
-	let fixture: Fixture;
-
-	before(async () => {
-		fixture = await loadFixture({
-			root: './fixtures/astro-directives/',
-			// test suite was authored when inlineStylesheets defaulted to never
-			build: { inlineStylesheets: 'never' },
-			outDir: './dist/astro-directives-directives/',
-		});
-		await fixture.build();
-	});
-
+describe('Directives', () => {
 	it('Passes define:vars to script elements', async () => {
-		const html = await fixture.readFile('/define-vars/index.html');
+		const html = await fixture.readFile('/directives/define-vars/index.html');
 		const $ = cheerio.load(html);
 
 		assert.equal($('script').length, 5);
@@ -48,7 +37,7 @@ describe('Directives', async () => {
 	});
 
 	it('Passes define:vars to style elements', async () => {
-		const html = await fixture.readFile('/define-vars/index.html');
+		const html = await fixture.readFile('/directives/define-vars/index.html');
 		const $ = cheerio.load(html);
 
 		// All styles should be bundled
@@ -63,7 +52,7 @@ describe('Directives', async () => {
 	});
 
 	it('Properly handles define:vars on style elements with style object', async () => {
-		const html = await fixture.readFile('/define-vars/index.html');
+		const html = await fixture.readFile('/directives/define-vars/index.html');
 		const $ = cheerio.load(html);
 
 		// All styles should be bundled
@@ -80,7 +69,7 @@ describe('Directives', async () => {
 	});
 
 	it('set:html', async () => {
-		const html = await fixture.readFile('/set-html/index.html');
+		const html = await fixture.readFile('/directives/set-html/index.html');
 		const $ = cheerio.load(html);
 
 		assert.equal($('#text').length, 1);
@@ -106,7 +95,7 @@ describe('Directives', async () => {
 	});
 
 	it('ignores client directives on Astro components', async () => {
-		const html = await fixture.readFile('/client/index.html');
+		const html = await fixture.readFile('/directives/client/index.html');
 		const $ = cheerio.load(html);
 
 		const hello = $('h1.hello');
@@ -120,16 +109,16 @@ describe('Directives', async () => {
 	});
 
 	it('set:html Fragment as slot (children)', async () => {
-		let res = await fixture.readFile('/set-html-children/index.html');
+		let res = await fixture.readFile('/directives/set-html-children/index.html');
 		assert.equal(res.includes('Test'), true);
 	});
 });
 
 describe('set:html dev', () => {
-	let fixture: Fixture;
+	let devFixture: Fixture;
 
 	before(async () => {
-		fixture = await loadFixture({
+		devFixture = await loadFixture({
 			root: './fixtures/astro-directives/',
 			outDir: './dist/astro-directives-set-html-dev/',
 		});
@@ -139,13 +128,13 @@ describe('set:html dev', () => {
 		let devServer: DevServer;
 
 		before(async () => {
-			devServer = await fixture.startDevServer();
+			devServer = await devFixture.startDevServer();
 			(globalThis as any).TEST_FETCH = (
 				fetch: typeof globalThis.fetch,
 				url: string,
 				init?: RequestInit,
 			) => {
-				return fetch(fixture.resolveUrl(url), init);
+				return fetch(devFixture.resolveUrl(url), init);
 			};
 		});
 
@@ -154,7 +143,7 @@ describe('set:html dev', () => {
 		});
 
 		it('set:html can take a fetch()', async () => {
-			let res = await fixture.fetch('/set-html-fetch');
+			let res = await devFixture.fetch('/set-html-fetch');
 			assert.equal(res.status, 200);
 			let html = await res.text();
 			const $ = cheerio.load(html);
@@ -163,7 +152,7 @@ describe('set:html dev', () => {
 		});
 
 		it('set:html Fragment as slot (children) in dev', async () => {
-			let res = await fixture.fetch('/set-html-children');
+			let res = await devFixture.fetch('/set-html-children');
 			assert.equal(res.status, 200);
 			let html = await res.text();
 			assert.equal(html.includes('Test'), true);

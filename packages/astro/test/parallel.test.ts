@@ -1,21 +1,11 @@
 import assert from 'node:assert/strict';
-import { before, describe, it } from 'node:test';
+import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.ts';
+import { fixture } from './preludes/standard-static.prelude.ts';
 
 describe('Component parallelization', () => {
-	let fixture: Fixture;
-
-	before(async () => {
-		fixture = await loadFixture({
-			root: './fixtures/parallel/',
-			outDir: './dist/parallel/',
-		});
-		await fixture.build();
-	});
-
 	it('renders fast', async () => {
-		let html = await fixture.readFile('/index.html');
+		let html = await fixture.readFile('/parallel-test/index.html');
 		let $ = cheerio.load(html);
 
 		const startTimes = Array.from($('.start')).map((element) => Number($(element).text()));

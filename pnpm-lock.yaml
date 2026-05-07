@@ -4159,6 +4159,75 @@ importers:
         specifier: ^10.29.0
         version: 10.29.0
 
+  packages/astro/test/fixtures/standard-framework-slots:
+    dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../../../integrations/mdx
+      '@astrojs/preact':
+        specifier: workspace:*
+        version: link:../../../../integrations/preact
+      '@astrojs/react':
+        specifier: workspace:*
+        version: link:../../../../integrations/react
+      '@astrojs/solid-js':
+        specifier: workspace:*
+        version: link:../../../../integrations/solid
+      '@astrojs/svelte':
+        specifier: workspace:*
+        version: link:../../../../integrations/svelte
+      '@astrojs/vue':
+        specifier: workspace:*
+        version: link:../../../../integrations/vue
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      preact:
+        specifier: ^10.29.0
+        version: 10.29.0
+      react:
+        specifier: ^19.1.0
+        version: 19.2.4
+      react-dom:
+        specifier: ^19.1.0
+        version: 19.2.4(react@19.2.4)
+      solid-js:
+        specifier: ^1.9.7
+        version: 1.9.11
+      svelte:
+        specifier: ^5.54.0
+        version: 5.55.3
+      vue:
+        specifier: ^3.5.30
+        version: 3.5.30(typescript@5.9.3)
+
+  packages/astro/test/fixtures/standard-static:
+    dependencies:
+      '@astrojs/preact':
+        specifier: workspace:*
+        version: link:../../../../integrations/preact
+      '@astrojs/svelte':
+        specifier: workspace:*
+        version: link:../../../../integrations/svelte
+      '@astrojs/vue':
+        specifier: workspace:*
+        version: link:../../../../integrations/vue
+      '@preact/signals':
+        specifier: 2.8.2
+        version: 2.8.2(preact@10.29.0)
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      preact:
+        specifier: ^10.29.0
+        version: 10.29.0
+      svelte:
+        specifier: ^5.54.0
+        version: 5.55.3
+      vue:
+        specifier: ^3.5.30
+        version: 3.5.30(typescript@5.9.3)
+
   packages/astro/test/fixtures/static-build:
     dependencies:
       '@astrojs/preact':

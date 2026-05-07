@@ -1,21 +1,11 @@
 import assert from 'node:assert/strict';
-import { before, describe, it } from 'node:test';
+import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.ts';
+import { fixture } from './preludes/standard-static.prelude.ts';
 
 describe('Hydration script ordering', async () => {
-	let fixture: Fixture;
-
-	before(async () => {
-		fixture = await loadFixture({
-			root: './fixtures/hydration-race',
-			outDir: './dist/hydration-race/',
-		});
-		await fixture.build();
-	});
-
 	it('Places the hydration script before the first island', async () => {
-		let html = await fixture.readFile('/index.html');
+		let html = await fixture.readFile('/hydration-race/index.html');
 		let $ = cheerio.load(html);
 
 		// First, let's make sure all islands rendered (or test is bad)
@@ -32,7 +22,7 @@ describe('Hydration script ordering', async () => {
 	});
 
 	it('Hydration script included when inside dynamic slot', async () => {
-		let html = await fixture.readFile('/slot/index.html');
+		let html = await fixture.readFile('/hydration-race/slot/index.html');
 		let $ = cheerio.load(html);
 
 		// First, let's make sure all islands rendered

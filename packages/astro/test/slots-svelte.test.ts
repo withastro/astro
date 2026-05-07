@@ -1,21 +1,11 @@
 import assert from 'node:assert/strict';
-import { before, describe, it } from 'node:test';
+import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.ts';
+import { fixture } from './preludes/standard-framework-slots.prelude.ts';
 
 describe('Slots: Svelte', () => {
-	let fixture: Fixture;
-
-	before(async () => {
-		fixture = await loadFixture({
-			root: './fixtures/slots-svelte/',
-			outDir: './dist/slots-svelte/',
-		});
-		await fixture.build();
-	});
-
 	it('Renders default slot', async () => {
-		const html = await fixture.readFile('/index.html');
+		const html = await fixture.readFile('/svelte/index.html');
 		const $ = cheerio.load(html);
 
 		assert.equal($('#default-self-closing').text().trim(), 'Fallback');
@@ -27,32 +17,32 @@ describe('Slots: Svelte', () => {
 	});
 
 	it('Renders named slot', async () => {
-		const html = await fixture.readFile('/index.html');
+		const html = await fixture.readFile('/svelte/index.html');
 		const $ = cheerio.load(html);
 		assert.equal($('#named').text().trim(), 'Fallback / Named');
 	});
 
 	it('Preserves dash-case slot', async () => {
-		const html = await fixture.readFile('/index.html');
+		const html = await fixture.readFile('/svelte/index.html');
 		const $ = cheerio.load(html);
 		assert.equal($('#dash-case').text().trim(), 'Fallback / Dash Case');
 	});
 
 	describe('For MDX Pages', () => {
 		it('Renders default slot', async () => {
-			const html = await fixture.readFile('/mdx/index.html');
+			const html = await fixture.readFile('/svelte/mdx/index.html');
 			const $ = cheerio.load(html);
 			assert.equal($('#content').text().trim(), 'Hello world!');
 		});
 
 		it('Renders named slot', async () => {
-			const html = await fixture.readFile('/mdx/index.html');
+			const html = await fixture.readFile('/svelte/mdx/index.html');
 			const $ = cheerio.load(html);
 			assert.equal($('#named').text().trim(), 'Fallback / Named');
 		});
 
 		it('Preserves dash-case slot', async () => {
-			const html = await fixture.readFile('/index.html');
+			const html = await fixture.readFile('/svelte/index.html');
 			const $ = cheerio.load(html);
 			assert.equal($('#dash-case').text().trim(), 'Fallback / Dash Case');
 		});

@@ -53,6 +53,24 @@
       "cache": false,
       "persistent": true
     },
+    "build:fixtures": {
+      "dependsOn": ["build"],
+      "inputs": [
+        "test/fixtures/standard-static/src/**",
+        "test/fixtures/standard-static/astro.config.mjs",
+        "test/fixtures/standard-static/package.json",
+        "test/fixtures/standard-framework-slots/src/**",
+        "test/fixtures/standard-framework-slots/astro.config.mjs",
+        "test/fixtures/standard-framework-slots/package.json",
+        "test/preludes/**",
+        "test/preamble.ts"
+      ],
+      "outputs": [
+        "test/fixtures/standard-static/dist/**",
+        "test/fixtures/standard-framework-slots/dist/**"
+      ],
+      "outputLogs": "new-only"
+    },
     "test": {
       "dependsOn": ["^test"],
       "env": ["RUNNER_OS", "NODE_VERSION"],

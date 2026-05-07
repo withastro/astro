@@ -3,6 +3,7 @@
   "include": [
     "test/units/**/*.ts",
     "test/*.ts",
+    "test/preludes/**/*.ts",
     "e2e/*.ts",
     "./performance/*.mjs",
     "./performance/scripts/*.mjs",

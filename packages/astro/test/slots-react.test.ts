@@ -1,18 +1,11 @@
 import assert from 'node:assert/strict';
-import { before, describe, it } from 'node:test';
+import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.ts';
+import { fixture } from './preludes/standard-framework-slots.prelude.ts';
 
 describe('Slots: React', () => {
-	let fixture: Fixture;
-
-	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/slots-react/', outDir: './dist/slots-react/' });
-		await fixture.build();
-	});
-
 	it('Renders default slot', async () => {
-		const html = await fixture.readFile('/index.html');
+		const html = await fixture.readFile('/react/index.html');
 		const $ = cheerio.load(html);
 
 		assert.equal($('#default-self-closing').text().trim(), 'Fallback');
@@ -24,32 +17,32 @@ describe('Slots: React', () => {
 	});
 
 	it('Renders named slot', async () => {
-		const html = await fixture.readFile('/index.html');
+		const html = await fixture.readFile('/react/index.html');
 		const $ = cheerio.load(html);
 		assert.equal($('#named').text().trim(), 'Fallback / Named');
 	});
 
 	it('Converts dash-case slot to camelCase', async () => {
-		const html = await fixture.readFile('/index.html');
+		const html = await fixture.readFile('/react/index.html');
 		const $ = cheerio.load(html);
 		assert.equal($('#dash-case').text().trim(), 'Fallback / Dash Case');
 	});
 
 	describe('For MDX Pages', () => {
 		it('Renders default slot', async () => {
-			const html = await fixture.readFile('/mdx/index.html');
+			const html = await fixture.readFile('/react/mdx/index.html');
 			const $ = cheerio.load(html);
 			assert.equal($('#content').text().trim(), 'Hello world!');
 		});
 
 		it('Renders named slot', async () => {
-			const html = await fixture.readFile('/mdx/index.html');
+			const html = await fixture.readFile('/react/mdx/index.html');
 			const $ = cheerio.load(html);
 			assert.equal($('#named').text().trim(), 'Fallback / Named');
 		});
 
 		it('Converts dash-case slot to camelCase', async () => {
-			const html = await fixture.readFile('/mdx/index.html');
+			const html = await fixture.readFile('/react/mdx/index.html');
 			const $ = cheerio.load(html);
 			assert.equal($('#dash-case').text().trim(), 'Fallback / Dash Case');
 		});
@@ -57,7 +50,7 @@ describe('Slots: React', () => {
 
 	describe('Slots.render() API', async () => {
 		it('Simple imperative slot render', async () => {
-			const html = await fixture.readFile('/slottedapi-render/index.html');
+			const html = await fixture.readFile('/react/slottedapi-render/index.html');
 			const $ = cheerio.load(html);
 
 			assert.equal($('#render').length, 1);
@@ -65,7 +58,7 @@ describe('Slots: React', () => {
 		});
 
 		it('Child function render without args', async () => {
-			const html = await fixture.readFile('/slottedapi-render/index.html');
+			const html = await fixture.readFile('/react/slottedapi-render/index.html');
 			const $ = cheerio.load(html);
 
 			assert.equal($('#render-fn').length, 1);
@@ -73,7 +66,7 @@ describe('Slots: React', () => {
 		});
 
 		it('Child function render with args', async () => {
-			const html = await fixture.readFile('/slottedapi-render/index.html');
+			const html = await fixture.readFile('/react/slottedapi-render/index.html');
 			const $ = cheerio.load(html);
 
 			assert.equal($('#render-args').length, 1);

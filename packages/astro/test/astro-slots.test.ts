@@ -1,18 +1,11 @@
 import assert from 'node:assert/strict';
-import { before, describe, it } from 'node:test';
+import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.ts';
+import { fixture } from './preludes/standard-static.prelude.ts';
 
 describe('Slots', () => {
-	let fixture: Fixture;
-
-	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/astro-slots/', outDir: './dist/astro-slots/' });
-		await fixture.build();
-	});
-
 	it('Basic named slots work', async () => {
-		const html = await fixture.readFile('/index.html');
+		const html = await fixture.readFile('/slots/index.html');
 		const $ = cheerio.load(html);
 
 		assert.equal($('#a').text().trim(), 'A');
@@ -22,7 +15,7 @@ describe('Slots', () => {
 	});
 
 	it('Dynamic named slots work', async () => {
-		const html = await fixture.readFile('/dynamic/index.html');
+		const html = await fixture.readFile('/slots/dynamic/index.html');
 		const $ = cheerio.load(html);
 
 		assert.equal($('#a').text().trim(), 'A');
@@ -32,7 +25,7 @@ describe('Slots', () => {
 	});
 
 	it('Conditional named slots work', async () => {
-		const html = await fixture.readFile('/conditional/index.html');
+		const html = await fixture.readFile('/slots/conditional/index.html');
 		const $ = cheerio.load(html);
 
 		assert.equal($('#a').text().trim(), 'A');
@@ -42,21 +35,21 @@ describe('Slots', () => {
 	});
 
 	it('Slots of a component render fallback content by default', async () => {
-		const html = await fixture.readFile('/fallback/index.html');
+		const html = await fixture.readFile('/slots/fallback/index.html');
 		const $ = cheerio.load(html);
 
 		assert.equal($('#default').length, 1);
 	});
 
 	it('Slots of a page render fallback content', async () => {
-		const html = await fixture.readFile('/fallback-own/index.html');
+		const html = await fixture.readFile('/slots/fallback-own/index.html');
 		const $ = cheerio.load(html);
 
 		assert.equal($('#default').length, 1);
 	});
 
 	it('Slots override fallback content', async () => {
-		const html = await fixture.readFile('/fallback-override/index.html');
+		const html = await fixture.readFile('/slots/fallback-override/index.html');
 		const $ = cheerio.load(html);
 
 		assert.equal($('#override').length, 1);
@@ -64,14 +57,14 @@ describe('Slots', () => {
 	});
 
 	it('Slots work with multiple elements', async () => {
-		const html = await fixture.readFile('/multiple/index.html');
+		const html = await fixture.readFile('/slots/multiple/index.html');
 		const $ = cheerio.load(html);
 
 		assert.equal($('#a').text().trim(), 'ABC');
 	});
 
 	it('Slots work on Components', async () => {
-		const html = await fixture.readFile('/component/index.html');
+		const html = await fixture.readFile('/slots/component/index.html');
 		const $ = cheerio.load(html);
 
 		// test 1: #a renders
@@ -85,7 +78,7 @@ describe('Slots', () => {
 
 	describe('Slots API work on Components', () => {
 		it('IDs will exist whether the slots are filled or not', async () => {
-			const html = await fixture.readFile('/slottedapi-default/index.html');
+			const html = await fixture.readFile('/slots/slottedapi-default/index.html');
 			const $ = cheerio.load(html);
 
 			assert.equal($('#a').length, 1);
@@ -95,7 +88,7 @@ describe('Slots', () => {
 		});
 
 		it('IDs will not exist because the slots are not filled', async () => {
-			const html = await fixture.readFile('/slottedapi-empty/index.html');
+			const html = await fixture.readFile('/slots/slottedapi-empty/index.html');
 			const $ = cheerio.load(html);
 
 			assert.equal($('#a').length, 0);
@@ -105,7 +98,7 @@ describe('Slots', () => {
 		});
 
 		it('IDs will exist because the slots are filled', async () => {
-			const html = await fixture.readFile('/slottedapi-filled/index.html');
+			const html = await fixture.readFile('/slots/slottedapi-filled/index.html');
 			const $ = cheerio.load(html);
 
 			assert.equal($('#a').length, 1);
@@ -116,7 +109,7 @@ describe('Slots', () => {
 		});
 
 		it('Default ID will exist because the default slot is filled', async () => {
-			const html = await fixture.readFile('/slottedapi-default-filled/index.html');
+			const html = await fixture.readFile('/slots/slottedapi-default-filled/index.html');
 			const $ = cheerio.load(html);
 
 			assert.equal($('#a').length, 0);
@@ -130,7 +123,7 @@ describe('Slots', () => {
 	it('Slots.render() API', async () => {
 		// Simple imperative slot render
 		{
-			const html = await fixture.readFile('/slottedapi-render/index.html');
+			const html = await fixture.readFile('/slots/slottedapi-render/index.html');
 			const $ = cheerio.load(html);
 
 			assert.equal($('#render').length, 1);
@@ -139,7 +132,7 @@ describe('Slots', () => {
 
 		// Child function render without args
 		{
-			const html = await fixture.readFile('/slottedapi-render/index.html');
+			const html = await fixture.readFile('/slots/slottedapi-render/index.html');
 			const $ = cheerio.load(html);
 
 			assert.equal($('#render-fn').length, 1);
@@ -148,7 +141,7 @@ describe('Slots', () => {
 
 		// Child function render with args
 		{
-			const html = await fixture.readFile('/slottedapi-render/index.html');
+			const html = await fixture.readFile('/slots/slottedapi-render/index.html');
 			const $ = cheerio.load(html);
 
 			assert.equal($('#render-args').length, 1);
@@ -157,7 +150,7 @@ describe('Slots', () => {
 		}
 
 		{
-			const html = await fixture.readFile('/rendered-multiple-times/index.html');
+			const html = await fixture.readFile('/slots/rendered-multiple-times/index.html');
 			const $ = cheerio.load(html);
 
 			const elements = $('div');
@@ -174,7 +167,7 @@ describe('Slots', () => {
 	});
 
 	it('Arguments can be passed to named slots with Astro.slots.render()', async () => {
-		const html = await fixture.readFile('/slotted-named-functions/index.html');
+		const html = await fixture.readFile('/slots/slotted-named-functions/index.html');
 		const $ = cheerio.load(html);
 		const beforeDiv = $('div#before > div');
 		assert.deepEqual(beforeDiv.text(), 'Test Content BEFORE');
@@ -183,14 +176,14 @@ describe('Slots', () => {
 	});
 
 	it('Arguments can be passed to conditional named slots with Astro.slots.render()', async () => {
-		const html = await fixture.readFile('/conditional-slotted-callback/index.html');
+		const html = await fixture.readFile('/slots/conditional-slotted-callback/index.html');
 		const $ = cheerio.load(html);
 
 		assert.equal($('#conditional-block').text(), 'Block: block');
 	});
 
 	it('Unused slot builds without error', async () => {
-		const html = await fixture.readFile('/unused-slot/index.html');
+		const html = await fixture.readFile('/slots/unused-slot/index.html');
 		const $ = cheerio.load(html);
 		// No children, slot rendered as empty
 		assert.equal($('body p').children().length, 0);

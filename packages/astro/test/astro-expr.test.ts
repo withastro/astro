@@ -1,21 +1,11 @@
 import assert from 'node:assert/strict';
-import { before, describe, it } from 'node:test';
+import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.ts';
+import { fixture } from './preludes/standard-static.prelude.ts';
 
 describe('Expressions', () => {
-	let fixture: Fixture;
-
-	before(async () => {
-		fixture = await loadFixture({
-			root: './fixtures/astro-expr/',
-			outDir: './dist/astro-expr/',
-		});
-		await fixture.build();
-	});
-
 	it('Can load page', async () => {
-		const html = await fixture.readFile('/index.html');
+		const html = await fixture.readFile('/expr/index.html');
 		const $ = cheerio.load(html);
 
 		for (let col of ['red', 'yellow', 'blue']) {
@@ -24,7 +14,7 @@ describe('Expressions', () => {
 	});
 
 	it('Ignores characters inside of strings', async () => {
-		const html = await fixture.readFile('/strings/index.html');
+		const html = await fixture.readFile('/expr/strings/index.html');
 		const $ = cheerio.load(html);
 
 		for (let col of ['red', 'yellow', 'blue']) {
@@ -33,7 +23,7 @@ describe('Expressions', () => {
 	});
 
 	it('Ignores characters inside of line comments', async () => {
-		const html = await fixture.readFile('/line-comments/index.html');
+		const html = await fixture.readFile('/expr/line-comments/index.html');
 		const $ = cheerio.load(html);
 
 		for (let col of ['red', 'yellow', 'blue']) {
@@ -42,7 +32,7 @@ describe('Expressions', () => {
 	});
 
 	it('Ignores characters inside of multiline comments', async () => {
-		const html = await fixture.readFile('/multiline-comments/index.html');
+		const html = await fixture.readFile('/expr/multiline-comments/index.html');
 		const $ = cheerio.load(html);
 
 		for (let col of ['red', 'yellow', 'blue']) {
@@ -51,14 +41,14 @@ describe('Expressions', () => {
 	});
 
 	it('Allows multiple JSX children in mustache', async () => {
-		const html = await fixture.readFile('/multiple-children/index.html');
+		const html = await fixture.readFile('/expr/multiple-children/index.html');
 
 		assert.equal(html.includes('#f'), true);
 		assert.equal(html.includes('#t'), false);
 	});
 
 	it('Allows <> Fragments in expressions', async () => {
-		const html = await fixture.readFile('/multiple-children/index.html');
+		const html = await fixture.readFile('/expr/multiple-children/index.html');
 		const $ = cheerio.load(html);
 
 		assert.equal($('#fragment').children().length, 3);
@@ -68,7 +58,7 @@ describe('Expressions', () => {
 	});
 
 	it('Does not render falsy values using &&', async () => {
-		const html = await fixture.readFile('/falsy/index.html');
+		const html = await fixture.readFile('/expr/falsy/index.html');
 		const $ = cheerio.load(html);
 
 		// test 1: Expected {true && <span id="true" />} to render
@@ -102,7 +92,7 @@ describe('Expressions', () => {
 	});
 
 	it('Handles switch statements', async () => {
-		const html = await fixture.readFile('/switch/index.html');
+		const html = await fixture.readFile('/expr/switch/index.html');
 		const $ = cheerio.load(html);
 
 		assert.equal($('#red').length, 0);
@@ -111,19 +101,19 @@ describe('Expressions', () => {
 	});
 
 	it('Shows static content for dynamic component fallback', async () => {
-		const html = await fixture.readFile('/fallback/index.html');
+		const html = await fixture.readFile('/expr/fallback/index.html');
 		const $ = cheerio.load(html);
 		assert.equal($('#fallback').text(), 'static');
 	});
 
 	it('Slots with client: directives - tags of dynamic tags works', async () => {
-		const html = await fixture.readFile('/slot-with-client/index.html');
+		const html = await fixture.readFile('/expr/slot-with-client/index.html');
 		const $ = cheerio.load(html);
 		assert.equal($('script').length, 2);
 	});
 
 	it('Slots with client: directives - astro slot tags are kept', async () => {
-		const html = await fixture.readFile('/slot-with-client/index.html');
+		const html = await fixture.readFile('/expr/slot-with-client/index.html');
 		const $ = cheerio.load(html);
 		assert.equal($('astro-slot').length, 1);
 	});

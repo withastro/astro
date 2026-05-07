@@ -1,35 +1,25 @@
 import assert from 'node:assert/strict';
-import { before, describe, it } from 'node:test';
+import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.ts';
+import { fixture } from './preludes/standard-static.prelude.ts';
 
 describe('Doctype', () => {
-	let fixture: Fixture;
-
-	before(async () => {
-		fixture = await loadFixture({
-			root: './fixtures/astro-doctype/',
-			outDir: './dist/astro-doctype/',
-		});
-		await fixture.build();
-	});
-
 	it('Automatically prepends the standards mode doctype', async () => {
-		const html = await fixture.readFile('/prepend/index.html');
+		const html = await fixture.readFile('/doctype/prepend/index.html');
 
 		// test that Doctype always included
 		assert.match(html, /^<!DOCTYPE html>/i);
 	});
 
 	it('No attributes added when doctype is provided by user', async () => {
-		const html = await fixture.readFile('/provided/index.html');
+		const html = await fixture.readFile('/doctype/provided/index.html');
 
 		// test that Doctype always included
 		assert.match(html, /^<!DOCTYPE html>/i);
 	});
 
 	it.skip('Preserves user provided doctype', async () => {
-		const html = await fixture.readFile('/preserve/index.html');
+		const html = await fixture.readFile('/doctype/preserve/index.html');
 
 		// test that Doctype included was preserved
 		assert.match(
@@ -39,7 +29,7 @@ describe('Doctype', () => {
 	});
 
 	it('User provided doctype is case-insensitive', async () => {
-		const html = await fixture.readFile('/capital/index.html');
+		const html = await fixture.readFile('/doctype/capital/index.html');
 
 		// test 1: Doctype left alone
 		assert.match(html, /^<!DOCTYPE html>/i);
@@ -49,7 +39,7 @@ describe('Doctype', () => {
 	});
 
 	it.skip('Doctype can be provided in a layout', async () => {
-		const html = await fixture.readFile('/in-layout/index.html');
+		const html = await fixture.readFile('/doctype/in-layout/index.html');
 
 		// test 1: doctype is at the front
 		assert.match(html, /^<!DOCTYPE html>/i);
@@ -60,14 +50,14 @@ describe('Doctype', () => {
 	});
 
 	it('Doctype is added in a layout without one', async () => {
-		const html = await fixture.readFile('/in-layout-no-doctype/index.html');
+		const html = await fixture.readFile('/doctype/in-layout-no-doctype/index.html');
 
 		// test that doctype is at the front
 		assert.match(html, /^<!DOCTYPE html>/i);
 	});
 
 	it('Doctype is added in a layout used with markdown pages', async () => {
-		const html = await fixture.readFile('/in-layout-article/index.html');
+		const html = await fixture.readFile('/doctype/in-layout-article/index.html');
 
 		// test 1: doctype is at the front
 		assert.match(html, /^<!DOCTYPE html>/i);

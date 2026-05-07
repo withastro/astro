@@ -1,21 +1,11 @@
 import assert from 'node:assert/strict';
-import { before, describe, it } from 'node:test';
+import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.ts';
+import { fixture } from './preludes/standard-static.prelude.ts';
 
 describe('Partials CSS propagation', () => {
-	let fixture: Fixture;
-
-	before(async () => {
-		fixture = await loadFixture({
-			root: './fixtures/partials-css-boundary/',
-			outDir: './dist/partials-css-boundary/',
-		});
-		await fixture.build();
-	});
-
 	it('includes transitive CSS from partials imported as components in build output', async () => {
-		const html = await fixture.readFile('/index.html');
+		const html = await fixture.readFile('/partials/index.html');
 		const $ = cheerio.load(html);
 		let styles = $('style')
 			.toArray()

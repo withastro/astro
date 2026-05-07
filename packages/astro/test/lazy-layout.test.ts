@@ -1,23 +1,11 @@
 import assert from 'node:assert/strict';
-import { before, describe, it } from 'node:test';
+import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.ts';
+import { fixture } from './preludes/standard-static.prelude.ts';
 
 describe('Lazily imported layouts', () => {
-	let fixture: Fixture;
-
-	before(async () => {
-		fixture = await loadFixture({
-			root: './fixtures/lazy-layout/',
-			// test suite was authored when inlineStylesheets defaulted to never
-			build: { inlineStylesheets: 'never' },
-			outDir: './dist/lazy-layout/',
-		});
-		await fixture.build();
-	});
-
 	it('Renders styles only once', async () => {
-		const html = await fixture.readFile('/index.html');
+		const html = await fixture.readFile('/lazy-layout/index.html');
 		const $ = cheerio.load(html);
 		assert.equal($('link').length, 1);
 	});

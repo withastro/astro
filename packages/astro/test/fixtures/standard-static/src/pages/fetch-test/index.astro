@@ -1,0 +1,23 @@
+---
+import AlreadyImported from '../../components/fetch-test/AlreadyImported.astro';
+import Test from '../../components/fetch-test/AstroComponent.astro';
+import CustomDeclaration from '../../components/fetch-test/CustomDeclaration.astro';
+import JsxComponent from '../../components/fetch-test/JsxComponent.jsx';
+import SvelteComponent from '../../components/fetch-test/SvelteComponent.svelte';
+import VueComponent from '../../components/fetch-test/VueComponent.vue';
+---
+
+<html lang="en">
+<head>
+  <title>Global fetch</title>
+</head>
+<body>
+  <span id="astro-page">{typeof fetch}</span>
+  <Test />
+  <AlreadyImported />
+  <CustomDeclaration />
+  <JsxComponent />
+  <SvelteComponent />
+  <VueComponent />
+</body>
+</html>

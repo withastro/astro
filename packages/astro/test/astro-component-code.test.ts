@@ -1,21 +1,11 @@
 import assert from 'node:assert/strict';
-import { before, describe, it } from 'node:test';
+import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.ts';
+import { fixture } from './preludes/standard-static.prelude.ts';
 
 describe('<Code>', () => {
-	let fixture: Fixture;
-
-	before(async () => {
-		fixture = await loadFixture({
-			root: './fixtures/astro-component-code/',
-			outDir: './dist/astro-component-code/',
-		});
-		await fixture.build();
-	});
-
 	it('<Code> without lang or theme', async () => {
-		let html = await fixture.readFile('/no-lang/index.html');
+		let html = await fixture.readFile('/code/no-lang/index.html');
 		const $ = cheerio.load(html);
 		assert.equal($('pre').length, 1);
 		assert.equal(
@@ -30,7 +20,7 @@ describe('<Code>', () => {
 	});
 
 	it('<Code lang="...">', async () => {
-		let html = await fixture.readFile('/basic/index.html');
+		let html = await fixture.readFile('/code/basic/index.html');
 		const $ = cheerio.load(html);
 		assert.equal($('pre').length, 1);
 		assert.equal($('pre').attr('class'), 'astro-code github-dark');
@@ -40,7 +30,7 @@ describe('<Code>', () => {
 	});
 
 	it('<Code theme="...">', async () => {
-		let html = await fixture.readFile('/custom-theme/index.html');
+		let html = await fixture.readFile('/code/custom-theme/index.html');
 		const $ = cheerio.load(html);
 		assert.equal($('pre').length, 1);
 		assert.equal($('pre').attr('class'), 'astro-code nord');
@@ -53,7 +43,7 @@ describe('<Code>', () => {
 
 	it('<Code wrap>', async () => {
 		{
-			let html = await fixture.readFile('/wrap-true/index.html');
+			let html = await fixture.readFile('/code/wrap-true/index.html');
 			const $ = cheerio.load(html);
 			assert.equal($('pre').length, 1);
 			// test: applies wrap overflow
@@ -63,7 +53,7 @@ describe('<Code>', () => {
 			);
 		}
 		{
-			let html = await fixture.readFile('/wrap-false/index.html');
+			let html = await fixture.readFile('/code/wrap-false/index.html');
 			const $ = cheerio.load(html);
 			assert.equal($('pre').length, 1);
 			// test: applies wrap overflow
@@ -73,7 +63,7 @@ describe('<Code>', () => {
 			);
 		}
 		{
-			let html = await fixture.readFile('/wrap-null/index.html');
+			let html = await fixture.readFile('/code/wrap-null/index.html');
 			const $ = cheerio.load(html);
 			assert.equal($('pre').length, 1);
 			// test: applies wrap overflow
@@ -82,7 +72,7 @@ describe('<Code>', () => {
 	});
 
 	it('<Code lang="..." theme="css-variables">', async () => {
-		let html = await fixture.readFile('/css-theme/index.html');
+		let html = await fixture.readFile('/code/css-theme/index.html');
 		const $ = cheerio.load(html);
 		assert.equal($('pre').length, 1);
 		assert.equal($('pre').attr('class'), 'astro-code css-variables');
@@ -102,7 +92,7 @@ describe('<Code>', () => {
 	});
 
 	it('<Code> with custom theme and lang', async () => {
-		let html = await fixture.readFile('/imported/index.html');
+		let html = await fixture.readFile('/code/imported/index.html');
 		const $ = cheerio.load(html);
 
 		assert.equal($('#theme > pre').length, 1);
@@ -116,7 +106,7 @@ describe('<Code>', () => {
 	});
 
 	it('<Code inline> has no pre tag', async () => {
-		let html = await fixture.readFile('/inline/index.html');
+		let html = await fixture.readFile('/code/inline/index.html');
 		const $ = cheerio.load(html);
 		const codeEl = $('.astro-code');
 
@@ -126,7 +116,7 @@ describe('<Code>', () => {
 	});
 
 	it('<Code embeddedLangs /> tokenizes TSX', async () => {
-		const html = await fixture.readFile('/langs/index.html');
+		const html = await fixture.readFile('/code/langs/index.html');
 		const $ = cheerio.load(html);
 		assert.ok([...$('.line > span')].some((el) => $(el).text().trim() === 'const'));
 	});

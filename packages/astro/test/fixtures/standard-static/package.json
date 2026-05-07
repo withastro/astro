@@ -1,0 +1,14 @@
+{
+	"name": "@test/standard-static",
+	"private": true,
+	"dependencies": {
+		"astro": "workspace:*",
+		"@astrojs/preact": "workspace:*",
+		"@astrojs/svelte": "workspace:*",
+		"@astrojs/vue": "workspace:*",
+		"@preact/signals": "2.8.2",
+		"preact": "^10.29.0",
+		"svelte": "^5.54.0",
+		"vue": "^3.5.30"
+	}
+}

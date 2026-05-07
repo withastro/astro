@@ -1,21 +1,11 @@
 import assert from 'node:assert/strict';
-import { before, describe, it } from 'node:test';
+import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.ts';
+import { fixture } from './preludes/standard-static.prelude.ts';
 
 describe('Component children', () => {
-	let fixture: Fixture;
-
-	before(async () => {
-		fixture = await loadFixture({
-			root: './fixtures/astro-children/',
-			outDir: './dist/astro-children/',
-		});
-		await fixture.build();
-	});
-
 	it('Passes string children to framework components', async () => {
-		const html = await fixture.readFile('/strings/index.html');
+		const html = await fixture.readFile('/children/strings/index.html');
 		const $ = cheerio.load(html);
 
 		// test 1: Can pass text to Preact components
@@ -32,7 +22,7 @@ describe('Component children', () => {
 	});
 
 	it('Passes markup children to framework components', async () => {
-		const html = await fixture.readFile('/markup/index.html');
+		const html = await fixture.readFile('/children/markup/index.html');
 		const $ = cheerio.load(html);
 
 		// test 1: Can pass markup to Preact components
@@ -49,7 +39,7 @@ describe('Component children', () => {
 	});
 
 	it('Passes multiple children to framework components', async () => {
-		const html = await fixture.readFile('/multiple/index.html');
+		const html = await fixture.readFile('/children/multiple/index.html');
 		const $ = cheerio.load(html);
 
 		// test 1: Can pass multiple children to Preact components
@@ -72,7 +62,7 @@ describe('Component children', () => {
 	});
 
 	it('Renders a template when children are not rendered for client components', async () => {
-		const html = await fixture.readFile('/no-render/index.html');
+		const html = await fixture.readFile('/children/no-render/index.html');
 		const $ = cheerio.load(html);
 
 		// test 1: If SSR only, no children are rendered.
