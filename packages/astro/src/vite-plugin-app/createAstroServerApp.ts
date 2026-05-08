@@ -84,12 +84,17 @@ export default async function createAstroServerApp(
 	}
 
 	return {
-		handler(incomingRequest: http.IncomingMessage, incomingResponse: http.ServerResponse) {
-			app.handleRequest({
+		handler(
+			incomingRequest: http.IncomingMessage,
+			incomingResponse: http.ServerResponse,
+			options?: { prerenderOnly?: boolean },
+		) {
+			return app.handleRequest({
 				controller,
 				incomingRequest,
 				incomingResponse,
 				isHttps: loader?.isHttps() ?? false,
+				prerenderOnly: options?.prerenderOnly,
 			});
 		},
 	};

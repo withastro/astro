@@ -8,7 +8,7 @@ import { getViteErrorPayload } from '../core/errors/dev/index.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { AstroLogger } from '../core/logger/core.js';
 import { createViteLoader } from '../core/module-loader/index.js';
-import { matchRoute } from '../core/routing/match.js';
+import { matchAllRoutes } from '../core/routing/match.js';
 import { SERIALIZED_MANIFEST_ID } from '../manifest/serialized.js';
 import type { AstroSettings } from '../types/astro.js';
 import { ASTRO_DEV_SERVER_APP_ID } from '../vite-plugin-app/index.js';
@@ -151,15 +151,24 @@ export default function createVitePluginAstroServer({
 								const { routes } =
 									await prerenderHandler.environment.runner.import('virtual:astro:routes');
 								const routesList = { routes: routes.map((r: any) => r.routeData) };
-								const match = matchRoute(pathname, routesList);
+								const matches = matchAllRoutes(pathname, routesList);
 
-								if (!match?.prerender) {
+								if (!matches.some((route) => route.prerender)) {
 									return next();
 								}
 
-								localStorage.run(request, () => {
-									prerenderHandler.handler(request, response);
+								const handled = await new Promise<boolean>((resolve) => {
+									localStorage.run(request, () => {
+										prerenderHandler
+											.handler(request, response, { prerenderOnly: true })
+											.then((result: boolean) => resolve(result))
+											.catch(() => resolve(true));
+									});
 								});
+
+								if (!handled) {
+									return next();
+								}
 							} catch (err) {
 								next(err);
 							}

@@ -144,7 +144,8 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 		incomingRequest,
 		incomingResponse,
 		isHttps,
-	}: HandleRequest): Promise<void> {
+		prerenderOnly,
+	}: HandleRequest): Promise<boolean> {
 		// When the dev server runs behind a TLS-terminating reverse proxy (e.g.
 		// Caddy, nginx, Traefik), the proxy connects to Vite over plain HTTP while
 		// the browser communicates over HTTPS. In that setup isHttps is false, but
@@ -199,14 +200,29 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 
 		const self = this;
 		await self.#loadFetchHandler();
+
+		let handled = true;
 		await runWithErrorHandling({
 			controller,
 			pathname,
 			async run() {
 				const matchedRoute = await self.devMatch(pathname);
 				if (!matchedRoute) {
+					if (prerenderOnly) {
+						// In prerender-only mode, signal that we didn't handle this
+						// so the caller can fall through to the SSR handler.
+						handled = false;
+						return;
+					}
 					// This should never happen, because ensure404Route will add a 404 route if none exists.
 					throw new Error('No route matched, and default 404 route was not found.');
+				}
+
+				// When running as the prerender handler, only handle prerendered routes.
+				// If the best-matching route is SSR, let the SSR handler handle it instead.
+				if (prerenderOnly && !matchedRoute.routeData.prerender) {
+					handled = false;
+					return;
 				}
 
 				const request = createRequest({
@@ -250,6 +266,7 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 				return error;
 			},
 		});
+		return handled;
 	}
 
 	match(request: Request, _allowPrerenderedRoutes: boolean): RouteData | undefined {
@@ -282,4 +299,6 @@ type HandleRequest = {
 	incomingRequest: http.IncomingMessage;
 	incomingResponse: http.ServerResponse;
 	isHttps: boolean;
+	/** When true, only handle prerendered routes. Returns false for SSR routes. */
+	prerenderOnly?: boolean;
 };
