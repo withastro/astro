@@ -1720,19 +1720,6 @@ export interface AstroUserConfig<
 		service?: ImageServiceConfig;
 		/**
 		 * @docs
-		 * @name image.dangerouslyProcessSVG
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 6.3.0
-		 * @description
-		 *
-		 * Allows SVG source images to be processed by the image optimization pipeline.
-		 *
-		 * This is disabled by default as specifically formed SVGs can be prohibitively expensive to process and used by malicious actors to execute denial of service attacks. Only enable this option if you trust the source of your SVG images and understand the risks of processing them.
-		 */
-		dangerouslyProcessSVG?: boolean;
-		/**
-		 * @docs
 		 * @name image.service.config.limitInputPixels
 		 * @kind h4
 		 * @type {number | boolean}
@@ -1821,6 +1808,20 @@ export interface AstroUserConfig<
 
 		/**
 		 * @docs
+		 * @name image.dangerouslyProcessSVG
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 6.3.0
+		 * @description
+		 *
+		 * Allows SVG source images to be processed by the image optimization pipeline.
+		 *
+		 * This is disabled by default as specifically formed SVGs can be prohibitively expensive to process and used by malicious actors to execute denial of service attacks. Only enable this option if you trust the source of your SVG images and understand the risks of processing them.
+		 */
+		dangerouslyProcessSVG?: boolean;
+
+		/**
+		 * @docs
 		 * @name image.domains
 		 * @type {string[]}
 		 * @default `[]`
@@ -1878,7 +1879,7 @@ export interface AstroUserConfig<
 		 * `pathname` patterns:
 		 *   - End with `/**` to allow all sub-routes (like `startsWith`).
 		 *   - End with `/*` to allow only one level of sub-route.
-		 * 
+		 *
 		 * HTTP redirects are also followed when an image URL matches a remote pattern. The final destination URL must be among the allowed remote patterns to be loaded.
 
 		 */
