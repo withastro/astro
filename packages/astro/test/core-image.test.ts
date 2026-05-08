@@ -1212,7 +1212,12 @@ describe('astro:image', () => {
 				logLine.message?.includes('cache entry)'),
 			);
 
-			assert.equal(isReusingCache, true);
+			assert.equal(
+				isReusingCache,
+				true,
+				'Expected all images to be reused from cache but found the following logs: ' +
+					JSON.stringify(imageLogs, null, 2),
+			);
 		});
 
 		it('writes remote image cache metadata', async () => {
