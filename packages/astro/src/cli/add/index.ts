@@ -265,6 +265,13 @@ export async function add(names: string[], { flags }: AddOptions) {
 				} else {
 					logger.debug('add', `Using existing tailwind configuration`);
 				}
+
+				await updatePackageJsonOverrides({
+					configURL,
+					flags,
+					logger,
+					overrides: { vite: '^7' },
+				});
 			}
 			if (integrations.find((integration) => integration.id === 'svelte')) {
 				await setupIntegrationConfig({
