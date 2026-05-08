@@ -243,13 +243,13 @@ describe('Attributes', async () => {
 
 		// cheerio will unescape the values, so checking that the url rendered escaped has to be done manually
 		assert.equal(
-			html.includes('https://example.com/api/og?title=hello&#38;description=somedescription'),
+			html.includes('https://example.com/api/og?title=hello&amp;description=somedescription'),
 			true,
 		);
 
 		// cheerio will unescape the values, so checking that the url rendered unescaped to begin with has to be done manually
 		assert.equal(
-			html.includes('cmd: echo &#34;foo&#34; &#38;&#38; echo &#34;bar&#34; > /tmp/hello.txt'),
+			html.includes('cmd: echo &quot;foo&quot; &amp;&amp; echo &quot;bar&quot; > /tmp/hello.txt'),
 			true,
 		);
 
