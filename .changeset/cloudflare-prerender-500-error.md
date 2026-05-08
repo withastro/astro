@@ -1,5 +1,4 @@
 ---
-'astro': patch
 '@astrojs/cloudflare': patch
 ---
 

@@ -28,7 +28,7 @@ import { getRedirectLocationOrThrow } from '../redirects/index.js';
 import { createRequest } from '../request.js';
 import { redirectTemplate } from '../routing/3xx.js';
 import { routeIsRedirect } from '../routing/helpers.js';
-import { isRoute404or500, matchRoute } from '../routing/match.js';
+import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
 import { getOutFile, getOutFolder } from './common.js';
 import { createDefaultPrerenderer, type DefaultPrerenderer } from './default-prerenderer.js';
@@ -466,21 +466,6 @@ export async function renderPath({
 			(err as SSRError).id = route.component;
 		}
 		throw err;
-	}
-
-	// Fail the build on server errors so adapters that communicate over HTTP
-	// (e.g. Cloudflare's workerd prerenderer) don't silently produce empty files.
-	// Two legitimate 500 cases are excluded:
-	// - Fallback routes return 500 as an internal sentinel (see reference/i18n-fallback-sentinel.md)
-	// - Prerendered error pages (500.astro) intentionally render with status 500
-	if (response.status >= 500 && route.type !== 'fallback' && !isRoute404or500(route)) {
-		const text = await response.text().catch(() => '');
-		const details = text ? `\n${text}` : '';
-		throw new AstroError({
-			name: 'PrerenderServerError',
-			title: 'Server error during prerendering.',
-			message: `The server responded with a ${response.status} status code when prerendering "${pathname}".${details}`,
-		});
 	}
 
 	// Handle the response
