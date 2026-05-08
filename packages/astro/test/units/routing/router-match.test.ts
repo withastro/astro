@@ -274,11 +274,11 @@ describe('Router.match', () => {
 		const trailingSlash = 'ignore';
 		const routes = [
 			makeRoute({
-				segments: [[dynamicPart('path')]], 
+				segments: [[dynamicPart('path')]],
 				trailingSlash,
 				route: '/[path]',
 				pathname: undefined,
-				type: 'endpoint'
+				type: 'endpoint',
 			}),
 		];
 		const router = new Router(routes, {
@@ -286,7 +286,7 @@ describe('Router.match', () => {
 			trailingSlash,
 			buildFormat: 'directory',
 		});
-		
+
 		const match = router.match('/file.html');
 		assert.equal(match.type, 'match');
 		assert.deepEqual(match.params, { path: 'file.html' });

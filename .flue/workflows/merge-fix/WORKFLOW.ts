@@ -1,107 +1,80 @@
-import type { FlueClient } from '@flue/client';
-import { anthropic, github, githubBody } from '@flue/client/proxies';
+import type { FlueContext } from '@flue/sdk/client';
+import { defineCommand } from '@flue/sdk/node';
 import * as v from 'valibot';
+import { fetchCIFailureLogs, postPRComment } from './github.ts';
 
-export const proxies = {
-	anthropic: anthropic(),
-	github: github({
-		policy: {
-			base: 'allow-read',
-			allow: [
-				// Allow GraphQL
-				{ method: 'POST', path: '/graphql', body: githubBody.graphql() },
-				// Allow git clone, fetch, and push over smart HTTP transport
-				{ method: 'GET', path: '/*/*/info/refs' },
-				{ method: 'POST', path: '/*/*/git-upload-pack' },
-				{ method: 'POST', path: '/*/*/git-receive-pack' },
-			],
-		},
-	}),
-};
+// CLI-only agent: no HTTP trigger. Invoked from GitHub Actions via `flue run merge-fix`.
+export const triggers = {};
+
+const GITHUB_TOKEN = process.env.FREDKBOT_GITHUB_TOKEN || process.env.GITHUB_TOKEN || '';
+const gh = defineCommand('gh', { env: { GH_TOKEN: GITHUB_TOKEN } });
+const git = defineCommand('git');
+const gitWithAuth = defineCommand('git', { env: { GH_TOKEN: GITHUB_TOKEN } });
+const pnpm = defineCommand('pnpm');
+const node = defineCommand('node');
 
 export const args = v.object({
 	prNumber: v.number(),
 });
 
-export default async function mergeFix(flue: FlueClient, { prNumber }: v.InferOutput<typeof args>) {
+export default async function mergeFix({ init, payload }: FlueContext) {
+	const prNumber = payload.prNumber as number;
 	const branch = 'ci/merge-main-to-next';
 
-	// Step 1: Verify conflict resolutions and resolve any remaining source code conflicts.
-	// JSON/YAML conflicts were pre-stripped by the GitHub Action (keeping next side).
-	// This skill checks that nothing important from main was lost, and resolves
-	// any remaining conflict markers in .ts/.js/.md/.astro files.
-	const verifyResult = await flue.skill('merge/resolve-conflicts.md', {
-		args: { prNumber, branch },
-		result: v.object({
-			correct: v.pipe(
-				v.boolean(),
-				v.description('true if all conflict resolutions were correct or have been fixed'),
-			),
-			correctedFiles: v.pipe(
-				v.array(v.string()),
-				v.description('List of files that needed corrections after verification'),
-			),
-		}),
+	const agent = await init({
+		sandbox: 'local',
+		model: 'anthropic/claude-opus-4-6',
 	});
+	const session = await agent.session();
 
-	// Step 2: Remove stale changesets that were already released on main
-	await flue.skill('merge/clean-changesets.md', {
-		args: { prNumber },
-		result: v.object({
-			removedChangesets: v.pipe(
-				v.array(v.string()),
-				v.description('List of changeset files that were removed'),
-			),
-		}),
-	});
+	// Fetch CI failure logs before entering the sandbox.
+	// The gh CLI doesn't work inside the Flue sandbox (auth goes through a proxy),
+	// so we fetch logs here in the orchestrator and pass them to the skill.
+	const ciLogs = await fetchCIFailureLogs(branch);
 
-	// Step 3: Run tests and fix failures
-	const fixResult = await flue.skill('merge/fix-tests.md', {
-		args: { prNumber },
+	// Fix CI failures: build errors, type errors, lint errors, and test failures.
+	// Conflicts have already been resolved by the merge-resolve workflow.
+	// Dependencies are installed but packages may NOT be built yet — the skill
+	// handles building and fixing any errors that come up.
+	const fixResult = await session.skill('merge/fix-ci.md', {
+		args: { prNumber, ciLogs },
+		commands: [gh, git, pnpm, node],
 		result: v.object({
-			testsPass: v.pipe(v.boolean(), v.description('true if all tests pass after fixes')),
+			ciPass: v.pipe(v.boolean(), v.description('true if build + tests pass after fixes')),
 			fixedFiles: v.pipe(
 				v.array(v.string()),
-				v.description('List of test files or source files that were modified to fix failures'),
+				v.description('List of source or test files that were modified to fix failures'),
 			),
 			remainingFailures: v.pipe(
 				v.array(v.string()),
 				v.description(
-					'Test names or files that still fail and could not be resolved automatically',
+					'Errors or test names that still fail and could not be resolved automatically',
 				),
 			),
 		}),
 	});
 
-	// Step 4: Commit and push all changes
-	const status = await flue.shell('git status --porcelain');
+	// Commit and push if there are changes
+	const status = await session.shell('git status --porcelain', { commands: [git] });
 	if (status.stdout.trim()) {
-		await flue.shell('git add -A');
-
-		const commitParts = [];
-		if (verifyResult.correctedFiles.length > 0) commitParts.push('fix merge conflict resolutions');
-		if (fixResult.fixedFiles.length > 0) commitParts.push('fix test failures');
-		const commitMsg =
-			commitParts.length > 0
-				? `chore: ${commitParts.join(' and ')} for main-to-next merge`
-				: 'chore: update main-to-next merge';
-
-		await flue.shell(`git commit -m ${JSON.stringify(commitMsg)}`);
-		const pushResult = await flue.shell(`git push origin ${branch}`);
+		await session.shell('git add -A', { commands: [git] });
+		await session.shell('git commit -m "chore: fix CI failures for main-to-next merge"', {
+			commands: [git],
+		});
+		const pushResult = await session.shell(`git push origin ${branch}`, {
+			commands: [gitWithAuth],
+		});
 		console.info('push result:', pushResult);
 
 		if (pushResult.exitCode !== 0) {
-			return { pushed: false, testsPass: fixResult.testsPass };
+			return { pushed: false, ciPass: fixResult.ciPass };
 		}
 	}
 
-	// Step 5: Post a summary comment on the PR
+	// Post a summary comment on the PR
 	const summaryParts = [];
-	if (verifyResult.correctedFiles.length > 0) {
-		summaryParts.push(`- Fixed conflict resolutions in: ${verifyResult.correctedFiles.join(', ')}`);
-	}
 	if (fixResult.fixedFiles.length > 0) {
-		summaryParts.push(`- Fixed test failures in: ${fixResult.fixedFiles.join(', ')}`);
+		summaryParts.push(`- Fixed failures in: ${fixResult.fixedFiles.join(', ')}`);
 	}
 	if (fixResult.remainingFailures.length > 0) {
 		summaryParts.push(
@@ -110,28 +83,19 @@ export default async function mergeFix(flue: FlueClient, { prNumber }: v.InferOu
 	}
 
 	if (summaryParts.length > 0) {
-		const commentBody = `## Automated Merge Fix
+		const commentBody = `## Automated CI Fix
 
 ${summaryParts.join('\n')}
 
-${fixResult.testsPass ? 'All tests pass — this PR should be ready for review.' : 'Some tests still fail — manual intervention may be needed.'}`;
+${fixResult.ciPass ? 'All checks pass — this PR should be ready for review.' : 'Some checks still fail — manual intervention may be needed.'}`;
 
-		const token = process.env.FREDKBOT_GITHUB_TOKEN || process.env.GITHUB_TOKEN;
-		await fetch(`https://api.github.com/repos/withastro/astro/issues/${prNumber}/comments`, {
-			method: 'POST',
-			headers: {
-				Authorization: `token ${token}`,
-				'Content-Type': 'application/json',
-				Accept: 'application/vnd.github+json',
-			},
-			body: JSON.stringify({ body: commentBody }),
-		});
+		await postPRComment(prNumber, commentBody);
 	}
 
 	return {
 		pushed: true,
-		testsPass: fixResult.testsPass,
-		correctedFiles: verifyResult.correctedFiles,
+		ciPass: fixResult.ciPass,
+		fixedFiles: fixResult.fixedFiles,
 		remainingFailures: fixResult.remainingFailures,
 	};
 }

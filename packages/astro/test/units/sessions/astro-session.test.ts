@@ -385,13 +385,39 @@ describe('AstroSession - Sparse Data Operations', () => {
 		session.delete('key');
 		await session[PERSIST_SYMBOL]();
 
-		// Create a new session using the stored data
+		// Create a new session using the stored data (get must return parsed JSON like unstorage)
 		const newSession = createSession(defaultConfig, defaultMockCookies, {
-			get: async () => storedData,
+			get: async () => (storedData != null ? JSON.parse(storedData) : null),
 			setItem: async () => {},
 		} as unknown as Storage);
 
 		assert.equal(await newSession.get('key'), undefined);
+	});
+
+	it('should persist delete as the first mutation (no prior get/set)', async () => {
+		const store = new Map<string, string>();
+		const sessionId = 'sessionid';
+		store.set(sessionId, devalueStringify(new Map([['token', { data: 'secret' }]])));
+
+		const mockStorage = {
+			get: async (key: string) => {
+				const raw = store.get(key);
+				return raw ? JSON.parse(raw) : null;
+			},
+			setItem: async (key: string, value: string) => {
+				store.set(key, value);
+			},
+			removeItem: async (key: string) => {
+				store.delete(key);
+			},
+		} as unknown as Storage;
+
+		const session = createSession(defaultConfig, defaultMockCookies, mockStorage);
+		session.delete('token');
+		await session[PERSIST_SYMBOL]();
+
+		const newSession = createSession(defaultConfig, defaultMockCookies, mockStorage);
+		assert.equal(await newSession.get('token'), undefined);
 	});
 
 	it('should update existing values in sparse mode', async () => {

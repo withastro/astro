@@ -20,6 +20,7 @@ describe('Routes setup hook', () => {
 					},
 				},
 			],
+			outDir: './dist/integration-route-setup-hook/',
 		});
 		const devServer = await fixture.startDevServer();
 

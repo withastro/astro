@@ -17,8 +17,8 @@ describe('Integration buildConfig hook', () => {
 					'astro:config:setup': ({ config, updateConfig }) => {
 						updateConfig({
 							build: {
-								server: new URL('./dist/.root/server/', config.root),
-								client: new URL('./dist/.root/client/', config.root),
+								server: new URL('./dist/ssr-adapter-build-config/.root/server/', config.root),
+								client: new URL('./dist/ssr-adapter-build-config/.root/client/', config.root),
 							},
 							vite: {
 								plugins: [
@@ -58,6 +58,7 @@ describe('Integration buildConfig hook', () => {
 					},
 				},
 			},
+			outDir: './dist/ssr-adapter-build-config/',
 		});
 		await fixture.build();
 	});

@@ -10,6 +10,7 @@ describe('CSS graph boundaries with astro:i18n', () => {
 		fixture = await loadFixture({
 			root: './fixtures/i18n-css-leak-basic/',
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist/i18n-css-leak/',
 		});
 		await fixture.build();
 	});

@@ -10,6 +10,7 @@ describe('CSS ordering - import order', () => {
 			root: './fixtures/css-order-import/',
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist/css-order-import-css-ordering-import-order/',
 		});
 	});
 
@@ -130,6 +131,7 @@ describe('CSS ordering - import order', () => {
 				root: './fixtures/css-order-dynamic-import/',
 				// test suite was authored when inlineStylesheets defaulted to never
 				build: { inlineStylesheets: 'never' },
+				outDir: './dist/css-order-import-dynamic-import/',
 			});
 			await fixture.build();
 		});

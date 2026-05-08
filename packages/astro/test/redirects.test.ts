@@ -18,6 +18,7 @@ describe('Astro.redirect output: "static"', () => {
 					'/more/old/[dynamic]/[route]': '/more/[dynamic]/[route]',
 					'/more/old/[...spread]': '/more/new/[...spread]',
 				},
+				outDir: './dist/redirects/',
 			});
 			devServer = await fixture.startDevServer();
 		});

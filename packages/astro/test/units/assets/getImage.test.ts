@@ -287,11 +287,8 @@ describe('getImage', () => {
 				layout: 'constrained',
 				position: 'left top',
 			});
-			
-			assert.match(
-				result.attributes.style,
-				/object-position:\s*left top/
-			);
+
+			assert.match(result.attributes.style, /object-position:\s*left top/);
 		});
 
 		it('merges position into existing style object without overwriting', async () => {
@@ -304,10 +301,10 @@ describe('getImage', () => {
 				position: 'top right',
 				style: { color: 'red' },
 			});
-			
+
 			assert.deepStrictEqual(result.attributes.style, {
 				color: 'red',
-				objectPosition: 'top right'
+				objectPosition: 'top right',
 			});
 		});
 	});

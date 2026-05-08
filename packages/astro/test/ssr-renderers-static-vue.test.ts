@@ -11,6 +11,7 @@ describe('SSR renderers with static framework pages', () => {
 			root: './fixtures/ssr-renderers-static-vue/',
 			output: 'server',
 			adapter: testAdapter(),
+			outDir: './dist/ssr-renderers-static-vue/',
 		});
 		await fixture.build();
 	});

@@ -7,7 +7,10 @@ describe('Using .js extension on .ts file', () => {
 	let fixture: Fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/import-ts-with-js/' });
+		fixture = await loadFixture({
+			root: './fixtures/import-ts-with-js/',
+			outDir: './dist/import-ts-with-js/',
+		});
 		await fixture.build();
 	});
 

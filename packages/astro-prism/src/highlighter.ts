@@ -1,28 +1,28 @@
 import Prism from 'prismjs';
-import loadLanguages from 'prismjs/components/index.js';
+import { loadLanguages } from '#prism-loadLanguages';
 import { addAstro } from './plugin.js';
 
 const languageMap = new Map([['ts', 'typescript']]);
 
-export function runHighlighterWithAstro(lang: string | undefined, code: string) {
+export async function runHighlighterWithAstro(lang: string | undefined, code: string) {
 	if (!lang) {
 		lang = 'plaintext';
 	}
 	let classLanguage = `language-${lang}`;
-	const ensureLoaded = (language: string) => {
+	const ensureLoaded = async (language: string) => {
 		if (language && !Prism.languages[language]) {
-			loadLanguages([language]);
+			await loadLanguages([language]);
 		}
 	};
 
 	if (languageMap.has(lang)) {
-		ensureLoaded(languageMap.get(lang)!);
+		await ensureLoaded(languageMap.get(lang)!);
 	} else if (lang === 'astro') {
-		ensureLoaded('typescript');
+		await ensureLoaded('typescript');
 		addAstro(Prism);
 	} else {
-		ensureLoaded('markup-templating'); // Prism expects this to exist for a number of other langs
-		ensureLoaded(lang);
+		await ensureLoaded('markup-templating'); // Prism expects this to exist for a number of other langs
+		await ensureLoaded(lang);
 	}
 
 	if (lang && !Prism.languages[lang]) {

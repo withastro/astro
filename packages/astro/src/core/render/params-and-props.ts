@@ -94,9 +94,9 @@ export function getParams(route: RouteData, pathname: string): Params {
 	// Other route types do not enforce HTML generation nor modify the path, so any suffix
 	// was added by user code and their pattern matching should apply on the complete pathname.
 	const path =
-    pathname.endsWith('.html') && route.type === 'page' && !routeHasHtmlExtension(route)
-      ? pathname.slice(0, -5)
-      : pathname;
+		pathname.endsWith('.html') && route.type === 'page' && !routeHasHtmlExtension(route)
+			? pathname.slice(0, -5)
+			: pathname;
 
 	const allPatterns = [route, ...route.fallbackRoutes].map((r) => r.pattern);
 	const paramsMatch = allPatterns.map((pattern) => pattern.exec(path)).find((x) => x);

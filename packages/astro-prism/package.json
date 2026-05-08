@@ -14,7 +14,7 @@
   "homepage": "https://docs.astro.build/en/reference/api-reference/#prism-",
   "main": "dist/index.js",
   "scripts": {
-    "build": "astro-scripts build \"src/**/*.ts\" && tsc -p ./tsconfig.json",
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc -b",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
@@ -22,6 +22,12 @@
     ".": "./dist/index.js",
     "./Prism.astro": "./Prism.astro",
     "./dist/highlighter": "./dist/highlighter.js"
+  },
+  "imports": {
+    "#prism-loadLanguages": {
+      "workerd": "./dist/loadLanguages-workerd.js",
+      "default": "./dist/loadLanguages-default.js"
+    }
   },
   "files": [
     "dist",

@@ -11,6 +11,7 @@ describe('Remote CSS', () => {
 			root: './fixtures/remote-css/',
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist/remote-css/',
 		});
 		await fixture.build();
 	});

@@ -11,6 +11,7 @@ describe('vite-plugin-astro-server', () => {
 			fixture = await loadFixture({
 				root: './fixtures/dev-request-url/',
 				output: 'server',
+				outDir: './dist/dev-request-url/',
 			});
 			devServer = await fixture.startDevServer();
 		});

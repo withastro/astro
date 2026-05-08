@@ -11,6 +11,7 @@ describe('Client only components', () => {
 			root: './fixtures/astro-client-only/',
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist/astro-client-only-client-only-components/',
 		});
 		await fixture.build();
 	});
@@ -77,6 +78,7 @@ describe('Client only components subpath', () => {
 			root: './fixtures/astro-client-only/',
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist/astro-client-only-client-only-components-subpath/',
 		});
 		await fixture.build();
 	});

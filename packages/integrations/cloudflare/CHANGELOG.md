@@ -1,5 +1,81 @@
 # @astrojs/cloudflare
 
+## 13.5.0
+
+### Minor Changes
+
+- [#16639](https://github.com/withastro/astro/pull/16639) [`4d72482`](https://github.com/withastro/astro/commit/4d7248223b919bfd3557fba6f56b4474b4bd58c7) Thanks [@ematipico](https://github.com/ematipico)! - The adapter now depends on Astro 6.3.0.
+
+## 13.4.0
+
+### Minor Changes
+
+- [#16519](https://github.com/withastro/astro/pull/16519) [`1b1c218`](https://github.com/withastro/astro/commit/1b1c218c2cf76806f94afbd1cdc2af27c8abc6d0) Thanks [@louisescher](https://github.com/louisescher)! - Adds support for redirecting URLs in remote image optimization.
+
+  Previously, when a remote image URL meant to be optimized by Astro led to a redirect, Astro would fail silently and ignore the redirect. Now, Astro tracks up to 10 redirects for these images. If any of the redirects are not covered by a pattern in `image.remotePatterns` or a domain in `image.domains`, Astro will fail with a helpful error message.
+
+  In the following example, the first image would be loaded successfully, while the second would lead to Astro throwing an error:
+
+  ```mjs
+  export default defineConfig({
+    image: {
+      domains: ['example.com', 'cdn.example.com'],
+    },
+  });
+  ```
+
+  ```tsx
+  {
+    /* Redirects to https://cdn.example.com/assets/image.png: */
+  }
+  <Image
+    src="https://example.com/assets/image.png"
+    width="1920"
+    height="1080"
+    alt="An example image."
+  />;
+
+  {
+    /* Redirects to https://malicious.com/image.png: */
+  }
+  <Image
+    src="https://example.com/bad-image.png"
+    width="1920"
+    height="1080"
+    alt="An example image."
+  />;
+  ```
+
+  In cases where all redirects to HTTPS hosts should be trusted, the following configuration for `image.remotePatterns` can be used:
+
+  ```mjs
+  export default defineConfig({
+    image: {
+      remotePatterns: [
+        {
+          protocol: 'https',
+        },
+      ],
+    },
+  });
+  ```
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 13.3.1
+
+### Patch Changes
+
+- [#16552](https://github.com/withastro/astro/pull/16552) [`409f6ef`](https://github.com/withastro/astro/commit/409f6efb0cfef5b40c5e0058726bc4edbb24e2ab) Thanks [@web-dev0521](https://github.com/web-dev0521)! - Fixes an issue where existing KV namespace bindings were silently removed when session support was enabled.
+
+- [#16277](https://github.com/withastro/astro/pull/16277) [`7666bcd`](https://github.com/withastro/astro/commit/7666bcdf6d7f6d65cdae89b622d33dcc462590e0) Thanks [@Calvin-LL](https://github.com/Calvin-LL)! - Fix static assets and prerendered pages 404ing when `base` is configured.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
 ## 13.3.0
 
 ### Minor Changes
