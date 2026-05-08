@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Updates the attribute escaping logic to use named entities (`&amp;` and `&quot;`) instead of numeric entities (`&#38;` and `&#34;`).
+Fixes `&` characters appearing as raw entity strings (e.g. `&#38;`) in `<meta>` tags when viewed in link previews or raw HTML.
