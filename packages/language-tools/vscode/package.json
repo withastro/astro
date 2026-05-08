@@ -235,8 +235,7 @@
     ]
   },
   "scripts": {
-    "prebuild": "cd ../ts-plugin && pnpm build",
-    "build": "tsc -b && pnpm prebuild && node scripts/build.mjs -- --minify",
+    "build": "tsc -b && node scripts/build.mjs -- --minify",
     "dev": "node scripts/build.mjs -- --watch",
     "build:grammar": "node scripts/build-grammar.mjs",
     "dev:grammar": "node scripts/build-grammar.mjs -- --watch",
