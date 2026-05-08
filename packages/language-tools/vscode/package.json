@@ -248,6 +248,7 @@
   "devDependencies": {
     "@astrojs/language-server": "^2.16.6",
     "@astrojs/ts-plugin": "^1.10.7",
+    "@types/js-yaml": "^4.0.9",
     "@types/mocha": "^10.0.10",
     "@types/node": "^20.9.0",
     "@types/vscode": "^1.92.0",

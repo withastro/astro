@@ -6836,6 +6836,9 @@ importers:
       '@astrojs/ts-plugin':
         specifier: ^1.10.7
         version: link:../ts-plugin
+      '@types/js-yaml':
+        specifier: ^4.0.9
+        version: 4.0.9
       '@types/mocha':
         specifier: ^10.0.10
         version: 10.0.10

@@ -13,7 +13,8 @@ const typescriptParser = tseslint.parser;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export default [
+/** @type {import('eslint').Config[]} */
+const configs = [
 	// If ignores is used without any other keys in the configuration object, then the patterns act as global ignores.
 	// ref: https://eslint.org/docs/latest/use/configure/configuration-files#globally-ignoring-files-with-ignores
 	globalIgnores([
@@ -24,6 +25,8 @@ export default [
 		'packages/**/fixtures/',
 		'packages/**/_temp-fixtures/',
 		'packages/astro/vendor/vite/',
+		// Runtime templates with placeholder syntax (e.g. `@@GET_ENV@@`); not real modules.
+		'packages/astro/templates/',
 		'benchmark/**/dist/',
 		'benchmark/static-projects/**',
 		'examples/',
@@ -31,6 +34,8 @@ export default [
 		'triage/',
 		'.github/',
 		'.changeset/',
+		// We can remove this once https://github.com/withastro/astro/pull/16643 is merged
+		'packages/astro/e2e/astro-island-hydration-error.test.js',
 	]),
 
 	...tseslint.configs.recommendedTypeChecked,
@@ -40,7 +45,8 @@ export default [
 		languageOptions: {
 			parser: typescriptParser,
 			parserOptions: {
-				project: ['./packages/*/tsconfig.json', './tsconfig.eslint.json'],
+				// See https://typescript-eslint.io/blog/project-service/
+				projectService: true,
 				tsconfigRootDir: __dirname,
 			},
 		},
@@ -145,3 +151,5 @@ export default [
 		},
 	},
 ];
+
+export default configs;
