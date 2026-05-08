@@ -470,7 +470,9 @@ export async function renderPath({
 
 	// Fail the build on server errors so adapters that communicate over HTTP
 	// (e.g. Cloudflare's workerd prerenderer) don't silently produce empty files.
-	if (response.status >= 500) {
+	// Fallback routes intentionally return 500 as an internal sentinel (see PagesHandler)
+	// that gets resolved by the i18n layer; skip those here.
+	if (response.status >= 500 && route.type !== 'fallback') {
 		const text = await response.text().catch(() => '');
 		const details = text ? `\n${text}` : '';
 		throw new AstroError({
