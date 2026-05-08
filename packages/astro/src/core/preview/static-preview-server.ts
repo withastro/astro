@@ -108,9 +108,15 @@ export default async function createStaticPreviewServer(
 		});
 	}
 
+	// Read the actual bound port from the HTTP server, not the configured port.
+	// This is important when port 0 is used (OS-assigned port).
+	const address = previewServer.httpServer.address();
+	const actualPort =
+		address && typeof address === 'object' ? address.port : settings.config.server.port;
+
 	return {
 		host: getResolvedHostForHttpServer(settings.config.server.host),
-		port: settings.config.server.port,
+		port: actualPort,
 		closed,
 		server: previewServer.httpServer as http.Server,
 		stop: previewServer.close.bind(previewServer),

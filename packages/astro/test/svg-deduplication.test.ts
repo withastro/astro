@@ -11,14 +11,14 @@ describe('SVG Deduplication', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/svg-deduplication/',
+				outDir: './dist/svg-deduplication-build/',
 			});
 			await fixture.build();
 		});
 
 		it('deduplicates identical SVG files in build output', async () => {
 			// Get all SVG files in the build output
-			const distDir = new URL('./fixtures/svg-deduplication/dist/', import.meta.url);
-			const assetsDir = new URL('./_astro/', distDir);
+			const assetsDir = new URL('./_astro/', fixture.config.outDir);
 
 			let svgFiles: string[] = [];
 			try {
@@ -77,6 +77,7 @@ describe('SVG Deduplication', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/svg-deduplication/',
+				outDir: './dist/svg-deduplication-dev/',
 			});
 			devServer = await fixture.startDevServer();
 		});

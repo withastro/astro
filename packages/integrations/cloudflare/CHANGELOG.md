@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 13.5.0
+
+### Minor Changes
+
+- [#16639](https://github.com/withastro/astro/pull/16639) [`4d72482`](https://github.com/withastro/astro/commit/4d7248223b919bfd3557fba6f56b4474b4bd58c7) Thanks [@ematipico](https://github.com/ematipico)! - The adapter now depends on Astro 6.3.0.
+
 ## 13.4.0
 
 ### Minor Changes

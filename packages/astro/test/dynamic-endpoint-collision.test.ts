@@ -10,6 +10,7 @@ describe('Dynamic endpoint collision', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/dynamic-endpoint-collision/',
+				outDir: './dist/dynamic-endpoint-collision-build/',
 			});
 			try {
 				await fixture.build();
@@ -30,6 +31,7 @@ describe('Dynamic endpoint collision', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/dynamic-endpoint-collision/',
+				outDir: './dist/dynamic-endpoint-collision-dev/',
 			});
 
 			devServer = await fixture.startDevServer();

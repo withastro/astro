@@ -9,6 +9,7 @@ describe('Queue-based rendering - Static', () => {
 		fixture = await loadFixture({
 			root: './fixtures/queue-rendering/',
 			output: 'static',
+			outDir: './dist/queue-rendering-static/',
 		});
 		await fixture.build();
 	});
@@ -198,6 +199,7 @@ describe('Queue-based rendering - SSR', () => {
 			root: './fixtures/queue-rendering/',
 			output: 'server',
 			adapter: await import('./test-adapter.ts').then((mod) => mod.default()),
+			outDir: './dist/queue-rendering-ssr/',
 		});
 		await fixture.build();
 		app = await fixture.loadTestAdapterApp();
@@ -266,6 +268,7 @@ describe('Queue-based rendering - Configuration', () => {
 					poolSize: 500,
 				},
 			},
+			outDir: './dist/queue-rendering-custom-pool/',
 		});
 		await fixture.build();
 
@@ -285,6 +288,7 @@ describe('Queue-based rendering - Configuration', () => {
 					enabled: true,
 				},
 			},
+			outDir: './dist/queue-rendering-object-config/',
 		});
 		await fixture.build();
 

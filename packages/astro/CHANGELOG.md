@@ -1,5 +1,11 @@
 # astro
 
+## 6.3.1
+
+### Patch Changes
+
+- [#16646](https://github.com/withastro/astro/pull/16646) [`15fbc41`](https://github.com/withastro/astro/commit/15fbc41bb2fe64e8aee15acbe01abb4792145e8a) Thanks [@matthewp](https://github.com/matthewp)! - Fixes local images returning 404 on non-prerendered pages when using the generic image endpoint
+
 ## 6.3.0
 
 ### Minor Changes

@@ -12,6 +12,7 @@ describe('Content collection type inference', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/content-collections-type-inference/',
+			outDir: './dist/content-collections-type-inference/',
 		});
 		fixtureRoot = fileURLToPath(fixture.config.root);
 

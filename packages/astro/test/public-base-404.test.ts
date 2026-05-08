@@ -13,6 +13,7 @@ describe('Public dev with base', () => {
 			root: './fixtures/public-base-404/',
 			site: 'http://example.com/',
 			base: '/blog',
+			outDir: './dist/public-base-404/',
 		});
 		devServer = await fixture.startDevServer();
 	});

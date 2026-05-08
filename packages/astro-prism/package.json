@@ -23,6 +23,12 @@
     "./Prism.astro": "./Prism.astro",
     "./dist/highlighter": "./dist/highlighter.js"
   },
+  "imports": {
+    "#prism-loadLanguages": {
+      "workerd": "./dist/loadLanguages-workerd.js",
+      "default": "./dist/loadLanguages-default.js"
+    }
+  },
   "files": [
     "dist",
     "Prism.astro"

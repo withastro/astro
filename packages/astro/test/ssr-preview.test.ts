@@ -10,6 +10,7 @@ describe('SSR Preview', () => {
 			root: './fixtures/ssr-preview/',
 			output: 'server',
 			adapter: testAdapter({ extendAdapter: { previewEntrypoint: './preview.mjs' } }),
+			outDir: './dist/ssr-preview/',
 		});
 		await fixture.build();
 	});

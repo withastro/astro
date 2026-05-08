@@ -15,6 +15,7 @@ describe('CSS', function () {
 			root: './fixtures/config-vite-css-target/',
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist/config-vite-css-target/',
 		});
 	});
 
