@@ -62,6 +62,7 @@ The comment must start with an at-a-glance summary, followed by short explanatio
 ```markdown
 - **Reproduced:** [Yes / No / Skipped — reason]
 - **Exploration:** [Yes / No / Partial / Already fixed on main] [If `branchName` is non-null: — [View branch](https://github.com/withastro/astro/compare/{branchName}?expand=1)]
+- **Unit Test:** [Yes — `path/to/test.test.ts` / No — reason]
 - **Priority:** [See "Priority" Instructions above. Keep to one line explaining why this priority was chosen, who is likely to be affected, and under what conditions (this section should answer the question: "how bad is it?")]
 
 [2-3 sentences describing the root cause or key observations, or where/when it was already fixed. Be specific about what's happening and where in the codebase.]
