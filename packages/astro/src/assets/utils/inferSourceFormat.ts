@@ -1,4 +1,5 @@
 import { removeQueryString } from '@astrojs/internal-helpers/path';
+import { DEFAULT_OUTPUT_FORMAT } from '../consts.js';
 
 const DATA_PREFIX = 'data:';
 
@@ -9,21 +10,33 @@ const DATA_PREFIX = 'data:';
  */
 export function inferSourceFormat(src: string): string | undefined {
 	// data: URIs encode the MIME type directly, e.g. "data:image/svg+xml;base64,..."
+	// or "data:image/svg+xml,<svg>...</svg>" (no media-type parameter).
 	if (src.startsWith(DATA_PREFIX)) {
-		const mime = src.slice(DATA_PREFIX.length, src.indexOf(';'));
+		const sepIndex = src.indexOf(';');
+		const commaIndex = src.indexOf(',');
+		const mimeEnd =
+			sepIndex === -1 ? commaIndex : commaIndex === -1 ? sepIndex : Math.min(sepIndex, commaIndex);
+		if (mimeEnd === -1) return undefined;
+		const mime = src.slice(DATA_PREFIX.length, mimeEnd);
 		if (mime === 'image/svg+xml') return 'svg';
 		const sub = mime.split('/')[1];
 		return sub || undefined;
 	}
 
-	// For regular URLs/paths, extract the extension from the pathname
+	// For regular URLs/paths, extract the extension from the last path segment only.
+	// Looking at the whole string would treat dots in hostnames (`example.com`) as extensions.
 	try {
-		// Strip query string and hash before extracting extension
 		const cleanSrc = removeQueryString(src).split('#')[0];
-		const lastDot = cleanSrc.lastIndexOf('.');
+		const lastSlash = cleanSrc.lastIndexOf('/');
+		const basename = lastSlash === -1 ? cleanSrc : cleanSrc.slice(lastSlash + 1);
+		const lastDot = basename.lastIndexOf('.');
 		if (lastDot === -1) return undefined;
-		return cleanSrc.slice(lastDot + 1).toLowerCase();
+		return basename.slice(lastDot + 1).toLowerCase();
 	} catch {
 		return undefined;
 	}
+}
+
+export function resolveDefaultOutputFormat(sourceFormat: string | undefined): string {
+	return sourceFormat === 'svg' ? 'svg' : DEFAULT_OUTPUT_FORMAT;
 }

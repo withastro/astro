@@ -195,4 +195,47 @@ describe('sharp image service SVG handling', async () => {
 		);
 		assert.equal(format, 'png');
 	});
+
+	it('passes SVG buffers through when format is undefined (ambiguous remote URL via SSR)', async () => {
+		const { data, format } = await sharpService.transform(
+			SVG_BUFFER,
+			{ src: 'https://example.com/api/icon' } as any,
+			makeConfig(),
+		);
+		assert.equal(format, 'svg');
+		assert.equal(data, SVG_BUFFER);
+	});
+
+	// Regression: SVG validator only scans first 1KB, so a long XML comment can hide `<svg>`
+	// and reach libvips/librsvg unclassified. The fail-closed check is what blocks this.
+	it('rejects SVG buffers that hide `<svg>` past the detector window', async () => {
+		const padding = '<!--' + 'x'.repeat(1100) + '-->';
+		const PADDED_SVG = new TextEncoder().encode(
+			padding +
+				'<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><rect width="10" height="10"/></svg>',
+		);
+		await assert.rejects(
+			sharpService.transform(
+				PADDED_SVG,
+				{ src: 'https://example.com/icon', format: 'webp' } as any,
+				makeConfig(),
+			),
+			/Could not process image metadata/,
+		);
+	});
+
+	it('still accepts comment-padded SVGs when the user opts into format="svg"', async () => {
+		const padding = '<!--' + 'x'.repeat(1100) + '-->';
+		const PADDED_SVG = new TextEncoder().encode(
+			padding +
+				'<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><rect width="10" height="10"/></svg>',
+		);
+		const { data, format } = await sharpService.transform(
+			PADDED_SVG,
+			{ src: 'https://example.com/icon', format: 'svg' } as any,
+			makeConfig(),
+		);
+		assert.equal(format, 'svg');
+		assert.equal(data, PADDED_SVG);
+	});
 });

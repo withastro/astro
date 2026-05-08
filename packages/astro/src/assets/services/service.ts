@@ -11,6 +11,7 @@ import type {
 	UnresolvedSrcSetValue,
 } from '../types.js';
 import { isESMImportedImage, isRemoteImage } from '../utils/imageKind.js';
+import { inferSourceFormat, resolveDefaultOutputFormat } from '../utils/inferSourceFormat.js';
 import { inferRemoteSize } from '../utils/remoteProbe.js';
 
 export type ImageService = LocalImageService | ExternalImageService;
@@ -132,7 +133,7 @@ export type BaseServiceTransform = {
 	src: string;
 	width?: number;
 	height?: number;
-	format: string;
+	format?: string;
 	quality?: string | null;
 	fit?: ImageFit;
 	position?: string;
@@ -231,10 +232,11 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 
 		// Apply defaults and normalization separate from verification
 		if (!options.format) {
-			if (isESMImportedImage(options.src) && options.src.format === 'svg') {
-				options.format = 'svg';
+			if (isESMImportedImage(options.src)) {
+				options.format = resolveDefaultOutputFormat(options.src.format);
 			} else {
-				options.format = DEFAULT_OUTPUT_FORMAT;
+				const inferred = inferSourceFormat(options.src);
+				if (inferred) options.format = resolveDefaultOutputFormat(inferred);
 			}
 		}
 		if (options.width) options.width = Math.round(options.width);
@@ -403,7 +405,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			src: params.get('href')!,
 			width: params.has('w') ? Number.parseInt(params.get('w')!) : undefined,
 			height: params.has('h') ? Number.parseInt(params.get('h')!) : undefined,
-			format: params.get('f') as ImageOutputFormat,
+			format: params.has('f') ? (params.get('f') as ImageOutputFormat) : undefined,
 			quality: params.get('q'),
 			fit: params.get('fit') as ImageFit,
 			position: params.get('position') ?? undefined,

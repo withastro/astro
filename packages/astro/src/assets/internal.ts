@@ -19,6 +19,7 @@ import {
 	type UnresolvedImageTransform,
 } from './types.js';
 import { isESMImportedImage, isRemoteImage, resolveSrc } from './utils/imageKind.js';
+import { resolveDefaultOutputFormat } from './utils/inferSourceFormat.js';
 import { inferRemoteSize } from './utils/remoteProbe.js';
 import { createPlaceholderURL, stringifyPlaceholderURL } from './utils/url.js';
 
@@ -97,6 +98,11 @@ export async function getImage(
 			const result = await getRemoteSize(resolvedOptions.src); // Directly probe the image URL
 			resolvedOptions.width ??= result.width;
 			resolvedOptions.height ??= result.height;
+			// We've already paid for the fetch; reuse it to pin down the output format so the URL
+			// (and any baked filename) doesn't have to defer or refetch.
+			if (result.format) {
+				resolvedOptions.format ??= resolveDefaultOutputFormat(result.format);
+			}
 			originalWidth = result.width;
 			originalHeight = result.height;
 		}
@@ -202,6 +208,12 @@ export async function getImage(
 		? await service.validateOptions(resolvedOptions, imageConfig)
 		: resolvedOptions;
 
+	validatedOptions.format ??= await peekRemoteFormatForStaticEmit(
+		validatedOptions,
+		imageConfig,
+		service,
+	);
+
 	// Get all the options for the different srcSets
 	const srcSetTransforms = service.getSrcSet
 		? await service.getSrcSet(validatedOptions, imageConfig)
@@ -289,4 +301,33 @@ export async function getImage(
 				? await service.getHTMLAttributes(validatedOptions, imageConfig)
 				: {},
 	};
+}
+
+/**
+ * Build-time only: probes the remote URL via `getRemoteSize` so we can commit a real `format`
+ * before the filename is hashed. Returns undefined when no peek applies (SSR, non-remote,
+ * disallowed remote, external service, missing `getRemoteSize`, or probe failure) — the
+ * transform service handles those by detecting from the actual buffer.
+ */
+async function peekRemoteFormatForStaticEmit(
+	options: ImageTransform,
+	imageConfig: AstroConfig['image'] & AstroAdapterClientConfig,
+	service: ImageService,
+): Promise<string | undefined> {
+	if (
+		!isRemoteImage(options.src) ||
+		!isRemoteAllowed(options.src, imageConfig) ||
+		!globalThis.astroAsset?.addStaticImage ||
+		!isLocalService(service) ||
+		!service.getRemoteSize
+	) {
+		return undefined;
+	}
+
+	try {
+		const probed = await service.getRemoteSize(options.src, imageConfig);
+		return resolveDefaultOutputFormat(probed.format);
+	} catch {
+		return undefined;
+	}
 }

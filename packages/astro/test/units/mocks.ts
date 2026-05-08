@@ -338,6 +338,8 @@ export function installImageService(overrides: ImageServiceOverrides = {}): {
 		domains: string[];
 		remotePatterns: { hostname?: string; pathname?: string; protocol?: string; port?: string }[];
 		endpoint: { route: string };
+		dangerouslyProcessSVG: boolean;
+		responsiveStyles: boolean;
 	};
 	cleanup: () => void;
 } {
@@ -348,6 +350,8 @@ export function installImageService(overrides: ImageServiceOverrides = {}): {
 		domains: overrides.domains ?? [],
 		remotePatterns: overrides.remotePatterns ?? [],
 		endpoint: { route: '/_image' },
+		dangerouslyProcessSVG: false,
+		responsiveStyles: false,
 	};
 
 	return {

@@ -10,6 +10,7 @@ import type {
 } from 'sharp';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { ImageFit, ImageOutputFormat, ImageQualityPreset } from '../types.js';
+import { resolveDefaultOutputFormat } from '../utils/inferSourceFormat.js';
 import { detector } from '../utils/vendor/image-size/detector.js';
 import {
 	type BaseServiceTransform,
@@ -76,6 +77,10 @@ export function resolveSharpEncoderOptions(
 	serviceConfig: SharpImageServiceConfig = {},
 ): JpegOptions | PngOptions | WebpOptions | AvifOptions | { quality?: number } | undefined {
 	const quality = resolveSharpQuality(transform.quality);
+
+	if (transform.format === undefined) {
+		return quality === undefined ? undefined : { quality };
+	}
 
 	switch (transform.format) {
 		case 'jpg':
@@ -145,16 +150,28 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 		const transform: BaseServiceTransform = transformOptions as BaseServiceTransform;
 		const kernel = config.service.config.kernel;
 
-		// Return SVGs as-is
-		// TODO: Sharp has some support for SVGs, we could probably support this once Sharp is the default and only service.
-		if (transform.format === 'svg') return { data: inputBuffer, format: 'svg' };
+		const bufferFormat = detector(inputBuffer);
+		// Resolve the output format from the buffer when validateOptions deferred (ambiguous remote URL hit SSR, manually formed URLs etc)
+		const outputFormat = transform.format ?? resolveDefaultOutputFormat(bufferFormat);
 
-		// Rasterizing an SVG runs librsvg on untrusted input; require explicit opt-in.
-		if (detector(inputBuffer) === 'svg' && !config.dangerouslyProcessSVG) {
+		// TODO: Sharp has some support for SVGs, we could probably support this once Sharp is the default and only service.
+		if (outputFormat === 'svg') return { data: inputBuffer, format: 'svg' };
+
+		// If we couldn't figure out the format, it's probably something weird we shouldn't try to process.
+		if (!bufferFormat) {
+			throw new AstroError({
+				...AstroErrorData.NoImageMetadata,
+				message: AstroErrorData.NoImageMetadata.message(undefined)
+			});
+		}
+
+		if (bufferFormat === 'svg' && !config.dangerouslyProcessSVG) {
 			throw new AstroError({
 				...AstroErrorData.UnsupportedImageFormat,
 				message:
-					'SVG image processing is disabled. Set `image.dangerouslyProcessSVG: true` to allow processing of SVG sources.',
+					`SVG image processing is disabled, but the source for "${transform.src}" is an SVG. ` +
+					`Pass it through unchanged by setting \`format="svg"\` on the component, ` +
+					`or set \`image.dangerouslyProcessSVG: true\` to rasterize SVG sources.`,
 			});
 		}
 
@@ -166,21 +183,6 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 
 		// always call rotate to adjust for EXIF data orientation
 		result.rotate();
-		// get some information about the input
-		let format: string | undefined;
-		try {
-			({ format } = await result.metadata());
-		} catch {
-			// Sharp cannot decode this image (e.g. animated AVIF sequences).
-			// Pass it through unmodified rather than crashing the build. When Sharp adds support for these
-			// formats, the image will be optimized automatically without code changes.
-			console.warn(
-				`⚠️  Astro could not optimize image "${transform.src}". ` +
-					`Sharp doesn't support this format. The image will be used unoptimized. ` +
-					`Consider converting to WebP or placing in the public/ folder.`,
-			);
-			return { data: inputBuffer, format: transform.format };
-		}
 
 		if (transform.width && transform.height) {
 			const fit: keyof FitEnum | undefined = transform.fit
@@ -216,26 +218,39 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 			result.flatten({ background: transform.background });
 		}
 
-		if (transform.format) {
-			const encoderOptions = resolveSharpEncoderOptions(transform, format, config.service.config);
+		const encoderOptions = resolveSharpEncoderOptions(
+			{ format: outputFormat, quality: transform.quality },
+			bufferFormat,
+			config.service.config,
+		);
 
-			if (transform.format === 'webp' && format === 'gif') {
-				// Convert animated GIF to animated WebP with loop=0 (infinite) unless overridden in config.
-				result.webp(encoderOptions as WebpOptions | undefined);
-			} else if (transform.format === 'webp') {
-				result.webp(encoderOptions as WebpOptions | undefined);
-			} else if (transform.format === 'png') {
-				result.png(encoderOptions as PngOptions | undefined);
-			} else if (transform.format === 'avif') {
-				result.avif(encoderOptions as AvifOptions | undefined);
-			} else if (transform.format === 'jpeg' || transform.format === 'jpg') {
-				result.jpeg(encoderOptions as JpegOptions | undefined);
-			} else {
-				result.toFormat(transform.format as keyof FormatEnum, encoderOptions);
-			}
+		if (outputFormat === 'webp') {
+			result.webp(encoderOptions as WebpOptions | undefined);
+		} else if (outputFormat === 'png') {
+			result.png(encoderOptions as PngOptions | undefined);
+		} else if (outputFormat === 'avif') {
+			result.avif(encoderOptions as AvifOptions | undefined);
+		} else if (outputFormat === 'jpeg' || outputFormat === 'jpg') {
+			result.jpeg(encoderOptions as JpegOptions | undefined);
+		} else {
+			result.toFormat(outputFormat as keyof FormatEnum, encoderOptions);
 		}
 
-		const { data, info } = await result.toBuffer({ resolveWithObject: true });
+		let data: Uint8Array;
+		let info: { format: string };
+		try {
+			({ data, info } = await result.toBuffer({ resolveWithObject: true }));
+		} catch {
+			// Sharp cannot decode this image (e.g. animated AVIF sequences).
+			// Pass it through unmodified rather than crashing the build. When Sharp adds support for these
+			// formats, the image will be optimized automatically without code changes.
+			console.warn(
+				`⚠️  Astro could not optimize image "${transform.src}". ` +
+					`Sharp doesn't support this format. The image will be used unoptimized. ` +
+					`Consider converting to WebP or placing in the public/ folder.`,
+			);
+			return { data: inputBuffer, format: outputFormat as ImageOutputFormat };
+		}
 
 		// Sharp can sometimes return a SharedArrayBuffer when using WebAssembly.
 		// SharedArrayBuffers need to be copied into an ArrayBuffer in order to be manipulated.
