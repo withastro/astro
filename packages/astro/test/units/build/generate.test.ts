@@ -194,6 +194,39 @@ describe('renderPath()', () => {
 		assert.ok(warnings[0].includes('index.html'), 'warning should name the conflicting file');
 	});
 
+	it('throws on 500+ server error responses instead of silently producing empty files', async () => {
+		const prerenderer = createMockPrerenderer({
+			'/broken': new Response('Internal Server Error: node:crypto is not available', {
+				status: 500,
+				statusText: 'Internal Server Error',
+			}),
+		});
+		const route = createRouteData({ route: '/broken' });
+
+		await assert.rejects(
+			() =>
+				renderPath({
+					prerenderer,
+					pathname: '/broken',
+					route,
+					options,
+					logger: options.logger,
+				}),
+			(err: Error) => {
+				assert.ok(err.message.includes('500'), 'error should include status code');
+				assert.ok(
+					err.message.includes('/broken'),
+					'error should include the pathname',
+				);
+				assert.ok(
+					err.message.includes('node:crypto'),
+					'error should include the response body',
+				);
+				return true;
+			},
+		);
+	});
+
 	it('propagates renderer errors', async () => {
 		const prerenderer = createMockPrerenderer({});
 		prerenderer.render = async () => {

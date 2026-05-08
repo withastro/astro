@@ -468,6 +468,18 @@ export async function renderPath({
 		throw err;
 	}
 
+	// Fail the build on server errors so adapters that communicate over HTTP
+	// (e.g. Cloudflare's workerd prerenderer) don't silently produce empty files.
+	if (response.status >= 500) {
+		const text = await response.text().catch(() => '');
+		const details = text ? `\n${text}` : '';
+		throw new AstroError({
+			name: 'PrerenderServerError',
+			title: 'Server error during prerendering.',
+			message: `The server responded with a ${response.status} status code when prerendering "${pathname}".${details}`,
+		});
+	}
+
 	// Handle the response
 	let body: string | Uint8Array;
 	const responseHeaders = response.headers;

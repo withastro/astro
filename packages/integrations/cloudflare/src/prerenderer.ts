@@ -134,6 +134,14 @@ export function createCloudflarePrerenderer({
 				redirect: 'manual',
 			});
 
+			if (response.status >= 500) {
+				const text = await response.text();
+				const details = text ? `\n${text}` : '';
+				throw new Error(
+					`Failed to prerender "${request.url}" in the Cloudflare prerender server (${response.status}: ${response.statusText}).${details}`,
+				);
+			}
+
 			return response;
 		},
 
