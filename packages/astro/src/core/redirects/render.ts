@@ -1,7 +1,8 @@
 import type { Params } from '../../types/public/common.js';
 import type { RedirectConfig } from '../../types/public/index.js';
 import type { RouteData } from '../../types/public/internal.js';
-import type { RenderContext } from '../render-context.js';
+import { PipelineFeatures } from '../base-pipeline.js';
+import type { FetchState } from '../fetch/fetch-state.js';
 import { getRouteGenerator } from '../routing/generator.js';
 
 function isExternalURL(url: string): boolean {
@@ -67,20 +68,18 @@ export function resolveRedirectTarget(
 	return redirect.destination;
 }
 
-export async function renderRedirect(renderContext: RenderContext) {
-	const {
-		request: { method },
-		routeData,
-	} = renderContext;
+export async function renderRedirect(state: FetchState) {
+	state.pipeline.usedFeatures |= PipelineFeatures.redirects;
+	const routeData = state.routeData!;
 	const { redirect, redirectRoute } = routeData;
-	const status = computeRedirectStatus(method, redirect, redirectRoute);
+	const status = computeRedirectStatus(state.request.method, redirect, redirectRoute);
 	const headers = {
 		location: encodeURI(
 			resolveRedirectTarget(
-				renderContext.params,
+				state.params!,
 				redirect,
 				redirectRoute,
-				renderContext.pipeline.manifest.trailingSlash,
+				state.pipeline.manifest.trailingSlash,
 			),
 		),
 	};

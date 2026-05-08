@@ -9,6 +9,7 @@ describe('Markdown tests', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/markdown/',
+			outDir: './dist/markdown/',
 		});
 	});
 

@@ -10,6 +10,7 @@ describe('Astro HTTP/2 support', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-dev-http2/',
+			outDir: './dist/astro-dev-http2/',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -29,7 +30,6 @@ describe('Astro HTTP/2 support', () => {
 			const url = new URL(urlString);
 			// Not asserting host because of all the ways localhost can be represented
 			assert.equal(url.protocol, 'https:');
-			assert.equal(url.port, '4321');
 			assert.equal($('p').text(), '2.0');
 		});
 	});

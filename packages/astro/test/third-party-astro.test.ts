@@ -9,6 +9,7 @@ describe('third-party .astro component', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/third-party-astro/',
+			outDir: './dist/third-party-astro/',
 		});
 	});
 

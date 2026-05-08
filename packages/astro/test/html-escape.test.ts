@@ -11,6 +11,7 @@ describe('HTML Escape', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/html-escape/',
+			outDir: './dist/html-escape/',
 		});
 	});
 
@@ -18,7 +19,7 @@ describe('HTML Escape', () => {
 		before(async () => {
 			await fixture.build();
 			// For complex HTML test
-			complexInput = await fixture.readFile('../src/pages/complex.html');
+			complexInput = await fixture.readFile('../../src/pages/complex.html');
 			complexOutput = await fixture.readFile('./complex/index.html');
 		});
 

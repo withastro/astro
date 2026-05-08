@@ -30,14 +30,13 @@
   ],
   "scripts": {
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "build": "astro-scripts build \"src/**/*.ts\" && tsc",
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc -b",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "test": "pnpm run test-fn && pnpm run test-static && pnpm run test:dev",
     "test-fn": "astro-scripts test \"test/functions/*.test.ts\"",
     "test:dev": "astro-scripts test \"test/development/*.test.ts\"",
     "test-static": "astro-scripts test \"test/static/*.test.ts\"",
-    "test:hosted": "astro-scripts test \"test/hosted/*.test.ts\"",
-    "typecheck:tests": "tsc --build tsconfig.test.json"
+    "test:hosted": "astro-scripts test \"test/hosted/*.test.ts\""
   },
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",

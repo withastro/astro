@@ -1,4 +1,5 @@
 import { getPattern } from '../../../dist/core/routing/pattern.js';
+import type { RedirectConfig } from '../../../dist/types/public/config.js';
 import type { RoutePart, RouteType, RouteData } from '../../../dist/types/public/internal.js';
 
 const staticPart = (content: string): RoutePart => ({ content, dynamic: false, spread: false });
@@ -16,6 +17,8 @@ const makeRoute = ({
 	prerender = false,
 	origin = 'project',
 	params,
+	redirect,
+	redirectRoute,
 }: {
 	segments: RoutePart[][];
 	trailingSlash: 'always' | 'never' | 'ignore';
@@ -27,6 +30,8 @@ const makeRoute = ({
 	prerender?: boolean;
 	origin?: 'project' | 'internal' | 'external';
 	params?: string[];
+	redirect?: RedirectConfig;
+	redirectRoute?: RouteData;
 }): RouteData => {
 	const routeParams =
 		params ??
@@ -48,6 +53,8 @@ const makeRoute = ({
 		distURL: [],
 		isIndex,
 		origin,
+		redirect,
+		redirectRoute,
 	};
 };
 

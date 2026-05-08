@@ -43,6 +43,7 @@ describe('Astro Markdown plugins', () => {
 			fixture = await loadFixture({
 				root: './fixtures/astro-markdown-plugins/',
 				markdown: defaultMarkdownConfig,
+				outDir: './dist/astro-markdown-plugins-default-test-plugins/',
 			});
 			await fixture.build();
 		});
@@ -99,6 +100,7 @@ describe('Astro Markdown plugins', () => {
 		const fixture = await loadFixture({
 			root: './fixtures/astro-markdown-plugins/',
 			markdown: { ...defaultMarkdownConfig, gfm: false },
+			outDir: './dist/astro-markdown-plugins-default-test-plugins/',
 		});
 		await fixture.build();
 
@@ -115,6 +117,7 @@ describe('Astro Markdown plugins', () => {
 		const fixture = await loadFixture({
 			root: './fixtures/astro-markdown-plugins/',
 			markdown: { ...defaultMarkdownConfig, smartypants: false },
+			outDir: './dist/astro-markdown-plugins-default-test-plugins/',
 		});
 		await fixture.build();
 
@@ -132,6 +135,7 @@ describe('Astro Markdown plugins', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/content-layer-remark-plugins/',
+				outDir: './dist/astro-markdown-plugins-content-layer-plugins/',
 			});
 			await fixture.build();
 		});
@@ -161,6 +165,7 @@ describe('Astro Markdown plugins', () => {
 					...defaultMarkdownConfig,
 					smartypants: { dashes: 'oldschool' },
 				},
+				outDir: './dist/astro-markdown-plugins-advanced-smartypants-configurations/',
 			});
 			await fixture.build();
 
@@ -178,6 +183,7 @@ describe('Astro Markdown plugins', () => {
 					...defaultMarkdownConfig,
 					smartypants: { ellipses: false },
 				},
+				outDir: './dist/astro-markdown-plugins-advanced-smartypants-configurations/',
 			});
 			await fixture.build();
 
@@ -198,6 +204,7 @@ describe('Astro Markdown plugins', () => {
 						closingQuotes: { double: '»', single: '›' },
 					},
 				},
+				outDir: './dist/astro-markdown-plugins-advanced-smartypants-configurations/',
 			});
 			await fixture.build();
 
@@ -215,6 +222,7 @@ describe('Astro Markdown plugins', () => {
 					...defaultMarkdownConfig,
 					smartypants: { backticks: 'all', quotes: false },
 				},
+				outDir: './dist/astro-markdown-plugins-advanced-smartypants-configurations/',
 			});
 			await fixture.build();
 

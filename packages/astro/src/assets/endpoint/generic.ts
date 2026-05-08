@@ -6,28 +6,7 @@ import * as mime from 'mrmime';
 import type { APIRoute } from '../../types/public/common.js';
 import { getConfiguredImageService } from '../internal.js';
 import { etag } from '../utils/etag.js';
-
-async function loadRemoteImage(src: URL, headers: Headers) {
-	try {
-		const res = await fetch(src, {
-			// Forward all headers from the original request
-			headers,
-			redirect: 'manual',
-		});
-
-		if (res.status >= 300 && res.status < 400) {
-			return undefined;
-		}
-
-		if (!res.ok) {
-			return undefined;
-		}
-
-		return await res.arrayBuffer();
-	} catch {
-		return undefined;
-	}
-}
+import { loadImage } from './loadImage.js';
 
 /**
  * Endpoint used in dev and SSR to serve optimized images by the base image services
@@ -62,7 +41,12 @@ export const GET: APIRoute = async ({ request }) => {
 			return new Response('Forbidden', { status: 403 });
 		}
 
-		inputBuffer = await loadRemoteImage(sourceUrl, isRemoteImage ? new Headers() : request.headers);
+		inputBuffer = await loadImage(
+			sourceUrl,
+			isRemoteImage ? new Headers() : request.headers,
+			imageConfig,
+			isRemoteImage,
+		);
 
 		if (!inputBuffer) {
 			return new Response('Not Found', { status: 404 });
@@ -85,6 +69,6 @@ export const GET: APIRoute = async ({ request }) => {
 		});
 	} catch (err: unknown) {
 		console.error('Could not process image request:', err);
-		return new Response(`Server Error: ${err}`, { status: 500 });
+		return new Response('Internal Server Error', { status: 500 });
 	}
 };

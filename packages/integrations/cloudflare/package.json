@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/cloudflare",
   "description": "Deploy your site to Cloudflare Workers",
-  "version": "13.3.0",
+  "version": "13.5.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -36,10 +36,9 @@
   ],
   "scripts": {
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "build": "astro-scripts build \"src/**/*.ts\" --clean-dts && tsc",
+    "build": "astro-scripts build \"src/**/*.ts\" --clean-dts && tsc -b",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
-    "test": "astro-scripts test --force-exit \"test/**/*.test.ts\"",
-    "typecheck:tests": "tsc --build tsconfig.test.json"
+    "test": "astro-scripts test --force-exit \"test/**/*.test.ts\""
   },
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
@@ -50,7 +49,7 @@
     "vite": "^7.3.2"
   },
   "peerDependencies": {
-    "astro": "^6.0.0",
+    "astro": "^6.3.0",
     "wrangler": "^4.83.0"
   },
   "devDependencies": {
@@ -59,7 +58,9 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.2.0",
-    "devalue": "^5.6.3"
+    "devalue": "^5.6.3",
+    "prismjs": "^1.30.0",
+    "@types/prismjs": "1.26.6"
   },
   "publishConfig": {
     "provenance": true

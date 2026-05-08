@@ -235,20 +235,19 @@
     ]
   },
   "scripts": {
-    "prebuild": "cd ../ts-plugin && pnpm build",
-    "build": "tsc && pnpm prebuild && node scripts/build.mjs -- --minify",
+    "build": "tsc -b && node scripts/build.mjs -- --minify",
     "dev": "node scripts/build.mjs -- --watch",
     "build:grammar": "node scripts/build-grammar.mjs",
     "dev:grammar": "node scripts/build-grammar.mjs -- --watch",
     "test": "pnpm test:vscode && pnpm test:grammar",
     "test:vscode": "vscode-test",
     "test:grammar": "pnpm build:grammar && node ./test/grammar/test.mjs",
-    "update-grammar-snapshots": "node ./test/grammar/test.mjs --updateSnapshot",
-    "typecheck:tests": "tsc --build tsconfig.test.json"
+    "update-grammar-snapshots": "node ./test/grammar/test.mjs --updateSnapshot"
   },
   "devDependencies": {
     "@astrojs/language-server": "^2.16.6",
     "@astrojs/ts-plugin": "^1.10.7",
+    "@types/js-yaml": "^4.0.9",
     "@types/mocha": "^10.0.10",
     "@types/node": "^20.9.0",
     "@types/vscode": "^1.92.0",

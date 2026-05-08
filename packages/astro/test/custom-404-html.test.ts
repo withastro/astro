@@ -10,6 +10,7 @@ describe('Custom 404.html', () => {
 		fixture = await loadFixture({
 			root: './fixtures/custom-404-html/',
 			site: 'http://example.com',
+			outDir: './dist/custom-404-html/',
 		});
 	});
 

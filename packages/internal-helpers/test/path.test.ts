@@ -78,6 +78,17 @@ describe('isRemotePath', () => {
 		'\\%0Aexample.com/test',
 		'\\%0Dexample.com/test',
 
+		// CRLF injection in path (control chars after leading slash cause URL parser
+		// to treat the remainder as a protocol-relative URL)
+		'/%0d%0a/example.com',
+		'/%0d%0a/example.com:8080/path',
+		'/%0a/example.com',
+		'/%0d/example.com',
+		'/\r\n/example.com',
+		'/\n/example.com',
+		'/\r/example.com',
+		'/\t/example.com',
+
 		// IP addresses
 		'http://192.168.1.1/test',
 		'//192.168.1.1/test',

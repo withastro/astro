@@ -154,7 +154,8 @@ export class AstroSession {
 	 * Deletes a session value.
 	 */
 	delete(key: string) {
-		this.#data?.delete(key);
+		this.#data ??= new Map();
+		this.#data.delete(key);
 		if (this.#partial) {
 			this.#toDelete.add(key);
 		}

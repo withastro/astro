@@ -25,6 +25,7 @@ describe('astro fonts', () => {
 							weights: [400, 500],
 						},
 					],
+					outDir: './dist/fonts-shared/',
 				});
 				await fixture.clean();
 				devServer = await fixture.startDevServer();
@@ -134,6 +135,7 @@ describe('astro fonts', () => {
 							weights: [400, 500],
 						},
 					],
+					outDir: './dist/fonts-respects-config-to-build-links/',
 				});
 				await fixture.clean();
 				devServer = await fixture.startDevServer();
@@ -166,6 +168,7 @@ describe('astro fonts', () => {
 							weights: [400, 500],
 						},
 					],
+					outDir: './dist/fonts-shared/',
 				});
 				await fixture.build();
 			});
@@ -238,6 +241,7 @@ describe('astro fonts', () => {
 							weights: [400, 500],
 						},
 					],
+					outDir: './dist/fonts-respects-config-to-build-links/',
 				});
 				await fixture.build();
 			});
@@ -247,7 +251,7 @@ describe('astro fonts', () => {
 				const $ = cheerio.load(html);
 				const href = $('link[rel=preload][type=font/woff2]').attr('href');
 				assert.equal(href?.startsWith('https://cdn.example.com/my-base/_custom/fonts/'), true);
-				const files = await readdir(new URL('./dist/_custom/fonts/', fixture.config.root));
+				const files = await readdir(new URL('./_custom/fonts/', fixture.config.outDir));
 				assert.equal(files.length > 0, true);
 			});
 
@@ -279,6 +283,7 @@ describe('astro fonts', () => {
 						weights: [400, 500],
 					},
 				],
+				outDir: './dist/fonts-ssr/',
 			});
 			await fixture.build();
 			const app = await fixture.loadTestAdapterApp();
