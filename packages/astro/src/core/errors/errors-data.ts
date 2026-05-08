@@ -1208,7 +1208,7 @@ export const MissingIndexForInternationalization = {
  */
 export const IncorrectStrategyForI18n = {
 	name: 'IncorrectStrategyForI18n',
-	title: "You can't use the current function with the current strategy.",
+	title: "Function incompatible with the current strategy.",
 	message: (functionName: string) =>
 		`The function \`${functionName}\` can only be used when the \`i18n.routing.strategy\` is set to \`"manual"\`.`,
 } satisfies ErrorData;
