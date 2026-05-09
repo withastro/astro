@@ -1,5 +1,11 @@
 # astro
 
+## 7.0.0-alpha.1
+
+### Patch Changes
+
+- [#16603](https://github.com/withastro/astro/pull/16603) [`deaaf3f`](https://github.com/withastro/astro/commit/deaaf3f734bb2f2c8df20559ac83634f418bea18) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Removes the warning that Astro does not support vite v8, since Astro v7 does support vite v8
+
 ## 7.0.0-alpha.0
 
 ### Major Changes
