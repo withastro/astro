@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture, type Fixture } from './test-utils.js';
+import { loadFixture, type Fixture } from './test-utils.ts';
 
 describe('vite.build.cssCodeSplit: false', () => {
 	let fixture: Fixture;
@@ -11,6 +11,7 @@ describe('vite.build.cssCodeSplit: false', () => {
 			root: './fixtures/css-no-code-split/',
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist/css-no-code-split/',
 		});
 		await fixture.build();
 	});

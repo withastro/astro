@@ -3,7 +3,7 @@ import { execSync } from 'node:child_process';
 import * as fs from 'node:fs';
 import { before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Content collection type inference', () => {
 	let fixture: Fixture;
@@ -12,6 +12,7 @@ describe('Content collection type inference', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/content-collections-type-inference/',
+			outDir: './dist/content-collections-type-inference/',
 		});
 		fixtureRoot = fileURLToPath(fixture.config.root);
 

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 // Regression test for https://github.com/withastro/astro/issues/16036
 // Using the <Picture> component on a prerendered page combined with render()
@@ -11,7 +11,10 @@ describe('Content collection with Picture component and render()', () => {
 	let fixture: Fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/content-collection-picture-render/' });
+		fixture = await loadFixture({
+			root: './fixtures/content-collection-picture-render/',
+			outDir: './dist/content-collection-picture-render/',
+		});
 	});
 
 	describe('Build', () => {

@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { cli } from '../../../astro/test/test-utils.js';
+import { cli } from 'astro/_internal/test/test-utils';
 
 // Copied from utils.ts so we don't have to import TS code for Node 20
 const __filename = fileURLToPath(import.meta.url);

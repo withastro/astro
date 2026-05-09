@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type DevServer, type Fixture, isWindows, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, isWindows, loadFixture } from './test-utils.ts';
 
 describe.skip('Vue component build', { todo: 'This test currently times out, investigate' }, () => {
 	let fixture: Fixture;
@@ -9,6 +9,7 @@ describe.skip('Vue component build', { todo: 'This test currently times out, inv
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/vue-component/',
+			outDir: './dist/vue-component-1/',
 		});
 		await fixture.build();
 	});
@@ -50,6 +51,7 @@ if (!isWindows) {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/vue-component/',
+				outDir: './dist/vue-component-2/',
 			});
 			devServer = await fixture.startDevServer();
 		});

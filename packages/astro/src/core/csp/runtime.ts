@@ -34,24 +34,26 @@ export function pushDirective(
 	directives: SSRManifestCSP['directives'],
 	newDirective: CspDirective,
 ): SSRManifestCSP['directives'] {
-	let deduplicated = false;
 	if (directives.length === 0) {
 		return [newDirective];
 	}
 	const finalDirectives: SSRManifestCSP['directives'] = [];
+	let matched = false;
 	for (const directive of directives) {
-		if (deduplicated) {
+		if (matched) {
 			finalDirectives.push(directive);
 			continue;
 		}
 		const result = deduplicateDirectiveValues(directive, newDirective);
 		if (result) {
 			finalDirectives.push(result);
-			deduplicated = true;
+			matched = true;
 		} else {
 			finalDirectives.push(directive);
-			finalDirectives.push(newDirective);
 		}
+	}
+	if (!matched) {
+		finalDirectives.push(newDirective);
 	}
 	return finalDirectives;
 }

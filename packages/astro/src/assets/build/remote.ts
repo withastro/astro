@@ -1,4 +1,5 @@
 import CachePolicy from 'http-cache-semantics';
+import { fetchWithRedirects, type RemoteImageConfig } from '../utils/redirectValidation.js';
 
 export type RemoteCacheEntry = {
 	data?: string;
@@ -7,13 +8,16 @@ export type RemoteCacheEntry = {
 	lastModified?: string;
 };
 
-export async function loadRemoteImage(src: string, fetchFn: typeof fetch = globalThis.fetch) {
-	const req = new Request(src);
-	const res = await fetchFn(req, { redirect: 'manual' });
-
-	if (res.status >= 300 && res.status < 400) {
-		throw new Error(`Failed to load remote image ${src}. The request was redirected.`);
-	}
+export async function loadRemoteImage(
+	src: string,
+	fetchFn: typeof fetch = globalThis.fetch,
+	imageConfig: RemoteImageConfig = { remotePatterns: [], domains: [] },
+) {
+	const res = await fetchWithRedirects({
+		url: src,
+		fetchFn,
+		imageConfig,
+	});
 
 	if (!res.ok) {
 		throw new Error(
@@ -22,6 +26,7 @@ export async function loadRemoteImage(src: string, fetchFn: typeof fetch = globa
 	}
 
 	// calculate an expiration date based on the response's TTL
+	const req = new Request(src);
 	const policy = new CachePolicy(webToCachePolicyRequest(req), webToCachePolicyResponse(res));
 	const expires = policy.storable() ? policy.timeToLive() : 0;
 
@@ -46,13 +51,19 @@ export async function revalidateRemoteImage(
 	src: string,
 	revalidationData: { etag?: string; lastModified?: string },
 	fetchFn: typeof fetch = globalThis.fetch,
+	imageConfig: RemoteImageConfig = { remotePatterns: [], domains: [] },
 ) {
 	const headers = {
 		...(revalidationData.etag && { 'If-None-Match': revalidationData.etag }),
 		...(revalidationData.lastModified && { 'If-Modified-Since': revalidationData.lastModified }),
 	};
 	const req = new Request(src, { headers, cache: 'no-cache' });
-	const res = await fetchFn(req, { redirect: 'manual' });
+	const res = await fetchWithRedirects({
+		url: src,
+		headers: new Headers(headers),
+		imageConfig,
+		fetchFn,
+	});
 
 	// Allow 304 Not Modified: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/304
 	if (!res.ok && res.status !== 304) {
@@ -70,7 +81,7 @@ export async function revalidateRemoteImage(
 
 	if (res.ok && !data.length) {
 		// Server did not include body but indicated cache was stale
-		return await loadRemoteImage(src, fetchFn);
+		return await loadRemoteImage(src, fetchFn, imageConfig);
 	}
 
 	// calculate an expiration date based on the response's TTL

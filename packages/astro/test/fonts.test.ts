@@ -4,8 +4,8 @@ import { readdir } from 'node:fs/promises';
 import { after, before, describe, it } from 'node:test';
 import { fontProviders } from 'astro/config';
 import * as cheerio from 'cheerio';
-import testAdapter from './test-adapter.js';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('astro fonts', () => {
 	let fixture: Fixture;
@@ -25,6 +25,7 @@ describe('astro fonts', () => {
 							weights: [400, 500],
 						},
 					],
+					outDir: './dist/fonts-shared/',
 				});
 				await fixture.clean();
 				devServer = await fixture.startDevServer();
@@ -104,6 +105,17 @@ describe('astro fonts', () => {
 				await fixture.fetch('/');
 				assert.equal(existsSync(fixture.config.outDir), false);
 			});
+
+			it('Exposes buffer from experimental_getFontFileURL()', async () => {
+				const res = await fixture.fetch('/get-font-buffer');
+				const html = await res.text();
+				const $ = cheerio.load(html);
+				const length = $('#length').html();
+				if (!length) {
+					assert.fail();
+				}
+				assert.equal(length === '0', false);
+			});
 		});
 
 		describe('Respects config to build links', () => {
@@ -123,6 +135,7 @@ describe('astro fonts', () => {
 							weights: [400, 500],
 						},
 					],
+					outDir: './dist/fonts-respects-config-to-build-links/',
 				});
 				await fixture.clean();
 				devServer = await fixture.startDevServer();
@@ -155,6 +168,7 @@ describe('astro fonts', () => {
 							weights: [400, 500],
 						},
 					],
+					outDir: './dist/fonts-shared/',
 				});
 				await fixture.build();
 			});
@@ -198,6 +212,16 @@ describe('astro fonts', () => {
 				assert.equal(parsed['--font-test'].length > 0, true);
 				assert.equal(parsed['--font-test'][0].src[0].url.startsWith('/_astro/fonts/'), true);
 			});
+
+			it('Exposes buffer from experimental_getFontFileURL()', async () => {
+				const html = await fixture.readFile('/get-font-buffer/index.html');
+				const $ = cheerio.load(html);
+				const length = $('#length').html();
+				if (!length) {
+					assert.fail();
+				}
+				assert.equal(length === '0', false);
+			});
 		});
 
 		describe('Respects config to build links', () => {
@@ -217,6 +241,7 @@ describe('astro fonts', () => {
 							weights: [400, 500],
 						},
 					],
+					outDir: './dist/fonts-respects-config-to-build-links/',
 				});
 				await fixture.build();
 			});
@@ -226,8 +251,18 @@ describe('astro fonts', () => {
 				const $ = cheerio.load(html);
 				const href = $('link[rel=preload][type=font/woff2]').attr('href');
 				assert.equal(href?.startsWith('https://cdn.example.com/my-base/_custom/fonts/'), true);
-				const files = await readdir(new URL('./dist/_custom/fonts/', fixture.config.root));
+				const files = await readdir(new URL('./_custom/fonts/', fixture.config.outDir));
 				assert.equal(files.length > 0, true);
+			});
+
+			it('Exposes buffer from experimental_getFontFileURL()', async () => {
+				const html = await fixture.readFile('/get-font-buffer/index.html');
+				const $ = cheerio.load(html);
+				const length = $('#length').html();
+				if (!length) {
+					assert.fail();
+				}
+				assert.equal(length === '0', false);
 			});
 		});
 	});
@@ -248,6 +283,7 @@ describe('astro fonts', () => {
 						weights: [400, 500],
 					},
 				],
+				outDir: './dist/fonts-ssr/',
 			});
 			await fixture.build();
 			const app = await fixture.loadTestAdapterApp();
@@ -297,6 +333,16 @@ describe('astro fonts', () => {
 			assert.equal(Array.isArray(parsed['--font-test']), true);
 			assert.equal(parsed['--font-test'].length > 0, true);
 			assert.equal(parsed['--font-test'][0].src[0].url.startsWith('/_astro/fonts/'), true);
+		});
+
+		it('Exposes buffer from experimental_getFontFileURL()', async () => {
+			const html = await fixtureFetch('/get-font-buffer');
+			const $ = cheerio.load(html);
+			const length = $('#length').html();
+			if (!length) {
+				assert.fail();
+			}
+			assert.equal(length === '0', false);
 		});
 	});
 });

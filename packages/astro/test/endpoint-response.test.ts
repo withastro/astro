@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('endpoint responses', () => {
 	let fixture: Fixture;
@@ -9,6 +9,7 @@ describe('endpoint responses', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/endpoint-routing/',
+			outDir: './dist/endpoint-response/',
 		});
 		devServer = await fixture.startDevServer();
 	});

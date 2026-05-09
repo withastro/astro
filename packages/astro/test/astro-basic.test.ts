@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import createTestPrerenderer from './test-prerenderer.ts';
-import { type DevServer, type Fixture, loadFixture, type PreviewServer } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture, type PreviewServer } from './test-utils.ts';
 
 describe('Astro basic build', () => {
 	let fixture: Fixture;
@@ -12,6 +12,7 @@ describe('Astro basic build', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-basic/',
+			outDir: './dist/astro-basic-astro-basic-build/',
 		});
 		await fixture.build();
 		previewServer = await fixture.preview();
@@ -108,6 +109,7 @@ describe('Astro basic development', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-basic/',
+			outDir: './dist/astro-basic-astro-basic-development/',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -150,6 +152,7 @@ describe('Astro custom prerenderer', () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-basic/',
 			integrations: [testPrerenderer.integration],
+			outDir: './dist/astro-basic-astro-custom-prerenderer/',
 		});
 		await fixture.build();
 	});

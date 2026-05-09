@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import testAdapter from './test-adapter.js';
-import { type App, type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { type App, type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Astro Global', () => {
 	let fixture: Fixture;
@@ -12,6 +12,7 @@ describe('Astro Global', () => {
 			root: './fixtures/astro-global/',
 			site: 'https://mysite.dev/subsite/',
 			base: '/blog',
+			outDir: './dist/astro-global-astro-global/',
 		});
 	});
 
@@ -150,6 +151,7 @@ describe('Astro Global', () => {
 				base: '/new',
 				output: 'server',
 				adapter: testAdapter(),
+				outDir: './dist/astro-global-app/',
 			});
 			await fixture.build();
 			app = await fixture.loadTestAdapterApp();
@@ -199,6 +201,7 @@ describe('Astro Global Defaults', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-global/',
+			outDir: './dist/astro-global-astro-global-defaults/',
 		});
 	});
 

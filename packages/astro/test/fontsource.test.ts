@@ -1,13 +1,16 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('@fontsource/* packages', () => {
 	let fixture: Fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/fontsource-package/' });
+		fixture = await loadFixture({
+			root: './fixtures/fontsource-package/',
+			outDir: './dist/fontsource/',
+		});
 		await fixture.build();
 	});
 

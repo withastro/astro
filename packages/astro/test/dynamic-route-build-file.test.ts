@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('build.format=file with dynamic routes', () => {
 	let fixture: Fixture;
@@ -12,6 +12,7 @@ describe('build.format=file with dynamic routes', () => {
 			build: {
 				format: 'file',
 			},
+			outDir: './dist/dynamic-route-build-file/',
 		});
 		await fixture.build();
 	});

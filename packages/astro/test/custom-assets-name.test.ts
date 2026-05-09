@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('custom the assets name function', () => {
 	let fixture: Fixture;
@@ -9,6 +9,7 @@ describe('custom the assets name function', () => {
 		fixture = await loadFixture({
 			root: './fixtures/custom-assets-name/',
 			output: 'server',
+			outDir: './dist/custom-assets-name/',
 		});
 		await fixture.build();
 	});

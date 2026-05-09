@@ -4,7 +4,7 @@ import { after, before, describe, it } from 'node:test';
 import { setTimeout as delay } from 'node:timers/promises';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { createRequestAndResponse } from './integration-test-helpers.ts';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 type MockSocket = EventEmitter & {
 	encrypted: boolean;
@@ -65,6 +65,7 @@ describe('Node request abort integration', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/request-signal/',
+			outDir: './dist/request-signal/',
 		});
 		await fixture.build();
 		handle = await fixture.loadNodeAdapterHandler();

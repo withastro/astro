@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Loading virtual Astro files', () => {
 	let fixture: Fixture;
@@ -11,6 +11,7 @@ describe('Loading virtual Astro files', () => {
 			root: './fixtures/virtual-astro-file/',
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist/virtual-astro-file/',
 		});
 		await fixture.build();
 	});

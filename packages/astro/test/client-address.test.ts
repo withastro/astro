@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import testAdapter from './test-adapter.js';
-import { loadFixture, type DevServer, type Fixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { loadFixture, type DevServer, type Fixture } from './test-utils.ts';
 
 describe('Astro.clientAddress', () => {
 	describe('SSR', () => {
@@ -13,6 +13,7 @@ describe('Astro.clientAddress', () => {
 				root: './fixtures/client-address/',
 				output: 'server',
 				adapter: testAdapter(),
+				outDir: './dist/client-address-ssr/',
 			});
 		});
 
@@ -73,6 +74,7 @@ describe('Astro.clientAddress', () => {
 				root: './fixtures/client-address/',
 				output: 'server',
 				adapter: testAdapter({ provideAddress: false }),
+				outDir: './dist/client-address-ssr-adapter-not-implemented/',
 			});
 			await fixture.build();
 		});
@@ -92,6 +94,7 @@ describe('Astro.clientAddress', () => {
 			fixture = await loadFixture({
 				root: './fixtures/client-address/',
 				output: 'static',
+				outDir: './dist/client-address-ssg/',
 			});
 		});
 

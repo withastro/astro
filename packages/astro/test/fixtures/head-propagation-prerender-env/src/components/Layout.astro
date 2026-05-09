@@ -1,0 +1,15 @@
+---
+import ThemeIcons from './ThemeIcons.astro';
+const { title } = Astro.props;
+---
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<title>{title}</title>
+		<ThemeIcons />
+	</head>
+	<body>
+		<slot />
+	</body>
+</html>

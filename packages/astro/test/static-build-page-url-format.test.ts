@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe("Static build - format: 'file'", () => {
 	let fixture: Fixture;
@@ -8,6 +8,7 @@ describe("Static build - format: 'file'", () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/static-build-page-url-format/',
+			outDir: './dist/static-build-page-url-format/',
 		});
 		await fixture.build();
 	});

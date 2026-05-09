@@ -1,13 +1,16 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Non-ASCII Path Test', () => {
 	let fixture: Fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/non-ascii-path/测试/' });
+		fixture = await loadFixture({
+			root: './fixtures/non-ascii-path/测试/',
+			outDir: './dist/non-ascii-path/',
+		});
 		await fixture.build();
 	});
 

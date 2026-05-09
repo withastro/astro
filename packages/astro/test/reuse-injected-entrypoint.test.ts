@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 type Route = {
 	description: string;
@@ -74,6 +74,7 @@ describe('Reuse injected entrypoint', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/reuse-injected-entrypoint/',
+				outDir: './dist/reuse-injected-entrypoint-build/',
 			});
 			await fixture.build();
 		});
@@ -123,6 +124,7 @@ describe('Reuse injected entrypoint', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/reuse-injected-entrypoint/',
+				outDir: './dist/reuse-injected-entrypoint-dev/',
 			});
 
 			devServer = await fixture.startDevServer();

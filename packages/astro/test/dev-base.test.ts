@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('base configuration', () => {
 	describe('with trailingSlash: "never"', () => {
@@ -12,6 +12,7 @@ describe('base configuration', () => {
 				root: './fixtures/dev-render/',
 				base: '/docs',
 				trailingSlash: 'never',
+				outDir: './dist/dev-base/',
 			});
 			devServer = await fixture.startDevServer();
 		});

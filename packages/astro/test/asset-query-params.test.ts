@@ -3,8 +3,8 @@ import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import woof from './fixtures/multiple-jsx-renderers/renderers/woof/index.mjs';
 import meow from './fixtures/multiple-jsx-renderers/renderers/meow/index.mjs';
-import testAdapter from './test-adapter.js';
-import { type Fixture, loadFixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 const multiCdnAssetsPrefix = {
 	js: 'https://js.example.com',
@@ -26,6 +26,7 @@ describe('Asset Query Parameters (Adapter Client Config)', () => {
 					},
 				},
 			}),
+			outDir: './dist/asset-query-params-asset-query-parameters-adapter-client-co/',
 		});
 		await fixture.build();
 	});
@@ -77,6 +78,7 @@ describe('Asset Query Parameters with Fonts', () => {
 					},
 				},
 			}),
+			outDir: './dist/asset-query-params-asset-query-parameters-with-fonts/',
 		});
 		await fixture.build();
 	});
@@ -116,6 +118,7 @@ describe('Asset Query Parameters with Islands', () => {
 					},
 				},
 			}),
+			outDir: './dist/asset-query-params-asset-query-parameters-with-islands/',
 		});
 		await fixture.build();
 	});
@@ -158,6 +161,7 @@ describe('Asset Query Parameters in Inter-Chunk JS Imports', () => {
 					},
 				},
 			}),
+			outDir: './dist/asset-query-params-asset-query-parameters-in-inter-chunk-js/',
 		});
 		await fixture.build();
 	});
@@ -232,6 +236,7 @@ describe('Asset Query Parameters with Islands and assetsPrefix map', () => {
 			build: {
 				assetsPrefix: multiCdnAssetsPrefix,
 			},
+			outDir: './dist/asset-query-params-asset-query-parameters-with-islands-and-/',
 		});
 		await fixture.build();
 	});

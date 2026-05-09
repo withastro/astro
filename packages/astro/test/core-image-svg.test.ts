@@ -3,7 +3,8 @@ import { Writable } from 'node:stream';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { AstroLogger } from '../dist/core/logger/core.js';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { svgoOptimizer } from '../dist/config/entrypoint.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('astro:assets - SVG Components', () => {
 	let fixture: Fixture;
@@ -15,6 +16,7 @@ describe('astro:assets - SVG Components', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/core-image-svg/',
+				outDir: './dist/core-image-svg-dev/',
 			});
 
 			const logger = new AstroLogger({
@@ -158,15 +160,16 @@ describe('astro:assets - SVG Components', () => {
 			optimizedFixture = await loadFixture({
 				root: './fixtures/core-image-svg/',
 				experimental: {
-					svgo: {
+					svgOptimizer: svgoOptimizer({
 						plugins: [
 							'preset-default',
 							{
 								name: 'removeViewBox',
 							},
 						],
-					},
+					}),
 				},
+				outDir: './dist/core-image-svg-svgo-optimization/',
 			});
 
 			optimizedDevServer = await optimizedFixture.startDevServer();

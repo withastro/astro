@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { loadFixture, type Fixture } from './test-utils.js';
+import { loadFixture, type Fixture } from './test-utils.ts';
 
 describe('Errors information in build', () => {
 	let fixture: Fixture;
@@ -8,6 +8,7 @@ describe('Errors information in build', () => {
 	it('includes the file where the error happened', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/error-build-location',
+			outDir: './dist/error-build-location/',
 		});
 
 		let errorContent: any;

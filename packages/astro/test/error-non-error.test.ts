@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { loadFixture, type Fixture, type DevServer } from './test-utils.js';
+import { loadFixture, type Fixture, type DevServer } from './test-utils.ts';
 
 describe('Can handle errors that are not instanceof Error', () => {
 	let fixture: Fixture;
@@ -10,6 +10,7 @@ describe('Can handle errors that are not instanceof Error', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/error-non-error',
+			outDir: './dist/error-non-error/',
 		});
 		devServer = await fixture.startDevServer();
 	});

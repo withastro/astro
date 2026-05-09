@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { type DevServer, type Fixture, isMacOS, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, isMacOS, loadFixture } from './test-utils.ts';
 
 // TODO: fix this tests in macOS
 if (!isMacOS) {
@@ -9,7 +9,10 @@ if (!isMacOS) {
 		let devServer: DevServer;
 
 		before(async () => {
-			fixture = await loadFixture({ root: './fixtures/debug-component/' });
+			fixture = await loadFixture({
+				root: './fixtures/debug-component/',
+				outDir: './dist/debug-component/',
+			});
 			devServer = await fixture.startDevServer();
 		});
 

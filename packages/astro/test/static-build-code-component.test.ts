@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Code component inside static build', () => {
 	let fixture: Fixture;
@@ -9,6 +9,7 @@ describe('Code component inside static build', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/static-build-code-component/',
+			outDir: './dist/static-build-code-component/',
 		});
 		await fixture.build();
 	});

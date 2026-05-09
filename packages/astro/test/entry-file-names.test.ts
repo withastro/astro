@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('vite.build.rollupOptions.entryFileNames', () => {
 	let fixture: Fixture;
@@ -9,6 +9,7 @@ describe('vite.build.rollupOptions.entryFileNames', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/entry-file-names',
+			outDir: './dist/entry-file-names/',
 		});
 		await fixture.build();
 	});

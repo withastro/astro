@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Aliases with tsconfig.json without baseUrl', () => {
 	let fixture: Fixture;
@@ -9,6 +9,7 @@ describe('Aliases with tsconfig.json without baseUrl', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/alias-tsconfig-no-baseurl/',
+			outDir: './dist/alias-tsconfig-no-baseurl/',
 		});
 	});
 

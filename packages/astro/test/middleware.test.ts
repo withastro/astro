@@ -3,8 +3,8 @@ import { existsSync, readFileSync } from 'node:fs';
 import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import * as cheerio from 'cheerio';
-import testAdapter from './test-adapter.js';
-import { type App, type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { type App, type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Middleware in DEV mode', () => {
 	let fixture: Fixture;
@@ -13,6 +13,7 @@ describe('Middleware in DEV mode', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/middleware space/',
+			outDir: './dist/middleware-middleware-in-dev-mode/',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -54,6 +55,7 @@ describe('Integration hooks with no user middleware', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/middleware-no-user-middleware/',
+			outDir: './dist/middleware-integration-hooks-with-no-user-middlewar/',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -89,6 +91,7 @@ describe('Middleware should not be executed or imported during', () => {
 			root: './fixtures/middleware-full-ssr/',
 			output: 'server',
 			adapter: testAdapter({}),
+			outDir: './dist/middleware-middleware-should-not-be-executed-or-imp/',
 		});
 		await fixture.build();
 		assert.ok('Should build');
@@ -105,6 +108,7 @@ describe('Middleware API in PROD mode, SSR', () => {
 			root: './fixtures/middleware space/',
 			output: 'server',
 			adapter: testAdapter({}),
+			outDir: './dist/middleware-middleware-api-in-prod-mode-ssr/',
 		});
 		await fixture.build();
 		app = await fixture.loadTestAdapterApp();
@@ -156,6 +160,7 @@ describe('Middleware API in PROD mode, SSR', () => {
 					middlewarePath = middlewareEntryPoint;
 				},
 			}),
+			outDir: './dist/middleware-path-encoding-in-middleware/',
 		});
 		await fixture.build();
 		assert.ok(middlewarePath);
@@ -176,6 +181,7 @@ describe('Middleware with tailwind', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/middleware-tailwind/',
+			outDir: './dist/middleware-middleware-with-tailwind/',
 		});
 		await fixture.build();
 	});
@@ -198,6 +204,7 @@ describe('Middleware sequence rewrites', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/middleware-sequence-rewrite/',
+			outDir: './dist/middleware-middleware-sequence-rewrites/',
 		});
 		devServer = await fixture.startDevServer();
 	});

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import testAdapter from './test-adapter.js';
-import { type App, type Fixture, loadFixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { type App, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Memory cache provider', () => {
 	let fixture: Fixture;
@@ -12,6 +12,7 @@ describe('Memory cache provider', () => {
 			root: './fixtures/cache-memory/',
 			output: 'server',
 			adapter: testAdapter(),
+			outDir: './dist/cache-memory/',
 		});
 		await fixture.build({});
 		app = await fixture.loadTestAdapterApp();

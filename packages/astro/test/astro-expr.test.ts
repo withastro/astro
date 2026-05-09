@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Expressions', () => {
 	let fixture: Fixture;
@@ -9,6 +9,7 @@ describe('Expressions', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-expr/',
+			outDir: './dist/astro-expr/',
 		});
 		await fixture.build();
 	});

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Dev pipeline - error pages', () => {
 	describe('Custom 404', () => {
@@ -11,6 +11,7 @@ describe('Dev pipeline - error pages', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/dev-error-pages/',
+				outDir: './dist/dev-error-pages-custom-404/',
 			});
 			devServer = await fixture.startDevServer();
 		});
@@ -50,6 +51,7 @@ describe('Dev pipeline - error pages', () => {
 			fixture = await loadFixture({
 				root: './fixtures/dev-error-pages/',
 				output: 'server',
+				outDir: './dist/dev-error-pages-custom-500/',
 			});
 			devServer = await fixture.startDevServer();
 		});

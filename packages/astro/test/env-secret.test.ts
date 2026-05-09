@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { afterEach, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import type { AstroError } from '../dist/core/errors/errors.js';
-import testAdapter from './test-adapter.js';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('astro:env secret variables', () => {
 	let fixture: Fixture;
@@ -20,6 +20,7 @@ describe('astro:env secret variables', () => {
 		process.env.KNOWN_SECRET = '5';
 		fixture = await loadFixture({
 			root: './fixtures/astro-env-server-secret/',
+			outDir: './dist/env-secret-astro-env-secret-variables/',
 		});
 		devServer = await fixture.startDevServer();
 		const response = await fixture.fetch('/');
@@ -36,6 +37,7 @@ describe('astro:env secret variables', () => {
 					UNKNOWN_SECRET: 'abc',
 				},
 			}),
+			outDir: './dist/env-secret-astro-env-secret-variables/',
 		});
 		await fixture.build();
 		assert.equal(true, true);
@@ -51,6 +53,7 @@ describe('astro:env secret variables', () => {
 					UNKNOWN_SECRET: 'abc',
 				},
 			}),
+			outDir: './dist/env-secret-astro-env-secret-variables/',
 		});
 		await fixture.build();
 		const app = await fixture.loadTestAdapterApp();
@@ -73,6 +76,7 @@ describe('astro:env secret variables', () => {
 			env: {
 				validateSecrets: true,
 			},
+			outDir: './dist/env-secret-astro-env-secret-variables/',
 		});
 
 		try {

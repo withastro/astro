@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('HTML Escape', () => {
 	let fixture: Fixture;
@@ -11,6 +11,7 @@ describe('HTML Escape', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/html-escape/',
+			outDir: './dist/html-escape/',
 		});
 	});
 
@@ -18,7 +19,7 @@ describe('HTML Escape', () => {
 		before(async () => {
 			await fixture.build();
 			// For complex HTML test
-			complexInput = await fixture.readFile('../src/pages/complex.html');
+			complexInput = await fixture.readFile('../../src/pages/complex.html');
 			complexOutput = await fixture.readFile('./complex/index.html');
 		});
 

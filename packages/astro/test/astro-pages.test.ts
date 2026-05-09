@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type DevServer, type Fixture, isWindows, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, isWindows, loadFixture } from './test-utils.ts';
 
 describe('Pages', () => {
 	let fixture: Fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/astro pages/' });
+		fixture = await loadFixture({ root: './fixtures/astro pages/', outDir: './dist/astro-pages/' });
 		await fixture.build();
 	});
 

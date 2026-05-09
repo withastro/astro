@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 const FIXTURE_ROOT = './fixtures/astro-markdown-frontmatter-injection/';
 
@@ -25,6 +25,7 @@ describe('Astro Markdown - frontmatter injection', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: FIXTURE_ROOT,
+			outDir: './dist/astro-markdown-frontmatter-injection/',
 		});
 		await fixture.build();
 	});

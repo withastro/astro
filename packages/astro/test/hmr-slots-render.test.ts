@@ -1,14 +1,17 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type DevServer, type Fixture, isWindows, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, isWindows, loadFixture } from './test-utils.ts';
 
 describe('HMR: slots.render with callback args after style change', () => {
 	let fixture: Fixture;
 	let devServer: DevServer;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/hmr-slots-render/' });
+		fixture = await loadFixture({
+			root: './fixtures/hmr-slots-render/',
+			outDir: './dist/hmr-slots-render/',
+		});
 		devServer = await fixture.startDevServer();
 	});
 

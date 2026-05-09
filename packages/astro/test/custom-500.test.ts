@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import testAdapter from './test-adapter.js';
-import { type App, type Fixture, loadFixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { type App, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Custom 500', () => {
 	let fixture: Fixture;
@@ -15,6 +15,7 @@ describe('Custom 500', () => {
 				root: './fixtures/custom-500/',
 				output: 'server',
 				adapter: testAdapter(),
+				outDir: './dist/custom-500-ssr/',
 			});
 			await fixture.build();
 			app = await fixture.loadTestAdapterApp();
@@ -36,6 +37,7 @@ describe('Custom 500', () => {
 				root: './fixtures/custom-500-failing/',
 				output: 'server',
 				adapter: testAdapter(),
+				outDir: './dist/custom-500-ssr/',
 			});
 			await fixture.build();
 			app = await fixture.loadTestAdapterApp();
@@ -53,6 +55,7 @@ describe('Custom 500', () => {
 				root: './fixtures/custom-500/',
 				output: 'server',
 				adapter: testAdapter(),
+				outDir: './dist/custom-500-ssr/',
 			});
 			await fixture.build();
 			app = await fixture.loadTestAdapterApp();

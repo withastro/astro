@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import testAdapter from './test-adapter.js';
-import { type Fixture, loadFixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('CSP', () => {
 	let fixture: Fixture;
@@ -10,6 +10,7 @@ describe('CSP', () => {
 	it('should generate hashes for inline styles', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
+			outDir: './dist/csp-csp/',
 		});
 		await fixture.build();
 		const html = await fixture.readFile('/inline/index.html');
@@ -28,6 +29,7 @@ describe('CSP', () => {
 	it('should generate hashes and directives for fonts', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp-fonts/',
+			outDir: './dist/csp-csp/',
 		});
 		await fixture.build();
 		const html = await fixture.readFile('/index.html');

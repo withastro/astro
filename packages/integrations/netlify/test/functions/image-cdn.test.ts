@@ -2,7 +2,7 @@ import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { remotePatternToRegex } from '@astrojs/netlify';
 import imageService from '../../dist/image-service.js';
-import { loadFixture, SpyIntegrationLogger } from '../test-utils.ts';
+import { loadFixture, SpyLogger } from '../test-utils.ts';
 import type { ImageTransform } from 'astro';
 
 async function getURL(options: ImageTransform) {
@@ -108,7 +108,8 @@ describe('Image CDN', { timeout: 120000 }, () => {
 		});
 
 		it('warns when remotepatterns generates an invalid regex', async () => {
-			const logger = new SpyIntegrationLogger();
+			const spyLogger = new SpyLogger();
+			const logger = spyLogger.forkIntegrationLogger('test-spy');
 			const regex = remotePatternToRegex(
 				{
 					hostname: '*.examp[le.org',
@@ -117,11 +118,11 @@ describe('Image CDN', { timeout: 120000 }, () => {
 				logger,
 			);
 			assert.strictEqual(regex, undefined);
-			assert.strictEqual(logger.messages.length, 1);
-			const message = logger.messages[0];
-			assert.equal(message.level, 'warn');
+			assert.strictEqual(spyLogger.logs.length, 1);
+			const entry = spyLogger.logs[0];
+			assert.equal(entry.level, 'warn');
 			assert.equal(
-				message.message,
+				entry.message,
 				'Could not generate a valid regex from the remotePattern "{"hostname":"*.examp[le.org","pathname":"/images/*"}". Please check the syntax.',
 			);
 		});

@@ -7,7 +7,7 @@ export {
 	type LogRequestPayload,
 } from '../base.js';
 export { fromRoutingStrategy, toRoutingStrategy } from '../common.js';
-export { createConsoleLogger } from '../logging.js';
+export { createConsoleLogger } from '../../logger/impls/console.js';
 export {
 	deserializeManifest,
 	deserializeRouteData,

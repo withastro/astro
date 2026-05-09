@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import http from 'node:http';
 import { after, before, describe, it } from 'node:test';
-import { type Fixture, loadFixture, type PreviewServer } from './test-utils.js';
+import { type Fixture, loadFixture, type PreviewServer } from './test-utils.ts';
 
 /**
  * Make a raw HTTP request with a custom Host header.
@@ -30,7 +30,14 @@ function fetchWithHost(port: number, hostHeader: string): Promise<http.IncomingM
 }
 
 function getBoundPort(previewServer: PreviewServer): number {
-	return previewServer.server.address().port;
+	// The public `PreviewServer` type hides `server`, but the static-preview-server
+	// implementation we use here exposes it.
+	const server = (previewServer as PreviewServer & { server: http.Server }).server;
+	const address = server.address();
+	if (!address || typeof address === 'string') {
+		throw new Error('Expected preview server to be bound to a port');
+	}
+	return address.port;
 }
 
 describe('astro preview - allowedHosts via vite config', () => {
@@ -46,6 +53,7 @@ describe('astro preview - allowedHosts via vite config', () => {
 					allowedHosts: ['example.com'],
 				},
 			},
+			outDir: './dist/astro-preview-allowed-hosts-astro-preview-allowedhosts-via-vite-conf/',
 		});
 		await fixture.build();
 		previewServer = await fixture.preview();
@@ -74,7 +82,7 @@ describe('astro preview - allowedHosts true via vite config', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-preview-allowed-hosts/',
-			outDir: './dist-allow-all/',
+			outDir: './dist/allow-all/',
 			// Set allowedHosts: true via the vite.preview path
 			vite: {
 				preview: {
@@ -104,7 +112,7 @@ describe('astro preview - server.allowedHosts takes precedence over vite.preview
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-preview-allowed-hosts/',
-			outDir: './dist-precedence/',
+			outDir: './dist/precedence/',
 			// Astro server.allowedHosts should win over vite.preview.allowedHosts
 			server: {
 				allowedHosts: ['astro-wins.com'],

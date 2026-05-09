@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import testAdapter from './test-adapter.js';
-import { type App, type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { type App, type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 const root = './fixtures/astro-envs/';
 
@@ -13,7 +13,7 @@ describe('Environment Variables', () => {
 		before(async () => {
 			process.env.BOOLEAN_VAR = 'true';
 			process.env.NUMBER_VAR = '1';
-			fixture = await loadFixture({ root });
+			fixture = await loadFixture({ root, outDir: './dist/astro-envs-build/' });
 			await fixture.build({});
 		});
 
@@ -110,7 +110,7 @@ describe('Environment Variables', () => {
 		let devServer: DevServer;
 
 		before(async () => {
-			fixture = await loadFixture({ root });
+			fixture = await loadFixture({ root, outDir: './dist/astro-envs-development/' });
 			devServer = await fixture.startDevServer();
 		});
 		after(async () => {
@@ -151,6 +151,7 @@ describe('Environment Variables', () => {
 				root,
 				output: 'server',
 				adapter: testAdapter(),
+				outDir: './dist/astro-envs-ssr/',
 			});
 			process.env.SECRET_PLACE = 'SECRET_PLACE_BUILD';
 			await fixture.build({});

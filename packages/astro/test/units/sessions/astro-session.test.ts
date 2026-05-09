@@ -385,13 +385,39 @@ describe('AstroSession - Sparse Data Operations', () => {
 		session.delete('key');
 		await session[PERSIST_SYMBOL]();
 
-		// Create a new session using the stored data
+		// Create a new session using the stored data (get must return parsed JSON like unstorage)
 		const newSession = createSession(defaultConfig, defaultMockCookies, {
-			get: async () => storedData,
+			get: async () => (storedData != null ? JSON.parse(storedData) : null),
 			setItem: async () => {},
 		} as unknown as Storage);
 
 		assert.equal(await newSession.get('key'), undefined);
+	});
+
+	it('should persist delete as the first mutation (no prior get/set)', async () => {
+		const store = new Map<string, string>();
+		const sessionId = 'sessionid';
+		store.set(sessionId, devalueStringify(new Map([['token', { data: 'secret' }]])));
+
+		const mockStorage = {
+			get: async (key: string) => {
+				const raw = store.get(key);
+				return raw ? JSON.parse(raw) : null;
+			},
+			setItem: async (key: string, value: string) => {
+				store.set(key, value);
+			},
+			removeItem: async (key: string) => {
+				store.delete(key);
+			},
+		} as unknown as Storage;
+
+		const session = createSession(defaultConfig, defaultMockCookies, mockStorage);
+		session.delete('token');
+		await session[PERSIST_SYMBOL]();
+
+		const newSession = createSession(defaultConfig, defaultMockCookies, mockStorage);
+		assert.equal(await newSession.get('token'), undefined);
 	});
 
 	it('should update existing values in sparse mode', async () => {
@@ -554,3 +580,76 @@ describe('AstroSession - Storage Errors', () => {
 });
 
 // #endregion Storage Errors
+
+// #region No-Cookie Short Circuit
+describe('AstroSession - No-Cookie Short Circuit', () => {
+	it('should not initialize the storage driver or read when no session cookie is present', async () => {
+		let driverInitCount = 0;
+		const countingDriverFactory: SessionDriverFactory = () => {
+			driverInitCount++;
+			return driverFactory();
+		};
+
+		const noCookieMock: MockCookies = {
+			set: () => {},
+			delete: () => {},
+			get: () => undefined,
+		};
+
+		// Use a unique driver name so the static #sharedStorage cache from
+		// earlier tests can't mask a regression.
+		const session = new AstroSession({
+			cookies: noCookieMock as any,
+			config: { ...defaultConfig, driver: 'no-cookie-test' },
+			runtimeMode: 'production',
+			driverFactory: countingDriverFactory,
+			mockStorage: null,
+		});
+
+		const value = await session.get('nonexistent');
+		assert.equal(value, undefined);
+		assert.equal(driverInitCount, 0, 'Driver factory should never have been called');
+	});
+
+	it('should read from storage when session cookie is present', async () => {
+		let storageReadCount = 0;
+		const mockStorage = {
+			get: async () => {
+				storageReadCount++;
+				return stringify(new Map([['user', { data: 'alice' }]]));
+			},
+			setItem: async () => {},
+		} as unknown as Storage;
+
+		const withCookieMock: MockCookies = {
+			set: () => {},
+			delete: () => {},
+			get: (name: string) => {
+				if (name === 'test-session') return { value: 'existing-session-id' };
+				return undefined;
+			},
+		};
+
+		const session = createSession(defaultConfig, withCookieMock, mockStorage);
+
+		const value = await session.get('user');
+		assert.equal(value, 'alice');
+		assert.equal(storageReadCount, 1, 'Storage should have been read once');
+	});
+
+	it('should allow set() then get() without a cookie (new session)', async () => {
+		const noCookieMock: MockCookies = {
+			set: () => {},
+			delete: () => {},
+			get: () => undefined,
+		};
+
+		const session = createSession(defaultConfig, noCookieMock);
+
+		session.set('key', 'expected');
+		const value = await session.get('key');
+		assert.equal(value, 'expected');
+	});
+});
+
+// #endregion No-Cookie Short Circuit

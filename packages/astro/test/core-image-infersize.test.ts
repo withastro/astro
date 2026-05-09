@@ -3,9 +3,9 @@ import { Writable } from 'node:stream';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 
-import { AstroLogger, type AstroLogMessage } from '../dist/core/logger/core.js';
+import { AstroLogger, type AstroLoggerMessage } from '../dist/core/logger/core.js';
 import { testImageService } from './test-image-service.ts';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('astro:image:infersize', () => {
 	let fixture: Fixture;
@@ -13,11 +13,12 @@ describe('astro:image:infersize', () => {
 
 	describe('dev', () => {
 		let devServer: DevServer;
-		const logs: Array<AstroLogMessage> = [];
+		const logs: Array<AstroLoggerMessage> = [];
 
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/core-image-infersize/',
+				outDir: './dist/core-image-infersize-dev/',
 			});
 
 			const logger = new AstroLogger({
@@ -103,6 +104,7 @@ describe('astro:image:infersize', () => {
 						transform: { path: remoteAvatarUrl, scale: 2 },
 					}),
 				},
+				outDir: './dist/core-image-infersize-dev-with-custom-image-service/',
 			});
 
 			customDevServer = await customFixture.startDevServer({});

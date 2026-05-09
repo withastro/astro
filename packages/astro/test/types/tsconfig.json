@@ -1,8 +1,6 @@
 {
-  "extends": "../../../../tsconfig.base.json",
+  "extends": "../../../../configs/tsconfig.base.json",
   "compilerOptions": {
-    "composite": true,
-    "allowJs": true,
     "emitDeclarationOnly": false
   }
 }

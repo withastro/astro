@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Astro dev headers', () => {
 	let fixture: Fixture;
@@ -16,6 +16,7 @@ describe('Astro dev headers', () => {
 			server: {
 				headers,
 			},
+			outDir: './dist/astro-dev-headers-astro-dev-headers/',
 		});
 		await fixture.build();
 		devServer = await fixture.startDevServer();
@@ -56,6 +57,7 @@ describe('Astro dev with vite.base path', () => {
 			vite: {
 				base: '/hello',
 			},
+			outDir: './dist/astro-dev-headers-astro-dev-with-vite-base-path/',
 		});
 		await fixture.build();
 		devServer = await fixture.startDevServer();

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Dev rewrite, trailing slash -> never', () => {
 	let fixture: Fixture;
@@ -10,6 +10,7 @@ describe('Dev rewrite, trailing slash -> never', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/rewrite-trailing-slash-never/',
+			outDir: './dist/rewrite-dev-rewrite-trailing-slash-never/',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -34,6 +35,7 @@ describe('Dev rewrite, trailing slash -> never, with base', () => {
 		fixture = await loadFixture({
 			root: './fixtures/rewrite-trailing-slash-never/',
 			base: 'base',
+			outDir: './dist/rewrite-dev-rewrite-trailing-slash-never-with-ba/',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -67,6 +69,7 @@ describe('Dev rewrite, hybrid/server', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/rewrite-server/',
+			outDir: './dist/rewrite-dev-rewrite-hybrid-server/',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -114,6 +117,7 @@ describe('Dev rewrite URL contains base and has no trailing slash', () => {
 		fixture = await loadFixture({
 			root: './fixtures/rewrite-with-base/',
 			trailingSlash: 'never',
+			outDir: './dist/rewrite-dev-rewrite-url-contains-base-and-has-no/',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -161,6 +165,7 @@ describe('SSR route', () => {
 		try {
 			const fixture = await loadFixture({
 				root: './fixtures/rewrite-404-invalid/',
+				outDir: './dist/rewrite-ssr-route/',
 			});
 			await fixture.build();
 			assert.fail('It should fail.');
@@ -178,6 +183,7 @@ describe('Runtime error, default 500', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/rewrite-runtime-error/',
+			outDir: './dist/rewrite-runtime-error-default-500/',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -201,6 +207,7 @@ describe('Runtime error in dev, custom 500', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/rewrite-runtime-error-custom500/',
+			outDir: './dist/rewrite-runtime-error-in-dev-custom-500/',
 		});
 		devServer = await fixture.startDevServer();
 	});
