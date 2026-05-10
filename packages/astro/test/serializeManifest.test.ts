@@ -154,6 +154,7 @@ describe('astro:config/server', () => {
 			assert.ok($('#root').text().endsWith('/'));
 			assert.ok($('#build-client').text().endsWith('/dist/serializeManifest-in-dev/client/'));
 			assert.ok($('#build-server').text().endsWith('/dist/serializeManifest-in-dev/server/'));
+			assert.equal($('#build-assets-prefix').text(), 'https://cdn.example.com');
 			// URL
 			assert.equal($('#root-url').text(), 'true');
 		});
@@ -189,6 +190,7 @@ describe('astro:config/server', () => {
 					.text()
 					.endsWith('/dist/serializeManifest-when-the-experimental-flag-is-enabled-in/server/'),
 			);
+			assert.equal($('#build-assets-prefix').text(), 'https://cdn.example.com');
 			// URL
 			assert.equal($('#root-url').text(), 'true');
 		});
@@ -231,6 +233,7 @@ describe('astro:config/server', () => {
 					.text()
 					.endsWith('/dist/serializeManifest-when-the-experimental-flag-is-enabled-in-ssr/server/'),
 			);
+			assert.equal($('#build-assets-prefix').text(), 'https://cdn.example.com');
 			// URL
 			assert.equal($('#root-url').text(), 'true');
 		});

@@ -118,6 +118,7 @@ const build = {
   server: new URL(manifest.buildServerDir),
   client: new URL(manifest.buildClientDir),
   format: manifest.buildFormat,
+  assetsPrefix: manifest.assetsPrefix,
 };
 
 const cacheDir = new URL(manifest.cacheDir);

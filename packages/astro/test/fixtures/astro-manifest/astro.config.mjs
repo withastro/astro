@@ -16,6 +16,9 @@ export default defineConfig({
 							 base: '/blog',
             				site: 'https://example.com',
             				trailingSlash: 'always',
+            				build: {
+            					assetsPrefix: 'https://cdn.example.com',
+            				},
 						})
 				}
 			}
