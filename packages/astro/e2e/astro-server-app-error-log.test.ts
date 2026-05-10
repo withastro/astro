@@ -1,10 +1,10 @@
 import { expect } from '@playwright/test';
-import { testFactory } from './test-utils.js';
+import { type DevServer, testFactory } from './test-utils.ts';
 
 function hookConsoleLog() {
 	// biome-ignore lint/suspicious/noConsole: allowed
 	const log = console.log;
-	const logs = [];
+	const logs: unknown[][] = [];
 	console.log = function (...args) {
 		logs.push(args);
 	};
@@ -21,8 +21,8 @@ const test = testFactory(import.meta.url, {
 	},
 });
 
-let devServer;
-let unhook;
+let devServer: DevServer;
+let unhook: () => unknown[][];
 
 test.beforeAll(async ({ astro }) => {
 	devServer = await astro.startDevServer();
@@ -49,7 +49,12 @@ test.describe('Astro page', () => {
 		const logs = unhook();
 		const hasFailedToLoadUrlLog = logs
 			.flat()
-			.some((log) => log.includes('Failed to load url') && log.includes('astro:server-app.js'));
+			.some(
+				(log) =>
+					typeof log === 'string' &&
+					log.includes('Failed to load url') &&
+					log.includes('astro:server-app.js'),
+			);
 
 		expect(hasFailedToLoadUrlLog).toBe(false);
 	});
