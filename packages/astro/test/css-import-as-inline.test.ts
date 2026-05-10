@@ -10,6 +10,7 @@ describe('Importing raw/inlined CSS', () => {
 			root: './fixtures/css-import-as-inline/',
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist/css-import-as-inline/',
 		});
 	});
 	describe('Build', () => {

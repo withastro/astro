@@ -10,6 +10,7 @@ describe('Custom 404 with Static', () => {
 		fixture = await loadFixture({
 			root: './fixtures/custom-404-static/',
 			site: 'http://example.com',
+			outDir: './dist/custom-404-static/',
 		});
 	});
 

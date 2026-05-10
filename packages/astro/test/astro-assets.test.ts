@@ -11,6 +11,7 @@ describe('Assets', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-assets/',
+			outDir: './dist/astro-assets/',
 		});
 		await fixture.build();
 	});

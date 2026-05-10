@@ -81,6 +81,12 @@ export default async function test() {
 		process.env.NODE_OPTIONS += ' --experimental-strip-types';
 	}
 
+	if (args.values.parallel) {
+		// Signal to test-utils that we're in parallel mode so it can use port 0
+		// (OS-assigned) to avoid port collisions across parallel worker processes.
+		process.env.ASTRO_TEST_PARALLEL = '1';
+	}
+
 	if (!args.values.parallel) {
 		// If not parallel, we create a temporary file that imports all the test files
 		// so that it all runs in a single process.

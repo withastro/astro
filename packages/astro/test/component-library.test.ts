@@ -15,6 +15,7 @@ describe('Component Libraries', () => {
 			root: './fixtures/component-library/',
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist/component-library/',
 		});
 	});
 

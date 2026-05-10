@@ -49,6 +49,7 @@ describe('Server islands', () => {
 				security: {
 					checkOrigin: false,
 				},
+				outDir: './dist/server-islands-ssr/',
 			});
 		});
 
@@ -392,6 +393,7 @@ describe('Server islands', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/server-islands/hybrid',
+				outDir: './dist/server-islands-hybrid-mode/',
 			});
 		});
 
@@ -439,6 +441,7 @@ describe('Server islands', () => {
 						adapterFeatures: {},
 					},
 				}),
+				outDir: './dist/server-islands-build/',
 			});
 			const devServer = await devFixture.startDevServer();
 			try {

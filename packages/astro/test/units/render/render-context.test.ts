@@ -1,14 +1,14 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { RenderContext } from '../../../dist/core/render-context.js';
+import { FetchState } from '../../../dist/core/fetch/fetch-state.js';
 import { createComponent, maybeRenderHead, render } from '../../../dist/runtime/server/index.js';
 import type { AstroComponentFactory } from '../../../dist/runtime/server/render/index.js';
-import { createBasicPipeline, SpyLogger } from '../test-utils.ts';
-import { createMockRenderContext } from '../mocks.ts';
+import { createBasicPipeline, renderThroughMiddleware, SpyLogger } from '../test-utils.ts';
+import { createRouteData } from '../mocks.ts';
 
 const createAstroModule = (AstroComponent: AstroComponentFactory) => ({ default: AstroComponent });
 
-describe('RenderContext', () => {
+describe('FetchState', () => {
 	describe('skipMiddleware and form action handling', () => {
 		it('does not auto-execute form actions when skipMiddleware is true', async () => {
 			let actionWasCalled = false;
@@ -51,16 +51,14 @@ describe('RenderContext', () => {
 				prerender: false,
 			};
 
-			// Create context with skipMiddleware=true (as happens during error recovery)
-			const renderContext = await RenderContext.create({
-				pipeline,
-				request,
-				routeData,
-				status: 404,
-				skipMiddleware: true,
-			} as any);
+			// Create state with skipMiddleware=true (as happens during error recovery)
+			const state = new FetchState(pipeline, request);
+			state.routeData = routeData as any;
+			state.pathname = '/404';
+			state.status = 404;
+			state.skipMiddleware = true;
 
-			const response = await renderContext.render(PageModule);
+			const response = await renderThroughMiddleware(state, PageModule);
 
 			assert.equal(response.status, 404);
 			assert.equal(
@@ -111,15 +109,13 @@ describe('RenderContext', () => {
 				prerender: false,
 			};
 
-			// Create context with skipMiddleware=false (normal flow)
-			const renderContext = await RenderContext.create({
-				pipeline,
-				request,
-				routeData,
-				skipMiddleware: false,
-			} as any);
+			// Create state with skipMiddleware=false (normal flow)
+			const state = new FetchState(pipeline, request);
+			state.routeData = routeData as any;
+			state.pathname = '/page';
+			state.skipMiddleware = false;
 
-			const response = await renderContext.render(PageModule);
+			const response = await renderThroughMiddleware(state, PageModule);
 
 			assert.equal(response.status, 200);
 			assert.equal(
@@ -131,11 +127,15 @@ describe('RenderContext', () => {
 	});
 
 	describe('context.logger (APIContext)', () => {
+		const minimalRouteData = createRouteData({ route: '/' });
+
 		it('warns when context.logger is accessed without experimentalLogger enabled', async () => {
 			const spyLogger = new SpyLogger();
-			const renderContext = await createMockRenderContext({ logger: spyLogger });
+			const pipeline = createBasicPipeline({ logger: spyLogger });
+			const state = new FetchState(pipeline, new Request('http://localhost/'));
+			state.routeData = minimalRouteData;
 
-			renderContext.createActionAPIContext().logger;
+			state.getActionAPIContext().logger;
 
 			assert.equal(spyLogger.writeCount(), 1);
 			assert.equal(spyLogger.logs[0].level, 'warn');
@@ -144,7 +144,7 @@ describe('RenderContext', () => {
 
 		it('provides info/warn/error methods when experimentalLogger is enabled', async () => {
 			const spyLogger = new SpyLogger();
-			const renderContext = await createMockRenderContext({
+			const pipeline = createBasicPipeline({
 				logger: spyLogger,
 				manifest: {
 					experimentalLogger: {
@@ -152,8 +152,10 @@ describe('RenderContext', () => {
 					},
 				},
 			});
+			const state = new FetchState(pipeline, new Request('http://localhost/'));
+			state.routeData = minimalRouteData;
 
-			const { logger } = renderContext.createActionAPIContext();
+			const { logger } = state.getActionAPIContext();
 			assert.ok(logger);
 			assert.equal(typeof logger.info, 'function');
 			assert.equal(typeof logger.warn, 'function');
@@ -162,7 +164,7 @@ describe('RenderContext', () => {
 
 		it('context.logger delegates to the pipeline logger', async () => {
 			const spyLogger = new SpyLogger();
-			const renderContext = await createMockRenderContext({
+			const pipeline = createBasicPipeline({
 				logger: spyLogger,
 				manifest: {
 					experimentalLogger: {
@@ -170,8 +172,10 @@ describe('RenderContext', () => {
 					},
 				},
 			});
+			const state = new FetchState(pipeline, new Request('http://localhost/'));
+			state.routeData = minimalRouteData;
 
-			const ctx = renderContext.createActionAPIContext();
+			const ctx = state.getActionAPIContext();
 			ctx.logger!.info('info message');
 			ctx.logger!.warn('warn message');
 			ctx.logger!.error('error message');
@@ -186,9 +190,11 @@ describe('RenderContext', () => {
 	});
 
 	describe('Astro.logger (page rendering)', () => {
+		const pageRouteData = createRouteData({ route: '/' });
+
 		it('Astro.logger is always available on the page global', async () => {
 			const spyLogger = new SpyLogger();
-			const renderContext = await createMockRenderContext({ logger: spyLogger });
+			const pipeline = createBasicPipeline({ logger: spyLogger });
 
 			const LoggingPage = createComponent((result: any, _props: any, _slots: any) => {
 				const Astro = result.createAstro({}, null);
@@ -198,7 +204,9 @@ describe('RenderContext', () => {
 				return render`<html><head>${maybeRenderHead()}</head><body><p>Logged</p></body></html>`;
 			});
 
-			const response = await renderContext.render(createAstroModule(LoggingPage));
+			const state = new FetchState(pipeline, new Request('http://localhost/'));
+			state.routeData = pageRouteData;
+			const response = await renderThroughMiddleware(state, createAstroModule(LoggingPage) as any);
 			assert.equal(response.status, 200);
 
 			const userLogs = spyLogger.logs.filter((l) => l.label === null);
@@ -212,7 +220,7 @@ describe('RenderContext', () => {
 
 		it('Astro.logger delegates to the pipeline logger', async () => {
 			const spyLogger = new SpyLogger();
-			const renderContext = await createMockRenderContext({
+			const pipeline = createBasicPipeline({
 				logger: spyLogger,
 				manifest: {
 					experimentalLogger: {
@@ -227,7 +235,9 @@ describe('RenderContext', () => {
 				return render`<html><head>${maybeRenderHead()}</head><body><p>OK</p></body></html>`;
 			});
 
-			const response = await renderContext.render(createAstroModule(LoggingPage));
+			const state = new FetchState(pipeline, new Request('http://localhost/'));
+			state.routeData = pageRouteData;
+			const response = await renderThroughMiddleware(state, createAstroModule(LoggingPage) as any);
 			assert.equal(response.status, 200);
 
 			const userLogs = spyLogger.logs.filter((l) => l.label === null);

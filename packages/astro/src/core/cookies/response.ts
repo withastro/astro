@@ -1,4 +1,4 @@
-import { AstroCookies } from './cookies.js';
+import type { AstroCookies } from './cookies.js';
 
 const astroCookiesSymbol = Symbol.for('astro.cookies');
 
@@ -20,7 +20,7 @@ export function* getSetCookiesFromResponse(response: Response): Generator<string
 	if (!cookies) {
 		return [];
 	}
-	for (const headerValue of AstroCookies.consume(cookies)) {
+	for (const headerValue of cookies.consume()) {
 		yield headerValue;
 	}
 

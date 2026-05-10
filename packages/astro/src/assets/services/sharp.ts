@@ -10,6 +10,7 @@ import type {
 } from 'sharp';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { ImageFit, ImageOutputFormat, ImageQualityPreset } from '../types.js';
+import { detector } from '../utils/vendor/image-size/detector.js';
 import {
 	type BaseServiceTransform,
 	baseService,
@@ -147,6 +148,15 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 		// Return SVGs as-is
 		// TODO: Sharp has some support for SVGs, we could probably support this once Sharp is the default and only service.
 		if (transform.format === 'svg') return { data: inputBuffer, format: 'svg' };
+
+		// Rasterizing an SVG runs librsvg on untrusted input; require explicit opt-in.
+		if (detector(inputBuffer) === 'svg' && !config.dangerouslyProcessSVG) {
+			throw new AstroError({
+				...AstroErrorData.UnsupportedImageFormat,
+				message:
+					'SVG image processing is disabled. Set `image.dangerouslyProcessSVG: true` to allow processing of SVG sources.',
+			});
+		}
 
 		const result = sharp(inputBuffer, {
 			failOnError: false,

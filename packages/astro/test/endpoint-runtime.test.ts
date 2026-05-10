@@ -9,6 +9,7 @@ describe('endpoints', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/endpoint-routing/',
+			outDir: './dist/endpoint-runtime/',
 		});
 		devServer = await fixture.startDevServer();
 	});

@@ -24,6 +24,7 @@ describe('API routes in SSR', () => {
 		security: {
 			checkOrigin: false,
 		},
+		outDir: './dist/ssr-api-route/',
 	};
 
 	describe('Build', () => {
@@ -196,11 +197,9 @@ describe('API routes in SSR', () => {
 			assert.ok(data.propsExist);
 			assert.deepEqual(data.params, { param: 'any' });
 			assert.match(data.generator, /^Astro v/);
-			assert.ok(
-				['http://[::1]:4321/blog/context/any', 'http://127.0.0.1:4321/blog/context/any'].includes(
-					data.url,
-				),
-			);
+			const url = new URL(data.url);
+			assert.ok(['[::1]', '127.0.0.1'].includes(url.hostname));
+			assert.equal(url.pathname, '/blog/context/any');
 			assert.ok(['::1', '127.0.0.1'].includes(data.clientAddress));
 			assert.equal(data.site, 'https://mysite.dev/subsite/');
 		});

@@ -9,6 +9,7 @@ describe('Preact compat component', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/preact-compat-component/',
+			outDir: './dist/preact-compat-component/',
 		});
 	});
 

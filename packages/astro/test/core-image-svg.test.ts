@@ -16,6 +16,7 @@ describe('astro:assets - SVG Components', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/core-image-svg/',
+				outDir: './dist/core-image-svg-dev/',
 			});
 
 			const logger = new AstroLogger({
@@ -168,6 +169,7 @@ describe('astro:assets - SVG Components', () => {
 						],
 					}),
 				},
+				outDir: './dist/core-image-svg-svgo-optimization/',
 			});
 
 			optimizedDevServer = await optimizedFixture.startDevServer();

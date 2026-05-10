@@ -1,6 +1,7 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 import { Range } from '@volar/language-server';
+import ts from 'typescript';
 import type { Node } from 'vscode-html-languageservice';
 import * as html from 'vscode-html-languageservice';
 import { getTSXRangesAsLSPRanges, safeConvertToTSX } from '../../dist/core/astro2tsx.js';
@@ -161,6 +162,7 @@ describe('Utilities', async () => {
 		assert.deepStrictEqual(
 			Array.from(
 				getAlreadyImportedAstroComponentSources(
+					ts,
 					`import Image from "../components/Image.astro";\nimport { default as Card } from "../components/Card.astro";\n`,
 				),
 			),
@@ -172,6 +174,7 @@ describe('Utilities', async () => {
 		assert.deepStrictEqual(
 			Array.from(
 				getAlreadyImportedAstroComponentSources(
+					ts,
 					`import type { Props } from "../components/Image.astro";\n`,
 				),
 			),
@@ -183,6 +186,7 @@ describe('Utilities', async () => {
 		assert.deepStrictEqual(
 			Array.from(
 				getAlreadyImportedAstroComponentSources(
+					ts,
 					`---
 import Image from "../components/Image.astro";
 ---

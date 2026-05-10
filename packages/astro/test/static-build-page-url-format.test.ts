@@ -8,6 +8,7 @@ describe("Static build - format: 'file'", () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/static-build-page-url-format/',
+			outDir: './dist/static-build-page-url-format/',
 		});
 		await fixture.build();
 	});

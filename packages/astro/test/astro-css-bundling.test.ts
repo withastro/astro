@@ -28,6 +28,7 @@ describe('CSS Bundling', function () {
 				root: './fixtures/astro-css-bundling/',
 				// test suite was authored when inlineStylesheets defaulted to never
 				build: { inlineStylesheets: 'never' },
+				outDir: './dist/astro-css-bundling-defaults/',
 			});
 			await fixture.build({ mode: 'production' });
 		});
@@ -97,6 +98,7 @@ describe('CSS Bundling', function () {
 						},
 					},
 				},
+				outDir: './dist/astro-css-bundling-using-custom-assetfilenames-config/',
 			});
 			await fixture.build({ mode: 'production' });
 		});

@@ -2,8 +2,6 @@ import type { TextEdit } from 'vscode-html-languageservice';
 import type { AstroVirtualCode } from '../../core/index.js';
 import { editShouldBeInFrontmatter, ensureProperEditForFrontmatter } from '../utils.js';
 
-const ts: typeof import('typescript') = require('typescript');
-
 const ASTRO_COMPONENT_SUFFIX = 'AstroComponent';
 const ASTRO_IMPORT_FROM_PATTERN = /\bfrom\s+['"][^'"]+\.astro['"]/;
 const ASTRO_DEFAULT_IMPORT_PATTERN =
@@ -37,7 +35,10 @@ export function rewriteAstroImportText(text: string) {
 		.join('\n');
 }
 
-export function getAlreadyImportedAstroComponentSources(documentText: string) {
+export function getAlreadyImportedAstroComponentSources(
+	ts: typeof import('typescript'),
+	documentText: string,
+) {
 	const sources = new Set<string>();
 	const sourceFile = ts.createSourceFile(
 		'component-imports.tsx',

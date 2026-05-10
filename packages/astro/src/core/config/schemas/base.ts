@@ -74,6 +74,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	image: {
 		endpoint: { entrypoint: undefined, route: '/_image' },
 		service: { entrypoint: 'astro/assets/services/sharp', config: {} },
+		dangerouslyProcessSVG: false,
 		responsiveStyles: false,
 	},
 	devToolbar: {
@@ -106,6 +107,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	},
 	prerenderConflictBehavior: 'warn',
 	experimental: {
+		advancedRouting: false,
 		clientPrerender: false,
 		contentIntellisense: false,
 		chromeDevtoolsWorkspace: false,
@@ -307,6 +309,7 @@ export const AstroConfigSchema = z.object({
 					config: z.record(z.string(), z.any()).default({}),
 				})
 				.default(ASTRO_CONFIG_DEFAULTS.image.service),
+			dangerouslyProcessSVG: z.boolean().default(ASTRO_CONFIG_DEFAULTS.image.dangerouslyProcessSVG),
 			domains: z.array(z.string()).default([]),
 			remotePatterns: z
 				.array(
@@ -529,6 +532,10 @@ export const AstroConfigSchema = z.object({
 	fonts: z.array(FontFamilySchema).optional(),
 	experimental: z
 		.strictObject({
+			advancedRouting: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.advancedRouting),
 			clientPrerender: z
 				.boolean()
 				.optional()

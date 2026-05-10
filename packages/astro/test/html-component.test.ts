@@ -9,6 +9,7 @@ describe('HTML Component', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/html-component/',
+			outDir: './dist/html-component/',
 		});
 	});
 

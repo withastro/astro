@@ -9,6 +9,7 @@ describe('Custom 404 Markdown', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/custom-404-md/',
+			outDir: './dist/custom-404-md/',
 		});
 	});
 

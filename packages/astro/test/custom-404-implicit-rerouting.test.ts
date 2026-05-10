@@ -13,6 +13,7 @@ for (const caseNumber of [1, 2, 3, 4, 5]) {
 				root: `./fixtures/custom-404-loop-case-${caseNumber}/`,
 				site: 'http://example.com',
 				adapter: testAdapter(),
+				outDir: './dist/custom-404-implicit-rerouting/',
 			});
 		});
 

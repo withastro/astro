@@ -12,6 +12,7 @@ describe('base configuration', () => {
 				root: './fixtures/dev-render/',
 				base: '/docs',
 				trailingSlash: 'never',
+				outDir: './dist/dev-base/',
 			});
 			devServer = await fixture.startDevServer();
 		});

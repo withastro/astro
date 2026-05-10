@@ -2,7 +2,8 @@ import { createBasicPipeline } from './test-utils.ts';
 import { makeRoute, staticPart } from './routing/test-helpers.ts';
 import { AstroCookies } from '../../dist/core/cookies/index.js';
 import { App } from '../../dist/core/app/app.js';
-import { RenderContext } from '../../dist/core/render-context.js';
+import { FetchState } from '../../dist/core/fetch/fetch-state.js';
+import { fetchStateSymbol } from '../../dist/core/constants.js';
 import { baseService } from '../../dist/assets/services/service.js';
 import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import {
@@ -12,8 +13,8 @@ import {
 	spreadAttributes,
 } from '../../dist/runtime/server/index.js';
 import { createManifest, createRouteInfo } from './app/test-helpers.ts';
-import type { AstroLogger } from '../../dist/core/logger/core.js';
 import type { Pipeline } from '../../dist/core/render/index.js';
+import type { RedirectConfig } from '../../dist/types/public/config.js';
 import type { RouteData, RoutePart, RouteType } from '../../dist/types/public/internal.js';
 import type { APIContext } from '../../dist/types/public/context.js';
 import type { SSRManifest, RouteInfo } from '../../dist/core/app/types.js';
@@ -37,13 +38,11 @@ interface LightMockRenderContextOverrides {
 }
 
 /**
- * Creates a lightweight RenderContext-shaped plain object.
- *
- * Use this when the code under test only reads a few fields
- * (e.g. `renderRedirect` which only needs `request`, `routeData`,
- * `params` and `pipeline`).
+ * Creates a minimal RenderContext mock for unit testing functions that
+ * used to take a `RenderContext` directly. Internal helper used by
+ * `createMockFetchState`.
  */
-export function createLightRenderContext(overrides: LightMockRenderContextOverrides = {}) {
+function createMockRenderContext(overrides: LightMockRenderContextOverrides = {}) {
 	const pipeline =
 		overrides.pipeline || createBasicPipeline({ manifest: { trailingSlash: 'never' } });
 
@@ -56,52 +55,18 @@ export function createLightRenderContext(overrides: LightMockRenderContextOverri
 	};
 }
 
-interface MockRenderContextOverrides {
-	request?: Request;
-	route?: string;
-	routeData?: Partial<RouteData>;
-	pipeline?: Pipeline;
-	logger?: AstroLogger;
-	manifest?: Partial<SSRManifest>;
-	status?: number;
-	skipMiddleware?: boolean;
-	clientAddress?: string;
-}
-
 /**
- * Creates a real `RenderContext` instance for unit testing.
- *
- * Pass `logger` and/or `manifest` to customise the pipeline without
- * having to build one manually. When a full `pipeline` override is
- * provided, `logger` and `manifest` are ignored.
- *
- * Uses `createRouteData` internally so a simple `route: '/'` string
- * is enough — no need to construct a full `RouteData` object.
+ * Wraps a `createMockRenderContext(...)` result in a minimal `FetchState`
+ * so it can be passed to functions that now take state (e.g.
+ * `renderRedirect(state)`). The `renderContext` field on the returned
+ * state is the duck-typed mock from `createMockRenderContext`.
  */
-export async function createMockRenderContext(
-	overrides: MockRenderContextOverrides = {},
-): Promise<RenderContext> {
-	const pipeline =
-		overrides.pipeline ||
-		createBasicPipeline({
-			logger: overrides.logger,
-			manifest: { trailingSlash: 'never', ...overrides.manifest },
-		});
-
-	const routeData = createRouteData({
-		route: overrides.route ?? '/',
-		...overrides.routeData,
-	});
-
-	return RenderContext.create({
-		pipeline,
-		request: overrides.request || new Request('http://localhost/'),
-		routeData,
-		pathname: routeData.pathname ?? '/',
-		clientAddress: overrides.clientAddress,
-		status: overrides.status,
-		skipMiddleware: overrides.skipMiddleware,
-	});
+export function createMockFetchState(overrides: LightMockRenderContextOverrides = {}) {
+	const ctx = createMockRenderContext(overrides);
+	const state = new FetchState(ctx.pipeline, ctx.request);
+	state.routeData = ctx.routeData as any;
+	state.params = ctx.params as any;
+	return state;
 }
 
 interface MockAPIContextOverrides extends Partial<Omit<APIContext, 'url'>> {
@@ -113,6 +78,15 @@ interface MockAPIContextOverrides extends Partial<Omit<APIContext, 'url'>> {
  *
  * All fields can be overridden. The `cookies` field uses the real `AstroCookies` class
  * by default to avoid mock drift.
+ *
+ * Also stashes a minimal `FetchState` on the context via `fetchStateSymbol`
+ * so internal shims that expect it (e.g. the manual-strategy i18n
+ * wrapper in `src/i18n/middleware.ts`) can resolve per-request state.
+ * The stashed `FetchState.renderContext` is a duck-typed stub with just
+ * the fields those shims read (`computeCurrentLocale`,
+ * `routeData.prerender`, `rewrite`). Tests that need different behavior
+ * can override `rewrite` / `isPrerendered` here and the stub will use
+ * those values.
  */
 export function createMockAPIContext(overrides: MockAPIContextOverrides = {}): APIContext {
 	const url =
@@ -120,7 +94,14 @@ export function createMockAPIContext(overrides: MockAPIContextOverrides = {}): A
 	const request = overrides.request ?? new Request(url);
 	const cookies = overrides.cookies ?? new AstroCookies(request);
 
-	return {
+	const rewrite =
+		overrides.rewrite ??
+		(() => {
+			throw new Error('rewrite() is not mocked -- provide a mock if your middleware uses rewrite');
+		});
+	const isPrerendered = overrides.isPrerendered ?? false;
+
+	const ctx = {
 		url,
 		request,
 		locals: overrides.locals ?? {},
@@ -129,21 +110,29 @@ export function createMockAPIContext(overrides: MockAPIContextOverrides = {}): A
 		redirect:
 			overrides.redirect ??
 			((path, status = 302) => new Response(null, { status, headers: { Location: String(path) } })),
-		rewrite:
-			overrides.rewrite ??
-			(() => {
-				throw new Error(
-					'rewrite() is not mocked -- provide a mock if your middleware uses rewrite',
-				);
-			}),
+		rewrite,
 		props: overrides.props ?? {},
 		routePattern: overrides.routePattern ?? '',
-		isPrerendered: overrides.isPrerendered ?? false,
+		isPrerendered,
 		site: overrides.site,
 		generator: overrides.generator ?? 'astro-test',
 		clientAddress: overrides.clientAddress ?? '127.0.0.1',
 		originPathname: overrides.originPathname ?? url.pathname,
 	} as APIContext;
+
+	// Build a minimal FetchState and stash it on the context so internal
+	// shims (e.g. `createI18nMiddleware`) can find per-request state.
+	const pipeline = createBasicPipeline();
+	const state = new FetchState(pipeline, request);
+	state.routeData = { prerender: isPrerendered } as any;
+	// If the test provides a mock rewrite, override the FetchState's
+	// rewrite method so it doesn't go through the real Rewrites handler.
+	if (overrides.rewrite) {
+		state.rewrite = overrides.rewrite;
+	}
+	Reflect.set(ctx, fetchStateSymbol, state);
+
+	return ctx;
 }
 
 /**
@@ -173,6 +162,37 @@ export function createPage(
 	return {
 		routeData,
 		module: async () => ({ page: async () => ({ default: component }) }),
+	};
+}
+
+/**
+ * Creates a redirect route entry for use with createTestApp.
+ */
+export function createRedirect(
+	routeConfig: CreateRouteDataOptions & { redirect: RedirectConfig },
+): PageResult {
+	const routeData = createRouteData({ ...routeConfig, type: 'redirect' });
+	return {
+		routeData,
+		// Redirect routes don't render a component, but the pageMap still
+		// needs an entry keyed by component path.
+		module: async () => ({ page: async () => ({ default: undefined as any }) }),
+	};
+}
+
+/**
+ * Creates an endpoint route entry for use with createTestApp.
+ * The `handlers` object maps HTTP methods to handler functions,
+ * e.g. `{ GET: (ctx) => new Response('ok') }`.
+ */
+export function createEndpoint(
+	handlers: Record<string, (ctx: APIContext) => Response | Promise<Response>>,
+	routeConfig: CreateRouteDataOptions,
+): PageResult {
+	const routeData = createRouteData({ ...routeConfig, type: 'endpoint' });
+	return {
+		routeData,
+		module: async () => ({ page: async () => handlers as any }),
 	};
 }
 
@@ -237,6 +257,8 @@ interface CreateRouteDataOptions {
 	pathname?: string;
 	segments?: RoutePart[][];
 	trailingSlash?: 'always' | 'never' | 'ignore';
+	redirect?: RedirectConfig;
+	redirectRoute?: RouteData;
 }
 
 /**
@@ -264,6 +286,8 @@ export function createRouteData(overrides: CreateRouteDataOptions): RouteData {
 		component: overrides.component ?? `src/pages${route === '/' ? '/index' : route}.astro`,
 		isIndex: overrides.isIndex ?? route === '/',
 		prerender: overrides.prerender ?? false,
+		redirect: overrides.redirect,
+		redirectRoute: overrides.redirectRoute,
 	});
 }
 

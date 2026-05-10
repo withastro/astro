@@ -9,6 +9,7 @@ describe('Aliases with tsconfig.json without baseUrl', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/alias-tsconfig-no-baseurl/',
+			outDir: './dist/alias-tsconfig-no-baseurl/',
 		});
 	});
 

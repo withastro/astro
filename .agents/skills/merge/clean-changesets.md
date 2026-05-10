@@ -6,8 +6,8 @@ Remove changeset files that were already released on `main` and should not be in
 
 ## Prerequisites
 
-- **`prNumber`** — The PR number for the merge PR.
 - The working directory is the repo root, checked out on the merge branch.
+- Dependencies may NOT be installed yet — do not run any `pnpm` commands that require `node_modules`.
 
 ## Background
 
@@ -35,9 +35,9 @@ When `main` is merged into `next`, changeset files (`.changeset/*.md`) that were
    git rm .changeset/<stale-file>.md
    ```
 
-5. **Verify.** Run `pnpm changeset status` to confirm the remaining changesets are valid and there are no errors.
+5. **Verify.** Check that the remaining changeset `.md` files look valid (proper frontmatter with package names and bump types).
 
-6. Do NOT commit — the orchestrator will handle committing.
+6. Do NOT commit or run `pnpm install` — the orchestrator will handle that.
 
 ## Important Notes
 

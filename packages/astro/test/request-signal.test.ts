@@ -65,6 +65,7 @@ describe('Node request abort integration', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/request-signal/',
+			outDir: './dist/request-signal/',
 		});
 		await fixture.build();
 		handle = await fixture.loadNodeAdapterHandler();

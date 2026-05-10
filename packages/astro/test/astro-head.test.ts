@@ -13,6 +13,7 @@ describe('Head in its own component', () => {
 			base: '/blog',
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist/astro-head/',
 		});
 		await fixture.build();
 	});

@@ -355,7 +355,7 @@ export function getStaticImageList(): AssetsGlobalStaticImagesList {
 
 async function loadImage(path: string, env: AssetEnv): Promise<ImageData> {
 	if (isRemotePath(path)) {
-		return await loadRemoteImage(path);
+		return await loadRemoteImage(path, undefined, env.imageConfig);
 	}
 
 	return {

@@ -12,6 +12,7 @@ describe('Astro Global', () => {
 			root: './fixtures/astro-global/',
 			site: 'https://mysite.dev/subsite/',
 			base: '/blog',
+			outDir: './dist/astro-global-astro-global/',
 		});
 	});
 
@@ -150,6 +151,7 @@ describe('Astro Global', () => {
 				base: '/new',
 				output: 'server',
 				adapter: testAdapter(),
+				outDir: './dist/astro-global-app/',
 			});
 			await fixture.build();
 			app = await fixture.loadTestAdapterApp();
@@ -199,6 +201,7 @@ describe('Astro Global Defaults', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-global/',
+			outDir: './dist/astro-global-astro-global-defaults/',
 		});
 	});
 

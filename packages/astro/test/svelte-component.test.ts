@@ -9,6 +9,7 @@ describe('Svelte component', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/svelte-component/',
+			outDir: './dist/svelte-component/',
 		});
 	});
 

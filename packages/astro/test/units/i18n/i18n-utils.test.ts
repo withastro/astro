@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import type { Locales } from '../../../dist/types/public/config.js';
 import {
 	computeCurrentLocale,
 	computePreferredLocale,
@@ -76,6 +77,33 @@ describe('computePreferredLocale', () => {
 	it('returns undefined when no Accept-Language header', () => {
 		const req = new Request('http://example.com/');
 		assert.equal(computePreferredLocale(req, locales), undefined);
+	});
+
+	it('returns the first matching code when an object-form entry precedes a string entry', () => {
+		const localesMixed: Locales = [{ path: 'us', codes: ['EN-US'] }, 'en-us'];
+		const req = new Request('http://example.com/', {
+			headers: { 'Accept-Language': 'en-us' },
+		});
+		assert.equal(computePreferredLocale(req, localesMixed), 'EN-US');
+	});
+
+	it('returns the first matching code when two object-form entries normalize-equivalently', () => {
+		const localesObjects: Locales = [
+			{ path: 'us', codes: ['EN'] },
+			{ path: 'gb', codes: ['en'] },
+		];
+		const req = new Request('http://example.com/', {
+			headers: { 'Accept-Language': 'en' },
+		});
+		assert.equal(computePreferredLocale(req, localesObjects), 'EN');
+	});
+
+	it('returns the matched code from a multi-code entry, not the path', () => {
+		const localesMulti: Locales = [{ path: 'us', codes: ['en-gb', 'EN-US'] }, 'en-us'];
+		const req = new Request('http://example.com/', {
+			headers: { 'Accept-Language': 'en-us' },
+		});
+		assert.equal(computePreferredLocale(req, localesMulti), 'EN-US');
 	});
 });
 

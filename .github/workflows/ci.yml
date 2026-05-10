@@ -140,8 +140,8 @@ jobs:
       - name: Lint publish code
         run: pnpm run publint
 
-      - name: Type-check test files
-        run: pnpm run typecheck:tests
+      - name: Type-check files
+        run: pnpm run typecheck
 
   test:
     name: 'Test (${{ matrix.TEST_SUITE.name }}): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})'

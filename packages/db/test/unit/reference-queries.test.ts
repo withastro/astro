@@ -26,7 +26,13 @@ const BaseSentBox = defineTable({
 });
 
 function resolveReferences(
-	{ User = BaseUser, SentBox = BaseSentBox }: { User?: TableConfig; SentBox?: TableConfig } = {
+	{
+		User = BaseUser,
+		SentBox = BaseSentBox,
+	}: {
+		User?: TableConfig<any>;
+		SentBox?: TableConfig<any>;
+	} = {
 		User: BaseUser,
 		SentBox: BaseSentBox,
 	},

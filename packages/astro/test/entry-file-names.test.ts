@@ -9,6 +9,7 @@ describe('vite.build.rollupOptions.entryFileNames', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/entry-file-names',
+			outDir: './dist/entry-file-names/',
 		});
 		await fixture.build();
 	});

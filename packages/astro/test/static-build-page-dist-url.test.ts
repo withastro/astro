@@ -17,6 +17,7 @@ describe('Static build: pages routes have distURL', () => {
 					},
 				},
 			],
+			outDir: './dist/static-build-page-dist-url/',
 		});
 		await fixture.build();
 	});

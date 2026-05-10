@@ -9,6 +9,7 @@ describe('Dynamic components', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-dynamic/',
+			outDir: './dist/astro-dynamic-dynamic-components/',
 		});
 		await fixture.build();
 	});
@@ -48,6 +49,7 @@ describe('Dynamic components subpath', () => {
 			site: 'https://site.com',
 			base: '/blog',
 			root: './fixtures/astro-dynamic/',
+			outDir: './dist/astro-dynamic-dynamic-components-subpath/',
 		});
 		await fixture.build();
 	});

@@ -74,6 +74,7 @@ describe('Reuse injected entrypoint', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/reuse-injected-entrypoint/',
+				outDir: './dist/reuse-injected-entrypoint-build/',
 			});
 			await fixture.build();
 		});
@@ -123,6 +124,7 @@ describe('Reuse injected entrypoint', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/reuse-injected-entrypoint/',
+				outDir: './dist/reuse-injected-entrypoint-dev/',
 			});
 
 			devServer = await fixture.startDevServer();
