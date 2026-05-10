@@ -79,22 +79,7 @@ export async function fetchWithRedirects(options: FetchRedirectOptions): Promise
 
 	const urlString = typeof url === 'string' ? url : url.toString();
 	const req = new Request(url, { headers });
-	let res: Response;
-	try {
-		res = await fetchFn(req, { redirect: 'manual' });
-	} catch (err) {
-		console.error('[debug:fetchWithRedirects] fetch threw for', urlString, err);
-		throw err;
-	}
-	console.error(
-		'[debug:fetchWithRedirects]',
-		urlString,
-		'→',
-		res.status,
-		res.headers.get('content-type'),
-		res.headers.get('location') ?? '',
-		res.headers.get('server') ?? '',
-	);
+	const res = await fetchFn(req, { redirect: 'manual' });
 
 	// Handle redirects (301, 302, 303, 307, 308 are actual redirects, not 304 Not Modified)
 	if ([301, 302, 303, 307, 308].includes(res.status)) {
