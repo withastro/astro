@@ -95,7 +95,7 @@ export const SVG: IImage = {
     const root = extractorRegExps.root.exec(toUTF8String(input))
     if (root) {
       const attrs = parseAttributes(root[0])
-      if (attrs.width !== null && attrs.height !== null) {
+      if (attrs.width != null && attrs.height != null) {
         return calculateByDimensions(attrs)
       }
       if (attrs.viewbox) {
