@@ -1,0 +1,21 @@
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
+import { type Fixture, loadFixture } from './test-utils.ts';
+
+describe('streaming', () => {
+	let fixture: Fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/streaming/',
+		});
+		await fixture.build({});
+	});
+
+	it('makes it to vercel function configuration', async () => {
+		const vcConfig = JSON.parse(
+			await fixture.readFile('../.vercel/output/functions/_render.func/.vc-config.json'),
+		);
+		assert.equal(vcConfig.supportsResponseStreaming, true);
+	});
+});

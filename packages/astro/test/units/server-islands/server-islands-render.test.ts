@@ -46,10 +46,11 @@ async function createStubResult(overrides: Partial<SSRResult> = {}): Promise<SSR
 		partial: false,
 		pathname: '/',
 		cookies: undefined,
-		serverIslandNameMap: new Map([
-			['src/components/Island.astro', 'Island'],
-			['src/components/BigIsland.astro', 'BigIsland'],
-		]),
+		getServerIslandNameMap: async () =>
+			new Map([
+				['src/components/Island.astro', 'Island'],
+				['src/components/BigIsland.astro', 'BigIsland'],
+			]),
 		trailingSlash: 'never',
 		key: Promise.resolve(key),
 		_metadata: {
@@ -64,6 +65,7 @@ async function createStubResult(overrides: Partial<SSRResult> = {}): Promise<SSR
 			extraStyleHashes: [],
 			extraScriptHashes: [],
 			propagators: new Set(),
+			templateDepth: 0,
 		},
 		cspDestination: 'header',
 		shouldInjectCspMetaTags: false,

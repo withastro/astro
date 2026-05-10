@@ -46,7 +46,10 @@ const responseSentSymbol = Symbol.for('astro.responseSent');
 const identity = (value: string) => value;
 
 class AstroCookie implements AstroCookieInterface {
-	constructor(public value: string) {}
+	public value: string;
+	constructor(value: string) {
+		this.value = value;
+	}
 	json() {
 		if (this.value === undefined) {
 			throw new Error(`Cannot convert undefined to an object.`);
@@ -240,12 +243,20 @@ class AstroCookies implements AstroCookiesInterface {
 	}
 
 	/**
-	 * Behaves the same as AstroCookies.prototype.headers(),
-	 * but allows a warning when cookies are set after the instance is consumed.
+	 * Marks the cookies as consumed and returns the header values.
+	 * After consumption, any subsequent `set()` calls will warn.
+	 */
+	consume(): Generator<string, void, unknown> {
+		this.#consumed = true;
+		return this.headers();
+	}
+
+	/**
+	 * @deprecated Use the instance method `cookies.consume()` instead.
+	 * Kept for backward compatibility with adapters.
 	 */
 	static consume(cookies: AstroCookies): Generator<string, void, unknown> {
-		cookies.#consumed = true;
-		return cookies.headers();
+		return cookies.consume();
 	}
 
 	#ensureParsed(): Record<string, string | undefined> {

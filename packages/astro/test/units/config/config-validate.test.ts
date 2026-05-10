@@ -14,7 +14,7 @@ async function validateConfig(userConfig: Record<string, unknown>) {
 
 describe('Config Validation', () => {
 	it('empty user config is valid', async () => {
-		assert.doesNotThrow(() => validateConfig({}).catch((err) => err));
+		await assert.doesNotReject(validateConfig({}));
 	});
 
 	it('Zod errors are returned when invalid config is used', async () => {
@@ -204,27 +204,26 @@ describe('Config Validation', () => {
 			);
 		});
 
-		it(
-			'errors if `i18n.prefixDefaultLocale` is `false` and `i18n.redirectToDefaultLocale` is `true`',
-			{ todo: 'Enable in Astro 6.0', skip: 'Removed validation' },
-			async () => {
-				const configError = await validateConfig({
-					i18n: {
-						defaultLocale: 'en',
-						locales: ['es', 'en'],
-						routing: {
-							prefixDefaultLocale: false,
-							redirectToDefaultLocale: true,
-						},
+		it('errors if `i18n.prefixDefaultLocale` is `false` and `i18n.redirectToDefaultLocale` is `true`', {
+			todo: 'Enable in Astro 6.0',
+			skip: 'Removed validation',
+		}, async () => {
+			const configError = await validateConfig({
+				i18n: {
+					defaultLocale: 'en',
+					locales: ['es', 'en'],
+					routing: {
+						prefixDefaultLocale: false,
+						redirectToDefaultLocale: true,
 					},
-				}).catch((err) => err);
-				assert.equal(configError instanceof z.ZodError, true);
-				assert.equal(
-					configError.issues[0].message,
-					'The option `i18n.routing.redirectToDefaultLocale` can be used only when `i18n.routing.prefixDefaultLocale` is set to `true`; otherwise, redirects might cause infinite loops. Remove the option `i18n.routing.redirectToDefaultLocale`, or change its value to `false`.',
-				);
-			},
-		);
+				},
+			}).catch((err) => err);
+			assert.equal(configError instanceof z.ZodError, true);
+			assert.equal(
+				configError.issues[0].message,
+				'The option `i18n.routing.redirectToDefaultLocale` can be used only when `i18n.routing.prefixDefaultLocale` is set to `true`; otherwise, redirects might cause infinite loops. Remove the option `i18n.routing.redirectToDefaultLocale`, or change its value to `false`.',
+			);
+		});
 
 		it('errors if a domains key does not exist', async () => {
 			const configError = await validateConfig({
@@ -372,7 +371,14 @@ describe('Config Validation', () => {
 				},
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
-			assert.equal(configError.issues[0].message, 'Invalid key in record');
+			// Zod 4.4.0+ surfaces record key refinement failures as `invalid_key` issues
+			// with nested issues containing the actual refinement error message.
+			const message = configError.issues[0].message;
+			assert.ok(
+				message.includes('A valid variable name cannot start with a number') ||
+					message.includes('Invalid key in record'),
+				`Expected error about invalid key, got: ${message}`,
+			);
 		});
 
 		it('Should provide a useful error for access/context invalid combinations', async () => {

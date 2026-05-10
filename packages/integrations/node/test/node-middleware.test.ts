@@ -1,0 +1,269 @@
+import type { Server } from 'node:http';
+import * as assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
+import fastifyMiddie from '@fastify/middie';
+import fastifyStatic from '@fastify/static';
+import * as cheerio from 'cheerio';
+import express from 'express';
+import Fastify, { type FastifyInstance } from 'fastify';
+import nodejs from '../dist/index.js';
+import { type Fixture, loadFixture, waitServerListen, type AdapterServer } from './test-utils.ts';
+
+describe('behavior from middleware, standalone', () => {
+	let fixture: Fixture;
+	let server: AdapterServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/node-middleware/',
+			output: 'server',
+			adapter: nodejs({ mode: 'standalone' }),
+		});
+		await fixture.build();
+		const { startServer } = await fixture.loadAdapterEntryModule();
+		const res = startServer();
+		server = res.server;
+		await waitServerListen(server.server);
+	});
+
+	after(async () => {
+		await server.stop();
+		await fixture.clean();
+	});
+
+	describe('404', async () => {
+		it('when mode is standalone', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/error-page`);
+
+			assert.equal(res.status, 404);
+
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			const body = $('body');
+			assert.equal(body.text().includes('Page does not exist'), true);
+		});
+	});
+});
+
+describe('behavior from middleware, middleware with express', () => {
+	let fixture: Fixture;
+	let server: Server;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/node-middleware/',
+			output: 'server',
+			adapter: nodejs({ mode: 'middleware' }),
+		});
+		await fixture.build();
+		const { handler } = await fixture.loadAdapterEntryModule();
+		const app = express();
+		app.use(handler);
+		server = app.listen(8889);
+	});
+
+	after(async () => {
+		server.close();
+		await fixture.clean();
+	});
+
+	it('should render the endpoint', async () => {
+		const res = await fetch('http://localhost:8889/ssr');
+
+		assert.equal(res.status, 200);
+
+		const html = await res.text();
+		const $ = cheerio.load(html);
+
+		const body = $('body');
+		assert.equal(body.text().includes("Here's a random number"), true);
+	});
+
+	it('should render the index.html page [static]', async () => {
+		const res = await fetch('http://localhost:8889/');
+
+		assert.equal(res.status, 200);
+
+		const html = await res.text();
+		const $ = cheerio.load(html);
+
+		const body = $('body');
+		assert.equal(body.text().includes('1'), true);
+	});
+
+	it('should render the index.html page [static] when the URL has the hash', async () => {
+		const res = await fetch('http://localhost:8889/#');
+
+		assert.equal(res.status, 200);
+
+		const html = await res.text();
+		const $ = cheerio.load(html);
+
+		const body = $('body');
+		assert.equal(body.text().includes('1'), true);
+	});
+
+	it('should render the dynamic pages', async () => {
+		let res = await fetch('http://localhost:8889/dyn/foo');
+
+		assert.equal(res.status, 200);
+
+		let html = await res.text();
+		let $ = cheerio.load(html);
+
+		let body = $('body');
+		assert.equal(body.text().includes('foo'), true);
+
+		res = await fetch('http://localhost:8889/dyn/bar');
+
+		assert.equal(res.status, 200);
+
+		html = await res.text();
+		$ = cheerio.load(html);
+
+		body = $('body');
+		assert.equal(body.text().includes('bar'), true);
+	});
+});
+
+describe('behavior from middleware, middleware with fastify', () => {
+	let fixture: Fixture;
+	let server: FastifyInstance;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/node-middleware/',
+			output: 'server',
+			adapter: nodejs({ mode: 'middleware' }),
+		});
+		await fixture.build();
+		const { handler } = await fixture.loadAdapterEntryModule();
+		const app = Fastify({ logger: false });
+		await app
+			.register(fastifyStatic, {
+				root: fileURLToPath(new URL('./dist/client', import.meta.url)),
+			})
+			.register(fastifyMiddie);
+		app.use(handler);
+
+		await app.listen({ port: 8889 });
+
+		server = app;
+	});
+
+	after(async () => {
+		server.close();
+		await fixture.clean();
+	});
+
+	it('should render the endpoint', async () => {
+		const res = await fetch('http://localhost:8889/ssr');
+
+		assert.equal(res.status, 200);
+
+		const html = await res.text();
+		const $ = cheerio.load(html);
+
+		const body = $('body');
+		assert.equal(body.text().includes("Here's a random number"), true);
+	});
+
+	it('should render the index.html page [static]', async () => {
+		const res = await fetch('http://localhost:8889');
+
+		assert.equal(res.status, 200);
+
+		const html = await res.text();
+		const $ = cheerio.load(html);
+
+		const body = $('body');
+		assert.equal(body.text().includes('1'), true);
+	});
+
+	it('should render the dynamic pages', async () => {
+		let res = await fetch('http://localhost:8889/dyn/foo');
+
+		assert.equal(res.status, 200);
+
+		let html = await res.text();
+		let $ = cheerio.load(html);
+
+		let body = $('body');
+		assert.equal(body.text().includes('foo'), true);
+
+		res = await fetch('http://localhost:8889/dyn/bar');
+
+		assert.equal(res.status, 200);
+
+		html = await res.text();
+		$ = cheerio.load(html);
+
+		body = $('body');
+		assert.equal(body.text().includes('bar'), true);
+	});
+});
+
+// Regression test for https://github.com/withastro/astro/issues/16039
+// SSR-emitted assets (CSS, fonts, images) must appear in manifest.assets so that
+// the Node adapter in middleware mode can identify them as static files and NOT
+// match them against catch-all routes.
+describe('middleware with fastify and catch-all route: SSR assets in manifest', () => {
+	let fixture: Fixture;
+	let server: FastifyInstance;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/ssr-assets-middleware/',
+			output: 'server',
+			adapter: nodejs({ mode: 'middleware' }),
+			vite: {
+				build: {
+					// Prevent CSS/SVG from being inlined so they appear as separate
+					// files in dist/client/_astro/ and are tracked in ssrAssetsPerEnvironment.
+					assetsInlineLimit: 0,
+				},
+			},
+		});
+		await fixture.build();
+		const { handler } = await fixture.loadAdapterEntryModule();
+		const app = Fastify({ logger: false });
+		await app
+			.register(fastifyStatic, {
+				root: fileURLToPath(
+					new URL('./fixtures/ssr-assets-middleware/dist/client', import.meta.url),
+				),
+			})
+			.register(fastifyMiddie);
+		app.use(handler);
+
+		await app.listen({ port: 8890 });
+
+		server = app;
+	});
+
+	after(async () => {
+		server.close();
+		await fixture.clean();
+	});
+
+	it('should serve SSR-emitted CSS assets directly, not the catch-all page', async () => {
+		// First get the index page to find the CSS asset URL
+		const indexRes = await fetch('http://localhost:8890/');
+		assert.equal(indexRes.status, 200);
+		const html = await indexRes.text();
+		const $ = cheerio.load(html);
+
+		// Find the CSS link tag injected by Astro
+		const cssHref = $('link[rel="stylesheet"]').attr('href');
+		assert.ok(cssHref, 'Expected a CSS <link> tag in the page');
+		assert.match(cssHref, /\/_astro\/.*\.css$/);
+
+		// Request the CSS asset — it must be served as CSS, not as the catch-all HTML page
+		const cssRes = await fetch(`http://localhost:8890${cssHref}`);
+		assert.equal(cssRes.status, 200);
+		const contentType = cssRes.headers.get('content-type');
+		assert.ok(contentType?.includes('text/css'), `Expected text/css, got: ${contentType}`);
+	});
+});

@@ -61,6 +61,8 @@ Iterate until you understand:
 - What data is being passed
 - Where the logic diverges from expected behavior
 
+Once done, **revert all instrumentation** before moving on. Use `git checkout -- <file>` to remove your `console.log` additions from `packages/`. Debug logs must not leak into downstream steps.
+
 ## Step 4: Identify Root Cause
 
 Once you understand the issue, document:
@@ -75,6 +77,9 @@ Consider:
 - Is this a regression from a recent change?
 - Does this affect other similar use cases?
 - Are there edge cases to consider?
+- Never suggest removing a user's dependency (adapters, framework integrations, features like MDX or DB) as a fix, those are things the user needs. The fix must work within the user's existing stack and expected feature-set.
+
+**Tone calibration:** Describe the root cause factually, not dramatically. Avoid language that overstates impact ("critical flaw", "fundamentally broken", "severe vulnerability") unless the evidence genuinely supports it. A missing null check is a missing null check, not a "critical oversight in the rendering pipeline." The diagnosis should help a maintainer understand what's wrong, guiding them towards a fix, not alarm them.
 
 ## Step 5: Write Output
 

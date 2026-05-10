@@ -1,5 +1,5 @@
 import { createReadStream, existsSync, readFileSync } from 'node:fs';
-import { appendFile, stat } from 'node:fs/promises';
+import { appendFile, readFile, rename, stat } from 'node:fs/promises';
 import { createInterface } from 'node:readline/promises';
 import { removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
 import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
@@ -22,6 +22,7 @@ import {
 import { parseEnv } from 'node:util';
 import { sessionDrivers } from 'astro/config';
 import { createCloudflarePrerenderer } from './prerenderer.js';
+import cfPrismPlugin from './vite-plugin-prism.js';
 
 const CLOUDFLARE_KV_SESSION_DRIVER_ENTRYPOINT = sessionDrivers.cloudflareKVBinding().entrypoint;
 
@@ -118,6 +119,7 @@ export default function createIntegration({
 	...cloudflareOptions
 }: Options = {}): AstroIntegration {
 	let _config: AstroConfig;
+	let _originalClientDir: URL;
 
 	let _routes: IntegrationResolvedRoute[];
 	let _isFullyStatic = false;
@@ -129,7 +131,7 @@ export default function createIntegration({
 	return {
 		name: '@astrojs/cloudflare',
 		hooks: {
-			'astro:config:setup': ({ command, config, updateConfig, logger, addWatchFile }) => {
+			'astro:config:setup': async ({ command, config, updateConfig, logger, addWatchFile }) => {
 				if (!!process.versions.webcontainer) {
 					throw new Error('`workerd` does not run on Stackblitz.');
 				}
@@ -181,11 +183,15 @@ export default function createIntegration({
 						experimental: {
 							prerenderWorker: {
 								config(_, { entryWorkerConfig }) {
+									const { queues, ...restWorkerConfig } = entryWorkerConfig;
 									return {
-										...entryWorkerConfig,
+										...restWorkerConfig,
 										name: 'prerender',
+										...(queues?.producers?.length && {
+											queues: { producers: queues.producers },
+										}),
 										...(needsImagesBinding &&
-											!entryWorkerConfig.images && {
+											!restWorkerConfig.images && {
 												images: { binding: imagesBindingName },
 											}),
 									};
@@ -200,6 +206,21 @@ export default function createIntegration({
 				if (command === 'preview') {
 					globalThis.astroCloudflareOptions = cfPluginConfig;
 				}
+
+				// Including prismjs files in `optimizeDeps.includes` when `@astrojs/prism` is not installed
+				// causes a "Failed to resolve dependency: @astrojs/prism > prismjs" log to appear.
+				// However, when using the `<Prism />` component in a Cloudflare Workers environment,
+				// not including prismjs files in `optimizeDeps.includes` causes
+				// a "The file does not exist at ..." log to appear.
+				// To work around this, we check whether `@astrojs/prism` is installed in the current project.
+				// Note: this "Failed to resolve dependency" log will not appear as long as the `@astrojs/prism` package is installed,
+				// even if it is not actually used.
+				const prismFiles = [
+					'@astrojs/prism > prismjs',
+					'@astrojs/prism > prismjs/components.js',
+					'@astrojs/prism > prismjs/dependencies.js',
+				] as const;
+				const isAstroPrismPackageInstalled = await getIsAstroPrismInstalled(config.root);
 
 				updateConfig({
 					build: {
@@ -255,6 +276,7 @@ export default function createIntegration({
 													'astro > piccolore',
 													'astro > picomatch',
 													'astro/app',
+													'astro/app/fetch/default-handler',
 													'astro/assets',
 													'astro/assets/runtime',
 													'astro/assets/utils/inferRemoteSize.js',
@@ -264,6 +286,7 @@ export default function createIntegration({
 													'astro/jsx-runtime',
 													'astro/app/entrypoint/dev',
 													'astro/virtual-modules/middleware.js',
+													...(isAstroPrismPackageInstalled ? prismFiles : []),
 												],
 												exclude: [
 													'unstorage/drivers/cloudflare-kv-binding',
@@ -306,7 +329,6 @@ export default function createIntegration({
 									if (conf.ssr) {
 										// Cloudflare does not support externalizing modules in server environments
 										conf.ssr.external = undefined;
-										conf.ssr.noExternal = true;
 									}
 								},
 							},
@@ -325,6 +347,7 @@ export default function createIntegration({
 											}
 										: null,
 							}),
+							cfPrismPlugin(),
 						],
 					},
 					image: setImageConfig(imageService, config.image, command, logger),
@@ -347,6 +370,15 @@ export default function createIntegration({
 			},
 			'astro:config:done': ({ setAdapter, config, injectTypes, logger }) => {
 				_config = config;
+				_originalClientDir = new URL(config.build.client.href);
+
+				// When a base path is configured, nest the client output directory under
+				// the base so that on-disk paths match the URLs Astro writes into HTML.
+				// Cloudflare Workers' static-asset binding resolves request URLs literally
+				// against the client directory, so the files must live under the base prefix.
+				if (config.base !== '/') {
+					config.build.client = new URL('.' + config.base + '/', config.build.client);
+				}
 
 				injectTypes({
 					filename: 'cloudflare.d.ts',
@@ -434,9 +466,24 @@ export default function createIntegration({
 				}
 			},
 			'astro:build:done': async ({ dir, logger, assets }) => {
+				// Move platform files from the base-prefixed client dir to the
+				// original client root, since Cloudflare reads them from there.
+				if (_config.base !== '/') {
+					for (const file of ['.assetsignore', '_headers']) {
+						try {
+							await rename(
+								new URL(`./${file}`, _config.build.client),
+								new URL(`./${file}`, _originalClientDir),
+							);
+						} catch {
+							// File may not exist — that's fine
+						}
+					}
+				}
+
 				let redirectsExists = false;
 				try {
-					const redirectsStat = await stat(new URL('./_redirects', _config.build.client));
+					const redirectsStat = await stat(new URL('./_redirects', _originalClientDir));
 					if (redirectsStat.isFile()) {
 						redirectsExists = true;
 					}
@@ -447,7 +494,7 @@ export default function createIntegration({
 				const redirects: IntegrationResolvedRoute['segments'][] = [];
 				if (redirectsExists) {
 					const rl = createInterface({
-						input: createReadStream(new URL('./_redirects', _config.build.client)),
+						input: createReadStream(new URL('./_redirects', _originalClientDir)),
 						crlfDelay: Number.POSITIVE_INFINITY,
 					});
 
@@ -486,7 +533,7 @@ export default function createIntegration({
 				if (!trueRedirects.empty()) {
 					try {
 						await appendFile(
-							new URL('./_redirects', _config.build.client),
+							new URL('./_redirects', _originalClientDir),
 							printAsRedirects(trueRedirects),
 						);
 					} catch (_error) {
@@ -502,4 +549,20 @@ export default function createIntegration({
 			},
 		},
 	};
+}
+
+// Reads the package.json at the current root to check whether `@astrojs/prism` is installed.
+// Using `require.resolve()` would not work correctly for projects inside a monorepo
+// (such as Astro's test fixtures), as it would traverse parent node_modules directories
+// to resolve the package. For this reason, we directly read `package.json` using `readFile` instead.
+async function getIsAstroPrismInstalled(rootURL: URL) {
+	try {
+		const pkgURL = new URL('./package.json', rootURL);
+		const input = await readFile(pkgURL, { encoding: 'utf-8' });
+		const pkgJson = JSON.parse(input);
+
+		return Object.hasOwn(pkgJson['dependencies'], '@astrojs/prism');
+	} catch {
+		return false;
+	}
 }

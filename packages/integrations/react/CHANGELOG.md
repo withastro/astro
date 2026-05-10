@@ -1,5 +1,18 @@
 # @astrojs/react
 
+## 5.0.4
+
+### Patch Changes
+
+- Updated dependencies [[`99464ed`](https://github.com/withastro/astro/commit/99464edb5fc0968f6497328e106f26ab393668bd), [`f3485c3`](https://github.com/withastro/astro/commit/f3485c3458bc8bf70c152126e418c24f489ded9d)]:
+  - @astrojs/internal-helpers@0.9.0
+
+## 5.0.3
+
+### Patch Changes
+
+- [#16224](https://github.com/withastro/astro/pull/16224) [`a2b9eeb`](https://github.com/withastro/astro/commit/a2b9eeb14e300c9b6ce1d6ea423d20f4ef9d92f5) Thanks [@fkatsuhiro](https://github.com/fkatsuhiro)! - Fix React 19 "Float" mechanism injecting <link rel="preload"> into Astro islands instead of the <head>. This PR adds a filter to @astrojs/react to strip these auto-generated resource from the island's HTML output, ensuring valid HTML structure.
+
 ## 5.0.2
 
 ### Patch Changes

@@ -11,25 +11,21 @@ import { PassthroughTextStyler } from '../cli/infra/passthrough-text-styler.js';
 import { ProcessOperatingSystemProvider } from '../cli/infra/process-operating-system-provider.js';
 import { TinyexecCommandExecutor } from '../cli/infra/tinyexec-command-executor.js';
 import type { RouteInfo } from '../core/app/types.js';
-import { Logger } from '../core/logger/core.js';
-import { nodeLogDestination } from '../core/logger/node.js';
+import type { AstroLogger } from '../core/logger/core.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import type { AstroSettings, RoutesList } from '../types/astro.js';
 import type { DevServerController } from '../vite-plugin-astro-server/controller.js';
 import { AstroServerApp } from './app.js';
+import { createNodeLoggerFromFlags } from '../core/logger/impls/node.js';
 
 export default async function createAstroServerApp(
 	controller: DevServerController,
 	settings: AstroSettings,
 	loader: ModuleLoader,
-	logger?: Logger,
+	logger?: AstroLogger,
 ) {
-	const actualLogger =
-		logger ??
-		new Logger({
-			dest: nodeLogDestination,
-			level: settings.logLevel,
-		});
+	const actualLogger = logger ?? createNodeLoggerFromFlags({});
+
 	const routesList: RoutesList = { routes: routes.map((r: RouteInfo) => r.routeData) };
 
 	const debugInfoProvider = new DevDebugInfoProvider({

@@ -26,7 +26,7 @@ import { componentIsHTMLElement, renderHTMLElement } from './dom.js';
 import { maybeRenderHead } from './head.js';
 import { createRenderInstruction } from './instruction.js';
 import { containsServerDirective, ServerIslandComponent } from './server-islands.js';
-import { type ComponentSlots, renderSlots, renderSlotToString } from './slot.js';
+import { type ComponentSlots, renderSlot, renderSlots, renderSlotToString } from './slot.js';
 import { formatList, internalSpreadAttributes, renderElement, voidElementNames } from './util.js';
 
 const needsHeadRenderingSymbol = Symbol.for('astro.needsHeadRendering');
@@ -413,15 +413,12 @@ function sanitizeElementName(tag: string) {
 	return tag.trim().split(unsafe)[0].trim();
 }
 
-async function renderFragmentComponent(
-	result: SSRResult,
-	slots: ComponentSlots = {},
-): Promise<RenderInstance> {
-	const children = await renderSlotToString(result, slots?.default);
+function renderFragmentComponent(result: SSRResult, slots: ComponentSlots = {}): RenderInstance {
+	const slot = slots?.default;
 	return {
 		render(destination) {
-			if (children == null) return;
-			destination.write(children);
+			if (slot == null) return;
+			return renderSlot(result, slot).render(destination);
 		},
 	};
 }
@@ -483,7 +480,7 @@ export function renderComponent(
 	}
 
 	if (isFragmentComponent(Component)) {
-		return renderFragmentComponent(result, slots).catch(handleCancellation);
+		return renderFragmentComponent(result, slots);
 	}
 
 	// Ensure directives (`class:list`) are processed

@@ -31,6 +31,8 @@ export function addAstro(Prism: typeof import('prismjs')) {
 			.replace(/<SPREAD>/g, function () {
 				return spread;
 			});
+		// nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
+		// Built from static Prism token sources, not user input.
 		return RegExp(source, flags);
 	}
 

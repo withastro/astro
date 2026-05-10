@@ -1,28 +1,10 @@
 import type fsType from 'node:fs';
 import { pathToFileURL } from 'node:url';
-import {
-	createServer,
-	isRunnableDevEnvironment,
-	type RunnableDevEnvironment,
-	type ViteDevServer,
-} from 'vite';
+import { isRunnableDevEnvironment, type RunnableDevEnvironment, type ViteDevServer } from 'vite';
 import loadFallbackPlugin from '../../vite-plugin-load-fallback/index.js';
 import { debug } from '../logger/core.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
-
-async function createViteServer(root: string, fs: typeof fsType): Promise<ViteDevServer> {
-	const viteServer = await createServer({
-		configFile: false,
-		server: { middlewareMode: true, hmr: false, watch: null, ws: false },
-		optimizeDeps: { noDiscovery: true },
-		clearScreen: false,
-		appType: 'custom',
-		ssr: { external: true },
-		plugins: [loadFallbackPlugin({ fs, root: pathToFileURL(root) })],
-	});
-
-	return viteServer;
-}
+import { createMinimalViteDevServer } from '../createMinimalViteDevServer.js';
 
 interface LoadConfigWithViteOptions {
 	root: string;
@@ -55,7 +37,8 @@ export async function loadConfigWithVite({
 	// Try Loading with Vite
 	let server: ViteDevServer | undefined;
 	try {
-		server = await createViteServer(root, fs);
+		const plugins = loadFallbackPlugin({ fs, root: pathToFileURL(root) });
+		server = await createMinimalViteDevServer(plugins);
 		if (isRunnableDevEnvironment(server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr])) {
 			const environment = server.environments[
 				ASTRO_VITE_ENVIRONMENT_NAMES.ssr

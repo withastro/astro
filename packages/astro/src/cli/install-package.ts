@@ -3,7 +3,7 @@ import * as clack from '@clack/prompts';
 import ci from 'ci-info';
 import { detect, resolveCommand } from 'package-manager-detector';
 import colors from 'piccolore';
-import type { Logger } from '../core/logger/core.js';
+import type { AstroLogger } from '../core/logger/core.js';
 import { exec } from './exec.js';
 
 const require = createRequire(import.meta.url);
@@ -17,7 +17,7 @@ type GetPackageOptions = {
 
 export async function getPackage<T>(
 	packageName: string,
-	logger: Logger,
+	logger: AstroLogger,
 	options: GetPackageOptions,
 	otherDeps: string[] = [],
 ): Promise<T | undefined> {
@@ -57,7 +57,7 @@ export async function getPackage<T>(
 async function installPackage(
 	packageNames: string[],
 	options: GetPackageOptions,
-	logger: Logger,
+	logger: AstroLogger,
 ): Promise<boolean> {
 	const cwd = options.cwd ?? process.cwd();
 	const packageManager = await detect({

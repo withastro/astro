@@ -6,6 +6,7 @@ import type { UrlResolver } from '../definitions.js';
 
 export class BuildUrlResolver implements UrlResolver {
 	readonly #resources = new Set<string>();
+	readonly #urls = new Set<string>();
 	readonly #base: string;
 	readonly #assetsPrefix: AssetsPrefix;
 	readonly #searchParams: URLSearchParams;
@@ -43,10 +44,16 @@ export class BuildUrlResolver implements UrlResolver {
 			url.searchParams.set(key, value);
 		});
 
-		return stringifyPlaceholderURL(url);
+		const result = stringifyPlaceholderURL(url);
+		this.#urls.add(result);
+		return result;
 	}
 
 	get cspResources(): Array<string> {
 		return Array.from(this.#resources);
+	}
+
+	get urls(): Array<string> {
+		return Array.from(this.#urls);
 	}
 }

@@ -1,3 +1,4 @@
+import { readFileSync, writeFileSync } from 'node:fs';
 import type * as vite from 'vite';
 import { telemetry } from '../events/index.js';
 import { eventAppToggled } from '../events/toolbar.js';
@@ -21,6 +22,31 @@ export default function astroDevToolbar({ settings, logger }: AstroPluginOptions
 						'astro > axobject-query',
 						...(settings.devToolbarApps.length > 0 ? ['astro/toolbar'] : []),
 					],
+					esbuildOptions: {
+						plugins: [
+							{
+								name: 'astro:strip-toolbar-sourcemap',
+								setup(build) {
+									// The dev toolbar entrypoint is served via /@id/ which causes
+									// the browser to mis-resolve the relative sourceMappingURL that
+									// esbuild adds, producing a bogus 404 request. Strip it after
+									// esbuild writes the optimized deps to disk.
+									build.onEnd((result) => {
+										if (!result.metafile) return;
+										for (const outputPath of Object.keys(result.metafile.outputs)) {
+											if (!outputPath.includes('entrypoint') || !outputPath.endsWith('.js'))
+												continue;
+											const code = readFileSync(outputPath, 'utf-8');
+											const stripped = code.replace(/\/\/# sourceMappingURL=.*$/m, '');
+											if (stripped !== code) {
+												writeFileSync(outputPath, stripped);
+											}
+										}
+									});
+								},
+							},
+						],
+					},
 				},
 			};
 		},

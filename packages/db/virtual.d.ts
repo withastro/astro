@@ -1,5 +1,5 @@
 declare module 'astro:db' {
-	type RuntimeConfig = typeof import('./dist/_internal/runtime/virtual.js');
+	type RuntimeConfig = typeof import('./dist/runtime/virtual.js');
 
 	export const db: import('./dist/runtime/index.js').Database;
 	export const dbUrl: string;
@@ -12,6 +12,7 @@ declare module 'astro:db' {
 	export const defineDb: RuntimeConfig['defineDb'];
 	export const defineTable: RuntimeConfig['defineTable'];
 	export const isDbError: RuntimeConfig['isDbError'];
+	export const getDbError: RuntimeConfig['getDbError'];
 
 	export const eq: RuntimeConfig['eq'];
 	export const gt: RuntimeConfig['gt'];

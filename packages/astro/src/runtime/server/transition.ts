@@ -132,11 +132,13 @@ export function createAnimationScope(
 export class ViewTransitionStyleSheet {
 	private modern: string[] = [];
 	private fallback: string[] = [];
+	private scope: string;
+	private name: string;
 
-	constructor(
-		private scope: string,
-		private name: string,
-	) {}
+	constructor(scope: string, name: string) {
+		this.scope = scope;
+		this.name = name;
+	}
 
 	toString() {
 		const { scope, name } = this;

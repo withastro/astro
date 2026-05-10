@@ -1,5 +1,11 @@
 # @astrojs/partytown
 
+## 2.1.7
+
+### Patch Changes
+
+- [#16265](https://github.com/withastro/astro/pull/16265) [`7fe40bc`](https://github.com/withastro/astro/commit/7fe40bc7381d981dedad16625d89c00e31cd8fd0) Thanks [@ChrisLaRocque](https://github.com/ChrisLaRocque)! - Updates `@qwik.dev/partytown` to 0.13.2
+
 ## 2.1.6
 
 ### Patch Changes

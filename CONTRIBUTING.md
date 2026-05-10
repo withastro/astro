@@ -77,6 +77,22 @@ During the development process, you may want to test your changes to ensure they
 
 Overall, it's up to personal preference which method to use. For smaller changes, using the examples folder may be sufficient. For larger changes, using a separate project may be more appropriate.
 
+**How can I test changes to `@astrojs/compiler` (or other dependencies) locally?**
+
+If you're working on a dependency like `@astrojs/compiler` and want to test your changes against the Astro repo, you can use [`pnpm.overrides`](https://pnpm.io/package_json#pnpmoverrides) in the root `package.json` to point to your local build:
+
+```json
+{
+  "pnpm": {
+    "overrides": {
+      "@astrojs/compiler": "file:../astro-compiler/packages/compiler"
+    }
+  }
+}
+```
+
+After adding the override, run `pnpm install` to link the local package. Make sure to build the dependency first so the `dist/` folder is up to date. Remove the override before committing.
+
 #### Contributing to language tooling
 
 For information on contributing to the language tooling (VS Code extension, language server, etc.), see [packages/language-tools/CONTRIBUTING.md](./packages/language-tools/CONTRIBUTING.md).
@@ -320,6 +336,57 @@ You can trigger a preview release **from a PR** anytime by using the label `pr p
 
 If you're in need to trigger multiple preview releases from the same PR, remove the label and add it again.
 
+## TypeScript project references
+
+The repo uses [TypeScript project references](https://www.typescriptlang.org/docs/handbook/project-references.html) so `tsc -b` only rebuilds projects that have actually changed (and their dependents). It also lets the editor "Go to Definition" jump straight to source across package boundaries, even before `pnpm build`.
+
+Run `pnpm typecheck` (which runs `tsc -b`) to incrementally typecheck. Use `pnpm typecheck --clean` to clear the build cache.
+
+### Shared configs
+
+Shared configs live under `configs/` at the repo root:
+
+- `configs/tsconfig.base.json`: base config that every other tsconfig extends from.
+- `configs/tsconfig.build.json`: builds packages. Includes `src/` and emits declarations to `dist/`.
+- `configs/tsconfig.test.json`: typechecks tests. Includes `test/`, excludes `test/fixtures/`.
+- `configs/tsconfig.language-tools.json`: variant for `packages/language-tools/` packages (targets commonjs).
+
+### Per-package layout
+
+The typical package has three tsconfig files:
+
+```jsonc
+// packages/<pkg>/tsconfig.build.json
+// Extends the shared build config. `references` declares workspace dependencies
+// and should mirror the deps in package.json (maintained manually for now).
+{
+  "extends": "../../configs/tsconfig.build.json",
+  "references": [{ "path": "../dep1/tsconfig.json" }, { "path": "../dep2/tsconfig.json" }],
+}
+```
+
+```jsonc
+// packages/<pkg>/tsconfig.test.json
+// References the package's own build so dist/ is built before tests typecheck.
+{
+  "extends": "../../configs/tsconfig.test.json",
+  "references": [{ "path": "./tsconfig.build.json" }],
+}
+```
+
+```jsonc
+// packages/<pkg>/tsconfig.json
+// Pure solution file. `"files": []` means it includes no sources of its own.
+// It only acts as the entry point that points at build + test.
+{
+  "extends": "../../configs/tsconfig.base.json",
+  "files": [],
+  "references": [{ "path": "./tsconfig.build.json" }, { "path": "./tsconfig.test.json" }],
+}
+```
+
+The repo-root `tsconfig.json` is the top-level solution file referencing every package. When adding a new package, add it to the root `references` list and wire its `tsconfig.build.json` `references` to match its workspace dependencies.
+
 ## Code Structure
 
 Server-side rendering (SSR) can be complicated. The Astro package (`packages/astro`) is structured in a way to help think about the different systems.
@@ -334,6 +401,46 @@ Server-side rendering (SSR) can be complicated. The Astro package (`packages/ast
     - `server/`: Code that executes **inside Vite’s SSR.** Though this is a Node environment inside, this will be executed independently of `core/` and may have to be structured differently.
   - `vite-plugin-*/`: Any Vite plugins that Astro needs to run. For the most part, these also execute within Vite similar to `src/runtime/server/`, but it’s also helpful to think about them as independent modules. _Note: at the moment these are internal while they’re in development_
 
+### Public vs. internal API
+
+`packages/astro/package.json` declares two export maps:
+
+- `"exports"` — the monorepo view. Includes public entries plus `./_internal/*` subpaths for use by other workspace packages.
+- `"publishConfig.exports"` — the npm view. [pnpm replaces `"exports"` with this at publish time](https://pnpm.io/package_json#publishconfig), so `_internal/*` entries never ship.
+
+Other workspace packages should import internals via the subpath, not a deep relative path:
+
+```ts
+// Do this
+import { loadFixture } from 'astro/_internal/test/test-utils';
+// Not this
+import { loadFixture } from '../../../astro/test/test-utils.js';
+```
+
+**Example — public export `./foo`** (add to _both_ maps):
+
+```diff
+ "exports": {
++    "./foo": "./dist/foo.js",
+ },
+ "publishConfig": {
+   "exports": {
++    "./foo": "./dist/foo.js",
+   }
+ }
+```
+
+**Example — internal export `./_internal/foo`** (add to `"exports"` only):
+
+```diff
+ "exports": {
++    "./_internal/foo": "./dist/foo.js",
+ }
+ // publishConfig.exports unchanged
+```
+
+`packages/astro/test/exports.test.ts` will fail if the two maps drift out of sync (after stripping `./_internal/*` keys).
+
 ### Thinking about SSR
 
 There are 3 contexts in which code executes:
@@ -343,6 +450,13 @@ There are 3 contexts in which code executes:
 - **In the browser**: this code lives in `src/runtime/client/`.
 
 Understanding in which environment code runs, and at which stage in the process, can help clarify thinking about what Astro is doing. It also helps with debugging, for instance, if you’re working within `src/core/`, you know that your code isn’t executing within Vite, so you don’t have to debug Vite’s setup. But you will have to debug vite inside `runtime/server/`.
+
+### Deep Dives
+
+The `reference/` directory contains detailed reference docs on specific subsystems:
+
+- [`reference/optimize-deps.md`](./reference/optimize-deps.md) — Vite dep optimizer debugging playbook
+- [`reference/handlers.md`](./reference/handlers.md) — Handler pipeline, `PipelineFeatures`, and how to add feature checks for `src/app.ts`
 
 ### Making code testable
 

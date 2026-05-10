@@ -59,17 +59,15 @@ describe('vite-plugin-html: transform integration', () => {
 		assert.doesNotMatch(result.code, /\$\{___SLOTS___\["default"\]/);
 	});
 
-	it(
-		'handles complex escaping in attributes',
-		{ skip: 'There is a bug in replaceAttribute with multiple attributes' },
-		async () => {
-			const code = '<div data-value="${foo}" data-template="`${bar}`"></div>';
-			const result = await transform(code, 'test.html');
+	it('handles complex escaping in attributes', {
+		skip: 'There is a bug in replaceAttribute with multiple attributes',
+	}, async () => {
+		const code = '<div data-value="${foo}" data-template="`${bar}`"></div>';
+		const result = await transform(code, 'test.html');
 
-			assert.match(result.code, /data-value="\\\$\{foo\}"/);
-			assert.match(result.code, /data-template="\\`\\\$\{bar\}\\`"/);
-		},
-	);
+		assert.match(result.code, /data-value="\\\$\{foo\}"/);
+		assert.match(result.code, /data-template="\\`\\\$\{bar\}\\`"/);
+	});
 
 	it('transforms empty HTML', async () => {
 		const code = '';

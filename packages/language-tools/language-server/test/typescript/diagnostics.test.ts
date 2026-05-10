@@ -4,7 +4,7 @@ import { before, describe, it } from 'node:test';
 import type { FullDocumentDiagnosticReport } from '@volar/language-server';
 import { type Diagnostic, DiagnosticSeverity, Range } from '@volar/language-server';
 import { getLanguageServer, type LanguageServer } from '../server.ts';
-import { fixtureDir } from '../utils.ts';
+import { fixtureDir } from '../test-utils.ts';
 
 describe('TypeScript - Diagnostics', async () => {
 	let languageServer: LanguageServer;
@@ -84,5 +84,26 @@ describe('TypeScript - Diagnostics', async () => {
 			document.uri,
 		)) as FullDocumentDiagnosticReport;
 		assert.strictEqual(diagnostics.items.length, 1);
+	});
+
+	it('does not report a local declaration conflict when importing Image from astro:assets', async () => {
+		const document = await languageServer.handle.openTextDocument(
+			path.join(fixtureDir, 'image.astro'),
+			'astro',
+		);
+		const diagnostics = (await languageServer.handle.sendDocumentDiagnosticRequest(
+			document.uri,
+		)) as FullDocumentDiagnosticReport;
+
+		assert.deepStrictEqual(
+			diagnostics.items.filter(
+				(diagnostic) =>
+					diagnostic.code === 2440 &&
+					diagnostic.message.includes(
+						"Import declaration conflicts with local declaration of 'Image'",
+					),
+			),
+			[],
+		);
 	});
 });

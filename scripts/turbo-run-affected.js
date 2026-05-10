@@ -49,7 +49,8 @@ for (let i = 0; i < args.length; i += 1) {
 	turboArgs.push(arg);
 }
 
-// On Windows, spawn via the shell so command resolution handles pnpm.cmd.
+// On Windows, spawn via the shell so command resolution handles pnpm.cmd
+// and special characters in turbo filter expressions (globs, brackets, etc.).
 const isWindows = process.platform === 'win32';
 const pnpmCommand = 'pnpm';
 const commandArgs = ['exec', 'turbo', 'run', ...turboArgs];
