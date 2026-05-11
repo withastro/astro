@@ -105,14 +105,13 @@ export class AstroHandler {
 
 		let response;
 		try {
-			// Only call provider functions when the feature is configured.
-			// Each call does property lookups + state.provide() which
-			// allocates a Map on the hot path when nothing is configured.
-			if (this.#hasSession || this.#app.pipeline.cacheConfig) {
-				const sessionP = this.#hasSession ? provideSession(state) : undefined;
-				const cacheP = this.#app.pipeline.cacheConfig ? provideCache(state) : undefined;
-				if (sessionP || cacheP) await Promise.all([sessionP, cacheP]);
-			}
+			// `provideCache` always runs so `Astro.cache` is defined even
+			// when caching is disabled — it registers a no-op shim that
+			// warns once on use. `provideSession` is gated because there
+			// is no equivalent disabled-shim contract for sessions.
+			const sessionP = this.#hasSession ? provideSession(state) : undefined;
+			const cacheP = provideCache(state);
+			if (sessionP || cacheP) await Promise.all([sessionP, cacheP]);
 			// Track feature usage even when skipped.
 			state.pipeline.usedFeatures |= PipelineFeatures.sessions;
 
