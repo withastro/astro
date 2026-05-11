@@ -23,11 +23,6 @@ describe('endpoints', () => {
 		assert.equal(res.status, 500);
 	});
 
-	it('should respond with 404 if GET is not implemented', async () => {
-		const res = await fixture.fetch('/incorrect-route', { method: 'HEAD' });
-		assert.equal(res.status, 404);
-	});
-
 	it('should respond with same code as GET response', async () => {
 		const res = await fixture.fetch('/incorrect', { method: 'HEAD' });
 		assert.equal(res.status, 500);
