@@ -66,11 +66,25 @@ const ALLOWED_DIRECTIVES = [
 type AllowedDirectives = (typeof ALLOWED_DIRECTIVES)[number];
 export type CspDirective = `${AllowedDirectives}${string | undefined}`;
 
-export const allowedDirectivesSchema = z.custom<CspDirective>((value) => {
-	if (typeof value !== 'string') {
-		return false;
-	}
-	return ALLOWED_DIRECTIVES.some((allowedValue) => {
-		return value.startsWith(allowedValue);
-	});
-});
+export const allowedDirectivesSchema: z.ZodType<CspDirective> = z.string().superRefine(
+	(value, ctx) => {
+		const isAllowed = ALLOWED_DIRECTIVES.some((allowedValue) => {
+			return value.startsWith(allowedValue);
+		});
+		if (!isAllowed) {
+			if (value.startsWith('script-src') || value.startsWith('style-src')) {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					message: `Directives \`script-src\` and \`style-src\` are not allowed in \`security.csp.directives\`. Please use \`security.csp.scriptDirective\` and \`security.csp.styleDirective\` instead.`,
+					fatal: true,
+				});
+			} else {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					message: `Invalid directive: "${value}". Allowed directives are: ${ALLOWED_DIRECTIVES.join(', ')}`,
+					fatal: true,
+				});
+			}
+		}
+	},
+) as any;
