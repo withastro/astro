@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('build format', () => {
 	describe('build.format: file', () => {
@@ -12,6 +12,7 @@ describe('build format', () => {
 				build: {
 					format: 'file',
 				},
+				outDir: './dist/astro-pageDirectoryUrl-build-format-file/',
 			});
 			await fixture.build();
 		});
@@ -32,6 +33,7 @@ describe('build format', () => {
 				build: {
 					format: 'preserve',
 				},
+				outDir: './dist/astro-pageDirectoryUrl-build-format-preserve/',
 			});
 			await fixture.build();
 		});

@@ -6,7 +6,7 @@ import parseSrcset from 'parse-srcset';
 import { AstroLogger } from '../dist/core/logger/core.js';
 import { testImageService } from './test-image-service.ts';
 import { testRemoteImageService } from './test-remote-image-service.ts';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('astro:image:layout', () => {
 	let fixture: Fixture;
@@ -27,6 +27,7 @@ describe('astro:image:layout', () => {
 					}),
 					domains: ['avatars.githubusercontent.com', 'images.unsplash.com'],
 				},
+				outDir: './dist/core-image-layout-local-image-service/',
 			});
 
 			devServer = await fixture.startDevServer({});
@@ -346,6 +347,7 @@ describe('astro:image:layout', () => {
 					service: testRemoteImageService({ foo: 'bar' }),
 					domains: ['images.unsplash.com'],
 				},
+				outDir: './dist/core-image-layout-remote-image-service/',
 			});
 
 			const logger = new AstroLogger({
@@ -378,6 +380,7 @@ describe('astro:image:layout', () => {
 					service: testImageService({ foo: 'bar' }),
 					domains: ['avatars.githubusercontent.com', 'images.unsplash.com'],
 				},
+				outDir: './dist/core-image-layout-build/',
 			});
 
 			await fixture.build();
@@ -490,6 +493,7 @@ describe('astro:image:layout', () => {
 						domains: ['avatars.githubusercontent.com', 'images.unsplash.com'],
 						responsiveStyles: false,
 					},
+					outDir: './dist/core-image-layout-disabling-global-styles/',
 				});
 				await fixtureWithoutStyles.build();
 				const html = await fixtureWithoutStyles.readFile('/index.html');

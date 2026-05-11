@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type DevServer, type Fixture, fixLineEndings, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, fixLineEndings, loadFixture } from './test-utils.ts';
 
 const FIXTURE_ROOT = './fixtures/astro-markdown/';
 
@@ -21,6 +21,7 @@ describe('Astro Markdown', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: FIXTURE_ROOT,
+			outDir: './dist/astro-markdown-astro-markdown/',
 		});
 		await fixture.build();
 	});
@@ -66,6 +67,7 @@ describe('Astro Markdown', () => {
 				markdown: {
 					syntaxHighlight: 'prism',
 				},
+				outDir: './dist/astro-markdown-syntax-highlighting/',
 			});
 			await prismFixture.build();
 

@@ -6,7 +6,8 @@ import { LoggerHelpDisplay } from '../../../dist/cli/infra/logger-help-display.j
 import { PassthroughTextStyler } from '../../../dist/cli/infra/passthrough-text-styler.js';
 import { ProcessOperatingSystemProvider } from '../../../dist/cli/infra/process-operating-system-provider.js';
 import packageJson from '../../../package.json' with { type: 'json' };
-import { FakeAstroVersionProvider, SpyHelpDisplay, SpyLogger } from './utils.ts';
+import { SpyLogger } from '../test-utils.ts';
+import { FakeAstroVersionProvider, SpyHelpDisplay } from './utils.ts';
 
 describe('CLI shared', () => {
 	describe('infra', () => {
@@ -140,7 +141,7 @@ describe('CLI shared', () => {
 
 					assert.deepStrictEqual(logger.logs, [
 						{
-							type: 'info',
+							level: 'info',
 							label: 'SKIP_FORMAT',
 							message: `
   astro preview [...flags]

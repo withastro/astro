@@ -22,6 +22,13 @@ function makePageResponse(
 	});
 }
 
+function makeFallbackSentinelResponse(): Response {
+	return new Response(null, {
+		status: 500,
+		headers: { 'X-Astro-Route-Type': 'fallback' },
+	});
+}
+
 interface I18nManifestOverrides {
 	defaultLocale?: string;
 	locales?: Locales;
@@ -187,6 +194,29 @@ describe('createI18nMiddleware', () => {
 
 			assert.equal(result.status, 200);
 			assert.equal(await result.text(), 'rewritten to /en/start');
+		});
+
+		it('rewrites for the fallback-type sentinel response (regression #16113)', async () => {
+			const handler = createI18nMiddleware(
+				makeI18nManifest({
+					strategy: 'pathname-prefix-other-locales',
+					fallbackType: 'rewrite',
+					fallback: { it: 'en' },
+				}),
+				'/',
+				'ignore',
+				'directory',
+			);
+			const ctx = createMockAPIContext({
+				url: 'http://localhost/it/about',
+				rewrite: async (_path: string) => new Response(`<h1>about page</h1>`, { status: 200 }),
+			} as any);
+			const next = async () => makeFallbackSentinelResponse();
+
+			const result = await callHandler(handler, ctx, next);
+
+			assert.equal(result.status, 200);
+			assert.match(await result.text(), /about page/);
 		});
 	});
 

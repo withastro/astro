@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { loadFixture, type DevServer, type Fixture } from './test-utils.js';
+import { loadFixture, type DevServer, type Fixture } from './test-utils.ts';
 
 function addLeadingSlash(path: string) {
 	return path.startsWith('/') ? path : '/' + path;
@@ -15,6 +15,7 @@ describe('Component Libraries', () => {
 			root: './fixtures/component-library/',
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist/component-library/',
 		});
 	});
 

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Astro.redirect output: "static"', () => {
 	let fixture: Fixture;
@@ -18,6 +18,7 @@ describe('Astro.redirect output: "static"', () => {
 					'/more/old/[dynamic]/[route]': '/more/[dynamic]/[route]',
 					'/more/old/[...spread]': '/more/new/[...spread]',
 				},
+				outDir: './dist/redirects/',
 			});
 			devServer = await fixture.startDevServer();
 		});

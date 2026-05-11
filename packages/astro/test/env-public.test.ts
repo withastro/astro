@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { AstroError } from '../dist/core/errors/errors.js';
 import { ServerOnlyModule } from '../dist/core/errors/errors-data.js';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('astro:env public variables', () => {
 	let fixture: Fixture;
@@ -11,6 +11,7 @@ describe('astro:env public variables', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/astro-env/',
+				outDir: './dist/env-public-client-variables/',
 			});
 			await fixture.build();
 		});
@@ -37,6 +38,7 @@ describe('astro:env public variables', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/astro-env-server-fail/',
+				outDir: './dist/env-public-server-variables/',
 			});
 		});
 

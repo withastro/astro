@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Dynamic endpoint collision', () => {
 	describe('build', () => {
@@ -10,6 +10,7 @@ describe('Dynamic endpoint collision', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/dynamic-endpoint-collision/',
+				outDir: './dist/dynamic-endpoint-collision-build/',
 			});
 			try {
 				await fixture.build();
@@ -30,6 +31,7 @@ describe('Dynamic endpoint collision', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/dynamic-endpoint-collision/',
+				outDir: './dist/dynamic-endpoint-collision-dev/',
 			});
 
 			devServer = await fixture.startDevServer();

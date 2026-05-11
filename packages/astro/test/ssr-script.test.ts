@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import testAdapter from './test-adapter.js';
-import { type AstroInlineConfig, type Fixture, loadFixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { type AstroInlineConfig, type Fixture, loadFixture } from './test-utils.ts';
 
 async function fetchHTML(fixture: Fixture, path: string) {
 	const app = await fixture.loadTestAdapterApp();

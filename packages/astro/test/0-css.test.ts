@@ -7,13 +7,13 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture, type DevServer, type Fixture } from './test-utils.js';
+import { loadFixture, type DevServer, type Fixture } from './test-utils.ts';
 
 let fixture: Fixture;
 
 describe('CSS', function () {
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/0-css/' });
+		fixture = await loadFixture({ root: './fixtures/0-css/', outDir: './dist/0-css/' });
 	});
 
 	// test HTML and CSS contents for accuracy

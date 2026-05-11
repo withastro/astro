@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('getStaticPaths with trailingSlash: ignore', () => {
 	let fixture: Fixture;
@@ -10,6 +10,7 @@ describe('getStaticPaths with trailingSlash: ignore', () => {
 		fixture = await loadFixture({
 			root: './fixtures/get-static-paths-pages/',
 			site: 'https://mysite.dev/',
+			outDir: './dist/get-static-paths-pages/',
 		});
 		await fixture.build();
 	});

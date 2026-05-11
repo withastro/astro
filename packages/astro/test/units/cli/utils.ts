@@ -1,5 +1,3 @@
-import { AstroIntegrationLogger } from '../../../dist/core/logger/core.js';
-import type { AstroLogOptions } from '../../../dist/core/logger/core.js';
 import type { CloudIde } from '../../../dist/cli/docs/domain/cloud-ide.js';
 import type { CloudIdeProvider } from '../../../dist/cli/docs/definitions.js';
 import type { AnyCommand } from '../../../dist/cli/domain/command.js';
@@ -181,43 +179,6 @@ export class FakePrompt implements Prompt {
 
 	async confirm(): Promise<boolean> {
 		return this.#confirmed;
-	}
-}
-
-export class SpyLogger {
-	readonly #logs: Array<{ type: string; label: string | null; message: string }> = [];
-
-	get logs(): Array<{ type: string; label: string | null; message: string }> {
-		return this.#logs;
-	}
-
-	debug(label: string, ...messages: string[]): void {
-		this.#logs.push(...messages.map((message) => ({ type: 'debug', label, message })));
-	}
-
-	error(label: string | null, message: string): void {
-		this.#logs.push({ type: 'error', label, message });
-	}
-
-	info(label: string | null, message: string): void {
-		this.#logs.push({ type: 'info', label, message });
-	}
-
-	warn(label: string | null, message: string): void {
-		this.#logs.push({ type: 'warn', label, message });
-	}
-
-	options: AstroLogOptions = {
-		destination: { write: () => true },
-		level: 'silent',
-	};
-
-	level(): 'silent' {
-		return this.options.level as 'silent';
-	}
-
-	forkIntegrationLogger(label: string): AstroIntegrationLogger {
-		return new AstroIntegrationLogger(this.options, label);
 	}
 }
 

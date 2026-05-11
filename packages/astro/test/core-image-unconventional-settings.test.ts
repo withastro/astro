@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 
 import { testImageService } from './test-image-service.ts';
-import { type AstroInlineConfig, type Fixture, loadFixture } from './test-utils.js';
+import { type AstroInlineConfig, type Fixture, loadFixture } from './test-utils.ts';
 
 const defaultSettings: AstroInlineConfig = {
 	root: './fixtures/core-image-unconventional-settings/',
@@ -21,6 +21,7 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 			build: {
 				assetsPrefix: 'https://cdn.example.com/',
 			},
+			outDir: './dist/core-image-unconventional-assets-prefix/',
 		});
 		await fixture.build();
 
@@ -37,6 +38,7 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 		fixture = await loadFixture({
 			...defaultSettings,
 			base: '/subdir/',
+			outDir: './dist/core-image-unconventional-base/',
 		});
 		await fixture.build();
 
@@ -55,6 +57,7 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 			build: {
 				assetsPrefix: 'https://cdn.example.com/',
 			},
+			outDir: './dist/core-image-unconventional-assets-prefix-base/',
 		});
 		await fixture.build();
 
@@ -73,6 +76,7 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 			build: {
 				assets: 'assets',
 			},
+			outDir: './dist/core-image-unconventional-custom-assets/',
 		});
 		await fixture.build();
 
@@ -107,6 +111,7 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 					},
 				},
 			},
+			outDir: './dist/core-image-unconventional-rollup-asset-names/',
 		});
 		await fixture.build();
 
@@ -140,6 +145,7 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 					},
 				},
 			},
+			outDir: './dist/core-image-unconventional-complex-asset-names/',
 		});
 		await fixture.build();
 
@@ -175,6 +181,7 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 				assets: 'images',
 				assetsPrefix: 'https://cdn.example.com/',
 			},
+			outDir: './dist/core-image-unconventional-rollup-with-prefix/',
 		});
 		await fixture.build();
 

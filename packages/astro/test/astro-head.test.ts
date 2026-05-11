@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Head in its own component', () => {
 	let fixture: Fixture;
@@ -13,6 +13,7 @@ describe('Head in its own component', () => {
 			base: '/blog',
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist/astro-head/',
 		});
 		await fixture.build();
 	});

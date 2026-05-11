@@ -14,7 +14,7 @@ async function validateConfig(userConfig: Record<string, unknown>) {
 
 describe('Config Validation', () => {
 	it('empty user config is valid', async () => {
-		assert.doesNotThrow(() => validateConfig({}).catch((err) => err));
+		await assert.doesNotReject(validateConfig({}));
 	});
 
 	it('Zod errors are returned when invalid config is used', async () => {
@@ -371,7 +371,14 @@ describe('Config Validation', () => {
 				},
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
-			assert.equal(configError.issues[0].message, 'Invalid key in record');
+			// Zod 4.4.0+ surfaces record key refinement failures as `invalid_key` issues
+			// with nested issues containing the actual refinement error message.
+			const message = configError.issues[0].message;
+			assert.ok(
+				message.includes('A valid variable name cannot start with a number') ||
+					message.includes('Invalid key in record'),
+				`Expected error about invalid key, got: ${message}`,
+			);
 		});
 
 		it('Should provide a useful error for access/context invalid combinations', async () => {

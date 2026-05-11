@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Scripts', () => {
 	describe('Build', () => {
@@ -14,6 +14,7 @@ describe('Scripts', () => {
 						assetsInlineLimit: 0,
 					},
 				},
+				outDir: './dist/astro-scripts-build/',
 			});
 			await fixture.build();
 		});
@@ -85,6 +86,7 @@ describe('Scripts', () => {
 			before(async () => {
 				fixture = await loadFixture({
 					root: './fixtures/astro-scripts/',
+					outDir: './dist/astro-scripts-inlining/',
 				});
 				await fixture.build();
 			});
@@ -126,6 +128,7 @@ describe('Scripts', () => {
 						assetsInlineLimit: 0,
 					},
 				},
+				outDir: './dist/astro-scripts-dev/',
 			});
 			devServer = await fixture.startDevServer();
 		});

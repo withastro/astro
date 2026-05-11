@@ -1,13 +1,6 @@
 import { dirname, resolve } from 'node:path';
 
-// Those three imports needs to always be `type` imports, as we always want to import them dynamically
-
-// TODO: Consider maybe somehow moving those integrations to a separate package to avoid circular dependencies?
-// @ts-ignore - Due to a circular dependency, we can't have those as dependencies
-import type * as svelte from '@astrojs/svelte/dist/editor.cjs';
-// @ts-ignore - Due to a circular dependency, we can't have those as dependencies
-import type * as vue from '@astrojs/vue/dist/editor.cjs';
-
+// The following import needs to always be `type` imports, as we always want to import it dynamically
 import type * as prettier from 'prettier';
 
 type PackageVersion = {
@@ -74,11 +67,14 @@ function importEditorIntegration<T>(packageName: string, fromPath: string): T | 
 	return undefined;
 }
 
-export function importSvelteIntegration(fromPath: string): typeof svelte | undefined {
+type SvelteIntegration = { toTSX(code: string, className: string): string };
+type VueIntegration = { toTSX(code: string, className: string): string };
+
+export function importSvelteIntegration(fromPath: string): SvelteIntegration | undefined {
 	return importEditorIntegration('@astrojs/svelte', fromPath);
 }
 
-export function importVueIntegration(fromPath: string): typeof vue | undefined {
+export function importVueIntegration(fromPath: string): VueIntegration | undefined {
 	return importEditorIntegration('@astrojs/vue', fromPath);
 }
 

@@ -1,13 +1,16 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Astro Markdown Shiki', () => {
 	let fixture: Fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/astro-markdown-shiki/langs/' });
+		fixture = await loadFixture({
+			root: './fixtures/astro-markdown-shiki/langs/',
+			outDir: './dist/astro-markdown-shiki/',
+		});
 		await fixture.build();
 	});
 

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Chrome DevTools workspace', () => {
 	describe('with experimental flag enabled', () => {
@@ -13,6 +13,7 @@ describe('Chrome DevTools workspace', () => {
 				experimental: {
 					chromeDevtoolsWorkspace: true,
 				},
+				outDir: './dist/chrome-devtools-workspace-with-experimental-flag-enabled/',
 			});
 			devServer = await fixture.startDevServer();
 		});
@@ -45,6 +46,7 @@ describe('Chrome DevTools workspace', () => {
 				experimental: {
 					chromeDevtoolsWorkspace: false,
 				},
+				outDir: './dist/chrome-devtools-workspace-with-experimental-flag-disabled/',
 			});
 			devServer = await fixture.startDevServer();
 		});

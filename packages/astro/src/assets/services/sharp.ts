@@ -10,6 +10,7 @@ import type {
 } from 'sharp';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { ImageFit, ImageOutputFormat, ImageQualityPreset } from '../types.js';
+import { detector } from '../utils/vendor/image-size/detector.js';
 import {
 	type BaseServiceTransform,
 	baseService,
@@ -148,6 +149,15 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 		// TODO: Sharp has some support for SVGs, we could probably support this once Sharp is the default and only service.
 		if (transform.format === 'svg') return { data: inputBuffer, format: 'svg' };
 
+		// Rasterizing an SVG runs librsvg on untrusted input; require explicit opt-in.
+		if (detector(inputBuffer) === 'svg' && !config.dangerouslyProcessSVG) {
+			throw new AstroError({
+				...AstroErrorData.UnsupportedImageFormat,
+				message:
+					'SVG image processing is disabled. Set `image.dangerouslyProcessSVG: true` to allow processing of SVG sources.',
+			});
+		}
+
 		const result = sharp(inputBuffer, {
 			failOnError: false,
 			pages: -1,
@@ -156,9 +166,21 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 
 		// always call rotate to adjust for EXIF data orientation
 		result.rotate();
-
 		// get some information about the input
-		const { format } = await result.metadata();
+		let format: string | undefined;
+		try {
+			({ format } = await result.metadata());
+		} catch {
+			// Sharp cannot decode this image (e.g. animated AVIF sequences).
+			// Pass it through unmodified rather than crashing the build. When Sharp adds support for these
+			// formats, the image will be optimized automatically without code changes.
+			console.warn(
+				`⚠️  Astro could not optimize image "${transform.src}". ` +
+					`Sharp doesn't support this format. The image will be used unoptimized. ` +
+					`Consider converting to WebP or placing in the public/ folder.`,
+			);
+			return { data: inputBuffer, format: transform.format };
+		}
 
 		if (transform.width && transform.height) {
 			const fit: keyof FitEnum | undefined = transform.fit

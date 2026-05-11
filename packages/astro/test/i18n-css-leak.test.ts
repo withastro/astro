@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('CSS graph boundaries with astro:i18n', () => {
 	let fixture: Fixture;
@@ -10,6 +10,7 @@ describe('CSS graph boundaries with astro:i18n', () => {
 		fixture = await loadFixture({
 			root: './fixtures/i18n-css-leak-basic/',
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist/i18n-css-leak/',
 		});
 		await fixture.build();
 	});

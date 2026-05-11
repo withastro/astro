@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import testAdapter from './test-adapter.js';
-import { type Fixture, loadFixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('SSR Hydrated component scripts', () => {
 	let fixture: Fixture;
@@ -12,6 +12,7 @@ describe('SSR Hydrated component scripts', () => {
 			root: './fixtures/ssr-scripts/',
 			output: 'server',
 			adapter: testAdapter(),
+			outDir: './dist/ssr-scripts/',
 		});
 		await fixture.build();
 	});

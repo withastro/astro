@@ -36,7 +36,7 @@ import { hashTransform, propsToFilename } from './utils/hash.js';
 import { emitImageMetadata } from './utils/node.js';
 import { CONTENT_IMAGE_FLAG } from '../content/consts.js';
 import { getProxyCode } from './utils/proxy.js';
-import { makeSvgComponent, parseSvgComponentData } from './utils/svg.js';
+import { makeSvgComponent, parseSvgComponentData } from './svg/utils.js';
 import { createPlaceholderURL, stringifyPlaceholderURL } from './utils/url.js';
 
 const assetRegex = new RegExp(`\\.(${VALID_INPUT_FORMATS.join('|')})`, 'i');
@@ -371,7 +371,11 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 							});
 							// We know that the contents are present, as we only emit this property for SVG files
 							return {
-								code: makeSvgComponent(imageMetadata, contents, settings.config.experimental.svgo),
+								code: await makeSvgComponent(
+									imageMetadata,
+									contents,
+									settings.config.experimental.svgOptimizer,
+								),
 							};
 						}
 						// In SSR builds, any image loaded by the SSR environment could be reachable at
@@ -389,10 +393,10 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 							const contents = await fs.promises.readFile(imageMetadata.fsPath, {
 								encoding: 'utf8',
 							});
-							const svgData = parseSvgComponentData(
+							const svgData = await parseSvgComponentData(
 								imageMetadata,
 								contents,
-								settings.config.experimental.svgo,
+								settings.config.experimental.svgOptimizer,
 							);
 							const metadataWithSvg = { ...imageMetadata, __svgData: svgData };
 							return {

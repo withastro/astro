@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture, type DevServer, type Fixture } from './test-utils.js';
+import { loadFixture, type DevServer, type Fixture } from './test-utils.ts';
 
 describe('Importing raw/inlined CSS', () => {
 	let fixture: Fixture;
@@ -10,6 +10,7 @@ describe('Importing raw/inlined CSS', () => {
 			root: './fixtures/css-import-as-inline/',
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist/css-import-as-inline/',
 		});
 	});
 	describe('Build', () => {

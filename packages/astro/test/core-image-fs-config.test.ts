@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import * as cheerio from 'cheerio';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Image optimization with Vite fs config', () => {
 	describe('fs.allow and fs.deny', () => {
@@ -26,6 +26,7 @@ describe('Image optimization with Vite fs config', () => {
 						},
 					},
 				},
+				outDir: './dist/core-image-fs-config-fs-allow-and-fs-deny/',
 			});
 			devServer = await fixture.startDevServer();
 		});
@@ -92,6 +93,7 @@ describe('Image optimization with Vite fs config', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/core-image-fs-config/',
+				outDir: './dist/core-image-fs-config-safemodulepaths/',
 			});
 			devServer = await fixture.startDevServer();
 		});

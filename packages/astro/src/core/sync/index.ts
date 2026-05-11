@@ -19,7 +19,7 @@ import type { AstroSettings } from '../../types/astro.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
 import { getTimeStat } from '../build/util.js';
 import { resolveConfig } from '../config/config.js';
-import { createNodeLogger } from '../logger/node.js';
+import { loadOrCreateNodeLogger } from '../logger/load.js';
 import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
 import {
@@ -59,8 +59,8 @@ export default async function sync(
 	{ fs, telemetry: _telemetry = false }: { fs?: typeof fsMod; telemetry?: boolean } = {},
 ) {
 	ensureProcessNodeEnv('production');
-	const logger = createNodeLogger(inlineConfig);
 	const { astroConfig, userConfig } = await resolveConfig(inlineConfig ?? {}, 'sync');
+	const logger = await loadOrCreateNodeLogger(astroConfig, inlineConfig ?? {});
 	if (_telemetry) {
 		telemetry.record(eventCliSession('sync', userConfig));
 	}

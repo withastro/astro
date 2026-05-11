@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture, type Fixture } from './test-utils.js';
+import { loadFixture, type Fixture } from './test-utils.ts';
 
 describe('CSS ordering - import order with layouts', () => {
 	let fixture: Fixture;
@@ -10,6 +10,7 @@ describe('CSS ordering - import order with layouts', () => {
 			root: './fixtures/css-order-layout/',
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist/css-order-layout/',
 		});
 	});
 

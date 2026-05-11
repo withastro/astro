@@ -1,13 +1,16 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Slots: Preact', () => {
 	let fixture: Fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/slots-preact/' });
+		fixture = await loadFixture({
+			root: './fixtures/slots-preact/',
+			outDir: './dist/slots-preact/',
+		});
 		await fixture.build();
 	});
 

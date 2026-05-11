@@ -5,7 +5,7 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture, type Fixture } from './test-utils.js';
+import { loadFixture, type Fixture } from './test-utils.ts';
 
 let fixture: Fixture;
 
@@ -15,6 +15,7 @@ describe('CSS', function () {
 			root: './fixtures/config-vite-css-target/',
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist/config-vite-css-target/',
 		});
 	});
 

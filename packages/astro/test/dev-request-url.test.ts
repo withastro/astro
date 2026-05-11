@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('vite-plugin-astro-server', () => {
 	describe('url', () => {
@@ -11,6 +11,7 @@ describe('vite-plugin-astro-server', () => {
 			fixture = await loadFixture({
 				root: './fixtures/dev-request-url/',
 				output: 'server',
+				outDir: './dist/dev-request-url/',
 			});
 			devServer = await fixture.startDevServer();
 		});

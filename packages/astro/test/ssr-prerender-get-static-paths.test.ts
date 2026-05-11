@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { after, afterEach, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import type { Plugin } from 'vite';
-import testAdapter from './test-adapter.js';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Prerender', () => {
 	let fixture: Fixture;
@@ -16,6 +16,7 @@ describe('Prerender', () => {
 					adapter: testAdapter(),
 					base: '/blog',
 					output: 'server',
+					outDir: './dist/ssr-prerender-get-static-paths-getstaticpaths-build-calls/',
 				});
 				await fixture.build();
 			});
@@ -135,6 +136,7 @@ describe('Prerender', () => {
 					vite: {
 						plugins: [vitePluginRemovePrerenderExport()],
 					},
+					outDir: './dist/ssr-prerender-get-static-paths-getstaticpaths-build-calls/',
 				});
 				await fixture.build();
 			});

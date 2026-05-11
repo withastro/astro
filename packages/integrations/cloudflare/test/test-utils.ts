@@ -1,10 +1,10 @@
-import type { DevServer } from '../../../astro/src/core/dev/dev.js';
-import type { PreviewServer } from '../../../astro/src/types/public/preview.js';
+import type { PreviewServer } from 'astro';
 import {
-	type AstroInlineConfig,
-	type Fixture,
 	loadFixture as baseLoadFixture,
-} from '../../../astro/test/test-utils.js';
+	type AstroInlineConfig,
+	type DevServer,
+	type Fixture,
+} from 'astro/_internal/test/test-utils';
 
 export type { AstroInlineConfig, DevServer, Fixture, PreviewServer };
 

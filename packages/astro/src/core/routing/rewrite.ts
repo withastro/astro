@@ -227,10 +227,7 @@ export function normalizeRewritePathname(
 			urlPathname === base || urlPathname === removeTrailingForwardSlash(base);
 
 		if (isBasePathRequest) {
-			// For root path requests at the base URL
-			// When trailingSlash is 'never', we should match '' (empty string pathname)
-			// When trailingSlash is 'always', we should match '/' pathname
-			pathname = shouldAppendSlash ? '/' : '';
+			pathname = '/';
 		} else if (urlPathname.startsWith(base)) {
 			// For non-root paths under the base
 			pathname = shouldAppendSlash
@@ -245,10 +242,6 @@ export function normalizeRewritePathname(
 		pathname = prependForwardSlash(pathname);
 	}
 
-	// Convert '/' to '' for trailingSlash: 'never'
-	if (pathname === '/' && base !== '/' && !shouldAppendSlash) {
-		pathname = '';
-	}
 	// If config.build.format = 'file' then pathname includes .html, so we need to remove it
 	if (buildFormat === 'file') {
 		pathname = pathname.replace(/\.html$/, '');

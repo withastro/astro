@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('third-party .astro component', () => {
 	let fixture: Fixture;
@@ -9,6 +9,7 @@ describe('third-party .astro component', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/third-party-astro/',
+			outDir: './dist/third-party-astro/',
 		});
 	});
 

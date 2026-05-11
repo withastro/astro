@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import * as cheerio from 'cheerio';
 import { defaultClientConditions, resolveConfig } from 'vite';
 import { getViteConfig } from '../dist/config/index.js';
-import { loadFixture, type Fixture } from './test-utils.js';
+import { loadFixture, type Fixture } from './test-utils.ts';
 
 describe('Vite Config', async () => {
 	let fixture: Fixture;
@@ -14,6 +14,7 @@ describe('Vite Config', async () => {
 			root: './fixtures/config-vite/',
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist/config-vite/',
 		});
 		await fixture.build();
 	});

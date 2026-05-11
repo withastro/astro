@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import testAdapter from './test-adapter.js';
-import { loadFixture, type Fixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { loadFixture, type Fixture } from './test-utils.ts';
 
 describe('AstroConfig - config.output', () => {
 	describe(`output: 'server'`, () => {
@@ -14,6 +14,7 @@ describe('AstroConfig - config.output', () => {
 					root: './fixtures/astro-basic/',
 					adapter: testAdapter(),
 					output: 'server',
+					outDir: './dist/config-mode-deploy-config-provided/',
 				});
 				await fixture.build();
 			});
@@ -37,6 +38,7 @@ describe('AstroConfig - config.output', () => {
 					// This is just a random fixture to test, doesn't matter.
 					root: './fixtures/astro-basic/',
 					output: 'server',
+					outDir: './dist/config-mode-deploy-config-omitted/',
 				});
 			});
 
@@ -64,6 +66,7 @@ describe('AstroConfig - config.output', () => {
 					// This is just a random fixture to test, doesn't matter.
 					root: './fixtures/astro-basic/',
 					output: 'static',
+					outDir: './dist/config-mode-output-config-omitted/',
 				});
 				await fixture.build();
 			});
@@ -88,6 +91,7 @@ describe('AstroConfig - config.output', () => {
 					root: './fixtures/astro-basic/',
 					adapter: testAdapter(),
 					output: 'server',
+					outDir: './dist/config-mode-output-config-omitted/',
 				});
 				await fixture.build();
 			});

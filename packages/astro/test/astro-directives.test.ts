@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Directives', async () => {
 	let fixture: Fixture;
@@ -11,6 +11,7 @@ describe('Directives', async () => {
 			root: './fixtures/astro-directives/',
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist/astro-directives-directives/',
 		});
 		await fixture.build();
 	});
@@ -130,6 +131,7 @@ describe('set:html dev', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-directives/',
+			outDir: './dist/astro-directives-set-html-dev/',
 		});
 	});
 

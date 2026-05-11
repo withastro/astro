@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 // Asset bundling
 describe('Not returning responses', () => {
@@ -10,6 +10,7 @@ describe('Not returning responses', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-not-response/',
+			outDir: './dist/astro-not-response/',
 		});
 
 		devServer = await fixture.startDevServer();

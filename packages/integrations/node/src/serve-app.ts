@@ -55,7 +55,7 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 	 * Used to log unhandled rejections with a helpful message.
 	 */
 	const als = new AsyncLocalStorage<string>();
-	const logger = app.getAdapterLogger();
+	const logger = app.adapterLogger;
 	process.on('unhandledRejection', (reason) => {
 		const requestUrl = als.getStore();
 		logger.error(`Unhandled rejection while rendering ${requestUrl}`);

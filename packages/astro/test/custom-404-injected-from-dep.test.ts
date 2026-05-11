@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { loadFixture, type Fixture } from './test-utils.js';
+import { loadFixture, type Fixture } from './test-utils.ts';
 
 describe('Custom 404 with injectRoute from dependency', () => {
 	describe('build', () => {
@@ -10,6 +10,7 @@ describe('Custom 404 with injectRoute from dependency', () => {
 			fixture = await loadFixture({
 				root: './fixtures/custom-404-injected-from-dep/',
 				site: 'http://example.com',
+				outDir: './dist/custom-404-injected-from-dep/',
 			});
 			await fixture.build();
 		});

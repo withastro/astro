@@ -6,17 +6,17 @@ import { after, afterEach, before, describe, it } from 'node:test';
 import { removeDir } from '@astrojs/internal-helpers/fs';
 import * as cheerio from 'cheerio';
 import parseSrcset from 'parse-srcset';
-import { AstroLogger, type AstroLogMessage } from '../dist/core/logger/core.js';
-import testAdapter from './test-adapter.js';
+import { AstroLogger, type AstroLoggerMessage } from '../dist/core/logger/core.js';
+import testAdapter from './test-adapter.ts';
 import { testImageService } from './test-image-service.ts';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('astro:image', () => {
 	let fixture: Fixture;
 
 	describe('dev', () => {
 		let devServer: DevServer;
-		const logs: Array<AstroLogMessage> = [];
+		const logs: Array<AstroLoggerMessage> = [];
 		let redirectServer: import('node:http').Server | undefined;
 		let redirectUrl: string | undefined;
 
@@ -59,6 +59,7 @@ describe('astro:image', () => {
 							: []),
 					],
 				},
+				outDir: './dist/core-image-dev/',
 			});
 
 			const logger = new AstroLogger({
@@ -767,6 +768,7 @@ describe('astro:image', () => {
 						service: testImageService({ foo: 'bar' }),
 						domains: ['avatars.githubusercontent.com'],
 					},
+					outDir: './dist/core-image-custom-endpoint/',
 				});
 
 				customEndpointDevServer = await customEndpointFixture.startDevServer({
@@ -797,7 +799,7 @@ describe('astro:image', () => {
 
 	describe('proper errors', () => {
 		let devServer: DevServer;
-		const logs: Array<AstroLogMessage> = [];
+		const logs: Array<AstroLoggerMessage> = [];
 
 		before(async () => {
 			fixture = await loadFixture({
@@ -805,6 +807,7 @@ describe('astro:image', () => {
 				image: {
 					service: testImageService(),
 				},
+				outDir: './dist/core-image-proper-errors/',
 			});
 
 			const logger = new AstroLogger({
@@ -891,6 +894,7 @@ describe('astro:image', () => {
 					],
 				},
 				base: '/blog',
+				outDir: './dist/core-image-support-base-option-correctly/',
 			});
 			await fixture.build();
 		});
@@ -996,9 +1000,10 @@ describe('astro:image', () => {
 						'kaleidoscopic-biscotti-6fe98c.netlify.app',
 					],
 				},
+				outDir: './dist/core-image-build-ssg/',
 			});
 			// Remove cache directory
-			removeDir(new URL('./fixtures/core-image-ssg/node_modules/.astro', import.meta.url));
+			await removeDir(new URL('./fixtures/core-image-ssg/node_modules/.astro', import.meta.url));
 
 			await fixture.build();
 		});
@@ -1076,6 +1081,16 @@ describe('astro:image', () => {
 				hasExistingSrc.every((src) => src === true),
 				true,
 			);
+		});
+
+		it('animated avif does not crash the build', async () => {
+			const html = await fixture.readFile('/animated-avif/index.html');
+			const $ = cheerio.load(html);
+			const src = $('#animated-avif img').attr('src')!;
+			assert.ok(src, 'expected img src to be set');
+			const data = await fixture.readBuffer(src);
+			assert.equal(data instanceof Buffer, true);
+			assert.ok(data.byteLength > 0);
 		});
 
 		it('markdown images are written', async () => {
@@ -1163,7 +1178,7 @@ describe('astro:image', () => {
 			const generatedImages = (await fixture.glob('_astro/**/*.webp'))
 				.map((path) => basename(path))
 				.sort();
-			const cachedImages = [...(await fixture.glob('../node_modules/.astro/assets/**/*.webp'))]
+			const cachedImages = [...(await fixture.glob('../../node_modules/.astro/assets/**/*.webp'))]
 				.map((path) => basename(path))
 				.sort();
 
@@ -1171,7 +1186,7 @@ describe('astro:image', () => {
 		});
 
 		it('uses cache entries', async () => {
-			const logs: Array<AstroLogMessage> = [];
+			const logs: Array<AstroLoggerMessage> = [];
 
 			const logger = new AstroLogger({
 				destination: {
@@ -1197,14 +1212,19 @@ describe('astro:image', () => {
 				logLine.message?.includes('cache entry)'),
 			);
 
-			assert.equal(isReusingCache, true);
+			assert.equal(
+				isReusingCache,
+				true,
+				'Expected all images to be reused from cache but found the following logs: ' +
+					JSON.stringify(imageLogs, null, 2),
+			);
 		});
 
 		it('writes remote image cache metadata', async () => {
 			const html = await fixture.readFile('/remote/index.html');
 			const $ = cheerio.load(html);
 			const metaSrc =
-				'../node_modules/.astro/assets/' + basename($('#remote img').attr('src')!) + '.json';
+				'../../node_modules/.astro/assets/' + basename($('#remote img').attr('src')!) + '.json';
 			const data = await fixture.readBuffer(metaSrc);
 			assert.equal(data instanceof Buffer, true);
 			const metadata = JSON.parse(data.toString());
@@ -1555,6 +1575,7 @@ describe('astro:image', () => {
 					service: testImageService(),
 				},
 				trailingSlash: 'always',
+				outDir: './dist/core-image-trailing-slash-on-the-endpoint/',
 			});
 			devServer = await fixture.startDevServer();
 
@@ -1574,6 +1595,7 @@ describe('astro:image', () => {
 					service: testImageService(),
 				},
 				trailingSlash: 'never',
+				outDir: './dist/core-image-trailing-slash-on-the-endpoint/',
 			});
 			devServer = await fixture.startDevServer();
 
@@ -1589,6 +1611,7 @@ describe('astro:image', () => {
 		it("returns 403 for /_image when requesting a relative pattern image and the parameters aren't encoded", async () => {
 			fixture = await loadFixture({
 				root: './fixtures/core-image/',
+				outDir: './dist/core-image-trailing-slash-on-the-endpoint/',
 			});
 			devServer = await fixture.startDevServer();
 			// we don't use `URLSearchParams` because the initial // will get encoded
@@ -1613,6 +1636,7 @@ describe('astro:image', () => {
 						},
 					],
 				},
+				outDir: './dist/core-image-build-data-url/',
 			});
 
 			await fixture.build();

@@ -1,16 +1,19 @@
 import assert from 'node:assert/strict';
 import { Writable } from 'node:stream';
 import { after, before, describe, it } from 'node:test';
-import type { AstroLogMessage } from '../dist/core/logger/core.js';
+import type { AstroLoggerMessage } from '../dist/core/logger/core.js';
 import { AstroLogger } from '../dist/core/logger/core.js';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Public', () => {
 	let fixture: Fixture;
-	const buildLogs: AstroLogMessage[] = [];
+	const buildLogs: AstroLoggerMessage[] = [];
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/astro-public/' });
+		fixture = await loadFixture({
+			root: './fixtures/astro-public/',
+			outDir: './dist/astro-public-public/',
+		});
 		const logger = new AstroLogger({
 			level: 'info',
 			destination: new Writable({
@@ -70,7 +73,10 @@ describe('Public (dev)', () => {
 	let devServer: DevServer;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/astro-public/' });
+		fixture = await loadFixture({
+			root: './fixtures/astro-public/',
+			outDir: './dist/astro-public-public-dev/',
+		});
 		devServer = await fixture.startDevServer();
 	});
 

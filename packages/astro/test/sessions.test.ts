@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as devalue from 'devalue';
-import testAdapter from './test-adapter.js';
-import { type App, type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { type App, type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Astro.session', () => {
 	describe('Production', () => {
@@ -19,6 +19,7 @@ describe('Astro.session', () => {
 					driver: 'fs',
 					ttl: 20,
 				},
+				outDir: './dist/sessions-production/',
 			});
 			await fixture.build({});
 			app = await fixture.loadTestAdapterApp();
@@ -223,6 +224,7 @@ describe('Astro.session', () => {
 					driver: 'fs',
 					ttl: 20,
 				},
+				outDir: './dist/sessions-development/',
 			});
 			devServer = await fixture.startDevServer();
 		});

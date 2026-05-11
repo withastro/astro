@@ -1,13 +1,16 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Re-exported astro components with client components', () => {
 	let fixture: Fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/reexport-astro-containing-client-component/' });
+		fixture = await loadFixture({
+			root: './fixtures/reexport-astro-containing-client-component/',
+			outDir: './dist/reexport-astro-containing-client-component/',
+		});
 		await fixture.build();
 	});
 

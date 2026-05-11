@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('build.format', () => {
 	describe('directory', () => {
@@ -9,6 +9,7 @@ describe('build.format', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/page-format/',
+				outDir: './dist/page-format-directory/',
 			});
 		});
 
@@ -33,6 +34,7 @@ describe('build.format', () => {
 				build: {
 					format: 'file',
 				},
+				outDir: './dist/page-format-file/',
 			});
 		});
 
@@ -71,6 +73,7 @@ describe('build.format', () => {
 				build: {
 					format: 'preserve',
 				},
+				outDir: './dist/page-format-preserve-i18n/',
 			});
 		});
 
@@ -105,6 +108,7 @@ describe('build.format', () => {
 						redirectToDefaultLocale: true,
 					},
 				},
+				outDir: './dist/page-format-preserve-i18n/',
 			});
 		});
 

@@ -1,8 +1,8 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import testAdapter from './test-adapter.js';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Content Collections - render()', () => {
 	describe('Build - SSG', () => {
@@ -13,6 +13,7 @@ describe('Content Collections - render()', () => {
 				root: './fixtures/content/',
 				// test suite was authored when inlineStylesheets defaulted to never
 				build: { inlineStylesheets: 'never' },
+				outDir: './dist/content-collections-render-build-ssg/',
 			});
 			await fixture.build();
 		});
@@ -74,6 +75,7 @@ describe('Content Collections - render()', () => {
 				adapter: testAdapter(),
 				// test suite was authored when inlineStylesheets defaulted to never
 				build: { inlineStylesheets: 'never' },
+				outDir: './dist/content-collections-render-build-ssr/',
 			});
 			await fixture.build();
 		});
@@ -155,6 +157,7 @@ describe('Content Collections - render()', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/content/',
+				outDir: './dist/content-collections-render-dev-ssg/',
 			});
 			devServer = await fixture.startDevServer();
 		});

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Public dev with base', () => {
 	let fixture: Fixture;
@@ -13,6 +13,7 @@ describe('Public dev with base', () => {
 			root: './fixtures/public-base-404/',
 			site: 'http://example.com/',
 			base: '/blog',
+			outDir: './dist/public-base-404/',
 		});
 		devServer = await fixture.startDevServer();
 	});

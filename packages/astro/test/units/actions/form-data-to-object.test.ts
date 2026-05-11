@@ -176,6 +176,51 @@ describe('formDataToObject', () => {
 		assert.deepEqual(res.age.sort(), [25, 30, 35]);
 	});
 
+	describe('boolean arrays', () => {
+		it('should preserve "false" string values in boolean arrays', () => {
+			const formData = new FormData();
+			formData.append('flags', 'false');
+			formData.append('flags', 'true');
+			formData.append('flags', 'false');
+
+			const input = z.object({
+				flags: z.array(z.boolean()),
+			});
+
+			const res = formDataToObject(formData, input);
+
+			assert.ok(Array.isArray(res.flags), 'flags is not an array');
+			assert.deepEqual(res.flags, [false, true, false]);
+		});
+
+		it('should coerce mixed boolean array values correctly', () => {
+			const cases: Array<{ input: string[]; expected: boolean[] }> = [
+				{ input: ['true', 'true'], expected: [true, true] },
+				{ input: ['false', 'false'], expected: [false, false] },
+				{ input: ['true', 'false', 'true'], expected: [true, false, true] },
+			];
+
+			for (const { input: values, expected } of cases) {
+				const formData = new FormData();
+				for (const value of values) {
+					formData.append('flags', value);
+				}
+
+				const schema = z.object({
+					flags: z.array(z.boolean()),
+				});
+
+				const res = formDataToObject(formData, schema);
+
+				assert.ok(Array.isArray(res.flags), 'flags is not an array');
+				assert.equal(res.flags.length, expected.length);
+				for (let i = 0; i < expected.length; i++) {
+					assert.equal(res.flags[i], expected[i]);
+				}
+			}
+		});
+	});
+
 	it('should handle an array of File objects', () => {
 		const formData = new FormData();
 		const file1 = new File([''], 'test1.txt');

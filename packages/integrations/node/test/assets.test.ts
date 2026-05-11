@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import type { PreviewServer } from '../../../astro/src/types/public/preview.js';
+import type { PreviewServer } from 'astro';
 import * as cheerio from 'cheerio';
 import nodejs from '../dist/index.js';
 import { type Fixture, loadFixture } from './test-utils.ts';
