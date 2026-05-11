@@ -30,5 +30,4 @@ describe('endpoints', () => {
 		assert.equal(res.headers.get('location'), 'https://example.com/destination');
 		assert.equal(res.status, 307);
 	});
-
 });

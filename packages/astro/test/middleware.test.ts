@@ -182,4 +182,3 @@ describe('Middleware with tailwind', () => {
 		assert.equal(bundledCSS.includes('--tw'), true);
 	});
 });
-

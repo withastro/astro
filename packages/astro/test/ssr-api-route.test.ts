@@ -186,6 +186,5 @@ describe('API routes in SSR', () => {
 			assert.equal(response.status, 500);
 			assert.equal(text, '500 Internal Server Error');
 		});
-
 	});
 });

@@ -210,5 +210,4 @@ describe('Astro.session', () => {
 			assert.deepEqual(cartData.cart, firstResponseData.cart);
 		});
 	});
-
 });
