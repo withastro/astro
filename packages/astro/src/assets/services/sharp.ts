@@ -155,7 +155,16 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 		const outputFormat = transform.format ?? resolveDefaultOutputFormat(bufferFormat);
 
 		// TODO: Sharp has some support for SVGs, we could probably support this once Sharp is the default and only service.
-		if (outputFormat === 'svg') return { data: inputBuffer, format: 'svg' };
+		if (outputFormat === 'svg') {
+			if (bufferFormat && bufferFormat !== 'svg') {
+				console.warn(
+					`⚠️  Astro expected an SVG for "${transform.src}" but the source is ${bufferFormat}. ` +
+						`Passing it through as ${bufferFormat} instead.`,
+				);
+				return { data: inputBuffer, format: bufferFormat as ImageOutputFormat };
+			}
+			return { data: inputBuffer, format: 'svg' };
+		}
 
 		// If we couldn't figure out the format, it's probably something weird we shouldn't try to process.
 		if (!bufferFormat) {
@@ -249,7 +258,7 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 					`Sharp doesn't support this format. The image will be used unoptimized. ` +
 					`Consider converting to WebP or placing in the public/ folder.`,
 			);
-			return { data: inputBuffer, format: outputFormat as ImageOutputFormat };
+			return { data: inputBuffer, format: bufferFormat as ImageOutputFormat };
 		}
 
 		// Sharp can sometimes return a SharedArrayBuffer when using WebAssembly.
