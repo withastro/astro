@@ -4,7 +4,8 @@ import { after, before, describe, it } from 'node:test';
 import { AstroLogger, type AstroLoggerMessage } from '../dist/core/logger/core.js';
 
 import testAdapter from './test-adapter.ts';
-import { type App, type DevServer, type Fixture, loadFixture } from './test-utils.ts';
+import { type App, cli, type DevServer, type Fixture, loadFixture } from './test-utils.ts';
+import { fileURLToPath } from 'node:url';
 
 describe('Live content collections', () => {
 	let fixture: Fixture;
@@ -159,6 +160,21 @@ describe('Live content collections', () => {
 			const html = await response.text();
 			assert.ok(html.includes('<h1>Page 123</h1>'));
 			assert.ok(html.includes('<p>This is rendered content.</p>'));
+		});
+
+		// ref: https://github.com/withastro/astro/issues/16688
+		it('astro check no errors', {
+			timeout: 35000,
+		}, async () => {
+			const projectRootURL = fixture.config.root;
+			const result = await cli(
+				'check',
+				'--root',
+				fileURLToPath(projectRootURL),
+				'--noSync',
+			).getResult();
+
+			assert.equal(result.stdout.includes('0 errors'), true);
 		});
 	});
 
