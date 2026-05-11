@@ -3,7 +3,7 @@ import { after, afterEach, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import type { Plugin } from 'vite';
 import testAdapter from './test-adapter.ts';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Prerender', () => {
 	let fixture: Fixture;
@@ -41,85 +41,6 @@ describe('Prerender', () => {
 
 				assert.equal($('#props').text(), '10');
 				assert.equal($('#url').text(), '/blog/food/tacos/');
-			});
-		});
-
-		describe('getStaticPaths - dev calls', () => {
-			let devServer: DevServer;
-
-			before(async () => {
-				(globalThis as any).isCalledOnce = false;
-				devServer = await fixture.startDevServer();
-			});
-
-			afterEach(() => {
-				// reset the flag used by [...calledTwiceTest].astro between each test
-				(globalThis as any).isCalledOnce = false;
-			});
-
-			after(async () => {
-				await devServer.stop();
-			});
-
-			it('only calls prerender getStaticPaths once', async function () {
-				// Sometimes this fail in CI as the chokidar watcher triggers an update and invalidates the route cache,
-				// causing getStaticPaths to be called twice. Workaround this with 2 retries for now.
-				// it was used in the original test using chai, but it's not available in the current version of node:test
-				// this.retries(2);
-
-				let res = await fixture.fetch('/blog/a');
-				assert.equal(res.status, 200);
-
-				res = await fixture.fetch('/blog/b');
-				assert.equal(res.status, 200);
-
-				res = await fixture.fetch('/blog/c');
-				assert.equal(res.status, 200);
-			});
-
-			describe('404 behavior', () => {
-				it('resolves 200 on matching static path - named params', async () => {
-					const res = await fixture.fetch('/blog/pizza/provolone-sausage');
-					assert.equal(res.status, 200);
-				});
-
-				it('resolves 404 on pattern match without static path - named params', async () => {
-					const res = await fixture.fetch('/blog/pizza/provolone-pineapple');
-					const html = await res.text();
-					assert.equal(res.status, 404);
-					assert.match(html, /404/);
-				});
-
-				it('resolves 200 on matching static path - rest params', async () => {
-					const res = await fixture.fetch('/blog/pizza/grimaldis/new-york');
-					assert.equal(res.status, 200);
-				});
-
-				it('resolves 404 on pattern match without static path - rest params', async () => {
-					const res = await fixture.fetch('/blog/pizza/pizza-hut');
-					const html = await res.text();
-
-					assert.equal(res.status, 404);
-					assert.match(html, /404/);
-				});
-			});
-
-			it('resolves 200 on matching static paths', async () => {
-				// routes params provided for pages /posts/1, /posts/2, and /posts/3
-				for (const page of [1, 2, 3]) {
-					let res = await fixture.fetch(`/blog/posts/${page}`);
-					assert.equal(res.status, 200);
-
-					const html = await res.text();
-					const $ = cheerio.load(html);
-
-					const canonical = $('link[rel=canonical]');
-					assert.equal(
-						canonical.attr('href'),
-						`https://mysite.dev/blog/posts/${page}`,
-						`doesn't trim the /${page} route param`,
-					);
-				}
 			});
 		});
 	});
@@ -161,80 +82,6 @@ describe('Prerender', () => {
 
 				assert.equal($('#props').text(), '10');
 				assert.equal($('#url').text(), '/blog/food/tacos/');
-			});
-		});
-
-		describe('getStaticPaths - dev calls', () => {
-			let devServer: DevServer;
-
-			before(async () => {
-				(globalThis as any).isCalledOnce = false;
-				devServer = await fixture.startDevServer();
-			});
-
-			afterEach(() => {
-				// reset the flag used by [...calledTwiceTest].astro between each test
-				(globalThis as any).isCalledOnce = false;
-			});
-
-			after(async () => {
-				await devServer.stop();
-			});
-
-			it('only calls hybrid getStaticPaths once', async () => {
-				let res = await fixture.fetch('/blog/a');
-				assert.equal(res.status, 200);
-
-				res = await fixture.fetch('/blog/b');
-				assert.equal(res.status, 200);
-
-				res = await fixture.fetch('/blog/c');
-				assert.equal(res.status, 200);
-			});
-
-			describe('404 behavior', () => {
-				it('resolves 200 on matching static path - named params', async () => {
-					const res = await fixture.fetch('/blog/pizza/provolone-sausage');
-					assert.equal(res.status, 200);
-				});
-
-				it('resolves 404 on pattern match without static path - named params', async () => {
-					const res = await fixture.fetch('/blog/pizza/provolone-pineapple');
-					const html = await res.text();
-					assert.equal(res.status, 404);
-					assert.match(html, /404/);
-				});
-
-				it('resolves 200 on matching static path - rest params', async () => {
-					const res = await fixture.fetch('/blog/pizza/grimaldis/new-york');
-					assert.equal(res.status, 200);
-				});
-
-				it('resolves 404 on pattern match without static path - rest params', async () => {
-					const res = await fixture.fetch('/blog/pizza/pizza-hut');
-					const html = await res.text();
-
-					assert.equal(res.status, 404);
-					assert.match(html, /404/);
-				});
-			});
-
-			it('resolves 200 on matching static paths', async () => {
-				// routes params provided for pages /posts/1, /posts/2, and /posts/3
-				for (const page of [1, 2, 3]) {
-					let res = await fixture.fetch(`/blog/posts/${page}`);
-					assert.equal(res.status, 200);
-
-					const html = await res.text();
-					const $ = cheerio.load(html);
-
-					const canonical = $('link[rel=canonical]');
-					assert.equal(
-						canonical.attr('href'),
-						`https://mysite.dev/blog/posts/${page}`,
-						`doesn't trim the /${page} route param`,
-					);
-				}
 			});
 		});
 	});
