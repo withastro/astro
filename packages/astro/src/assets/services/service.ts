@@ -2,7 +2,7 @@ import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { isRemotePath, joinPaths } from '../../core/path.js';
 import type { AstroConfig } from '../../types/public/config.js';
-import { DEFAULT_HASH_PROPS, DEFAULT_OUTPUT_FORMAT, VALID_SUPPORTED_FORMATS } from '../consts.js';
+import { DEFAULT_HASH_PROPS, VALID_SUPPORTED_FORMATS } from '../consts.js';
 import type {
 	ImageFit,
 	ImageMetadata,
@@ -279,7 +279,9 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		const { targetWidth, targetHeight } = getTargetDimensions(options);
 		const aspectRatio = targetWidth / targetHeight;
 		const { widths, densities } = options;
-		const targetFormat = options.format ?? DEFAULT_OUTPUT_FORMAT;
+		// When format is undefined the response type is resolved from the buffer at request time,
+		// so leave the <source type> attribute off rather than asserting webp.
+		const targetFormat = options.format;
 
 		let transformedWidths = (widths ?? []).sort(sortNumeric);
 
@@ -349,9 +351,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			return {
 				transform,
 				descriptor,
-				attributes: {
-					type: `image/${targetFormat}`,
-				},
+				attributes: targetFormat ? { type: `image/${targetFormat}` } : {},
 			};
 		});
 	},

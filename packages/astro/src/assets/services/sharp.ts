@@ -170,7 +170,7 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 		if (!bufferFormat) {
 			throw new AstroError({
 				...AstroErrorData.NoImageMetadata,
-				message: AstroErrorData.NoImageMetadata.message(undefined)
+				message: AstroErrorData.NoImageMetadata.message(transform.src),
 			});
 		}
 
