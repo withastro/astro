@@ -1,7 +1,7 @@
 import { rmSync } from 'node:fs';
 import { describe, before, it } from 'node:test';
 import { Writable } from 'node:stream';
-import { loadFixture } from './_test-utils.js';
+import { loadFixture } from './test-utils.ts';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { AstroLogger } from '../../../astro/dist/core/logger/core.js';
