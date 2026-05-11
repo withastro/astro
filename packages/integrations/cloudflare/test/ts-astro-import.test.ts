@@ -1,15 +1,14 @@
 import { rmSync } from 'node:fs';
 import { describe, before, it } from 'node:test';
 import { Writable } from 'node:stream';
-import { loadFixture } from './_test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.js';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
-import { AstroLogger } from '../../../astro/dist/core/logger/core.js';
+import { AstroLogger, type AstroLoggerMessage } from '../../../astro/dist/core/logger/core.js';
 
 describe('ts file default-importing an .astro component', () => {
-	/** @type {import('../../../astro/test/test-utils').Fixture} */
-	let fixture;
-	const logs = [];
+	let fixture: Fixture;
+	const logs: AstroLoggerMessage[] = [];
 
 	before(async () => {
 		fixture = await loadFixture({
