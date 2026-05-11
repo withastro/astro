@@ -139,6 +139,12 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 		return pipeline;
 	}
 
+	/**
+	 * Handle a request.
+	 * @returns The return value indicates whether or not the request was handled
+	 * by this handler. If the result is not `true`, then the request has not
+	 * been handled yet and other handlers can be run.
+	 */
 	public async handleRequest({
 		controller,
 		incomingRequest,
