@@ -6,7 +6,7 @@ import {
 	normalizeTags,
 	pathTag,
 	setConditionalHeaders,
-} from '../dist/core/cache/provider-utils.js';
+} from '../../../dist/core/cache/provider-utils.js';
 
 describe('cache provider-utils', () => {
 	describe('pathTag', () => {

@@ -1,11 +1,10 @@
-import * as assert from 'node:assert/strict';
+import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { loadFixture } from './_test-utils.js';
+import { type Fixture, loadFixture, type PreviewServer } from './test-utils.ts';
 
 describe('Cloudflare cache provider', () => {
-	/** @type {import('../../../astro/test/test-utils').Fixture} */
-	let fixture;
-	let previewServer;
+	let fixture: Fixture;
+	let previewServer: PreviewServer | undefined;
 
 	before(async () => {
 		fixture = await loadFixture({
