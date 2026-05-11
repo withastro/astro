@@ -14,6 +14,7 @@ describe('Middleware in DEV mode', () => {
 		fixture = await loadFixture({
 			root: './fixtures/middleware space/',
 			outDir: './dist/middleware-middleware-in-dev-mode/',
+			cacheDir: './node_modules/.astro-test/middleware-middleware-in-dev-mode/',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -109,6 +110,7 @@ describe('Middleware API in PROD mode, SSR', () => {
 			output: 'server',
 			adapter: testAdapter({}),
 			outDir: './dist/middleware-middleware-api-in-prod-mode-ssr/',
+			cacheDir: './node_modules/.astro-test/middleware-middleware-api-in-prod-mode-ssr/',
 		});
 		await fixture.build();
 		app = await fixture.loadTestAdapterApp();
@@ -161,6 +163,7 @@ describe('Middleware API in PROD mode, SSR', () => {
 				},
 			}),
 			outDir: './dist/middleware-path-encoding-in-middleware/',
+			cacheDir: './node_modules/.astro-test/middleware-path-encoding-in-middleware/',
 		});
 		await fixture.build();
 		assert.ok(middlewarePath);

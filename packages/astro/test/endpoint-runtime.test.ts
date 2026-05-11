@@ -10,6 +10,7 @@ describe('endpoints', () => {
 		fixture = await loadFixture({
 			root: './fixtures/endpoint-routing/',
 			outDir: './dist/endpoint-runtime/',
+			cacheDir: './node_modules/.astro-test/endpoint-runtime/',
 		});
 		devServer = await fixture.startDevServer();
 	});

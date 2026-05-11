@@ -13,6 +13,7 @@ describe('base configuration', () => {
 				base: '/docs',
 				trailingSlash: 'never',
 				outDir: './dist/dev-base/',
+				cacheDir: './node_modules/.astro-test/dev-base/',
 			});
 			devServer = await fixture.startDevServer();
 		});

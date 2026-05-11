@@ -91,6 +91,7 @@ describe('SSR Logger', () => {
 			fixture = await loadFixture({
 				root: './fixtures/ssr-assets/',
 				outDir: './dist/ssr-logger/',
+				cacheDir: './node_modules/.astro-test/ssr-logger/',
 				output: 'server',
 				adapter: testAdapter(),
 				build: { inlineStylesheets: 'never' },

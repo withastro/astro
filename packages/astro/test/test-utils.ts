@@ -268,18 +268,14 @@ export async function loadFixture(inlineConfig: AstroInlineConfig): Promise<Fixt
 				expandDirectories: false,
 			}),
 		clean: async () => {
-			await fs.promises.rm(config.outDir, {
-				maxRetries: 10,
-				recursive: true,
-				force: true,
-			});
-			const astroCache = new URL('./node_modules/.astro', config.root);
-			if (fs.existsSync(astroCache)) {
-				await fs.promises.rm(astroCache, {
-					maxRetries: 10,
-					recursive: true,
-					force: true,
-				});
+			for (const dir of [config.outDir, config.cacheDir]) {
+				if (fs.existsSync(dir)) {
+					await fs.promises.rm(dir, {
+						maxRetries: 10,
+						recursive: true,
+						force: true,
+					});
+				}
 			}
 		},
 		loadAdapterEntryModule: async () => {
