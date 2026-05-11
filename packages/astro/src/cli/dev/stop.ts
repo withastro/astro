@@ -2,7 +2,7 @@ import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import type { AstroLogger } from '../../core/logger/core.js';
 import type { Flags } from '../flags.js';
-import { checkExistingServer, removeLockFile } from '../../core/dev/lockfile.js';
+import { checkExistingServer, removeLockFile, isProcessAlive, GRACEFUL_SHUTDOWN_TIMEOUT } from '../../core/dev/lockfile.js';
 
 export interface StopResult {
 	stopped: boolean;
@@ -34,16 +34,20 @@ export async function stop({ flags, logger }: { flags: Flags; logger: AstroLogge
 		// Process may have already exited between check and kill
 	}
 
-	// Wait briefly for the process to exit and clean up
-	const deadline = Date.now() + 5000;
+	// Wait for graceful shutdown before escalating to SIGKILL
+	const deadline = Date.now() + GRACEFUL_SHUTDOWN_TIMEOUT;
 	while (Date.now() < deadline) {
-		try {
-			process.kill(existing.pid, 0);
-		} catch {
-			// Process is gone
-			break;
-		}
+		if (!isProcessAlive(existing.pid)) break;
 		await new Promise((r) => setTimeout(r, 100));
+	}
+
+	// If still alive after timeout, force kill
+	if (isProcessAlive(existing.pid)) {
+		try {
+			process.kill(existing.pid, 'SIGKILL');
+		} catch {
+			// Already dead
+		}
 	}
 
 	// Clean up the lock file in case the process didn't remove it

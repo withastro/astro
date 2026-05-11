@@ -1,6 +1,9 @@
 import { existsSync, readFileSync, unlinkSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
+/** Maximum time (ms) to wait for a process to exit after SIGTERM before escalating to SIGKILL. */
+export const GRACEFUL_SHUTDOWN_TIMEOUT = 5000;
+
 export interface LockFileData {
 	pid: number;
 	port: number;

@@ -10,6 +10,7 @@ import {
 	readLockFile,
 	removeLockFile,
 	isProcessAlive,
+	GRACEFUL_SHUTDOWN_TIMEOUT,
 } from '../../core/dev/lockfile.js';
 
 export interface BackgroundResult {
@@ -55,11 +56,19 @@ export async function background({
 		} catch {
 			// Already dead
 		}
-		// Wait for it to die
-		const deadline = Date.now() + 5000;
+		// Wait for graceful shutdown before escalating to SIGKILL
+		const deadline = Date.now() + GRACEFUL_SHUTDOWN_TIMEOUT;
 		while (Date.now() < deadline) {
 			if (!isProcessAlive(existing.pid)) break;
 			await new Promise((r) => setTimeout(r, 100));
+		}
+		// If still alive after timeout, force kill
+		if (isProcessAlive(existing.pid)) {
+			try {
+				process.kill(existing.pid, 'SIGKILL');
+			} catch {
+				// Already dead
+			}
 		}
 		removeLockFile(root);
 	}
