@@ -52,6 +52,7 @@ jobs:
     permissions:
       contents: write # Push fix branches
       issues: read # Read issue details for triage
+      id-token: write # OIDC auth for pkg.pr.new preview releases
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2

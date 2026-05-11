@@ -25,8 +25,9 @@ These variables are referenced throughout this skill. They may be passed as args
 6. Write a unit test
 7. Ensure no regressions
 8. Generate git diff
-9. Append fix details to `report.md`
-10. Clean up the working directory
+9. Create a changeset
+10. Append fix details to `report.md`
+11. Clean up the working directory
 
 ## Step 1: Review the Diagnosis
 
@@ -138,7 +139,50 @@ git diff packages/
 
 This captures all your changes for the report.
 
-## Step 9: Write Output
+## Step 9: Create a Changeset
+
+**Only do this if the fix was successful** (i.e., you are on the high-confidence path and the fix resolves the issue). If the fix failed or was skipped, skip this step entirely.
+
+Create a changeset file at `.changeset/<descriptive-slug>.md`. The slug should be a short kebab-case description of the fix (e.g., `fix-font-copy-on-build`, `prevent-client-only-crash`).
+
+The file format is:
+
+```md
+---
+'<package-name>': patch
+---
+
+<changeset message>
+```
+
+**Rules:**
+
+- The package name must match the `name` field in the affected package's `package.json` exactly (e.g., `'astro'`, `'@astrojs/node'`, `'@astrojs/mdx'`). Read the `package.json` to confirm.
+- If multiple packages were modified, list each one with its own bump type.
+- Always use `patch` as the bump type for triage fixes — these are bug fixes, not new features.
+- A single changeset file can cover multiple packages.
+- The changeset message should begin with a **present tense verb** that completes the sentence "This PR …" (e.g., "Fixes", "Resolves", "Prevents").
+- Describe the change **as a user of Astro will experience it**, not how it was implemented internally.
+- One line is usually enough for a patch. No end punctuation required unless writing multiple sentences.
+
+**Example:**
+
+```md
+---
+'astro': patch
+---
+
+Fixes a case where `client:only` components would crash during SSR when using content collections
+```
+
+Verify the changeset was created:
+
+```bash
+ls .changeset/
+cat .changeset/<your-slug>.md
+```
+
+## Step 10: Write Output
 
 Append your fix details to the existing `report.md` (written by reproduce and diagnose skills).
 
@@ -151,10 +195,11 @@ The report must include all information needed for a final GitHub comment to be 
 - Whether the fix was successful or not
 - Verification results (did the fix resolve the original error?)
 - Unit test details: what test was added, where it lives, and what it verifies. If no test was added, explain why.
+- Changeset details: what changeset file was created and which packages it covers. If no changeset was created, explain why.
 - Any alternative approaches considered and their tradeoffs
 - If the fix failed: what was tried and why it didn't work
 
-## Step 10: Clean Up the Working Directory
+## Step 11: Clean Up the Working Directory
 
 1. Run `git status` and review all changed files
 2. Revert any changes that are NOT part of the fix:
