@@ -154,18 +154,18 @@ describe('astro:assets - SVG Components', () => {
 		// test for the components has no dimensions and the metadata is correct
 		describe('Metadata with zero dimensions svg image', () => {
 			it('successfully processes SVG with width="0" and height="0"', async () => {
-      	const res = await fixture.fetch('/zero-dimensions');
+				const res = await fixture.fetch('/zero-dimensions');
 				assert.equal(res.status, 200);
 
 				const html = await res.text();
-				const $ = cheerio.load(html, { xml: true });  
+				const $ = cheerio.load(html, { xml: true });
 
-      	const $svg = $('#zero-svg svg');
+				const $svg = $('#zero-svg svg');
 				// svg should be rendered with the width and height of 0 as specified in the source file, not overridden by default dimensions
 				assert.equal($svg.length, 1);
-      	assert.equal($svg.attr('width'), '0');
-      	assert.equal($svg.attr('height'), '0');
-    	});
+				assert.equal($svg.attr('width'), '0');
+				assert.equal($svg.attr('height'), '0');
+			});
 
 			it('successfully returns metadata for an SVG image with zero dimensions', async () => {
 				const res = await fixture.fetch('/metadata-zero-dimensions.json');
