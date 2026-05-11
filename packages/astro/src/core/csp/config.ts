@@ -66,7 +66,7 @@ const ALLOWED_DIRECTIVES = [
 type AllowedDirectives = (typeof ALLOWED_DIRECTIVES)[number];
 export type CspDirective = `${AllowedDirectives}${string | undefined}`;
 
-export const allowedDirectivesSchema: z.ZodType<CspDirective> = z.string().superRefine(
+export const allowedDirectivesSchema = z.custom<CspDirective>((v) => typeof v === 'string').superRefine(
 	(value, ctx) => {
 		const isAllowed = ALLOWED_DIRECTIVES.some((allowedValue) => {
 			return value.startsWith(allowedValue);
@@ -87,4 +87,4 @@ export const allowedDirectivesSchema: z.ZodType<CspDirective> = z.string().super
 			}
 		}
 	},
-) as any;
+);
