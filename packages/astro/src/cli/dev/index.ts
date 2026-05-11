@@ -34,7 +34,7 @@ export async function dev({ flags }: DevOptions) {
 					['background', 'Start the dev server as a background process.'],
 					['stop', 'Stop a running background dev server.'],
 					['status', 'Check if a dev server is running.'],
-					['logs', 'View logs from a background dev server.'],
+					['logs [--follow]', 'View logs from a background dev server.'],
 				],
 				Flags: [
 					['--mode', `Specify the mode of the project. Defaults to "development".`],
