@@ -111,7 +111,11 @@ export class DefaultErrorHandler implements ErrorHandler {
 					});
 				}
 			} finally {
-				await errorState.finalizeAll();
+				try {
+					await errorState.finalizeAll();
+				} catch {
+					// Swallow finalize errors to preserve the error response.
+				}
 			}
 		}
 

@@ -96,7 +96,11 @@ export function sessions(): HonoMiddlewareHandler {
 		try {
 			await honoNext();
 		} finally {
-			await state.finalizeAll();
+			try {
+				await state.finalizeAll();
+			} catch {
+				// Swallow finalize errors to preserve the response from honoNext().
+			}
 		}
 	};
 }
