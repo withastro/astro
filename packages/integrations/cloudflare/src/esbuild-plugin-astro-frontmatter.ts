@@ -30,7 +30,11 @@ export function astroFrontmatterScanPlugin(): ESBuildPlugin {
 	return {
 		name: 'astro-frontmatter-scan',
 		setup(build) {
-			build.onLoad({ filter: /\.astro$/ }, async (args) => {
+			// Scope to the "file" namespace so that .astro files resolved into the
+			// "html" namespace (e.g. when a .ts file default-imports a component)
+			// fall through to Vite's built-in html-type handler, which appends
+			// `export default {}` and avoids "No matching export" errors.
+			build.onLoad({ filter: /\.astro$/, namespace: 'file' }, async (args) => {
 				try {
 					const code = await readFile(args.path, 'utf-8');
 

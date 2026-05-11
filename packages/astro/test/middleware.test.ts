@@ -23,14 +23,14 @@ describe('Middleware in DEV mode', () => {
 	});
 
 	describe('Path encoding in middleware', () => {
-		it('should reject double-encoded paths with 404', async () => {
+		it('should reject double-encoded paths with 400', async () => {
 			const res = await fixture.fetch('/%2561dmin', { redirect: 'manual' });
-			assert.equal(res.status, 404);
+			assert.equal(res.status, 400);
 		});
 
-		it('should reject triple-encoded paths with 404', async () => {
+		it('should reject triple-encoded paths with 400', async () => {
 			const res = await fixture.fetch('/%252561dmin', { redirect: 'manual' });
-			assert.equal(res.status, 404);
+			assert.equal(res.status, 400);
 		});
 	});
 
@@ -132,16 +132,16 @@ describe('Middleware API in PROD mode, SSR', () => {
 	});
 
 	describe('Path encoding in middleware', () => {
-		it('should reject double-encoded paths with 404', async () => {
+		it('should reject double-encoded paths with 400', async () => {
 			const request = new Request('http://example.com/%2561dmin');
 			const response = await app.render(request);
-			assert.equal(response.status, 404);
+			assert.equal(response.status, 400);
 		});
 
-		it('should reject triple-encoded paths with 404', async () => {
+		it('should reject triple-encoded paths with 400', async () => {
 			const request = new Request('http://example.com/%252561dmin');
 			const response = await app.render(request);
-			assert.equal(response.status, 404);
+			assert.equal(response.status, 400);
 		});
 	});
 

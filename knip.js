@@ -61,8 +61,7 @@ export default {
 		},
 		'packages/astro-prism': {
 			entry: [srcEntry, dtsEntry, testEntry],
-			// package.json#imports are not resolved at the moment
-			ignore: ['src/loadLanguages-workerd.ts'],
+			ignoreUnresolved: ['#prism-loadLanguages'],
 		},
 		'packages/db': {
 			entry: [srcEntry, dtsEntry, testEntry, 'test/types/**/*'],
@@ -77,7 +76,6 @@ export default {
 		},
 		'packages/integrations/netlify': {
 			entry: [srcEntry, dtsEntry, testEntry],
-			ignore: ['test/hosted/**'],
 		},
 		'packages/integrations/solid': {
 			entry: [srcEntry, dtsEntry, testEntry],
@@ -86,8 +84,6 @@ export default {
 		},
 		'packages/markdown/remark': {
 			entry: [srcEntry, dtsEntry, testEntry],
-			// package.json#imports are not resolved at the moment
-			ignore: ['src/import-plugin-browser.ts', 'src/shiki-engine-workerd.ts'],
 		},
 		'packages/upgrade': {
 			entry: ['src/index.ts', testEntry],
