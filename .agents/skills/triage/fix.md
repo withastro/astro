@@ -114,7 +114,7 @@ Re-run the reproduction, often using `pnpm run build`/`astro build` or `pnpm run
 
 Write a unit test that covers the bug you just fixed. The test should fail without the fix and pass with it. This prevents regressions and documents the expected behavior for maintainers.
 
-Read [`reference/unit-testing.md`](../../reference/unit-testing.md) for conventions, file placement, shared test utilities, and mocks. Name your `it` block after the specific behavior being verified, referencing the issue number for traceability (e.g. `it('handles edge case from issue #1234')`).
+Read [`reference/unit-testing.md`](../../reference/unit-testing.md) for conventions, file placement, shared test utilities, and mocks. Name your `it` block after the specific behavior being verified (e.g. `it('preserves query params in redirects')`).
 
 Run the test in isolation to confirm it passes:
 
