@@ -38,6 +38,16 @@ export {
 	type ShikiHighlighterHighlightOptions,
 } from './shiki.js';
 export * from './types.js';
+export {
+	createSatteriMarkdownProcessor,
+	type SatteriMarkdownProcessorOptions,
+	// Shared satteri plugin factories for use by @astrojs/mdx
+	createCollectImagesPlugin as satteriCollectImagesPlugin,
+	createHeadingIdsPlugin as satteriHeadingIdsPlugin,
+	createShikiPlugin as satteriShikiPlugin,
+	collectHastText as satteriCollectHastText,
+	makeFragmentNode as satteriMakeFragmentNode,
+} from './satteri.js';
 
 export const syntaxHighlightDefaults: Required<SyntaxHighlightConfig> = {
 	type: 'shiki',

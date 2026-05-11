@@ -10,7 +10,7 @@ import type {
 } from 'astro';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import type { PluggableList } from 'unified';
-import type { OptimizeOptions } from './rehype-optimize-static.js';
+import type { MdastPluginDefinition, HastPluginDefinition } from './satteri-plugins.js';
 import { ignoreStringPlugins, safeParseFrontmatter } from './utils.js';
 import { type VitePluginMdxOptions, vitePluginMdx } from './vite-plugin-mdx.js';
 import { vitePluginMdxPostprocess } from './vite-plugin-mdx-postprocess.js';
@@ -23,7 +23,10 @@ export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | '
 	remarkPlugins: PluggableList;
 	rehypePlugins: PluggableList;
 	remarkRehype: RemarkRehypeOptions;
-	optimize: boolean | OptimizeOptions;
+	optimize: boolean | { ignoreElementNames?: string[] };
+	mdastPlugins: MdastPluginDefinition[];
+	hastPlugins: HastPluginDefinition[];
+	features?: import('satteri').Features;
 };
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
@@ -97,10 +100,32 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 					),
 				});
 
+				const nativeMd = config.experimental.nativeMarkdown;
+
+				// When nativeMarkdown is enabled, merge mdastPlugins/hastPlugins/features from the experimental config
+				if (nativeMd && extendMarkdownConfig) {
+					const nativeOpts = typeof nativeMd === 'object' ? nativeMd : undefined;
+					resolvedMdxOptions.mdastPlugins = [
+						...(nativeOpts?.mdastPlugins ?? []),
+						...resolvedMdxOptions.mdastPlugins,
+					];
+					resolvedMdxOptions.hastPlugins = [
+						...(nativeOpts?.hastPlugins ?? []),
+						...resolvedMdxOptions.hastPlugins,
+					];
+					if (nativeOpts?.features || resolvedMdxOptions.features) {
+						resolvedMdxOptions.features = {
+							...nativeOpts?.features,
+							...resolvedMdxOptions.features,
+						};
+					}
+				}
+
 				// Mutate `mdxOptions` so that `vitePluginMdx` can reference the actual options
 				Object.assign(vitePluginMdxOptions, {
 					mdxOptions: resolvedMdxOptions,
 					srcDir: config.srcDir,
+					nativeMarkdown: nativeMd,
 				});
 				// @ts-expect-error After we assign, we don't need to reference `mdxOptions` in this context anymore.
 				// Re-assign it so that the garbage can be collected later.
@@ -114,6 +139,8 @@ const defaultMdxOptions = {
 	extendMarkdownConfig: true,
 	recmaPlugins: [],
 	optimize: false,
+	mdastPlugins: [],
+	hastPlugins: [],
 } satisfies Partial<MdxOptions>;
 
 function markdownConfigToMdxOptions(
@@ -147,5 +174,8 @@ function applyDefaultOptions({
 		rehypePlugins: options.rehypePlugins ?? defaults.rehypePlugins,
 		shikiConfig: options.shikiConfig ?? defaults.shikiConfig,
 		optimize: options.optimize ?? defaults.optimize,
+		mdastPlugins: options.mdastPlugins ?? defaults.mdastPlugins,
+		hastPlugins: options.hastPlugins ?? defaults.hastPlugins,
+		features: options.features ?? defaults.features,
 	};
 }

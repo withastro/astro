@@ -111,6 +111,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		clientPrerender: false,
 		contentIntellisense: false,
 		chromeDevtoolsWorkspace: false,
+		nativeMarkdown: false,
 		queuedRendering: {
 			enabled: false,
 		},
@@ -550,6 +551,23 @@ export const AstroConfigSchema = z.object({
 			svgOptimizer: SvgOptimizerSchema.optional(),
 			cache: CacheSchema.optional(),
 			routeRules: RouteRulesSchema.optional(),
+			nativeMarkdown: z
+				.union([
+					z.boolean(),
+					z.object({
+						mdastPlugins: z
+							.array(z.custom<import('satteri').MdastPluginDefinition>())
+							.optional()
+							.default([]),
+						hastPlugins: z
+							.array(z.custom<import('satteri').HastPluginDefinition>())
+							.optional()
+							.default([]),
+						features: z.custom<import('satteri').Features>().optional(),
+					}),
+				])
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.nativeMarkdown),
 			queuedRendering: z
 				.object({
 					enabled: z.boolean().optional().prefault(false),

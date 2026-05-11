@@ -37,6 +37,9 @@ minimumReleaseAgeExclude:
   - vite
   - rolldown
   - '@rolldown/*'
+  - satteri
+  - '@bruits/satteri-*'
+  - '@napi-rs/wasm-runtime'
   # Renovate security update: fast-xml-parser@5.3.8 || 5.7.0
   - fast-xml-parser@5.3.8 || 5.7.0
   # Renovate security update: svelte@5.53.5
