@@ -22,10 +22,11 @@ These variables are referenced throughout this skill. They may be passed as args
 3. Implement a minimal fix in `packages/`
 4. Rebuild the affected package(s)
 5. Verify the fix resolves the reproduction
-6. Ensure no regressions
-7. Generate git diff
-8. Append fix details to `report.md`
-9. Clean up the working directory
+6. Write a unit test
+7. Ensure no regressions
+8. Generate git diff
+9. Append fix details to `report.md`
+10. Clean up the working directory
 
 ## Step 1: Review the Diagnosis
 
@@ -40,7 +41,7 @@ Read `report.md` from the `triageDir` directory to understand:
 **Low-confidence path:** If diagnosis confidence is `low` or `null`, or no clear root cause was found → do NOT attempt a code fix. Instead:
 
 1. Identify the most likely area(s) of the codebase related to the issue (files, functions, code paths).
-2. If possible, write a failing test that demonstrates the expected behavior described in the issue. Place it alongside existing tests for that area.
+2. If possible, write a failing unit test that demonstrates the expected behavior described in the issue. Place it in `test/units/` inside the affected package (see Step 6 for conventions and placement rules). A failing test is valuable even without a fix — it documents the bug and prevents it from being forgotten.
 3. If you identified specific code paths, add brief inline comments (prefixed `// TRIAGE:`) near the most relevant lines in `packages/` to help the implementor orient quickly. Keep to 2-3 comments max — these are signposts, not a diagnosis.
 4. Append to `report.md`: the areas you identified, why they seem relevant, and any failing test or comments you added.
 5. Return `fixed: false`.
@@ -109,11 +110,25 @@ Watch for build errors — fix any TypeScript issues before proceeding.
 
 Re-run the reproduction, often using `pnpm run build`/`astro build` or `pnpm run dev`/`astro dev`.
 
-## Step 6: Check for Regressions
+## Step 6: Write a Unit Test
+
+Write a unit test that covers the bug you just fixed. The test should fail without the fix and pass with it. This prevents regressions and documents the expected behavior for maintainers.
+
+Read [`reference/unit-testing.md`](../../reference/unit-testing.md) for conventions, file placement, shared test utilities, and mocks. Name your `it` block after the specific behavior being verified (e.g. `it('preserves query params in redirects')`).
+
+Run the test in isolation to confirm it passes:
+
+```bash
+pnpm -C <package-dir> exec astro-scripts test "test/units/<path-to-your-test>.test.ts"
+```
+
+If the test fails, fix either the test or the implementation until it passes. If you cannot write a meaningful unit test (e.g. the bug is in template compilation, requires a full dev server, or the affected code has no importable API), document why in `report.md` and move on — do not force a test that doesn't make sense.
+
+## Step 7: Check for Regressions
 
 Test that you didn't break anything new, and that normal cases still work. If you find regressions, refine the fix to handle all cases.
 
-## Step 7: Generate Git Diff
+## Step 8: Generate Git Diff
 
 From the repository root, generate the diff:
 
@@ -123,7 +138,7 @@ git diff packages/
 
 This captures all your changes for the report.
 
-## Step 8: Write Output
+## Step 9: Write Output
 
 Append your fix details to the existing `report.md` (written by reproduce and diagnose skills).
 
@@ -135,10 +150,11 @@ The report must include all information needed for a final GitHub comment to be 
 - The full git diff (unless it is massive, if it is)
 - Whether the fix was successful or not
 - Verification results (did the fix resolve the original error?)
+- Unit test details: what test was added, where it lives, and what it verifies. If no test was added, explain why.
 - Any alternative approaches considered and their tradeoffs
 - If the fix failed: what was tried and why it didn't work
 
-## Step 9: Clean Up the Working Directory
+## Step 10: Clean Up the Working Directory
 
 1. Run `git status` and review all changed files
 2. Revert any changes that are NOT part of the fix:
