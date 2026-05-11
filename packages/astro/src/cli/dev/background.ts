@@ -42,9 +42,9 @@ export async function background({
 	const existing = checkExistingServer(root);
 	if (existing && !flags.force) {
 		logger.info(null, `Dev server already running at ${existing.url} (pid ${existing.pid})\n` +
-			'  Stop:   astro dev --experimental-stop\n' +
-			'  Status: astro dev --experimental-status\n' +
-			'  Logs:   astro dev --experimental-logs');
+			'  Stop:   astro dev stop\n' +
+			'  Status: astro dev status\n' +
+			'  Logs:   astro dev logs');
 		return;
 	}
 
@@ -124,9 +124,9 @@ export async function background({
 		const lockData = readLockFile(root);
 		if (lockData && lockData.pid === childPid) {
 			logger.info(null, `Dev server running at ${lockData.url} (pid ${lockData.pid})\n` +
-				'  Stop:   astro dev --experimental-stop\n' +
-				'  Status: astro dev --experimental-status\n' +
-				'  Logs:   astro dev --experimental-logs');
+				'  Stop:   astro dev stop\n' +
+				'  Status: astro dev status\n' +
+				'  Logs:   astro dev logs');
 			return;
 		}
 

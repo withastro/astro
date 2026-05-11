@@ -28,8 +28,14 @@ export async function dev({ flags }: DevOptions) {
 	if (flags.help || flags.h) {
 		printHelp({
 			commandName: 'astro dev',
-			usage: '[...flags]',
+			usage: '[command] [...flags]',
 			tables: {
+				Commands: [
+					['background', 'Start the dev server as a background process.'],
+					['stop', 'Stop a running background dev server.'],
+					['status', 'Check if a dev server is running.'],
+					['logs', 'View logs from a background dev server.'],
+				],
 				Flags: [
 					['--mode', `Specify the mode of the project. Defaults to "development".`],
 					['--port', `Specify which port to run on. Defaults to 4321.`],
@@ -41,13 +47,6 @@ export async function dev({ flags }: DevOptions) {
 						'--allowed-hosts',
 						'Specify a comma-separated list of allowed hosts or allow any hostname.',
 					],
-					[
-						'--experimental-background',
-						'Start the dev server as a background process.',
-					],
-					['--experimental-stop', 'Stop a running background dev server.'],
-					['--experimental-status', 'Check if a dev server is running.'],
-					['--experimental-logs', 'View logs from a background dev server.'],
 					['--help (-h)', 'See all available flags.'],
 				],
 			},
@@ -59,33 +58,33 @@ export async function dev({ flags }: DevOptions) {
 	}
 
 	const logger = createLoggerFromFlags(flags);
+	const subcommand = flags._[3]?.toString();
 
-	// Handle --experimental-stop: stop a running dev server
-	if (flags.experimentalStop) {
+	// Handle `astro dev stop`
+	if (subcommand === 'stop') {
 		const { stop } = await import('./stop.js');
 		await stop({ flags, logger });
 		return;
 	}
 
-	// Handle --experimental-status: check if a dev server is running
-	if (flags.experimentalStatus) {
+	// Handle `astro dev status`
+	if (subcommand === 'status') {
 		const { status } = await import('./status.js');
 		await status({ flags, logger });
 		return;
 	}
 
-	// Handle --experimental-logs: view logs from a background dev server
-	if (flags.experimentalLogs) {
+	// Handle `astro dev logs`
+	if (subcommand === 'logs') {
 		const { logs } = await import('./logs.js');
 		await logs({ flags, logger });
 		return;
 	}
 
-	// Handle --experimental-background: start as a background process.
-	// Also auto-enable when an AI coding agent is detected.
+	// Handle `astro dev background` or auto-enable when an AI coding agent is detected.
 	// Skip if ASTRO_DEV_BACKGROUND is set — this means we're the spawned child process
 	// and should run the foreground dev server, not recurse into background mode.
-	if (flags.experimentalBackground || (isRunByAgent() && !process.env.ASTRO_DEV_BACKGROUND)) {
+	if (subcommand === 'background' || (isRunByAgent() && !process.env.ASTRO_DEV_BACKGROUND)) {
 		const { background } = await import('./background.js');
 		await background({ flags, logger });
 		return;
@@ -101,7 +100,7 @@ export async function dev({ flags }: DevOptions) {
 			`  URL:  ${existingServer.url}`,
 			`  PID:  ${existingServer.pid}`,
 			'',
-			`Run \`kill ${existingServer.pid}\` to stop it, or use \`astro dev --force\` to replace it.`,
+			`Run \`astro dev stop\` to stop it, or use \`astro dev --force\` to replace it.`,
 		].join('\n');
 		throw new Error(message);
 	}

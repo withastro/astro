@@ -23,7 +23,7 @@ export async function logs({ flags, logger }: { flags: Flags; logger: AstroLogge
 	if (!existing.background) {
 		logger.error(
 			null,
-			'The running dev server was not started with --background. View logs in the terminal where it was started.',
+			'The running dev server was not started with `astro dev background`. View logs in the terminal where it was started.',
 		);
 		process.exitCode = 1;
 		return;
