@@ -4,9 +4,13 @@ import { DEFAULT_OUTPUT_FORMAT } from '../consts.js';
 const DATA_PREFIX = 'data:';
 
 /**
- * Infer the image format from a source path or URL by examining
- * the file extension. For data: URIs, the MIME type is extracted.
- * Returns undefined if the format cannot be determined.
+ * Infer the image format from a source path or URL.
+ *
+ * For `data:` URIs the MIME is read up to the first `;` or `,` (whichever comes first),
+ * so both `data:image/svg+xml;base64,...` and `data:image/svg+xml,<svg>...` work.
+ * `image/svg+xml` normalizes to `svg`; otherwise the subtype after the slash is returned.
+ *
+ * Returns undefined when the format cannot be determined.
  */
 export function inferSourceFormat(src: string): string | undefined {
 	// data: URIs encode the MIME type directly, e.g. "data:image/svg+xml;base64,..."

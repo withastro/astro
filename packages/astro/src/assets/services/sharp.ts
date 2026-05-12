@@ -158,8 +158,7 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 		if (outputFormat === 'svg') {
 			if (bufferFormat && bufferFormat !== 'svg') {
 				console.warn(
-					`⚠️  Astro expected an SVG for "${transform.src}" but the source is ${bufferFormat}. ` +
-						`Passing it through as ${bufferFormat} instead.`,
+					`⚠️  Astro expected an SVG for "${transform.src}" but the source is ${bufferFormat}. Passing it through as ${bufferFormat} instead.`,
 				);
 				return { data: inputBuffer, format: bufferFormat as ImageOutputFormat };
 			}
@@ -177,10 +176,7 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 		if (bufferFormat === 'svg' && !config.dangerouslyProcessSVG) {
 			throw new AstroError({
 				...AstroErrorData.UnsupportedImageFormat,
-				message:
-					`SVG image processing is disabled, but the source for "${transform.src}" is an SVG. ` +
-					`Pass it through unchanged by setting \`format="svg"\` on the component, ` +
-					`or set \`image.dangerouslyProcessSVG: true\` to rasterize SVG sources.`,
+				message: `SVG image processing is disabled, but the source for "${transform.src}" is an SVG. Pass it through unchanged by setting \`format="svg"\` on the component, or set \`image.dangerouslyProcessSVG: true\` to rasterize SVG sources.`,
 			});
 		}
 
@@ -254,9 +250,7 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 			// Pass it through unmodified rather than crashing the build. When Sharp adds support for these
 			// formats, the image will be optimized automatically without code changes.
 			console.warn(
-				`⚠️  Astro could not optimize image "${transform.src}". ` +
-					`Sharp doesn't support this format. The image will be used unoptimized. ` +
-					`Consider converting to WebP or placing in the public/ folder.`,
+				`⚠️  Astro could not optimize image "${transform.src}". Sharp doesn't support this format. The image will be used unoptimized. Consider converting to WebP or placing in the public/ folder.`,
 			);
 			return { data: inputBuffer, format: bufferFormat as ImageOutputFormat };
 		}
