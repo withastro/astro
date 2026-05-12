@@ -1,3 +1,4 @@
+import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import Slugger from 'github-slugger';
 import { satteriMarkdownDefaults, syntaxHighlightDefaults } from './defaults.js';
 import { defaultExcludeLanguages } from './highlight.js';
@@ -27,7 +28,10 @@ async function loadSatteri(): Promise<typeof import('satteri')> {
 export function createCollectImagesPlugin(
 	localImagePaths: Set<string>,
 	remoteImagePaths: Set<string>,
+	image: AstroMarkdownProcessorOptions['image'] = {},
 ): import('satteri').MdastPluginDefinition {
+	const domains = image?.domains ?? [];
+	const remotePatterns = image?.remotePatterns ?? [];
 	return satteri!.defineMdastPlugin({
 		name: 'collect-images',
 		image(node) {
@@ -35,7 +39,9 @@ export function createCollectImagesPlugin(
 			if (!url) return;
 
 			if (URL.canParse(url)) {
-				remoteImagePaths.add(url);
+				if (isRemoteAllowed(url, { domains, remotePatterns })) {
+					remoteImagePaths.add(url);
+				}
 			} else if (!url.startsWith('/')) {
 				localImagePaths.add(url);
 			}
@@ -222,7 +228,7 @@ export async function createSatteriMarkdownProcessor(
 			const frontmatter = renderOpts?.frontmatter ?? {};
 
 			const allMdastPlugins: import('satteri').MdastPluginDefinition[] = [
-				createCollectImagesPlugin(localImagePaths, remoteImagePaths),
+				createCollectImagesPlugin(localImagePaths, remoteImagePaths, opts?.image),
 				...userMdastPlugins,
 			];
 

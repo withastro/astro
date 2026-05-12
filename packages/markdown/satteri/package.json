@@ -35,22 +35,13 @@
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
     "github-slugger": "^2.0.0",
+    "satteri": "^0.2.7",
     "shiki": "^4.0.0"
-  },
-  "peerDependencies": {
-    "satteri": ">=0.2.7"
-  },
-  "peerDependenciesMeta": {
-    "satteri": {
-      "optional": true
-    }
   },
   "devDependencies": {
     "@types/hast": "^3.0.4",
-    "@types/mdast": "^4.0.4",
     "astro-scripts": "workspace:*",
-    "retext-smartypants": "^6.2.0",
-    "satteri": "^0.2.7"
+    "retext-smartypants": "^6.2.0"
   },
   "publishConfig": {
     "provenance": true
