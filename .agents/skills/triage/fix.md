@@ -143,44 +143,7 @@ This captures all your changes for the report.
 
 **Only do this if the fix was successful** (i.e., you are on the high-confidence path and the fix resolves the issue). If the fix failed or was skipped, skip this step entirely.
 
-Create a changeset file at `.changeset/<descriptive-slug>.md`. The slug should be a short kebab-case description of the fix (e.g., `fix-font-copy-on-build`, `prevent-client-only-crash`).
-
-The file format is:
-
-```md
----
-'<package-name>': patch
----
-
-<changeset message>
-```
-
-**Rules:**
-
-- The package name must match the `name` field in the affected package's `package.json` exactly (e.g., `'astro'`, `'@astrojs/node'`, `'@astrojs/mdx'`). Read the `package.json` to confirm.
-- If multiple packages were modified, list each one with its own bump type.
-- Always use `patch` as the bump type for triage fixes — these are bug fixes, not new features.
-- A single changeset file can cover multiple packages.
-- The changeset message should begin with a **present tense verb** that completes the sentence "This PR …" (e.g., "Fixes", "Resolves", "Prevents").
-- Describe the change **as a user of Astro will experience it**, not how it was implemented internally.
-- One line is usually enough for a patch. No end punctuation required unless writing multiple sentences.
-
-**Example:**
-
-```md
----
-'astro': patch
----
-
-Fixes a case where `client:only` components would crash during SSR when using content collections
-```
-
-Verify the changeset was created:
-
-```bash
-ls .changeset/
-cat .changeset/<your-slug>.md
-```
+Load the `changeset` skill and follow its instructions to create a changeset for the fix. Since this is a bug fix, the bump type will almost always be `patch`.
 
 ## Step 10: Write Output
 
