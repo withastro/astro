@@ -66,11 +66,24 @@ const ALLOWED_DIRECTIVES = [
 type AllowedDirectives = (typeof ALLOWED_DIRECTIVES)[number];
 export type CspDirective = `${AllowedDirectives}${string | undefined}`;
 
-export const allowedDirectivesSchema = z.custom<CspDirective>((value) => {
-	if (typeof value !== 'string') {
-		return false;
-	}
-	return ALLOWED_DIRECTIVES.some((allowedValue) => {
-		return value.startsWith(allowedValue);
-	});
-});
+const MANAGED_DIRECTIVES = ['script-src', 'style-src'] as const;
+
+export const allowedDirectivesSchema = z
+	.string()
+	.superRefine((value, ctx) => {
+		const managed = MANAGED_DIRECTIVES.find((directive) => value.startsWith(directive));
+		if (managed) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				message: `The \`${managed}\` directive is managed by Astro and cannot be set in \`security.csp.directives\`. Use \`security.csp.${managed === 'script-src' ? 'scriptDirective' : 'styleDirective'}\` instead.`,
+			});
+			return;
+		}
+		const isValid = ALLOWED_DIRECTIVES.some((allowedValue) => value.startsWith(allowedValue));
+		if (!isValid) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				message: `Invalid CSP directive "${value}". Allowed directives are: ${ALLOWED_DIRECTIVES.join(', ')}.`,
+			});
+		}
+	}) as z.ZodType<CspDirective>;
