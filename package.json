@@ -83,6 +83,7 @@
     "only-allow": "^1.2.2",
     "prettier": "^3.8.1",
     "prettier-plugin-astro": "^0.14.1",
+    "pkg-pr-new": "^0.0.71",
     "publint": "^0.3.17",
     "tinyglobby": "^0.2.16",
     "turbo": "^2.8.15",

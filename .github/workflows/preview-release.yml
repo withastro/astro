@@ -144,7 +144,7 @@ jobs:
         run: |
           packages=$(cat affected-packages.json | jq -r '.[]' | tr '\n' ' ')
           if [ -n "$packages" ]; then
-            pnpm dlx pkg-pr-new publish --pnpm --compact --no-template $packages
+            pnpm exec pkg-pr-new publish --pnpm --compact --no-template $packages
           else
             echo "No affected packages to publish"
           fi
