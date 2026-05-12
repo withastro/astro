@@ -155,4 +155,44 @@ describe('context.cache', () => {
 			assert.deepEqual(body, { ok: true });
 		});
 	});
+
+	describe('Disabled (no cache provider configured)', () => {
+		let fixture: Fixture;
+		let app: App;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/cache-route/',
+				output: 'server',
+				adapter: testAdapter(),
+				outDir: './dist/cache-route-disabled/',
+			});
+			await fixture.build({});
+			app = await fixture.loadTestAdapterApp();
+		});
+
+		async function fetchResponse(path: string) {
+			const request = new Request('http://example.com' + path);
+			return app.render(request);
+		}
+
+		// Regression: Astro.cache must always be defined as a no-op shim
+		// even when experimental.cache is not configured, so that
+		// `Astro.cache.set(...)` calls do not crash.
+		it('Astro.cache.set() is a no-op on .astro pages', async () => {
+			const response = await fetchResponse('/');
+			assert.equal(response.status, 200);
+			assert.equal(response.headers.get('CDN-Cache-Control'), null);
+			assert.equal(response.headers.get('Cache-Tag'), null);
+		});
+
+		it('context.cache.set() is a no-op in API routes', async () => {
+			const response = await fetchResponse('/api');
+			assert.equal(response.status, 200);
+			assert.equal(response.headers.get('CDN-Cache-Control'), null);
+			assert.equal(response.headers.get('Cache-Tag'), null);
+			const body = await response.json();
+			assert.deepEqual(body, { ok: true });
+		});
+	});
 });
