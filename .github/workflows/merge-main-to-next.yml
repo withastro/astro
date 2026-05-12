@@ -5,6 +5,8 @@ on:
     types: [release-published]
   workflow_dispatch:
 
+permissions: {}
+
 env:
   IMAGE: ghcr.io/${{ github.repository }}/flue-sandbox
 

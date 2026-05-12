@@ -14,6 +14,8 @@ on:
         required: false
         type: string
 
+permissions: {}
+
 env:
   IMAGE: ghcr.io/${{ github.repository }}/flue-sandbox
 
