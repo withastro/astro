@@ -2,4 +2,4 @@
 title: HMR Markdown
 ---
 
-Original content
+Updated content
