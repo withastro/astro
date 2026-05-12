@@ -51,8 +51,10 @@ jobs:
           node-version: 24.15.0
           cache: "pnpm"
 
+      # --ignore-scripts prevents transitive packages from running lifecycle
+      # scripts (postinstall, prepare, etc.) in this privileged context.
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --ignore-scripts
 
       - name: Build Packages
         run: pnpm run build

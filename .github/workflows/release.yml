@@ -37,8 +37,10 @@ jobs:
         with:
           node-version: 24.15.0
 
+      # --ignore-scripts prevents transitive packages from running lifecycle
+      # scripts (postinstall, prepare, etc.) in this privileged context.
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Build Packages
         run: pnpm run build --force
@@ -98,7 +100,7 @@ jobs:
         if: steps.vscode-published.outputs.published == 'true'
         run: |
           mv ./package.temp.json ./package.json
-          pnpm install --frozen-lockfile
+          pnpm install --frozen-lockfile --ignore-scripts
           
       - name: Generate Announcement
         id: message
