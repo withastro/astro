@@ -35,7 +35,7 @@ jobs:
   changes:
     runs-on: ubuntu-latest
     permissions:
-      pull-requests: read
+      pull-requests: read # Required by dorny/paths-filter to read changed files
     outputs:
       language-tools: ${{ steps.filter.outputs.language-tools }}
       astro-types: ${{ steps.filter.outputs.astro-types }}
@@ -61,7 +61,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 5
     permissions:
-      contents: read
+      contents: read # Checkout only
     strategy:
       matrix:
         # windows-latest is still windows-2022 for some reason, even though the windows-2025 image is GA
@@ -98,7 +98,7 @@ jobs:
   biome-lint:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: read # Checkout only
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -114,7 +114,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
-      contents: read
+      contents: read # Checkout only
     needs: 
       - biome-lint
     steps:
@@ -154,7 +154,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     permissions:
-      contents: read
+      contents: read # Checkout only
     needs: build
     strategy:
       matrix:
@@ -217,7 +217,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     permissions:
-      contents: read
+      contents: read # Checkout only
     needs:
       - changes
       - build
@@ -278,7 +278,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     permissions:
-      contents: read
+      contents: read # Checkout only
     needs: build
     strategy:
       matrix:
@@ -317,7 +317,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     permissions:
-      contents: read
+      contents: read # Checkout only
     needs: build
     strategy:
       matrix:

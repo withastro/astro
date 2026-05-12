@@ -28,7 +28,7 @@ jobs:
     name: astro check
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: read # Checkout only
     timeout-minutes: 7
     steps:
       - name: Check out repository
