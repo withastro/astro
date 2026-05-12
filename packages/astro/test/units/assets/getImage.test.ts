@@ -539,14 +539,13 @@ describe('getImage - peekRemoteFormatForStaticEmit', () => {
 	let probeError: Error | undefined;
 
 	// `baseService.getURL` reads `import.meta.env.BASE_URL`, which isn't set in unit tests.
-	// Override it so `getImage` can build a URL without crashing.
 	const stubGetURL = (options: { src: string | { src: string } }) =>
 		typeof options.src === 'string' ? options.src : options.src.src;
 
 	const localServiceWithProbe = {
 		...baseService,
 		getURL: stubGetURL,
-		// `isLocalService` only checks for `transform` — a stub is enough.
+		// `isLocalService` only checks for `transform`, so a stub is enough.
 		async transform() {
 			return { data: new Uint8Array(), format: 'webp' };
 		},
@@ -587,7 +586,7 @@ describe('getImage - peekRemoteFormatForStaticEmit', () => {
 			imageConfig,
 		);
 		assert.equal(probeCalls, 1);
-		// Raster source → default output is webp.
+		// Raster sources default to webp.
 		assert.equal(result.options.format, 'webp');
 	});
 
@@ -649,7 +648,7 @@ describe('getImage - peekRemoteFormatForStaticEmit', () => {
 	});
 
 	it('does not peek for external (non-local) services', async () => {
-		// External service: no `transform` method → `isLocalService` returns false.
+		// External service has no `transform`, so `isLocalService` returns false.
 		const externalService = {
 			...baseService,
 			getURL: stubGetURL,
