@@ -570,7 +570,7 @@ importers:
         version: 1.1.1
       devalue:
         specifier: ^5.6.3
-        version: 5.6.4
+        version: 5.8.0
       diff:
         specifier: ^8.0.3
         version: 8.0.3
@@ -810,7 +810,7 @@ importers:
     dependencies:
       fast-xml-parser:
         specifier: ^5.5.7
-        version: 5.7.0
+        version: 5.7.2
       piccolore:
         specifier: ^0.1.3
         version: 0.1.3
@@ -4584,7 +4584,7 @@ importers:
         version: 1.2.0
       devalue:
         specifier: ^5.6.3
-        version: 5.6.4
+        version: 5.8.0
       prismjs:
         specifier: ^1.30.0
         version: 1.30.0
@@ -5041,7 +5041,7 @@ importers:
         version: link:../../../scripts
       devalue:
         specifier: ^5.6.3
-        version: 5.6.4
+        version: 5.8.0
       linkedom:
         specifier: ^0.18.12
         version: 0.18.12
@@ -5559,7 +5559,7 @@ importers:
         version: 1.2.0
       devalue:
         specifier: ^5.6.3
-        version: 5.6.4
+        version: 5.8.0
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -5668,7 +5668,7 @@ importers:
         version: 1.0.1
     devDependencies:
       '@fastify/middie':
-        specifier: ^9.1.0
+        specifier: ^9.3.2
         version: 9.3.2
       '@fastify/static':
         specifier: ^9.0.0
@@ -5695,13 +5695,13 @@ importers:
         specifier: 1.2.0
         version: 1.2.0
       devalue:
-        specifier: ^5.6.3
-        version: 5.6.4
+        specifier: ^5.8.0
+        version: 5.8.0
       express:
         specifier: ^5.2.1
         version: 5.2.1
       fastify:
-        specifier: ^5.7.4
+        specifier: ^5.8.5
         version: 5.8.5
       node-mocks-http:
         specifier: ^1.17.2
@@ -5910,7 +5910,7 @@ importers:
         version: 2.8.2(preact@10.29.0)
       devalue:
         specifier: ^5.6.4
-        version: 5.6.4
+        version: 5.8.0
       preact-render-to-string:
         specifier: ^6.6.6
         version: 6.6.6(preact@10.29.0)
@@ -5938,7 +5938,7 @@ importers:
         version: 5.2.0(vite@7.3.2(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3))
       devalue:
         specifier: ^5.6.4
-        version: 5.6.4
+        version: 5.8.0
       ultrahtml:
         specifier: ^1.6.0
         version: 1.6.0
@@ -9111,10 +9111,12 @@ packages:
   '@mariozechner/pi-agent-core@0.71.1':
     resolution: {integrity: sha512-LMXcKoPmjD06EHwnl7IGMkJs/l3Qdl9z1xKsQGqqyd60ZgdxaATtR40Yyzcku1ogu16NhCHrUg6PJ9XeRcT+qQ==}
     engines: {node: '>=20.0.0'}
+    deprecated: please use @earendil-works/pi-agent-core instead going forward
 
   '@mariozechner/pi-ai@0.71.1':
     resolution: {integrity: sha512-xksl4Y20qnjGbF3/eo0rX+TXEiZkkgRCEO8n/q7tMeVKhQ41migVG+msF+xTJoC3HkrTWfak3Y2Z6UjTUbjeTg==}
     engines: {node: '>=20.0.0'}
+    deprecated: please use @earendil-works/pi-ai instead going forward
     hasBin: true
 
   '@markdoc/markdoc@0.5.4':
@@ -10646,6 +10648,7 @@ packages:
 
   '@ungap/structured-clone@1.3.0':
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
+    deprecated: Potential CWE-502 - Update to 1.3.1 or higher
 
   '@valibot/to-json-schema@1.5.0':
     resolution: {integrity: sha512-GE7DmSr1C2UCWPiV0upRH6mv0cCPsqYGs819fb6srCS1tWhyXrkGGe+zxUiwzn/L1BOfADH4sNjY/YHCuP8phQ==}
@@ -11934,8 +11937,8 @@ packages:
   dettle@1.0.5:
     resolution: {integrity: sha512-ZVyjhAJ7sCe1PNXEGveObOH9AC8QvMga3HJIghHawtG7mE4K5pW9nz/vDGAr/U7a3LWgdOzEE7ac9MURnyfaTA==}
 
-  devalue@5.6.4:
-    resolution: {integrity: sha512-Gp6rDldRsFh/7XuouDbxMH3Mx8GMCcgzIb1pDTvNyn8pZGQ22u+Wa+lGV9dQCltFQ7uVw0MhRyb8XDskNFOReA==}
+  devalue@5.8.0:
+    resolution: {integrity: sha512-2zA9pFEsnp7vWBZbXF5JAgAq0fsUIt/1XPbRiAmRV3lp/2C3upzH+sADiyy66aFCihoLEsrQHxNM5w1gIDfsBg==}
 
   devlop@1.1.0:
     resolution: {integrity: sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA==}
@@ -12445,10 +12448,6 @@ packages:
 
   fast-xml-parser@5.3.3:
     resolution: {integrity: sha512-2O3dkPAAC6JavuMm8+4+pgTk+5hoAs+CjZ+sWcQLkX9+/tHRuTkQh/Oaifr8qDmZ8iEHb771Ea6G8CdwkrgvYA==}
-    hasBin: true
-
-  fast-xml-parser@5.7.0:
-    resolution: {integrity: sha512-MTcrUoRQ1GSQ9iG3QJzBGquYYYeA7piZaJoIWbPFGbRn6Jj6z7xgoAyi4DrZX4y2ZIQQBF59gc/zmvvejjgoFQ==}
     hasBin: true
 
   fast-xml-parser@5.7.2:
@@ -22269,7 +22268,7 @@ snapshots:
 
   dettle@1.0.5: {}
 
-  devalue@5.6.4: {}
+  devalue@5.8.0: {}
 
   devlop@1.1.0:
     dependencies:
@@ -22844,13 +22843,6 @@ snapshots:
 
   fast-xml-parser@5.3.3:
     dependencies:
-      strnum: 2.2.3
-
-  fast-xml-parser@5.7.0:
-    dependencies:
-      '@nodable/entities': 2.1.0
-      fast-xml-builder: 1.1.5
-      path-expression-matcher: 1.5.0
       strnum: 2.2.3
 
   fast-xml-parser@5.7.2:
@@ -26740,7 +26732,7 @@ snapshots:
       aria-query: 5.3.1
       axobject-query: 4.1.0
       clsx: 2.1.1
-      devalue: 5.6.4
+      devalue: 5.8.0
       esm-env: 1.2.2
       esrap: 2.2.4
       is-reference: 3.0.3
