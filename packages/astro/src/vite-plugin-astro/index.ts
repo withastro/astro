@@ -314,7 +314,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 							if (liveSpecifiers.has(c.specifier)) continue;
 							for (const imp of imports) {
 								if (imp.n === c.specifier) {
-									s.remove(imp.ss, imp.se + 1);
+									s.remove(imp.ss, Math.min(imp.se + 1, code.length));
 								}
 							}
 						}
