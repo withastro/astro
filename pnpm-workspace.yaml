@@ -64,6 +64,7 @@ peerDependencyRules:
   allowAny:
     - 'astro'
     - 'vite'
+allowBuilds: false
 onlyBuiltDependencies:
   - 'esbuild'
   - 'workerd'
