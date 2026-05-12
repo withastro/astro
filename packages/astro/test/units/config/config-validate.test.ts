@@ -591,7 +591,7 @@ describe('Config Validation', () => {
 			});
 		});
 
-		it('should not throw an error when the directives are correct', () => {
+		it('should throw an error when the directives are correct', () => {
 			assert.doesNotThrow(() =>
 				validateConfig({
 					security: {
@@ -600,6 +600,22 @@ describe('Config Validation', () => {
 						},
 					},
 				}).catch((err) => err),
+			);
+		});
+
+		it('should provide a helpful error message when script-src or style-src is used in directives', async () => {
+			const configError = await validateConfig({
+				security: {
+					csp: {
+						directives: ["script-src 'self'"],
+					},
+				},
+			}).catch((err) => err);
+
+			const formattedError = stripVTControlCharacters(formatConfigErrorMessage(configError));
+			assert.equal(
+				formattedError,
+				`[config] Astro found issue(s) with your configuration:\n\n! security.csp: Did not match union.\n  > Expected type boolean | Directives script-src and style-src are not allowed in security.csp.directives. Please use security.csp.scriptDirective and security.csp.styleDirective instead.\n  > Received { "directives": [ "script-src 'self'" ] }`,
 			);
 		});
 	});
