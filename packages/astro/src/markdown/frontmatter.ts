@@ -13,8 +13,8 @@ export function isFrontmatterValid(frontmatter: Record<string, any>) {
 // Capture frontmatter wrapped with `---` or `+++` near the top of the file —
 // either at the very start (allowing BOM) or after leading whitespace, with the
 // fence still starting on a new line.
-const frontmatterRE = /(?:^﻿?|^\s*\n)(?:---|\+\+\+)([\s\S]*?\n)(?:---|\+\+\+)/;
-const frontmatterTypeRE = /(?:^﻿?|^\s*\n)(---|\+\+\+)/;
+const frontmatterRE = /(?:^\uFEFF?|^\s*\n)(?:---|\+\+\+)([\s\S]*?\n)(?:---|\+\+\+)/;
+const frontmatterTypeRE = /(?:^\uFEFF?|^\s*\n)(---|\+\+\+)/;
 
 export function extractFrontmatter(code: string): string | undefined {
 	return frontmatterRE.exec(code)?.[1];

@@ -78,13 +78,13 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 
 				// Lazily initialize the Markdown processor
 				if (!processor) {
-					const { markdown, image } = settings.config;
-					processor = markdown.processor.createRenderer({
+					const { markdown: md, image } = settings.config;
+					processor = md.processor.createRenderer({
 						image,
-						syntaxHighlight: markdown.syntaxHighlight,
-						shikiConfig: markdown.shikiConfig,
-						gfm: markdown.gfm,
-						smartypants: markdown.smartypants,
+						syntaxHighlight: md.syntaxHighlight,
+						shikiConfig: md.shikiConfig,
+						gfm: md.gfm,
+						smartypants: md.smartypants,
 					});
 				}
 
