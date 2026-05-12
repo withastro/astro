@@ -41,10 +41,10 @@ describe('Cloudflare SSR Optimization', () => {
       const resolvers: Array<{ filter: RegExp }> = [];
 
       plugin.setup({
-        onResolve(options: { filter: RegExp }, _callback: Function) {
+        onResolve(options: { filter: RegExp }, _callback: (...args: unknown[]) => unknown) {
           resolvers.push(options);
         },
-        onLoad(_options: any, _callback: Function) {},
+        onLoad(_options: any, _callback: (...args: unknown[]) => unknown) {},
       } as any);
 
       const hasAstroResolver = resolvers.some((r) => r.filter.test('Component.astro'));
