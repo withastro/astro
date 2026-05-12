@@ -97,24 +97,23 @@ jobs:
         env:
           AFFECTED_PACKAGES: ${{ steps.compute-affected-packages.outputs.affected-packages }}
         run: |
-          mkdir -p /tmp/preview-publish
-          # Copy workspace root files needed by pkg-pr-new / pnpm pack
-          cp package.json /tmp/preview-publish/
-          cp pnpm-workspace.yaml /tmp/preview-publish/
-          cp pnpm-lock.yaml /tmp/preview-publish/
+          staging="/tmp/preview-publish"
+          mkdir -p "$staging"
+          # Copy workspace root files needed by pnpm pack
+          cp package.json pnpm-workspace.yaml pnpm-lock.yaml "$staging/"
           # Copy each affected package directory (with built output)
           for pkg in $(echo "$AFFECTED_PACKAGES" | jq -r '.[]'); do
-            mkdir -p "/tmp/preview-publish/$pkg"
-            cp -r "$pkg/." "/tmp/preview-publish/$pkg/"
+            mkdir -p "$staging/$pkg"
+            cp -r "$pkg/." "$staging/$pkg/"
           done
-          # Save affected packages list for the publish job
-          echo "$AFFECTED_PACKAGES" > /tmp/preview-publish/affected-packages.json
+          # Save the list for the publish job
+          echo "$AFFECTED_PACKAGES" > "$staging/affected-packages.json"
 
       - name: Upload publish artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: preview-build
-          path: /tmp/preview-publish
+          path: /tmp/preview-publish/
           retention-days: 1
 
   publish:
@@ -130,6 +129,7 @@ jobs:
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: preview-build
+          path: workspace
 
       - name: Setup PNPM
         uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
@@ -140,6 +140,7 @@ jobs:
           node-version: 24.15.0
 
       - name: Publish packages
+        working-directory: workspace
         run: |
           packages=$(cat affected-packages.json | jq -r '.[]' | tr '\n' ' ')
           if [ -n "$packages" ]; then
