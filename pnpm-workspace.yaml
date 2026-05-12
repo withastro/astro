@@ -19,12 +19,7 @@ linkWorkspacePackages: true
 saveWorkspaceProtocol: false # This prevents the examples to have the `workspace:` prefix
 autoInstallPeers: false
 
-# Vite's esbuild optimizer has trouble optimizing `@astrojs/lit/client-shim.js`
-# which imports this dependency.
 publicHoistPattern:
-  - '@webcomponents/template-shadowroot'
-  # There's a lit dependency duplication somewhere causing multiple Lit versions error.
-  - '*lit*'
   # `astro sync` could try to import `@astrojs/db` but could fail due to linked dependencies in the monorepo.
   # We hoist it here so that it can easily resolve `@astrojs/db` without hardcoded handling.
   - '@astrojs/db'
