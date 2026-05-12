@@ -13,9 +13,12 @@ permissions:
   contents: read
   actions: write
 
+# Note: TURBO_TOKEN/TURBO_TEAM are intentionally NOT set in this workflow.
+# Preview releases publish packages (via pkg-pr-new) using OIDC + id-token: write,
+# so the build must not consume the shared Turbo remote cache, which can be
+# written to from less-privileged contexts (PRs to main/next).
+# See: https://codeql.github.com/codeql-query-help/actions/actions-cache-poisoning-direct-cache/
 env:
-  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
   FORCE_COLOR: true
   ASTRO_TELEMETRY_DISABLED: true
   # 7 GiB by default on GitHub, setting to 6 GiB
@@ -41,18 +44,25 @@ jobs:
         with:
           # Changeset needs access to the main branch to find pending changesets
           fetch-depth: 0
+          # Don't keep the GITHUB_TOKEN in .git/config for the rest of the job;
+          # limits blast radius if any later step were to be compromised.
+          persist-credentials: false
 
       - name: Setup PNPM
         uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
 
+      # Note: no `cache: "pnpm"` here. This job has `id-token: write` and
+      # publishes packages, so it must not consume a cache that can be
+      # influenced from less-privileged workflows.
       - name: Setup Node
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: 24.15.0
-          cache: "pnpm"
 
+      # `--ignore-scripts` blocks transitive packages from running install
+      # lifecycle scripts in this privileged (id-token: write) context.
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --ignore-scripts
 
       - name: Build Packages
         run: pnpm run build

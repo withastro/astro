@@ -15,9 +15,12 @@ defaults:
   run:
     shell: bash
 
+# Note: TURBO_TOKEN/TURBO_TEAM are intentionally NOT set in this workflow.
+# Release builds must not consume the shared Turbo remote cache, which can be
+# written to from less-privileged contexts (PRs, main pushes) and would be a
+# cache-poisoning sink for a workflow that publishes to npm/marketplaces.
+# See: https://codeql.github.com/codeql-query-help/actions/actions-cache-poisoning-direct-cache/
 env:
-  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
   FORCE_COLOR: true
 
 jobs:
@@ -30,18 +33,30 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          # Don't keep the GITHUB_TOKEN in .git/config for the rest of the job;
+          # changesets/action sets up its own auth via FREDKBOT_GITHUB_TOKEN below.
+          # Limits blast radius if any later step were to be compromised.
+          persist-credentials: false
 
       - name: Setup PNPM
         uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
 
+      # Note: no `cache: "pnpm"` here. The pnpm store cache restored in a
+      # publishing context can be influenced by less-privileged workflows on the
+      # same repo. Releases happen infrequently; the ~30-60s of extra install
+      # time is an acceptable trade for not consuming a poisonable cache.
       - name: Setup Node
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: 24.15.0
-          cache: "pnpm"
 
+      # `--ignore-scripts` prevents any (transitively) installed package from
+      # running lifecycle scripts during install in this privileged context.
+      # We don't have any native deps that need rebuilding, and our own
+      # in-repo `prepublish` scripts still run during `changeset publish`.
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --ignore-scripts
 
       - name: Build Packages
         run: pnpm run build
@@ -101,7 +116,7 @@ jobs:
         if: steps.vscode-published.outputs.published == 'true'
         run: |
           mv ./package.temp.json ./package.json
-          pnpm install
+          pnpm install --ignore-scripts
           
       - name: Generate Announcement
         id: message
