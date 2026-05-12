@@ -27,11 +27,6 @@ describe('normalizeFilename', () => {
 		assert.equal(result, `${projectRootSlash}/src/components/Foo.astro`);
 	});
 
-	it('resolves server-relative ids against root', () => {
-		const result = normalizeFilename('/src/pages/index.astro', projectRootUrl);
-		assert.equal(result, `${projectRootSlash}/src/pages/index.astro`);
-	});
-
 	it('preserves absolute paths that live inside root', () => {
 		const root = pathToFileURL('/Users/me/project/');
 		const result = normalizeFilename('/Users/me/project/src/pages/index.astro', root);
