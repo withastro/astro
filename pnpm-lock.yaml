@@ -6997,9 +6997,6 @@ importers:
       mdast-util-mdx-expression:
         specifier: ^2.0.1
         version: 2.0.1
-      satteri:
-        specifier: ^0.2.7
-        version: 0.2.8
 
   packages/markdown/satteri:
     dependencies:
