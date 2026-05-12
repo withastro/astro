@@ -63,8 +63,7 @@
   },
   "pnpm": {
     "overrides": {
-      "picomatch@<4": "^2.3.2",
-      "vite@^7": "^7.3.2"
+      "picomatch@<4": "^2.3.2"
     }
   },
   "devDependencies": {
