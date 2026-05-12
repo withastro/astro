@@ -1,7 +1,19 @@
 import * as assert from 'node:assert/strict';
+import * as path from 'node:path';
 import { describe, it } from 'node:test';
 import { pathToFileURL } from 'node:url';
 import { normalizeFilename } from '../../../dist/vite-plugin-utils/index.js';
+
+// Build a fixture path that is absolute on both POSIX and Windows. On POSIX,
+// `path.resolve('/Users/me/project')` is `/Users/me/project`; on Windows it
+// becomes something like `D:\\Users\\me\\project` (the CWD drive gets
+// prepended). Using this lets tests that pass the resolved path to Node's URL
+// machinery behave identically on both platforms.
+const projectRoot = path.resolve('/Users/me/project');
+const projectRootUrl = pathToFileURL(projectRoot + path.sep);
+// `normalizeFilename` returns paths with forward slashes (it runs the result
+// through `viteID`/`slash`), so build expectations the same way.
+const projectRootSlash = projectRoot.replaceAll(path.sep, '/');
 
 describe('normalizeFilename', () => {
 	it('strips the /@fs prefix from filesystem paths', () => {
@@ -11,15 +23,13 @@ describe('normalizeFilename', () => {
 	});
 
 	it('resolves relative paths against root', () => {
-		const root = pathToFileURL('/Users/me/project/');
-		const result = normalizeFilename('./src/components/Foo.astro', root);
-		assert.equal(result, '/Users/me/project/src/components/Foo.astro');
+		const result = normalizeFilename('./src/components/Foo.astro', projectRootUrl);
+		assert.equal(result, `${projectRootSlash}/src/components/Foo.astro`);
 	});
 
 	it('resolves server-relative ids against root', () => {
-		const root = pathToFileURL('/Users/me/project/');
-		const result = normalizeFilename('/src/pages/index.astro', root);
-		assert.equal(result, '/Users/me/project/src/pages/index.astro');
+		const result = normalizeFilename('/src/pages/index.astro', projectRootUrl);
+		assert.equal(result, `${projectRootSlash}/src/pages/index.astro`);
 	});
 
 	it('preserves absolute paths that live inside root', () => {
