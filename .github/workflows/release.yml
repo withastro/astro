@@ -79,7 +79,7 @@ jobs:
           mv ../../../package.json ../../../package.temp.json
           rm -rf ../../../node_modules
           sleep 60s # wait for npm registry to update
-          npm i --workspaces=false # vsce does not support pnpm, so we need to pretend this is not a monorepo and use npm
+          npm ci --workspaces=false # vsce does not support pnpm, so we need to pretend this is not a monorepo and use npm
           mv ./astro-ts-plugin-bundle ./node_modules/astro-ts-plugin-bundle
 
       - name: Publish to VSCode Marketplace
@@ -98,7 +98,7 @@ jobs:
         if: steps.vscode-published.outputs.published == 'true'
         run: |
           mv ./package.temp.json ./package.json
-          pnpm install
+          pnpm install --frozen-lockfile
           
       - name: Generate Announcement
         id: message
