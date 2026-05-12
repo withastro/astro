@@ -157,9 +157,18 @@ export default function createVitePluginAstroServer({
 									return next();
 								}
 
-								localStorage.run(request, () => {
-									prerenderHandler.handler(request, response);
+								const handled = await new Promise<boolean>((resolve) => {
+									localStorage.run(request, () => {
+										prerenderHandler
+											.handler(request, response, { prerenderOnly: true })
+											.then((result: boolean) => resolve(result))
+											.catch(() => resolve(true));
+									});
 								});
+
+								if (!handled) {
+									return next();
+								}
 							} catch (err) {
 								next(err);
 							}
