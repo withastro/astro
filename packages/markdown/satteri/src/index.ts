@@ -2,6 +2,7 @@ export { defaultExcludeLanguages } from './highlight.js';
 export {
 	createCollectImagesPlugin as satteriCollectImagesPlugin,
 	createHeadingIdsPlugin as satteriHeadingIdsPlugin,
+	createImageMarkerPlugin as satteriImageMarkerPlugin,
 	createShikiPlugin as satteriShikiPlugin,
 	collectHastText as satteriCollectHastText,
 	makeFragmentNode as satteriMakeFragmentNode,

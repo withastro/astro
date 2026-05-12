@@ -460,7 +460,9 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 	// function because getImage is async.
 	for (const [_full, imagePath] of html.matchAll(CONTENT_LAYER_IMAGE_REGEX)) {
 		try {
-			const decodedImagePath = JSON.parse(imagePath.replaceAll('&#x22;', '"'));
+			const decodedImagePath = JSON.parse(
+				imagePath.replace(/&(?:#x22|quot);/g, '"').replace(/&(?:#x27|apos);/g, "'"),
+			);
 
 			let image: GetImageResult;
 			if (URL.canParse(decodedImagePath.src)) {

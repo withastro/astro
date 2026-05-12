@@ -119,10 +119,13 @@ export function createHeadingIdsPlugin(
 					frontmatter && rawText.includes('frontmatter')
 						? collectHastText(node, frontmatter)
 						: rawText;
-				const slug = slugger.slug(text);
+				const existingId = node.properties?.id;
+				const slug = typeof existingId === 'string' ? existingId : slugger.slug(text);
 				const depth = Number.parseInt(node.tagName[1], 10);
 				headings.push({ depth, slug, text });
-				ctx.setProperty(node, 'id', slug);
+				if (typeof existingId !== 'string') {
+					ctx.setProperty(node, 'id', slug);
+				}
 			},
 		},
 	});
@@ -130,6 +133,49 @@ export function createHeadingIdsPlugin(
 
 function makeRawNode(html: string): import('satteri').HastNode {
 	return { type: 'raw', value: html } as unknown as import('satteri').HastNode;
+}
+
+const HAST_PRESERVED_PROPERTIES = new Set(['className', 'htmlFor']);
+
+/** Tags <img> with `__ASTRO_IMAGE_` for astro's vite-plugin-markdown to replace with the processed image's attributes. */
+export function createImageMarkerPlugin(
+	localImagePaths: Set<string>,
+	remoteImagePaths: Set<string>,
+): import('satteri').HastPluginDefinition {
+	const indexBySrc = new Map<string, number>();
+	return satteri!.defineHastPlugin({
+		name: 'image-marker',
+		element: {
+			filter: ['img'],
+			visit(node, ctx) {
+				const props = (node.properties ?? {}) as Record<string, unknown>;
+				const rawSrc = typeof props.src === 'string' ? props.src : undefined;
+				if (!rawSrc) return;
+				const src = decodeURI(rawSrc);
+
+				const isLocal = localImagePaths.has(src);
+				const isRemote = !isLocal && remoteImagePaths.has(src);
+				if (!isLocal && !isRemote) return;
+
+				const { src: _src, ...rest } = props;
+				const index = indexBySrc.get(rawSrc) ?? 0;
+				indexBySrc.set(rawSrc, index + 1);
+
+				const imageProperties: Record<string, unknown> = { ...rest, src, index };
+				if (isRemote && !('width' in props) && !('height' in props)) {
+					imageProperties.inferSize = true;
+				}
+
+				ctx.setProperty(node, '__ASTRO_IMAGE_', JSON.stringify(imageProperties));
+				for (const key of Object.keys(rest)) {
+					if (!HAST_PRESERVED_PROPERTIES.has(key)) {
+						ctx.setProperty(node, key, null);
+					}
+				}
+				ctx.setProperty(node, 'src', null);
+			},
+		},
+	});
 }
 
 export function createShikiPlugin(
@@ -238,6 +284,7 @@ export async function createSatteriMarkdownProcessor(
 			}
 			hastPlugins.push(createHeadingIdsPlugin(headings, frontmatter));
 			hastPlugins.push(...userHastPlugins);
+			hastPlugins.push(createImageMarkerPlugin(localImagePaths, remoteImagePaths));
 
 			const html = await s.markdownToHtml(content, {
 				mdastPlugins: allMdastPlugins,

@@ -35,7 +35,7 @@
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
     "github-slugger": "^2.0.0",
-    "satteri": "^0.2.7",
+    "satteri": "^0.4.0",
     "shiki": "^4.0.0"
   },
   "devDependencies": {
