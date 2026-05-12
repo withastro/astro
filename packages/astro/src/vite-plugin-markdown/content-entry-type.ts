@@ -1,5 +1,4 @@
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { createMarkdownProcessor, createSatteriMarkdownProcessor } from '@astrojs/markdown-remark';
 import { safeParseFrontmatter } from '../content/utils.js';
 import type { ContentEntryType } from '../types/public/content.js';
 
@@ -18,23 +17,14 @@ export const markdownContentEntryType: ContentEntryType = {
 	handlePropagation: true,
 
 	async getRenderFunction(config) {
-		const nativeMd = config.experimental.nativeMarkdown;
-		let processor;
-		if (nativeMd) {
-			const nativeOpts = typeof nativeMd === 'object' ? nativeMd : undefined;
-			processor = await createSatteriMarkdownProcessor({
-				image: config.image,
-				...config.markdown,
-				mdastPlugins: nativeOpts?.mdastPlugins,
-				hastPlugins: nativeOpts?.hastPlugins,
-				features: nativeOpts?.features,
-			});
-		} else {
-			processor = await createMarkdownProcessor({
-				image: config.image,
-				...config.markdown,
-			});
-		}
+		const { markdown, image } = config;
+		const processor = await markdown.processor.createRenderer({
+			image,
+			syntaxHighlight: markdown.syntaxHighlight,
+			shikiConfig: markdown.shikiConfig,
+			gfm: markdown.gfm,
+			smartypants: markdown.smartypants,
+		});
 		return async function renderToString(entry) {
 			// Process markdown even if it's empty as remark/rehype plugins may add content or frontmatter dynamically
 			const result = await processor.render(entry.body ?? '', {

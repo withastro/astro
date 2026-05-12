@@ -1,5 +1,5 @@
 import * as path from 'node:path';
-import { createShikiHighlighter } from '@astrojs/markdown-remark';
+import { createShikiHighlighter } from '@astrojs/markdown-satteri';
 import {
 	defineMdastPlugin,
 	defineHastPlugin,

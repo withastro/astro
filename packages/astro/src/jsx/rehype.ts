@@ -1,5 +1,5 @@
-import type { RehypePlugin } from '@astrojs/markdown-remark';
-import type { RootContent } from 'hast';
+import type { RootContent, Root as HastRoot } from 'hast';
+import type { Plugin } from 'unified';
 import type {} from 'mdast-util-mdx';
 import type {
 	MdxJsxAttribute,
@@ -16,7 +16,7 @@ import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 
 const ClientOnlyPlaceholder = 'astro-client-only';
 
-export const rehypeAnalyzeAstroMetadata: RehypePlugin = () => {
+export const rehypeAnalyzeAstroMetadata: Plugin<[], HastRoot> = () => {
 	return (tree, file) => {
 		// Initial metadata for this MDX file, it will be mutated as we traverse the tree
 		const metadata = createDefaultAstroMetadata();

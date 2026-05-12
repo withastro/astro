@@ -1,11 +1,7 @@
 import fs from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import {
-	createMarkdownProcessor,
-	createSatteriMarkdownProcessor,
-	isFrontmatterValid,
-	type MarkdownProcessor,
-} from '@astrojs/markdown-remark';
+import type { MarkdownProcessor } from '@astrojs/markdown-satteri';
+import { isFrontmatterValid } from '../markdown/frontmatter.js';
 import type { Plugin } from 'vite';
 import { safeParseFrontmatter } from '../content/utils.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
@@ -82,22 +78,14 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 
 				// Lazily initialize the Markdown processor
 				if (!processor) {
-					const nativeMd = settings.config.experimental.nativeMarkdown;
-					if (nativeMd) {
-						const nativeOpts = typeof nativeMd === 'object' ? nativeMd : undefined;
-						processor = createSatteriMarkdownProcessor({
-							image: settings.config.image,
-							...settings.config.markdown,
-							mdastPlugins: nativeOpts?.mdastPlugins,
-							hastPlugins: nativeOpts?.hastPlugins,
-							features: nativeOpts?.features,
-						});
-					} else {
-						processor = createMarkdownProcessor({
-							image: settings.config.image,
-							...settings.config.markdown,
-						});
-					}
+					const { markdown, image } = settings.config;
+					processor = markdown.processor.createRenderer({
+						image,
+						syntaxHighlight: markdown.syntaxHighlight,
+						shikiConfig: markdown.shikiConfig,
+						gfm: markdown.gfm,
+						smartypants: markdown.smartypants,
+					});
 				}
 
 				const renderResult = await (await processor).render(raw.content, {

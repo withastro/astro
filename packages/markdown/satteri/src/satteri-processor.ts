@@ -1,16 +1,15 @@
 import Slugger from 'github-slugger';
-import { createShikiHighlighter } from './shiki.js';
+import { satteriMarkdownDefaults, syntaxHighlightDefaults } from './defaults.js';
 import { defaultExcludeLanguages } from './highlight.js';
+import { createShikiHighlighter } from './shiki.js';
 import type {
 	AstroMarkdownProcessorOptions,
 	MarkdownHeading,
 	MarkdownProcessor,
 } from './types.js';
-import { markdownConfigDefaults, syntaxHighlightDefaults } from './index.js';
 
 type HighlightFn = (code: string, lang: string, meta?: string) => Promise<string>;
 
-// Lazily loaded satteri module
 let satteri: typeof import('satteri') | undefined;
 
 async function loadSatteri(): Promise<typeof import('satteri')> {
@@ -20,14 +19,10 @@ async function loadSatteri(): Promise<typeof import('satteri')> {
 		return satteri;
 	} catch {
 		throw new Error(
-			'`experimental.nativeMarkdown` requires the `satteri` package. Install it with:\n  npm install satteri',
+			'The default `satteri()` markdown processor requires the `satteri` package. Install it with:\n  npm install satteri\n\nOr opt into the legacy unified pipeline with `markdown.processor: unified({...})` from `@astrojs/markdown-remark`.',
 		);
 	}
 }
-
-// ── Shared satteri plugin factories ──
-// Used by both the markdown processor here and the MDX satteri processor
-// in @astrojs/mdx. All require loadSatteri() to have been called first.
 
 export function createCollectImagesPlugin(
 	localImagePaths: Set<string>,
@@ -165,8 +160,6 @@ export function createShikiPlugin(
 	});
 }
 
-// ── Satteri Markdown Processor ��─
-
 export interface SatteriMarkdownProcessorOptions extends AstroMarkdownProcessorOptions {
 	mdastPlugins?: import('satteri').MdastPluginDefinition[];
 	hastPlugins?: import('satteri').HastPluginDefinition[];
@@ -180,9 +173,9 @@ export async function createSatteriMarkdownProcessor(
 
 	const {
 		syntaxHighlight = syntaxHighlightDefaults,
-		shikiConfig = markdownConfigDefaults.shikiConfig,
-		gfm = markdownConfigDefaults.gfm,
-		smartypants = markdownConfigDefaults.smartypants,
+		shikiConfig = satteriMarkdownDefaults.shikiConfig,
+		gfm = satteriMarkdownDefaults.gfm,
+		smartypants = satteriMarkdownDefaults.smartypants,
 		mdastPlugins: userMdastPlugins = [],
 		hastPlugins: userHastPlugins = [],
 		features: userFeatures,
@@ -197,7 +190,7 @@ export async function createSatteriMarkdownProcessor(
 
 	if (syntaxHighlightType === 'prism') {
 		throw new Error(
-			'Prism syntax highlighting is not supported with `experimental.nativeMarkdown`. Use shiki instead.',
+			'Prism syntax highlighting is not supported by the `satteri()` markdown processor. Use shiki instead, or switch to `markdown.processor: unified({...})`.',
 		);
 	}
 

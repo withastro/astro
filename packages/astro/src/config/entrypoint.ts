@@ -14,6 +14,7 @@ export { defineConfig, getViteConfig } from './index.js';
 export { sessionDrivers } from '../core/session/drivers.js';
 export { svgoOptimizer } from '../assets/svg/svgo.js';
 export { logHandlers } from '../core/logger/handlers.js';
+export { satteri } from '@astrojs/markdown-satteri';
 
 /**
  * Return the configuration needed to use the Sharp-based image service

@@ -1,5 +1,8 @@
+import { isUnifiedProcessor } from '@astrojs/markdown-remark';
+import { isSatteriProcessor } from '@astrojs/markdown-satteri';
 import type { SSRError } from 'astro';
 import { getAstroMetadata } from 'astro/jsx/rehype.js';
+import type { MarkdownProcessorEntry, MdxRenderer } from 'astro/markdown';
 import { VFile } from 'vfile';
 import type { Plugin } from 'vite';
 import type { MdxOptions } from './index.js';
@@ -10,25 +13,19 @@ import { safeParseFrontmatter } from './utils.js';
 export interface VitePluginMdxOptions {
 	mdxOptions: MdxOptions;
 	srcDir: URL;
-	nativeMarkdown?: boolean | {
-		mdastPlugins?: import('satteri').MdastPluginDefinition[];
-		hastPlugins?: import('satteri').HastPluginDefinition[];
-		features?: import('satteri').Features;
-	};
+	processor: MarkdownProcessorEntry;
 }
 
 // NOTE: Do not destructure `opts` as we're assigning a reference that will be mutated later
 export function vitePluginMdx(opts: VitePluginMdxOptions): Plugin {
-	let remarkProcessor: ReturnType<typeof createRemarkMdxProcessor> | undefined;
-	let satteriProcessor: ReturnType<typeof createSatteriMdxProcessor> | undefined;
+	let mdxRenderer: MdxRenderer | undefined;
 	let sourcemapEnabled: boolean;
 
 	return {
 		name: '@mdx-js/rolldown',
 		enforce: 'pre',
 		buildEnd() {
-			remarkProcessor = undefined;
-			satteriProcessor = undefined;
+			mdxRenderer = undefined;
 		},
 		configResolved(resolved) {
 			sourcemapEnabled = !!resolved.build.sourcemap;
@@ -61,51 +58,18 @@ export function vitePluginMdx(opts: VitePluginMdxOptions): Plugin {
 				const { frontmatter, content } = safeParseFrontmatter(code, id);
 
 				try {
-					if (opts.nativeMarkdown) {
-						// Satteri (native) path
-						if (!satteriProcessor) {
-							satteriProcessor = createSatteriMdxProcessor(opts.mdxOptions);
-						}
-						const result = await satteriProcessor.process(content, id, frontmatter);
-						return {
-							code: result.code,
-							map: null,
-							meta: {
-								astro: result.astroMetadata,
-								vite: { lang: 'ts' },
-							},
-						};
-					} else {
-						// Remark/rehype (default) path
-						if (!remarkProcessor) {
-							remarkProcessor = createRemarkMdxProcessor(opts.mdxOptions, {
-								sourcemap: sourcemapEnabled,
-							});
-						}
-						const vfile = new VFile({
-							value: content,
-							path: id,
-							data: {
-								astro: { frontmatter },
-								applyFrontmatterExport: { srcDir: opts.srcDir },
-							},
-						});
-						const compiled = await remarkProcessor.process(vfile);
-						const astroMetadata = getAstroMetadata(vfile);
-						if (!astroMetadata) {
-							throw new Error(
-								'Internal MDX error: Astro metadata is not set by rehype-analyze-astro-metadata',
-							);
-						}
-						return {
-							code: String(compiled.value),
-							map: compiled.map,
-							meta: {
-								astro: astroMetadata,
-								vite: { lang: 'ts' },
-							},
-						};
+					if (!mdxRenderer) {
+						mdxRenderer = await resolveMdxRenderer(opts, sourcemapEnabled);
 					}
+					const result = await mdxRenderer.process(content, id, frontmatter);
+					return {
+						code: result.code,
+						map: result.map ?? null,
+						meta: {
+							astro: result.astroMetadata,
+							vite: { lang: 'ts' },
+						},
+					};
 				} catch (e: any) {
 					const err: SSRError = e;
 					err.name = 'MDXError';
@@ -116,4 +80,66 @@ export function vitePluginMdx(opts: VitePluginMdxOptions): Plugin {
 			},
 		},
 	};
+}
+
+async function resolveMdxRenderer(
+	opts: VitePluginMdxOptions,
+	sourcemap: boolean,
+): Promise<MdxRenderer> {
+	const { processor } = opts;
+
+	// Third-party processors opt into MDX support by implementing createMdxRenderer themselves.
+	if (processor.createMdxRenderer) {
+		return processor.createMdxRenderer(
+			{
+				syntaxHighlight: opts.mdxOptions.syntaxHighlight,
+				shikiConfig: opts.mdxOptions.shikiConfig,
+				gfm: opts.mdxOptions.gfm,
+				smartypants: opts.mdxOptions.smartypants,
+			},
+			{ optimize: opts.mdxOptions.optimize, recmaPlugins: opts.mdxOptions.recmaPlugins },
+		);
+	}
+
+	if (isSatteriProcessor(processor)) {
+		const satteriProcessor = createSatteriMdxProcessor(opts.mdxOptions);
+		return {
+			async process(content, filePath, frontmatter) {
+				const result = await satteriProcessor.process(content, filePath, frontmatter);
+				return { code: result.code, map: null, astroMetadata: result.astroMetadata };
+			},
+		};
+	}
+	if (isUnifiedProcessor(processor)) {
+		const remarkProcessor = createRemarkMdxProcessor(opts.mdxOptions, { sourcemap });
+		return {
+			async process(content, filePath, frontmatter) {
+				const vfile = new VFile({
+					value: content,
+					path: filePath,
+					data: {
+						astro: { frontmatter },
+						applyFrontmatterExport: { srcDir: opts.srcDir },
+					},
+				});
+				const compiled = await remarkProcessor.process(vfile);
+				const astroMetadata = getAstroMetadata(vfile);
+				if (!astroMetadata) {
+					throw new Error(
+						'Internal MDX error: Astro metadata is not set by rehype-analyze-astro-metadata',
+					);
+				}
+				return {
+					code: String(compiled.value),
+					map: compiled.map ? JSON.stringify(compiled.map) : null,
+					astroMetadata,
+				};
+			},
+		};
+	}
+
+	throw new Error(
+		`The markdown processor "${processor.name}" does not provide MDX support. ` +
+			`Implement \`createMdxRenderer\` on the processor descriptor to enable MDX rendering.`,
+	);
 }

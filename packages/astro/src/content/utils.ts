@@ -1,7 +1,7 @@
 import fsMod from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { parseFrontmatter } from '@astrojs/markdown-remark';
+import { parseFrontmatter } from '../markdown/frontmatter.js';
 import { slug as githubSlug } from 'github-slugger';
 import colors from 'piccolore';
 import type { RunnableDevEnvironment, Rolldown } from 'vite';

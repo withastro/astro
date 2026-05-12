@@ -108,7 +108,7 @@ describe('MDX heading IDs can be customized by user plugins', () => {
 			integrations: [mdx()],
 			markdown: {
 				rehypePlugins: [
-					() => (tree) => {
+					() => (tree: any) => {
 						let count = 0;
 						visit(tree, 'element', (node) => {
 							if (!/^h\d$/.test(node.tagName)) return;

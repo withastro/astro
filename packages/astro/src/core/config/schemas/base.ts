@@ -1,11 +1,11 @@
+import type { ShikiConfig, Smartypants as _Smartypants } from '@astrojs/markdown-satteri';
+import { satteri, satteriMarkdownDefaults, syntaxHighlightDefaults } from '@astrojs/markdown-satteri';
+import type { MarkdownProcessorEntry } from '../../../markdown/index.js';
 import type {
 	RehypePlugin as _RehypePlugin,
 	RemarkPlugin as _RemarkPlugin,
 	RemarkRehype as _RemarkRehype,
-	Smartypants as _Smartypants,
-	ShikiConfig,
-} from '@astrojs/markdown-remark';
-import { markdownConfigDefaults, syntaxHighlightDefaults } from '@astrojs/markdown-remark';
+} from '../../../types/public/config.js';
 import type { OutgoingHttpHeaders } from 'node:http';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
 import * as z from 'zod/v4';
@@ -88,7 +88,12 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		allowedHosts: [],
 	},
 	integrations: [],
-	markdown: markdownConfigDefaults,
+	markdown: {
+		...satteriMarkdownDefaults,
+		remarkPlugins: [] as RemarkPlugin[],
+		rehypePlugins: [] as RehypePlugin[],
+		remarkRehype: {} as RemarkRehype,
+	},
 	vite: {},
 	legacy: {
 		collectionsBackwardsCompat: false,
@@ -111,7 +116,6 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		clientPrerender: false,
 		contentIntellisense: false,
 		chromeDevtoolsWorkspace: false,
-		nativeMarkdown: false,
 		queuedRendering: {
 			enabled: false,
 		},
@@ -426,6 +430,21 @@ export const AstroConfigSchema = z.object({
 					return val;
 				})
 				.prefault(ASTRO_CONFIG_DEFAULTS.markdown.smartypants),
+			processor: z
+				.custom<MarkdownProcessorEntry>(
+					(value): value is MarkdownProcessorEntry =>
+						typeof value === 'object' &&
+						value !== null &&
+						'name' in value &&
+						typeof value.name === 'string' &&
+						'createRenderer' in value &&
+						typeof value.createRenderer === 'function',
+					{
+						error:
+							'markdown.processor must be the return value of a markdown processor factory (e.g. satteri() or unified())',
+					},
+				)
+				.default(() => satteri()),
 		})
 		.prefault({}),
 	vite: z
@@ -551,23 +570,6 @@ export const AstroConfigSchema = z.object({
 			svgOptimizer: SvgOptimizerSchema.optional(),
 			cache: CacheSchema.optional(),
 			routeRules: RouteRulesSchema.optional(),
-			nativeMarkdown: z
-				.union([
-					z.boolean(),
-					z.object({
-						mdastPlugins: z
-							.array(z.custom<import('satteri').MdastPluginDefinition>())
-							.optional()
-							.default([]),
-						hastPlugins: z
-							.array(z.custom<import('satteri').HastPluginDefinition>())
-							.optional()
-							.default([]),
-						features: z.custom<import('satteri').Features>().optional(),
-					}),
-				])
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.nativeMarkdown),
 			queuedRendering: z
 				.object({
 					enabled: z.boolean().optional().prefault(false),

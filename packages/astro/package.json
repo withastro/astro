@@ -31,6 +31,7 @@
   },
   "exports": {
     ".": "./dist/index.js",
+    "./markdown": "./dist/markdown/index.js",
     "./env": "./env.d.ts",
     "./env/runtime": "./dist/env/runtime.js",
     "./env/setup": "./dist/env/setup.js",
@@ -137,7 +138,7 @@
   "dependencies": {
     "@astrojs/compiler-rs": "^0.1.10",
     "@astrojs/internal-helpers": "workspace:*",
-    "@astrojs/markdown-remark": "workspace:*",
+    "@astrojs/markdown-satteri": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
     "@capsizecss/unpack": "^4.0.0",
     "@clack/prompts": "^1.1.0",
@@ -196,6 +197,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "workspace:*",
+    "@astrojs/markdown-remark": "workspace:*",
     "satteri": "^0.2.7",
     "@playwright/test": "1.58.2",
     "@types/aria-query": "^5.0.4",
@@ -235,6 +237,7 @@
   "publishConfig": {
     "exports": {
       ".": "./dist/index.js",
+      "./markdown": "./dist/markdown/index.js",
       "./env": "./env.d.ts",
       "./env/runtime": "./dist/env/runtime.js",
       "./env/setup": "./dist/env/setup.js",
