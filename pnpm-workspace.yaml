@@ -47,3 +47,17 @@ patchedDependencies:
 
 # TODO: enable when viable
 # trustPolicy: 'no-downgrade'
+
+# Control whether packages can run postinstall scripts. We disallow this to avoid the security risk
+# of running third-party code on install.
+allowBuilds:
+  '@google/genai': false
+  '@mongodb-js/zstd': false
+  '@parcel/watcher': false
+  '@vscode/vsce-sign': false
+  esbuild: false
+  keytar: false
+  node-liblzma: false
+  protobufjs: false
+  sharp: false
+  workerd: false
