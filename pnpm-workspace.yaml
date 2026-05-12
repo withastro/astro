@@ -54,9 +54,12 @@ trustPolicyExclude:
   - '@netlify/edge-bundler@14.10.1'
   - '@netlify/zip-it-and-ship-it@14.5.4'
   - '@netlify/serverless-functions-api@2.15.0'
-  # Outdated dependency of @vitejs/plugin-react@^5
+  # Outdated dependencies of @vitejs/plugin-react@^5 and @vscode/vsce
   # TODO: Update the Vite plugin to ^6 in Astro v7 and remove this
-  - 'semver@6.3.1'
+  - 'semver@6.3.1 || 5.7.2'
+  # Old dependency of @types/node@22
+  # TODO: Remove when dropping support for Node 22
+  - undici-types@6.21.0
 
 # Control whether packages can run postinstall scripts. We disallow this to avoid the security risk
 # of running third-party code on install.
