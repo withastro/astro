@@ -755,7 +755,7 @@ describe('astro:image', () => {
 			});
 		});
 
-		describe('custom endpoint', async () => {
+		describe('custom endpoint', () => {
 			let customEndpointDevServer: DevServer;
 
 			let customEndpointFixture: Fixture;
@@ -828,6 +828,11 @@ describe('astro:image', () => {
 
 		after(async () => {
 			await devServer.stop();
+			// Allow in-flight image service requests to settle before the next
+			// describe block's `before` hook runs. Without this, Node 24's stricter
+			// async-activity tracking reports a "fetch failed" unhandledRejection
+			// attributed to the next hook.
+			await new Promise((resolve) => setTimeout(resolve, 50));
 		});
 
 		it("properly error when getImage's first parameter isn't filled", async () => {
