@@ -29,7 +29,7 @@
   "license": "MIT",
   "publisher": "astro-build",
   "engines": {
-    "vscode": "^1.92.0"
+    "vscode": "^1.101.0"
   },
   "activationEvents": [
     "workspaceContains:astro.config.*"
@@ -250,7 +250,7 @@
     "@types/js-yaml": "^4.0.9",
     "@types/mocha": "^10.0.10",
     "@types/node": "^20.9.0",
-    "@types/vscode": "^1.92.0",
+    "@types/vscode": "^1.101.0",
     "@volar/language-server": "~2.4.28",
     "@volar/vscode": "~2.4.28",
     "@vscode/test-cli": "^0.0.12",

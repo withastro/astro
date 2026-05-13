@@ -1510,7 +1510,7 @@ test.describe('View Transitions', () => {
 		const expectedAnimations = new Set();
 		const checkName = async (selector: string, name: string) => {
 			expectedAnimations.add(name);
-			expect(page.locator(selector), 'should be escaped correctly').toHaveCSS(
+			await expect(page.locator(selector), 'should be escaped correctly').toHaveCSS(
 				'view-transition-name',
 				name,
 			);

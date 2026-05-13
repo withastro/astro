@@ -50,6 +50,7 @@ describe('Server islands', () => {
 					checkOrigin: false,
 				},
 				outDir: './dist/server-islands-ssr/',
+				cacheDir: './node_modules/.astro-test/server-islands-ssr/',
 			});
 		});
 
@@ -394,6 +395,7 @@ describe('Server islands', () => {
 			fixture = await loadFixture({
 				root: './fixtures/server-islands/hybrid',
 				outDir: './dist/server-islands-hybrid-mode/',
+				cacheDir: './node_modules/.astro-test/server-islands-hybrid-mode/',
 			});
 		});
 
@@ -442,6 +444,7 @@ describe('Server islands', () => {
 					},
 				}),
 				outDir: './dist/server-islands-build/',
+				cacheDir: './node_modules/.astro-test/server-islands-build/',
 			});
 			const devServer = await devFixture.startDevServer();
 			try {

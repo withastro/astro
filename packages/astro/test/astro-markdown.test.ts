@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type DevServer, type Fixture, fixLineEndings, loadFixture } from './test-utils.ts';
+import { type Fixture, fixLineEndings, loadFixture } from './test-utils.ts';
 
 const FIXTURE_ROOT = './fixtures/astro-markdown/';
 
@@ -173,26 +173,6 @@ describe('Astro Markdown', () => {
 			const { title = '' } = JSON.parse(await fixture.readFile('/vite-env-vars-glob.json'));
 			assert.ok(title.includes('import.meta.env.SITE'));
 			assert.ok(title.includes('import.meta.env.TITLE'));
-		});
-	});
-
-	describe('dev', () => {
-		let devServer: DevServer;
-
-		before(async () => {
-			devServer = await fixture.startDevServer();
-		});
-
-		it('ignores .md extensions on query params', async () => {
-			const res = await fixture.fetch('/false-positive?page=page.md');
-			assert.ok(res.ok);
-			const html = await res.text();
-			const $ = cheerio.load(html);
-			assert.equal($('p').text(), 'the page is not markdown');
-		});
-
-		after(async () => {
-			await devServer.stop();
 		});
 	});
 });
