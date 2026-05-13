@@ -38,7 +38,9 @@ export type RequestHandler = (
 	res: ServerResponse,
 	next?: (err?: unknown) => void,
 	locals?: object,
-) => void | Promise<void>;
+	// We use `PromiseLike` instead of `Promise` as the return type to bypass the `no-floating-promises` eslint rule.
+	// See https://typescript-eslint.io/rules/no-floating-promises/
+) => void | PromiseLike<void>;
 
 // `startServer` is defined in `@astrojs/node` so we cannot import it directly.
 // See https://github.com/withastro/astro/blob/astro@6.0.0/packages/integrations/node/src/server.ts#L21

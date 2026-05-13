@@ -32,7 +32,7 @@ describe('Node middleware socket listener cleanup', () => {
 	});
 
 	after(async () => {
-		server.close();
+		await server.close();
 		await fixture.clean();
 	});
 

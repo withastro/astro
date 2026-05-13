@@ -72,7 +72,7 @@ describe('Content Collections - references', () => {
 			});
 
 			after(async () => {
-				if (mode === 'dev') devServer?.stop();
+				if (mode === 'dev') await devServer?.stop();
 			});
 
 			describe(`JSON result`, () => {
