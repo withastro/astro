@@ -1,0 +1,77 @@
+name: Release Docs Check
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  check-docs:
+    name: Check for associated docs PRs
+    if: startsWith(github.event.pull_request.title, '[ci] release')
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Check for docs PRs
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const releaseLabels = ['minor-release', 'patch-release'];
+            const marker = '<!-- release-docs-check -->';
+
+            // Fetch all open PRs from withastro/docs
+            const { data: allPRs } = await github.rest.pulls.list({
+              owner: 'withastro',
+              repo: 'docs',
+              state: 'open',
+              per_page: 100,
+            });
+
+            // Filter to PRs with release labels
+            const docsPRs = allPRs.filter(pr =>
+              pr.labels.some(l => releaseLabels.includes(l.name))
+            );
+
+            // Build the comment body
+            let body = `${marker}\n## Associated Docs PRs\n\n`;
+
+            if (docsPRs.length === 0) {
+              body += `No open PRs found in \`withastro/docs\` labeled \`minor-release\` or \`patch-release\`.\n`;
+            } else {
+              body += `The following PRs in \`withastro/docs\` may need to be merged with this release:\n\n`;
+              for (const pr of docsPRs) {
+                const prLabels = pr.labels
+                  .map(l => l.name)
+                  .filter(n => releaseLabels.includes(n))
+                  .map(n => `\`${n}\``)
+                  .join(' ');
+                body += `- [ ] [${pr.title}](${pr.html_url}) ${prLabels}\n`;
+              }
+            }
+
+            body += `\n*Last checked: ${new Date().toISOString()}*`;
+
+            // Find existing comment to update
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const existing = comments.find(c => c.body.includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
