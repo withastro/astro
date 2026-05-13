@@ -23,6 +23,8 @@
     "./functions": "./dist/functions.js",
     "./ssr-function.js": "./dist/ssr-function.js",
     "./image-service.js": "./dist/image-service.js",
+    "./cache": "./dist/cache/index.js",
+    "./cache/provider": "./dist/cache/provider.js",
     "./package.json": "./package.json"
   },
   "files": [

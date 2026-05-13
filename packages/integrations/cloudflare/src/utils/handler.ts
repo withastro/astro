@@ -3,6 +3,7 @@ import {
 	sessionKVBindingName,
 	compileImageConfig,
 	isPrerender,
+	cacheProviderEnabled,
 } from 'virtual:astro-cloudflare:config';
 import type { RenderOptions } from 'astro/app';
 import { createApp } from 'astro/app/entrypoint';
@@ -18,6 +19,8 @@ import {
 	handleStaticImagesRequest,
 } from './prerender.js';
 import { getValidatedIpFromHeader } from '@astrojs/internal-helpers/request';
+// TODO: remove when `import { cache } from 'cloudflare:workers'` is available
+import { setCurrentCtx } from '../cache/context.js';
 
 setGetEnv(createGetEnv(globalEnv));
 
@@ -120,6 +123,9 @@ export async function handle(
 		},
 	});
 
+	// TODO: remove when `import { cache } from 'cloudflare:workers'` is available
+	setCurrentCtx(context);
+
 	const waitUntil: RenderOptions['waitUntil'] = context.waitUntil.bind(context);
 
 	const response = await app.render(request, {
@@ -137,6 +143,15 @@ export async function handle(
 		for (const setCookieHeader of app.setCookieHeaders(response)) {
 			response.headers.append('Set-Cookie', setCookieHeader);
 		}
+	}
+
+	// When the Cloudflare cache provider is configured, default uncached
+	// responses to `no-store` so opting in to route caching never
+	// accidentally caches a route that didn't set any cache intent.
+	// Cloudflare's Worker cache otherwise caches all GET responses for
+	// up to 2 hours by default.
+	if (cacheProviderEnabled && !response.headers.has('Cloudflare-CDN-Cache-Control')) {
+		response.headers.set('Cloudflare-CDN-Cache-Control', 'no-store');
 	}
 
 	return response;

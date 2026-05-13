@@ -172,12 +172,15 @@ export default function createIntegration({
 				const usesContentCollections = hasContentCollectionsConfig(config.srcDir);
 				const prebundleContentRuntime = command === 'dev' && usesContentCollections;
 
+				const needsWorkerCache = config.experimental?.cache?.provider?.name === 'cloudflare';
+
 				cfPluginConfig = {
 					config: cloudflareConfigCustomizer({
 						needsSessionKVBinding,
 						sessionKVBindingName,
 						imagesBindingName:
 							needsImagesBinding || needsImagesBindingForDev ? imagesBindingName : false,
+						needsWorkerCache,
 					}),
 					...(prerenderEnvironment === 'workerd' && {
 						experimental: {
@@ -346,6 +349,7 @@ export default function createIntegration({
 												buildAssets: config.build.assets ?? '_astro',
 											}
 										: null,
+								cacheProviderEnabled: needsWorkerCache,
 							}),
 							cfPrismPlugin(),
 						],
