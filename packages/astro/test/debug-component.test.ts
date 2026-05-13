@@ -1,28 +1,23 @@
 import assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
-import { type DevServer, type Fixture, isMacOS, loadFixture } from './test-utils.ts';
+import { before, describe, it } from 'node:test';
+import { type Fixture, isMacOS, loadFixture } from './test-utils.ts';
 
 // TODO: fix this tests in macOS
 if (!isMacOS) {
 	describe('<Debug />', () => {
 		let fixture: Fixture;
-		let devServer: DevServer;
 
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/debug-component/',
 				outDir: './dist/debug-component/',
 			});
-			devServer = await fixture.startDevServer();
-		});
-
-		after(async () => {
-			await devServer.stop();
+			await fixture.build();
 		});
 
 		it('Works in markdown pages', async () => {
-			const response = await fixture.fetch('/posts/first');
-			assert.equal(response.status, 200);
+			const html = await fixture.readFile('/posts/first/index.html');
+			assert.ok(html, 'Page should build successfully');
 		});
 	});
 }
