@@ -21,6 +21,7 @@ describe('Routes setup hook', () => {
 				},
 			],
 			outDir: './dist/integration-route-setup-hook/',
+			cacheDir: './node_modules/.astro-test/integration-route-setup-hook/',
 		});
 		const devServer = await fixture.startDevServer();
 

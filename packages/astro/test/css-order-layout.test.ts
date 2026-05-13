@@ -11,6 +11,7 @@ describe('CSS ordering - import order with layouts', () => {
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
 			outDir: './dist/css-order-layout/',
+			cacheDir: './node_modules/.astro-test/css-order-layout/',
 		});
 	});
 

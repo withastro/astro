@@ -429,6 +429,7 @@ export default function createIntegration({
 				if (prerenderEnvironment === 'workerd') {
 					setPrerenderer(
 						createCloudflarePrerenderer({
+							cloudflareOptions,
 							root: _config.root,
 							serverDir: _config.build.server,
 							clientDir: _config.build.client,

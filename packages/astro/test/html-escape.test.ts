@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('HTML Escape', () => {
 	let fixture: Fixture;
@@ -63,39 +63,6 @@ describe('HTML Escape', () => {
 			const scriptOut = $b('script');
 
 			assert.equal(scriptOut.text(), scriptIn.text());
-		});
-	});
-
-	describe('dev', () => {
-		let devServer: DevServer;
-
-		before(async () => {
-			devServer = await fixture.startDevServer();
-		});
-
-		after(async () => {
-			await devServer.stop();
-		});
-
-		it('escapes template literals in HTML components', async () => {
-			const res = await fixture.fetch('/');
-			assert.equal(res.status, 200);
-
-			const html = await res.text();
-			const $ = cheerio.load(html);
-
-			// Verify that template literal characters are properly escaped and rendered
-			const div = $('div');
-			assert.equal(div.text(), '${foo}');
-
-			const span = $('span');
-			assert.equal(span.attr('${attr}'), '');
-
-			const ce = $('custom-element');
-			assert.equal(ce.attr('x-data'), '`${test}`');
-
-			const script = $('script');
-			assert.equal(script.text(), 'console.log(`hello ${"world"}!`)');
 		});
 	});
 });

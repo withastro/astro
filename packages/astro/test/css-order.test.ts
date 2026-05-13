@@ -118,6 +118,7 @@ describe('CSS production ordering', () => {
 			fixture = await loadFixture({
 				root: './fixtures/css-order-layout/',
 				outDir: './dist/css-order-changes-order-when-transparentscriptorde/',
+				cacheDir: './node_modules/.astro-test/css-order-changes-order-when-transparentscriptorde/',
 			});
 			await fixture.build();
 		});
