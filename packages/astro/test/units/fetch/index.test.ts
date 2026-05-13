@@ -436,3 +436,103 @@ describe('Composed pipeline', () => {
 });
 
 // #endregion
+
+// #region state.response
+
+describe('state.response', () => {
+	it('is set after pages() renders', async () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })]);
+		const request = stampApp(new Request('http://example.com/'), app);
+		const state = new FetchState(request);
+
+		assert.equal(state.response, undefined, 'response should be undefined before rendering');
+
+		const response = await pages(state);
+
+		assert.ok(state.response, 'response should be set after pages()');
+		assert.equal(state.response, response, 'state.response should be the same object returned by pages()');
+	});
+
+	it('is set after middleware() completes', async () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })]);
+		const request = stampApp(new Request('http://example.com/'), app);
+		const state = new FetchState(request);
+
+		const response = await middleware(state, () => pages(state));
+
+		assert.ok(state.response, 'response should be set after middleware()');
+		assert.equal(state.response, response, 'state.response should be the same object returned by middleware()');
+	});
+});
+
+// #endregion
+
+// #region Context providers
+
+describe('Context providers', () => {
+	it('resolve returns undefined for an unregistered key', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })]);
+		const request = stampApp(new Request('http://example.com/'), app);
+		const state = new FetchState(request);
+
+		assert.equal(state.resolve('missing'), undefined);
+	});
+
+	it('provide + resolve lazily creates and caches the value', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })]);
+		const request = stampApp(new Request('http://example.com/'), app);
+		const state = new FetchState(request);
+
+		let createCalls = 0;
+		state.provide('counter', {
+			create() {
+				createCalls++;
+				return { count: 42 };
+			},
+		});
+
+		const first = state.resolve('counter');
+		const second = state.resolve('counter');
+
+		assert.deepEqual(first, { count: 42 });
+		assert.equal(first, second, 'resolve should return the cached instance');
+		assert.equal(createCalls, 1, 'create should only be called once');
+	});
+
+	it('finalizeAll runs finalize callbacks for resolved providers', async () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })]);
+		const request = stampApp(new Request('http://example.com/'), app);
+		const state = new FetchState(request);
+
+		let finalized = false;
+		state.provide('session', {
+			create: () => ({ data: 'test' }),
+			finalize: () => { finalized = true; },
+		});
+
+		// Resolve it so finalize will run
+		state.resolve('session');
+		await state.finalizeAll();
+
+		assert.ok(finalized, 'finalize should have been called');
+	});
+
+	it('finalizeAll skips providers that were never resolved', async () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })]);
+		const request = stampApp(new Request('http://example.com/'), app);
+		const state = new FetchState(request);
+
+		let finalized = false;
+		state.provide('unused', {
+			create: () => 'value',
+			finalize: () => { finalized = true; },
+		});
+
+		// Don't resolve — finalize should not run
+		await state.finalizeAll();
+
+		assert.equal(finalized, false, 'finalize should not run for unresolved providers');
+	});
+});
+
+// #endregion
