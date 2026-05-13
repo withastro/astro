@@ -25,17 +25,17 @@ function createMockEnv(
 				);
 			},
 		},
-	} as unknown as Env;
+	};
 }
 
 /**
  * Creates a mock ExecutionContext.
  */
-function createMockCtx(): ExecutionContext {
+function createMockCtx() {
 	return {
 		waitUntil: () => {},
 		passThroughOnException: () => {},
-	} as unknown as ExecutionContext;
+	};
 }
 
 // #region createLocals
@@ -43,37 +43,37 @@ function createMockCtx(): ExecutionContext {
 describe('createLocals', () => {
 	it('sets cfContext on the returned locals', () => {
 		const ctx = createMockCtx();
-		const locals = createLocals(ctx);
+		const locals = createLocals(ctx as any);
 		assert.equal(locals.cfContext, ctx);
 	});
 
 	it('defines a non-enumerable runtime property', () => {
-		const locals = createLocals(createMockCtx());
+		const locals = createLocals(createMockCtx() as any);
 		const descriptor = Object.getOwnPropertyDescriptor(locals, 'runtime');
 		assert.ok(descriptor, 'runtime property should exist');
 		assert.equal(descriptor!.enumerable, false);
 	});
 
 	it('runtime.env throws with migration message', () => {
-		const locals = createLocals(createMockCtx()) as any;
+		const locals = createLocals(createMockCtx() as any) as any;
 		assert.throws(() => locals.runtime.env, /removed in Astro v6/);
 		assert.throws(() => locals.runtime.env, /cloudflare:workers/);
 	});
 
 	it('runtime.cf throws with migration message', () => {
-		const locals = createLocals(createMockCtx()) as any;
+		const locals = createLocals(createMockCtx() as any) as any;
 		assert.throws(() => locals.runtime.cf, /removed in Astro v6/);
 		assert.throws(() => locals.runtime.cf, /Astro\.request\.cf/);
 	});
 
 	it('runtime.caches throws with migration message', () => {
-		const locals = createLocals(createMockCtx()) as any;
+		const locals = createLocals(createMockCtx() as any) as any;
 		assert.throws(() => locals.runtime.caches, /removed in Astro v6/);
 		assert.throws(() => locals.runtime.caches, /global 'caches'/);
 	});
 
 	it('runtime.ctx throws with migration message', () => {
-		const locals = createLocals(createMockCtx()) as any;
+		const locals = createLocals(createMockCtx() as any) as any;
 		assert.throws(() => locals.runtime.ctx, /removed in Astro v6/);
 		assert.throws(() => locals.runtime.ctx, /Astro\.locals\.cfContext/);
 	});
@@ -119,16 +119,16 @@ describe('matchStaticAsset', () => {
 	it('returns a response when the pathname matches a known asset', async () => {
 		const manifest = { assets: new Set(['/style.css']) };
 		const env = createMockEnv();
-		const result = matchStaticAsset(manifest, 'http://example.com/style.css', env);
-		assert.ok(result instanceof Response || result instanceof Promise);
-		const response = await result!;
+		const result = matchStaticAsset(manifest as any, 'http://example.com/style.css', env as any);
+		assert.ok(result != null);
+		const response = await result;
 		assert.equal(response.status, 200);
 	});
 
 	it('strips .html extension when fetching from ASSETS', async () => {
 		const manifest = { assets: new Set(['/page.html']) };
 		const env = createMockEnv();
-		const result = matchStaticAsset(manifest, 'http://example.com/page.html', env);
+		const result = matchStaticAsset(manifest as any, 'http://example.com/page.html', env as any);
 		const response = await result!;
 		assert.equal(response.headers.get('x-fetched-url'), 'http://example.com/page');
 	});
@@ -136,7 +136,7 @@ describe('matchStaticAsset', () => {
 	it('returns undefined when the pathname is not a known asset', () => {
 		const manifest = { assets: new Set(['/style.css']) };
 		const env = createMockEnv();
-		const result = matchStaticAsset(manifest, 'http://example.com/other.js', env);
+		const result = matchStaticAsset(manifest as any, 'http://example.com/other.js', env as any);
 		assert.equal(result, undefined);
 	});
 });
@@ -148,20 +148,20 @@ describe('matchStaticAsset', () => {
 describe('fallbackToAssets', () => {
 	it('returns the asset response when ASSETS returns non-404', async () => {
 		const env = createMockEnv({ status: 200, body: 'fallback asset' });
-		const result = await fallbackToAssets('http://example.com/unknown', env);
+		const result = await fallbackToAssets('http://example.com/unknown', env as any);
 		assert.ok(result);
 		assert.equal(result!.status, 200);
 	});
 
 	it('returns undefined when ASSETS returns 404', async () => {
 		const env = createMockEnv({ status: 404 });
-		const result = await fallbackToAssets('http://example.com/unknown', env);
+		const result = await fallbackToAssets('http://example.com/unknown', env as any);
 		assert.equal(result, undefined);
 	});
 
 	it('strips .html and index.html from the URL', async () => {
 		const env = createMockEnv({ status: 200 });
-		const result = await fallbackToAssets('http://example.com/about/index.html', env);
+		const result = await fallbackToAssets('http://example.com/about/index.html', env as any);
 		assert.ok(result);
 		assert.equal(result!.headers.get('x-fetched-url'), 'http://example.com/about/');
 	});
@@ -174,14 +174,14 @@ describe('fallbackToAssets', () => {
 describe('createErrorPageFetch', () => {
 	it('returns a function that fetches from ASSETS', async () => {
 		const env = createMockEnv({ status: 200, body: '404 page' });
-		const fetchFn = createErrorPageFetch(env);
+		const fetchFn = createErrorPageFetch(env as any);
 		const response = await fetchFn('http://example.com/404.html');
 		assert.equal(response.status, 200);
 	});
 
 	it('strips .html extension from the URL', async () => {
 		const env = createMockEnv({ status: 200 });
-		const fetchFn = createErrorPageFetch(env);
+		const fetchFn = createErrorPageFetch(env as any);
 		const response = await fetchFn('http://example.com/404.html');
 		assert.equal(response.headers.get('x-fetched-url'), 'http://example.com/404');
 	});
