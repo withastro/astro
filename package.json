@@ -57,15 +57,9 @@
   "engines": {
     "node": ">=22.12.0"
   },
-  "packageManager": "pnpm@10.30.3",
+  "packageManager": "pnpm@11.0.9",
   "dependencies": {
     "astro-benchmark": "workspace:*"
-  },
-  "pnpm": {
-    "overrides": {
-      "picomatch@<4": "^2.3.2",
-      "vite@^7": "^7.3.2"
-    }
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.5",

@@ -79,7 +79,7 @@ jobs:
           mv ../../../package.json ../../../package.temp.json
           rm -rf ../../../node_modules
           sleep 60s # wait for npm registry to update
-          npm ci --workspaces=false # vsce does not support pnpm, so we need to pretend this is not a monorepo and use npm
+          npm i --workspaces=false # vsce does not support pnpm, so we need to pretend this is not a monorepo and use npm
           mv ./astro-ts-plugin-bundle ./node_modules/astro-ts-plugin-bundle
 
       - name: Publish to VSCode Marketplace
