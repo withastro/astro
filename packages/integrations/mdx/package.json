@@ -39,7 +39,6 @@
     "acorn": "^8.16.0",
     "es-module-lexer": "^2.0.0",
     "estree-util-visit": "^2.0.0",
-    "github-slugger": "^2.0.0",
     "hast-util-to-html": "^9.0.5",
     "piccolore": "^0.1.3",
     "rehype-raw": "^7.0.0",

@@ -5332,9 +5332,6 @@ importers:
       estree-util-visit:
         specifier: ^2.0.0
         version: 2.0.0
-      github-slugger:
-        specifier: ^2.0.0
-        version: 2.0.0
       hast-util-to-html:
         specifier: ^9.0.5
         version: 9.0.5
