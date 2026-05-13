@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import colors from 'picocolors';
-import { loadFixture } from '../test/test-utils.js';
+import { loadFixture } from '../test/test-utils.ts';
 import { generatePosts } from './scripts/generate-posts.mjs';
 
 // Skip nonessential remark / rehype plugins for a fair comparison.

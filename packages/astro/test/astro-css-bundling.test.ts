@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 // note: the hashes should be deterministic, but updating the file contents will change hashes
 // be careful not to test that the HTML simply contains CSS, because it always will! filename and quantity matter here (bundling).
@@ -88,7 +88,7 @@ describe('CSS Bundling', function () {
 					environments: {
 						prerender: {
 							build: {
-								rolldownOptions: {
+								rollupOptions: {
 									output: {
 										assetFileNames: 'assets/[name][extname]',
 									},

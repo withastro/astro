@@ -2,8 +2,9 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { ServerOnlyModule } from '../dist/core/errors/errors-data.js';
-import testAdapter from './test-adapter.js';
-import { type App, type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { AstroError } from '../dist/core/errors/index.js';
+import testAdapter from './test-adapter.ts';
+import { type App, type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('astro:config/client', () => {
 	let fixture: Fixture;
@@ -119,11 +120,10 @@ describe('astro:config/server', () => {
 		});
 
 		it('should return an error when using inside a client script', async () => {
-			const error = await fixture.build().catch((err) => err);
-			const astroError = error.errors[0];
-			assert.equal(astroError.type, 'AstroError');
-			assert.equal(astroError.name, ServerOnlyModule.name);
-			assert.ok(astroError.message.includes(ServerOnlyModule.message('astro:config/server')));
+			let error = await fixture.build().catch((err) => err);
+			error = error.errors[0];
+			assert.equal(error instanceof AstroError, true);
+			assert.equal(error.name, ServerOnlyModule.name);
 		});
 	});
 

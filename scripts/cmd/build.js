@@ -123,6 +123,7 @@ export default async function build(...args) {
 async function clean(outdir, cleanDts) {
 	const files = await glob('**', {
 		cwd: outdir,
+		dot: true,
 		filesOnly: true,
 		ignore: cleanDts ? undefined : ['**/*.d.ts'],
 		absolute: true,

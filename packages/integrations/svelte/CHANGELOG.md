@@ -1,5 +1,28 @@
 # @astrojs/svelte
 
+## 9.0.0-alpha.0
+
+### Major Changes
+
+- [#15819](https://github.com/withastro/astro/pull/15819) [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27) Thanks [@delucis](https://github.com/delucis)! - Upgrade to Vite v8
+
+### Patch Changes
+
+- Updated dependencies [[`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`c30a778`](https://github.com/withastro/astro/commit/c30a7789a477e44826c54c8560587d09dc46a229), [`ee079d4`](https://github.com/withastro/astro/commit/ee079d4c7f143076b84d663c832911009a077c7f)]:
+  - astro@7.0.0-alpha.0
+
+## 8.1.0
+
+### Minor Changes
+
+- [#16466](https://github.com/withastro/astro/pull/16466) [`31b6198`](https://github.com/withastro/astro/commit/31b619824424974d04de8669a5f803b235361cff) Thanks [@fkatsuhiro](https://github.com/fkatsuhiro)! - This change updates the Svelte integration's type shims to treat non-children
+  snippet props and `any`-typed props as optional. Previously, these were
+  incorrectly marked as required in Astro files, causing false-positive type
+  errors when using Svelte 5 components.
+  - Adds `HandleSnippetProps` to make Snippets optional in Astro.
+  - Distinguishes between generic and non-generic components to preserve inference.
+  - Updates TSX generation to apply the appropriate directive wrapper.
+
 ## 8.0.5
 
 ### Patch Changes

@@ -9,7 +9,7 @@ import {
 	type Fixture,
 	type PreviewServer,
 	loadFixture as baseLoadFixture,
-} from '../test/test-utils.js';
+} from '../test/test-utils.ts';
 
 export type { AstroInlineConfig, DevServer, Fixture, PreviewServer };
 
@@ -166,9 +166,6 @@ export function createLoggerSpy(options: LoggerSpyOptions = {}): AstroLogger {
 	return logger as AstroLogger;
 }
 
-/**
- * Scroll to element manually without making sure the `el` is stable
- */
 /**
  * Warm up the dev server by loading a page and waiting for islands to hydrate.
  * This ensures Vite's dep optimizer has finished and avoids reload flakiness.

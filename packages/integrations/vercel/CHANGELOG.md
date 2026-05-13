@@ -1,5 +1,22 @@
 # @astrojs/vercel
 
+## 11.0.0-alpha.0
+
+### Major Changes
+
+- [#15819](https://github.com/withastro/astro/pull/15819) [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27) Thanks [@delucis](https://github.com/delucis)! - Upgrade to Vite v8
+
+### Patch Changes
+
+- Updated dependencies [[`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`c30a778`](https://github.com/withastro/astro/commit/c30a7789a477e44826c54c8560587d09dc46a229), [`ee079d4`](https://github.com/withastro/astro/commit/ee079d4c7f143076b84d663c832911009a077c7f)]:
+  - astro@7.0.0-alpha.0
+
+## 10.0.6
+
+### Patch Changes
+
+- [#16486](https://github.com/withastro/astro/pull/16486) [`0bae1a5`](https://github.com/withastro/astro/commit/0bae1a51f0f271403d43f5ec0ae031c9c614fd3c) Thanks [@cyphercodes](https://github.com/cyphercodes)! - Fix forwarded serverless requests with streamed bodies by preserving the required `duplex: 'half'` option when rewriting middleware paths.
+
 ## 10.0.5
 
 ### Patch Changes

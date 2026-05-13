@@ -92,25 +92,6 @@ const name = 'world
 		assert.equal(names.includes('file'), true);
 		assert.equal(names.includes('url'), true);
 	});
-
-	describe('when the code contains syntax that is transformed by esbuild', () => {
-		const code = `\
----
-using x = {}
----`;
-
-		it('should not transform the syntax by default', async () => {
-			const result = await compile(code, '/src/components/index.astro');
-			assert.equal(result.code.includes('using x = {}'), true);
-		});
-
-		it('should transform the syntax by oxc.target', async () => {
-			const result = await compile(code, '/src/components/index.astro', {
-				oxc: { target: 'es2018' },
-			});
-			assert.equal(result.code.includes('using x = {}'), false, 'Code contains\n' + result.code);
-		});
-	});
 });
 
 // #endregion

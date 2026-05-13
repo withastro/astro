@@ -2,14 +2,14 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import net from 'node:net';
 import { after, before, describe, it } from 'node:test';
-import testAdapter from './test-adapter.js';
+import testAdapter from './test-adapter.ts';
 import {
 	type App,
 	type AstroInlineConfig,
 	type DevServer,
 	type Fixture,
 	loadFixture,
-} from './test-utils.js';
+} from './test-utils.ts';
 
 describe('API routes in SSR', () => {
 	const config: AstroInlineConfig = {

@@ -140,8 +140,8 @@ jobs:
       - name: Lint publish code
         run: pnpm run publint
 
-      - name: Type-check test files
-        run: pnpm run typecheck:tests
+      - name: Type-check files
+        run: pnpm run typecheck
 
   test:
     name: 'Test (${{ matrix.TEST_SUITE.name }}): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})'
@@ -332,11 +332,11 @@ jobs:
         with:
           repository: withastro/docs
           path: smoke/docs
-          # For a commit event on the `next` branch (`ref_name`), use the `v6` branch.
-          # For a pull_request event merging into the `next` branch (`base_ref`), use the `v6` branch.
+          # For a commit event on the `next` branch (`ref_name`), use the `v7` branch.
+          # For a pull_request event merging into the `next` branch (`base_ref`), use the `v7` branch.
           # NOTE: For a pull_request event, the `ref_name` is something like `<pr-number>/merge` than the branch name.
           # NOTE: Perhaps docs repo should use a consistent `next` branch in the future.
-          ref: ${{ (github.ref_name == 'next' || github.base_ref == 'next') && 'v6' || 'main' }}
+          ref: ${{ (github.ref_name == 'next' || github.base_ref == 'next') && 'v7' || 'main' }}
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile

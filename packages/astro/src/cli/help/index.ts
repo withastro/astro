@@ -28,6 +28,7 @@ export const DEFAULT_HELP_PAYLOAD: HelpPayload = {
 			['--silent', 'Disable all logging.'],
 			['--version', 'Show the version number and exit.'],
 			['--help', 'Show this help message.'],
+			['--experimental-json', 'Enables JSON logging.'],
 		],
 	},
 };

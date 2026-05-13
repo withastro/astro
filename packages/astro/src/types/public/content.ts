@@ -162,7 +162,7 @@ export interface CacheHint {
 	lastModified?: Date;
 }
 
-export interface LiveDataEntry<TData extends Record<string, any> = Record<string, unknown>> {
+export interface LiveDataEntry<TData extends Record<string, any> = Record<string, any>> {
 	/** The ID of the entry. Unique per collection. */
 	id: string;
 	/** The parsed entry data */
@@ -175,14 +175,14 @@ export interface LiveDataEntry<TData extends Record<string, any> = Record<string
 	cacheHint?: CacheHint;
 }
 
-export interface LiveDataCollection<TData extends Record<string, any> = Record<string, unknown>> {
+export interface LiveDataCollection<TData extends Record<string, any> = Record<string, any>> {
 	entries: Array<LiveDataEntry<TData>>;
 	/** A hint for how to cache this collection. Individual entries can also have cache hints */
 	cacheHint?: CacheHint;
 }
 
 export interface LiveDataCollectionResult<
-	TData extends Record<string, any> = Record<string, unknown>,
+	TData extends Record<string, any> = Record<string, any>,
 	TError extends Error = Error,
 > {
 	entries?: Array<LiveDataEntry<TData>>;
@@ -191,7 +191,7 @@ export interface LiveDataCollectionResult<
 }
 
 export interface LiveDataEntryResult<
-	TData extends Record<string, any> = Record<string, unknown>,
+	TData extends Record<string, any> = Record<string, any>,
 	TError extends Error = Error,
 > {
 	entry?: LiveDataEntry<TData>;

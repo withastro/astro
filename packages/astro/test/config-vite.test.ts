@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import * as cheerio from 'cheerio';
 import { defaultClientConditions, resolveConfig } from 'vite';
 import { getViteConfig } from '../dist/config/index.js';
-import { loadFixture, type Fixture } from './test-utils.js';
+import { loadFixture, type Fixture } from './test-utils.ts';
 
 describe('Vite Config', async () => {
 	let fixture: Fixture;

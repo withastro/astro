@@ -74,8 +74,7 @@ test.skip('Multiple frameworks', () => {
 		await expect(count, 'count incremented by 1').toHaveText('1');
 	});
 
-	// TODO: Re-enable once Svelte is compatible with Vite v8
-	test.skip('Svelte counter', async ({ page, astro }) => {
+	test('Svelte counter', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#svelte-counter');
@@ -168,8 +167,7 @@ test.skip('Multiple frameworks', () => {
 			await expect(count, 'initial count updated to 5').toHaveText('5');
 		});
 
-		// TODO: Re-enable once Svelte is compatible with Vite v8
-		test.skip('Svelte component', async ({ astro, page }) => {
+		test('Svelte component', async ({ astro, page }) => {
 			await page.goto(astro.resolveUrl('/'));
 
 			const count = page.locator('#svelte-counter pre');

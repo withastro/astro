@@ -4,7 +4,7 @@ import { Writable } from 'node:stream';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { type Fixture, loadFixture, type PreviewServer } from './test-utils.ts';
-import { AstroLogger } from '../../../astro/dist/core/logger/core.js';
+import { AstroLogger } from 'astro/_internal/logger';
 import { fileURLToPath } from 'node:url';
 
 describe('React', () => {

@@ -39,7 +39,7 @@ describe('Markdoc - propagated assets', () => {
 				if (mode === 'dev') devServer?.stop();
 			});
 
-			it.only('Bundles styles', async () => {
+			it('Bundles styles', async () => {
 				let styleContents;
 				if (mode === 'dev') {
 					const styles = stylesDocument.querySelectorAll<HTMLStyleElement>('style');

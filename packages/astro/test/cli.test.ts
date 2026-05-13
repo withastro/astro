@@ -5,7 +5,7 @@ import { Writable } from 'node:stream';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { stripVTControlCharacters } from 'node:util';
-import { cli, loadFixture, type Fixture } from './test-utils.js';
+import { cli, loadFixture, type Fixture } from './test-utils.ts';
 
 describe('astro cli', () => {
 	it('astro', async () => {
@@ -29,7 +29,7 @@ describe('astro cli', () => {
 		});
 		const logs: LogEntry[] = [];
 
-		const checkServer = await fixture.check({
+		const checkServer: boolean | void = await fixture.check({
 			_: [],
 			flags: { watch: true },
 			logging: {

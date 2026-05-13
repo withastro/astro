@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-// import { AstroError } from '../dist/core/errors/errors.js';
+import { AstroError } from '../dist/core/errors/errors.js';
 import { ServerOnlyModule } from '../dist/core/errors/errors-data.js';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('astro:env public variables', () => {
 	let fixture: Fixture;
@@ -41,11 +41,10 @@ describe('astro:env public variables', () => {
 		});
 
 		it('throws if server module is called on the client', async () => {
-			const error = await fixture.build().catch((err) => err);
-			// TODO: Figure out why the error is now generic.
-			// assert.equal(error instanceof AstroError, true);
-			// assert.equal(error.name, ServerOnlyModule.name);
-			assert.ok(error.message.includes(ServerOnlyModule.message('astro:env/server')));
+			let error = await fixture.build().catch((err) => err);
+			error = error.errors[0];
+			assert.equal(error instanceof AstroError, true);
+			assert.equal(error.name, ServerOnlyModule.name);
 		});
 	});
 });

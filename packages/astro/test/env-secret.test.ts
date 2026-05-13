@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { afterEach, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import type { AstroError } from '../dist/core/errors/errors.js';
-import testAdapter from './test-adapter.js';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('astro:env secret variables', () => {
 	let fixture: Fixture;
@@ -78,12 +78,11 @@ describe('astro:env secret variables', () => {
 		try {
 			await fixture.build();
 			assert.fail();
-		} catch (e) {
-			const error = e as AstroError;
+		} catch (e: any) {
+			const error = e.errors[0] as any as AstroError;
 			assert.equal(error instanceof Error, true);
-			// TODO: Work out why error title is no longer set.
-			// assert.equal(error.title, 'Invalid Environment Variables');
-			assert.ok(error.message.includes('KNOWN_SECRET is missing'));
+			assert.equal(error.title, 'Invalid Environment Variables');
+			assert.equal(error.message.includes('KNOWN_SECRET is missing'), true);
 		}
 	});
 });

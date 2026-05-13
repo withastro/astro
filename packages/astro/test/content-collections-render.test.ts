@@ -1,8 +1,8 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import testAdapter from './test-adapter.js';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Content Collections - render()', () => {
 	describe('Build - SSG', () => {
@@ -180,8 +180,9 @@ describe('Content Collections - render()', () => {
 
 		it('Includes component scripts for rendered entry', async () => {
 			const response = await fixture.fetch('/launch-week-component-scripts', { method: 'GET' });
-			const html = await response.text();
 			assert.equal(response.status, 200);
+
+			const html = await response.text();
 			const $ = cheerio.load(html);
 
 			// Includes script

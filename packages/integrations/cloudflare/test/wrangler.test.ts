@@ -63,7 +63,10 @@ describe('cloudflareConfigCustomizer', () => {
 				kv_namespaces: [{ binding: 'OTHER_KV', id: 'other-id' }],
 			});
 
-			assert.deepEqual(result.kv_namespaces, [{ binding: DEFAULT_SESSION_KV_BINDING_NAME }]);
+			assert.deepEqual(result.kv_namespaces, [
+				{ binding: 'OTHER_KV', id: 'other-id' },
+				{ binding: DEFAULT_SESSION_KV_BINDING_NAME },
+			]);
 		});
 
 		it('does not add SESSION binding when session KV binding is disabled', () => {
@@ -155,6 +158,20 @@ describe('cloudflareConfigCustomizer', () => {
 			});
 
 			assert.equal(result.previews?.images, undefined);
+		});
+
+		it('preserves existing previews KV bindings when adding SESSION binding', () => {
+			const customizer = cloudflareConfigCustomizer();
+			const result = customizer({
+				previews: {
+					kv_namespaces: [{ binding: 'OTHER_KV', id: 'other-id' }],
+				},
+			});
+
+			assert.deepEqual(result.previews?.kv_namespaces, [
+				{ binding: 'OTHER_KV', id: 'other-id' },
+				{ binding: DEFAULT_SESSION_KV_BINDING_NAME },
+			]);
 		});
 
 		it('adds SESSION binding to previews even when top-level has it', () => {

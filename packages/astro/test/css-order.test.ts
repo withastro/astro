@@ -1,8 +1,8 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import testAdapter from './test-adapter.js';
-import { loadFixture, type Fixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { loadFixture, type Fixture } from './test-utils.ts';
 
 describe('CSS production ordering', () => {
 	function getLinks(html: string): string[] {
@@ -119,8 +119,7 @@ describe('CSS production ordering', () => {
 		it('should compile styles in the same order as they are found', async () => {
 			const html = await fixture.readFile('/transparent/index.html');
 
-			// The component declares red background first, then yellow.
-			// The red background is omitted because Lightning CSS detects it as unused.
+			// Red is removed, yellow stays
 			assert.match(html, /body\{background:#ff0/);
 		});
 	});

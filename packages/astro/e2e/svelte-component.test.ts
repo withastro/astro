@@ -13,41 +13,45 @@ const config = {
 };
 
 // TODO: Re-enable once Svelte is compatible with Vite v8
-test.describe.skip('Svelte components in Astro files', () => {
-	createTests({
-		...config,
-		pageUrl: '/',
-		pageSourceFilePath: './src/pages/index.astro',
+test.describe
+	.skip('Svelte components in Astro files', () => {
+		createTests({
+			...config,
+			pageUrl: '/',
+			pageSourceFilePath: './src/pages/index.astro',
+		});
 	});
-});
 
 // TODO: Re-enable once Svelte is compatible with Vite v8
-test.describe.skip('Svelte components in MDX files', () => {
-	createTests({
-		...config,
-		pageUrl: '/mdx/',
-		pageSourceFilePath: './src/pages/mdx.mdx',
+test.describe
+	.skip('Svelte components in MDX files', () => {
+		createTests({
+			...config,
+			pageUrl: '/mdx/',
+			pageSourceFilePath: './src/pages/mdx.mdx',
+		});
 	});
-});
 
 // TODO: Re-enable once Svelte is compatible with Vite v8
-test.describe.skip('Svelte components lifecycle', () => {
-	test('slot should unmount properly', async ({ page, astro }) => {
-		await page.goto(astro.resolveUrl('/'));
+test.describe
+	.skip('Svelte components lifecycle', () => {
+		test('slot should unmount properly', async ({ page, astro }) => {
+			await page.goto(astro.resolveUrl('/'));
 
-		const toggle = page.locator('#toggle');
-		expect((await toggle.textContent())!.trim()).toBe('close');
-		await toggle.click();
-		expect((await toggle.textContent())!.trim()).toBe('open');
+			const toggle = page.locator('#toggle');
+			expect((await toggle.textContent())!.trim()).toBe('close');
+			await toggle.click();
+			expect((await toggle.textContent())!.trim()).toBe('open');
+		});
 	});
-});
 
 // TODO: Re-enable once Svelte is compatible with Vite v8
-test.describe.skip('Slotting content into svelte components', () => {
-	test('should stay after hydration', async ({ page, astro }) => {
-		await page.goto(astro.resolveUrl('/with-slots'));
-		const hydratableElement = page.locator('#hydratable');
-		await waitForHydrate(page, hydratableElement);
-		await expect(hydratableElement).toHaveText('Slot goes here:poo');
+test.describe
+	.skip('Slotting content into svelte components', () => {
+		test('should stay after hydration', async ({ page, astro }) => {
+			await page.goto(astro.resolveUrl('/with-slots'));
+			const hydratableElement = page.locator('#hydratable');
+			await waitForHydrate(page, hydratableElement);
+			await expect(hydratableElement).toHaveText('Slot goes here:poo');
+		});
 	});
-});

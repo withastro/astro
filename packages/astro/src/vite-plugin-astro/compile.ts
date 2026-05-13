@@ -1,63 +1,22 @@
-import { transformWithOxc } from 'vite';
+import type { Rolldown } from 'vite';
 import { type CompileProps, type CompileResult, compile } from '../core/compile/index.js';
-import type { AstroLogger } from '../core/logger/core.js';
-import type { AstroConfig } from '../types/public/config.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 import type { CompileMetadata } from './types.js';
-import { frontmatterRE } from './utils.js';
-import type { Rolldown } from 'vite';
 
 interface CompileAstroOption {
 	compileProps: CompileProps;
 	astroFileToCompileMetadata: Map<string, CompileMetadata>;
-	logger: AstroLogger;
 }
 
 export interface CompileAstroResult extends Omit<CompileResult, 'map'> {
 	map: Rolldown.SourceMapInput;
 }
 
-interface EnhanceCompilerErrorOptions {
-	err: Error;
-	id: string;
-	source: string;
-	config: AstroConfig;
-	logger: AstroLogger;
-}
-
 export async function compileAstro({
 	compileProps,
 	astroFileToCompileMetadata,
-	logger,
 }: CompileAstroOption): Promise<CompileAstroResult> {
-	let transformResult: CompileResult;
-	let oxcResult: Awaited<ReturnType<typeof transformWithOxc>>;
-
-	try {
-		transformResult = await compile(compileProps);
-		// Compile all TypeScript to JavaScript.
-		// Also, catches invalid JS/TS in the compiled output before returning.
-		oxcResult = await transformWithOxc(transformResult.code, compileProps.filename, {
-			...compileProps.viteConfig.oxc,
-			lang: 'ts',
-			sourcemap: true,
-			tsconfig: {
-				compilerOptions: {
-					// Ensure client:only imports are treeshaken
-					verbatimModuleSyntax: false,
-				},
-			},
-		});
-	} catch (err: any) {
-		await enhanceCompileError({
-			err,
-			id: compileProps.filename,
-			source: compileProps.source,
-			config: compileProps.astroConfig,
-			logger: logger,
-		});
-		throw err;
-	}
+	const transformResult = await compile(compileProps);
 
 	const { fileId: file, fileUrl: url } = getFileInfo(
 		compileProps.filename,
@@ -87,52 +46,7 @@ export async function compileAstro({
 
 	return {
 		...transformResult,
-		code: oxcResult.code + SUFFIX,
-		map: oxcResult.map!,
+		code: transformResult.code + SUFFIX,
+		map: transformResult.map || null,
 	};
-}
-
-async function enhanceCompileError({
-	err,
-	id,
-	source,
-}: EnhanceCompilerErrorOptions): Promise<void> {
-	const lineText = (err as any).loc?.lineText;
-	// Verify frontmatter: a common reason that this plugin fails is that
-	// the user provided invalid JS/TS in the component frontmatter.
-	// If the frontmatter is invalid, the `err` object may be a compiler
-	// panic or some other vague/confusing compiled error message.
-	//
-	// Before throwing, it is better to verify the frontmatter here, and
-	// let esbuild throw a more specific exception if the code is invalid.
-	// If frontmatter is valid or cannot be parsed, then continue.
-	const scannedFrontmatter = frontmatterRE.exec(source);
-	if (scannedFrontmatter) {
-		// Top-level return is not supported, so replace `return` with throw
-		const frontmatter = scannedFrontmatter[1]
-			.replace(/\breturn\s*;/g, 'throw 0;')
-			.replace(/\breturn\b/g, 'throw ');
-
-		// If frontmatter does not actually include the offending line, skip
-		if (lineText && !frontmatter.includes(lineText)) throw err;
-
-		try {
-			await transformWithOxc(frontmatter, id, {
-				target: 'esnext',
-				sourcemap: false,
-			});
-		} catch (frontmatterErr: any) {
-			// Improve the error by replacing the phrase "unexpected end of file"
-			// with "unexpected end of frontmatter" in the esbuild error message.
-			if (frontmatterErr?.message) {
-				frontmatterErr.message = frontmatterErr.message.replace(
-					'end of file',
-					'end of frontmatter',
-				);
-			}
-			throw frontmatterErr;
-		}
-	}
-
-	throw err;
 }

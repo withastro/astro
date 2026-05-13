@@ -1,15 +1,9 @@
-import { type Page, expect } from '@playwright/test';
+import { expect } from '@playwright/test';
 import { type DevServer, testFactory } from './test-utils.ts';
 
 const test = testFactory(import.meta.url, { root: './fixtures/astro-component/' });
 
 let devServer: DevServer;
-
-async function waitForViteToSettle(page: Page) {
-	// Headless Chrome can trigger one immediate follow-up load after the initial Vite connection.
-	// Wait for that to clear before asserting whether an edit caused a reload.
-	await page.waitForTimeout(500);
-}
 
 test.beforeAll(async ({ astro }) => {
 	devServer = await astro.startDevServer();
@@ -22,7 +16,6 @@ test.afterAll(async () => {
 test.describe('Astro component HMR', () => {
 	test('component styles', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
-		await waitForViteToSettle(page);
 
 		const hero = page.locator('section');
 		await expect(hero, 'hero has background: white').toHaveCSS(
@@ -50,7 +43,6 @@ test.describe('Astro component HMR', () => {
 
 		await page.goto(astro.resolveUrl('/'));
 		await initialLog;
-		await waitForViteToSettle(page);
 
 		const el = page.locator('#hoisted-script');
 		expect(await el.innerText()).toContain('Hoisted success');
@@ -76,7 +68,6 @@ test.describe('Astro component HMR', () => {
 
 		await page.goto(astro.resolveUrl('/'));
 		await initialLog;
-		await waitForViteToSettle(page);
 
 		const updatedLog = page.waitForEvent(
 			'console',
@@ -93,23 +84,29 @@ test.describe('Astro component HMR', () => {
 
 	test('update linked dep Astro html', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
-		await waitForViteToSettle(page);
-		const h1 = page.locator('#astro-linked-lib');
+		let h1 = page.locator('#astro-linked-lib');
 		expect(await h1.textContent()).toBe('astro-linked-lib');
-		await astro.editFile('../_deps/astro-linked-lib/Component.astro', (content) =>
-			content.replace('>astro-linked-lib<', '>astro-linked-lib-update<'),
-		);
-		await expect(h1).toHaveText('astro-linked-lib-update');
+		await Promise.all([
+			page.waitForLoadState('networkidle'),
+			await astro.editFile('../_deps/astro-linked-lib/Component.astro', (content) =>
+				content.replace('>astro-linked-lib<', '>astro-linked-lib-update<'),
+			),
+		]);
+		h1 = page.locator('#astro-linked-lib');
+		expect(await h1.textContent()).toBe('astro-linked-lib-update');
 	});
 
 	test('update linked dep Astro style', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
-		await waitForViteToSettle(page);
-		const h1 = page.locator('#astro-linked-lib');
+		let h1 = page.locator('#astro-linked-lib');
 		await expect(h1).toHaveCSS('color', 'rgb(255, 0, 0)');
-		await astro.editFile('../_deps/astro-linked-lib/Component.astro', (content) =>
-			content.replace('color: red', 'color: green'),
-		);
+		await Promise.all([
+			page.waitForLoadState('networkidle'),
+			await astro.editFile('../_deps/astro-linked-lib/Component.astro', (content) =>
+				content.replace('color: red', 'color: green'),
+			),
+		]);
+		h1 = page.locator('#astro-linked-lib');
 		await expect(h1).toHaveCSS('color', 'rgb(0, 128, 0)');
 	});
 });

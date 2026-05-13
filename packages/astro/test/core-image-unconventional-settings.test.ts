@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 
-import { testImageService } from './test-image-service.js';
-import { type AstroInlineConfig, type Fixture, loadFixture } from './test-utils.js';
+import { testImageService } from './test-image-service.ts';
+import { type AstroInlineConfig, type Fixture, loadFixture } from './test-utils.ts';
 
 const defaultSettings: AstroInlineConfig = {
 	root: './fixtures/core-image-unconventional-settings/',
@@ -88,7 +88,7 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 		assert.equal(data instanceof Buffer, true);
 	});
 
-	it('supports custom vite.build.rolldownOptions.output.assetFileNames', async () => {
+	it('supports custom vite.build.rollupOptions.output.assetFileNames', async () => {
 		fixture = await loadFixture({
 			...defaultSettings,
 			build: {
@@ -98,7 +98,7 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 				environments: {
 					prerender: {
 						build: {
-							rolldownOptions: {
+							rollupOptions: {
 								output: {
 									assetFileNames: 'images/hello_[name].[ext]',
 								},
@@ -121,7 +121,7 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 		assert.equal(data instanceof Buffer, true);
 	});
 
-	it('supports complex vite.build.rolldownOptions.output.assetFileNames', async () => {
+	it('supports complex vite.build.rollupOptions.output.assetFileNames', async () => {
 		fixture = await loadFixture({
 			...defaultSettings,
 			build: {
@@ -131,7 +131,7 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 				environments: {
 					prerender: {
 						build: {
-							rolldownOptions: {
+							rollupOptions: {
 								output: {
 									assetFileNames: 'assets/[hash]/[name][extname]',
 								},
@@ -155,14 +155,14 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 		assert.equal(data instanceof Buffer, true);
 	});
 
-	it('supports custom vite.build.rolldownOptions.output.assetFileNames with assetsPrefix', async () => {
+	it('supports custom vite.build.rollupOptions.output.assetFileNames with assetsPrefix', async () => {
 		fixture = await loadFixture({
 			...defaultSettings,
 			vite: {
 				environments: {
 					prerender: {
 						build: {
-							rolldownOptions: {
+							rollupOptions: {
 								output: {
 									assetFileNames: 'images/hello_[name].[ext]',
 								},

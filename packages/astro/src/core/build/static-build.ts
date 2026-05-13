@@ -289,7 +289,16 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 						}
 						return [prefix, cleanChunkName(name), suffix].join('');
 					},
-					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
+					assetFileNames(assetInfo) {
+						// Strip the @_@ extension-masking pattern from asset names, just like chunkFileNames above.
+						// The @_@ pattern is an internal mechanism for virtual module IDs and should not leak into output filenames.
+						const name = assetInfo.names?.[0] ?? '';
+						if (name.includes(ASTRO_PAGE_EXTENSION_POST_PATTERN)) {
+							const [sanitizedName] = name.split(ASTRO_PAGE_EXTENSION_POST_PATTERN);
+							return `${settings.config.build.assets}/${sanitizedName}.[hash][extname]`;
+						}
+						return `${settings.config.build.assets}/[name].[hash][extname]`;
+					},
 					...viteConfig.build?.rolldownOptions?.output,
 					entryFileNames(chunkInfo) {
 						if (chunkInfo.facadeModuleId?.startsWith(VIRTUAL_PAGE_RESOLVED_MODULE_ID)) {
@@ -370,12 +379,12 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					// So using the noop plugin here which will give us an input that just gets thrown away.
 					internals.clientInput.add(NOOP_MODULE_ID);
 				}
-				// Sort the client input to ensure deterministic Rolldown entry point ordering.
+				// Sort the client input to ensure deterministic Rollup entry point ordering.
 				// `internals.clientInput` is a Set whose iteration order depends on async module resolution
 				// timing during prerendering. Without sorting, consecutive builds of the same
 				// source code can produce different output filenames, breaking CDN caching.
 				const sortedClientInput = Array.from(internals.clientInput).sort();
-				builder.environments.client.config.build.rolldownOptions.input = sortedClientInput;
+				builder.environments.client.config.build.rollupOptions.input = sortedClientInput;
 				settings.timer.start('Client build');
 				await builder.build(builder.environments.client);
 				settings.timer.end('Client build');
@@ -424,7 +433,16 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 							chunkFileNames(chunkInfo) {
 								return `${settings.config.build.assets}/${cleanChunkName(chunkInfo.name)}.[hash].js`;
 							},
-							assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
+							assetFileNames(assetInfo) {
+								// Strip the @_@ extension-masking pattern from asset names.
+								// The @_@ pattern is an internal mechanism for virtual module IDs and should not leak into output filenames.
+								const name = assetInfo.names?.[0] ?? '';
+								if (name.includes(ASTRO_PAGE_EXTENSION_POST_PATTERN)) {
+									const [sanitizedName] = name.split(ASTRO_PAGE_EXTENSION_POST_PATTERN);
+									return `${settings.config.build.assets}/${sanitizedName}.[hash][extname]`;
+								}
+								return `${settings.config.build.assets}/[name].[hash][extname]`;
+							},
 							...viteConfig.environments?.client?.build?.rolldownOptions?.output,
 						},
 					},

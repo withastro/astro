@@ -33,7 +33,7 @@ export function shouldAppendForwardSlash(
 
 /**
  * Matches any character that is NOT alphanumeric, underscore, dot, hyphen, or forward slash.
- * Rolldown's built-in `sanitizeFileName` misses characters like `!` and `~` that can leak
+ * Rollup's built-in `sanitizeFileName` misses characters like `!` and `~` that can leak
  * from Vite module IDs into chunk names (e.g. `page.!{005}.js`).
  */
 const UNSAFE_CHUNK_CHAR_RE = /[^\w.\-/]/g;

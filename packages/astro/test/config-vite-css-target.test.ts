@@ -5,7 +5,7 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture, type Fixture } from './test-utils.js';
+import { loadFixture, type Fixture } from './test-utils.ts';
 
 let fixture: Fixture;
 
@@ -36,7 +36,7 @@ describe('CSS', function () {
 		});
 
 		it('vite.build.cssTarget is respected', async () => {
-			assert.match(bundledCSS, /\.class\[data-astro-[^{]*\{top:0;bottom:0;left:0;right:0\}/);
+			assert.match(bundledCSS, /class\[data-astro-cid-[^\]]+\]\{top:0;bottom:0;left:0;right:0\}/);
 		});
 	});
 });

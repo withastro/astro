@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readdir } from 'node:fs/promises';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('SVG Deduplication', () => {
 	let fixture: Fixture;

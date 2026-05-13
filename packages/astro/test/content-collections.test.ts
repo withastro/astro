@@ -2,9 +2,9 @@ import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import * as devalue from 'devalue';
-import testAdapter from './test-adapter.js';
-import { preventNodeBuiltinDependencyPlugin } from './test-plugins.js';
-import { type App, type Fixture, loadFixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { preventNodeBuiltinDependencyPlugin } from './test-plugins.ts';
+import { type App, type Fixture, loadFixture } from './test-utils.ts';
 
 type WithSchemaConfigEntry = {
 	id: string;

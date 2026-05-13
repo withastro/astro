@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('astro:assets - SVG Components in Astro Islands', async () => {
 	let fixture: Fixture;
@@ -28,14 +28,11 @@ describe('astro:assets - SVG Components in Astro Islands', async () => {
 			const componentUrl = island.attr('component-url')!;
 			assert.ok(componentUrl, 'Expected component-url attribute to be present on astro-island.');
 			const componentModule = await fixture.fetch(componentUrl).then((res) => res.text());
-			const imports = componentModule
-				.split('\n')
-				.flatMap((line) => line.split(';'))
-				.map((line) => line.trim())
-				.filter((line) => line.startsWith('import '));
-			const svgImportStatement = imports.find((imp) => imp.includes('src/components/astro.svg'))!;
-			assert.ok(svgImportStatement, 'Expected SVG to be imported in the component.');
-			const importPath = svgImportStatement.split('from')[1].trim().replace(/['";]/g, '');
+			// Use a regex to extract the SVG import path directly. Vite may concatenate
+			// multiple statements on a single line, so line-based splitting is unreliable.
+			const svgImportMatch = /from\s+["']([^"']*astro\.svg[^"']*)["']/.exec(componentModule);
+			assert.ok(svgImportMatch, 'Expected SVG to be imported in the component.');
+			const importPath = svgImportMatch[1];
 			const mod = await fixture.fetch(importPath).then((res) => res.text());
 			assert.ok(
 				mod.length < 1_500,

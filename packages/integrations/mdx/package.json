@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/mdx",
   "description": "Add support for MDX pages in your Astro site",
-  "version": "5.0.4",
+  "version": "6.0.0-alpha.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -28,11 +28,10 @@
     "template"
   ],
   "scripts": {
-    "build": "astro-scripts build \"src/**/*.ts\" && tsc",
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc -b",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "astro-scripts test --timeout 70000 \"test/**/*.test.ts\"",
-    "typecheck:tests": "tsc --build tsconfig.test.json"
+    "test": "astro-scripts test --timeout 70000 \"test/**/*.test.ts\""
   },
   "dependencies": {
     "@astrojs/markdown-remark": "workspace:*",
@@ -50,7 +49,7 @@
     "vfile": "^6.0.3"
   },
   "peerDependencies": {
-    "astro": "^6.0.0"
+    "astro": "^7.0.0-alpha.0"
   },
   "devDependencies": {
     "@shikijs/rehype": "^4.0.2",

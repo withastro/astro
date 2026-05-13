@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { existsSync, promises as fs } from 'node:fs';
 import { after, afterEach, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('--mode', () => {
 	let fixture: Fixture;

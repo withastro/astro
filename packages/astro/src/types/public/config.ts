@@ -8,7 +8,6 @@ import type {
 	Smartypants,
 	SyntaxHighlightConfigType,
 } from '@astrojs/markdown-remark';
-import type { Config as SvgoConfig } from 'svgo';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
 import type { FontFamily, FontProvider } from '../../assets/fonts/types.js';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
@@ -25,6 +24,8 @@ import type {
 } from '../../core/session/types.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
+import type { SvgOptimizer } from '../../assets/svg/types.js';
+import type { LoggerHandlerConfig } from '../../core/logger/config.js';
 
 export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
 
@@ -33,6 +34,8 @@ export type { FontProvider };
 export type { CspAlgorithm, CspHash };
 
 export type { RemotePattern };
+
+export type { SvgOptimizer };
 
 export type CspStyleDirective = { hashes?: CspHash[]; resources?: string[] };
 export type CspScriptDirective = {
@@ -469,24 +472,27 @@ export interface AstroUserConfig<
 	/**
 	 * @docs
 	 * @name compressHTML
-	 * @type {boolean}
+	 * @type {boolean | "jsx"}
 	 * @default `true`
 	 * @description
 	 *
-	 * This is an option to minify your HTML output and reduce the size of your HTML files.
+	 * Controls how Astro handles whitespace in your HTML. This affects both development mode and the final build output.
 	 *
-	 * By default, Astro removes whitespace from your HTML, including line breaks, from `.astro` components in a lossless manner.
-	 * Some whitespace may be kept as needed to preserve the visual rendering of your HTML. This occurs both in development mode and in the final build.
+	 * By default, Astro removes whitespace from your HTML, including line breaks, in a lossless manner from `.astro` components. Some whitespace may be preserved as needed to maintain the visual rendering of your HTML.
 	 *
-	 * To disable HTML compression, set `compressHTML` to false.
+	 * Setting this option to `"jsx"` instead applies the JSX whitespace stripping rules used by frameworks like React. Leading and trailing whitespace is only preserved when explicitly included in the source code through constructs such as `{" "}`, and is otherwise removed entirely.
+	 *
+	 * Setting this option to false disables HTML compression and preserves all whitespace.
 	 *
 	 * ```js
 	 * {
 	 *   compressHTML: false
+	 *   // or:
+	 *   // compressHTML: 'jsx'
 	 * }
 	 * ```
 	 */
-	compressHTML?: boolean;
+	compressHTML?: boolean | 'jsx';
 
 	/**
 	 * @docs
@@ -1400,23 +1406,25 @@ export interface AstroUserConfig<
 	 * @description
 	 *
 	 * Configures session storage for your Astro project. This is used to store session data in a persistent way, so that it can be accessed across different requests.
-	 * Some adapters may provide a default session driver, but you can override it with your own configuration.
 	 *
-	 * See [the sessions guide](https://docs.astro.build/en/guides/sessions/) for more information.
+	 * Some adapters may provide a default session driver, but you can override it with your own configuration:
 	 *
 	 * ```js title="astro.config.mjs"
-	 *   {
-	 *     session: {
-	 *       // The name of the Unstorage driver
-	 *       driver: 'redis',
-	 *       // The required options depend on the driver
-	 *       options: {
-	 *         url: process.env.REDIS_URL,
-	 *       },
-	 *       ttl: 3600, // 1 hour
-	 *     }
+	 * import { defineConfig, sessionDrivers } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   session: {
+	 *     driver: sessionDrivers.redis({
+	 *       // The options are driver-dependent and some may be required.
+	 *       url: process.env.REDIS_URL
+	 *     }),
 	 *   }
+	 * });
 	 * ```
+	 *
+	 * Session drivers are configured at build time. This means environment variables used in the driver configuration are inlined. You must create your own driver entrypoint to [override the configuration at runtime](https://docs.astro.build/en/guides/sessions/#overriding-the-configuration-at-runtime).
+	 *
+	 * See [the sessions guide](https://docs.astro.build/en/guides/sessions/) for more information.
 	 */
 	session?: SessionConfig<TDriver>;
 
@@ -1712,6 +1720,19 @@ export interface AstroUserConfig<
 		service?: ImageServiceConfig;
 		/**
 		 * @docs
+		 * @name image.dangerouslyProcessSVG
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 6.3.0
+		 * @description
+		 *
+		 * Allows SVG source images to be processed by the image optimization pipeline.
+		 *
+		 * This is disabled by default as specifically formed SVGs can be prohibitively expensive to process and used by malicious actors to execute denial of service attacks. Only enable this option if you trust the source of your SVG images and understand the risks of processing them.
+		 */
+		dangerouslyProcessSVG?: boolean;
+		/**
+		 * @docs
 		 * @name image.service.config.limitInputPixels
 		 * @kind h4
 		 * @type {number | boolean}
@@ -1848,14 +1869,17 @@ export interface AstroUserConfig<
 		 * }
 		 * ```
 		 *
-		 * You can use wildcards to define the permitted `hostname` and `pathname` values as described below. Otherwise, only the exact values provided will be configured:
-		 * `hostname`:
-		 *   - Start with '**.' to allow all subdomains ('endsWith').
-		 *   - Start with '*.' to allow only one level of subdomain.
+		 * You can use wildcards to define the permitted `hostname` and `pathname` values as described below. Otherwise, only the exact values provided will be configured.
 		 *
-		 * `pathname`:
-		 *   - End with '/**' to allow all sub-routes ('startsWith').
-		 *   - End with '/*' to allow only one level of sub-route.
+		 * `hostname` patterns:
+		 *   - Start with `**.` to allow all subdomains (like `endsWith`).
+		 *   - Start with `*.` to allow only one level of subdomain.
+		 *
+		 * `pathname` patterns:
+		 *   - End with `/**` to allow all sub-routes (like `startsWith`).
+		 *   - End with `/*` to allow only one level of sub-route.
+		 * 
+		 * HTTP redirects are also followed when an image URL matches a remote pattern. The final destination URL must be among the allowed remote patterns to be loaded.
 
 		 */
 		remotePatterns?: Partial<RemotePattern>[];
@@ -2767,6 +2791,24 @@ export interface AstroUserConfig<
 	 */
 	experimental?: {
 		/**
+		 * @name experimental.advancedRouting
+		 * @type {boolean}
+		 * @default `false`
+		 * @description
+		 * Enables `src/app.ts` as an advanced routing entrypoint, allowing you to
+		 * compose Astro's request pipeline with the Web Fetch standard or your own Hono middleware.
+		 *
+		 * ```js
+		 * export default defineConfig({
+		 *   experimental: {
+		 *     advancedRouting: true,
+		 *   },
+		 * });
+		 * ```
+		 */
+		advancedRouting?: boolean;
+
+		/**
 		 *
 		 * @name experimental.clientPrerender
 		 * @type {boolean}
@@ -2853,14 +2895,12 @@ export interface AstroUserConfig<
 		chromeDevtoolsWorkspace?: boolean;
 
 		/**
-		 * @name experimental.svgo
-		 * @type {boolean | SvgoConfig}
-		 * @default `false`
+		 * @name experimental.svgOptimizer
+		 * @type {SvgOptimizer}
+		 * @default `undefined`
+		 * @version 6.2.0
 		 * @description
-		 * Enable SVG optimization using SVGO during build time.
-		 *
-		 * Set to `true` to enable optimization with default settings, or pass a configuration
-		 * object to customize SVGO behavior.
+		 * Enable SVG optimization at build time.
 		 *
 		 * When enabled, all imported SVG files will be optimized for smaller file sizes
 		 * and better performance while maintaining visual quality.
@@ -2869,32 +2909,14 @@ export interface AstroUserConfig<
 		 * {
 		 *   experimental: {
 		 *     // Enable with defaults
-		 *     svgo: true
+		 *     svgOptimizer: svgoOptimizer()
 		 *   }
 		 * }
 		 * ```
 		 *
-		 * To customize optimization, pass a [SVGO configuration object](https://svgo.dev/):
-		 *
-		 * ```js
-		 * {
-		 *   experimental: {
-		 *     svgo: {
-		 *       plugins: [
-		 *         'preset-default',
-		 *         {
-		 *           name: 'removeViewBox',
-		 *           active: false
-		 *         }
-		 *       ]
-		 *     }
-		 *   }
-		 * }
-		 * ```
-		 *
-		 * See the [experimental SVGO optimization docs](https://docs.astro.build/en/reference/experimental-flags/svg-optimization/) for more information.
+		 * See the [experimental SVG optimization docs](https://docs.astro.build/en/reference/experimental-flags/svg-optimization/) for more information.
 		 */
-		svgo?: boolean | SvgoConfig;
+		svgOptimizer?: SvgOptimizer;
 
 		/**
 		 * @name experimental.cache
@@ -2974,29 +2996,6 @@ export interface AstroUserConfig<
 		 * ```
 		 */
 		routeRules?: RouteRules;
-		/*
-		 * @name experimental.rustCompiler
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 6.0.0
-		 * @description
-		 *
-		 * Enables the experimental Rust-based Astro compiler (`@astrojs/compiler-rs`) as a replacement to the current Go compiler.
-		 *
-		 * This option requires installing the `@astrojs/compiler-rs` package manually in your project. This compiler is a work in progress and may not yet support all features of the current Go compiler, but it should offer improved performance and better error messages. This compiler is more strict than the previous Go compiler regarding invalid syntax. For instance, unclosed HTML tags or missing closing brackets will throw an error instead of being ignored.
-		 *
-		 * ```js
-		 * // astro.config.mjs
-		 * import { defineConfig } from 'astro/config';
-		 *
-		 * export default defineConfig({
-		 *   experimental: {
-		 *     rustCompiler: true,
-		 *   },
-		 * });
-		 * ```
-		 */
-		rustCompiler?: boolean;
 
 		/**
 		 * @name experimental.queuedRendering
@@ -3059,6 +3058,32 @@ export interface AstroUserConfig<
 			 */
 			contentCache?: boolean;
 		};
+		/**
+		 * @name experimental.logger
+		 * @type {{ entrypoint: string; config?: Record<string, unknown> }}
+		 * @default `undefined`
+		 * @version 6.2.0
+		 * @description
+		 *
+		 * Configure a custom logger by defining its entrypoint and, optionally, providing a serializable configuration:
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   experimental: {
+		 *     logger: {
+		 *       entrypoint: "@org/astro-logger",
+		 *       config: {
+		 *        level: "error"
+		 *       }
+		 *     }
+		 *   }
+		 * });
+		 * ```
+		 */
+		logger?: LoggerHandlerConfig;
 	};
 }
 

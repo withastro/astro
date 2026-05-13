@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import { getTableChangeQueries } from '../../dist/core/cli/migration-queries.js';
 import { dbConfigSchema, tableSchema } from '../../dist/core/schemas.js';
 import type { DBTable } from '../../dist/core/types.js';
-import { column } from '../../dist/runtime/virtual.js';
+import { column } from './virtual.ts';
 import { asResolved } from '../test-utils.ts';
 
 const userInitial = tableSchema.parse({

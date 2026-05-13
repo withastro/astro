@@ -17,6 +17,17 @@ interface CloudflareConfigOptions {
 	imagesBindingName?: string | false | undefined;
 }
 
+type KVNamespace = NonNullable<WorkerConfig['kv_namespaces']>[number];
+
+function withSessionKVBinding(
+	existing: KVNamespace[] | undefined,
+	sessionBinding: string,
+): KVNamespace[] {
+	const namespaces: KVNamespace[] = existing ? [...existing] : [];
+	namespaces.push({ binding: sessionBinding });
+	return namespaces;
+}
+
 /**
  * Returns a config customizer that sets up the Astro Cloudflare defaults.
  * Sets the main entrypoint and adds bindings for auto-provisioning.
@@ -36,7 +47,7 @@ export function cloudflareConfigCustomizer(
 			nonInheritableConfig: WorkerConfig['previews'],
 		): WorkerConfig['previews'] => {
 			const hasSessionBinding = nonInheritableConfig?.kv_namespaces?.some(
-				(kv) => kv.binding === sessionKVBindingName,
+				(kv: KVNamespace) => kv.binding === sessionKVBindingName,
 			);
 			const hasImagesBinding = nonInheritableConfig?.images?.binding !== undefined;
 
@@ -44,11 +55,7 @@ export function cloudflareConfigCustomizer(
 				kv_namespaces:
 					!needsSessionKVBinding || hasSessionBinding
 						? undefined
-						: [
-								{
-									binding: sessionKVBindingName,
-								},
-							],
+						: withSessionKVBinding(nonInheritableConfig?.kv_namespaces, sessionKVBindingName),
 				images:
 					hasImagesBinding || !imagesBindingName
 						? undefined

@@ -26,9 +26,10 @@ test.afterAll(async () => {
 
 function collectLoads(page: Page) {
 	const loads: string[] = [];
-	page.on('load', async () => {
+	// Push synchronously; an async handler awaiting `page.title()` races with assertions (often on Firefox).
+	page.on('load', () => {
 		const url = page.url();
-		if (url !== 'about:blank') loads.push(await page.title());
+		if (url !== 'about:blank') loads.push(url);
 	});
 	return loads;
 }
@@ -148,7 +149,7 @@ test.describe('View Transitions', () => {
 
 		expect(
 			loads.length,
-			'There should be 2 page loads. The original, then going from 3 to 2',
+			'There should be 2 page loads. The initial navigation, then the full navigation from page 1 to page 3',
 		).toEqual(2);
 	});
 
@@ -939,7 +940,7 @@ test.describe('View Transitions', () => {
 		// go to external page
 		await page.click('#click-redirect-external');
 		// doesn't work for playwright when we are too fast
-		await page.waitForLoadState('commit', { timeout: 5000 });
+		await page.waitForLoadState('load', { timeout: 5000 });
 		await page.waitForURL('https://example.com/', { waitUntil: 'commit', timeout: 5000 });
 		await expect(page.locator('h1'), 'should have content').toHaveText('Example Domain');
 		expect(loads.length, 'There should be 2 page loads').toEqual(2);

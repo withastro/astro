@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { type App, type Fixture, loadFixture } from './test-utils.js';
+import { type App, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Queue-based rendering - Static', () => {
 	let fixture: Fixture;
@@ -165,8 +165,8 @@ describe('Queue-based rendering - Static', () => {
 			const html = await fixture.readFile('/head-content/index.html');
 
 			// Component styles should be in head
-			assert.match(html, /\.with-head/);
-			assert.match(html, /border:1px solid #00f/);
+			assert.ok(html.includes('.with-head'));
+			assert.ok(html.includes('border: 1px solid blue') || html.includes('border:1px solid #00f'));
 		});
 
 		it('should include component scripts', async () => {
@@ -197,7 +197,7 @@ describe('Queue-based rendering - SSR', () => {
 		fixture = await loadFixture({
 			root: './fixtures/queue-rendering/',
 			output: 'server',
-			adapter: await import('./test-adapter.js').then((mod) => mod.default()),
+			adapter: await import('./test-adapter.ts').then((mod) => mod.default()),
 		});
 		await fixture.build();
 		app = await fixture.loadTestAdapterApp();
