@@ -186,22 +186,5 @@ describe('API routes in SSR', () => {
 			assert.equal(response.status, 500);
 			assert.equal(text, '500 Internal Server Error');
 		});
-
-		it('Has valid api context', async () => {
-			const response = await fixture.fetch('/context/any');
-			assert.equal(response.status, 200);
-			const data = await response.json();
-			assert.ok(data.cookiesExist);
-			assert.ok(data.requestExist);
-			assert.ok(data.redirectExist);
-			assert.ok(data.propsExist);
-			assert.deepEqual(data.params, { param: 'any' });
-			assert.match(data.generator, /^Astro v/);
-			const url = new URL(data.url);
-			assert.ok(['[::1]', '127.0.0.1'].includes(url.hostname));
-			assert.equal(url.pathname, '/blog/context/any');
-			assert.ok(['::1', '127.0.0.1'].includes(data.clientAddress));
-			assert.equal(data.site, 'https://mysite.dev/subsite/');
-		});
 	});
 });

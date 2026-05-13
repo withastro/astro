@@ -109,6 +109,53 @@ ${comment}
 	return [labelResult.priority, ...labelResult.packages];
 }
 
+interface PreviewRelease {
+	/** Install URLs for each published package, e.g. "https://pkg.pr.new/astro@abc1234" */
+	urls: string[];
+}
+
+async function publishPreviewRelease(session: FlueSession): Promise<PreviewRelease | null> {
+	// Determine which package directories were modified relative to main.
+	const diffResult = await session.shell('git diff main --name-only', { commands: [git] });
+	if (!diffResult.stdout.trim()) return null;
+
+	const changedFiles = diffResult.stdout.trim().split('\n');
+	const packageDirs = new Set<string>();
+	for (const file of changedFiles) {
+		// Match packages/<name>/... or packages/integrations/<name>/...
+		const match = file.match(/^(packages\/(?:integrations\/)?[^/]+)\//);
+		if (match) {
+			packageDirs.add(match[1]);
+		}
+	}
+	if (packageDirs.size === 0) return null;
+
+	const packages = [...packageDirs].join(' ');
+	const publishResult = await session.shell(
+		`pnpm dlx pkg-pr-new publish --pnpm --compact --no-template --comment=off --json preview-release.json ${packages}`,
+		{ commands: [pnpm] },
+	);
+
+	if (publishResult.exitCode !== 0) {
+		console.warn('Preview release publish failed:', publishResult.stderr);
+		return null;
+	}
+
+	// Parse the JSON output to extract package URLs.
+	const jsonResult = await session.shell(
+		"node -e \"process.stdout.write(require('fs').readFileSync('preview-release.json','utf8'))\"",
+		{ commands: [node] },
+	);
+	try {
+		const output = JSON.parse(jsonResult.stdout.trim());
+		const urls = (output.packages as Array<{ url: string }>).map((p) => p.url);
+		return urls.length > 0 ? { urls } : null;
+	} catch {
+		console.warn('Failed to parse preview release JSON output');
+		return null;
+	}
+}
+
 async function runTriagePipeline(
 	session: FlueSession,
 	issueNumber: number,
@@ -270,6 +317,16 @@ export default async function ({ init, payload }: FlueContext) {
 		}
 	}
 
+	// If a fix was successfully pushed, publish a preview release so the reporter
+	// can immediately test the fix via `npm i <url>`.
+	let previewRelease: PreviewRelease | null = null;
+	if (triageResult.fixed && isPushed) {
+		previewRelease = await publishPreviewRelease(session);
+		if (previewRelease) {
+			console.info('Preview release published:', previewRelease.urls);
+		}
+	}
+
 	// Fetch repo labels upfront so we can pass priority labels to the comment
 	// skill (which selects the priority) and package labels to the label selector.
 	const { priorityLabels, packageLabels } = await fetchRepoLabels();
@@ -278,7 +335,7 @@ export default async function ({ init, payload }: FlueContext) {
 
 	const branchName = isPushed ? branch : null;
 	const comment = await session.skill('triage/comment.md', {
-		args: { branchName, priorityLabels, issueDetails },
+		args: { branchName, priorityLabels, issueDetails, previewRelease },
 		commands: [gh, git, node, pnpm],
 		result: v.pipe(
 			v.string(),
@@ -309,5 +366,5 @@ export default async function ({ init, payload }: FlueContext) {
 		// Not reproducible: do nothing. The "needs triage" label stays on the issue
 		// so that it can continue to be worked on and triaged by the humans.
 	}
-	return { ...triageResult, isPushed };
+	return { ...triageResult, isPushed, previewRelease };
 }

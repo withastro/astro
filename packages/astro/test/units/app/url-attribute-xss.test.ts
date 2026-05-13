@@ -8,7 +8,7 @@ describe('addAttribute URL XSS', () => {
 		const result = String(addAttribute(maliciousUrl, 'href'));
 
 		// The " must be escaped so the value stays inside a single attribute
-		assert.ok(result.includes('&#34;'), `double quotes should be escaped, got: ${result}`);
+		assert.ok(result.includes('&quot;'), `double quotes should be escaped, got: ${result}`);
 		assert.match(
 			result,
 			/^\s+href="[^"]*"$/,
@@ -20,7 +20,7 @@ describe('addAttribute URL XSS', () => {
 		const url = 'https://example.com/?a=1&b=2&c=3';
 		const result = String(addAttribute(url, 'href'));
 
-		assert.ok(result.includes('&#38;'), `ampersands should be escaped, got: ${result}`);
+		assert.ok(result.includes('&amp;'), `ampersands should be escaped, got: ${result}`);
 		assert.match(
 			result,
 			/^\s+href="[^"]*"$/,

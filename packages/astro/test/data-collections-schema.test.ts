@@ -10,7 +10,7 @@ describe('Content Collections - data collections', () => {
 			root: './fixtures/data-collections-schema/',
 			outDir: './dist/data-collections-schema/',
 		});
-		removeDir(new URL('./fixtures/data-collections-schema/.astro', import.meta.url));
+		await removeDir(new URL('./fixtures/data-collections-schema/.astro', import.meta.url));
 		await fixture.build({});
 	});
 

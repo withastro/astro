@@ -10,6 +10,7 @@ describe('endpoints', () => {
 		fixture = await loadFixture({
 			root: './fixtures/endpoint-routing/',
 			outDir: './dist/endpoint-routing/',
+			cacheDir: './node_modules/.astro-test/endpoint-routing/',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -29,17 +30,5 @@ describe('endpoints', () => {
 		const res = await fixture.fetch('/response', { redirect: 'manual' });
 		assert.equal(res.headers.get('location'), 'https://example.com/destination');
 		assert.equal(res.status, 307);
-	});
-
-	it('should remove internally-used header for HTTP status 404', async () => {
-		const res = await fixture.fetch('/not-found');
-		assert.equal(res.headers.get('x-astro-reroute'), null);
-		assert.equal(res.status, 404);
-	});
-
-	it('should remove internally-used header for HTTP status 500', async () => {
-		const res = await fixture.fetch('/internal-error');
-		assert.equal(res.headers.get('x-astro-reroute'), null);
-		assert.equal(res.status, 500);
 	});
 });

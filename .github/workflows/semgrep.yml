@@ -1,4 +1,7 @@
 name: Semgrep OSS scan
+
+permissions: {}
+
 on:
   pull_request: {}
   schedule:
@@ -7,6 +10,8 @@ jobs:
   semgrep:
     name: semgrep-oss
     runs-on: ubuntu-latest
+    permissions:
+      contents: read # Checkout only
     container:
       image: semgrep/semgrep@sha256:40579a2e70910d891959a4868711ba0399293949a2f1f141ddb5002d5fc7dd0f # v1.157.0
     steps:

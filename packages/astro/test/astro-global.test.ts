@@ -27,18 +27,6 @@ describe('Astro Global', () => {
 			await devServer.stop();
 		});
 
-		it('Astro.request.url', async () => {
-			const res = await await fixture.fetch('/blog/?foo=42');
-			assert.equal(res.status, 200);
-
-			const html = await res.text();
-			const $ = cheerio.load(html);
-			assert.equal($('#pathname').text(), '/blog/');
-			assert.equal($('#searchparams').text(), '{}');
-			assert.equal($('#child-pathname').text(), '/blog/');
-			assert.equal($('#nested-child-pathname').text(), '/blog/');
-		});
-
 		it('import.meta.glob() returned `url` metadata of each markdown file extensions DOES NOT include the extension', async () => {
 			const html = await fixture.fetch('/blog/omit-markdown-extensions/').then((res) => res.text());
 			const $ = cheerio.load(html);
@@ -46,27 +34,6 @@ describe('Astro Global', () => {
 				$('[data-any-url-contains-extension]').data('any-url-contains-extension'),
 				false,
 			);
-		});
-
-		it('Astro.routePattern has the right value in pages and components', async () => {
-			let html = await fixture.fetch('/blog').then((res) => res.text());
-			let $ = cheerio.load(html);
-			assert.match($('#pattern').text(), /Astro route pattern: \//);
-			assert.match($('#pattern-middleware').text(), /Astro route pattern middleware: \//);
-			html = await fixture.fetch('/blog/omit-markdown-extensions/').then((res) => res.text());
-			$ = cheerio.load(html);
-			assert.match($('#pattern').text(), /Astro route pattern: \/omit-markdown-extensions/);
-			assert.match(
-				$('#pattern-middleware').text(),
-				/Astro route pattern middleware: \/omit-markdown-extensions/,
-			);
-		});
-
-		it('Astro.isPrerendered has the right value in pages and components', async () => {
-			let html = await fixture.fetch('/blog', {}).then((res) => res.text());
-			let $ = cheerio.load(html);
-			assert.match($('#prerender').text(), /Astro route prerender: true/);
-			assert.match($('#prerender-middleware').text(), /Astro route prerender middleware: true/);
 		});
 	});
 

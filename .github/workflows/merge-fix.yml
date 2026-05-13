@@ -14,6 +14,8 @@ on:
         required: false
         type: string
 
+permissions: {}
+
 env:
   IMAGE: ghcr.io/${{ github.repository }}/flue-sandbox
 
@@ -31,9 +33,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
-      contents: write
-      pull-requests: write
-      packages: read
+      contents: write # Push fix commits
+      pull-requests: write # Update PR
+      packages: read # Pull sandbox image from GHCR
     steps:
       - name: Lowercase image name
         run: echo "IMAGE=${IMAGE,,}" >> "$GITHUB_ENV"

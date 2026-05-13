@@ -36,7 +36,7 @@ describe('Live content collections', () => {
 		});
 
 		after(async () => {
-			devServer?.stop();
+			await devServer?.stop();
 		});
 
 		it('can load live data', async () => {

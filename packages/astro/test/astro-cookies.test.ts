@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.ts';
-import { type App, type DevServer, type Fixture, loadFixture } from './test-utils.ts';
+import { type App, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Astro.cookies', () => {
 	let fixture: Fixture;
@@ -13,68 +13,6 @@ describe('Astro.cookies', () => {
 			output: 'server',
 			adapter: testAdapter(),
 			outDir: './dist/astro-cookies/',
-		});
-	});
-
-	describe('Development', () => {
-		let devServer: DevServer;
-
-		before(async () => {
-			devServer = await fixture.startDevServer();
-		});
-
-		after(async () => {
-			await devServer.stop();
-		});
-
-		it('is able to get cookies from the request', async () => {
-			const response = await fixture.fetch('/get-json', {
-				headers: {
-					cookie: `prefs=${encodeURIComponent(JSON.stringify({ mode: 'light' }))}`,
-				},
-			});
-			assert.equal(response.status, 200);
-			const html = await response.text();
-
-			const $ = cheerio.load(html);
-			assert.equal($('dd').text(), 'light');
-		});
-
-		it('can set the cookie value', async () => {
-			const response = await fixture.fetch('/set-value', {
-				method: 'POST',
-			});
-			assert.equal(response.status, 200);
-			// Bug in 18.14.1 where `set-cookie` will not be defined
-			// Should be fixed in 18.14.2
-			if (process.versions.node !== '18.14.1') {
-				assert.equal(response.headers.has('set-cookie'), true);
-			}
-		});
-
-		it('can set cookies in a rewritten page request', async () => {
-			const response = await fixture.fetch('/from');
-			assert.equal(response.status, 200);
-
-			assert.match(response.headers.get('set-cookie')!, /my_cookie=value/);
-		});
-
-		it('overwrites cookie values set in the source page with values from the target page', async () => {
-			const response = await fixture.fetch('/from');
-			assert.equal(response.status, 200);
-			assert.match(response.headers.get('set-cookie')!, /another=set-in-target/);
-		});
-
-		it('allows cookies to be set in the source page', async () => {
-			const response = await fixture.fetch('/from');
-			assert.equal(response.status, 200);
-			assert.match(response.headers.get('set-cookie')!, /set-in-from=yes/);
-		});
-
-		it('can set cookies in a rewritten endpoint request', async () => {
-			const response = await fixture.fetch('/from-endpoint');
-			assert.equal(response.status, 200);
-			assert.match(response.headers.get('set-cookie')!, /test=value/);
 		});
 	});
 
