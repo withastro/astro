@@ -63,7 +63,7 @@ Workflow:
 
 1. `pnpm exec bgproc start -n devserver --wait-for-port 10 --force -- pnpm -C examples/minimal dev` - Start the dev server
 2. `pnpm exec bgproc logs -n devserver` - View logs from the dev server. Useful for debugging server logs.
-3. `pnpm exec bgproc stop -n devserver` - Stop when dev server when your work is complete
+3. `pnpm exec bgproc stop -n devserver` - Stop the dev server when your work is complete
 4. `pnpm exec bgproc list` - List all running servers, background processes. Useful for cleanup.
 
 # `agent-browser`
