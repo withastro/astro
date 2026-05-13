@@ -226,12 +226,12 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         # VS Code 1.101 (minimum supported version) ships with Node 22.15.1
-        node_version: [22.15.1, 24.15.0]
+        node_version: [22.22.2, 24.15.0]
         include:
           - os: windows-latest
-            node_version: 22.15.1
+            node_version: 22.22.2
           - os: macos-latest
-            node_version: 22.15.1
+            node_version: 22.22.2
       fail-fast: false
 
     name: 'Test (language-tools): node-${{ matrix.node_version }}, ${{ matrix.os }}'
