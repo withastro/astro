@@ -82,4 +82,15 @@ describe('headersFileHasCacheControlForPath', () => {
 		const content = ['/_custom/*', '  Cache-Control: max-age=60', ''].join('\n');
 		assert.equal(headersFileHasCacheControlForPath(content, '/_astro/probe'), false);
 	});
+
+	it('handles CRLF line endings correctly', () => {
+		const content = ['/_astro/*', '  Cache-Control: max-age=60', ''].join('\r\n');
+		assert.equal(headersFileHasCacheControlForPath(content, '/_astro/probe'), true);
+	});
+
+	it('treats Cache-Control with no value as set', () => {
+		// An empty value still sets the header to empty per CF docs — treat as present.
+		const content = ['/_astro/*', '  Cache-Control:', ''].join('\n');
+		assert.equal(headersFileHasCacheControlForPath(content, '/_astro/probe'), true);
+	});
 });

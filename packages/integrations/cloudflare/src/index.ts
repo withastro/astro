@@ -1,7 +1,10 @@
 import { createReadStream, existsSync, readFileSync } from 'node:fs';
-import { appendFile, readFile, rename, stat, writeFile } from 'node:fs/promises';
+import { appendFile, readFile, rename, stat, unlink, writeFile } from 'node:fs/promises';
 import { createInterface } from 'node:readline/promises';
-import { removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
+import {
+	removeLeadingForwardSlash,
+	removeTrailingForwardSlash,
+} from '@astrojs/internal-helpers/path';
 import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
 import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
 import type { AstroConfig, AstroIntegration, IntegrationResolvedRoute } from 'astro';
@@ -490,12 +493,12 @@ export default function createIntegration({
 				// merges duplicate header values with a comma, which would otherwise
 				// produce a contradictory directive.
 				if (_config.build.assetsPrefix) {
-					logger.info(
+					logger.debug(
 						'Skipping Cache-Control injection for assets — `build.assetsPrefix` is set, so assets are served from a different origin.',
 					);
 				} else {
-					const assetsDir = _config.build.assets ?? '_astro';
-					const basePrefix = _config.base === '/' ? '' : _config.base.replace(/\/$/, '');
+					const assetsDir = _config.build.assets;
+					const basePrefix = removeTrailingForwardSlash(_config.base);
 					const assetsPattern = `${basePrefix}/${assetsDir}/*`;
 					// A representative path under the assets dir, used to test whether any
 					// existing rule's URL pattern would already match these requests.
@@ -508,17 +511,26 @@ export default function createIntegration({
 						// _headers doesn't exist yet — we'll create one
 					}
 					if (headersFileHasCacheControlForPath(existingHeaders, probePath)) {
-						logger.info(
+						logger.debug(
 							`Skipping Cache-Control injection for ${assetsPattern} — _headers already sets Cache-Control on a matching rule.`,
 						);
 					} else {
 						const cacheBlock = `${assetsPattern}\n  Cache-Control: public, max-age=31536000, immutable\n`;
-						const content = existingHeaders ? `${cacheBlock}\n${existingHeaders}` : cacheBlock;
+						const normalizedExisting =
+							existingHeaders && !existingHeaders.endsWith('\n')
+								? existingHeaders + '\n'
+								: existingHeaders;
+						const content = normalizedExisting ? `${cacheBlock}\n${normalizedExisting}` : cacheBlock;
 						// Atomic write: stage to a temp file, then rename, so a crash
 						// mid-write can't leave the user's _headers truncated.
 						const tempPath = new URL('./_headers.tmp', _originalClientDir);
-						await writeFile(tempPath, content);
-						await rename(tempPath, headersPath);
+						try {
+							await writeFile(tempPath, content);
+							await rename(tempPath, headersPath);
+						} catch (err) {
+							await unlink(tempPath).catch(() => {});
+							throw err;
+						}
 						logger.info(`Injected immutable Cache-Control for ${assetsPattern} into _headers.`);
 					}
 				}

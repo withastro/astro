@@ -40,6 +40,9 @@ export function headersFileHasCacheControlForPath(content: string, path: string)
 	for (const rawLine of content.split('\n')) {
 		const trimmed = rawLine.trim();
 		if (!trimmed || trimmed.startsWith('#')) continue;
+		// Any non-indented non-empty line is treated as a section header. This is
+		// intentionally loose: a line at column 0 that isn't a valid CF pattern will
+		// produce a regex that never matches, and the section will be silently skipped.
 		const isSectionHeader = !/^\s/.test(rawLine);
 		if (isSectionHeader) {
 			const pathOnly = trimmed.replace(/^https?:\/\/[^/]+/, '');

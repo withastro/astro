@@ -4,11 +4,11 @@ import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { type Fixture, loadFixture } from './test-utils.ts';
 
-describe('custom build.assets dir', () => {
+describe('existing Cache-Control in _headers', () => {
 	let fixture: Fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/custom-assets/' });
+		fixture = await loadFixture({ root: './fixtures/with-existing-cache-control/' });
 		const viteCacheDir = new URL('./node_modules/.vite/', fixture.config.root);
 		rmSync(fileURLToPath(viteCacheDir), { recursive: true, force: true });
 		await fixture.build({ vite: { logLevel: 'info' } });
@@ -18,20 +18,24 @@ describe('custom build.assets dir', () => {
 		await fixture.clean();
 	});
 
-	it('injects Cache-Control for the custom assets dir pattern', async () => {
+	it('does not prepend a second Cache-Control block when _headers already has one', async () => {
 		const content = await fixture.readFile('client/_headers');
-		assert.match(content, /\/_custom\/\*/);
-		assert.match(content, /Cache-Control: public, max-age=31536000, immutable/);
+		const matches = content.match(/Cache-Control/g);
+		assert.equal(
+			matches?.length ?? 0,
+			1,
+			'should have exactly one Cache-Control directive — the original user one',
+		);
 	});
 
-	it('does not inject the default /_astro/* pattern when a custom dir is configured', async () => {
+	it('preserves the existing user Cache-Control rule', async () => {
+		const content = await fixture.readFile('client/_headers');
+		assert.match(content, /\/\*/);
+		assert.match(content, /Cache-Control: max-age=60/);
+	});
+
+	it('does not inject the /_astro/* pattern', async () => {
 		const content = await fixture.readFile('client/_headers');
 		assert.doesNotMatch(content, /\/_astro\/\*/);
-	});
-
-	it('creates _headers from scratch with no leading blank line', async () => {
-		const content = await fixture.readFile('client/_headers');
-		const expected = '/_custom/*\n  Cache-Control: public, max-age=31536000, immutable\n';
-		assert.equal(content, expected);
 	});
 });
