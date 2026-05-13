@@ -66,4 +66,20 @@ describe('headersFileHasCacheControlForPath', () => {
 		const content = ['/*', '  cache-control: no-cache', ''].join('\n');
 		assert.equal(headersFileHasCacheControlForPath(content, '/_astro/probe'), true);
 	});
+
+	// Tests for non-default build.assets (e.g. build.assets: '_custom')
+	it('detects a Cache-Control rule for a custom assets dir', () => {
+		const content = ['/_custom/*', '  Cache-Control: max-age=60', ''].join('\n');
+		assert.equal(headersFileHasCacheControlForPath(content, '/_custom/probe'), true);
+	});
+
+	it('does not match _astro/* rule when the probe path uses a custom assets dir', () => {
+		const content = ['/_astro/*', '  Cache-Control: max-age=60', ''].join('\n');
+		assert.equal(headersFileHasCacheControlForPath(content, '/_custom/probe'), false);
+	});
+
+	it('does not match _custom/* rule when the probe path uses the default assets dir', () => {
+		const content = ['/_custom/*', '  Cache-Control: max-age=60', ''].join('\n');
+		assert.equal(headersFileHasCacheControlForPath(content, '/_astro/probe'), false);
+	});
 });
