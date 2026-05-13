@@ -324,6 +324,9 @@ export default async function ({ init, payload }: FlueContext) {
 		previewRelease = await publishPreviewRelease(session);
 		if (previewRelease) {
 			console.info('Preview release published:', previewRelease.urls);
+			// Add the verification label so the fix-verification workflow can listen
+			// for the reporter's confirmation comment.
+			await addGitHubLabels(issueNumber, ['fix pending verification']);
 		}
 	}
 
