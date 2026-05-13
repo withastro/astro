@@ -1,7 +1,7 @@
-import { parseFrontmatter } from '@astrojs/markdown-remark';
 import type { Options as AcornOpts } from 'acorn';
 import { parse } from 'acorn';
 import type { AstroConfig, AstroIntegrationLogger, SSRError } from 'astro';
+import { parseFrontmatter } from 'astro/markdown';
 import type { MdxjsEsm } from 'mdast-util-mdx';
 import colors from 'piccolore';
 import type { PluggableList } from 'unified';

@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { isUnifiedProcessor, markdownConfigDefaults } from '@astrojs/markdown-remark';
-import { isSatteriProcessor } from '@astrojs/markdown-satteri';
+import type { markdownConfigDefaults, UnifiedProcessorDescriptor } from '@astrojs/markdown-remark';
+import type { SatteriProcessorDescriptor } from '@astrojs/markdown-satteri';
 import type {
 	AstroIntegration,
 	AstroIntegrationLogger,
@@ -12,10 +12,17 @@ import type {
 import type { MarkdownProcessorEntry } from 'astro/markdown';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import type { PluggableList } from 'unified';
-import type { MdastPluginDefinition, HastPluginDefinition } from './satteri-plugins.js';
+import type { MdastPluginDefinition, HastPluginDefinition } from './satteri/index.js';
 import { ignoreStringPlugins, safeParseFrontmatter } from './utils.js';
 import { type VitePluginMdxOptions, vitePluginMdx } from './vite-plugin-mdx.js';
 import { vitePluginMdxPostprocess } from './vite-plugin-mdx-postprocess.js';
+
+// Inlined name-checks to avoid eagerly importing the unified/satteri runtime
+// modules (and their shiki + WASM bindings) when they're not the active processor.
+const isSatteriProcessor = (p: { name: string }): p is SatteriProcessorDescriptor =>
+	p.name === 'satteri';
+const isUnifiedProcessor = (p: { name: string }): p is UnifiedProcessorDescriptor =>
+	p.name === 'unified';
 
 export type MdxOptions = Omit<
 	typeof markdownConfigDefaults,
@@ -97,18 +104,22 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 					},
 				});
 			},
-			'astro:config:done': ({ config, logger }) => {
+			'astro:config:done': async ({ config, logger }) => {
 				// We resolve the final MDX options here so that other integrations have a chance to modify
 				// `config.markdown` before we access it
 				const extendMarkdownConfig =
 					partialMdxOptions.extendMarkdownConfig ?? defaultMdxOptions.extendMarkdownConfig;
 
+				// `markdownConfigDefaults` is only needed when the user opts out of extending
+				// the active markdown config. Lazy-load to avoid eagerly pulling in the unified
+				// pipeline (and shiki + remark/rehype trees) at integration init time.
+				const markdownConfig = extendMarkdownConfig
+					? config.markdown
+					: (await import('@astrojs/markdown-remark')).markdownConfigDefaults;
+
 				const resolvedMdxOptions = applyDefaultOptions({
 					options: partialMdxOptions,
-					defaults: markdownConfigToMdxOptions(
-						extendMarkdownConfig ? config.markdown : markdownConfigDefaults,
-						logger,
-					),
+					defaults: markdownConfigToMdxOptions(markdownConfig, logger),
 				});
 
 				const descriptor = partialMdxOptions.processor ?? config.markdown.processor;

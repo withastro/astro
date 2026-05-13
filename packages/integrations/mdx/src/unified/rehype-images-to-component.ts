@@ -3,11 +3,12 @@ import type { MdxJsxAttribute, MdxjsEsm } from 'mdast-util-mdx';
 import type { MdxJsxFlowElementHast } from 'mdast-util-mdx-jsx';
 import { visit } from 'unist-util-visit';
 import type { VFile } from 'vfile';
-import { jsToTreeNode } from './utils.js';
-
-export const ASTRO_IMAGE_ELEMENT = 'astro-image';
-export const ASTRO_IMAGE_IMPORT = '__AstroImage__';
-export const USES_ASTRO_IMAGE_FLAG = '__usesAstroImage';
+import {
+	ASTRO_IMAGE_ELEMENT,
+	ASTRO_IMAGE_IMPORT,
+	USES_ASTRO_IMAGE_FLAG,
+} from '../image-constants.js';
+import { jsToTreeNode } from '../utils.js';
 
 function createArrayAttribute(name: string, values: (string | number)[]): MdxJsxAttribute {
 	return {
@@ -40,23 +41,13 @@ function createArrayAttribute(name: string, values: (string | number)[]): MdxJsx
 	};
 }
 
-/**
- * Convert the <img /> element properties (except `src`) to MDX JSX attributes.
- *
- * @param {Properties} props - The element properties
- * @returns {MdxJsxAttribute[]} The MDX attributes
- */
 function getImageComponentAttributes(props: Properties): MdxJsxAttribute[] {
 	const attrs: MdxJsxAttribute[] = [];
 
 	for (const [prop, value] of Object.entries(props)) {
 		if (prop === 'src') continue;
 
-		/*
-		 * <Image /> component expects an array for those attributes but the
-		 * received properties are sanitized as strings. So we need to convert them
-		 * back to an array.
-		 */
+		// <Image /> expects widths/densities as arrays; hast properties arrive as strings.
 		if (prop === 'widths' || prop === 'densities') {
 			attrs.push(createArrayAttribute(prop, String(value).split(' ')));
 		} else {
@@ -175,14 +166,13 @@ export function rehypeImageToComponent() {
 			parent!.children.splice(index!, 1, element);
 		});
 
-		// Add all the import statements to the top of the file for the images
 		tree.children.unshift(...importsStatements);
 
 		tree.children.unshift(
 			jsToTreeNode(`import { Image as ${ASTRO_IMAGE_IMPORT} } from "astro:assets";`),
 		);
 		// Export `__usesAstroImage` to pick up `astro:assets` usage in the module graph.
-		// @see the '@astrojs/mdx-postprocess' plugin
+		// @see `vite-plugin-mdx-postprocess`.
 		tree.children.push(jsToTreeNode(`export const ${USES_ASTRO_IMAGE_FLAG} = true`));
 	};
 }

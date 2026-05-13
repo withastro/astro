@@ -1,14 +1,16 @@
-import { isUnifiedProcessor } from '@astrojs/markdown-remark';
-import { isSatteriProcessor } from '@astrojs/markdown-satteri';
 import type { SSRError } from 'astro';
 import { getAstroMetadata } from 'astro/jsx/rehype.js';
 import type { MarkdownProcessorEntry, MdxRenderer } from 'astro/markdown';
 import { VFile } from 'vfile';
 import type { Plugin } from 'vite';
 import type { MdxOptions } from './index.js';
-import { createMdxProcessor as createRemarkMdxProcessor } from './plugins.js';
-import { createMdxProcessor as createSatteriMdxProcessor } from './satteri-plugins.js';
 import { safeParseFrontmatter } from './utils.js';
+
+// Inlined name-checks to avoid eagerly importing the unified/satteri runtime
+// modules (each pulls in shiki + WASM bindings). The pipeline-specific factory
+// is loaded lazily inside `resolveMdxRenderer`.
+const isSatteriProcessor = (p: { name: string }) => p.name === 'satteri';
+const isUnifiedProcessor = (p: { name: string }) => p.name === 'unified';
 
 export interface VitePluginMdxOptions {
 	mdxOptions: MdxOptions;
@@ -102,7 +104,8 @@ async function resolveMdxRenderer(
 	}
 
 	if (isSatteriProcessor(processor)) {
-		const satteriProcessor = createSatteriMdxProcessor(opts.mdxOptions);
+		const { createMdxProcessor: createSatteriMdxProcessor } = await import('./satteri/index.js');
+		const satteriProcessor = createSatteriMdxProcessor(opts.mdxOptions, { srcDir: opts.srcDir });
 		return {
 			async process(content, filePath, frontmatter) {
 				const result = await satteriProcessor.process(content, filePath, frontmatter);
@@ -111,6 +114,7 @@ async function resolveMdxRenderer(
 		};
 	}
 	if (isUnifiedProcessor(processor)) {
+		const { createMdxProcessor: createRemarkMdxProcessor } = await import('./unified/index.js');
 		const remarkProcessor = createRemarkMdxProcessor(opts.mdxOptions, { sourcemap });
 		return {
 			async process(content, filePath, frontmatter) {

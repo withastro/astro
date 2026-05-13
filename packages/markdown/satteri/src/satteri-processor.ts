@@ -32,7 +32,7 @@ export function createCollectImagesPlugin(
 ): import('satteri').MdastPluginDefinition {
 	const domains = image?.domains ?? [];
 	const remotePatterns = image?.remotePatterns ?? [];
-	return satteri!.defineMdastPlugin({
+	return {
 		name: 'collect-images',
 		image(node) {
 			const url = node.url ? decodeURI(node.url) : undefined;
@@ -46,7 +46,7 @@ export function createCollectImagesPlugin(
 				localImagePaths.add(url);
 			}
 		},
-	});
+	};
 }
 
 function resolveFrontmatterExpression(
@@ -109,7 +109,7 @@ export function createHeadingIdsPlugin(
 	frontmatter: Record<string, any> | undefined,
 ): import('satteri').HastPluginDefinition {
 	const slugger = new Slugger();
-	return satteri!.defineHastPlugin({
+	return {
 		name: 'heading-ids',
 		element: {
 			filter: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
@@ -128,7 +128,7 @@ export function createHeadingIdsPlugin(
 				}
 			},
 		},
-	});
+	};
 }
 
 function makeRawNode(html: string): import('satteri').HastNode {
@@ -143,7 +143,7 @@ export function createImageMarkerPlugin(
 	remoteImagePaths: Set<string>,
 ): import('satteri').HastPluginDefinition {
 	const indexBySrc = new Map<string, number>();
-	return satteri!.defineHastPlugin({
+	return {
 		name: 'image-marker',
 		element: {
 			filter: ['img'],
@@ -175,7 +175,7 @@ export function createImageMarkerPlugin(
 				ctx.setProperty(node, 'src', null);
 			},
 		},
-	});
+	};
 }
 
 export function createShikiPlugin(
@@ -184,7 +184,7 @@ export function createShikiPlugin(
 	options?: { mdx?: boolean },
 ): import('satteri').HastPluginDefinition {
 	const wrapResult = options?.mdx ? makeFragmentNode : makeRawNode;
-	return satteri!.defineHastPlugin({
+	return {
 		name: 'shiki-highlight',
 		element: {
 			filter: ['pre'],
@@ -209,7 +209,7 @@ export function createShikiPlugin(
 				return wrapResult(html);
 			},
 		},
-	});
+	};
 }
 
 export interface SatteriMarkdownProcessorOptions extends AstroMarkdownProcessorOptions {
@@ -286,7 +286,7 @@ export async function createSatteriMarkdownProcessor(
 			hastPlugins.push(...userHastPlugins);
 			hastPlugins.push(createImageMarkerPlugin(localImagePaths, remoteImagePaths));
 
-			const html = await s.markdownToHtml(content, {
+			const { html } = await s.markdownToHtml(content, {
 				mdastPlugins: allMdastPlugins,
 				hastPlugins,
 				features: {

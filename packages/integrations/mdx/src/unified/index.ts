@@ -11,7 +11,7 @@ import remarkGfm from 'remark-gfm';
 import remarkSmartypants from 'remark-smartypants';
 import { SourceMapGenerator } from 'source-map';
 import type { PluggableList } from 'unified';
-import type { MdxOptions } from './index.js';
+import type { MdxOptions } from '../index.js';
 import { rehypeApplyFrontmatterExport } from './rehype-apply-frontmatter-export.js';
 import { rehypeInjectHeadingsExport } from './rehype-collect-headings.js';
 import { rehypeImageToComponent } from './rehype-images-to-component.js';
