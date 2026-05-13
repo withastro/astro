@@ -154,7 +154,7 @@ describe('behavior from middleware, middleware with fastify', () => {
 	});
 
 	after(async () => {
-		server.close();
+		await server.close();
 		await fixture.clean();
 	});
 
@@ -244,7 +244,7 @@ describe('middleware with fastify and catch-all route: SSR assets in manifest', 
 	});
 
 	after(async () => {
-		server.close();
+		await server.close();
 		await fixture.clean();
 	});
 
