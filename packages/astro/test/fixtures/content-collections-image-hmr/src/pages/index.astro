@@ -1,0 +1,21 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('blog');
+---
+
+<html>
+	<head>
+		<title>Content Collections Image HMR</title>
+	</head>
+	<body>
+		{posts.map((post) => (
+			<div>
+				<h2>{post.data.title}</h2>
+				<Image src={post.data.image} alt={post.data.title} data-image="primary" />
+				<Image src={post.data.secondImage} alt={`${post.data.title} second`} data-image="secondary" />
+			</div>
+		))}
+	</body>
+</html>
