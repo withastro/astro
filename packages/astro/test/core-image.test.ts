@@ -73,6 +73,7 @@ describe('astro:image', () => {
 				}),
 			});
 			devServer = await fixture.startDevServer({
+				// @ts-expect-error: `logger` is an internal API
 				logger,
 			});
 		});
@@ -820,6 +821,7 @@ describe('astro:image', () => {
 				}),
 			});
 			devServer = await fixture.startDevServer({
+				// @ts-expect-error: `logger` is an internal API
 				logger,
 			});
 		});
@@ -1198,6 +1200,7 @@ describe('build ssg', () => {
 			level: 'info',
 		});
 		await fixture.build({
+			// @ts-expect-error: `logger` is an internal API
 			logger,
 		});
 		const generatingImageIndex = logs.findIndex((logLine) =>
