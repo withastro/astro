@@ -6,7 +6,7 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../../types/public/internal.js';
-import { markHTMLString } from '../escape.js';
+import { escapeHTML, markHTMLString } from '../escape.js';
 import { extractDirectives, generateHydrateScript } from '../hydration.js';
 import { serializeProps } from '../serialize.js';
 import { shorthash } from '../shorthash.js';
@@ -354,7 +354,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 						? 'astro-slot'
 						: 'astro-static-slot'
 					: 'astro-slot';
-				let expectedHTML = key === 'default' ? `<${tagName}>` : `<${tagName} name="${key}">`;
+				let expectedHTML = key === 'default' ? `<${tagName}>` : `<${tagName} name="${escapeHTML(key)}">`;
 				if (!html.includes(expectedHTML)) {
 					unrenderedSlots.push(key);
 				}
@@ -368,7 +368,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 			? unrenderedSlots
 					.map(
 						(key) =>
-							`<template data-astro-template${key !== 'default' ? `="${key}"` : ''}>${
+							`<template data-astro-template${key !== 'default' ? `="${escapeHTML(key)}"` : ''}>${
 								children[key]
 							}</template>`,
 					)
