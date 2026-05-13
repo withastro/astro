@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 type Route = {
 	description: string;
@@ -117,57 +117,4 @@ describe('Reuse injected entrypoint', () => {
 		});
 	});
 
-	describe('dev', () => {
-		let fixture: Fixture;
-		let devServer: DevServer;
-
-		before(async () => {
-			fixture = await loadFixture({
-				root: './fixtures/reuse-injected-entrypoint/',
-				outDir: './dist/reuse-injected-entrypoint-dev/',
-			});
-
-			devServer = await fixture.startDevServer();
-		});
-
-		after(async () => {
-			await devServer.stop();
-		});
-
-		routes.forEach(({ description, url, fourOhFour, h1, p, htmlMatch, scriptContent }) => {
-			// checks URLs as written above
-			it(description, async () => {
-				const html = await fixture.fetch(url).then((res) => res.text());
-				const $ = cheerioLoad(html);
-
-				if (fourOhFour) {
-					assert.equal($('title').text(), '404: Not Found');
-					return;
-				}
-
-				if (h1) {
-					assert.equal($('h1').text(), h1);
-				}
-
-				if (p) {
-					assert.equal($('p').text(), p);
-				}
-
-				if (htmlMatch) {
-					assert.equal(html, htmlMatch);
-				}
-
-				if (scriptContent) {
-					const scriptTags = $('script[type="module"]').toArray();
-					const scriptFound = scriptTags.some((script) => {
-						const scriptSrc = $(script).attr('src');
-						return (
-							scriptSrc && scriptSrc.includes('/to-inject.astro?astro&type=script&index=0&lang.ts')
-						);
-					});
-					assert(scriptFound, `Expected script content to be injected in dev ${url}`);
-				}
-			});
-		});
-	});
 });

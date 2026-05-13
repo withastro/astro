@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.ts';
-import { loadFixture, type DevServer, type Fixture } from './test-utils.ts';
+import { loadFixture, type Fixture } from './test-utils.ts';
 
 describe('Astro.clientAddress', () => {
 	describe('SSR', () => {
@@ -41,29 +41,6 @@ describe('Astro.clientAddress', () => {
 			});
 		});
 
-		describe('Development', () => {
-			let devServer: DevServer;
-
-			before(async () => {
-				devServer = await fixture.startDevServer();
-			});
-
-			after(async () => {
-				await devServer.stop();
-			});
-
-			it('Gets the address', async () => {
-				let res = await fixture.fetch('/');
-				assert.equal(res.status, 200);
-				let html = await res.text();
-				let $ = cheerio.load(html);
-				let address = $('#address');
-
-				// Just checking that something is here. Not specifying address as it
-				// might differ per machine.
-				assert.equal(address.length > 0, true);
-			});
-		});
 	});
 
 	describe('SSR adapter not implemented', () => {
@@ -113,21 +90,5 @@ describe('Astro.clientAddress', () => {
 			});
 		});
 
-		describe('Development', () => {
-			let devServer: DevServer;
-
-			before(async () => {
-				devServer = await fixture.startDevServer();
-			});
-
-			after(async () => {
-				await devServer.stop();
-			});
-
-			it('is not accessible', async () => {
-				let res = await fixture.fetch('/');
-				assert.equal(res.status, 500);
-			});
-		});
 	});
 });

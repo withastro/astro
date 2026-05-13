@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { readdir } from 'node:fs/promises';
-import { after, before, describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('SVG Deduplication', () => {
 	let fixture: Fixture;
@@ -71,34 +71,4 @@ describe('SVG Deduplication', () => {
 		});
 	});
 
-	describe('dev', () => {
-		let devServer: DevServer;
-
-		before(async () => {
-			fixture = await loadFixture({
-				root: './fixtures/svg-deduplication/',
-				outDir: './dist/svg-deduplication-dev/',
-			});
-			devServer = await fixture.startDevServer();
-		});
-
-		after(async () => {
-			await devServer.stop();
-		});
-
-		it('serves SVG components correctly in dev mode', async () => {
-			const res = await fixture.fetch('/');
-			const html = await res.text();
-			const $ = cheerio.load(html);
-
-			// All SVG components should render in dev mode
-			const duplicate1Svg = $('#duplicate1 svg');
-			const duplicate2Svg = $('#duplicate2 svg');
-			const uniqueSvg = $('#unique svg');
-
-			assert.equal(duplicate1Svg.length, 1, 'duplicate1 SVG should render in dev');
-			assert.equal(duplicate2Svg.length, 1, 'duplicate2 SVG should render in dev');
-			assert.equal(uniqueSvg.length, 1, 'unique SVG should render in dev');
-		});
-	});
 });

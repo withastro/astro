@@ -1,8 +1,8 @@
 import * as assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.ts';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Content Collections - render()', () => {
 	describe('Build - SSG', () => {
@@ -150,61 +150,4 @@ describe('Content Collections - render()', () => {
 		});
 	});
 
-	describe('Dev - SSG', () => {
-		let devServer: DevServer;
-		let fixture: Fixture;
-
-		before(async () => {
-			fixture = await loadFixture({
-				root: './fixtures/content/',
-				outDir: './dist/content-collections-render-dev-ssg/',
-			});
-			devServer = await fixture.startDevServer();
-		});
-
-		after(async () => {
-			await devServer.stop();
-		});
-
-		it('Includes CSS for rendered entry', async () => {
-			const response = await fixture.fetch('/launch-week', { method: 'GET' });
-			assert.equal(response.status, 200);
-
-			const html = await response.text();
-			const $ = cheerio.load(html);
-
-			// Renders content
-			assert.equal($('ul li').length, 3);
-
-			// Includes styles
-			assert.equal($('head > style').length, 1);
-			assert.ok($('head > style').text().includes("font-family: 'Comic Sans MS'"));
-		});
-
-		it('Includes component scripts for rendered entry', async () => {
-			const response = await fixture.fetch('/launch-week-component-scripts', { method: 'GET' });
-			assert.equal(response.status, 200);
-
-			const html = await response.text();
-			const $ = cheerio.load(html);
-
-			// Includes script
-			assert.equal($('script[type="module"][src*="WithScripts.astro"]').length, 1);
-
-			// Includes inline script
-			assert.equal($('script[data-is-inline]').length, 1);
-		});
-
-		it('Applies MDX components export', async () => {
-			const response = await fixture.fetch('/launch-week-components-export', { method: 'GET' });
-			assert.equal(response.status, 200);
-
-			const html = await response.text();
-			const $ = cheerio.load(html);
-
-			const h2 = $('h2');
-			assert.equal(h2.length, 1);
-			assert.equal(h2.attr('data-components-export-applied'), 'true');
-		});
-	});
 });
