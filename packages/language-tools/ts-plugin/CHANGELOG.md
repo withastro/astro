@@ -1,5 +1,11 @@
 # @astrojs/ts-plugin
 
+## 1.10.8
+
+### Patch Changes
+
+- [#16716](https://github.com/withastro/astro/pull/16716) [`04fdbb2`](https://github.com/withastro/astro/commit/04fdbb29978d5a00acfb956538e54256ae24b486) Thanks [@delucis](https://github.com/delucis)! - Drops support for versions of VS Code below 1.101.0 [May 2025]
+
 ## 1.10.7
 
 ### Patch Changes

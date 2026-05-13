@@ -12,6 +12,7 @@ describe('core/render components', () => {
 			root: './fixtures/dev-render/',
 			logLevel: 'silent',
 			outDir: './dist/dev-render-components/',
+			cacheDir: './node_modules/.astro-test/dev-render-components/',
 		});
 		devServer = await fixture.startDevServer();
 	});

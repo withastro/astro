@@ -14,6 +14,7 @@ describe('SSR Assets', () => {
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
 			outDir: './dist/ssr-assets/',
+			cacheDir: './node_modules/.astro-test/ssr-assets/',
 		});
 		await fixture.build();
 	});

@@ -14,6 +14,8 @@ describe('Chrome DevTools workspace', () => {
 					chromeDevtoolsWorkspace: true,
 				},
 				outDir: './dist/chrome-devtools-workspace-with-experimental-flag-enabled/',
+				cacheDir:
+					'./node_modules/.astro-test/chrome-devtools-workspace-with-experimental-flag-enabled/',
 			});
 			devServer = await fixture.startDevServer();
 		});
@@ -47,6 +49,8 @@ describe('Chrome DevTools workspace', () => {
 					chromeDevtoolsWorkspace: false,
 				},
 				outDir: './dist/chrome-devtools-workspace-with-experimental-flag-disabled/',
+				cacheDir:
+					'./node_modules/.astro-test/chrome-devtools-workspace-with-experimental-flag-disabled/',
 			});
 			devServer = await fixture.startDevServer();
 		});

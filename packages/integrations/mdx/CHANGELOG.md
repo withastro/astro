@@ -1,5 +1,12 @@
 # @astrojs/mdx
 
+## 5.0.5
+
+### Patch Changes
+
+- Updated dependencies [[`9256345`](https://github.com/withastro/astro/commit/92563452ce866d9f9b950ad4b2adc808d10e8014)]:
+  - @astrojs/markdown-remark@7.1.2
+
 ## 5.0.4
 
 ### Patch Changes

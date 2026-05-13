@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
-import * as cheerio from 'cheerio';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
+import { before, describe, it } from 'node:test';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Partials', () => {
 	let fixture: Fixture;
@@ -10,29 +9,6 @@ describe('Partials', () => {
 		fixture = await loadFixture({
 			root: './fixtures/partials/',
 			outDir: './dist/partials/',
-		});
-	});
-
-	describe('dev', () => {
-		let devServer: DevServer;
-
-		before(async () => {
-			devServer = await fixture.startDevServer();
-		});
-
-		after(async () => {
-			await devServer.stop();
-		});
-
-		it('is only the written HTML', async () => {
-			const html = await fixture.fetch('/partials/item/').then((res) => res.text());
-			assert.equal(html.startsWith('<li'), true);
-		});
-
-		it('Nested conditionals render', async () => {
-			const html = await fixture.fetch('/partials/nested-conditional/').then((res) => res.text());
-			const $ = cheerio.load(html);
-			assert.equal($('#true').text(), 'test');
 		});
 	});
 

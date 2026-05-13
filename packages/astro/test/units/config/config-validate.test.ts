@@ -340,8 +340,8 @@ describe('Config Validation', () => {
 	});
 
 	describe('env', () => {
-		it('Should allow not providing a schema', () => {
-			assert.doesNotThrow(() =>
+		it('Should allow not providing a schema', async () => {
+			await assert.doesNotReject(() =>
 				validateConfig({
 					env: {
 						schema: undefined,
@@ -350,8 +350,8 @@ describe('Config Validation', () => {
 			);
 		});
 
-		it('Should allow schema variables with numbers', () => {
-			assert.doesNotThrow(() =>
+		it('Should allow schema variables with numbers', async () => {
+			await assert.doesNotReject(() =>
 				validateConfig({
 					env: {
 						schema: {
@@ -401,8 +401,8 @@ describe('Config Validation', () => {
 	});
 
 	describe('fonts', () => {
-		it('Should allow empty fonts', () => {
-			assert.doesNotThrow(() =>
+		it('Should allow empty fonts', async () => {
+			await assert.doesNotReject(() =>
 				validateConfig({
 					fonts: [],
 				}),
@@ -478,7 +478,7 @@ describe('Config Validation', () => {
 				true,
 			);
 
-			assert.doesNotThrow(() =>
+			await assert.doesNotReject(() =>
 				validateConfig({
 					fonts: [
 						{
@@ -491,8 +491,8 @@ describe('Config Validation', () => {
 			);
 		});
 
-		it('Should allow empty font fallbacks', () => {
-			assert.doesNotThrow(() =>
+		it('Should allow empty font fallbacks', async () => {
+			await assert.doesNotReject(() =>
 				validateConfig({
 					fonts: [
 						{
@@ -506,8 +506,8 @@ describe('Config Validation', () => {
 			);
 		});
 
-		it('Should allow family options', () => {
-			assert.doesNotThrow(() =>
+		it('Should allow family options', async () => {
+			await assert.doesNotReject(() =>
 				validateConfig({
 					fonts: [
 						{
@@ -578,7 +578,7 @@ describe('Config Validation', () => {
 		});
 
 		it('should not throw an error for correct hashes', async () => {
-			assert.doesNotThrow(() => {
+			await assert.doesNotReject(async () =>
 				validateConfig({
 					security: {
 						csp: {
@@ -587,19 +587,35 @@ describe('Config Validation', () => {
 							},
 						},
 					},
-				});
-			});
+				}),
+			);
 		});
 
-		it('should not throw an error when the directives are correct', () => {
-			assert.doesNotThrow(() =>
+		it('should throw an error when the directives are correct', async () => {
+			await assert.doesNotReject(() =>
 				validateConfig({
 					security: {
 						csp: {
-							directives: ["image-src 'self'"],
+							directives: ["img-src 'self'"],
 						},
 					},
-				}).catch((err) => err),
+				}),
+			);
+		});
+
+		it('should provide a helpful error message when script-src or style-src is used in directives', async () => {
+			const configError = await validateConfig({
+				security: {
+					csp: {
+						directives: ["script-src 'self'"],
+					},
+				},
+			}).catch((err) => err);
+
+			const formattedError = stripVTControlCharacters(formatConfigErrorMessage(configError));
+			assert.equal(
+				formattedError,
+				`[config] Astro found issue(s) with your configuration:\n\n! security.csp: Did not match union.\n  > Expected type boolean | Directives script-src and style-src are not allowed in security.csp.directives. Please use security.csp.scriptDirective and security.csp.styleDirective instead.\n  > Received { "directives": [ "script-src 'self'" ] }`,
 			);
 		});
 	});

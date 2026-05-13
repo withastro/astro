@@ -1,5 +1,11 @@
 # @astrojs/prism
 
+## 4.0.2
+
+### Patch Changes
+
+- [#15723](https://github.com/withastro/astro/pull/15723) [`9256345`](https://github.com/withastro/astro/commit/92563452ce866d9f9b950ad4b2adc808d10e8014) Thanks [@rururux](https://github.com/rururux)! - Fixes an issue where the `<Prism />` component failed to work in Cloudflare Workers.
+
 ## 4.0.1
 
 ### Patch Changes

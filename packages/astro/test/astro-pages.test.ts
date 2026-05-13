@@ -7,7 +7,11 @@ describe('Pages', () => {
 	let fixture: Fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/astro pages/', outDir: './dist/astro-pages/' });
+		fixture = await loadFixture({
+			root: './fixtures/astro pages/',
+			outDir: './dist/astro-pages/',
+			cacheDir: './node_modules/.astro-test/astro-pages/',
+		});
 		await fixture.build();
 	});
 

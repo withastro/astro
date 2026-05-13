@@ -1,23 +1,15 @@
 import assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
+import { before, describe, it } from 'node:test';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
-// Asset bundling
 describe('Not returning responses', () => {
 	let fixture: Fixture;
-	let devServer: DevServer;
 
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-not-response/',
 			outDir: './dist/astro-not-response/',
 		});
-
-		devServer = await fixture.startDevServer();
-	});
-
-	after(async () => {
-		await devServer.stop();
 	});
 
 	it('Does not work from a page', async () => {
