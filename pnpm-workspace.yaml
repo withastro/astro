@@ -34,8 +34,8 @@ minimumReleaseAgeExclude:
   # TODO: remove once more stable
   - '@flue/*'
   - '@astrojs/*'
-	# Netlify Vite Plugin and deps. New version required for bug fix.
-	# TODO: remove this block after 2026/05/15
+  # Netlify Vite Plugin and deps. New version required for bug fix.
+  # TODO: remove this block after 2026/05/15
   - '@netlify/vite-plugin@2.12.3'
   - '@netlify/dev@4.18.3'
   - '@netlify/runtime@4.1.21'
@@ -66,7 +66,7 @@ trustPolicyExclude:
   # Netlify dependency they need to update: https://github.com/netlify/primitives/pull/585
   - 'chokidar@4.0.3'
   # Netlify packages that do not have trusted publishing enabled on npm
-	# TODO: Remove once trusted publishing is enabled. Netlify are working on it.
+  # TODO: Remove once trusted publishing is enabled. Netlify are working on it.
   - '@netlify/edge-bundler@14.10.1'
   - '@netlify/zip-it-and-ship-it@14.5.6'
   - '@netlify/serverless-functions-api@2.15.1'
