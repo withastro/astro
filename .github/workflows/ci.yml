@@ -229,9 +229,9 @@ jobs:
         node_version: [22.15.1, 24.15.0]
         include:
           - os: windows-latest
-            node_version: 20.14.0
+            node_version: 22.15.1
           - os: macos-latest
-            node_version: 20.14.0
+            node_version: 22.15.1
       fail-fast: false
 
     name: 'Test (language-tools): node-${{ matrix.node_version }}, ${{ matrix.os }}'
