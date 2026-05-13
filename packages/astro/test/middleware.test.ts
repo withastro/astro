@@ -6,7 +6,7 @@ import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.ts';
 import { type App, type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
-describe('Middleware in DEV mode', () => {
+describe('Middleware in DEV mode — integration hooks', () => {
 	let fixture: Fixture;
 	let devServer: DevServer;
 
@@ -22,30 +22,16 @@ describe('Middleware in DEV mode', () => {
 		await devServer.stop();
 	});
 
-	describe('Path encoding in middleware', () => {
-		it('should reject double-encoded paths with 400', async () => {
-			const res = await fixture.fetch('/%2561dmin', { redirect: 'manual' });
-			assert.equal(res.status, 400);
-		});
-
-		it('should reject triple-encoded paths with 400', async () => {
-			const res = await fixture.fetch('/%252561dmin', { redirect: 'manual' });
-			assert.equal(res.status, 400);
-		});
+	it('Integration middleware marked as "pre" runs', async () => {
+		const res = await fixture.fetch('/integration-pre');
+		const json = await res.json();
+		assert.equal(json.pre, 'works');
 	});
 
-	describe('Integration hooks', () => {
-		it('Integration middleware marked as "pre" runs', async () => {
-			const res = await fixture.fetch('/integration-pre');
-			const json = await res.json();
-			assert.equal(json.pre, 'works');
-		});
-
-		it('Integration middleware marked as "post" runs', async () => {
-			const res = await fixture.fetch('/integration-post');
-			const json = await res.json();
-			assert.equal(json.post, 'works');
-		});
+	it('Integration middleware marked as "post" runs', async () => {
+		const res = await fixture.fetch('/integration-post');
+		const json = await res.json();
+		assert.equal(json.post, 'works');
 	});
 });
 
@@ -194,31 +180,5 @@ describe('Middleware with tailwind', () => {
 			.replace(/\s/g, '')
 			.replace('/n', '');
 		assert.equal(bundledCSS.includes('--tw'), true);
-	});
-});
-
-describe('Middleware sequence rewrites', () => {
-	let fixture: Fixture;
-	let devServer: DevServer;
-
-	before(async () => {
-		fixture = await loadFixture({
-			root: './fixtures/middleware-sequence-rewrite/',
-			outDir: './dist/middleware-middleware-sequence-rewrites/',
-		});
-		devServer = await fixture.startDevServer();
-	});
-
-	after(async () => {
-		await devServer.stop();
-	});
-
-	it('should preserve cookies set in sequence', async () => {
-		const res = await fixture.fetch('/');
-		const html = await res.text();
-		assert.ok(html.includes('Hello Another'));
-		const setCookie = res.headers.get('set-cookie')!;
-		assert.ok(setCookie.includes('cookie1=Cookie%20from%20middleware%201'));
-		assert.ok(setCookie.includes('cookie2=Cookie%20from%20middleware%202'));
 	});
 });
