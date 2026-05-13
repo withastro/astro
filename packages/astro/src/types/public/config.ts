@@ -256,6 +256,28 @@ export interface AstroUserConfig<
 	trailingSlash?: 'always' | 'never' | 'ignore';
 
 	/**
+	 * @name fetchFile
+	 * @type {string | null}
+	 * @default `'app'`
+	 * @description
+	 * Customize the filename (without extension) used as the advanced routing entrypoint
+	 * inside `srcDir`. Defaults to `'app'`, meaning Astro looks for `src/app.ts`.
+	 *
+	 * Set to `null` to disable the feature, which is useful if you already have a
+	 * `src/app.ts` file used for other purposes.
+	 *
+	 * ```js
+	 * export default defineConfig({
+	 *   fetchFile: 'fetch',
+	 *   experimental: {
+	 *     advancedRouting: true,
+	 *   },
+	 * });
+	 * ```
+	 */
+	fetchFile?: string | null;
+
+	/**
 	 * @docs
 	 * @name redirects
 	 * @type {Record<string, RedirectConfig>}
