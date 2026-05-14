@@ -334,7 +334,7 @@ export async function generatePages(
 				.add(() => generateImagesForPath(originalPath, transforms, assetsCreationPipeline))
 				.catch((e) => {
 					logger.warn('build', `Unable to generate optimized image for ${originalPath}: ${e}`);
-					errors.push(new Error(`Error generating image for ${originalPath}`, { cause: e }));
+					errors.push(new Error(`Error generating image for ${originalPath}: ${e}`, { cause: e }));
 				});
 		}
 

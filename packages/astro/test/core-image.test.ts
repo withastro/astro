@@ -1331,10 +1331,7 @@ describe('astro:image', () => {
 				},
 				(error) => {
 					assert.ok(error instanceof Error);
-					assert.equal(
-						error.message,
-						'Error generating image for https://astro.build/this_image_does_not_exist.png',
-					);
+					assert.ok(error.message.includes('astro.build/this_image_does_not_exist.png'));
 					return true;
 				},
 			);
