@@ -755,7 +755,7 @@ describe('astro:image', () => {
 			});
 		});
 
-		describe('custom endpoint', async () => {
+		describe('custom endpoint', () => {
 			let customEndpointDevServer: DevServer;
 
 			let customEndpointFixture: Fixture;
@@ -987,695 +987,699 @@ describe('astro:image', () => {
 			assert.equal(response.status, 403);
 		});
 	});
+});
 
-	describe('build ssg', () => {
-		before(async () => {
-			fixture = await loadFixture({
-				root: './fixtures/core-image-ssg/',
-				image: {
-					service: testImageService(),
-					domains: [
-						'astro.build',
-						'avatars.githubusercontent.com',
-						'kaleidoscopic-biscotti-6fe98c.netlify.app',
-					],
+describe('build ssg', () => {
+	let fixture: Fixture;
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/core-image-ssg/',
+			image: {
+				service: testImageService(),
+				domains: [
+					'astro.build',
+					'avatars.githubusercontent.com',
+					'kaleidoscopic-biscotti-6fe98c.netlify.app',
+				],
+			},
+			outDir: './dist/core-image-build-ssg/',
+		});
+		// Remove cache directory
+		await removeDir(new URL('./fixtures/core-image-ssg/node_modules/.astro', import.meta.url));
+
+		await fixture.build();
+	});
+
+	it('writes out images to dist folder', async () => {
+		const html = await fixture.readFile('/index.html');
+		const $ = cheerio.load(html);
+		const src = $('#local img').attr('src')!;
+		assert.equal(src.length > 0, true);
+		const data = await fixture.readBuffer(src);
+		assert.equal(data instanceof Buffer, true);
+	});
+
+	it('writes out allowed remote images', async () => {
+		const html = await fixture.readFile('/remote/index.html');
+		const $ = cheerio.load(html);
+		const src = $('#remote img').attr('src')!;
+		assert.equal(src.length > 0, true);
+		const data = await fixture.readBuffer(src);
+		assert.equal(data instanceof Buffer, true);
+	});
+
+	it('writes out images to dist folder with proper extension if no format was passed', async () => {
+		const html = await fixture.readFile('/index.html');
+		const $ = cheerio.load(html);
+		const src = $('#local img').attr('src')!;
+		assert.equal(src.endsWith('.webp'), true);
+	});
+
+	it('getImage() usage also written', async () => {
+		const html = await fixture.readFile('/get-image/index.html');
+		const $ = cheerio.load(html);
+		let $img = $('img');
+
+		// <img> tag
+		assert.equal($img.length, 1);
+		assert.equal($img.attr('alt'), 'a penguin');
+
+		// image itself
+		const src = $img.attr('src')!;
+		const data = await fixture.readBuffer(src);
+		assert.equal(data instanceof Buffer, true);
+	});
+
+	it('handles remote images with special characters', async () => {
+		const html = await fixture.readFile('/special-chars/index.html');
+		const $ = cheerio.load(html);
+		const $img = $('img');
+		assert.equal($img.length, 1);
+		const src = $img.attr('src')!;
+		// The filename should be encoded and sanitized
+		assert.ok(src.startsWith('/_astro/c_23'));
+		const data = await fixture.readBuffer(src);
+		assert.ok(data instanceof Buffer);
+	});
+
+	it('Picture component images are written', async () => {
+		const html = await fixture.readFile('/picturecomponent/index.html');
+		const $ = cheerio.load(html);
+		let $img = $('img');
+		let $source = $('source');
+
+		assert.equal($img.length, 1);
+		assert.equal($source.length, 2);
+
+		const srcset = parseSrcset($source.attr('srcset')!);
+		let hasExistingSrc = await Promise.all(
+			srcset.map(async (src) => {
+				const data = await fixture.readBuffer(src.url);
+				return data instanceof Buffer;
+			}),
+		);
+
+		assert.deepEqual(
+			hasExistingSrc.every((src) => src === true),
+			true,
+		);
+	});
+
+	it('animated avif does not crash the build', async () => {
+		const html = await fixture.readFile('/animated-avif/index.html');
+		const $ = cheerio.load(html);
+		const src = $('#animated-avif img').attr('src')!;
+		assert.ok(src, 'expected img src to be set');
+		const data = await fixture.readBuffer(src);
+		assert.equal(data instanceof Buffer, true);
+		assert.ok(data.byteLength > 0);
+	});
+
+	it('markdown images are written', async () => {
+		const html = await fixture.readFile('/post/index.html');
+		const $ = cheerio.load(html);
+		let $img = $('img');
+
+		// <img> tag
+		assert.equal($img.length, 1);
+		assert.equal($img.attr('alt'), 'My article cover');
+
+		// image itself
+		const src = $img.attr('src')!;
+		const data = await fixture.readBuffer(src);
+		assert.equal(data instanceof Buffer, true);
+	});
+
+	it('aliased images are written', async () => {
+		const html = await fixture.readFile('/alias/index.html');
+
+		const $ = cheerio.load(html);
+		let $img = $('img');
+
+		// <img> tag
+		assert.equal($img.length, 1);
+		assert.equal($img.attr('alt'), 'A penguin!');
+
+		// image itself
+		const src = $img.attr('src')!;
+		const data = await fixture.readBuffer(src);
+		assert.equal(data instanceof Buffer, true);
+	});
+
+	it('aliased images in Markdown are written', async () => {
+		const html = await fixture.readFile('/aliasMarkdown/index.html');
+
+		const $ = cheerio.load(html);
+		let $img = $('img');
+
+		// <img> tag
+		assert.equal($img.length, 1);
+		assert.equal($img.attr('alt'), 'A penguin');
+
+		// image itself
+		const src = $img.attr('src')!;
+		const data = await fixture.readBuffer(src);
+		assert.equal(data instanceof Buffer, true);
+	});
+
+	it('output files for content collections images', async () => {
+		const html = await fixture.readFile('/blog/one/index.html');
+
+		const $ = cheerio.load(html);
+		let $img = $('img');
+		assert.equal($img.length, 2);
+
+		const srcdirect = $('#direct-image img').attr('src')!;
+		const datadirect = await fixture.readBuffer(srcdirect);
+		assert.equal(datadirect instanceof Buffer, true);
+
+		const srcnested = $('#nested-image img').attr('src')!;
+		const datanested = await fixture.readBuffer(srcnested);
+		assert.equal(datanested instanceof Buffer, true);
+	});
+
+	it('quality attribute produces a different file', async () => {
+		const html = await fixture.readFile('/quality/index.html');
+		const $ = cheerio.load(html);
+		assert.notEqual($('#no-quality img').attr('src'), $('#quality-low img').attr('src'));
+	});
+
+	it('quality can be a number between 0-100', async () => {
+		const html = await fixture.readFile('/quality/index.html');
+		const $ = cheerio.load(html);
+		assert.notEqual($('#no-quality img').attr('src'), $('#quality-num img').attr('src'));
+	});
+
+	it('format attribute produces a different file', async () => {
+		const html = await fixture.readFile('/format/index.html');
+		const $ = cheerio.load(html);
+		assert.notEqual($('#no-format img').attr('src'), $('#format-avif img').attr('src'));
+	});
+
+	it('has cache entries', async () => {
+		const generatedImages = (await fixture.glob('_astro/**/*.webp'))
+			.map((path) => basename(path))
+			.sort();
+		const cachedImages = [...(await fixture.glob('../../node_modules/.astro/assets/**/*.webp'))]
+			.map((path) => basename(path))
+			.sort();
+
+		assert.deepEqual(generatedImages, cachedImages);
+	});
+
+	it('uses cache entries', async () => {
+		const logs: Array<AstroLoggerMessage> = [];
+
+		const logger = new AstroLogger({
+			destination: {
+				write(chunk) {
+					logs.push(chunk);
+					return true;
 				},
-				outDir: './dist/core-image-build-ssg/',
-			});
-			// Remove cache directory
-			await removeDir(new URL('./fixtures/core-image-ssg/node_modules/.astro', import.meta.url));
+			},
+			level: 'info',
+		});
+		await fixture.build({
+			// @ts-expect-error: `logger` is an internal API
+			logger,
+		});
+		const generatingImageIndex = logs.findIndex((logLine) =>
+			logLine.message?.includes('generating optimized images'),
+		);
+		const imageLogs = logs
+			.slice(generatingImageIndex + 1)
+			.filter((logLine) => logLine.message?.includes('/_astro/'));
+		assert.ok(imageLogs.length > 0, 'Expected at least one image log entry');
+		const isReusingCache = imageLogs.every((logLine) => logLine.message?.includes('cache entry)'));
 
+		assert.equal(
+			isReusingCache,
+			true,
+			'Expected all images to be reused from cache but found the following logs: ' +
+				JSON.stringify(imageLogs, null, 2),
+		);
+	});
+
+	it('writes remote image cache metadata', async () => {
+		const html = await fixture.readFile('/remote/index.html');
+		const $ = cheerio.load(html);
+		const metaSrc =
+			'../../node_modules/.astro/assets/' + basename($('#remote img').attr('src')!) + '.json';
+		const data = await fixture.readBuffer(metaSrc);
+		assert.equal(data instanceof Buffer, true);
+		const metadata = JSON.parse(data.toString());
+		assert.equal(typeof metadata.expires, 'number');
+	});
+
+	it('client images are written to build', async () => {
+		const html = await fixture.readFile('/client/index.html');
+		const $ = cheerio.load(html);
+		let $script = $('script');
+
+		// Find image
+		const regex = /src:"([^"]*)/;
+		const imageSrc = regex.exec($script.html()!)![1];
+		const data = await fixture.readBuffer(imageSrc);
+		assert.equal(data instanceof Buffer, true);
+	});
+
+	it('client images srcset parsed correctly', async () => {
+		const html = await fixture.readFile('/srcset/index.html');
+		const $ = cheerio.load(html);
+		const srcset = $('#local-2-widths-with-spaces img').attr('srcset')!;
+
+		// Find image
+		const regex = /^(.+?) \d+[wx]$/m;
+		const imageSrcset = regex.exec(srcset)![1];
+		assert.notEqual(imageSrcset.includes(' '), true);
+	});
+
+	it('supports images with encoded characters in url', async () => {
+		const html = await fixture.readFile('/index.html');
+		const $ = cheerio.load(html);
+		const img = $('#encoded-chars img');
+		const src = img.attr('src')!;
+		const data = await fixture.readFile(src);
+		assert.notEqual(data, undefined);
+	});
+
+	describe('custom service in build', () => {
+		it('uses configured hashes properties', async () => {
 			await fixture.build();
-		});
-
-		it('writes out images to dist folder', async () => {
-			const html = await fixture.readFile('/index.html');
-			const $ = cheerio.load(html);
-			const src = $('#local img').attr('src')!;
-			assert.equal(src.length > 0, true);
-			const data = await fixture.readBuffer(src);
-			assert.equal(data instanceof Buffer, true);
-		});
-
-		it('writes out allowed remote images', async () => {
-			const html = await fixture.readFile('/remote/index.html');
-			const $ = cheerio.load(html);
-			const src = $('#remote img').attr('src')!;
-			assert.equal(src.length > 0, true);
-			const data = await fixture.readBuffer(src);
-			assert.equal(data instanceof Buffer, true);
-		});
-
-		it('writes out images to dist folder with proper extension if no format was passed', async () => {
-			const html = await fixture.readFile('/index.html');
-			const $ = cheerio.load(html);
-			const src = $('#local img').attr('src')!;
-			assert.equal(src.endsWith('.webp'), true);
-		});
-
-		it('getImage() usage also written', async () => {
-			const html = await fixture.readFile('/get-image/index.html');
-			const $ = cheerio.load(html);
-			let $img = $('img');
-
-			// <img> tag
-			assert.equal($img.length, 1);
-			assert.equal($img.attr('alt'), 'a penguin');
-
-			// image itself
-			const src = $img.attr('src')!;
-			const data = await fixture.readBuffer(src);
-			assert.equal(data instanceof Buffer, true);
-		});
-
-		it('handles remote images with special characters', async () => {
-			const html = await fixture.readFile('/special-chars/index.html');
-			const $ = cheerio.load(html);
-			const $img = $('img');
-			assert.equal($img.length, 1);
-			const src = $img.attr('src')!;
-			// The filename should be encoded and sanitized
-			assert.ok(src.startsWith('/_astro/c_23'));
-			const data = await fixture.readBuffer(src);
-			assert.ok(data instanceof Buffer);
-		});
-
-		it('Picture component images are written', async () => {
-			const html = await fixture.readFile('/picturecomponent/index.html');
-			const $ = cheerio.load(html);
-			let $img = $('img');
-			let $source = $('source');
-
-			assert.equal($img.length, 1);
-			assert.equal($source.length, 2);
-
-			const srcset = parseSrcset($source.attr('srcset')!);
-			let hasExistingSrc = await Promise.all(
-				srcset.map(async (src) => {
-					const data = await fixture.readBuffer(src.url);
-					return data instanceof Buffer;
-				}),
-			);
-
-			assert.deepEqual(
-				hasExistingSrc.every((src) => src === true),
-				true,
-			);
-		});
-
-		it('animated avif does not crash the build', async () => {
-			const html = await fixture.readFile('/animated-avif/index.html');
-			const $ = cheerio.load(html);
-			const src = $('#animated-avif img').attr('src')!;
-			assert.ok(src, 'expected img src to be set');
-			const data = await fixture.readBuffer(src);
-			assert.equal(data instanceof Buffer, true);
-			assert.ok(data.byteLength > 0);
-		});
-
-		it('markdown images are written', async () => {
-			const html = await fixture.readFile('/post/index.html');
-			const $ = cheerio.load(html);
-			let $img = $('img');
-
-			// <img> tag
-			assert.equal($img.length, 1);
-			assert.equal($img.attr('alt'), 'My article cover');
-
-			// image itself
-			const src = $img.attr('src')!;
-			const data = await fixture.readBuffer(src);
-			assert.equal(data instanceof Buffer, true);
-		});
-
-		it('aliased images are written', async () => {
-			const html = await fixture.readFile('/alias/index.html');
+			const html = await fixture.readFile('/imageDeduplication/index.html');
 
 			const $ = cheerio.load(html);
-			let $img = $('img');
 
-			// <img> tag
-			assert.equal($img.length, 1);
-			assert.equal($img.attr('alt'), 'A penguin!');
-
-			// image itself
-			const src = $img.attr('src')!;
-			const data = await fixture.readBuffer(src);
-			assert.equal(data instanceof Buffer, true);
-		});
-
-		it('aliased images in Markdown are written', async () => {
-			const html = await fixture.readFile('/aliasMarkdown/index.html');
-
-			const $ = cheerio.load(html);
-			let $img = $('img');
-
-			// <img> tag
-			assert.equal($img.length, 1);
-			assert.equal($img.attr('alt'), 'A penguin');
-
-			// image itself
-			const src = $img.attr('src')!;
-			const data = await fixture.readBuffer(src);
-			assert.equal(data instanceof Buffer, true);
-		});
-
-		it('output files for content collections images', async () => {
-			const html = await fixture.readFile('/blog/one/index.html');
-
-			const $ = cheerio.load(html);
-			let $img = $('img');
-			assert.equal($img.length, 2);
-
-			const srcdirect = $('#direct-image img').attr('src')!;
-			const datadirect = await fixture.readBuffer(srcdirect);
-			assert.equal(datadirect instanceof Buffer, true);
-
-			const srcnested = $('#nested-image img').attr('src')!;
-			const datanested = await fixture.readBuffer(srcnested);
-			assert.equal(datanested instanceof Buffer, true);
-		});
-
-		it('quality attribute produces a different file', async () => {
-			const html = await fixture.readFile('/quality/index.html');
-			const $ = cheerio.load(html);
-			assert.notEqual($('#no-quality img').attr('src'), $('#quality-low img').attr('src'));
-		});
-
-		it('quality can be a number between 0-100', async () => {
-			const html = await fixture.readFile('/quality/index.html');
-			const $ = cheerio.load(html);
-			assert.notEqual($('#no-quality img').attr('src'), $('#quality-num img').attr('src'));
-		});
-
-		it('format attribute produces a different file', async () => {
-			const html = await fixture.readFile('/format/index.html');
-			const $ = cheerio.load(html);
-			assert.notEqual($('#no-format img').attr('src'), $('#format-avif img').attr('src'));
-		});
-
-		it('has cache entries', async () => {
-			const generatedImages = (await fixture.glob('_astro/**/*.webp'))
-				.map((path) => basename(path))
-				.sort();
-			const cachedImages = [...(await fixture.glob('../../node_modules/.astro/assets/**/*.webp'))]
-				.map((path) => basename(path))
-				.sort();
-
-			assert.deepEqual(generatedImages, cachedImages);
-		});
-
-		it('uses cache entries', async () => {
-			const logs: Array<AstroLoggerMessage> = [];
-
-			const logger = new AstroLogger({
-				destination: {
-					write(chunk) {
-						logs.push(chunk);
-						return true;
-					},
-				},
-				level: 'info',
-			});
-			await fixture.build({
-				// @ts-expect-error: `logger` is an internal API
-				logger,
-			});
-			const generatingImageIndex = logs.findIndex((logLine) =>
-				logLine.message?.includes('generating optimized images'),
-			);
-			const imageLogs = logs
-				.slice(generatingImageIndex + 1)
-				.filter((logLine) => logLine.message?.includes('/_astro/'));
-			assert.ok(imageLogs.length > 0, 'Expected at least one image log entry');
-			const isReusingCache = imageLogs.every((logLine) =>
-				logLine.message?.includes('cache entry)'),
-			);
+			const allTheSamePath = $('#all-the-same img')
+				.map((_, el) => $(el).attr('src'))
+				.get();
 
 			assert.equal(
-				isReusingCache,
+				allTheSamePath.every((path) => path === allTheSamePath[0]),
 				true,
-				'Expected all images to be reused from cache but found the following logs: ' +
-					JSON.stringify(imageLogs, null, 2),
 			);
-		});
 
-		it('writes remote image cache metadata', async () => {
-			const html = await fixture.readFile('/remote/index.html');
-			const $ = cheerio.load(html);
-			const metaSrc =
-				'../../node_modules/.astro/assets/' + basename($('#remote img').attr('src')!) + '.json';
-			const data = await fixture.readBuffer(metaSrc);
-			assert.equal(data instanceof Buffer, true);
-			const metadata = JSON.parse(data.toString());
-			assert.equal(typeof metadata.expires, 'number');
-		});
+			const useCustomHashProperty = $('#use-data img')
+				.map((_, el) => $(el).attr('src'))
+				.get();
+			assert.equal(
+				useCustomHashProperty.every((path) => path === useCustomHashProperty[0]),
+				false,
+			);
 
-		it('client images are written to build', async () => {
-			const html = await fixture.readFile('/client/index.html');
-			const $ = cheerio.load(html);
-			let $script = $('script');
-
-			// Find image
-			const regex = /src:"([^"]*)/;
-			const imageSrc = regex.exec($script.html()!)![1];
-			const data = await fixture.readBuffer(imageSrc);
-			assert.equal(data instanceof Buffer, true);
-		});
-
-		it('client images srcset parsed correctly', async () => {
-			const html = await fixture.readFile('/srcset/index.html');
-			const $ = cheerio.load(html);
-			const srcset = $('#local-2-widths-with-spaces img').attr('srcset')!;
-
-			// Find image
-			const regex = /^(.+?) \d+[wx]$/m;
-			const imageSrcset = regex.exec(srcset)![1];
-			assert.notEqual(imageSrcset.includes(' '), true);
-		});
-
-		it('supports images with encoded characters in url', async () => {
-			const html = await fixture.readFile('/index.html');
-			const $ = cheerio.load(html);
-			const img = $('#encoded-chars img');
-			const src = img.attr('src')!;
-			const data = await fixture.readFile(src);
-			assert.notEqual(data, undefined);
-		});
-
-		describe('custom service in build', () => {
-			it('uses configured hashes properties', async () => {
-				await fixture.build();
-				const html = await fixture.readFile('/imageDeduplication/index.html');
-
-				const $ = cheerio.load(html);
-
-				const allTheSamePath = $('#all-the-same img')
-					.map((_, el) => $(el).attr('src'))
-					.get();
-
-				assert.equal(
-					allTheSamePath.every((path) => path === allTheSamePath[0]),
-					true,
-				);
-
-				const useCustomHashProperty = $('#use-data img')
-					.map((_, el) => $(el).attr('src'))
-					.get();
-				assert.equal(
-					useCustomHashProperty.every((path) => path === useCustomHashProperty[0]),
-					false,
-				);
-
-				assert.notEqual(useCustomHashProperty[1], useCustomHashProperty[0]);
-			});
+			assert.notEqual(useCustomHashProperty[1], useCustomHashProperty[0]);
 		});
 	});
+});
 
-	describe('dev ssr', () => {
-		let devServer: DevServer;
-		before(async () => {
-			fixture = await loadFixture({
-				root: './fixtures/core-image-ssr/',
-				output: 'server',
-				outDir: './dist/server-dev',
-				adapter: testAdapter(),
-				base: 'some-base',
-				image: {
-					service: testImageService(),
-				},
-			});
-			devServer = await fixture.startDevServer();
+describe('dev ssr', () => {
+	let fixture: Fixture;
+	let devServer: DevServer;
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/core-image-ssr/',
+			output: 'server',
+			outDir: './dist/server-dev',
+			adapter: testAdapter(),
+			base: 'some-base',
+			image: {
+				service: testImageService(),
+			},
 		});
-
-		after(async () => {
-			await devServer.stop();
-		});
-
-		it('serves the image at /_image', async () => {
-			const params = new URLSearchParams();
-			params.set('href', '/src/assets/penguin1.jpg?origWidth=207&origHeight=243&origFormat=jpg');
-			params.set('f', 'webp');
-			const response = await fixture.fetch('/some-base/_image?' + String(params));
-			assert.equal(response.status, 200);
-			assert.equal(response.headers.get('content-type'), 'image/webp');
-		});
-
-		it('returns HEAD method ok for /_image', async () => {
-			const params = new URLSearchParams();
-			params.set('href', '/src/assets/penguin1.jpg?origWidth=207&origHeight=243&origFormat=jpg');
-			params.set('f', 'webp');
-			const response = await fixture.fetch('/some-base/_image?' + String(params), {
-				method: 'HEAD',
-			});
-			assert.equal(response.status, 200);
-			assert.equal(response.body, null);
-			assert.equal(response.headers.get('content-type'), 'image/webp');
-		});
-
-		it('does not interfere with query params', async () => {
-			let res = await fixture.fetch('/api?src=image.png');
-			const html = await res.text();
-			assert.equal(html, 'An image: "image.png"');
-		});
-
-		it('rejects f=svg when source is not SVG in dev mode', async () => {
-			const params = new URLSearchParams();
-			params.set('href', '/src/assets/penguin1.jpg?origWidth=207&origHeight=243&origFormat=jpg');
-			params.set('f', 'svg');
-			const response = await fixture.fetch('/some-base/_image?' + String(params));
-			assert.equal(response.status, 403, 'should reject f=svg for a .jpg source in dev');
-		});
+		devServer = await fixture.startDevServer();
 	});
 
-	describe('prod ssr', () => {
-		before(async () => {
-			fixture = await loadFixture({
-				root: './fixtures/core-image-ssr/',
-				output: 'server',
-				outDir: './dist/server-prod',
-				adapter: testAdapter(),
-				image: {
-					endpoint: { route: '/_image', entrypoint: 'astro/assets/endpoint/node' },
-					service: testImageService(),
-				},
-			});
-			await fixture.build();
-		});
+	after(async () => {
+		await devServer.stop();
+	});
 
-		it('dynamic route images are built at response time', async () => {
-			const app = await fixture.loadTestAdapterApp();
-			let request = new Request('http://example.com/');
+	it('serves the image at /_image', async () => {
+		const params = new URLSearchParams();
+		params.set('href', '/src/assets/penguin1.jpg?origWidth=207&origHeight=243&origFormat=jpg');
+		params.set('f', 'webp');
+		const response = await fixture.fetch('/some-base/_image?' + String(params));
+		assert.equal(response.status, 200);
+		assert.equal(response.headers.get('content-type'), 'image/webp');
+	});
+
+	it('returns HEAD method ok for /_image', async () => {
+		const params = new URLSearchParams();
+		params.set('href', '/src/assets/penguin1.jpg?origWidth=207&origHeight=243&origFormat=jpg');
+		params.set('f', 'webp');
+		const response = await fixture.fetch('/some-base/_image?' + String(params), {
+			method: 'HEAD',
+		});
+		assert.equal(response.status, 200);
+		assert.equal(response.body, null);
+		assert.equal(response.headers.get('content-type'), 'image/webp');
+	});
+
+	it('does not interfere with query params', async () => {
+		let res = await fixture.fetch('/api?src=image.png');
+		const html = await res.text();
+		assert.equal(html, 'An image: "image.png"');
+	});
+
+	it('rejects f=svg when source is not SVG in dev mode', async () => {
+		const params = new URLSearchParams();
+		params.set('href', '/src/assets/penguin1.jpg?origWidth=207&origHeight=243&origFormat=jpg');
+		params.set('f', 'svg');
+		const response = await fixture.fetch('/some-base/_image?' + String(params));
+		assert.equal(response.status, 403, 'should reject f=svg for a .jpg source in dev');
+	});
+});
+
+describe('prod ssr', () => {
+	let fixture: Fixture;
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/core-image-ssr/',
+			output: 'server',
+			outDir: './dist/server-prod',
+			adapter: testAdapter(),
+			image: {
+				endpoint: { route: '/_image', entrypoint: 'astro/assets/endpoint/node' },
+				service: testImageService(),
+			},
+		});
+		await fixture.build();
+	});
+
+	it('dynamic route images are built at response time', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		let request = new Request('http://example.com/');
+		let response = await app.render(request);
+		assert.equal(response.status, 200);
+		const html = await response.text();
+		const $ = cheerio.load(html);
+		const src = $('#local img').attr('src')!;
+		request = new Request('http://example.com' + src);
+		response = await app.render(request);
+		assert.equal(response.status, 200);
+	});
+
+	it('endpoint handle malformed requests', async () => {
+		const badPaths = [
+			'../../../../../../../../../../../../etc/hosts%00',
+			'../../../../../../../../../../../../etc/hosts',
+			'../../boot.ini',
+			'/../../../../../../../../%2A',
+			'../../../../../../../../../../../../etc/passwd%00',
+			'../../../../../../../../../../../../etc/passwd',
+			'../../../../../../../../../../../../etc/shadow%00',
+			'../../../../../../../../../../../../etc/shadow',
+			'/../../../../../../../../../../etc/passwd^^',
+			'/../../../../../../../../../../etc/shadow^^',
+			'/../../../../../../../../../../etc/passwd',
+			'/../../../../../../../../../../etc/shadow',
+			'/./././././././././././etc/passwd',
+			'/./././././././././././etc/shadow',
+			'....................etcpasswd',
+			'....................etcshadow',
+			'....................etcpasswd',
+			'....................etcshadow',
+			'/..../..../..../..../..../..../etc/passwd',
+			'/..../..../..../..../..../..../etc/shadow',
+			'.\\./.\\./.\\./.\\./.\\./.\\./etc/passwd',
+			'.\\./.\\./.\\./.\\./.\\./.\\./etc/shadow',
+			'....................etcpasswd%00',
+			'....................etcshadow%00',
+			'....................etcpasswd%00',
+			'....................etcshadow%00',
+			'%0a/bin/cat%20/etc/passwd',
+			'%0a/bin/cat%20/etc/shadow',
+			'%00/etc/passwd%00',
+			'%00/etc/shadow%00',
+			'%00../../../../../../etc/passwd',
+			'%00../../../../../../etc/shadow',
+			'/../../../../../../../../../../../etc/passwd%00.jpg',
+			'/../../../../../../../../../../../etc/passwd%00.html',
+			'/..%c0%af../..%c0%af../..%c0%af../..%c0%af../..%c0%af../..%c0%af../etc/passwd',
+			'/..%c0%af../..%c0%af../..%c0%af../..%c0%af../..%c0%af../..%c0%af../etc/shadow',
+			'/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/etc/passwd,',
+			'/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/etc/shadow,',
+			'%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%,25%5c..%25%5c..%25%5c..%25%5c..%00',
+			'/%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..,%25%5c..%25%5c..%25%5c..%25%5c..%00',
+			'%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%,25%5c..%25%5c..%	25%5c..%25%5c..%00',
+			'%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%,25%5c..%25%5c..%		25%5c..%25%5c..%255cboot.ini',
+			'/%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..,%25%5c..%25%5c..%25%5c..%25%5c..winnt/desktop.ini',
+			'\\&apos;/bin/cat%20/etc/passwd\\&apos;',
+			'\\&apos;/bin/cat%20/etc/shadow\\&apos;',
+			'../../../../../../../../conf/server.xml',
+			'/../../../../../../../../bin/id|',
+			'C:/inetpub/wwwroot/global.asa',
+			'C:inetpubwwwrootglobal.asa',
+			'C:/boot.ini',
+			'C:\boot.ini',
+			'../../../../../../../../../../../../localstart.asp%00',
+			'../../../../../../../../../../../../localstart.asp',
+			'../../../../../../../../../../../../boot.ini%00',
+			'../../../../../../../../../../../../boot.ini',
+			'/./././././././././././boot.ini',
+			'/../../../../../../../../../../../boot.ini%00',
+			'/../../../../../../../../../../../boot.ini',
+			'/..../..../..../..../..../..../boot.ini',
+			'/.\\./.\\./.\\./.\\./.\\./.\\./boot.ini',
+			'....................\boot.ini',
+			'....................\boot.ini%00',
+			'....................\boot.ini',
+			'/../../../../../../../../../../../boot.ini%00.html',
+			'/../../../../../../../../../../../boot.ini%00.jpg',
+			'/.../.../.../.../.../	',
+			'..%c0%af../..%c0%af../..%c0%af../..%c0%af../..%c0%af../..%c0%af../boot.ini',
+			'/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/boot.ini',
+			'../prerender/index.html',
+		];
+
+		const app = await fixture.loadTestAdapterApp();
+
+		for (const path of badPaths) {
+			let request = new Request('http://example.com/_image?href=' + path);
 			let response = await app.render(request);
-			assert.equal(response.status, 200);
-			const html = await response.text();
-			const $ = cheerio.load(html);
-			const src = $('#local img').attr('src')!;
-			request = new Request('http://example.com' + src);
-			response = await app.render(request);
-			assert.equal(response.status, 200);
-		});
-
-		it('endpoint handle malformed requests', async () => {
-			const badPaths = [
-				'../../../../../../../../../../../../etc/hosts%00',
-				'../../../../../../../../../../../../etc/hosts',
-				'../../boot.ini',
-				'/../../../../../../../../%2A',
-				'../../../../../../../../../../../../etc/passwd%00',
-				'../../../../../../../../../../../../etc/passwd',
-				'../../../../../../../../../../../../etc/shadow%00',
-				'../../../../../../../../../../../../etc/shadow',
-				'/../../../../../../../../../../etc/passwd^^',
-				'/../../../../../../../../../../etc/shadow^^',
-				'/../../../../../../../../../../etc/passwd',
-				'/../../../../../../../../../../etc/shadow',
-				'/./././././././././././etc/passwd',
-				'/./././././././././././etc/shadow',
-				'....................etcpasswd',
-				'....................etcshadow',
-				'....................etcpasswd',
-				'....................etcshadow',
-				'/..../..../..../..../..../..../etc/passwd',
-				'/..../..../..../..../..../..../etc/shadow',
-				'.\\./.\\./.\\./.\\./.\\./.\\./etc/passwd',
-				'.\\./.\\./.\\./.\\./.\\./.\\./etc/shadow',
-				'....................etcpasswd%00',
-				'....................etcshadow%00',
-				'....................etcpasswd%00',
-				'....................etcshadow%00',
-				'%0a/bin/cat%20/etc/passwd',
-				'%0a/bin/cat%20/etc/shadow',
-				'%00/etc/passwd%00',
-				'%00/etc/shadow%00',
-				'%00../../../../../../etc/passwd',
-				'%00../../../../../../etc/shadow',
-				'/../../../../../../../../../../../etc/passwd%00.jpg',
-				'/../../../../../../../../../../../etc/passwd%00.html',
-				'/..%c0%af../..%c0%af../..%c0%af../..%c0%af../..%c0%af../..%c0%af../etc/passwd',
-				'/..%c0%af../..%c0%af../..%c0%af../..%c0%af../..%c0%af../..%c0%af../etc/shadow',
-				'/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/etc/passwd,',
-				'/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/etc/shadow,',
-				'%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%,25%5c..%25%5c..%25%5c..%25%5c..%00',
-				'/%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..,%25%5c..%25%5c..%25%5c..%25%5c..%00',
-				'%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%,25%5c..%25%5c..%	25%5c..%25%5c..%00',
-				'%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%,25%5c..%25%5c..%		25%5c..%25%5c..%255cboot.ini',
-				'/%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..%25%5c..,%25%5c..%25%5c..%25%5c..%25%5c..winnt/desktop.ini',
-				'\\&apos;/bin/cat%20/etc/passwd\\&apos;',
-				'\\&apos;/bin/cat%20/etc/shadow\\&apos;',
-				'../../../../../../../../conf/server.xml',
-				'/../../../../../../../../bin/id|',
-				'C:/inetpub/wwwroot/global.asa',
-				'C:inetpubwwwrootglobal.asa',
-				'C:/boot.ini',
-				'C:\boot.ini',
-				'../../../../../../../../../../../../localstart.asp%00',
-				'../../../../../../../../../../../../localstart.asp',
-				'../../../../../../../../../../../../boot.ini%00',
-				'../../../../../../../../../../../../boot.ini',
-				'/./././././././././././boot.ini',
-				'/../../../../../../../../../../../boot.ini%00',
-				'/../../../../../../../../../../../boot.ini',
-				'/..../..../..../..../..../..../boot.ini',
-				'/.\\./.\\./.\\./.\\./.\\./.\\./boot.ini',
-				'....................\boot.ini',
-				'....................\boot.ini%00',
-				'....................\boot.ini',
-				'/../../../../../../../../../../../boot.ini%00.html',
-				'/../../../../../../../../../../../boot.ini%00.jpg',
-				'/.../.../.../.../.../	',
-				'..%c0%af../..%c0%af../..%c0%af../..%c0%af../..%c0%af../..%c0%af../boot.ini',
-				'/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/boot.ini',
-				'../prerender/index.html',
-			];
-
-			const app = await fixture.loadTestAdapterApp();
-
-			for (const path of badPaths) {
-				let request = new Request('http://example.com/_image?href=' + path);
-				let response = await app.render(request);
-				const body = await response.text();
-
-				// Most paths are malformed local paths (500), but some backslash patterns
-				// are now correctly detected as remote and get 403
-				const { isRemotePath } = await import('@astrojs/internal-helpers/path');
-				const isDetectedAsRemote = isRemotePath(path);
-				const expectedStatus = isDetectedAsRemote ? 403 : 500;
-				const expectedBodyText = isDetectedAsRemote ? 'Forbidden' : 'Internal Server Error';
-
-				assert.equal(
-					response.status,
-					expectedStatus,
-					`Path "${path}" should return ${expectedStatus}`,
-				);
-				assert.equal(
-					body.includes(expectedBodyText),
-					true,
-					`Path "${path}" body should include "${expectedBodyText}"`,
-				);
-			}
-
-			// Server should still be running
-			let request = new Request('http://example.com/');
-			let response = await app.render(request);
-			assert.equal(response.status, 200);
-		});
-
-		it('prerendered routes images are built', async () => {
-			const html = await fixture.readFile('/client/prerender/index.html');
-			const $ = cheerio.load(html);
-			const src = $('img').attr('src')!;
-			const imgData = await fixture.readBuffer('/client' + src);
-			assert.equal(imgData instanceof Buffer, true);
-		});
-
-		it('can load images from public dir', async () => {
-			const app = await fixture.loadTestAdapterApp();
-			let request = new Request('http://example.com/_image?href=/penguin3.jpg&f=webp');
-			let response = await app.render(request);
-			assert.equal(response.status, 200);
-			assert.equal(response.headers.get('content-type'), 'image/webp');
-		});
-
-		it('rejects f=svg when source is not SVG', async () => {
-			const app = await fixture.loadTestAdapterApp();
-
-			// Attempt to request a non-SVG source with f=svg — this should be rejected
-			let request = new Request('http://example.com/_image?href=/penguin3.jpg&f=svg');
-			let response = await app.render(request);
-			assert.equal(response.status, 403, 'should reject f=svg for a .jpg source');
 			const body = await response.text();
-			assert.ok(
-				body.includes('Cannot convert non-SVG source to SVG format'),
-				'should include descriptive error message',
+
+			// Most paths are malformed local paths (500), but some backslash patterns
+			// are now correctly detected as remote and get 403
+			const { isRemotePath } = await import('@astrojs/internal-helpers/path');
+			const isDetectedAsRemote = isRemotePath(path);
+			const expectedStatus = isDetectedAsRemote ? 403 : 500;
+			const expectedBodyText = isDetectedAsRemote ? 'Forbidden' : 'Internal Server Error';
+
+			assert.equal(
+				response.status,
+				expectedStatus,
+				`Path "${path}" should return ${expectedStatus}`,
 			);
-		});
+			assert.equal(
+				body.includes(expectedBodyText),
+				true,
+				`Path "${path}" body should include "${expectedBodyText}"`,
+			);
+		}
+
+		// Server should still be running
+		let request = new Request('http://example.com/');
+		let response = await app.render(request);
+		assert.equal(response.status, 200);
 	});
 
-	describe('prod ssr - SVG format validation', () => {
-		before(async () => {
-			fixture = await loadFixture({
-				root: './fixtures/core-image-ssr/',
-				output: 'server',
-				outDir: './dist/server-prod-svg-validation',
-				adapter: testAdapter(),
-				image: {
-					endpoint: { route: '/_image', entrypoint: 'astro/assets/endpoint/node' },
-					service: testImageService(),
-					remotePatterns: [{ protocol: 'data' }],
-				},
-			});
-			await fixture.build();
-		});
-
-		it('rejects f=svg for a non-SVG data: URI in production build', async () => {
-			const app = await fixture.loadTestAdapterApp();
-			const pngDataUri =
-				'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
-			const request = new Request(
-				'http://example.com/_image?href=' + encodeURIComponent(pngDataUri) + '&f=svg',
-			);
-			const response = await app.render(request);
-			assert.equal(response.status, 403, 'should reject f=svg for a data:image/png source');
-			const body = await response.text();
-			assert.ok(
-				body.includes('Cannot convert non-SVG source to SVG format'),
-				'should include descriptive error message',
-			);
-		});
-
-		it('allows f=svg for an actual SVG data: URI in production build', async () => {
-			const app = await fixture.loadTestAdapterApp();
-			const svgDataUri =
-				'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiLz48L3N2Zz4=';
-			const request = new Request(
-				'http://example.com/_image?href=' + encodeURIComponent(svgDataUri) + '&f=svg',
-			);
-			const response = await app.render(request);
-			assert.equal(response.status, 200, 'should allow f=svg for a data:image/svg+xml source');
-			assert.equal(response.headers.get('content-type'), 'image/svg+xml');
-		});
-
-		it('rejects f=svg for a remote-style non-SVG URL in production build', async () => {
-			const app = await fixture.loadTestAdapterApp();
-			// Local path with .jpg extension — should be rejected when f=svg
-			const request = new Request('http://example.com/_image?href=/penguin3.jpg&f=svg');
-			const response = await app.render(request);
-			assert.equal(response.status, 403, 'should reject f=svg for a .jpg source');
-		});
+	it('prerendered routes images are built', async () => {
+		const html = await fixture.readFile('/client/prerender/index.html');
+		const $ = cheerio.load(html);
+		const src = $('img').attr('src')!;
+		const imgData = await fixture.readBuffer('/client' + src);
+		assert.equal(imgData instanceof Buffer, true);
 	});
 
-	describe('trailing slash on the endpoint', () => {
-		let devServer: DevServer;
-
-		it('includes a trailing slash if trailing slash is set to always', async () => {
-			fixture = await loadFixture({
-				root: './fixtures/core-image/',
-				image: {
-					service: testImageService(),
-				},
-				trailingSlash: 'always',
-				outDir: './dist/core-image-trailing-slash-on-the-endpoint/',
-			});
-			devServer = await fixture.startDevServer();
-
-			let res = await fixture.fetch('/');
-			let html = await res.text();
-
-			const $ = cheerio.load(html);
-			const src = $('#local img').attr('src')!;
-
-			assert.equal(src.startsWith('/_image/?'), true);
-		});
-
-		it('does not includes a trailing slash if trailing slash is set to never', async () => {
-			fixture = await loadFixture({
-				root: './fixtures/core-image/',
-				image: {
-					service: testImageService(),
-				},
-				trailingSlash: 'never',
-				outDir: './dist/core-image-trailing-slash-on-the-endpoint/',
-			});
-			devServer = await fixture.startDevServer();
-
-			let res = await fixture.fetch('/');
-			let html = await res.text();
-
-			const $ = cheerio.load(html);
-			const src = $('#local img').attr('src')!;
-
-			assert.equal(src.startsWith('/_image?'), true);
-		});
-
-		it("returns 403 for /_image when requesting a relative pattern image and the parameters aren't encoded", async () => {
-			fixture = await loadFixture({
-				root: './fixtures/core-image/',
-				outDir: './dist/core-image-trailing-slash-on-the-endpoint/',
-			});
-			devServer = await fixture.startDevServer();
-			// we don't use `URLSearchParams` because the initial // will get encoded
-			const response = await fixture.fetch(
-				'/_image?' + 'href=//secure0x.netlify.app/secure0x.svg&f=svg',
-			);
-			assert.equal(response.status, 403);
-		});
-
-		afterEach(async () => {
-			await devServer.stop();
-		});
+	it('can load images from public dir', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		let request = new Request('http://example.com/_image?href=/penguin3.jpg&f=webp');
+		let response = await app.render(request);
+		assert.equal(response.status, 200);
+		assert.equal(response.headers.get('content-type'), 'image/webp');
 	});
-	describe('build data url', () => {
-		before(async () => {
-			fixture = await loadFixture({
-				root: './fixtures/core-image-data-url/',
-				image: {
-					remotePatterns: [
-						{
-							protocol: 'data',
-						},
-					],
-				},
-				outDir: './dist/core-image-build-data-url/',
-			});
 
-			await fixture.build();
+	it('rejects f=svg when source is not SVG', async () => {
+		const app = await fixture.loadTestAdapterApp();
+
+		// Attempt to request a non-SVG source with f=svg — this should be rejected
+		let request = new Request('http://example.com/_image?href=/penguin3.jpg&f=svg');
+		let response = await app.render(request);
+		assert.equal(response.status, 403, 'should reject f=svg for a .jpg source');
+		const body = await response.text();
+		assert.ok(
+			body.includes('Cannot convert non-SVG source to SVG format'),
+			'should include descriptive error message',
+		);
+	});
+});
+
+describe('prod ssr - SVG format validation', () => {
+	let fixture: Fixture;
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/core-image-ssr/',
+			output: 'server',
+			outDir: './dist/server-prod-svg-validation',
+			adapter: testAdapter(),
+			image: {
+				endpoint: { route: '/_image', entrypoint: 'astro/assets/endpoint/node' },
+				service: testImageService(),
+				remotePatterns: [{ protocol: 'data' }],
+			},
+		});
+		await fixture.build();
+	});
+
+	it('rejects f=svg for a non-SVG data: URI in production build', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const pngDataUri =
+			'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+		const request = new Request(
+			'http://example.com/_image?href=' + encodeURIComponent(pngDataUri) + '&f=svg',
+		);
+		const response = await app.render(request);
+		assert.equal(response.status, 403, 'should reject f=svg for a data:image/png source');
+		const body = await response.text();
+		assert.ok(
+			body.includes('Cannot convert non-SVG source to SVG format'),
+			'should include descriptive error message',
+		);
+	});
+
+	it('allows f=svg for an actual SVG data: URI in production build', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const svgDataUri =
+			'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiLz48L3N2Zz4=';
+		const request = new Request(
+			'http://example.com/_image?href=' + encodeURIComponent(svgDataUri) + '&f=svg',
+		);
+		const response = await app.render(request);
+		assert.equal(response.status, 200, 'should allow f=svg for a data:image/svg+xml source');
+		assert.equal(response.headers.get('content-type'), 'image/svg+xml');
+	});
+
+	it('rejects f=svg for a remote-style non-SVG URL in production build', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		// Local path with .jpg extension — should be rejected when f=svg
+		const request = new Request('http://example.com/_image?href=/penguin3.jpg&f=svg');
+		const response = await app.render(request);
+		assert.equal(response.status, 403, 'should reject f=svg for a .jpg source');
+	});
+});
+
+describe('trailing slash on the endpoint', () => {
+	let fixture: Fixture;
+	let devServer: DevServer;
+
+	it('includes a trailing slash if trailing slash is set to always', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/core-image/',
+			image: {
+				service: testImageService(),
+			},
+			trailingSlash: 'always',
+			outDir: './dist/core-image-trailing-slash-on-the-endpoint/',
+		});
+		devServer = await fixture.startDevServer();
+
+		let res = await fixture.fetch('/');
+		let html = await res.text();
+
+		const $ = cheerio.load(html);
+		const src = $('#local img').attr('src')!;
+
+		assert.equal(src.startsWith('/_image/?'), true);
+	});
+
+	it('does not includes a trailing slash if trailing slash is set to never', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/core-image/',
+			image: {
+				service: testImageService(),
+			},
+			trailingSlash: 'never',
+			outDir: './dist/core-image-trailing-slash-on-the-endpoint/',
+		});
+		devServer = await fixture.startDevServer();
+
+		let res = await fixture.fetch('/');
+		let html = await res.text();
+
+		const $ = cheerio.load(html);
+		const src = $('#local img').attr('src')!;
+
+		assert.equal(src.startsWith('/_image?'), true);
+	});
+
+	it("returns 403 for /_image when requesting a relative pattern image and the parameters aren't encoded", async () => {
+		fixture = await loadFixture({
+			root: './fixtures/core-image/',
+			outDir: './dist/core-image-trailing-slash-on-the-endpoint/',
+		});
+		devServer = await fixture.startDevServer();
+		// we don't use `URLSearchParams` because the initial // will get encoded
+		const response = await fixture.fetch(
+			'/_image?' + 'href=//secure0x.netlify.app/secure0x.svg&f=svg',
+		);
+		assert.equal(response.status, 403);
+	});
+
+	afterEach(async () => {
+		await devServer.stop();
+	});
+});
+describe('build data url', () => {
+	let fixture: Fixture;
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/core-image-data-url/',
+			image: {
+				remotePatterns: [
+					{
+						protocol: 'data',
+					},
+				],
+			},
+			outDir: './dist/core-image-build-data-url/',
 		});
 
-		it('uses short hash for data url filename', async () => {
-			const html = await fixture.readFile('/index.html');
-			const $ = cheerio.load(html);
-			const src1 = $('#data-url img').attr('src')!;
-			assert.equal(basename(src1).length < 32, true);
-			const src2 = $('#data-url-no-size img').attr('src')!;
-			assert.equal(basename(src2).length < 32, true);
-			assert.equal(src1.split('_')[0], src2.split('_')[0]);
-		});
+		await fixture.build();
+	});
 
-		it('adds file extension for data url images', async () => {
-			const html = await fixture.readFile('/index.html');
-			const $ = cheerio.load(html);
-			const src = $('#data-url img').attr('src')!;
-			assert.equal(src.endsWith('.webp'), true);
-		});
+	it('uses short hash for data url filename', async () => {
+		const html = await fixture.readFile('/index.html');
+		const $ = cheerio.load(html);
+		const src1 = $('#data-url img').attr('src')!;
+		assert.equal(basename(src1).length < 32, true);
+		const src2 = $('#data-url-no-size img').attr('src')!;
+		assert.equal(basename(src2).length < 32, true);
+		assert.equal(src1.split('_')[0], src2.split('_')[0]);
+	});
 
-		it('writes data url images to dist', async () => {
-			const html = await fixture.readFile('/index.html');
-			const $ = cheerio.load(html);
-			const src = $('#data-url img').attr('src')!;
-			assert.equal(src.length > 0, true);
-			const data = await fixture.readBuffer(src);
-			assert.equal(data instanceof Buffer, true);
-		});
+	it('adds file extension for data url images', async () => {
+		const html = await fixture.readFile('/index.html');
+		const $ = cheerio.load(html);
+		const src = $('#data-url img').attr('src')!;
+		assert.equal(src.endsWith('.webp'), true);
+	});
 
-		it('infers size of data url images', async () => {
-			const html = await fixture.readFile('/index.html');
-			const $ = cheerio.load(html);
-			const img = $('#data-url-no-size img');
-			const width = img.attr('width');
-			const height = img.attr('height');
-			assert.equal(width, '256');
-			assert.equal(height, '144');
-		});
+	it('writes data url images to dist', async () => {
+		const html = await fixture.readFile('/index.html');
+		const $ = cheerio.load(html);
+		const src = $('#data-url img').attr('src')!;
+		assert.equal(src.length > 0, true);
+		const data = await fixture.readBuffer(src);
+		assert.equal(data instanceof Buffer, true);
+	});
+
+	it('infers size of data url images', async () => {
+		const html = await fixture.readFile('/index.html');
+		const $ = cheerio.load(html);
+		const img = $('#data-url-no-size img');
+		const width = img.attr('width');
+		const height = img.attr('height');
+		assert.equal(width, '256');
+		assert.equal(height, '144');
 	});
 });

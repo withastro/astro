@@ -19,12 +19,12 @@ linkWorkspacePackages: true
 saveWorkspaceProtocol: false # This prevents the examples to have the `workspace:` prefix
 autoInstallPeers: false
 
-# Vite's esbuild optimizer has trouble optimizing `@astrojs/lit/client-shim.js`
-# which imports this dependency.
+overrides:
+  # See https://github.com/withastro/astro/pull/16448
+  'picomatch@<4': '^2.3.2'
+  'vite@^7': '^7.3.2'
+
 publicHoistPattern:
-  - '@webcomponents/template-shadowroot'
-  # There's a lit dependency duplication somewhere causing multiple Lit versions error.
-  - '*lit*'
   # `astro sync` could try to import `@astrojs/db` but could fail due to linked dependencies in the monorepo.
   # We hoist it here so that it can easily resolve `@astrojs/db` without hardcoded handling.
   - '@astrojs/db'
@@ -34,32 +34,16 @@ minimumReleaseAgeExclude:
   # TODO: remove once more stable
   - '@flue/*'
   - '@astrojs/*'
-  # Renovate security update: fast-xml-parser@5.3.8 || 5.7.0
-  - fast-xml-parser@5.3.8 || 5.7.0
-  # Renovate security update: svelte@5.53.5
-  - svelte@5.53.5
-  # Renovate security update: fastify@5.8.1 || 5.8.3 || 5.8.5
-  - fastify@5.8.1 || 5.8.3 || 5.8.5
-  # Renovate security update: rollup@4.59.0
-  - rollup@4.59.0
-  # Renovate security update: undici@7.24.0
-  - undici@7.24.0
-  # Renovate security update: smol-toml@1.6.1
-  - smol-toml@1.6.1
-  # Renovate security update: picomatch@4.0.4
-  - picomatch@4.0.4
-  # Smoke test dependencies (docs site)
-  - astro-og-canvas@0.11.0
-  - astro-expressive-code
-  - rehype-expressive-code
-  - expressive-code
-  - '@expressive-code/*'
-  # @types/node@24.12.2 published <3 days ago
-  - '@types/node@24.12.2'
-  # Renovate security update: postcss@8.5.10
-  - postcss@8.5.10
-  # Renovate security update: @fastify/middie@9.3.2
-  - '@fastify/middie@9.3.2'
+  # Netlify Vite Plugin and deps. New version required for bug fix.
+  # TODO: remove this block after 2026/05/15
+  - '@netlify/vite-plugin@2.12.3'
+  - '@netlify/dev@4.18.3'
+  - '@netlify/runtime@4.1.21'
+  - '@netlify/edge-functions-dev@1.0.17'
+  - '@netlify/blobs@10.7.5'
+  - '@netlify/functions-dev@1.2.8'
+  - '@netlify/otel@6.0.0'
+  - '@netlify/zip-it-and-ship-it@14.5.6'
 peerDependencyRules:
   allowAny:
     - 'astro'
@@ -76,5 +60,44 @@ onlyBuiltDependencies:
 patchedDependencies:
   '@changesets/get-github-info@0.7.0': patches/@changesets__get-github-info@0.7.0.patch
 
-# TODO: enable when viable
-# trustPolicy: 'no-downgrade'
+# Prevent installation of packages where trust level decreases
+trustPolicy: 'no-downgrade'
+trustPolicyExclude:
+  # Netlify dependency they need to update: https://github.com/netlify/primitives/pull/585
+  - 'chokidar@4.0.3'
+  # Netlify packages that do not have trusted publishing enabled on npm
+  # TODO: Remove once trusted publishing is enabled. Netlify are working on it.
+  - '@netlify/edge-bundler@14.10.1'
+  - '@netlify/zip-it-and-ship-it@14.5.6'
+  - '@netlify/serverless-functions-api@2.15.1'
+  # Outdated dependencies of @vitejs/plugin-react@^5 and @vscode/vsce
+  # TODO: Update the Vite plugin to ^6 in Astro v7 and remove this
+  - 'semver@6.3.1 || 5.7.2'
+  # Old dependency of @types/node@22
+  # TODO: Remove when dropping support for Node 22
+  - undici-types@6.21.0
+  # Dependencies in the docs repo that gets cloned for smoke tests
+  - 'undici@5.29.0'
+  - 'algoliasearch@4.27.0'
+  - '@algolia/client-analytics@4.27.0'
+  - '@algolia/recommend@4.27.0'
+  - '@algolia/client-search@4.27.0'
+  - '@algolia/requester-browser-xhr@4.27.0'
+  - '@algolia/requester-node-http@4.27.0'
+  - '@algolia/client-common@4.27.0'
+  - '@algolia/logger-console@4.27.0'
+  - '@algolia/client-personalization@4.27.0'
+
+# Control whether packages can run postinstall scripts. We disallow this to avoid the security risk
+# of running third-party code on install.
+allowBuilds:
+  '@google/genai': false
+  '@mongodb-js/zstd': false
+  '@parcel/watcher': false
+  '@vscode/vsce-sign': false
+  esbuild: false
+  keytar: false
+  node-liblzma: false
+  protobufjs: false
+  sharp: false
+  workerd: false

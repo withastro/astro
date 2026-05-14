@@ -57,7 +57,7 @@ test.describe('Dev Toolbar - Audits', () => {
 		const auditCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:audit"]');
 		const auditHighlights = auditCanvas.locator('astro-dev-toolbar-highlight');
 
-		expect(auditHighlights).toHaveCount(1);
+		await expect(auditHighlights).toHaveCount(1);
 
 		await page.click('body');
 
@@ -67,7 +67,7 @@ test.describe('Dev Toolbar - Audits', () => {
 
 		await appButton.click();
 
-		expect(auditHighlights).toHaveCount(1);
+		await expect(auditHighlights).toHaveCount(1);
 	});
 
 	test('does not warn about perf issue for below the fold image in relative container', async ({
@@ -83,7 +83,7 @@ test.describe('Dev Toolbar - Audits', () => {
 		const auditCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:audit"]');
 		const auditHighlights = auditCanvas.locator('astro-dev-toolbar-highlight');
 
-		expect(auditHighlights).toHaveCount(0);
+		await expect(auditHighlights).toHaveCount(0);
 	});
 
 	test('can warn about perf issue for below the fold image in absolute container', async ({
@@ -99,7 +99,7 @@ test.describe('Dev Toolbar - Audits', () => {
 		const auditCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:audit"]');
 		const auditHighlights = auditCanvas.locator('astro-dev-toolbar-highlight');
 
-		expect(auditHighlights).toHaveCount(1);
+		await expect(auditHighlights).toHaveCount(1);
 	});
 
 	test('does not warn about image inside framework component', async ({ page, astro }) => {

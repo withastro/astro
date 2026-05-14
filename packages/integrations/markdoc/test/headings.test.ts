@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
-import { loadFixture, type Fixture, type DevServer } from './test-utils.ts';
+import { loadFixture, type Fixture } from './test-utils.ts';
 
 async function getFixture(name: string) {
 	return await loadFixture({
@@ -16,51 +16,6 @@ describe('Markdoc - Headings', () => {
 		fixture = await getFixture('headings');
 	});
 
-	describe('dev', () => {
-		let devServer: DevServer;
-
-		before(async () => {
-			devServer = await fixture.startDevServer();
-		});
-
-		after(async () => {
-			await devServer.stop();
-		});
-
-		it('applies IDs to headings', async () => {
-			const res = await fixture.fetch('/headings');
-			const html = await res.text();
-			const { document } = parseHTML(html);
-
-			idTest(document);
-		});
-
-		it('applies IDs to headings containing special characters', async () => {
-			const res = await fixture.fetch('/headings-with-special-characters');
-			const html = await res.text();
-			const { document } = parseHTML(html);
-
-			assert.equal(document.querySelector('h2')?.id, 'picture-');
-			assert.equal(document.querySelector('h3')?.id, '-sacrebleu--');
-		});
-
-		it('generates the same IDs for other documents with the same headings', async () => {
-			const res = await fixture.fetch('/headings-stale-cache-check');
-			const html = await res.text();
-			const { document } = parseHTML(html);
-
-			idTest(document);
-		});
-
-		it('generates a TOC with correct info', async () => {
-			const res = await fixture.fetch('/headings');
-			const html = await res.text();
-			const { document } = parseHTML(html);
-
-			tocTest(document);
-		});
-	});
-
 	describe('build', () => {
 		before(async () => {
 			await fixture.build();
@@ -71,6 +26,14 @@ describe('Markdoc - Headings', () => {
 			const { document } = parseHTML(html);
 
 			idTest(document);
+		});
+
+		it('applies IDs to headings containing special characters', async () => {
+			const html = await fixture.readFile('/headings-with-special-characters/index.html');
+			const { document } = parseHTML(html);
+
+			assert.equal(document.querySelector('h2')?.id, 'picture-');
+			assert.equal(document.querySelector('h3')?.id, '-sacrebleu--');
 		});
 
 		it('generates the same IDs for other documents with the same headings', async () => {
@@ -94,50 +57,6 @@ describe('Markdoc - Headings with custom Astro renderer', () => {
 
 	before(async () => {
 		fixture = await getFixture('headings-custom');
-	});
-
-	describe('dev', () => {
-		let devServer: DevServer;
-
-		before(async () => {
-			devServer = await fixture.startDevServer();
-		});
-
-		after(async () => {
-			await devServer.stop();
-		});
-
-		it('applies IDs to headings', async () => {
-			const res = await fixture.fetch('/headings');
-			const html = await res.text();
-			const { document } = parseHTML(html);
-
-			idTest(document);
-		});
-
-		it('generates the same IDs for other documents with the same headings', async () => {
-			const res = await fixture.fetch('/headings-stale-cache-check');
-			const html = await res.text();
-			const { document } = parseHTML(html);
-
-			idTest(document);
-		});
-
-		it('generates a TOC with correct info', async () => {
-			const res = await fixture.fetch('/headings');
-			const html = await res.text();
-			const { document } = parseHTML(html);
-
-			tocTest(document);
-		});
-
-		it('renders Astro component for each heading', async () => {
-			const res = await fixture.fetch('/headings');
-			const html = await res.text();
-			const { document } = parseHTML(html);
-
-			astroComponentTest(document);
-		});
 	});
 
 	describe('build', () => {
