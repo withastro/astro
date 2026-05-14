@@ -75,14 +75,14 @@
     "eslint-plugin-regexp": "^3.0.0",
     "knip": "5.82.1",
     "only-allow": "^1.2.2",
+    "pkg-pr-new": "^0.0.71",
     "prettier": "^3.8.1",
     "prettier-plugin-astro": "^0.14.1",
-    "pkg-pr-new": "^0.0.71",
     "publint": "^0.3.17",
     "tinyglobby": "^0.2.16",
     "turbo": "^2.8.15",
     "typescript": "~5.9.3",
-    "typescript-eslint": "^8.56.1",
+    "typescript-eslint": "^8.59.1",
     "valibot": "^1.2.0"
   }
 }
