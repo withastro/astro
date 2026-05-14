@@ -256,28 +256,6 @@ export interface AstroUserConfig<
 	trailingSlash?: 'always' | 'never' | 'ignore';
 
 	/**
-	 * @name fetchFile
-	 * @type {string | null}
-	 * @default `'app'`
-	 * @description
-	 * Customize the filename (without extension) used as the advanced routing entrypoint
-	 * inside `srcDir`. Defaults to `'app'`, meaning Astro looks for `src/app.ts`.
-	 *
-	 * Set to `null` to disable the feature, which is useful if you already have a
-	 * `src/app.ts` file used for other purposes.
-	 *
-	 * ```js
-	 * export default defineConfig({
-	 *   fetchFile: 'fetch',
-	 *   experimental: {
-	 *     advancedRouting: true,
-	 *   },
-	 * });
-	 * ```
-	 */
-	fetchFile?: string | null;
-
-	/**
 	 * @docs
 	 * @name redirects
 	 * @type {Record<string, RedirectConfig>}
@@ -2815,21 +2793,43 @@ export interface AstroUserConfig<
 	experimental?: {
 		/**
 		 * @name experimental.advancedRouting
-		 * @type {boolean}
+		 * @type {boolean | object}
 		 * @default `false`
 		 * @description
 		 * Enables `src/app.ts` as an advanced routing entrypoint, allowing you to
 		 * compose Astro's request pipeline with the Web Fetch standard or your own Hono middleware.
 		 *
+		 * Pass `true` to enable with default settings, or an object to customize:
+		 *
 		 * ```js
 		 * export default defineConfig({
 		 *   experimental: {
-		 *     advancedRouting: true,
+		 *     advancedRouting: {
+		 *       fetchFile: 'fetch.ts',
+		 *     },
 		 *   },
 		 * });
 		 * ```
+		 *
+		 * ### experimental.advancedRouting.fetchFile
+		 *
+		 * **Type:** `string | null`
+		 * **Default:** `'app'`
+		 *
+		 * Customize the file used as the advanced routing entrypoint inside `srcDir`.
+		 * Defaults to `'app'`, meaning Astro looks for `src/app.ts`.
+		 *
+		 * Set to `null` to disable the entrypoint, which is useful if you already
+		 * have a `src/app.ts` file used for other purposes.
 		 */
-		advancedRouting?: boolean;
+		advancedRouting?: boolean | {
+			/**
+			 * Customize the file used as the advanced routing entrypoint inside `srcDir`.
+			 * Defaults to `'app'`, meaning Astro looks for `src/app.ts`.
+			 * Set to `null` to disable the entrypoint.
+			 */
+			fetchFile?: string | null;
+		};
 
 		/**
 		 *

@@ -183,11 +183,6 @@ export const AstroConfigSchema = z.object({
 		.union([z.literal('always'), z.literal('never'), z.literal('ignore')])
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.trailingSlash),
-	fetchFile: z
-		.string()
-		.nullable()
-		.optional()
-		.default('app'),
 	output: z
 		.union([z.literal('static'), z.literal('server'), z.literal('hybrid')])
 		.optional()
@@ -538,7 +533,12 @@ export const AstroConfigSchema = z.object({
 	experimental: z
 		.strictObject({
 			advancedRouting: z
-				.boolean()
+				.union([
+					z.boolean(),
+					z.strictObject({
+						fetchFile: z.string().nullable().optional().default('app'),
+					}),
+				])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.advancedRouting),
 			clientPrerender: z

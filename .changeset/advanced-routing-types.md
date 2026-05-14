@@ -2,4 +2,14 @@
 'astro': patch
 ---
 
-Adds missing types and config for advanced routing: `Fetchable` export, `FetchState.response`, `App.Providers` for typed context providers, and `fetchFile` config option. Fixes Hono `cache()` middleware to follow the standard wrapper pattern.
+Adds `Fetchable` type export for typing the advanced routing entrypoint
+
+```ts
+import type { Fetchable } from 'astro';
+
+export default {
+  async fetch(request) {
+    return new Response('ok');
+  },
+} satisfies Fetchable;
+```
