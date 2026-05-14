@@ -56,6 +56,7 @@ export class ContentLayer {
 	#markdownProcessor?: MarkdownProcessor;
 	#generateDigest?: (data: Record<string, unknown> | string) => string;
 	#contentConfigObserver: ContentObservable;
+	#manifestRebuildTimeout?: ReturnType<typeof setTimeout>;
 
 	#queue: PQueue;
 
@@ -102,6 +103,9 @@ export class ContentLayer {
 	dispose() {
 		this.#queue.clear();
 		this.#unsubscribe?.();
+		if (this.#manifestRebuildTimeout) {
+			clearTimeout(this.#manifestRebuildTimeout);
+		}
 		this.#watcher?.removeAllTrackedListeners();
 	}
 
@@ -342,6 +346,23 @@ export class ContentLayer {
 				}
 			}),
 		);
+		// When contentIntellisense is enabled, watch for file additions/removals
+		// to regenerate the collections manifest so the language server can discover new files
+		if (this.#settings.config.experimental.contentIntellisense && this.#watcher) {
+			const dotAstroPath = new URL('./', this.#settings.dotAstroDir).pathname;
+
+			const onManifestChange = (changedPath: string) => {
+				// Ignore changes in .astro directory to avoid infinite loops
+				if (changedPath.includes(dotAstroPath)) {
+					return;
+				}
+				this.#scheduleManifestRebuild();
+			};
+
+			this.#watcher.on('add', onManifestChange);
+			this.#watcher.on('unlink', onManifestChange);
+		}
+
 		await fs.mkdir(this.#settings.config.cacheDir, { recursive: true });
 		await fs.mkdir(this.#settings.dotAstroDir, { recursive: true });
 		const assetImportsFile = new URL(ASSET_IMPORTS_FILE, this.#settings.dotAstroDir);
@@ -355,6 +376,21 @@ export class ContentLayer {
 		}
 	}
 
+	#scheduleManifestRebuild() {
+		// Skip if currently syncing — sync will rebuild the manifest itself
+		if (this.loading) {
+			return;
+		}
+		// Debounce to batch rapid file changes
+		if (this.#manifestRebuildTimeout) {
+			clearTimeout(this.#manifestRebuildTimeout);
+		}
+		this.#manifestRebuildTimeout = setTimeout(async () => {
+			this.#manifestRebuildTimeout = undefined;
+			await this.regenerateCollectionFileManifest();
+		}, 500);
+	}
+
 	async regenerateCollectionFileManifest() {
 		const collectionsManifest = new URL(COLLECTIONS_MANIFEST_FILE, this.#settings.dotAstroDir);
 		this.#logger.debug('content', 'Regenerating collection file manifest');
@@ -362,24 +398,26 @@ export class ContentLayer {
 			try {
 				const collections = await fs.readFile(collectionsManifest, 'utf-8');
 				const collectionsJson = JSON.parse(collections);
-				collectionsJson.entries ??= {};
+				// Rebuild entries from scratch so that deleted files are properly removed
+				const entries: Record<string, string> = {};
 
 				for (const { hasSchema, name } of collectionsJson.collections) {
 					if (!hasSchema) {
 						continue;
 					}
-					const entries = this.#store.values(name);
-					if (!entries?.[0]?.filePath) {
+					const storeEntries = this.#store.values(name);
+					if (!storeEntries?.[0]?.filePath) {
 						continue;
 					}
-					for (const { filePath } of entries) {
+					for (const { filePath } of storeEntries) {
 						if (!filePath) {
 							continue;
 						}
 						const key = new URL(filePath, this.#settings.config.root).href.toLowerCase();
-						collectionsJson.entries[key] = name;
+						entries[key] = name;
 					}
 				}
+				collectionsJson.entries = entries;
 				await fs.writeFile(collectionsManifest, JSON.stringify(collectionsJson, null, 2));
 			} catch {
 				this.#logger.error('content', 'Failed to regenerate collection file manifest');
