@@ -1206,10 +1206,11 @@ describe('astro:image', () => {
 			);
 			const imageLogs = logs
 				.slice(generatingImageIndex + 1)
-				.filter((logLine) => logLine.message?.includes('/_astro/'));
+				.map((logLine) => (logLine?.message || ""))
+				.filter((message) => message.includes('/_astro/'));
 			assert.ok(imageLogs.length > 0, 'Expected at least one image log entry');
-			const isReusingCache = imageLogs.every((logLine) =>
-				logLine.message?.includes('cache entry)'),
+			const isReusingCache = imageLogs.every((message) =>
+				message.includes('cache entry)'),
 			);
 
 			assert.equal(

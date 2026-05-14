@@ -332,7 +332,7 @@ export async function generatePages(
 			queue
 				.add(() => generateImagesForPath(originalPath, transforms, assetsCreationPipeline))
 				.catch((e) => {
-					throw e;
+					throw new Error(`Error generating image for path ${originalPath}`, { cause: e });
 				});
 		}
 
