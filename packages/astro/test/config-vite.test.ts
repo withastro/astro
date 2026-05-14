@@ -1,30 +1,11 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import * as cheerio from 'cheerio';
 import { defaultClientConditions, resolveConfig } from 'vite';
 import { getViteConfig } from '../dist/config/index.js';
-import { loadFixture, type Fixture } from './test-utils.ts';
 
-describe('Vite Config', async () => {
-	let fixture: Fixture;
-
-	before(async () => {
-		fixture = await loadFixture({
-			root: './fixtures/config-vite/',
-			// test suite was authored when inlineStylesheets defaulted to never
-			build: { inlineStylesheets: 'never' },
-			outDir: './dist/config-vite/',
-		});
-		await fixture.build();
-	});
-
-	it('Allows overriding bundle naming options in the build', async () => {
-		const html = await fixture.readFile('/index.html');
-		const $ = cheerio.load(html);
-		assert.match($('link').attr('href')!, /\/assets\/testing-(.)+\.css/);
-	});
-});
+// The "Vite Config" build test (overriding bundle naming options) has been
+// converted to a unit test in test/units/build/vite-build-config.test.ts.
 
 describe('getViteConfig', () => {
 	let originalCwd: string;

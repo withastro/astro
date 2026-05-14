@@ -1996,21 +1996,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/astro-assets-dir:
-    dependencies:
-      '@astrojs/react':
-        specifier: workspace:*
-        version: link:../../../../integrations/react
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-      react:
-        specifier: ^18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
-
   packages/astro/test/fixtures/astro-assets-prefix:
     dependencies:
       '@astrojs/mdx':
@@ -3149,18 +3134,6 @@ importers:
       astro:
         specifier: workspace:*
         version: link:../../..
-
-  packages/astro/test/fixtures/entry-file-names:
-    dependencies:
-      '@astrojs/preact':
-        specifier: 'workspace:'
-        version: link:../../../../integrations/preact
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-      preact:
-        specifier: ^10.29.0
-        version: 10.29.0
 
   packages/astro/test/fixtures/error-bad-js:
     dependencies:
