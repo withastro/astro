@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import crypto from 'node:crypto';
 import { createServer } from 'node:http';
 import { basename } from 'node:path';
 import { Writable } from 'node:stream';
@@ -10,7 +11,6 @@ import { AstroLogger, type AstroLoggerMessage } from '../dist/core/logger/core.j
 import testAdapter from './test-adapter.ts';
 import { testImageService } from './test-image-service.ts';
 import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
-import crypto from 'node:crypto';
 
 describe('astro:image', () => {
 	let fixture: Fixture;
@@ -1296,7 +1296,7 @@ describe('astro:image', () => {
 		const buildFixture = async (remoteImage: string) => {
 			process.env.ASTRO_INTERNAL_TEST_REMOTE_IMAGE = remoteImage;
 			// Use a random path to avoid cache conflicts between tests
-			const random = crypto.randomUUID()
+			const random = crypto.randomUUID();
 			fixture = await loadFixture({
 				root: './fixtures/core-image-ssg/',
 				image: {
@@ -1331,7 +1331,10 @@ describe('astro:image', () => {
 				},
 				(error) => {
 					assert.ok(error instanceof Error);
-					assert.equal(error.message, "Error generating image for https://astro.build/this_image_does_not_exist_either.png" );
+					assert.equal(
+						error.message,
+						'Error generating image for https://astro.build/this_image_does_not_exist_either.png',
+					);
 					return true;
 				},
 			);
