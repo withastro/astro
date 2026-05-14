@@ -1294,6 +1294,7 @@ describe('astro:image', () => {
 	describe('build ssg with 404 remote images', () => {
 		const buildFixture = async (remoteImage: string) => {
 			process.env.ASTRO_INTERNAL_TEST_REMOTE_IMAGE = remoteImage;
+			// Use a random path to avoid cache conflicts between tests
 			const random = Math.random().toString(36).substring(2, 15);
 			fixture = await loadFixture({
 				root: './fixtures/core-image-ssg/',
