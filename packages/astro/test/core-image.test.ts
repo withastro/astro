@@ -1330,6 +1330,7 @@ describe('astro:image', () => {
 				(error) => {
 					assert.ok(error instanceof Error);
 					assert.ok(error.message.includes('this_image_does_not_exist_either.png'));
+					return true;
 				},
 			);
 		});
