@@ -538,7 +538,7 @@ test.describe('View Transitions', () => {
 		// NOTE: works locally but fails on CI
 		test.skip(browserName === 'firefox', 'Firefox has issues playing the video. Errors on play()');
 
-		const getTime = (): number => document.querySelector('video')!.currentTime;
+		const getTime = () => document.querySelector('video')!.currentTime;
 
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/video-one'));
@@ -556,7 +556,10 @@ test.describe('View Transitions', () => {
 		await page.click('#click-two');
 		const vid2 = page.locator('#video-two');
 		await expect(vid2).toBeVisible();
-		await expect.poll(getTime, { timeout: 10_000 }).toBeGreaterThan(firstTime);
+		await expect(async () => {
+			const secondTime = await page.evaluate(getTime);
+			expect(secondTime).toBeGreaterThan(firstTime);
+		}).toPass();
 	});
 
 	test('React Islands can persist using transition:persist', async ({ page, astro }) => {
