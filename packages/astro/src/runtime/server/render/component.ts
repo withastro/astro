@@ -354,7 +354,8 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 						? 'astro-slot'
 						: 'astro-static-slot'
 					: 'astro-slot';
-				let expectedHTML = key === 'default' ? `<${tagName}>` : `<${tagName} name="${escapeHTML(key)}">`;
+				let expectedHTML =
+					key === 'default' ? `<${tagName}>` : `<${tagName} name="${escapeHTML(key)}">`;
 				if (!html.includes(expectedHTML)) {
 					unrenderedSlots.push(key);
 				}
