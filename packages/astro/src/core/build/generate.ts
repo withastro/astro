@@ -333,14 +333,16 @@ export async function generatePages(
 			queue
 				.add(() => generateImagesForPath(originalPath, transforms, assetsCreationPipeline))
 				.catch((e) => {
-					logger.warn('build', `Unable to generate optimized image for path ${originalPath}: ${e}`);
-					errors.push(new Error(`Error generating image for path ${originalPath}`, { cause: e }));
+					logger.warn('build', `Unable to generate optimized image for ${originalPath}: ${e}`);
+					errors.push(new Error(`Error generating image for ${originalPath}`, { cause: e }));
 				});
 		}
 
 		await queue.onIdle();
-		if (errors.length >= 1) {
-			throw new AggregateError(errors, 'One or more errors occurred during asset generation');
+		if (errors.length === 1) {
+			throw errors[0];
+		} else if (errors.length > 1) {
+			throw new AggregateError(errors, `${errors.length} errors occurred during asset generation`);
 		}
 
 		const assetsTimeEnd = performance.now();

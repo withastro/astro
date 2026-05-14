@@ -1329,7 +1329,7 @@ describe('astro:image', () => {
 				},
 				(error) => {
 					assert.ok(error instanceof Error);
-					assert.ok(error.message.includes('this_image_does_not_exist_either.png'));
+					assert.equal(error.message, "Error generating image for https://astro.build/this_image_does_not_exist_either.png" );
 					return true;
 				},
 			);
