@@ -1327,13 +1327,13 @@ describe('astro:image', () => {
 		it('can reject when remote image does not exist', async () => {
 			await assert.rejects(
 				async () => {
-					await buildFixture('https://astro.build/this_image_does_not_exist_either.png');
+					await buildFixture('https://astro.build/this_image_does_not_exist.png');
 				},
 				(error) => {
 					assert.ok(error instanceof Error);
 					assert.equal(
 						error.message,
-						'Error generating image for https://astro.build/this_image_does_not_exist_either.png',
+						'Error generating image for https://astro.build/this_image_does_not_exist.png',
 					);
 					return true;
 				},
