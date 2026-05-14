@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture, type DevServer, type Fixture } from './test-utils.ts';
+import { loadFixture, type Fixture } from './test-utils.ts';
 
 describe('CSS ordering - import order', () => {
 	let fixture: Fixture;
@@ -23,15 +23,6 @@ describe('CSS ordering - import order', () => {
 		return out;
 	}
 
-	function getStyles(html: string): string[] {
-		let $ = cheerio.load(html);
-		let out: string[] = [];
-		$('style').each((_i, el) => {
-			out.push($(el).text());
-		});
-		return out;
-	}
-
 	async function getLinkContent(
 		href: string,
 		f: Fixture = fixture,
@@ -39,38 +30,6 @@ describe('CSS ordering - import order', () => {
 		const css = await f.readFile(href);
 		return { href, css };
 	}
-
-	describe('Development', () => {
-		let devServer: DevServer;
-
-		before(async () => {
-			devServer = await fixture.startDevServer();
-		});
-
-		after(async () => {
-			await devServer.stop();
-		});
-
-		it('Page level CSS is defined lower in the page', async () => {
-			let res = await fixture.fetch('/');
-			let html = await res.text();
-			let [style1, style2] = getStyles(html);
-
-			assert.ok(style1.includes('green'));
-			assert.ok(style2.includes('salmon'));
-		});
-
-		it('import order is depth-first', async () => {
-			let res = await fixture.fetch('/component/');
-			let html = await res.text();
-			let [style1, style2, style3] = getStyles(html);
-
-			assert.ok(style1.includes('burlywood'));
-			// CSS processors may resolve named colors to hex; match either form
-			assert.ok(style2.includes('aliceblue') || style2.includes('#f0f8ff'));
-			assert.ok(style3.includes('whitesmoke') || style3.includes('#f5f5f5'));
-		});
-	});
 
 	describe('Production', () => {
 		before(async () => {

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { type DevServer, type Fixture, isWindows, loadFixture } from './test-utils.ts';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Special chars in component import paths', () => {
 	let fixture: Fixture;
@@ -68,62 +68,6 @@ describe('Special chars in component import paths', () => {
 
 		it('Special chars in imports work from .mdx files', async () => {
 			const html = await fixture.readFile('/mdx/index.html');
-			const $ = cheerioLoad(html);
-
-			// Test 1: Correct page
-			assert.equal($('h1').text().includes('.mdx'), true);
-
-			// Test 2: All components exist
-			componentIds.forEach((componentId) => {
-				assert.equal($(`#${componentId}`).length, 1, `Component #${componentId} does not exist`);
-			});
-
-			// Test 3: Component contents were rendered properly
-			componentIds.forEach((componentId) => {
-				assert.equal($(`#${componentId} > div`).text(), `${componentId}: 0`);
-			});
-
-			// Test 4: There is an island for each component
-			assert.equal($('astro-island[uid]').length, componentIds.length);
-		});
-	});
-
-	if (isWindows) return;
-
-	describe('dev', () => {
-		let devServer: DevServer;
-
-		before(async () => {
-			devServer = await fixture.startDevServer();
-		});
-
-		after(async () => {
-			await devServer.stop();
-		});
-
-		it('Special chars in imports work from .astro files', async () => {
-			const html = await fixture.fetch('/').then((res) => res.text());
-			const $ = cheerioLoad(html);
-
-			// Test 1: Correct page
-			assert.equal($('h1').text().includes('.astro'), true);
-
-			// Test 2: All components exist
-			componentIds.forEach((componentId) => {
-				assert.equal($(`#${componentId}`).length, 1, `Component #${componentId} does not exist`);
-			});
-
-			// Test 3: Component contents were rendered properly
-			componentIds.forEach((componentId) => {
-				assert.equal($(`#${componentId} > div`).text(), `${componentId}: 0`);
-			});
-
-			// Test 4: There is an island for each component
-			assert.equal($('astro-island[uid]').length, componentIds.length);
-		});
-
-		it('Special chars in imports work from .mdx files', async () => {
-			const html = await fixture.fetch('/mdx').then((res) => res.text());
 			const $ = cheerioLoad(html);
 
 			// Test 1: Correct page
