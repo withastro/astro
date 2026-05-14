@@ -1206,12 +1206,10 @@ describe('astro:image', () => {
 			);
 			const imageLogs = logs
 				.slice(generatingImageIndex + 1)
-				.map((logLine) => (logLine?.message || ""))
+				.map((logLine) => logLine?.message || '')
 				.filter((message) => message.includes('/_astro/'));
 			assert.ok(imageLogs.length > 0, 'Expected at least one image log entry');
-			const isReusingCache = imageLogs.every((message) =>
-				message.includes('cache entry)'),
-			);
+			const isReusingCache = imageLogs.every((message) => message.includes('cache entry)'));
 
 			assert.equal(
 				isReusingCache,
@@ -1290,6 +1288,50 @@ describe('astro:image', () => {
 
 				assert.notEqual(useCustomHashProperty[1], useCustomHashProperty[0]);
 			});
+		});
+	});
+
+	describe('build ssg with 404 remote images', () => {
+		const buildFixture = async (remoteImage: string) => {
+			process.env.ASTRO_INTERNAL_TEST_REMOTE_IMAGE = remoteImage;
+			const random = Math.random().toString(36).substring(2, 15);
+			fixture = await loadFixture({
+				root: './fixtures/core-image-ssg/',
+				image: {
+					service: testImageService(),
+					domains: [
+						'astro.build',
+						'avatars.githubusercontent.com',
+						'kaleidoscopic-biscotti-6fe98c.netlify.app',
+					],
+				},
+				outDir: `./dist/core-image-build-ssg-${random}/`,
+				cacheDir: `./node_modules/.astro-test-core-image-build-ssg-${random}/`,
+			});
+			await fixture.build();
+			await fixture.clean();
+		};
+
+		after(async () => {
+			delete process.env.ASTRO_INTERNAL_TEST_REMOTE_IMAGE;
+		});
+
+		it('can build when remote image does exist', async () => {
+			await assert.doesNotReject(async () => {
+				await buildFixture('https://astro.build/sponsors.png');
+			});
+		});
+
+		it('can reject when remote image does not exist', async () => {
+			await assert.rejects(
+				async () => {
+					await buildFixture('https://astro.build/this_image_does_not_exist_either.png');
+				},
+				(error) => {
+					assert.ok(error instanceof Error);
+					assert.ok(error.message.includes('this_image_does_not_exist_either.png'));
+				},
+			);
 		});
 	});
 
