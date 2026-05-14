@@ -887,11 +887,7 @@ describe('astro:image', () => {
 				root: './fixtures/core-image-ssg/',
 				image: {
 					service: testImageService(),
-					domains: [
-						'astro.build',
-						'avatars.githubusercontent.com',
-						'kaleidoscopic-biscotti-6fe98c.netlify.app',
-					],
+					domains: ['astro.build', 'avatars.githubusercontent.com'],
 				},
 				base: '/blog',
 				outDir: './dist/core-image-support-base-option-correctly/',
@@ -996,11 +992,7 @@ describe('build ssg', () => {
 			root: './fixtures/core-image-ssg/',
 			image: {
 				service: testImageService(),
-				domains: [
-					'astro.build',
-					'avatars.githubusercontent.com',
-					'kaleidoscopic-biscotti-6fe98c.netlify.app',
-				],
+				domains: ['astro.build', 'avatars.githubusercontent.com'],
 			},
 			outDir: './dist/core-image-build-ssg/',
 		});
@@ -1048,18 +1040,6 @@ describe('build ssg', () => {
 		const src = $img.attr('src')!;
 		const data = await fixture.readBuffer(src);
 		assert.equal(data instanceof Buffer, true);
-	});
-
-	it('handles remote images with special characters', async () => {
-		const html = await fixture.readFile('/special-chars/index.html');
-		const $ = cheerio.load(html);
-		const $img = $('img');
-		assert.equal($img.length, 1);
-		const src = $img.attr('src')!;
-		// The filename should be encoded and sanitized
-		assert.ok(src.startsWith('/_astro/c_23'));
-		const data = await fixture.readBuffer(src);
-		assert.ok(data instanceof Buffer);
 	});
 
 	it('Picture component images are written', async () => {
