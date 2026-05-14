@@ -171,8 +171,15 @@ export class AstroHandler {
 				pathname: state.pathname,
 			});
 		} finally {
-			const finalize = state.finalizeAll();
-			if (finalize) await finalize;
+			try {
+				const finalize = state.finalizeAll();
+				if (finalize) await finalize;
+			} catch (finalizeErr: any) {
+				this.#app.logger.error(
+					null,
+					`Failed to finalize request state: ${finalizeErr.message ?? finalizeErr}`,
+				);
+			}
 		}
 
 		if (

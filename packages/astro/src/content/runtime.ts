@@ -505,12 +505,25 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 	});
 }
 
+let _imageRefCacheMap: Map<string, ImageMetadata> | undefined;
+let _imageRefCache = new WeakMap<object, Record<string, unknown>>();
+
 export function updateImageReferencesInData<T extends Record<string, unknown>>(
 	data: T,
 	fileName?: string,
 	imageAssetMap?: Map<string, ImageMetadata>,
 ): T {
-	return new Traverse(data).map(function (ctx, val) {
+	if (imageAssetMap !== _imageRefCacheMap) {
+		_imageRefCacheMap = imageAssetMap;
+		_imageRefCache = new WeakMap();
+	}
+
+	const cached = _imageRefCache.get(data);
+	if (cached !== undefined) {
+		return cached as T;
+	}
+
+	const result: T = new Traverse(data).map(function (ctx, val) {
 		if (typeof val === 'string' && val.startsWith(IMAGE_IMPORT_PREFIX)) {
 			const src = val.replace(IMAGE_IMPORT_PREFIX, '');
 
@@ -544,6 +557,10 @@ export function updateImageReferencesInData<T extends Record<string, unknown>>(
 			}
 		}
 	});
+
+	_imageRefCache.set(data, result);
+	_imageRefCache.set(result, result);
+	return result;
 }
 
 export async function renderEntry(entry: DataEntry) {
