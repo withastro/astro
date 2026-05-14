@@ -3,7 +3,7 @@ import * as devalue from 'devalue';
 
 export async function GET() {
 	const oneWithSchemaConfig = await getEntry('with-schema-config', 'one');
-	const twoWithCustomSlugs = await getEntry('with-custom-slugs', 'interesting-two');
+	const twoWithCustomSlugs = await getEntry('with-custom-slugs', 'two');
 	const postWithUnionSchema = await getEntry('with-union-schema', 'post');
 
 	return new Response(

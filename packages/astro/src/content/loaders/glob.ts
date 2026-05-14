@@ -39,11 +39,11 @@ interface GlobOptions {
 }
 
 function generateIdDefault({ entry, base, data }: GenerateIdOptions, isLegacy?: boolean): string {
-	if (data.slug) {
-		return data.slug as string;
-	}
 	const entryURL = new URL(encodeURI(entry), base);
 	if (isLegacy) {
+		if (data.slug) {
+			return data.slug as string;
+		}
 		// Legacy behavior: use ID based on path, not slug
 		const { id } = getContentEntryIdAndSlug({
 			entry: entryURL,

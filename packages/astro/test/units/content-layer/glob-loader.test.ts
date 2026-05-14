@@ -76,14 +76,17 @@ describe('Glob Loader', () => {
 		await contentLayer.sync();
 
 		const entries = store.values('probes');
-		assert.equal(entries.length, 6);
+		assert.equal(entries.length, 7);
 
 		// Verify voyager probes are excluded
 		assert.ok(entries.every((e) => !e.id.startsWith('voyager')));
 
-		// Check that other probes exist
+		// Check that other probes exist (cassini and cassini-2 are both included
+		// because IDs are derived from file paths, not frontmatter slugs)
 		const cassini = entries.find((e) => e.id === 'cassini');
 		assert.ok(cassini);
+		const cassini2 = entries.find((e) => e.id === 'cassini-2');
+		assert.ok(cassini2);
 	});
 
 	it('retains body by default', async () => {
@@ -347,5 +350,43 @@ describe('Glob Loader', () => {
 		await contentLayer.sync();
 
 		assert.ok(warnings.some((w) => w.includes('No files found matching')));
+	});
+
+	it('does not use data.slug as entry id', async () => {
+		const store = new MutableDataStore();
+		const settings = createMinimalSettings(root, {
+			contentEntryTypes: [createMarkdownEntryType()],
+		});
+		const logger = new AstroLogger({
+			destination: { write: () => true },
+			level: 'silent',
+		});
+
+		const collections = {
+			withSlugs: defineCollection({
+				loader: glob({ pattern: '*.md', base: 'src/content/with-slugs' }),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await contentLayer.sync();
+
+		const entries = store.values('withSlugs');
+		assert.equal(entries.length, 2);
+
+		// Entry with slug in frontmatter should still use file-path-based ID, not data.slug
+		const postOne = entries.find((e) => e.id === 'post-one');
+		assert.ok(postOne, 'post-one should have file-path-based ID, not "custom-slug-value"');
+		assert.equal(postOne.data.slug, 'custom-slug-value', 'slug should still be available in data');
+
+		// Entry without slug should also use file-path-based ID
+		const postTwo = entries.find((e) => e.id === 'post-two');
+		assert.ok(postTwo, 'post-two should have file-path-based ID');
 	});
 });

@@ -84,7 +84,7 @@ describe('Content Collections', () => {
 				assert.equal(Array.isArray(json.withCustomSlugs), true);
 
 				const slugs = json.withCustomSlugs.map((item) => item.id);
-				assert.deepEqual(slugs.sort(), ['fancy-one', 'excellent-three', 'interesting-two'].sort());
+				assert.deepEqual(slugs.sort(), ['one', 'three', 'two'].sort());
 			});
 
 			it('Returns `with union schema` collection', async () => {
@@ -150,7 +150,7 @@ describe('Content Collections', () => {
 
 			it('Returns `with custom slugs` collection entry', async () => {
 				assert.ok(json.hasOwnProperty('twoWithCustomSlugs'));
-				assert.equal(json.twoWithCustomSlugs.id, 'interesting-two');
+				assert.equal(json.twoWithCustomSlugs.id, 'two');
 			});
 
 			it('Returns `with union schema` collection entry', async () => {
