@@ -11,33 +11,26 @@ import { appendForwardSlash, prependForwardSlash } from '../../core/path.js';
 import { runHookBuildSetup } from '../../integrations/hooks.js';
 import { SERIALIZED_MANIFEST_RESOLVED_ID } from '../../manifest/serialized.js';
 import {
-	getClientOutputDirectory,
 	getPrerenderOutputDirectory,
-	getServerOutputDirectory,
 } from '../../prerender/utils.js';
 import type { RouteData } from '../../types/public/internal.js';
-import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../vite-plugin-pages/const.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { routeIsRedirect } from '../routing/helpers.js';
 import { getOutDirWithinCwd } from './common.js';
-import { CHUNKS_PATH } from './consts.js';
 import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
 import { getAllBuildPlugins } from './plugins/index.js';
 import { manifestBuildPostHook } from './plugins/plugin-manifest.js';
-import {
-	isLegacyAdapter,
-	LEGACY_SSR_ENTRY_VIRTUAL_MODULE,
-	RESOLVED_LEGACY_SSR_ENTRY_VIRTUAL_MODULE,
-} from './plugins/plugin-ssr.js';
+
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { StaticBuildOptions } from './types.js';
-import { cleanChunkName, getTimeStat, viteBuildReturnToRollupOutputs } from './util.js';
+import { getTimeStat, viteBuildReturnToRollupOutputs } from './util.js';
 import { NOOP_MODULE_ID } from './plugins/plugin-noop.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 import type { InputOption } from 'rollup';
 import { getSSRAssets } from './internal.js';
 import { SERVER_ISLAND_MAP_MARKER } from '../server-islands/vite-plugin-server-islands.js';
+import { createViteBuildConfig } from './vite-build-config.js';
 
 const PRERENDER_ENTRY_FILENAME_PREFIX = 'prerender-entry';
 
@@ -164,8 +157,6 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 	const { allPages, settings, viteConfig } = opts;
 	const routes = Object.values(allPages).flatMap((pageData) => pageData.route);
 
-	const legacyAdapter = !settings.adapter || isLegacyAdapter(settings.adapter);
-
 	const buildPlugins = getAllBuildPlugins(internals, opts);
 	const flatPlugins = buildPlugins.flat().filter(Boolean);
 	const plugins = [...flatPlugins, ...(viteConfig.plugins || [])];
@@ -246,93 +237,15 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 		}
 	}
 
-	const viteBuildConfig: vite.InlineConfig = {
-		...viteConfig,
-		logLevel: viteConfig.logLevel ?? 'error',
-		build: {
-			target: 'esnext',
-			// Vite defaults cssMinify to false in SSR by default, but we want to minify it
-			// as the CSS generated are used and served to the client.
-			cssMinify: viteConfig.build?.minify == null ? true : !!viteConfig.build?.minify,
-			...viteConfig.build,
-			emptyOutDir: false,
-			copyPublicDir: false,
-			manifest: false,
-			rollupOptions: {
-				...viteConfig.build?.rollupOptions,
-				// Setting as `exports-only` allows us to safely delete inputs that are only used during prerendering
-				preserveEntrySignatures: 'exports-only',
-				...(legacyAdapter && settings.buildOutput === 'server'
-					? { input: LEGACY_SSR_ENTRY_VIRTUAL_MODULE }
-					: {}),
-				output: {
-					hoistTransitiveImports: false,
-					format: 'esm',
-					minifyInternalExports: true,
-					// Server chunks can't go in the assets (_astro) folder
-					// We need to keep these separate
-					chunkFileNames(chunkInfo) {
-						const { name } = chunkInfo;
-						let prefix = CHUNKS_PATH;
-						let suffix = '_[hash].mjs';
-
-						// Sometimes chunks have the `@_@astro` suffix due to SSR logic. Remove it!
-						// TODO: refactor our build logic to avoid this
-						if (name.includes(ASTRO_PAGE_EXTENSION_POST_PATTERN)) {
-							const [sanitizedName] = name.split(ASTRO_PAGE_EXTENSION_POST_PATTERN);
-							return [prefix, cleanChunkName(sanitizedName), suffix].join('');
-						}
-						// Injected routes include "pages/[name].[ext]" already. Clean those up!
-						if (name.startsWith('pages/')) {
-							const sanitizedName = name.split('.')[0];
-							return [prefix, cleanChunkName(sanitizedName), suffix].join('');
-						}
-						return [prefix, cleanChunkName(name), suffix].join('');
-					},
-					assetFileNames(assetInfo) {
-						// Strip the @_@ extension-masking pattern from asset names, just like chunkFileNames above.
-						// The @_@ pattern is an internal mechanism for virtual module IDs and should not leak into output filenames.
-						const name = assetInfo.names?.[0] ?? '';
-						if (name.includes(ASTRO_PAGE_EXTENSION_POST_PATTERN)) {
-							const [sanitizedName] = name.split(ASTRO_PAGE_EXTENSION_POST_PATTERN);
-							return `${settings.config.build.assets}/${sanitizedName}.[hash][extname]`;
-						}
-						return `${settings.config.build.assets}/[name].[hash][extname]`;
-					},
-					...viteConfig.build?.rollupOptions?.output,
-					entryFileNames(chunkInfo) {
-						if (chunkInfo.facadeModuleId?.startsWith(VIRTUAL_PAGE_RESOLVED_MODULE_ID)) {
-							return makeAstroPageEntryPointFileName(
-								VIRTUAL_PAGE_RESOLVED_MODULE_ID,
-								chunkInfo.facadeModuleId,
-								routes,
-							);
-						} else if (
-							chunkInfo.facadeModuleId === RESOLVED_LEGACY_SSR_ENTRY_VIRTUAL_MODULE ||
-							// This catches the case when the adapter uses `entrypointResolution: 'auto'`. When doing so,
-							// the adapter must set rollupOptions.input or Astro sets it from `serverEntrypoint`.
-							isRollupInput(chunkInfo.name) ||
-							isRollupInput(chunkInfo.facadeModuleId)
-						) {
-							return opts.settings.config.build.serverEntry;
-						} else {
-							return '[name].mjs';
-						}
-					},
-				},
-			},
-			ssr: true,
-			ssrEmitAssets: true,
-			// improve build performance
-			minify: false,
-			modulePreload: { polyfill: false },
-			reportCompressedSize: false,
-		},
+	const viteBuildConfig = createViteBuildConfig({
+		settings,
+		viteConfig,
+		routes,
 		plugins,
 		// Top-level buildApp for framework build orchestration
 		// This takes precedence over platform plugin fallbacks (e.g., Cloudflare)
 		builder: {
-			async buildApp(builder) {
+			async buildApp(builder: vite.ViteBuilder) {
 				// Build prerender environment for static generation
 				settings.timer.start('Prerender build');
 				let prerenderOutput = await builder.build(builder.environments.prerender);
@@ -363,7 +276,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				const ssrPlugins =
 					builder.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr]?.config.plugins ?? [];
 				buildPostHooks = ssrPlugins
-					.map((plugin) =>
+					.map((plugin: vite.Plugin) =>
 						typeof plugin.api?.buildPostHook === 'function' ? plugin.api.buildPostHook : undefined,
 					)
 					.filter(Boolean) as BuildPostHook[];
@@ -393,73 +306,8 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				internals.extractedChunks = [...ssrChunks, ...prerenderChunks];
 			},
 		},
-		envPrefix: viteConfig.envPrefix ?? 'PUBLIC_',
-		base: settings.config.base,
-		environments: {
-			...(viteConfig.environments ?? {}),
-			[ASTRO_VITE_ENVIRONMENT_NAMES.prerender]: {
-				build: {
-					emitAssets: true,
-					outDir: fileURLToPath(getPrerenderOutputDirectory(settings)),
-					rollupOptions: {
-						// Only skip the default prerender entrypoint if an adapter with `entrypointResolution: 'self'` is used
-						// AND provides a custom prerenderer. Otherwise, use the default.
-						...(!legacyAdapter && settings.prerenderer
-							? {}
-							: { input: 'astro/entrypoints/prerender' }),
-						output: {
-							entryFileNames: `${PRERENDER_ENTRY_FILENAME_PREFIX}.[hash].mjs`,
-							format: 'esm',
-							...viteConfig.environments?.prerender?.build?.rollupOptions?.output,
-						},
-					},
-					ssr: true,
-				},
-			},
-			[ASTRO_VITE_ENVIRONMENT_NAMES.client]: {
-				build: {
-					emitAssets: true,
-					target: 'esnext',
-					outDir: fileURLToPath(getClientOutputDirectory(settings)),
-					copyPublicDir: true,
-					sourcemap: viteConfig.environments?.client?.build?.sourcemap ?? false,
-					minify: true,
-					rollupOptions: {
-						preserveEntrySignatures: 'exports-only',
-						output: {
-							entryFileNames(chunkInfo) {
-								return `${settings.config.build.assets}/${cleanChunkName(chunkInfo.name)}.[hash].js`;
-							},
-							chunkFileNames(chunkInfo) {
-								return `${settings.config.build.assets}/${cleanChunkName(chunkInfo.name)}.[hash].js`;
-							},
-							assetFileNames(assetInfo) {
-								// Strip the @_@ extension-masking pattern from asset names.
-								// The @_@ pattern is an internal mechanism for virtual module IDs and should not leak into output filenames.
-								const name = assetInfo.names?.[0] ?? '';
-								if (name.includes(ASTRO_PAGE_EXTENSION_POST_PATTERN)) {
-									const [sanitizedName] = name.split(ASTRO_PAGE_EXTENSION_POST_PATTERN);
-									return `${settings.config.build.assets}/${sanitizedName}.[hash][extname]`;
-								}
-								return `${settings.config.build.assets}/[name].[hash][extname]`;
-							},
-							...viteConfig.environments?.client?.build?.rollupOptions?.output,
-						},
-					},
-				},
-			},
-			[ASTRO_VITE_ENVIRONMENT_NAMES.ssr]: {
-				build: {
-					outDir: fileURLToPath(getServerOutputDirectory(settings)),
-					rollupOptions: {
-						output: {
-							...viteConfig.environments?.ssr?.build?.rollupOptions?.output,
-						},
-					},
-				},
-			},
-		},
-	};
+		isRollupInput,
+	});
 
 	const updatedViteBuildConfig = await runHookBuildSetup({
 		config: settings.config,
