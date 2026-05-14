@@ -1283,11 +1283,7 @@ describe('build ssg with 404 remote images', () => {
 			root: './fixtures/core-image-ssg/',
 			image: {
 				service: testImageService(),
-				domains: [
-					'astro.build',
-					'avatars.githubusercontent.com',
-					'kaleidoscopic-biscotti-6fe98c.netlify.app',
-				],
+				domains: ['astro.build', 'avatars.githubusercontent.com'],
 			},
 			outDir: `./dist/core-image-build-ssg-${random}/`,
 			cacheDir: `./node_modules/.astro-test-core-image-build-ssg-${random}/`,
