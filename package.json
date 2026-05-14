@@ -81,7 +81,7 @@
     "publint": "^0.3.17",
     "tinyglobby": "^0.2.16",
     "turbo": "^2.8.15",
-    "typescript": "~5.9.3",
+    "typescript": "~6.0.3",
     "typescript-eslint": "^8.59.1",
     "valibot": "^1.2.0"
   }
