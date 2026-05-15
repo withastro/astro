@@ -96,18 +96,7 @@ jobs:
       - name: Stage publish artifact
         env:
           AFFECTED_PACKAGES: ${{ steps.compute-affected-packages.outputs.affected-packages }}
-        run: |
-          staging="/tmp/preview-publish"
-          mkdir -p "$staging"
-          # Copy workspace root files needed by pnpm pack
-          cp package.json pnpm-workspace.yaml pnpm-lock.yaml "$staging/"
-          # Copy each affected package directory (with built output)
-          for pkg in $(echo "$AFFECTED_PACKAGES" | jq -r '.[]'); do
-            mkdir -p "$staging/$pkg"
-            cp -r "$pkg/." "$staging/$pkg/"
-          done
-          # Save the list for the publish job
-          echo "$AFFECTED_PACKAGES" > "$staging/affected-packages.json"
+        run: node scripts/stage-preview-publish.ts /tmp/preview-publish
 
       - name: Upload publish artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -149,7 +138,7 @@ jobs:
         run: |
           packages=$(cat affected-packages.json | jq -r '.[]' | tr '\n' ' ')
           if [ -n "$packages" ]; then
-            pnpm exec pkg-pr-new publish --pnpm --compact --no-template $packages
+            pnpm dlx pkg-pr-new@0.0.71 publish --compact --no-template $packages
           else
             echo "No affected packages to publish"
           fi
