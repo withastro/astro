@@ -192,18 +192,6 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 			url.pathname = url.pathname.slice(0, -1);
 		}
 
-		let body: BodyInit | undefined = undefined;
-		if (!(incomingRequest.method === 'GET' || incomingRequest.method === 'HEAD')) {
-			let bytes: Uint8Array[] = [];
-			await new Promise((resolve) => {
-				incomingRequest.on('data', (part) => {
-					bytes.push(part);
-				});
-				incomingRequest.on('end', resolve);
-			});
-			body = Buffer.concat(bytes);
-		}
-
 		const self = this;
 		await self.#loadFetchHandler();
 
@@ -229,6 +217,21 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 				if (prerenderOnly && !matchedRoute.routeData.prerender) {
 					handled = false;
 					return;
+				}
+
+				// Delay reading the request body until prerenderOnly routing has decided
+				// this handler really owns the request. Otherwise a prerender pass that
+				// falls through to SSR would exhaust the body stream first.
+				let body: BodyInit | undefined = undefined;
+				if (!(incomingRequest.method === 'GET' || incomingRequest.method === 'HEAD')) {
+					let bytes: Uint8Array[] = [];
+					await new Promise((resolve) => {
+						incomingRequest.on('data', (part) => {
+							bytes.push(part);
+						});
+						incomingRequest.on('end', resolve);
+					});
+					body = Buffer.concat(bytes);
 				}
 
 				const request = createRequest({

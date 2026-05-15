@@ -2,13 +2,13 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 import { IncomingMessage } from 'node:http';
 import type * as vite from 'vite';
 import { isRunnableDevEnvironment, type RunnableDevEnvironment } from 'vite';
-import type { SSRManifest } from '../core/app/types.js';
+import type { RouteInfo, SSRManifest } from '../core/app/types.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES, devPrerenderMiddlewareSymbol } from '../core/constants.js';
 import { getViteErrorPayload } from '../core/errors/dev/index.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { AstroLogger } from '../core/logger/core.js';
 import { createViteLoader } from '../core/module-loader/index.js';
-import { matchRoute } from '../core/routing/match.js';
+import { matchAllRoutes } from '../core/routing/match.js';
 import { SERIALIZED_MANIFEST_ID } from '../manifest/serialized.js';
 import type { AstroSettings } from '../types/astro.js';
 import { ASTRO_DEV_SERVER_APP_ID } from '../vite-plugin-app/index.js';
@@ -147,29 +147,31 @@ export default function createVitePluginAstroServer({
 							}
 
 							try {
-								const pathname = decodeURI(new URL(request.url, 'http://localhost').pathname);
-								const { routes } =
-									await prerenderHandler.environment.runner.import('virtual:astro:routes');
-								const routesList = { routes: routes.map((r: any) => r.routeData) };
-								// Use the highest-priority match to decide whether to prerender.
-								// matchAllRoutes + .some(prerender) was too broad: a prerendered
-								// catch-all like [...page] matches every URL (including /_actions/*),
-								// causing the prerender handler to consume the request body before
-								// discovering the best match is actually an SSR route. Downstream
-								// handlers (e.g. Cloudflare workerd) then fail because the body
-								// stream is already exhausted.
-								const match = matchRoute(pathname, routesList);
+							const pathname = decodeURI(new URL(request.url, 'http://localhost').pathname);
+							const { routes } = (await prerenderHandler.environment.runner.import(
+								'virtual:astro:routes',
+							)) as { routes: RouteInfo[] };
+							const routesList = { routes: routes.map((route) => route.routeData) };
+							// This is intentionally a broad prerender gate. The real dev route
+							// resolution happens in AstroServerApp.handleRequest(), which also
+							// checks getStaticPaths() and prerender tie-breaks that matchRoute()
+							// cannot express here.
+							const matches = matchAllRoutes(pathname, routesList);
 
-								if (!match?.prerender) {
-									return next();
-								}
-
-								localStorage.run(request, () => {
-									prerenderHandler.handler(request, response);
-								});
-							} catch (err) {
-								next(err);
+							if (!matches.some((route) => route.prerender)) {
+								return next();
 							}
+
+							const handled = await localStorage.run(request, () =>
+								prerenderHandler.handler(request, response, { prerenderOnly: true }),
+							);
+
+							if (!handled) {
+								return next();
+							}
+						} catch (err) {
+							next(err);
+						}
 						},
 					);
 				}
