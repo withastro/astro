@@ -125,6 +125,11 @@ jobs:
     name: Publish preview release
     timeout-minutes: 5
     steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          sparse-checkout: package.json
+          sparse-checkout-cone-mode: false
+
       - name: Download publish artifact
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
