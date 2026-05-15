@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import type { GetImageResult, UnresolvedImageTransform } from '../../../dist/assets/types.js';
 import { getImage } from '../../../dist/assets/internal.js';
+import { AstroError } from '../../../dist/core/errors/index.js';
 import { installImageService } from '../mocks.ts';
 
 describe('getImage', () => {
@@ -401,12 +402,15 @@ describe('getImage - remotePatterns', () => {
 			assert.ok(result.src.startsWith('/_image'));
 		});
 
-		it('returns raw URL for images not matching the pattern', async () => {
-			const result = await getImage(
-				{ src: 'https://evil.com/photo.jpg', width: 800, height: 600, alt: 'test' },
-				service.imageConfig,
+		it('throws for images not matching the pattern', async () => {
+			await assert.rejects(
+				() =>
+					getImage(
+						{ src: 'https://evil.com/photo.jpg', width: 800, height: 600, alt: 'test' },
+						service.imageConfig,
+					),
+				(err) => err instanceof AstroError && err.name === 'RemoteImageNotAllowed',
 			);
-			assert.equal(result.src, 'https://evil.com/photo.jpg');
 		});
 	});
 
@@ -431,12 +435,20 @@ describe('getImage - remotePatterns', () => {
 			assert.ok(result.src.startsWith('/_image'));
 		});
 
-		it('returns raw URL when pathname does not match', async () => {
-			const result = await getImage(
-				{ src: 'https://cdn.example.com/other/photo.jpg', width: 800, height: 600, alt: 'test' },
-				service.imageConfig,
+		it('throws when pathname does not match', async () => {
+			await assert.rejects(
+				() =>
+					getImage(
+						{
+							src: 'https://cdn.example.com/other/photo.jpg',
+							width: 800,
+							height: 600,
+							alt: 'test',
+						},
+						service.imageConfig,
+					),
+				(err) => err instanceof AstroError && err.name === 'RemoteImageNotAllowed',
 			);
-			assert.equal(result.src, 'https://cdn.example.com/other/photo.jpg');
 		});
 	});
 
@@ -461,12 +473,15 @@ describe('getImage - remotePatterns', () => {
 			assert.ok(result.src.startsWith('/_image'));
 		});
 
-		it('returns raw URL for non-matching protocol', async () => {
-			const result = await getImage(
-				{ src: 'http://example.com/photo.jpg', width: 800, height: 600, alt: 'test' },
-				service.imageConfig,
+		it('throws for non-matching protocol', async () => {
+			await assert.rejects(
+				() =>
+					getImage(
+						{ src: 'http://example.com/photo.jpg', width: 800, height: 600, alt: 'test' },
+						service.imageConfig,
+					),
+				(err) => err instanceof AstroError && err.name === 'RemoteImageNotAllowed',
 			);
-			assert.equal(result.src, 'http://example.com/photo.jpg');
 		});
 	});
 
@@ -500,12 +515,80 @@ describe('getImage - remotePatterns', () => {
 			assert.ok(result.src.startsWith('/_image'));
 		});
 
-		it('returns raw URL for images matching neither', async () => {
-			const result = await getImage(
-				{ src: 'https://other.com/photo.jpg', width: 800, height: 600, alt: 'test' },
-				service.imageConfig,
+		it('throws for images matching neither', async () => {
+			await assert.rejects(
+				() =>
+					getImage(
+						{ src: 'https://other.com/photo.jpg', width: 800, height: 600, alt: 'test' },
+						service.imageConfig,
+					),
+				(err) => err instanceof AstroError && err.name === 'RemoteImageNotAllowed',
 			);
-			assert.equal(result.src, 'https://other.com/photo.jpg');
 		});
+	});
+});
+
+describe('getImage - remote image allowlist enforcement', () => {
+	let service: ReturnType<typeof installImageService>;
+
+	before(() => {
+		service = installImageService({ domains: ['example.com'] });
+	});
+
+	after(() => {
+		service.cleanup();
+	});
+
+	it('throws RemoteImageNotAllowed for disallowed remote images without inferSize', async () => {
+		await assert.rejects(
+			() =>
+				getImage(
+					{
+						src: 'https://not-allowed-domain.com/test-image.jpg',
+						width: 300,
+						height: 200,
+						alt: 'Should fail',
+					},
+					service.imageConfig,
+				),
+			(err) => {
+				assert.ok(err instanceof AstroError);
+				assert.equal(err.name, 'RemoteImageNotAllowed');
+				assert.ok(err.message.includes('not-allowed-domain.com'));
+				return true;
+			},
+		);
+	});
+
+	it('allows remote images from configured domains', async () => {
+		const result = await getImage(
+			{
+				src: 'https://example.com/test-image.jpg',
+				width: 300,
+				height: 200,
+				alt: 'Should work',
+			},
+			service.imageConfig,
+		);
+		assert.ok(result.src.startsWith('/_image'));
+	});
+
+	it('throws RemoteImageNotAllowed for disallowed remote images with inferSize', async () => {
+		await assert.rejects(
+			() =>
+				getImage(
+					{
+						src: 'https://not-allowed-domain.com/test-image.jpg',
+						inferSize: true,
+						alt: 'Should fail',
+					},
+					service.imageConfig,
+				),
+			(err) => {
+				assert.ok(err instanceof AstroError);
+				assert.equal(err.name, 'RemoteImageNotAllowed');
+				return true;
+			},
+		);
 	});
 });

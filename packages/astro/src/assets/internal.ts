@@ -77,6 +77,16 @@ export async function getImage(
 		src: await resolveSrc(options.src),
 	};
 
+	// Check remote image allowlist for all remote images, not just inferSize
+	if (isRemoteImage(resolvedOptions.src) && isRemotePath(resolvedOptions.src)) {
+		if (!isRemoteAllowed(resolvedOptions.src, imageConfig)) {
+			throw new AstroError({
+				...AstroErrorData.RemoteImageNotAllowed,
+				message: AstroErrorData.RemoteImageNotAllowed.message(resolvedOptions.src),
+			});
+		}
+	}
+
 	let originalWidth: number | undefined;
 	let originalHeight: number | undefined;
 
@@ -85,13 +95,6 @@ export async function getImage(
 		delete resolvedOptions.inferSize; // Delete so it doesn't end up in the attributes
 
 		if (isRemoteImage(resolvedOptions.src) && isRemotePath(resolvedOptions.src)) {
-			if (!isRemoteAllowed(resolvedOptions.src, imageConfig)) {
-				throw new AstroError({
-					...AstroErrorData.RemoteImageNotAllowed,
-					message: AstroErrorData.RemoteImageNotAllowed.message(resolvedOptions.src),
-				});
-			}
-
 			const getRemoteSize = (url: string) =>
 				service.getRemoteSize?.(url, imageConfig) ?? inferRemoteSize(url, imageConfig);
 			const result = await getRemoteSize(resolvedOptions.src); // Directly probe the image URL
