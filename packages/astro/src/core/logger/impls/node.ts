@@ -48,6 +48,8 @@ export default function (options?: NodeHandlerConfig): AstroLoggerDestination<As
 }
 
 export function createNodeLoggerFromFlags(inlineConfig: AstroInlineConfig): AstroLogger {
+	if (inlineConfig._logger) return inlineConfig._logger;
+
 	return new AstroLogger({
 		destination: nodeLogDestination(),
 		level: inlineConfig.logLevel ?? 'info',
