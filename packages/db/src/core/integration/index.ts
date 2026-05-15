@@ -243,16 +243,40 @@ async function executeSeedFile({
 }
 
 /**
+ * Filter out adapter plugins that replace the SSR environment with a non-Node.js
+ * runtime (e.g. @cloudflare/vite-plugin creates a workerd-based environment).
+ * The temp server only needs a standard Node.js SSR environment for seed execution.
+ */
+export function filterPluginsForTempServer(plugins: UserConfig['plugins']): UserConfig['plugins'] {
+	return (plugins ?? []).flat().filter((plugin) => {
+		if (
+			plugin &&
+			typeof plugin === 'object' &&
+			'name' in plugin &&
+			typeof plugin.name === 'string'
+		) {
+			if (plugin.name.startsWith('vite-plugin-cloudflare')) return false;
+		}
+		return true;
+	});
+}
+
+/**
  * Inspired by Astro content collection config loader.
  */
 async function getTempViteServer({ viteConfig }: { viteConfig: UserConfig }) {
+	const filteredPlugins = filterPluginsForTempServer(viteConfig.plugins);
+
 	const tempViteServer = await createServer(
-		mergeConfig(viteConfig, {
-			server: { middlewareMode: true, hmr: false, watch: null, ws: false },
-			optimizeDeps: { noDiscovery: true },
-			ssr: { external: [] },
-			logLevel: 'silent',
-		}),
+		mergeConfig(
+			{ ...viteConfig, plugins: filteredPlugins },
+			{
+				server: { middlewareMode: true, hmr: false, watch: null, ws: false },
+				optimizeDeps: { noDiscovery: true },
+				ssr: { external: [] },
+				logLevel: 'silent',
+			},
+		),
 	);
 
 	const hotSend = tempViteServer.environments.client.hot.send;
