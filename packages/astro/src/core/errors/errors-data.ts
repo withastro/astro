@@ -568,7 +568,7 @@ export const RemoteImageNotAllowed = {
 	title: 'Remote image is not allowed',
 	message: (imageURL: string) =>
 		`Remote image ${imageURL} is not allowed by your image configuration.`,
-	hint: 'Update `image.domains` or `image.remotePatterns`, or remove `inferSize` for this image.',
+	hint: 'Update `image.domains` or `image.remotePatterns` to allow this image.',
 } satisfies ErrorData;
 /**
  * @docs
