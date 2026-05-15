@@ -4,13 +4,18 @@ import { getDevCssModuleNameFromPageVirtualModuleName } from '../vite-plugin-css
 import { isAstroServerEnvironment } from '../environments.js';
 
 const STYLE_EXT_REGEX = /\.(?:css|scss|sass|less|styl|pcss)$/i;
+// Matches Astro inline style virtual modules, e.g. Foo.astro?astro&type=style&index=0&lang.css
+const ASTRO_STYLE_QUERY_REGEX = /\?.*&type=style.*&lang\.\w+$/;
 
-function isStyleModule(mod: EnvironmentModuleNode): boolean {
+export function isStyleModule(mod: EnvironmentModuleNode): boolean {
 	if (mod.file && STYLE_EXT_REGEX.test(mod.file)) return true;
 	// CSS modules and other style files may have query params in their id (e.g. ?used, ?direct)
 	if (mod.id) {
 		const idPath = mod.id.split('?')[0];
 		if (STYLE_EXT_REGEX.test(idPath)) return true;
+		// Also check for Astro inline style virtual modules whose file path ends in .astro
+		// but whose id contains &type=style&...&lang.css (or .scss, etc.)
+		if (ASTRO_STYLE_QUERY_REGEX.test(mod.id)) return true;
 	}
 	return false;
 }
@@ -71,6 +76,29 @@ export default function hmrReload(): Plugin {
 				// Vite's built-in style update mechanism, which works for all pages
 				// (with or without framework components).
 				if (hasSkippedStyleModules) {
+					// Invalidate the skipped style modules in the SSR module graph so that
+					// on the next page request, their transform hooks re-run and update the
+					// cssContentCache with fresh content. Without this, the inline <style>
+					// tags injected for anti-FOUC would serve stale CSS after HMR updates.
+					const styleInvalidated = new Set<EnvironmentModuleNode>();
+					for (const mod of modules) {
+						if (mod.id == null) continue;
+						if (isStyleModule(mod)) {
+							this.environment.moduleGraph.invalidateModule(mod, styleInvalidated, timestamp, true);
+						}
+					}
+					// Also invalidate any dev-css virtual modules that were reached during
+					// invalidation propagation, so their load handlers re-run and pick up
+					// the refreshed cssContentCache.
+					for (const inv of styleInvalidated) {
+						if (inv.id?.startsWith(VIRTUAL_PAGE_RESOLVED_MODULE_ID)) {
+							const cssMod = this.environment.moduleGraph.getModuleById(
+								getDevCssModuleNameFromPageVirtualModuleName(inv.id),
+							);
+							if (!cssMod || cssMod.id == null) continue;
+							this.environment.moduleGraph.invalidateModule(cssMod, undefined, timestamp, true);
+						}
+					}
 					return [];
 				}
 			},
