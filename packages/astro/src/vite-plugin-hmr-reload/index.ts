@@ -29,7 +29,7 @@ export default function hmrReload(): Plugin {
 			handler({ modules, server, timestamp }) {
 				if (!isAstroServerEnvironment(this.environment)) return;
 
-				let hasSsrOnlyModules = false;
+				const ssrOnlyModules: EnvironmentModuleNode[] = [];
 				let hasSkippedStyleModules = false;
 
 				const invalidatedModules = new Set<EnvironmentModuleNode>();
@@ -44,7 +44,7 @@ export default function hmrReload(): Plugin {
 					if (clientModule != null) continue;
 
 					this.environment.moduleGraph.invalidateModule(mod, invalidatedModules, timestamp, true);
-					hasSsrOnlyModules = true;
+					ssrOnlyModules.push(mod);
 				}
 
 				// If any invalidated modules are virtual modules for pages, also invalidate their
@@ -59,9 +59,13 @@ export default function hmrReload(): Plugin {
 					}
 				}
 
-				if (hasSsrOnlyModules) {
+				if (ssrOnlyModules.length > 0) {
+					// Tell the browser to reload the page.
 					server.ws.send({ type: 'full-reload' });
-					return [];
+					// Return the SSR-only modules so Vite's updateModules processes them.
+					// This propagates the invalidation to the SSR module runner, ensuring
+					// dynamic import() calls return fresh content on the next request.
+					return ssrOnlyModules;
 				}
 
 				// When style modules were skipped, return an empty array to prevent Vite's
