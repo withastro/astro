@@ -106,9 +106,6 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		validateSecrets: false,
 	},
 	prerenderConflictBehavior: 'warn',
-	logger: {
-		entrypoint: 'astro/logger/node',
-	},
 	experimental: {
 		advancedRouting: false,
 		clientPrerender: false,
@@ -534,8 +531,7 @@ export const AstroConfigSchema = z.object({
 			entrypoint: z.string(),
 			config: z.record(z.string(), z.any()).optional(),
 		})
-		.optional()
-		.prefault(ASTRO_CONFIG_DEFAULTS.logger),
+		.optional(),
 	fonts: z.array(FontFamilySchema).optional(),
 	experimental: z
 		.strictObject({
