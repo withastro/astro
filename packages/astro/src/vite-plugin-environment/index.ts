@@ -92,8 +92,8 @@ export function vitePluginEnvironment({
 						'astro/runtime/client/dev-toolbar/entrypoint.js',
 					],
 					exclude: ['astro:*', 'virtual:astro:*', 'astro/virtual-modules/prefetch.js'],
-					// Astro files can't be rendered on the client
-					entries: [`${srcDirPattern}**/*.{jsx,tsx,vue,svelte,html}`],
+					// Include .astro so Vite's dep scanner discovers <script> tag imports for the client optimizer
+					entries: [`${srcDirPattern}**/*.{jsx,tsx,vue,svelte,html,astro}`],
 				};
 			}
 
