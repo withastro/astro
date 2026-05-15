@@ -243,16 +243,45 @@ async function executeSeedFile({
 }
 
 /**
+ * Filters out adapter-specific Vite plugins that would create non-Node.js SSR environments
+ * in the temporary Vite server. The temp server only needs a standard Node.js environment
+ * for seed file execution, and adapter plugins like `@cloudflare/vite-plugin` would otherwise
+ * create a workerd-based environment that eagerly imports the manifest module before it's ready.
+ */
+export function filterPluginsForTempServer(plugins: UserConfig['plugins']): UserConfig['plugins'] {
+	return (plugins ?? []).flat().filter((plugin) => {
+		if (
+			plugin &&
+			typeof plugin === 'object' &&
+			'name' in plugin &&
+			typeof plugin.name === 'string'
+		) {
+			if (plugin.name.startsWith('vite-plugin-cloudflare')) return false;
+		}
+		return true;
+	});
+}
+
+/**
  * Inspired by Astro content collection config loader.
  */
 async function getTempViteServer({ viteConfig }: { viteConfig: UserConfig }) {
+	// Filter out adapter-specific plugins that create non-Node.js SSR environments.
+	// The temp server only needs a standard Node.js SSR environment for seed file execution.
+	// Specifically, @cloudflare/vite-plugin creates a workerd-based environment that eagerly
+	// imports the manifest module, which contains a build-time placeholder at this point.
+	const filteredPlugins = filterPluginsForTempServer(viteConfig.plugins);
+
 	const tempViteServer = await createServer(
-		mergeConfig(viteConfig, {
-			server: { middlewareMode: true, hmr: false, watch: null, ws: false },
-			optimizeDeps: { noDiscovery: true },
-			ssr: { external: [] },
-			logLevel: 'silent',
-		}),
+		mergeConfig(
+			{ ...viteConfig, plugins: filteredPlugins },
+			{
+				server: { middlewareMode: true, hmr: false, watch: null, ws: false },
+				optimizeDeps: { noDiscovery: true },
+				ssr: { external: [] },
+				logLevel: 'silent',
+			},
+		),
 	);
 
 	const hotSend = tempViteServer.environments.client.hot.send;
