@@ -86,6 +86,56 @@ describe('getStaticPaths caching behavior', () => {
 		assert.equal(result3.length, 3, 'should return cached paths');
 	});
 
+	it('returns fresh data after clearAll simulating per-request clearing in dev', async () => {
+		const route = makeRoute({
+			segments: [[dynamicPart('id')]],
+			trailingSlash: 'never',
+			route: '/article/[id]',
+			pathname: undefined,
+			type: 'page',
+			prerender: true,
+		});
+
+		// Simulate an external API that returns different data on each call
+		// (e.g. CMS content that changes between browser refreshes)
+		let fetchCounter = 0;
+		const testMod = mod({
+			getStaticPaths: async () => {
+				fetchCounter++;
+				return [
+					{ params: { id: '1' }, props: { title: `Article fetched #${fetchCounter}` } },
+				];
+			},
+		});
+
+		// First "request" — getStaticPaths runs and fetches data
+		const result1 = await callGetStaticPaths({
+			mod: testMod, route, routeCache, ssr: false, base: '/', trailingSlash: 'never',
+		});
+		assert.equal(fetchCounter, 1);
+		assert.equal(result1[0].props?.title, 'Article fetched #1');
+
+		// Simulate dev server clearing cache before next request
+		routeCache.clearAll();
+
+		// Second "request" — getStaticPaths runs again with fresh data
+		const result2 = await callGetStaticPaths({
+			mod: testMod, route, routeCache, ssr: false, base: '/', trailingSlash: 'never',
+		});
+		assert.equal(fetchCounter, 2, 'getStaticPaths should re-run after cache clear');
+		assert.equal(result2[0].props?.title, 'Article fetched #2', 'should have fresh props from second fetch');
+
+		// Simulate dev server clearing cache before third request
+		routeCache.clearAll();
+
+		// Third "request" — getStaticPaths runs again
+		const result3 = await callGetStaticPaths({
+			mod: testMod, route, routeCache, ssr: false, base: '/', trailingSlash: 'never',
+		});
+		assert.equal(fetchCounter, 3, 'getStaticPaths should re-run on each request after cache clear');
+		assert.equal(result3[0].props?.title, 'Article fetched #3', 'should have fresh props from third fetch');
+	});
+
 	it('clears cache when clearAll is called', async () => {
 		const route = makeRoute({
 			segments: [[dynamicPart('test')]],
