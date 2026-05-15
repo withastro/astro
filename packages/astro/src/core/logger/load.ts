@@ -85,6 +85,10 @@ export async function loadOrCreateNodeLogger(
 	astroConfig: AstroConfig,
 	inlineAstroConfig: AstroInlineConfig,
 ) {
+	// Internal testing shortcut: if a pre-built AstroLogger instance was
+	// passed via the internal `_logger` property, use it directly.
+	if (inlineAstroConfig._logger) return inlineAstroConfig._logger;
+
 	try {
 		if (astroConfig.logger) {
 			return await loadLogger(astroConfig.logger, inlineAstroConfig.logLevel);
