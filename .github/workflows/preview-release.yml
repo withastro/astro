@@ -23,7 +23,7 @@ env:
   NODE_OPTIONS: --max-old-space-size=6144
 
 jobs:
-  build:
+  preview:
     # Only allow preview releases from branches in the same repo (not forks)
     if: >-
       github.repository_owner == 'withastro' &&
@@ -34,7 +34,8 @@ jobs:
       contents: read
       issues: write
       pull-requests: write
-    name: Build preview
+      id-token: write
+    name: Build & publish preview
     timeout-minutes: 5
     steps:
       - name: Disable git crlf
@@ -52,7 +53,10 @@ jobs:
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: 24.15.0
-          cache: "pnpm"
+          # Explicitly disable cache — a fresh install on every run avoids
+          # the risk of a poisoned cache being used during the publish step
+          # which has access to the OIDC id-token.
+          package-manager-cache: false
 
       - name: Install dependencies
         run: pnpm install
@@ -93,52 +97,11 @@ jobs:
         with:
           labels: "pr preview"
 
-      - name: Stage publish artifact
-        env:
-          AFFECTED_PACKAGES: ${{ steps.compute-affected-packages.outputs.affected-packages }}
-        run: node scripts/stage-preview-publish.ts /tmp/preview-publish
-
-      - name: Upload publish artifact
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: preview-build
-          path: /tmp/preview-publish/
-          retention-days: 1
-
-  publish:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-    name: Publish preview release
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          sparse-checkout: package.json
-          sparse-checkout-cone-mode: false
-
-      - name: Download publish artifact
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
-        with:
-          name: preview-build
-          path: workspace
-
-      - name: Setup PNPM
-        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
-
-      - name: Setup Node
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
-        with:
-          node-version: 24.15.0
-
       - name: Publish packages
-        working-directory: workspace
         run: |
-          packages=$(cat affected-packages.json | jq -r '.[]' | tr '\n' ' ')
+          packages=$(echo '${{ steps.compute-affected-packages.outputs.affected-packages }}' | jq -r '.[]' | tr '\n' ' ')
           if [ -n "$packages" ]; then
-            pnpm dlx pkg-pr-new@0.0.71 publish --compact --no-template $packages
+            pnpm exec pkg-pr-new publish --pnpm --compact --no-template $packages
           else
             echo "No affected packages to publish"
           fi

@@ -88,8 +88,5 @@ export default {
 		'packages/upgrade': {
 			entry: ['src/index.ts', testEntry],
 		},
-		scripts: {
-			entry: ['index.js', 'cmd/*.js', '**/*.test.{js,ts,mjs}'],
-		},
 	},
 };
