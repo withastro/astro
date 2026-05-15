@@ -1,0 +1,10 @@
+export * as z from 'zod/v4';
+export { defineLiveCollection } from '../content/config.js';
+export declare const getCollection: () => never;
+export declare const render: () => never;
+export declare const getEntry: () => never;
+export declare const getEntries: () => never;
+export declare const reference: () => never;
+export declare const getLiveCollection: () => never;
+export declare const getLiveEntry: () => never;
+export declare const defineCollection: () => never;

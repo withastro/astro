@@ -1,0 +1,38 @@
+import { routeIsRedirect } from '../core/routing/helpers.js';
+import { routeComparator } from '../core/routing/priority.js';
+function getSortedPreloadedMatches({ matches, manifest }) {
+	return preloadAndSetPrerenderStatus({
+		matches,
+		manifest,
+	})
+		.sort((a, b) => routeComparator(a.route, b.route))
+		.sort((a, b) => prioritizePrerenderedMatchesComparator(a.route, b.route));
+}
+function preloadAndSetPrerenderStatus({ matches, manifest }) {
+	const preloaded = new Array();
+	for (const route of matches) {
+		const filePath = new URL(`./${route.component}`, manifest.rootDir);
+		if (routeIsRedirect(route)) {
+			preloaded.push({
+				route,
+				filePath,
+			});
+			continue;
+		}
+		preloaded.push({ route, filePath });
+	}
+	return preloaded;
+}
+function prioritizePrerenderedMatchesComparator(a, b) {
+	if (areRegexesEqual(a.pattern, b.pattern)) {
+		if (a.prerender !== b.prerender) {
+			return a.prerender ? -1 : 1;
+		}
+		return a.component < b.component ? -1 : 1;
+	}
+	return 0;
+}
+function areRegexesEqual(regexp1, regexp2) {
+	return regexp1.source === regexp2.source && regexp1.global === regexp2.global;
+}
+export { getSortedPreloadedMatches };

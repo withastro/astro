@@ -1,0 +1,31 @@
+import { sql } from 'drizzle-orm';
+import { normalizeDatabaseUrl } from '../../../../runtime/index.js';
+import { DB_PATH } from '../../../consts.js';
+import { createClient as createLocalDatabaseClient } from '../../../db-client/libsql-local.js';
+import { createClient as createRemoteDatabaseClient } from '../../../db-client/libsql-node.js';
+import { SHELL_QUERY_MISSING_ERROR } from '../../../errors.js';
+import { getAstroEnv, getRemoteDatabaseInfo, resolveDbAppToken } from '../../../utils.js';
+async function cmd({ flags, astroConfig }) {
+	const query = flags.query;
+	if (!query) {
+		console.error(SHELL_QUERY_MISSING_ERROR);
+		process.exit(1);
+	}
+	const dbInfo = getRemoteDatabaseInfo();
+	if (flags.remote) {
+		const appToken = resolveDbAppToken(flags, dbInfo.token);
+		const db = createRemoteDatabaseClient({ ...dbInfo, token: appToken });
+		const result = await db.run(sql.raw(query));
+		console.log(result);
+	} else {
+		const { ASTRO_DATABASE_FILE } = getAstroEnv();
+		const dbUrl = normalizeDatabaseUrl(
+			ASTRO_DATABASE_FILE,
+			new URL(DB_PATH, astroConfig.root).href,
+		);
+		const db = createLocalDatabaseClient({ url: dbUrl });
+		const result = await db.run(sql.raw(query));
+		console.log(result);
+	}
+}
+export { cmd };

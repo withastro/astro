@@ -1,0 +1,2 @@
+if (import.meta.hot) {
+}
