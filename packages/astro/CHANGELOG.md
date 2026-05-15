@@ -1,5 +1,11 @@
 # astro
 
+## 6.3.3
+
+### Patch Changes
+
+- [#16737](https://github.com/withastro/astro/pull/16737) [`bd84f33`](https://github.com/withastro/astro/commit/bd84f33d68cfa7d077e0a638970e28b0a9bd83db) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a reflected XSS vulnerability where slot names on hydrated components were not HTML-escaped in SSR output
+
 ## 6.3.2
 
 ### Patch Changes

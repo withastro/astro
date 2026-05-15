@@ -30,7 +30,12 @@ function collectLoads(page: Page) {
 		const url = page.url();
 		if (url !== 'about:blank') loads.push(url);
 	});
-	return loads;
+	const expectLoads = async (count: number) => {
+		await expect
+			.poll(() => loads.length, { timeout: 10_000, message: `Expected ${count} loads` })
+			.toBe(count);
+	};
+	return expectLoads;
 }
 function scrollToBottom(page: Page) {
 	return page.evaluate(() => {
@@ -60,7 +65,7 @@ async function nativeViewTransition(page: Page) {
 
 test.describe('View Transitions', () => {
 	test('Moving from page 1 to page 2', async ({ page, astro }) => {
-		const loads = collectLoads(page);
+		const expectLoads = collectLoads(page);
 
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
@@ -72,11 +77,11 @@ test.describe('View Transitions', () => {
 		p = page.locator('#two');
 		await expect(p, 'should have content').toHaveText('Page 2');
 
-		expect(loads.length, 'There should only be 1 page load').toEqual(1);
+		await expectLoads(1);
 	});
 
 	test('Back button is captured', async ({ page, astro }) => {
-		const loads = collectLoads(page);
+		const expectLoads = collectLoads(page);
 
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
@@ -93,11 +98,11 @@ test.describe('View Transitions', () => {
 		p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
 
-		expect(loads.length, 'There should only be 1 page load').toEqual(1);
+		await expectLoads(1);
 	});
 
 	test('Clicking on a link with nested content', async ({ page, astro }) => {
-		const loads = collectLoads(page);
+		const expectLoads = collectLoads(page);
 		// Go to page 4
 		await page.goto(astro.resolveUrl('/four'));
 		let p = page.locator('#four');
@@ -108,11 +113,11 @@ test.describe('View Transitions', () => {
 		p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
 
-		expect(loads.length, 'There should only be 1 page load').toEqual(1);
+		await expectLoads(1);
 	});
 
 	test('Clicking on a link to a page with non-recommended headers', async ({ page, astro }) => {
-		const loads = collectLoads(page);
+		const expectLoads = collectLoads(page);
 		// Go to page 4
 		await page.goto(astro.resolveUrl('/one'));
 		let p = page.locator('#one');
@@ -123,96 +128,86 @@ test.describe('View Transitions', () => {
 		p = page.locator('#seven');
 		await expect(p, 'should have content').toHaveText('Page 7');
 
-		expect(loads.length, 'There should only be 1 page load').toEqual(1);
+		await expectLoads(1);
 	});
 
 	test('Moving to a page without ClientRouter triggers a full page navigation', async ({
 		page,
 		astro,
 	}) => {
-		const loads = collectLoads(page);
+		const expectLoads = collectLoads(page);
 
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
 		let p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
+		await expectLoads(1);
 
 		// Go to page 3 which does *not* have ClientRouter enabled
 		await page.click('#click-three');
-		// Mainly for Firefox on Windows. Wait for navigation to complete.
-		// Other tests like wait for URL or networkidle did not work effectively.
-		await page.waitForTimeout(500);
-
 		p = page.locator('#three');
 		await expect(p, 'should have content').toHaveText('Page 3');
-
-		expect(
-			loads.length,
-			'There should be 2 page loads. The initial navigation, then the full navigation from page 1 to page 3',
-		).toEqual(2);
+		await expectLoads(2);
 	});
 
 	test('Moving within a page without ClientRouter does not trigger a full page navigation', async ({
 		page,
 		astro,
 	}) => {
-		const loads = collectLoads(page);
+		const expectLoads = collectLoads(page);
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
 		let p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
+		await expectLoads(1);
 
 		// Go to page 3 which does *not* have ClientRouter enabled
 		await page.click('#click-three');
 		p = page.locator('#three');
 		await expect(p, 'should have content').toHaveText('Page 3');
+		await expectLoads(2);
 
 		// click a hash link to navigate further down the page
 		await page.click('#click-hash');
 		// still on page 3
 		p = page.locator('#three');
 		await expect(p, 'should have content').toHaveText('Page 3');
+		// There should no additional loads for the hash change
+		await expectLoads(2);
 
 		// check that we are further down the page
 		const Y = await page.evaluate(() => window.scrollY);
 		expect(Y, 'The target is further down the page').toBeGreaterThan(0);
-
-		expect(
-			loads.length,
-			'There should be only 2 page loads (for page one & three), but no additional loads for the hash change',
-		).toEqual(2);
+		// There should no additional loads for the hash change
+		await expectLoads(2);
 	});
 
 	test('Moving from a page without ClientRouter w/ back button', async ({ page, astro }) => {
-		const loads = collectLoads(page);
+		const expectLoads = collectLoads(page);
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
 		let p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
+		await expectLoads(1);
 
 		// Go to page 3 which does *not* have ClientRouter enabled
 		await page.click('#click-three');
 		p = page.locator('#three');
 		await expect(p, 'should have content').toHaveText('Page 3');
+		await expectLoads(2);
 
 		// Back to page 1
 		await page.goBack();
-		// Mainly for Firefox on Windows. Wait for navigation to complete.
-		// Other tests like wait for URL or networkidle did not work effectively.
-		await page.waitForTimeout(1000);
 		p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
-		expect(
-			loads.length,
-			'There should be 3 page loads (for page one & three), and an additional loads for the back navigation',
-		).toEqual(3);
+		await expectLoads(3);
 	});
 
 	test('Declarative Shadow DOM elements are attached after transitions', async ({
 		page,
 		astro,
 	}) => {
-		const loads = collectLoads(page);
+		const expectLoads = collectLoads(page);
 
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
@@ -221,8 +216,7 @@ test.describe('View Transitions', () => {
 		await page.click('#click-declarative-shadow-dom');
 		const host = page.locator('#dsd-host');
 		await expect(host, 'should have content').toHaveText('Welcome to the Shadow Realm!');
-
-		expect(loads.length, 'There should only be 1 page load').toEqual(1);
+		await expectLoads(1);
 	});
 
 	test('Stylesheets in the head are waited on', async ({ page, astro }) => {
@@ -326,7 +320,7 @@ test.describe('View Transitions', () => {
 	});
 
 	test('click self link (w/o hash) does not do navigation', async ({ page, astro }) => {
-		const loads = collectLoads(page);
+		const expectLoads = collectLoads(page);
 
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
@@ -336,7 +330,7 @@ test.describe('View Transitions', () => {
 		// Clicking href="" stays on page
 		await page.click('#click-self');
 		await expect(p, 'should have content').toHaveText('Page 1');
-		expect(loads.length, 'There should only be 1 page load').toEqual(1);
+		await expectLoads(1);
 	});
 
 	test('Scroll position restored on back button', async ({ page, astro }) => {
@@ -562,11 +556,10 @@ test.describe('View Transitions', () => {
 		await page.click('#click-two');
 		const vid2 = page.locator('#video-two');
 		await expect(vid2).toBeVisible();
-		// Use a very short timeout so we can ensure there's always a video playtime gap
-		await page.waitForTimeout(50);
-		const secondTime = await page.evaluate(getTime);
-
-		expect(secondTime).toBeGreaterThan(firstTime);
+		await expect(async () => {
+			const secondTime = await page.evaluate(getTime);
+			expect(secondTime).toBeGreaterThan(firstTime);
+		}).toPass();
 	});
 
 	test('React Islands can persist using transition:persist', async ({ page, astro }) => {
@@ -714,26 +707,26 @@ test.describe('View Transitions', () => {
 		page,
 		astro,
 	}) => {
-		const loads = collectLoads(page);
+		const expectLoads = collectLoads(page);
 
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/query'));
 		let p = page.locator('#query-page');
 		await expect(p, 'should have content').toHaveText('Page 1');
+		await expectLoads(1);
 
 		// go to page 2
 		await page.click('#click-two');
 		p = page.locator('#query-page');
 		await expect(p, 'should have content').toHaveText('Page 2');
-
-		await expect(loads.length, 'There should only be 1 page load').toEqual(1);
+		await expectLoads(1);
 	});
 
 	test('Importing ClientRouter w/o using the component must not mess with history', async ({
 		page,
 		astro,
 	}) => {
-		const loads = collectLoads(page);
+		const expectLoads = collectLoads(page);
 
 		// Go to the half baked page
 		await page.goto(astro.resolveUrl('/half-baked'));
@@ -751,10 +744,8 @@ test.describe('View Transitions', () => {
 		p = page.locator('#half-baked');
 		await expect(p, 'should have content').toHaveText('Half Baked');
 
-		expect(
-			loads.length,
-			'There should be only 1 page load. No additional loads for going back on same page',
-		).toEqual(1);
+		// There should be only 1 page load. No additional loads for going back on same page
+		await expectLoads(1);
 	});
 
 	test('Navigation also swaps the attributes of the document root', async ({ page, astro }) => {
@@ -786,22 +777,23 @@ test.describe('View Transitions', () => {
 		page,
 		astro,
 	}) => {
-		const loads = collectLoads(page);
+		const expectLoads = collectLoads(page);
 
 		// Go to page 4
 		await page.goto(astro.resolveUrl('/four'));
 		let p = page.locator('#four');
 		await expect(p, 'should have content').toHaveText('Page 4');
+		await expectLoads(1);
 
 		// go to page 2
 		await page.click('#click-two');
 		p = page.locator('#two');
 		await expect(p, 'should have content').toHaveText('Page 2');
+		await expectLoads(2);
 
 		// go to next page
 		await page.click('#click-longpage');
-
-		expect(loads.length, 'There should be 2 page load').toEqual(2);
+		await expectLoads(2);
 	});
 
 	test('Link with download attribute should trigger download, no transition', async ({
@@ -820,17 +812,18 @@ test.describe('View Transitions', () => {
 	});
 
 	test('data-astro-reload not required for non-html content', async ({ page, astro }) => {
-		const loads = collectLoads(page);
+		const expectLoads = collectLoads(page);
 
 		// Go to page 4
 		await page.goto(astro.resolveUrl('/four'));
 		let p = page.locator('#four');
 		await expect(p, 'should have content').toHaveText('Page 4');
+		await expectLoads(1);
 
 		await page.click('#click-svg');
 		p = page.locator('svg');
 		await expect(p).toBeVisible();
-		expect(loads.length, 'There should be 2 page load').toEqual(2);
+		await expectLoads(2);
 	});
 
 	test('Scroll position is restored on back navigation from page w/o ClientRouter', async ({
@@ -880,7 +873,7 @@ test.describe('View Transitions', () => {
 	});
 
 	test('Moving to a page which redirects to another', async ({ page, astro }) => {
-		const loads = collectLoads(page);
+		const expectLoads = collectLoads(page);
 
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
@@ -897,10 +890,8 @@ test.describe('View Transitions', () => {
 		p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
 
-		expect(
-			loads.length,
-			'There should only be the initial page load and two normal transitions',
-		).toEqual(1);
+		// There should only be the initial page load and two normal transitions
+		await expectLoads(1);
 	});
 
 	test('Hash part of the target URL is preserved during server redirect', async ({
@@ -922,20 +913,19 @@ test.describe('View Transitions', () => {
 	});
 
 	test('Redirect to external site causes page load', async ({ page, astro }) => {
-		const loads = collectLoads(page);
+		const expectLoads = collectLoads(page);
 
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
 		let p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
+		await expectLoads(1);
 
 		// go to external page
 		await page.click('#click-redirect-external');
-		// doesn't work for playwright when we are too fast
-		await page.waitForLoadState('load', { timeout: 5000 });
 		await page.waitForURL('https://example.com/', { waitUntil: 'commit', timeout: 5000 });
 		await expect(page.locator('h1'), 'should have content').toHaveText('Example Domain');
-		expect(loads.length, 'There should be 2 page loads').toEqual(2);
+		await expectLoads(2);
 	});
 
 	test('Cross origin redirects do not raise errors', async ({ page, astro }) => {
@@ -1163,22 +1153,20 @@ test.describe('View Transitions', () => {
 	});
 
 	test('form POST that redirects to another page is handled', async ({ page, astro }) => {
-		const loads = collectLoads(page);
+		const expectLoads = collectLoads(page);
 
 		await page.goto(astro.resolveUrl('/form-one'));
 
 		let locator = page.locator('h2');
 		await expect(locator, 'should have content').toHaveText('Contact Form');
+		await expectLoads(1);
 
 		// Submit the form
 		await page.click('#submit');
 		const span = page.locator('#contact-name');
 		await expect(span, 'should have content').toHaveText('Testing');
-
-		expect(
-			loads.length,
-			'There should be only 1 page load. No additional loads for the form submission',
-		).toEqual(1);
+		// There should be only 1 page load. No additional loads for the form submission
+		await expectLoads(1);
 	});
 
 	test('form POST that action for cross-origin is opt-out', async ({ page, astro }) => {
@@ -1193,48 +1181,44 @@ test.describe('View Transitions', () => {
 	});
 
 	test('form GET that redirects to another page is handled', async ({ page, astro }) => {
-		const loads = collectLoads(page);
+		const expectLoads = collectLoads(page);
 
 		await page.goto(astro.resolveUrl('/form-one?method=get'));
 
 		let locator = page.locator('h2');
 		await expect(locator, 'should have content').toHaveText('Contact Form');
+		await expectLoads(1);
 
 		// Submit the form
 		await page.click('#submit');
 		const span = page.locator('#contact-name');
 		await expect(span, 'should have content').toHaveText('Testing');
-
-		expect(
-			loads.length,
-			'There should be only 1 page load. No additional loads for the form submission',
-		).toEqual(1);
+		// There should be only 1 page load. No additional loads for the form submission
+		await expectLoads(1);
 	});
 
 	test('form POST when there is an error shows the error', async ({ page, astro }) => {
-		const loads = collectLoads(page);
+		const expectLoads = collectLoads(page);
 
 		await page.goto(astro.resolveUrl('/form-one?throw'));
 
 		let locator = page.locator('h2');
 		await expect(locator, 'should have content').toHaveText('Contact Form');
+		await expectLoads(1);
 
 		// Submit the form
 		await page.click('#submit');
 		const overlay = page.locator('vite-error-overlay');
 		await expect(overlay).toBeVisible();
-
-		expect(
-			loads.length,
-			'There should be only 1 page load. No additional loads for the form submission',
-		).toEqual(1);
+		// There should be only 1 page load. No additional loads for the form submission
+		await expectLoads(1);
 	});
 
 	test('form POST defaults to multipart/form-data (Astro 4.x compatibility)', async ({
 		page,
 		astro,
 	}) => {
-		const loads = collectLoads(page);
+		const expectLoads = collectLoads(page);
 
 		const postedEncodings: string[] = [];
 
@@ -1254,11 +1238,8 @@ test.describe('View Transitions', () => {
 		await page.click('#submit');
 		const span = page.locator('#contact-name');
 		await expect(span, 'should have content').toHaveText('Testing');
-
-		expect(
-			loads.length,
-			'There should be only 1 page load. No additional loads for the form submission',
-		).toEqual(1);
+		// There should be only 1 page load. No additional loads for the form submission
+		await expectLoads(1);
 
 		expect(
 			postedEncodings,
@@ -1267,7 +1248,7 @@ test.describe('View Transitions', () => {
 	});
 
 	test('form POST respects enctype attribute', async ({ page, astro }) => {
-		const loads = collectLoads(page);
+		const expectLoads = collectLoads(page);
 
 		const postedEncodings: string[] = [];
 
@@ -1286,16 +1267,14 @@ test.describe('View Transitions', () => {
 				`/form-one?${new URLSearchParams({ enctype: 'application/x-www-form-urlencoded' })}`,
 			),
 		);
+		await expectLoads(1);
 
 		// Submit the form
 		await page.click('#submit');
 		const span = page.locator('#contact-name');
 		await expect(span, 'should have content').toHaveText('Testing');
-
-		expect(
-			loads.length,
-			'There should be only 1 page load. No additional loads for the form submission',
-		).toEqual(1);
+		// There should be only 1 page load. No additional loads for the form submission
+		await expectLoads(1);
 
 		expect(
 			postedEncodings,
@@ -1377,22 +1356,20 @@ test.describe('View Transitions', () => {
 	});
 
 	test('form POST with no action handler', async ({ page, astro }) => {
-		const loads = collectLoads(page);
+		const expectLoads = collectLoads(page);
 
 		await page.goto(astro.resolveUrl('/form-two'));
 
 		let locator = page.locator('h2');
 		await expect(locator, 'should have content').toHaveText('Contact Form');
+		await expectLoads(1);
 
 		// Submit the form
 		await page.click('#submit');
 		const span = page.locator('#contact-name');
 		await expect(span, 'should have content').toHaveText('Testing');
-
-		expect(
-			loads.length,
-			'There should be only 1 page load. No additional loads for the form submission',
-		).toEqual(1);
+		// There should be only 1 page load. No additional loads for the form submission
+		await expectLoads(1);
 	});
 
 	test('forms are overridden by formmethod and formaction', async ({ page, astro }) => {
@@ -1408,7 +1385,7 @@ test.describe('View Transitions', () => {
 	});
 
 	test('click on an svg anchor should trigger navigation', async ({ page, astro }) => {
-		const loads = collectLoads(page);
+		const expectLoads = collectLoads(page);
 
 		await page.goto(astro.resolveUrl('/non-html-anchor'));
 		let locator = page.locator('#insidesvga');
@@ -1416,11 +1393,11 @@ test.describe('View Transitions', () => {
 		await page.click('#svga');
 		const p = page.locator('#two');
 		await expect(p, 'should have content').toHaveText('Page 2');
-		expect(loads.length, 'There should only be 1 page load').toEqual(1);
+		await expectLoads(1);
 	});
 
 	test('click inside an svg anchor should trigger navigation', async ({ page, astro }) => {
-		const loads = collectLoads(page);
+		const expectLoads = collectLoads(page);
 
 		await page.goto(astro.resolveUrl('/non-html-anchor'));
 		let locator = page.locator('#insidesvga');
@@ -1428,11 +1405,11 @@ test.describe('View Transitions', () => {
 		await page.click('#insidesvga');
 		const p = page.locator('#two');
 		await expect(p, 'should have content').toHaveText('Page 2');
-		expect(loads.length, 'There should only be 1 page load').toEqual(1);
+		await expectLoads(1);
 	});
 
 	test('click on an area in an image map should trigger navigation', async ({ page, astro }) => {
-		const loads = collectLoads(page);
+		const expectLoads = collectLoads(page);
 
 		await page.goto(astro.resolveUrl('/non-html-anchor'));
 		let locator = page.locator('#area');
@@ -1440,7 +1417,7 @@ test.describe('View Transitions', () => {
 		await page.click('#logo');
 		const p = page.locator('#two');
 		await expect(p, 'should have content').toHaveText('Page 2');
-		expect(loads.length, 'There should only be 1 page load').toEqual(1);
+		await expectLoads(1);
 	});
 
 	test('Submitter with a name property is included in form data', async ({ page, astro }) => {
@@ -1477,7 +1454,7 @@ test.describe('View Transitions', () => {
 	});
 
 	test('view transition should also work with 404 page', async ({ page, astro }) => {
-		const loads = collectLoads(page);
+		const expectLoads = collectLoads(page);
 
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
@@ -1489,11 +1466,11 @@ test.describe('View Transitions', () => {
 		p = page.locator('#FourOhFour');
 		await expect(p, 'should have content').toHaveText('Page not found');
 
-		expect(loads.length, 'There should only be 1 page load').toEqual(1);
+		await expectLoads(1);
 	});
 
 	test('custom elements can trigger a view transition', async ({ page, astro }) => {
-		const loads = collectLoads(page);
+		const expectLoads = collectLoads(page);
 
 		await page.goto(astro.resolveUrl('/one'));
 		await expect(page.locator('#one'), 'should have content').toHaveText('Page 1');
@@ -1501,7 +1478,7 @@ test.describe('View Transitions', () => {
 		await page.click('#custom-click-two');
 		await expect(page.locator('#two'), 'should have content').toHaveText('Page 2');
 
-		expect(loads.length, 'There should only be 1 page load').toEqual(1);
+		await expectLoads(1);
 	});
 
 	test('transition:name should be escaped correctly', async ({ page, astro }) => {
@@ -1566,11 +1543,11 @@ test.describe('View Transitions', () => {
 		);
 
 		await page.click('#navigate');
-		await page.waitForTimeout(400); // yes, I dislike this, too. Might fix later.
-		expect(
-			expectedAnimations.size,
-			'all animations for transition:names should have been found',
-		).toEqual(0);
+		await expect
+			.poll(() => expectedAnimations.size, {
+				message: 'all animations for transition:names should have been found',
+			})
+			.toEqual(0);
 	});
 
 	test('transition:persist persists selection', async ({ page, astro }) => {

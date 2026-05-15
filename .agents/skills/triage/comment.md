@@ -82,6 +82,8 @@ npm i <url>
 
 ```
 
+If this fixes your issue, please leave a comment letting us know (e.g. "confirmed, this fixes it"). We'll then open a pull request to get this merged.
+
 [End of conditional "Try this fix" section.]
 
 <details>

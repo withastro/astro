@@ -1,5 +1,11 @@
 # @astrojs/mdx
 
+## 5.0.6
+
+### Patch Changes
+
+- [#16579](https://github.com/withastro/astro/pull/16579) [`49e10e3`](https://github.com/withastro/astro/commit/49e10e3b97a49d805802b8972a2f848ea7847b91) Thanks [@igor-koop](https://github.com/igor-koop)! - Fixes an issue where the `smartypants` option was ignored.
+
 ## 5.0.5
 
 ### Patch Changes
