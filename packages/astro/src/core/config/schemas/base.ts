@@ -564,7 +564,8 @@ export const AstroConfigSchema = z.object({
 			entrypoint: z.string(),
 			config: z.record(z.string(), z.any()).optional(),
 		})
-		.optional(),
+		.optional()
+		.prefault(ASTRO_CONFIG_DEFAULTS.logger),
 	fonts: z.array(FontFamilySchema).optional(),
 	experimental: z
 		.strictObject({

@@ -32,8 +32,8 @@ describe('astro:image:infersize', () => {
 				}),
 			});
 			devServer = await fixture.startDevServer({
-				// @ts-expect-error: `logger` is an internal API
-				logger,
+				// @ts-expect-error: `_logger` is an internal API
+				_logger: logger,
 			});
 		});
 
