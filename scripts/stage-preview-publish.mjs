@@ -47,4 +47,4 @@ for (const pkg of affectedPackages) {
 // Save the affected packages list for the publish job
 writeFileSync(join(stagingDir, 'affected-packages.json'), JSON.stringify(affectedPackages));
 
-console.log(`Staged ${affectedPackages.length} package(s) to ${stagingDir}`);
+console.info(`Staged ${affectedPackages.length} package(s) to ${stagingDir}`);
