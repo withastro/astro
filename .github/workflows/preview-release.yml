@@ -96,7 +96,7 @@ jobs:
       - name: Stage publish artifact
         env:
           AFFECTED_PACKAGES: ${{ steps.compute-affected-packages.outputs.affected-packages }}
-        run: node --experimental-strip-types scripts/stage-preview-publish.ts /tmp/preview-publish
+        run: node scripts/stage-preview-publish.ts /tmp/preview-publish
 
       - name: Upload publish artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

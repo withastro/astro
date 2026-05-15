@@ -28,7 +28,7 @@ describe('stage-preview-publish', () => {
 	});
 
 	test('stages affected packages with synthetic configs', () => {
-		execSync(`node --experimental-strip-types ${scriptPath} ${outputDir}`, {
+				execSync(`node ${scriptPath} ${outputDir}`, {
 			cwd: fixtureDir,
 			env: {
 				...process.env,
@@ -64,7 +64,7 @@ describe('stage-preview-publish', () => {
 
 	test('exits with error when no staging dir provided', () => {
 		assert.throws(
-			() => execSync(`node --experimental-strip-types ${scriptPath}`, { cwd: fixtureDir, stdio: 'pipe' }),
+			() => execSync(`node ${scriptPath}`, { cwd: fixtureDir, stdio: 'pipe' }),
 			(err: any) => err.status === 1,
 		);
 	});
@@ -72,7 +72,7 @@ describe('stage-preview-publish', () => {
 	test('exits with error when AFFECTED_PACKAGES is empty', () => {
 		assert.throws(
 			() =>
-				execSync(`node --experimental-strip-types ${scriptPath} ${outputDir}`, {
+		execSync(`node ${scriptPath} ${outputDir}`, {
 					cwd: fixtureDir,
 					env: { ...process.env, AFFECTED_PACKAGES: '[]' },
 					stdio: 'pipe',
