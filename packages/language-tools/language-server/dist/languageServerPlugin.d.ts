@@ -7,10 +7,10 @@ import { URI } from 'vscode-uri';
 import { type CollectionConfig } from './core/frontmatterHolders.js';
 export declare function getLanguagePlugins(
 	collectionConfig: CollectionConfig,
-): LanguagePlugin<URI, import('@volar/language-server/node').VirtualCode>[];
+): LanguagePlugin<URI, import('@volar/language-core').VirtualCode>[];
 export declare function getLanguageServicePlugins(
 	connection: Connection,
 	ts: typeof import('typescript'),
 	collectionConfig: CollectionConfig,
 	initializeParams?: InitializeParams,
-): import('@volar/language-server/node').LanguageServicePlugin<any>[];
+): import('@volar/language-service').LanguageServicePlugin<any>[];

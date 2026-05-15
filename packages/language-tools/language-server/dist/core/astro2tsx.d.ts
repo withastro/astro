@@ -58,7 +58,7 @@ export declare function astro2tsx(
 ): {
 	virtualCode: VirtualCode;
 	diagnostics:
-		| import('@astrojs/compiler').DiagnosticMessage[]
+		| import('@astrojs/compiler/types').DiagnosticMessage[]
 		| {
 				code: 1000;
 				location: {
