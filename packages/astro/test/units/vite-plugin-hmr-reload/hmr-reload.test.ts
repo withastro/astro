@@ -111,6 +111,43 @@ describe('astro:hmr-reload', () => {
 		};
 	}
 
+	/**
+	 * Creates a mock environment (server-side) with a name and moduleGraph.
+	 */
+	function createMockEnvironment(name: string, moduleIds: string[] = []) {
+		const idToModuleMap = new Map<string, any>();
+		for (const id of moduleIds) {
+			idToModuleMap.set(id, createMockModule(id));
+		}
+		return {
+			name,
+			moduleGraph: {
+				getModuleById(id: string) {
+					return idToModuleMap.get(id) ?? null;
+				},
+				invalidateModule(_mod: any) {},
+			},
+		};
+	}
+
+	/**
+	 * Creates a mock server with client and ssr environments.
+	 */
+	function createMockServer(clientModuleIds: string[] = []) {
+		const wsSent: any[] = [];
+		return {
+			environments: {
+				client: createMockEnvironment('client', clientModuleIds),
+			},
+			ws: {
+				send(payload: any) {
+					wsSent.push(payload);
+				},
+			},
+			_wsSent: wsSent,
+		};
+	}
+
 	function getHotUpdateHandler() {
 		const plugin = hmrReload();
 		// The hotUpdate hook is an object with order and handler
@@ -208,5 +245,21 @@ describe('astro:hmr-reload', () => {
 		// Only the SSR-only module should be invalidated in the module graph
 		assert.equal(ctx.invalidated.length, 1, 'should only invalidate SSR-only module');
 		assert.equal(ctx.invalidated[0], ssrMod);
+	});
+
+	it('returns [] for modules that exist in the client module graph (prevents unnecessary program reload)', () => {
+		const handler = getHotUpdateHandler();
+		const moduleId = '/src/components/Foo.tsx';
+		const modules = [createMockModule(moduleId)];
+		const server = createMockServer([moduleId]); // module IS in client graph
+		const env = createMockEnvironment('ssr');
+
+		const result = handler.call(
+			{ environment: env },
+			{ modules, server, timestamp: Date.now() },
+		);
+
+		assert.deepEqual(result, [], 'Should return empty array to prevent Vite default HMR propagation');
+		assert.equal(server._wsSent.length, 0, 'Should NOT send full-reload via WebSocket');
 	});
 });
