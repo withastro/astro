@@ -15,11 +15,17 @@ describe('stage-preview-publish', () => {
 		rmSync(outputDir, { recursive: true, force: true });
 
 		mkdirSync(join(fixtureDir, 'packages', 'astro', 'dist'), { recursive: true });
+		mkdirSync(join(fixtureDir, 'packages', 'astro', 'test'), { recursive: true });
+		mkdirSync(join(fixtureDir, 'packages', 'astro', 'src'), { recursive: true });
+		mkdirSync(join(fixtureDir, 'packages', 'astro', 'node_modules'), { recursive: true });
 		writeFileSync(
 			join(fixtureDir, 'packages', 'astro', 'package.json'),
 			JSON.stringify({ name: 'astro', version: '1.0.0' }),
 		);
 		writeFileSync(join(fixtureDir, 'packages', 'astro', 'dist', 'index.js'), '// built');
+		writeFileSync(join(fixtureDir, 'packages', 'astro', 'test', 'test.js'), '// test');
+		writeFileSync(join(fixtureDir, 'packages', 'astro', 'src', 'index.ts'), '// src');
+		writeFileSync(join(fixtureDir, 'packages', 'astro', 'node_modules', 'dep.js'), '// dep');
 	});
 
 	after(() => {
@@ -56,6 +62,11 @@ describe('stage-preview-publish', () => {
 
 		// Built output was copied
 		assert.ok(existsSync(join(outputDir, 'packages', 'astro', 'dist', 'index.js')));
+
+		// Excluded directories were not copied
+		assert.ok(!existsSync(join(outputDir, 'packages', 'astro', 'test')));
+		assert.ok(!existsSync(join(outputDir, 'packages', 'astro', 'src')));
+		assert.ok(!existsSync(join(outputDir, 'packages', 'astro', 'node_modules')));
 
 		// affected-packages.json was written
 		const affected: string[] = JSON.parse(
