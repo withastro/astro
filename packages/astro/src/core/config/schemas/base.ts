@@ -106,6 +106,9 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		validateSecrets: false,
 	},
 	prerenderConflictBehavior: 'warn',
+	logger: {
+		entrypoint: 'astro/logger/node',
+	},
 	experimental: {
 		advancedRouting: false,
 		clientPrerender: false,
@@ -114,9 +117,6 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		rustCompiler: false,
 		queuedRendering: {
 			enabled: false,
-		},
-		logger: {
-			entrypoint: 'astro/logger/node',
 		},
 	},
 } satisfies AstroUserConfig & {
@@ -529,6 +529,12 @@ export const AstroConfigSchema = z.object({
 		.enum(['error', 'warn', 'ignore'])
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.prerenderConflictBehavior),
+	logger: z
+		.object({
+			entrypoint: z.string(),
+			config: z.record(z.string(), z.any()).optional(),
+		})
+		.optional(),
 	fonts: z.array(FontFamilySchema).optional(),
 	experimental: z
 		.strictObject({
@@ -560,12 +566,6 @@ export const AstroConfigSchema = z.object({
 				})
 				.optional()
 				.prefault(ASTRO_CONFIG_DEFAULTS.experimental.queuedRendering),
-			logger: z
-				.object({
-					entrypoint: z.string(),
-					config: z.record(z.string(), z.any()).optional(),
-				})
-				.optional(),
 		})
 		.prefault({}),
 	legacy: z

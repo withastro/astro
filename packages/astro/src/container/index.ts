@@ -183,7 +183,7 @@ function createManifest(
 		experimentalQueuedRendering: manifest?.experimentalQueuedRendering ?? {
 			enabled: false,
 		},
-		experimentalLogger: manifest?.experimentalLogger ?? undefined,
+		loggerConfig: manifest?.loggerConfig ?? undefined,
 	};
 }
 
@@ -276,7 +276,7 @@ type AstroContainerManifest = Pick<
 	| 'assetsDir'
 	| 'image'
 	| 'experimentalQueuedRendering'
-	| 'experimentalLogger'
+	| 'loggerConfig'
 >;
 
 type AstroContainerConstructor = {

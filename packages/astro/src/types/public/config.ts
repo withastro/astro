@@ -16,7 +16,7 @@ import type { CacheProviderConfig, RouteRules } from '../../core/cache/types.js'
 import type { AstroConfigType } from '../../core/config/schemas/index.js';
 import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
 import type { CspAlgorithm, CspDirective, CspHash } from '../../core/csp/config.js';
-import type { AstroLogger, AstroLoggerLevel } from '../../core/logger/core.js';
+import type { AstroLoggerLevel } from '../../core/logger/core.js';
 import type {
 	SessionConfig,
 	SessionDriverConfig,
@@ -1397,6 +1397,33 @@ export interface AstroUserConfig<
 	 */
 
 	server?: ServerConfig | ((options: { command: 'dev' | 'preview' }) => ServerConfig);
+
+	/**
+	 * @docs
+	 * @kind heading
+	 * @name Logger Options
+	 * @type {{ entrypoint: string; config?: Record<string, unknown> }}
+	 * @default `undefined`
+	 * @version 6.4.0
+	 * @description
+	 *
+	 * Configure a custom logger by defining its entrypoint and, optionally, providing a serializable configuration:
+	 *
+	 * ```js
+	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   logger: {
+	 *     entrypoint: "@org/astro-logger",
+	 *     config: {
+	 *      level: "error"
+	 *     }
+	 *   }
+	 * });
+	 * ```
+	 */
+	logger?: LoggerHandlerConfig;
 
 	/**
 	 * @docs
@@ -3082,32 +3109,6 @@ export interface AstroUserConfig<
 			 */
 			contentCache?: boolean;
 		};
-		/**
-		 * @name experimental.logger
-		 * @type {{ entrypoint: string; config?: Record<string, unknown> }}
-		 * @default `undefined`
-		 * @version 6.2.0
-		 * @description
-		 *
-		 * Configure a custom logger by defining its entrypoint and, optionally, providing a serializable configuration:
-		 *
-		 * ```js
-		 * // astro.config.mjs
-		 * import { defineConfig } from 'astro/config';
-		 *
-		 * export default defineConfig({
-		 *   experimental: {
-		 *     logger: {
-		 *       entrypoint: "@org/astro-logger",
-		 *       config: {
-		 *        level: "error"
-		 *       }
-		 *     }
-		 *   }
-		 * });
-		 * ```
-		 */
-		logger?: LoggerHandlerConfig;
 	};
 }
 
@@ -3163,8 +3164,5 @@ export interface AstroInlineOnlyConfig {
 	 * Clear the content layer cache, forcing a rebuild of all content entries.
 	 */
 	force?: boolean;
-	/**
-	 * @internal for testing only, use `logLevel` instead.
-	 */
-	logger?: AstroLogger;
+
 }

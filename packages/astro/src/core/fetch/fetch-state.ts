@@ -906,13 +906,6 @@ export class FetchState implements AstroFetchState {
 				return state.getCsp();
 			},
 			get logger(): APIContext['logger'] {
-				if (!state.pipeline.manifest.experimentalLogger) {
-					state.pipeline.logger.warn(
-						null,
-						'The Astro.logger is available only when experimental.logger is defined.',
-					);
-					return undefined;
-				}
 				return {
 					info(msg: string) {
 						state.pipeline.logger.info(null, msg);

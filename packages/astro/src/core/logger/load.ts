@@ -86,8 +86,8 @@ export async function loadOrCreateNodeLogger(
 	inlineAstroConfig: AstroInlineConfig,
 ) {
 	try {
-		if (astroConfig.experimental.logger) {
-			return await loadLogger(astroConfig.experimental.logger, inlineAstroConfig.logLevel);
+		if (astroConfig.logger) {
+			return await loadLogger(astroConfig.logger, inlineAstroConfig.logLevel);
 		} else {
 			return createNodeLoggerFromFlags(inlineAstroConfig);
 		}
