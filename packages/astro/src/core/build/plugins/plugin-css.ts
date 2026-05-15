@@ -92,6 +92,11 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 			// Map from component module ID to the pages that include it (via facadeModuleId)
 			const componentToPages = new Map<string, Set<string>>();
 
+			// Track CSS assets deleted during the client build so they can be restored
+			// if the cssScopeTo recovery code determines they're needed for conditionally
+			// rendered components whose CSS was tree-shaken during SSR.
+			const deletedCssAssets = new Map<string, (typeof bundle)[string]>();
+
 			// Remove CSS files from client bundle that were already bundled with pages during SSR
 			if (this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
 				for (const [, item] of Object.entries(bundle)) {
@@ -126,8 +131,14 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 						);
 
 						if (allCssInSSR && shouldDeleteCSSChunk(allModules, internals)) {
-							// Delete the CSS assets that were imported by this chunk
+							// Delete the CSS assets that were imported by this chunk,
+							// but save them first so they can be restored if cssScopeTo
+							// recovery needs them (e.g. for conditionally rendered components
+							// whose CSS was tree-shaken during SSR but is needed in the client).
 							for (const cssId of meta.importedCss) {
+								if (bundle[cssId]) {
+									deletedCssAssets.set(cssId, bundle[cssId]);
+								}
 								delete bundle[cssId];
 							}
 						}
@@ -264,6 +275,29 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 									appendCSSToPage(pageData, meta, pagesToCss, -1, order, this.environment?.name);
 								}
 							}
+						}
+					}
+				}
+			}
+
+			// Restore deleted CSS assets that are now referenced in pagesToCss or
+			// moduleIdToPropagatedCss. This happens when cssScopeTo recovery discovers
+			// that CSS was tree-shaken in the SSR build (via Vite's cssScopeTo feature
+			// for conditionally rendered components) but is needed in the client build.
+			if (deletedCssAssets.size > 0) {
+				for (const pageModuleSpecifier in pagesToCss) {
+					for (const cssId in pagesToCss[pageModuleSpecifier]) {
+						if (deletedCssAssets.has(cssId) && !bundle[cssId]) {
+							bundle[cssId] = deletedCssAssets.get(cssId)!;
+							deletedCssAssets.delete(cssId);
+						}
+					}
+				}
+				for (const moduleId in moduleIdToPropagatedCss) {
+					for (const cssId of moduleIdToPropagatedCss[moduleId]) {
+						if (deletedCssAssets.has(cssId) && !bundle[cssId]) {
+							bundle[cssId] = deletedCssAssets.get(cssId)!;
+							deletedCssAssets.delete(cssId);
 						}
 					}
 				}
