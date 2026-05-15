@@ -1,0 +1,7 @@
+---
+// This page intentionally throws during render to test error handling.
+throw new Error('Intentional render error for testing');
+---
+<html>
+<body><h1>This should never render</h1></body>
+</html>

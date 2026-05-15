@@ -4683,6 +4683,15 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/cloudflare/test/fixtures/prerenderer-render-error:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/cloudflare/test/fixtures/routing-priority:
     dependencies:
       '@astrojs/cloudflare':
@@ -6900,6 +6909,15 @@ importers:
       tsx:
         specifier: ^4.21.0
         version: 4.21.0
+
+  triage/gh-16635:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../packages/integrations/cloudflare
+      astro:
+        specifier: workspace:*
+        version: link:../../packages/astro
 
 packages:
 

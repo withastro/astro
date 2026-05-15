@@ -19,6 +19,7 @@ import {
 	PRERENDER_ENDPOINT,
 	STATIC_IMAGES_ENDPOINT,
 } from './utils/prerender-constants.js';
+import { assertPrerenderResponse } from './utils/prerender-response.js';
 
 interface CloudflarePrerendererOptions {
 	cloudflareOptions: Partial<PluginConfig>;
@@ -111,13 +112,10 @@ export function createCloudflarePrerenderer({
 				headers: { 'Content-Type': 'application/json' },
 			});
 
-			if (!response.ok) {
-				const body = await response.text();
-				const details = body ? `\n${body}` : '';
-				throw new Error(
-					`Failed to get static paths from the Cloudflare prerender server (${response.status}: ${response.statusText}).${details}`,
-				);
-			}
+			await assertPrerenderResponse(
+				response,
+				'Failed to get static paths from the Cloudflare prerender server',
+			);
 
 			const data: StaticPathsResponse = await response.json();
 
@@ -142,6 +140,11 @@ export function createCloudflarePrerenderer({
 				redirect: 'manual',
 			});
 
+			await assertPrerenderResponse(
+				response,
+				`Failed to prerender "${request.url}" in the Cloudflare prerender server`,
+			);
+
 			return response;
 		},
 
@@ -152,13 +155,10 @@ export function createCloudflarePrerenderer({
 						headers: { 'Content-Type': 'application/json' },
 					});
 
-					if (!response.ok) {
-						const body = await response.text();
-						const details = body ? `\n${body}` : '';
-						throw new Error(
-							`Failed to get static images from the Cloudflare prerender server (${response.status}: ${response.statusText}).${details}`,
-						);
-					}
+					await assertPrerenderResponse(
+						response,
+						'Failed to get static images from the Cloudflare prerender server',
+					);
 
 					const entries: StaticImagesResponse = await response.json();
 
