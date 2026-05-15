@@ -31,8 +31,8 @@ importers:
         specifier: ^0.3.10
         version: 0.3.10(typescript@5.9.3)(wrangler@4.83.0)(ws@8.19.0)(zod@4.3.6)
       '@flue/sdk':
-        specifier: ^0.3.10
-        version: 0.3.10(typescript@5.9.3)(wrangler@4.83.0)(ws@8.19.0)(zod@4.3.6)
+        specifier: ^0.4.1
+        version: 0.4.1(wrangler@4.83.0)(ws@8.19.0)(zod@4.3.6)
       '@types/node':
         specifier: ^22.10.6
         version: 22.19.11
@@ -8729,6 +8729,15 @@ packages:
 
   '@flue/sdk@0.3.10':
     resolution: {integrity: sha512-kqTVhH/vyUB19mJ+/ijry88nP28BHxX+5FIrJD6ZnC4o8tQbRKfmXiH1Jatk+O319Uki0SnH5bYUb+CKp+vpBA==}
+    peerDependencies:
+      wrangler: ^4.0.0
+    peerDependenciesMeta:
+      wrangler:
+        optional: true
+
+  '@flue/sdk@0.4.1':
+    resolution: {integrity: sha512-VekPjFiOlCdQoyuCc0xfi+QFSsSDchdpCOZssCSL5Q7HE0MyVMwABF8FVD554/ihuXC8V7XEZSjqCjjkff3Zzg==}
+    engines: {node: '>=22.18.0'}
     peerDependencies:
       wrangler: ^4.0.0
     peerDependenciesMeta:
@@ -18505,6 +18514,33 @@ snapshots:
       - bufferutil
       - supports-color
       - typescript
+      - utf-8-validate
+      - ws
+      - zod
+
+  '@flue/sdk@0.4.1(wrangler@4.83.0)(ws@8.19.0)(zod@4.3.6)':
+    dependencies:
+      '@cloudflare/shell': 0.3.6(@modelcontextprotocol/sdk@1.29.0)(zod@4.3.6)
+      '@hono/node-server': 1.19.14(hono@4.12.16)
+      '@mariozechner/pi-agent-core': 0.71.1(@modelcontextprotocol/sdk@1.29.0)(ws@8.19.0)(zod@4.3.6)
+      '@mariozechner/pi-ai': 0.71.1(@modelcontextprotocol/sdk@1.29.0)(ws@8.19.0)(zod@4.3.6)
+      '@modelcontextprotocol/sdk': 1.29.0
+      '@valibot/to-json-schema': 1.5.0(valibot@1.2.0(typescript@5.9.3))
+      esbuild: 0.25.5
+      hono: 4.12.16
+      just-bash: 2.14.3
+      package-up: 5.0.0
+      typescript: 5.9.3
+      valibot: 1.2.0(typescript@5.9.3)
+    optionalDependencies:
+      wrangler: 4.83.0(@cloudflare/workers-types@4.20260228.0)
+    transitivePeerDependencies:
+      - '@cfworker/json-schema'
+      - '@tanstack/ai'
+      - ai
+      - aws-crt
+      - bufferutil
+      - supports-color
       - utf-8-validate
       - ws
       - zod
