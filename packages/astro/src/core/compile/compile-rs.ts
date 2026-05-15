@@ -100,6 +100,22 @@ export async function compile({
 
 	handleCompileResultErrors(filename, transformResult, cssTransformErrors);
 
+	// Workaround for a compiler bug: the compiler's printer injects scoped class into
+	// $spreadAttributes() calls whenever any <style> exists, even if all styles are is:global.
+	// The transform phase correctly skips scoping for is:global, but the printer doesn't check.
+	// Strip the incorrect scope class injection when no styles actually need scoping.
+	// See: https://github.com/withastro/astro/issues/16576
+	if (
+		cssPartialCompileResults.length > 0 &&
+		cssPartialCompileResults.every((r) => r.isGlobal) &&
+		transformResult.scope
+	) {
+		const scopeArg = `,undefined,{"class":"astro-${transformResult.scope}"}`;
+		if (transformResult.code.includes(scopeArg)) {
+			transformResult.code = transformResult.code.replaceAll(scopeArg, '');
+		}
+	}
+
 	return {
 		...transformResult,
 		css: transformResult.css.map((code: string, i: number) => ({

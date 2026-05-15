@@ -38,6 +38,20 @@ describe('Astro basic build', () => {
 		assert.match($('#spread-class-list').attr('class')!, /astro-.*/);
 	});
 
+	it('Does not add scoped class to spread when only is:global styles exist', async () => {
+		const html = await fixture.readFile('/spread-scope-global/index.html');
+		const $ = cheerio.load(html);
+
+		// With is:global, no astro-* scoped class should be added
+		assert.equal($('#spread-class-global').length, 1);
+		assert.equal($('#spread-class-global').attr('class'), 'big');
+		assert.doesNotMatch($('#spread-class-global').attr('class')!, /astro-.*/);
+
+		assert.equal($('#spread-plain-global').length, 1);
+		const plainClass = $('#spread-plain-global').attr('class');
+		assert.ok(!plainClass || !plainClass.match(/astro-.*/));
+	});
+
 	it('supports special chars in filename', async () => {
 		// will have already erred by now, but add test anyway
 		assert.ok(await fixture.readFile('/special-“characters” -in-file/index.html'));
