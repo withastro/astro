@@ -4,9 +4,9 @@ import { join } from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import assert from 'node:assert/strict';
 
-const fixtureDir = join(import.meta.dirname, '_test-fixture-preview');
-const outputDir = join(import.meta.dirname, '_test-output-preview');
-const scriptPath = join(import.meta.dirname, 'stage-preview-publish.mjs');
+const fixtureDir: string = join(import.meta.dirname, '_test-fixture-preview');
+const outputDir: string = join(import.meta.dirname, '_test-output-preview');
+const scriptPath: string = join(import.meta.dirname, 'stage-preview-publish.ts');
 
 describe('stage-preview-publish', () => {
 	before(() => {
@@ -28,7 +28,7 @@ describe('stage-preview-publish', () => {
 	});
 
 	test('stages affected packages with synthetic configs', () => {
-		execSync(`node ${scriptPath} ${outputDir}`, {
+		execSync(`node --experimental-strip-types ${scriptPath} ${outputDir}`, {
 			cwd: fixtureDir,
 			env: {
 				...process.env,
@@ -43,7 +43,7 @@ describe('stage-preview-publish', () => {
 		assert.equal(pkg.dependencies, undefined);
 
 		// Synthetic pnpm-workspace.yaml exists with just the packages glob
-		const workspace = readFileSync(join(outputDir, 'pnpm-workspace.yaml'), 'utf8');
+		const workspace: string = readFileSync(join(outputDir, 'pnpm-workspace.yaml'), 'utf8');
 		assert.ok(workspace.includes('packages:'));
 		assert.ok(workspace.includes('packages/**/*'));
 		assert.ok(!workspace.includes('patchedDependencies'));
@@ -58,26 +58,26 @@ describe('stage-preview-publish', () => {
 		assert.ok(existsSync(join(outputDir, 'packages', 'astro', 'dist', 'index.js')));
 
 		// affected-packages.json was written
-		const affected = JSON.parse(readFileSync(join(outputDir, 'affected-packages.json'), 'utf8'));
+		const affected: string[] = JSON.parse(readFileSync(join(outputDir, 'affected-packages.json'), 'utf8'));
 		assert.deepEqual(affected, ['packages/astro']);
 	});
 
 	test('exits with error when no staging dir provided', () => {
 		assert.throws(
-			() => execSync(`node ${scriptPath}`, { cwd: fixtureDir, stdio: 'pipe' }),
-			(err) => err.status === 1,
+			() => execSync(`node --experimental-strip-types ${scriptPath}`, { cwd: fixtureDir, stdio: 'pipe' }),
+			(err: any) => err.status === 1,
 		);
 	});
 
 	test('exits with error when AFFECTED_PACKAGES is empty', () => {
 		assert.throws(
 			() =>
-				execSync(`node ${scriptPath} ${outputDir}`, {
+				execSync(`node --experimental-strip-types ${scriptPath} ${outputDir}`, {
 					cwd: fixtureDir,
 					env: { ...process.env, AFFECTED_PACKAGES: '[]' },
 					stdio: 'pipe',
 				}),
-			(err) => err.status === 1,
+			(err: any) => err.status === 1,
 		);
 	});
 });

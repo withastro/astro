@@ -89,7 +89,7 @@ export default {
 			entry: ['src/index.ts', testEntry],
 		},
 		scripts: {
-			entry: ['index.js', 'cmd/*.js', '**/*.test.{js,mjs}'],
+			entry: ['index.js', 'cmd/*.js', '**/*.test.{js,ts,mjs}'],
 		},
 	},
 };

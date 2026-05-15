@@ -6,7 +6,7 @@
  * real ones because the real workspace has workspace:* deps, patchedDependencies,
  * trustPolicy, etc. that all require files/packages not present in the artifact.
  *
- * Usage: node scripts/stage-preview-publish.mjs <staging-dir>
+ * Usage: node --experimental-strip-types scripts/stage-preview-publish.ts <staging-dir>
  *
  * Expects AFFECTED_PACKAGES env var as a JSON array of relative package paths.
  */
@@ -14,13 +14,13 @@
 import { cpSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-const stagingDir = process.argv[2];
+const stagingDir: string | undefined = process.argv[2];
 if (!stagingDir) {
-	console.error('Usage: node scripts/stage-preview-publish.mjs <staging-dir>');
+	console.error('Usage: node --experimental-strip-types scripts/stage-preview-publish.ts <staging-dir>');
 	process.exit(1);
 }
 
-const affectedPackages = JSON.parse(process.env.AFFECTED_PACKAGES || '[]');
+const affectedPackages: string[] = JSON.parse(process.env.AFFECTED_PACKAGES || '[]');
 if (affectedPackages.length === 0) {
 	console.error('AFFECTED_PACKAGES env var is empty or not set');
 	process.exit(1);
