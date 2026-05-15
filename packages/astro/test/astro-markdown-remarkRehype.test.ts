@@ -9,6 +9,7 @@ describe('Astro Markdown without remark-rehype config', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-markdown-remarkRehype/',
+			outDir: './dist/astro-markdown-remarkRehype-astro-markdown-without-remark-rehype-con/',
 		});
 		await fixture.build();
 	});
@@ -32,6 +33,7 @@ describe('Astro Markdown with remark-rehype config', () => {
 					footnoteBackLabel: 'Kembali ke konten',
 				},
 			},
+			outDir: './dist/astro-markdown-remarkRehype-astro-markdown-with-remark-rehype-config/',
 		});
 		await fixture.build();
 	});

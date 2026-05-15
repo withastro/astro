@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "6.2.2",
+  "version": "6.3.3",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -122,17 +122,15 @@
     "build:ci": "pnpm run prebuild && astro-scripts build \"src/**/*.{ts,js}\" --copy-wasm",
     "dev": "astro-scripts dev --copy-wasm --prebuild \"src/runtime/server/astro-island.ts\" --prebuild \"src/runtime/client/{idle,load,media,only,visible}.ts\" \"src/**/*.{ts,js}\"",
     "test": "pnpm run test:unit && pnpm run test:integration && pnpm run test:types",
-    "test:match": "astro-scripts test \"test/**/*.test.js\" --match",
-    "test:cli": "astro-scripts test \"test/**/cli.test.js\"",
+    "test:match": "astro-scripts test \"test/**/*.test.ts\" --match",
+    "test:cli": "astro-scripts test \"test/**/cli.test.ts\"",
     "test:e2e": "pnpm test:e2e:chrome && pnpm test:e2e:firefox",
     "test:e2e:match": "playwright test -g",
     "test:e2e:chrome": "playwright test",
     "test:e2e:firefox": "playwright test --config playwright.firefox.config.js",
     "test:types": "tsc --build test/types/tsconfig.json",
     "test:unit": "astro-scripts test \"test/units/**/*.test.ts\" --strip-types --teardown ./test/units/teardown.ts",
-    "test:integration": "pnpm run test:integration:js && pnpm run test:integration:ts",
-    "test:integration:js": "astro-scripts test \"test/*.test.js\"",
-    "test:integration:ts": "astro-scripts test \"test/*.test.ts\" --strip-types"
+    "test:integration": "astro-scripts test \"test/*.test.ts\" --parallel --strip-types"
   },
   "dependencies": {
     "@astrojs/compiler": "^4.0.0",

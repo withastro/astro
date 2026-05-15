@@ -25,6 +25,7 @@ describe('Astro Markdown - frontmatter injection', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: FIXTURE_ROOT,
+			outDir: './dist/astro-markdown-frontmatter-injection/',
 		});
 		await fixture.build();
 	});

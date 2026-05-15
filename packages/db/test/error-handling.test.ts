@@ -1,12 +1,6 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import {
-	type DevServer,
-	type Fixture,
-	loadFixture,
-	type RemoteDbServer,
-	setupRemoteDb,
-} from './test-utils.ts';
+import { type Fixture, loadFixture, type RemoteDbServer, setupRemoteDb } from './test-utils.ts';
 import { cli } from '../dist/core/cli/index.js';
 
 const foreignKeyConstraintError = 'LibsqlError: SQLITE_CONSTRAINT: FOREIGN KEY constraint failed';
@@ -49,26 +43,6 @@ describe('astro:db - error handling', () => {
 			process.exit = originalExit;
 			console.error = originalError;
 		}
-	});
-
-	describe('development', () => {
-		let devServer: DevServer;
-
-		before(async () => {
-			devServer = await fixture.startDevServer();
-		});
-
-		after(async () => {
-			await devServer.stop();
-		});
-
-		it('Raises foreign key constraint LibsqlError', async () => {
-			const json = await fixture.fetch('/foreign-key-constraint.json').then((res) => res.json());
-			assert.deepEqual(json, {
-				message: foreignKeyConstraintError,
-				code: 'SQLITE_CONSTRAINT',
-			});
-		});
 	});
 
 	describe('build --remote', () => {

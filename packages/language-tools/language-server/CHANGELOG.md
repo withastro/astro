@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 2.16.8
+
+### Patch Changes
+
+- [#16627](https://github.com/withastro/astro/pull/16627) [`5778cb7`](https://github.com/withastro/astro/commit/5778cb75515112e605da2aba5331646818802bc8) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes unintended dependency on the `typescript` package being available to the language server
+
 ## 2.16.7
 
 ### Patch Changes

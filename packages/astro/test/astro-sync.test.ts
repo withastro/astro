@@ -16,7 +16,11 @@ const createFixture = () => {
 
 	return {
 		async load(root: string) {
-			astroFixture = await loadFixture({ root });
+			astroFixture = await loadFixture({
+				root,
+				outDir: './dist/astro-sync-1/',
+				cacheDir: './node_modules/.astro-test/astro-sync-1/',
+			});
 			return astroFixture.config;
 		},
 		clean() {
@@ -255,7 +259,11 @@ describe('astro sync', () => {
 				},
 			});
 
-			const astroFixture = await loadFixture({ root: './fixtures/astro-basic/' });
+			const astroFixture = await loadFixture({
+				root: './fixtures/astro-basic/',
+				outDir: './dist/astro-sync-no-content-config/',
+				cacheDir: './node_modules/.astro-test/astro-sync-no-content-config/',
+			});
 			fs.rmSync(new URL('./.astro/', astroFixture.config.root), { force: true, recursive: true });
 
 			// @ts-ignore

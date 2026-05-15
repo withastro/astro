@@ -42,6 +42,7 @@ describe('Dynamic pages in SSR', () => {
 			adapter: testAdapter(),
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist/ssr-dynamic/',
 		});
 		await fixture.build();
 	});

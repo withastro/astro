@@ -15,6 +15,7 @@ describe('build assets (static)', () => {
 				integrations: [preact()],
 				// test suite was authored when inlineStylesheets defaulted to never
 				build: { inlineStylesheets: 'never' },
+				outDir: './dist/build-assets-with-default-configuration/',
 			});
 			await fixture.build();
 		});
@@ -60,6 +61,7 @@ describe('build assets (static)', () => {
 					assets: 'custom-assets',
 					inlineStylesheets: 'never',
 				},
+				outDir: './dist/build-assets-with-custom-configuration/',
 			});
 			await fixture.build();
 		});
@@ -99,6 +101,7 @@ describe('build assets (server)', () => {
 				adapter: testAdapter({ extendAdapter: { adapterFeatures: { buildOutput: 'static' } } }),
 				// test suite was authored when inlineStylesheets defaulted to never
 				build: { inlineStylesheets: 'never' },
+				outDir: './dist/build-assets-with-default-configuration/',
 			});
 			await fixture.build();
 		});
@@ -151,6 +154,7 @@ describe('build assets (server)', () => {
 						},
 					},
 				}),
+				outDir: './dist/build-assets-with-custom-configuration/',
 			});
 			await fixture.build();
 		});

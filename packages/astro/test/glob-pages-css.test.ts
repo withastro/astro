@@ -11,6 +11,7 @@ describe('import.meta.glob on pages/ directory', () => {
 			root: './fixtures/glob-pages-css/',
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist/glob-pages-css/',
 		});
 		await fixture.build();
 	});

@@ -12,6 +12,7 @@ describe('Page-level styles', () => {
 			root: './fixtures/page-level-styles/',
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist/page-level-styles/',
 		});
 		await fixture.build();
 	});

@@ -53,6 +53,7 @@ describe('astro preview - allowedHosts via vite config', () => {
 					allowedHosts: ['example.com'],
 				},
 			},
+			outDir: './dist/astro-preview-allowed-hosts-astro-preview-allowedhosts-via-vite-conf/',
 		});
 		await fixture.build();
 		previewServer = await fixture.preview();
@@ -81,7 +82,7 @@ describe('astro preview - allowedHosts true via vite config', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-preview-allowed-hosts/',
-			outDir: './dist-allow-all/',
+			outDir: './dist/allow-all/',
 			// Set allowedHosts: true via the vite.preview path
 			vite: {
 				preview: {
@@ -111,7 +112,7 @@ describe('astro preview - server.allowedHosts takes precedence over vite.preview
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-preview-allowed-hosts/',
-			outDir: './dist-precedence/',
+			outDir: './dist/precedence/',
 			// Astro server.allowedHosts should win over vite.preview.allowedHosts
 			server: {
 				allowedHosts: ['astro-wins.com'],

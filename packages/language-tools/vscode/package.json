@@ -24,12 +24,12 @@
     "color": "#17191E",
     "theme": "dark"
   },
-  "version": "2.16.14",
+  "version": "2.16.15",
   "author": "withastro",
   "license": "MIT",
   "publisher": "astro-build",
   "engines": {
-    "vscode": "^1.92.0"
+    "vscode": "^1.101.0"
   },
   "activationEvents": [
     "workspaceContains:astro.config.*"
@@ -235,8 +235,7 @@
     ]
   },
   "scripts": {
-    "prebuild": "cd ../ts-plugin && pnpm build",
-    "build": "tsc -b && pnpm prebuild && node scripts/build.mjs -- --minify",
+    "build": "tsc -b && node scripts/build.mjs -- --minify",
     "dev": "node scripts/build.mjs -- --watch",
     "build:grammar": "node scripts/build-grammar.mjs",
     "dev:grammar": "node scripts/build-grammar.mjs -- --watch",
@@ -247,10 +246,11 @@
   },
   "devDependencies": {
     "@astrojs/language-server": "^2.16.6",
-    "@astrojs/ts-plugin": "^1.10.7",
+    "@astrojs/ts-plugin": "^1.10.8",
+    "@types/js-yaml": "^4.0.9",
     "@types/mocha": "^10.0.10",
     "@types/node": "^20.9.0",
-    "@types/vscode": "^1.92.0",
+    "@types/vscode": "^1.101.0",
     "@volar/language-server": "~2.4.28",
     "@volar/vscode": "~2.4.28",
     "@vscode/test-cli": "^0.0.12",
