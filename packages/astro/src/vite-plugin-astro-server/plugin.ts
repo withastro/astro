@@ -147,31 +147,31 @@ export default function createVitePluginAstroServer({
 							}
 
 							try {
-							const pathname = decodeURI(new URL(request.url, 'http://localhost').pathname);
-							const { routes } = (await prerenderHandler.environment.runner.import(
-								'virtual:astro:routes',
-							)) as { routes: RouteInfo[] };
-							const routesList = { routes: routes.map((route) => route.routeData) };
-							// This is intentionally a broad prerender gate. The real dev route
-							// resolution happens in AstroServerApp.handleRequest(), which also
-							// checks getStaticPaths() and prerender tie-breaks that matchRoute()
-							// cannot express here.
-							const matches = matchAllRoutes(pathname, routesList);
+								const pathname = decodeURI(new URL(request.url, 'http://localhost').pathname);
+								const { routes } = (await prerenderHandler.environment.runner.import(
+									'virtual:astro:routes',
+								)) as { routes: RouteInfo[] };
+								const routesList = { routes: routes.map((route) => route.routeData) };
+								// This is intentionally a broad prerender gate. The real dev route
+								// resolution happens in AstroServerApp.handleRequest(), which also
+								// checks getStaticPaths() and prerender tie-breaks that matchRoute()
+								// cannot express here.
+								const matches = matchAllRoutes(pathname, routesList);
 
-							if (!matches.some((route) => route.prerender)) {
-								return next();
+								if (!matches.some((route) => route.prerender)) {
+									return next();
+								}
+
+								const handled = await localStorage.run(request, () =>
+									prerenderHandler.handler(request, response, { prerenderOnly: true }),
+								);
+
+								if (!handled) {
+									return next();
+								}
+							} catch (err) {
+								next(err);
 							}
-
-							const handled = await localStorage.run(request, () =>
-								prerenderHandler.handler(request, response, { prerenderOnly: true }),
-							);
-
-							if (!handled) {
-								return next();
-							}
-						} catch (err) {
-							next(err);
-						}
 						},
 					);
 				}
