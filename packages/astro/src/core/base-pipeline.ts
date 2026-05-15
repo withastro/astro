@@ -282,7 +282,7 @@ export abstract class Pipeline {
 
 	/**
 	 * Resolves the logger destination from the manifest and updates the pipeline logger.
-	 * If the user configured `experimental.logger`, the bundled logger factory is loaded
+	 * If the user configured `logger`, the bundled logger factory is loaded
 	 * and replaces the default console destination. This is lazy and only resolves once.
 	 */
 	async getLogger(): Promise<AstroLogger> {
@@ -290,8 +290,8 @@ export abstract class Pipeline {
 			return this.logger;
 		}
 		this.resolvedLogger = true;
-		if (this.manifest.experimentalLogger) {
-			this.logger = await loadLogger(this.manifest.experimentalLogger);
+		if (this.manifest.loggerConfig) {
+			this.logger = await loadLogger(this.manifest.loggerConfig);
 		}
 		return this.logger;
 	}
