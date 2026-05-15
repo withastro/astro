@@ -11,7 +11,7 @@
  * Expects AFFECTED_PACKAGES env var as a JSON array of relative package paths.
  */
 
-import { cpSync, mkdirSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const stagingDir: string | undefined = process.argv[2];
@@ -40,11 +40,21 @@ writeFileSync(
 // etc. that require files/config not present in this minimal workspace.
 writeFileSync(join(stagingDir, 'pnpm-workspace.yaml'), 'packages:\n  - "packages/**/*"\n');
 
-// Copy each affected package directory (including built output)
+// Copy each affected package directory, excluding directories that are never
+// part of the published tarball. This keeps the artifact small enough for
+// upload-artifact to handle without timing out.
+const EXCLUDE_DIRS = new Set(['test', 'e2e', 'src', 'node_modules', '.turbo']);
+
 for (const pkg of affectedPackages) {
 	const dest = join(stagingDir, pkg);
 	mkdirSync(dest, { recursive: true });
-	cpSync(pkg, dest, { recursive: true });
+
+	for (const entry of readdirSync(pkg, { withFileTypes: true })) {
+		const srcPath = join(pkg, entry.name);
+		const destPath = join(dest, entry.name);
+		if (entry.isDirectory() && EXCLUDE_DIRS.has(entry.name)) continue;
+		cpSync(srcPath, destPath, { recursive: true });
+	}
 }
 
 // Save the affected packages list for the publish job
