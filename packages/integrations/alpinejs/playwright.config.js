@@ -8,6 +8,7 @@ process.stdout.isTTY = false;
 export default defineConfig({
 	testMatch: 'test/*.test.ts',
 	timeout: 40_000,
+	reporter: 'list',
 	expect: {
 		timeout: 6_000,
 	},
