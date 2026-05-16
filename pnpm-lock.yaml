@@ -6901,6 +6901,18 @@ importers:
         specifier: ^4.21.0
         version: 4.21.0
 
+  triage/gh-16176:
+    dependencies:
+      '@astrojs/svelte':
+        specifier: ^8.1.1
+        version: link:../../packages/integrations/svelte
+      astro:
+        specifier: ^6.3.3
+        version: link:../../packages/astro
+      svelte:
+        specifier: ^5.53.5
+        version: 5.55.3
+
 packages:
 
   '@anthropic-ai/sdk@0.91.1':
