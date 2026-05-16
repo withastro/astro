@@ -82,6 +82,7 @@ export default async function seed() {
 `,
 	CLOUDFLARE_WRANGLER_CONFIG: (name: string, compatibilityDate: string) => `\
 {
+	"$schema": "./node_modules/wrangler/config-schema.json",
 	"compatibility_date": ${JSON.stringify(compatibilityDate)},
 	"compatibility_flags": ["global_fetch_strictly_public"],
 	"name": ${JSON.stringify(name)},
