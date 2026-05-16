@@ -120,6 +120,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 
 	// Start listening to the port
 	const devServerAddressInfo = await startContainer(restart.container);
+
 	restart.bindCLIShortcuts();
 	logger.info(
 		'SKIP_FORMAT',

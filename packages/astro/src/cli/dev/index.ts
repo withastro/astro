@@ -1,18 +1,41 @@
+import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { isAgent } from 'am-i-vibing';
 import colors from 'piccolore';
 import devServer from '../../core/dev/index.js';
+import { checkExistingServer, removeLockFile, writeLockFile } from '../../core/dev/lockfile.js';
 import { printHelp } from '../../core/messages/runtime.js';
-import { type Flags, flagsToAstroInlineConfig } from '../flags.js';
+import { type Flags, createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 
 interface DevOptions {
 	flags: Flags;
+}
+
+function isRunByAgent(): boolean {
+	try {
+		return isAgent();
+	} catch {
+		return false;
+	}
+}
+
+function resolveRootURL(flags: Flags): URL {
+	const rootPath = typeof flags.root === 'string' ? resolve(flags.root) : process.cwd();
+	return pathToFileURL(rootPath + '/');
 }
 
 export async function dev({ flags }: DevOptions) {
 	if (flags.help || flags.h) {
 		printHelp({
 			commandName: 'astro dev',
-			usage: '[...flags]',
+			usage: '[command] [...flags]',
 			tables: {
+				Commands: [
+					['background', 'Start the dev server as a background process.'],
+					['stop', 'Stop a running background dev server.'],
+					['status', 'Check if a dev server is running.'],
+					['logs [--follow]', 'View logs from a background dev server.'],
+				],
 				Flags: [
 					['--mode', `Specify the mode of the project. Defaults to "development".`],
 					['--port', `Specify which port to run on. Defaults to 4321.`],
@@ -34,7 +57,73 @@ export async function dev({ flags }: DevOptions) {
 		return;
 	}
 
-	const inlineConfig = flagsToAstroInlineConfig(flags);
+	const logger = createLoggerFromFlags(flags);
+	const subcommand = flags._[3]?.toString();
 
-	return await devServer(inlineConfig);
+	// Handle `astro dev stop`
+	if (subcommand === 'stop') {
+		const { stop } = await import('./stop.js');
+		await stop({ flags, logger });
+		return;
+	}
+
+	// Handle `astro dev status`
+	if (subcommand === 'status') {
+		const { status } = await import('./status.js');
+		await status({ flags, logger });
+		return;
+	}
+
+	// Handle `astro dev logs`
+	if (subcommand === 'logs') {
+		const { logs } = await import('./logs.js');
+		await logs({ flags, logger });
+		return;
+	}
+
+	// Handle `astro dev background` or auto-enable when an AI coding agent is detected.
+	// Skip if ASTRO_DEV_BACKGROUND is set — this means we're the spawned child process
+	// and should run the foreground dev server, not recurse into background mode.
+	if (subcommand === 'background' || (isRunByAgent() && !process.env.ASTRO_DEV_BACKGROUND)) {
+		const { background } = await import('./background.js');
+		await background({ flags, logger });
+		return;
+	}
+
+	// Foreground dev server: check lock file, start server, write lock file
+	const root = resolveRootURL(flags);
+	const existingServer = checkExistingServer(root);
+	if (existingServer) {
+		const message = [
+			'Another astro dev server is already running.',
+			'',
+			`  URL:  ${existingServer.url}`,
+			`  PID:  ${existingServer.pid}`,
+			'',
+			`Run \`astro dev stop\` to stop it, or use \`astro dev --force\` to replace it.`,
+		].join('\n');
+		throw new Error(message);
+	}
+
+	const inlineConfig = flagsToAstroInlineConfig(flags);
+	const server = await devServer(inlineConfig);
+
+	// Write the lock file now that we know the bound port
+	const serverUrl = `http://localhost:${server.address.port}`;
+	writeLockFile(root, {
+		pid: process.pid,
+		port: server.address.port,
+		url: serverUrl,
+		background: !!process.env.ASTRO_DEV_BACKGROUND,
+		startedAt: new Date().toISOString(),
+	});
+
+	// Wrap the original stop to also clean up the lock file
+	const originalStop = server.stop.bind(server);
+	server.stop = async () => {
+		removeLockFile(root);
+		await originalStop();
+	};
+
+	return server;
 }
