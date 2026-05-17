@@ -6,6 +6,7 @@ import { deterministicString } from '../../../dist/assets/utils/deterministic-st
 import { getOrigQueryParams } from '../../../dist/assets/utils/queryParams.js';
 import { createPlaceholderURL, stringifyPlaceholderURL } from '../../../dist/assets/utils/url.js';
 import { isESMImportedImage, isRemoteImage } from '../../../dist/assets/utils/imageKind.js';
+import { propsToFilename } from '../../../dist/assets/utils/hash.js';
 import { dropAttributes } from '../../../dist/assets/runtime.js';
 
 // #region getAssetsPrefix
@@ -217,6 +218,67 @@ describe('image kind detection', () => {
 
 	it('isRemoteImage returns false for objects', () => {
 		assert.equal(isRemoteImage({ src: '/img.jpg', width: 100, height: 100, format: 'jpg' }), false);
+	});
+});
+// #endregion
+
+// #region propsToFilename
+describe('propsToFilename', () => {
+	it('strips invalid filesystem characters from the filename', () => {
+		// '#' is in INVALID_CHAR_REGEX and must be replaced with '_'.
+		const result = propsToFilename(
+			'https://example.com/c#.png',
+			{ src: 'https://example.com/c#.png' },
+			'hash1234',
+		);
+		assert.equal(result, '/c__hash1234.png');
+	});
+
+	it('decodes once before sanitizing (matches the special-chars regression case)', () => {
+		// %2523 -> decodeURIComponent -> %23 -> regex replaces '%' with '_' -> "_23".
+		// The literal digits "2" and "3" are not in the invalid set, so they survive.
+		const result = propsToFilename(
+			'https://example.com/c%2523.png',
+			{ src: 'https://example.com/c%2523.png' },
+			'hash1234',
+		);
+		assert.equal(result, '/c_23_hash1234.png');
+	});
+
+	it('preserves safe filename characters', () => {
+		const result = propsToFilename(
+			'https://example.com/normal-name.png',
+			{ src: 'https://example.com/normal-name.png' },
+			'hash1234',
+		);
+		assert.equal(result, '/normal-name_hash1234.png');
+	});
+
+	it('uses transform.format when provided as the output extension', () => {
+		const result = propsToFilename(
+			'https://example.com/photo.jpg',
+			{ src: 'https://example.com/photo.jpg', format: 'webp' },
+			'hash1234',
+		);
+		assert.equal(result, '/photo_hash1234.webp');
+	});
+
+	it('falls back to the source extension when transform.format is not set', () => {
+		const result = propsToFilename(
+			'https://example.com/photo.png',
+			{ src: 'https://example.com/photo.png' },
+			'hash1234',
+		);
+		assert.equal(result, '/photo_hash1234.png');
+	});
+
+	it('hashes the filename for data: URIs instead of sanitizing', () => {
+		const dataUri =
+			'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
+		const result = propsToFilename(dataUri, { src: dataUri, format: 'png' }, 'hash1234');
+		// data: URIs short-circuit the sanitization branch and use shorthash on the full URI,
+		// so the raw base64 payload never appears in the output filename.
+		assert.equal(result, '/Elmwa_hash1234.png');
 	});
 });
 // #endregion

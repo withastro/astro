@@ -19,11 +19,6 @@ linkWorkspacePackages: true
 saveWorkspaceProtocol: false # This prevents the examples to have the `workspace:` prefix
 autoInstallPeers: false
 
-overrides:
-  # See https://github.com/withastro/astro/pull/16448
-  'picomatch@<4': '^2.3.2'
-  'vite@^7': '^7.3.2'
-
 publicHoistPattern:
   # `astro sync` could try to import `@astrojs/db` but could fail due to linked dependencies in the monorepo.
   # We hoist it here so that it can easily resolve `@astrojs/db` without hardcoded handling.
