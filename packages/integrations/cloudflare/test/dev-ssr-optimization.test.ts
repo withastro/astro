@@ -40,7 +40,7 @@ describe('Cloudflare SSR Optimization', () => {
       const plugin = astroFrontmatterScanPlugin();
       const resolvers: Array<{ filter: RegExp }> = [];
 
-      plugin.setup({
+      void plugin.setup({
         onResolve(options: { filter: RegExp }, _callback: (...args: unknown[]) => unknown) {
           resolvers.push(options);
         },
