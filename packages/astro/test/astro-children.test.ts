@@ -98,4 +98,23 @@ describe('Component children', () => {
 		assert.equal($('#client-no-children').parent().children().length, 1);
 		assert.equal($('#client-no-children').parent().find('template').length, 0);
 	});
+
+	it('Escapes slot names in data-astro-template attributes to prevent XSS', async () => {
+		const html = await fixture.readFile('/slot-name-escape/index.html');
+		const $ = cheerio.load(html);
+
+		// The malicious slot name should NOT break out of the attribute to inject an <img> tag.
+		assert.equal($('img[src="x"]').length, 0, 'No injected <img> element should exist');
+
+		// Verify the template element exists with properly escaped content.
+		const templates = $('template[data-astro-template]');
+		assert.equal(templates.length, 1, 'Should have exactly one template element');
+
+		// The raw HTML should contain escaped entities in the data-astro-template attribute,
+		// not raw double quotes or angle brackets that would allow attribute breakout.
+		assert.ok(
+			html.includes('data-astro-template="abc&quot;&gt;&lt;img'),
+			'Slot name should be HTML-escaped in the data-astro-template attribute',
+		);
+	});
 });

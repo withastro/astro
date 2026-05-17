@@ -20,6 +20,21 @@ const bgproc = defineCommand('bgproc');
 const agentBrowser = defineCommand('agent-browser');
 const node = defineCommand('node');
 const pnpm = defineCommand('pnpm');
+// pnpm variant with GitHub Actions env vars forwarded. pkg-pr-new checks these
+// to verify it's running inside CI before publishing preview releases.
+const pnpmCI = defineCommand('pnpm', {
+	env: {
+		GITHUB_ACTIONS: process.env.GITHUB_ACTIONS,
+		GITHUB_REPOSITORY: process.env.GITHUB_REPOSITORY,
+		GITHUB_RUN_ID: process.env.GITHUB_RUN_ID,
+		GITHUB_RUN_ATTEMPT: process.env.GITHUB_RUN_ATTEMPT,
+		GITHUB_ACTOR_ID: process.env.GITHUB_ACTOR_ID,
+		GITHUB_SHA: process.env.GITHUB_SHA,
+		GITHUB_REF_NAME: process.env.GITHUB_REF_NAME,
+		GITHUB_OUTPUT: process.env.GITHUB_OUTPUT,
+		GITHUB_EVENT_PATH: process.env.GITHUB_EVENT_PATH,
+	},
+});
 const gh = defineCommand('gh', { env: { GH_TOKEN: GITHUB_TOKEN_BASE } });
 const git = defineCommand('git');
 const gitWithAuth = defineCommand('git', { env: { GH_TOKEN: GITHUB_TOKEN_BASE } });
@@ -133,7 +148,7 @@ async function publishPreviewRelease(session: FlueSession): Promise<PreviewRelea
 	const packages = [...packageDirs].join(' ');
 	const publishResult = await session.shell(
 		`pnpm dlx pkg-pr-new publish --pnpm --compact --no-template --comment=off --json preview-release.json ${packages}`,
-		{ commands: [pnpm] },
+		{ commands: [pnpmCI] },
 	);
 
 	if (publishResult.exitCode !== 0) {
@@ -324,6 +339,9 @@ export default async function ({ init, payload }: FlueContext) {
 		previewRelease = await publishPreviewRelease(session);
 		if (previewRelease) {
 			console.info('Preview release published:', previewRelease.urls);
+			// Add the verification label so the fix-verification workflow can listen
+			// for the reporter's confirmation comment.
+			await addGitHubLabels(issueNumber, ['fix pending verification']);
 		}
 	}
 

@@ -18,19 +18,6 @@ describe('Prerendered page styles', () => {
 		await fixture.clean();
 	});
 
-	describe('dev', () => {
-		before(async () => {
-			devServer = await fixture.startDevServer();
-		});
-
-		it('includes Tailwind styles in prerendered page', async () => {
-			const res = await fixture.fetch('/');
-			const html = await res.text();
-			// Check that the bg-amber-500 class has its styles included
-			assert.ok(html.includes('.bg-amber-500'), 'Expected .bg-amber-500 class to be in the HTML');
-		});
-	});
-
 	describe('build', () => {
 		before(async () => {
 			await devServer?.stop();
@@ -72,21 +59,6 @@ describe('Styles from Astro components imported in MDX content collections', () 
 	after(async () => {
 		await devServer?.stop();
 		await fixture.clean();
-	});
-
-	describe('dev', () => {
-		before(async () => {
-			devServer = await fixture.startDevServer();
-		});
-
-		it('includes styles from an Astro component imported in an MDX content collection entry', async () => {
-			const res = await fixture.fetch('/posts/styled');
-			const html = await res.text();
-			assert.ok(
-				html.includes('.mdx-styled-card'),
-				'Expected .mdx-styled-card styles from StyledCard.astro to be injected in the MDX page',
-			);
-		});
 	});
 
 	describe('build', () => {

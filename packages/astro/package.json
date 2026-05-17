@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "6.3.2",
+  "version": "6.3.3",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -122,8 +122,8 @@
     "build:ci": "pnpm run prebuild && astro-scripts build \"src/**/*.{ts,js}\" --copy-wasm",
     "dev": "astro-scripts dev --copy-wasm --prebuild \"src/runtime/server/astro-island.ts\" --prebuild \"src/runtime/client/{idle,load,media,only,visible}.ts\" \"src/**/*.{ts,js}\"",
     "test": "pnpm run test:unit && pnpm run test:integration && pnpm run test:types",
-    "test:match": "astro-scripts test \"test/**/*.test.js\" --match",
-    "test:cli": "astro-scripts test \"test/**/cli.test.js\"",
+    "test:match": "astro-scripts test \"test/**/*.test.ts\" --match",
+    "test:cli": "astro-scripts test \"test/**/cli.test.ts\"",
     "test:e2e": "pnpm test:e2e:chrome && pnpm test:e2e:firefox",
     "test:e2e:match": "playwright test -g",
     "test:e2e:chrome": "playwright test",
