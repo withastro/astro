@@ -8,7 +8,6 @@ const blog = defineCollection({
 		z.object({
 			title: z.string(),
 			image: image(),
-			secondImage: image(),
 		}),
 });
 
