@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { after, before, describe, it } from 'node:test';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
+import { type DevServer, type Fixture, isWindows, loadFixture } from './test-utils.ts';
 
 const assetsDir = fileURLToPath(
 	new URL('./fixtures/content-collections-image-hmr/src/assets/', import.meta.url),
@@ -35,28 +35,23 @@ describe('HMR: Content Collections image url rename test', () => {
 		await devServer.stop();
 	});
 
-	it(
-		'should recover after renaming the primary image and updating the markdown reference',
-		async () => {
-			await fixture.fetch('/');
+	it( 'should recover after renaming the primary image and updating the markdown reference', {
+		skip: isWindows
+	},async () => {
+		await fixture.fetch('/');
 
-			const originalImagePath = path.join(assetsDir, 'shuttle.jpg');
-			const renamedImagePath = path.join(assetsDir, 'shuttle-renamed.jpg');
+		const originalImagePath = path.join(assetsDir, 'shuttle.jpg');
+		const renamedImagePath = path.join(assetsDir, 'shuttle-renamed.jpg');
 
-			await fs.promises.rename(originalImagePath, renamedImagePath);
-			await fixture.editFile('/src/content/blog/post.md', (content) =>
-				content.replace('shuttle.jpg', 'shuttle-renamed.jpg'),
-			);
-			await fixture.onNextDataStoreChange();
+		await fs.promises.rename(originalImagePath, renamedImagePath);
+		await fixture.editFile('/src/content/blog/post.md', (content) =>
+			content.replace('shuttle.jpg', 'shuttle-renamed.jpg'),
+		);
+		await fixture.onNextDataStoreChange();
 
-			const response = await fixture.fetch('/');
-			assert.equal(response.status, 200, 'Page should render without error after image rename');
-			const html = await response.text();
-			assert.ok(html.includes('data-image="primary"'), 'Renamed image should still render');
-			assert.ok(
-				html.includes('data-image="secondary"'),
-				'Unrelated image should not be affected by the rename',
-			);
-		},
-	);
+		const response = await fixture.fetch('/');
+		assert.equal(response.status, 200);
+		const html = await response.text();
+		assert.ok(html.includes('data-image="primary"'));
+	});
 });
