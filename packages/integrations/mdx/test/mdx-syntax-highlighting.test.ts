@@ -1,0 +1,163 @@
+import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
+import mdx from '@astrojs/mdx';
+import rehypeShiki from '@shikijs/rehype';
+import { transformerTwoslash } from '@shikijs/twoslash';
+import { parseHTML } from 'linkedom';
+import rehypePrettyCode from 'rehype-pretty-code';
+import { loadFixture } from './test-utils.ts';
+
+const FIXTURE_ROOT = new URL('./fixtures/mdx-syntax-highlighting/', import.meta.url);
+
+describe('MDX syntax highlighting', () => {
+	describe('shiki', () => {
+		it('works', async () => {
+			const fixture = await loadFixture({
+				root: FIXTURE_ROOT,
+				markdown: {
+					syntaxHighlight: 'shiki',
+				},
+				integrations: [mdx()],
+			});
+			await fixture.build();
+
+			const html = await fixture.readFile('/index.html');
+			const { document } = parseHTML(html);
+
+			const shikiCodeBlock = document.querySelector('pre.astro-code')!;
+			assert.notEqual(shikiCodeBlock, null);
+			assert.equal(
+				shikiCodeBlock.getAttribute('style')!.includes('background-color:#24292e'),
+				true,
+			);
+		});
+
+		it('respects markdown.shikiConfig.theme', async () => {
+			const fixture = await loadFixture({
+				root: FIXTURE_ROOT,
+				markdown: {
+					syntaxHighlight: 'shiki',
+					shikiConfig: {
+						theme: 'dracula',
+					},
+				},
+				integrations: [mdx()],
+			});
+			await fixture.build();
+
+			const html = await fixture.readFile('/index.html');
+			const { document } = parseHTML(html);
+
+			const shikiCodeBlock = document.querySelector('pre.astro-code')!;
+			assert.notEqual(shikiCodeBlock, null);
+			assert.equal(
+				shikiCodeBlock.getAttribute('style')!.includes('background-color:#282A36'),
+				true,
+			);
+		});
+	});
+
+	describe('prism', () => {
+		it('works', async () => {
+			const fixture = await loadFixture({
+				root: FIXTURE_ROOT,
+				markdown: {
+					syntaxHighlight: 'prism',
+				},
+				integrations: [mdx()],
+			});
+			await fixture.build();
+
+			const html = await fixture.readFile('/index.html');
+			const { document } = parseHTML(html);
+
+			const prismCodeBlock = document.querySelector('pre.language-astro');
+			assert.notEqual(prismCodeBlock, null);
+		});
+
+		for (const extendMarkdownConfig of [true, false]) {
+			it(`respects syntaxHighlight when extendMarkdownConfig = ${extendMarkdownConfig}`, async () => {
+				const fixture = await loadFixture({
+					root: FIXTURE_ROOT,
+					markdown: {
+						syntaxHighlight: 'shiki',
+					},
+					integrations: [
+						mdx({
+							extendMarkdownConfig,
+							syntaxHighlight: 'prism',
+						}),
+					],
+				});
+				await fixture.build();
+
+				const html = await fixture.readFile('/index.html');
+				const { document } = parseHTML(html);
+
+				const shikiCodeBlock = document.querySelector('pre.astro-code');
+				assert.equal(shikiCodeBlock, null, 'Markdown config syntaxHighlight used unexpectedly');
+				const prismCodeBlock = document.querySelector('pre.language-astro');
+				assert.notEqual(prismCodeBlock, null);
+			});
+		}
+	});
+
+	it('supports custom highlighter - @shikijs/rehype and @shikijs/twoslash', async () => {
+		const fixture = await loadFixture({
+			root: FIXTURE_ROOT,
+			markdown: {
+				syntaxHighlight: false,
+			},
+			integrations: [
+				mdx({
+					rehypePlugins: [
+						[
+							rehypeShiki,
+							{
+								theme: 'vitesse-light',
+								transformers: [transformerTwoslash({})],
+							},
+						],
+					],
+				}),
+			],
+		});
+		await fixture.build();
+
+		const html = await fixture.readFile('/index.html');
+		const { document } = parseHTML(html);
+
+		const shikiCodeBlock = document.querySelector('pre.shiki');
+		assert.notEqual(shikiCodeBlock, null);
+
+		const twoslashPopup = document.querySelector('div.twoslash-popup-docs');
+		assert.notEqual(twoslashPopup, null);
+	});
+
+	it('supports custom highlighter - rehype-pretty-code', async () => {
+		const fixture = await loadFixture({
+			root: FIXTURE_ROOT,
+			markdown: {
+				syntaxHighlight: false,
+			},
+			integrations: [
+				mdx({
+					rehypePlugins: [
+						[
+							rehypePrettyCode,
+							{
+								onVisitHighlightedLine(node: { properties: Record<string, string> }) {
+									node.properties.style = 'background-color:#000000';
+								},
+							},
+						],
+					],
+				}),
+			],
+		});
+		await fixture.build();
+
+		const html = await fixture.readFile('/index.html');
+		assert.equal(html.includes('style="background-color:#000000"'), true);
+	});
+});

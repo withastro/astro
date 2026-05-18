@@ -1,0 +1,176 @@
+# Fix
+
+Develop and verify a fix for a diagnosed Astro bug.
+
+**CRITICAL: You MUST always read `report.md` and append to `report.md` before finishing, regardless of outcome. Even if the fix attempt fails, you encounter errors, or you cannot resolve the bug — always update `report.md` with your findings. The orchestrator and downstream skills depend on this file to determine what happened.**
+
+**SCOPE: Do not spawn tasks/sub-agents.**
+
+## Prerequisites
+
+These variables are referenced throughout this skill. They may be passed as args by an orchestrator, or inferred from the conversation when run standalone.
+
+- **`triageDir`** — Directory containing the reproduction project (e.g. `triage/issue-123`). If not passed as an arg, infer from previous conversation.
+- **`issueDetails`** - The GitHub API issue details payload. This must be provided explicitly by the user or available from prior conversation context / tool calls. If this data isn't available, you may run `gh issue view ${issue_number}` to load the missing issue details directly from GitHub.
+- **`report.md`** — File in `triageDir` that MAY exist. Contains the full context from all previous skills.
+- **Astro Compiler source** — The `withastro/compiler` repo MAY be cloned at `.compiler/` (inside the repo root, gitignored). If it exists and the root cause is in the compiler, investigate and propose fixes there. This clone is **reference only** — it is not wired into the monorepo's dependencies, so compiler changes cannot be tested end-to-end here. Document proposed compiler changes and diff in `report.md` instead.
+
+## Overview
+
+1. Review the diagnosis from `report.md`
+2. Verify fix feasibility (browser/runtime compatibility)
+3. Implement a minimal fix in `packages/`
+4. Rebuild the affected package(s)
+5. Verify the fix resolves the reproduction
+6. Write a unit test
+7. Ensure no regressions
+8. Generate git diff
+9. Create a changeset
+10. Append fix details to `report.md`
+11. Clean up the working directory
+
+## Step 1: Review the Diagnosis
+
+Read `report.md` from the `triageDir` directory to understand:
+
+- The root cause and affected files
+- The suggested approach
+- Any edge cases to consider
+
+**Skip if prerequisites unmet:** Check `report.md`: If bug was not reproduced or was skipped → append "FIX SKIPPED: Not reproduced" to `report.md` and return `fixed: false`. Do NOT attempt a fix based on guesswork when you cannot reproduce or diagnose the issue.
+
+**Low-confidence path:** If diagnosis confidence is `low` or `null`, or no clear root cause was found → do NOT attempt a code fix. Instead:
+
+1. Identify the most likely area(s) of the codebase related to the issue (files, functions, code paths).
+2. If possible, write a failing unit test that demonstrates the expected behavior described in the issue. Place it in `test/units/` inside the affected package (see Step 6 for conventions and placement rules). A failing test is valuable even without a fix — it documents the bug and prevents it from being forgotten.
+3. If you identified specific code paths, add brief inline comments (prefixed `// TRIAGE:`) near the most relevant lines in `packages/` to help the implementor orient quickly. Keep to 2-3 comments max — these are signposts, not a diagnosis.
+4. Append to `report.md`: the areas you identified, why they seem relevant, and any failing test or comments you added.
+5. Return `fixed: false`.
+
+This "breadcrumb" approach is more useful to maintainers than a wrong fix.
+
+**High-confidence path:** If diagnosis confidence is `medium` or `high` and a clear root cause was identified → proceed with implementing a fix as described in the steps below.
+
+**Note:** The repo may be messy from previous steps. Check `git status` and either work from the current state or `git reset --hard` to start clean.
+
+## Step 2: Verify Fix Feasibility
+
+Consider your potential fixes and verify that any modern features you plan to use are supported:
+
+- **Node.js:** When writing code for the runtime (server, build logic, integrations, etc.), target Node.js version `>=22.12.0`.
+- **Browsers:** If your fix relies on browser support for any web platform feature, check the browser compatibility table on MDN to confirm it is supported across our browser targets. Do not treat specification compliance as proof of browser support. If the feature lacks sufficient support, choose a different approach.
+
+## Step 3: Implement the Fix
+
+Make changes in `packages/` source files. Follow these principles:
+
+**Keep it minimal:**
+
+- Only change what's necessary to fix the bug
+- Don't refactor unrelated code
+- Don't add new features
+- **Never "fix" an issue by removing a user's dependency.** Removing an adapter (Cloudflare, Netlify, Vercel, etc.), framework integration (Svelte, React, Vue, etc.), or feature (MDX, DB, etc.) is not a fix, these are things the user needs. The fix must work within the user's existing stack or expected feature set.
+
+**Consider edge cases:**
+
+- Will this break other use cases?
+- What happens with unusual input?
+- Are there null/undefined checks needed?
+
+Example fix:
+
+```typescript
+// Before (in packages/astro/src/core/render/component.ts)
+export function renderComponent(component: AstroComponent, props: Props) {
+  const html = renderToString(component, props);
+  return html;
+}
+
+// After
+export function renderComponent(component: AstroComponent, props: Props) {
+  // Skip SSR for client:only components
+  if (props['client:only']) {
+    return `<astro-island client="only" component-url="${component.url}"></astro-island>`;
+  }
+  const html = renderToString(component, props);
+  return html;
+}
+```
+
+## Step 4: Rebuild the Package
+
+After making changes, rebuild the affected package:
+
+```bash
+pnpm -C packages/astro build    # or packages/integrations/<name>
+```
+
+Watch for build errors — fix any TypeScript issues before proceeding.
+
+## Step 5: Verify the Fix
+
+Re-run the reproduction, often using `pnpm run build`/`astro build` or `pnpm run dev`/`astro dev`.
+
+## Step 6: Write a Unit Test
+
+Write a unit test that covers the bug you just fixed. The test should fail without the fix and pass with it. This prevents regressions and documents the expected behavior for maintainers.
+
+Read [`reference/unit-testing.md`](../../reference/unit-testing.md) for conventions, file placement, shared test utilities, and mocks. Name your `it` block after the specific behavior being verified (e.g. `it('preserves query params in redirects')`).
+
+Run the test in isolation to confirm it passes:
+
+```bash
+pnpm -C <package-dir> exec astro-scripts test "test/units/<path-to-your-test>.test.ts"
+```
+
+If the test fails, fix either the test or the implementation until it passes. If you cannot write a meaningful unit test (e.g. the bug is in template compilation, requires a full dev server, or the affected code has no importable API), document why in `report.md` and move on — do not force a test that doesn't make sense.
+
+## Step 7: Check for Regressions
+
+Test that you didn't break anything new, and that normal cases still work. If you find regressions, refine the fix to handle all cases.
+
+## Step 8: Generate Git Diff
+
+From the repository root, generate the diff:
+
+```bash
+git diff packages/
+```
+
+This captures all your changes for the report.
+
+## Step 9: Create a Changeset
+
+**Only do this if the fix was successful** (i.e., you are on the high-confidence path and the fix resolves the issue). If the fix failed or was skipped, skip this step entirely.
+
+Load the `changeset` skill and follow its instructions to create a changeset for the fix. Since this is a bug fix, the bump type will almost always be `patch`.
+
+## Step 10: Write Output
+
+Append your fix details to the existing `report.md` (written by reproduce and diagnose skills).
+
+Include a new section with: what you changed, why, the full git diff, verification results, and any tradeoffs or alternative approaches considered.
+
+The report must include all information needed for a final GitHub comment to be generated later by the comment skill. Make sure to include:
+
+- What was changed and why
+- The full git diff (unless it is massive, if it is)
+- Whether the fix was successful or not
+- Verification results (did the fix resolve the original error?)
+- Unit test details: what test was added, where it lives, and what it verifies. If no test was added, explain why.
+- Changeset details: what changeset file was created and which packages it covers. If no changeset was created, explain why.
+- Any alternative approaches considered and their tradeoffs
+- If the fix failed: what was tried and why it didn't work
+
+## Step 11: Clean Up the Working Directory
+
+1. Run `git status` and review all changed files
+2. Revert any changes that are NOT part of the fix:
+   - Debug code, `console.log`s, or temporary test files
+   - Changes outside `packages/` that were only needed for diagnosis/reproduction
+   - Build artifacts that shouldn't be committed
+3. Use `git checkout -- <file>` to discard unwanted changes
+4. Confirm with a final `git status` that only the intended fix files remain
+5. DO NOT commit or push anything yet! The user will handle that at a later step.
+
+The `triage/` directory is already gitignored, so it won't appear in `git status`.

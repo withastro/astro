@@ -1,0 +1,17 @@
+---
+import { getEntry, render } from "astro:content";
+
+const post = await getEntry('blog', 'with-table-attrs');
+const { Content } = await render(post);
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Content</title>
+</head>
+<body>
+	<Content />
+</body>
+</html>

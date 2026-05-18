@@ -1,0 +1,65 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "scopeName": "text.html.markdown.astro",
+  "injectionSelector": "L:text.html.markdown",
+  "patterns": [
+    {
+      "include": "#fenced_code_block_astro"
+    }
+  ],
+  "repository": {
+    "fenced_code_block_astro": {
+      "name": "markup.fenced_code.block.markdown",
+      "begin": "(^|\\G)(\\s*)(\\`{3,}|~{3,})\\s*(?i:astro(\\s+[^`~]*)?$)",
+      "end": "(^|\\G)(\\2|\\s{0,3})(\\3)\\s*$",
+      "beginCaptures": {
+        "3": {
+          "name": "punctuation.definition.markdown"
+        },
+        "5": {
+          "name": "fenced_code.block.language"
+        },
+        "6": {
+          "name": "fenced_code.block.language.attributes"
+        }
+      },
+      "endCaptures": {
+        "3": {
+          "name": "punctuation.definition.markdown"
+        }
+      },
+      "patterns": [
+        {
+          "begin": "(^|\\G)(\\s*)(.*)",
+          "while": "(^|\\G)(?!\\s*([`~]{3,})\\s*$)",
+          "patterns": [
+            {
+              "begin": "^\\s*---\\s*$",
+              "end": "^\\s*---\\s*$",
+              "beginCaptures": {
+                "0": {
+                  "name": "punctuation.definition.tag.xi.begin.t"
+                }
+              },
+              "endCaptures": {
+                "0": {
+                  "name": "punctuation.definition.tag.xi.end.t"
+                }
+              },
+              "contentName": "meta.embedded.block.astro.frontmatter",
+              "patterns": [
+                {
+                  "include": "source.tsx"
+                }
+              ]
+            },
+            {
+              "contentName": "meta.embedded.block.astro",
+              "include": "source.astro"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

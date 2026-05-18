@@ -1,0 +1,7 @@
+---
+import { uneval } from 'devalue';
+
+const encoded = uneval({ message: 'hello world' });
+---
+
+<p>Encoded: {encoded}</p>

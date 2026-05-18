@@ -1,0 +1,39 @@
+[kendrick-lamar]
+name = "Kendrick Lamar"
+genre = ["Hip-Hop", "Rap"]
+
+[mac-miller]
+name = "Mac Miller"
+genre = ["Hip-Hop", "Rap"]
+
+[jid]
+name = "JID"
+genre = ["Hip-Hop", "Rap"]
+
+[yasiin-bey]
+name = "Yasiin Bey"
+genre = ["Hip-Hop", "Rap"]
+
+[kanye-west]
+name = "Kanye West"
+genre = ["Hip-Hop", "Rap"]
+
+[jay-z]
+name = "JAY-Z"
+genre = ["Hip-Hop", "Rap"]
+
+[j-ivy]
+name = "J. Ivy"
+genre = ["Spoken Word", "Rap"]
+
+[frank-ocean]
+name = "Frank Ocean"
+genre = ["R&B", "Hip-Hop"]
+
+[the-dream]
+name = "The-Dream"
+genre = ["R&B", "Hip-Hop"]
+
+[baby-keem]
+name = "Baby Keem"
+genre = ["Hip-Hop", "Rap"]

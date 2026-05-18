@@ -1,0 +1,42 @@
+---
+import Counter from '../components/Counter.jsx';
+import Static from '../components/Static.jsx';
+---
+<html>
+	<head>
+		<title>Client Components Test</title>
+	</head>
+	<body>
+		<h1>Client Components Test</h1>
+
+		<section id="client-load">
+			<h2>client:load</h2>
+			<Counter client:load initialCount={5} />
+		</section>
+
+		<section id="client-idle">
+			<h2>client:idle</h2>
+			<Counter client:idle initialCount={10} />
+		</section>
+
+		<section id="client-visible">
+			<h2>client:visible</h2>
+			<Counter client:visible initialCount={15} />
+		</section>
+
+		<section id="client-media">
+			<h2>client:media</h2>
+			<Counter client:media="(max-width: 640px)" initialCount={20} />
+		</section>
+
+		<section id="client-only">
+			<h2>client:only</h2>
+			<Counter client:only="react" initialCount={25} />
+		</section>
+
+		<section id="no-client-directive">
+			<h2>No client directive (SSR only)</h2>
+			<Static message="Server-side only" />
+		</section>
+	</body>
+</html>

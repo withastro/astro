@@ -1,0 +1,44 @@
+// This file is the workspace solution: it references each package's
+// tsconfig.json so a single `tsc -b` covers the whole monorepo.
+{
+  "extends": "./configs/tsconfig.base.json",
+  "files": [
+    // Root config files that aren't in any package
+    "./prettier.config.mjs",
+    "./eslint.config.js",
+    "./knip.js"
+  ],
+  "references": [
+    { "path": "./benchmark/tsconfig.json" },
+    { "path": "./packages/internal-helpers/tsconfig.json" },
+    { "path": "./packages/telemetry/tsconfig.json" },
+    { "path": "./packages/astro-prism/tsconfig.json" },
+    { "path": "./packages/astro-rss/tsconfig.json" },
+    { "path": "./packages/markdown/remark/tsconfig.json" },
+    { "path": "./packages/astro/tsconfig.json" },
+    { "path": "./packages/underscore-redirects/tsconfig.json" },
+    { "path": "./packages/integrations/alpinejs/tsconfig.json" },
+    { "path": "./packages/integrations/cloudflare/tsconfig.json" },
+    { "path": "./packages/integrations/markdoc/tsconfig.json" },
+    { "path": "./packages/integrations/mdx/tsconfig.json" },
+    { "path": "./packages/integrations/netlify/tsconfig.json" },
+    { "path": "./packages/integrations/node/tsconfig.json" },
+    { "path": "./packages/integrations/partytown/tsconfig.json" },
+    { "path": "./packages/integrations/preact/tsconfig.json" },
+    { "path": "./packages/integrations/react/tsconfig.json" },
+    { "path": "./packages/integrations/sitemap/tsconfig.json" },
+    { "path": "./packages/integrations/solid/tsconfig.json" },
+    { "path": "./packages/integrations/svelte/tsconfig.json" },
+    { "path": "./packages/integrations/vercel/tsconfig.json" },
+    { "path": "./packages/integrations/vue/tsconfig.json" },
+    { "path": "./packages/create-astro/tsconfig.json" },
+    { "path": "./packages/db/tsconfig.json" },
+    { "path": "./packages/upgrade/tsconfig.json" },
+    { "path": "./packages/language-tools/astro-check/tsconfig.json" },
+    { "path": "./packages/language-tools/language-server/tsconfig.json" },
+    { "path": "./packages/language-tools/language-server/test/tsconfig.json" },
+    { "path": "./packages/language-tools/ts-plugin/tsconfig.json" },
+    { "path": "./packages/language-tools/vscode/tsconfig.json" },
+    { "path": "./packages/language-tools/yaml2ts/tsconfig.json" }
+  ]
+}

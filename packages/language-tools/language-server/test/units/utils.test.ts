@@ -1,0 +1,238 @@
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
+import { Range } from '@volar/language-server';
+import ts from 'typescript';
+import type { Node } from 'vscode-html-languageservice';
+import * as html from 'vscode-html-languageservice';
+import { getTSXRangesAsLSPRanges, safeConvertToTSX } from '../../dist/core/astro2tsx.js';
+import { getAstroMetadata } from '../../dist/core/parseAstro.js';
+import { patchTSX } from '../../dist/core/utils.js';
+import {
+	getAlreadyImportedAstroComponentSources,
+	rewriteAstroImportText,
+} from '../../dist/plugins/typescript/utils.js';
+import * as utils from '../../dist/plugins/utils.js';
+
+describe('Utilities', async () => {
+	it('isTsDocument - properly return if a document is JavaScript', () => {
+		assert.strictEqual(utils.isJSDocument('javascript'), true);
+		assert.strictEqual(utils.isJSDocument('typescript'), true);
+		assert.strictEqual(utils.isJSDocument('javascriptreact'), true);
+		assert.strictEqual(utils.isJSDocument('typescriptreact'), true);
+	});
+
+	it('isPossibleComponent - properly return if a node is a component', () => {
+		const node = {
+			tag: 'div',
+		} as Node;
+		assert.strictEqual(utils.isPossibleComponent(node), false);
+
+		const component = {
+			tag: 'MyComponent',
+		} as Node;
+		assert.strictEqual(utils.isPossibleComponent(component), true);
+
+		const namespacedComponent = {
+			tag: 'components.MyOtherComponent',
+		} as Node;
+		assert.strictEqual(utils.isPossibleComponent(namespacedComponent), true);
+	});
+
+	it('isInComponentStartTag - properly return if a given offset is inside the start tag of a component', () => {
+		const htmlLs = html.getLanguageService();
+		const htmlContent = `<div><Component astr></Component></div>`;
+		const htmlDoc = htmlLs.parseHTMLDocument({ getText: () => htmlContent } as any);
+
+		assert.strictEqual(utils.isInComponentStartTag(htmlDoc, 3), false);
+		assert.strictEqual(utils.isInComponentStartTag(htmlDoc, 16), true);
+	});
+
+	it('isInsideExpression - properly return if a given position is inside a JSX expression', () => {
+		const template = `<div>{expression}</div>`;
+		assert.strictEqual(utils.isInsideExpression(template, 0, 0), false);
+		assert.strictEqual(utils.isInsideExpression(template, 0, 6), true);
+	});
+
+	it('isInsideFrontmatter - properly return if a given offset is inside the frontmatter', () => {
+		const hasFrontmatter = getAstroMetadata('file.astro', '---\nfoo\n---\n');
+		assert.strictEqual(utils.isInsideFrontmatter(0, hasFrontmatter.frontmatter), false);
+		assert.strictEqual(utils.isInsideFrontmatter(6, hasFrontmatter.frontmatter), true);
+		assert.strictEqual(utils.isInsideFrontmatter(15, hasFrontmatter.frontmatter), false);
+
+		const noFrontmatter = getAstroMetadata('file.astro', '<div></div>');
+		assert.strictEqual(utils.isInsideFrontmatter(0, noFrontmatter.frontmatter), false);
+		assert.strictEqual(utils.isInsideFrontmatter(6, noFrontmatter.frontmatter), false);
+
+		const openFrontmatter = getAstroMetadata('file.astro', '---\nfoo\n');
+		assert.strictEqual(utils.isInsideFrontmatter(0, openFrontmatter.frontmatter), false);
+		assert.strictEqual(utils.isInsideFrontmatter(6, openFrontmatter.frontmatter), true);
+	});
+
+	it('ensureRangeIsInFrontmatter - properly return a range inside the frontmatter', () => {
+		const beforeFrontmatterRange = Range.create(0, 0, 0, 0);
+		const input = '---\nfoo\n---\n';
+		const tsx = safeConvertToTSX(input, { filename: 'file.astro' });
+		const tsxRanges = getTSXRangesAsLSPRanges(tsx);
+		const astroMetadata = { tsxRanges, ...getAstroMetadata('file.astro', input) };
+
+		assert.deepStrictEqual(
+			utils.ensureRangeIsInFrontmatter(beforeFrontmatterRange, astroMetadata),
+			Range.create(2, 0, 2, 0),
+		);
+
+		const insideFrontmatterRange = Range.create(1, 0, 1, 0);
+		assert.deepStrictEqual(
+			utils.ensureRangeIsInFrontmatter(insideFrontmatterRange, astroMetadata),
+			Range.create(2, 0, 2, 0),
+		);
+
+		const outsideFrontmatterRange = Range.create(6, 0, 6, 0);
+		assert.deepStrictEqual(
+			utils.ensureRangeIsInFrontmatter(outsideFrontmatterRange, astroMetadata),
+			Range.create(2, 0, 2, 0),
+		);
+	});
+
+	it('getNewFrontmatterEdit - properly return a new frontmatter edit', () => {
+		const input = '<div></div>';
+		const tsx = safeConvertToTSX(input, { filename: 'file.astro' });
+		const tsxRanges = getTSXRangesAsLSPRanges(tsx);
+		const astroMetadata = { tsxRanges, ...getAstroMetadata('file.astro', input) };
+		const edit = utils.getNewFrontmatterEdit(
+			{ range: Range.create(43, 0, 44, 0), newText: 'foo' },
+			astroMetadata,
+			'\n',
+		);
+		assert.deepStrictEqual(edit, {
+			range: Range.create(2, 0, 2, 0),
+			newText: '---\nfoo---\n\n',
+		});
+	});
+
+	it('getOpenFrontmatterEdit - properly return an open frontmatter edit', () => {
+		const input = '<div></div>';
+		const tsx = safeConvertToTSX(input, { filename: 'file.astro' });
+		const tsxRanges = getTSXRangesAsLSPRanges(tsx);
+		const astroMetadata = { tsxRanges, ...getAstroMetadata('file.astro', input) };
+		const edit = utils.getOpenFrontmatterEdit(
+			{ range: Range.create(2, 0, 2, 0), newText: 'foo' },
+			astroMetadata,
+			'\n',
+		);
+
+		assert.deepStrictEqual(edit, {
+			range: Range.create(2, 0, 2, 0),
+			newText: '\nfoo---',
+		});
+	});
+
+	it('rewriteAstroImportText - strips AstroComponent suffixes from default Astro imports', () => {
+		assert.strictEqual(
+			rewriteAstroImportText(`import ImageAstroComponent from "../components/Image.astro";\n`),
+			`import Image from "../components/Image.astro";\n`,
+		);
+	});
+
+	it('rewriteAstroImportText - only rewrites Astro imports', () => {
+		assert.strictEqual(
+			rewriteAstroImportText(`import ImageAstroComponent from "astro:assets";\n`),
+			`import ImageAstroComponent from "astro:assets";\n`,
+		);
+	});
+
+	it('rewriteAstroImportText - preserves named imports on Astro component imports', () => {
+		assert.strictEqual(
+			rewriteAstroImportText(
+				`import ImageAstroComponent, { type Props } from "../components/Image.astro";\n`,
+			),
+			`import Image, { type Props } from "../components/Image.astro";\n`,
+		);
+	});
+
+	it('rewriteAstroImportText - strips AstroComponent suffixes from default aliases', () => {
+		assert.strictEqual(
+			rewriteAstroImportText(
+				`import { default as ImageAstroComponent } from "../components/Image.astro";\n`,
+			),
+			`import { default as Image } from "../components/Image.astro";\n`,
+		);
+	});
+
+	it('getAlreadyImportedAstroComponentSources - detects runtime Astro component imports', () => {
+		assert.deepStrictEqual(
+			Array.from(
+				getAlreadyImportedAstroComponentSources(
+					ts,
+					`import Image from "../components/Image.astro";\nimport { default as Card } from "../components/Card.astro";\n`,
+				),
+			),
+			['../components/Image.astro', '../components/Card.astro'],
+		);
+	});
+
+	it('getAlreadyImportedAstroComponentSources - ignores type-only Astro imports', () => {
+		assert.deepStrictEqual(
+			Array.from(
+				getAlreadyImportedAstroComponentSources(
+					ts,
+					`import type { Props } from "../components/Image.astro";\n`,
+				),
+			),
+			[],
+		);
+	});
+
+	it('getAlreadyImportedAstroComponentSources - parses Astro frontmatter imports', () => {
+		assert.deepStrictEqual(
+			Array.from(
+				getAlreadyImportedAstroComponentSources(
+					ts,
+					`---
+import Image from "../components/Image.astro";
+---
+<Image />
+`,
+				),
+			),
+			['../components/Image.astro'],
+		);
+	});
+
+	it('patchTSX - keeps AstroComponent suffixes when import names conflict', () => {
+		const input = `/* @jsxImportSource astro */
+
+import { Image } from 'astro:assets';
+
+export default function Image__AstroComponent_(_props: Record<string, any>): any {}
+`;
+
+		assert.match(
+			patchTSX(input, 'file:///src/pages/image.astro'),
+			/export default function ImageAstroComponent\(/,
+		);
+	});
+
+	it('patchTSX - keeps filename-based component names for plain references', () => {
+		const input = `/* @jsxImportSource astro */
+
+<Fragment>
+<div>{Image}</div>
+</Fragment>
+export default function Image__AstroComponent_(_props: Record<string, any>): any {}
+`;
+
+		assert.match(
+			patchTSX(input, 'file:///src/pages/image.astro'),
+			/export default function ImageAstroComponent\(/,
+		);
+	});
+
+	it('patchTSX - preserves dynamic route component names', () => {
+		const input = `export default function slug__AstroComponent_(_props: Record<string, any>): any {}`;
+
+		assert.match(
+			patchTSX(input, 'file:///src/pages/[slug].astro'),
+			/export default function _slug_AstroComponent\(/,
+		);
+	});
+});

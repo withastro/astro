@@ -1,0 +1,47 @@
+---
+import Counter from '../components/Counter.astro';
+---
+
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Template Script Dedup Demo</title>
+		<style>
+			body { font-family: system-ui; max-width: 600px; margin: 2rem auto; }
+			.counter { display: flex; align-items: center; gap: 0.5rem; margin: 0.5rem 0; }
+			.counter button { padding: 0.25rem 0.75rem; font-size: 1.2rem; cursor: pointer; }
+			.counter .count { min-width: 2rem; text-align: center; font-size: 1.2rem; }
+			section { border: 1px solid #ccc; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0; }
+			h2 { margin-top: 0; }
+		</style>
+	</head>
+	<body>
+		<h1>Issue #15389 — Template Script Dedup</h1>
+
+		<section>
+			<h2>1. Component inside &lt;template&gt; (inert)</h2>
+			<p>This counter lives inside a <code>&lt;template&gt;</code> tag — invisible and inert.</p>
+			<template id="counter-template">
+				<Counter />
+			</template>
+			<button id="clone-btn">Clone template into the box below</button>
+			<div id="cloned-container" style="border: 1px dashed #999; padding: 0.5rem; margin-top: 0.5rem; min-height: 2rem;"></div>
+		</section>
+
+		<section>
+			<h2>2. Component outside &lt;template&gt;</h2>
+			<p>This counter is rendered normally. <strong>Click + / − to verify it works.</strong></p>
+			<Counter />
+		</section>
+
+		<script>
+			document.getElementById('clone-btn')?.addEventListener('click', () => {
+				const tpl = document.getElementById('counter-template');
+				if (tpl instanceof HTMLTemplateElement) {
+					const clone = tpl.content.cloneNode(true);
+					document.getElementById('cloned-container')?.appendChild(clone);
+				}
+			});
+		</script>
+	</body>
+</html>

@@ -1,0 +1,42 @@
+import { runHookRouteSetup } from '../../integrations/hooks.js';
+import { getPrerenderDefault } from '../../prerender/utils.js';
+import type { AstroSettings } from '../../types/astro.js';
+import type { RouteData } from '../../types/public/internal.js';
+import type { AstroLogger } from '../logger/core.js';
+
+const PRERENDER_REGEX = /^\s*export\s+const\s+prerender\s*=\s*(true|false);?/m;
+
+/**
+ * Parses the `export const prerender = true|false` declaration from a route's
+ * source content. Returns `true`, `false`, or `undefined` if not present.
+ */
+export function parsePrerenderExport(content: string): boolean | undefined {
+	const match = PRERENDER_REGEX.exec(content);
+	if (!match) return undefined;
+	return match[1] === 'true';
+}
+
+export async function getRoutePrerenderOption(
+	content: string,
+	route: RouteData,
+	settings: AstroSettings,
+	logger: AstroLogger,
+) {
+	// Check if the route is pre-rendered or not
+	const match = PRERENDER_REGEX.exec(content);
+	if (match) {
+		route.prerender = match[1] === 'true';
+		if (route.redirectRoute) {
+			route.redirectRoute.prerender = match[1] === 'true';
+		}
+	}
+
+	await runHookRouteSetup({ route, settings, logger });
+
+	// If not explicitly set, default to the global setting
+	if (typeof route.prerender === undefined) {
+		route.prerender = getPrerenderDefault(settings.config);
+	}
+
+	if (!route.prerender) settings.buildOutput = 'server';
+}

@@ -1,0 +1,203 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "schedule:weekly",
+    ":disablePeerDependencies",
+    "regexManagers:biomeVersions",
+    "helpers:pinGitHubActionDigestsToSemver"
+  ],
+  "labels": ["dependencies"],
+  "rangeStrategy": "bump",
+  "postUpdateOptions": ["pnpmDedupe"],
+  "lockFileMaintenance": {
+    "enabled": true
+  },
+  "ignorePaths": ["**/node_modules/**"],
+  "packageRules": [
+    //#region Infra groups
+    {
+      "groupName": "lockfile maintenance",
+      "matchUpdateTypes": ["lockFileMaintenance"]
+    },
+    {
+      "groupName": "github-actions",
+      "matchManagers": ["github-actions"]
+    },
+    {
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["engines"],
+      "enabled": false
+    },
+    //#endregion
+
+    //#region Per-package groups (non-major only)
+    {
+      "groupName": "astro",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchFileNames": ["packages/astro/**"]
+    },
+    {
+      "groupName": "markdown",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchFileNames": [
+        "packages/markdown/remark/**",
+        "packages/integrations/mdx/**"
+      ]
+    },
+    {
+      "groupName": "language-tools",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchFileNames": ["packages/language-tools/**"]
+    },
+    //#endregion
+
+    //#region Adapters
+    {
+      "groupName": "@astrojs/cloudflare",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchFileNames": ["packages/integrations/cloudflare/**"]
+    },
+    {
+      "groupName": "@astrojs/netlify",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchFileNames": ["packages/integrations/netlify/**"]
+    },
+    {
+      "groupName": "@astrojs/node",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchFileNames": ["packages/integrations/node/**"]
+    },
+    {
+      "groupName": "@astrojs/vercel",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchFileNames": ["packages/integrations/vercel/**"]
+    },
+    //#endregion
+
+    //#region Client runtimes
+    {
+      "groupName": "@astrojs/react",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchFileNames": ["packages/integrations/react/**"]
+    },
+    {
+      "groupName": "@astrojs/preact",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchFileNames": ["packages/integrations/preact/**"]
+    },
+    {
+      "groupName": "@astrojs/solid-js",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchFileNames": ["packages/integrations/solid/**"]
+    },
+    {
+      "groupName": "@astrojs/svelte",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchFileNames": ["packages/integrations/svelte/**"]
+    },
+    {
+      "groupName": "@astrojs/vue",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchFileNames": ["packages/integrations/vue/**"]
+    },
+    //#endregion
+
+    //#region Other integrations
+    {
+      "groupName": "@astrojs/alpinejs",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchFileNames": ["packages/integrations/alpinejs/**"]
+    },
+    {
+      "groupName": "@astrojs/markdoc",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchFileNames": ["packages/integrations/markdoc/**"]
+    },
+    {
+      "groupName": "@astrojs/partytown",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchFileNames": ["packages/integrations/partytown/**"]
+    },
+    {
+      "groupName": "@astrojs/sitemap",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchFileNames": ["packages/integrations/sitemap/**"]
+    },
+    //#endregion
+
+    //#region Standalone packages
+    {
+      "groupName": "@astrojs/db",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchFileNames": ["packages/db/**"]
+    },
+    {
+      "groupName": "create-astro",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchFileNames": ["packages/create-astro/**"]
+    },
+    {
+      "groupName": "@astrojs/upgrade",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchFileNames": ["packages/upgrade/**"]
+    },
+    //#endregion
+
+    //#region Minor packages (few external deps, rarely trigger updates)
+    {
+      "groupName": "minor packages",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchFileNames": [
+        "packages/astro-prism/**",
+        "packages/astro-rss/**",
+        "packages/internal-helpers/**",
+        "packages/telemetry/**",
+        "packages/underscore-redirects/**"
+      ]
+    }
+    //#endregion
+  ],
+  "ignoreDeps": [
+    // manually bumping deps
+    "@biomejs/biome",
+    "knip",
+    "@types/node",
+    "@types/vscode",
+
+    // TODO: investigate upgrade (zod import issues with atproto)
+    "astro-embed",
+
+    // TODO: investigate upgrade (has type issues)
+    "drizzle-orm",
+    "sharp",
+
+    // manually bumping workflow actions
+    "actions/labeler",
+
+    // follow vite deps version
+    "postcss-load-config",
+    "esbuild"
+  ],
+  "minimumReleaseAge": "3 days"
+}

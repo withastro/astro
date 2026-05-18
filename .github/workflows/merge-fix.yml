@@ -1,0 +1,156 @@
+name: Merge Fix
+
+on:
+  # Auto-trigger when CI fails on the merge branch
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [ci/merge-main-to-next]
+  # Manual trigger with PR number
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "PR number to fix (defaults to the open merge PR)"
+        required: false
+        type: string
+
+permissions: {}
+
+env:
+  IMAGE: ghcr.io/${{ github.repository }}/flue-sandbox
+
+concurrency:
+  group: merge-fix
+  cancel-in-progress: false
+
+jobs:
+  fix:
+    name: Fix merge PR
+    # Only run when CI failed (or manual dispatch), and only in the withastro org
+    if: >-
+      github.repository_owner == 'withastro' &&
+      (github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'failure')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write # Push fix commits
+      pull-requests: write # Update PR
+      packages: read # Pull sandbox image from GHCR
+    steps:
+      - name: Lowercase image name
+        run: echo "IMAGE=${IMAGE,,}" >> "$GITHUB_ENV"
+
+      - name: Resolve PR number
+        id: pr
+        env:
+          GH_TOKEN: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
+          INPUT_PR: ${{ inputs.pr_number }}
+        run: |
+          if [ -n "$INPUT_PR" ]; then
+            echo "number=$INPUT_PR" >> "$GITHUB_OUTPUT"
+          else
+            PR_NUMBER=$(gh pr list \
+              --repo "${{ github.repository }}" \
+              --head "ci/merge-main-to-next" \
+              --base "next" \
+              --json number \
+              --jq '.[0].number' 2>/dev/null || echo "")
+            if [ -z "$PR_NUMBER" ]; then
+              echo "No open merge PR found — nothing to fix."
+              echo "number=" >> "$GITHUB_OUTPUT"
+            else
+              echo "number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+            fi
+          fi
+
+      - name: Checkout
+        if: steps.pr.outputs.number != ''
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ci/merge-main-to-next
+          fetch-depth: 0
+          token: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
+
+      - name: Configure Git identity
+        if: steps.pr.outputs.number != ''
+        run: |
+          git config user.name "astrobot-houston"
+          git config user.email "fred+astrobot@astro.build"
+
+      - name: Check fix attempt count
+        if: steps.pr.outputs.number != ''
+        id: attempts
+        run: |
+          # Count prior fix commits by the bot on this branch (since it diverged from next)
+          COUNT=$(git log --oneline origin/next..HEAD --author="astrobot-houston" --grep="fix .* failures for main-to-next merge" | wc -l | tr -d ' ')
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+          if [ "$COUNT" -ge 3 ]; then
+            echo "::warning::Merge fix has already been attempted $COUNT times. Skipping to avoid infinite recursion."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Attempt $((COUNT + 1)) of 3"
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup PNPM
+        if: steps.pr.outputs.number != '' && steps.attempts.outputs.skip != 'true'
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+
+      - name: Setup Node
+        if: steps.pr.outputs.number != '' && steps.attempts.outputs.skip != 'true'
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24.15.0
+          cache: pnpm
+
+      - name: Install deps
+        if: steps.pr.outputs.number != '' && steps.attempts.outputs.skip != 'true'
+        run: pnpm install --frozen-lockfile
+
+      # Build is intentionally NOT run here — the fix-ci skill handles building
+      # and fixing any build/type errors that arise from the merge.
+
+      - name: Log in to GHCR
+        if: steps.pr.outputs.number != '' && steps.attempts.outputs.skip != 'true'
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull sandbox image
+        if: steps.pr.outputs.number != '' && steps.attempts.outputs.skip != 'true'
+        run: docker pull $IMAGE:latest
+
+      - name: Start Cloudflare Tunnel
+        if: steps.pr.outputs.number != '' && steps.attempts.outputs.skip != 'true'
+        run: |
+          curl -fsSL https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o /usr/local/bin/cloudflared
+          chmod +x /usr/local/bin/cloudflared
+          cloudflared tunnel --url http://localhost:48765 --no-autoupdate 2>&1 | tee /tmp/cloudflared.log &
+          for i in $(seq 1 30); do
+            if grep -qo 'https://[^ ]*\.trycloudflare\.com' /tmp/cloudflared.log; then
+              break
+            fi
+            sleep 1
+          done
+          echo "=========================================="
+          echo "TUNNEL URL:"
+          grep -o 'https://[^ ]*\.trycloudflare\.com' /tmp/cloudflared.log || echo "WARNING: tunnel URL not found"
+          echo "=========================================="
+          echo ""
+          echo "To attach from your machine:"
+          echo "  OPENCODE_API_URL=\$(grep -o 'https://[^ ]*\\.trycloudflare\\.com' /tmp/cloudflared.log) opencode attach"
+
+      - name: Run test fix workflow
+        if: steps.pr.outputs.number != '' && steps.attempts.outputs.skip != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FREDKBOT_GITHUB_TOKEN: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.CI_ANTHROPIC_API_KEY }}
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
+        run: |
+          pnpm flue run .flue/workflows/merge-fix/WORKFLOW.ts \
+            --sandbox $IMAGE:latest \
+            --args "{\"prNumber\": $PR_NUMBER}" \
+            --model anthropic/claude-sonnet-4-20250514

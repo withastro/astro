@@ -1,0 +1,436 @@
+import type { $ZodType } from 'zod/v4/core';
+import { NOOP_ACTIONS_MOD } from '../actions/noop-actions.js';
+import type { ActionAccept, ActionClient } from '../actions/runtime/types.js';
+import type { ComponentInstance } from '../types/astro.js';
+import type { MiddlewareHandler, RewritePayload } from '../types/public/common.js';
+import type { RuntimeMode } from '../types/public/config.js';
+import type {
+	RouteData,
+	SSRActions,
+	SSRLoadedRenderer,
+	SSRManifest,
+	SSRResult,
+} from '../types/public/internal.js';
+import { createOriginCheckMiddleware } from './app/middlewares.js';
+import type { ServerIslandMappings } from './app/types.js';
+import type { SinglePageBuiltModule } from './build/types.js';
+import { ActionNotFoundError } from './errors/errors-data.js';
+import { AstroError } from './errors/index.js';
+import type { AstroLogger } from './logger/core.js';
+import { NOOP_MIDDLEWARE_FN } from './middleware/noop-middleware.js';
+import { sequence } from './middleware/sequence.js';
+import { RedirectSinglePageBuiltModule } from './redirects/index.js';
+import { RouteCache } from './render/route-cache.js';
+import { createDefaultRoutes, type DefaultRouteParams } from './routing/default.js';
+import { ensure404Route } from './routing/astro-designed-error-pages.js';
+import { Router } from './routing/router.js';
+import type { CacheProvider, CacheProviderFactory } from './cache/types.js';
+import type { CompiledCacheRoute } from './cache/runtime/route-matching.js';
+import type { SessionDriverFactory } from './session/types.js';
+import { NodePool } from '../runtime/server/render/queue/pool.js';
+import { HTMLStringCache } from '../runtime/server/html-string-cache.js';
+import { FORBIDDEN_PATH_KEYS } from '@astrojs/internal-helpers/object';
+import { loadLogger } from './logger/load.js';
+
+/**
+ * Bit flags for pipeline features that handler classes register as
+ * "used" when a custom `src/app.ts` fetch handler is in play. After the
+ * first request (dev) or at runtime (prod SSR), we compare against the
+ * manifest to warn about features the user configured but forgot to
+ * include in their custom pipeline.
+ */
+export const PipelineFeatures = {
+	redirects: 1 << 0,
+	sessions: 1 << 1,
+	actions: 1 << 2,
+	middleware: 1 << 3,
+	i18n: 1 << 4,
+	cache: 1 << 5,
+} as const;
+
+/**
+ * The `Pipeline` represents the static parts of rendering that do not change between requests.
+ * These are mostly known when the server first starts up and do not change.
+ *
+ * Thus, a `Pipeline` is created once at process start and then used by every `FetchState`.
+ */
+export abstract class Pipeline {
+	readonly internalMiddleware: MiddlewareHandler[];
+	resolvedMiddleware: MiddlewareHandler | undefined = undefined;
+	resolvedLogger = false;
+	resolvedActions: SSRActions | undefined = undefined;
+	resolvedSessionDriver: SessionDriverFactory | null | undefined = undefined;
+	resolvedCacheProvider: CacheProvider | null | undefined = undefined;
+	compiledCacheRoutes: CompiledCacheRoute[] | undefined = undefined;
+	nodePool: NodePool | undefined;
+	htmlStringCache: HTMLStringCache | undefined;
+
+	/**
+	 * Bit mask of pipeline features activated by handler classes.
+	 * Each handler sets its bit via `|=`. Only meaningful when a
+	 * custom `src/app.ts` fetch handler is in use.
+	 */
+	usedFeatures = 0;
+
+	logger: AstroLogger;
+	readonly manifest: SSRManifest;
+	/**
+	 * "development" or "production" only
+	 */
+	readonly runtimeMode: RuntimeMode;
+	readonly renderers: SSRLoadedRenderer[];
+	readonly resolve: (s: string) => Promise<string>;
+
+	readonly streaming: boolean;
+	/**
+	 * Used to provide better error messages for `Astro.clientAddress`
+	 */
+	readonly adapterName: SSRManifest['adapterName'];
+	readonly clientDirectives: SSRManifest['clientDirectives'];
+	readonly inlinedScripts: SSRManifest['inlinedScripts'];
+	readonly compressHTML: SSRManifest['compressHTML'];
+	readonly i18n: SSRManifest['i18n'];
+	readonly middleware: SSRManifest['middleware'];
+	readonly routeCache: RouteCache;
+	/**
+	 * Used for `Astro.site`.
+	 */
+	readonly site: URL | undefined;
+	/**
+	 * Array of built-in, internal, routes.
+	 * Used to find the route module
+	 */
+	readonly defaultRoutes: Array<DefaultRouteParams>;
+
+	readonly actions: SSRManifest['actions'];
+	readonly sessionDriver: SSRManifest['sessionDriver'];
+	readonly cacheProvider: SSRManifest['cacheProvider'];
+	readonly cacheConfig: SSRManifest['cacheConfig'];
+	readonly serverIslands: SSRManifest['serverIslandMappings'];
+
+	/** Route data derived from the manifest, used for route matching. */
+	manifestData: { routes: RouteData[] };
+	/** Pattern-matching router built from manifestData. */
+	#router: Router;
+
+	constructor(
+		logger: AstroLogger,
+		manifest: SSRManifest,
+		/**
+		 * "development" or "production" only
+		 */
+		runtimeMode: RuntimeMode,
+		renderers: SSRLoadedRenderer[],
+		resolve: (s: string) => Promise<string>,
+
+		streaming: boolean,
+		/**
+		 * Used to provide better error messages for `Astro.clientAddress`
+		 */
+		adapterName = manifest.adapterName,
+		clientDirectives = manifest.clientDirectives,
+		inlinedScripts = manifest.inlinedScripts,
+		compressHTML = manifest.compressHTML,
+		i18n = manifest.i18n,
+		middleware = manifest.middleware,
+		routeCache = new RouteCache(logger, runtimeMode),
+		/**
+		 * Used for `Astro.site`.
+		 */
+		site = manifest.site ? new URL(manifest.site) : undefined,
+		/**
+		 * Array of built-in, internal, routes.
+		 * Used to find the route module
+		 */
+		defaultRoutes = createDefaultRoutes(manifest),
+
+		actions = manifest.actions,
+		sessionDriver = manifest.sessionDriver,
+		cacheProvider = manifest.cacheProvider,
+		cacheConfig = manifest.cacheConfig,
+		serverIslands = manifest.serverIslandMappings,
+	) {
+		this.logger = logger;
+		this.manifest = manifest;
+		this.runtimeMode = runtimeMode;
+		this.renderers = renderers;
+		this.resolve = resolve;
+		this.streaming = streaming;
+		this.adapterName = adapterName;
+		this.clientDirectives = clientDirectives;
+		this.inlinedScripts = inlinedScripts;
+		this.compressHTML = compressHTML;
+		this.i18n = i18n;
+		this.middleware = middleware;
+		this.routeCache = routeCache;
+		this.site = site;
+		this.defaultRoutes = defaultRoutes;
+		this.actions = actions;
+		this.sessionDriver = sessionDriver;
+		this.cacheProvider = cacheProvider;
+		this.cacheConfig = cacheConfig;
+		this.serverIslands = serverIslands;
+		this.manifestData = { routes: (manifest.routes ?? []).map((route) => route.routeData) };
+		ensure404Route(this.manifestData);
+		this.#router = new Router(this.manifestData.routes, {
+			base: manifest.base,
+			trailingSlash: manifest.trailingSlash,
+			buildFormat: manifest.buildFormat,
+		});
+
+		// i18n (non-manual strategies) used to be pushed here as internal
+		// middleware, but it is now run explicitly as a post-processing step
+		// in `AstroHandler.render` via the `I18n` handler class. Users on
+		// the manual strategy still register their own middleware via
+		// `astro:i18n.middleware(...)`.
+		this.internalMiddleware = [];
+
+		if (manifest.experimentalQueuedRendering.enabled) {
+			this.nodePool = this.createNodePool(
+				manifest.experimentalQueuedRendering.poolSize ?? 1000,
+				false,
+			);
+			if (manifest.experimentalQueuedRendering.contentCache) {
+				this.htmlStringCache = this.createStringCache();
+			}
+		}
+	}
+
+	/**
+	 * Low-level route matching against the manifest routes. Returns the
+	 * matched `RouteData` or `undefined`. Does not filter prerendered
+	 * routes or check public assets — use `BaseApp.match()` for that.
+	 */
+	matchRoute(pathname: string): RouteData | undefined {
+		const match = this.#router.match(pathname, { allowWithoutBase: true });
+		if (match.type !== 'match') return undefined;
+		return match.route;
+	}
+
+	/**
+	 * Rebuilds the internal router after routes have been added or
+	 * removed (e.g. by the dev server on HMR).
+	 */
+	rebuildRouter(): void {
+		this.#router = new Router(this.manifestData.routes, {
+			base: this.manifest.base,
+			trailingSlash: this.manifest.trailingSlash,
+			buildFormat: this.manifest.buildFormat,
+		});
+	}
+
+	abstract headElements(routeData: RouteData): Promise<HeadElements> | HeadElements;
+
+	abstract componentMetadata(routeData: RouteData): Promise<SSRResult['componentMetadata']> | void;
+
+	/**
+	 * It attempts to retrieve the `RouteData` that matches the input `url`, and the component that belongs to the `RouteData`.
+	 *
+	 * ## Errors
+	 *
+	 * - if not `RouteData` is found
+	 *
+	 * @param {RewritePayload} rewritePayload The payload provided by the user
+	 * @param {Request} request The original request
+	 */
+	abstract tryRewrite(rewritePayload: RewritePayload, request: Request): Promise<TryRewriteResult>;
+
+	/**
+	 * Tells the pipeline how to retrieve a component give a `RouteData`
+	 * @param routeData
+	 */
+	abstract getComponentByRoute(routeData: RouteData): Promise<ComponentInstance>;
+
+	/**
+	 * The current name of the pipeline. Useful for debugging
+	 */
+	abstract getName(): string;
+
+	/**
+	 * Resolves the middleware from the manifest, and returns the `onRequest` function. If `onRequest` isn't there,
+	 * it returns a no-op function
+	 */
+	async getMiddleware(): Promise<MiddlewareHandler> {
+		if (this.resolvedMiddleware) {
+			return this.resolvedMiddleware;
+		}
+		// The middleware can be undefined when using edge middleware.
+		// This is set to undefined by the plugin-ssr.ts
+		if (this.middleware) {
+			const middlewareInstance = await this.middleware();
+			const onRequest = middlewareInstance.onRequest ?? NOOP_MIDDLEWARE_FN;
+			const internalMiddlewares = [onRequest];
+			if (this.manifest.checkOrigin) {
+				// this middleware must be placed at the beginning because it needs to block incoming requests
+				internalMiddlewares.unshift(createOriginCheckMiddleware());
+			}
+			this.resolvedMiddleware = sequence(...internalMiddlewares);
+			return this.resolvedMiddleware;
+		} else {
+			this.resolvedMiddleware = NOOP_MIDDLEWARE_FN;
+			return this.resolvedMiddleware;
+		}
+	}
+
+	/**
+	 * Clears the cached middleware so it is re-resolved on the next request.
+	 * Called via HMR when middleware files change during development.
+	 */
+	clearMiddleware() {
+		this.resolvedMiddleware = undefined;
+	}
+
+	/**
+	 * Resolves the logger destination from the manifest and updates the pipeline logger.
+	 * If the user configured `experimental.logger`, the bundled logger factory is loaded
+	 * and replaces the default console destination. This is lazy and only resolves once.
+	 */
+	async getLogger(): Promise<AstroLogger> {
+		if (this.resolvedLogger) {
+			return this.logger;
+		}
+		this.resolvedLogger = true;
+		if (this.manifest.experimentalLogger) {
+			this.logger = await loadLogger(this.manifest.experimentalLogger);
+		}
+		return this.logger;
+	}
+
+	async getActions(): Promise<SSRActions> {
+		if (this.resolvedActions) {
+			return this.resolvedActions;
+		} else if (this.actions) {
+			return this.actions();
+		}
+		return NOOP_ACTIONS_MOD;
+	}
+
+	async getSessionDriver(): Promise<SessionDriverFactory | null> {
+		// Return cached value if already resolved (including null)
+		if (this.resolvedSessionDriver !== undefined) {
+			return this.resolvedSessionDriver;
+		}
+
+		// Try to load the driver from the manifest
+		if (this.sessionDriver) {
+			const driverModule = await this.sessionDriver();
+			this.resolvedSessionDriver = driverModule?.default || null;
+			return this.resolvedSessionDriver;
+		}
+
+		// No driver configured
+		this.resolvedSessionDriver = null;
+		return null;
+	}
+
+	async getCacheProvider(): Promise<CacheProvider | null> {
+		// Return cached value if already resolved (including null)
+		if (this.resolvedCacheProvider !== undefined) {
+			return this.resolvedCacheProvider;
+		}
+
+		// Try to load the provider from the manifest
+		if (this.cacheProvider) {
+			const mod = await this.cacheProvider();
+			const factory: CacheProviderFactory | null = mod?.default || null;
+			this.resolvedCacheProvider = factory ? factory(this.cacheConfig?.options) : null;
+			return this.resolvedCacheProvider;
+		}
+
+		// No provider configured
+		this.resolvedCacheProvider = null;
+		return null;
+	}
+
+	async getServerIslands(): Promise<ServerIslandMappings> {
+		if (this.serverIslands) {
+			return this.serverIslands();
+		}
+
+		return {
+			serverIslandMap: new Map(),
+			serverIslandNameMap: new Map(),
+		};
+	}
+
+	async getAction(path: string): Promise<ActionClient<unknown, ActionAccept, $ZodType>> {
+		const pathKeys = path.split('.').map((key) => decodeURIComponent(key));
+		let { server } = await this.getActions();
+
+		if (!server || !(typeof server === 'object')) {
+			throw new TypeError(
+				`Expected \`server\` export in actions file to be an object. Received ${typeof server}.`,
+			);
+		}
+
+		for (const key of pathKeys) {
+			if (FORBIDDEN_PATH_KEYS.has(key)) {
+				throw new AstroError({
+					...ActionNotFoundError,
+					message: ActionNotFoundError.message(pathKeys.join('.')),
+				});
+			}
+			if (!Object.hasOwn(server, key)) {
+				throw new AstroError({
+					...ActionNotFoundError,
+					message: ActionNotFoundError.message(pathKeys.join('.')),
+				});
+			}
+			// @ts-expect-error we are doing a recursion... it's ugly
+			server = server[key];
+		}
+		if (typeof server !== 'function') {
+			throw new TypeError(
+				`Expected handler for action ${pathKeys.join('.')} to be a function. Received ${typeof server}.`,
+			);
+		}
+		return server;
+	}
+
+	async getModuleForRoute(route: RouteData): Promise<SinglePageBuiltModule> {
+		for (const defaultRoute of this.defaultRoutes) {
+			if (route.component === defaultRoute.component) {
+				return {
+					page: () => Promise.resolve(defaultRoute.instance),
+				};
+			}
+		}
+
+		if (route.type === 'redirect') {
+			return RedirectSinglePageBuiltModule;
+		} else {
+			if (this.manifest.pageMap) {
+				const importComponentInstance = this.manifest.pageMap.get(route.component);
+				if (!importComponentInstance) {
+					throw new Error(
+						`Unexpectedly unable to find a component instance for route ${route.route}`,
+					);
+				}
+				return await importComponentInstance();
+			} else if (this.manifest.pageModule) {
+				return this.manifest.pageModule;
+			}
+			throw new Error(
+				"Astro couldn't find the correct page to render, probably because it wasn't correctly mapped for SSR usage. This is an internal error, please file an issue.",
+			);
+		}
+	}
+
+	public createNodePool(poolSize: number, stats: boolean): NodePool {
+		return new NodePool(poolSize, stats);
+	}
+
+	public createStringCache(): HTMLStringCache {
+		return new HTMLStringCache(1000);
+	}
+}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface HeadElements extends Pick<SSRResult, 'scripts' | 'styles' | 'links'> {}
+
+export interface TryRewriteResult {
+	routeData: RouteData;
+	componentInstance: ComponentInstance;
+	newUrl: URL;
+	pathname: string;
+}
