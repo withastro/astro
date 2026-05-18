@@ -158,7 +158,7 @@ const RenderMultipleTimes = createComponent(async (result: any, props: any, slot
 /**
  * `Random.astro` — outputs a random number in a div.
  */
-const Random = createComponent((result: any) => {
+const Random = createComponent((_result: any) => {
 	const randomNumber = Math.random();
 	return render`${maybeRenderHead()}<div>${randomNumber}</div>`;
 });
@@ -276,6 +276,7 @@ describe('Slots', () => {
 					{},
 					{
 						a: () => render`${true && render`<span>A</span>`}`,
+						// biome-ignore lint/correctness/noConstantCondition: mirrors compiled output of conditional.astro
 						b: () => render`${true ? render`<span>B</span>` : null}`,
 						c: () => render`${() => render`<span>C</span>`}`,
 						default: () => render`${true && render`<span>Default</span>`}`,
