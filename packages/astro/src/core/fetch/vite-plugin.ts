@@ -20,14 +20,18 @@ import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
  */
 const FETCHABLE_MODULE_ID = 'virtual:astro:fetchable';
 const FETCHABLE_RESOLVED_MODULE_ID = '\0' + FETCHABLE_MODULE_ID;
-// Segment under `srcDir` to probe for the user's handler module.
+// Default segment under `srcDir` to probe for the user's handler module.
 // Matches how `vitePluginMiddleware` resolves `src/middleware`.
-const APP_PATH_SEGMENT_NAME = 'app';
+const DEFAULT_FETCH_FILE = 'app';
 
 export function vitePluginFetchable({ settings }: { settings: AstroSettings }): VitePlugin {
 	let resolvedUserAppId: string | undefined;
 	let userAppPresent = false;
-	const advancedRoutingEnabled = settings.config.experimental.advancedRouting;
+	const advancedRoutingConfig = settings.config.experimental.advancedRouting;
+	const advancedRoutingEnabled = !!advancedRoutingConfig;
+	const fetchFile = (typeof advancedRoutingConfig === 'object' ? advancedRoutingConfig.fetchFile : undefined) ?? DEFAULT_FETCH_FILE;
+	// When fetchFile is null the feature is explicitly disabled.
+	const fetchFileDisabled = typeof advancedRoutingConfig === 'object' && advancedRoutingConfig.fetchFile === null;
 
 	const normalizedSrcDir = viteNormalizePath(fileURLToPath(settings.config.srcDir));
 
@@ -44,9 +48,9 @@ export function vitePluginFetchable({ settings }: { settings: AstroSettings }): 
 			server.watcher.on('change', (path) => {
 				const normalizedPath = viteNormalizePath(path);
 				if (!normalizedPath.startsWith(normalizedSrcDir)) return;
-				const relativePath = normalizedPath.slice(normalizedSrcDir.length);
-				// Dot-prefix guard: match `app.ts` but not e.g. `app-utils.ts`.
-				if (!relativePath.startsWith(`${APP_PATH_SEGMENT_NAME}.`)) return;
+			const relativePath = normalizedPath.slice(normalizedSrcDir.length);
+			// Dot-prefix guard: match `app.ts` but not e.g. `app-utils.ts`.
+			if (!relativePath.startsWith(`${fetchFile}.`)) return;
 
 				for (const name of [
 					ASTRO_VITE_ENVIRONMENT_NAMES.ssr,
@@ -66,8 +70,12 @@ export function vitePluginFetchable({ settings }: { settings: AstroSettings }): 
 			filter: {
 				id: new RegExp(`^${FETCHABLE_MODULE_ID}$`),
 			},
-			async handler() {
-				const resolved = await this.resolve(`${normalizedSrcDir}${APP_PATH_SEGMENT_NAME}`);
+		async handler() {
+				if (fetchFileDisabled) {
+					userAppPresent = false;
+					return FETCHABLE_RESOLVED_MODULE_ID;
+				}
+				const resolved = await this.resolve(`${normalizedSrcDir}${fetchFile}`);
 				userAppPresent = advancedRoutingEnabled && !!resolved;
 				resolvedUserAppId = resolved?.id;
 				return FETCHABLE_RESOLVED_MODULE_ID;

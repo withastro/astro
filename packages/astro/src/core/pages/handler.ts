@@ -91,12 +91,13 @@ export class PagesHandler {
 				return new Response(null, { status: 500, headers: { [ROUTE_TYPE_HEADER]: 'fallback' } });
 			}
 		}
-		// We need to merge the cookies from the response back into the cookies
-		// because they may need to be passed along from a rewrite.
-		const responseCookies = getCookiesFromResponse(response);
-		if (responseCookies) {
-			state.cookies!.merge(responseCookies);
-		}
-		return response;
+	// We need to merge the cookies from the response back into the cookies
+	// because they may need to be passed along from a rewrite.
+	const responseCookies = getCookiesFromResponse(response);
+	if (responseCookies) {
+		state.cookies!.merge(responseCookies);
+	}
+	state.response = response;
+	return response;
 	}
 }

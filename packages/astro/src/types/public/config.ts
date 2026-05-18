@@ -2793,21 +2793,38 @@ export interface AstroUserConfig<
 	experimental?: {
 		/**
 		 * @name experimental.advancedRouting
-		 * @type {boolean}
+		 * @type {boolean | object}
 		 * @default `false`
 		 * @description
 		 * Enables `src/app.ts` as an advanced routing entrypoint, allowing you to
 		 * compose Astro's request pipeline with the Web Fetch standard or your own Hono middleware.
 		 *
+		 * Pass `true` to enable with default settings, or an object to customize:
+		 *
 		 * ```js
 		 * export default defineConfig({
 		 *   experimental: {
-		 *     advancedRouting: true,
+		 *     advancedRouting: {
+		 *       fetchFile: 'fetch.ts',
+		 *     },
 		 *   },
 		 * });
 		 * ```
 		 */
-		advancedRouting?: boolean;
+		advancedRouting?: boolean | {
+			/**
+			 * @name experimental.advancedRouting.fetchFile
+			 * @type {string | null}
+			 * @default 'app'
+			 * @description
+			 * 
+			 * Customizes the file used as the advanced routing entrypoint inside `srcDir`.
+			 * Defaults to `'app'`, meaning Astro looks for `src/app.ts`.
+			 * 
+			 * If you already have a `src/app.ts` file in use for other purposes, define a different filename or set the value to `null` to disable the entrypoint.
+			 */
+			fetchFile?: string | null;
+		};
 
 		/**
 		 *

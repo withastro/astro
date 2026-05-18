@@ -71,7 +71,9 @@ export class AstroMiddleware {
 			const composed = sequence(...pipeline.internalMiddleware, pipelineMiddleware);
 			response = await callMiddleware(composed, apiContext, next);
 		}
-		return this.#finalize(state, response);
+		response = this.#finalize(state, response);
+		state.response = response;
+		return response;
 	}
 
 	#finalize(state: FetchState, response: Response): Response {
