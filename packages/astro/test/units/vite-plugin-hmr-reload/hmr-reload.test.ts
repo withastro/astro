@@ -47,7 +47,15 @@ describe('astro:hmr-reload', () => {
 			moduleGraph: {
 				invalidateModule(mod: any, seen?: Set<any>, _ts?: number, _hmr?: boolean) {
 					invalidated.push(mod);
-					if (seen) seen.add(mod);
+					if (seen) {
+						seen.add(mod);
+						// Simulate Vite's recursive importer walk: add importers to seen
+						for (const importer of mod.importers) {
+							if (!seen.has(importer)) {
+								seen.add(importer);
+							}
+						}
+					}
 				},
 				getModuleById(_id: string) {
 					return null;
@@ -160,6 +168,27 @@ describe('astro:hmr-reload', () => {
 		const result = ctx.call();
 		assert.ok(Array.isArray(result), 'should return an array');
 		assert.equal(result.length, 0, 'should return empty array for styles');
+	});
+
+	it('invalidates importers in the module graph for dynamic import chains', () => {
+		const component = createMockModule('/src/components/MyComponent.astro');
+		const barrel = createMockModule('/src/components/index.ts');
+		// MyComponent is imported by the barrel file
+		component.importers.add(barrel as any);
+
+		const ctx = createMockContext({
+			environmentName: 'ssr',
+			modules: [component],
+			clientModuleIds: [],
+		});
+
+		ctx.call();
+
+		// Both the component and its importer (barrel) should be in the invalidated set
+		assert.equal(ctx.invalidated.length, 1, 'direct invalidateModule call');
+		// The barrel file should appear in wsSent (full-reload triggered)
+		assert.equal(ctx.wsSent.length, 1);
+		assert.deepEqual(ctx.wsSent[0], { type: 'full-reload' });
 	});
 
 	it('only invalidates SSR-only modules, not client-side modules', () => {
