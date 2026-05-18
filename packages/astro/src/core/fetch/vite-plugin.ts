@@ -29,9 +29,12 @@ export function vitePluginFetchable({ settings }: { settings: AstroSettings }): 
 	let userAppPresent = false;
 	const advancedRoutingConfig = settings.config.experimental.advancedRouting;
 	const advancedRoutingEnabled = !!advancedRoutingConfig;
-	const fetchFile = (typeof advancedRoutingConfig === 'object' ? advancedRoutingConfig.fetchFile : undefined) ?? DEFAULT_FETCH_FILE;
+	const fetchFile =
+		(typeof advancedRoutingConfig === 'object' ? advancedRoutingConfig.fetchFile : undefined) ??
+		DEFAULT_FETCH_FILE;
 	// When fetchFile is null the feature is explicitly disabled.
-	const fetchFileDisabled = typeof advancedRoutingConfig === 'object' && advancedRoutingConfig.fetchFile === null;
+	const fetchFileDisabled =
+		typeof advancedRoutingConfig === 'object' && advancedRoutingConfig.fetchFile === null;
 
 	const normalizedSrcDir = viteNormalizePath(fileURLToPath(settings.config.srcDir));
 
@@ -48,9 +51,9 @@ export function vitePluginFetchable({ settings }: { settings: AstroSettings }): 
 			server.watcher.on('change', (path) => {
 				const normalizedPath = viteNormalizePath(path);
 				if (!normalizedPath.startsWith(normalizedSrcDir)) return;
-			const relativePath = normalizedPath.slice(normalizedSrcDir.length);
-			// Dot-prefix guard: match `app.ts` but not e.g. `app-utils.ts`.
-			if (!relativePath.startsWith(`${fetchFile}.`)) return;
+				const relativePath = normalizedPath.slice(normalizedSrcDir.length);
+				// Dot-prefix guard: match `app.ts` but not e.g. `app-utils.ts`.
+				if (!relativePath.startsWith(`${fetchFile}.`)) return;
 
 				for (const name of [
 					ASTRO_VITE_ENVIRONMENT_NAMES.ssr,
@@ -70,7 +73,7 @@ export function vitePluginFetchable({ settings }: { settings: AstroSettings }): 
 			filter: {
 				id: new RegExp(`^${FETCHABLE_MODULE_ID}$`),
 			},
-		async handler() {
+			async handler() {
 				if (fetchFileDisabled) {
 					userAppPresent = false;
 					return FETCHABLE_RESOLVED_MODULE_ID;

@@ -450,7 +450,11 @@ describe('state.response', () => {
 		const response = await pages(state);
 
 		assert.ok(state.response, 'response should be set after pages()');
-		assert.equal(state.response, response, 'state.response should be the same object returned by pages()');
+		assert.equal(
+			state.response,
+			response,
+			'state.response should be the same object returned by pages()',
+		);
 	});
 
 	it('is set after middleware() completes', async () => {
@@ -461,7 +465,11 @@ describe('state.response', () => {
 		const response = await middleware(state, () => pages(state));
 
 		assert.ok(state.response, 'response should be set after middleware()');
-		assert.equal(state.response, response, 'state.response should be the same object returned by middleware()');
+		assert.equal(
+			state.response,
+			response,
+			'state.response should be the same object returned by middleware()',
+		);
 	});
 });
 
@@ -507,7 +515,9 @@ describe('Context providers', () => {
 		let finalized = false;
 		state.provide('session', {
 			create: () => ({ data: 'test' }),
-			finalize: () => { finalized = true; },
+			finalize: () => {
+				finalized = true;
+			},
 		});
 
 		// Resolve it so finalize will run
@@ -525,7 +535,9 @@ describe('Context providers', () => {
 		let finalized = false;
 		state.provide('unused', {
 			create: () => 'value',
-			finalize: () => { finalized = true; },
+			finalize: () => {
+				finalized = true;
+			},
 		});
 
 		// Don't resolve — finalize should not run
