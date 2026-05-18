@@ -35,8 +35,13 @@ describe('astro:hmr-reload', () => {
 		clientModuleIds?: string[];
 	}) {
 		const wsSent: any[] = [];
+		const hotSent: any[] = [];
 		const invalidated: any[] = [];
 
+		// Note: isRunnableDevEnvironment() uses instanceof, so plain mocks
+		// won't pass the check — the non-runnable (Cloudflare) path is
+		// exercised instead. The runner.evaluatedModules invalidation path
+		// for runnable environments is tested via integration/E2E tests.
 		const environment = {
 			name: options.environmentName,
 			moduleGraph: {
@@ -44,8 +49,13 @@ describe('astro:hmr-reload', () => {
 					invalidated.push(mod);
 					if (seen) seen.add(mod);
 				},
-				getModuleById(id: string) {
+				getModuleById(_id: string) {
 					return null;
+				},
+			},
+			hot: {
+				send(payload: any) {
+					hotSent.push(payload);
 				},
 			},
 		};
@@ -75,6 +85,7 @@ describe('astro:hmr-reload', () => {
 			environment,
 			server,
 			wsSent,
+			hotSent,
 			invalidated,
 			call() {
 				return handler.call(
@@ -99,7 +110,7 @@ describe('astro:hmr-reload', () => {
 		return hotUpdate.handler;
 	}
 
-	it('returns SSR-only modules instead of empty array so Vite can propagate to module runner', () => {
+	it('returns empty array and sends full-reload for SSR-only modules', () => {
 		const mod = createMockModule('/src/components/Blog.astro');
 		const ctx = createMockContext({
 			environmentName: 'ssr',
@@ -109,14 +120,23 @@ describe('astro:hmr-reload', () => {
 
 		const result = ctx.call();
 
-		// The fix: should return the SSR-only modules, NOT an empty array
+		// Should return empty array to tell Vite "handled, stop processing"
 		assert.ok(Array.isArray(result), 'should return an array');
-		assert.equal(result.length, 1, 'should return the SSR-only module');
-		assert.equal(result[0], mod, 'should return the same module object');
+		assert.equal(result.length, 0, 'should return empty array');
 
-		// Should still send full-reload to browser
+		// Should send full-reload to browser via WebSocket
 		assert.equal(ctx.wsSent.length, 1);
 		assert.deepEqual(ctx.wsSent[0], { type: 'full-reload' });
+
+		// For non-runnable environments (mock fails instanceof), should also
+		// send full-reload through the environment's hot channel so the
+		// remote runner (e.g. workerd) clears its module cache.
+		assert.equal(ctx.hotSent.length, 1);
+		assert.equal(ctx.hotSent[0].type, 'full-reload');
+
+		// Should invalidate the module graph
+		assert.equal(ctx.invalidated.length, 1, 'should invalidate SSR module graph');
+		assert.equal(ctx.invalidated[0], mod);
 	});
 
 	it('returns undefined for non-server environments', () => {
@@ -142,7 +162,7 @@ describe('astro:hmr-reload', () => {
 		assert.equal(result.length, 0, 'should return empty array for styles');
 	});
 
-	it('does not include client-side modules in SSR-only list', () => {
+	it('only invalidates SSR-only modules, not client-side modules', () => {
 		const ssrMod = createMockModule('/src/components/ServerOnly.astro');
 		const clientMod = createMockModule('/src/components/ClientComponent.tsx');
 		const ctx = createMockContext({
@@ -154,7 +174,10 @@ describe('astro:hmr-reload', () => {
 		const result = ctx.call();
 
 		assert.ok(Array.isArray(result), 'should return an array');
-		assert.equal(result.length, 1, 'should only include SSR-only module');
-		assert.equal(result[0], ssrMod);
+		assert.equal(result.length, 0, 'should return empty array');
+
+		// Only the SSR-only module should be invalidated in the module graph
+		assert.equal(ctx.invalidated.length, 1, 'should only invalidate SSR-only module');
+		assert.equal(ctx.invalidated[0], ssrMod);
 	});
 });
