@@ -2813,9 +2813,15 @@ export interface AstroUserConfig<
 		 */
 		advancedRouting?: boolean | {
 			/**
-			 * Customize the file used as the advanced routing entrypoint inside `srcDir`.
+			 * @name experimental.advancedRouting.fetchFile
+			 * @type {string | null}
+			 * @default 'app'
+			 * @description
+			 * 
+			 * Customizes the file used as the advanced routing entrypoint inside `srcDir`.
 			 * Defaults to `'app'`, meaning Astro looks for `src/app.ts`.
-			 * Set to `null` to disable the entrypoint.
+			 * 
+			 * If you already have a `src/app.ts` file in use for other purposes, define a different filename or set the value to `null` to disable the entrypoint.
 			 */
 			fetchFile?: string | null;
 		};
