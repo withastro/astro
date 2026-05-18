@@ -4591,6 +4591,19 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/cloudflare/test/fixtures/dev-ssr-optimization:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+    devDependencies:
+      wrangler:
+        specifier: ^4.83.0
+        version: 4.83.0(@cloudflare/workers-types@4.20260228.0)
+
   packages/integrations/cloudflare/test/fixtures/external-image-service:
     dependencies:
       '@astrojs/cloudflare':
