@@ -54,7 +54,7 @@ describe('throws if an invalid Astro property is accessed', () => {
 		} catch (err) {
 			assert.equal(err instanceof Error, true);
 			// @ts-ignore
-			assert.equal(err.title, 'Unavailable Astro global in getStaticPaths()');
+			assert.equal(err.title, 'Unavailable Astro global in `getStaticPaths()`.');
 		}
 	});
 });
