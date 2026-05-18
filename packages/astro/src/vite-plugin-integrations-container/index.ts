@@ -1,4 +1,5 @@
-import type { PluginContext } from 'rollup';
+import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
 import type { Plugin as VitePlugin } from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroLogger } from '../core/logger/core.js';
@@ -20,25 +21,31 @@ export default function astroIntegrationsContainerPlugin({
 			if (server.config.isProduction) return;
 			await runHookServerSetup({ config: settings.config, server, logger });
 		},
-		async buildStart() {
+		buildStart() {
 			if (settings.injectedRoutes.length === settings.resolvedInjectedRoutes.length) return;
-			// Ensure the injectedRoutes are all resolved to their final paths through Rollup
-			settings.resolvedInjectedRoutes = await Promise.all(
-				settings.injectedRoutes.map((route) => resolveEntryPoint.call(this, route)),
+			// Resolve injected routes using Node resolution instead of Vite's this.resolve()
+			// to avoid triggering the client dep optimizer's registerMissingImport, which can
+			// race against optimizer init and corrupt the cache.
+			const require = createRequire(settings.config.root);
+			settings.resolvedInjectedRoutes = settings.injectedRoutes.map((route) =>
+				resolveEntryPoint(route, settings.config.root, require),
 			);
 		},
 	};
 }
 
-async function resolveEntryPoint(
-	this: PluginContext,
+function resolveEntryPoint(
 	route: InternalInjectedRoute,
-): Promise<ResolvedInjectedRoute> {
-	const resolvedId = await this.resolve(route.entrypoint.toString())
-		.then((res) => res?.id)
-		.catch(() => undefined);
-	if (!resolvedId) return route;
-
-	const resolvedEntryPoint = new URL(`file://${normalizePath(resolvedId)}`);
+	root: URL,
+	require: NodeRequire,
+): ResolvedInjectedRoute {
+	const entrypoint = route.entrypoint.toString();
+	let resolved: string;
+	try {
+		resolved = require.resolve(entrypoint);
+	} catch {
+		resolved = fileURLToPath(new URL(entrypoint, root));
+	}
+	const resolvedEntryPoint = new URL(`file://${normalizePath(resolved)}`);
 	return { ...route, resolvedEntryPoint };
 }
