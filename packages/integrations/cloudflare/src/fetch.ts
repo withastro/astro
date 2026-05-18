@@ -17,8 +17,11 @@
  * }
  * ```
  */
+import { env as globalEnv } from 'cloudflare:workers';
 import type { FetchState } from 'astro/fetch';
 import { createApp } from 'astro/app/entrypoint';
+import { setGetEnv } from 'astro/env/setup';
+import { createGetEnv } from './utils/env.js';
 import {
 	injectSessionBinding,
 	matchStaticAsset,
@@ -27,6 +30,8 @@ import {
 	createLocals,
 	getClientAddress,
 } from './utils/cf.js';
+
+setGetEnv(createGetEnv(globalEnv));
 
 const app = createApp();
 
