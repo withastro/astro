@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { headersFileHasCacheControlForPath } from '../src/utils/headers.ts';
+import { buildAssetsHeadersContent, headersFileHasCacheControlForPath } from '../src/utils/headers.ts';
 
 describe('headersFileHasCacheControlForPath', () => {
 	it('returns false for an empty file', () => {
@@ -92,5 +92,89 @@ describe('headersFileHasCacheControlForPath', () => {
 		// An empty value still sets the header to empty per CF docs — treat as present.
 		const content = ['/_astro/*', '  Cache-Control:', ''].join('\n');
 		assert.equal(headersFileHasCacheControlForPath(content, '/_astro/probe'), true);
+	});
+});
+
+const DUMMY_HEADERS_PATH = new URL('file:///project/dist/client/_headers');
+
+/** readFile mock that always throws ENOENT (file doesn't exist). */
+const noFile = async (_path: URL): Promise<string> => {
+	throw Object.assign(new Error('ENOENT'), { code: 'ENOENT' });
+};
+
+/** readFile mock that returns a fixed string. */
+const fileWith = (content: string) => async (_path: URL): Promise<string> => content;
+
+describe('buildAssetsHeadersContent', () => {
+	it('creates _headers from scratch with the default assets dir', async () => {
+		const result = await buildAssetsHeadersContent(
+			{ assetsDir: '_astro', basePrefix: '', headersPath: DUMMY_HEADERS_PATH },
+			noFile,
+		);
+		assert.ok(result !== null);
+		assert.equal(result.content, '/_astro/*\n  Cache-Control: public, max-age=31536000, immutable\n');
+		assert.equal(result.assetsPattern, '/_astro/*');
+	});
+
+	it('creates _headers from scratch with a custom assets dir', async () => {
+		const result = await buildAssetsHeadersContent(
+			{ assetsDir: '_custom', basePrefix: '', headersPath: DUMMY_HEADERS_PATH },
+			noFile,
+		);
+		assert.ok(result !== null);
+		assert.equal(result.content, '/_custom/*\n  Cache-Control: public, max-age=31536000, immutable\n');
+	});
+
+	it('prepends the cache block before existing _headers content', async () => {
+		const existing = '/api/*\n  X-Robots-Tag: noindex\n';
+		const result = await buildAssetsHeadersContent(
+			{ assetsDir: '_astro', basePrefix: '', headersPath: DUMMY_HEADERS_PATH },
+			fileWith(existing),
+		);
+		assert.ok(result !== null);
+		assert.equal(
+			result.content,
+			'/_astro/*\n  Cache-Control: public, max-age=31536000, immutable\n\n/api/*\n  X-Robots-Tag: noindex\n',
+		);
+	});
+
+	it('returns null when existing _headers already has Cache-Control on a matching rule', async () => {
+		const existing = '/*\n  Cache-Control: max-age=60\n';
+		const result = await buildAssetsHeadersContent(
+			{ assetsDir: '_astro', basePrefix: '', headersPath: DUMMY_HEADERS_PATH },
+			fileWith(existing),
+		);
+		assert.equal(result, null);
+	});
+
+	it('returns null when existing _headers has Cache-Control on an exact assets pattern', async () => {
+		const existing = '/_astro/*\n  Cache-Control: max-age=60\n';
+		const result = await buildAssetsHeadersContent(
+			{ assetsDir: '_astro', basePrefix: '', headersPath: DUMMY_HEADERS_PATH },
+			fileWith(existing),
+		);
+		assert.equal(result, null);
+	});
+
+	it('respects a base prefix in the assets pattern', async () => {
+		const result = await buildAssetsHeadersContent(
+			{ assetsDir: '_astro', basePrefix: '/blog', headersPath: DUMMY_HEADERS_PATH },
+			noFile,
+		);
+		assert.ok(result !== null);
+		assert.equal(
+			result.content,
+			'/blog/_astro/*\n  Cache-Control: public, max-age=31536000, immutable\n',
+		);
+		assert.equal(result.assetsPattern, '/blog/_astro/*');
+	});
+
+	it('does not add a leading blank line when existing _headers is empty', async () => {
+		const result = await buildAssetsHeadersContent(
+			{ assetsDir: '_astro', basePrefix: '', headersPath: DUMMY_HEADERS_PATH },
+			fileWith(''),
+		);
+		assert.ok(result !== null);
+		assert.equal(result.content, '/_astro/*\n  Cache-Control: public, max-age=31536000, immutable\n');
 	});
 });

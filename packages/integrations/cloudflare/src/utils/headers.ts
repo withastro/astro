@@ -61,3 +61,42 @@ export function headersFileHasCacheControlForPath(content: string, path: string)
 	}
 	return false;
 }
+
+/**
+ * Computes the content to write to `_headers` to inject an immutable
+ * Cache-Control rule for the hashed assets directory.
+ *
+ * Returns `null` when injection should be skipped because the existing
+ * `_headers` already declares `Cache-Control` on a rule matching the assets
+ * path — Cloudflare merges duplicate header values with a comma, which would
+ * produce contradictory directives.
+ */
+export async function buildAssetsHeadersContent(
+	opts: {
+		assetsDir: string;
+		basePrefix: string;
+		headersPath: URL;
+	},
+	readFile: (path: URL) => Promise<string>,
+): Promise<{ content: string; assetsPattern: string } | null> {
+	const { assetsDir, basePrefix, headersPath } = opts;
+	const assetsPattern = `${basePrefix}/${assetsDir}/*`;
+	const probePath = `${basePrefix}/${assetsDir}/probe`;
+
+	let existingHeaders = '';
+	try {
+		existingHeaders = await readFile(headersPath);
+	} catch {
+		// _headers doesn't exist yet — start from scratch
+	}
+
+	if (headersFileHasCacheControlForPath(existingHeaders, probePath)) {
+		return null;
+	}
+
+	const cacheBlock = `${assetsPattern}\n  Cache-Control: public, max-age=31536000, immutable\n`;
+	const normalizedExisting =
+		existingHeaders && !existingHeaders.endsWith('\n') ? existingHeaders + '\n' : existingHeaders;
+	const content = normalizedExisting ? `${cacheBlock}\n${normalizedExisting}` : cacheBlock;
+	return { content, assetsPattern };
+}

@@ -4505,15 +4505,6 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
-  packages/integrations/cloudflare/test/fixtures/assets-prefix:
-    dependencies:
-      '@astrojs/cloudflare':
-        specifier: workspace:*
-        version: link:../../..
-      astro:
-        specifier: workspace:*
-        version: link:../../../../../astro
-
   packages/integrations/cloudflare/test/fixtures/astro-dev-platform:
     dependencies:
       '@astrojs/cloudflare':
@@ -4571,15 +4562,6 @@ importers:
         version: link:../../../../../astro
 
   packages/integrations/cloudflare/test/fixtures/compile-image-service:
-    dependencies:
-      '@astrojs/cloudflare':
-        specifier: workspace:*
-        version: link:../../..
-      astro:
-        specifier: workspace:*
-        version: link:../../../../../astro
-
-  packages/integrations/cloudflare/test/fixtures/custom-assets:
     dependencies:
       '@astrojs/cloudflare':
         specifier: workspace:*
@@ -4851,15 +4833,6 @@ importers:
         version: 3.5.30(typescript@5.9.3)
 
   packages/integrations/cloudflare/test/fixtures/with-base:
-    dependencies:
-      '@astrojs/cloudflare':
-        specifier: workspace:*
-        version: link:../../..
-      astro:
-        specifier: workspace:*
-        version: link:../../../../../astro
-
-  packages/integrations/cloudflare/test/fixtures/with-existing-cache-control:
     dependencies:
       '@astrojs/cloudflare':
         specifier: workspace:*
