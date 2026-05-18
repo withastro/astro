@@ -1,5 +1,19 @@
 # astro
 
+## 6.3.5
+
+### Patch Changes
+
+- [#16771](https://github.com/withastro/astro/pull/16771) [`07c8805`](https://github.com/withastro/astro/commit/07c880500926e3337798ca906d9422c880c6e148) Thanks [@ematipico](https://github.com/ematipico)! - Fixes `position` prop on `<Image>` and `<Picture>` components breaking Content Security Policy (CSP).
+
+- [#16593](https://github.com/withastro/astro/pull/16593) [`50924ce`](https://github.com/withastro/astro/commit/50924cea1faf32b8c14b031936e93812033b04ca) Thanks [@yanthomasdev](https://github.com/yanthomasdev)! - Improves error messages with more consistent and correct writing.
+
+- [#16757](https://github.com/withastro/astro/pull/16757) [`5d661cd`](https://github.com/withastro/astro/commit/5d661cd226cd9abb4f0f352231f2f68feec52ab4) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes dev server serving stale content when SSR-only modules change (e.g. `.astro` files outside the project root in a monorepo, or dynamically imported components).
+
+  Previously, the `astro:hmr-reload` plugin returned an empty array after detecting SSR-only module changes, which prevented Vite's `updateModules` from propagating the invalidation to the SSR module runner. The runner's evaluated module cache stayed stale, so subsequent requests continued returning old content.
+
+  Now the plugin returns the SSR-only modules so Vite can process them through `updateModules`, which properly invalidates the module runner's cache and ensures fresh content on the next request.
+
 ## 6.3.4
 
 ### Patch Changes
