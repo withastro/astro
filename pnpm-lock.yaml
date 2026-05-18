@@ -5348,8 +5348,8 @@ importers:
         specifier: ^3.0.2
         version: 3.0.2
       satteri:
-        specifier: ^0.5.1
-        version: 0.5.1
+        specifier: ^0.6.0
+        version: 0.6.0
       source-map:
         specifier: ^0.7.6
         version: 0.7.6
@@ -7672,8 +7672,18 @@ packages:
     cpu: [arm64]
     os: [darwin]
 
+  '@bruits/satteri-darwin-arm64@0.6.0':
+    resolution: {integrity: sha512-J+3cxmiCDtVCo/rwr0f7I+MgR2YUhjc45NbG/Rt4yR/nv/fqeA3FmdLSZMjx9OfF+oAZMR4b9WD93e5nN2J+xA==}
+    cpu: [arm64]
+    os: [darwin]
+
   '@bruits/satteri-darwin-x64@0.5.1':
     resolution: {integrity: sha512-xq1+KL0pKGQ+ldJyqEA53O4fwViAeUWqjEGUt+ZkqywX2Rx89hnT1OaIutbvP9dWXhfRSekPGxQhZI9A2lgRhQ==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@bruits/satteri-darwin-x64@0.6.0':
+    resolution: {integrity: sha512-hybKk5Yu1FQk+CwCJn3JUdkMoEuMyhWlDL2eaclVsbskn9D/miAYgf9MQp3DZzifGXg5rflxOp6CvPa8uNuaPA==}
     cpu: [x64]
     os: [darwin]
 
@@ -7683,13 +7693,29 @@ packages:
     os: [linux]
     libc: [glibc]
 
+  '@bruits/satteri-linux-x64-gnu@0.6.0':
+    resolution: {integrity: sha512-47DzI6OG1YrHbx/Bnsf7YbpTzkk/Nxh87IF6yUAZLQ+oCmeiLB5ofAHe+s49IQpF6h08TcdMmOqzns5hbARPpg==}
+    cpu: [x64]
+    os: [linux]
+    libc: [glibc]
+
   '@bruits/satteri-wasm32-wasi@0.5.1':
     resolution: {integrity: sha512-VMthsKH6/NZ6UAW7HpPmcEfteSDtitBlR9zpPz2NBnUpqDdCQTuytxqYvRrn8YetClQms48tjK+AQU1ds6Mrfg==}
     engines: {node: '>=14.0.0'}
     cpu: [wasm32]
 
+  '@bruits/satteri-wasm32-wasi@0.6.0':
+    resolution: {integrity: sha512-aYmeGE5dXIm6KXVvRy3ojsm5Wt/GaaEYbJiB+U8xy27mB7dkzWOeD1uuZ4ACmIP70a90q8VOfddnzQceRXksIg==}
+    engines: {node: '>=14.0.0'}
+    cpu: [wasm32]
+
   '@bruits/satteri-win32-x64-msvc@0.5.1':
     resolution: {integrity: sha512-PEuchy+REgFcsDI1JnRLMmTuZAZ1LFGgvTZodU5G3JDUqJT9deJgF4iPH2s5cKPgOfPi9OgQbi+ok6kQalDEoQ==}
+    cpu: [x64]
+    os: [win32]
+
+  '@bruits/satteri-win32-x64-msvc@0.6.0':
+    resolution: {integrity: sha512-o2/bz5SZ/H1NnKglBv4JV1mNW6ORb7MLsElIDsR+iEYAfRH32S1cKPiG0NqZ2aHZQhnILIqWRBywJqadNA8kZg==}
     cpu: [x64]
     os: [win32]
 
@@ -15421,6 +15447,9 @@ packages:
   satteri@0.5.1:
     resolution: {integrity: sha512-myWnXRT70IY5i7pinRErW/g7twCs8t6RwAd6Rj0oiak4WEx4XM3txX+thc1fxWko2oXkvTsF7lxS5wEST4+EcQ==}
 
+  satteri@0.6.0:
+    resolution: {integrity: sha512-86mMXZrvuP9mnoFF9y8PjbSmiWFYJy3w4Rjj+etRHXA2e5Vu+M+DNjuhYJyrcFOXjCLw8Nfs0gSNyimAaPbhUw==}
+
   sax@1.6.0:
     resolution: {integrity: sha512-6R3J5M4AcbtLUdZmRv2SygeVaM7IhrLXu9BmnOGmmACak8fiUtOsYNWUS4uK7upbmHIBbLBeFeI//477BKLBzA==}
     engines: {node: '>=11.0.0'}
@@ -17866,10 +17895,19 @@ snapshots:
   '@bruits/satteri-darwin-arm64@0.5.1':
     optional: true
 
+  '@bruits/satteri-darwin-arm64@0.6.0':
+    optional: true
+
   '@bruits/satteri-darwin-x64@0.5.1':
     optional: true
 
+  '@bruits/satteri-darwin-x64@0.6.0':
+    optional: true
+
   '@bruits/satteri-linux-x64-gnu@0.5.1':
+    optional: true
+
+  '@bruits/satteri-linux-x64-gnu@0.6.0':
     optional: true
 
   '@bruits/satteri-wasm32-wasi@0.5.1':
@@ -17879,7 +17917,17 @@ snapshots:
       '@napi-rs/wasm-runtime': 1.1.4(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)
     optional: true
 
+  '@bruits/satteri-wasm32-wasi@0.6.0':
+    dependencies:
+      '@emnapi/core': 1.9.1
+      '@emnapi/runtime': 1.9.1
+      '@napi-rs/wasm-runtime': 1.1.4(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)
+    optional: true
+
   '@bruits/satteri-win32-x64-msvc@0.5.1':
+    optional: true
+
+  '@bruits/satteri-win32-x64-msvc@0.6.0':
     optional: true
 
   '@capsizecss/unpack@4.0.0':
@@ -26662,6 +26710,18 @@ snapshots:
       '@bruits/satteri-linux-x64-gnu': 0.5.1
       '@bruits/satteri-wasm32-wasi': 0.5.1
       '@bruits/satteri-win32-x64-msvc': 0.5.1
+
+  satteri@0.6.0:
+    dependencies:
+      '@types/hast': 3.0.4
+      '@types/mdast': 4.0.4
+      '@types/unist': 3.0.3
+    optionalDependencies:
+      '@bruits/satteri-darwin-arm64': 0.6.0
+      '@bruits/satteri-darwin-x64': 0.6.0
+      '@bruits/satteri-linux-x64-gnu': 0.6.0
+      '@bruits/satteri-wasm32-wasi': 0.6.0
+      '@bruits/satteri-win32-x64-msvc': 0.6.0
 
   sax@1.6.0: {}
 
