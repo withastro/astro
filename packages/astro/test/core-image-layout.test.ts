@@ -530,14 +530,8 @@ describe('astro:image:layout', () => {
 				assert.ok(style.includes('[data-astro-image-pos=center]'), 'missing rule for center');
 				assert.ok(style.includes('object-position:center'), 'missing object-position:center');
 				// Two-keyword combination matching the fixture's position="right top"
-				assert.ok(
-					style.includes('[data-astro-image-pos=right-top]'),
-					'missing rule for right-top',
-				);
-				assert.ok(
-					style.includes('object-position:right top'),
-					'missing object-position:right top',
-				);
+				assert.ok(style.includes('[data-astro-image-pos=right-top]'), 'missing rule for right-top');
+				assert.ok(style.includes('object-position:right top'), 'missing object-position:right top');
 			});
 		});
 
