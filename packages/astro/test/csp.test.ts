@@ -130,8 +130,8 @@ describe('CSP', () => {
 		// Position should be in data attribute, not inline style
 		assert.equal(
 			img.attr('data-astro-image-pos'),
-			'top-left',
-			'Image should have data-astro-image-pos="top-left"',
+			'top',
+			'Image should have data-astro-image-pos="top"',
 		);
 		const style = img.attr('style');
 		if (style) {

@@ -379,6 +379,8 @@ describe('astro:image:layout', () => {
 				image: {
 					service: testImageService({ foo: 'bar' }),
 					domains: ['avatars.githubusercontent.com', 'images.unsplash.com'],
+					layout: 'constrained',
+					responsiveStyles: true,
 				},
 				outDir: './dist/core-image-layout-build/',
 			});
@@ -523,17 +525,18 @@ describe('astro:image:layout', () => {
 
 			it('generated CSS contains object-position rules for keyword values', () => {
 				const style = $('style').text();
+				// Vite minifies CSS, stripping quotes from attribute selectors
 				// Single keywords
-				assert.ok(style.includes('[data-astro-image-pos="center"]'), 'missing rule for center');
-				assert.ok(style.includes('object-position: center'), 'missing object-position: center');
+				assert.ok(style.includes('[data-astro-image-pos=center]'), 'missing rule for center');
+				assert.ok(style.includes('object-position:center'), 'missing object-position:center');
 				// Two-keyword combination matching the fixture's position="right top"
 				assert.ok(
-					style.includes('[data-astro-image-pos="right-top"]'),
+					style.includes('[data-astro-image-pos=right-top]'),
 					'missing rule for right-top',
 				);
 				assert.ok(
-					style.includes('object-position: right top'),
-					'missing object-position: right top',
+					style.includes('object-position:right top'),
+					'missing object-position:right top',
 				);
 			});
 		});
