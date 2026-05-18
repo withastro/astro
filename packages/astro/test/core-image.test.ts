@@ -1139,6 +1139,18 @@ describe('build ssg', () => {
 		assert.equal(datanested instanceof Buffer, true);
 	});
 
+	it('content collection images with empty alt preserve the alt attribute', async () => {
+		const html = await fixture.readFile('/blog/empty-alt/index.html');
+
+		const $ = cheerio.load(html);
+		const $contentImg = $('img').filter(function () {
+			// Find the image rendered from markdown content (not the frontmatter images)
+			return !$(this).closest('#direct-image, #nested-image').length;
+		});
+		assert.equal($contentImg.length, 1, 'should have one content image');
+		assert.equal($contentImg.attr('alt'), '', 'alt attribute should be empty string, not missing');
+	});
+
 	it('quality attribute produces a different file', async () => {
 		const html = await fixture.readFile('/quality/index.html');
 		const $ = cheerio.load(html);
