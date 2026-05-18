@@ -57,32 +57,29 @@ export function astroFrontmatterScanPlugin(): ESBuildPlugin {
 				return { path: resolvedPath, namespace: ASTRO_FRONTMATTER_NAMESPACE };
 			});
 
-			build.onLoad(
-				{ filter: /\.astro$/, namespace: ASTRO_FRONTMATTER_NAMESPACE },
-				async (args) => {
-					try {
-						const code = await readFile(args.path, 'utf-8');
+			build.onLoad({ filter: /\.astro$/, namespace: ASTRO_FRONTMATTER_NAMESPACE }, async (args) => {
+				try {
+					const code = await readFile(args.path, 'utf-8');
 
-						const frontmatterMatch = FRONTMATTER_RE.exec(code);
-						if (frontmatterMatch) {
-							const contents = replaceTopLevelReturns(frontmatterMatch[1]);
-							return {
-								contents: contents + '\nexport default {}',
-								loader: 'ts',
-								resolveDir: dirname(args.path),
-							};
-						}
-					} catch {
-						// Ignore read errors
+					const frontmatterMatch = FRONTMATTER_RE.exec(code);
+					if (frontmatterMatch) {
+						const contents = replaceTopLevelReturns(frontmatterMatch[1]);
+						return {
+							contents: contents + '\nexport default {}',
+							loader: 'ts',
+							resolveDir: dirname(args.path),
+						};
 					}
+				} catch {
+					// Ignore read errors
+				}
 
-					return {
-						contents: 'export default {}',
-						loader: 'ts',
-						resolveDir: dirname(args.path),
-					};
-				},
-			);
+				return {
+					contents: 'export default {}',
+					loader: 'ts',
+					resolveDir: dirname(args.path),
+				};
+			});
 		},
 	};
 }
