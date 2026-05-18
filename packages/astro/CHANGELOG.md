@@ -1,5 +1,68 @@
 # astro
 
+## 6.3.4
+
+### Patch Changes
+
+- [#16723](https://github.com/withastro/astro/pull/16723) [`0f10bfe`](https://github.com/withastro/astro/commit/0f10bfe70d443ebe5474a72f59c3a3e745831b98) Thanks [@matthewp](https://github.com/matthewp)! - Adds `fetchFile` option to `experimental.advancedRouting` to customize or disable the entrypoint file
+
+  ```js
+  export default defineConfig({
+    experimental: {
+      advancedRouting: {
+        fetchFile: 'fetch.ts',
+      },
+    },
+  });
+  ```
+
+- [#16723](https://github.com/withastro/astro/pull/16723) [`0f10bfe`](https://github.com/withastro/astro/commit/0f10bfe70d443ebe5474a72f59c3a3e745831b98) Thanks [@matthewp](https://github.com/matthewp)! - Fixes Hono `cache()` middleware to follow the standard wrapper pattern
+
+- [#16723](https://github.com/withastro/astro/pull/16723) [`0f10bfe`](https://github.com/withastro/astro/commit/0f10bfe70d443ebe5474a72f59c3a3e745831b98) Thanks [@matthewp](https://github.com/matthewp)! - Adds `App.Providers` interface for typing custom context providers on `Astro` and `ctx`
+
+  ```ts
+  declare namespace App {
+    interface Providers {
+      oauth: import('./lib/oauth').OAuthSession;
+    }
+  }
+  ```
+
+- [#16723](https://github.com/withastro/astro/pull/16723) [`0f10bfe`](https://github.com/withastro/astro/commit/0f10bfe70d443ebe5474a72f59c3a3e745831b98) Thanks [@matthewp](https://github.com/matthewp)! - Adds `FetchState.response` property, set automatically after `pages()` or `middleware()` completes
+
+  ```ts
+  const response = await middleware(state, (s) => pages(s));
+  console.log(state.response === response); // true
+  ```
+
+- [#16723](https://github.com/withastro/astro/pull/16723) [`0f10bfe`](https://github.com/withastro/astro/commit/0f10bfe70d443ebe5474a72f59c3a3e745831b98) Thanks [@matthewp](https://github.com/matthewp)! - Adds `Fetchable` type export for typing the advanced routing entrypoint
+
+  ```ts
+  import type { Fetchable } from 'astro';
+
+  export default {
+    async fetch(request) {
+      return new Response('ok');
+    },
+  } satisfies Fetchable;
+  ```
+
+- [#16572](https://github.com/withastro/astro/pull/16572) [`4a5a077`](https://github.com/withastro/astro/commit/4a5a0779712be11680a9fc729be2ba9dd93f68d2) Thanks [@DORI2001](https://github.com/DORI2001)! - Suppresses `[WARN] Vite warning: unused imports from "@astrojs/internal-helpers/remote"` during prerender builds. The package is now bundled alongside `astro` in the prerender environment, matching how it is handled in the SSR environment.
+
+- [#16756](https://github.com/withastro/astro/pull/16756) [`b6ee23d`](https://github.com/withastro/astro/commit/b6ee23d339311c356ad25781f62454aee289e47b) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes styles from Markdoc/MDX custom components not being extracted to `<head>` in the dev server when using the Cloudflare adapter with `prerenderEnvironment: 'node'` and rendering content through a wrapper component.
+
+- [#16747](https://github.com/withastro/astro/pull/16747) [`904d19a`](https://github.com/withastro/astro/commit/904d19a73e91dc166c492905ebf6c81705fa7064) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes Astro action requests failing in `astro dev` when using the Cloudflare adapter with `prerenderEnvironment: 'node'` alongside a prerendered catch-all route such as `[...page].astro`.
+
+  Actions and other SSR POST endpoints now continue to work in dev instead of returning an HTTP 500 error.
+
+- [#16701](https://github.com/withastro/astro/pull/16701) [`3495ce4`](https://github.com/withastro/astro/commit/3495ce4f3af103673e32b6fdd452e4108252e1b5) Thanks [@demaisj](https://github.com/demaisj)! - Fix `Map` and `Set` instances saved in a content collection being broken when retrieving entries.
+
+- [#16614](https://github.com/withastro/astro/pull/16614) [`fca1c32`](https://github.com/withastro/astro/commit/fca1c32c329f6044c6833debdb9d683dd2103fc9) Thanks [@Eptagone](https://github.com/Eptagone)! - Fixes `entry.data` type inference when a live collection is configured without a schema.
+
+- [#16661](https://github.com/withastro/astro/pull/16661) [`03b8f7f`](https://github.com/withastro/astro/commit/03b8f7f7644cc1d9e738a8221d6bd377399538c0) Thanks [@ocavue](https://github.com/ocavue)! - Updates `typescript` to v6. No changes are needed from users.
+
+- [#16681](https://github.com/withastro/astro/pull/16681) [`c22770a`](https://github.com/withastro/astro/commit/c22770a58c3b312ad4bba81707be72f551ee02db) Thanks [@dotnetCarpenter](https://github.com/dotnetCarpenter)! - Fixes an issue where SVG images with `width="0"` or `height="0"` incorrectly threw a `NoImageMetadata` error instead of being treated as valid dimensions.
+
 ## 6.3.3
 
 ### Patch Changes

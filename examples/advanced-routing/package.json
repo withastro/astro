@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@astrojs/node": "^10.1.1",
-    "astro": "^6.3.3",
+    "astro": "^6.3.4",
     "hono": "^4.12.14"
   }
 }
