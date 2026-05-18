@@ -257,7 +257,7 @@ export const InvalidGetStaticPathsEntry = {
 	name: 'InvalidGetStaticPathsEntry',
 	title: "Invalid entry inside `getStaticPaths()`'s return value.",
 	message: (entryType) =>
-	`Invalid entry returned by \`getStaticPaths()\`. Expected an object, got \`${entryType}\`.`,
+		`Invalid entry returned by \`getStaticPaths()\`. Expected an object, got \`${entryType}\`.`,
 	hint: "If you're using a `.map` call, you might be looking for `.flatMap()` instead. See https://docs.astro.build/en/reference/routing-reference/#getstaticpaths for more information on `getStaticPaths()`.",
 } satisfies ErrorData;
 /**
@@ -1208,7 +1208,7 @@ export const MissingIndexForInternationalization = {
  */
 export const IncorrectStrategyForI18n = {
 	name: 'IncorrectStrategyForI18n',
-	title: "Function incompatible with the current strategy.",
+	title: 'Function incompatible with the current strategy.',
 	message: (functionName: string) =>
 		`The function \`${functionName}\` can only be used when the \`i18n.routing.strategy\` is set to \`"manual"\`.`,
 } satisfies ErrorData;
