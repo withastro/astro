@@ -1,10 +1,43 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { makeAstroPageEntryPointFileName } from '../../../dist/core/build/static-build.js';
-import { cleanChunkName } from '../../../dist/core/build/util.js';
+import { cleanChunkName, getTimeStat } from '../../../dist/core/build/util.js';
 import type { RouteData } from '../../../dist/types/public/internal.js';
 
 describe('astro/src/core/build', () => {
+	describe('getTimeStat', () => {
+		it('formats sub-second durations in milliseconds', () => {
+			assert.equal(getTimeStat(0, 0), '0ms');
+			assert.equal(getTimeStat(0, 500), '500ms');
+			assert.equal(getTimeStat(0, 999), '999ms');
+		});
+
+		it('rounds milliseconds to the nearest integer', () => {
+			assert.equal(getTimeStat(0, 499.5), '500ms');
+			assert.equal(getTimeStat(0, 0.4), '0ms');
+		});
+
+		it('formats durations >= 1s and < 60s in seconds with two decimals', () => {
+			assert.equal(getTimeStat(0, 1000), '1.00s');
+			assert.equal(getTimeStat(0, 1500), '1.50s');
+			assert.equal(getTimeStat(0, 59999), '60.00s');
+		});
+
+		it('formats durations >= 60s with minutes and rounded seconds', () => {
+			assert.equal(getTimeStat(0, 60000), '1min 0s');
+			assert.equal(getTimeStat(0, 90000), '1min 30s');
+			assert.equal(getTimeStat(0, 125400), '2min 5s');
+			assert.equal(getTimeStat(0, 600000), '10min 0s');
+			assert.equal(getTimeStat(0, 754000), '12min 34s');
+		});
+
+		it('works with non-zero start times', () => {
+			assert.equal(getTimeStat(1000, 1500), '500ms');
+			assert.equal(getTimeStat(5000, 8000), '3.00s');
+			assert.equal(getTimeStat(1000, 91000), '1min 30s');
+		});
+	});
+
 	describe('cleanChunkName', () => {
 		it('passes through safe names unchanged', () => {
 			assert.equal(cleanChunkName('page'), 'page');

@@ -4,7 +4,14 @@ import type { ViteBuildReturn } from './types.js';
 
 export function getTimeStat(timeStart: number, timeEnd: number) {
 	const buildTime = timeEnd - timeStart;
-	return buildTime < 1000 ? `${Math.round(buildTime)}ms` : `${(buildTime / 1000).toFixed(2)}s`;
+	if (buildTime < 1000) {
+		return `${Math.round(buildTime)}ms`;
+	} else if (buildTime < 60_000) {
+		return `${(buildTime / 1000).toFixed(2)}s`;
+	}
+	const mins = Math.floor(buildTime / 60_000);
+	const secs = Math.round((buildTime % 60_000) / 1000);
+	return `${mins}min ${secs}s`;
 }
 
 /**
