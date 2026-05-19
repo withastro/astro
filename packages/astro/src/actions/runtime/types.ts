@@ -106,6 +106,9 @@ export type ActionAPIContext = Pick<
 	| 'cache'
 	| 'csp'
 	| 'logger'
+	| 'styles'
+	| 'scripts'
+	| 'links'
 >;
 
 export type MaybePromise<T> = T | Promise<T>;

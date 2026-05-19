@@ -31,6 +31,7 @@ import {
 	computePreferredLocaleList as computePreferredLocaleListUtil,
 } from '../../i18n/utils.js';
 
+import type { HeadElements } from '../base-pipeline.js';
 import { getParams, getProps } from '../render/index.js';
 import { Rewrites } from '../rewrites/handler.js';
 import { isRoute404or500, isRouteServerIsland } from '../routing/match.js';
@@ -221,6 +222,8 @@ export class FetchState implements AstroFetchState {
 	actionApiContext: ActionAPIContext | null = null;
 	/** Memoized `APIContext` (see `getAPIContext`). */
 	apiContext: APIContext | null = null;
+	/** Resolved head elements from the pipeline (styles, scripts, links). */
+	#headElements: HeadElements | null = null;
 
 	/** Registered context providers keyed by name. Lazy-initialized on first provide(). */
 	#providers: Map<string, ContextProvider<unknown>> | undefined;
@@ -302,7 +305,7 @@ export class FetchState implements AstroFetchState {
 		const { clientDirectives, inlinedScripts, compressHTML, manifest, renderers, resolve } =
 			pipeline;
 		const routeData = this.routeData!;
-		const { links, scripts, styles } = await pipeline.headElements(routeData);
+		const { links, scripts, styles } = this.#headElements ?? await pipeline.headElements(routeData);
 
 		const extraStyleHashes: string[] = [];
 		const extraScriptHashes: string[] = [];
@@ -867,6 +870,17 @@ export class FetchState implements AstroFetchState {
 	}
 
 	/**
+	 * Resolves and caches the head elements (styles, scripts, links) for
+	 * the current route so they are available synchronously in
+	 * `getActionAPIContext()`.
+	 */
+	async resolveHeadElements(): Promise<HeadElements> {
+		if (this.#headElements !== null) return this.#headElements;
+		this.#headElements = await this.pipeline.headElements(this.routeData!);
+		return this.#headElements;
+	}
+
+	/**
 	 * Returns the `ActionAPIContext` for this render, creating it lazily.
 	 * Used by middleware, actions, and page dispatch.
 	 */
@@ -875,12 +889,33 @@ export class FetchState implements AstroFetchState {
 
 		const state = this;
 
+		const styles: string[] = [];
+		const links: string[] = [];
+		const scripts: string[] = [];
+		if (this.#headElements) {
+			for (const el of this.#headElements.styles) {
+				if (el.props.href) {
+					links.push(el.props.href);
+				} else if (el.children) {
+					styles.push(el.children);
+				}
+			}
+			for (const el of this.#headElements.scripts) {
+				if (el.props.src) {
+					scripts.push(el.props.src);
+				}
+			}
+		}
+
 		const ctx = {
 			get cookies() {
 				return state.cookies;
 			},
 			routePattern: this.routeData!.route,
 			isPrerendered: this.routeData!.prerender,
+			styles,
+			scripts,
+			links,
 			get clientAddress() {
 				return state.getClientAddress();
 			},
