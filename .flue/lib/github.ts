@@ -180,8 +180,9 @@ export async function findPullRequest(head: string): Promise<PullRequest | null>
 	if (!res.ok) {
 		throw new Error(`Failed to search pull requests (HTTP ${res.status}): ${await res.text()}`);
 	}
-	const pulls = (await res.json()) as PullRequest[];
-	return pulls[0] ?? null;
+	const pulls = await res.json();
+	if (!Array.isArray(pulls)) return null;
+	return (pulls[0] as PullRequest) ?? null;
 }
 
 /** Add labels to a pull request (same endpoint as issues). */
