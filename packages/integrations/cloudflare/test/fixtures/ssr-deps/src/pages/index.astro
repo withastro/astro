@@ -1,4 +1,5 @@
 ---
+import fakeData from 'fake-data-pkg';
 import { getRenderers } from '../utils/get-renderers';
 
 const { Duration } = getRenderers();
@@ -9,6 +10,7 @@ const { Duration } = getRenderers();
 </head>
 <body>
 	<h1>SSR Dependencies</h1>
+	<p id="fake-data">{fakeData.trim()}</p>
 	<p>One hour in milliseconds: <Duration /></p>
 </body>
 </html>
