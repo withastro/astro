@@ -125,15 +125,16 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 				const descriptor = partialMdxOptions.processor ?? config.markdown.processor;
 
 				if (extendMarkdownConfig) {
+					// Per docs: when MDX provides its own plugin list, it REPLACES the
+					// markdown processor's plugins; when MDX omits it, MDX inherits.
+					// (Object-shaped options like `remarkRehype`/`features` still merge.)
 					if (isSatteriProcessor(descriptor)) {
-						resolvedMdxOptions.mdastPlugins = [
-							...descriptor.mdastPlugins,
-							...resolvedMdxOptions.mdastPlugins,
-						];
-						resolvedMdxOptions.hastPlugins = [
-							...descriptor.hastPlugins,
-							...resolvedMdxOptions.hastPlugins,
-						];
+						if (partialMdxOptions.mdastPlugins === undefined) {
+							resolvedMdxOptions.mdastPlugins = [...descriptor.mdastPlugins];
+						}
+						if (partialMdxOptions.hastPlugins === undefined) {
+							resolvedMdxOptions.hastPlugins = [...descriptor.hastPlugins];
+						}
 						if (descriptor.features || resolvedMdxOptions.features) {
 							resolvedMdxOptions.features = {
 								...descriptor.features,
@@ -141,14 +142,18 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 							};
 						}
 					} else if (isUnifiedProcessor(descriptor)) {
-						resolvedMdxOptions.remarkPlugins = [
-							...ignoreStringPlugins(descriptor.remarkPlugins, logger),
-							...resolvedMdxOptions.remarkPlugins,
-						];
-						resolvedMdxOptions.rehypePlugins = [
-							...ignoreStringPlugins(descriptor.rehypePlugins, logger),
-							...resolvedMdxOptions.rehypePlugins,
-						];
+						if (partialMdxOptions.remarkPlugins === undefined) {
+							resolvedMdxOptions.remarkPlugins = ignoreStringPlugins(
+								descriptor.remarkPlugins,
+								logger,
+							);
+						}
+						if (partialMdxOptions.rehypePlugins === undefined) {
+							resolvedMdxOptions.rehypePlugins = ignoreStringPlugins(
+								descriptor.rehypePlugins,
+								logger,
+							);
+						}
 						resolvedMdxOptions.remarkRehype = {
 							...descriptor.remarkRehype,
 							...resolvedMdxOptions.remarkRehype,
