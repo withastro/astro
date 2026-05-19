@@ -73,7 +73,7 @@ During the development process, you may want to test your changes to ensure they
 
 2. Write a test and run it. This is useful if you're making a specific fix and want to see if your changes are working as expected.
 
-3. Create a separate project and use your local Astro through [`pnpm link`](https://pnpm.io/cli/link). This is helpful if you're making bigger changes and want to test them in a separate project.
+3. Create a separate project and use your local Astro through [`pnpm link`](https://pnpm.io/cli/link). This is helpful if you're making bigger changes and want to test them in a separate project. You need to link the astro folder in packages. E.g. ` pnpm link [local path to astro/packages/astro]`
 
 Overall, it's up to personal preference which method to use. For smaller changes, using the examples folder may be sufficient. For larger changes, using a separate project may be more appropriate.
 
