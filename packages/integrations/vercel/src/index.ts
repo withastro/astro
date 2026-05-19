@@ -1,5 +1,6 @@
 import { cpSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
-import { pathToFileURL } from 'node:url';
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { emptyDir, removeDir, writeJson } from '@astrojs/internal-helpers/fs';
 import {
 	getTransformedRoutes,
@@ -36,6 +37,22 @@ import { generateEdgeMiddleware } from './serverless/middleware.js';
 import { createConfigPlugin } from './vite-plugin-config.js';
 
 const PACKAGE_NAME = '@astrojs/vercel';
+
+/**
+ * On macOS with APFS, `cp -rc` uses clonefile(2) (copy-on-write), which is
+ * significantly faster than Node's cpSync for large directory trees.
+ * Falls back to cpSync on non-macOS platforms or when `cp` fails.
+ */
+function cloneCpSync(src: URL | string, dest: URL | string): void {
+	if (process.platform === 'darwin') {
+		const srcStr = typeof src === 'string' ? src : fileURLToPath(src);
+		const destStr = typeof dest === 'string' ? dest : fileURLToPath(dest);
+		mkdirSync(destStr, { recursive: true });
+		const result = spawnSync('cp', ['-rc', srcStr + '/.', destStr]);
+		if (result.status === 0) return;
+	}
+	cpSync(src as string, dest as string, { recursive: true });
+}
 
 /**
  * The edge function calls the node server at /_render,
@@ -292,9 +309,12 @@ export default function vercelAdapter({
 									logger.info('Copying static files to .vercel/output/static');
 									const _staticDir =
 										_buildOutput === 'static' ? _config.outDir : _config.build.client;
-									cpSync(_staticDir, new URL('./.vercel/output/static/', _config.root), {
-										recursive: true,
-									});
+									const _destDir = new URL('./.vercel/output/static/', _config.root);
+									if (process.platform === 'darwin') {
+										spawnSync('cp', ['-rc', fileURLToPath(_staticDir), fileURLToPath(_destDir)]);
+									} else {
+										cpSync(_staticDir, _destDir, { recursive: true });
+									}
 								},
 							},
 						},
@@ -404,9 +424,7 @@ export default function vercelAdapter({
 					mkdirSync(new URL('./.vercel/output/server/', _config.root));
 
 					if (_buildOutput !== 'static') {
-						cpSync(_config.build.server, new URL('./.vercel/output/_functions/', _config.root), {
-							recursive: true,
-						});
+						cloneCpSync(_config.build.server, new URL('./.vercel/output/_functions/', _config.root));
 					}
 				}
 
