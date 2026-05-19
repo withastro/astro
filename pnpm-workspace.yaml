@@ -52,7 +52,7 @@ trustPolicyExclude:
   - 'chokidar@4.0.3'
   # Netlify packages that do not have trusted publishing enabled on npm
   # TODO: Remove once trusted publishing is enabled. Netlify are working on it.
-  - '@netlify/edge-bundler@14.10.1'
+  - '@netlify/edge-bundler@14.10.2||14.10.1'
   - '@netlify/zip-it-and-ship-it@14.5.6'
   - '@netlify/serverless-functions-api@2.15.1'
   # Outdated dependencies of @vitejs/plugin-react@^5 and @vscode/vsce

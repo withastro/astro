@@ -151,7 +151,7 @@
     "diff": "^8.0.3",
     "dset": "^3.1.4",
     "es-module-lexer": "^2.0.0",
-    "esbuild": "^0.27.3",
+    "esbuild": "^0.28.0",
     "flattie": "^1.1.1",
     "fontace": "~0.4.1",
     "get-tsconfig": "5.0.0-beta.4",
