@@ -67,7 +67,9 @@ export default function hmrReload(): Plugin {
 					if (isRunnableDevEnvironment(this.environment)) {
 						for (const invalidated of invalidatedModules) {
 							if (invalidated.id == null) continue;
-							const runnerModule = this.environment.runner.evaluatedModules.getModuleById(invalidated.id);
+							const runnerModule = this.environment.runner.evaluatedModules.getModuleById(
+								invalidated.id,
+							);
 							if (runnerModule) {
 								this.environment.runner.evaluatedModules.invalidateModule(runnerModule);
 							}
