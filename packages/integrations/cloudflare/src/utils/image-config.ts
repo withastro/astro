@@ -48,6 +48,19 @@ const CLOUDFLARE_PASSTHROUGH_ENDPOINT = {
 // Used by both `compile` and `cloudflare-binding` for URL generation in workerd.
 const WORKERD_IMAGE_SERVICE = { entrypoint: '@astrojs/cloudflare/image-service-workerd' };
 
+const SHARP_IMAGE_SERVICE_ENTRY = 'astro/assets/services/sharp';
+
+function imageServiceEntrypointToString(
+	entrypoint: AstroConfig['image']['service']['entrypoint'],
+): string {
+	return entrypoint;
+}
+
+/** When true, `compile` swaps in the workerd stub and runs Sharp on the Node build pipeline. */
+export function usesCompileTimeWorkderdStub(image: AstroConfig['image']): boolean {
+	return imageServiceEntrypointToString(image.service.entrypoint) === SHARP_IMAGE_SERVICE_ENTRY;
+}
+
 export function setImageConfig(
 	service: ImageServiceConfig | undefined,
 	config: AstroConfig['image'],
@@ -92,7 +105,7 @@ export function setImageConfig(
 		case 'compile':
 			return {
 				...config,
-				service: WORKERD_IMAGE_SERVICE,
+				service: usesCompileTimeWorkderdStub(config) ? WORKERD_IMAGE_SERVICE : config.service,
 				// Dev: IMAGES binding (via Cloudflare Vite plugin) for real transforms.
 				// Build: endpoint depends on runtime - `cloudflare-binding` uses IMAGES, `passthrough` uses generic.
 				endpoint:

@@ -222,6 +222,9 @@ export default function createIntegration({
 				] as const;
 				const isAstroPrismPackageInstalled = await getIsAstroPrismInstalled(config.root);
 
+				const resolvedImage = setImageConfig(imageService, config.image, command, logger);
+				const resolvedImageServiceEntrypoint = resolvedImage.service.entrypoint;
+
 				updateConfig({
 					build: {
 						redirects: false,
@@ -236,6 +239,14 @@ export default function createIntegration({
 								...cloudflareOptions,
 								...cfPluginConfig,
 								viteEnvironment: { name: 'ssr' },
+								// During `astro build`, Astro creates a temporary Vite dev server (e.g. for content
+								// sync). The Cloudflare plugin's `configureServer` calls into Miniflare for the
+								// inspector port; that can throw `ERR_DISPOSED` if a prior dev session (or test)
+								// disposed the shared Miniflare instance. The Workers debugger is not used during
+								// build, so disable the inspector for this command unless the user set a port.
+								...(command === 'build' && cloudflareOptions.inspectorPort === undefined
+									? { inspectorPort: false }
+									: {}),
 							}),
 							{
 								name: '@astrojs/cloudflare:cf-imports',
@@ -348,7 +359,7 @@ export default function createIntegration({
 													typeof config.build.assetsPrefix === 'string'
 														? config.build.assetsPrefix
 														: undefined,
-												imageServiceEntrypoint: '@astrojs/cloudflare/image-service-workerd',
+												imageServiceEntrypoint: resolvedImageServiceEntrypoint,
 												buildAssets: config.build.assets ?? '_astro',
 											}
 										: null,
@@ -356,7 +367,7 @@ export default function createIntegration({
 							cfPrismPlugin(),
 						],
 					},
-					image: setImageConfig(imageService, config.image, command, logger),
+					image: resolvedImage,
 				});
 
 				if (cloudflareOptions.configPath) {
@@ -433,6 +444,10 @@ export default function createIntegration({
 			},
 			'astro:build:start': ({ setPrerenderer }) => {
 				if (prerenderEnvironment === 'workerd') {
+					const imageServiceEntrypoint = _config.image.service.entrypoint;
+					const compileStaticImagesUseSharp =
+						imageServiceEntrypoint === '@astrojs/cloudflare/image-service-workerd';
+
 					setPrerenderer(
 						createCloudflarePrerenderer({
 							cloudflareOptions,
@@ -443,6 +458,10 @@ export default function createIntegration({
 							trailingSlash: _config.trailingSlash,
 							cfPluginConfig,
 							hasCompileImageService: buildService === 'compile',
+							compileStaticImagesUseSharp,
+							compileNodeImageServiceEntrypoint: compileStaticImagesUseSharp
+								? undefined
+								: imageServiceEntrypoint,
 						}),
 					);
 				}

@@ -2,10 +2,12 @@ import type {
 	AstroConfig,
 	AstroPrerenderer,
 	AssetsGlobalStaticImagesList,
+	ImageService,
 	PathWithRoute,
 } from 'astro';
 import { preview, createLogger, type PreviewServer as VitePreviewServer } from 'vite';
-import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { mkdir } from 'node:fs/promises';
 import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
 import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
@@ -20,6 +22,31 @@ import {
 	STATIC_IMAGES_ENDPOINT,
 } from './utils/prerender-constants.js';
 
+function projectRootFsPath(root: AstroConfig['root']): string {
+	return root instanceof URL ? fileURLToPath(root) : path.resolve(root);
+}
+
+function resolveCompileNodeImageServiceSpecifier(
+	root: AstroConfig['root'],
+	entrypoint: AstroConfig['image']['service']['entrypoint'],
+): string {
+	if (entrypoint.startsWith('file://')) {
+		return entrypoint;
+	}
+
+	const rootDir = projectRootFsPath(root);
+
+	if (path.win32.isAbsolute(entrypoint) || path.posix.isAbsolute(entrypoint)) {
+		return pathToFileURL(entrypoint).href;
+	}
+
+	if (entrypoint.startsWith('./') || entrypoint.startsWith('../')) {
+		return pathToFileURL(path.resolve(rootDir, entrypoint)).href;
+	}
+
+	return entrypoint;
+}
+
 interface CloudflarePrerendererOptions {
 	cloudflareOptions: Partial<PluginConfig>;
 	root: AstroConfig['root'];
@@ -29,6 +56,13 @@ interface CloudflarePrerendererOptions {
 	trailingSlash: AstroConfig['trailingSlash'];
 	cfPluginConfig: PluginConfig;
 	hasCompileImageService: boolean;
+	/**
+	 * When the compile pipeline uses the workerd image stub, static image bytes are produced with Sharp on Node.
+	 * Custom image services use the configured service's transform instead.
+	 */
+	compileStaticImagesUseSharp: boolean;
+	/** Resolved service entrypoint for Node-side compile transforms when not using Sharp (see `compileStaticImagesUseSharp`). */
+	compileNodeImageServiceEntrypoint?: AstroConfig['image']['service']['entrypoint'];
 }
 
 /**
@@ -44,6 +78,8 @@ export function createCloudflarePrerenderer({
 	trailingSlash,
 	cfPluginConfig,
 	hasCompileImageService,
+	compileStaticImagesUseSharp,
+	compileNodeImageServiceEntrypoint,
 }: CloudflarePrerendererOptions): AstroPrerenderer {
 	let previewServer: VitePreviewServer | undefined;
 	let serverUrl: string;
@@ -162,10 +198,22 @@ export function createCloudflarePrerenderer({
 
 					const entries: StaticImagesResponse = await response.json();
 
-					// Switch from the workerd stub to Sharp for the Node-side generation pipeline
-					const { default: sharpService } = await import('astro/assets/services/sharp');
 					globalThis.astroAsset ??= {};
-					globalThis.astroAsset.imageService = sharpService;
+					if (compileStaticImagesUseSharp) {
+						const { default: sharpService } = await import('astro/assets/services/sharp');
+						globalThis.astroAsset.imageService = sharpService;
+					} else if (compileNodeImageServiceEntrypoint) {
+						const specifier = resolveCompileNodeImageServiceSpecifier(
+							root,
+							compileNodeImageServiceEntrypoint,
+						);
+						const { default: userService } = (await import(
+							specifier
+						)) as { default: ImageService };
+						globalThis.astroAsset.imageService = userService;
+					} else {
+						delete globalThis.astroAsset.imageService;
+					}
 
 					const staticImages: AssetsGlobalStaticImagesList = new Map();
 					for (const entry of entries) {
