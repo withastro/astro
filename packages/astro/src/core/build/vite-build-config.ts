@@ -62,8 +62,8 @@ export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.
 			emptyOutDir: false,
 			copyPublicDir: false,
 			manifest: false,
-			rollupOptions: {
-				...viteConfig.build?.rollupOptions,
+			rolldownOptions: {
+				...viteConfig.build?.rolldownOptions,
 				// Setting as `exports-only` allows us to safely delete inputs that are only used during prerendering
 				preserveEntrySignatures: 'exports-only',
 				...(legacyAdapter && settings.buildOutput === 'server'
@@ -103,7 +103,7 @@ export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.
 						}
 						return `${settings.config.build.assets}/[name].[hash][extname]`;
 					},
-					...viteConfig.build?.rollupOptions?.output,
+					...viteConfig.build?.rolldownOptions?.output,
 					entryFileNames(chunkInfo) {
 						if (chunkInfo.facadeModuleId?.startsWith(VIRTUAL_PAGE_RESOLVED_MODULE_ID)) {
 							return makeAstroPageEntryPointFileName(
@@ -114,7 +114,7 @@ export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.
 						} else if (
 							chunkInfo.facadeModuleId === RESOLVED_LEGACY_SSR_ENTRY_VIRTUAL_MODULE ||
 							// This catches the case when the adapter uses `entrypointResolution: 'auto'`. When doing so,
-							// the adapter must set rollupOptions.input or Astro sets it from `serverEntrypoint`.
+							// the adapter must set rolldownOptions.input or Astro sets it from `serverEntrypoint`.
 							isRolldownInput(chunkInfo.name) ||
 							isRolldownInput(chunkInfo.facadeModuleId)
 						) {
@@ -142,7 +142,7 @@ export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.
 				build: {
 					emitAssets: true,
 					outDir: fileURLToPath(getPrerenderOutputDirectory(settings)),
-					rollupOptions: {
+					rolldownOptions: {
 						// Only skip the default prerender entrypoint if an adapter with `entrypointResolution: 'self'` is used
 						// AND provides a custom prerenderer. Otherwise, use the default.
 						...(!legacyAdapter && settings.prerenderer
@@ -151,7 +151,7 @@ export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.
 						output: {
 							entryFileNames: `${PRERENDER_ENTRY_FILENAME_PREFIX}.[hash].mjs`,
 							format: 'esm',
-							...viteConfig.environments?.prerender?.build?.rollupOptions?.output,
+							...viteConfig.environments?.prerender?.build?.rolldownOptions?.output,
 						},
 					},
 					ssr: true,
@@ -165,7 +165,7 @@ export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.
 					copyPublicDir: true,
 					sourcemap: viteConfig.environments?.client?.build?.sourcemap ?? false,
 					minify: true,
-					rollupOptions: {
+					rolldownOptions: {
 						preserveEntrySignatures: 'exports-only',
 						output: {
 							entryFileNames(chunkInfo) {
@@ -184,7 +184,7 @@ export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.
 								}
 								return `${settings.config.build.assets}/[name].[hash][extname]`;
 							},
-							...viteConfig.environments?.client?.build?.rollupOptions?.output,
+							...viteConfig.environments?.client?.build?.rolldownOptions?.output,
 						},
 					},
 				},
@@ -192,9 +192,9 @@ export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.
 			[ASTRO_VITE_ENVIRONMENT_NAMES.ssr]: {
 				build: {
 					outDir: fileURLToPath(getServerOutputDirectory(settings)),
-					rollupOptions: {
+					rolldownOptions: {
 						output: {
-							...viteConfig.environments?.ssr?.build?.rollupOptions?.output,
+							...viteConfig.environments?.ssr?.build?.rolldownOptions?.output,
 						},
 					},
 				},

@@ -295,7 +295,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				// timing during prerendering. Without sorting, consecutive builds of the same
 				// source code can produce different output filenames, breaking CDN caching.
 				const sortedClientInput = Array.from(internals.clientInput).sort();
-				builder.environments.client.config.build.rollupOptions.input = sortedClientInput;
+				builder.environments.client.config.build.rolldownOptions.input = sortedClientInput;
 				settings.timer.start('Client build');
 				await builder.build(builder.environments.client);
 				settings.timer.end('Client build');
