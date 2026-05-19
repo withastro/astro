@@ -108,6 +108,13 @@ export function getLanguageServicePlugins(
 						'prettier',
 						document.uri,
 					);
+					const normalizedEditorOptions = { ...(editorOptions ?? {}) } as Record<string, unknown>;
+
+					// VS Code can provide fallback Prettier defaults even when users don't define a
+					// project config. Keep Prettier's default trailing commas in that case.
+					if (configOptions == null && normalizedEditorOptions.trailingComma === 'none') {
+						delete normalizedEditorOptions.trailingComma;
+					}
 
 					// Return a config with the following cascade:
 					// - Prettier config file should always win if it exists, if it doesn't:
@@ -117,7 +124,7 @@ export function getLanguageServicePlugins(
 						filepath: filePath,
 						tabWidth: formatOptions.tabSize,
 						useTabs: !formatOptions.insertSpaces,
-						...editorOptions,
+						...normalizedEditorOptions,
 						...configOptions,
 					};
 
