@@ -68,9 +68,15 @@ export default (element: HTMLElement) =>
 
 			// hydrate and render have different signatures for their third argument,
 			// so we call them separately instead of unifying into a single `bootstrap` call.
-			const dispose = isHydrate
-				? hydrate(fn, element, { renderId })
-				: render(fn, element);
+			let dispose: () => void;
+			if (isHydrate) {
+				dispose = hydrate(fn, element, { renderId });
+			} else {
+				// For client:only, clear the fallback content before rendering.
+				// Solid's render() appends rather than replaces when existing children are present.
+				element.innerHTML = '';
+				dispose = render(fn, element);
+			}
 			element.addEventListener('astro:unmount', () => dispose(), { once: true });
 		}
 	};
