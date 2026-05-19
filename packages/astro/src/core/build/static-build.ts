@@ -304,7 +304,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				internals.extractedChunks = [...ssrChunks, ...prerenderChunks];
 			},
 		},
-		isRollupInput,
+		isRolldownInput,
 	});
 
 	const updatedViteBuildConfig = await runHookBuildSetup({

@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import { createViteBuildConfig } from '../../../dist/core/build/vite-build-config.js';
 import { createBasicSettings } from '../test-utils.ts';
 
-const noopIsRollupInput = () => false;
+const noopIsRolldownInput = () => false;
 
 /** Shorthand to call createViteBuildConfig with minimal defaults. */
 function buildConfig(overrides: Partial<Parameters<typeof createViteBuildConfig>[0]> = {}) {
@@ -13,7 +13,7 @@ function buildConfig(overrides: Partial<Parameters<typeof createViteBuildConfig>
 		routes: overrides.routes ?? [],
 		plugins: overrides.plugins ?? [],
 		builder: overrides.builder ?? {},
-		isRollupInput: overrides.isRollupInput ?? noopIsRollupInput,
+		isRolldownInput: overrides.isRolldownInput ?? noopIsRolldownInput,
 	});
 }
 

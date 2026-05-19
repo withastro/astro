@@ -36,7 +36,7 @@ export interface CreateViteBuildConfigOptions {
 	 * A function that checks whether a given module name is a rollup input.
 	 * Used by entryFileNames to determine the server entry.
 	 */
-	isRollupInput: (moduleName: string | null) => boolean;
+	isRolldownInput: (moduleName: string | undefined) => boolean;
 }
 
 /**
@@ -47,7 +47,7 @@ export interface CreateViteBuildConfigOptions {
  * merging behavior (e.g. user rollup output overrides).
  */
 export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.InlineConfig {
-	const { settings, viteConfig, routes, plugins, builder, isRollupInput } = opts;
+	const { settings, viteConfig, routes, plugins, builder, isRolldownInput } = opts;
 	const legacyAdapter = !settings.adapter || isLegacyAdapter(settings.adapter);
 
 	return {
@@ -115,8 +115,8 @@ export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.
 							chunkInfo.facadeModuleId === RESOLVED_LEGACY_SSR_ENTRY_VIRTUAL_MODULE ||
 							// This catches the case when the adapter uses `entrypointResolution: 'auto'`. When doing so,
 							// the adapter must set rollupOptions.input or Astro sets it from `serverEntrypoint`.
-							isRollupInput(chunkInfo.name) ||
-							isRollupInput(chunkInfo.facadeModuleId)
+							isRolldownInput(chunkInfo.name) ||
+							isRolldownInput(chunkInfo.facadeModuleId)
 						) {
 							return settings.config.build.serverEntry;
 						} else {
