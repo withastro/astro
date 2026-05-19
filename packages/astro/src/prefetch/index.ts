@@ -18,6 +18,8 @@ let prefetchAll: boolean = __PREFETCH_PREFETCH_ALL__;
 // @ts-expect-error injected global
 let defaultStrategy: string = __PREFETCH_DEFAULT_STRATEGY__;
 // @ts-expect-error injected global
+let observeDynamicLinks: boolean = __PREFETCH_OBSERVE_DYNAMIC_LINKS__;
+// @ts-expect-error injected global
 let clientPrerender: boolean = __EXPERIMENTAL_CLIENT_PRERENDER__;
 
 interface InitOptions {
@@ -106,6 +108,23 @@ function initHoverStrategy() {
 		}
 	});
 
+	if (observeDynamicLinks) {
+		onLinkAdded((anchor) => {
+			// Skip if already listening
+			if (listenedAnchors.has(anchor)) return;
+			// Add listeners for anchors matching the strategy
+			if (elMatchesStrategy(anchor, 'hover')) {
+				listenedAnchors.add(anchor);
+				anchor.addEventListener(
+					'mouseenter',
+					(e) => handleHoverIn((e.currentTarget as HTMLAnchorElement).href),
+					{ passive: true },
+				);
+				anchor.addEventListener('mouseleave', handleHoverOut, { passive: true });
+			}
+		});
+	}
+
 	function handleHoverIn(href: string) {
 		// Debounce hover prefetches by 80ms
 		if (timeout) {
@@ -143,6 +162,19 @@ function initViewportStrategy() {
 			}
 		}
 	});
+
+	if (observeDynamicLinks) {
+		onLinkAdded((anchor) => {
+			// Skip if already listening
+			if (listenedAnchors.has(anchor)) return;
+			// Observe for anchors matching the strategy
+			if (elMatchesStrategy(anchor, 'viewport')) {
+				listenedAnchors.add(anchor);
+				observer ??= createViewportIntersectionObserver();
+				observer.observe(anchor);
+			}
+		});
+	}
 }
 
 function createViewportIntersectionObserver() {
@@ -189,6 +221,15 @@ function initLoadStrategy() {
 			}
 		}
 	});
+
+	if (observeDynamicLinks) {
+		onLinkAdded((anchor) => {
+			if (elMatchesStrategy(anchor, 'load')) {
+				// Prefetch every link in this page
+				prefetch(anchor.href);
+			}
+		});
+	}
 }
 
 export interface PrefetchOptions {
@@ -320,6 +361,29 @@ function onPageLoad(cb: () => void) {
 		}
 		cb();
 	});
+}
+
+function onLinkAdded(cb: (anchor: HTMLAnchorElement) => void) {
+	const mutationObserver = new MutationObserver((records) => {
+		for (const record of records) {
+			// When a mutation is detected, `addedNode` represents the top-level element
+			// that was added to the DOM — not its descendants.
+			// For example, if `div > p > a` is added, `addedNode` will be the `div`.
+			// Therefore, we need to check both whether `addedNode` itself is an anchor,
+			// and whether any of its descendants are anchors.
+			for (const addedNode of record.addedNodes) {
+				if (addedNode instanceof HTMLAnchorElement) {
+					cb(addedNode);
+				}
+				if (addedNode instanceof HTMLElement) {
+					const childAnchors = Array.from(addedNode.getElementsByTagName('a'));
+					childAnchors.forEach(cb);
+				}
+			}
+		}
+	});
+
+	mutationObserver.observe(document.body, { childList: true, subtree: true });
 }
 
 /**
