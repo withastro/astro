@@ -1401,6 +1401,35 @@ export interface AstroUserConfig<
 	/**
 	 * @docs
 	 * @kind heading
+	 * @name Logger Options
+	 * @type {LoggerHandlerConfig}
+	 * @default `undefined`
+	 * @version 6.4.0
+	 * @description
+	 *
+	 * Configures a custom logger by defining its entrypoint and, optionally, providing a serializable configuration:
+	 *
+	 * ```js
+	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   logger: {
+	 *     entrypoint: "@org/astro-logger",
+	 *     config: {
+	 *      level: "error"
+	 *     }
+	 *   }
+	 * });
+	 * ```
+	 *
+	 * See [the logger API reference](https://docs.astro.build/en/reference/logger-reference/) for more information.
+	 */
+	logger?: LoggerHandlerConfig;
+
+	/**
+	 * @docs
+	 * @kind heading
 	 * @version 5.7.0
 	 * @name Session Options
 	 * @description
@@ -3101,32 +3130,6 @@ export interface AstroUserConfig<
 			 */
 			contentCache?: boolean;
 		};
-		/**
-		 * @name experimental.logger
-		 * @type {{ entrypoint: string; config?: Record<string, unknown> }}
-		 * @default `undefined`
-		 * @version 6.2.0
-		 * @description
-		 *
-		 * Configure a custom logger by defining its entrypoint and, optionally, providing a serializable configuration:
-		 *
-		 * ```js
-		 * // astro.config.mjs
-		 * import { defineConfig } from 'astro/config';
-		 *
-		 * export default defineConfig({
-		 *   experimental: {
-		 *     logger: {
-		 *       entrypoint: "@org/astro-logger",
-		 *       config: {
-		 *        level: "error"
-		 *       }
-		 *     }
-		 *   }
-		 * });
-		 * ```
-		 */
-		logger?: LoggerHandlerConfig;
 	};
 }
 
@@ -3185,5 +3188,5 @@ export interface AstroInlineOnlyConfig {
 	/**
 	 * @internal for testing only, use `logLevel` instead.
 	 */
-	logger?: AstroLogger;
+	_logger?: AstroLogger;
 }

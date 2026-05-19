@@ -38,8 +38,8 @@ describe('Static build', () => {
 			outDir: './dist/static-build-static-build/',
 		});
 		await fixture.build({
-			// @ts-expect-error - logger is @intneral API
-			logger,
+			// @ts-expect-error: `_logger` is an internal API
+			_logger: logger,
 		});
 	});
 

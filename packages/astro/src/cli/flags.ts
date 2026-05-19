@@ -37,10 +37,8 @@ export function flagsToAstroInlineConfig(flags: Flags): AstroInlineConfig {
 	};
 
 	if (flags.experimentalJson) {
-		inlineConfig.experimental = {
-			logger: {
-				entrypoint: 'astro/logger/json',
-			},
+		inlineConfig.logger = {
+			entrypoint: 'astro/logger/json',
 		};
 	}
 
