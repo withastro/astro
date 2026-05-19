@@ -1,5 +1,54 @@
 # astro
 
+## 7.0.0-alpha.2
+
+### Major Changes
+
+- [#16725](https://github.com/withastro/astro/pull/16725) [`10229f7`](https://github.com/withastro/astro/commit/10229f73dbf0f19b9936e9a23f0abc774a4c579e) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Removes deprecated APIs exported from `astro:transitions`.
+
+  In Astro 6.x, some helpers available in `astro:transitions` and `astro:transitions/client` were deprecated.
+
+  In Astro 7.0, the following APIs can no longer be used in your project:
+  - `TRANSITION_BEFORE_PREPARATION`
+  - `TRANSITION_AFTER_PREPARATION`
+  - `TRANSITION_BEFORE_SWAP`
+  - `TRANSITION_AFTER_SWAP`
+  - `TRANSITION_PAGE_LOAD`
+  - `isTransitionBeforePreparationEvent()`
+  - `isTransitionBeforeSwapEvent()`
+  - `createAnimationScope()`
+
+  #### What should I do?
+
+  Remove any occurrence of `createAnimationScope()`:
+
+  ```diff
+  -import { createAnimationScope } from 'astro:transitions';
+  ```
+
+  Replace any occurrence of the other APIs using the lifecycle event names directly:
+
+  ```diff
+  -import {
+  -	TRANSITION_AFTER_SWAP,
+  -	isTransitionBeforePreparationEvent,
+  -} from 'astro:transitions/client';
+
+  -console.log(isTransitionBeforePreparationEvent(event));
+  +console.log(event.type === 'astro:before-preparation');
+
+  -console.log(TRANSITION_AFTER_SWAP);
+  +console.log('astro:after-swap');
+  ```
+
+  Learn more about all utilities available in the [View Transitions Router API Reference](https://v7.docs.astro.build/en/reference/modules/astro-transitions/).
+
+### Patch Changes
+
+- [#16774](https://github.com/withastro/astro/pull/16774) [`8f77583`](https://github.com/withastro/astro/commit/8f7758313df4af52e83e039bb64c41006de93c4e) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes markdown images with empty alt text (`![](image.jpg)`) in content collections dropping the `alt` attribute entirely. The `alt=""` attribute is now correctly preserved in the rendered HTML output, which is important for accessibility (indicating decorative images).
+
+- [#16730](https://github.com/withastro/astro/pull/16730) [`068d924`](https://github.com/withastro/astro/commit/068d924402dced7670530774f36cca301f91e60c) Thanks [@harshagarwalnyu](https://github.com/harshagarwalnyu)! - Fixes an issue where the `file()` content loader did not generate a valid JSON Schema for collections whose JSON or YAML data is a top-level array instead of an object.
+
 ## 7.0.0-alpha.1
 
 ### Patch Changes
