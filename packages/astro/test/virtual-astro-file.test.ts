@@ -11,6 +11,7 @@ describe('Loading virtual Astro files', () => {
 			root: './fixtures/virtual-astro-file/',
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist/virtual-astro-file/',
 		});
 		await fixture.build();
 	});

@@ -11,6 +11,7 @@ describe('srcDir', () => {
 			root: './fixtures/root-srcdir-css/',
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist/root-srcdir-css/',
 		});
 		await fixture.build();
 	});

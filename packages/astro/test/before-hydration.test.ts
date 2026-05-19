@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { preact } from './fixtures/before-hydration/deps.mjs';
 import testAdapter from './test-adapter.ts';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Astro Scripts before-hydration', () => {
 	describe('SSG', () => {
@@ -25,25 +25,6 @@ describe('Astro Scripts before-hydration', () => {
 							},
 						},
 					],
-				});
-			});
-
-			describe('Development', () => {
-				let devServer: DevServer;
-
-				before(async () => {
-					devServer = await fixture.startDevServer();
-				});
-
-				after(async () => {
-					await devServer.stop();
-				});
-
-				it('Is included in the astro-island', async () => {
-					let res = await fixture.fetch('/');
-					let html = await res.text();
-					let $ = cheerio.load(html);
-					assert.equal($('astro-island[before-hydration-url]').length, 1);
 				});
 			});
 
@@ -77,25 +58,6 @@ describe('Astro Scripts before-hydration', () => {
 				fixture = await loadFixture({
 					root: './fixtures/before-hydration/',
 					outDir: './dist/static-no-integration',
-				});
-			});
-
-			describe('Development', () => {
-				let devServer: DevServer;
-
-				before(async () => {
-					devServer = await fixture.startDevServer();
-				});
-
-				after(async () => {
-					await devServer.stop();
-				});
-
-				it('Does include before-hydration-url on the astro-island', async () => {
-					let res = await fixture.fetch('/');
-					let html = await res.text();
-					let $ = cheerio.load(html);
-					assert.equal($('astro-island[before-hydration-url]').length, 1);
 				});
 			});
 

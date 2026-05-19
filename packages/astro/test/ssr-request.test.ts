@@ -28,6 +28,8 @@ describe('Using Astro.request in SSR', () => {
 					assetsInlineLimit: 0,
 				},
 			},
+			outDir: './dist/ssr-request/',
+			cacheDir: './node_modules/.astro-test/ssr-request/',
 		});
 		await fixture.build();
 	});

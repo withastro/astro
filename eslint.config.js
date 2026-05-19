@@ -13,7 +13,8 @@ const typescriptParser = tseslint.parser;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export default [
+/** @type {import('eslint').Config[]} */
+const configs = [
 	// If ignores is used without any other keys in the configuration object, then the patterns act as global ignores.
 	// ref: https://eslint.org/docs/latest/use/configure/configuration-files#globally-ignoring-files-with-ignores
 	globalIgnores([
@@ -24,6 +25,8 @@ export default [
 		'packages/**/fixtures/',
 		'packages/**/_temp-fixtures/',
 		'packages/astro/vendor/vite/',
+		// Runtime templates with placeholder syntax (e.g. `@@GET_ENV@@`); not real modules.
+		'packages/astro/templates/',
 		'benchmark/**/dist/',
 		'benchmark/static-projects/**',
 		'examples/',
@@ -31,6 +34,8 @@ export default [
 		'triage/',
 		'.github/',
 		'.changeset/',
+		// We can remove this once https://github.com/withastro/astro/pull/16643 is merged
+		'packages/astro/e2e/astro-island-hydration-error.test.js',
 	]),
 
 	...tseslint.configs.recommendedTypeChecked,
@@ -40,7 +45,8 @@ export default [
 		languageOptions: {
 			parser: typescriptParser,
 			parserOptions: {
-				project: ['./packages/*/tsconfig.json', './tsconfig.eslint.json'],
+				// See https://typescript-eslint.io/blog/project-service/
+				projectService: true,
 				tsconfigRootDir: __dirname,
 			},
 		},
@@ -52,6 +58,22 @@ export default [
 			// Type-aware rules that Biome cannot replace
 			'@typescript-eslint/switch-exhaustiveness-check': 'error',
 			'@typescript-eslint/no-shadow': 'error',
+
+			'@typescript-eslint/no-floating-promises': [
+				'error',
+				{
+					ignoreIIFE: true,
+					allowForKnownSafeCalls: [
+						// `describe`, `it`, and `test` functions imported from `node:test` return a promise, but it's safe to ignore them in most cases.
+						// See https://github.com/nodejs/node/issues/51292
+						{
+							from: 'package',
+							name: ['suite', 'test', 'it', 'describe', 'skip'],
+							package: 'node:test',
+						},
+					],
+				},
+			],
 
 			// Disabled - now handled by Biome
 			'no-console': 'off', // Biome: suspicious.noConsole
@@ -68,7 +90,6 @@ export default [
 			'@typescript-eslint/no-inferrable-types': 'off',
 			'@typescript-eslint/no-base-to-string': 'off',
 			'@typescript-eslint/no-empty-function': 'off',
-			'@typescript-eslint/no-floating-promises': 'off',
 			'@typescript-eslint/no-misused-promises': 'off',
 			'@typescript-eslint/no-redundant-type-constituents': 'off',
 			'@typescript-eslint/no-this-alias': 'off',
@@ -103,6 +124,13 @@ export default [
 			globals: {
 				browser: true,
 			},
+		},
+	},
+	{
+		files: ['packages/**/src/**/*.ts'],
+		rules: {
+			// Disable "no-floating-promises" rule for all source files until we have the bandwidth to address all the errors.
+			'@typescript-eslint/no-floating-promises': 'off',
 		},
 	},
 	{
@@ -145,3 +173,5 @@ export default [
 		},
 	},
 ];
+
+export default configs;

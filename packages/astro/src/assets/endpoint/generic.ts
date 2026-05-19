@@ -6,26 +6,7 @@ import * as mime from 'mrmime';
 import type { APIRoute } from '../../types/public/common.js';
 import { getConfiguredImageService } from '../internal.js';
 import { etag } from '../utils/etag.js';
-import { fetchWithRedirects } from '../utils/redirectValidation.js';
-
-async function loadRemoteImage(src: URL, headers: Headers) {
-	try {
-		const res = await fetchWithRedirects({ url: src, headers, imageConfig });
-
-		// Validate that the final URL (after redirects) is allowed
-		if (!isRemoteAllowed(res.url, imageConfig)) {
-			return undefined;
-		}
-
-		if (!res.ok) {
-			return undefined;
-		}
-
-		return await res.arrayBuffer();
-	} catch {
-		return undefined;
-	}
-}
+import { loadImage } from './loadImage.js';
 
 /**
  * Endpoint used in dev and SSR to serve optimized images by the base image services
@@ -60,7 +41,12 @@ export const GET: APIRoute = async ({ request }) => {
 			return new Response('Forbidden', { status: 403 });
 		}
 
-		inputBuffer = await loadRemoteImage(sourceUrl, isRemoteImage ? new Headers() : request.headers);
+		inputBuffer = await loadImage(
+			sourceUrl,
+			isRemoteImage ? new Headers() : request.headers,
+			imageConfig,
+			isRemoteImage,
+		);
 
 		if (!inputBuffer) {
 			return new Response('Not Found', { status: 404 });

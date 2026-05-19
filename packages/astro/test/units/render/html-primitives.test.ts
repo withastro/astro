@@ -21,16 +21,16 @@ import {
 import { createTestApp, createPage } from '../mocks.ts';
 
 describe('toAttributeString', () => {
-	it('escapes & to &#38;', () => {
-		assert.equal(toAttributeString('a&b'), 'a&#38;b');
+	it('escapes & to &amp;', () => {
+		assert.equal(toAttributeString('a&b'), 'a&amp;b');
 	});
 
-	it('escapes " to &#34;', () => {
-		assert.equal(toAttributeString('say "hello"'), 'say &#34;hello&#34;');
+	it('escapes " to &quot;', () => {
+		assert.equal(toAttributeString('say "hello"'), 'say &quot;hello&quot;');
 	});
 
 	it('escapes both & and " in the same string', () => {
-		assert.equal(toAttributeString('"a&b"'), '&#34;a&#38;b&#34;');
+		assert.equal(toAttributeString('"a&b"'), '&quot;a&amp;b&quot;');
 	});
 
 	it('passes through normal strings unchanged', () => {

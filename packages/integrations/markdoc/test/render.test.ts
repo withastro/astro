@@ -10,68 +10,6 @@ async function getFixture(name: string) {
 }
 
 describe('Markdoc - render', () => {
-	describe('dev', () => {
-		it('renders content - simple', async () => {
-			const fixture = await getFixture('render-simple');
-			const server = await fixture.startDevServer();
-
-			const res = await fixture.fetch('/');
-			const html = await res.text();
-
-			renderSimpleChecks(html);
-
-			await server.stop();
-		});
-
-		it('renders content - with partials', async () => {
-			const fixture = await getFixture('render-partials');
-			const server = await fixture.startDevServer();
-
-			const res = await fixture.fetch('/');
-			const html = await res.text();
-
-			renderPartialsChecks(html);
-
-			await server.stop();
-		});
-
-		it('renders content - with config', async () => {
-			const fixture = await getFixture('render-with-config');
-			const server = await fixture.startDevServer();
-
-			const res = await fixture.fetch('/');
-			const html = await res.text();
-
-			renderConfigChecks(html);
-
-			await server.stop();
-		});
-
-		it('renders content - with `render: null` in document', async () => {
-			const fixture = await getFixture('render-null');
-			const server = await fixture.startDevServer();
-
-			const res = await fixture.fetch('/');
-			const html = await res.text();
-
-			renderNullChecks(html);
-
-			await server.stop();
-		});
-
-		it('renders content - with root folder containing space', async () => {
-			const fixture = await getFixture('render with-space');
-			const server = await fixture.startDevServer();
-
-			const res = await fixture.fetch('/');
-			const html = await res.text();
-
-			renderWithRootFolderContainingSpace(html);
-
-			await server.stop();
-		});
-	});
-
 	describe('build', () => {
 		it('renders content - simple', async () => {
 			const fixture = await getFixture('render-simple');

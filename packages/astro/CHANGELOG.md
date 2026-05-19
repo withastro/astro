@@ -26,6 +26,123 @@
 
 - [#16434](https://github.com/withastro/astro/pull/16434) [`ee079d4`](https://github.com/withastro/astro/commit/ee079d4c7f143076b84d663c832911009a077c7f) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where i18n domains would return 404 when `trailingSlash` is set to `never`.
 
+## 6.3.5
+
+### Patch Changes
+
+- [#16771](https://github.com/withastro/astro/pull/16771) [`07c8805`](https://github.com/withastro/astro/commit/07c880500926e3337798ca906d9422c880c6e148) Thanks [@ematipico](https://github.com/ematipico)! - Fixes `position` prop on `<Image>` and `<Picture>` components breaking Content Security Policy (CSP).
+
+- [#16593](https://github.com/withastro/astro/pull/16593) [`50924ce`](https://github.com/withastro/astro/commit/50924cea1faf32b8c14b031936e93812033b04ca) Thanks [@yanthomasdev](https://github.com/yanthomasdev)! - Improves error messages with more consistent and correct writing.
+
+- [#16757](https://github.com/withastro/astro/pull/16757) [`5d661cd`](https://github.com/withastro/astro/commit/5d661cd226cd9abb4f0f352231f2f68feec52ab4) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes dev server serving stale content when SSR-only modules change (e.g. `.astro` files outside the project root in a monorepo, or dynamically imported components).
+
+  Previously, the `astro:hmr-reload` plugin returned an empty array after detecting SSR-only module changes, which prevented Vite's `updateModules` from propagating the invalidation to the SSR module runner. The runner's evaluated module cache stayed stale, so subsequent requests continued returning old content.
+
+  Now the plugin returns the SSR-only modules so Vite can process them through `updateModules`, which properly invalidates the module runner's cache and ensures fresh content on the next request.
+
+## 6.3.4
+
+### Patch Changes
+
+- [#16723](https://github.com/withastro/astro/pull/16723) [`0f10bfe`](https://github.com/withastro/astro/commit/0f10bfe70d443ebe5474a72f59c3a3e745831b98) Thanks [@matthewp](https://github.com/matthewp)! - Adds `fetchFile` option to `experimental.advancedRouting` to customize or disable the entrypoint file
+
+  ```js
+  export default defineConfig({
+    experimental: {
+      advancedRouting: {
+        fetchFile: 'fetch.ts',
+      },
+    },
+  });
+  ```
+
+- [#16723](https://github.com/withastro/astro/pull/16723) [`0f10bfe`](https://github.com/withastro/astro/commit/0f10bfe70d443ebe5474a72f59c3a3e745831b98) Thanks [@matthewp](https://github.com/matthewp)! - Fixes Hono `cache()` middleware to follow the standard wrapper pattern
+
+- [#16723](https://github.com/withastro/astro/pull/16723) [`0f10bfe`](https://github.com/withastro/astro/commit/0f10bfe70d443ebe5474a72f59c3a3e745831b98) Thanks [@matthewp](https://github.com/matthewp)! - Adds `App.Providers` interface for typing custom context providers on `Astro` and `ctx`
+
+  ```ts
+  declare namespace App {
+    interface Providers {
+      oauth: import('./lib/oauth').OAuthSession;
+    }
+  }
+  ```
+
+- [#16723](https://github.com/withastro/astro/pull/16723) [`0f10bfe`](https://github.com/withastro/astro/commit/0f10bfe70d443ebe5474a72f59c3a3e745831b98) Thanks [@matthewp](https://github.com/matthewp)! - Adds `FetchState.response` property, set automatically after `pages()` or `middleware()` completes
+
+  ```ts
+  const response = await middleware(state, (s) => pages(s));
+  console.log(state.response === response); // true
+  ```
+
+- [#16723](https://github.com/withastro/astro/pull/16723) [`0f10bfe`](https://github.com/withastro/astro/commit/0f10bfe70d443ebe5474a72f59c3a3e745831b98) Thanks [@matthewp](https://github.com/matthewp)! - Adds `Fetchable` type export for typing the advanced routing entrypoint
+
+  ```ts
+  import type { Fetchable } from 'astro';
+
+  export default {
+    async fetch(request) {
+      return new Response('ok');
+    },
+  } satisfies Fetchable;
+  ```
+
+- [#16572](https://github.com/withastro/astro/pull/16572) [`4a5a077`](https://github.com/withastro/astro/commit/4a5a0779712be11680a9fc729be2ba9dd93f68d2) Thanks [@DORI2001](https://github.com/DORI2001)! - Suppresses `[WARN] Vite warning: unused imports from "@astrojs/internal-helpers/remote"` during prerender builds. The package is now bundled alongside `astro` in the prerender environment, matching how it is handled in the SSR environment.
+
+- [#16756](https://github.com/withastro/astro/pull/16756) [`b6ee23d`](https://github.com/withastro/astro/commit/b6ee23d339311c356ad25781f62454aee289e47b) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes styles from Markdoc/MDX custom components not being extracted to `<head>` in the dev server when using the Cloudflare adapter with `prerenderEnvironment: 'node'` and rendering content through a wrapper component.
+
+- [#16747](https://github.com/withastro/astro/pull/16747) [`904d19a`](https://github.com/withastro/astro/commit/904d19a73e91dc166c492905ebf6c81705fa7064) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes Astro action requests failing in `astro dev` when using the Cloudflare adapter with `prerenderEnvironment: 'node'` alongside a prerendered catch-all route such as `[...page].astro`.
+
+  Actions and other SSR POST endpoints now continue to work in dev instead of returning an HTTP 500 error.
+
+- [#16701](https://github.com/withastro/astro/pull/16701) [`3495ce4`](https://github.com/withastro/astro/commit/3495ce4f3af103673e32b6fdd452e4108252e1b5) Thanks [@demaisj](https://github.com/demaisj)! - Fix `Map` and `Set` instances saved in a content collection being broken when retrieving entries.
+
+- [#16614](https://github.com/withastro/astro/pull/16614) [`fca1c32`](https://github.com/withastro/astro/commit/fca1c32c329f6044c6833debdb9d683dd2103fc9) Thanks [@Eptagone](https://github.com/Eptagone)! - Fixes `entry.data` type inference when a live collection is configured without a schema.
+
+- [#16661](https://github.com/withastro/astro/pull/16661) [`03b8f7f`](https://github.com/withastro/astro/commit/03b8f7f7644cc1d9e738a8221d6bd377399538c0) Thanks [@ocavue](https://github.com/ocavue)! - Updates `typescript` to v6. No changes are needed from users.
+
+- [#16681](https://github.com/withastro/astro/pull/16681) [`c22770a`](https://github.com/withastro/astro/commit/c22770a58c3b312ad4bba81707be72f551ee02db) Thanks [@dotnetCarpenter](https://github.com/dotnetCarpenter)! - Fixes an issue where SVG images with `width="0"` or `height="0"` incorrectly threw a `NoImageMetadata` error instead of being treated as valid dimensions.
+
+## 6.3.3
+
+### Patch Changes
+
+- [#16737](https://github.com/withastro/astro/pull/16737) [`bd84f33`](https://github.com/withastro/astro/commit/bd84f33d68cfa7d077e0a638970e28b0a9bd83db) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a reflected XSS vulnerability where slot names on hydrated components were not HTML-escaped in SSR output
+
+## 6.3.2
+
+### Patch Changes
+
+- [#16675](https://github.com/withastro/astro/pull/16675) [`11d4592`](https://github.com/withastro/astro/commit/11d4592e9498e900b433ba94abed9cd615a9350b) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a regression where `Astro.cache` was `undefined` when `experimental.cache` was not configured.
+
+  The previous documented behavior is for `Astro.cache` to always be defined as a no-op shim: `cache.set()` warns once, `cache.invalidate()` throws and `cache.enabled` can be used to gate. This allows library and user code can call cache methods without conditional checks. The cache provider registration was being gated at the call site on `experimental.cache` being configured, which meant the disabled shim branch inside the provider was unreachable and the `Astro.cache` getter was never attached to the context.
+
+- [#16691](https://github.com/withastro/astro/pull/16691) [`0f0a4ce`](https://github.com/withastro/astro/commit/0f0a4ce1b28a6d6ec1658c7f59e0e68408935135) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `HTMLElement is not defined` error during HMR when using components with client-side scripts (e.g. Starlight `<Tabs>`) and the Cloudflare adapter
+
+- [#16562](https://github.com/withastro/astro/pull/16562) [`07529ec`](https://github.com/withastro/astro/commit/07529eccdaef8727a375475e6d04071b770114a1) Thanks [@matthewp](https://github.com/matthewp)! - Fixes non-prerendered routes failing when a dynamic prerendered route exists in the same project with `prerenderEnvironment: 'node'`
+
+- [#16638](https://github.com/withastro/astro/pull/16638) [`272185b`](https://github.com/withastro/astro/commit/272185bcccf6a4adcd7575f319bf91f2e5306c6d) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where the Astro compiler wasn't freed at the end of the build. After the fix, the memory used by the compiler is now correctly freed at the end of the build.
+
+- [#16544](https://github.com/withastro/astro/pull/16544) [`d365c97`](https://github.com/withastro/astro/commit/d365c975ba2d88fc1dbdfe698df2bf9e2eafadce) Thanks [@matthewp](https://github.com/matthewp)! - Tightens `isRemotePath()` to reject control characters after a leading slash and fixes the dev image endpoint origin check
+
+- [#16685](https://github.com/withastro/astro/pull/16685) [`889e748`](https://github.com/withastro/astro/commit/889e748f1546eabc325d5112f95bc78e402fd4f0) Thanks [@farrosfr](https://github.com/farrosfr)! - Improve validation messages for `security.csp.directives` when `script-src` or `style-src` are incorrectly placed in the `directives` array.
+
+- [#16605](https://github.com/withastro/astro/pull/16605) [`772f13a`](https://github.com/withastro/astro/commit/772f13a153db235a232a86dc533df3b07a1a09a0) Thanks [@rururux](https://github.com/rururux)! - Fixes `assetsPrefix` not being available on `build` from `astro:config/server`.
+
+- [#16556](https://github.com/withastro/astro/pull/16556) [`f38dec7`](https://github.com/withastro/astro/commit/f38dec76a48234ae6919a118f3d626c6ed3d4e80) Thanks [@matthewp](https://github.com/matthewp)! - Rejects double-encoded URL paths with a 400 response instead of silently falling back to partial decoding
+
+- [#16659](https://github.com/withastro/astro/pull/16659) [`38bcb25`](https://github.com/withastro/astro/commit/38bcb25282d1f794b7dff349071b089a2737f0aa) Thanks [@jsparkdev](https://github.com/jsparkdev)! - Fixes `&` characters appearing as raw entity strings (e.g. `&#38;`) in `<meta>` tags when viewed in link previews or raw HTML.
+
+- Updated dependencies [[`d365c97`](https://github.com/withastro/astro/commit/d365c975ba2d88fc1dbdfe698df2bf9e2eafadce), [`9256345`](https://github.com/withastro/astro/commit/92563452ce866d9f9b950ad4b2adc808d10e8014)]:
+  - @astrojs/internal-helpers@0.9.1
+  - @astrojs/markdown-remark@7.1.2
+
+## 6.3.1
+
+### Patch Changes
+
+- [#16646](https://github.com/withastro/astro/pull/16646) [`15fbc41`](https://github.com/withastro/astro/commit/15fbc41bb2fe64e8aee15acbe01abb4792145e8a) Thanks [@matthewp](https://github.com/matthewp)! - Fixes local images returning 404 on non-prerendered pages when using the generic image endpoint
+
 ## 6.3.0
 
 ### Minor Changes

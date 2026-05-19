@@ -24,6 +24,7 @@ describe('vite.css.transformer: lightningcss + scoped styles + nested `&`', () =
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/lightningcss-scoped-nesting/',
+			outDir: './dist/lightningcss-scoped-nesting/',
 		});
 		await fixture.build();
 

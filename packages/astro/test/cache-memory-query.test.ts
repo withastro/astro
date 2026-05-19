@@ -12,6 +12,7 @@ describe('Memory cache provider — default query exclusions', () => {
 			root: './fixtures/cache-memory-query/',
 			output: 'server',
 			adapter: testAdapter(),
+			outDir: './dist/cache-memory-query-memory-cache-provider-default-query-excl/',
 		});
 		await fixture.build({});
 		app = await fixture.loadTestAdapterApp();
@@ -69,6 +70,7 @@ describe('Memory cache provider — query include', () => {
 			root: './fixtures/cache-memory-query-include/',
 			output: 'server',
 			adapter: testAdapter(),
+			outDir: './dist/cache-memory-query-memory-cache-provider-query-include/',
 		});
 		await fixture.build({});
 		app = await fixture.loadTestAdapterApp();

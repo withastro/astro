@@ -49,16 +49,18 @@
     "vite": "^8.0.8"
   },
   "peerDependencies": {
-    "astro": "^7.0.0-alpha.0",
+    "astro": "^7.3.0-alpha.0",
     "wrangler": "^4.83.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260228.0",
     "@types/node": "^25.2.2",
+    "@types/prismjs": "1.26.6",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.2.0",
-    "devalue": "^5.6.3"
+    "devalue": "^5.6.3",
+    "prismjs": "^1.30.0"
   },
   "publishConfig": {
     "provenance": true

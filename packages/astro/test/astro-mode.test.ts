@@ -17,6 +17,7 @@ describe('--mode', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-mode/',
+			outDir: './dist/astro-mode/',
 		});
 		devDataStoreFile = new URL('./.astro/data-store.json', fixture.config.root);
 		prodDataStoreFile = new URL('./node_modules/.astro/data-store.json', fixture.config.root);

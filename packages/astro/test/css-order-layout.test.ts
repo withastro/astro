@@ -10,6 +10,8 @@ describe('CSS ordering - import order with layouts', () => {
 			root: './fixtures/css-order-layout/',
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist/css-order-layout/',
+			cacheDir: './node_modules/.astro-test/css-order-layout/',
 		});
 	});
 

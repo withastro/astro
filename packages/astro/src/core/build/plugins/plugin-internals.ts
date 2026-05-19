@@ -46,7 +46,7 @@ export function pluginInternals(
 					},
 					resolve: {
 						// Always bundle Astro runtime when building for SSR
-						noExternal: ['astro'],
+						noExternal: ['astro', '@astrojs/internal-helpers'],
 					},
 				};
 			}
