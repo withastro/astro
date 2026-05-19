@@ -45,7 +45,7 @@
     "@netlify/functions": "^5.2.0",
     "@netlify/vite-plugin": "^2.12.3",
     "@vercel/nft": "^1.3.2",
-    "esbuild": "^0.27.3",
+    "esbuild": "^0.28.0",
     "tinyglobby": "^0.2.15",
     "vite": "^8.0.13"
   },
