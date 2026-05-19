@@ -519,6 +519,30 @@ repository:
         end: (?=</|/>)
         name: meta.lang.$3.astro
         patterns: [include: '#tags-lang-start-attributes']
+      # When the lang/type attribute is on a different line than <style or <script,
+      # scan ahead through attributes until we find it.
+      - begin: \G(?!\s*[^>]*?(type|lang)\s*=\s*)(?!\s*/?>)
+        end: (?=\s*(type|lang)\s*=\s*)|(>)
+        endCaptures:
+          2: { name: punctuation.definition.tag.end.astro }
+        name: meta.tag.start.astro
+        patterns: [include: '#attributes']
+      # After scanning, match each specific language for multi-line cases.
+      # ld+json
+      - begin: (?=\s*(type|lang)\s*=\s*(['"]|)(?:text\/)?(application\/ld\+json)\2)
+        end: (?=</|/>)
+        name: meta.lang.json.astro
+        patterns: [include: '#tags-lang-start-attributes']
+      # module
+      - begin: (?=\s*(type|lang)\s*=\s*(['"]|)(module)\2)
+        end: (?=</|/>)
+        name: meta.lang.javascript.astro
+        patterns: [include: '#tags-lang-start-attributes']
+      # General language
+      - begin: (?=\s*(type|lang)\s*=\s*(['"]|)(?:text/|application/)?([\w\/+]+)\2)
+        end: (?=</|/>)
+        name: meta.lang.$3.astro
+        patterns: [include: '#tags-lang-start-attributes']
       # Fallback to default language.
       - include: '#tags-lang-start-attributes'
 
