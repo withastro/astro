@@ -42,7 +42,7 @@ export function getCount() {
 	});
 
 	it('compiles .svelte.js dependencies in cloudflare dev', {
-		skip: 'Svelte is still in experimental mode for rolldown and vite v8',
+		skip: 'Svelte rune dependencies return 500 in Cloudflare dev mode',
 	}, async () => {
 		const res = await fixture.fetch('/');
 		assert.equal(res.status, 200);
