@@ -11,7 +11,7 @@ export function getTimeStat(timeStart: number, timeEnd: number) {
 	}
 	const mins = Math.floor(buildTime / 60_000);
 	const secs = Math.round((buildTime % 60_000) / 1000);
-	return `${mins}min ${secs}s`;
+	return `${mins}m ${secs}s`;
 }
 
 /**
