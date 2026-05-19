@@ -1,12 +1,16 @@
 import { createReadStream, existsSync, readFileSync } from 'node:fs';
-import { appendFile, readFile, rename, stat } from 'node:fs/promises';
+import { appendFile, readFile, rename, stat, unlink, writeFile } from 'node:fs/promises';
 import { createInterface } from 'node:readline/promises';
-import { removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
+import {
+	removeLeadingForwardSlash,
+	removeTrailingForwardSlash,
+} from '@astrojs/internal-helpers/path';
 import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
 import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
 import type { AstroConfig, AstroIntegration, IntegrationResolvedRoute } from 'astro';
 import { astroFrontmatterScanPlugin } from './esbuild-plugin-astro-frontmatter.js';
 import { getParts } from './utils/generate-routes-json.js';
+import { buildAssetsHeadersContent } from './utils/headers.js';
 import {
 	type ImageServiceConfig,
 	normalizeImageServiceConfig,
@@ -485,6 +489,45 @@ export default function createIntegration({
 						} catch {
 							// File may not exist — that's fine
 						}
+					}
+				}
+
+				// Inject an immutable Cache-Control rule for hashed assets so browsers
+				// cache them across deploys. Skip when assets are served from another
+				// origin (build.assetsPrefix) or when the user's _headers already sets
+				// Cache-Control on a rule that would match the assets path — Cloudflare
+				// merges duplicate header values with a comma, which would otherwise
+				// produce a contradictory directive.
+				if (_config.build.assetsPrefix) {
+					logger.debug(
+						'Skipping Cache-Control injection for assets — `build.assetsPrefix` is set, so assets are served from a different origin.',
+					);
+				} else {
+					const headersPath = new URL('./_headers', _originalClientDir);
+					const result = await buildAssetsHeadersContent(
+						{
+							assetsDir: _config.build.assets,
+							basePrefix: removeTrailingForwardSlash(_config.base),
+							headersPath,
+						},
+						(path) => readFile(path, 'utf-8'),
+					);
+					if (result === null) {
+						logger.debug(
+							`Skipping Cache-Control injection — _headers already sets Cache-Control on a matching rule.`,
+						);
+					} else {
+						// Atomic write: stage to a temp file, then rename, so a crash
+						// mid-write can't leave the user's _headers truncated.
+						const tempPath = new URL('./_headers.tmp', _originalClientDir);
+						try {
+							await writeFile(tempPath, result.content);
+							await rename(tempPath, headersPath);
+						} catch (err) {
+							await unlink(tempPath).catch(() => {});
+							throw err;
+						}
+						logger.info(`Injected immutable Cache-Control for ${result.assetsPattern} into _headers.`);
 					}
 				}
 
