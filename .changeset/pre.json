@@ -35,8 +35,12 @@
   "changesets": [
     "common-pears-drive",
     "fix-dev-port-vite-restart",
+    "fix-empty-alt-content-collections",
     "goofy-tigers-like",
     "rusty-compilers-only",
-    "two-eels-live"
+    "silly-spoons-write",
+    "tangy-chairs-smile",
+    "two-eels-live",
+    "wacky-bugs-act"
   ]
 }
