@@ -173,16 +173,20 @@ export async function createPullRequest(options: {
 /** Find an open pull request from the given head branch. */
 export async function findPullRequest(head: string): Promise<PullRequest | null> {
 	assert(GITHUB_TOKEN_BASE, `GITHUB_TOKEN env token is required.`);
-	const res = await fetch(
-		`https://api.github.com/repos/${REPO}/pulls?head=withastro:${encodeURIComponent(head)}&state=open`,
-		{ headers: headers(GITHUB_TOKEN_BASE) },
-	);
-	if (!res.ok) {
-		throw new Error(`Failed to search pull requests (HTTP ${res.status}): ${await res.text()}`);
+	try {
+		const res = await fetch(
+			`https://api.github.com/repos/${REPO}/pulls?head=withastro:${encodeURIComponent(head)}&state=open`,
+			{ headers: headers(GITHUB_TOKEN_BASE) },
+		);
+		if (!res.ok) {
+			throw new Error(`HTTP ${res.status}: ${await res.text()}`);
+		}
+		const pulls = await res.json();
+		if (!Array.isArray(pulls)) return null;
+		return (pulls[0] as PullRequest) ?? null;
+	} catch (e) {
+		throw new Error(`Failed to check for existing PR on branch "${head}": ${e}`);
 	}
-	const pulls = await res.json();
-	if (!Array.isArray(pulls)) return null;
-	return (pulls[0] as PullRequest) ?? null;
 }
 
 /** Add labels to a pull request (same endpoint as issues). */
