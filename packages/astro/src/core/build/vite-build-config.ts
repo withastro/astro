@@ -163,11 +163,22 @@ export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.
 					target: 'esnext',
 					outDir: fileURLToPath(getClientOutputDirectory(settings)),
 					copyPublicDir: true,
-					sourcemap: viteConfig.environments?.client?.build?.sourcemap ?? false,
-					minify: true,
+					sourcemap:
+						viteConfig.environments?.client?.build?.sourcemap ??
+						viteConfig.build?.sourcemap ??
+						false,
+					minify:
+						viteConfig.environments?.client?.build?.minify ??
+						viteConfig.build?.minify ??
+						true,
 					rollupOptions: {
 						preserveEntrySignatures: 'exports-only',
 						output: {
+							// Inherit top-level rollup output options (e.g. compact) as a
+							// base, then layer Astro defaults on top so that Astro's
+							// naming functions are preserved unless explicitly overridden
+							// via the environment-specific config.
+							...viteConfig.build?.rollupOptions?.output,
 							entryFileNames(chunkInfo) {
 								return `${settings.config.build.assets}/${cleanChunkName(chunkInfo.name)}.[hash].js`;
 							},
