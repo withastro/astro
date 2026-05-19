@@ -58,7 +58,7 @@ jobs:
         timeout-minutes: 15
         
       - name: Run the benchmarks
-        uses: CodSpeedHQ/action@658a901452bb54c799643e060733b7afe9121b8d # v4.14.0
+        uses: CodSpeedHQ/action@c381be0bfd20e844fb45594f6aa182ffcd94545c # v4.15.0
         timeout-minutes: 30
         with:
           working-directory: ./benchmark

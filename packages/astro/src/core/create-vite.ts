@@ -1,3 +1,4 @@
+import './env/process-env-snapshot.js';
 import nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import * as vite from 'vite';

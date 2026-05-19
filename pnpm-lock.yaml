@@ -571,6 +571,9 @@ importers:
       diff:
         specifier: ^8.0.3
         version: 8.0.3
+      dotenv:
+        specifier: ^16.6.1
+        version: 16.6.1
       dset:
         specifier: ^3.1.4
         version: 3.1.4
