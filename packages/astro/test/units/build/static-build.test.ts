@@ -23,18 +23,18 @@ describe('astro/src/core/build', () => {
 			assert.equal(getTimeStat(0, 59999), '60.00s');
 		});
 
-		it('formats durations >= 60s with minutes and rounded seconds', () => {
-			assert.equal(getTimeStat(0, 60000), '1min 0s');
-			assert.equal(getTimeStat(0, 90000), '1min 30s');
-			assert.equal(getTimeStat(0, 125400), '2min 5s');
-			assert.equal(getTimeStat(0, 600000), '10min 0s');
-			assert.equal(getTimeStat(0, 754000), '12min 34s');
+		it('formats durations >= 60s with mutes and rounded seconds', () => {
+			assert.equal(getTimeStat(0, 60000), '1m 0s');
+			assert.equal(getTimeStat(0, 90000), '1m 30s');
+			assert.equal(getTimeStat(0, 125400), '2m 5s');
+			assert.equal(getTimeStat(0, 600000), '10m 0s');
+			assert.equal(getTimeStat(0, 754000), '12m 34s');
 		});
 
 		it('works with non-zero start times', () => {
 			assert.equal(getTimeStat(1000, 1500), '500ms');
 			assert.equal(getTimeStat(5000, 8000), '3.00s');
-			assert.equal(getTimeStat(1000, 91000), '1min 30s');
+			assert.equal(getTimeStat(1000, 91000), '1m 30s');
 		});
 	});
 
