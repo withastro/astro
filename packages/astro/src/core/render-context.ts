@@ -33,6 +33,7 @@ import { AstroError, AstroErrorData } from './errors/index.js';
 import { callMiddleware } from './middleware/callMiddleware.js';
 import { sequence } from './middleware/index.js';
 import { renderRedirect } from './redirects/render.js';
+import type { HeadElements } from './base-pipeline.js';
 import { getParams, getProps, type Pipeline, Slots } from './render/index.js';
 import { isRoute404or500, isRouteExternalRedirect, isRouteServerIsland } from './routing/match.js';
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
@@ -66,6 +67,8 @@ export class RenderContext {
 			? new AstroSession(cookies, pipeline.manifest.sessionConfig, pipeline.runtimeMode)
 			: undefined,
 	) {}
+
+	headElements?: HeadElements;
 
 	static #createNormalizedUrl(requestUrl: string): URL {
 		const url = new URL(requestUrl);
@@ -178,7 +181,8 @@ export class RenderContext {
 						serverLike,
 						base: manifest.base,
 					});
-		const actionApiContext = this.createActionAPIContext();
+		this.headElements = await pipeline.headElements(this.routeData);
+		const actionApiContext = this.createActionAPIContext(this.headElements);
 		const apiContext = this.createAPIContext(props, actionApiContext);
 
 		this.counter++;
@@ -397,7 +401,7 @@ export class RenderContext {
 		return await this.render(componentInstance);
 	}
 
-	createActionAPIContext(): ActionAPIContext {
+	createActionAPIContext(headElements?: HeadElements): ActionAPIContext {
 		const renderContext = this;
 		const { params, pipeline, url } = this;
 		const generator = `Astro v${ASTRO_VERSION}`;
@@ -406,6 +410,24 @@ export class RenderContext {
 			return await this.#executeRewrite(reroutePayload);
 		};
 
+		const styles: string[] = [];
+		const links: string[] = [];
+		const scripts: string[] = [];
+		if (headElements) {
+			for (const el of headElements.styles) {
+				if (el.props.href) {
+					links.push(el.props.href);
+				} else if (el.children) {
+					styles.push(el.children);
+				}
+			}
+			for (const el of headElements.scripts) {
+				if (el.props.src) {
+					scripts.push(el.props.src);
+				}
+			}
+		}
+
 		return {
 			// Don't allow reassignment of cookies because it doesn't work
 			get cookies() {
@@ -413,6 +435,9 @@ export class RenderContext {
 			},
 			routePattern: this.routeData.route,
 			isPrerendered: this.routeData.prerender,
+			styles,
+			scripts,
+			links,
 			get clientAddress() {
 				return renderContext.getClientAddress();
 			},
@@ -507,7 +532,7 @@ export class RenderContext {
 		const { cookies, pathname, pipeline, routeData, status } = this;
 		const { clientDirectives, inlinedScripts, compressHTML, manifest, renderers, resolve } =
 			pipeline;
-		const { links, scripts, styles } = await pipeline.headElements(routeData);
+		const { links, scripts, styles } = this.headElements ?? await pipeline.headElements(routeData);
 
 		const extraStyleHashes = [];
 		const extraScriptHashes = [];
@@ -689,6 +714,9 @@ export class RenderContext {
 			glob: astroStaticPartial.glob,
 			routePattern: this.routeData.route,
 			isPrerendered: this.routeData.prerender,
+			styles: apiContext.styles,
+			scripts: apiContext.scripts,
+			links: apiContext.links,
 			cookies,
 			get session() {
 				if (this.isPrerendered) {

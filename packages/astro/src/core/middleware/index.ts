@@ -86,6 +86,9 @@ function createContext({
 			});
 		},
 		isPrerendered: false,
+		styles: [],
+		scripts: [],
+		links: [],
 		get preferredLocale(): string | undefined {
 			return (preferredLocale ??= computePreferredLocale(request, userDefinedLocales));
 		},
