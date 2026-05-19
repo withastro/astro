@@ -67,7 +67,7 @@ jobs:
       - name: Get changeset status
         id: changeset-status
         run: |
-          pnpm changeset status --output changes.json
+          pnpm changeset status --since=origin/${{ github.event.pull_request.base.ref }} --output changes.json
           echo "changes-output=$(cat changes.json | jq -c .)" >> $GITHUB_OUTPUT
 
       - name: Get pnpm packages
