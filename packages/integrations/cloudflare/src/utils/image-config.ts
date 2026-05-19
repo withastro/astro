@@ -56,6 +56,19 @@ export function setImageConfig(
 ) {
 	const { buildService, runtimeService } = normalizeImageServiceConfig(service);
 
+	// If the user has configured a non-default image service, preserve it across
+	// all `imageService` modes. This matches the explicit `'custom'` mode and the
+	// fallback branch below, and prevents the adapter from silently overriding a
+	// user-defined service (e.g., a third-party CDN) when the default mode is in
+	// effect or `'compile'`/`'cloudflare-binding'` is selected.
+	const hasCustomService = config.service.entrypoint !== 'astro/assets/services/sharp';
+	if (hasCustomService && buildService !== 'custom') {
+		logger.info(
+			`Detected a custom image service (${config.service.entrypoint}). Preserving it instead of applying the '${buildService}' mode override. Set \`imageService: 'custom'\` to silence this notice.`,
+		);
+		return { ...config };
+	}
+
 	switch (buildService) {
 		case 'passthrough':
 			return {
