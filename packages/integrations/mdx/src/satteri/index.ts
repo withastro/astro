@@ -149,7 +149,11 @@ export function createMdxProcessor(mdxOptions: MdxOptions, ctx: CreateMdxProcess
 				mdastPlugins: allMdastPlugins,
 				hastPlugins,
 				optimizeStatic,
-				features: mdxOptions.features,
+				features: {
+					gfm: mdxOptions.gfm !== false,
+					smartPunctuation: mdxOptions.smartypants !== false,
+					...mdxOptions.features,
+				},
 				filename: filePath,
 				jsxImportSource: 'astro',
 			});

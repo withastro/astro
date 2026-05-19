@@ -1,7 +1,11 @@
 import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import type { markdownConfigDefaults, UnifiedProcessorDescriptor } from '@astrojs/markdown-remark';
-import type { SatteriProcessorDescriptor } from '@astrojs/markdown-satteri';
+import type { UnifiedProcessorDescriptor } from '@astrojs/markdown-remark';
+import {
+	type AstroMarkdownProcessorOptions,
+	satteriMarkdownDefaults,
+	type SatteriProcessorDescriptor,
+} from '@astrojs/markdown-satteri';
 import type {
 	AstroIntegration,
 	AstroIntegrationLogger,
@@ -18,16 +22,17 @@ import { type VitePluginMdxOptions, vitePluginMdx } from './vite-plugin-mdx.js';
 import { vitePluginMdxPostprocess } from './vite-plugin-mdx-postprocess.js';
 
 // Inlined name-checks to avoid eagerly importing the unified/satteri runtime
-// modules (and their shiki + WASM bindings) when they're not the active processor.
+// modules when they're not the active processor.
 const isSatteriProcessor = (p: { name: string }): p is SatteriProcessorDescriptor =>
 	p.name === 'satteri';
 const isUnifiedProcessor = (p: { name: string }): p is UnifiedProcessorDescriptor =>
 	p.name === 'unified';
 
-export type MdxOptions = Omit<
-	typeof markdownConfigDefaults,
-	'remarkPlugins' | 'rehypePlugins'
-> & {
+type SharedMarkdownOptions = Required<
+	Pick<AstroMarkdownProcessorOptions, 'syntaxHighlight' | 'shikiConfig' | 'gfm' | 'smartypants'>
+>;
+
+export type MdxOptions = SharedMarkdownOptions & {
 	extendMarkdownConfig: boolean;
 	recmaPlugins: PluggableList;
 	// Markdown allows strings as remark and rehype plugins.
@@ -110,12 +115,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 				const extendMarkdownConfig =
 					partialMdxOptions.extendMarkdownConfig ?? defaultMdxOptions.extendMarkdownConfig;
 
-				// `markdownConfigDefaults` is only needed when the user opts out of extending
-				// the active markdown config. Lazy-load to avoid eagerly pulling in the unified
-				// pipeline (and shiki + remark/rehype trees) at integration init time.
-				const markdownConfig = extendMarkdownConfig
-					? config.markdown
-					: (await import('@astrojs/markdown-remark')).markdownConfigDefaults;
+				const markdownConfig = extendMarkdownConfig ? config.markdown : satteriMarkdownDefaults;
 
 				const resolvedMdxOptions = applyDefaultOptions({
 					options: partialMdxOptions,
@@ -130,32 +130,30 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 					// (Object-shaped options like `remarkRehype`/`features` still merge.)
 					if (isSatteriProcessor(descriptor)) {
 						if (partialMdxOptions.mdastPlugins === undefined) {
-							resolvedMdxOptions.mdastPlugins = [...descriptor.mdastPlugins];
+							resolvedMdxOptions.mdastPlugins = [...descriptor.options.mdastPlugins];
 						}
 						if (partialMdxOptions.hastPlugins === undefined) {
-							resolvedMdxOptions.hastPlugins = [...descriptor.hastPlugins];
+							resolvedMdxOptions.hastPlugins = [...descriptor.options.hastPlugins];
 						}
-						if (descriptor.features || resolvedMdxOptions.features) {
-							resolvedMdxOptions.features = {
-								...descriptor.features,
-								...resolvedMdxOptions.features,
-							};
-						}
+						resolvedMdxOptions.features = {
+							...descriptor.options.features,
+							...resolvedMdxOptions.features,
+						};
 					} else if (isUnifiedProcessor(descriptor)) {
 						if (partialMdxOptions.remarkPlugins === undefined) {
 							resolvedMdxOptions.remarkPlugins = ignoreStringPlugins(
-								descriptor.remarkPlugins,
+								descriptor.options.remarkPlugins,
 								logger,
 							);
 						}
 						if (partialMdxOptions.rehypePlugins === undefined) {
 							resolvedMdxOptions.rehypePlugins = ignoreStringPlugins(
-								descriptor.rehypePlugins,
+								descriptor.options.rehypePlugins,
 								logger,
 							);
 						}
 						resolvedMdxOptions.remarkRehype = {
-							...descriptor.remarkRehype,
+							...descriptor.options.remarkRehype,
 							...resolvedMdxOptions.remarkRehype,
 						};
 					}
@@ -186,13 +184,12 @@ const defaultMdxOptions = {
 } satisfies Partial<MdxOptions>;
 
 function markdownConfigToMdxOptions(
-	markdownConfig: typeof markdownConfigDefaults,
+	markdownConfig: SharedMarkdownOptions,
 	_logger: AstroIntegrationLogger,
 ): MdxOptions {
-	const { remarkPlugins: _r, rehypePlugins: _rh, ...shared } = markdownConfig;
 	return {
 		...defaultMdxOptions,
-		...shared,
+		...markdownConfig,
 		// Plugins come from the processor descriptor — merged in astro:config:done.
 		remarkPlugins: [],
 		rehypePlugins: [],

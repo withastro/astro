@@ -90,9 +90,10 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	integrations: [],
 	markdown: {
 		...satteriMarkdownDefaults,
-		remarkPlugins: [] as RemarkPlugin[],
-		rehypePlugins: [] as RehypePlugin[],
-		remarkRehype: {} as RemarkRehype,
+		remarkPlugins: [],
+		rehypePlugins: [],
+		remarkRehype: {},
+		processor: satteri(),
 	},
 	vite: {},
 	legacy: {
@@ -431,20 +432,25 @@ export const AstroConfigSchema = z.object({
 				})
 				.prefault(ASTRO_CONFIG_DEFAULTS.markdown.smartypants),
 			processor: z
-				.custom<MarkdownProcessorEntry>(
-					(value): value is MarkdownProcessorEntry =>
-						typeof value === 'object' &&
-						value !== null &&
-						'name' in value &&
-						typeof value.name === 'string' &&
-						'createRenderer' in value &&
-						typeof value.createRenderer === 'function',
-					{
-						error:
-							'markdown.processor must be the return value of a markdown processor factory (e.g. satteri() or unified())',
-					},
-				)
-				.default(() => satteri()),
+				.object({
+					name: z.string(),
+					// `z.custom` preserves reference identity; `z.record` would clone, breaking
+					// the closure inside `createRenderer` that reads `descriptor.options.*`.
+					options: z
+						.custom<Record<string, unknown>>(
+							(v) => typeof v === 'object' && v !== null && !Array.isArray(v),
+						)
+						.default(() => ({})),
+					createRenderer: z.custom<MarkdownProcessorEntry['createRenderer']>(
+						(v) => typeof v === 'function',
+					),
+					createMdxRenderer: z
+						.custom<MarkdownProcessorEntry['createMdxRenderer']>(
+							(v) => v === undefined || typeof v === 'function',
+						)
+						.optional(),
+				})
+				.default(ASTRO_CONFIG_DEFAULTS.markdown.processor),
 		})
 		.prefault({}),
 	vite: z

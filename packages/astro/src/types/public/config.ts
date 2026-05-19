@@ -5,8 +5,25 @@ import type {
 	Smartypants,
 	SyntaxHighlightConfigType,
 } from '@astrojs/markdown-satteri';
-import type { MarkdownProcessorEntry } from '../../markdown/index.js';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
+import type { FontFamily, FontProvider } from '../../assets/fonts/types.js';
+import type { SvgOptimizer } from '../../assets/svg/types.js';
+import type { ImageFit, ImageLayout } from '../../assets/types.js';
+import type { AssetsPrefix } from '../../core/app/types.js';
+import type { CacheProviderConfig, RouteRules } from '../../core/cache/types.js';
+import type { AstroConfigType } from '../../core/config/schemas/index.js';
+import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
+import type { CspAlgorithm, CspDirective, CspHash } from '../../core/csp/config.js';
+import type { LoggerHandlerConfig } from '../../core/logger/config.js';
+import type { AstroLogger, AstroLoggerLevel } from '../../core/logger/core.js';
+import type {
+	SessionConfig,
+	SessionDriverConfig,
+	SessionDriverName,
+} from '../../core/session/types.js';
+import type { EnvSchema } from '../../env/schema.js';
+import type { MarkdownProcessorEntry } from '../../markdown/index.js';
+import type { AstroIntegration } from './integrations.js';
 
 // Loose plugin/option shapes for the deprecated `markdown.remarkPlugins` /
 // `rehypePlugins` / `remarkRehype` fields. Strict typing lives in
@@ -27,23 +44,6 @@ export type RehypePlugins = (string | [string, any] | RehypePlugin | [RehypePlug
 
 /** @deprecated Install `@astrojs/markdown-remark` and use `markdown.processor: unified({ remarkRehype })`. */
 export type RemarkRehype = Record<string, unknown>;
-import type { FontFamily, FontProvider } from '../../assets/fonts/types.js';
-import type { ImageFit, ImageLayout } from '../../assets/types.js';
-import type { AssetsPrefix } from '../../core/app/types.js';
-import type { CacheProviderConfig, RouteRules } from '../../core/cache/types.js';
-import type { AstroConfigType } from '../../core/config/schemas/index.js';
-import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
-import type { CspAlgorithm, CspDirective, CspHash } from '../../core/csp/config.js';
-import type { AstroLogger, AstroLoggerLevel } from '../../core/logger/core.js';
-import type {
-	SessionConfig,
-	SessionDriverConfig,
-	SessionDriverName,
-} from '../../core/session/types.js';
-import type { EnvSchema } from '../../env/schema.js';
-import type { AstroIntegration } from './integrations.js';
-import type { SvgOptimizer } from '../../assets/svg/types.js';
-import type { LoggerHandlerConfig } from '../../core/logger/config.js';
 
 export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
 
@@ -2138,6 +2138,7 @@ export interface AstroUserConfig<
 		 * @type {boolean}
 		 * @default `true`
 		 * @version 2.0.0
+		 * @deprecated Configure via the processor instead: `satteri({ features: { gfm: false } })` or `unified({ remarkPlugins: [] })` (omit `remarkGfm`). Will be removed in a future major.
 		 * @description
 		 * Astro uses [GitHub-flavored Markdown](https://github.com/remarkjs/remark-gfm) by default. To disable this, set the `gfm` flag to `false`:
 		 *
@@ -2157,6 +2158,7 @@ export interface AstroUserConfig<
 		 * @type {boolean | Smartypants}
 		 * @default `true`
 		 * @version 2.0.0
+		 * @deprecated Configure via the processor instead: `satteri({ features: { smartPunctuation: false } })` or `unified({ remarkPlugins: [remarkSmartypants] })`. Will be removed in a future major.
 		 * @description
 		 * Whether to use the [SmartyPants formatter](https://daringfireball.net/projects/smartypants/) to transform straight quotes into smart quotes, dashes into en/em dashes, and triple dots into ellipses.
 		 *

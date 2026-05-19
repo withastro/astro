@@ -1,5 +1,8 @@
 import { createSatteriMarkdownProcessor } from './satteri-processor.js';
 import type { AstroMarkdownProcessorOptions, MarkdownProcessor } from './types.js';
+import type {
+	MdastPluginDefinition, HastPluginDefinition, Features
+} from 'satteri';
 
 export interface SatteriProcessorOptions {
 	mdastPlugins?: import('satteri').MdastPluginDefinition[];
@@ -8,37 +11,39 @@ export interface SatteriProcessorOptions {
 }
 
 /**
- * The descriptor returned by `satteri()`. Implements `MarkdownProcessorEntry` (astro core's
- * pluggable processor interface) and additionally exposes the satteri-specific plugin lists
- * so the MDX integration can merge them into MDX options.
+ * The descriptor returned by `satteri()`. Integrations extend the pipeline by mutating
+ * `descriptor.options.mdastPlugins` / `hastPlugins` / `features` directly.
  */
 export interface SatteriProcessorDescriptor {
 	readonly name: 'satteri';
-	mdastPlugins: import('satteri').MdastPluginDefinition[];
-	hastPlugins: import('satteri').HastPluginDefinition[];
-	features?: import('satteri').Features;
+	options: {
+		mdastPlugins: MdastPluginDefinition[];
+		hastPlugins: HastPluginDefinition[];
+		features: Features;
+	};
 	createRenderer(shared: AstroMarkdownProcessorOptions): Promise<MarkdownProcessor>;
 }
 
 export function satteri(opts: SatteriProcessorOptions = {}): SatteriProcessorDescriptor {
-	const mdastPlugins = opts.mdastPlugins ?? [];
-	const hastPlugins = opts.hastPlugins ?? [];
-	const features = opts.features;
-
-	return {
+	const descriptor: SatteriProcessorDescriptor = {
 		name: 'satteri',
-		mdastPlugins,
-		hastPlugins,
-		features,
+		options: {
+			mdastPlugins: [...(opts.mdastPlugins ?? [])],
+			hastPlugins: [...(opts.hastPlugins ?? [])],
+			// Default to `{}` so integrations can write `options.features.gfm = false`
+			// without an `??=` check.
+			features: { ...(opts.features) },
+		},
 		createRenderer(shared) {
 			return createSatteriMarkdownProcessor({
 				...shared,
-				mdastPlugins,
-				hastPlugins,
-				features,
+				mdastPlugins: descriptor.options.mdastPlugins,
+				hastPlugins: descriptor.options.hastPlugins,
+				features: descriptor.options.features,
 			});
 		},
 	};
+	return descriptor;
 }
 
 export function isSatteriProcessor(p: {

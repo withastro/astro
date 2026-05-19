@@ -22,9 +22,15 @@ export {
  * `satteri()` or `unified()`. Third-party processors implement this interface to plug in
  * their own markdown rendering pipeline.
  */
-export interface MarkdownProcessorEntry {
+export interface MarkdownProcessorEntry<
+	TOptions extends Record<string, unknown> = Record<string, unknown>,
+> {
 	/** Identifier for this processor. Used by integrations to look up built-in MDX support. */
 	readonly name: string;
+	/**
+	 * Processor-specific options.
+	 */
+	options?: TOptions;
 	/** Create the runtime renderer for `.md` files. */
 	createRenderer(shared: SharedMarkdownConfig): Promise<MarkdownProcessor>;
 	/**
