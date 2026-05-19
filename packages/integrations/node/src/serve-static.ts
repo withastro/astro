@@ -124,6 +124,11 @@ export function createStaticHandler(
 			const stream = send(req, normalizedPathname, {
 				root: client,
 				dotfiles: normalizedPathname.startsWith('/.well-known/') ? 'allow' : 'deny',
+				// When build.format is 'file', pages are emitted as `page.html` rather
+				// than `page/index.html`. Pass the extension hint so that clean-URL
+				// requests like `/about` resolve to `about.html` on disk instead of
+				// falling through to the SSR handler and returning 404.
+				extensions: app.manifest.buildFormat === 'file' ? (['html'] as string[]) : [],
 			});
 
 			let forwardError = false;

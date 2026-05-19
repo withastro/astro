@@ -449,4 +449,44 @@ describe('Hybrid rendering', () => {
 			assert.equal($('h1').text(), 'shared');
 		});
 	});
+
+	describe("build.format: 'file'", () => {
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/prerender/',
+				output: 'server',
+				outDir: './dist/file-format',
+				build: { format: 'file' },
+				adapter: nodejs({ mode: 'standalone' }),
+			});
+			await fixture.build();
+			const { startServer } = await fixture.loadAdapterEntryModule();
+			const res = startServer();
+			server = res.server;
+			await waitServerListen(server.server);
+		});
+
+		after(async () => {
+			await server.stop();
+			await fixture.clean();
+		});
+
+		it('serves a prerendered page via its clean URL', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/two`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Two');
+		});
+
+		it('still serves the SSR route', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/one`);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'One');
+		});
+	});
 });
