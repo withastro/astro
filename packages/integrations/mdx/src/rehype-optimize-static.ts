@@ -28,7 +28,7 @@ const exportConstComponentsRe = /export\s+const\s+components\s*=/;
  * do not include any MDX elements.
  *
  * This optimization reduces the JS output as more content are represented as a
- * string instead, which also reduces the AST size that Rollup holds in memory.
+ * string instead, which also reduces the AST size that Rolldown holds in memory.
  */
 export const rehypeOptimizeStatic: RehypePlugin<[OptimizeOptions?]> = (options) => {
 	return (tree) => {

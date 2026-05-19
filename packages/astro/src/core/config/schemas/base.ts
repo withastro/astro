@@ -111,7 +111,6 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		clientPrerender: false,
 		contentIntellisense: false,
 		chromeDevtoolsWorkspace: false,
-		rustCompiler: false,
 		queuedRendering: {
 			enabled: false,
 		},
@@ -556,7 +555,6 @@ export const AstroConfigSchema = z.object({
 			svgOptimizer: SvgOptimizerSchema.optional(),
 			cache: CacheSchema.optional(),
 			routeRules: RouteRulesSchema.optional(),
-			rustCompiler: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.rustCompiler),
 			queuedRendering: z
 				.object({
 					enabled: z.boolean().optional().prefault(false),

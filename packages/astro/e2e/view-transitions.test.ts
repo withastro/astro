@@ -1,5 +1,5 @@
 import { type Page, expect } from '@playwright/test';
-import { type DevServer, testFactory, waitForHydrate } from './test-utils.ts';
+import { type DevServer, testFactory, waitForHydrate, warmupDevServer } from './test-utils.ts';
 
 declare global {
 	interface Window {
@@ -15,8 +15,9 @@ const test = testFactory(import.meta.url, { root: './fixtures/view-transitions/'
 
 let devServer: DevServer;
 
-test.beforeAll(async ({ astro }) => {
+test.beforeAll(async ({ astro, browser }) => {
 	devServer = await astro.startDevServer();
+	await warmupDevServer(browser, astro.resolveUrl('/one'));
 });
 
 test.afterAll(async () => {
@@ -568,6 +569,8 @@ test.describe('View Transitions', () => {
 		let cnt = page.locator('.counter pre');
 		await expect(cnt).toHaveText('5');
 
+		const counter = page.locator('.counter');
+		await waitForHydrate(page, counter);
 		await page.click('.increment');
 		await expect(cnt).toHaveText('6');
 
@@ -590,6 +593,8 @@ test.describe('View Transitions', () => {
 		let cnt = page.locator('.counter pre');
 		await expect(cnt).toHaveText('A0');
 
+		const counter = page.locator('.counter');
+		await waitForHydrate(page, counter);
 		await page.click('.increment');
 		await expect(cnt).toHaveText('A1');
 
@@ -615,6 +620,8 @@ test.describe('View Transitions', () => {
 		let cnt = page.locator('.counter pre');
 		await expect(cnt).toHaveText('A0');
 
+		const counter = page.locator('.counter');
+		await waitForHydrate(page, counter);
 		await page.click('.increment');
 		await expect(cnt).toHaveText('A1');
 
@@ -633,6 +640,8 @@ test.describe('View Transitions', () => {
 		let cnt = page.locator('.counter pre');
 		await expect(cnt).toHaveText('AA0');
 
+		const counter = page.locator('.counter');
+		await waitForHydrate(page, counter);
 		await page.click('.increment');
 		await expect(cnt).toHaveText('AA1');
 

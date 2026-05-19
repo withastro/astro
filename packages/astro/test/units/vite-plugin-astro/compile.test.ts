@@ -78,7 +78,7 @@ const name = 'world
 				'/src/components/index.astro',
 			);
 		} catch (e: unknown) {
-			assert.equal((e as Error).message.includes('Unterminated string literal'), true);
+			assert.equal((e as Error).message.includes('Unterminated string'), true);
 		}
 		assert.equal(result, undefined);
 	});
@@ -91,25 +91,6 @@ const name = 'world
 		assert.equal(names.includes('default'), true);
 		assert.equal(names.includes('file'), true);
 		assert.equal(names.includes('url'), true);
-	});
-
-	describe('when the code contains syntax that is transformed by esbuild', () => {
-		const code = `\
----
-using x = {}
----`;
-
-		it('should not transform the syntax by default', async () => {
-			const result = await compile(code, '/src/components/index.astro');
-			assert.equal(result.code.includes('using x = {}'), true);
-		});
-
-		it('should transform the syntax by esbuild.target', async () => {
-			const result = await compile(code, '/src/components/index.astro', {
-				esbuild: { target: 'es2018' },
-			});
-			assert.equal(result.code.includes('using x = {}'), false);
-		});
 	});
 });
 
