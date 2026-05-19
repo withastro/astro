@@ -72,7 +72,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<LabsIn
 
 	const initializationOptions = {
 		typescript: {
-			tsdk: (await getTsdk(context))!.tsdk,
+			tsdk: await getConfiguredTsdk(context, rootPath),
 		},
 		contentIntellisense: hasContentIntellisense,
 		disableAutoImportCache: shouldDisableAutoImportCache,
@@ -153,4 +153,22 @@ async function getConfiguredServerPath(workspaceState: vscode.Memento) {
 	} else {
 		return lsPath;
 	}
+}
+
+async function getConfiguredTsdk(context: vscode.ExtensionContext, rootPath?: string) {
+	const jsTsTsdkPath = vscode.workspace.getConfiguration('js/ts').get<string>('tsdk.path');
+	if (jsTsTsdkPath && jsTsTsdkPath.trim() !== '') {
+		return path.isAbsolute(jsTsTsdkPath) || !rootPath
+			? jsTsTsdkPath
+			: path.join(rootPath, jsTsTsdkPath);
+	}
+
+	const legacyTsdkPath = vscode.workspace.getConfiguration('typescript').get<string>('tsdk');
+	if (legacyTsdkPath && legacyTsdkPath.trim() !== '') {
+		return path.isAbsolute(legacyTsdkPath) || !rootPath
+			? legacyTsdkPath
+			: path.join(rootPath, legacyTsdkPath);
+	}
+
+	return (await getTsdk(context))!.tsdk;
 }
