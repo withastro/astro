@@ -46,6 +46,24 @@ describe('collect images', async () => {
 		assert.deepEqual(remoteImagePaths, []);
 	});
 
+	it('should preserve empty alt for inline image without alt text', async () => {
+		const markdown = `Hello ![](./img.png)`;
+		const fileURL = new URL('file.md', import.meta.url);
+
+		const {
+			code,
+			metadata: { localImagePaths, remoteImagePaths },
+		} = await processor.render(markdown, { fileURL });
+
+		assert.equal(
+			code,
+			'<p>Hello <img __ASTRO_IMAGE_="{&#x22;src&#x22;:&#x22;./img.png&#x22;,&#x22;alt&#x22;:&#x22;&#x22;,&#x22;index&#x22;:0}"></p>',
+		);
+
+		assert.deepEqual(localImagePaths, ['./img.png']);
+		assert.deepEqual(remoteImagePaths, []);
+	});
+
 	it('should collect allowed remote image paths', async () => {
 		const markdown = `Hello ![inline remote image url](https://example.com/example.png)`;
 		const fileURL = new URL('file.md', import.meta.url);
