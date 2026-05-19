@@ -8,7 +8,7 @@ const PERSIST_ATTR = 'data-astro-transition-persist';
 
 const NON_OVERRIDABLE_ASTRO_ATTRS = ['data-astro-transition', 'data-astro-transition-fallback'];
 
-const knownVueScopedStyles = new Map<string, HTMLStyleElement>();
+const knownDevStyles = new Map<string, HTMLStyleElement>();
 
 const scriptsAlreadyRan = new Set<string>();
 export function detectScriptExecuted(script: HTMLScriptElement) {
@@ -64,9 +64,9 @@ export function swapHeadElements(doc: Document) {
 			newEl.remove();
 		} else {
 			if (import.meta.env.DEV && el instanceof HTMLStyleElement) {
-				// In DEV mode, keep updated Vue scoped styles for later reuse
-				const viteDevId = vueScopedStyleId(el);
-				viteDevId && knownVueScopedStyles.set(viteDevId, el);
+				// In DEV mode, keep updated dev styles for later reuse
+				const viteDevId = devStyleId(el);
+				viteDevId && knownDevStyles.set(viteDevId, el);
 			}
 			// If the element does not exist in the new document, remove the element from current the head.
 			el.remove();
@@ -75,9 +75,9 @@ export function swapHeadElements(doc: Document) {
 
 	// Everything left in the new head is new, append it all.
 	if (import.meta.env.DEV) {
-		// In DEV mode, replace known Vue scoped styles with the versions we remembered
+		// In DEV mode, replace known dev styles with the versions we remembered
 		[...doc.head.children].forEach((child) => {
-			document.head.append(knownVueScopedStyles.get((child as any).dataset?.viteDevId) || child);
+			document.head.append(knownDevStyles.get((child as any).dataset?.viteDevId) || child);
 		});
 	} else {
 		document.head.append(...doc.head.children);
@@ -187,15 +187,19 @@ export const restoreFocus = ({ activeElement, start, end }: SavedFocus) => {
 	}
 };
 
-export const vueScopedStyleId = (el: HTMLStyleElement): string => {
+export const devStyleId = (el: HTMLStyleElement): string => {
 	const viteDevId = el.dataset.viteDevId || '';
 
 	const url = new URL(viteDevId, location.href);
-	return url.searchParams.get('vue') !== null &&
+	// Match dev-mode styles that need auto-persistence across soft navigations.
+	// Vue scoped styles: ?vue&type=style&scoped
+	// Astro component styles: ?astro&type=style&...lang.<ext>
+	const isVueScoped =
+		url.searchParams.get('vue') !== null &&
 		url.searchParams.get('type') === 'style' &&
-		url.searchParams.has('scoped')
-		? viteDevId
-		: '';
+		url.searchParams.has('scoped');
+	const isAstroStyle = /\?astro&type=style&.*lang\.[a-z0-9]+$/.test(viteDevId);
+	return isVueScoped || isAstroStyle ? viteDevId : '';
 };
 
 // Check for a head element that should persist and returns it,
@@ -211,15 +215,17 @@ const persistedHeadElement = (el: HTMLElement, newDoc: Document): Element | null
 		return newDoc.head.querySelector(`link[rel=stylesheet][href="${href}"]`);
 	}
 	// In dev mode, Vite injects <style data-vite-dev-id="..."> elements whose
-	// textContent may later be transformed (especially Vue's `:deep()` → `[data-v-xxx]`).
+	// textContent may later be transformed (especially Vue's `:deep()` → `[data-v-xxx]`
+	// or Astro component styles with integration transforms applied).
 	// Match these by their stable dev ID so the already-transformed style is preserved
 	// across ClientRouter soft navigations instead of being replaced by the raw version.
 	// There are other ids that can't be preserved and need a refresh, like Uno's /__uno.css,
 	// which keeps the same id, but with different contents.
-	// To avoid enumerating all exceptions, we only apply the auto-persist logic to elements
-	// that look like Vue's dev styles.
+	// We apply the auto-persist logic to styles that look like Vue or Astro component styles,
+	// whose content is stable for a given component but may differ between the raw HTML
+	// (pre-integration-transform) and the HMR-applied version (post-transform).
 	if (import.meta.env.DEV && el instanceof HTMLStyleElement) {
-		const viteDevId = vueScopedStyleId(el);
+		const viteDevId = devStyleId(el);
 		if (viteDevId) {
 			return newDoc.head.querySelector(`style[data-vite-dev-id="${viteDevId}"]`);
 		}
