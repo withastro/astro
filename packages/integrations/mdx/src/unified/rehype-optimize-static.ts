@@ -12,7 +12,7 @@ type ParentNode = Element | MdxJsxFlowElementHast | MdxJsxTextElementHast;
 // Nodes that can have its children optimized as a single HTML string
 type OptimizableNode = Element | MdxJsxFlowElementHast | MdxJsxTextElementHast;
 
-export interface OptimizeOptions {
+interface OptimizeOptions {
 	ignoreElementNames?: string[];
 }
 
@@ -255,7 +255,7 @@ function getExportConstComponentObjectKeys(node: RootContentMap['mdxjsEsm']) {
 	let variableInit: Expression | undefined | null;
 
 	// Find the initial value of `components` in the AST.
-	for (const part of node.data?.estree?.body || []) {
+	for (const part of (node.data?.estree as any)?.body || []) {
 		if (
 			part.type !== 'ExportNamedDeclaration' ||
 			part.declaration?.type !== 'VariableDeclaration'

@@ -1,14 +1,32 @@
 import type { OutgoingHttpHeaders } from 'node:http';
 import type { RemotePattern } from '@astrojs/internal-helpers/remote';
 import type {
-	RehypePlugins,
-	RemarkPlugins,
-	RemarkRehype,
 	ShikiConfig,
 	Smartypants,
 	SyntaxHighlightConfigType,
-} from '@astrojs/markdown-remark';
+} from '@astrojs/markdown-satteri';
+import type { MarkdownProcessorEntry } from '../../markdown/index.js';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
+
+// Loose plugin/option shapes for the deprecated `markdown.remarkPlugins` /
+// `rehypePlugins` / `remarkRehype` fields. Strict typing lives in
+// `@astrojs/markdown-remark`; install it to get sharper inference when
+// migrating to `markdown.processor: unified({...})`.
+
+/** @deprecated Install `@astrojs/markdown-remark` and use `markdown.processor: unified({ remarkPlugins })`. */
+export type RemarkPlugin = (...args: any[]) => any;
+
+/** @deprecated Install `@astrojs/markdown-remark` and use `markdown.processor: unified({ remarkPlugins })`. */
+export type RemarkPlugins = (string | [string, any] | RemarkPlugin | [RemarkPlugin, any])[];
+
+/** @deprecated Install `@astrojs/markdown-remark` and use `markdown.processor: unified({ rehypePlugins })`. */
+export type RehypePlugin = (...args: any[]) => any;
+
+/** @deprecated Install `@astrojs/markdown-remark` and use `markdown.processor: unified({ rehypePlugins })`. */
+export type RehypePlugins = (string | [string, any] | RehypePlugin | [RehypePlugin, any])[];
+
+/** @deprecated Install `@astrojs/markdown-remark` and use `markdown.processor: unified({ remarkRehype })`. */
+export type RemarkRehype = Record<string, unknown>;
 import type { FontFamily, FontProvider } from '../../assets/fonts/types.js';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
 import type { AssetsPrefix } from '../../core/app/types.js';
@@ -2165,6 +2183,47 @@ export interface AstroUserConfig<
 		 * ```
 		 */
 		remarkRehype?: RemarkRehype;
+
+		/**
+		 * @docs
+		 * @name markdown.processor
+		 * @type {MarkdownProcessorEntry}
+		 * @default `satteri()`
+		 * @version 7.0.0
+		 * @description
+		 *
+		 * The markdown processor used to render `.md` and `.mdx` files. By default Astro uses [satteri](https://github.com/bruits/satteri), a Rust-based Markdown / MDX compiler.
+		 *
+		 * To opt into the legacy remark/rehype pipeline, use the `unified()` factory from `@astrojs/markdown-remark`:
+		 *
+		 * ```js
+		 * import { defineConfig } from 'astro/config';
+		 * import { unified } from '@astrojs/markdown-remark';
+		 * import remarkToc from 'remark-toc';
+		 *
+		 * export default defineConfig({
+		 *   markdown: {
+		 *     processor: unified({ remarkPlugins: [remarkToc] }),
+		 *   },
+		 * });
+		 * ```
+		 *
+		 * To pass satteri plugins or enable additional features, use the `satteri()` factory:
+		 *
+		 * ```js
+		 * import { defineConfig, satteri } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   markdown: {
+		 *     processor: satteri({
+		 *       hastPlugins: [myPlugin],
+		 *       features: { directive: true, definitionList: true },
+		 *     }),
+		 *   },
+		 * });
+		 * ```
+		 */
+		processor?: MarkdownProcessorEntry;
 	};
 
 	/**

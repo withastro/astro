@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { isFrontmatterValid } from '@astrojs/markdown-remark';
 import type { Root, RootContent } from 'hast';
 import type { VFile } from 'vfile';
-import { jsToTreeNode } from './utils.js';
+import { jsToTreeNode } from '../utils.js';
 
 // Passed metadata to help determine adding charset utf8 by default
 declare module 'vfile' {

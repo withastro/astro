@@ -1,10 +1,7 @@
 import fs from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import {
-	createMarkdownProcessor,
-	isFrontmatterValid,
-	type MarkdownProcessor,
-} from '@astrojs/markdown-remark';
+import type { MarkdownProcessor } from '@astrojs/markdown-satteri';
+import { isFrontmatterValid } from '../markdown/frontmatter.js';
 import type { Plugin } from 'vite';
 import { safeParseFrontmatter } from '../content/utils.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
@@ -81,9 +78,13 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 
 				// Lazily initialize the Markdown processor
 				if (!processor) {
-					processor = createMarkdownProcessor({
-						image: settings.config.image,
-						...settings.config.markdown,
+					const { markdown: md, image } = settings.config;
+					processor = md.processor.createRenderer({
+						image,
+						syntaxHighlight: md.syntaxHighlight,
+						shikiConfig: md.shikiConfig,
+						gfm: md.gfm,
+						smartypants: md.smartypants,
 					});
 				}
 

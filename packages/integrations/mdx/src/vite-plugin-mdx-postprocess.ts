@@ -5,7 +5,7 @@ import {
 	ASTRO_IMAGE_ELEMENT,
 	ASTRO_IMAGE_IMPORT,
 	USES_ASTRO_IMAGE_FLAG,
-} from './rehype-images-to-component.js';
+} from './image-constants.js';
 import { type FileInfo, getFileInfo } from './utils.js';
 
 const underscoreFragmentImportRegex = /[\s,{]_Fragment[\s,}]/;

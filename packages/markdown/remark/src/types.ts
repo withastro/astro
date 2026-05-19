@@ -57,8 +57,11 @@ export interface ShikiConfig
 export interface AstroMarkdownOptions {
 	syntaxHighlight?: SyntaxHighlightConfig | SyntaxHighlightConfigType | false;
 	shikiConfig?: ShikiConfig;
+	/** @deprecated Use `markdown.processor: unified({ remarkPlugins })` instead. */
 	remarkPlugins?: RemarkPlugins;
+	/** @deprecated Use `markdown.processor: unified({ rehypePlugins })` instead. */
 	rehypePlugins?: RehypePlugins;
+	/** @deprecated Use `markdown.processor: unified({ remarkRehype })` instead. */
 	remarkRehype?: RemarkRehype;
 	gfm?: boolean;
 	smartypants?: boolean | SmartypantsOptions;

@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type * as hast from 'hast';
 import { VFile } from 'vfile';
-import { rehypeInjectHeadingsExport } from '../../dist/rehype-collect-headings.js';
-import rehypeMetaString from '../../dist/rehype-meta-string.js';
+import { rehypeInjectHeadingsExport } from '../../dist/unified/rehype-collect-headings.js';
+import rehypeMetaString from '../../dist/unified/rehype-meta-string.js';
 
 describe('rehypeMetaString', () => {
 	function createCodeNode(meta: string | undefined): hast.Element {

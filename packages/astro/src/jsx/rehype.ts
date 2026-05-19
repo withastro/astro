@@ -1,5 +1,5 @@
-import type { RehypePlugin } from '@astrojs/markdown-remark';
-import type { RootContent } from 'hast';
+import type { RootContent, Root as HastRoot } from 'hast';
+import type { Plugin } from 'unified';
 import type {} from 'mdast-util-mdx';
 import type {
 	MdxJsxAttribute,
@@ -16,7 +16,7 @@ import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 
 const ClientOnlyPlaceholder = 'astro-client-only';
 
-export const rehypeAnalyzeAstroMetadata: RehypePlugin = () => {
+export const rehypeAnalyzeAstroMetadata: Plugin<[], HastRoot> = () => {
 	return (tree, file) => {
 		// Initial metadata for this MDX file, it will be mutated as we traverse the tree
 		const metadata = createDefaultAstroMetadata();
@@ -24,8 +24,13 @@ export const rehypeAnalyzeAstroMetadata: RehypePlugin = () => {
 		// Parse imports in this file. This is used to match components with their import source
 		const imports = parseImports(tree.children);
 
-		visit(tree, (node) => {
-			if (node.type !== 'mdxJsxFlowElement' && node.type !== 'mdxJsxTextElement') return;
+		visit(tree, (visitedNode) => {
+			if (visitedNode.type !== 'mdxJsxFlowElement' && visitedNode.type !== 'mdxJsxTextElement')
+				return;
+
+			// `visit` returns nodes typed against widened hast augmentations (e.g. from satteri).
+			// Narrow back to the mdast-util-mdx-jsx types our helpers expect.
+			const node = visitedNode as unknown as MdxJsxFlowElementHast | MdxJsxTextElementHast;
 
 			const tagName = node.name;
 			if (
@@ -106,6 +111,27 @@ export function getAstroMetadata(file: VFile) {
 
 type ImportSpecifier = { local: string; imported: string };
 
+// Minimal ESTree shapes we need — avoids a direct dependency on @types/estree.
+// `@types/estree` is present transitively but not in our direct deps, and satteri's
+// hast augmentations widen `mdxjsEsm.data.estree` to `{}`, erasing its Program typing.
+type EstreeId = { type: 'Identifier'; name: string };
+type EstreeLiteral = { type: 'Literal'; value: unknown };
+type EstreeImportSpecifier =
+	| { type: 'ImportDefaultSpecifier'; local: EstreeId }
+	| { type: 'ImportNamespaceSpecifier'; local: EstreeId }
+	| {
+			type: 'ImportSpecifier';
+			local: EstreeId;
+			imported: EstreeId | EstreeLiteral;
+	  };
+type EstreeImportDeclaration = {
+	type: 'ImportDeclaration';
+	source: { value: string };
+	specifiers: EstreeImportSpecifier[];
+};
+type EstreeStatement = EstreeImportDeclaration | { type: 'OtherStatement' };
+type EstreeProgram = { body: EstreeStatement[] };
+
 /**
  * ```
  * import Foo from './Foo.jsx'
@@ -130,7 +156,9 @@ function parseImports(children: RootContent[]) {
 	for (const child of children) {
 		if (child.type !== 'mdxjsEsm') continue;
 
-		const body = child.data?.estree?.body;
+		// `child.data?.estree` is widened by the hast augmentations; narrow it back to the shape
+		// we care about (an ESTree Program with ImportDeclaration bodies).
+		const body = (child.data?.estree as EstreeProgram | undefined)?.body;
 		if (!body) continue;
 
 		for (const ast of body) {

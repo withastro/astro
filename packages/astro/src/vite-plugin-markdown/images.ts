@@ -25,7 +25,7 @@ export function getMarkdownCodeForImages(
 											let occurrenceCounter = 0;
 											while ((match = regex.exec(html)) !== null) {
 													const matchKey = ${rawUrl} + '_' + occurrenceCounter;
-													const imageProps = JSON.parse(match[1].replace(/&#x22;/g, '"').replace(/&#x27;/g, "'"));
+													const imageProps = JSON.parse(match[1].replace(/&(?:#x22|quot);/g, '"').replace(/&(?:#x27|apos);/g, "'"));
 													const { src, ...props } = imageProps;
 													imageSources[matchKey] = await getImage({src: Astro__${entry.safeName}, ...props});
 													occurrenceCounter++;
@@ -45,7 +45,7 @@ export function getMarkdownCodeForImages(
 											let occurrenceCounter = 0;
 											while ((match = regex.exec(html)) !== null) {
 													const matchKey = ${rawUrl} + '_' + occurrenceCounter;
-													const props = JSON.parse(match[1].replace(/&#x22;/g, '"').replace(/&#x27;/g, "'"));
+													const props = JSON.parse(match[1].replace(/&(?:#x22|quot);/g, '"').replace(/&(?:#x27|apos);/g, "'"));
 													imageSources[matchKey] = await getImage(props);
 													occurrenceCounter++;
 											}
@@ -59,7 +59,7 @@ export function getMarkdownCodeForImages(
 			const imageSources = await images(html);
 
 			return html.replaceAll(/__ASTRO_IMAGE_="([^"]+)"/gm, (full, imagePath) => {
-				const decodedImagePath = JSON.parse(imagePath.replace(/&#x22;/g, '"'));
+				const decodedImagePath = JSON.parse(imagePath.replace(/&(?:#x22|quot);/g, '"'));
 
 				// Use the 'index' property for each image occurrence
 				const srcKey = decodedImagePath.src + '_' + decodedImagePath.index;

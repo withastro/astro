@@ -7,6 +7,9 @@ describe('Bundle for browsers', async () => {
 		try {
 			const result = await esbuild.build({
 				platform: 'browser',
+				// ESM output so top-level await (used by satteri's WASM loader) is supported.
+				// The default IIFE format would reject the TLA in satteri's browser shim.
+				format: 'esm',
 				entryPoints: ['@astrojs/markdown-remark'],
 				bundle: true,
 				write: false,

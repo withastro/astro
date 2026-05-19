@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { markdownConfigDefaults } from '@astrojs/markdown-remark';
+import type { markdownConfigDefaults, UnifiedProcessorDescriptor } from '@astrojs/markdown-remark';
+import type { SatteriProcessorDescriptor } from '@astrojs/markdown-satteri';
 import type {
 	AstroIntegration,
 	AstroIntegrationLogger,
@@ -8,14 +9,25 @@ import type {
 	ContentEntryType,
 	HookParameters,
 } from 'astro';
+import type { MarkdownProcessorEntry } from 'astro/markdown';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import type { PluggableList } from 'unified';
-import type { OptimizeOptions } from './rehype-optimize-static.js';
+import type { MdastPluginDefinition, HastPluginDefinition } from './satteri/index.js';
 import { ignoreStringPlugins, safeParseFrontmatter } from './utils.js';
 import { type VitePluginMdxOptions, vitePluginMdx } from './vite-plugin-mdx.js';
 import { vitePluginMdxPostprocess } from './vite-plugin-mdx-postprocess.js';
 
-export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | 'rehypePlugins'> & {
+// Inlined name-checks to avoid eagerly importing the unified/satteri runtime
+// modules (and their shiki + WASM bindings) when they're not the active processor.
+const isSatteriProcessor = (p: { name: string }): p is SatteriProcessorDescriptor =>
+	p.name === 'satteri';
+const isUnifiedProcessor = (p: { name: string }): p is UnifiedProcessorDescriptor =>
+	p.name === 'unified';
+
+export type MdxOptions = Omit<
+	typeof markdownConfigDefaults,
+	'remarkPlugins' | 'rehypePlugins'
+> & {
 	extendMarkdownConfig: boolean;
 	recmaPlugins: PluggableList;
 	// Markdown allows strings as remark and rehype plugins.
@@ -23,7 +35,16 @@ export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | '
 	remarkPlugins: PluggableList;
 	rehypePlugins: PluggableList;
 	remarkRehype: RemarkRehypeOptions;
-	optimize: boolean | OptimizeOptions;
+	optimize: boolean | { ignoreElementNames?: string[] };
+	mdastPlugins: MdastPluginDefinition[];
+	hastPlugins: HastPluginDefinition[];
+	features?: import('satteri').Features;
+	/**
+	 * Override the markdown processor for `.mdx` files. Defaults to `config.markdown.processor`.
+	 * Use this to run `.mdx` files through a different processor (or the same processor with
+	 * different options) than your `.md` files.
+	 */
+	processor?: MarkdownProcessorEntry;
 };
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
@@ -83,24 +104,70 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 					},
 				});
 			},
-			'astro:config:done': ({ config, logger }) => {
+			'astro:config:done': async ({ config, logger }) => {
 				// We resolve the final MDX options here so that other integrations have a chance to modify
 				// `config.markdown` before we access it
 				const extendMarkdownConfig =
 					partialMdxOptions.extendMarkdownConfig ?? defaultMdxOptions.extendMarkdownConfig;
 
+				// `markdownConfigDefaults` is only needed when the user opts out of extending
+				// the active markdown config. Lazy-load to avoid eagerly pulling in the unified
+				// pipeline (and shiki + remark/rehype trees) at integration init time.
+				const markdownConfig = extendMarkdownConfig
+					? config.markdown
+					: (await import('@astrojs/markdown-remark')).markdownConfigDefaults;
+
 				const resolvedMdxOptions = applyDefaultOptions({
 					options: partialMdxOptions,
-					defaults: markdownConfigToMdxOptions(
-						extendMarkdownConfig ? config.markdown : markdownConfigDefaults,
-						logger,
-					),
+					defaults: markdownConfigToMdxOptions(markdownConfig, logger),
 				});
+
+				const descriptor = partialMdxOptions.processor ?? config.markdown.processor;
+
+				if (extendMarkdownConfig) {
+					// Per docs: when MDX provides its own plugin list, it REPLACES the
+					// markdown processor's plugins; when MDX omits it, MDX inherits.
+					// (Object-shaped options like `remarkRehype`/`features` still merge.)
+					if (isSatteriProcessor(descriptor)) {
+						if (partialMdxOptions.mdastPlugins === undefined) {
+							resolvedMdxOptions.mdastPlugins = [...descriptor.mdastPlugins];
+						}
+						if (partialMdxOptions.hastPlugins === undefined) {
+							resolvedMdxOptions.hastPlugins = [...descriptor.hastPlugins];
+						}
+						if (descriptor.features || resolvedMdxOptions.features) {
+							resolvedMdxOptions.features = {
+								...descriptor.features,
+								...resolvedMdxOptions.features,
+							};
+						}
+					} else if (isUnifiedProcessor(descriptor)) {
+						if (partialMdxOptions.remarkPlugins === undefined) {
+							resolvedMdxOptions.remarkPlugins = ignoreStringPlugins(
+								descriptor.remarkPlugins,
+								logger,
+							);
+						}
+						if (partialMdxOptions.rehypePlugins === undefined) {
+							resolvedMdxOptions.rehypePlugins = ignoreStringPlugins(
+								descriptor.rehypePlugins,
+								logger,
+							);
+						}
+						resolvedMdxOptions.remarkRehype = {
+							...descriptor.remarkRehype,
+							...resolvedMdxOptions.remarkRehype,
+						};
+					}
+					// Third-party processors don't expose their plugins to MDX's built-in option
+					// merging; they handle their own pipeline via `createMdxRenderer`.
+				}
 
 				// Mutate `mdxOptions` so that `vitePluginMdx` can reference the actual options
 				Object.assign(vitePluginMdxOptions, {
 					mdxOptions: resolvedMdxOptions,
 					srcDir: config.srcDir,
+					processor: descriptor,
 				});
 				// @ts-expect-error After we assign, we don't need to reference `mdxOptions` in this context anymore.
 				// Re-assign it so that the garbage can be collected later.
@@ -114,18 +181,22 @@ const defaultMdxOptions = {
 	extendMarkdownConfig: true,
 	recmaPlugins: [],
 	optimize: false,
+	mdastPlugins: [],
+	hastPlugins: [],
 } satisfies Partial<MdxOptions>;
 
 function markdownConfigToMdxOptions(
 	markdownConfig: typeof markdownConfigDefaults,
-	logger: AstroIntegrationLogger,
+	_logger: AstroIntegrationLogger,
 ): MdxOptions {
+	const { remarkPlugins: _r, rehypePlugins: _rh, ...shared } = markdownConfig;
 	return {
 		...defaultMdxOptions,
-		...markdownConfig,
-		remarkPlugins: ignoreStringPlugins(markdownConfig.remarkPlugins, logger),
-		rehypePlugins: ignoreStringPlugins(markdownConfig.rehypePlugins, logger),
-		remarkRehype: (markdownConfig.remarkRehype as any) ?? {},
+		...shared,
+		// Plugins come from the processor descriptor — merged in astro:config:done.
+		remarkPlugins: [],
+		rehypePlugins: [],
+		remarkRehype: {},
 	};
 }
 
@@ -147,5 +218,8 @@ function applyDefaultOptions({
 		rehypePlugins: options.rehypePlugins ?? defaults.rehypePlugins,
 		shikiConfig: options.shikiConfig ?? defaults.shikiConfig,
 		optimize: options.optimize ?? defaults.optimize,
+		mdastPlugins: options.mdastPlugins ?? defaults.mdastPlugins,
+		hastPlugins: options.hastPlugins ?? defaults.hastPlugins,
+		features: options.features ?? defaults.features,
 	};
 }

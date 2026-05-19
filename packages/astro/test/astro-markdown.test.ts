@@ -61,9 +61,11 @@ describe('Astro Markdown', () => {
 		});
 
 		it('handles Prism', async () => {
+			const { unified } = await import('@astrojs/markdown-remark');
 			const prismFixture = await loadFixture({
 				root: FIXTURE_ROOT,
 				markdown: {
+					processor: unified(),
 					syntaxHighlight: 'prism',
 				},
 			});

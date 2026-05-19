@@ -70,6 +70,11 @@ export default {
 			// False positive because of cloudflare:workers
 			ignoreDependencies: ['cloudflare'],
 		},
+		'packages/integrations/mdx': {
+			entry: [srcEntry, dtsEntry, testEntry],
+			// Optional peer dep, only loaded when the user picks the unified processor
+			ignoreDependencies: ['@astrojs/markdown-remark'],
+		},
 		'packages/integrations/netlify': {
 			entry: [srcEntry, dtsEntry, testEntry],
 			ignore: ['test/hosted/**'],
@@ -83,6 +88,11 @@ export default {
 			entry: [srcEntry, dtsEntry, testEntry],
 			// package.json#imports are not resolved at the moment
 			ignore: ['src/import-plugin-browser.ts', 'src/shiki-engine-workerd.ts'],
+		},
+		'packages/markdown/satteri': {
+			entry: [srcEntry, dtsEntry, testEntry],
+			// package.json#imports are not resolved at the moment
+			ignore: ['src/shiki-engine-default.ts', 'src/shiki-engine-workerd.ts'],
 		},
 		'packages/upgrade': {
 			entry: ['src/index.ts', testEntry],

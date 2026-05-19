@@ -58,6 +58,19 @@ function mergeConfigRecursively(
 			merged[key] = value;
 			continue;
 		}
+		// Markdown processor descriptors (satteri(), unified(), third-party) are opaque
+		// objects with a `createRenderer` function — treat them as atomic so swapping
+		// processors via updateConfig replaces cleanly instead of merging fields from
+		// the previous descriptor into the new one.
+		if (
+			key === 'processor' &&
+			rootPath === 'markdown' &&
+			isObject(value) &&
+			typeof value.createRenderer === 'function'
+		) {
+			merged[key] = value;
+			continue;
+		}
 		if (isObject(existing) && isObject(value)) {
 			merged[key] = mergeConfigRecursively(existing, value, rootPath ? `${rootPath}.${key}` : key);
 			continue;

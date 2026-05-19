@@ -2,6 +2,7 @@ import path from 'node:path';
 import { tmpdir } from 'node:os';
 import { mkdtempSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
+import { satteri } from '@astrojs/markdown-satteri';
 
 /**
  * Creates a temporary directory for tests
@@ -41,14 +42,16 @@ export function createMinimalSettings(root: URL, overrides: Record<string, any> 
 		root,
 		srcDir: new URL('./src/', root),
 		cacheDir: new URL('./.cache/', root),
-		markdown: {},
+		markdown: { processor: satteri() },
 		experimental: {},
 	};
 
+	const overrideConfig = overrides.config || {};
 	const settings: Record<string, any> = {
 		config: {
 			...defaultConfig,
-			...(overrides.config || {}),
+			...overrideConfig,
+			markdown: { ...defaultConfig.markdown, ...(overrideConfig.markdown ?? {}) },
 		},
 		dotAstroDir: new URL('./.astro/', root),
 		contentEntryTypes: [],

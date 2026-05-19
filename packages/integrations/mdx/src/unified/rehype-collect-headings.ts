@@ -1,5 +1,5 @@
 import type { VFile } from 'vfile';
-import { jsToTreeNode } from './utils.js';
+import { jsToTreeNode } from '../utils.js';
 
 export function rehypeInjectHeadingsExport() {
 	return function (tree: any, file: VFile) {
