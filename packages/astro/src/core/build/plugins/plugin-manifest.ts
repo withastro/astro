@@ -242,11 +242,24 @@ async function buildManifest(
 		const outFolder = getOutFolder(opts.settings, route.pathname, route);
 		const outFile = getOutFile(opts.settings.config, outFolder, route.pathname, route);
 		const file = outFile.toString().replace(opts.settings.config.build.client.toString(), '');
+
+		const pageData = internals.pagesByKeys.get(makePageDataKey(route.route, route.component));
+		// Keep only external stylesheets — inline CSS is already baked into the
+		// prerendered HTML on disk, but external URLs are still useful for
+		// middleware (e.g. Link: rel=preload headers).
+		const styles = pageData
+			? pageData.styles
+					.sort(cssOrder)
+					.map(({ sheet }) => sheet)
+					.filter((s): s is { type: 'external'; src: string } => s.type === 'external')
+					.map((s) => ({ ...s, src: prefixAssetPath(s.src) }))
+			: [];
+
 		routes.push({
 			file,
 			links: [],
 			scripts: [],
-			styles: [],
+			styles,
 			routeData: serializeRouteData(route, settings.config.trailingSlash),
 		});
 		staticFiles.push(file);

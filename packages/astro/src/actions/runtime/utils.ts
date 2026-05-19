@@ -41,6 +41,9 @@ export type ActionAPIContext = Pick<
 	| 'originPathname'
 	| 'session'
 	| 'csp'
+	| 'styles'
+	| 'scripts'
+	| 'links'
 > & {
 	// TODO: remove in Astro 6.0
 	/**

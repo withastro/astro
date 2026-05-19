@@ -34,6 +34,7 @@ import { callMiddleware } from './middleware/callMiddleware.js';
 import { sequence } from './middleware/index.js';
 import { renderRedirect } from './redirects/render.js';
 import { getParams, getProps, type Pipeline, Slots } from './render/index.js';
+import { getRouteAssets } from './render/ssr-element.js';
 import { isRoute404or500, isRouteExternalRedirect, isRouteServerIsland } from './routing/match.js';
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
 import { AstroSession } from './session.js';
@@ -406,6 +407,13 @@ export class RenderContext {
 			return await this.#executeRewrite(reroutePayload);
 		};
 
+		const { styles, scripts, links } = getRouteAssets(
+			this.routeData.route,
+			this.pipeline.manifest.routes,
+			this.pipeline.manifest.base,
+			this.pipeline.manifest.assetsPrefix,
+		);
+
 		return {
 			// Don't allow reassignment of cookies because it doesn't work
 			get cookies() {
@@ -413,6 +421,9 @@ export class RenderContext {
 			},
 			routePattern: this.routeData.route,
 			isPrerendered: this.routeData.prerender,
+			styles,
+			scripts,
+			links,
 			get clientAddress() {
 				return renderContext.getClientAddress();
 			},
@@ -689,6 +700,9 @@ export class RenderContext {
 			glob: astroStaticPartial.glob,
 			routePattern: this.routeData.route,
 			isPrerendered: this.routeData.prerender,
+			styles: apiContext.styles,
+			scripts: apiContext.scripts,
+			links: apiContext.links,
 			cookies,
 			get session() {
 				if (this.isPrerendered) {
