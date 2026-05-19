@@ -31,6 +31,7 @@ const EMPTY_SLOTS: Record<string, never> = Object.freeze({});
  */
 export class PagesHandler {
 	#pipeline: Pipeline;
+	#warnedPartialAssets = new Set<string>();
 
 	constructor(pipeline: Pipeline) {
 		this.#pipeline = pipeline;
@@ -71,6 +72,21 @@ export class PagesHandler {
 					// we signal to the rest of the internals that we can ignore the results of existing renders and avoid kicking off more of them.
 					result.cancelled = true;
 					throw e;
+				}
+
+				// Partial pages strip `<head>` content (scoped styles, hoisted scripts,
+				// and other propagated head parts) from the response. Warn once per
+				// route component when the rendered tree contained such assets so the
+				// loss isn't silent.
+				if (result.partial && result._metadata.propagators.size > 0) {
+					const componentKey = state.routeData!.component;
+					if (!this.#warnedPartialAssets.has(componentKey)) {
+						this.#warnedPartialAssets.add(componentKey);
+						logger.warn(
+							null,
+							`The page ${componentKey} is a partial but its component tree includes Astro component scripts or scoped styles. These will be stripped from the HTML output. See https://docs.astro.build/en/basics/astro-pages/#page-partials for more information.`,
+						);
+					}
 				}
 
 				// Signal to the i18n middleware to maybe act on this response
