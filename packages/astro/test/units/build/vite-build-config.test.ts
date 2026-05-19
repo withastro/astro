@@ -26,14 +26,14 @@ describe('createViteBuildConfig', () => {
 				settings,
 				viteConfig: {
 					build: {
-						rollupOptions: {
+						rolldownOptions: {
 							output: { assetFileNames: customAssetFn },
 						},
 					},
 				},
 			});
 
-			const output = config.build?.rollupOptions?.output as Record<string, unknown>;
+			const output = config.build?.rolldownOptions?.output as Record<string, unknown>;
 			assert.equal(output.assetFileNames, customAssetFn);
 		});
 
@@ -44,14 +44,14 @@ describe('createViteBuildConfig', () => {
 				settings,
 				viteConfig: {
 					build: {
-						rollupOptions: {
+						rolldownOptions: {
 							output: { chunkFileNames: customChunkFn },
 						},
 					},
 				},
 			});
 
-			const output = config.build?.rollupOptions?.output as Record<string, unknown>;
+			const output = config.build?.rolldownOptions?.output as Record<string, unknown>;
 			assert.equal(output.chunkFileNames, customChunkFn);
 		});
 
@@ -59,7 +59,7 @@ describe('createViteBuildConfig', () => {
 			const settings = await createBasicSettings();
 			const config = buildConfig({ settings });
 
-			const output = config.build?.rollupOptions?.output as Record<string, any>;
+			const output = config.build?.rolldownOptions?.output as Record<string, any>;
 			assert.equal(typeof output.assetFileNames, 'function');
 			const result = output.assetFileNames({ names: ['style.css'] });
 			assert.match(result, /\[name\]\.\[hash\]\[extname\]/);
@@ -71,14 +71,14 @@ describe('createViteBuildConfig', () => {
 				settings,
 				viteConfig: {
 					build: {
-						rollupOptions: {
+						rolldownOptions: {
 							output: { entryFileNames: 'custom/[name].js' },
 						},
 					},
 				},
 			});
 
-			const output = config.build?.rollupOptions?.output as Record<string, any>;
+			const output = config.build?.rolldownOptions?.output as Record<string, any>;
 			assert.equal(typeof output.entryFileNames, 'function');
 		});
 
@@ -86,7 +86,7 @@ describe('createViteBuildConfig', () => {
 			const settings = await createBasicSettings({ build: { assets: 'custom_dir_1' } });
 			const config = buildConfig({ settings });
 
-			const output = config.build?.rollupOptions?.output as Record<string, any>;
+			const output = config.build?.rolldownOptions?.output as Record<string, any>;
 			const result = output.assetFileNames({ names: ['style.css'] });
 			assert.match(result, /^custom_dir_1\//);
 		});
@@ -102,7 +102,7 @@ describe('createViteBuildConfig', () => {
 					environments: {
 						client: {
 							build: {
-								rollupOptions: {
+								rolldownOptions: {
 									output: { assetFileNames: customAssetFn },
 								},
 							},
@@ -112,7 +112,7 @@ describe('createViteBuildConfig', () => {
 			});
 
 			const clientEnv = config.environments?.client as Record<string, any>;
-			const output = clientEnv.build.rollupOptions.output;
+			const output = clientEnv.build.rolldownOptions.output;
 			assert.equal(output.assetFileNames, customAssetFn);
 		});
 
@@ -124,7 +124,7 @@ describe('createViteBuildConfig', () => {
 					environments: {
 						client: {
 							build: {
-								rollupOptions: {
+								rolldownOptions: {
 									output: { entryFileNames: 'assets/js/[name].js' },
 								},
 							},
@@ -134,7 +134,7 @@ describe('createViteBuildConfig', () => {
 			});
 
 			const clientEnv = config.environments?.client as Record<string, any>;
-			const output = clientEnv.build.rollupOptions.output;
+			const output = clientEnv.build.rolldownOptions.output;
 			assert.equal(output.entryFileNames, 'assets/js/[name].js');
 		});
 
@@ -143,7 +143,7 @@ describe('createViteBuildConfig', () => {
 			const config = buildConfig({ settings });
 
 			const clientEnv = config.environments?.client as Record<string, any>;
-			const output = clientEnv.build.rollupOptions.output;
+			const output = clientEnv.build.rolldownOptions.output;
 			const result = output.assetFileNames({ names: ['style.css'] });
 			assert.match(result, /^custom_dir_1\//);
 		});
@@ -158,7 +158,7 @@ describe('createViteBuildConfig', () => {
 					environments: {
 						prerender: {
 							build: {
-								rollupOptions: {
+								rolldownOptions: {
 									output: {
 										chunkFileNames: 'assets/testing-[name].mjs',
 										assetFileNames: 'assets/testing-[name].[ext]',
@@ -171,7 +171,7 @@ describe('createViteBuildConfig', () => {
 			});
 
 			const prerenderEnv = config.environments?.prerender as Record<string, any>;
-			const output = prerenderEnv.build.rollupOptions.output;
+			const output = prerenderEnv.build.rolldownOptions.output;
 			assert.equal(output.chunkFileNames, 'assets/testing-[name].mjs');
 			assert.equal(output.assetFileNames, 'assets/testing-[name].[ext]');
 		});
