@@ -66,7 +66,7 @@
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/prism": "workspace:*",
     "@markdoc/markdoc": "^0.5.4",
-    "esbuild": "^0.27.3",
+    "esbuild": "^0.28.0",
     "github-slugger": "^2.0.0",
     "htmlparser2": "^10.1.0"
   },
@@ -79,7 +79,7 @@
     "astro-scripts": "workspace:*",
     "devalue": "^5.6.3",
     "linkedom": "^0.18.12",
-    "vite": "^8.0.8"
+    "vite": "^8.0.13"
   },
   "engines": {
     "node": ">=22.12.0"

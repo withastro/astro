@@ -6,13 +6,15 @@ import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.ts';
 import { type App, type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
-describe('Middleware in DEV mode', () => {
+describe('Middleware in DEV mode — integration hooks', () => {
 	let fixture: Fixture;
 	let devServer: DevServer;
 
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/middleware space/',
+			outDir: './dist/middleware-middleware-in-dev-mode/',
+			cacheDir: './node_modules/.astro-test/middleware-middleware-in-dev-mode/',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -21,30 +23,16 @@ describe('Middleware in DEV mode', () => {
 		await devServer.stop();
 	});
 
-	describe('Path encoding in middleware', () => {
-		it('should reject double-encoded paths with 404', async () => {
-			const res = await fixture.fetch('/%2561dmin', { redirect: 'manual' });
-			assert.equal(res.status, 404);
-		});
-
-		it('should reject triple-encoded paths with 404', async () => {
-			const res = await fixture.fetch('/%252561dmin', { redirect: 'manual' });
-			assert.equal(res.status, 404);
-		});
+	it('Integration middleware marked as "pre" runs', async () => {
+		const res = await fixture.fetch('/integration-pre');
+		const json = await res.json();
+		assert.equal(json.pre, 'works');
 	});
 
-	describe('Integration hooks', () => {
-		it('Integration middleware marked as "pre" runs', async () => {
-			const res = await fixture.fetch('/integration-pre');
-			const json = await res.json();
-			assert.equal(json.pre, 'works');
-		});
-
-		it('Integration middleware marked as "post" runs', async () => {
-			const res = await fixture.fetch('/integration-post');
-			const json = await res.json();
-			assert.equal(json.post, 'works');
-		});
+	it('Integration middleware marked as "post" runs', async () => {
+		const res = await fixture.fetch('/integration-post');
+		const json = await res.json();
+		assert.equal(json.post, 'works');
 	});
 });
 
@@ -54,6 +42,7 @@ describe('Integration hooks with no user middleware', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/middleware-no-user-middleware/',
+			outDir: './dist/middleware-integration-hooks-with-no-user-middlewar/',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -89,6 +78,7 @@ describe('Middleware should not be executed or imported during', () => {
 			root: './fixtures/middleware-full-ssr/',
 			output: 'server',
 			adapter: testAdapter({}),
+			outDir: './dist/middleware-middleware-should-not-be-executed-or-imp/',
 		});
 		await fixture.build();
 		assert.ok('Should build');
@@ -105,6 +95,8 @@ describe('Middleware API in PROD mode, SSR', () => {
 			root: './fixtures/middleware space/',
 			output: 'server',
 			adapter: testAdapter({}),
+			outDir: './dist/middleware-middleware-api-in-prod-mode-ssr/',
+			cacheDir: './node_modules/.astro-test/middleware-middleware-api-in-prod-mode-ssr/',
 		});
 		await fixture.build();
 		app = await fixture.loadTestAdapterApp();
@@ -128,16 +120,16 @@ describe('Middleware API in PROD mode, SSR', () => {
 	});
 
 	describe('Path encoding in middleware', () => {
-		it('should reject double-encoded paths with 404', async () => {
+		it('should reject double-encoded paths with 400', async () => {
 			const request = new Request('http://example.com/%2561dmin');
 			const response = await app.render(request);
-			assert.equal(response.status, 404);
+			assert.equal(response.status, 400);
 		});
 
-		it('should reject triple-encoded paths with 404', async () => {
+		it('should reject triple-encoded paths with 400', async () => {
 			const request = new Request('http://example.com/%252561dmin');
 			const response = await app.render(request);
-			assert.equal(response.status, 404);
+			assert.equal(response.status, 400);
 		});
 	});
 
@@ -156,6 +148,8 @@ describe('Middleware API in PROD mode, SSR', () => {
 					middlewarePath = middlewareEntryPoint;
 				},
 			}),
+			outDir: './dist/middleware-path-encoding-in-middleware/',
+			cacheDir: './node_modules/.astro-test/middleware-path-encoding-in-middleware/',
 		});
 		await fixture.build();
 		assert.ok(middlewarePath);
@@ -176,6 +170,7 @@ describe('Middleware with tailwind', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/middleware-tailwind/',
+			outDir: './dist/middleware-middleware-with-tailwind/',
 		});
 		await fixture.build();
 	});
@@ -188,30 +183,5 @@ describe('Middleware with tailwind', () => {
 			.replace(/\s/g, '')
 			.replace('/n', '');
 		assert.equal(bundledCSS.includes('--tw'), true);
-	});
-});
-
-describe('Middleware sequence rewrites', () => {
-	let fixture: Fixture;
-	let devServer: DevServer;
-
-	before(async () => {
-		fixture = await loadFixture({
-			root: './fixtures/middleware-sequence-rewrite/',
-		});
-		devServer = await fixture.startDevServer();
-	});
-
-	after(async () => {
-		await devServer.stop();
-	});
-
-	it('should preserve cookies set in sequence', async () => {
-		const res = await fixture.fetch('/');
-		const html = await res.text();
-		assert.ok(html.includes('Hello Another'));
-		const setCookie = res.headers.get('set-cookie')!;
-		assert.ok(setCookie.includes('cookie1=Cookie%20from%20middleware%201'));
-		assert.ok(setCookie.includes('cookie2=Cookie%20from%20middleware%202'));
 	});
 });

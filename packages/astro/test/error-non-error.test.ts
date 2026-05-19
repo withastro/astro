@@ -10,6 +10,7 @@ describe('Can handle errors that are not instanceof Error', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/error-non-error',
+			outDir: './dist/error-non-error/',
 		});
 		devServer = await fixture.startDevServer();
 	});

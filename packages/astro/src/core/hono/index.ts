@@ -101,9 +101,12 @@ export function sessions(): HonoMiddlewareHandler {
 	};
 }
 
-export function cache(next: () => Promise<Response>): HonoMiddlewareHandler {
-	return async (context, _honoNext) => {
-		return fetchCache(getFetchState(context), next);
+export function cache(): HonoMiddlewareHandler {
+	return async (context, honoNext) => {
+		return fetchCache(getFetchState(context), async () => {
+			await honoNext();
+			return context.res;
+		});
 	};
 }
 

@@ -14,6 +14,7 @@ describe('frontmatter (loadFixture)', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/content-frontmatter/',
+			outDir: './dist/content-frontmatter/',
 		});
 		blogPath = path.join(fileURLToPath(fixture.config.root), 'src/content/posts/blog.md');
 		originalContent = fs.readFileSync(blogPath, 'utf-8');

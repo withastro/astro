@@ -14,6 +14,7 @@ describe('Errors in JavaScript', () => {
 			vite: {
 				logLevel: 'silent',
 			},
+			outDir: './dist/error-bad-js/',
 		});
 	});
 

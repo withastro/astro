@@ -8,6 +8,6 @@ test.describe('Basics', () => {
 		await page.goto(astro.resolveUrl('/'));
 
 		const el = page.locator('#foo');
-		expect(await el.textContent()).toBe('bar');
+		await expect(el).toHaveText('bar');
 	});
 });

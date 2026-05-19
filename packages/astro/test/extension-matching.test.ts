@@ -10,6 +10,7 @@ describe('Matching .astro modules', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/extension-matching/',
+			outDir: './dist/extension-matching/',
 		});
 		await fixture.build();
 		output = await fixture.readFile('./index.html');

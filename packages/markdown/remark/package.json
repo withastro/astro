@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/markdown-remark",
-  "version": "7.1.1",
+  "version": "7.1.2",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -66,7 +66,7 @@
     "@types/mdast": "^4.0.4",
     "@types/unist": "^3.0.3",
     "astro-scripts": "workspace:*",
-    "esbuild": "^0.27.3",
+    "esbuild": "^0.28.0",
     "mdast-util-mdx-expression": "^2.0.1"
   },
   "publishConfig": {

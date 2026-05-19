@@ -1,3 +1,11 @@
+/**
+ * Public `astro/fetch` API.
+ *
+ * Every exported function here is a thin wrapper that resolves the
+ * correct handler instance and delegates to it. **Do not add logic
+ * here** — keep behaviour inside the handler modules so it stays
+ * unit-testable without the virtual-module wiring.
+ */
 import { ActionHandler } from '../../actions/handler.js';
 import type { BaseApp } from '../app/base.js';
 import type { Pipeline } from '../base-pipeline.js';

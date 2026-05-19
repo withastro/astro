@@ -29,6 +29,7 @@ describe('HTML minification', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/minification-html/',
+				outDir: './dist/minification-html-in-dev-environment/',
 			});
 			devServer = await fixture.startDevServer();
 		});
@@ -52,6 +53,7 @@ describe('HTML minification', () => {
 				root: './fixtures/minification-html/',
 				// test suite was authored when inlineStylesheets defaulted to never
 				build: { inlineStylesheets: 'never' },
+				outDir: './dist/minification-html-build-ssg/',
 			});
 			await fixture.build();
 		});
@@ -71,6 +73,7 @@ describe('HTML minification', () => {
 				adapter: testAdapter(),
 				// test suite was authored when inlineStylesheets defaulted to never
 				build: { inlineStylesheets: 'never' },
+				outDir: './dist/minification-html-build-ssr/',
 			});
 			await fixture.build();
 		});

@@ -14,6 +14,7 @@ describe('Asset URL resolution in build', () => {
 					site: 'http://example.com/sub/path/',
 					// test suite was authored when inlineStylesheets defaulted to never
 					build: { inlineStylesheets: 'never' },
+					outDir: './dist/asset-url-base-with-site/',
 				});
 				await fixture.build();
 			});
@@ -35,6 +36,7 @@ describe('Asset URL resolution in build', () => {
 					base: '/another/base/',
 					// test suite was authored when inlineStylesheets defaulted to never
 					build: { inlineStylesheets: 'never' },
+					outDir: './dist/asset-url-base-with-site-and-base/',
 				});
 				await fixture.build();
 			});

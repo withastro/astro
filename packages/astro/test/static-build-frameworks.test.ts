@@ -13,6 +13,7 @@ describe('Static build - frameworks', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/static-build-frameworks/',
+			outDir: './dist/static-build-frameworks/',
 		});
 		try {
 			await fixture.build();

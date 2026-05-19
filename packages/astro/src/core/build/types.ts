@@ -34,7 +34,6 @@ export interface StaticBuildOptions {
 	origin: string;
 	pageNames: string[];
 	viteConfig: InlineConfig;
-	teardownCompiler: boolean;
 	key: Promise<CryptoKey>;
 }
 
