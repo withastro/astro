@@ -19,7 +19,6 @@ export const triggers = {};
 const bgproc = defineCommand('bgproc');
 const agentBrowser = defineCommand('agent-browser');
 const node = defineCommand('node');
-const npm = defineCommand('npm');
 const npx = defineCommand('npx');
 const pnpm = defineCommand('pnpm');
 // pnpm variant with GitHub Actions env vars forwarded. pkg-pr-new checks these
@@ -189,7 +188,7 @@ async function runTriagePipeline(
 }> {
 	const reproduceResult = await session.skill('triage/reproduce.md', {
 		args: { issueNumber, issueDetails },
-		commands: [gh, bgproc, agentBrowser, git, node, npm, npx, pnpm],
+		commands: [gh, bgproc, agentBrowser, git, node, npx, pnpm],
 		result: v.object({
 			reproducible: v.pipe(
 				v.boolean(),
@@ -218,7 +217,7 @@ async function runTriagePipeline(
 
 	const diagnoseResult = await session.skill('triage/diagnose.md', {
 		args: { issueDetails },
-		commands: [gh, bgproc, agentBrowser, git, node, npm, npx, pnpm],
+		commands: [gh, bgproc, agentBrowser, git, node, npx, pnpm],
 		result: v.object({
 			confidence: v.pipe(
 				v.nullable(v.picklist(['high', 'medium', 'low'])),
@@ -228,7 +227,7 @@ async function runTriagePipeline(
 	});
 	const verifyResult = await session.skill('triage/verify.md', {
 		args: { issueDetails },
-		commands: [gh, bgproc, agentBrowser, git, node, npm, npx, pnpm],
+		commands: [gh, bgproc, agentBrowser, git, node, npx, pnpm],
 		result: v.object({
 			verdict: v.pipe(
 				v.picklist(['bug', 'intended-behavior', 'unclear']),
@@ -255,7 +254,7 @@ async function runTriagePipeline(
 
 	const fixResult = await session.skill('triage/fix.md', {
 		args: { issueDetails },
-		commands: [gh, bgproc, agentBrowser, git, node, npm, npx, pnpm],
+		commands: [gh, bgproc, agentBrowser, git, node, npx, pnpm],
 		result: v.object({
 			fixed: v.pipe(
 				v.boolean(),
@@ -356,7 +355,7 @@ export default async function ({ init, payload }: FlueContext) {
 	const branchName = isPushed ? branch : null;
 	const comment = await session.skill('triage/comment.md', {
 		args: { branchName, priorityLabels, issueDetails, previewRelease },
-		commands: [gh, git, node, npm, npx, pnpm],
+		commands: [gh, git, node, npx, pnpm],
 		result: v.pipe(
 			v.string(),
 			v.description(
