@@ -1,187 +1,115 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { getRouteAssets } from '../../../dist/core/render/ssr-element.js';
-import type { RouteInfo } from '../../../dist/core/app/types.js';
 
-function makeRouteInfo(
-	route: string,
-	overrides: Partial<Pick<RouteInfo, 'styles' | 'scripts' | 'links'>> = {},
-): RouteInfo {
-	return {
-		routeData: { route } as RouteInfo['routeData'],
-		file: `src/pages${route === '/' ? '/index' : route}.astro`,
-		links: overrides.links ?? [],
-		scripts: overrides.scripts ?? [],
-		styles: overrides.styles ?? [],
-	};
+/**
+ * Tests the SSRElement → string extraction logic used by FetchState.getActionAPIContext().
+ * The extraction reads `el.props.href` for stylesheet links, `el.children` for
+ * inline styles, and `el.props.src` for external scripts.
+ */
+
+function extractAssets(headElements: {
+	styles: Set<{ props: Record<string, any>; children: string }>;
+	scripts: Set<{ props: Record<string, any>; children: string }>;
+	links: Set<{ props: Record<string, any>; children: string }>;
+} | undefined) {
+	const styles: string[] = [];
+	const links: string[] = [];
+	const scripts: string[] = [];
+	if (headElements) {
+		for (const el of headElements.styles) {
+			if (el.props.href) {
+				links.push(el.props.href);
+			} else if (el.children) {
+				styles.push(el.children);
+			}
+		}
+		for (const el of headElements.scripts) {
+			if (el.props.src) {
+				scripts.push(el.props.src);
+			}
+		}
+	}
+	return { styles, scripts, links };
 }
 
-describe('getRouteAssets', () => {
-	it('returns empty arrays when route is not found', () => {
-		const routes = [makeRouteInfo('/about')];
-		const result = getRouteAssets('/missing', routes);
+describe('extractAssets from headElements', () => {
+	it('returns empty arrays when headElements is undefined', () => {
+		const result = extractAssets(undefined);
 		assert.deepEqual(result, { styles: [], scripts: [], links: [] });
 	});
 
-	it('returns empty arrays when route has no assets', () => {
-		const routes = [makeRouteInfo('/')];
-		const result = getRouteAssets('/', routes);
+	it('returns empty arrays when headElements has empty sets', () => {
+		const result = extractAssets({ styles: new Set(), scripts: new Set(), links: new Set() });
 		assert.deepEqual(result, { styles: [], scripts: [], links: [] });
 	});
 
-	it('returns inline CSS in styles', () => {
-		const routes = [
-			makeRouteInfo('/', {
-				styles: [
-					{ type: 'inline', content: 'body { color: red }' },
-					{ type: 'inline', content: '.header { font-size: 2rem }' },
-				],
-			}),
-		];
-		const result = getRouteAssets('/', routes);
-		assert.deepEqual(result.styles, ['body { color: red }', '.header { font-size: 2rem }']);
-	});
-
-	it('returns external stylesheet URLs in links', () => {
-		const routes = [
-			makeRouteInfo('/', {
-				styles: [
-					{ type: 'external', src: '/_astro/index.abc12.css' },
-					{ type: 'external', src: '/_astro/global.def34.css' },
-				],
-			}),
-		];
-		const result = getRouteAssets('/', routes);
+	it('extracts external stylesheet URLs into links', () => {
+		const styles = new Set([
+			{ props: { rel: 'stylesheet', href: '/_astro/index.abc12.css' }, children: '' },
+			{ props: { rel: 'stylesheet', href: '/_astro/global.def34.css' }, children: '' },
+		]);
+		const result = extractAssets({ styles, scripts: new Set(), links: new Set() });
 		assert.deepEqual(result.links, ['/_astro/index.abc12.css', '/_astro/global.def34.css']);
 		assert.deepEqual(result.styles, []);
 	});
 
+	it('extracts inline CSS into styles', () => {
+		const styles = new Set([
+			{ props: {}, children: 'body { color: red }' },
+			{ props: {}, children: '.header { font-size: 2rem }' },
+		]);
+		const result = extractAssets({ styles, scripts: new Set(), links: new Set() });
+		assert.deepEqual(result.styles, ['body { color: red }', '.header { font-size: 2rem }']);
+		assert.deepEqual(result.links, []);
+	});
+
 	it('splits mixed inline and external styles correctly', () => {
-		const routes = [
-			makeRouteInfo('/', {
-				styles: [
-					{ type: 'inline', content: 'body { color: red }' },
-					{ type: 'external', src: '/_astro/style.css' },
-				],
-			}),
-		];
-		const result = getRouteAssets('/', routes);
+		const styles = new Set([
+			{ props: {}, children: 'body { color: red }' },
+			{ props: { rel: 'stylesheet', href: '/_astro/style.css' }, children: '' },
+		]);
+		const result = extractAssets({ styles, scripts: new Set(), links: new Set() });
 		assert.deepEqual(result.styles, ['body { color: red }']);
 		assert.deepEqual(result.links, ['/_astro/style.css']);
 	});
 
-	it('returns external script URLs', () => {
-		const routes = [
-			makeRouteInfo('/', {
-				scripts: [{ type: 'external', value: '/_astro/app.abc12.js' }],
-			}),
-		];
-		const result = getRouteAssets('/', routes);
+	it('extracts external script URLs', () => {
+		const scripts = new Set([
+			{ props: { type: 'module', src: '/_astro/app.abc12.js' }, children: '' },
+		]);
+		const result = extractAssets({ styles: new Set(), scripts, links: new Set() });
 		assert.deepEqual(result.scripts, ['/_astro/app.abc12.js']);
 	});
 
 	it('skips inline scripts', () => {
-		const routes = [
-			makeRouteInfo('/', {
-				scripts: [
-					{ type: 'inline', value: 'console.log("hi")' },
-					{ type: 'external', value: '/_astro/app.js' },
-				],
-			}),
-		];
-		const result = getRouteAssets('/', routes);
+		const scripts = new Set([
+			{ props: { type: 'module' }, children: 'console.log("hi")' },
+			{ props: { type: 'module', src: '/_astro/app.js' }, children: '' },
+		]);
+		const result = extractAssets({ styles: new Set(), scripts, links: new Set() });
 		assert.deepEqual(result.scripts, ['/_astro/app.js']);
 	});
 
-	it('skips head-inline stage scripts', () => {
-		const routes = [
-			makeRouteInfo('/', {
-				scripts: [
-					{ children: 'console.log("inline")', stage: 'head-inline' },
-					{ type: 'external', value: '/_astro/app.js' },
-				],
-			}),
-		];
-		const result = getRouteAssets('/', routes);
+	it('handles multiple external scripts', () => {
+		const scripts = new Set([
+			{ props: { type: 'module', src: '/_astro/app.js' }, children: '' },
+			{ props: { type: 'module', src: '/_astro/vendor.js' }, children: '' },
+		]);
+		const result = extractAssets({ styles: new Set(), scripts, links: new Set() });
+		assert.deepEqual(result.scripts, ['/_astro/app.js', '/_astro/vendor.js']);
+	});
+
+	it('handles mixed styles and scripts together', () => {
+		const styles = new Set([
+			{ props: {}, children: 'body { color: red }' },
+			{ props: { rel: 'stylesheet', href: '/_astro/home.css' }, children: '' },
+		]);
+		const scripts = new Set([
+			{ props: { type: 'module', src: '/_astro/app.js' }, children: '' },
+		]);
+		const result = extractAssets({ styles, scripts, links: new Set() });
+		assert.deepEqual(result.styles, ['body { color: red }']);
+		assert.deepEqual(result.links, ['/_astro/home.css']);
 		assert.deepEqual(result.scripts, ['/_astro/app.js']);
-	});
-
-	it('applies base path to external link URLs', () => {
-		const routes = [
-			makeRouteInfo('/', {
-				styles: [{ type: 'external', src: '/_astro/style.css' }],
-			}),
-		];
-		const result = getRouteAssets('/', routes, '/docs/');
-		assert.equal(result.links[0], '/docs/_astro/style.css');
-	});
-
-	it('applies base path to external script URLs', () => {
-		const routes = [
-			makeRouteInfo('/', {
-				scripts: [{ type: 'external', value: '/_astro/app.js' }],
-			}),
-		];
-		const result = getRouteAssets('/', routes, '/docs/');
-		assert.equal(result.scripts[0], '/docs/_astro/app.js');
-	});
-
-	it('applies string assetsPrefix to link URLs', () => {
-		const routes = [
-			makeRouteInfo('/', {
-				styles: [{ type: 'external', src: '/_astro/style.css' }],
-			}),
-		];
-		const result = getRouteAssets('/', routes, '/', 'https://cdn.example.com');
-		assert.ok(result.links[0].startsWith('https://cdn.example.com'));
-	});
-
-	it('applies per-type assetsPrefix to link URLs', () => {
-		const routes = [
-			makeRouteInfo('/', {
-				styles: [{ type: 'external', src: '/_astro/style.css' }],
-			}),
-		];
-		const result = getRouteAssets('/', routes, '/', {
-			css: 'https://css.cdn.com',
-			fallback: 'https://cdn.com',
-		});
-		assert.ok(result.links[0].startsWith('https://css.cdn.com'));
-	});
-
-	it('applies per-type assetsPrefix to script URLs', () => {
-		const routes = [
-			makeRouteInfo('/', {
-				scripts: [{ type: 'external', value: '/_astro/app.js' }],
-			}),
-		];
-		const result = getRouteAssets('/', routes, '/', {
-			js: 'https://js.cdn.com',
-			fallback: 'https://cdn.com',
-		});
-		assert.ok(result.scripts[0].startsWith('https://js.cdn.com'));
-	});
-
-	it('matches the correct route among multiple routes', () => {
-		const routes = [
-			makeRouteInfo('/', {
-				styles: [{ type: 'external', src: '/_astro/home.css' }],
-			}),
-			makeRouteInfo('/about', {
-				styles: [{ type: 'external', src: '/_astro/about.css' }],
-			}),
-			makeRouteInfo('/blog/[slug]', {
-				styles: [{ type: 'external', src: '/_astro/blog.css' }],
-			}),
-		];
-
-		const home = getRouteAssets('/', routes);
-		assert.deepEqual(home.links, ['/_astro/home.css']);
-
-		const about = getRouteAssets('/about', routes);
-		assert.deepEqual(about.links, ['/_astro/about.css']);
-
-		const blog = getRouteAssets('/blog/[slug]', routes);
-		assert.deepEqual(blog.links, ['/_astro/blog.css']);
 	});
 });

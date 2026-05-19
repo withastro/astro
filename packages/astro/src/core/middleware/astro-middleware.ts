@@ -39,9 +39,11 @@ export class AstroMiddleware {
 		state.pipeline.usedFeatures |= PipelineFeatures.middleware;
 		const pipeline = this.#pipeline;
 
-		// Resolve props first (the async bit) so downstream consumers can
-		// call `state.getAPIContext()` synchronously on the hot path.
+		// Resolve props and head elements first (the async bits) so
+		// downstream consumers can call `state.getAPIContext()` synchronously
+		// on the hot path.
 		await state.getProps();
+		await state.resolveHeadElements();
 		const apiContext = state.getAPIContext();
 
 		state.counter++;

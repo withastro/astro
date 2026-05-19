@@ -156,19 +156,17 @@ function injectManifest(manifest: SerializedSSRManifest, code: string) {
 }
 
 /**
- * Strips inline CSS from prerendered routes in the SSR manifest.
- * Inline CSS is already baked into the prerendered HTML on disk, so it's dead
- * weight in the SSR entry. External stylesheet URLs are preserved so middleware
- * can still use them (e.g. for Link: rel=preload headers).
+ * Returns a copy of the manifest with `styles` cleared on every prerendered
+ * route. Inline CSS for prerendered routes is dead weight in the SSR manifest:
+ * the prerendered HTML on disk already contains the `<style>` tags, and the
+ * SSR worker never renders these routes.
  */
 function stripPrerenderedRouteStyles(manifest: SerializedSSRManifest): SerializedSSRManifest {
 	let stripped = false;
 	const routes = manifest.routes.map((route) => {
 		if (!route.routeData.prerender || route.styles.length === 0) return route;
-		const external = route.styles.filter((s) => s.type === 'external');
-		if (external.length === route.styles.length) return route;
 		stripped = true;
-		return { ...route, styles: external };
+		return { ...route, styles: [] };
 	});
 	return stripped ? { ...manifest, routes } : manifest;
 }

@@ -1,7 +1,7 @@
 import { getAssetsPrefix } from '../../assets/utils/getAssetsPrefix.js';
 import { fileExtension, joinPaths, prependForwardSlash, slash } from '../../core/path.js';
 import type { SSRElement } from '../../types/public/internal.js';
-import type { AssetsPrefix, RouteInfo, StylesheetAsset } from '../app/types.js';
+import type { AssetsPrefix, StylesheetAsset } from '../app/types.js';
 
 const URL_PARSE_BASE = 'https://astro.build';
 
@@ -119,39 +119,3 @@ function createModuleScriptElementWithSrc(
 	};
 }
 
-/**
- * Extracts the route's assets split by kind:
- * - `styles`: inline CSS strings
- * - `links`: external stylesheet URLs (resolved with base/assetsPrefix)
- * - `scripts`: external script URLs (resolved with base/assetsPrefix)
- */
-export function getRouteAssets(
-	routePattern: string,
-	routes: RouteInfo[],
-	base?: string,
-	assetsPrefix?: AssetsPrefix,
-): { styles: string[]; scripts: string[]; links: string[] } {
-	const routeInfo = routes?.find((route) => route.routeData.route === routePattern);
-	if (!routeInfo) {
-		return { styles: [], scripts: [], links: [] };
-	}
-
-	const styles: string[] = [];
-	const links: string[] = [];
-	for (const stylesheet of routeInfo.styles ?? []) {
-		if (stylesheet.type === 'inline') {
-			styles.push(stylesheet.content);
-		} else {
-			links.push(createAssetLink(stylesheet.src, base, assetsPrefix));
-		}
-	}
-
-	const scripts: string[] = [];
-	for (const script of routeInfo.scripts ?? []) {
-		if ('type' in script && script.type === 'external') {
-			scripts.push(createAssetLink(script.value, base, assetsPrefix));
-		}
-	}
-
-	return { styles, scripts, links };
-}
