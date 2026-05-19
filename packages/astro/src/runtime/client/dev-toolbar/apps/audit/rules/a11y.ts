@@ -42,6 +42,10 @@ const a11y_required_attributes = {
 	object: ['title', 'aria-label', 'aria-labelledby'],
 };
 
+// Elements where at least one of the listed attributes must be present (OR logic),
+// as opposed to all of them being required (AND logic).
+const a11y_required_attributes_any = new Set(['area', 'object']);
+
 const MAYBE_INTERACTIVE = new Map([
 	['a', 'href'],
 	['input', 'type'],
@@ -343,9 +347,10 @@ export const a11y: AuditRuleWithSelector[] = [
 				(attribute) => !element.hasAttribute(attribute),
 			);
 
+			const joinWord = a11y_required_attributes_any.has(element.localName) ? ' or ' : ', ';
 			return `${
 				element.localName
-			} element is missing required attributes for accessibility: ${missingAttributes.join(', ')} `;
+			} element is missing required attributes for accessibility: ${missingAttributes.join(joinWord)} `;
 		},
 		selector: Object.keys(a11y_required_attributes).join(','),
 		match(element) {
@@ -353,6 +358,14 @@ export const a11y: AuditRuleWithSelector[] = [
 				a11y_required_attributes[element.localName as keyof typeof a11y_required_attributes];
 
 			if (!requiredAttributes) return true;
+
+			// For elements like `area` and `object`, having at least one of the
+			// listed attributes is sufficient (OR logic). For all other elements,
+			// every listed attribute is required (AND logic).
+			if (a11y_required_attributes_any.has(element.localName)) {
+				return requiredAttributes.every((attribute) => !element.hasAttribute(attribute));
+			}
+
 			for (const attribute of requiredAttributes) {
 				if (!element.hasAttribute(attribute)) return true;
 			}
