@@ -125,8 +125,12 @@ export default function createIntegration({
 	let _isFullyStatic = false;
 	let cfPluginConfig: PluginConfig;
 
-	const { buildService, runtimeService } = normalizeImageServiceConfig(imageService);
+	const { buildService, runtimeService, transformAtBuild } =
+		normalizeImageServiceConfig(imageService);
 	const needsImagesBinding = runtimeService === 'cloudflare-binding';
+	// Opt-in: user explicitly requested build-time image transformation via the compound config.
+	// The string shorthand `'cloudflare-binding'` keeps the historical runtime-only behavior.
+	const isBindingBuild = transformAtBuild && buildService === 'cloudflare-binding';
 
 	return {
 		name: '@astrojs/cloudflare',
@@ -341,7 +345,7 @@ export default function createIntegration({
 							createConfigPlugin({
 								sessionKVBindingName,
 								compileImageConfig:
-									isCompile && command !== 'dev'
+									(isCompile || isBindingBuild) && command !== 'dev'
 										? {
 												base: config.base,
 												assetsPrefix:
@@ -350,6 +354,7 @@ export default function createIntegration({
 														: undefined,
 												imageServiceEntrypoint: '@astrojs/cloudflare/image-service-workerd',
 												buildAssets: config.build.assets ?? '_astro',
+												transformWithBinding: isBindingBuild,
 											}
 										: null,
 							}),
@@ -443,6 +448,7 @@ export default function createIntegration({
 							trailingSlash: _config.trailingSlash,
 							cfPluginConfig,
 							hasCompileImageService: buildService === 'compile',
+							hasBindingImageService: isBindingBuild,
 						}),
 					);
 				}
