@@ -6,6 +6,7 @@ import { startLanguageServer } from '@volar/test-utils';
 import * as protocol from 'vscode-languageserver-protocol/node.js';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';
+import { fixtureDir } from './test-utils.ts';
 
 let serverHandle: LanguageServerHandle | undefined;
 let initializeResult: protocol.InitializeResult | undefined;
@@ -66,7 +67,12 @@ export async function getLanguageServer(): Promise<LanguageServer> {
 		initializeResult: initializeResult,
 		openFakeDocument: async (content: string, languageId: string) => {
 			const hash = createHash('sha256').update(content).digest('base64url');
-			const uri = URI.file(`does-not-exists-${hash}-.astro`).toString();
+			// The path must live inside the fixture directory so that TypeScript's
+			// module resolution can walk up to `fixture/node_modules/astro/jsx-runtime.d.ts`
+			// when resolving the `@jsxImportSource astro` pragma in the generated TSX.
+			// Under TS6, an unresolvable pragma cascades into TS7026 errors on every
+			// intrinsic JSX element (`<div>`, `<script>`, ...).
+			const uri = URI.file(path.join(fixtureDir, `does-not-exists-${hash}-.astro`)).toString();
 			const textDocument = await serverHandle!.openInMemoryDocument(uri, languageId, content);
 
 			return textDocument;

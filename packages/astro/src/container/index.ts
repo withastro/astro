@@ -3,9 +3,12 @@ import { getDefaultClientDirectives } from '../core/client-directive/index.js';
 import { ASTRO_CONFIG_DEFAULTS } from '../core/config/schemas/index.js';
 import { validateConfig } from '../core/config/validate.js';
 import { createKey } from '../core/encryption.js';
+import { FetchState } from '../core/fetch/fetch-state.js';
+import { AstroMiddleware } from '../core/middleware/astro-middleware.js';
 import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
+import { PagesHandler } from '../core/pages/handler.js';
 import { removeLeadingForwardSlash } from '../core/path.js';
-import { RenderContext } from '../core/render-context.js';
+
 import { getParts } from '../core/routing/parts.js';
 import { getPattern } from '../core/routing/pattern.js';
 import { validateSegment } from '../core/routing/segment.js';
@@ -286,6 +289,8 @@ type AstroContainerConstructor = {
 
 export class experimental_AstroContainer {
 	#pipeline: ContainerPipeline;
+	#astroMiddleware: AstroMiddleware;
+	#pagesHandler: PagesHandler;
 
 	/**
 	 * Internally used to check if the container was created with a manifest.
@@ -314,6 +319,8 @@ export class experimental_AstroContainer {
 				return specifier;
 			},
 		});
+		this.#astroMiddleware = new AstroMiddleware(this.#pipeline);
+		this.#pagesHandler = new PagesHandler(this.#pipeline);
 	}
 
 	async #containerResolve(specifier: string, astroConfig?: AstroConfig): Promise<string> {
@@ -537,24 +544,21 @@ export class experimental_AstroContainer {
 			params: options.params,
 			type: routeType,
 		});
-		const renderContext = await RenderContext.create({
-			pipeline: this.#pipeline,
-			routeData,
-			status: 200,
-			request,
-			pathname: url.pathname,
-			locals: options?.locals ?? {},
-			partial: options?.partial ?? true,
-			clientAddress: '',
-		});
+		const state = new FetchState(this.#pipeline, request);
+		state.routeData = routeData;
+		state.pathname = url.pathname;
+		state.clientAddress = '';
+		state.partial = options?.partial ?? true;
+		state.componentInstance = componentInstance;
+		state.slots = slots ?? {};
 		if (options.params) {
-			renderContext.params = options.params;
+			state.params = options.params;
 		}
+		state.locals = (options?.locals ?? {}) as App.Locals;
 		if (options.props) {
-			renderContext.props = options.props;
+			state.initialProps = options.props;
 		}
-
-		return renderContext.render(componentInstance, slots);
+		return this.#astroMiddleware.handle(state, this.#pagesHandler.handle.bind(this.#pagesHandler));
 	}
 
 	/**

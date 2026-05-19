@@ -1,5 +1,20 @@
 # @astrojs/language-server
 
+## 2.16.9
+
+### Patch Changes
+
+- [#16661](https://github.com/withastro/astro/pull/16661) [`03b8f7f`](https://github.com/withastro/astro/commit/03b8f7f7644cc1d9e738a8221d6bd377399538c0) Thanks [@ocavue](https://github.com/ocavue)! - Updates `typescript` to v6. No changes are needed from users.
+
+- Updated dependencies [[`03b8f7f`](https://github.com/withastro/astro/commit/03b8f7f7644cc1d9e738a8221d6bd377399538c0)]:
+  - @astrojs/yaml2ts@0.2.4
+
+## 2.16.8
+
+### Patch Changes
+
+- [#16627](https://github.com/withastro/astro/pull/16627) [`5778cb7`](https://github.com/withastro/astro/commit/5778cb75515112e605da2aba5331646818802bc8) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes unintended dependency on the `typescript` package being available to the language server
+
 ## 2.16.7
 
 ### Patch Changes

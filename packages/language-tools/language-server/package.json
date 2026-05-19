@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/language-server",
-  "version": "2.16.7",
+  "version": "2.16.9",
   "author": "withastro",
   "license": "MIT",
   "repository": {
@@ -20,15 +20,14 @@
     "astro-ls": "./bin/nodeServer.js"
   },
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
+    "build": "tsc -b",
+    "dev": "tsc -b --watch",
     "test": "astro-scripts test \"**/*.test.ts\" --teardown-test ./test/misc/teardown.ts --tsx true --setup ./test/setup.ts",
-    "test:match": "pnpm run test --match",
-    "typecheck:tests": "tsc --build test/tsconfig.json"
+    "test:match": "pnpm run test --match"
   },
   "dependencies": {
     "@astrojs/compiler": "^2.13.1",
-    "@astrojs/yaml2ts": "^0.2.3",
+    "@astrojs/yaml2ts": "^0.2.4",
     "@jridgewell/sourcemap-codec": "^1.5.5",
     "@volar/kit": "~2.4.28",
     "@volar/language-core": "~2.4.28",
@@ -52,7 +51,7 @@
     "@volar/typescript": "~2.4.28",
     "astro-scripts": "workspace:*",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.3",
     "vscode-languageserver-protocol": "^3.17.5",
     "vscode-languageserver-textdocument": "^1.0.12"
   },

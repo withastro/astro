@@ -6,7 +6,9 @@ import { deterministicString } from '../../../dist/assets/utils/deterministic-st
 import { getOrigQueryParams } from '../../../dist/assets/utils/queryParams.js';
 import { createPlaceholderURL, stringifyPlaceholderURL } from '../../../dist/assets/utils/url.js';
 import { isESMImportedImage, isRemoteImage } from '../../../dist/assets/utils/imageKind.js';
+import { propsToFilename } from '../../../dist/assets/utils/hash.js';
 import { dropAttributes } from '../../../dist/assets/runtime.js';
+import { generateImageStylesCSS } from '../../../dist/assets/utils/generateImageStylesCSS.js';
 
 // #region getAssetsPrefix
 describe('getAssetsPrefix', () => {
@@ -217,6 +219,137 @@ describe('image kind detection', () => {
 
 	it('isRemoteImage returns false for objects', () => {
 		assert.equal(isRemoteImage({ src: '/img.jpg', width: 100, height: 100, format: 'jpg' }), false);
+	});
+});
+// #endregion
+
+// #region propsToFilename
+describe('propsToFilename', () => {
+	it('strips invalid filesystem characters from the filename', () => {
+		// '#' is in INVALID_CHAR_REGEX and must be replaced with '_'.
+		const result = propsToFilename(
+			'https://example.com/c#.png',
+			{ src: 'https://example.com/c#.png' },
+			'hash1234',
+		);
+		assert.equal(result, '/c__hash1234.png');
+	});
+
+	it('decodes once before sanitizing (matches the special-chars regression case)', () => {
+		// %2523 -> decodeURIComponent -> %23 -> regex replaces '%' with '_' -> "_23".
+		// The literal digits "2" and "3" are not in the invalid set, so they survive.
+		const result = propsToFilename(
+			'https://example.com/c%2523.png',
+			{ src: 'https://example.com/c%2523.png' },
+			'hash1234',
+		);
+		assert.equal(result, '/c_23_hash1234.png');
+	});
+
+	it('preserves safe filename characters', () => {
+		const result = propsToFilename(
+			'https://example.com/normal-name.png',
+			{ src: 'https://example.com/normal-name.png' },
+			'hash1234',
+		);
+		assert.equal(result, '/normal-name_hash1234.png');
+	});
+
+	it('uses transform.format when provided as the output extension', () => {
+		const result = propsToFilename(
+			'https://example.com/photo.jpg',
+			{ src: 'https://example.com/photo.jpg', format: 'webp' },
+			'hash1234',
+		);
+		assert.equal(result, '/photo_hash1234.webp');
+	});
+
+	it('falls back to the source extension when transform.format is not set', () => {
+		const result = propsToFilename(
+			'https://example.com/photo.png',
+			{ src: 'https://example.com/photo.png' },
+			'hash1234',
+		);
+		assert.equal(result, '/photo_hash1234.png');
+	});
+
+	it('hashes the filename for data: URIs instead of sanitizing', () => {
+		const dataUri =
+			'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
+		const result = propsToFilename(dataUri, { src: dataUri, format: 'png' }, 'hash1234');
+		// data: URIs short-circuit the sanitization branch and use shorthash on the full URI,
+		// so the raw base64 payload never appears in the output filename.
+		assert.equal(result, '/Elmwa_hash1234.png');
+	});
+});
+// #endregion
+
+// #region generateImageStylesCSS
+
+describe('generateImageStylesCSS', () => {
+	it('includes base layout rules', () => {
+		const css = generateImageStylesCSS();
+		assert.ok(css.includes('[data-astro-image]'));
+		assert.ok(css.includes('height: auto'));
+		assert.ok(css.includes('[data-astro-image="full-width"]'));
+		assert.ok(css.includes('width: 100%'));
+		assert.ok(css.includes('[data-astro-image="constrained"]'));
+		assert.ok(css.includes('max-width: 100%'));
+	});
+
+	it('includes fit rules for all cssFitValues', () => {
+		const css = generateImageStylesCSS();
+		for (const fit of ['fill', 'contain', 'cover', 'scale-down']) {
+			assert.ok(css.includes(`[data-astro-image-fit="${fit}"]`), `missing rule for fit="${fit}"`);
+			assert.ok(css.includes(`object-fit: ${fit}`), `missing object-fit: ${fit}`);
+		}
+	});
+
+	it('includes default fit fallback when configured', () => {
+		const css = generateImageStylesCSS('cover');
+		assert.ok(css.includes(':where([data-astro-image]:not([data-astro-image-fit]))'));
+		assert.ok(css.includes('object-fit: cover'));
+	});
+
+	it('does not include default fit fallback when not configured', () => {
+		const css = generateImageStylesCSS();
+		assert.ok(!css.includes(':where([data-astro-image]:not([data-astro-image-fit]))'));
+	});
+
+	it('emits position rules for single-keyword values', () => {
+		const css = generateImageStylesCSS();
+		for (const pos of ['top', 'bottom', 'left', 'right', 'center']) {
+			assert.ok(css.includes(`[data-astro-image-pos="${pos}"]`), `missing rule for pos="${pos}"`);
+			assert.ok(css.includes(`object-position: ${pos}`), `missing object-position: ${pos}`);
+		}
+	});
+
+	it('emits position rules for two-keyword combinations', () => {
+		const css = generateImageStylesCSS();
+		// Spot-check several common combinations
+		assert.ok(css.includes('[data-astro-image-pos="top-left"]'));
+		assert.ok(css.includes('object-position: top left'));
+		assert.ok(css.includes('[data-astro-image-pos="bottom-right"]'));
+		assert.ok(css.includes('object-position: bottom right'));
+		assert.ok(css.includes('[data-astro-image-pos="center-top"]'));
+		assert.ok(css.includes('object-position: center top'));
+	});
+
+	it('does not emit duplicate single-keyword combinations (e.g. top-top)', () => {
+		const css = generateImageStylesCSS();
+		assert.ok(!css.includes('[data-astro-image-pos="top-top"]'));
+		assert.ok(!css.includes('[data-astro-image-pos="center-center"]'));
+	});
+
+	it('includes default position fallback when configured', () => {
+		const css = generateImageStylesCSS(undefined, 'center');
+		assert.ok(css.includes(':where([data-astro-image]:not([data-astro-image-pos]))'));
+		assert.ok(css.includes('object-position: center'));
+	});
+
+	it('does not include default position fallback when not configured', () => {
+		const css = generateImageStylesCSS();
+		assert.ok(!css.includes(':where([data-astro-image]:not([data-astro-image-pos]))'));
 	});
 });
 // #endregion

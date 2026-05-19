@@ -15,6 +15,7 @@ describe('Astro preview headers', () => {
 			server: {
 				headers,
 			},
+			outDir: './dist/astro-preview-headers/',
 		});
 		await fixture.build();
 		previewServer = await fixture.preview();

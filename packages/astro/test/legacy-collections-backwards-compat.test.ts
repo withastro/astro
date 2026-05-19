@@ -8,6 +8,7 @@ describe('Legacy Collections Backwards Compatibility', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/legacy-collections-backwards-compat/',
+			outDir: './dist/legacy-collections-backwards-compat/',
 		});
 		await fixture.build();
 	});

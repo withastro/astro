@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
-import { loadFixture, type Fixture, type DevServer } from './test-utils.ts';
+import { loadFixture, type Fixture } from './test-utils.ts';
 
 const root = new URL('./fixtures/render-with-components/', import.meta.url);
 
@@ -11,32 +11,6 @@ describe('Markdoc - render components', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root,
-		});
-	});
-
-	describe('dev', () => {
-		let devServer: DevServer;
-
-		before(async () => {
-			devServer = await fixture.startDevServer();
-		});
-
-		after(async () => {
-			await devServer.stop();
-		});
-
-		it('renders content - with components', async () => {
-			const res = await fixture.fetch('/');
-			const html = await res.text();
-
-			renderComponentsChecks(html);
-		});
-
-		it('renders content - with components inside partials', async () => {
-			const res = await fixture.fetch('/');
-			const html = await res.text();
-
-			renderComponentsInsidePartialsChecks(html);
 		});
 	});
 

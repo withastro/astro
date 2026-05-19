@@ -126,7 +126,8 @@ export class ServerIslandComponent {
 
 		const componentPath = this.getComponentPath();
 		const componentExport = this.getComponentExport();
-		let componentId = this.result.serverIslandNameMap.get(componentPath);
+		const serverIslandNameMap = await this.result.getServerIslandNameMap();
+		let componentId = serverIslandNameMap.get(componentPath);
 		if (!componentId) {
 			throw new Error(`Could not find server component name ${componentPath}`);
 		}

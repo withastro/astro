@@ -1,5 +1,16 @@
 # @astrojs/markdoc
 
+## 1.0.5
+
+### Patch Changes
+
+- [#15723](https://github.com/withastro/astro/pull/15723) [`9256345`](https://github.com/withastro/astro/commit/92563452ce866d9f9b950ad4b2adc808d10e8014) Thanks [@rururux](https://github.com/rururux)! - Updates internal type usage from `@astrojs/prism`.
+
+- Updated dependencies [[`d365c97`](https://github.com/withastro/astro/commit/d365c975ba2d88fc1dbdfe698df2bf9e2eafadce), [`9256345`](https://github.com/withastro/astro/commit/92563452ce866d9f9b950ad4b2adc808d10e8014), [`9256345`](https://github.com/withastro/astro/commit/92563452ce866d9f9b950ad4b2adc808d10e8014)]:
+  - @astrojs/internal-helpers@0.9.1
+  - @astrojs/markdown-remark@7.1.2
+  - @astrojs/prism@4.0.2
+
 ## 1.0.4
 
 ### Patch Changes

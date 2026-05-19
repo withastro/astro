@@ -28,11 +28,10 @@
     "dist"
   ],
   "scripts": {
-    "build": "astro-scripts build \"src/**/*.ts\" && tsc",
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc -b",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test:e2e": "playwright test",
-    "typecheck:tests": "tsc --build tsconfig.test.json"
+    "test:e2e": "playwright test"
   },
   "peerDependencies": {
     "@types/alpinejs": "^3.0.0",

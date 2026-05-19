@@ -23,7 +23,7 @@ const toIdent = (k: string) =>
 
 export const toAttributeString = (value: any, shouldEscape = true) =>
 	shouldEscape
-		? String(value).replace(AMPERSAND_REGEX, '&#38;').replace(DOUBLE_QUOTE_REGEX, '&#34;')
+		? String(value).replace(AMPERSAND_REGEX, '&amp;').replace(DOUBLE_QUOTE_REGEX, '&quot;')
 		: value;
 
 const kebab = (k: string) =>

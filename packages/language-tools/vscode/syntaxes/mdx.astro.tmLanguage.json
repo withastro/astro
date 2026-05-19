@@ -17,9 +17,9 @@
           "name": "entity.name.function.markdown"
         }
       },
-      "end": "(^\\1)\\s*$",
+      "end": "(?:^|\\G)[\\t ]*(\\1)(?:[\\t ]*$)",
       "endCaptures": {
-        "3": {
+        "1": {
           "name": "punctuation.definition.markdown"
         }
       },
@@ -27,7 +27,7 @@
       "patterns": [
         {
           "begin": "(^|\\G)(\\s*)(.*)",
-          "while": "(^|\\G)(?!\\s*([`~]{3,})\\s*$)",
+          "while": "(^|\\G)(?![\\t ]*([`~]{3,})[\\t ]*$)",
           "patterns": [
             {
               "begin": "^\\s*---\\s*$",
