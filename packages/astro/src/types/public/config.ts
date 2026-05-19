@@ -1407,7 +1407,7 @@ export interface AstroUserConfig<
 	 * @version 6.4.0
 	 * @description
 	 *
-	 * Configure a custom logger by defining its entrypoint and, optionally, providing a serializable configuration:
+	 * Configures a custom logger by defining its entrypoint and, optionally, providing a serializable configuration:
 	 *
 	 * ```js
 	 * // astro.config.mjs
@@ -1422,6 +1422,8 @@ export interface AstroUserConfig<
 	 *   }
 	 * });
 	 * ```
+	 *
+	 * See [the logger API reference](https://docs.astro.build/en/reference/logger-reference/) for more information.
 	 */
 	logger?: LoggerHandlerConfig;
 
