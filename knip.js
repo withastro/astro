@@ -70,6 +70,11 @@ export default {
 			// False positive because of cloudflare:workers
 			ignoreDependencies: ['cloudflare'],
 		},
+		'packages/integrations/mdx': {
+			entry: [srcEntry, dtsEntry, testEntry],
+			// Optional peer dep, only loaded when the user picks the unified processor
+			ignoreDependencies: ['@astrojs/markdown-remark'],
+		},
 		'packages/integrations/netlify': {
 			entry: [srcEntry, dtsEntry, testEntry],
 			ignore: ['test/hosted/**'],
