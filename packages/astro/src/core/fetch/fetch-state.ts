@@ -32,6 +32,7 @@ import {
 } from '../../i18n/utils.js';
 
 import { getParams, getProps } from '../render/index.js';
+import { getRouteAssets } from '../render/ssr-element.js';
 import { Rewrites } from '../rewrites/handler.js';
 import { isRoute404or500, isRouteServerIsland } from '../routing/match.js';
 import { normalizeUrl } from '../util/normalized-url.js';
@@ -875,12 +876,22 @@ export class FetchState implements AstroFetchState {
 
 		const state = this;
 
+		const { styles, scripts, links } = getRouteAssets(
+			this.routeData!.route,
+			this.pipeline.manifest.routes,
+			this.pipeline.manifest.base,
+			this.pipeline.manifest.assetsPrefix,
+		);
+
 		const ctx = {
 			get cookies() {
 				return state.cookies;
 			},
 			routePattern: this.routeData!.route,
 			isPrerendered: this.routeData!.prerender,
+			styles,
+			scripts,
+			links,
 			get clientAddress() {
 				return state.getClientAddress();
 			},

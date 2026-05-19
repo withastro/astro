@@ -101,5 +101,14 @@ export function createAstro(site: string | undefined): AstroGlobal {
 		get logger(): any {
 			throw createError('logger');
 		},
+		get styles(): any {
+			throw createError('styles');
+		},
+		get scripts(): any {
+			throw createError('scripts');
+		},
+		get links(): any {
+			throw createError('links');
+		},
 	};
 }

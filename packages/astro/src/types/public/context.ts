@@ -608,4 +608,33 @@ export interface APIContext<
 	 * [Astro reference](https://docs.astro.build/en/reference/routing-reference/#routepattern)
 	 */
 	routePattern: string;
+
+	/**
+	 * The inline CSS strings associated with the current route.
+	 */
+	styles: string[];
+
+	/**
+	 * The external script URLs associated with the current route.
+	 */
+	scripts: string[];
+
+	/**
+	 * The external stylesheet URLs associated with the current route.
+	 * Useful for adding `Link: rel=preload` response headers in middleware.
+	 *
+	 * ## Example
+	 *
+	 * ```ts
+	 * // src/middleware.ts
+	 * export const onRequest = async (context, next) => {
+	 *   const response = await next();
+	 *   for (const href of context.links) {
+	 *     response.headers.append('Link', `<${href}>; rel=preload; as=style`);
+	 *   }
+	 *   return response;
+	 * };
+	 * ```
+	 */
+	links: string[];
 }
