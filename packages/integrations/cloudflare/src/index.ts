@@ -222,6 +222,12 @@ export default function createIntegration({
 				] as const;
 				const isAstroPrismPackageInstalled = await getIsAstroPrismInstalled(config.root);
 
+				// Capture user's top-level optimizeDeps before Vite scopes it to the
+				// client environment only (Vite 6 Environment API design). We forward
+				// these settings into server environments so that user-provided exclude,
+				// include, and esbuildOptions (e.g. loader) entries are respected.
+				const userOptimizeDeps = config.vite?.optimizeDeps;
+
 				updateConfig({
 					build: {
 						redirects: false,
@@ -292,6 +298,9 @@ export default function createIntegration({
 													'astro/virtual-modules/transitions-events.js',
 													'astro/virtual-modules/transitions-swap-functions.js',
 													...(isAstroPrismPackageInstalled ? prismFiles : []),
+													...(Array.isArray(userOptimizeDeps?.include)
+														? userOptimizeDeps.include
+														: []),
 												],
 												exclude: [
 													'unstorage/drivers/cloudflare-kv-binding',
@@ -300,6 +309,9 @@ export default function createIntegration({
 													'virtual:astro-cloudflare:*',
 													'virtual:@astrojs/*',
 													'@astrojs/starlight',
+													...(Array.isArray(userOptimizeDeps?.exclude)
+														? userOptimizeDeps.exclude
+														: []),
 												],
 												ignoreOutdatedRequests: true,
 												esbuildOptions: {
@@ -309,6 +321,9 @@ export default function createIntegration({
 													// binding shares the same name (e.g. zod v4 exports `meta`).
 													banner: { js: '' },
 													plugins: [astroFrontmatterScanPlugin()],
+													...(userOptimizeDeps?.esbuildOptions?.loader
+														? { loader: userOptimizeDeps.esbuildOptions.loader }
+														: {}),
 												},
 											},
 										};
