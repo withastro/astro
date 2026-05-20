@@ -248,8 +248,8 @@ async function buildManifest(
 			? pageData.styles
 					.sort(cssOrder)
 					.map(({ sheet }) => sheet)
-					.filter((s): s is { type: 'external'; src: string } => s.type === 'external')
-					.map((s) => ({ ...s, src: prefixAssetPath(s.src) }))
+					.map((s) => (s.type === 'external' ? { ...s, src: prefixAssetPath(s.src) } : s))
+					.reduce(mergeInlineCss, [])
 			: [];
 
 		routes.push({

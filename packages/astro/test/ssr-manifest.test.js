@@ -28,6 +28,18 @@ describe('astro:ssr-manifest', () => {
 		assert.equal(app.manifest.compressHTML, true);
 	});
 
+	it('includes styles for prerendered routes in manifest', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const prerenderedRoute = app.manifest.routes.find(
+			(route) => route.routeData.route === '/prerendered',
+		);
+		assert.ok(prerenderedRoute, 'prerendered route should be in manifest');
+		assert.ok(
+			prerenderedRoute.styles.length > 0,
+			'prerendered route should have styles in manifest',
+		);
+	});
+
 	it('includes correct routes', async () => {
 		const app = await fixture.loadTestAdapterApp();
 		// NOTE: `app.manifest` is actually a private property
