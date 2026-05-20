@@ -54,7 +54,7 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260228.0",
-    "@types/node": "^25.2.2",
+    "@types/node": "^22.10.6",
     "@types/prismjs": "1.26.6",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
