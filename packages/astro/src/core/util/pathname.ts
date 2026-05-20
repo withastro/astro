@@ -21,24 +21,21 @@ export class MultiLevelEncodingError extends Error {
  * @throws Error if the pathname contains invalid URL encoding
  */
 export function validateAndDecodePathname(pathname: string): string {
-	let decoded: string;
-
-	try {
-		decoded = decodeURI(pathname);
-	} catch (_e) {
-		throw new Error('Invalid URL encoding');
-	}
-
-	// Check if the decoded path is different from the original
-	// AND still contains URL-encoded sequences.
-	// This indicates the original had encoding that got partially decoded, suggesting double encoding.
-	// Example: /%2561dmin -> decodeURI -> /%61dmin (different AND still has %)
-	const hasDecoding = decoded !== pathname;
-	const decodedStillHasEncoding = /%[0-9a-fA-F]{2}/.test(decoded);
-
-	if (hasDecoding && decodedStillHasEncoding) {
+	// Multi-level encoding signature: `%25` (encoded `%`) followed by a hex pair.
+	// After one decode pass, `%25XY` becomes `%XY`, which a downstream decoder
+	// could turn into the original byte — bypassing middleware checks against
+	// the final-decoded value (e.g. `%2561dmin` -> `%61dmin` -> `admin`).
+	//
+	// A `%25` followed by a non-hex character — including another `%` (as in
+	// `%25%3F` from `encodeURIComponent('%?')`) — is a legitimate literal `%`
+	// next to other encoded content, not multi-level encoding.
+	if (/%25[0-9a-fA-F]{2}/.test(pathname)) {
 		throw new MultiLevelEncodingError();
 	}
 
-	return decoded;
+	try {
+		return decodeURI(pathname);
+	} catch (_e) {
+		throw new Error('Invalid URL encoding');
+	}
 }

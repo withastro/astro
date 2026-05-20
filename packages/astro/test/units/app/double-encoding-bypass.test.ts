@@ -157,4 +157,18 @@ describe('URL normalization: double-encoding middleware bypass', () => {
 		const body = await response.json();
 		assert.equal(body.path, 'users/list');
 	});
+
+	it('accepts encodeURIComponent output with a literal % next to a reserved char', async () => {
+		// encodeURIComponent('%?.pdf') -> '%25%3F.pdf'. After decodeURI, %25 -> %
+		// and %3F stays (reserved), yielding '%%3F.pdf'. The pre-decode pattern
+		// %25%3F is not multi-level encoding (the byte after %25 is `%`, not hex),
+		// so it must reach the handler instead of being rejected as a bad request.
+		const app = createApp(createAuthMiddleware());
+		const filename = encodeURIComponent('%?.pdf');
+		const request = new Request(`http://example.com/api/uploads/${filename}`);
+		const response = await app.render(request);
+		assert.equal(response.status, 200, `/api/uploads/${filename} should be accessible`);
+		const body = await response.json();
+		assert.equal(body.path, 'uploads/%%3F.pdf');
+	});
 });
