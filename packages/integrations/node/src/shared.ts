@@ -12,11 +12,11 @@ export const STATIC_HEADERS_FILE = '_headers.json';
  * At build time, we know the relative path between server and client directories.
  * At runtime, we need to find the actual location based on where the server entry is running.
  *
- * ## Error
- *
- * It throws an error if it can't find the directory while walking the parent directories.
+ * Returns null when the server directory segment cannot be found in the runtime path
+ * (e.g. Firebase Hosting flattens dist/server/ contents so the "server" segment is absent).
+ * Callers must handle null gracefully.
  */
-export function resolveClientDir(options: Options) {
+export function resolveClientDir(options: Options): string | null {
 	// options.client and options.server are file:// URLs set at build time
 	// e.g., "file:///project/dist/client/" and "file:///project/dist/server/"
 	const clientURLRaw = new URL(options.client);
@@ -34,14 +34,11 @@ export function resolveClientDir(options: Options) {
 	while (!serverEntryFolderURL.endsWith(serverFolder)) {
 		// Guard against infinite loop
 		if (serverEntryFolderURL === previous) {
-			throw new Error(
-				`[@astrojs/node] Could not find the server directory "${serverFolder}" ` +
-					`by walking up from "${import.meta.url}". This can happen when the server ` +
-					`entry point is bundled into a single file (e.g. with esbuild) so that ` +
-					`import.meta.url no longer contains the original "${serverFolder}" path segment. ` +
-					`When bundling the server entry, make sure the output path contains a ` +
-					`"${serverFolder}" directory segment, or avoid bundling the server entry entirely.`,
-			);
+			// Can't find the server directory — this happens when a hosting provider
+			// (e.g. Firebase) copies the contents of dist/server/ to a flat root so
+			// the "server" path segment is absent at runtime.  Return null so callers
+			// can skip disk-based features gracefully instead of crashing on startup.
+			return null;
 		}
 		previous = serverEntryFolderURL;
 		serverEntryFolderURL = path.dirname(serverEntryFolderURL);

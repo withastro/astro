@@ -66,19 +66,23 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 
 	// Read prerendered error pages directly from disk instead of fetching over HTTP.
 	// This avoids SSRF risks and is more efficient.
-	const prerenderedErrorPageFetch = async (url: string): Promise<Response> => {
-		const { pathname } = new URL(url);
-		if (pathname.endsWith('/404.html') || pathname.endsWith('/404/index.html')) {
-			const response = await readErrorPageFromDisk(client, 404);
-			if (response) return response;
-		}
-		if (pathname.endsWith('/500.html') || pathname.endsWith('/500/index.html')) {
-			const response = await readErrorPageFromDisk(client, 500);
-			if (response) return response;
-		}
-		// No file found and no fallback configured - return empty response
-		return new Response(null, { status: 404 });
-	};
+	// client is null when the server directory can't be located at runtime (e.g. Firebase
+	// flattens dist/server/ contents), so we skip disk-based error pages in that case.
+	const prerenderedErrorPageFetch = client
+		? async (url: string): Promise<Response> => {
+				const { pathname } = new URL(url);
+				if (pathname.endsWith('/404.html') || pathname.endsWith('/404/index.html')) {
+					const response = await readErrorPageFromDisk(client, 404);
+					if (response) return response;
+				}
+				if (pathname.endsWith('/500.html') || pathname.endsWith('/500/index.html')) {
+					const response = await readErrorPageFromDisk(client, 500);
+					if (response) return response;
+				}
+				// No file found and no fallback configured - return empty response
+				return new Response(null, { status: 404 });
+			}
+		: undefined;
 
 	// Use the configured body size limit. A value of 0 or Infinity disables the limit.
 	const effectiveBodySizeLimit =

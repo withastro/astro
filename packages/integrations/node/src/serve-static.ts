@@ -50,6 +50,9 @@ export function createStaticHandler(
 	 * @param ssr The SSR handler to be called if the static handler does not find a matching file.
 	 */
 	return (req: IncomingMessage, res: ServerResponse, ssr: () => unknown) => {
+		if (!client) {
+			return ssr();
+		}
 		if (req.url) {
 			// There might be cases where the incoming URL has the #, which we want to remove.
 			let fullUrl = req.url;
