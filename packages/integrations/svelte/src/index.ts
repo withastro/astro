@@ -4,7 +4,6 @@ import type { AstroIntegration, AstroRenderer } from 'astro';
 import { fileURLToPath } from 'node:url';
 import type { Plugin } from 'vite';
 import { crawlFrameworkPkgs } from 'vitefu';
-import { createSvelteOptimizeEsbuildPlugins } from './optimize-esbuild-plugins.js';
 
 function getRenderer(): AstroRenderer {
 	return {
@@ -23,6 +22,16 @@ export default function svelteIntegration(options?: Options): AstroIntegration {
 			'astro:config:setup': async ({ config, updateConfig, addRenderer }) => {
 				addRenderer(getRenderer());
 
+				// Svelte component libraries from `node_modules` must go through
+				// Vite's transform pipeline because Node can't import `.svelte`
+				// files. vite-plugin-svelte only marks a package as `noExternal`
+				// when it has a `svelte` export condition; a package that merely
+				// declares a `svelte` peer dependency is treated as a
+				// "semi-framework" package and routed through `optimizeDeps`
+				// instead, so we crawl for those and `noExternal` them ourselves.
+				//
+				// See related logic in vite-plugin-svelte:
+				// https://github.com/sveltejs/vite-plugin-svelte/blob/@sveltejs/vite-plugin-svelte@7.1.2/packages/vite-plugin-svelte/src/utils/options.js#L478-L513
 				const sveltePackages = await crawlFrameworkPkgs({
 					root: fileURLToPath(config.root),
 					isBuild: false,
@@ -44,55 +53,28 @@ export default function svelteIntegration(options?: Options): AstroIntegration {
 function configEnvironmentPlugin(svelteNoExternal: string[]): Plugin {
 	return {
 		name: '@astrojs/svelte:config-environment',
-		configEnvironment(environmentName, options) {
-			const isServer = environmentName !== 'client';
-
-			if (isServer && svelteNoExternal.length > 0) {
-				// Add svelte framework packages to noExternal so they go through
-				// Vite's transform pipeline (Node can't import .svelte files natively).
-				const result: any = {
-					resolve: {
-						noExternal: svelteNoExternal,
-					},
-				};
-
-				if (
-					(environmentName === 'ssr' || environmentName === 'prerender') &&
-					options.optimizeDeps?.noDiscovery === false
-				) {
-					result.optimizeDeps = {
-						include: ['svelte/server', 'svelte/internal/server'],
-						exclude: ['@astrojs/svelte/server.js'],
-						esbuildOptions: {
-							plugins: createSvelteOptimizeEsbuildPlugins('server'),
-						},
-					};
-				}
-
-				return result;
-			}
-
-			if (
-				environmentName === 'client' ||
-				((environmentName === 'ssr' || environmentName === 'prerender') &&
-					options.optimizeDeps?.noDiscovery === false)
-			) {
-				return {
-					optimizeDeps: {
-						include: isServer
-							? ['svelte/server', 'svelte/internal/server']
-							: ['@astrojs/svelte/client.js'],
-						exclude: isServer ? ['@astrojs/svelte/server.js'] : [],
-						...(isServer
-							? {
-									esbuildOptions: {
-										plugins: createSvelteOptimizeEsbuildPlugins('server'),
-									},
-								}
-							: {}),
-					},
-				};
-			}
+		// Must run before vite-plugin-svelte's `setup-optimizer` so the
+		// `optimizeDeps.exclude` below is visible to it.
+		enforce: 'pre',
+		configEnvironment(environmentName) {
+			if (environmentName === 'client') return;
+			return {
+				resolve: { noExternal: svelteNoExternal },
+				// `@sveltejs/vite-plugin-svelte` v7 force-includes Svelte's SSR
+				// runtime (`svelte/server`, `svelte/internal/server`, ...) into
+				// `optimizeDeps` for server environments. Because Astro's renderer
+				// entrypoint (`@astrojs/svelte/server.js`) is resolved as a
+				// `noExternal` dependency, it keeps using the raw transformed copy
+				// of that runtime while the user's compiled components use the
+				// pre-bundled copy — two instances of Svelte's server runtime with
+				// separate `ssr_context` module state, which crashes dev SSR.
+				// Excluding `svelte` makes vite-plugin-svelte skip the pre-bundle so
+				// every consumer shares one transformed copy.
+				//
+				// See related logic in vite-plugin-svelte:
+				// https://github.com/sveltejs/vite-plugin-svelte/blob/@sveltejs/vite-plugin-svelte@7.1.2/packages/vite-plugin-svelte/src/plugins/setup-optimizer.js#L51-L52
+				optimizeDeps: { exclude: ['svelte'] },
+			};
 		},
 	};
 }
