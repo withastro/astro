@@ -84,7 +84,7 @@ export default async function seed() {
 {
 	"compatibility_date": ${JSON.stringify(compatibilityDate)},
 	"compatibility_flags": ["global_fetch_strictly_public"],
-	"name": ${JSON.stringify(name)},
+	"name": ${JSON.stringify(name.replace(/[^a-zA-Z0-9-]+/g, '-'))},
 	"main": "@astrojs/cloudflare/entrypoints/server",
 	"assets": {
 		"directory": "./dist",
