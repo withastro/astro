@@ -152,6 +152,7 @@ Running dev/preview servers is often necessary for reproduction, but server prob
 - **Always stop servers before restarting.** Run `bgproc stop -n <name>` (or `bgproc stop --all`) before starting a new server. If `bgproc` doesn't work, try `pkill -f "astro dev\|astro preview\|node.*entry.mjs"` as a fallback. If that also fails, use a different port (`--port 4322`) rather than fighting the stale process.
 - **One reproduction run is enough.** Once you have confirmed or denied the bug, do NOT restart the server to re-test with minor config variations. Additional testing belongs in the diagnose step, not here. Write your findings and move on.
 - **Prefer `astro build` over dev/preview when possible.** Build-time reproduction avoids server lifecycle issues entirely. Only use dev/preview servers when the bug specifically requires a running server (e.g., HMR, runtime SSR, request handling).
+- **Always use `bgproc` for servers — never `&`.** Do not background servers with `&` (e.g., `pnpm dev &`). This hangs in CI. Always use `bgproc start` / `bgproc stop` for server lifecycle management.
 
 ## Step 5: Write Output
 
