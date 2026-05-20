@@ -16,6 +16,7 @@ describe('AstroDevPlatform', () => {
 		});
 		devServer = await fixture.startDevServer({
 			vite: { logLevel: 'info' },
+			// @ts-expect-error use of internal APIs
 			_logger: new AstroLogger({
 				level: 'info',
 				destination: new Writable({
