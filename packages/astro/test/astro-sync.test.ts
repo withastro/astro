@@ -90,8 +90,13 @@ const createFixture = () => {
 					},
 				});
 				assert.equal(
-					result.outputText,
-					'',
+					result.outputText.trim(),
+					// Since TypeScript v6.0, all code will be assumed to be in
+					// JavaScript strict mode, thus the "use strict" directive
+					// is always emitted.
+					//
+					// See https://www.typescriptlang.org/docs/handbook/release-notes/typescript-6-0.html#deprecated---alwaysstrict-false
+					'"use strict";',
 					`${path} should be valid TypeScript. Output: ${result.outputText}`,
 				);
 			} catch (error) {

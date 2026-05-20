@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import crypto from 'node:crypto';
 import { createServer } from 'node:http';
 import { basename } from 'node:path';
 import { Writable } from 'node:stream';
@@ -178,7 +179,7 @@ describe('astro:image', () => {
 				await res.text();
 
 				assert.equal(logs.length, 1);
-				assert.equal(logs[0].message.includes('must be an imported image or an URL'), true);
+				assert.equal(logs[0].message.includes('must be an imported image or a URL'), true);
 			});
 
 			it('supports images from outside the project', async () => {
@@ -836,7 +837,7 @@ describe('astro:image', () => {
 			await res.text();
 
 			assert.equal(logs.length >= 1, true);
-			assert.equal(logs[0].message.includes('Expected getImage() parameter'), true);
+			assert.equal(logs[0].message.includes('Expected \`getImage()\` parameter'), true);
 		});
 
 		it('properly error when src is undefined', async () => {
@@ -1138,6 +1139,18 @@ describe('build ssg', () => {
 		assert.equal(datanested instanceof Buffer, true);
 	});
 
+	it('content collection images with empty alt preserve the alt attribute', async () => {
+		const html = await fixture.readFile('/blog/empty-alt/index.html');
+
+		const $ = cheerio.load(html);
+		const $contentImg = $('img').filter(function () {
+			// Find the image rendered from markdown content (not the frontmatter images)
+			return !$(this).closest('#direct-image, #nested-image').length;
+		});
+		assert.equal($contentImg.length, 1, 'should have one content image');
+		assert.equal($contentImg.attr('alt'), '', 'alt attribute should be empty string, not missing');
+	});
+
 	it('quality attribute produces a different file', async () => {
 		const html = await fixture.readFile('/quality/index.html');
 		const $ = cheerio.load(html);
@@ -1188,9 +1201,10 @@ describe('build ssg', () => {
 		);
 		const imageLogs = logs
 			.slice(generatingImageIndex + 1)
-			.filter((logLine) => logLine.message?.includes('/_astro/'));
+			.map((logLine) => logLine?.message || '')
+			.filter((message) => message.includes('/_astro/'));
 		assert.ok(imageLogs.length > 0, 'Expected at least one image log entry');
-		const isReusingCache = imageLogs.every((logLine) => logLine.message?.includes('cache entry)'));
+		const isReusingCache = imageLogs.every((message) => message.includes('cache entry)'));
 
 		assert.equal(
 			isReusingCache,
@@ -1269,6 +1283,48 @@ describe('build ssg', () => {
 
 			assert.notEqual(useCustomHashProperty[1], useCustomHashProperty[0]);
 		});
+	});
+});
+
+describe('build ssg with 404 remote images', () => {
+	const buildFixture = async (remoteImage: string) => {
+		process.env.ASTRO_INTERNAL_TEST_REMOTE_IMAGE = remoteImage;
+		// Use a random path to avoid cache conflicts between tests
+		const random = crypto.randomUUID();
+		const fixture = await loadFixture({
+			root: './fixtures/core-image-ssg/',
+			image: {
+				service: testImageService(),
+				domains: ['astro.build', 'avatars.githubusercontent.com'],
+			},
+			outDir: `./dist/core-image-build-ssg-${random}/`,
+			cacheDir: `./node_modules/.astro-test-core-image-build-ssg-${random}/`,
+		});
+		await fixture.build();
+		await fixture.clean();
+	};
+
+	after(async () => {
+		delete process.env.ASTRO_INTERNAL_TEST_REMOTE_IMAGE;
+	});
+
+	it('can build when remote image does exist', async () => {
+		await assert.doesNotReject(async () => {
+			await buildFixture('https://astro.build/sponsors.png');
+		});
+	});
+
+	it('can reject when remote image does not exist', async () => {
+		await assert.rejects(
+			async () => {
+				await buildFixture('https://astro.build/this_image_does_not_exist.png');
+			},
+			(error) => {
+				assert.ok(error instanceof Error);
+				assert.ok(error.message.includes('astro.build/this_image_does_not_exist.png'));
+				return true;
+			},
+		);
 	});
 });
 

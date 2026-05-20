@@ -14,7 +14,7 @@ const testFiles = await fs.readdir(new URL('.', import.meta.url));
 const testFileToPort = new Map();
 for (let i = 0; i < testFiles.length; i++) {
 	const file = testFiles[i];
-	if (file.endsWith('.test.js')) {
+	if (file.endsWith('.test.ts')) {
 		testFileToPort.set(file.slice(0, -8), 4000 + i);
 	}
 }
