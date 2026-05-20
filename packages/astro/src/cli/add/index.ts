@@ -216,11 +216,23 @@ export async function add(names: string[], { flags }: AddOptions) {
 
 					if (await askToContinue({ flags, logger })) {
 						const data = await getPackageJson();
-						let compatibilityDate = new Date().toISOString().slice(0, 10);
+
+						// Normalize the project name, in the same way Wrangler does: https://github.com/cloudflare/workers-sdk/blob/e04e180d/packages/wrangler/src/autoconfig/details/index.ts#L360-L368
+						const workerName = (data?.name ?? 'example')
+							// Replace all underscores with dashes
+							.replaceAll('_', '-')
+							// Replace all the special characters (besides dashes) with dashes
+							.replace(/[^a-z0-9- ]/g, '-')
+							// Remove invalid start/end dashes
+							.replace(/^-+|-+$/g, '')
+							// If the name is longer than the limit let's truncate it to that
+							.slice(0, 63);
+
+						const compatibilityDate = new Date().toISOString().slice(0, 10);
 
 						await fs.writeFile(
 							wranglerConfigURL,
-							STUBS.CLOUDFLARE_WRANGLER_CONFIG(data?.name ?? 'example', compatibilityDate),
+							STUBS.CLOUDFLARE_WRANGLER_CONFIG(workerName, compatibilityDate),
 							'utf-8',
 						);
 					}
