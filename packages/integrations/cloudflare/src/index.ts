@@ -289,11 +289,6 @@ export default function createIntegration({
 													'astro/jsx-runtime',
 													'astro/app/entrypoint/dev',
 													'astro/virtual-modules/middleware.js',
-													'astro/virtual-modules/transitions.js',
-													'astro/virtual-modules/transitions-router.js',
-													'astro/virtual-modules/transitions-types.js',
-													'astro/virtual-modules/transitions-events.js',
-													'astro/virtual-modules/transitions-swap-functions.js',
 													...(isAstroPrismPackageInstalled ? prismFiles : []),
 												],
 												exclude: [
@@ -304,7 +299,6 @@ export default function createIntegration({
 													'virtual:@astrojs/*',
 													'@astrojs/starlight',
 												],
-												ignoreOutdatedRequests: true,
 												esbuildOptions: {
 													// Suppress Vite's `createRequire(import.meta.url)` banner to work around
 													// https://github.com/vitejs/vite/issues/22004 — Vite's SSR transform
