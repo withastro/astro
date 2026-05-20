@@ -494,6 +494,8 @@ export default function createIntegration({
 					// Cloudflare's asset binding resolves the full request URL path
 					// (including the base) against the directory, so it must point to
 					// the original un-prefixed client root.
+					// Note: this patches the generated build-output wrangler.json (in
+					// dist/server/), not the project's source wrangler.json.
 					try {
 						const wranglerJsonUrl = new URL('./wrangler.json', _config.build.server);
 						const raw = await readFile(wranglerJsonUrl, 'utf-8');
@@ -506,7 +508,7 @@ export default function createIntegration({
 							await writeFile(wranglerJsonUrl, JSON.stringify(wranglerConfig));
 						}
 					} catch {
-						// wrangler.json may not exist
+						// wrangler.json may not exist or may contain invalid JSON
 					}
 				}
 
