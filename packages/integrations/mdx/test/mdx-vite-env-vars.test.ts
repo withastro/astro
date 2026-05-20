@@ -46,7 +46,7 @@ describe('MDX - Vite env vars', () => {
 		assert.equal(
 			document
 				.querySelector('[data-env-variable-exports-unknown]')
-				?.innerHTML.includes('exports: ""'),
+				?.textContent?.includes('exports: ""'),
 			true,
 		);
 	});

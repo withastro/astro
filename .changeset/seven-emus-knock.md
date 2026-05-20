@@ -16,7 +16,7 @@ export default defineConfig({
   markdown: {
     processor: satteri({
       hastPlugins: [myPlugin],
-      features: { directive: true, definitionList: true },
+      features: { directive: true, smartPunctuation: false },
     }),
   },
 });
