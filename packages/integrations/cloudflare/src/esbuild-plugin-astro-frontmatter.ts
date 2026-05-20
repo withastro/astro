@@ -1,5 +1,4 @@
 import { readFile } from 'node:fs/promises';
-import { dirname, isAbsolute, resolve } from 'node:path';
 import type { DepOptimizationConfig } from 'vite';
 
 const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---/;
@@ -17,8 +16,6 @@ function replaceTopLevelReturns(code: string): string {
 	});
 }
 
-const ASTRO_FRONTMATTER_NAMESPACE = 'astro-frontmatter';
-
 // Not exposed as a type from Vite, so need to grab this way.
 type ESBuildPlugin = NonNullable<
 	NonNullable<DepOptimizationConfig['esbuildOptions']>['plugins']
@@ -28,56 +25,45 @@ type ESBuildPlugin = NonNullable<
  * An esbuild plugin that extracts frontmatter from .astro files during
  * dependency optimization scanning. This allows Vite to discover imports
  * in the server-side frontmatter code.
- *
- * This plugin uses an `onResolve` handler to intercept `.astro` files before
- * Vite's built-in `vite:dep-scan` plugin routes them to the `html` namespace.
- * Without this, Vite's scanner only extracts `<script>` tags from `.astro`
- * files, completely missing frontmatter imports (which is where SSR-side
- * dependencies like `zod`, `nanostores`, `astro:transitions`, etc. live).
  */
 export function astroFrontmatterScanPlugin(): ESBuildPlugin {
 	return {
 		name: 'astro-frontmatter-scan',
 		setup(build) {
-			// Intercept .astro file resolution to route them through our namespace
-			// before Vite's `vite:dep-scan` plugin puts them in the `html` namespace.
-			// In esbuild, plugins are processed in order and the first `onResolve`
-			// match wins. Since user plugins (including this one) are registered before
-			// Vite's scanner plugin, this handler takes priority.
-			build.onResolve({ filter: /\.astro$/ }, (args) => {
-				// Only intercept files in the default namespace. Files already in a
-				// custom namespace are either already claimed or are re-entry points
-				// that should not be processed again.
-				if (args.namespace !== 'file' && args.namespace !== '' && args.namespace !== undefined) {
-					return undefined;
-				}
-				const resolvedPath = isAbsolute(args.path)
-					? args.path
-					: resolve(args.resolveDir, args.path);
-				return { path: resolvedPath, namespace: ASTRO_FRONTMATTER_NAMESPACE };
-			});
-
-			build.onLoad({ filter: /\.astro$/, namespace: ASTRO_FRONTMATTER_NAMESPACE }, async (args) => {
+			// Scope to the "file" namespace so that .astro files resolved into the
+			// "html" namespace (e.g. when a .ts file default-imports a component)
+			// fall through to Vite's built-in html-type handler, which appends
+			// `export default {}` and avoids "No matching export" errors.
+			build.onLoad({ filter: /\.astro$/, namespace: 'file' }, async (args) => {
 				try {
 					const code = await readFile(args.path, 'utf-8');
 
+					// Extract frontmatter content between --- markers
 					const frontmatterMatch = FRONTMATTER_RE.exec(code);
 					if (frontmatterMatch) {
+						// Replace `return` with `throw` to avoid esbuild's "Top-level return" error during scanning.
+						// This aligns with Astro's core compiler logic for frontmatter error handling.
+						// See: packages/astro/src/vite-plugin-astro/compile.ts
 						const contents = replaceTopLevelReturns(frontmatterMatch[1]);
+
+						// Append `export default {}` so that default imports of .astro files
+						// (e.g. `import MyComponent from './MyComponent.astro'`) resolve correctly
+						// during the dep scan. Without this, .astro files loaded in the `html`
+						// namespace (when imported from .ts files) would have no default export,
+						// causing esbuild to fail with "No matching export for import 'default'".
 						return {
 							contents: contents + '\nexport default {}',
 							loader: 'ts',
-							resolveDir: dirname(args.path),
 						};
 					}
 				} catch {
 					// Ignore read errors
 				}
 
+				// No frontmatter or read error, return empty with a default export
 				return {
 					contents: 'export default {}',
 					loader: 'ts',
-					resolveDir: dirname(args.path),
 				};
 			});
 		},
