@@ -59,6 +59,10 @@ const ALLOWED_DIRECTIVES = [
 	'report-uri',
 	'require-trusted-types-for',
 	'sandbox',
+	'script-src-attr',
+	'script-src-elem',
+	'style-src-attr',
+	'style-src-elem',
 	'trusted-types',
 	'upgrade-insecure-requests',
 	'worker-src',
@@ -73,7 +77,8 @@ export const allowedDirectivesSchema = z
 			return value.startsWith(allowedValue);
 		});
 		if (!isAllowed) {
-			if (value.startsWith('script-src') || value.startsWith('style-src')) {
+			const directiveName = value.split(/\s+/)[0];
+			if (directiveName === 'script-src' || directiveName === 'style-src') {
 				ctx.addIssue({
 					code: z.ZodIssueCode.custom,
 					message: `Directives \`script-src\` and \`style-src\` are not allowed in \`security.csp.directives\`. Please use \`security.csp.scriptDirective\` and \`security.csp.styleDirective\` instead.`,

@@ -22,7 +22,21 @@ export function renderCspContent(result: SSRResult): string {
 
 	let directives;
 	if (result.directives.length > 0) {
-		directives = result.directives.join(';') + ';';
+		directives =
+			result.directives
+				.map((d) => {
+					const name = d.split(/\s+/)[0];
+					if (name === 'script-src-elem' || name === 'script-src-attr') {
+						const hashes = Array.from(finalScriptHashes).join(' ');
+						return hashes ? `${d} ${hashes}` : d;
+					}
+					if (name === 'style-src-elem' || name === 'style-src-attr') {
+						const hashes = Array.from(finalStyleHashes).join(' ');
+						return hashes ? `${d} ${hashes}` : d;
+					}
+					return d;
+				})
+				.join(';') + ';';
 	}
 
 	let scriptResources = "'self'";

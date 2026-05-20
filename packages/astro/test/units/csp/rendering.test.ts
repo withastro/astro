@@ -222,6 +222,64 @@ describe('CSP Rendering', () => {
 				'Should include report-uri directive',
 			);
 		});
+
+		it('should include CSP Level 3 directives and mirror script hashes to script-src-elem', async () => {
+			const pipeline = createCspPipeline({
+				directives: ["script-src-elem 'self'"],
+				scriptHashes: ['sha256-abc123'],
+			});
+
+			const { html } = await renderPage(SimplePage, pipeline);
+			const $ = cheerio.load(html);
+
+			const meta = $('meta[http-equiv="Content-Security-Policy"]');
+			const content = meta.attr('content')!;
+
+			assert.ok(
+				content.includes("script-src-elem 'self' 'sha256-abc123'"),
+				'Should include script-src-elem with mirrored script hash',
+			);
+			assert.ok(content.includes('script-src'), 'Should still have script-src directive');
+		});
+
+		it('should mirror style hashes to style-src-elem and style-src-attr', async () => {
+			const pipeline = createCspPipeline({
+				directives: ["style-src-elem 'self'", "style-src-attr 'unsafe-inline'"],
+				styleHashes: ['sha256-def456'],
+			});
+
+			const { html } = await renderPage(SimplePage, pipeline);
+			const $ = cheerio.load(html);
+
+			const meta = $('meta[http-equiv="Content-Security-Policy"]');
+			const content = meta.attr('content')!;
+
+			assert.ok(
+				content.includes("style-src-elem 'self' 'sha256-def456'"),
+				'Should include style-src-elem with mirrored style hash',
+			);
+			assert.ok(
+				content.includes("style-src-attr 'unsafe-inline' 'sha256-def456'"),
+				'Should include style-src-attr with mirrored style hash',
+			);
+		});
+
+		it('should not append hashes to Level 3 directives when no hashes exist', async () => {
+			const pipeline = createCspPipeline({
+				directives: ["script-src-attr 'unsafe-inline'"],
+			});
+
+			const { html } = await renderPage(SimplePage, pipeline);
+			const $ = cheerio.load(html);
+
+			const meta = $('meta[http-equiv="Content-Security-Policy"]');
+			const content = meta.attr('content')!;
+
+			assert.ok(
+				content.includes("script-src-attr 'unsafe-inline'"),
+				'Should include script-src-attr without extra hashes',
+			);
+		});
 	});
 
 	describe('Custom Resources', () => {

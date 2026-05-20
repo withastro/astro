@@ -618,6 +618,23 @@ describe('Config Validation', () => {
 				`[config] Astro found issue(s) with your configuration:\n\n! security.csp: Did not match union.\n  > Expected type boolean | Directives script-src and style-src are not allowed in security.csp.directives. Please use security.csp.scriptDirective and security.csp.styleDirective instead.\n  > Received { "directives": [ "script-src 'self'" ] }`,
 			);
 		});
+
+		it('should accept CSP Level 3 directives in security.csp.directives', async () => {
+			await assert.doesNotReject(() =>
+				validateConfig({
+					security: {
+						csp: {
+							directives: [
+								"script-src-elem 'self'",
+								"script-src-attr 'unsafe-inline'",
+								"style-src-elem 'self'",
+								"style-src-attr 'unsafe-inline'",
+							],
+						},
+					},
+				}),
+			);
+		});
 	});
 
 	describe('devToolbar', () => {
