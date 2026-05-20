@@ -39,6 +39,10 @@ import { getOriginPathname, setOriginPathname } from '../routing/rewrite.js';
 import { routeHasHtmlExtension } from '../routing/helpers.js';
 import type { ResolvedRenderOptions } from '../app/base.js';
 import { getRenderOptions } from '../app/render-options.js';
+import {
+	getFirstForwardedValue,
+	validateForwardedHeaders,
+} from '../app/validate-headers.js';
 
 /**
  * Describes a lazily-created value that handlers can contribute to the
@@ -269,6 +273,11 @@ export class FetchState implements AstroFetchState {
 		this.locals = (options?.locals ?? {}) as App.Locals;
 		this.url = normalizeUrl(url);
 		this.cookies = new AstroCookies(request);
+
+		// Apply X-Forwarded-* headers from the request. This must happen
+		// after this.url is set so it can update protocol/host/port, and
+		// before route resolution so the correct URL is used for matching.
+		this.#applyForwardedHeaders();
 
 		// Set origin pathname for rewrite tracking.
 		if (!Reflect.get(request, originPathnameSymbol)) {
@@ -836,6 +845,62 @@ export class FetchState implements AstroFetchState {
 		} catch (e: any) {
 			this.pipeline.logger.error(null, e.toString());
 			return pathname;
+		}
+	}
+
+	/**
+	 * Reads X-Forwarded-Proto, X-Forwarded-Host, and X-Forwarded-Port
+	 * from the request headers, validates them against the manifest's
+	 * `allowedDomains`, and updates `this.url` accordingly. Also resolves
+	 * `clientAddress` from X-Forwarded-For when the host is trusted.
+	 *
+	 * This runs inside the FetchState constructor so that user-provided
+	 * fetch handlers (`src/app.ts`) can set forwarded headers on the
+	 * request before constructing FetchState and have them take effect.
+	 */
+	#applyForwardedHeaders(): void {
+		const headers = this.request.headers;
+		const allowedDomains = this.pipeline.manifest.allowedDomains;
+
+		const validated = validateForwardedHeaders(
+			getFirstForwardedValue(headers.get('x-forwarded-proto') ?? undefined),
+			getFirstForwardedValue(headers.get('x-forwarded-host') ?? undefined),
+			getFirstForwardedValue(headers.get('x-forwarded-port') ?? undefined),
+			allowedDomains,
+		);
+
+		// Nothing validated — nothing to apply.
+		if (!validated.protocol && !validated.host && !validated.port) return;
+
+		if (validated.protocol) {
+			this.url.protocol = validated.protocol + ':';
+		}
+		if (validated.host) {
+			// The validated host may include a port (e.g. "example.com:8080").
+			const colonIdx = validated.host.indexOf(':');
+			if (colonIdx !== -1) {
+				this.url.hostname = validated.host.slice(0, colonIdx);
+				this.url.port = validated.host.slice(colonIdx + 1);
+			} else {
+				this.url.hostname = validated.host;
+				// Clear port so default port for the protocol is used.
+				this.url.port = '';
+			}
+		}
+		if (validated.port) {
+			this.url.port = validated.port;
+		}
+
+		// Trust X-Forwarded-For only when the host was validated, meaning
+		// the request arrived through a trusted proxy.
+		const hostTrusted = validated.host !== undefined;
+		if (hostTrusted && !this.clientAddress) {
+			const forwardedFor = getFirstForwardedValue(
+				headers.get('x-forwarded-for') ?? undefined,
+			);
+			if (forwardedFor) {
+				this.clientAddress = forwardedFor;
+			}
 		}
 	}
 
