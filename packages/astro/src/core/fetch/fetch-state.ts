@@ -277,7 +277,12 @@ export class FetchState implements AstroFetchState {
 		// Apply X-Forwarded-* headers from the request. This must happen
 		// after this.url is set so it can update protocol/host/port, and
 		// before route resolution so the correct URL is used for matching.
-		this.#applyForwardedHeaders();
+		// Guard inlined here so the method call is skipped entirely on the
+		// hot path (most requests have no forwarded headers).
+		const h = request.headers;
+		if (h.has('x-forwarded-proto') || h.has('x-forwarded-host') || h.has('x-forwarded-port')) {
+			this.#applyForwardedHeaders();
+		}
 
 		// Set origin pathname for rewrite tracking.
 		if (!Reflect.get(request, originPathnameSymbol)) {
