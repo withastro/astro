@@ -29,8 +29,9 @@ export default function svelteIntegration(options?: Options): AstroIntegration {
 				// declares a `svelte` peer dependency is treated as a
 				// "semi-framework" package and routed through `optimizeDeps`
 				// instead, so we crawl for those and `noExternal` them ourselves.
-				// vite-plugin-svelte's classification (pinned to v7.1.2):
-				// https://github.com/sveltejs/vite-plugin-svelte/blob/471f82216d4459a90d20f21c76b84aaf20c27e6e/packages/vite-plugin-svelte/src/utils/options.js#L478-L513
+				//
+				// See related logic in vite-plugin-svelte:
+				// https://github.com/sveltejs/vite-plugin-svelte/blob/@sveltejs/vite-plugin-svelte@7.1.2/packages/vite-plugin-svelte/src/utils/options.js#L478-L513
 				const sveltePackages = await crawlFrameworkPkgs({
 					root: fileURLToPath(config.root),
 					isBuild: false,
@@ -69,8 +70,9 @@ function configEnvironmentPlugin(svelteNoExternal: string[]): Plugin {
 				// separate `ssr_context` module state, which crashes dev SSR.
 				// Excluding `svelte` makes vite-plugin-svelte skip the pre-bundle so
 				// every consumer shares one transformed copy.
-				// The vite-plugin-svelte code that pre-bundles it (pinned to v7.1.2):
-				// https://github.com/sveltejs/vite-plugin-svelte/blob/471f82216d4459a90d20f21c76b84aaf20c27e6e/packages/vite-plugin-svelte/src/plugins/setup-optimizer.js#L51-L52
+				//
+				// See related logic in vite-plugin-svelte:
+				// https://github.com/sveltejs/vite-plugin-svelte/blob/@sveltejs/vite-plugin-svelte@7.1.2/packages/vite-plugin-svelte/src/plugins/setup-optimizer.js#L51-L52
 				optimizeDeps: { exclude: ['svelte'] },
 			};
 		},
