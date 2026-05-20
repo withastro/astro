@@ -2,4 +2,4 @@
 '@astrojs/node': patch
 ---
 
-Fixes a crash on startup when deploying to Firebase Hosting. `resolveClientDir()` now returns `null` instead of throwing when the `server` directory segment cannot be found in the runtime path (e.g. Firebase flattens `dist/server/` contents to a root directory). Disk-based prerendered error pages are skipped gracefully in that case.
+Fixes a 503 crash on every request when deploying an Astro SSR site to Firebase Hosting with the `webframeworks` experiment. The server no longer crashes on startup when the runtime path does not contain the expected directory structure.
