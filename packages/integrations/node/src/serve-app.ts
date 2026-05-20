@@ -2,7 +2,7 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 import { createReadStream } from 'node:fs';
 import path from 'node:path';
 import { Readable } from 'node:stream';
-import { createRequest, writeResponse, getAbortControllerCleanup } from 'astro/app/node';
+import { createRequestFromNodeRequest, writeResponse, getAbortControllerCleanup } from 'astro/app/node';
 import type { BaseApp } from 'astro/app';
 import { resolveClientDir } from './shared.js';
 import type { Options, RequestHandler } from './types.js';
@@ -89,8 +89,7 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 	return async (req, res, next, locals) => {
 		let request: Request;
 		try {
-			request = createRequest(req, {
-				allowedDomains: app.getAllowedDomains?.() ?? [],
+			request = createRequestFromNodeRequest(req, {
 				bodySizeLimit: effectiveBodySizeLimit,
 				port: options.port,
 			});
