@@ -24,7 +24,7 @@ jobs:
 
       - name: Run zizmor 🌈
         uses: zizmorcore/zizmor-action@5f14fd08f7cf1cb1609c1e344975f152c7ee938d # v0.5.6
-        with: 
+        with:
           inputs: '.github/workflows/'
           min-confidence: high
           min-severity: high
