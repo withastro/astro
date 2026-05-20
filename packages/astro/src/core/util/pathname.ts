@@ -10,6 +10,8 @@ export class MultiLevelEncodingError extends Error {
 	}
 }
 
+const ENCONDING_REGEX = /%25[0-9a-fA-F]{2}/;
+
 /**
  * Validates that a pathname is not multi-level encoded.
  * Detects if a pathname contains encoding that was encoded again (e.g., %2561dmin where %25 decodes to %).
@@ -21,24 +23,19 @@ export class MultiLevelEncodingError extends Error {
  * @throws Error if the pathname contains invalid URL encoding
  */
 export function validateAndDecodePathname(pathname: string): string {
+	if (ENCONDING_REGEX.test(pathname)) {
+		throw new MultiLevelEncodingError();
+	}
 	let decoded: string;
-
 	try {
 		decoded = decodeURI(pathname);
 	} catch (_e) {
 		throw new Error('Invalid URL encoding');
 	}
-
-	// Check if the decoded path is different from the original
-	// AND still contains URL-encoded sequences.
-	// This indicates the original had encoding that got partially decoded, suggesting double encoding.
-	// Example: /%2561dmin -> decodeURI -> /%61dmin (different AND still has %)
-	const hasDecoding = decoded !== pathname;
-	const decodedStillHasEncoding = /%[0-9a-fA-F]{2}/.test(decoded);
-
-	if (hasDecoding && decodedStillHasEncoding) {
+	// Defense-in-depth: catch creative encodings that reassemble
+	// into %25HH after the first decode pass
+	if (ENCONDING_REGEX.test(decoded)) {
 		throw new MultiLevelEncodingError();
 	}
-
 	return decoded;
 }

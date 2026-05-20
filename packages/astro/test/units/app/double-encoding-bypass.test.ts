@@ -157,4 +157,67 @@ describe('URL normalization: double-encoding middleware bypass', () => {
 		const body = await response.json();
 		assert.equal(body.path, 'users/list');
 	});
+
+	// #region False-positive regression tests (issue #16781)
+
+	it('accepts encodeURIComponent output with a literal % next to a reserved char', async () => {
+		// encodeURIComponent('%?.pdf') → '%25%3F.pdf'. After decodeURI, %25 → %
+		// and %3F stays (reserved), yielding '%%3F.pdf'. The pre-decode pattern
+		// %25%3F is not multi-level encoding (the byte after %25 is `%`, not hex),
+		// so it must reach the handler instead of being rejected as a bad request.
+		const app = createApp(createAuthMiddleware());
+		const filename = encodeURIComponent('%?.pdf');
+		const request = new Request(`http://example.com/api/uploads/${filename}`);
+		const response = await app.render(request);
+		assert.equal(response.status, 200, `/api/uploads/${filename} should be accessible`);
+		const body = await response.json();
+		assert.equal(body.path, 'uploads/%%3F.pdf');
+	});
+
+	it('accepts %25%23 (encoded literal % next to encoded #)', async () => {
+		const app = createApp(createAuthMiddleware());
+		const request = new Request('http://example.com/api/files/%25%23readme');
+		const response = await app.render(request);
+		assert.equal(response.status, 200, '/api/files/%25%23readme should be accessible');
+		const body = await response.json();
+		assert.equal(body.path, 'files/%%23readme');
+	});
+
+	it('accepts %25 at end of path segment (bare literal percent)', async () => {
+		const app = createApp(createAuthMiddleware());
+		const request = new Request('http://example.com/api/data/%25');
+		const response = await app.render(request);
+		assert.equal(response.status, 200, '/api/data/%25 should be accessible');
+		const body = await response.json();
+		assert.equal(body.path, 'data/%');
+	});
+
+	// #endregion
+	// #region Defense-in-depth: creative triple-encoding
+
+	it('rejects creative triple-encoding where hex digits in %25XX are themselves encoded', async () => {
+		// %25%32%3561dmin: %25 → %, %32 → 2, %35 → 5 → decoded = %2561dmin
+		// Post-decode regex catches the reassembled %2561 signature
+		const app = createApp(createAuthMiddleware());
+		const request = new Request('http://example.com/api/%25%32%3561dmin/users');
+		const response = await app.render(request);
+		assert.equal(
+			response.status,
+			400,
+			'creative triple-encoding %25%32%3561dmin should be rejected',
+		);
+	});
+
+	it('rejects creative encoding that reassembles %2525 after one decode', async () => {
+		// %25%32%35%32%35 → decodeURI → %2525 → post-decode regex catches %2525
+		const app = createApp(createAuthMiddleware());
+		const request = new Request('http://example.com/api/%25%32%35%32%35');
+		const response = await app.render(request);
+		assert.equal(
+			response.status,
+			400,
+			'creative encoding that reassembles %2525 should be rejected',
+		);
+	});
+	// #endregion
 });
