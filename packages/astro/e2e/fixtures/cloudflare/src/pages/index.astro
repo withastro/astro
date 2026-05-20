@@ -28,7 +28,7 @@ const surname = Astro.url.searchParams.get('surname');
 	<title>Index</title>
 </head>
 <body>
-	<p id="last-updated">Last updated: {increment.data.lastUpdated.toLocaleTimeString()}</p>
+	<p id="last-updated">Last updated: {new Date(increment!.data.lastUpdated).toLocaleTimeString()}</p>
 
 	<h2>Translations</h2>
 	<ul>
