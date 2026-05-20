@@ -96,6 +96,17 @@ describe('validateAndDecodePathname', () => {
 		);
 	});
 
+	it('rejects %25 followed by literal hex chars (%25AB) as ambiguous double-encoding', () => {
+		// %25AB could be double-encoded %AB (U+00AB «) or a literal "%" + "AB".
+		// These are indistinguishable at the URL level. Rejecting is the secure
+		// default — it prevents middleware bypass when %AB would decode to a
+		// meaningful character downstream.
+		assert.throws(
+			() => validateAndDecodePathname('/path/%25AB'),
+			MultiLevelEncodingError,
+		);
+	});
+
 	// #endregion
 	// #region Creative triple-encoding (defense-in-depth, must reject)
 	//

@@ -10,7 +10,7 @@ export class MultiLevelEncodingError extends Error {
 	}
 }
 
-const ENCONDING_REGEX = /%25[0-9a-fA-F]{2}/;
+const ENCODING_REGEX = /%25[0-9a-fA-F]{2}/;
 
 /**
  * Validates that a pathname is not multi-level encoded.
@@ -23,7 +23,12 @@ const ENCONDING_REGEX = /%25[0-9a-fA-F]{2}/;
  * @throws Error if the pathname contains invalid URL encoding
  */
 export function validateAndDecodePathname(pathname: string): string {
-	if (ENCONDING_REGEX.test(pathname)) {
+	// %25 (encoded %) followed by two hex digits is the signature of double-encoding.
+	// Example: %2561 is %25 + 61, which decodes to %61, then to 'a'.
+	// This is ambiguous with a literal "%" followed by hex characters (e.g. a file
+	// named "%AB"), but rejecting it is the secure default — the alternative allows
+	// middleware auth bypasses.
+	if (ENCODING_REGEX.test(pathname)) {
 		throw new MultiLevelEncodingError();
 	}
 	let decoded: string;
@@ -34,7 +39,7 @@ export function validateAndDecodePathname(pathname: string): string {
 	}
 	// Defense-in-depth: catch creative encodings that reassemble
 	// into %25HH after the first decode pass
-	if (ENCONDING_REGEX.test(decoded)) {
+	if (ENCODING_REGEX.test(decoded)) {
 		throw new MultiLevelEncodingError();
 	}
 	return decoded;
