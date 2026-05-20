@@ -533,7 +533,12 @@ export const AstroConfigSchema = z.object({
 	experimental: z
 		.strictObject({
 			advancedRouting: z
-				.boolean()
+				.union([
+					z.boolean(),
+					z.strictObject({
+						fetchFile: z.string().nullable().optional().default('app'),
+					}),
+				])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.advancedRouting),
 			clientPrerender: z

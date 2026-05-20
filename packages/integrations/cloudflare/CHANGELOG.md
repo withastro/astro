@@ -1,5 +1,14 @@
 # @astrojs/cloudflare
 
+## 13.5.2
+
+### Patch Changes
+
+- [#16708](https://github.com/withastro/astro/pull/16708) [`bb709ff`](https://github.com/withastro/astro/commit/bb709ffdd45ab936eba6e2ce69dd0cb2ed75bfe4) Thanks [@fkatsuhiro](https://github.com/fkatsuhiro)! - Fixed a bug where a cascade of reloads would cause the page to crash during the first visit when building or developing with Cloudflare SSR in Astro v6 due to dependency loading issues.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
 ## 13.5.1
 
 ### Patch Changes

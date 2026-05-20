@@ -97,6 +97,7 @@ export class PagesHandler {
 		if (responseCookies) {
 			state.cookies!.merge(responseCookies);
 		}
+		state.response = response;
 		return response;
 	}
 }

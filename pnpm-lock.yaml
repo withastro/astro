@@ -29,10 +29,10 @@ importers:
         version: 2.29.8(@types/node@22.19.11)
       '@flue/cli':
         specifier: ^0.3.10
-        version: 0.3.10(typescript@5.9.3)(wrangler@4.83.0)(ws@8.19.0)(zod@4.3.6)
+        version: 0.3.10(typescript@6.0.3)(wrangler@4.83.0)(ws@8.19.0)(zod@4.3.6)
       '@flue/sdk':
         specifier: ^0.3.10
-        version: 0.3.10(typescript@5.9.3)(wrangler@4.83.0)(ws@8.19.0)(zod@4.3.6)
+        version: 0.3.10(typescript@6.0.3)(wrangler@4.83.0)(ws@8.19.0)(zod@4.3.6)
       '@types/node':
         specifier: ^22.10.6
         version: 22.19.11
@@ -50,7 +50,7 @@ importers:
         version: 3.0.0(eslint@9.39.3(jiti@2.6.1))
       knip:
         specifier: 5.82.1
-        version: 5.82.1(@types/node@22.19.11)(typescript@5.9.3)
+        version: 5.82.1(@types/node@22.19.11)(typescript@6.0.3)
       only-allow:
         specifier: ^1.2.2
         version: 1.2.2
@@ -73,14 +73,14 @@ importers:
         specifier: ^2.8.15
         version: 2.8.15
       typescript:
-        specifier: ~5.9.3
-        version: 5.9.3
+        specifier: ~6.0.3
+        version: 6.0.3
       typescript-eslint:
         specifier: ^8.59.1
-        version: 8.59.2(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3)
+        version: 8.59.2(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)
       valibot:
         specifier: ^1.2.0
-        version: 1.2.0(typescript@5.9.3)
+        version: 1.2.0(typescript@6.0.3)
 
   benchmark:
     dependencies:
@@ -193,7 +193,7 @@ importers:
         specifier: ^10.1.1
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^6.3.3
+        specifier: ^6.3.5
         version: link:../../packages/astro
       hono:
         specifier: ^4.12.14
@@ -202,7 +202,7 @@ importers:
   examples/basics:
     dependencies:
       astro:
-        specifier: ^6.3.3
+        specifier: ^6.3.5
         version: link:../../packages/astro
 
   examples/blog:
@@ -217,7 +217,7 @@ importers:
         specifier: ^3.7.2
         version: link:../../packages/integrations/sitemap
       astro:
-        specifier: ^6.3.3
+        specifier: ^6.3.5
         version: link:../../packages/astro
       sharp:
         specifier: ^0.34.3
@@ -226,7 +226,7 @@ importers:
   examples/component:
     devDependencies:
       astro:
-        specifier: ^6.3.3
+        specifier: ^6.3.5
         version: link:../../packages/astro
 
   examples/container-with-vitest:
@@ -235,7 +235,7 @@ importers:
         specifier: ^5.0.5
         version: link:../../packages/integrations/react
       astro:
-        specifier: ^6.3.3
+        specifier: ^6.3.5
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -266,7 +266,7 @@ importers:
         specifier: ^3.15.8
         version: 3.15.8
       astro:
-        specifier: ^6.3.3
+        specifier: ^6.3.5
         version: link:../../packages/astro
 
   examples/framework-multiple:
@@ -293,7 +293,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.28)
       astro:
-        specifier: ^6.3.3
+        specifier: ^6.3.5
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -312,7 +312,7 @@ importers:
         version: 5.55.3
       vue:
         specifier: ^3.5.29
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.30(typescript@6.0.3)
 
   examples/framework-preact:
     dependencies:
@@ -323,7 +323,7 @@ importers:
         specifier: ^2.8.1
         version: 2.8.2(preact@10.29.0)
       astro:
-        specifier: ^6.3.3
+        specifier: ^6.3.5
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -341,7 +341,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.28)
       astro:
-        specifier: ^6.3.3
+        specifier: ^6.3.5
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -356,7 +356,7 @@ importers:
         specifier: ^6.0.1
         version: link:../../packages/integrations/solid
       astro:
-        specifier: ^6.3.3
+        specifier: ^6.3.5
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.9.11
@@ -368,7 +368,7 @@ importers:
         specifier: ^8.1.1
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^6.3.3
+        specifier: ^6.3.5
         version: link:../../packages/astro
       svelte:
         specifier: ^5.53.5
@@ -380,11 +380,11 @@ importers:
         specifier: ^6.0.1
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^6.3.3
+        specifier: ^6.3.5
         version: link:../../packages/astro
       vue:
         specifier: ^3.5.29
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.30(typescript@6.0.3)
 
   examples/hackernews:
     dependencies:
@@ -392,25 +392,25 @@ importers:
         specifier: ^10.1.1
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^6.3.3
+        specifier: ^6.3.5
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-        specifier: ^6.3.3
+        specifier: ^6.3.5
         version: link:../../packages/astro
 
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^6.3.3
+        specifier: ^6.3.5
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-        specifier: ^6.3.3
+        specifier: ^6.3.5
         version: link:../../packages/astro
 
   examples/ssr:
@@ -422,7 +422,7 @@ importers:
         specifier: ^8.1.1
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^6.3.3
+        specifier: ^6.3.5
         version: link:../../packages/astro
       svelte:
         specifier: ^5.53.5
@@ -431,7 +431,7 @@ importers:
   examples/starlog:
     dependencies:
       astro:
-        specifier: ^6.3.3
+        specifier: ^6.3.5
         version: link:../../packages/astro
       sass:
         specifier: ^1.97.3
@@ -446,7 +446,7 @@ importers:
         specifier: ^22.10.6
         version: 22.19.11
       astro:
-        specifier: ^6.3.3
+        specifier: ^6.3.5
         version: link:../../packages/astro
 
   examples/with-markdoc:
@@ -455,7 +455,7 @@ importers:
         specifier: ^1.0.5
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^6.3.3
+        specifier: ^6.3.5
         version: link:../../packages/astro
 
   examples/with-mdx:
@@ -467,7 +467,7 @@ importers:
         specifier: ^5.1.3
         version: link:../../packages/integrations/preact
       astro:
-        specifier: ^6.3.3
+        specifier: ^6.3.5
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -482,7 +482,7 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0(nanostores@1.1.1)(preact@10.29.0)
       astro:
-        specifier: ^6.3.3
+        specifier: ^6.3.5
         version: link:../../packages/astro
       nanostores:
         specifier: ^1.1.1
@@ -503,7 +503,7 @@ importers:
         specifier: ^1.9.0
         version: 1.9.0
       astro:
-        specifier: ^6.3.3
+        specifier: ^6.3.5
         version: link:../../packages/astro
       canvas-confetti:
         specifier: ^1.9.4
@@ -515,7 +515,7 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^6.3.3
+        specifier: ^6.3.5
         version: link:../../packages/astro
       vitest:
         specifier: ^4.1.0
@@ -774,8 +774,8 @@ importers:
         specifier: ^1.98.0
         version: 1.98.0
       typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
+        specifier: ^6.0.3
+        version: 6.0.3
       undici:
         specifier: ^7.22.0
         version: 7.24.8
@@ -861,8 +861,8 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
+        specifier: ^6.0.3
+        version: 6.0.3
 
   packages/astro/e2e/fixtures/actions-react-19:
     dependencies:
@@ -894,8 +894,8 @@ importers:
         specifier: 19.2.4
         version: 19.2.4(react@19.2.4)
       typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
+        specifier: ^6.0.3
+        version: 6.0.3
 
   packages/astro/e2e/fixtures/astro-component:
     dependencies:
@@ -922,7 +922,7 @@ importers:
         version: link:../../..
       vue:
         specifier: ^3.5.30
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.30(typescript@6.0.3)
 
   packages/astro/e2e/fixtures/astro-island-hydration-error:
     dependencies:
@@ -974,7 +974,7 @@ importers:
         version: 5.55.3
       vue:
         specifier: ^3.5.30
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.30(typescript@6.0.3)
     devDependencies:
       '@astrojs/preact':
         specifier: workspace:*
@@ -1023,7 +1023,7 @@ importers:
         version: 18.3.7(@types/react@18.3.28)
       '@vitejs/plugin-vue':
         specifier: ^6.0.5
-        version: 6.0.5(vite@7.3.2(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3))(vue@3.5.30(typescript@5.9.3))
+        version: 6.0.5(vite@7.3.2(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3))(vue@3.5.30(typescript@6.0.3))
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -1044,7 +1044,7 @@ importers:
         version: 0.34.5
       vue:
         specifier: ^3.5.30
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.30(typescript@6.0.3)
 
   packages/astro/e2e/fixtures/cloudflare-node-prerender-hmr:
     dependencies:
@@ -1181,7 +1181,7 @@ importers:
         version: 5.55.3
       vue:
         specifier: ^3.5.30
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.30(typescript@6.0.3)
 
   packages/astro/e2e/fixtures/hmr:
     dependencies:
@@ -1239,7 +1239,7 @@ importers:
         version: 5.55.3
       vue:
         specifier: ^3.5.30
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.30(typescript@6.0.3)
     devDependencies:
       '@astrojs/preact':
         specifier: workspace:*
@@ -1295,7 +1295,7 @@ importers:
         version: 5.55.3
       vue:
         specifier: ^3.5.30
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.30(typescript@6.0.3)
     devDependencies:
       '@astrojs/preact':
         specifier: workspace:*
@@ -1335,7 +1335,7 @@ importers:
         version: 5.55.3
       vue:
         specifier: ^3.5.30
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.30(typescript@6.0.3)
     devDependencies:
       '@astrojs/preact':
         specifier: workspace:*
@@ -1375,7 +1375,7 @@ importers:
         version: 5.55.3
       vue:
         specifier: ^3.5.30
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.30(typescript@6.0.3)
     devDependencies:
       '@astrojs/preact':
         specifier: workspace:*
@@ -1415,7 +1415,7 @@ importers:
         version: 5.55.3
       vue:
         specifier: ^3.5.30
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.30(typescript@6.0.3)
     devDependencies:
       '@astrojs/preact':
         specifier: workspace:*
@@ -1455,7 +1455,7 @@ importers:
         version: 5.55.3
       vue:
         specifier: ^3.5.30
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.30(typescript@6.0.3)
     devDependencies:
       '@astrojs/preact':
         specifier: workspace:*
@@ -1495,7 +1495,7 @@ importers:
         version: 5.55.3
       vue:
         specifier: ^3.5.30
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.30(typescript@6.0.3)
     devDependencies:
       '@astrojs/preact':
         specifier: workspace:*
@@ -1773,7 +1773,7 @@ importers:
         version: 5.55.3
       vue:
         specifier: ^3.5.30
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.30(typescript@6.0.3)
 
   packages/astro/e2e/fixtures/vite-virtual-modules:
     dependencies:
@@ -1794,7 +1794,7 @@ importers:
         version: link:../../..
       vue:
         specifier: ^3.5.30
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.30(typescript@6.0.3)
 
   packages/astro/performance:
     dependencies:
@@ -1917,7 +1917,7 @@ importers:
         version: 5.55.3
       vue:
         specifier: ^3.5.30
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.30(typescript@6.0.3)
 
   packages/astro/test/fixtures/actions:
     dependencies:
@@ -2038,8 +2038,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
+        specifier: ^6.0.3
+        version: 6.0.3
 
   packages/astro/test/fixtures/astro-check-no-errors:
     dependencies:
@@ -2050,8 +2050,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
+        specifier: ^6.0.3
+        version: 6.0.3
 
   packages/astro/test/fixtures/astro-check-watch:
     dependencies:
@@ -2081,7 +2081,7 @@ importers:
         version: 5.55.3
       vue:
         specifier: ^3.5.30
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.30(typescript@6.0.3)
 
   packages/astro/test/fixtures/astro-client-only:
     dependencies:
@@ -2227,7 +2227,7 @@ importers:
         version: link:../../..
       vue:
         specifier: ^3.5.30
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.30(typescript@6.0.3)
 
   packages/astro/test/fixtures/astro-expr:
     dependencies:
@@ -2476,7 +2476,7 @@ importers:
         version: 5.55.3
       vue:
         specifier: ^3.5.30
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.30(typescript@6.0.3)
 
   packages/astro/test/fixtures/before-hydration:
     dependencies:
@@ -2636,7 +2636,7 @@ importers:
         version: 18.3.1(react@18.3.1)
       vue:
         specifier: ^3.5.30
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.30(typescript@6.0.3)
 
   packages/astro/test/fixtures/content:
     dependencies:
@@ -3181,7 +3181,7 @@ importers:
         version: 5.55.3
       vue:
         specifier: ^3.5.30
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.30(typescript@6.0.3)
 
   packages/astro/test/fixtures/fonts:
     dependencies:
@@ -3337,7 +3337,7 @@ importers:
         version: 5.55.3
       vue:
         specifier: ^3.5.30
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.30(typescript@6.0.3)
     devDependencies:
       '@astrojs/mdx':
         specifier: workspace:*
@@ -3570,7 +3570,7 @@ importers:
         version: 5.55.3
       vue:
         specifier: ^3.5.30
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.30(typescript@6.0.3)
     devDependencies:
       postcss-preset-env:
         specifier: ^11.2.0
@@ -3875,7 +3875,7 @@ importers:
         version: link:../../..
       vue:
         specifier: ^3.5.30
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.30(typescript@6.0.3)
 
   packages/astro/test/fixtures/solid-component:
     dependencies:
@@ -3998,7 +3998,7 @@ importers:
         version: link:../../..
       vue:
         specifier: ^3.5.30
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.30(typescript@6.0.3)
 
   packages/astro/test/fixtures/ssr-request:
     dependencies:
@@ -4201,7 +4201,7 @@ importers:
         version: link:../../..
       vue:
         specifier: ^3.5.30
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.30(typescript@6.0.3)
 
   packages/astro/test/fixtures/vue-with-multi-renderer:
     dependencies:
@@ -4219,7 +4219,7 @@ importers:
         version: 5.55.3
       vue:
         specifier: ^3.5.30
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.30(typescript@6.0.3)
 
   packages/create-astro:
     dependencies:
@@ -4285,8 +4285,8 @@ importers:
         specifier: ^1.3.0
         version: 1.3.0
       typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
+        specifier: ^6.0.3
+        version: 6.0.3
       vite:
         specifier: ^7.3.2
         version: 7.3.2(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
@@ -4591,6 +4591,19 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/cloudflare/test/fixtures/dev-ssr-optimization:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+    devDependencies:
+      wrangler:
+        specifier: ^4.83.0
+        version: 4.83.0(@cloudflare/workers-types@4.20260228.0)
+
   packages/integrations/cloudflare/test/fixtures/external-image-service:
     dependencies:
       '@astrojs/cloudflare':
@@ -4812,7 +4825,7 @@ importers:
         version: 18.3.7(@types/react@18.3.28)
       '@vitejs/plugin-vue':
         specifier: ^6.0.4
-        version: 6.0.5(vite@7.3.2(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3))(vue@3.5.30(typescript@5.9.3))
+        version: 6.0.5(vite@7.3.2(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3))(vue@3.5.30(typescript@6.0.3))
       astro:
         specifier: workspace:*
         version: link:../../../../../astro
@@ -4830,7 +4843,7 @@ importers:
         version: 5.55.3
       vue:
         specifier: ^3.5.29
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.30(typescript@6.0.3)
 
   packages/integrations/cloudflare/test/fixtures/with-base:
     dependencies:
@@ -4902,7 +4915,7 @@ importers:
         version: link:../../../../../astro
       vue:
         specifier: ^3.5.29
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.30(typescript@6.0.3)
 
   packages/integrations/cloudflare/test/fixtures/wrangler-preview-platform:
     dependencies:
@@ -5195,7 +5208,7 @@ importers:
         version: 4.0.2
       '@shikijs/twoslash':
         specifier: ^4.0.2
-        version: 4.0.2(typescript@5.9.3)
+        version: 4.0.2(typescript@6.0.3)
       '@types/estree':
         specifier: ^1.0.8
         version: 1.0.8
@@ -5468,8 +5481,8 @@ importers:
         specifier: ^5.6.3
         version: 5.6.4
       typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
+        specifier: ^6.0.3
+        version: 6.0.3
 
   packages/integrations/netlify/test/development/fixtures/primitives:
     dependencies:
@@ -5909,7 +5922,7 @@ importers:
         version: 18.3.1(react@18.3.1)
       vue:
         specifier: ^3.5.30
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.30(typescript@6.0.3)
 
   packages/integrations/sitemap:
     dependencies:
@@ -6019,7 +6032,7 @@ importers:
         version: 6.2.4(svelte@5.55.3)(vite@7.3.2(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3))
       svelte2tsx:
         specifier: ^0.7.55
-        version: 0.7.55(svelte@5.55.3)(typescript@5.9.3)
+        version: 0.7.55(svelte@5.55.3)(typescript@6.0.3)
       vite:
         specifier: ^7.3.2
         version: 7.3.2(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
@@ -6095,7 +6108,7 @@ importers:
         version: link:../../internal-helpers
       '@vercel/analytics':
         specifier: ^1.6.1
-        version: 1.6.1(react@19.2.4)(svelte@5.55.3)(vue@3.5.30(typescript@5.9.3))
+        version: 1.6.1(react@19.2.4)(svelte@5.55.3)(vue@3.5.30(typescript@6.0.3))
       '@vercel/functions':
         specifier: ^3.4.3
         version: 3.4.3(@aws-sdk/credential-provider-web-identity@3.972.38)
@@ -6312,10 +6325,10 @@ importers:
     dependencies:
       '@vitejs/plugin-vue':
         specifier: ^6.0.5
-        version: 6.0.5(vite@7.3.2(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3))(vue@3.5.30(typescript@5.9.3))
+        version: 6.0.5(vite@7.3.2(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3))(vue@3.5.30(typescript@6.0.3))
       '@vitejs/plugin-vue-jsx':
         specifier: ^5.1.5
-        version: 5.1.5(vite@7.3.2(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3))(vue@3.5.30(typescript@5.9.3))
+        version: 5.1.5(vite@7.3.2(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3))(vue@3.5.30(typescript@6.0.3))
       '@vue/compiler-sfc':
         specifier: ^3.5.30
         version: 3.5.30
@@ -6324,7 +6337,7 @@ importers:
         version: 7.3.2(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
       vite-plugin-vue-devtools:
         specifier: ^8.1.0
-        version: 8.1.0(vite@7.3.2(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3))(vue@3.5.30(typescript@5.9.3))
+        version: 8.1.0(vite@7.3.2(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3))(vue@3.5.30(typescript@6.0.3))
     devDependencies:
       astro:
         specifier: workspace:*
@@ -6340,7 +6353,7 @@ importers:
         version: 0.18.12
       vue:
         specifier: ^3.5.30
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.30(typescript@6.0.3)
 
   packages/integrations/vue/test/fixtures/app-entrypoint:
     dependencies:
@@ -6352,10 +6365,10 @@ importers:
         version: link:../../../../../astro
       vite-svg-loader:
         specifier: 5.1.1
-        version: 5.1.1(vue@3.5.30(typescript@5.9.3))
+        version: 5.1.1(vue@3.5.30(typescript@6.0.3))
       vue:
         specifier: ^3.5.30
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.30(typescript@6.0.3)
 
   packages/integrations/vue/test/fixtures/app-entrypoint-async:
     dependencies:
@@ -6367,10 +6380,10 @@ importers:
         version: link:../../../../../astro
       vite-svg-loader:
         specifier: 5.1.1
-        version: 5.1.1(vue@3.5.30(typescript@5.9.3))
+        version: 5.1.1(vue@3.5.30(typescript@6.0.3))
       vue:
         specifier: ^3.5.30
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.30(typescript@6.0.3)
 
   packages/integrations/vue/test/fixtures/app-entrypoint-css:
     dependencies:
@@ -6391,10 +6404,10 @@ importers:
         version: link:../../../../../astro
       vite-svg-loader:
         specifier: 5.1.1
-        version: 5.1.1(vue@3.5.30(typescript@5.9.3))
+        version: 5.1.1(vue@3.5.30(typescript@6.0.3))
       vue:
         specifier: ^3.5.30
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.30(typescript@6.0.3)
 
   packages/integrations/vue/test/fixtures/app-entrypoint-relative:
     dependencies:
@@ -6433,7 +6446,7 @@ importers:
         version: link:../../../../../astro
       vue:
         specifier: ^3.5.30
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.30(typescript@6.0.3)
 
   packages/internal-helpers:
     dependencies:
@@ -6485,14 +6498,14 @@ importers:
         specifier: ^2.13.1
         version: 2.13.1
       '@astrojs/yaml2ts':
-        specifier: ^0.2.3
+        specifier: ^0.2.4
         version: link:../yaml2ts
       '@jridgewell/sourcemap-codec':
         specifier: ^1.5.5
         version: 1.5.5
       '@volar/kit':
         specifier: ~2.4.28
-        version: 2.4.28(typescript@5.9.3)
+        version: 2.4.28(typescript@6.0.3)
       '@volar/language-core':
         specifier: ~2.4.28
         version: 2.4.28
@@ -6552,8 +6565,8 @@ importers:
         specifier: ^4.21.0
         version: 4.21.0
       typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
+        specifier: ^6.0.3
+        version: 6.0.3
       vscode-languageserver-protocol:
         specifier: ^3.17.5
         version: 3.17.5
@@ -6592,7 +6605,7 @@ importers:
         specifier: ^2.13.1
         version: 2.13.1
       '@astrojs/yaml2ts':
-        specifier: ^0.2.3
+        specifier: ^0.2.4
         version: link:../yaml2ts
       '@jridgewell/sourcemap-codec':
         specifier: ^1.5.5
@@ -6635,8 +6648,8 @@ importers:
         specifier: ^4.21.0
         version: 4.21.0
       typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
+        specifier: ^6.0.3
+        version: 6.0.3
       vscode-uri:
         specifier: ^3.1.0
         version: 3.1.0
@@ -6654,10 +6667,10 @@ importers:
         version: 0.14.1
     devDependencies:
       '@astrojs/language-server':
-        specifier: ^2.16.6
+        specifier: ^2.16.9
         version: link:../language-server
       '@astrojs/ts-plugin':
-        specifier: ^1.10.8
+        specifier: ^1.10.9
         version: link:../ts-plugin
       '@types/js-yaml':
         specifier: ^4.0.9
@@ -6724,8 +6737,8 @@ importers:
         specifier: ~2.4.28
         version: 2.4.28
       typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
+        specifier: ^6.0.3
+        version: 6.0.3
 
   packages/markdown/remark:
     dependencies:
@@ -15696,6 +15709,11 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
+  typescript@6.0.3:
+    resolution: {integrity: sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
   uc.micro@1.0.6:
     resolution: {integrity: sha512-8Y75pvTYkLJW2hWQHXxoqRgV7qb9B+9vFEtidML+7koHUFapnVJAZ6cKs+Qjz5Aw3aZWHMC6u0wJE3At+nSGwA==}
 
@@ -18355,9 +18373,9 @@ snapshots:
       fastq: 1.20.1
       glob: 13.0.3
 
-  '@flue/cli@0.3.10(typescript@5.9.3)(wrangler@4.83.0)(ws@8.19.0)(zod@4.3.6)':
+  '@flue/cli@0.3.10(typescript@6.0.3)(wrangler@4.83.0)(ws@8.19.0)(zod@4.3.6)':
     dependencies:
-      '@flue/sdk': 0.3.10(typescript@5.9.3)(wrangler@4.83.0)(ws@8.19.0)(zod@4.3.6)
+      '@flue/sdk': 0.3.10(typescript@6.0.3)(wrangler@4.83.0)(ws@8.19.0)(zod@4.3.6)
       '@vercel/detect-agent': 1.2.3
     transitivePeerDependencies:
       - '@cfworker/json-schema'
@@ -18372,19 +18390,19 @@ snapshots:
       - ws
       - zod
 
-  '@flue/sdk@0.3.10(typescript@5.9.3)(wrangler@4.83.0)(ws@8.19.0)(zod@4.3.6)':
+  '@flue/sdk@0.3.10(typescript@6.0.3)(wrangler@4.83.0)(ws@8.19.0)(zod@4.3.6)':
     dependencies:
       '@cloudflare/shell': 0.3.6(@modelcontextprotocol/sdk@1.29.0)(zod@4.3.6)
       '@hono/node-server': 1.19.14(hono@4.12.16)
       '@mariozechner/pi-agent-core': 0.71.1(@modelcontextprotocol/sdk@1.29.0)(ws@8.19.0)(zod@4.3.6)
       '@mariozechner/pi-ai': 0.71.1(@modelcontextprotocol/sdk@1.29.0)(ws@8.19.0)(zod@4.3.6)
       '@modelcontextprotocol/sdk': 1.29.0
-      '@valibot/to-json-schema': 1.5.0(valibot@1.2.0(typescript@5.9.3))
+      '@valibot/to-json-schema': 1.5.0(valibot@1.2.0(typescript@6.0.3))
       esbuild: 0.25.5
       hono: 4.12.16
       just-bash: 2.14.3
       package-up: 5.0.0
-      valibot: 1.2.0(typescript@5.9.3)
+      valibot: 1.2.0(typescript@6.0.3)
     optionalDependencies:
       wrangler: 4.83.0(@cloudflare/workers-types@4.20260228.0)
     transitivePeerDependencies:
@@ -19803,12 +19821,12 @@ snapshots:
     dependencies:
       '@shikijs/types': 4.0.2
 
-  '@shikijs/twoslash@4.0.2(typescript@5.9.3)':
+  '@shikijs/twoslash@4.0.2(typescript@6.0.3)':
     dependencies:
       '@shikijs/core': 4.0.2
       '@shikijs/types': 4.0.2
-      twoslash: 0.3.6(typescript@5.9.3)
-      typescript: 5.9.3
+      twoslash: 0.3.6(typescript@6.0.3)
+      typescript: 6.0.3
     transitivePeerDependencies:
       - supports-color
 
@@ -20491,31 +20509,31 @@ snapshots:
       '@types/node': 25.2.3
     optional: true
 
-  '@typescript-eslint/eslint-plugin@8.59.2(@typescript-eslint/parser@8.59.2(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3)':
+  '@typescript-eslint/eslint-plugin@8.59.2(@typescript-eslint/parser@8.59.2(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3))(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)':
     dependencies:
       '@eslint-community/regexpp': 4.12.2
-      '@typescript-eslint/parser': 8.59.2(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3)
+      '@typescript-eslint/parser': 8.59.2(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)
       '@typescript-eslint/scope-manager': 8.59.2
-      '@typescript-eslint/type-utils': 8.59.2(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3)
-      '@typescript-eslint/utils': 8.59.2(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3)
+      '@typescript-eslint/type-utils': 8.59.2(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)
+      '@typescript-eslint/utils': 8.59.2(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)
       '@typescript-eslint/visitor-keys': 8.59.2
       eslint: 9.39.3(jiti@2.6.1)
       ignore: 7.0.5
       natural-compare: 1.4.0
-      ts-api-utils: 2.5.0(typescript@5.9.3)
-      typescript: 5.9.3
+      ts-api-utils: 2.5.0(typescript@6.0.3)
+      typescript: 6.0.3
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/parser@8.59.2(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3)':
+  '@typescript-eslint/parser@8.59.2(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)':
     dependencies:
       '@typescript-eslint/scope-manager': 8.59.2
       '@typescript-eslint/types': 8.59.2
-      '@typescript-eslint/typescript-estree': 8.59.2(typescript@5.9.3)
+      '@typescript-eslint/typescript-estree': 8.59.2(typescript@6.0.3)
       '@typescript-eslint/visitor-keys': 8.59.2
       debug: 4.4.3(supports-color@8.1.1)
       eslint: 9.39.3(jiti@2.6.1)
-      typescript: 5.9.3
+      typescript: 6.0.3
     transitivePeerDependencies:
       - supports-color
 
@@ -20528,6 +20546,15 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@typescript-eslint/project-service@8.59.2(typescript@6.0.3)':
+    dependencies:
+      '@typescript-eslint/tsconfig-utils': 8.59.2(typescript@6.0.3)
+      '@typescript-eslint/types': 8.59.2
+      debug: 4.4.3(supports-color@8.1.1)
+      typescript: 6.0.3
+    transitivePeerDependencies:
+      - supports-color
+
   '@typescript-eslint/scope-manager@8.59.2':
     dependencies:
       '@typescript-eslint/types': 8.59.2
@@ -20537,15 +20564,19 @@ snapshots:
     dependencies:
       typescript: 5.9.3
 
-  '@typescript-eslint/type-utils@8.59.2(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3)':
+  '@typescript-eslint/tsconfig-utils@8.59.2(typescript@6.0.3)':
+    dependencies:
+      typescript: 6.0.3
+
+  '@typescript-eslint/type-utils@8.59.2(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)':
     dependencies:
       '@typescript-eslint/types': 8.59.2
-      '@typescript-eslint/typescript-estree': 8.59.2(typescript@5.9.3)
-      '@typescript-eslint/utils': 8.59.2(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3)
+      '@typescript-eslint/typescript-estree': 8.59.2(typescript@6.0.3)
+      '@typescript-eslint/utils': 8.59.2(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)
       debug: 4.4.3(supports-color@8.1.1)
       eslint: 9.39.3(jiti@2.6.1)
-      ts-api-utils: 2.5.0(typescript@5.9.3)
-      typescript: 5.9.3
+      ts-api-utils: 2.5.0(typescript@6.0.3)
+      typescript: 6.0.3
     transitivePeerDependencies:
       - supports-color
 
@@ -20568,14 +20599,29 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/utils@8.59.2(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3)':
+  '@typescript-eslint/typescript-estree@8.59.2(typescript@6.0.3)':
+    dependencies:
+      '@typescript-eslint/project-service': 8.59.2(typescript@6.0.3)
+      '@typescript-eslint/tsconfig-utils': 8.59.2(typescript@6.0.3)
+      '@typescript-eslint/types': 8.59.2
+      '@typescript-eslint/visitor-keys': 8.59.2
+      debug: 4.4.3(supports-color@8.1.1)
+      minimatch: 10.2.4
+      semver: 7.7.4
+      tinyglobby: 0.2.16
+      ts-api-utils: 2.5.0(typescript@6.0.3)
+      typescript: 6.0.3
+    transitivePeerDependencies:
+      - supports-color
+
+  '@typescript-eslint/utils@8.59.2(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)':
     dependencies:
       '@eslint-community/eslint-utils': 4.9.1(eslint@9.39.3(jiti@2.6.1))
       '@typescript-eslint/scope-manager': 8.59.2
       '@typescript-eslint/types': 8.59.2
-      '@typescript-eslint/typescript-estree': 8.59.2(typescript@5.9.3)
+      '@typescript-eslint/typescript-estree': 8.59.2(typescript@6.0.3)
       eslint: 9.39.3(jiti@2.6.1)
-      typescript: 5.9.3
+      typescript: 6.0.3
     transitivePeerDependencies:
       - supports-color
 
@@ -20584,10 +20630,10 @@ snapshots:
       '@typescript-eslint/types': 8.59.2
       eslint-visitor-keys: 5.0.0
 
-  '@typescript/vfs@1.6.4(typescript@5.9.3)':
+  '@typescript/vfs@1.6.4(typescript@6.0.3)':
     dependencies:
       debug: 4.4.3(supports-color@8.1.1)
-      typescript: 5.9.3
+      typescript: 6.0.3
     transitivePeerDependencies:
       - supports-color
 
@@ -20601,15 +20647,15 @@ snapshots:
 
   '@ungap/structured-clone@1.3.0': {}
 
-  '@valibot/to-json-schema@1.5.0(valibot@1.2.0(typescript@5.9.3))':
+  '@valibot/to-json-schema@1.5.0(valibot@1.2.0(typescript@6.0.3))':
     dependencies:
-      valibot: 1.2.0(typescript@5.9.3)
+      valibot: 1.2.0(typescript@6.0.3)
 
-  '@vercel/analytics@1.6.1(react@19.2.4)(svelte@5.55.3)(vue@3.5.30(typescript@5.9.3))':
+  '@vercel/analytics@1.6.1(react@19.2.4)(svelte@5.55.3)(vue@3.5.30(typescript@6.0.3))':
     optionalDependencies:
       react: 19.2.4
       svelte: 5.55.3
-      vue: 3.5.30(typescript@5.9.3)
+      vue: 3.5.30(typescript@6.0.3)
 
   '@vercel/detect-agent@1.2.3': {}
 
@@ -20678,7 +20724,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitejs/plugin-vue-jsx@5.1.5(vite@7.3.2(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3))(vue@3.5.30(typescript@5.9.3))':
+  '@vitejs/plugin-vue-jsx@5.1.5(vite@7.3.2(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3))(vue@3.5.30(typescript@6.0.3))':
     dependencies:
       '@babel/core': 7.29.0
       '@babel/plugin-syntax-typescript': 7.28.6(@babel/core@7.29.0)
@@ -20686,15 +20732,15 @@ snapshots:
       '@rolldown/pluginutils': 1.0.0-rc.4
       '@vue/babel-plugin-jsx': 2.0.1(@babel/core@7.29.0)
       vite: 7.3.2(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
-      vue: 3.5.30(typescript@5.9.3)
+      vue: 3.5.30(typescript@6.0.3)
     transitivePeerDependencies:
       - supports-color
 
-  '@vitejs/plugin-vue@6.0.5(vite@7.3.2(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3))(vue@3.5.30(typescript@5.9.3))':
+  '@vitejs/plugin-vue@6.0.5(vite@7.3.2(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3))(vue@3.5.30(typescript@6.0.3))':
     dependencies:
       '@rolldown/pluginutils': 1.0.0-rc.2
       vite: 7.3.2(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
-      vue: 3.5.30(typescript@5.9.3)
+      vue: 3.5.30(typescript@6.0.3)
 
   '@vitest/expect@4.1.0':
     dependencies:
@@ -20737,12 +20783,12 @@ snapshots:
       convert-source-map: 2.0.0
       tinyrainbow: 3.0.3
 
-  '@volar/kit@2.4.28(typescript@5.9.3)':
+  '@volar/kit@2.4.28(typescript@6.0.3)':
     dependencies:
       '@volar/language-service': 2.4.28
       '@volar/typescript': 2.4.28
       typesafe-path: 0.2.2
-      typescript: 5.9.3
+      typescript: 6.0.3
       vscode-languageserver-textdocument: 1.0.12
       vscode-uri: 3.1.0
 
@@ -21018,11 +21064,11 @@ snapshots:
       '@vue/compiler-dom': 3.5.30
       '@vue/shared': 3.5.30
 
-  '@vue/devtools-core@8.1.0(vue@3.5.30(typescript@5.9.3))':
+  '@vue/devtools-core@8.1.0(vue@3.5.30(typescript@6.0.3))':
     dependencies:
       '@vue/devtools-kit': 8.1.0
       '@vue/devtools-shared': 8.1.0
-      vue: 3.5.30(typescript@5.9.3)
+      vue: 3.5.30(typescript@6.0.3)
 
   '@vue/devtools-kit@8.1.0':
     dependencies:
@@ -21053,11 +21099,11 @@ snapshots:
       '@vue/shared': 3.5.30
       csstype: 3.2.3
 
-  '@vue/server-renderer@3.5.30(vue@3.5.30(typescript@5.9.3))':
+  '@vue/server-renderer@3.5.30(vue@3.5.30(typescript@6.0.3))':
     dependencies:
       '@vue/compiler-ssr': 3.5.30
       '@vue/shared': 3.5.30
-      vue: 3.5.30(typescript@5.9.3)
+      vue: 3.5.30(typescript@6.0.3)
 
   '@vue/shared@3.1.5': {}
 
@@ -23610,7 +23656,7 @@ snapshots:
 
   kleur@4.1.5: {}
 
-  knip@5.82.1(@types/node@22.19.11)(typescript@5.9.3):
+  knip@5.82.1(@types/node@22.19.11)(typescript@6.0.3):
     dependencies:
       '@nodelib/fs.walk': 1.2.8
       '@types/node': 22.19.11
@@ -23624,7 +23670,7 @@ snapshots:
       picomatch: 4.0.4
       smol-toml: 1.6.1
       strip-json-comments: 5.0.3
-      typescript: 5.9.3
+      typescript: 6.0.3
       zod: 4.3.6
 
   kolorist@1.8.0: {}
@@ -26388,12 +26434,12 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  svelte2tsx@0.7.55(svelte@5.55.3)(typescript@5.9.3):
+  svelte2tsx@0.7.55(svelte@5.55.3)(typescript@6.0.3):
     dependencies:
       dedent-js: 1.0.1
       scule: 1.3.0
       svelte: 5.55.3
-      typescript: 5.9.3
+      typescript: 6.0.3
 
   svelte@5.55.3:
     dependencies:
@@ -26581,6 +26627,10 @@ snapshots:
     dependencies:
       typescript: 5.9.3
 
+  ts-api-utils@2.5.0(typescript@6.0.3):
+    dependencies:
+      typescript: 6.0.3
+
   tslib@2.8.1: {}
 
   tsx@4.21.0:
@@ -26630,11 +26680,11 @@ snapshots:
 
   twoslash-protocol@0.3.6: {}
 
-  twoslash@0.3.6(typescript@5.9.3):
+  twoslash@0.3.6(typescript@6.0.3):
     dependencies:
-      '@typescript/vfs': 1.6.4(typescript@5.9.3)
+      '@typescript/vfs': 1.6.4(typescript@6.0.3)
       twoslash-protocol: 0.3.6
-      typescript: 5.9.3
+      typescript: 6.0.3
     transitivePeerDependencies:
       - supports-color
 
@@ -26685,18 +26735,20 @@ snapshots:
     dependencies:
       semver: 7.7.4
 
-  typescript-eslint@8.59.2(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3):
+  typescript-eslint@8.59.2(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3):
     dependencies:
-      '@typescript-eslint/eslint-plugin': 8.59.2(@typescript-eslint/parser@8.59.2(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3)
-      '@typescript-eslint/parser': 8.59.2(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3)
-      '@typescript-eslint/typescript-estree': 8.59.2(typescript@5.9.3)
-      '@typescript-eslint/utils': 8.59.2(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3)
+      '@typescript-eslint/eslint-plugin': 8.59.2(@typescript-eslint/parser@8.59.2(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3))(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)
+      '@typescript-eslint/parser': 8.59.2(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)
+      '@typescript-eslint/typescript-estree': 8.59.2(typescript@6.0.3)
+      '@typescript-eslint/utils': 8.59.2(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)
       eslint: 9.39.3(jiti@2.6.1)
-      typescript: 5.9.3
+      typescript: 6.0.3
     transitivePeerDependencies:
       - supports-color
 
   typescript@5.9.3: {}
+
+  typescript@6.0.3: {}
 
   uc.micro@1.0.6: {}
 
@@ -26879,9 +26931,9 @@ snapshots:
       '@types/istanbul-lib-coverage': 2.0.6
       convert-source-map: 2.0.0
 
-  valibot@1.2.0(typescript@5.9.3):
+  valibot@1.2.0(typescript@6.0.3):
     optionalDependencies:
-      typescript: 5.9.3
+      typescript: 6.0.3
 
   validate-npm-package-license@3.0.4:
     dependencies:
@@ -26947,9 +26999,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  vite-plugin-vue-devtools@8.1.0(vite@7.3.2(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3))(vue@3.5.30(typescript@5.9.3)):
+  vite-plugin-vue-devtools@8.1.0(vite@7.3.2(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3))(vue@3.5.30(typescript@6.0.3)):
     dependencies:
-      '@vue/devtools-core': 8.1.0(vue@3.5.30(typescript@5.9.3))
+      '@vue/devtools-core': 8.1.0(vue@3.5.30(typescript@6.0.3))
       '@vue/devtools-kit': 8.1.0
       '@vue/devtools-shared': 8.1.0
       sirv: 3.0.2
@@ -26986,11 +27038,11 @@ snapshots:
       stack-trace: 1.0.0-pre2
       vite: 7.3.2(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
 
-  vite-svg-loader@5.1.1(vue@3.5.30(typescript@5.9.3)):
+  vite-svg-loader@5.1.1(vue@3.5.30(typescript@6.0.3)):
     dependencies:
       debug: 4.4.3(supports-color@8.1.1)
       svgo: 3.3.3
-      vue: 3.5.30(typescript@5.9.3)
+      vue: 3.5.30(typescript@6.0.3)
     transitivePeerDependencies:
       - supports-color
 
@@ -27187,15 +27239,15 @@ snapshots:
 
   vscode-uri@3.1.0: {}
 
-  vue@3.5.30(typescript@5.9.3):
+  vue@3.5.30(typescript@6.0.3):
     dependencies:
       '@vue/compiler-dom': 3.5.30
       '@vue/compiler-sfc': 3.5.30
       '@vue/runtime-dom': 3.5.30
-      '@vue/server-renderer': 3.5.30(vue@3.5.30(typescript@5.9.3))
+      '@vue/server-renderer': 3.5.30(vue@3.5.30(typescript@6.0.3))
       '@vue/shared': 3.5.30
     optionalDependencies:
-      typescript: 5.9.3
+      typescript: 6.0.3
 
   walk-up-path@4.0.0: {}
 
