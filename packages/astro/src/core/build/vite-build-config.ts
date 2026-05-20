@@ -168,9 +168,7 @@ export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.
 						viteConfig.build?.sourcemap ??
 						false,
 					minify:
-						viteConfig.environments?.client?.build?.minify ??
-						viteConfig.build?.minify ??
-						true,
+						viteConfig.environments?.client?.build?.minify ?? viteConfig.build?.minify ?? true,
 					rollupOptions: {
 						preserveEntrySignatures: 'exports-only',
 						output: {
