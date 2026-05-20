@@ -1,0 +1,9 @@
+{
+  "name": "@test/mdx-custom-elements-no-renderer",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/mdx": "workspace:*",
+    "astro": "workspace:*"
+  }
+}

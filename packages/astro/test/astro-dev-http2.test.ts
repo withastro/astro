@@ -30,6 +30,9 @@ describe('Astro HTTP/2 support', () => {
 			const url = new URL(urlString);
 			// Not asserting host because of all the ways localhost can be represented
 			assert.equal(url.protocol, 'https:');
+			// Compare against the actual port the dev server bound to instead of a
+			// hardcoded 4321, so parallel test runs with port conflicts don't fail.
+			assert.equal(url.port, String(fixture.config.server.port));
 			assert.equal($('p').text(), '2.0');
 		});
 	});
