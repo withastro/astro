@@ -324,7 +324,7 @@ describe('getImage', () => {
 	});
 
 	describe('format', () => {
-		it('defaults to webp format', async () => {
+		it('defaults to webp for remote images with a non-svg extension', async () => {
 			const result = await renderImage({
 				src: 'https://example.com/photo.jpg',
 				width: 800,
@@ -334,6 +334,28 @@ describe('getImage', () => {
 			});
 			const params = new URL(result.src, 'http://localhost').searchParams;
 			assert.equal(params.get('f'), 'webp');
+		});
+
+		it('defaults to svg for remote URLs ending in .svg so they pass through', async () => {
+			const result = await renderImage({
+				src: 'https://example.com/icon.svg',
+				width: 64,
+				height: 64,
+				alt: 'Format test',
+			});
+			const params = new URL(result.src, 'http://localhost').searchParams;
+			assert.equal(params.get('f'), 'svg');
+		});
+
+		it('omits format param for remote URLs without a detectable extension (resolved by /_image at request time)', async () => {
+			const result = await renderImage({
+				src: 'https://example.com/api/avatar',
+				width: 64,
+				height: 64,
+				alt: 'Format test',
+			});
+			const params = new URL(result.src, 'http://localhost').searchParams;
+			assert.equal(params.has('f'), false);
 		});
 
 		it('respects explicit format', async () => {
