@@ -28,7 +28,7 @@ describe('validateAndDecodePathname', () => {
 	it('preserves reserved characters that decodeURI does not decode', () => {
 		// decodeURI intentionally does NOT decode reserved chars like %2F, %3F, %23
 		const decoded = validateAndDecodePathname('/path%3Fname');
-		assert.match(decoded, /%3F|%3f/i, 'reserved %3F should be preserved by decodeURI');
+		assert.match(decoded, /%3F/i, 'reserved %3F should be preserved by decodeURI');
 	});
 
 	// #endregion
