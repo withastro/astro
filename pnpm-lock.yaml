@@ -12251,7 +12251,7 @@ packages:
     hasBin: true
 
   fake-data-pkg@file:packages/integrations/cloudflare/test/fixtures/user-optimize-deps/packages/fake-data-pkg/fake-data-pkg-1.0.0.tgz:
-    resolution: {integrity: sha512-UE8fU/taJDXyY97WToISjpq/k7XsRjPMtFMaRV1vjiNGxYzQ4aTo6uZ8Tt610Ha8OIlP2EdAClTy6XZs+8jFmA==, tarball: file:packages/integrations/cloudflare/test/fixtures/user-optimize-deps/packages/fake-data-pkg/fake-data-pkg-1.0.0.tgz}
+    resolution: {integrity: sha512-AEKyXNW8ceoMAeFfZG7W2S9jYltKlr+tjfutFU8D4it+ZSOukOej/7Qrj+ANEJRVp8iOEiDe7Bk+Ca5xb76BiQ==, tarball: file:packages/integrations/cloudflare/test/fixtures/user-optimize-deps/packages/fake-data-pkg/fake-data-pkg-1.0.0.tgz}
     version: 1.0.0
 
   fake-svelte-pkg@file:packages/integrations/cloudflare/test/fixtures/prerender-node-env/fake-svelte-pkg:
