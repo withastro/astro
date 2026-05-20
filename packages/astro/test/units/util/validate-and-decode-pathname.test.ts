@@ -101,10 +101,7 @@ describe('validateAndDecodePathname', () => {
 		// These are indistinguishable at the URL level. Rejecting is the secure
 		// default — it prevents middleware bypass when %AB would decode to a
 		// meaningful character downstream.
-		assert.throws(
-			() => validateAndDecodePathname('/path/%25AB'),
-			MultiLevelEncodingError,
-		);
+		assert.throws(() => validateAndDecodePathname('/path/%25AB'), MultiLevelEncodingError);
 	});
 
 	// #endregion
