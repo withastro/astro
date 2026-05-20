@@ -21,13 +21,13 @@ autoInstallPeers: false
 dedupePeers: true
 
 overrides:
-  # If a dependency has a peer dependency on `@types/node` and the version range accepts `22`, 
-  # we force it to resolve to `^22.19.0`. This helps reduce the number of duplicate packages 
+  # If a dependency has a peer dependency on `@types/node` and the version range accepts `22`,
+  # we force it to resolve to `^22.19.0`. This helps reduce the number of duplicate packages
   # in `node_modules/`.
-  # 
-  # For example, `vite@7.3.2` has a peer dependency `"@types/node": "^20.19.0 || >=22.12.0"`. 
-  # pnpm could install the same `vite@7.3.2` multiple times, one with `@types/node@20`, one 
-  # with `@types/node@22`, one with `@types/node@25`, etc.. By adding this override, we force 
+  #
+  # For example, `vite@7.3.2` has a peer dependency `"@types/node": "^20.19.0 || >=22.12.0"`.
+  # pnpm could install the same `vite@7.3.2` multiple times, one with `@types/node@20`, one
+  # with `@types/node@22`, one with `@types/node@25`, etc.. By adding this override, we force
   # pnpm to only keep one installation of `vite@7.3.2` with `@types/node@22`.
   '@types/node@22': '^22.19.0'
 
