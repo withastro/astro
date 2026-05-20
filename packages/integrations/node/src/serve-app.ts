@@ -90,6 +90,7 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 		let request: Request;
 		try {
 			request = createRequestFromNodeRequest(req, {
+				allowedDomains: app.getAllowedDomains?.() ?? [],
 				bodySizeLimit: effectiveBodySizeLimit,
 				port: options.port,
 			});

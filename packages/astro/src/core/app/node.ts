@@ -52,10 +52,12 @@ export function createRequestFromNodeRequest(
 	req: NodeRequest,
 	{
 		skipBody = false,
+		allowedDomains = [],
 		bodySizeLimit,
 		port: serverPort,
 	}: {
 		skipBody?: boolean;
+		allowedDomains?: Partial<RemotePattern>[];
 		bodySizeLimit?: number;
 		port?: number;
 	} = {},
@@ -91,9 +93,22 @@ export function createRequestFromNodeRequest(
 
 	wireAbortController(req, controller);
 
-	// Set client address from the socket. Forwarded client IP
-	// (X-Forwarded-For) is resolved later inside FetchState.
-	const clientIp = req.socket?.remoteAddress;
+	// Resolve client address. Trust X-Forwarded-For only when the Host
+	// header is validated against allowedDomains (same rule as createRequest).
+	const untrustedHostname = req.headers.host ?? req.headers[':authority'];
+	const validatedHostname = validateHost(
+		typeof untrustedHostname === 'string' ? untrustedHostname : undefined,
+		protocol,
+		allowedDomains,
+	);
+	const forwardedHost = getFirstForwardedValue(req.headers['x-forwarded-host']);
+	const hostValidated =
+		validatedHostname !== undefined ||
+		(forwardedHost !== undefined && allowedDomains.length > 0);
+	const forwardedClientIp = hostValidated
+		? getFirstForwardedValue(req.headers['x-forwarded-for'])
+		: undefined;
+	const clientIp = forwardedClientIp || req.socket?.remoteAddress;
 	if (clientIp) {
 		Reflect.set(request, clientAddressSymbol, clientIp);
 	}
