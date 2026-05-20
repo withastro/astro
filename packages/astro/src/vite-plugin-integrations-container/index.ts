@@ -1,6 +1,5 @@
-import { createRequire } from 'node:module';
-import { fileURLToPath } from 'node:url';
-import type { Plugin as VitePlugin } from 'vite';
+import type { PluginContext } from 'rollup';
+import type { Plugin as VitePlugin, ViteDevServer } from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroLogger } from '../core/logger/core.js';
 import { runHookServerSetup } from '../integrations/hooks.js';
@@ -15,37 +14,47 @@ export default function astroIntegrationsContainerPlugin({
 	settings: AstroSettings;
 	logger: AstroLogger;
 }): VitePlugin {
+	let server: ViteDevServer | undefined;
 	return {
 		name: 'astro:integration-container',
-		async configureServer(server) {
-			if (server.config.isProduction) return;
-			await runHookServerSetup({ config: settings.config, server, logger });
+		async configureServer(_server) {
+			server = _server;
+			if (_server.config.isProduction) return;
+			await runHookServerSetup({ config: settings.config, server: _server, logger });
 		},
-		buildStart() {
+		async buildStart() {
 			if (settings.injectedRoutes.length === settings.resolvedInjectedRoutes.length) return;
-			// Resolve injected routes using Node resolution instead of Vite's this.resolve()
-			// to avoid triggering the client dep optimizer's registerMissingImport, which can
-			// race against optimizer init and corrupt the cache.
-			const require = createRequire(settings.config.root);
-			settings.resolvedInjectedRoutes = settings.injectedRoutes.map((route) =>
-				resolveEntryPoint(route, settings.config.root, require),
+			settings.resolvedInjectedRoutes = await Promise.all(
+				settings.injectedRoutes.map((route) =>
+					resolveEntryPoint(route, server, this),
+				),
 			);
 		},
 	};
 }
 
-function resolveEntryPoint(
+async function resolveEntryPoint(
 	route: InternalInjectedRoute,
-	root: URL,
-	require: NodeRequire,
-): ResolvedInjectedRoute {
+	server: ViteDevServer | undefined,
+	pluginContext: PluginContext,
+): Promise<ResolvedInjectedRoute> {
 	const entrypoint = route.entrypoint.toString();
-	let resolved: string;
-	try {
-		resolved = require.resolve(entrypoint);
-	} catch {
-		resolved = fileURLToPath(new URL(entrypoint, root));
+	// In dev, resolve through the SSR environment's plugin container to avoid
+	// triggering the client dep optimizer's registerMissingImport, which can
+	// race against optimizer init and corrupt the metadata cache.
+	// In build, this.resolve() is safe since there's no dep optimizer race.
+	let resolvedId: string | undefined;
+	if (server) {
+		const resolved = await server.environments.ssr.pluginContainer.resolveId(entrypoint);
+		resolvedId = resolved?.id;
+	} else {
+		resolvedId = await pluginContext
+			.resolve(entrypoint)
+			.then((res) => res?.id)
+			.catch(() => undefined);
 	}
-	const resolvedEntryPoint = new URL(`file://${normalizePath(resolved)}`);
+	if (!resolvedId) return route;
+
+	const resolvedEntryPoint = new URL(`file://${normalizePath(resolvedId)}`);
 	return { ...route, resolvedEntryPoint };
 }
