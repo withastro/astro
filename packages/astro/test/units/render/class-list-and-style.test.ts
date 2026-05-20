@@ -115,7 +115,7 @@ describe('style object via addAttribute', () => {
 
 	it('handles url() with quotes in style object', () => {
 		const result = addAttribute({ backgroundImage: 'url("a")' }, 'style');
-		assert.equal(result.toString(), ' style="background-image:url(&#34;a&#34;)"');
+		assert.equal(result.toString(), ' style="background-image:url(&quot;a&quot;)"');
 	});
 
 	it('passes through string style values unchanged', () => {

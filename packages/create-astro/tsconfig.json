@@ -1,5 +1,5 @@
 {
   "extends": "../../configs/tsconfig.base.json",
-  "files": [],
+  "files": ["./create-astro.mjs"],
   "references": [{ "path": "./tsconfig.build.json" }, { "path": "./tsconfig.test.json" }]
 }

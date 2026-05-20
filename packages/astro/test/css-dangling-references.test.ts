@@ -10,6 +10,7 @@ describe("When Vite's preloadModule polyfill is used", async () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/css-dangling-references/',
+			outDir: './dist/css-dangling-references/',
 		});
 		await fixture.build();
 	});

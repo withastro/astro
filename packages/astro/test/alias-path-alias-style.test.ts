@@ -12,6 +12,7 @@ describe('Style compilation with tsconfig path aliases', () => {
 		fixture = await loadFixture({
 			root: './fixtures/alias-path-alias-style/',
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist/alias-path-alias-style/',
 		});
 		await fixture.build();
 	});

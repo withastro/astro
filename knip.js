@@ -59,6 +59,10 @@ export default {
 				'@types/http-cache-semantics',
 			],
 		},
+		'packages/astro-prism': {
+			entry: [srcEntry, dtsEntry, testEntry],
+			ignoreUnresolved: ['#prism-loadLanguages'],
+		},
 		'packages/db': {
 			entry: [srcEntry, dtsEntry, testEntry, 'test/types/**/*'],
 		},
@@ -77,7 +81,6 @@ export default {
 		},
 		'packages/integrations/netlify': {
 			entry: [srcEntry, dtsEntry, testEntry],
-			ignore: ['test/hosted/**'],
 		},
 		'packages/integrations/solid': {
 			entry: [srcEntry, dtsEntry, testEntry],
@@ -86,8 +89,6 @@ export default {
 		},
 		'packages/markdown/remark': {
 			entry: [srcEntry, dtsEntry, testEntry],
-			// package.json#imports are not resolved at the moment
-			ignore: ['src/import-plugin-browser.ts', 'src/shiki-engine-workerd.ts'],
 		},
 		'packages/markdown/satteri': {
 			entry: [srcEntry, dtsEntry, testEntry],

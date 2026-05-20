@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { readdir } from 'node:fs/promises';
-import { after, before, describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('SVG Deduplication', () => {
 	let fixture: Fixture;
@@ -11,14 +11,14 @@ describe('SVG Deduplication', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/svg-deduplication/',
+				outDir: './dist/svg-deduplication-build/',
 			});
 			await fixture.build();
 		});
 
 		it('deduplicates identical SVG files in build output', async () => {
 			// Get all SVG files in the build output
-			const distDir = new URL('./fixtures/svg-deduplication/dist/', import.meta.url);
-			const assetsDir = new URL('./_astro/', distDir);
+			const assetsDir = new URL('./_astro/', fixture.config.outDir);
 
 			let svgFiles: string[] = [];
 			try {
@@ -68,36 +68,6 @@ describe('SVG Deduplication', () => {
 			// This is verified by the file count test above - if they reference
 			// different files, we'd have 3 SVG files instead of 2
 			assert.ok(html.includes('<svg'), 'SVGs should be inlined in HTML');
-		});
-	});
-
-	describe('dev', () => {
-		let devServer: DevServer;
-
-		before(async () => {
-			fixture = await loadFixture({
-				root: './fixtures/svg-deduplication/',
-			});
-			devServer = await fixture.startDevServer();
-		});
-
-		after(async () => {
-			await devServer.stop();
-		});
-
-		it('serves SVG components correctly in dev mode', async () => {
-			const res = await fixture.fetch('/');
-			const html = await res.text();
-			const $ = cheerio.load(html);
-
-			// All SVG components should render in dev mode
-			const duplicate1Svg = $('#duplicate1 svg');
-			const duplicate2Svg = $('#duplicate2 svg');
-			const uniqueSvg = $('#unique svg');
-
-			assert.equal(duplicate1Svg.length, 1, 'duplicate1 SVG should render in dev');
-			assert.equal(duplicate2Svg.length, 1, 'duplicate2 SVG should render in dev');
-			assert.equal(uniqueSvg.length, 1, 'unique SVG should render in dev');
 		});
 	});
 });

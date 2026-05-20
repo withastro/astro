@@ -1,5 +1,20 @@
 # @astrojs/ts-plugin
 
+## 1.10.9
+
+### Patch Changes
+
+- [#16661](https://github.com/withastro/astro/pull/16661) [`03b8f7f`](https://github.com/withastro/astro/commit/03b8f7f7644cc1d9e738a8221d6bd377399538c0) Thanks [@ocavue](https://github.com/ocavue)! - Updates `typescript` to v6. No changes are needed from users.
+
+- Updated dependencies [[`03b8f7f`](https://github.com/withastro/astro/commit/03b8f7f7644cc1d9e738a8221d6bd377399538c0)]:
+  - @astrojs/yaml2ts@0.2.4
+
+## 1.10.8
+
+### Patch Changes
+
+- [#16716](https://github.com/withastro/astro/pull/16716) [`04fdbb2`](https://github.com/withastro/astro/commit/04fdbb29978d5a00acfb956538e54256ae24b486) Thanks [@delucis](https://github.com/delucis)! - Drops support for versions of VS Code below 1.101.0 [May 2025]
+
 ## 1.10.7
 
 ### Patch Changes

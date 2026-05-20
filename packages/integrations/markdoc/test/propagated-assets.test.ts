@@ -36,7 +36,7 @@ describe('Markdoc - propagated assets', () => {
 			});
 
 			after(async () => {
-				if (mode === 'dev') devServer?.stop();
+				if (mode === 'dev') await devServer?.stop();
 			});
 
 			it('Bundles styles', async () => {

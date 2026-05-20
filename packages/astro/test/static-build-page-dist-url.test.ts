@@ -17,6 +17,8 @@ describe('Static build: pages routes have distURL', () => {
 					},
 				},
 			],
+			outDir: './dist/static-build-page-dist-url/',
+			cacheDir: './node_modules/.astro-test/static-build-page-dist-url/',
 		});
 		await fixture.build();
 	});

@@ -9,6 +9,8 @@ describe('endpoints', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/endpoint-routing/',
+			outDir: './dist/endpoint-runtime/',
+			cacheDir: './node_modules/.astro-test/endpoint-runtime/',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -20,11 +22,6 @@ describe('endpoints', () => {
 	it('should respond with 500 for incorrect implementation', async () => {
 		const res = await fixture.fetch('/incorrect');
 		assert.equal(res.status, 500);
-	});
-
-	it('should respond with 404 if GET is not implemented', async () => {
-		const res = await fixture.fetch('/incorrect-route', { method: 'HEAD' });
-		assert.equal(res.status, 404);
 	});
 
 	it('should respond with same code as GET response', async () => {

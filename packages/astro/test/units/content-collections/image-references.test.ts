@@ -99,4 +99,27 @@ describe('updateImageReferencesInData', () => {
 		assert.deepEqual(result.hero, heroMeta);
 		assert.deepEqual(result.thumb, thumbMeta);
 	});
+
+	it('preserves Map instances', () => {
+		const data = {
+			metadata: new Map([
+				['title', 'Hello'],
+				['description', 'World'],
+			]),
+		};
+		const result = updateImageReferencesInData(data, FILE_NAME, new Map());
+		assert.equal(result.metadata.get('title'), 'Hello');
+		assert.equal(result.metadata.get('description'), 'World');
+		assert.equal(result.metadata.get('cover'), undefined);
+		assert.equal(result.metadata.size, 2);
+	});
+
+	it('preserves Set instances', () => {
+		const data = { flags: new Set(['showTitle', 'showDescription']) };
+		const result = updateImageReferencesInData(data, FILE_NAME, new Map());
+		assert.equal(result.flags.has('showTitle'), true);
+		assert.equal(result.flags.has('showDescription'), true);
+		assert.equal(result.flags.has('showCover'), false);
+		assert.equal(result.flags.size, 2);
+	});
 });

@@ -1,5 +1,11 @@
 # @astrojs/yaml2ts
 
+## 0.2.4
+
+### Patch Changes
+
+- [#16661](https://github.com/withastro/astro/pull/16661) [`03b8f7f`](https://github.com/withastro/astro/commit/03b8f7f7644cc1d9e738a8221d6bd377399538c0) Thanks [@ocavue](https://github.com/ocavue)! - Updates `typescript` to v6. No changes are needed from users.
+
 ## 0.2.3
 
 ### Patch Changes

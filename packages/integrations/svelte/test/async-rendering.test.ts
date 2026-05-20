@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { loadFixture, type Fixture, type DevServer } from './test-utils.ts';
+import { loadFixture, type Fixture } from './test-utils.ts';
 
 let fixture: Fixture;
 
@@ -21,25 +21,6 @@ describe.skip('Async rendering', () => {
 
 		it('Can render async components', async () => {
 			const html = await fixture.readFile('/index.html');
-			const $ = cheerioLoad(html);
-
-			assert.ok($('.weather').text().startsWith('The current temperature at KSC is'));
-		});
-	});
-
-	describe('dev', () => {
-		let devServer: DevServer;
-
-		before(async () => {
-			devServer = await fixture.startDevServer();
-		});
-
-		after(async () => {
-			await devServer.stop();
-		});
-
-		it('Can render async components', async () => {
-			const html = await fixture.fetch('/').then((res) => res.text());
 			const $ = cheerioLoad(html);
 
 			assert.ok($('.weather').text().startsWith('The current temperature at KSC is'));

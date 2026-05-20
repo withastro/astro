@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.ts';
-import { loadFixture, type DevServer, type Fixture } from './test-utils.ts';
+import { loadFixture, type Fixture } from './test-utils.ts';
 
 describe('Astro.clientAddress', () => {
 	describe('SSR', () => {
@@ -13,6 +13,7 @@ describe('Astro.clientAddress', () => {
 				root: './fixtures/client-address/',
 				output: 'server',
 				adapter: testAdapter(),
+				outDir: './dist/client-address-ssr/',
 			});
 		});
 
@@ -39,30 +40,6 @@ describe('Astro.clientAddress', () => {
 				assert.equal($('#address').text(), '1.1.1.1');
 			});
 		});
-
-		describe('Development', () => {
-			let devServer: DevServer;
-
-			before(async () => {
-				devServer = await fixture.startDevServer();
-			});
-
-			after(async () => {
-				await devServer.stop();
-			});
-
-			it('Gets the address', async () => {
-				let res = await fixture.fetch('/');
-				assert.equal(res.status, 200);
-				let html = await res.text();
-				let $ = cheerio.load(html);
-				let address = $('#address');
-
-				// Just checking that something is here. Not specifying address as it
-				// might differ per machine.
-				assert.equal(address.length > 0, true);
-			});
-		});
 	});
 
 	describe('SSR adapter not implemented', () => {
@@ -73,6 +50,7 @@ describe('Astro.clientAddress', () => {
 				root: './fixtures/client-address/',
 				output: 'server',
 				adapter: testAdapter({ provideAddress: false }),
+				outDir: './dist/client-address-ssr-adapter-not-implemented/',
 			});
 			await fixture.build();
 		});
@@ -92,6 +70,7 @@ describe('Astro.clientAddress', () => {
 			fixture = await loadFixture({
 				root: './fixtures/client-address/',
 				output: 'static',
+				outDir: './dist/client-address-ssg/',
 			});
 		});
 
@@ -107,23 +86,6 @@ describe('Astro.clientAddress', () => {
 						'Error message mentions Astro.clientAddress',
 					);
 				}
-			});
-		});
-
-		describe('Development', () => {
-			let devServer: DevServer;
-
-			before(async () => {
-				devServer = await fixture.startDevServer();
-			});
-
-			after(async () => {
-				await devServer.stop();
-			});
-
-			it('is not accessible', async () => {
-				let res = await fixture.fetch('/');
-				assert.equal(res.status, 500);
 			});
 		});
 	});

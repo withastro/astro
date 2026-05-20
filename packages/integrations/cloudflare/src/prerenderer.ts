@@ -21,6 +21,7 @@ import {
 } from './utils/prerender-constants.js';
 
 interface CloudflarePrerendererOptions {
+	cloudflareOptions: Partial<PluginConfig>;
 	root: AstroConfig['root'];
 	serverDir: AstroConfig['build']['server'];
 	clientDir: AstroConfig['build']['client'];
@@ -35,6 +36,7 @@ interface CloudflarePrerendererOptions {
  * This allows prerendering to happen in the same runtime that will serve the pages.
  */
 export function createCloudflarePrerenderer({
+	cloudflareOptions,
 	root,
 	serverDir,
 	clientDir,
@@ -82,7 +84,13 @@ export function createCloudflarePrerenderer({
 					port: 0, // Let the OS pick a free port
 					open: false,
 				},
-				plugins: [cfVitePlugin({ ...cfPluginConfig, viteEnvironment: { name: 'prerender' } })],
+				plugins: [
+					cfVitePlugin({
+						...cloudflareOptions,
+						...cfPluginConfig,
+						viteEnvironment: { name: 'prerender' },
+					}),
+				],
 			});
 
 			const address = previewServer.httpServer.address();

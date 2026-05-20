@@ -27,6 +27,7 @@ describe('astro:image:layout', () => {
 					}),
 					domains: ['avatars.githubusercontent.com', 'images.unsplash.com'],
 				},
+				outDir: './dist/core-image-layout-local-image-service/',
 			});
 
 			devServer = await fixture.startDevServer({});
@@ -346,6 +347,7 @@ describe('astro:image:layout', () => {
 					service: testRemoteImageService({ foo: 'bar' }),
 					domains: ['images.unsplash.com'],
 				},
+				outDir: './dist/core-image-layout-remote-image-service/',
 			});
 
 			const logger = new AstroLogger({
@@ -377,7 +379,10 @@ describe('astro:image:layout', () => {
 				image: {
 					service: testImageService({ foo: 'bar' }),
 					domains: ['avatars.githubusercontent.com', 'images.unsplash.com'],
+					layout: 'constrained',
+					responsiveStyles: true,
 				},
+				outDir: './dist/core-image-layout-build/',
 			});
 
 			await fixture.build();
@@ -481,6 +486,55 @@ describe('astro:image:layout', () => {
 				assert.match(style, /\[data-astro-image\]/);
 			});
 		});
+		describe('fit and position', () => {
+			let $: cheerio.CheerioAPI;
+			before(async () => {
+				const html = await fixture.readFile('/fit/index.html');
+				$ = cheerio.load(html);
+			});
+
+			it('sets data-astro-image-pos for explicit position', () => {
+				const $img = $('#position img');
+				assert.equal($img.attr('data-astro-image-pos'), 'right-top');
+			});
+
+			it('does not add inline object-position style for explicit position', () => {
+				const $img = $('#position img');
+				const style = $img.attr('style');
+				if (style) {
+					assert.ok(
+						!style.includes('object-position'),
+						'inline style should not contain object-position',
+					);
+				}
+			});
+
+			it('sets data-astro-image-fit for known fit values', () => {
+				const $fill = $('#fit-fill img');
+				assert.equal($fill.attr('data-astro-image-fit'), 'fill');
+
+				const $contain = $('#fit-contain img');
+				assert.equal($contain.attr('data-astro-image-fit'), 'contain');
+
+				const $cover = $('#fit-cover img');
+				assert.equal($cover.attr('data-astro-image-fit'), 'cover');
+
+				const $scaleDown = $('#fit-scale-down img');
+				assert.equal($scaleDown.attr('data-astro-image-fit'), 'scale-down');
+			});
+
+			it('generated CSS contains object-position rules for keyword values', () => {
+				const style = $('style').text();
+				// Vite minifies CSS, stripping quotes from attribute selectors
+				// Single keywords
+				assert.ok(style.includes('[data-astro-image-pos=center]'), 'missing rule for center');
+				assert.ok(style.includes('object-position:center'), 'missing object-position:center');
+				// Two-keyword combination matching the fixture's position="right top"
+				assert.ok(style.includes('[data-astro-image-pos=right-top]'), 'missing rule for right-top');
+				assert.ok(style.includes('object-position:right top'), 'missing object-position:right top');
+			});
+		});
+
 		describe('disabling global styles', async () => {
 			it('allows disabling global styles', async () => {
 				const fixtureWithoutStyles = await loadFixture({
@@ -490,6 +544,7 @@ describe('astro:image:layout', () => {
 						domains: ['avatars.githubusercontent.com', 'images.unsplash.com'],
 						responsiveStyles: false,
 					},
+					outDir: './dist/core-image-layout-disabling-global-styles/',
 				});
 				await fixtureWithoutStyles.build();
 				const html = await fixtureWithoutStyles.readFile('/index.html');

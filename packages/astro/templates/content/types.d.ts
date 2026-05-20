@@ -134,6 +134,7 @@ declare module 'astro:content' {
 	type ExtractEntryFilterType<T> = ExtractLoaderTypes<T>['entryFilter'];
 	type ExtractCollectionFilterType<T> = ExtractLoaderTypes<T>['collectionFilter'];
 	type ExtractErrorType<T> = ExtractLoaderTypes<T>['error'];
+	type ExtractDataType<T> = ExtractLoaderTypes<T>['data'];
 
 	type LiveLoaderDataType<C extends keyof LiveContentConfig['collections']> =
 		LiveContentConfig['collections'][C]['schema'] extends undefined
