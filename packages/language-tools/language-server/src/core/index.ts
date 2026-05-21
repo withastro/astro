@@ -21,6 +21,13 @@ import { extractScriptTags } from './parseJS.js';
 
 const decoratedHosts = new WeakSet<ts.LanguageServiceHost>();
 
+// File extensions that TypeScript cannot handle in project reference redirect maps.
+// When these appear in a referenced project's file list, TypeScript's
+// getOutputDeclarationFileName returns the input path unchanged (since changeExtension
+// doesn't recognize the extension), creating self-referencing redirect entries that
+// cause infinite recursion in findSourceFile.
+const nonTsExtensions = ['.vue', '.svelte', '.astro'];
+
 export function addAstroTypes(
 	astroInstall: PackageInfo | undefined,
 	ts: typeof import('typescript'),
@@ -89,6 +96,27 @@ export function addAstroTypes(
 					: baseCompilationSettings.moduleResolution,
 		};
 	};
+
+	// Provide getParsedCommandLine to filter non-TS files from referenced project
+	// configs. Without this, TypeScript builds redirect maps where non-TS files
+	// (like .vue) map to themselves, causing infinite recursion in findSourceFile.
+	if (host.getProjectReferences && !host.getParsedCommandLine) {
+		(host as any).getParsedCommandLine = (fileName: string) => {
+			const configFile = ts.readJsonConfigFile(fileName, ts.sys.readFile);
+			const basePath = path.dirname(fileName);
+			const parsed = ts.parseJsonSourceFileConfigFileContent(
+				configFile,
+				ts.sys,
+				basePath,
+				undefined,
+				fileName,
+			);
+			parsed.fileNames = parsed.fileNames.filter(
+				(f) => !nonTsExtensions.some((ext) => f.endsWith(ext)),
+			);
+			return parsed;
+		};
+	}
 }
 
 export function getAstroLanguagePlugin(): LanguagePlugin<URI, AstroVirtualCode> {
