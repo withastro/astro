@@ -1071,7 +1071,7 @@ export const UnsupportedExternalRedirect = {
 export const InvalidRedirectDestination = {
 	name: 'InvalidRedirectDestination',
 	title: 'Invalid redirect destination.',
-	message: (from: string, to: string, missingParams?: string[]) => {
+	message(from: string, to: string, missingParams?: string[]) {
 		if (missingParams && missingParams.length > 0) {
 			const formatted = missingParams.map((p) => `[${p}]`).join(', ');
 			return `The redirect from "${from}" to "${to}" is invalid. The destination route is missing dynamic parameter(s) ${formatted} required by the source route "${from}".`;
