@@ -13,17 +13,12 @@
   "homepage": "https://astro.build",
   "main": "./dist/index.js",
   "exports": {
-    ".": "./dist/index.js",
-    "./shiki": "./dist/shiki.js"
+    ".": "./dist/index.js"
   },
   "imports": {
     "#import-plugin": {
       "browser": "./dist/import-plugin-browser.js",
       "default": "./dist/import-plugin-default.js"
-    },
-    "#shiki-engine": {
-      "workerd": "./dist/shiki-engine-workerd.js",
-      "default": "./dist/shiki-engine-default.js"
     }
   },
   "files": [
@@ -50,8 +45,6 @@
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.2",
     "remark-smartypants": "^3.0.2",
-    "retext-smartypants": "^6.2.0",
-    "shiki": "^4.0.0",
     "smol-toml": "^1.6.0",
     "unified": "^11.0.5",
     "unist-util-remove-position": "^5.0.0",
@@ -67,7 +60,8 @@
     "@types/unist": "^3.0.3",
     "astro-scripts": "workspace:*",
     "esbuild": "^0.28.0",
-    "mdast-util-mdx-expression": "^2.0.1"
+    "mdast-util-mdx-expression": "^2.0.1",
+    "shiki": "^4.0.0"
   },
   "publishConfig": {
     "provenance": true

@@ -1,6 +1,6 @@
 import type { MarkdownHeading } from '@astrojs/internal-helpers/markdown';
+import { createShikiHighlighter } from '@astrojs/internal-helpers/shiki';
 import {
-	createShikiHighlighter,
 	satteriCollectImagesPlugin,
 	satteriHeadingIdsPlugin,
 	satteriShikiPlugin,

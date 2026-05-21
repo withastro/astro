@@ -1,7 +1,7 @@
 import type { Root } from 'hast';
 import type { Plugin } from 'unified';
 import { highlightCodeBlocks } from './highlight.js';
-import { createShikiHighlighter, type ShikiHighlighter } from './shiki.js';
+import { createShikiHighlighter, type ShikiHighlighter } from '@astrojs/internal-helpers/shiki';
 import type { ShikiConfig } from '@astrojs/internal-helpers/markdown';
 
 export const rehypeShiki: Plugin<[ShikiConfig, string[]?], Root> = (config, excludeLangs) => {

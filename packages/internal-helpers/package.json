@@ -19,7 +19,14 @@
     "./create-filter": "./dist/create-filter.js",
     "./request": "./dist/request.js",
     "./object": "./dist/object.js",
-    "./markdown": "./dist/markdown.js"
+    "./markdown": "./dist/markdown.js",
+    "./shiki": "./dist/shiki.js"
+  },
+  "imports": {
+    "#shiki-engine": {
+      "workerd": "./dist/shiki-engine-workerd.js",
+      "default": "./dist/shiki-engine-default.js"
+    }
   },
   "typesVersions": {
     "*": {
@@ -31,6 +38,9 @@
       ],
       "markdown": [
         "./dist/markdown.d.ts"
+      ],
+      "shiki": [
+        "./dist/shiki.d.ts"
       ],
       "fs": [
         "./dist/fs.d.ts"

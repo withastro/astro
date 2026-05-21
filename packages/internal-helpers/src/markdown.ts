@@ -98,3 +98,29 @@ export interface MarkdownProcessorRenderResult {
 		frontmatter: Record<string, any>;
 	};
 }
+
+// Languages never syntax-highlighted by default (e.g. `math`, handled elsewhere).
+export const defaultExcludeLanguages = ['math'];
+
+export const syntaxHighlightDefaults: Required<SyntaxHighlightConfig> = {
+	type: 'shiki',
+	excludeLangs: defaultExcludeLanguages,
+};
+
+/** Default values for the markdown config, regardless of processor. */
+export const markdownConfigDefaults: Required<Omit<AstroMarkdownProcessorOptions, 'image'>> = {
+	syntaxHighlight: syntaxHighlightDefaults,
+	shikiConfig: {
+		langs: [],
+		theme: 'github-dark',
+		themes: {},
+		wrap: false,
+		transformers: [],
+		langAlias: {},
+	},
+	gfm: true,
+	smartypants: true,
+	remarkPlugins: [],
+	rehypePlugins: [],
+	remarkRehype: {},
+};

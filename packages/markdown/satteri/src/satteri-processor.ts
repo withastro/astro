@@ -1,9 +1,12 @@
 import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
+import {
+	defaultExcludeLanguages,
+	markdownConfigDefaults,
+	syntaxHighlightDefaults,
+} from '@astrojs/internal-helpers/markdown';
 import Slugger from 'github-slugger';
 import type { Features, HastNode, HastPluginDefinition, MdastPluginDefinition } from 'satteri';
-import { satteriMarkdownDefaults, syntaxHighlightDefaults } from './defaults.js';
-import { defaultExcludeLanguages } from './highlight.js';
-import { createShikiHighlighter } from './shiki.js';
+import { createShikiHighlighter } from '@astrojs/internal-helpers/shiki';
 import type {
 	AstroMarkdownProcessorOptions,
 	MarkdownHeading,
@@ -221,9 +224,9 @@ export async function createSatteriMarkdownProcessor(
 
 	const {
 		syntaxHighlight = syntaxHighlightDefaults,
-		shikiConfig = satteriMarkdownDefaults.shikiConfig,
-		gfm = satteriMarkdownDefaults.gfm,
-		smartypants = satteriMarkdownDefaults.smartypants,
+		shikiConfig = markdownConfigDefaults.shikiConfig,
+		gfm = markdownConfigDefaults.gfm,
+		smartypants = markdownConfigDefaults.smartypants,
 		mdastPlugins: userMdastPlugins = [],
 		hastPlugins: userHastPlugins = [],
 		features: userFeatures,

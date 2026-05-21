@@ -1,4 +1,3 @@
-export { defaultExcludeLanguages } from './highlight.js';
 export {
 	createCollectImagesPlugin as satteriCollectImagesPlugin,
 	createHeadingIdsPlugin as satteriHeadingIdsPlugin,
@@ -15,12 +14,3 @@ export {
 	type SatteriProcessorDescriptor,
 	type SatteriProcessorOptions,
 } from './processor.js';
-export { satteriMarkdownDefaults, syntaxHighlightDefaults } from './defaults.js';
-export {
-	clearShikiHighlighterCache,
-	createShikiHighlighter,
-	type CreateShikiHighlighterOptions,
-	type ShikiHighlighter,
-	type ShikiHighlighterHighlightOptions,
-	type ThemePresets,
-} from './shiki.js';

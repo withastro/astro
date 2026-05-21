@@ -1,5 +1,10 @@
-import type { ShikiConfig, Smartypants as _Smartypants } from '@astrojs/internal-helpers/markdown';
-import { satteri, satteriMarkdownDefaults, syntaxHighlightDefaults } from '@astrojs/markdown-satteri';
+import {
+	markdownConfigDefaults,
+	type ShikiConfig,
+	type Smartypants as _Smartypants,
+	syntaxHighlightDefaults,
+} from '@astrojs/internal-helpers/markdown';
+import { satteri } from '@astrojs/markdown-satteri';
 import type { MarkdownProcessorEntry } from '../../../markdown/index.js';
 import type {
 	RehypePlugin as _RehypePlugin,
@@ -89,10 +94,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	},
 	integrations: [],
 	markdown: {
-		...satteriMarkdownDefaults,
-		remarkPlugins: [],
-		rehypePlugins: [],
-		remarkRehype: {},
+		...markdownConfigDefaults,
 		processor: satteri(),
 	},
 	vite: {},

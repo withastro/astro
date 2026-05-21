@@ -1,3 +1,4 @@
+import { markdownConfigDefaults } from '@astrojs/internal-helpers/markdown';
 import rehypeRaw from 'rehype-raw';
 import rehypeStringify from 'rehype-stringify';
 import remarkGfm from 'remark-gfm';
@@ -6,7 +7,6 @@ import remarkRehype from 'remark-rehype';
 import remarkSmartypants from 'remark-smartypants';
 import { unified } from 'unified';
 import { VFile } from 'vfile';
-import { defaultExcludeLanguages } from './highlight.js';
 import { loadPlugins } from './load-plugins.js';
 import { rehypeHeadingIds } from './rehype-collect-headings.js';
 import { rehypeImages } from './rehype-images.js';
@@ -17,7 +17,6 @@ import type {
 	AstroMarkdownProcessorOptions,
 	MarkdownHeading,
 	MarkdownProcessor,
-	SyntaxHighlightConfig,
 } from '@astrojs/internal-helpers/markdown';
 
 // `vfile.data.astro` is populated by the unified pipeline as it renders.
@@ -63,39 +62,12 @@ export { rehypePrism } from './rehype-prism.js';
 export { rehypeShiki } from './rehype-shiki.js';
 export { remarkCollectImages } from './remark-collect-images.js';
 export {
-	type CreateShikiHighlighterOptions,
-	createShikiHighlighter,
-	type ShikiHighlighter,
-	type ShikiHighlighterHighlightOptions,
-} from './shiki.js';
-export {
 	isUnifiedProcessor,
 	type UnifiedProcessorDescriptor,
 	type UnifiedProcessorOptions,
 	unified,
 } from './processor.js';
-
-export const syntaxHighlightDefaults: Required<SyntaxHighlightConfig> = {
-	type: 'shiki',
-	excludeLangs: defaultExcludeLanguages,
-};
-
-export const markdownConfigDefaults: Required<Omit<AstroMarkdownProcessorOptions, 'image'>> = {
-	syntaxHighlight: syntaxHighlightDefaults,
-	shikiConfig: {
-		langs: [],
-		theme: 'github-dark',
-		themes: {},
-		wrap: false,
-		transformers: [],
-		langAlias: {},
-	},
-	remarkPlugins: [],
-	rehypePlugins: [],
-	remarkRehype: {},
-	gfm: true,
-	smartypants: true,
-};
+export { markdownConfigDefaults, syntaxHighlightDefaults } from '@astrojs/internal-helpers/markdown';
 
 // Skip nonessential plugins during performance benchmark runs
 const isPerformanceBenchmark = Boolean(process.env.ASTRO_PERFORMANCE_BENCHMARK);

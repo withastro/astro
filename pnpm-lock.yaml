@@ -6802,12 +6802,6 @@ importers:
       remark-smartypants:
         specifier: ^3.0.2
         version: 3.0.2
-      retext-smartypants:
-        specifier: ^6.2.0
-        version: 6.2.0
-      shiki:
-        specifier: ^4.0.0
-        version: 4.0.2
       smol-toml:
         specifier: ^1.6.0
         version: 1.6.1
@@ -6851,6 +6845,9 @@ importers:
       mdast-util-mdx-expression:
         specifier: ^2.0.1
         version: 2.0.1
+      shiki:
+        specifier: ^4.0.0
+        version: 4.0.2
 
   packages/markdown/satteri:
     dependencies:
@@ -6863,9 +6860,6 @@ importers:
       satteri:
         specifier: ^0.6.2
         version: 0.6.2
-      shiki:
-        specifier: ^4.0.0
-        version: 4.0.2
     devDependencies:
       '@types/hast':
         specifier: ^3.0.4

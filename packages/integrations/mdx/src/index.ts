@@ -1,8 +1,11 @@
 import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import type { UnifiedProcessorDescriptor } from '@astrojs/markdown-remark';
-import type { AstroMarkdownProcessorOptions } from '@astrojs/internal-helpers/markdown';
-import { satteriMarkdownDefaults, type SatteriProcessorDescriptor } from '@astrojs/markdown-satteri';
+import {
+	type AstroMarkdownProcessorOptions,
+	markdownConfigDefaults,
+} from '@astrojs/internal-helpers/markdown';
+import type { SatteriProcessorDescriptor } from '@astrojs/markdown-satteri';
 import type { Features } from 'satteri';
 import type {
 	AstroIntegration,
@@ -113,7 +116,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 				const extendMarkdownConfig =
 					partialMdxOptions.extendMarkdownConfig ?? defaultMdxOptions.extendMarkdownConfig;
 
-				const markdownConfig = extendMarkdownConfig ? config.markdown : satteriMarkdownDefaults;
+				const markdownConfig = extendMarkdownConfig ? config.markdown : markdownConfigDefaults;
 
 				const resolvedMdxOptions = applyDefaultOptions({
 					options: partialMdxOptions,
