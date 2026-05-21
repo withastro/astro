@@ -219,6 +219,7 @@ export default function createIntegration({
 								...cloudflareOptions,
 								...cfPluginConfig,
 								viteEnvironment: { name: 'ssr' },
+								devOnly: () => _buildOutput === 'static',
 							}),
 							{
 								name: '@astrojs/cloudflare:cf-imports',
