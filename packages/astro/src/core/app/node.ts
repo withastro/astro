@@ -331,6 +331,13 @@ function makeRequestBody(req: NodeRequest, bodySizeLimit?: number): RequestInit 
 			return { body: Buffer.from(req.body) };
 		}
 
+		// Pass through binary data directly. Buffer, Uint8Array, and other typed arrays
+		// are valid BodyInit values and must not be JSON-stringified. Without this check
+		// they fall into the plain-object branch below because typeof returns 'object'.
+		if (req.body instanceof ArrayBuffer || ArrayBuffer.isView(req.body)) {
+			return { body: req.body as BodyInit };
+		}
+
 		if (typeof req.body === 'object' && req.body !== null && Object.keys(req.body).length > 0) {
 			return { body: Buffer.from(JSON.stringify(req.body)) };
 		}
