@@ -462,7 +462,13 @@ async function buildManifest(
 		renderers: [],
 		clientDirectives: Array.from(settings.clientDirectives),
 		entryModules,
-		inlinedScripts: Array.from(internals.inlinedScripts),
+		inlinedScripts: Array.from(internals.inlinedScripts).map(([key, value]) => {
+			const nk = normalizePath(key);
+			const relativeKey = nk.startsWith(normalizedRoot)
+				? nk.slice(normalizedRoot.length - 1)
+				: nk;
+			return [relativeKey, value] as [string, typeof value];
+		}),
 		assets: staticFiles.map(prefixAssetPath),
 		i18n: i18nManifest,
 		buildFormat: settings.config.build.format,

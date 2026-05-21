@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { writeJson } from '@astrojs/internal-helpers/fs';
 import type { AstroAdapter, AstroConfig, AstroIntegration, RouteToHeaders } from 'astro';
@@ -70,8 +71,17 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 						plugins: [
 							createConfigPlugin({
 								...userOptions,
-								client: _config.build.client?.toString(),
-								server: _config.build.server?.toString(),
+								// Use paths relative to outDir for portability. resolveClientDir()
+								// computes the relative offset between these and resolves against
+								// import.meta.url at runtime.
+								client: './' + path.relative(
+									fileURLToPath(_config.outDir),
+									fileURLToPath(_config.build.client),
+								).split(path.sep).join('/') + '/',
+								server: './' + path.relative(
+									fileURLToPath(_config.outDir),
+									fileURLToPath(_config.build.server),
+								).split(path.sep).join('/') + '/',
 								host: _config.server.host,
 								port: _config.server.port,
 								staticHeaders: userOptions.staticHeaders ?? false,
