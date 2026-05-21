@@ -1062,16 +1062,23 @@ export const UnsupportedExternalRedirect = {
  * @see
  * - [Configured redirects](https://docs.astro.build/en/guides/routing/#configured-redirects)
  * @description
- * A dynamic redirect destination must match an existing route pattern.
+ * A dynamic redirect destination must match an existing route pattern and include
+ * all dynamic parameters from the source route.
  * This error occurs when a redirect with dynamic parameters points to a destination
- * that doesn't correspond to any page in your project.
+ * that doesn't correspond to any page in your project, or when the destination route
+ * has fewer dynamic parameters than the source route.
  */
 export const InvalidRedirectDestination = {
 	name: 'InvalidRedirectDestination',
 	title: 'Invalid redirect destination.',
-	message: (from: string, to: string) =>
-		`The redirect from "${from}" to "${to}" is invalid. The destination "${to}" does not match any existing route in your project.`,
-	hint: 'If you are redirecting to a specific page of a dynamic route (e.g., "/posts/[slug]/1"), this is not supported. The destination must be either a static path or a route pattern that matches an existing page (e.g., "/posts/[slug]/[page]").',
+	message(from: string, to: string, missingParams?: string[]) {
+		if (missingParams && missingParams.length > 0) {
+			const formatted = missingParams.map((p) => `[${p}]`).join(', ');
+			return `The redirect from "${from}" to "${to}" is invalid. The destination route is missing dynamic parameter(s) ${formatted} required by the source route "${from}".`;
+		}
+		return `The redirect from "${from}" to "${to}" is invalid. The destination "${to}" does not match any existing route in your project.`;
+	},
+	hint: 'The destination of a dynamic redirect must include all dynamic parameters from the source route. For example, a redirect from "/old/[slug]" must go to a route that also has a [slug] parameter, like "/new/[slug]".',
 } satisfies ErrorData;
 
 /**
