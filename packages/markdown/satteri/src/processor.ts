@@ -3,9 +3,7 @@ import type {
 	AstroMarkdownProcessorOptions,
 	MarkdownProcessor,
 } from '@astrojs/internal-helpers/markdown';
-import type {
-	MdastPluginDefinition, HastPluginDefinition, Features
-} from 'satteri';
+import type { MdastPluginDefinition, HastPluginDefinition, Features } from 'satteri';
 
 export interface SatteriProcessorOptions {
 	mdastPlugins?: MdastPluginDefinition[];
@@ -35,7 +33,7 @@ export function satteri(opts: SatteriProcessorOptions = {}): SatteriProcessorDes
 			hastPlugins: [...(opts.hastPlugins ?? [])],
 			// Default to `{}` so integrations can write `options.features.gfm = false`
 			// without an `??=` check.
-			features: { ...(opts.features) },
+			features: { ...opts.features },
 		},
 		createRenderer(shared) {
 			return createSatteriMarkdownProcessor({
@@ -49,8 +47,6 @@ export function satteri(opts: SatteriProcessorOptions = {}): SatteriProcessorDes
 	return descriptor;
 }
 
-export function isSatteriProcessor(p: {
-	name: string;
-}): p is SatteriProcessorDescriptor {
+export function isSatteriProcessor(p: { name: string }): p is SatteriProcessorDescriptor {
 	return p.name === 'satteri';
 }
