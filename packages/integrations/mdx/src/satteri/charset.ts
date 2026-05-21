@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 const exportConstPartialTrueRe = /export\s+const\s+partial\s*=\s*true/;
 const leadingComponentRe = /^\s*<\s*([A-Za-z][A-Za-z0-9]*)\b/;
 
-// Scans MDX source directly because satteri exposes no root-level visitor.
+// Scans MDX source directly because Sätteri exposes no root-level visitor.
 // Skips imports/exports/blank lines and bails when the first content line is a
 // capitalized JSX element (treated as a wrapping layout).
 export function shouldAddCharset(content: string, filePath: string, srcDir: URL): boolean {

@@ -4,7 +4,7 @@ import type { MdxJsxAttributeNode, MdxJsxFlowElementHast, MdxJsxTextElementHast 
 // `makeFragmentNode`, `collectHastText`) live in `@astrojs/markdown-satteri`
 // because they're shared with the markdown render pipeline.
 
-// satteri hands plugin visitors readonly nodes; these helpers only read them.
+// Sätteri hands plugin visitors readonly nodes; these helpers only read them.
 export type MdxJsxHastNode = Readonly<MdxJsxFlowElementHast | MdxJsxTextElementHast>;
 
 const nonAlphaRe = /[^a-zA-Z]/;

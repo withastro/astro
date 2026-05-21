@@ -17,8 +17,8 @@ type HighlightFn = (code: string, lang: string, meta?: string) => Promise<string
 
 let satteri: typeof import('satteri') | undefined;
 
-// Loaded lazily so the satteri Rust/WASM binary isn't pulled in unless the
-// satteri processor actually runs.
+// Loaded lazily so the Sätteri Rust/WASM binary isn't pulled in unless the
+// Sätteri processor actually runs.
 async function loadSatteri(): Promise<typeof import('satteri')> {
 	satteri ??= await import('satteri');
 	return satteri;

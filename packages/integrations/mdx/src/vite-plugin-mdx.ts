@@ -68,13 +68,17 @@ export function vitePluginMdx(opts: VitePluginMdxOptions): Plugin {
 						map: result.map ?? null,
 						meta: {
 							astro: result.astroMetadata,
+							// `lang: 'ts'` makes Vite resolve `.js` import specifiers to `.ts` files.
 							vite: { lang: 'ts' },
 						},
 					};
 				} catch (e: any) {
 					const err: SSRError = e;
+					// Surface compile failures as a dedicated MDX error with a source
+					// location so the dev overlay can point at the offending file.
 					err.name = 'MDXError';
 					err.loc = { file: id, line: e.line, column: e.column };
+					// Compiler errors may arrive without a JS stack; capture one here.
 					Error.captureStackTrace(err);
 					throw err;
 				}

@@ -31,7 +31,6 @@ minimumReleaseAgeExclude:
   - '@astrojs/*'
   - satteri
   - '@bruits/satteri-*'
-  - '@napi-rs/wasm-runtime'
 peerDependencyRules:
   allowAny:
     - 'astro'

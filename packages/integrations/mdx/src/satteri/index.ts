@@ -53,6 +53,12 @@ export function createMdxProcessor(mdxOptions: MdxOptions, ctx: CreateMdxProcess
 					? syntaxHighlight.type
 					: undefined;
 
+		if (syntaxHighlightType === 'prism') {
+			throw new Error(
+				'Prism syntax highlighting is not supported by the `satteri()` markdown processor. Use shiki instead, or switch to `markdown.processor: unified({...})`.',
+			);
+		}
+
 		if (syntaxHighlightType === 'shiki') {
 			const shikiConfig = mdxOptions.shikiConfig ?? {};
 			initPromise = createShikiHighlighter({
@@ -113,7 +119,7 @@ export function createMdxProcessor(mdxOptions: MdxOptions, ctx: CreateMdxProcess
 			const hastPlugins: HastPluginDefinition[] = [];
 			if (highlightFn) {
 				// `mdx: true` wraps the highlighted HTML in a JSX `<Fragment set:html>` node
-				// rather than a raw HTML node, since the satteri pipeline is compiling to JSX.
+				// rather than a raw HTML node, since the Sätteri pipeline is compiling to JSX.
 				hastPlugins.push(satteriShikiPlugin(highlightFn, excludeLangs, { mdx: true }));
 			}
 			hastPlugins.push(headingIds, imageToComponent, astroMeta);

@@ -99,7 +99,7 @@ export interface MarkdownProcessorRenderResult {
 	};
 }
 
-// MDX rendering metadata. Produced by `@astrojs/mdx`'s satteri and unified pipelines
+// MDX rendering metadata. Produced by `@astrojs/mdx`'s Sätteri and unified pipelines
 // and surfaced on Vite's `meta.astro`; defined here so both pipelines share one shape.
 
 export interface AstroComponentMetadata {

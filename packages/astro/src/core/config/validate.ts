@@ -40,8 +40,11 @@ function warnDeprecatedMarkdownOptions(
 	const deprecated = (['gfm', 'smartypants'] as const).filter((k) => md[k] !== undefined);
 	if (deprecated.length === 0) return;
 	didWarnAboutDeprecatedMarkdownOptions = true;
+
+	const names = deprecated.map((key) => `\`markdown.${key}\``).join(' and ');
+	const isPlural = deprecated.length > 1;
 	console.warn(
-		`[astro] \`markdown.${deprecated.join('\` and `markdown.')}\` are deprecated. Move them onto your processor instead (e.g. \`unified({ gfm: false, smartypants: false })\` or \`satteri({ features: { gfm: false, smartPunctuation: false } })\`). They'll be removed in a future major.`,
+		`[astro] ${names} ${isPlural ? 'are' : 'is'} deprecated. Move ${isPlural ? 'them' : 'it'} onto your processor instead (e.g. \`unified({ gfm: false, smartypants: false })\` or \`satteri({ features: { gfm: false, smartPunctuation: false } })\`). Will be removed in a future major.`,
 	);
 }
 
@@ -94,7 +97,7 @@ async function coerceLegacyMarkdownPlugins(
 			);
 		}
 	} else {
-		// satteri and third-party processors can't run remark/rehype plugins, so legacy
+		// Sätteri and third-party processors can't run remark/rehype plugins, so legacy
 		// plugins force a swap to `unified()`. Warn loudly — this changes the active
 		// Markdown processor, e.g. away from the default native pipeline.
 		if (!didWarnAboutProcessorSwap) {
