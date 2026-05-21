@@ -943,6 +943,7 @@ describe('astro:image', () => {
 				outDir: './dist/server-base-path',
 				adapter: testAdapter(),
 				image: {
+					domains: ['avatars.githubusercontent.com'],
 					endpoint: {
 						route: '/_image',
 						entrypoint: 'astro/assets/endpoint/node',
@@ -970,6 +971,9 @@ describe('astro:image', () => {
 				output: 'server',
 				outDir: './dist/server-base-path',
 				adapter: testAdapter(),
+				image: {
+					domains: ['avatars.githubusercontent.com'],
+				},
 			});
 			await fixtureWithBase.build();
 			const app = await fixtureWithBase.loadTestAdapterApp();
@@ -1394,6 +1398,7 @@ describe('prod ssr', () => {
 			outDir: './dist/server-prod',
 			adapter: testAdapter(),
 			image: {
+				domains: ['avatars.githubusercontent.com'],
 				endpoint: { route: '/_image', entrypoint: 'astro/assets/endpoint/node' },
 				service: testImageService(),
 			},
@@ -1559,6 +1564,7 @@ describe('prod ssr - SVG format validation', () => {
 			outDir: './dist/server-prod-svg-validation',
 			adapter: testAdapter(),
 			image: {
+				domains: ['avatars.githubusercontent.com'],
 				endpoint: { route: '/_image', entrypoint: 'astro/assets/endpoint/node' },
 				service: testImageService(),
 				remotePatterns: [{ protocol: 'data' }],
