@@ -253,6 +253,7 @@ export interface SSRResult {
 	styleResources: SSRManifestCSP['styleResources'];
 	directives: SSRManifestCSP['directives'];
 	isStrictDynamic: SSRManifestCSP['isStrictDynamic'];
+	isStyleUnsafeInline: SSRManifestCSP['isStyleUnsafeInline'];
 	internalFetchHeaders?: Record<string, string>;
 
 	/**

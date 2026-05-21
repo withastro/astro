@@ -30,6 +30,7 @@ function createCspPipeline(cspConfig: Partial<SSRManifestCSP> = {}): Pipeline {
 				styleResources: cspConfig.styleResources || [],
 				directives: cspConfig.directives || [],
 				isStrictDynamic: cspConfig.isStrictDynamic || false,
+				isStyleUnsafeInline: cspConfig.isStyleUnsafeInline || false,
 			},
 		},
 		writable: false,
@@ -415,6 +416,63 @@ describe('CSP Rendering', () => {
 			const content = meta.attr('content')!;
 
 			assert.equal(content.includes('font-src'), false, 'Should not include font-src directive');
+		});
+	});
+
+	describe('Style Unsafe Inline', () => {
+		it("should emit 'unsafe-inline' and omit style hashes when unsafeInline is enabled", async () => {
+			const pipeline = createCspPipeline({
+				isStyleUnsafeInline: true,
+				styleHashes: ['sha256-abc123'],
+				styleResources: ["'self'", 'https://fonts.googleapis.com'],
+			});
+
+			const { html } = await renderPage(SimplePage, pipeline);
+			const $ = cheerio.load(html);
+
+			const meta = $('meta[http-equiv="Content-Security-Policy"]');
+			const content = meta.attr('content')!;
+
+			assert.ok(content.includes("'unsafe-inline'"), "Should include 'unsafe-inline'");
+			assert.ok(!content.includes('sha256-abc123'), 'Should not include style hashes');
+			assert.ok(content.includes('style-src'), 'Should have style-src directive');
+			assert.ok(
+				content.includes('https://fonts.googleapis.com'),
+				'Should still include style resources',
+			);
+		});
+
+		it('should not affect script hashes when unsafeInline is enabled for styles', async () => {
+			const pipeline = createCspPipeline({
+				isStyleUnsafeInline: true,
+				scriptHashes: ['sha256-scriptHash'],
+				styleHashes: ['sha256-styleHash'],
+			});
+
+			const { html } = await renderPage(SimplePage, pipeline);
+			const $ = cheerio.load(html);
+
+			const meta = $('meta[http-equiv="Content-Security-Policy"]');
+			const content = meta.attr('content')!;
+
+			assert.ok(content.includes('sha256-scriptHash'), 'Should still include script hashes');
+			assert.ok(!content.includes('sha256-styleHash'), 'Should not include style hashes');
+			assert.ok(content.includes("'unsafe-inline'"), "Should include 'unsafe-inline' in style-src");
+		});
+
+		it('should emit style hashes normally when unsafeInline is not set', async () => {
+			const pipeline = createCspPipeline({
+				styleHashes: ['sha256-abc123'],
+			});
+
+			const { html } = await renderPage(SimplePage, pipeline);
+			const $ = cheerio.load(html);
+
+			const meta = $('meta[http-equiv="Content-Security-Policy"]');
+			const content = meta.attr('content')!;
+
+			assert.ok(content.includes('sha256-abc123'), 'Should include style hash');
+			assert.ok(!content.includes("'unsafe-inline'"), "Should not include 'unsafe-inline'");
 		});
 	});
 

@@ -11,6 +11,7 @@ import {
 	getScriptHashes,
 	getScriptResources,
 	getStrictDynamic,
+	getStyleUnsafeInline,
 	getStyleHashes,
 	getStyleResources,
 	shouldTrackCspHashes,
@@ -169,6 +170,7 @@ async function createSerializedManifest(
 			algorithm: getAlgorithm(settings.config.security.csp),
 			directives: getDirectives(settings),
 			isStrictDynamic: getStrictDynamic(settings.config.security.csp),
+			isStyleUnsafeInline: getStyleUnsafeInline(settings.config.security.csp),
 		};
 	}
 

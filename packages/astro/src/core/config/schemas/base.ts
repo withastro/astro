@@ -500,6 +500,7 @@ export const AstroConfigSchema = z.object({
 							.object({
 								resources: z.array(z.string()).optional(),
 								hashes: z.array(cspHashSchema).optional(),
+								unsafeInline: z.boolean().optional(),
 							})
 							.optional(),
 						scriptDirective: z

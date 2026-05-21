@@ -93,6 +93,13 @@ export function getStrictDynamic(csp: EnabledCsp): boolean {
 	return csp.scriptDirective?.strictDynamic ?? false;
 }
 
+export function getStyleUnsafeInline(csp: EnabledCsp): boolean {
+	if (csp === true) {
+		return false;
+	}
+	return csp.styleDirective?.unsafeInline ?? false;
+}
+
 export async function trackStyleHashes(
 	internals: BuildInternals,
 	settings: AstroSettings,
