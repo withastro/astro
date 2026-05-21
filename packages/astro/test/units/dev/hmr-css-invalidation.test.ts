@@ -1,6 +1,5 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import type { Plugin } from 'vite';
 import hmrReload from '../../../dist/vite-plugin-hmr-reload/index.js';
 
 /**
@@ -16,7 +15,15 @@ import hmrReload from '../../../dist/vite-plugin-hmr-reload/index.js';
  * tested with mocks. That path is verified through manual integration testing.
  */
 describe('astro:hmr-reload CSS invalidation', () => {
-	type HotUpdateHandler = NonNullable<Extract<Plugin['hotUpdate'], { handler: unknown }>['handler']>;
+	type HotUpdateHandler = (
+		this: { environment: unknown },
+		context: {
+			modules: Array<{ id: string | null; file?: string }>;
+			server: unknown;
+			timestamp: number;
+			file: string;
+		},
+	) => unknown;
 
 	function getHotUpdateHandler(): HotUpdateHandler {
 		const plugin = hmrReload();
@@ -24,7 +31,7 @@ describe('astro:hmr-reload CSS invalidation', () => {
 
 		assert.ok(hotUpdate && typeof hotUpdate === 'object' && 'handler' in hotUpdate);
 
-		return hotUpdate.handler;
+		return hotUpdate.handler as unknown as HotUpdateHandler;
 	}
 
 	/**
