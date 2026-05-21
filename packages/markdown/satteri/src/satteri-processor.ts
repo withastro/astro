@@ -1,5 +1,6 @@
 import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import Slugger from 'github-slugger';
+import type { Features, HastNode, HastPluginDefinition, MdastPluginDefinition } from 'satteri';
 import { satteriMarkdownDefaults, syntaxHighlightDefaults } from './defaults.js';
 import { defaultExcludeLanguages } from './highlight.js';
 import { createShikiHighlighter } from './shiki.js';
@@ -7,29 +8,24 @@ import type {
 	AstroMarkdownProcessorOptions,
 	MarkdownHeading,
 	MarkdownProcessor,
-} from './types.js';
+} from '@astrojs/internal-helpers/markdown';
 
 type HighlightFn = (code: string, lang: string, meta?: string) => Promise<string>;
 
 let satteri: typeof import('satteri') | undefined;
 
+// Loaded lazily so the satteri Rust/WASM binary isn't pulled in unless the
+// satteri processor actually runs.
 async function loadSatteri(): Promise<typeof import('satteri')> {
-	if (satteri) return satteri;
-	try {
-		satteri = await import('satteri');
-		return satteri;
-	} catch {
-		throw new Error(
-			'The default `satteri()` markdown processor requires the `satteri` package. Install it with:\n  npm install satteri\n\nOr opt into the legacy unified pipeline with `markdown.processor: unified({...})` from `@astrojs/markdown-remark`.',
-		);
-	}
+	satteri ??= await import('satteri');
+	return satteri;
 }
 
 export function createCollectImagesPlugin(
 	localImagePaths: Set<string>,
 	remoteImagePaths: Set<string>,
 	image: AstroMarkdownProcessorOptions['image'] = {},
-): import('satteri').MdastPluginDefinition {
+): MdastPluginDefinition {
 	const domains = image?.domains ?? [];
 	const remotePatterns = image?.remotePatterns ?? [];
 	return {
@@ -75,7 +71,7 @@ function resolveFrontmatterExpression(
 }
 
 export function collectHastText(
-	node: import('satteri').HastNode,
+	node: HastNode,
 	frontmatter: Record<string, any> | undefined,
 ): string {
 	let text = '';
@@ -89,25 +85,25 @@ export function collectHastText(
 	}
 	if ('children' in node && node.children) {
 		for (const child of node.children) {
-			text += collectHastText(child as import('satteri').HastNode, frontmatter);
+			text += collectHastText(child as HastNode, frontmatter);
 		}
 	}
 	return text;
 }
 
-export function makeFragmentNode(html: string): import('satteri').HastNode {
+export function makeFragmentNode(html: string): HastNode {
 	return {
 		type: 'mdxJsxFlowElement',
 		name: 'Fragment',
 		attributes: [{ type: 'mdxJsxAttribute', name: 'set:html', value: html }],
 		children: [],
-	} as unknown as import('satteri').HastNode;
+	} as unknown as HastNode;
 }
 
 export function createHeadingIdsPlugin(
 	headings: MarkdownHeading[],
 	frontmatter: Record<string, any> | undefined,
-): import('satteri').HastPluginDefinition {
+): HastPluginDefinition {
 	const slugger = new Slugger();
 	return {
 		name: 'heading-ids',
@@ -131,8 +127,8 @@ export function createHeadingIdsPlugin(
 	};
 }
 
-function makeRawNode(html: string): import('satteri').HastNode {
-	return { type: 'raw', value: html } as unknown as import('satteri').HastNode;
+function makeRawNode(html: string): HastNode {
+	return { type: 'raw', value: html } as unknown as HastNode;
 }
 
 const HAST_PRESERVED_PROPERTIES = new Set(['className', 'htmlFor']);
@@ -141,7 +137,7 @@ const HAST_PRESERVED_PROPERTIES = new Set(['className', 'htmlFor']);
 export function createImageMarkerPlugin(
 	localImagePaths: Set<string>,
 	remoteImagePaths: Set<string>,
-): import('satteri').HastPluginDefinition {
+): HastPluginDefinition {
 	const indexBySrc = new Map<string, number>();
 	return {
 		name: 'image-marker',
@@ -182,7 +178,7 @@ export function createShikiPlugin(
 	highlight: HighlightFn,
 	excludeLangs: string[] | undefined,
 	options?: { mdx?: boolean },
-): import('satteri').HastPluginDefinition {
+): HastPluginDefinition {
 	const wrapResult = options?.mdx ? makeFragmentNode : makeRawNode;
 	return {
 		name: 'shiki-highlight',
@@ -190,8 +186,8 @@ export function createShikiPlugin(
 			filter: ['pre'],
 			async visit(node, ctx) {
 				const codeChild = node.children?.find(
-					(c: import('satteri').HastNode) => c.type === 'element' && c.tagName === 'code',
-				) as import('satteri').HastNode | undefined;
+					(c: HastNode) => c.type === 'element' && c.tagName === 'code',
+				) as HastNode | undefined;
 				if (!codeChild || codeChild.type !== 'element') return;
 
 				const lang = (codeChild.data as any)?.lang ?? 'plaintext';
@@ -213,9 +209,9 @@ export function createShikiPlugin(
 }
 
 export interface SatteriMarkdownProcessorOptions extends AstroMarkdownProcessorOptions {
-	mdastPlugins?: import('satteri').MdastPluginDefinition[];
-	hastPlugins?: import('satteri').HastPluginDefinition[];
-	features?: import('satteri').Features;
+	mdastPlugins?: MdastPluginDefinition[];
+	hastPlugins?: HastPluginDefinition[];
+	features?: Features;
 }
 
 export async function createSatteriMarkdownProcessor(
@@ -273,12 +269,12 @@ export async function createSatteriMarkdownProcessor(
 			const remoteImagePaths = new Set<string>();
 			const frontmatter = renderOpts?.frontmatter ?? {};
 
-			const allMdastPlugins: import('satteri').MdastPluginDefinition[] = [
+			const allMdastPlugins: MdastPluginDefinition[] = [
 				createCollectImagesPlugin(localImagePaths, remoteImagePaths, opts?.image),
 				...userMdastPlugins,
 			];
 
-			const hastPlugins: import('satteri').HastPluginDefinition[] = [];
+			const hastPlugins: HastPluginDefinition[] = [];
 			if (highlightFn) {
 				hastPlugins.push(createShikiPlugin(highlightFn, syntaxHighlightExcludeLangs));
 			}

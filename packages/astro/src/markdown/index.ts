@@ -1,11 +1,7 @@
-import type { RemotePattern } from '@astrojs/internal-helpers/remote';
 import type {
+	AstroMarkdownProcessorOptions,
 	MarkdownProcessor,
-	ShikiConfig,
-	Smartypants,
-	SyntaxHighlightConfig,
-	SyntaxHighlightConfigType,
-} from '@astrojs/markdown-satteri';
+} from '@astrojs/internal-helpers/markdown';
 import type { PluggableList } from 'unified';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 
@@ -16,6 +12,8 @@ export {
 	type ParseFrontmatterOptions,
 	type ParseFrontmatterResult,
 } from './frontmatter.js';
+export { resolvePath } from '../core/viteUtils.js';
+export type { AstroMarkdownProcessorOptions } from '@astrojs/internal-helpers/markdown';
 
 /**
  * Configuration that ends up on `markdown.processor`. Returned by factory functions like
@@ -32,28 +30,16 @@ export interface MarkdownProcessorEntry<
 	 */
 	options?: TOptions;
 	/** Create the runtime renderer for `.md` files. */
-	createRenderer(shared: SharedMarkdownConfig): Promise<MarkdownProcessor>;
+	createRenderer(shared: AstroMarkdownProcessorOptions): Promise<MarkdownProcessor>;
 	/**
 	 * Create the runtime renderer for `.mdx` files. Optional — when absent, `@astrojs/mdx`
 	 * falls back to its built-in handling for the known `satteri` and `unified` processor
 	 * names. Third-party processors should provide this to enable MDX support.
 	 */
 	createMdxRenderer?(
-		shared: SharedMarkdownConfig,
+		shared: AstroMarkdownProcessorOptions,
 		mdx: MdxRendererOptions,
 	): Promise<MdxRenderer>;
-}
-
-/** Markdown config fields that apply to every processor regardless of flavor. */
-export interface SharedMarkdownConfig {
-	syntaxHighlight?: SyntaxHighlightConfig | SyntaxHighlightConfigType | false;
-	shikiConfig?: ShikiConfig;
-	gfm?: boolean;
-	smartypants?: Smartypants | boolean;
-	image?: {
-		domains?: string[];
-		remotePatterns?: RemotePattern[];
-	};
 }
 
 /** Cross-cutting MDX options passed to `createMdxRenderer` regardless of processor. */

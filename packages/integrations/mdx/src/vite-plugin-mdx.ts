@@ -1,5 +1,4 @@
 import type { SSRError } from 'astro';
-import { getAstroMetadata } from 'astro/jsx/rehype.js';
 import type { MarkdownProcessorEntry, MdxRenderer } from 'astro/markdown';
 import { VFile } from 'vfile';
 import type { Plugin } from 'vite';
@@ -114,7 +113,9 @@ async function resolveMdxRenderer(
 		};
 	}
 	if (isUnifiedProcessor(processor)) {
-		const { createMdxProcessor: createRemarkMdxProcessor } = await import('./unified/index.js');
+		const { createMdxProcessor: createRemarkMdxProcessor, getAstroMetadata } = await import(
+			'./unified/index.js'
+		);
 		const remarkProcessor = createRemarkMdxProcessor(opts.mdxOptions, { sourcemap });
 		return {
 			async process(content, filePath, frontmatter) {

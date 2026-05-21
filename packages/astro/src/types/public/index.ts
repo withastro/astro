@@ -1,5 +1,5 @@
 export type { RemotePattern } from '@astrojs/internal-helpers/remote';
-export type { MarkdownHeading, ShikiConfig } from '@astrojs/markdown-satteri';
+export type { MarkdownHeading, ShikiConfig } from '@astrojs/internal-helpers/markdown';
 export type { RehypePlugins, RemarkPlugins } from './config.js';
 export type {
 	ExternalImageService,

@@ -24,14 +24,3 @@ export {
 	type ShikiHighlighterHighlightOptions,
 	type ThemePresets,
 } from './shiki.js';
-export type {
-	AstroMarkdownProcessorOptions,
-	MarkdownHeading,
-	MarkdownProcessor,
-	MarkdownProcessorRenderOptions,
-	MarkdownProcessorRenderResult,
-	ShikiConfig,
-	Smartypants,
-	SyntaxHighlightConfig,
-	SyntaxHighlightConfigType,
-} from './types.js';

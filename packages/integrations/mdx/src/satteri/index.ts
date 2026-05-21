@@ -1,6 +1,6 @@
+import type { MarkdownHeading } from '@astrojs/internal-helpers/markdown';
 import {
 	createShikiHighlighter,
-	type MarkdownHeading,
 	satteriCollectImagesPlugin,
 	satteriHeadingIdsPlugin,
 	satteriShikiPlugin,
@@ -9,6 +9,7 @@ import {
 	mdxToJs,
 	type HastPluginDefinition,
 	type MdastPluginDefinition,
+	type MdxCompileOptions,
 } from 'satteri';
 import {
 	ASTRO_IMAGE_IMPORT,
@@ -131,7 +132,7 @@ export function createMdxProcessor(mdxOptions: MdxOptions, ctx: CreateMdxProcess
 				hastPlugins.push(...mdxOptions.hastPlugins);
 			}
 
-			let optimizeStatic: import('satteri').MdxCompileOptions['optimizeStatic'];
+			let optimizeStatic: MdxCompileOptions['optimizeStatic'];
 			if (mdxOptions.optimize) {
 				const ignoreElements =
 					typeof mdxOptions.optimize === 'object'

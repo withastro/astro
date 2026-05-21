@@ -1,5 +1,5 @@
 import { existsSync, promises as fs } from 'node:fs';
-import type { MarkdownProcessor } from '@astrojs/markdown-satteri';
+import type { MarkdownProcessor } from '@astrojs/internal-helpers/markdown';
 import { parseFrontmatter } from '../markdown/frontmatter.js';
 import PQueue from 'p-queue';
 import type { FSWatcher } from 'vite';

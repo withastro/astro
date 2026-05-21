@@ -35,13 +35,12 @@
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
     "github-slugger": "^2.0.0",
-    "satteri": "^0.6.1",
+    "satteri": "^0.6.2",
     "shiki": "^4.0.0"
   },
   "devDependencies": {
     "@types/hast": "^3.0.4",
-    "astro-scripts": "workspace:*",
-    "retext-smartypants": "^6.2.0"
+    "astro-scripts": "workspace:*"
   },
   "publishConfig": {
     "provenance": true

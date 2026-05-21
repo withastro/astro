@@ -1,11 +1,9 @@
 import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import type { UnifiedProcessorDescriptor } from '@astrojs/markdown-remark';
-import {
-	type AstroMarkdownProcessorOptions,
-	satteriMarkdownDefaults,
-	type SatteriProcessorDescriptor,
-} from '@astrojs/markdown-satteri';
+import type { AstroMarkdownProcessorOptions } from '@astrojs/internal-helpers/markdown';
+import { satteriMarkdownDefaults, type SatteriProcessorDescriptor } from '@astrojs/markdown-satteri';
+import type { Features } from 'satteri';
 import type {
 	AstroIntegration,
 	AstroIntegrationLogger,
@@ -43,7 +41,7 @@ export type MdxOptions = SharedMarkdownOptions & {
 	optimize: boolean | { ignoreElementNames?: string[] };
 	mdastPlugins: MdastPluginDefinition[];
 	hastPlugins: HastPluginDefinition[];
-	features?: import('satteri').Features;
+	features?: Features;
 	/**
 	 * Override the markdown processor for `.mdx` files. Defaults to `config.markdown.processor`.
 	 * Use this to run `.mdx` files through a different processor (or the same processor with

@@ -1,13 +1,16 @@
 import { createSatteriMarkdownProcessor } from './satteri-processor.js';
-import type { AstroMarkdownProcessorOptions, MarkdownProcessor } from './types.js';
+import type {
+	AstroMarkdownProcessorOptions,
+	MarkdownProcessor,
+} from '@astrojs/internal-helpers/markdown';
 import type {
 	MdastPluginDefinition, HastPluginDefinition, Features
 } from 'satteri';
 
 export interface SatteriProcessorOptions {
-	mdastPlugins?: import('satteri').MdastPluginDefinition[];
-	hastPlugins?: import('satteri').HastPluginDefinition[];
-	features?: import('satteri').Features;
+	mdastPlugins?: MdastPluginDefinition[];
+	hastPlugins?: HastPluginDefinition[];
+	features?: Features;
 }
 
 /**

@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import type { MarkdownProcessor } from '@astrojs/markdown-satteri';
+import type { MarkdownProcessor } from '@astrojs/internal-helpers/markdown';
 import { isFrontmatterValid } from '../markdown/frontmatter.js';
 import type { Plugin } from 'vite';
 import { safeParseFrontmatter } from '../content/utils.js';

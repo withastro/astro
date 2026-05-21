@@ -1,4 +1,4 @@
-import * as path from 'node:path';
+import { resolvePath } from 'astro/markdown';
 import {
 	defineHastPlugin,
 	type HastPluginDefinition,
@@ -134,14 +134,6 @@ function findMatchingImport(
 	}
 }
 
-function resolveImportPath(specifier: string, importer: string): string {
-	if (specifier.startsWith('.')) {
-		const absoluteSpecifier = path.resolve(path.dirname(importer), specifier);
-		return absoluteSpecifier.split(path.sep).join('/');
-	}
-	return specifier;
-}
-
 function processJsxNode(
 	node: MdxJsxHastNode,
 	ctx: HastVisitorContext,
@@ -176,7 +168,7 @@ function processJsxNode(
 		);
 	}
 
-	const resolvedPath = resolveImportPath(matchedImport.path, filePath);
+	const resolvedPath = resolvePath(matchedImport.path, filePath);
 	const exportName =
 		matchedImport.name === '*' ? tagName.split('.').slice(1).join('.') : matchedImport.name;
 

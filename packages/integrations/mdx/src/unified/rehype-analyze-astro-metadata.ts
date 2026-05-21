@@ -1,3 +1,5 @@
+import { resolvePath } from 'astro/markdown';
+import type { Program } from 'estree';
 import type { RootContent, Root as HastRoot } from 'hast';
 import type { Plugin } from 'unified';
 import type {} from 'mdast-util-mdx';
@@ -8,13 +10,37 @@ import type {
 } from 'mdast-util-mdx-jsx';
 import { visit } from 'unist-util-visit';
 import type { VFile } from 'vfile';
-import { AstroError } from '../core/errors/errors.js';
-import { AstroErrorData } from '../core/errors/index.js';
-import { resolvePath } from '../core/viteUtils.js';
-import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
-import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 
 const ClientOnlyPlaceholder = 'astro-client-only';
+
+interface AstroComponentMetadata {
+	exportName: string;
+	localName: string;
+	specifier: string;
+	resolvedPath: string;
+}
+
+export interface AstroMetadata {
+	hydratedComponents: AstroComponentMetadata[];
+	clientOnlyComponents: AstroComponentMetadata[];
+	serverComponents: AstroComponentMetadata[];
+	scripts: never[];
+	propagation: 'none';
+	containsHead: false;
+	pageOptions: Record<string, never>;
+}
+
+function createDefaultAstroMetadata(): AstroMetadata {
+	return {
+		hydratedComponents: [],
+		clientOnlyComponents: [],
+		serverComponents: [],
+		scripts: [],
+		propagation: 'none',
+		containsHead: false,
+		pageOptions: {},
+	};
+}
 
 export const rehypeAnalyzeAstroMetadata: Plugin<[], HastRoot> = () => {
 	return (tree, file) => {
@@ -45,10 +71,9 @@ export const rehypeAnalyzeAstroMetadata: Plugin<[], HastRoot> = () => {
 			// Match this component with its import source
 			const matchedImport = findMatchingImport(tagName, imports);
 			if (!matchedImport) {
-				throw new AstroError({
-					...AstroErrorData.NoMatchingImport,
-					message: AstroErrorData.NoMatchingImport.message(node.name!),
-				});
+				throw new Error(
+					`Expected a matching import for component \`${node.name}\`. Did you forget to import it?`,
+				);
 			}
 
 			// If this is an Astro component, that means the `client:` directive is misused as it doesn't
@@ -106,31 +131,10 @@ export const rehypeAnalyzeAstroMetadata: Plugin<[], HastRoot> = () => {
 };
 
 export function getAstroMetadata(file: VFile) {
-	return file.data.__astroMetadata as PluginMetadata['astro'] | undefined;
+	return file.data.__astroMetadata as AstroMetadata | undefined;
 }
 
 type ImportSpecifier = { local: string; imported: string };
-
-// Minimal ESTree shapes we need — avoids a direct dependency on @types/estree.
-// `@types/estree` is present transitively but not in our direct deps, and satteri's
-// hast augmentations widen `mdxjsEsm.data.estree` to `{}`, erasing its Program typing.
-type EstreeId = { type: 'Identifier'; name: string };
-type EstreeLiteral = { type: 'Literal'; value: unknown };
-type EstreeImportSpecifier =
-	| { type: 'ImportDefaultSpecifier'; local: EstreeId }
-	| { type: 'ImportNamespaceSpecifier'; local: EstreeId }
-	| {
-			type: 'ImportSpecifier';
-			local: EstreeId;
-			imported: EstreeId | EstreeLiteral;
-	  };
-type EstreeImportDeclaration = {
-	type: 'ImportDeclaration';
-	source: { value: string };
-	specifiers: EstreeImportSpecifier[];
-};
-type EstreeStatement = EstreeImportDeclaration | { type: 'OtherStatement' };
-type EstreeProgram = { body: EstreeStatement[] };
 
 /**
  * ```
@@ -156,9 +160,10 @@ function parseImports(children: RootContent[]) {
 	for (const child of children) {
 		if (child.type !== 'mdxjsEsm') continue;
 
-		// `child.data?.estree` is widened by the hast augmentations; narrow it back to the shape
-		// we care about (an ESTree Program with ImportDeclaration bodies).
-		const body = (child.data?.estree as EstreeProgram | undefined)?.body;
+		// satteri and `mdast-util-mdxjs-esm` both augment `hast` for `mdxjsEsm` with
+		// conflicting `data` types; the one that wins doesn't model `estree`, so type
+		// the access here. The unified pipeline's nodes always carry the program.
+		const body = (child.data as { estree?: Program } | undefined)?.estree?.body;
 		if (!body) continue;
 
 		for (const ast of body) {

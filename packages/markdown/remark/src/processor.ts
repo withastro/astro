@@ -4,7 +4,7 @@ import type {
 	RehypePlugins,
 	RemarkPlugins,
 	RemarkRehype,
-} from './types.js';
+} from '@astrojs/internal-helpers/markdown';
 
 export interface UnifiedProcessorOptions {
 	remarkPlugins?: RemarkPlugins;

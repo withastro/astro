@@ -4,7 +4,7 @@ import type { MdxTextExpression } from 'mdast-util-mdx-expression';
 import type { Node } from 'unist';
 import { visit } from 'unist-util-visit';
 import type { VFile } from 'vfile';
-import type { MarkdownHeading, RehypePlugin } from './types.js';
+import type { MarkdownHeading, RehypePlugin } from '@astrojs/internal-helpers/markdown';
 
 import { FORBIDDEN_PATH_KEYS } from '@astrojs/internal-helpers/object';
 

@@ -14,12 +14,43 @@ import { rehypePrism } from './rehype-prism.js';
 import { rehypeShiki } from './rehype-shiki.js';
 import { remarkCollectImages } from './remark-collect-images.js';
 import type {
-	AstroMarkdownOptions,
 	AstroMarkdownProcessorOptions,
+	MarkdownHeading,
 	MarkdownProcessor,
 	SyntaxHighlightConfig,
-} from './types.js';
+} from '@astrojs/internal-helpers/markdown';
 
+// `vfile.data.astro` is populated by the unified pipeline as it renders.
+declare module 'vfile' {
+	interface DataMap {
+		astro: {
+			headings?: MarkdownHeading[];
+			localImagePaths?: string[];
+			remoteImagePaths?: string[];
+			frontmatter?: Record<string, any>;
+		};
+	}
+}
+
+export type { Node } from 'unist';
+// The markdown contract types live in `@astrojs/internal-helpers/markdown`;
+// re-exported so consumers keep a single import surface.
+export type {
+	AstroMarkdownProcessorOptions,
+	MarkdownHeading,
+	MarkdownProcessor,
+	MarkdownProcessorRenderOptions,
+	MarkdownProcessorRenderResult,
+	RehypePlugin,
+	RehypePlugins,
+	RemarkPlugin,
+	RemarkPlugins,
+	RemarkRehype,
+	ShikiConfig,
+	Smartypants,
+	SyntaxHighlightConfig,
+	SyntaxHighlightConfigType,
+} from '@astrojs/internal-helpers/markdown';
 export {
 	extractFrontmatter,
 	isFrontmatterValid,
@@ -37,7 +68,6 @@ export {
 	type ShikiHighlighter,
 	type ShikiHighlighterHighlightOptions,
 } from './shiki.js';
-export * from './types.js';
 export {
 	isUnifiedProcessor,
 	type UnifiedProcessorDescriptor,
@@ -50,7 +80,7 @@ export const syntaxHighlightDefaults: Required<SyntaxHighlightConfig> = {
 	excludeLangs: defaultExcludeLanguages,
 };
 
-export const markdownConfigDefaults: Required<AstroMarkdownOptions> = {
+export const markdownConfigDefaults: Required<Omit<AstroMarkdownProcessorOptions, 'image'>> = {
 	syntaxHighlight: syntaxHighlightDefaults,
 	shikiConfig: {
 		langs: [],

@@ -1,4 +1,4 @@
-import type { MarkdownHeading } from '@astrojs/markdown-satteri';
+import type { MarkdownHeading } from '@astrojs/internal-helpers/markdown';
 import * as devalue from 'devalue';
 
 export interface RenderedContent {

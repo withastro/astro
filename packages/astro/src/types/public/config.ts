@@ -1,10 +1,13 @@
 import type { OutgoingHttpHeaders } from 'node:http';
 import type { RemotePattern } from '@astrojs/internal-helpers/remote';
 import type {
+	RehypePlugins,
+	RemarkPlugins,
+	RemarkRehype,
 	ShikiConfig,
 	Smartypants,
 	SyntaxHighlightConfigType,
-} from '@astrojs/markdown-satteri';
+} from '@astrojs/internal-helpers/markdown';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
 import type { FontFamily, FontProvider } from '../../assets/fonts/types.js';
 import type { SvgOptimizer } from '../../assets/svg/types.js';
@@ -25,25 +28,16 @@ import type { EnvSchema } from '../../env/schema.js';
 import type { MarkdownProcessorEntry } from '../../markdown/index.js';
 import type { AstroIntegration } from './integrations.js';
 
-// Loose plugin/option shapes for the deprecated `markdown.remarkPlugins` /
-// `rehypePlugins` / `remarkRehype` fields. Strict typing lives in
-// `@astrojs/markdown-remark`; install it to get sharper inference when
-// migrating to `markdown.processor: unified({...})`.
-
-/** @deprecated Install `@astrojs/markdown-remark` and use `markdown.processor: unified({ remarkPlugins })`. */
-export type RemarkPlugin = (...args: any[]) => any;
-
-/** @deprecated Install `@astrojs/markdown-remark` and use `markdown.processor: unified({ remarkPlugins })`. */
-export type RemarkPlugins = (string | [string, any] | RemarkPlugin | [RemarkPlugin, any])[];
-
-/** @deprecated Install `@astrojs/markdown-remark` and use `markdown.processor: unified({ rehypePlugins })`. */
-export type RehypePlugin = (...args: any[]) => any;
-
-/** @deprecated Install `@astrojs/markdown-remark` and use `markdown.processor: unified({ rehypePlugins })`. */
-export type RehypePlugins = (string | [string, any] | RehypePlugin | [RehypePlugin, any])[];
-
-/** @deprecated Install `@astrojs/markdown-remark` and use `markdown.processor: unified({ remarkRehype })`. */
-export type RemarkRehype = Record<string, unknown>;
+// Plugin/option shapes for the deprecated `markdown.remarkPlugins` /
+// `rehypePlugins` / `remarkRehype` fields. Defined in `@astrojs/internal-helpers/markdown`
+// alongside the rest of the markdown config contract.
+export type {
+	RehypePlugin,
+	RehypePlugins,
+	RemarkPlugin,
+	RemarkPlugins,
+	RemarkRehype,
+} from '@astrojs/internal-helpers/markdown';
 
 export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
 
@@ -2103,6 +2097,7 @@ export interface AstroUserConfig<
 		 * @docs
 		 * @name markdown.remarkPlugins
 		 * @type {RemarkPlugins}
+		 * @deprecated Use `markdown.processor: unified({ remarkPlugins })` from `@astrojs/markdown-remark` instead. Will be removed in a future major.
 		 * @description
 		 * Pass [remark plugins](https://github.com/remarkjs/remark) to customize how your Markdown is built. You can import and apply the plugin function (recommended), or pass the plugin name as a string.
 		 *
@@ -2120,6 +2115,7 @@ export interface AstroUserConfig<
 		 * @docs
 		 * @name markdown.rehypePlugins
 		 * @type {RehypePlugins}
+		 * @deprecated Use `markdown.processor: unified({ rehypePlugins })` from `@astrojs/markdown-remark` instead. Will be removed in a future major.
 		 * @description
 		 * Pass [rehype plugins](https://github.com/remarkjs/remark-rehype) to customize how your Markdown's output HTML is processed. You can import and apply the plugin function (recommended), or pass the plugin name as a string.
 		 *
@@ -2173,6 +2169,7 @@ export interface AstroUserConfig<
 		 * @docs
 		 * @name markdown.remarkRehype
 		 * @type {RemarkRehype}
+		 * @deprecated Use `markdown.processor: unified({ remarkRehype })` from `@astrojs/markdown-remark` instead. Will be removed in a future major.
 		 * @description
 		 * Pass options to [remark-rehype](https://github.com/remarkjs/remark-rehype#api).
 		 *

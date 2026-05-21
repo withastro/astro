@@ -1,4 +1,4 @@
-import type { ShikiConfig, Smartypants as _Smartypants } from '@astrojs/markdown-satteri';
+import type { ShikiConfig, Smartypants as _Smartypants } from '@astrojs/internal-helpers/markdown';
 import { satteri, satteriMarkdownDefaults, syntaxHighlightDefaults } from '@astrojs/markdown-satteri';
 import type { MarkdownProcessorEntry } from '../../../markdown/index.js';
 import type {

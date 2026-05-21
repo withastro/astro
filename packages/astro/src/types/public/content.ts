@@ -1,4 +1,4 @@
-import type { MarkdownHeading } from '@astrojs/markdown-satteri';
+import type { MarkdownHeading } from '@astrojs/internal-helpers/markdown';
 import type { DataEntry, RenderedContent } from '../../content/data-store.js';
 import type { LiveCollectionError } from '../../content/loaders/errors.js';
 import type { AstroComponentFactory } from '../../runtime/server/index.js';

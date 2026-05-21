@@ -5,18 +5,20 @@ import {
 	remarkCollectImages,
 } from '@astrojs/markdown-remark';
 import { createProcessor, nodeTypes } from '@mdx-js/mdx';
-import { rehypeAnalyzeAstroMetadata } from 'astro/jsx/rehype.js';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import remarkSmartypants from 'remark-smartypants';
 import { SourceMapGenerator } from 'source-map';
 import type { PluggableList } from 'unified';
 import type { MdxOptions } from '../index.js';
+import { rehypeAnalyzeAstroMetadata } from './rehype-analyze-astro-metadata.js';
 import { rehypeApplyFrontmatterExport } from './rehype-apply-frontmatter-export.js';
 import { rehypeInjectHeadingsExport } from './rehype-collect-headings.js';
 import { rehypeImageToComponent } from './rehype-images-to-component.js';
 import rehypeMetaString from './rehype-meta-string.js';
 import { rehypeOptimizeStatic } from './rehype-optimize-static.js';
+
+export { getAstroMetadata } from './rehype-analyze-astro-metadata.js';
 
 // Skip nonessential plugins during performance benchmark runs
 const isPerformanceBenchmark = Boolean(process.env.ASTRO_PERFORMANCE_BENCHMARK);

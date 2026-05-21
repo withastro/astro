@@ -1,5 +1,5 @@
 import type { RehypePlugin } from '@astrojs/markdown-remark';
-import type { Expression } from 'estree';
+import type { Expression, Program } from 'estree';
 import { SKIP, visit } from 'estree-util-visit';
 import type { Element, RootContent, RootContentMap } from 'hast';
 import { toHtml } from 'hast-util-to-html';
@@ -255,7 +255,9 @@ function getExportConstComponentObjectKeys(node: RootContentMap['mdxjsEsm']) {
 	let variableInit: Expression | undefined | null;
 
 	// Find the initial value of `components` in the AST.
-	for (const part of (node.data?.estree as any)?.body || []) {
+	for (const part of (node.data as {
+		estree: Program;
+	})?.estree?.body || []) {
 		if (
 			part.type !== 'ExportNamedDeclaration' ||
 			part.declaration?.type !== 'VariableDeclaration'
