@@ -16,6 +16,13 @@ export function getServerOutputDirectory(settings: AstroSettings): URL {
 }
 
 /**
+ * Returns the output directory used by the prerender environment.
+ */
+export function getPrerenderOutputDirectory(settings: AstroSettings): URL {
+	return new URL('./.prerender/', getServerOutputDirectory(settings));
+}
+
+/**
  * Returns the correct output directory of the client build based on the configuration
  */
 export function getClientOutputDirectory(settings: AstroSettings): URL {

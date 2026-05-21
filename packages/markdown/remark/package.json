@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/markdown-remark",
-  "version": "7.0.0-beta.11",
+  "version": "7.1.2",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -31,10 +31,10 @@
   ],
   "scripts": {
     "prepublish": "pnpm build",
-    "build": "astro-scripts build \"src/**/*.ts\" && tsc -p tsconfig.json",
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc -b",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "astro-scripts test \"test/**/*.test.js\""
+    "test": "astro-scripts test \"test/**/*.test.ts\""
   },
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
@@ -50,6 +50,7 @@
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.2",
     "remark-smartypants": "^3.0.2",
+    "retext-smartypants": "^6.2.0",
     "shiki": "^4.0.0",
     "smol-toml": "^1.6.0",
     "unified": "^11.0.5",

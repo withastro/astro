@@ -1,5 +1,5 @@
 // @ts-expect-error This is an internal module
-import * as config from 'astro:config/server';
+import * as config from 'astro:config/client';
 import { toFallbackType } from '../core/app/common.js';
 import { toRoutingStrategy } from '../core/app/entrypoints/index.js';
 import type { SSRManifest } from '../core/app/types.js';
@@ -13,9 +13,9 @@ import * as I18nInternals from '../i18n/index.js';
 import type { MiddlewareHandler } from '../types/public/common.js';
 import type { AstroConfig, ValidRedirectStatus } from '../types/public/config.js';
 import type { APIContext } from '../types/public/context.js';
-import type { ServerDeserializedManifest } from '../types/public/index.js';
+import type { ClientDeserializedManifest } from '../types/public/index.js';
 
-const { trailingSlash, site, i18n, build } = config as ServerDeserializedManifest;
+const { trailingSlash, site, i18n, build } = config as ClientDeserializedManifest;
 const { format } = build;
 const isBuild = import.meta.env.PROD;
 const { defaultLocale, locales, domains, fallback, routing } = i18n!;

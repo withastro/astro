@@ -8,7 +8,7 @@ import type {
 } from '../../types/public/common.js';
 import type { AstroConfig, RuntimeMode } from '../../types/public/config.js';
 import type { RouteData } from '../../types/public/internal.js';
-import type { Logger } from '../logger/core.js';
+import type { AstroLogger } from '../logger/core.js';
 
 import { stringifyParams } from '../routing/params.js';
 import { validateDynamicRouteModule, validateGetStaticPathsResult } from '../routing/validation.js';
@@ -35,7 +35,10 @@ export async function callGetStaticPaths({
 	if (!mod) {
 		throw new Error('This is an error caused by Astro and not your code. Please file an issue.');
 	}
-	if (cached?.staticPaths) {
+	// After HMR, `mod` is a new object from a fresh import(). If the cached
+	// entry was produced by a previous module instance, treat it as stale so
+	// getStaticPaths() is re-called with the updated module.
+	if (cached?.staticPaths && cached.mod === mod) {
 		return cached.staticPaths;
 	}
 
@@ -73,11 +76,12 @@ export async function callGetStaticPaths({
 		keyedStaticPaths.keyed.set(paramsKey, sp);
 	}
 
-	routeCache.set(route, { ...cached, staticPaths: keyedStaticPaths });
+	routeCache.set(route, { ...cached, mod, staticPaths: keyedStaticPaths });
 	return keyedStaticPaths;
 }
 
 interface RouteCacheEntry {
+	mod?: ComponentInstance;
 	staticPaths: GetStaticPathsResultKeyed;
 }
 
@@ -87,11 +91,11 @@ interface RouteCacheEntry {
  * responses during dev and only ever called once during build.
  */
 export class RouteCache {
-	private logger: Logger;
+	private logger: AstroLogger;
 	private cache: Record<string, RouteCacheEntry> = {};
 	private runtimeMode: RuntimeMode;
 
-	constructor(logger: Logger, runtimeMode: RuntimeMode = 'production') {
+	constructor(logger: AstroLogger, runtimeMode: RuntimeMode = 'production') {
 		this.logger = logger;
 		this.runtimeMode = runtimeMode;
 	}
@@ -125,7 +129,7 @@ export function findPathItemByKey(
 	staticPaths: GetStaticPathsResultKeyed,
 	params: Params,
 	route: RouteData,
-	logger: Logger,
+	logger: AstroLogger,
 	trailingSlash: AstroConfig['trailingSlash'],
 ) {
 	const paramsKey = stringifyParams(params, route, trailingSlash);

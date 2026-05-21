@@ -3,6 +3,7 @@ export const prerender = false;
 
 import { getCollection, getEntry, render } from 'astro:content';
 import Hello from '../components/react/Hello.tsx';
+import SubpathCounter from '#components/react/SubpathCounter.tsx';
 import HelloVue from '../components/Hello.vue';
 import PreactCounter from '../components/preact/Counter.tsx';
 import Island from '../components/Island.astro';
@@ -47,6 +48,7 @@ const surname = Astro.url.searchParams.get('surname');
 	<p id="runtime">Running on: {workerRuntime ?? 'unknown runtime'}</p>
 	<div id="framework">
 		<Hello client:load />
+		<SubpathCounter client:load />
 		<HelloVue client:load />
 		<PreactCounter client:load />
 	</div>
@@ -82,4 +84,3 @@ const surname = Astro.url.searchParams.get('surname');
 		font-family: var(--font-roboto);
 	}
 </style>
-

@@ -46,10 +46,12 @@ const layout = props.layout ?? imageConfig.layout ?? 'none';
 const useResponsive = layout !== 'none';
 
 if (useResponsive) {
-	// Apply defaults from imageConfig if not provided
 	props.layout ??= imageConfig.layout;
 	props.fit ??= imageConfig.objectFit ?? 'cover';
 	props.position ??= imageConfig.objectPosition ?? 'center';
+} else if (imageConfig.objectFit || imageConfig.objectPosition) {
+	props.fit ??= imageConfig.objectFit;
+	props.position ??= imageConfig.objectPosition;
 }
 
 for (const key in props) {

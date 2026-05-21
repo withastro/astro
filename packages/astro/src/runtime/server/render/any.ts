@@ -22,8 +22,7 @@ export function renderChild(destination: RenderDestination, child: any): void | 
 
 	// HTMLString (including SlotString which extends it) — pre-escaped content
 	// from escapeHTML(), addAttribute(), unescapeHTML(), etc.  Checked early
-	// because the Rust compiler wraps simple expressions in $$escapeHTML(),
-	// making this the third most common type after plain strings and numbers.
+	// since it's a common type after plain strings and numbers.
 	//
 	// For plain HTMLString (not SlotString): extract the primitive string and
 	// write it directly.  This avoids the expensive String() coercion that
@@ -46,7 +45,7 @@ export function renderChild(destination: RenderDestination, child: any): void | 
 		return;
 	}
 
-	// Unified renderable check: catches RenderTemplateResult, RenderBytesResult,
+	// Unified renderable check: catches RenderTemplateResult,
 	// AstroComponentInstance, and other RenderInstance objects in a single check.
 	// This is the 4th check — much earlier than the previous separate checks at
 	// positions 4, 9, and 10.  The `typeof child.render` check is fast in V8

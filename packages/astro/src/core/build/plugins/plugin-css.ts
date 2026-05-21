@@ -1,8 +1,9 @@
 import type { GetModuleInfo } from 'rollup';
 import type { BuildOptions, ResolvedConfig, Plugin as VitePlugin } from 'vite';
 import { isCSSRequest } from 'vite';
-import { hasAssetPropagationFlag } from '../../../content/index.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
+import { isPropagatedAssetBoundary } from '../../head-propagation/boundary.js';
+import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../../vite-plugin-pages/const.js';
 import {
 	getParentExtendedModuleInfos,
 	getParentModuleInfos,
@@ -28,6 +29,19 @@ export function pluginCSS(options: StaticBuildOptions, internals: BuildInternals
 interface PluginOptions {
 	internals: BuildInternals;
 	buildOptions: StaticBuildOptions;
+}
+
+function isBuildCssBoundary(id: string, ctx: { getModuleInfo: GetModuleInfo }): boolean {
+	if (isPropagatedAssetBoundary(id)) return true;
+	const info = ctx.getModuleInfo(id);
+	if (!info || !moduleIsTopLevelPage(info)) return false;
+	const allImporters = info.importers.concat(info.dynamicImporters);
+	const hasNonVirtualPageImporter = allImporters.some(
+		(importer) => !importer.includes(VIRTUAL_PAGE_RESOLVED_MODULE_ID),
+	);
+	// Pages imported by non-virtual modules (e.g. partials imported by other pages)
+	// should propagate CSS transitively instead of acting as hard page boundaries.
+	return !hasNonVirtualPageImporter;
 }
 
 function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
@@ -158,7 +172,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 								const parentModuleInfos = getParentExtendedModuleInfos(
 									scopedToModule,
 									this,
-									hasAssetPropagationFlag,
+									(moduleId) => isBuildCssBoundary(moduleId, this),
 								);
 								for (const { info: pageInfo, depth, order } of parentModuleInfos) {
 									if (moduleIsTopLevelPage(pageInfo)) {
@@ -227,9 +241,11 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 					// Only walk up for dependencies that are CSS
 					if (!isCSSRequest(id)) continue;
 
-					const parentModuleInfos = getParentExtendedModuleInfos(id, this, hasAssetPropagationFlag);
+					const parentModuleInfos = getParentExtendedModuleInfos(id, this, (importer) =>
+						isBuildCssBoundary(importer, this),
+					);
 					for (const { info: pageInfo, depth, order } of parentModuleInfos) {
-						if (hasAssetPropagationFlag(pageInfo.id)) {
+						if (isPropagatedAssetBoundary(pageInfo.id)) {
 							const propagatedCss = (moduleIdToPropagatedCss[pageInfo.id] ??= new Set());
 							for (const css of meta.importedCss) {
 								propagatedCss.add(css);

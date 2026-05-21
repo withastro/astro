@@ -4,7 +4,14 @@ import type { ViteBuildReturn } from './types.js';
 
 export function getTimeStat(timeStart: number, timeEnd: number) {
 	const buildTime = timeEnd - timeStart;
-	return buildTime < 1000 ? `${Math.round(buildTime)}ms` : `${(buildTime / 1000).toFixed(2)}s`;
+	if (buildTime < 1000) {
+		return `${Math.round(buildTime)}ms`;
+	} else if (buildTime < 60_000) {
+		return `${(buildTime / 1000).toFixed(2)}s`;
+	}
+	const mins = Math.floor(buildTime / 60_000);
+	const secs = Math.round((buildTime % 60_000) / 1000);
+	return `${mins}m ${secs}s`;
 }
 
 /**
@@ -31,7 +38,23 @@ export function shouldAppendForwardSlash(
 	}
 }
 
-export function encodeName(name: string): string {
+/**
+ * Matches any character that is NOT alphanumeric, underscore, dot, hyphen, or forward slash.
+ * Rollup's built-in `sanitizeFileName` misses characters like `!` and `~` that can leak
+ * from Vite module IDs into chunk names (e.g. `page.!{005}.js`).
+ */
+const UNSAFE_CHUNK_CHAR_RE = /[^\w.\-/]/g;
+
+/**
+ * Replaces characters in a chunk name that are not safe for filesystem paths or URLs.
+ * Characters like `!` and `~` can leak from Vite module IDs into Rollup chunk names
+ * and break deploys on platforms like Netlify.
+ */
+export function cleanChunkName(name: string): string {
+	return encodeName(name.replace(UNSAFE_CHUNK_CHAR_RE, '_'));
+}
+
+function encodeName(name: string): string {
 	// Detect if the chunk name has as % sign that is not encoded.
 	// This is borrowed from Node core: https://github.com/nodejs/node/blob/3838b579e44bf0c2db43171c3ce0da51eb6b05d5/lib/internal/url.js#L1382-L1391
 	// We do this because you cannot import a module with this character in it.

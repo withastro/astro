@@ -5,9 +5,9 @@ import type {
 	RemarkPlugins,
 	RemarkRehype,
 	ShikiConfig,
+	Smartypants,
 	SyntaxHighlightConfigType,
 } from '@astrojs/markdown-remark';
-import type { Config as SvgoConfig } from 'svgo';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
 import type { FontFamily, FontProvider } from '../../assets/fonts/types.js';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
@@ -16,7 +16,7 @@ import type { CacheProviderConfig, RouteRules } from '../../core/cache/types.js'
 import type { AstroConfigType } from '../../core/config/schemas/index.js';
 import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
 import type { CspAlgorithm, CspDirective, CspHash } from '../../core/csp/config.js';
-import type { Logger, LoggerLevel } from '../../core/logger/core.js';
+import type { AstroLogger, AstroLoggerLevel } from '../../core/logger/core.js';
 import type {
 	SessionConfig,
 	SessionDriverConfig,
@@ -24,6 +24,8 @@ import type {
 } from '../../core/session/types.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
+import type { SvgOptimizer } from '../../assets/svg/types.js';
+import type { LoggerHandlerConfig } from '../../core/logger/config.js';
 
 export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
 
@@ -32,6 +34,8 @@ export type { FontProvider };
 export type { CspAlgorithm, CspHash };
 
 export type { RemotePattern };
+
+export type { SvgOptimizer };
 
 export type CspStyleDirective = { hashes?: CspHash[]; resources?: string[] };
 export type CspScriptDirective = {
@@ -356,7 +360,7 @@ export interface AstroUserConfig<
 	 *
 	 * Extend Astro with custom integrations. Integrations are your one-stop-shop for adding framework support (like Solid.js), new features (like sitemaps), and new libraries (like Partytown).
 	 *
-	 * Read our [Integrations Guide](https://docs.astro.build/en/guides/integrations-guide/) for help getting started with Astro Integrations.
+	 * Read our [Integrations Guide](https://docs.astro.build/en/guides/integrations/) for help getting started with Astro Integrations.
 	 *
 	 * ```js
 	 * import react from '@astrojs/react';
@@ -468,24 +472,27 @@ export interface AstroUserConfig<
 	/**
 	 * @docs
 	 * @name compressHTML
-	 * @type {boolean}
+	 * @type {boolean | "jsx"}
 	 * @default `true`
 	 * @description
 	 *
-	 * This is an option to minify your HTML output and reduce the size of your HTML files.
+	 * Controls how Astro handles whitespace in your HTML. This affects both development mode and the final build output.
 	 *
-	 * By default, Astro removes whitespace from your HTML, including line breaks, from `.astro` components in a lossless manner.
-	 * Some whitespace may be kept as needed to preserve the visual rendering of your HTML. This occurs both in development mode and in the final build.
+	 * By default, Astro removes whitespace from your HTML, including line breaks, in a lossless manner from `.astro` components. Some whitespace may be preserved as needed to maintain the visual rendering of your HTML.
 	 *
-	 * To disable HTML compression, set `compressHTML` to false.
+	 * Setting this option to `"jsx"` instead applies the JSX whitespace stripping rules used by frameworks like React. Leading and trailing whitespace is only preserved when explicitly included in the source code through constructs such as `{" "}`, and is otherwise removed entirely.
+	 *
+	 * Setting this option to false disables HTML compression and preserves all whitespace.
 	 *
 	 * ```js
 	 * {
 	 *   compressHTML: false
+	 *   // or:
+	 *   // compressHTML: 'jsx'
 	 * }
 	 * ```
 	 */
-	compressHTML?: boolean;
+	compressHTML?: boolean | 'jsx';
 
 	/**
 	 * @docs
@@ -724,9 +731,9 @@ export interface AstroUserConfig<
 		 * Enabling this feature adds additional security to Astro's handling of processed and bundled scripts and styles by default, and allows you to further configure these, and additional, content types.
 		 *
 		 * This feature comes with some limitations:
-		 * - External scripts and external styles are not supported out of the box, but you can [provide your own hashes](https://v6.docs.astro.build/en/reference/configuration-reference/#securitycspscriptdirectivehashes).
-		 * - [Astro's view transitions](https://v6.docs.astro.build/en/guides/view-transitions/) using the `<ClientRouter />` are not supported, but you can [consider migrating to the browser native View Transition API](https://events-3bg.pages.dev/jotter/astro-view-transitions/) instead if you are not using Astro's enhancements to the native View Transitions and Navigation APIs.
-		 * - Shiki isn't currently supported. By design, Shiki functions use inline styles that cannot work with Astro CSP implementation. Consider [using `<Prism />`](https://v6.docs.astro.build/en/guides/syntax-highlighting/#prism-) when your project requires both CSP and syntax highlighting.
+		 * - External scripts and external styles are not supported out of the box, but you can [provide your own hashes](https://docs.astro.build/en/reference/configuration-reference/#securitycspscriptdirectivehashes).
+		 * - [Astro's view transitions](https://docs.astro.build/en/guides/view-transitions/) using the `<ClientRouter />` are not supported, but you can [consider migrating to the browser native View Transition API](https://events-3bg.pages.dev/jotter/astro-view-transitions/) instead if you are not using Astro's enhancements to the native View Transitions and Navigation APIs.
+		 * - Shiki isn't currently supported. By design, Shiki functions use inline styles that cannot work with Astro CSP implementation. Consider [using `<Prism />`](https://docs.astro.build/en/guides/syntax-highlighting/#prism-) when your project requires both CSP and syntax highlighting.
 		 * - `unsafe-inline` directives are incompatible with Astro's CSP implementation. By default, Astro will emit hashes for all its bundled scripts (e.g. client islands) and all modern browsers will automatically reject `unsafe-inline` when it occurs in a directive with a hash or nonce.
 		 *
 		 * :::note
@@ -734,7 +741,7 @@ export interface AstroUserConfig<
 		 * :::
 		 *
 		 * When enabled, Astro will add a `<meta>` element inside the `<head>` element of each page.
-		 * This element will have the `http-equiv="content-security-policy"` attribute, and the `content` attribute will provide values for the `script-src` and `style-src` [directives](https://v6.docs.astro.build/en/reference/configuration-reference/#securitycspdirectives) based on the script and styles used in the page.
+		 * This element will have the `http-equiv="content-security-policy"` attribute, and the `content` attribute will provide values for the `script-src` and `style-src` [directives](https://docs.astro.build/en/reference/configuration-reference/#securitycspdirectives) based on the script and styles used in the page.
 		 *
 		 * ```html
 		 *
@@ -829,7 +836,7 @@ export interface AstroUserConfig<
 					 * @version 6.0.0
 					 * @description
 					 *
-					 * A configuration object that allows you to override the default sources for the `style-src` directive with the [`resources`](https://v6.docs.astro.build/en/reference/configuration-reference/#securitycspstyledirectiveresources) property, or to provide additional [hashes](https://v6.docs.astro.build/en/reference/configuration-reference#securitycspstyledirectivehashes) to be rendered.					 */
+					 * A configuration object that allows you to override the default sources for the `style-src` directive with the [`resources`](https://docs.astro.build/en/reference/configuration-reference/#securitycspstyledirectiveresources) property, or to provide additional [hashes](https://docs.astro.build/en/reference/configuration-reference/#securitycspstyledirectivehashes) to be rendered.					 */
 					styleDirective?: {
 						/**
 						 * @docs
@@ -930,7 +937,7 @@ export interface AstroUserConfig<
 					 * @version 6.0.0
 					 * @description
 					 *
-					 * A configuration object that allows you to override the default sources for the `script-src` directive with the [`resources`](https://v6.docs.astro.build/en/reference/configuration-reference/#securitycspscriptdirectiveresources) property, or to provide additional [hashes](https://v6.docs.astro.build/en/reference/configuration-reference#securitycspscriptdirectivehashes) to be rendered.
+					 * A configuration object that allows you to override the default sources for the `script-src` directive with the [`resources`](https://docs.astro.build/en/reference/configuration-reference/#securitycspscriptdirectiveresources) property, or to provide additional [hashes](https://docs.astro.build/en/reference/configuration-reference/#securitycspscriptdirectivehashes) to be rendered.
 					 */
 					scriptDirective?: {
 						/**
@@ -1399,23 +1406,25 @@ export interface AstroUserConfig<
 	 * @description
 	 *
 	 * Configures session storage for your Astro project. This is used to store session data in a persistent way, so that it can be accessed across different requests.
-	 * Some adapters may provide a default session driver, but you can override it with your own configuration.
 	 *
-	 * See [the sessions guide](https://docs.astro.build/en/guides/sessions/) for more information.
+	 * Some adapters may provide a default session driver, but you can override it with your own configuration:
 	 *
 	 * ```js title="astro.config.mjs"
-	 *   {
-	 *     session: {
-	 *       // The name of the Unstorage driver
-	 *       driver: 'redis',
-	 *       // The required options depend on the driver
-	 *       options: {
-	 *         url: process.env.REDIS_URL,
-	 *       },
-	 *       ttl: 3600, // 1 hour
-	 *     }
+	 * import { defineConfig, sessionDrivers } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   session: {
+	 *     driver: sessionDrivers.redis({
+	 *       // The options are driver-dependent and some may be required.
+	 *       url: process.env.REDIS_URL
+	 *     }),
 	 *   }
+	 * });
 	 * ```
+	 *
+	 * Session drivers are configured at build time. This means environment variables used in the driver configuration are inlined. You must create your own driver entrypoint to [override the configuration at runtime](https://docs.astro.build/en/guides/sessions/#overriding-the-configuration-at-runtime).
+	 *
+	 * See [the sessions guide](https://docs.astro.build/en/guides/sessions/) for more information.
 	 */
 	session?: SessionConfig<TDriver>;
 
@@ -1523,7 +1532,7 @@ export interface AstroUserConfig<
 	 * An optional default time-to-live expiration period for session values, in seconds.
 	 *
 	 * By default, session values persist until they are deleted or the session is destroyed, and do not automatically expire because a particular amount of time has passed.
-	 * Set `session.ttl` to add a default expiration period for your session values. Passing a `ttl` option to [`session.set()`](https://v6.docs.astro.build/en/reference/api-reference/#sessionset) will override the global default
+	 * Set `session.ttl` to add a default expiration period for your session values. Passing a `ttl` option to [`session.set()`](https://docs.astro.build/en/reference/api-reference/#sessionset) will override the global default
 	 * for that individual entry.
 	 *
 	 * ```js title="astro.config.mjs" ins={3-4}
@@ -1695,6 +1704,13 @@ export interface AstroUserConfig<
 		 * 			 entrypoint: 'astro/assets/services/sharp',
 		 * 			 config: {
 		 * 				 limitInputPixels: false,
+		 * 				 webp: {
+		 * 					 effort: 6,
+		 * 					 alphaQuality: 80,
+		 * 				 },
+		 * 				 jpeg: {
+		 * 					 mozjpeg: true,
+		 * 				 },
 		 *       },
 		 * 		 },
 		 *   },
@@ -1729,6 +1745,80 @@ export interface AstroUserConfig<
 		 *
 		 * By default this is `undefined`, which maps to Sharp's default kernel of `lanczos3`.
 		 */
+
+		/**
+		 * @docs
+		 * @name image.service.config.jpeg
+		 * @kind h4
+		 * @type {Record<string, any> | undefined}
+		 * @default `undefined`
+		 * @version 6.1.0
+		 * @description
+		 *
+		 * The default encoder options passed to `sharp().jpeg()` when using Astro's built-in Sharp image service.
+		 *
+		 * This can be used for options such as `mozjpeg`, `progressive`, `chromaSubsampling`, or a default `quality`.
+		 * Per-image `quality` values from `<Image />`, `<Picture />`, and `getImage()` still take precedence.
+		 */
+
+		/**
+		 * @docs
+		 * @name image.service.config.webp
+		 * @kind h4
+		 * @type {Record<string, any> | undefined}
+		 * @default `undefined`
+		 * @version 6.1.0
+		 * @description
+		 *
+		 * The default encoder options passed to `sharp().webp()` when using Astro's built-in Sharp image service.
+		 *
+		 * This can be used for options such as `effort`, `alphaQuality`, `lossless`, `nearLossless`, or a default `quality`.
+		 * Per-image `quality` values from `<Image />`, `<Picture />`, and `getImage()` still take precedence.
+		 */
+
+		/**
+		 * @docs
+		 * @name image.service.config.avif
+		 * @kind h4
+		 * @type {Record<string, any> | undefined}
+		 * @default `undefined`
+		 * @version 6.1.0
+		 * @description
+		 *
+		 * The default encoder options passed to `sharp().avif()` when using Astro's built-in Sharp image service.
+		 *
+		 * This can be used for options such as `effort`, `chromaSubsampling`, `bitdepth`, `lossless`, or a default `quality`.
+		 * Per-image `quality` values from `<Image />`, `<Picture />`, and `getImage()` still take precedence.
+		 */
+
+		/**
+		 * @docs
+		 * @name image.service.config.png
+		 * @kind h4
+		 * @type {Record<string, any> | undefined}
+		 * @default `undefined`
+		 * @version 6.1.0
+		 * @description
+		 *
+		 * The default encoder options passed to `sharp().png()` when using Astro's built-in Sharp image service.
+		 *
+		 * This can be used for options such as `compressionLevel`, `effort`, `palette`, or a default `quality`.
+		 * Per-image `quality` values from `<Image />`, `<Picture />`, and `getImage()` still take precedence.
+		 */
+
+		/**
+		 * @docs
+		 * @name image.dangerouslyProcessSVG
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 6.3.0
+		 * @description
+		 *
+		 * Allows SVG source images to be processed by the image optimization pipeline.
+		 *
+		 * This is disabled by default as specifically formed SVGs can be prohibitively expensive to process and used by malicious actors to execute denial of service attacks. Only enable this option if you trust the source of your SVG images and understand the risks of processing them.
+		 */
+		dangerouslyProcessSVG?: boolean;
 
 		/**
 		 * @docs
@@ -1780,14 +1870,17 @@ export interface AstroUserConfig<
 		 * }
 		 * ```
 		 *
-		 * You can use wildcards to define the permitted `hostname` and `pathname` values as described below. Otherwise, only the exact values provided will be configured:
-		 * `hostname`:
-		 *   - Start with '**.' to allow all subdomains ('endsWith').
-		 *   - Start with '*.' to allow only one level of subdomain.
+		 * You can use wildcards to define the permitted `hostname` and `pathname` values as described below. Otherwise, only the exact values provided will be configured.
 		 *
-		 * `pathname`:
-		 *   - End with '/**' to allow all sub-routes ('startsWith').
-		 *   - End with '/*' to allow only one level of sub-route.
+		 * `hostname` patterns:
+		 *   - Start with `**.` to allow all subdomains (like `endsWith`).
+		 *   - Start with `*.` to allow only one level of subdomain.
+		 *
+		 * `pathname` patterns:
+		 *   - End with `/**` to allow all sub-routes (like `startsWith`).
+		 *   - End with `/*` to allow only one level of sub-route.
+		 *
+		 * HTTP redirects are also followed when an image URL matches a remote pattern. The final destination URL must be among the allowed remote patterns to be loaded.
 
 		 */
 		remotePatterns?: Partial<RemotePattern>[];
@@ -2040,24 +2133,22 @@ export interface AstroUserConfig<
 		 * ```
 		 */
 		gfm?: boolean;
+
 		/**
 		 * @docs
 		 * @name markdown.smartypants
-		 * @type {boolean}
+		 * @type {boolean | Smartypants}
 		 * @default `true`
 		 * @version 2.0.0
 		 * @description
-		 * Astro uses the [SmartyPants formatter](https://daringfireball.net/projects/smartypants/) by default. To disable this, set the `smartypants` flag to `false`:
+		 * Whether to use the [SmartyPants formatter](https://daringfireball.net/projects/smartypants/) to transform straight quotes into smart quotes, dashes into en/em dashes, and triple dots into ellipses.
 		 *
-		 * ```js
-		 * {
-		 *   markdown: {
-		 *     smartypants: false,
-		 *   }
-		 * }
-		 * ```
+		 * To disable this, set the `smartypants` flag to `false`.
+		 *
+		 * For more control over typography, you can instead specify a configuration object with the [properties supported by `retext-smartypants`](https://github.com/retextjs/retext-smartypants?tab=readme-ov-file#fields).
 		 */
-		smartypants?: boolean;
+		smartypants?: boolean | Smartypants;
+
 		/**
 		 * @docs
 		 * @name markdown.remarkRehype
@@ -2359,7 +2450,7 @@ export interface AstroUserConfig<
 		 * @version 5.0.0
 		 * @description
 		 *
-		 * Defines environment variables to be enforced by Zod validation and for which TypeScript support (e.g. autocompletion, type-safety) is available. Each key corresponds to the variable name and the value to the data type and validations [defined with `envField`](https://v6.docs.astro.build/en/reference/modules/astro-config/#envfield).
+		 * Defines environment variables to be enforced by Zod validation and for which TypeScript support (e.g. autocompletion, type-safety) is available. Each key corresponds to the variable name and the value to the data type and validations [defined with `envField`](https://docs.astro.build/en/reference/modules/astro-config/#envfield).
 		 *
 		 * Four data types are supported: string, number, enumeration, and boolean. Each type requires a `context` (client or server), an `access` level (public or secret), and additional validations, such as a `default` value and an indication of whether the variable is `optional` (defaults to `false`).
 		 *
@@ -2419,7 +2510,7 @@ export interface AstroUserConfig<
 	 * @description
 	 * Configures fonts and allows you to specify some customization options on a per-font basis.
 	 *
-	 * See our guide for more information on [using custom fonts in Astro](https://v6.docs.astro.build/en/guides/fonts/).
+	 * See our guide for more information on [using custom fonts in Astro](https://docs.astro.build/en/guides/fonts/).
 	 */
 
 	/**
@@ -2428,7 +2519,7 @@ export interface AstroUserConfig<
 	 * @type {FontProvider}
 	 * @version 6.0.0
 	 * @description
-	 * The source of your font files. You can use a [built-in provider](https://v6.docs.astro.build/en/reference/font-provider-reference/#built-in-providers) or write your own [custom provider](https://v6.docs.astro.build/en/reference/font-provider-reference/#building-a-font-provider):
+	 * The source of your font files. You can use a [built-in provider](https://docs.astro.build/en/reference/font-provider-reference/#built-in-providers) or write your own [custom provider](https://docs.astro.build/en/reference/font-provider-reference/#building-a-font-provider):
 	 *
 	 * ```js
 	 * import { defineConfig, fontProviders } from "astro/config";
@@ -2498,7 +2589,7 @@ export interface AstroUserConfig<
 	 * @default `true`
 	 * @version 6.0.0
 	 * @description
-	 * Whether or not to enable Astro's default optimization when generating fallback fonts. You may disable this default optimization to have full control over how [`fallbacks`](https://v6.docs.astro.build/en/reference/configuration-reference/#fontfallbacks) are generated:
+	 * Whether or not to enable Astro's default optimization when generating fallback fonts. You may disable this default optimization to have full control over how [`fallbacks`](https://docs.astro.build/en/reference/configuration-reference/#fontfallbacks) are generated:
 	 *
 	 * ```js
 	 * optimizedFallbacks: false
@@ -2573,7 +2664,7 @@ export interface AstroUserConfig<
 	 * @type {Record<string, any>}
 	 * @version 6.0.0
 	 * @description
-	 * An object to pass provider specific options. It is typed automatically based on the font family [provider](https://v6.docs.astro.build/en/reference/configuration-reference/#fontprovider):
+	 * An object to pass provider specific options. It is typed automatically based on the font family [provider](https://docs.astro.build/en/reference/configuration-reference/#fontprovider):
 	 *
 	 * ```js
 	 * options: {
@@ -2605,7 +2696,7 @@ export interface AstroUserConfig<
 	 * @default `undefined`
 	 * @version 6.0.0
 	 * @description
-	 * Determines when a font must be downloaded and used based on a specific [range of unicode characters](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/unicode-range). If a character on the page matches the configured range, the browser will download the font and all characters will be available for use on the page. To configure a subset of characters preloaded for a single font, see the [subsets](https://v6.docs.astro.build/en/reference/configuration-reference/#fontsubsets) property instead.
+	 * Determines when a font must be downloaded and used based on a specific [range of unicode characters](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/unicode-range). If a character on the page matches the configured range, the browser will download the font and all characters will be available for use on the page. To configure a subset of characters preloaded for a single font, see the [subsets](https://docs.astro.build/en/reference/configuration-reference/#fontsubsets) property instead.
 	 *
 	 * This can be useful for localization to avoid unnecessary font downloads when a specific part of your website uses a different alphabet and will be displayed with a separate font. For example, a website that offers both English and Japanese versions can prevent the browser from downloading the Japanese font on English versions of the page that do not contain any of the Japanese characters provided in `unicodeRange`.
 	 *
@@ -2701,6 +2792,43 @@ export interface AstroUserConfig<
 	 */
 	experimental?: {
 		/**
+		 * @name experimental.advancedRouting
+		 * @type {boolean | object}
+		 * @default `false`
+		 * @description
+		 * Enables `src/app.ts` as an advanced routing entrypoint, allowing you to
+		 * compose Astro's request pipeline with the Web Fetch standard or your own Hono middleware.
+		 *
+		 * Pass `true` to enable with default settings, or an object to customize:
+		 *
+		 * ```js
+		 * export default defineConfig({
+		 *   experimental: {
+		 *     advancedRouting: {
+		 *       fetchFile: 'fetch.ts',
+		 *     },
+		 *   },
+		 * });
+		 * ```
+		 */
+		advancedRouting?:
+			| boolean
+			| {
+					/**
+					 * @name experimental.advancedRouting.fetchFile
+					 * @type {string | null}
+					 * @default 'app'
+					 * @description
+					 *
+					 * Customizes the file used as the advanced routing entrypoint inside `srcDir`.
+					 * Defaults to `'app'`, meaning Astro looks for `src/app.ts`.
+					 *
+					 * If you already have a `src/app.ts` file in use for other purposes, define a different filename or set the value to `null` to disable the entrypoint.
+					 */
+					fetchFile?: string | null;
+			  };
+
+		/**
 		 *
 		 * @name experimental.clientPrerender
 		 * @type {boolean}
@@ -2787,14 +2915,12 @@ export interface AstroUserConfig<
 		chromeDevtoolsWorkspace?: boolean;
 
 		/**
-		 * @name experimental.svgo
-		 * @type {boolean | SvgoConfig}
-		 * @default `false`
+		 * @name experimental.svgOptimizer
+		 * @type {SvgOptimizer}
+		 * @default `undefined`
+		 * @version 6.2.0
 		 * @description
-		 * Enable SVG optimization using SVGO during build time.
-		 *
-		 * Set to `true` to enable optimization with default settings, or pass a configuration
-		 * object to customize SVGO behavior.
+		 * Enable SVG optimization at build time.
 		 *
 		 * When enabled, all imported SVG files will be optimized for smaller file sizes
 		 * and better performance while maintaining visual quality.
@@ -2803,32 +2929,14 @@ export interface AstroUserConfig<
 		 * {
 		 *   experimental: {
 		 *     // Enable with defaults
-		 *     svgo: true
+		 *     svgOptimizer: svgoOptimizer()
 		 *   }
 		 * }
 		 * ```
 		 *
-		 * To customize optimization, pass a [SVGO configuration object](https://svgo.dev/):
-		 *
-		 * ```js
-		 * {
-		 *   experimental: {
-		 *     svgo: {
-		 *       plugins: [
-		 *         'preset-default',
-		 *         {
-		 *           name: 'removeViewBox',
-		 *           active: false
-		 *         }
-		 *       ]
-		 *     }
-		 *   }
-		 * }
-		 * ```
-		 *
-		 * See the [experimental SVGO optimization docs](https://docs.astro.build/en/reference/experimental-flags/svg-optimization/) for more information.
+		 * See the [experimental SVG optimization docs](https://docs.astro.build/en/reference/experimental-flags/svg-optimization/) for more information.
 		 */
-		svgo?: boolean | SvgoConfig;
+		svgOptimizer?: SvgOptimizer;
 
 		/**
 		 * @name experimental.cache
@@ -2993,6 +3101,32 @@ export interface AstroUserConfig<
 			 */
 			contentCache?: boolean;
 		};
+		/**
+		 * @name experimental.logger
+		 * @type {{ entrypoint: string; config?: Record<string, unknown> }}
+		 * @default `undefined`
+		 * @version 6.2.0
+		 * @description
+		 *
+		 * Configure a custom logger by defining its entrypoint and, optionally, providing a serializable configuration:
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   experimental: {
+		 *     logger: {
+		 *       entrypoint: "@org/astro-logger",
+		 *       config: {
+		 *        level: "error"
+		 *       }
+		 *     }
+		 *   }
+		 * });
+		 * ```
+		 */
+		logger?: LoggerHandlerConfig;
 	};
 }
 
@@ -3043,7 +3177,7 @@ export interface AstroInlineOnlyConfig {
 	 *
 	 * @default "info"
 	 */
-	logLevel?: LoggerLevel;
+	logLevel?: AstroLoggerLevel;
 	/**
 	 * Clear the content layer cache, forcing a rebuild of all content entries.
 	 */
@@ -3051,5 +3185,5 @@ export interface AstroInlineOnlyConfig {
 	/**
 	 * @internal for testing only, use `logLevel` instead.
 	 */
-	logger?: Logger;
+	logger?: AstroLogger;
 }

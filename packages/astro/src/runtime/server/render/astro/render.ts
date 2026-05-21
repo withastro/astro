@@ -7,9 +7,9 @@ import {
 	chunkToString,
 	encoder,
 	type RenderDestination,
-	stringifyChunk,
 } from '../common.js';
 import { promiseWithResolvers } from '../util.js';
+import { bufferPropagatedHead } from '../head-propagation/runtime.js';
 import type { AstroComponentFactory } from './factory.js';
 import { isHeadAndContent } from './head-and-content.js';
 import { isRenderTemplateResult } from './render-template.js';
@@ -65,128 +65,6 @@ export async function renderToString(
 	await templateResult.render(destination);
 
 	return str;
-}
-
-// Renders a component directly into a Uint8Array buffer.
-// Avoids the decode→string-concat→encode round-trip that renderToString incurs
-// when RenderBytesResult writes pre-encoded Uint8Array static parts.
-// Used by page.ts for non-streaming Astro component rendering.
-export async function renderToBuffer(
-	result: SSRResult,
-	componentFactory: AstroComponentFactory,
-	props: any,
-	children: any,
-	isPage = false,
-	route?: RouteData,
-): Promise<Uint8Array | Response> {
-	const templateResult = await callComponentAsTemplateResultOrResponse(
-		result,
-		componentFactory,
-		props,
-		children,
-		route,
-	);
-
-	if (templateResult instanceof Response) return templateResult;
-
-	// Mixed buffer: each entry is either a Uint8Array (static part, zero-copy)
-	// or a string (expression output, to be encoded once at the end).
-	// Adjacent strings are concatenated inline (V8 rope string optimization)
-	// so the buffer stays compact.
-	const buffer: Array<Uint8Array | string> = [];
-	let renderedFirstPageChunk = false;
-	// Track whether the last buffer entry is a string so we can append to it.
-	let lastIsString = false;
-
-	if (isPage) {
-		await bufferHeadContent(result);
-	}
-
-	const destination: RenderDestination = {
-		write(chunk) {
-			if (isPage && !renderedFirstPageChunk) {
-				renderedFirstPageChunk = true;
-				if (!result.partial && !DOCTYPE_EXP.test(String(chunk))) {
-					const doctype = result.compressHTML ? '<!DOCTYPE html>' : '<!DOCTYPE html>\n';
-					buffer.push(doctype);
-					lastIsString = true;
-				}
-			}
-
-			if (chunk instanceof Response) return;
-
-			if (ArrayBuffer.isView(chunk)) {
-				const bytes = chunk as Uint8Array;
-				if (bytes.length === 0) return;
-				// Small pre-encoded chunks with a cached ._str: coalesce into the
-				// current string run via V8 rope concat — dramatically faster than
-				// storing thousands of tiny Uint8Arrays and merging them at the end.
-				// Large chunks (e.g. static-heavy's 50KB blob) stay as Uint8Array
-				// to avoid an unnecessary string round-trip.
-				const cached = (bytes as any)._str;
-				if (cached !== undefined && bytes.byteLength <= 256) {
-					if (lastIsString) {
-						buffer[buffer.length - 1] = (buffer[buffer.length - 1] as string) + cached;
-					} else {
-						buffer.push(cached);
-						lastIsString = true;
-					}
-				} else {
-					buffer.push(bytes);
-					lastIsString = false;
-				}
-			} else {
-				// .toString() flattens HTMLString objects (from render instructions)
-				// to primitive strings for correct typeof checks in the merge pass.
-				const s = stringifyChunk(result, chunk).toString();
-				if (s.length > 0) {
-					if (lastIsString) {
-						buffer[buffer.length - 1] = (buffer[buffer.length - 1] as string) + s;
-					} else {
-						buffer.push(s);
-						lastIsString = true;
-					}
-				}
-			}
-		},
-	};
-
-	await templateResult.render(destination);
-
-	// Fast path: empty output
-	if (buffer.length === 0) {
-		return new Uint8Array(0);
-	}
-
-	// Fast path: single Uint8Array — return it directly, no copy.
-	if (buffer.length === 1 && typeof buffer[0] !== 'string') {
-		return buffer[0] as Uint8Array;
-	}
-
-	// Merge pass: encode strings, then concatenate all Uint8Array segments.
-	for (let i = 0; i < buffer.length; i++) {
-		if (typeof buffer[i] === 'string') {
-			buffer[i] = encoder.encode(buffer[i] as string);
-		}
-	}
-
-	// Fast path: single chunk after encoding
-	if (buffer.length === 1) {
-		return buffer[0] as Uint8Array;
-	}
-
-	let totalBytes = 0;
-	for (let i = 0; i < buffer.length; i++) {
-		totalBytes += (buffer[i] as Uint8Array).length;
-	}
-	const out = new Uint8Array(totalBytes);
-	let offset = 0;
-	for (let i = 0; i < buffer.length; i++) {
-		const segment = buffer[i] as Uint8Array;
-		out.set(segment, offset);
-		offset += segment.length;
-	}
-	return out;
 }
 
 // Calls a component and renders it into a readable stream
@@ -314,18 +192,7 @@ async function callComponentAsTemplateResultOrResponse(
 // Recursively calls component instances that might have head content
 // to be propagated up.
 export async function bufferHeadContent(result: SSRResult) {
-	const iterator = result._metadata.propagators.values();
-	while (true) {
-		const { value, done } = iterator.next();
-		if (done) {
-			break;
-		}
-		// Call component instances that might have head content to be propagated up.
-		const returnValue = await value.init(result);
-		if (isHeadAndContent(returnValue) && returnValue.head) {
-			result._metadata.extraHead.push(returnValue.head);
-		}
-	}
+	await bufferPropagatedHead(result);
 }
 
 export async function renderToAsyncIterable(
@@ -394,13 +261,11 @@ export async function renderToAsyncIterable(
 				throw error;
 			}
 
-			// Fast path: if every buffered chunk is a string (common for both Go
-			// compiler output and Rust compiler output whose small static parts are
-			// converted to _str by chunkToByteArrayOrString), concatenate via V8 rope
-			// strings and encode once.  This avoids thousands of tiny Uint8Array.set()
-			// calls for expression-heavy pages.
-			// The `hasBytes` flag is maintained by the write handler, avoiding
-			// a full buffer scan here.
+			// Fast path: if every buffered chunk is a string (the common case for
+			// compiled .astro output), concatenate via V8 rope strings and encode
+			// once.  This avoids thousands of tiny Uint8Array.set() calls for
+			// expression-heavy pages.  The `hasBytes` flag is maintained by the
+			// write handler, avoiding a full buffer scan here.
 			const bufLen = buffer.length;
 
 			let mergedArray: Uint8Array;

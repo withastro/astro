@@ -1,1 +1,8 @@
-export { NodeApp, loadApp, loadManifest, createRequest, writeResponse } from '../node.js';
+export {
+	NodeApp,
+	loadApp,
+	loadManifest,
+	createRequest,
+	writeResponse,
+	getAbortControllerCleanup,
+} from '../node.js';

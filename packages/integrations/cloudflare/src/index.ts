@@ -1,5 +1,5 @@
 import { createReadStream, existsSync, readFileSync } from 'node:fs';
-import { appendFile, stat } from 'node:fs/promises';
+import { appendFile, readFile, rename, stat } from 'node:fs/promises';
 import { createInterface } from 'node:readline/promises';
 import { removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
 import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
@@ -13,6 +13,7 @@ import {
 	setImageConfig,
 } from './utils/image-config.js';
 import { createConfigPlugin } from './vite-plugin-config.js';
+import { createNodePrerenderPlugin } from './vite-plugin-dev-server-prerender-middleware.js';
 import {
 	cloudflareConfigCustomizer,
 	DEFAULT_SESSION_KV_BINDING_NAME,
@@ -21,9 +22,50 @@ import {
 import { parseEnv } from 'node:util';
 import { sessionDrivers } from 'astro/config';
 import { createCloudflarePrerenderer } from './prerenderer.js';
-import { createRequire } from 'node:module';
+import cfPrismPlugin from './vite-plugin-prism.js';
+
+const CLOUDFLARE_KV_SESSION_DRIVER_ENTRYPOINT = sessionDrivers.cloudflareKVBinding().entrypoint;
+
+function usesCloudflareKVSessionDriver(session: AstroConfig['session']): boolean {
+	const driver = session?.driver;
+
+	if (!driver) {
+		return false;
+	}
+
+	if (typeof driver === 'string') {
+		return driver === 'cloudflareKVBinding' || driver === 'cloudflare-kv-binding';
+	}
+
+	const entrypoint =
+		typeof driver.entrypoint === 'string' ? driver.entrypoint : driver.entrypoint.toString();
+
+	return (
+		entrypoint === CLOUDFLARE_KV_SESSION_DRIVER_ENTRYPOINT ||
+		entrypoint.endsWith('cloudflare-kv-binding')
+	);
+}
 
 export type { Runtime } from './utils/handler.js';
+
+function hasContentCollectionsConfig(srcDir: URL) {
+	const contentConfigPaths = [
+		'content.config.mjs',
+		'content.config.js',
+		'content.config.mts',
+		'content.config.ts',
+		'content/config.mjs',
+		'content/config.js',
+		'content/config.mts',
+		'content/config.ts',
+		'live.config.mjs',
+		'live.config.js',
+		'live.config.mts',
+		'live.config.ts',
+	];
+
+	return contentConfigPaths.some((configPath) => existsSync(new URL(`./${configPath}`, srcDir)));
+}
 
 export interface Options
 	extends Pick<
@@ -55,6 +97,14 @@ export interface Options
 	 */
 	imagesBindingName?: string;
 
+	/**
+	 * Controls which runtime is used for prerendering static pages at build time.
+	 *
+	 * - `'workerd'` (default): Uses Cloudflare's workerd runtime.
+	 * - `'node'`: Uses Astro's default node prerender environment.
+	 */
+	prerenderEnvironment?: 'workerd' | 'node';
+
 	experimental?: Pick<
 		NonNullable<PluginConfig['experimental']>,
 		'headersAndRedirectsDevModeSupport'
@@ -65,9 +115,11 @@ export default function createIntegration({
 	imageService,
 	sessionKVBindingName = DEFAULT_SESSION_KV_BINDING_NAME,
 	imagesBindingName = DEFAULT_IMAGES_BINDING_NAME,
+	prerenderEnvironment = 'workerd',
 	...cloudflareOptions
 }: Options = {}): AstroIntegration {
 	let _config: AstroConfig;
+	let _originalClientDir: URL;
 
 	let _routes: IntegrationResolvedRoute[];
 	let _isFullyStatic = false;
@@ -79,7 +131,7 @@ export default function createIntegration({
 	return {
 		name: '@astrojs/cloudflare',
 		hooks: {
-			'astro:config:setup': ({ command, config, updateConfig, logger, addWatchFile }) => {
+			'astro:config:setup': async ({ command, config, updateConfig, logger, addWatchFile }) => {
 				if (!!process.versions.webcontainer) {
 					throw new Error('`workerd` does not run on Stackblitz.');
 				}
@@ -111,31 +163,42 @@ export default function createIntegration({
 					};
 				}
 
+				const needsSessionKVBinding = usesCloudflareKVSessionDriver(session);
+
 				// In dev, `compile` needs the IMAGES binding for real transforms
 				// (the image-transform-endpoint uses it). At build time,
 				// `compile` uses Sharp on the Node side instead.
 				const needsImagesBindingForDev = isCompile && command === 'dev';
+				const usesContentCollections = hasContentCollectionsConfig(config.srcDir);
+				const prebundleContentRuntime = command === 'dev' && usesContentCollections;
 
 				cfPluginConfig = {
 					config: cloudflareConfigCustomizer({
+						needsSessionKVBinding,
 						sessionKVBindingName,
 						imagesBindingName:
 							needsImagesBinding || needsImagesBindingForDev ? imagesBindingName : false,
 					}),
-					experimental: {
-						prerenderWorker: {
-							config(_, { entryWorkerConfig }) {
-								return {
-									...entryWorkerConfig,
-									name: 'prerender',
-									...(needsImagesBinding &&
-										!entryWorkerConfig.images && {
-											images: { binding: imagesBindingName },
+					...(prerenderEnvironment === 'workerd' && {
+						experimental: {
+							prerenderWorker: {
+								config(_, { entryWorkerConfig }) {
+									const { queues, ...restWorkerConfig } = entryWorkerConfig;
+									return {
+										...restWorkerConfig,
+										name: 'prerender',
+										...(queues?.producers?.length && {
+											queues: { producers: queues.producers },
 										}),
-								};
+										...(needsImagesBinding &&
+											!restWorkerConfig.images && {
+												images: { binding: imagesBindingName },
+											}),
+									};
+								},
 							},
 						},
-					},
+					}),
 				};
 
 				// The preview entrypoint uses Cloudflare's vite plugin and so it needs access
@@ -144,6 +207,27 @@ export default function createIntegration({
 					globalThis.astroCloudflareOptions = cfPluginConfig;
 				}
 
+				// Including prismjs files in `optimizeDeps.includes` when `@astrojs/prism` is not installed
+				// causes a "Failed to resolve dependency: @astrojs/prism > prismjs" log to appear.
+				// However, when using the `<Prism />` component in a Cloudflare Workers environment,
+				// not including prismjs files in `optimizeDeps.includes` causes
+				// a "The file does not exist at ..." log to appear.
+				// To work around this, we check whether `@astrojs/prism` is installed in the current project.
+				// Note: this "Failed to resolve dependency" log will not appear as long as the `@astrojs/prism` package is installed,
+				// even if it is not actually used.
+				const prismFiles = [
+					'@astrojs/prism > prismjs',
+					'@astrojs/prism > prismjs/components.js',
+					'@astrojs/prism > prismjs/dependencies.js',
+				] as const;
+				const isAstroPrismPackageInstalled = await getIsAstroPrismInstalled(config.root);
+
+				// Capture user's top-level optimizeDeps before Vite scopes it to the
+				// client environment only (Vite 6 Environment API design). We forward
+				// these settings into server environments so that user-provided exclude,
+				// include, and esbuildOptions (e.g. loader) entries are respected.
+				const userOptimizeDeps = config.vite?.optimizeDeps;
+
 				updateConfig({
 					build: {
 						redirects: false,
@@ -151,7 +235,14 @@ export default function createIntegration({
 					session,
 					vite: {
 						plugins: [
-							cfVitePlugin({ ...cfPluginConfig, viteEnvironment: { name: 'ssr' } }),
+							...(prerenderEnvironment === 'node' && command === 'dev'
+								? [createNodePrerenderPlugin()]
+								: []),
+							cfVitePlugin({
+								...cloudflareOptions,
+								...cfPluginConfig,
+								viteEnvironment: { name: 'ssr' },
+							}),
 							{
 								name: '@astrojs/cloudflare:cf-imports',
 								enforce: 'pre',
@@ -174,6 +265,7 @@ export default function createIntegration({
 										return {
 											optimizeDeps: {
 												include: [
+													'@astrojs/cloudflare/image-service-workerd',
 													'astro',
 													'astro/runtime/**',
 													'astro > html-escaper',
@@ -190,9 +282,20 @@ export default function createIntegration({
 													'astro > piccolore',
 													'astro > picomatch',
 													'astro/app',
+													'astro/app/fetch/default-handler',
 													'astro/assets',
+													'astro/assets/runtime',
+													'astro/assets/utils/inferRemoteSize.js',
+													'astro/assets/fonts/runtime.js',
+													...(prebundleContentRuntime ? (['astro/content/runtime'] as const) : []),
 													'astro/compiler-runtime',
+													'astro/jsx-runtime',
 													'astro/app/entrypoint/dev',
+													'astro/virtual-modules/middleware.js',
+													...(isAstroPrismPackageInstalled ? prismFiles : []),
+													...(Array.isArray(userOptimizeDeps?.include)
+														? userOptimizeDeps.include
+														: []),
 												],
 												exclude: [
 													'unstorage/drivers/cloudflare-kv-binding',
@@ -200,9 +303,21 @@ export default function createIntegration({
 													'virtual:astro:*',
 													'virtual:astro-cloudflare:*',
 													'virtual:@astrojs/*',
+													'@astrojs/starlight',
+													...(Array.isArray(userOptimizeDeps?.exclude)
+														? userOptimizeDeps.exclude
+														: []),
 												],
 												esbuildOptions: {
+													// Suppress Vite's `createRequire(import.meta.url)` banner to work around
+													// https://github.com/vitejs/vite/issues/22004 — Vite's SSR transform
+													// incorrectly rewrites identifiers inside `import.meta` when an imported
+													// binding shares the same name (e.g. zod v4 exports `meta`).
+													banner: { js: '' },
 													plugins: [astroFrontmatterScanPlugin()],
+													...(userOptimizeDeps?.esbuildOptions?.loader
+														? { loader: userOptimizeDeps.esbuildOptions.loader }
+														: {}),
 												},
 											},
 										};
@@ -223,12 +338,12 @@ export default function createIntegration({
 							{
 								enforce: 'post',
 								name: '@astrojs/cloudflare:cf-externals',
-								applyToEnvironment: (environment) => environment.name === 'ssr',
+								applyToEnvironment: (environment) =>
+									environment.name === 'ssr' || environment.name === 'prerender',
 								config(conf) {
 									if (conf.ssr) {
-										// Cloudflare does not support externalizing modules in the ssr environment
+										// Cloudflare does not support externalizing modules in server environments
 										conf.ssr.external = undefined;
-										conf.ssr.noExternal = true;
 									}
 								},
 							},
@@ -247,13 +362,14 @@ export default function createIntegration({
 											}
 										: null,
 							}),
+							cfPrismPlugin(),
 						],
 					},
 					image: setImageConfig(imageService, config.image, command, logger),
 				});
 
 				if (cloudflareOptions.configPath) {
-					addWatchFile(createRequire(import.meta.url).resolve(cloudflareOptions.configPath));
+					addWatchFile(new URL(cloudflareOptions.configPath, config.root));
 				}
 
 				addWatchFile(new URL('./wrangler.toml', config.root));
@@ -269,6 +385,15 @@ export default function createIntegration({
 			},
 			'astro:config:done': ({ setAdapter, config, injectTypes, logger }) => {
 				_config = config;
+				_originalClientDir = new URL(config.build.client.href);
+
+				// When a base path is configured, nest the client output directory under
+				// the base so that on-disk paths match the URLs Astro writes into HTML.
+				// Cloudflare Workers' static-asset binding resolves request URLs literally
+				// against the client directory, so the files must live under the base prefix.
+				if (config.base !== '/') {
+					config.build.client = new URL('.' + config.base + '/', config.build.client);
+				}
 
 				injectTypes({
 					filename: 'cloudflare.d.ts',
@@ -316,17 +441,20 @@ export default function createIntegration({
 				}
 			},
 			'astro:build:start': ({ setPrerenderer }) => {
-				setPrerenderer(
-					createCloudflarePrerenderer({
-						root: _config.root,
-						serverDir: _config.build.server,
-						clientDir: _config.build.client,
-						base: _config.base,
-						trailingSlash: _config.trailingSlash,
-						cfPluginConfig,
-						hasCompileImageService: buildService === 'compile',
-					}),
-				);
+				if (prerenderEnvironment === 'workerd') {
+					setPrerenderer(
+						createCloudflarePrerenderer({
+							cloudflareOptions,
+							root: _config.root,
+							serverDir: _config.build.server,
+							clientDir: _config.build.client,
+							base: _config.base,
+							trailingSlash: _config.trailingSlash,
+							cfPluginConfig,
+							hasCompileImageService: buildService === 'compile',
+						}),
+					);
+				}
 			},
 			'astro:build:setup': ({ vite, target }) => {
 				if (target === 'server') {
@@ -354,9 +482,24 @@ export default function createIntegration({
 				}
 			},
 			'astro:build:done': async ({ dir, logger, assets }) => {
+				// Move platform files from the base-prefixed client dir to the
+				// original client root, since Cloudflare reads them from there.
+				if (_config.base !== '/') {
+					for (const file of ['.assetsignore', '_headers']) {
+						try {
+							await rename(
+								new URL(`./${file}`, _config.build.client),
+								new URL(`./${file}`, _originalClientDir),
+							);
+						} catch {
+							// File may not exist — that's fine
+						}
+					}
+				}
+
 				let redirectsExists = false;
 				try {
-					const redirectsStat = await stat(new URL('./_redirects', _config.build.client));
+					const redirectsStat = await stat(new URL('./_redirects', _originalClientDir));
 					if (redirectsStat.isFile()) {
 						redirectsExists = true;
 					}
@@ -367,7 +510,7 @@ export default function createIntegration({
 				const redirects: IntegrationResolvedRoute['segments'][] = [];
 				if (redirectsExists) {
 					const rl = createInterface({
-						input: createReadStream(new URL('./_redirects', _config.build.client)),
+						input: createReadStream(new URL('./_redirects', _originalClientDir)),
 						crlfDelay: Number.POSITIVE_INFINITY,
 					});
 
@@ -406,7 +549,7 @@ export default function createIntegration({
 				if (!trueRedirects.empty()) {
 					try {
 						await appendFile(
-							new URL('./_redirects', _config.build.client),
+							new URL('./_redirects', _originalClientDir),
 							printAsRedirects(trueRedirects),
 						);
 					} catch (_error) {
@@ -422,4 +565,20 @@ export default function createIntegration({
 			},
 		},
 	};
+}
+
+// Reads the package.json at the current root to check whether `@astrojs/prism` is installed.
+// Using `require.resolve()` would not work correctly for projects inside a monorepo
+// (such as Astro's test fixtures), as it would traverse parent node_modules directories
+// to resolve the package. For this reason, we directly read `package.json` using `readFile` instead.
+async function getIsAstroPrismInstalled(rootURL: URL) {
+	try {
+		const pkgURL = new URL('./package.json', rootURL);
+		const input = await readFile(pkgURL, { encoding: 'utf-8' });
+		const pkgJson = JSON.parse(input);
+
+		return Object.hasOwn(pkgJson['dependencies'], '@astrojs/prism');
+	} catch {
+		return false;
+	}
 }

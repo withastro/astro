@@ -2,7 +2,7 @@ import type { AstroComponentMetadata, NamedSSRLoadedRendererValue } from 'astro'
 import opts from 'astro:preact:opts';
 import { Component as BaseComponent, h, type VNode } from 'preact';
 import { renderToStringAsync } from 'preact-render-to-string';
-import { getContext } from './context.js';
+import { getContext, incrementIslandId } from './context.js';
 import { restoreSignalsOnProps, serializeSignals } from './signals.js';
 import StaticHtml from './static-html.js';
 import type { AstroPreactAttrs, RendererContext } from './types.js';
@@ -14,6 +14,15 @@ let originalConsoleError: typeof console.error;
 let consoleFilterRefs = 0;
 
 const filter = opts?.include || opts?.exclude ? createFilter(opts.include, opts.exclude) : null;
+
+function setVNodeMask(vNode: VNode<any>, mask: [number, number]) {
+	// Preact's useId derives IDs from an internal root vnode mask (`_mask`/`__m`).
+	// Astro renders each island as a separate root, so without seeding a unique
+	// mask per island, multiple islands can generate colliding IDs.
+	// Tracked upstream: https://github.com/preactjs/preact/issues/3781
+	(vNode as VNode<any> & { _mask?: [number, number]; __m?: [number, number] })._mask = mask;
+	(vNode as VNode<any> & { _mask?: [number, number]; __m?: [number, number] }).__m = mask;
+}
 
 async function check(
 	this: RendererContext,
@@ -84,6 +93,8 @@ async function renderToStaticMarkup(
 
 	const attrs: AstroPreactAttrs = {};
 	serializeSignals(ctx, props, attrs, propsMap);
+	const islandId = incrementIslandId(ctx);
+	attrs['data-preact-island-id'] = islandId.toString();
 
 	const vNode: VNode<any> = h(
 		Component,
@@ -95,6 +106,7 @@ async function renderToStaticMarkup(
 				})
 			: children,
 	);
+	setVNodeMask(vNode, [islandId, 0]);
 
 	const html = await renderToStringAsync(vNode);
 	return { attrs, html };

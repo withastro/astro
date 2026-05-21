@@ -14,6 +14,11 @@ const IS_ACTIVE = Symbol.for('astro:cache:active');
 
 export interface CacheLike {
 	/**
+	 * Whether caching is enabled. `false` when no cache provider is configured
+	 * or in dev mode. Libraries can check this before calling cache methods.
+	 */
+	readonly enabled: boolean;
+	/**
 	 * Set cache options for the current request. Call multiple times to merge options.
 	 * Pass `false` to explicitly opt out of caching.
 	 */
@@ -33,6 +38,8 @@ export class AstroCache implements CacheLike {
 	#tags = new Set<string>();
 	#disabled = false;
 	#provider: CacheProvider | null;
+
+	readonly enabled = true;
 
 	constructor(provider: CacheProvider | null) {
 		this.#provider = provider;

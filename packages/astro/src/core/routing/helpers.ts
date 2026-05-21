@@ -1,4 +1,5 @@
 import type { RouteData } from '../../types/public/internal.js';
+import type { IntegrationResolvedRoute } from '../../types/public/integrations.js';
 import type { RouteInfo } from '../app/types.js';
 import type { RoutesList } from '../../types/astro.js';
 import { isRoute404, isRoute500 } from './internal/route-errors.js';
@@ -61,4 +62,41 @@ export function getCustom404Route(manifestData: RoutesList): RouteData | undefin
  */
 export function getCustom500Route(manifestData: RoutesList): RouteData | undefined {
 	return manifestData.routes.find((r) => isRoute500(r.route));
+}
+
+/**
+ * Returns true if the route definition contains `.html` as a static segment part,
+ * as is the case for routes like `[slug].html.astro`. Used to avoid stripping the
+ * `.html` suffix from pathnames that intentionally include it.
+ */
+export function routeHasHtmlExtension(route: RouteData): boolean {
+	return route.segments.some((segment) =>
+		segment.some((part) => !part.dynamic && part.content.includes('.html')),
+	);
+}
+
+export function hasNonPrerenderedRoute(
+	routes: Array<Pick<RouteData, 'type' | 'origin' | 'prerender'>>,
+	options?: { includeEndpoints?: boolean; includeExternal?: boolean },
+): boolean;
+export function hasNonPrerenderedRoute(
+	routes: Array<Pick<IntegrationResolvedRoute, 'type' | 'origin' | 'isPrerendered'>>,
+	options?: { includeEndpoints?: boolean; includeExternal?: boolean },
+): boolean;
+export function hasNonPrerenderedRoute(
+	routes: Array<
+		| Pick<RouteData, 'type' | 'origin' | 'prerender'>
+		| Pick<IntegrationResolvedRoute, 'type' | 'origin' | 'isPrerendered'>
+	>,
+	options?: { includeEndpoints?: boolean; includeExternal?: boolean },
+): boolean {
+	const includeEndpoints = options?.includeEndpoints ?? true;
+	const includeExternal = options?.includeExternal ?? false;
+	const routeTypes: ReadonlyArray<string> = includeEndpoints ? ['page', 'endpoint'] : ['page'];
+	const origins: ReadonlyArray<string> = includeExternal ? ['project', 'external'] : ['project'];
+
+	return routes.some((route) => {
+		const isPrerendered = 'isPrerendered' in route ? route.isPrerendered : route.prerender;
+		return routeTypes.includes(route.type) && origins.includes(route.origin) && !isPrerendered;
+	});
 }

@@ -45,7 +45,7 @@ export function vitePluginMdxPostprocess(astroConfig: AstroConfig): Plugin {
 /**
  * Inject `Fragment` identifier import if not already present.
  */
-function injectUnderscoreFragmentImport(code: string, imports: readonly ImportSpecifier[]) {
+export function injectUnderscoreFragmentImport(code: string, imports: readonly ImportSpecifier[]) {
 	if (!isSpecifierImported(code, imports, underscoreFragmentImportRegex, 'astro/jsx-runtime')) {
 		code += `\nimport { Fragment as _Fragment } from 'astro/jsx-runtime';`;
 	}
@@ -55,7 +55,7 @@ function injectUnderscoreFragmentImport(code: string, imports: readonly ImportSp
 /**
  * Inject MDX metadata as exports of the module.
  */
-function injectMetadataExports(
+export function injectMetadataExports(
 	code: string,
 	exports: readonly ExportSpecifier[],
 	fileInfo: FileInfo,
@@ -73,7 +73,7 @@ function injectMetadataExports(
  * Transforms the `MDXContent` default export as `Content`, which wraps `MDXContent` and
  * passes additional `components` props.
  */
-function transformContentExport(code: string, exports: readonly ExportSpecifier[]) {
+export function transformContentExport(code: string, exports: readonly ExportSpecifier[]) {
 	if (exports.find(({ n }) => n === 'Content')) return code;
 
 	// If have `export const components`, pass that as props to `Content` as fallback
@@ -105,7 +105,7 @@ export default Content;`;
 /**
  * Add properties to the `Content` export.
  */
-function annotateContentExport(
+export function annotateContentExport(
 	code: string,
 	id: string,
 	ssr: boolean,
@@ -139,7 +139,7 @@ function annotateContentExport(
 /**
  * Check whether the `specifierRegex` matches for an import of `source` in the `code`.
  */
-function isSpecifierImported(
+export function isSpecifierImported(
 	code: string,
 	imports: readonly ImportSpecifier[],
 	specifierRegex: RegExp,

@@ -4,6 +4,10 @@ import islandScriptDev from './astro-island.prebuilt-dev.js';
 import { ISLAND_STYLES } from './astro-island-styles.js';
 
 export function determineIfNeedsHydrationScript(result: SSRResult): boolean {
+	// Scripts in <template> are inert, so don't consume dedup state there.
+	if (result._metadata.templateDepth > 0) {
+		return !result._metadata.hasHydrationScript;
+	}
 	if (result._metadata.hasHydrationScript) {
 		return false;
 	}
@@ -11,6 +15,10 @@ export function determineIfNeedsHydrationScript(result: SSRResult): boolean {
 }
 
 export function determinesIfNeedsDirectiveScript(result: SSRResult, directive: string): boolean {
+	// Scripts in <template> are inert, so don't consume dedup state there.
+	if (result._metadata.templateDepth > 0) {
+		return !result._metadata.hasDirectives.has(directive);
+	}
 	if (result._metadata.hasDirectives.has(directive)) {
 		return false;
 	}

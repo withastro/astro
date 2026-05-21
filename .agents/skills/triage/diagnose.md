@@ -55,11 +55,15 @@ After adding logs:
 2. Re-run the reproduction (Example: `pnpm -C <triageDir> build|dev|preview`)
 3. Observe the debug output.
 
+**Server management:** If re-running requires a dev/preview server, always stop existing servers first (`bgproc stop --all`). If the server fails to start twice, bail out — write your diagnosis with the data you have rather than looping on server restarts. Prefer `astro build` over dev/preview when possible. Never background servers with `&` — always use `bgproc`.
+
 Iterate until you understand:
 
 - What code path is executing
 - What data is being passed
 - Where the logic diverges from expected behavior
+
+Once done, **revert all instrumentation** before moving on. Use `git checkout -- <file>` to remove your `console.log` additions from `packages/`. Debug logs must not leak into downstream steps.
 
 ## Step 4: Identify Root Cause
 
@@ -75,6 +79,9 @@ Consider:
 - Is this a regression from a recent change?
 - Does this affect other similar use cases?
 - Are there edge cases to consider?
+- Never suggest removing a user's dependency (adapters, framework integrations, features like MDX or DB) as a fix, those are things the user needs. The fix must work within the user's existing stack and expected feature-set.
+
+**Tone calibration:** Describe the root cause factually, not dramatically. Avoid language that overstates impact ("critical flaw", "fundamentally broken", "severe vulnerability") unless the evidence genuinely supports it. A missing null check is a missing null check, not a "critical oversight in the rendering pipeline." The diagnosis should help a maintainer understand what's wrong, guiding them towards a fix, not alarm them.
 
 ## Step 5: Write Output
 

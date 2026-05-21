@@ -1,7 +1,0 @@
----
-title: One
----
-
-# Title
-
-stuff

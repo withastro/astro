@@ -26,7 +26,6 @@ export {
 	Fragment,
 	maybeRenderHead,
 	Renderer as Renderer,
-	renderBytes,
 	renderComponent,
 	renderHead,
 	renderHTMLElement,
@@ -42,6 +41,7 @@ export {
 	voidElementNames,
 } from './render/index.js';
 export type { ServerIslandComponent } from './render/server-islands.js';
+export { templateEnter, templateExit } from './render/template-depth.js';
 export { createTransitionScope, renderTransition } from './transition.js';
 
 import { markHTMLString } from './escape.js';

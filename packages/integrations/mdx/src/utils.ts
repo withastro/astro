@@ -6,7 +6,7 @@ import type { MdxjsEsm } from 'mdast-util-mdx';
 import colors from 'piccolore';
 import type { PluggableList } from 'unified';
 
-function appendForwardSlash(path: string) {
+export function appendForwardSlash(path: string) {
 	return path.endsWith('/') ? path : path + '/';
 }
 

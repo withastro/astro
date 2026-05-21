@@ -98,28 +98,22 @@ const FILES_TO_UPDATE = {
 		fs.promises.readFile(file, 'utf-8').then((value) => {
 			// Match first indent in the file or fall back to `\t`
 			const indent = /(^\s+)/m.exec(value)?.[1] ?? '\t';
-			return fs.promises.writeFile(
-				file,
-				JSON.stringify(
-					Object.assign(JSON.parse(value), Object.assign(overrides, { private: undefined })),
-					null,
-					indent,
-				),
-				'utf-8',
-			);
+			const packageJson = JSON.parse(value);
+			packageJson.name = overrides.name;
+			delete packageJson.private;
+			return fs.promises.writeFile(file, JSON.stringify(packageJson, null, indent), 'utf-8');
 		}),
 };
 
 export function getTemplateTarget(tmpl: string, ref = 'latest') {
 	// Handle Starlight templates
-	if (tmpl.startsWith('starlight')) {
+	if (tmpl === 'starlight' || tmpl.startsWith('starlight/')) {
 		const [, starter = 'basics'] = tmpl.split('/');
 		return `github:withastro/starlight/examples/${starter}`;
 	}
 
 	// Handle third-party templates
-	const isThirdParty = tmpl.includes('/');
-	if (isThirdParty) return tmpl;
+	if (isThirdPartyTemplate(tmpl)) return tmpl;
 
 	// Handle Astro templates
 	if (ref === 'latest') {
@@ -130,6 +124,14 @@ export function getTemplateTarget(tmpl: string, ref = 'latest') {
 	} else {
 		return `github:withastro/astro/examples/${tmpl}#${ref}`;
 	}
+}
+
+export function isThirdPartyTemplate(tmpl: string) {
+	// A template is considered third-party when it includes a path separator
+	// (for example `owner/repo` or `github:owner/repo`) and is not one of the
+	// built-in `starlight` templates (`starlight` / `starlight/<starter>`).
+	if (tmpl === 'starlight' || tmpl.startsWith('starlight/')) return false;
+	return tmpl.includes('/');
 }
 
 async function copyTemplate(tmpl: string, ctx: Context) {

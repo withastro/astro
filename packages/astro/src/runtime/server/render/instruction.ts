@@ -35,13 +35,23 @@ export type RenderScriptInstruction = {
 	content: string;
 };
 
+export type TemplateEnterInstruction = {
+	type: 'template-enter';
+};
+
+export type TemplateExitInstruction = {
+	type: 'template-exit';
+};
+
 export type RenderInstruction =
 	| RenderDirectiveInstruction
 	| RenderHeadInstruction
 	| MaybeRenderHeadInstruction
 	| RendererHydrationScriptInstruction
 	| ServerIslandRuntimeInstruction
-	| RenderScriptInstruction;
+	| RenderScriptInstruction
+	| TemplateEnterInstruction
+	| TemplateExitInstruction;
 
 // Shared prototype carrying the render-instruction symbol brand.
 // All instruction objects inherit from this via Object.create() instead of

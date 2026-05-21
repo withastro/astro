@@ -206,9 +206,10 @@ export function createGetEntry({ liveCollections }: { liveCollections: LiveColle
 
 			// @ts-expect-error	virtual module
 			const { default: imageAssetMap } = await import('astro:asset-imports');
-			entry.data = updateImageReferencesInData(entry.data, entry.filePath, imageAssetMap);
+			const data = updateImageReferencesInData(entry.data, entry.filePath, imageAssetMap);
 			const result = {
 				...entry,
+				data,
 				collection,
 			} as DataEntryResult | ContentEntryResult;
 			// TODO: remove in Astro 7
@@ -454,8 +455,7 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 
 	const imageObjects = new Map<string, GetImageResult>();
 
-	// @ts-expect-error Virtual module resolved at runtime
-	const { getImage } = await import('astro:assets');
+	const { getImage } = await import('virtual:astro:get-image');
 
 	// First load all the images. This is done outside of the replaceAll
 	// function because getImage is async.
@@ -501,17 +501,19 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 			// This attribute is used by the toolbar audit
 			...(import.meta.env.DEV ? { 'data-image-component': 'true' } : {}),
 		})
-			.map(([key, value]) => (value ? `${key}="${escape(value)}"` : ''))
+			.filter(([, value]) => value != null)
+			.map(([key, value]) => (value === '' ? `${key}=""` : `${key}="${escape(String(value))}"`))
 			.join(' ');
 	});
 }
 
-function updateImageReferencesInData<T extends Record<string, unknown>>(
+export function updateImageReferencesInData<T extends Record<string, unknown>>(
 	data: T,
 	fileName?: string,
 	imageAssetMap?: Map<string, ImageMetadata>,
 ): T {
-	return new Traverse(data).map(function (ctx, val) {
+	const copy = structuredClone(data);
+	new Traverse(copy).forEach(function (ctx, val) {
 		if (typeof val === 'string' && val.startsWith(IMAGE_IMPORT_PREFIX)) {
 			const src = val.replace(IMAGE_IMPORT_PREFIX, '');
 
@@ -521,7 +523,13 @@ function updateImageReferencesInData<T extends Record<string, unknown>>(
 				return;
 			}
 			const imported = imageAssetMap?.get(id) as
-				| (ImageMetadata & { __svgData?: { attributes: Record<string, string>; children: string } })
+				| (ImageMetadata & {
+						__svgData?: {
+							attributes: Record<string, string>;
+							children: string;
+							styles: string[];
+						};
+				  })
 				| undefined;
 			if (imported) {
 				if (imported.__svgData) {
@@ -539,6 +547,7 @@ function updateImageReferencesInData<T extends Record<string, unknown>>(
 			}
 		}
 	});
+	return copy;
 }
 
 export async function renderEntry(entry: DataEntry) {

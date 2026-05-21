@@ -5,6 +5,7 @@ import type {
 	RouteData,
 	SSRElement,
 } from '../../../types/public/index.js';
+import type { SSRComponentMetadata } from '../../../types/public/internal.js';
 import { type HeadElements, Pipeline, type TryRewriteResult } from '../../base-pipeline.js';
 import { ASTRO_VERSION } from '../../constants.js';
 import { createModuleScriptElement, createStylesheetElementSet } from '../../render/ssr-element.js';
@@ -58,6 +59,17 @@ export class NonRunnablePipeline extends Pipeline {
 	}
 
 	async headElements(routeData: RouteData): Promise<HeadElements> {
+		// NonRunnablePipeline cannot call getComponentMetadata() (requires a ModuleLoader) so we
+		// hydrate the manifest's componentMetadata from the virtual module exposed by vite-plugin-head.
+		// This ensures head placement (containsHead / headInTree) is correct for adapters that run
+		// requests outside of Vite's module runner, such as Cloudflare.
+		const { componentMetadataEntries } = (await import('virtual:astro:component-metadata')) as {
+			componentMetadataEntries: [string, SSRComponentMetadata][];
+		};
+		for (const [id, entry] of componentMetadataEntries) {
+			this.manifest.componentMetadata.set(id, entry);
+		}
+
 		const { assetsPrefix, base } = this.manifest;
 		const routeInfo = this.manifest.routes.find((route) => route.routeData === routeData);
 		// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.

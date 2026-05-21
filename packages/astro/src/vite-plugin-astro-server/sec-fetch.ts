@@ -1,7 +1,7 @@
 import type { RemotePattern } from '@astrojs/internal-helpers/remote';
 import type * as vite from 'vite';
 import { BaseApp } from '../core/app/base.js';
-import type { Logger } from '../core/logger/core.js';
+import type { AstroLogger } from '../core/logger/core.js';
 
 /**
  * Middleware that validates Sec-Fetch metadata headers on incoming requests
@@ -21,7 +21,7 @@ import type { Logger } from '../core/logger/core.js';
  * different origin than the dev server itself.
  */
 export function secFetchMiddleware(
-	logger: Logger,
+	logger: AstroLogger,
 	allowedDomains?: Partial<RemotePattern>[],
 ): vite.Connect.NextHandleFunction {
 	return function devSecFetch(req, res, next) {

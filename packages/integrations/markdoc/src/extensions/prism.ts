@@ -7,8 +7,8 @@ export default function prism(): AstroMarkdocConfig {
 		nodes: {
 			fence: {
 				attributes: Markdoc.nodes.fence.attributes!,
-				transform({ attributes: { language, content } }) {
-					const { html, classLanguage } = runHighlighterWithAstro(language, content);
+				async transform({ attributes: { language, content } }) {
+					const { html, classLanguage } = await runHighlighterWithAstro(language, content);
 
 					// Use `unescapeHTML` to return `HTMLString` for Astro renderer to inline as HTML
 					return unescapeHTML(

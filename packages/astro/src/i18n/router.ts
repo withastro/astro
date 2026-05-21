@@ -151,9 +151,11 @@ export class I18nRouter {
 
 		if (isRoot) {
 			// Redirect root to default locale
+			// When base is '/', avoid producing '//locale' (a protocol-relative URL)
+			const basePrefix = this.#base === '/' ? '' : this.#base;
 			return {
 				type: 'redirect',
-				location: `${this.#base}/${this.#defaultLocale}`,
+				location: `${basePrefix}/${this.#defaultLocale}`,
 			};
 		}
 

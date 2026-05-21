@@ -14,12 +14,12 @@ import {
 import type { AstroSettings, RoutesList } from '../../types/astro.js';
 import type { AstroInlineConfig, RuntimeMode } from '../../types/public/config.js';
 import { resolveConfig } from '../config/config.js';
-import { createNodeLogger } from '../logger/node.js';
+import { loadOrCreateNodeLogger } from '../logger/load.js';
 import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
 import { createKey, getEnvironmentKey, hasEnvironmentKey } from '../encryption.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import type { Logger } from '../logger/core.js';
+import type { AstroLogger } from '../logger/core.js';
 import { levels, timerMessage } from '../logger/core.js';
 import { createRoutesList } from '../routing/create-manifest.js';
 import { getPrerenderDefault } from '../../prerender/utils.js';
@@ -62,8 +62,8 @@ export default async function build(
 	options: BuildOptions = {},
 ): Promise<void> {
 	ensureProcessNodeEnv(options.devOutput ? 'development' : 'production');
-	const logger = createNodeLogger(inlineConfig);
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig, 'build');
+	const logger = await loadOrCreateNodeLogger(astroConfig, inlineConfig ?? {});
 	telemetry.record(eventCliSession('build', userConfig));
 
 	warnIfCspWithShiki(astroConfig, logger);
@@ -89,20 +89,31 @@ export default async function build(
 }
 
 interface AstroBuilderOptions extends BuildOptions {
-	logger: Logger;
+	logger: AstroLogger;
 	mode: string;
 	runtimeMode: RuntimeMode;
+	/**
+	 * Provide a pre-built routes list to skip filesystem route scanning.
+	 * Useful for testing builds with in-memory virtual modules.
+	 */
+	routesList?: RoutesList;
+	/**
+	 * Whether to run `syncInternal` during setup. Defaults to true.
+	 * Set to false for in-memory builds that don't need type generation.
+	 */
+	sync?: boolean;
 }
 
-class AstroBuilder {
+export class AstroBuilder {
 	private settings: AstroSettings;
-	private logger: Logger;
+	private logger: AstroLogger;
 	private mode: string;
 	private runtimeMode: RuntimeMode;
 	private origin: string;
 	private routesList: RoutesList;
 	private timer: Record<string, number>;
 	private teardownCompiler: boolean;
+	private sync: boolean;
 
 	constructor(settings: AstroSettings, options: AstroBuilderOptions) {
 		this.mode = options.mode;
@@ -110,10 +121,11 @@ class AstroBuilder {
 		this.settings = settings;
 		this.logger = options.logger;
 		this.teardownCompiler = options.teardownCompiler ?? true;
+		this.sync = options.sync ?? true;
 		this.origin = settings.config.site
 			? new URL(settings.config.site).origin
 			: `http://localhost:${settings.config.server.port}`;
-		this.routesList = { routes: [] };
+		this.routesList = options.routesList ?? { routes: [] };
 		this.timer = {};
 	}
 
@@ -128,7 +140,11 @@ class AstroBuilder {
 			logger: logger,
 		});
 		this.settings.buildOutput = getPrerenderDefault(this.settings.config) ? 'static' : 'server';
-		this.routesList = await createRoutesList({ settings: this.settings }, this.logger);
+
+		// Skip filesystem route scanning if routesList was pre-populated (e.g. in-memory builds)
+		if (this.routesList.routes.length === 0) {
+			this.routesList = await createRoutesList({ settings: this.settings }, this.logger);
+		}
 
 		await runHookConfigDone({ settings: this.settings, logger: logger, command: 'build' });
 
@@ -155,14 +171,16 @@ class AstroBuilder {
 			},
 		);
 
-		const { syncInternal } = await import('../sync/index.js');
-		await syncInternal({
-			mode: this.mode,
-			settings: this.settings,
-			logger,
-			fs,
-			command: 'build',
-		});
+		if (this.sync) {
+			const { syncInternal } = await import('../sync/index.js');
+			await syncInternal({
+				mode: this.mode,
+				settings: this.settings,
+				logger,
+				fs,
+				command: 'build',
+			});
+		}
 
 		return { viteConfig };
 	}
@@ -213,7 +231,6 @@ class AstroBuilder {
 			runtimeMode: this.runtimeMode,
 			origin: this.origin,
 			pageNames,
-			teardownCompiler: this.teardownCompiler,
 			viteConfig,
 			key: keyPromise,
 		};
@@ -230,6 +247,19 @@ class AstroBuilder {
 			delete assets[k]; // free up memory
 		});
 		this.logger.debug('build', timerMessage('Additional assets copied', this.timer.assetsStart));
+
+		if (this.settings.fontsHttpServer) {
+			await new Promise<void>((resolve, reject) => {
+				this.settings.fontsHttpServer!.close((err) => {
+					if (err) reject(err);
+					else resolve();
+				});
+			}).catch((err) => {
+				// Server was already closed or failed to close, do not halt the build
+				this.logger.debug('assets', 'Failed to close fonts HTTP server:', err);
+			});
+			this.settings.fontsHttpServer = null;
+		}
 
 		// You're done! Time to clean up.
 		await runHookBuildDone({
@@ -264,6 +294,15 @@ class AstroBuilder {
 			this.settings.timer.end('Total build');
 			// Benchmark results
 			this.settings.timer.writeStats();
+
+			if (this.teardownCompiler) {
+				try {
+					const { teardown } = await import('@astrojs/compiler');
+					teardown();
+				} catch {
+					// Compiler teardown is best-effort — don't fail the build if it errors
+				}
+			}
 		}
 	}
 
@@ -285,7 +324,7 @@ class AstroBuilder {
 		pageCount,
 		buildMode,
 	}: {
-		logger: Logger;
+		logger: AstroLogger;
 		timeStart: number;
 		pageCount: number;
 		buildMode: AstroSettings['buildOutput'];

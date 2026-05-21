@@ -39,6 +39,11 @@ export function normalizeImageServiceConfig(config: ImageServiceConfig | undefin
 // Use the generic endpoint instead, which loads images via fetch through the dev server.
 const GENERIC_ENDPOINT = { entrypoint: 'astro/assets/endpoint/generic' };
 
+// Passthrough endpoint that serves original images via the ASSETS binding.
+const CLOUDFLARE_PASSTHROUGH_ENDPOINT = {
+	entrypoint: '@astrojs/cloudflare/image-passthrough-endpoint',
+};
+
 // Workerd-compatible image service stub: baseService (no sharp) + passthrough transform.
 // Used by both `compile` and `cloudflare-binding` for URL generation in workerd.
 const WORKERD_IMAGE_SERVICE = { entrypoint: '@astrojs/cloudflare/image-service-workerd' };
@@ -56,10 +61,20 @@ export function setImageConfig(
 			return {
 				...config,
 				service: passthroughImageService(),
-				endpoint: command === 'dev' ? GENERIC_ENDPOINT : config.endpoint,
+				endpoint: command === 'dev' ? GENERIC_ENDPOINT : CLOUDFLARE_PASSTHROUGH_ENDPOINT,
 			};
 
 		case 'cloudflare':
+			// The external Cloudflare image service generates `/cdn-cgi/image/...` URLs,
+			// which only work on Cloudflare's production edge network. In dev mode,
+			// fall back to passthrough so images render normally without transformation.
+			if (command === 'dev') {
+				return {
+					...config,
+					service: passthroughImageService(),
+					endpoint: GENERIC_ENDPOINT,
+				};
+			}
 			return {
 				...config,
 				service: { entrypoint: '@astrojs/cloudflare/image-service' },
@@ -83,7 +98,7 @@ export function setImageConfig(
 				endpoint:
 					command === 'dev' || runtimeService === 'cloudflare-binding'
 						? { entrypoint: '@astrojs/cloudflare/image-transform-endpoint' }
-						: GENERIC_ENDPOINT,
+						: CLOUDFLARE_PASSTHROUGH_ENDPOINT,
 			};
 
 		case 'custom':

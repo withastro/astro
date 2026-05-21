@@ -140,7 +140,7 @@ function generateHint(err: ErrorWithMetadata): string | undefined {
 	const commonBrowserAPIs = ['document', 'window'];
 
 	if (/Unknown file extension "\.(?:jsx|vue|svelte|astro|css)" for /.test(err.message)) {
-		return 'You likely need to add this package to `vite.ssr.noExternal` in your astro config file.';
+		return 'You likely need to add this package to `vite.resolve.noExternal` in your astro config file.';
 	} else if (commonBrowserAPIs.some((api) => err.toString().includes(api))) {
 		const hint = `Browser APIs are not available on the server.
 

@@ -1,10 +1,10 @@
 {
   "name": "@astrojs/yaml2ts",
-  "version": "0.2.2",
+  "version": "0.2.4",
   "description": "Package to convert a YAML string to a Volar VirtualCode, to be used by the Astro language server to provide intellisense",
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch"
+    "build": "tsc -b",
+    "dev": "tsc -b --watch"
   },
   "repository": {
     "type": "git",
@@ -21,10 +21,10 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "yaml": "^2.8.2"
+    "yaml": "^2.8.3"
   },
   "devDependencies": {
     "@volar/language-core": "~2.4.28",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.3"
   }
 }

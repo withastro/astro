@@ -138,7 +138,7 @@ export interface AstroGlobal<
 export interface APIContext<
 	Props extends Record<string, any> = Record<string, any>,
 	Params extends Record<string, string | undefined> = Record<string, string | undefined>,
-> {
+> extends App.Providers {
 	/**
 	 * The site provided in the astro config, parsed as an instance of `URL`, without base.
 	 * `undefined` if the site is not provided in the config.
@@ -573,6 +573,26 @@ export interface APIContext<
 				 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertscripthash)
 				 */
 				insertScriptHash: (hash: CspHash) => void;
+		  }
+		| undefined;
+
+	/**
+	 * It exposes utilities for logging messages.
+	 */
+	logger:
+		| {
+				/**
+				 * Logs a message with `info` level.
+				 */
+				info: (msg: string) => void;
+				/**
+				 * Logs a message with `warn` level.
+				 */
+				warn: (msg: string) => void;
+				/**
+				 * Logs a message with `error` level.
+				 */
+				error: (msg: string) => void;
 		  }
 		| undefined;
 

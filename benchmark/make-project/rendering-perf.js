@@ -279,7 +279,6 @@ import adapter from '@benchmark/adapter';
 export default defineConfig({
 	output: 'server',
 	adapter: adapter(),
-	experimental: { rustCompiler: true },
 });`,
 		'utf-8',
 	);

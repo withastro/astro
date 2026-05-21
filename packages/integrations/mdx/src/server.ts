@@ -3,7 +3,8 @@ import { AstroError } from 'astro/errors';
 import { AstroJSX, jsx } from 'astro/jsx-runtime';
 import { renderJSX } from 'astro/runtime/server/index.js';
 
-const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
+export const slotName = (str: string) =>
+	str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
 
 // NOTE: In practice, MDX components are always tagged with `__astro_tag_component__`, so the right renderer
 // is used directly, and this check is not often used to return true.

@@ -1,5 +1,55 @@
 # @astrojs/language-server
 
+## 2.16.9
+
+### Patch Changes
+
+- [#16661](https://github.com/withastro/astro/pull/16661) [`03b8f7f`](https://github.com/withastro/astro/commit/03b8f7f7644cc1d9e738a8221d6bd377399538c0) Thanks [@ocavue](https://github.com/ocavue)! - Updates `typescript` to v6. No changes are needed from users.
+
+- Updated dependencies [[`03b8f7f`](https://github.com/withastro/astro/commit/03b8f7f7644cc1d9e738a8221d6bd377399538c0)]:
+  - @astrojs/yaml2ts@0.2.4
+
+## 2.16.8
+
+### Patch Changes
+
+- [#16627](https://github.com/withastro/astro/pull/16627) [`5778cb7`](https://github.com/withastro/astro/commit/5778cb75515112e605da2aba5331646818802bc8) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes unintended dependency on the `typescript` package being available to the language server
+
+## 2.16.7
+
+### Patch Changes
+
+- [#15908](https://github.com/withastro/astro/pull/15908) [`8c62159`](https://github.com/withastro/astro/commit/8c62159eac6a77c32ac533e81d9c561409993db9) Thanks [@felmonon](https://github.com/felmonon)! - Keep generated `AstroComponent` suffixes in language-server output while rewriting `.astro` auto-import suggestions and edits back to the expected component name.
+
+## 2.16.6
+
+### Patch Changes
+
+- [#15927](https://github.com/withastro/astro/pull/15927) [`421e8de`](https://github.com/withastro/astro/commit/421e8de6e9e13ca45864c2d3deed7e98e3ee6138) Thanks [@FelmonFekadu](https://github.com/FelmonFekadu)! - Fixes completions sometimes not working inside the `href` attribute
+
+## 2.16.5
+
+### Patch Changes
+
+- [#15895](https://github.com/withastro/astro/pull/15895) [`7b4b254`](https://github.com/withastro/astro/commit/7b4b2549437eb099c5e96025dcf8d24ea56f30d0) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updates Volar services to 0.0.70. This updates notably mean that the transitive dependency yaml-language-server no longer depends on a vulnerable version of lodash, causing warnings to show when installing the language server.
+
+## 2.16.4
+
+### Patch Changes
+
+- [#15820](https://github.com/withastro/astro/pull/15820) [`e20474b`](https://github.com/withastro/astro/commit/e20474b98c6d868ed9734f7eeb7564bffe8bfd77) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes broken publish
+
+- Updated dependencies [[`e20474b`](https://github.com/withastro/astro/commit/e20474b98c6d868ed9734f7eeb7564bffe8bfd77)]:
+  - @astrojs/yaml2ts@0.2.3
+
+## 2.16.1
+
+### Patch Changes
+
+- [#15187](https://github.com/withastro/astro/pull/15187) [`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795) Thanks [@matthewp](https://github.com/matthewp)! - Update to Astro 6 beta
+
+- [#14421](https://github.com/withastro/astro/pull/14421) [`df6d2d7`](https://github.com/withastro/astro/commit/df6d2d7bbcaf6b6a327a37a6437d4adade6e2485) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the previously deprecated `Astro.glob()` - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#removed-astroglob))
+
 ## 2.16.1-beta.1
 
 ### Patch Changes
@@ -10,7 +60,7 @@
 
 ### Patch Changes
 
-- [#14421](https://github.com/withastro/astro/pull/14421) [`df6d2d7`](https://github.com/withastro/astro/commit/df6d2d7bbcaf6b6a327a37a6437d4adade6e2485) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the previously deprecated `Astro.glob()` - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-astroglob))
+- [#14421](https://github.com/withastro/astro/pull/14421) [`df6d2d7`](https://github.com/withastro/astro/commit/df6d2d7bbcaf6b6a327a37a6437d4adade6e2485) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the previously deprecated `Astro.glob()` - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#removed-astroglob))
 
 ## 2.16.3
 

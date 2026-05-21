@@ -84,12 +84,12 @@ export async function getRequestData(
 				const data = JSON.parse(raw);
 
 				// Validate that slots is not plaintext
-				if ('slots' in data && typeof data.slots === 'object') {
+				if (Object.hasOwn(data, 'slots') && typeof data.slots === 'object') {
 					return badRequest('Plaintext slots are not allowed. Slots must be encrypted.');
 				}
 
 				// Validate that componentExport is not plaintext
-				if ('componentExport' in data && typeof data.componentExport === 'string') {
+				if (Object.hasOwn(data, 'componentExport') && typeof data.componentExport === 'string') {
 					return badRequest(
 						'Plaintext componentExport is not allowed. componentExport must be encrypted.',
 					);
@@ -149,7 +149,11 @@ export function createEndpoint(manifest: SSRManifest) {
 		// Decrypt componentExport
 		let componentExport: string;
 		try {
-			componentExport = await decryptString(key, data.encryptedComponentExport);
+			componentExport = await decryptString(
+				key,
+				data.encryptedComponentExport,
+				`export:${componentId}`,
+			);
 		} catch (_e) {
 			return badRequest('Encrypted componentExport value is invalid.');
 		}
@@ -159,7 +163,7 @@ export function createEndpoint(manifest: SSRManifest) {
 
 		if (encryptedProps !== '') {
 			try {
-				const propString = await decryptString(key, encryptedProps);
+				const propString = await decryptString(key, encryptedProps, `props:${componentId}`);
 				props = JSON.parse(propString);
 			} catch (_e) {
 				return badRequest('Encrypted props value is invalid.');
@@ -173,7 +177,7 @@ export function createEndpoint(manifest: SSRManifest) {
 
 		if (encryptedSlots !== '') {
 			try {
-				const slotsString = await decryptString(key, encryptedSlots);
+				const slotsString = await decryptString(key, encryptedSlots, `slots:${componentId}`);
 				decryptedSlots = JSON.parse(slotsString);
 			} catch (_e) {
 				return badRequest('Encrypted slots value is invalid.');
