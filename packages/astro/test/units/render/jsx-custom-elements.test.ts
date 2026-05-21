@@ -121,6 +121,9 @@ describe('renderJSX custom elements', () => {
 		const vnode = createVNode('div', { class: 'test', children: 'Hello' });
 		await renderJSX(result, vnode);
 
-		assert.ok(!rendererCheckCalled, 'renderer check() should NOT be called for standard HTML elements');
+		assert.ok(
+			!rendererCheckCalled,
+			'renderer check() should NOT be called for standard HTML elements',
+		);
 	});
 });
