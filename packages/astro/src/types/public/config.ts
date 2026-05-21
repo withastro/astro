@@ -734,7 +734,7 @@ export interface AstroUserConfig<
 		 * - External scripts and external styles are not supported out of the box, but you can [provide your own hashes](https://docs.astro.build/en/reference/configuration-reference/#securitycspscriptdirectivehashes).
 		 * - [Astro's view transitions](https://docs.astro.build/en/guides/view-transitions/) using the `<ClientRouter />` are not supported, but you can [consider migrating to the browser native View Transition API](https://events-3bg.pages.dev/jotter/astro-view-transitions/) instead if you are not using Astro's enhancements to the native View Transitions and Navigation APIs.
 		 * - Shiki isn't currently supported. By design, Shiki functions use inline styles that cannot work with Astro CSP implementation. Consider [using `<Prism />`](https://docs.astro.build/en/guides/syntax-highlighting/#prism-) when your project requires both CSP and syntax highlighting.
-		 * - `unsafe-inline` directives are incompatible with Astro's CSP implementation. By default, Astro will emit hashes for all its bundled scripts (e.g. client islands) and all modern browsers will automatically reject `unsafe-inline` when it occurs in a directive with a hash or nonce.
+		 * - `unsafe-inline` directives are incompatible with Astro's default CSP implementation. By default, Astro will emit hashes for all its bundled scripts (e.g. client islands) and all modern browsers will automatically reject `unsafe-inline` when it occurs in a directive with a hash or nonce. You can opt in to `unsafe-inline` for styles specifically using [`styleDirective.unsafeInline`](https://docs.astro.build/en/reference/configuration-reference/#securitycspstyledirectiveunsafeinline).
 		 *
 		 * :::note
 		 * Due to the nature of the Vite dev server, this feature isn't supported while working in `dev` mode. Instead, you can test this in your Astro project using `build` and `preview`.
@@ -933,7 +933,7 @@ export interface AstroUserConfig<
 						 * @kind h6
 						 * @type {boolean}
 						 * @default `false`
-						 * @version 6.0.0
+						 * @version 6.3.7
 						 * @description
 						 *
 						 * When set to `true`, Astro will emit `'unsafe-inline'` in the `style-src` directive and skip emitting style hashes. This allows inline styles to work, but note that `'unsafe-inline'` is ignored by browsers when hashes or nonces are present in the same directive, so this option also disables style hash generation.
