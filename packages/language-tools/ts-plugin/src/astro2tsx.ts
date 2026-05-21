@@ -7,7 +7,18 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 
 function safeConvertToTSX(content: string, options: ConvertToTSXOptions) {
 	try {
-		const tsx = convertToTSX(content, { filename: options.filename });
+		const tsx = convertToTSX(content, {
+			filename: options.filename,
+			// Exclude script/style content from the TSX output. When included,
+			// scripts are wrapped in `{() => { ... }}` for JSX compatibility,
+			// which makes `import` declarations syntactically invalid (they must
+			// be at the module top level). Stripping them prevents broken imports
+			// from appearing in the virtual code. The language server handles
+			// script tags separately via `getExtraServiceScripts()`, which is not
+			// available in the TS plugin context.
+			includeScripts: false,
+			includeStyles: false,
+		});
 		return tsx;
 	} catch (e) {
 		console.error(
