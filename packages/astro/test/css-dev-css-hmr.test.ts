@@ -53,6 +53,7 @@ describe('CSS - dev CSS HMR', () => {
 
 	it(
 		'updates server-rendered inline CSS after a style-only change',
+		{ timeout: 30000 },
 		async () => {
 			const beforeStyles = await getInlineStyles('/posts/test');
 
@@ -67,6 +68,5 @@ describe('CSS - dev CSS HMR', () => {
 
 			assert.doesNotMatch(afterStyles, /rgb\(255,\s*0,\s*0\)/);
 		},
-		{ timeout: 30000 },
 	);
 });
