@@ -78,17 +78,11 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 						plugins: [
 							createConfigPlugin({
 								...userOptions,
-								// Use paths relative to outDir for portability. resolveClientDir()
-								// computes the relative offset between these and resolves against
-								// import.meta.url at runtime.
-								client: './' + path.relative(
-									fileURLToPath(_config.outDir),
-									fileURLToPath(_config.build.client),
-								).split(path.sep).join('/') + '/',
-								server: './' + path.relative(
-									fileURLToPath(_config.outDir),
-									fileURLToPath(_config.build.server),
-								).split(path.sep).join('/') + '/',
+								// Pass just the folder names for portability. resolveClientDir()
+								// uses these to compute a relative offset and locate the server
+								// directory via import.meta.url at runtime.
+								client: path.basename(fileURLToPath(_config.build.client)),
+								server: path.basename(fileURLToPath(_config.build.server)),
 								host: _config.server.host,
 								port: _config.server.port,
 								staticHeaders: userOptions.staticHeaders ?? false,

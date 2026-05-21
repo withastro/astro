@@ -17,14 +17,13 @@ export const STATIC_HEADERS_FILE = '_headers.json';
  * It throws an error if it can't find the directory while walking the parent directories.
  */
 export function resolveClientDir(options: Options) {
-	// options.client and options.server are relative paths from outDir
-	// (e.g., "./client/" and "./server/") for portability.
-	// Calculate relative path from server to client (e.g., "../client")
+	// options.client and options.server are folder names (e.g., "client" and "server").
+	// Compute the sibling relationship (e.g., "../client") so we can resolve the
+	// client directory relative to the server directory at runtime.
 	const rel = path.relative(options.server, options.client);
 
-	// Find the server entry folder by walking up from this file's location
-	// We need to find the actual runtime location, not the build-time paths
-	const serverFolder = path.basename(options.server.replace(/\/$/, ''));
+	// Find the server entry folder by walking up from this file's location.
+	const serverFolder = options.server;
 	let serverEntryFolderURL = path.dirname(import.meta.url);
 	let previous = '';
 	while (!serverEntryFolderURL.endsWith(serverFolder)) {
