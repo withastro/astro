@@ -37,13 +37,26 @@ export function deserializeManifest(
 	// file:///deployed/app/dist/server/entry.mjs). We use its parent directory
 	// as the base for resolution, since all relative paths in the manifest are
 	// expressed relative to buildServerDir.
-	const serverBaseUrl = serverEntryUrl ? new URL('./', serverEntryUrl) : undefined;
+	//
+	// On runtimes where import.meta.url is not a parseable URL (e.g., Cloudflare
+	// Workers/workerd), serverBaseUrl stays undefined and resolveDir falls back to
+	// treating each path as an absolute URL or a dummy — those runtimes don't use
+	// filesystem paths from the manifest.
+	const serverBaseUrl =
+		serverEntryUrl && URL.canParse(serverEntryUrl)
+			? new URL('./', serverEntryUrl)
+			: undefined;
 	const resolveDir = (relativePath: string): URL => {
 		if (serverBaseUrl) {
 			return new URL(relativePath, serverBaseUrl);
 		}
-		// Fallback: treat as absolute URL (legacy behavior for callers that don't pass serverEntryUrl)
-		return new URL(relativePath);
+		// Dev mode: paths are already absolute file:// URLs.
+		// Non-filesystem runtimes (Cloudflare Workers): paths are relative but
+		// unused — return a dummy URL so deserialization doesn't throw.
+		if (URL.canParse(relativePath)) {
+			return new URL(relativePath);
+		}
+		return new URL('file:///');
 	};
 
 	const routes: RouteInfo[] = [];

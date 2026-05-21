@@ -452,11 +452,10 @@ async function buildManifest(
 		componentMetadata: Array.from(internals.componentMetadata).map(([key, value]) => {
 			// Relativize absolute module IDs to root-relative paths for portability.
 			// This must match the moduleId normalization done in vite-plugin-astro's transform.
-			const normalizedRoot = normalizePath(fileURLToPath(settings.config.root));
-			const normalizedKey = normalizePath(key);
-			const relativeKey = normalizedKey.startsWith(normalizedRoot)
-				? normalizedKey.slice(normalizedRoot.length - 1)
-				: normalizedKey;
+			const nk = normalizePath(key);
+			const relativeKey = nk.startsWith(normalizedRoot)
+				? nk.slice(normalizedRoot.length - 1)
+				: nk;
 			return [relativeKey, value] as [string, typeof value];
 		}),
 		renderers: [],
