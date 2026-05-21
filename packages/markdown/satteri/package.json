@@ -32,7 +32,6 @@
     "satteri": "^0.6.2"
   },
   "devDependencies": {
-    "@types/hast": "^3.0.4",
     "astro-scripts": "workspace:*"
   },
   "publishConfig": {
