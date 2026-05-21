@@ -11,9 +11,9 @@ import {
 	getScriptHashes,
 	getScriptResources,
 	getStrictDynamic,
-	getStyleUnsafeInline,
 	getStyleHashes,
 	getStyleResources,
+	getStyleUnsafeInline,
 	shouldTrackCspHashes,
 } from '../core/csp/common.js';
 import { createKey, encodeKey, getEnvironmentKey, hasEnvironmentKey } from '../core/encryption.js';
