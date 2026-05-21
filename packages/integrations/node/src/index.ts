@@ -45,9 +45,16 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 				_config = config;
 				if (!session?.driver) {
 					logger.info('Enabling sessions with filesystem storage');
+					// Store the path relative to the project root for portability.
+					// The Node adapter's server entry resolves this against
+					// manifest.rootDir at runtime (which itself is resolved from
+					// import.meta.url). This works as long as node_modules/ is
+					// co-located with dist/.
+					const absBase = fileURLToPath(new URL('sessions', config.cacheDir));
+					const rootBase = path.relative(fileURLToPath(config.root), absBase);
 					session = {
 						driver: sessionDrivers.fsLite({
-							base: fileURLToPath(new URL('sessions', config.cacheDir)),
+							base: rootBase.split(path.sep).join('/'),
 						}),
 						cookie: session?.cookie,
 						ttl: session?.ttl,
