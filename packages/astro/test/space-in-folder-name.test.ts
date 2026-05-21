@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Projects with a space in the folder name', () => {
 	let fixture: Fixture;
@@ -9,6 +9,7 @@ describe('Projects with a space in the folder name', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/space in folder name/app/',
+			outDir: './dist/space-in-folder-name/',
 		});
 	});
 

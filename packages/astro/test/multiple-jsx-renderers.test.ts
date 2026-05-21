@@ -3,7 +3,7 @@ import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import woof from './fixtures/multiple-jsx-renderers/renderers/woof/index.mjs';
 import meow from './fixtures/multiple-jsx-renderers/renderers/meow/index.mjs';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('With include option', () => {
 	let fixture: Fixture;
@@ -12,6 +12,8 @@ describe('With include option', () => {
 		fixture = await loadFixture({
 			root: './fixtures/multiple-jsx-renderers/',
 			integrations: [woof({ include: '**/*.woof.jsx' }), meow({ include: '**/*.meow.jsx' })],
+			outDir: './dist/multiple-jsx-renderers-with-include-option/',
+			cacheDir: './node_modules/.astro-test/multiple-jsx-renderers-with-include-option/',
 		});
 		await fixture.build();
 	});
@@ -88,6 +90,8 @@ describe('Without include option', () => {
 		fixture = await loadFixture({
 			root: './fixtures/multiple-jsx-renderers/',
 			integrations: [woof(), meow()],
+			outDir: './dist/multiple-jsx-renderers-without-include-option/',
+			cacheDir: './node_modules/.astro-test/multiple-jsx-renderers-without-include-option/',
 		});
 		await fixture.build();
 	});

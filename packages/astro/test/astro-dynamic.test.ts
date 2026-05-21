@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Dynamic components', () => {
 	let fixture: Fixture;
@@ -9,6 +9,7 @@ describe('Dynamic components', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-dynamic/',
+			outDir: './dist/astro-dynamic-dynamic-components/',
 		});
 		await fixture.build();
 	});
@@ -48,6 +49,7 @@ describe('Dynamic components subpath', () => {
 			site: 'https://site.com',
 			base: '/blog',
 			root: './fixtures/astro-dynamic/',
+			outDir: './dist/astro-dynamic-dynamic-components-subpath/',
 		});
 		await fixture.build();
 	});

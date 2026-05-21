@@ -1,60 +1,19 @@
 import assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { ServerOnlyModule } from '../dist/core/errors/errors-data.js';
 import { AstroError } from '../dist/core/errors/index.js';
-import testAdapter from './test-adapter.js';
-import { type App, type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { type App, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('astro:config/client', () => {
 	let fixture: Fixture;
-	let devServer: DevServer;
-
-	describe('in dev', async () => {
-		before(async () => {
-			fixture = await loadFixture({
-				root: './fixtures/astro-manifest/',
-			});
-			devServer = await fixture.startDevServer();
-		});
-
-		after(async () => {
-			await devServer.stop();
-		});
-
-		it('should return the expected properties', async () => {
-			const response = await fixture.fetch('/blog/');
-			const html = await response.text();
-			const $ = cheerio.load(html);
-
-			assert.deepEqual(
-				$('#config').text(),
-				JSON.stringify({
-					base: '/blog',
-					i18n: {
-						defaultLocale: 'en',
-						locales: ['en', 'fr'],
-						routing: {
-							prefixDefaultLocale: false,
-							redirectToDefaultLocale: true,
-							fallbackType: 'redirect',
-						},
-					},
-					build: {
-						format: 'directory',
-					},
-					trailingSlash: 'always',
-					compressHTML: true,
-					site: 'https://example.com',
-				}),
-			);
-		});
-	});
 
 	describe('when the experimental flag is enabled in build', async () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/astro-manifest/',
+				outDir: './dist/serializeManifest-when-the-experimental-flag-is-enabled-in/',
 			});
 			await fixture.build();
 		});
@@ -97,6 +56,7 @@ describe('astro:config/client in a client script', () => {
 				root: './fixtures/astro-manifest-client-script/',
 				adapter: testAdapter(),
 				output: 'server',
+				outDir: './dist/serializeManifest-when-build/',
 			});
 		});
 
@@ -109,13 +69,13 @@ describe('astro:config/client in a client script', () => {
 
 describe('astro:config/server', () => {
 	let fixture: Fixture;
-	let devServer: DevServer;
 	let app: App;
 
 	describe('when build', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/astro-manifest-invalid/',
+				outDir: './dist/serializeManifest-when-build/',
 			});
 		});
 
@@ -126,38 +86,11 @@ describe('astro:config/server', () => {
 		});
 	});
 
-	describe('in dev', async () => {
-		before(async () => {
-			fixture = await loadFixture({
-				root: './fixtures/astro-manifest/',
-			});
-			devServer = await fixture.startDevServer();
-		});
-
-		after(async () => {
-			await devServer.stop();
-		});
-
-		it('should return the expected properties', async () => {
-			const response = await fixture.fetch('/blog/server/');
-			const html = await response.text();
-			const $ = cheerio.load(html);
-
-			assert.ok($('#out-dir').text().endsWith('/dist/'));
-			assert.ok($('#src-dir').text().endsWith('/src/'));
-			assert.ok($('#cache-dir').text().endsWith('/.astro/'));
-			assert.ok($('#root').text().endsWith('/'));
-			assert.ok($('#build-client').text().endsWith('/dist/client/'));
-			assert.ok($('#build-server').text().endsWith('/dist/server/'));
-			// URL
-			assert.equal($('#root-url').text(), 'true');
-		});
-	});
-
 	describe('when the experimental flag is enabled in build', async () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/astro-manifest/',
+				outDir: './dist/serializeManifest-when-the-experimental-flag-is-enabled-in/',
 			});
 			await fixture.build();
 		});
@@ -165,12 +98,25 @@ describe('astro:config/server', () => {
 		it('should return the expected properties', async () => {
 			const html = await fixture.readFile('/server/index.html');
 			const $ = cheerio.load(html);
-			assert.ok($('#out-dir').text().endsWith('/dist/'));
+			assert.ok(
+				$('#out-dir')
+					.text()
+					.endsWith('/dist/serializeManifest-when-the-experimental-flag-is-enabled-in/'),
+			);
 			assert.ok($('#src-dir').text().endsWith('/src/'));
 			assert.ok($('#cache-dir').text().endsWith('/.astro/'));
 			assert.ok($('#root').text().endsWith('/'));
-			assert.ok($('#build-client').text().endsWith('/dist/client/'));
-			assert.ok($('#build-server').text().endsWith('/dist/server/'));
+			assert.ok(
+				$('#build-client')
+					.text()
+					.endsWith('/dist/serializeManifest-when-the-experimental-flag-is-enabled-in/client/'),
+			);
+			assert.ok(
+				$('#build-server')
+					.text()
+					.endsWith('/dist/serializeManifest-when-the-experimental-flag-is-enabled-in/server/'),
+			);
+			assert.equal($('#build-assets-prefix').text(), 'https://cdn.example.com');
 			// URL
 			assert.equal($('#root-url').text(), 'true');
 		});
@@ -182,6 +128,7 @@ describe('astro:config/server', () => {
 				root: './fixtures/astro-manifest/',
 				adapter: testAdapter(),
 				output: 'server',
+				outDir: './dist/serializeManifest-when-the-experimental-flag-is-enabled-in-ssr/',
 			});
 
 			await fixture.build();
@@ -194,12 +141,25 @@ describe('astro:config/server', () => {
 			const html = await response.text();
 			const $ = cheerio.load(html);
 
-			assert.ok($('#out-dir').text().endsWith('/dist/'));
+			assert.ok(
+				$('#out-dir')
+					.text()
+					.endsWith('/dist/serializeManifest-when-the-experimental-flag-is-enabled-in-ssr/'),
+			);
 			assert.ok($('#src-dir').text().endsWith('/src/'));
 			assert.ok($('#cache-dir').text().endsWith('/.astro/'));
 			assert.ok($('#root').text().endsWith('/'));
-			assert.ok($('#build-client').text().endsWith('/dist/client/'));
-			assert.ok($('#build-server').text().endsWith('/dist/server/'));
+			assert.ok(
+				$('#build-client')
+					.text()
+					.endsWith('/dist/serializeManifest-when-the-experimental-flag-is-enabled-in-ssr/client/'),
+			);
+			assert.ok(
+				$('#build-server')
+					.text()
+					.endsWith('/dist/serializeManifest-when-the-experimental-flag-is-enabled-in-ssr/server/'),
+			);
+			assert.equal($('#build-assets-prefix').text(), 'https://cdn.example.com');
 			// URL
 			assert.equal($('#root-url').text(), 'true');
 		});

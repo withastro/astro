@@ -1,14 +1,17 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('imports using ?url suffix', () => {
 	let fixture: Fixture;
 	const assetName = 'index.DqQksVyv.css';
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/url-import-suffix/' });
+		fixture = await loadFixture({
+			root: './fixtures/url-import-suffix/',
+			outDir: './dist/url-import-suffix-imports-using-url-suffix/',
+		});
 		await fixture.build();
 	});
 
@@ -31,7 +34,10 @@ describe('imports using ?url&no-inline suffix', () => {
 	const assetName = 'style.3WhucSPm.css';
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/url-import-suffix/' });
+		fixture = await loadFixture({
+			root: './fixtures/url-import-suffix/',
+			outDir: './dist/url-import-suffix-imports-using-url-no-inline-suffix/',
+		});
 		await fixture.build();
 	});
 

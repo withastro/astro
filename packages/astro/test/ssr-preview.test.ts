@@ -1,6 +1,6 @@
 import { before, describe, it } from 'node:test';
-import testAdapter from './test-adapter.js';
-import { type Fixture, loadFixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('SSR Preview', () => {
 	let fixture: Fixture;
@@ -10,6 +10,7 @@ describe('SSR Preview', () => {
 			root: './fixtures/ssr-preview/',
 			output: 'server',
 			adapter: testAdapter({ extendAdapter: { previewEntrypoint: './preview.mjs' } }),
+			outDir: './dist/ssr-preview/',
 		});
 		await fixture.build();
 	});

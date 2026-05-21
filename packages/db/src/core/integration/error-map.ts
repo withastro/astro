@@ -44,6 +44,19 @@ export const errorMap: $ZodErrorMap = (issue) => {
 			);
 
 		if (details.length === 0) {
+			// For discriminated unions, show the expected discriminator options
+			if ('discriminator' in issue && issue.discriminator && 'options' in issue) {
+				const options = (issue as any).options;
+				if (Array.isArray(options)) {
+					details.push(
+						`> Expected \`${issue.discriminator}\` to be ${options.map((o: unknown) => `\`${stringify(o)}\``).join(' | ')}`,
+					);
+					details.push('> Received `' + stringify(issue.input) + '`');
+				}
+			}
+		}
+
+		if (details.length === 0) {
 			const expectedShapes: string[] = [];
 			for (const unionErrors of issue.errors) {
 				const expectedShape: string[] = [];
@@ -84,6 +97,25 @@ export const errorMap: $ZodErrorMap = (issue) => {
 		return {
 			message: messages.concat(details).join('\n'),
 		};
+	} else if (issue.code === 'invalid_key') {
+		// Zod 4.4.0+: Record key validation failures are now structured `invalid_key` issues
+		// with nested `issues` array containing the actual validation errors.
+		const keyIssues = (issue as any).issues;
+		if (Array.isArray(keyIssues) && keyIssues.length > 0) {
+			const firstIssue = keyIssues[0];
+			const msg = firstIssue.message || 'Invalid key in record';
+			return { message: prefix(baseErrorPath, msg) };
+		}
+		return { message: prefix(baseErrorPath, 'Invalid key in record') };
+	} else if (issue.code === 'invalid_element') {
+		// Zod 4.4.0+: Map/Set element validation failures are now structured `invalid_element` issues.
+		const elementIssues = (issue as any).issues;
+		if (Array.isArray(elementIssues) && elementIssues.length > 0) {
+			const firstIssue = elementIssues[0];
+			const msg = firstIssue.message || 'Invalid element';
+			return { message: prefix(baseErrorPath, msg) };
+		}
+		return { message: prefix(baseErrorPath, 'Invalid element') };
 	} else if (issue.code === 'invalid_type') {
 		return {
 			message: prefix(

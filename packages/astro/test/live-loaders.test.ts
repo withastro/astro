@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { Writable } from 'node:stream';
 import { after, before, describe, it } from 'node:test';
-import { AstroLogger, type AstroLogMessage } from '../dist/core/logger/core.js';
+import { AstroLogger, type AstroLoggerMessage } from '../dist/core/logger/core.js';
 
-import testAdapter from './test-adapter.js';
-import { type App, type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { type App, type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Live content collections', () => {
 	let fixture: Fixture;
@@ -12,11 +12,12 @@ describe('Live content collections', () => {
 		fixture = await loadFixture({
 			root: './fixtures/live-loaders/',
 			adapter: testAdapter(),
+			outDir: './dist/live-loaders/',
 		});
 	});
 	describe('Dev', () => {
 		let devServer: DevServer;
-		const logs: AstroLogMessage[] = [];
+		const logs: AstroLoggerMessage[] = [];
 		before(async () => {
 			let logger = new AstroLogger({
 				level: 'info',
@@ -35,7 +36,7 @@ describe('Live content collections', () => {
 		});
 
 		after(async () => {
-			devServer?.stop();
+			await devServer?.stop();
 		});
 
 		it('can load live data', async () => {

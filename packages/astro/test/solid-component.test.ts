@@ -1,13 +1,14 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type DevServer, type Fixture, isWindows, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, isWindows, loadFixture } from './test-utils.ts';
 
 describe.skip('Solid component build', { todo: 'Check why an error is thrown.' }, () => {
 	let fixture: Fixture;
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/solid-component/',
+			outDir: './dist/solid-component-1/',
 		});
 		await fixture.build();
 	});
@@ -138,6 +139,7 @@ describe.skip('Solid component dev', { todo: 'Check why the test hangs.', skip: 
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/solid-component/',
+			outDir: './dist/solid-component-2/',
 		});
 		devServer = await fixture.startDevServer();
 	});

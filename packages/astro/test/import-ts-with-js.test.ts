@@ -1,13 +1,16 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Using .js extension on .ts file', () => {
 	let fixture: Fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/import-ts-with-js/' });
+		fixture = await loadFixture({
+			root: './fixtures/import-ts-with-js/',
+			outDir: './dist/import-ts-with-js/',
+		});
 		await fixture.build();
 	});
 

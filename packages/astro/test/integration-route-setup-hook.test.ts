@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('Routes setup hook', () => {
 	it('should work in dev', async () => {
@@ -20,6 +20,8 @@ describe('Routes setup hook', () => {
 					},
 				},
 			],
+			outDir: './dist/integration-route-setup-hook/',
+			cacheDir: './node_modules/.astro-test/integration-route-setup-hook/',
 		});
 		const devServer = await fixture.startDevServer();
 

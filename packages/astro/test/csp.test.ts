@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import testAdapter from './test-adapter.js';
-import { type Fixture, loadFixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('CSP', () => {
 	let fixture: Fixture;
@@ -10,6 +10,7 @@ describe('CSP', () => {
 	it('should generate hashes for inline styles', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
+			outDir: './dist/csp-csp/',
 		});
 		await fixture.build();
 		const html = await fixture.readFile('/inline/index.html');
@@ -28,6 +29,7 @@ describe('CSP', () => {
 	it('should generate hashes and directives for fonts', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp-fonts/',
+			outDir: './dist/csp-csp/',
 		});
 		await fixture.build();
 		const html = await fixture.readFile('/index.html');
@@ -113,6 +115,37 @@ describe('CSP', () => {
 		// There should be at least one sha256 hash for the static CSS
 		const styleMatches = cspContent.match(/sha256-[A-Za-z0-9+/=]+/g);
 		assert.ok(styleMatches && styleMatches.length > 0, 'CSP should contain style hashes');
+	});
+
+	it('should not use inline styles for custom position (CSP compliance)', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/csp/',
+			outDir: './dist/csp-image-position',
+		});
+		await fixture.build();
+		const html = await fixture.readFile('/image-position/index.html');
+		const $ = cheerio.load(html);
+
+		const img = $('img');
+		// Position should be in data attribute, not inline style
+		assert.equal(
+			img.attr('data-astro-image-pos'),
+			'top',
+			'Image should have data-astro-image-pos="top"',
+		);
+		const style = img.attr('style');
+		if (style) {
+			assert.ok(
+				!style.includes('object-position'),
+				'Inline style should not contain object-position for CSP compliance',
+			);
+		}
+
+		// CSP meta tag should still have valid hashes (no unsafe-inline needed)
+		const meta = $('meta[http-equiv="Content-Security-Policy"]');
+		const cspContent = meta.attr('content')!.toString();
+		assert.ok(cspContent.includes('style-src'), 'CSP should have style-src directive');
+		assert.ok(!cspContent.includes("'unsafe-inline'"), 'CSP should not require unsafe-inline');
 	});
 
 	it('should generate hashes for SVG component inline styles', async () => {

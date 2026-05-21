@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Astro Markdown without remark-rehype config', () => {
 	let fixture: Fixture;
@@ -9,6 +9,7 @@ describe('Astro Markdown without remark-rehype config', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-markdown-remarkRehype/',
+			outDir: './dist/astro-markdown-remarkRehype-astro-markdown-without-remark-rehype-con/',
 		});
 		await fixture.build();
 	});
@@ -32,6 +33,7 @@ describe('Astro Markdown with remark-rehype config', () => {
 					footnoteBackLabel: 'Kembali ke konten',
 				},
 			},
+			outDir: './dist/astro-markdown-remarkRehype-astro-markdown-with-remark-rehype-config/',
 		});
 		await fixture.build();
 	});

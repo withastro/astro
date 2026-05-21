@@ -4,7 +4,7 @@ import {
 	type Fixture,
 	type DevServer,
 	type AstroInlineConfig,
-} from '../../../astro/test/test-utils.js';
+} from 'astro/_internal/test/test-utils';
 
 export { cli };
 export type { Fixture, DevServer };

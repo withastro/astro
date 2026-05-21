@@ -19,6 +19,7 @@ export interface Hasher {
 export interface UrlResolver {
 	resolve: (id: string) => string;
 	readonly cspResources: Array<string>;
+	readonly urls: Array<string>;
 }
 
 export interface FontFileContentResolver {
@@ -86,4 +87,17 @@ export interface FontResolver {
 		options: ResolveFontOptions<Record<string, any>> & { provider: FontProvider },
 	) => Promise<Array<unifont.FontFaceData>>;
 	listFonts: (options: { provider: FontProvider }) => Promise<string[] | undefined>;
+}
+
+export interface RuntimeFontFileUrlResolver {
+	/**
+	 * @param url
+	 * URL obtained from `fontData` and provided by the user. Can look like
+	 * `/_astro/fonts/<hash>.<ext>` or be a full URL when using assetsPrefix.
+	 *
+	 * @param requestUrl
+	 * The current request URL. It can be used to construct a full URL to the
+	 * font file, for example in SSR.
+	 */
+	resolve: (url: string, requestUrl: URL | undefined) => string | null;
 }

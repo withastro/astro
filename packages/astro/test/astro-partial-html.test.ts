@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Partial HTML', async () => {
 	let fixture: Fixture;
@@ -10,6 +10,7 @@ describe('Partial HTML', async () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-partial-html/',
+			outDir: './dist/astro-partial-html/',
 		});
 		devServer = await fixture.startDevServer();
 	});

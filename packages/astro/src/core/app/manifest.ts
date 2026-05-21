@@ -50,6 +50,7 @@ export function deserializeManifest(
 		middleware() {
 			return { onRequest: NOOP_MIDDLEWARE_FN };
 		},
+
 		...serializedManifest,
 		rootDir: new URL(serializedManifest.rootDir),
 		srcDir: new URL(serializedManifest.srcDir),

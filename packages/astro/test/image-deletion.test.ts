@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import testAdapter from './test-adapter.js';
-import { testImageService } from './test-image-service.js';
-import { type Fixture, loadFixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { testImageService } from './test-image-service.ts';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('astro:assets - delete images that are unused', () => {
 	let fixture: Fixture;
@@ -14,6 +14,7 @@ describe('astro:assets - delete images that are unused', () => {
 				image: {
 					service: testImageService(),
 				},
+				outDir: './dist/image-deletion-build-ssg/',
 			});
 
 			await fixture.build();
@@ -54,6 +55,7 @@ describe('astro:assets - delete images that are unused', () => {
 				image: {
 					service: testImageService(),
 				},
+				outDir: './dist/image-deletion-build-ssr/',
 			});
 
 			await fixture.build();

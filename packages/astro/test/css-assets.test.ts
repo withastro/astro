@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture, type Fixture } from './test-utils.js';
+import { loadFixture, type Fixture } from './test-utils.ts';
 
 describe('Assets in CSS', () => {
 	let fixture: Fixture;
@@ -14,6 +14,7 @@ describe('Assets in CSS', () => {
 					assetsInlineLimit: 0,
 				},
 			},
+			outDir: './dist/css-assets/',
 		});
 		await fixture.build();
 	});

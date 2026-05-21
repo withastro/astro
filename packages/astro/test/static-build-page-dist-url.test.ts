@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('Static build: pages routes have distURL', () => {
 	let assets: Map<string, URL[]>;
@@ -17,6 +17,8 @@ describe('Static build: pages routes have distURL', () => {
 					},
 				},
 			],
+			outDir: './dist/static-build-page-dist-url/',
+			cacheDir: './node_modules/.astro-test/static-build-page-dist-url/',
 		});
 		await fixture.build();
 	});

@@ -2,14 +2,14 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import net from 'node:net';
 import { after, before, describe, it } from 'node:test';
-import testAdapter from './test-adapter.js';
+import testAdapter from './test-adapter.ts';
 import {
 	type App,
 	type AstroInlineConfig,
 	type DevServer,
 	type Fixture,
 	loadFixture,
-} from './test-utils.js';
+} from './test-utils.ts';
 
 describe('API routes in SSR', () => {
 	const config: AstroInlineConfig = {
@@ -24,6 +24,7 @@ describe('API routes in SSR', () => {
 		security: {
 			checkOrigin: false,
 		},
+		outDir: './dist/ssr-api-route/',
 	};
 
 	describe('Build', () => {
@@ -184,25 +185,6 @@ describe('API routes in SSR', () => {
 			const text = await response.text();
 			assert.equal(response.status, 500);
 			assert.equal(text, '500 Internal Server Error');
-		});
-
-		it('Has valid api context', async () => {
-			const response = await fixture.fetch('/context/any');
-			assert.equal(response.status, 200);
-			const data = await response.json();
-			assert.ok(data.cookiesExist);
-			assert.ok(data.requestExist);
-			assert.ok(data.redirectExist);
-			assert.ok(data.propsExist);
-			assert.deepEqual(data.params, { param: 'any' });
-			assert.match(data.generator, /^Astro v/);
-			assert.ok(
-				['http://[::1]:4321/blog/context/any', 'http://127.0.0.1:4321/blog/context/any'].includes(
-					data.url,
-				),
-			);
-			assert.ok(['::1', '127.0.0.1'].includes(data.clientAddress));
-			assert.equal(data.site, 'https://mysite.dev/subsite/');
 		});
 	});
 });

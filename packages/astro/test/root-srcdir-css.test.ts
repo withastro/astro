@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('srcDir', () => {
 	let fixture: Fixture;
@@ -11,6 +11,7 @@ describe('srcDir', () => {
 			root: './fixtures/root-srcdir-css/',
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist/root-srcdir-css/',
 		});
 		await fixture.build();
 	});

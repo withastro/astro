@@ -3,9 +3,9 @@ import * as fs from 'node:fs';
 import { beforeEach, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
-import type { AstroLogMessage } from '../dist/core/logger/core.js';
+import type { AstroLoggerMessage } from '../dist/core/logger/core.js';
 import { AstroLogger } from '../dist/core/logger/core.js';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 const createFixture = () => {
 	let astroFixture: Fixture;
@@ -16,7 +16,11 @@ const createFixture = () => {
 
 	return {
 		async load(root: string) {
-			astroFixture = await loadFixture({ root });
+			astroFixture = await loadFixture({
+				root,
+				outDir: './dist/astro-sync-1/',
+				cacheDir: './node_modules/.astro-test/astro-sync-1/',
+			});
 			return astroFixture.config;
 		},
 		clean() {
@@ -86,8 +90,13 @@ const createFixture = () => {
 					},
 				});
 				assert.equal(
-					result.outputText,
-					'',
+					result.outputText.trim(),
+					// Since TypeScript v6.0, all code will be assumed to be in
+					// JavaScript strict mode, thus the "use strict" directive
+					// is always emitted.
+					//
+					// See https://www.typescriptlang.org/docs/handbook/release-notes/typescript-6-0.html#deprecated---alwaysstrict-false
+					'"use strict";',
 					`${path} should be valid TypeScript. Output: ${result.outputText}`,
 				);
 			} catch (error) {
@@ -244,7 +253,7 @@ describe('astro sync', () => {
 
 	describe('No content config', () => {
 		it('Syncs silently without error when content config does not exist', async () => {
-			const logs: AstroLogMessage[] = [];
+			const logs: AstroLoggerMessage[] = [];
 			const logger = new AstroLogger({
 				level: 'debug',
 				destination: {
@@ -255,7 +264,11 @@ describe('astro sync', () => {
 				},
 			});
 
-			const astroFixture = await loadFixture({ root: './fixtures/astro-basic/' });
+			const astroFixture = await loadFixture({
+				root: './fixtures/astro-basic/',
+				outDir: './dist/astro-sync-no-content-config/',
+				cacheDir: './node_modules/.astro-test/astro-sync-no-content-config/',
+			});
 			fs.rmSync(new URL('./.astro/', astroFixture.config.root), { force: true, recursive: true });
 
 			// @ts-ignore

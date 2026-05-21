@@ -1,10 +1,5 @@
 {
-  "extends": "../tsconfig.json",
-  "compilerOptions": {
-    "rootDir": "./src",
-    "outDir": "./dist",
-    "emitDeclarationOnly": true,
-    "checkJs": true
-  },
-  "include": ["src"]
+  "extends": "../../../configs/tsconfig.base.json",
+  "include": ["./scripts/*.mjs"],
+  "references": [{ "path": "./tsconfig.build.json" }, { "path": "./tsconfig.test.json" }]
 }

@@ -9,6 +9,8 @@ on:
       - "packages/astro/src/runtime/client/**/*"
       - "!packages/astro/src/runtime/client/dev-toolbar/**/*"
 
+permissions: {}
+
 # Automatically cancel in-progress actions on the same branch
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name == 'pull_request_target' && github.head_ref || github.ref }}
@@ -22,6 +24,9 @@ jobs:
   bundle:
     name: Bundle Size
     runs-on: ubuntu-latest
+    permissions:
+      contents: read # Checkout only
+      pull-requests: write # Post bundle size comparison comment
     steps:
       - name: Checkout Repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2

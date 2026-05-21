@@ -1,14 +1,15 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
-import { createRequestAndResponse } from './integration-test-helpers.js';
+import { loadFixture } from './test-utils.ts';
+import { createRequestAndResponse } from './integration-test-helpers.ts';
 
 describe('NodeClientAddress', () => {
 	describe('single value', () => {
 		it('clientAddress is 1.1.1.1', async () => {
 			const fixture = await loadFixture({
 				root: './fixtures/client-address-node/',
+				outDir: './dist/client-address-node-single-value/',
 			});
 			await fixture.build();
 			const handle = await fixture.loadNodeAdapterHandler();
@@ -31,6 +32,7 @@ describe('NodeClientAddress', () => {
 		it('clientAddress is 1.1.1.1', async () => {
 			const fixture = await loadFixture({
 				root: './fixtures/client-address-node/',
+				outDir: './dist/client-address-node-multiple-values/',
 			});
 			await fixture.build();
 			const handle = await fixture.loadNodeAdapterHandler();

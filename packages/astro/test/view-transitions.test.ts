@@ -1,14 +1,17 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('View Transitions styles', () => {
 	let fixture: Fixture;
 	let devServer: DevServer;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/view-transitions/' });
+		fixture = await loadFixture({
+			root: './fixtures/view-transitions/',
+			outDir: './dist/view-transitions/',
+		});
 		devServer = await fixture.startDevServer();
 	});
 

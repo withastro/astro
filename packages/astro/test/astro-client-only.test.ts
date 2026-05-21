@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Client only components', () => {
 	let fixture: Fixture;
@@ -11,6 +11,7 @@ describe('Client only components', () => {
 			root: './fixtures/astro-client-only/',
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist/astro-client-only-client-only-components/',
 		});
 		await fixture.build();
 	});
@@ -77,6 +78,7 @@ describe('Client only components subpath', () => {
 			root: './fixtures/astro-client-only/',
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist/astro-client-only-client-only-components-subpath/',
 		});
 		await fixture.build();
 	});

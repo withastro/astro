@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 const authorIds = ['Ben Holmes', 'Fred K Schott', 'Nate Moore'];
 const translationIds = ['en', 'es', 'fr'];
@@ -24,7 +24,10 @@ type TranslationEntry = {
 describe('Content Collections - data collections', () => {
 	let fixture: Fixture;
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/data-collections/' });
+		fixture = await loadFixture({
+			root: './fixtures/data-collections/',
+			outDir: './dist/data-collections/',
+		});
 		await fixture.build({ force: true });
 	});
 

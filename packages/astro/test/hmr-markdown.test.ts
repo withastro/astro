@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { type DevServer, type Fixture, isWindows, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, isWindows, loadFixture } from './test-utils.ts';
 
 const UPDATED_CONTENT = '---\ntitle: HMR Markdown\n---\n\nUpdated content\n';
 
@@ -10,7 +10,10 @@ describe('HMR: Markdown updates', () => {
 	let markdownPath: string;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/hmr-markdown/' });
+		fixture = await loadFixture({
+			root: './fixtures/hmr-markdown/',
+			outDir: './dist/hmr-markdown/',
+		});
 		devServer = await fixture.startDevServer();
 
 		markdownPath = '/src/content/blog/post.md';

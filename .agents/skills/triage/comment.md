@@ -15,6 +15,7 @@ These variables are referenced throughout this skill. They may be passed as args
 - **`report.md`** — File in `triageDir` that MAY exist. Contains the full context from all previous skills (reproduction, diagnosis, fix). Contains everything that you need to know to generate your comment successfully.
 - **`branchName`** — The branch name where a fix was pushed. If not passed as an arg, infer from previous conversation.
 - **`priorityLabels`** — An array of `{ name, description }` objects representing the available priority labels for the repository. Used to select a priority in the comment.
+- **`previewRelease`** — An object with `{ urls: string[] }` containing pkg.pr.new install URLs for the affected packages, or `null` if no preview release was published. When present, include a "Try this fix" section in the comment.
 
 ## Overview
 
@@ -62,11 +63,28 @@ The comment must start with an at-a-glance summary, followed by short explanatio
 ```markdown
 - **Reproduced:** [Yes / No / Skipped — reason]
 - **Exploration:** [Yes / No / Partial / Already fixed on main] [If `branchName` is non-null: — [View branch](https://github.com/withastro/astro/compare/{branchName}?expand=1)]
+- **Unit Test:** [Yes — `path/to/test.test.ts` / No — reason]
 - **Priority:** [See "Priority" Instructions above. Keep to one line explaining why this priority was chosen, who is likely to be affected, and under what conditions (this section should answer the question: "how bad is it?")]
 
 [2-3 sentences describing the root cause or key observations, or where/when it was already fixed. Be specific about what's happening and where in the codebase.]
 
 **[See "Fix" Instructions above.]** [1-2 sentences describing the fix in more detail: what was changed, guidance on where a fix might be, or relevant code areas.]
+
+[If `previewRelease` is non-null, include the "Try this fix" section below. If `previewRelease` is null, omit it entirely.]
+
+### Try this fix
+
+You can test this fix right now without waiting for a release:
+```
+
+[For each URL in previewRelease.urls, output it as an npm install command on its own line, e.g.:]
+npm i <url>
+
+```
+
+If this fixes your issue, please leave a comment letting us know (e.g. "confirmed, this fixes it"). We'll then open a pull request to get this merged.
+
+[End of conditional "Try this fix" section.]
 
 <details>
 <summary><em>Full Triage Report</em></summary>

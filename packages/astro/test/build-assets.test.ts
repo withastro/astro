@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { preact } from './fixtures/before-hydration/deps.mjs';
-import testAdapter from './test-adapter.js';
-import { type Fixture, loadFixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('build assets (static)', () => {
 	describe('with default configuration', () => {
@@ -15,6 +15,7 @@ describe('build assets (static)', () => {
 				integrations: [preact()],
 				// test suite was authored when inlineStylesheets defaulted to never
 				build: { inlineStylesheets: 'never' },
+				outDir: './dist/build-assets-with-default-configuration/',
 			});
 			await fixture.build();
 		});
@@ -60,6 +61,7 @@ describe('build assets (static)', () => {
 					assets: 'custom-assets',
 					inlineStylesheets: 'never',
 				},
+				outDir: './dist/build-assets-with-custom-configuration/',
 			});
 			await fixture.build();
 		});
@@ -99,6 +101,7 @@ describe('build assets (server)', () => {
 				adapter: testAdapter({ extendAdapter: { adapterFeatures: { buildOutput: 'static' } } }),
 				// test suite was authored when inlineStylesheets defaulted to never
 				build: { inlineStylesheets: 'never' },
+				outDir: './dist/build-assets-with-default-configuration/',
 			});
 			await fixture.build();
 		});
@@ -151,6 +154,7 @@ describe('build assets (server)', () => {
 						},
 					},
 				}),
+				outDir: './dist/build-assets-with-custom-configuration/',
 			});
 			await fixture.build();
 		});

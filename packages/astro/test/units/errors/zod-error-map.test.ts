@@ -166,6 +166,111 @@ describe('errorMap — invalid_union', () => {
 });
 // #endregion
 
+// #region invalid_key
+describe('errorMap — invalid_key', () => {
+	it('extracts nested issue message from record key validation failure', () => {
+		const msg = getMessage(
+			errorMap({
+				code: 'invalid_key',
+				origin: 'record',
+				input: 'bad-key',
+				path: ['env', 'schema'],
+				message: '',
+				issues: [
+					{
+						code: 'custom',
+						path: [],
+						message: 'A valid variable name cannot start with a number.',
+						input: '123ABC',
+					},
+				],
+			} as any),
+		);
+		assert.match(msg, /\*\*env\.schema\*\*/);
+		assert.match(msg, /A valid variable name cannot start with a number/);
+	});
+
+	it('falls back to default message when no nested issues', () => {
+		const msg = getMessage(
+			errorMap({
+				code: 'invalid_key',
+				origin: 'record',
+				input: 'bad-key',
+				path: [],
+				message: '',
+				issues: [],
+			} as any),
+		);
+		assert.match(msg, /Invalid key in record/);
+	});
+});
+// #endregion
+
+// #region invalid_element
+describe('errorMap — invalid_element', () => {
+	it('extracts nested issue message from element validation failure', () => {
+		const msg = getMessage(
+			errorMap({
+				code: 'invalid_element',
+				origin: 'set',
+				key: 0,
+				input: 'bad',
+				path: ['items'],
+				message: '',
+				issues: [
+					{
+						code: 'invalid_type',
+						path: [],
+						expected: 'number',
+						message: 'Expected number, received string',
+						input: 'bad',
+					},
+				],
+			} as any),
+		);
+		assert.match(msg, /\*\*items\*\*/);
+		assert.match(msg, /Expected number, received string/);
+	});
+
+	it('falls back to default message when no nested issues', () => {
+		const msg = getMessage(
+			errorMap({
+				code: 'invalid_element',
+				origin: 'map',
+				key: 'k',
+				input: 'bad',
+				path: [],
+				message: '',
+				issues: [],
+			} as any),
+		);
+		assert.match(msg, /Invalid element/);
+	});
+});
+// #endregion
+
+// #region discriminated_union
+describe('errorMap — discriminated union with options', () => {
+	it('shows discriminator options when available', () => {
+		const msg = getMessage(
+			errorMap({
+				code: 'invalid_union',
+				input: { type: 'unknown' },
+				path: ['columns', 'name'],
+				message: '',
+				discriminator: 'type',
+				options: ['boolean', 'number', 'text', 'date', 'json'],
+				errors: [],
+			} as any),
+		);
+		assert.match(msg, /Did not match union/);
+		assert.match(msg, /Expected `type` to be/);
+		assert.match(msg, /boolean/);
+		assert.match(msg, /number/);
+	});
+});
+// #endregion
+
 // #region fallback
 describe('errorMap — fallback behavior', () => {
 	it('returns message with path prefix for issues with a message', () => {

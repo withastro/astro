@@ -1,5 +1,11 @@
 # @astrojs/internal-helpers
 
+## 0.9.1
+
+### Patch Changes
+
+- [#16544](https://github.com/withastro/astro/pull/16544) [`d365c97`](https://github.com/withastro/astro/commit/d365c975ba2d88fc1dbdfe698df2bf9e2eafadce) Thanks [@matthewp](https://github.com/matthewp)! - Tightens `isRemotePath()` to reject control characters after a leading slash and fixes the dev image endpoint origin check
+
 ## 0.9.0
 
 ### Minor Changes

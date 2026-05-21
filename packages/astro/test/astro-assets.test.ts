@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import parseSrcset from 'parse-srcset';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 // Asset bundling
 describe('Assets', () => {
@@ -11,6 +11,8 @@ describe('Assets', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-assets/',
+			outDir: './dist/astro-assets/',
+			cacheDir: './node_modules/.astro-test/astro-assets/',
 		});
 		await fixture.build();
 	});

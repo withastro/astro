@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.ts';
 
 describe('Static build: dir takes the URL path to the output directory', () => {
 	let checkDir: URL;
@@ -21,6 +21,7 @@ describe('Static build: dir takes the URL path to the output directory', () => {
 					},
 				},
 			],
+			outDir: './dist/static-build-dir/',
 		});
 		await fixture.build();
 	});
@@ -28,7 +29,9 @@ describe('Static build: dir takes the URL path to the output directory', () => {
 		const removeTrailingSlash = (str: string) => str.replace(/\/$/, '');
 		assert.equal(
 			removeTrailingSlash(checkDir.toString()),
-			removeTrailingSlash(new URL('./fixtures/static-build-dir/dist', import.meta.url).toString()),
+			removeTrailingSlash(
+				new URL('./fixtures/static-build-dir/dist/static-build-dir', import.meta.url).toString(),
+			),
 		);
 		assert.equal(checkDir.toString(), checkGeneratedDir.toString());
 	});

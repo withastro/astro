@@ -3,8 +3,8 @@ import { EventEmitter } from 'node:events';
 import { after, before, describe, it } from 'node:test';
 import { setTimeout as delay } from 'node:timers/promises';
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { createRequestAndResponse } from './integration-test-helpers.js';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { createRequestAndResponse } from './integration-test-helpers.ts';
+import { type Fixture, loadFixture, type RequestHandler } from './test-utils.ts';
 
 type MockSocket = EventEmitter & {
 	encrypted: boolean;
@@ -42,7 +42,7 @@ const attachSocket = (socket: MockSocket, req: IncomingMessage, res: ServerRespo
 
 describe('Node request abort integration', () => {
 	let fixture: Fixture;
-	let handle: (req: IncomingMessage, res: ServerResponse) => void | Promise<void>;
+	let handle: RequestHandler;
 
 	const resetAbortState = async () => {
 		const resetRequest = createRequestAndResponse({
@@ -65,6 +65,7 @@ describe('Node request abort integration', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/request-signal/',
+			outDir: './dist/request-signal/',
 		});
 		await fixture.build();
 		handle = await fixture.loadNodeAdapterHandler();

@@ -4,8 +4,8 @@ import * as cheerio from 'cheerio';
 import * as devalue from 'devalue';
 import { serializeActionResult } from '../dist/actions/runtime/server.js';
 import { REDIRECT_STATUS_CODES } from '../dist/core/constants.js';
-import testAdapter from './test-adapter.js';
-import { type App, type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { type App, type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 // Error response shapes emitted by `serializeActionResult` in
 // src/actions/runtime/server.ts.
@@ -28,6 +28,7 @@ describe('Astro Actions', () => {
 		fixture = await loadFixture({
 			root: './fixtures/actions/',
 			adapter: testAdapter(),
+			outDir: './dist/actions-astro-actions/',
 		});
 	});
 
@@ -463,6 +464,7 @@ describe('Astro Actions in static mode with prerender = false routes', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/actions-static-prerender-false/',
+			outDir: './dist/actions-astro-actions-in-static-mode-with-preren/',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -495,6 +497,7 @@ it('Works with adapter and all pages prerendered', async () => {
 		root: './fixtures/actions/',
 		output: 'static',
 		adapter: testAdapter(),
+		outDir: './dist/actions-astro-actions-in-static-mode-with-preren/',
 	});
 	const devServer = await fixture.startDevServer();
 	const res = await fixture.fetch('/_actions/subscribe', {
@@ -514,6 +517,7 @@ it('Base path should be used', async () => {
 		root: './fixtures/actions/',
 		adapter: testAdapter(),
 		base: '/base',
+		outDir: './dist/actions-astro-actions-in-static-mode-with-preren/',
 	});
 	const devServer = await fixture.startDevServer();
 	const formData = new FormData();
@@ -538,6 +542,7 @@ it('Should support trailing slash', async () => {
 		root: './fixtures/actions/',
 		adapter: testAdapter(),
 		trailingSlash: 'always',
+		outDir: './dist/actions-astro-actions-in-static-mode-with-preren/',
 	});
 	const devServer = await fixture.startDevServer();
 	const formData = new FormData();

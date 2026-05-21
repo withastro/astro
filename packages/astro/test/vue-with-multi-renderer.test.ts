@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Vue with multi-renderer', () => {
 	let fixture: Fixture;
@@ -8,6 +8,7 @@ describe('Vue with multi-renderer', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/vue-with-multi-renderer/',
+			outDir: './dist/vue-with-multi-renderer/',
 		});
 	});
 

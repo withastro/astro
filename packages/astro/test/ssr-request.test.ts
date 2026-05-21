@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import testAdapter from './test-adapter.js';
-import { type Fixture, loadFixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Using Astro.request in SSR', () => {
 	let fixture: Fixture;
@@ -28,6 +28,8 @@ describe('Using Astro.request in SSR', () => {
 					assetsInlineLimit: 0,
 				},
 			},
+			outDir: './dist/ssr-request/',
+			cacheDir: './node_modules/.astro-test/ssr-request/',
 		});
 		await fixture.build();
 	});

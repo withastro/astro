@@ -1,5 +1,18 @@
 # @astrojs/vercel
 
+## 10.0.7
+
+### Patch Changes
+
+- Updated dependencies [[`d365c97`](https://github.com/withastro/astro/commit/d365c975ba2d88fc1dbdfe698df2bf9e2eafadce)]:
+  - @astrojs/internal-helpers@0.9.1
+
+## 10.0.6
+
+### Patch Changes
+
+- [#16486](https://github.com/withastro/astro/pull/16486) [`0bae1a5`](https://github.com/withastro/astro/commit/0bae1a51f0f271403d43f5ec0ae031c9c614fd3c) Thanks [@cyphercodes](https://github.com/cyphercodes)! - Fix forwarded serverless requests with streamed bodies by preserving the required `duplex: 'half'` option when rewriting middleware paths.
+
 ## 10.0.5
 
 ### Patch Changes

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 // Asset bundling
 describe('Page-level styles', () => {
@@ -12,6 +12,7 @@ describe('Page-level styles', () => {
 			root: './fixtures/page-level-styles/',
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist/page-level-styles/',
 		});
 		await fixture.build();
 	});

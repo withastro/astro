@@ -15,7 +15,7 @@ describe('WranglerPreviewPlatform', () => {
 	});
 
 	after(async () => {
-		previewServer.stop();
+		await previewServer.stop();
 	});
 
 	it('exists', async () => {

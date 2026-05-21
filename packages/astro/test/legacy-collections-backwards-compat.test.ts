@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Legacy Collections Backwards Compatibility', () => {
 	let fixture: Fixture;
@@ -8,6 +8,7 @@ describe('Legacy Collections Backwards Compatibility', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/legacy-collections-backwards-compat/',
+			outDir: './dist/legacy-collections-backwards-compat/',
 		});
 		await fixture.build();
 	});

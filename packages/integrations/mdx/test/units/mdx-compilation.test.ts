@@ -9,7 +9,7 @@ import remarkSmartypants from 'remark-smartypants';
 import { visit } from 'unist-util-visit';
 import { ignoreStringPlugins } from '../../dist/utils.js';
 import {
-	SpyIntegrationLogger,
+	SpyLogger,
 	type RecmaPlugin,
 	type RehypePlugin,
 	type RemarkPlugin,
@@ -263,7 +263,8 @@ describe('MDX string-based plugin filtering', () => {
 		// When a string-based plugin is provided, the ignoreStringPlugins
 		// function filters it out. We test the filter function directly in utils.test.js.
 		// Here we verify that only function plugins affect output.
-		const logger = new SpyIntegrationLogger();
+		const spyLogger = new SpyLogger();
+		const logger = spyLogger.forkIntegrationLogger('test-spy');
 
 		const plugins = ['remark-toc', () => (tree: unknown) => tree];
 		const filtered = ignoreStringPlugins(plugins, logger);

@@ -1,12 +1,15 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Non-HTML Pages', () => {
 	let fixture: Fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/non-html-pages/' });
+		fixture = await loadFixture({
+			root: './fixtures/non-html-pages/',
+			outDir: './dist/non-html-pages/',
+		});
 		await fixture.build();
 	});
 

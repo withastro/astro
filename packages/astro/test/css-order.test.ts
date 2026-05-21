@@ -1,8 +1,8 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import testAdapter from './test-adapter.js';
-import { loadFixture, type Fixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { loadFixture, type Fixture } from './test-utils.ts';
 
 describe('CSS production ordering', () => {
 	function getLinks(html: string): string[] {
@@ -31,7 +31,10 @@ describe('CSS production ordering', () => {
 		});
 
 		before(async () => {
-			let fixture = await loadFixture({ ...commonConfig });
+			let fixture = await loadFixture({
+				...commonConfig,
+				outDir: './dist/css-order-ssg-and-ssr-parity/',
+			});
 			await fixture.build();
 			staticHTML = await fixture.readFile('/one/index.html');
 			staticCSS = await Promise.all(
@@ -42,6 +45,7 @@ describe('CSS production ordering', () => {
 				...commonConfig,
 				adapter: testAdapter(),
 				output: 'server',
+				outDir: './dist/css-order-ssg-and-ssr-parity/',
 			});
 			await fixture.build();
 
@@ -72,6 +76,7 @@ describe('CSS production ordering', () => {
 				root: './fixtures/css-order/',
 				// test suite was authored when inlineStylesheets defaulted to never
 				build: { inlineStylesheets: 'never' },
+				outDir: './dist/css-order-page-vs-shared-css/',
 			});
 			await fixture.build();
 		});
@@ -112,6 +117,8 @@ describe('CSS production ordering', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/css-order-layout/',
+				outDir: './dist/css-order-changes-order-when-transparentscriptorde/',
+				cacheDir: './node_modules/.astro-test/css-order-changes-order-when-transparentscriptorde/',
 			});
 			await fixture.build();
 		});

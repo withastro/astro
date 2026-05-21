@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 // note: the hashes should be deterministic, but updating the file contents will change hashes
 // be careful not to test that the HTML simply contains CSS, because it always will! filename and quantity matter here (bundling).
@@ -28,6 +28,7 @@ describe('CSS Bundling', function () {
 				root: './fixtures/astro-css-bundling/',
 				// test suite was authored when inlineStylesheets defaulted to never
 				build: { inlineStylesheets: 'never' },
+				outDir: './dist/astro-css-bundling-defaults/',
 			});
 			await fixture.build({ mode: 'production' });
 		});
@@ -73,47 +74,6 @@ describe('CSS Bundling', function () {
 		});
 	});
 
-	describe('using custom assetFileNames config', () => {
-		before(async () => {
-			fixture = await loadFixture({
-				root: './fixtures/astro-css-bundling/',
-
-				// test suite was authored when inlineStylesheets defaulted to never
-				build: {
-					inlineStylesheets: 'never',
-					assets: 'assets',
-				},
-
-				vite: {
-					environments: {
-						prerender: {
-							build: {
-								rollupOptions: {
-									output: {
-										assetFileNames: 'assets/[name][extname]',
-									},
-								},
-							},
-						},
-					},
-				},
-			});
-			await fixture.build({ mode: 'production' });
-		});
-
-		it('there are 4 css files', async () => {
-			const dir = await fixture.readdir('/assets');
-			assert.equal(dir.length, 4);
-		});
-
-		it('CSS does not include hashes', async () => {
-			const [firstFound] = await fixture.readdir('/assets');
-			assert.doesNotMatch(firstFound, /[a-z]+\.[\da-z]{8}\.css/);
-		});
-
-		it('there are 4 css files (3 pages, one shared component)', async () => {
-			const dir = await fixture.readdir('/assets');
-			assert.equal(dir.length, 4);
-		});
-	});
+	// The "using custom assetFileNames config" section has been converted to a
+	// unit test in test/units/build/vite-build-config.test.ts.
 });

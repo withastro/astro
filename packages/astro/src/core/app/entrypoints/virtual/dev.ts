@@ -1,14 +1,16 @@
+import fetchable from 'virtual:astro:fetchable';
 import { manifest } from 'virtual:astro:manifest';
 import { DevApp } from '../../dev/app.js';
-import { createConsoleLogger } from '../../logging.js';
 import type { CreateApp, RouteInfo } from '../../types.js';
 import type { RoutesList } from '../../../../types/astro.js';
+import { createConsoleLogger } from '../../../logger/impls/console.js';
 
 let currentDevApp: DevApp | null = null;
 
 export const createApp: CreateApp = ({ streaming } = {}) => {
 	const logger = createConsoleLogger(manifest.logLevel);
 	currentDevApp = new DevApp(manifest, streaming, logger);
+	currentDevApp.setFetchHandler(fetchable);
 
 	// Listen for route updates via HMR
 	if (import.meta.hot) {

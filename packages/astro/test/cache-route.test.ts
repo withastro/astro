@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import testAdapter from './test-adapter.js';
-import { type App, type Fixture, loadFixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { type App, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('context.cache', () => {
 	it('build fails for invalid cache option values', async () => {
@@ -24,6 +24,7 @@ describe('context.cache', () => {
 							'/api': { maxAge: -1 },
 						},
 					},
+					outDir: './dist/cache-route-context-cache/',
 				}),
 			(err: Error) => {
 				assert.ok(err.message.includes('maxAge'));
@@ -42,6 +43,7 @@ describe('context.cache', () => {
 					provider: { entrypoint: 'nonexistent-cache-provider-package' },
 				},
 			},
+			outDir: './dist/cache-route-context-cache/',
 		});
 		await assert.rejects(
 			() => fixture.build({}),
@@ -76,6 +78,7 @@ describe('context.cache', () => {
 						'/config-route': { maxAge: 600, tags: ['config'] },
 					},
 				},
+				outDir: './dist/cache-route-production-cdn-style-provider/',
 			});
 			await fixture.build({});
 			app = await fixture.loadTestAdapterApp();
@@ -148,6 +151,46 @@ describe('context.cache', () => {
 
 		it('response body is correct JSON from API route', async () => {
 			const response = await fetchResponse('/api');
+			const body = await response.json();
+			assert.deepEqual(body, { ok: true });
+		});
+	});
+
+	describe('Disabled (no cache provider configured)', () => {
+		let fixture: Fixture;
+		let app: App;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/cache-route/',
+				output: 'server',
+				adapter: testAdapter(),
+				outDir: './dist/cache-route-disabled/',
+			});
+			await fixture.build({});
+			app = await fixture.loadTestAdapterApp();
+		});
+
+		async function fetchResponse(path: string) {
+			const request = new Request('http://example.com' + path);
+			return app.render(request);
+		}
+
+		// Regression: Astro.cache must always be defined as a no-op shim
+		// even when experimental.cache is not configured, so that
+		// `Astro.cache.set(...)` calls do not crash.
+		it('Astro.cache.set() is a no-op on .astro pages', async () => {
+			const response = await fetchResponse('/');
+			assert.equal(response.status, 200);
+			assert.equal(response.headers.get('CDN-Cache-Control'), null);
+			assert.equal(response.headers.get('Cache-Tag'), null);
+		});
+
+		it('context.cache.set() is a no-op in API routes', async () => {
+			const response = await fetchResponse('/api');
+			assert.equal(response.status, 200);
+			assert.equal(response.headers.get('CDN-Cache-Control'), null);
+			assert.equal(response.headers.get('Cache-Tag'), null);
 			const body = await response.json();
 			assert.deepEqual(body, { ok: true });
 		});

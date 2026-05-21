@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type AstroLogMessage, AstroLogger } from '../dist/core/logger/core.js';
-import { type Fixture, loadFixture } from './test-utils.js';
+import { type AstroLoggerMessage, AstroLogger } from '../dist/core/logger/core.js';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('react-jsx-export', () => {
 	let fixture: Fixture;
-	const logs: AstroLogMessage[] = [];
+	const logs: AstroLoggerMessage[] = [];
 
 	const ids = [
 		'anonymous_arrow_default_export',
@@ -37,6 +37,7 @@ describe('react-jsx-export', () => {
 		});
 		fixture = await loadFixture({
 			root: './fixtures/react-jsx-export/',
+			outDir: './dist/react-jsx-export/',
 		});
 		await fixture.build({
 			// @ts-expect-error: `logger` is @internal in AstroInlineConfig so it's stripped from dist types

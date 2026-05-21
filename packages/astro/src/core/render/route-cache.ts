@@ -35,7 +35,10 @@ export async function callGetStaticPaths({
 	if (!mod) {
 		throw new Error('This is an error caused by Astro and not your code. Please file an issue.');
 	}
-	if (cached?.staticPaths) {
+	// After HMR, `mod` is a new object from a fresh import(). If the cached
+	// entry was produced by a previous module instance, treat it as stale so
+	// getStaticPaths() is re-called with the updated module.
+	if (cached?.staticPaths && cached.mod === mod) {
 		return cached.staticPaths;
 	}
 
@@ -73,11 +76,12 @@ export async function callGetStaticPaths({
 		keyedStaticPaths.keyed.set(paramsKey, sp);
 	}
 
-	routeCache.set(route, { ...cached, staticPaths: keyedStaticPaths });
+	routeCache.set(route, { ...cached, mod, staticPaths: keyedStaticPaths });
 	return keyedStaticPaths;
 }
 
 interface RouteCacheEntry {
+	mod?: ComponentInstance;
 	staticPaths: GetStaticPathsResultKeyed;
 }
 

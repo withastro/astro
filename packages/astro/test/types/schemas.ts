@@ -7,6 +7,8 @@ import type { CacheSchema, RouteRulesSchema } from '../../dist/core/cache/config
 import type { CacheProviderConfig, RouteRules } from '../../dist/core/cache/types.js';
 import type { SessionDriverConfigSchema } from '../../dist/core/session/config.js';
 import type { SessionDriverConfig } from '../../dist/core/session/types.js';
+import type { SvgOptimizer } from '../../dist/assets/svg/types.js';
+import type { SvgOptimizerSchema } from '../../dist/assets/svg/config.js';
 
 describe('fonts', () => {
 	it('FontFamily type matches FontFamilySchema', () => {
@@ -34,5 +36,11 @@ describe('cache', () => {
 describe('session', () => {
 	it('SessionDriverConfig type matches SessionDriverConfigSchema', () => {
 		expectTypeOf<z.input<typeof SessionDriverConfigSchema>>().toEqualTypeOf<SessionDriverConfig>();
+	});
+});
+
+describe('svgOptimizer', () => {
+	it('SvgOptimizer type matches SvgOptimizerSchema', () => {
+		expectTypeOf<z.input<typeof SvgOptimizerSchema>>().toEqualTypeOf<SvgOptimizer>();
 	});
 });

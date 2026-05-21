@@ -4,7 +4,7 @@ import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 
 import { AstroLogger } from '../dist/core/logger/core.js';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.js';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('astro:image', () => {
 	let fixture: Fixture;
@@ -16,6 +16,7 @@ describe('astro:image', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/core-image-remark-imgattr/',
+				outDir: './dist/core-image-remark-imgattr/',
 			});
 
 			const logger = new AstroLogger({

@@ -1,8 +1,8 @@
 import fs from 'node:fs';
 import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import testAdapter from './test-adapter.js';
-import { type Fixture, loadFixture } from './test-utils.js';
+import testAdapter from './test-adapter.ts';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('When a read-only file exists in /public (static)', () => {
 	let fixture: Fixture;
@@ -11,6 +11,7 @@ describe('When a read-only file exists in /public (static)', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/build-readonly-file/',
+			outDir: './dist/build-readonly-file-when-a-read-only-file-exists-in-public-s/',
 		});
 
 		testFilePath = fileURLToPath(fixture.config.publicDir) + 'test.txt';
@@ -21,9 +22,9 @@ describe('When a read-only file exists in /public (static)', () => {
 		await fixture.build();
 	});
 
-	after(() => {
+	after(async () => {
 		fs.chmodSync(testFilePath, 0o666);
-		fixture.clean();
+		await fixture.clean();
 	});
 });
 
@@ -35,6 +36,7 @@ describe('When a read-only file exists in /public (server)', () => {
 		fixture = await loadFixture({
 			root: './fixtures/build-readonly-file/',
 			adapter: testAdapter(),
+			outDir: './dist/build-readonly-file-when-a-read-only-file-exists-in-public-s/',
 		});
 
 		testFilePath = fileURLToPath(fixture.config.publicDir) + 'test.txt';
@@ -45,8 +47,8 @@ describe('When a read-only file exists in /public (server)', () => {
 		await fixture.build();
 	});
 
-	after(() => {
+	after(async () => {
 		fs.chmodSync(testFilePath, 0o666);
-		fixture.clean();
+		await fixture.clean();
 	});
 });
