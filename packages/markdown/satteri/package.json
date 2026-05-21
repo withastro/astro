@@ -29,7 +29,7 @@
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
     "github-slugger": "^2.0.0",
-    "satteri": "^0.6.2"
+    "satteri": "^0.6.3"
   },
   "devDependencies": {
     "astro-scripts": "workspace:*"

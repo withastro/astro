@@ -1,6 +1,8 @@
 import { resolvePath } from 'astro/markdown';
+import type { Identifier, Literal } from 'estree';
 import {
 	defineHastPlugin,
+	type EstreeProgram,
 	type HastPluginDefinition,
 	type HastVisitorContext,
 } from 'satteri';
@@ -26,49 +28,8 @@ export interface AstroMetadata {
 type ImportSpecifier = { local: string; imported: string };
 type MatchedImport = { name: string; path: string };
 
-// ESTree shapes we care about from the parseExpression() output on mdxjsEsm nodes.
-interface EstreeIdentifier {
-	type: 'Identifier';
-	name: string;
-}
-
-interface EstreeStringLiteral {
-	type: 'Literal';
-	value: string;
-}
-
-type EstreeModuleExportName = EstreeIdentifier | EstreeStringLiteral;
-
-interface EstreeImportDeclaration {
-	type: 'ImportDeclaration';
-	source: EstreeStringLiteral;
-	specifiers: Array<
-		EstreeImportSpecifier | EstreeImportDefaultSpecifier | EstreeImportNamespaceSpecifier
-	>;
-}
-
-interface EstreeImportSpecifier {
-	type: 'ImportSpecifier';
-	local: EstreeIdentifier;
-	imported: EstreeModuleExportName;
-}
-
-interface EstreeImportDefaultSpecifier {
-	type: 'ImportDefaultSpecifier';
-	local: EstreeIdentifier;
-}
-
-interface EstreeImportNamespaceSpecifier {
-	type: 'ImportNamespaceSpecifier';
-	local: EstreeIdentifier;
-}
-
-interface EstreeProgram {
-	body: Array<{ type: string } & Record<string, any>>;
-}
-
-function exportNameToString(name: EstreeModuleExportName): string {
-	return name.type === 'Identifier' ? name.name : name.value;
+function exportNameToString(name: Identifier | Literal): string {
+	return name.type === 'Identifier' ? name.name : String(name.value);
 }
 
 function collectImportsFromEsm(
@@ -77,8 +38,7 @@ function collectImportsFromEsm(
 ): void {
 	for (const stmt of program.body) {
 		if (stmt.type !== 'ImportDeclaration') continue;
-		const decl = stmt as EstreeImportDeclaration;
-		const source = decl.source.value;
+		const source = String(stmt.source.value);
 
 		let specSet = imports.get(source);
 		if (!specSet) {
@@ -86,7 +46,7 @@ function collectImportsFromEsm(
 			imports.set(source, specSet);
 		}
 
-		for (const spec of decl.specifiers) {
+		for (const spec of stmt.specifiers) {
 			switch (spec.type) {
 				case 'ImportDefaultSpecifier':
 					specSet.add({ local: spec.local.name, imported: 'default' });
@@ -214,7 +174,7 @@ export function createAstroMetadataPlugin(
 	return defineHastPlugin({
 		name: 'astro-metadata',
 		mdxjsEsm(node) {
-			const program = node.parseExpression() as EstreeProgram | null;
+			const program = node.parseExpression();
 			if (program) {
 				collectImportsFromEsm(program, imports);
 			}
