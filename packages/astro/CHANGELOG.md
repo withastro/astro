@@ -1,5 +1,19 @@
 # astro
 
+## 6.3.7
+
+### Patch Changes
+
+- [#16821](https://github.com/withastro/astro/pull/16821) [`9c76b12`](https://github.com/withastro/astro/commit/9c76b12052c445416df6b034d7b6df66957a0503) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes request body handling in the Node adapter when `req.body` is a `Buffer`, `Uint8Array`, or `ArrayBuffer`. Previously, binary body data was incorrectly JSON-stringified (producing `{"type":"Buffer","data":[...]}`) instead of being passed through directly. This affected libraries like `serverless-http` that set `req.body` to a `Buffer`.
+
+- [#16785](https://github.com/withastro/astro/pull/16785) [`de96360`](https://github.com/withastro/astro/commit/de963608d82e9bab74896945aa6503ba164ddbb0) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes `vite.build.minify`, `vite.build.sourcemap`, and `vite.build.rollupOptions.output` (e.g. `compact`) being ignored for client-side builds. These top-level Vite build options are now properly forwarded to the client environment, with environment-specific overrides (`vite.environments.client.build.*`) taking priority when set.
+
+- [#16819](https://github.com/withastro/astro/pull/16819) [`b5dd8f1`](https://github.com/withastro/astro/commit/b5dd8f1e82813a646c4c61510764fc83b2fcafd4) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes custom elements in MDX files bypassing the renderer pipeline. Custom elements (tags containing hyphens like `<my-element>`) in `.mdx` files are now routed through registered renderers for SSR, matching the behavior of `.astro` files. If no renderer claims the element, it falls back to rendering as raw HTML.
+
+- [#16808](https://github.com/withastro/astro/pull/16808) [`765896c`](https://github.com/withastro/astro/commit/765896cd4d03755093d6c9f47d69285ac910b848) Thanks [@ematipico](https://github.com/ematipico)! - Fixes dynamic routes returning 400 Bad Request when the URL contains a literal `%` character, such as paths built with `encodeURIComponent('%?.pdf')`
+
+- [#16804](https://github.com/withastro/astro/pull/16804) [`90d2aca`](https://github.com/withastro/astro/commit/90d2aca7536e600062e6b9d787ef7e60990a23fe) Thanks [@jp-knj](https://github.com/jp-knj)! - Fixes a v6 regression where `astro:i18n` could not be imported from client `<script>` blocks.
+
 ## 6.3.6
 
 ### Patch Changes

@@ -94,6 +94,8 @@ jobs:
       # This step doesn't work for forks
       - name: Remove Preview Label
         run: gh pr edit ${{ github.event.number }} --remove-label "pr preview"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
       - name: Publish packages
         run: |
