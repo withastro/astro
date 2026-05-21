@@ -61,9 +61,9 @@ export interface MarkdownHeading {
 export interface AstroMarkdownProcessorOptions {
 	syntaxHighlight?: SyntaxHighlightConfig | SyntaxHighlightConfigType | false;
 	shikiConfig?: ShikiConfig;
-	/** @deprecated Configure via the processor instead, e.g. `satteri({ features: { gfm: false } })`. */
+	/** @deprecated Configure via the processor instead, e.g. `unified({ gfm: false })` or `satteri({ features: { gfm: false } })`. */
 	gfm?: boolean;
-	/** @deprecated Configure via the processor instead, e.g. `satteri({ features: { smartPunctuation: false } })`. */
+	/** @deprecated Configure via the processor instead, e.g. `unified({ smartypants: false })` or `satteri({ features: { smartPunctuation: false } })`. */
 	smartypants?: boolean | SmartypantsOptions;
 	/** @deprecated Use `markdown.processor: unified({ remarkPlugins })` instead. */
 	remarkPlugins?: RemarkPlugins;
@@ -96,6 +96,38 @@ export interface MarkdownProcessorRenderResult {
 		localImagePaths: string[];
 		remoteImagePaths: string[];
 		frontmatter: Record<string, any>;
+	};
+}
+
+// MDX rendering metadata. Produced by `@astrojs/mdx`'s satteri and unified pipelines
+// and surfaced on Vite's `meta.astro`; defined here so both pipelines share one shape.
+
+export interface AstroComponentMetadata {
+	exportName: string;
+	localName: string;
+	specifier: string;
+	resolvedPath: string;
+}
+
+export interface AstroMetadata {
+	hydratedComponents: AstroComponentMetadata[];
+	clientOnlyComponents: AstroComponentMetadata[];
+	serverComponents: AstroComponentMetadata[];
+	scripts: never[];
+	propagation: 'none';
+	containsHead: false;
+	pageOptions: Record<string, never>;
+}
+
+export function createDefaultAstroMetadata(): AstroMetadata {
+	return {
+		hydratedComponents: [],
+		clientOnlyComponents: [],
+		serverComponents: [],
+		scripts: [],
+		propagation: 'none',
+		containsHead: false,
+		pageOptions: {},
 	};
 }
 

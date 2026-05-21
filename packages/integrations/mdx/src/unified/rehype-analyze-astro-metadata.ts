@@ -1,3 +1,4 @@
+import { createDefaultAstroMetadata, type AstroMetadata } from '@astrojs/internal-helpers/markdown';
 import { resolvePath } from 'astro/markdown';
 import type { Program } from 'estree';
 import type { RootContent, Root as HastRoot } from 'hast';
@@ -13,34 +14,7 @@ import type { VFile } from 'vfile';
 
 const ClientOnlyPlaceholder = 'astro-client-only';
 
-interface AstroComponentMetadata {
-	exportName: string;
-	localName: string;
-	specifier: string;
-	resolvedPath: string;
-}
-
-export interface AstroMetadata {
-	hydratedComponents: AstroComponentMetadata[];
-	clientOnlyComponents: AstroComponentMetadata[];
-	serverComponents: AstroComponentMetadata[];
-	scripts: never[];
-	propagation: 'none';
-	containsHead: false;
-	pageOptions: Record<string, never>;
-}
-
-function createDefaultAstroMetadata(): AstroMetadata {
-	return {
-		hydratedComponents: [],
-		clientOnlyComponents: [],
-		serverComponents: [],
-		scripts: [],
-		propagation: 'none',
-		containsHead: false,
-		pageOptions: {},
-	};
-}
+export type { AstroMetadata };
 
 export const rehypeAnalyzeAstroMetadata: Plugin<[], HastRoot> = () => {
 	return (tree, file) => {

@@ -1,4 +1,7 @@
-import type { MarkdownHeading } from '@astrojs/internal-helpers/markdown';
+import {
+	createDefaultAstroMetadata,
+	type MarkdownHeading,
+} from '@astrojs/internal-helpers/markdown';
 import { createShikiHighlighter } from '@astrojs/internal-helpers/shiki';
 import {
 	satteriCollectImagesPlugin,
@@ -11,17 +14,11 @@ import {
 	type MdastPluginDefinition,
 	type MdxCompileOptions,
 } from 'satteri';
-import {
-	ASTRO_IMAGE_IMPORT,
-	USES_ASTRO_IMAGE_FLAG,
-} from '../image-constants.js';
+import { ASTRO_IMAGE_IMPORT, USES_ASTRO_IMAGE_FLAG } from '../image-constants.js';
 import type { MdxOptions } from '../index.js';
 import { shouldAddCharset } from './charset.js';
 import { type AstroMetadata, createAstroMetadataPlugin } from './hast-astro-metadata.js';
-import {
-	createImageToComponentPlugin,
-	type ImageImportInfo,
-} from './hast-images-to-component.js';
+import { createImageToComponentPlugin, type ImageImportInfo } from './hast-images-to-component.js';
 
 type HighlightFn = (code: string, lang: string, meta?: string) => Promise<string>;
 
@@ -90,15 +87,7 @@ export function createMdxProcessor(mdxOptions: MdxOptions, ctx: CreateMdxProcess
 			const localImagePaths = new Set<string>();
 			const remoteImagePaths = new Set<string>();
 
-			const astroMetadata: AstroMetadata = {
-				hydratedComponents: [],
-				clientOnlyComponents: [],
-				serverComponents: [],
-				scripts: [],
-				propagation: 'none',
-				containsHead: false,
-				pageOptions: {},
-			};
+			const astroMetadata = createDefaultAstroMetadata();
 
 			const collectImages = satteriCollectImagesPlugin(localImagePaths, remoteImagePaths);
 			const headingIds = satteriHeadingIdsPlugin(headings, frontmatter);

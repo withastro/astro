@@ -56,7 +56,7 @@ export {
 	type ParseFrontmatterOptions,
 	type ParseFrontmatterResult,
 	parseFrontmatter,
-} from './frontmatter.js';
+} from '@astrojs/internal-helpers/frontmatter';
 export { rehypeHeadingIds } from './rehype-collect-headings.js';
 export { rehypePrism } from './rehype-prism.js';
 export { rehypeShiki } from './rehype-shiki.js';
@@ -67,7 +67,10 @@ export {
 	type UnifiedProcessorOptions,
 	unified,
 } from './processor.js';
-export { markdownConfigDefaults, syntaxHighlightDefaults } from '@astrojs/internal-helpers/markdown';
+export {
+	markdownConfigDefaults,
+	syntaxHighlightDefaults,
+} from '@astrojs/internal-helpers/markdown';
 
 // Skip nonessential plugins during performance benchmark runs
 const isPerformanceBenchmark = Boolean(process.env.ASTRO_PERFORMANCE_BENCHMARK);

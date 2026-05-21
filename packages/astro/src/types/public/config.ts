@@ -2135,7 +2135,7 @@ export interface AstroUserConfig<
 		 * @type {boolean}
 		 * @default `true`
 		 * @version 2.0.0
-		 * @deprecated Configure via the processor instead: `satteri({ features: { gfm: false } })` or `unified({ remarkPlugins: [] })` (omit `remarkGfm`). Will be removed in a future major.
+		 * @deprecated Configure via the processor instead: `unified({ gfm: false })` or `satteri({ features: { gfm: false } })`. Will be removed in a future major.
 		 * @description
 		 * Astro uses [GitHub-flavored Markdown](https://github.com/remarkjs/remark-gfm) by default. To disable this, set the `gfm` flag to `false`:
 		 *
@@ -2155,7 +2155,7 @@ export interface AstroUserConfig<
 		 * @type {boolean | Smartypants}
 		 * @default `true`
 		 * @version 2.0.0
-		 * @deprecated Configure via the processor instead: `satteri({ features: { smartPunctuation: false } })` or `unified({ remarkPlugins: [remarkSmartypants] })`. Will be removed in a future major.
+		 * @deprecated Configure via the processor instead: `unified({ smartypants: false })` or `satteri({ features: { smartPunctuation: false } })`. Will be removed in a future major.
 		 * @description
 		 * Whether to use the [SmartyPants formatter](https://daringfireball.net/projects/smartypants/) to transform straight quotes into smart quotes, dashes into en/em dashes, and triple dots into ellipses.
 		 *
@@ -2192,7 +2192,7 @@ export interface AstroUserConfig<
 		 * @version 7.0.0
 		 * @description
 		 *
-		 * The markdown processor used to render `.md` and `.mdx` files. By default Astro uses [satteri](https://github.com/bruits/satteri), a Rust-based Markdown / MDX compiler.
+		 * The markdown processor used to render `.md` and `.mdx` files. By default Astro uses [Sätteri](https://github.com/bruits/satteri), a Rust-based Markdown / MDX compiler.
 		 *
 		 * To opt into the legacy remark/rehype pipeline, use the `unified()` factory from `@astrojs/markdown-remark`:
 		 *
@@ -2208,7 +2208,7 @@ export interface AstroUserConfig<
 		 * });
 		 * ```
 		 *
-		 * To pass satteri plugins or enable additional features, use the `satteri()` factory:
+		 * To pass Sätteri plugins or enable additional features, use the `satteri()` factory:
 		 *
 		 * ```js
 		 * import { defineConfig, satteri } from 'astro/config';

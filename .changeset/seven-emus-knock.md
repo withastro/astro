@@ -42,3 +42,17 @@ export default defineConfig({
 ```
 
 The top-level `markdown.remarkPlugins`, `markdown.rehypePlugins`, and `markdown.remarkRehype` options are deprecated. They'll continue to work when `@astrojs/markdown-remark` is installed for now, but this will be removed in the next major.
+
+The top-level `markdown.gfm` and `markdown.smartypants` options are also deprecated. Move them onto your processor instead — `satteri({ features: { gfm: false, smartPunctuation: false } })`, or `unified({ gfm: false, smartypants: false })`:
+
+```js
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import { unified } from '@astrojs/markdown-remark';
+
+export default defineConfig({
+  markdown: {
+    processor: unified({ gfm: false, smartypants: false }),
+  },
+});
+```

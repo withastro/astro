@@ -4,12 +4,17 @@ import type {
 	RehypePlugins,
 	RemarkPlugins,
 	RemarkRehype,
+	Smartypants,
 } from '@astrojs/internal-helpers/markdown';
 
 export interface UnifiedProcessorOptions {
 	remarkPlugins?: RemarkPlugins;
 	rehypePlugins?: RehypePlugins;
 	remarkRehype?: RemarkRehype;
+	/** Enable GitHub-Flavored Markdown. Defaults to `true`. */
+	gfm?: boolean;
+	/** Enable SmartyPants typography. Defaults to `true`; pass an object to configure it. */
+	smartypants?: boolean | Smartypants;
 }
 
 /**
@@ -22,6 +27,8 @@ export interface UnifiedProcessorDescriptor {
 		remarkPlugins: RemarkPlugins;
 		rehypePlugins: RehypePlugins;
 		remarkRehype: RemarkRehype;
+		gfm?: boolean;
+		smartypants?: boolean | Smartypants;
 	};
 	createRenderer(shared: AstroMarkdownProcessorOptions): Promise<MarkdownProcessor>;
 }
@@ -32,7 +39,9 @@ export function unified(opts: UnifiedProcessorOptions = {}): UnifiedProcessorDes
 		options: {
 			remarkPlugins: [...(opts.remarkPlugins ?? [])],
 			rehypePlugins: [...(opts.rehypePlugins ?? [])],
-			remarkRehype: { ...(opts.remarkRehype) },
+			remarkRehype: { ...opts.remarkRehype },
+			gfm: opts.gfm,
+			smartypants: opts.smartypants,
 		},
 		async createRenderer(shared) {
 			// Lazy import to avoid a circular module load with `./index.js`.
@@ -42,14 +51,16 @@ export function unified(opts: UnifiedProcessorOptions = {}): UnifiedProcessorDes
 				remarkPlugins: descriptor.options.remarkPlugins,
 				rehypePlugins: descriptor.options.rehypePlugins,
 				remarkRehype: descriptor.options.remarkRehype,
+				// `unified({ gfm, smartypants })` wins; fall back to the deprecated
+				// top-level `markdown.gfm` / `markdown.smartypants` while they still exist.
+				gfm: descriptor.options.gfm ?? shared.gfm,
+				smartypants: descriptor.options.smartypants ?? shared.smartypants,
 			});
 		},
 	};
 	return descriptor;
 }
 
-export function isUnifiedProcessor(p: {
-	name: string;
-}): p is UnifiedProcessorDescriptor {
+export function isUnifiedProcessor(p: { name: string }): p is UnifiedProcessorDescriptor {
 	return p.name === 'unified';
 }

@@ -6462,6 +6462,9 @@ importers:
       '@types/mdast':
         specifier: ^4.0.4
         version: 4.0.4
+      js-yaml:
+        specifier: ^4.1.1
+        version: 4.1.1
       picomatch:
         specifier: ^4.0.4
         version: 4.0.4
@@ -6471,10 +6474,16 @@ importers:
       shiki:
         specifier: ^4.0.2
         version: 4.0.2
+      smol-toml:
+        specifier: ^1.6.0
+        version: 1.6.1
       unified:
         specifier: ^11.0.5
         version: 11.0.5
     devDependencies:
+      '@types/js-yaml':
+        specifier: ^4.0.9
+        version: 4.0.9
       '@types/picomatch':
         specifier: ^4.0.2
         version: 4.0.2
@@ -6778,9 +6787,6 @@ importers:
       hast-util-to-text:
         specifier: ^4.0.2
         version: 4.0.2
-      js-yaml:
-        specifier: ^4.1.1
-        version: 4.1.1
       mdast-util-definitions:
         specifier: ^6.0.0
         version: 6.0.0
@@ -6802,9 +6808,6 @@ importers:
       remark-smartypants:
         specifier: ^3.0.2
         version: 3.0.2
-      smol-toml:
-        specifier: ^1.6.0
-        version: 1.6.1
       unified:
         specifier: ^11.0.5
         version: 11.0.5
@@ -6827,9 +6830,6 @@ importers:
       '@types/hast':
         specifier: ^3.0.4
         version: 3.0.4
-      '@types/js-yaml':
-        specifier: ^4.0.9
-        version: 4.0.9
       '@types/mdast':
         specifier: ^4.0.4
         version: 4.0.4

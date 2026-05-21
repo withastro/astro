@@ -92,8 +92,6 @@ export default {
 		},
 		'packages/markdown/satteri': {
 			entry: [srcEntry, dtsEntry, testEntry],
-			// package.json#imports are not resolved at the moment
-			ignore: ['src/shiki-engine-default.ts', 'src/shiki-engine-workerd.ts'],
 		},
 		'packages/upgrade': {
 			entry: ['src/index.ts', testEntry],

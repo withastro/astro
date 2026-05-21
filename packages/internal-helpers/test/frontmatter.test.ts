@@ -4,7 +4,7 @@ import {
 	extractFrontmatter,
 	parseFrontmatter,
 	type ParseFrontmatterOptions,
-} from '../dist/index.js';
+} from '../dist/frontmatter.js';
 
 type FrontmatterStyle = ParseFrontmatterOptions['frontmatter'];
 

@@ -1,3 +1,4 @@
+import type { AstroMetadata } from '@astrojs/internal-helpers/markdown';
 import { resolvePath } from 'astro/markdown';
 import type { Identifier, Literal } from 'estree';
 import {
@@ -8,22 +9,7 @@ import {
 } from 'satteri';
 import { findAttrValue, hasDirective, isComponent, type MdxJsxHastNode } from './jsx-utils.js';
 
-interface AstroComponentMetadata {
-	exportName: string;
-	localName: string;
-	specifier: string;
-	resolvedPath: string;
-}
-
-export interface AstroMetadata {
-	hydratedComponents: AstroComponentMetadata[];
-	clientOnlyComponents: AstroComponentMetadata[];
-	serverComponents: AstroComponentMetadata[];
-	scripts: never[];
-	propagation: 'none';
-	containsHead: false;
-	pageOptions: Record<string, never>;
-}
+export type { AstroMetadata };
 
 type ImportSpecifier = { local: string; imported: string };
 type MatchedImport = { name: string; path: string };

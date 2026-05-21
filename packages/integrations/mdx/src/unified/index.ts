@@ -46,7 +46,8 @@ function getRemarkPlugins(mdxOptions: MdxOptions): PluggableList {
 	let remarkPlugins: PluggableList = [];
 
 	if (!isPerformanceBenchmark) {
-		if (mdxOptions.gfm) {
+		// `undefined` means "use the default" — gfm is on unless explicitly disabled.
+		if (mdxOptions.gfm !== false) {
 			remarkPlugins.push(remarkGfm);
 		}
 		if (mdxOptions.smartypants !== false) {

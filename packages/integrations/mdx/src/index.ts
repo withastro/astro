@@ -29,9 +29,12 @@ const isSatteriProcessor = (p: { name: string }): p is SatteriProcessorDescripto
 const isUnifiedProcessor = (p: { name: string }): p is UnifiedProcessorDescriptor =>
 	p.name === 'unified';
 
+// `gfm`/`smartypants` are deprecated and stay unset unless the user opts in; the
+// MDX pipelines treat an absent value as the default (on), like the `.md` processors.
 type SharedMarkdownOptions = Required<
-	Pick<AstroMarkdownProcessorOptions, 'syntaxHighlight' | 'shikiConfig' | 'gfm' | 'smartypants'>
->;
+	Pick<AstroMarkdownProcessorOptions, 'syntaxHighlight' | 'shikiConfig'>
+> &
+	Pick<AstroMarkdownProcessorOptions, 'gfm' | 'smartypants'>;
 
 export type MdxOptions = SharedMarkdownOptions & {
 	extendMarkdownConfig: boolean;
@@ -157,6 +160,17 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 							...descriptor.options.remarkRehype,
 							...resolvedMdxOptions.remarkRehype,
 						};
+						// `gfm`/`smartypants` from `unified({...})` apply to `.mdx` too, unless
+						// `mdx({...})` set its own.
+						if (partialMdxOptions.gfm === undefined && descriptor.options.gfm !== undefined) {
+							resolvedMdxOptions.gfm = descriptor.options.gfm;
+						}
+						if (
+							partialMdxOptions.smartypants === undefined &&
+							descriptor.options.smartypants !== undefined
+						) {
+							resolvedMdxOptions.smartypants = descriptor.options.smartypants;
+						}
 					}
 					// Third-party processors don't expose their plugins to MDX's built-in option
 					// merging; they handle their own pipeline via `createMdxRenderer`.

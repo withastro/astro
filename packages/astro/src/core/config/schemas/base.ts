@@ -93,10 +93,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		allowedHosts: [],
 	},
 	integrations: [],
-	markdown: {
-		...markdownConfigDefaults,
-		processor: satteri(),
-	},
+	markdown: markdownConfigDefaults,
 	vite: {},
 	legacy: {
 		collectionsBackwardsCompat: false,
@@ -425,14 +422,18 @@ export const AstroConfigSchema = z.object({
 			remarkRehype: z
 				.custom<RemarkRehype>((data) => data instanceof Object && !Array.isArray(data))
 				.default(ASTRO_CONFIG_DEFAULTS.markdown.remarkRehype),
-			gfm: z.boolean().default(ASTRO_CONFIG_DEFAULTS.markdown.gfm),
+			// Deprecated: left undefined unless the user explicitly sets them, so the
+			// deprecation warning only fires when actually used. The active processor
+			// (`satteri()` / `unified()`) supplies the real default (`gfm`/smart
+			// punctuation on) when these are absent.
+			gfm: z.boolean().optional(),
 			smartypants: z
 				.union([z.boolean(), smartypantsOptionsSchema])
 				.transform((val): false | Smartypants => {
 					if (val === true) return smartypantsOptionsSchema.parse({});
 					return val;
 				})
-				.prefault(ASTRO_CONFIG_DEFAULTS.markdown.smartypants),
+				.optional(),
 			processor: z
 				.object({
 					name: z.string(),
@@ -452,7 +453,10 @@ export const AstroConfigSchema = z.object({
 						)
 						.optional(),
 				})
-				.default(ASTRO_CONFIG_DEFAULTS.markdown.processor),
+				// A factory (not a shared value) so every config gets its own descriptor —
+				// integrations extend the pipeline by mutating `processor.options`, which
+				// would otherwise leak across configs built in the same process.
+				.default(() => satteri()),
 		})
 		.prefault({}),
 	vite: z

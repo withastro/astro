@@ -1,9 +1,9 @@
 import type {
 	AstroMarkdownProcessorOptions,
+	AstroMetadata as MdxAstroMetadata,
 	MarkdownProcessor,
 } from '@astrojs/internal-helpers/markdown';
 import type { PluggableList } from 'unified';
-import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 
 export {
 	extractFrontmatter,
@@ -11,9 +11,10 @@ export {
 	parseFrontmatter,
 	type ParseFrontmatterOptions,
 	type ParseFrontmatterResult,
-} from './frontmatter.js';
+} from '@astrojs/internal-helpers/frontmatter';
 export { resolvePath } from '../core/viteUtils.js';
 export type { AstroMarkdownProcessorOptions } from '@astrojs/internal-helpers/markdown';
+export type { MdxAstroMetadata };
 
 /**
  * Configuration that ends up on `markdown.processor`. Returned by factory functions like
@@ -63,6 +64,3 @@ export interface MdxRenderResult {
 	map?: string | null;
 	astroMetadata: MdxAstroMetadata;
 }
-
-/** Shape mirrored from `PluginMetadata['astro']` so MDX results plug into Vite's `meta.astro`. */
-export type MdxAstroMetadata = PluginMetadata['astro'];

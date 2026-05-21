@@ -40,8 +40,7 @@ export function createImageToComponentPlugin(
 						if (key === 'widths' || key === 'densities') {
 							attrs.push(makeJsxExprAttr(key, JSON.stringify(String(value).split(' '))));
 						} else {
-							const attrName =
-								key === 'className' ? 'class' : key === 'htmlFor' ? 'for' : key;
+							const attrName = key === 'className' ? 'class' : key === 'htmlFor' ? 'for' : key;
 							attrs.push(makeJsxAttr(attrName, String(value)));
 						}
 					}
@@ -69,8 +68,10 @@ export function createImageToComponentPlugin(
 				// `_components['astro-image']`. The vite-plugin-mdx-postprocess wraps the
 				// final component to map `astro-image` → `components.img ?? __AstroImage__`,
 				// which lets a user's `export const components = { img: MyImage }` win.
+				// Match the unified pipeline, which emits a flow (block) element for
+				// markdown-derived images so MDX compiles them consistently.
 				return {
-					type: 'mdxJsxTextElement',
+					type: 'mdxJsxFlowElement',
 					name: ASTRO_IMAGE_ELEMENT,
 					attributes: attrs,
 					children: [],
