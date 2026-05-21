@@ -1,0 +1,25 @@
+packages/astro/src/cli/add/index.ts
+  d7e5ffa8492e052f 224
+.changeset/smart-waves-hug.md
+  d7e5ffa8492e052f 5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "b24010ddfe4ac7cbcae20e7acd8ab90b9646b70d",
+  "prompts": {
+    "d7e5ffa8492e052f": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b8f1c1b2ffeSayMQFQ0agtoVf",
+        "model": "openai/gpt-5.5"
+      },
+      "human_author": null,
+      "messages": [],
+      "total_additions": 9,
+      "total_deletions": 31,
+      "accepted_lines": 2,
+      "overriden_lines": 0
+    }
+  }
+}
