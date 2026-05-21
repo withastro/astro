@@ -12,10 +12,40 @@ import type {
 
 export type { SerializedRouteData } from '../../types/astro.js';
 
+/**
+ * Deserializes a serialized SSR manifest back into the runtime SSRManifest type.
+ *
+ * Directory paths in the manifest are stored as relative paths from the server
+ * entry directory for portability. The `serverEntryUrl` parameter (typically
+ * `import.meta.url` of the server entry) is used as the base to resolve these
+ * relative paths back into absolute `file://` URLs at runtime. This allows the
+ * built output to be moved to any location and still work correctly.
+ */
 export function deserializeManifest(
 	serializedManifest: SerializedSSRManifest,
+	serverEntryUrl?: string | RoutesList,
 	routesList?: RoutesList,
 ): SSRManifest {
+	// Support both (manifest, url, routesList) and legacy (manifest, routesList) signatures
+	if (serverEntryUrl && typeof serverEntryUrl !== 'string') {
+		routesList = serverEntryUrl;
+		serverEntryUrl = undefined;
+	}
+
+	// Resolve relative directory paths against the server entry's actual location.
+	// In production, serverEntryUrl is import.meta.url of the SSR entry (e.g.,
+	// file:///deployed/app/dist/server/entry.mjs). We use its parent directory
+	// as the base for resolution, since all relative paths in the manifest are
+	// expressed relative to buildServerDir.
+	const serverBaseUrl = serverEntryUrl ? new URL('./', serverEntryUrl) : undefined;
+	const resolveDir = (relativePath: string): URL => {
+		if (serverBaseUrl) {
+			return new URL(relativePath, serverBaseUrl);
+		}
+		// Fallback: treat as absolute URL (legacy behavior for callers that don't pass serverEntryUrl)
+		return new URL(relativePath);
+	};
+
 	const routes: RouteInfo[] = [];
 	if (serializedManifest.routes) {
 		for (const serializedRoute of serializedManifest.routes) {
@@ -52,13 +82,13 @@ export function deserializeManifest(
 		},
 
 		...serializedManifest,
-		rootDir: new URL(serializedManifest.rootDir),
-		srcDir: new URL(serializedManifest.srcDir),
-		publicDir: new URL(serializedManifest.publicDir),
-		outDir: new URL(serializedManifest.outDir),
-		cacheDir: new URL(serializedManifest.cacheDir),
-		buildClientDir: new URL(serializedManifest.buildClientDir),
-		buildServerDir: new URL(serializedManifest.buildServerDir),
+		rootDir: resolveDir(serializedManifest.rootDir),
+		srcDir: resolveDir(serializedManifest.srcDir),
+		publicDir: resolveDir(serializedManifest.publicDir),
+		outDir: resolveDir(serializedManifest.outDir),
+		cacheDir: resolveDir(serializedManifest.cacheDir),
+		buildClientDir: resolveDir(serializedManifest.buildClientDir),
+		buildServerDir: resolveDir(serializedManifest.buildServerDir),
 		assets,
 		componentMetadata,
 		inlinedScripts,

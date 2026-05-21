@@ -18,7 +18,7 @@ export interface DefaultRouteParams {
 export const DEFAULT_COMPONENTS = [DEFAULT_404_COMPONENT, SERVER_ISLAND_COMPONENT];
 
 export function createDefaultRoutes(manifest: SSRManifest): DefaultRouteParams[] {
-	const root = new URL(manifest.rootDir);
+	const root = manifest.rootDir;
 	return [
 		{
 			instance: default404Instance,

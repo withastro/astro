@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import type { HydratedComponent } from '@astrojs/compiler/types';
 import type { SourceDescription } from 'rollup';
 import type * as vite from 'vite';
@@ -283,12 +284,40 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 
 					const transformResult = await compile(source, filename);
 
+					// During production builds only, replace absolute filesystem paths
+					// in the compiled output with root-relative paths for portability.
+					// The compiler embeds the absolute `filename` in string literals for
+					// $$createComponent, $$createMetadata, and $$renderScript calls
+					// (including variants with query strings). This must match the keys
+					// in the componentMetadata and entryModules maps (relativized in
+					// plugin-manifest.ts). In dev mode, both sides use absolute paths.
+					if (this.environment.config.command === 'build') {
+						const normalizedRoot = normalizePath(fileURLToPath(config.root));
+						if (filename.startsWith(normalizedRoot)) {
+							const escaped = normalizedRoot.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+							const re = new RegExp(`(["'])${escaped}`, 'g');
+							transformResult.code = transformResult.code.replace(re, '$1/');
+						}
+					}
+
+					// During build, normalize resolvedPath in component metadata to match
+					// the root-relative paths used in the compiled output and manifest.
+					const normalizeResolvedPath = (comp: (typeof transformResult.serverComponents)[number]) => {
+						if (this.environment.config.command === 'build') {
+							const nr = normalizePath(fileURLToPath(config.root));
+							if (comp.resolvedPath.startsWith(nr)) {
+								return { ...comp, resolvedPath: comp.resolvedPath.slice(nr.length - 1) };
+							}
+						}
+						return comp;
+					};
+
 					const astroMetadata: AstroPluginMetadata['astro'] = {
 						// Remove Astro components that have been mistakenly given client directives
 						// We'll warn the user about this later, but for now we'll prevent them from breaking the build
-						clientOnlyComponents: transformResult.clientOnlyComponents.filter(notAstroComponent),
-						hydratedComponents: transformResult.hydratedComponents.filter(notAstroComponent),
-						serverComponents: transformResult.serverComponents,
+						clientOnlyComponents: transformResult.clientOnlyComponents.filter(notAstroComponent).map(normalizeResolvedPath),
+						hydratedComponents: transformResult.hydratedComponents.filter(notAstroComponent).map(normalizeResolvedPath),
+						serverComponents: transformResult.serverComponents.map(normalizeResolvedPath),
 						scripts: transformResult.scripts,
 						containsHead: transformResult.containsHead,
 						propagation: transformResult.propagation ? 'self' : 'none',
