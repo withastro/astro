@@ -212,10 +212,16 @@ describe('head injection app-level rendering', () => {
 					{},
 					{
 						content: (result2: any) =>
-							render`${renderComponent(result2, 'Fragment', Fragment, { slot: 'content' }, {
-								default: (result3: any) =>
-									render` ${renderComponent(result3, 'ContentEntry', ContentEntry, {})} `,
-							})}`,
+							render`${renderComponent(
+								result2,
+								'Fragment',
+								Fragment,
+								{ slot: 'content' },
+								{
+									default: (result3: any) =>
+										render` ${renderComponent(result3, 'ContentEntry', ContentEntry, {})} `,
+								},
+							)}`,
 					},
 				)}</body></html>`,
 		);
