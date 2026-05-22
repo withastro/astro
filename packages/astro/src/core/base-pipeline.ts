@@ -208,6 +208,16 @@ export abstract class Pipeline {
 	}
 
 	/**
+	 * Returns all routes matching the given pathname, in priority order.
+	 * Used when the first match cannot serve the request (e.g. a
+	 * prerendered dynamic route that doesn't cover this specific path)
+	 * and the caller needs to try subsequent matches.
+	 */
+	matchAllRoutes(pathname: string): RouteData[] {
+		return this.#router.matchAll(pathname, { allowWithoutBase: true });
+	}
+
+	/**
 	 * Rebuilds the internal router after routes have been added or
 	 * removed (e.g. by the dev server on HMR).
 	 */
