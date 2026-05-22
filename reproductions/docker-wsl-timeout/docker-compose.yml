@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "4321:4321"
+    volumes:
+      - .:/work
+    working_dir: /work
+    command: pnpm dev --host 0.0.0.0
