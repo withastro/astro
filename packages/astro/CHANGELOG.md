@@ -1,5 +1,11 @@
 # astro
 
+## 5.18.2
+
+### Patch Changes
+
+- [#16813](https://github.com/withastro/astro/pull/16813) [`8f7d8c4`](https://github.com/withastro/astro/commit/8f7d8c46ffc79b23200a98fcf6b72c53e19d71db) Thanks [@matthewp](https://github.com/matthewp)! - Populates styles in the SSR manifest for prerendered routes. Previously, prerendered routes had `styles: []` in the manifest, making it impossible for workers or middleware to discover which CSS files a prerendered page uses.
+
 ## 5.18.1
 
 ### Patch Changes
