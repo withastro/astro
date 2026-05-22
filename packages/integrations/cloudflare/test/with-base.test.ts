@@ -76,12 +76,12 @@ describe('base', () => {
 	});
 
 	it('sets assets.directory to the un-prefixed client root in wrangler.json', async () => {
-    const raw = await fixture.readFile('server/wrangler.json');
-    const config = JSON.parse(raw);
-    assert.equal(
+		const raw = await fixture.readFile('server/wrangler.json');
+		const config = JSON.parse(raw);
+		assert.equal(
 			config.assets.directory,
 			'../client',
 			'assets.directory should be "../client", not "../client/blog"',
-    );
+		);
 	});
 });

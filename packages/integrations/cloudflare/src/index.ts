@@ -510,10 +510,9 @@ export default function createIntegration({
 						const raw = await readFile(wranglerJsonUrl, 'utf-8');
 						const wranglerConfig = JSON.parse(raw);
 						if (wranglerConfig.assets?.directory) {
-							wranglerConfig.assets.directory = normalizePath(relative(
-								fileURLToPath(_config.build.server),
-								fileURLToPath(_originalClientDir),
-							));
+							wranglerConfig.assets.directory = normalizePath(
+								relative(fileURLToPath(_config.build.server), fileURLToPath(_originalClientDir)),
+							);
 							await writeFile(wranglerJsonUrl, JSON.stringify(wranglerConfig));
 						}
 					} catch {
