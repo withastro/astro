@@ -1,5 +1,5 @@
-import type { FlueContext, FlueSession } from '@flue/sdk/client';
-import { defineCommand } from '@flue/sdk/node';
+import type { FlueContext, FlueSession } from '@flue/runtime';
+import { local } from '@flue/runtime/node';
 import * as v from 'valibot';
 import {
 	GITHUB_TOKEN_BASE,
@@ -15,37 +15,12 @@ import {
 // CLI-only agent: no HTTP trigger. Invoked from GitHub Actions via `flue run issue-triage`.
 export const triggers = {};
 
-// Define commands that are allowed as pass-through to the local GH Actions container.
-const bgproc = defineCommand('bgproc');
-const agentBrowser = defineCommand('agent-browser');
-const node = defineCommand('node');
-const npx = defineCommand('npx');
-const pnpm = defineCommand('pnpm');
-// pnpm variant with GitHub Actions env vars forwarded. pkg-pr-new checks these
-// to verify it's running inside CI before publishing preview releases.
-const pnpmCI = defineCommand('pnpm', {
-	env: {
-		GITHUB_ACTIONS: process.env.GITHUB_ACTIONS,
-		GITHUB_REPOSITORY: process.env.GITHUB_REPOSITORY,
-		GITHUB_RUN_ID: process.env.GITHUB_RUN_ID,
-		GITHUB_RUN_ATTEMPT: process.env.GITHUB_RUN_ATTEMPT,
-		GITHUB_ACTOR_ID: process.env.GITHUB_ACTOR_ID,
-		GITHUB_SHA: process.env.GITHUB_SHA,
-		GITHUB_REF_NAME: process.env.GITHUB_REF_NAME,
-		GITHUB_OUTPUT: process.env.GITHUB_OUTPUT,
-		GITHUB_EVENT_PATH: process.env.GITHUB_EVENT_PATH,
-	},
-});
-const gh = defineCommand('gh', { env: { GH_TOKEN: GITHUB_TOKEN_BASE } });
-const git = defineCommand('git');
-const gitWithAuth = defineCommand('git', { env: { GH_TOKEN: GITHUB_TOKEN_BASE } });
-
 function assert(condition: unknown, message: string): asserts condition {
 	if (!condition) throw new Error(message);
 }
 
 async function shouldRetriage(session: FlueSession, issue: IssueDetails): Promise<'yes' | 'no'> {
-	return session.prompt(
+	const { data } = await session.prompt(
 		`You are reviewing a GitHub issue conversation to decide whether a triage re-run is warranted.
 
 ## Issue
@@ -74,6 +49,7 @@ meaningful reproduction information, respond with "no".
 Return only "yes" or "no" inside the ---RESULT_START--- / ---RESULT_END--- block.`,
 		{ result: v.picklist(['yes', 'no']) },
 	);
+	return data;
 }
 
 async function selectTriageLabels(
@@ -87,7 +63,7 @@ async function selectTriageLabels(
 	const priorityLabelNames = priorityLabels.map((l) => l.name);
 	const packageLabelNames = packageLabels.map((l) => l.name);
 
-	const labelResult = await session.prompt(
+	const { data: labelResult } = await session.prompt(
 		`Label the following GitHub issue based on the triage report that was already posted.
 
 Select labels for this issue from the lists below based on the triage report. Select exactly one priority label (the report's **Priority** section is a strong hint) and 0-3 package labels based on where the issue lives in the monorepo and how it manifests.
@@ -132,7 +108,7 @@ interface PreviewRelease {
 
 async function publishPreviewRelease(session: FlueSession): Promise<PreviewRelease | null> {
 	// Determine which package directories were modified relative to main.
-	const diffResult = await session.shell('git diff main --name-only', { commands: [git] });
+	const diffResult = await session.shell('git diff main --name-only');
 	if (!diffResult.stdout.trim()) return null;
 
 	const changedFiles = diffResult.stdout.trim().split('\n');
@@ -149,7 +125,6 @@ async function publishPreviewRelease(session: FlueSession): Promise<PreviewRelea
 	const packages = [...packageDirs].join(' ');
 	const publishResult = await session.shell(
 		`pnpm dlx pkg-pr-new publish --pnpm --compact --no-template --comment=off --json preview-release.json ${packages}`,
-		{ commands: [pnpmCI] },
 	);
 
 	if (publishResult.exitCode !== 0) {
@@ -160,7 +135,6 @@ async function publishPreviewRelease(session: FlueSession): Promise<PreviewRelea
 	// Parse the JSON output to extract package URLs.
 	const jsonResult = await session.shell(
 		"node -e \"process.stdout.write(require('fs').readFileSync('preview-release.json','utf8'))\"",
-		{ commands: [node] },
 	);
 	try {
 		const output = JSON.parse(jsonResult.stdout.trim());
@@ -186,9 +160,8 @@ async function runTriagePipeline(
 	fixed: boolean;
 	commitMessage: string | null;
 }> {
-	const reproduceResult = await session.skill('triage/reproduce.md', {
+	const { data: reproduceResult } = await session.skill('triage/reproduce.md', {
 		args: { issueNumber, issueDetails },
-		commands: [gh, bgproc, agentBrowser, git, node, npx, pnpm],
 		result: v.object({
 			reproducible: v.pipe(
 				v.boolean(),
@@ -215,9 +188,8 @@ async function runTriagePipeline(
 		};
 	}
 
-	const diagnoseResult = await session.skill('triage/diagnose.md', {
+	const { data: diagnoseResult } = await session.skill('triage/diagnose.md', {
 		args: { issueDetails },
-		commands: [gh, bgproc, agentBrowser, git, node, npx, pnpm],
 		result: v.object({
 			confidence: v.pipe(
 				v.nullable(v.picklist(['high', 'medium', 'low'])),
@@ -225,9 +197,8 @@ async function runTriagePipeline(
 			),
 		}),
 	});
-	const verifyResult = await session.skill('triage/verify.md', {
+	const { data: verifyResult } = await session.skill('triage/verify.md', {
 		args: { issueDetails },
-		commands: [gh, bgproc, agentBrowser, git, node, npx, pnpm],
 		result: v.object({
 			verdict: v.pipe(
 				v.picklist(['bug', 'intended-behavior', 'unclear']),
@@ -252,9 +223,8 @@ async function runTriagePipeline(
 		};
 	}
 
-	const fixResult = await session.skill('triage/fix.md', {
+	const { data: fixResult } = await session.skill('triage/fix.md', {
 		args: { issueDetails },
-		commands: [gh, bgproc, agentBrowser, git, node, npx, pnpm],
 		result: v.object({
 			fixed: v.pipe(
 				v.boolean(),
@@ -284,11 +254,29 @@ export default async function ({ init, payload }: FlueContext) {
 	const branch = `flue/fix-${issueNumber}`;
 
 	// Initialize the agent and session.
-	const agent = await init({
-		sandbox: 'local',
+	// The local() sandbox runs commands directly on the host via child_process.exec.
+	// Env vars are explicitly forwarded — only allowlisted shell essentials (PATH, HOME, etc.)
+	// are inherited by default.
+	const harness = await init({
+		sandbox: local({
+			env: {
+				// Git/GitHub auth
+				GH_TOKEN: GITHUB_TOKEN_BASE,
+				// GitHub Actions env vars needed by pkg-pr-new for preview releases
+				GITHUB_ACTIONS: process.env.GITHUB_ACTIONS,
+				GITHUB_REPOSITORY: process.env.GITHUB_REPOSITORY,
+				GITHUB_RUN_ID: process.env.GITHUB_RUN_ID,
+				GITHUB_RUN_ATTEMPT: process.env.GITHUB_RUN_ATTEMPT,
+				GITHUB_ACTOR_ID: process.env.GITHUB_ACTOR_ID,
+				GITHUB_SHA: process.env.GITHUB_SHA,
+				GITHUB_REF_NAME: process.env.GITHUB_REF_NAME,
+				GITHUB_OUTPUT: process.env.GITHUB_OUTPUT,
+				GITHUB_EVENT_PATH: process.env.GITHUB_EVENT_PATH,
+			},
+		}),
 		model: 'anthropic/claude-opus-4-6',
 	});
-	const session = await agent.session();
+	const session = await harness.session();
 
 	const issueDetails = await fetchIssueDetails(issueNumber);
 
@@ -312,22 +300,19 @@ export default async function ({ init, payload }: FlueContext) {
 	// - create a PR from that branch entirely in the GH UI
 	// - ignore it completely
 	{
-		const diff = await session.shell('git diff main --stat', { commands: [git] });
+		const diff = await session.shell('git diff main --stat');
 		if (diff.stdout.trim()) {
-			const status = await session.shell('git status --porcelain', { commands: [git] });
+			const status = await session.shell('git status --porcelain');
 			if (status.stdout.trim()) {
-				await session.shell('git add -A', { commands: [git] });
+				await session.shell('git add -A');
 				const defaultMessage = triageResult.fixed
 					? 'fix(auto-triage): automated fix'
 					: 'test(auto-triage): failing test and investigation notes';
 				await session.shell(
 					`git commit -m ${JSON.stringify(triageResult.commitMessage ?? defaultMessage)}`,
-					{ commands: [git] },
 				);
 			}
-			const pushResult = await session.shell(`git push -f origin ${branch}`, {
-				commands: [gitWithAuth],
-			});
+			const pushResult = await session.shell(`git push -f origin ${branch}`);
 			console.info('push result:', pushResult);
 			isPushed = pushResult.exitCode === 0;
 		}
@@ -353,9 +338,8 @@ export default async function ({ init, payload }: FlueContext) {
 	assert(packageLabels.length > 0, 'no package labels found');
 
 	const branchName = isPushed ? branch : null;
-	const comment = await session.skill('triage/comment.md', {
+	const { data: comment } = await session.skill('triage/comment.md', {
 		args: { branchName, priorityLabels, issueDetails, previewRelease },
-		commands: [gh, git, node, npx, pnpm],
 		result: v.pipe(
 			v.string(),
 			v.description(

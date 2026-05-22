@@ -1,5 +1,5 @@
-import type { FlueContext } from '@flue/sdk/client';
-import { defineCommand } from '@flue/sdk/node';
+import type { FlueContext } from '@flue/runtime';
+import { local } from '@flue/runtime/node';
 import * as v from 'valibot';
 import {
 	GITHUB_TOKEN_BASE,
@@ -14,20 +14,19 @@ import {
 // CLI-only agent: no HTTP trigger. Invoked from GitHub Actions via `flue run fix-verification`.
 export const triggers = {};
 
-const gh = defineCommand('gh', { env: { GH_TOKEN: GITHUB_TOKEN_BASE } });
-const git = defineCommand('git');
-const node = defineCommand('node');
-const pnpm = defineCommand('pnpm');
-
 export default async function ({ init, payload }: FlueContext) {
 	const issueNumber = payload.issueNumber as number;
 	const branch = `flue/fix-${issueNumber}`;
 
-	const agent = await init({
-		sandbox: 'local',
+	const harness = await init({
+		sandbox: local({
+			env: {
+				GH_TOKEN: GITHUB_TOKEN_BASE,
+			},
+		}),
 		model: 'anthropic/claude-sonnet-4-20250514',
 	});
-	const session = await agent.session();
+	const session = await harness.session();
 
 	const issueDetails = await fetchIssueDetails(issueNumber);
 
@@ -42,7 +41,7 @@ export default async function ({ init, payload }: FlueContext) {
 	}
 
 	// Ask the LLM whether this comment confirms the fix works.
-	const classification = await session.prompt(
+	const { data: classification } = await session.prompt(
 		`You are reviewing a GitHub issue comment to determine if the commenter is confirming that a proposed fix works.
 
 ## Context
@@ -119,7 +118,7 @@ Return your classification.`,
 	}
 
 	// Use the astro-pr-writer skill to generate a good PR title and body.
-	const prContent = await session.skill('astro-pr-writer/SKILL.md', {
+	const { data: prContent } = await session.skill('astro-pr-writer/SKILL.md', {
 		args: {
 			issueNumber,
 			issueDetails,
@@ -131,7 +130,6 @@ Generate a PR title and body following the astro-pr-writer conventions.
 The PR should reference the issue with "Closes #${issueNumber}".
 Do NOT create the PR yourself — just return the title and body content.`,
 		},
-		commands: [gh, git, node, pnpm],
 		result: v.object({
 			title: v.pipe(
 				v.string(),
