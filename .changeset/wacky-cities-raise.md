@@ -2,4 +2,4 @@
 '@astrojs/cloudflare': patch
 ---
 
-Fix generated wrangler.json assets.directory when base is configured
+Fixes incorrect `assets.directory` in the generated `wrangler.json` when a `base` path is configured
