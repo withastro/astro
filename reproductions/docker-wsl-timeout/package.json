@@ -1,0 +1,15 @@
+{
+  "name": "docker-wsl-timeout-repro",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build"
+  },
+  "dependencies": {
+    "astro": "^5.7.13",
+    "@astrojs/node": "^9.0.0",
+    "@astrojs/react": "^4.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  }
+}
