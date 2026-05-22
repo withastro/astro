@@ -9,6 +9,12 @@ import type { StaticBuildOptions } from '../types.js';
  * bypass the HTML rendering pipeline and miss skew protection query params.
  *
  * Uses es-module-lexer to reliably parse both static and dynamic imports.
+ *
+ * This runs in `generateBundle` (not `renderChunk`) so that Vite's CSS plugin
+ * can first remove pure-CSS wrapper chunks and replace their imports with
+ * `/* empty css * /` comments. If we rewrote imports earlier (in `renderChunk`),
+ * the appended query params would break Vite's regex-based CSS chunk cleanup,
+ * leaving dangling imports to deleted chunks that 404 at runtime.
  */
 export function pluginChunkImports(options: StaticBuildOptions): VitePlugin | undefined {
 	const assetQueryParams = options.settings.adapter?.client?.assetQueryParams;
@@ -25,36 +31,36 @@ export function pluginChunkImports(options: StaticBuildOptions): VitePlugin | un
 			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client;
 		},
 
-		async renderChunk(code, _chunk) {
-			if (!code.includes('./')) {
-				return null;
-			}
-
+		async generateBundle(_options, bundle) {
 			await init;
-			const [imports] = parse(code);
 
-			// Filter to relative JS imports only
-			const relativeImports = imports.filter(
-				(imp) => imp.n && /^\.\.?\//.test(imp.n) && /\.(?:js|mjs)$/.test(imp.n),
-			);
+			for (const [, chunk] of Object.entries(bundle)) {
+				if (chunk.type !== 'chunk') continue;
+				if (!chunk.code.includes('./')) continue;
 
-			if (relativeImports.length === 0) {
-				return null;
+				const [imports] = parse(chunk.code);
+
+				// Filter to relative JS imports only
+				const relativeImports = imports.filter(
+					(imp) => imp.n && /^\.\.?\//.test(imp.n) && /\.(?:js|mjs)$/.test(imp.n),
+				);
+
+				if (relativeImports.length === 0) continue;
+
+				// Build new code by replacing specifiers from end to start
+				// (reverse order preserves earlier offsets)
+				let rewritten = chunk.code;
+				for (let i = relativeImports.length - 1; i >= 0; i--) {
+					const imp = relativeImports[i];
+					// imp.s and imp.e are the start/end offsets of the module specifier.
+					// Static imports: e points after the specifier text, before the quote.
+					// Dynamic string imports: e points after the closing quote.
+					const insertAt = imp.d > -1 ? imp.e - 1 : imp.e;
+					rewritten = rewritten.slice(0, insertAt) + '?' + queryString + rewritten.slice(insertAt);
+				}
+
+				chunk.code = rewritten;
 			}
-
-			// Build new code by replacing specifiers from end to start
-			// (reverse order preserves earlier offsets)
-			let rewritten = code;
-			for (let i = relativeImports.length - 1; i >= 0; i--) {
-				const imp = relativeImports[i];
-				// imp.s and imp.e are the start/end offsets of the module specifier.
-				// Static imports: e points after the specifier text, before the quote.
-				// Dynamic string imports: e points after the closing quote.
-				const insertAt = imp.d > -1 ? imp.e - 1 : imp.e;
-				rewritten = rewritten.slice(0, insertAt) + '?' + queryString + rewritten.slice(insertAt);
-			}
-
-			return { code: rewritten, map: null };
 		},
 	};
 }
